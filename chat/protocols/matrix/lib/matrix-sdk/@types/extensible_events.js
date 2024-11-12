@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.REFERENCE_RELATION = exports.M_TEXT = exports.M_MESSAGE = exports.M_HTML = void 0;
 exports.isEventTypeSame = isEventTypeSame;
 var _matrixEventsSdk = require("matrix-events-sdk");
-var _utilities = require("../extensible_events_v1/utilities");
+var _utilities = require("../extensible_events_v1/utilities.js");
 /*
 Copyright 2021 - 2023 The Matrix.org Foundation C.I.C.
 

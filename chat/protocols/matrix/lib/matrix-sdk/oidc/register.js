@@ -4,9 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.registerOidcClient = exports.DEVICE_CODE_SCOPE = void 0;
-var _error = require("./error");
-var _httpApi = require("../http-api");
-var _logger = require("../logger");
+var _error = require("./error.js");
+var _index = require("../http-api/index.js");
+var _logger = require("../logger.js");
 /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 
@@ -25,6 +25,10 @@ limitations under the License.
 
 /**
  * Client metadata passed to registration endpoint
+ */
+
+/**
+ * Request body for dynamic registration as defined by https://github.com/matrix-org/matrix-spec-proposals/pull/2966
  */
 
 const DEVICE_CODE_SCOPE = exports.DEVICE_CODE_SCOPE = "urn:ietf:params:oauth:grant-type:device_code";
@@ -66,7 +70,7 @@ const registerOidcClient = async (delegatedAuthConfig, clientMetadata) => {
   };
   try {
     const response = await fetch(delegatedAuthConfig.registrationEndpoint, {
-      method: _httpApi.Method.Post,
+      method: _index.Method.Post,
       headers,
       body: JSON.stringify(metadata)
     });

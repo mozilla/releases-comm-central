@@ -5,9 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.UnstablePrefix = exports.DehydratedDeviceManager = void 0;
 var RustSdkCryptoJs = _interopRequireWildcard(require("@matrix-org/matrix-sdk-crypto-wasm"));
-var _utils = require("../utils");
-var _httpApi = require("../http-api");
-var _base = require("../base64");
+var _utils = require("../utils.js");
+var _index = require("../http-api/index.js");
+var _base = require("../base64.js");
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
 function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -83,7 +83,7 @@ class DehydratedDeviceManager {
     // a successful response, or an M_NOT_FOUND, then dehydration is supported.
     // Any other exceptions are passed through.
     try {
-      await this.http.authedRequest(_httpApi.Method.Get, "/dehydrated_device", undefined, undefined, {
+      await this.http.authedRequest(_index.Method.Get, "/dehydrated_device", undefined, undefined, {
         prefix: UnstablePrefix
       });
     } catch (error) {
@@ -183,7 +183,7 @@ class DehydratedDeviceManager {
     }
     let dehydratedDeviceResp;
     try {
-      dehydratedDeviceResp = await this.http.authedRequest(_httpApi.Method.Get, "/dehydrated_device", undefined, undefined, {
+      dehydratedDeviceResp = await this.http.authedRequest(_index.Method.Get, "/dehydrated_device", undefined, undefined, {
         prefix: UnstablePrefix
       });
     } catch (error) {
@@ -208,7 +208,7 @@ class DehydratedDeviceManager {
     });
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const eventResp = await this.http.authedRequest(_httpApi.Method.Post, path, undefined, nextBatch ? {
+      const eventResp = await this.http.authedRequest(_index.Method.Post, path, undefined, nextBatch ? {
         next_batch: nextBatch
       } : {}, {
         prefix: UnstablePrefix

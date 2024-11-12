@@ -11,7 +11,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
 function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                               * Copyright 2020 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                               * Copyright 2020 - 2024 The Matrix.org Foundation C.I.C.
                                                                                                                                                                                                                                                                                                                                                                                                *
                                                                                                                                                                                                                                                                                                                                                                                                * Licensed under the Apache License, Version 2.0 (the "License");
                                                                                                                                                                                                                                                                                                                                                                                                * you may not use this file except in compliance with the License.
@@ -76,6 +76,44 @@ var WidgetDriver = /*#__PURE__*/function () {
     value: function sendEvent(eventType, content) {
       var stateKey = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var roomId = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+      return Promise.reject(new Error("Failed to override function"));
+    }
+
+    /**
+     * @experimental Part of MSC4140 & MSC4157
+     * Sends a delayed event into a room. If `roomId` is falsy, the client should send it
+     * into the room the user is currently looking at. The widget API will have already
+     * verified that the widget is capable of sending the event to that room.
+     * @param {number|null} delay How much later to send the event, or null to not send the
+     * event automatically. May not be null if {@link parentDelayId} is null.
+     * @param {string|null} parentDelayId The ID of the delayed event this one is grouped with,
+     * or null if it will be put in a new group. May not be null if {@link delay} is null.
+     * @param {string} eventType The event type of the event to be sent.
+     * @param {*} content The content for the event to be sent.
+     * @param {string|null} stateKey The state key if the event to be sent a state event,
+     * otherwise null. May be an empty string.
+     * @param {string|null} roomId The room ID to send the event to. If falsy, the room the
+     * user is currently looking at.
+     * @returns {Promise<ISendDelayedEventDetails>} Resolves when the delayed event has been
+     * prepared with details of how to refer to it for updating/sending/canceling it later.
+     * @throws Rejected when the delayed event could not be sent.
+     */
+  }, {
+    key: "sendDelayedEvent",
+    value: function sendDelayedEvent(delay, parentDelayId, eventType, content) {
+      var stateKey = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+      var roomId = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
+      return Promise.reject(new Error("Failed to override function"));
+    }
+
+    /**
+     * @experimental Part of MSC4140 & MSC4157
+     * Run the specified {@link action} for the delayed event matching the provided {@link delayId}.
+     * @throws Rejected when there is no matching delayed event, or when the action failed to run.
+     */
+  }, {
+    key: "updateDelayedEvent",
+    value: function updateDelayedEvent(delayId, action) {
       return Promise.reject(new Error("Failed to override function"));
     }
 
@@ -275,6 +313,17 @@ var WidgetDriver = /*#__PURE__*/function () {
     key: "uploadFile",
     value: function uploadFile(file) {
       throw new Error("Upload file is not implemented");
+    }
+
+    /**
+     * Download a file from the media repository on the homeserver.
+     * @param contentUri - MXC URI of the file to download.
+     * @returns Resolves to the contents of the file.
+     */
+  }, {
+    key: "downloadFile",
+    value: function downloadFile(contentUri) {
+      throw new Error("Download file is not implemented");
     }
   }]);
   return WidgetDriver;

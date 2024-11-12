@@ -103,7 +103,10 @@ const MATRIX_EVENT_HANDLERS = {
         });
       },
       join(matrixEvent, { sender, content, prevContent, target }) {
-        if (prevContent && prevContent.membership == "join") {
+        if (
+          prevContent &&
+          prevContent.membership == MatrixSDK.KnownMembership.Join
+        ) {
           if (
             prevContent.displayname &&
             content.displayname &&
@@ -138,7 +141,7 @@ const MATRIX_EVENT_HANDLERS = {
         // kick and unban just change the membership to "leave".
         // So we need to look at each transition to what happened to the user.
         if (matrixEvent.getSender() === target.userId) {
-          if (prevContent.membership === "invite") {
+          if (prevContent.membership === MatrixSDK.KnownMembership.Invite) {
             return lazy.l10n.formatValueSync("message-rejected-invite", {
               user: target.userId,
             });
@@ -146,18 +149,20 @@ const MATRIX_EVENT_HANDLERS = {
           return lazy.l10n.formatValueSync("message-left", {
             user: target.userId,
           });
-        } else if (prevContent.membership === "ban") {
+        } else if (prevContent.membership === MatrixSDK.KnownMembership.Ban) {
           return lazy.l10n.formatValueSync("message-unbanned", {
             user: sender,
             userUnbanned: target.userId,
           });
-        } else if (prevContent.membership === "join") {
+        } else if (prevContent.membership === MatrixSDK.KnownMembership.Join) {
           return lazy.l10n.formatValueSync(`message-kicked${withReasonKey}`, {
             user: sender,
             userGotKicked: target.userId,
             reason,
           });
-        } else if (prevContent.membership === "invite") {
+        } else if (
+          prevContent.membership === MatrixSDK.KnownMembership.Invite
+        ) {
           return lazy.l10n.formatValueSync(
             `message-withdrew-invite${withReasonKey}`,
             {

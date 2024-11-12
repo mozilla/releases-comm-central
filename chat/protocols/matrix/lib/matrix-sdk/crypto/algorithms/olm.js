@@ -1,11 +1,11 @@
 "use strict";
 
-var _logger = require("../../logger");
-var olmlib = _interopRequireWildcard(require("../olmlib"));
-var _deviceinfo = require("../deviceinfo");
-var _base = require("./base");
-var _cryptoApi = require("../../crypto-api");
-var _CryptoBackend = require("../../common-crypto/CryptoBackend");
+var _logger = require("../../logger.js");
+var olmlib = _interopRequireWildcard(require("../olmlib.js"));
+var _deviceinfo = require("../deviceinfo.js");
+var _base = require("./base.js");
+var _index = require("../../crypto-api/index.js");
+var _CryptoBackend = require("../../common-crypto/CryptoBackend.js");
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
 function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -126,17 +126,17 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
     const deviceKey = content.sender_key;
     const ciphertext = content.ciphertext;
     if (!ciphertext) {
-      throw new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.OLM_MISSING_CIPHERTEXT, "Missing ciphertext");
+      throw new _CryptoBackend.DecryptionError(_index.DecryptionFailureCode.OLM_MISSING_CIPHERTEXT, "Missing ciphertext");
     }
     if (!(this.olmDevice.deviceCurve25519Key in ciphertext)) {
-      throw new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.OLM_NOT_INCLUDED_IN_RECIPIENTS, "Not included in recipients");
+      throw new _CryptoBackend.DecryptionError(_index.DecryptionFailureCode.OLM_NOT_INCLUDED_IN_RECIPIENTS, "Not included in recipients");
     }
     const message = ciphertext[this.olmDevice.deviceCurve25519Key];
     let payloadString;
     try {
       payloadString = await this.decryptMessage(deviceKey, message);
     } catch (e) {
-      throw new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.OLM_BAD_ENCRYPTED_MESSAGE, "Bad Encrypted Message", {
+      throw new _CryptoBackend.DecryptionError(_index.DecryptionFailureCode.OLM_BAD_ENCRYPTED_MESSAGE, "Bad Encrypted Message", {
         sender: deviceKey,
         err: e
       });
@@ -146,10 +146,10 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
     // check that we were the intended recipient, to avoid unknown-key attack
     // https://github.com/vector-im/vector-web/issues/2483
     if (payload.recipient != this.userId) {
-      throw new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.OLM_BAD_RECIPIENT, "Message was intended for " + payload.recipient);
+      throw new _CryptoBackend.DecryptionError(_index.DecryptionFailureCode.OLM_BAD_RECIPIENT, "Message was intended for " + payload.recipient);
     }
     if (payload.recipient_keys.ed25519 != this.olmDevice.deviceEd25519Key) {
-      throw new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.OLM_BAD_RECIPIENT_KEY, "Message not intended for this device", {
+      throw new _CryptoBackend.DecryptionError(_index.DecryptionFailureCode.OLM_BAD_RECIPIENT_KEY, "Message not intended for this device", {
         intended: payload.recipient_keys.ed25519,
         our_key: this.olmDevice.deviceEd25519Key
       });
@@ -179,7 +179,7 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
       try {
         await this.crypto.deviceList.downloadKeys([event.getSender()], false);
       } catch (e) {
-        throw new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.OLM_BAD_SENDER_CHECK_FAILED, "Could not verify sender identity", {
+        throw new _CryptoBackend.DecryptionError(_index.DecryptionFailureCode.OLM_BAD_SENDER_CHECK_FAILED, "Could not verify sender identity", {
           sender: deviceKey,
           err: e
         });
@@ -187,7 +187,7 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
       senderKeyUser = this.crypto.deviceList.getUserByIdentityKey(olmlib.OLM_ALGORITHM, deviceKey);
     }
     if (senderKeyUser !== event.getSender() && senderKeyUser !== undefined && senderKeyUser !== null) {
-      throw new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.OLM_BAD_SENDER, "Message claimed to be from " + event.getSender(), {
+      throw new _CryptoBackend.DecryptionError(_index.DecryptionFailureCode.OLM_BAD_SENDER, "Message claimed to be from " + event.getSender(), {
         real_sender: senderKeyUser
       });
     }
@@ -197,14 +197,14 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
     // (this check is also provided via the sender's embedded ed25519 key,
     // which is checked elsewhere).
     if (payload.sender != event.getSender()) {
-      throw new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.OLM_FORWARDED_MESSAGE, "Message forwarded from " + payload.sender, {
+      throw new _CryptoBackend.DecryptionError(_index.DecryptionFailureCode.OLM_FORWARDED_MESSAGE, "Message forwarded from " + payload.sender, {
         reported_sender: event.getSender()
       });
     }
 
     // Olm events intended for a room have a room_id.
     if (payload.room_id !== event.getRoomId()) {
-      throw new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.OLM_BAD_ROOM, "Message intended for room " + payload.room_id, {
+      throw new _CryptoBackend.DecryptionError(_index.DecryptionFailureCode.OLM_BAD_ROOM, "Message intended for room " + payload.room_id, {
         reported_room: event.getRoomId() || "ROOM_ID_UNDEFINED"
       });
     }

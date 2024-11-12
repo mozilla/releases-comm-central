@@ -4,13 +4,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.EncryptionSetupOperation = exports.EncryptionSetupBuilder = void 0;
-var _logger = require("../logger");
-var _event = require("../models/event");
-var _CrossSigning = require("./CrossSigning");
-var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store");
-var _httpApi = require("../http-api");
-var _client = require("../client");
-var _typedEventEmitter = require("../models/typed-event-emitter");
+var _logger = require("../logger.js");
+var _event = require("../models/event.js");
+var _CrossSigning = require("./CrossSigning.js");
+var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store.js");
+var _index = require("../http-api/index.js");
+var _client = require("../client.js");
+var _typedEventEmitter = require("../models/typed-event-emitter.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -203,16 +203,16 @@ class EncryptionSetupOperation {
         // The backup is trusted because the user provided the private key.
         // Sign the backup with the cross signing key so the key backup can
         // be trusted via cross-signing.
-        await baseApis.http.authedRequest(_httpApi.Method.Put, "/room_keys/version/" + this.keyBackupInfo.version, undefined, {
+        await baseApis.http.authedRequest(_index.Method.Put, "/room_keys/version/" + this.keyBackupInfo.version, undefined, {
           algorithm: this.keyBackupInfo.algorithm,
           auth_data: this.keyBackupInfo.auth_data
         }, {
-          prefix: _httpApi.ClientPrefix.V3
+          prefix: _index.ClientPrefix.V3
         });
       } else {
         // add new key backup
-        await baseApis.http.authedRequest(_httpApi.Method.Post, "/room_keys/version", undefined, this.keyBackupInfo, {
-          prefix: _httpApi.ClientPrefix.V3
+        await baseApis.http.authedRequest(_index.Method.Post, "/room_keys/version", undefined, this.keyBackupInfo, {
+          prefix: _index.ClientPrefix.V3
         });
       }
       // tell the backup manager to re-check the keys now that they have been (maybe) updated

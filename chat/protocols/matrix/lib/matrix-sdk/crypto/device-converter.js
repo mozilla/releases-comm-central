@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.deviceInfoToDevice = deviceInfoToDevice;
-var _device = require("../models/device");
+var _device = require("../models/device.js");
 /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 

@@ -7,7 +7,7 @@ exports.randomLowercaseString = randomLowercaseString;
 exports.randomString = randomString;
 exports.randomUppercaseString = randomUppercaseString;
 exports.secureRandomBase64Url = secureRandomBase64Url;
-var _base = require("./base64");
+var _base = require("./base64.js");
 /*
 Copyright 2018 New Vector Ltd
 Copyright 2019 The Matrix.org Foundation C.I.C.

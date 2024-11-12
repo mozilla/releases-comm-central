@@ -5,12 +5,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.generateScope = exports.generateOidcAuthorizationUrl = exports.generateAuthorizationUrl = exports.generateAuthorizationParams = exports.completeAuthorizationCodeGrant = void 0;
 var _oidcClientTs = require("oidc-client-ts");
-var _logger = require("../logger");
-var _randomstring = require("../randomstring");
-var _error = require("./error");
-var _validate = require("./validate");
-var _digest = require("../digest");
-var _base = require("../base64");
+var _logger = require("../logger.js");
+var _randomstring = require("../randomstring.js");
+var _error = require("./error.js");
+var _validate = require("./validate.js");
+var _digest = require("../digest.js");
+var _base = require("../base64.js");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }

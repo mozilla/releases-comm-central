@@ -443,6 +443,17 @@ Object.keys(_GetMediaConfigAction).forEach(function (key) {
     }
   });
 });
+var _UpdateDelayedEventAction = require("./interfaces/UpdateDelayedEventAction");
+Object.keys(_UpdateDelayedEventAction).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (key in exports && exports[key] === _UpdateDelayedEventAction[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _UpdateDelayedEventAction[key];
+    }
+  });
+});
 var _UploadFileAction = require("./interfaces/UploadFileAction");
 Object.keys(_UploadFileAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -451,6 +462,17 @@ Object.keys(_UploadFileAction).forEach(function (key) {
     enumerable: true,
     get: function get() {
       return _UploadFileAction[key];
+    }
+  });
+});
+var _DownloadFileAction = require("./interfaces/DownloadFileAction");
+Object.keys(_DownloadFileAction).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (key in exports && exports[key] === _DownloadFileAction[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _DownloadFileAction[key];
     }
   });
 });

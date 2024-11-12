@@ -7,17 +7,19 @@ exports.DeviceTrustLevel = exports.CrossSigningLevel = exports.CrossSigningInfo 
 Object.defineProperty(exports, "UserTrustLevel", {
   enumerable: true,
   get: function () {
-    return _cryptoApi.UserVerificationStatus;
+    return _index.UserVerificationStatus;
   }
 });
 exports.createCryptoStoreCacheCallbacks = createCryptoStoreCacheCallbacks;
 exports.requestKeysDuringVerification = requestKeysDuringVerification;
-var _olmlib = require("./olmlib");
-var _logger = require("../logger");
-var _indexeddbCryptoStore = require("../crypto/store/indexeddb-crypto-store");
-var _aes = require("./aes");
-var _cryptoApi = require("../crypto-api");
-var _base = require("../base64");
+var _olmlib = require("./olmlib.js");
+var _logger = require("../logger.js");
+var _indexeddbCryptoStore = require("../crypto/store/indexeddb-crypto-store.js");
+var _index = require("../crypto-api/index.js");
+var _base = require("../base64.js");
+var _encryptAESSecretStorageItem = _interopRequireDefault(require("../utils/encryptAESSecretStorageItem.js"));
+var _decryptAESSecretStorageItem = _interopRequireDefault(require("../utils/decryptAESSecretStorageItem.js"));
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -453,12 +455,12 @@ class CrossSigningInfo {
     // if we're checking our own key, then it's trusted if the master key
     // and self-signing key match
     if (this.userId === userCrossSigning.userId && this.getId() && this.getId() === userCrossSigning.getId() && this.getId("self_signing") && this.getId("self_signing") === userCrossSigning.getId("self_signing")) {
-      return new _cryptoApi.UserVerificationStatus(true, true, this.firstUse);
+      return new _index.UserVerificationStatus(true, true, this.firstUse);
     }
     if (!this.keys.user_signing) {
       // If there's no user signing key, they can't possibly be verified.
       // They may be TOFU trusted though.
-      return new _cryptoApi.UserVerificationStatus(false, false, userCrossSigning.firstUse);
+      return new _index.UserVerificationStatus(false, false, userCrossSigning.firstUse);
     }
     let userTrusted;
     const userMaster = userCrossSigning.keys.master;
@@ -466,10 +468,10 @@ class CrossSigningInfo {
     try {
       (0, _olmlib.pkVerify)(userMaster, uskId, this.userId);
       userTrusted = true;
-    } catch (e) {
+    } catch {
       userTrusted = false;
     }
-    return new _cryptoApi.UserVerificationStatus(userTrusted, userCrossSigning.crossSigningVerifiedBefore, userCrossSigning.firstUse);
+    return new _index.UserVerificationStatus(userTrusted, userCrossSigning.crossSigningVerifiedBefore, userCrossSigning.firstUse);
   }
 
   /**
@@ -498,7 +500,7 @@ class CrossSigningInfo {
       (0, _olmlib.pkVerify)(deviceObj, publicKeyFromKeyInfo(userSSK), userCrossSigning.userId);
       // ...then we trust this device as much as far as we trust the user
       return DeviceTrustLevel.fromUserTrustLevel(userTrust, localTrust, trustCrossSignedDevices);
-    } catch (e) {
+    } catch {
       return new DeviceTrustLevel(false, false, localTrust, trustCrossSignedDevices);
     }
   }
@@ -531,7 +533,7 @@ let CrossSigningLevel = exports.CrossSigningLevel = /*#__PURE__*/function (Cross
  *
  * @deprecated Use {@link DeviceVerificationStatus}.
  */
-class DeviceTrustLevel extends _cryptoApi.DeviceVerificationStatus {
+class DeviceTrustLevel extends _index.DeviceVerificationStatus {
   constructor(crossSigningVerified, tofu, localVerified, trustCrossSignedDevices, signedByOwner = false) {
     super({
       crossSigningVerified,
@@ -578,7 +580,7 @@ function createCryptoStoreCacheCallbacks(store, olmDevice) {
       });
       if (key && key.ciphertext) {
         const pickleKey = Buffer.from(olmDevice.pickleKey);
-        const decrypted = await (0, _aes.decryptAES)(key, pickleKey, type);
+        const decrypted = await (0, _decryptAESSecretStorageItem.default)(key, pickleKey, type);
         return (0, _base.decodeBase64)(decrypted);
       } else {
         return key;
@@ -589,7 +591,7 @@ function createCryptoStoreCacheCallbacks(store, olmDevice) {
         throw new Error(`storeCrossSigningKeyCache expects Uint8Array, got ${key}`);
       }
       const pickleKey = Buffer.from(olmDevice.pickleKey);
-      const encryptedKey = await (0, _aes.encryptAES)((0, _base.encodeBase64)(key), pickleKey, type);
+      const encryptedKey = await (0, _encryptAESSecretStorageItem.default)((0, _base.encodeBase64)(key), pickleKey, type);
       return store.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
         store.storeSecretStorePrivateKey(txn, type, encryptedKey);
       });

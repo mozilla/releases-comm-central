@@ -7,21 +7,21 @@ exports.SyncState = exports.SyncApi = exports.SetPresence = void 0;
 exports._createAndReEmitRoom = _createAndReEmitRoom;
 exports.defaultClientOpts = defaultClientOpts;
 exports.defaultSyncApiOpts = defaultSyncApiOpts;
-var _user = require("./models/user");
-var _room = require("./models/room");
-var _utils = require("./utils");
-var _filter = require("./filter");
-var _eventTimeline = require("./models/event-timeline");
-var _logger = require("./logger");
-var _client = require("./client");
-var _httpApi = require("./http-api");
-var _event = require("./@types/event");
-var _roomState = require("./models/room-state");
-var _roomMember = require("./models/room-member");
-var _beacon = require("./models/beacon");
-var _sync = require("./@types/sync");
-var _feature = require("./feature");
-var _membership = require("./@types/membership");
+var _user = require("./models/user.js");
+var _room = require("./models/room.js");
+var _utils = require("./utils.js");
+var _filter = require("./filter.js");
+var _eventTimeline = require("./models/event-timeline.js");
+var _logger = require("./logger.js");
+var _client = require("./client.js");
+var _index = require("./http-api/index.js");
+var _event = require("./@types/event.js");
+var _roomState = require("./models/room-state.js");
+var _roomMember = require("./models/room-member.js");
+var _beacon = require("./models/beacon.js");
+var _sync = require("./@types/sync.js");
+var _feature = require("./feature.js");
+var _membership = require("./@types/membership.js");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -308,7 +308,7 @@ class SyncApi {
       // don't want to block since this is a single isolated req
       filter: filterId
     };
-    const data = await client.http.authedRequest(_httpApi.Method.Get, "/sync", qps, undefined, {
+    const data = await client.http.authedRequest(_index.Method.Get, "/sync", qps, undefined, {
       localTimeoutMs
     });
     let leaveRooms = [];
@@ -439,7 +439,7 @@ class SyncApi {
     }
 
     // FIXME: gut wrenching; hard-coded timeout values
-    this.client.http.authedRequest(_httpApi.Method.Get, "/events", {
+    this.client.http.authedRequest(_index.Method.Get, "/events", {
       room_id: peekRoom.roomId,
       timeout: String(30 * 1000),
       from: token
@@ -779,7 +779,7 @@ class SyncApi {
   }
   doSyncRequest(syncOptions, syncToken) {
     const qps = this.getSyncParams(syncOptions, syncToken);
-    return this.client.http.authedRequest(_httpApi.Method.Get, "/sync", qps, undefined, {
+    return this.client.http.authedRequest(_index.Method.Get, "/sync", qps, undefined, {
       localTimeoutMs: qps.timeout + BUFFER_PERIOD_MS,
       abortSignal: this.abortController?.signal
     });
@@ -1356,7 +1356,7 @@ class SyncApi {
         this.connectionReturnedDefer = undefined;
       }
     };
-    this.client.http.request(_httpApi.Method.Get, "/_matrix/client/versions", undefined,
+    this.client.http.request(_index.Method.Get, "/_matrix/client/versions", undefined,
     // queryParams
     undefined,
     // data

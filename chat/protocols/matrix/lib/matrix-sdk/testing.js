@@ -7,9 +7,9 @@ exports.decryptExistingEvent = decryptExistingEvent;
 exports.mkDecryptionFailureMatrixEvent = mkDecryptionFailureMatrixEvent;
 exports.mkEncryptedMatrixEvent = mkEncryptedMatrixEvent;
 exports.mkMatrixEvent = mkMatrixEvent;
-var _event = require("./models/event");
-var _event2 = require("./@types/event");
-var _algorithms = require("./crypto/algorithms");
+var _event = require("./models/event.js");
+var _event2 = require("./@types/event.js");
+var _index = require("./crypto/algorithms/index.js");
 /*
 Copyright 2024 The Matrix.org Foundation C.I.C.
 
@@ -104,7 +104,7 @@ async function mkDecryptionFailureMatrixEvent(opts) {
   });
   const mockCrypto = {
     decryptEvent: async _ev => {
-      throw new _algorithms.DecryptionError(opts.code, opts.msg);
+      throw new _index.DecryptionError(opts.code, opts.msg);
     }
   };
   await mxEvent.attemptDecryption(mockCrypto);

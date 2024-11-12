@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.M_TOPIC = void 0;
-var _NamespacedValue = require("../NamespacedValue");
+var _NamespacedValue = require("../NamespacedValue.js");
 /*
 Copyright 2022 The Matrix.org Foundation C.I.C.
 

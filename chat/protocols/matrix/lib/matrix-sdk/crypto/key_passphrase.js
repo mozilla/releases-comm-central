@@ -3,10 +3,22 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.deriveKey = deriveKey;
-exports.keyFromAuthData = keyFromAuthData;
+Object.defineProperty(exports, "deriveKey", {
+  enumerable: true,
+  get: function () {
+    return _index.deriveRecoveryKeyFromPassphrase;
+  }
+});
+Object.defineProperty(exports, "keyFromAuthData", {
+  enumerable: true,
+  get: function () {
+    return _keyPassphrase.keyFromAuthData;
+  }
+});
 exports.keyFromPassphrase = keyFromPassphrase;
-var _randomstring = require("../randomstring");
+var _randomstring = require("../randomstring.js");
+var _index = require("../crypto-api/index.js");
+var _keyPassphrase = require("../common-crypto/key-passphrase.js");
 /*
 Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -24,39 +36,18 @@ limitations under the License.
 */
 
 const DEFAULT_ITERATIONS = 500000;
-const DEFAULT_BITSIZE = 256;
-
-/* eslint-disable camelcase */
-
-/* eslint-enable camelcase */
-
-function keyFromAuthData(authData, password) {
-  if (!authData.private_key_salt || !authData.private_key_iterations) {
-    throw new Error("Salt and/or iterations not found: " + "this backup cannot be restored with a passphrase");
-  }
-  return deriveKey(password, authData.private_key_salt, authData.private_key_iterations, authData.private_key_bits || DEFAULT_BITSIZE);
-}
-async function keyFromPassphrase(password) {
+/**
+ * Generate a new recovery key, based on a passphrase.
+ * @param passphrase - The passphrase to generate the key from
+ */
+async function keyFromPassphrase(passphrase) {
   const salt = (0, _randomstring.randomString)(32);
-  const key = await deriveKey(password, salt, DEFAULT_ITERATIONS, DEFAULT_BITSIZE);
+  const key = await (0, _index.deriveRecoveryKeyFromPassphrase)(passphrase, salt, DEFAULT_ITERATIONS);
   return {
     key,
     salt,
     iterations: DEFAULT_ITERATIONS
   };
 }
-async function deriveKey(password, salt, iterations, numBits = DEFAULT_BITSIZE) {
-  if (!globalThis.crypto.subtle || !TextEncoder) {
-    throw new Error("Password-based backup is not available on this platform");
-  }
-  const key = await globalThis.crypto.subtle.importKey("raw", new TextEncoder().encode(password), {
-    name: "PBKDF2"
-  }, false, ["deriveBits"]);
-  const keybits = await globalThis.crypto.subtle.deriveBits({
-    name: "PBKDF2",
-    salt: new TextEncoder().encode(salt),
-    iterations: iterations,
-    hash: "SHA-512"
-  }, key, numBits);
-  return new Uint8Array(keybits);
-}
+
+// Re-export the key passphrase functions to avoid breaking changes

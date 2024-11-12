@@ -4,10 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.LocalStorageCryptoStore = void 0;
-var _logger = require("../../logger");
-var _memoryCryptoStore = require("./memory-crypto-store");
-var _base = require("./base");
-var _utils = require("../../utils");
+var _logger = require("../../logger.js");
+var _memoryCryptoStore = require("./memory-crypto-store.js");
+var _base = require("./base.js");
+var _utils = require("../../utils.js");
 /*
 Copyright 2017 - 2021 The Matrix.org Foundation C.I.C.
 

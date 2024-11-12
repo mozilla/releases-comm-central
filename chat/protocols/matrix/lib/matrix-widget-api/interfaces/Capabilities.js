@@ -31,6 +31,9 @@ var MatrixCapabilities = /*#__PURE__*/function (MatrixCapabilities) {
   MatrixCapabilities["MSC3846TurnServers"] = "town.robin.msc3846.turn_servers";
   MatrixCapabilities["MSC3973UserDirectorySearch"] = "org.matrix.msc3973.user_directory_search";
   MatrixCapabilities["MSC4039UploadFile"] = "org.matrix.msc4039.upload_file";
+  MatrixCapabilities["MSC4039DownloadFile"] = "org.matrix.msc4039.download_file";
+  MatrixCapabilities["MSC4157SendDelayedEvent"] = "org.matrix.msc4157.send.delayed_event";
+  MatrixCapabilities["MSC4157UpdateDelayedEvent"] = "org.matrix.msc4157.update_delayed_event";
   return MatrixCapabilities;
 }({});
 exports.MatrixCapabilities = MatrixCapabilities;

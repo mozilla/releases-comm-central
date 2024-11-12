@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 Object.defineProperty(exports, "CrossSigningKey", {
   enumerable: true,
   get: function () {
-    return _cryptoApi.CrossSigningKey;
+    return _index.CrossSigningKey;
   }
 });
-var _cryptoApi = require("../crypto-api");
+var _index = require("../crypto-api/index.js");

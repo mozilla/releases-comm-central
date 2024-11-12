@@ -9,4 +9,4 @@ Object.defineProperty(exports, "IndexedDBStoreWorker", {
     return _indexeddbStoreWorker.IndexedDBStoreWorker;
   }
 });
-var _indexeddbStoreWorker = require("./store/indexeddb-store-worker");
+var _indexeddbStoreWorker = require("./store/indexeddb-store-worker.js");

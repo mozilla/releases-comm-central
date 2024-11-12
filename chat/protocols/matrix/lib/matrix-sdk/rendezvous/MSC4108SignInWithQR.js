@@ -5,11 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.PayloadType = exports.MSC4108SignInWithQR = void 0;
 var _matrixSdkCryptoWasm = require("@matrix-org/matrix-sdk-crypto-wasm");
-var _ = require(".");
-var _logger = require("../logger");
-var _httpApi = require("../http-api");
-var _utils = require("../utils");
-var _oidc = require("../oidc");
+var _index = require("./index.js");
+var _logger = require("../logger.js");
+var _index2 = require("../http-api/index.js");
+var _utils = require("../utils.js");
+var _index3 = require("../oidc/index.js");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -138,11 +138,11 @@ class MSC4108SignInWithQR {
           const {
             issuer
           } = await this.client.getAuthIssuer();
-          oidcClientConfig = await (0, _oidc.discoverAndValidateOIDCIssuerWellKnown)(issuer);
+          oidcClientConfig = await (0, _index3.discoverAndValidateOIDCIssuerWellKnown)(issuer);
         } catch (e) {
           _logger.logger.error("Failed to discover OIDC metadata", e);
         }
-        if (oidcClientConfig?.metadata.grant_types_supported.includes(_oidc.DEVICE_CODE_SCOPE)) {
+        if (oidcClientConfig?.metadata.grant_types_supported.includes(_index3.DEVICE_CODE_SCOPE)) {
           await this.send({
             type: PayloadType.Protocols,
             protocols: ["device_authorization_grant"],
@@ -151,9 +151,9 @@ class MSC4108SignInWithQR {
         } else {
           await this.send({
             type: PayloadType.Failure,
-            reason: _.MSC4108FailureReason.UnsupportedProtocol
+            reason: _index.MSC4108FailureReason.UnsupportedProtocol
           });
-          throw new _.RendezvousError("Device code grant unsupported", _.MSC4108FailureReason.UnsupportedProtocol);
+          throw new _index.RendezvousError("Device code grant unsupported", _index.MSC4108FailureReason.UnsupportedProtocol);
         }
       }
     } else if (this.isNewDevice) {
@@ -161,14 +161,14 @@ class MSC4108SignInWithQR {
       _logger.logger.info("Waiting for protocols message");
       const payload = await this.receive();
       if (payload?.type === PayloadType.Failure) {
-        throw new _.RendezvousError("Failed", payload.reason);
+        throw new _index.RendezvousError("Failed", payload.reason);
       }
       if (payload?.type !== PayloadType.Protocols) {
         await this.send({
           type: PayloadType.Failure,
-          reason: _.MSC4108FailureReason.UnexpectedMessageReceived
+          reason: _index.MSC4108FailureReason.UnexpectedMessageReceived
         });
-        throw new _.RendezvousError("Unexpected message received", _.MSC4108FailureReason.UnexpectedMessageReceived);
+        throw new _index.RendezvousError("Unexpected message received", _index.MSC4108FailureReason.UnexpectedMessageReceived);
       }
       return {
         serverName: payload.homeserver
@@ -194,14 +194,14 @@ class MSC4108SignInWithQR {
       _logger.logger.info("Waiting for protocol message");
       const payload = await this.receive();
       if (payload?.type === PayloadType.Failure) {
-        throw new _.RendezvousError("Failed", payload.reason);
+        throw new _index.RendezvousError("Failed", payload.reason);
       }
       if (payload?.type !== PayloadType.Protocol) {
         await this.send({
           type: PayloadType.Failure,
-          reason: _.MSC4108FailureReason.UnexpectedMessageReceived
+          reason: _index.MSC4108FailureReason.UnexpectedMessageReceived
         });
-        throw new _.RendezvousError("Unexpected message received", _.MSC4108FailureReason.UnexpectedMessageReceived);
+        throw new _index.RendezvousError("Unexpected message received", _index.MSC4108FailureReason.UnexpectedMessageReceived);
       }
       if (isDeviceAuthorizationGrantProtocolPayload(payload)) {
         const {
@@ -216,16 +216,16 @@ class MSC4108SignInWithQR {
         try {
           await this.client?.getDevice(expectingNewDeviceId);
         } catch (err) {
-          if (err instanceof _httpApi.MatrixError && err.httpStatus === 404) {
+          if (err instanceof _index2.MatrixError && err.httpStatus === 404) {
             deviceAlreadyExists = false;
           }
         }
         if (deviceAlreadyExists) {
           await this.send({
             type: PayloadType.Failure,
-            reason: _.MSC4108FailureReason.DeviceAlreadyExists
+            reason: _index.MSC4108FailureReason.DeviceAlreadyExists
           });
-          throw new _.RendezvousError("Specified device ID already exists", _.MSC4108FailureReason.DeviceAlreadyExists);
+          throw new _index.RendezvousError("Specified device ID already exists", _index.MSC4108FailureReason.DeviceAlreadyExists);
         }
         this.expectingNewDeviceId = expectingNewDeviceId;
         return {
@@ -234,9 +234,9 @@ class MSC4108SignInWithQR {
       }
       await this.send({
         type: PayloadType.Failure,
-        reason: _.MSC4108FailureReason.UnsupportedProtocol
+        reason: _index.MSC4108FailureReason.UnsupportedProtocol
       });
-      throw new _.RendezvousError("Received a request for an unsupported protocol", _.MSC4108FailureReason.UnsupportedProtocol);
+      throw new _index.RendezvousError("Received a request for an unsupported protocol", _index.MSC4108FailureReason.UnsupportedProtocol);
     }
   }
 
@@ -253,14 +253,14 @@ class MSC4108SignInWithQR {
       _logger.logger.info("Waiting for secrets message");
       const payload = await this.receive();
       if (payload?.type === PayloadType.Failure) {
-        throw new _.RendezvousError("Failed", payload.reason);
+        throw new _index.RendezvousError("Failed", payload.reason);
       }
       if (payload?.type !== PayloadType.Secrets) {
         await this.send({
           type: PayloadType.Failure,
-          reason: _.MSC4108FailureReason.UnexpectedMessageReceived
+          reason: _index.MSC4108FailureReason.UnexpectedMessageReceived
         });
-        throw new _.RendezvousError("Unexpected message received", _.MSC4108FailureReason.UnexpectedMessageReceived);
+        throw new _index.RendezvousError("Unexpected message received", _index.MSC4108FailureReason.UnexpectedMessageReceived);
       }
       return {
         secrets: payload
@@ -276,17 +276,17 @@ class MSC4108SignInWithQR {
       _logger.logger.info("Waiting for outcome message");
       const payload = await this.receive();
       if (payload?.type === PayloadType.Failure) {
-        throw new _.RendezvousError("Failed", payload.reason);
+        throw new _index.RendezvousError("Failed", payload.reason);
       }
       if (payload?.type === PayloadType.Declined) {
-        throw new _.RendezvousError("User declined", _.ClientRendezvousFailureReason.UserDeclined);
+        throw new _index.RendezvousError("User declined", _index.ClientRendezvousFailureReason.UserDeclined);
       }
       if (payload?.type !== PayloadType.Success) {
         await this.send({
           type: PayloadType.Failure,
-          reason: _.MSC4108FailureReason.UnexpectedMessageReceived
+          reason: _index.MSC4108FailureReason.UnexpectedMessageReceived
         });
-        throw new _.RendezvousError("Unexpected message", _.MSC4108FailureReason.UnexpectedMessageReceived);
+        throw new _index.RendezvousError("Unexpected message", _index.MSC4108FailureReason.UnexpectedMessageReceived);
       }
       const timeout = Date.now() + 10000; // wait up to 10 seconds
       do {
@@ -297,7 +297,7 @@ class MSC4108SignInWithQR {
             // if so, return the secrets
             const secretsBundle = await this.client.getCrypto().exportSecretsBundle();
             if (this.channel.cancelled) {
-              throw new _.RendezvousError("User cancelled", _.MSC4108FailureReason.UserCancelled);
+              throw new _index.RendezvousError("User cancelled", _index.MSC4108FailureReason.UserCancelled);
             }
             // send secrets
             await this.send(_objectSpread({
@@ -309,7 +309,7 @@ class MSC4108SignInWithQR {
             // let the other side close the rendezvous session
           }
         } catch (err) {
-          if (err instanceof _httpApi.MatrixError && err.httpStatus === 404) {
+          if (err instanceof _index2.MatrixError && err.httpStatus === 404) {
             // not found, so keep waiting until timeout
           } else {
             throw err;
@@ -319,9 +319,9 @@ class MSC4108SignInWithQR {
       } while (Date.now() < timeout);
       await this.send({
         type: PayloadType.Failure,
-        reason: _.MSC4108FailureReason.DeviceNotFound
+        reason: _index.MSC4108FailureReason.DeviceNotFound
       });
-      throw new _.RendezvousError("New device not found", _.MSC4108FailureReason.DeviceNotFound);
+      throw new _index.RendezvousError("New device not found", _index.MSC4108FailureReason.DeviceNotFound);
     }
   }
   async receive() {
@@ -340,7 +340,7 @@ class MSC4108SignInWithQR {
     }
     await this.send({
       type: PayloadType.Failure,
-      reason: _.MSC4108FailureReason.UserCancelled
+      reason: _index.MSC4108FailureReason.UserCancelled
     });
   }
 

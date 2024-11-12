@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var _authorize = require("./authorize");
+var _authorize = require("./authorize.js");
 Object.keys(_authorize).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _authorize[key]) return;
@@ -14,7 +14,7 @@ Object.keys(_authorize).forEach(function (key) {
     }
   });
 });
-var _discovery = require("./discovery");
+var _discovery = require("./discovery.js");
 Object.keys(_discovery).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _discovery[key]) return;
@@ -25,7 +25,7 @@ Object.keys(_discovery).forEach(function (key) {
     }
   });
 });
-var _error = require("./error");
+var _error = require("./error.js");
 Object.keys(_error).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _error[key]) return;
@@ -36,7 +36,7 @@ Object.keys(_error).forEach(function (key) {
     }
   });
 });
-var _register = require("./register");
+var _register = require("./register.js");
 Object.keys(_register).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _register[key]) return;
@@ -47,7 +47,7 @@ Object.keys(_register).forEach(function (key) {
     }
   });
 });
-var _tokenRefresher = require("./tokenRefresher");
+var _tokenRefresher = require("./tokenRefresher.js");
 Object.keys(_tokenRefresher).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _tokenRefresher[key]) return;
@@ -58,7 +58,7 @@ Object.keys(_tokenRefresher).forEach(function (key) {
     }
   });
 });
-var _validate = require("./validate");
+var _validate = require("./validate.js");
 Object.keys(_validate).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _validate[key]) return;

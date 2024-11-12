@@ -4,11 +4,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.MSC4108RendezvousSession = void 0;
-var _logger = require("../../logger");
-var _utils = require("../../utils");
-var _ = require("..");
-var _matrix = require("../../matrix");
-var _httpApi = require("../../http-api");
+var _logger = require("../../logger.js");
+var _utils = require("../../utils.js");
+var _index = require("../index.js");
+var _matrix = require("../../matrix.js");
+var _index2 = require("../../http-api/index.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -79,7 +79,7 @@ class MSC4108RendezvousSession {
     if (this.client) {
       try {
         if (await this.client.doesServerSupportUnstableFeature("org.matrix.msc4108")) {
-          return this.client.http.getUrl("/org.matrix.msc4108/rendezvous", undefined, _httpApi.ClientPrefix.Unstable).toString();
+          return this.client.http.getUrl("/org.matrix.msc4108/rendezvous", undefined, _index2.ClientPrefix.Unstable).toString();
         }
       } catch (err) {
         _logger.logger.warn("Failed to get unstable features", err);
@@ -120,7 +120,7 @@ class MSC4108RendezvousSession {
       redirect: "follow"
     });
     if (res.status === 404) {
-      return this.cancel(_.ClientRendezvousFailureReason.Unknown);
+      return this.cancel(_index.ClientRendezvousFailureReason.Unknown);
     }
     this.etag = res.headers.get("etag") ?? undefined;
     _logger.logger.info(`Received etag: ${this.etag}`);
@@ -134,7 +134,7 @@ class MSC4108RendezvousSession {
         this.expiresAt = new Date(expires);
         this.expiresTimer = setTimeout(() => {
           this.expiresTimer = undefined;
-          this.cancel(_.ClientRendezvousFailureReason.Expired);
+          this.cancel(_index.ClientRendezvousFailureReason.Expired);
         }, this.expiresAt.getTime() - Date.now());
       }
       // MSC4108: we expect a JSON response with a rendezvous URL
@@ -170,7 +170,7 @@ class MSC4108RendezvousSession {
         headers
       });
       if (poll.status === 404) {
-        await this.cancel(_.ClientRendezvousFailureReason.Unknown);
+        await this.cancel(_index.ClientRendezvousFailureReason.Unknown);
         return undefined;
       }
 
@@ -183,7 +183,7 @@ class MSC4108RendezvousSession {
         if (!etag) {
           // Some browsers & extensions block the ETag header for anti-tracking purposes
           // We try and detect this so the client can give the user a somewhat helpful message
-          await this.cancel(_.ClientRendezvousFailureReason.ETagMissing);
+          await this.cancel(_index.ClientRendezvousFailureReason.ETagMissing);
           return undefined;
         }
         this.etag = etag;
@@ -206,13 +206,13 @@ class MSC4108RendezvousSession {
       clearTimeout(this.expiresTimer);
       this.expiresTimer = undefined;
     }
-    if (reason === _.ClientRendezvousFailureReason.Unknown && this.expiresAt && this.expiresAt.getTime() < Date.now()) {
-      reason = _.ClientRendezvousFailureReason.Expired;
+    if (reason === _index.ClientRendezvousFailureReason.Unknown && this.expiresAt && this.expiresAt.getTime() < Date.now()) {
+      reason = _index.ClientRendezvousFailureReason.Expired;
     }
     this._cancelled = true;
     this._ready = false;
     this.onFailure?.(reason);
-    if (reason === _.ClientRendezvousFailureReason.UserDeclined || reason === _.MSC4108FailureReason.UserCancelled) {
+    if (reason === _index.ClientRendezvousFailureReason.UserDeclined || reason === _index.MSC4108FailureReason.UserCancelled) {
       await this.close();
     }
   }

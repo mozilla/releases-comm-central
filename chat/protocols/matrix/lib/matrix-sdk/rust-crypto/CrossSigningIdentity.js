@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.CrossSigningIdentity = void 0;
-var _logger = require("../logger");
+var _logger = require("../logger.js");
 /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 
@@ -114,10 +114,10 @@ class CrossSigningIdentity {
       // Update 4S before uploading cross-signing keys, to stay consistent with legacy that asks
       // 4S passphrase before asking for account password.
       // Ultimately should be made atomic and resistant to forgotten password/passphrase.
-      _logger.logger.log("resetCrossSigning: exporting to secret storage");
+      _logger.logger.log("resetCrossSigning: exporting private keys to secret storage");
       await this.exportCrossSigningKeysToStorage();
     }
-    _logger.logger.log("resetCrossSigning: publishing keys to server");
+    _logger.logger.log("resetCrossSigning: publishing public keys to server");
     for (const req of [outgoingRequests.uploadKeysRequest, outgoingRequests.uploadSigningKeysRequest, outgoingRequests.uploadSignaturesRequest]) {
       if (req) {
         await this.outgoingRequestProcessor.makeOutgoingRequest(req, authUploadDeviceSigningKeys);

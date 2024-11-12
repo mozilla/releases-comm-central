@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.clearTimeout = clearTimeout;
 exports.setTimeout = setTimeout;
-var _logger = require("./logger");
+var _logger = require("./logger.js");
 /*
 Copyright 2016 OpenMarket Ltd
 Copyright 2019 The Matrix.org Foundation C.I.C.

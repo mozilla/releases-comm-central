@@ -5,12 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.TreePermissions = exports.MSC3089TreeSpace = exports.DEFAULT_TREE_POWER_LEVELS_TEMPLATE = void 0;
 var _pRetry = _interopRequireDefault(require("p-retry"));
-var _event = require("../@types/event");
-var _logger = require("../logger");
-var _utils = require("../utils");
-var _MSC3089Branch = require("./MSC3089Branch");
-var _megolm = require("../crypto/algorithms/megolm");
-var _membership = require("../@types/membership");
+var _event = require("../@types/event.js");
+var _logger = require("../logger.js");
+var _utils = require("../utils.js");
+var _MSC3089Branch = require("./MSC3089Branch.js");
+var _membership = require("../@types/membership.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
@@ -119,28 +118,14 @@ class MSC3089TreeSpace {
    * @param userId - The user ID to invite.
    * @param andSubspaces - True (default) to invite the user to all
    * directories/subspaces too, recursively.
-   * @param shareHistoryKeys - True (default) to share encryption keys
-   * with the invited user. This will allow them to decrypt the events (files)
-   * in the tree. Keys will not be shared if the room is lacking appropriate
-   * history visibility (by default, history visibility is "shared" in trees,
-   * which is an appropriate visibility for these purposes).
    * @returns Promise which resolves when complete.
    */
-  async invite(userId, andSubspaces = true, shareHistoryKeys = true) {
+  async invite(userId, andSubspaces = true) {
     const promises = [this.retryInvite(userId)];
     if (andSubspaces) {
-      promises.push(...this.getDirectories().map(d => d.invite(userId, andSubspaces, shareHistoryKeys)));
+      promises.push(...this.getDirectories().map(d => d.invite(userId, andSubspaces)));
     }
-    return Promise.all(promises).then(() => {
-      // Note: key sharing is default on because for file trees it is relatively important that the invite
-      // target can actually decrypt the files. The implied use case is that by inviting a user to the tree
-      // it means the sender would like the receiver to view/download the files contained within, much like
-      // sharing a folder in other circles.
-      if (shareHistoryKeys && (0, _megolm.isRoomSharedHistory)(this.room)) {
-        // noinspection JSIgnoredPromiseFromCall - we aren't concerned as much if this fails.
-        this.client.sendSharedHistoryKeys(this.roomId, [userId]);
-      }
-    });
+    await Promise.all(promises);
   }
   retryInvite(userId) {
     return (0, _utils.simpleRetryOperation)(async () => {

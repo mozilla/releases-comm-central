@@ -5,9 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.isPollEvent = exports.PollEvent = exports.Poll = void 0;
 var _matrixEventsSdk = require("matrix-events-sdk");
-var _polls = require("../@types/polls");
-var _relations = require("./relations");
-var _typedEventEmitter = require("./typed-event-emitter");
+var _polls = require("../@types/polls.js");
+var _relations = require("./relations.js");
+var _typedEventEmitter = require("./typed-event-emitter.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*

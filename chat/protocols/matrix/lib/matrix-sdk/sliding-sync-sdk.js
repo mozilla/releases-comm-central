@@ -4,18 +4,18 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SlidingSyncSdk = void 0;
-var _room = require("./models/room");
-var _logger = require("./logger");
-var _utils = require("./utils");
-var _eventTimeline = require("./models/event-timeline");
-var _client = require("./client");
-var _sync = require("./sync");
-var _httpApi = require("./http-api");
-var _slidingSync = require("./sliding-sync");
-var _event = require("./@types/event");
-var _roomState = require("./models/room-state");
-var _roomMember = require("./models/room-member");
-var _membership = require("./@types/membership");
+var _room = require("./models/room.js");
+var _logger = require("./logger.js");
+var _utils = require("./utils.js");
+var _eventTimeline = require("./models/event-timeline.js");
+var _client = require("./client.js");
+var _sync = require("./sync.js");
+var _index = require("./http-api/index.js");
+var _slidingSync = require("./sliding-sync.js");
+var _event = require("./@types/event.js");
+var _roomState = require("./models/room-state.js");
+var _roomMember = require("./models/room-member.js");
+var _membership = require("./@types/membership.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -317,9 +317,9 @@ class SlidingSyncSdk {
         if (err) {
           this.failCount += 1;
           this.updateSyncState(this.failCount > FAILED_SYNC_ERROR_THRESHOLD ? _sync.SyncState.Error : _sync.SyncState.Reconnecting, {
-            error: new _httpApi.MatrixError(err)
+            error: new _index.MatrixError(err)
           });
-          if (this.shouldAbortSync(new _httpApi.MatrixError(err))) {
+          if (this.shouldAbortSync(new _index.MatrixError(err))) {
             return; // shouldAbortSync actually stops syncing too so we don't need to do anything.
           }
         } else {

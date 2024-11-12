@@ -4,14 +4,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.TrackingStatus = exports.DeviceList = void 0;
-var _logger = require("../logger");
-var _deviceinfo = require("./deviceinfo");
-var _CrossSigning = require("./CrossSigning");
-var olmlib = _interopRequireWildcard(require("./olmlib"));
-var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store");
-var _utils = require("../utils");
-var _typedEventEmitter = require("../models/typed-event-emitter");
-var _index = require("./index");
+var _logger = require("../logger.js");
+var _deviceinfo = require("./deviceinfo.js");
+var _CrossSigning = require("./CrossSigning.js");
+var olmlib = _interopRequireWildcard(require("./olmlib.js"));
+var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store.js");
+var _utils = require("../utils.js");
+var _typedEventEmitter = require("../models/typed-event-emitter.js");
+var _index = require("./index.js");
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
 function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }

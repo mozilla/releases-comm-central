@@ -9,9 +9,9 @@ exports.parseErrorResponse = parseErrorResponse;
 exports.retryNetworkOperation = retryNetworkOperation;
 exports.timeoutSignal = timeoutSignal;
 var _contentType = require("content-type");
-var _logger = require("../logger");
-var _utils = require("../utils");
-var _errors = require("./errors");
+var _logger = require("../logger.js");
+var _utils = require("../utils.js");
+var _errors = require("./errors.js");
 /*
 Copyright 2022 The Matrix.org Foundation C.I.C.
 

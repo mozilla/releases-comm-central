@@ -5,8 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.MSC4108SecureChannel = void 0;
 var _matrixSdkCryptoWasm = require("@matrix-org/matrix-sdk-crypto-wasm");
-var _ = require("..");
-var _logger = require("../../logger");
+var _index = require("../index.js");
+var _logger = require("../../logger.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -107,11 +107,11 @@ class MSC4108SecureChannel {
         _logger.logger.info("Waiting for LoginOkMessage");
         const ciphertext = await this.rendezvousSession.receive();
         if (!ciphertext) {
-          throw new _.RendezvousError("No response from other device", _.MSC4108FailureReason.UnexpectedMessageReceived);
+          throw new _index.RendezvousError("No response from other device", _index.MSC4108FailureReason.UnexpectedMessageReceived);
         }
         const candidateLoginOkMessage = await this.decrypt(ciphertext);
         if (candidateLoginOkMessage !== "MATRIX_QR_CODE_LOGIN_OK") {
-          throw new _.RendezvousError("Invalid response from other device", _.ClientRendezvousFailureReason.InsecureChannelDetected);
+          throw new _index.RendezvousError("Invalid response from other device", _index.ClientRendezvousFailureReason.InsecureChannelDetected);
         }
 
         // Step 6 is now complete. We trust the channel
@@ -138,7 +138,7 @@ class MSC4108SecureChannel {
       } = this.secureChannel.establish_inbound_channel(loginInitiateMessage);
       this.establishedChannel = channel;
       if (candidateLoginInitiateMessage !== "MATRIX_QR_CODE_LOGIN_INITIATE") {
-        throw new _.RendezvousError("Invalid response from other device", _.ClientRendezvousFailureReason.InsecureChannelDetected);
+        throw new _index.RendezvousError("Invalid response from other device", _index.ClientRendezvousFailureReason.InsecureChannelDetected);
       }
       _logger.logger.info("LoginInitiateMessage received");
       _logger.logger.info("Sending LoginOkMessage");

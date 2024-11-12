@@ -5,10 +5,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.PolicyScope = exports.PolicyRecommendation = exports.POLICIES_ACCOUNT_EVENT_TYPE = exports.IgnoredInvites = exports.IGNORE_INVITES_ACCOUNT_EVENT_KEY = void 0;
 var _matrixEventsSdk = require("matrix-events-sdk");
-var _eventTimeline = require("./event-timeline");
-var _partials = require("../@types/partials");
-var _utils = require("../utils");
-var _event = require("../@types/event");
+var _eventTimeline = require("./event-timeline.js");
+var _partials = require("../@types/partials.js");
+var _utils = require("../utils.js");
+var _event = require("../@types/event.js");
 /*
 Copyright 2022 The Matrix.org Foundation C.I.C.
 
@@ -185,7 +185,7 @@ class IgnoredInvites {
           let regexp;
           try {
             regexp = new RegExp((0, _utils.globToRegexp)(glob));
-          } catch (ex) {
+          } catch {
             // Assume invalid event.
             continue;
           }

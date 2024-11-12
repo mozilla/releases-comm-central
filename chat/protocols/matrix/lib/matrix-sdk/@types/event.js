@@ -4,9 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3088_PURPOSE = exports.UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_MSC2716_MARKER = exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.UNSIGNED_THREAD_ID_FIELD = exports.UNSIGNED_MEMBERSHIP_FIELD = exports.ToDeviceMessageId = exports.RoomType = exports.RoomCreateTypeField = exports.RelationType = exports.PUSHER_ENABLED = exports.PUSHER_DEVICE_ID = exports.MsgType = exports.MSC3912_RELATION_BASED_REDACTIONS_PROP = exports.LOCAL_NOTIFICATION_SETTINGS_PREFIX = exports.EventType = exports.EVENT_VISIBILITY_CHANGE_TYPE = void 0;
-var _NamespacedValue = require("../NamespacedValue");
-var _beacon = require("./beacon");
-var _polls = require("./polls");
+var _NamespacedValue = require("../NamespacedValue.js");
+var _beacon = require("./beacon.js");
+var _polls = require("./polls.js");
 /*
 Copyright 2020 The Matrix.org Foundation C.I.C.
 

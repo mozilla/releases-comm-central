@@ -5,13 +5,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.SasEvent = exports.SAS = void 0;
 var _anotherJson = _interopRequireDefault(require("another-json"));
-var _Base = require("./Base");
-var _Error = require("./Error");
-var _logger = require("../../logger");
-var _SASDecimal = require("./SASDecimal");
-var _event = require("../../@types/event");
-var _verification = require("../../crypto-api/verification");
-var _types = require("../../types");
+var _Base = require("./Base.js");
+var _Error = require("./Error.js");
+var _logger = require("../../logger.js");
+var _SASDecimal = require("./SASDecimal.js");
+var _event = require("../../@types/event.js");
+var _verification = require("../../crypto-api/verification.js");
+var _types = require("../../types.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }

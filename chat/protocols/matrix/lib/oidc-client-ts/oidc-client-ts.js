@@ -22,9 +22,11 @@ var src_exports = {};
 __export(src_exports, {
   AccessTokenEvents: () => AccessTokenEvents,
   CheckSessionIFrame: () => CheckSessionIFrame,
+  DPoPState: () => DPoPState,
   ErrorResponse: () => ErrorResponse,
   ErrorTimeout: () => ErrorTimeout,
   InMemoryWebStorage: () => InMemoryWebStorage,
+  IndexedDbDPoPStore: () => IndexedDbDPoPStore,
   Log: () => Log,
   Logger: () => Logger,
   MetadataService: () => MetadataService,
@@ -149,10 +151,39 @@ var Logger = class _Logger {
 };
 Log.reset();
 
+// src/utils/JwtUtils.ts
+var import_jwt_decode = require("jwt-decode");
+var JwtUtils = class {
+  // IMPORTANT: doesn't validate the token
+  static decode(token) {
+    try {
+      return (0, import_jwt_decode.jwtDecode)(token);
+    } catch (err) {
+      Logger.error("JwtUtils.decode", err);
+      throw err;
+    }
+  }
+  static async generateSignedJwt(header, payload, privateKey) {
+    const encodedHeader = CryptoUtils.encodeBase64Url(new TextEncoder().encode(JSON.stringify(header)));
+    const encodedPayload = CryptoUtils.encodeBase64Url(new TextEncoder().encode(JSON.stringify(payload)));
+    const encodedToken = `${encodedHeader}.${encodedPayload}`;
+    const signature = await window.crypto.subtle.sign(
+      {
+        name: "ECDSA",
+        hash: { name: "SHA-256" }
+      },
+      privateKey,
+      new TextEncoder().encode(encodedToken)
+    );
+    const encodedSignature = CryptoUtils.encodeBase64Url(new Uint8Array(signature));
+    return `${encodedToken}.${encodedSignature}`;
+  }
+};
+
 // src/utils/CryptoUtils.ts
 var UUID_V4_TEMPLATE = "10000000-1000-4000-8000-100000000000";
 var toBase64 = (val) => btoa([...new Uint8Array(val)].map((chr) => String.fromCharCode(chr)).join(""));
-var CryptoUtils = class _CryptoUtils {
+var _CryptoUtils = class _CryptoUtils {
   static _randomWord() {
     const arr = new Uint32Array(1);
     crypto.getRandomValues(arr);
@@ -199,14 +230,138 @@ var CryptoUtils = class _CryptoUtils {
     const data = encoder.encode([client_id, client_secret].join(":"));
     return toBase64(data);
   }
+  /**
+   * Generates a hash of a string using a given algorithm
+   * @param alg
+   * @param message
+   */
+  static async hash(alg, message) {
+    const msgUint8 = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest(alg, msgUint8);
+    return new Uint8Array(hashBuffer);
+  }
+  /**
+   * Generates a rfc7638 compliant jwk thumbprint
+   * @param jwk
+   */
+  static async customCalculateJwkThumbprint(jwk) {
+    let jsonObject;
+    switch (jwk.kty) {
+      case "RSA":
+        jsonObject = {
+          "e": jwk.e,
+          "kty": jwk.kty,
+          "n": jwk.n
+        };
+        break;
+      case "EC":
+        jsonObject = {
+          "crv": jwk.crv,
+          "kty": jwk.kty,
+          "x": jwk.x,
+          "y": jwk.y
+        };
+        break;
+      case "OKP":
+        jsonObject = {
+          "crv": jwk.crv,
+          "kty": jwk.kty,
+          "x": jwk.x
+        };
+        break;
+      case "oct":
+        jsonObject = {
+          "crv": jwk.k,
+          "kty": jwk.kty
+        };
+        break;
+      default:
+        throw new Error("Unknown jwk type");
+    }
+    const utf8encodedAndHashed = await _CryptoUtils.hash("SHA-256", JSON.stringify(jsonObject));
+    return _CryptoUtils.encodeBase64Url(utf8encodedAndHashed);
+  }
+  static async generateDPoPProof({
+    url,
+    accessToken,
+    httpMethod,
+    keyPair,
+    nonce
+  }) {
+    let hashedToken;
+    let encodedHash;
+    const payload = {
+      "jti": window.crypto.randomUUID(),
+      "htm": httpMethod != null ? httpMethod : "GET",
+      "htu": url,
+      "iat": Math.floor(Date.now() / 1e3)
+    };
+    if (accessToken) {
+      hashedToken = await _CryptoUtils.hash("SHA-256", accessToken);
+      encodedHash = _CryptoUtils.encodeBase64Url(hashedToken);
+      payload.ath = encodedHash;
+    }
+    if (nonce) {
+      payload.nonce = nonce;
+    }
+    try {
+      const publicJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+      const header = {
+        "alg": "ES256",
+        "typ": "dpop+jwt",
+        "jwk": {
+          "crv": publicJwk.crv,
+          "kty": publicJwk.kty,
+          "x": publicJwk.x,
+          "y": publicJwk.y
+        }
+      };
+      return await JwtUtils.generateSignedJwt(header, payload, keyPair.privateKey);
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new Error(`Error exporting dpop public key: ${err.message}`);
+      } else {
+        throw err;
+      }
+    }
+  }
+  static async generateDPoPJkt(keyPair) {
+    try {
+      const publicJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+      return await _CryptoUtils.customCalculateJwkThumbprint(publicJwk);
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new Error(`Could not retrieve dpop keys from storage: ${err.message}`);
+      } else {
+        throw err;
+      }
+    }
+  }
+  static async generateDPoPKeys() {
+    return await window.crypto.subtle.generateKey(
+      {
+        name: "ECDSA",
+        namedCurve: "P-256"
+      },
+      false,
+      ["sign", "verify"]
+    );
+  }
 };
+/**
+ * Generates a base64url encoded string
+ */
+_CryptoUtils.encodeBase64Url = (input) => {
+  return toBase64(input).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+};
+var CryptoUtils = _CryptoUtils;
 
 // src/utils/Event.ts
 var Event = class {
   constructor(_name) {
     this._name = _name;
-    this._logger = new Logger(`Event('${this._name}')`);
     this._callbacks = [];
+    this._logger = new Logger(`Event('${this._name}')`);
   }
   addHandler(cb) {
     this._callbacks.push(cb);
@@ -222,20 +377,6 @@ var Event = class {
     this._logger.debug("raise:", ...ev);
     for (const cb of this._callbacks) {
       await cb(...ev);
-    }
-  }
-};
-
-// src/utils/JwtUtils.ts
-var import_jwt_decode = require("jwt-decode");
-var JwtUtils = class {
-  // IMPORTANT: doesn't validate the token
-  static decode(token) {
-    try {
-      return (0, import_jwt_decode.jwtDecode)(token);
-    } catch (err) {
-      Logger.error("JwtUtils.decode", err);
-      throw err;
     }
   }
 };
@@ -310,8 +451,7 @@ var Timer = class _Timer extends Event {
 // src/utils/UrlUtils.ts
 var UrlUtils = class {
   static readParams(url, responseMode = "query") {
-    if (!url)
-      throw new TypeError("Invalid URL");
+    if (!url) throw new TypeError("Invalid URL");
     const parsedUrl = new URL(url, "http://127.0.0.1");
     const params = parsedUrl[responseMode === "fragment" ? "hash" : "search"];
     return new URLSearchParams(params.slice(1));
@@ -514,6 +654,16 @@ var InMemoryWebStorage = class {
   }
 };
 
+// src/errors/ErrorDPoPNonce.ts
+var ErrorDPoPNonce = class extends Error {
+  constructor(nonce, message) {
+    super(message);
+    /** Marker to detect class: "ErrorDPoPNonce" */
+    this.name = "ErrorDPoPNonce";
+    this.nonce = nonce;
+  }
+};
+
 // src/JsonService.ts
 var JsonService = class {
   constructor(additionalContentTypes = [], _jwtHandler = null, _extraHeaders = {}) {
@@ -550,7 +700,8 @@ var JsonService = class {
   }
   async getJson(url, {
     token,
-    credentials
+    credentials,
+    timeoutInSeconds
   } = {}) {
     const logger2 = this._logger.create("getJson");
     const headers = {
@@ -564,7 +715,7 @@ var JsonService = class {
     let response;
     try {
       logger2.debug("url:", url);
-      response = await this.fetchWithTimeout(url, { method: "GET", headers, credentials });
+      response = await this.fetchWithTimeout(url, { method: "GET", headers, timeoutInSeconds, credentials });
     } catch (err) {
       logger2.error("Network Error");
       throw err;
@@ -582,8 +733,7 @@ var JsonService = class {
       json = await response.json();
     } catch (err) {
       logger2.error("Error parsing JSON response", err);
-      if (response.ok)
-        throw err;
+      if (response.ok) throw err;
       throw new Error(`${response.statusText} (${response.status})`);
     }
     if (!response.ok) {
@@ -599,12 +749,14 @@ var JsonService = class {
     body,
     basicAuth,
     timeoutInSeconds,
-    initCredentials
+    initCredentials,
+    extraHeaders
   }) {
     const logger2 = this._logger.create("postForm");
     const headers = {
       "Accept": this._contentTypes.join(", "),
-      "Content-Type": "application/x-www-form-urlencoded"
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...extraHeaders
     };
     if (basicAuth !== void 0) {
       headers["Authorization"] = "Basic " + basicAuth;
@@ -630,13 +782,16 @@ var JsonService = class {
         json = JSON.parse(responseText);
       } catch (err) {
         logger2.error("Error parsing JSON response", err);
-        if (response.ok)
-          throw err;
+        if (response.ok) throw err;
         throw new Error(`${response.statusText} (${response.status})`);
       }
     }
     if (!response.ok) {
       logger2.error("Error from server:", json);
+      if (response.headers.has("dpop-nonce")) {
+        const nonce = response.headers.get("dpop-nonce");
+        throw new ErrorDPoPNonce(nonce, `${JSON.stringify(json)}`);
+      }
       if (json.error) {
         throw new ErrorResponse(json, body);
       }
@@ -708,7 +863,7 @@ var MetadataService = class {
       throw null;
     }
     logger2.debug("getting metadata from", this._metadataUrl);
-    const metadata = await this._jsonService.getJson(this._metadataUrl, { credentials: this._fetchRequestCredentials });
+    const metadata = await this._jsonService.getJson(this._metadataUrl, { credentials: this._fetchRequestCredentials, timeoutInSeconds: this._settings.requestTimeoutInSeconds });
     logger2.debug("merging remote JSON with seed metadata");
     this._metadata = Object.assign({}, this._settings.metadataSeed, metadata);
     return this._metadata;
@@ -758,7 +913,7 @@ var MetadataService = class {
     }
     const jwks_uri = await this.getKeysEndpoint(false);
     logger2.debug("got jwks_uri", jwks_uri);
-    const keySet = await this._jsonService.getJson(jwks_uri);
+    const keySet = await this._jsonService.getJson(jwks_uri, { timeoutInSeconds: this._settings.requestTimeoutInSeconds });
     logger2.debug("got key set", keySet);
     if (!Array.isArray(keySet.keys)) {
       logger2.throw(new Error("Missing keys on keyset"));
@@ -843,6 +998,7 @@ var OidcClientSettingsStore = class {
     // behavior flags
     filterProtocolClaims = true,
     loadUserInfo = false,
+    requestTimeoutInSeconds,
     staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
     mergeClaimsStrategy = { array: "replace" },
     disablePKCE = false,
@@ -854,8 +1010,11 @@ var OidcClientSettingsStore = class {
     // extra
     extraQueryParams = {},
     extraTokenParams = {},
-    extraHeaders = {}
+    extraHeaders = {},
+    dpop,
+    omitScopeWhenRequesting = false
   }) {
+    var _a;
     this.authority = authority;
     if (metadataUrl) {
       this.metadataUrl = metadataUrl;
@@ -889,9 +1048,11 @@ var OidcClientSettingsStore = class {
     this.loadUserInfo = !!loadUserInfo;
     this.staleStateAgeInSeconds = staleStateAgeInSeconds;
     this.mergeClaimsStrategy = mergeClaimsStrategy;
+    this.omitScopeWhenRequesting = omitScopeWhenRequesting;
     this.disablePKCE = !!disablePKCE;
     this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
     this.fetchRequestCredentials = fetchRequestCredentials ? fetchRequestCredentials : "same-origin";
+    this.requestTimeoutInSeconds = requestTimeoutInSeconds;
     if (stateStore) {
       this.stateStore = stateStore;
     } else {
@@ -902,6 +1063,10 @@ var OidcClientSettingsStore = class {
     this.extraQueryParams = extraQueryParams;
     this.extraTokenParams = extraTokenParams;
     this.extraHeaders = extraHeaders;
+    this.dpop = dpop;
+    if (this.dpop && !((_a = this.dpop) == null ? void 0 : _a.store)) {
+      throw new Error("A DPoPStore is required when dpop is enabled");
+    }
   }
 };
 
@@ -937,7 +1102,8 @@ var UserInfoService = class {
     logger2.debug("got userinfo url", url);
     const claims = await this._jsonService.getJson(url, {
       token,
-      credentials: this._settings.fetchRequestCredentials
+      credentials: this._settings.fetchRequestCredentials,
+      timeoutInSeconds: this._settings.requestTimeoutInSeconds
     });
     logger2.debug("got claims", claims);
     return claims;
@@ -966,6 +1132,7 @@ var TokenClient = class {
     redirect_uri = this._settings.redirect_uri,
     client_id = this._settings.client_id,
     client_secret = this._settings.client_secret,
+    extraHeaders,
     ...args
   }) {
     const logger2 = this._logger.create("exchangeCode");
@@ -1002,7 +1169,13 @@ var TokenClient = class {
     }
     const url = await this._metadataService.getTokenEndpoint(false);
     logger2.debug("got token endpoint");
-    const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials });
+    const response = await this._jsonService.postForm(url, {
+      body: params,
+      basicAuth,
+      timeoutInSeconds: this._settings.requestTimeoutInSeconds,
+      initCredentials: this._settings.fetchRequestCredentials,
+      extraHeaders
+    });
     logger2.debug("got response");
     return response;
   }
@@ -1022,7 +1195,10 @@ var TokenClient = class {
     if (!client_id) {
       logger2.throw(new Error("A client_id is required"));
     }
-    const params = new URLSearchParams({ grant_type, scope });
+    const params = new URLSearchParams({ grant_type });
+    if (!this._settings.omitScopeWhenRequesting) {
+      params.set("scope", scope);
+    }
     for (const [key, value] of Object.entries(args)) {
       if (value != null) {
         params.set(key, value);
@@ -1046,7 +1222,7 @@ var TokenClient = class {
     }
     const url = await this._metadataService.getTokenEndpoint(false);
     logger2.debug("got token endpoint");
-    const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials });
+    const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds: this._settings.requestTimeoutInSeconds, initCredentials: this._settings.fetchRequestCredentials });
     logger2.debug("got response");
     return response;
   }
@@ -1060,6 +1236,7 @@ var TokenClient = class {
     client_id = this._settings.client_id,
     client_secret = this._settings.client_secret,
     timeoutInSeconds,
+    extraHeaders,
     ...args
   }) {
     const logger2 = this._logger.create("exchangeRefreshToken");
@@ -1095,7 +1272,7 @@ var TokenClient = class {
     }
     const url = await this._metadataService.getTokenEndpoint(false);
     logger2.debug("got token endpoint");
-    const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds, initCredentials: this._settings.fetchRequestCredentials });
+    const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });
     logger2.debug("got response");
     return response;
   }
@@ -1122,7 +1299,7 @@ var TokenClient = class {
     if (this._settings.client_secret) {
       params.set("client_secret", this._settings.client_secret);
     }
-    await this._jsonService.postForm(url, { body: params });
+    await this._jsonService.postForm(url, { body: params, timeoutInSeconds: this._settings.requestTimeoutInSeconds });
     logger2.debug("got response");
   }
 };
@@ -1137,11 +1314,11 @@ var ResponseValidator = class {
     this._userInfoService = new UserInfoService(this._settings, this._metadataService);
     this._tokenClient = new TokenClient(this._settings, this._metadataService);
   }
-  async validateSigninResponse(response, state) {
+  async validateSigninResponse(response, state, extraHeaders) {
     const logger2 = this._logger.create("validateSigninResponse");
     this._processSigninState(response, state);
     logger2.debug("state processed");
-    await this._processCode(response, state);
+    await this._processCode(response, state, extraHeaders);
     logger2.debug("code processed");
     if (response.isOpenId) {
       this._validateIdTokenAttributes(response);
@@ -1235,7 +1412,7 @@ var ResponseValidator = class {
     response.profile = this._claimsService.mergeClaims(response.profile, this._claimsService.filterProtocolClaims(claims));
     logger2.debug("user info claims received, updated profile:", response.profile);
   }
-  async _processCode(response, state) {
+  async _processCode(response, state, extraHeaders) {
     const logger2 = this._logger.create("_processCode");
     if (response.code) {
       logger2.debug("Validating code");
@@ -1245,6 +1422,7 @@ var ResponseValidator = class {
         code: response.code,
         redirect_uri: state.redirect_uri,
         code_verifier: state.code_verifier,
+        extraHeaders,
         ...state.extraTokenParams
       });
       Object.assign(response, tokenResponse);
@@ -1414,6 +1592,8 @@ var _SigninRequest = class _SigninRequest {
     extraQueryParams,
     extraTokenParams,
     disablePKCE,
+    dpopJkt,
+    omitScopeWhenRequesting,
     ...optionalParams
   }) {
     if (!url) {
@@ -1458,9 +1638,14 @@ var _SigninRequest = class _SigninRequest {
     parsedUrl.searchParams.append("client_id", client_id);
     parsedUrl.searchParams.append("redirect_uri", redirect_uri);
     parsedUrl.searchParams.append("response_type", response_type);
-    parsedUrl.searchParams.append("scope", scope);
+    if (!omitScopeWhenRequesting) {
+      parsedUrl.searchParams.append("scope", scope);
+    }
     if (nonce) {
       parsedUrl.searchParams.append("nonce", nonce);
+    }
+    if (dpopJkt) {
+      parsedUrl.searchParams.append("dpop_jkt", dpopJkt);
     }
     let stateParam = state.id;
     if (url_state) {
@@ -1520,8 +1705,7 @@ var SigninResponse = class {
     return this.expires_at - Timer.getEpochTime();
   }
   set expires_in(value) {
-    if (typeof value === "string")
-      value = Number(value);
+    if (typeof value === "string") value = Number(value);
     if (value !== void 0 && value >= 0) {
       this.expires_at = Math.floor(value) + Timer.getEpochTime();
     }
@@ -1643,6 +1827,14 @@ var ClaimsService = class {
   }
 };
 
+// src/DPoPStore.ts
+var DPoPState = class {
+  constructor(keys, nonce) {
+    this.keys = keys;
+    this.nonce = nonce;
+  }
+};
+
 // src/OidcClient.ts
 var OidcClient = class {
   constructor(settings, metadataService) {
@@ -1674,7 +1866,9 @@ var OidcClient = class {
     resource = this.settings.resource,
     response_mode = this.settings.response_mode,
     extraQueryParams = this.settings.extraQueryParams,
-    extraTokenParams = this.settings.extraTokenParams
+    extraTokenParams = this.settings.extraTokenParams,
+    dpopJkt,
+    omitScopeWhenRequesting = this.settings.omitScopeWhenRequesting
   }) {
     const logger2 = this._logger.create("createSigninRequest");
     if (response_type !== "code") {
@@ -1698,6 +1892,7 @@ var OidcClient = class {
       id_token_hint,
       login_hint,
       acr_values,
+      dpopJkt,
       resource,
       request,
       request_uri,
@@ -1708,7 +1903,8 @@ var OidcClient = class {
       client_secret: this.settings.client_secret,
       skipUserInfo,
       nonce,
-      disablePKCE: this.settings.disablePKCE
+      disablePKCE: this.settings.disablePKCE,
+      omitScopeWhenRequesting
     });
     await this.clearStaleState();
     const signinState = signinRequest.state;
@@ -1730,12 +1926,47 @@ var OidcClient = class {
     const state = await SigninState.fromStorageString(storedStateString);
     return { state, response };
   }
-  async processSigninResponse(url) {
+  async processSigninResponse(url, extraHeaders) {
     const logger2 = this._logger.create("processSigninResponse");
     const { state, response } = await this.readSigninResponseState(url, true);
     logger2.debug("received state from storage; validating response");
-    await this._validator.validateSigninResponse(response, state);
+    if (this.settings.dpop && this.settings.dpop.store) {
+      const dpopProof = await this.getDpopProof(this.settings.dpop.store);
+      extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
+    }
+    try {
+      await this._validator.validateSigninResponse(response, state, extraHeaders);
+    } catch (err) {
+      if (err instanceof ErrorDPoPNonce && this.settings.dpop) {
+        const dpopProof = await this.getDpopProof(this.settings.dpop.store, err.nonce);
+        extraHeaders["DPoP"] = dpopProof;
+        await this._validator.validateSigninResponse(response, state, extraHeaders);
+      } else {
+        throw err;
+      }
+    }
     return response;
+  }
+  async getDpopProof(dpopStore, nonce) {
+    let keyPair;
+    let dpopState;
+    if (!(await dpopStore.getAllKeys()).includes(this.settings.client_id)) {
+      keyPair = await CryptoUtils.generateDPoPKeys();
+      dpopState = new DPoPState(keyPair, nonce);
+      await dpopStore.set(this.settings.client_id, dpopState);
+    } else {
+      dpopState = await dpopStore.get(this.settings.client_id);
+      if (dpopState.nonce !== nonce && nonce) {
+        dpopState.nonce = nonce;
+        await dpopStore.set(this.settings.client_id, dpopState);
+      }
+    }
+    return await CryptoUtils.generateDPoPProof({
+      url: await this.metadataService.getTokenEndpoint(false),
+      httpMethod: "POST",
+      keyPair: dpopState.keys,
+      nonce: dpopState.nonce
+    });
   }
   async processResourceOwnerPasswordCredentials({
     username,
@@ -1754,6 +1985,7 @@ var OidcClient = class {
     redirect_uri,
     resource,
     timeoutInSeconds,
+    extraHeaders,
     extraTokenParams
   }) {
     var _a;
@@ -1766,15 +1998,39 @@ var OidcClient = class {
       const providedScopes = ((_a = state.scope) == null ? void 0 : _a.split(" ")) || [];
       scope = providedScopes.filter((s) => allowableScopes.includes(s)).join(" ");
     }
-    const result = await this._tokenClient.exchangeRefreshToken({
-      refresh_token: state.refresh_token,
-      // provide the (possible filtered) scope list
-      scope,
-      redirect_uri,
-      resource,
-      timeoutInSeconds,
-      ...extraTokenParams
-    });
+    if (this.settings.dpop && this.settings.dpop.store) {
+      const dpopProof = await this.getDpopProof(this.settings.dpop.store);
+      extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
+    }
+    let result;
+    try {
+      result = await this._tokenClient.exchangeRefreshToken({
+        refresh_token: state.refresh_token,
+        // provide the (possible filtered) scope list
+        scope,
+        redirect_uri,
+        resource,
+        timeoutInSeconds,
+        extraHeaders,
+        ...extraTokenParams
+      });
+    } catch (err) {
+      if (err instanceof ErrorDPoPNonce && this.settings.dpop) {
+        extraHeaders["DPoP"] = await this.getDpopProof(this.settings.dpop.store, err.nonce);
+        result = await this._tokenClient.exchangeRefreshToken({
+          refresh_token: state.refresh_token,
+          // provide the (possible filtered) scope list
+          scope,
+          redirect_uri,
+          resource,
+          timeoutInSeconds,
+          extraHeaders,
+          ...extraTokenParams
+        });
+      } else {
+        throw err;
+      }
+    }
     const response = new SigninResponse(new URLSearchParams());
     Object.assign(response, result);
     logger2.debug("validating response", response);
@@ -2140,8 +2396,9 @@ var UserManagerSettingsStore = class extends OidcClientSettingsStore {
       redirectTarget = "self",
       iframeNotifyParentOrigin = args.iframeNotifyParentOrigin,
       iframeScriptOrigin = args.iframeScriptOrigin,
+      requestTimeoutInSeconds,
       silent_redirect_uri = args.redirect_uri,
-      silentRequestTimeoutInSeconds = DefaultSilentRequestTimeoutInSeconds,
+      silentRequestTimeoutInSeconds,
       automaticSilentRenew = true,
       validateSubOnSilentRenew = true,
       includeIdTokenInSilentRenew = false,
@@ -2166,7 +2423,7 @@ var UserManagerSettingsStore = class extends OidcClientSettingsStore {
     this.iframeNotifyParentOrigin = iframeNotifyParentOrigin;
     this.iframeScriptOrigin = iframeScriptOrigin;
     this.silent_redirect_uri = silent_redirect_uri;
-    this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds;
+    this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds || requestTimeoutInSeconds || DefaultSilentRequestTimeoutInSeconds;
     this.automaticSilentRenew = automaticSilentRenew;
     this.validateSubOnSilentRenew = validateSubOnSilentRenew;
     this.includeIdTokenInSilentRenew = includeIdTokenInSilentRenew;
@@ -2260,12 +2517,19 @@ var second = 1e3;
 var PopupWindow = class extends AbstractChildWindow {
   constructor({
     popupWindowTarget = DefaultPopupTarget,
-    popupWindowFeatures = {}
+    popupWindowFeatures = {},
+    popupSignal
   }) {
     super();
     this._logger = new Logger("PopupWindow");
     const centeredPopup = PopupUtils.center({ ...DefaultPopupWindowFeatures, ...popupWindowFeatures });
     this._window = window.open(void 0, popupWindowTarget, PopupUtils.serialize(centeredPopup));
+    if (popupSignal) {
+      popupSignal.addEventListener("abort", () => {
+        var _a;
+        void this._abort.raise(new Error((_a = popupSignal.reason) != null ? _a : "Popup aborted"));
+      });
+    }
     if (popupWindowFeatures.closePopupWindowAfterInSeconds && popupWindowFeatures.closePopupWindowAfterInSeconds > 0) {
       setTimeout(() => {
         if (!this._window || typeof this._window.closed !== "boolean" || this._window.closed) {
@@ -2312,9 +2576,10 @@ var PopupNavigator = class {
   }
   async prepare({
     popupWindowFeatures = this._settings.popupWindowFeatures,
-    popupWindowTarget = this._settings.popupWindowTarget
+    popupWindowTarget = this._settings.popupWindowTarget,
+    popupSignal
   }) {
-    return new PopupWindow({ popupWindowFeatures, popupWindowTarget });
+    return new PopupWindow({ popupWindowFeatures, popupWindowTarget, popupSignal });
   }
   async callback(url, { keepOpen = false }) {
     this._logger.create("callback");
@@ -2608,20 +2873,26 @@ var UserManager = class {
    * @throws `Error` In cases of wrong authentication.
    */
   async signinRedirect(args = {}) {
+    var _a;
     this._logger.create("signinRedirect");
     const {
       redirectMethod,
       ...requestArgs
     } = args;
+    let dpopJkt;
+    if ((_a = this.settings.dpop) == null ? void 0 : _a.bind_authorization_code) {
+      dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
+    }
     const handle = await this._redirectNavigator.prepare({ redirectMethod });
     await this._signinStart({
       request_type: "si:r",
+      dpopJkt,
       ...requestArgs
     }, handle);
   }
   /**
    * Process the response (callback) from the authorization endpoint.
-   * It is recommend to use {@link UserManager.signinCallback} instead.
+   * It is recommended to use {@link UserManager.signinCallback} instead.
    *
    * @returns A promise containing the authenticated `User`.
    *
@@ -2649,7 +2920,12 @@ var UserManager = class {
     skipUserInfo = false
   }) {
     const logger2 = this._logger.create("signinResourceOwnerCredential");
-    const signinResponse = await this._client.processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, extraTokenParams: this.settings.extraTokenParams });
+    const signinResponse = await this._client.processResourceOwnerPasswordCredentials({
+      username,
+      password,
+      skipUserInfo,
+      extraTokenParams: this.settings.extraTokenParams
+    });
     logger2.debug("got signin response");
     const user = await this._buildUser(signinResponse);
     if (user.profile && user.profile.sub) {
@@ -2666,21 +2942,28 @@ var UserManager = class {
    * @throws `Error` In cases of wrong authentication.
    */
   async signinPopup(args = {}) {
+    var _a;
     const logger2 = this._logger.create("signinPopup");
+    let dpopJkt;
+    if ((_a = this.settings.dpop) == null ? void 0 : _a.bind_authorization_code) {
+      dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
+    }
     const {
       popupWindowFeatures,
       popupWindowTarget,
+      popupSignal,
       ...requestArgs
     } = args;
     const url = this.settings.popup_redirect_uri;
     if (!url) {
       logger2.throw(new Error("No popup_redirect_uri configured"));
     }
-    const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
+    const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget, popupSignal });
     const user = await this._signin({
       request_type: "si:p",
       redirect_uri: url,
       display: "popup",
+      dpopJkt,
       ...requestArgs
     }, handle);
     if (user) {
@@ -2694,7 +2977,7 @@ var UserManager = class {
   }
   /**
    * Notify the opening window of response (callback) from the authorization endpoint.
-   * It is recommend to use {@link UserManager.signinCallback} instead.
+   * It is recommended to use {@link UserManager.signinCallback} instead.
    *
    * @returns A promise
    *
@@ -2711,7 +2994,7 @@ var UserManager = class {
    * @returns A promise that contains the authenticated `User`.
    */
   async signinSilent(args = {}) {
-    var _a;
+    var _a, _b;
     const logger2 = this._logger.create("signinSilent");
     const {
       silentRequestTimeoutInSeconds,
@@ -2729,6 +3012,10 @@ var UserManager = class {
         timeoutInSeconds: silentRequestTimeoutInSeconds
       });
     }
+    let dpopJkt;
+    if ((_a = this.settings.dpop) == null ? void 0 : _a.bind_authorization_code) {
+      dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
+    }
     const url = this.settings.silent_redirect_uri;
     if (!url) {
       logger2.throw(new Error("No silent_redirect_uri configured"));
@@ -2744,10 +3031,11 @@ var UserManager = class {
       redirect_uri: url,
       prompt: "none",
       id_token_hint: this.settings.includeIdTokenInSilentRenew ? user == null ? void 0 : user.id_token : void 0,
+      dpopJkt,
       ...requestArgs
     }, handle, verifySub);
     if (user) {
-      if ((_a = user.profile) == null ? void 0 : _a.sub) {
+      if ((_b = user.profile) == null ? void 0 : _b.sub) {
         logger2.info("success, signed in subject", user.profile.sub);
       } else {
         logger2.info("no subject");
@@ -2757,8 +3045,8 @@ var UserManager = class {
   }
   async _useRefreshToken(args) {
     const response = await this._client.useRefreshToken({
-      ...args,
-      timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds
+      timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
+      ...args
     });
     const user = new User({ ...args.state, ...response });
     await this.storeUser(user);
@@ -2768,7 +3056,7 @@ var UserManager = class {
   /**
    *
    * Notify the parent window of response (callback) from the authorization endpoint.
-   * It is recommend to use {@link UserManager.signinCallback} instead.
+   * It is recommended to use {@link UserManager.signinCallback} instead.
    *
    * @returns A promise
    *
@@ -2786,7 +3074,7 @@ var UserManager = class {
    * - {@link UserManager.signinPopupCallback}
    * - {@link UserManager.signinSilentCallback}
    *
-   * @throws `Error` If request_type is unknown or signout can not processed.
+   * @throws `Error` If request_type is unknown or signin cannot be processed.
    */
   async signinCallback(url = window.location.href) {
     const { state } = await this._client.readSigninResponseState(url);
@@ -2794,12 +3082,15 @@ var UserManager = class {
       case "si:r":
         return await this.signinRedirectCallback(url);
       case "si:p":
-        return await this.signinPopupCallback(url);
+        await this.signinPopupCallback(url);
+        break;
       case "si:s":
-        return await this.signinSilentCallback(url);
+        await this.signinSilentCallback(url);
+        break;
       default:
         throw new Error("invalid response_type in state");
     }
+    return void 0;
   }
   /**
    * Process any response (callback) from the end session endpoint, by dispatching the request_type
@@ -2808,17 +3099,16 @@ var UserManager = class {
    * - {@link UserManager.signoutPopupCallback}
    * - {@link UserManager.signoutSilentCallback}
    *
-   * @throws `Error` If request_type is unknown or signout can not processed.
+   * @throws `Error` If request_type is unknown or signout cannot be processed.
    */
   async signoutCallback(url = window.location.href, keepOpen = false) {
     const { state } = await this._client.readSignoutResponseState(url);
     if (!state) {
-      return;
+      return void 0;
     }
     switch (state.request_type) {
       case "so:r":
-        await this.signoutRedirectCallback(url);
-        break;
+        return await this.signoutRedirectCallback(url);
       case "so:p":
         await this.signoutPopupCallback(url, keepOpen);
         break;
@@ -2828,6 +3118,7 @@ var UserManager = class {
       default:
         throw new Error("invalid response_type in state");
     }
+    return void 0;
   }
   /**
    * Query OP for user's current signin status.
@@ -2858,7 +3149,8 @@ var UserManager = class {
       ...requestArgs
     }, handle);
     try {
-      const signinResponse = await this._client.processSigninResponse(navResponse.url);
+      const extraHeaders = {};
+      const signinResponse = await this._client.processSigninResponse(navResponse.url, extraHeaders);
       logger2.debug("got signin response");
       if (signinResponse.session_state && signinResponse.profile.sub) {
         logger2.info("success for subject", signinResponse.profile.sub);
@@ -2909,7 +3201,8 @@ var UserManager = class {
   }
   async _signinEnd(url, verifySub) {
     const logger2 = this._logger.create("_signinEnd");
-    const signinResponse = await this._client.processSigninResponse(url);
+    const extraHeaders = {};
+    const signinResponse = await this._client.processSigninResponse(url, extraHeaders);
     logger2.debug("got signin response");
     const user = await this._buildUser(signinResponse, verifySub);
     return user;
@@ -2950,7 +3243,7 @@ var UserManager = class {
   }
   /**
    * Process response (callback) from the end session endpoint.
-   * It is recommend to use {@link UserManager.signoutCallback} instead.
+   * It is recommended to use {@link UserManager.signoutCallback} instead.
    *
    * @returns A promise containing signout response
    *
@@ -2963,7 +3256,7 @@ var UserManager = class {
     return response;
   }
   /**
-   * Trigger a redirect of a popup window window to the end session endpoint.
+   * Trigger a redirect of a popup window to the end session endpoint.
    *
    * @returns A promise
    */
@@ -2972,10 +3265,11 @@ var UserManager = class {
     const {
       popupWindowFeatures,
       popupWindowTarget,
+      popupSignal,
       ...requestArgs
     } = args;
     const url = this.settings.popup_post_logout_redirect_uri;
-    const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
+    const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget, popupSignal });
     await this._signout({
       request_type: "so:p",
       post_logout_redirect_uri: url,
@@ -2991,7 +3285,7 @@ var UserManager = class {
   }
   /**
    * Process response (callback) from the end session endpoint from a popup window.
-   * It is recommend to use {@link UserManager.signoutCallback} instead.
+   * It is recommended to use {@link UserManager.signoutCallback} instead.
    *
    * @returns A promise
    *
@@ -3066,7 +3360,7 @@ var UserManager = class {
   }
   /**
    * Notify the parent window of response (callback) from the end session endpoint.
-   * It is recommend to use {@link UserManager.signoutCallback} instead.
+   * It is recommended to use {@link UserManager.signoutCallback} instead.
    *
    * @returns A promise
    *
@@ -3083,8 +3377,7 @@ var UserManager = class {
   }
   async _revokeInternal(user, types = this.settings.revokeTokenTypes) {
     const logger2 = this._logger.create("_revokeInternal");
-    if (!user)
-      return;
+    if (!user) return;
     const typesPresent = types.filter((type) => typeof user[type] === "string");
     if (!typesPresent.length) {
       logger2.debug("no need to revoke due to no token(s)");
@@ -3140,6 +3433,9 @@ var UserManager = class {
     } else {
       this._logger.debug("removing user");
       await this.settings.userStore.remove(this._userStoreKey);
+      if (this.settings.dpop) {
+        await this.settings.dpop.store.remove(this.settings.client_id);
+      }
     }
   }
   /**
@@ -3148,20 +3444,107 @@ var UserManager = class {
   async clearStaleState() {
     await this._client.clearStaleState();
   }
+  /**
+   * Dynamically generates a DPoP proof for a given user, URL and optional Http method.
+   * This method is useful when you need to make a request to a resource server
+   * with fetch or similar, and you need to include a DPoP proof in a DPoP header.
+   * @param url - The URL to generate the DPoP proof for
+   * @param user - The user to generate the DPoP proof for
+   * @param httpMethod - Optional, defaults to "GET"
+   * @param nonce - Optional nonce provided by the resource server
+   *
+   * @returns A promise containing the DPoP proof or undefined if DPoP is not enabled/no user is found.
+   */
+  async dpopProof(url, user, httpMethod, nonce) {
+    var _a, _b;
+    const dpopState = await ((_b = (_a = this.settings.dpop) == null ? void 0 : _a.store) == null ? void 0 : _b.get(this.settings.client_id));
+    if (dpopState) {
+      return await CryptoUtils.generateDPoPProof({
+        url,
+        accessToken: user == null ? void 0 : user.access_token,
+        httpMethod,
+        keyPair: dpopState.keys,
+        nonce
+      });
+    }
+    return void 0;
+  }
+  async generateDPoPJkt(dpopSettings) {
+    let dpopState = await dpopSettings.store.get(this.settings.client_id);
+    if (!dpopState) {
+      const dpopKeys = await CryptoUtils.generateDPoPKeys();
+      dpopState = new DPoPState(dpopKeys);
+      await dpopSettings.store.set(this.settings.client_id, dpopState);
+    }
+    return await CryptoUtils.generateDPoPJkt(dpopState.keys);
+  }
 };
 
 // package.json
-var version = "3.0.1";
+var version = "3.1.0";
 
 // src/Version.ts
 var Version = version;
+
+// src/IndexedDbDPoPStore.ts
+var IndexedDbDPoPStore = class {
+  constructor() {
+    this._dbName = "oidc";
+    this._storeName = "dpop";
+  }
+  async set(key, value) {
+    const store = await this.createStore(this._dbName, this._storeName);
+    await store("readwrite", (str) => {
+      str.put(value, key);
+      return this.promisifyRequest(str.transaction);
+    });
+  }
+  async get(key) {
+    const store = await this.createStore(this._dbName, this._storeName);
+    return await store("readonly", (str) => {
+      return this.promisifyRequest(str.get(key));
+    });
+  }
+  async remove(key) {
+    const item = await this.get(key);
+    const store = await this.createStore(this._dbName, this._storeName);
+    await store("readwrite", (str) => {
+      return this.promisifyRequest(str.delete(key));
+    });
+    return item;
+  }
+  async getAllKeys() {
+    const store = await this.createStore(this._dbName, this._storeName);
+    return await store("readonly", (str) => {
+      return this.promisifyRequest(str.getAllKeys());
+    });
+  }
+  promisifyRequest(request) {
+    return new Promise((resolve, reject) => {
+      request.oncomplete = request.onsuccess = () => resolve(request.result);
+      request.onabort = request.onerror = () => reject(request.error);
+    });
+  }
+  async createStore(dbName, storeName) {
+    const request = indexedDB.open(dbName);
+    request.onupgradeneeded = () => request.result.createObjectStore(storeName);
+    const db = await this.promisifyRequest(request);
+    return async (txMode, callback) => {
+      const tx = db.transaction(storeName, txMode);
+      const store = tx.objectStore(storeName);
+      return await callback(store);
+    };
+  }
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   AccessTokenEvents,
   CheckSessionIFrame,
+  DPoPState,
   ErrorResponse,
   ErrorTimeout,
   InMemoryWebStorage,
+  IndexedDbDPoPStore,
   Log,
   Logger,
   MetadataService,

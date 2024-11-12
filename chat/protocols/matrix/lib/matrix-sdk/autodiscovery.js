@@ -4,9 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.AutoDiscoveryError = exports.AutoDiscoveryAction = exports.AutoDiscovery = void 0;
-var _logger = require("./logger");
-var _httpApi = require("./http-api");
-var _versionSupport = require("./version-support");
+var _logger = require("./logger.js");
+var _index = require("./http-api/index.js");
+var _versionSupport = require("./version-support.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -365,8 +365,8 @@ class AutoDiscovery {
     let response;
     try {
       response = await AutoDiscovery.fetch(url, {
-        method: _httpApi.Method.Get,
-        signal: (0, _httpApi.timeoutSignal)(5000)
+        method: _index.Method.Get,
+        signal: (0, _index.timeoutSignal)(5000)
       });
       if (response.status === 404) {
         return {

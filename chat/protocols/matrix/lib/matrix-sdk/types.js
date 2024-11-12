@@ -7,7 +7,7 @@ var _exportNames = {
   VerificationMethod: true
 };
 exports.VerificationMethod = void 0;
-var _membership = require("./@types/membership");
+var _membership = require("./@types/membership.js");
 Object.keys(_membership).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;

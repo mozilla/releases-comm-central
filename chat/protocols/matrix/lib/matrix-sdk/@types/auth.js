@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SSOAction = exports.IdentityProviderBrand = exports.DELEGATED_OIDC_COMPATIBILITY = void 0;
-var _NamespacedValue = require("../NamespacedValue");
+var _NamespacedValue = require("../NamespacedValue.js");
 /*
 Copyright 2022 The Matrix.org Foundation C.I.C.
 

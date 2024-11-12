@@ -6,18 +6,18 @@ Object.defineProperty(exports, "__esModule", {
 exports.ThreadFilterType = exports.ThreadEvent = exports.Thread = exports.THREAD_RELATION_TYPE = exports.FeatureSupport = exports.FILTER_RELATED_BY_SENDERS = exports.FILTER_RELATED_BY_REL_TYPES = void 0;
 exports.determineFeatureSupport = determineFeatureSupport;
 exports.threadFilterTypeToFilter = threadFilterTypeToFilter;
-var _client = require("../client");
-var _ReEmitter = require("../ReEmitter");
-var _event = require("../@types/event");
-var _event2 = require("./event");
-var _eventTimeline = require("./event-timeline");
-var _eventTimelineSet = require("./event-timeline-set");
-var _room = require("./room");
-var _NamespacedValue = require("../NamespacedValue");
-var _logger = require("../logger");
-var _readReceipt = require("./read-receipt");
-var _read_receipts = require("../@types/read_receipts");
-var _feature = require("../feature");
+var _client = require("../client.js");
+var _ReEmitter = require("../ReEmitter.js");
+var _event = require("../@types/event.js");
+var _event2 = require("./event.js");
+var _eventTimeline = require("./event-timeline.js");
+var _eventTimelineSet = require("./event-timeline-set.js");
+var _room = require("./room.js");
+var _NamespacedValue = require("../NamespacedValue.js");
+var _logger = require("../logger.js");
+var _readReceipt = require("./read-receipt.js");
+var _read_receipts = require("../@types/read_receipts.js");
+var _feature = require("../feature.js");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }

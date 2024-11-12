@@ -5,31 +5,31 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.RoomNameType = exports.RoomEvent = exports.Room = exports.NotificationCountType = exports.KNOWN_SAFE_ROOM_VERSION = void 0;
 var _matrixEventsSdk = require("matrix-events-sdk");
-var _eventTimelineSet = require("./event-timeline-set");
-var _eventTimeline = require("./event-timeline");
-var _contentRepo = require("../content-repo");
-var _utils = _interopRequireWildcard(require("../utils"));
+var _eventTimelineSet = require("./event-timeline-set.js");
+var _eventTimeline = require("./event-timeline.js");
+var _contentRepo = require("../content-repo.js");
+var _utils = _interopRequireWildcard(require("../utils.js"));
 var utils = _utils;
-var _event = require("./event");
-var _eventStatus = require("./event-status");
-var _roomMember = require("./room-member");
-var _roomSummary = require("./room-summary");
-var _logger = require("../logger");
-var _ReEmitter = require("../ReEmitter");
-var _event2 = require("../@types/event");
-var _client = require("../client");
-var _filter = require("../filter");
-var _roomState = require("./room-state");
-var _beacon = require("./beacon");
-var _thread = require("./thread");
-var _read_receipts = require("../@types/read_receipts");
-var _relationsContainer = require("./relations-container");
-var _readReceipt = require("./read-receipt");
-var _poll = require("./poll");
-var _roomReceipts = require("./room-receipts");
-var _compareEventOrdering = require("./compare-event-ordering");
-var _membership = require("../@types/membership");
-var _serverCapabilities = require("../serverCapabilities");
+var _event = require("./event.js");
+var _eventStatus = require("./event-status.js");
+var _roomMember = require("./room-member.js");
+var _roomSummary = require("./room-summary.js");
+var _logger = require("../logger.js");
+var _ReEmitter = require("../ReEmitter.js");
+var _event2 = require("../@types/event.js");
+var _client = require("../client.js");
+var _filter = require("../filter.js");
+var _roomState = require("./room-state.js");
+var _beacon = require("./beacon.js");
+var _thread = require("./thread.js");
+var _read_receipts = require("../@types/read_receipts.js");
+var _relationsContainer = require("./relations-container.js");
+var _readReceipt = require("./read-receipt.js");
+var _poll = require("./poll.js");
+var _roomReceipts = require("./room-receipts.js");
+var _compareEventOrdering = require("./compare-event-ordering.js");
+var _membership = require("../@types/membership.js");
+var _serverCapabilities = require("../serverCapabilities.js");
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
 function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
@@ -352,7 +352,7 @@ class Room extends _readReceipt.ReadReceipt {
         this.threadsTimelineSets[0] = timelineSets[0];
         this.threadsTimelineSets[1] = timelineSets[1];
         return timelineSets;
-      } catch (e) {
+      } catch {
         this.threadTimelineSetsPromise = null;
         return null;
       }
@@ -434,7 +434,7 @@ class Room extends _readReceipt.ReadReceipt {
     let capabilities = {};
     try {
       capabilities = await this.client.getCapabilities();
-    } catch (e) {}
+    } catch {}
     let versionCap = capabilities["m.room_versions"];
     if (!versionCap) {
       versionCap = {
@@ -1734,7 +1734,7 @@ class Room extends _readReceipt.ReadReceipt {
   }
 
   /**
-   * Calls {@link processPollEvent} for a list of events.
+   * Process a list of poll events.
    *
    * @param events - List of events
    */

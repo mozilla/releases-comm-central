@@ -7,8 +7,8 @@ exports.errorFactory = errorFactory;
 exports.errorFromEvent = errorFromEvent;
 exports.newUserCancelledError = exports.newUnknownMethodError = exports.newUnexpectedMessageError = exports.newTimeoutError = exports.newKeyMismatchError = exports.newInvalidMessageError = void 0;
 exports.newVerificationError = newVerificationError;
-var _event = require("../../models/event");
-var _event2 = require("../../@types/event");
+var _event = require("../../models/event.js");
+var _event2 = require("../../@types/event.js");
 /*
 Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
 

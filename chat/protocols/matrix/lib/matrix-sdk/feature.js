@@ -34,7 +34,6 @@ let Feature = exports.Feature = /*#__PURE__*/function (Feature) {
   Feature["AccountDataDeletion"] = "AccountDataDeletion";
   Feature["RelationsRecursion"] = "RelationsRecursion";
   Feature["IntentionalMentions"] = "IntentionalMentions";
-  Feature["MigrateServerNameToVia"] = "MigrateServerNameToVia";
   return Feature;
 }({});
 const featureSupportResolver = {
@@ -61,9 +60,6 @@ const featureSupportResolver = {
   [Feature.IntentionalMentions]: {
     unstablePrefixes: ["org.matrix.msc3952_intentional_mentions"],
     matrixVersion: "v1.7"
-  },
-  [Feature.MigrateServerNameToVia]: {
-    unstablePrefixes: ["org.matrix.msc4156"]
   }
 };
 async function buildFeatureSupportMap(versions) {

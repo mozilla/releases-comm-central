@@ -4,10 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.WITHHELD_MESSAGES = exports.PayloadTooLargeError = exports.OlmDevice = void 0;
-var _logger = require("../logger");
-var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store");
-var _cryptoApi = require("../crypto-api");
-var _CryptoBackend = require("../common-crypto/CryptoBackend");
+var _logger = require("../logger.js");
+var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store.js");
+var _index = require("../crypto-api/index.js");
+var _CryptoBackend = require("../common-crypto/CryptoBackend.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -517,7 +517,7 @@ class OlmDevice {
       log.debug(`Waiting for Olm session for ${theirDeviceIdentityKey} to be created`);
       try {
         await this.sessionsInProgress[theirDeviceIdentityKey];
-      } catch (e) {
+      } catch {
         // if the session failed to be created, just fall through and
         // return an empty result
       }
@@ -581,7 +581,7 @@ class OlmDevice {
       log.debug(`Waiting for Olm session for ${deviceIdentityKey} to be created`);
       try {
         await this.sessionsInProgress[deviceIdentityKey];
-      } catch (e) {
+      } catch {
         // if the session failed to be created, then just fall through and
         // return an empty result
       }
@@ -939,7 +939,7 @@ class OlmDevice {
       this.getInboundGroupSession(roomId, senderKey, sessionId, txn, (session, sessionData, withheld) => {
         if (session === null || sessionData === null) {
           if (withheld) {
-            const failureCode = withheld.code === "m.unverified" ? _cryptoApi.DecryptionFailureCode.MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE : _cryptoApi.DecryptionFailureCode.MEGOLM_KEY_WITHHELD;
+            const failureCode = withheld.code === "m.unverified" ? _index.DecryptionFailureCode.MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE : _index.DecryptionFailureCode.MEGOLM_KEY_WITHHELD;
             error = new _CryptoBackend.DecryptionError(failureCode, calculateWithheldMessage(withheld), {
               session: senderKey + "|" + sessionId
             });
@@ -952,7 +952,7 @@ class OlmDevice {
           res = session.decrypt(body);
         } catch (e) {
           if (e?.message === "OLM.UNKNOWN_MESSAGE_INDEX" && withheld) {
-            const failureCode = withheld.code === "m.unverified" ? _cryptoApi.DecryptionFailureCode.MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE : _cryptoApi.DecryptionFailureCode.MEGOLM_KEY_WITHHELD;
+            const failureCode = withheld.code === "m.unverified" ? _index.DecryptionFailureCode.MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE : _index.DecryptionFailureCode.MEGOLM_KEY_WITHHELD;
             error = new _CryptoBackend.DecryptionError(failureCode, calculateWithheldMessage(withheld), {
               session: senderKey + "|" + sessionId
             });

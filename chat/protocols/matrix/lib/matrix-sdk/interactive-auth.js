@@ -4,9 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.NoAuthFlowFoundError = exports.InteractiveAuth = exports.AuthType = void 0;
-var _logger = require("./logger");
-var _utils = require("./utils");
-var _httpApi = require("./http-api");
+var _logger = require("./logger.js");
+var _utils = require("./utils.js");
+var _index = require("./http-api/index.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -280,7 +280,7 @@ class InteractiveAuth {
     while (this.submitPromise) {
       try {
         await this.submitPromise;
-      } catch (e) {}
+      } catch {}
     }
 
     // use the sessionid from the last request, if one is present.
@@ -344,7 +344,7 @@ class InteractiveAuth {
       this.attemptAuthDeferred.resolve(result);
       this.attemptAuthDeferred = null;
     } catch (error) {
-      const matrixError = error instanceof _httpApi.MatrixError ? error : null;
+      const matrixError = error instanceof _index.MatrixError ? error : null;
 
       // sometimes UI auth errors don't come with flows
       const errorFlows = matrixError?.data?.flows ?? null;

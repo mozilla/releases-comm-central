@@ -49,6 +49,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.common_crypto += [
     "matrix-sdk/common-crypto/CryptoBackend.js",
+    "matrix-sdk/common-crypto/key-passphrase.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto += [
@@ -104,7 +105,11 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.verification.request += [
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto_api += [
+    "matrix-sdk/crypto-api/CryptoEvent.js",
+    "matrix-sdk/crypto-api/CryptoEventHandlerMap.js",
     "matrix-sdk/crypto-api/index.js",
+    "matrix-sdk/crypto-api/key-passphrase.js",
+    "matrix-sdk/crypto-api/recovery-key.js",
     "matrix-sdk/crypto-api/verification.js",
 ]
 
@@ -149,6 +154,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     "matrix-sdk/models/MSC3089Branch.js",
     "matrix-sdk/models/MSC3089TreeSpace.js",
     "matrix-sdk/models/poll.js",
+    "matrix-sdk/models/profile-keys.js",
     "matrix-sdk/models/read-receipt.js",
     "matrix-sdk/models/related-relations.js",
     "matrix-sdk/models/relations-container.js",
@@ -176,7 +182,6 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.oidc += [
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous += [
     "matrix-sdk/rendezvous/index.js",
-    "matrix-sdk/rendezvous/MSC3906Rendezvous.js",
     "matrix-sdk/rendezvous/MSC4108SignInWithQR.js",
     "matrix-sdk/rendezvous/RendezvousError.js",
     "matrix-sdk/rendezvous/RendezvousFailureReason.js",
@@ -185,13 +190,11 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous += [
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous.channels += [
     "matrix-sdk/rendezvous/channels/index.js",
-    "matrix-sdk/rendezvous/channels/MSC3903ECDHv2RendezvousChannel.js",
     "matrix-sdk/rendezvous/channels/MSC4108SecureChannel.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous.transports += [
     "matrix-sdk/rendezvous/transports/index.js",
-    "matrix-sdk/rendezvous/transports/MSC3886SimpleHttpRendezvousTransport.js",
     "matrix-sdk/rendezvous/transports/MSC4108RendezvousSession.js",
 ]
 
@@ -239,6 +242,15 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.types += [
     "matrix-sdk/@types/sync.js",
     "matrix-sdk/@types/threepids.js",
     "matrix-sdk/@types/topic.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.utils += [
+    "matrix-sdk/utils/decryptAESSecretStorageItem.js",
+    "matrix-sdk/utils/encryptAESSecretStorageItem.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.utils.internal += [
+    "matrix-sdk/utils/internal/deriveKeys.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
@@ -377,6 +389,7 @@ EXTRA_JS_MODULES.matrix.matrix_widget_api.interfaces += [
     "matrix-widget-api/interfaces/IWidgetApiErrorResponse.js",
     "matrix-widget-api/interfaces/ModalButtonKind.js",
     "matrix-widget-api/interfaces/ModalWidgetActions.js",
+    "matrix-widget-api/interfaces/UpdateDelayedEventAction.js",
     "matrix-widget-api/interfaces/WidgetApiAction.js",
     "matrix-widget-api/interfaces/WidgetApiDirection.js",
     "matrix-widget-api/interfaces/WidgetKind.js",

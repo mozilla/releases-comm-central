@@ -4,8 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.M_TIMESTAMP = exports.M_LOCATION = exports.M_ASSET = exports.LocationAssetType = void 0;
-var _NamespacedValue = require("../NamespacedValue");
-var _extensible_events = require("./extensible_events");
+var _NamespacedValue = require("../NamespacedValue.js");
+var _extensible_events = require("./extensible_events.js");
 /*
 Copyright 2021 The Matrix.org Foundation C.I.C.
 

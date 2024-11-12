@@ -1,18 +1,18 @@
 This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v34.3.1.
+at https://github.com/matrix-org/matrix-js-sdk/. Current version is v34.11.1.
 
 The following npm dependencies are included:
 
 * @matrix-org/olm: https://gitlab.matrix.org/matrix-org/olm/-/packages?type=npm v3.2.15
 * another-json: https://www.npmjs.com/package/another-json/ v0.2.0
-* base-x: https://www.npmjs.com/package/base-x v4.0.0
-* bs58: https://www.npmjs.com/package/bs58 v5.0.0
+* base-x: https://www.npmjs.com/package/base-x v5.0.0
+* bs58: https://www.npmjs.com/package/bs58 v6.0.0
 * content-type: https://www.npmjs.com/package/content-type v1.0.5
 * events: https://www.npmjs.com/package/events v3.3.0
 * jwt-decode: https://www.npmjs.com/package/jwt-decode v4.0.0
 * matrix-events-sdk: https://www.npmjs.com/package/matrix-events-sdk v0.0.1
-* matrix-widget-api: https://www.npmjs.com/package/matrix-widget-api v1.6.0
-* oidc-client-ts: https://www.npmjs.com/package/oidc-client-ts v3.0.1
+* matrix-widget-api: https://www.npmjs.com/package/matrix-widget-api v1.9.0
+* oidc-client-ts: https://www.npmjs.com/package/oidc-client-ts v3.1.0
 * p-retry: https://www.npmjs.com/package/p-retry v4.6.2
 * retry: https://www.npmjs.com/package/retry v0.13.1
 * sdp-transform: https://www.npmjs.com/package/sdp-transform v2.14.2
@@ -73,13 +73,39 @@ module.exports = {
                 modules: "commonjs",
             },
         ],
-        "@babel/preset-typescript",
+        [
+            "@babel/preset-typescript",
+            {
+                // When using the transpiled javascript in `lib`, Node.js requires `.js` extensions on any `import`
+                // specifiers. However, Jest uses the TS source (via babel) and fails to resolve the `.js` names.
+                // To resolve this,we use the `.ts` names in the source, and rewrite the `import` specifiers to use
+                // `.js` during transpilation, *except* when we are targetting Jest.
+                rewriteImportExtensions: process.env.NODE_ENV !== "test",
+            },
+        ],
     ],
     plugins: [
         "@babel/plugin-transform-numeric-separator",
         "@babel/plugin-transform-class-properties",
         "@babel/plugin-transform-object-rest-spread",
         "@babel/plugin-syntax-dynamic-import",
+        [
+            "search-and-replace",
+            {
+                // Since rewriteImportExtensions doesn't work on dynamic imports (yet), we need to manually replace
+                // the dynamic rust-crypto import.
+                // (see https://github.com/babel/babel/issues/16750)
+                rules:
+                    process.env.NODE_ENV !== "test"
+                        ? [
+                              {
+                                  search: "./rust-crypto/index.ts",
+                                  replace: "./rust-crypto/index.js",
+                              },
+                          ]
+                        : [],
+            },
+        ],
     ],
 };
 ```
@@ -106,7 +132,7 @@ sub-directory.
 ```sh
 cp ../../matrix-js-sdk/node_modules/another-json/another-json.js chat/protocols/matrix/lib/another-json
 cp ../../matrix-js-sdk/node_modules/base-x/src/index.js chat/protocols/matrix/lib/base-x
-cp ../../matrix-js-sdk/node_modules/bs58/index.js chat/protocols/matrix/lib/bs58
+cp ../../matrix-js-sdk/node_modules/bs58/src/cjs/index.cjs chat/protocols/matrix/lib/bs58/index.js
 cp ../../matrix-js-sdk/node_modules/content-type/index.js chat/protocols/matrix/lib/content-type
 cp ../../matrix-js-sdk/node_modules/oidc-client-ts/dist/umd/oidc-client-ts.js chat/protocols/matrix/lib/oidc-client-ts
 cp ../../matrix-js-sdk/node_modules/jwt-decode/build/cjs/index.js chat/protocols/matrix/lib/jwt-decode

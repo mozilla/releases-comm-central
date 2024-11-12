@@ -4,9 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.PerSessionKeyBackupDownloader = void 0;
-var _httpApi = require("../http-api");
-var _matrix = require("../matrix");
-var _utils = require("../utils");
+var _index = require("../crypto-api/index.js");
+var _index2 = require("../http-api/index.js");
+var _utils = require("../utils.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -118,9 +118,9 @@ class PerSessionKeyBackupDownloader {
       });
     });
     this.logger = logger.getChild("[PerSessionKeyBackupDownloader]");
-    backupManager.on(_matrix.CryptoEvent.KeyBackupStatus, this.onBackupStatusChanged);
-    backupManager.on(_matrix.CryptoEvent.KeyBackupFailed, this.onBackupStatusChanged);
-    backupManager.on(_matrix.CryptoEvent.KeyBackupDecryptionKeyCached, this.onBackupStatusChanged);
+    backupManager.on(_index.CryptoEvent.KeyBackupStatus, this.onBackupStatusChanged);
+    backupManager.on(_index.CryptoEvent.KeyBackupFailed, this.onBackupStatusChanged);
+    backupManager.on(_index.CryptoEvent.KeyBackupDecryptionKeyCached, this.onBackupStatusChanged);
   }
 
   /**
@@ -180,9 +180,9 @@ class PerSessionKeyBackupDownloader {
   }
   stop() {
     this.stopped = true;
-    this.backupManager.off(_matrix.CryptoEvent.KeyBackupStatus, this.onBackupStatusChanged);
-    this.backupManager.off(_matrix.CryptoEvent.KeyBackupFailed, this.onBackupStatusChanged);
-    this.backupManager.off(_matrix.CryptoEvent.KeyBackupDecryptionKeyCached, this.onBackupStatusChanged);
+    this.backupManager.off(_index.CryptoEvent.KeyBackupStatus, this.onBackupStatusChanged);
+    this.backupManager.off(_index.CryptoEvent.KeyBackupFailed, this.onBackupStatusChanged);
+    this.backupManager.off(_index.CryptoEvent.KeyBackupDecryptionKeyCached, this.onBackupStatusChanged);
   }
   /** Returns true if the megolm session is already queued for download. */
   isAlreadyInQueue(roomId, megolmSessionId) {
@@ -216,7 +216,7 @@ class PerSessionKeyBackupDownloader {
   async getBackupDecryptionKey() {
     try {
       return await this.olmMachine.getBackupKeys();
-    } catch (e) {
+    } catch {
       return null;
     }
   }
@@ -233,10 +233,10 @@ class PerSessionKeyBackupDownloader {
       $roomId: roomId,
       $sessionId: sessionId
     });
-    return await this.http.authedRequest(_httpApi.Method.Get, path, {
+    return await this.http.authedRequest(_index2.Method.Get, path, {
       version
     }, undefined, {
-      prefix: _httpApi.ClientPrefix.V3
+      prefix: _index2.ClientPrefix.V3
     });
   }
   async downloadKeysLoop() {
@@ -317,7 +317,7 @@ class PerSessionKeyBackupDownloader {
     } catch (e) {
       if (this.stopped) throw new KeyDownloadError(KeyDownloadErrorCode.STOPPED);
       this.logger.info(`No luck requesting key backup for session ${targetSessionId}: ${e}`);
-      if (e instanceof _httpApi.MatrixError) {
+      if (e instanceof _index2.MatrixError) {
         const errCode = e.data.errcode;
         if (errCode == "M_NOT_FOUND") {
           // Unfortunately the spec doesn't give us a way to differentiate between a missing key and a wrong version.
@@ -413,7 +413,6 @@ class PerSessionKeyBackupDownloader {
       this.hasConfigurationProblem = true;
       return null;
     }
-    const authData = currentServerVersion.auth_data;
     const backupKeys = await this.getBackupDecryptionKey();
     if (!backupKeys?.decryptionKey) {
       this.logger.debug(`Not checking key backup for session (no decryption key)`);
@@ -425,8 +424,9 @@ class PerSessionKeyBackupDownloader {
       this.hasConfigurationProblem = true;
       return null;
     }
+    const authData = currentServerVersion.auth_data;
     if (authData.public_key != backupKeys.decryptionKey.megolmV1PublicKey.publicKeyBase64) {
-      this.logger.debug(`getBackupDecryptor key mismatch error`);
+      this.logger.debug(`Key backup on server does not match our decryption key`);
       this.hasConfigurationProblem = true;
       return null;
     }

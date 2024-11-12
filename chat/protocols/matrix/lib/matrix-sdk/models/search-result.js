@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SearchResult = void 0;
-var _eventContext = require("./event-context");
+var _eventContext = require("./event-context.js");
 /*
 Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
 

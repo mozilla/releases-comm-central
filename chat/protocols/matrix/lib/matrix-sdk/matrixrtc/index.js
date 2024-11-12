@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var _CallMembership = require("./CallMembership");
+var _CallMembership = require("./CallMembership.js");
 Object.keys(_CallMembership).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _CallMembership[key]) return;
@@ -14,18 +14,7 @@ Object.keys(_CallMembership).forEach(function (key) {
     }
   });
 });
-var _focus = require("./focus");
-Object.keys(_focus).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (key in exports && exports[key] === _focus[key]) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _focus[key];
-    }
-  });
-});
-var _LivekitFocus = require("./LivekitFocus");
+var _LivekitFocus = require("./LivekitFocus.js");
 Object.keys(_LivekitFocus).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _LivekitFocus[key]) return;
@@ -36,7 +25,7 @@ Object.keys(_LivekitFocus).forEach(function (key) {
     }
   });
 });
-var _MatrixRTCSession = require("./MatrixRTCSession");
+var _MatrixRTCSession = require("./MatrixRTCSession.js");
 Object.keys(_MatrixRTCSession).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _MatrixRTCSession[key]) return;
@@ -47,7 +36,7 @@ Object.keys(_MatrixRTCSession).forEach(function (key) {
     }
   });
 });
-var _MatrixRTCSessionManager = require("./MatrixRTCSessionManager");
+var _MatrixRTCSessionManager = require("./MatrixRTCSessionManager.js");
 Object.keys(_MatrixRTCSessionManager).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _MatrixRTCSessionManager[key]) return;
@@ -55,17 +44,6 @@ Object.keys(_MatrixRTCSessionManager).forEach(function (key) {
     enumerable: true,
     get: function () {
       return _MatrixRTCSessionManager[key];
-    }
-  });
-});
-var _types = require("./types");
-Object.keys(_types).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (key in exports && exports[key] === _types[key]) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _types[key];
     }
   });
 });

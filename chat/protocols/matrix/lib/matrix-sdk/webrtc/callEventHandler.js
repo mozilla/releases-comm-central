@@ -4,12 +4,12 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.CallEventHandlerEvent = exports.CallEventHandler = void 0;
-var _logger = require("../logger");
-var _call = require("./call");
-var _event = require("../@types/event");
-var _client = require("../client");
-var _groupCall = require("./groupCall");
-var _room = require("../models/room");
+var _logger = require("../logger.js");
+var _call = require("./call.js");
+var _event = require("../@types/event.js");
+var _client = require("../client.js");
+var _groupCall = require("./groupCall.js");
+var _room = require("../models/room.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*

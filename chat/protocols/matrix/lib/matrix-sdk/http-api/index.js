@@ -7,8 +7,8 @@ var _exportNames = {
   MatrixHttpApi: true
 };
 exports.MatrixHttpApi = void 0;
-var _fetch = require("./fetch");
-var _prefix = require("./prefix");
+var _fetch = require("./fetch.js");
+var _prefix = require("./prefix.js");
 Object.keys(_prefix).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
@@ -20,9 +20,9 @@ Object.keys(_prefix).forEach(function (key) {
     }
   });
 });
-var _utils = require("../utils");
-var callbacks = _interopRequireWildcard(require("../realtime-callbacks"));
-var _method = require("./method");
+var _utils = require("../utils.js");
+var callbacks = _interopRequireWildcard(require("../realtime-callbacks.js"));
+var _method = require("./method.js");
 Object.keys(_method).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
@@ -34,7 +34,7 @@ Object.keys(_method).forEach(function (key) {
     }
   });
 });
-var _errors = require("./errors");
+var _errors = require("./errors.js");
 Object.keys(_errors).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
@@ -46,7 +46,7 @@ Object.keys(_errors).forEach(function (key) {
     }
   });
 });
-var _utils2 = require("./utils");
+var _utils2 = require("./utils.js");
 Object.keys(_utils2).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
@@ -58,7 +58,7 @@ Object.keys(_utils2).forEach(function (key) {
     }
   });
 });
-var _interface = require("./interface");
+var _interface = require("./interface.js");
 Object.keys(_interface).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;

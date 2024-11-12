@@ -12,11 +12,11 @@ exports.makeLocationContent = void 0;
 exports.makeNotice = makeNotice;
 exports.makeTextMessage = makeTextMessage;
 exports.parseTopicContent = exports.parseLocationEvent = exports.parseBeaconInfoContent = exports.parseBeaconContent = exports.makeTopicContent = void 0;
-var _event = require("./@types/event");
-var _extensible_events = require("./@types/extensible_events");
-var _utilities = require("./extensible_events_v1/utilities");
-var _location = require("./@types/location");
-var _topic = require("./@types/topic");
+var _event = require("./@types/event.js");
+var _extensible_events = require("./@types/extensible_events.js");
+var _utilities = require("./extensible_events_v1/utilities.js");
+var _location = require("./@types/location.js");
+var _topic = require("./@types/topic.js");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }

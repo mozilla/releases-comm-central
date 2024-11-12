@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.getRelationsThreadFilter = getRelationsThreadFilter;
-var _thread = require("./models/thread");
+var _thread = require("./models/thread.js");
 /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 

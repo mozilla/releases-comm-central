@@ -56,6 +56,8 @@ var WidgetApiFromWidgetAction = /*#__PURE__*/function (WidgetApiFromWidgetAction
   WidgetApiFromWidgetAction["MSC3973UserDirectorySearch"] = "org.matrix.msc3973.user_directory_search";
   WidgetApiFromWidgetAction["MSC4039GetMediaConfigAction"] = "org.matrix.msc4039.get_media_config";
   WidgetApiFromWidgetAction["MSC4039UploadFileAction"] = "org.matrix.msc4039.upload_file";
+  WidgetApiFromWidgetAction["MSC4039DownloadFileAction"] = "org.matrix.msc4039.download_file";
+  WidgetApiFromWidgetAction["MSC4157UpdateDelayedEvent"] = "org.matrix.msc4157.update_delayed_event";
   return WidgetApiFromWidgetAction;
 }({});
 exports.WidgetApiFromWidgetAction = WidgetApiFromWidgetAction;

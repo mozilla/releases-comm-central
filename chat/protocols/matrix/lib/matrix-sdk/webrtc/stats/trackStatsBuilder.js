@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.TrackStatsBuilder = void 0;
-var _valueFormatter = require("./valueFormatter");
+var _valueFormatter = require("./valueFormatter.js");
 class TrackStatsBuilder {
   static buildFramerateResolution(trackStats, now) {
     const resolution = {
@@ -45,7 +45,7 @@ class TrackStatsBuilder {
        * keys will be added on the processing side.
        */
       const codecShortType = codec.mimeType.split("/")[1];
-      codecShortType && trackStats.setCodec(codecShortType);
+      if (codecShortType) trackStats.setCodec(codecShortType);
     }
   }
   static buildBitrateReceived(trackStats, now, before) {

@@ -4,12 +4,12 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.IndexedDBStore = void 0;
-var _memory = require("./memory");
-var _indexeddbLocalBackend = require("./indexeddb-local-backend");
-var _indexeddbRemoteBackend = require("./indexeddb-remote-backend");
-var _event = require("../models/event");
-var _logger = require("../logger");
-var _typedEventEmitter = require("../models/typed-event-emitter");
+var _memory = require("./memory.js");
+var _indexeddbLocalBackend = require("./indexeddb-local-backend.js");
+var _indexeddbRemoteBackend = require("./indexeddb-remote-backend.js");
+var _event = require("../models/event.js");
+var _logger = require("../logger.js");
+var _typedEventEmitter = require("../models/typed-event-emitter.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -86,7 +86,6 @@ class IndexedDBStore extends _memory.MemoryStore {
     _defineProperty(this, "userModifiedMap", {});
     // user_id : timestamp
     _defineProperty(this, "emitter", new _typedEventEmitter.TypedEventEmitter());
-    _defineProperty(this, "on", this.emitter.on.bind(this.emitter));
     _defineProperty(this, "onClose", () => {
       this.emitter.emit("closed");
     });
@@ -121,7 +120,7 @@ class IndexedDBStore extends _memory.MemoryStore {
         _logger.logger.error(`Failed to delete indexeddb data: ${err}`);
         throw err;
       });
-    }));
+    }, null));
     _defineProperty(this, "reallySave", this.degradable(() => {
       this.syncTs = Date.now(); // set now to guard against multi-writes
 
@@ -137,7 +136,7 @@ class IndexedDBStore extends _memory.MemoryStore {
         this.userModifiedMap[u.userId] = u.getLastModifiedTime();
       }
       return this.backend.syncToDatabase(userTuples);
-    }));
+    }, null));
     _defineProperty(this, "setSyncData", this.degradable(syncData => {
       return this.backend.setSyncData(syncData);
     }, "setSyncData"));
@@ -181,6 +180,12 @@ class IndexedDBStore extends _memory.MemoryStore {
       this.backend = new _indexeddbLocalBackend.LocalIndexedDBStoreBackend(opts.indexedDB, opts.dbName);
     }
   }
+
+  /** Re-exports `TypedEventEmitter.on` */
+  on(event, handler) {
+    this.emitter.on(event, handler);
+  }
+
   /**
    * @returns Resolved when loaded from indexed db.
    */

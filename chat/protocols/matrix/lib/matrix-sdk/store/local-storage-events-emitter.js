@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.localStorageErrorsEventsEmitter = exports.LocalStorageErrors = void 0;
-var _typedEventEmitter = require("../models/typed-event-emitter");
+var _typedEventEmitter = require("../models/typed-event-emitter.js");
 /*
 Copyright 2021 The Matrix.org Foundation C.I.C.
 

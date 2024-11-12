@@ -9,8 +9,8 @@ exports.validateBearerTokenResponse = validateBearerTokenResponse;
 exports.validateOIDCIssuerWellKnown = exports.validateIdToken = void 0;
 exports.validateStoredUserState = validateStoredUserState;
 var _jwtDecode = require("jwt-decode");
-var _logger = require("../logger");
-var _error = require("./error");
+var _logger = require("../logger.js");
+var _error = require("./error.js");
 /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 

@@ -5,11 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.OutgoingRequestProcessor = void 0;
 var _matrixSdkCryptoWasm = require("@matrix-org/matrix-sdk-crypto-wasm");
-var _logger = require("../logger");
-var _httpApi = require("../http-api");
-var _utils = require("../utils");
-var _event = require("../@types/event");
-var _DehydratedDeviceManager = require("./DehydratedDeviceManager");
+var _logger = require("../logger.js");
+var _index = require("../http-api/index.js");
+var _utils = require("../utils.js");
+var _event = require("../@types/event.js");
+var _DehydratedDeviceManager = require("./DehydratedDeviceManager.js");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -59,29 +59,29 @@ class OutgoingRequestProcessor {
      * for the complete list of request types
      */
     if (msg instanceof _matrixSdkCryptoWasm.KeysUploadRequest) {
-      resp = await this.requestWithRetry(_httpApi.Method.Post, "/_matrix/client/v3/keys/upload", {}, msg.body);
+      resp = await this.requestWithRetry(_index.Method.Post, "/_matrix/client/v3/keys/upload", {}, msg.body);
     } else if (msg instanceof _matrixSdkCryptoWasm.KeysQueryRequest) {
-      resp = await this.requestWithRetry(_httpApi.Method.Post, "/_matrix/client/v3/keys/query", {}, msg.body);
+      resp = await this.requestWithRetry(_index.Method.Post, "/_matrix/client/v3/keys/query", {}, msg.body);
     } else if (msg instanceof _matrixSdkCryptoWasm.KeysClaimRequest) {
-      resp = await this.requestWithRetry(_httpApi.Method.Post, "/_matrix/client/v3/keys/claim", {}, msg.body);
+      resp = await this.requestWithRetry(_index.Method.Post, "/_matrix/client/v3/keys/claim", {}, msg.body);
     } else if (msg instanceof _matrixSdkCryptoWasm.SignatureUploadRequest) {
-      resp = await this.requestWithRetry(_httpApi.Method.Post, "/_matrix/client/v3/keys/signatures/upload", {}, msg.body);
+      resp = await this.requestWithRetry(_index.Method.Post, "/_matrix/client/v3/keys/signatures/upload", {}, msg.body);
     } else if (msg instanceof _matrixSdkCryptoWasm.KeysBackupRequest) {
-      resp = await this.requestWithRetry(_httpApi.Method.Put, "/_matrix/client/v3/room_keys/keys", {
+      resp = await this.requestWithRetry(_index.Method.Put, "/_matrix/client/v3/room_keys/keys", {
         version: msg.version
       }, msg.body);
     } else if (msg instanceof _matrixSdkCryptoWasm.ToDeviceRequest) {
       resp = await this.sendToDeviceRequest(msg);
     } else if (msg instanceof _matrixSdkCryptoWasm.RoomMessageRequest) {
       const path = `/_matrix/client/v3/rooms/${encodeURIComponent(msg.room_id)}/send/` + `${encodeURIComponent(msg.event_type)}/${encodeURIComponent(msg.txn_id)}`;
-      resp = await this.requestWithRetry(_httpApi.Method.Put, path, {}, msg.body);
+      resp = await this.requestWithRetry(_index.Method.Put, path, {}, msg.body);
     } else if (msg instanceof _matrixSdkCryptoWasm.UploadSigningKeysRequest) {
-      await this.makeRequestWithUIA(_httpApi.Method.Post, "/_matrix/client/v3/keys/device_signing/upload", {}, msg.body, uiaCallback);
+      await this.makeRequestWithUIA(_index.Method.Post, "/_matrix/client/v3/keys/device_signing/upload", {}, msg.body, uiaCallback);
       // SigningKeysUploadRequest does not implement OutgoingRequest and does not need to be marked as sent.
       return;
     } else if (msg instanceof _matrixSdkCryptoWasm.PutDehydratedDeviceRequest) {
       const path = _DehydratedDeviceManager.UnstablePrefix + "/dehydrated_device";
-      await this.rawJsonRequest(_httpApi.Method.Put, path, {}, msg.body);
+      await this.rawJsonRequest(_index.Method.Put, path, {}, msg.body);
       // PutDehydratedDeviceRequest does not implement OutgoingRequest and does not need to be marked as sent.
       return;
     } else {
@@ -124,7 +124,7 @@ class OutgoingRequestProcessor {
     }
     _logger.logger.info(`Sending batch of to-device messages. type=${request.event_type} txnid=${request.txn_id}`, messageList);
     const path = `/_matrix/client/v3/sendToDevice/${encodeURIComponent(request.event_type)}/` + encodeURIComponent(request.txn_id);
-    return await this.requestWithRetry(_httpApi.Method.Put, path, {}, request.body);
+    return await this.requestWithRetry(_index.Method.Put, path, {}, request.body);
   }
   async makeRequestWithUIA(method, path, queryParams, body, uiaCallback) {
     if (!uiaCallback) {
@@ -151,7 +151,7 @@ class OutgoingRequestProcessor {
         return await this.rawJsonRequest(method, path, queryParams, body);
       } catch (e) {
         currentRetryCount++;
-        const backoff = (0, _httpApi.calculateRetryBackoff)(e, currentRetryCount, true);
+        const backoff = (0, _index.calculateRetryBackoff)(e, currentRetryCount, true);
         if (backoff < 0) {
           // Max number of retries reached, or error is not retryable. rethrow the error
           throw e;

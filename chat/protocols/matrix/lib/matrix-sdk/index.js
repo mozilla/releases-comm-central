@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 var _exportNames = {};
 exports.default = void 0;
-var matrixcs = _interopRequireWildcard(require("./matrix"));
+var matrixcs = _interopRequireWildcard(require("./matrix.js"));
 Object.keys(matrixcs).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;

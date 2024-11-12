@@ -5,14 +5,16 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.RoomWidgetClient = void 0;
 var _matrixWidgetApi = require("matrix-widget-api");
-var _event = require("./models/event");
-var _event2 = require("./@types/event");
-var _logger = require("./logger");
-var _client = require("./client");
-var _sync = require("./sync");
-var _slidingSyncSdk = require("./sliding-sync-sdk");
-var _user = require("./models/user");
-var _utils = require("./utils");
+var _event = require("./models/event.js");
+var _event2 = require("./@types/event.js");
+var _logger = require("./logger.js");
+var _client = require("./client.js");
+var _sync = require("./sync.js");
+var _slidingSyncSdk = require("./sliding-sync-sdk.js");
+var _user = require("./models/user.js");
+var _utils = require("./utils.js");
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -198,14 +200,20 @@ class RoomWidgetClient extends _client.MatrixClient {
     throw new Error(`Unknown room: ${roomIdOrAlias}`);
   }
   async encryptAndSendEvent(room, event, delayOpts) {
+    // We need to extend the content with the redacts parameter
+    // The js sdk uses event.redacts but the widget api uses event.content.redacts
+    // This will be converted back to event.redacts in the widget driver.
+    const content = event.event.redacts ? _objectSpread(_objectSpread({}, event.getContent()), {}, {
+      redacts: event.event.redacts
+    }) : event.getContent();
     if (delayOpts) {
       // TODO: updatePendingEvent for delayed events?
-      const response = await this.widgetApi.sendRoomEvent(event.getType(), event.getContent(), room.roomId, "delay" in delayOpts ? delayOpts.delay : undefined, "parent_delay_id" in delayOpts ? delayOpts.parent_delay_id : undefined);
+      const response = await this.widgetApi.sendRoomEvent(event.getType(), content, room.roomId, "delay" in delayOpts ? delayOpts.delay : undefined, "parent_delay_id" in delayOpts ? delayOpts.parent_delay_id : undefined);
       return this.validateSendDelayedEventResponse(response);
     }
     let response;
     try {
-      response = await this.widgetApi.sendRoomEvent(event.getType(), event.getContent(), room.roomId);
+      response = await this.widgetApi.sendRoomEvent(event.getType(), content, room.roomId);
     } catch (e) {
       this.updatePendingEventStatus(room, event, _event.EventStatus.NOT_SENT);
       throw e;

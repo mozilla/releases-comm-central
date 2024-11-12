@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var matrixcs = _interopRequireWildcard(require("./matrix"));
+var matrixcs = _interopRequireWildcard(require("./matrix.js"));
 Object.keys(matrixcs).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === matrixcs[key]) return;
@@ -41,7 +41,7 @@ globalThis.__js_sdk_entrypoint = true;
 let indexedDB;
 try {
   indexedDB = globalThis.indexedDB;
-} catch (e) {}
+} catch {}
 
 // if our browser (appears to) support indexeddb, use an indexeddb crypto store.
 if (indexedDB) {

@@ -4,13 +4,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.MatrixRTCSessionManagerEvents = exports.MatrixRTCSessionManager = void 0;
-var _logger = require("../logger");
-var _client = require("../client");
-var _typedEventEmitter = require("../models/typed-event-emitter");
-var _room = require("../models/room");
-var _roomState = require("../models/room-state");
-var _MatrixRTCSession = require("./MatrixRTCSession");
-var _event = require("../@types/event");
+var _logger = require("../logger.js");
+var _client = require("../client.js");
+var _typedEventEmitter = require("../models/typed-event-emitter.js");
+var _room = require("../models/room.js");
+var _roomState = require("../models/room-state.js");
+var _MatrixRTCSession = require("./MatrixRTCSession.js");
+var _event = require("../@types/event.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -28,6 +28,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const logger = _logger.logger.getChild("MatrixRTCSessionManager");
 let MatrixRTCSessionManagerEvents = exports.MatrixRTCSessionManagerEvents = /*#__PURE__*/function (MatrixRTCSessionManagerEvents) {
   MatrixRTCSessionManagerEvents["SessionStarted"] = "session_started";
   MatrixRTCSessionManagerEvents["SessionEnded"] = "session_ended";
@@ -57,7 +58,7 @@ class MatrixRTCSessionManager extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "onRoomState", (event, _state) => {
       const room = this.client.getRoom(event.getRoomId());
       if (!room) {
-        _logger.logger.error(`Got room state event for unknown room ${event.getRoomId()}!`);
+        logger.error(`Got room state event for unknown room ${event.getRoomId()}!`);
         return;
       }
       if (event.getType() == _event.EventType.GroupCallMemberPrefix) {
@@ -106,12 +107,24 @@ class MatrixRTCSessionManager extends _typedEventEmitter.TypedEventEmitter {
     }
     return this.roomSessions.get(room.roomId);
   }
-  async consumeCallEncryptionEvent(event) {
+  async consumeCallEncryptionEvent(event, isRetry = false) {
     await this.client.decryptEventIfNeeded(event);
+    if (event.isDecryptionFailure()) {
+      if (!isRetry) {
+        logger.warn(`Decryption failed for event ${event.getId()}: ${event.decryptionFailureReason} will retry once only`);
+        // retry after 1 second. After this we give up.
+        setTimeout(() => this.consumeCallEncryptionEvent(event, true), 1000);
+      } else {
+        logger.warn(`Decryption failed for event ${event.getId()}: ${event.decryptionFailureReason}`);
+      }
+      return;
+    } else if (isRetry) {
+      logger.info(`Decryption succeeded for event ${event.getId()} after retry`);
+    }
     if (event.getType() !== _event.EventType.CallEncryptionKeysPrefix) return Promise.resolve();
     const room = this.client.getRoom(event.getRoomId());
     if (!room) {
-      _logger.logger.error(`Got room state event for unknown room ${event.getRoomId()}!`);
+      logger.error(`Got room state event for unknown room ${event.getRoomId()}!`);
       return Promise.resolve();
     }
     this.getRoomSession(room).onCallEncryption(event);

@@ -7,12 +7,13 @@ exports.migrateFromLegacyCrypto = migrateFromLegacyCrypto;
 exports.migrateLegacyLocalTrustIfNeeded = migrateLegacyLocalTrustIfNeeded;
 exports.migrateRoomSettingsFromLegacyCrypto = migrateRoomSettingsFromLegacyCrypto;
 var RustSdkCryptoJs = _interopRequireWildcard(require("@matrix-org/matrix-sdk-crypto-wasm"));
-var _base = require("../crypto/store/base");
-var _indexeddbCryptoStore = require("../crypto/store/indexeddb-crypto-store");
-var _aes = require("../crypto/aes");
-var _backup = require("./backup");
-var _utils = require("../utils");
-var _base2 = require("../base64");
+var _base = require("../crypto/store/base.js");
+var _indexeddbCryptoStore = require("../crypto/store/indexeddb-crypto-store.js");
+var _backup = require("./backup.js");
+var _utils = require("../utils.js");
+var _base2 = require("../base64.js");
+var _decryptAESSecretStorageItem = _interopRequireDefault(require("../utils/decryptAESSecretStorageItem.js"));
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
 function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 /*
@@ -303,7 +304,7 @@ async function getAndDecryptCachedSecretKey(legacyStore, legacyPickleKey, name) 
     });
   });
   if (key && key.ciphertext && key.iv && key.mac) {
-    return await (0, _aes.decryptAES)(key, legacyPickleKey, name);
+    return await (0, _decryptAESSecretStorageItem.default)(key, legacyPickleKey, name);
   } else if (key instanceof Uint8Array) {
     // This is a legacy backward compatibility case where the key was stored in clear.
     return (0, _base2.encodeBase64)(key);

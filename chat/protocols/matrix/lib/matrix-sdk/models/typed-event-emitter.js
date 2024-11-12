@@ -52,7 +52,7 @@ let EventEmitterEvents = exports.EventEmitterEvents = /*#__PURE__*/function (Eve
  */
 class TypedEventEmitter extends _events.EventEmitter {
   /**
-   * Alias for {@link TypedEventEmitter#on}.
+   * Alias for {@link on}.
    */
   addListener(event, listener) {
     return super.addListener(event, listener);
@@ -103,7 +103,7 @@ class TypedEventEmitter extends _events.EventEmitter {
   }
 
   /**
-   * Alias for {@link TypedEventEmitter#removeListener}
+   * Alias for {@link removeListener}
    */
   off(event, listener) {
     return super.off(event, listener);
@@ -118,7 +118,7 @@ class TypedEventEmitter extends _events.EventEmitter {
    * being added, and called, multiple times.
    *
    * By default, event listeners are invoked in the order they are added. The
-   * {@link TypedEventEmitter#prependListener} method can be used as an alternative to add the
+   * {@link prependListener} method can be used as an alternative to add the
    * event listener to the beginning of the listeners array.
    *
    * @param event - The name of the event.
@@ -137,7 +137,7 @@ class TypedEventEmitter extends _events.EventEmitter {
    * Returns a reference to the `EventEmitter`, so that calls can be chained.
    *
    * By default, event listeners are invoked in the order they are added.
-   * The {@link TypedEventEmitter#prependOnceListener} method can be used as an alternative to add the
+   * The {@link prependOnceListener} method can be used as an alternative to add the
    * event listener to the beginning of the listeners array.
    *
    * @param event - The name of the event.

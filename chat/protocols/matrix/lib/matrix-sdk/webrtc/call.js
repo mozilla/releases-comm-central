@@ -10,16 +10,16 @@ exports.setTracksEnabled = setTracksEnabled;
 exports.supportsMatrixCall = supportsMatrixCall;
 var _uuid = require("uuid");
 var _sdpTransform = require("sdp-transform");
-var _logger = require("../logger");
-var _utils = require("../utils");
-var _event = require("../@types/event");
-var _randomstring = require("../randomstring");
-var _callEventTypes = require("./callEventTypes");
-var _callFeed = require("./callFeed");
-var _typedEventEmitter = require("../models/typed-event-emitter");
-var _deviceinfo = require("../crypto/deviceinfo");
-var _groupCall = require("./groupCall");
-var _httpApi = require("../http-api");
+var _logger = require("../logger.js");
+var _utils = require("../utils.js");
+var _event = require("../@types/event.js");
+var _randomstring = require("../randomstring.js");
+var _callEventTypes = require("./callEventTypes.js");
+var _callFeed = require("./callFeed.js");
+var _typedEventEmitter = require("../models/typed-event-emitter.js");
+var _deviceinfo = require("../crypto/deviceinfo.js");
+var _groupCall = require("./groupCall.js");
+var _index = require("../http-api/index.js");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -1434,7 +1434,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     } catch (error) {
       // We've failed to answer: back to the ringing state
       this.state = CallState.Ringing;
-      if (error instanceof _httpApi.MatrixError && error.event) this.client.cancelPendingEvent(error.event);
+      if (error instanceof _index.MatrixError && error.event) this.client.cancelPendingEvent(error.event);
       let code = CallErrorCode.SendAnswer;
       let message = "Failed to send answer";
       if (error.name == "UnknownDeviceError") {
@@ -1815,7 +1815,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       await this.sendVoipEvent(eventType, content);
     } catch (error) {
       _logger.logger.error(`Call ${this.callId} gotLocalOffer() failed to send invite`, error);
-      if (error instanceof _httpApi.MatrixError && error.event) this.client.cancelPendingEvent(error.event);
+      if (error instanceof _index.MatrixError && error.event) this.client.cancelPendingEvent(error.event);
       let code = CallErrorCode.SignallingFailed;
       let message = "Signalling failed";
       if (this.state === CallState.CreateOffer) {
@@ -2148,7 +2148,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     } catch (error) {
       // don't retry this event: we'll send another one later as we might
       // have more candidates by then.
-      if (error instanceof _httpApi.MatrixError && error.event) this.client.cancelPendingEvent(error.event);
+      if (error instanceof _index.MatrixError && error.event) this.client.cancelPendingEvent(error.event);
 
       // put all the candidates we failed to send back in the queue
       this.candidateSendQueue.push(...candidates);

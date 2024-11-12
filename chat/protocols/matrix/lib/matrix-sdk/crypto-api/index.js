@@ -5,14 +5,17 @@ Object.defineProperty(exports, "__esModule", {
 });
 var _exportNames = {
   DecryptionFailureCode: true,
+  DeviceIsolationModeKind: true,
+  AllDevicesIsolationMode: true,
+  OnlySignedDevicesIsolationMode: true,
   UserVerificationStatus: true,
   DeviceVerificationStatus: true,
   CrossSigningKey: true,
   EventShieldColour: true,
   EventShieldReason: true
 };
-exports.UserVerificationStatus = exports.EventShieldReason = exports.EventShieldColour = exports.DeviceVerificationStatus = exports.DecryptionFailureCode = exports.CrossSigningKey = void 0;
-var _verification = require("./verification");
+exports.UserVerificationStatus = exports.OnlySignedDevicesIsolationMode = exports.EventShieldReason = exports.EventShieldColour = exports.DeviceVerificationStatus = exports.DeviceIsolationModeKind = exports.DecryptionFailureCode = exports.CrossSigningKey = exports.AllDevicesIsolationMode = void 0;
+var _verification = require("./verification.js");
 Object.keys(_verification).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
@@ -24,15 +27,39 @@ Object.keys(_verification).forEach(function (key) {
     }
   });
 });
-var _keybackup = require("./keybackup");
-Object.keys(_keybackup).forEach(function (key) {
+var _recoveryKey = require("./recovery-key.js");
+Object.keys(_recoveryKey).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  if (key in exports && exports[key] === _keybackup[key]) return;
+  if (key in exports && exports[key] === _recoveryKey[key]) return;
   Object.defineProperty(exports, key, {
     enumerable: true,
     get: function () {
-      return _keybackup[key];
+      return _recoveryKey[key];
+    }
+  });
+});
+var _keyPassphrase = require("./key-passphrase.js");
+Object.keys(_keyPassphrase).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _keyPassphrase[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _keyPassphrase[key];
+    }
+  });
+});
+var _CryptoEvent = require("./CryptoEvent.js");
+Object.keys(_CryptoEvent).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _CryptoEvent[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _CryptoEvent[key];
     }
   });
 });
@@ -55,6 +82,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
+ * `matrix-js-sdk/lib/crypto-api`: End-to-end encryption support.
+ *
+ * The most important type is {@link CryptoApi}, an instance of which can be retrieved via
+ * {@link MatrixClient.getCrypto}.
+ *
+ * @packageDocumentation
+ */
+/**
  * Public interface to the cryptography parts of the js-sdk
  *
  * @remarks Currently, this is a work-in-progress. In time, more methods will be added here.
@@ -69,6 +104,9 @@ let DecryptionFailureCode = exports.DecryptionFailureCode = /*#__PURE__*/functio
   DecryptionFailureCode["HISTORICAL_MESSAGE_BACKUP_UNCONFIGURED"] = "HISTORICAL_MESSAGE_BACKUP_UNCONFIGURED";
   DecryptionFailureCode["HISTORICAL_MESSAGE_WORKING_BACKUP"] = "HISTORICAL_MESSAGE_WORKING_BACKUP";
   DecryptionFailureCode["HISTORICAL_MESSAGE_USER_NOT_JOINED"] = "HISTORICAL_MESSAGE_USER_NOT_JOINED";
+  DecryptionFailureCode["SENDER_IDENTITY_PREVIOUSLY_VERIFIED"] = "SENDER_IDENTITY_PREVIOUSLY_VERIFIED";
+  DecryptionFailureCode["UNSIGNED_SENDER_DEVICE"] = "UNSIGNED_SENDER_DEVICE";
+  DecryptionFailureCode["UNKNOWN_SENDER_DEVICE"] = "UNKNOWN_SENDER_DEVICE";
   DecryptionFailureCode["UNKNOWN_ERROR"] = "UNKNOWN_ERROR";
   DecryptionFailureCode["MEGOLM_BAD_ROOM"] = "MEGOLM_BAD_ROOM";
   DecryptionFailureCode["MEGOLM_MISSING_FIELDS"] = "MEGOLM_MISSING_FIELDS";
@@ -85,17 +123,89 @@ let DecryptionFailureCode = exports.DecryptionFailureCode = /*#__PURE__*/functio
   DecryptionFailureCode["UNKNOWN_ENCRYPTION_ALGORITHM"] = "UNKNOWN_ENCRYPTION_ALGORITHM";
   return DecryptionFailureCode;
 }({});
+/** Base {@link DeviceIsolationMode} kind. */
+let DeviceIsolationModeKind = exports.DeviceIsolationModeKind = /*#__PURE__*/function (DeviceIsolationModeKind) {
+  DeviceIsolationModeKind[DeviceIsolationModeKind["AllDevicesIsolationMode"] = 0] = "AllDevicesIsolationMode";
+  DeviceIsolationModeKind[DeviceIsolationModeKind["OnlySignedDevicesIsolationMode"] = 1] = "OnlySignedDevicesIsolationMode";
+  return DeviceIsolationModeKind;
+}({});
+/**
+ * A type of {@link DeviceIsolationMode}.
+ *
+ * Message encryption keys are shared with all devices in the room, except in case of
+ * verified user problems (see {@link errorOnVerifiedUserProblems}).
+ *
+ * Events from all senders are always decrypted (and should be decorated with message shields in case
+ * of authenticity warnings, see {@link EventEncryptionInfo}).
+ */
+class AllDevicesIsolationMode {
+  /**
+   *
+   * @param errorOnVerifiedUserProblems - Behavior when sharing keys to remote devices.
+   *
+   * If set to `true`, sharing keys will fail (i.e. message sending will fail) with an error if:
+   *   - The user was previously verified but is not anymore, or:
+   *   - A verified user has some unverified devices (not cross-signed).
+   *
+   * If `false`, the keys will be distributed as usual. In this case, the client UX should display
+   * warnings to inform the user about problematic devices/users, and stop them hitting this case.
+   */
+  constructor(errorOnVerifiedUserProblems) {
+    this.errorOnVerifiedUserProblems = errorOnVerifiedUserProblems;
+    _defineProperty(this, "kind", DeviceIsolationModeKind.AllDevicesIsolationMode);
+  }
+}
+
+/**
+ * A type of {@link DeviceIsolationMode}.
+ *
+ * Message encryption keys are only shared with devices that have been cross-signed by their owner.
+ * Encryption will throw an error if a verified user replaces their identity.
+ *
+ * Events are decrypted only if they come from a cross-signed device. Other events will result in a decryption
+ * failure. (To access the failure reason, see {@link MatrixEvent.decryptionFailureReason}.)
+ */
+exports.AllDevicesIsolationMode = AllDevicesIsolationMode;
+class OnlySignedDevicesIsolationMode {
+  constructor() {
+    _defineProperty(this, "kind", DeviceIsolationModeKind.OnlySignedDevicesIsolationMode);
+  }
+}
+
+/**
+ * DeviceIsolationMode represents the mode of device isolation used when encrypting or decrypting messages.
+ * It can be one of two types: {@link AllDevicesIsolationMode} or {@link OnlySignedDevicesIsolationMode}.
+ *
+ * Only supported by rust Crypto.
+ */
+
 /**
  * Options object for `CryptoApi.bootstrapCrossSigning`.
  */
+exports.OnlySignedDevicesIsolationMode = OnlySignedDevicesIsolationMode;
 /**
  * Represents the ways in which we trust a user
  */
 class UserVerificationStatus {
-  constructor(crossSigningVerified, crossSigningVerifiedBefore, tofu) {
+  constructor(crossSigningVerified, crossSigningVerifiedBefore, tofu, needsUserApproval = false) {
     this.crossSigningVerified = crossSigningVerified;
     this.crossSigningVerifiedBefore = crossSigningVerifiedBefore;
     this.tofu = tofu;
+    /**
+     * Indicates if the identity has changed in a way that needs user approval.
+     *
+     * This happens if the identity has changed since we first saw it, *unless* the new identity has also been verified
+     * by our user (eg via an interactive verification).
+     *
+     * To rectify this, either:
+     *
+     *  * Conduct a verification of the new identity via {@link CryptoApi.requestVerificationDM}.
+     *  * Pin the new identity, via {@link CryptoApi.pinCurrentUserIdentity}.
+     *
+     * @returns true if the identity has changed in a way that needs user approval.
+     */
+    _defineProperty(this, "needsUserApproval", void 0);
+    this.needsUserApproval = needsUserApproval;
   }
 
   /**
@@ -122,6 +232,8 @@ class UserVerificationStatus {
 
   /**
    * @returns true if this user's key is trusted on first use
+   *
+   * @deprecated No longer supported, with the Rust crypto stack.
    */
   isTofu() {
     return this.tofu;
@@ -166,9 +278,9 @@ class DeviceVerificationStatus {
    * Check if we should consider this device "verified".
    *
    * A device is "verified" if either:
-   *  * it has been manually marked as such via {@link MatrixClient#setDeviceVerified}.
+   *  * it has been manually marked as such via {@link matrix.MatrixClient.setDeviceVerified}.
    *  * it has been cross-signed with a verified signing key, **and** the client has been configured to trust
-   *    cross-signed devices via {@link Crypto.CryptoApi#setTrustCrossSignedDevices}.
+   *    cross-signed devices via {@link CryptoApi.setTrustCrossSignedDevices}.
    *
    * @returns true if this device is verified via any means.
    */

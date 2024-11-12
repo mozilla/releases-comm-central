@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.MSC4108FailureReason = exports.LegacyRendezvousFailureReason = exports.ClientRendezvousFailureReason = void 0;
+exports.MSC4108FailureReason = exports.ClientRendezvousFailureReason = void 0;
 /*
 Copyright 2022 The Matrix.org Foundation C.I.C.
 
@@ -19,16 +19,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let LegacyRendezvousFailureReason = exports.LegacyRendezvousFailureReason = /*#__PURE__*/function (LegacyRendezvousFailureReason) {
-  LegacyRendezvousFailureReason["UserDeclined"] = "user_declined";
-  LegacyRendezvousFailureReason["Unknown"] = "unknown";
-  LegacyRendezvousFailureReason["Expired"] = "expired";
-  LegacyRendezvousFailureReason["UserCancelled"] = "user_cancelled";
-  LegacyRendezvousFailureReason["UnsupportedAlgorithm"] = "unsupported_algorithm";
-  LegacyRendezvousFailureReason["UnsupportedProtocol"] = "unsupported_protocol";
-  LegacyRendezvousFailureReason["HomeserverLacksSupport"] = "homeserver_lacks_support";
-  return LegacyRendezvousFailureReason;
-}({});
 let MSC4108FailureReason = exports.MSC4108FailureReason = /*#__PURE__*/function (MSC4108FailureReason) {
   MSC4108FailureReason["AuthorizationExpired"] = "authorization_expired";
   MSC4108FailureReason["DeviceAlreadyExists"] = "device_already_exists";

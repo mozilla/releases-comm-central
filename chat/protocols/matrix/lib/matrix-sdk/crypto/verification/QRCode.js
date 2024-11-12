@@ -4,12 +4,12 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SHOW_QR_CODE_METHOD = exports.SCAN_QR_CODE_METHOD = exports.ReciprocateQRCode = exports.QrCodeEvent = exports.QRCodeData = void 0;
-var _Base = require("./Base");
-var _Error = require("./Error");
-var _base = require("../../base64");
-var _logger = require("../../logger");
-var _verification = require("../../crypto-api/verification");
-var _types = require("../../types");
+var _Base = require("./Base.js");
+var _Error = require("./Error.js");
+var _base = require("../../base64.js");
+var _logger = require("../../logger.js");
+var _verification = require("../../crypto-api/verification.js");
+var _types = require("../../types.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*

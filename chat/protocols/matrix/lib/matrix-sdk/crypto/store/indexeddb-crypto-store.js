@@ -4,13 +4,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.IndexedDBCryptoStore = void 0;
-var _logger = require("../../logger");
-var _localStorageCryptoStore = require("./localStorage-crypto-store");
-var _memoryCryptoStore = require("./memory-crypto-store");
-var IndexedDBCryptoStoreBackend = _interopRequireWildcard(require("./indexeddb-crypto-store-backend"));
-var _errors = require("../../errors");
-var IndexedDBHelpers = _interopRequireWildcard(require("../../indexeddb-helpers"));
-var _base = require("./base");
+var _logger = require("../../logger.js");
+var _localStorageCryptoStore = require("./localStorage-crypto-store.js");
+var _memoryCryptoStore = require("./memory-crypto-store.js");
+var IndexedDBCryptoStoreBackend = _interopRequireWildcard(require("./indexeddb-crypto-store-backend.js"));
+var _errors = require("../../errors.js");
+var IndexedDBHelpers = _interopRequireWildcard(require("../../indexeddb-helpers.js"));
+var _base = require("./base.js");
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
 function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }

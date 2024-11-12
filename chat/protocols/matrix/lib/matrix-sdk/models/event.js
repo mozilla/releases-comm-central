@@ -11,16 +11,16 @@ Object.defineProperty(exports, "EventStatus", {
 });
 exports.MatrixEventEvent = exports.MatrixEvent = void 0;
 var _matrixEventsSdk = require("matrix-events-sdk");
-var _logger = require("../logger");
-var _event = require("../@types/event");
-var _utils = require("../utils");
-var _thread = require("./thread");
-var _ReEmitter = require("../ReEmitter");
-var _typedEventEmitter = require("./typed-event-emitter");
-var _CryptoBackend = require("../common-crypto/CryptoBackend");
-var _eventTimeline = require("./event-timeline");
-var _cryptoApi = require("../crypto-api");
-var _eventStatus = require("./event-status");
+var _logger = require("../logger.js");
+var _event = require("../@types/event.js");
+var _utils = require("../utils.js");
+var _thread = require("./thread.js");
+var _ReEmitter = require("../ReEmitter.js");
+var _typedEventEmitter = require("./typed-event-emitter.js");
+var _CryptoBackend = require("../common-crypto/CryptoBackend.js");
+var _eventTimeline = require("./event-timeline.js");
+var _index = require("../crypto-api/index.js");
+var _eventStatus = require("./event-status.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
@@ -589,7 +589,7 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
    * @deprecated: Prefer `event.decryptionFailureReason === DecryptionFailureCode.MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE`.
    */
   get isEncryptedDisabledForUnverifiedDevices() {
-    return this.decryptionFailureReason === _cryptoApi.DecryptionFailureCode.MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE;
+    return this.decryptionFailureReason === _index.DecryptionFailureCode.MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE;
   }
   shouldAttemptDecryption() {
     if (this.isRedacted()) return false;
@@ -720,7 +720,7 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
         // so we don't bother to log `e` separately.
         _logger.logger.warn(`Error decrypting event (${this.getDetails()}): ${detailedError}`);
         this.setClearDataForDecryptionFailure(String(e));
-        this._decryptionFailureReason = e instanceof _CryptoBackend.DecryptionError ? e.code : _cryptoApi.DecryptionFailureCode.UNKNOWN_ERROR;
+        this._decryptionFailureReason = e instanceof _CryptoBackend.DecryptionError ? e.code : _index.DecryptionFailureCode.UNKNOWN_ERROR;
       }
 
       // Make sure we clear 'decryptionPromise' before sending the 'Event.decrypted' event,

@@ -4,17 +4,17 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.RoomStateEvent = exports.RoomState = void 0;
-var _roomMember = require("./room-member");
-var _logger = require("../logger");
-var _utils = require("../utils");
-var _event = require("../@types/event");
-var _event2 = require("./event");
-var _partials = require("../@types/partials");
-var _typedEventEmitter = require("./typed-event-emitter");
-var _beacon = require("./beacon");
-var _ReEmitter = require("../ReEmitter");
-var _beacon2 = require("../@types/beacon");
-var _membership = require("../@types/membership");
+var _roomMember = require("./room-member.js");
+var _logger = require("../logger.js");
+var _utils = require("../utils.js");
+var _event = require("../@types/event.js");
+var _event2 = require("./event.js");
+var _partials = require("../@types/partials.js");
+var _typedEventEmitter = require("./typed-event-emitter.js");
+var _beacon = require("./beacon.js");
+var _ReEmitter = require("../ReEmitter.js");
+var _beacon2 = require("../@types/beacon.js");
+var _membership = require("../@types/membership.js");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*

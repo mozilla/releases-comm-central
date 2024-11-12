@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.compareEventOrdering = compareEventOrdering;
-var _client = require("../client");
+var _client = require("../client.js");
 /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 

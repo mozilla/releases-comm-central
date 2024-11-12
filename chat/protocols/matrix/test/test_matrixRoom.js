@@ -480,7 +480,7 @@ add_task(function test_addEventSticker() {
     type: MatrixSDK.EventType.Sticker,
     content: {
       body: "foo",
-      url: "mxc://example.com/sticker.png",
+      url: "mxc://example.com/sticker",
     },
   });
   const roomStub = {
@@ -503,7 +503,7 @@ add_task(function test_addEventSticker() {
   equal(roomStub.who, "@user:example.com");
   equal(
     roomStub.message,
-    "https://example.com/_matrix/media/v3/download/example.com/sticker.png"
+    "https://example.com/_matrix/media/v3/download/example.com/sticker"
   );
   ok(!roomStub.options.system);
   ok(!roomStub.options.delayed);
