@@ -5236,11 +5236,15 @@ var threadPane = {
   updateColumns(isSimple = false) {
     if (!this.rowTemplate) {
       this.rowTemplate = document.getElementById("threadPaneRowTemplate");
-      this.rowTemplate.content.append(
-        ...ThreadPaneColumns.getCustomColumns().map(column =>
-          this.makeCustomColumnCell(column)
-        )
-      );
+      for (const customColumn of ThreadPaneColumns.getCustomColumns()) {
+        if (this.columns.find(c => c.id == customColumn.id)) {
+          this.rowTemplate.content.appendChild(
+            this.makeCustomColumnCell(customColumn)
+          );
+        } else {
+          this.addCustomColumn(customColumn.id, false);
+        }
+      }
     }
 
     // Update the row template to match the column properties.
@@ -5281,9 +5285,11 @@ var threadPane = {
   /**
    * Adds a custom column to the thread pane.
    *
-   * @param {string} columnID - uniqe id of the custom column
+   * @param {string} columnID - Unique id of the custom column.
+   * @param {boolean} [update=true] - If the thread tree should be updated
+   *   as a result of this function.
    */
-  addCustomColumn(columnID) {
+  addCustomColumn(columnID, update = true) {
     const column = ThreadPaneColumns.getColumn(columnID);
     if (this.rowTemplate) {
       this.rowTemplate.content.appendChild(this.makeCustomColumnCell(column));
@@ -5291,15 +5297,20 @@ var threadPane = {
 
     this.columns.push(column);
     const columnStates =
-      gFolder.msgDatabase.dBFolderInfo.getCharProperty("columnStates");
+      gFolder?.msgDatabase?.dBFolderInfo?.getCharProperty("columnStates");
     if (columnStates) {
       this.applyPersistedColumnsState(JSON.parse(columnStates));
     }
 
     gViewWrapper?.dbView.addColumnHandler(column.id, column.handler);
-    this.updateColumns();
-    this.restoreSortIndicator();
-    threadTree.reset();
+    if (update && this.rowTemplate) {
+      // If update is false, we're being called by updateColumns.
+      // If rowTemplate is falsy, the message list has never loaded and
+      // updateColumns will be called soon.
+      this.updateColumns();
+      this.restoreSortIndicator();
+      threadTree.reset();
+    }
   },
 
   /**
