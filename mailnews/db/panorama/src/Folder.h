@@ -5,6 +5,7 @@
 #ifndef Folder_h__
 #define Folder_h__
 
+#include "FolderComparator.h"
 #include "mozilla/Maybe.h"
 #include "nsIFolder.h"
 #include "nsTString.h"

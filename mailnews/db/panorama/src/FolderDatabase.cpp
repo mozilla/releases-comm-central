@@ -7,6 +7,7 @@
 #include "DatabaseCore.h"
 #include "Folder.h"
 #include "FolderCollector.h"
+#include "FolderComparator.h"
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/ProfilerMarkers.h"
@@ -219,7 +220,7 @@ NS_IMETHODIMP FolderDatabase::GetFolderByPath(const nsACString& aPath,
 
   *aFolder = nullptr;
   RefPtr<Folder> folder;
-  if (mFoldersByPath.Get(aPath, &folder)) {
+  if (mFoldersByPath.Get(DatabaseUtils::Normalize(aPath), &folder)) {
     NS_IF_ADDREF(*aFolder = folder);
   }
   return NS_OK;
@@ -233,15 +234,16 @@ NS_IMETHODIMP FolderDatabase::InsertRoot(const nsACString& aServerKey,
                                          nsIFolder** aRoot) {
   NS_ENSURE_ARG_POINTER(aRoot);
 
-  GetFolderByPath(aServerKey, aRoot);
+  // `aServerKey` is almost certainly ASCII, but normalize it and be sure.
+  nsCString normalKey = DatabaseUtils::Normalize(aServerKey);
+  GetFolderByPath(normalKey, aRoot);
   if (*aRoot) {
     MOZ_LOG(gPanoramaLog, LogLevel::Info,
-            ("InsertRoot found existing root '%s'\n",
-             nsAutoCString(aServerKey).get()));
+            ("InsertRoot found existing root '%s'\n", normalKey.get()));
     return NS_OK;
   }
 
-  return InternalInsertFolder(nullptr, aServerKey, aRoot);
+  return InternalInsertFolder(nullptr, normalKey, aRoot);
 }
 
 NS_IMETHODIMP FolderDatabase::InsertFolder(nsIFolder* aParent,
@@ -251,8 +253,9 @@ NS_IMETHODIMP FolderDatabase::InsertFolder(nsIFolder* aParent,
   NS_ENSURE_ARG_POINTER(aChild);
 
   Folder* parent = (Folder*)(aParent);
+  nsCString normalName = DatabaseUtils::Normalize(aName);
   for (auto child : parent->mChildren) {
-    if (child->mName.Equals(aName)) {
+    if (child->mName.Equals(normalName)) {
       NS_IF_ADDREF(*aChild = child);
       MOZ_LOG(gPanoramaLog, LogLevel::Info,
               ("InsertFolder found existing folder '%s'\n",
@@ -268,6 +271,8 @@ NS_IMETHODIMP FolderDatabase::InsertFolder(nsIFolder* aParent,
  * Common function for inserting a folder row and creating a Folder object
  * for it. This will fail if a folder with the given parent and name already
  * exists, so the calling function needs to check.
+ *
+ * `aName` must already be normalized.
  */
 nsresult FolderDatabase::InternalInsertFolder(nsIFolder* aParent,
                                               const nsACString& aName,

@@ -25,12 +25,18 @@ add_task(function testLookup() {
 
   Assert.equal(folders.getFolderByPath("server2"), server2);
   Assert.equal(folders.getFolderByPath("server2/folder"), server2.children[0]);
+  // Lookup using composed unicode character.
   Assert.equal(
-    folders.getFolderByPath("server2/folder/sub1"),
+    folders.getFolderByPath("server2/folder/s\u00FCb1"),
+    server2.children[0].children[0]
+  );
+  // Lookup using decomposed unicode character.
+  Assert.equal(
+    folders.getFolderByPath("server2/folder/su\u0308b1"),
     server2.children[0].children[0]
   );
   Assert.equal(
-    folders.getFolderByPath("server2/folder/sub1/sub2"),
+    folders.getFolderByPath("server2/folder/su\u0308b1/sub2"),
     server2.children[0].children[0].children[0]
   );
 });
@@ -44,21 +50,21 @@ add_task(function testLookupAfterMove() {
   const sub1 = folders.getFolderById(2);
   const sub2 = folders.getFolderById(8);
 
-  Assert.equal(sub2.path, "server2/folder/sub1/sub2");
+  Assert.equal(sub2.path, "server2/folder/s\u00FCb1/sub2");
   Assert.equal(folders.getFolderByPath("server2/folder/sub2"), null);
-  Assert.equal(folders.getFolderByPath("server2/folder/sub1/sub2"), sub2);
+  Assert.equal(folders.getFolderByPath("server2/folder/s\u00FCb1/sub2"), sub2);
 
   folders.moveFolderTo(folder, sub2);
   Assert.equal(sub2.path, "server2/folder/sub2");
   Assert.equal(folders.getFolderByPath("server2/folder/sub2"), sub2);
-  Assert.equal(folders.getFolderByPath("server2/folder/sub1/sub2"), null);
+  Assert.equal(folders.getFolderByPath("server2/folder/s\u00FCb1/sub2"), null);
   Assert.equal(sub2.id, 8);
   Assert.equal(folders.getFolderById(8), sub2);
 
   folders.moveFolderTo(sub1, sub2);
-  Assert.equal(sub2.path, "server2/folder/sub1/sub2");
+  Assert.equal(sub2.path, "server2/folder/s\u00FCb1/sub2");
   Assert.equal(folders.getFolderByPath("server2/folder/sub2"), null);
-  Assert.equal(folders.getFolderByPath("server2/folder/sub1/sub2"), sub2);
+  Assert.equal(folders.getFolderByPath("server2/folder/s\u00FCb1/sub2"), sub2);
   Assert.equal(sub2.id, 8);
   Assert.equal(folders.getFolderById(8), sub2);
 });

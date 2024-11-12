@@ -107,7 +107,6 @@ add_task(async function testFindFolders() {
     flags: 0,
   });
 
-  // TODO: Currently out of order because the comparator is case-sensitive.
-  Assert.deepEqual(root.children, [trash, unsent, test1, test3]);
-  Assert.deepEqual(root.descendants, [trash, unsent, test1, test2, test3]);
+  Assert.deepEqual(root.children, [test1, test3, trash, unsent]);
+  Assert.deepEqual(root.descendants, [test1, test2, test3, trash, unsent]);
 });

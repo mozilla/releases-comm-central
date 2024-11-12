@@ -11,7 +11,8 @@ add_setup(async function () {
 });
 
 add_task(function testInsertRoot() {
-  const serverX = folders.insertRoot("serverX");
+  // Use a unicode key, because we can.
+  const serverX = folders.insertRoot("serv\u011BrX");
   Assert.ok(serverX, "insertRoot should return a folder");
   Assert.equal(serverX.parent, null, "new folder should be a root folder");
   Assert.equal(
@@ -21,12 +22,12 @@ add_task(function testInsertRoot() {
   );
   Assert.equal(
     serverX.name,
-    "serverX",
+    "serv\u011BrX",
     "new folder should have the right name"
   );
 
   Assert.equal(
-    folders.getFolderByPath("serverX"),
+    folders.getFolderByPath("serv\u011BrX"),
     serverX,
     "should be able to fetch the new folder by path"
   );
@@ -35,11 +36,12 @@ add_task(function testInsertRoot() {
     id: serverX.id,
     parent: 0,
     ordinal: null,
-    name: "serverX",
+    name: "serv\u011BrX",
     flags: 0,
   });
 
-  const serverXAgain = folders.insertRoot("serverX");
+  // Again, with a different unicode representation of the same key.
+  const serverXAgain = folders.insertRoot("serve\u030CrX");
   Assert.equal(
     serverXAgain,
     serverX,
@@ -55,17 +57,18 @@ add_task(function testInsertFolder() {
 
   drawTree(parent);
 
-  const inserted = folders.insertFolder(parent, "inserted");
+  // Use a unicode name, because we can.
+  const inserted = folders.insertFolder(parent, "insert\u0113d");
   drawTree(parent);
   Assert.ok(inserted, "insertFolder should return a folder");
   Assert.equal(
     inserted.name,
-    "inserted",
+    "insert\u0113d",
     "new folder should have the right name"
   );
 
   Assert.equal(
-    folders.getFolderByPath("grandparent/parent/inserted"),
+    folders.getFolderByPath("grandparent/parent/insert\u0113d"),
     inserted,
     "should be able to fetch the new folder by path"
   );
@@ -89,15 +92,16 @@ add_task(function testInsertFolder() {
     id: inserted.id,
     parent: parent.id,
     ordinal: null,
-    name: "inserted",
+    name: "insert\u0113d",
     flags: 0,
   });
 
-  const existing = folders.insertFolder(parent, "child");
+  // Again, with a different unicode representation of the same name.
+  const existing = folders.insertFolder(parent, "inserte\u0304d");
   drawTree(parent);
   Assert.equal(
     existing,
-    child,
+    inserted,
     "insertFolder should return a folder matching the existing folder"
   );
   Assert.deepEqual(

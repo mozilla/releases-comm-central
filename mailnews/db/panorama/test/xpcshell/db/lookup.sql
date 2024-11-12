@@ -15,5 +15,5 @@ INSERT INTO folders (id, parent, name) VALUES
   (7, 5, 'Trash'),
   (4, 0, 'server2'),
   (6, 4, 'folder'),
-  (2, 6, 'sub1'),
+  (2, 6, 'süb1'),
   (8, 2, 'sub2');

@@ -4,6 +4,7 @@
 
 EXPORTS += [
     "DatabaseCore.h",
+    "DatabaseUtils.h",
     "Folder.h",
     "FolderComparator.h",
     "FolderDatabase.h",
@@ -11,6 +12,7 @@ EXPORTS += [
 
 SOURCES += [
     "DatabaseCore.cpp",
+    "DatabaseUtils.cpp",
     "Folder.cpp",
     "FolderCollector.cpp",
     "FolderComparator.cpp",

@@ -4,7 +4,9 @@
 
 /**
  * Tests that folders are read from the database and inserted as children of
- * their parents in the right order.
+ * their parents in the right order. Folders with an ordinal are sorted ahead
+ * of folders without an ordinal. Otherwise, folders are sorted by name, in a
+ * case-insensitive and locale-aware manner.
  */
 
 add_setup(async function () {
@@ -16,10 +18,10 @@ add_setup(async function () {
  */
 add_task(function testNullOrdinals() {
   const parent = folders.getFolderById(7);
-  const echo = folders.getFolderById(10);
-  const foxtrot = folders.getFolderById(9);
+  const echo = folders.getFolderById(10); // Lowercase E with diaeresis.
+  const foxtrot = folders.getFolderById(9); // Uppercase F.
   const golf = folders.getFolderById(15);
-  const hotel = folders.getFolderById(3);
+  const hotel = folders.getFolderById(3); // Uppercase H.
 
   Assert.deepEqual(parent.children, [echo, foxtrot, golf, hotel]);
 });
@@ -30,9 +32,9 @@ add_task(function testNullOrdinals() {
 add_task(function testNonNullOrdinals() {
   const parent = folders.getFolderById(12);
   const kilo = folders.getFolderById(6);
-  const lima = folders.getFolderById(2);
-  const november = folders.getFolderById(14);
-  const quebec = folders.getFolderById(8);
+  const lima = folders.getFolderById(2); // Uppercase L.
+  const november = folders.getFolderById(14); // Uppercase N.
+  const quebec = folders.getFolderById(8); // Uppercase Q.
 
   Assert.deepEqual(parent.children, [lima, quebec, kilo, november]);
 });
@@ -43,8 +45,8 @@ add_task(function testNonNullOrdinals() {
 add_task(function testMixedOrdinals() {
   const parent = folders.getFolderById(11);
   const sierra = folders.getFolderById(4);
-  const tango = folders.getFolderById(13);
-  const uniform = folders.getFolderById(1);
+  const tango = folders.getFolderById(13); // Uppercase T.
+  const uniform = folders.getFolderById(1); // Uppercase U.
   const whisky = folders.getFolderById(5);
 
   Assert.deepEqual(parent.children, [whisky, sierra, tango, uniform]);

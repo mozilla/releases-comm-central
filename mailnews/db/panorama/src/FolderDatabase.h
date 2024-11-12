@@ -5,6 +5,7 @@
 #ifndef FolderDatabase_h__
 #define FolderDatabase_h__
 
+#include "DatabaseUtils.h"
 #include "FolderComparator.h"
 #include "mozilla/MozPromise.h"
 #include "mozilla/RefPtr.h"
@@ -19,6 +20,7 @@ namespace mailnews {
 using FolderDatabaseStartupPromise = MozPromise<bool, nsresult, true>;
 
 class Folder;
+class FolderComparator;
 
 class FolderDatabase : public nsIFolderDatabase {
  public:

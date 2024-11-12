@@ -6,7 +6,9 @@
 #define FolderComparator_h__
 
 #include "Folder.h"
-#include "mozilla/RefPtr.h"
+#include "mozilla/intl/Collator.h"
+
+using mozilla::intl::Collator;
 
 namespace mozilla {
 namespace mailnews {
@@ -18,13 +20,17 @@ class Folder;
  * the database are sorted ahead of those without. Folders without an ordinal
  * are sorted in alphabetical order.
  *
- * A future version of this class will handle special folder types (e.g. Inbox,
- * which goes ahead of ordinary folders) and non-ASCII names.
+ * A future version of this class will handle special folder types (e.g.
+ * Inbox, which goes ahead of ordinary folders).
  */
 class FolderComparator {
  public:
   bool Equals(const RefPtr<Folder>& aA, const RefPtr<Folder>& aB) const;
   bool LessThan(const RefPtr<Folder>& aA, const RefPtr<Folder>& aB) const;
+
+ private:
+  static const Collator* sCollator;
+  static const Collator* GetCollator();
 };
 
 }  // namespace mailnews
