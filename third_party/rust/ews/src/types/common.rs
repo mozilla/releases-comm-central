@@ -1018,7 +1018,7 @@ mod tests {
 
         // Ensure the first recipient correctly has a name and address.
         assert_eq!(
-            recipients.get(0).expect("no recipient at index 0"),
+            recipients.first().expect("no recipient at index 0"),
             &Recipient {
                 mailbox: Mailbox {
                     name: Some("Alice Test".into()),

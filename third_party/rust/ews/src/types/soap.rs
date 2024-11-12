@@ -8,7 +8,8 @@ use quick_xml::{
 };
 
 use crate::{
-    Error, MessageXml, Operation, OperationResponse, ResponseCode, SOAP_NS_URI, TYPES_NS_URI,
+    types::sealed, Error, MessageXml, Operation, OperationResponse, ResponseCode, SOAP_NS_URI,
+    TYPES_NS_URI,
 };
 
 mod de;
@@ -48,7 +49,8 @@ where
         writer.write_event(Event::Start(BytesStart::new(SOAP_BODY)))?;
 
         // Write the operation itself.
-        self.body.serialize_as_element(&mut writer, B::name())?;
+        self.body
+            .serialize_as_element(&mut writer, <B as sealed::EnvelopeBodyContents>::name())?;
 
         writer.write_event(Event::End(BytesEnd::new(SOAP_BODY)))?;
         writer.write_event(Event::End(BytesEnd::new(SOAP_ENVELOPE)))?;

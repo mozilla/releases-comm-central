@@ -19,6 +19,14 @@ pub trait Operation: XmlSerialize + sealed::EnvelopeBodyContents + std::fmt::Deb
     /// The structure returned by EWS in response to requests containing this
     /// operation.
     type Response: OperationResponse;
+
+    /// Gets the name of the operation.
+    ///
+    /// This is the same as the local part of the name of the XML element used
+    /// to represent this option.
+    fn name() -> &'static str {
+        <Self as sealed::EnvelopeBodyContents>::name()
+    }
 }
 
 /// A marker trait for EWS operation responses.
