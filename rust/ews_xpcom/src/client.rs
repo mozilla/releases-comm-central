@@ -10,6 +10,7 @@ use std::{
 use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{
     create_item::{CreateItem, CreateItemResponseMessage},
+    update_item::{ConflictResolution, ItemChange, ItemChangeInner, ItemChangeDescription, UpdateItem, Updates},
     get_folder::GetFolder,
     get_item::GetItem,
     soap,
@@ -1062,6 +1063,113 @@ impl XpComEwsClient {
         )?;
 
         Ok(response_message)
+    }
+
+    /// Mark a message as read or unread by performing an [`UpdateItem`] operation via EWS.
+    ///
+    /// [`UpdateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
+    pub async fn change_read_status(
+        self,
+        message_ids: Vec<String>,
+        is_read: bool,
+    ) {
+        // Send the request, using an inner method to more easily handle errors.
+        if let Err(err) = self.change_read_status_inner(message_ids, is_read).await {
+            log::error!("an error occurred while attempting to update the read status: {err:?}");
+        }
+    }
+
+    async fn change_read_status_inner(
+        self,
+        message_ids: Vec<String>,
+        is_read: bool,
+    ) -> Result<(), XpComEwsError> {
+        // Create the structure for setting the messages as read/unread.
+        let item_changes: Vec<ItemChange> = message_ids.into_iter().map(|message_id| {
+            let updates = Updates {
+                inner: vec![ItemChangeDescription::SetItemField {
+                    field_uri: PathToElement::FieldURI {
+                        field_URI: "message:IsRead".to_string(),
+                    },
+                    message: Message {
+                        is_read: Some(is_read),
+                        ..Default::default()
+                    },
+                }],
+            };
+
+            ItemChange {
+                item_change: ItemChangeInner {
+                    item_id: BaseItemId::ItemId {
+                        id: message_id,
+                        // TODO: We should be able to get the change key from the
+                        // database or server, but we don't have a way to do that yet.
+                        change_key: None,
+                    },
+                    updates,
+                },
+            }
+        }).collect();
+
+        let update_item = UpdateItem {
+            item_changes: item_changes,
+            message_disposition: MessageDisposition::SaveOnly,
+            // If we don't provide a ChangeKey as part of the ItemChange, then
+            // we cannot use the default value of `AutoResolve` for
+            // `ConflictResolution`. Instead, we will use `AlwaysOverwrite` for now.
+            conflict_resolution: Some(ConflictResolution::AlwaysOverwrite),
+        };
+
+        self.make_update_item_request(update_item).await?;
+
+        Ok(())
+    }
+
+    /// Performs an [`UpdateItem`] operation and processes its response.
+    ///
+    /// [`UpdateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
+    async fn make_update_item_request(
+        &self,
+        update_item: UpdateItem,
+    ) -> Result<(), XpComEwsError> {
+        // Make the operation request using the provided parameters.
+        let response = self.make_operation_request(update_item.clone()).await?;
+
+        // Get all response messages.
+        let response_messages = &response.response_messages.update_item_response_message;
+        if response_messages.len() < update_item.item_changes.len(){
+            return Err(XpComEwsError::Processing {
+                message: String::from("expected at least one response message per UpdateItem request"),
+            });
+        }
+
+        let mut processed_messages = Vec::new();
+        let mut errors = Vec::new();
+
+        // Process each response message, checking for errors or warnings.
+        for (index, response_message) in response_messages.iter().enumerate() {
+            match process_response_message_class(
+                "UpdateItem",
+                &response_message.response_class,
+                &response_message.response_code,
+                &response_message.message_text,
+            ) {
+                Ok(_) => processed_messages.push(response_message.clone()),
+                Err(err) => errors.push(format!(
+                    "Failed to process message #{} ({:?}): {}",
+                    index, response_message, err
+                )),
+            }
+        }
+
+        // If there were errors, return an aggregated error.
+        if !errors.is_empty() {
+            return Err(XpComEwsError::Processing {
+                message: format!("Some errors occurred while processing response messages: {:?}", errors),
+            });
+        }
+
+        Ok(())
     }
 
     /// Makes a request to the EWS endpoint to perform an operation.

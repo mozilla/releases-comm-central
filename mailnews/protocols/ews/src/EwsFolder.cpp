@@ -8,6 +8,9 @@
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
 #include "MailNewsTypes.h"
+#include "nsIMutableArray.h"
+#include "nsISupportsPrimitives.h"
+#include "nsString.h"
 #include "nsIInputStream.h"
 #include "nsIMsgWindow.h"
 #include "nsNetUtil.h"
@@ -219,6 +222,38 @@ NS_IMETHODIMP EwsFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
                                           nsIMsgFolder* oldFolder) {
   NS_WARNING("RenameSubFolders");
   return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP EwsFolder::MarkMessagesRead(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages,
+                                          bool markRead) {
+    nsCOMPtr<IEwsClient> client;
+    nsresult rv = GetEwsClient(getter_AddRefs(client));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Mark the messages as read in the local database.
+    rv = nsMsgDBFolder::MarkMessagesRead(messages, markRead);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsTArray<nsCString> ewsMessageIds;
+
+    // Get a list of the EWS IDs for the messages to be modified.
+    for (const auto& msg : messages) {
+        nsAutoCString itemId;
+        rv = msg->GetStringProperty(ID_PROPERTY, itemId);
+        NS_ENSURE_SUCCESS(rv, rv);
+        ewsMessageIds.AppendElement(itemId);
+    }
+
+    rv = client->ChangeReadStatus(ewsMessageIds, markRead);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Commit the changes to the local database to make sure they are persisted.
+    rv = GetDatabase();
+    if (NS_SUCCEEDED(rv)) {
+        mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
+    }
+
+    return rv;
 }
 
 NS_IMETHODIMP EwsFolder::UpdateFolder(nsIMsgWindow* aWindow) {

@@ -5,7 +5,7 @@
 use crate::types::common::{BaseItemId, Message, MessageDisposition, PathToElement};
 use crate::{
     types::sealed::EnvelopeBodyContents, Items, Operation, OperationResponse, ResponseClass,
-    ResponseCode,
+    ResponseCode, MESSAGES_NS_URI,
 };
 use serde::Deserialize;
 use xml_struct::XmlSerialize;
@@ -14,6 +14,7 @@ use xml_struct::XmlSerialize;
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem>
 #[derive(Clone, Debug, XmlSerialize)]
+#[xml_struct(default_ns = MESSAGES_NS_URI)]
 pub struct UpdateItem {
     /// The action the Exchange server will take upon updating this item.
     ///
@@ -21,7 +22,7 @@ pub struct UpdateItem {
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem#messagedisposition-attribute>
     #[xml_struct(attribute)]
-    pub message_disposition: Option<MessageDisposition>,
+    pub message_disposition: MessageDisposition,
 
     /// The method the Exchange server will use to resolve conflicts between
     /// updates.
@@ -37,7 +38,7 @@ pub struct UpdateItem {
     /// A list of items and their corresponding updates.
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/itemchanges>
-    pub item_changes: ItemChanges,
+    pub item_changes: Vec<ItemChange>,
 }
 
 impl Operation for UpdateItem {
@@ -78,6 +79,7 @@ pub struct ResponseMessages {
 pub struct UpdateItemResponseMessage {
     /// The status of the corresponding request, i.e. whether it succeeded or
     /// resulted in an error.
+    #[serde(rename = "@ResponseClass")]
     pub response_class: ResponseClass,
 
     pub response_code: Option<ResponseCode>,
@@ -105,24 +107,24 @@ pub enum ConflictResolution {
     AlwaysOverwrite,
 }
 
-/// A list of updates to items, with each element representing a single item.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/itemchanges>
 #[derive(Clone, Debug, XmlSerialize)]
-pub struct ItemChanges {
-    pub item_changes: Vec<ItemChange>,
+pub struct ItemChange {
+    #[xml_struct(ns_prefix = "t")]
+    pub item_change: ItemChangeInner,
 }
 
 /// One or more updates to a single item.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/itemchange>
 #[derive(Clone, Debug, XmlSerialize)]
-pub struct ItemChange {
+pub struct ItemChangeInner {
     /// The ID of the item to be updated.
+    #[xml_struct(flatten, ns_prefix = "t")]
     pub item_id: BaseItemId,
 
     /// The changes to make to the item, including appending, setting, or
     /// deleting fields.
+    #[xml_struct(ns_prefix = "t")]
     pub updates: Updates,
 }
 
@@ -131,21 +133,24 @@ pub struct ItemChange {
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updates-item>
 #[derive(Clone, Debug, XmlSerialize)]
 pub struct Updates {
-    #[xml_struct(flatten)]
+    #[xml_struct(flatten, ns_prefix = "t")]
     pub inner: Vec<ItemChangeDescription>,
 }
 
 /// An individual change to a single field.
 #[derive(Clone, Debug, XmlSerialize)]
+#[xml_struct(variant_ns_prefix = "t")]
 pub enum ItemChangeDescription {
     /// An update setting the value of a single field.
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/setitemfield>
     SetItemField {
         /// The field to be updated.
+        #[xml_struct(flatten, ns_prefix = "t")]
         field_uri: PathToElement,
 
         /// The new value of the specified field.
+        #[xml_struct(ns_prefix = "t")]
         message: Message,
     },
 }

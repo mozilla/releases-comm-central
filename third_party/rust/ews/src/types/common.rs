@@ -533,6 +533,7 @@ pub struct Message {
     pub conversation_topic: Option<String>,
     pub from: Option<Recipient>,
     pub internet_message_id: Option<String>,
+    #[xml_struct(ns_prefix = "t")]
     pub is_read: Option<bool>,
     pub is_response_requested: Option<bool>,
     pub reply_to: Option<Recipient>,

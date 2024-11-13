@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
+#include "nsIArray.idl"
+#include "nsISupportsPrimitives.idl"
 
 interface nsIMsgDBHdr;
 interface nsIRequest;
@@ -27,6 +29,7 @@ interface IEwsClient : nsISupports
   void syncFolderHierarchy(in IEwsFolderCallbacks callbacks, in AUTF8String syncStateToken);
   void syncMessagesForFolder(in IEwsMessageCallbacks callbacks, in AUTF8String folderId, in AUTF8String syncStateToken);
   void getMessage(in AUTF8String id, in nsIRequest request, in nsIStreamListener listener);
+  void changeReadStatus(in Array<AUTF8String> messageIds, in boolean readStatus);
 
   /**
    * Create a new message on the server using the data read from the stream.

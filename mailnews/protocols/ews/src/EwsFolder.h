@@ -41,6 +41,8 @@ class EwsFolder : public nsMsgDBFolder {
   NS_IMETHOD RenameSubFolders(nsIMsgWindow* msgWindow,
                               nsIMsgFolder* oldFolder) override;
   NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
+  NS_IMETHOD MarkMessagesRead(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages,
+                              bool markRead) override;
 
  private:
   bool mHasLoadedSubfolders;

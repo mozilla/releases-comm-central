@@ -5,9 +5,9 @@
 extern crate xpcom;
 
 use std::{cell::OnceCell, ffi::c_void};
-
 use url::Url;
-
+use nsstring::{nsCString};
+use thin_vec::ThinVec;
 use nserror::{
     nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED, NS_OK,
 };
@@ -96,6 +96,34 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "sync_folder_hierarchy",
             client.sync_folder_hierarchy(RefPtr::new(callbacks), sync_state),
+        )
+        .detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(change_read_status => ChangeReadStatus(
+        aMessageIds: *const ThinVec<nsCString>,
+        aIsRead: bool
+    ));
+    fn change_read_status(
+        &self,
+        message_ids: &ThinVec<nsCString>,  // Directly accept a reference
+        is_read: bool,
+    ) -> Result<(), nsresult> {
+        // Convert `ThinVec<nsCString>` to `Vec<String>`
+        let message_ids: Vec<String> = message_ids
+            .iter()
+            .map(|message_id| message_id.to_string())
+            .collect();
+
+        // Attempt to create the EWS client.
+        let client = self.try_new_client()?;
+
+        // Send the request asynchronously.
+        moz_task::spawn_local(
+            "mark_messages_read",
+            client.change_read_status(message_ids, is_read),
         )
         .detach();
 
