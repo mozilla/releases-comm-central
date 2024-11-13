@@ -710,7 +710,16 @@ export const TreeListboxMixin = Base =>
         if (this.selectedIndex == index) {
           row.classList.add("current");
           this.setAttribute("aria-activedescendant", row.id);
-          row.firstElementChild.scrollIntoView({ block: "nearest" });
+          if (this.isTree) {
+            // We don't want to scroll to the item and its entire subtree, so
+            // scroll only to the first child. Typically items in a tree have
+            // a block containing the item icon, name, etc. followed by a list
+            // containing the child items, so this works.
+            row.firstElementChild.scrollIntoView({ block: "nearest" });
+          } else {
+            // Not a tree item, scroll the whole item into view.
+            row.scrollIntoView({ block: "nearest" });
+          }
         }
       });
 
