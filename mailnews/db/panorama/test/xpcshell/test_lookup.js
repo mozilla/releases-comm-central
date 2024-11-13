@@ -19,8 +19,8 @@ add_task(function testLookup() {
 
   Assert.equal(database.getFolderByPath("server1"), server1);
   Assert.equal(database.getFolderByPath("server1/INBOX"), server1.children[0]);
-  Assert.equal(database.getFolderByPath("server1/Sent"), server1.children[1]);
-  Assert.equal(database.getFolderByPath("server1/Junk"), server1.children[2]);
+  Assert.equal(database.getFolderByPath("server1/Junk"), server1.children[1]);
+  Assert.equal(database.getFolderByPath("server1/Sent"), server1.children[2]);
   Assert.equal(database.getFolderByPath("server1/Trash"), server1.children[3]);
 
   Assert.equal(database.getFolderByPath("server2"), server2);
