@@ -107,7 +107,7 @@ nsresult nsMsgProtocol::GetQoSBits(uint8_t* aQoSBits) {
   int32_t val;
   rv = prefBranch->GetIntPref(prefName.get(), &val);
   NS_ENSURE_SUCCESS(rv, rv);
-  *aQoSBits = (uint8_t)clamped(val, 0, 0xff);
+  *aQoSBits = (uint8_t)std::clamp(val, 0, 0xff);
   return NS_OK;
 }
 
