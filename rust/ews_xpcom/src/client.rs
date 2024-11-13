@@ -10,12 +10,14 @@ use std::{
 use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{
     create_item::{CreateItem, CreateItemResponseMessage},
-    update_item::{ConflictResolution, ItemChange, ItemChangeInner, ItemChangeDescription, UpdateItem, Updates},
     get_folder::GetFolder,
     get_item::GetItem,
     soap,
     sync_folder_hierarchy::{self, SyncFolderHierarchy},
     sync_folder_items::{self, SyncFolderItems},
+    update_item::{
+        ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem, Updates,
+    },
     ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, ExtendedFieldURI, ExtendedProperty,
     Folder, FolderShape, ItemShape, Message, MessageDisposition, MimeContent, Operation,
     PathToElement, RealItem, Recipient, ResponseClass, ResponseCode,
@@ -1068,11 +1070,7 @@ impl XpComEwsClient {
     /// Mark a message as read or unread by performing an [`UpdateItem`] operation via EWS.
     ///
     /// [`UpdateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
-    pub async fn change_read_status(
-        self,
-        message_ids: Vec<String>,
-        is_read: bool,
-    ) {
+    pub async fn change_read_status(self, message_ids: Vec<String>, is_read: bool) {
         // Send the request, using an inner method to more easily handle errors.
         if let Err(err) = self.change_read_status_inner(message_ids, is_read).await {
             log::error!("an error occurred while attempting to update the read status: {err:?}");
@@ -1085,31 +1083,34 @@ impl XpComEwsClient {
         is_read: bool,
     ) -> Result<(), XpComEwsError> {
         // Create the structure for setting the messages as read/unread.
-        let item_changes: Vec<ItemChange> = message_ids.into_iter().map(|message_id| {
-            let updates = Updates {
-                inner: vec![ItemChangeDescription::SetItemField {
-                    field_uri: PathToElement::FieldURI {
-                        field_URI: "message:IsRead".to_string(),
-                    },
-                    message: Message {
-                        is_read: Some(is_read),
-                        ..Default::default()
-                    },
-                }],
-            };
+        let item_changes: Vec<ItemChange> = message_ids
+            .into_iter()
+            .map(|message_id| {
+                let updates = Updates {
+                    inner: vec![ItemChangeDescription::SetItemField {
+                        field_uri: PathToElement::FieldURI {
+                            field_URI: "message:IsRead".to_string(),
+                        },
+                        message: Message {
+                            is_read: Some(is_read),
+                            ..Default::default()
+                        },
+                    }],
+                };
 
-            ItemChange {
-                item_change: ItemChangeInner {
-                    item_id: BaseItemId::ItemId {
-                        id: message_id,
-                        // TODO: We should be able to get the change key from the
-                        // database or server, but we don't have a way to do that yet.
-                        change_key: None,
+                ItemChange {
+                    item_change: ItemChangeInner {
+                        item_id: BaseItemId::ItemId {
+                            id: message_id,
+                            // TODO: We should be able to get the change key from the
+                            // database or server, but we don't have a way to do that yet.
+                            change_key: None,
+                        },
+                        updates,
                     },
-                    updates,
-                },
-            }
-        }).collect();
+                }
+            })
+            .collect();
 
         let update_item = UpdateItem {
             item_changes: item_changes,
@@ -1128,18 +1129,17 @@ impl XpComEwsClient {
     /// Performs an [`UpdateItem`] operation and processes its response.
     ///
     /// [`UpdateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
-    async fn make_update_item_request(
-        &self,
-        update_item: UpdateItem,
-    ) -> Result<(), XpComEwsError> {
+    async fn make_update_item_request(&self, update_item: UpdateItem) -> Result<(), XpComEwsError> {
         // Make the operation request using the provided parameters.
         let response = self.make_operation_request(update_item.clone()).await?;
 
         // Get all response messages.
         let response_messages = &response.response_messages.update_item_response_message;
-        if response_messages.len() < update_item.item_changes.len(){
+        if response_messages.len() < update_item.item_changes.len() {
             return Err(XpComEwsError::Processing {
-                message: String::from("expected at least one response message per UpdateItem request"),
+                message: String::from(
+                    "expected at least one response message per UpdateItem request",
+                ),
             });
         }
 
@@ -1165,7 +1165,10 @@ impl XpComEwsClient {
         // If there were errors, return an aggregated error.
         if !errors.is_empty() {
             return Err(XpComEwsError::Processing {
-                message: format!("Some errors occurred while processing response messages: {:?}", errors),
+                message: format!(
+                    "Some errors occurred while processing response messages: {:?}",
+                    errors
+                ),
             });
         }
 
