@@ -15,6 +15,16 @@ namespace testing {
 // Parses all the messages in mbox returning them as an array.
 nsresult ExtractFromMbox(nsACString const& mbox, nsTArray<nsCString>& msgs,
                          size_t readSize) {
+  msgs.Clear();
+  if (mbox.IsEmpty()) {
+    // Icky special case for empty mbox files:
+    // There's no "From " found so Read() always fails. That's the
+    // correct behaviour if you're just trying to read out a single
+    // message, but here we're streaming out all the messages, so we
+    // want to succeed and return no messages.
+    return NS_OK;
+  }
+
   // Open stream for raw mbox.
   nsCOMPtr<nsIInputStream> raw;
   nsresult rv = NS_NewByteInputStream(getter_AddRefs(raw), mozilla::Span(mbox),
@@ -23,20 +33,19 @@ nsresult ExtractFromMbox(nsACString const& mbox, nsTArray<nsCString>& msgs,
     return rv;
   }
 
-  msgs.Clear();
-  // Wrap with MboxMsgInputStream and read single message.
   RefPtr<MboxMsgInputStream> rdr = new MboxMsgInputStream(raw, 0);
 
   while (true) {
     nsAutoCString got;
+    // Read a single message.
     rv = Slurp(rdr, readSize, got);
     if (NS_FAILED(rv)) {
       return rv;
     }
-    // Corner case: suppress dud message for empty mbox file.
-    if (!rdr->IsNullMessage()) {
-      msgs.AppendElement(got);
-    }
+
+    // Add it to our collection
+    msgs.AppendElement(got);
+
     // Try and reuse the MboxMsgInputStream for the next message.
     bool more;
     rv = rdr->Continue(more);
