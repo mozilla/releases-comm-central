@@ -12,6 +12,7 @@ DIRS += [
     "addrbook",
     "cloudfile",
     "compose",
+    "customizableshortcuts",
     "customizableui",
     "devtools",
     "downloads",

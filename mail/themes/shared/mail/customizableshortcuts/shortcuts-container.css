@@ -1,0 +1,50 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/variables.css");
+@import url("chrome://messenger/skin/colors.css");
+@import url("chrome://messenger/skin/icons.css");
+
+dialog {
+  display: grid;
+  width: 600px;
+  height: 400px;
+  overflow: hidden;
+  padding: 0;
+  box-shadow: none;
+  border: none;
+  border-radius: 6px;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 17%;
+    left: 50%;
+    width: 765px;
+    height: 500px;
+    transform: translateX(-50%);
+    background: linear-gradient(to right, rgba(159, 244, 240, 1), rgba(76, 177, 249, 1), rgba(168, 85, 247, 1));
+    filter: blur(15px);
+    z-index: -1;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &::after {
+      background: linear-gradient(to right, rgb(11, 140, 134, 1), rgba(28, 99, 149, 1));
+    }
+  }
+}
+
+main {
+  background-color: var(--color-neutral-base);
+  padding: 9px;
+}
+
+.icon-close {
+  content: var(--icon-close);
+}

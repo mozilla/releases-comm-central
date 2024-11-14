@@ -1,0 +1,14 @@
+[DEFAULT]
+head = "head.js"
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spellcheck.inline=false",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.database.global.indexer.enabled=false",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+subsuite = "thunderbird"
+
+["browser_shortcutsContainer.js"]

@@ -401,6 +401,7 @@
   skin/classic/messenger/shared/primaryToolbar.css            (../shared/mail/primaryToolbar.css)
   skin/classic/messenger/shared/quickFilterBar.css            (../shared/mail/quickFilterBar.css)
   skin/classic/messenger/shared/activity/activity.css         (../shared/mail/activity/activity.css)
+  skin/classic/messenger/shortcuts-container.css              (../shared/mail/customizableshortcuts/shortcuts-container.css)
   skin/classic/messenger/shared/sanitizeDialog.css            (../shared/mail/sanitizeDialog.css)
   skin/classic/messenger/shared/search-bar.css                (../shared/mail/search-bar.css)
   skin/classic/messenger/shared/searchBox.css                 (../shared/mail/searchBox.css)
