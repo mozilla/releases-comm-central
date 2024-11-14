@@ -14,7 +14,7 @@
 
 // msgHdrView.js
 /* globals AdjustHeaderView ClearCurrentHeaders ClearPendingReadTimer
-   HideMessageHeaderPane OnLoadMsgHeaderPane OnTagsChange
+   HideMessageHeaderPane initFolderDBListener OnLoadMsgHeaderPane OnTagsChange
    OnUnloadMsgHeaderPane HandleAllAttachments AttachmentMenuController */
 
 var { MailServices } = ChromeUtils.importESModule(
@@ -203,6 +203,7 @@ function displayMessage(uri, viewWrapper) {
   const messageService = MailServices.messageServiceFromURI(uri);
   gMessage = messageService.messageURIToMsgHdr(uri);
   gFolder = gMessage.folder;
+  initFolderDBListener();
 
   messageHistory.push(uri);
 

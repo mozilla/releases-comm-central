@@ -222,6 +222,16 @@ class FolderDBListener {
     ) {
       updateStarButton();
     }
+
+    // If the offline flag gets removed, reload to download the message again.
+    // This could happen if the message's storeToken points to a bogus place in
+    // the message store.
+    if (
+      oldFlags & Ci.nsMsgMessageFlags.Offline &&
+      !(newFlags & Ci.nsMsgMessageFlags.Offline)
+    ) {
+      ReloadMessage();
+    }
   }
   onHdrDeleted() {}
   onHdrAdded() {}
@@ -1357,11 +1367,6 @@ function ClearCurrentHeaders() {
 function ShowMessageHeaderPane() {
   document.getElementById("msgHeaderView").collapsed = false;
   document.getElementById("mail-notification-top").collapsed = false;
-
-  // Initialize the DBListener if we don't have one. This might happen when the
-  // message pane is hidden or no message was selected before, which caused the
-  // clearing of the the DBListener.
-  initFolderDBListener();
 }
 
 function HideMessageHeaderPane() {
