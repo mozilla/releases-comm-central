@@ -420,6 +420,7 @@ pub struct Items {
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/items>
 #[derive(Clone, Debug, Deserialize, XmlSerialize)]
+#[xml_struct(variant_ns_prefix = "t")]
 pub enum RealItem {
     Message(Message),
 }
@@ -474,74 +475,162 @@ impl XmlSerialize for DateTime {
 #[serde(rename_all = "PascalCase")]
 pub struct Message {
     /// The MIME content of the item.
+    #[xml_struct(ns_prefix = "t")]
     pub mime_content: Option<MimeContent>,
 
     /// The item's Exchange identifier.
+    #[xml_struct(ns_prefix = "t")]
     pub item_id: Option<ItemId>,
 
     /// The identifier for the containing folder.
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/parentfolderid>
+    #[xml_struct(ns_prefix = "t")]
     pub parent_folder_id: Option<FolderId>,
 
     /// The Exchange class value of the item.
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/itemclass>
+    #[xml_struct(ns_prefix = "t")]
     pub item_class: Option<String>,
 
     /// The subject of the item.
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/subject>
+    #[xml_struct(ns_prefix = "t")]
     pub subject: Option<String>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub sensitivity: Option<Sensitivity>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub body: Option<Body>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub attachments: Option<Attachments>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub date_time_received: Option<DateTime>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub size: Option<usize>,
 
     /// A list of categories describing an item.
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/categories-ex15websvcsotherref>
+    #[xml_struct(ns_prefix = "t")]
     pub categories: Option<Vec<StringElement>>,
 
     // Extended MAPI properties to set on the message.
+    #[xml_struct(ns_prefix = "t")]
     pub extended_property: Option<Vec<ExtendedProperty>>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub importance: Option<Importance>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub in_reply_to: Option<String>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub is_submitted: Option<bool>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub is_draft: Option<bool>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub is_from_me: Option<bool>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub is_resend: Option<bool>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub is_unmodified: Option<bool>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub internet_message_headers: Option<InternetMessageHeaders>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub date_time_sent: Option<DateTime>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub date_time_created: Option<DateTime>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub reminder_due_by: Option<DateTime>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub reminder_is_set: Option<bool>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub reminder_minutes_before_start: Option<usize>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub display_cc: Option<String>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub display_to: Option<String>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub has_attachments: Option<bool>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub culture: Option<String>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub sender: Option<Recipient>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub to_recipients: Option<ArrayOfRecipients>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub cc_recipients: Option<ArrayOfRecipients>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub bcc_recipients: Option<ArrayOfRecipients>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub is_read_receipt_requested: Option<bool>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub is_delivery_receipt_requested: Option<bool>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub conversation_index: Option<String>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub conversation_topic: Option<String>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub from: Option<Recipient>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub internet_message_id: Option<String>,
+
     #[xml_struct(ns_prefix = "t")]
     pub is_read: Option<bool>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub is_response_requested: Option<bool>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub reply_to: Option<Recipient>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub received_by: Option<Recipient>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub received_representing: Option<Recipient>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub last_modified_name: Option<String>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub last_modified_time: Option<DateTime>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub is_associated: Option<bool>,
+
+    #[xml_struct(ns_prefix = "t")]
     pub conversation_id: Option<ItemId>,
 }
 

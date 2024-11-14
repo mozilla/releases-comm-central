@@ -24,7 +24,7 @@ pub trait Operation: XmlSerialize + sealed::EnvelopeBodyContents + std::fmt::Deb
     ///
     /// This is the same as the local part of the name of the XML element used
     /// to represent this option.
-    fn name() -> &'static str {
+    fn name(&self) -> &'static str {
         <Self as sealed::EnvelopeBodyContents>::name()
     }
 }
