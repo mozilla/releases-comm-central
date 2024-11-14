@@ -1082,6 +1082,57 @@ NS_IMETHODIMP nsMsgDBFolder::HasMsgOffline(nsMsgKey msgKey, bool* result) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgDBFolder::DiscardOfflineMsg(nsMsgKey msgKey) {
+  GetDatabase();
+  if (!mDatabase) return NS_ERROR_FAILURE;
+
+  nsresult rv;
+  RefPtr<nsIMsgDBHdr> hdr;
+  rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(hdr));
+  if (NS_FAILED(rv)) return rv;
+  if (!hdr) {
+    return NS_ERROR_FAILURE;
+  }
+
+  // Tell the msgStore to ditch its local copy of the message.
+  // For maildir this is easy (just delete the file).
+  // But mbox doesn't delete anything, it just attempts to set the
+  // `Expunged` flag by rewriting X-Mozilla-* headers in-place,
+  // relying on a compaction later to actually remove the message.
+  //
+  // But it's likely the reason we're calling DiscardOfflineMsg() is because
+  // we suspect the storeToken is wrong, or the message is corrupt in some
+  // other way.
+  //
+  // In that case, attempting to edit the message headers is just
+  // going to be a world of pain.
+  //
+  // Maybe one day we can get rid of the X-Mozilla-* rewriting,
+  // and then the mbox DeleteMessages() can just be a nice clean
+  // no-op... but for now we're just going to bodge it and skip this step
+  // for mbox.
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  rv = GetMsgStore(getter_AddRefs(msgStore));
+  if (NS_SUCCEEDED(rv)) {
+    nsAutoCString t;
+    msgStore->GetStoreType(t);
+    if (!t.EqualsLiteral("mbox")) {
+      // Ignore failure - no useful recovery and better to keep going.
+      msgStore->DeleteMessages({hdr});
+    }
+  }
+
+  // Detach the database entry from the offline message.
+  // mDatabase->markOffline() should really also clear storeToken and
+  // size, but see Bug 1931217.
+  hdr->SetStoreToken(EmptyCString());
+  hdr->SetOfflineMessageSize(0);
+  mDatabase->MarkOffline(msgKey, false, this);
+
+  mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgDBFolder::GetFlags(uint32_t* _retval) {
   ReadDBFolderInfo(false);
   *_retval = mFlags;

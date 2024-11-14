@@ -623,6 +623,11 @@ interface nsIMsgFolder : nsISupports {
   readonly attribute boolean supportsOffline;
   boolean shouldStoreMsgOffline(in nsMsgKey msgKey);
   boolean hasMsgOffline(in nsMsgKey msgKey);
+  /**
+   * Discard the msgStore offline copy of this message (if there is one).
+   * If there is no offline copy, this has no effect.
+   */
+  void discardOfflineMsg(in nsMsgKey msgKey);
 
   /**
    * Get an offline store output stream for the passed message header.

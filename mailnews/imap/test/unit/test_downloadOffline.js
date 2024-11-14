@@ -73,6 +73,11 @@ add_task(
 
     // Corrupt the storeTokens by adding 3.
     for (const msg of inbox.messages) {
+      Assert.equal(
+        true,
+        inbox.hasMsgOffline(msg.messageKey),
+        "Messages should be marked Offline."
+      );
       const offset = Number(msg.storeToken) + 3;
       msg.storeToken = offset.toString();
     }
@@ -84,7 +89,15 @@ add_task(
       const uri = inbox.getUriForMsg(msg);
       const service = MailServices.messageServiceFromURI(uri);
       try {
-        service.streamMessage(uri, streamListener, null, null, false, "", true);
+        service.streamMessage(
+          uri,
+          streamListener,
+          null,
+          null,
+          false,
+          "",
+          false // localOnly
+        );
         await streamListener.promise;
         Assert.ok(false, "Bad storeToken should cause error.");
       } catch (e) {
@@ -94,6 +107,54 @@ add_task(
           "Bad storeToken causes NS_MSG_ERROR_MBOX_MALFORMED for mbox"
         );
       }
+    }
+
+    // Make sure that the offline messages were discarded.
+    for (const msg of inbox.messages) {
+      Assert.equal(
+        false,
+        inbox.hasMsgOffline(msg.messageKey),
+        "Bad message should not be marked Offline."
+      );
+      Assert.equal(
+        msg.storeToken,
+        "",
+        "Bad message should have had their storeToken cleared."
+      );
+      Assert.equal(
+        msg.flags & Ci.nsMsgMessageFlags.Offline,
+        0,
+        "Bad message should have had their Offline flag cleared."
+      );
+      Assert.equal(
+        msg.offlineMessageSize,
+        0,
+        "Bad message should have had their .offlineMessageSize zeroed."
+      );
+    }
+
+    // Stream them again from the server.
+    for (const msg of inbox.messages) {
+      const streamListener = new PromiseTestUtils.PromiseStreamListener();
+      const uri = inbox.getUriForMsg(msg);
+      const service = MailServices.messageServiceFromURI(uri);
+      service.streamMessage(uri, streamListener, null, null, false, "", false);
+      await streamListener.promise;
+    }
+
+    // The offline copies should have been re-downloaded.
+    for (const msg of inbox.messages) {
+      Assert.equal(
+        true,
+        inbox.hasMsgOffline(msg.messageKey),
+        "Message should again be available Offline."
+      );
+      const streamListener = new PromiseTestUtils.PromiseStreamListener();
+      const uri = inbox.getUriForMsg(msg);
+      const service = MailServices.messageServiceFromURI(uri);
+      // One more time, but with localOnly set.
+      service.streamMessage(uri, streamListener, null, null, false, "", true);
+      await streamListener.promise;
     }
   }
 );

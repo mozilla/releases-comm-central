@@ -222,7 +222,7 @@ export class ImapChannel extends MailChannel {
 
     const hdr = this.URI.folder.GetMessageHeader(this._msgKey);
     const stream = this.URI.folder.getLocalMsgStream(hdr);
-    this._readFromCacheStream(stream);
+    this._readFromCacheStream(stream, hdr);
     return true;
   }
 
@@ -230,8 +230,10 @@ export class ImapChannel extends MailChannel {
    * Read the message from the a stream.
    *
    * @param {nsIInputStream} cacheStream - The input stream to read.
+   * @param {nsIMsgDBHdr} offlineHdr     - If streaming a message from
+   *                                       msgStore, this is its header.
    */
-  _readFromCacheStream(cacheStream) {
+  _readFromCacheStream(cacheStream, offlineHdr) {
     const pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
       Ci.nsIInputStreamPump
     );
@@ -249,6 +251,13 @@ export class ImapChannel extends MailChannel {
         try {
           this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
         } catch (e) {}
+        if (status != Cr.NS_OK) {
+          // If we're streaming an offline message, and it failed, discard
+          // the local copy on grounds that it's probably damaged.
+          if (offlineHdr) {
+            offlineHdr.folder.discardOfflineMsg(offlineHdr.messageKey);
+          }
+        }
         this._pending = false;
       },
       onDataAvailable: (request, stream, offset, count) => {

@@ -8694,6 +8694,7 @@ nsresult nsImapCacheStreamListener::Init(nsIStreamListener* aStreamListener,
   NS_ENSURE_ARG(aStreamListener);
   NS_ENSURE_ARG(aMockChannelToUse);
 
+  MOZ_ASSERT(NS_IsMainThread());
   mChannelToUse = aMockChannelToUse;
   mListener = aStreamListener;
   mCache2 = aCache2;
@@ -8704,6 +8705,7 @@ nsresult nsImapCacheStreamListener::Init(nsIStreamListener* aStreamListener,
 
 NS_IMETHODIMP
 nsImapCacheStreamListener::OnStartRequest(nsIRequest* request) {
+  MOZ_ASSERT(NS_IsMainThread());
   if (!mChannelToUse) {
     NS_ERROR("OnStartRequest called after OnStopRequest");
     return NS_ERROR_NULL_POINTER;
@@ -8717,6 +8719,7 @@ nsImapCacheStreamListener::OnStartRequest(nsIRequest* request) {
 NS_IMETHODIMP
 nsImapCacheStreamListener::OnStopRequest(nsIRequest* request,
                                          nsresult aStatus) {
+  MOZ_ASSERT(NS_IsMainThread());
   if (!mListener) {
     NS_ERROR("OnStopRequest called twice");
     return NS_ERROR_NULL_POINTER;
@@ -8763,6 +8766,7 @@ nsImapCacheStreamListener::OnDataAvailable(nsIRequest* request,
                                            nsIInputStream* aInStream,
                                            uint64_t aSourceOffset,
                                            uint32_t aCount) {
+  MOZ_ASSERT(NS_IsMainThread());
   if (mCache2 && mStarting) {
     // Peeker() does check of leading bytes and sets mGoodCache2.
     uint32_t numRead;
@@ -8786,6 +8790,82 @@ nsImapCacheStreamListener::OnDataAvailable(nsIRequest* request,
   return mListener->OnDataAvailable(mChannelToUse, aInStream, aSourceOffset,
                                     aCount);
 }
+
+//
+// ImapOfflineMsgStreamListener
+//
+// Listener wrapper, helper for ReadFromLocalCache().
+// It knows which offline message it's streaming out, and if the operation
+// fails it'll cause the local copy to be discarded (on the grounds that it's
+// likely damaged) before letting the underlying listener proceed with it's
+// own error handling.
+// Works on the Main thread.
+//
+// ***NOTE*** (BenC 2024-11-12):
+// We pass in the underlying channel to use as the request param to the
+// underlying listener callbacks. I'm not totally sure this is required.
+// It'd be nicer to just pass along whatever request that we're called
+// with.
+// But nsImapCacheStreamListener (which this is based upon) did it, so I'm
+// cargo-culting it. For now.
+//
+class ImapOfflineMsgStreamListener : public nsIStreamListener {
+ public:
+  NS_DECL_ISUPPORTS
+
+  ImapOfflineMsgStreamListener() = delete;
+  ImapOfflineMsgStreamListener(nsIMsgFolder* folder, nsMsgKey msgKey,
+                               nsIStreamListener* listener,
+                               nsIImapMockChannel* channel)
+      : mFolder(folder),
+        mMsgKey(msgKey),
+        mListener(listener),
+        mChannel(channel) {
+    MOZ_ASSERT(mFolder);
+    MOZ_ASSERT(mListener);
+    MOZ_ASSERT(mChannel);
+  }
+
+  NS_IMETHOD OnStartRequest(nsIRequest* request) override {
+    MOZ_ASSERT(NS_IsMainThread());
+    return mListener->OnStartRequest(mChannel);
+  }
+
+  NS_IMETHOD OnDataAvailable(nsIRequest* request, nsIInputStream* stream,
+                             uint64_t offset, uint32_t count) override {
+    MOZ_ASSERT(NS_IsMainThread());
+    return mListener->OnDataAvailable(mChannel, stream, offset, count);
+  }
+
+  NS_IMETHOD OnStopRequest(nsIRequest* request, nsresult status) override {
+    MOZ_ASSERT(NS_IsMainThread());
+    nsresult rv = mListener->OnStopRequest(mChannel, status);
+    mListener = nullptr;
+    mChannel->Close();
+    mChannel = nullptr;
+    if (NS_FAILED(status)) {
+      // The streaming failed, discard the offline copy of the message.
+      mFolder->DiscardOfflineMsg(mMsgKey);
+    }
+    return rv;
+  }
+
+ protected:
+  virtual ~ImapOfflineMsgStreamListener() {}
+  // Remember the folder and key of the offline message we're streaming out,
+  // so if anything goes wrong we can discard it on the grounds that it's
+  // damaged.
+  nsCOMPtr<nsIMsgFolder> mFolder;
+  nsMsgKey mMsgKey;
+  nsCOMPtr<nsIStreamListener> mListener;  // The listener we're wrapping.
+  nsCOMPtr<nsIImapMockChannel> mChannel;
+};
+
+NS_IMPL_ISUPPORTS(ImapOfflineMsgStreamListener, nsIStreamListener);
+
+//
+// nsImapMockChannel implementation
+//
 
 NS_IMPL_ISUPPORTS_INHERITED(nsImapMockChannel, nsHashPropertyBag,
                             nsIImapMockChannel, nsIMailChannel, nsIChannel,
@@ -9405,6 +9485,7 @@ NS_IMETHODIMP nsImapMockChannel::ReadFromImapConnection() {
 // that... If it's in the local cache, we return true and we can abort the
 // download because this method does the rest of the work.
 bool nsImapMockChannel::ReadFromLocalCache() {
+  MOZ_ASSERT(NS_IsMainThread());
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(m_url);
@@ -9432,20 +9513,34 @@ bool nsImapMockChannel::ReadFromLocalCache() {
   nsCOMPtr<nsIMsgDBHdr> hdr;
   rv = folder->GetMessageHeader(msgKey, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, false);
+
+  // Attempt to open the local message and pump it out asynchronously.
+  // If any of this fails we assume the local message is damaged.
+  // In that case we'll discard it and tell the caller there is no local
+  // copy.
   nsCOMPtr<nsIInputStream> msgStream;
   rv = folder->GetLocalMsgStream(hdr, getter_AddRefs(msgStream));
   NS_ENSURE_SUCCESS(rv, false);
-  // dougt - This may break the ablity to "cancel" a read from offline
-  // mail reading. fileChannel->SetLoadGroup(m_loadGroup);
-  RefPtr<nsImapCacheStreamListener> cacheListener =
-      new nsImapCacheStreamListener();
-  cacheListener->Init(m_channelListener, this);
 
-  // create a stream pump that will async read the message.
+  // Create a stream pump that will async read the message.
   nsCOMPtr<nsIInputStreamPump> pump;
   rv = NS_NewInputStreamPump(getter_AddRefs(pump), msgStream.forget());
   NS_ENSURE_SUCCESS(rv, false);
-  rv = pump->AsyncRead(cacheListener);
+
+  // Wrap the listener with another one which knows which message offline
+  // message we're reading from. If the read fails, our wrapper will discard
+  // the offline copy as damaged.
+  // We use a wrapper around the real listener because we don't know who is
+  // consuming this data (A docshell, gloda indexing, calendar, whatever), so
+  // we don't have any control over how read errors are handled. This lets
+  // us intercept errors in OnStopRequest() and respond by discarding the
+  // offline copy on the grounds that it's likely damaged.
+  // Then the underlying listener can proceed with it's own OnStopRequest()
+  // handling.
+  RefPtr<ImapOfflineMsgStreamListener> offlineMsgListener =
+      new ImapOfflineMsgStreamListener(folder, msgKey, m_channelListener, this);
+
+  rv = pump->AsyncRead(offlineMsgListener);
   NS_ENSURE_SUCCESS(rv, false);
 
   // if the msg is unread, we should mark it read on the server. This lets
@@ -9455,6 +9550,8 @@ bool nsImapMockChannel::ReadFromLocalCache() {
 }
 
 NS_IMETHODIMP nsImapMockChannel::AsyncOpen(nsIStreamListener* aListener) {
+  MOZ_ASSERT(NS_IsMainThread(),
+             "nsIChannel methods must be called from main thread");
   nsCOMPtr<nsIStreamListener> listener = aListener;
   nsresult rv =
       nsContentSecurityManager::doContentSecurityCheck(this, listener);
