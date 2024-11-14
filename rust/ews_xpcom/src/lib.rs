@@ -4,14 +4,14 @@
 
 extern crate xpcom;
 
-use std::{cell::OnceCell, ffi::c_void};
-use url::Url;
-use nsstring::{nsCString};
-use thin_vec::ThinVec;
 use nserror::{
     nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED, NS_OK,
 };
 use nsstring::nsACString;
+use nsstring::nsCString;
+use std::{cell::OnceCell, ffi::c_void};
+use thin_vec::ThinVec;
+use url::Url;
 use xpcom::{
     interfaces::{
         nsIInputStream, nsIMsgCopyServiceListener, nsIMsgIncomingServer, nsIRequest,
@@ -108,7 +108,7 @@ impl XpcomEwsBridge {
     ));
     fn change_read_status(
         &self,
-        message_ids: &ThinVec<nsCString>,  // Directly accept a reference
+        message_ids: &ThinVec<nsCString>, // Directly accept a reference
         is_read: bool,
     ) -> Result<(), nsresult> {
         // Convert `ThinVec<nsCString>` to `Vec<String>`
