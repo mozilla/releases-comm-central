@@ -176,7 +176,8 @@ class MboxParser {
     if (mState == eMessageComplete) {
       mEnvAddr.Truncate();
       mEnvDate = 0;
-      mState = eExpectFromLine;
+      // This time around an EOF would also be acceptable.
+      mState = eExpectFromLineOrEOF;
     }
   }
 
@@ -222,7 +223,8 @@ class MboxParser {
     eEmitBodyLine,
     eMessageComplete,  // Message is complete (or ended prematurely).
     eMalformed,        // Error. No initial "From " line was found.
-    eEOF,              // End of mbox.
+    eExpectFromLineOrEOF,
+    eEOF,  // End of mbox.
   } mState{eExpectFromLine};
 
   // handle_<state>() functions consume as much data as they need, and
@@ -231,11 +233,19 @@ class MboxParser {
   // the mbox file has been reached.
   span handle(span data) {
     {
-      const char* stateName[] = {
-          "eExpectFromLine",  "eDiscardFromLine", "eExpectHeaderLine",
-          "eEmitHeaderLine",  "eEmitSeparator",   "eExpectBodyLine",
-          "eCountQuoting",    "eEmitQuoting",     "eEmitBodyLine",
-          "eMessageComplete", "eMalformed",       "eEOF"};
+      const char* stateName[] = {"eExpectFromLine",
+                                 "eDiscardFromLine",
+                                 "eExpectHeaderLine",
+                                 "eEmitHeaderLine",
+                                 "eEmitSeparator",
+                                 "eExpectBodyLine",
+                                 "eCountQuoting",
+                                 "eEmitQuoting",
+                                 "eEmitBodyLine",
+                                 "eMessageComplete",
+                                 "eMalformed",
+                                 "eExpectFromLineOrEOF",
+                                 "eEOF"};
       MOZ_LOG(gMboxLog, LogLevel::Verbose,
               ("MboxParser - handle %s (%zu bytes: '%s')", stateName[mState],
                data.Length(),
@@ -264,6 +274,8 @@ class MboxParser {
         return handle_eMessageComplete(data);
       case eMalformed:
         return handle_eMalformed(data);
+      case eExpectFromLineOrEOF:
+        return handle_eExpectFromLineOrEOF(data);
       case eEOF:
         return handle_eEOF(data);
       default:
@@ -323,12 +335,14 @@ class MboxParser {
     envDate = tmpDate;
   }
 
-  // We're expecting a new message to start, or an EOF.
+  // We expect a message. If we dont find one, it's a malformed mbox.
+  // NOTE: It turns out that if you Seek() way past the end of a file,
+  // performing reads will just return an EOF, rather than an error.
+  // If a storeToken is corrupted and we're actually positioned out
+  // past the end of the mbox file, the resulting EOF will safely cause
+  // us to be kicked out into eMalformed state which will correctly return
+  // an error.
   span handle_eExpectFromLine(span data) {
-    if (data.Length() < 5) {  // Enough to check for "From "?
-      mState = eEOF;          // no more messages.
-      return span();          // discard data
-    }
     if (IsFromLine(data)) {
       // The "From " line could have an email address (up to 254 bytes) and a
       // date string (24 bytes). MinChunk is tuned to avoid spliting up long
@@ -516,18 +530,31 @@ class MboxParser {
     return data;
   }
 
-  // All done, so this is a no-op.
+  // All done, so this is a no-op - just kick us into next state.
   span handle_eMessageComplete(span data) {
     if (data.IsEmpty()) {
       mState = eEOF;
     } else {
-      mState = eExpectFromLine;
+      mState = eExpectFromLineOrEOF;
     }
     return data;
   }
 
   // Halt parsing, So this is a no-op.
   span handle_eMalformed(span data) { return data; }
+
+  // We've finished a message and been Kick()ed back into life, so now expect
+  // another message or an EOF.
+  span handle_eExpectFromLineOrEOF(span data) {
+    if (data.Length() == 0) {
+      // All done. No more messages.
+      mState = eEOF;
+    } else {
+      // Not yet EOF, so we expect next message.
+      mState = eExpectFromLine;
+    }
+    return data;
+  }
 
   // All done, so this is a no-op.
   span handle_eEOF(span data) {
@@ -542,7 +569,7 @@ class MboxParser {
     // We don't go directly to eEOF.
     // Going to eMessageComplete holds parsing up until the output
     // has all been drained.
-    // After this, eExpectFromLine will move us into eEOF.
+    // After this, eExpectFromLineOrEOF will move us into eEOF.
     mState = eMessageComplete;
     Emit(data);
     return data.Last<0>();

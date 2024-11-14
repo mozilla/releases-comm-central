@@ -1418,7 +1418,12 @@ nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
   nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(rawMboxStream));
   rv = seekable->Seek(PR_SEEK_SET, offset);
   NS_ENSURE_SUCCESS(rv, rv);
-  // Stream to return a single message, hiding all "From "-separator guff.
+  // Build stream to return a single message from the msgStore.
+  // NOTE: It turns out that Seek()ing way past the end of the file doesn't
+  // cause an error. And reading from there doesn't return an error either
+  // (just an EOF).
+  // But it's OK - MboxMsgInputStream will handle that case, and its Read()
+  // method will safely return an error (NS_MSG_ERROR_MBOX_MALFORMED).
   RefPtr<MboxMsgInputStream> msgStream =
       new MboxMsgInputStream(rawMboxStream, aMaxAllowedSize);
   msgStream.forget(aResult);

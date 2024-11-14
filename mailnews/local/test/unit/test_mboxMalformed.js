@@ -79,10 +79,16 @@ add_task(async function test_badStoreTokens() {
     generator.makeMessages({ count: 10 }).map(m => m.toMessageString())
   );
 
-  // Corrupt the storeTokens by adding 3.
+  // Corrupt the storeTokens in a couple of different ways.
+  let even = true;
   for (const msg of inbox.messages) {
-    const offset = Number(msg.storeToken) + 3;
-    msg.storeToken = offset.toString();
+    if (even) {
+      const offset = Number(msg.storeToken) + 3;
+      msg.storeToken = offset.toString();
+    } else {
+      msg.storeToken = "12345678"; // Past end of mbox file.
+    }
+    even = !even;
   }
 
   // Check that message reads fail.

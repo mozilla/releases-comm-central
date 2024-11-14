@@ -46,7 +46,8 @@ class MboxMsgInputStream : public nsIInputStream {
    * given number. This is useful if the mbox stream doesn't contain the
    * expected sepatarors.
    */
-  explicit MboxMsgInputStream(nsIInputStream* mboxStream, uint32_t maxAllowedSize);
+  explicit MboxMsgInputStream(nsIInputStream* mboxStream,
+                              uint32_t maxAllowedSize);
 
   MboxMsgInputStream() = delete;
 
@@ -72,9 +73,11 @@ class MboxMsgInputStream : public nsIInputStream {
   nsresult Continue(bool& more);
 
   /**
-   * Return the offset into the underlying raw mbox stream at which the current
-   * message is located. This would be the location of the "From " separator
-   * line.
+   * Return the offset at which the current message is located. This would be
+   * the location of the "From " separator line.
+   * NOTE: this value is relative to where the underlying stream was
+   * positioned when the MboxMsgInputStream was constructed!
+   * If a seek was performed beforehand, that position is considered offset 0.
    */
   uint64_t MsgOffset() { return mMsgOffset; }
 
