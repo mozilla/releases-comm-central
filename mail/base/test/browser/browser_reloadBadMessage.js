@@ -104,4 +104,8 @@ add_task(async function () {
 
     mboxSize = imapFolder.filePath.fileSize;
   }
+
+  // Clear the selection so the I/O service doesn't complain when we remove
+  // the account.
+  about3Pane.threadTree.selectedIndex = -1;
 });
