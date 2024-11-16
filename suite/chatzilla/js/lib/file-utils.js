@@ -30,8 +30,8 @@ const MODE_EXCL     = 0x80;
 var futils = new Object();
 
 futils.umask = PERM_IWOTH | PERM_IWGRP;
-futils.MSG_SAVE_AS = "Save As";
-futils.MSG_OPEN = "Open";
+futils.lastSaveAsDir = null;
+futils.lastOpenDir = null;
 
 /**
  * Internal function used by |pickSaveAs|, |pickOpen| and |pickGetFolder|.
@@ -46,29 +46,18 @@ futils.MSG_OPEN = "Open";
  *                 the following standard filters may be used: |$all|, |$html|,
  *                 |$text|, |$images|, |$xml|, |$xul|, |$noAll| (prevents "All
  *                 Files" filter being included).
- * @param attribs Optional. Takes an object with either or both of the
- *                properties: |defaultString| (*defaultFile* in |pick|
- *                functions) sets the initial/default filename, and
- *                |defaultExtension| XXX FIXME (this seems wrong?) XXX.
+ * @param defaultString Optional. Sets the initial/default filename.
  * @returns An |Object| with |ok| (Boolean), |file| (|nsIFile|) and
  *          |picker| (|nsIFilePicker|) properties.
  */
 futils.getPicker =
-function futils_nosepicker(initialPath, typeList, attribs)
+function futils_nosepicker(initialPath, typeList, defaultString)
 {
     let picker = Cc["@mozilla.org/filepicker;1"]
                    .createInstance(Ci.nsIFilePicker);
-    if (attribs)
+    if (defaultString)
     {
-        if (typeof attribs == "object")
-        {
-            for (var a in attribs)
-                picker[a] = attribs[a];
-        }
-        else
-        {
-            throw "bad type for param |attribs|";
-        }
+        picker.defaultString = defaultString;
     }
 
     if (initialPath)
@@ -182,21 +171,13 @@ function getPickerChoice(picker)
  * @param title Optional. The title for the dialog.
  * @param typeList Optional. See |futils.getPicker| for details.
  * @param defaultFile Optional. See |futils.getPicker| for details.
- * @param defaultDir Optional. See |futils.getPicker| for details.
- * @param defaultExt Optional. See |futils.getPicker| for details.
  * @returns An |Object| with "ok" (Boolean), "file" (|nsIFile|) and
  *          "picker" (|nsIFilePicker|) properties.
  */
-function pickSaveAs (title, typeList, defaultFile, defaultDir, defaultExt)
+function pickSaveAs(title, typeList, defaultFile)
 {
-    if (!defaultDir && "lastSaveAsDir" in futils)
-        defaultDir = futils.lastSaveAsDir;
-
-    var picker = futils.getPicker (defaultDir, typeList,
-                                   {defaultString: defaultFile,
-                                    defaultExtension: defaultExt});
-    picker.init (window, title ? title : futils.MSG_SAVE_AS,
-                 Ci.nsIFilePicker.modeSave);
+    let picker = futils.getPicker(futils.lastSaveAsDir, typeList, defaultFile);
+    picker.init(window, title, Ci.nsIFilePicker.modeSave);
 
     var rv = getPickerChoice(picker);
     if (rv.ok)
@@ -210,20 +191,13 @@ function pickSaveAs (title, typeList, defaultFile, defaultDir, defaultExt)
  *
  * @param title Optional. The title for the dialog.
  * @param typeList Optional. See |futils.getPicker| for details.
- * @param defaultFile Optional. See |futils.getPicker| for details.
- * @param defaultDir Optional. See |futils.getPicker| for details.
  * @returns An |Object| with "ok" (Boolean), "file" (|nsIFile|) and
  *          "picker" (|nsIFilePicker|) properties.
  */
-function pickOpen (title, typeList, defaultFile, defaultDir)
+function pickOpen(title, typeList)
 {
-    if (!defaultDir && "lastOpenDir" in futils)
-        defaultDir = futils.lastOpenDir;
-
-    var picker = futils.getPicker (defaultDir, typeList,
-                                   {defaultString: defaultFile});
-    picker.init (window, title ? title : futils.MSG_OPEN,
-                 Ci.nsIFilePicker.modeOpen);
+    let picker = futils.getPicker(futils.lastOpenDir, typeList);
+    picker.init(window, title, Ci.nsIFilePicker.modeOpen);
 
     var rv = getPickerChoice(picker);
     if (rv.ok)
@@ -242,12 +216,8 @@ function pickOpen (title, typeList, defaultFile, defaultDir)
  */
 function pickGetFolder(title, defaultDir)
 {
-    if (!defaultDir && "lastOpenDir" in futils)
-        defaultDir = futils.lastOpenDir;
-
-    var picker = futils.getPicker(defaultDir);
-    picker.init(window, title ? title : futils.MSG_OPEN,
-                Ci.nsIFilePicker.modeGetFolder);
+    let picker = futils.getPicker(defaultDir ? defaultDir : futils.lastOpenDir);
+    picker.init(window, title, Ci.nsIFilePicker.modeGetFolder);
 
     var rv = getPickerChoice(picker);
     if (rv.ok)
