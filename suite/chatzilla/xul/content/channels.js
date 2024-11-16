@@ -793,14 +793,10 @@ function ensureRowIsVisible()
         xul.channels.treeBoxObject.ensureRowIsVisible(0);
 }
 
-function getListFile(temp)
+function getListFile()
 {
-    ASSERT(network, "No network");
     var file = new LocalFile(network.prefs["logFileName"]);
-    if (temp)
-        file.localFile.leafName = "list.temp";
-    else
-        file.localFile.leafName = "list.txt";
+    file.localFile.leafName = "list.txt";
     return file.localFile;
 }
 
