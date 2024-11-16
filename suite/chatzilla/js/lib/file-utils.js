@@ -256,12 +256,9 @@ function pickGetFolder(title, defaultDir)
     return rv;
 }
 
-function mkdir (localFile, perms)
+function mkdir(localFile)
 {
-    if (typeof perms == "undefined")
-        perms = 0o766 & ~futils.umask;
-
-    localFile.create(Ci.nsIFile.DIRECTORY_TYPE, perms);
+    localFile.create(Ci.nsIFile.DIRECTORY_TYPE, 0o766 & ~futils.umask);
 }
 
 function getTempFile(path, name)
