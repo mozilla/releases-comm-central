@@ -65,7 +65,7 @@ if (DEBUG) {
                      var m = "** ASSERTION FAILED: " + msg + " **\n" +
                              getStackTrace();
                      try {
-                         alert(m);
+                         Services.prompt.alert(window, MSG_ALERT, m);
                      } catch(ex) {}
                      dd(m);
                      return false;
@@ -671,18 +671,6 @@ function getURLSpecFromFile(file)
     var fileHandler = Services.io.getProtocolHandler("file")
                                  .QueryInterface(Ci.nsIFileProtocolHandler);
     return fileHandler.getURLSpecFromFile(file);
-}
-
-function alert(msg, parent, title)
-{
-    var PROMPT_CTRID = "@mozilla.org/embedcomp/prompt-service;1";
-    var nsIPromptService = Components.interfaces.nsIPromptService;
-    var ps = Components.classes[PROMPT_CTRID].getService(nsIPromptService);
-    if (!parent)
-        parent = window;
-    if (!title)
-        title = MSG_ALERT;
-    ps.alert (parent, title, msg);
 }
 
 function confirmEx(msg, buttons, defaultButton, checkText, checkVal)

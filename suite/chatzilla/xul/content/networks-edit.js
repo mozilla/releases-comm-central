@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var ASSERT = function(cond, msg) { if (!cond) { alert(msg); } return cond; }
+var ASSERT = function(cond, msg) {
+  if (!cond) {
+    Services.prompt.alert(window, client.mainWindow.MSG_ALERT, msg);
+  }
+  return cond;
+}
 var client;
 
 // To be able to load static.js, we need a few things defined first:

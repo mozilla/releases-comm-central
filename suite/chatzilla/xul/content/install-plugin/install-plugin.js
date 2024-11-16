@@ -76,7 +76,7 @@ function doOK()
     var pluginSource = document.getElementById("txt-source");
     if (!pluginName.value)
     {
-        alert(client.mainWindow.MSG_INSTALL_PLUGIN_ERR_SPEC_NAME);
+        Services.prompt.alert(window, client.mainWindow.MSG_ALERT, client.mainWindow.MSG_INSTALL_PLUGIN_ERR_SPEC_NAME);
         return false;
     }
 

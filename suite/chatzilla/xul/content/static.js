@@ -1672,7 +1672,8 @@ function gotoIRCURL(url, e)
 
     if (!url)
     {
-        window.alert(getMsg(MSG_ERR_BAD_IRCURL, urlspec));
+        Services.prompt.alert(window, MSG_ALERT,
+                              getMsg(MSG_ERR_BAD_IRCURL, urlspec));
         return;
     }
 
@@ -2350,7 +2351,8 @@ function displayCertificateInfo()
 
     if (!o.server.isSecure)
     {
-        alert(getMsg(MSG_INSECURE_SERVER, o.server.hostname));
+        Services.prompt.alert(window, MSG_ALERT,
+                              getMsg(MSG_INSECURE_SERVER, o.server.hostname));
         return;
     }
 

@@ -8,7 +8,14 @@ const CONFIG_WINDOWTYPE     = "irc:chatzilla:config";
  * that we really have no reason to load, but the ones we do need won't work 
  * without these...
  */
-var ASSERT = function(cond, msg) { if (!cond) { alert(msg); } return cond; }
+var ASSERT = function(cond, msg)
+{
+    if (!cond)
+    {
+        Services.prompt.alert(window, MSG_ALERT, msg);
+    }
+    return cond;
+}
 var client;
 
 function CIRCNetwork() {}
@@ -950,7 +957,7 @@ function pwin_onLoad()
     enumerator.getNext();
     if (enumerator.hasMoreElements())
     {
-        alert(MSG_PREFS_ALREADYOPEN);
+        Services.prompt.alert(window, MSG_ALERT, MSG_PREFS_ALREADYOPEN);
         window.close();
         return;
     }
@@ -1229,7 +1236,7 @@ function pwin_onApply()
     }
     catch (e)
     {
-        alert(getMsg(MSG_PREFS_ERR_SAVE, e));
+        Services.prompt.alert(window, MSG_ALERT, getMsg(MSG_PREFS_ERR_SAVE, e));
         return false;
     }
 }
@@ -1599,7 +1606,8 @@ function pwin_onAddObject()
             break;
         default:
             // Oops. Not good, if we got here.
-            alert("Unknown pref type: " + rv.type);
+            Services.prompt.alert(window, MSG_ALERT,
+                                  "Unknown pref type: " + rv.type);
     }
 }
 

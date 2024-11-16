@@ -175,11 +175,6 @@ function onUnload()
     destroy();
 }
 
-function onNotImplemented()
-{
-    alert (getMsg("onNotImplementedMsg"));
-}
-
 /* tab click */
 function onTabClick(e, id)
 {
