@@ -322,7 +322,7 @@ function initStatic()
             {
                 var invalidFile = new nsLocalFile(client.prefs["profilePath"]);
                 invalidFile.append("awayMsgs.invalid");
-                invalidFile.createUnique(FTYPE_FILE, 0o600);
+                invalidFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
                 var msg = getMsg(MSG_ERR_INVALID_FILE,
                                  [awayFile.leafName, invalidFile.leafName]);
                 setTimeout(function() {
