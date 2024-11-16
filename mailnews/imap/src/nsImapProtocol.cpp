@@ -8819,26 +8819,29 @@ class ImapOfflineMsgStreamListener : public nsIStreamListener {
                                nsIImapMockChannel* channel)
       : mFolder(folder),
         mMsgKey(msgKey),
+        mAlreadyStarted(false),
         mListener(listener),
         mChannel(channel) {
-    MOZ_ASSERT(mFolder);
-    MOZ_ASSERT(mListener);
-    MOZ_ASSERT(mChannel);
+    MOZ_RELEASE_ASSERT(mFolder);
+    MOZ_RELEASE_ASSERT(mListener);
+    MOZ_RELEASE_ASSERT(mChannel);
   }
 
   NS_IMETHOD OnStartRequest(nsIRequest* request) override {
-    MOZ_ASSERT(NS_IsMainThread());
+    MOZ_RELEASE_ASSERT(NS_IsMainThread());
+    MOZ_RELEASE_ASSERT(!mAlreadyStarted);
+    mAlreadyStarted = true;
     return mListener->OnStartRequest(mChannel);
   }
 
   NS_IMETHOD OnDataAvailable(nsIRequest* request, nsIInputStream* stream,
                              uint64_t offset, uint32_t count) override {
-    MOZ_ASSERT(NS_IsMainThread());
+    MOZ_RELEASE_ASSERT(NS_IsMainThread());
     return mListener->OnDataAvailable(mChannel, stream, offset, count);
   }
 
   NS_IMETHOD OnStopRequest(nsIRequest* request, nsresult status) override {
-    MOZ_ASSERT(NS_IsMainThread());
+    MOZ_RELEASE_ASSERT(NS_IsMainThread());
     nsresult rv = mListener->OnStopRequest(mChannel, status);
     mListener = nullptr;
     mChannel->Close();
@@ -8857,6 +8860,7 @@ class ImapOfflineMsgStreamListener : public nsIStreamListener {
   // damaged.
   nsCOMPtr<nsIMsgFolder> mFolder;
   nsMsgKey mMsgKey;
+  bool mAlreadyStarted;
   nsCOMPtr<nsIStreamListener> mListener;  // The listener we're wrapping.
   nsCOMPtr<nsIImapMockChannel> mChannel;
 };
@@ -9499,7 +9503,13 @@ bool nsImapMockChannel::ReadFromLocalCache() {
 
   nsAutoCString messageIdString;
 
+  // The following call may set a new/replacement m_channelListener.
   SetupPartExtractorListener(imapUrl, m_channelListener);
+
+  // The code below assumes that m_channelListener is non-null,
+  if (!m_channelListener) {
+    return false;
+  }
 
   imapUrl->GetListOfMessageIds(messageIdString);
   nsCOMPtr<nsIMsgFolder> folder;
