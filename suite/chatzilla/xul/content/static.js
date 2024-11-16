@@ -3014,7 +3014,7 @@ function cli_installPlugin(name, source)
                                          "install-plugin.temp");
             zipReader.extract(initPath, initJSFile);
             initJSFile.permissions = 438; // 0666
-            var initJSFileH = fopen(initJSFile, "<");
+            var initJSFileH = new LocalFile(initJSFile, "<");
             var initJSData = initJSFileH.read();
             initJSFileH.close();
             initJSFile.remove(false);
@@ -3097,7 +3097,7 @@ function cli_installPlugin(name, source)
         try
         {
             // Test init.js for a plugin ID.
-            var initJSFileH = fopen(source, "<");
+            var initJSFileH = new LocalFile(source, "<");
             var initJSData = initJSFileH.read();
             initJSFileH.close();
 
@@ -3116,7 +3116,7 @@ function cli_installPlugin(name, source)
 
             dest.append("init.js");
 
-            var destFile = fopen(dest, ">");
+            var destFile = new LocalFile(dest, ">");
             destFile.write(initJSData);
             destFile.close();
 
@@ -5046,7 +5046,7 @@ function cli_startlog(view, showMessage)
             file.localFile.create(Ci.nsIFile.NORMAL_FILE_TYPE,
                                   0o666 & ~futils.umask);
         }
-        view.logFile = fopen(file.localFile, ">>");
+        view.logFile = new LocalFile(file.localFile, ">>");
         // If we're here, it's safe to say when we should re-open:
         view.nextLogFileDate = getNextLogFileDate();
     }

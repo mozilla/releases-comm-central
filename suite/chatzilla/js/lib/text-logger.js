@@ -13,7 +13,7 @@
 function TextLogger(path, autoLimit)
 {
     // Check if we can open the path. This will throw if it doesn't work
-    var f = fopen(path, ">>");
+    var f = new LocalFile(path, ">>");
     f.close();
     this.path = path;
 
@@ -50,7 +50,7 @@ function tl_append(data)
         return true;
     }
 
-    var file = fopen(this.path, ">>");
+    var file = new LocalFile(this.path, ">>");
     for (var i = 0; i < data.length; i++)
         file.write(ecmaEscape(data[i]) + "\n");
     file.close();
@@ -90,7 +90,7 @@ function tl_limit(dataOrCount)
     // Write the right data out. Note that we use the back of the array, not
     // the front (start from data.length - count), without dropping below 0:
     var start = Math.max(data.length - count, 0);
-    var file = fopen(this.path, ">");
+    var file = new LocalFile(this.path, ">");
     for (var i = start; i < data.length; i++)
         file.write(ecmaEscape(data[i]) + "\n");
     file.close();
@@ -106,7 +106,7 @@ TextLogger.prototype.read =
 function tl_read()
 {
     var rv = new Array(), parsedLines = new Array(), buffer = "";
-    var file = fopen(this.path, "<");
+    var file = new LocalFile(this.path, "<");
     while (true)
     {
         var newData = file.read();

@@ -4602,7 +4602,7 @@ function cmdInstallPlugin(e)
                 tempName += urlMatches[2];
 
             ctx.outFile = getTempFile(client.prefs["profilePath"], tempName);
-            ctx.outFileH = fopen(ctx.outFile, ">");
+            ctx.outFileH = new LocalFile(ctx.outFile, ">");
         },
         onDataAvailable: function _onDataAvailable(request, context, stream,
                                                    offset, count)

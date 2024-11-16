@@ -276,15 +276,9 @@ function nsLocalFile(path)
     return localFile;
 }
 
-function fopen (path, mode, perms, tmp)
+function LocalFile(file, mode)
 {
-    return new LocalFile(path, mode, perms, tmp);
-}
-
-function LocalFile(file, mode, perms, tmp)
-{
-    if (typeof perms == "undefined")
-        perms = 0o666 & ~futils.umask;
+    let perms = 0o666 & ~futils.umask;
 
     if (typeof mode == "string")
     {
@@ -330,7 +324,7 @@ function LocalFile(file, mode, perms, tmp)
     {
         this.baseInputStream = Cc["@mozilla.org/network/file-input-stream;1"]
                                  .createInstance(Ci.nsIFileInputStream);
-        this.baseInputStream.init(this.localFile, mode, perms, tmp);
+        this.baseInputStream.init(this.localFile, mode, perms, 0);
         this.inputStream = Cc["@mozilla.org/scriptableinputstream;1"]
                              .createInstance(Ci.nsIScriptableInputStream);
         this.inputStream.init(this.baseInputStream);
