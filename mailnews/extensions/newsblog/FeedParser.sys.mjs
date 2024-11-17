@@ -1192,7 +1192,7 @@ FeedParser.prototype = {
    * Return a cleaned up author name value.
    *
    * @param {string} authorString - A string.
-   * @returns {String} - A clean string value.
+   * @returns {string} - A clean string value.
    */
   cleanAuthorName(authorString) {
     if (!authorString) {
@@ -1220,7 +1220,7 @@ FeedParser.prototype = {
    * a space and unprintable ascii is removed.
    *
    * @param {Node} node - A DOM node.
-   * @returns {String} - A clean string value or null.
+   * @returns {string} - A clean string value or null.
    */
   getNodeValue(node) {
     let nodeValue = this.getNodeValueRaw(node);
@@ -1238,7 +1238,7 @@ FeedParser.prototype = {
    * that are multiline and formatted, such as content or description tags.
    *
    * @param {Node} node - A DOM node.
-   * @returns {String} - A clean string value or null.
+   * @returns {string} - A clean string value or null.
    */
   getNodeValueFormatted(node) {
     const nodeValue = this.getNodeValueRaw(node);
@@ -1254,7 +1254,7 @@ FeedParser.prototype = {
    * appropriate.
    *
    * @param {Node} node - A DOM node.
-   * @returns {String} - A string value or null.
+   * @returns {string} - A string value or null.
    */
   getNodeValueRaw(node) {
     if (node && node.textContent) {
@@ -1300,7 +1300,7 @@ FeedParser.prototype = {
    *
    * @param {Element} element - DOM element to search.
    * @param {string} namespace - Namespace of the search tag.
-   * @param {String} tagName - Tag to search for.
+   * @param {string} tagName - Tag to search for.
    * @returns {Element|null} - Matching element, or null.
    */
   childByTagNameNS(element, namespace, tagName) {
@@ -1317,7 +1317,7 @@ FeedParser.prototype = {
    * particularly to prevent data: uris, javascript, and other spoofing.
    *
    * @param {string} link - An intended http url string.
-   * @returns {String} - A clean string starting with http, ftp or magnet,
+   * @returns {string} - A clean string starting with http, ftp or magnet,
    *                         else null.
    */
   validLink(link) {
@@ -1339,7 +1339,7 @@ FeedParser.prototype = {
    * @param {NodeList} linkElements - the nodelist of <links> to search in.
    * @param {string} baseURI - the url to use when resolving relative
    *                                   links to absolute values.
-   * @returns {String} or null       - absolute url for a <link>, or null if the
+   * @returns {string} or null       - absolute url for a <link>, or null if the
    *                                   rel type is not found.
    */
   findAtomLink(linkRel, linkElements, baseURI) {
@@ -1374,7 +1374,7 @@ FeedParser.prototype = {
    * http://web.resource.org/rss/1.0/modules/syndication/
    *
    * @param {Feed} aFeed - the feed object.
-   * @param {Node | String} aChannel  - dom node for the <channel>.
+   * @param {Node | string} aChannel  - dom node for the <channel>.
    * @returns {void}
    */
   findSyUpdateTags(aFeed, aChannel) {
@@ -1433,7 +1433,7 @@ FeedParser.prototype = {
    * Remove unprintable ascii, particularly CR/LF, for non formatted tag values.
    *
    * @param {string} s - String to clean.
-   * @returns {String} - Cleaned string.
+   * @returns {string} - Cleaned string.
    */
   removeUnprintableASCII(s) {
     /* eslint-disable-next-line no-control-regex */
@@ -1444,7 +1444,7 @@ FeedParser.prototype = {
    * Remove unprintable ascii, except CR/LF/TAB, for formatted tag values.
    *
    * @param {string} s - String to clean.
-   * @returns {String} - Cleaned string.
+   * @returns {string} - Cleaned string.
    */
   removeUnprintableASCIIexCRLFTAB(s) {
     /* eslint-disable-next-line no-control-regex */

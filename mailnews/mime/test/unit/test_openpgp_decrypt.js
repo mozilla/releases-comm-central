@@ -38,6 +38,7 @@ const contents = "Sundays are nothing without callaloo.";
 /**
  * This implements some of the methods of openpgpSink so we can
  * intercept and record the calls to updateSecurityStatus().
+ *
  * @implements {nsIMsgOpenPGPSink}
  */
 const openpgpSink = {

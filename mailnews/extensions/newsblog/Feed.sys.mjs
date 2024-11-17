@@ -511,8 +511,8 @@ Feed.prototype = {
    * feed. There's a delay - invalid items are kept around for a set time
    * before being purged.
    *
-   * @param {Boolean} aDeleteFeed - is the feed being deleted (bypasses
-   *                                the delay time).
+   * @param {boolean} aDeleteFeed - is the feed being deleted (bypasses
+   *   the delay time).
    * @returns {void}
    */
   removeInvalidItems(aDeleteFeed) {

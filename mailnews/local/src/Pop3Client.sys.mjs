@@ -268,6 +268,7 @@ export class Pop3Client {
 
   /**
    * Send `QUIT` request to the server.
+   *
    * @param {Function} nextAction - Callback function after QUIT response.
    */
   async quit(nextAction) {
@@ -1663,6 +1664,7 @@ export class Pop3Client {
 
   /**
    * Save popstate.dat when necessary, send QUIT.
+   *
    * @param {nsresult} status - Indicate if the last action succeeded.
    */
   _actionDone = async (status = Cr.NS_OK) => {
@@ -1703,6 +1705,7 @@ export class Pop3Client {
 
   /**
    * Notify listeners, close the socket and rest states.
+   *
    * @param {nsresult} status - Indicate if the last action succeeded.
    */
   _cleanUp = status => {

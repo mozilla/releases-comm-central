@@ -118,6 +118,7 @@ async function getPassword() {
 
 /**
  * Checks if the LDAP connection can be bound.
+ *
  * @implements {nsILDAPMessageListener}
  */
 class BindListener {
@@ -143,6 +144,7 @@ class BindListener {
 
 /**
  * LDAPMessageListener.
+ *
  * @implements {nsILDAPMessageListener}
  */
 class LDAPMessageListener {

@@ -566,6 +566,7 @@ export class NntpClient {
 
   /**
    * Send `NEWGROUPS` request to the server.
+   *
    * @see rfc3977#section-7.3
    */
   _actionNewgroups = () => {
@@ -765,6 +766,7 @@ export class NntpClient {
 
   /**
    * Send `ARTICLE` request to the server.
+   *
    * @see {@link https://www.rfc-editor.org/rfc/rfc3977#section-6.2.1|RFC 3977 §6.2.1}
    */
   _actionArticle = () => {

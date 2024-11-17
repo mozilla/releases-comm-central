@@ -14,7 +14,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 /**
- * @extends {MsgIncomingServer}
+ * @augments {MsgIncomingServer}
  * @implements {nsIImapServerSink}
  * @implements {nsIImapIncomingServer}
  * @implements {nsIMsgIncomingServer}

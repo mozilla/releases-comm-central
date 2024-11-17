@@ -115,7 +115,6 @@ IndexingJob.prototype = {
  *   notification promptly at the end of our inactive period, we believe the
  *   system is not heavily loaded.  If we do not get notified promptly, we
  *   assume there is other stuff going on and back off.
- *
  */
 export var GlodaIndexer = {
   /**

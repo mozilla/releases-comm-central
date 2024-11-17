@@ -115,6 +115,7 @@ export class ImapChannel extends MailChannel {
 
   /**
    * Get readonly URI.
+   *
    * @see nsIChannel
    */
   get URI() {

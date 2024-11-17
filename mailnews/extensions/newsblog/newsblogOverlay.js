@@ -72,7 +72,7 @@ var FeedMessageHandler = {
    * @param {nsIMsgDBHdr} aMsgHdr - The message.
    * @param {boolean} aToggle - true if in toggle mode, false otherwise.
    *
-   * @returns {Boolean} - true if summary is to be displayed, false if web page.
+   * @returns {boolean} - true if summary is to be displayed, false if web page.
    */
   shouldShowSummary(aMsgHdr, aToggle) {
     // Not a feed message, always show summary (the message).
@@ -172,7 +172,7 @@ var FeedMessageHandler = {
    * is not streamed.
    *
    * @param {nsIMsgDBHdr} aMessageHdr - The message.
-   * @param {Object} aWhere - name value=true pair, where name is in:
+   * @param {object} aWhere - name value=true pair, where name is in:
    *                                    'messagepane', 'browser', 'tab', 'window'.
    * @returns {void}
    */
@@ -228,7 +228,7 @@ var FeedMessageHandler = {
    * know if the message is a feed message.
    *
    * @param {nsIMsgDBHdr} aMsgHdr - The message.
-   * @param {Boolean} aShowSummary - true if summary is to be displayed,
+   * @param {boolean} aShowSummary - true if summary is to be displayed,
    *                                 false if web page.
    * @returns {void}
    */

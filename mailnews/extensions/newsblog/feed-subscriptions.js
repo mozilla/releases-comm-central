@@ -784,7 +784,7 @@ var FeedSubscriptions = {
    * {nsIMsgFolder} newFolder - if not null (default) the new folder,
    *                            for add or rename.
    *
-   * @returns {Boolean} found - true if found, false if not.
+   * @returns {boolean} found - true if found, false if not.
    */
   selectFolder(aFolder, aParms) {
     const folderURI = aFolder.URI;
@@ -992,7 +992,7 @@ var FeedSubscriptions = {
    * @param {Feed} aFeed - The feed to find.
    * @param {Integer} aParentIndex - Index to start the folder search.
    *
-   * @returns {Boolean} found - true if found, false if not.
+   * @returns {boolean} found - true if found, false if not.
    */
   selectFeed(aFeed, aParentIndex) {
     let folder = aFeed.folder;
@@ -1598,17 +1598,17 @@ var FeedSubscriptions = {
    * though the url were entered manually.  This allows a user to see the dnd
    * url better in case of errors.
    *
-   * @param {String} aFeedLocation - the feed url; get the url from the
+   * @param {string} aFeedLocation - the feed url; get the url from the
    *                                     input field if null.
    * @param {nsIMsgFolder} aFolder - folder to subscribe, current selected
    *                                     folder if null.
-   * @param {Boolean} aParse - if true (default) parse and download
+   * @param {boolean} aParse - if true (default) parse and download
    *                                     the feed's articles.
-   * @param {Object} aParams - additional params.
+   * @param {object} aParams - additional params.
    * @param {Integer} aMode - action mode (default is kSubscribeMode)
    *                                     of the add.
    *
-   * @returns {Boolean} success        - true if edit checks passed and an
+   * @returns {boolean} success        - true if edit checks passed and an
    *                                     async download has been initiated.
    */
   addFeed(aFeedLocation, aFolder, aParse, aParams, aMode) {
@@ -1776,7 +1776,7 @@ var FeedSubscriptions = {
    *
    * @param {Integer} aOldFeedIndex - Index in tree of target feed item.
    * @param {Integer} aNewParentIndex - Index in tree of target parent folder item.
-   * @param {String} aMoveCopy - Either "move" or "copy".
+   * @param {string} aMoveCopy - Either "move" or "copy".
    *
    * @returns {void}
    */
@@ -2481,7 +2481,7 @@ var FeedSubscriptions = {
   /**
    * Export feeds as opml file Save As filepicker function.
    *
-   * @param {Boolean} aList - If true, exporting as list; if false (default)
+   * @param {boolean} aList - If true, exporting as list; if false (default)
    *                          exporting feeds in folder structure - used for title.
    * @returns {Promise} nsIFile or null.
    */
@@ -2811,7 +2811,7 @@ var FeedSubscriptions = {
    * @param {nsIMsgIncomingServer} aServer - The account server.
    * @param {Function} aCallback - Callback function.
    *
-   * @returns {Boolean} - false if error.
+   * @returns {boolean} - false if error.
    */
   async importOPMLFile(aFile, aFileUrl, aServer, aCallback) {
     if (aServer && aServer instanceof Ci.nsIMsgIncomingServer) {
