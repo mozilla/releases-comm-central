@@ -3181,7 +3181,7 @@ NS_IMETHODIMP nsImapMailFolder::CopyDataDone() {
   return NS_OK;
 }
 
-// sICopyMessageListener methods, BeginCopy, CopyData, EndCopy, EndMove,
+// nsICopyMessageListener methods, BeginCopy, CopyData, EndCopy, EndMove,
 // StartMessage, EndMessage
 NS_IMETHODIMP nsImapMailFolder::CopyData(nsIInputStream* aIStream,
                                          int32_t aLength) {
