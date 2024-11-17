@@ -145,14 +145,7 @@ function contentAreaClick(aEvent) {
 
       // Is it an image?
       if (target.localName == "img" && target.hasAttribute("overflowing")) {
-        if (target.hasAttribute("shrinktofit")) {
-          // Currently shrunk to fit, so unshrink it.
-          target.removeAttribute("shrinktofit");
-        } else {
-          // User wants to shrink now.
-          target.setAttribute("shrinktofit", true);
-        }
-
+        target.toggleAttribute("shrinktofit");
         return false;
       }
     }

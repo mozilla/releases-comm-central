@@ -1009,7 +1009,7 @@ static char* mime_image_make_image_html(MimeClosure image_closure) {
   /* Wouldn't it be nice if attributes were case-sensitive? */
   const char* scaledPrefix =
       "<DIV CLASS=\"moz-attached-image-container\"><IMG "
-      "CLASS=\"moz-attached-image\" shrinktofit=\"yes\" SRC=\"";
+      "CLASS=\"moz-attached-image\" SRC=\"";
   const char* suffix = "\"></DIV>";
   // Thunderbird doesn't have this pref.
 #ifdef MOZ_SUITE

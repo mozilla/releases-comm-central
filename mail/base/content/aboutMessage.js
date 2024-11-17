@@ -50,7 +50,10 @@ function getMessagePaneBrowser() {
   return document.getElementById("messagepane");
 }
 
-function messagePaneOnResize() {
+/**
+ * Handle "resize" events on the messagepane.
+ */
+async function messagePaneOnResize() {
   const doc = getMessagePaneBrowser().contentDocument;
   // Bail out if it's http content or we don't have images.
   if (doc?.URL.startsWith("http") || !doc?.images) {
@@ -62,22 +65,29 @@ function messagePaneOnResize() {
     window.visualViewport.width
   );
 
+  const adjustImg = img => {
+    if (img.hasAttribute("shrinktofit")) {
+      // overflowing: Whether the image is overflowing visible area.
+      img.toggleAttribute("overflowing", img.naturalWidth > img.clientWidth);
+    } else if (img.hasAttribute("overflowing")) {
+      const isOverflowing = img.clientWidth >= availableWidth;
+      img.toggleAttribute("overflowing", isOverflowing);
+      img.toggleAttribute("shrinktofit", !isOverflowing);
+    }
+  };
+
   for (const img of doc.querySelectorAll(
     "img:is([shrinktofit],[overflowing])"
   )) {
-    if (!img.complete || img.closest("[href]")) {
+    if (img.closest("[href]")) {
       continue;
     }
-    if (img.hasAttribute("shrinktofit")) {
-      // Determine if the image could be enlarged.
-      img.toggleAttribute("overflowing", img.naturalWidth > img.clientWidth);
-    } else if (
-      img.hasAttribute("overflowing") &&
-      img.clientWidth < availableWidth
-    ) {
-      // Handle zoomed images that are no longer overflowing after a resize.
-      img.removeAttribute("overflowing");
-      img.setAttribute("shrinktofit", "true");
+    if (!img.complete) {
+      img.addEventListener("load", event => adjustImg(event.target), {
+        once: true,
+      });
+    } else {
+      adjustImg(img);
     }
   }
 }

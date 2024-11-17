@@ -895,8 +895,10 @@ var messageProgressListener = {
    * OnStateChange event for STATE_STOP.  This is the same event that
    * generates the "msgLoaded" property flag change event.  This best
    * corresponds to the end of the streaming process.
+   *
+   * @param {nsIMsgMailNewsUrl} url
    */
-  onEndMsgDownload(url) {
+  async onEndMsgDownload(url) {
     const browser = getMessagePaneBrowser();
 
     // If we have no attachments, we hide the attachment icon in the message
@@ -929,9 +931,7 @@ var messageProgressListener = {
       currentAttachments.length &&
       Services.prefs.getBoolPref("mail.inline_attachments") &&
       FeedUtils.isFeedMessage(gMessage) &&
-      browser &&
-      browser.contentDocument &&
-      browser.contentDocument.body
+      browser.contentDocument?.body
     ) {
       for (const img of browser.contentDocument.body.getElementsByClassName(
         "moz-attached-image"
@@ -944,23 +944,108 @@ var messageProgressListener = {
             break;
           }
         }
-
-        img.addEventListener(
-          "load",
-          function () {
-            if (this.clientWidth > this.parentNode.clientWidth) {
-              img.setAttribute("overflowing", "true");
-              img.setAttribute("shrinktofit", "true");
-            }
-          },
-          { once: true }
-        );
       }
     }
 
-    OnMsgParsed(url);
+    // browser doesn't do this, but I thought it could be a useful thing to test out...
+    // If the find bar is visible and we just loaded a new message, re-run
+    // the find command. This means the new message will get highlighted and
+    // we'll scroll to the first word in the message that matches the find text.
+    const findBar = document.getElementById("FindToolbar");
+    if (!findBar.hidden) {
+      findBar.onFindAgainCommand(false);
+    }
+    // Run the phishing detector on the message if it hasn't been marked as not
+    // a scam already.
+    if (
+      gMessage &&
+      !gMessage.getUint32Property("notAPhishMessage") &&
+      PhishingDetector.analyzeMsgForPhishingURLs(url, browser)
+    ) {
+      gMessageNotificationBar.setPhishingMsg();
+    }
+
+    // Notify anyone (e.g., extensions) who's interested in when a message is loaded.
+    Services.obs.notifyObservers(null, "MsgMsgDisplayed", gMessageURI);
+
+    // Rewrite any anchor elements' href attribute to reflect that the loaded
+    // document is a mailnews url. This will cause docShell to scroll to the
+    // element in the document rather than opening the link externally.
+    for (const linkNode of browser.contentDocument.links) {
+      if (!linkNode.hash) {
+        continue;
+      }
+
+      // We have a ref fragment which may reference a node in this document.
+      // Ensure html in mail anchors work as expected.
+      const anchorId = linkNode.hash.replace("#", "");
+      // Continue if an id (html5) or name attribute value for the ref is not
+      // found in this document.
+      try {
+        if (
+          !linkNode.ownerDocument.querySelector(
+            `#${anchorId},[name='${anchorId}']`
+          )
+        ) {
+          continue;
+        }
+      } catch (ex) {
+        // invalid selector
+        continue;
+      }
+
+      // Then check if the href url matches the document baseURL.
+      if (
+        makeURI(linkNode.href).specIgnoringRef !=
+        makeURI(linkNode.baseURI).specIgnoringRef
+      ) {
+        continue;
+      }
+
+      // Finally, if the document url is a message url, and the anchor href is
+      // http, it needs to be adjusted so docShell finds the node.
+      const messageURI = makeURI(linkNode.ownerDocument.URL);
+      if (
+        messageURI instanceof Ci.nsIMsgMailNewsUrl &&
+        linkNode.href.startsWith("http")
+      ) {
+        linkNode.href = messageURI.specIgnoringRef + linkNode.hash;
+      }
+    }
+
+    if (browser.contentDocument.readyState != "complete") {
+      await new Promise(resolve => {
+        browser.contentWindow.addEventListener("load", resolve, {
+          once: true,
+        });
+      });
+    }
+
+    // Scale any overflowing images, exclude http content.
+    if (!browser.contentDocument.URL.startsWith("http")) {
+      const adjustImg = img => {
+        img.toggleAttribute("overflowing", img.naturalWidth > img.clientWidth);
+      };
+      for (const img of browser.contentDocument.images) {
+        // No zooming for children of clickable links.
+        if (img.closest("[href]")) {
+          continue;
+        }
+        img.toggleAttribute("shrinktofit", true);
+        if (!img.complete) {
+          img.addEventListener("load", event => adjustImg(event.target), {
+            once: true,
+          });
+        } else {
+          adjustImg(img);
+        }
+      }
+    }
   },
 
+  /**
+   * @param {nsIMsgMailNewsUrl} url
+   */
   onEndMsgHeaders(url) {
     if (!url.errorCode) {
       // Should not mark a message as read if failed to load.
@@ -4145,110 +4230,6 @@ function ClearPendingReadTimer() {
   if (gMarkViewedMessageAsReadTimer) {
     clearTimeout(gMarkViewedMessageAsReadTimer);
     gMarkViewedMessageAsReadTimer = null;
-  }
-}
-
-// this is called when layout is actually finished rendering a
-// mail message. OnMsgLoaded is called when libmime is done parsing the message
-function OnMsgParsed(aUrl) {
-  // browser doesn't do this, but I thought it could be a useful thing to test out...
-  // If the find bar is visible and we just loaded a new message, re-run
-  // the find command. This means the new message will get highlighted and
-  // we'll scroll to the first word in the message that matches the find text.
-  const findBar = document.getElementById("FindToolbar");
-  if (!findBar.hidden) {
-    findBar.onFindAgainCommand(false);
-  }
-  const browser = getMessagePaneBrowser();
-  // Run the phishing detector on the message if it hasn't been marked as not
-  // a scam already.
-  if (
-    gMessage &&
-    !gMessage.getUint32Property("notAPhishMessage") &&
-    PhishingDetector.analyzeMsgForPhishingURLs(aUrl, browser)
-  ) {
-    gMessageNotificationBar.setPhishingMsg();
-  }
-
-  // Notify anyone (e.g., extensions) who's interested in when a message is loaded.
-  Services.obs.notifyObservers(null, "MsgMsgDisplayed", gMessageURI);
-
-  const doc =
-    browser && browser.contentDocument ? browser.contentDocument : null;
-
-  // Rewrite any anchor elements' href attribute to reflect that the loaded
-  // document is a mailnews url. This will cause docShell to scroll to the
-  // element in the document rather than opening the link externally.
-  const links = doc && doc.links ? doc.links : [];
-  for (const linkNode of links) {
-    if (!linkNode.hash) {
-      continue;
-    }
-
-    // We have a ref fragment which may reference a node in this document.
-    // Ensure html in mail anchors work as expected.
-    const anchorId = linkNode.hash.replace("#", "");
-    // Continue if an id (html5) or name attribute value for the ref is not
-    // found in this document.
-    const selector = "#" + anchorId + ", [name='" + anchorId + "']";
-    try {
-      if (!linkNode.ownerDocument.querySelector(selector)) {
-        continue;
-      }
-    } catch (ex) {
-      continue;
-    }
-
-    // Then check if the href url matches the document baseURL.
-    if (
-      makeURI(linkNode.href).specIgnoringRef !=
-      makeURI(linkNode.baseURI).specIgnoringRef
-    ) {
-      continue;
-    }
-
-    // Finally, if the document url is a message url, and the anchor href is
-    // http, it needs to be adjusted so docShell finds the node.
-    const messageURI = makeURI(linkNode.ownerDocument.URL);
-    if (
-      messageURI instanceof Ci.nsIMsgMailNewsUrl &&
-      linkNode.href.startsWith("http")
-    ) {
-      linkNode.href = messageURI.specIgnoringRef + linkNode.hash;
-    }
-  }
-
-  const stylesReadyPromise = new Promise(resolve => {
-    if (doc.readyState === "complete") {
-      resolve();
-      return;
-    }
-    browser.contentWindow.addEventListener("load", resolve, {
-      once: true,
-    });
-  });
-
-  const applyOverflowingToImg = async img => {
-    img.setAttribute("shrinktofit", "true");
-    if (!img.complete) {
-      await new Promise(resolve => {
-        img.addEventListener("load", resolve, { once: true });
-      });
-    }
-    await stylesReadyPromise;
-    if (img.naturalWidth > img.clientWidth) {
-      img.setAttribute("overflowing", "true");
-    }
-  };
-
-  // Scale any overflowing images, exclude http content.
-  const imgs = doc && !doc.URL.startsWith("http") ? doc.images : [];
-  for (const img of imgs) {
-    // No zooming for children of clickable links.
-    if (img.closest("[href]")) {
-      continue;
-    }
-    applyOverflowingToImg(img);
   }
 }
 

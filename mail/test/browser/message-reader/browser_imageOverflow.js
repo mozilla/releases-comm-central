@@ -15,14 +15,18 @@ let msgc;
 add_setup(async () => {
   Services.prefs.setBoolPref("mail.inline_attachments", true);
   const file = new FileUtils.File(
-    getTestFilePath("data/Image sizing test.eml")
+    getTestFilePath("data/image_sizing_test.eml")
   );
   msgc = await open_message_from_file(file);
 
   if (window.screen.availWidth > msgc.outerWidth && msgc.outerWidth < 500) {
     const resizePromise = BrowserTestUtils.waitForEvent(msgc, "resize");
-    msgc.resizeTo(Math.min(window.screen.availWidth, 550), msgc.outerHeight);
+    const w = Math.min(window.screen.availWidth, 550);
+    const h = msgc.outerHeight;
+    info(`Resizing window... to ${w}x${h}...`);
+    msgc.resizeTo(w, h);
     await resizePromise;
+    info("... resized!");
     await TestUtils.waitForTick();
   }
 
@@ -38,18 +42,21 @@ add_task(async function test_imageOverflow() {
   const msgDoc =
     aboutMessage.document.getElementById("messagepane").contentDocument;
 
-  const messageDisplayWidth = msgDoc.body.clientWidth;
-  Assert.less(
-    messageDisplayWidth,
-    5000,
-    "The message display needs to be less than 5000px wide"
+  await TestUtils.waitForCondition(
+    () => msgDoc.body.clientWidth < 5000,
+    `The message display needs to be less than 5000px wide: ${msgDoc.body.clientWidth}`
   );
 
   await TestUtils.waitForCondition(() =>
     Array.from(msgDoc.querySelectorAll("img")).every(img => img.complete)
   );
 
-  Assert.equal(msgDoc.body.scrollWidth, messageDisplayWidth, "No scrollbars");
+  const messageDisplayWidth = msgDoc.body.clientWidth;
+  Assert.equal(
+    msgDoc.body.scrollWidth,
+    messageDisplayWidth,
+    "msg doc should not have scrollbars"
+  );
 
   const imageIds = [];
 
@@ -102,7 +109,6 @@ add_task(async function test_imageOverflow() {
       },
       () => !image.hasAttribute("shrinktofit")
     );
-
     Assert.ok(
       image.hasAttribute("overflowing"),
       "Click should keep overflowing attribute"
@@ -131,7 +137,6 @@ add_task(async function test_imageOverflow() {
       },
       () => image.hasAttribute("shrinktofit")
     );
-
     Assert.ok(
       image.hasAttribute("overflowing"),
       "Click should keep overflowing attribute"
@@ -167,23 +172,35 @@ add_task(async function test_imageUnderflow() {
 
   if (initialWidth > 350) {
     const resizePromise = BrowserTestUtils.waitForEvent(msgc, "resize");
+    info(`Initial width too large; resizing to 350x${msgc.outerHeight}...`);
     msgc.resizeTo(350, msgc.outerHeight);
     await resizePromise;
+    info("... resized!");
+    //Assert.equal(msgc.outerWidth, 350, "resizeTo should have worked");
     await TestUtils.waitForTick();
   }
 
-  const messageDisplayWidth = msgDoc.body.clientWidth;
+  await TestUtils.waitForCondition(
+    () => msgDoc.body.clientWidth < 400,
+    `The message display needs to be less than 400px wide: ${msgDoc.body.clientWidth}`
+  );
   Assert.less(
-    messageDisplayWidth,
+    msgDoc.body.clientWidth,
     400,
-    "The message display needs to be less than 400px wide"
+    "message display width should be less than 400"
   );
 
-  await TestUtils.waitForCondition(() =>
-    Array.from(msgDoc.querySelectorAll("img")).every(img => img.complete)
+  await TestUtils.waitForCondition(
+    () => Array.from(msgDoc.querySelectorAll("img")).every(img => img.complete),
+    "Every image should complete loading"
   );
 
-  Assert.equal(msgDoc.body.scrollWidth, messageDisplayWidth, "No scrollbars");
+  const messageDisplayWidth = msgDoc.body.clientWidth;
+  Assert.equal(
+    msgDoc.body.scrollWidth,
+    messageDisplayWidth,
+    "msg doc should not have scrollbars"
+  );
 
   msgDoc.defaultView.scrollBy({
     top: 5000,
@@ -191,8 +208,12 @@ add_task(async function test_imageUnderflow() {
   });
 
   const image = msgDoc.getElementById("stretched");
-
-  EventUtils.synthesizeMouse(image, 1, 1, {}, msgDoc.defaultView);
+  Assert.ok(
+    image.hasAttribute("shrinktofit"),
+    "img#stretched should have attr shrinktofit"
+  );
+  info("Zooming image #stretched");
+  EventUtils.synthesizeMouse(image, 1, 1, {}, image.ownerGlobal);
   await BrowserTestUtils.waitForMutationCondition(
     image,
     {
@@ -200,11 +221,12 @@ add_task(async function test_imageUnderflow() {
     },
     () => !image.hasAttribute("shrinktofit")
   );
-  info("Zoomed on the image");
+  info("... zoomed on the image #stretched");
 
+  info(`Resizing window to 450x${msgc.outerHeight}...`);
+  const resizePromise2 = BrowserTestUtils.waitForEvent(msgc, "resize");
   msgc.resizeTo(450, msgc.outerHeight);
-  info("Resizing window...");
-
+  await resizePromise2;
   await BrowserTestUtils.waitForMutationCondition(
     image,
     {
@@ -218,7 +240,10 @@ add_task(async function test_imageUnderflow() {
     "Image should no longer be overflowing"
   );
 
+  const resizePromise3 = BrowserTestUtils.waitForEvent(msgc, "resize");
+  info(`Resizing window to ${initialWidth}x${msgc.outerHeight}...`);
   msgc.resizeTo(initialWidth, msgc.outerHeight);
+  await resizePromise3;
   msgDoc.defaultView.scrollTo({
     top: 0,
     behavior: "instant",
