@@ -627,7 +627,7 @@ export class ImapClient {
    * Move or copy messages from a folder to another folder.
    *
    * @param {nsIMsgFolder} folder - The source folder.
-   * @param {nsIMsgFolder} folder - The target folder.
+   * @param {nsIMsgFolder} dstFolder - The target folder.
    * @param {string} messageIds - The message identifiers.
    * @param {boolean} idsAreUids - If true messageIds are UIDs, otherwise,
    *   messageIds are sequences.
@@ -1250,8 +1250,6 @@ export class ImapClient {
 
   /**
    * The second step of PLAIN auth. Send the auth token to the server.
-   *
-   * @param {ImapResponse} res - Response received from the server.
    */
   _actionAuthPlain = async () => {
     this._nextAction = this._actionAuthResponse;
@@ -1260,8 +1258,6 @@ export class ImapClient {
 
   /**
    * The second step of LOGIN auth. Send the username to the server.
-   *
-   * @param {ImapResponse} res - The server response.
    */
   _actionAuthLoginUser = () => {
     this._nextAction = this._actionAuthLoginPass;
@@ -1270,8 +1266,6 @@ export class ImapClient {
 
   /**
    * The third step of LOGIN auth. Send the password to the server.
-   *
-   * @param {ImapResponse} res - The server response.
    */
   _actionAuthLoginPass = async () => {
     this._nextAction = this._actionAuthResponse;
@@ -1423,7 +1417,6 @@ export class ImapClient {
    * Handle LIST response.
    *
    * @param {Function} actionAfterResponse - A callback after handling the response.
-   * @param {ImapResponse} res - Response received from the server.
    */
   _actionListResponse =
     (actionAfterResponse = this._actionFinishFolderDiscovery) =>
@@ -1565,7 +1558,6 @@ export class ImapClient {
    * @param {string} oldName - The old folder name.
    * @param {string} newName - The new folder name.
    * @param {boolean} [isMove] - Is it response to MOVE command.
-   * @param {ImapResponse} res - The server response.
    */
   _actionRenameResponse = (oldName, newName, isMove) => () => {
     // Step 3: Rename the local folder and send LIST command to re-sync folders.
@@ -1600,8 +1592,6 @@ export class ImapClient {
 
   /**
    * Handle UID FETCH response.
-   *
-   * @param {ImapResponse} res - Response received from the server.
    */
   _actionUidFetchResponse() {
     const outFolderInfo = {};
@@ -1658,8 +1648,6 @@ export class ImapClient {
 
   /**
    * Handle UID FETCH BODY.PEEK[HEADER] response.
-   *
-   * @param {ImapResponse} res - Response received from the server.
    */
   _actionUidFetchHeaderResponse() {
     this.folder
@@ -1678,8 +1666,6 @@ export class ImapClient {
 
   /**
    * Handle UID FETCH BODY response.
-   *
-   * @param {ImapResponse} res - Response received from the server.
    */
   _actionUidFetchBodyResponse() {
     this._actionDone();

@@ -22,7 +22,7 @@ export class ImapFolderContentHandler {
 
   /**
    * @param {string} contentType - The content type of request.
-   * @param {nsIInterfaceRequestor} windowContest - Window context, used to get
+   * @param {nsIInterfaceRequestor} windowContext - Window context, used to get
    *    things like the current nsIDOMWindow for this request.
    * @param {nsIRequest} request - A request whose content type is already known.
    */

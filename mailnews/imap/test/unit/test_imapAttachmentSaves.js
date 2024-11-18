@@ -157,7 +157,7 @@ add_task(function endTest() {
 /**
  * Get the full message content.
  *
- * @param aMsgHdr - nsIMsgDBHdr object whose text body will be read.
+ * @param {nsIMsgDBHdr} aMsgHdr - Header object whose text body will be read.
  * @returns {Promise<string>} full message contents.
  */
 function getContentFromMessage(aMsgHdr) {

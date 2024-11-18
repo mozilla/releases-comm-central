@@ -195,7 +195,7 @@ export class ImapResponse {
   /**
    * Handle the tokens of a line in the form of "* NUM TYPE".
    *
-   * @params {Array<string|string[]>} tokens - The tokens of the line.
+   * @param {Array<string|string[]>} tokens - The tokens of the line.
    */
   _parseNumbered(tokens) {
     const intValue = +tokens[1];
@@ -455,7 +455,7 @@ class MailboxData {
  */
 class StatusData {
   /**
-   * @params {Array<string|string[]>} tokens - The tokens of the line.
+   * @param {Array<string|string[]>} tokens - The tokens of the line.
    */
   constructor(tokens) {
     this.attributes = {};
@@ -477,7 +477,7 @@ class StatusData {
  *   1. Remove the wrapping DQUOTE.
  *   2. Unesacpe QUOTED-CHAR.
  *
- * @params {string} name - E.g. `"a \"b\" c"` will become `a "b" c`.
+ * @param {string} name - E.g. `"a \"b\" c"` will become `a "b" c`.
  */
 function unwrapString(name) {
   return name.replace(/(^"|"$)/g, "").replaceAll('\\"', '"');

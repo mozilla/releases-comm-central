@@ -131,13 +131,15 @@ function createLocalIMAPServer(port, hostname = "localhost") {
 
 // <copied from="head_maillocal.js">
 /**
- * @param fromServer server.playTransaction
- * @param expected ["command", "command", ...]
- * @param withParams if false,
- *    everything apart from the IMAP command will the stripped.
- *    E.g. 'lsub "" "*"' will be compared as 'lsub'.
- *    Exception is "authenticate", which also get its first parameter in upper case,
- *    e.g. "authenticate CRAM-MD5".
+ * @param {object} fromServer - Object got from server.playTransaction()
+ * @param {string[]} fromServer.us - Commands from us.
+ * @param {string[]} fromServer.them - Commands from them.
+ * @param {string[]} expected - Expected commands like ["command", "command", ...]
+ * @param {boolean} withParams - if false,
+ *   everything apart from the IMAP command will the stripped.
+ *   E.g. 'lsub "" "*"' will be compared as 'lsub'.
+ *   Exception is "authenticate", which also get its first parameter in upper case,
+ *   e.g. "authenticate CRAM-MD5".
  */
 function do_check_transaction(fromServer, expected, withParams) {
   // If we don't spin the event loop before starting the next test, the readers
@@ -169,7 +171,7 @@ function do_check_transaction(fromServer, expected, withParams) {
 }
 
 /**
- * add a simple message to the IMAP pump mailbox
+ * Add a simple message to the IMAP pump mailbox.
  */
 function addImapMessage() {
   const message = gMessageGenerator.makeMessage();

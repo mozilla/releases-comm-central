@@ -286,8 +286,12 @@ class BaseMessageService {
   /**
    * Parse a message uri to hostname, folder and message key.
    *
-   * @param {string} uri - The imap-message:// url to parse.
-   * @returns {serverURI: string, folder: nsIMsgFolder, folderName: string, key: string}
+   * @param {string} messageUri - The imap-message:// url to parse.
+   * @returns {object} object
+   * @returns {string} object.serverURI
+   * @returns {nsIMsgFolder} object.folder
+   * @returns {string} object.folderName
+   * @returns {string} object.key
    */
   _decomposeMessageUri(messageUri) {
     const matches = /imap-message:\/\/([^:/]+)\/(.+)#(\d+)/.exec(messageUri);
