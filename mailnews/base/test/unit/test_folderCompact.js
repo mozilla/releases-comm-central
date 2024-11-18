@@ -227,7 +227,7 @@ add_task(async function testCompactAllFolders() {
   Assert.equal(
     Glean.mail.compactResult[Cr.NS_OK.toString(16)].testGetValue(),
     2,
-    "success results shold be recorded in Glean"
+    "success results should be recorded in Glean"
   );
   Assert.equal(
     Glean.mail.compactDuration.testGetValue().count,
