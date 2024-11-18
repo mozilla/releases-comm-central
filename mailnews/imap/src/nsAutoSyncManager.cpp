@@ -681,7 +681,7 @@ nsresult nsAutoSyncManager::StartIdleProcessing() {
 
       HandleDownloadErrorFor(autoSyncStateObj, rv);
     }  // endif
-  }    // endfor
+  }  // endfor
 
   // remove folders with no pending messages from the priority queue
   elemCount = foldersToBeRemoved.Count();
@@ -911,8 +911,8 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
           }
         }
       }  // endfor
-    }    // endif
-  }      // endfor
+    }  // endif
+  }  // endfor
 
   // lazily create the timer if there is something to process in the queue
   // when timer is done, it will self destruct

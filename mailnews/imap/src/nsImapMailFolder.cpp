@@ -3825,38 +3825,6 @@ void nsImapMailFolder::SetNamespaceForFolder(nsImapNamespace* ns) {
   m_namespace = ns;
 }
 
-NS_IMETHODIMP nsImapMailFolder::FolderPrivileges(nsIMsgWindow* window) {
-  NS_ENSURE_ARG_POINTER(window);
-  nsresult rv = NS_OK;  // if no window...
-  if (!m_adminUrl.IsEmpty()) {
-    nsCOMPtr<nsIExternalProtocolService> extProtService =
-        do_GetService(NS_EXTERNALPROTOCOLSERVICE_CONTRACTID);
-    if (extProtService) {
-      nsAutoCString scheme;
-      nsCOMPtr<nsIURI> uri;
-      if (NS_FAILED(rv = NS_NewURI(getter_AddRefs(uri), m_adminUrl.get())))
-        return rv;
-      uri->GetScheme(scheme);
-      if (!scheme.IsEmpty()) {
-        // if the URL scheme does not correspond to an exposed protocol, then we
-        // need to hand this link click over to the external protocol handler.
-        bool isExposed;
-        rv = extProtService->IsExposedProtocol(scheme.get(), &isExposed);
-        if (NS_SUCCEEDED(rv) && !isExposed)
-          return extProtService->LoadURI(uri, nullptr, nullptr, nullptr, false,
-                                         false, false);
-      }
-    }
-  } else {
-    nsCOMPtr<nsIImapService> imapService =
-        do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = imapService->GetFolderAdminUrl(this, window, this, nullptr);
-    if (NS_SUCCEEDED(rv)) m_urlRunning = true;
-  }
-  return rv;
-}
-
 NS_IMETHODIMP nsImapMailFolder::GetHasAdminUrl(bool* aBool) {
   NS_ENSURE_ARG_POINTER(aBool);
   nsCOMPtr<nsIImapIncomingServer> imapServer;
@@ -5253,7 +5221,6 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           break;
         case nsIImapUrl::nsImapRefreshFolderUrls:
           // we finished getting an admin url for the folder.
-          if (!m_adminUrl.IsEmpty()) FolderPrivileges(msgWindow);
           break;
         case nsIImapUrl::nsImapCreateFolder:
           if (NS_FAILED(aExitCode))  // if success notification already done

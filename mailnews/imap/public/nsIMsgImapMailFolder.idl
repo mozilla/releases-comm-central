@@ -124,7 +124,6 @@ interface nsIMsgImapMailFolder : nsISupports {
 
   void fillInFolderProps(in nsIMsgImapFolderProps aFolderProps);
   void resetNamespaceReferences();
-  void folderPrivileges(in nsIMsgWindow aWindow);
   nsIMsgImapMailFolder findOnlineSubFolder(in AUTF8String onlineName);
   void addFolderRights(in ACString userName, in ACString rights);
   void refreshFolderRights();

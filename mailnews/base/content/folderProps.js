@@ -11,6 +11,9 @@ var { FolderTreeProperties } = ChromeUtils.importESModule(
 var { Gloda } = ChromeUtils.importESModule(
   "resource:///modules/gloda/Gloda.sys.mjs"
 );
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 
 var gMsgFolder;
 var gLockedPref = null;
@@ -395,44 +398,23 @@ function folderPropsOnLoad() {
   }
 }
 
+/**
+ *  Hide or show controls based on server type.
+ *
+ * @param {string} serverType - The type of this server.
+ */
 function hideShowControls(serverType) {
-  const controls = document.querySelectorAll("[hidefor]");
-  var len = controls.length;
-  for (var i = 0; i < len; i++) {
-    var control = controls[i];
-    var hideFor = control.getAttribute("hidefor");
-    if (!hideFor) {
-      throw new Error("hidefor empty");
-    }
-
-    // hide unsupported server type
-    // adding support for hiding multiple server types using hideFor="server1,server2"
-    var hideForBool = false;
-    var hideForTokens = hideFor.split(",");
-    for (var j = 0; j < hideForTokens.length; j++) {
-      if (hideForTokens[j] == serverType) {
-        hideForBool = true;
-        break;
-      }
-    }
-    control.hidden = hideForBool;
+  for (const control of document.querySelectorAll("[hidefor]")) {
+    const hideForTypes = control.getAttribute("hidefor").split(",");
+    control.hidden = hideForTypes.includes(serverType);
   }
 
-  // hide the privileges button if the imap folder doesn't have an admin url
-  // maybe should leave this hidden by default and only show it in this case instead
-  try {
-    var imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
-    if (imapFolder) {
-      var privilegesButton = document.getElementById("imap.FolderPrivileges");
-      if (privilegesButton) {
-        if (!imapFolder.hasAdminUrl) {
-          privilegesButton.setAttribute("hidden", "true");
-        }
-      }
-    }
-  } catch (ex) {}
-
   if (gMsgFolder) {
+    if (gMsgFolder instanceof Ci.nsIMsgImapMailFolder) {
+      document.getElementById("imap.FolderPrivileges").hidden =
+        !gMsgFolder.hasAdminUrl;
+    }
+
     // Hide "check for new mail" checkbox if this is an Inbox.
     if (gMsgFolder.getFlag(Ci.nsMsgFolderFlags.Inbox)) {
       document.getElementById("folderCheckForNewMessages").hidden = true;
@@ -456,12 +438,11 @@ function onOfflineFolderDownload() {
   gMsgFolder.downloadAllForOffline(null, window.arguments[0].msgWindow);
 }
 
+/** Open the folder privileges management url. */
 function onFolderPrivileges() {
-  var imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
-  if (imapFolder) {
-    imapFolder.folderPrivileges(window.arguments[0].msgWindow);
-  }
-  // let's try closing the modal dialog to see if it fixes the various problems running this url
+  openLinkExternally(
+    gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder).adminUrl
+  );
   window.close();
 }
 
