@@ -756,7 +756,7 @@ this.folders = class extends ExtensionAPIPersistent {
                 queryInfo.recent !== null &&
                 queryInfo.recent != isRecent(folder)
               ) {
-                return false;
+                continue;
               }
 
               if (
