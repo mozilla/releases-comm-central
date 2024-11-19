@@ -12,11 +12,12 @@ async function installTrigger(filename) {
     ],
   });
   const gBrowser = document.getElementById("tabmail");
+  const loadPromise = BrowserTestUtils.browserLoaded(gBrowser.selectedBrowser);
   BrowserTestUtils.startLoadingURIString(
     gBrowser.selectedBrowser,
     INSTALL_PAGE
   );
-  await BrowserTestUtils.browserLoaded(gBrowser.selectedBrowser);
+  await loadPromise;
 
   SpecialPowers.spawn(
     gBrowser.selectedBrowser,

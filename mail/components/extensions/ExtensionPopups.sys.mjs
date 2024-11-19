@@ -239,6 +239,8 @@ export class BasePopup {
     browser.setAttribute("selectmenulist", "ContentSelectDropdown");
     browser.setAttribute("constrainpopups", "false");
     browser.setAttribute("datetimepicker", "DateTimePickerPanel");
+    browser.setAttribute("nodefaultsrc", "true");
+    browser.setAttribute("maychangeremoteness", "true");
 
     // Ensure the browser will initially load in the same group as other
     // browsers from the same extension.
@@ -250,7 +252,6 @@ export class BasePopup {
     if (this.extension.remote) {
       browser.setAttribute("remote", "true");
       browser.setAttribute("remoteType", this.extension.remoteType);
-      browser.setAttribute("maychangeremoteness", "true");
     }
 
     // We only need flex sizing for the sake of the slide-in sub-views of the

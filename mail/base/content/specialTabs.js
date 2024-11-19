@@ -815,10 +815,15 @@ var specialTabs = {
       aTab.browser.setAttribute("maychangeremoteness", "true");
       aTab.browser.setAttribute("onclick", "return contentAreaClick(event);");
       aTab.browser.openWindowInfo = aArgs.openWindowInfo || null;
+      // Do not load about:blank (which is done as a secondary load, replacing the
+      // initially loaded about:blank), which may lead to an assertion fail in
+      // nsDocLoader.cpp: Overwriting an existing document channel. Mozilla-central
+      // is aggressively setting nodefaultsrc, so we do the same. See Comment 8
+      // of bug 1921974 for more details.
+      aTab.browser.setAttribute("nodefaultsrc", "true");
       clone.querySelector("stack").appendChild(aTab.browser);
 
       if (aArgs.skipLoad) {
-        clone.querySelector("browser").setAttribute("nodefaultsrc", "true");
         // If a new tab is opened via a click on a link with target="_blank", we
         // get here via createContentWindowInFrame(). The remoteness must be set
         // before aTab.panel.appendChild(clone), otherwise the browser will get
