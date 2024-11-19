@@ -74,17 +74,6 @@ async function createAccountInBackend(config) {
     await rememberPassword(inServer, config.incoming.password);
   }
 
-  if (inServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
-    inServer.setUnicharValue(
-      "oauth2.scope",
-      config.incoming.oauthSettings.scope
-    );
-    inServer.setUnicharValue(
-      "oauth2.issuer",
-      config.incoming.oauthSettings.issuer
-    );
-  }
-
   // SSL
   inServer.socketType = config.incoming.socketType;
 
@@ -197,18 +186,6 @@ async function createAccountInBackend(config) {
       if (config.rememberPassword && config.outgoing.password) {
         await rememberPassword(outServer, config.outgoing.password);
       }
-    }
-
-    if (outServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
-      const prefBranch = "mail.smtpserver." + outServer.key + ".";
-      Services.prefs.setCharPref(
-        prefBranch + "oauth2.scope",
-        config.outgoing.oauthSettings.scope
-      );
-      Services.prefs.setCharPref(
-        prefBranch + "oauth2.issuer",
-        config.outgoing.oauthSettings.issuer
-      );
     }
 
     outServer.description = config.displayName;

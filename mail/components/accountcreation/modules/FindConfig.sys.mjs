@@ -10,7 +10,6 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   FetchConfig: "resource:///modules/accountcreation/FetchConfig.sys.mjs",
-  OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
 });
 
 const {
@@ -222,26 +221,6 @@ function ewsifyConfig(config) {
   // to false. We do it on the incoming config, as at this point we don't have
   // an outgoing one, and we've just toggled `handlesOutgoing`.
   ewsIncoming.useGlobalPreferredServer = false;
-
-  if (ewsIncoming.oauthSettings) {
-    // OWL uses these fields in such a way that their values won't work with
-    // our OAuth2 implementation. Replace them with settings from our OAuth2
-    // implementation.
-    const oauthSettings = lazy.OAuth2Providers.getHostnameDetails(
-      ewsIncoming.hostname
-    );
-
-    if (oauthSettings) {
-      // EWS needs more scope. Don't request it for other protocols, as
-      // it may be disallowed for some users.
-      ewsIncoming.oauthSettings.scope +=
-        " https://outlook.office.com/EWS.AccessAsUser.All";
-      [ewsIncoming.oauthSettings.issuer, ewsIncoming.oauthSettings.scope] =
-        oauthSettings;
-    } else {
-      ewsIncoming.oauthSettings = null;
-    }
-  }
 
   config.incomingAlternatives.push(ewsIncoming);
 }

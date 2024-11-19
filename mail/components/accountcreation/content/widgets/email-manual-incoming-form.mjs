@@ -225,7 +225,6 @@ class EmailIncomingForm extends AccountHubStep {
   #adjustOAuth2Visibility(accountConfig) {
     // Get current config.
     const config = accountConfig || this.getIncomingUserConfig();
-    config.incoming.oauthSettings = {};
 
     // If the incoming server hostname supports OAuth2, enable it.
     const incomingDetails = OAuth2Providers.getHostnameDetails(
@@ -237,10 +236,6 @@ class EmailIncomingForm extends AccountHubStep {
       gAccountSetupLogger.debug(
         `OAuth2 details for incoming server ${config.incoming.hostname} is ${incomingDetails}`
       );
-      [
-        config.incoming.oauthSettings.issuer,
-        config.incoming.oauthSettings.scope,
-      ] = incomingDetails;
     }
 
     this.#currentConfig = config;

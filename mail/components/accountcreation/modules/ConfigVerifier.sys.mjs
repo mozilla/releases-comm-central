@@ -52,11 +52,6 @@ export class ConfigVerifier {
   OnStopRunningUrl(url, status) {
     if (Components.isSuccessCode(status)) {
       this._log.debug(`Configuration verified successfully!`);
-      if (this.server.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
-        const grantedScope = this.server.getUnicharValue("oauth2.scope", "");
-        this.config.incoming.oauthSettings.scope = grantedScope;
-        this.config.outgoing.oauthSettings.scope = grantedScope;
-      }
       this.cleanup();
       this.successCallback(this.config);
       return;
@@ -289,12 +284,7 @@ export class ConfigVerifier {
       try {
         // Lookup OAuth2 issuer if needed.
         // -- Incoming.
-        if (
-          config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2 &&
-          (!config.incoming.oauthSettings ||
-            !config.incoming.oauthSettings.issuer ||
-            !config.incoming.oauthSettings.scope)
-        ) {
+        if (config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
           const details = OAuth2Providers.getHostnameDetails(
             config.incoming.hostname
           );
@@ -305,18 +295,9 @@ export class ConfigVerifier {
               )
             );
           }
-          config.incoming.oauthSettings = {
-            issuer: details[0],
-            scope: details[1],
-          };
         }
         // -- Outgoing.
-        if (
-          config.outgoing.auth == Ci.nsMsgAuthMethod.OAuth2 &&
-          (!config.outgoing.oauthSettings ||
-            !config.outgoing.oauthSettings.issuer ||
-            !config.outgoing.oauthSettings.scope)
-        ) {
+        if (config.outgoing.auth == Ci.nsMsgAuthMethod.OAuth2) {
           const details = OAuth2Providers.getHostnameDetails(
             config.outgoing.hostname
           );
@@ -327,10 +308,6 @@ export class ConfigVerifier {
               )
             );
           }
-          config.outgoing.oauthSettings = {
-            issuer: details[0],
-            scope: details[1],
-          };
         }
         if (config.incoming.owaURL) {
           this.server.setUnicharValue("owa_url", config.incoming.owaURL);

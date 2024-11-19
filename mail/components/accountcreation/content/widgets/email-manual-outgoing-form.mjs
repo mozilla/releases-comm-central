@@ -183,7 +183,6 @@ class EmailOutgoingForm extends AccountHubStep {
   #adjustOAuth2Visibility(accountConfig) {
     // Get current config.
     const config = accountConfig || this.getOutgoingUserConfig();
-    config.outgoing.oauthSettings = {};
 
     // If the smtp hostname supports OAuth2, enable it.
     const outgoingDetails = OAuth2Providers.getHostnameDetails(
@@ -194,10 +193,6 @@ class EmailOutgoingForm extends AccountHubStep {
       gAccountSetupLogger.debug(
         `OAuth2 details for outgoing server ${config.outgoing.hostname} is ${outgoingDetails}`
       );
-      [
-        config.outgoing.oauthSettings.issuer,
-        config.outgoing.oauthSettings.scope,
-      ] = outgoingDetails;
     }
   }
 

@@ -1003,17 +1003,6 @@ class AccountHubEmail extends HTMLElement {
       this.#currentConfig.outgoing.username =
         successfulConfig.outgoing.username;
 
-      // We loaded dynamic client registration, fill this data back in to the
-      // config set.
-      if (successfulConfig.incoming.oauthSettings) {
-        this.#currentConfig.incoming.oauthSettings =
-          successfulConfig.incoming.oauthSettings;
-      }
-      if (successfulConfig.outgoing.oauthSettings) {
-        this.#currentConfig.outgoing.oauthSettings =
-          successfulConfig.outgoing.oauthSettings;
-      }
-
       this.#currentConfig = completeConfig;
       this.#finishEmailAccountAddition(completeConfig);
       Glean.mail.successfulEmailAccountSetup[telemetryKey].add(1);

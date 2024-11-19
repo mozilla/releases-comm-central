@@ -32,24 +32,15 @@ OAuth2Module.prototype = {
   QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
 
   initFromOutgoing(aServer) {
-    return this._initFromPrefs(
-      "mail.smtpserver." + aServer.key + ".",
-      aServer.serverURI.host,
-      aServer.username
-    );
+    return this.initFromHostname(aServer.serverURI.host, aServer.username);
   },
 
   initFromMail(aServer) {
-    return this._initFromPrefs(
-      "mail.server." + aServer.key + ".",
-      aServer.hostName,
-      aServer.username
-    );
+    return this.initFromHostname(aServer.hostName, aServer.username);
   },
 
   initFromABDirectory(aDirectory, aHostname) {
-    this._initFromPrefs(
-      aDirectory.dirPrefId + ".",
+    this.initFromHostname(
       aHostname,
       aDirectory.getStringValue("carddav.username", "") || aDirectory.UID
     );
@@ -62,46 +53,6 @@ OAuth2Module.prototype = {
     }
 
     return this._init(details[0], details[1], aHostname, aUsername);
-  },
-
-  _initFromPrefs(root, aHostname, aUsername) {
-    this._prefRoot = root;
-    let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", "");
-    let scope = Services.prefs.getStringPref(root + "oauth2.scope", "");
-    const prefScopes = scopeSet(scope);
-
-    const details = OAuth2Providers.getHostnameDetails(aHostname);
-    if (
-      details &&
-      (details[0] != issuer ||
-        !scope ||
-        !scopeSet(details[1]).isSupersetOf(prefScopes))
-    ) {
-      if (details[0] != issuer) {
-        log.info(
-          `${root}oauth2.issuer "${issuer}" doesn't match "${details[0]}"`
-        );
-      }
-      if (!scopeSet(details[1]).isSupersetOf(prefScopes)) {
-        log.info(
-          `${root}oauth2.scope "${scope}" is not a subset of "${details[1]}"`
-        );
-      }
-      // Found in the list of hardcoded providers. Use the hardcoded values.
-      // But only if what we had wasn't a narrower scope of current
-      // defaults. Updating scope would cause re-authorization.
-      [issuer, scope] = details;
-      //  Store them for the future, can be useful once we support
-      // dynamic registration.
-      Services.prefs.setStringPref(root + "oauth2.issuer", issuer);
-      Services.prefs.setStringPref(root + "oauth2.scope", scope);
-    }
-    if (!issuer || !scope) {
-      // We need these properties for OAuth2 support.
-      return false;
-    }
-
-    return this._init(issuer, scope, aHostname, aUsername);
   },
 
   _init(issuer, scope, aHostname, aUsername) {
@@ -268,12 +219,6 @@ OAuth2Module.prototype = {
             ) {
               // Refresh token and/or scope changed; save it.
               await this.setRefreshToken(this._oauth.refreshToken);
-            }
-            if (this._prefRoot) {
-              Services.prefs.setStringPref(
-                `${this._prefRoot}oauth2.scope`,
-                this._oauth.scope
-              );
             }
 
             let retval = this._oauth.accessToken;

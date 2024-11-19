@@ -47,10 +47,6 @@ async function subtest(grantedScope, expectFailure) {
       auth: Ci.nsMsgAuthMethod.OAuth2,
       username: "user",
       password: "not using a password",
-      oauthSettings: {
-        issuer: "test.test",
-        scope: "test_mail test_addressbook test_calendar",
-      },
     },
     outgoing: {
       type: "smtp",
@@ -61,10 +57,6 @@ async function subtest(grantedScope, expectFailure) {
       username: "user",
       password: "not using a password",
       addThisServer: true,
-      oauthSettings: {
-        issuer: "test.test",
-        scope: "test_mail test_addressbook test_calendar",
-      },
     },
     identity: {
       emailAddress: "test@test.test",
@@ -85,18 +77,6 @@ async function subtest(grantedScope, expectFailure) {
   }
 
   const configOut = await verifyPromise;
-
-  Assert.equal(
-    configOut.incoming.oauthSettings.scope,
-    grantedScope,
-    "incoming scope should have been updated"
-  );
-  Assert.equal(
-    configOut.outgoing.oauthSettings.scope,
-    grantedScope,
-    "outgoing scope should have been updated"
-  );
-
   OAuth2TestUtils.forgetObjects();
 
   const allLogins = await Services.logins.getAllLogins();
@@ -115,51 +95,9 @@ async function subtest(grantedScope, expectFailure) {
   const account = await CreateInBackend.createAccountInBackend(configOut);
   const incomingServer = account.incomingServer;
   Assert.equal(incomingServer.authMethod, Ci.nsMsgAuthMethod.OAuth2);
-  Assert.equal(
-    incomingServer.getUnicharValue("oauth2.issuer", "WRONG"),
-    "test.test",
-    "incoming server should have the right issuer"
-  );
-  Assert.equal(
-    incomingServer.getUnicharValue("oauth2.scope", "WRONG"),
-    grantedScope,
-    "incoming server should have the right scope"
-  );
-  Assert.equal(
-    Services.prefs.getStringPref(
-      `mail.server.${incomingServer.key}.oauth2.issuer`,
-      "WRONG"
-    ),
-    "test.test",
-    "incoming server issuer should have been saved to prefs"
-  );
-  Assert.equal(
-    Services.prefs.getStringPref(
-      `mail.server.${incomingServer.key}.oauth2.scope`,
-      "WRONG"
-    ),
-    grantedScope,
-    "incoming server scope should have been saved to prefs"
-  );
 
   const outgoingServer = MailServices.outgoingServer.defaultServer;
   Assert.equal(outgoingServer.authMethod, Ci.nsMsgAuthMethod.OAuth2);
-  Assert.equal(
-    Services.prefs.getStringPref(
-      `mail.smtpserver.${outgoingServer.key}.oauth2.issuer`,
-      "WRONG"
-    ),
-    "test.test",
-    "outgoing server issuer should have been saved to prefs"
-  );
-  Assert.equal(
-    Services.prefs.getStringPref(
-      `mail.smtpserver.${outgoingServer.key}.oauth2.scope`,
-      "WRONG"
-    ),
-    grantedScope,
-    "outgoing server scope should have been saved to prefs"
-  );
 
   MailServices.accounts.removeAccount(account, false);
   MailServices.outgoingServer.deleteServer(outgoingServer);

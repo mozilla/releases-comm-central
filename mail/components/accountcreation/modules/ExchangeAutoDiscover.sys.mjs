@@ -517,18 +517,6 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
     }
   }
 
-  // OAuth2 settings, so that createInBackend() doesn't bail out
-  if (config.incoming.owaURL || config.incoming.ewsURL) {
-    config.incoming.oauthSettings = {
-      issuer: config.incoming.hostname,
-      scope: config.incoming.owaURL || config.incoming.ewsURL,
-    };
-    config.outgoing.oauthSettings = {
-      issuer: config.incoming.hostname,
-      scope: config.incoming.owaURL || config.incoming.ewsURL,
-    };
-  }
-
   return config;
 }
 

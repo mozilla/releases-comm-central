@@ -942,26 +942,6 @@ var gAccountSetup = {
     // an outgoing one, and we've just toggled `handlesOutgoing`.
     ewsIncoming.useGlobalPreferredServer = false;
 
-    if (ewsIncoming.oauthSettings) {
-      // OWL uses these fields in such a way that their values won't work with
-      // our OAuth2 implementation. Replace them with settings from our OAuth2
-      // implementation.
-      const oauthSettings = OAuth2Providers.getHostnameDetails(
-        ewsIncoming.hostname
-      );
-
-      if (oauthSettings) {
-        // EWS needs more scope. Don't request it for other protocols, as
-        // it may be disallowed for some users.
-        ewsIncoming.oauthSettings.scope +=
-          " https://outlook.office.com/EWS.AccessAsUser.All";
-        [ewsIncoming.oauthSettings.issuer, ewsIncoming.oauthSettings.scope] =
-          oauthSettings;
-      } else {
-        ewsIncoming.oauthSettings = null;
-      }
-    }
-
     config.incomingAlternatives.push(ewsIncoming);
   },
 
@@ -1825,13 +1805,6 @@ var gAccountSetup = {
       gAccountSetupLogger.debug(
         `OAuth2 details for incoming server ${config.incoming.hostname} is ${iDetails}`
       );
-      config.incoming.oauthSettings = {};
-      [
-        config.incoming.oauthSettings.issuer,
-        config.incoming.oauthSettings.scope,
-      ] = iDetails;
-      this._currentConfig.incoming.oauthSettings =
-        config.incoming.oauthSettings;
     }
 
     // If the smtp hostname supports OAuth2, enable it.
@@ -1843,13 +1816,6 @@ var gAccountSetup = {
       gAccountSetupLogger.debug(
         `OAuth2 details for outgoing server ${config.outgoing.hostname} is ${oDetails}`
       );
-      config.outgoing.oauthSettings = {};
-      [
-        config.outgoing.oauthSettings.issuer,
-        config.outgoing.oauthSettings.scope,
-      ] = oDetails;
-      this._currentConfig.outgoing.oauthSettings =
-        config.outgoing.oauthSettings;
     }
   },
 
@@ -2421,10 +2387,6 @@ var gAccountSetup = {
           successfulConfig.incoming.username;
         self._currentConfig.outgoing.username =
           successfulConfig.outgoing.username;
-        self._currentConfig.incoming.oauthSettings =
-          successfulConfig.incoming.oauthSettings;
-        self._currentConfig.outgoing.oauthSettings =
-          successfulConfig.outgoing.oauthSettings;
 
         self.finish(configFilledIn);
         Glean.mail.successfulEmailAccountSetup[telemetryKey].add(1);

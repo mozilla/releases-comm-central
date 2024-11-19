@@ -124,9 +124,6 @@ AccountConfig.prototype = {
       // Override `addThisServer` for a specific incoming server
       useGlobalPreferredServer: false,
 
-      // OAuth2 configuration, if needed.
-      oauthSettings: null,
-
       // for Microsoft Exchange servers. Optional.
       owaURL: null,
       ewsURL: null,
@@ -161,9 +158,6 @@ AccountConfig.prototype = {
       existingServerKey: null,
       // user display value for existingServerKey
       existingServerLabel: null,
-
-      // OAuth2 configuration, if needed.
-      oauthSettings: null,
     };
   },
 

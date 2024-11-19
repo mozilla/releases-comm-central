@@ -146,10 +146,6 @@ export function readFromXML(clientConfigXML, subSource) {
         } catch (e) {
           console.error(e);
         }
-        iO.oauthSettings = {
-          issuer: iO.hostname,
-          scope: iO.owaURL || iO.ewsURL || iO.easURL,
-        };
       }
       // defaults are in accountConfig.js
       if (iO.type == "pop3" && "pop3" in iX) {
