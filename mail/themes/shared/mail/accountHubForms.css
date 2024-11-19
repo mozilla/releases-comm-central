@@ -81,6 +81,8 @@ form {
 
     &:user-invalid {
       border-color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
+      outline: 1px solid light-dark(var(--color-danger-default), var(--color-danger-pressed));
+      outline-offset: 0;
 
       &:focus {
         border-color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
