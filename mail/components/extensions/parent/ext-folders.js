@@ -598,6 +598,10 @@ this.folders = class extends ExtensionAPIPersistent {
           extensionApi: this,
         }).api(),
         async query(queryInfo) {
+          const monthOld = Math.floor(
+            (Date.now() - FolderUtils.ONE_MONTH_IN_MILLISECONDS) / 1000
+          );
+
           // Generator function to flatten the folder structure.
           function* getFlatFolderStructure(folder) {
             yield folder;
@@ -627,6 +631,15 @@ this.folders = class extends ExtensionAPIPersistent {
               return false;
             }
             return true;
+          }
+
+          function isRecent(folder) {
+            try {
+              const time = Number(folder.getStringProperty("MRUTime")) || 0;
+              return !(time < monthOld);
+            } catch (e) {
+              return false;
+            }
           }
 
           // Prepare folders, which are to be searched.
@@ -739,7 +752,12 @@ this.folders = class extends ExtensionAPIPersistent {
             const { accountId, rootFolder } = parentFolder;
             for (const folder of getFlatFolderStructure(rootFolder)) {
               // Apply search criteria.
-              const isServer = folder.isServer;
+              if (
+                queryInfo.recent !== null &&
+                queryInfo.recent != isRecent(folder)
+              ) {
+                return false;
+              }
 
               if (
                 queryInfo.isFavorite != null &&
@@ -749,6 +767,7 @@ this.folders = class extends ExtensionAPIPersistent {
                 continue;
               }
 
+              const isServer = folder.isServer;
               if (queryInfo.isRoot != null && queryInfo.isRoot != isServer) {
                 continue;
               }
@@ -867,29 +886,24 @@ this.folders = class extends ExtensionAPIPersistent {
             }
           }
 
-          if (queryInfo.recent != null) {
+          // Sort by recentness for recent queries. Apply the limit, but ignore
+          // limit of -1 = mail.folder_widget.max_recent for non-recent queries.
+          if (queryInfo.recent) {
             let limit = queryInfo.limit || Infinity;
             if (limit == -1) {
               limit = Services.prefs.getIntPref(
                 "mail.folder_widget.max_recent"
               );
             }
-            const recentFolders = FolderUtils.getMostRecentFolders(
+            foundFolders = FolderUtils.getMostRecentFolders(
               foundFolders,
               limit,
               "MRUTime"
             );
-            if (queryInfo.recent) {
-              foundFolders = recentFolders;
-            } else {
-              foundFolders = foundFolders.filter(
-                x => !recentFolders.includes(x)
-              );
-            }
           } else if (queryInfo.limit && queryInfo.limit > 0) {
             // If limit is used without recent, mail.folder_widget.max_recent is
             // ignored.
-            foundFolders = foundFolders.slice(0, queryInfo.limit);
+            foundFolders.splice(queryInfo.limit);
           }
 
           return foundFolders.map(folder =>

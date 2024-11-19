@@ -12,6 +12,8 @@ const OUTGOING_FOLDER_FLAGS =
   Ci.nsMsgFolderFlags.Queue |
   Ci.nsMsgFolderFlags.Templates;
 
+const ONE_MONTH_IN_MILLISECONDS = 31 * 24 * 60 * 60 * 1000;
+
 export var FolderUtils = {
   allAccountsSorted,
   folderNameCompare,
@@ -22,6 +24,7 @@ export var FolderUtils = {
   canRenameDeleteJunkMail,
   isSmartTagsFolder,
   isSmartVirtualFolder,
+  ONE_MONTH_IN_MILLISECONDS,
   OUTGOING_FOLDER_FLAGS,
 };
 
@@ -164,7 +167,7 @@ function allAccountsSorted(aExcludeIMAccounts) {
  */
 function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
   const recentFolders = [];
-  const monthOld = Math.floor((Date.now() - 31 * 24 * 60 * 60 * 1000) / 1000);
+  const monthOld = Math.floor((Date.now() - ONE_MONTH_IN_MILLISECONDS) / 1000);
 
   /**
    * This sub-function will add a folder to the recentFolders array if it
