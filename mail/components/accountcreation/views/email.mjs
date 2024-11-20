@@ -289,6 +289,7 @@ class AccountHubEmail extends HTMLElement {
    * @param {string} subview - Subview for which the UI is being inititialized.
    */
   async #initUI(subview) {
+    this.#stopLoading();
     this.#hideSubviews();
     this.#clearNotifications();
     this.#currentState = subview;
@@ -352,6 +353,48 @@ class AccountHubEmail extends HTMLElement {
     }
   }
 
+  #loadingTimeout = null;
+
+  /**
+   * Show a loading notification and disable all inputs (except closing the
+   * dialog). If the load takes too long, a spinner is overlaid.
+   *
+   * TODO: should be able to cancel some loads, if they're abortable.
+   *
+   * @param {string} loadingFluentId
+   */
+  #startLoading(loadingFluentId) {
+    this.#states[this.#currentState].subview.showNotification({
+      fluentTitleId: loadingFluentId,
+      type: "info",
+    });
+    this.classList.add("busy");
+    this.#states[this.#currentState].subview.disabled = true;
+    this.#emailFooter.disabled = true;
+    this.#loadingTimeout = setTimeout(() => {
+      this.classList.add("spinner");
+      this.#loadingTimeout = null;
+    }, 3000);
+  }
+
+  /**
+   * Stop loading, clearing the notification, restoring form controls and hiding
+   * the spinner if it was visible.
+   */
+  #stopLoading() {
+    if (!this.classList.contains("busy")) {
+      return;
+    }
+    this.#clearNotifications();
+    this.#states[this.#currentState].subview.disabled = false;
+    this.#emailFooter.disabled = false;
+    this.classList.remove("busy", "spinner");
+    if (this.#loadingTimeout) {
+      clearTimeout(this.#loadingTimeout);
+      this.#loadingTimeout = null;
+    }
+  }
+
   /**
    * Handle the events from the subviews.
    *
@@ -393,7 +436,11 @@ class AccountHubEmail extends HTMLElement {
           this.#states[this.#currentState].subview.setState(config);
         } catch (error) {
           this.#handleAbortable();
-          stateDetails.subview.showErrorNotification(error.title, error.text);
+          stateDetails.subview.showNotification({
+            title: error.title || error.message,
+            description: error.text,
+            type: "error",
+          });
         }
         break;
       case "custom-footer-action":
@@ -487,6 +534,7 @@ class AccountHubEmail extends HTMLElement {
   async #handleForwardAction(currentState, stateData) {
     switch (currentState) {
       case "autoConfigSubview":
+        this.#startLoading("account-hub-lookup-email-configuration-title");
         try {
           this.#emailFooter.canBack(true);
           this.#email = stateData.email;
@@ -501,25 +549,32 @@ class AccountHubEmail extends HTMLElement {
               this.#currentConfig = this.#fillAccountConfig(
                 this.#getEmptyAccountConfig()
               );
+              this.#stopLoading();
               await this.#initUI("incomingConfigSubview");
               this.#states[this.#currentState].previousStep =
                 "autoConfigSubview";
-            } else {
-              this.#hasCancelled = false;
+              this.#states[this.#currentState].subview.showNotification({
+                fluentTitleId: "account-hub-find-settings-failed",
+                type: "warning",
+              });
               break;
             }
-          } else {
-            this.#currentConfig = this.#fillAccountConfig(config);
-            await this.#initUI(this.#states[this.#currentState].nextStep);
-            this.#states.incomingConfigSubview.previousStep =
-              "emailConfigFoundSubview";
-            this.#states[this.#currentState].subview.showNotification({
-              fluentTitleId: "account-hub-config-success",
-              type: "success",
-            });
+            this.#hasCancelled = false;
+            this.#stopLoading();
+            break;
           }
+          this.#currentConfig = this.#fillAccountConfig(config);
+          this.#stopLoading();
+          await this.#initUI(this.#states[this.#currentState].nextStep);
+          this.#states.incomingConfigSubview.previousStep =
+            "emailConfigFoundSubview";
+          this.#states[this.#currentState].subview.showNotification({
+            fluentTitleId: "account-hub-config-success",
+            type: "success",
+          });
         } catch (error) {
           this.#emailFooter.canBack(false);
+          this.#stopLoading();
           if (!(error instanceof UserCancelledException)) {
             // TODO: Throw proper error here;
             throw error;
@@ -581,11 +636,11 @@ class AccountHubEmail extends HTMLElement {
       case "incomingConfigSubview":
         break;
       case "outgoingConfigSubview":
+        this.#startLoading("account-hub-adding-account-subheader");
         stateData = this.#states[this.#currentState].subview.captureState();
         stateData.incoming =
           this.#states.incomingConfigSubview.subview.captureState().config.incoming;
         stateData = this.#fillAccountConfig(stateData);
-
         try {
           const config = await this.#guessConfig(
             this.#email.split("@")[1],
@@ -593,17 +648,32 @@ class AccountHubEmail extends HTMLElement {
           );
 
           if (config.isComplete()) {
-            // TODO: Show success message here.
+            this.#stopLoading();
+            this.#states[this.#currentState].subview.showNotification({
+              fluentTitleId: "account-hub-config-test-scucess",
+              type: "success",
+            });
             this.#emailFooter.toggleForwardDisabled(false);
           } else {
+            this.#stopLoading();
             // The config is not complete, go back to the incoming view and
             // show an error.
             this.#initUI(this.#states[this.#currentState].previousStep);
             // TODO: Show error message here.
+            this.#states[this.#currentState].subview.showNotification({
+              fluentTitleId: "account-hub-find-settings-failed",
+              type: "error",
+            });
           }
         } catch (error) {
+          this.#stopLoading();
           this.#initUI(this.#states[this.#currentState].previousStep);
           // TODO: Show error message here.
+          this.#states[this.#currentState].subview.showNotification({
+            fluentTitleId: "account-hub-find-settings-failed",
+            error,
+            type: "error",
+          });
         }
         break;
       case "emailAddedSubview":
@@ -705,9 +775,9 @@ class AccountHubEmail extends HTMLElement {
         gAccountSetupLogger.warn(`guessConfig failed: ${e}`);
         reject(e);
 
-        this.showNotification({
-          title: "account-hub-find-settings-failed",
-          e,
+        this.#states[this.#currentState].subview.showNotification({
+          fluentTitleId: "account-hub-find-settings-failed",
+          error: e,
           type: "error",
         });
         this.abortable = null;
@@ -939,6 +1009,7 @@ class AccountHubEmail extends HTMLElement {
       return false;
     }
 
+    this.#stopLoading();
     this.#currentState = "autoConfigSubview";
     this.#currentConfig = {};
     this.#hideSubviews();

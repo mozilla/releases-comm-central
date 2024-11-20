@@ -50,15 +50,14 @@ class AccountHubFooter extends HTMLElement {
   }
 
   toggleForwardDisabled(value) {
-    this.querySelector("#forward").disabled = value;
+    this.querySelector("#forward").disabled = value || this.disabled;
   }
 
   canCustom(value) {
     const customAction = this.querySelector("#custom");
     customAction.hidden = !value;
-    customAction.disabled = !value;
+    customAction.disabled = !value || this.disabled;
     if (value) {
-      customAction.disabled = false;
       customAction.addEventListener("click", this);
       document.l10n.setAttributes(customAction, value);
     }
@@ -85,6 +84,19 @@ class AccountHubFooter extends HTMLElement {
     const relNotesLink = this.querySelector("#hubReleaseNotes");
     relNotesLink.href = relNotesURL;
     relNotesLink.closest("li[hidden]").hidden = false;
+  }
+
+  get disabled() {
+    return this.querySelector("#back").disabled;
+  }
+
+  set disabled(val) {
+    this.toggleForwardDisabled(val);
+    this.querySelector("#back").disabled = val;
+    const customAction = this.querySelector("#custom");
+    if (!customAction.hidden) {
+      customAction.disabled = val;
+    }
   }
 }
 

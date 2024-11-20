@@ -341,6 +341,16 @@ class EmailOutgoingForm extends AccountHubStep {
 
     this.#adjustOAuth2Visibility(config);
   }
+
+  set disabled(val) {
+    this.#outgoingPort.disabled = val;
+    this.#outgoingUsername.disabled =
+      val || this.#outgoingAuthenticationMethod == 1;
+    this.#outgoingHostname.disabled = val;
+    this.#outgoingConnectionSecurity.disabled = val;
+    this.#outgoingAuthenticationMethod.disabled = val;
+    this.querySelector("#advancedConfigurationOutgoing").disabled = val;
+  }
 }
 
 customElements.define("email-manual-outgoing-form", EmailOutgoingForm);

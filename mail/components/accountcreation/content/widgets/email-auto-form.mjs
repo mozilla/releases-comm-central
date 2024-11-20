@@ -116,6 +116,12 @@ class EmailAutoForm extends AccountHubStep {
   captureState() {
     return this.#currentConfig;
   }
+
+  set disabled(val) {
+    for (const input of this.querySelectorAll("input")) {
+      input.disabled = val;
+    }
+  }
 }
 
 customElements.define("email-auto-form", EmailAutoForm);

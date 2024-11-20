@@ -35,6 +35,8 @@ dialog {
   --hub-account-footer-link-color: var(--color-primary-default);
   --hub-border-color: light-dark(var(--color-primary-soft), var(--color-primary-default));
   --hub-divider-color: var(--color-neutral-base);
+  --hub-loader-background: var(--color-neutral-base);
+  --hub-loader-color: var(--color-primary-default);
 
   --hub-box-shadow: 0 2px 4px rgba(58, 57, 68, 0.3);
   --hub-input-height: 33px;
@@ -64,21 +66,20 @@ dialog {
 .account-hub-dialog {
   display: grid;
   width: 800px;
-  height: 600px;
+  min-height: 600px;
   overflow: initial;
   padding: 0;
   box-shadow: none;
 
   &::after {
+    --hub-blur-radius: 15px;
     content: '';
     position: absolute;
-    top: 17%;
-    left: 50%;
-    width: 765px;
-    height: 500px;
-    transform: translateX(-50%);
+    inset-block-end: -2px;
+    inset-inline: calc(2 * var(--hub-blur-radius) + 5px);
+    min-height: calc(3 * var(--hub-blur-radius));
     background: linear-gradient(to right, rgba(159, 244, 240, 1), rgba(76, 177, 249, 1), rgba(168, 85, 247, 1));
-    filter: blur(15px);
+    filter: blur(var(--hub-blur-radius));
     z-index: -1;
   }
 
@@ -117,6 +118,106 @@ dialog {
 
   @media (prefers-color-scheme: dark) {
     background-image: url("chrome://messenger/skin/images/accounthub-bg-dark.webp");
+  }
+
+  &.busy {
+    cursor: wait;
+  }
+
+  #loadingOverlay {
+    display: none;
+    opacity: 0;
+  }
+
+  &.spinner #loadingOverlay {
+    display: grid;
+    position: absolute;
+    inset: 0;
+    place-items: center;
+    background-color: var(--hub-loader-background);
+    opacity: 0.8;
+    z-index: 2;
+    border-radius: inherit;
+
+    @media (prefers-reduced-motion: no-preference) {
+      animation: 0.5s linear 0s hub-reveal-loader;
+    }
+  }
+}
+
+@keyframes hub-reveal-loader {
+  0% {
+    display: none;
+    opacity: 0;
+  }
+
+  1% {
+    display: grid;
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes hub-loader-loading {
+  from {
+    rotate: 0deg;
+  }
+  to {
+    rotate: 360deg;
+  }
+}
+
+.loader-outside {
+  --hub-loader-width: 8px;
+  --hub-loader-size: 64px;
+  --hub-trail-offset: 360deg;
+
+  position: relative;
+  height: var(--hub-loader-size);
+  aspect-ratio: 1;
+  background-image: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    var(--hub-loader-color) 360deg,
+    transparent var(--hub-trail-offset)
+  );
+  border-radius: 50%;
+  pointer-events: none;
+
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: 1.1s cubic-bezier(0.61, 0.12, 0, 0.99) 0s infinite hub-loader-loading;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: var(--hub-loader-width);
+    height: calc(var(--hub-loader-size) - 2 * var(--hub-loader-width));
+    aspect-ratio: 1;
+    background: var(--hub-loader-background);
+    border-radius: 50%;
+  }
+
+  .loader-inside {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: 1;
+    border-radius: 50%;
+
+    &::before {
+      content: '';
+      position: absolute;
+      height: var(--hub-loader-width);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--hub-loader-color);
+      inset-block-start: 0;
+      inset-inline: calc(50% - var(--hub-loader-width) / 2);
+    }
   }
 }
 
