@@ -13,7 +13,6 @@ transforms:
 task-defaults:
     name: update-verify-config
     run-on-projects: []  # to make sure this never runs as part of CI
-    run-on-releases: [beta, esr128]  # Remove after shipping first comm-release
     shipping-phase: promote
     worker-type: b-linux-gcp
     worker:

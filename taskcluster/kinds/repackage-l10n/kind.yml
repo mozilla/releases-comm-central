@@ -36,7 +36,7 @@ tasks:
                 debug: shippable-l10n-mac-signing
                 default:
                     by-project:
-                        comm-(central|beta|esr.*): shippable-l10n-mac-notarization
+                        comm-(central|beta|release|esr.*): shippable-l10n-mac-notarization
                         default: shippable-l10n-mac-signing
         worker-type: 'b-linux-gcp'
         mozharness:

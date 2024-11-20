@@ -29,7 +29,7 @@ task-defaults:
             Product location: https://releases.mozilla.org/pub/{task[shipping-product]}/candidates/{release_config[version]}-candidates/build{release_config[build_number]}/
         emails:
             by-project:
-                comm-(beta|esr.*): ["av-vendor-release-announce@mozilla.org"]
+                comm-(beta|release|esr.*): ["av-vendor-release-announce@mozilla.org"]
                 try-comm-central: ["{config[params][owner]}"]
                 default: []
 

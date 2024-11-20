@@ -24,7 +24,7 @@ task-defaults:
     notifications:
         emails:
             by-project:
-                comm-(beta|esr.*): ["thunderbird-drivers@mozilla.org"]
+                comm-(beta|release|esr.*): ["thunderbird-drivers@mozilla.org"]
                 try-comm-central: ["{config[params][owner]}"]
                 default: []
 

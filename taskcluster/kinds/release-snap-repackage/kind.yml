@@ -18,7 +18,7 @@ kind-dependencies:
 task-defaults:
     description: Generates snap by repackaging the existing .tar.bz2
     run-on-projects: []  # to make sure this never runs as part of CI
-    run-on-releases: [beta, esr128]
+    run-on-releases: [beta, release, esr128]
     shipping-phase: promote
     scopes: []
     package-locales-file: comm/mail/locales/onchange-locales

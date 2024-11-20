@@ -18,7 +18,7 @@ kind-dependencies:
 task-defaults:
     description: Generates flatpak by repackaging the existing .tar.bz2
     run-on-projects: []  # to make sure this never runs as part of CI
-    run-on-releases: [beta, esr128]
+    run-on-releases: [beta, release, esr128]
     shipping-phase: promote
     scopes: []
     package-locales-file: comm/mail/locales/onchange-locales
@@ -59,12 +59,13 @@ task-defaults:
             LANG: C.UTF-8
             FLATPAK_BRANCH:
                 by-project:
-                    comm-esr.*: stable
+                    comm-(release|esr.*): stable
                     default: beta
             MANIFEST_URL: "{config_params[comm_head_repository]}/file/{config_params[comm_head_rev]}/taskcluster/docker/tb-flatpak/repack.sh"
             RELEASE_NOTES_URL:
                 by-project:
                     comm-esr.*: "https://www.thunderbird.net/en-US/thunderbird/{config_params[app_version]}esr/releasenotes/"
+                    comm-release: "https://www.thunderbird.net/en-US/thunderbird/{config_params[app_version]}/releasenotes/"
                     default: "https://www.thunderbird.net/en-US/thunderbird/{config_params[app_version]}beta/releasenotes/"
         chain-of-trust: true
 

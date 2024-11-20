@@ -26,7 +26,7 @@ task-defaults:
         message: "{task[shipping-product]} {release_config[version]} build{release_config[build_number]}/{config[params][project]} is in the candidates directory"
         emails:
             by-project:
-                comm-(beta|esr.*): ["thunderbird-drivers@mozilla.org"]
+                comm-(beta|release|esr.*): ["thunderbird-drivers@mozilla.org"]
                 try-comm-central: ["{config[params][owner]}"]
                 default: []
 
