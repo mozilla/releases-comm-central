@@ -55,7 +55,6 @@ export class NntpIncomingServer extends MsgIncomingServer {
     this.localStoreType = "news";
     this.localDatabaseType = "news";
     this.canSearchMessages = true;
-    this.sortOrder = 500000000;
 
     Object.defineProperty(this, "defaultCopiesAndFoldersPrefsToServer", {
       // No Draft/Sent folder on news servers, will point to "Local Folders".

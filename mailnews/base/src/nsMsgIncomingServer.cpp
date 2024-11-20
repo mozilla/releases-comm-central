@@ -2041,10 +2041,3 @@ NS_IMETHODIMP nsMsgIncomingServer::IsNewHdrDuplicate(nsIMsgDBHdr* aNewHdr,
   }
   return NS_OK;
 }
-
-NS_IMETHODIMP
-nsMsgIncomingServer::GetSortOrder(int32_t* aSortOrder) {
-  NS_ENSURE_ARG_POINTER(aSortOrder);
-  *aSortOrder = 100000000;
-  return NS_OK;
-}

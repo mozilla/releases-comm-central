@@ -482,18 +482,6 @@ interface nsIMsgIncomingServer : nsISupports {
 
   // check if new hdr is a duplicate of a recently arrived header
   boolean isNewHdrDuplicate(in nsIMsgDBHdr aNewHdr);
-
-  /**
-   * Return the order in which this server type should appear in the folder pane.
-   * This sort order is a number between 100000000 and 900000000 so that RDF can
-   * use it as a string.
-   * The current return values are these:
-   * 0 = default account,       100000000 = mail accounts (POP3/IMAP4),
-   * 200000000 = Local Folders, 300000000 = IM accounts,
-   * 400000000 = RSS,           500000000 = News
-   * If a new server type is created a TB UI reviewer must decide its sort order.
-   */
-  readonly attribute long sortOrder;
 };
 
 %{C++

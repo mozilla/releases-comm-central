@@ -250,7 +250,6 @@ export class MsgIncomingServer {
     this.canBeDefaultServer = false;
     this.supportsDiskSpace = true;
     this.canUndoDeleteOnServer = true;
-    this.sortOrder = 100000000;
 
     // @type {Map<string, number>} - The key is MsgId+Subject, the value is
     //   this._hdrIndex.

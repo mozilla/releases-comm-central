@@ -29,7 +29,6 @@ class nsNoIncomingServer : public nsMailboxServer,
   NS_IMETHOD GetServerRequiresPasswordForBiff(
       bool* aServerRequiresPasswordForBiff) override;
   NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) override;
-  NS_IMETHOD GetSortOrder(int32_t* aSortOrder) override;
 
  private:
   virtual ~nsNoIncomingServer();

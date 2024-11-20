@@ -238,10 +238,3 @@ NS_IMETHODIMP nsRssIncomingServer::FolderReindexTriggered(
     nsIMsgFolder* folder) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-
-NS_IMETHODIMP
-nsRssIncomingServer::GetSortOrder(int32_t* aSortOrder) {
-  NS_ENSURE_ARG_POINTER(aSortOrder);
-  *aSortOrder = 400000000;
-  return NS_OK;
-}

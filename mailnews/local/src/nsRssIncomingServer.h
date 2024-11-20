@@ -29,7 +29,6 @@ class nsRssIncomingServer : public nsMailboxServer,
   NS_IMETHOD GetServerRequiresPasswordForBiff(
       bool* aServerRequiresPasswordForBiff) override;
   NS_IMETHOD GetCanSearchMessages(bool* canSearchMessages) override;
-  NS_IMETHOD GetSortOrder(int32_t* aSortOrder) override;
 
   nsRssIncomingServer();
 
