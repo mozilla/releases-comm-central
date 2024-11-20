@@ -123,6 +123,7 @@ add_task(async function test_account_hub_opening() {
 
   const dialog = hub.shadowRoot.querySelector(".account-hub-dialog");
   Assert.ok(dialog, "The dialog element should be created");
+  Assert.ok(dialog.open, "Dialog should be open");
 
   let closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
   EventUtils.synthesizeKey("KEY_Escape", {});

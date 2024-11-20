@@ -108,6 +108,8 @@ dialog {
   padding-block: 40px 20px;
   border-radius: inherit;
   border: 1px solid var(--hub-border-color);
+  /* Background color to better hide loading of the webp (>=100ms) */
+  background-color: var(--color-neutral-base);
   background-image: url("chrome://messenger/skin/images/accounthub-bg-light.webp");
   background-position: center center;
   background-repeat: no-repeat;

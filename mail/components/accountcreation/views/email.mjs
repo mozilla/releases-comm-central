@@ -279,7 +279,8 @@ class AccountHubEmail extends HTMLElement {
 
     this.addEventListener("submit", this);
 
-    await this.#initUI("autoConfigSubview");
+    this.ready = this.#initUI("autoConfigSubview");
+    await this.ready;
   }
 
   /**
