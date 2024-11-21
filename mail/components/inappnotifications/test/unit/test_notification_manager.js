@@ -46,6 +46,7 @@ function getMockNotifications() {
 }
 
 let didOpen = false;
+let expectedURI = "about:blank";
 
 add_setup(async function () {
   // PlacesUtils when executing the CTA needs the profile.
@@ -59,7 +60,7 @@ add_setup(async function () {
       didOpen = true;
       Assert.equal(
         uri.spec,
-        "about:blank",
+        expectedURI,
         "Should only receive about blank load request"
       );
     },
@@ -429,5 +430,44 @@ add_task(async function test_newNotificationReemit_handleEvent() {
     NotificationManager.NEW_NOTIFICATION_EVENT,
     eventHandler
   );
+  notificationManager.updatedNotifications([]);
+});
+
+add_task(async function test_executeNotificationCTA_formatURL() {
+  didOpen = false;
+  const notificationManager = new NotificationManager();
+  const mockNotifications = getMockNotifications();
+  const url = "https://example.com/%LOCALE%/file.json";
+  mockNotifications[1].URL = url;
+  expectedURI = Services.urlFormatter.formatURL(url);
+  notificationManager.updatedNotifications(mockNotifications);
+  const { detail: notification } = await BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.NEW_NOTIFICATION_EVENT
+  );
+  Assert.equal(notification.id, "bar", "Should pick the second notification");
+
+  const notificationInteractionEvent = BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.NOTIFICATION_INTERACTION_EVENT
+  );
+  const clearNotificationEvent = BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.CLEAR_NOTIFICATION_EVENT
+  );
+  notificationManager.executeNotificationCTA(notification.id);
+  const { detail: notificationId } = await notificationInteractionEvent;
+  Assert.equal(
+    notificationId,
+    notification.id,
+    "Should have interacted with the notification"
+  );
+  Assert.ok(didOpen, "Should open URL externally");
+  await clearNotificationEvent;
+  await BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.REQUEST_NOTIFICATIONS_EVENT
+  );
+
   notificationManager.updatedNotifications([]);
 });

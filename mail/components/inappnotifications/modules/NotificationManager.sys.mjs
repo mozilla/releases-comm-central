@@ -137,7 +137,10 @@ export class NotificationManager extends EventTarget {
         detail: notificationId,
       })
     );
-    lazy.openLinkExternally(this.#currentNotification.URL);
+    const formattedURL = Services.urlFormatter.formatURL(
+      this.#currentNotification.URL
+    );
+    lazy.openLinkExternally(formattedURL);
     Glean.inappnotifications.interaction.record({
       notification_id: notificationId,
       active_this_session: this.#getActiveNotificationDuration(),
