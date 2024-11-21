@@ -100,7 +100,6 @@ nsresult nsMsgThread::InitCachedValues() {
     if (hasNew) {
       nsTArray<nsMsgKey> newKeys;
       m_mdbDB->GetNewList(newKeys);
-      newKeys.Sort();
 
       for (uint32_t childIndex = 0; childIndex < m_numChildren; childIndex++) {
         nsMsgKey key;
