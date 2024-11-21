@@ -261,57 +261,10 @@ header {
 }
 
 #closeButton:not([hidden]) {
-  min-width: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  background-color: transparent;
-  --in-content-button-border-color: transparent;
-
-  &:hover {
-    background-color: var(--hub-close-button-hover-background);
-  }
-
-  &:active {
-    background-color: var(--hub-close-button-active-background);
-  }
-
-  &:hover:active {
-    background-color: var(--hub-close-button-active-background);
-  }
-
-  &:focus {
-    background-color: var(--hub-close-button-focus-background);
-    outline: 2px solid var(--hub-close-button-focus-outline-color);
-    outline-offset: 1px;
-  }
-}
-
-#closeButton {
   position: absolute;
   inset-inline-end: 15px;
   inset-block-start: 15px;
-  appearance: none;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
   z-index: 2;
-}
-
-#closeButton:hover {
-  background-color: var(--button-hover-background-color);
-}
-
-#closeButton:hover:active {
-  background-color: var(--button-active-background-color);
-}
-
-#closeButton img {
-  stroke: var(--hub-close-button-color);
-  -moz-context-properties: stroke;
-  content: var(--icon-close-lg);
 }
 
 #welcomeHeader > img {

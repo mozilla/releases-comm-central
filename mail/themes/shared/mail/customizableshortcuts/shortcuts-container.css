@@ -2,12 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/widgets.css");
 @import url("chrome://messenger/skin/variables.css");
 @import url("chrome://messenger/skin/colors.css");
 @import url("chrome://messenger/skin/icons.css");
 
 dialog {
   display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: auto;
   width: 600px;
   height: 400px;
   overflow: hidden;
@@ -15,36 +18,38 @@ dialog {
   box-shadow: none;
   border: none;
   border-radius: 6px;
+  background-color: var(--color-neutral-base);
+  box-shadow: 0 18px 15px -15px rgba(0, 0, 0, 0.5);
 
   &::backdrop {
     background: rgba(0, 0, 0, 0.5);
   }
+}
 
-  &::after {
-    content: '';
+/* Header style */
+header {
+  text-align: center;
+
+  & #close {
     position: absolute;
-    top: 17%;
-    left: 50%;
-    width: 765px;
-    height: 500px;
-    transform: translateX(-50%);
-    background: linear-gradient(to right, rgba(159, 244, 240, 1), rgba(76, 177, 249, 1), rgba(168, 85, 247, 1));
-    filter: blur(15px);
-    z-index: -1;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    &::after {
-      background: linear-gradient(to right, rgb(11, 140, 134, 1), rgba(28, 99, 149, 1));
-    }
+    inset-inline-end: 6px;
+    inset-block-start: 6px;
+    z-index: 1;
   }
 }
+
+/* Body style */
 
 main {
-  background-color: var(--color-neutral-base);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   padding: 9px;
+  overflow-y: auto;
 }
 
-.icon-close {
-  content: var(--icon-close);
+/* Footer style */
+
+footer {
+  padding: 9px;
 }

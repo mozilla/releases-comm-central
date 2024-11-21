@@ -80,6 +80,10 @@
     height: calc(var(--button-padding) * 2 + var(--icon-size) + 2px);
     padding: 0;
     aspect-ratio: 1;
+
+    &.button-round {
+      --button-border-radius: 50%;
+    }
   }
 
   &.toolbar-button,
@@ -289,6 +293,12 @@
       }
     }
   }
+
+  &.modal-close-button:not([hidden]) {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 /* Button Group Styles */
@@ -445,4 +455,10 @@
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, var(--color-primary-pressed) 20%, transparent);
   stroke: var(--color-primary-default);
+}
+
+.icon-close-lg {
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+  content: var(--icon-close-lg);
 }
