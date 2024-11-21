@@ -174,4 +174,4 @@ account-hub-sync-success = Thunderbird found some connected services
 
 account-hub-email-added-success = Email account connected successfully
 
-account-hub-config-test-scucess = Configuration settings valid
+account-hub-config-test-success = Configuration settings valid

@@ -650,7 +650,7 @@ class AccountHubEmail extends HTMLElement {
           if (config.isComplete()) {
             this.#stopLoading();
             this.#states[this.#currentState].subview.showNotification({
-              fluentTitleId: "account-hub-config-test-scucess",
+              fluentTitleId: "account-hub-config-test-success",
               type: "success",
             });
             this.#emailFooter.toggleForwardDisabled(false);
