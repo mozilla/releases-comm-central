@@ -24,6 +24,7 @@ const ignoreFiles = [
 
 module.exports = {
   extends: ["stylelint-config-recommended"],
+  plugins: ["@stylistic/stylelint-plugin"],
   ignoreFiles,
   rules: {
     /* Disabled because of `-moz-element(#foo)` which gets misparsed. */
@@ -243,5 +244,7 @@ module.exports = {
     "media-feature-name-value-no-unknown": true,
     // Disabled for -moz-bool-pref
     "media-query-no-invalid": null,
+
+    "@stylistic/color-hex-case": "lower",
   },
 };

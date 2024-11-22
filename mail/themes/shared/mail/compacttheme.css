@@ -16,7 +16,7 @@
     /* Toolbar buttons */
     --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
     --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
-    --autocomplete-popup-highlight-background: #0060DF;
+    --autocomplete-popup-highlight-background: #0060df;
 
     #folderTree treechildren::-moz-tree-image(folderNameCol, newMessages-true),
     #folderTree

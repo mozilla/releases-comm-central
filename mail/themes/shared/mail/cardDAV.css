@@ -10,8 +10,8 @@
   color: var(--text-color);
 
   &[status=error] {
-    background-color: #FFE900;
-    border-color: #F2D00F;
+    background-color: #ffe900;
+    border-color: #f2d00f;
     color: var(--color-ink-90);
   }
 

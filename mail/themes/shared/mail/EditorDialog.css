@@ -68,7 +68,7 @@ body {
 .color-well {
   width: 30px;
   height: 12px;
-  border: 1px inset #CCCCCC;
+  border: 1px inset #cccccc;
   margin: auto;
 
   &[default="true"] {
@@ -187,14 +187,14 @@ tree.list {
 
 /* use outset shape for a button look */
 .colorpicker {
-  border: 1px outset #CCCCCC;
+  border: 1px outset #cccccc;
   /* This should be the same as for textbox */
   margin-inline-start: 4px;
   /* For a little extra space between buttons */
   margin-bottom: 2px;
 
   &:active {
-    border: 1px inset #CCCCCC;
+    border: 1px inset #cccccc;
   }
 }
 
@@ -258,7 +258,7 @@ tree.list {
   GetOriginalWidth(), EdImageProps.js
 */
 #preview-image-box {
-  border: 1px inset #CCCCCC;
+  border: 1px inset #cccccc;
   width: 82px;
   max-width: 82px;
   min-width: 82px;

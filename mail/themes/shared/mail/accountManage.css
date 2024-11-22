@@ -403,7 +403,7 @@ richlistitem[default="true"],
   background-color: rgba(215, 215, 219, 0.2);
 
   &.selected {
-    border: 1px solid #45A1FF;
+    border: 1px solid #45a1ff;
     background-color: rgba(69, 161, 255, 0.2);
   }
 
@@ -599,7 +599,7 @@ richlistitem[default="true"],
 }
 
 .external-pill {
-  background-color: #4576B6;
+  background-color: #4576b6;
   color: #fff;
   font-weight: 600;
   font-size: 0.9em;

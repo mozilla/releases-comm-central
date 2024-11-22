@@ -25,12 +25,12 @@ mailattachcount {
 }
 
 .moz-header-part1 {
-  background-color: #EFEFEF;
+  background-color: #efefef;
 }
 
 .moz-header-part2,
 .moz-header-part3 {
-  background-color: #DEDEDE;
+  background-color: #dedede;
 }
 
 @media (prefers-color-scheme: dark) and (-moz-bool-pref: "mail.dark-reader.enabled") {

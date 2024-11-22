@@ -4,9 +4,9 @@
 
 :host,
 :root {
-  --color-red-10: #FEE2E2;
-  --color-red-20: #FECACA;
-  --color-red-30: #FCA5A5;
+  --color-red-10: #fee2e2;
+  --color-red-20: #fecaca;
+  --color-red-30: #fca5a5;
   --color-red-40: #f87171;
   --color-red-50: #ef4444;
   --color-red-60: #dc2626;
@@ -132,7 +132,7 @@
   --color-neutral-subtle: light-dark(#f7f7f7, #262d3b);
   --color-neutral-border: light-dark(#e4e4e7, #303a4a);
   --color-neutral-border-intense: light-dark(#777580, #3d4d67);
-  --color-neutral-lower: light-dark(#f7f7f7, #18181B);
+  --color-neutral-lower: light-dark(#f7f7f7, #18181b);
   --color-primary-soft: light-dark(#f0f8ff, #262c40);
   --color-primary-default: light-dark(#1373d9, #58c9ff);
   --color-primary-hover: light-dark(#175fb6, #32aeff);

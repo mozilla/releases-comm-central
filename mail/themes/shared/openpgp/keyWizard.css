@@ -108,7 +108,7 @@ description {
   margin-bottom: 6px;
 
   &.selected {
-    border: 1px solid #45A1FF;
+    border: 1px solid #45a1ff;
     background-color: rgba(69, 161, 255, 0.2);
     margin-bottom: 0;
   }

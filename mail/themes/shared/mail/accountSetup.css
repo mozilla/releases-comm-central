@@ -276,7 +276,7 @@ input:user-invalid ~ .form-icon {
   background-color: rgba(215, 215, 219, 0.2);
 
   &.selected {
-    border: 1px solid #45A1FF;
+    border: 1px solid #45a1ff;
     background-color: rgba(69, 161, 255, 0.2);
 
     & .result-details {
