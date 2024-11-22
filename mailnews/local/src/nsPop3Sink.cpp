@@ -562,12 +562,17 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
     nsBuildLocalMessageURI(m_baseMessageUri, msgKey, m_messageUri);
   }
 
-  bool leaveOnServer = false;
-  m_popServer->GetLeaveMessagesOnServer(&leaveOnServer);
-  // We need to flush the output stream, in case mail filters move
-  // the new message, which relies on all the data being flushed.
-  nsresult rv =
-      m_outFileStream->Flush();  // Make sure the message is written to the disk
+  // If line separators in server response are just LF instead of stardard CRLF,
+  // the blank line between the headers and the message body will not be
+  // detected. The detection of this blank line causes the header content to
+  // be parsed to correctly display the message list information. Send parser an
+  // empty/blank line to cause a header parse if it has not yet occurred.
+  nsresult rv = m_newMailParser->HandleLine("", 0);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // We need to flush the output stream in case mail filters move/copy the new
+  // message. This relies on all the data being flushed (i.e., written to disk).
+  rv = m_outFileStream->Flush();
   NS_ENSURE_SUCCESS(rv, rv);
   NS_ASSERTION(m_newMailParser, "could not get m_newMailParser");
   if (m_newMailParser) {
