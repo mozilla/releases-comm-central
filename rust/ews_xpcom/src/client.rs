@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::str;
 use std::{
     collections::{HashMap, HashSet, VecDeque},
     ffi::c_char,
@@ -1183,6 +1184,7 @@ impl XpComEwsClient {
     where
         Op: Operation,
     {
+        let op_name = op.name();
         let envelope = soap::Envelope { body: op };
         let request_body = envelope.as_xml_document()?;
 
@@ -1191,7 +1193,13 @@ impl XpComEwsClient {
             // Fetch the Authorization header value for each request in case of
             // token expiration between requests.
             let auth_header_value = self.credentials.to_auth_header_value().await?;
-
+            // Generate random id for logging purposes.
+            let request_id = Uuid::new_v4();
+            log::info!("Making operation request {request_id}: {op_name}");
+            log::info!(
+                "C: {}",
+                str::from_utf8(&request_body).unwrap_or_else(|_| "Invalid UTF-8")
+            );
             let response = self
                 .client
                 .post(&self.endpoint)?
@@ -1201,6 +1209,11 @@ impl XpComEwsClient {
                 .await?;
 
             let response_body = response.body();
+            log::info!("Response received for request {request_id}: {op_name}");
+            log::info!(
+                "S: {}",
+                str::from_utf8(&response_body).unwrap_or_else(|_| "Invalid UTF-8")
+            );
 
             // Don't immediately propagate in case the error represents a
             // throttled request, which we can address with retry.
@@ -1222,6 +1235,7 @@ impl XpComEwsClient {
                         continue;
                     }
 
+                    log::error!("Request FAILED: {err}");
                     if matches!(err, ews::Error::Deserialize(_)) {
                         // If deserialization failed, the most likely cause is
                         // that our request failed and the response body was not
