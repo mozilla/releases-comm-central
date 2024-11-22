@@ -15,7 +15,6 @@ dialog {
   height: 400px;
   overflow: hidden;
   padding: 0;
-  box-shadow: none;
   border: none;
   border-radius: 6px;
   background-color: var(--color-neutral-base);

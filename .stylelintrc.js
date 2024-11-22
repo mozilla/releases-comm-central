@@ -232,5 +232,16 @@ module.exports = {
         ignorePseudoClasses: ["popover-open"],
       },
     ],
+    "selector-pseudo-element-no-unknown": [
+      true,
+      {
+        ignorePseudoElements: ["slider-track", "slider-fill", "slider-thumb"],
+      },
+    ],
+
+    "media-feature-name-no-unknown": true,
+    "media-feature-name-value-no-unknown": true,
+    // Disabled for -moz-bool-pref
+    "media-query-no-invalid": null,
   },
 };
