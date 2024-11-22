@@ -9,6 +9,14 @@
 
 interface nsIURI;
 
+
+/**
+ * nsIPop3Sink is the interface the POP3 protocol code uses to pass message
+ * data to the folder.
+ * NOTE: unlike the IMAP sink interfaces, nsIPop3Sink is not provided by the
+ * folder object. Instead, nsPop3Sink is a stand-alone object, created and
+ * owned by the nsPop3URL.
+ */
 [scriptable, uuid(ceabfc6b-f139-4c25-890f-efb7c3069d40)]
 interface nsIPop3Sink : nsISupports {
 
@@ -19,13 +27,60 @@ interface nsIPop3Sink : nsISupports {
   /// message uri for header-only message version
   attribute AUTF8String origMessageUri;
 
+  /**
+   * Indicate that mail is about to be passed to the sink.
+   * Once this is called, then the incorporate* methods can be called to pass
+   * individual messages.
+   * Once delivery is complete, one of endMailDelivery() or abortMailDelivery()
+   * must be called.
+   *
+   * @param uidlDownload ?????
+   * @param msgWindow
+   */
   boolean beginMailDelivery(in boolean uidlDownload, in nsIMsgWindow msgWindow);
+
+  /**
+   * Indicate the successful conclusion of mail delivery.
+   */
   void endMailDelivery(in nsIPop3Protocol protocol);
+
+  /**
+   * Indicate that mail delivery failed.
+   */
   void abortMailDelivery(in nsIPop3Protocol protocol);
 
+  /**
+   * Start passing a message to the pop3sink. It might be the whole message
+   * (POP3 RETR command) or it might just be the headers and first few lines
+   * of the body (TOP command).
+   * The call sequence is:
+   * incorporateBegin() is called to start a message.
+   * incorporateWrite() is called any number of times to send the data.
+   * incorporateComplete() or incorporateAbort() is called to finish.
+   *
+   * @param uidlString - the UIDL of the incoming message.
+   * @param flags - 0 = expect full message
+   *                nsMsgMessageFlags.Partial = expect headers only (and
+   *                potentially first few lines of body).
+   */
   void incorporateBegin(in string uidlString, in unsigned long flags);
+
+  /**
+   * Pass a chunk the message to the sink.
+   */
   void incorporateWrite(in string block, in long length);
+
+  /**
+   * Called when the message has been passed successfully.
+   *
+   * @param aMsgWindow
+   * @param aSize the size of the message, as reported by the server.
+   */
   void incorporateComplete(in nsIMsgWindow aMsgWindow, in int32_t aSize);
+
+  /**
+   * Called to indicate that passing over the message to the sink has failed.
+   */
   void incorporateAbort();
 
   /**
