@@ -15,7 +15,7 @@ use url::Url;
 use xpcom::{
     interfaces::{
         nsIInputStream, nsIMsgCopyServiceListener, nsIMsgIncomingServer, nsIRequest,
-        nsIStreamListener, IEwsFolderCallbacks, IEwsMessageCallbacks,
+        nsIStreamListener, IEwsFolderCallbacks, IEwsMessageCallbacks, IEwsMessageDeleteCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
 };
@@ -210,6 +210,25 @@ impl XpcomEwsBridge {
                 RefPtr::new(copy_listener),
                 RefPtr::new(message_callbacks),
             ),
+        )
+        .detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(delete_messages => DeleteMessages(ews_ids: *const ThinVec<nsCString>, callbacks: *const IEwsMessageDeleteCallbacks));
+    fn delete_messages(
+        &self,
+        ews_ids: &ThinVec<nsCString>,
+        callbacks: &IEwsMessageDeleteCallbacks,
+    ) -> Result<(), nsresult> {
+        let client = self.try_new_client()?;
+
+        // The client operation is async and we want it to survive the end of
+        // this scope, so spawn it as a detached `moz_task`.
+        moz_task::spawn_local(
+            "delete_messages",
+            client.delete_messages(ews_ids.clone(), RefPtr::new(callbacks)),
         )
         .detach();
 

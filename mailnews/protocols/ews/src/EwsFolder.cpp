@@ -23,6 +23,80 @@
 #define ID_PROPERTY "ewsId"
 #define SYNC_STATE_PROPERTY "ewsSyncStateToken"
 
+class MessageDeletionCallbacks : public IEwsMessageDeleteCallbacks {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_IEWSMESSAGEDELETECALLBACKS
+
+  MessageDeletionCallbacks(EwsFolder* folder,
+                           const nsTArray<RefPtr<nsIMsgDBHdr>>& headers)
+      : mFolder(folder), mHeaders(headers.Clone()) {}
+
+ protected:
+  virtual ~MessageDeletionCallbacks() = default;
+
+ private:
+  // The folder to delete messages from.
+  RefPtr<EwsFolder> mFolder;
+
+  // The headers of the messages for which deletion has been requested. At this
+  // point, we don't know if all of these messages are stored locally.
+  nsTArray<RefPtr<nsIMsgDBHdr>> mHeaders;
+};
+
+NS_IMPL_ISUPPORTS(MessageDeletionCallbacks, IEwsMessageDeleteCallbacks)
+
+NS_IMETHODIMP MessageDeletionCallbacks::OnRemoteDeleteSuccessful() {
+  nsresult rv;
+
+  nsTArray<RefPtr<nsIMsgDBHdr>> offlineMessages;
+  nsTArray<nsMsgKey> msgKeys;
+
+  // Collect keys for messages which need deletion from our message listing. We
+  // also collect a list of messages for which we have a full local copy which
+  // needs deletion.
+  for (const auto& header : mHeaders) {
+    nsMsgKey msgKey;
+    rv = header->GetMessageKey(&msgKey);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    msgKeys.AppendElement(msgKey);
+
+    bool hasOffline;
+    rv = mFolder->HasMsgOffline(msgKey, &hasOffline);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    if (hasOffline) {
+      offlineMessages.AppendElement(header);
+    }
+  }
+
+  // Delete any locally-stored message from the store.
+  if (offlineMessages.Length()) {
+    nsCOMPtr<nsIMsgPluggableStore> store;
+    rv = mFolder->GetMsgStore(getter_AddRefs(store));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = store->DeleteMessages(offlineMessages);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // Delete the message headers from the database. If a key in the array is
+  // unknown to the database, it's simply ignored.
+  nsCOMPtr<nsIMsgDatabase> db;
+  rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return db->DeleteMessages(msgKeys, nullptr);
+}
+
+NS_IMETHODIMP MessageDeletionCallbacks::OnError(IEwsClient::Error err,
+                                                const nsACString& desc) {
+  NS_ERROR("Error occurred while deleting EWS messages");
+
+  return NS_OK;
+}
+
 class MessageOperationCallbacks : public IEwsMessageCallbacks {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -224,36 +298,36 @@ NS_IMETHODIMP EwsFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP EwsFolder::MarkMessagesRead(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages,
-                                          bool markRead) {
-    nsCOMPtr<IEwsClient> client;
-    nsresult rv = GetEwsClient(getter_AddRefs(client));
+NS_IMETHODIMP EwsFolder::MarkMessagesRead(
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& messages, bool markRead) {
+  nsCOMPtr<IEwsClient> client;
+  nsresult rv = GetEwsClient(getter_AddRefs(client));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Mark the messages as read in the local database.
+  rv = nsMsgDBFolder::MarkMessagesRead(messages, markRead);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsTArray<nsCString> ewsMessageIds;
+
+  // Get a list of the EWS IDs for the messages to be modified.
+  for (const auto& msg : messages) {
+    nsAutoCString itemId;
+    rv = msg->GetStringProperty(ID_PROPERTY, itemId);
     NS_ENSURE_SUCCESS(rv, rv);
+    ewsMessageIds.AppendElement(itemId);
+  }
 
-    // Mark the messages as read in the local database.
-    rv = nsMsgDBFolder::MarkMessagesRead(messages, markRead);
-    NS_ENSURE_SUCCESS(rv, rv);
+  rv = client->ChangeReadStatus(ewsMessageIds, markRead);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    nsTArray<nsCString> ewsMessageIds;
+  // Commit the changes to the local database to make sure they are persisted.
+  rv = GetDatabase();
+  if (NS_SUCCEEDED(rv)) {
+    mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
+  }
 
-    // Get a list of the EWS IDs for the messages to be modified.
-    for (const auto& msg : messages) {
-        nsAutoCString itemId;
-        rv = msg->GetStringProperty(ID_PROPERTY, itemId);
-        NS_ENSURE_SUCCESS(rv, rv);
-        ewsMessageIds.AppendElement(itemId);
-    }
-
-    rv = client->ChangeReadStatus(ewsMessageIds, markRead);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // Commit the changes to the local database to make sure they are persisted.
-    rv = GetDatabase();
-    if (NS_SUCCEEDED(rv)) {
-        mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
-    }
-
-    return rv;
+  return rv;
 }
 
 NS_IMETHODIMP EwsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
@@ -295,7 +369,42 @@ NS_IMETHODIMP EwsFolder::CopyFileMessage(
 
   auto ewsMsgListener = RefPtr(new MessageOperationCallbacks(this, msgWindow));
   return client->SaveMessage(ewsId, isDraftOrTemplate, inputStream,
-                               copyListener, ewsMsgListener);
+                             copyListener, ewsMsgListener);
+}
+
+NS_IMETHODIMP EwsFolder::DeleteMessages(
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHeaders, nsIMsgWindow* msgWindow,
+    bool deleteStorage, bool isMove, nsIMsgCopyServiceListener* listener,
+    bool allowUndo) {
+  nsresult rv;
+
+  if (deleteStorage) {
+    // Iterate through the message headers to get the EWS IDs to delete.
+    nsTArray<nsCString> ewsIds;
+    for (const auto& header : msgHeaders) {
+      nsCString ewsId;
+      rv = header->GetStringProperty(ID_PROPERTY, ewsId);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      if (ewsId.IsEmpty()) {
+        NS_WARNING("Skipping header without EWS ID");
+        continue;
+      }
+
+      ewsIds.AppendElement(ewsId);
+    }
+
+    RefPtr<MessageDeletionCallbacks> ewsMsgListener =
+        new MessageDeletionCallbacks(this, msgHeaders);
+
+    nsCOMPtr<IEwsClient> client;
+    rv = GetEwsClient(getter_AddRefs(client));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    return client->DeleteMessages(ewsIds, ewsMsgListener);
+  }
+
+  return NS_OK;
 }
 
 nsresult EwsFolder::GetEwsId(nsACString& ewsId) {

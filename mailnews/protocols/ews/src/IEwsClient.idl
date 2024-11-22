@@ -5,6 +5,7 @@
 #include "nsISupports.idl"
 #include "nsIArray.idl"
 #include "nsISupportsPrimitives.idl"
+#include "MailNewsTypes2.idl"
 
 interface nsIMsgDBHdr;
 interface nsIRequest;
@@ -15,6 +16,7 @@ interface nsIMsgCopyServiceListener;
 
 interface IEwsFolderCallbacks;
 interface IEwsMessageCallbacks;
+interface IEwsMessageDeleteCallbacks;
 
 [uuid(4a117361-653b-48a5-9ddb-588482ef9dbb)]
 interface IEwsClient : nsISupports
@@ -49,6 +51,8 @@ interface IEwsClient : nsISupports
                      in nsIInputStream messageStream,
                      in nsIMsgCopyServiceListener copyListener,
                      in IEwsMessageCallbacks messageCallbacks);
+
+  void deleteMessages(in Array<AUTF8String> messageEwsIds, in IEwsMessageDeleteCallbacks callbacks);
 };
 
 [uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
@@ -71,5 +75,12 @@ interface IEwsMessageCallbacks : nsISupports
   void commitHeader(in nsIMsgDBHdr hdr);
 
   void updateSyncState(in AUTF8String syncStateToken);
+  void onError(in IEwsClient_Error err, in AUTF8String desc);
+};
+
+[uuid(2bd557ee-a1ce-4563-aaf3-653914256452)]
+interface IEwsMessageDeleteCallbacks : nsISupports
+{
+  void onRemoteDeleteSuccessful();
   void onError(in IEwsClient_Error err, in AUTF8String desc);
 };

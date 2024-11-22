@@ -11,6 +11,7 @@ use std::{
 use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{
     create_item::{CreateItem, CreateItemResponseMessage},
+    delete_item::{DeleteItem, DeleteType},
     get_folder::GetFolder,
     get_item::GetItem,
     soap,
@@ -28,6 +29,7 @@ use mail_parser::MessageParser;
 use moz_http::StatusCode;
 use nserror::nsresult;
 use nsstring::{nsCString, nsString};
+use thin_vec::ThinVec;
 use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
@@ -36,7 +38,7 @@ use xpcom::{
     interfaces::{
         nsIMsgCopyServiceListener, nsIMsgDBHdr, nsIRequest, nsIRequestObserver, nsIStreamListener,
         nsIStringInputStream, nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgKey, nsMsgMessageFlags,
-        IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks,
+        IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks, IEwsMessageDeleteCallbacks,
     },
     RefPtr,
 };
@@ -1176,6 +1178,96 @@ impl XpComEwsClient {
         Ok(())
     }
 
+    pub async fn delete_messages(
+        self,
+        ews_ids: ThinVec<nsCString>,
+        callbacks: RefPtr<IEwsMessageDeleteCallbacks>,
+    ) {
+        // Call an inner function to perform the operation in order to allow us
+        // to handle errors while letting the inner function simply propagate.
+        self.delete_messages_inner(ews_ids, &callbacks)
+            .await
+            .unwrap_or_else(process_error_with_cb(move |client_err, desc| unsafe {
+                callbacks.OnError(client_err, &*desc);
+            }));
+    }
+
+    async fn delete_messages_inner(
+        self,
+        ews_ids: ThinVec<nsCString>,
+        callbacks: &RefPtr<IEwsMessageDeleteCallbacks>,
+    ) -> Result<(), XpComEwsError> {
+        let item_ids: Vec<BaseItemId> = ews_ids
+            .iter()
+            .map(|raw_id| BaseItemId::ItemId {
+                id: raw_id.to_string(),
+                change_key: None,
+            })
+            .collect();
+
+        let delete_item = DeleteItem {
+            item_ids,
+            delete_type: DeleteType::HardDelete,
+            send_meeting_cancellations: None,
+            affected_task_occurrences: None,
+            suppress_read_receipts: None,
+        };
+
+        let response = self.make_operation_request(delete_item).await?;
+
+        // Make sure we got the amount of response messages matches the amount
+        // of messages we requested to have deleted.
+        let response_messages = response.response_messages.delete_item_response_message;
+        if response_messages.len() != ews_ids.len() {
+            return Err(XpComEwsError::Processing {
+                message: format!(
+                    "received an unexpected number of response messages for DeleteItem request: expected {}, got {}",
+                    ews_ids.len(),
+                    response_messages.len(),
+                ),
+            });
+        }
+
+        // Check every response message for an error.
+        response_messages
+            .into_iter()
+            .zip(ews_ids.iter())
+            .map(|(response_message, ews_id)| {
+                if let Err(err) = process_response_message_class(
+                    "DeleteItem",
+                    &response_message.response_class,
+                    &response_message.response_code,
+                    &response_message.message_text,
+                ) {
+                    if matches!(err, XpComEwsError::NotFound) {
+                        // Something happened in a previous attempt that caused
+                        // the message to be deleted on the EWS server but not
+                        // in the database. In this case, we don't want to force
+                        // a zombie message in the folder, so we ignore the
+                        // error and move on with the local deletion.
+                        log::warn!("found message that was deleted from the EWS server but not the local db: {ews_id}");
+                        Ok(())
+                    } else {
+                        // We've already checked that there are as many elements in
+                        // `response_messages` as in `message_ews_ids`, so we
+                        // shouldn't be able to get out of bounds here.
+                        Err(XpComEwsError::Processing {
+                            message: format!(
+                                "error while attempting to delete message {ews_id}: {err:?}"
+                            ),
+                        })
+                    }
+                } else {
+                    Ok(())
+                }
+            }).collect::<Result<(), _>>()?;
+
+        // Delete the messages from the folder's database.
+        unsafe { callbacks.OnRemoteDeleteSuccessful() }
+            .to_result()
+            .map_err(|err| err.into())
+    }
+
     /// Makes a request to the EWS endpoint to perform an operation.
     ///
     /// If the request is throttled, it will be retried after the delay given in
@@ -1402,6 +1494,9 @@ pub(crate) enum XpComEwsError {
     #[error("an error occurred while (de)serializing")]
     Ews(#[from] ews::Error),
 
+    #[error("the item could not be found")]
+    NotFound,
+
     #[error("error in processing response")]
     Processing { message: String },
 
@@ -1438,7 +1533,7 @@ where
             }
 
             _ => {
-                log::error!("an unexpected error occurred while syncing folders: {err:?}");
+                log::error!("an unexpected error occurred: {err:?}");
 
                 match err {
                     XpComEwsError::Http(moz_http::Error::StatusCode { response, .. }) => {
@@ -1453,7 +1548,7 @@ where
 
                 (
                     IEwsClient::EWS_ERR_UNEXPECTED,
-                    nsCString::from("an unexpected error occurred while syncing folders"),
+                    nsCString::from("an unexpected error occurred"),
                 )
             }
         };
@@ -1493,7 +1588,13 @@ fn process_response_message_class(
 
         ResponseClass::Error => {
             let message = if let Some(code) = response_code {
-                if let Some(text) = message_text {
+                if code.0 == "ErrorItemNotFound" {
+                    // We might not want to treat not found errors as normal
+                    // errors. For example we don't want to skip deleting a
+                    // message from the local database if it was not be found on
+                    // the server.
+                    return Err(XpComEwsError::NotFound);
+                } else if let Some(text) = message_text {
                     format!("{op_name} operation encountered `{code:?}' error: {text}")
                 } else {
                     format!("{op_name} operation encountered `{code:?}' error")
