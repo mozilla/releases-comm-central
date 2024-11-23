@@ -13,7 +13,7 @@
 <overlay id="ChatzillaTaskMenuID"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-<script type="application/x-javascript" src="chrome://chatzilla/content/chatzillaOverlay.js"/>
+<script src="chrome://chatzilla/content/chatzillaOverlay.js"/>
 
 <keyset id="tasksKeys">
   <key id="key_irc"  key="&ircCmd.commandkey;" command="Tasks:IRC" modifiers="accel"/>
