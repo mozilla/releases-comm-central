@@ -293,33 +293,6 @@ function utils_lcfn(text)
     return text.toLowerCase();
 }
 
-function matchEntry (partialName, list, lcFn)
-{
-
-    if ((typeof partialName == "undefined") ||
-        (String(partialName) == ""))
-    {
-        var ary = new Array();
-        for (var i in list)
-            ary.push(i);
-        return ary;
-    }
-
-    if (typeof lcFn != "function")
-        lcFn = utils_lcfn;
-
-    ary = new Array();
-
-    for (i in list)
-    {
-        if (lcFn(list[i]).indexOf(lcFn(partialName)) == 0)
-            ary.push(i);
-    }
-
-    return ary;
-
-}
-
 function encodeChar(ch)
 {
    return "%" + ch.charCodeAt(0).toString(16);

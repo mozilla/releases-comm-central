@@ -5422,3 +5422,31 @@ function showEventAlerts (type, event, message, nick, o, thisp, msgtype)
         // yup. it is probably a MAC or NsIAlertsService is not initialized
     }
 }
+
+function matchEntry(partialName, list, lcFn)
+{
+    function utils_lcfn(text)
+    {
+        return text.toLowerCase();
+    };
+
+    let ary = new Array();
+
+    if ((typeof partialName == "undefined") || (String(partialName) == ""))
+    {
+        for (let i in list)
+            ary.push(i);
+        return ary;
+    }
+
+    if (typeof lcFn != "function")
+        lcFn = utils_lcfn;
+
+    for (let i in list)
+    {
+        if (lcFn(list[i]).indexOf(lcFn(partialName)) == 0)
+            ary.push(i);
+    }
+
+    return ary;
+}
