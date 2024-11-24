@@ -786,6 +786,36 @@ function dispatchCommand (command, e, flags)
         return aliasLine;
     };
 
+    /*
+     * Clones an existing object (Only the enumerable properties
+     * of course.) use as a function..
+     * var c = Clone (obj);
+     * or a constructor...
+     * var c = new Clone (obj);
+     */
+    function Clone(obj)
+    {
+        let robj = new Object();
+
+        if ("__proto__" in obj)
+        {
+            // Special clone for Spidermonkey.
+            for (let p in obj)
+            {
+                if (obj.hasOwnProperty(p))
+                    robj[p] = obj[p];
+            }
+            robj.__proto__ = obj.__proto__;
+        }
+        else
+        {
+            for (let p in obj)
+                robj[p] = obj[p];
+        }
+
+        return robj;
+    };
+
     function callBeforeHooks()
     {
         if ("beforeHooks" in client.commandManager)

@@ -289,37 +289,6 @@ function formatException(ex)
 }
 
 /*
- * Clones an existing object (Only the enumerable properties
- * of course.) use as a function..
- * var c = Clone (obj);
- * or a constructor...
- * var c = new Clone (obj);
- */
-function Clone (obj)
-{
-    var robj = new Object();
-
-    if ("__proto__" in obj)
-    {
-        // Special clone for Spidermonkey.
-        for (var p in obj)
-        {
-            if (obj.hasOwnProperty(p))
-                robj[p] = obj[p];
-        }
-        robj.__proto__ = obj.__proto__;
-    }
-    else
-    {
-        for (var p in obj)
-            robj[p] = obj[p];
-    }
-
-    return robj;
-
-}
-
-/*
  * matches a real object against one or more pattern objects.
  * if you pass an array of pattern objects, |negate| controls whether to check
  * if the object matches ANY of the patterns, or NONE of the patterns.
