@@ -2634,6 +2634,17 @@ function cmdReload(e)
 
 function cmdLoad(e)
 {
+    /* Creates a random string of |len| characters from a-z, A-Z, 0-9. */
+    function randomString(len) {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let rv = "";
+
+        for (let i = 0; i < len; i++)
+            rv += chars.substr(Math.floor(Math.random() * chars.length), 1);
+
+        return rv;
+    };
+
     if (!e.scope)
         e.scope = new Object();
 

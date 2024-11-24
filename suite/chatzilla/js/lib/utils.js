@@ -521,17 +521,6 @@ function arrayHasElementAt(ary, i)
     return typeof ary[i] != "undefined";
 }
 
-// Creates a random string of |len| characters from a-z, A-Z, 0-9.
-function randomString(len) {
-    var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    var rv = "";
-
-    for (var i = 0; i < len; i++)
-        rv += chars.substr(Math.floor(Math.random() * chars.length), 1);
-
-    return rv;
-}
-
 function getStackTrace ()
 {
     var frame = Components.stack.caller;
