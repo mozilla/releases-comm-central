@@ -255,12 +255,6 @@ function ecmaUnescape(str)
     return str.replace(/%u?([\da-f]{1,4})/ig, replaceEscapes);
 }
 
-function encodeForXMLAttribute(value) {
-    return value.replace(/&/g, "&amp;").replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
-                .replace(/'/g, "&apos;");
-}
-
 function replaceVars(str, vars)
 {
     // replace "string $with a $variable", with
