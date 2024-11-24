@@ -967,16 +967,14 @@ function dfile_request(localFile)
 CIRCDCCFileTransfer.prototype.accept =
 function dfile_accept(localFile)
 {
-    const nsIBinaryOutputStream = Components.interfaces.nsIBinaryOutputStream;
-
     this.state.sendAccept();
 
     this.localFile = new LocalFile(localFile, ">");
     this.localPath = localFile.path;
 
-    this.filestream = Components.classes["@mozilla.org/binaryoutputstream;1"];
-    this.filestream = this.filestream.createInstance(nsIBinaryOutputStream);
-    this.filestream.setOutputStream(this.localFile.outputStream);
+    this.filestream = Cc["@mozilla.org/binaryoutputstream;1"]
+                        .createInstance(Ci.nsIBinaryOutputStream)
+                        .setOutputStream(this.localFile.outputStream);
 
     this.position = 0;
     this.connection = new CBSConnection(true);
@@ -1067,9 +1065,9 @@ function dfile_onSocketAccepted(socket, transport)
                                        this, "onConnect"));
 
     try {
-        this.filestream = Components.classes["@mozilla.org/binaryinputstream;1"];
-        this.filestream = this.filestream.createInstance(nsIBinaryInputStream);
-        this.filestream.setInputStream(this.localFile.baseInputStream);
+        this.filestream = Cc["@mozilla.org/binaryinputstream;1"]
+                            .createInstance(Ci.nsIBinaryInputStream)
+                            .setInputStream(this.localFile.baseInputStream);
 
         // Start the reading!
         var d;

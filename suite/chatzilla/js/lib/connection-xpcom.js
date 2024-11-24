@@ -65,14 +65,14 @@ function badcert_getinterface(aIID)
 BadCertHandler.prototype.QueryInterface =
 function badcert_queryinterface(aIID)
 {
-    if (aIID.equals(Components.interfaces.nsIBadCertListener2) ||
-        aIID.equals(Components.interfaces.nsIInterfaceRequestor) ||
-        aIID.equals(Components.interfaces.nsISupports))
+    if (aIID.equals(Ci.nsIBadCertListener2) ||
+        aIID.equals(Ci.nsIInterfaceRequestor) ||
+        aIID.equals(Ci.nsISupports))
     {
         return this;
     }
 
-    throw Components.results.NS_ERROR_NO_INTERFACE;
+    throw Cr.NS_ERROR_NO_INTERFACE;
 }
 
 /* Returning true in the following two callbacks
@@ -469,12 +469,12 @@ function sp_datawrite (request, ctxt, ostream, offset, count)
     //dd ("StreamProvider.prototype.onDataWritable");
 
     if ("isClosed" in this && this.isClosed)
-        throw Components.results.NS_BASE_STREAM_CLOSED;
+        throw Cr.NS_BASE_STREAM_CLOSED;
 
     if (!this.pendingData)
     {
         this.isBlocked = true;
-        throw Components.results.NS_BASE_STREAM_WOULD_BLOCK;
+        throw Cr.NS_BASE_STREAM_WOULD_BLOCK;
     }
 
     var len = ostream.write (this.pendingData, this.pendingData.length);

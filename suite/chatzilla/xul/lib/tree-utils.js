@@ -685,7 +685,7 @@ XULTreeViewRecord.prototype.appendChild =
 function xtvr_appchild (child)
 {
     if (!isinstance(child, XULTreeViewRecord))
-        throw Components.results.NS_ERROR_INVALID_ARG;
+        throw Cr.NS_ERROR_INVALID_ARG;
     
     child.isHidden = false;
     child.parentRecord = this;

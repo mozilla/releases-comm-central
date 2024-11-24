@@ -1547,8 +1547,6 @@ function my_running_list()
 CIRCNetwork.prototype.list =
 function my_list(word, file)
 {
-    const NORMAL_FILE_TYPE = Components.interfaces.nsIFile.NORMAL_FILE_TYPE;
-
     if (("_list" in this) && !this._list.done)
         return false;
 
@@ -1563,7 +1561,8 @@ function my_list(word, file)
         if (!lfile.localFile.exists())
         {
             // futils.umask may be 0022. Result is 0644.
-            lfile.localFile.create(NORMAL_FILE_TYPE, 0o666 & ~futils.umask);
+            lfile.localFile.create(Ci.nsIFile.NORMAL_FILE_TYPE,
+                                   0o666 & ~futils.umask);
         }
         this._list.file = new LocalFile(lfile.localFile, ">");
     }
