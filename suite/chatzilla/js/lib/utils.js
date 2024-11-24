@@ -288,63 +288,6 @@ function formatException(ex)
     return String(ex);
 }
 
-/*
- * matches a real object against one or more pattern objects.
- * if you pass an array of pattern objects, |negate| controls whether to check
- * if the object matches ANY of the patterns, or NONE of the patterns.
- */
-function matchObject (o, pattern, negate)
-{
-    negate = Boolean(negate);
-
-    function _match (o, pattern)
-    {
-        if (isinstance(pattern, Function))
-            return pattern(o);
-
-        for (var p in pattern)
-        {
-            var val;
-                /* nice to have, but slow as molases, allows you to match
-                 * properties of objects with obj$prop: "foo" syntax      */
-                /*
-                  if (p[0] == "$")
-                  val = eval ("o." +
-                  p.substr(1,p.length).replace (/\$/g, "."));
-                  else
-                */
-            val = o[p];
-
-            if (isinstance(pattern[p], Function))
-            {
-                if (!pattern[p](val))
-                    return false;
-            }
-            else
-            {
-                var ary = (new String(val)).match(pattern[p]);
-                if (ary == null)
-                    return false;
-                else
-                    o.matchresult = ary;
-            }
-        }
-
-        return true;
-
-    }
-
-    if (!isinstance(pattern, Array))
-        return Boolean (negate ^ _match(o, pattern));
-
-    for (var i in pattern)
-        if (_match (o, pattern[i]))
-            return !negate;
-
-    return negate;
-
-}
-
 function equalsObject(o1, o2)
 {
     for (var p in o1)
