@@ -632,6 +632,22 @@ function processOpLoadStop(opData)
 
 function processOpFilterStart(opData)
 {
+    function equalsObject(o1, o2)
+    {
+        for (let p in o1)
+        {
+            if (!(p in o2) || (o1[p] != o2[p]))
+                return false;
+        }
+        for (let p in o2)
+        {
+            // If the property did exist in o1, the previous loop tested it:
+            if (!(p in o1))
+                return false;
+        }
+        return true;
+    };
+
     // Catch filtering with the same options on the same channels:
     var newOptions = {network: xul.network.value.toLowerCase(),
                       text: xul.channel.value.toLowerCase(),
