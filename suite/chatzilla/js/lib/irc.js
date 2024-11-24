@@ -31,6 +31,17 @@ const JSIRCV3_SUPPORTED_CAPS = [
     "userhost-in-names",
 ];
 
+function renameProperty(obj, oldname, newname)
+{
+
+    if (oldname == newname)
+        return;
+
+    obj[newname] = obj[oldname];
+    delete obj[oldname];
+
+}
+
 function userIsMe (user)
 {
 

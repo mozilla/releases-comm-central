@@ -478,17 +478,6 @@ function toOpenWindowByType(inType, url, features)
         window.open(url, "_blank", features);
 }
 
-function renameProperty (obj, oldname, newname)
-{
-
-    if (oldname == newname)
-        return;
-
-    obj[newname] = obj[oldname];
-    delete obj[oldname];
-
-}
-
 function getContentWindow(frame)
 {
     try
