@@ -875,6 +875,42 @@ function onUserDragStart(event)
     event.dataTransfer.setData("text/plain", nickname);
 }
 
+/* the offset should be in seconds, it will be rounded to 2 decimal places */
+function formatDateOffset(offset)
+{
+    let seconds = offset % 60;
+    seconds = Math.round((seconds + Number.EPSILON) * 100) / 100;
+    let minutes = Math.floor(offset / 60);
+    let hours = Math.floor(minutes / 60);
+    minutes = minutes % 60;
+    let days = Math.floor(hours / 24);
+    hours = hours % 24;
+
+    let ary = new Array();
+
+    if (days == 1)
+        ary.push(MSG_DAY);
+    else if (days > 0)
+        ary.push(getMsg(MSG_DAYS, days));
+
+    if (hours == 1)
+        ary.push(MSG_HOUR);
+    else if (hours > 0)
+        ary.push(getMsg(MSG_HOURS, hours));
+
+    if (minutes == 1)
+        ary.push(MSG_MINUTE);
+    else if (minutes > 0)
+        ary.push(getMsg(MSG_MINUTES, minutes));
+
+    if (seconds == 1)
+        ary.push(MSG_SECOND);
+    else if (seconds > 0 || offset == 0)
+        ary.push(getMsg(MSG_SECONDS, seconds));
+
+    return ary.join(", ");
+}
+
 client.onFindEnd =
 CIRCNetwork.prototype.onFindEnd =
 CIRCChannel.prototype.onFindEnd =
