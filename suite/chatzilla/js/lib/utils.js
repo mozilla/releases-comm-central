@@ -521,11 +521,6 @@ function arrayHasElementAt(ary, i)
     return typeof ary[i] != "undefined";
 }
 
-function objectContains(o, p)
-{
-    return Object.hasOwnProperty.call(o, p);
-}
-
 /*
  * If there are any wordbreaking characters in |str| within -/+5 characters of
  * of a |pos| then the word is broken up there. Individual chunks of the word

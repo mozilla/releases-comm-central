@@ -13,6 +13,11 @@ function getAccessKey(str)
     return str[i + 1];
 }
 
+function objectContains(o, p)
+{
+    return Object.hasOwnProperty.call(o, p);
+}
+
 // @internal
 function CommandRecord(name, func, usage, help, label, accesskey, flags,
                        keystr, tip, format, helpUsage)
