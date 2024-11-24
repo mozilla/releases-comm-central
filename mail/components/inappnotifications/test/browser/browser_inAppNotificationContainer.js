@@ -105,3 +105,21 @@ add_task(async function test_urlValue() {
 
   Assert.equal(element.href, "", "url is cleared");
 });
+
+add_task(async function test_type() {
+  const element = container.shadowRoot.querySelector(
+    ".in-app-notification-container"
+  );
+
+  container.setAttribute("type", "blog");
+  Assert.ok(
+    element.classList.contains("in-app-notification-blog"),
+    "has correct class for type"
+  );
+
+  container.setAttribute("type", "donation");
+  Assert.ok(
+    element.classList.contains("in-app-notification-donation"),
+    "has correct class for type"
+  );
+});

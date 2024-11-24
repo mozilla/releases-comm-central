@@ -761,6 +761,7 @@
   skin/classic/messenger/icons/sm/mobile-import.svg            (../shared/mail/icons/sm/mobile-import.svg)
   skin/classic/messenger/icons/sm/sparkle-star.svg             (../shared/mail/icons/sm/sparkle-star.svg)
   skin/classic/messenger/icons/sm/upload.svg                   (../shared/mail/icons/sm/upload.svg)
+  skin/classic/messenger/icons/sm/circle-question.svg          (../shared/mail/icons/sm/circle-question.svg)
 
 # LG - 24x24px icons
   skin/classic/messenger/icons/lg/upload.svg                   (../shared/mail/icons/lg/upload.svg)

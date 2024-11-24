@@ -5,7 +5,7 @@
 import "./in-app-notification-button.mjs"; //eslint-disable-line import/no-unassigned-import
 import "./in-app-notification-close-button.mjs"; //eslint-disable-line import/no-unassigned-import
 
-const attrs = ["cta", "description", "heading", "url", "data-id"];
+const attrs = ["cta", "description", "heading", "url", "data-id", "type"];
 
 /**
  * Container for in app notifications.
@@ -82,6 +82,14 @@ class InAppNotificationContainer extends HTMLElement {
           '[is="in-app-notification-close-button"]'
         ).dataset.id = newValue;
         break;
+      case "type": {
+        const container = this.shadowRoot.querySelector(
+          ".in-app-notification-container"
+        );
+        container.classList.remove(`in-app-notification-${oldValue}`);
+        container.classList.add(`in-app-notification-${newValue}`);
+        break;
+      }
     }
   }
 

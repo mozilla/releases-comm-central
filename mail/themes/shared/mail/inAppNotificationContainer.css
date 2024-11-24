@@ -4,22 +4,16 @@
 
 :host {
   color-scheme: light dark;
-  --container-background: linear-gradient(135deg, #0db7bd, #6b21a8);
-  --container-border: none;
   --content-background: light-dark(#ffffff, #18181b);
-  --content-border: light-dark(#ffffff, #4f5683);
-  --title-text: light-dark(#6b21a8, #f5e8ff);
+  --container-border: none;
   --text: light-dark(#18181b, #fafafa);
-  --button-background: linear-gradient(#6b21a8, #571c87);
-  --button-stroke: light-dark(#3a0764, #ddb4fe);
+  --content-border: light-dark(#ffffff, #4f5683);
+
+  /* Button colots */
   --button-text: light-dark(#fafafa, #18181b);
   --button-text-active: var(--button-text);
-  --button-background-hover: linear-gradient(#6b21a8, #571c87);
-  --button-background-active: light-dark(#3a0764, #ddb4fe);
-  --button-focus-ring: light-dark(#3a0764, #ddb4fe);
-  --illustration-light: url("chrome://messenger/skin/illustrations/in-app-notification-donation-default.svg");
-  --illustration-dark: url("chrome://messenger/skin/illustrations/in-app-notification-donation-default-dark.svg");
-  --illustration: var(--illustration-light);
+
+  /* Close button colors */
   --close-button-background: light-dark(#fafafa, #18181b);
   --close-button-background-active: light-dark(#18181b, #fafafa);
   --close-button-text: var(--text);
@@ -28,6 +22,10 @@
   --close-button-border-hover: currentColor;
   --close-button-border-active: light-dark(#18181b, #fafafa);
   --close-button-outline: currentColor;
+
+  --illustration-light: url("chrome://messenger/skin/illustrations/in-app-notification-donation-default.svg");
+  --illustration-dark: url("chrome://messenger/skin/illustrations/in-app-notification-donation-default-dark.svg");
+  --illustration: var(--illustration-light);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -63,7 +61,7 @@
   }
 }
 
-.in-app-notification-container.in-app-notification-donation {
+.in-app-notification-container {
   position: relative;
   width: 288px;
   background: var(--container-background);
@@ -76,19 +74,21 @@
   box-shadow: 0 2px 6px -2px rgba(0,0,0,0.25);
   overflow: clip;
 
-  & .in-app-notification-content {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    border: 1px solid var(--content-border);
-    border-radius: 5px;
-    color: var(--text);
-    padding: 6px;
-    padding-inline: 48px 36px;
-    isolation: isolate;
 
-    &::before {
+  /* Styles for the donation notification type */
+  &.in-app-notification-donation {
+    --title-text: light-dark(#6b21a8, #f5e8ff);
+    --button-background: linear-gradient(#6b21a8, #571c87);
+    --button-stroke: light-dark(#3a0764, #ddb4fe);
+    --button-background-hover: linear-gradient(#6b21a8, #571c87);
+    --button-background-active: light-dark(#3a0764, #ddb4fe);
+    --button-focus-ring: light-dark(#3a0764, #ddb4fe);
+    --container-background: linear-gradient(135deg, #0db7bd, #6b21a8);
+    --icon-url: url("chrome://messenger/skin/illustrations/in-app-notification-heart.svg");
+    --icon-fill: #fca5a5;
+    --icon-stroke: #dc2626;
+
+    & .in-app-notification-content::before {
       content: '';
       position: absolute;
       inset: 0;
@@ -100,6 +100,50 @@
       border-radius: 4px;
       z-index: -1;
     }
+
+    & .icon {
+      inset-block-start: 3px;
+      inset-inline-start: 0px;
+    }
+  }
+
+  /* Styles for the blog notification type */
+  &.in-app-notification-blog {
+    --title-text: light-dark(#1373d9, #eeeef0);
+    --button-background: linear-gradient(#1373d9, #175fb6);
+    --button-stroke: light-dark(#19518F, #32aeff);
+    --button-background-hover: linear-gradient(#1373d9, #175Fb6);
+    --button-background-active: light-dark(#19518f, #32aeff);
+    --button-focus-ring: light-dark(#19518f, #32aeff);
+    --content-border: light-dark(#1373d9, #58c9ff);
+    --icon-url: url("chrome://messenger/skin/icons/sm/circle-question.svg");
+    --icon-fill: light-dark(#c4ddf6, #263a47);
+    --icon-stroke: light-dark(#1373d9, #58C9ff);
+
+    & .in-app-notification-content {
+      background: linear-gradient(#f0f8ff, #f7f7f7);
+      padding-inline-start: 26px;
+    }
+
+    & .icon {
+      width: 16px;
+      height: 16px;
+      inset-block-start: 8px;
+      inset-inline-start: 8px;
+    }
+  }
+
+  & .in-app-notification-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border: 1px solid var(--content-border);
+    border-radius: 5px;
+    color: var(--text);
+    padding: 6px;
+    padding-inline: 48px 36px;
+    isolation: isolate;
 
     &:dir(rtl)::before {
       transform: scaleX(-1);
@@ -200,14 +244,12 @@
 
   & .icon {
     position: absolute;
-    content: url("chrome://messenger/skin/illustrations/in-app-notification-heart.svg");
-    -moz-context-properties: fill, stroke;
-    fill: #fca5a5;
-    stroke: #dc2626;
-    inset-block-start: 3px;
-    inset-inline-start: 0;
     z-index: 9;
     pointer-events: none;
+    content: var(--icon-url);
+    -moz-context-properties: fill, stroke;
+    fill: var(--icon-fill);
+    stroke: var(--icon-stroke);
 
     &:dir(rtl) {
       transform: scaleX(-1);

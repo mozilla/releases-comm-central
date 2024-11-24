@@ -62,6 +62,7 @@ class InAppNotification extends HTMLElement {
       description: "description",
       id: "data-id",
       title: "heading",
+      type: "type",
       URL: "url",
     };
 

@@ -11,6 +11,7 @@ const observedProperties = {
   id: "data-id",
   description: "description",
   title: "heading",
+  type: "type",
   URL: "url",
 };
 
@@ -43,14 +44,14 @@ function subtestCheckAttributes(container, data) {
   }
 }
 
-function getData(value) {
+function getData(value, type = "donation") {
   return {
     id: "test-notification",
     title: value,
     description: value,
     CTA: value,
     URL: value,
-    type: "donation",
+    type,
     severity: 4,
   };
 }
@@ -68,7 +69,7 @@ add_task(function test_notificationAttributeTranslation() {
   notification.setNotificationData(notificationData);
   subtestCheckAttributes(container, notificationData);
 
-  notificationData = getData("new test");
+  notificationData = getData("new test", "message");
 
   notification.setNotificationData(notificationData);
   subtestCheckAttributes(container, notificationData);
