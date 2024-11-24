@@ -827,6 +827,35 @@ function insertText(text, containerTag, data)
 
 function insertHyphenatedWord(longWord, containerTag, data)
 {
+    /*
+     * If there are any wordbreaking characters in |str| within -/+5 characters
+     * of a |pos| then the word is broken up there. Individual chunks of the
+     * word are returned as elements of an array.
+     */
+    function splitLongWord(str, pos)
+    {
+        if (str.length <= pos)
+            return [str];
+
+        let ary = new Array();
+        let right = str;
+
+        while (right.length > pos)
+        {
+            /* search for a nice place to break the word, fuzzfactor of +/-5,
+             * centered around |pos| */
+            let splitPos =
+                right.substring(pos - 5, pos + 5).search(/[^A-Za-z0-9]/);
+
+            splitPos = (splitPos != -1) ? pos - 4 + splitPos : pos;
+            ary.push(right.substr(0, splitPos));
+            right = right.substr(splitPos);
+        }
+
+        ary.push(right);
+        return ary;
+    };
+
     var wordParts = splitLongWord(longWord, client.MAX_WORD_DISPLAY);
 
     if (!data || !("dontStyleText" in data))

@@ -521,36 +521,6 @@ function arrayHasElementAt(ary, i)
     return typeof ary[i] != "undefined";
 }
 
-/*
- * If there are any wordbreaking characters in |str| within -/+5 characters of
- * of a |pos| then the word is broken up there. Individual chunks of the word
- * are returned as elements of an array.
- */
-function splitLongWord (str, pos)
-{
-    if (str.length <= pos)
-        return [str];
-
-    var ary = new Array();
-    var right = str;
-
-    while (right.length > pos)
-    {
-        /* search for a nice place to break the word, fuzzfactor of +/-5,
-         * centered around |pos| */
-        var splitPos =
-            right.substring(pos - 5, pos + 5).search(/[^A-Za-z0-9]/);
-
-        splitPos = (splitPos != -1) ? pos - 4 + splitPos : pos;
-        ary.push(right.substr (0, splitPos));
-        right = right.substr (splitPos);
-    }
-
-    ary.push (right);
-
-    return ary;
-}
-
 // Creates a random string of |len| characters from a-z, A-Z, 0-9.
 function randomString(len) {
     var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
