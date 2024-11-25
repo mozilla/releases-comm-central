@@ -146,7 +146,27 @@
     --icon-stroke: #713f12;
     --container-background: linear-gradient(#ffdf8d, #fac439);
     --content-background: linear-gradient(#fefae8, #f7f7f7);
+  }
 
+  /* Colors for the security notification type */
+  &.in-app-notification-security {
+    --title-text: light-dark(#dc2626, #ef4444);
+    --button-background: linear-gradient(#cb1f1f, #7f1d1d);
+    --button-stroke: #7f1d1d;
+    --button-background: linear-gradient(#cb1f1f, #7f1d1d);
+    --button-background-active: #7f1d1d;
+    --button-focus-ring: #ef4444;
+    --content-border: #7f1d1d;
+    --container-border: #7f1d1d;
+    --icon-url: url("chrome://messenger/skin/icons/new/compact/warning.svg");
+    --icon-fill: #c7484a;
+    --icon-stroke: #ffffff;
+    --container-background: linear-gradient(#b91C1C, #991b1b);
+    --content-background: linear-gradient(#fef2f2, #f7f7f7);
+  }
+
+  &.in-app-notification-message,
+  &.in-app-notification-security {
     & .in-app-notification-content {
       margin: -2px;
       padding-inline-start: 14px;
