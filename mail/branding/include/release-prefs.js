@@ -24,3 +24,6 @@ pref("app.update.badgeWaitTime", 345600);
 pref("app.vendorURL", "https://www.thunderbird.net/%LOCALE%/");
 
 pref("browser.search.param.ms-pc", "MOZT");
+
+// In-app notification server endpoint
+pref("mail.inappnotifications.url", "https://notifications.thunderbird.net/notifications.json");
