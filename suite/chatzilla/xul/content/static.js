@@ -5156,6 +5156,10 @@ function getlcfn()
                 return details.server.toLowerCase(text);
             }
     }
+    else
+    {
+        lcFn = function(text) { return text.toLowerCase(); }
+    }
 
     return lcFn;
 }

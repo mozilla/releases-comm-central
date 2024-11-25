@@ -288,11 +288,6 @@ function formatException(ex)
     return String(ex);
 }
 
-function utils_lcfn(text)
-{
-    return text.toLowerCase();
-}
-
 function encodeChar(ch)
 {
    return "%" + ch.charCodeAt(0).toString(16);
@@ -302,35 +297,6 @@ function escapeFileName(fileName)
 {
     // Escape / \ : * ? " < > | so they don't cause trouble.
     return fileName.replace(/[\/\\\:\*\?"<>\|]/g, encodeChar);
-}
-
-function getCommonPfx (list, lcFn)
-{
-    var pfx = list[0];
-    var l = list.length;
-
-    if (typeof lcFn != "function")
-        lcFn = utils_lcfn;
-
-    for (var i = 0; i < l; i++)
-    {
-        for (var c = 0; c < pfx.length; ++c)
-        {
-            if (c >= list[i].length)
-            {
-                pfx = pfx.substr(0, c);
-                break;
-            }
-            else
-            {
-                if (lcFn(pfx[c]) != lcFn(list[i][c]))
-                    pfx = pfx.substr(0, c);
-            }
-        }
-    }
-
-    return pfx;
-
 }
 
 function toOpenWindowByType(inType, url, features)

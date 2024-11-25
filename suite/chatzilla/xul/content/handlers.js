@@ -446,6 +446,30 @@ function onInputKeyPress (e)
 
 function onTabCompleteRequest (e)
 {
+    function getCommonPfx(list, lcFn)
+    {
+        let pfx = list[0];
+
+        for (let item of list)
+        {
+            for (let c = 0; c < pfx.length; ++c)
+            {
+                if (c >= item.length)
+                {
+                    pfx = pfx.substr(0, c);
+                    break;
+                }
+                else
+                {
+                    if (lcFn(pfx[c]) != lcFn(item[c]))
+                        pfx = pfx.substr(0, c);
+                }
+            }
+        }
+
+        return pfx;
+    };
+
     var elem = document.commandDispatcher.focusedElement;
     var singleInput = document.getElementById("input");
     if (document.getBindingParent(elem) != singleInput)
@@ -505,6 +529,8 @@ function onTabCompleteRequest (e)
         var lcFn;
         if ("getLCFunction" in co)
             lcFn = co.getLCFunction();
+        else
+            lcFn = function(text) { return text.toLowerCase(); }
 
         var matches = co.performTabMatch(line, wordStart, wordEnd, wordLower,
                                          selStart, lcFn);
