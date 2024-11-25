@@ -38,6 +38,11 @@ add_setup(async () => {
   server.registerPathHandler("/error.json", (request, response) => {
     response.setStatusLine(request.httpVersion, 404, "Not Found");
   });
+  server.registerPrefixHandler("/formatted/", (request, response) => {
+    response.setStatusLine(request.httpVersion, 200, "OK");
+    response.setHeader("Content-Type", "application/json");
+    response.write(JSON.stringify({ formatTest: request.path }));
+  });
   server.start(-1);
 
   const serverUrl = `http://localhost:${server.identity.primaryPort}/notifications.json`;
@@ -271,5 +276,34 @@ add_task(async function test_init_withRecentUpdate() {
     "Should not have called the update callback"
   );
 
+  updateSpy.resetHistory();
+});
+
+add_task(async function test_fetch_formattedURL() {
+  const url = Services.prefs.getStringPref("mail.inappnotifications.url", "");
+  Services.prefs.setStringPref(
+    "mail.inappnotifications.url",
+    url.replace("notifications.json", "formatted/%LOCALE%/notifications.json")
+  );
+  const expectedURL = Services.urlFormatter.formatURLPref(
+    "mail.inappnotifications.url"
+  );
+  // Cut off http://host:port
+  const expectedPath = `/${expectedURL.split("/").slice(3).join("/")}`;
+  Assert.stringContains(expectedURL, "formatted", "Should have updated URL");
+  Assert.ok(
+    !expectedURL.includes("%LOCALE%"),
+    "Placeholder should be formatted"
+  );
+
+  const formattedFetch = await NotificationUpdater._fetch();
+
+  Assert.ok(formattedFetch, "Should report fetch");
+  Assert.ok(
+    updateSpy.calledWith({ formatTest: expectedPath }),
+    "Should call update with expected payload"
+  );
+
+  Services.prefs.setStringPref("mail.inappnotifications.url", url);
   updateSpy.resetHistory();
 });
