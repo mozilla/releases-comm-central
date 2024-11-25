@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 import { CalDavLegacySAXRequest } from "resource:///modules/caldav/CalDavRequest.sys.mjs";
+import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 /* exported CalDavEtagsHandler, CalDavWebDavSyncHandler, CalDavMultigetSyncHandler */
 
@@ -810,6 +810,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
   itemsNeedFetching = null;
   additionalSyncNeeded = false;
   timer = null;
+  shouldYieldEventLoop = 0;
 
   QueryInterface = ChromeUtils.generateQI(["nsIRequestObserver", "nsIStreamListener"]);
 
@@ -1056,6 +1057,16 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
               resp.getetag,
               this.listener
             );
+
+            // Every 10 items yield the event loop. Otherwise, we could end up parsing every
+            // item and adding them all to the calendar without stopping, which makes the UI
+            // appear unresponsive. This is especially bad for calendars without offline
+            // storage, as they get updated immediately on start-up, and would delay how soon
+            // the user can start doing things.
+            if (++this.shouldYieldEventLoop == 10) {
+              await new Promise(resolve => setTimeout(resolve));
+              this.shouldYieldEventLoop = 0;
+            }
           } else {
             cal.LOG("CalDAV: skipping item with unmodified etag : " + oldEtag);
           }
