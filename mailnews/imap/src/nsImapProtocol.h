@@ -534,7 +534,9 @@ class nsImapProtocol : public nsIImapProtocol,
   RefPtr<nsImapFlagAndUidState> m_flagState;
   nsMsgBiffState m_currentBiffState;
   // manage the IMAP server command tags
-  nsCString m_currentServerCommandTag;
+  // 11 = enough memory for the decimal representation of MAX_UINT + trailing
+  // nul
+  char m_currentServerCommandTag[11];
   uint32_t m_currentServerCommandTagNumber;
   void IncrementCommandTagNumber();
   const char* GetServerCommandTag();

@@ -276,14 +276,20 @@ static void MimePgpe_free(MimeClosure output_closure) {
    This is not a full URL, just a part-number.
  */
 static nsCString determineMimePart(MimeObject* obj) {
+  char mimePartNum[20];
+  MimeObject* kid;
+  MimeContainer* cont;
+  int32_t i;
+
   nsCString mimePart;
 
   while (obj->parent) {
-    auto* cont = (MimeContainer*)obj->parent;
-    for (int32_t i = 0; i < cont->nchildren; i++) {
-      auto* kid = cont->children[i];
+    cont = (MimeContainer*)obj->parent;
+    for (i = 0; i < cont->nchildren; i++) {
+      kid = cont->children[i];
       if (kid == obj) {
-        mimePart.Insert(nsPrintfCString(".%d", i + 1), 0);
+        sprintf(mimePartNum, ".%d", i + 1);
+        mimePart.Insert(mimePartNum, 0);
       }
     }
     obj = obj->parent;
