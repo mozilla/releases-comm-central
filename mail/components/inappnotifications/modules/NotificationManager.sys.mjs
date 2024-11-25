@@ -45,9 +45,9 @@ export class NotificationManager extends EventTarget {
 
   /**
    * Check if a notification has UI that should be shown. The only notification
-   * type that doesn't have UI is the "donation_browser" type, which imitates the
-   * appeal behavior, where we open a webseite in the user's browser.
-   * Setting name and private explicitly to work around jsdoc parsing issue.
+   * types that don't have UI are the "donation_browser" or "donation_tab"
+   * types, which imitate the appeal behavior, where we open a website. Setting
+   * name and private explicitly to work around jsdoc parsing issue.
    *
    * @name NotificationManager.isNotificationWithUI
    * @private
@@ -55,7 +55,7 @@ export class NotificationManager extends EventTarget {
    * @returns {boolean} If this notification should show a popup in the UI.
    */
   static #isNotificationWithUI(notification) {
-    return notification.type !== "donation_browser";
+    return !["donation_browser", "donation_tab"].includes(notification.type);
   }
 
   /**
@@ -137,10 +137,29 @@ export class NotificationManager extends EventTarget {
         detail: notificationId,
       })
     );
+
     const formattedURL = Services.urlFormatter.formatURL(
       this.#currentNotification.URL
     );
-    lazy.openLinkExternally(formattedURL);
+    const needsTabmail = this.#currentNotification.type === "donation_tab";
+    const tabmail =
+      needsTabmail &&
+      Services.wm
+        .getMostRecentWindow("mail:3pane")
+        ?.document.getElementById("tabmail");
+
+    // Fall back to opening a browser window if we don't have a tabmail.
+    if (this.#currentNotification.type !== "donation_tab" || !tabmail) {
+      lazy.openLinkExternally(formattedURL);
+    } else {
+      tabmail.openTab("contentTab", {
+        url: formattedURL,
+        background: false,
+        linkHandler: "single-page",
+      });
+      tabmail.ownerGlobal.focus();
+    }
+
     Glean.inappnotifications.interaction.record({
       notification_id: notificationId,
       active_this_session: this.#getActiveNotificationDuration(),

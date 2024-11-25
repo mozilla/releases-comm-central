@@ -359,7 +359,7 @@ add_task(function test_dismissNotification_noop() {
   notificationManager.updatedNotifications([]);
 });
 
-add_task(async function test_showDonationsOldNotification() {
+add_task(async function test_showDonationsBrowserNotification() {
   didOpen = false;
   const now = Date.now();
   const notifications = [
@@ -395,6 +395,50 @@ add_task(async function test_showDonationsOldNotification() {
   Assert.equal(
     notificationId,
     "olddonation",
+    "Should have interacted with the notification"
+  );
+  await clearNotificationEvent;
+  Assert.ok(didOpen, "Should open URL externally");
+
+  notificationManager.updatedNotifications([]);
+});
+
+add_task(async function test_showDonationsTabNotification() {
+  didOpen = false;
+  const now = Date.now();
+  const notifications = [
+    {
+      id: "tabdonation",
+      type: "donation_tab",
+      start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+      end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+      URL: "about:blank",
+      CTA: "Appeal",
+      severity: 5,
+    },
+  ];
+  const notificationManager = new NotificationManager();
+  notificationManager.addEventListener(
+    NotificationManager.NEW_NOTIFICATION_EVENT,
+    () => {
+      Assert.ok(false, "Should not get any new notification event");
+    }
+  );
+
+  const notificationInteractionEvent = BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.NOTIFICATION_INTERACTION_EVENT
+  );
+  const clearNotificationEvent = BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.CLEAR_NOTIFICATION_EVENT
+  );
+  notificationManager.updatedNotifications(notifications);
+
+  const { detail: notificationId } = await notificationInteractionEvent;
+  Assert.equal(
+    notificationId,
+    "tabdonation",
     "Should have interacted with the notification"
   );
   await clearNotificationEvent;
