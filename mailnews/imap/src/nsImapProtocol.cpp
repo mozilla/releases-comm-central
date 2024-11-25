@@ -291,7 +291,6 @@ static int32_t gResponseTimeout = 100;
 MOZ_RUNINIT static int32_t gAppendTimeout = gResponseTimeout / 5;
 static nsImapProtocol::TCPKeepalive gTCPKeepalive;
 static bool gUseDiskCache2 = true;  // Use disk cache instead of memory cache
-MOZ_RUNINIT static nsCOMPtr<nsICacheStorage> gCache2Storage;
 
 // let delete model control expunging, i.e., don't ever expunge when the
 // user chooses the imap delete model, otherwise, expunge when over the
@@ -9228,22 +9227,20 @@ nsImapMockChannel::OnCacheEntryCheck(nsICacheEntry* entry, uint32_t* aResult) {
 
 nsresult nsImapMockChannel::OpenCacheEntry() {
   nsresult rv;
-  if (!gCache2Storage) {
-    // Only need to do this once since cache2 is used by all accounts and
-    // folders. Get the cache storage object from the imap service.
-    nsCOMPtr<nsIImapService> imapService =
-        do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsICacheStorage> cache2Storage;
 
-    // Obtain the cache storage object used by all channels in this session.
-    // This will return disk cache (default) or memory cache as determined by
-    // the boolean pref "mail.imap.use_disk_cache2"
-    rv = imapService->GetCacheStorage(getter_AddRefs(gCache2Storage));
-    NS_ENSURE_SUCCESS(rv, rv);
-    MOZ_LOG(IMAPCache, LogLevel::Debug,
-            ("%s: Obtained storage obj for |%s| cache2", __func__,
-             gUseDiskCache2 ? "disk" : "mem"));
-  }
+  nsCOMPtr<nsIImapService> imapService =
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Obtain the cache storage object used by all channels in this session.
+  // This will return disk cache (default) or memory cache as determined by
+  // the boolean pref "mail.imap.use_disk_cache2"
+  rv = imapService->GetCacheStorage(getter_AddRefs(cache2Storage));
+  NS_ENSURE_SUCCESS(rv, rv);
+  MOZ_LOG(IMAPCache, LogLevel::Debug,
+          ("%s: Obtained storage obj for |%s| cache2", __func__,
+           gUseDiskCache2 ? "disk" : "mem"));
 
   int32_t uidValidity = -1;
   uint32_t cacheAccess = nsICacheStorage::OPEN_NORMALLY;
@@ -9314,7 +9311,7 @@ nsresult nsImapMockChannel::OpenCacheEntry() {
             ("%s: Call AsyncOpenURI to read part from entire message cache",
              __func__));
   }
-  return gCache2Storage->AsyncOpenURI(newUri, extension, cacheAccess, this);
+  return cache2Storage->AsyncOpenURI(newUri, extension, cacheAccess, this);
 }
 
 // Pumps content of cache2 entry to channel listener. If a part was
