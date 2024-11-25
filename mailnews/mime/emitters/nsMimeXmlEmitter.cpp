@@ -22,12 +22,9 @@ nsMimeXmlEmitter::~nsMimeXmlEmitter(void) {}
 // anything to the stream since these may be image data
 // output streams, etc...
 nsresult nsMimeXmlEmitter::Complete() {
-  char buf[16];
-
   // Now write out the total count of attachments for this message
   UtilityWrite("<mailattachcount>");
-  sprintf(buf, "%d", mAttachCount);
-  UtilityWrite(buf);
+  UtilityWrite(nsPrintfCString("%d", mAttachCount));
   UtilityWrite("</mailattachcount>");
 
   UtilityWrite("</message>");
@@ -126,12 +123,9 @@ nsresult nsMimeXmlEmitter::StartAttachment(const nsACString& name,
                                            const char* contentType,
                                            const char* url,
                                            bool aIsExternalAttachment) {
-  char buf[128];
-
   ++mAttachCount;
 
-  sprintf(buf, "<mailattachment id=\"%d\">", mAttachCount);
-  UtilityWrite(buf);
+  UtilityWrite(nsPrintfCString("<mailattachment id=\"%d\">", mAttachCount));
 
   AddAttachmentField(HEADER_PARM_FILENAME, PromiseFlatCString(name).get());
   return NS_OK;

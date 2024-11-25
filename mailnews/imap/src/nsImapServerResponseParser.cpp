@@ -1067,13 +1067,10 @@ void nsImapServerResponseParser::msg_fetch() {
 
         if (fSizeOfMostRecentMessage == 0 && CurrentResponseUID()) {
           // on no, bogus Netscape 2.0 mail server bug
-          char uidString[100];
-          sprintf(uidString, "%ld", (long)CurrentResponseUID());
-
           if (!fZeroLengthMessageUidString.IsEmpty())
             fZeroLengthMessageUidString += ",";
 
-          fZeroLengthMessageUidString += uidString;
+          fZeroLengthMessageUidString.AppendInt(CurrentResponseUID());
         }
 
         // if this token ends in ')', then it is the last token
