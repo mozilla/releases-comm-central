@@ -4,7 +4,6 @@
 
 :host {
   color-scheme: light dark;
-  --content-background: light-dark(#ffffff, #18181b);
   --container-border: none;
   --text: light-dark(#18181b, #fafafa);
   --content-border: light-dark(#ffffff, #4f5683);
@@ -92,7 +91,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background-color: var(--content-background);
+      background-color: light-dark(#ffffff, #18181b);
       background-image: var(--illustration);
       background-size: calc(100% + 2px); /* This accounts for the border */
       background-position: bottom 0 left -1px;
@@ -118,18 +117,45 @@
     --content-border: light-dark(#1373d9, #58c9ff);
     --icon-url: url("chrome://messenger/skin/icons/sm/circle-question.svg");
     --icon-fill: light-dark(#c4ddf6, #263a47);
-    --icon-stroke: light-dark(#1373d9, #58C9ff);
+    --icon-stroke: light-dark(#1373d9, #58c9ff);
+    --content-background: linear-gradient(#f0f8ff, #f7f7f7);
 
     & .in-app-notification-content {
-      background: linear-gradient(#f0f8ff, #f7f7f7);
       padding-inline-start: 26px;
     }
 
     & .icon {
-      width: 16px;
-      height: 16px;
       inset-block-start: 8px;
       inset-inline-start: 8px;
+    }
+  }
+
+  /* Colors for the message notification type */
+  &.in-app-notification-message {
+    --title-text: light-dark(#713f12, #713f12);
+    --button-background: linear-gradient(#facc15, #eabd08);
+    --button-stroke: light-dark(#caa204, #caa204);
+    --button-background-hover: linear-gradient(#facc15, #eabd08);
+    --button-background-active: light-dark(#caa204, #caa204);
+    --button-focus-ring: light-dark(#caa204, #caa204);
+    --button-text: light-dark(#18181b, #fafafa);
+    --content-border: #caa204;
+    --container-border: #caa204;
+    --icon-url: url("chrome://messenger/skin/icons/new/compact/error-circle.svg");
+    --icon-fill: #e1b555;
+    --icon-stroke: #713f12;
+    --container-background: linear-gradient(#ffdf8d, #fac439);
+    --content-background: linear-gradient(#fefae8, #f7f7f7);
+
+    & .in-app-notification-content {
+      margin: -2px;
+      padding-inline-start: 14px;
+      margin-inline-start: 22px;
+    }
+
+    & .icon {
+      inset-block-start: 8px;
+      inset-inline-start: 3px;
     }
   }
 
@@ -144,6 +170,7 @@
     padding: 6px;
     padding-inline: 48px 36px;
     isolation: isolate;
+    background: var(--content-background);
 
     &:dir(rtl)::before {
       transform: scaleX(-1);
@@ -260,8 +287,6 @@
 .in-app-notification-instructions {
   clip: rect(1px, 1px, 1px, 1px);
   clip-path: inset(50%);
-  height: 1px;
-  width: 1px;
   margin: -1px;
   overflow: hidden;
   padding: 0;
