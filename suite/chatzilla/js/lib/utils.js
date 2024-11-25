@@ -564,44 +564,34 @@ function isinstance(inst, base)
              (inst.constructor && (inst.constructor.name == base.name))));
 }
 
-function scaleNumberBy1024(number)
+function scaleNumberBy1024(number, msg, prefix)
 {
-    var scale = 0;
-    while ((number >= 1000) && (scale < 6))
+    let scale = 0;
+    if (number > 0)
     {
-        scale++;
-        number /= 1024;
+        scale = parseInt(Math.floor(Math.log(number) / Math.log(1024)));
+        if (scale > 6)
+            scale = 6;
+        number /= Math.pow(1024, scale);
     }
 
-    return [scale, number];
+    let fix = 0;
+    if (number < 10)
+        fix = 2;
+    else if (number < 100)
+        fix = 1;
+
+    return getMsg(msg, [number.toFixed(fix), getMsg(prefix + scale)]);
 }
 
 function getSISize(size)
 {
-    var data = scaleNumberBy1024(size);
-
-    if (data[1] < 10)
-        data[1] = data[1].toFixed(2);
-    else if (data[1] < 100)
-        data[1] = data[1].toFixed(1);
-    else
-        data[1] = data[1].toFixed(0);
-
-    return getMsg(MSG_SI_SIZE, [data[1], getMsg("msg.si.size." + data[0])]);
+    return scaleNumberBy1024(size, MSG_SI_SIZE, "msg.si.size.");
 }
 
 function getSISpeed(speed)
 {
-    var data = scaleNumberBy1024(speed);
-
-    if (data[1] < 10)
-        data[1] = data[1].toFixed(2);
-    else if (data[1] < 100)
-        data[1] = data[1].toFixed(1);
-    else
-        data[1] = data[1].toFixed(0);
-
-    return getMsg(MSG_SI_SPEED, [data[1], getMsg("msg.si.speed." + data[0])]);
+    return scaleNumberBy1024(speed, MSG_SI_SPEED, "msg.si.speed.");
 }
 
 // Zero-pad Numbers (or pad with something else if you wish)
