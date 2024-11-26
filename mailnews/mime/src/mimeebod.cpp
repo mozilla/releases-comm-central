@@ -153,12 +153,13 @@ char* MimeExternalBody_make_url(const char* ct, const char* at,
 
     if (!PL_strcasecmp(at, "afs")) /* only if there is a /afs/ directory */
     {
-      nsCOMPtr<nsIFile> fs = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID);
-      bool exists = false;
-      if (fs) {
-        fs->InitWithNativePath("/afs/."_ns);
-        fs->Exists(&exists);
+      nsCOMPtr<nsIFile> file;
+      nsresult rv = NS_NewNativeLocalFile("/afs/."_ns, getter_AddRefs(file));
+      if (NS_FAILED(rv)) {
+        return 0;
       }
+      bool exists = false;
+      file->Exists(&exists);
       if (!exists) return 0;
     }
 
@@ -424,14 +425,14 @@ static bool MimeExternalBody_displayable_inline_p(MimeObjectClass* clazz,
 #ifdef XP_UNIX
   else if (!PL_strcasecmp(at, "afs")) /* only if there is a /afs/ directory */
   {
-    nsCOMPtr<nsIFile> fs = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID);
-    bool exists = false;
-    if (fs) {
-      fs->InitWithNativePath("/afs/."_ns);
-      fs->Exists(&exists);
+    nsCOMPtr<nsIFile> file;
+    nsresult rv = NS_NewNativeLocalFile("/afs/."_ns, getter_AddRefs(file));
+    if (NS_FAILED(rv)) {
+      return 0;
     }
+    bool exists = false;
+    file->Exists(&exists);
     if (!exists) return 0;
-
     inline_p = true;
   }
 #endif /* XP_UNIX */

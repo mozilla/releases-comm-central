@@ -78,6 +78,8 @@
 #include "nsIOutputStream.h"
 #include "nsIPrincipal.h"
 
+#include "nsString.h"
+
 #include "mozilla/dom/BrowserParent.h"
 
 #include "mozilla/NullPrincipal.h"
@@ -1488,8 +1490,11 @@ nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsresult status) {
       // Yes, start on the next attachment.
       uint32_t i = state->m_curIndex;
       nsString unescapedName;
-      RefPtr<nsLocalFile> localFile =
-          new nsLocalFile(nsTDependentString<PathChar>(state->m_directoryName));
+      nsCOMPtr<nsIFile> localFile;
+      rv =
+          NS_NewPathStringLocalFile(DependentPathString(state->m_directoryName),
+                                    getter_AddRefs(localFile));
+      if (NS_FAILED(rv)) goto done;
       if (localFile->NativePath().IsEmpty()) {
         rv = NS_ERROR_FAILURE;
         goto done;
