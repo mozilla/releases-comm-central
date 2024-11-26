@@ -138,6 +138,7 @@ add_task(async function testSwitchToCardsView() {
   );
   EventUtils.synthesizeKey("KEY_Escape", {});
   await hiddenPromise;
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
   Assert.equal(
     threadTree.getAttribute("rows"),

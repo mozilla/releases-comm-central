@@ -10,12 +10,6 @@
   <title>Test for the tree-view custom element</title>
   <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
   <style>
-    :root {
-      --color-gray-20: gray;
-      --selected-item-color: rebeccapurple;
-      --selected-item-text-color: white;
-    }
-
     /* We want a total visible row area of 630px. Intentionally avoid leaving
      * room for a header. */
     #testTree {
@@ -40,6 +34,11 @@
     tr[is="test-row"] td div.d1 > div.d3 {
       line-height: 1.2;
       font-size: 13px;
+    }
+
+    tr[is="test-row"].selected {
+      background-color: rebeccapurple;
+      color: white;
     }
   </style>
   <script type="module" src="tree-element-test-no-header.mjs"></script>

@@ -31,22 +31,11 @@ class ThreadRow extends TreeViewTableRow {
     );
   }
 
-  get index() {
-    return super.index;
-  }
-
-  set index(index) {
-    super.index = index;
-
-    // Check if a only a single column should be updated.
-    const columns = this.invalidateSingleColumn
-      ? window.threadPane.columns.filter(
-          column => column.id == this.invalidateSingleColumn
-        )
-      : window.threadPane.columns;
+  _fillRow() {
+    super._fillRow();
 
     const textColumns = [];
-    for (const column of columns) {
+    for (const column of window.threadPane.columns) {
       // No need to update the text of this cell if it's hidden, the selection
       // column, or a non-custom icon column that doesn't match a specific flag.
       if (column.hidden || (!column.custom && column.icon) || column.select) {
@@ -60,7 +49,7 @@ class ThreadRow extends TreeViewTableRow {
     const properties = {};
     const threadLevel = {};
     const cellTexts = this.view.cellDataForColumns(
-      index,
+      this._index,
       textColumns,
       properties,
       threadLevel
@@ -75,7 +64,7 @@ class ThreadRow extends TreeViewTableRow {
 
     this.dataset.properties = properties.value.trim();
 
-    for (const column of columns) {
+    for (const column of window.threadPane.columns) {
       // Skip this column if it's hidden.
       if (column.hidden) {
         continue;

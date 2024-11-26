@@ -142,6 +142,7 @@ add_task(async function () {
 
   emily.displayName = "I'm Emily!";
   book.modifyCard(emily);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
   row = about3Pane.threadTree.getRowAtIndex(2);
   Assert.equal(
@@ -179,6 +180,7 @@ add_task(async function () {
 
   emily.displayName = "";
   book.modifyCard(emily);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
   row = about3Pane.threadTree.getRowAtIndex(2);
   Assert.equal(
@@ -216,6 +218,7 @@ add_task(async function () {
 
   emily.displayName = "I'm Emily!";
   book.modifyCard(emily);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
   row = about3Pane.threadTree.getRowAtIndex(2);
   Assert.equal(
@@ -253,6 +256,7 @@ add_task(async function () {
 
   felix.displayName = "Felix's Flower Co.";
   book.modifyCard(felix);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
   row = about3Pane.threadTree.getRowAtIndex(2);
   Assert.equal(
@@ -275,6 +279,7 @@ add_task(async function () {
 
   felix.displayName = "";
   book.modifyCard(felix);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
   row = about3Pane.threadTree.getRowAtIndex(2);
   Assert.equal(
@@ -456,6 +461,7 @@ add_task(async function () {
   // Prefer email only. Changing the preference causes the message to reload.
   Services.prefs.setIntPref("mail.addressDisplayFormat", 1);
   await BrowserTestUtils.browserLoaded(messagePaneBrowser);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
   row = about3Pane.threadTree.getRowAtIndex(3);
   Assert.equal(
@@ -472,6 +478,7 @@ add_task(async function () {
   // Prefer name only. Changing the preference causes the message to reload.
   Services.prefs.setIntPref("mail.addressDisplayFormat", 2);
   await BrowserTestUtils.browserLoaded(messagePaneBrowser);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
   row = about3Pane.threadTree.getRowAtIndex(3);
   Assert.equal(

@@ -205,6 +205,7 @@ add_task(async function () {
   checkPersistedValue("sortDirection", "");
 
   EventUtils.synthesizeMouseAtCenter(headerButtons[1], {}, win);
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["violet", "africa", "", "", ""],
     ["yellow", "antarctica", "", "", ""],
@@ -219,6 +220,7 @@ add_task(async function () {
   checkPersistedValue("sortDirection", "ascending");
 
   EventUtils.synthesizeMouseAtCenter(headerButtons[1], {}, win);
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["orange", "south america", "", "", ""],
     ["red", "north america", "", "", ""],
@@ -233,6 +235,7 @@ add_task(async function () {
   checkPersistedValue("sortDirection", "descending");
 
   EventUtils.synthesizeMouseAtCenter(headerButtons[0], {}, win);
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["blue", "asia", "", "", ""],
     ["green", "australia", "", "", ""],
@@ -247,6 +250,7 @@ add_task(async function () {
   checkPersistedValue("sortDirection", "ascending");
 
   EventUtils.synthesizeMouseAtCenter(headerButtons[0], {}, win);
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["yellow", "antarctica", "", "", ""],
     ["violet", "africa", "", "", ""],
@@ -261,6 +265,7 @@ add_task(async function () {
   checkPersistedValue("sortDirection", "descending");
 
   EventUtils.synthesizeMouseAtCenter(headerButtons[0], {}, win);
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["blue", "asia", "", "", ""],
     ["green", "australia", "", "", ""],
@@ -312,6 +317,7 @@ add_task(async function () {
     "columns",
     "colour,continent,sin:hidden,wonder,dwarf:hidden"
   );
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["blue", "asia", "", "temple of artemis", ""],
     ["green", "australia", "", "mausoleum of halicarnassus", ""],
@@ -394,6 +400,7 @@ add_task(async function () {
 
   checkHeaderLabels(["continent", "colour", "sin", "wonder", "dwarf"]);
   checkHeaderVisibility([true, 150, false, true, false]);
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["asia", "blue", "", "temple of artemis", ""],
     ["australia", "green", "", "mausoleum of halicarnassus", ""],
@@ -424,6 +431,7 @@ add_task(async function () {
 
   checkHeaderLabels(["colour", "continent", "sin", "wonder", "dwarf"]);
   checkHeaderVisibility([150, true, false, true, false]);
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["blue", "asia", "", "temple of artemis", ""],
     ["green", "australia", "", "mausoleum of halicarnassus", ""],
@@ -442,6 +450,7 @@ add_task(async function () {
 
   checkHeaderLabels(["colour", "sin", "wonder", "continent", "dwarf"]);
   checkHeaderVisibility([150, false, true, true, false]);
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["blue", "", "temple of artemis", "asia", ""],
     ["green", "", "mausoleum of halicarnassus", "australia", ""],
@@ -463,6 +472,7 @@ add_task(async function () {
   );
   checkHeaderLabels(["colour", "sin", "wonder", "continent", "dwarf"]);
   checkHeaderVisibility([150, false, true, false, false]);
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["blue", "", "temple of artemis", "", ""],
     ["green", "", "mausoleum of halicarnassus", "", ""],
@@ -484,6 +494,7 @@ add_task(async function () {
   ); // Have the continents drifted?
   checkHeaderLabels(["colour", "sin", "wonder", "continent", "dwarf"]);
   checkHeaderVisibility([150, false, true, true, false]);
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["blue", "", "temple of artemis", "asia", ""],
     ["green", "", "mausoleum of halicarnassus", "australia", ""],
@@ -609,6 +620,7 @@ add_task(async function () {
   checkHeaderVisibility([150, true, false, false, false]);
   checkPersistedValue("sortColumn", "colour");
   checkPersistedValue("sortDirection", "ascending");
+  await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["blue", "asia", "", "", ""],
     ["green", "australia", "", "", ""],
@@ -640,6 +652,9 @@ add_task(async function () {
   Services.xulStore.setValue(url, "autoTree", "sortDirection", "descending");
   tab.browser.reload();
   await BrowserTestUtils.browserLoaded(tab.browser);
+  await new Promise(resolve =>
+    tab.browser.contentWindow.requestAnimationFrame(resolve)
+  );
 
   win = tab.browser.contentWindow;
   doc = tab.browser.contentDocument;

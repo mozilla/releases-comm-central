@@ -40,16 +40,13 @@ class TestCardRow extends customElements.get("tree-view-table-row") {
     this.d2.classList.add("d2");
   }
 
-  get index() {
-    return super.index;
-  }
+  _fillRow() {
+    super._fillRow();
 
-  set index(index) {
-    super.index = index;
-    this.id = this.view.getRowProperties(index);
+    this.id = this.view.getRowProperties(this._index);
     this.classList.remove("level0", "level1", "level2");
-    this.classList.add(`level${this.view.getLevel(index)}`);
-    this.d2.textContent = this.view.getCellText(index, "text");
+    this.classList.add(`level${this.view.getLevel(this._index)}`);
+    this.d2.textContent = this.view.getCellText(this._index, "text");
   }
 }
 customElements.define("test-row", TestCardRow, { extends: "tr" });

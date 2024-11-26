@@ -581,6 +581,7 @@ add_task(async function testThreadTreeA11yRoles() {
     () => threadTree.getRowAtIndex(0),
     "row0 should become available"
   );
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
   Assert.equal(
     threadTree.getRowAtIndex(0).getAttribute("role"),
     "row",
@@ -602,6 +603,7 @@ add_task(async function testThreadTreeA11yRoles() {
     () => threadTree.getRowAtIndex(0),
     "row0 should become available"
   );
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
   Assert.equal(
     threadTree.getRowAtIndex(0).getAttribute("role"),
     "row",
@@ -623,6 +625,7 @@ add_task(async function test_read_new_properties() {
 
   // Clicking the twisty to collapse a row should update the message display.
   goDoCommand("cmd_expandAllThreads");
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
   threadTree.selectedIndex = 5;
   await messageLoaded(10);
 

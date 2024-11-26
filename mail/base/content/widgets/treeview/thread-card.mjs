@@ -49,12 +49,8 @@ class ThreadCard extends TreeViewTableRow {
     this.sortHeaderDetails = this.querySelector(".sort-header-details");
   }
 
-  get index() {
-    return super.index;
-  }
-
-  set index(index) {
-    super.index = index;
+  _fillRow() {
+    super._fillRow();
 
     // XPCOM calls here must be keep to a minimum. Collect all of the
     // required data in one go.
@@ -62,7 +58,7 @@ class ThreadCard extends TreeViewTableRow {
     const threadLevel = {};
 
     const cellTexts = this.view.cellDataForColumns(
-      index,
+      this._index,
       window.threadPane.cardColumns,
       properties,
       threadLevel

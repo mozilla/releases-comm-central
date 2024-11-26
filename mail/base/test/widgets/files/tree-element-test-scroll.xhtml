@@ -5,12 +5,6 @@
   <title>Test for the tree-view custom element</title>
   <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
   <style>
-    :root {
-      --color-gray-20: gray;
-      --selected-item-color: rebeccapurple;
-      --selected-item-text-color: white;
-    }
-
     .tree-view-scrollable-container {
       height: 630px;
       scroll-behavior: unset;
@@ -53,6 +47,11 @@
 
     tr[is="test-row"].level2 .d2 {
       padding-inline-start: 2em;
+    }
+
+    tr[is="test-row"].selected {
+      background-color: rebeccapurple;
+      color: white;
     }
   </style>
   <script type="module" src="tree-element-test-scroll.mjs"></script>

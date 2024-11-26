@@ -4398,8 +4398,10 @@ var threadPane = {
         threadTree.invalidate();
         break;
       case "custom-column-refreshed":
-        // Invalidate only the column specified in data.
-        threadTree.invalidate(data);
+        // Invalidate the whole thing. This used to refresh just the column,
+        // but now that filling the cells happens asynchronously, that's too
+        // complicated. Kept for add-on compatibility.
+        threadTree.invalidate();
         break;
       case "custom-column-added":
         this.addCustomColumn(data);

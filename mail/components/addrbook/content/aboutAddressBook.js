@@ -1218,21 +1218,20 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.appendChild(this.cell);
     }
 
-    get index() {
-      return super.index;
-    }
-
     /**
-     * Override the row setter to generate the layout.
+     * Generate the layout for the current card.
      *
      * @note This element could be recycled, make sure you set or clear all
      * properties.
      */
-    set index(index) {
-      super.index = index;
+    _fillRow() {
+      super._fillRow();
 
-      const card = this.view.getCardFromRow(index);
-      this.name.textContent = this.view.getCellText(index, "GeneratedName");
+      const card = this.view.getCardFromRow(this._index);
+      this.name.textContent = this.view.getCellText(
+        this._index,
+        "GeneratedName"
+      );
 
       // Add the address book name for All Address Books if in the sort Context
       // Address Book is checked. This is done for the list view only.
@@ -1249,7 +1248,10 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           addressBookName.classList.add("address-book-name");
           this.firstLine.appendChild(addressBookName);
         }
-        addressBookName.textContent = this.view.getCellText(index, "addrbook");
+        addressBookName.textContent = this.view.getCellText(
+          this._index,
+          "addrbook"
+        );
       } else {
         this.querySelector(".address-book-name")?.remove();
       }
@@ -1310,26 +1312,22 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       }
     }
 
-    get index() {
-      return super.index;
-    }
-
     /**
-     * Override the row setter to generate the layout.
+     * Generate the layout for the current card.
      *
      * @note This element could be recycled, make sure you set or clear all
      * properties.
      */
-    set index(index) {
-      super.index = index;
+    _fillRow() {
+      super._fillRow();
 
-      const card = this.view.getCardFromRow(index);
+      const card = this.view.getCardFromRow(this._index);
       this.classList.toggle("MailList", card.isMailList);
 
       for (const column of cardsPane.COLUMNS) {
         const cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
         if (!column.hidden) {
-          cell.textContent = this.view.getCellText(index, column.id);
+          cell.textContent = this.view.getCellText(this._index, column.id);
           continue;
         }
 

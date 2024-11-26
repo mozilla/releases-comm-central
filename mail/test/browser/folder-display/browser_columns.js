@@ -710,25 +710,24 @@ add_task(async function test_custom_column_invalidation() {
   assert_visible_columns(INBOX_DEFAULTS);
   const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 
-  let factor = 1;
   ThreadPaneColumns.addCustomColumn("testCol1", {
     name: "Test1",
     hidden: true,
     sortCallback(header) {
-      return header.subject.length * factor;
+      return header.subject.length;
     },
     textCallback(header) {
-      return header.subject.length * factor;
+      return header.subject.length;
     },
   });
   ThreadPaneColumns.addCustomColumn("testCol2", {
     name: "Test2",
     hidden: true,
     sortCallback(header) {
-      return header.subject.length * factor;
+      return header.subject.length * 2;
     },
     textCallback(header) {
-      return header.subject.length * factor;
+      return header.subject.length * 2;
     },
   });
   await new Promise(setTimeout);
@@ -749,34 +748,10 @@ add_task(async function test_custom_column_invalidation() {
     10
   );
   Assert.greater(value1, 0, "Content of custom cell #1 should be non-zero");
-  Assert.greater(value2, 0, "Content of custom cell #2 should be non-zero");
   Assert.equal(
-    value1,
     value2,
-    "Content of both custom cells should be identical"
-  );
-
-  factor = 2;
-  ThreadPaneColumns.refreshCustomColumn("testCol1");
-  await new Promise(setTimeout);
-
-  const refreshedValue1 = parseInt(
-    row.querySelector(".testcol1-column").textContent,
-    10
-  );
-  const refreshedValue2 = parseInt(
-    row.querySelector(".testcol2-column").textContent,
-    10
-  );
-  Assert.equal(
-    refreshedValue1,
-    value1 * 2,
-    "Content of custom cell #1 should have doubled"
-  );
-  Assert.equal(
-    refreshedValue2,
-    value2,
-    "Content of custom cell #2 should have not changed"
+    2 * value1,
+    "Content of custom cell #2 should be twice cell #1"
   );
 
   ThreadPaneColumns.removeCustomColumn("testCol1");

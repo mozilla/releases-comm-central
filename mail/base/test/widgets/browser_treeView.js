@@ -816,6 +816,8 @@ async function subtestRowCountChange() {
       expectedCount * ROW_HEIGHT,
       "space for all rows is allocated"
     );
+
+    await new Promise(resolve => content.requestAnimationFrame(resolve));
   }
 
   async function removeValues(index, count, expectedRemoved) {
@@ -841,12 +843,15 @@ async function subtestRowCountChange() {
       expectedCount * ROW_HEIGHT,
       "space for all rows is allocated"
     );
+
+    await new Promise(resolve => content.requestAnimationFrame(resolve));
   }
 
   async function scrollListToPosition(topOfScroll) {
     await doListActionAndWaitForRowBuffer(() => {
       list.scrollTo(0, topOfScroll);
     });
+    await new Promise(resolve => content.requestAnimationFrame(resolve));
   }
 
   Assert.equal(
@@ -1251,6 +1256,8 @@ async function subtestExpandCollapse() {
     },
   };
 
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
+
   Assert.equal(
     list.querySelectorAll("collapsed").length,
     0,
@@ -1308,12 +1315,13 @@ async function subtestExpandCollapse() {
 
   // Click the twisties of rows without children.
 
-  function performChange(id, expectedChange, changeCallback) {
+  async function performChange(id, expectedChange, changeCallback) {
     listener.reset();
     let row = doc.getElementById(id);
     const before = row.classList.contains("collapsed");
 
     changeCallback(row);
+    await new Promise(resolve => content.requestAnimationFrame(resolve));
 
     row = doc.getElementById(id);
     if (expectedChange == "collapsed") {
@@ -1346,9 +1354,9 @@ async function subtestExpandCollapse() {
     }
   }
 
-  function clickTwisty(id, expectedChange) {
+  async function clickTwisty(id, expectedChange) {
     info(`clicking the twisty on ${id}`);
-    performChange(id, expectedChange, row =>
+    await performChange(id, expectedChange, row =>
       EventUtils.synthesizeMouseAtCenter(
         row.querySelector(".twisty"),
         {},
@@ -1357,9 +1365,9 @@ async function subtestExpandCollapse() {
     );
   }
 
-  function clickThread(id, expectedChange) {
+  async function clickThread(id, expectedChange) {
     info(`clicking the thread on ${id}`);
-    performChange(id, expectedChange, row => {
+    await performChange(id, expectedChange, row => {
       EventUtils.synthesizeMouseAtCenter(
         row.querySelector(".tree-button-thread"),
         {},
@@ -1369,7 +1377,7 @@ async function subtestExpandCollapse() {
   }
 
   for (const id of idsWithoutChildren) {
-    clickTwisty(id, null);
+    await clickTwisty(id, null);
     Assert.equal(list.querySelector(".selected").id, id);
   }
 
@@ -1403,57 +1411,57 @@ async function subtestExpandCollapse() {
 
   // Collapse row 2.
 
-  clickTwisty("row-2", "collapsed");
+  await clickTwisty("row-2", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelectedAndCurrent(5, "row-3-1-2");
 
   // Collapse row 3.
 
-  clickTwisty("row-3", "collapsed");
+  await clickTwisty("row-3", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(2, "row-3");
 
   // Expand row 2.
 
-  clickTwisty("row-2", "expanded");
+  await clickTwisty("row-2", "expanded");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
   // Expand row 3.
 
-  clickTwisty("row-3", "expanded");
+  await clickTwisty("row-3", "expanded");
   checkRowsAreHidden();
   checkSelectedAndCurrent(4, "row-3");
 
   // Collapse row 3-1.
 
-  clickTwisty("row-3-1", "collapsed");
+  await clickTwisty("row-3-1", "collapsed");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
   // Collapse row 3.
 
-  clickTwisty("row-3", "collapsed");
+  await clickTwisty("row-3", "collapsed");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
   // Expand row 3.
 
-  clickTwisty("row-3", "expanded");
+  await clickTwisty("row-3", "expanded");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
   // Expand row 3-1.
 
-  clickTwisty("row-3-1", "expanded");
+  await clickTwisty("row-3-1", "expanded");
   checkRowsAreHidden();
   checkSelectedAndCurrent(4, "row-3");
 
   // Test key presses.
 
-  function pressKey(id, key, expectedChange) {
+  async function pressKey(id, key, expectedChange) {
     info(`pressing ${key}`);
-    performChange(id, expectedChange, () => {
+    await performChange(id, expectedChange, () => {
       EventUtils.synthesizeKey(key, {}, content);
     });
   }
@@ -1461,102 +1469,102 @@ async function subtestExpandCollapse() {
   // Row 0 has no children or parent, nothing should happen.
 
   list.selectedIndex = 0;
-  pressKey("row-1", "VK_LEFT");
+  await pressKey("row-1", "VK_LEFT");
   checkSelectedAndCurrent(0, "row-1");
-  pressKey("row-1", "VK_RIGHT");
+  await pressKey("row-1", "VK_RIGHT");
   checkSelectedAndCurrent(0, "row-1");
 
   // Collapse row 2.
 
   list.selectedIndex = 1;
-  pressKey("row-2", "VK_LEFT", "collapsed");
+  await pressKey("row-2", "VK_LEFT", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelectedAndCurrent(1, "row-2");
 
-  pressKey("row-2", "VK_LEFT");
+  await pressKey("row-2", "VK_LEFT");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelectedAndCurrent(1, "row-2");
 
   // Collapse row 3.
 
   list.selectedIndex = 2;
-  pressKey("row-3", "VK_LEFT", "collapsed");
+  await pressKey("row-3", "VK_LEFT", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(2, "row-3");
 
-  pressKey("row-3", "VK_LEFT");
+  await pressKey("row-3", "VK_LEFT");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(2, "row-3");
 
   // Expand row 2.
 
   list.selectedIndex = 1;
-  pressKey("row-2", "VK_RIGHT", "expanded");
+  await pressKey("row-2", "VK_RIGHT", "expanded");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(1, "row-2");
 
   // Expand row 3.
 
   list.selectedIndex = 4;
-  pressKey("row-3", "VK_RIGHT", "expanded");
+  await pressKey("row-3", "VK_RIGHT", "expanded");
   checkRowsAreHidden();
   checkSelectedAndCurrent(4, "row-3");
 
   // Go down the tree to row 3-1-1.
 
-  pressKey("row-3", "VK_RIGHT");
+  await pressKey("row-3", "VK_RIGHT");
   checkRowsAreHidden();
   checkSelectedAndCurrent(5, "row-3-1");
 
-  pressKey("row-3", "VK_RIGHT");
+  await pressKey("row-3", "VK_RIGHT");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
-  pressKey("row-3-1-1", "VK_RIGHT");
+  await pressKey("row-3-1-1", "VK_RIGHT");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
   // Collapse row 3-1.
 
-  pressKey("row-3-1-1", "VK_LEFT");
+  await pressKey("row-3-1-1", "VK_LEFT");
   checkRowsAreHidden();
   checkSelectedAndCurrent(5, "row-3-1");
 
-  pressKey("row-3-1", "VK_LEFT", "collapsed");
+  await pressKey("row-3-1", "VK_LEFT", "collapsed");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(5, "row-3-1");
 
   // Collapse row 3.
 
-  pressKey("row-3-1", "VK_LEFT");
+  await pressKey("row-3-1", "VK_LEFT");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
-  pressKey("row-3", "VK_LEFT", "collapsed");
+  await pressKey("row-3", "VK_LEFT", "collapsed");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
   // Expand row 3.
 
-  pressKey("row-3", "VK_RIGHT", "expanded");
+  await pressKey("row-3", "VK_RIGHT", "expanded");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
-  pressKey("row-3", "VK_RIGHT");
+  await pressKey("row-3", "VK_RIGHT");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(5, "row-3-1");
 
   // Expand row 3-1.
 
-  pressKey("row-3-1", "VK_RIGHT", "expanded");
+  await pressKey("row-3-1", "VK_RIGHT", "expanded");
   checkRowsAreHidden();
   checkSelectedAndCurrent(5, "row-3-1");
 
-  pressKey("row-3-1", "VK_RIGHT");
+  await pressKey("row-3-1", "VK_RIGHT");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
-  pressKey("row-3-1-1", "VK_RIGHT");
+  await pressKey("row-3-1-1", "VK_RIGHT");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
@@ -1568,102 +1576,102 @@ async function subtestExpandCollapse() {
   // Row 0 has no children or parent, nothing should happen.
 
   list.selectedIndex = 0;
-  pressKey("row-1", "VK_RIGHT");
+  await pressKey("row-1", "VK_RIGHT");
   checkSelectedAndCurrent(0, "row-1");
-  pressKey("row-1", "VK_LEFT");
+  await pressKey("row-1", "VK_LEFT");
   checkSelectedAndCurrent(0, "row-1");
 
   // Collapse row 2.
 
   list.selectedIndex = 1;
-  pressKey("row-2", "VK_RIGHT", "collapsed");
+  await pressKey("row-2", "VK_RIGHT", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelectedAndCurrent(1, "row-2");
 
-  pressKey("row-2", "VK_RIGHT");
+  await pressKey("row-2", "VK_RIGHT");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelectedAndCurrent(1, "row-2");
 
   // Collapse row 3.
 
   list.selectedIndex = 2;
-  pressKey("row-3", "VK_RIGHT", "collapsed");
+  await pressKey("row-3", "VK_RIGHT", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(2, "row-3");
 
-  pressKey("row-3", "VK_RIGHT");
+  await pressKey("row-3", "VK_RIGHT");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(2, "row-3");
 
   // Expand row 2.
 
   list.selectedIndex = 1;
-  pressKey("row-2", "VK_LEFT", "expanded");
+  await pressKey("row-2", "VK_LEFT", "expanded");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(1, "row-2");
 
   // Expand row 3.
 
   list.selectedIndex = 4;
-  pressKey("row-3", "VK_LEFT", "expanded");
+  await pressKey("row-3", "VK_LEFT", "expanded");
   checkRowsAreHidden();
   checkSelectedAndCurrent(4, "row-3");
 
   // Go down the tree to row 3-1-1.
 
-  pressKey("row-3", "VK_LEFT");
+  await pressKey("row-3", "VK_LEFT");
   checkRowsAreHidden();
   checkSelectedAndCurrent(5, "row-3-1");
 
-  pressKey("row-3", "VK_LEFT");
+  await pressKey("row-3", "VK_LEFT");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
-  pressKey("row-3-1-1", "VK_LEFT");
+  await pressKey("row-3-1-1", "VK_LEFT");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
   // Collapse row 3-1.
 
-  pressKey("row-3-1-1", "VK_RIGHT");
+  await pressKey("row-3-1-1", "VK_RIGHT");
   checkRowsAreHidden();
   checkSelectedAndCurrent(5, "row-3-1");
 
-  pressKey("row-3-1", "VK_RIGHT", "collapsed");
+  await pressKey("row-3-1", "VK_RIGHT", "collapsed");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(5, "row-3-1");
 
   // Collapse row 3.
 
-  pressKey("row-3-1", "VK_RIGHT");
+  await pressKey("row-3-1", "VK_RIGHT");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
-  pressKey("row-3", "VK_RIGHT", "collapsed");
+  await pressKey("row-3", "VK_RIGHT", "collapsed");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
   // Expand row 3.
 
-  pressKey("row-3", "VK_LEFT", "expanded");
+  await pressKey("row-3", "VK_LEFT", "expanded");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(4, "row-3");
 
-  pressKey("row-3", "VK_LEFT");
+  await pressKey("row-3", "VK_LEFT");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelectedAndCurrent(5, "row-3-1");
 
   // Expand row 3-1.
 
-  pressKey("row-3-1", "VK_LEFT", "expanded");
+  await pressKey("row-3-1", "VK_LEFT", "expanded");
   checkRowsAreHidden();
   checkSelectedAndCurrent(5, "row-3-1");
 
-  pressKey("row-3-1", "VK_LEFT");
+  await pressKey("row-3-1", "VK_LEFT");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
-  pressKey("row-3-1-1", "VK_LEFT");
+  await pressKey("row-3-1-1", "VK_LEFT");
   checkRowsAreHidden();
   checkSelectedAndCurrent(6, "row-3-1-1");
 
@@ -1674,24 +1682,29 @@ async function subtestExpandCollapse() {
   listener.reset();
 
   list.collapseRowAtIndex(6); // No children, no effect.
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
   Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
   Assert.ok(!listener.collapsedIndex, "'collapsed' event did not fire");
 
   list.expandRowAtIndex(6); // No children, no effect.
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
   Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
   Assert.ok(!listener.expandedIndex, "'expanded' event did not fire");
 
   list.collapseRowAtIndex(1); // Item with children that aren't selected.
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
   Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
   Assert.equal(listener.collapsedIndex, 1, "row-2 fired 'collapsed' event");
   listener.reset();
 
   list.expandRowAtIndex(1); // Item with children that aren't selected.
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
   Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
   Assert.equal(listener.expandedIndex, 1, "row-2 fired 'expanded' event");
   listener.reset();
 
   list.collapseRowAtIndex(5); // Item with children that are selected.
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
   Assert.ok(selectHandler.seenEvent, "'select' event fired");
   Assert.equal(
     selectHandler.selectedAtEvent,
@@ -1705,6 +1718,7 @@ async function subtestExpandCollapse() {
   listener.reset();
 
   list.expandRowAtIndex(5); // Selected item with children.
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
   Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
   Assert.equal(listener.expandedIndex, 5, "row-3-1 fired 'expanded' event");
   checkRowsAreHidden();
@@ -1715,6 +1729,7 @@ async function subtestExpandCollapse() {
   selectHandler.reset();
 
   list.collapseRowAtIndex(4); // Item with grandchildren that are selected.
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
   Assert.ok(selectHandler.seenEvent, "'select' event fired");
   Assert.equal(
     selectHandler.selectedAtEvent,
@@ -1728,6 +1743,7 @@ async function subtestExpandCollapse() {
   listener.reset();
 
   list.expandRowAtIndex(4); // Selected item with grandchildren.
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
   Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
   Assert.equal(listener.expandedIndex, 4, "row-3 fired 'expanded' event");
   checkRowsAreHidden();
@@ -1736,7 +1752,7 @@ async function subtestExpandCollapse() {
 
   // Click thread for already expanded thread. Should select all in thread.
   selectHandler.reset();
-  clickThread("row-3"); // Item with grandchildren.
+  await clickThread("row-3"); // Item with grandchildren.
   Assert.ok(selectHandler.seenEvent, "'select' event fired");
   Assert.equal(
     selectHandler.selectedAtEvent,
@@ -1750,9 +1766,10 @@ async function subtestExpandCollapse() {
   // Click thread for collapsed thread. Should expand the thread and select all
   // children.
   list.collapseRowAtIndex(1); // Item with children that aren't selected.
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
   Assert.equal(listener.collapsedIndex, 1, "row-2 fired 'collapsed' event");
   checkRowsAreHidden("row-2-1", "row-2-2");
-  clickThread("row-2", "expanded");
+  await clickThread("row-2", "expanded");
   Assert.equal(listener.expandedIndex, 1, "row-2 fired 'expanded' event");
   checkMultiSelect("row-2", "row-2-1", "row-2-2");
   checkCurrent(1);
@@ -1768,7 +1785,7 @@ async function subtestExpandCollapse() {
   EventUtils.synthesizeKey("VK_DOWN", { shiftKey: true }, content);
   checkMultiSelect("row-2", "row-2-1", "row-2-2");
   checkCurrent(3);
-  clickTwisty("row-2", "collapsed");
+  await clickTwisty("row-2", "collapsed");
   checkSelectedAndCurrent(1, "row-2");
 
   list.removeEventListener("collapsed", listener);
@@ -1822,12 +1839,14 @@ async function subtestScrollWhenExpandCollapse() {
 
   // Click the twisties of rows without children.
 
-  function performChange(id, expectedChange, changeCallback) {
+  async function performChange(id, expectedChange, changeCallback) {
     listener.reset();
+    await new Promise(resolve => content.requestAnimationFrame(resolve));
     let row = doc.getElementById(id);
     const before = row.classList.contains("collapsed");
 
     changeCallback(row);
+    await new Promise(resolve => content.requestAnimationFrame(resolve));
 
     row = doc.getElementById(id);
     if (expectedChange == "collapsed") {
@@ -1860,9 +1879,9 @@ async function subtestScrollWhenExpandCollapse() {
     }
   }
 
-  function clickTwisty(id, expectedChange) {
+  async function clickTwisty(id, expectedChange) {
     info(`clicking the twisty on ${id}`);
-    performChange(id, expectedChange, row =>
+    await performChange(id, expectedChange, row =>
       EventUtils.synthesizeMouseAtCenter(
         row.querySelector(".twisty"),
         {},
@@ -1873,9 +1892,9 @@ async function subtestScrollWhenExpandCollapse() {
 
   // Test key presses.
 
-  function pressKey(id, key, expectedChange) {
+  async function pressKey(id, key, expectedChange) {
     info(`pressing ${key}`);
-    performChange(id, expectedChange, () => {
+    await performChange(id, expectedChange, () => {
       EventUtils.synthesizeKey(key, {}, content);
     });
   }
@@ -1917,19 +1936,19 @@ async function subtestScrollWhenExpandCollapse() {
   list.selectedIndex = 0;
   await new Promise(resolve => content.requestAnimationFrame(resolve));
 
-  clickTwisty("row-3", "expanded");
+  await clickTwisty("row-3", "expanded");
   await checkFirstVisibleRow(0);
 
-  clickTwisty("row-3", "collapsed");
+  await clickTwisty("row-3", "collapsed");
   await checkFirstVisibleRow(0);
 
   list.selectedIndex = 2;
   await new Promise(resolve => content.requestAnimationFrame(resolve));
 
-  pressKey("row-3", "VK_RIGHT", "expanded");
+  await pressKey("row-3", "VK_RIGHT", "expanded");
   await checkFirstVisibleRow(0);
 
-  pressKey("row-3", "VK_LEFT", "collapsed");
+  await pressKey("row-3", "VK_LEFT", "collapsed");
   await checkFirstVisibleRow(0);
 
   // Expanding/collapsing row with many children not all fitting the screen
@@ -1938,32 +1957,32 @@ async function subtestScrollWhenExpandCollapse() {
   list.selectedIndex = 0;
   await new Promise(resolve => content.requestAnimationFrame(resolve));
 
-  clickTwisty("row-4", "expanded");
+  await clickTwisty("row-4", "expanded");
   await checkFirstVisibleRow(3);
 
-  clickTwisty("row-4", "collapsed");
+  await clickTwisty("row-4", "collapsed");
   await checkVisibleRow(3);
 
   list.selectedIndex = 3;
   await new Promise(resolve => content.requestAnimationFrame(resolve));
 
-  pressKey("row-4", "VK_RIGHT", "expanded");
+  await pressKey("row-4", "VK_RIGHT", "expanded");
   await checkFirstVisibleRow(3);
 
-  pressKey("row-4", "VK_LEFT", "collapsed");
+  await pressKey("row-4", "VK_LEFT", "collapsed");
   await checkVisibleRow(3);
 
   // Expanding a row near the bottom with few children should scroll just the
   // last child into view.
 
-  pressKey("row-4", "VK_RIGHT", "expanded");
+  await pressKey("row-4", "VK_RIGHT", "expanded");
   list.selectedIndex = 38;
   await new Promise(resolve => content.requestAnimationFrame(resolve));
 
-  clickTwisty("row-9", "expanded");
+  await clickTwisty("row-9", "expanded");
   await checkLastVisibleRow(43);
 
-  clickTwisty("row-9", "collapsed");
+  await clickTwisty("row-9", "collapsed");
   await checkVisibleRow(38);
 
   list.selectedIndex = 0;
@@ -1971,10 +1990,10 @@ async function subtestScrollWhenExpandCollapse() {
   list.selectedIndex = 38;
   await new Promise(resolve => content.requestAnimationFrame(resolve));
 
-  pressKey("row-9", "VK_RIGHT", "expanded");
+  await pressKey("row-9", "VK_RIGHT", "expanded");
   checkLastVisibleRow(43);
 
-  pressKey("row-9", "VK_LEFT", "collapsed");
+  await pressKey("row-9", "VK_LEFT", "collapsed");
   checkVisibleRow(38);
 
   list.removeEventListener("collapsed", listener);

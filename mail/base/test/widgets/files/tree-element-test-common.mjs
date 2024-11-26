@@ -28,15 +28,12 @@ class TestCardRow extends customElements.get("tree-view-table-row") {
     this.d3.classList.add("d3");
   }
 
-  get index() {
-    return super.index;
-  }
+  _fillRow() {
+    super._fillRow();
 
-  set index(index) {
-    super.index = index;
-    this.d2.textContent = this.view.getCellText(index, "GeneratedName");
-    this.d3.textContent = this.view.getCellText(index, "PrimaryEmail");
-    this.dataset.value = this.view.values[index];
+    this.d2.textContent = this.view.getCellText(this._index, "GeneratedName");
+    this.d3.textContent = this.view.getCellText(this._index, "PrimaryEmail");
+    this.dataset.value = this.view.values[this._index];
   }
 }
 customElements.define("test-row", TestCardRow, { extends: "tr" });
@@ -54,13 +51,10 @@ class AlternativeCardRow extends customElements.get("tree-view-table-row") {
     this.cell = this.appendChild(document.createElement("td"));
   }
 
-  get index() {
-    return super.index;
-  }
+  _fillRow() {
+    super._fillRow();
 
-  set index(index) {
-    super.index = index;
-    this.cell.textContent = this.view.getCellText(index, "GeneratedName");
+    this.cell.textContent = this.view.getCellText(this._index, "GeneratedName");
   }
 }
 customElements.define("alternative-row", AlternativeCardRow, {

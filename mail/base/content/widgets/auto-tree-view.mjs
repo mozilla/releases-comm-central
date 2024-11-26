@@ -417,14 +417,10 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
     }
   }
 
-  get index() {
-    return super.index;
-  }
+  _fillRow() {
+    super._fillRow();
 
-  set index(index) {
-    super.index = index;
-
-    this.dataset.properties = this.view.getRowProperties(index);
+    this.dataset.properties = this.view.getRowProperties(this._index);
 
     for (const column of this.list.table.columns) {
       const cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
@@ -433,7 +429,7 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
         continue;
       }
 
-      const text = this.view.getCellText(index, column.id);
+      const text = this.view.getCellText(this._index, column.id);
       cell.textContent = text;
       if (column.l10n.cell) {
         document.l10n.setAttributes(cell, column.l10n.cell, { title: text });

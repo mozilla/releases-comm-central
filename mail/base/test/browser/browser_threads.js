@@ -300,6 +300,7 @@ add_task(async function testIconsUnThreaded() {
   );
 
   goDoCommand("cmd_sort", { target: { value: "unthreaded" } });
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
   // Switched to unthreaded and test again.
   threadTree.selectedIndex = 0;
@@ -349,7 +350,7 @@ async function checkContextMenu(index, expectedStates, itemToActivate) {
     contextMenu.hidePopup();
   }
   await BrowserTestUtils.waitForPopupEvent(contextMenu, "hidden");
-  await new Promise(resolve => window.requestAnimationFrame(resolve));
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 }
 
 async function checkMessageMenu(expectedStates) {

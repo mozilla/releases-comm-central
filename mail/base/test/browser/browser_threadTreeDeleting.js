@@ -384,6 +384,7 @@ async function subtest() {
     () => threadTree.table.body.rows.length == 15,
     "waiting for all of the table rows"
   );
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
   const dbView = about3Pane.gDBView;
   const subjects = [];
@@ -489,6 +490,7 @@ async function _doDelete(callback, index, expectedLoad) {
   }
 
   threadTree.removeEventListener("select", onSelect);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 }
 
 async function doDeleteCommand(expectedLoad) {

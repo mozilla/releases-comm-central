@@ -70,8 +70,9 @@ add_task(async function test_dummy_row_in_table_view() {
     () => threadTree.getAttribute("rows") == "thread-row",
     "The tree view switched to a table layout"
   );
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
-  Assert.deepEqual(
+  Assert.equal(
     threadTree.getRowAtIndex(0).querySelector(".subject-line span").textContent,
     `Older (${folderAMessages.length}/${folderAMessages.length})`,
     "The subject text with the unread and total counter should match"
@@ -84,6 +85,7 @@ add_task(async function test_dummy_row_in_table_view() {
   // from this loop.
   for (let i = 1; i < folderAMessages.length; i++) {
     folderAMessages[i].markRead(true);
+    await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
     Assert.equal(
       threadTree.getRowAtIndex(0).querySelector(".subject-line span")
         .textContent,
@@ -92,6 +94,7 @@ add_task(async function test_dummy_row_in_table_view() {
   }
 
   folderAMessages[0].markRead(true);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
   Assert.equal(
     threadTree.getRowAtIndex(0).querySelector(".subject-line span").textContent,
     `Older (${folderAMessages.length})`

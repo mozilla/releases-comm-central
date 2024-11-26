@@ -35,7 +35,7 @@ add_setup(async function () {
     messagePaneVisible: false,
     folderURI: testFolder.URI,
   });
-  await new Promise(resolve => requestAnimationFrame(resolve));
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
@@ -132,7 +132,10 @@ add_task(async function testColumnHeaderClick() {
   const targetMessage = messagesByDate[49];
   info(`selecting message "${targetMessage.subject}"`);
   threadTree.scrollToIndex(49, true);
-  await new Promise(resolve => requestAnimationFrame(resolve));
+  // Wait once for the scroll...
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+  // ... and once for the row to be filled.
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
   threadTree.selectedIndex = 49;
   verifySelection([49], [targetMessage.subject]);
 
@@ -174,7 +177,10 @@ add_task(async function testColumnHeaderClick() {
     `selecting messages "${targetMessages.map(m => m.subject).join('", "')}"`
   );
   threadTree.scrollToIndex(83, true);
-  await new Promise(resolve => requestAnimationFrame(resolve));
+  // Wait once for the scroll...
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+  // ... and once for the rows to be filled.
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
   threadTree.selectedIndices = [80, 81, 83];
   verifySelection(
     [80, 81, 83],

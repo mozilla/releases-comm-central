@@ -675,6 +675,7 @@ add_task(async function testMultipleMessages() {
     !threadTree.getRowAtIndex(threadTree.currentIndex),
     "Current row is scrolled out of view"
   );
+  await new Promise(resolve => window.requestAnimationFrame(resolve));
 
   EventUtils.synthesizeMouseAtCenter(
     threadTree,
