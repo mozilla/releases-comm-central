@@ -186,8 +186,15 @@ add_task(async function test_account_sizes() {
 add_task(async function test_account_preferences() {
   Services.fog.testResetFOG();
   MailTelemetryForTests.reportAccountPreferences();
+  const accountPreferences = Glean.mail.accountPreferences.testGetValue();
+  Assert.equal(
+    accountPreferences.length,
+    2,
+    "The number of accounts should match."
+  );
 
-  Assert.deepEqual(Glean.mail.accountPreferences.testGetValue(), [
+  Assert.deepEqual(
+    accountPreferences.find(account => account.protocol === "pop3"),
     {
       protocol: "pop3",
       socket_type: Ci.nsMsgSocketType.plain,
@@ -200,6 +207,10 @@ add_task(async function test_account_preferences() {
       headers_only: false,
       leave_on_server: false,
     },
+    "The pop3 account should match."
+  );
+  Assert.deepEqual(
+    accountPreferences.find(account => account.protocol === "imap"),
     {
       protocol: "imap",
       socket_type: Ci.nsMsgSocketType.plain,
@@ -212,7 +223,8 @@ add_task(async function test_account_preferences() {
       cleanup_inbox_on_exit: false,
       empty_trash_on_exit: false,
     },
-  ]);
+    "The IMAP account should match."
+  );
 });
 
 /**
