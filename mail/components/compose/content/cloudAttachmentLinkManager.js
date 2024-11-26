@@ -336,14 +336,16 @@ var gCloudAttachmentLinkManager = {
     const footer = editor.createElementWithDefaults("div");
 
     if (gMsgCompose.composeHTML) {
-      root.style.padding = "15px";
-      root.style.backgroundColor = "#D9EDFF";
+      root.style.fontFamily = "Calibri, sans-serif";
+      root.style.color = "#18181b";
+      root.style.padding = "9px";
+      root.style.backgroundColor = "#ddeefe";
 
-      header.style.marginBottom = "15px";
+      header.style.marginBottom = "9px";
 
       list = editor.createElementWithDefaults("ul");
-      list.style.backgroundColor = "#FFFFFF";
-      list.style.padding = "15px";
+      list.style.backgroundColor = "#ffffff";
+      list.style.padding = "9px";
       list.style.listStyleType = "none";
       list.display = "inline-block";
     }
@@ -545,9 +547,9 @@ var gCloudAttachmentLinkManager = {
     let node = aDocument.createElement("li");
     node.style.border = "1px solid #CDCDCD";
     node.style.borderRadius = "5px";
-    node.style.marginTop = "10px";
-    node.style.marginBottom = "10px";
-    node.style.padding = "15px";
+    node.style.marginTop = "6px";
+    node.style.marginBottom = "6px";
+    node.style.padding = "9px";
     node.style.display = "grid";
     node.style.gridTemplateColumns = "0fr 1fr 0fr 0fr";
     node.style.alignItems = "center";
@@ -577,6 +579,79 @@ var gCloudAttachmentLinkManager = {
       return entry;
     };
 
+    const paperclip = aDocument.createElement("div");
+    paperclip.classList.add("paperClipIcon");
+    paperclip.style.gridArea = "1 / 1";
+    paperclip.style.display = "inline-block";
+    paperclip.style.marginRight = "5px";
+    paperclip.style.width = `${iconSize}px`;
+    paperclip.style.height = `${iconSize}px`;
+    paperclip.style.backgroundSize = `${iconSize}px`;
+    if (aCloudFileUpload.downloadPasswordProtected) {
+      paperclip.title = l10n_values[locales["tooltip-password-protected-link"]];
+      paperclip.style.backgroundImage =
+        "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIfSURBVFhH7ZfLK0RRHMfvNd6PMV4Lj5UkO5bslJIdf4ClRw2TlY2yt2EhsZO9DYoFoiSvJBZkI6SsNMyIiLnH93vmXDF5HNe9pHzqM797fufMPb+Zc4Z7jC+QBnvgJryD93AddkH2eUop3IPiHXdgCfSEdLgLOdE+bIFFSl4zZxeRAl2HXzsn2IIZTCTAHPs4hsvhOlxz3rxRtt6GfRyzJlsucw1582zZehv2cUxEtlyGN6afkThuFa7EL7+H0wK03pek4q/xJwtYVv4YumurO+4V/3vgvwAvC5iHTfHL9zFV/Ah7J9tjE9s2r/K3YwWlD8IaREP+ExPCWBDJVl+gM3LEto0nBURHCiuNpBiflvLjqWcufDFfdVbo4ly1PVoC0xrAaz4qnLdiVjk1hVhArvDRFxuSYxQeFSAaGHzCbAuEIsf0URjtsithX3i1Cf18yewKn8kWyOu+OlWXuSpKnBRwpWKxioTXi7BCtr6Ak004BZvhJAwyAUZhb3Q0bwKxXmY+xVzyB8MNOgXwE/NrC0A+clXBDZV7iYkC7GK18AcvTZ0lOFGRE5NDWAtn4A28hdPQEToFcG1Jq4qERXAZ+DCaBXk+cIROAePQgh2whgk30SngAA7CVDgLq6Fr6P4M++Ec5PmPp6BhWAdzIA+m3BOO0C2AJ2GuMyfme0KQp6Ao5EmZf/fLDGFuI2oi+EEcUQm5JDywhpWc2MFGNIwn/WmcKhqF50UAAAAASUVORK5CYII=)";
+    } else {
+      paperclip.style.backgroundImage =
+        "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAVFJREFUWIXtl8FKw0AQhj8EbQ/p0Ut8AVEPgYLUB+i5L6J9E0Wtr1HPgl48WU8K1Tfw4LktxUAhHvZfiMXUbdhVhB0Yms78M/NldwkJuFsD6AMjYCYfASfKBbUd4BkoKvxJmiDWKA1/AXrAtrynmIUIshJ9DXgEmt/km8oVwHEIANu8u0LTleYhBMBUzZMVmkSaSQgAe9DW1d3L/wzAqW6jJpQ3+5cA3vbW1Vz3Np6BCBABIkAE+DWAmX7TUixdynm15Wf6jf5fa3Cq60K5qrraNuHrK1kbmJcGWJ8rB9DC4yvaq5odlmK7wBB4lw8Vs9ZRzdgHwLmaXa5RM1DNmQ+AA2ABfACZgz4DctXs+QAAuMLc0dsPEJk0BXDhazjAFnCnxjlmiTuYg5kAR4rl0twCmz4BLMQAs7RVH6kLzJ17H162fczhGmO+mqa6PqXGnn8CxMN0PcC9DrQAAAAASUVORK5CYII=)";
+    }
+    if (composeHTML) {
+      node.appendChild(paperclip);
+    }
+
+    // If this message is send in plain text only, do not add a link to the file
+    // name.
+    let name = aDocument.createElement("span");
+    name.textContent = aCloudFileUpload.name;
+    if (composeHTML) {
+      name = this._generateLink(
+        aDocument,
+        aCloudFileUpload.name,
+        aCloudFileUpload.url,
+        "#105bbc"
+      );
+      name.setAttribute("moz-do-not-send", "true");
+      name.style.gridArea = "1 / 2";
+    }
+    name.classList.add("cloudfile-name");
+    node.appendChild(name);
+    node.appendChild(aDocument.createElement("br"));
+
+    node.appendChild(
+      statsRow("size", gMessenger.formatFileSize(aCloudFileUpload.size))
+    );
+    node.appendChild(aDocument.createElement("br"));
+
+    const serviceIcon = aDocument.createElement("div");
+    serviceIcon.classList.add("cloudfile-service-icon");
+    serviceIcon.style.gridArea = "1 / 3";
+    serviceIcon.style.display = "inline-block";
+    serviceIcon.style.margin = "0 5px";
+    serviceIcon.style.width = `${iconSize}px`;
+    serviceIcon.style.height = `${iconSize}px`;
+    serviceIcon.style.backgroundSize = `${iconSize}px`;
+
+    if (aCloudFileUpload.serviceIcon) {
+      if (!/^(chrome|moz-extension):\/\//i.test(aCloudFileUpload.serviceIcon)) {
+        serviceIcon.style.backgroundImage =
+          "url(" + aCloudFileUpload.serviceIcon + ")";
+      } else {
+        try {
+          // Let's use the goodness from MsgComposeCommands.js since we're
+          // sitting right in a compose window.
+          serviceIcon.style.backgroundImage =
+            "url(" +
+            window.loadBlockedImage(aCloudFileUpload.serviceIcon, true) +
+            ")";
+        } catch (e) {
+          // Couldn't load the referenced image.
+          console.error(e);
+        }
+      }
+    }
+
+    node.appendChild(serviceIcon);
+
     const serviceRow = () => {
       const service = aDocument.createDocumentFragment();
 
@@ -596,72 +671,6 @@ var gCloudAttachmentLinkManager = {
       service.appendChild(aDocument.createElement("br"));
       return service;
     };
-
-    // If this message is send in plain text only, do not add a link to the file
-    // name.
-    let name = aDocument.createElement("span");
-    name.textContent = aCloudFileUpload.name;
-    if (composeHTML) {
-      name = this._generateLink(
-        aDocument,
-        aCloudFileUpload.name,
-        aCloudFileUpload.url,
-        "#0F7EDB"
-      );
-      name.setAttribute("moz-do-not-send", "true");
-      name.style.gridArea = "1 / 2";
-    }
-    name.classList.add("cloudfile-name");
-    node.appendChild(name);
-
-    const paperclip = aDocument.createElement("img");
-    paperclip.classList.add("paperClipIcon");
-    paperclip.style.gridArea = "1 / 1";
-    paperclip.alt = "";
-    paperclip.style.marginRight = "5px";
-    paperclip.width = `${iconSize}`;
-    paperclip.height = `${iconSize}`;
-    if (aCloudFileUpload.downloadPasswordProtected) {
-      paperclip.title = l10n_values[locales["tooltip-password-protected-link"]];
-      paperclip.src =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIfSURBVFhH7ZfLK0RRHMfvNd6PMV4Lj5UkO5bslJIdf4ClRw2TlY2yt2EhsZO9DYoFoiSvJBZkI6SsNMyIiLnH93vmXDF5HNe9pHzqM797fufMPb+Zc4Z7jC+QBnvgJryD93AddkH2eUop3IPiHXdgCfSEdLgLOdE+bIFFSl4zZxeRAl2HXzsn2IIZTCTAHPs4hsvhOlxz3rxRtt6GfRyzJlsucw1582zZehv2cUxEtlyGN6afkThuFa7EL7+H0wK03pek4q/xJwtYVv4YumurO+4V/3vgvwAvC5iHTfHL9zFV/Ah7J9tjE9s2r/K3YwWlD8IaREP+ExPCWBDJVl+gM3LEto0nBURHCiuNpBiflvLjqWcufDFfdVbo4ly1PVoC0xrAaz4qnLdiVjk1hVhArvDRFxuSYxQeFSAaGHzCbAuEIsf0URjtsithX3i1Cf18yewKn8kWyOu+OlWXuSpKnBRwpWKxioTXi7BCtr6Ak004BZvhJAwyAUZhb3Q0bwKxXmY+xVzyB8MNOgXwE/NrC0A+clXBDZV7iYkC7GK18AcvTZ0lOFGRE5NDWAtn4A28hdPQEToFcG1Jq4qERXAZ+DCaBXk+cIROAePQgh2whgk30SngAA7CVDgLq6Fr6P4M++Ec5PmPp6BhWAdzIA+m3BOO0C2AJ2GuMyfme0KQp6Ao5EmZf/fLDGFuI2oi+EEcUQm5JDywhpWc2MFGNIwn/WmcKhqF50UAAAAASUVORK5CYII=";
-    } else {
-      paperclip.src =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAVFJREFUWIXtl8FKw0AQhj8EbQ/p0Ut8AVEPgYLUB+i5L6J9E0Wtr1HPgl48WU8K1Tfw4LktxUAhHvZfiMXUbdhVhB0Yms78M/NldwkJuFsD6AMjYCYfASfKBbUd4BkoKvxJmiDWKA1/AXrAtrynmIUIshJ9DXgEmt/km8oVwHEIANu8u0LTleYhBMBUzZMVmkSaSQgAe9DW1d3L/wzAqW6jJpQ3+5cA3vbW1Vz3Np6BCBABIkAE+DWAmX7TUixdynm15Wf6jf5fa3Cq60K5qrraNuHrK1kbmJcGWJ8rB9DC4yvaq5odlmK7wBB4lw8Vs9ZRzdgHwLmaXa5RM1DNmQ+AA2ABfACZgz4DctXs+QAAuMLc0dsPEJk0BXDhazjAFnCnxjlmiTuYg5kAR4rl0twCmz4BLMQAs7RVH6kLzJ17H162fczhGmO+mqa6PqXGnn8CxMN0PcC9DrQAAAAASUVORK5CYII=";
-    }
-    node.appendChild(paperclip);
-
-    const serviceIcon = aDocument.createElement("img");
-    serviceIcon.classList.add("cloudfile-service-icon");
-    serviceIcon.style.gridArea = "1 / 3";
-    serviceIcon.alt = "";
-    serviceIcon.style.margin = "0 5px";
-    serviceIcon.width = `${iconSize}`;
-    serviceIcon.height = `${iconSize}`;
-    node.appendChild(serviceIcon);
-
-    if (aCloudFileUpload.serviceIcon) {
-      if (!/^(chrome|moz-extension):\/\//i.test(aCloudFileUpload.serviceIcon)) {
-        serviceIcon.src = aCloudFileUpload.serviceIcon;
-      } else {
-        try {
-          // Let's use the goodness from MsgComposeCommands.js since we're
-          // sitting right in a compose window.
-          serviceIcon.src = window.loadBlockedImage(
-            aCloudFileUpload.serviceIcon,
-            true
-          );
-        } catch (e) {
-          // Couldn't load the referenced image.
-          console.error(e);
-        }
-      }
-    }
-    node.appendChild(aDocument.createElement("br"));
-
-    node.appendChild(
-      statsRow("size", gMessenger.formatFileSize(aCloudFileUpload.size))
-    );
 
     if (aCloudFileUpload.downloadExpiryDate) {
       node.appendChild(

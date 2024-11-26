@@ -2337,8 +2337,8 @@ async function updateAttachmentItemProperties(attachmentItem) {
   <meta charset="utf-8" />
  </head>
  <body>
-  <div style="padding: 15px; font-family: Calibri, sans-serif;">
-   <div style="margin-bottom: 15px;" id="cloudAttachmentListHeader">${introText}</div>
+  <div id="cloudAttachmentListRoot">
+   <div id="cloudAttachmentListHeader">${introText}</div>
    <ul>${
      (
        await gCloudAttachmentLinkManager._createNode(
