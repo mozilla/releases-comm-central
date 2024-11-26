@@ -3901,27 +3901,38 @@ NS_IMETHODIMP nsMsgDBFolder::SetFlag(uint32_t flag) {
   bool flagSet;
   nsresult rv;
 
-  if (NS_FAILED(rv = GetFlag(flag, &flagSet))) return rv;
-
+  if (NS_FAILED(rv = GetFlag(flag, &flagSet))) {
+    return rv;
+  }
   if (!flagSet) {
     mFlags |= flag;
     OnFlagChange(flag);
   }
-  if (!dbWasOpen && mDatabase) SetMsgDatabase(nullptr);
+  if (!dbWasOpen && mDatabase) {
+    SetMsgDatabase(nullptr);
+  }
 
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::ClearFlag(uint32_t flag) {
+  // If calling this function causes us to open the db (i.e., it was not
+  // open before), we're going to close the db before returning.
+  bool dbWasOpen = mDatabase != nullptr;
+
   // OnFlagChange can be expensive, so don't call it if we don't need to
   bool flagSet;
   nsresult rv;
 
-  if (NS_FAILED(rv = GetFlag(flag, &flagSet))) return rv;
-
+  if (NS_FAILED(rv = GetFlag(flag, &flagSet))) {
+    return rv;
+  }
   if (flagSet) {
     mFlags &= ~flag;
     OnFlagChange(flag);
+  }
+  if (!dbWasOpen && mDatabase) {
+    SetMsgDatabase(nullptr);
   }
 
   return NS_OK;
