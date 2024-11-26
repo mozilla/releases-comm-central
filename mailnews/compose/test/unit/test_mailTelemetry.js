@@ -15,8 +15,8 @@ const NUM_MAILS = 3;
 
 const deliveryListener = {
   count: 0,
-  onStartRequest() {},
-  onStopRequest() {
+  onSendStart() {},
+  onSendStop() {
     if (++this.count == NUM_MAILS) {
       Assert.equal(
         Glean.compose.mailsSent.testGetValue(),

@@ -73,7 +73,7 @@ using namespace mozilla::mailnews;
 char DispositionTypes[7][16] = {
     "displayed", "dispatched", "processed", "deleted", "denied", "failed", ""};
 
-NS_IMPL_ISUPPORTS(nsMsgMdnGenerator, nsIMsgMdnGenerator, nsIRequestObserver)
+NS_IMPL_ISUPPORTS(nsMsgMdnGenerator, nsIMsgMdnGenerator, nsIMsgOutgoingListener)
 
 nsMsgMdnGenerator::nsMsgMdnGenerator()
     : m_disposeType(eDisplayed),
@@ -946,12 +946,12 @@ nsresult nsMsgMdnGenerator::NoteMDNRequestHandled() {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgMdnGenerator::OnStartRequest(nsIRequest* req) {
-  return NS_OK;
-}
+NS_IMETHODIMP nsMsgMdnGenerator::OnSendStart(nsIRequest* req) { return NS_OK; }
 
-NS_IMETHODIMP nsMsgMdnGenerator::OnStopRequest(nsIRequest* req,
-                                               nsresult aExitCode) {
+NS_IMETHODIMP nsMsgMdnGenerator::OnSendStop(nsIURI* aServerURI,
+                                            nsresult aExitCode,
+                                            nsITransportSecurityInfo* aSecInfo,
+                                            const nsACString& aErrMsg) {
   nsresult rv;
 
   if (m_file) m_file->Remove(false);

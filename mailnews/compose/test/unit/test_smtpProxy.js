@@ -30,7 +30,7 @@ add_task(async function sendMessage() {
     .createInstance(Ci.nsIMsgCompUtils)
     .msgGenerateMessageId(identity, null);
 
-  const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+  const listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
   const smtpServer = MailServices.outgoingServer.getServerByIdentity(identity);
   smtpServer.sendMailMessage(
     testFile,
@@ -42,9 +42,9 @@ add_task(async function sendMessage() {
     null,
     false,
     messageId,
-    requestObserver
+    listener
   );
-  await requestObserver.promise;
+  await listener.promise;
 
   notEqual(daemon.post, "");
 });

@@ -113,17 +113,17 @@ add_task(async function () {
     null,
     false,
     messageId,
-    RequestObserver
+    Listener
   );
 
   server.performTest();
 });
 
-var RequestObserver = {
-  onStartRequest() {},
-  onStopRequest(request, rc) {
+var Listener = {
+  onSendStart() {},
+  onSendStop(serverUri, status) {
     // Check for ok status.
-    Assert.equal(rc, 0);
+    Assert.equal(status, 0);
     // Now check the new password has been saved.
     const logins = Services.logins.findLogins(
       "smtp://localhost",

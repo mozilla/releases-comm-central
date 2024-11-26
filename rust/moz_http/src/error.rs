@@ -2,13 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::num::TryFromIntError;
+use std::{fmt::Debug, num::TryFromIntError};
 
 use thiserror::Error;
 
 use nserror::nsresult;
+use xpcom::interfaces::nsITransportSecurityInfo;
+use xpcom::RefPtr;
 
 use crate::{Response, StatusCode};
+
+/// Information describing the transport security information (i.e. parameters and
+/// status) of an HTTP request.
+pub struct TransportSecurityInfo(pub RefPtr<nsITransportSecurityInfo>);
+
+impl std::fmt::Debug for TransportSecurityInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // The underlying type does not implement the `Debug` trait, but we need
+        // it to be supported so we can include transport security information
+        // in an `Error`.
+        f.debug_tuple("Opaque TransportSecurityInfo").finish()
+    }
+}
 
 /// An error that happened either when building a request, sending it, or
 /// reading its response.
@@ -57,6 +72,14 @@ pub enum Error {
         response: Response,
     },
 
+    /// An error that came up while negotiating transport security, such as an
+    /// unsupported TLS/SSL version, or a bad certificate.
+    #[error("an error occurred negotiating transport security: {{status}}")]
+    TransportSecurityFailure {
+        status: nsresult,
+        transport_security_info: TransportSecurityInfo,
+    },
+
     /// An unexpected XPCOM error which does not fit within any other category.
     #[error("unexpected error: {0}")]
     Unknown(#[source] nsresult),
@@ -91,6 +114,7 @@ impl From<Error> for nsresult {
             Error::UnknownHost => nserror::NS_ERROR_UNKNOWN_HOST,
             Error::UnknownNetworkError(result) => result,
             Error::RedirectLoop => nserror::NS_ERROR_REDIRECT_LOOP,
+            Error::TransportSecurityFailure { status, .. } => status,
             Error::Unknown(result) => result,
 
             _ => nserror::NS_ERROR_FAILURE,

@@ -19,7 +19,7 @@ use xpcom::{create_instance, get_service, getter_addrefs, nsIID};
 use xpcom::{
     interfaces::{
         msgIAddressObject, msgIOAuth2Module, nsIFile, nsIIOService, nsIMsgIdentity,
-        nsIMsgStatusFeedback, nsIMsgWindow, nsIPrefBranch, nsIPrefService, nsIRequestObserver,
+        nsIMsgOutgoingListener, nsIMsgStatusFeedback, nsIMsgWindow, nsIPrefBranch, nsIPrefService,
         nsIURI, nsIUrlListener, nsMsgAuthMethodValue, nsMsgSocketType, nsMsgSocketTypeValue,
     },
     xpcom_method, RefPtr,
@@ -529,7 +529,7 @@ impl EwsOutgoingServer {
         aStatusListener: *const nsIMsgStatusFeedback,
         aRequestDSN: bool,
         aMessageId: *const nsACString,
-        aObserver: *const nsIRequestObserver
+        aListener: *const nsIMsgOutgoingListener
     ));
     fn send_mail(
         &self,
@@ -542,7 +542,7 @@ impl EwsOutgoingServer {
         _status_listener: &nsIMsgStatusFeedback,
         should_request_dsn: bool,
         message_id: &nsACString,
-        observer: &nsIRequestObserver,
+        listener: &nsIMsgOutgoingListener,
     ) -> Result<(), nsresult> {
         let message_content = xpcom_io::read_file(file_path)?;
         let message_content =
@@ -599,7 +599,8 @@ impl EwsOutgoingServer {
                 message_id.to_utf8().into(),
                 should_request_dsn,
                 bcc_recipients,
-                RefPtr::new(observer),
+                RefPtr::new(listener),
+                self.server_uri()?,
             ),
         )
         .detach();

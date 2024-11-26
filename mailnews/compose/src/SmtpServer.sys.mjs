@@ -549,7 +549,7 @@ export class SmtpServer {
     statusListener,
     requestDSN,
     messageId,
-    requestObserver
+    listener
   ) {
     // Flag that a send is progress. Precludes sending QUIT during the transfer.
     this.sendIsActive = true;
@@ -577,7 +577,7 @@ export class SmtpServer {
       },
     };
 
-    requestObserver?.onStartRequest(request);
+    listener?.onSendStart(request);
     let fresh = true;
     client.onidle = () => {
       // onidle can occur multiple times, but we should only init sending
@@ -659,17 +659,10 @@ export class SmtpServer {
         Glean.compose.mailsSent.add(1);
       }
 
-      requestObserver?.onStopRequest(request, Cr.NS_OK);
+      listener?.onSendStop(this.serverURI, Cr.NS_OK, null, null);
     };
     client.onerror = (nsError, errorMessage, secInfo) => {
-      this.serverURI.QueryInterface(Ci.nsIMsgMailNewsUrl);
-      if (secInfo) {
-        // TODO(emilio): Passing the failed security info as part of the URI is
-        // quite a smell, but monkey see monkey do...
-        this.serverURI.failedSecInfo = secInfo;
-      }
-      this.serverURI.errorMessage = errorMessage;
-      requestObserver?.onStopRequest(request, nsError);
+      listener?.onSendStop(this.serverURI, nsError, secInfo, errorMessage);
     };
 
     client.connect();

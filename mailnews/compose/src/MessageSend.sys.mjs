@@ -606,11 +606,19 @@ export class MessageSend {
   /**
    * Handle the exit code of message delivery.
    *
-   * @param {nsIURI} url - The delivered message uri.
    * @param {boolean} isNewsDelivery - The message was delivered to newsgroup.
-   * @param {nsreault} exitCode - The exit code of message delivery.
+   * @param {nsIURI} serverURI - The URI of the server used for the delivery.
+   * @param {nsresult} exitCode - The exit code of message delivery.
+   * @param {nsITransportSecurityInfo} secInfo - The info to use in case of a security error.
+   * @param {string} errMsg - A localized error message.
    */
-  _deliveryExitProcessing(url, isNewsDelivery, exitCode) {
+  _deliveryExitProcessing(
+    isNewsDelivery,
+    serverURI,
+    exitCode,
+    secInfo,
+    errMsg
+  ) {
     lazy.MsgUtils.sendLogger.debug(
       `Delivery exit processing; exitCode=${exitCode}`
     );
@@ -657,10 +665,10 @@ export class MessageSend {
             );
           isNSSError = true;
         } catch (e) {
-          if (url.errorMessage) {
-            // url.errorMessage is an already localized message, usually
-            // combined with the error message from SMTP server.
-            errorMsg = url.errorMessage;
+          if (errMsg) {
+            // errMsg is an already localized message, usually combined with the
+            // error message from SMTP server.
+            errorMsg = errMsg;
           } else if (errorName != "sendFailed") {
             // Not the default string. A mailnews error occurred that does not
             // require the server name to be encoded. Just print the descriptive
@@ -683,24 +691,11 @@ export class MessageSend {
         }
       }
       if (isNSSError) {
-        let secInfo = null;
-        let location = null;
-
-        if (url instanceof Ci.nsIMsgMailNewsUrl) {
-          // Not all URLs implement nsIMsgMailNewsUrl. Ideally we should not
-          // share the security info with the consumer by stamping it onto the
-          // URL, but for now we do what we can with what we have.
-          secInfo = url.failedSecInfo;
-          location = url.asciiHostPort;
-        } else {
-          location = `${url.host}:${url.port}`;
-        }
-
         this.notifyListenerOnTransportSecurityError(
           null,
           exitCode,
           secInfo,
-          location
+          serverURI.asciiHostPort
         );
       }
       this.notifyListenerOnStopSending(null, exitCode, null, null);
@@ -726,7 +721,7 @@ export class MessageSend {
     this._doFcc();
   }
 
-  sendDeliveryCallback(url, isNewsDelivery, exitCode) {
+  sendDeliveryCallback(isNewsDelivery, serverURI, exitCode, secInfo, errMsg) {
     if (isNewsDelivery) {
       if (
         !Components.isSuccessCode(exitCode) &&
@@ -735,7 +730,12 @@ export class MessageSend {
       ) {
         exitCode = lazy.MsgUtils.NS_ERROR_POST_FAILED;
       }
-      return this._deliveryExitProcessing(url, isNewsDelivery, exitCode);
+      return this._deliveryExitProcessing(
+        isNewsDelivery,
+        exitCode,
+        secInfo,
+        errMsg
+      );
     }
     if (!Components.isSuccessCode(exitCode)) {
       switch (exitCode) {
@@ -758,7 +758,13 @@ export class MessageSend {
           break;
       }
     }
-    return this._deliveryExitProcessing(url, isNewsDelivery, exitCode);
+    return this._deliveryExitProcessing(
+      isNewsDelivery,
+      serverURI,
+      exitCode,
+      secInfo,
+      errMsg
+    );
   }
 
   get folderUri() {
@@ -1174,27 +1180,44 @@ export class MessageSend {
     lazy.MsgUtils.sendLogger.debug(
       `Delivering mail message <${this._compFields.messageId}>`
     );
-    const deliveryListener = new MsgDeliveryListener(this, false);
+
+    const outgoingListener = new PromiseMsgOutgoingListener(this);
     const msgStatus =
       this._sendProgress instanceof Ci.nsIMsgStatusFeedback
         ? this._sendProgress
         : this._statusFeedback;
-    this._smtpRequest = {};
-    // Do async call. This is necessary to ensure _smtpRequest is set so that
-    // cancel function can be obtained.
-    await MailServices.outgoingServer.wrappedJSObject.sendMailMessage(
+
+    // Retrieve the relevant server to send this message from the outgoing
+    // server service (and make sure it gave us one).
+    const server = MailServices.outgoingServer.getServerByIdentity(
+      this._userIdentity
+    );
+    if (!server) {
+      lazy.MsgUtils.sendLogger.warn(
+        `No server found for identity with email ${this._userIdentity.email} and ` +
+          `smtpServerKey ${this._userIdentity.smtpServerKey}`
+      );
+      return;
+    }
+
+    // Send the message using the server that was retrieved.
+    server.sendMailMessage(
       this._deliveryFile,
       parsedVisibleRecipients,
       parsedBccRecipients,
       this._userIdentity,
       this._compFields.from,
       this._smtpPassword,
-      deliveryListener,
       msgStatus,
       this._compFields.DSN,
       this._compFields.messageId,
-      this._smtpRequest
+      outgoingListener
     );
+
+    // Wait for the promise to resolve (i.e. for the send to start) before
+    // returning, to ensure the request is set (so it can be cancelled if
+    // necessary).
+    this._smtpRequest = await outgoingListener.requestPromise;
   }
 
   /**
@@ -1203,7 +1226,7 @@ export class MessageSend {
   _deliverAsNews() {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_NNTP;
     lazy.MsgUtils.sendLogger.debug("Delivering news message");
-    const deliveryListener = new MsgDeliveryListener(this, true);
+    const deliveryListener = new NewsDeliveryListener(this);
     let msgWindow;
     try {
       msgWindow =
@@ -1437,20 +1460,18 @@ export class MessageSend {
 }
 
 /**
- * A listener to be passed to the SMTP service.
+ * A listener to be passed to the NNTP service.
  *
  * @implements {nsIUrlListener}
  */
-class MsgDeliveryListener {
+class NewsDeliveryListener {
   QueryInterface = ChromeUtils.generateQI(["nsIUrlListener"]);
 
   /**
-   * @param {nsIMsgSend} msgSend - Send instance to use.
-   * @param {boolean} isNewsDelivery - Whether this is an nntp message delivery.
+   * @param {nsIMsgSend} msgSend - nsIMsgSend instance to use.
    */
-  constructor(msgSend, isNewsDelivery) {
+  constructor(msgSend) {
     this._msgSend = msgSend;
-    this._isNewsDelivery = isNewsDelivery;
   }
 
   OnStartRunningUrl() {
@@ -1464,6 +1485,97 @@ class MsgDeliveryListener {
       url.UnRegisterListener(this);
     }
 
-    this._msgSend.sendDeliveryCallback(url, this._isNewsDelivery, exitCode);
+    this._msgSend.sendDeliveryCallback(url, true, exitCode);
+  }
+}
+
+/**
+ * A listener to be passed to an outgoing mail server.
+ *
+ * It provides a Promise which resolves to a request (of type `nsIRequest`) when
+ * the message send begins. This request can be used to cancel the send attempt
+ * if requested by the user.
+ *
+ * Upon start and stop of the send attempt, this listener also calls the
+ * relevant callbacks on its `nsIMsgSend`.
+ *
+ * @implements {nsIMsgOutgoingListener}
+ */
+class PromiseMsgOutgoingListener {
+  /**
+   * The nsIMsgSend instance to notify on message send start/stop.
+   *
+   * @type {nsIMsgSend}
+   */
+  #msgSend;
+
+  /**
+   * A promise that resolves to a request that can be used to cancel the message
+   * send operation if requested.
+   *
+   * @type {Promise<nsIRequest>}
+   */
+  #requestPromise;
+
+  /**
+   * The handle to resolve `#requestPromise`.
+   *
+   * @type {function(nsIRequest): void}
+   */
+  #resolve;
+
+  QueryInterface = ChromeUtils.generateQI(["nsIMsgOutgoingListener"]);
+
+  /**
+   * @param {nsIMsgSend} msgSend - nsIMsgSend instance to notify on start/stop.
+   */
+  constructor(msgSend) {
+    this.#msgSend = msgSend;
+
+    // Initialize the Promise that will be resolved when the send attempt
+    // starts.
+    const { promise, resolve } = Promise.withResolvers();
+    this.#requestPromise = promise;
+    this.#resolve = resolve;
+  }
+
+  /**
+   * Notifies that the send attempt has started, and resolves the inner promise.
+   *
+   * @param {nsIRequest} request - A request that can be used to cancel the send
+   *   attempt.
+   */
+  onSendStart(request) {
+    this.#resolve(request);
+    this.#msgSend.notifyListenerOnStartSending(null, 0);
+  }
+
+  /**
+   * Notifies that the send attempt has finished.
+   *
+   * @param {nsIURI} serverURI - The URI of the server that was used to send.
+   * @param {nsresult} exitCode - The resulting status code for the send
+   *    attempt.
+   * @param {?nsITransportSecurityInfo} secInfo - The security context for the
+   *    send attempt.
+   * @param {?string} errMsg - An optional localized, human-readable error
+   *    message.
+   */
+  onSendStop(serverURI, exitCode, secInfo, errMsg) {
+    this.#msgSend.sendDeliveryCallback(
+      false,
+      serverURI,
+      exitCode,
+      secInfo,
+      errMsg
+    );
+  }
+
+  /**
+   * A promise which resolves with an `nsIRequest`, which can be used to cancel
+   * a send attempt.
+   */
+  get requestPromise() {
+    return this.#requestPromise;
   }
 }

@@ -8,6 +8,7 @@
 
 #include "nsIMsgMdnGenerator.h"
 #include "nsCOMPtr.h"
+#include "nsIMsgOutgoingServer.h"
 #include "nsIRequestObserver.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsIOutputStream.h"
@@ -22,11 +23,12 @@
 #define eAskMeOp ((int32_t)2)
 #define eDeniedOp ((int32_t)3)
 
-class nsMsgMdnGenerator : public nsIMsgMdnGenerator, public nsIRequestObserver {
+class nsMsgMdnGenerator : public nsIMsgMdnGenerator,
+                          public nsIMsgOutgoingListener {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGMDNGENERATOR
-  NS_DECL_NSIREQUESTOBSERVER
+  NS_DECL_NSIMSGOUTGOINGLISTENER
 
   nsMsgMdnGenerator();
 

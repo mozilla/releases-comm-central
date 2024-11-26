@@ -99,7 +99,7 @@ function nextTest() {
     .msgGenerateMessageId(identity, null);
 
   // Run test
-  const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+  const listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
   smtpServer.sendMailMessage(
     testFile,
     MailServices.headerParser.parseEncodedHeaderW(kTo),
@@ -110,11 +110,11 @@ function nextTest() {
     null,
     false,
     messageId,
-    requestObserver
+    listener
   );
 
   let resolved = false;
-  requestObserver.promise.catch(() => {}).finally(() => (resolved = true));
+  listener.promise.catch(() => {}).finally(() => (resolved = true));
   Services.tm.spinEventLoopUntil("wait for sending", () => resolved);
 
   do_check_transaction(server.playTransaction(), curTest.transaction);

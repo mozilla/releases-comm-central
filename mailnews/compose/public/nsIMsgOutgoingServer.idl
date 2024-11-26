@@ -15,6 +15,38 @@ interface nsIRequestObserver;
 interface nsIMsgIdentity;
 interface nsIMsgWindow;
 interface msgIAddressObject;
+interface nsIRequest;
+interface nsITransportSecurityInfo;
+
+/**
+ * A listener used by an instance of `nsIMsgOutgoingServer` to notify about the
+ * start and end of a message send operation.
+ */
+[scriptable, uuid(88842392-765a-44fc-be82-4671bb185650)]
+interface nsIMsgOutgoingListener : nsISupports {
+    /**
+     * Called when the message send operation starts, with a request that can be
+     * used to cancel the operation.
+     *
+     * @param request An `nsIRequest` instance that the consumer can use to
+     *                cancel the send if requested by the user.
+     */
+    void onSendStart(in nsIRequest request);
+
+    /**
+     * Called when the message send operation finishes.
+     *
+     * @param serverURI The URI of the server used to attempt sending the
+     *                  message.
+     * @param exitCode  The status code with which the send attempt finished.
+     * @param secInfo   Information relating to the security of the transport
+     *                  used to send the message. Ignored if the send did not
+     *                  conclude from a security error.
+     * @param errorMsg  A localized error message about the failure, to display
+     *                  for the user. Ignored if the send succeeded.
+     */
+    void onSendStop(in nsIURI serverURI, in nsresult exitCode, in nsITransportSecurityInfo secInfo, in AUTF8String errorMsg);
+};
 
 /**
  * This interface represents a single outgoing Server. An outgoing server
@@ -121,12 +153,11 @@ interface nsIMsgOutgoingServer : nsISupports {
    * @param aRequestDSN             Whether to request Delivery Status
    *                                Notification.
    * @param aMessageId              The message ID for this email message.
-   * @param aObserver               A request observer that is given a
-   *                                cancellable nsIRequest. This is used to
-   *                                provide the request asynchronously, which is
-   *                                necessary in order to allow the server to
-   *                                manage its connection pool (and e.g. wait
-   *                                for an available connection when necessary).
+   * @param aListener               A listener that can communicate the start
+   *                                and end of the message send operation. It
+   *                                also provides the consumer with a handle to
+   *                                cancel the operation if requested (see the
+   *                                documentation for `nsIMsgOutgoingListener`).
    */
   void sendMailMessage(in nsIFile aFilePath,
                        in Array<msgIAddressObject> aVisibleRecipients,
@@ -137,7 +168,7 @@ interface nsIMsgOutgoingServer : nsISupports {
                        in nsIMsgStatusFeedback aStatusListener,
                        in boolean aRequestDSN,
                        in AUTF8String aMessageId,
-                       in nsIRequestObserver aObserver);
+                       in nsIMsgOutgoingListener aListener);
 
   /**
    * Close cached server connections.

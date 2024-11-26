@@ -48,7 +48,7 @@ async function test_8bitmime(aStrictMime, aServer8bit) {
       .createInstance(Ci.nsIMsgCompUtils)
       .msgGenerateMessageId(identity, null);
 
-    const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+    const listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
     smtpServer.sendMailMessage(
       testFile,
       MailServices.headerParser.parseEncodedHeaderW(kTo),
@@ -59,10 +59,10 @@ async function test_8bitmime(aStrictMime, aServer8bit) {
       null,
       false,
       messageId,
-      requestObserver
+      listener
     );
 
-    await requestObserver.promise;
+    await listener.promise;
 
     var transaction = server.playTransaction();
     do_check_transaction(transaction, [

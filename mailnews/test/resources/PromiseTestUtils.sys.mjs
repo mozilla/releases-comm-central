@@ -440,3 +440,31 @@ PromiseTestUtils.PromiseSendLaterListener = class {
     return this._promise;
   }
 };
+
+/**
+ * Message outgoing listener that can be turned into a Promise.
+ */
+PromiseTestUtils.PromiseMsgOutgoingListener = class {
+  QueryInterface = ChromeUtils.generateQI(["nsIMsgOutgoingListener"]);
+
+  constructor() {
+    const { promise, resolve, reject } = Promise.withResolvers();
+    this._promise = promise;
+    this._resolve = resolve;
+    this._reject = reject;
+  }
+
+  onSendStart() {}
+
+  onSendStop(serverURI, exitCode) {
+    if (exitCode == Cr.NS_OK) {
+      this._resolve();
+    } else {
+      this._reject(exitCode);
+    }
+  }
+
+  get promise() {
+    return this._promise;
+  }
+};

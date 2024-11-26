@@ -11,15 +11,16 @@ use url::Url;
 
 use nsstring::nsCString;
 use xpcom::interfaces::{
-    nsIChannel, nsIContentPolicy, nsIHttpChannel, nsIIOService, nsILoadInfo, nsIPrincipal,
-    nsIScriptSecurityManager, nsIStringInputStream, nsIUploadChannel,
+    nsIChannel, nsIContentPolicy, nsIHttpChannel, nsIIOService, nsILoadInfo, nsINSSErrorsService,
+    nsIPrincipal, nsIScriptSecurityManager, nsIStringInputStream, nsITransportSecurityInfo,
+    nsIUploadChannel,
 };
 use xpcom::XpCom;
 use xpcom::{getter_addrefs, RefPtr};
 use xpcom_async::XpComFuture;
 
 use crate::client::Method;
-use crate::error::Error;
+use crate::error::{Error, TransportSecurityInfo};
 use crate::response::Response;
 
 /// The bytes to use as body in a request.
@@ -178,7 +179,42 @@ impl<'rb> RequestBuilder<'rb> {
         unsafe { http_channel.SetRequestMethod(&*method).to_result()? }
 
         // Send the request through the nsIChannel.
-        let (_channel, bytes) = XpComFuture::from(channel).await?;
+        let bytes = match XpComFuture::from(channel.clone()).await {
+            Ok((_channel, bytes)) => bytes,
+            Err(err) => {
+                // If we got an error back from Necko, ask the NSS errors
+                // service if it's a security error.
+                let nss_service = xpcom::get_service::<nsINSSErrorsService>(cstr!(
+                    "@mozilla.org/nss_errors_service;1"
+                ))
+                .ok_or(Error::XpComOperationFailure(
+                    "failed to get service nsINSSErrorsService",
+                ))?;
+
+                let sec_info: RefPtr<nsITransportSecurityInfo> =
+                    getter_addrefs(|p| unsafe { channel.GetSecurityInfo(p) })?;
+
+                let mut err_code: i32 = 0;
+                unsafe { sec_info.GetErrorCode(&mut err_code) }.to_result()?;
+
+                let mut is_nss_error: bool = false;
+                unsafe { nss_service.IsNSSErrorCode(err_code, &mut is_nss_error) }.to_result()?;
+
+                // If the NSS service has identified the error as relating to
+                // transport security, include the `nsITransportSecurityInfo`
+                // from the channel in the `Error`.
+                let err = if is_nss_error {
+                    Error::TransportSecurityFailure {
+                        status: err,
+                        transport_security_info: TransportSecurityInfo(sec_info),
+                    }
+                } else {
+                    err.into()
+                };
+
+                return Err(err);
+            }
+        };
 
         // Store the nsIHttpChannel in the `Response` for convenience (since
         // `Response` only uses methods from `nsIHttpChannel`).

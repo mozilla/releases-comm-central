@@ -36,9 +36,10 @@ use uuid::Uuid;
 use xpcom::{
     getter_addrefs,
     interfaces::{
-        nsIMsgCopyServiceListener, nsIMsgDBHdr, nsIRequest, nsIRequestObserver, nsIStreamListener,
-        nsIStringInputStream, nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgKey, nsMsgMessageFlags,
-        IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks, IEwsMessageDeleteCallbacks,
+        nsIMsgCopyServiceListener, nsIMsgDBHdr, nsIMsgOutgoingListener, nsIRequest,
+        nsIStreamListener, nsIStringInputStream, nsIURI, nsMsgFolderFlagType, nsMsgFolderFlags,
+        nsMsgKey, nsMsgMessageFlags, IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks,
+        IEwsMessageDeleteCallbacks,
     },
     RefPtr,
 };
@@ -843,13 +844,13 @@ impl XpComEwsClient {
         message_id: String,
         should_request_dsn: bool,
         bcc_recipients: Vec<Recipient>,
-        observer: RefPtr<nsIRequestObserver>,
+        listener: RefPtr<nsIMsgOutgoingListener>,
+        server_uri: RefPtr<nsIURI>,
     ) {
         let cancellable_request = CancellableRequest::new();
 
         // Notify that the request has started.
-        if let Err(err) =
-            unsafe { observer.OnStartRequest(cancellable_request.coerce()) }.to_result()
+        if let Err(err) = unsafe { listener.OnSendStart(cancellable_request.coerce()) }.to_result()
         {
             log::error!("aborting sending: an error occurred while starting the observer: {err}");
             return;
@@ -858,21 +859,37 @@ impl XpComEwsClient {
         // Send the request, using an inner method to more easily handle errors.
         // Use the return value to determine which status we should use when
         // notifying the end of the request.
-        let status = match self
+        let (status, sec_info) = match self
             .send_message_inner(mime_content, message_id, should_request_dsn, bcc_recipients)
             .await
         {
-            Ok(_) => nserror::NS_OK,
+            Ok(_) => (nserror::NS_OK, None),
             Err(err) => {
                 log::error!("an error occurred while attempting to send the message: {err:?}");
 
-                err.into()
+                match err {
+                    XpComEwsError::Http(moz_http::Error::TransportSecurityFailure {
+                        status,
+                        transport_security_info,
+                    }) => (status, Some(transport_security_info.0.clone())),
+                    _ => (err.into(), None),
+                }
             }
         };
 
-        // Notify that the request has finished.
+        // Notify that the request has finished. We pass in an empty string as
+        // the error message because we don't currently generate any user-facing
+        // error from here, so it's likely better to let MessageSend generate
+        // one.
+        let err_msg = nsCString::new();
+        let sec_info = match sec_info {
+            Some(sec_info) => RefPtr::forget_into_raw(sec_info),
+            None => std::ptr::null(),
+        };
+
         if let Err(err) =
-            unsafe { observer.OnStopRequest(cancellable_request.coerce(), status) }.to_result()
+            unsafe { listener.OnSendStop(server_uri.coerce(), status, sec_info, &*err_msg) }
+                .to_result()
         {
             log::error!("an error occurred while stopping the observer: {err}")
         }

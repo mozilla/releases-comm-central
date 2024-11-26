@@ -25,9 +25,9 @@ add_task(async function testAbort() {
 
   do_test_pending();
 
-  const requestObserver = {
-    onStartRequest() {},
-    onStopRequest(request, status) {
+  const listener = {
+    onSendStart() {},
+    onSendStop(serverUri, status) {
       // Test sending is aborted with NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS.
       Assert.equal(status, 0x80553126);
       do_test_finished();
@@ -50,7 +50,7 @@ add_task(async function testAbort() {
     null,
     false,
     messageId,
-    requestObserver
+    listener
   );
   server.performTest();
 });
@@ -74,7 +74,7 @@ add_task(async function testClientIdentityExtension() {
     .createInstance(Ci.nsIMsgCompUtils)
     .msgGenerateMessageId(identity, null);
 
-  const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+  const listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
   const testFile = do_get_file("data/message1.eml");
   smtpServer.sendMailMessage(
     testFile,
@@ -86,10 +86,10 @@ add_task(async function testClientIdentityExtension() {
     null,
     false,
     messageId,
-    requestObserver
+    listener
   );
 
-  await requestObserver.promise;
+  await listener.promise;
 
   // Check CLIENTID command is sent.
   const transaction = server.playTransaction();
@@ -116,7 +116,7 @@ add_task(async function testDeduplicateRecipients() {
     .createInstance(Ci.nsIMsgCompUtils)
     .msgGenerateMessageId(identity, null);
 
-  const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+  const listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
   const testFile = do_get_file("data/message1.eml");
   smtpServer.sendMailMessage(
     testFile,
@@ -130,10 +130,10 @@ add_task(async function testDeduplicateRecipients() {
     null,
     false,
     messageId,
-    requestObserver
+    listener
   );
 
-  await requestObserver.promise;
+  await listener.promise;
 
   // Check only one RCPT TO is sent for to1.
   const transaction = server.playTransaction();

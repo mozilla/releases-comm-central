@@ -44,7 +44,7 @@ async function test_RFC2821() {
       .createInstance(Ci.nsIMsgCompUtils)
       .msgGenerateMessageId(identity, null);
 
-    let requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+    let listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
     smtpServer.sendMailMessage(
       testFile,
       MailServices.headerParser.parseEncodedHeaderW(kTo),
@@ -55,10 +55,10 @@ async function test_RFC2821() {
       null,
       false,
       messageId,
-      requestObserver
+      listener
     );
 
-    await requestObserver.promise;
+    await listener.promise;
 
     var transaction = server.playTransaction();
     do_check_transaction(transaction, [
@@ -78,7 +78,7 @@ async function test_RFC2821() {
       .createInstance(Ci.nsIMsgCompUtils)
       .msgGenerateMessageId(identity, null);
 
-    requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+    listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
     smtpServer.sendMailMessage(
       testFile,
       MailServices.headerParser.parseEncodedHeaderW(kTo),
@@ -89,10 +89,10 @@ async function test_RFC2821() {
       null,
       false,
       messageId,
-      requestObserver
+      listener
     );
 
-    await requestObserver.promise;
+    await listener.promise;
 
     transaction = server.playTransaction();
     do_check_transaction(transaction, [
@@ -120,7 +120,7 @@ async function test_RFC2821() {
       .createInstance(Ci.nsIMsgCompUtils)
       .msgGenerateMessageId(identity, null);
 
-    requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+    listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
     smtpServer.sendMailMessage(
       testFile,
       MailServices.headerParser.parseEncodedHeaderW(kTo),
@@ -131,10 +131,10 @@ async function test_RFC2821() {
       null,
       false,
       messageId,
-      requestObserver
+      listener
     );
 
-    await requestObserver.promise;
+    await listener.promise;
 
     transaction = server.playTransaction();
     do_check_transaction(transaction, [
@@ -155,7 +155,7 @@ async function test_RFC2821() {
       .createInstance(Ci.nsIMsgCompUtils)
       .msgGenerateMessageId(identity, null);
 
-    requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+    listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
     smtpServer.sendMailMessage(
       testFile,
       MailServices.headerParser.parseEncodedHeaderW(kTo),
@@ -166,10 +166,10 @@ async function test_RFC2821() {
       null,
       false,
       messageId,
-      requestObserver
+      listener
     );
 
-    await requestObserver.promise;
+    await listener.promise;
 
     transaction = server.playTransaction();
     do_check_transaction(transaction, [
