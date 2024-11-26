@@ -1130,7 +1130,9 @@ class FreeBusyResponse extends CalDavSimpleResponse {
             }
 
             for (const fbprop of cal.iterate.icalProperty(fbcomp, "FREEBUSY")) {
-              const type = fbprop.getParameter("FBTYPE");
+              // According to https://datatracker.ietf.org/doc/html/rfc5545#section-3.2.9,
+              // the default value for the FBTYPE parameter is BUSY if not explicitly specified.
+              const type = fbprop.getParameter("FBTYPE") || "BUSY";
 
               const parts = fbprop.value.split("/");
               const begin = cal.createDateTime(parts[0]);
