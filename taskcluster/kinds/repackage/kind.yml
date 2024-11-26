@@ -39,7 +39,7 @@ tasks:
                 debug: build-mac-signing
                 default:
                     by-project:
-                        comm-(central|beta|esr.*): build-mac-notarization
+                        comm-(central|beta|release|esr.*): build-mac-notarization
                         default: build-mac-signing
         worker-type: b-linux-gcp
         worker:
