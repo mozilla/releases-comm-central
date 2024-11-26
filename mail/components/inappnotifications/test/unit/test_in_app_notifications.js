@@ -79,6 +79,22 @@ add_task(function test_initializedData() {
     "Should register update callback"
   );
   Assert.ok(NotificationUpdater._interval, "Should initialize updater");
+
+  Assert.deepEqual(
+    InAppNotifications._jsonFile.data.interactedWith,
+    [],
+    "Should initialize interacted with notifications"
+  );
+  Assert.deepEqual(
+    InAppNotifications._jsonFile.data.seeds,
+    {},
+    "Should initialize seeds"
+  );
+  Assert.equal(
+    InAppNotifications._jsonFile.data.lastUpdate,
+    0,
+    "Should initialize lastUpdate to 0"
+  );
 });
 
 add_task(async function test_noReinitialization() {

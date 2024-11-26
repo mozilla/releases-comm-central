@@ -167,6 +167,9 @@ export const InAppNotifications = {
     if (typeof data.seeds !== "object") {
       data.seeds = {};
     }
+    if (!Number.isInteger(data.lastUpdate) || data.lastUpdate > Date.now()) {
+      data.lastUpdate = 0;
+    }
     return data;
   },
 
