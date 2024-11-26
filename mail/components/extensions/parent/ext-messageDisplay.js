@@ -135,8 +135,9 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
           if (fire.wakeup) {
             await fire.wakeup();
           }
-          // `event.target` is an about:message or about:3pane window.
-          const nativeTab = event.target.tabOrWindow;
+          // `event.target` is an about:message window or a MessagePane.
+          const nativeTab =
+            event.target.tabOrWindow || event.target.ownerGlobal.tabOrWindow;
           const tab = tabManager.wrapTab(nativeTab);
           const msgs = getDisplayedMessages(tab);
           if (extension.manifestVersion < 3) {
@@ -181,7 +182,7 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
           return null;
         }
         if (
-          !tab.nativeTab.chromeBrowser.contentWindow.multiMessageBrowser.hidden
+          tab.nativeTab.chromeBrowser.contentWindow.messagePane.isMultiMessageBrowserVisible()
         ) {
           return tab;
         }

@@ -78,9 +78,7 @@ add_task(async function testMessagePaneFindToolbars() {
 
   // Test that the web browser find toolbar becomes visible in about3pane.
   Assert.ok(
-    BrowserTestUtils.isVisible(
-      about3Pane.document.getElementById("webBrowserFindToolbar")
-    ),
+    BrowserTestUtils.isVisible(about3Pane.messagePane.webFindbar),
     "The web browser find toolbar should be visible."
   );
 
@@ -112,9 +110,7 @@ add_task(async function testMessagePaneFindToolbars() {
 
   // The web browser find toolbar should not be visible now.
   Assert.ok(
-    BrowserTestUtils.isHidden(
-      about3Pane.document.getElementById("webBrowserFindToolbar")
-    ),
+    BrowserTestUtils.isHidden(about3Pane.messagePane.webFindbar),
     "The web browser find toolbar should be hidden"
   );
 
@@ -124,9 +120,7 @@ add_task(async function testMessagePaneFindToolbars() {
   // Test that the mutlimessage browser find toolbar becomes visible in
   // about3pane.
   Assert.ok(
-    BrowserTestUtils.isVisible(
-      about3Pane.document.getElementById("multiMessageViewFindToolbar")
-    ),
+    BrowserTestUtils.isVisible(about3Pane.messagePane.multiMessageFindbar),
     "The multiMessage find toolbar should be visible"
   );
 
@@ -153,9 +147,7 @@ add_task(async function testMessagePaneFindToolbars() {
 
   // The multi message browser find toolbar should not be visible now.
   Assert.ok(
-    BrowserTestUtils.isHidden(
-      about3Pane.document.getElementById("multiMessageViewFindToolbar")
-    ),
+    BrowserTestUtils.isHidden(about3Pane.messagePane.multiMessageFindbar),
     "The multi message browser find toolbar should be hidden"
   );
 
@@ -165,7 +157,7 @@ add_task(async function testMessagePaneFindToolbars() {
   // Test that the message browser find toolbar becomes visible in about3pane.
   Assert.ok(
     BrowserTestUtils.isVisible(
-      messageBrowser.contentDocument.getElementById("FindToolbar")
+      messageBrowser.contentDocument.getElementById("findToolbar")
     ),
     "The single message find toolbar should be visible"
   );

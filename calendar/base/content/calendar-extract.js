@@ -130,7 +130,7 @@ var calendarExtract = {
     cal.alarms.setDefaultValues(item);
     const tabmail = document.getElementById("tabmail");
     const messagePaneBrowser =
-      tabmail?.currentTabInfo.chromeBrowser.contentWindow.visibleMessagePaneBrowser?.() ||
+      tabmail?.currentTabInfo.chromeBrowser.contentWindow.messagePane.visibleMessagePaneBrowser?.() ||
       tabmail?.currentAboutMessage?.getMessagePaneBrowser() ||
       document.getElementById("messageBrowser")?.contentWindow?.getMessagePaneBrowser();
     let sel = messagePaneBrowser?.contentWindow?.getSelection();

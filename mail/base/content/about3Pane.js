@@ -62,14 +62,6 @@ const { ThreadPaneColumns } = ChromeUtils.importESModule(
   "chrome://messenger/content/ThreadPaneColumns.mjs"
 );
 
-const lazy = {};
-XPCOMUtils.defineLazyPreferenceGetter(
-  lazy,
-  "isConversationView",
-  "mail.thread.conversation.enabled",
-  false
-);
-
 // As defined in nsMsgDBView.h.
 const MSG_VIEW_FLAG_DUMMY = 0x20000000;
 
@@ -107,6 +99,12 @@ var accountCentralBrowser;
 var paneLayout;
 
 /**
+ * HTML element handling the swap between message, multimessage, and browser
+ * XUL views.
+ */
+var messagePane;
+
+/**
  * This is called at midnight to have messages grouped by their relative date
  * (such as today, yesterday, etc.) correctly categorized.
  */
@@ -139,6 +137,7 @@ window.addEventListener("DOMContentLoaded", async event => {
 
   // Ensure all the necessary custom elements have been defined.
   await customElements.whenDefined("pane-layout");
+  await customElements.whenDefined("message-pane");
   await customElements.whenDefined("tree-view-table-row");
   await customElements.whenDefined("folder-tree-row");
   await customElements.whenDefined("thread-row");
@@ -146,6 +145,10 @@ window.addEventListener("DOMContentLoaded", async event => {
 
   UIDensity.registerWindow(window);
   UIFontSize.registerWindow(window);
+
+  messagePane = document.getElementById("messagePane");
+  messagePane.addEventListener("request-count-update", threadPaneHeader);
+  messagePane.addEventListener("show-single-message", threadPane);
 
   paneLayout = document.getElementById("paneLayout");
   paneLayout.addEventListener("request-message-clear", messagePane);
@@ -158,7 +161,10 @@ window.addEventListener("DOMContentLoaded", async event => {
   await folderPane.init();
   await threadPane.init();
   threadPaneHeader.init();
-  await messagePane.init();
+  await messagePane.isReady();
+  webBrowser = messagePane.webBrowser;
+  messageBrowser = messagePane.messageBrowser;
+  multiMessageBrowser = messagePane.multiMessageBrowser;
 
   // Attach the progress listener for the webBrowser. For the messageBrowser this
   // happens in the "aboutMessageLoaded" event from aboutMessage.js.
@@ -2632,7 +2638,6 @@ var folderPane = {
       }
 
       gViewWrapper?.close();
-      messagePane.hideCurrentFindBar();
       gFolder = gDBView = gViewWrapper = threadTree.view = null;
       threadPaneHeader.onFolderSelected();
       this._updateStatusQuota();
@@ -2655,9 +2660,6 @@ var folderPane = {
 
     // Clean up any existing view wrapper. This will invalidate the thread tree.
     gViewWrapper?.close();
-
-    // Hide any currently visible findbar.
-    messagePane.hideCurrentFindBar();
 
     if (gFolder.isServer) {
       document.title = gFolder.server.prettyName;
@@ -3967,6 +3969,9 @@ var threadPaneHeader = {
       case "qfbtoggle":
         this.onQuickFilterToggle();
         break;
+      case "request-count-update":
+        this.updateSelectedCount();
+        break;
     }
   },
 
@@ -4309,6 +4314,9 @@ var threadPane = {
   handleEvent(event) {
     const notOnEmptySpace = event.target !== threadTree;
     switch (event.type) {
+      case "show-single-message":
+        threadTree.selectedIndices = event.detail.messages;
+        break;
       case "request-message-selection":
         threadTree.dispatchEvent(new CustomEvent("select"));
         break;
@@ -5818,239 +5826,6 @@ var threadPane = {
   },
 };
 
-var messagePane = {
-  async init() {
-    webBrowser = document.getElementById("webBrowser");
-    messageBrowser = document.getElementById("messageBrowser");
-    messageBrowser.docShell.allowDNSPrefetch = false;
-
-    multiMessageBrowser = document.getElementById("multiMessageBrowser");
-    multiMessageBrowser.docShell.allowDNSPrefetch = false;
-
-    if (messageBrowser.contentDocument.readyState != "complete") {
-      await new Promise(resolve => {
-        messageBrowser.addEventListener("load", () => resolve(), {
-          capture: true,
-          once: true,
-        });
-      });
-    }
-
-    if (multiMessageBrowser.contentDocument.readyState != "complete") {
-      await new Promise(resolve => {
-        multiMessageBrowser.addEventListener("load", () => resolve(), {
-          capture: true,
-          once: true,
-        });
-      });
-    }
-  },
-
-  handleEvent(event) {
-    if (event.type == "request-message-clear") {
-      this.clearAll();
-    }
-  },
-
-  /**
-   * Ensure all message pane browsers are blank.
-   */
-  clearAll() {
-    this.clearWebPage();
-    this.clearMessage();
-    this.clearMessages();
-  },
-
-  /**
-   * Ensure the web page browser is blank, unless the start page is shown.
-   */
-  clearWebPage() {
-    if (!this._keepStartPageOpen) {
-      webBrowser.hidden = true;
-      webBrowser.docShellIsActive = false;
-      MailE10SUtils.loadAboutBlank(webBrowser);
-    }
-  },
-
-  /**
-   * Display a web page in the web page browser. If `url` is not given, or is
-   * "about:blank", the web page browser is cleared and hidden.
-   *
-   * @param {string} url - The URL to load.
-   * @param {object} [params] - Any params to pass to MailE10SUtils.loadURI.
-   */
-  displayWebPage(url, params) {
-    if (!paneLayout.messagePaneVisible) {
-      return;
-    }
-    if (!url || url == "about:blank") {
-      this._keepStartPageOpen = false;
-      this.clearWebPage();
-      return;
-    }
-
-    this.clearMessage();
-    this.clearMessages();
-
-    MailE10SUtils.loadURI(webBrowser, url, params);
-    webBrowser.docShellIsActive = window.tabOrWindow.selected;
-    webBrowser.hidden = false;
-  },
-
-  /**
-   * Ensure the message browser is not displaying a message.
-   */
-  clearMessage() {
-    messageBrowser.hidden = true;
-    messageBrowser.contentWindow.displayMessage();
-  },
-
-  /**
-   * Display a single message in the message browser. If `messageURI` is not
-   * given, the message browser is cleared and hidden.
-   *
-   * @param {?string} messageURI - The URI representing the selected message, or
-   *   null if nothing is selected.
-   */
-  displayMessage(messageURI) {
-    threadPaneHeader.updateSelectedCount();
-
-    // Hide the findbar of webview pane or multimessage pane if opened.
-    const switchingMessages = !messageBrowser.hidden;
-    if (!switchingMessages) {
-      this.hideCurrentFindBar();
-    }
-
-    if (!paneLayout.messagePaneVisible) {
-      return;
-    }
-
-    if (!messageURI) {
-      this.clearMessage();
-      return;
-    }
-
-    this._keepStartPageOpen = false;
-    this.clearWebPage();
-    this.clearMessages();
-
-    messageBrowser.contentWindow.displayMessage(messageURI, gViewWrapper);
-    messageBrowser.hidden = false;
-  },
-
-  /**
-   * Ensure the multi-message browser is not displaying messages.
-   */
-  clearMessages() {
-    multiMessageBrowser.hidden = true;
-    multiMessageBrowser.contentWindow.gMessageSummary.clear();
-  },
-
-  /**
-   * Display messages in the multi-message browser. For a single message, use
-   * `displayMessage` instead. If `messages` is not given, or an empty array,
-   * the multi-message browser is cleared and hidden.
-   *
-   * @param {nsIMsgDBHdr[]} messages - The array of selected message headers, if
-   *   available.
-   */
-  displayMessages(messages = []) {
-    threadPaneHeader.updateSelectedCount();
-
-    // Hide the findbar of webview pane or message pane if opened.
-    const switchingThreads = !multiMessageBrowser.hidden;
-    if (!switchingThreads) {
-      this.hideCurrentFindBar();
-    }
-
-    if (!paneLayout.messagePaneVisible) {
-      return;
-    }
-
-    if (messages.length == 0) {
-      this.clearMessages();
-      return;
-    }
-
-    this._keepStartPageOpen = false;
-    this.clearWebPage();
-    this.clearMessage();
-
-    // Show the new conversation view UI if the user requests it and if
-    // gDBView.selection.count is 1, which means that a thread has been
-    // selected and not multiple single messages.
-    if (lazy.isConversationView && gDBView?.selection.count == 1) {
-      Gloda.getMessageCollectionForHeader(
-        gDBView.hdrForFirstSelectedMessage,
-        conversationView
-      );
-    } else {
-      const getThreadId = message =>
-        gDBView.getThreadContainingMsgHdr(message).getRootHdr().messageKey;
-      const firstThreadId = getThreadId(messages.at(0));
-      const isSingleThread = messages.every(
-        m => getThreadId(m) == firstThreadId
-      );
-
-      multiMessageBrowser.contentWindow.gMessageSummary.summarize(
-        isSingleThread ? "thread" : "multipleselection",
-        messages,
-        gDBView,
-        msgs => {
-          threadTree.selectedIndices = msgs
-            .map(m => gDBView.findIndexOfMsgHdr(m, true))
-            .filter(i => i != nsMsgViewIndex_None);
-        }
-      );
-    }
-
-    multiMessageBrowser.hidden = false;
-    window.dispatchEvent(new CustomEvent("MsgsLoaded", { bubbles: true }));
-
-    if (switchingThreads) {
-      const findBar = document.getElementById("multiMessageViewFindToolbar");
-      if (findBar && !findBar?.hidden) {
-        findBar.onFindAgainCommand(false);
-      }
-    }
-  },
-
-  /**
-   * Hide the findbar, in all of messageBrowser, multimessageBrowser,
-   * or webBrowser.
-   */
-  hideCurrentFindBar() {
-    // Multi message view.
-    const multiFindbar = document.getElementById("multiMessageViewFindToolbar");
-    multiFindbar?.clear();
-    multiFindbar?.close();
-
-    // Single message view.
-    messageBrowser.contentDocument.getElementById("FindToolbar").clear();
-    messageBrowser.contentDocument.getElementById("FindToolbar").close();
-
-    // Web Browser view.
-    const browserFindbar = document.getElementById("webBrowserFindToolbar");
-    browserFindbar?.clear();
-    browserFindbar?.close();
-  },
-
-  /**
-   * Show the start page in the web page browser. The start page will remain
-   * shown until a message is displayed.
-   */
-  showStartPage() {
-    this._keepStartPageOpen = true;
-    let url = Services.urlFormatter.formatURLPref("mailnews.start_page.url");
-    if (/^mailbox:|^imap:|^pop:|^s?news:|^nntp:/i.test(url)) {
-      console.warn(`Can't use ${url} as mailnews.start_page.url`);
-      Services.prefs.clearUserPref("mailnews.start_page.url");
-      url = Services.urlFormatter.formatURLPref("mailnews.start_page.url");
-    }
-    this.displayWebPage(url);
-  },
-};
-
 /**
  * Restore the UI to the given state.
  *
@@ -6307,33 +6082,6 @@ var folderListener = {
         folderPane.addFolder(f.parent, f);
       }
     }
-  },
-};
-
-/* Conversation View */
-const conversationView = {
-  onItemsAdded() {},
-  onItemsModified() {},
-  onItemsRemoved() {},
-  onQueryCompleted(collection) {
-    const conv = collection.items[0].conversation;
-    conv.getMessagesCollection({
-      onItemsAdded() {},
-      onItemsModified() {},
-      onItemsRemoved() {},
-      onQueryCompleted(completedCollection) {
-        multiMessageBrowser.contentWindow.gMessageSummary.summarize(
-          "thread",
-          completedCollection.items.map(i => i.folderMessage).filter(Boolean),
-          gDBView,
-          messages => {
-            threadTree.selectedIndices = messages
-              .map(m => gDBView.findIndexOfMsgHdr(m, true))
-              .filter(i => i != nsMsgViewIndex_None);
-          }
-        );
-      },
-    });
   },
 };
 
@@ -6799,13 +6547,13 @@ commandController.registerCallback(
   "cmd_print",
   async () => {
     const PrintUtils = top.PrintUtils;
-    if (!webBrowser.hidden) {
+    if (messagePane.isWebBrowserVisible()) {
       PrintUtils.startPrintWindow(webBrowser.browsingContext);
       return;
     }
     const uris = gViewWrapper.dbView.getURIsForSelection();
     if (uris.length == 1) {
-      if (messageBrowser.hidden) {
+      if (!messagePane.isMessageBrowserVisible()) {
         // Load the only message in a hidden browser, then use the print preview UI.
         const messageService = MailServices.messageServiceFromURI(uris[0]);
         await PrintUtils.loadPrintBrowser(
@@ -6815,12 +6563,13 @@ commandController.registerCallback(
           PrintUtils.printBrowser.browsingContext,
           {}
         );
-      } else {
-        PrintUtils.startPrintWindow(
-          messageBrowser.contentWindow.getMessagePaneBrowser().browsingContext,
-          {}
-        );
+        return;
       }
+
+      PrintUtils.startPrintWindow(
+        messageBrowser.contentWindow.getMessagePaneBrowser().browsingContext,
+        {}
+      );
       return;
     }
 
@@ -6845,7 +6594,7 @@ commandController.registerCallback(
     if (!accountCentralBrowser?.hidden) {
       return false;
     }
-    if (webBrowser && !webBrowser.hidden) {
+    if (messagePane.isWebBrowserVisible()) {
       return true;
     }
     return gDBView && gDBView.numSelected > 0;
@@ -6929,146 +6678,40 @@ commandController.registerCallback(
  * causes the findbar to not update with a result status properly. */
 commandController.registerCallback(
   "cmd_find",
-  () => {
-    if (!this.messageBrowser.hidden) {
-      this.messageBrowser.contentWindow.commandController.doCommand("cmd_find");
-      return;
-    }
-
-    if (!this.multiMessageBrowser.hidden) {
-      // Create the findbar for the multi message view if it isn't there.
-      if (!document.getElementById("multiMessageViewFindToolbar")) {
-        const findbar = document.createXULElement("findbar");
-        findbar.setAttribute("id", "multiMessageViewFindToolbar");
-        findbar.setAttribute("browserid", "multiMessageBrowser");
-        this.multiMessageBrowser.after(findbar);
-      }
-
-      document.getElementById("multiMessageViewFindToolbar").onFindCommand();
-      return;
-    }
-
-    if (!this.webBrowser.hidden) {
-      // Create the findbar for the web browser if it isn't there.
-      if (!document.getElementById("webBrowserFindToolbar")) {
-        const findbar = document.createXULElement("findbar");
-        findbar.setAttribute("id", "webBrowserFindToolbar");
-        findbar.setAttribute("browserid", "webBrowser");
-        this.webBrowser.after(findbar);
-      }
-      document.getElementById("webBrowserFindToolbar").onFindCommand();
-    }
-  },
-  () => browserPaneVisible()
+  () => messagePane.onFindCommand(),
+  () => messagePane.browserPaneVisible()
 );
 commandController.registerCallback(
   "cmd_findAgain",
-  () => {
-    if (!this.messageBrowser.hidden) {
-      this.messageBrowser.contentWindow.commandController.doCommand(
-        "cmd_findAgain"
-      );
-      return;
-    }
-
-    if (!this.multiMessageBrowser.hidden) {
-      document
-        .getElementById("multiMessageViewFindToolbar")
-        .onFindAgainCommand(false);
-      return;
-    }
-
-    if (!this.webBrowser.hidden) {
-      document
-        .getElementById("webBrowserFindToolbar")
-        .onFindAgainCommand(false);
-    }
-  },
-  () => browserPaneVisible()
+  () => messagePane.onFindAgainCommand(),
+  () => messagePane.browserPaneVisible()
 );
 commandController.registerCallback(
   "cmd_findPrevious",
-  () => {
-    if (!this.messageBrowser.hidden) {
-      this.messageBrowser.contentWindow.commandController.doCommand(
-        "cmd_findPrevious"
-      );
-      return;
-    }
-
-    if (!this.multiMessageBrowser.hidden) {
-      document
-        .getElementById("multiMessageViewFindToolbar")
-        .onFindAgainCommand(true);
-      return;
-    }
-
-    if (!this.webBrowser.hidden) {
-      document.getElementById("webBrowserFindToolbar").onFindAgainCommand(true);
-    }
-  },
-  () => browserPaneVisible()
+  () => messagePane.onFindPreviousCommand(),
+  () => messagePane.browserPaneVisible()
 );
-
-/**
- * Helper function for the zoom commands, which returns the browser that is
- * currently visible in the message pane or null if no browser is visible.
- *
- * @returns {?XULElement} - A XUL browser or null.
- */
-function visibleMessagePaneBrowser() {
-  if (webBrowser && !webBrowser.hidden) {
-    return webBrowser;
-  }
-
-  if (messageBrowser && !messageBrowser.hidden) {
-    // If the message browser is the one visible, actually return the
-    // element showing the message's content, since that's the one zoom
-    // commands should apply to.
-    return messageBrowser.contentDocument.getElementById("messagepane");
-  }
-
-  if (multiMessageBrowser && !multiMessageBrowser.hidden) {
-    return multiMessageBrowser;
-  }
-
-  return null;
-}
-
-/**
- * Helper function that returns true if one of the three browser panes are
- * visible, and false otherwise.
- *
- * @returns {boolean} - Whether a browser pane is visible or not.
- */
-function browserPaneVisible() {
-  return (
-    (webBrowser && !webBrowser.hidden) ||
-    (messageBrowser && !messageBrowser.hidden) ||
-    (multiMessageBrowser && !multiMessageBrowser.hidden)
-  );
-}
 
 // Zoom.
 commandController.registerCallback(
   "cmd_fullZoomReduce",
-  () => top.ZoomManager.reduce(visibleMessagePaneBrowser()),
-  () => visibleMessagePaneBrowser() != null
+  () => top.ZoomManager.reduce(messagePane.visibleMessagePaneBrowser()),
+  () => !!messagePane.visibleMessagePaneBrowser()
 );
 commandController.registerCallback(
   "cmd_fullZoomEnlarge",
-  () => top.ZoomManager.enlarge(visibleMessagePaneBrowser()),
-  () => visibleMessagePaneBrowser() != null
+  () => top.ZoomManager.enlarge(messagePane.visibleMessagePaneBrowser()),
+  () => !!messagePane.visibleMessagePaneBrowser()
 );
 commandController.registerCallback(
   "cmd_fullZoomReset",
-  () => top.ZoomManager.reset(visibleMessagePaneBrowser()),
-  () => visibleMessagePaneBrowser() != null
+  () => top.ZoomManager.reset(messagePane.visibleMessagePaneBrowser()),
+  () => !!messagePane.visibleMessagePaneBrowser()
 );
 commandController.registerCallback(
   "cmd_fullZoomToggle",
-  () => top.ZoomManager.toggleZoom(visibleMessagePaneBrowser()),
-  () => visibleMessagePaneBrowser() != null
+  () => top.ZoomManager.toggleZoom(messagePane.visibleMessagePaneBrowser()),
+  () => !!messagePane.visibleMessagePaneBrowser()
 );
 
 // Browser commands.
@@ -7102,10 +6745,9 @@ for (const command of [
 ]) {
   commandController.registerCallback(
     command,
-    () => messageBrowser.contentWindow.commandController.doCommand(command),
+    () => messagePane.doMessageBrowserCommand(command),
     () =>
-      messageBrowser &&
-      !messageBrowser.hidden &&
-      messageBrowser.contentWindow.commandController.isCommandEnabled(command)
+      messagePane.isMessageBrowserVisible() &&
+      messagePane.isMessageBrowserCommandEnabled(command)
   );
 }

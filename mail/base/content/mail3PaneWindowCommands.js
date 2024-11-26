@@ -324,9 +324,7 @@ function SwitchPaneFocus(event) {
         paneLayout,
         folderTree,
         threadTree,
-        webBrowser,
-        messageBrowser,
-        multiMessageBrowser,
+        messagePane,
         accountCentralBrowser,
       } = contentWindow;
 
@@ -341,12 +339,14 @@ function SwitchPaneFocus(event) {
       }
 
       if (paneLayout.messagePaneVisible) {
-        if (!webBrowser.hidden) {
-          panes.push(webBrowser);
-        } else if (!messageBrowser.hidden) {
-          panes.push(messageBrowser.contentWindow.getMessagePaneBrowser());
-        } else if (!multiMessageBrowser.hidden) {
-          panes.push(multiMessageBrowser);
+        if (messagePane.isWebBrowserVisible()) {
+          panes.push(messagePane.webBrowser);
+        } else if (messagePane.isMessageBrowserVisible()) {
+          panes.push(
+            messagePane.messageBrowser.contentWindow.getMessagePaneBrowser()
+          );
+        } else if (messagePane.isMultiMessageBrowserVisible()) {
+          panes.push(messagePane.multiMessageBrowser);
         }
       }
 
@@ -371,8 +371,9 @@ function SwitchPaneFocus(event) {
         ) {
           focusedElement = threadTree.table.body;
           adjustment = event.shiftKey ? 0 : -1;
-        } else if (focusedElement == messageBrowser) {
-          focusedElement = messageBrowser.contentWindow.getMessagePaneBrowser();
+        } else if (focusedElement == messagePane.messageBrowser) {
+          focusedElement =
+            messagePane.messageBrowser.contentWindow.getMessagePaneBrowser();
         }
       }
       break;

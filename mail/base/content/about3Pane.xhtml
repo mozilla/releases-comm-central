@@ -52,6 +52,7 @@
   <script type="module" src="chrome://messenger/content/folder-tree-row.mjs"></script>
   <script type="module" src="chrome://messenger/content/tree-view.mjs"></script>
   <script type="module" src="chrome://messenger/content/pane-layout.mjs"></script>
+  <script type="module" src="chrome://messenger/content/message-pane.mjs"></script>
   <script defer="defer" src="chrome://messenger/content/mailContext.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCommon.js"></script>
   <script defer="defer" src="chrome://messenger/content/about3Pane.js"></script>
@@ -356,26 +357,8 @@
       resize-id="messagePane"
       collapse-width="300"
       collapse-height="100" />
-  <div id="messagePane" class="collapsed-by-splitter">
-    <xul:browser id="webBrowser"
-                 type="content"
-                 manualactiveness="true"
-                 hidden="true"
-                 nodefaultsrc="true"
-                 context="browserContext"
-                 autocompletepopup="PopupAutoComplete"
-                 forcemessagemanager="true"
-                 messagemanagergroup="single-page"
-                 maychangeremoteness="true" />
-    <xul:browser id="messageBrowser"
-                 hidden="true"
-                 src="about:message" />
-    <xul:browser id="multiMessageBrowser"
-                 type="content"
-                 hidden="true"
-                 context="aboutPagesContext"
-                 src="chrome://messenger/content/multimessageview.xhtml" />
-  </div>
+#include templates/messagePaneTemplate.inc.xhtml
+  <message-pane id="messagePane" class="collapsed-by-splitter"></message-pane>
   <xul:browser id="accountCentralBrowser" hidden="true"/>
 </body>
 <popupset xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">

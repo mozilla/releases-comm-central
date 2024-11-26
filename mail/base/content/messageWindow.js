@@ -556,13 +556,13 @@ var MessageWindowController = {
         ReloadMessage();
         break;
       case "cmd_find":
-        document.getElementById("FindToolbar").onFindCommand();
+        document.getElementById("findToolbar").onFindCommand();
         break;
       case "cmd_findAgain":
-        document.getElementById("FindToolbar").onFindAgainCommand(false);
+        document.getElementById("findToolbar").onFindAgainCommand(false);
         break;
       case "cmd_findPrevious":
-        document.getElementById("FindToolbar").onFindAgainCommand(true);
+        document.getElementById("findToolbar").onFindAgainCommand(true);
         break;
       case "cmd_viewAllHeader":
         MsgViewAllHeaders();

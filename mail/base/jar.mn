@@ -114,6 +114,7 @@ messenger.jar:
     content/messenger/tree-listbox-mixin.mjs        (content/widgets/listbox/tree-listbox-mixin.mjs)
     content/messenger/tree-listbox.mjs              (content/widgets/listbox/tree-listbox.mjs)
     content/messenger/mailWidgets.js                (content/widgets/mailWidgets.js)
+    content/messenger/message-pane.mjs              (content/widgets/message-pane.mjs)
     content/messenger/pane-layout.mjs               (content/widgets/pane-layout.mjs)
     content/messenger/pane-splitter.js              (content/widgets/pane-splitter.js)
     content/messenger/search-bar.mjs                (content/widgets/search-bar.mjs)
@@ -124,6 +125,7 @@ messenger.jar:
     content/messenger/tree-view.mjs                 (content/widgets/tree-view.mjs)
     content/messenger/thread-card.mjs               (content/widgets/treeview/thread-card.mjs)
     content/messenger/thread-row.mjs                (content/widgets/treeview/thread-row.mjs)
+    content/messenger/conversation-view.mjs         (content/widgets/conversation-view/conversation-view.mjs)
 
 # the following files are mail-specific overrides
 *   content/messenger/license.html                  (/toolkit/content/license.html)

@@ -951,7 +951,7 @@ var messageProgressListener = {
     // If the find bar is visible and we just loaded a new message, re-run
     // the find command. This means the new message will get highlighted and
     // we'll scroll to the first word in the message that matches the find text.
-    const findBar = document.getElementById("FindToolbar");
+    const findBar = document.getElementById("findToolbar");
     if (!findBar.hidden) {
       findBar.onFindAgainCommand(false);
     }

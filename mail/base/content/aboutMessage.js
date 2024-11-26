@@ -658,13 +658,13 @@ commandController.registerCallback(
   () => commandController.isCommandEnabled("cmd_shiftDeleteMessage")
 );
 commandController.registerCallback("cmd_find", () =>
-  document.getElementById("FindToolbar").onFindCommand()
+  document.getElementById("findToolbar").onFindCommand()
 );
 commandController.registerCallback("cmd_findAgain", () =>
-  document.getElementById("FindToolbar").onFindAgainCommand(false)
+  document.getElementById("findToolbar").onFindAgainCommand(false)
 );
 commandController.registerCallback("cmd_findPrevious", () =>
-  document.getElementById("FindToolbar").onFindAgainCommand(true)
+  document.getElementById("findToolbar").onFindAgainCommand(true)
 );
 commandController.registerCallback("cmd_print", () => {
   top.PrintUtils.startPrintWindow(getMessagePaneBrowser().browsingContext, {});
