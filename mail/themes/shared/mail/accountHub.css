@@ -345,6 +345,10 @@ header {
       }
     }
   }
+
+  &.password-form-body {
+    gap: 25px;
+  }
 }
 
 .hub-body-column {

@@ -180,7 +180,7 @@ class AccountHubEmail extends HTMLElement {
       forwardEnabled: false,
       customActionFluentID: "",
       subview: {},
-      templateId: "",
+      templateId: "email-password-form",
     },
     emailSyncAccountsSubview: {
       id: "emailSyncAccountsSubview",
@@ -189,7 +189,7 @@ class AccountHubEmail extends HTMLElement {
       forwardEnabled: true,
       customActionFluentID: "",
       subview: {},
-      templateId: "",
+      templateId: "email-sync-accounts-form",
     },
     incomingConfigSubview: {
       id: "emailIncomingConfigSubview",
@@ -202,7 +202,7 @@ class AccountHubEmail extends HTMLElement {
     },
     outgoingConfigSubview: {
       id: "emailOutgoingConfigSubview",
-      nextStep: "emailAddedSubview",
+      nextStep: "emailPasswordSubview",
       previousStep: "incomingConfigSubview",
       forwardEnabled: true,
       customActionFluentID: "account-hub-test-configuration",
@@ -267,6 +267,8 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter.addEventListener("custom-footer-action", this);
     this.#emailAutoConfigSubview.addEventListener("config-updated", this);
     this.#emailIncomingConfigSubview.addEventListener("config-updated", this);
+    this.#emailOutgoingConfigSubview.addEventListener("config-updated", this);
+    this.#emailPasswordSubview.addEventListener("config-updated", this);
     this.#emailConfigFoundSubview.addEventListener("edit-configuration", this);
     this.#emailIncomingConfigSubview.addEventListener("advanced-config", this);
     this.#emailOutgoingConfigSubview.addEventListener("advanced-config", this);
@@ -281,6 +283,15 @@ class AccountHubEmail extends HTMLElement {
 
     this.ready = this.#initUI("autoConfigSubview");
     await this.ready;
+  }
+
+  /**
+   * Returns the subview of the current state.
+   *
+   * @returns {HTMLElement} The current subview.
+   */
+  get #currentSubview() {
+    return this.#states[this.#currentState].subview;
   }
 
   /**
@@ -348,9 +359,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter.canCustom(stateDetails.customActionFluentID);
 
     // The footer forward button is disabled by default.
-    if (stateDetails.forwardEnabled) {
-      this.#emailFooter.toggleForwardDisabled(false);
-    }
+    this.#emailFooter.toggleForwardDisabled(!stateDetails.forwardEnabled);
   }
 
   #loadingTimeout = null;
@@ -429,11 +438,6 @@ class AccountHubEmail extends HTMLElement {
           this.#hasCancelled = false;
           const stateData = stateDetails.subview.captureState();
           await this.#handleForwardAction(this.#currentState, stateData);
-          // Apply the new state data to the new state by passing a deep copy.
-          // We pass a deep copy because this controller's #currentConfig should
-          // only be updated when appropriate.
-          const config = this.#currentConfig.copy();
-          this.#states[this.#currentState].subview.setState(config);
         } catch (error) {
           this.#handleAbortable();
           stateDetails.subview.showNotification({
@@ -462,7 +466,7 @@ class AccountHubEmail extends HTMLElement {
         // The edit configuration button was pressed.
         await this.#initUI("incomingConfigSubview");
         // Apply the current state data to the new state.
-        this.#states[this.#currentState].subview.setState(this.#currentConfig);
+        this.#currentSubview.setState(this.#currentConfig);
         break;
       case "config-updated":
         try {
@@ -478,10 +482,9 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "advanced-config":
         try {
-          let stateData =
-            this.#states[this.#currentState].subview.captureState().config;
+          let stateData = this.#currentSubview.captureState().config;
           if (this.#currentState === "outgoingConfigSubview") {
-            stateData = this.#states[this.#currentState].subview.captureState();
+            stateData = this.#currentSubview.captureState();
             stateData.incoming =
               this.#states.incomingConfigSubview.subview.captureState().config.incoming;
           }
@@ -508,6 +511,7 @@ class AccountHubEmail extends HTMLElement {
    * @param {String} currentState - The current state of the email flow.
    */
   #handleBackAction(currentState) {
+    const stateDetails = this.#states[this.#currentState];
     switch (currentState) {
       case "autoConfigSubview":
         this.#hasCancelled = true;
@@ -516,6 +520,9 @@ class AccountHubEmail extends HTMLElement {
       case "incomingConfigSubview":
         break;
       case "outgoingConfigSubview":
+        // Set the currentConfig outgoing to the updated fields in this form.
+        this.#currentConfig.outgoing =
+          stateDetails.subview.captureState().outgoing;
         break;
       case "emailPasswordSubview":
         break;
@@ -553,14 +560,14 @@ class AccountHubEmail extends HTMLElement {
               await this.#initUI("incomingConfigSubview");
               this.#states[this.#currentState].previousStep =
                 "autoConfigSubview";
-              this.#states[this.#currentState].subview.showNotification({
+              this.#currentSubview.showNotification({
                 fluentTitleId: "account-hub-find-settings-failed",
                 type: "warning",
               });
-              break;
             }
             this.#hasCancelled = false;
             this.#stopLoading();
+            this.#setCurrentConfigForSubview();
             break;
           }
           this.#currentConfig = this.#fillAccountConfig(config);
@@ -568,7 +575,7 @@ class AccountHubEmail extends HTMLElement {
           await this.#initUI(this.#states[this.#currentState].nextStep);
           this.#states.incomingConfigSubview.previousStep =
             "emailConfigFoundSubview";
-          this.#states[this.#currentState].subview.showNotification({
+          this.#currentSubview.showNotification({
             fluentTitleId: "account-hub-config-success",
             type: "success",
           });
@@ -576,43 +583,66 @@ class AccountHubEmail extends HTMLElement {
           this.#emailFooter.canBack(false);
           this.#stopLoading();
           if (!(error instanceof UserCancelledException)) {
-            // TODO: Throw proper error here;
             throw error;
           }
         }
+
+        this.#setCurrentConfigForSubview();
         break;
       case "incomingConfigSubview":
         await this.#initUI(this.#states[this.#currentState].nextStep);
+        this.#currentConfig.incoming = stateData.config.incoming;
+        this.#setCurrentConfigForSubview();
+
         // We disable the continue button as the user needs click test to
         // ensure that the config is correct and complete, unless they don't
-        // edit the previous config.
+        // edit the incoming config.
         this.#emailFooter.toggleForwardDisabled(stateData.edited);
         // TODO: Validate incoming config details.
         break;
       case "outgoingConfigSubview":
         // Move to the password stage where validateAndFinish is run.
-
         await this.#initUI(this.#states[this.#currentState].nextStep);
-        // TODO: Validate outgoing config details.
-        this.#states[this.#currentState].subview.showNotification({
+        // The password stage should now have the outgoing subview as the
+        // previous step.
+        this.#states[this.#currentState].previousStep = currentState;
+        this.#currentSubview.setState();
+
+        this.#currentSubview.showNotification({
           fluentTitleId: "account-hub-password-info",
           type: "info",
         });
         break;
       case "emailConfigFoundSubview":
-        this.#states[this.#currentState].subview.showNotification({
+        await this.#initUI(this.#states[this.#currentState].nextStep);
+        // The password stage should now have the config found subview as the
+        // previous step.
+        this.#states[this.#currentState].previousStep = currentState;
+        this.#currentSubview.setState();
+        this.#currentSubview.showNotification({
           fluentTitleId: "account-hub-password-info",
           type: "info",
         });
         break;
       case "emailPasswordSubview":
-        this.#states[this.#currentState].subview.showNotification({
+        // TODO: Add loading notification here.
+        // Get password and remember from the state and apply it to the config.
+        this.#currentConfig = this.#fillAccountConfig(
+          this.#currentConfig,
+          stateData.password
+        );
+        this.#currentConfig.rememberPassword = stateData.rememberPassword;
+        gAccountSetupLogger.debug("Create button clicked.");
+        await this.#validateAndFinish(this.#currentConfig.copy());
+        await this.#initUI(this.#states[this.#currentState].nextStep);
+
+        this.#currentSubview.showNotification({
           fluentTitleId: "account-hub-sync-success",
           type: "success",
         });
         break;
       case "emailSyncAccountsSubview":
-        this.#states[this.#currentState].subview.showNotification({
+        this.#currentSubview.showNotification({
           fluentTitleId: "account-hub-email-added-success",
           type: "success",
         });
@@ -637,7 +667,7 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "outgoingConfigSubview":
         this.#startLoading("account-hub-adding-account-subheader");
-        stateData = this.#states[this.#currentState].subview.captureState();
+        stateData = this.#currentSubview.captureState();
         stateData.incoming =
           this.#states.incomingConfigSubview.subview.captureState().config.incoming;
         stateData = this.#fillAccountConfig(stateData);
@@ -654,13 +684,15 @@ class AccountHubEmail extends HTMLElement {
               type: "success",
             });
             this.#emailFooter.toggleForwardDisabled(false);
+            // The config is complete, therefore we can set the currentConfig
+            // as the stateData from incoming and outgoing.
+            this.#currentConfig = stateData;
           } else {
             this.#stopLoading();
             // The config is not complete, go back to the incoming view and
             // show an error.
             this.#initUI(this.#states[this.#currentState].previousStep);
-            // TODO: Show error message here.
-            this.#states[this.#currentState].subview.showNotification({
+            this.#currentSubview.showNotification({
               fluentTitleId: "account-hub-find-settings-failed",
               type: "error",
             });
@@ -668,8 +700,7 @@ class AccountHubEmail extends HTMLElement {
         } catch (error) {
           this.#stopLoading();
           this.#initUI(this.#states[this.#currentState].previousStep);
-          // TODO: Show error message here.
-          this.#states[this.#currentState].subview.showNotification({
+          this.#currentSubview.showNotification({
             fluentTitleId: "account-hub-find-settings-failed",
             error,
             type: "error",
@@ -694,6 +725,17 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
+   * Apply the new state data to the new state by passing a deep copy.
+   * We pass a deep copy because this controller's #currentConfig should
+   * only be updated when appropriate. (Eg. Updating incoming config and
+   * going back should not show the edited fields in config found view).
+   */
+  #setCurrentConfigForSubview() {
+    const config = this.#currentConfig.copy();
+    this.#currentSubview.setState(config);
+  }
+
+  /**
    * Finds an account configuration from the provided data if available.
    *
    */
@@ -713,20 +755,13 @@ class AccountHubEmail extends HTMLElement {
     this.abortable = new SuccessiveAbortable();
     let config = null;
 
-    try {
-      config = await FindConfig.parallelAutoDiscovery(
-        this.abortable,
-        domain,
-        this.#email
-      );
-    } catch (error) {
-      // Error would be thrown if autoDiscovery caused a 401 error.
-      throw new Error(error, {
-        cause: {
-          code: "401 Error",
-        },
-      });
-    }
+    // This can throw an error which will be caught up the call stack
+    // to show the correct notification.
+    config = await FindConfig.parallelAutoDiscovery(
+      this.abortable,
+      domain,
+      this.#email
+    );
 
     this.abortable = null;
 
@@ -771,15 +806,9 @@ class AccountHubEmail extends HTMLElement {
         this.abortable = null;
         resolve(config);
       },
-      e => {
-        gAccountSetupLogger.warn(`guessConfig failed: ${e}`);
-        reject(e);
-
-        this.#states[this.#currentState].subview.showNotification({
-          fluentTitleId: "account-hub-find-settings-failed",
-          error: e,
-          type: "error",
-        });
+      error => {
+        gAccountSetupLogger.warn(`guessConfig failed: ${error}`);
+        reject(error);
         this.abortable = null;
       },
       initialConfig,
@@ -798,9 +827,11 @@ class AccountHubEmail extends HTMLElement {
    */
   async #advancedSetup(accountConfig) {
     if (CreateInBackend.checkIncomingServerAlreadyExists(accountConfig)) {
-      throw new Error({
-        title: "account-setup-creation-error-title",
-        description: "account-setup-error-server-exists",
+      throw new Error("Account already exists.", {
+        cause: {
+          fluentTitleId: "account-setup-creation-error-title",
+          fluentDescriptionId: "account-setup-error-server-exists",
+        },
       });
     }
 
@@ -857,29 +888,12 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
-   * Called when the "Continue" button is pressed after manual account form
-   * fields are complete (or email password form is complete).
-   */
-  onContinue() {
-    gAccountSetupLogger.debug("Create button clicked.");
-
-    const completeConfig = this.#currentConfig;
-    // TODO: Open security warning dialog before resuming account creation.
-
-    try {
-      this.validateAndFinish(completeConfig);
-    } catch (error) {
-      // TODO: Show custom error notification for account creation error.
-    }
-  }
-
-  /**
    * Called from the "onContinue" function, does final validation on the
    * the complete config that is provided by the user and modified by helper.
    *
    * @param {AccountConfig} completeConfig - The completed config
    */
-  async validateAndFinish(completeConfig) {
+  async #validateAndFinish(completeConfig) {
     if (
       completeConfig.incoming.type == "exchange" &&
       "addonAccountType" in completeConfig.incoming
@@ -888,8 +902,12 @@ class AccountHubEmail extends HTMLElement {
     }
 
     if (CreateInBackend.checkIncomingServerAlreadyExists(completeConfig)) {
-      // TODO: Return an error notification if the incoming server already exists.
-      return;
+      throw new Error("Account already exists.", {
+        cause: {
+          fluentTitleId: "account-setup-creation-error-title",
+          fluentDescriptionId: "account-setup-error-server-exists",
+        },
+      });
     }
 
     if (completeConfig.outgoing.addThisServer) {
@@ -901,8 +919,6 @@ class AccountHubEmail extends HTMLElement {
       }
     }
 
-    this.clearNotifications();
-
     const telemetryKey =
       this.#currentConfig.source == AccountConfig.kSourceXML ||
       this.#currentConfig.source == AccountConfig.kSourceExchange
@@ -912,7 +928,6 @@ class AccountHubEmail extends HTMLElement {
     // This verifies the the current config and, if needed, opens up an
     // additional window for authentication.
     this.#configVerifier = new ConfigVerifier(window.msgWindow);
-
     try {
       const successfulConfig = await this.#configVerifier.verifyConfig(
         completeConfig,
@@ -938,7 +953,7 @@ class AccountHubEmail extends HTMLElement {
       }
 
       this.#currentConfig = completeConfig;
-      this.finishEmailAccountAddition(completeConfig);
+      this.#finishEmailAccountAddition(completeConfig);
       Glean.mail.successfulEmailAccountSetup[telemetryKey].add(1);
     } catch (error) {
       // If we get no message, then something other than VerifyLogon failed.
@@ -950,14 +965,13 @@ class AccountHubEmail extends HTMLElement {
         ["imap", "pop3"].includes(completeConfig.incoming.type) &&
         completeConfig.incomingAlternatives.some(i => i.type == "exchange")
       ) {
-        // TODO: Show exchange config not verifiable error notification.
-      } else {
-        // const msg = e.message || e.toString();
-        // TODO: Show account not created error notification.
+        error.cause.fluentTitleId =
+          "account-setup-exchange-config-unverifiable";
       }
-      this.#configVerifier.cleanup();
 
+      this.#configVerifier.cleanup();
       Glean.mail.failedEmailAccountSetup[telemetryKey].add(1);
+      throw error;
     }
   }
 
@@ -967,7 +981,7 @@ class AccountHubEmail extends HTMLElement {
    * accounts (calendar, address book, etc.)
    * @param {AccountConfig} completeConfig - The completed config
    */
-  async finishEmailAccountAddition(completeConfig) {
+  async #finishEmailAccountAddition(completeConfig) {
     gAccountSetupLogger.debug("Creating account in backend.");
     const emailAccount = await CreateInBackend.createAccountInBackend(
       completeConfig
@@ -1014,9 +1028,9 @@ class AccountHubEmail extends HTMLElement {
     this.#currentConfig = {};
     this.#hideSubviews();
     this.#clearNotifications();
-    this.#states[this.#currentState].subview.hidden = false;
+    this.#currentSubview.hidden = false;
     this.#setFooterButtons();
-    this.#states[this.#currentState].subview.resetState();
+    this.#currentSubview.resetState();
     this.#emailFooter.toggleForwardDisabled(true);
     return true;
   }

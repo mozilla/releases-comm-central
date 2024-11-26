@@ -11,6 +11,7 @@ const { nsMailServer } = ChromeUtils.importESModule(
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+const { DNS } = ChromeUtils.importESModule("resource:///modules/DNS.sys.mjs");
 
 let emailUser;
 const PREF_NAME = "mailnews.auto_config_url";
@@ -27,6 +28,7 @@ const IMAPServer = {
     } = ChromeUtils.importESModule(
       "resource://testing-common/mailnews/Imapd.sys.mjs"
     );
+
     IMAPServer.ImapMessage = ImapMessage;
 
     this.daemon = new ImapDaemon();
@@ -34,7 +36,7 @@ const IMAPServer = {
       const handler = new IMAP_RFC3501_handler(daemon);
       mixinExtension(handler, IMAP_RFC2195_extension);
 
-      handler.kUsername = "john.doe@momo.invalid";
+      handler.kUsername = "john.doe@imap.test";
       handler.kPassword = "abc12345";
       handler.kAuthRequired = true;
       handler.kAuthSchemes = ["PLAIN"];
@@ -62,7 +64,7 @@ const SMTPServer = {
     this.daemon = new SmtpDaemon();
     this.server = new nsMailServer(daemon => {
       const handler = new SMTP_RFC2821_handler(daemon);
-      handler.kUsername = "john.doe@momo.invalid";
+      handler.kUsername = "john.doe@imap.test";
       handler.kPassword = "abc12345";
       handler.kAuthRequired = true;
       handler.kAuthSchemes = ["PLAIN"];
@@ -81,6 +83,49 @@ const SMTPServer = {
   },
 };
 
+const _srv = DNS.srv;
+const _txt = DNS.txt;
+DNS.srv = function (name) {
+  if (["_caldavs._tcp.localhost", "_carddavs._tcp.localhost"].includes(name)) {
+    return [{ prio: 0, weight: 0, host: "example.org", port: 443 }];
+  }
+  if (["_caldavs._tcp.imap.test", "_carddavs._tcp.imap.test"].includes(name)) {
+    return [{ prio: 0, weight: 0, host: "example.org", port: 443 }];
+  }
+  throw new Error(`Unexpected DNS SRV lookup: ${name}`);
+};
+DNS.txt = function (name) {
+  if (name == "_caldavs._tcp.localhost") {
+    return [
+      { strings: ["path=/browser/comm/calendar/test/browser/data/dns.sjs"] },
+    ];
+  }
+  if (name == "_carddavs._tcp.localhost") {
+    return [
+      {
+        strings: [
+          "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
+        ],
+      },
+    ];
+  }
+  if (name == "_caldavs._tcp.imap.test") {
+    return [
+      { strings: ["path=/browser/comm/calendar/test/browser/data/dns.sjs"] },
+    ];
+  }
+  if (name == "_carddavs._tcp.imap.test") {
+    return [
+      {
+        strings: [
+          "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
+        ],
+      },
+    ];
+  }
+  throw new Error(`Unexpected DNS TXT lookup: ${name}`);
+};
+
 add_setup(function () {
   emailUser = {
     name: "John Doe",
@@ -95,15 +140,11 @@ add_setup(function () {
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
   Services.prefs.setCharPref(PREF_NAME, url);
-  IMAPServer.open();
-  SMTPServer.open();
 });
 
 registerCleanupFunction(function () {
   // Restore the original pref.
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
-  IMAPServer.close();
-  SMTPServer.close();
 });
 
 // TODO: Defer this for when the account hub replaces the account setup tab.
@@ -372,7 +413,7 @@ add_task(async function test_account_email_config_found() {
 
   Assert.ok(
     configFoundTemplate.querySelector("#imap").classList.contains("selected"),
-    "SMTP should be the selected config option"
+    "IMAP should be the selected config option"
   );
 
   // The config details should show the IMAP details.
@@ -672,8 +713,139 @@ add_task(async function test_account_email_manual_form() {
   Assert.ok(footerForward.disabled, "Continue button should be disabled");
   Assert.ok(!footerCustom.disabled, "Test button should be enabled");
 
-  // TODO: Add tests for test functionality when notifications are merged.
+  await subtest_close_account_hub_dialog(dialog);
+});
 
+add_task(async function test_account_enter_password_imap_account() {
+  IMAPServer.open();
+  SMTPServer.open();
+  emailUser = {
+    name: "John Doe",
+    email: "john.doe@imap.test",
+    password: "abc12345",
+    incomingHost: "testin.imap.test",
+    outgoingHost: "testout.imap.test",
+  };
+
+  const dialog = await subtest_open_account_hub_dialog();
+  await subtest_fill_initial_config_fields(dialog);
+  const footer = dialog.querySelector("account-hub-footer");
+  const footerForward = footer.querySelector("#forward");
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
+    "The IMAP config option should be visible"
+  );
+
+  // Continue button should lead to password template.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(configFoundTemplate),
+    "The config found template should be hidden."
+  );
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(dialog.querySelector("email-password-form")),
+    "The email password form should be visible."
+  );
+
+  // Updating rememberSignons pref should enable and check remember password.
+  const rememberSignonsPref = Services.prefs.getBoolPref(
+    "signon.rememberSignons"
+  );
+  Services.prefs.setBoolPref("signon.rememberSignons", true);
+
+  const emailPasswordTemplate = dialog.querySelector("email-password-form");
+  const rememberPasswordInput =
+    emailPasswordTemplate.querySelector("#rememberPassword");
+  // The new preference for rememberSignons is set to true, so the
+  // remember password checkbox should be checked and enabled.
+  Assert.ok(
+    !rememberPasswordInput.disabled,
+    "The remember password input should be disabled."
+  );
+  Assert.ok(
+    rememberPasswordInput.checked,
+    "The remember password input should be unchecked."
+  );
+
+  // Reverting rememberSignons pref should disable and uncheck remember
+  // password.
+  Services.prefs.setBoolPref("signon.rememberSignons", rememberSignonsPref);
+
+  Assert.ok(
+    rememberPasswordInput.disabled,
+    "The remember password input should be disabled."
+  );
+  Assert.ok(
+    !rememberPasswordInput.checked,
+    "The remember password input should be unchecked."
+  );
+
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(
+        emailPasswordTemplate.querySelector("#password")
+      ),
+    "The password form input should be visible."
+  );
+  const passwordInput = emailPasswordTemplate.querySelector("#password");
+
+  EventUtils.synthesizeMouseAtCenter(passwordInput, {});
+
+  // Entering the incorrect password should show an error notification.
+  let inputEvent = BrowserTestUtils.waitForEvent(
+    passwordInput,
+    "input",
+    true,
+    event => event.target.value === "abc"
+  );
+  EventUtils.sendString("abc", window);
+  await inputEvent;
+
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const header =
+    emailPasswordTemplate.shadowRoot.querySelector("account-hub-header");
+  await TestUtils.waitForCondition(
+    () =>
+      header.shadowRoot
+        .querySelector("#emailFormNotification")
+        .classList.contains("error"),
+    "The notification should be present."
+  );
+
+  EventUtils.synthesizeMouseAtCenter(passwordInput, {});
+  // Entering the correct password should hide current subview.
+  inputEvent = BrowserTestUtils.waitForEvent(
+    passwordInput,
+    "input",
+    true,
+    event => event.target.value === "abc12345"
+  );
+  EventUtils.sendString("12345", window);
+  await inputEvent;
+
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isHidden(emailPasswordTemplate),
+    "The email password subview should be hidden."
+  );
+
+  const imapAccount = MailServices.accounts.accounts.find(
+    account => account.identities[0].email === emailUser.email
+  );
+
+  Assert.ok(imapAccount, "IMAP account should be created");
+
+  MailServices.accounts.removeAccount(imapAccount);
+  Services.logins.removeAllLogins();
+
+  IMAPServer.close();
+  SMTPServer.close();
   await subtest_close_account_hub_dialog(dialog);
 });
 
@@ -867,7 +1039,7 @@ async function subtest_verify_account(tab, user, type) {
       );
     }
   } finally {
-    remove_account_internal(tab, account, outgoing);
+    remove_account_internal(tab, account);
   }
 }
 
@@ -876,13 +1048,17 @@ async function subtest_verify_account(tab, user, type) {
  *
  * @param {Tab} tab
  * @param {nsIMsgAccount} account
- * @param {nsIMsgOutgoingServer} outgoing
  */
-function remove_account_internal(tab, account, outgoing) {
+function remove_account_internal(tab, account) {
+  const identity = account.defaultIdentity;
+  const incoming = account.incomingServer;
+  const outgoing = MailServices.outgoingServer.getServerByKey(
+    identity.smtpServerKey
+  );
   const win = tab.browser.contentWindow;
 
   // Remove the account and incoming server
-  const serverId = account.incomingServer.serverURI;
+  const serverId = incoming.serverURI;
   MailServices.accounts.removeAccount(account);
   account = null;
   if (serverId in win.accountArray) {

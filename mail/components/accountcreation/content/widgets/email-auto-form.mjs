@@ -43,7 +43,6 @@ class EmailAutoForm extends AccountHubStep {
       .content.cloneNode(true);
     this.appendChild(template);
 
-    super.showBrandingHeader();
     this.#realName = this.querySelector("#realName");
     this.#email = this.querySelector("#email");
     this.#currentConfig = {};

@@ -10,6 +10,8 @@
 #include ./accountHubEmailConfigFoundTemplate.inc.xhtml
 #include ./accountHubEmailIncomingFormTemplate.inc.xhtml
 #include ./accountHubEmailOutgoingFormTemplate.inc.xhtml
+#include ./accountHubEmailPasswordFormTemplate.inc.xhtml
+#include ./accountHubEmailSyncAccountsFormTemplate.inc.xhtml
 #include ./accountHubFooterTemplate.inc.xhtml
 #include ./accountHubHeaderTemplate.inc.xhtml
 #include ./accountHubStepTemplate.inc.xhtml
@@ -84,23 +86,33 @@
   <email-auto-form id="emailAutoConfigSubview" title-id="account-hub-email-setup-header" >
   </email-auto-form>
 
-  <email-manual-incoming-form id="emailIncomingConfigSubview" title-id="account-hub-email-setup-incoming" hidden="hidden">
+  <email-manual-incoming-form id="emailIncomingConfigSubview"
+                              title-id="account-hub-email-setup-incoming"
+                              hidden="hidden">
   </email-manual-incoming-form>
 
-  <email-manual-outgoing-form id="emailOutgoingConfigSubview" title-id="account-hub-email-setup-outgoing" hidden="hidden">
+  <email-manual-outgoing-form id="emailOutgoingConfigSubview"
+                              title-id="account-hub-email-setup-outgoing"
+                              hidden="hidden">
   </email-manual-outgoing-form>
 
-  <email-config-found id="emailConfigFoundSubview" title-id="account-hub-email-config-found" hidden="hidden">
+  <email-config-found id="emailConfigFoundSubview"
+                      title-id="account-hub-email-config-found"
+                      hidden="hidden">
     <!-- Account Hub Email Config Found Subview -->
   </email-config-found >
 
-  <account-hub-step id="emailPasswordSubview" title-id="account-hub-email-enter-password" hidden="hidden">
-    <!-- Account Hub Email Config Found Subview -->
-  </account-hub-step>
+  <email-password-form id="emailPasswordSubview"
+                       title-id="account-hub-email-enter-password"
+                       hidden="hidden">
+    <!-- Account Hub Email Password Subview -->
+  </email-password-form>
 
-  <account-hub-step id="emailSyncAccountsSubview" title-id="account-hub-email-sync-accounts" hidden="hidden">
+  <email-sync-accounts-form id="emailSyncAccountsSubview"
+                            title-id="account-hub-email-sync-accounts"
+                            hidden="hidden">
     <!-- Account Hub Email Sync Accounts Subview -->
-  </account-hub-step>
+  </email-sync-accounts-form>
 
   <account-hub-step id="emailAddedSubview" hidden="hidden">
     <!-- Account Hub Email Added Subview -->
