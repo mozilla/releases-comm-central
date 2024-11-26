@@ -2649,11 +2649,12 @@ void nsImapProtocol::IncrementCommandTagNumber() {
   } else if (++m_currentServerCommandTagNumber == 0) {
     m_currentServerCommandTagNumber = 1;
   }
-  sprintf(m_currentServerCommandTag, "%u", m_currentServerCommandTagNumber);
+  m_currentServerCommandTag =
+      nsPrintfCString("%u", m_currentServerCommandTagNumber);
 }
 
 const char* nsImapProtocol::GetServerCommandTag() {
-  return m_currentServerCommandTag;
+  return m_currentServerCommandTag.get();
 }
 
 /**

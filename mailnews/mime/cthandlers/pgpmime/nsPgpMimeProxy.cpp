@@ -8,6 +8,7 @@
 #include "nspr.h"
 #include "plstr.h"
 #include "nsCOMPtr.h"
+#include "nsPrintfCString.h"
 #include "nsString.h"
 #include "mozilla/Components.h"
 #include "nsIRequest.h"
@@ -276,19 +277,14 @@ static void MimePgpe_free(MimeClosure output_closure) {
    This is not a full URL, just a part-number.
  */
 static nsCString determineMimePart(MimeObject* obj) {
-  char mimePartNum[20];
-  MimeObject* kid;
-  MimeContainer* cont;
-  int32_t i;
-
   nsCString mimePart;
 
   while (obj->parent) {
-    cont = (MimeContainer*)obj->parent;
-    for (i = 0; i < cont->nchildren; i++) {
-      kid = cont->children[i];
+    auto* cont = (MimeContainer*)obj->parent;
+    for (int32_t i = 0; i < cont->nchildren; i++) {
+      auto* kid = cont->children[i];
       if (kid == obj) {
-        sprintf(mimePartNum, ".%d", i + 1);
+        nsCString mimePartNum = nsPrintfCString(".%d", i + 1);
         mimePart.Insert(mimePartNum, 0);
       }
     }
