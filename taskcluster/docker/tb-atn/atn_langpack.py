@@ -92,6 +92,10 @@ class ATNUploader:
         with requests.put(url, files=file, data=data, headers=headers, verify=False) as resp:
             if not resp.ok:
                 print_line(f"Failed {locale}")
+                
+                # Print response to help determine if failure caused by client or host
+                print(resp.text)
+                
                 return resp.json()
             else:
                 return resp.json()
