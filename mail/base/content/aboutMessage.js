@@ -158,6 +158,21 @@ window.addEventListener("DOMContentLoaded", event => {
       );
   }
 
+  if (Services.prefs.getBoolPref("mail.advance_on_spacebar")) {
+    getMessagePaneBrowser().addEventListener("keydown", ev => {
+      if (
+        ev.key == " " &&
+        !ev.altKey &&
+        !ev.ctrlKey &&
+        !ev.metaKey &&
+        ev.target.localName == "body"
+      ) {
+        ev.preventDefault();
+        top.goDoCommand("cmd_space", ev);
+      }
+    });
+  }
+
   window.dispatchEvent(
     new CustomEvent("aboutMessageLoaded", { bubbles: true })
   );
