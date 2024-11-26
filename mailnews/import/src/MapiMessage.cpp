@@ -25,6 +25,7 @@
 
 #include "MapiMimeTypes.h"
 
+#include "nsLocalFile.h"
 #include "nsMsgI18N.h"
 #include "nsCRT.h"
 #include "nsNetUtil.h"
@@ -909,12 +910,14 @@ bool CMapiMessage::AddAttachment(DWORD aNum) {
             nsCString path;
             CMapiApi::GetStringFromProp(pVal, path);
             nsresult rv;
-            data->tmp_file = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-            if (NS_FAILED(rv) || !data->tmp_file) {
+            data->tmp_file = new nsLocalFile();
+            if (!data->tmp_file) {
               MAPI_TRACE0("*** Error creating file spec for attachment\n");
               bResult = false;
-            } else
-              data->tmp_file->InitWithNativePath(path);
+            } else {
+              rv = data->tmp_file->InitWithNativePath(path);
+              bResult = NS_FAILED(rv);
+            }
           }
           MAPI_TRACE2("\t\t** Attachment #%d by ref: %s\r\n", aNum,
                       m_attachPath.get());

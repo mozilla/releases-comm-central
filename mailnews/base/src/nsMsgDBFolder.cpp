@@ -5,6 +5,7 @@
 
 #include "MailNewsTypes.h"
 #include "msgCore.h"
+#include "nsLocalFile.h"
 #include "nsUnicharUtils.h"
 #include "nsMsgDBFolder.h"
 #include "nsMsgFolderFlags.h"
@@ -2882,9 +2883,9 @@ nsresult nsMsgDBFolder::parseURI(bool needServer) {
           return rv;
         }
       }
-      mPath = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
+      mPath = new nsLocalFile();
+      rv = mPath->InitWithFile(serverPath);
       NS_ENSURE_SUCCESS(rv, rv);
-      mPath->InitWithFile(serverPath);
     }
     // URI is completely parsed when we've attempted to get the server
     mHaveParsedURI = true;
@@ -4242,13 +4243,13 @@ nsMsgDBFolder::GetFilePath(nsIFile** aFile) {
   nsresult rv;
   // make a new nsIFile object in case the caller
   // alters the underlying file object.
-  nsCOMPtr<nsIFile> file = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIFile> file = new nsLocalFile();
   if (!mPath) {
     rv = parseURI(true);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   rv = file->InitWithFile(mPath);
+  NS_ENSURE_SUCCESS(rv, rv);
   file.forget(aFile);
   return NS_OK;
 }
@@ -4257,15 +4258,14 @@ NS_IMETHODIMP nsMsgDBFolder::GetSummaryFile(nsIFile** aSummaryFile) {
   NS_ENSURE_ARG_POINTER(aSummaryFile);
 
   nsresult rv;
-  nsCOMPtr<nsIFile> newSummaryLocation =
-      do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIFile> pathFile;
   rv = GetFilePath(getter_AddRefs(pathFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  newSummaryLocation->InitWithFile(pathFile);
+  nsCOMPtr<nsIFile> newSummaryLocation = new nsLocalFile();
+  rv = newSummaryLocation->InitWithFile(pathFile);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsString fileName;
   rv = newSummaryLocation->GetLeafName(fileName);

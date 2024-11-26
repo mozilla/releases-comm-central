@@ -13,6 +13,7 @@
 #include "nsMsgUtils.h"
 #include "nsMsgSearchTerm.h"
 #include "nsString.h"
+#include "nsLocalFile.h"
 #include "nsIMsgFilterService.h"
 #include "nsMsgSearchScopeTerm.h"
 #include "nsIStringBundle.h"
@@ -179,9 +180,7 @@ nsresult nsMsgFilterList::GetLogFile(nsIFile** aFile) {
     rv = m_folder->GetFilePath(getter_AddRefs(thisFolder));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIFile> filterLogFile =
-        do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIFile> filterLogFile = new nsLocalFile();
     rv = filterLogFile->InitWithFile(thisFolder);
     NS_ENSURE_SUCCESS(rv, rv);
 

@@ -13,6 +13,7 @@
 #include "nsIDBFolderInfo.h"
 #include "nsIImapService.h"
 #include "nsIFile.h"
+#include "nsLocalFile.h"
 #include "nsAnonymousTemporaryFile.h"
 #include "nsIUrlListener.h"
 #include "nsCOMPtr.h"
@@ -449,56 +450,52 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
 
     // OK, here we need to get the online name from the folder cache if we can.
     // If we can, use that to create the sub-folder
-    nsCOMPtr<nsIFile> curFolder =
-        do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
+    nsCOMPtr<nsIFile> curFolder = new nsLocalFile();
+    rv = curFolder->InitWithFile(currentFolderPath);
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIFile> dbFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
+    nsCOMPtr<nsIFile> dbFile = new nsLocalFile();
+    rv = dbFile->InitWithFile(currentFolderPath);
     NS_ENSURE_SUCCESS(rv, rv);
-    dbFile->InitWithFile(currentFolderPath);
-    curFolder->InitWithFile(currentFolderPath);
     // don't strip off the .msf in currentFolderPath.
     currentFolderPath->SetLeafName(currentFolderNameStr);
     currentFolderDBNameStr = currentFolderNameStr;
     nsAutoString utfLeafName = currentFolderNameStr;
 
-    if (curFolder) {
-      nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
-      rv = GetFolderCacheElemFromFile(dbFile, getter_AddRefs(cacheElement));
-      if (NS_SUCCEEDED(rv) && cacheElement) {
-        nsCString onlineFullUtfName;
+    nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
+    rv = GetFolderCacheElemFromFile(dbFile, getter_AddRefs(cacheElement));
+    if (NS_SUCCEEDED(rv) && cacheElement) {
+      nsCString onlineFullUtfName;
 
-        uint32_t folderFlags;
-        rv = cacheElement->GetCachedUInt32("flags", &folderFlags);
-        if (NS_SUCCEEDED(rv) &&
-            folderFlags & nsMsgFolderFlags::Virtual)  // ignore virtual folders
-          continue;
-        int32_t hierarchyDelimiter;
-        rv = cacheElement->GetCachedInt32("hierDelim", &hierarchyDelimiter);
-        if (NS_SUCCEEDED(rv) &&
-            hierarchyDelimiter == kOnlineHierarchySeparatorUnknown) {
-          currentFolderPath->Remove(false);
-          continue;  // blow away .msf files for folders with unknown delimiter.
-        }
-        rv = cacheElement->GetCachedString("onlineName", onlineFullUtfName);
-        if (NS_SUCCEEDED(rv) && !onlineFullUtfName.IsEmpty()) {
-          CopyFolderNameToUTF16(onlineFullUtfName, currentFolderNameStr);
-          char delimiter = 0;
-          GetHierarchyDelimiter(&delimiter);
-          int32_t leafPos = currentFolderNameStr.RFindChar(delimiter);
-          if (leafPos > 0) currentFolderNameStr.Cut(0, leafPos + 1);
+      uint32_t folderFlags;
+      rv = cacheElement->GetCachedUInt32("flags", &folderFlags);
+      if (NS_SUCCEEDED(rv) &&
+          folderFlags & nsMsgFolderFlags::Virtual)  // ignore virtual folders
+        continue;
+      int32_t hierarchyDelimiter;
+      rv = cacheElement->GetCachedInt32("hierDelim", &hierarchyDelimiter);
+      if (NS_SUCCEEDED(rv) &&
+          hierarchyDelimiter == kOnlineHierarchySeparatorUnknown) {
+        currentFolderPath->Remove(false);
+        continue;  // blow away .msf files for folders with unknown delimiter.
+      }
+      rv = cacheElement->GetCachedString("onlineName", onlineFullUtfName);
+      if (NS_SUCCEEDED(rv) && !onlineFullUtfName.IsEmpty()) {
+        CopyFolderNameToUTF16(onlineFullUtfName, currentFolderNameStr);
+        char delimiter = 0;
+        GetHierarchyDelimiter(&delimiter);
+        int32_t leafPos = currentFolderNameStr.RFindChar(delimiter);
+        if (leafPos > 0) currentFolderNameStr.Cut(0, leafPos + 1);
 
-          // Take the full online name, and determine the leaf name.
-          CopyUTF8toUTF16(onlineFullUtfName, utfLeafName);
-          leafPos = utfLeafName.RFindChar(delimiter);
-          if (leafPos > 0) utfLeafName.Cut(0, leafPos + 1);
-        }
+        // Take the full online name, and determine the leaf name.
+        CopyUTF8toUTF16(onlineFullUtfName, utfLeafName);
+        leafPos = utfLeafName.RFindChar(delimiter);
+        if (leafPos > 0) utfLeafName.Cut(0, leafPos + 1);
       }
     }
+
     // make the imap folder remember the file spec it was created with.
-    nsCOMPtr<nsIFile> msfFilePath =
-        do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    msfFilePath->InitWithFile(currentFolderPath);
+    nsCOMPtr<nsIFile> msfFilePath = new nsLocalFile();
+    rv = msfFilePath->InitWithFile(currentFolderPath);
     if (NS_SUCCEEDED(rv) && msfFilePath) {
       // leaf name is the db name w/o .msf (nsShouldIgnoreFile strips it off)
       // so this trims the .msf off the file spec.
@@ -885,9 +882,9 @@ nsresult nsImapMailFolder::CreateFileForDB(const nsAString& userLeafName,
   // into Open().  this isn't ideal, since this is not atomic
   // but it will make do.
   nsresult rv;
-  nsCOMPtr<nsIFile> dbPath = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
+  nsCOMPtr<nsIFile> dbPath = new nsLocalFile();
+  rv = dbPath->InitWithFile(path);
   NS_ENSURE_SUCCESS(rv, rv);
-  dbPath->InitWithFile(path);
   proposedDBName.AppendLiteral(SUMMARY_SUFFIX);
   dbPath->Append(proposedDBName);
   bool exists;
@@ -8153,12 +8150,9 @@ NS_IMETHODIMP nsImapMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
     oldPathFile->GetNativeLeafName(oldLeafName);
     newParentPathFile->AppendNative(oldLeafName);
 
-    nsCOMPtr<nsIFile> newPathFile =
-        do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
+    nsCOMPtr<nsIFile> dbFilePath = new nsLocalFile();
+    rv = dbFilePath->InitWithFile(newParentPathFile);
     NS_ENSURE_SUCCESS(rv, rv);
-    newPathFile->InitWithFile(newParentPathFile);
-
-    nsCOMPtr<nsIFile> dbFilePath = newPathFile;
 
     nsCOMPtr<nsIMsgFolder> child;
 

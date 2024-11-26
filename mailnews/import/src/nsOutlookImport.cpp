@@ -8,6 +8,7 @@
 */
 #include "nscore.h"
 #include "nsString.h"
+#include "nsLocalFile.h"
 #include "nsMsgUtils.h"
 #include "nsIImportService.h"
 #include "nsOutlookImport.h"
@@ -227,11 +228,7 @@ NS_IMETHODIMP ImportOutlookMailImpl::GetDefaultLocation(nsIFile** ppLoc) {
 
   if (store.GetSize() == 0) return NS_OK;
 
-  nsresult rv;
-  nsCOMPtr<nsIFile> resultFile =
-      do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) return rv;
-
+  nsCOMPtr<nsIFile> resultFile = new nsLocalFile();
   resultFile.forget(ppLoc);
 
   return NS_OK;

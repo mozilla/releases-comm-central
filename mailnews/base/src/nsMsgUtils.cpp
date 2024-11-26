@@ -40,6 +40,7 @@
 #include "nsIOutputStream.h"
 #include "nsMsgFileStream.h"
 #include "nsIFileURL.h"
+#include "nsLocalFile.h"
 #include "nsNetUtil.h"
 #include "nsProtocolProxyService.h"
 #include "nsIProtocolProxyCallback.h"
@@ -1212,13 +1213,11 @@ void Seconds2PRTime(uint32_t seconds, PRTime* prTime) {
 nsresult GetSummaryFileLocation(nsIFile* fileLocation,
                                 nsIFile** summaryLocation) {
   nsresult rv;
-  nsCOMPtr<nsIFile> newSummaryLocation =
-      do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
+  nsCOMPtr<nsIFile> newSummaryLocation = new nsLocalFile();
+  rv = newSummaryLocation->InitWithFile(fileLocation);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  newSummaryLocation->InitWithFile(fileLocation);
   nsString fileName;
-
   rv = newSummaryLocation->GetLeafName(fileName);
   if (NS_FAILED(rv)) return rv;
 

@@ -12,6 +12,7 @@
 #include "nsIImportGeneric.h"
 #include "nsIDirectoryEnumerator.h"
 #include "nsIFile.h"
+#include "nsLocalFile.h"
 #include "nsIStringBundle.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgHdr.h"
@@ -116,14 +117,11 @@ NS_IMETHODIMP nsAppleMailImportMail::GetDefaultLocation(nsIFile** aLocation) {
   *aLocation = nullptr;
 
   // try to find current user's top-level Mail folder
-  nsCOMPtr<nsIFile> mailFolder(do_CreateInstance(NS_LOCAL_FILE_CONTRACTID));
-  if (mailFolder) {
-    nsresult rv =
-        mailFolder->InitWithNativePath(nsLiteralCString(DEFAULT_MAIL_FOLDER));
-    if (NS_SUCCEEDED(rv)) {
-      mailFolder.forget(aLocation);
-    }
-  }
+  nsCOMPtr<nsIFile> mailFolder;
+  nsresult rv = NS_NewNativeLocalFile(nsLiteralCString(DEFAULT_MAIL_FOLDER),
+                                      getter_AddRefs(mailFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  mailFolder.forget(aLocation);
 
   return NS_OK;
 }
@@ -156,10 +154,9 @@ NS_IMETHODIMP nsAppleMailImportMail::FindMailboxes(
     // 2. look for "global" mailboxes, that don't belong to any specific
     // account. they are inside the
     //    root's Mailboxes/ folder
-    nsCOMPtr<nsIFile> mailboxesDir(
-        do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv));
+    nsCOMPtr<nsIFile> mailboxesDir = new nsLocalFile();
+    rv = mailboxesDir->InitWithFile(aMailboxFile);
     if (NS_SUCCEEDED(rv)) {
-      mailboxesDir->InitWithFile(aMailboxFile);
       rv = mailboxesDir->Append(u"Mailboxes"_ns);
       if (NS_SUCCEEDED(rv)) {
         IMPORT_LOG0("Looking for global Apple mailboxes");
@@ -391,11 +388,9 @@ nsresult nsAppleMailImportMail::FindMboxDirs(
 
       IMPORT_LOG1("trying to locate a '%s'",
                   NS_ConvertUTF16toUTF8(siblingMailboxDirPath).get());
-      nsCOMPtr<nsIFile> siblingMailboxDir(
-          do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv));
-      if (NS_FAILED(rv)) continue;
-
+      nsCOMPtr<nsIFile> siblingMailboxDir = new nsLocalFile();
       rv = siblingMailboxDir->InitWithPath(siblingMailboxDirPath);
+      if (NS_FAILED(rv)) continue;
       bool reallyExists = false;
       siblingMailboxDir->Exists(&reallyExists);
 

@@ -14,6 +14,7 @@
 #include "nsINode.h"
 #include "nsIFileStreams.h"
 #include "nsIFile.h"
+#include "nsLocalFile.h"
 #include "nsIDirectoryEnumerator.h"
 #include "ImportDebug.h"
 #include "prio.h"
@@ -68,10 +69,7 @@ nsresult nsWMUtils::GetRootFolder(nsIFile** aRootFolder) {
                               (LPWSTR)expandedStoreRoot.BeginWriting(), size);
   storeRoot = expandedStoreRoot;
 
-  nsCOMPtr<nsIFile> rootFolder(
-      do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsIFile> rootFolder = new nsLocalFile();
   rv = rootFolder->InitWithPath(storeRoot);
   NS_ENSURE_SUCCESS(rv, rv);
 

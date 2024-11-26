@@ -30,6 +30,7 @@
 
 #include "nsIMsgWindow.h"
 
+#include "nsLocalFile.h"
 #include "nsNetUtil.h"
 #include "nsIAuthPrompt.h"
 #include "nsIURL.h"
@@ -1546,10 +1547,7 @@ nsMsgNewsFolder::GetFilterList(nsIMsgWindow* aMsgWindow,
     nsresult rv = GetFilePath(getter_AddRefs(thisFolder));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIFile> filterFile =
-        do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    ;
+    nsCOMPtr<nsIFile> filterFile = new nsLocalFile();
     rv = filterFile->InitWithFile(thisFolder);
     NS_ENSURE_SUCCESS(rv, rv);
 

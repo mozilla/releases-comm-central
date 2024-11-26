@@ -795,7 +795,7 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
       // A null saveAsFile means that the user canceled the save as
       if (NS_FAILED(rv) || !saveAsFile) goto done;
     } else {
-      saveAsFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
+      saveAsFile = new nsLocalFile();
       rv = saveAsFile->InitWithPath(aMsgFilename);
       if (NS_FAILED(rv)) goto done;
       if (StringEndsWith(aMsgFilename,
@@ -1097,9 +1097,7 @@ nsMessenger::SaveMessages(const nsTArray<nsString>& aFilenameArray,
     return NS_OK;
 
   for (uint32_t i = 0; i < aFilenameArray.Length(); i++) {
-    nsCOMPtr<nsIFile> saveToFile =
-        do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIFile> saveToFile = new nsLocalFile();
     rv = saveToFile->InitWithFile(saveDir);
     NS_ENSURE_SUCCESS(rv, rv);
 

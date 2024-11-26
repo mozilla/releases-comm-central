@@ -27,6 +27,7 @@
 #include "nsIMsgComposeService.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsDirectoryServiceUtils.h"
+#include "nsLocalFile.h"
 #include "msgMapi.h"
 #include "msgMapiHook.h"
 #include "msgMapiSupport.h"
@@ -321,18 +322,20 @@ nsresult nsMapiHook::HandleAttachments(nsIMsgCompFields* aCompFields,
   nsAutoCString Attachments;
   nsAutoCString TempFiles;
 
-  nsCOMPtr<nsIFile> pFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-  if (NS_FAILED(rv) || (!pFile)) return rv;
-  nsCOMPtr<nsIFile> pTempDir = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-  if (NS_FAILED(rv) || (!pTempDir)) return rv;
+  nsCOMPtr<nsIFile> pFile = new nsLocalFile();
+  nsCOMPtr<nsIFile> pTempDir = new nsLocalFile();
 
   for (int i = 0; i < aFileCount; i++) {
     if (aFiles[i].lpszPathName) {
       // check if attachment exists
-      if (!aIsUTF8)
-        pFile->InitWithNativePath(nsDependentCString(aFiles[i].lpszPathName));
-      else
-        pFile->InitWithPath(NS_ConvertUTF8toUTF16(aFiles[i].lpszPathName));
+      if (!aIsUTF8) {
+        rv = pFile->InitWithNativePath(
+            nsDependentCString(aFiles[i].lpszPathName));
+        NS_ENSURE_SUCCESS(rv, rv);
+      } else {
+        rv = pFile->InitWithPath(NS_ConvertUTF8toUTF16(aFiles[i].lpszPathName));
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
 
       bool bExist;
       rv = pFile->Exists(&bExist);
@@ -440,15 +443,14 @@ nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields* aCompFields,
   nsAutoCString Attachments;
   nsAutoCString TempFiles;
 
-  nsCOMPtr<nsIFile> pFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-  if (NS_FAILED(rv) || (!pFile)) return rv;
-  nsCOMPtr<nsIFile> pTempDir = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-  if (NS_FAILED(rv) || (!pTempDir)) return rv;
+  nsCOMPtr<nsIFile> pFile = new nsLocalFile();
+  nsCOMPtr<nsIFile> pTempDir = new nsLocalFile();
 
   for (int i = 0; i < aFileCount; i++) {
     if (aFiles[i].lpszPathName) {
       // Check if attachment exists.
-      pFile->InitWithPath(nsDependentString(aFiles[i].lpszPathName));
+      rv = pFile->InitWithPath(nsDependentString(aFiles[i].lpszPathName));
+      NS_ENSURE_SUCCESS(rv, rv);
 
       bool bExist;
       rv = pFile->Exists(&bExist);
@@ -767,8 +769,7 @@ nsresult nsMapiHook::PopulateCompFieldsForSendDocs(
     nsAutoString Subject;
 
     // multiple files to be sent, delim specified
-    nsCOMPtr<nsIFile> pFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-    if (NS_FAILED(rv) || (!pFile)) return rv;
+    nsCOMPtr<nsIFile> pFile = new nsLocalFile();
 
     char* newFilePaths = (char*)strFilePaths.get();
     while (offset != kNotFound) {
@@ -807,7 +808,8 @@ nsresult nsMapiHook::PopulateCompFieldsForSendDocs(
         }
       }
 
-      pFile->InitWithNativePath(RemainingPaths);
+      rv = pFile->InitWithNativePath(RemainingPaths);
+      NS_ENSURE_SUCCESS(rv, rv);
 
       rv = pFile->Exists(&bExist);
       if (NS_FAILED(rv) || (!bExist)) return NS_ERROR_FILE_NOT_FOUND;

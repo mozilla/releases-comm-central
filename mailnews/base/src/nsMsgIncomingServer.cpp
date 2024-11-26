@@ -24,6 +24,7 @@
 #include "nsIDocShell.h"
 #include "nsIAuthPrompt.h"
 #include "nsNetUtil.h"
+#include "nsLocalFile.h"
 #include "nsIWindowWatcher.h"
 #include "nsIMsgHdr.h"
 #include "nsILoginInfo.h"
@@ -1046,8 +1047,7 @@ nsMsgIncomingServer::GetFilterList(nsIMsgWindow* aMsgWindow,
     rv = msgFolder->GetFilePath(getter_AddRefs(thisFolder));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    mFilterFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+    mFilterFile = new nsLocalFile();
     rv = mFilterFile->InitWithFile(thisFolder);
     NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1056,9 +1056,7 @@ nsMsgIncomingServer::GetFilterList(nsIMsgWindow* aMsgWindow,
     bool fileExists;
     mFilterFile->Exists(&fileExists);
     if (!fileExists) {
-      nsCOMPtr<nsIFile> oldFilterFile =
-          do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIFile> oldFilterFile = new nsLocalFile();
       rv = oldFilterFile->InitWithFile(thisFolder);
       NS_ENSURE_SUCCESS(rv, rv);
       oldFilterFile->AppendNative("rules.dat"_ns);
