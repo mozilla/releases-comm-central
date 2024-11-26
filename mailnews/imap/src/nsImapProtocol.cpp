@@ -9559,6 +9559,7 @@ bool nsImapMockChannel::ReadFromLocalCache() {
 NS_IMETHODIMP nsImapMockChannel::AsyncOpen(nsIStreamListener* aListener) {
   MOZ_ASSERT(NS_IsMainThread(),
              "nsIChannel methods must be called from main thread");
+  mLoadFlags |= nsIChannel::LOAD_REPLACE;
   nsCOMPtr<nsIStreamListener> listener = aListener;
   nsresult rv =
       nsContentSecurityManager::doContentSecurityCheck(this, listener);

@@ -428,6 +428,7 @@ NS_IMETHODIMP nsMsgProtocol::Open(nsIInputStream** _retval) {
 }
 
 NS_IMETHODIMP nsMsgProtocol::AsyncOpen(nsIStreamListener* aListener) {
+  mLoadFlags |= nsIChannel::LOAD_REPLACE;
   nsCOMPtr<nsIStreamListener> listener = aListener;
   nsresult rv =
       nsContentSecurityManager::doContentSecurityCheck(this, listener);
