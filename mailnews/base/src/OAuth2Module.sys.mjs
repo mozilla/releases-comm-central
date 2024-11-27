@@ -49,7 +49,7 @@ OAuth2Module.prototype = {
       return false;
     }
 
-    const [issuer, scope, requiredScope] = details;
+    const { issuer, allScopes, requiredScopes } = details;
     // Find the app key we need for the OAuth2 string. Eventually, this should
     // be using dynamic client registration, but there are no current
     // implementations that we can test this with.
@@ -63,8 +63,8 @@ OAuth2Module.prototype = {
     // loginOrigin is needed to save the refresh token in the password manager.
     this._loginOrigin = "oauth://" + issuer;
     // We use the scope to indicate realm when storing in the password manager.
-    this._scope = scope;
-    this._requiredScopes = scopeSet(requiredScope);
+    this._scope = allScopes;
+    this._requiredScopes = scopeSet(requiredScopes);
 
     // Look for an existing `OAuth2` object with the same endpoint, username
     // and scope.

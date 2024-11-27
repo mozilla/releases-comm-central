@@ -221,18 +221,23 @@ var kIssuers = new Map([
  */
 export var OAuth2Providers = {
   /**
+   * @typedef hostnameDetails
+   * @property {string} issuer - A string representing the organization.
+   * @property {string} allScopes - A space-separated list of all scopes for
+   *   the hostname.
+   * @property {string} requiredScopes - A space-separated list of all scopes
+   *  required for the given type.
+   */
+
+  /**
    * Map a hostname to the relevant issuer and scope.
    *
    * @param {string} hostname - The hostname of the server. For example
    *  "imap.googlemail.com".
    * @param {string} type - The type of activity we need a token for,
    *   e.g. "imap" or "caldav".
-   * @returns {Array} An array containing [issuer, allScopes, requiredScopes]
+   * @returns {hostnameDetails} An object containing issuer and scope information
    *   for the hostname and type, or undefined if not found.
-   *   - issuer is a string representing the organization
-   *   - allScopes is a space-separated list of all scopes for the hostname.
-   *   - requiredScopes is a space-separated list of all scopes required for
-   *       the given type, or the same as allScopes if no type was given.
    */
   getHostnameDetails(hostname, type) {
     if (!type) {
@@ -255,7 +260,7 @@ export var OAuth2Providers = {
     }
     if (typeof scopes == "string") {
       // Scopes not separated into types.
-      return [issuer, scopes, scopes];
+      return { issuer, allScopes: scopes, requiredScopes: scopes };
     }
 
     const allScopes = combineScopes(Object.values(scopes));
@@ -265,7 +270,7 @@ export var OAuth2Providers = {
     }
 
     const requiredScopes = combineScopes([scopes[type], scopes.extra]);
-    return [issuer, allScopes, requiredScopes];
+    return { issuer, allScopes, requiredScopes };
   },
 
   _getHostnameDetails(hostname) {

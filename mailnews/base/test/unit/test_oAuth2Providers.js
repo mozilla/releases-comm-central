@@ -19,47 +19,59 @@ add_task(function testHostnameDetails() {
 
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("mochi.test", "anything"),
-    ["test.test", "test_scope", "test_scope"],
+    {
+      issuer: "test.test",
+      allScopes: "test_scope",
+      requiredScopes: "test_scope",
+    },
     "a domain with no type data should return all scopes as required"
   );
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("subdomain.mochi.test", "anything"),
-    ["test.test", "test_scope", "test_scope"],
+    {
+      issuer: "test.test",
+      allScopes: "test_scope",
+      requiredScopes: "test_scope",
+    },
     "a sub-domain should return the same results as the domain"
   );
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("sub.subdomain.mochi.test", "anything"),
-    ["test.test", "test_scope", "test_scope"],
+    {
+      issuer: "test.test",
+      allScopes: "test_scope",
+      requiredScopes: "test_scope",
+    },
     "a sub-sub-domain should return the same results as the domain"
   );
 
   // Test known types.
 
-  Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test", "imap"), [
-    "test.test",
-    "test_mail test_addressbook test_calendar",
-    "test_mail",
-  ]);
-  Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test", "pop3"), [
-    "test.test",
-    "test_mail test_addressbook test_calendar",
-    "test_mail",
-  ]);
-  Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test", "smtp"), [
-    "test.test",
-    "test_mail test_addressbook test_calendar",
-    "test_mail",
-  ]);
-  Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test", "carddav"), [
-    "test.test",
-    "test_mail test_addressbook test_calendar",
-    "test_addressbook",
-  ]);
-  Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test", "caldav"), [
-    "test.test",
-    "test_mail test_addressbook test_calendar",
-    "test_calendar",
-  ]);
+  Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test", "imap"), {
+    issuer: "test.test",
+    allScopes: "test_mail test_addressbook test_calendar",
+    requiredScopes: "test_mail",
+  });
+  Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test", "pop3"), {
+    issuer: "test.test",
+    allScopes: "test_mail test_addressbook test_calendar",
+    requiredScopes: "test_mail",
+  });
+  Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test", "smtp"), {
+    issuer: "test.test",
+    allScopes: "test_mail test_addressbook test_calendar",
+    requiredScopes: "test_mail",
+  });
+  Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test", "carddav"), {
+    issuer: "test.test",
+    allScopes: "test_mail test_addressbook test_calendar",
+    requiredScopes: "test_addressbook",
+  });
+  Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test", "caldav"), {
+    issuer: "test.test",
+    allScopes: "test_mail test_addressbook test_calendar",
+    requiredScopes: "test_calendar",
+  });
 
   // Test unknown types.
 
@@ -72,7 +84,11 @@ add_task(function testHostnameDetails() {
 
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("subdomain.test.test", "imap"),
-    ["test.test", "test_mail test_addressbook test_calendar", "test_mail"],
+    {
+      issuer: "test.test",
+      allScopes: "test_mail test_addressbook test_calendar",
+      requiredScopes: "test_mail",
+    },
     "a sub-domain should return the same results as the domain"
   );
 });
@@ -81,36 +97,43 @@ add_task(function testHostnameDetails() {
 add_task(function testMicrosoftHostnameDetails() {
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("outlook.office365.com", "imap"),
-    [
-      "login.microsoftonline.com",
-      "https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access",
-      "https://outlook.office.com/IMAP.AccessAsUser.All offline_access",
-    ]
+    {
+      issuer: "login.microsoftonline.com",
+      allScopes:
+        "https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access",
+      requiredScopes:
+        "https://outlook.office.com/IMAP.AccessAsUser.All offline_access",
+    }
   );
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("outlook.office365.com", "pop3"),
-    [
-      "login.microsoftonline.com",
-      "https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access",
-      "https://outlook.office.com/POP.AccessAsUser.All offline_access",
-    ]
+    {
+      issuer: "login.microsoftonline.com",
+      allScopes:
+        "https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access",
+      requiredScopes:
+        "https://outlook.office.com/POP.AccessAsUser.All offline_access",
+    }
   );
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("smtp.office365.com", "smtp"),
-    [
-      "login.microsoftonline.com",
-      "https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access",
-      "https://outlook.office.com/SMTP.Send offline_access",
-    ]
+    {
+      issuer: "login.microsoftonline.com",
+      allScopes:
+        "https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access",
+      requiredScopes: "https://outlook.office.com/SMTP.Send offline_access",
+    }
   );
 
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("outlook.office365.com", "ews"),
-    [
-      "login.microsoftonline.com",
-      "https://outlook.office.com/EWS.AccessAsUser.All offline_access",
-      "https://outlook.office.com/EWS.AccessAsUser.All offline_access",
-    ]
+    {
+      issuer: "login.microsoftonline.com",
+      allScopes:
+        "https://outlook.office.com/EWS.AccessAsUser.All offline_access",
+      requiredScopes:
+        "https://outlook.office.com/EWS.AccessAsUser.All offline_access",
+    }
   );
 
   Assert.deepEqual(

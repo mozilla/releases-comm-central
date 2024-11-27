@@ -1003,12 +1003,12 @@ function reportAccountTypes() {
         incomingServer.type
       );
 
-      if (!hostnameDetails || hostnameDetails.length == 0) {
+      if (!hostnameDetails) {
         // Not a valid OAuth2 configuration; skip it
         continue;
       }
 
-      const issuer = hostnameDetails[0];
+      const issuer = hostnameDetails.issuer;
       let count = accountsByOauthProviders.get(issuer) || 0;
       accountsByOauthProviders.set(issuer, ++count);
     }
