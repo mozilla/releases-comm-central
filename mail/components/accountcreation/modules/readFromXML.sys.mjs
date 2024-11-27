@@ -112,7 +112,7 @@ export function readFromXML(clientConfigXML, subSource) {
       }
       exception = null;
 
-      iO.auth = readAuthentication(iX.$authentication, iO.hostname, {
+      iO.auth = readAuthentication(iX.$authentication, iO.hostname, iO.type, {
         "password-cleartext": Ci.nsMsgAuthMethod.passwordCleartext,
         // @deprecated TODO remove
         plain: Ci.nsMsgAuthMethod.passwordCleartext,
@@ -231,7 +231,7 @@ export function readFromXML(clientConfigXML, subSource) {
       }
       exception = null;
 
-      oO.auth = readAuthentication(oX.$authentication, oO.hostname, {
+      oO.auth = readAuthentication(oX.$authentication, oO.hostname, oO.type, {
         // open relay
         none: Ci.nsMsgAuthMethod.none,
         // inside ISP or corp network
@@ -313,7 +313,7 @@ export function readFromXML(clientConfigXML, subSource) {
 }
 /* eslint-enable complexity */
 
-function readAuthentication(authenticationValues, hostname, mapping) {
+function readAuthentication(authenticationValues, hostname, type, mapping) {
   let exception;
   for (const authenticationValue of authenticationValues || []) {
     try {
@@ -321,7 +321,7 @@ function readAuthentication(authenticationValues, hostname, mapping) {
 
       if (
         authMethod === Ci.nsMsgAuthMethod.OAuth2 &&
-        !OAuth2Providers.getHostnameDetails(hostname)
+        !OAuth2Providers.getHostnameDetails(hostname, type)
       ) {
         throw new Error(`Lacking OAuth2 config for ${hostname}`);
       }

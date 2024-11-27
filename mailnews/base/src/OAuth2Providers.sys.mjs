@@ -35,6 +35,8 @@ const MICROSOFT_SCOPES = {
 };
 const EWS_SCOPES = {
   ews: "https://outlook.office.com/EWS.AccessAsUser.All",
+  // "exchange" is used in the account setup, then the config is copied to "ews".
+  exchange: "https://outlook.office.com/EWS.AccessAsUser.All",
   extra: "offline_access",
 };
 
@@ -223,7 +225,7 @@ export var OAuth2Providers = {
    *
    * @param {string} hostname - The hostname of the server. For example
    *  "imap.googlemail.com".
-   * @param {string} [type] - The type of activity we need a token for,
+   * @param {string} type - The type of activity we need a token for,
    *   e.g. "imap" or "caldav".
    * @returns {Array} An array containing [issuer, allScopes, requiredScopes]
    *   for the hostname and type, or undefined if not found.
@@ -233,6 +235,10 @@ export var OAuth2Providers = {
    *       the given type, or the same as allScopes if no type was given.
    */
   getHostnameDetails(hostname, type) {
+    if (!type) {
+      throw new Error("passing a `type` argument is required");
+    }
+
     const details = this._getHostnameDetails(hostname);
     if (!details) {
       // No data, return.
@@ -240,7 +246,10 @@ export var OAuth2Providers = {
     }
 
     let [issuer, scopes] = details;
-    if (issuer == "login.microsoftonline.com" && type == "ews") {
+    if (
+      issuer == "login.microsoftonline.com" &&
+      ["ews", "exchange"].includes(type)
+    ) {
       // Special case for EWS, to avoid asking for the scope when not needed.
       scopes = EWS_SCOPES;
     }
@@ -250,11 +259,6 @@ export var OAuth2Providers = {
     }
 
     const allScopes = combineScopes(Object.values(scopes));
-    if (!type) {
-      // Type not given, say all scopes are required.
-      return [issuer, allScopes, allScopes];
-    }
-
     if (!scopes[type]) {
       // No data for type.
       return undefined;

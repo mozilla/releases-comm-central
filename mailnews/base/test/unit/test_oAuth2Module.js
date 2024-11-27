@@ -54,7 +54,7 @@ add_task(async function testGetRefreshToken() {
 
   info("charlie@foo.invalid: mochi.test");
   let mod = new OAuth2Module();
-  mod.initFromHostname("mochi.test", "charlie@foo.invalid");
+  mod.initFromHostname("mochi.test", "charlie@foo.invalid", "imap");
   Assert.equal(mod._scope, "test_scope");
   Assert.deepEqual([...mod._requiredScopes], ["test_scope"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
@@ -68,7 +68,7 @@ add_task(async function testGetRefreshToken() {
 
   info("charlie@bar.invalid: mochi.test");
   mod = new OAuth2Module();
-  mod.initFromHostname("mochi.test", "charlie@bar.invalid");
+  mod.initFromHostname("mochi.test", "charlie@bar.invalid", "imap");
   Assert.equal(mod._scope, "test_scope");
   Assert.deepEqual([...mod._requiredScopes], ["test_scope"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
@@ -82,12 +82,9 @@ add_task(async function testGetRefreshToken() {
 
   info("charlie@foo.invalid: test.test");
   mod = new OAuth2Module();
-  mod.initFromHostname("test.test", "charlie@foo.invalid");
+  mod.initFromHostname("test.test", "charlie@foo.invalid", "imap");
   Assert.equal(mod._scope, "test_mail test_addressbook test_calendar");
-  Assert.deepEqual(
-    [...mod._requiredScopes],
-    ["test_mail", "test_addressbook", "test_calendar"]
-  );
+  Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "charlie@foo.invalid");
   Assert.equal(mod.getRefreshToken(), "");
@@ -99,12 +96,9 @@ add_task(async function testGetRefreshToken() {
 
   info("charlie@bar.invalid: test.test");
   mod = new OAuth2Module();
-  mod.initFromHostname("test.test", "charlie@bar.invalid");
+  mod.initFromHostname("test.test", "charlie@bar.invalid", "imap");
   Assert.equal(mod._scope, "test_mail test_addressbook test_calendar");
-  Assert.deepEqual(
-    [...mod._requiredScopes],
-    ["test_mail", "test_addressbook", "test_calendar"]
-  );
+  Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "charlie@bar.invalid");
   Assert.equal(mod.getRefreshToken(), "");
@@ -115,12 +109,9 @@ add_task(async function testGetRefreshToken() {
 
   info("juliet@bar.invalid: test.test, all scopes");
   mod = new OAuth2Module();
-  mod.initFromHostname("test.test", "juliet@bar.invalid");
+  mod.initFromHostname("test.test", "juliet@bar.invalid", "imap");
   Assert.equal(mod._scope, "test_mail test_addressbook test_calendar");
-  Assert.deepEqual(
-    [...mod._requiredScopes],
-    ["test_mail", "test_addressbook", "test_calendar"]
-  );
+  Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "juliet@bar.invalid");
   Assert.equal(mod.getRefreshToken(), "juliet");
@@ -166,12 +157,9 @@ add_task(async function testGetRefreshToken() {
 
   info("mike@bar.invalid: test.test, all scopes");
   mod = new OAuth2Module();
-  mod.initFromHostname("test.test", "mike@bar.invalid");
+  mod.initFromHostname("test.test", "mike@bar.invalid", "imap");
   Assert.equal(mod._scope, "test_calendar test_addressbook test_mail");
-  Assert.deepEqual(
-    [...mod._requiredScopes],
-    ["test_mail", "test_addressbook", "test_calendar"]
-  );
+  Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "mike@bar.invalid");
   Assert.equal(mod.getRefreshToken(), "mike");
@@ -213,23 +201,7 @@ add_task(async function testGetRefreshToken() {
   OAuth2TestUtils.forgetObjects();
 
   // oscar@bar.invalid has tokens for test.test scopes individually.
-  // Looking for all the scopes at once will not find a token.
 
-  info("oscar@bar.invalid: test.test, all scopes");
-  mod = new OAuth2Module();
-  mod.initFromHostname("test.test", "oscar@bar.invalid");
-  Assert.equal(mod._scope, "test_mail test_addressbook test_calendar");
-  Assert.deepEqual(
-    [...mod._requiredScopes],
-    ["test_mail", "test_addressbook", "test_calendar"]
-  );
-  Assert.equal(mod._loginOrigin, "oauth://test.test");
-  Assert.equal(mod._username, "oscar@bar.invalid");
-  Assert.equal(mod.getRefreshToken(), "");
-
-  OAuth2TestUtils.forgetObjects();
-
-  // New 3-arg initFromHostname:
   info("oscar@bar.invalid: test.test, mail scope");
   mod = new OAuth2Module();
   mod.initFromHostname("test.test", "oscar@bar.invalid", "imap");
@@ -276,34 +248,34 @@ add_task(async function testGetRefreshToken() {
 add_task(async function testOAuth2ObjectsReuse() {
   // Check that two instances use the same object.
   const mod1 = new OAuth2Module();
-  mod1.initFromHostname("mochi.test", "user1@foo.invalid");
+  mod1.initFromHostname("mochi.test", "user1@foo.invalid", "imap");
 
   const mod2 = new OAuth2Module();
-  mod2.initFromHostname("mochi.test", "user1@foo.invalid");
+  mod2.initFromHostname("mochi.test", "user1@foo.invalid", "imap");
   Assert.equal(mod2._oauth, mod1._oauth, "the same object should be used");
 
   // Add another scope to the object and check that creating another new
   // instance with the same arguments still uses it.
   mod1._oauth.scope = "test_other_scope test_scope";
   const mod3 = new OAuth2Module();
-  mod3.initFromHostname("mochi.test", "user1@foo.invalid");
+  mod3.initFromHostname("mochi.test", "user1@foo.invalid", "imap");
   Assert.equal(mod3._oauth, mod1._oauth, "the same object should be used");
 
   // Check that a different set of scopes requires a different object.
   // This isn't really supported in practice as we only save one refresh token
   // per endpoint/username combination, but check anyway.
   const mod4 = new OAuth2Module();
-  mod4.initFromHostname("test.test", "user1@foo.invalid");
+  mod4.initFromHostname("test.test", "user1@foo.invalid", "imap");
   Assert.notEqual(mod4._oauth, mod1._oauth, "the same object must not be used");
 
   // Check that a different username requires a different object.
   const mod5 = new OAuth2Module();
-  mod5.initFromHostname("mochi.test", "user2@foo.invalid");
+  mod5.initFromHostname("mochi.test", "user2@foo.invalid", "imap");
   Assert.notEqual(mod5._oauth, mod1._oauth, "the same object must not be used");
 
   // Check that a different endpoint requires a different object.
   const mod6 = new OAuth2Module();
-  mod6.initFromHostname("imap.gmail.com", "user1@foo.invalid");
+  mod6.initFromHostname("imap.gmail.com", "user1@foo.invalid", "imap");
   Assert.notEqual(mod6._oauth, mod1._oauth, "the same object must not be used");
 
   OAuth2TestUtils.forgetObjects();
@@ -329,7 +301,7 @@ add_task(async function testSetRefreshToken() {
 
   // Connect.
   const mod = new OAuth2Module();
-  mod.initFromHostname("mochi.test", "romeo@foo.invalid");
+  mod.initFromHostname("mochi.test", "romeo@foo.invalid", "imap");
 
   const deferred = Promise.withResolvers();
   mod.connect(false, {
@@ -389,7 +361,7 @@ add_task(async function testSetRefreshTokenWithNewScope() {
 
   // Connect.
   const mod = new OAuth2Module();
-  mod.initFromHostname("mochi.test", "victor@foo.invalid");
+  mod.initFromHostname("mochi.test", "victor@foo.invalid", "imap");
 
   let deferred = Promise.withResolvers();
   mod.connect(false, {
@@ -484,7 +456,6 @@ add_task(async function testSetRefreshTokenPreservesOthers() {
 
   await storeLogins([
     ["https://test.test", "unknown_scope", "oscar@bar.invalid", "WRONG"],
-    ["oauth://test.test", "test_mail", "oscar@bar.invalid", "oscar-mail"],
     [
       "oauth://test.test",
       "test_addressbook",
@@ -499,9 +470,9 @@ add_task(async function testSetRefreshTokenPreservesOthers() {
     ],
   ]);
 
-  // Connect.
+  // Connect. We're asking for a scope we don't have.
   const mod = new OAuth2Module();
-  mod.initFromHostname("test.test", "oscar@bar.invalid");
+  mod.initFromHostname("test.test", "oscar@bar.invalid", "imap");
   Assert.equal(
     mod._oauth.refreshToken,
     "",

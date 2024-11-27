@@ -228,7 +228,8 @@ class EmailIncomingForm extends AccountHubStep {
 
     // If the incoming server hostname supports OAuth2, enable it.
     const incomingDetails = OAuth2Providers.getHostnameDetails(
-      config.incoming.hostname
+      config.incoming.hostname,
+      config.incoming.type
     );
 
     this.querySelector("#incomingAuthMethodOAuth2").hidden = !incomingDetails;

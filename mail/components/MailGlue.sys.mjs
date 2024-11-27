@@ -999,7 +999,8 @@ function reportAccountTypes() {
     // providers.
     if (incomingServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
       const hostnameDetails = lazy.OAuth2Providers.getHostnameDetails(
-        incomingServer.hostName
+        incomingServer.hostName,
+        incomingServer.type
       );
 
       if (!hostnameDetails || hostnameDetails.length == 0) {

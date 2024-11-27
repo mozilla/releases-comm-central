@@ -100,7 +100,8 @@ function onInit(aPageId, aServerId) {
   }
   // OAuth2 is only supported on certain servers.
   const details = OAuth2Providers.getHostnameDetails(
-    document.getElementById("server.hostName").value
+    document.getElementById("server.hostName").value,
+    serverType
   );
   document.getElementById("authMethod-oauth2").hidden = !details;
   // TLS Cert (External) only supported on IMAP.

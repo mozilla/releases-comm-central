@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AccountCreationUtils } from "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs";
+import { OAuth2Module } from "resource:///modules/OAuth2Module.sys.mjs";
 
 const lazy = {};
 
@@ -72,14 +73,16 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
     setUpAndStart(args);
   }
 
-  const oauth2Module = Cc["@mozilla.org/mail/oauth2-module;1"].createInstance(
-    Ci.msgIOAuth2Module
-  );
+  const oauth2Module = new OAuth2Module();
 
   // Initialize an OAuth2 module and determine whether we support a provider
   // associated with the provided domain.
   const uri = Services.io.newURI(url);
-  const isOAuth2Available = oauth2Module.initFromHostname(uri.host, username);
+  const isOAuth2Available = oauth2Module.initFromHostname(
+    uri.host,
+    username,
+    "exchange"
+  );
   if (isOAuth2Available) {
     oauth2Module.getAccessToken({
       onSuccess: token => {

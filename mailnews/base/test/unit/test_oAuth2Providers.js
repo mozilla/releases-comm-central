@@ -7,33 +7,33 @@ const { OAuth2Providers } = ChromeUtils.importESModule(
 );
 
 add_task(function testHostnameDetails() {
-  Assert.ok(!OAuth2Providers.getHostnameDetails("test.invalid"));
+  // Test we need both arguments.
 
-  Assert.deepEqual(OAuth2Providers.getHostnameDetails("mochi.test"), [
-    "test.test",
-    "test_scope",
-    "test_scope",
-  ]);
-  Assert.deepEqual(OAuth2Providers.getHostnameDetails("subdomain.mochi.test"), [
-    "test.test",
-    "test_scope",
-    "test_scope",
-  ]);
-  Assert.deepEqual(
-    OAuth2Providers.getHostnameDetails("sub.subdomain.mochi.test"),
-    ["test.test", "test_scope", "test_scope"]
+  Assert.throws(
+    () => OAuth2Providers.getHostnameDetails("mochi.test"),
+    /required/,
+    "getHostnameDetails without a second argument should throw"
   );
 
-  Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test"), [
-    "test.test",
-    "test_mail test_addressbook test_calendar",
-    "test_mail test_addressbook test_calendar",
-  ]);
-  Assert.deepEqual(OAuth2Providers.getHostnameDetails("subdomain.test.test"), [
-    "test.test",
-    "test_mail test_addressbook test_calendar",
-    "test_mail test_addressbook test_calendar",
-  ]);
+  // Test a domain with only a string type, and subdomains of it.
+
+  Assert.deepEqual(
+    OAuth2Providers.getHostnameDetails("mochi.test", "anything"),
+    ["test.test", "test_scope", "test_scope"],
+    "a domain with no type data should return all scopes as required"
+  );
+  Assert.deepEqual(
+    OAuth2Providers.getHostnameDetails("subdomain.mochi.test", "anything"),
+    ["test.test", "test_scope", "test_scope"],
+    "a sub-domain should return the same results as the domain"
+  );
+  Assert.deepEqual(
+    OAuth2Providers.getHostnameDetails("sub.subdomain.mochi.test", "anything"),
+    ["test.test", "test_scope", "test_scope"],
+    "a sub-sub-domain should return the same results as the domain"
+  );
+
+  // Test known types.
 
   Assert.deepEqual(OAuth2Providers.getHostnameDetails("test.test", "imap"), [
     "test.test",
@@ -60,9 +60,24 @@ add_task(function testHostnameDetails() {
     "test_mail test_addressbook test_calendar",
     "test_calendar",
   ]);
-  Assert.ok(!OAuth2Providers.getHostnameDetails("test.test", "other"));
+
+  // Test unknown types.
+
+  Assert.ok(
+    !OAuth2Providers.getHostnameDetails("test.test", "other"),
+    "getHostnameDetails with an unknown type should not return results"
+  );
+
+  // Test subdomains.
+
+  Assert.deepEqual(
+    OAuth2Providers.getHostnameDetails("subdomain.test.test", "imap"),
+    ["test.test", "test_mail test_addressbook test_calendar", "test_mail"],
+    "a sub-domain should return the same results as the domain"
+  );
 });
 
+/* Microsoft special cases. */
 add_task(function testMicrosoftHostnameDetails() {
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("outlook.office365.com", "imap"),
@@ -96,5 +111,16 @@ add_task(function testMicrosoftHostnameDetails() {
       "https://outlook.office.com/EWS.AccessAsUser.All offline_access",
       "https://outlook.office.com/EWS.AccessAsUser.All offline_access",
     ]
+  );
+
+  Assert.deepEqual(
+    OAuth2Providers.getHostnameDetails("outlook.office365.com", "exchange"),
+    {
+      issuer: "login.microsoftonline.com",
+      allScopes:
+        "https://outlook.office.com/EWS.AccessAsUser.All offline_access",
+      requiredScopes:
+        "https://outlook.office.com/EWS.AccessAsUser.All offline_access",
+    }
   );
 });

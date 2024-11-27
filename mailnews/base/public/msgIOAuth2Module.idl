@@ -50,10 +50,12 @@ interface msgIOAuth2Module : nsISupports {
   boolean initFromMail(in nsIMsgIncomingServer aServer);
 
   /**
-   * Initialize the OAuth2 parameters using the provided hostname and username,
-   * and return whether or not we can authenticate with OAuth2.
+   * Initialize the OAuth2 parameters using the provided hostname, username,
+   * and scope type. Returns whether or not we can authenticate with OAuth2.
    */
-  boolean initFromHostname(in AUTF8String aHostname, in AUTF8String aUsername);
+  boolean initFromHostname(in AUTF8String aHostname,
+                           in AUTF8String aUsername,
+                           in AUTF8String aType);
 
   /**
    * Connect to the OAuth2 server to get an access token encoded for use with

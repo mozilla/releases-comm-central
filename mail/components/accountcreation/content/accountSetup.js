@@ -1797,7 +1797,8 @@ var gAccountSetup = {
   async adjustOAuth2Visibility(config) {
     // If the incoming server hostname supports OAuth2, enable it.
     const iDetails = OAuth2Providers.getHostnameDetails(
-      config.incoming.hostname
+      config.incoming.hostname,
+      config.incoming.type
     );
     document.getElementById("in-authMethod-oauth2").hidden = !iDetails;
     if (iDetails) {
@@ -1808,7 +1809,8 @@ var gAccountSetup = {
 
     // If the smtp hostname supports OAuth2, enable it.
     const oDetails = OAuth2Providers.getHostnameDetails(
-      config.outgoing.hostname
+      config.outgoing.hostname,
+      config.outgoing.type
     );
     document.getElementById("out-authMethod-oauth2").hidden = !oDetails;
     if (oDetails) {

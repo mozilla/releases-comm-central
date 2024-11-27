@@ -186,7 +186,8 @@ class EmailOutgoingForm extends AccountHubStep {
 
     // If the smtp hostname supports OAuth2, enable it.
     const outgoingDetails = OAuth2Providers.getHostnameDetails(
-      config.outgoing.hostname
+      config.outgoing.hostname,
+      config.outgoing.type
     );
     this.querySelector("#outgoingAuthMethodOAuth2").hidden = !outgoingDetails;
     if (outgoingDetails) {

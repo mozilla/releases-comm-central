@@ -286,7 +286,8 @@ export class ConfigVerifier {
         // -- Incoming.
         if (config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
           const details = OAuth2Providers.getHostnameDetails(
-            config.incoming.hostname
+            config.incoming.hostname,
+            config.incoming.type
           );
           if (!details) {
             reject(
@@ -299,7 +300,8 @@ export class ConfigVerifier {
         // -- Outgoing.
         if (config.outgoing.auth == Ci.nsMsgAuthMethod.OAuth2) {
           const details = OAuth2Providers.getHostnameDetails(
-            config.outgoing.hostname
+            config.outgoing.hostname,
+            config.outgoing.type
           );
           if (!details) {
             reject(
