@@ -222,7 +222,7 @@ mapping:
             - win64-shippable
         destinations:
             - ${version}-candidates/build${build_number}/mar-tools
-    target.tar.bz2:
+    target.tar.xz:
         <<: *default
         description: "Main installer for Linux platforms"
         all_locales: true
@@ -231,9 +231,9 @@ mapping:
         only_for_platforms:
             - linux-shippable
             - linux64-shippable
-        pretty_name: thunderbird-${version}.tar.bz2
-        checksums_path: ${path_platform}/${locale}/thunderbird-${version}.tar.bz2
-    target.tar.bz2.asc:
+        pretty_name: thunderbird-${version}.tar.xz
+        checksums_path: ${path_platform}/${locale}/thunderbird-${version}.tar.xz
+    target.tar.xz.asc:
         <<: *default
         description: "Detached signature for the checksums file"
         all_locales: true
@@ -242,8 +242,8 @@ mapping:
         only_for_platforms:
             - linux-shippable
             - linux64-shippable
-        pretty_name: thunderbird-${version}.tar.bz2.asc
-        checksums_path: ${path_platform}/${locale}/thunderbird-${version}.tar.bz2.asc
+        pretty_name: thunderbird-${version}.tar.xz.asc
+        checksums_path: ${path_platform}/${locale}/thunderbird-${version}.tar.xz.asc
     target.pkg:
         <<: *default
         description: "Main package installer for Mac OS X platforms"
