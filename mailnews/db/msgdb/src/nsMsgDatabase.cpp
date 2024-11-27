@@ -1001,6 +1001,7 @@ nsMsgDatabase::~nsMsgDatabase() {
   InvalidateEnumerators();
   delete m_cachedHeaders;
   delete m_headersInUse;
+  m_mdbSearchResultsTables.Clear();
 
   if (m_msgReferences) {
     delete m_msgReferences;
@@ -5129,10 +5130,15 @@ NS_IMETHODIMP
 nsMsgDatabase::HdrIsInCache(const nsACString& aSearchFolderUri,
                             nsIMsgDBHdr* aHdr, bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
-  nsCOMPtr<nsIMdbTable> table;
-  nsresult err =
-      GetSearchResultsTable(aSearchFolderUri, true, getter_AddRefs(table));
-  NS_ENSURE_SUCCESS(err, err);
+  nsresult err;
+
+  RefPtr<nsIMdbTable> table;
+  if (!m_mdbSearchResultsTables.Get(aSearchFolderUri, &table)) {
+    err = GetSearchResultsTable(aSearchFolderUri, true, getter_AddRefs(table));
+    NS_ENSURE_SUCCESS(err, err);
+    m_mdbSearchResultsTables.InsertOrUpdate(aSearchFolderUri, table);
+  }
+
   nsMsgKey key;
   aHdr->GetMessageKey(&key);
   mdbOid rowObjectId;

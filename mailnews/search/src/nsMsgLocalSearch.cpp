@@ -626,6 +626,9 @@ nsresult nsMsgSearchOfflineMail::Search(bool* aDone) {
       dbErr = m_db->ReverseEnumerateMessages(getter_AddRefs(m_listContext));
     if (NS_SUCCEEDED(dbErr) && m_listContext) {
       PRIntervalTime startTime = PR_IntervalNow();
+      nsAutoString nullCharset, folderCharset;
+      GetSearchCharsets(nullCharset, folderCharset);
+      NS_ConvertUTF16toUTF8 charset(folderCharset);
       while (!*aDone)  // we'll break out of the loop after kTimeSliceInMS
                        // milliseconds
       {
@@ -636,9 +639,6 @@ nsresult nsMsgSearchOfflineMail::Search(bool* aDone) {
                           //  that we did have an error so we'll clean up later
         else {
           bool match = false;
-          nsAutoString nullCharset, folderCharset;
-          GetSearchCharsets(nullCharset, folderCharset);
-          NS_ConvertUTF16toUTF8 charset(folderCharset);
           // Is this message a hit?
           err = MatchTermsForSearch(msgDBHdr, m_searchTerms, charset.get(),
                                     m_scope, m_db, &expressionTree, &match);

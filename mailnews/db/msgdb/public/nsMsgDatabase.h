@@ -20,6 +20,7 @@
 #include "nsCOMArray.h"
 #include "PLDHashTable.h"
 #include "nsTArray.h"
+#include "nsTHashMap.h"
 #include "nsTObserverArray.h"
 #include "prtime.h"
 
@@ -289,6 +290,7 @@ class nsMsgDatabase : public nsIMsgOfflineOpsDatabase {
   nsIMdbStore* m_mdbStore;
   nsIMdbTable* m_mdbAllMsgHeadersTable;
   nsIMdbTable* m_mdbAllThreadsTable;
+  nsTHashMap<nsCString, RefPtr<nsIMdbTable>> m_mdbSearchResultsTables;
 
   // Used for asynchronous db opens. If non-null, we're still opening
   // the underlying mork database. If null, the db has been completely opened.
