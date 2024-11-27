@@ -123,13 +123,10 @@ CalDavCalendar.prototype = {
     val = setter.call(this, val);
 
     if (this.id) {
-      // Recreate the session ID that was used when discovering this calendar,
-      // as the password is stored with it. This only matters for OAuth
-      // calendars, in all other cases the password is stored by username.
-      this.session = new CalDavSession(
-        this.getProperty("username") || this.getProperty("sessionId") || this.id,
-        this.getProperty("username")
-      );
+      // Some calendars created in old versions may not have a stored username,
+      // and have the password stored with the calendar ID. This only matters for
+      // OAuth calendars, in all other cases the password is stored by username.
+      this.session = new CalDavSession(this.getProperty("username") || this.id);
     }
   },
 

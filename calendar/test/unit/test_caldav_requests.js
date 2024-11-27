@@ -508,66 +508,6 @@ function run_test() {
   });
 }
 
-add_task(async function test_caldav_session() {
-  gServer.reset();
-
-  let prepared = 0;
-  let redirected = 0;
-  let completed = 0;
-  let restart = false;
-
-  gServer.session.authAdapters.localhost = {
-    async prepareRequest() {
-      prepared++;
-    },
-
-    async prepareRedirect() {
-      redirected++;
-    },
-
-    async completeRequest() {
-      completed++;
-      if (restart) {
-        restart = false;
-        return CalDavSession.RESTART_REQUEST;
-      }
-      return null;
-    },
-  };
-
-  // First a simple request
-  let uri = gServer.uri("/requests/session");
-  let request = new CalDavGenericRequest(gServer.session, gMockCalendar, "HEAD", uri);
-  await request.commit();
-
-  equal(prepared, 1);
-  equal(redirected, 0);
-  equal(completed, 1);
-
-  // Now a redirect
-  prepared = redirected = completed = 0;
-
-  uri = gServer.uri("/requests/redirected");
-  request = new CalDavGenericRequest(gServer.session, gMockCalendar, "HEAD", uri);
-  await request.commit();
-
-  equal(prepared, 1);
-  equal(redirected, 1);
-  equal(completed, 1);
-
-  // Now with restarting the request
-  prepared = redirected = completed = 0;
-  restart = true;
-
-  uri = gServer.uri("/requests/redirected");
-  request = new CalDavGenericRequest(gServer.session, gMockCalendar, "HEAD", uri);
-  await request.commit();
-
-  equal(prepared, 2);
-  equal(redirected, 2);
-  equal(completed, 2);
-});
-
 /**
  * This test covers both GenericRequest and the base class CalDavRequestBase/CalDavResponseBase
  */
@@ -956,17 +896,6 @@ add_task(async function test_caldav_sync() {
   gMockCalendar.session = gServer.session;
   const webDavSync = new CalDavWebDavSyncHandler(gMockCalendar, uri);
   await webDavSync.doWebDAVSync();
-  ok(webDavSync.logXML.includes("イベント"), "Non-ASCII text should be parsed correctly");
-});
-
-add_task(function test_can_get_google_adapter() {
-  // Initialize a session with bogus values
-  const session = new CalDavSession("xpcshell@example.com", "xpcshell");
-
-  // We don't have a facility for actually testing our Google CalDAV requests,
-  // but we can at least verify that the adapter looks okay at a glance
-  equal(
-    session.authAdapters["apidata.googleusercontent.com"].authorizationEndpoint,
-    "https://accounts.google.com/o/oauth2/auth"
-  );
+  await new Promise(executeSoon);
+  Assert.stringContains(webDavSync.logXML, "イベント", "Non-ASCII text should be parsed correctly");
 });

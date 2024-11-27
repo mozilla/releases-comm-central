@@ -8,7 +8,6 @@ import {
   CalDavTagsToXmlns,
   CalDavNsUnresolver,
 } from "resource:///modules/caldav/CalDavUtils.sys.mjs";
-import { CalDavSession } from "resource:///modules/caldav/CalDavSession.sys.mjs";
 
 const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 const MIME_TEXT_CALENDAR = "text/calendar; charset=utf-8";
@@ -116,12 +115,6 @@ class CalDavRequestBase {
     this.channel.asyncOpen(this.response.listener, this.channel);
 
     await this.response.responded;
-
-    const action = await this.session.completeRequest(this.response);
-    if (action == CalDavSession.RESTART_REQUEST) {
-      this.reset();
-      return this.commit();
-    }
 
     if (cal.verboseLogEnabled) {
       const text = this.response.text;
