@@ -12,6 +12,11 @@ const { gAccountSetupLogger } = AccountCreationUtils;
  * Template ID: #accountHubHeaderTemplate (from accountHubHeaderTemplate.inc.xhtml)
  */
 class AccountHubHeader extends HTMLElement {
+  /**
+   * @type {?HTMLFormElement}
+   */
+  #notificationForm;
+
   connectedCallback() {
     if (this.shadowRoot) {
       return;
@@ -36,6 +41,9 @@ class AccountHubHeader extends HTMLElement {
     this.l10n.connectRoot(shadowRoot);
 
     shadowRoot.append(style, clonedNode);
+    this.#notificationForm = this.shadowRoot.querySelector(
+      "#emailFormNotification"
+    );
     this.clearNotifications();
   }
 
@@ -70,23 +78,24 @@ class AccountHubHeader extends HTMLElement {
     // Hide the notification bar.
     this.clearNotifications();
 
-    const titleElement = this.shadowRoot.querySelector(
-      "#emailFormNotificationTitle"
-    );
+    this.#notificationForm.hidden = false;
+    this.#notificationForm.classList.add(type);
 
-    if (fluentTitleId) {
-      document.l10n.setAttributes(
-        titleElement.querySelector(".localized-title"),
-        fluentTitleId
-      );
+    // We don't ever want to have a description but not a title. This can
+    // happen if all we get is an error with no cause.
+    if (fluentTitleId || error?.cause?.fluentTitleId || title) {
+      this.#setNotificationTitle({ fluentTitleId, title, error });
+    } else if (description || fluentDescriptionId || error?.message) {
+      this.#setNotificationTitle({
+        fluentTitleId: fluentDescriptionId || error.cause.fluentDescriptionId,
+        title: description || error?.message,
+        error,
+      });
+
+      // Return because we had no title and don't want to show the description
+      // twice.
+      return;
     }
-
-    if (title) {
-      titleElement.querySelector(".raw-title").textContent = title;
-    }
-
-    this.shadowRoot.querySelector("#emailFormNotification").hidden = false;
-    this.shadowRoot.querySelector("#emailFormNotification").classList.add(type);
 
     const descriptionElement = this.shadowRoot.querySelector(
       "#emailFormNotificationText"
@@ -97,15 +106,13 @@ class AccountHubHeader extends HTMLElement {
         "#emailFormNotificationToggle"
       ).hidden = false;
     } else {
-      this.shadowRoot
-        .querySelector("#emailFormNotification")
-        .setAttribute("aria-disabled", true);
+      this.#notificationForm.setAttribute("aria-disabled", true);
     }
 
-    if (fluentDescriptionId) {
+    if (fluentDescriptionId || error?.cause?.fluentDescriptionId) {
       document.l10n.setAttributes(
-        titleElement.querySelector(".localized-description"),
-        fluentDescriptionId
+        descriptionElement.querySelector(".localized-description"),
+        fluentDescriptionId || error.cause.fluentDescriptionId
       );
     }
 
@@ -118,6 +125,33 @@ class AccountHubHeader extends HTMLElement {
 
       descriptionElement.querySelector(".raw-description").textContent =
         descriptionText;
+    }
+  }
+
+  /**
+   * Set the title of the notification
+   *
+   * @param {Object} options
+   * @param {string} options.title - The the raw text title of notification
+   *   to be shown
+   * @param {string} options.fluentTitleId - The fluent id to of a string to
+   *   show for the title
+   * @param {Error} options.error - error object to check for title
+   */
+  #setNotificationTitle({ title, fluentTitleId, error }) {
+    const titleElement = this.shadowRoot.querySelector(
+      "#emailFormNotificationTitle"
+    );
+    const localizedTitle = fluentTitleId || error?.cause?.fluentTitleId;
+    if (localizedTitle) {
+      document.l10n.setAttributes(
+        titleElement.querySelector(".localized-title"),
+        localizedTitle
+      );
+    }
+
+    if (title) {
+      titleElement.querySelector(".raw-title").textContent = title;
     }
   }
 
@@ -138,14 +172,15 @@ class AccountHubHeader extends HTMLElement {
     notificationTitle.querySelector(".raw-title").textContent = "";
     notificationText.querySelector(".raw-description").textContent = "";
 
-    this.shadowRoot
-      .querySelector("#emailFormNotification")
-      .removeAttribute("aria-disabled");
+    this.#notificationForm.removeAttribute("aria-disabled");
 
-    this.shadowRoot
-      .querySelector("#emailFormNotification")
-      .classList.remove("error", "success", "info", "warning");
-    this.shadowRoot.querySelector("#emailFormNotification").hidden = true;
+    this.#notificationForm.classList.remove(
+      "error",
+      "success",
+      "info",
+      "warning"
+    );
+    this.#notificationForm.hidden = true;
     this.shadowRoot.querySelector("#emailFormNotificationToggle").hidden = true;
   }
 

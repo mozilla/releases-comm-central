@@ -104,7 +104,14 @@ async function parallelAutoDiscovery(
         errorCallback(e);
       } else if (allErrors && allErrors.some(error => error.code == 401)) {
         // Auth failed.
-        reject(new Error("Exchange auth error"));
+        reject(
+          new Error("Exchange auth error", {
+            cause: {
+              fluentTitleId: "account-setup-credentials-wrong",
+            },
+          })
+        );
+
         errorCallback(new CancelledException());
       } else {
         // This needs to resolve here so the logic for having all of the
@@ -113,7 +120,15 @@ async function parallelAutoDiscovery(
         // function can throw an error for the other instances of autodiscover
         // failing (the two instances above).
         resolve();
-        errorCallback(e);
+        errorCallback(
+          new Error(e.message, {
+            ...e,
+            cause: {
+              error: e,
+              fluentTitleId: "account-setup-credentials-wrong",
+            },
+          })
+        );
       }
     }
   );
@@ -132,7 +147,16 @@ async function parallelAutoDiscovery(
     if (error instanceof CancelledException) {
       return null;
     }
-    throw error;
+
+    let newError;
+    if (!error.cause.fluentTitleId) {
+      newError = new Error(error.message, {
+        ...error,
+        cause: { error, fluentTitleId: "account-setup-credentials-incomplete" },
+      });
+    }
+
+    throw newError || error;
   }
 
   // Wait for both our priority discovery and Autodiscover search to complete

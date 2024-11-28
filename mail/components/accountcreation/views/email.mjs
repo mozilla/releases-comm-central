@@ -591,6 +591,7 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "incomingConfigSubview":
         await this.#initUI(this.#states[this.#currentState].nextStep);
+
         this.#currentConfig.incoming = stateData.config.incoming;
         this.#setCurrentConfigForSubview();
 
@@ -680,7 +681,7 @@ class AccountHubEmail extends HTMLElement {
           if (config.isComplete()) {
             this.#stopLoading();
             this.#states[this.#currentState].subview.showNotification({
-              fluentTitleId: "account-hub-config-test-success",
+              fluentTitleId: "account-setup-success-half-manual",
               type: "success",
             });
             this.#emailFooter.toggleForwardDisabled(false);
@@ -701,7 +702,7 @@ class AccountHubEmail extends HTMLElement {
           this.#stopLoading();
           this.#initUI(this.#states[this.#currentState].previousStep);
           this.#currentSubview.showNotification({
-            fluentTitleId: "account-hub-find-settings-failed",
+            fluentTitleId: "account-setup-find-settings-failed",
             error,
             type: "error",
           });
@@ -808,6 +809,7 @@ class AccountHubEmail extends HTMLElement {
       },
       error => {
         gAccountSetupLogger.warn(`guessConfig failed: ${error}`);
+
         reject(error);
         this.abortable = null;
       },
