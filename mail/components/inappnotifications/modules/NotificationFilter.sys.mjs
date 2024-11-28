@@ -134,6 +134,12 @@ export const NotificationFilter = {
     ) {
       return false;
     }
+    if (
+      Array.isArray(profile.pref_false) &&
+      profile.pref_false.some(pref => Services.prefs.getBoolPref(pref, true))
+    ) {
+      return false;
+    }
     return true;
   },
 };
