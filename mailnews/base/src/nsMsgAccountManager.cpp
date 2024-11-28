@@ -552,7 +552,6 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
   if (notifier) notifier->NotifyFolderDeleted(rootFolder);
   if (mailSession) mailSession->OnFolderRemoved(nullptr, rootFolder);
 
-  removeListenersFromFolder(rootFolder);
   NotifyServerUnloaded(aServer);
   if (aRemoveFiles) {
     rv = aServer->RemoveFiles();
@@ -638,22 +637,8 @@ nsresult nsMsgAccountManager::createKeyedServer(
   rv = server->GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsTObserverArray<nsCOMPtr<nsIFolderListener>>::ForwardIterator iter(
-      mFolderListeners);
-  while (iter.HasMore()) {
-    rootFolder->AddFolderListener(iter.GetNext());
-  }
-
   server.forget(aServer);
   return NS_OK;
-}
-
-void nsMsgAccountManager::removeListenersFromFolder(nsIMsgFolder* aFolder) {
-  nsTObserverArray<nsCOMPtr<nsIFolderListener>>::ForwardIterator iter(
-      mFolderListeners);
-  while (iter.HasMore()) {
-    aFolder->RemoveFolderListener(iter.GetNext());
-  }
 }
 
 NS_IMETHODIMP
@@ -1466,8 +1451,6 @@ nsMsgAccountManager::UnloadAccounts() {
     nsCOMPtr<nsIMsgFolder> rootFolder;
     rv = server->GetRootFolder(getter_AddRefs(rootFolder));
     if (NS_SUCCEEDED(rv)) {
-      removeListenersFromFolder(rootFolder);
-
       rootFolder->Shutdown(true);
     }
   }
@@ -2156,37 +2139,6 @@ nsMsgAccountManager::GetServersForIdentity(
       }
     }
   }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgAccountManager::AddRootFolderListener(nsIFolderListener* aListener) {
-  NS_ENSURE_TRUE(aListener, NS_OK);
-  mFolderListeners.AppendElement(aListener);
-  for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
-    nsCOMPtr<nsIMsgFolder> rootFolder;
-    nsresult rv = iter.Data()->GetRootFolder(getter_AddRefs(rootFolder));
-    if (NS_FAILED(rv)) {
-      continue;
-    }
-    rv = rootFolder->AddFolderListener(aListener);
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgAccountManager::RemoveRootFolderListener(nsIFolderListener* aListener) {
-  NS_ENSURE_TRUE(aListener, NS_OK);
-  mFolderListeners.RemoveElement(aListener);
-  for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
-    nsCOMPtr<nsIMsgFolder> rootFolder;
-    nsresult rv = iter.Data()->GetRootFolder(getter_AddRefs(rootFolder));
-    if (NS_FAILED(rv)) {
-      continue;
-    }
-    rv = rootFolder->RemoveFolderListener(aListener);
-  }
-
   return NS_OK;
 }
 

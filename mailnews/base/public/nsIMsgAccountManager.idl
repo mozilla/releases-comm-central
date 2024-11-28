@@ -200,10 +200,6 @@ interface nsIMsgAccountManager : nsISupports {
   void setFolderDoingCleanupInbox(in nsIMsgFolder folder);
   boolean getCleanupInboxInProgress();
 
-  void addRootFolderListener(in nsIFolderListener listener);
-  void removeRootFolderListener(in nsIFolderListener listener);
-
-  // these are going away in favor of add/removeRootFolderListener
   void addIncomingServerListener(in nsIIncomingServerListener serverListener);
   void removeIncomingServerListener(in nsIIncomingServerListener serverListener);
 

@@ -198,18 +198,4 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
 
   nsCOMPtr<nsIPrefBranch> m_prefs;
   nsCOMPtr<nsIMsgDBService> m_dbService;
-
-  //
-  // root folder listener stuff
-  //
-
-  // this array is for folder listeners that are supposed to be listening
-  // on the root folders.
-  // When a new server is created, all of the the folder listeners
-  //    should be added to the new server
-  // When a new listener is added, it should be added to all root folders.
-  // similar for when servers are deleted or listeners removed
-  nsTObserverArray<nsCOMPtr<nsIFolderListener>> mFolderListeners;
-
-  void removeListenersFromFolder(nsIMsgFolder* aFolder);
 };
