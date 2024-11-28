@@ -128,6 +128,12 @@ export const NotificationFilter = {
     ) {
       return false;
     }
+    if (
+      Array.isArray(profile.pref_true) &&
+      profile.pref_true.some(pref => !Services.prefs.getBoolPref(pref, false))
+    ) {
+      return false;
+    }
     return true;
   },
 };

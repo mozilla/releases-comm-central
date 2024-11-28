@@ -27,6 +27,7 @@ function getProfileFromAppValues() {
     channels: [AppConstants.MOZ_UPDATE_CHANNEL, "fictional testing channel"],
     operating_systems: [platform, "LCARS"],
     displayed_notifications: [],
+    pref_true: [],
   };
 }
 
@@ -260,6 +261,17 @@ add_task(function test_checkProfile_displayedNotifications_emptyMatch() {
   );
 });
 
+add_task(function test_checkProfile_prefTrue_emptyMatch() {
+  Assert.ok(
+    NotificationFilter.checkProfile({ pref_true: null }, []),
+    "Should match profile with null pref true"
+  );
+  Assert.ok(
+    NotificationFilter.checkProfile({ pref_true: [] }, []),
+    "Should match profile with empty pref true"
+  );
+});
+
 add_task(function test_checkProfile_match() {
   const profile = getProfileFromAppValues();
   Assert.ok(
@@ -332,6 +344,15 @@ add_task(function test_checkProfile_singlePropertyMismatch() {
       "foo",
     ]),
     "Shouldn't match profile with a notification ID that has been displayed"
+  );
+
+  const mismatchingPrefTrueProfile = {
+    ...profile,
+    pref_true: ["test.example.inactive"],
+  };
+  Assert.ok(
+    !NotificationFilter.checkProfile(mismatchingPrefTrueProfile, ["foo"]),
+    "Shouldn't match profile with a pref that is unset"
   );
 });
 
@@ -460,4 +481,47 @@ add_task(function test_isActiveNotification_idDisplayed() {
     ),
     "Notification with an ID that was interacted with should not be active"
   );
+});
+
+add_task(function test_checkProfile_prefTrue() {
+  Services.prefs.setBoolPref("test.example.active", true);
+  Services.prefs.setBoolPref("test.example.active.other", true);
+  Services.prefs.setBoolPref("test.example.inactive", false);
+  Assert.ok(
+    !Services.prefs.prefHasUserValue("test.example.unset"),
+    "Unset pref should not have a user value"
+  );
+  Assert.ok(
+    !Services.prefs.prefHasDefaultValue("test.example.unset"),
+    "Unset pref should not have a default value"
+  );
+
+  Assert.ok(
+    NotificationFilter.checkProfile({
+      pref_true: ["test.example.active"],
+    }),
+    "Should match with pref that is true"
+  );
+  Assert.ok(
+    NotificationFilter.checkProfile({
+      pref_true: ["test.example.active", "test.example.active.other"],
+    }),
+    "Should match with multiple true prefs"
+  );
+  Assert.ok(
+    !NotificationFilter.checkProfile({
+      pref_true: ["test.example.active", "test.example.inactive"],
+    }),
+    "Should not match with a pref that is false"
+  );
+  Assert.ok(
+    !NotificationFilter.checkProfile({
+      pref_true: ["test.example.active", "test.example.unset"],
+    }),
+    "Should not match with an unset pref"
+  );
+
+  Services.prefs.clearUserPref("test.example.active");
+  Services.prefs.clearUserPref("test.example.active.other");
+  Services.prefs.clearUserPref("test.example.inactive");
 });
