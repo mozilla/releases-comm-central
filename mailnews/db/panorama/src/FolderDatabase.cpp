@@ -52,11 +52,21 @@ FolderDatabase::Observe(nsISupports* aSubject, const char* aTopic,
   }
   sStatements.Clear();
 
-  sFoldersById.Clear();
-
   if (sConnection) {
     sConnection->Close();
+    sConnection = nullptr;
   }
+
+  // Break the reference cycles. This is much tidier than using the cycle
+  // collection macros, especially as Folder is declared threadsafe.
+  for (auto iter = sFoldersById.Iter(); !iter.Done(); iter.Next()) {
+    iter.UserData()->mRoot = nullptr;
+    iter.UserData()->mParent = nullptr;
+    iter.UserData()->mChildren.Clear();
+  }
+
+  sFoldersById.Clear();
+  sFoldersByPath.Clear();
 
   nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
   obs->RemoveObserver(this, "profile-before-change");
