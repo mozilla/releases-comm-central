@@ -3,7 +3,56 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <html:template id="accountHubEmailSyncAccountsFormTemplate" xmlns="http://www.w3.org/1999/xhtml">
-  <form id="syncAccounts" class="account-hub-form" slot="content">
-    <div class="hub-body"></div>
+  <form id="syncAccountsForm" class="account-hub-form" slot="content">
+    <div class="hub-body sync-accounts-form-body">
+      <div class="sync-accounts-container">
+        <fieldset id="addressBooks" class="sync-type-container">
+          <div class="sync-title">
+            <img src="chrome://messenger/skin/icons/new/normal/address-book-colored.svg"
+                 alt="" />
+            <div class="sync-details">
+              <span class="title"
+                    data-l10n-id="account-setup-address-books-button">
+              </span>
+              <span id="selectedAddressBooks" class="subtitle"></span>
+            </div>
+          </div>
+          <button id="selectAllAddressBooks"
+                  type="button"
+                  class="button primary-button button-sm select-all"
+                  hidden="hidden">
+          </button>
+          <p id="noAddressBooks"
+             class="sync-option"
+             data-l10n-id="account-hub-no-address-books"
+             hidden="hidden">
+          </p>
+          <div id="addressBookAccountsContainer" class="sync-input-container"></div>
+        </fieldset>
+        <fieldset id="calendars" class="sync-type-container">
+          <div class="sync-title">
+            <img src="chrome://messenger/skin/icons/new/normal/calendar-colored.svg"
+                 alt="" />
+            <div class="sync-details">
+              <span class="title"
+                    data-l10n-id="account-setup-calendars-button">
+              </span>
+              <span id="selectedCalendars" class="subtitle"></span>
+            </div>
+          </div>
+          <button id="selectAllCalendars"
+                  type="button"
+                  class="button primary-button button-sm select-all"
+                  hidden="hidden">
+          </button>
+          <p id="noCalendars"
+             class="sync-option"
+             data-l10n-id="account-hub-no-calendars"
+             hidden="hidden">
+          </p>
+          <div id="calendarAccountsContainer" class="sync-input-container"></div>
+        </fieldset>
+      </div>
+    </div>
   </form>
 </html:template>

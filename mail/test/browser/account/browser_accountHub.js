@@ -849,6 +849,219 @@ add_task(async function test_account_enter_password_imap_account() {
   await subtest_close_account_hub_dialog(dialog);
 });
 
+add_task(async function test_account_load_sync_accounts_imap_account() {
+  IMAPServer.open();
+  SMTPServer.open();
+  emailUser = {
+    name: "John Doe",
+    email: "john.doe@imap.test",
+    password: "abc12345",
+    incomingHost: "testin.imap.test",
+    outgoingHost: "testout.imap.test",
+  };
+
+  const dialog = await subtest_open_account_hub_dialog();
+  await subtest_fill_initial_config_fields(dialog);
+  const footer = dialog.querySelector("account-hub-footer");
+  const footerForward = footer.querySelector("#forward");
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
+    "The IMAP config option should be visible"
+  );
+
+  // Continue button should lead to password template.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(configFoundTemplate),
+    "The config found template should be hidden."
+  );
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(dialog.querySelector("email-password-form")),
+    "The email password form should be visible."
+  );
+
+  const emailPasswordTemplate = dialog.querySelector("email-password-form");
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(
+        emailPasswordTemplate.querySelector("#password")
+      ),
+    "The password form input should be visible."
+  );
+  const passwordInput = emailPasswordTemplate.querySelector("#password");
+
+  EventUtils.synthesizeMouseAtCenter(passwordInput, {});
+
+  // Entering the correct password should hide current subview.
+  const inputEvent = BrowserTestUtils.waitForEvent(
+    passwordInput,
+    "input",
+    true,
+    event => event.target.value === "abc12345"
+  );
+  EventUtils.sendString("abc12345", window);
+  await inputEvent;
+
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isHidden(emailPasswordTemplate),
+    "The email password subview should be hidden."
+  );
+
+  const imapAccount = MailServices.accounts.accounts.find(
+    account => account.identities[0].email === emailUser.email
+  );
+
+  Assert.ok(imapAccount, "IMAP account should be created");
+
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(
+        dialog.querySelector("email-sync-accounts-form")
+      ),
+    "The sync accounts view should be in view."
+  );
+  const syncAccountsTemplate = dialog.querySelector("email-sync-accounts-form");
+  // Wait for the select all buttons to be in view to show the sync accounts.
+  const selectAllAddressBooksButtonPromise = await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(
+        syncAccountsTemplate.querySelector("#selectAllAddressBooks")
+      ),
+    "The select all address books button should be visible."
+  );
+  const selectAllCalendarsButtonPromise = await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(
+        syncAccountsTemplate.querySelector("#selectAllCalendars")
+      ),
+    "The select all calendars button should be visible."
+  );
+  await selectAllAddressBooksButtonPromise;
+  await selectAllCalendarsButtonPromise;
+
+  const selectAllAddressBooks = syncAccountsTemplate.querySelector(
+    "#selectAllAddressBooks"
+  );
+  const selectAllCalendars = syncAccountsTemplate.querySelector(
+    "#selectAllCalendars"
+  );
+  const selectedAddressBooks = syncAccountsTemplate.querySelector(
+    "#selectedAddressBooks"
+  );
+  const selectedCalendars =
+    syncAccountsTemplate.querySelector("#selectedCalendars");
+
+  Assert.equal(
+    syncAccountsTemplate.l10n.getAttributes(selectAllAddressBooks).id,
+    "account-hub-deselect-all",
+    "Address book select toggle should be deselect all."
+  );
+  Assert.equal(
+    syncAccountsTemplate.l10n.getAttributes(selectedAddressBooks).args.count,
+    1,
+    "Address books count should be 1."
+  );
+  Assert.equal(
+    syncAccountsTemplate.l10n.getAttributes(selectAllCalendars).id,
+    "account-hub-deselect-all",
+    "Calendars select toggle should be deselect all."
+  );
+  Assert.equal(
+    syncAccountsTemplate.l10n.getAttributes(selectedCalendars).args.count,
+    2,
+    "Calendars count should be 2."
+  );
+
+  const addressBooks = syncAccountsTemplate.querySelectorAll(
+    "#addressBooks label"
+  );
+  Assert.equal(addressBooks.length, 1, "There should be one address book.");
+  Assert.equal(
+    syncAccountsTemplate.querySelectorAll("#addressBooks input:checked").length,
+    1,
+    "There should 1 checked address book."
+  );
+  Assert.equal(
+    addressBooks.item(0).textContent,
+    "You found me!",
+    "The address book found should have the name - You found me!"
+  );
+
+  const calendars = syncAccountsTemplate.querySelectorAll("#calendars label");
+  Assert.equal(calendars.length, 2, "There should be two calendars.");
+  Assert.equal(
+    syncAccountsTemplate.querySelectorAll("#calendars input:checked").length,
+    2,
+    "There should 2 checked calendars."
+  );
+  Assert.equal(
+    calendars.item(0).textContent,
+    "You found me!",
+    "The first calendar found should have the name - You found me!"
+  );
+  Assert.equal(
+    calendars.item(1).textContent,
+    "Röda dagar",
+    "The second calendar found should have the name - Röda dagar"
+  );
+
+  // Unchecking an input should update the count label, and the select toggle
+  // fluent id.
+  const checkEvent = BrowserTestUtils.waitForEvent(
+    addressBooks.item(0).querySelector("input"),
+    "change",
+    true,
+    event => event.target.checked === false
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    addressBooks.item(0).querySelector("input"),
+    {}
+  );
+  await checkEvent;
+  Assert.equal(
+    syncAccountsTemplate.l10n.getAttributes(selectAllAddressBooks).id,
+    "account-hub-select-all",
+    "Address book select toggle should be select all."
+  );
+  Assert.equal(
+    syncAccountsTemplate.l10n.getAttributes(selectedAddressBooks).args.count,
+    0,
+    "Address books count should be 0."
+  );
+
+  // Selecting deselect all calendars should update all inputs to be unchecked
+  // and set the count to 0.
+  const selectToggleEvent = BrowserTestUtils.waitForEvent(
+    selectAllCalendars,
+    "click"
+  );
+  EventUtils.synthesizeMouseAtCenter(selectAllCalendars, {});
+  await selectToggleEvent;
+  Assert.equal(
+    syncAccountsTemplate.l10n.getAttributes(selectAllCalendars).id,
+    "account-hub-select-all",
+    "Calendar select toggle should be select all."
+  );
+  Assert.equal(
+    syncAccountsTemplate.l10n.getAttributes(selectedCalendars).args.count,
+    0,
+    "Calendars count should be 0."
+  );
+
+  MailServices.accounts.removeAccount(imapAccount);
+  Services.logins.removeAllLogins();
+
+  IMAPServer.close();
+  SMTPServer.close();
+  await subtest_close_account_hub_dialog(dialog);
+});
+
 /**
  * Subtest to open the account dialog, and returns the dialog for further
  * testing.

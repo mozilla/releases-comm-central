@@ -37,6 +37,7 @@ dialog {
   --hub-divider-color: var(--color-neutral-base);
   --hub-loader-background: var(--color-neutral-base);
   --hub-loader-color: var(--color-primary-default);
+  --hub-floating-button-line-height: 1.3em;
 
   --hub-box-shadow: 0 2px 4px rgba(58, 57, 68, 0.3);
   --hub-input-height: 33px;
@@ -349,6 +350,10 @@ header {
   &.password-form-body {
     gap: 25px;
   }
+
+  &.sync-accounts-form-body {
+    max-width: 500px;
+  }
 }
 
 .hub-body-column {
@@ -499,6 +504,85 @@ header {
   filter: blur(3px);
 }
 
+.button {
+  &.button-sm {
+    padding: 4px 9px;
+    font-size: 0.8rem;
+    min-width: auto;
+    min-height: auto;
+    text-transform: uppercase;
+    font-weight: bold;
+    line-height: var(--hub-floating-button-line-height);
+  }
+
+  &.primary-button {
+    background-color: var(--hub-account-primary-button-background);
+    color: var(--hub-account-primary-button-color);
+    border-color: var(--hub-account-primary-button-border);
+    box-shadow: 0 6px 3px -4px rgba(21, 66, 124, 0.3);
+
+    &:hover {
+      background-color: var(--hub-account-primary-button-background-hover);
+      color: var(--hub-account-primary-button-color);
+      border-color: var(--hub-account-primary-button-border-active);
+      box-shadow: 0 4px 2px -3px rgba(21, 66, 124, 0.3);
+
+      &:active {
+        background-color: var(--hub-account-primary-button-background-active);
+        color: var(--hub-account-primary-button-color);
+        border-color: var(--hub-account-primary-button-border-active);
+        box-shadow: none;
+      }
+    }
+
+    &:active {
+      background-color: var(--hub-account-primary-button-background-active);
+      color: var(--hub-account-primary-button-color);
+      border-color: var(--hub-account-primary-button-border-active);
+      box-shadow: none;
+    }
+
+    &:focus-visible {
+      outline: var(--focus-outline);
+      outline-offset: var(--focus-outline-offset);
+    }
+  }
+
+  &.secondary-button {
+    background-color: var(--hub-account-secondary-button-background);
+    color: var(--hub-account-secondary-button-color);
+    border-color: var(--hub-account-secondary-button-border);
+    box-shadow: 0 6px 3px -4px rgba(0, 0, 0, 0.1);
+    margin-inline-end: 15px;
+
+    &:hover {
+      background-color: var(--hub-account-secondary-button-background-hover);
+      color: var(--hub-account-secondary-button-color);
+      border-color: var(--hub-account-secondary-button-border);
+      box-shadow: 0 4px 2px -3px rgba(0, 0, 0, 0.1);
+
+      &:active {
+        background-color: var(--hub-account-secondary-button-background-active);
+        color: var(--hub-account-secondary-button-color);
+        border-color: var(--hub-account-secondary-button-border-active);
+        box-shadow: none;
+      }
+    }
+
+    &:active {
+      background-color: var(--hub-account-secondary-button-background-active);
+      color: var(--hub-account-secondary-button-color);
+      border-color: var(--hub-account-secondary-button-border-active);
+      box-shadow: none;
+    }
+
+    &:focus-visible {
+      outline: var(--focus-outline);
+      outline-offset: var(--focus-outline-offset);
+    }
+  }
+}
+
 /* Footer */
 
 .hub-footer {
@@ -527,81 +611,6 @@ header {
     min-width: 128px;
     padding: 10px 25px;
     text-align: center;
-  }
-
-  .footer-primary {
-    background-color: var(--hub-account-primary-button-background);
-    color: var(--hub-account-primary-button-color);
-    border-color: var(--hub-account-primary-button-border);
-    box-shadow: 0 6px 3px -4px rgba(21, 66, 124, 0.3);
-
-    &:hover {
-      background-color: var(--hub-account-primary-button-background-hover);
-      color: var(--hub-account-primary-button-color);
-      border-color: var(--hub-account-primary-button-border-active);
-      box-shadow: 0 4px 2px -3px rgba(21, 66, 124, 0.3);
-
-      &:active {
-        background-color: var(--hub-account-primary-button-background-active);
-        color: var(--hub-account-primary-button-color);
-        border-color: var(--hub-account-primary-button-border-active);
-        box-shadow: none;
-      }
-    }
-
-    &:active {
-      background-color: var(--hub-account-primary-button-background-active);
-      color: var(--hub-account-primary-button-color);
-      border-color: var(--hub-account-primary-button-border-active);
-      box-shadow: none;
-    }
-
-    &:focus {
-      background-color: var(--hub-account-primary-button-background-focus);
-      color: var(--hub-account-primary-button-color);
-      outline: 2px solid var(--hub-account-button-outline-focus);
-      outline-offset: 1px;
-      box-shadow: none;
-      border-color: var(--hub-account-primary-button-border-active);
-    }
-  }
-
-  .footer-secondary {
-    background-color: var(--hub-account-secondary-button-background);
-    color: var(--hub-account-secondary-button-color);
-    border-color: var(--hub-account-secondary-button-border);
-    box-shadow: 0 6px 3px -4px rgba(0, 0, 0, 0.1);
-    margin-inline-end: 15px;
-
-    &:hover {
-      background-color: var(--hub-account-secondary-button-background-hover);
-      color: var(--hub-account-secondary-button-color);
-      border-color: var(--hub-account-secondary-button-border);
-      box-shadow: 0 4px 2px -3px rgba(0, 0, 0, 0.1);
-
-      &:active {
-        background-color: var(--hub-account-secondary-button-background-active);
-        color: var(--hub-account-secondary-button-color);
-        border-color: var(--hub-account-secondary-button-border-active);
-        box-shadow: none;
-      }
-    }
-
-    &:active {
-      background-color: var(--hub-account-secondary-button-background-active);
-      color: var(--hub-account-secondary-button-color);
-      border-color: var(--hub-account-secondary-button-border-active);
-      box-shadow: none;
-    }
-
-    &:focus {
-      background-color: var(--hub-account-secondary-button-background-focus);
-      color: var(--hub-account-secondary-button-color);
-      outline: 2px solid var(--hub-account-button-outline-focus);
-      outline-offset: 1px;
-      box-shadow: none;
-      border-color: var(--hub-account-secondary-button-border);
-    }
   }
 }
 

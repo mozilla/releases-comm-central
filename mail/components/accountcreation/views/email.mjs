@@ -21,12 +21,24 @@ const { GuessConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/GuessConfig.sys.mjs"
 );
 
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+
 const { Sanitizer } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/Sanitizer.sys.mjs"
 );
 
 const { FindConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/FindConfig.sys.mjs"
+);
+
+const { CardDAVUtils } = ChromeUtils.importESModule(
+  "resource:///modules/CardDAVUtils.sys.mjs"
+);
+
+const { cal } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calUtils.sys.mjs"
 );
 
 const { gAccountSetupLogger, SuccessiveAbortable, UserCancelledException } =
@@ -121,7 +133,7 @@ class AccountHubEmail extends HTMLElement {
   /**
    * String of ID of current step in email flow.
    *
-   * @type {String}
+   * @type {string}
    */
   #currentState;
 
@@ -130,21 +142,21 @@ class AccountHubEmail extends HTMLElement {
    * been completed. This is required in case the back button has been pressed
    * after abortable is able to cancel any network requests.
    *
-   * @type {String}
+   * @type {string}
    */
   #hasCancelled;
 
   /**
    * The email for the current user.
    *
-   * @type {String}
+   * @type {string}
    */
   #email;
 
   /**
    * The real name for the current user.
    *
-   * @type {String}
+   * @type {string}
    */
   #realName;
 
@@ -152,7 +164,7 @@ class AccountHubEmail extends HTMLElement {
    * States of the email setup flow, based on the ID's of the steps in the
    * flow.
    *
-   * @type {String}
+   * @type {Object}
    */
   #states = {
     autoConfigSubview: {
@@ -283,6 +295,7 @@ class AccountHubEmail extends HTMLElement {
 
     this.ready = this.#initUI("autoConfigSubview");
     await this.ready;
+    this.#emailAutoConfigSubview.setState();
   }
 
   /**
@@ -508,7 +521,7 @@ class AccountHubEmail extends HTMLElement {
    * Calls the appropriate method for the current state when the back button
    * is pressed.
    *
-   * @param {String} currentState - The current state of the email flow.
+   * @param {string} currentState - The current state of the email flow.
    */
   #handleBackAction(currentState) {
     const stateDetails = this.#states[this.#currentState];
@@ -518,6 +531,7 @@ class AccountHubEmail extends HTMLElement {
         this.#handleAbortable();
         break;
       case "incomingConfigSubview":
+        // TODO: Focus on an input field when going back to auto email form.
         break;
       case "outgoingConfigSubview":
         // Set the currentConfig outgoing to the updated fields in this form.
@@ -535,7 +549,7 @@ class AccountHubEmail extends HTMLElement {
    * Calls the appropriate method for the current state when the forward
    * button is pressed.
    *
-   * @param {String} currentState - The current state of the email flow.
+   * @param {string} currentState - The current state of the email flow.
    * @param {Object} stateData - The current state data of the email flow.
    */
   async #handleForwardAction(currentState, stateData) {
@@ -566,7 +580,6 @@ class AccountHubEmail extends HTMLElement {
               });
             }
             this.#hasCancelled = false;
-            this.#stopLoading();
             this.#setCurrentConfigForSubview();
             break;
           }
@@ -636,6 +649,24 @@ class AccountHubEmail extends HTMLElement {
         gAccountSetupLogger.debug("Create button clicked.");
         await this.#validateAndFinish(this.#currentConfig.copy());
         await this.#initUI(this.#states[this.#currentState].nextStep);
+        try {
+          // TODO: Loading notification for fetching address books.
+          const syncAccounts = {};
+          syncAccounts.addressBooks = await this.#getAddressBooks(
+            stateData.password
+          );
+          // TODO: Loading notification for fetching calendars.
+          syncAccounts.calendars = await this.#getCalendars(
+            stateData.password,
+            stateData.rememberPassword
+          );
+          this.#currentSubview.setState(syncAccounts);
+          this.#configVerifier.cleanup();
+        } catch (error) {
+          error.cause.fluentTitleId = "account-hub-sync-failure";
+          this.#currentSubview.showNotification(error);
+          break;
+        }
 
         this.#currentSubview.showNotification({
           fluentTitleId: "account-hub-sync-success",
@@ -659,7 +690,7 @@ class AccountHubEmail extends HTMLElement {
    * Calls the appropriate method for the current state when the custom action
    * button is pressed.
    *
-   * @param {String} currentState - The current state of the email flow.
+   * @param {string} currentState - The current state of the email flow.
    */
   async #handleCustomAction(currentState) {
     let stateData;
@@ -981,6 +1012,7 @@ class AccountHubEmail extends HTMLElement {
    * Created the account in the backend and starts loading messages. This
    * method also leads to the account added view where the user can add more
    * accounts (calendar, address book, etc.)
+   *
    * @param {AccountConfig} completeConfig - The completed config
    */
   async #finishEmailAccountAddition(completeConfig) {
@@ -993,8 +1025,125 @@ class AccountHubEmail extends HTMLElement {
       window.msgWindow,
       null
     );
+  }
 
-    this.#configVerifier.cleanup();
+  /**
+   * Get the address books associated with the current account.
+   *
+   * @type {string} password - The password for the current account.
+   *
+   * @returns {Array} - The address books assoicated with the account.
+   */
+  async #getAddressBooks(password) {
+    let addressBooks = [];
+
+    // Bail out if Google OAuth was used and Contacts scope wasn't granted.
+    if (this.#currentConfig.incoming.oauthSettings) {
+      const grantedScope = this.#currentConfig.incoming.oauthSettings.scope;
+      if (
+        grantedScope.includes("google") &&
+        !grantedScope
+          .split(" ")
+          .includes("https://www.googleapis.com/auth/carddav")
+      ) {
+        return addressBooks;
+      }
+    }
+
+    const hostname = this.#email.split("@")[1];
+    try {
+      addressBooks = await CardDAVUtils.detectAddressBooks(
+        this.#email,
+        password,
+        `https://${hostname}`,
+        false
+      );
+    } catch (error) {
+      gAccountSetupLogger.debug(
+        `Found no address books for ${this.#email} on ${hostname}.`,
+        error
+      );
+      return addressBooks;
+    }
+
+    const existingAddressBookUrls = MailServices.ab.directories.map(d =>
+      d.getStringValue("carddav.url", "")
+    );
+
+    addressBooks = addressBooks.map(addressBook => {
+      addressBook.existing = existingAddressBookUrls.includes(
+        addressBook.url.href
+      );
+      return addressBook;
+    });
+
+    return addressBooks;
+  }
+
+  /**
+   * Get the calendars associated with the current account.
+   *
+   * @type {string} password - The password for the current account.
+   * @type {boolean} rememberPassword - The remember password choice.
+   *
+   * @returns {Array} - The calendars assoicated with the account.
+   */
+  async #getCalendars(password, rememberPassword) {
+    let calendarEntries = null;
+    const cals = [];
+
+    // Bail out if Google OAuth was used and Calendars scope wasn't granted.
+    if (this.#currentConfig.incoming.oauthSettings) {
+      const grantedScope = this.#currentConfig.incoming.oauthSettings.scope;
+      if (
+        grantedScope.includes("google") &&
+        !grantedScope
+          .split(" ")
+          .includes("https://www.googleapis.com/auth/calendar")
+      ) {
+        return cals;
+      }
+    }
+    const hostname = this.#email.split("@")[1];
+
+    try {
+      calendarEntries = await cal.provider.detection.detect(
+        this.#email,
+        password,
+        `https://${hostname}`,
+        rememberPassword,
+        [],
+        {}
+      );
+    } catch (error) {
+      gAccountSetupLogger.debug(
+        `Found no calendars for ${this.#email} on ${hostname}.`,
+        error
+      );
+      return cals;
+    }
+
+    // If no calendars return empty array.
+    if (!calendarEntries.size) {
+      return cals;
+    }
+
+    // Collect existing calendars to compare with the list of recently fetched
+    // ones.
+    const existing = new Set(
+      cal.manager.getCalendars({}).map(calendar => calendar.uri.spec)
+    );
+
+    for (const calendars of calendarEntries.values()) {
+      for (const calendar of calendars) {
+        if (existing.has(calendar.uri.spec)) {
+          cals.push({ name: calendar.name, existing: true });
+          continue;
+        }
+        cals.push(calendar);
+      }
+    }
+    return cals;
   }
 
   /**
@@ -1032,7 +1181,10 @@ class AccountHubEmail extends HTMLElement {
     this.#clearNotifications();
     this.#currentSubview.hidden = false;
     this.#setFooterButtons();
-    this.#currentSubview.resetState();
+    // Reset all subviews that require a reset.
+    for (const subviewName of Object.keys(this.#states)) {
+      this.#states[subviewName].subview?.resetState?.();
+    }
     this.#emailFooter.toggleForwardDisabled(true);
     return true;
   }

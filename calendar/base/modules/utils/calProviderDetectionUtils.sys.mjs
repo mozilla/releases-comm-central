@@ -109,7 +109,6 @@ export var detection = {
     aExtraProperties
   ) {
     const providers = this.providers;
-
     if (!providers.size) {
       throw new detection.NoneFoundError(
         "No providers available that implement calendar detection"

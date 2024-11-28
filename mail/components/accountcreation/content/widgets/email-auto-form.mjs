@@ -45,35 +45,40 @@ class EmailAutoForm extends AccountHubStep {
 
     this.#realName = this.querySelector("#realName");
     this.#email = this.querySelector("#email");
+    this.#realName.addEventListener("input", this);
+    this.#email.addEventListener("input", this);
+    this.resetState();
+  }
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "input":
+      case "change":
+        this.#checkValidEmailForm();
+        break;
+      default:
+        break;
+    }
+  }
+
+  resetState() {
+    this.querySelector("#autoConfigEmailForm").reset();
     this.#currentConfig = {};
 
     if ("@mozilla.org/userinfo;1" in Cc) {
       const userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
       this.#realName.value = userInfo.fullname;
     }
-
-    this.#realName.focus();
     this.#checkValidEmailForm();
-
-    this.setupEventListeners();
   }
 
   /**
-   * Set up the event listeners for this workflow.
+   * This sets the focus, and the focus needs to be applied to the correct
+   * field when this view is either loaded or is revisited by going back.
    */
-  setupEventListeners() {
-    // Auto email config event listeners.
-    this.#realName.addEventListener("input", () => {
-      this.#checkValidEmailForm();
-    });
-    this.#email.addEventListener("input", () => {
-      this.#checkValidEmailForm();
-    });
-  }
-
-  resetState() {
-    this.querySelector("#autoConfigEmailForm").reset();
-    this.#currentConfig = {};
+  setState() {
+    const focusedInput = this.#realName.value ? this.#email : this.#realName;
+    focusedInput.focus();
   }
 
   /**

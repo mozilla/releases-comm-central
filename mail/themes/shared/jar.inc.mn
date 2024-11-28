@@ -620,9 +620,11 @@
 
   skin/classic/messenger/icons/new/normal/add.svg             (../shared/mail/icons/new/normal/add.svg)
   skin/classic/messenger/icons/new/normal/address-book.svg    (../shared/mail/icons/new/normal/address-book.svg)
+  skin/classic/messenger/icons/new/normal/address-book-colored.svg (../shared/mail/icons/new/normal/address-book-colored.svg)
   skin/classic/messenger/icons/new/normal/add-circle.svg      (../shared/mail/icons/new/normal/add-circle.svg)
   skin/classic/messenger/icons/new/normal/archive.svg         (../shared/mail/icons/new/normal/archive.svg)
   skin/classic/messenger/icons/new/normal/calendar.svg        (../shared/mail/icons/new/normal/calendar.svg)
+  skin/classic/messenger/icons/new/normal/calendar-colored.svg  (../shared/mail/icons/new/normal/calendar-colored.svg)
   skin/classic/messenger/icons/new/normal/calendar-invite.svg (../shared/mail/icons/new/normal/calendar-invite.svg)
   skin/classic/messenger/icons/new/normal/chat.svg            (../shared/mail/icons/new/normal/chat.svg)
   skin/classic/messenger/icons/new/normal/cloud-download.svg  (../shared/mail/icons/new/normal/cloud-download.svg)

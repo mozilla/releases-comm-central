@@ -172,6 +172,19 @@ account-hub-password-info = Your credentials will only be stored locally on your
 
 account-hub-sync-success = Thunderbird found some connected services
 
+account-hub-sync-failure = Thunderbird was unable to find connected services
+
 account-hub-email-added-success = Email account connected successfully
 
 account-hub-config-test-success = Configuration settings valid
+
+account-hub-select-all = Select all
+
+account-hub-deselect-all = Deselect all
+
+# $count (Number) - The number of sync accounts selected.
+account-hub-selected = { $count } selected
+
+account-hub-no-address-books = No address books found
+
+account-hub-no-calendars = No calendars found
