@@ -101,7 +101,7 @@ export const NotificationUpdater = {
     const refreshUrl = Services.urlFormatter.formatURLPref(
       "mail.inappnotifications.url"
     );
-    if (refreshUrl === "about:blank") {
+    if (refreshUrl === "about:blank" || !refreshUrl) {
       return false;
     }
     try {

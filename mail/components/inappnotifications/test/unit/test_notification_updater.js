@@ -106,6 +106,17 @@ add_task(async function test_fetch_noFetch() {
     "Should not fetch if there is no url configured"
   );
   Assert.ok(updateSpy.notCalled, "Should not have called the update callback");
+
+  Services.prefs.setStringPref("mail.inappnotifications.url", "about:blank");
+  const didFetchWithAboutBlank = await NotificationUpdater._fetch();
+  Assert.ok(
+    !didFetchWithAboutBlank,
+    "Should not fetch if the formatted URL is about:blank"
+  );
+  Assert.ok(
+    updateSpy.notCalled,
+    "Should not have called the update callback for about:blank"
+  );
   Services.prefs.setStringPref("mail.inappnotifications.url", url);
 
   updateSpy.resetHistory();
