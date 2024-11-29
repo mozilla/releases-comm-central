@@ -571,8 +571,8 @@ function allow4GBFolders(aOn) {
  * The file is marked as sparse in the filesystem so that it does not
  * really take 4GiB and working with it is faster.
  *
- * @param targetSize - Minimum desired size of the Inbox mbox file.
- * @returns The number of messages created in the folder file.
+ * @param {integer} targetSize - Minimum desired size of the Inbox mbox file.
+ * @returns {integer} The number of messages created in the folder file.
  */
 function growInbox(targetSize) {
   let msgsAdded = 0;
