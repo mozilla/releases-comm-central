@@ -6,7 +6,7 @@
   flex: 1;
 }
 
-:root:not([tabsintitlebar]) .titlebar-buttonbox-container {
+:root:not([customtitlebar]) .titlebar-buttonbox-container {
   visibility: collapse;
 }
 

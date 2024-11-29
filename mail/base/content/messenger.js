@@ -132,10 +132,10 @@ var gMailInit = {
       document.documentElement.setAttribute("screenY", screen.availTop);
     }
 
-    // Run menubar initialization first, to avoid TabsInTitlebar code picking
+    // Run menubar initialization first, to avoid CustomTitlebar code picking
     // up mutations from it and causing a reflow.
     AutoHideMenubar.init();
-    TabsInTitlebar.init();
+    CustomTitlebar.init();
 
     // Call this after we set attributes that might change toolbars' computed
     // text color.
@@ -340,7 +340,7 @@ var gMailInit = {
     }
 
     SessionStoreManager.unloadingWindow(window);
-    TabsInTitlebar.uninit();
+    CustomTitlebar.uninit();
     ToolbarIconColor.uninit();
     gSpacesToolbar.onUnload();
 
@@ -907,7 +907,7 @@ messageFlavorDataProvider.prototype = {
   },
 };
 
-var TabsInTitlebar = {
+var CustomTitlebar = {
   init() {
     this._readPref();
     Services.prefs.addObserver(this._drawInTitlePref, this);
@@ -947,7 +947,7 @@ var TabsInTitlebar = {
   },
 
   get enabled() {
-    return document.documentElement.getAttribute("tabsintitlebar") == "true";
+    return document.documentElement.getAttribute("customtitlebar") == "true";
   },
 
   observe(subject, topic) {
@@ -1019,16 +1019,12 @@ var TabsInTitlebar = {
     }
 
     if (allowed) {
-      document.documentElement.setAttribute("tabsintitlebar", "true");
+      document.documentElement.setAttribute("customtitlebar", "true");
       if (AppConstants.platform == "macosx") {
-        document.documentElement.setAttribute("chromemargin", "0,-1,-1,-1");
         document.documentElement.removeAttribute("drawtitle");
-      } else {
-        document.documentElement.setAttribute("chromemargin", "0,2,2,2");
       }
     } else {
-      document.documentElement.removeAttribute("tabsintitlebar");
-      document.documentElement.removeAttribute("chromemargin");
+      document.documentElement.removeAttribute("customtitlebar");
       if (AppConstants.platform == "macosx") {
         document.documentElement.setAttribute("drawtitle", "true");
       }

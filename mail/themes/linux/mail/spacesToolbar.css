@@ -5,12 +5,12 @@
 @import url("chrome://messenger/skin/shared/spacesToolbar.css");
 
 @media (-moz-gtk-csd-available) {
-  :root[tabsintitlebar]:not([gtktiledwindow="true"]) .spaces-toolbar:not([hidden]) {
+  :root[customtitlebar]:not([gtktiledwindow="true"]) .spaces-toolbar:not([hidden]) {
     border-start-start-radius: env(-moz-gtk-csd-titlebar-radius);
   }
 }
 
-:root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) {
+:root[customtitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) {
   /* stylelint-disable-next-line media-query-no-invalid */
   @media (-moz-bool-pref: "widget.gtk.rounded-bottom-corners.enabled") {
     .spaces-toolbar:not([hidden]) {

@@ -79,7 +79,7 @@ hr {
   background-position: var(--lwt-background-alignment);
 }
 
-:root[lwtheme]:not([tabsintitlebar]) #navigation-toolbox {
+:root[lwtheme]:not([customtitlebar]) #navigation-toolbox {
   color: var(--toolbar-color, inherit);
   background-color: var(--toolbar-bgcolor);
 }
@@ -93,7 +93,7 @@ hr {
   background-position: right top, var(--lwt-background-alignment);
 }
 
-:root[lwtheme][tabsintitlebar] #navigation-toolbox:-moz-window-inactive,
+:root[lwtheme][customtitlebar] #navigation-toolbox:-moz-window-inactive,
 :root[lwtheme] #compose-toolbox:-moz-window-inactive {
   background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
 }

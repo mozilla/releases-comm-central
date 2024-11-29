@@ -4,9 +4,9 @@
 
 async function sub_test_toolbar_alignment(drawInTitlebar, hideMenu) {
   const menubar = document.getElementById("toolbar-menubar");
-  const tabsInTitlebar =
-    document.documentElement.getAttribute("tabsintitlebar") == "true";
-  Assert.equal(tabsInTitlebar, drawInTitlebar);
+  const customtitlebar =
+    document.documentElement.getAttribute("customtitlebar") == "true";
+  Assert.equal(customtitlebar, drawInTitlebar);
 
   if (hideMenu) {
     menubar.setAttribute("autohide", true);

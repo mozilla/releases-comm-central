@@ -10,7 +10,7 @@
   padding-inline: 0;
   margin-bottom: 0;
 
-  :root[tabsintitlebar]:not([sizemode="fullscreen"]) & {
+  :root[customtitlebar]:not([sizemode="fullscreen"]) & {
     position: unset;
   }
 }

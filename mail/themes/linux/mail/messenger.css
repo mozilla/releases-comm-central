@@ -59,7 +59,7 @@
  * (in X11) or the compositor (in Wayland) does draw the shadow corners
  * already.
  */
-:root[tabsintitlebar] {
+:root[customtitlebar] {
   background-color: transparent;
 
   &:not([lwtheme]) #navigation-toolbox {
@@ -86,7 +86,7 @@
   }
 }
 
-:root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) {
+:root[customtitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) {
   /* This takes care of drawing our window decorations on X11 */
   -moz-default-appearance: -moz-window-decorations;
   appearance: auto;

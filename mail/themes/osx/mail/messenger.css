@@ -10,7 +10,7 @@
 
 /* stylelint-disable-next-line media-query-no-invalid */
 @media (-moz-bool-pref: "mail.theme.macos.native-theme") {
-  :root[tabsintitlebar]:not([lwtheme]) {
+  :root[customtitlebar]:not([lwtheme]) {
     #navigation-toolbox {
       background: transparent;
 
@@ -270,7 +270,7 @@ treechildren::-moz-tree-line(selected, focus) {
 
 /* ::::: Tabs in Titlebar :::::: */
 
-:root:not([lwtheme]) #messengerWindow[tabsintitlebar="true"] #titlebar {
+:root:not([lwtheme]) #messengerWindow[customtitlebar="true"] #titlebar {
   appearance: auto;
   -moz-default-appearance: -moz-window-titlebar;
 }

@@ -11,7 +11,7 @@ var ToolbarIconColor = {
   _windowState: {
     active: false,
     fullscreen: false,
-    tabsintitlebar: false,
+    customtitlebar: false,
   },
 
   init() {
@@ -87,8 +87,8 @@ var ToolbarIconColor = {
       case "toolbarvisibilitychange":
         // Toolbar changes dont require reset of the cached color values.
         break;
-      case "tabsintitlebar":
-        this._windowState.tabsintitlebar = reasonValue;
+      case "customtitlebar":
+        this._windowState.customtitlebar = reasonValue;
         break;
     }
 

@@ -22,7 +22,7 @@
   }
 
   &[sizemode="fullscreen"],
-  &:not([tabsintitlebar]) {
+  &:not([customtitlebar]) {
     --unified-drag-space: 3px;
   }
 }

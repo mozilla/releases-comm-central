@@ -11201,7 +11201,7 @@ function InitEditor() {
     }
   }
 
-  // Run menubar initialization first, to avoid TabsInTitlebar code picking
+  // Run menubar initialization first, to avoid CustomTitlebar code picking
   // up mutations from it and causing a reflow.
   if (AppConstants.platform != "macosx") {
     AutoHideMenubar.init();
