@@ -316,13 +316,15 @@ var gMailInit = {
     }
 
     if (Services.prefs.getBoolPref("mail.inappnotifications.enabled", false)) {
-      ChromeUtils.importESModule(
-        "chrome://messenger/content/in-app-notification-manager.mjs",
-        { global: "current" }
-      );
-      document
-        .querySelector(".in-app-notification-root")
-        .replaceChildren(document.createElement("in-app-notification-manager"));
+      import("chrome://messenger/content/in-app-notification-manager.mjs")
+        .then(() => {
+          document
+            .querySelector(".in-app-notification-root")
+            .replaceChildren(
+              document.createElement("in-app-notification-manager")
+            );
+        })
+        .catch(console.error);
     }
   },
 
