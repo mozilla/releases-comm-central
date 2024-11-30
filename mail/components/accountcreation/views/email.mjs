@@ -318,7 +318,7 @@ class AccountHubEmail extends HTMLElement {
     this.#clearNotifications();
     this.#currentState = subview;
     await this.#loadTemplateScript(this.#states[subview].templateId);
-    this.#states[subview].subview.hidden = false;
+    this.#currentSubview.hidden = false;
     this.#setFooterButtons();
   }
 
@@ -357,8 +357,7 @@ class AccountHubEmail extends HTMLElement {
    */
   #clearNotifications() {
     if (this.#currentState) {
-      const stateDetails = this.#states[this.#currentState];
-      stateDetails.subview.clearNotifications();
+      this.#currentSubview.clearNotifications();
     }
   }
 
@@ -432,7 +431,7 @@ class AccountHubEmail extends HTMLElement {
             this.#hasCancelled ? this.#currentState : stateDetails.previousStep
           );
         } catch (error) {
-          stateDetails.subview.showNotification({
+          this.#currentSubview.showNotification({
             title: error.cause.code,
             description: error.cause.text,
             error,
@@ -449,7 +448,7 @@ class AccountHubEmail extends HTMLElement {
       case "forward":
         try {
           this.#hasCancelled = false;
-          const stateData = stateDetails.subview.captureState();
+          const stateData = this.#currentSubview.captureState();
           await this.#handleForwardAction(this.#currentState, stateData);
         } catch (error) {
           this.#handleAbortable();
@@ -464,7 +463,7 @@ class AccountHubEmail extends HTMLElement {
         try {
           await this.#handleCustomAction(this.#currentState, event);
         } catch (error) {
-          stateDetails.subview.showNotification({
+          this.#currentSubview.showNotification({
             title: error.title,
             description: error.text,
             error,
@@ -474,7 +473,7 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "edit-configuration":
         this.#currentConfig = this.#fillAccountConfig(
-          stateDetails.subview.captureState()
+          this.#currentSubview.captureState()
         );
         // The edit configuration button was pressed.
         await this.#initUI("incomingConfigSubview");
@@ -485,7 +484,7 @@ class AccountHubEmail extends HTMLElement {
         try {
           this.#emailFooter.toggleForwardDisabled(!event.detail.completed);
         } catch (error) {
-          stateDetails.subview.showNotification({
+          this.#currentSubview.showNotification({
             title: error.title,
             description: error.text,
             error,
@@ -504,7 +503,7 @@ class AccountHubEmail extends HTMLElement {
           stateData = this.#fillAccountConfig(stateData);
           await this.#advancedSetup(stateData);
         } catch (error) {
-          stateDetails.subview.showNotification({
+          this.#currentSubview.showNotification({
             title: error.title,
             description: error.text,
             error,
@@ -524,7 +523,6 @@ class AccountHubEmail extends HTMLElement {
    * @param {string} currentState - The current state of the email flow.
    */
   #handleBackAction(currentState) {
-    const stateDetails = this.#states[this.#currentState];
     switch (currentState) {
       case "autoConfigSubview":
         this.#hasCancelled = true;
@@ -536,7 +534,7 @@ class AccountHubEmail extends HTMLElement {
       case "outgoingConfigSubview":
         // Set the currentConfig outgoing to the updated fields in this form.
         this.#currentConfig.outgoing =
-          stateDetails.subview.captureState().outgoing;
+          this.#currentSubview.captureState().outgoing;
         break;
       case "emailPasswordSubview":
         break;
@@ -580,6 +578,7 @@ class AccountHubEmail extends HTMLElement {
               });
             }
             this.#hasCancelled = false;
+            this.#stopLoading();
             this.#setCurrentConfigForSubview();
             break;
           }
@@ -604,7 +603,6 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "incomingConfigSubview":
         await this.#initUI(this.#states[this.#currentState].nextStep);
-
         this.#currentConfig.incoming = stateData.config.incoming;
         this.#setCurrentConfigForSubview();
 
@@ -674,10 +672,24 @@ class AccountHubEmail extends HTMLElement {
         });
         break;
       case "emailSyncAccountsSubview":
-        this.#currentSubview.showNotification({
-          fluentTitleId: "account-hub-email-added-success",
-          type: "success",
-        });
+        try {
+          // Add the selected sync address books and calendars.
+          this.#addSyncAccounts(stateData);
+
+          // TODO: Show the account added page when it's finished.
+          // await this.#initUI(this.#states[this.#currentState].nextStep);
+
+          // this.#currentSubview.showNotification({
+          //   fluentTitleId: "account-hub-email-added-success",
+          //   type: "success",
+          // });
+        } catch (error) {
+          this.#currentSubview.showNotification({
+            fluentTitleId: "account-hub-unable-to-sync-accounts",
+            type: "error",
+            error,
+          });
+        }
         break;
       case "emailAddedSubview":
         break;
@@ -711,7 +723,7 @@ class AccountHubEmail extends HTMLElement {
 
           if (config.isComplete()) {
             this.#stopLoading();
-            this.#states[this.#currentState].subview.showNotification({
+            this.#currentSubview.showNotification({
               fluentTitleId: "account-setup-success-half-manual",
               type: "success",
             });
@@ -1142,6 +1154,27 @@ class AccountHubEmail extends HTMLElement {
       }
     }
     return cals;
+  }
+
+  /**
+   * @typedef {object} SyncAccounts
+   * @property {Array} calendars - The selected calendars.
+   * @property {Array} addressBooks - The selected address books.
+   */
+
+  /**
+   * Adds selected calendars and address books to Thunderbird.
+   *
+   * @type {SyncAccounts} syncAccounts - The sync accounts for the user.
+   */
+  #addSyncAccounts(syncAccounts) {
+    for (const calendar of syncAccounts.calendars) {
+      cal.manager.registerCalendar(calendar);
+    }
+
+    for (const addressBook of syncAccounts.addressBooks) {
+      addressBook.create();
+    }
   }
 
   /**

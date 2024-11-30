@@ -155,6 +155,31 @@ class EmailSyncAccountsForm extends AccountHubStep {
   }
 
   /**
+   * Returns the chosen address books and calendars
+   *
+   * @returns {SyncAccounts} The sync accounts selected.
+   */
+  captureState() {
+    const checkedAddressBookUrls = Array.from(
+      this.querySelectorAll("#addressBooks input:checked:enabled"),
+      checkedAddressBook => checkedAddressBook.dataset.url
+    );
+    const checkedCalendarsUrls = Array.from(
+      this.querySelectorAll("#calendars input:checked:enabled"),
+      checkedCalendar => checkedCalendar.dataset.url
+    );
+
+    return {
+      calendars: this.#availableSyncAccounts.calendars.filter(calendar =>
+        checkedCalendarsUrls.includes(calendar.uri?.spec)
+      ),
+      addressBooks: this.#availableSyncAccounts.addressBooks.filter(
+        addressBook => checkedAddressBookUrls.includes(addressBook.url.href)
+      ),
+    };
+  }
+
+  /**
    * Removes all of the input labels and resets #availableSyncAccounts.
    */
   resetState() {
@@ -187,10 +212,15 @@ class EmailSyncAccountsForm extends AccountHubStep {
     input.type = "checkbox";
     input.checked = true;
     input.disabled = syncAccount.existing;
+    input.dataset.url =
+      inputClass === "address-book-input"
+        ? syncAccount.url.href
+        : syncAccount.uri?.spec;
     const title = document.createElement("span");
     title.textContent = syncAccount.name;
     label.append(input);
     label.append(title);
+
     return label;
   }
 
@@ -212,6 +242,7 @@ class EmailSyncAccountsForm extends AccountHubStep {
       ? 0
       : this.#availableSyncAccounts[type].length;
   }
+
   /**
    * Update strings associated with the sync account type.
    *

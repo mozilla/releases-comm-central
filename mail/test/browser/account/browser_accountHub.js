@@ -13,6 +13,10 @@ const { MailServices } = ChromeUtils.importESModule(
 );
 const { DNS } = ChromeUtils.importESModule("resource:///modules/DNS.sys.mjs");
 
+const { cal } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calUtils.sys.mjs"
+);
+
 let emailUser;
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
@@ -835,8 +839,14 @@ add_task(async function test_account_enter_password_imap_account() {
     "The email password subview should be hidden."
   );
 
-  const imapAccount = MailServices.accounts.accounts.find(
-    account => account.identities[0].email === emailUser.email
+  let imapAccount;
+
+  await TestUtils.waitForCondition(
+    () =>
+      (imapAccount = MailServices.accounts.accounts.find(
+        account => account.identities[0]?.email === emailUser.email
+      )),
+    "The imap account should be created."
   );
 
   Assert.ok(imapAccount, "IMAP account should be created");
@@ -913,11 +923,15 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
     "The email password subview should be hidden."
   );
 
-  const imapAccount = MailServices.accounts.accounts.find(
-    account => account.identities[0].email === emailUser.email
-  );
+  let imapAccount;
 
-  Assert.ok(imapAccount, "IMAP account should be created");
+  await TestUtils.waitForCondition(
+    () =>
+      (imapAccount = MailServices.accounts.accounts.find(
+        account => account.identities[0]?.email === emailUser.email
+      )),
+    "The imap account should be created."
+  );
 
   await TestUtils.waitForCondition(
     () =>
@@ -988,7 +1002,7 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
     "There should 1 checked address book."
   );
   Assert.equal(
-    addressBooks.item(0).textContent,
+    addressBooks[0].textContent,
     "You found me!",
     "The address book found should have the name - You found me!"
   );
@@ -1001,26 +1015,26 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
     "There should 2 checked calendars."
   );
   Assert.equal(
-    calendars.item(0).textContent,
+    calendars[0].textContent,
     "You found me!",
     "The first calendar found should have the name - You found me!"
   );
   Assert.equal(
-    calendars.item(1).textContent,
+    calendars[1].textContent,
     "Röda dagar",
     "The second calendar found should have the name - Röda dagar"
   );
 
   // Unchecking an input should update the count label, and the select toggle
   // fluent id.
-  const checkEvent = BrowserTestUtils.waitForEvent(
-    addressBooks.item(0).querySelector("input"),
+  let checkEvent = BrowserTestUtils.waitForEvent(
+    addressBooks[0].querySelector("input"),
     "change",
     true,
-    event => event.target.checked === false
+    event => !event.target.checked
   );
   EventUtils.synthesizeMouseAtCenter(
-    addressBooks.item(0).querySelector("input"),
+    addressBooks[0].querySelector("input"),
     {}
   );
   await checkEvent;
@@ -1053,6 +1067,75 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
     0,
     "Calendars count should be 0."
   );
+
+  // Select the first calendar and address book and click continue to add
+  // the selected calendar and address book.
+  checkEvent = BrowserTestUtils.waitForEvent(
+    addressBooks[0].querySelector("input"),
+    "change",
+    true,
+    event => event.target.checked
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    addressBooks[0].querySelector("input"),
+    {}
+  );
+  await checkEvent;
+  checkEvent = BrowserTestUtils.waitForEvent(
+    calendars[0].querySelector("input"),
+    "change",
+    true,
+    event => event.target.checked
+  );
+  EventUtils.synthesizeMouseAtCenter(calendars[0].querySelector("input"), {});
+  await checkEvent;
+
+  Assert.equal(
+    syncAccountsTemplate.l10n.getAttributes(selectedAddressBooks).args.count,
+    1,
+    "Address books count should be 1."
+  );
+  Assert.equal(
+    syncAccountsTemplate.l10n.getAttributes(selectedCalendars).args.count,
+    1,
+    "Calendars count should be 1."
+  );
+  const calendarPromise = new Promise(resolve => {
+    const observer = {
+      onCalendarRegistered(calendar) {
+        cal.manager.removeObserver(this);
+        resolve(calendar);
+      },
+      onCalendarUnregistering() {},
+      onCalendarDeleting() {},
+    };
+    cal.manager.addObserver(observer);
+  });
+  const addressBookDirectoryPromise = TestUtils.topicObserved(
+    "addrbook-directory-synced"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  // Check existance of address book and calendar.
+  const [addressBookDirectory] = await addressBookDirectoryPromise;
+  Assert.equal(addressBookDirectory.dirName, "You found me!");
+  Assert.equal(
+    addressBookDirectory.dirType,
+    Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
+  );
+  Assert.equal(
+    addressBookDirectory.getStringValue("carddav.url", ""),
+    "https://example.org/browser/comm/mail/components/addrbook/test/browser/data/addressbook.sjs"
+  );
+
+  const calendar = await calendarPromise;
+  Assert.equal(calendar.name, "You found me!");
+  Assert.equal(calendar.type, "caldav");
+
+  // Remove the address book and calendar.
+  MailServices.ab.deleteAddressBook(addressBookDirectory.URI);
+  cal.manager.removeCalendar(calendar);
 
   MailServices.accounts.removeAccount(imapAccount);
   Services.logins.removeAllLogins();

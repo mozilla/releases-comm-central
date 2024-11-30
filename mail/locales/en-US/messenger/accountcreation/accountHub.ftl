@@ -174,6 +174,8 @@ account-hub-sync-success = Thunderbird found some connected services
 
 account-hub-sync-failure = Thunderbird was unable to find connected services
 
+account-hub-unable-to-sync-accounts = Thunderbird was unable to connect the selected services
+
 account-hub-email-added-success = Email account connected successfully
 
 account-hub-config-test-success = Configuration settings valid
