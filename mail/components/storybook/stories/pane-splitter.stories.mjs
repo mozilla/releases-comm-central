@@ -32,8 +32,8 @@ const Template = ({ resizeDirection, collapseWidth, collapseHeight }) => html`
       grid-template-${
         resizeDirection === "horizontal" ? "columns" : "rows"
       }: minmax(auto, var(--splitter-${
-  resizeDirection === "horizontal" ? "width" : "height"
-})) 0 auto;
+        resizeDirection === "horizontal" ? "width" : "height"
+      })) 0 auto;
       width: 500px;
       height: 500px;
       margin: 1em;

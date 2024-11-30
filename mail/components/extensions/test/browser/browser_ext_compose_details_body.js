@@ -192,9 +192,8 @@ add_task(async function testBody() {
 
       // Get details, plain text message.
 
-      let plainTextDetails = await browser.compose.getComposeDetails(
-        plainTextTabId
-      );
+      let plainTextDetails =
+        await browser.compose.getComposeDetails(plainTextTabId);
       browser.test.log(JSON.stringify(plainTextDetails));
       browser.test.assertTrue(plainTextDetails.isPlainText);
       browser.test.assertTrue(
@@ -213,9 +212,8 @@ add_task(async function testBody() {
         plainTextBody:
           plainTextDetails.plainTextBody + "\nIndeed, it is plain.",
       });
-      plainTextDetails = await browser.compose.getComposeDetails(
-        plainTextTabId
-      );
+      plainTextDetails =
+        await browser.compose.getComposeDetails(plainTextTabId);
       browser.test.log(JSON.stringify(plainTextDetails));
       browser.test.assertTrue(plainTextDetails.isPlainText);
       browser.test.assertTrue(
@@ -610,9 +608,8 @@ add_task(async function testCJK() {
 
       // Get details, plain text message.
 
-      let plainTextDetails = await browser.compose.getComposeDetails(
-        plainTextTabId
-      );
+      let plainTextDetails =
+        await browser.compose.getComposeDetails(plainTextTabId);
       browser.test.log(JSON.stringify(plainTextDetails));
       browser.test.assertTrue(plainTextDetails.isPlainText);
       browser.test.assertTrue(
@@ -630,9 +627,8 @@ add_task(async function testCJK() {
       await browser.compose.setComposeDetails(plainTextTabId, {
         plainTextBody: longCJKString,
       });
-      plainTextDetails = await browser.compose.getComposeDetails(
-        plainTextTabId
-      );
+      plainTextDetails =
+        await browser.compose.getComposeDetails(plainTextTabId);
       browser.test.log(JSON.stringify(plainTextDetails));
       browser.test.assertTrue(plainTextDetails.isPlainText);
       browser.test.assertTrue(

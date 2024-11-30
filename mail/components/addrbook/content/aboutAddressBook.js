@@ -23,9 +23,8 @@ ChromeUtils.defineLazyGetter(this, "ABQueryUtils", function () {
   return ChromeUtils.importESModule("resource:///modules/ABQueryUtils.sys.mjs");
 });
 ChromeUtils.defineLazyGetter(this, "ICAL", function () {
-  return ChromeUtils.importESModule(
-    "resource:///modules/calendar/Ical.sys.mjs"
-  ).default;
+  return ChromeUtils.importESModule("resource:///modules/calendar/Ical.sys.mjs")
+    .default;
 });
 
 ChromeUtils.defineESModuleGetters(this, {
@@ -3691,9 +3690,8 @@ var detailsPane = {
     const listDirectory = MailServices.ab.getDirectory(listCard.mailListURI);
 
     document.querySelector("#viewContact .list-header").hidden = false;
-    document.querySelector(
-      "#viewContact .list-header > h1"
-    ).textContent = `${listDirectory.dirName}`;
+    document.querySelector("#viewContact .list-header > h1").textContent =
+      `${listDirectory.dirName}`;
 
     const cards = Array.from(listDirectory.childCards, card => {
       return {

@@ -244,9 +244,8 @@ export class ImapIncomingServer extends MsgIncomingServer {
       return;
     }
 
-    folder.QueryInterface(
-      Ci.nsIMsgImapMailFolder
-    ).verifiedAsOnlineFolder = false;
+    folder.QueryInterface(Ci.nsIMsgImapMailFolder).verifiedAsOnlineFolder =
+      false;
     for (const child of folder.subFolders) {
       this._setFolderToUnverified(child);
     }

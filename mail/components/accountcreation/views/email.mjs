@@ -879,9 +879,8 @@ class AccountHubEmail extends HTMLElement {
     }
 
     gAccountSetupLogger.debug("Creating account in backend.");
-    const newAccount = await CreateInBackend.createAccountInBackend(
-      accountConfig
-    );
+    const newAccount =
+      await CreateInBackend.createAccountInBackend(accountConfig);
 
     this.#moveToAccountManager(newAccount.incomingServer);
   }
@@ -1017,9 +1016,8 @@ class AccountHubEmail extends HTMLElement {
    */
   async #finishEmailAccountAddition(completeConfig) {
     gAccountSetupLogger.debug("Creating account in backend.");
-    const emailAccount = await CreateInBackend.createAccountInBackend(
-      completeConfig
-    );
+    const emailAccount =
+      await CreateInBackend.createAccountInBackend(completeConfig);
     emailAccount.incomingServer.getNewMessages(
       emailAccount.incomingServer.rootFolder,
       window.msgWindow,

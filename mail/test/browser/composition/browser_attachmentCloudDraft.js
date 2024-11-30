@@ -66,9 +66,8 @@ add_task(async function test_draft_with_cloudFile_attachment() {
   const files = collectFiles(kFiles);
   MockFilePicker.setFiles(files);
 
-  const cloudFileAccount = await gCloudFileProvider.createAccount(
-    "validAccount"
-  );
+  const cloudFileAccount =
+    await gCloudFileProvider.createAccount("validAccount");
   const draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
   const expectedUpload = { ...draft.upload };
 
@@ -256,9 +255,8 @@ add_task(async function test_draft_with_cloudFile_attachment_no_account() {
   const files = collectFiles(kFiles);
   MockFilePicker.setFiles(files);
 
-  const cloudFileAccount = await gCloudFileProvider.createAccount(
-    "invalidAccount"
-  );
+  const cloudFileAccount =
+    await gCloudFileProvider.createAccount("invalidAccount");
   const draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
   const expectedUpload = { ...draft.upload };
 
@@ -352,9 +350,8 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
   );
   MockFilePicker.setFiles([tempFile.file]);
 
-  const cloudFileAccount = await gCloudFileProvider.createAccount(
-    "validAccountNoFile"
-  );
+  const cloudFileAccount =
+    await gCloudFileProvider.createAccount("validAccountNoFile");
   const draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
   const expectedUpload = { ...draft.upload };
 

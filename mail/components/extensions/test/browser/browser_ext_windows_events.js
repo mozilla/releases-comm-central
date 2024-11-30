@@ -167,9 +167,8 @@ add_task(async () => {
 
         browser.test.log("Open a message in a window (messageWindow.xhtml).");
 
-        const primedDisplayWindowInfo = await window.sendMessage(
-          "openDisplayWindow"
-        );
+        const primedDisplayWindowInfo =
+          await window.sendMessage("openDisplayWindow");
         const [{ id: displayWindow }] = await listener.checkEvent(
           "windows.onCreated",
           {

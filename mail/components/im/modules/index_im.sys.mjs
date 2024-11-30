@@ -462,9 +462,8 @@ var GlodaIMIndexer = {
     (async () => {
       // We need to get the log files every time, because a new log file might
       // have been started since we last got them.
-      const logFiles = await IMServices.logs.getLogPathsForConversation(
-        aConversation
-      );
+      const logFiles =
+        await IMServices.logs.getLogPathsForConversation(aConversation);
       if (!logFiles || !logFiles.length) {
         // No log files exist yet, nothing to do!
         return;

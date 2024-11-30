@@ -251,9 +251,8 @@ add_task(async function overrideContext_with_context() {
   await extension.startup();
   await extension.awaitMessage("menu_items_registered");
 
-  const { tabId, httpUrl, extensionUrl } = await extension.awaitMessage(
-    "setup_ready"
-  );
+  const { tabId, httpUrl, extensionUrl } =
+    await extension.awaitMessage("setup_ready");
   info(`Set up test with tabId=${tabId}.`);
 
   {

@@ -102,9 +102,8 @@ class AccountHubHeader extends HTMLElement {
     );
 
     if (description || fluentDescriptionId || error?.message) {
-      this.shadowRoot.querySelector(
-        "#emailFormNotificationToggle"
-      ).hidden = false;
+      this.shadowRoot.querySelector("#emailFormNotificationToggle").hidden =
+        false;
     } else {
       this.#notificationForm.setAttribute("aria-disabled", true);
     }

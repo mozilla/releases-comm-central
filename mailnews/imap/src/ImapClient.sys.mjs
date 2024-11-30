@@ -818,14 +818,17 @@ export class ImapClient {
     this._sendTagged("IDLE");
     this._setSocketTimeout(PR_UINT32_MAX);
     this._idling = true;
-    this._idleTimer = setTimeout(() => {
-      this.endIdle(() => {
-        this._actionNoop();
-      });
-      // Per rfc2177, should terminate the IDLE and re-issue it at least every
-      // 29 minutes. But in practice many servers timeout before that. A noop
-      // every 5min is better than timeout.
-    }, 5 * 60 * 1000);
+    this._idleTimer = setTimeout(
+      () => {
+        this.endIdle(() => {
+          this._actionNoop();
+        });
+        // Per rfc2177, should terminate the IDLE and re-issue it at least every
+        // 29 minutes. But in practice many servers timeout before that. A noop
+        // every 5min is better than timeout.
+      },
+      5 * 60 * 1000
+    );
     this._logger.debug(`Idling in ${this.folder.URI}`);
   }
 

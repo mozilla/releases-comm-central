@@ -91,9 +91,8 @@ add_task(async function test_accounts() {
         );
       }
 
-      const [account2Id, account2Name] = await window.sendMessage(
-        "create account 2"
-      );
+      const [account2Id, account2Name] =
+        await window.sendMessage("create account 2");
       // The new account is defined as default and should be returned first.
       const result2 = await browser.accounts.list(true);
       browser.test.assertEq(2, result2.length);
@@ -169,17 +168,15 @@ add_task(async function test_accounts() {
         "Folders not included"
       );
 
-      const result3WithoutFoldersDefault = await browser.accounts.get(
-        account1Id
-      );
+      const result3WithoutFoldersDefault =
+        await browser.accounts.get(account1Id);
       browser.test.assertEq(
         undefined,
         result3WithoutFoldersDefault.rootFolder.subFolders,
         "Folders not included"
       );
-      const result4WithoutFoldersDefault = await browser.accounts.get(
-        account2Id
-      );
+      const result4WithoutFoldersDefault =
+        await browser.accounts.get(account2Id);
       browser.test.assertEq(
         undefined,
         result4WithoutFoldersDefault.rootFolder.subFolders,

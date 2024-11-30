@@ -486,9 +486,8 @@ add_task(
             }
           );
 
-          const subFolders0 = await browser.folders.getSubFolders(
-            nestedRootFolder
-          );
+          const subFolders0 =
+            await browser.folders.getSubFolders(nestedRootFolder);
           window.assertDeepEqual(
             expectedNestedRootFolder.subFolders,
             subFolders0,
@@ -634,9 +633,8 @@ add_task(
         ];
 
         // Use default include option which is not to include subfolders.
-        const parentsWithDefSubs = await browser.folders.getParentFolders(
-          lastChild
-        );
+        const parentsWithDefSubs =
+          await browser.folders.getParentFolders(lastChild);
         window.assertDeepEqual(
           expectedParentFolders,
           parentsWithDefSubs,
@@ -826,9 +824,8 @@ add_task(async function test_deny_folders_operations() {
               )
             : account.rootFolder;
 
-        const capabilities = await browser.folders.getFolderCapabilities(
-          folder
-        );
+        const capabilities =
+          await browser.folders.getFolderCapabilities(folder);
         browser.test.assertTrue(
           !capabilities.canAddSubfolders,
           "Folder should not allow to create subfolders"
@@ -845,9 +842,8 @@ add_task(async function test_deny_folders_operations() {
 
       {
         const folder = account.rootFolder;
-        const capabilities = await browser.folders.getFolderCapabilities(
-          folder
-        );
+        const capabilities =
+          await browser.folders.getFolderCapabilities(folder);
         browser.test.assertTrue(
           !capabilities.canBeRenamed,
           "Folder should not allow to be renamed"
@@ -864,9 +860,8 @@ add_task(async function test_deny_folders_operations() {
 
       {
         const folder = account.rootFolder;
-        const capabilities = await browser.folders.getFolderCapabilities(
-          folder
-        );
+        const capabilities =
+          await browser.folders.getFolderCapabilities(folder);
         browser.test.assertTrue(
           !capabilities.canBeDeleted,
           "Folder should not allow to be deleted"

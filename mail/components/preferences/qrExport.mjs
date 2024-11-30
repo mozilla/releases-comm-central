@@ -49,11 +49,10 @@ export const qrExportPane = {
         const oAuthUsage = lazy.QRExport.getAccountOAuthUsage(account);
         checkbox.dataset.hasOauth = oAuthUsage.incoming || oAuthUsage.outgoing;
         checkbox.dataset.oauthOnly = oAuthUsage.incoming && oAuthUsage.outgoing;
-        item.querySelector(
-          "li"
-        ).title = `${incomingServer.type.toUpperCase()}: ${
-          incomingServer.username
-        } - ${incomingServer.hostName}:${incomingServer.port}`;
+        item.querySelector("li").title =
+          `${incomingServer.type.toUpperCase()}: ${
+            incomingServer.username
+          } - ${incomingServer.hostName}:${incomingServer.port}`;
         return item;
       })
     );

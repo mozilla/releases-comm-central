@@ -718,18 +718,15 @@ add_task(async function test_compose_attachments() {
       // Convert the second attachment to a cloudFile attachment.
 
       await new Promise(resolve => {
-        browser.cloudFile.onFileUpload.addListener(function listen(
-          account,
-          fileInfo,
-          tab,
-          relatedFileInfo
-        ) {
-          browser.cloudFile.onFileUpload.removeListener(listen);
-          browser.test.assertEq(1, fileInfo.id);
-          browser.test.assertEq(undefined, relatedFileInfo);
-          setTimeout(() => resolve());
-          return { url: "https://cloud.provider.net/1" };
-        });
+        browser.cloudFile.onFileUpload.addListener(
+          function listen(account, fileInfo, tab, relatedFileInfo) {
+            browser.cloudFile.onFileUpload.removeListener(listen);
+            browser.test.assertEq(1, fileInfo.id);
+            browser.test.assertEq(undefined, relatedFileInfo);
+            setTimeout(() => resolve());
+            return { url: "https://cloud.provider.net/1" };
+          }
+        );
         // Conversion/upload is not yet supported via WebExt API.
         browser.test.sendMessage(
           "convertFile",
@@ -764,24 +761,21 @@ add_task(async function test_compose_attachments() {
       // the same url is used in tab1. The original attachment should be passed
       // as relatedFileInfo.
       const tab2_uploadPromise = new Promise(resolve => {
-        browser.cloudFile.onFileUpload.addListener(function listen(
-          account,
-          fileInfo,
-          tab,
-          relatedFileInfo
-        ) {
-          browser.cloudFile.onFileUpload.removeListener(listen);
-          browser.test.assertEq(2, fileInfo.id);
-          browser.test.assertEq("this is renamed file2.txt", fileInfo.name);
-          browser.test.assertEq(1, relatedFileInfo.id);
-          browser.test.assertEq("this is file2.txt", relatedFileInfo.name);
-          browser.test.assertFalse(
-            relatedFileInfo.dataChanged,
-            `data should not have changed`
-          );
-          setTimeout(() => resolve());
-          return { url: "https://cloud.provider.net/2" };
-        });
+        browser.cloudFile.onFileUpload.addListener(
+          function listen(account, fileInfo, tab, relatedFileInfo) {
+            browser.cloudFile.onFileUpload.removeListener(listen);
+            browser.test.assertEq(2, fileInfo.id);
+            browser.test.assertEq("this is renamed file2.txt", fileInfo.name);
+            browser.test.assertEq(1, relatedFileInfo.id);
+            browser.test.assertEq("this is file2.txt", relatedFileInfo.name);
+            browser.test.assertFalse(
+              relatedFileInfo.dataChanged,
+              `data should not have changed`
+            );
+            setTimeout(() => resolve());
+            return { url: "https://cloud.provider.net/2" };
+          }
+        );
       });
 
       const composeTab2 = await browser.compose.beginNew({
@@ -868,27 +862,24 @@ add_task(async function test_compose_attachments() {
       // upload, to not invalidate the original url still used in tab1.
 
       const tab3_uploadPromise = new Promise(resolve => {
-        browser.cloudFile.onFileUpload.addListener(function listen(
-          account,
-          fileInfo,
-          tab,
-          relatedFileInfo
-        ) {
-          browser.cloudFile.onFileUpload.removeListener(listen);
-          browser.test.assertEq(3, fileInfo.id);
-          browser.test.assertEq(
-            "That is going to be interesting.txt",
-            fileInfo.name
-          );
-          browser.test.assertEq(1, relatedFileInfo.id);
-          browser.test.assertEq("this is file2.txt", relatedFileInfo.name);
-          browser.test.assertFalse(
-            relatedFileInfo.dataChanged,
-            `data should not have changed`
-          );
-          setTimeout(() => resolve());
-          return { url: "https://cloud.provider.net/3" };
-        });
+        browser.cloudFile.onFileUpload.addListener(
+          function listen(account, fileInfo, tab, relatedFileInfo) {
+            browser.cloudFile.onFileUpload.removeListener(listen);
+            browser.test.assertEq(3, fileInfo.id);
+            browser.test.assertEq(
+              "That is going to be interesting.txt",
+              fileInfo.name
+            );
+            browser.test.assertEq(1, relatedFileInfo.id);
+            browser.test.assertEq("this is file2.txt", relatedFileInfo.name);
+            browser.test.assertFalse(
+              relatedFileInfo.dataChanged,
+              `data should not have changed`
+            );
+            setTimeout(() => resolve());
+            return { url: "https://cloud.provider.net/3" };
+          }
+        );
       });
 
       const tab3_changed2 = await browser.compose.updateAttachment(
@@ -929,27 +920,24 @@ add_task(async function test_compose_attachments() {
       // renaming both. This should trigger a new file upload.
 
       const tab4_uploadPromise = new Promise(resolve => {
-        browser.cloudFile.onFileUpload.addListener(function listen(
-          account,
-          fileInfo,
-          tab,
-          relatedFileInfo
-        ) {
-          browser.cloudFile.onFileUpload.removeListener(listen);
-          browser.test.assertEq(4, fileInfo.id);
-          browser.test.assertEq(
-            "I got renamed too, how crazy is that!.txt",
-            fileInfo.name
-          );
-          browser.test.assertEq(1, relatedFileInfo.id);
-          browser.test.assertEq("this is file2.txt", relatedFileInfo.name);
-          browser.test.assertFalse(
-            relatedFileInfo.dataChanged,
-            `data should not have changed`
-          );
-          setTimeout(() => resolve());
-          return { url: "https://cloud.provider.net/4" };
-        });
+        browser.cloudFile.onFileUpload.addListener(
+          function listen(account, fileInfo, tab, relatedFileInfo) {
+            browser.cloudFile.onFileUpload.removeListener(listen);
+            browser.test.assertEq(4, fileInfo.id);
+            browser.test.assertEq(
+              "I got renamed too, how crazy is that!.txt",
+              fileInfo.name
+            );
+            browser.test.assertEq(1, relatedFileInfo.id);
+            browser.test.assertEq("this is file2.txt", relatedFileInfo.name);
+            browser.test.assertFalse(
+              relatedFileInfo.dataChanged,
+              `data should not have changed`
+            );
+            setTimeout(() => resolve());
+            return { url: "https://cloud.provider.net/4" };
+          }
+        );
       });
 
       const tab4_details = { subject: "Message #5" };
@@ -1068,13 +1056,12 @@ add_task(async function test_compose_attachments() {
       // delete.
 
       const tab5_deletePromise = new Promise(resolve => {
-        browser.cloudFile.onFileDeleted.addListener(function listen(
-          account,
-          id
-        ) {
-          browser.cloudFile.onFileDeleted.removeListener(listen);
-          setTimeout(() => resolve(id));
-        });
+        browser.cloudFile.onFileDeleted.addListener(
+          function listen(account, id) {
+            browser.cloudFile.onFileDeleted.removeListener(listen);
+            setTimeout(() => resolve(id));
+          }
+        );
       });
 
       await browser.compose.removeAttachment(
@@ -1422,18 +1409,15 @@ add_task(async function test_compose_attachments_immutable() {
       // Convert the second attachment to a cloudFile attachment.
 
       await new Promise(resolve => {
-        browser.cloudFile.onFileUpload.addListener(function listen(
-          account,
-          fileInfo,
-          tab,
-          relatedFileInfo
-        ) {
-          browser.cloudFile.onFileUpload.removeListener(listen);
-          browser.test.assertEq(1, fileInfo.id);
-          browser.test.assertEq(undefined, relatedFileInfo);
-          setTimeout(() => resolve());
-          return { url: "https://cloud.provider.net/1" };
-        });
+        browser.cloudFile.onFileUpload.addListener(
+          function listen(account, fileInfo, tab, relatedFileInfo) {
+            browser.cloudFile.onFileUpload.removeListener(listen);
+            browser.test.assertEq(1, fileInfo.id);
+            browser.test.assertEq(undefined, relatedFileInfo);
+            setTimeout(() => resolve());
+            return { url: "https://cloud.provider.net/1" };
+          }
+        );
         // Conversion/upload is not yet supported via WebExt API.
         browser.test.sendMessage(
           "convertFile",

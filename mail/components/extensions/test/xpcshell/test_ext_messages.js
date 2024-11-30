@@ -145,9 +145,8 @@ add_task(
         const { folders } = await browser.accounts.get(accountId);
         const testFolder4 = folders.find(f => f.name == "test4");
 
-        const { messages: folder4Messages } = await browser.messages.list(
-          testFolder4
-        );
+        const { messages: folder4Messages } =
+          await browser.messages.list(testFolder4);
 
         // Try to delete a message.
         await browser.test.assertThrows(
@@ -191,9 +190,8 @@ add_task(
         const testFolder4 = folders.find(f => f.name == "test4");
         const testFolder3 = folders.find(f => f.name == "test3");
 
-        const { messages: folder4Messages } = await browser.messages.list(
-          testFolder4
-        );
+        const { messages: folder4Messages } =
+          await browser.messages.list(testFolder4);
 
         // Try to move a message.
         await browser.test.assertRejects(
@@ -242,9 +240,8 @@ add_task(
         const [accountId] = await window.waitForMessage();
         const { folders } = await browser.accounts.get(accountId);
         const testFolder4 = folders.find(f => f.name == "test4");
-        const { messages: folder4Messages } = await browser.messages.list(
-          testFolder4
-        );
+        const { messages: folder4Messages } =
+          await browser.messages.list(testFolder4);
 
         const tags1 = await browser.messages.listTags();
         window.assertDeepEqual(

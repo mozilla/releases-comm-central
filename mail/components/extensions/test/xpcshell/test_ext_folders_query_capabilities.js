@@ -198,9 +198,8 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
           "Returned MailFolderInfo should be correct."
         );
 
-        const capabilities = await browser.folders.getFolderCapabilities(
-          InfoTestFolder
-        );
+        const capabilities =
+          await browser.folders.getFolderCapabilities(InfoTestFolder);
         window.assertDeepEqual(
           {
             canAddMessages: account.type != "nntp",

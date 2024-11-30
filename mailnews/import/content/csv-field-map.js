@@ -74,9 +74,8 @@ class CsvFieldMap extends HTMLElement {
         select.add(option);
       } else {
         select.disabled = true;
-        select
-          .closest("tr")
-          .querySelector("input[type=checkbox]").checked = false;
+        select.closest("tr").querySelector("input[type=checkbox]").checked =
+          false;
       }
       i++;
     }

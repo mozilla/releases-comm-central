@@ -598,9 +598,8 @@ add_task(async function test_addressBooks() {
         { type: "mailingList", parentId: firstBookId, id: newMailingListId },
       ]);
 
-      const updatedMailingList = await browser.mailingLists.get(
-        newMailingListId
-      );
+      const updatedMailingList =
+        await browser.mailingLists.get(newMailingListId);
       browser.test.assertEq("name!", updatedMailingList.name);
       browser.test.assertEq("nickname!", updatedMailingList.nickName);
       browser.test.assertEq("description!", updatedMailingList.description);
@@ -612,9 +611,8 @@ add_task(async function test_addressBooks() {
         { type: "contact", parentId: newMailingListId, id: newContactId },
       ]);
 
-      let listMembers = await browser.mailingLists.listMembers(
-        newMailingListId
-      );
+      let listMembers =
+        await browser.mailingLists.listMembers(newMailingListId);
       browser.test.assertTrue(Array.isArray(listMembers));
       browser.test.assertEq(1, listMembers.length);
 
@@ -2338,9 +2336,8 @@ add_task(async function test_addressBooks_mv3() {
         },
         `BEGIN:VCARD\r\nVERSION:4.0\r\nNOTE:Notes\r\nN:last;first;;;\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
       ]);
-      const updatedContact = await browser.addressBooks.contacts.get(
-        newContactId
-      );
+      const updatedContact =
+        await browser.addressBooks.contacts.get(newContactId);
       browser.test.assertEq(6, Object.keys(updatedContact).length);
       browser.test.assertEq(newContactId, updatedContact.id);
       browser.test.assertEq(firstBookId, updatedContact.parentId);
@@ -2366,9 +2363,8 @@ add_task(async function test_addressBooks_mv3() {
         },
         `BEGIN:VCARD\r\nVERSION:4.0\r\nEMAIL;PREF=1:first@last.invalid\r\nNOTE:Notes2\r\nN:last2;first2;;;\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
       ]);
-      const updatedContact2 = await browser.addressBooks.contacts.get(
-        newContactId
-      );
+      const updatedContact2 =
+        await browser.addressBooks.contacts.get(newContactId);
       browser.test.assertEq(6, Object.keys(updatedContact2).length);
       browser.test.assertEq(newContactId, updatedContact2.id);
       browser.test.assertEq(firstBookId, updatedContact2.parentId);
@@ -2408,9 +2404,8 @@ add_task(async function test_addressBooks_mv3() {
           vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nNOTE:Notes3\r\nN:last3;first3;;;\r\nUID:${fixedContactId}\r\nEND:VCARD\r\n`,
         },
       ]);
-      const fixedContact = await browser.addressBooks.contacts.get(
-        fixedContactId
-      );
+      const fixedContact =
+        await browser.addressBooks.contacts.get(fixedContactId);
       browser.test.assertEq(6, Object.keys(fixedContact).length);
       browser.test.assertEq(fixedContactId, fixedContact.id);
       browser.test.assertEq(firstBookId, fixedContact.parentId);
@@ -2452,9 +2447,8 @@ add_task(async function test_addressBooks_mv3() {
 
     async function mailingListsTest() {
       browser.test.log("Starting mailingListsTest");
-      let mailingLists = await browser.addressBooks.mailingLists.list(
-        firstBookId
-      );
+      let mailingLists =
+        await browser.addressBooks.mailingLists.list(firstBookId);
       browser.test.assertTrue(Array.isArray(mailingLists));
       browser.test.assertEq(0, mailingLists.length);
 
@@ -2485,9 +2479,8 @@ add_task(async function test_addressBooks_mv3() {
         "List not added to second book."
       );
 
-      const newAddressList = await browser.addressBooks.mailingLists.get(
-        newMailingListId
-      );
+      const newAddressList =
+        await browser.addressBooks.mailingLists.get(newMailingListId);
       browser.test.assertEq(8, Object.keys(newAddressList).length);
       browser.test.assertEq(newMailingListId, newAddressList.id);
       browser.test.assertEq(firstBookId, newAddressList.parentId);
@@ -2534,9 +2527,8 @@ add_task(async function test_addressBooks_mv3() {
         { type: "mailingList", parentId: firstBookId, id: newMailingListId },
       ]);
 
-      const updatedMailingList = await browser.addressBooks.mailingLists.get(
-        newMailingListId
-      );
+      const updatedMailingList =
+        await browser.addressBooks.mailingLists.get(newMailingListId);
       browser.test.assertEq("name!", updatedMailingList.name);
       browser.test.assertEq("nickname!", updatedMailingList.nickName);
       browser.test.assertEq("description!", updatedMailingList.description);
@@ -2551,9 +2543,8 @@ add_task(async function test_addressBooks_mv3() {
         { type: "contact", parentId: newMailingListId, id: newContactId },
       ]);
 
-      let listMembers = await browser.addressBooks.mailingLists.listMembers(
-        newMailingListId
-      );
+      let listMembers =
+        await browser.addressBooks.mailingLists.listMembers(newMailingListId);
       browser.test.assertTrue(Array.isArray(listMembers));
       browser.test.assertEq(1, listMembers.length);
 
@@ -2584,9 +2575,8 @@ add_task(async function test_addressBooks_mv3() {
         { type: "contact", parentId: newMailingListId, id: anotherContactId },
       ]);
 
-      listMembers = await browser.addressBooks.mailingLists.listMembers(
-        newMailingListId
-      );
+      listMembers =
+        await browser.addressBooks.mailingLists.listMembers(newMailingListId);
       browser.test.assertEq(2, listMembers.length);
 
       await browser.addressBooks.contacts.delete(anotherContactId);
@@ -2599,9 +2589,8 @@ add_task(async function test_addressBooks_mv3() {
           anotherContactId,
         ]
       );
-      listMembers = await browser.addressBooks.mailingLists.listMembers(
-        newMailingListId
-      );
+      listMembers =
+        await browser.addressBooks.mailingLists.listMembers(newMailingListId);
       browser.test.assertEq(1, listMembers.length);
 
       await browser.addressBooks.mailingLists.removeMember(
@@ -2614,9 +2603,8 @@ add_task(async function test_addressBooks_mv3() {
         newMailingListId,
         newContactId,
       ]);
-      listMembers = await browser.addressBooks.mailingLists.listMembers(
-        newMailingListId
-      );
+      listMembers =
+        await browser.addressBooks.mailingLists.listMembers(newMailingListId);
       browser.test.assertEq(0, listMembers.length);
 
       await browser.addressBooks.mailingLists.delete(newMailingListId);

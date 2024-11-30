@@ -71,9 +71,8 @@ add_task(async function test_background_app_update_policy() {
     set: [["app.update.background.scheduling.enabled", true]],
   });
 
-  const origBackgroundUpdateVal = await UpdateUtils.readUpdateConfigSetting(
-    PREF_NAME
-  );
+  const origBackgroundUpdateVal =
+    await UpdateUtils.readUpdateConfigSetting(PREF_NAME);
   registerCleanupFunction(async () => {
     await UpdateUtils.writeUpdateConfigSetting(
       PREF_NAME,

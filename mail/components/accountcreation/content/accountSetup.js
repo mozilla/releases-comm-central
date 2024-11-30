@@ -2136,9 +2136,8 @@ var gAccountSetup = {
     }
 
     gAccountSetupLogger.debug("creating account in backend");
-    const newAccount = await CreateInBackend.createAccountInBackend(
-      configFilledIn
-    );
+    const newAccount =
+      await CreateInBackend.createAccountInBackend(configFilledIn);
 
     window.close();
     gMainWindow.postMessage("account-created-in-backend", "*");
@@ -2465,9 +2464,8 @@ var gAccountSetup = {
    */
   async finish(concreteConfig) {
     gAccountSetupLogger.debug("creating account in backend");
-    const newAccount = await CreateInBackend.createAccountInBackend(
-      concreteConfig
-    );
+    const newAccount =
+      await CreateInBackend.createAccountInBackend(concreteConfig);
 
     // Trigger the first login to download the folder structure and messages.
     newAccount.incomingServer.getNewMessages(

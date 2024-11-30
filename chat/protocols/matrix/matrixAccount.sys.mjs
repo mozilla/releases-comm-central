@@ -1784,9 +1784,8 @@ MatrixAccount.prototype = {
         this.prefs.getIntPref("port", 443)
       );
     }
-    let discoveredInfo = await lazy.MatrixSDK.AutoDiscovery.findClientConfig(
-      domain
-    );
+    let discoveredInfo =
+      await lazy.MatrixSDK.AutoDiscovery.findClientConfig(domain);
     let homeserverResult = discoveredInfo[HOMESERVER_WELL_KNOWN];
 
     // If the well-known lookup fails, pretend the domain has a well-known for

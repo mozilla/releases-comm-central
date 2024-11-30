@@ -11058,9 +11058,8 @@ function InitEditor() {
   );
   if (gMsgCompose.composeHTML) {
     // Re-enable table/image resizers.
-    editor.QueryInterface(
-      Ci.nsIHTMLAbsPosEditor
-    ).absolutePositioningEnabled = true;
+    editor.QueryInterface(Ci.nsIHTMLAbsPosEditor).absolutePositioningEnabled =
+      true;
     editor.QueryInterface(
       Ci.nsIHTMLInlineTableEditor
     ).inlineTableEditingEnabled = true;

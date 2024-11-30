@@ -24,9 +24,8 @@ add_task(async function test_managers() {
         messages: [testMessage],
       } = await browser.messages.list(testFolder.id);
 
-      const testFolderPrettyPath = await browser.testapi.testCanGetFolder(
-        testFolder
-      );
+      const testFolderPrettyPath =
+        await browser.testapi.testCanGetFolder(testFolder);
       browser.test.assertEq("test1", testFolderPrettyPath);
 
       // Check that Foldermanager.get() (used by testapi.testCanGetFolder()) also
@@ -39,9 +38,8 @@ add_task(async function test_managers() {
         !!unifiedInbox,
         "Should find the unified inbox folder"
       );
-      const inboxFolderPrettyPath = await browser.testapi.testCanGetFolder(
-        unifiedInbox
-      );
+      const inboxFolderPrettyPath =
+        await browser.testapi.testCanGetFolder(unifiedInbox);
       browser.test.assertEq("Inbox", inboxFolderPrettyPath);
 
       const convertedFolder = await browser.testapi.testCanConvertFolder();
@@ -71,9 +69,8 @@ add_task(async function test_managers() {
         testMessage.subject != messageList.messages[0].subject
       );
 
-      const [bookUID, contactUID, listUID] = await window.sendMessage(
-        "get UIDs"
-      );
+      const [bookUID, contactUID, listUID] =
+        await window.sendMessage("get UIDs");
       const [foundBook, foundContact, foundList] =
         await browser.testapi.testCanFindAddressBookItems(
           bookUID,

@@ -78,9 +78,8 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
 
   // Wait for click on #description
   {
-    const { elementSelector, url } = await extension.awaitMessage(
-      "contextClick"
-    );
+    const { elementSelector, url } =
+      await extension.awaitMessage("contextClick");
     Assert.equal(
       "#description",
       elementSelector,

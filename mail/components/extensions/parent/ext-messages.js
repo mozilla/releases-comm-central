@@ -946,9 +946,8 @@ this.messages = class extends ExtensionAPIPersistent {
           for (const partName of partNames) {
             let attachmentPart;
             try {
-              attachmentPart = await msgHdrProcessor.getAttachmentPart(
-                partName
-              );
+              attachmentPart =
+                await msgHdrProcessor.getAttachmentPart(partName);
             } catch (ex) {
               switch (ex.cause) {
                 case "MessageDecryptionError":

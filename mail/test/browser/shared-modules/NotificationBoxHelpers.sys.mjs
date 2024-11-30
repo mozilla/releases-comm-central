@@ -134,13 +134,16 @@ export async function wait_for_notification_to_show(aWindow, aBoxId, aValue) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
   }
 
-  await TestUtils.waitForCondition(function () {
-    if (nb.querySelector(".notificationbox-stack")) {
-      const box = nb.querySelector(".notificationbox-stack")._notificationBox;
-      return box.getNotificationWithValue(aValue) != null && !box._animating;
-    }
-    return false;
-  }, "Timed out waiting for notification with value " + aValue + " to show.");
+  await TestUtils.waitForCondition(
+    function () {
+      if (nb.querySelector(".notificationbox-stack")) {
+        const box = nb.querySelector(".notificationbox-stack")._notificationBox;
+        return box.getNotificationWithValue(aValue) != null && !box._animating;
+      }
+      return false;
+    },
+    "Timed out waiting for notification with value " + aValue + " to show."
+  );
 }
 
 /**

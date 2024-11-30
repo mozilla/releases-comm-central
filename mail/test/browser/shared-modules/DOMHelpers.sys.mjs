@@ -177,9 +177,12 @@ export function check_element_visible(aWin, aId) {
  * @param {string} aId - ID of the element to wait for.
  */
 export async function promise_element_visible(aWin, aId) {
-  await TestUtils.waitForCondition(function () {
-    return check_element_visible(aWin, aId);
-  }, "Timed out waiting for element with ID=" + aId + " to become visible");
+  await TestUtils.waitForCondition(
+    function () {
+      return check_element_visible(aWin, aId);
+    },
+    "Timed out waiting for element with ID=" + aId + " to become visible"
+  );
 }
 
 /**
@@ -189,7 +192,10 @@ export async function promise_element_visible(aWin, aId) {
  * @param {string} aId - ID of the element to wait for.
  */
 export async function promise_element_invisible(aWin, aId) {
-  await TestUtils.waitForCondition(function () {
-    return !check_element_visible(aWin, aId);
-  }, "Timed out waiting for element with ID=" + aId + " to become invisible");
+  await TestUtils.waitForCondition(
+    function () {
+      return !check_element_visible(aWin, aId);
+    },
+    "Timed out waiting for element with ID=" + aId + " to become invisible"
+  );
 }

@@ -452,9 +452,8 @@ async function getAvailableLocales() {
   // for lastFallbackLocale for it to be useful.
   if (defaultLocale != lastFallbackLocale) {
     const lastFallbackId = `langpack-${lastFallbackLocale}@thunderbird.mozilla.org`;
-    const lastFallbackInstalled = await AddonManager.getAddonByID(
-      lastFallbackId
-    );
+    const lastFallbackInstalled =
+      await AddonManager.getAddonByID(lastFallbackId);
     if (!lastFallbackInstalled) {
       return availableLocales.filter(locale => locale != lastFallbackLocale);
     }

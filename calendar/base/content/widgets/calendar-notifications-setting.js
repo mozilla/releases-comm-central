@@ -233,7 +233,7 @@
           M: "event-duration-menuitem-minutes",
           H: "event-duration-menuitem-hours",
           D: "event-duration-menuitem-days",
-        }[unit] || "event-duration-menuitem-minutes");
+        })[unit] || "event-duration-menuitem-minutes";
 
       for (const menuItem of menu.getElementsByTagName("menuitem")) {
         document.l10n.setAttributes(menuItem, getUnitEntry(menuItem.value), {
