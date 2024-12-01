@@ -21,12 +21,12 @@ task-defaults:
 # mozilla-central for Firefox builds, except that the Android compiler-rt
 # pieces have been left out.
 
-linux64-clang-19:
-    description: "Clang 19 toolchain build"
+linux64-clang-18:
+    description: "Clang 18 toolchain build"
     attributes:
         local-toolchain: true
     treeherder:
-        symbol: TL(clang-19)
+        symbol: TL(clang-18)
     worker-type: b-linux-gcp
     worker:
         max-run-time: 600
@@ -40,23 +40,23 @@ linux64-clang-19:
     fetches:
         toolchain:
             - linux64-cctools-port
-            - win64-clang-19-raw
-            - linux64-aarch64-compiler-rt-19
-            - linux64-x64-compiler-rt-19
-            - linux64-x86-compiler-rt-19
-            - macosx64-aarch64-compiler-rt-19
-            - macosx64-x64-compiler-rt-19
-            - wasm32-wasi-compiler-rt-19
-            - win32-compiler-rt-19
-            - win64-compiler-rt-19
-            - win64-aarch64-compiler-rt-19
+            - linux64-clang-18-raw
+            - linux64-aarch64-compiler-rt-18
+            - linux64-x64-compiler-rt-18
+            - linux64-x86-compiler-rt-18
+            - macosx64-aarch64-compiler-rt-18
+            - macosx64-x64-compiler-rt-18
+            - wasm32-wasi-compiler-rt-18
+            - win32-compiler-rt-18
+            - win64-aarch64-compiler-rt-18
+            - win64-compiler-rt-18
 
-win64-clang-19:
-    description: "Clang-cl 19 toolchain build"
+win64-clang-18:
+    description: "Clang-cl 18 toolchain build"
     attributes:
         local-toolchain: true
     treeherder:
-        symbol: TW64(clang-19)
+        symbol: TW64(clang-18)
     worker-type: b-linux-gcp
     worker:
         max-run-time: 600
@@ -70,13 +70,13 @@ win64-clang-19:
     fetches:
         toolchain:
             - linux64-cctools-port
-            - win64-clang-19-raw
-            - linux64-aarch64-compiler-rt-19
-            - linux64-x64-compiler-rt-19
-            - linux64-x86-compiler-rt-19
-            - macosx64-aarch64-compiler-rt-19
-            - macosx64-x64-compiler-rt-19
-            - wasm32-wasi-compiler-rt-19
-            - win32-compiler-rt-19
-            - win64-aarch64-compiler-rt-19
-            - win64-compiler-rt-19
+            - win64-clang-18-raw
+            - linux64-aarch64-compiler-rt-18
+            - linux64-x64-compiler-rt-18
+            - linux64-x86-compiler-rt-18
+            - macosx64-aarch64-compiler-rt-18
+            - macosx64-x64-compiler-rt-18
+            - wasm32-wasi-compiler-rt-18
+            - win32-compiler-rt-18
+            - win64-aarch64-compiler-rt-18
+            - win64-compiler-rt-18
