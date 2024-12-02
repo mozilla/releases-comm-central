@@ -13,18 +13,18 @@ add_setup(async function () {
 });
 
 add_task(function testReconcile() {
-  const grandparent = database.getFolderById(3);
-  const parent = database.getFolderById(6);
-  const child = database.getFolderById(4);
-  const grandchild = database.getFolderById(1);
-  const sibling = database.getFolderById(2);
+  const grandparent = folders.getFolderById(3);
+  const parent = folders.getFolderById(6);
+  const child = folders.getFolderById(4);
+  const grandchild = folders.getFolderById(1);
+  const sibling = folders.getFolderById(2);
 
   drawTree(parent);
 
-  database.reconcile(parent, ["sibling", "inserted"]);
+  folders.reconcile(parent, ["sibling", "inserted"]);
   drawTree(parent);
 
-  const inserted = database.getFolderByPath("grandparent/parent/inserted");
+  const inserted = folders.getFolderByPath("grandparent/parent/inserted");
   Assert.ok(inserted);
   Assert.equal(inserted.rootFolder, grandparent);
   Assert.equal(inserted.parent, parent);

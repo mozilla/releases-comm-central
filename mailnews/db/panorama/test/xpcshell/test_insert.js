@@ -11,7 +11,7 @@ add_setup(async function () {
 });
 
 add_task(function testInsertRoot() {
-  const serverX = database.insertRoot("serverX");
+  const serverX = folders.insertRoot("serverX");
   Assert.ok(serverX, "insertRoot should return a folder");
   Assert.equal(serverX.parent, null, "new folder should be a root folder");
   Assert.equal(
@@ -26,7 +26,7 @@ add_task(function testInsertRoot() {
   );
 
   Assert.equal(
-    database.getFolderByPath("serverX"),
+    folders.getFolderByPath("serverX"),
     serverX,
     "should be able to fetch the new folder by path"
   );
@@ -39,7 +39,7 @@ add_task(function testInsertRoot() {
     flags: 0,
   });
 
-  const serverXAgain = database.insertRoot("serverX");
+  const serverXAgain = folders.insertRoot("serverX");
   Assert.equal(
     serverXAgain,
     serverX,
@@ -48,14 +48,14 @@ add_task(function testInsertRoot() {
 });
 
 add_task(function testInsertFolder() {
-  const grandparent = database.getFolderById(3);
-  const parent = database.getFolderById(6);
-  const child = database.getFolderById(4);
-  const sibling = database.getFolderById(2);
+  const grandparent = folders.getFolderById(3);
+  const parent = folders.getFolderById(6);
+  const child = folders.getFolderById(4);
+  const sibling = folders.getFolderById(2);
 
   drawTree(parent);
 
-  const inserted = database.insertFolder(parent, "inserted");
+  const inserted = folders.insertFolder(parent, "inserted");
   drawTree(parent);
   Assert.ok(inserted, "insertFolder should return a folder");
   Assert.equal(
@@ -65,7 +65,7 @@ add_task(function testInsertFolder() {
   );
 
   Assert.equal(
-    database.getFolderByPath("grandparent/parent/inserted"),
+    folders.getFolderByPath("grandparent/parent/inserted"),
     inserted,
     "should be able to fetch the new folder by path"
   );
@@ -93,7 +93,7 @@ add_task(function testInsertFolder() {
     flags: 0,
   });
 
-  const existing = database.insertFolder(parent, "child");
+  const existing = folders.insertFolder(parent, "child");
   drawTree(parent);
   Assert.equal(
     existing,
@@ -107,7 +107,7 @@ add_task(function testInsertFolder() {
   );
 
   Assert.throws(
-    () => database.insertFolder(null, "oops"),
+    () => folders.insertFolder(null, "oops"),
     /NS_ERROR_ILLEGAL_VALUE/,
     "insertFolder should require a parent folder"
   );

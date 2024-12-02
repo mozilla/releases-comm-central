@@ -35,16 +35,16 @@ add_task(async function testFindFolders() {
 
   await loadExistingDB();
 
-  const root = database.getFolderByPath("server1");
+  const root = folders.getFolderByPath("server1");
   Assert.equal(root.id, 1);
   Assert.equal(root.parent, null);
   Assert.equal(root.name, "server1");
   checkRow(1, { id: 1, parent: 0, ordinal: null, name: "server1", flags: 0 });
-  Assert.equal(database.getFolderById(1), root);
+  Assert.equal(folders.getFolderById(1), root);
 
   // `createLocalMailAccount` created two default folders. Check they exist.
 
-  const trash = database.getFolderByPath("server1/Trash");
+  const trash = folders.getFolderByPath("server1/Trash");
   Assert.ok(trash);
   Assert.equal(trash.parent, root);
   Assert.equal(trash.name, "Trash");
@@ -56,7 +56,7 @@ add_task(async function testFindFolders() {
     flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Trash,
   });
 
-  const unsent = database.getFolderByPath("server1/Unsent Messages");
+  const unsent = folders.getFolderByPath("server1/Unsent Messages");
   Assert.ok(unsent);
   Assert.equal(unsent.parent, root);
   Assert.equal(unsent.name, "Unsent Messages");
@@ -70,7 +70,7 @@ add_task(async function testFindFolders() {
 
   // We added some files. Check they exist.
 
-  const test1 = database.getFolderByPath("server1/test1");
+  const test1 = folders.getFolderByPath("server1/test1");
   Assert.ok(test1);
   Assert.equal(test1.parent, root);
   Assert.equal(test1.name, "test1");
@@ -82,7 +82,7 @@ add_task(async function testFindFolders() {
     flags: 0,
   });
 
-  const test2 = database.getFolderByPath("server1/test1/test2");
+  const test2 = folders.getFolderByPath("server1/test1/test2");
   Assert.ok(test2);
   Assert.equal(test2.parent, test1);
   Assert.equal(test2.name, "test2");
@@ -95,7 +95,7 @@ add_task(async function testFindFolders() {
   });
   Assert.deepEqual(test1.children, [test2]);
 
-  const test3 = database.getFolderByPath("server1/test3");
+  const test3 = folders.getFolderByPath("server1/test3");
   Assert.ok(test3);
   Assert.equal(test3.parent, root);
   Assert.equal(test3.name, "test3");

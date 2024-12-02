@@ -6,47 +6,49 @@
 #define FolderDatabase_h__
 
 #include "FolderComparator.h"
+#include "mozilla/MozPromise.h"
 #include "mozilla/RefPtr.h"
-#include "mozIStorageConnection.h"
-#include "mozIStorageStatement.h"
 #include "nsIFolderDatabase.h"
-#include "nsIObserver.h"
 #include "nsTHashMap.h"
+
+using mozilla::MozPromise;
 
 namespace mozilla {
 namespace mailnews {
 
+using FolderDatabaseStartupPromise = MozPromise<bool, nsresult, true>;
+
 class Folder;
 
-class FolderDatabase : public nsIFolderDatabase, nsIObserver {
+class FolderDatabase : public nsIFolderDatabase {
  public:
-  FolderDatabase();
-
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIFOLDERDATABASE
-  NS_DECL_NSIOBSERVER
 
  protected:
   virtual ~FolderDatabase() {};
 
  private:
-  static nsCOMPtr<mozIStorageConnection> sConnection;
-  static nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>> sStatements;
-  static nsTHashMap<uint64_t, RefPtr<Folder>> sFoldersById;
-  static nsTHashMap<nsCString, RefPtr<Folder>> sFoldersByPath;
-  static FolderComparator sComparator;
+  friend class DatabaseCore;
 
-  static nsresult EnsureConnection();
-  static nsresult GetStatement(const nsCString& aName, const nsCString& aSQL,
-                               mozIStorageStatement** aStmt);
-  static nsresult InternalLoadFolders();
+  FolderDatabase() {};
+  RefPtr<FolderDatabaseStartupPromise> Startup();
+  void Shutdown();
 
-  static nsresult InternalInsertFolder(nsIFolder* aParent,
-                                       const nsACString& aName,
-                                       nsIFolder** aChild);
-  static nsresult InternalDeleteFolder(nsIFolder* aFolder);
+ private:
+  MozPromiseHolder<FolderDatabaseStartupPromise> mPromiseHolder;
 
-  static void SaveOrdinals(nsTArray<RefPtr<Folder>>& aFolders);
+  nsTHashMap<uint64_t, RefPtr<Folder>> mFoldersById;
+  nsTHashMap<nsCString, RefPtr<Folder>> mFoldersByPath;
+  FolderComparator mComparator;
+
+  nsresult InternalLoadFolders();
+
+  nsresult InternalInsertFolder(nsIFolder* aParent, const nsACString& aName,
+                                nsIFolder** aChild);
+  nsresult InternalDeleteFolder(nsIFolder* aFolder);
+
+  void SaveOrdinals(nsTArray<RefPtr<Folder>>& aFolders);
 };
 
 }  // namespace mailnews

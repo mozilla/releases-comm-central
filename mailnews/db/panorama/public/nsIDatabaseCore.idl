@@ -1,0 +1,29 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface mozIStorageConnection;
+interface nsIFolderDatabase;
+
+[scriptable, builtinclass, uuid(f7aa8063-35b5-4692-829c-a49eff539064)]
+interface nsIDatabaseCore : nsISupports {
+  /**
+   * Open a connection to the database and load in the folders from it.
+   * Returns a promise that resolves (with no value) when loading is complete.
+   */
+  [implicit_jscontext]
+  Promise startup();
+
+  /**
+   * Access to the folders table on the database.
+   */
+  [infallible] readonly attribute nsIFolderDatabase folders;
+
+  /**
+   * Access to the database for testing purposes only. If you are not a test,
+   * you'll get NS_ERROR_NOT_AVAILABLE instead.
+   */
+  readonly attribute mozIStorageConnection connection;
+};

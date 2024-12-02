@@ -16,45 +16,45 @@ add_setup(async function () {
 });
 
 add_task(function testFlags() {
-  const folder = database.getFolderById(1);
+  const folder = folders.getFolderById(1);
 
   Assert.equal(folder.flags, 0);
   checkFlags(0);
 
   for (const flag of [FLAG_ONE, FLAG_TWO, FLAG_FOUR, FLAG_EIGHT]) {
-    database.updateFlags(folder, folder.flags | flag);
+    folders.updateFlags(folder, folder.flags | flag);
     Assert.equal(folder.flags, flag);
     checkFlags(flag);
 
-    database.updateFlags(folder, folder.flags ^ flag);
+    folders.updateFlags(folder, folder.flags ^ flag);
     Assert.equal(folder.flags, 0);
     checkFlags(0);
 
-    database.updateFlags(folder, folder.flags ^ flag);
+    folders.updateFlags(folder, folder.flags ^ flag);
     Assert.equal(folder.flags, flag);
     checkFlags(flag);
 
-    database.updateFlags(folder, folder.flags & ~flag);
+    folders.updateFlags(folder, folder.flags & ~flag);
     Assert.equal(folder.flags, 0);
     checkFlags(0);
   }
 
-  database.updateFlags(folder, folder.flags | FLAG_ONE);
+  folders.updateFlags(folder, folder.flags | FLAG_ONE);
   Assert.equal(folder.flags, FLAG_ONE);
-  database.updateFlags(folder, folder.flags ^ FLAG_TWO);
+  folders.updateFlags(folder, folder.flags ^ FLAG_TWO);
   Assert.equal(folder.flags, FLAG_ONE | FLAG_TWO);
-  database.updateFlags(folder, folder.flags | FLAG_FOUR);
+  folders.updateFlags(folder, folder.flags | FLAG_FOUR);
   Assert.equal(folder.flags, FLAG_ONE | FLAG_TWO | FLAG_FOUR);
-  database.updateFlags(folder, folder.flags ^ FLAG_EIGHT);
+  folders.updateFlags(folder, folder.flags ^ FLAG_EIGHT);
   Assert.equal(folder.flags, FLAG_ONE | FLAG_TWO | FLAG_FOUR | FLAG_EIGHT);
 
-  database.updateFlags(folder, folder.flags ^ FLAG_ONE);
+  folders.updateFlags(folder, folder.flags ^ FLAG_ONE);
   Assert.equal(folder.flags, FLAG_TWO | FLAG_FOUR | FLAG_EIGHT);
-  database.updateFlags(folder, folder.flags & ~FLAG_TWO);
+  folders.updateFlags(folder, folder.flags & ~FLAG_TWO);
   Assert.equal(folder.flags, FLAG_FOUR | FLAG_EIGHT);
-  database.updateFlags(folder, folder.flags ^ FLAG_FOUR);
+  folders.updateFlags(folder, folder.flags ^ FLAG_FOUR);
   Assert.equal(folder.flags, FLAG_EIGHT);
-  database.updateFlags(folder, folder.flags & ~FLAG_EIGHT);
+  folders.updateFlags(folder, folder.flags & ~FLAG_EIGHT);
   Assert.equal(folder.flags, 0);
 });
 

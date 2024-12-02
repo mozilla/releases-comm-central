@@ -11,11 +11,11 @@ add_setup(async function () {
 });
 
 add_task(function testRelations() {
-  const grandparent = database.getFolderById(3);
-  const parent = database.getFolderById(6);
-  const child = database.getFolderById(4);
-  const grandchild = database.getFolderById(1);
-  const sibling = database.getFolderById(2);
+  const grandparent = folders.getFolderById(3);
+  const parent = folders.getFolderById(6);
+  const child = folders.getFolderById(4);
+  const grandchild = folders.getFolderById(1);
+  const sibling = folders.getFolderById(2);
 
   drawTree(grandparent);
 
@@ -111,9 +111,9 @@ add_task(function testRelations() {
 });
 
 add_task(function testOtherRoot() {
-  const grandparent = database.getFolderById(3);
-  const otherRoot = database.getFolderById(5);
-  const otherChild = database.getFolderById(7);
+  const grandparent = folders.getFolderById(3);
+  const otherRoot = folders.getFolderById(5);
+  const otherChild = folders.getFolderById(7);
 
   drawTree(otherRoot);
 

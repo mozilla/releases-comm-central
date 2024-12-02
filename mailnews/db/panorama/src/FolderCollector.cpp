@@ -4,6 +4,8 @@
 
 #include "FolderCollector.h"
 
+#include "mozilla/Components.h"
+#include "nsIDatabaseCore.h"
 #include "nsIDirectoryEnumerator.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgFolderCacheElement.h"
@@ -26,14 +28,15 @@ FolderCollector::~FolderCollector() {
 
 void FolderCollector::EnsureDatabase() {
   if (!mDatabase) {
-    mDatabase = do_GetService("@mozilla.org/mailnews/folder-database;1");
+    nsCOMPtr<nsIDatabaseCore> core = components::DatabaseCore::Service();
+    core->GetFolders(getter_AddRefs(mDatabase));
   }
 }
 
 void FolderCollector::EnsureFolderCache() {
   if (!mFolderCache) {
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService("@mozilla.org/messenger/account-manager;1");
+        components::AccountManager::Service();
     accountManager->GetFolderCache(getter_AddRefs(mFolderCache));
   }
 }

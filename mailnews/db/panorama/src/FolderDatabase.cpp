@@ -4,204 +4,67 @@
 
 #include "FolderDatabase.h"
 
+#include "DatabaseCore.h"
 #include "Folder.h"
 #include "FolderCollector.h"
-#include "mozilla/dom/Promise.h"
+#include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "mozilla/ScopeExit.h"
-#include "mozilla/Services.h"
-#include "mozIStorageService.h"
-#include "nsAppDirectoryServiceDefs.h"
 #include "nsCOMPtr.h"
-#include "nsIFile.h"
+#include "nsIFolder.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgFolderCache.h"
 #include "nsIMsgIncomingServer.h"
-#include "nsIObserverService.h"
-#include "xpcpublic.h"
+#include "nsThreadUtils.h"
 
 using mozilla::LazyLogModule;
 using mozilla::LogLevel;
 using mozilla::MarkerOptions;
 using mozilla::MarkerTiming;
-using mozilla::dom::Promise;
 
 namespace mozilla {
 namespace mailnews {
 
-LazyLogModule gPanoramaLog("panorama");
+extern LazyLogModule gPanoramaLog;  // Defined by DatabaseCore.
 
-NS_IMPL_ISUPPORTS(FolderDatabase, nsIFolderDatabase, nsIObserver)
-
-MOZ_RUNINIT nsCOMPtr<mozIStorageConnection> FolderDatabase::sConnection;
-MOZ_RUNINIT nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>>
-    FolderDatabase::sStatements;
-MOZ_RUNINIT nsTHashMap<uint64_t, RefPtr<Folder>> FolderDatabase::sFoldersById;
-MOZ_RUNINIT nsTHashMap<nsCString, RefPtr<Folder>>
-    FolderDatabase::sFoldersByPath;
-MOZ_CONSTINIT FolderComparator FolderDatabase::sComparator;
-
-/**
- * Database functions.
- */
-
-FolderDatabase::FolderDatabase() {
-  MOZ_ASSERT(!sConnection, "creating a second FolderDatabase");
-
-  nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
-  obs->AddObserver(this, "profile-before-change", false);
-}
-
-NS_IMETHODIMP
-FolderDatabase::Observe(nsISupports* aSubject, const char* aTopic,
-                        const char16_t* aData) {
-  if (strcmp(aTopic, "profile-before-change")) {
-    return NS_OK;
-  }
-
-  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("shutting down"));
-
-  for (auto iter = sStatements.Iter(); !iter.Done(); iter.Next()) {
-    iter.UserData()->Finalize();
-  }
-  sStatements.Clear();
-
-  if (sConnection) {
-    sConnection->Close();
-    sConnection = nullptr;
-  }
-
-  // Break the reference cycles. This is much tidier than using the cycle
-  // collection macros, especially as Folder is declared threadsafe.
-  for (auto iter = sFoldersById.Iter(); !iter.Done(); iter.Next()) {
-    iter.UserData()->mRoot = nullptr;
-    iter.UserData()->mParent = nullptr;
-    iter.UserData()->mChildren.Clear();
-  }
-
-  sFoldersById.Clear();
-  sFoldersByPath.Clear();
-
-  nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
-  obs->RemoveObserver(this, "profile-before-change");
-
-  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("shutdown complete"));
-
-  return NS_OK;
-}
-
-/**
- * Ensures a mozIStorageConnection to panorama.sqlite in the profile folder.
- */
-nsresult FolderDatabase::EnsureConnection() {
-  if (sConnection) {
-    return NS_OK;
-  }
-
-  MOZ_ASSERT(NS_IsMainThread(),
-             "connection must be established on the main thread");
-
-  nsCOMPtr<nsIFile> databaseFile;
-  nsresult rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR,
-                                       getter_AddRefs(databaseFile));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIFile> file;
-  rv = databaseFile->Append(u"panorama.sqlite"_ns);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool exists;
-  rv = databaseFile->Exists(&exists);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<mozIStorageService> storage =
-      do_GetService("@mozilla.org/storage/service;1");
-  NS_ENSURE_STATE(storage);
-
-  rv = storage->OpenUnsharedDatabase(databaseFile,
-                                     mozIStorageService::CONNECTION_DEFAULT,
-                                     getter_AddRefs(sConnection));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (!exists) {
-    MOZ_LOG(gPanoramaLog, LogLevel::Warning,
-            ("database file does not exist, creating"));
-    sConnection->ExecuteSimpleSQL(
-        "CREATE TABLE folders ( \
-          id INTEGER PRIMARY KEY, \
-          parent INTEGER REFERENCES folders(id), \
-          ordinal INTEGER DEFAULT NULL, \
-          name TEXT, \
-          flags INTEGER DEFAULT 0, \
-          UNIQUE(parent, name) \
-        );"_ns);
-  }
-
-  return NS_OK;
-}
-
-/**
- * Create and cache an SQL statement.
- */
-nsresult FolderDatabase::GetStatement(const nsCString& aName,
-                                      const nsCString& aSQL,
-                                      mozIStorageStatement** aStmt) {
-  NS_ENSURE_ARG_POINTER(aStmt);
-
-  nsresult rv = EnsureConnection();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<mozIStorageStatement> stmt;
-  if (sStatements.Get(aName, &stmt)) {
-    NS_IF_ADDREF(*aStmt = stmt);
-    return NS_OK;
-  }
-
-  rv = sConnection->CreateStatement(aSQL, getter_AddRefs(stmt));
-  NS_ENSURE_SUCCESS(rv, rv);
-  sStatements.InsertOrUpdate(aName, stmt);
-  NS_IF_ADDREF(*aStmt = stmt);
-
-  return NS_OK;
-}
+NS_IMPL_ISUPPORTS(FolderDatabase, nsIFolderDatabase)
 
 /**
  * Initialization functions. Initialization occurs mostly off the main thread
- * and the Promise returned by `LoadFolders` resolves when it is complete.
+ * and the Promise returned by `Startup` resolves when it is complete.
  * Code MUST NOT attempt to access folders before then. Folder notifications
  * are not emitted during initialization.
  */
 
-NS_IMETHODIMP
-FolderDatabase::LoadFolders(JSContext* aCx, Promise** aPromise) {
+RefPtr<FolderDatabaseStartupPromise> FolderDatabase::Startup() {
   MOZ_ASSERT(NS_IsMainThread(), "loadfolders must happen on the main thread");
 
-  ErrorResult result;
-  RefPtr<Promise> promise =
-      Promise::Create(xpc::CurrentNativeGlobal(aCx), result);
-
-  nsresult rv = EnsureConnection();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("starting up"));
+  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("FolderDatabase starting up"));
   PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", OTHER,
                           MarkerOptions(MarkerTiming::IntervalStart()));
 
+  RefPtr<FolderDatabaseStartupPromise> promise =
+      mPromiseHolder.Ensure(__func__);
+
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      components::AccountManager::Service();
 
   // Ensure the folder cache has been loaded for the first time.
   // This needs to happen on the main thread.
   nsCOMPtr<nsIMsgFolderCache> folderCache;
-  rv = accountManager->GetFolderCache(getter_AddRefs(folderCache));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv = accountManager->GetFolderCache(getter_AddRefs(folderCache));
+  if (NS_FAILED(rv)) {
+    mPromiseHolder.Reject(rv, __func__);
+  }
 
   nsTHashMap<nsCString, nsCOMPtr<nsIFile>> serverRoots;
   nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
   rv = accountManager->GetAllServers(allServers);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_FAILED(rv)) {
+    mPromiseHolder.Reject(rv, __func__);
+  }
+
   for (auto server : allServers) {
     nsAutoCString serverKey;
     server->GetKey(serverKey);
@@ -210,11 +73,8 @@ FolderDatabase::LoadFolders(JSContext* aCx, Promise** aPromise) {
     serverRoots.InsertOrUpdate(serverKey, rootFile);
   }
 
-  nsMainThreadPtrHandle<dom::Promise> promiseHolder(
-      new nsMainThreadPtrHolder<Promise>("LoadFolders Promise", promise));
   NS_DispatchBackgroundTask(NS_NewRunnableFunction(
-      __func__, [&, promiseHolder = std::move(promiseHolder),
-                 serverRoots = std::move(serverRoots)]() {
+      __func__, [&, serverRoots = std::move(serverRoots)]() {
         InternalLoadFolders();
 
         for (auto iter = serverRoots.ConstIter(); !iter.Done(); iter.Next()) {
@@ -228,18 +88,15 @@ FolderDatabase::LoadFolders(JSContext* aCx, Promise** aPromise) {
           collector.FindChildren(root, file);
         }
 
-        NS_DispatchToMainThread(NS_NewRunnableFunction(
-            __func__, [promiseHolder = std::move(promiseHolder)]() {
-              PROFILER_MARKER_UNTYPED(
-                  "FolderDatabase::LoadFolders", OTHER,
-                  MarkerOptions(MarkerTiming::IntervalEnd()));
-              MOZ_LOG(gPanoramaLog, LogLevel::Info, ("startup complete"));
+        PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", OTHER,
+                                MarkerOptions(MarkerTiming::IntervalEnd()));
+        MOZ_LOG(gPanoramaLog, LogLevel::Info,
+                ("FolderDatabase startup complete"));
 
-              promiseHolder.get()->MaybeResolveWithUndefined();
-            }));
+        mPromiseHolder.Resolve(true, __func__);
       }));
-  promise.forget(aPromise);
-  return NS_OK;
+
+  return promise;
 }
 
 /**
@@ -249,10 +106,10 @@ nsresult FolderDatabase::InternalLoadFolders() {
   MOZ_ASSERT(!NS_IsMainThread(),
              "loading folders must happen off the main thread");
 
-  sFoldersById.Clear();
+  mFoldersById.Clear();
 
   nsCOMPtr<mozIStorageStatement> stmt;
-  nsresult rv = GetStatement(
+  nsresult rv = DatabaseCore::GetStatement(
       "Folders"_ns,
       "WITH RECURSIVE parents(id, parent, ordinal, name, flags, level) AS ("
       "  VALUES(0, NULL, NULL, NULL, NULL, 0)"
@@ -306,17 +163,38 @@ nsresult FolderDatabase::InternalLoadFolders() {
     current->mRoot = root;
     current->mParent = parent;
     if (parent) {
-      parent->mChildren.InsertElementSorted(current, sComparator);
+      parent->mChildren.InsertElementSorted(current, mComparator);
     }
     parent = current;
 
-    sFoldersById.InsertOrUpdate(id, current);
+    mFoldersById.InsertOrUpdate(id, current);
     // Could probably optimise this.
-    sFoldersByPath.InsertOrUpdate(current->GetPath(), current);
+    mFoldersByPath.InsertOrUpdate(current->GetPath(), current);
   }
   stmt->Reset();
 
   return NS_OK;
+}
+
+/**
+ * Shutdown.
+ */
+
+void FolderDatabase::Shutdown() {
+  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("FolderDatabase shutting down"));
+
+  // Break the reference cycles. This is much tidier than using the cycle
+  // collection macros, especially as Folder is declared threadsafe.
+  for (auto iter = mFoldersById.Iter(); !iter.Done(); iter.Next()) {
+    iter.UserData()->mRoot = nullptr;
+    iter.UserData()->mParent = nullptr;
+    iter.UserData()->mChildren.Clear();
+  }
+
+  mFoldersById.Clear();
+  mFoldersByPath.Clear();
+
+  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("FolderDatabase shutdown complete"));
 }
 
 /**
@@ -329,7 +207,7 @@ NS_IMETHODIMP FolderDatabase::GetFolderById(const uint64_t aId,
 
   *aFolder = nullptr;
   RefPtr<Folder> folder;
-  if (sFoldersById.Get(aId, &folder)) {
+  if (mFoldersById.Get(aId, &folder)) {
     NS_IF_ADDREF(*aFolder = folder);
   }
   return NS_OK;
@@ -341,7 +219,7 @@ NS_IMETHODIMP FolderDatabase::GetFolderByPath(const nsACString& aPath,
 
   *aFolder = nullptr;
   RefPtr<Folder> folder;
-  if (sFoldersByPath.Get(aPath, &folder)) {
+  if (mFoldersByPath.Get(aPath, &folder)) {
     NS_IF_ADDREF(*aFolder = folder);
   }
   return NS_OK;
@@ -399,7 +277,7 @@ nsresult FolderDatabase::InternalInsertFolder(nsIFolder* aParent,
   Folder* parent = (Folder*)(aParent);
 
   nsCOMPtr<mozIStorageStatement> stmt;
-  GetStatement(
+  DatabaseCore::GetStatement(
       "InsertFolder"_ns,
       "INSERT INTO folders (parent, name) VALUES (:parent, :name) RETURNING id, flags"_ns,
       getter_AddRefs(stmt));
@@ -423,18 +301,19 @@ nsresult FolderDatabase::InternalInsertFolder(nsIFolder* aParent,
 
   if (parent) {
     child->mRoot = parent->mRoot;
-    parent->mChildren.InsertElementSorted(child, sComparator);
+    parent->mChildren.InsertElementSorted(child, mComparator);
   } else {
     child->mRoot = child;
   }
 
-  sFoldersById.InsertOrUpdate(id, child);
-  sFoldersByPath.InsertOrUpdate(child->GetPath(), child);
+  mFoldersById.InsertOrUpdate(id, child);
+  mFoldersByPath.InsertOrUpdate(child->GetPath(), child);
 
-  NS_IF_ADDREF(*aChild = child);
   MOZ_LOG(gPanoramaLog, LogLevel::Info,
           ("InternalInsertFolder created new folder '%s' (id=%" PRIu64 ")\n",
            child->GetPath().get(), id));
+
+  NS_IF_ADDREF(*aChild = child);
   return NS_OK;
 }
 
@@ -456,18 +335,20 @@ nsresult FolderDatabase::InternalDeleteFolder(nsIFolder* aFolder) {
   }
 
   nsCOMPtr<mozIStorageStatement> stmt;
-  GetStatement("DeleteFolder"_ns, "DELETE FROM folders WHERE id = :id"_ns,
-               getter_AddRefs(stmt));
+  DatabaseCore::GetStatement("DeleteFolder"_ns,
+                             "DELETE FROM folders WHERE id = :id"_ns,
+                             getter_AddRefs(stmt));
 
   stmt->BindInt64ByName("id"_ns, aFolder->GetId());
   stmt->Execute();
 
   nsCString path = folder->GetPath();
-  sFoldersById.Remove(folder->mId);
-  sFoldersByPath.Remove(path);
+  mFoldersById.Remove(folder->mId);
+  mFoldersByPath.Remove(path);
 
-  if (folder->mParent) {
-    folder->mParent->mChildren.RemoveElement(folder);
+  RefPtr<Folder> parent = folder->mParent;
+  if (parent) {
+    parent->mChildren.RemoveElement(folder);
   }
   folder->mRoot = nullptr;
   folder->mParent = nullptr;
@@ -475,6 +356,7 @@ nsresult FolderDatabase::InternalDeleteFolder(nsIFolder* aFolder) {
   MOZ_LOG(gPanoramaLog, LogLevel::Info,
           ("DeleteFolder removed folder '%s' (id=%" PRIu64 ")", path.get(),
            folder->mId));
+
   return NS_OK;
 }
 
@@ -567,7 +449,7 @@ FolderDatabase::MoveFolderTo(nsIFolder* aNewParent, nsIFolder* aChild) {
   }
 
   nsCOMPtr<mozIStorageStatement> stmt;
-  GetStatement(
+  DatabaseCore::GetStatement(
       "Reparent"_ns,
       "UPDATE folders SET parent = :parent, ordinal = NULL WHERE id = :id"_ns,
       getter_AddRefs(stmt));
@@ -576,24 +458,24 @@ FolderDatabase::MoveFolderTo(nsIFolder* aNewParent, nsIFolder* aChild) {
   stmt->Execute();
   stmt->Reset();
 
-  sFoldersByPath.Remove(child->GetPath());
+  mFoldersByPath.Remove(child->GetPath());
 
   child->mParent->mChildren.RemoveElement(child);
-  newParent->mChildren.InsertElementSorted(child, sComparator);
+  newParent->mChildren.InsertElementSorted(child, mComparator);
   child->mParent = newParent;
   child->mOrdinal.reset();
 
-  sFoldersByPath.InsertOrUpdate(child->GetPath(), child);
+  mFoldersByPath.InsertOrUpdate(child->GetPath(), child);
 
   return NS_OK;
 }
 
 void FolderDatabase::SaveOrdinals(nsTArray<RefPtr<Folder>>& folders) {
   nsCOMPtr<mozIStorageStatement> stmt;
-  nsresult rv =
-      GetStatement("UpdateOrdinals"_ns,
-                   "UPDATE folders SET ordinal = :ordinal WHERE id = :id"_ns,
-                   getter_AddRefs(stmt));
+  nsresult rv = DatabaseCore::GetStatement(
+      "UpdateOrdinals"_ns,
+      "UPDATE folders SET ordinal = :ordinal WHERE id = :id"_ns,
+      getter_AddRefs(stmt));
   NS_ENSURE_SUCCESS_VOID(rv);
 
   uint64_t ordinal = 1;
@@ -612,7 +494,7 @@ FolderDatabase::UpdateFlags(nsIFolder* aFolder, uint64_t aNewFlags) {
 
   Folder* folder = (Folder*)(aFolder);
   nsCOMPtr<mozIStorageStatement> stmt;
-  nsresult rv = GetStatement(
+  nsresult rv = DatabaseCore::GetStatement(
       "UpdateFlags"_ns, "UPDATE folders SET flags = :flags WHERE id = :id"_ns,
       getter_AddRefs(stmt));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -626,21 +508,6 @@ FolderDatabase::UpdateFlags(nsIFolder* aFolder, uint64_t aNewFlags) {
 
   stmt->Reset();
   return rv;
-}
-
-NS_IMETHODIMP
-FolderDatabase::GetConnection(mozIStorageConnection** aConnection) {
-  if (!xpc::IsInAutomation()) {
-    return NS_ERROR_NOT_AVAILABLE;
-  }
-
-  NS_ENSURE_ARG_POINTER(aConnection);
-
-  nsresult rv = EnsureConnection();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  NS_IF_ADDREF(*aConnection = sConnection);
-  return NS_OK;
 }
 
 }  // namespace mailnews

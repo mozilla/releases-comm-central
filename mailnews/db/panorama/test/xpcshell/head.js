@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let database;
+let database, folders;
 
 async function installDB(dbName) {
   const profileDir = do_get_profile();
@@ -13,13 +13,15 @@ async function installDB(dbName) {
 }
 
 async function loadExistingDB() {
-  database = Cc["@mozilla.org/mailnews/folder-database;1"].getService(
-    Ci.nsIFolderDatabase
+  database = Cc["@mozilla.org/mailnews/database-core;1"].getService(
+    Ci.nsIDatabaseCore
   );
-  await database.loadFolders();
+  await database.startup();
+  folders = database.folders;
 }
 
 registerCleanupFunction(function () {
+  folders = null;
   database = null;
 });
 

@@ -3,12 +3,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
+    "DatabaseCore.h",
     "Folder.h",
     "FolderComparator.h",
     "FolderDatabase.h",
 ]
 
 SOURCES += [
+    "DatabaseCore.cpp",
     "Folder.cpp",
     "FolderCollector.cpp",
     "FolderComparator.cpp",

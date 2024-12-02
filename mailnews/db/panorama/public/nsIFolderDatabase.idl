@@ -5,17 +5,9 @@
 #include "nsISupports.idl"
 
 interface nsIFolder;
-interface mozIStorageConnection;
 
 [scriptable, uuid(2842d879-e52f-4812-926c-dfde62b77881)]
 interface nsIFolderDatabase : nsISupports {
-  /**
-   * Open a connection to the database and load in the folders from it.
-   * Returns a promise that resolves (with no value) when loading is complete.
-   */
-  [implicit_jscontext]
-  Promise loadFolders();
-
   /**
    * Get a folder identified by its database row ID.
    */
@@ -87,10 +79,4 @@ interface nsIFolderDatabase : nsISupports {
    * Update a folder's flags to match `newFlags`.
    */
   void updateFlags(in nsIFolder folder, in unsigned long long newFlags);
-
-  /**
-   * Access to the database for testing purposes only. If you are not a test,
-   * you'll get NS_ERROR_NOT_AVAILABLE instead.
-   */
-  readonly attribute mozIStorageConnection connection;
 };

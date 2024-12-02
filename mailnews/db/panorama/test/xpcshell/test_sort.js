@@ -15,11 +15,11 @@ add_setup(async function () {
  * Tests folders that all have an ordinal value.
  */
 add_task(function testNullOrdinals() {
-  const parent = database.getFolderById(7);
-  const echo = database.getFolderById(10);
-  const foxtrot = database.getFolderById(9);
-  const golf = database.getFolderById(15);
-  const hotel = database.getFolderById(3);
+  const parent = folders.getFolderById(7);
+  const echo = folders.getFolderById(10);
+  const foxtrot = folders.getFolderById(9);
+  const golf = folders.getFolderById(15);
+  const hotel = folders.getFolderById(3);
 
   Assert.deepEqual(parent.children, [echo, foxtrot, golf, hotel]);
 });
@@ -28,11 +28,11 @@ add_task(function testNullOrdinals() {
  * Tests folders that all have no ordinal value.
  */
 add_task(function testNonNullOrdinals() {
-  const parent = database.getFolderById(12);
-  const kilo = database.getFolderById(6);
-  const lima = database.getFolderById(2);
-  const november = database.getFolderById(14);
-  const quebec = database.getFolderById(8);
+  const parent = folders.getFolderById(12);
+  const kilo = folders.getFolderById(6);
+  const lima = folders.getFolderById(2);
+  const november = folders.getFolderById(14);
+  const quebec = folders.getFolderById(8);
 
   Assert.deepEqual(parent.children, [lima, quebec, kilo, november]);
 });
@@ -41,11 +41,11 @@ add_task(function testNonNullOrdinals() {
  * Tests a mix of folders that have an ordinal value and folders that do not.
  */
 add_task(function testMixedOrdinals() {
-  const parent = database.getFolderById(11);
-  const sierra = database.getFolderById(4);
-  const tango = database.getFolderById(13);
-  const uniform = database.getFolderById(1);
-  const whisky = database.getFolderById(5);
+  const parent = folders.getFolderById(11);
+  const sierra = folders.getFolderById(4);
+  const tango = folders.getFolderById(13);
+  const uniform = folders.getFolderById(1);
+  const whisky = folders.getFolderById(5);
 
   Assert.deepEqual(parent.children, [whisky, sierra, tango, uniform]);
 });

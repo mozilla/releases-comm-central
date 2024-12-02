@@ -11,26 +11,26 @@ add_setup(async function () {
 });
 
 add_task(function testLookup() {
-  const server1 = database.getFolderById(5);
-  const server2 = database.getFolderById(4);
+  const server1 = folders.getFolderById(5);
+  const server2 = folders.getFolderById(4);
 
   drawTree(server1);
   drawTree(server2);
 
-  Assert.equal(database.getFolderByPath("server1"), server1);
-  Assert.equal(database.getFolderByPath("server1/INBOX"), server1.children[0]);
-  Assert.equal(database.getFolderByPath("server1/Junk"), server1.children[1]);
-  Assert.equal(database.getFolderByPath("server1/Sent"), server1.children[2]);
-  Assert.equal(database.getFolderByPath("server1/Trash"), server1.children[3]);
+  Assert.equal(folders.getFolderByPath("server1"), server1);
+  Assert.equal(folders.getFolderByPath("server1/INBOX"), server1.children[0]);
+  Assert.equal(folders.getFolderByPath("server1/Junk"), server1.children[1]);
+  Assert.equal(folders.getFolderByPath("server1/Sent"), server1.children[2]);
+  Assert.equal(folders.getFolderByPath("server1/Trash"), server1.children[3]);
 
-  Assert.equal(database.getFolderByPath("server2"), server2);
-  Assert.equal(database.getFolderByPath("server2/folder"), server2.children[0]);
+  Assert.equal(folders.getFolderByPath("server2"), server2);
+  Assert.equal(folders.getFolderByPath("server2/folder"), server2.children[0]);
   Assert.equal(
-    database.getFolderByPath("server2/folder/sub1"),
+    folders.getFolderByPath("server2/folder/sub1"),
     server2.children[0].children[0]
   );
   Assert.equal(
-    database.getFolderByPath("server2/folder/sub1/sub2"),
+    folders.getFolderByPath("server2/folder/sub1/sub2"),
     server2.children[0].children[0].children[0]
   );
 });
@@ -40,25 +40,25 @@ add_task(function testLookup() {
  * new path should find it, and at the old path should find nothing.
  */
 add_task(function testLookupAfterMove() {
-  const folder = database.getFolderById(6);
-  const sub1 = database.getFolderById(2);
-  const sub2 = database.getFolderById(8);
+  const folder = folders.getFolderById(6);
+  const sub1 = folders.getFolderById(2);
+  const sub2 = folders.getFolderById(8);
 
   Assert.equal(sub2.path, "server2/folder/sub1/sub2");
-  Assert.equal(database.getFolderByPath("server2/folder/sub2"), null);
-  Assert.equal(database.getFolderByPath("server2/folder/sub1/sub2"), sub2);
+  Assert.equal(folders.getFolderByPath("server2/folder/sub2"), null);
+  Assert.equal(folders.getFolderByPath("server2/folder/sub1/sub2"), sub2);
 
-  database.moveFolderTo(folder, sub2);
+  folders.moveFolderTo(folder, sub2);
   Assert.equal(sub2.path, "server2/folder/sub2");
-  Assert.equal(database.getFolderByPath("server2/folder/sub2"), sub2);
-  Assert.equal(database.getFolderByPath("server2/folder/sub1/sub2"), null);
+  Assert.equal(folders.getFolderByPath("server2/folder/sub2"), sub2);
+  Assert.equal(folders.getFolderByPath("server2/folder/sub1/sub2"), null);
   Assert.equal(sub2.id, 8);
-  Assert.equal(database.getFolderById(8), sub2);
+  Assert.equal(folders.getFolderById(8), sub2);
 
-  database.moveFolderTo(sub1, sub2);
+  folders.moveFolderTo(sub1, sub2);
   Assert.equal(sub2.path, "server2/folder/sub1/sub2");
-  Assert.equal(database.getFolderByPath("server2/folder/sub2"), null);
-  Assert.equal(database.getFolderByPath("server2/folder/sub1/sub2"), sub2);
+  Assert.equal(folders.getFolderByPath("server2/folder/sub2"), null);
+  Assert.equal(folders.getFolderByPath("server2/folder/sub1/sub2"), sub2);
   Assert.equal(sub2.id, 8);
-  Assert.equal(database.getFolderById(8), sub2);
+  Assert.equal(folders.getFolderById(8), sub2);
 });
