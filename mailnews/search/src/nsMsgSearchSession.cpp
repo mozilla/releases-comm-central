@@ -3,7 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "mozilla/Components.h"
 #include "msgCore.h"
+#include "nsIAppStartup.h"
 #include "nsMsgSearchCore.h"
 #include "nsMsgSearchSession.h"
 #include "nsMsgSearchTerm.h"
@@ -389,7 +391,18 @@ nsresult nsMsgSearchSession::GetNextUrl() {
 void nsMsgSearchSession::TimerCallback(nsITimer* aTimer, void* aClosure) {
   NS_ENSURE_TRUE_VOID(aClosure);
   nsMsgSearchSession* searchSession = (nsMsgSearchSession*)aClosure;
-  bool done;
+
+  bool isShuttingDown = false;
+  nsCOMPtr<nsIAppStartup> appStartup(
+      mozilla::components::AppStartup::Service());
+  appStartup->GetShuttingDown(&isShuttingDown);
+  if (isShuttingDown) {
+    // Shutting down? Stop searching.
+    searchSession->InterruptSearch();
+    return;
+  }
+
+  bool done = false;
   bool stopped = false;
 
   searchSession->TimeSlice(&done);
