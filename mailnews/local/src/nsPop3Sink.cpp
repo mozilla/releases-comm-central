@@ -388,6 +388,8 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, uint32_t flags) {
   // We can still continue without one.
   if (NS_FAILED(rv)) {
     m_newMailParser = nullptr;
+    MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Warning,
+            (POP3LOG("Failed to initialize m_newMailParser")));
     rv = NS_OK;
   }
 
@@ -562,19 +564,24 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
     nsBuildLocalMessageURI(m_baseMessageUri, msgKey, m_messageUri);
   }
 
+  nsresult rv;
+
+  NS_ASSERTION(m_newMailParser, "could not get m_newMailParser");
+
   // If line separators in server response are just LF instead of stardard CRLF,
   // the blank line between the headers and the message body will not be
   // detected. The detection of this blank line causes the header content to
   // be parsed to correctly display the message list information. Send parser an
   // empty/blank line to cause a header parse if it has not yet occurred.
-  nsresult rv = m_newMailParser->HandleLine("", 0);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (m_newMailParser) {
+    rv = m_newMailParser->HandleLine("", 0);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   // We need to flush the output stream in case mail filters move/copy the new
   // message. This relies on all the data being flushed (i.e., written to disk).
   rv = m_outFileStream->Flush();
   NS_ENSURE_SUCCESS(rv, rv);
-  NS_ASSERTION(m_newMailParser, "could not get m_newMailParser");
   if (m_newMailParser) {
     // PublishMsgHdr clears m_newMsgHdr, so we need a comptr to
     // hold onto it.
