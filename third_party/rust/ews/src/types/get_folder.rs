@@ -7,7 +7,7 @@ use xml_struct::XmlSerialize;
 
 use crate::{
     types::sealed::EnvelopeBodyContents, BaseFolderId, Folder, FolderShape, Operation,
-    OperationResponse, ResponseClass, MESSAGES_NS_URI,
+    OperationResponse, ResponseClass, ResponseCode, MESSAGES_NS_URI,
 };
 
 /// A request to get information on one or more folders.
@@ -70,6 +70,10 @@ pub struct GetFolderResponseMessage {
     /// resulted in an error.
     #[serde(rename = "@ResponseClass")]
     pub response_class: ResponseClass,
+
+    pub response_code: Option<ResponseCode>,
+
+    pub message_text: Option<String>,
 
     /// A collection of the retrieved folders.
     pub folders: Folders,

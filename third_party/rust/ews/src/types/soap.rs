@@ -6,6 +6,7 @@ use quick_xml::{
     events::{BytesDecl, BytesEnd, BytesStart, Event},
     Reader, Writer,
 };
+use serde::Deserialize;
 
 use crate::{
     types::sealed, Error, MessageXml, Operation, OperationResponse, ResponseCode, SOAP_NS_URI,
@@ -176,7 +177,24 @@ fn parse_detail(mut reader: ScopedReader) -> Result<FaultDetail, Error> {
     while let Some((name, subreader)) = reader.maybe_get_next_subreader()? {
         match name.as_slice() {
             b"ResponseCode" => {
-                detail.response_code.replace(subreader.to_string()?.into());
+                // This is a hack to avoid an explicit `TryFrom` impl for
+                // `ResponseCode` and to reuse existing machinery/error types.
+                #[derive(Deserialize)]
+                struct ResponseCodeFrame {
+                    #[serde(rename = "ResponseCode")]
+                    response_code: ResponseCode,
+                }
+
+                // `quick_xml` requires us to have some sort of element around
+                // the text to be deserialized or it fails.
+                let frame_text = format!(
+                    "<root><ResponseCode>{}</ResponseCode></root>",
+                    subreader.to_string()?
+                );
+                let de = &mut quick_xml::de::Deserializer::from_reader(frame_text.as_bytes());
+                let frame: ResponseCodeFrame = serde_path_to_error::deserialize(de)?;
+
+                detail.response_code.replace(frame.response_code);
             }
 
             b"Message" => {
@@ -396,7 +414,7 @@ pub struct FaultDetail {
 mod tests {
     use serde::Deserialize;
 
-    use crate::{types::sealed::EnvelopeBodyContents, Error, OperationResponse};
+    use crate::{types::sealed::EnvelopeBodyContents, Error, OperationResponse, ResponseCode};
 
     use super::Envelope;
 
@@ -465,7 +483,7 @@ mod tests {
             let detail = fault.detail.expect("fault detail should be present");
             assert_eq!(
                 detail.response_code,
-                Some("ErrorSchemaValidation".into()),
+                Some(ResponseCode::ErrorSchemaValidation),
                 "response code should match original document"
             );
             assert_eq!(
@@ -481,7 +499,7 @@ mod tests {
                 "back off milliseconds should not be present"
             );
         } else {
-            panic!("error should be request fault");
+            panic!("error should be request fault, got: {err:?}");
         }
     }
 
@@ -522,14 +540,14 @@ mod tests {
             let detail = fault.detail.expect("fault detail should be present");
             assert_eq!(
                 detail.response_code,
-                Some("ErrorServerBusy".into()),
+                Some(ResponseCode::ErrorServerBusy),
                 "response code should match original document"
             );
 
             let message_xml = detail.message_xml.expect("message XML should be present");
             assert_eq!(message_xml.back_off_milliseconds, Some(25));
         } else {
-            panic!("error should be request fault");
+            panic!("error should be request fault, got: {err:?}");
         }
     }
 }

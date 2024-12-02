@@ -9,6 +9,7 @@ pub use common::*;
 pub use operations::*;
 pub mod soap;
 
+pub mod create_folder;
 pub mod create_item;
 pub mod delete_item;
 pub mod get_folder;

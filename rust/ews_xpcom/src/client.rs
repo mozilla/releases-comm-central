@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::str;
 use std::{
     collections::{HashMap, HashSet, VecDeque},
     ffi::c_char,
@@ -12,7 +11,7 @@ use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{
     create_item::{CreateItem, CreateItemResponseMessage},
     delete_item::{DeleteItem, DeleteType},
-    get_folder::GetFolder,
+    get_folder::{GetFolder, GetFolderResponseMessage},
     get_item::GetItem,
     soap,
     sync_folder_hierarchy::{self, SyncFolderHierarchy},
@@ -21,7 +20,7 @@ use ews::{
         ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem, Updates,
     },
     ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, ExtendedFieldURI, ExtendedProperty,
-    Folder, FolderShape, ItemShape, Message, MessageDisposition, MimeContent, Operation,
+    Folder, FolderId, FolderShape, ItemShape, Message, MessageDisposition, MimeContent, Operation,
     PathToElement, RealItem, Recipient, ResponseClass, ResponseCode,
 };
 use fxhash::FxHashMap;
@@ -60,6 +59,8 @@ use crate::{authentication::credentials::Credentials, cancellable_request::Cance
 const MSGFLAG_READ: i32 = 0x00000001;
 const MSGFLAG_UNMODIFIED: i32 = 0x00000002;
 const MSGFLAG_UNSENT: i32 = 0x00000008;
+
+const EWS_ROOT_FOLDER: &str = "msgfolderroot";
 
 pub(crate) struct XpComEwsClient {
     pub endpoint: Url,
@@ -118,7 +119,7 @@ impl XpComEwsClient {
                     // this simplifies managing sync state. There is a "root"
                     // folder one level up as well, but it includes calendars,
                     // contacts, etc., which we aren't trying to support yet.
-                    id: "msgfolderroot".to_string(),
+                    id: EWS_ROOT_FOLDER.to_string(),
                     change_key: None,
                 }),
                 sync_state: sync_state_token,
@@ -142,11 +143,15 @@ impl XpComEwsClient {
                 match change {
                     sync_folder_hierarchy::Change::Create { folder } => {
                         if let Folder::Folder { folder_id, .. } = folder {
+                            let folder_id = folder_id.ok_or(XpComEwsError::MissingIdInResponse)?;
+
                             create_ids.push(folder_id.id)
                         }
                     }
                     sync_folder_hierarchy::Change::Update { folder } => {
                         if let Folder::Folder { folder_id, .. } = folder {
+                            let folder_id = folder_id.ok_or(XpComEwsError::MissingIdInResponse)?;
+
                             update_ids.push(folder_id.id)
                         }
                     }
@@ -258,7 +263,7 @@ impl XpComEwsClient {
                         // If there is no item ID in a response from Exchange,
                         // something has gone badly wrong. We'll end processing
                         // here.
-                        .ok_or(XpComEwsError::MissingResponseItemId);
+                        .ok_or(XpComEwsError::MissingIdInResponse);
 
                     Some(result)
                 })
@@ -289,7 +294,7 @@ impl XpComEwsClient {
                     RealItem::Message(message) => message
                         .item_id
                         .clone()
-                        .ok_or_else(|| XpComEwsError::MissingResponseItemId)
+                        .ok_or_else(|| XpComEwsError::MissingIdInResponse)
                         .map(|item_id| (item_id.id.to_owned(), message)),
 
                     // We should have filtered above for only Message-related
@@ -306,7 +311,7 @@ impl XpComEwsClient {
                             RealItem::Message(message) => {
                                 message
                                     .item_id
-                                    .ok_or_else(|| XpComEwsError::MissingResponseItemId)?
+                                    .ok_or_else(|| XpComEwsError::MissingIdInResponse)?
                                     .id
                             }
 
@@ -355,7 +360,7 @@ impl XpComEwsClient {
                             RealItem::Message(message) => {
                                 message
                                     .item_id
-                                    .ok_or_else(|| XpComEwsError::MissingResponseItemId)?
+                                    .ok_or_else(|| XpComEwsError::MissingIdInResponse)?
                                     .id
                             }
 
@@ -515,7 +520,7 @@ impl XpComEwsClient {
         callbacks: &IEwsFolderCallbacks,
     ) -> Result<FxHashMap<String, &str>, XpComEwsError> {
         const DISTINGUISHED_IDS: &[&str] = &[
-            "msgfolderroot",
+            EWS_ROOT_FOLDER,
             "inbox",
             "deleteditems",
             "drafts",
@@ -523,6 +528,13 @@ impl XpComEwsClient {
             "sentitems",
             "junkemail",
         ];
+
+        // We should always request the root folder first to simplify processing
+        // the response below.
+        assert_eq!(
+            DISTINGUISHED_IDS[0], EWS_ROOT_FOLDER,
+            "expected first fetched folder to be root"
+        );
 
         let ids = DISTINGUISHED_IDS
             .iter()
@@ -542,42 +554,61 @@ impl XpComEwsClient {
         };
 
         let response = self.make_operation_request(op).await?;
-        let messages = response.response_messages.get_folder_response_message;
+        let response_messages = response.response_messages.get_folder_response_message;
 
-        let map = DISTINGUISHED_IDS
-            .iter()
-            .zip(messages)
+        if response_messages.len() != DISTINGUISHED_IDS.len() {
+            return Err(XpComEwsError::Processing {
+                message: format!(
+                    "received an unexpected number of response messages for GetFolder request: expected {}, got {}",
+                    DISTINGUISHED_IDS.len(),
+                    response_messages.len(),
+                ),
+            });
+        }
+
+        // We expect results from EWS to be in the same order as given in the
+        // request. EWS docs aren't explicit about response ordering, but
+        // responses don't contain another means of mapping requested ID to
+        // response.
+        let mut message_iter = DISTINGUISHED_IDS.iter().zip(response_messages);
+
+        // Record the root folder for messages before processing the other
+        // responses. We're okay to unwrap since we request a static number of
+        // folders and we've already checked that we have that number of
+        // responses.
+        let (_, message) = message_iter.next().unwrap();
+
+        // Any error fetching the root folder is fatal, since we can't correctly
+        // set the parents of any folders it contains without knowing its ID.
+        let root_folder_id = validate_get_folder_response_message(&message)?;
+        let folder_id = nsCString::from(root_folder_id.id);
+
+        unsafe { callbacks.RecordRootFolder(&*folder_id) }.to_result()?;
+
+        // Build the mapping for the remaining folders.
+        message_iter
             .filter_map(|(&distinguished_id, message)| {
-                let folder_id = if matches!(message.response_class, ResponseClass::Success) {
-                    match message.folders.inner.into_iter().next() {
-                        Some(Folder::Folder { folder_id, .. }) => folder_id,
+                match validate_get_folder_response_message(&message) {
+                    // Map from EWS folder ID to distinguished ID.
+                    Ok(folder_id) => Some(Ok((folder_id.id, distinguished_id))),
 
-                        _ => return None,
+                    Err(err) => {
+                        match err {
+                            // Not every Exchange account will have all queried
+                            // well-known folders, so we skip any which were not
+                            // found.
+                            XpComEwsError::ResponseError {
+                                code: ResponseCode::ErrorFolderNotFound,
+                                ..
+                            } => None,
+
+                            // Propagate any other error.
+                            _ => Some(Err(err)),
+                        }
                     }
-                } else {
-                    return None;
-                };
-
-                if distinguished_id == "msgfolderroot" {
-                    // This is the folder under which all mail folders can be
-                    // found and corresponds nicely with Thunderbird's root
-                    // folder concept.
-                    let folder_id = nsCString::from(folder_id.id);
-                    unsafe { callbacks.RecordRootFolder(&*folder_id) }
-                        .to_result()
-                        .ok()?;
-
-                    // We don't need to add the root folder to the map; since
-                    // it's the root of our sync operation, it won't be returned
-                    // as a result.
-                    return None;
                 }
-
-                Some((folder_id.id, distinguished_id))
             })
-            .collect();
-
-        Ok(map)
+            .collect()
     }
 
     async fn push_sync_state_to_ui(
@@ -599,7 +630,9 @@ impl XpComEwsClient {
                         display_name,
                         ..
                     } => {
-                        let id = folder_id.id;
+                        // We should have already verified that the folder ID is
+                        // present, so it should be okay to unwrap here.
+                        let id = folder_id.unwrap().id;
                         let display_name = display_name.ok_or(nserror::NS_ERROR_FAILURE)?;
 
                         let well_known_folder_flag = well_known_map
@@ -641,7 +674,9 @@ impl XpComEwsClient {
                         display_name,
                         ..
                     } => {
-                        let id = folder_id.id;
+                        // We should have already verified that the folder ID is
+                        // present, so it should be okay to unwrap here.
+                        let id = folder_id.unwrap().id;
                         let display_name = display_name.ok_or(nserror::NS_ERROR_FAILURE)?;
 
                         let id = nsCString::from(id);
@@ -710,15 +745,14 @@ impl XpComEwsClient {
             let mut fetched = messages
                 .into_iter()
                 .filter_map(|message| {
+                    if let Err(err) = validate_get_folder_response_message(&message) {
+                        return Some(Err(err));
+                    }
+
                     message
                         .folders
                         .inner
                         .into_iter()
-                        // We're making a big assumption right here, which is
-                        // that each GetFolderResponseMessage will include
-                        // either zero or one folders. This assumption is based
-                        // on testing, but the EWS API definition does allow it
-                        // to _not_ be true.
                         .next()
                         .and_then(|folder| match &folder {
                             Folder::Folder { folder_class, .. } => {
@@ -727,7 +761,7 @@ impl XpComEwsClient {
                                 if let Some("IPF.Note") =
                                     folder_class.as_ref().map(|string| string.as_str())
                                 {
-                                    Some(folder)
+                                    Some(Ok(folder))
                                 } else {
                                     None
                                 }
@@ -736,7 +770,7 @@ impl XpComEwsClient {
                             _ => None,
                         })
                 })
-                .collect();
+                .collect::<Result<_, _>>()?;
 
             folders.append(&mut fetched);
 
@@ -1133,7 +1167,7 @@ impl XpComEwsClient {
             .collect();
 
         let update_item = UpdateItem {
-            item_changes: item_changes,
+            item_changes,
             message_disposition: MessageDisposition::SaveOnly,
             // If we don't provide a ChangeKey as part of the ItemChange, then
             // we cannot use the default value of `AutoResolve` for
@@ -1256,7 +1290,7 @@ impl XpComEwsClient {
                     &response_message.response_code,
                     &response_message.message_text,
                 ) {
-                    if matches!(err, XpComEwsError::NotFound) {
+                    if matches!(err, XpComEwsError::ResponseError { code: ResponseCode::ErrorItemNotFound, .. }) {
                         // Something happened in a previous attempt that caused
                         // the message to be deleted on the EWS server but not
                         // in the database. In this case, we don't want to force
@@ -1305,10 +1339,7 @@ impl XpComEwsClient {
             // Generate random id for logging purposes.
             let request_id = Uuid::new_v4();
             log::info!("Making operation request {request_id}: {op_name}");
-            log::info!(
-                "C: {}",
-                str::from_utf8(&request_body).unwrap_or_else(|_| "Invalid UTF-8")
-            );
+            log::info!("C: {}", String::from_utf8_lossy(&request_body));
             let response = self
                 .client
                 .post(&self.endpoint)?
@@ -1319,10 +1350,7 @@ impl XpComEwsClient {
 
             let response_body = response.body();
             log::info!("Response received for request {request_id}: {op_name}");
-            log::info!(
-                "S: {}",
-                str::from_utf8(&response_body).unwrap_or_else(|_| "Invalid UTF-8")
-            );
+            log::info!("S: {}", String::from_utf8_lossy(&response_body));
 
             // Don't immediately propagate in case the error represents a
             // throttled request, which we can address with retry.
@@ -1511,14 +1539,17 @@ pub(crate) enum XpComEwsError {
     #[error("an error occurred while (de)serializing")]
     Ews(#[from] ews::Error),
 
-    #[error("the item could not be found")]
-    NotFound,
+    #[error("request resulted in error with code {code:?} and message {message:?}")]
+    ResponseError {
+        code: ResponseCode,
+        message: Option<String>,
+    },
 
     #[error("error in processing response")]
     Processing { message: String },
 
-    #[error("missing item ID in response from Exchange")]
-    MissingResponseItemId,
+    #[error("missing item or folder ID in response from Exchange")]
+    MissingIdInResponse,
 }
 
 impl From<XpComEwsError> for nsresult {
@@ -1604,26 +1635,49 @@ fn process_response_message_class(
         }
 
         ResponseClass::Error => {
-            let message = if let Some(code) = response_code {
-                if code.0 == "ErrorItemNotFound" {
-                    // We might not want to treat not found errors as normal
-                    // errors. For example we don't want to skip deleting a
-                    // message from the local database if it was not be found on
-                    // the server.
-                    return Err(XpComEwsError::NotFound);
-                } else if let Some(text) = message_text {
-                    format!("{op_name} operation encountered `{code:?}' error: {text}")
-                } else {
-                    format!("{op_name} operation encountered `{code:?}' error")
-                }
-            } else if let Some(text) = message_text {
-                format!("{op_name} operation encountered error: {text}")
-            } else {
-                format!("{op_name} operation encountered unknown error")
-            };
+            let code = response_code.unwrap_or_default();
 
-            Err(XpComEwsError::Processing { message })
+            Err(XpComEwsError::ResponseError {
+                code,
+                message: message_text.clone(),
+            })
         }
+    }
+}
+
+/// Verifies that a response message for a GetFolder request is valid for a
+/// standard folder.
+///
+/// Returns the ID of a valid folder for convenience.
+fn validate_get_folder_response_message(
+    message: &GetFolderResponseMessage,
+) -> Result<FolderId, XpComEwsError> {
+    process_response_message_class(
+        "GetFolder",
+        &message.response_class,
+        &message.response_code,
+        &message.message_text,
+    )?;
+
+    if message.folders.inner.len() != 1 {
+        return Err(XpComEwsError::Processing {
+            message: format!(
+                "expected exactly one folder per response message, got {}",
+                message.folders.inner.len()
+            ),
+        });
+    }
+
+    // Okay to unwrap as we've verified the length.
+    match message.folders.inner.iter().next().unwrap() {
+        Folder::Folder { folder_id, .. } => folder_id
+            .as_ref()
+            .map(|id| id.clone())
+            .ok_or(XpComEwsError::MissingIdInResponse),
+
+        _ => Err(XpComEwsError::Processing {
+            message: String::from("expected folder to be of type Folder"),
+        }),
     }
 }
 
@@ -1649,7 +1703,7 @@ fn create_and_populate_header_from_save_response(
 
     let ews_id = message
         .item_id
-        .ok_or(XpComEwsError::MissingResponseItemId)?
+        .ok_or(XpComEwsError::MissingIdInResponse)?
         .id;
     let ews_id = nsCString::from(ews_id);
 
