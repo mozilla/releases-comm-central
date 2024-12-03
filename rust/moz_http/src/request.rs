@@ -80,7 +80,7 @@ impl<'rb> RequestBuilder<'rb> {
     }
 
     /// Adds an HTTP header to the request.
-    pub fn header(&'rb mut self, key: &'rb str, value: &'rb str) -> &mut RequestBuilder {
+    pub fn header(&'rb mut self, key: &'rb str, value: &'rb str) -> &'rb mut RequestBuilder<'rb> {
         self.headers.insert(key, value);
 
         self
@@ -98,7 +98,7 @@ impl<'rb> RequestBuilder<'rb> {
         &'rb mut self,
         body: T,
         content_type: &'rb str,
-    ) -> &mut RequestBuilder {
+    ) -> &'rb mut RequestBuilder<'rb> {
         self.body = Some(RequestBody {
             content: body.into(),
             content_type,
