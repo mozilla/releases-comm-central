@@ -122,8 +122,8 @@ export const NotificationFilter = {
     }
     if (
       Array.isArray(profile.displayed_notifications) &&
-      profile.displayed_notifications.some(notificationId =>
-        interactedWithIds.includes(notificationId)
+      profile.displayed_notifications.some(
+        notificationId => !interactedWithIds.includes(notificationId)
       )
     ) {
       return false;

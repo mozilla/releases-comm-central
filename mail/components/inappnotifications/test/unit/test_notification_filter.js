@@ -301,10 +301,10 @@ add_task(function test_checkProfile_match() {
 
 add_task(function test_checkProfile_displayedNotifications_match() {
   Assert.ok(
-    NotificationFilter.checkProfile({ displayed_notifications: ["bar"] }, [
-      "foo",
+    NotificationFilter.checkProfile({ displayed_notifications: ["foo", "bar"] }, [
+      "foo", "bar"
     ]),
-    "Should match profile without matching interacted notification ID"
+    "Should match profile with matching interacted notification ID"
   );
 });
 
@@ -349,13 +349,11 @@ add_task(function test_checkProfile_singlePropertyMismatch() {
 
   const mismatchingDisplayedNotificationsProfile = {
     ...profile,
-    displayed_notifications: ["foo"],
+    displayed_notifications: ["foo", "bar"],
   };
   Assert.ok(
-    !NotificationFilter.checkProfile(mismatchingDisplayedNotificationsProfile, [
-      "foo",
-    ]),
-    "Shouldn't match profile with a notification ID that has been displayed"
+    !NotificationFilter.checkProfile(mismatchingDisplayedNotificationsProfile, ["foo"]),
+    "Shouldn't match profile with a notification ID that has not been displayed"
   );
 
   const mismatchingPrefTrueProfile = {
