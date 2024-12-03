@@ -32,7 +32,6 @@ existing_tasks:
   build-mac-signing-macosx64/opt: M_o-s4LKSnq457XPMBY71g
   build-macosx64-aarch64-shippable/opt: FA5QWkUcSF6q-NH6ShLM9A
   build-macosx64-aarch64-shippable/opt-upload-symbols: FwRzzMweTXKcptJe4WXhJQ
-  build-macosx64-ccov/opt: dKGru4xYTheM05SnQ-FaSw
   build-macosx64-shippable/opt: ZZGJxTyqSdmAaT3T9tPUuw
   build-macosx64-x64-shippable/opt: AkK4HNl1T92C-32sWBBPSw
   build-macosx64-x64-shippable/opt-upload-symbols: Mwt7Pnq9ThuFjnBgp5L4uQ
