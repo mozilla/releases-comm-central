@@ -83,7 +83,7 @@ static int MimeInlineTextHTMLParsed_parse_eof(MimeObject* obj, bool abort_p) {
   mozilla::ErrorResult rv2;
   RefPtr<mozilla::dom::DOMParser> parser =
       mozilla::dom::DOMParser::CreateWithoutGlobal(rv2);
-  nsCOMPtr<mozilla::dom::Document> document = parser->ParseFromString(
+  nsCOMPtr<mozilla::dom::Document> document = parser->ParseFromStringInternal(
       rawHTML, mozilla::dom::SupportedType::Text_html, rv2);
   if (rv2.Failed()) return -1;
 
