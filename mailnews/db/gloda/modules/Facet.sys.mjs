@@ -126,9 +126,9 @@ export var FacetUtils = {
    *  conceptually difficult to deal with, so that's gone, leaving this method
    *  with much less to do.
    *
-   * @param aAttrDef The attribute for the facet we are working with.
-   * @param aGroups The list of groups built for the facet.
-   * @param aMaxCount The number of result rows you want back.
+   * @param {object} aAttrDef - The attribute for the facet we are working with.
+   * @param {object} aGroups - The list of groups built for the facet.
+   * @param {integer} aMaxCount - The number of result rows you want back.
    */
   makeTopGroups(aAttrDef, aGroups, aMaxCount) {
     const nounDef = aAttrDef.objectNounDef;
