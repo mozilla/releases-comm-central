@@ -32,6 +32,11 @@ if CONFIG["CC_TYPE"] == "clang-cl":
 if CONFIG["MOZ_STDCXX_COMPAT"]:
     # Use pre-GCC-5 strings abi
     DEFINES["_GLIBCXX_USE_CXX11_ABI"] = 0
+    COMPILE_FLAGS["OS_CXXFLAGS"].extend([
+        "-fno-sized-deallocation",
+        "-fno-aligned-new",
+    ])
+
 
 if CONFIG["OS_ARCH"] in ("Linux", "SunOS"):
     CFLAGS += ["-fPIC"]
