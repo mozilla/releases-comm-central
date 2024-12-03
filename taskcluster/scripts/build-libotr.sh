@@ -141,7 +141,8 @@ function build_libotr() {
     case "${_TARGET_OS}" in
         win*)
             cd src
-            "${CC}" -static-libgcc -s -shared -Wl,-no-undefined "${LDFLAGS[@]}" -o libotr.dll \
+            # shellcheck disable=SC2086
+            "${CC}" -static-libgcc -s -shared -Wl,-no-undefined ${LDFLAGS} -o libotr.dll \
                 ./*.o \
                 -L"${_PREFIX}/lib" "${_PREFIX}/lib/libgcrypt.a" "${_PREFIX}/lib/libgpg-error.a" \
                 -L"${_LIBDIR}" -lws2_32 -lssp
@@ -149,7 +150,8 @@ function build_libotr() {
             ;;
         linux*)
             cd src
-            "${CC}" -shared "${LDFLAGS[@]}" -Wl,-soname -Wl,libotr.so \
+            # shellcheck disable=SC2086
+            "${CC}" -shared ${LDFLAGS} -Wl,-soname -Wl,libotr.so \
               .libs/*.o \
               -L"${_PREFIX}/lib" "${_PREFIX}/lib/libgcrypt.a" "${_PREFIX}/lib/libgpg-error.a" \
               --sysroot="${MOZ_FETCHES_DIR}/${SYSROOT}" \
