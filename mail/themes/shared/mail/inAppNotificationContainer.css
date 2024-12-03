@@ -259,6 +259,9 @@
     fill: currentColor;
     stroke: currentColor;
     z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     &:hover {
       border-color: var(--close-button-border-hover);
@@ -278,7 +281,6 @@
 
     & img {
       content: var(--icon-close-xs);
-      margin-block: 2px -1px;
       box-sizing: border-box;
     }
   }
