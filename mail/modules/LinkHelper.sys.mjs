@@ -102,6 +102,23 @@ export function openLinkExternally(url, options) {
 }
 
 /**
+ * Opens the given url in a new tab in the most recent mail window. All provided
+ * parameters are passed into openTab(), if any.
+ *
+ * @param {string} url
+ * @param {object} [params]
+ */
+export function openLinkInNewTab(url, params = {}) {
+  const mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  if (mailWindow) {
+    mailWindow.focus();
+    mailWindow.document
+      .getElementById("tabmail")
+      .openTab("contentTab", { url, ...params });
+  }
+}
+
+/**
  *
  * @param {string} query - The string to search for.
  */

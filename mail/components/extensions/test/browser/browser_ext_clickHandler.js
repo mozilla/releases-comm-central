@@ -74,7 +74,7 @@ const getCommonFiles = async () => {
                   log.loading = true;
                 }
                 // The complete is only valid, if we seen a url (which was not
-                // "about:blank")
+                // "about:blank").
                 if (log.url && changes.status == "complete") {
                   log.complete = true;
                 }
@@ -173,6 +173,36 @@ const getCommonFiles = async () => {
         "https://mozilla.org/"
       );
 
+      // Open a remote page and click link on same site but with _blank target.
+      if (expectedLinkHandler == "single-page") {
+        await window.expectLinkOpenInExternalBrowser(
+          "https://example.org/browser/comm/mail/components/extensions/test/browser/data/linktest.html",
+          "#linkExt3",
+          "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html"
+        );
+      } else {
+        await window.expectLinkOpenInNewTab(
+          "https://example.org/browser/comm/mail/components/extensions/test/browser/data/linktest.html",
+          "#linkExt3",
+          "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html"
+        );
+      }
+
+      // Open a remote page and click link on same site but with _self target.
+      if (expectedLinkHandler == "single-page") {
+        await window.expectLinkOpenInExternalBrowser(
+          "https://example.org/browser/comm/mail/components/extensions/test/browser/data/linktest.html",
+          "#linkExt4",
+          "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html"
+        );
+      } else {
+        await window.expectLinkOpenInSameTab(
+          "https://example.org/browser/comm/mail/components/extensions/test/browser/data/linktest.html",
+          "#linkExt4",
+          "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html"
+        );
+      }
+
       browser.test.notifyPass();
     },
     "example.html": `<!DOCTYPE html>
@@ -219,7 +249,7 @@ const subtest_clickInBrowser = async (
   await extension.awaitMessage("expectedLinkHandler");
   extension.sendMessage(expectedLinkHandler);
 
-  // Wait for click on #link1 (external)
+  // Wait for click on #link1 (external).
   {
     const { linkId, expectedUrl } = await extension.awaitMessage("click");
     Assert.equal("#link1", linkId, `Test should click on the correct link.`);
@@ -236,7 +266,7 @@ const subtest_clickInBrowser = async (
     await extension.sendMessage();
   }
 
-  // Wait for click on #link2 (same tab)
+  // Wait for click on #link2 (same tab).
   {
     const { linkId } = await extension.awaitMessage("click");
     Assert.equal("#link2", linkId, `Test should click on the correct link.`);
@@ -248,7 +278,7 @@ const subtest_clickInBrowser = async (
     await extension.sendMessage();
   }
 
-  // Wait for click on #link3 (same tab)
+  // Wait for click on #link3 (same tab).
   {
     const { linkId } = await extension.awaitMessage("click");
     Assert.equal("#link3", linkId, `Test should click on the correct link.`);
@@ -260,7 +290,7 @@ const subtest_clickInBrowser = async (
     await extension.sendMessage();
   }
 
-  // Wait for click on #link4 (new tab)
+  // Wait for click on #link4 (new tab).
   {
     const { linkId } = await extension.awaitMessage("click");
     Assert.equal("#link4", linkId, `Test should click on the correct link.`);
@@ -272,7 +302,7 @@ const subtest_clickInBrowser = async (
     await extension.sendMessage();
   }
 
-  // Wait for click on #link5 (new tab)
+  // Wait for click on #link5 (new tab).
   {
     const { linkId } = await extension.awaitMessage("click");
     Assert.equal("#link5", linkId, `Test should click on the correct link.`);
@@ -284,7 +314,7 @@ const subtest_clickInBrowser = async (
     await extension.sendMessage();
   }
 
-  // Wait for click on #linkExt1
+  // Wait for click on #linkExt1.
   if (expectedLinkHandler == "single-page") {
     // Should open extern with single-page link handler.
     const { linkId, expectedUrl } = await extension.awaitMessage("click");
@@ -312,7 +342,7 @@ const subtest_clickInBrowser = async (
     await extension.sendMessage();
   }
 
-  // Wait for click on #linkExt2 (external)
+  // Wait for click on #linkExt2 (external).
   {
     const { linkId, expectedUrl } = await extension.awaitMessage("click");
     Assert.equal("#linkExt2", linkId, `Test should click on the correct link.`);
@@ -325,6 +355,62 @@ const subtest_clickInBrowser = async (
     Assert.ok(
       mockExternalProtocolService.urlLoaded(expectedUrl),
       `Link should have correctly been opened in external browser.`
+    );
+    await extension.sendMessage();
+  }
+
+  // Wait for click on #linkExt3.
+  if (expectedLinkHandler == "single-page") {
+    // Should open extern with single-page link handler.
+    const { linkId, expectedUrl } = await extension.awaitMessage("click");
+    Assert.equal("#linkExt3", linkId, `Test should click on the correct link.`);
+    Assert.equal(
+      "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html",
+      expectedUrl,
+      `Test should open the correct link.`
+    );
+    await clickLink(linkId, getBrowser());
+    Assert.ok(
+      mockExternalProtocolService.urlLoaded(expectedUrl),
+      `Link should have correctly been opened in external browser.`
+    );
+    await extension.sendMessage();
+  } else {
+    // Should open in same tab with single-site link handler.
+    const { linkId } = await extension.awaitMessage("click");
+    Assert.equal("#linkExt3", linkId, `Test should click on the correct link.`);
+    await clickLink(linkId, getBrowser());
+    Assert.ok(
+      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      `Link should not have been opened in external browser.`
+    );
+    await extension.sendMessage();
+  }
+
+  // Wait for click on #linkExt4.
+  if (expectedLinkHandler == "single-page") {
+    // Should open extern with single-page link handler.
+    const { linkId, expectedUrl } = await extension.awaitMessage("click");
+    Assert.equal("#linkExt4", linkId, `Test should click on the correct link.`);
+    Assert.equal(
+      "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html",
+      expectedUrl,
+      `Test should open the correct link.`
+    );
+    await clickLink(linkId, getBrowser());
+    Assert.ok(
+      mockExternalProtocolService.urlLoaded(expectedUrl),
+      `Link should have correctly been opened in external browser.`
+    );
+    await extension.sendMessage();
+  } else {
+    // Should open in same tab with single-site link handler.
+    const { linkId } = await extension.awaitMessage("click");
+    Assert.equal("#linkExt4", linkId, `Test should click on the correct link.`);
+    await clickLink(linkId, getBrowser());
+    Assert.ok(
+      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      `Link should not have been opened in external browser.`
     );
     await extension.sendMessage();
   }

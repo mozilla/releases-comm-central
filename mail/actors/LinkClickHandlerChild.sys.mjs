@@ -15,14 +15,14 @@ XPCOMUtils.defineLazyServiceGetter(
 );
 
 /**
- * Extract the href from the link click event.
- * We look for HTMLAnchorElement, HTMLAreaElement, HTMLLinkElement,
- * and nested anchor tags.
+ * Extract the href from the link click event. We look for HTMLAnchorElement,
+ * HTMLAreaElement, HTMLLinkElement and nested anchor tags.
  *
+ * @param {Event} event
  * @returns {string} the url for the link being clicked.
  */
-function hRefForClickEvent(aEvent) {
-  const target = aEvent.target;
+function hRefForClickEvent(event) {
+  const target = event.target;
 
   if (
     HTMLImageElement.isInstance(target) &&
@@ -43,7 +43,7 @@ function hRefForClickEvent(aEvent) {
     }
   } else {
     // We may be nested inside of a link node.
-    let linkNode = aEvent.target;
+    let linkNode = event.target;
     while (linkNode && !HTMLAnchorElement.isInstance(linkNode)) {
       linkNode = linkNode.parentNode;
     }
@@ -53,6 +53,26 @@ function hRefForClickEvent(aEvent) {
     }
   }
   return href;
+}
+
+/**
+ * Extract the target from the link click event and determine, if the link can
+ * be navigated to directly, or needs to be opened in a new tab.
+ *
+ * @param {Event} event
+ * @param {DOMWindow} window - the window which initiated the actor event
+ *
+ * @returns {boolean}
+ */
+function canNavigate(event, window) {
+  const target = event.target.getAttribute("target");
+  if (!target) {
+    return true;
+  }
+  if (window.windowGlobalChild.findBrowsingContextWithName(target)) {
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -88,8 +108,15 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
     const eventURI = Services.io.newURI(eventHRef);
 
     try {
+      // Avoid using the eTLD service, and this also works for IP addresses.
       if (pageURI.host == eventURI.host) {
-        // Avoid using the eTLD service, and this also works for IP addresses.
+        if (!canNavigate(event, this.contentWindow)) {
+          event.preventDefault();
+          this.sendAsyncMessage("openLinkInNewTab", {
+            url: eventHRef,
+            refererTopBrowsingContextId: this.browsingContext.top.id,
+          });
+        }
         return;
       }
 
@@ -98,6 +125,13 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
           Services.eTLD.getBaseDomain(eventURI) ==
           Services.eTLD.getBaseDomain(pageURI)
         ) {
+          if (!canNavigate(event, this.contentWindow)) {
+            event.preventDefault();
+            this.sendAsyncMessage("openLinkInNewTab", {
+              url: eventHRef,
+              refererTopBrowsingContextId: this.browsingContext.top.id,
+            });
+          }
           return;
         }
       } catch (ex) {
@@ -152,6 +186,13 @@ export class StrictLinkClickHandlerChild extends JSWindowActorChild {
     const pageURI = Services.io.newURI(this.document.location.href);
     const eventURI = Services.io.newURI(eventHRef);
     if (eventURI.specIgnoringRef == pageURI.specIgnoringRef) {
+      if (!canNavigate(event, this.contentWindow)) {
+        event.preventDefault();
+        this.sendAsyncMessage("openLinkInNewTab", {
+          url: eventHRef,
+          refererTopBrowsingContextId: this.browsingContext.top.id,
+        });
+      }
       return;
     }
 
