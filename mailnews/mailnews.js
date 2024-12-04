@@ -363,6 +363,10 @@ pref("mail.purge_threshhold_mb", 500);
 pref("mail.prompt_purge_threshhold", true);
 pref("mail.purge.ask", true);
 
+// If true, a failure to read a message from offline storage will
+// discard it, to allow subsequent automatic reloading (self-healing).
+pref("mail.discard_offline_msg_on_failure", true);
+
 pref("mailnews.offline_sync_mail", false);
 pref("mailnews.offline_sync_news", false);
 pref("mailnews.offline_sync_send_unsent", true);
