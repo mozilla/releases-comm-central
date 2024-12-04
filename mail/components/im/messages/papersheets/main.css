@@ -44,14 +44,14 @@ div.messages-group:last-child {
 }
 
 div.messages-group > hr {
-  margin: 3px 50px 0px 20px;
+  margin: 3px 50px 0 20px;
   background-color: rgba(0, 0, 0, 0.05);
   height: 1px;
   border: 0;
 }
 
 span.message-style {
-  margin: 2px 50px 0px 20px;
+  margin: 2px 50px 0 20px;
   display: block;
   float: none;
 }
@@ -102,7 +102,7 @@ p.action > span.message-style::before {
 }
 
 p.event {
-  margin-left: 0px;
+  margin-left: 0;
   min-height: 16px;
   background: url('Bitmaps/information.png') no-repeat top left;
 }

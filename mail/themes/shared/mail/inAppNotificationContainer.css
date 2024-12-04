@@ -92,7 +92,7 @@
 
     & .icon {
       inset-block-start: 3px;
-      inset-inline-start: 0px;
+      inset-inline-start: 0;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -105,8 +105,8 @@
   &.in-app-notification-blog {
     --title-text: light-dark(#1373d9, #eeeef0);
     --button-background: linear-gradient(#1373d9, #175fb6);
-    --button-stroke: light-dark(#19518F, #32aeff);
-    --button-background-hover: linear-gradient(#1373d9, #175Fb6);
+    --button-stroke: light-dark(#19518f, #32aeff);
+    --button-background-hover: linear-gradient(#1373d9, #175fb6);
     --button-background-active: light-dark(#19518f, #32aeff);
     --button-focus-ring: light-dark(#19518f, #32aeff);
     --button-text: light-dark(#fafafa, #18181b);
@@ -151,7 +151,6 @@
   /* Colors for the security notification type */
   &.in-app-notification-security {
     --title-text: light-dark(#dc2626, #ef4444);
-    --button-background: linear-gradient(#cb1f1f, #7f1d1d);
     --button-stroke: #7f1d1d;
     --button-background: linear-gradient(#cb1f1f, #7f1d1d);
     --button-background-active: #7f1d1d;

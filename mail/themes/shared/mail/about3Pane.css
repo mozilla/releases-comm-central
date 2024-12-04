@@ -366,7 +366,7 @@ body {
         content: var(--icon-loading) !important;
         animation: activity-indicator-3pane 1.05s steps(30) infinite;
         object-fit: cover;
-        object-position: 0px 0;
+        object-position: 0 0;
       }
     }
 

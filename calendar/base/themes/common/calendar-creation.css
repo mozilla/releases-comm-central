@@ -86,7 +86,7 @@ td {
 }
 
 #network-calendar-list > richlistitem .calendar-edit-button {
-  min-width: 0px;
+  min-width: 0;
   font-size: 0.82em;
 }
 

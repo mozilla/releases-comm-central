@@ -189,7 +189,7 @@ form {
   }
 
   .menulist {
-    margin-inline: 0px;
+    margin-inline: 0;
     padding-inline-start: 6px;
     padding-block: 12px;
     line-height: 1.5;

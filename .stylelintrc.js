@@ -48,6 +48,16 @@ module.exports = {
         ignoreFunctions: ["add" /* Used in mathml.css */],
       },
     ],
+    /*
+     * Disabled on custom properties due to issues with calc:
+     * https://github.com/stylelint/stylelint/issues/2586
+     */
+    "length-zero-no-unit": [
+      true,
+      {
+        ignore: ["custom-properties"],
+      },
+    ],
 
     "no-descending-specificity": null,
     "no-duplicate-selectors": null,

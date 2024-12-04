@@ -65,7 +65,7 @@ p.context .ib-nick {
 }
 
 p {
-  margin: 0px auto;
+  margin: 0 auto;
 }
 
 p *:any-link img {

@@ -34,7 +34,7 @@ p.event-messages {
 }
 
 p.event-messages {
-  margin: 5px 0px 5px 0px;
+  margin: 5px 0 5px 0;
   text-align: center;
   opacity: 0.4;
   transition-property: opacity;

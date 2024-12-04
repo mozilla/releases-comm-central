@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --text-color: #36385A;
+  --text-color: #36385a;
   --primary-color: #0a84ff;
-  --warning-color: #FF9400;
-  --error-color: #5A0002;
+  --warning-color: #ff9400;
+  --error-color: #5a0002;
 }
 
 body {
