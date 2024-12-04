@@ -83,12 +83,30 @@ nsresult MboxScanner::BeginScan(nsIFile* mboxFile,
   MOZ_ASSERT(scanListener);
   MOZ_ASSERT(!mKungFuDeathGrip);
   MOZ_ASSERT(!mScanListener);
+  nsresult rv;
+
+  int64_t fileSize;
+  rv = mboxFile->GetFileSize(&fileSize);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!fileSize) {
+    // Dispatch the following calls to the main thread, because
+    // according to the documentation of nsIMsgPluggableStore.asyncScan,
+    // "No listener callbacks will be invoked before asyncScan() returns"
+    nsCOMPtr<nsIStoreScanListener> refListener = scanListener;
+    NS_DispatchToMainThread(
+        NS_NewRunnableFunction("Notify scanListener", [refListener] {
+          refListener->OnStartScan();
+          refListener->OnStopScan(NS_OK);
+        }));
+    return NS_OK;
+  }
 
   mScanListener = scanListener;
 
   // Open the raw mbox file for reading.
   nsCOMPtr<nsIInputStream> raw;
-  nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(raw), mboxFile);
+  rv = NS_NewLocalFileInputStream(getter_AddRefs(raw), mboxFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Start reading first message async.
@@ -135,14 +153,11 @@ NS_IMETHODIMP MboxScanner::OnStartRequest(nsIRequest* req) {
     }
 
     if (mMboxStream->IsNullMessage()) {
-      // Special corner case: we've already started the async request, but
-      // it turns out it's an empty mbox file. In that case we just want the
-      // scanlistener to see OnStartScan() and OnStopScan() and nothing else.
-      // But we're already in the middle of the async request, so ditch the
-      // mboxStream now, to indicate it's all over.
+      // Because we already checked for empty files earlier, the stream
+      // contains invalid data.
       mMboxStream->Close();
       mMboxStream = nullptr;
-      return NS_OK;
+      return NS_ERROR_FAILURE;
     }
   }
 
