@@ -7310,24 +7310,9 @@ void nsImapProtocol::DiscoverMailboxList() {
 
         // now do the folders within this namespace
         nsCString pattern;
-        nsCString pattern2;
-        if (usingSubscription) {
-          pattern.Append(prefix);
-          pattern.Append('*');
-        } else {
-          pattern.Append(prefix);
-          pattern.Append('%');  // mscott just need one percent right?
-          // pattern = PR_smprintf("%s%%", prefix);
-          char delimiter = ns->GetDelimiter();
-          if (delimiter) {
-            // delimiter might be NIL, in which case there's no hierarchy anyway
-            pattern2 = prefix;
-            pattern2 += "%";
-            pattern2 += delimiter;
-            pattern2 += "%";
-            // pattern2 = PR_smprintf("%s%%%c%%", prefix, delimiter);
-          }
-        }
+        pattern.Append(prefix);
+        pattern.Append('*');
+
         // Note: It is important to make sure we are respecting the
         // server_sub_directory preference when calling List and Lsub (2nd arg =
         // true), otherwise we end up with performance issues or even crashes
@@ -7349,8 +7334,20 @@ void nsImapProtocol::DiscoverMailboxList() {
             m_standardListMailboxes.Clear();
           }
         } else {
+          // Not using subs. Just do base imap list "" "*" or if xlist
+          // supported, e.g., gmail, do xlist "" "*" instead.
           List(pattern.get(), true, hasXLIST);
-          List(pattern2.get(), true, hasXLIST);
+
+          // Now do [x]list "" "%[delimiter]%"
+          char delimiter = ns->GetDelimiter();
+          if (delimiter) {
+            // delimiter might be NIL, in which case there's no hierarchy anyway
+            pattern = prefix;
+            pattern += "%";
+            pattern += delimiter;
+            pattern += "%";
+            List(pattern.get(), true, hasXLIST);
+          }
         }
       }
     }
