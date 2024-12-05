@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* exported initMailIdentitiesRow, saveMailIdentitySelection,
-            notifyOnIdentitySelection, initForceEmailScheduling,
-            saveForceEmailScheduling, updateForceEmailSchedulingControl */
+            notifyOnIdentitySelection, */
 
-/* global MozElements, addMenuItem, gCalendar */
+/* global MozElements, addMenuItem */
 
 var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
@@ -127,61 +126,5 @@ async function notifyOnIdentitySelection(aCalendar) {
     );
   } else {
     gIdentityNotification.removeAllNotifications();
-  }
-}
-
-/**
- * Initializing calendar creation wizard and properties dialog to display the
- * option to enforce email scheduling for outgoing scheduling operations.
- * Used in the calendar properties dialog.
- */
-function initForceEmailScheduling() {
-  if (gCalendar && gCalendar.type == "caldav") {
-    const checkbox = document.getElementById("force-email-scheduling");
-    const curStatus = checkbox.getAttribute("checked") == "true";
-    const newStatus = gCalendar.getProperty("forceEmailScheduling") || curStatus;
-    if (curStatus != newStatus) {
-      if (newStatus) {
-        checkbox.setAttribute("checked", "true");
-      } else {
-        checkbox.removeAttribute("checked");
-      }
-    }
-    updateForceEmailSchedulingControl();
-  } else {
-    document.getElementById("calendar-force-email-scheduling-row").toggleAttribute("hidden", true);
-  }
-}
-
-/**
- * Persisting the calendar property to enforce email scheduling. Used in the
- * calendar properties dialog.
- */
-function saveForceEmailScheduling() {
-  if (gCalendar && gCalendar.type == "caldav") {
-    const checkbox = document.getElementById("force-email-scheduling");
-    if (checkbox && checkbox.getAttribute("disable-capability") != "true") {
-      const status = checkbox.getAttribute("checked") == "true";
-      gCalendar.setProperty("forceEmailScheduling", status);
-    }
-  }
-}
-
-/**
- * Updates the forceEmailScheduling control based on the currently assigned
- * email identity to this calendar. Used in the calendar properties dialog.
- */
-function updateForceEmailSchedulingControl() {
-  const checkbox = document.getElementById("force-email-scheduling");
-  if (
-    gCalendar &&
-    gCalendar.getProperty("capabilities.autoschedule.supported") &&
-    getMailIdentitySelection(gCalendar) != "none"
-  ) {
-    checkbox.removeAttribute("disable-capability");
-    checkbox.removeAttribute("disabled");
-  } else {
-    checkbox.setAttribute("disable-capability", "true");
-    checkbox.setAttribute("disabled", "true");
   }
 }

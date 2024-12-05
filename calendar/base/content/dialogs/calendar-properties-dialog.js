@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad */
-
 /* import-globals-from ../../../../mail/base/content/utilityOverlay.js */
 /* import-globals-from ../calendar-ui-utils.js */
 /* import-globals-from calendar-identity-utils.js */
@@ -136,15 +134,14 @@ function onAcceptDialog() {
     gCalendar.setProperty("refreshInterval", value);
   }
 
-  // Save cache options
-  const alwaysCache = gCalendar.getProperty("cache.always");
-  if (!alwaysCache) {
-    gCalendar.setProperty("cache.enabled", document.getElementById("cache").checked);
-  }
-
   // Save identity and scheduling options.
   saveMailIdentitySelection(gCalendar);
   saveForceEmailScheduling();
+
+  gCalendar.setProperty(
+    "notifications.times",
+    document.getElementById("calendar-notifications-setting").value
+  );
 
   if (!gCalendar.getProperty("force-disabled")) {
     // Save disabled option (should do this last), remove auto-enabled
@@ -155,10 +152,13 @@ function onAcceptDialog() {
     gCalendar.deleteProperty("auto-enabled");
   }
 
-  gCalendar.setProperty(
-    "notifications.times",
-    document.getElementById("calendar-notifications-setting").value
-  );
+  // Save cache options.
+  // NOTE: do this last! changeCalendarCache will be using another calendar
+  // than gCalendar afterwards so changes to gCalendar would get lost.
+  const alwaysCache = gCalendar.getProperty("cache.always");
+  if (!alwaysCache) {
+    gCalendar.setProperty("cache.enabled", document.getElementById("cache").checked);
+  }
 }
 // When this event fires, onAcceptDialog might not be the function defined
 // above, so call it indirectly.
@@ -238,6 +238,51 @@ function initRefreshInterval() {
       separator.parentNode.insertBefore(menuitem, separator.nextElementSibling);
       menulist.selectedItem = menuitem;
     }
+  }
+}
+
+/**
+ * Display the  option to enforce email scheduling for outgoing scheduling operations.
+ */
+function initForceEmailScheduling() {
+  if (gCalendar && gCalendar.type == "caldav") {
+    const checkbox = document.getElementById("force-email-scheduling");
+    checkbox.checked = !!gCalendar.getProperty("forceEmailScheduling");
+    updateForceEmailSchedulingControl();
+  } else {
+    document.getElementById("calendar-force-email-scheduling-row").toggleAttribute("hidden", true);
+  }
+}
+
+/**
+ * Persisting the calendar property to enforce email scheduling. Used in the
+ * calendar properties dialog.
+ */
+function saveForceEmailScheduling() {
+  if (gCalendar && gCalendar.type == "caldav") {
+    const checkbox = document.getElementById("force-email-scheduling");
+    if (checkbox.getAttribute("disable-capability") != "true") {
+      gCalendar.setProperty("forceEmailScheduling", checkbox.checked);
+    }
+  }
+}
+
+/**
+ * Updates the forceEmailScheduling control based on the currently assigned
+ * email identity to this calendar.
+ */
+function updateForceEmailSchedulingControl() {
+  const checkbox = document.getElementById("force-email-scheduling");
+  if (
+    gCalendar &&
+    gCalendar.getProperty("capabilities.autoschedule.supported") &&
+    getMailIdentitySelection(gCalendar) != "none"
+  ) {
+    checkbox.removeAttribute("disable-capability");
+    checkbox.removeAttribute("disabled");
+  } else {
+    checkbox.setAttribute("disable-capability", "true");
+    checkbox.setAttribute("disabled", "true");
   }
 }
 
