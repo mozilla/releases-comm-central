@@ -626,8 +626,8 @@ nsresult nsMsgSearchOfflineMail::Search(bool* aDone) {
       dbErr = m_db->ReverseEnumerateMessages(getter_AddRefs(m_listContext));
     if (NS_SUCCEEDED(dbErr) && m_listContext) {
       PRIntervalTime startTime = PR_IntervalNow();
-      nsAutoString nullCharset, folderCharset;
-      GetSearchCharsets(nullCharset, folderCharset);
+      nsAutoString folderCharset;
+      GetSearchCharset(folderCharset);
       NS_ConvertUTF16toUTF8 charset(folderCharset);
       while (!*aDone)  // we'll break out of the loop after kTimeSliceInMS
                        // milliseconds
@@ -689,14 +689,6 @@ NS_IMETHODIMP nsMsgSearchOfflineMail::AddResultElement(nsIMsgDBHdr* pHeaders) {
     searchSession->AddSearchHit(pHeaders, scopeFolder);
   }
   return err;
-}
-
-NS_IMETHODIMP
-nsMsgSearchOfflineMail::Abort() {
-  // Let go of the DB when we're done with it so we don't kill the db cache
-  if (m_db) m_db->Close(true /* commit in case we downloaded new headers */);
-  m_db = nullptr;
-  return nsMsgSearchAdapter::Abort();
 }
 
 /* void OnStartRunningUrl (in nsIURI url); */

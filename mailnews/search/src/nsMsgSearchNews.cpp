@@ -240,28 +240,6 @@ NS_IMETHODIMP nsMsgSearchNews::CurrentUrlDone(nsresult exitCode) {
   return NS_OK;
 }
 
-#if 0   // need to switch this to a notify stop loading handler, I think.
-void nsMsgSearchNews::PreExitFunction (URL_Struct * /*url*/, int status, MWContext *context)
-{
-  MSG_SearchFrame *frame = MSG_SearchFrame::FromContext (context);
-  nsMsgSearchNews *adapter = (nsMsgSearchNews*) frame->GetRunningAdapter();
-  adapter->CollateHits();
-  adapter->ReportHits();
-
-  if (status == MK_INTERRUPTED)
-  {
-    adapter->Abort();
-    frame->EndCylonMode();
-  }
-  else
-  {
-    frame->m_idxRunningScope++;
-    if (frame->m_idxRunningScope >= frame->m_scopeList.Count())
-      frame->EndCylonMode();
-  }
-}
-#endif  // 0
-
 void nsMsgSearchNews::CollateHits() {
   // Since the XPAT commands are processed one at a time, the result set for the
   // entire query is the intersection of results for each XPAT command if an AND

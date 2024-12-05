@@ -3,36 +3,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 #include "nsISupports.idl"
 #include "nsIMsgSearchScopeTerm.idl"
 
-[ptr] native nsMsgResultElement(nsMsgResultElement);
-
-%{C++
-class nsMsgResultElement;
-%}
-
 [scriptable, uuid(0b09078b-e0cd-440a-afee-01f45808ee74)]
 interface nsIMsgSearchAdapter : nsISupports {
-    void ValidateTerms();
-    void Search(out boolean done);
-    void SendUrl();
-    void CurrentUrlDone(in nsresult exitCode);
 
-    void AddHit(in nsMsgKey key);
-    void AddResultElement(in nsIMsgDBHdr aHdr);
+    /** Return true if done. */
+    boolean search();
 
-    [noscript] void OpenResultElement(in nsMsgResultElement element);
-    [noscript] void ModifyResultElement(in nsMsgResultElement element,
-                                        in nsMsgSearchValue value);
+    void validateTerms();
+
+    /** Called on the adapter for OnStopRunningUrl() in the search session. */
+    void currentUrlDone(in nsresult exitCode);
+
+    void addHit(in nsMsgKey key);
+    void addResultElement(in nsIMsgDBHdr aHdr);
 
     readonly attribute string encoding;
 
-    [noscript] nsIMsgFolder FindTargetFolder([const] in nsMsgResultElement
-                                             element);
-    void Abort();
-    void getSearchCharsets(out AString srcCharset, out AString destCharset);
+    readonly attribute AString searchCharset;
+
     /*
      * Clear the saved scope reference. This is used when deleting scope, which is not
      * reference counted in nsMsgSearchSession

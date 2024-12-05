@@ -122,7 +122,7 @@ class BaseMessageService {
       };
 
       client.onData = line => {
-        searchSession.runningAdapter.AddHit(line.split(" ")[0]);
+        searchSession.runningAdapter.addHit(line.split(" ")[0]);
       };
     });
   }

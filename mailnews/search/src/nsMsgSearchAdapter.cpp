@@ -63,20 +63,6 @@ const char* nsMsgSearchAdapter::m_kImapNotFlagged = " UNFLAGGED ";
 
 #define PREF_CUSTOM_HEADERS "mailnews.customHeaders"
 
-NS_IMETHODIMP nsMsgSearchAdapter::FindTargetFolder(const nsMsgResultElement*,
-                                                   nsIMsgFolder**) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMsgSearchAdapter::ModifyResultElement(nsMsgResultElement*,
-                                                      nsMsgSearchValue*) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMsgSearchAdapter::OpenResultElement(nsMsgResultElement*) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMPL_ISUPPORTS(nsMsgSearchAdapter, nsIMsgSearchAdapter)
 
 nsMsgSearchAdapter::nsMsgSearchAdapter(
@@ -100,10 +86,7 @@ NS_IMETHODIMP nsMsgSearchAdapter::ValidateTerms() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgSearchAdapter::Abort() { return NS_ERROR_NOT_IMPLEMENTED; }
 NS_IMETHODIMP nsMsgSearchAdapter::Search(bool* aDone) { return NS_OK; }
-
-NS_IMETHODIMP nsMsgSearchAdapter::SendUrl() { return NS_OK; }
 
 /* void CurrentUrlDone (in nsresult exitCode); */
 NS_IMETHODIMP nsMsgSearchAdapter::CurrentUrlDone(nsresult exitCode) {
@@ -189,8 +172,7 @@ char* nsMsgSearchAdapter::UnEscapeSearchUrl(const char* commandSpecificData) {
   return result;
 }
 
-nsresult nsMsgSearchAdapter::GetSearchCharsets(nsAString& srcCharset,
-                                               nsAString& dstCharset) {
+nsresult nsMsgSearchAdapter::GetSearchCharset(nsAString& dstCharset) {
   nsresult rv;
   bool forceAsciiSearch = false;
 
@@ -199,8 +181,7 @@ nsresult nsMsgSearchAdapter::GetSearchCharsets(nsAString& srcCharset,
     prefs->GetBoolPref("mailnews.force_ascii_search", &forceAsciiSearch);
   }
 
-  srcCharset = m_defaultCharset;
-  dstCharset.Assign(srcCharset);
+  dstCharset.Assign(m_defaultCharset);
 
   if (m_scope) {
     nsCOMPtr<nsIMsgFolder> folder;

@@ -24,10 +24,8 @@ nsresult nsMsgSearchOnlineMail::ValidateTerms() {
   nsresult err = nsMsgSearchAdapter::ValidateTerms();
 
   if (NS_SUCCEEDED(err)) {
-    // ### mwelch Figure out the charsets to use
-    //            for the search terms and targets.
-    nsAutoString srcCharset, dstCharset;
-    GetSearchCharsets(srcCharset, dstCharset);
+    nsAutoString dstCharset;
+    GetSearchCharset(dstCharset);
 
     // do IMAP specific validation
     err = Encode(m_encoding, m_searchTerms, dstCharset.get(), m_scope);

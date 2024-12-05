@@ -574,8 +574,8 @@ nsMsgSearchSession::MatchHdr(nsIMsgDBHdr* aMsgHdr, nsIMsgDatabase* aDatabase,
   if (scope) {
     if (!scope->m_adapter) scope->InitializeAdapter(m_termList);
     if (scope->m_adapter) {
-      nsAutoString nullCharset, folderCharset;
-      scope->m_adapter->GetSearchCharsets(nullCharset, folderCharset);
+      nsAutoString folderCharset;
+      scope->m_adapter->GetSearchCharset(folderCharset);
       NS_ConvertUTF16toUTF8 charset(folderCharset.get());
       nsMsgSearchOfflineMail::MatchTermsForSearch(
           aMsgHdr, m_termList, charset.get(), scope, aDatabase,

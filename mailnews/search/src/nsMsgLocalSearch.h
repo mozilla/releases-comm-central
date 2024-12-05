@@ -29,7 +29,6 @@ class nsMsgSearchOfflineMail : public nsMsgSearchAdapter,
 
   NS_IMETHOD ValidateTerms() override;
   NS_IMETHOD Search(bool* aDone) override;
-  NS_IMETHOD Abort() override;
   NS_IMETHOD AddResultElement(nsIMsgDBHdr*) override;
 
   static nsresult MatchTermsForFilter(

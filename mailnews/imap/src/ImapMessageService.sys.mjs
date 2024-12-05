@@ -277,7 +277,7 @@ class BaseMessageService {
       client.onData = uids => {
         for (const uid of uids) {
           const msgHdr = folder.msgDatabase.getMsgHdrForKey(uid);
-          searchSession.runningAdapter.AddResultElement(msgHdr);
+          searchSession.runningAdapter.addResultElement(msgHdr);
         }
       };
     });
