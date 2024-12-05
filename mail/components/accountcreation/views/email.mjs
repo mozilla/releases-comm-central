@@ -39,6 +39,10 @@ const { FindConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/FindConfig.sys.mjs"
 );
 
+const { OAuth2Module } = ChromeUtils.importESModule(
+  "resource:///modules/OAuth2Module.sys.mjs"
+);
+
 const { CardDAVUtils } = ChromeUtils.importESModule(
   "resource:///modules/CardDAVUtils.sys.mjs"
 );
@@ -677,8 +681,11 @@ class AccountHubEmail extends HTMLElement {
           this.#currentSubview.setState(syncAccounts);
           this.#configVerifier.cleanup();
         } catch (error) {
-          error.cause.fluentTitleId = "account-hub-sync-failure";
-          this.#currentSubview.showNotification(error);
+          this.#currentSubview.showNotification({
+            fluentTitleId: "account-hub-sync-failure",
+            type: "error",
+            error,
+          });
           break;
         }
 
@@ -1054,14 +1061,16 @@ class AccountHubEmail extends HTMLElement {
   async #getAddressBooks(password) {
     let addressBooks = [];
 
-    // Bail out if Google OAuth was used and Contacts scope wasn't granted.
-    if (this.#currentConfig.incoming.oauthSettings) {
-      const grantedScope = this.#currentConfig.incoming.oauthSettings.scope;
+    // Bail out if the CardDAV scope wasn't granted.
+    if (this.#currentConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
+      const oAuth2 = new OAuth2Module();
       if (
-        grantedScope.includes("google") &&
-        !grantedScope
-          .split(" ")
-          .includes("https://www.googleapis.com/auth/carddav")
+        !oAuth2.initFromHostname(
+          this.#currentConfig.incoming.hostname,
+          this.#currentConfig.incoming.username,
+          "carddav"
+        ) ||
+        !oAuth2.getRefreshToken()
       ) {
         return addressBooks;
       }
@@ -1109,18 +1118,21 @@ class AccountHubEmail extends HTMLElement {
     let calendarEntries = null;
     const cals = [];
 
-    // Bail out if Google OAuth was used and Calendars scope wasn't granted.
-    if (this.#currentConfig.incoming.oauthSettings) {
-      const grantedScope = this.#currentConfig.incoming.oauthSettings.scope;
+    // Bail out if the CalDAV scope wasn't granted.
+    if (this.#currentConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
+      const oAuth2 = new OAuth2Module();
       if (
-        grantedScope.includes("google") &&
-        !grantedScope
-          .split(" ")
-          .includes("https://www.googleapis.com/auth/calendar")
+        !oAuth2.initFromHostname(
+          this.#currentConfig.incoming.hostname,
+          this.#currentConfig.incoming.username,
+          "caldav"
+        ) ||
+        !oAuth2.getRefreshToken()
       ) {
         return cals;
       }
     }
+
     const hostname = this.#email.split("@")[1];
 
     try {
