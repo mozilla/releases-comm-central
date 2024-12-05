@@ -412,7 +412,7 @@ CalAlarmService.prototype = {
       return;
     }
 
-    const showMissed = Services.prefs.getBoolPref("calendar.alarms.showmissed", false);
+    const showMissed = Services.prefs.getBoolPref("calendar.alarms.showmissed", true);
 
     const alarms = aItem.getAlarms();
     for (const alarm of alarms) {
