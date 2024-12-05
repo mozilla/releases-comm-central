@@ -567,8 +567,8 @@ FolderDisplayWidget.prototype = {
   _updateThreadDisplay() {
     if (this.view.dbView) {
       UpdateSortIndicators(
-        this.view.dbView.sortType,
-        this.view.dbView.sortOrder
+        this.view.primarySortColumnId,
+        this.view.primarySortOrder
       );
       SetNewsFolderColumns();
       UpdateSelectCol();
