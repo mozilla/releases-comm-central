@@ -63,6 +63,22 @@ class AccountHubFooter extends HTMLElement {
     }
   }
 
+  /**
+   * Updates the text of the forward and back buttons
+   *
+   * @param {"forward" | "back"} type If the forward or back button should be
+   *   targeted
+   * @param {string} fluentID The fluent id to use for the label
+   */
+  setDirectionalButtonText(
+    type,
+    fluentID = type === "forward"
+      ? "account-hub-email-continue-button"
+      : "account-hub-email-back-button"
+  ) {
+    document.l10n.setAttributes(this.querySelector(`#${type}`), fluentID);
+  }
+
   #showReleaseNotes() {
     // We don't have release notes for Daily releases.
     if (AppConstants.NIGHTLY_BUILD) {

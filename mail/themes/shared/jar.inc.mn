@@ -472,6 +472,8 @@
   skin/classic/messenger/illustrations/in-app-notification-heart.svg                 (../shared/mail/illustrations/in-app-notification-heart.svg)
   skin/classic/messenger/illustrations/in-app-notification-donation-default.svg      (../shared/mail/illustrations/in-app-notification-donation-default.svg)
   skin/classic/messenger/illustrations/in-app-notification-donation-default-dark.svg (../shared/mail/illustrations/in-app-notification-donation-default-dark.svg)
+  skin/classic/messenger/illustrations/accounthub-success-dark.svg                   (../shared/mail/illustrations/accounthub-success-dark.svg)
+  skin/classic/messenger/illustrations/accounthub-success.svg                        (../shared/mail/illustrations/accounthub-success.svg)
 
 # New design system
   skin/classic/messenger/avatars.css                          (../shared/mail/avatars.css)

@@ -12,6 +12,7 @@
 #include ./accountHubEmailOutgoingFormTemplate.inc.xhtml
 #include ./accountHubEmailPasswordFormTemplate.inc.xhtml
 #include ./accountHubEmailSyncAccountsFormTemplate.inc.xhtml
+#include ./accountHubEmailAddedSuccessTemplate.inc.xhtml
 #include ./accountHubFooterTemplate.inc.xhtml
 #include ./accountHubHeaderTemplate.inc.xhtml
 #include ./accountHubStepTemplate.inc.xhtml
@@ -113,10 +114,10 @@
                             hidden="hidden">
     <!-- Account Hub Email Sync Accounts Subview -->
   </email-sync-accounts-form>
-
-  <account-hub-step id="emailAddedSubview" hidden="hidden">
-    <!-- Account Hub Email Added Subview -->
-  </account-hub-step>
+  <email-added-success id="emailAddedSuccessSubview"
+                       hidden="hidden">
+    <!-- Account Hub Email Success Subview -->
+  </email-added-success>
 
   <account-hub-footer id="emailFooter" class="hub-footer"></account-hub-footer>
 

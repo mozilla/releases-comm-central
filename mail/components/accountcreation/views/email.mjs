@@ -86,13 +86,6 @@ class AccountHubEmail extends HTMLElement {
   #emailOutgoingConfigSubview;
 
   /**
-   * Email added subview.
-   *
-   * @type {HTMLElement}
-   */
-  #emailAddedSubview;
-
-  /**
    * Email config found subview.
    *
    * @type {HTMLElement}
@@ -112,6 +105,13 @@ class AccountHubEmail extends HTMLElement {
    * @type {HTMLElement}
    */
   #emailSyncAccountsSubview;
+
+  /**
+   * Email added success subview.
+   *
+   * @type {HTMLElement}
+   */
+  #emailAddedSuccessSubview;
 
   // TODO: Clean up excess global variables and use IDs in state instead.
 
@@ -171,6 +171,7 @@ class AccountHubEmail extends HTMLElement {
       previousStep: "",
       forwardEnabled: false,
       customActionFluentID: "",
+      customBackFluentID: "account-hub-email-cancel-button",
       subview: {},
       templateId: "email-auto-form",
     },
@@ -194,7 +195,7 @@ class AccountHubEmail extends HTMLElement {
     },
     emailSyncAccountsSubview: {
       id: "emailSyncAccountsSubview",
-      nextStep: "emailAddedSubview",
+      nextStep: "emailAddedSuccessSubview",
       previousStep: "",
       forwardEnabled: true,
       customActionFluentID: "",
@@ -219,14 +220,15 @@ class AccountHubEmail extends HTMLElement {
       subview: {},
       templateId: "email-manual-outgoing-form",
     },
-    emailAddedSubview: {
-      id: "emailAddedSubview",
-      nextStep: "",
+    emailAddedSuccessSubview: {
+      id: "emailAddedSuccessSubview",
+      nextStep: true,
       previousStep: "",
       forwardEnabled: true,
+      customForwardFluentID: "account-hub-email-finish-button",
       customActionFluentID: "account-hub-add-new-email",
       subview: {},
-      templateId: "",
+      templateId: "email-added-success",
     },
   };
 
@@ -256,8 +258,6 @@ class AccountHubEmail extends HTMLElement {
     this.#states.outgoingConfigSubview.subview =
       this.#emailOutgoingConfigSubview;
 
-    this.#emailAddedSubview = this.querySelector("#emailAddedSubview");
-    this.#states.emailAddedSubview.subview = this.#emailAddedSubview;
     this.#emailConfigFoundSubview = this.querySelector(
       "#emailConfigFoundSubview"
     );
@@ -270,6 +270,12 @@ class AccountHubEmail extends HTMLElement {
     );
     this.#states.emailSyncAccountsSubview.subview =
       this.#emailSyncAccountsSubview;
+
+    this.#emailAddedSuccessSubview = this.querySelector(
+      "#emailAddedSuccessSubview"
+    );
+    this.#states.emailAddedSuccessSubview.subview =
+      this.#emailAddedSuccessSubview;
 
     this.#emailFooter = this.querySelector("account-hub-footer");
     this.#emailFooter.addEventListener("back", this);
@@ -370,7 +376,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailConfigFoundSubview.hidden = true;
     this.#emailSyncAccountsSubview.hidden = true;
     this.#emailPasswordSubview.hidden = true;
-    this.#emailAddedSubview.hidden = true;
+    this.#emailAddedSuccessSubview.hidden = true;
     this.#emailAutoConfigSubview.hidden = true;
     this.#emailIncomingConfigSubview.hidden = true;
     this.#emailOutgoingConfigSubview.hidden = true;
@@ -381,7 +387,7 @@ class AccountHubEmail extends HTMLElement {
    */
   #clearNotifications() {
     if (this.#currentState) {
-      this.#currentSubview.clearNotifications();
+      this.#currentSubview.clearNotifications?.();
     }
   }
 
@@ -393,6 +399,14 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter.canBack(stateDetails.previousStep);
     this.#emailFooter.canForward(stateDetails.nextStep);
     this.#emailFooter.canCustom(stateDetails.customActionFluentID);
+    this.#emailFooter.setDirectionalButtonText(
+      "forward",
+      stateDetails.customForwardFluentID
+    );
+    this.#emailFooter.setDirectionalButtonText(
+      "back",
+      stateDetails.customBackFluentID
+    );
 
     // The footer forward button is disabled by default.
     this.#emailFooter.toggleForwardDisabled(!stateDetails.forwardEnabled);
@@ -699,13 +713,12 @@ class AccountHubEmail extends HTMLElement {
           // Add the selected sync address books and calendars.
           this.#addSyncAccounts(stateData);
 
-          // TODO: Show the account added page when it's finished.
-          // await this.#initUI(this.#states[this.#currentState].nextStep);
-
-          // this.#currentSubview.showNotification({
-          //   fluentTitleId: "account-hub-email-added-success",
-          //   type: "success",
-          // });
+          await this.#initUI(this.#states[this.#currentState].nextStep);
+          this.#currentSubview.setState(this.#currentConfig);
+          this.#currentSubview.showNotification({
+            fluentTitleId: "account-hub-email-added-success",
+            type: "success",
+          });
         } catch (error) {
           this.#currentSubview.showNotification({
             fluentTitleId: "account-hub-unable-to-sync-accounts",
@@ -714,7 +727,13 @@ class AccountHubEmail extends HTMLElement {
           });
         }
         break;
-      case "emailAddedSubview":
+      case "emailAddedSuccessSubview":
+        this.dispatchEvent(
+          new CustomEvent("request-close", {
+            bubbles: true,
+          })
+        );
+        await this.reset();
         break;
       default:
         break;
@@ -774,7 +793,8 @@ class AccountHubEmail extends HTMLElement {
           });
         }
         break;
-      case "emailAddedSubview":
+      case "emailAddedSuccessSubview":
+        await this.reset();
         break;
       default:
         break;
@@ -919,7 +939,7 @@ class AccountHubEmail extends HTMLElement {
     const newAccount =
       await CreateInBackend.createAccountInBackend(accountConfig);
 
-    this.#moveToAccountManager(newAccount.incomingServer);
+    await this.#moveToAccountManager(newAccount.incomingServer);
   }
 
   /**
@@ -1202,7 +1222,7 @@ class AccountHubEmail extends HTMLElement {
    *
    * @param {Object} data - The data passed to the template.
    */
-  #moveToAccountManager(data) {
+  async #moveToAccountManager(data) {
     this.dispatchEvent(
       new CustomEvent("request-close", {
         bubbles: true,
@@ -1210,7 +1230,7 @@ class AccountHubEmail extends HTMLElement {
     );
     // eslint-disable-next-line no-undef
     MsgAccountManager("am-server.xhtml", data);
-    this.reset();
+    await this.reset();
   }
 
   /**
@@ -1219,12 +1239,13 @@ class AccountHubEmail extends HTMLElement {
    *
    * @returns {boolean} - If the account hub can remove this view.
    */
-  reset() {
+  async reset() {
     if (this.abortable) {
       return false;
     }
 
     this.#stopLoading();
+    await this.#initUI("autoConfigSubview");
     this.#currentState = "autoConfigSubview";
     this.#currentConfig = {};
     this.#hideSubviews();

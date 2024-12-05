@@ -48,7 +48,15 @@ dialog {
   --hub-close-button-active-background:var(--color-text-muted);
   --hub-close-button-focus-background: var(--color-neutral-subtle);
   --hub-close-button-focus-outline-color: var(--color-neutral-border-intense);
+
+  --success-illustration: url("chrome://messenger/skin/illustrations/accounthub-success.svg");
   /* TODO: apply dark mode styling */
+}
+
+@media (prefers-color-scheme: dark) {
+  :host {
+    --success-illustration: url("chrome://messenger/skin/illustrations/accounthub-success-dark.svg");
+  }
 }
 
 @media (prefers-contrast) {
@@ -639,6 +647,39 @@ header {
   margin-inline-end: 10px;
   font-size: 1.4rem;
   font-weight: bold;
+}
+
+/* Success page */
+.account-hub-success-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  & .account-hub-success-illustration {
+    background-image: var(--success-illustration);
+    background-size: cover;
+    width: 243px;
+    height: 167px;
+  }
+
+  & .account-hub-success-links-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-block-start: 11px;
+  }
+
+  & .account-hub-link-container {
+    display: flex;
+    flex-direction: column;
+    font-size: 1.1rem;
+    margin-top: 8px;
+
+    & button {
+      text-decoration: underline;
+      font-weight: normal;
+      margin: 0;
+    }
+  }
 }
 
 /* Animations */
