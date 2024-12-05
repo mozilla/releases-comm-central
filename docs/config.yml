@@ -28,7 +28,7 @@ doc_trees:
     l10n: docs/l10n
     mots: docs/mots
     rust: rust/docs
-    storybook: docs/storybook
+    storybook: mail/components/storybook/docs
     telemetry: docs/telemetry
 
 python_package_dirs: []
