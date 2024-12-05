@@ -31,6 +31,7 @@ tasks:
         from-deps:
             group-by: platform
         locales-file: comm/mail/locales/onchange-locales
+        locales-per-chunk: 5
         ignore-locales:
             by-build-platform:
                 # OSX has a special locale for japanese
