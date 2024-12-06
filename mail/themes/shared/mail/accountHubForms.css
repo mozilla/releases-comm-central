@@ -12,9 +12,8 @@ form {
   --hub-menulist-background-color: var(--color-neutral-subtle);
   --hub-menulist-background-color-hover-focus-open: var(--color-neutral-base);
   --hub-menulist-border-color: var(--color-neutral-border);
-  --hub-menulist-border-color-hover-focus: var(--color-primary-pressed);
-  --hub-menulist-border-color-open: var(--color-primary-default);
-  --hub-menulist-outline-color-focus: var(--color-primary-default);
+  --hub-menulist-border-color-hover-focus-open: var(--color-neutral-border-intense);
+  --hub-menulist-outline-offset-color: var(--color-primary-default);
   --hub-menulist-label-color: var(--color-text-base);
   --hub-menupopup-border-color: var(--color-neutral-border);
   --hub-menuitem-color-selected: var(--color-neutral-base);
@@ -70,9 +69,9 @@ form {
   }
 
   label {
-    font-size: 1.2rem;
-    line-height: 1;
-    color: light-dark(var(--color-primary-hover), #feffff);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--hub-menulist-label-color);
 
     &.animated {
       position: absolute;
@@ -82,7 +81,7 @@ form {
       color: var(--color-text-secondary);
       padding: 3px;
       margin-inline-start: 7px;
-      font-weight: 200;
+      font-weight: 400;
       cursor: text;
 
       @media (prefers-reduced-motion: no-preference) {
@@ -147,7 +146,7 @@ form {
     &:focus + label.animated,
     &:not(:placeholder-shown) + label.animated {
       transform: translateY(-102%);
-      font-weight: normal;
+      font-weight: 600;
       cursor: default;
       background-color: var(--color-neutral-base);
     }
@@ -198,31 +197,38 @@ form {
     background-color: var(--hub-menulist-background-color);
 
     &:hover,
-    &[open="true"]:not([disabled="true"]) {
-      border-color: var(--hub-menulist-border-color-hover-focus);
+    &[open="true"]:not([disabled="true"]),
+    &:focus-visible {
+      border-color: var(--hub-menulist-border-color-hover-focus-open);
       background-color: var(--hub-menulist-background-color-hover-focus-open);
     }
 
-    &[open="true"]:not([disabled="true"]) {
-      border-color: var(--hub-menulist-border-color-open);
-    }
-
     &:focus-visible {
-      outline: 2px solid var(--hub-menulist-outline-color-focus);
+      outline: 2px solid var(--hub-menulist-outline-offset-color);
       outline-offset: var(--focus-outline-offset);
+
+      /* Needed to override toolkit style */
+      &[open="true"] {
+        outline: none;
+      }
     }
   }
 
+  menulist::part(label-box) {
+    font-weight: 400;
+  }
+
   xul|menupopup.menupopup {
-    --arrowpanel-padding: 4px 0;
-    --panel-background: var(--arrowpanel-background);
+    --arrowpanel-padding: 3px 0;
+    --arrowpanel-border-radius: 6px;
+    --panel-background: var(--color-neutral-base);
     --panel-color: var(--arrowpanel-color);
     --panel-border-color: var(--hub-menupopup-border-color);
-    --panel-border-radius: var(--arrowpanel-border-radius);
+    --panel-border-radius: var(--hub-input-border-radius);
     --panel-padding: var(--arrowpanel-padding);
     --menu-color: var(--arrowpanel-color);
     --menu-border-color: var(--arrowpanel-border-color);
-    --menu-background-color: var(--arrowpanel-background);
+    --menu-background-color: var(--color-neutral-base);
     margin-block-start: 6px;
 
     & > xul|menuitem {
@@ -230,7 +236,6 @@ form {
       padding-inline: 6px;
 
       & label {
-        color: var(--color-text-base);
         font-weight: 400;
       }
 
@@ -239,10 +244,9 @@ form {
 
         & label {
           color: var(--hub-menuitem-color-selected);
-          font-weight: 400;
         }
       }
-   }
+    }
   }
 
   legend {
