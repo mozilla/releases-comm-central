@@ -26,7 +26,7 @@ add_setup(async function () {
   });
 });
 
-function subtestTextValue(property) {
+function subtestTextValue(property, optional) {
   const element = container.shadowRoot.querySelector(
     `.in-app-notification-${property}`
   );
@@ -51,11 +51,15 @@ function subtestTextValue(property) {
 
   container.removeAttribute(property);
 
+  if (optional) {
+    return;
+  }
+
   Assert.equal(element.textContent, "", `${property} is correctly removed`);
 }
 
 add_task(function test_ctaValue() {
-  subtestTextValue("cta");
+  subtestTextValue("cta", true);
 });
 
 add_task(function test_descriptionValue() {
@@ -122,4 +126,38 @@ add_task(async function test_type() {
     element.classList.contains("in-app-notification-donation"),
     "has correct class for type"
   );
+});
+
+add_task(async function test_cta_optional() {
+  const element = container.shadowRoot.querySelector("a");
+
+  container.setAttribute("cta", "undefined");
+  Assert.ok(element.hasAttribute("hidden"), `cta is hidden with "undefined"`);
+
+  container.setAttribute("cta", "test");
+  Assert.ok(!element.hasAttribute("hidden"), "cta is shown");
+
+  container.removeAttribute("cta");
+  Assert.ok(element.hasAttribute("hidden"), "cta is hidden with no attribute");
+
+  container.setAttribute("cta", "test");
+  Assert.ok(!element.hasAttribute("hidden"), "cta is shown");
+
+  container.setAttribute("cta", undefined);
+  Assert.ok(element.hasAttribute("hidden"), "cta is hidden width undefined");
+
+  container.setAttribute("cta", "test");
+  Assert.ok(!element.hasAttribute("hidden"), "cta is shown");
+
+  container.setAttribute("cta", null);
+  Assert.ok(element.hasAttribute("hidden"), "cta is hidden with null");
+
+  container.setAttribute("cta", "test");
+  Assert.ok(!element.hasAttribute("hidden"), "cta is shown");
+
+  container.setAttribute("cta", "null");
+  Assert.ok(element.hasAttribute("hidden"), `cta is hidden with "null"`);
+
+  container.setAttribute("cta", "test");
+  Assert.ok(!element.hasAttribute("hidden"), "cta is shown");
 });

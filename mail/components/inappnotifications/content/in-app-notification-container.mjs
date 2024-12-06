@@ -68,6 +68,16 @@ class InAppNotificationContainer extends HTMLElement {
         }
         break;
       case "cta":
+        this.shadowRoot.querySelector(`.in-app-notification-cta`).textContent =
+          newValue;
+        this.shadowRoot.querySelector(
+          `[is="in-app-notification-button"]`
+        ).hidden = !(
+          newValue &&
+          newValue !== "undefined" &&
+          newValue !== "null"
+        );
+        break;
       case "description":
       case "heading":
         this.shadowRoot.querySelector(
