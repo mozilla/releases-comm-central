@@ -181,6 +181,14 @@
   padding-top: 150px;
 }
 
+#addCloudFileAccount {
+  flex: 1;
+
+  &::part(label) {
+    justify-content: center;
+  }
+}
+
 #addCloudFileAccountButtons button,
 #addCloudFileAccount,
 #removeCloudFileAccount,
@@ -189,10 +197,18 @@
   text-align: center;
 }
 
-#addCloudFileAccountButtons button .button-icon {
-  width: 16px;
-  height: 16px;
-  margin-inline-end: 8px;
+#addCloudFileAccountButtons button {
+  overflow: hidden;
+
+  & .button-box {
+    overflow: hidden;
+  }
+
+  & .button-icon {
+    width: 16px;
+    height: 16px;
+    margin-inline-end: 8px;
+  }
 }
 
 #addCloudFileAccountListItems {

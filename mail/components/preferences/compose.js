@@ -501,10 +501,12 @@ var gCloudFile = {
   makeButtonForProvider(provider) {
     const button = document.createXULElement("button");
     button.setAttribute("value", provider.type);
-    button.setAttribute(
-      "label",
-      this._strings.formatStringFromName("addProvider", [provider.displayName])
-    );
+    const label = this._strings.formatStringFromName("addProvider", [
+      provider.displayName,
+    ]);
+    button.setAttribute("label", label);
+    button.setAttribute("tooltiptext", label);
+    button.setAttribute("crop", "end");
     button.setAttribute(
       "oncommand",
       `gCloudFile.addCloudFileAccount("${provider.type}")`
