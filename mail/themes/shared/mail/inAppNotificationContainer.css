@@ -95,6 +95,10 @@
       inset-inline-start: 0;
     }
 
+    & .in-app-notification-description {
+      margin-block-end: 60px;
+    }
+
     @media (prefers-color-scheme: dark) {
       --button-background: linear-gradient(#f5e8ff, #ecd5ff);
       --illustration: var(--illustration-dark);
@@ -188,6 +192,12 @@
   &.in-app-notification-security {
     @media (prefers-color-scheme: dark) {
       --content-background: #18181b;
+    }
+
+    & .in-app-notification-description {
+      /* Roughly the height of the button. Padding on the button is 12px
+         vertically. */
+      margin-block-end: calc(1.5em + 14px);
     }
   }
 
@@ -297,7 +307,6 @@
     font-size: 0.9rem;
     min-height: 2lh;
     margin: 0;
-    margin-block-end: 60px;
     hyphens: auto;
     max-height: 20lh;
     overflow: auto;
