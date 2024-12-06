@@ -33,7 +33,7 @@ pref("calendar.agenda.days", 14);
 
 // alarm settings
 pref("calendar.alarms.show", true);
-pref("calendar.alarms.showmissed", true);
+pref("calendar.alarms.showmissed", false);
 pref("calendar.alarms.playsound", true);
 pref("calendar.alarms.soundType", 0);
 pref("calendar.alarms.soundURL", "chrome://calendar/content/sound.wav");
