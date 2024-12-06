@@ -65,7 +65,10 @@ function hRefForClickEvent(event) {
  * @returns {boolean}
  */
 function canNavigate(event, window) {
-  const target = event.target.getAttribute("target");
+  // We may be nested inside of a link node.
+  const linkNode = event.target?.closest("a");
+
+  const target = linkNode?.getAttribute("target");
   if (!target) {
     return true;
   }
