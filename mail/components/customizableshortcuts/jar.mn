@@ -3,4 +3,5 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
+    content/messenger/customizableshortcuts/shortcut-row.mjs                 (content/widgets/shortcut-row.mjs)
     content/messenger/customizableshortcuts/shortcuts-container.mjs          (content/shortcuts-container.mjs)

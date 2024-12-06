@@ -113,7 +113,7 @@ unified-toolbar-customization {
   }
 
   & #unifiedToolbar > *,
-  & :is(#messengerBody, #spacesToolbar, #toolbar-menubar, #tabs-toolbar) {
+  & :is(#messengerBody, #spacesToolbar, #toolbar-menubar, #tabs-toolbar, shortcuts-container) {
     display: none;
   }
 

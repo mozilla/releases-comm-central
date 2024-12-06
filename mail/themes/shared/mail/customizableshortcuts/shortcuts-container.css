@@ -43,7 +43,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 9px;
+  padding: 9px 12px;
   overflow-y: auto;
 }
 
@@ -51,4 +51,34 @@ main {
 
 footer {
   padding: 9px;
+}
+
+/* Shortcut row */
+
+shortcut-row {
+  display: grid;
+  grid-template-columns: 1fr max-content;
+  align-items: center;
+  gap: 9px;
+  padding-block: 6px;
+  border-bottom: 1px dashed var(--color-neutral-border-intense);
+  font-size: 1.1rem;
+
+  & .content-area {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  & .action-area {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    align-items: center;
+
+    & kbd {
+      font-size: 1rem;
+      padding: 4px 6px;
+    }
+  }
 }
