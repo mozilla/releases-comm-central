@@ -17,7 +17,11 @@ var gFirstTime = true;
 var gDictCount = 0;
 
 window.addEventListener("load", Startup);
-document.addEventListener("dialogaccept", doDefault);
+document.addEventListener("keydown", event => {
+  if (event.key == "Enter") {
+    doDefault(event);
+  }
+});
 document.addEventListener("dialogcancel", CancelSpellCheck);
 
 function Startup() {
