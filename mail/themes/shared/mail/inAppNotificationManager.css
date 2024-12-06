@@ -23,8 +23,15 @@ in-app-notification-manager {
 
   & in-app-notification {
     position: fixed;
-    inset-inline-start: var(--in-app-notification-offset-inline);
     inset-block-end: var(--in-app-notification-offset-block);
     pointer-events: auto;
+
+    &.bottom-today-pane {
+      inset-inline-end: var(--in-app-notification-window-padding);
+    }
+
+    &.bottom-spaces-toolbar {
+      inset-inline-start: var(--in-app-notification-offset-inline);
+    }
   }
 }

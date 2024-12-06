@@ -69,6 +69,16 @@ class InAppNotification extends HTMLElement {
     for (const [key, value] of Object.entries(attributes)) {
       this.#container.setAttribute(value, notification[key]);
     }
+
+    const positions = ["bottom-spaces-toolbar", "bottom-today-pane"];
+
+    for (const position of positions) {
+      this.classList.toggle(position, notification.position === position);
+    }
+
+    if (!positions.includes(notification.position)) {
+      this.classList.add("bottom-spaces-toolbar");
+    }
   }
 }
 

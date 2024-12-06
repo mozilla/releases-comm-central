@@ -74,3 +74,72 @@ add_task(function test_notificationAttributeTranslation() {
   notification.setNotificationData(notificationData);
   subtestCheckAttributes(container, notificationData);
 });
+
+add_task(function test_notificationPositionNull() {
+  const data = getData("test");
+
+  notification.setNotificationData({
+    ...data,
+    position: null,
+  });
+
+  Assert.ok(
+    notification.classList.contains("bottom-spaces-toolbar"),
+    "has correct position class"
+  );
+});
+
+add_task(function test_notificationPositionMissing() {
+  const data = getData("test");
+
+  notification.setNotificationData({
+    ...data,
+  });
+
+  Assert.ok(
+    notification.classList.contains("bottom-spaces-toolbar"),
+    "has correct position class"
+  );
+});
+
+add_task(function test_notificationPositionInvalid() {
+  const data = getData("test");
+
+  notification.setNotificationData({
+    ...data,
+    position: "foo",
+  });
+
+  Assert.ok(
+    notification.classList.contains("bottom-spaces-toolbar"),
+    "has correct position class"
+  );
+});
+
+add_task(function test_notificationPositionToday() {
+  const data = getData("test");
+
+  notification.setNotificationData({
+    ...data,
+    position: "bottom-today-pane",
+  });
+
+  Assert.ok(
+    notification.classList.contains("bottom-today-pane"),
+    "has correct position class"
+  );
+});
+
+add_task(function test_notificationPositionSpacesToolbar() {
+  const data = getData("test");
+
+  notification.setNotificationData({
+    ...data,
+    position: "bottom-spaces-toolbar",
+  });
+
+  Assert.ok(
+    notification.classList.contains("bottom-spaces-toolbar"),
+    "has correct position class"
+  );
+});
