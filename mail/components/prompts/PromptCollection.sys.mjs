@@ -3,90 +3,232 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Implements nsIPromptCollection
+ * Implements nsIPromptCollection.
+ * This is a semi-copy of browser/components/prompts/PromptCollection.sys.mjs
  *
  * @class PromptCollection
  */
 export class PromptCollection {
-  asyncBeforeUnloadCheck(browsingContext) {
-    let title;
+  confirmRepost(browsingContext) {
+    let brandName;
+    try {
+      brandName = this.stringBundles.brand.GetStringFromName("brandShortName");
+    } catch (exception) {
+      // That's ok, we'll use a generic version of the prompt
+    }
+
     let message;
-    let leaveLabel;
-    let stayLabel;
+    let resendLabel;
+    try {
+      if (brandName) {
+        message = this.stringBundles.app.formatStringFromName(
+          "confirmRepostPrompt",
+          [brandName]
+        );
+      } else {
+        // Use a generic version of this prompt.
+        message = this.stringBundles.app.GetStringFromName(
+          "confirmRepostPrompt"
+        );
+      }
+      resendLabel =
+        this.stringBundles.app.GetStringFromName("resendButton.label");
+    } catch (exception) {
+      console.error("Failed to get strings from appstrings.properties");
+      return false;
+    }
+
+    const docViewer = browsingContext?.docShell?.docViewer;
+    const modalType = docViewer?.isTabModalPromptAllowed
+      ? Ci.nsIPromptService.MODAL_TYPE_CONTENT
+      : Ci.nsIPromptService.MODAL_TYPE_WINDOW;
+    const buttonFlags =
+      (Ci.nsIPromptService.BUTTON_TITLE_IS_STRING *
+        Ci.nsIPromptService.BUTTON_POS_0) |
+      (Ci.nsIPromptService.BUTTON_TITLE_CANCEL *
+        Ci.nsIPromptService.BUTTON_POS_1);
+    const buttonPressed = Services.prompt.confirmExBC(
+      browsingContext,
+      modalType,
+      null,
+      message,
+      buttonFlags,
+      resendLabel,
+      null,
+      null,
+      null,
+      {}
+    );
+
+    return buttonPressed === 0;
+  }
+
+  async asyncBeforeUnloadCheck(browsingContext) {
+    const docViewer = browsingContext?.docShell?.docViewer;
+    if (
+      (docViewer && !docViewer.isTabModalPromptAllowed) ||
+      !browsingContext.ancestorsAreCurrent
+    ) {
+      console.error("Can't prompt from inactive content viewer");
+      return true;
+    }
+
+    const isPDFjs =
+      browsingContext.embedderElement?.contentPrincipal.originNoSuffix ===
+      "resource://pdf.js";
+    let title, message, leaveLabel, stayLabel, buttonFlags;
+    const args = {
+      // Tell the prompt service that this is a permit unload prompt
+      // so that it can set the appropriate flag on the detail object
+      // of the events it dispatches.
+      inPermitUnload: true,
+    };
 
     try {
-      title = this.domBundle.GetStringFromName("OnBeforeUnloadTitle");
-      message = this.domBundle.GetStringFromName("OnBeforeUnloadMessage2");
-      leaveLabel = this.domBundle.GetStringFromName(
-        "OnBeforeUnloadLeaveButton"
-      );
-      stayLabel = this.domBundle.GetStringFromName("OnBeforeUnloadStayButton");
+      if (isPDFjs) {
+        title = this.stringBundles.dom.GetStringFromName(
+          "OnBeforeUnloadPDFjsTitle"
+        );
+        message = this.stringBundles.dom.GetStringFromName(
+          "OnBeforeUnloadPDFjsMessage"
+        );
+        buttonFlags =
+          Ci.nsIPromptService.BUTTON_POS_0_DEFAULT |
+          (Ci.nsIPrompt.BUTTON_TITLE_SAVE * Ci.nsIPrompt.BUTTON_POS_0) |
+          (Ci.nsIPrompt.BUTTON_TITLE_CANCEL * Ci.nsIPrompt.BUTTON_POS_1) |
+          (Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE * Ci.nsIPrompt.BUTTON_POS_2);
+        args.useTitle = true;
+        args.headerIconCSSValue =
+          "url('chrome://branding/content/document_pdf.svg')";
+      } else {
+        title = this.stringBundles.dom.GetStringFromName("OnBeforeUnloadTitle");
+        message = this.stringBundles.dom.GetStringFromName(
+          "OnBeforeUnloadMessage2"
+        );
+        leaveLabel = this.stringBundles.dom.GetStringFromName(
+          "OnBeforeUnloadLeaveButton"
+        );
+        stayLabel = this.stringBundles.dom.GetStringFromName(
+          "OnBeforeUnloadStayButton"
+        );
+        buttonFlags =
+          Ci.nsIPromptService.BUTTON_POS_0_DEFAULT |
+          (Ci.nsIPromptService.BUTTON_TITLE_IS_STRING *
+            Ci.nsIPromptService.BUTTON_POS_0) |
+          (Ci.nsIPromptService.BUTTON_TITLE_IS_STRING *
+            Ci.nsIPromptService.BUTTON_POS_1);
+      }
     } catch (exception) {
       console.error("Failed to get strings from dom.properties");
       return false;
     }
 
-    const contentViewer = browsingContext?.docShell?.contentViewer;
+    const result = await Services.prompt.asyncConfirmEx(
+      browsingContext,
+      Services.prompt.MODAL_TYPE_CONTENT,
+      title,
+      message,
+      buttonFlags,
+      leaveLabel,
+      stayLabel,
+      null,
+      null,
+      false,
+      args
+    );
+    const buttonNumClicked = result
+      .QueryInterface(Ci.nsIPropertyBag2)
+      .get("buttonNumClicked");
+    if (isPDFjs) {
+      if (buttonNumClicked === 0) {
+        const savePdfPromise = new Promise(resolve => {
+          Services.obs.addObserver(
+            {
+              observe(_aSubject, aTopic) {
+                if (aTopic === "pdfjs:saveComplete") {
+                  Services.obs.removeObserver(this, aTopic);
+                  resolve();
+                }
+              },
+            },
+            "pdfjs:saveComplete"
+          );
+        });
+        const actor = browsingContext.currentWindowGlobal.getActor("Pdfjs");
+        actor.sendAsyncMessage("PDFJS:Save");
+        await savePdfPromise;
+      }
+      return buttonNumClicked !== 1;
+    }
 
-    // TODO: Do we really want to allow modal dialogs from inactive
-    // content viewers at all, particularly for permit unload prompts?
-    const modalAllowed = contentViewer
-      ? contentViewer.isTabModalPromptAllowed
-      : browsingContext.ancestorsAreCurrent;
+    return buttonNumClicked === 0;
+  }
 
-    const modalType =
-      Ci.nsIPromptService[
-        modalAllowed ? "MODAL_TYPE_CONTENT" : "MODAL_TYPE_WINDOW"
-      ];
+  confirmFolderUpload(browsingContext, directoryName) {
+    let title;
+    let message;
+    let acceptLabel;
+
+    try {
+      title = this.stringBundles.dom.GetStringFromName(
+        "FolderUploadPrompt.title"
+      );
+      message = this.stringBundles.dom.formatStringFromName(
+        "FolderUploadPrompt.message",
+        [directoryName]
+      );
+      acceptLabel = this.stringBundles.dom.GetStringFromName(
+        "FolderUploadPrompt.acceptButtonLabel"
+      );
+    } catch (exception) {
+      console.error("Failed to get strings from dom.properties");
+      return false;
+    }
 
     const buttonFlags =
-      Ci.nsIPromptService.BUTTON_POS_0_DEFAULT |
-      (Ci.nsIPromptService.BUTTON_TITLE_IS_STRING *
-        Ci.nsIPromptService.BUTTON_POS_0) |
-      (Ci.nsIPromptService.BUTTON_TITLE_IS_STRING *
-        Ci.nsIPromptService.BUTTON_POS_1);
+      Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+      Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1 +
+      Services.prompt.BUTTON_POS_1_DEFAULT;
 
-    return Services.prompt
-      .asyncConfirmEx(
+    return (
+      Services.prompt.confirmExBC(
         browsingContext,
-        modalType,
+        Services.prompt.MODAL_TYPE_TAB,
         title,
         message,
-        buttonFlags,
-        leaveLabel,
-        stayLabel,
+        buttonFlags | Ci.nsIPrompt.BUTTON_DELAY_ENABLE,
+        acceptLabel,
         null,
         null,
-        false,
-        // Tell the prompt service that this is a permit unload prompt
-        // so that it can set the appropriate flag on the detail object
-        // of the events it dispatches.
-        { inPermitUnload: true }
-      )
-      .then(
-        result =>
-          result.QueryInterface(Ci.nsIPropertyBag2).get("buttonNumClicked") == 0
-      );
+        null,
+        {}
+      ) === 0
+    );
   }
 }
 
-ChromeUtils.defineLazyGetter(
-  PromptCollection.prototype,
-  "domBundle",
-  function () {
-    const bundle = Services.strings.createBundle(
-      "chrome://global/locale/dom/dom.properties"
-    );
-    if (!bundle) {
-      throw new Error("String bundle for dom not present!");
-    }
-    return bundle;
-  }
-);
+const BUNDLES = {
+  dom: "chrome://global/locale/dom/dom.properties",
+  app: "chrome://global/locale/appstrings.properties",
+  brand: "chrome://branding/locale/brand.properties",
+};
 
-PromptCollection.prototype.classID = Components.ID(
-  "{7913837c-9623-11ea-bb37-0242ac130002}"
-);
+PromptCollection.prototype.stringBundles = {};
+
+for (const [bundleName, bundleUrl] of Object.entries(BUNDLES)) {
+  ChromeUtils.defineLazyGetter(
+    PromptCollection.prototype.stringBundles,
+    bundleName,
+    function () {
+      const bundle = Services.strings.createBundle(bundleUrl);
+      if (!bundle) {
+        throw new Error("String bundle for dom not present!");
+      }
+      return bundle;
+    }
+  );
+}
+
 PromptCollection.prototype.QueryInterface = ChromeUtils.generateQI([
   "nsIPromptCollection",
 ]);
