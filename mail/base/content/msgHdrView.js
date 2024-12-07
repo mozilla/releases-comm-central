@@ -149,6 +149,14 @@ const gExpandedHeaderList = [
 var gExpandedHeaderView = {};
 
 /**
+ * This array will contain lower-case strings of all header names that are
+ * included in `mail.compose.other.header` but not in
+ * `mailnews.headers.extraExpandedHeaders`, to be displayed only for
+ * outgoing messages.
+ */
+var gCustomComposeHeaders = [];
+
+/**
  * This is an array of header name and value pairs for the currently displayed
  * message. It's purely a data object and has no view information. View
  * information is contained in the view objects.
@@ -348,6 +356,10 @@ function initializeHeaderViewTables() {
       otherHeaderName
     );
   }
+
+  gCustomComposeHeaders = otherHeaders
+    .map(h => h.toLowerCase())
+    .filter(h => !extraHeaders.find(e => e.toLowerCase() == h));
 
   // Showing headers, mapped to the pref controlling display.
   const headerPref = new Map([
@@ -1342,6 +1354,14 @@ function UpdateExpandedMessageHeaders() {
   // the "more" button" in the header.
   // Remove it so that the height is determined automatically.
 
+  const showCustomComposeHeaders = gFolder?.isSpecialFolder(
+    Ci.nsMsgFolderFlags.SentMail |
+      Ci.nsMsgFolderFlags.Drafts |
+      Ci.nsMsgFolderFlags.Queue |
+      Ci.nsMsgFolderFlags.Templates,
+    true
+  );
+
   for (const headerName in currentHeaderData) {
     let headerEntry = null;
 
@@ -1392,30 +1412,17 @@ function UpdateExpandedMessageHeaders() {
         // pref show references is deactivated and the currently displayed
         // message isn't a newsgroup posting.
         headerEntry.valid = false;
-      } else if (!headerEntry.hidden) {
+      } else if (
+        !headerEntry.hidden &&
+        (showCustomComposeHeaders ||
+          !gCustomComposeHeaders.includes(headerName))
+      ) {
         // Set the row element visible before populating the field.
         headerEntry.enclosingRow.hidden = false;
         const headerField = currentHeaderData[headerName];
         headerEntry.outputFunction(headerEntry, headerField.headerValue);
         headerEntry.valid = true;
       }
-    }
-  }
-
-  const otherHeaders = Services.prefs
-    .getCharPref("mail.compose.other.header", "")
-    .split(",")
-    .map(h => h.trim())
-    .filter(Boolean);
-
-  for (const otherHeaderName of otherHeaders) {
-    const toLowerCaseHeaderName = otherHeaderName.toLowerCase();
-    const headerEntry = gExpandedHeaderView[toLowerCaseHeaderName];
-    const headerData = currentHeaderData[toLowerCaseHeaderName];
-
-    if (headerEntry && headerData) {
-      headerEntry.outputFunction(headerEntry, headerData.headerValue);
-      headerEntry.valid = true;
     }
   }
 
