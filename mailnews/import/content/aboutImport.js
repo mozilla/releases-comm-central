@@ -565,7 +565,7 @@ class ProfileImporterController extends ImporterController {
   /**
    * Map of fluent IDs from ImportItems if they differ.
    *
-   * @type {Object<string>}
+   * @type {object}
    */
   _importItemFluentId = {
     addressBooks: "address-books",
@@ -575,7 +575,7 @@ class ProfileImporterController extends ImporterController {
   /**
    * Set checkbox states according to an ImportItems object.
    *
-   * @param {ImportItems} items.
+   * @param {ImportItems} items
    */
   _setItemsChecked(items) {
     for (const [id, field] of Object.entries(this._itemCheckboxes)) {
