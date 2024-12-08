@@ -110,6 +110,8 @@ async function handleOAuthDialog(expectedHint) {
  *   with this user name.
  */
 async function subtest(dirPrefId, uid, newTokenDetails) {
+  Services.fog.testResetFOG();
+
   const directory = new CardDAVDirectory();
   directory._dirPrefId = dirPrefId;
   directory._uid = uid;
@@ -127,6 +129,18 @@ async function subtest(dirPrefId, uid, newTokenDetails) {
   const headers = JSON.parse(response.text);
 
   Assert.equal(headers.authorization, "Bearer access_token");
+
+  if (newTokenDetails) {
+    OAuth2TestUtils.checkTelemetry([
+      {
+        issuer: "test.test",
+        reason: newTokenDetails.reason,
+        result: "succeeded",
+      },
+    ]);
+  } else {
+    OAuth2TestUtils.checkTelemetry([]);
+  }
 }
 
 /**
@@ -155,7 +169,7 @@ function checkAndClearLogins(expectedLogins) {
 add_task(async function testAddressBookOAuth_uid_none() {
   const dirPrefId = "uid_none";
   const uid = "testAddressBookOAuth_uid_none";
-  await subtest(dirPrefId, uid, { username: uid });
+  await subtest(dirPrefId, uid, { username: uid, reason: "no refresh token" });
   checkAndClearLogins([{ ...defaultLogin, username: uid }]);
 });
 
@@ -170,7 +184,7 @@ add_task(async function testAddressBookOAuth_uid_expired() {
     { ...defaultLogin, username: uid, password: "expired_token" },
   ];
   await setLogins(logins);
-  await subtest(dirPrefId, uid, { username: uid });
+  await subtest(dirPrefId, uid, { username: uid, reason: "invalid grant" });
   logins[0].password = VALID_TOKEN;
   checkAndClearLogins(logins);
 });

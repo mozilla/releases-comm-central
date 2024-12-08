@@ -6,6 +6,8 @@
  * Utils for testing interactions with OAuth2 authentication servers.
  */
 
+// eslint-disable-next-line no-shadow
+import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys.mjs";
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 import { HttpsProxy } from "resource://testing-common/mailnews/HttpsProxy.sys.mjs";
@@ -163,6 +165,40 @@ export const OAuth2TestUtils = {
     }
 
     return grantedScope.split(" ").includes(scope);
+  },
+
+  /**
+   * Check the recorded telemetry values match what we expect. Don't forget to
+   * reset the data `Services.fog.testResetFOG()` at the start of the test.
+   *
+   * @param {object[]} expectedEvents - What should have been recorded.
+   */
+  checkTelemetry(expectedEvents) {
+    const events = Glean.mail.oauth2Authentication.testGetValue();
+    if (expectedEvents.length) {
+      if (events) {
+        Assert.equal(
+          events.length,
+          expectedEvents.length,
+          "OAuth telemetry should have been recorded"
+        );
+        for (let i = 0; i < expectedEvents.length; i++) {
+          Assert.deepEqual(events[i].extra, expectedEvents[i]);
+        }
+      } else {
+        Assert.notEqual(
+          events,
+          null,
+          "OAuth telemetry should have been recorded"
+        );
+      }
+    } else {
+      Assert.equal(
+        events,
+        null,
+        "no OAuth telemetry should have been recorded"
+      );
+    }
   },
 };
 

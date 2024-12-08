@@ -37,6 +37,7 @@ registerCleanupFunction(async function () {
 
 async function subtest(grantedScope, expectFailure) {
   Services.logins.removeAllLogins();
+  Services.fog.testResetFOG();
 
   const config = {
     incoming: {
@@ -63,16 +64,32 @@ async function subtest(grantedScope, expectFailure) {
     },
   };
 
-  const dialogPromise = expectOAuthDialog(grantedScope);
+  expectOAuthDialog(grantedScope);
   const verifier = new ConfigVerifier(window.msgWindow);
   const verifyPromise = verifier.verifyConfig(config);
-  await dialogPromise;
+
+  // The telemetry isn't ready just yet, but we must handle `verifyPromise`
+  // before yielding the event loop to avoid it being recorded as unhandled.
+  // So wait for that to finish, the telemetry will be recorded by then.
   if (expectFailure) {
     await Assert.rejects(
       verifyPromise,
       /Unable to log in at server./,
       "verify should fail"
     );
+  } else {
+    await verifyPromise;
+  }
+
+  OAuth2TestUtils.checkTelemetry([
+    {
+      issuer: "test.test",
+      reason: "no refresh token",
+      result: "succeeded",
+    },
+  ]);
+
+  if (expectFailure) {
     return;
   }
 

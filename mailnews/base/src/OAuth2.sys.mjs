@@ -49,6 +49,7 @@ export function OAuth2(scope, issuerDetails) {
     maxLogLevel: "Warn",
     maxLogLevelPref: "mailnews.oauth.loglevel",
   });
+  this.telemetryData.issuer = issuerDetails.name;
 }
 
 OAuth2.prototype = {
@@ -64,6 +65,9 @@ OAuth2.prototype = {
   accessToken: null,
   refreshToken: null,
   tokenExpires: 0,
+
+  log: null,
+  telemetryData: {},
 
   _isRetrying: false,
 
@@ -94,6 +98,7 @@ OAuth2.prototype = {
     } else if (gConnecting[this.authorizationEndpoint]) {
       this._reject("Window already open");
     } else {
+      this.telemetryData.reason = aRefresh ? "refresh" : "no refresh token";
       this.requestAuthorization();
     }
 
@@ -170,7 +175,8 @@ OAuth2.prototype = {
         this.account.finishAuthorizationRequest();
         this.account.onAuthorizationFailed(
           Cr.NS_ERROR_ABORT,
-          '{ "error": "cancelled"}'
+          '{ "error": "cancelled"}',
+          "cancelled"
         );
       },
 
@@ -271,22 +277,25 @@ OAuth2.prototype = {
       this.requestAccessToken(url.searchParams.get("code"), false);
     } else {
       // @see RFC 6749 section 4.1.2.1: Error Response
+      let reason = "authorization failed";
       if (url.searchParams.has("error")) {
         const error = url.searchParams.get("error");
         let errorDescription = url.searchParams.get("error_description") || "";
         if (error == "invalid_scope") {
           errorDescription += ` Invalid scope: ${this.scope}.`;
+          reason = "invalid scope";
         }
         if (url.searchParams.has("error_uri")) {
           errorDescription += ` See ${url.searchParams.get("error_uri")}.`;
         }
         this.log.error(`Authorization error [${error}]: ${errorDescription}`);
       }
-      this.onAuthorizationFailed(null, aURL);
+      this.onAuthorizationFailed(null, aURL, reason);
     }
   },
 
-  onAuthorizationFailed(aError, aData) {
+  onAuthorizationFailed(aError, aData, aTelemetryReason) {
+    this.recordTelemetry(aTelemetryReason);
     this._reject(aData);
   },
 
@@ -352,10 +361,15 @@ OAuth2.prototype = {
           this.accessToken = null;
           this.refreshToken = null;
           if (result.error == "invalid_grant" && !this._isRetrying) {
-            // Retry the auth flow once, otherwise give up.
+            // Retry the auth flow once, otherwise give up. "invalid_grant"
+            // typically (but not always) means the refresh token was bad.
+            this.telemetryData.reason = "invalid grant";
             this._isRetrying = true;
             this.requestAuthorization();
           } else {
+            this.recordTelemetry(
+              this._isRetrying ? "failed after retrying" : "failed"
+            );
             this._isRetrying = false;
             this._reject(err);
           }
@@ -398,11 +412,29 @@ OAuth2.prototype = {
           }
           this.scope = returnedScopes.join(" ");
         }
+
+        this.recordTelemetry("succeeded");
         this._resolve();
       })
       .catch(err => {
+        this.recordTelemetry("connection failed");
         this.log.info(`Connection to authorization server failed: ${err}`);
         this._reject(err);
       });
+  },
+
+  /**
+   * Record opening the authentication window in telemetry.
+   *
+   * @param {string} result - If this authentication succeeded, or why it failed.
+   */
+  recordTelemetry(result) {
+    // If there is no value for the issuer (i.e. it isn't from the data in
+    // OAuth2Providers), or no reason given (we didn't open the window),
+    // nothing is recorded.
+    if (this.telemetryData.issuer && this.telemetryData.reason) {
+      Glean.mail.oauth2Authentication.record({ ...this.telemetryData, result });
+      delete this.telemetryData.reason;
+    }
   },
 };

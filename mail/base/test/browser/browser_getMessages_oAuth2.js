@@ -179,10 +179,20 @@ add_task(async function testNoTokens() {
     info(`getting messages for ${inbox.server.type} inbox with no tokens`);
     await addMessagesToServer(inbox.server.type);
 
+    Services.fog.testResetFOG();
+
     const oAuthPromise = handleOAuthDialog();
     await fetchMessages(inbox);
     await oAuthPromise;
     await waitForMessages(inbox);
+
+    OAuth2TestUtils.checkTelemetry([
+      {
+        issuer: "test.test",
+        reason: "no refresh token",
+        result: "succeeded",
+      },
+    ]);
 
     // TODO: check this does NOT hit the oauth server
     await addMessagesToServer(inbox.server.type);
@@ -373,10 +383,20 @@ add_task(async function testBadRefreshToken() {
     );
     await addMessagesToServer(inbox.server.type);
 
+    Services.fog.testResetFOG();
+
     const oAuthPromise = handleOAuthDialog();
     await fetchMessages(inbox);
     await oAuthPromise;
     await waitForMessages(inbox);
+
+    OAuth2TestUtils.checkTelemetry([
+      {
+        issuer: "test.test",
+        reason: "invalid grant",
+        result: "succeeded",
+      },
+    ]);
 
     checkSavedPassword(inbox);
     await promiseServerIdle(inbox.server);

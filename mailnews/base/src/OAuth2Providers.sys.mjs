@@ -122,6 +122,7 @@ var kIssuers = new Map([
   [
     "accounts.google.com",
     {
+      name: "accounts.google.com",
       clientId:
         "406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com",
       clientSecret: "kSmqreRr0qwBWJgbf5Y-PjSU",
@@ -132,6 +133,7 @@ var kIssuers = new Map([
   [
     "o2.mail.ru",
     {
+      name: "o2.mail.ru",
       clientId: "thunderbird",
       clientSecret: "I0dCAXrcaNFujaaY",
       authorizationEndpoint: "https://o2.mail.ru/login",
@@ -141,6 +143,7 @@ var kIssuers = new Map([
   [
     "oauth.yandex.com",
     {
+      name: "oauth.yandex.com",
       clientId: "2a00bba7374047a6ab79666485ffce31",
       clientSecret: "3ded85b4ec574c2187a55dc49d361280",
       authorizationEndpoint: "https://oauth.yandex.com/authorize",
@@ -150,6 +153,7 @@ var kIssuers = new Map([
   [
     "login.yahoo.com",
     {
+      name: "login.yahoo.com",
       clientId:
         "dj0yJmk9NUtCTWFMNVpTaVJmJmQ9WVdrOVJ6UjVTa2xJTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0yYw--",
       clientSecret: "f2de6a30ae123cdbc258c15e0812799010d589cc",
@@ -160,6 +164,7 @@ var kIssuers = new Map([
   [
     "login.aol.com",
     {
+      name: "login.aol.com",
       clientId:
         "dj0yJmk9OXRHc1FqZHRQYzVvJmQ9WVdrOU1UQnJOR0pvTjJrbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD02NQ--",
       clientSecret: "79c1c11991d148ddd02a919000d69879942fc278",
@@ -171,6 +176,7 @@ var kIssuers = new Map([
   [
     "login.microsoftonline.com",
     {
+      name: "login.microsoftonline.com",
       clientId: "9e5f94bc-e8a4-4e73-b8be-63364c29d753", // Application (client) ID
       // https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols#endpoints
       authorizationEndpoint:
@@ -184,6 +190,7 @@ var kIssuers = new Map([
   [
     "www.fastmail.com",
     {
+      name: "www.fastmail.com",
       clientId: "35f141ae",
       authorizationEndpoint: "https://api.fastmail.com/oauth/authorize",
       tokenEndpoint: "https://api.fastmail.com/oauth/refresh",
@@ -194,6 +201,7 @@ var kIssuers = new Map([
   [
     "comcast.net",
     {
+      name: "comcast.net",
       clientId: "thunderbird-oauth",
       clientSecret: "fc5d0a314549bb3d059e0cec751fa4bd40a9cc7b",
       authorizationEndpoint: "https://oauth.xfinity.com/oauth/authorize",
@@ -206,6 +214,7 @@ var kIssuers = new Map([
   [
     "test.test",
     {
+      name: "test.test",
       clientId: "test_client_id",
       clientSecret: "test_secret",
       authorizationEndpoint: "https://oauth.test.test/form",

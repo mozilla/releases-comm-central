@@ -523,3 +523,31 @@ mail:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  oauth2_authentication:
+    type: event
+    description: >
+      Records each time the OAuth authentication window is displayed,
+      including the provider's name, the reason for showing the window, and if
+      the authentication was successful.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1935921
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1935921
+    data_sensitivity:
+      - interaction
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    extra_keys:
+      issuer:
+        description: >
+          The name of the authentication issuer. Only issuers listed in
+          OAuth2Providers.sys.mjs are recorded.
+        type: string
+      reason:
+        description: The reason for showing the authentication window.
+        type: string
+      result:
+        description: If the authentication succeeded or was cancelled.
+        type: string
