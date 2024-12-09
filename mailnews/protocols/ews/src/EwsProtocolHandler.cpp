@@ -4,7 +4,7 @@
 
 #include "EwsProtocolHandler.h"
 
-#include "EwsMessageChannel.h"
+#include "EwsOfflineMessageChannel.h"
 #include "nsIMsgIncomingServer.h"
 
 NS_IMPL_ISUPPORTS(EwsProtocolHandler, nsIProtocolHandler)
@@ -22,7 +22,7 @@ NS_IMETHODIMP EwsProtocolHandler::GetScheme(nsACString& aScheme) {
 NS_IMETHODIMP EwsProtocolHandler::NewChannel(nsIURI* aURI,
                                              nsILoadInfo* aLoadinfo,
                                              nsIChannel** _retval) {
-  RefPtr<EwsMessageChannel> channel = new EwsMessageChannel(aURI);
+  RefPtr<EwsOfflineMessageChannel> channel = new EwsOfflineMessageChannel(aURI);
 
   nsresult rv = channel->SetLoadInfo(aLoadinfo);
   NS_ENSURE_SUCCESS(rv, rv);

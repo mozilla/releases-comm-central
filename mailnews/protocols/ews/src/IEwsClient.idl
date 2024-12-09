@@ -17,6 +17,7 @@ interface nsIMsgCopyServiceListener;
 interface IEwsFolderCallbacks;
 interface IEwsMessageCallbacks;
 interface IEwsMessageDeleteCallbacks;
+interface IEWSMessageFetchCallbacks;
 
 [uuid(4a117361-653b-48a5-9ddb-588482ef9dbb)]
 interface IEwsClient : nsISupports
@@ -30,7 +31,7 @@ interface IEwsClient : nsISupports
 
   void syncFolderHierarchy(in IEwsFolderCallbacks callbacks, in AUTF8String syncStateToken);
   void syncMessagesForFolder(in IEwsMessageCallbacks callbacks, in AUTF8String folderId, in AUTF8String syncStateToken);
-  void getMessage(in AUTF8String id, in nsIRequest request, in nsIStreamListener listener);
+  void getMessage(in AUTF8String id, in IEWSMessageFetchCallbacks callbacks);
   void changeReadStatus(in Array<AUTF8String> messageIds, in boolean readStatus);
 
   /**
@@ -83,4 +84,20 @@ interface IEwsMessageDeleteCallbacks : nsISupports
 {
   void onRemoteDeleteSuccessful();
   void onError(in IEwsClient_Error err, in AUTF8String desc);
+};
+
+/**
+ * A listener used when downloading message content.
+ *
+ * Its shape is loosely based on `nsIStreamListener`, which cannot be used in
+ * this instance because we don't always have a request/channel that can be used
+ * in method calls when fetching a message's content (and using `nullptr`
+ * everywhere is quite ugly and potentially unsafe).
+ */
+[uuid(027150b1-d127-41a9-8945-18f9374755b3)]
+interface IEWSMessageFetchCallbacks : nsISupports
+{
+  void onFetchStart();
+  void onDataAvailable(in nsIInputStream aInputStream, in unsigned long aCount);
+  void onFetchStop(in nsresult status);
 };

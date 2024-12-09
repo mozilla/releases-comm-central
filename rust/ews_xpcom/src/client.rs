@@ -35,9 +35,9 @@ use uuid::Uuid;
 use xpcom::{
     getter_addrefs,
     interfaces::{
-        nsIMsgCopyServiceListener, nsIMsgDBHdr, nsIMsgOutgoingListener, nsIRequest,
-        nsIStreamListener, nsIStringInputStream, nsIURI, nsMsgFolderFlagType, nsMsgFolderFlags,
-        nsMsgKey, nsMsgMessageFlags, IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks,
+        nsIMsgCopyServiceListener, nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream,
+        nsIURI, nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgKey, nsMsgMessageFlags,
+        IEWSMessageFetchCallbacks, IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks,
         IEwsMessageDeleteCallbacks,
     },
     RefPtr,
@@ -422,16 +422,13 @@ impl XpComEwsClient {
     pub(crate) async fn get_message(
         self,
         id: String,
-        request: RefPtr<nsIRequest>,
-        listener: RefPtr<nsIStreamListener>,
+        callbacks: RefPtr<IEWSMessageFetchCallbacks>,
     ) {
-        unsafe { listener.OnStartRequest(&*request) };
+        unsafe { callbacks.OnFetchStart() };
 
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
-        let result = self
-            .get_message_inner(id.clone(), &request, &listener)
-            .await;
+        let result = self.get_message_inner(id.clone(), &callbacks).await;
 
         let status = match result {
             Ok(_) => nserror::NS_OK,
@@ -442,14 +439,13 @@ impl XpComEwsClient {
             }
         };
 
-        unsafe { listener.OnStopRequest(&*request, status) };
+        unsafe { callbacks.OnFetchStop(status) };
     }
 
     async fn get_message_inner(
         self,
         id: String,
-        request: &nsIRequest,
-        listener: &nsIStreamListener,
+        callbacks: &IEWSMessageFetchCallbacks,
     ) -> Result<(), XpComEwsError> {
         let items = self.get_items([id], &[], true).await?;
         if items.len() != 1 {
@@ -505,8 +501,7 @@ impl XpComEwsClient {
         // before the stream is dropped.
         unsafe { stream.SetData(mime_content.as_ptr() as *const c_char, len) }.to_result()?;
 
-        unsafe { listener.OnDataAvailable(&*request, &*stream.coerce(), 0, len as u32) }
-            .to_result()?;
+        unsafe { callbacks.OnDataAvailable(&*stream.coerce(), len as u32) }.to_result()?;
 
         Ok(())
     }

@@ -14,8 +14,8 @@ use thin_vec::ThinVec;
 use url::Url;
 use xpcom::{
     interfaces::{
-        nsIInputStream, nsIMsgCopyServiceListener, nsIMsgIncomingServer, nsIRequest,
-        nsIStreamListener, IEwsFolderCallbacks, IEwsMessageCallbacks, IEwsMessageDeleteCallbacks,
+        nsIInputStream, nsIMsgCopyServiceListener, nsIMsgIncomingServer, IEWSMessageFetchCallbacks,
+        IEwsFolderCallbacks, IEwsMessageCallbacks, IEwsMessageDeleteCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
 };
@@ -162,12 +162,11 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(get_message => GetMessage(id: *const nsACString, request: *const nsIRequest, listener: *const nsIStreamListener));
+    xpcom_method!(get_message => GetMessage(id: *const nsACString, callbacks: *const IEWSMessageFetchCallbacks));
     fn get_message(
         &self,
         id: &nsACString,
-        request: &nsIRequest,
-        listener: &nsIStreamListener,
+        callbacks: &IEWSMessageFetchCallbacks,
     ) -> Result<(), nsresult> {
         let client = self.try_new_client()?;
 
@@ -175,11 +174,7 @@ impl XpcomEwsBridge {
         // this scope, so spawn it as a detached `moz_task`.
         moz_task::spawn_local(
             "get_message",
-            client.get_message(
-                id.to_utf8().into(),
-                RefPtr::new(request),
-                RefPtr::new(listener),
-            ),
+            client.get_message(id.to_utf8().into(), RefPtr::new(callbacks)),
         )
         .detach();
 
