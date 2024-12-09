@@ -23,14 +23,6 @@ task-defaults:
             - linux64-cbindgen
             - linux64-nasm
             - linux64-node
-    optimization:
-        skip-unless-changed:
-            - 'comm/**/*.c'
-            - 'comm/**/*.cc'
-            - 'comm/**/*.cpp'
-            - 'comm/**/*.m'
-            - 'comm/**/*.mm'
-            - 'comm/**/*.h'
 
 format:
     description: Run clang-format on C/C++ patches
@@ -40,7 +32,6 @@ format:
         cwd: '{checkout}'
         command: >-
             ./comm/taskcluster/scripts/source-test-clang-format.sh {changed_files}
-
     fetches:
         toolchain:
             - linux64-clang
@@ -48,6 +39,40 @@ format:
             - linux64-rust
             - sysroot-x86_64-linux-gnu
             - sysroot-wasm32-wasi
+    optimization:
+        skip-unless-changed:
+            - 'comm/**/*.c'
+            - 'comm/**/*.cc'
+            - 'comm/**/*.cpp'
+            - 'comm/**/*.m'
+            - 'comm/**/*.mm'
+            - 'comm/**/*.h'
+    worker:
+        artifacts:
+            - type: file
+              name: public/code-review/clang-format.json
+              path: /builds/worker/clang-format.json
+            - type: file
+              name: public/code-review/clang-format.diff
+              path: /builds/worker/clang-format.diff
+
+format-all:
+    description: Run clang-format on C/C++ patches
+    treeherder:
+        symbol: cpp(clang-format-all)
+    run:
+        cwd: '{checkout}'
+        command: >-
+            ./comm/taskcluster/scripts/source-test-clang-format.sh comm/
+    fetches:
+        toolchain:
+            - linux64-clang
+            - linux64-clang-tidy
+            - linux64-rust
+            - sysroot-x86_64-linux-gnu
+            - sysroot-wasm32-wasi
+    optimization:
+        always: null  # always means to always remove the task (never run)
     worker:
         artifacts:
             - type: file

@@ -24,28 +24,6 @@ def get_patterns(job):
 
 
 @transforms.add
-def remove_optimization_on_comm(config, jobs):
-    """
-    For pushes to comm-central run all source-test tasks that are enabled for
-    code-review in order to have the code-review bot populate the DB according
-    with the push hash.
-    """
-    if config.params["project"] != "comm-central" or config.params["tasks_for"] != "hg-push":
-        yield from jobs
-        return
-
-    for job in jobs:
-        if not job.get("attributes", {}).get("code-review", False):
-            yield job
-            continue
-        if "when" in job:
-            del job["when"]
-        if "optimization" in job:
-            del job["optimization"]
-        yield job
-
-
-@transforms.add
 def changed_clang_format(config, jobs):
     """
     Transform for clang-format job to set the commandline to only check
@@ -79,6 +57,31 @@ def changed_clang_format(config, jobs):
                     ],
                 }
 
+        yield job
+
+
+@transforms.add
+def remove_optimization_on_comm(config, jobs):
+    """
+    For pushes to comm-central run all source-test tasks that are enabled for
+    code-review in order to have the code-review bot populate the DB according
+    with the push hash.
+    """
+    if config.params["project"] != "comm-central" or config.params["tasks_for"] != "hg-push":
+        yield from jobs
+        return
+
+    for job in jobs:
+        if not job.get("attributes", {}).get("code-review", False):
+            yield job
+            continue
+        if "when" in job:
+            del job["when"]
+        if "optimization" in job:
+            if "always" in job["optimization"]:
+                yield job
+                continue
+            del job["optimization"]
         yield job
 
 
