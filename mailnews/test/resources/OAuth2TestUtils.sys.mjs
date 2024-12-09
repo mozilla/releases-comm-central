@@ -291,18 +291,22 @@ class OAuth2Server {
       return;
     }
 
-    this.grantedScope = params.getAll("scope").join(" ");
-
-    // Create a unique code. It will become invalid after the first use.
-    const bytes = new Uint8Array(12);
-    for (let i = 0; i < bytes.length; i++) {
-      bytes[i] = Math.floor(Math.random() * 255);
-    }
-    const code = ChromeUtils.base64URLEncode(bytes, { pad: false });
-    validCodes.add(code);
-
     const url = new URL(params.get("redirect_uri"));
-    url.searchParams.set("code", code);
+    if (params.getAll("scope").includes("bad_scope")) {
+      url.searchParams.set("error", "invalid_scope");
+    } else {
+      this.grantedScope = params.getAll("scope").join(" ");
+
+      // Create a unique code. It will become invalid after the first use.
+      const bytes = new Uint8Array(12);
+      for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = Math.floor(Math.random() * 255);
+      }
+      const code = ChromeUtils.base64URLEncode(bytes, { pad: false });
+      validCodes.add(code);
+
+      url.searchParams.set("code", code);
+    }
 
     response.setStatusLine(request.httpVersion, 303, "Redirected");
     response.setHeader("Location", url.href);
