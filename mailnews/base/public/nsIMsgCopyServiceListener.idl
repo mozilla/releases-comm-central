@@ -26,9 +26,8 @@ interface nsIMsgCopyServiceListener : nsISupports {
 
     /**
      * Setting newly created message key. This method is tailored specifically
-     * for nsIMsgCopyService::copyFileMessage() when saving Drafts/Templates.
-     * We need to have a way to inform the client what's the key of the newly
-     * created message.
+     * for nsIMsgCopyService::copyFileMessage(). We need to have a way to inform
+     * the client what's the key of the newly created message.
      * @param aKey - Message key.
      */
     void setMessageKey(in nsMsgKey aKey);

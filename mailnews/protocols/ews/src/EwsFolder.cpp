@@ -8,11 +8,12 @@
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
 #include "MailNewsTypes.h"
-#include "nsIMutableArray.h"
-#include "nsISupportsPrimitives.h"
+#include "nsIMsgDatabase.h"
+#include "nsIMsgPluggableStore.h"
 #include "nsString.h"
 #include "nsIInputStream.h"
 #include "nsIMsgWindow.h"
+#include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 #include "nsPrintfCString.h"
 #include "nscore.h"
@@ -94,6 +95,117 @@ NS_IMETHODIMP MessageDeletionCallbacks::OnError(IEwsClient::Error err,
                                                 const nsACString& desc) {
   NS_ERROR("Error occurred while deleting EWS messages");
 
+  return NS_OK;
+}
+
+class MessageCreateCallbacks : public IEWSMessageCreateCallbacks {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_IEWSMESSAGECREATECALLBACKS
+
+  MessageCreateCallbacks(EwsFolder* folder, nsIFile* file,
+                         nsIMsgCopyServiceListener* copyListener)
+      : mFolder(folder), mFile(file), mCopyListener(copyListener) {}
+
+ protected:
+  virtual ~MessageCreateCallbacks() = default;
+
+ private:
+  RefPtr<EwsFolder> mFolder;
+  nsCOMPtr<nsIFile> mFile;
+  nsCOMPtr<nsIMsgCopyServiceListener> mCopyListener;
+};
+
+NS_IMPL_ISUPPORTS(MessageCreateCallbacks, IEWSMessageCreateCallbacks)
+
+NS_IMETHODIMP MessageCreateCallbacks::OnRemoteCreateSuccessful(
+    const nsACString& ewsId, nsIMsgDBHdr** newHdr) {
+  // Open an input stream on the file.
+  nsCOMPtr<nsIInputStream> inputStream;
+  nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), mFile);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Create a new header in the database for this message. We could do it in one
+  // go via `nsIMsgPluggableStore::GetNewMsgOutputStream`, but we'll want the
+  // message database and store to be more decoupled going forwards.
+  nsCOMPtr<nsIMsgDatabase> msgDB;
+  rv = mFolder->GetMsgDatabase(getter_AddRefs(msgDB));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgDBHdr> hdr;
+  rv = msgDB->CreateNewHdr(nsMsgKey_None, getter_AddRefs(hdr));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Create a new output stream to the folder's message store.
+  nsCOMPtr<nsIOutputStream> outStream;
+  rv = mFolder->GetOfflineStoreOutputStream(hdr, getter_AddRefs(outStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Stream the message content to the store.
+  uint64_t bytesCopied;
+  rv = SyncCopyStream(inputStream, outStream, bytesCopied);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgPluggableStore> store;
+  rv = mFolder->GetMsgStore(getter_AddRefs(store));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = store->FinishNewMessage(outStream, hdr);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Udpate some of the header's metadata, such as the size, the offline flag
+  // and the EWS ID.
+  rv = hdr->SetMessageSize(bytesCopied);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = hdr->SetOfflineMessageSize(bytesCopied);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  uint32_t unused;
+  rv = hdr->OrFlags(nsMsgMessageFlags::Offline, &unused);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = hdr->SetStringProperty(ID_PROPERTY, ewsId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Return the newly-created header so that the consumer can update it with
+  // metadata from the message headers before adding it to the message database.
+  hdr.forget(newHdr);
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP MessageCreateCallbacks::CommitHeader(nsIMsgDBHdr* hdr) {
+  nsCOMPtr<nsIMsgDatabase> msgDB;
+  nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(msgDB));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = msgDB->AddNewHdrToDB(hdr, true);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = msgDB->Commit(nsMsgDBCommitType::kLargeCommit);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP MessageCreateCallbacks::OnStartCreate() {
+  return mCopyListener->OnStartCopy();
+}
+
+NS_IMETHODIMP MessageCreateCallbacks::SetMessageKey(nsMsgKey aKey) {
+  return mCopyListener->SetMessageKey(aKey);
+}
+
+NS_IMETHODIMP MessageCreateCallbacks::OnStopCreate(nsresult status) {
+  nsresult rv = mCopyListener->OnStopCopy(status);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Note: at some point this will need to call
+  // `nsMsgCopyService::NotifyCompletion` to let the copy service it can dequeue
+  // the copy request. There seems to be a trick to it, so we'll take a look at
+  // it in a later step, see
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1931599
   return NS_OK;
 }
 
@@ -367,9 +479,10 @@ NS_IMETHODIMP EwsFolder::CopyFileMessage(
   rv = GetEwsClient(getter_AddRefs(client));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  auto ewsMsgListener = RefPtr(new MessageOperationCallbacks(this, msgWindow));
-  return client->SaveMessage(ewsId, isDraftOrTemplate, inputStream,
-                             copyListener, ewsMsgListener);
+  RefPtr<MessageCreateCallbacks> ewsListener =
+      new MessageCreateCallbacks(this, aFile, copyListener);
+  return client->CreateMessage(ewsId, isDraftOrTemplate, inputStream,
+                               ewsListener);
 }
 
 NS_IMETHODIMP EwsFolder::DeleteMessages(

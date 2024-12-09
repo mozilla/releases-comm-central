@@ -18,7 +18,22 @@ interface IEwsFolderCallbacks;
 interface IEwsMessageCallbacks;
 interface IEwsMessageDeleteCallbacks;
 interface IEWSMessageFetchCallbacks;
+interface IEWSMessageCreateCallbacks;
 
+/**
+ * An interface to communicate with an EWS server, and lives on
+ * `EwsIncomingServer`.
+ *
+ * Its main role is to perform remote operations on the relevant EWS server,
+ * which is passed to `initialize`. This same method also uses the provided
+ * `server` to retrieve connection settings (such as authentication).
+ *
+ * Most of the code to run besides forming and sending requests to (and reading
+ * responses from) the EWS server is defined by the consumer via the relevant
+ * callback interface. However, `IEwsClient` will in some cases take care of
+ * e.g. populating `nsIMsgDBHdr`s (instead of letting the consumer code do it)
+ * due to architectural constraints.
+ */
 [uuid(4a117361-653b-48a5-9ddb-588482ef9dbb)]
 interface IEwsClient : nsISupports
 {
@@ -39,19 +54,19 @@ interface IEwsClient : nsISupports
    *
    * @param folderId          The EWS ID of the folder.
    * @param isDraft           Whether the message being created is an unsent
-   *                          draft.
+   *                          draft, so the correct flags can be set on the
+   *                          server for the newly created message.
    * @param messageStream     The input stream to read the message from.
-   * @param copyListener      A listener to provide updates on copying of
-   *                          the message from the stream.
    * @param messageCallbacks  Callbacks to use to communicate between the EWS
-   *                          client and the EWS folder (e.g. to access its
-   *                          database).
+   *                          client and the EWS folder (e.g. to signal the
+   *                          message can be added to its database), and to
+   *                          provide updates on the copying of the message to
+   *                          the server.
    */
-  void saveMessage(in AUTF8String folderId,
+  void createMessage(in AUTF8String folderId,
                      in boolean isDraft,
                      in nsIInputStream messageStream,
-                     in nsIMsgCopyServiceListener copyListener,
-                     in IEwsMessageCallbacks messageCallbacks);
+                     in IEWSMessageCreateCallbacks messageCallbacks);
 
   void deleteMessages(in Array<AUTF8String> messageEwsIds, in IEwsMessageDeleteCallbacks callbacks);
 };
@@ -100,4 +115,46 @@ interface IEWSMessageFetchCallbacks : nsISupports
   void onFetchStart();
   void onDataAvailable(in nsIInputStream aInputStream, in unsigned long aCount);
   void onFetchStop(in nsresult status);
+};
+
+/**
+ * A listener used when creating a new message on the server.
+ *
+ * The listener is expected to hold a handle on the temporary file that contains
+ * the new message, so it can stream it to the store when it has been stored
+ * correctly.
+ */
+[uuid(ff45569f-d618-4bb0-9686-6cb24b92b02b)]
+interface IEWSMessageCreateCallbacks : nsISupports
+{
+  /**
+   * These methods are mostly replicating the similarly-named ones in
+   * `nsIMsgCopyServiceListener`, and at the moment just forward calls to an
+   * instance of it. This is partly so to simplify `createMessage` so it only
+   * takes one listener, but also because solving
+   * https://bugzilla.mozilla.org/show_bug.cgi?id=1931599 will require doing
+   * more in `onStopCreate`.
+   */
+  void onStartCreate();
+  void onStopCreate(in nsresult status);
+  void setMessageKey(in nsMsgKey aKey);
+
+  /**
+   * Signals that the message was correctly created on the server.
+   *
+   * Returns the header object to update with the message's metadata and to
+   * commit to the message database.
+   *
+   * `nsIMsgDBHdr` is a type quite strongly associated with the message database
+   * and storage, and, going forwards, we'll want to decouple these interfaces
+   * from local storage management. We use currently use it because we don't
+   * have a better way to represent structured headers over the XPCOM boundary,
+   * and parsing RFC822 messages is easier in Rust than using the C++ message
+   * parser. We should revisit our use of `nsIMsgDBHdr` in client code the
+   * situation improves.
+   */
+  nsIMsgDBHdr onRemoteCreateSuccessful(in AUTF8String ewsId);
+
+  // Commits the given header to the relevant message database.
+  void commitHeader(in nsIMsgDBHdr hdr);
 };

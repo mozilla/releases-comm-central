@@ -14,8 +14,9 @@ use thin_vec::ThinVec;
 use url::Url;
 use xpcom::{
     interfaces::{
-        nsIInputStream, nsIMsgCopyServiceListener, nsIMsgIncomingServer, IEWSMessageFetchCallbacks,
-        IEwsFolderCallbacks, IEwsMessageCallbacks, IEwsMessageDeleteCallbacks,
+        nsIInputStream, nsIMsgIncomingServer, IEWSMessageCreateCallbacks,
+        IEWSMessageFetchCallbacks, IEwsFolderCallbacks, IEwsMessageCallbacks,
+        IEwsMessageDeleteCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
 };
@@ -181,14 +182,13 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(save_message => SaveMessage(folder_id: *const nsACString, isDraft: bool, messageStream: *const nsIInputStream, copyListener: *const nsIMsgCopyServiceListener, messageCallbaks: *const IEwsMessageCallbacks));
-    fn save_message(
+    xpcom_method!(create_message => CreateMessage(folder_id: *const nsACString, isDraft: bool, messageStream: *const nsIInputStream, messageCallbacks: *const IEWSMessageCreateCallbacks));
+    fn create_message(
         &self,
         folder_id: &nsACString,
         is_draft: bool,
         message_stream: &nsIInputStream,
-        copy_listener: &nsIMsgCopyServiceListener,
-        message_callbacks: &IEwsMessageCallbacks,
+        message_callbacks: &IEWSMessageCreateCallbacks,
     ) -> Result<(), nsresult> {
         let content = crate::xpcom_io::read_stream(message_stream)?;
 
@@ -198,11 +198,10 @@ impl XpcomEwsBridge {
         // this scope, so spawn it as a detached `moz_task`.
         moz_task::spawn_local(
             "save_message",
-            client.save_message(
+            client.create_message(
                 folder_id.to_utf8().into(),
                 is_draft,
                 content,
-                RefPtr::new(copy_listener),
                 RefPtr::new(message_callbacks),
             ),
         )

@@ -35,8 +35,8 @@ use uuid::Uuid;
 use xpcom::{
     getter_addrefs,
     interfaces::{
-        nsIMsgCopyServiceListener, nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream,
-        nsIURI, nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgKey, nsMsgMessageFlags,
+        nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsMsgFolderFlagType,
+        nsMsgFolderFlags, nsMsgKey, nsMsgMessageFlags, IEWSMessageCreateCallbacks,
         IEWSMessageFetchCallbacks, IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks,
         IEwsMessageDeleteCallbacks,
     },
@@ -972,15 +972,14 @@ impl XpComEwsClient {
     /// All headers are expected to be included in the provided MIME content.
     ///
     /// [`CreateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
-    pub async fn save_message(
+    pub async fn create_message(
         self,
         folder_id: String,
         is_draft: bool,
         content: Vec<u8>,
-        copy_listener: RefPtr<nsIMsgCopyServiceListener>,
-        message_callbacks: RefPtr<IEwsMessageCallbacks>,
+        message_callbacks: RefPtr<IEWSMessageCreateCallbacks>,
     ) {
-        if let Err(status) = unsafe { copy_listener.OnStartCopy().to_result() } {
+        if let Err(status) = unsafe { message_callbacks.OnStartCreate().to_result() } {
             log::error!("aborting copy: an error occurred while starting the listener: {status}");
             return;
         }
@@ -989,13 +988,7 @@ impl XpComEwsClient {
         // Use the return value to determine which status we should use when
         // notifying the end of the request.
         let status = match self
-            .save_message_inner(
-                folder_id,
-                is_draft,
-                content,
-                copy_listener.clone(),
-                message_callbacks,
-            )
+            .create_message_inner(folder_id, is_draft, content, message_callbacks.clone())
             .await
         {
             Ok(_) => nserror::NS_OK,
@@ -1006,18 +999,17 @@ impl XpComEwsClient {
             }
         };
 
-        if let Err(err) = unsafe { copy_listener.OnStopCopy(status) }.to_result() {
+        if let Err(err) = unsafe { message_callbacks.OnStopCreate(status) }.to_result() {
             log::error!("aborting copy: an error occurred while stopping the listener: {err}")
         }
     }
 
-    async fn save_message_inner(
+    async fn create_message_inner(
         &self,
         folder_id: String,
         is_draft: bool,
         content: Vec<u8>,
-        copy_listener: RefPtr<nsIMsgCopyServiceListener>,
-        message_callbacks: RefPtr<IEwsMessageCallbacks>,
+        message_callbacks: RefPtr<IEWSMessageCreateCallbacks>,
     ) -> Result<(), XpComEwsError> {
         // Create a new message from the binary content we got.
         let mut message = Message {
@@ -1066,21 +1058,16 @@ impl XpComEwsClient {
 
         let response_message = self.make_create_item_request(create_item).await?;
 
-        let hdr = create_and_populate_header_from_save_response(
+        let hdr = create_and_populate_header_from_create_response(
             response_message,
             &content,
-            message_callbacks,
+            message_callbacks.clone(),
         )?;
 
-        if is_draft {
-            // If we're dealing with a draft message, copy the message key to
-            // the listener so that the draft can be replaced if a newer draft
-            // of the message is saved.
-            let mut key: nsMsgKey = 0;
-
-            unsafe { hdr.GetMessageKey(&mut key) }.to_result()?;
-            unsafe { copy_listener.SetMessageKey(key) }.to_result()?;
-        }
+        // Let the listeners know of the local key for the newly created message.
+        let mut key: nsMsgKey = 0;
+        unsafe { hdr.GetMessageKey(&mut key) }.to_result()?;
+        unsafe { message_callbacks.SetMessageKey(key) }.to_result()?;
 
         Ok(())
     }
@@ -1678,10 +1665,10 @@ fn validate_get_folder_response_message(
 
 /// Uses the provided `CreateItemResponseMessage` to create, populate and commit
 /// an `nsIMsgDBHdr` for a newly created message.
-fn create_and_populate_header_from_save_response(
+fn create_and_populate_header_from_create_response(
     response_message: CreateItemResponseMessage,
     content: &[u8],
-    message_callbacks: RefPtr<IEwsMessageCallbacks>,
+    message_callbacks: RefPtr<IEWSMessageCreateCallbacks>,
 ) -> Result<RefPtr<nsIMsgDBHdr>, XpComEwsError> {
     // If we're saving the message (rather than sending it), we must create a
     // new database entry for it and associate it with the message's EWS ID.
@@ -1702,8 +1689,10 @@ fn create_and_populate_header_from_save_response(
         .id;
     let ews_id = nsCString::from(ews_id);
 
+    // Signal that copying the message to the server has succeeded, which will
+    // trigger its content to be streamed to the relevant message store.
     let hdr =
-        getter_addrefs(|hdr| unsafe { message_callbacks.CreateNewHeaderForItem(&*ews_id, hdr) })?;
+        getter_addrefs(|hdr| unsafe { message_callbacks.OnRemoteCreateSuccessful(&*ews_id, hdr) })?;
 
     // Parse the message and use its headers to populate the `nsIMsgDBHdr`
     // before committing it to the database. We parse the original content
