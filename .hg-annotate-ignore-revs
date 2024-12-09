@@ -15,3 +15,4 @@ dfaaefc00d083c64f078c3ce1e73064aca72abe9 - Rob Lemley - Bug 1672798 - Run black 
 21d8908a221d129633fd4cbb5bd1cdd10ff61506 - Rob Lemley - Bug 1672798 - Run black formatting on suite/editor Python/mozbuild/mozconfigure files. r=IanN
 683c3fca7f8571409e352ec0420bdbda58ba8b21 - Rob Lemley - Bug 1833949 - Port bug 1826062: Automatic reformatting for Prettier 2.0.5. r=leftmostcat
 9e8720653eb9029bfb207e386dab917ebf8559ca - Rob Lemley - Bug 1833949 - Port bug 1826062: Automatic reformatting for Prettier 2.8.8. r=mkmelin
+f82551b0a0a02f4b36e546ad518af00d249380e4 - Rob Lemley - Bug 1936056 - Run clang-format on files that CI missed due to bug 1893477. r=tobyp,kaie
