@@ -1198,16 +1198,12 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(url);
-  if (!mailnewsurl) {
-    NS_WARNING(
-        "Trying to run a message through MIME which doesn't have a "
-        "nsIMsgMailNewsUrl?");
-    return NS_ERROR_UNEXPECTED;
+  if (mailnewsurl) {
+    // If the current protocol uses `nsIMsgMailNewsUrl`, call `SetSpecInternal`
+    // so the base URL is parsed as the message service will expect.
+    rv = mailnewsurl->SetSpecInternal(mailboxUri);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
-  // SetSpecInternal must not fail, or else the URL won't have a base URL and
-  // we'll crash later.
-  rv = mailnewsurl->SetSpecInternal(mailboxUri);
-  NS_ENSURE_SUCCESS(rv, rv);
 
   // if we are forwarding a message and that message used a charset override
   // then forward that as auto-detect flag, too.

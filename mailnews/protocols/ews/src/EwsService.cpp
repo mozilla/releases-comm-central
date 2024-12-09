@@ -238,8 +238,9 @@ NS_IMETHODIMP EwsService::StreamMessage(
     const nsACString& aMessageURI, nsIStreamListener* aStreamListener,
     nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener, bool aConvertData,
     const nsACString& aAdditionalHeader, bool aLocalOnly, nsIURI** _retval) {
-  NS_WARNING("StreamMessage");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  // TODO: Convert the message content when `aConvertData = true`. It's usually
+  // not the case, except when we're deleting an attachment.
+  return GetMessageContent(aMessageURI, nullptr, aStreamListener);
 }
 
 NS_IMETHODIMP EwsService::StreamHeaders(const nsACString& aMessageURI,
