@@ -69,7 +69,7 @@ var mailContextMenu = {
     "mailContext-openConversation": "cmd_openConversation",
     "mailContext-replyNewsgroup": "cmd_replyGroup",
     "mailContext-replySender": "cmd_replySender",
-    "navContext-reply": "cmd_replyall",
+    "navContext-reply": "cmd_reply",
     "mailContext-replyAll": "cmd_replyall",
     "mailContext-replyList": "cmd_replylist",
     "mailContext-forward": "cmd_forward",
