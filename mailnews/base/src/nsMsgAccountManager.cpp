@@ -85,12 +85,8 @@
 #define PREF_MAIL_ACCOUNTMANAGER_APPEND_ACCOUNTS \
   "mail.accountmanager.appendaccounts"
 
-#define NS_MSGACCOUNT_CID                          \
-  {                                                \
-    0x68b25510, 0xe641, 0x11d2, {                  \
-      0xb7, 0xfc, 0x0, 0x80, 0x5f, 0x5, 0xff, 0xa5 \
-    }                                              \
-  }
+#define NS_MSGACCOUNT_CID \
+  {0x68b25510, 0xe641, 0x11d2, {0xb7, 0xfc, 0x0, 0x80, 0x5f, 0x5, 0xff, 0xa5}}
 static NS_DEFINE_CID(kMsgAccountCID, NS_MSGACCOUNT_CID);
 
 #define SEARCH_FOLDER_FLAG "searchFolderFlag"

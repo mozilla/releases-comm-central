@@ -11,12 +11,12 @@
 #include "nsCOMPtr.h"
 #include "nsIMsgFolder.h"
 
-#define NS_MSGREADSTATETXN_IID                       \
-  { /* 121FCE4A-3EA1-455C-8161-839E1557D0CF */       \
-    0x121FCE4A, 0x3EA1, 0x455C, {                    \
-      0x81, 0x61, 0x83, 0x9E, 0x15, 0x57, 0xD0, 0xCF \
-    }                                                \
-  }
+#define NS_MSGREADSTATETXN_IID                \
+  {/* 121FCE4A-3EA1-455C-8161-839E1557D0CF */ \
+   0x121FCE4A,                                \
+   0x3EA1,                                    \
+   0x455C,                                    \
+   {0x81, 0x61, 0x83, 0x9E, 0x15, 0x57, 0xD0, 0xCF}}
 
 //------------------------------------------------------------------------------
 // A mark-all transaction handler. Helper for redo/undo of message read states.

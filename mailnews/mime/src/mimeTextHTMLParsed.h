@@ -23,6 +23,6 @@ struct MimeInlineTextHTMLParsed {
 };
 
 #define MimeInlineTextHTMLParsedClassInitializer(ITYPE, CSUPER) \
-  { MimeInlineTextHTMLClassInitializer(ITYPE, CSUPER) }
+  {MimeInlineTextHTMLClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMETEXTHTMLPARSED_H_ */

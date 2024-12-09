@@ -27,12 +27,8 @@
 using namespace mozilla;
 extern LazyLogModule IMAPCache;  // defined in nsImapProtocol.cpp
 
-#define NS_IIMAPHOSTSESSIONLIST_CID                  \
-  {                                                  \
-    0x479ce8fc, 0xe725, 0x11d2, {                    \
-      0xa5, 0x05, 0x00, 0x60, 0xb0, 0xfc, 0x04, 0xb7 \
-    }                                                \
-  }
+#define NS_IIMAPHOSTSESSIONLIST_CID \
+  {0x479ce8fc, 0xe725, 0x11d2, {0xa5, 0x05, 0x00, 0x60, 0xb0, 0xfc, 0x04, 0xb7}}
 static NS_DEFINE_CID(kCImapHostSessionListCID, NS_IIMAPHOSTSESSIONLIST_CID);
 
 nsImapUrl::nsImapUrl() : mLock("nsImapUrl.mLock") {

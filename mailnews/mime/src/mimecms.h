@@ -31,6 +31,6 @@ struct MimeEncryptedCMS {
 };
 
 #define MimeEncryptedCMSClassInitializer(ITYPE, CSUPER) \
-  { MimeEncryptedClassInitializer(ITYPE, CSUPER) }
+  {MimeEncryptedClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMEPKCS_H_ */

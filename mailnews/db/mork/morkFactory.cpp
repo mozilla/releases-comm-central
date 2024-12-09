@@ -243,8 +243,10 @@ morkFactory::MakeHeap(nsIMdbEnv* mev, nsIMdbHeap** acqHeap) {
     if (!outHeap) ev->OutOfMemoryError();
   }
   MORK_ASSERT(acqHeap);
-  if (acqHeap) *acqHeap = outHeap;
-  else PR_Free(outHeap);
+  if (acqHeap)
+    *acqHeap = outHeap;
+  else
+    PR_Free(outHeap);
   return outErr;
 }
 // } ----- end heap methods -----

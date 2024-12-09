@@ -33,12 +33,8 @@ class nsIMsgOfflineImapOperation;
 
 #define COPY_BUFFER_SIZE 16384
 
-#define NS_IMAPMAILCOPYSTATE_IID                     \
-  {                                                  \
-    0xb64534f0, 0x3d53, 0x11d3, {                    \
-      0xac, 0x2a, 0x00, 0x80, 0x5f, 0x8a, 0xc9, 0x68 \
-    }                                                \
-  }
+#define NS_IMAPMAILCOPYSTATE_IID \
+  {0xb64534f0, 0x3d53, 0x11d3, {0xac, 0x2a, 0x00, 0x80, 0x5f, 0x8a, 0xc9, 0x68}}
 
 class nsImapMailCopyState : public nsISupports {
  public:

@@ -19,12 +19,12 @@
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Components.h"
 
-#define NS_MSGSENDLATER_CID                         \
-  { /* E15C83F1-1CF4-11d3-8EF0-00A024A7D144 */      \
-    0xe15c83f1, 0x1cf4, 0x11d3, {                   \
-      0x8e, 0xf0, 0x0, 0xa0, 0x24, 0xa7, 0xd1, 0x44 \
-    }                                               \
-  }
+#define NS_MSGSENDLATER_CID                   \
+  {/* E15C83F1-1CF4-11d3-8EF0-00A024A7D144 */ \
+   0xe15c83f1,                                \
+   0x1cf4,                                    \
+   0x11d3,                                    \
+   {0x8e, 0xf0, 0x0, 0xa0, 0x24, 0xa7, 0xd1, 0x44}}
 static NS_DEFINE_CID(kMsgSendLaterCID, NS_MSGSENDLATER_CID);
 
 NS_IMPL_ISUPPORTS(nsMsgOfflineManager, nsIMsgOfflineManager,

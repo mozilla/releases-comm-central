@@ -16,12 +16,12 @@
 
 using mozilla::EditTransactionBase;
 
-#define NS_MESSAGETRANSACTION_IID                    \
-  { /* da621b30-1efc-11d3-abe4-00805f8ac968 */       \
-    0xda621b30, 0x1efc, 0x11d3, {                    \
-      0xab, 0xe4, 0x00, 0x80, 0x5f, 0x8a, 0xc9, 0x68 \
-    }                                                \
-  }
+#define NS_MESSAGETRANSACTION_IID             \
+  {/* da621b30-1efc-11d3-abe4-00805f8ac968 */ \
+   0xda621b30,                                \
+   0x1efc,                                    \
+   0x11d3,                                    \
+   {0xab, 0xe4, 0x00, 0x80, 0x5f, 0x8a, 0xc9, 0x68}}
 /**
  * Base class to support undo/redo for moving/copying/deleting/marking
  * messages.

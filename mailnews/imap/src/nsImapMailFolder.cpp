@@ -81,20 +81,16 @@
 #include "nsIObserverService.h"
 #include "nsIPropertyBag2.h"
 
-#define NS_PARSEMAILMSGSTATE_CID                   \
-  { /* 2B79AC51-1459-11d3-8097-006008128C4E */     \
-    0x2b79ac51, 0x1459, 0x11d3, {                  \
-      0x80, 0x97, 0x0, 0x60, 0x8, 0x12, 0x8c, 0x4e \
-    }                                              \
-  }
+#define NS_PARSEMAILMSGSTATE_CID              \
+  {/* 2B79AC51-1459-11d3-8097-006008128C4E */ \
+   0x2b79ac51,                                \
+   0x1459,                                    \
+   0x11d3,                                    \
+   {0x80, 0x97, 0x0, 0x60, 0x8, 0x12, 0x8c, 0x4e}}
 static NS_DEFINE_CID(kParseMailMsgStateCID, NS_PARSEMAILMSGSTATE_CID);
 
-#define NS_IIMAPHOSTSESSIONLIST_CID                  \
-  {                                                  \
-    0x479ce8fc, 0xe725, 0x11d2, {                    \
-      0xa5, 0x05, 0x00, 0x60, 0xb0, 0xfc, 0x04, 0xb7 \
-    }                                                \
-  }
+#define NS_IIMAPHOSTSESSIONLIST_CID \
+  {0x479ce8fc, 0xe725, 0x11d2, {0xa5, 0x05, 0x00, 0x60, 0xb0, 0xfc, 0x04, 0xb7}}
 static NS_DEFINE_CID(kCImapHostSessionList, NS_IIMAPHOSTSESSIONLIST_CID);
 
 #define MAILNEWS_CUSTOM_HEADERS "mailnews.customHeaders"

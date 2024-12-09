@@ -19,12 +19,8 @@ class nsIAbBooleanExpression;
 
 #define NS_ABOSXDIRECTORY_URI_PREFIX "moz-abosxdirectory://"
 
-#define NS_IABOSXDIRECTORY_IID                       \
-  {                                                  \
-    0x87ee4bd9, 0x8552, 0x498f, {                    \
-      0x80, 0x85, 0x34, 0xf0, 0x2a, 0xbb, 0x56, 0x16 \
-    }                                                \
-  }
+#define NS_IABOSXDIRECTORY_IID \
+  {0x87ee4bd9, 0x8552, 0x498f, {0x80, 0x85, 0x34, 0xf0, 0x2a, 0xbb, 0x56, 0x16}}
 
 class nsIAbOSXDirectory : public nsISupports {
  public:

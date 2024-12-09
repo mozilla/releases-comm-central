@@ -201,7 +201,7 @@ mork_num morkRowSpace::CutAllRows(morkEnv* ev, morkPool* ioPool) {
       ev->NilPointerError();
 
 #  ifdef MORK_ENABLE_PROBE_MAPS
-      // cut nothing from the map
+    // cut nothing from the map
 #  else  /*MORK_ENABLE_PROBE_MAPS*/
     i.CutHereRow(ev, /*key*/ (morkRow**)0);
 #  endif /*MORK_ENABLE_PROBE_MAPS*/

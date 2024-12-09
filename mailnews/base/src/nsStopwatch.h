@@ -7,12 +7,8 @@
 
 #include "nsIStopwatch.h"
 
-#define NS_STOPWATCH_CID                             \
-  {                                                  \
-    0x6ef7eafd, 0x72d0, 0x4c56, {                    \
-      0x94, 0x09, 0x67, 0xe1, 0x6d, 0x0f, 0x25, 0x5b \
-    }                                                \
-  }
+#define NS_STOPWATCH_CID \
+  {0x6ef7eafd, 0x72d0, 0x4c56, {0x94, 0x09, 0x67, 0xe1, 0x6d, 0x0f, 0x25, 0x5b}}
 
 #define NS_STOPWATCH_CONTRACTID "@mozilla.org/stopwatch;1"
 

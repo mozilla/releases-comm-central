@@ -31,6 +31,6 @@ struct MimeInlineTextHTMLAsPlaintext {
 };
 
 #define MimeInlineTextHTMLAsPlaintextClassInitializer(ITYPE, CSUPER) \
-  { MimeInlineTextPlainClassInitializer(ITYPE, CSUPER) }
+  {MimeInlineTextPlainClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMETHPL_H_ */

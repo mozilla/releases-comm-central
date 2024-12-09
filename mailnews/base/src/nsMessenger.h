@@ -108,11 +108,11 @@ class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
   nsCOMPtr<nsISupports> mSearchContext;
 };
 
-#define NS_MESSENGER_CID                             \
-  { /* f436a174-e2c0-4955-9afe-e3feb68aee56 */       \
-    0xf436a174, 0xe2c0, 0x4955, {                    \
-      0x9a, 0xfe, 0xe3, 0xfe, 0xb6, 0x8a, 0xee, 0x56 \
-    }                                                \
-  }
+#define NS_MESSENGER_CID                      \
+  {/* f436a174-e2c0-4955-9afe-e3feb68aee56 */ \
+   0xf436a174,                                \
+   0xe2c0,                                    \
+   0x4955,                                    \
+   {0x9a, 0xfe, 0xe3, 0xfe, 0xb6, 0x8a, 0xee, 0x56}}
 
 #endif

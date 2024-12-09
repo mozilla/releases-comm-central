@@ -283,7 +283,7 @@ bool mime_is_allowed_class(const MimeObjectClass* clazz,
             clazz == (MimeObjectClass*)&mimeMultipartAppleDoubleClass ||
             clazz == (MimeObjectClass*)&mimeMessageClass ||
             clazz == (MimeObjectClass*)&mimeExternalObjectClass ||
-    /*    mimeUntypedTextClass? -- does uuencode */
+  /*    mimeUntypedTextClass? -- does uuencode */
 #ifdef ENABLE_SMIME
             clazz == (MimeObjectClass*)&mimeMultipartSignedCMSClass ||
             clazz == (MimeObjectClass*)&mimeEncryptedCMSClass ||

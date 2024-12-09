@@ -54,6 +54,6 @@ struct MimeSunAttachment {
 };
 
 #define MimeSunAttachmentClassInitializer(ITYPE, CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
+  {MimeMultipartClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMESUN_H_ */

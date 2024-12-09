@@ -22,7 +22,7 @@ class nsIMdbCell;
 
 #define morkRow_kMaxGcUses 0x0FF   /* max for 8-bit unsigned int */
 #define morkRow_kMaxLength 0x0FFFF /* max for 16-bit unsigned int */
-#define morkRow_kMinusOneRid ((mork_rid)-1)
+#define morkRow_kMinusOneRid ((mork_rid) - 1)
 
 #define morkRow_kTag 'r' /* magic signature for mRow_Tag */
 

@@ -21,9 +21,12 @@
 
 #include <AddressBook/AddressBook.h>
 
-#define kABDeletedRecords (kABDeletedRecords ? kABDeletedRecords : @"ABDeletedRecords")
-#define kABUpdatedRecords (kABUpdatedRecords ? kABUpdatedRecords : @"ABUpdatedRecords")
-#define kABInsertedRecords (kABInsertedRecords ? kABInsertedRecords : @"ABInsertedRecords")
+#define kABDeletedRecords \
+  (kABDeletedRecords ? kABDeletedRecords : @"ABDeletedRecords")
+#define kABUpdatedRecords \
+  (kABUpdatedRecords ? kABUpdatedRecords : @"ABUpdatedRecords")
+#define kABInsertedRecords \
+  (kABInsertedRecords ? kABInsertedRecords : @"ABInsertedRecords")
 
 static nsresult GetOrCreateGroup(NSString* aUid, nsIAbDirectory** aResult) {
   NS_ASSERTION(aUid, "No UID for group!.");
@@ -32,7 +35,8 @@ static nsresult GetOrCreateGroup(NSString* aUid, nsIAbDirectory** aResult) {
   AppendToCString(aUid, uri);
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
+  nsCOMPtr<nsIAbManager> abManager =
+      do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbDirectory> directory;
@@ -43,7 +47,8 @@ static nsresult GetOrCreateGroup(NSString* aUid, nsIAbDirectory** aResult) {
   return NS_OK;
 }
 
-static nsresult GetCard(ABRecord* aRecord, nsIAbCard** aResult, nsIAbOSXDirectory* osxDirectory) {
+static nsresult GetCard(ABRecord* aRecord, nsIAbCard** aResult,
+                        nsIAbOSXDirectory* osxDirectory) {
   NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   NSString* uid = [aRecord uniqueId];
@@ -73,8 +78,8 @@ static nsresult CreateCard(ABRecord* aRecord, nsIAbCard** aResult) {
   if (!uid) return NS_ERROR_FAILURE;
 
   nsresult rv;
-  nsCOMPtr<nsIAbOSXCard> osxCard =
-      do_CreateInstance("@mozilla.org/addressbook/directory;1?type=moz-abosxcard", &rv);
+  nsCOMPtr<nsIAbOSXCard> osxCard = do_CreateInstance(
+      "@mozilla.org/addressbook/directory;1?type=moz-abosxcard", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString uri(NS_ABOSXCARD_URI_PREFIX);
@@ -109,15 +114,18 @@ static nsresult Sync(NSString* aUid) {
     nsCOMPtr<nsIAbCard> abCard;
     nsresult rv;
 
-    nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
+    nsCOMPtr<nsIAbManager> abManager =
+        do_GetService("@mozilla.org/abmanager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIAbDirectory> directory;
-    rv = abManager->GetDirectory(nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
-                                 getter_AddRefs(directory));
+    rv = abManager->GetDirectory(
+        nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
+        getter_AddRefs(directory));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIAbOSXDirectory> osxDirectory = do_QueryInterface(directory, &rv);
+    nsCOMPtr<nsIAbOSXDirectory> osxDirectory =
+        do_QueryInterface(directory, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = GetCard(card, getter_AddRefs(abCard), osxDirectory);
@@ -143,21 +151,25 @@ static nsresult Sync(NSString* aUid) {
   NSArray* inserted = [changes objectForKey:kABInsertedRecords];
 
   if (inserted) {
-    nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
+    nsCOMPtr<nsIAbManager> abManager =
+        do_GetService("@mozilla.org/abmanager;1", &rv);
     NS_ENSURE_SUCCESS_VOID(rv);
 
     nsCOMPtr<nsIAbDirectory> directory;
-    rv = abManager->GetDirectory(nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
-                                 getter_AddRefs(directory));
+    rv = abManager->GetDirectory(
+        nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
+        getter_AddRefs(directory));
     NS_ENSURE_SUCCESS_VOID(rv);
 
-    nsCOMPtr<nsIAbOSXDirectory> osxDirectory = do_QueryInterface(directory, &rv);
+    nsCOMPtr<nsIAbOSXDirectory> osxDirectory =
+        do_QueryInterface(directory, &rv);
     NS_ENSURE_SUCCESS_VOID(rv);
 
     unsigned int i, count = [inserted count];
     for (i = 0; i < count; ++i) {
       ABAddressBook* addressBook = [ABAddressBook sharedAddressBook];
-      ABRecord* card = [addressBook recordForUniqueId:[inserted objectAtIndex:i]];
+      ABRecord* card =
+          [addressBook recordForUniqueId:[inserted objectAtIndex:i]];
       if ([card isKindOfClass:[ABGroup class]]) {
         nsCOMPtr<nsIAbDirectory> directory;
         GetOrCreateGroup([inserted objectAtIndex:i], getter_AddRefs(directory));
@@ -186,15 +198,18 @@ static nsresult Sync(NSString* aUid) {
 
   NSArray* deleted = [changes objectForKey:kABDeletedRecords];
   if (deleted) {
-    nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
+    nsCOMPtr<nsIAbManager> abManager =
+        do_GetService("@mozilla.org/abmanager;1", &rv);
     NS_ENSURE_SUCCESS_VOID(rv);
 
     nsCOMPtr<nsIAbDirectory> directory;
-    rv = abManager->GetDirectory(nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
-                                 getter_AddRefs(directory));
+    rv = abManager->GetDirectory(
+        nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
+        getter_AddRefs(directory));
     NS_ENSURE_SUCCESS_VOID(rv);
 
-    nsCOMPtr<nsIAbOSXDirectory> osxDirectory = do_QueryInterface(directory, &rv);
+    nsCOMPtr<nsIAbOSXDirectory> osxDirectory =
+        do_QueryInterface(directory, &rv);
     NS_ENSURE_SUCCESS_VOID(rv);
 
     unsigned int i, count = [deleted count];
@@ -228,7 +243,8 @@ nsAbOSXDirectory::~nsAbOSXDirectory() {
   }
 }
 
-NS_IMPL_ISUPPORTS_INHERITED(nsAbOSXDirectory, nsAbDirProperty, nsIAbOSXDirectory)
+NS_IMPL_ISUPPORTS_INHERITED(nsAbOSXDirectory, nsAbDirProperty,
+                            nsIAbOSXDirectory)
 
 NS_IMETHODIMP
 nsAbOSXDirectory::Init(const char* aUri) {
@@ -241,10 +257,11 @@ nsAbOSXDirectory::Init(const char* aUri) {
   ABAddressBook* addressBook = [ABAddressBook sharedAddressBook];
   if (sObserverCount == 0) {
     sObserver = [[ABChangedMonitor alloc] init];
-    [[NSNotificationCenter defaultCenter] addObserver:(ABChangedMonitor*)sObserver
-                                             selector:@selector(ABChanged:)
-                                                 name:kABDatabaseChangedExternallyNotification
-                                               object:nil];
+    [[NSNotificationCenter defaultCenter]
+        addObserver:(ABChangedMonitor*)sObserver
+           selector:@selector(ABChanged:)
+               name:kABDatabaseChangedExternallyNotification
+             object:nil];
   }
   ++sObserverCount;
 
@@ -257,7 +274,8 @@ nsAbOSXDirectory::Init(const char* aUri) {
 
     m_DirPrefId.AssignLiteral("ldap_2.servers.osx");
 
-    cards = [[addressBook people] arrayByAddingObjectsFromArray:[addressBook groups]];
+    cards = [[addressBook people]
+        arrayByAddingObjectsFromArray:[addressBook groups]];
     if (!mCardList)
       mCardList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
     else
@@ -266,15 +284,20 @@ nsAbOSXDirectory::Init(const char* aUri) {
 
     cardList = mCardList;
   } else {
-    nsAutoCString uid(Substring(mURI, sizeof(NS_ABOSXDIRECTORY_URI_PREFIX) - 1));
-    ABRecord* card = [addressBook recordForUniqueId:[NSString stringWithUTF8String:uid.get()]];
+    nsAutoCString uid(
+        Substring(mURI, sizeof(NS_ABOSXDIRECTORY_URI_PREFIX) - 1));
+    ABRecord* card = [addressBook
+        recordForUniqueId:[NSString stringWithUTF8String:uid.get()]];
     NS_ASSERTION([card isKindOfClass:[ABGroup class]], "Huh.");
 
     m_IsMailList = true;
     AppendToString([card valueForProperty:kABGroupNameProperty], m_ListDirName);
 
     ABGroup* group = (ABGroup*)[addressBook
-        recordForUniqueId:[NSString stringWithUTF8String:nsAutoCString(Substring(mURI, 21)).get()]];
+        recordForUniqueId:[NSString
+                              stringWithUTF8String:nsAutoCString(
+                                                       Substring(mURI, 21))
+                                                       .get()]];
     cards = [[group members] arrayByAddingObjectsFromArray:[group subgroups]];
 
     if (!m_AddressList)
@@ -288,7 +311,8 @@ nsAbOSXDirectory::Init(const char* aUri) {
 
   unsigned int nbCards = [cards count];
   nsCOMPtr<nsIAbCard> card;
-  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
+  nsCOMPtr<nsIAbManager> abManager =
+      do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbOSXDirectory> rootOSXDirectory;
@@ -301,7 +325,8 @@ nsAbOSXDirectory::Init(const char* aUri) {
     // If we're a Group, it's likely that the cards we're going
     // to create were already created in the root nsAbOSXDirectory,
     if (!isRootOSXDirectory)
-      rv = GetCard([cards objectAtIndex:i], getter_AddRefs(card), rootOSXDirectory);
+      rv = GetCard([cards objectAtIndex:i], getter_AddRefs(card),
+                   rootOSXDirectory);
     else {
       // If we're not a Group, that means we're the root nsAbOSXDirectory,
       // which means we have to create the cards from scratch.
@@ -340,8 +365,9 @@ nsAbOSXDirectory::GetReadOnly(bool* aReadOnly) {
   return NS_OK;
 }
 
-static bool CheckRedundantCards(nsIAbManager* aManager, nsIAbDirectory* aDirectory,
-                                nsIAbCard* aCard, NSMutableArray* aCardList) {
+static bool CheckRedundantCards(nsIAbManager* aManager,
+                                nsIAbDirectory* aDirectory, nsIAbCard* aCard,
+                                NSMutableArray* aCardList) {
   nsresult rv;
   nsCOMPtr<nsIAbOSXCard> osxCard = do_QueryInterface(aCard, &rv);
   NS_ENSURE_SUCCESS(rv, false);
@@ -370,15 +396,18 @@ nsresult nsAbOSXDirectory::GetRootOSXDirectory(nsIAbOSXDirectory** aResult) {
   if (!mCacheTopLevelOSXAb) {
     // Attempt to get card from the toplevel directories
     nsresult rv;
-    nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
+    nsCOMPtr<nsIAbManager> abManager =
+        do_GetService("@mozilla.org/abmanager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIAbDirectory> directory;
-    rv = abManager->GetDirectory(nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
-                                 getter_AddRefs(directory));
+    rv = abManager->GetDirectory(
+        nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
+        getter_AddRefs(directory));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIAbOSXDirectory> osxDirectory = do_QueryInterface(directory, &rv);
+    nsCOMPtr<nsIAbOSXDirectory> osxDirectory =
+        do_QueryInterface(directory, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     mCacheTopLevelOSXAb = osxDirectory;
   }
@@ -391,7 +420,8 @@ nsresult nsAbOSXDirectory::Update() {
   NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
+  nsCOMPtr<nsIAbManager> abManager =
+      do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   ABAddressBook* addressBook = [ABAddressBook sharedAddressBook];
@@ -402,7 +432,10 @@ nsresult nsAbOSXDirectory::Update() {
   NSArray *groups, *cards;
   if (m_IsMailList) {
     ABGroup* group = (ABGroup*)[addressBook
-        recordForUniqueId:[NSString stringWithUTF8String:nsAutoCString(Substring(mURI, 21)).get()]];
+        recordForUniqueId:[NSString
+                              stringWithUTF8String:nsAutoCString(
+                                                       Substring(mURI, 21))
+                                                       .get()]];
     groups = nil;
     cards = [[group members] arrayByAddingObjectsFromArray:[group subgroups]];
 
@@ -452,7 +485,9 @@ nsresult nsAbOSXDirectory::Update() {
   }
 
   card = (ABRecord*)[addressBook
-      recordForUniqueId:[NSString stringWithUTF8String:nsAutoCString(Substring(mURI, 21)).get()]];
+      recordForUniqueId:[NSString stringWithUTF8String:nsAutoCString(
+                                                           Substring(mURI, 21))
+                                                           .get()]];
   NSString* stringValue = [card valueForProperty:kABGroupNameProperty];
   if (![stringValue isEqualToString:WrapString(m_ListDirName)]) {
     nsAutoString oldValue(m_ListDirName);
@@ -514,7 +549,8 @@ nsresult nsAbOSXDirectory::AssertChildNodes() {
   }
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
+  nsCOMPtr<nsIAbManager> abManager =
+      do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NSArray* groups = [[ABAddressBook sharedAddressBook] groups];
@@ -528,7 +564,8 @@ nsresult nsAbOSXDirectory::AssertChildNodes() {
 
   nsCOMPtr<nsIAbDirectory> directory;
   for (i = 0; i < count; ++i) {
-    rv = GetOrCreateGroup([[groups objectAtIndex:i] uniqueId], getter_AddRefs(directory));
+    rv = GetOrCreateGroup([[groups objectAtIndex:i] uniqueId],
+                          getter_AddRefs(directory));
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = AssertDirectory(abManager, directory);
@@ -540,9 +577,11 @@ nsresult nsAbOSXDirectory::AssertChildNodes() {
   NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }
 
-nsresult nsAbOSXDirectory::AssertDirectory(nsIAbManager* aManager, nsIAbDirectory* aDirectory) {
+nsresult nsAbOSXDirectory::AssertDirectory(nsIAbManager* aManager,
+                                           nsIAbDirectory* aDirectory) {
   uint32_t pos;
-  if (m_AddressList && NS_SUCCEEDED(m_AddressList->IndexOf(0, aDirectory, &pos)))
+  if (m_AddressList &&
+      NS_SUCCEEDED(m_AddressList->IndexOf(0, aDirectory, &pos)))
     // We already have this directory, so no point in adding it again.
     return NS_OK;
 
@@ -558,13 +597,14 @@ nsresult nsAbOSXDirectory::AssertDirectory(nsIAbManager* aManager, nsIAbDirector
   return NS_OK;
 }
 
-nsresult nsAbOSXDirectory::AssertCard(nsIAbManager* aManager, nsIAbCard* aCard) {
+nsresult nsAbOSXDirectory::AssertCard(nsIAbManager* aManager,
+                                      nsIAbCard* aCard) {
   nsAutoCString ourUID;
   GetUID(ourUID);
   aCard->SetDirectoryUID(ourUID);
 
-  nsresult rv =
-      m_IsMailList ? m_AddressList->AppendElement(aCard) : mCardList->AppendElement(aCard);
+  nsresult rv = m_IsMailList ? m_AddressList->AppendElement(aCard)
+                             : mCardList->AppendElement(aCard);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Get the card's URI and add it to our card store
@@ -575,12 +615,14 @@ nsresult nsAbOSXDirectory::AssertCard(nsIAbManager* aManager, nsIAbCard* aCard) 
   rv = osxCard->GetURI(uri);
 
   nsCOMPtr<nsIAbOSXCard> retrievedCard;
-  if (!mCardStore.Get(uri, getter_AddRefs(retrievedCard))) mCardStore.InsertOrUpdate(uri, osxCard);
+  if (!mCardStore.Get(uri, getter_AddRefs(retrievedCard)))
+    mCardStore.InsertOrUpdate(uri, osxCard);
 
   return NS_OK;
 }
 
-nsresult nsAbOSXDirectory::UnassertCard(nsIAbManager* aManager, nsIAbCard* aCard,
+nsresult nsAbOSXDirectory::UnassertCard(nsIAbManager* aManager,
+                                        nsIAbCard* aCard,
                                         nsIMutableArray* aCardList) {
   uint32_t pos;
   if (NS_SUCCEEDED(aCardList->IndexOf(0, aCard, &pos))) {
@@ -591,7 +633,8 @@ nsresult nsAbOSXDirectory::UnassertCard(nsIAbManager* aManager, nsIAbCard* aCard
   return NS_OK;
 }
 
-nsresult nsAbOSXDirectory::UnassertDirectory(nsIAbManager* aManager, nsIAbDirectory* aDirectory) {
+nsresult nsAbOSXDirectory::UnassertDirectory(nsIAbManager* aManager,
+                                             nsIAbDirectory* aDirectory) {
   NS_ENSURE_TRUE(m_AddressList, NS_ERROR_NULL_POINTER);
 
   uint32_t pos;
@@ -603,7 +646,8 @@ nsresult nsAbOSXDirectory::UnassertDirectory(nsIAbManager* aManager, nsIAbDirect
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbOSXDirectory::GetChildNodes(nsTArray<RefPtr<nsIAbDirectory>>& aNodes) {
+NS_IMETHODIMP nsAbOSXDirectory::GetChildNodes(
+    nsTArray<RefPtr<nsIAbDirectory>>& aNodes) {
   aNodes.Clear();
   // Mailing lists don't have childnodes.
   if (m_IsMailList || !m_AddressList) {
@@ -679,8 +723,10 @@ nsAbOSXDirectory::GetCardByUri(const nsACString& aUri, nsIAbOSXCard** aResult) {
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::GetCardFromProperty(const char* aProperty, const nsACString& aValue,
-                                      bool aCaseSensitive, nsIAbCard** aResult) {
+nsAbOSXDirectory::GetCardFromProperty(const char* aProperty,
+                                      const nsACString& aValue,
+                                      bool aCaseSensitive,
+                                      nsIAbCard** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   *aResult = nullptr;
@@ -703,8 +749,10 @@ nsAbOSXDirectory::GetCardFromProperty(const char* aProperty, const nsACString& a
     if (NS_SUCCEEDED(rv)) {
       rv = card->GetPropertyAsAUTF8String(aProperty, cardValue);
       if (NS_SUCCEEDED(rv)) {
-        bool equal = aCaseSensitive ? cardValue.Equals(aValue)
-                                    : cardValue.Equals(aValue, nsCaseInsensitiveCStringComparator);
+        bool equal =
+            aCaseSensitive
+                ? cardValue.Equals(aValue)
+                : cardValue.Equals(aValue, nsCaseInsensitiveCStringComparator);
         if (equal) NS_IF_ADDREF(*aResult = card);
       }
     }
@@ -713,8 +761,10 @@ nsAbOSXDirectory::GetCardFromProperty(const char* aProperty, const nsACString& a
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::GetCardsFromProperty(const char* aProperty, const nsACString& aValue,
-                                       bool aCaseSensitive, nsTArray<RefPtr<nsIAbCard>>& aResult) {
+nsAbOSXDirectory::GetCardsFromProperty(const char* aProperty,
+                                       const nsACString& aValue,
+                                       bool aCaseSensitive,
+                                       nsTArray<RefPtr<nsIAbCard>>& aResult) {
   aResult.Clear();
   if (aValue.IsEmpty()) return NS_OK;
 
@@ -731,8 +781,10 @@ nsAbOSXDirectory::GetCardsFromProperty(const char* aProperty, const nsACString& 
       nsAutoCString cardValue;
       rv = card->GetPropertyAsAUTF8String(aProperty, cardValue);
       if (NS_SUCCEEDED(rv)) {
-        bool equal = aCaseSensitive ? cardValue.Equals(aValue)
-                                    : cardValue.Equals(aValue, nsCaseInsensitiveCStringComparator);
+        bool equal =
+            aCaseSensitive
+                ? cardValue.Equals(aValue)
+                : cardValue.Equals(aValue, nsCaseInsensitiveCStringComparator);
         if (equal) aResult.AppendElement(&*card);
       }
     }
@@ -742,7 +794,8 @@ nsAbOSXDirectory::GetCardsFromProperty(const char* aProperty, const nsACString& 
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::CardForEmailAddress(const nsACString& aEmailAddress, nsIAbCard** aResult) {
+nsAbOSXDirectory::CardForEmailAddress(const nsACString& aEmailAddress,
+                                      nsIAbCard** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   *aResult = nullptr;
@@ -789,14 +842,16 @@ nsAbOSXDirectory::HasCard(nsIAbCard* aCard, bool* aHasCard) {
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::HasDirectory(nsIAbDirectory* aDirectory, bool* aHasDirectory) {
+nsAbOSXDirectory::HasDirectory(nsIAbDirectory* aDirectory,
+                               bool* aHasDirectory) {
   NS_ENSURE_ARG_POINTER(aDirectory);
   NS_ENSURE_ARG_POINTER(aHasDirectory);
 
   *aHasDirectory = false;
 
   uint32_t pos;
-  if (m_AddressList && NS_SUCCEEDED(m_AddressList->IndexOf(0, aDirectory, &pos)))
+  if (m_AddressList &&
+      NS_SUCCEEDED(m_AddressList->IndexOf(0, aDirectory, &pos)))
     *aHasDirectory = true;
 
   return NS_OK;
@@ -812,8 +867,8 @@ nsAbOSXDirectory::Search(const nsAString& query, const nsAString& searchString,
                                             getter_AddRefs(expression));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIAbDirectoryQueryArguments> arguments =
-      do_CreateInstance("@mozilla.org/addressbook/directory/query-arguments;1", &rv);
+  nsCOMPtr<nsIAbDirectoryQueryArguments> arguments = do_CreateInstance(
+      "@mozilla.org/addressbook/directory/query-arguments;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = arguments->SetExpression(expression);
@@ -828,8 +883,8 @@ nsAbOSXDirectory::Search(const nsAString& query, const nsAString& searchString,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Initiate the proxy query with the no query directory
-  nsCOMPtr<nsIAbDirectoryQueryProxy> queryProxy =
-      do_CreateInstance("@mozilla.org/addressbook/directory-query/proxy;1", &rv);
+  nsCOMPtr<nsIAbDirectoryQueryProxy> queryProxy = do_CreateInstance(
+      "@mozilla.org/addressbook/directory-query/proxy;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = queryProxy->Initiate();
@@ -846,7 +901,8 @@ nsresult nsAbOSXDirectory::DeleteUid(const nsACString& aUid) {
   if (!m_AddressList) return NS_ERROR_NULL_POINTER;
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
+  nsCOMPtr<nsIAbManager> abManager =
+      do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // At this stage we don't know if aUid represents a card or group. The OS X
@@ -865,7 +921,8 @@ nsresult nsAbOSXDirectory::DeleteUid(const nsACString& aUid) {
 
   // Iterate backwards in case we remove something
   while (addressCount--) {
-    nsCOMPtr<nsISupports> abItem(do_QueryElementAt(m_AddressList, addressCount, &rv));
+    nsCOMPtr<nsISupports> abItem(
+        do_QueryElementAt(m_AddressList, addressCount, &rv));
     if (NS_FAILED(rv)) continue;
 
     nsCOMPtr<nsIAbDirectory> directory(do_QueryInterface(abItem, &rv));
@@ -880,7 +937,8 @@ nsresult nsAbOSXDirectory::DeleteUid(const nsACString& aUid) {
         osxCard->GetURI(cardUri);
         if (uri.Equals(cardUri)) {
           nsCOMPtr<nsIAbCard> card(do_QueryInterface(osxCard, &rv));
-          if (NS_SUCCEEDED(rv)) return UnassertCard(abManager, card, m_AddressList);
+          if (NS_SUCCEEDED(rv))
+            return UnassertCard(abManager, card, m_AddressList);
         }
       }
     }
@@ -896,7 +954,8 @@ nsresult nsAbOSXDirectory::DeleteUid(const nsACString& aUid) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   while (addressCount--) {
-    nsCOMPtr<nsIAbOSXCard> osxCard(do_QueryElementAt(mCardList, addressCount, &rv));
+    nsCOMPtr<nsIAbOSXCard> osxCard(
+        do_QueryElementAt(mCardList, addressCount, &rv));
     if (NS_FAILED(rv)) continue;
 
     nsAutoCString cardUri;

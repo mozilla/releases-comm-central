@@ -68,7 +68,7 @@ class JaCppIncomingServerDelegator : public JaBaseCppIncomingServer,
     NS_FORWARD_NSIMSGINCOMINGSERVER(mFakeThis->JaBaseCppIncomingServer::)
     NS_FORWARD_NSIINTERFACEREQUESTOR(mFakeThis->JaBaseCppIncomingServer::)
    private:
-    virtual ~Super(){};
+    virtual ~Super() {};
     JaCppIncomingServerDelegator* mFakeThis;
   };
 

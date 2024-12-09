@@ -13,12 +13,8 @@
 class nsIMdbFactory;
 
 // 2794D0B7-E740-47a4-91C0-3E4FCB95B806
-#define NS_IMDBFACTORYFACTORY_IID                   \
-  {                                                 \
-    0x2794d0b7, 0xe740, 0x47a4, {                   \
-      0x91, 0xc0, 0x3e, 0x4f, 0xcb, 0x95, 0xb8, 0x6 \
-    }                                               \
-  }
+#define NS_IMDBFACTORYFACTORY_IID \
+  {0x2794d0b7, 0xe740, 0x47a4, {0x91, 0xc0, 0x3e, 0x4f, 0xcb, 0x95, 0xb8, 0x6}}
 
 // because Mork doesn't support XPCOM, we have to wrap the mdb factory interface
 // with an interface that gives you an mdb factory.

@@ -11,12 +11,8 @@
 
 #include <CoreFoundation/CoreFoundation.h>
 
-#define NS_MAILMACINTEGRATION_CID                    \
-  {                                                  \
-    0x85a27035, 0xb970, 0x4079, {                    \
-      0xb9, 0xd2, 0xe2, 0x1f, 0x69, 0xe6, 0xb2, 0x1f \
-    }                                                \
-  }
+#define NS_MAILMACINTEGRATION_CID \
+  {0x85a27035, 0xb970, 0x4079, {0xb9, 0xd2, 0xe2, 0x1f, 0x69, 0xe6, 0xb2, 0x1f}}
 
 class nsMacShellService : public nsIShellService, public nsToolkitShellService {
  public:

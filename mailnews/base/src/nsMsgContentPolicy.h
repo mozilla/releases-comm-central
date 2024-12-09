@@ -26,12 +26,8 @@
 #include "nsTArray.h"
 
 /* DBFCFDF0-4489-4faa-8122-190FD1EFA16C */
-#define NS_MSGCONTENTPOLICY_CID                     \
-  {                                                 \
-    0xdbfcfdf0, 0x4489, 0x4faa, {                   \
-      0x81, 0x22, 0x19, 0xf, 0xd1, 0xef, 0xa1, 0x6c \
-    }                                               \
-  }
+#define NS_MSGCONTENTPOLICY_CID \
+  {0xdbfcfdf0, 0x4489, 0x4faa, {0x81, 0x22, 0x19, 0xf, 0xd1, 0xef, 0xa1, 0x6c}}
 
 #define NS_MSGCONTENTPOLICY_CONTRACTID "@mozilla.org/messenger/content-policy;1"
 

@@ -46,6 +46,6 @@ struct MimeInlineTextPlainFlowedExData {
 };
 
 #define MimeInlineTextPlainFlowedClassInitializer(ITYPE, CSUPER) \
-  { MimeInlineTextClassInitializer(ITYPE, CSUPER) }
+  {MimeInlineTextClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMETPFL_H_ */

@@ -13,12 +13,8 @@
 #define nsIMimeObjectClassAccess_h_
 
 // {C09EDB23-B7AF-11d2-B35E-525400E2D63A}
-#define NS_IMIME_OBJECT_CLASS_ACCESS_IID            \
-  {                                                 \
-    0xc09edb23, 0xb7af, 0x11d2, {                   \
-      0xb3, 0x5e, 0x52, 0x54, 0x0, 0xe2, 0xd6, 0x3a \
-    }                                               \
-  }
+#define NS_IMIME_OBJECT_CLASS_ACCESS_IID \
+  {0xc09edb23, 0xb7af, 0x11d2, {0xb3, 0x5e, 0x52, 0x54, 0x0, 0xe2, 0xd6, 0x3a}}
 
 #include "nsISupports.h"
 

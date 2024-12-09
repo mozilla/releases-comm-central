@@ -354,8 +354,8 @@ class morkProbeMap : public morkNode {
 /*============================================================================*/
 /* morkProbeMapIter */
 
-#define morkProbeMapIter_kBeforeIx ((mork_i4)-1) /* before first member */
-#define morkProbeMapIter_kAfterIx ((mork_i4)-2)  /* after last member */
+#define morkProbeMapIter_kBeforeIx ((mork_i4) - 1) /* before first member */
+#define morkProbeMapIter_kAfterIx ((mork_i4) - 2)  /* after last member */
 
 class morkProbeMapIter {
  protected:

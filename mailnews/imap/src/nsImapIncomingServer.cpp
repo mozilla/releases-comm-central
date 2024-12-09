@@ -46,19 +46,11 @@ using namespace mozilla;
 #define PREF_TRASH_FOLDER_PATH "trash_folder_name"
 #define DEFAULT_TRASH_FOLDER_PATH "Trash"  // XXX Is this a useful default?
 
-#define NS_SUBSCRIBABLESERVER_CID                    \
-  {                                                  \
-    0x8510876a, 0x1dd2, 0x11b2, {                    \
-      0x82, 0x53, 0x91, 0xf7, 0x1b, 0x34, 0x8a, 0x25 \
-    }                                                \
-  }
+#define NS_SUBSCRIBABLESERVER_CID \
+  {0x8510876a, 0x1dd2, 0x11b2, {0x82, 0x53, 0x91, 0xf7, 0x1b, 0x34, 0x8a, 0x25}}
 static NS_DEFINE_CID(kSubscribableServerCID, NS_SUBSCRIBABLESERVER_CID);
-#define NS_IIMAPHOSTSESSIONLIST_CID                  \
-  {                                                  \
-    0x479ce8fc, 0xe725, 0x11d2, {                    \
-      0xa5, 0x05, 0x00, 0x60, 0xb0, 0xfc, 0x04, 0xb7 \
-    }                                                \
-  }
+#define NS_IIMAPHOSTSESSIONLIST_CID \
+  {0x479ce8fc, 0xe725, 0x11d2, {0xa5, 0x05, 0x00, 0x60, 0xb0, 0xfc, 0x04, 0xb7}}
 static NS_DEFINE_CID(kCImapHostSessionListCID, NS_IIMAPHOSTSESSIONLIST_CID);
 
 NS_IMPL_ADDREF_INHERITED(nsImapIncomingServer, nsMsgIncomingServer)

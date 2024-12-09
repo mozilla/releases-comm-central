@@ -341,8 +341,9 @@ static int MimeInlineText_open_dam(const char* line, int32_t length,
   return status;
 }
 
-static int MimeInlineText_rotate_convert_and_parse_line(
-    const char* line, int32_t length, MimeObject* obj) {
+static int MimeInlineText_rotate_convert_and_parse_line(const char* line,
+                                                        int32_t length,
+                                                        MimeObject* obj) {
   int status = 0;
 
   PR_ASSERT(!obj->closed_p);

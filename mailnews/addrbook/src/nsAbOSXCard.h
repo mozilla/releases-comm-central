@@ -10,12 +10,8 @@
 
 #define NS_ABOSXCARD_URI_PREFIX "moz-abosxcard://"
 
-#define NS_IABOSXCARD_IID                            \
-  {                                                  \
-    0xa7e5b697, 0x772d, 0x4fb5, {                    \
-      0x81, 0x16, 0x23, 0xb7, 0x5a, 0xac, 0x94, 0x56 \
-    }                                                \
-  }
+#define NS_IABOSXCARD_IID \
+  {0xa7e5b697, 0x772d, 0x4fb5, {0x81, 0x16, 0x23, 0xb7, 0x5a, 0xac, 0x94, 0x56}}
 
 class nsIAbOSXCard : public nsISupports {
  public:

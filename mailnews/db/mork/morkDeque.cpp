@@ -90,8 +90,7 @@ void morkList::CutAndZapAllListMembers(morkEnv* ev, nsIMdbHeap* ioHeap)
 void morkList::CutAllListMembers()
 // just make list empty, dropping members without zapping
 {
-  while (this->PopHead())
-    ; /* empty */
+  while (this->PopHead()); /* empty */
 
   mList_Head = 0;
   mList_Tail = 0;

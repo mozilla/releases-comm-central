@@ -32,6 +32,6 @@ struct MimeExternalBody {
 };
 
 #define MimeExternalBodyClassInitializer(ITYPE, CSUPER) \
-  { MimeObjectClassInitializer(ITYPE, CSUPER) }
+  {MimeObjectClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMEEBOD_H_ */

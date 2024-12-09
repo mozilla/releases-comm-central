@@ -189,8 +189,7 @@ class morkSpan {
   morkSpan(mork_pos inFromPos, mork_line inFromLine, mork_pos inToPos,
            mork_line inToLine)
       : mSpan_Start(inFromPos, inFromLine),
-        mSpan_End(inToPos, inToLine) { /* empty implementation */
-  }
+        mSpan_End(inToPos, inToLine) { /* empty implementation */ }
 };
 
 /*=============================================================================

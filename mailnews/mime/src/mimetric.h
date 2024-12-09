@@ -28,6 +28,6 @@ struct MimeInlineTextRichtext {
 };
 
 #define MimeInlineTextRichtextClassInitializer(ITYPE, CSUPER) \
-  { MimeInlineTextClassInitializer(ITYPE, CSUPER) }
+  {MimeInlineTextClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMETRIC_H_ */

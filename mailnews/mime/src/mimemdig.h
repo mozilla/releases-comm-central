@@ -28,6 +28,6 @@ struct MimeMultipartDigest {
 };
 
 #define MimeMultipartDigestClassInitializer(ITYPE, CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
+  {MimeMultipartClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMEMDIG_H_ */

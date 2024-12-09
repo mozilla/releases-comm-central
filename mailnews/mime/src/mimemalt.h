@@ -45,6 +45,6 @@ struct MimeMultipartAlternative {
 };
 
 #define MimeMultipartAlternativeClassInitializer(ITYPE, CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
+  {MimeMultipartClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMEMALT_H_ */

@@ -27,6 +27,6 @@ struct MimeMultipartParallel {
 };
 
 #define MimeMultipartParallelClassInitializer(ITYPE, CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
+  {MimeMultipartClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMEMPAR_H_ */

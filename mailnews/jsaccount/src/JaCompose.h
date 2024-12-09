@@ -65,7 +65,7 @@ class JaCppComposeDelegator : public JaBaseCppCompose, public msgIOverride {
     NS_FORWARD_NSIMSGSENDLISTENER(mFakeThis->JaBaseCppCompose::)
     NS_FORWARD_NSIINTERFACEREQUESTOR(mFakeThis->JaBaseCppCompose::)
    private:
-    virtual ~Super(){};
+    virtual ~Super() {};
     JaCppComposeDelegator* mFakeThis;
   };
 

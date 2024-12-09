@@ -74,6 +74,6 @@ struct MimeInlineText {
 };
 
 #define MimeInlineTextClassInitializer(ITYPE, CSUPER) \
-  { MimeLeafClassInitializer(ITYPE, CSUPER) }
+  {MimeLeafClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMETEXT_H_ */

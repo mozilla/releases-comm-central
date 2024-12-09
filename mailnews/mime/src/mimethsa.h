@@ -25,6 +25,6 @@ struct MimeInlineTextHTMLSanitized {
 };
 
 #define MimeInlineTextHTMLSanitizedClassInitializer(ITYPE, CSUPER) \
-  { MimeInlineTextHTMLClassInitializer(ITYPE, CSUPER) }
+  {MimeInlineTextHTMLClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMETHPL_H_ */

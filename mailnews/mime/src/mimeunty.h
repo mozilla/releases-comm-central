@@ -65,6 +65,6 @@ struct MimeUntypedText {
 };
 
 #define MimeUntypedTextClassInitializer(ITYPE, CSUPER) \
-  { MimeContainerClassInitializer(ITYPE, CSUPER) }
+  {MimeContainerClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMEUNTY_H_ */

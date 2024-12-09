@@ -32,12 +32,12 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgLocalFolderHdrs.h"
 
-#define NS_MSGCOMPFIELDS_CID                         \
-  { /* e64b0f51-0d7b-4e2f-8c60-3862ee8c174f */       \
-    0xe64b0f51, 0x0d7b, 0x4e2f, {                    \
-      0x8c, 0x60, 0x38, 0x62, 0xee, 0x8c, 0x17, 0x4f \
-    }                                                \
-  }
+#define NS_MSGCOMPFIELDS_CID                  \
+  {/* e64b0f51-0d7b-4e2f-8c60-3862ee8c174f */ \
+   0xe64b0f51,                                \
+   0x0d7b,                                    \
+   0x4e2f,                                    \
+   {0x8c, 0x60, 0x38, 0x62, 0xee, 0x8c, 0x17, 0x4f}}
 static NS_DEFINE_CID(kMsgCompFieldsCID, NS_MSGCOMPFIELDS_CID);
 
 #ifdef IMPORT_DEBUG

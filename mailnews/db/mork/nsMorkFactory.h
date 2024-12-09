@@ -13,7 +13,7 @@
 
 class nsMorkFactoryService final : public nsIMdbFactoryService {
  public:
-  nsMorkFactoryService(){};
+  nsMorkFactoryService() {};
   // nsISupports methods
   NS_DECL_ISUPPORTS
 

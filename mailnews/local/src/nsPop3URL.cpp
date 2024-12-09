@@ -16,12 +16,8 @@
 #include "nsLocalMailFolder.h"
 #include "nsPop3Sink.h"
 
-#define NS_POP3URL_CID                             \
-  {                                                \
-    0xea1b0a11, 0xe6f4, 0x11d2, {                  \
-      0x80, 0x70, 0x0, 0x60, 0x8, 0x12, 0x8c, 0x4e \
-    }                                              \
-  }
+#define NS_POP3URL_CID \
+  {0xea1b0a11, 0xe6f4, 0x11d2, {0x80, 0x70, 0x0, 0x60, 0x8, 0x12, 0x8c, 0x4e}}
 static NS_DEFINE_CID(kPop3UrlCID, NS_POP3URL_CID);
 
 nsPop3URL::nsPop3URL() : nsMsgMailNewsUrl() {}

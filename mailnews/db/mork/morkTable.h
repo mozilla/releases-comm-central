@@ -590,9 +590,9 @@ class morkTable : public morkObject, public morkLink, public nsIMdbTable {
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 // use negative values for kCut and kAdd, to keep non-neg move pos distinct:
-#define morkTableChange_kCut ((mork_pos)-1)  /* shows row was cut */
-#define morkTableChange_kAdd ((mork_pos)-2)  /* shows row was added */
-#define morkTableChange_kNone ((mork_pos)-3) /* unknown change */
+#define morkTableChange_kCut ((mork_pos) - 1)  /* shows row was cut */
+#define morkTableChange_kAdd ((mork_pos) - 2)  /* shows row was added */
+#define morkTableChange_kNone ((mork_pos) - 3) /* unknown change */
 
 class morkTableChange : public morkNext {
  public:  // state is public because the entire Mork system is private

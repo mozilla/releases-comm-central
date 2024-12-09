@@ -13,12 +13,8 @@
 class nsIImapIncomingServer;
 
 // f4d89e3e-77da-492c-962b-7835f0742c22
-#define NS_IIMAPHOSTSESSIONLIST_IID                  \
-  {                                                  \
-    0xf4d89e3e, 0x77da, 0x492c, {                    \
-      0x96, 0x2b, 0x78, 0x35, 0xf0, 0x74, 0x2c, 0x22 \
-    }                                                \
-  }
+#define NS_IIMAPHOSTSESSIONLIST_IID \
+  {0xf4d89e3e, 0x77da, 0x492c, {0x96, 0x2b, 0x78, 0x35, 0xf0, 0x74, 0x2c, 0x22}}
 
 // this is an interface to a linked list of host info's
 class nsIImapHostSessionList : public nsISupports {

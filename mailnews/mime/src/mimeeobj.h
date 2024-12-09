@@ -29,7 +29,7 @@ struct MimeExternalObject {
 };
 
 #define MimeExternalObjectClassInitializer(ITYPE, CSUPER) \
-  { MimeLeafClassInitializer(ITYPE, CSUPER) }
+  {MimeLeafClassInitializer(ITYPE, CSUPER)}
 
 typedef struct MimeSuppressedCryptoClass MimeSuppressedCryptoClass;
 typedef struct MimeSuppressedCrypto MimeSuppressedCrypto;
@@ -45,6 +45,6 @@ struct MimeSuppressedCrypto {
 };
 
 #define MimeSuppressedCryptoClassInitializer(ITYPE, CSUPER) \
-  { MimeExternalObjectClassInitializer(ITYPE, CSUPER) }
+  {MimeExternalObjectClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMEEOBJ_H_ */

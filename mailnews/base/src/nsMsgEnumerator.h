@@ -19,10 +19,10 @@ class nsBaseMsgEnumerator : public nsIMsgEnumerator {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGENUMERATOR
-  nsBaseMsgEnumerator(){};
+  nsBaseMsgEnumerator() {};
 
  protected:
-  virtual ~nsBaseMsgEnumerator(){};
+  virtual ~nsBaseMsgEnumerator() {};
 };
 
 /**
@@ -36,10 +36,10 @@ class nsBaseMsgThreadEnumerator : public nsIMsgThreadEnumerator {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGTHREADENUMERATOR
-  nsBaseMsgThreadEnumerator(){};
+  nsBaseMsgThreadEnumerator() {};
 
  protected:
-  virtual ~nsBaseMsgThreadEnumerator(){};
+  virtual ~nsBaseMsgThreadEnumerator() {};
 };
 
 #endif /* _nsMsgEnumerator_H_ */

@@ -1,4 +1,5 @@
-/* -*- Mode: Objective-C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: Objective-C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset:
+ * 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -42,15 +43,16 @@ nsUserInfo::GetEmailAddress(nsAString& aEmailAddress) {
   NS_OBJC_BEGIN_TRY_IGNORE_BLOCK
 
   aEmailAddress.Truncate();
-  // Try to get this user's primary email from the system addressbook's "me card"
-  // (if they've filled it)
+  // Try to get this user's primary email from the system addressbook's "me
+  // card" (if they've filled it)
   ABPerson* me = [[ABAddressBook sharedAddressBook] me];
   ABMultiValue* emailAddresses = [me valueForProperty:kABEmailProperty];
   if ([emailAddresses count] > 0) {
     // get the index of the primary email, in case there are more than one
-    int primaryEmailIndex = [emailAddresses indexForIdentifier:[emailAddresses primaryIdentifier]];
-    nsCocoaUtils::GetStringForNSString([emailAddresses valueAtIndex:primaryEmailIndex],
-                                       aEmailAddress);
+    int primaryEmailIndex =
+        [emailAddresses indexForIdentifier:[emailAddresses primaryIdentifier]];
+    nsCocoaUtils::GetStringForNSString(
+        [emailAddresses valueAtIndex:primaryEmailIndex], aEmailAddress);
   }
 
   NS_OBJC_END_TRY_IGNORE_BLOCK

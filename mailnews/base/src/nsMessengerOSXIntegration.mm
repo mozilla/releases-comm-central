@@ -35,7 +35,8 @@ nsresult nsMessengerOSXIntegration::RestoreDockIcon() {
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::UpdateUnreadCount(uint32_t unreadCount, const nsAString& unreadTooltip) {
+nsMessengerOSXIntegration::UpdateUnreadCount(uint32_t unreadCount,
+                                             const nsAString& unreadTooltip) {
   NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   if (unreadCount == 0) {
@@ -50,7 +51,8 @@ nsMessengerOSXIntegration::UpdateUnreadCount(uint32_t unreadCount, const nsAStri
     total.AppendInt(unreadCount);
   }
   id tile = [[NSApplication sharedApplication] dockTile];
-  [tile setBadgeLabel:[NSString stringWithFormat:@"%S", (const unichar*)total.get()]];
+  [tile setBadgeLabel:[NSString
+                          stringWithFormat:@"%S", (const unichar*)total.get()]];
   return NS_OK;
 
   NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);

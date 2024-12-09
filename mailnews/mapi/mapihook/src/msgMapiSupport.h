@@ -9,12 +9,8 @@
 #include "nsIMapiSupport.h"
 #include "msgMapiFactory.h"
 
-#define NS_IMAPISUPPORT_CID                          \
-  {                                                  \
-    0x8967fed2, 0xc8bb, 0x11d5, {                    \
-      0xa3, 0xe9, 0x00, 0xb0, 0xd0, 0xf3, 0xba, 0xa7 \
-    }                                                \
-  }
+#define NS_IMAPISUPPORT_CID \
+  {0x8967fed2, 0xc8bb, 0x11d5, {0xa3, 0xe9, 0x00, 0xb0, 0xd0, 0xf3, 0xba, 0xa7}}
 
 class nsMapiSupport : public nsIMapiSupport, public nsIObserver {
  public:

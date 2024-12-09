@@ -138,9 +138,9 @@ typedef mork_u1 mork_load;  // dirty or clean (clone IronDoc's fe_load)
 // 'test' is a public domain Mithril for key equality tests in probe maps
 typedef mork_i2 mork_test; /* neg=>kVoid, zero=>kHit, pos=>kMiss */
 
-#define morkTest_kVoid ((mork_test)-1) /* -1: nil key slot, no key order */
-#define morkTest_kHit ((mork_test)0)   /*  0: keys are equal, a map hit */
-#define morkTest_kMiss ((mork_test)1)  /*  1: keys not equal, a map miss */
+#define morkTest_kVoid ((mork_test) - 1) /* -1: nil key slot, no key order */
+#define morkTest_kHit ((mork_test)0)     /*  0: keys are equal, a map hit */
+#define morkTest_kMiss ((mork_test)1)    /*  1: keys not equal, a map miss */
 
 // { %%%%% begin constants for Mork scalar types %%%%%
 #define morkPriority_kHi ((mork_priority)0)  /* best priority */
@@ -197,7 +197,7 @@ typedef mork_id mork_gid;  // unsigned group identity without any scope
 typedef mdb_order mork_order;  // neg:lessthan, zero:equalto, pos:greaterthan
 // } %%%%% end mdb-driven scalar typedefs %%%%%
 
-#define morkId_kMinusOne ((mdb_id)-1)
+#define morkId_kMinusOne ((mdb_id) - 1)
 
 // { %%%%% begin class forward defines %%%%%
 // try to put these in alphabetical order for easier examination:

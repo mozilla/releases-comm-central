@@ -347,7 +347,9 @@ morkRowObject::AddRow(  // add all cells in another row to this one
   if (ev) {
     morkRow* unsafeSource = (morkRow*)ioSourceRow;  // unsafe cast
     //    if ( unsafeSource->CanUseRow(mev, morkBool_kFalse, &outErr, &source) )
-    { mRowObject_Row->AddRow(ev, unsafeSource); }
+    {
+      mRowObject_Row->AddRow(ev, unsafeSource);
+    }
     outErr = ev->AsErr();
   }
   return outErr;
@@ -363,7 +365,9 @@ morkRowObject::SetRow(  // make exact duplicate of another row
     morkRowObject* sourceObject = (morkRowObject*)ioSourceRow;  // unsafe cast
     morkRow* unsafeSource = sourceObject->mRowObject_Row;
     //    if ( unsafeSource->CanUseRow(mev, morkBool_kFalse, &outErr, &source) )
-    { mRowObject_Row->SetRow(ev, unsafeSource); }
+    {
+      mRowObject_Row->SetRow(ev, unsafeSource);
+    }
     outErr = ev->AsErr();
   }
   return outErr;

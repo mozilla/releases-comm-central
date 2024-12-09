@@ -38,6 +38,6 @@ struct MimeContainer {
 };
 
 #define MimeContainerClassInitializer(ITYPE, CSUPER) \
-  { MimeObjectClassInitializer(ITYPE, CSUPER) }
+  {MimeObjectClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMECONT_H_ */

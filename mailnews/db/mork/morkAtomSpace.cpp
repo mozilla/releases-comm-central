@@ -127,7 +127,7 @@ mork_num morkAtomSpace::CutAllAtoms(morkEnv* ev, morkPool* ioPool) {
     if (a) ioPool->ZapAtom(ev, a, &store->mStore_Zone);
 
 #  ifdef MORK_ENABLE_PROBE_MAPS
-      // do not cut anything from the map
+    // do not cut anything from the map
 #  else  /*MORK_ENABLE_PROBE_MAPS*/
     i.CutHereAtom(ev, /*key*/ (morkBookAtom**)0);
 #  endif /*MORK_ENABLE_PROBE_MAPS*/

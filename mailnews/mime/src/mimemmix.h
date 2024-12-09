@@ -27,6 +27,6 @@ struct MimeMultipartMixed {
 };
 
 #define MimeMultipartMixedClassInitializer(ITYPE, CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
+  {MimeMultipartClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMEMMIX_H_ */

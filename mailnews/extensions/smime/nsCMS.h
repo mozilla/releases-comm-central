@@ -16,12 +16,8 @@
 #include "sechash.h"
 #include "cms.h"
 
-#define NS_CMSMESSAGE_CID                            \
-  {                                                  \
-    0xa4557478, 0xae16, 0x11d5, {                    \
-      0xba, 0x4b, 0x00, 0x10, 0x83, 0x03, 0xb1, 0x17 \
-    }                                                \
-  }
+#define NS_CMSMESSAGE_CID \
+  {0xa4557478, 0xae16, 0x11d5, {0xba, 0x4b, 0x00, 0x10, 0x83, 0x03, 0xb1, 0x17}}
 
 class nsCMSMessage : public nsICMSMessage {
  public:
@@ -55,12 +51,8 @@ class nsCMSMessage : public nsICMSMessage {
 // nsCMSDecoder - implementation of nsICMSDecoder
 // ===============================================
 
-#define NS_CMSDECODER_CID                            \
-  {                                                  \
-    0x9dcef3a4, 0xa3bc, 0x11d5, {                    \
-      0xba, 0x47, 0x00, 0x10, 0x83, 0x03, 0xb1, 0x17 \
-    }                                                \
-  }
+#define NS_CMSDECODER_CID \
+  {0x9dcef3a4, 0xa3bc, 0x11d5, {0xba, 0x47, 0x00, 0x10, 0x83, 0x03, 0xb1, 0x17}}
 
 class nsCMSDecoder : public nsICMSDecoder {
  public:
@@ -100,12 +92,8 @@ class nsCMSDecoderJS : public nsICMSDecoderJS {
 // nsCMSEncoder - implementation of nsICMSEncoder
 // ===============================================
 
-#define NS_CMSENCODER_CID                            \
-  {                                                  \
-    0xa15789aa, 0x8903, 0x462b, {                    \
-      0x81, 0xe9, 0x4a, 0xa2, 0xcf, 0xf4, 0xd5, 0xcb \
-    }                                                \
-  }
+#define NS_CMSENCODER_CID \
+  {0xa15789aa, 0x8903, 0x462b, {0x81, 0xe9, 0x4a, 0xa2, 0xcf, 0xf4, 0xd5, 0xcb}}
 class nsCMSEncoder : public nsICMSEncoder {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
