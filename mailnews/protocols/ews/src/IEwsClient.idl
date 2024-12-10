@@ -16,6 +16,7 @@ interface nsIMsgCopyServiceListener;
 
 // Forward declarations of callback classes defined later in this file.
 interface IEwsFolderCallbacks;
+interface IEwsFolderCreateCallbacks;
 interface IEwsFolderDeleteCallbacks;
 interface IEwsMessageCallbacks;
 interface IEwsMessageCreateCallbacks;
@@ -62,6 +63,19 @@ interface IEwsClient : nsISupports
    *   request, or an empty string to indicate that this is the initial sync.
    */
   void syncFolderHierarchy(in IEwsFolderCallbacks callbacks, in AUTF8String syncStateToken);
+
+  /**
+   * Creates a new folder on the Exchange server as a child of the specified
+   * parent.
+   *
+   * @param parentId   The EWS ID of the folder under which to create the new
+   *                   folder.
+   * @param name       The name to use for the new folder.
+   * @param callbacks  Callbacks to indicate the success or failure of the
+   *                   folder creation operation.
+   */
+  void createFolder(in AUTF8String parentId, in AUTF8String name, in IEwsFolderCreateCallbacks callbacks);
+
   void syncMessagesForFolder(in IEwsMessageCallbacks callbacks, in AUTF8String folderId, in AUTF8String syncStateToken);
   void getMessage(in AUTF8String id, in IEwsMessageFetchCallbacks callbacks);
   void changeReadStatus(in Array<AUTF8String> messageIds, in boolean readStatus);
@@ -101,6 +115,29 @@ interface IEwsFolderCallbacks : nsISupports
   void delete(in AUTF8String id);
 
   void updateSyncState(in AUTF8String syncStateToken);
+  void onError(in IEwsClient_Error err, in AUTF8String desc);
+};
+
+/**
+ * Callbacks for communicating the results of creating a folder on the remote
+ * Exchange server.
+ */
+[uuid(db950950-0824-4a8c-bace-871a950ace28)]
+interface IEwsFolderCreateCallbacks : nsISupports
+{
+  /**
+   * Called if a remote folder was successfully created.
+   *
+   * @param id - The EWS ID of the newly-created folder.
+   */
+  void onSuccess(in AUTF8String id);
+
+  /**
+   * Called if remote folder creation failed.
+   *
+   * @param err - The type of error encountered.
+   * @param desc - A human-readable description of the error.
+   */
   void onError(in IEwsClient_Error err, in AUTF8String desc);
 };
 

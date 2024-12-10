@@ -14,9 +14,9 @@ use thin_vec::ThinVec;
 use url::Url;
 use xpcom::{
     interfaces::{
-        nsIInputStream, nsIMsgIncomingServer, IEwsFolderCallbacks, IEwsFolderDeleteCallbacks,
-        IEwsMessageCallbacks, IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks,
-        IEwsMessageFetchCallbacks,
+        nsIInputStream, nsIMsgIncomingServer, IEwsFolderCallbacks, IEwsFolderCreateCallbacks,
+        IEwsFolderDeleteCallbacks, IEwsMessageCallbacks, IEwsMessageCreateCallbacks,
+        IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
 };
@@ -97,6 +97,34 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "sync_folder_hierarchy",
             client.sync_folder_hierarchy(RefPtr::new(callbacks), sync_state),
+        )
+        .detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(create_folder => CreateFolder(parent_id: *const nsACString, name: *const nsACString, callbacks: *const IEwsFolderCreateCallbacks));
+    fn create_folder(
+        &self,
+        parent_id: &nsACString,
+        name: &nsACString,
+        callbacks: &IEwsFolderCreateCallbacks,
+    ) -> Result<(), nsresult> {
+        if parent_id.is_empty() || name.is_empty() {
+            return Err(nserror::NS_ERROR_INVALID_ARG);
+        }
+
+        let client = self.try_new_client()?;
+
+        // The client operation is async and we want it to survive the end of
+        // this scope, so spawn it as a detached `moz_task`.
+        moz_task::spawn_local(
+            "create_folder",
+            client.create_folder(
+                parent_id.to_utf8().into(),
+                name.to_utf8().into(),
+                RefPtr::new(callbacks),
+            ),
         )
         .detach();
 

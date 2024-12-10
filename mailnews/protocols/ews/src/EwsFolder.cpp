@@ -26,6 +26,51 @@
 #define ID_PROPERTY "ewsId"
 #define SYNC_STATE_PROPERTY "ewsSyncStateToken"
 
+class FolderCreateCallbacks : public IEwsFolderCreateCallbacks {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_IEWSFOLDERCREATECALLBACKS
+
+  FolderCreateCallbacks(EwsFolder* parentFolder, const nsAString& folderName)
+      : mParentFolder(parentFolder), mFolderName(folderName) {}
+
+ protected:
+  virtual ~FolderCreateCallbacks() = default;
+
+ private:
+  RefPtr<EwsFolder> mParentFolder;
+  const nsString mFolderName;
+};
+
+NS_IMPL_ISUPPORTS(FolderCreateCallbacks, IEwsFolderCreateCallbacks)
+
+NS_IMETHODIMP FolderCreateCallbacks::OnSuccess(const nsACString& id) {
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  nsresult rv = mParentFolder->GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Initialize storage and memory for the new folder and register it with the
+  // parent folder.
+  nsCOMPtr<nsIMsgFolder> newFolder;
+  rv = msgStore->CreateFolder(mParentFolder, mFolderName,
+                              getter_AddRefs(newFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = newFolder->SetStringProperty(ID_PROPERTY, id);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Notify any consumers listening for updates on the parent folder that we've
+  // added the new folder.
+  return mParentFolder->NotifyFolderAdded(newFolder);
+}
+
+NS_IMETHODIMP FolderCreateCallbacks::OnError(IEwsClient::Error err,
+                                             const nsACString& desc) {
+  NS_ERROR("Error occurred while creating EWS folder");
+
+  return NS_OK;
+}
+
 class MessageCreateCallbacks : public IEwsMessageCreateCallbacks {
  public:
   NS_DECL_ISUPPORTS
@@ -357,8 +402,21 @@ NS_IMETHODIMP EwsFolder::CreateStorageIfMissing(nsIUrlListener* urlListener) {
 
 NS_IMETHODIMP EwsFolder::CreateSubfolder(const nsAString& folderName,
                                          nsIMsgWindow* msgWindow) {
-  NS_WARNING("CreateSubfolder");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsCString ewsId;
+  nsresult rv = GetEwsId(ewsId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<IEwsClient> client;
+  rv = GetEwsClient(getter_AddRefs(client));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  RefPtr<FolderCreateCallbacks> callbacks =
+      new FolderCreateCallbacks(this, folderName);
+
+  nsCString convertedName;
+  CopyUTF16toUTF8(folderName, convertedName);
+
+  return client->CreateFolder(ewsId, convertedName, callbacks);
 }
 
 NS_IMETHODIMP
