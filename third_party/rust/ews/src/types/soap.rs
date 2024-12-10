@@ -345,7 +345,7 @@ impl<'content> ScopedReader<'content> {
         // send all responses as UTF-8. We'll encounter bigger problems
         // elsewhere if we run into a non-UTF-8 document, most notably that we
         // currently don't enable the `encoding` feature for quick-xml.
-        return Ok(Self::from_bytes(content));
+        Ok(Self::from_bytes(content))
     }
 
     /// Gets a string representation of the contents of the current reader.

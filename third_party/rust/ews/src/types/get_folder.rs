@@ -6,7 +6,7 @@ use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
 use crate::{
-    types::sealed::EnvelopeBodyContents, BaseFolderId, Folder, FolderShape, Operation,
+    types::sealed::EnvelopeBodyContents, BaseFolderId, FolderShape, Folders, Operation,
     OperationResponse, ResponseClass, ResponseCode, MESSAGES_NS_URI,
 };
 
@@ -77,13 +77,4 @@ pub struct GetFolderResponseMessage {
 
     /// A collection of the retrieved folders.
     pub folders: Folders,
-}
-
-/// A collection of information on Exchange folders.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/folders-ex15websvcsotherref>
-#[derive(Clone, Debug, Deserialize)]
-pub struct Folders {
-    #[serde(rename = "$value")]
-    pub inner: Vec<Folder>,
 }

@@ -10,7 +10,8 @@ use std::{
 use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{
     create_item::{CreateItem, CreateItemResponseMessage},
-    delete_item::{DeleteItem, DeleteType},
+    delete_folder::DeleteFolder,
+    delete_item::DeleteItem,
     get_folder::{GetFolder, GetFolderResponseMessage},
     get_item::GetItem,
     soap,
@@ -19,9 +20,9 @@ use ews::{
     update_item::{
         ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem, Updates,
     },
-    ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, ExtendedFieldURI, ExtendedProperty,
-    Folder, FolderId, FolderShape, ItemShape, Message, MessageDisposition, MimeContent, Operation,
-    PathToElement, RealItem, Recipient, ResponseClass, ResponseCode,
+    ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, DeleteType, ExtendedFieldURI,
+    ExtendedProperty, Folder, FolderId, FolderShape, ItemShape, Message, MessageDisposition,
+    MimeContent, Operation, PathToElement, RealItem, Recipient, ResponseClass, ResponseCode,
 };
 use fxhash::FxHashMap;
 use mail_parser::MessageParser;
@@ -37,7 +38,7 @@ use xpcom::{
     interfaces::{
         nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsMsgFolderFlagType,
         nsMsgFolderFlags, nsMsgKey, nsMsgMessageFlags, IEWSMessageCreateCallbacks,
-        IEWSMessageFetchCallbacks, IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks,
+        IEWSMessageFetchCallbacks, IEwsClient, IEwsDeleteFolderCallbacks, IEwsFolderCallbacks, IEwsMessageCallbacks,
         IEwsMessageDeleteCallbacks,
     },
     RefPtr,
@@ -155,7 +156,7 @@ impl XpComEwsClient {
                             update_ids.push(folder_id.id)
                         }
                     }
-                    sync_folder_hierarchy::Change::Delete(folder_id) => {
+                    sync_folder_hierarchy::Change::Delete { folder_id } => {
                         delete_ids.push(folder_id.id)
                     }
                 }
@@ -1297,6 +1298,57 @@ impl XpComEwsClient {
 
         // Delete the messages from the folder's database.
         unsafe { callbacks.OnRemoteDeleteSuccessful() }
+            .to_result()
+            .map_err(|err| err.into())
+    }
+
+    pub async fn delete_folder(
+        self,
+        callbacks: RefPtr<IEwsDeleteFolderCallbacks>,
+        folder_id: String,
+    ) {
+        // Call an inner function to perform the operation in order to allow us
+        // to handle errors while letting the inner function simply propagate.
+        if let Err(err) = self.delete_folder_inner(&callbacks, folder_id).await {
+            log::error!("an error occurred while attempting to delete the folder: {err:?}");
+        }
+    }
+
+    async fn delete_folder_inner(
+        self,
+        callbacks: &IEwsDeleteFolderCallbacks,
+        folder_id: String,
+    ) -> Result<(), XpComEwsError> {
+        let delete_folder = DeleteFolder {
+            folder_ids: vec![BaseFolderId::FolderId {
+                id: folder_id,
+                change_key: None,
+            }],
+            delete_type: DeleteType::HardDelete,
+        };
+        let response = self.make_operation_request(delete_folder).await?;
+
+        // We have only sent one message, therefore the response should only
+        // contain one response message.
+        let response_messages = response.response_messages.delete_folder_response_message;
+        if response_messages.len() != 1 {
+            return Err(XpComEwsError::Processing {
+                message: String::from("expected only one message in DeleteFolder response"),
+            });
+        }
+
+        // Get the first (and only) response message, and check if there's a
+        // warning or an error we should handle.
+        let response_message = response_messages.into_iter().next().unwrap();
+        process_response_message_class(
+            "DeleteFolder",
+            &response_message.response_class,
+            &response_message.response_code,
+            &response_message.message_text,
+        )?;
+
+        // Delete the folder from the server's database.
+        unsafe { callbacks.OnRemoteDeleteFolderSuccessful() }
             .to_result()
             .map_err(|err| err.into())
     }

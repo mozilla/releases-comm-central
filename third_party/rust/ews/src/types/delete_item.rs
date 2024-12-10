@@ -7,19 +7,9 @@ use xml_struct::XmlSerialize;
 
 use crate::types::sealed::EnvelopeBodyContents;
 use crate::{
-    BaseItemId, Operation, OperationResponse, ResponseClass, ResponseCode, MESSAGES_NS_URI,
+    BaseItemId, DeleteType, Operation, OperationResponse, ResponseClass, ResponseCode,
+    MESSAGES_NS_URI,
 };
-
-/// The manner in which the item or items are deleted.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/deleteitem#deletetype-attribute>
-#[derive(Debug, XmlSerialize)]
-#[xml_struct(text)]
-pub enum DeleteType {
-    HardDelete,
-    SoftDelete,
-    MoveToDeletedItems,
-}
 
 /// Whether to send meeting cancellations when deleting a calendar item.
 ///

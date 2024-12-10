@@ -15,6 +15,7 @@ interface nsIInputStream;
 interface nsIMsgCopyServiceListener;
 
 interface IEwsFolderCallbacks;
+interface IEwsDeleteFolderCallbacks;
 interface IEwsMessageCallbacks;
 interface IEwsMessageDeleteCallbacks;
 interface IEWSMessageFetchCallbacks;
@@ -69,6 +70,15 @@ interface IEwsClient : nsISupports
                      in IEWSMessageCreateCallbacks messageCallbacks);
 
   void deleteMessages(in Array<AUTF8String> messageEwsIds, in IEwsMessageDeleteCallbacks callbacks);
+
+  /**
+   * Deletes a folder on the Exchange server.
+   *
+   * @param callbacks  Callbacks to indicate the success or failure of the
+   *                   folder deletion operation.
+   * @param folderId   The EWS ID of the folder to delete.
+   */
+  void deleteFolder(in IEwsDeleteFolderCallbacks callbacks, in AUTF8String folderId);
 };
 
 [uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
@@ -157,4 +167,13 @@ interface IEWSMessageCreateCallbacks : nsISupports
 
   // Commits the given header to the relevant message database.
   void commitHeader(in nsIMsgDBHdr hdr);
+};
+
+[uuid(a439c288-7cee-422a-96ab-6aa69259827c)]
+interface IEwsDeleteFolderCallbacks : nsISupports
+{
+  /**
+   * Called if a folder was successfully deleted on the server.
+  */
+  void onRemoteDeleteFolderSuccessful();
 };

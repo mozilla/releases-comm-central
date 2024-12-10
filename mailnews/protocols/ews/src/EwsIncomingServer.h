@@ -9,8 +9,12 @@
 #include "msgIOAuth2Module.h"
 #include "nsMsgIncomingServer.h"
 
-#define EWS_INCOMING_SERVER_IID \
-  {0x6eaa0a24, 0x78f6, 0x4ad7, {0xa2, 0x8a, 0x07, 0x7d, 0x24, 0x02, 0x2c, 0xd2}}
+#define EWS_INCOMING_SERVER_IID                      \
+  {                                                  \
+    0x6eaa0a24, 0x78f6, 0x4ad7, {                    \
+      0xa2, 0x8a, 0x07, 0x7d, 0x24, 0x02, 0x2c, 0xd2 \
+    }                                                \
+  }
 
 class FolderSyncListener;
 

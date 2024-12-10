@@ -11,7 +11,9 @@
 #include "nsIMsgDatabase.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsString.h"
+#include "nsMsgFolderFlags.h"
 #include "nsIInputStream.h"
+#include "nsIMsgCopyService.h"
 #include "nsIMsgWindow.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
@@ -272,6 +274,28 @@ NS_IMETHODIMP MessageOperationCallbacks::OnError(IEwsClient::Error err,
   NS_ERROR("Error occurred while syncing EWS messages");
 
   return NS_OK;
+}
+
+class DeleteFolderCallbacks : public IEwsDeleteFolderCallbacks {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_IEWSDELETEFOLDERCALLBACKS
+
+  DeleteFolderCallbacks(EwsFolder* folder, nsIMsgWindow* window)
+      : mFolder(folder), mWindow(window) {}
+
+ protected:
+  virtual ~DeleteFolderCallbacks() = default;
+
+ private:
+  RefPtr<EwsFolder> mFolder;
+  RefPtr<nsIMsgWindow> mWindow;
+};
+
+NS_IMPL_ISUPPORTS(DeleteFolderCallbacks, IEwsDeleteFolderCallbacks)
+
+NS_IMETHODIMP DeleteFolderCallbacks::OnRemoteDeleteFolderSuccessful() {
+  return mFolder->nsMsgDBFolder::DeleteSelf(mWindow);
 }
 
 NS_IMPL_ADDREF_INHERITED(EwsFolder, nsMsgDBFolder)
@@ -543,4 +567,38 @@ nsresult EwsFolder::GetEwsClient(IEwsClient** ewsClient) {
   nsCOMPtr<IEwsIncomingServer> ewsServer(do_QueryInterface(server));
 
   return ewsServer->GetEwsClient(ewsClient);
+}
+
+NS_IMETHODIMP EwsFolder::DeleteSelf(nsIMsgWindow* aWindow) {
+  bool deletable = false;
+  nsresult rv = GetDeletable(&deletable);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!deletable) {
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  nsCOMPtr<IEwsClient> client;
+  rv = GetEwsClient(getter_AddRefs(client));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCString folderId;
+  rv = GetEwsId(folderId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  RefPtr<DeleteFolderCallbacks> ewsFolderListener =
+      new DeleteFolderCallbacks(this, aWindow);
+
+  return client->DeleteFolder(ewsFolderListener, folderId);
+}
+
+NS_IMETHODIMP EwsFolder::GetDeletable(bool* deletable) {
+  NS_ENSURE_ARG_POINTER(deletable);
+
+  bool isServer;
+  nsresult rv = GetIsServer(&isServer);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  *deletable = !(isServer || (mFlags & nsMsgFolderFlags::SpecialUse));
+  return NS_OK;
 }

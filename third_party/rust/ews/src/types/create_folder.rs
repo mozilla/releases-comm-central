@@ -6,8 +6,8 @@ use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
 use crate::{
-    types::sealed::EnvelopeBodyContents, BaseFolderId, Folder, Operation, OperationResponse,
-    ResponseClass, ResponseCode, MESSAGES_NS_URI,
+    types::sealed::EnvelopeBodyContents, BaseFolderId, Folder, Folders, Operation,
+    OperationResponse, ResponseClass, ResponseCode, MESSAGES_NS_URI,
 };
 
 /// A request to create a new folder.
@@ -65,5 +65,5 @@ pub struct CreateFolderResponseMessage {
 
     pub message_text: Option<String>,
 
-    pub folders: Vec<Folder>,
+    pub folders: Folders,
 }

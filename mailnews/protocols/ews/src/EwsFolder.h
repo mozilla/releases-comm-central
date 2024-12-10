@@ -47,6 +47,8 @@ class EwsFolder : public nsMsgDBFolder {
                             nsIMsgWindow* msgWindow, bool deleteStorage,
                             bool isMove, nsIMsgCopyServiceListener* listener,
                             bool allowUndo) override;
+  NS_IMETHOD DeleteSelf(nsIMsgWindow* aWindow) override;
+  NS_IMETHOD GetDeletable(bool* deletable) override;
 
  private:
   bool mHasLoadedSubfolders;

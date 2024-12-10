@@ -769,6 +769,17 @@ pub struct FolderId {
     pub change_key: Option<String>,
 }
 
+/// The manner in which items or folders are deleted.
+///
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/deletetype>
+#[derive(Clone, Debug, XmlSerialize)]
+#[xml_struct(text)]
+pub enum DeleteType {
+    HardDelete,
+    MoveToDeletedItems,
+    SoftDelete,
+}
+
 /// An identifier for an Exchange item.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/itemids>
@@ -804,18 +815,32 @@ pub struct ItemId {
 
 /// The representation of a folder in an EWS operation.
 #[derive(Clone, Debug, Deserialize, XmlSerialize)]
+#[xml_struct(variant_ns_prefix = "t")]
 pub enum Folder {
     /// A calendar folder in a mailbox.
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/calendarfolder>
     #[serde(rename_all = "PascalCase")]
     CalendarFolder {
+        #[xml_struct(ns_prefix = "t")]
         folder_id: Option<FolderId>,
+
+        #[xml_struct(ns_prefix = "t")]
         parent_folder_id: Option<FolderId>,
+
+        #[xml_struct(ns_prefix = "t")]
         folder_class: Option<String>,
+
+        #[xml_struct(ns_prefix = "t")]
         display_name: Option<String>,
+
+        #[xml_struct(ns_prefix = "t")]
         total_count: Option<u32>,
+
+        #[xml_struct(ns_prefix = "t")]
         child_folder_count: Option<u32>,
+
+        #[xml_struct(ns_prefix = "t")]
         extended_property: Option<Vec<ExtendedProperty>>,
     },
 
@@ -824,12 +849,25 @@ pub enum Folder {
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/contactsfolder>
     #[serde(rename_all = "PascalCase")]
     ContactsFolder {
+        #[xml_struct(ns_prefix = "t")]
         folder_id: Option<FolderId>,
+
+        #[xml_struct(ns_prefix = "t")]
         parent_folder_id: Option<FolderId>,
+
+        #[xml_struct(ns_prefix = "t")]
         folder_class: Option<String>,
+
+        #[xml_struct(ns_prefix = "t")]
         display_name: Option<String>,
+
+        #[xml_struct(ns_prefix = "t")]
         total_count: Option<u32>,
+
+        #[xml_struct(ns_prefix = "t")]
         child_folder_count: Option<u32>,
+
+        #[xml_struct(ns_prefix = "t")]
         extended_property: Option<Vec<ExtendedProperty>>,
     },
 
@@ -838,13 +876,28 @@ pub enum Folder {
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/folder>
     #[serde(rename_all = "PascalCase")]
     Folder {
+        #[xml_struct(ns_prefix = "t")]
         folder_id: Option<FolderId>,
+
+        #[xml_struct(ns_prefix = "t")]
         parent_folder_id: Option<FolderId>,
+
+        #[xml_struct(ns_prefix = "t")]
         folder_class: Option<String>,
+
+        #[xml_struct(ns_prefix = "t")]
         display_name: Option<String>,
+
+        #[xml_struct(ns_prefix = "t")]
         total_count: Option<u32>,
+
+        #[xml_struct(ns_prefix = "t")]
         child_folder_count: Option<u32>,
+
+        #[xml_struct(ns_prefix = "t")]
         extended_property: Option<Vec<ExtendedProperty>>,
+
+        #[xml_struct(ns_prefix = "t")]
         unread_count: Option<u32>,
     },
 
@@ -853,12 +906,25 @@ pub enum Folder {
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/searchfolder>
     #[serde(rename_all = "PascalCase")]
     SearchFolder {
+        #[xml_struct(ns_prefix = "t")]
         folder_id: Option<FolderId>,
+
+        #[xml_struct(ns_prefix = "t")]
         parent_folder_id: Option<FolderId>,
+
+        #[xml_struct(ns_prefix = "t")]
         folder_class: Option<String>,
+
+        #[xml_struct(ns_prefix = "t")]
         display_name: Option<String>,
+
+        #[xml_struct(ns_prefix = "t")]
         total_count: Option<u32>,
+
+        #[xml_struct(ns_prefix = "t")]
         child_folder_count: Option<u32>,
+
+        #[xml_struct(ns_prefix = "t")]
         extended_property: Option<Vec<ExtendedProperty>>,
     },
 
@@ -867,12 +933,25 @@ pub enum Folder {
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/tasksfolder>
     #[serde(rename_all = "PascalCase")]
     TasksFolder {
+        #[xml_struct(ns_prefix = "t")]
         folder_id: Option<FolderId>,
+
+        #[xml_struct(ns_prefix = "t")]
         parent_folder_id: Option<FolderId>,
+
+        #[xml_struct(ns_prefix = "t")]
         folder_class: Option<String>,
+
+        #[xml_struct(ns_prefix = "t")]
         display_name: Option<String>,
+
+        #[xml_struct(ns_prefix = "t")]
         total_count: Option<u32>,
+
+        #[xml_struct(ns_prefix = "t")]
         child_folder_count: Option<u32>,
+
+        #[xml_struct(ns_prefix = "t")]
         extended_property: Option<Vec<ExtendedProperty>>,
     },
 }
@@ -882,6 +961,15 @@ pub enum Folder {
 pub struct Items {
     #[serde(rename = "$value", default)]
     pub inner: Vec<RealItem>,
+}
+
+/// A collection of information on Exchange folders.
+///
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/folders-ex15websvcsotherref>
+#[derive(Clone, Debug, Deserialize)]
+pub struct Folders {
+    #[serde(rename = "$value", default)]
+    pub inner: Vec<Folder>,
 }
 
 /// An item which may appear as the result of a request to read or modify an

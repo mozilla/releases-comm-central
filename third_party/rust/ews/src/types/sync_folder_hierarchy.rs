@@ -129,8 +129,9 @@ pub enum Change {
     /// A deletion of a folder.
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/delete-foldersync>
-    Delete(
+    #[serde(rename_all = "PascalCase")]
+    Delete {
         /// The EWS ID for the deleted folder.
-        FolderId,
-    ),
+        folder_id: FolderId,
+    },
 }
