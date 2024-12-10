@@ -123,4 +123,10 @@ function hiddenWindowStartup() {
   if (element) {
     element.setAttribute("hidden", "true");
   }
+
+  // Unhide tasksMenuMail to enable the CMD + 1 key.
+  var openMail3Pane_menuitem = document.getElementById("tasksMenuMail");
+  if (openMail3Pane_menuitem) {
+    openMail3Pane_menuitem.removeAttribute("hidden");
+  }
 }
