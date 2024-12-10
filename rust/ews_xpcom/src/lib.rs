@@ -15,8 +15,8 @@ use url::Url;
 use xpcom::{
     interfaces::{
         nsIInputStream, nsIMsgIncomingServer, IEWSMessageCreateCallbacks,
-        IEWSMessageFetchCallbacks, IEwsDeleteFolderCallbacks, IEwsFolderCallbacks, IEwsMessageCallbacks,
-        IEwsMessageDeleteCallbacks,
+        IEWSMessageFetchCallbacks, IEwsDeleteFolderCallbacks, IEwsFolderCallbacks,
+        IEwsMessageCallbacks, IEwsMessageDeleteCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
 };

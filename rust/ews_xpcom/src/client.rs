@@ -38,8 +38,8 @@ use xpcom::{
     interfaces::{
         nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsMsgFolderFlagType,
         nsMsgFolderFlags, nsMsgKey, nsMsgMessageFlags, IEWSMessageCreateCallbacks,
-        IEWSMessageFetchCallbacks, IEwsClient, IEwsDeleteFolderCallbacks, IEwsFolderCallbacks, IEwsMessageCallbacks,
-        IEwsMessageDeleteCallbacks,
+        IEWSMessageFetchCallbacks, IEwsClient, IEwsDeleteFolderCallbacks, IEwsFolderCallbacks,
+        IEwsMessageCallbacks, IEwsMessageDeleteCallbacks,
     },
     RefPtr,
 };
