@@ -1194,7 +1194,31 @@ add_task(async function test_invalid_manual_config_flow() {
   );
   let incomingConfigTemplatePromise = TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(incomingConfigTemplate),
-    "The incoming config template should be in view"
+    "The incoming config template should be in view",
+    500,
+    500
+  );
+  await incomingConfigTemplatePromise;
+
+  // The continue button should be enabled if you go back to the email form.
+  const footerBack = dialog
+    .querySelector("#emailFooter")
+    .querySelector("#back");
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
+  const emailFormTemplatePromise = TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(emailTemplate),
+    "The email form template should be in view"
+  );
+  await emailFormTemplatePromise;
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  // Go directly back to the incoming form with the the invalid config.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  incomingConfigTemplatePromise = TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(incomingConfigTemplate),
+    "The incoming config template should be in view",
+    500,
+    500
   );
   await incomingConfigTemplatePromise;
 

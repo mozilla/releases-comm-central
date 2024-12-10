@@ -564,6 +564,7 @@ class AccountHubEmail extends HTMLElement {
   #handleBackAction(currentState) {
     switch (currentState) {
       case "autoConfigSubview":
+        this.#currentSubview.checkValidEmailForm();
         // Focus on the correct input in the auto config subview.
         this.#currentSubview.setState();
         break;

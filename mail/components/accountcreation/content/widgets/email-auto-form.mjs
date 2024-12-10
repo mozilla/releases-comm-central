@@ -54,7 +54,7 @@ class EmailAutoForm extends AccountHubStep {
     switch (event.type) {
       case "input":
       case "change":
-        this.#checkValidEmailForm();
+        this.checkValidEmailForm();
         break;
       default:
         break;
@@ -69,7 +69,7 @@ class EmailAutoForm extends AccountHubStep {
       const userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
       this.#realName.value = userInfo.fullname;
     }
-    this.#checkValidEmailForm();
+    this.checkValidEmailForm();
   }
 
   /**
@@ -85,7 +85,7 @@ class EmailAutoForm extends AccountHubStep {
    * Check whether the user entered the minimum amount of information needed to
    * update the hostname and domain for the complete form.
    */
-  #checkValidEmailForm() {
+  checkValidEmailForm() {
     const isValidForm = this.querySelector("form").checkValidity();
 
     this.dispatchEvent(
