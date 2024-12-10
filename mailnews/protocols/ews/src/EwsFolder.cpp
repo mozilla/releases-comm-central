@@ -26,81 +26,7 @@
 #define ID_PROPERTY "ewsId"
 #define SYNC_STATE_PROPERTY "ewsSyncStateToken"
 
-class MessageDeletionCallbacks : public IEwsMessageDeleteCallbacks {
- public:
-  NS_DECL_ISUPPORTS
-  NS_DECL_IEWSMESSAGEDELETECALLBACKS
-
-  MessageDeletionCallbacks(EwsFolder* folder,
-                           const nsTArray<RefPtr<nsIMsgDBHdr>>& headers)
-      : mFolder(folder), mHeaders(headers.Clone()) {}
-
- protected:
-  virtual ~MessageDeletionCallbacks() = default;
-
- private:
-  // The folder to delete messages from.
-  RefPtr<EwsFolder> mFolder;
-
-  // The headers of the messages for which deletion has been requested. At this
-  // point, we don't know if all of these messages are stored locally.
-  nsTArray<RefPtr<nsIMsgDBHdr>> mHeaders;
-};
-
-NS_IMPL_ISUPPORTS(MessageDeletionCallbacks, IEwsMessageDeleteCallbacks)
-
-NS_IMETHODIMP MessageDeletionCallbacks::OnRemoteDeleteSuccessful() {
-  nsresult rv;
-
-  nsTArray<RefPtr<nsIMsgDBHdr>> offlineMessages;
-  nsTArray<nsMsgKey> msgKeys;
-
-  // Collect keys for messages which need deletion from our message listing. We
-  // also collect a list of messages for which we have a full local copy which
-  // needs deletion.
-  for (const auto& header : mHeaders) {
-    nsMsgKey msgKey;
-    rv = header->GetMessageKey(&msgKey);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    msgKeys.AppendElement(msgKey);
-
-    bool hasOffline;
-    rv = mFolder->HasMsgOffline(msgKey, &hasOffline);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (hasOffline) {
-      offlineMessages.AppendElement(header);
-    }
-  }
-
-  // Delete any locally-stored message from the store.
-  if (offlineMessages.Length()) {
-    nsCOMPtr<nsIMsgPluggableStore> store;
-    rv = mFolder->GetMsgStore(getter_AddRefs(store));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = store->DeleteMessages(offlineMessages);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  // Delete the message headers from the database. If a key in the array is
-  // unknown to the database, it's simply ignored.
-  nsCOMPtr<nsIMsgDatabase> db;
-  rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return db->DeleteMessages(msgKeys, nullptr);
-}
-
-NS_IMETHODIMP MessageDeletionCallbacks::OnError(IEwsClient::Error err,
-                                                const nsACString& desc) {
-  NS_ERROR("Error occurred while deleting EWS messages");
-
-  return NS_OK;
-}
-
-class MessageCreateCallbacks : public IEWSMessageCreateCallbacks {
+class MessageCreateCallbacks : public IEwsMessageCreateCallbacks {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_IEWSMESSAGECREATECALLBACKS
@@ -118,7 +44,7 @@ class MessageCreateCallbacks : public IEWSMessageCreateCallbacks {
   nsCOMPtr<nsIMsgCopyServiceListener> mCopyListener;
 };
 
-NS_IMPL_ISUPPORTS(MessageCreateCallbacks, IEWSMessageCreateCallbacks)
+NS_IMPL_ISUPPORTS(MessageCreateCallbacks, IEwsMessageCreateCallbacks)
 
 NS_IMETHODIMP MessageCreateCallbacks::OnRemoteCreateSuccessful(
     const nsACString& ewsId, nsIMsgDBHdr** newHdr) {
@@ -211,6 +137,80 @@ NS_IMETHODIMP MessageCreateCallbacks::OnStopCreate(nsresult status) {
   return NS_OK;
 }
 
+class MessageDeletionCallbacks : public IEwsMessageDeleteCallbacks {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_IEWSMESSAGEDELETECALLBACKS
+
+  MessageDeletionCallbacks(EwsFolder* folder,
+                           const nsTArray<RefPtr<nsIMsgDBHdr>>& headers)
+      : mFolder(folder), mHeaders(headers.Clone()) {}
+
+ protected:
+  virtual ~MessageDeletionCallbacks() = default;
+
+ private:
+  // The folder to delete messages from.
+  RefPtr<EwsFolder> mFolder;
+
+  // The headers of the messages for which deletion has been requested. At this
+  // point, we don't know if all of these messages are stored locally.
+  nsTArray<RefPtr<nsIMsgDBHdr>> mHeaders;
+};
+
+NS_IMPL_ISUPPORTS(MessageDeletionCallbacks, IEwsMessageDeleteCallbacks)
+
+NS_IMETHODIMP MessageDeletionCallbacks::OnRemoteDeleteSuccessful() {
+  nsresult rv;
+
+  nsTArray<RefPtr<nsIMsgDBHdr>> offlineMessages;
+  nsTArray<nsMsgKey> msgKeys;
+
+  // Collect keys for messages which need deletion from our message listing. We
+  // also collect a list of messages for which we have a full local copy which
+  // needs deletion.
+  for (const auto& header : mHeaders) {
+    nsMsgKey msgKey;
+    rv = header->GetMessageKey(&msgKey);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    msgKeys.AppendElement(msgKey);
+
+    bool hasOffline;
+    rv = mFolder->HasMsgOffline(msgKey, &hasOffline);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    if (hasOffline) {
+      offlineMessages.AppendElement(header);
+    }
+  }
+
+  // Delete any locally-stored message from the store.
+  if (offlineMessages.Length()) {
+    nsCOMPtr<nsIMsgPluggableStore> store;
+    rv = mFolder->GetMsgStore(getter_AddRefs(store));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = store->DeleteMessages(offlineMessages);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // Delete the message headers from the database. If a key in the array is
+  // unknown to the database, it's simply ignored.
+  nsCOMPtr<nsIMsgDatabase> db;
+  rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return db->DeleteMessages(msgKeys, nullptr);
+}
+
+NS_IMETHODIMP MessageDeletionCallbacks::OnError(IEwsClient::Error err,
+                                                const nsACString& desc) {
+  NS_ERROR("Error occurred while deleting EWS messages");
+
+  return NS_OK;
+}
+
 class MessageOperationCallbacks : public IEwsMessageCallbacks {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -276,10 +276,10 @@ NS_IMETHODIMP MessageOperationCallbacks::OnError(IEwsClient::Error err,
   return NS_OK;
 }
 
-class DeleteFolderCallbacks : public IEwsDeleteFolderCallbacks {
+class DeleteFolderCallbacks : public IEwsFolderDeleteCallbacks {
  public:
   NS_DECL_ISUPPORTS
-  NS_DECL_IEWSDELETEFOLDERCALLBACKS
+  NS_DECL_IEWSFOLDERDELETECALLBACKS
 
   DeleteFolderCallbacks(EwsFolder* folder, nsIMsgWindow* window)
       : mFolder(folder), mWindow(window) {}
@@ -292,7 +292,7 @@ class DeleteFolderCallbacks : public IEwsDeleteFolderCallbacks {
   RefPtr<nsIMsgWindow> mWindow;
 };
 
-NS_IMPL_ISUPPORTS(DeleteFolderCallbacks, IEwsDeleteFolderCallbacks)
+NS_IMPL_ISUPPORTS(DeleteFolderCallbacks, IEwsFolderDeleteCallbacks)
 
 NS_IMETHODIMP DeleteFolderCallbacks::OnRemoteDeleteFolderSuccessful() {
   return mFolder->nsMsgDBFolder::DeleteSelf(mWindow);

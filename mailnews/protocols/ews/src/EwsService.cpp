@@ -38,7 +38,7 @@ nsresult DisplayMessage(nsIURI* messageURI, nsIDocShell* docShell);
  * `EwsOfflineMessageChannel`). If both a docshell and a stream listener are
  * provided, only the docshell is used.
  */
-class MessageFetchListener : public IEWSMessageFetchCallbacks {
+class MessageFetchListener : public IEwsMessageFetchCallbacks {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_IEWSMESSAGEFETCHCALLBACKS
@@ -88,7 +88,7 @@ class MessageFetchListener : public IEWSMessageFetchCallbacks {
   nsCOMPtr<nsIStreamListener> mStreamListener;
 };
 
-NS_IMPL_ISUPPORTS(MessageFetchListener, IEWSMessageFetchCallbacks)
+NS_IMPL_ISUPPORTS(MessageFetchListener, IEwsMessageFetchCallbacks)
 
 MessageFetchListener::~MessageFetchListener() = default;
 

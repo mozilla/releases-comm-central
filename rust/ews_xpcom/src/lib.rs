@@ -14,9 +14,9 @@ use thin_vec::ThinVec;
 use url::Url;
 use xpcom::{
     interfaces::{
-        nsIInputStream, nsIMsgIncomingServer, IEWSMessageCreateCallbacks,
-        IEWSMessageFetchCallbacks, IEwsDeleteFolderCallbacks, IEwsFolderCallbacks,
-        IEwsMessageCallbacks, IEwsMessageDeleteCallbacks,
+        nsIInputStream, nsIMsgIncomingServer, IEwsFolderCallbacks, IEwsFolderDeleteCallbacks,
+        IEwsMessageCallbacks, IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks,
+        IEwsMessageFetchCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
 };
@@ -103,38 +103,10 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(change_read_status => ChangeReadStatus(
-        aMessageIds: *const ThinVec<nsCString>,
-        aIsRead: bool
-    ));
-    fn change_read_status(
-        &self,
-        message_ids: &ThinVec<nsCString>, // Directly accept a reference
-        is_read: bool,
-    ) -> Result<(), nsresult> {
-        // Convert `ThinVec<nsCString>` to `Vec<String>`
-        let message_ids: Vec<String> = message_ids
-            .iter()
-            .map(|message_id| message_id.to_string())
-            .collect();
-
-        // Attempt to create the EWS client.
-        let client = self.try_new_client()?;
-
-        // Send the request asynchronously.
-        moz_task::spawn_local(
-            "mark_messages_read",
-            client.change_read_status(message_ids, is_read),
-        )
-        .detach();
-
-        Ok(())
-    }
-
-    xpcom_method!(delete_folder => DeleteFolder(callbacks: *const IEwsDeleteFolderCallbacks, folder_id: *const nsACString));
+    xpcom_method!(delete_folder => DeleteFolder(callbacks: *const IEwsFolderDeleteCallbacks, folder_id: *const nsACString));
     fn delete_folder(
         &self,
-        callbacks: &IEwsDeleteFolderCallbacks,
+        callbacks: &IEwsFolderDeleteCallbacks,
         folder_id: &nsACString,
     ) -> Result<(), nsresult> {
         let client = self.try_new_client()?;
@@ -182,11 +154,11 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(get_message => GetMessage(id: *const nsACString, callbacks: *const IEWSMessageFetchCallbacks));
+    xpcom_method!(get_message => GetMessage(id: *const nsACString, callbacks: *const IEwsMessageFetchCallbacks));
     fn get_message(
         &self,
         id: &nsACString,
-        callbacks: &IEWSMessageFetchCallbacks,
+        callbacks: &IEwsMessageFetchCallbacks,
     ) -> Result<(), nsresult> {
         let client = self.try_new_client()?;
 
@@ -201,13 +173,40 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(create_message => CreateMessage(folder_id: *const nsACString, isDraft: bool, messageStream: *const nsIInputStream, messageCallbacks: *const IEWSMessageCreateCallbacks));
+    xpcom_method!(change_read_status => ChangeReadStatus(
+        message_ids: *const ThinVec<nsCString>,
+        is_read: bool
+    ));
+    fn change_read_status(
+        &self,
+        message_ids: &ThinVec<nsCString>,
+        is_read: bool,
+    ) -> Result<(), nsresult> {
+        let message_ids: Vec<String> = message_ids
+            .iter()
+            .map(|message_id| message_id.to_string())
+            .collect();
+
+        let client = self.try_new_client()?;
+
+        // The client operation is async and we want it to survive the end of
+        // this scope, so spawn it as a detached `moz_task`.
+        moz_task::spawn_local(
+            "change_read_status",
+            client.change_read_status(message_ids, is_read),
+        )
+        .detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(create_message => CreateMessage(folder_id: *const nsACString, is_draft: bool, message_stream: *const nsIInputStream, callbacks: *const IEwsMessageCreateCallbacks));
     fn create_message(
         &self,
         folder_id: &nsACString,
         is_draft: bool,
         message_stream: &nsIInputStream,
-        message_callbacks: &IEWSMessageCreateCallbacks,
+        callbacks: &IEwsMessageCreateCallbacks,
     ) -> Result<(), nsresult> {
         let content = crate::xpcom_io::read_stream(message_stream)?;
 
@@ -221,7 +220,7 @@ impl XpcomEwsBridge {
                 folder_id.to_utf8().into(),
                 is_draft,
                 content,
-                RefPtr::new(message_callbacks),
+                RefPtr::new(callbacks),
             ),
         )
         .detach();

@@ -37,9 +37,9 @@ use xpcom::{
     getter_addrefs,
     interfaces::{
         nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsMsgFolderFlagType,
-        nsMsgFolderFlags, nsMsgKey, nsMsgMessageFlags, IEWSMessageCreateCallbacks,
-        IEWSMessageFetchCallbacks, IEwsClient, IEwsDeleteFolderCallbacks, IEwsFolderCallbacks,
-        IEwsMessageCallbacks, IEwsMessageDeleteCallbacks,
+        nsMsgFolderFlags, nsMsgKey, nsMsgMessageFlags, IEwsClient, IEwsFolderCallbacks,
+        IEwsFolderDeleteCallbacks, IEwsMessageCallbacks, IEwsMessageCreateCallbacks,
+        IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
     },
     RefPtr,
 };
@@ -423,7 +423,7 @@ impl XpComEwsClient {
     pub(crate) async fn get_message(
         self,
         id: String,
-        callbacks: RefPtr<IEWSMessageFetchCallbacks>,
+        callbacks: RefPtr<IEwsMessageFetchCallbacks>,
     ) {
         unsafe { callbacks.OnFetchStart() };
 
@@ -446,7 +446,7 @@ impl XpComEwsClient {
     async fn get_message_inner(
         self,
         id: String,
-        callbacks: &IEWSMessageFetchCallbacks,
+        callbacks: &IEwsMessageFetchCallbacks,
     ) -> Result<(), XpComEwsError> {
         let items = self.get_items([id], &[], true).await?;
         if items.len() != 1 {
@@ -550,17 +550,9 @@ impl XpComEwsClient {
         };
 
         let response = self.make_operation_request(op).await?;
-        let response_messages = response.response_messages.get_folder_response_message;
 
-        if response_messages.len() != DISTINGUISHED_IDS.len() {
-            return Err(XpComEwsError::Processing {
-                message: format!(
-                    "received an unexpected number of response messages for GetFolder request: expected {}, got {}",
-                    DISTINGUISHED_IDS.len(),
-                    response_messages.len(),
-                ),
-            });
-        }
+        let response_messages = response.response_messages.get_folder_response_message;
+        validate_response_message_count(&response_messages, DISTINGUISHED_IDS.len())?;
 
         // We expect results from EWS to be in the same order as given in the
         // request. EWS docs aren't explicit about response ordering, but
@@ -978,10 +970,10 @@ impl XpComEwsClient {
         folder_id: String,
         is_draft: bool,
         content: Vec<u8>,
-        message_callbacks: RefPtr<IEWSMessageCreateCallbacks>,
+        callbacks: RefPtr<IEwsMessageCreateCallbacks>,
     ) {
-        if let Err(status) = unsafe { message_callbacks.OnStartCreate().to_result() } {
-            log::error!("aborting copy: an error occurred while starting the listener: {status}");
+        if let Err(err) = unsafe { callbacks.OnStartCreate().to_result() } {
+            log::error!("aborting copy: an error occurred while starting the listener: {err}");
             return;
         }
 
@@ -989,7 +981,7 @@ impl XpComEwsClient {
         // Use the return value to determine which status we should use when
         // notifying the end of the request.
         let status = match self
-            .create_message_inner(folder_id, is_draft, content, message_callbacks.clone())
+            .create_message_inner(folder_id, is_draft, content, &callbacks)
             .await
         {
             Ok(_) => nserror::NS_OK,
@@ -1000,7 +992,7 @@ impl XpComEwsClient {
             }
         };
 
-        if let Err(err) = unsafe { message_callbacks.OnStopCreate(status) }.to_result() {
+        if let Err(err) = unsafe { callbacks.OnStopCreate(status) }.to_result() {
             log::error!("aborting copy: an error occurred while stopping the listener: {err}")
         }
     }
@@ -1010,7 +1002,7 @@ impl XpComEwsClient {
         folder_id: String,
         is_draft: bool,
         content: Vec<u8>,
-        message_callbacks: RefPtr<IEWSMessageCreateCallbacks>,
+        callbacks: &IEwsMessageCreateCallbacks,
     ) -> Result<(), XpComEwsError> {
         // Create a new message from the binary content we got.
         let mut message = Message {
@@ -1059,16 +1051,13 @@ impl XpComEwsClient {
 
         let response_message = self.make_create_item_request(create_item).await?;
 
-        let hdr = create_and_populate_header_from_create_response(
-            response_message,
-            &content,
-            message_callbacks.clone(),
-        )?;
+        let hdr =
+            create_and_populate_header_from_create_response(response_message, &content, callbacks)?;
 
         // Let the listeners know of the local key for the newly created message.
         let mut key: nsMsgKey = 0;
         unsafe { hdr.GetMessageKey(&mut key) }.to_result()?;
-        unsafe { message_callbacks.SetMessageKey(key) }.to_result()?;
+        unsafe { callbacks.SetMessageKey(key) }.to_result()?;
 
         Ok(())
     }
@@ -1085,11 +1074,7 @@ impl XpComEwsClient {
         // We have only sent one message, therefore the response should only
         // contain one response message.
         let response_messages = response.response_messages.create_item_response_message;
-        if response_messages.len() != 1 {
-            return Err(XpComEwsError::Processing {
-                message: String::from("expected only one message in CreateItem response"),
-            });
-        }
+        validate_response_message_count(&response_messages, 1)?;
 
         // Get the first (and only) response message, and check if there's a
         // warning or an error we should handle.
@@ -1171,41 +1156,33 @@ impl XpComEwsClient {
         let response = self.make_operation_request(update_item.clone()).await?;
 
         // Get all response messages.
-        let response_messages = &response.response_messages.update_item_response_message;
-        if response_messages.len() < update_item.item_changes.len() {
-            return Err(XpComEwsError::Processing {
-                message: String::from(
-                    "expected at least one response message per UpdateItem request",
-                ),
-            });
-        }
-
-        let mut processed_messages = Vec::new();
-        let mut errors = Vec::new();
+        let response_messages = response.response_messages.update_item_response_message;
+        validate_response_message_count(&response_messages, update_item.item_changes.len())?;
 
         // Process each response message, checking for errors or warnings.
-        for (index, response_message) in response_messages.iter().enumerate() {
-            match process_response_message_class(
-                "UpdateItem",
-                &response_message.response_class,
-                &response_message.response_code,
-                &response_message.message_text,
-            ) {
-                Ok(_) => processed_messages.push(response_message.clone()),
-                Err(err) => errors.push(format!(
-                    "Failed to process message #{} ({:?}): {}",
-                    index, response_message, err
-                )),
-            }
-        }
+        let errors: Vec<_> = response_messages
+            .into_iter()
+            .enumerate()
+            .filter_map(|(index, response_message)| {
+                match process_response_message_class(
+                    "UpdateItem",
+                    &response_message.response_class,
+                    &response_message.response_code,
+                    &response_message.message_text,
+                ) {
+                    Ok(_) => None,
+                    Err(err) => Some(format!(
+                        "failed to process message #{} ({:?}): {}",
+                        index, response_message, err
+                    )),
+                }
+            })
+            .collect();
 
         // If there were errors, return an aggregated error.
         if !errors.is_empty() {
             return Err(XpComEwsError::Processing {
-                message: format!(
-                    "Some errors occurred while processing response messages: {:?}",
-                    errors
-                ),
+                message: format!("response contained errors: {:?}", errors),
             });
         }
 
@@ -1229,7 +1206,7 @@ impl XpComEwsClient {
     async fn delete_messages_inner(
         self,
         ews_ids: ThinVec<nsCString>,
-        callbacks: &RefPtr<IEwsMessageDeleteCallbacks>,
+        callbacks: &IEwsMessageDeleteCallbacks,
     ) -> Result<(), XpComEwsError> {
         let item_ids: Vec<BaseItemId> = ews_ids
             .iter()
@@ -1252,15 +1229,7 @@ impl XpComEwsClient {
         // Make sure we got the amount of response messages matches the amount
         // of messages we requested to have deleted.
         let response_messages = response.response_messages.delete_item_response_message;
-        if response_messages.len() != ews_ids.len() {
-            return Err(XpComEwsError::Processing {
-                message: format!(
-                    "received an unexpected number of response messages for DeleteItem request: expected {}, got {}",
-                    ews_ids.len(),
-                    response_messages.len(),
-                ),
-            });
-        }
+        validate_response_message_count(&response_messages, ews_ids.len())?;
 
         // Check every response message for an error.
         response_messages
@@ -1304,7 +1273,7 @@ impl XpComEwsClient {
 
     pub async fn delete_folder(
         self,
-        callbacks: RefPtr<IEwsDeleteFolderCallbacks>,
+        callbacks: RefPtr<IEwsFolderDeleteCallbacks>,
         folder_id: String,
     ) {
         // Call an inner function to perform the operation in order to allow us
@@ -1316,7 +1285,7 @@ impl XpComEwsClient {
 
     async fn delete_folder_inner(
         self,
-        callbacks: &IEwsDeleteFolderCallbacks,
+        callbacks: &IEwsFolderDeleteCallbacks,
         folder_id: String,
     ) -> Result<(), XpComEwsError> {
         let delete_folder = DeleteFolder {
@@ -1331,11 +1300,7 @@ impl XpComEwsClient {
         // We have only sent one message, therefore the response should only
         // contain one response message.
         let response_messages = response.response_messages.delete_folder_response_message;
-        if response_messages.len() != 1 {
-            return Err(XpComEwsError::Processing {
-                message: String::from("expected only one message in DeleteFolder response"),
-            });
-        }
+        validate_response_message_count(&response_messages, 1)?;
 
         // Get the first (and only) response message, and check if there's a
         // warning or an error we should handle.
@@ -1584,6 +1549,9 @@ pub(crate) enum XpComEwsError {
 
     #[error("missing item or folder ID in response from Exchange")]
     MissingIdInResponse,
+
+    #[error("response contained an unexpected number of response messages: expected {expected}, got {actual}")]
+    UnexpectedResponseMessageCount { expected: usize, actual: usize },
 }
 
 impl From<XpComEwsError> for nsresult {
@@ -1720,7 +1688,7 @@ fn validate_get_folder_response_message(
 fn create_and_populate_header_from_create_response(
     response_message: CreateItemResponseMessage,
     content: &[u8],
-    message_callbacks: RefPtr<IEWSMessageCreateCallbacks>,
+    callbacks: &IEwsMessageCreateCallbacks,
 ) -> Result<RefPtr<nsIMsgDBHdr>, XpComEwsError> {
     // If we're saving the message (rather than sending it), we must create a
     // new database entry for it and associate it with the message's EWS ID.
@@ -1743,8 +1711,7 @@ fn create_and_populate_header_from_create_response(
 
     // Signal that copying the message to the server has succeeded, which will
     // trigger its content to be streamed to the relevant message store.
-    let hdr =
-        getter_addrefs(|hdr| unsafe { message_callbacks.OnRemoteCreateSuccessful(&*ews_id, hdr) })?;
+    let hdr = getter_addrefs(|hdr| unsafe { callbacks.OnRemoteCreateSuccessful(&*ews_id, hdr) })?;
 
     // Parse the message and use its headers to populate the `nsIMsgDBHdr`
     // before committing it to the database. We parse the original content
@@ -1758,7 +1725,21 @@ fn create_and_populate_header_from_create_response(
         })?;
 
     populate_db_message_header_from_message_headers(&hdr, message)?;
-    unsafe { message_callbacks.CommitHeader(&*hdr) }.to_result()?;
+    unsafe { callbacks.CommitHeader(&*hdr) }.to_result()?;
 
     Ok(hdr)
+}
+
+fn validate_response_message_count<T>(
+    response_messages: &[T],
+    expected_len: usize,
+) -> Result<(), XpComEwsError> {
+    if response_messages.len() != expected_len {
+        return Err(XpComEwsError::UnexpectedResponseMessageCount {
+            expected: expected_len,
+            actual: response_messages.len(),
+        });
+    }
+
+    Ok(())
 }

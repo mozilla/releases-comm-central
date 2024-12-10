@@ -14,30 +14,37 @@ interface nsIMsgIncomingServer;
 interface nsIInputStream;
 interface nsIMsgCopyServiceListener;
 
+// Forward declarations of callback classes defined later in this file.
 interface IEwsFolderCallbacks;
-interface IEwsDeleteFolderCallbacks;
+interface IEwsFolderDeleteCallbacks;
 interface IEwsMessageCallbacks;
+interface IEwsMessageCreateCallbacks;
 interface IEwsMessageDeleteCallbacks;
-interface IEWSMessageFetchCallbacks;
-interface IEWSMessageCreateCallbacks;
+interface IEwsMessageFetchCallbacks;
 
 /**
- * An interface to communicate with an EWS server, and lives on
- * `EwsIncomingServer`.
+ * A client for communicating with a Microsoft Exchange server via Exchange Web
+ * Services.
  *
- * Its main role is to perform remote operations on the relevant EWS server,
- * which is passed to `initialize`. This same method also uses the provided
- * `server` to retrieve connection settings (such as authentication).
+ * This interface is intended to provide an abstraction of EWS operations to
+ * bridge the foreign function interface between the components of a Thunderbird
+ * mail protocol implementation and a single implementation of those EWS ops.
  *
- * Most of the code to run besides forming and sending requests to (and reading
- * responses from) the EWS server is defined by the consumer via the relevant
- * callback interface. However, `IEwsClient` will in some cases take care of
- * e.g. populating `nsIMsgDBHdr`s (instead of letting the consumer code do it)
- * due to architectural constraints.
+ * With the exception of initialization, all client operations are intended to
+ * be asynchronous, with implementations of the callback interfaces used to
+ * handle the results of the operations or handle errors.
  */
 [uuid(4a117361-653b-48a5-9ddb-588482ef9dbb)]
 interface IEwsClient : nsISupports
 {
+  /**
+   * Initializes a new client with the necessary host address and authentication
+   * details to communicate with an Exchange server.
+   *
+   * @param endpoint - The HTTP(S) address of an Exchange server's EWS endpoint.
+   * @param server - An incoming server entity corresponding to an EWS-capable
+   *   account.
+   */
   void initialize(in AUTF8String endpoint, in nsIMsgIncomingServer server);
 
   cenum Error : 8 {
@@ -45,40 +52,43 @@ interface IEwsClient : nsISupports
     EWS_ERR_UNEXPECTED,
   };
 
+  /**
+   * Synchronizes the local folder listing with changes made on the remote
+   * Exchange server.
+   *
+   * @param callbacks - Callbacks for updating the local folder listing and the
+   *   recorded synchronization state.
+   * @param syncState - A synchronization state token provided by a prior sync
+   *   request, or an empty string to indicate that this is the initial sync.
+   */
   void syncFolderHierarchy(in IEwsFolderCallbacks callbacks, in AUTF8String syncStateToken);
   void syncMessagesForFolder(in IEwsMessageCallbacks callbacks, in AUTF8String folderId, in AUTF8String syncStateToken);
-  void getMessage(in AUTF8String id, in IEWSMessageFetchCallbacks callbacks);
+  void getMessage(in AUTF8String id, in IEwsMessageFetchCallbacks callbacks);
   void changeReadStatus(in Array<AUTF8String> messageIds, in boolean readStatus);
 
   /**
-   * Create a new message on the server using the data read from the stream.
+   * Creates a new message on the server using the data read from the stream.
    *
-   * @param folderId          The EWS ID of the folder.
-   * @param isDraft           Whether the message being created is an unsent
-   *                          draft, so the correct flags can be set on the
-   *                          server for the newly created message.
-   * @param messageStream     The input stream to read the message from.
-   * @param messageCallbacks  Callbacks to use to communicate between the EWS
-   *                          client and the EWS folder (e.g. to signal the
-   *                          message can be added to its database), and to
-   *                          provide updates on the copying of the message to
-   *                          the server.
+   * @param folderId - The EWS ID of the folder.
+   * @param isDraft - Whether the message being created is an unsent draft.
+   * @param messageStream - The input stream to read the message from.
+   * @param callbacks - Callbacks for indicating operation state and status.
    */
   void createMessage(in AUTF8String folderId,
                      in boolean isDraft,
                      in nsIInputStream messageStream,
-                     in IEWSMessageCreateCallbacks messageCallbacks);
+                     in IEwsMessageCreateCallbacks callbacks);
 
   void deleteMessages(in Array<AUTF8String> messageEwsIds, in IEwsMessageDeleteCallbacks callbacks);
 
   /**
    * Deletes a folder on the Exchange server.
    *
-   * @param callbacks  Callbacks to indicate the success or failure of the
-   *                   folder deletion operation.
-   * @param folderId   The EWS ID of the folder to delete.
+   * @param callbacks - Callbacks to indicate the success or failure of the
+   *   folder deletion operation.
+   * @param folderId - The EWS ID of the folder to delete.
    */
-  void deleteFolder(in IEwsDeleteFolderCallbacks callbacks, in AUTF8String folderId);
+  void deleteFolder(in IEwsFolderDeleteCallbacks callbacks, in AUTF8String folderId);
 };
 
 [uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
@@ -94,6 +104,15 @@ interface IEwsFolderCallbacks : nsISupports
   void onError(in IEwsClient_Error err, in AUTF8String desc);
 };
 
+[uuid(a439c288-7cee-422a-96ab-6aa69259827c)]
+interface IEwsFolderDeleteCallbacks : nsISupports
+{
+  /**
+   * Called if a folder was successfully deleted on the server.
+  */
+  void onRemoteDeleteFolderSuccessful();
+};
+
 [uuid(dec2ddd5-b5a2-4724-bfc7-e5de31840f76)]
 interface IEwsMessageCallbacks : nsISupports
 {
@@ -104,47 +123,20 @@ interface IEwsMessageCallbacks : nsISupports
   void onError(in IEwsClient_Error err, in AUTF8String desc);
 };
 
-[uuid(2bd557ee-a1ce-4563-aaf3-653914256452)]
-interface IEwsMessageDeleteCallbacks : nsISupports
-{
-  void onRemoteDeleteSuccessful();
-  void onError(in IEwsClient_Error err, in AUTF8String desc);
-};
-
 /**
- * A listener used when downloading message content.
- *
- * Its shape is loosely based on `nsIStreamListener`, which cannot be used in
- * this instance because we don't always have a request/channel that can be used
- * in method calls when fetching a message's content (and using `nullptr`
- * everywhere is quite ugly and potentially unsafe).
- */
-[uuid(027150b1-d127-41a9-8945-18f9374755b3)]
-interface IEWSMessageFetchCallbacks : nsISupports
-{
-  void onFetchStart();
-  void onDataAvailable(in nsIInputStream aInputStream, in unsigned long aCount);
-  void onFetchStop(in nsresult status);
-};
-
-/**
- * A listener used when creating a new message on the server.
- *
- * The listener is expected to hold a handle on the temporary file that contains
- * the new message, so it can stream it to the store when it has been stored
- * correctly.
+ * A set of callbacks for handling creation of a new message on an Exchange
+ * server.
  */
 [uuid(ff45569f-d618-4bb0-9686-6cb24b92b02b)]
-interface IEWSMessageCreateCallbacks : nsISupports
+interface IEwsMessageCreateCallbacks : nsISupports
 {
   /**
-   * These methods are mostly replicating the similarly-named ones in
-   * `nsIMsgCopyServiceListener`, and at the moment just forward calls to an
-   * instance of it. This is partly so to simplify `createMessage` so it only
-   * takes one listener, but also because solving
-   * https://bugzilla.mozilla.org/show_bug.cgi?id=1931599 will require doing
-   * more in `onStopCreate`.
+   * The following three methods are based on similarly-named ones in the
+   * `nsIMsgCopyServiceListener` interface. They are intended to simplify
+   * support for message copy and to support future implementation of a solution
+   * for https://bugzilla.mozilla.org/show_bug.cgi?id=1931599.
    */
+
   void onStartCreate();
   void onStopCreate(in nsresult status);
   void setMessageKey(in nsMsgKey aKey);
@@ -165,15 +157,31 @@ interface IEWSMessageCreateCallbacks : nsISupports
    */
   nsIMsgDBHdr onRemoteCreateSuccessful(in AUTF8String ewsId);
 
-  // Commits the given header to the relevant message database.
+  /**
+   * Writes the provided message entry to the database.
+   */
   void commitHeader(in nsIMsgDBHdr hdr);
 };
 
-[uuid(a439c288-7cee-422a-96ab-6aa69259827c)]
-interface IEwsDeleteFolderCallbacks : nsISupports
+[uuid(2bd557ee-a1ce-4563-aaf3-653914256452)]
+interface IEwsMessageDeleteCallbacks : nsISupports
 {
-  /**
-   * Called if a folder was successfully deleted on the server.
-  */
-  void onRemoteDeleteFolderSuccessful();
+  void onRemoteDeleteSuccessful();
+  void onError(in IEwsClient_Error err, in AUTF8String desc);
+};
+
+/**
+ * A listener used when downloading message content.
+ *
+ * Its shape is loosely based on `nsIStreamListener`, which cannot be used in
+ * this instance because we don't always have a request/channel that can be used
+ * in method calls when fetching a message's content (and using `nullptr`
+ * everywhere is quite ugly and potentially unsafe).
+ */
+[uuid(027150b1-d127-41a9-8945-18f9374755b3)]
+interface IEwsMessageFetchCallbacks : nsISupports
+{
+  void onFetchStart();
+  void onDataAvailable(in nsIInputStream inputStream, in unsigned long count);
+  void onFetchStop(in nsresult status);
 };
