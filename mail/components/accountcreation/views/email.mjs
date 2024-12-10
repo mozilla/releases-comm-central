@@ -11,47 +11,27 @@ const {
 } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
 );
-const { AccountConfig } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/AccountConfig.sys.mjs"
-);
 
-const { CreateInBackend } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/CreateInBackend.sys.mjs"
-);
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+  CardDAVUtils: "resource:///modules/CardDAVUtils.sys.mjs",
+  CreateInBackend:
+    "resource:///modules/accountcreation/CreateInBackend.sys.mjs",
+  ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.sys.mjs",
+  FindConfig: "resource:///modules/accountcreation/FindConfig.sys.mjs",
+  GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
+  MailServices: "resource:///modules/MailServices.sys.mjs",
+  OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+});
 
-const { ConfigVerifier } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/ConfigVerifier.sys.mjs"
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/accountcreation/accountSetup.ftl"], true)
 );
-
-const { GuessConfig } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/GuessConfig.sys.mjs"
-);
-
-const { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
-const { Sanitizer } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/Sanitizer.sys.mjs"
-);
-
-const { FindConfig } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/FindConfig.sys.mjs"
-);
-
-const { OAuth2Module } = ChromeUtils.importESModule(
-  "resource:///modules/OAuth2Module.sys.mjs"
-);
-
-const { CardDAVUtils } = ChromeUtils.importESModule(
-  "resource:///modules/CardDAVUtils.sys.mjs"
-);
-
-const { cal } = ChromeUtils.importESModule(
-  "resource:///modules/calendar/calUtils.sys.mjs"
-);
-
-const l10n = new Localization(["messenger/accountcreation/accountSetup.ftl"]);
 
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import/no-unassigned-import
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-footer.mjs"; // eslint-disable-line import/no-unassigned-import
@@ -838,8 +818,8 @@ class AccountHubEmail extends HTMLElement {
 
     const emailSplit = this.#email.split("@");
     const domain = emailSplit[1];
-    const initialConfig = new AccountConfig();
-    const emailLocal = Sanitizer.nonemptystring(emailSplit[0]);
+    const initialConfig = new lazy.AccountConfig();
+    const emailLocal = lazy.Sanitizer.nonemptystring(emailSplit[0]);
     initialConfig.incoming.username = emailLocal;
     initialConfig.outgoing.username = emailLocal;
 
@@ -849,7 +829,7 @@ class AccountHubEmail extends HTMLElement {
 
     // This can throw an error which will be caught up the call stack
     // to show the correct notification.
-    config = await FindConfig.parallelAutoDiscovery(
+    config = await lazy.FindConfig.parallelAutoDiscovery(
       this.abortable,
       domain,
       this.#email
@@ -886,7 +866,7 @@ class AccountHubEmail extends HTMLElement {
     }
 
     const { promise, resolve, reject } = Promise.withResolvers();
-    this.abortable = GuessConfig.guessConfig(
+    this.abortable = lazy.GuessConfig.guessConfig(
       domain,
       (type, hostname, port, socketType) => {
         // The guessConfig search progress is ongoing.
@@ -920,7 +900,7 @@ class AccountHubEmail extends HTMLElement {
    * @param {AccountConfig} accountConfig - Account Config object.
    */
   async #advancedSetup(accountConfig) {
-    if (CreateInBackend.checkIncomingServerAlreadyExists(accountConfig)) {
+    if (lazy.CreateInBackend.checkIncomingServerAlreadyExists(accountConfig)) {
       throw new Error("Account already exists.", {
         cause: {
           fluentTitleId: "account-setup-creation-error-title",
@@ -929,7 +909,7 @@ class AccountHubEmail extends HTMLElement {
       });
     }
 
-    const [title, description] = await l10n.formatValues([
+    const [title, description] = await lazy.l10n.formatValues([
       "account-setup-confirm-advanced-title",
       "account-setup-confirm-advanced-description",
     ]);
@@ -941,7 +921,7 @@ class AccountHubEmail extends HTMLElement {
 
     gAccountSetupLogger.debug("Creating account in backend.");
     const newAccount =
-      await CreateInBackend.createAccountInBackend(accountConfig);
+      await lazy.CreateInBackend.createAccountInBackend(accountConfig);
 
     await this.#moveToAccountManager(newAccount.incomingServer);
   }
@@ -955,7 +935,7 @@ class AccountHubEmail extends HTMLElement {
    * @returns {AccountConfig} - The concrete AccountConfig object.
    */
   #fillAccountConfig(configData, password = "") {
-    AccountConfig.replaceVariables(
+    lazy.AccountConfig.replaceVariables(
       configData,
       this.#realName,
       this.#email,
@@ -970,7 +950,7 @@ class AccountHubEmail extends HTMLElement {
    * default AccountConfig.
    */
   #getEmptyAccountConfig() {
-    const config = new AccountConfig();
+    const config = new lazy.AccountConfig();
     config.incoming.type = "imap";
     config.incoming.username = "%EMAILADDRESS%";
     config.outgoing.username = "%EMAILADDRESS%";
@@ -994,7 +974,7 @@ class AccountHubEmail extends HTMLElement {
       completeConfig.incoming.type = completeConfig.incoming.addonAccountType;
     }
 
-    if (CreateInBackend.checkIncomingServerAlreadyExists(completeConfig)) {
+    if (lazy.CreateInBackend.checkIncomingServerAlreadyExists(completeConfig)) {
       throw new Error("Account already exists.", {
         cause: {
           fluentTitleId: "account-setup-creation-error-title",
@@ -1005,7 +985,7 @@ class AccountHubEmail extends HTMLElement {
 
     if (completeConfig.outgoing.addThisServer) {
       const existingServer =
-        CreateInBackend.checkOutgoingServerAlreadyExists(completeConfig);
+        lazy.CreateInBackend.checkOutgoingServerAlreadyExists(completeConfig);
       if (existingServer) {
         completeConfig.outgoing.addThisServer = false;
         completeConfig.outgoing.existingServerKey = existingServer.key;
@@ -1013,18 +993,18 @@ class AccountHubEmail extends HTMLElement {
     }
 
     const telemetryKey =
-      this.#currentConfig.source == AccountConfig.kSourceXML ||
-      this.#currentConfig.source == AccountConfig.kSourceExchange
+      this.#currentConfig.source == lazy.AccountConfig.kSourceXML ||
+      this.#currentConfig.source == lazy.AccountConfig.kSourceExchange
         ? this.#currentConfig.subSource
         : this.#currentConfig.source;
 
     // This verifies the the current config and, if needed, opens up an
     // additional window for authentication.
-    this.#configVerifier = new ConfigVerifier(window.msgWindow);
+    this.#configVerifier = new lazy.ConfigVerifier(window.msgWindow);
     try {
       const successfulConfig = await this.#configVerifier.verifyConfig(
         completeConfig,
-        completeConfig.source != AccountConfig.kSourceXML
+        completeConfig.source != lazy.AccountConfig.kSourceXML
       );
       // The auth might have changed, so we should update the current config.
       this.#currentConfig.incoming.auth = successfulConfig.incoming.auth;
@@ -1067,7 +1047,7 @@ class AccountHubEmail extends HTMLElement {
   async #finishEmailAccountAddition(completeConfig) {
     gAccountSetupLogger.debug("Creating account in backend.");
     const emailAccount =
-      await CreateInBackend.createAccountInBackend(completeConfig);
+      await lazy.CreateInBackend.createAccountInBackend(completeConfig);
     emailAccount.incomingServer.getNewMessages(
       emailAccount.incomingServer.rootFolder,
       window.msgWindow,
@@ -1087,7 +1067,7 @@ class AccountHubEmail extends HTMLElement {
 
     // Bail out if the CardDAV scope wasn't granted.
     if (this.#currentConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
-      const oAuth2 = new OAuth2Module();
+      const oAuth2 = new lazy.OAuth2Module();
       if (
         !oAuth2.initFromHostname(
           this.#currentConfig.incoming.hostname,
@@ -1102,7 +1082,7 @@ class AccountHubEmail extends HTMLElement {
 
     const hostname = this.#email.split("@")[1];
     try {
-      addressBooks = await CardDAVUtils.detectAddressBooks(
+      addressBooks = await lazy.CardDAVUtils.detectAddressBooks(
         this.#email,
         password,
         `https://${hostname}`,
@@ -1116,7 +1096,7 @@ class AccountHubEmail extends HTMLElement {
       return addressBooks;
     }
 
-    const existingAddressBookUrls = MailServices.ab.directories.map(d =>
+    const existingAddressBookUrls = lazy.MailServices.ab.directories.map(d =>
       d.getStringValue("carddav.url", "")
     );
 
@@ -1144,7 +1124,7 @@ class AccountHubEmail extends HTMLElement {
 
     // Bail out if the CalDAV scope wasn't granted.
     if (this.#currentConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
-      const oAuth2 = new OAuth2Module();
+      const oAuth2 = new lazy.OAuth2Module();
       if (
         !oAuth2.initFromHostname(
           this.#currentConfig.incoming.hostname,
@@ -1160,7 +1140,7 @@ class AccountHubEmail extends HTMLElement {
     const hostname = this.#email.split("@")[1];
 
     try {
-      calendarEntries = await cal.provider.detection.detect(
+      calendarEntries = await lazy.cal.provider.detection.detect(
         this.#email,
         password,
         `https://${hostname}`,
@@ -1184,7 +1164,7 @@ class AccountHubEmail extends HTMLElement {
     // Collect existing calendars to compare with the list of recently fetched
     // ones.
     const existing = new Set(
-      cal.manager.getCalendars({}).map(calendar => calendar.uri.spec)
+      lazy.cal.manager.getCalendars({}).map(calendar => calendar.uri.spec)
     );
 
     for (const calendars of calendarEntries.values()) {
@@ -1212,7 +1192,7 @@ class AccountHubEmail extends HTMLElement {
    */
   #addSyncAccounts(syncAccounts) {
     for (const calendar of syncAccounts.calendars) {
-      cal.manager.registerCalendar(calendar);
+      lazy.cal.manager.registerCalendar(calendar);
     }
 
     for (const addressBook of syncAccounts.addressBooks) {
