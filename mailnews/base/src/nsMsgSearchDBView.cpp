@@ -1165,20 +1165,6 @@ nsMsgSearchDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
   return rv;
 }
 
-nsresult nsMsgSearchDBView::GetFolderFromMsgURI(const nsACString& aMsgURI,
-                                                nsIMsgFolder** aFolder) {
-  nsCOMPtr<nsIMsgMessageService> msgMessageService;
-  nsresult rv =
-      GetMessageServiceFromURI(aMsgURI, getter_AddRefs(msgMessageService));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = msgMessageService->MessageURIToMsgHdr(aMsgURI, getter_AddRefs(msgHdr));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return msgHdr->GetFolder(aFolder);
-}
-
 nsMsgViewIndex nsMsgSearchDBView::FindHdr(nsIMsgDBHdr* msgHdr,
                                           nsMsgViewIndex startIndex,
                                           bool allowDummy) {

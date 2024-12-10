@@ -288,8 +288,6 @@ class nsMsgDBView : public nsIMsgDBView,
   virtual nsMsgViewIndex FindKey(nsMsgKey key, bool expand);
   virtual nsresult GetDBForViewIndex(nsMsgViewIndex index, nsIMsgDatabase** db);
   virtual nsCOMArray<nsIMsgFolder>* GetFolders();
-  virtual nsresult GetFolderFromMsgURI(const nsACString& aMsgURI,
-                                       nsIMsgFolder** aFolder);
 
   virtual nsresult ListIdsInThread(nsIMsgThread* threadHdr,
                                    nsMsgViewIndex viewIndex,
@@ -324,12 +322,9 @@ class nsMsgDBView : public nsIMsgDBView,
   nsresult SetMsgHdrJunkStatus(nsIJunkMailPlugin* aJunkPlugin,
                                nsIMsgDBHdr* aMsgHdr,
                                nsMsgJunkStatus aNewClassification);
-  nsresult ToggleReadByIndex(nsMsgViewIndex index);
-  nsresult SetReadByIndex(nsMsgViewIndex index, bool read);
   nsresult SetThreadOfMsgReadByIndex(nsMsgViewIndex index,
                                      nsTArray<nsMsgKey>& keysMarkedRead,
                                      bool read);
-  nsresult SetFlaggedByIndex(nsMsgViewIndex index, bool mark);
   nsresult OrExtraFlag(nsMsgViewIndex index, uint32_t orflag);
   nsresult AndExtraFlag(nsMsgViewIndex index, uint32_t andflag);
   nsresult SetExtraFlag(nsMsgViewIndex index, uint32_t extraflag);

@@ -199,25 +199,6 @@ void nsMsgDBView::GetString(const char16_t* aStringName, nsAString& aValue) {
   }
 }
 
-// Helper function used to fetch localized strings from the prefs
-nsresult nsMsgDBView::GetPrefLocalizedString(const char* aPrefName,
-                                             nsString& aResult) {
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIPrefBranch> prefBranch;
-  nsCOMPtr<nsIPrefLocalizedString> pls;
-  nsString ucsval;
-
-  prefBranch = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = prefBranch->GetComplexValue(
-      aPrefName, NS_GET_IID(nsIPrefLocalizedString), getter_AddRefs(pls));
-  NS_ENSURE_SUCCESS(rv, rv);
-  pls->ToString(getter_Copies(ucsval));
-  aResult = ucsval.get();
-  return rv;
-}
-
 nsresult nsMsgDBView::AppendKeywordProperties(const nsACString& keywords,
                                               nsAString& properties,
                                               bool* tagAdded) {
@@ -2400,12 +2381,6 @@ nsMsgDBView::GetUsingLines(bool* aUsingLines) {
   return NS_OK;
 }
 
-int CompareViewIndices(const void* v1, const void* v2, void*) {
-  nsMsgViewIndex i1 = *(nsMsgViewIndex*)v1;
-  nsMsgViewIndex i2 = *(nsMsgViewIndex*)v2;
-  return i1 - i2;
-}
-
 // Array<nsMsgViewIndex> getIndicesForSelection();
 NS_IMETHODIMP
 nsMsgDBView::GetIndicesForSelection(nsTArray<nsMsgViewIndex>& indices) {
@@ -3147,43 +3122,6 @@ nsresult nsMsgDBView::DownloadFlaggedForOffline(nsIMsgWindow* window) {
   return rv;
 }
 
-// Read/unread handling.
-nsresult nsMsgDBView::ToggleReadByIndex(nsMsgViewIndex index) {
-  if (!IsValidIndex(index)) return NS_MSG_INVALID_DBVIEW_INDEX;
-
-  return SetReadByIndex(index, !(m_flags[index] & nsMsgMessageFlags::Read));
-}
-
-nsresult nsMsgDBView::SetReadByIndex(nsMsgViewIndex index, bool read) {
-  nsresult rv;
-
-  if (!IsValidIndex(index)) return NS_MSG_INVALID_DBVIEW_INDEX;
-
-  if (read) {
-    OrExtraFlag(index, nsMsgMessageFlags::Read);
-    // MarkRead() will clear this flag in the db and then call OnKeyChange(),
-    // but because we are the instigator of the change we'll ignore the change.
-    // So we need to clear it in m_flags to keep the db and m_flags in sync.
-    AndExtraFlag(index, ~nsMsgMessageFlags::New);
-  } else {
-    AndExtraFlag(index, ~nsMsgMessageFlags::Read);
-  }
-
-  nsCOMPtr<nsIMsgDatabase> dbToUse;
-  rv = GetDBForViewIndex(index, getter_AddRefs(dbToUse));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = dbToUse->MarkRead(m_keys[index], read, this);
-  NoteChange(index, 1, nsMsgViewNotificationCode::changed);
-  if (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) {
-    nsMsgViewIndex threadIndex = GetThreadIndex(index);
-    if (threadIndex != index)
-      NoteChange(threadIndex, 1, nsMsgViewNotificationCode::changed);
-  }
-
-  return rv;
-}
-
 nsresult nsMsgDBView::SetThreadOfMsgReadByIndex(
     nsMsgViewIndex index, nsTArray<nsMsgKey>& keysMarkedRead, bool /*read*/) {
   nsresult rv;
@@ -3191,25 +3129,6 @@ nsresult nsMsgDBView::SetThreadOfMsgReadByIndex(
   if (!IsValidIndex(index)) return NS_MSG_INVALID_DBVIEW_INDEX;
 
   rv = MarkThreadOfMsgRead(m_keys[index], index, keysMarkedRead, true);
-  return rv;
-}
-
-nsresult nsMsgDBView::SetFlaggedByIndex(nsMsgViewIndex index, bool mark) {
-  nsresult rv;
-
-  if (!IsValidIndex(index)) return NS_MSG_INVALID_DBVIEW_INDEX;
-
-  nsCOMPtr<nsIMsgDatabase> dbToUse;
-  rv = GetDBForViewIndex(index, getter_AddRefs(dbToUse));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (mark)
-    OrExtraFlag(index, nsMsgMessageFlags::Marked);
-  else
-    AndExtraFlag(index, ~nsMsgMessageFlags::Marked);
-
-  rv = dbToUse->MarkMarked(m_keys[index], mark, this);
-  NoteChange(index, 1, nsMsgViewNotificationCode::changed);
   return rv;
 }
 
@@ -3276,12 +3195,6 @@ nsresult nsMsgDBView::SetMsgHdrJunkStatus(nsIJunkMailPlugin* aJunkPlugin,
   NS_ENSURE_SUCCESS(rv, rv);
 
   return rv;
-}
-
-nsresult nsMsgDBView::GetFolderFromMsgURI(const nsACString& aMsgURI,
-                                          nsIMsgFolder** aFolder) {
-  NS_IF_ADDREF(*aFolder = m_folder);
-  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -5321,43 +5234,6 @@ void nsMsgDBView::RemoveRows(nsMsgViewIndex viewIndex, int32_t numRows) {
   m_levels.RemoveElementsAt(viewIndex, numRows);
 }
 
-NS_IMETHODIMP
-nsMsgDBView::InsertTreeRows(nsMsgViewIndex aIndex, uint32_t aNumRows,
-                            nsMsgKey aKey, nsMsgViewFlagsTypeValue aFlags,
-                            uint32_t aLevel, nsIMsgFolder* aFolder) {
-  if (GetSize() < aIndex) return NS_ERROR_UNEXPECTED;
-
-  nsCOMArray<nsIMsgFolder>* folders = GetFolders();
-  if (folders) {
-    // In a search/xfvf view only, a folder is required.
-    NS_ENSURE_ARG_POINTER(aFolder);
-    for (size_t i = 0; i < aNumRows; i++)
-      // Insert into m_folders.
-      if (!folders->InsertObjectAt(aFolder, aIndex + i))
-        return NS_ERROR_UNEXPECTED;
-  }
-
-  m_keys.InsertElementsAt(aIndex, aNumRows, aKey);
-  m_flags.InsertElementsAt(aIndex, aNumRows, aFlags);
-  m_levels.InsertElementsAt(aIndex, aNumRows, aLevel);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgDBView::RemoveTreeRows(nsMsgViewIndex aIndex, uint32_t aNumRows) {
-  // Prevent a crash if attempting to remove rows which don't exist.
-  if (GetSize() < aIndex + aNumRows) return NS_ERROR_UNEXPECTED;
-
-  nsMsgDBView::RemoveRows(aIndex, aNumRows);
-
-  nsCOMArray<nsIMsgFolder>* folders = GetFolders();
-  if (folders)
-    // In a search/xfvf view only, remove from m_folders.
-    if (!folders->RemoveObjectsAt(aIndex, aNumRows)) return NS_ERROR_UNEXPECTED;
-
-  return NS_OK;
-}
-
 nsresult nsMsgDBView::ListIdsInThread(nsIMsgThread* threadHdr,
                                       nsMsgViewIndex startOfThreadViewIndex,
                                       uint32_t* pNumListed) {
@@ -6756,26 +6632,6 @@ nsMsgDBView::GetMsgToSelectAfterDelete(nsMsgViewIndex* msgToSelectAfterDelete) {
 }
 
 NS_IMETHODIMP
-nsMsgDBView::GetRemoveRowOnMoveOrDelete(bool* aRemoveRowOnMoveOrDelete) {
-  NS_ENSURE_ARG_POINTER(aRemoveRowOnMoveOrDelete);
-  nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(m_folder);
-  if (!imapFolder) {
-    *aRemoveRowOnMoveOrDelete = true;
-    return NS_OK;
-  }
-
-  // Need to update the imap-delete model, can change more than once in a
-  // session.
-  GetImapDeleteModel(nullptr);
-
-  // Unlike the other imap delete models, "mark as deleted" does not remove
-  // rows on delete (or move).
-  *aRemoveRowOnMoveOrDelete =
-      (mDeleteModel != nsMsgImapDeleteModels::IMAPDelete);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgDBView::GetCurrentlyDisplayedMessage(
     nsMsgViewIndex* currentlyDisplayedMessage) {
   NS_ENSURE_ARG_POINTER(currentlyDisplayedMessage);
@@ -7028,53 +6884,6 @@ nsMsgDBView::Drop(int32_t row, int32_t orient,
 NS_IMETHODIMP
 nsMsgDBView::IsSorted(bool* _retval) {
   *_retval = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgDBView::SelectFolderMsgByKey(nsIMsgFolder* aFolder, nsMsgKey aKey) {
-  NS_ENSURE_ARG_POINTER(aFolder);
-  if (aKey == nsMsgKey_None) return NS_ERROR_FAILURE;
-
-  // This is OK for non search views.
-
-  nsMsgViewIndex viewIndex = FindKey(aKey, true /* expand */);
-
-  if (mTree) mTreeSelection->SetCurrentIndex(viewIndex);
-
-  // Make sure the current message is once again visible in the thread pane
-  // so we don't have to go search for it in the thread pane.
-  if (mTree && viewIndex != nsMsgViewIndex_None) {
-    mTreeSelection->Select(viewIndex);
-    mTree->EnsureRowIsVisible(viewIndex);
-  }
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgDBView::SelectMsgByKey(nsMsgKey aKey) {
-  NS_ASSERTION(aKey != nsMsgKey_None, "bad key");
-  if (aKey == nsMsgKey_None) return NS_OK;
-
-  // Use SaveAndClearSelection()
-  // and RestoreSelection() so that we'll clear the current selection
-  // but pass in a different key array so that we'll
-  // select (and load) the desired message.
-
-  AutoTArray<nsMsgKey, 1> preservedSelection;
-  nsresult rv = SaveAndClearSelection(nullptr, preservedSelection);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Now, restore our desired selection.
-  AutoTArray<nsMsgKey, 1> keyArray;
-  keyArray.AppendElement(aKey);
-
-  // If the key was not found
-  // (this can happen with "remember last selected message")
-  // nothing will be selected.
-  rv = RestoreSelection(aKey, keyArray);
-  NS_ENSURE_SUCCESS(rv, rv);
   return NS_OK;
 }
 

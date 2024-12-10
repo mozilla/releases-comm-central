@@ -336,12 +336,7 @@ interface nsIMsgDBView : nsISupports
    * with unread.
    */
   readonly attribute long numMsgsInView;
-  // used by "go to folder" feature
-  // and "remember last selected message" feature
-  // if key is not found, we don't select.
-  void selectMsgByKey(in nsMsgKey key);
 
-  void selectFolderMsgByKey(in nsIMsgFolder aFolder, in nsMsgKey aKey);
   // we'll suppress displaying messages if the message pane is collapsed
   attribute boolean suppressMsgDisplay;
 
@@ -363,7 +358,6 @@ interface nsIMsgDBView : nsISupports
   readonly attribute boolean supportsThreading;
 
   attribute nsIMsgSearchSession searchSession;
-  readonly attribute boolean removeRowOnMoveOrDelete;
 
   /**
    * Finds the view index of the passed in message URI. If the message is part
@@ -408,30 +402,6 @@ interface nsIMsgDBView : nsISupports
    * @return         the thread object at the requested view index
    */
   nsIMsgThread getThreadContainingIndex(in nsMsgViewIndex aIndex);
-
-  /**
-   * Insert rows into the view. The caller should use NoteChange() below to
-   * update the view.
-   *
-   * @param aIndex   view index for insertion start.
-   * @param aNumRows number of rows to insert.
-   * @param aKey     msgKey.
-   * @param aFlags   msgFlags.
-   * @param aLevel   treeview indent level.
-   * @param aFolder  nsIMsgFolder, required for search/xfvf views.
-   */
-  void insertTreeRows(in nsMsgViewIndex aIndex, in unsigned long aNumRows,
-                      in nsMsgKey aKey, in nsMsgViewFlagsTypeValue aFlags,
-                      in unsigned long aLevel, in nsIMsgFolder aFolder);
-
-  /**
-   * Remove rows from the view.  The caller should use NoteChange() below to
-   * update the view.
-   *
-   * @param aIndex   view index for removal start.
-   * @param aNumRows number of rows to remove.
-   */
-  void removeTreeRows(in nsMsgViewIndex aIndex, in unsigned long aNumRows);
 
   /**
    * Notify tree that rows have changed.
