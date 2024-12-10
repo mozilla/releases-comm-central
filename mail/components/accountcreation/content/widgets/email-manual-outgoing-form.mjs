@@ -148,7 +148,7 @@ class EmailOutgoingForm extends AccountHubStep {
    * @return {AccountConfig}
    */
   captureState() {
-    return this.getOutgoingUserConfig();
+    return this.getConfig();
   }
 
   /**
@@ -156,6 +156,8 @@ class EmailOutgoingForm extends AccountHubStep {
    * configuration which means the form needs to be retested.
    */
   #configChanged() {
+    this.#currentConfig = this.getConfig();
+    this.querySelector("#outgoingEmailForm").checkValidity();
     this.dispatchEvent(
       new CustomEvent("config-updated", {
         bubbles: true,
@@ -172,6 +174,8 @@ class EmailOutgoingForm extends AccountHubStep {
   setState(configData) {
     this.#currentConfig = configData;
     this.updateFields(this.#currentConfig);
+    this.#currentConfig = this.getConfig();
+    this.querySelector("#outgoingEmailForm").checkValidity();
   }
 
   /**
@@ -182,12 +186,12 @@ class EmailOutgoingForm extends AccountHubStep {
    */
   #adjustOAuth2Visibility(accountConfig) {
     // Get current config.
-    const config = accountConfig || this.getOutgoingUserConfig();
+    const config = accountConfig || this.getConfig();
 
     // If the smtp hostname supports OAuth2, enable it.
     const outgoingDetails = OAuth2Providers.getHostnameDetails(
       config.outgoing.hostname,
-      config.outgoing.type
+      config.outgoing.type ? config.outgoing.type : "smtp"
     );
     this.querySelector("#outgoingAuthMethodOAuth2").hidden = !outgoingDetails;
     if (outgoingDetails) {
@@ -205,7 +209,7 @@ class EmailOutgoingForm extends AccountHubStep {
    */
   #adjustPortToSSLAndProtocol(accountConfig) {
     // Get current config.
-    const config = accountConfig || this.getOutgoingUserConfig();
+    const config = accountConfig || this.getConfig();
 
     if (config.outgoing.port && !standardPorts.includes(config.outgoing.port)) {
       return;
@@ -234,7 +238,7 @@ class EmailOutgoingForm extends AccountHubStep {
    * @param {AccountConfig} [accountConfig] - Complete AccountConfig.
    */
   #adjustSSLToPort(accountConfig) {
-    const config = accountConfig || this.getOutgoingUserConfig();
+    const config = accountConfig || this.getConfig();
 
     if (!standardPorts.includes(config.outgoing.port)) {
       return;
@@ -263,7 +267,7 @@ class EmailOutgoingForm extends AccountHubStep {
    *
    * @returns {AccountConfig}
    */
-  getOutgoingUserConfig() {
+  getConfig() {
     const config = this.#currentConfig;
     config.source = AccountConfig.kSourceUser;
 
@@ -302,6 +306,8 @@ class EmailOutgoingForm extends AccountHubStep {
       this.#outgoingAuthenticationMethod.value
     );
 
+    config.outgoing.username = this.#outgoingUsername.value;
+
     return config;
   }
 
@@ -319,7 +325,7 @@ class EmailOutgoingForm extends AccountHubStep {
 
     this.#outgoingConnectionSecurity.value = Sanitizer.enum(
       config.outgoing.socketType,
-      [0, 1, 2, 3],
+      [-1, 0, 1, 2, 3],
       0
     );
     this.#outgoingAuthenticationMethod.value = Sanitizer.enum(

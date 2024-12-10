@@ -188,8 +188,15 @@ class EmailIncomingForm extends AccountHubStep {
    */
   setState(configData) {
     this.#currentConfig = configData;
-    this.#edited = false;
     this.updateFields(this.#currentConfig);
+    this.#checkFormValidity();
+  }
+
+  /**
+   * Refreshes the edited state of the incoming config.
+   */
+  resetState() {
+    this.#edited = false;
   }
 
   /**
@@ -197,10 +204,15 @@ class EmailIncomingForm extends AccountHubStep {
    * configuration with the detail of the incoming config being complete.
    */
   #configChanged() {
-    let completed = false;
     this.#edited = true;
+    this.#checkFormValidity();
+  }
+
+  #checkFormValidity() {
+    let completed = false;
     try {
-      const completeConfig = this.getIncomingUserConfig().isIncomingComplete();
+      const completeConfig =
+        this.getIncomingUserConfig().isIncomingEditedComplete();
       const validForm =
         this.querySelector("#incomingEmailForm").checkValidity();
       completed = completeConfig && validForm;
@@ -396,7 +408,7 @@ class EmailIncomingForm extends AccountHubStep {
     this.#incomingHostname.value = config.incoming.hostname;
     this.#incomingConnectionSecurity.value = Sanitizer.enum(
       config.incoming.socketType,
-      [0, 1, 2, 3],
+      [-1, 0, 1, 2, 3],
       0
     );
     this.#incomingAuthenticationMethod.value = Sanitizer.enum(

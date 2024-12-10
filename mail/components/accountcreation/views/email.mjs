@@ -762,6 +762,7 @@ class AccountHubEmail extends HTMLElement {
             this.#email.split("@")[1],
             stateData
           );
+          config.validateSocketType();
 
           if (config.isComplete()) {
             this.#stopLoading();
@@ -771,8 +772,10 @@ class AccountHubEmail extends HTMLElement {
             });
             this.#emailFooter.toggleForwardDisabled(false);
             // The config is complete, therefore we can set the currentConfig
-            // as the stateData from incoming and outgoing.
-            this.#currentConfig = stateData;
+            // as the complete config, and update the outgoing config with any
+            // changes the guess config made.
+            this.#currentConfig = config;
+            this.#currentSubview.setState(config);
           } else {
             this.#stopLoading();
             // The config is not complete, go back to the incoming view and

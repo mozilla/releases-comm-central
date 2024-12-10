@@ -13,75 +13,129 @@
           </div>
         </label>
         <div class="expanded">
-          <label for="outgoingHostname" data-l10n-id="account-hub-result-hostname-label" class="option-label">
+          <label for="outgoingHostname"
+                 data-l10n-id="account-hub-result-hostname-label"
+                 class="option-label">
           </label>
           <div class="input-control">
-            <input id="outgoingHostname" type="text" placeholder="mail.example.com" required="required" class="input-field" />
+            <input id="outgoingHostname"
+                   type="text"
+                   placeholder="mail.example.com"
+                   required="required"
+                   class="input-field manual-input" />
           </div>
         </div>
       </div>
       <div class="form-row">
         <div>
-          <label for="outgoingPort" data-l10n-id="account-hub-port-label" class="option-label">
+          <label for="outgoingPort"
+                 data-l10n-id="account-hub-port-label"
+                 class="option-label">
           </label>
           <div class="input-control">
-            <input id="outgoingPort" min="1" max="65535" type="number" placeholder="465" required="required"
-              class="input-field number-input" />
+            <input id="outgoingPort"
+                   min="1"
+                   max="65535"
+                   type="number"
+                   placeholder="465"
+                   required="required"
+                   class="input-field number-input" />
           </div>
         </div>
         <div class="expanded">
-          <label for="outgoingSsl" data-l10n-id="account-hub-ssl-label" class="option-label">
+          <label for="outgoingSsl"
+                 data-l10n-id="account-hub-ssl-label"
+                 class="option-label">
           </label>
           <div class="input-control">
-            <xul:menulist id="outgoingConnectionSecurity" class="menulist" value="0" flex="1">
-              <xul:menupopup id="outgoingConnectionSecurityMenupopup" class="menupopup">
-                <xul:menuitem id="outgoingConnectionSecurityAutodetect" data-l10n-id="account-hub-ssl-autodetect-option"
-                  value="-1" />
-                <xul:menuitem id="outgoingConnectionSecurityNonEncryption" data-l10n-id="account-hub-ssl-noencryption-option"
-                  value="0" />
-                <xul:menuitem id="outgoingConnectionSecurityStartTtls" label="STARTTLS" value="2" />
-                <xul:menuitem id="outgoingConnectionSecuritySslTls" label="SSL/TLS" value="3" />
-              </xul:menupopup>
+            <xul:menulist id="outgoingConnectionSecurity"
+                          class="menulist"
+                          value="0"
+                          flex="1">
+                <xul:menupopup id="outgoingConnectionSecurityMenupopup"
+                               class="menupopup">
+                  <xul:menuitem id="outgoingConnectionSecurityAutodetect"
+                                data-l10n-id="account-hub-ssl-autodetect-option"
+                    value="-1" />
+                  <xul:menuitem id="outgoingConnectionSecurityNonEncryption"
+                                data-l10n-id="account-hub-ssl-noencryption-option"
+                                value="0" />
+                  <xul:menuitem id="outgoingConnectionSecurityStartTtls"
+                                label="STARTTLS"
+                                value="2" />
+                  <xul:menuitem id="outgoingConnectionSecuritySslTls"
+                                label="SSL/TLS"
+                                value="3" />
+                </xul:menupopup>
             </xul:menulist>
           </div>
         </div>
       </div>
       <div class="form-row responsive-row">
         <div>
-          <label for="outgoingAuthMethod" data-l10n-id="account-hub-auth-label" class="option-label">
+          <label for="outgoingAuthMethod"
+                 data-l10n-id="account-hub-auth-label"
+                 class="option-label">
           </label>
           <div class="input-control">
-            <xul:menulist id="outgoingAuthMethod" class="menulist" required="required" value="0" flex="1">
+            <xul:menulist id="outgoingAuthMethod"
+                          class="menulist"
+                          required="required"
+                          value="0"
+                          flex="1">
               <xul:menupopup id="outgoingAuthMenupopup" class="menupopup">
-                <xul:menuitem id="outgoingAuthMethodAutodetect" data-l10n-id="account-hub-ssl-autodetect-option" value="0">
+                <xul:menuitem id="outgoingAuthMethodAutodetect"
+                              data-l10n-id="account-hub-ssl-autodetect-option"
+                              value="0">
                 </xul:menuitem>
-                <xul:menuitem id="outgoingAuthMethodNone" data-l10n-id="account-hub-auth-no-authentication-option" value="1">
+                <xul:menuitem id="outgoingAuthMethodNone"
+                              data-l10n-id="account-hub-auth-no-authentication-option"
+                              value="1">
                 </xul:menuitem>
-                <xul:menuitem id="outgoingAuthMethodCleartext" data-l10n-id="account-hub-ssl-cleartext-password-option" value="3">
+                <xul:menuitem id="outgoingAuthMethodCleartext"
+                              data-l10n-id="account-hub-ssl-cleartext-password-option"
+                              value="3">
                 </xul:menuitem>
-                <xul:menuitem id="outgoingAuthMethodEncrypted" data-l10n-id="account-hub-ssl-encrypted-password-option" value="4">
+                <xul:menuitem id="outgoingAuthMethodEncrypted"
+                              data-l10n-id="account-hub-ssl-encrypted-password-option"
+                              value="4">
                 </xul:menuitem>
-                <xul:menuitem id="outgoingAuthMethodKerbos" label="Kerberos / GSSAPI" value="5">
+                <xul:menuitem id="outgoingAuthMethodKerbos"
+                              label="Kerberos / GSSAPI"
+                              value="5">
                 </xul:menuitem>
-                <xul:menuitem id="outgoingAuthMethodNtlm" label="NTLM" value="6">
+                <xul:menuitem id="outgoingAuthMethodNtlm"
+                              label="NTLM"
+                              value="6">
                 </xul:menuitem>
-                <xul:menuitem id="outgoingAuthMethodOAuth2" value="10" hidden="hidden" label="OAuth2">
+                <xul:menuitem id="outgoingAuthMethodOAuth2"
+                              value="10"
+                              hidden="hidden"
+                              label="OAuth2">
                 </xul:menuitem>
               </xul:menupopup>
             </xul:menulist>
           </div>
         </div>
         <div class="expanded">
-          <label for="outgoingUsername" data-l10n-id="account-hub-result-username-label" class="option-label">
+          <label for="outgoingUsername"
+                 data-l10n-id="account-hub-result-username-label"
+                 class="option-label">
           </label>
           <div class="input-control">
-            <input id="outgoingUsername" type="text" data-l10n-id="account-setup-email-input" required="required"
-              class="username input-field" />
+            <input id="outgoingUsername"
+                   type="text"
+                   data-l10n-id="account-setup-email-input"
+                   required="required"
+                   class="username input-field manual-input" />
           </div>
         </div>
       </div>
-      <button id="advancedConfigurationOutgoing" type="button" class="button link-button link-button-sm align-self-end"
-        data-l10n-id="account-setup-advanced-setup-button"></button>
+      <button id="advancedConfigurationOutgoing"
+              type="button"
+              class="button link-button link-button-sm align-self-end"
+              data-l10n-id="account-setup-advanced-setup-button">
+      </button>
     </div>
     <button type="submit" hidden="hidden"></button>
   </form>

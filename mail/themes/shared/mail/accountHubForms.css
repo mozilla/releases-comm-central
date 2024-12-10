@@ -110,7 +110,8 @@ form {
     background-color: var(--hub-input-bg-color);
     font-weight: 200;
 
-    &:user-invalid {
+    &:user-invalid,
+    &.manual-input:invalid {
       border-color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
       outline: 1px solid light-dark(var(--color-danger-default), var(--color-danger-pressed));
       outline-offset: 0;

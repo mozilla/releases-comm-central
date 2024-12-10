@@ -1147,6 +1147,149 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
   await subtest_close_account_hub_dialog(dialog);
 });
 
+add_task(async function test_invalid_manual_config_flow() {
+  const dialog = await subtest_open_account_hub_dialog();
+
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const nameInput = emailTemplate.querySelector("#realName");
+  const emailInput = emailTemplate.querySelector("#email");
+  const footerForward = dialog
+    .querySelector("#emailFooter")
+    .querySelector("#forward");
+  const footerCustom = dialog
+    .querySelector("#emailFooter")
+    .querySelector("#custom");
+
+  // Ensure fields are empty.
+  nameInput.value = "";
+  emailInput.value = "";
+
+  EventUtils.synthesizeMouseAtCenter(nameInput, {});
+  let inputEvent = BrowserTestUtils.waitForEvent(
+    nameInput,
+    "input",
+    false,
+    event => event.target.value === "Test User"
+  );
+  EventUtils.sendString("Test User", window);
+  await inputEvent;
+
+  EventUtils.synthesizeMouseAtCenter(emailInput, {});
+  inputEvent = BrowserTestUtils.waitForEvent(
+    emailInput,
+    "input",
+    false,
+    event => event.target.value === "badtest@example.localhost"
+  );
+  EventUtils.sendString("badtest@example.localhost", window);
+  await inputEvent;
+
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  // Click continue and wait for incoming config view.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const incomingConfigTemplate = dialog.querySelector(
+    "#emailIncomingConfigSubview"
+  );
+  let incomingConfigTemplatePromise = TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(incomingConfigTemplate),
+    "The incoming config template should be in view"
+  );
+  await incomingConfigTemplatePromise;
+
+  // The continue button should be disabled as the user needs to update the
+  // incorrect config.
+  Assert.ok(footerForward.disabled, "Continue button should be disabled");
+
+  // The invalid configuration should have an invalid hostname, so the invalid
+  // hostname input should be marked as invalid.
+  const incomingHostname = incomingConfigTemplate.querySelector(
+    "#incomingHostname:invalid"
+  );
+  Assert.ok(incomingHostname, "The incoming hostname should be invalid.");
+
+  // Fixing the hostname should enable the continue button.
+  EventUtils.synthesizeMouseAtCenter(incomingHostname, {});
+  EventUtils.synthesizeKey("KEY_Home", { shiftKey: true });
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {});
+  EventUtils.synthesizeKey("KEY_ArrowRight", {});
+
+  let deleteEvent = BrowserTestUtils.waitForEvent(
+    incomingHostname,
+    "input",
+    false,
+    event => event.target.value === "example.localhost"
+  );
+  EventUtils.synthesizeKey("KEY_Backspace", {}, window);
+  await deleteEvent;
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  // Clicking continue should lead to the outgoing view, with an invalid
+  // hostname again, with the continue button disabled.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  const outgoingConfigTemplate = dialog.querySelector(
+    "#emailOutgoingConfigSubview"
+  );
+  let outgoingConfigTemplatePromise = TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(outgoingConfigTemplate),
+    "The outgoing config template should be in view"
+  );
+  await outgoingConfigTemplatePromise;
+  Assert.ok(footerForward.disabled, "Continue button should be disabled");
+  const outgoingHostname = outgoingConfigTemplate.querySelector(
+    "#outgoingHostname:invalid"
+  );
+  Assert.ok(outgoingHostname, "The outgoing hostname should be invalid.");
+
+  // Updating the hostname to be valid should not enable the continue button
+  // as the incoming config was edited.
+  EventUtils.synthesizeMouseAtCenter(outgoingHostname, {});
+  EventUtils.synthesizeKey("KEY_Home", { shiftKey: true });
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {});
+  EventUtils.synthesizeKey("KEY_ArrowRight", {});
+  deleteEvent = BrowserTestUtils.waitForEvent(
+    outgoingHostname,
+    "input",
+    false,
+    event => event.target.value === "example.localhost"
+  );
+  EventUtils.synthesizeKey("KEY_Backspace", {}, window);
+  await deleteEvent;
+  Assert.ok(footerForward.disabled, "Continue button should be disabled");
+
+  // We still have a config that can't be found because of the testing domain,
+  // so hitting the test button should lead back to the incoming config, with
+  // an error notification.
+  EventUtils.synthesizeMouseAtCenter(footerCustom, {});
+  incomingConfigTemplatePromise = TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(incomingConfigTemplate),
+    "The incoming config template should be in view"
+  );
+  await incomingConfigTemplatePromise;
+  const header =
+    incomingConfigTemplate.shadowRoot.querySelector("account-hub-header");
+  await TestUtils.waitForCondition(
+    () =>
+      header.shadowRoot
+        .querySelector("#emailFormNotification")
+        .classList.contains("error"),
+    "The notification should be present."
+  );
+
+  // The continue button should still be enabled, but going to outgoing the
+  // continue button should be disabled.
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  outgoingConfigTemplatePromise = TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(outgoingConfigTemplate),
+    "The outgoing config template should be in view"
+  );
+  await outgoingConfigTemplatePromise;
+  Assert.ok(footerForward.disabled, "Continue button should be disabled");
+  await subtest_close_account_hub_dialog(dialog);
+});
+
 /**
  * Subtest to open the account dialog, and returns the dialog for further
  * testing.

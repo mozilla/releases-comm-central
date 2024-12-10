@@ -238,12 +238,24 @@ AccountConfig.prototype = {
     );
   },
 
-  isIncomingComplete() {
+  validateSocketType() {
+    this.incoming.socketType = lazy.Sanitizer.enum(
+      this.incoming.socketType,
+      [0, 1, 2, 3],
+      0
+    );
+
+    this.outgoing.socketType = lazy.Sanitizer.enum(
+      this.outgoing.socketType,
+      [0, 1, 2, 3],
+      0
+    );
+  },
+
+  isIncomingEditedComplete() {
     return (
       !!this.incoming.hostname &&
       !!this.incoming.port &&
-      this.incoming.socketType != -1 &&
-      !!this.incoming.auth &&
       !!this.incoming.username
     );
   },
