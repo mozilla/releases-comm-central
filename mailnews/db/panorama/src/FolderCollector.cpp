@@ -57,19 +57,31 @@ void FolderCollector::FindChildren(nsIFolder* aParent, nsIFile* aFile) {
   bool isDirectory;
   nsAutoString leafName;
 
-  aFile->IsDirectory(&isDirectory);
-  if (!isDirectory) {
-    aFile->GetLeafName(leafName);
-    aFile->SetLeafName(leafName + u".sbd"_ns);
+  nsCOMPtr<nsIFile> directory;
 
-    aFile->IsDirectory(&isDirectory);
-    if (!isDirectory) {
-      return;
+  aFile->IsDirectory(&isDirectory);
+  if (isDirectory) {
+    directory = aFile;
+  } else {
+    aFile->GetLeafName(leafName);
+
+    nsCOMPtr<nsIFile> dirForSame;
+    aFile->Clone(getter_AddRefs(dirForSame));
+    dirForSame->SetLeafName(leafName + u".sbd"_ns);
+
+    dirForSame->IsDirectory(&isDirectory);
+    if (isDirectory) {
+      directory = dirForSame;
     }
   }
 
+  if (!directory) {
+    return;
+  }
+
   nsCOMPtr<nsIDirectoryEnumerator> entries;
-  aFile->GetDirectoryEntries(getter_AddRefs(entries));
+  nsresult rv = directory->GetDirectoryEntries(getter_AddRefs(entries));
+  NS_ENSURE_SUCCESS_VOID(rv);
   bool more;
   while (NS_SUCCEEDED(entries->HasMoreElements(&more)) && more) {
     nsCOMPtr<nsIFile> file;
