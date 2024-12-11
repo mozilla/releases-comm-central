@@ -1350,7 +1350,10 @@ impl XpComEwsClient {
                 .await?;
 
             let response_body = response.body();
-            log::info!("Response received for request {request_id}: {op_name}");
+            let response_status = response.status()?;
+            log::info!(
+                "Response received for request {request_id} (status {response_status}): {op_name}"
+            );
             log::info!("S: {}", String::from_utf8_lossy(&response_body));
 
             // Don't immediately propagate in case the error represents a
