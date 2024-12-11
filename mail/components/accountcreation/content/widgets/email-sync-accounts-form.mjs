@@ -254,9 +254,13 @@ class EmailSyncAccountsForm extends AccountHubStep {
       type === "addressBooks"
         ? this.#selectedAddressBooks
         : this.#selectedCalendars;
-    document.l10n.setAttributes(selectedLabel, "account-hub-selected", {
-      count,
-    });
+    document.l10n.setAttributes(
+      selectedLabel,
+      "account-hub-sync-accounts-selected",
+      {
+        count,
+      }
+    );
 
     const toggleFluentID =
       count === this.#availableSyncAccounts[type].length &&

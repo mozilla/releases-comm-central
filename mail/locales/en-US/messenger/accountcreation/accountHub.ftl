@@ -185,7 +185,11 @@ account-hub-select-all = Select all
 account-hub-deselect-all = Deselect all
 
 # $count (Number) - The number of sync accounts selected.
-account-hub-selected = { $count } selected
+account-hub-sync-accounts-selected =
+    { $count ->
+        [one] { $count } selected
+        *[other] { $count } selected
+    }
 
 account-hub-no-address-books = No address books found
 
