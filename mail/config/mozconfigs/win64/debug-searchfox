@@ -6,7 +6,6 @@ MOZ_AUTOMATION_CHECK=0
 . "$topsrcdir/comm/mail/config/mozconfigs/common"
 . "$topsrcdir/comm/mail/config/mozconfigs/win64/common-win64"
 
-ac_add_options --enable-optimize
 ac_add_options --enable-debug
 
 ac_add_options --enable-clang-plugin

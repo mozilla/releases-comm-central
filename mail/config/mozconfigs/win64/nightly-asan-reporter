@@ -6,8 +6,7 @@ ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 
 export MOZILLA_OFFICIAL=1
 
-ac_add_options --disable-debug
-ac_add_options --enable-optimize="-O2 -gline-tables-only"
+ac_add_options --enable-debug-symbols=-gline-tables-only
 ac_add_options --enable-address-sanitizer-reporter
 
 . "$topsrcdir/build/win64/mozconfig.asan"
