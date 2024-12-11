@@ -6,6 +6,7 @@ categories:
     overview_doc:
         - mots
         - architecture
+        - inappnotifications
     build_doc:
         - build
     loc_doc:
@@ -30,6 +31,7 @@ doc_trees:
     rust: rust/docs
     storybook: mail/components/storybook/docs
     telemetry: docs/telemetry
+    inappnotifications: mail/components/inappnotifications/docs
 
 python_package_dirs: []
 
