@@ -6,6 +6,7 @@ mod create_folder;
 
 use std::{
     collections::{HashMap, HashSet, VecDeque},
+    env,
     ffi::c_char,
 };
 
@@ -64,6 +65,11 @@ const MSGFLAG_UNMODIFIED: i32 = 0x00000002;
 const MSGFLAG_UNSENT: i32 = 0x00000008;
 
 const EWS_ROOT_FOLDER: &str = "msgfolderroot";
+
+// The environment variable that controls whether to include request/response
+// payloads when logging. We only check for the variable's presence, not any
+// specific value.
+const LOG_NETWORK_PAYLOADS_ENV_VAR: &str = "THUNDERBIRD_LOG_NETWORK_PAYLOADS";
 
 pub(crate) struct XpComEwsClient {
     pub endpoint: Url,
@@ -1340,7 +1346,12 @@ impl XpComEwsClient {
             // Generate random id for logging purposes.
             let request_id = Uuid::new_v4();
             log::info!("Making operation request {request_id}: {op_name}");
-            log::info!("C: {}", String::from_utf8_lossy(&request_body));
+
+            if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
+                // Also log the request body if requested.
+                log::info!("C: {}", String::from_utf8_lossy(&request_body));
+            }
+
             let response = self
                 .client
                 .post(&self.endpoint)?
@@ -1354,7 +1365,11 @@ impl XpComEwsClient {
             log::info!(
                 "Response received for request {request_id} (status {response_status}): {op_name}"
             );
-            log::info!("S: {}", String::from_utf8_lossy(&response_body));
+
+            if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
+                // Also log the response body if requested.
+                log::info!("S: {}", String::from_utf8_lossy(&response_body));
+            }
 
             // Don't immediately propagate in case the error represents a
             // throttled request, which we can address with retry.
