@@ -161,3 +161,15 @@ add_task(async function test_cta_optional() {
   container.setAttribute("cta", "test");
   Assert.ok(!element.hasAttribute("hidden"), "cta is shown");
 });
+
+add_task(async function test_cta_title() {
+  const element = container.shadowRoot.querySelector("a");
+
+  container.setAttribute("cta", "test");
+
+  Assert.equal(element.title, "test", "title is set correctly");
+
+  container.setAttribute("cta", "test 2");
+
+  Assert.equal(element.title, "test 2", "title is updated");
+});
