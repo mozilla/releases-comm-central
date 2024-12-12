@@ -486,7 +486,11 @@ NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(nsACString& aSpamFolderURI) {
 
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = folder->GetServer(getter_AddRefs(server));
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_FAILED(rv)) {
+    // Invalid server in the prefs. Reset the server and bail.
+    SetActionTargetAccount(""_ns);
+    return NS_OK;
+  }
 
   // see nsMsgFolder::SetPrettyName() for where the pretty name is set.
 
