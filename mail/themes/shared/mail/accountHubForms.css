@@ -408,34 +408,36 @@ div:has(legend) {
   min-height: auto;
   margin-block: 0;
   line-height: 0;
+
+  &:hover,
+  &:active {
+    background-color: transparent !important;
+  }
+
+  & .form-icon {
+    pointer-events: none;
+    margin-inline: 0;
+  }
 }
 
-.form-toggle-button:hover,
-.form-toggle-button:active {
-  background-color: transparent !important;
-}
+#password {
+  &:placeholder-shown ~ .form-toggle-button {
+    display: none;
+  }
 
-.form-toggle-button .form-icon {
-  pointer-events: none;
-  margin-inline: 0;
-}
+  & ~ .form-toggle-button .form-icon {
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+  }
 
-#password:placeholder-shown + .form-toggle-button {
-  display: none;
-}
+  &[type="password"] ~ .form-toggle-button .form-icon {
+    content: var(--icon-hidden);
+  }
 
-#password[type="password"] + .form-toggle-button .form-icon {
-  content: var(--icon-hidden);
-}
-
-#password[type="text"] + .form-toggle-button .form-icon {
-  content: var(--icon-eye);
-}
-
-#password[type="text"] + .form-toggle-button {
-  color: var(--in-content-primary-button-background);
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
+  &[type="text"] ~ .form-toggle-button .form-icon {
+    content: var(--icon-eye);
+  }
 }
 
 .input-warning {
