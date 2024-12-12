@@ -469,28 +469,6 @@ FolderDisplayWidget.prototype = {
   updateCommandStatus() {},
 
   /**
-   * This gets called by nsMsgDBView::UpdateDisplayMessage following a call
-   *  to nsIMessenger.OpenURL to kick off message display OR (UDM gets called)
-   *  by nsMsgDBView::SelectionChanged in lieu of loading the message because
-   *  mSupressMsgDisplay.
-   * In other words, we get notified immediately after the process of displaying
-   *  a message triggered by the nsMsgDBView happens.  We get some arguments
-   *  that are display optimizations for historical reasons (as usual).
-   *
-   * Things this makes us want to do:
-   * - Set the tab title, perhaps.  (If we are a message display.)
-   * - Update message counts, because things might have changed, why not.
-   * - Update some toolbar buttons, why not.
-   *
-   * @param aFolder The display/view folder, as opposed to the backing folder.
-   * @param aSubject The subject with "Re: " if it's got one, which makes it
-   *     notably different from just directly accessing the message header's
-   *     subject.
-   * @param aKeywords The keywords, which roughly translates to message tags.
-   */
-  displayMessageChanged() {},
-
-  /**
    * This gets called as a hint that the currently selected message is junk and
    *  said junked message is going to be moved out of the current folder, or
    *  right before a header is removed from the db view.  The legacy behaviour
@@ -519,8 +497,7 @@ FolderDisplayWidget.prototype = {
 
   /**
    * Always called by the db view when the selection changes in
-   *  SelectionChanged.  This event will come after the notification to
-   *  displayMessageChanged (if one happens), and before the notification to
+   *  SelectionChanged.  This event will come before the notification to
    *  updateCommandStatus (if one happens).
    */
   summarizeSelection() {

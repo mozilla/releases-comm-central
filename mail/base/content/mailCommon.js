@@ -947,7 +947,6 @@ var dbViewWrapperListener = {
       "nsISupportsWeakReference",
     ]),
     updateCommandStatus() {},
-    displayMessageChanged() {},
     updateNextMessageAfterDelete() {
       dbViewWrapperListener._nextViewIndexAfterDelete = gDBView
         ? gDBView.msgToSelectAfterDelete

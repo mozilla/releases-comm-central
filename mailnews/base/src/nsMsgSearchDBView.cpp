@@ -23,8 +23,6 @@
 static bool gReferenceOnlyThreading;
 
 nsMsgSearchDBView::nsMsgSearchDBView() {
-  // Don't try to display messages for the search pane.
-  mSuppressMsgDisplay = true;
   m_totalMessagesInView = 0;
   m_nextThreadId = 1;
   mCurIndex = 0;

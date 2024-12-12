@@ -123,10 +123,7 @@ nsMsgDBView::nsMsgDBView() {
   m_secondarySort = nsMsgViewSortType::byId;
   m_secondarySortOrder = nsMsgViewSortOrder::ascending;
   m_cachedMsgKey = nsMsgKey_None;
-  m_currentlyDisplayedMsgKey = nsMsgKey_None;
-  m_currentlyDisplayedViewIndex = nsMsgViewIndex_None;
   mNumSelectedRows = 0;
-  mSuppressMsgDisplay = false;
   mSuppressCommandUpdating = false;
   mSuppressChangeNotification = false;
   mSummarizeFailed = false;
@@ -1014,43 +1011,6 @@ nsMsgDBView::SetSelection(nsITreeSelection* aSelection) {
   return NS_OK;
 }
 
-nsresult nsMsgDBView::UpdateDisplayMessage(nsMsgViewIndex viewPosition) {
-  nsCOMPtr<nsIMsgDBViewCommandUpdater> commandUpdater(
-      do_QueryReferent(mCommandUpdater));
-  if (!commandUpdater) return NS_OK;
-
-  if (!IsValidIndex(viewPosition)) return NS_MSG_INVALID_DBVIEW_INDEX;
-
-  // Get the subject and the folder for the message and inform the front
-  // end that we changed the message we are currently displaying.
-  nsresult rv;
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = GetMsgHdrForViewIndex(viewPosition, getter_AddRefs(msgHdr));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsString subject;
-  if (viewPosition >= (nsMsgViewIndex)m_flags.Length())
-    return NS_MSG_INVALID_DBVIEW_INDEX;
-  FetchSubject(msgHdr, m_flags[viewPosition], subject);
-
-  nsCString keywords;
-  rv = msgHdr->GetStringProperty("keywords", keywords);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgFolder> folder = m_viewFolder ? m_viewFolder : m_folder;
-
-  commandUpdater->DisplayMessageChanged(folder, subject, keywords);
-
-  if (folder) {
-    if (viewPosition >= (nsMsgViewIndex)m_keys.Length())
-      return NS_MSG_INVALID_DBVIEW_INDEX;
-    rv = folder->SetLastMessageLoaded(m_keys[viewPosition]);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsMsgDBView::SelectionChangedXPCOM() {
   // If the currentSelection changed then we have a message to display -
@@ -1092,14 +1052,6 @@ nsMsgDBView::SelectionChangedXPCOM() {
 
   bool summaryStateChanged = selectionSummarized != mSelectionSummarized;
   mSelectionSummarized = selectionSummarized;
-
-  if (!mTreeSelection || selection.Length() != 1 || selectionSummarized) {
-    // If we have zero or multiple items selected, we shouldn't be displaying
-    // any message.
-    m_currentlyDisplayedMsgKey = nsMsgKey_None;
-    m_currentlyDisplayedMsgUri.Truncate();
-    m_currentlyDisplayedViewIndex = nsMsgViewIndex_None;
-  }
 
   // Determine if we need to push command update notifications out to the UI.
   // We need to push a command update notification iff, one of the following
@@ -2364,18 +2316,6 @@ nsMsgDBView::GetSuppressCommandUpdating(bool* aSuppressCommandUpdating) {
 }
 
 NS_IMETHODIMP
-nsMsgDBView::SetSuppressMsgDisplay(bool aSuppressDisplay) {
-  mSuppressMsgDisplay = aSuppressDisplay;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgDBView::GetSuppressMsgDisplay(bool* aSuppressDisplay) {
-  *aSuppressDisplay = mSuppressMsgDisplay;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgDBView::GetUsingLines(bool* aUsingLines) {
   *aUsingLines = mShowSizeInLines;
   return NS_OK;
@@ -2406,12 +2346,6 @@ nsMsgDBView::GetIndicesForSelection(nsTArray<nsMsgViewIndex>& indices) {
 
     NS_ASSERTION(indices.Length() == uint32_t(count),
                  "selection count is wrong");
-  } else {
-    // If there is no tree selection object then we must be in stand alone
-    // message mode. In that case the selected indices are really just the
-    // current message key.
-    nsMsgViewIndex viewIndex = FindViewIndex(m_currentlyDisplayedMsgKey);
-    if (viewIndex != nsMsgViewIndex_None) indices.AppendElement(viewIndex);
   }
 
   return NS_OK;
@@ -2608,7 +2542,7 @@ nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command,
                               nsMsgViewCommandCheckStateValue* selected_p) {
   nsresult rv = NS_OK;
 
-  bool haveSelection;
+  bool haveSelection = false;
   int32_t rangeCount;
   nsMsgViewIndexArray selection;
   GetIndicesForSelection(selection);
@@ -2618,9 +2552,6 @@ nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command,
       NS_SUCCEEDED(mTreeSelection->GetRangeCount(&rangeCount)) &&
       rangeCount > 0) {
     haveSelection = NonDummyMsgSelected(selection);
-  } else {
-    // If we don't have a tree selection we must be in stand alone mode.
-    haveSelection = IsValidIndex(m_currentlyDisplayedViewIndex);
   }
 
   switch (command) {
@@ -5932,8 +5863,7 @@ nsMsgDBView::ViewNavigate(nsMsgNavigationTypeValue motion, nsMsgKey* pResultKey,
   nsMsgViewIndex startIndex;
 
   if (!mTreeSelection) {
-    // We must be in stand alone message mode.
-    currentIndex = FindViewIndex(m_currentlyDisplayedMsgKey);
+    currentIndex = nsMsgViewIndex_None;
   } else {
     nsresult rv = mTreeSelection->GetCurrentIndex(&currentIndex);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -6502,8 +6432,7 @@ nsMsgDBView::GetNumSelected(uint32_t* aNumSelected) {
   NS_ENSURE_ARG_POINTER(aNumSelected);
 
   if (!mTreeSelection) {
-    // No tree selection can mean we're in the stand alone mode.
-    *aNumSelected = (m_currentlyDisplayedMsgKey != nsMsgKey_None) ? 1 : 0;
+    *aNumSelected = 0;
     return NS_OK;
   }
 
@@ -6553,9 +6482,7 @@ nsMsgDBView::GetMsgToSelectAfterDelete(nsMsgViewIndex* msgToSelectAfterDelete) {
   int32_t startFirstRange = nsMsgViewIndex_None;
   int32_t endFirstRange = nsMsgViewIndex_None;
   if (!mTreeSelection) {
-    // If we don't have a tree selection then we must be in stand alone mode.
-    // return the index of the current message key as the first selected index.
-    *msgToSelectAfterDelete = FindViewIndex(m_currentlyDisplayedMsgKey);
+    *msgToSelectAfterDelete = nsMsgViewIndex_None;
   } else {
     int32_t selectionCount;
     int32_t startRange;
@@ -6628,14 +6555,6 @@ nsMsgDBView::GetMsgToSelectAfterDelete(nsMsgViewIndex* msgToSelectAfterDelete) {
     *msgToSelectAfterDelete -= 1;
   }
 
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgDBView::GetCurrentlyDisplayedMessage(
-    nsMsgViewIndex* currentlyDisplayedMessage) {
-  NS_ENSURE_ARG_POINTER(currentlyDisplayedMessage);
-  *currentlyDisplayedMessage = FindViewIndex(m_currentlyDisplayedMsgKey);
   return NS_OK;
 }
 
@@ -6761,9 +6680,8 @@ bool nsMsgDBView::NonDummyMsgSelected(
 NS_IMETHODIMP
 nsMsgDBView::GetViewIndexForFirstSelectedMsg(nsMsgViewIndex* aViewIndex) {
   NS_ENSURE_ARG_POINTER(aViewIndex);
-  // If we don't have a tree selection we must be in stand alone mode...
   if (!mTreeSelection) {
-    *aViewIndex = m_currentlyDisplayedViewIndex;
+    *aViewIndex = nsMsgViewIndex_None;
     return NS_OK;
   }
 
@@ -6784,9 +6702,8 @@ nsMsgDBView::GetViewIndexForFirstSelectedMsg(nsMsgViewIndex* aViewIndex) {
 NS_IMETHODIMP
 nsMsgDBView::GetKeyForFirstSelectedMessage(nsMsgKey* key) {
   NS_ENSURE_ARG_POINTER(key);
-  // If we don't have a tree selection we must be in stand alone mode...
   if (!mTreeSelection) {
-    *key = m_currentlyDisplayedMsgKey;
+    *key = nsMsgKey_None;
     return NS_OK;
   }
 

@@ -517,7 +517,6 @@ nsresult nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr* newHdr,
   bool moveThread = false;
   nsMsgViewIndex threadIndex =
       ThreadIndexOfMsg(newKey, nsMsgViewIndex_None, &threadCount, &threadFlags);
-  bool threadRootIsDisplayed = false;
 
   nsCOMPtr<nsIMsgThread> threadHdr;
   m_db->GetThreadContainingMsgHdr(newHdr, getter_AddRefs(threadHdr));
@@ -529,7 +528,6 @@ nsresult nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr* newHdr,
   }
 
   if (threadIndex != nsMsgViewIndex_None) {
-    threadRootIsDisplayed = (m_currentlyDisplayedViewIndex == threadIndex);
     uint32_t flags = m_flags[threadIndex];
     if (!(flags & MSG_VIEW_FLAG_HASCHILDREN)) {
       flags |= MSG_VIEW_FLAG_HASCHILDREN | MSG_VIEW_FLAG_ISTHREAD;
@@ -574,14 +572,6 @@ nsresult nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr* newHdr,
       // top of thread, change the keys array.
       m_keys[threadIndex] = newKey;
     }
-
-    // If this message is new, the thread is collapsed, it is the
-    // root and it was displayed, expand it so that the user does
-    // not find that their message has magically turned into a summary.
-    if (msgFlags & nsMsgMessageFlags::New &&
-        m_flags[threadIndex] & nsMsgMessageFlags::Elided &&
-        threadRootIsDisplayed)
-      ExpandByIndex(threadIndex, nullptr);
 
     if (moveThread)
       MoveThreadAt(threadIndex);

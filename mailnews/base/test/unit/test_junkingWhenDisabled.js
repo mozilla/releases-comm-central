@@ -61,8 +61,6 @@ CommandUpdaterWithPromise.prototype = {
     // when the # of items in the selection has actually changed.
   },
 
-  displayMessageChanged() {},
-
   updateNextMessageAfterDelete() {},
   summarizeSelection() {
     this.deferred.resolve();
