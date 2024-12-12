@@ -338,7 +338,10 @@ class MessagePane extends HTMLElement {
     }
 
     if (!messageURI) {
+      // Clear both single and multimessage in case we come from either of those
+      // states.
       this.#clearMessage();
+      this.#clearMessages();
       return;
     }
 
@@ -381,6 +384,9 @@ class MessagePane extends HTMLElement {
     }
 
     if (messages.length == 0) {
+      // Clear both single and multimessage in case we come from either of those
+      // states.
+      this.#clearMessage();
       this.#clearMessages();
       return;
     }
