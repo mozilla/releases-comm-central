@@ -24,6 +24,11 @@ var LoginInfo = Components.Constructor(
   "init"
 );
 
+// This test is best left in one file, as it relies on the state of the server and the
+// logins service to be consistent between tests, so setting a longer timeout to prevent
+// the server from timing out and causing the tests to fail.
+requestLongerTimeout(2);
+
 // Ideal login info. This is what would be saved if you created a new calendar.
 const ORIGIN = "oauth://test.test";
 const SCOPE = "test_scope";
