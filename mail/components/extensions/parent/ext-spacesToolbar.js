@@ -7,99 +7,13 @@
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
 );
-
-ChromeUtils.defineESModuleGetters(this, {
-  getIconData: "resource:///modules/ExtensionToolbarButtons.sys.mjs",
-});
-
-XPCOMUtils.defineLazyGlobalGetters(this, ["InspectorUtils"]);
+var { getNativeButtonProperties } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionSpaces.sys.mjs"
+);
 
 var { makeWidgetId } = ExtensionCommon;
 
 var windowURLs = ["chrome://messenger/content/messenger.xhtml"];
-
-/**
- * Return the paths to the 16px and 32px icons defined in the manifest of this
- * extension, if any.
- *
- * @param {ExtensionData} extension - the extension to retrieve the path object for
- */
-function getManifestIcons(extension) {
-  if (extension.manifest.icons) {
-    const { icon: icon16 } = ExtensionParent.IconDetails.getPreferredIcon(
-      extension.manifest.icons,
-      extension,
-      16
-    );
-    const { icon: icon32 } = ExtensionParent.IconDetails.getPreferredIcon(
-      extension.manifest.icons,
-      extension,
-      32
-    );
-    return {
-      16: extension.baseURI.resolve(icon16),
-      32: extension.baseURI.resolve(icon32),
-    };
-  }
-  return null;
-}
-
-/**
- * Convert WebExtension SpaceButtonProperties into a NativeButtonProperties
- * object required by the gSpacesToolbar.* functions.
- *
- * @param {SpaceData} spaceData - @see mail/components/extensions/parent/ext-mail.js
- * @returns {NativeButtonProperties} - @see mail/base/content/spacesToolbar.js
- */
-function convertProperties({ extension, buttonProperties, tabProperties }) {
-  const normalizeColor = color => {
-    if (typeof color == "string") {
-      const col = InspectorUtils.colorToRGBA(color);
-      if (!col) {
-        throw new ExtensionError(`Invalid color value: "${color}"`);
-      }
-      return [col.r, col.g, col.b, Math.round(col.a * 255)];
-    }
-    return color;
-  };
-
-  const hasThemeIcons =
-    buttonProperties.themeIcons && buttonProperties.themeIcons.length > 0;
-
-  // If themeIcons have been defined, ignore manifestIcons as fallback and use
-  // themeIcons for the default theme as well, following the behavior of
-  // WebExtension action buttons.
-  const fallbackManifestIcons = hasThemeIcons
-    ? null
-    : getManifestIcons(extension);
-
-  // Use _normalize() to bypass cache.
-  const icons = ExtensionParent.IconDetails._normalize(
-    {
-      path: buttonProperties.defaultIcons || fallbackManifestIcons,
-      themeIcons: hasThemeIcons ? buttonProperties.themeIcons : null,
-    },
-    extension
-  );
-  const iconStyles = new Map(getIconData(icons, extension).style);
-
-  const badgeStyles = new Map();
-  const bgColor = normalizeColor(buttonProperties.badgeBackgroundColor);
-  if (bgColor) {
-    badgeStyles.set(
-      "--spaces-button-badge-bg-color",
-      `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, ${bgColor[3] / 255})`
-    );
-  }
-
-  return {
-    title: buttonProperties.title || extension.name,
-    url: tabProperties.url,
-    badgeText: buttonProperties.badgeText,
-    badgeStyles,
-    iconStyles,
-  };
-}
 
 ExtensionSupport.registerWindowListener("ext-spacesToolbar", {
   chromeURLs: windowURLs,
@@ -119,7 +33,7 @@ ExtensionSupport.registerWindowListener("ext-spacesToolbar", {
       if (!spaceData.extension) {
         continue;
       }
-      const nativeButtonProperties = convertProperties(spaceData);
+      const nativeButtonProperties = getNativeButtonProperties(spaceData);
       await window.gSpacesToolbar.createToolbarButton(
         spaceData.spaceButtonId,
         nativeButtonProperties
@@ -192,7 +106,7 @@ this.spacesToolbar = class extends ExtensionAPI {
               context.extension
             );
 
-            const nativeButtonProperties = convertProperties(spaceData);
+            const nativeButtonProperties = getNativeButtonProperties(spaceData);
             for (const window of ExtensionSupport.openWindows) {
               if (windowURLs.includes(window.location.href)) {
                 await window.gSpacesToolbar.createToolbarButton(
@@ -265,7 +179,7 @@ this.spacesToolbar = class extends ExtensionAPI {
           }
 
           if (changes) {
-            const nativeButtonProperties = convertProperties(spaceData);
+            const nativeButtonProperties = getNativeButtonProperties(spaceData);
             try {
               for (const window of ExtensionSupport.openWindows) {
                 if (windowURLs.includes(window.location.href)) {
