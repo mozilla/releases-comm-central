@@ -107,6 +107,38 @@ export function getNativeButtonProperties({ extension, buttonProperties }) {
 }
 
 /**
+ * Convert WebExtension SpaceTabProperties into a NativeTabProperties
+ * object required by the gSpacesToolbar.* functions.
+ *
+ * @param {SpaceData} spaceData - @see mail/components/extensions/parent/ext-mail.js
+ * @returns {NativeTabProperties} - @see mail/base/content/spacesToolbar.js
+ */
+export function getNativeTabProperties({ extension, tabProperties }) {
+  const userContextId = tabProperties.cookieStoreId
+    ? ExtensionParent.apiManager.global.getUserContextIdForCookieStoreId(
+        extension,
+        tabProperties.cookieStoreId
+      )
+    : Services.scriptSecurityManager.DEFAULT_USER_CONTEXT_ID;
+  const url = tabProperties.url
+    ? extension.baseURI.resolve(tabProperties.url)
+    : null;
+
+  const protocol = url && new URL(url).protocol;
+  if (!protocol || !["https:", "http:", "moz-extension:"].includes(protocol)) {
+    throw new Error(url ? `Invalid URL: ${url}` : `Missing URL`);
+  }
+
+  return {
+    url,
+    userContextId,
+    linkHandler: "single-site",
+    initialBrowsingContextGroupId: extension.policy.browsingContextGroupId,
+    triggeringPrincipal: extension.principal,
+  };
+}
+
+/**
  * Convenience class to keep track of and manage spaces.
  */
 export class SpaceTracker {

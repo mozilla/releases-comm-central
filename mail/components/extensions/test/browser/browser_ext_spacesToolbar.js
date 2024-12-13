@@ -234,7 +234,7 @@ add_task(async function test_add_update_remove() {
     browser.test.log("addButton(): With empty properties.");
     await browser.test.assertRejects(
       browser.spacesToolbar.addButton("button_1", {}),
-      /Failed to add button to the spaces toolbar: Invalid url./,
+      /Failed to add button to the spaces toolbar: Missing URL/,
       "addButton() without a url should throw."
     );
 
@@ -243,7 +243,7 @@ add_task(async function test_add_update_remove() {
       browser.spacesToolbar.addButton("button_1", {
         url: "invalid://url",
       }),
-      /Failed to add button to the spaces toolbar: Invalid url./,
+      `Failed to add button to the spaces toolbar: Invalid URL: invalid://url`,
       "addButton() with an invalid url should throw."
     );
 
@@ -352,7 +352,7 @@ add_task(async function test_add_update_remove() {
       browser.spacesToolbar.updateButton("button_2", {
         url: "invalid://url",
       }),
-      /Failed to update button in the spaces toolbar: Invalid url./,
+      `Failed to update button in the spaces toolbar: Invalid URL: invalid://url`,
       "updateButton() with invalid url should throw."
     );
 

@@ -313,7 +313,7 @@
               "cookieStoreId": {
                 "type": "string",
                 "optional": true,
-                "description": "The CookieStoreId to use for all tabs that were created when the window is opened."
+                "description": "The <a href='url-cookieStore'>CookieStore</a> id which all initially opened tabs should use. Either a custom id created using the <a href='url-contextualIdentity'>contextualIdentities API</a>, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons. The <permission>cookies</permission> permission is required to be able to specify this property. Furthermore, the <permission>contextualIdentities</permission> permission should be requested, to enable the contextual identities feature (enabled by default only on Thunderbird Daily)."
               },
               "titlePreface": {
                 "type": "string",

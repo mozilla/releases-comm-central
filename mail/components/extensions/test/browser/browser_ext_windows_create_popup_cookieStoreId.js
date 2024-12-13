@@ -92,8 +92,10 @@ add_task(async function userContext_disabled() {
 });
 
 add_task(async function valid_cookieStoreId() {
+  // Set userContext.enabled to false and check if requesting the contextualIdentities
+  // permission flips it to true, and using a cookieStoreId succeeds.
   await SpecialPowers.pushPrefEnv({
-    set: [["privacy.userContext.enabled", true]],
+    set: [["privacy.userContext.enabled", false]],
   });
 
   const TEST_CASES = [
@@ -212,9 +214,15 @@ add_task(async function valid_cookieStoreId() {
     browser.test.sendMessage("done");
   }
   const extension = ExtensionTestUtils.loadExtension({
+    useAddonManager: "temporary",
     manifest: {
+      browser_specific_settings: {
+        gecko: {
+          id: "popup_window_cookieStoreId@mochi.test",
+        },
+      },
       host_permissions: ["*://*/*"], // allows script in top-level about:blank.
-      permissions: ["cookies", "webNavigation"],
+      permissions: ["cookies", "webNavigation", "contextualIdentities"],
     },
     background: `(${background})(${JSON.stringify(TEST_CASES)})`,
   });

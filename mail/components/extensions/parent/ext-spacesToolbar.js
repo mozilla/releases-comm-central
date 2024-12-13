@@ -7,9 +7,8 @@
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
 );
-var { getNativeButtonProperties } = ChromeUtils.importESModule(
-  "resource:///modules/ExtensionSpaces.sys.mjs"
-);
+var { getNativeButtonProperties, getNativeTabProperties } =
+  ChromeUtils.importESModule("resource:///modules/ExtensionSpaces.sys.mjs");
 
 var { makeWidgetId } = ExtensionCommon;
 
@@ -33,11 +32,10 @@ ExtensionSupport.registerWindowListener("ext-spacesToolbar", {
       if (!spaceData.extension) {
         continue;
       }
-      const nativeButtonProperties = getNativeButtonProperties(spaceData);
       await window.gSpacesToolbar.createToolbarButton(
         spaceData.spaceButtonId,
-        spaceData.tabProperties,
-        nativeButtonProperties
+        getNativeTabProperties(spaceData),
+        getNativeButtonProperties(spaceData)
       );
     }
   },
@@ -66,53 +64,47 @@ this.spacesToolbar = class extends ExtensionAPI {
   }
 
   getAPI(context) {
-    this.widgetId = makeWidgetId(context.extension.id);
-    const { tabManager } = context.extension;
+    const { extension } = context;
+    const { tabManager } = extension;
+    this.widgetId = makeWidgetId(extension.id);
 
     return {
       spacesToolbar: {
-        async addButton(name, properties) {
-          // The deprecated spacesToolbar API handles the url as part of its
-          // buttonBroperties, but internally we store the url as part of the
-          // tabProperties.
-          const tabProperties = {};
-          if (properties.url) {
-            tabProperties.url = context.uri.resolve(properties.url);
-            const protocol = new URL(tabProperties.url).protocol;
-            if (
-              !protocol ||
-              !["https:", "http:", "moz-extension:"].includes(protocol)
-            ) {
-              throw new ExtensionError(
-                `Failed to add button to the spaces toolbar: Invalid url.`
-              );
-            }
-            delete properties.url;
-          } else {
-            throw new ExtensionError(
-              `Failed to add button to the spaces toolbar: Invalid url.`
-            );
-          }
-
-          if (spaceTracker.fromSpaceName(name, context.extension)) {
+        async addButton(name, buttonProperties) {
+          if (spaceTracker.fromSpaceName(name, extension)) {
             throw new ExtensionError(
               `Failed to add button to the spaces toolbar: The id ${name} is already used by this extension.`
             );
           }
+
+          // The deprecated spacesToolbar API handles the url as part of its
+          // buttonProperties, but internally we store the url as part of the
+          // tabProperties.
+          const tabProperties = { url: buttonProperties.url };
+          delete buttonProperties.url;
+
           try {
+            const nativeButtonProperties = getNativeButtonProperties({
+              extension,
+              buttonProperties,
+            });
+            const nativeTabProperties = getNativeTabProperties({
+              extension,
+              tabProperties,
+            });
+
             const spaceData = await spaceTracker.create(
               name,
               tabProperties,
-              properties,
-              context.extension
+              buttonProperties,
+              extension
             );
 
-            const nativeButtonProperties = getNativeButtonProperties(spaceData);
             for (const window of ExtensionSupport.openWindows) {
               if (windowURLs.includes(window.location.href)) {
                 await window.gSpacesToolbar.createToolbarButton(
                   spaceData.spaceButtonId,
-                  spaceData.tabProperties,
+                  nativeTabProperties,
                   nativeButtonProperties
                 );
               }
@@ -121,12 +113,12 @@ this.spacesToolbar = class extends ExtensionAPI {
             return spaceData.spaceId;
           } catch (error) {
             throw new ExtensionError(
-              `Failed to add button to the spaces toolbar: ${error}`
+              `Failed to add button to the spaces toolbar: ${error.message}`
             );
           }
         },
         async removeButton(name) {
-          const spaceData = spaceTracker.fromSpaceName(name, context.extension);
+          const spaceData = spaceTracker.fromSpaceName(name, extension);
           if (!spaceData) {
             throw new ExtensionError(
               `Failed to remove button from the spaces toolbar: A button with id ${name} does not exist for this extension.`
@@ -148,7 +140,7 @@ this.spacesToolbar = class extends ExtensionAPI {
           }
         },
         async updateButton(name, updatedProperties) {
-          const spaceData = spaceTracker.fromSpaceName(name, context.extension);
+          const spaceData = spaceTracker.fromSpaceName(name, extension);
           if (!spaceData) {
             throw new ExtensionError(
               `Failed to update button in the spaces toolbar: A button with id ${name} does not exist for this extension.`
@@ -156,52 +148,57 @@ this.spacesToolbar = class extends ExtensionAPI {
           }
 
           let changes = false;
-
-          if (updatedProperties.url != null) {
-            const url = context.uri.resolve(updatedProperties.url);
-            const protocol = new URL(url).protocol;
-            if (
-              !protocol ||
-              !["https:", "http:", "moz-extension:"].includes(protocol)
-            ) {
-              throw new ExtensionError(
-                `Failed to update button in the spaces toolbar: Invalid url.`
-              );
-            }
-            spaceData.tabProperties.url = url;
-            delete updatedProperties.url;
-            changes = true;
-          }
-
+          const buttonProperties = { ...spaceData.buttonProperties };
+          const tabProperties = { ...spaceData.tabProperties };
           for (const [key, value] of Object.entries(updatedProperties)) {
             if (value != null) {
-              spaceData.buttonProperties[key] = value;
+              // The deprecated spacesToolbar API handles the url as part of its
+              // buttonProperties, but internally we store the url as part of the
+              // tabProperties.
+              if (key == "url") {
+                tabProperties[key] = value;
+              } else {
+                buttonProperties[key] = value;
+              }
               changes = true;
             }
           }
 
-          if (changes) {
-            const nativeButtonProperties = getNativeButtonProperties(spaceData);
-            try {
-              for (const window of ExtensionSupport.openWindows) {
-                if (windowURLs.includes(window.location.href)) {
-                  await window.gSpacesToolbar.updateToolbarButton(
-                    spaceData.spaceButtonId,
-                    spaceData.tabProperties,
-                    nativeButtonProperties
-                  );
-                }
+          if (!changes) {
+            return;
+          }
+
+          try {
+            const nativeButtonProperties = getNativeButtonProperties({
+              extension,
+              buttonProperties,
+            });
+            const nativeTabProperties = getNativeTabProperties({
+              extension,
+              tabProperties,
+            });
+
+            for (const window of ExtensionSupport.openWindows) {
+              if (windowURLs.includes(window.location.href)) {
+                await window.gSpacesToolbar.updateToolbarButton(
+                  spaceData.spaceButtonId,
+                  nativeTabProperties,
+                  nativeButtonProperties
+                );
               }
-              spaceTracker.update(spaceData);
-            } catch (error) {
-              throw new ExtensionError(
-                `Failed to update button in the spaces toolbar: ${error}`
-              );
             }
+
+            spaceData.buttonProperties = buttonProperties;
+            spaceData.tabProperties = tabProperties;
+            spaceTracker.update(spaceData);
+          } catch (error) {
+            throw new ExtensionError(
+              `Failed to update button in the spaces toolbar: ${error.message}`
+            );
           }
         },
         async clickButton(name, windowId) {
-          const spaceData = spaceTracker.fromSpaceName(name, context.extension);
+          const spaceData = spaceTracker.fromSpaceName(name, extension);
           if (!spaceData) {
             throw new ExtensionError(
               `Failed to trigger a click on the spaces toolbar button: A button with id ${name} does not exist for this extension.`

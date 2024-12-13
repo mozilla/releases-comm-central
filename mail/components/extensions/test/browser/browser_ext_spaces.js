@@ -22,33 +22,36 @@ add_setup(() => {
  *   @param {?object} permissions - Permissions assigned to the extension.
  */
 async function test_space(background, config = {}) {
-  const manifest_version = config.manifestVersion || 3;
-  const manifest = {
-    manifest_version,
-    browser_specific_settings: {
-      gecko: {
-        id: "spaces_toolbar@mochi.test",
-      },
-    },
-    permissions: ["tabs"],
-    background: { scripts: ["utils.js", "background.js"] },
-  };
-
-  if (config.manifestIcons) {
-    manifest.icons = config.manifestIcons;
-  }
-
-  if (config.permissions) {
-    manifest.permissions = config.permissions;
-  }
-
-  const extension = ExtensionTestUtils.loadExtension({
+  const loadData = {
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
     },
-    manifest,
-  });
+    manifest: {
+      manifest_version: config.manifestVersion || 3,
+      browser_specific_settings: {
+        gecko: {
+          id: "spaces_toolbar@mochi.test",
+        },
+      },
+      permissions: ["tabs"],
+      background: { scripts: ["utils.js", "background.js"] },
+    },
+  };
+
+  if (config.manifestIcons) {
+    loadData.manifest.icons = config.manifestIcons;
+  }
+
+  if (config.permissions) {
+    loadData.manifest.permissions = config.permissions;
+  }
+
+  if (config.useAddonManager) {
+    loadData.useAddonManager = config.useAddonManager;
+  }
+
+  const extension = ExtensionTestUtils.loadExtension(loadData);
 
   extension.onMessage("checkTabs", async test => {
     const tabmail = document.getElementById("tabmail");
@@ -72,14 +75,12 @@ async function test_space(background, config = {}) {
       `Should have found the correct number of open add-on spaces tabs.`
     );
     for (const expectedUrl of test.openSpacesUrls) {
-      Assert.ok(
-        tabmail.tabInfo.find(
-          tabInfo =>
-            !!tabInfo.spaceButtonId &&
-            tabInfo.browser.currentURI.spec == expectedUrl
-        ),
-        `Should have found a spaces tab with the expected url.`
+      const tab = tabmail.tabInfo.find(
+        tabInfo =>
+          !!tabInfo.spaceButtonId &&
+          tabInfo.browser.currentURI.spec == expectedUrl
       );
+      Assert.ok(tab, `Should have found a spaces tab with the expected url.`);
     }
     extension.sendMessage();
   });
@@ -258,7 +259,7 @@ add_task(async function test_add_update_remove() {
     browser.test.log("create(): With invalid default url.");
     await browser.test.assertRejects(
       browser.spaces.create("space_1", "invalid://url"),
-      /Failed to create space with name space_1: Invalid default url./,
+      `Failed to create space with name space_1: Invalid URL: invalid://url`,
       "create() with an invalid default url should throw."
     );
 
@@ -359,7 +360,7 @@ add_task(async function test_add_update_remove() {
     browser.test.log("update(): Setting invalid default url.");
     await browser.test.assertRejects(
       browser.spaces.update(space_2.id, "invalid://url"),
-      `Failed to update space with id ${space_2.id}: Invalid default url.`,
+      `Failed to update space with id ${space_2.id}: Invalid URL: invalid://url`,
       "update() with invalid default url should throw."
     );
 
@@ -738,15 +739,18 @@ add_task(async function test_icons() {
   }
 });
 
-add_task(async function test_open_programmatically() {
+add_task(async function test_open_programmatically_with_cookieStoreId() {
   async function background() {
     await window.sendMessage("checkTabs", { openSpacesUrls: [] });
 
     // Add spaces.
     const url1 = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content.html`;
-    const space_1 = await browser.spaces.create("space_1", url1);
+    const space_1 = await browser.spaces.create("space_1", { url: url1 });
     const url2 = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content_body.html`;
-    const space_2 = await browser.spaces.create("space_2", url2);
+    const space_2 = await browser.spaces.create("space_2", {
+      url: url2,
+      cookieStoreId: "firefox-container-1",
+    });
     await window.sendMessage("checkTabs", { openSpacesUrls: [] });
 
     async function openSpace(space, url) {
@@ -787,6 +791,14 @@ add_task(async function test_open_programmatically() {
 
     // Open space #1.
     await openSpace(space_1, url1);
+    // Verify cookieStoreIds.
+    const [spaceTab1] = await browser.tabs.query({ spaceId: space_1.id });
+    browser.test.assertEq(
+      "firefox-default",
+      spaceTab1.cookieStoreId,
+      `The cookieStoreId for space_1 should be correct.`
+    );
+    // Verify tab properties.
     await window.sendMessage("checkTabs", {
       spaceName: "space_1",
       openSpacesUrls: [url1],
@@ -794,6 +806,14 @@ add_task(async function test_open_programmatically() {
 
     // Open space #2.
     await openSpace(space_2, url2);
+    // Verify cookieStoreIds.
+    const [spaceTab2] = await browser.tabs.query({ spaceId: space_2.id });
+    browser.test.assertEq(
+      "firefox-container-1",
+      spaceTab2.cookieStoreId,
+      `The cookieStoreId for space_2 should be correct.`
+    );
+    // Verify tab properties.
     await window.sendMessage("checkTabs", {
       spaceName: "space_2",
       openSpacesUrls: [url1, url2],
@@ -822,7 +842,11 @@ add_task(async function test_open_programmatically() {
 
     browser.test.notifyPass();
   }
-  await test_space(background, { selectedTheme: "default" });
+  await test_space(background, {
+    selectedTheme: "default",
+    permissions: ["tabs", "cookies", "contextualIdentities"],
+    useAddonManager: "temporary",
+  });
 });
 
 // Load a second extension parallel to the standard space test, which creates

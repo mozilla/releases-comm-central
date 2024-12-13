@@ -1006,8 +1006,14 @@ var gSpacesToolbar = {
   },
 
   /**
+   * Properties for a new tab to be passed into TabMail.openTab().
+   *
    * @typedef NativeTabProperties
-   * @property {string} url - The url for the default space tab.
+   * @property {string} url
+   * @property {?string} initialBrowsingContextGroupId
+   * @property {?string} linkHandler
+   * @property {?nsIPrincipal} triggeringPrincipal
+   * @property {?integer} userContextId
    */
 
   /**
@@ -1119,7 +1125,7 @@ var gSpacesToolbar = {
           // but belongs to a different space.
           const tab = openTab(
             "contentTab",
-            { url: this.tabProperties.url, duplicate: true },
+            { ...this.tabProperties, duplicate: true },
             where
           );
           tab.spaceButtonId = this.name;
