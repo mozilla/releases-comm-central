@@ -467,7 +467,7 @@ class AccountHubEmail extends HTMLElement {
       // Fall through to handle like forward event.
       case "forward":
         try {
-          const stateData = this.#currentSubview.captureState();
+          const stateData = this.#currentSubview.captureState?.();
           await this.#handleForwardAction(this.#currentState, stateData);
         } catch (error) {
           this.#handleAbortable();
