@@ -195,15 +195,23 @@ this.spaces = class extends ExtensionAPI {
 
     return {
       spaces: {
-        async create(name, defaultUrl, buttonProperties) {
+        async create(name, tabProperties, buttonProperties) {
           if (spaceTracker.fromSpaceName(name, context.extension)) {
             throw new ExtensionError(
               `Failed to create space with name ${name}: Space already exists for this extension.`
             );
           }
 
-          defaultUrl = context.uri.resolve(defaultUrl);
-          if (!/((^https:)|(^http:)|(^moz-extension:))/i.test(defaultUrl)) {
+          if (!tabProperties) {
+            tabProperties = {};
+          } else if (typeof tabProperties == "string") {
+            tabProperties = { url: tabProperties };
+          }
+
+          tabProperties.url = context.uri.resolve(tabProperties.url);
+          if (
+            !/((^https:)|(^http:)|(^moz-extension:))/i.test(tabProperties.url)
+          ) {
             throw new ExtensionError(
               `Failed to create space with name ${name}: Invalid default url.`
             );
@@ -212,7 +220,7 @@ this.spaces = class extends ExtensionAPI {
           try {
             const spaceData = await spaceTracker.create(
               name,
-              defaultUrl,
+              tabProperties.url,
               buttonProperties,
               context.extension
             );
@@ -262,7 +270,7 @@ this.spaces = class extends ExtensionAPI {
             );
           }
         },
-        async update(spaceId, updatedDefaultUrl, updatedButtonProperties) {
+        async update(spaceId, updatedTabProperties, updatedButtonProperties) {
           const spaceData = spaceTracker.fromSpaceId(spaceId);
           if (!spaceData) {
             throw new ExtensionError(
@@ -275,17 +283,38 @@ this.spaces = class extends ExtensionAPI {
             );
           }
 
+          if (!updatedTabProperties) {
+            updatedTabProperties = {};
+          } else if (typeof updatedTabProperties == "string") {
+            updatedTabProperties = { url: updatedTabProperties };
+          } else if (!updatedTabProperties.hasOwnProperty("url")) {
+            // The concept for the update function is to have the 2nd and the 3rd
+            // parameter optional, allowing to specify the 2nd, the 3rd or both
+            // parameters. Even though these parameters do not have overlapping
+            // properties, the schema parser is currently not able to properly
+            // detect which parameter is specified, if both are actually defined
+            // as optional. The only way out is to define the 2nd parameter as
+            // non-optional and allow it to accept buttonProperties (what the 3rd
+            // parameter is about). This needs manual parameter fixing here.
+            updatedButtonProperties = { ...updatedTabProperties };
+            updatedTabProperties = {};
+          }
+
           let changes = false;
-          if (updatedDefaultUrl) {
-            updatedDefaultUrl = context.uri.resolve(updatedDefaultUrl);
+          if (updatedTabProperties.url) {
+            updatedTabProperties.url = context.uri.resolve(
+              updatedTabProperties.url
+            );
             if (
-              !/((^https:)|(^http:)|(^moz-extension:))/i.test(updatedDefaultUrl)
+              !/((^https:)|(^http:)|(^moz-extension:))/i.test(
+                updatedTabProperties.url
+              )
             ) {
               throw new ExtensionError(
                 `Failed to update space with id ${spaceId}: Invalid default url.`
               );
             }
-            spaceData.defaultUrl = updatedDefaultUrl;
+            spaceData.defaultUrl = updatedTabProperties.url;
             changes = true;
           }
 

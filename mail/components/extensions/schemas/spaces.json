@@ -3,7 +3,25 @@
     "namespace": "spaces",
     "types": [
       {
+        "id": "SpaceTabProperties",
+        "description": "Properties for the new tab being opened by clicking on the associated button in the spaces toolbar.",
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "optional": true,
+            "description": "The default URL. May point to a WebExtension page or a web page."
+          },
+          "cookieStoreId": {
+            "type": "string",
+            "optional": true,
+            "description": "The <a href='url-cookieStore'>CookieStore</a> id used by the tab. Either a custom id created using the <a href='url-contextualIdentity'>contextualIdentities API</a>, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons. The <permission>cookies</permission> permission is required to be able to specify this property."
+          }
+        }
+      },
+      {
         "id": "SpaceButtonProperties",
+        "description": "Properties of a button in the spaces toolbar.",
         "choices": [
           {
             "max_manifest_version": 2,
@@ -152,13 +170,20 @@
             "description": "The name to assign to this space. May only contain alphanumeric characters and underscores. Must be unique for this extension."
           },
           {
-            "name": "defaultUrl",
-            "type": "string",
-            "description": "The default space url, loaded into a tab when the button in the spaces toolbar is clicked. Supported are <var>https://</var> and <var>http://</var> links, as well as links to WebExtension pages."
+            "name": "tabProperties",
+            "choices": [
+              {
+                "$ref": "spaces.SpaceTabProperties"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "The properties for the new tab being opened, when the associated button in the spaces toolbar is clicked. Either a <em>string</em> specifiying the default URL, or a $(ref:spaces.SpaceTabProperties) object. The URL may point to a WebExtension page or a web page."
           },
           {
             "name": "buttonProperties",
-            "description": "Properties of the button for the new space.",
+            "description": "Properties of the button in the spaces toolbar for the new space.",
             "$ref": "spaces.SpaceButtonProperties",
             "optional": true,
             "default": {}
@@ -293,14 +318,23 @@
             "minimum": 1
           },
           {
-            "name": "defaultUrl",
-            "type": "string",
-            "description": "The default space url, loaded into a tab when the button in the spaces toolbar is clicked. Supported are <var>https://</var> and <var>http://</var> links, as well as links to WebExtension pages.",
-            "optional": true
+            "name": "tabProperties",
+            "choices": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "spaces.SpaceTabProperties"
+              },
+              {
+                "$ref": "spaces.SpaceButtonProperties"
+              }
+            ],
+            "description": "The properties for the new tab being opened, when the associated button in the spaces toolbar is clicked. Either a <em>string</em> specifiying the default URL, or a $(ref:spaces.SpaceTabProperties) object. The URL may point to a WebExtension page or a web page."
           },
           {
             "name": "buttonProperties",
-            "description": "Only specified button properties will be updated.",
+            "description": "Properties of the button in the spaces toolbar for the specified space Only specified button properties will be updated.",
             "$ref": "spaces.SpaceButtonProperties",
             "optional": true
           }

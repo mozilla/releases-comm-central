@@ -313,14 +313,17 @@ add_task(async function test_add_update_remove() {
 
     browser.test.log("update(): With invalid id.");
     await browser.test.assertRejects(
-      browser.spaces.update(1234),
+      browser.spaces.update(1234, "invalid://url"),
       /Failed to update space with id 1234: Unknown id./,
       "update() with invalid id should throw."
     );
 
     browser.test.log("update(): Without properties.");
-    await browser.spaces.update(space_1.id);
-    await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
+    await browser.test.assertThrows(
+      () => browser.spaces.update(space_1.id),
+      /Incorrect argument types for spaces.update./,
+      "update() without properties should throw."
+    );
 
     browser.test.log("update(): Updating the badge.");
     await browser.spaces.update(space_2.id, {
@@ -359,6 +362,12 @@ add_task(async function test_add_update_remove() {
       `Failed to update space with id ${space_2.id}: Invalid default url.`,
       "update() with invalid default url should throw."
     );
+
+    await browser.spaces.update(space_2.id, {
+      url: "https://test.other.invalid",
+    });
+    expected_space_2.url = "https://test.other.invalid";
+    await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     await browser.spaces.update(space_2.id, "https://test.more.invalid", {
       title: "Bing",
@@ -466,7 +475,9 @@ add_task(async function test_icons() {
     browser.test.log("create(): Setting defaultIcons and themeIcons.");
     const space_1 = await browser.spaces.create(
       "space_1",
-      "https://test.invalid",
+      {
+        url: "https://test.invalid",
+      },
       {
         title: "Google",
         defaultIcons: "default.png",
@@ -634,7 +645,9 @@ add_task(async function test_icons() {
     browser.test.log("create(): Setting no icons.");
     const space_4 = await browser.spaces.create(
       "space_4",
-      "https://duckduckgo.com",
+      {
+        url: "https://duckduckgo.com",
+      },
       {
         title: "DuckDuckGo",
       }
@@ -975,8 +988,10 @@ async function test_query({ permissions }) {
     files: {
       "background.js": async () => {
         const url = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content.html`;
+        // Test string url as second parameter.
         const other_1 = await browser.spaces.create("space_1", url);
-        const other_11 = await browser.spaces.create("space_11", url);
+        // Test SpaceTabProperties as second parameter.
+        const other_11 = await browser.spaces.create("space_11", { url });
         browser.test.sendMessage("Done", { other_1, other_11 });
         browser.test.notifyPass();
       },

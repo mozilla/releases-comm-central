@@ -100,7 +100,7 @@
           "cookieStoreId": {
             "type": "string",
             "optional": true,
-            "description": "The <a href='url-cookieStore'>CookieStore</a> id used by the tab. Either a custom id created using the <a href='url-contextualIdentity'>contextualIdentities API</a>, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+            "description": "The <a href='url-cookieStore'>CookieStore</a> id used by the tab. Either a custom id created using the <a href='url-contextualIdentity'>contextualIdentities API</a>, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons. The <permission>cookies</permission> permission is required to be able to specify this property."
           },
           "type": {
             "$ref": "TabType",
