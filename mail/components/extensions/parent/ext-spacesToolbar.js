@@ -36,6 +36,7 @@ ExtensionSupport.registerWindowListener("ext-spacesToolbar", {
       const nativeButtonProperties = getNativeButtonProperties(spaceData);
       await window.gSpacesToolbar.createToolbarButton(
         spaceData.spaceButtonId,
+        spaceData.tabProperties,
         nativeButtonProperties
       );
     }
@@ -111,6 +112,7 @@ this.spacesToolbar = class extends ExtensionAPI {
               if (windowURLs.includes(window.location.href)) {
                 await window.gSpacesToolbar.createToolbarButton(
                   spaceData.spaceButtonId,
+                  spaceData.tabProperties,
                   nativeButtonProperties
                 );
               }
@@ -185,6 +187,7 @@ this.spacesToolbar = class extends ExtensionAPI {
                 if (windowURLs.includes(window.location.href)) {
                   await window.gSpacesToolbar.updateToolbarButton(
                     spaceData.spaceButtonId,
+                    spaceData.tabProperties,
                     nativeButtonProperties
                   );
                 }

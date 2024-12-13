@@ -57,11 +57,7 @@ function getManifestIcons(extension) {
  * @param {SpaceData} spaceData - @see mail/components/extensions/parent/ext-mail.js
  * @returns {NativeButtonProperties} - @see mail/base/content/spacesToolbar.js
  */
-export function getNativeButtonProperties({
-  extension,
-  tabProperties,
-  buttonProperties,
-}) {
+export function getNativeButtonProperties({ extension, buttonProperties }) {
   const normalizeColor = color => {
     if (typeof color == "string") {
       const col = InspectorUtils.colorToRGBA(color);
@@ -104,7 +100,6 @@ export function getNativeButtonProperties({
 
   return {
     title: buttonProperties.title || extension.name,
-    url: tabProperties.url,
     badgeText: buttonProperties.badgeText,
     badgeStyles,
     iconStyles,

@@ -1006,9 +1006,13 @@ var gSpacesToolbar = {
   },
 
   /**
+   * @typedef NativeTabProperties
+   * @property {string} url - The url for the default space tab.
+   */
+
+  /**
    * @typedef NativeButtonProperties
    * @property {string} title - The text of the button tooltip and menuitem value.
-   * @property {string} url - The URL of the content tab to open.
    * @property {Map} iconStyles - The icon styles Map.
    * @property {?string} badgeText - The optional badge text.
    * @property {?Map} badgeStyles - The optional badge styles Map.
@@ -1019,20 +1023,27 @@ var gSpacesToolbar = {
    * toolbar.
    *
    * @param {string} id - The ID of the newly created button.
-   * @param {NativeButtonProperties} properties - The properties of the new button.
+   * @param {NativeTabProperties} tabProperties - The properties of the default
+   *   space tab.
+   * @param {NativeButtonProperties} nativeButtonProperties - The properties of
+   *   the new button.
    *
    * @returns {Promise} - A Promise that resolves when the button is created.
    */
-  async createToolbarButton(id, properties = {}) {
+  async createToolbarButton(
+    id,
+    tabProperties = {},
+    nativeButtonProperties = {}
+  ) {
     return new Promise((resolve, reject) => {
       if (!this.isLoaded) {
         return reject("Unable to add spaces toolbar button! Toolbar not ready");
       }
       if (
         !id ||
-        !properties.title ||
-        !properties.url ||
-        !properties.iconStyles
+        !tabProperties.url ||
+        !nativeButtonProperties.title ||
+        !nativeButtonProperties.iconStyles
       ) {
         return reject(
           "Unable to add spaces toolbar button! Missing ID, Title, IconStyles, or space URL"
@@ -1043,7 +1054,7 @@ var gSpacesToolbar = {
       const button = document.createElement("button");
       button.classList.add("spaces-toolbar-button", "spaces-addon-button");
       button.id = id;
-      button.title = properties.title;
+      button.title = nativeButtonProperties.title;
       button.tabIndex = -1;
 
       const badge = document.createElement("span");
@@ -1065,7 +1076,7 @@ var gSpacesToolbar = {
         "spaces-popup-menuitem"
       );
       menuitem.id = `${id}-menuitem`;
-      menuitem.label = properties.title;
+      menuitem.label = nativeButtonProperties.title;
       document
         .getElementById("spacesButtonMenuPopup")
         .insertBefore(
@@ -1076,9 +1087,15 @@ var gSpacesToolbar = {
       // Set icons. The unified toolbar customization also relies on the CSS
       // variables of the img.
       for (const style of this.SUPPORTED_ICON_STYLES) {
-        if (properties.iconStyles.has(style)) {
-          img.style.setProperty(style, properties.iconStyles.get(style));
-          menuitem.style.setProperty(style, properties.iconStyles.get(style));
+        if (nativeButtonProperties.iconStyles.has(style)) {
+          img.style.setProperty(
+            style,
+            nativeButtonProperties.iconStyles.get(style)
+          );
+          menuitem.style.setProperty(
+            style,
+            nativeButtonProperties.iconStyles.get(style)
+          );
         }
       }
 
@@ -1087,7 +1104,7 @@ var gSpacesToolbar = {
         name: id,
         button,
         menuitem,
-        url: properties.url,
+        tabProperties,
         isExtensionSpace: true,
         tabInSpace(tabInfo) {
           // TODO: Store the spaceButtonId in the XULStore (or somewhere), so the
@@ -1102,7 +1119,7 @@ var gSpacesToolbar = {
           // but belongs to a different space.
           const tab = openTab(
             "contentTab",
-            { url: this.url, duplicate: true },
+            { url: this.tabProperties.url, duplicate: true },
             where
           );
           tab.spaceButtonId = this.name;
@@ -1126,15 +1143,18 @@ var gSpacesToolbar = {
       });
 
       // Set badge.
-      if (properties.badgeText) {
+      if (nativeButtonProperties.badgeText) {
         button.classList.add("has-badge");
-        badge.textContent = properties.badgeText;
+        badge.textContent = nativeButtonProperties.badgeText;
       }
 
-      if (properties.badgeStyles) {
+      if (nativeButtonProperties.badgeStyles) {
         for (const style of this.SUPPORTED_BADGE_STYLES) {
-          if (properties.badgeStyles.has(style)) {
-            badge.style.setProperty(style, properties.badgeStyles.get(style));
+          if (nativeButtonProperties.badgeStyles.has(style)) {
+            badge.style.setProperty(
+              style,
+              nativeButtonProperties.badgeStyles.get(style)
+            );
           }
         }
       }
@@ -1149,18 +1169,25 @@ var gSpacesToolbar = {
    * to the spaces toolbar.
    *
    * @param {string} id - The ID of the button that needs to be updated.
-   * @param {NativeButtonProperties} properties - The new properties of the button.
-   *   Not specifying the optional badgeText or badgeStyles will remove them.
+   * @param {NativeTabProperties} tabProperties - The new properties of the default
+   *   space tab.
+   * @param {NativeButtonProperties} nativeButtonProperties - The new properties
+   *   of the button. Not specifying the optional badgeText or badgeStyles will
+   *   remove them.
    *
    * @returns {Promise} - A promise that resolves when the button is updated.
    */
-  async updateToolbarButton(id, properties = {}) {
+  async updateToolbarButton(
+    id,
+    tabProperties = {},
+    nativeButtonProperties = {}
+  ) {
     return new Promise((resolve, reject) => {
       if (
         !id ||
-        !properties.title ||
-        !properties.url ||
-        !properties.iconStyles
+        !tabProperties.url ||
+        !nativeButtonProperties.title ||
+        !nativeButtonProperties.iconStyles
       ) {
         return reject(
           "Unable to update spaces toolbar button! Missing ID, Title, IconsStyles, or space URL"
@@ -1175,30 +1202,30 @@ var gSpacesToolbar = {
         );
       }
 
-      button.title = properties.title;
-      menuitem.label = properties.title;
+      button.title = nativeButtonProperties.title;
+      menuitem.label = nativeButtonProperties.title;
 
       // Update icons.
       const img = button.querySelector("img");
       for (const style of this.SUPPORTED_ICON_STYLES) {
-        const value = properties.iconStyles.get(style);
+        const value = nativeButtonProperties.iconStyles.get(style);
         img.style.setProperty(style, value ?? null);
         menuitem.style.setProperty(style, value ?? null);
       }
 
       // Update url.
       const space = gSpacesToolbar.spaces.find(s => s.name == id);
-      if (space.url != properties.url) {
+      if (space.tabProperties.url != tabProperties.url) {
         // TODO: Reload the space, when the url is changed (or close and re-open
         // the tab).
-        space.url = properties.url;
+        space.tabProperties.url = tabProperties.url;
       }
 
       // Update badge.
       const badge = button.querySelector(".spaces-badge-container");
-      if (properties.badgeText) {
+      if (nativeButtonProperties.badgeText) {
         button.classList.add("has-badge");
-        badge.textContent = properties.badgeText;
+        badge.textContent = nativeButtonProperties.badgeText;
       } else {
         button.classList.remove("has-badge");
         badge.textContent = "";
@@ -1207,7 +1234,7 @@ var gSpacesToolbar = {
       for (const style of this.SUPPORTED_BADGE_STYLES) {
         badge.style.setProperty(
           style,
-          properties.badgeStyles?.get(style) ?? null
+          nativeButtonProperties.badgeStyles?.get(style) ?? null
         );
       }
 

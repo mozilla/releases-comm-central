@@ -934,16 +934,21 @@ add_task(async function testSpacesToolbarExtension() {
   window.gSpacesToolbar.toggleToolbar(false);
 
   for (let i = 0; i < 6; i++) {
-    await window.gSpacesToolbar.createToolbarButton(`testButton${i}`, {
-      title: `Title ${i}`,
-      url: `https://test.invalid/${i}`,
-      iconStyles: new Map([
-        [
-          "--webextension-toolbar-image",
-          'url("chrome://messenger/content/extension.svg")',
-        ],
-      ]),
-    });
+    await window.gSpacesToolbar.createToolbarButton(
+      `testButton${i}`,
+      {
+        url: `https://test.invalid/${i}`,
+      },
+      {
+        title: `Title ${i}`,
+        iconStyles: new Map([
+          [
+            "--webextension-toolbar-image",
+            'url("chrome://messenger/content/extension.svg")',
+          ],
+        ]),
+      }
+    );
     const button = document.getElementById(`testButton${i}`);
     Assert.ok(button);
     Assert.equal(button.title, `Title ${i}`);
@@ -969,23 +974,28 @@ add_task(async function testSpacesToolbarExtension() {
     );
     Assert.ok(space);
     Assert.equal(
-      space.url,
+      space.tabProperties.url,
       `https://test.invalid/${i}`,
       "Added url should be correct."
     );
   }
 
   for (let i = 0; i < 6; i++) {
-    await window.gSpacesToolbar.updateToolbarButton(`testButton${i}`, {
-      title: `Modified Title ${i}`,
-      url: `https://test.invalid/${i + 1}`,
-      iconStyles: new Map([
-        [
-          "--webextension-toolbar-image",
-          'url("chrome://messenger/skin/icons/new-addressbook.svg")',
-        ],
-      ]),
-    });
+    await window.gSpacesToolbar.updateToolbarButton(
+      `testButton${i}`,
+      {
+        url: `https://test.invalid/${i + 1}`,
+      },
+      {
+        title: `Modified Title ${i}`,
+        iconStyles: new Map([
+          [
+            "--webextension-toolbar-image",
+            'url("chrome://messenger/skin/icons/new-addressbook.svg")',
+          ],
+        ]),
+      }
+    );
     const button = document.getElementById(`testButton${i}`);
     Assert.ok(button);
     Assert.equal(button.title, `Modified Title ${i}`);
@@ -1015,7 +1025,7 @@ add_task(async function testSpacesToolbarExtension() {
     );
     Assert.ok(space);
     Assert.equal(
-      space.url,
+      space.tabProperties.url,
       `https://test.invalid/${i + 1}`,
       "Updated url should be correct."
     );

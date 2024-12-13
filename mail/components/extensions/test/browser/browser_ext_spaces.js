@@ -213,7 +213,7 @@ async function test_space(background, config = {}) {
       Assert.ok(space, "The space of this button should exists");
       Assert.equal(
         url,
-        space.url,
+        space.tabProperties.url,
         "The stored url of the space should be correct"
       );
     }
