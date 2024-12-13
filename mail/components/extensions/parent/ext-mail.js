@@ -401,8 +401,11 @@ class SpaceTracker {
    * @property {integer} spaceId - id of the space as used by the tabs API
    * @property {string} spaceButtonId - id of the button of this space in the
    *   spaces toolbar
-   * @property {string} defaultUrl - the url for the default space tab
-   * @property {ButtonProperties} buttonProperties
+   * @property {SpaceTabProperties} tabProperties - properties for the default
+   *   space tab
+   *   @see mail/components/extensions/schemas/spaces.json
+   * @property {SpaceButtonProperties} buttonProperties - properties for the
+   *   space button
    *   @see mail/components/extensions/schemas/spaces.json
    * @property {ExtensionData} extension - the extension the space belongs to
    */
@@ -539,13 +542,16 @@ class SpaceTracker {
    * Create a new space and return its SpaceData.
    *
    * @param {string} name - name of the space as used by the extension
-   * @param {string} defaultUrl - the url for the default space tab
-   * @param {ButtonProperties} buttonProperties
+   * @param {SpaceTabProperties} tabProperties - properties for the default
+   *   space tab
+   *   @see mail/components/extensions/schemas/spaces.json
+   * @param {SpaceButtonProperties} buttonProperties - properties for the
+   *   space button
    *   @see mail/components/extensions/schemas/spaces.json
    * @param {ExtensionData} extension - the extension the space belongs to
    * @returns {SpaceData}
    */
-  async create(name, defaultUrl, buttonProperties, extension) {
+  async create(name, tabProperties, buttonProperties, extension) {
     const spaceButtonId = this._getSpaceButtonId(name, extension);
     if (this._spaceData.has(spaceButtonId)) {
       return false;
@@ -554,7 +560,7 @@ class SpaceTracker {
       name,
       spaceButtonId,
       tabInSpace: tabInfo => (tabInfo.spaceButtonId == spaceButtonId ? 1 : 0),
-      defaultUrl,
+      tabProperties,
       buttonProperties,
       extension,
     });

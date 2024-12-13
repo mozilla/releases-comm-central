@@ -51,7 +51,7 @@ function getManifestIcons(extension) {
  */
 function getNativeButtonProperties({
   extension,
-  defaultUrl,
+  tabProperties,
   buttonProperties,
 }) {
   const normalizeColor = color => {
@@ -96,7 +96,7 @@ function getNativeButtonProperties({
 
   return {
     title: buttonProperties.title || extension.name,
-    url: defaultUrl,
+    url: tabProperties.url,
     badgeText: buttonProperties.badgeText,
     badgeStyles,
     iconStyles,
@@ -220,7 +220,7 @@ this.spaces = class extends ExtensionAPI {
           try {
             const spaceData = await spaceTracker.create(
               name,
-              tabProperties.url,
+              tabProperties,
               buttonProperties,
               context.extension
             );
@@ -314,7 +314,7 @@ this.spaces = class extends ExtensionAPI {
                 `Failed to update space with id ${spaceId}: Invalid default url.`
               );
             }
-            spaceData.defaultUrl = updatedTabProperties.url;
+            spaceData.tabProperties.url = updatedTabProperties.url;
             changes = true;
           }
 

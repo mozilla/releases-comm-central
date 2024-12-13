@@ -51,7 +51,7 @@ function getManifestIcons(extension) {
  * @param {SpaceData} spaceData - @see mail/components/extensions/parent/ext-mail.js
  * @returns {NativeButtonProperties} - @see mail/base/content/spacesToolbar.js
  */
-function convertProperties({ extension, buttonProperties }) {
+function convertProperties({ extension, buttonProperties, tabProperties }) {
   const normalizeColor = color => {
     if (typeof color == "string") {
       const col = InspectorUtils.colorToRGBA(color);
@@ -94,7 +94,7 @@ function convertProperties({ extension, buttonProperties }) {
 
   return {
     title: buttonProperties.title || extension.name,
-    url: buttonProperties.url,
+    url: tabProperties.url,
     badgeText: buttonProperties.badgeText,
     badgeStyles,
     iconStyles,
@@ -157,14 +157,23 @@ this.spacesToolbar = class extends ExtensionAPI {
     return {
       spacesToolbar: {
         async addButton(name, properties) {
+          // The deprecated spacesToolbar API handles the url as part of its
+          // buttonBroperties, but internally we store the url as part of the
+          // tabProperties.
+          const tabProperties = {};
           if (properties.url) {
-            properties.url = context.uri.resolve(properties.url);
-          }
-          const [protocol] = (properties.url || "").split("://");
-          if (
-            !protocol ||
-            !["https", "http", "moz-extension"].includes(protocol)
-          ) {
+            tabProperties.url = context.uri.resolve(properties.url);
+            const protocol = new URL(tabProperties.url).protocol;
+            if (
+              !protocol ||
+              !["https:", "http:", "moz-extension:"].includes(protocol)
+            ) {
+              throw new ExtensionError(
+                `Failed to add button to the spaces toolbar: Invalid url.`
+              );
+            }
+            delete properties.url;
+          } else {
             throw new ExtensionError(
               `Failed to add button to the spaces toolbar: Invalid url.`
             );
@@ -178,7 +187,7 @@ this.spacesToolbar = class extends ExtensionAPI {
           try {
             const spaceData = await spaceTracker.create(
               name,
-              properties.url,
+              tabProperties,
               properties,
               context.extension
             );
@@ -230,25 +239,26 @@ this.spacesToolbar = class extends ExtensionAPI {
             );
           }
 
+          let changes = false;
+
           if (updatedProperties.url != null) {
-            updatedProperties.url = context.uri.resolve(updatedProperties.url);
-            const [protocol] = updatedProperties.url.split("://");
+            const url = context.uri.resolve(updatedProperties.url);
+            const protocol = new URL(url).protocol;
             if (
               !protocol ||
-              !["https", "http", "moz-extension"].includes(protocol)
+              !["https:", "http:", "moz-extension:"].includes(protocol)
             ) {
               throw new ExtensionError(
                 `Failed to update button in the spaces toolbar: Invalid url.`
               );
             }
+            spaceData.tabProperties.url = url;
+            delete updatedProperties.url;
+            changes = true;
           }
 
-          let changes = false;
           for (const [key, value] of Object.entries(updatedProperties)) {
             if (value != null) {
-              if (key == "url") {
-                spaceData.defaultUrl = value;
-              }
               spaceData.buttonProperties[key] = value;
               changes = true;
             }
