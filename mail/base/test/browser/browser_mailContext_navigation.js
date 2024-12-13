@@ -9,16 +9,22 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
-let testFolder, testMessages;
+let rootFolder, testFolder, testMessages;
 
 add_setup(async function () {
   const generator = new MessageGenerator();
+  // Use different message dates from other tests so that our archive folder
+  // isn't the same.
+  generator._clock = new Date(2001, 1, 1);
 
   const account = MailServices.accounts.createLocalMailAccount();
   account.addIdentity(MailServices.accounts.createIdentity());
-  const rootFolder = account.incomingServer.rootFolder.QueryInterface(
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
   );
 
@@ -51,7 +57,7 @@ add_setup(async function () {
   });
 });
 
-add_task(async function test_markRead() {
+add_task(async function testMarkRead() {
   const about3Pane = tabmail.currentAbout3Pane;
   const mailContext = about3Pane.document.getElementById("mailContext");
   const row0 = await TestUtils.waitForCondition(
@@ -100,7 +106,7 @@ add_task(async function test_markRead() {
   Assert.ok(testMessages[0].isRead, "Test message should be read again");
 });
 
-add_task(async function test_junk() {
+add_task(async function testJunk() {
   const about3Pane = tabmail.currentAbout3Pane;
   const mailContext = about3Pane.document.getElementById("mailContext");
   const row0 = await TestUtils.waitForCondition(
@@ -160,4 +166,66 @@ add_task(async function test_junk() {
     Ci.nsIJunkMailPlugin.IS_HAM_SCORE,
     "Should mark message as not junk"
   );
+});
+
+add_task(async function testArchive() {
+  const about3Pane = tabmail.currentAbout3Pane;
+  const mailContext = about3Pane.document.getElementById("mailContext");
+  const archiveItem = about3Pane.document.getElementById("navContext-archive");
+  const archiveFolder = rootFolder.createLocalSubfolder("Archives");
+  archiveFolder.setFlag(Ci.nsMsgFolderFlags.Archive);
+
+  const movePromise = PromiseTestUtils.promiseFolderNotification(
+    null,
+    "msgsMoveCopyCompleted"
+  );
+
+  const row0 = await TestUtils.waitForCondition(
+    () => about3Pane.threadTree.getRowAtIndex(0),
+    "waiting for rows to be added"
+  );
+  EventUtils.synthesizeMouseAtCenter(row0, { type: "contextmenu" }, about3Pane);
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
+  mailContext.activateItem(archiveItem);
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "hidden");
+
+  const [isMove, srcMessages, destFolder] = await movePromise;
+  Assert.ok(isMove);
+  Assert.equal(srcMessages.length, 1);
+  Assert.equal(srcMessages[0], testMessages[0]);
+  Assert.equal(destFolder.name, "2001");
+  Assert.equal(destFolder.parent, archiveFolder);
+
+  // We removed a message, update the array.
+  testMessages = [...testFolder.messages];
+});
+
+add_task(async function testDelete() {
+  const about3Pane = tabmail.currentAbout3Pane;
+  const mailContext = about3Pane.document.getElementById("mailContext");
+  const deleteItem = about3Pane.document.getElementById("navContext-delete");
+  const trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+
+  const movePromise = PromiseTestUtils.promiseFolderNotification(
+    trashFolder,
+    "msgsMoveCopyCompleted"
+  );
+
+  const row0 = await TestUtils.waitForCondition(
+    () => about3Pane.threadTree.getRowAtIndex(0),
+    "waiting for rows to be added"
+  );
+  EventUtils.synthesizeMouseAtCenter(row0, { type: "contextmenu" }, about3Pane);
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
+  mailContext.activateItem(deleteItem);
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "hidden");
+
+  const [isMove, srcMessages, destFolder] = await movePromise;
+  Assert.ok(isMove);
+  Assert.equal(srcMessages.length, 1);
+  Assert.equal(srcMessages[0], testMessages[0]);
+  Assert.equal(destFolder, trashFolder);
+
+  // We removed a message, update the array.
+  testMessages = [...testFolder.messages];
 });

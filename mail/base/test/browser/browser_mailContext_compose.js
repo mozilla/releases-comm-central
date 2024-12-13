@@ -253,7 +253,10 @@ async function promiseComposeWindow(
   );
   const mailContext = await openMenuCallback();
   const item = mailContext.querySelector("#" + itemId);
-  if (item.parentNode != mailContext) {
+  if (
+    item.parentNode != mailContext &&
+    item.parentNode.id != "mailContext-navigation"
+  ) {
     item.closest("menu").openMenu(true);
     await BrowserTestUtils.waitForPopupEvent(
       item.closest("menupopup"),
@@ -308,6 +311,12 @@ async function subtestSingleMessage(callbacks) {
   const closeMessage = callbacks.closeMessage.bind(callbacks);
 
   await openMessage(testMessages[0]);
+  await promiseComposeWindow(
+    openMenu,
+    "navContext-reply",
+    Ci.nsIMsgCompType.ReplyToSender,
+    { to: [testMessages[0].author] }
+  );
   await promiseComposeWindow(
     openMenu,
     "mailContext-replySender",
