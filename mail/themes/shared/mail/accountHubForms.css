@@ -333,9 +333,12 @@ div:has(legend) {
     span {
       font-size: 1.1rem;
       padding-inline-start: 5px;
-      text-decoration: underline;
       margin-inline-start: auto;
       white-space: nowrap;
+    }
+
+    #emailFormNotificationToggle {
+      text-decoration: underline;
     }
   }
 
