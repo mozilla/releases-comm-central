@@ -114,6 +114,14 @@ interface nsIMsgLocalMailFolder : nsISupports {
   nsIMsgDBHdr retrieveHdrOfPartialMessage(in nsIMsgDBHdr newHdr);
 
   /**
+   * This is true while bodies for partial messages are being downloaded. In
+   * this case nsPop3Sink::FindPartialMessages() and CheckPartialMessages()
+   * will not purge the database of partial messages that no longer exist on
+   * the server.
+   */
+  readonly attribute boolean downloadInProgress;
+
+  /**
    * Notify about deletion of partial messages not existing anymore on the server.
    *
    * This method is only invoked by nsPop3Sink::CheckPartialMessages.

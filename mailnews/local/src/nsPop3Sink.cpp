@@ -66,15 +66,23 @@ partialRecord::~partialRecord() {}
 // matches the current Account, then look for the Uidl and save
 // this message for later processing.
 nsresult nsPop3Sink::FindPartialMessages() {
+  nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_folder);
+  if (!localFolder) {
+    return NS_ERROR_FAILURE;
+  }
+  bool downloadInProgress = false;
+  localFolder->GetDownloadInProgress(&downloadInProgress);
+  if (downloadInProgress) {
+    return NS_OK;
+  }
+
   nsCOMPtr<nsIMsgEnumerator> messages;
   bool hasMore = false;
   bool isOpen = false;
   nsLocalFolderScanState folderScanState;
   nsCOMPtr<nsIMsgDatabase> db;
-  nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_folder);
   m_folder->GetMsgDatabase(getter_AddRefs(db));
-  if (!localFolder || !db)
-    return NS_ERROR_FAILURE;  // we need it to grub through the folder
+  if (!db) return NS_ERROR_FAILURE;  // we need it to grub through the folder
 
   nsresult rv = db->EnumerateMessages(getter_AddRefs(messages));
   if (messages) messages->HasMoreElements(&hasMore);
@@ -121,6 +129,16 @@ nsresult nsPop3Sink::FindPartialMessages() {
 // Any messages that don't exist any more are deleted from the
 // msgDB.
 void nsPop3Sink::CheckPartialMessages(nsIPop3Protocol* protocol) {
+  nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_folder);
+  if (!localFolder) {
+    return;
+  }
+  bool downloadInProgress = false;
+  localFolder->GetDownloadInProgress(&downloadInProgress);
+  if (downloadInProgress) {
+    return;
+  }
+
   uint32_t count = m_partialMsgsArray.Length();
   bool deleted = false;
 
@@ -139,8 +157,7 @@ void nsPop3Sink::CheckPartialMessages(nsIPop3Protocol* protocol) {
   }
   m_partialMsgsArray.Clear();
   if (deleted) {
-    nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_folder);
-    if (localFolder) localFolder->NotifyDelete();
+    localFolder->NotifyDelete();
   }
 }
 
