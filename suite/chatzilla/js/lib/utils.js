@@ -232,20 +232,6 @@ function escapeFileName(fileName)
     return fileName.replace(/[\/\\\:\*\?"<>\|]/g, encodeChar);
 }
 
-function toOpenWindowByType(inType, url, features)
-{
-    var topWindow = Services.wm.getMostRecentWindow(inType);
-
-    if (typeof features == "undefined")
-        features = "chrome,extrachrome,menubar,resizable," +
-                   "scrollbars,status,toolbar";
-
-    if (topWindow)
-        topWindow.focus();
-    else
-        window.open(url, "_blank", features);
-}
-
 function getContentWindow(frame)
 {
     try
