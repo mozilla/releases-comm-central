@@ -44,7 +44,7 @@ class MboxMsgInputStream : public nsIInputStream {
    * The maxAllowedSize parameter allows the caller to specify a safety limit,
    * if it knows that the number of expected bytes is smaller than the
    * given number. This is useful if the mbox stream doesn't contain the
-   * expected sepatarors.
+   * expected separators.
    */
   explicit MboxMsgInputStream(nsIInputStream* mboxStream,
                               uint32_t maxAllowedSize);
