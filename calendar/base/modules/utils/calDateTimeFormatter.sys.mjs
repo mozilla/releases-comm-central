@@ -308,6 +308,22 @@ export var formatter = {
   },
 
   /**
+   * Format an interval using the month names and year(s).
+   *
+   * @param {integer} startYear
+   * @param {integer} startMonth - Zero-indexed.
+   * @param {integer} endYear
+   * @param {integer} endMonth - Zero-indexed.
+   * @returns {string}
+   */
+  formatMonthInterval(startYear, startMonth, endYear, endMonth) {
+    return getFormatter({ month: "long", year: "numeric" }).formatRange(
+      new Date(startYear, startMonth, 15),
+      new Date(endYear, endMonth, 15)
+    );
+  },
+
+  /**
    * Format a year. In most languages this just returns the year given, but
    * not all languages (notably Japanese and Korean).
    *

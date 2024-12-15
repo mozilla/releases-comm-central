@@ -76,3 +76,7 @@ add_task(async function testIntervalDescription() {
     "أكتوبر ٢٠٢٤"
   );
 });
+
+add_task(async function testPrint() {
+  await subtestPrint(shortDays, "ديسمبر ٢٠٢٤", "أكتوبر – ديسمبر ٢٠٢٤");
+});

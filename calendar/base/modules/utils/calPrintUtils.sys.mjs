@@ -341,15 +341,15 @@ const monthGridView = {
     } while (current.compare(endDate) < 0);
 
     // Extend the date range to include adjacent days that will be printed.
-    startDate = lazy.cal.weekInfoService.getStartOfWeek(startDate);
+    const displayStartDate = lazy.cal.weekInfoService.getStartOfWeek(startDate);
     // Get the end of the week containing the last day of the month, not the
     // week containing the first day of the next month.
     endDate.day--;
-    endDate = lazy.cal.weekInfoService.getEndOfWeek(endDate);
-    endDate.day++; // Add a day to include items from the last day.
+    const displayEndDate = lazy.cal.weekInfoService.getEndOfWeek(endDate);
+    displayEndDate.day++; // Add a day to include items from the last day.
 
     // Get and display the items.
-    const items = await getItems(startDate, endDate, filter, notDueTasks);
+    const items = await getItems(displayStartDate, displayEndDate, filter, notDueTasks);
     const defaultTimezone = lazy.cal.dtz.defaultTimezone;
     for (const item of items) {
       let itemStartDate =
@@ -379,12 +379,14 @@ const monthGridView = {
     // Set the page title.
     const months = container.querySelectorAll("table");
     if (months.length == 1) {
-      document.title = months[0].querySelector(".month-title").textContent;
+      document.title = lazy.cal.dtz.formatter.formatMonthLong(startDate.year, startDate.month);
     } else {
-      document.title =
-        months[0].querySelector(".month-title").textContent +
-        " – " +
-        months[months.length - 1].querySelector(".month-title").textContent;
+      document.title = lazy.cal.dtz.formatter.formatMonthInterval(
+        startDate.year,
+        startDate.month,
+        endDate.year,
+        endDate.month
+      );
     }
   },
 
@@ -407,7 +409,7 @@ const monthGridView = {
     // Set up the weekday titles
     const weekStart = Services.prefs.getIntPref("calendar.week.start", 0);
     for (let i = 0; i < 7; i++) {
-      const dayNumber = ((i + weekStart) % 7) + 1;
+      const dayNumber = (i + weekStart) % 7;
       month.rows[1].cells[i].firstElementChild.textContent =
         lazy.cal.dtz.formatter.shortWeekdayNames[dayNumber];
     }

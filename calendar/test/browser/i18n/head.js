@@ -152,3 +152,67 @@ async function subtestIntervalDescription(dayText, weekText, multiweekText, mont
   await CalendarTestUtils.setCalendarView(window, "month");
   Assert.equal(intervalDescription.textContent, monthText);
 }
+
+/**
+ * Tests that printing a month grid uses the right month titles and column labels.
+ *
+ * @param {string[]} shortDays - The short names of the days of the week, in the
+ *   expected language and starting with the expected first day of the week.
+ * @param {string} monthText - Description of 2024-12 in the expected language.
+ * @param {string} monthRangeText - Description of 2024-10 to 2024-12 in the
+ *   expected language.
+ */
+async function subtestPrint(shortDays, monthName, monthRangeText) {
+  await CalendarTestUtils.setCalendarView(window, "month");
+  const printPromise = TestUtils.topicObserved("subdialog-loaded", win =>
+    win.location.href.startsWith("chrome://global/content/print.html")
+  );
+  goDoCommand("cmd_print");
+  const [formWin] = await printPromise;
+  const formDoc = formWin.document;
+
+  try {
+    const layoutSelect = await TestUtils.waitForCondition(
+      () => formDoc.getElementById("layout"),
+      "waiting for calendar print form to be added"
+    );
+    layoutSelect.value = "monthGrid";
+    layoutSelect.dispatchEvent(new CustomEvent("change"));
+
+    const fromMonth = formDoc.getElementById("from-month");
+    const fromYear = formDoc.getElementById("from-year");
+    const toMonth = formDoc.getElementById("to-month");
+    const toYear = formDoc.getElementById("to-year");
+    fromMonth.value = 11;
+    fromYear.value = 2024;
+    toMonth.value = 11;
+    toYear.value = 2024;
+    toYear.dispatchEvent(new CustomEvent("change"));
+    await TestUtils.waitForTick();
+
+    const previewDoc =
+      formWin.PrintEventHandler.printPreviewEl.querySelector("browser").contentDocument;
+
+    Assert.equal(previewDoc.getElementById("month-container").childElementCount, 1);
+    Assert.equal(previewDoc.title, monthName);
+    const month = previewDoc.getElementById("month-container").firstElementChild;
+    Assert.equal(month.rows[0].cells[0].textContent, monthName);
+    Assert.deepEqual(
+      Array.from(month.rows[1].cells, c => c.textContent),
+      shortDays
+    );
+
+    fromMonth.value = 9;
+    fromMonth.dispatchEvent(new CustomEvent("change"));
+    await TestUtils.waitForTick();
+
+    Assert.equal(previewDoc.getElementById("month-container").childElementCount, 3);
+    Assert.equal(previewDoc.title, monthRangeText);
+  } finally {
+    EventUtils.synthesizeMouseAtCenter(
+      formWin.document.querySelector(`button[is="cancel-button"]`),
+      {},
+      formWin
+    );
+  }
+}
