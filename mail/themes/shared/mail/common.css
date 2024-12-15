@@ -48,8 +48,12 @@
   }
 }
 
-:root:not(.system-font-size) {
-  font: message-box;
+:root {
+  -moz-box-collapse: legacy;
+
+  &:not(.system-font-size) {
+    font: message-box;
+  }
 }
 
 #categories {
