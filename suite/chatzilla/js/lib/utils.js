@@ -77,41 +77,20 @@ if (DEBUG) {
     dd = warn = TEST = ASSERT = function (){};
 }
 
-/* Dumps an object in tree format, recurse specifiec the the number of objects
- * to recurse, compress is a boolean that can uncompress (true) the output
- * format, and level is the number of levels to intitialy indent (only useful
- * internally.)  A sample dumpObjectTree (o, 1) is shown below.
+/* Dumps an object in tree format. A sample dumpObjectTree(o) is shown below.
  *
  * + parent (object)
  * + users (object)
- * | + jsbot (object)
- * | + mrjs (object)
- * | + nakkezzzz (object)
- * | *
  * + bans (object)
- * | *
  * + topic (string) 'ircclient.js:59: nothing is not defined'
  * + getUsersLength (function) 9 lines
  * *
  */
-function dumpObjectTree (o, recurse, compress, level)
+function dumpObjectTree(o)
 {
-    var s = "";
-    var pfx = "";
+    let s = "";
 
-    if (typeof recurse == "undefined")
-        recurse = 0;
-    if (typeof level == "undefined")
-        level = 0;
-    if (typeof compress == "undefined")
-        compress = true;
-
-    for (var i = 0; i < level; i++)
-        pfx += (compress) ? "| " : "|  ";
-
-    var tee = (compress) ? "+ " : "+- ";
-
-    for (i in o)
+    for (let i in o)
     {
         var t, ex;
 
@@ -124,6 +103,8 @@ function dumpObjectTree (o, recurse, compress, level)
             t = "ERROR";
         }
 
+        s += "+ " + i + " (" + t + ") ";
+
         switch (t)
         {
             case "function":
@@ -135,49 +116,38 @@ function dumpObjectTree (o, recurse, compress, level)
                         sfunc = String(sfunc);
                     else
                         sfunc = sfunc.length + " lines";
-                s += pfx + tee + i + " (function) " + sfunc + "\n";
+                s += sfunc + "\n";
                 break;
 
             case "object":
-                s += pfx + tee + i + " (object)";
                 if (o[i] == null)
                 {
-                    s += " null\n";
+                    s += "null\n";
                     break;
                 }
 
                 s += "\n";
-
-                if (!compress)
-                    s += pfx + "|\n";
-                if ((i != "parent") && (recurse))
-                    s += dumpObjectTree (o[i], recurse - 1,
-                                         compress, level + 1);
                 break;
 
             case "string":
                 if (o[i].length > 200)
-                    s += pfx + tee + i + " (" + t + ") " +
-                        o[i].length + " chars\n";
+                    s += o[i].length + " chars\n";
                 else
-                    s += pfx + tee + i + " (" + t + ") '" + o[i] + "'\n";
+                    s += "'" + o[i] + "'\n";
                 break;
 
             case "ERROR":
-                s += pfx + tee + i + " (" + t + ") ?\n";
+                s += "?\n";
                 break;
 
             default:
-                s += pfx + tee + i + " (" + t + ") " + o[i] + "\n";
+                s += o[i] + "\n";
 
         }
 
-        if (!compress)
-            s += pfx + "|\n";
-
     }
 
-    s += pfx + "*\n";
+    s += "*\n";
 
     return s;
 
