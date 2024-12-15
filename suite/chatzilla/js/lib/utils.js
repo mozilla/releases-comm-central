@@ -77,26 +77,6 @@ if (DEBUG) {
     dd = warn = TEST = ASSERT = function (){};
 }
 
-function dumpObject (o, pfx, sep)
-{
-    var p;
-    var s = "";
-
-    sep = (typeof sep == "undefined") ? " = " : sep;
-    pfx = (typeof pfx == "undefined") ? "" : pfx;
-
-    for (p in o)
-    {
-        if (typeof (o[p]) != "function")
-            s += pfx + p + sep + o[p] + "\n";
-        else
-            s += pfx + p + sep + "function\n";
-    }
-
-    return s;
-
-}
-
 /* Dumps an object in tree format, recurse specifiec the the number of objects
  * to recurse, compress is a boolean that can uncompress (true) the output
  * format, and level is the number of levels to intitialy indent (only useful
