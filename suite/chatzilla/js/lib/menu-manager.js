@@ -278,6 +278,22 @@ function mmgr_showpop (event)
         return null;
     };
 
+    /* replace "string $with a $variable", with
+     * "string " + vars["with"] + " with a " + vars["variable"] */
+    function replaceVars(str, vars)
+    {
+        function doReplace(symbol)
+        {
+            var name = symbol.substr(1);
+            if (name in vars)
+                return vars[name];
+
+            return "$" + name;
+        };
+
+        return str.replace(/(\$\w[\w\d\-]+)/g, doReplace);
+    };
+
     var cx;
     var popup = event.originalTarget;
     var menuName = popup.getAttribute("menuName");

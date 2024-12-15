@@ -255,23 +255,6 @@ function ecmaUnescape(str)
     return str.replace(/%u?([\da-f]{1,4})/ig, replaceEscapes);
 }
 
-function replaceVars(str, vars)
-{
-    // replace "string $with a $variable", with
-    // "string " + vars["with"] + " with a " + vars["variable"]
-
-    function doReplace(symbol)
-    {
-        var name = symbol.substr(1);
-        if (name in vars)
-            return vars[name];
-
-        return "$" + name;
-    };
-
-    return str.replace(/(\$\w[\w\d\-]+)/g, doReplace);
-}
-
 function formatException(ex)
 {
     if (isinstance(ex, Error))
