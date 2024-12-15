@@ -254,25 +254,6 @@ function initPrefs()
 
 function makeLogName(obj, type)
 {
-    function replaceNonPrintables(ch) {
-        var rv = ch.charCodeAt().toString(16);
-        if (rv.length == 1)
-            rv = "0" + rv;
-        else if (rv.length == 3)
-            rv = "u0" + rv;
-        else if (rv.length == 4)
-            rv = "u" + rv;
-
-        return "%" + rv;
-    };
-
-    function encode(text)
-    {
-        text = text.replace(/[^-A-Z0-9_#!.,'@~\[\]{}()%$"]/gi, replaceNonPrintables);
-
-        return encodeURIComponent(text);
-    };
-
     /*  /\$\(([^)]+)\)|\$(\w)/g   *
      *       <----->     <-->     *
      *      longName   shortName  *
@@ -283,14 +264,14 @@ function makeLogName(obj, type)
         {
             // Remember to encode these, don't want some dodgy # breaking stuff.
             if (longName in longCodes)
-                return encode(longCodes[longName]);
+                return encodeURIComponent(longCodes[longName]).toLowerCase();
 
             dd("Unknown long code: " + longName);
         }
         else if (typeof shortName != "undefined" && shortName)
         {
             if (shortName in shortCodes)
-                return encode(shortCodes[shortName]);
+                return encodeURIComponent(shortCodes[shortName]).toLowerCase();
 
             dd("Unknown short code: " + shortName);
         }
