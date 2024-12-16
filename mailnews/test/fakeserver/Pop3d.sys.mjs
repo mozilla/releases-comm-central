@@ -1,10 +1,10 @@
 /* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/**
+/*
  * Contributors:
  *   Ben Bucksch <ben.bucksch beonex.com> <http://business.beonex.com> (RFC 5034 Authentication)
  */
-/* This file implements test POP3 servers
- */
+
+/** This file implements test POP3 servers. */
 
 import {
   AuthPLAIN,
@@ -20,9 +20,8 @@ var gUIDLCount = 1;
 /**
  * Read the contents of a file to the string.
  *
- * @param fileName A path relative to the current working directory, or
- *                 a filename underneath the "data" directory relative to
- *                 the cwd.
+ * @param {string} fileName - A path relative to the current working directory, or
+ *   a filename underneath the "data" directory relative to the cwd.
  */
 function readFile(fileName) {
   const cwd = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
@@ -58,9 +57,9 @@ export class Pop3Daemon {
   /**
    * Set the messages that the POP3 daemon will provide to its clients.
    *
-   * @param messages An array of either 1) strings that are filenames whose
-   *     contents will be loaded from the files or 2) objects with a "fileData"
-   *     attribute whose value is the content of the file.
+   * @param {string[]|object[]} messages - An array of either
+   *   1) strings that are filenames whose contents will be loaded from the files
+   *   2) objects with a "fileData" attribute whose value is the content of the file.
    */
   setMessages(messages) {
     this._messages = [];

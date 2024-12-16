@@ -311,7 +311,7 @@ export class MockEWSServer {
    * Generate a response to a GetFolder operation.
    *
    * @see {@link https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/getfolder-operation#getfolder-response-example}
-   * @param {XMLDocument} _reqDoc The parsed document for the request to respond to.
+   * @param {XMLDocument} reqDoc - The parsed document for the request to respond to.
    * @returns {string} A serialized XML document.
    */
   #generateGetFolderResponse(reqDoc) {

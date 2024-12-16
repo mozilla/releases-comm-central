@@ -22,9 +22,11 @@ export var AuthPLAIN = {
   /**
    * Takes full PLAIN auth line, and decodes it.
    *
-   * @param line {string}
-   * @returns {Object { username : value, password : value } }
-   * @throws {string}   error to return to client
+   * @param {string} line
+   * @returns {object} object
+   * @returns {string} object.username
+   * @returns {string} object.password
+   * @throws {Error} error to return to client
    */
   decodeLine(line) {
     dump("AUTH PLAIN line -" + line + "-\n");
@@ -74,9 +76,9 @@ export var AuthLOGIN = {
    * It may contain either username or password,
    * depending on state/step (first username, then pw).
    *
-   * @param line {string}
-   * @returns {string} username or password
-   * @throws {string}   error to return to client
+   * @param {string} line
+   * @returns {string} base64 decoded line
+   * @throws {Error} on decoding errors
    */
   decodeLine(line) {
     dump("AUTH LOGIN -" + atob(line) + "-\n");
@@ -98,7 +100,7 @@ export var AuthCRAM = {
    *
    * You need to store it, you'll need it to check the client response.
    *
-   * @param domain {string} - Your hostname or domain,
+   * @param {string} domain - Your hostname or domain,
    *    e.g. "example.com", "mx.example.com" or just "localhost".
    * @returns {string} The challenge.
    *   It's already base64-encoded. Send it as-is to the client.
@@ -116,9 +118,10 @@ export var AuthCRAM = {
    * encodeCRAMMD5(). If they match, the |username|
    * returned here is authenticated.
    *
-   * @param line {string}
-   * @returns {Object { username : value, digest : value } }
-   * @throws {string}   error to return to client
+   * @param {string} line
+   * @returns {object} object
+   * @returns {string} object.username
+   * @returns {string} object.digest
    */
   decodeLine(line) {
     dump("AUTH CRAM-MD5 line -" + line + "-\n");
@@ -134,8 +137,8 @@ export var AuthCRAM = {
     return result;
   },
   /**
-   * @param text {string} - server challenge (base64-encoded)
-   * @param key {string} - user's password
+   * @param {string} text - Server challenge (base64-encoded)
+   * @param {string} key - User's password
    * @returns {string} digest as hex string
    */
   encodeCRAMMD5(text, key) {

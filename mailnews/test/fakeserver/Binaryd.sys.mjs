@@ -165,7 +165,7 @@ class Connection {
   }
 
   /**
-   * @returns true if close() has been called.
+   * @returns {boolean} true if close() has been called.
    */
   isClosed() {
     return this._transport === null;
