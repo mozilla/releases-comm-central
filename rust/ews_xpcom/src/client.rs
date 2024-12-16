@@ -980,11 +980,6 @@ impl XpComEwsClient {
         content: Vec<u8>,
         callbacks: RefPtr<IEwsMessageCreateCallbacks>,
     ) {
-        if let Err(err) = unsafe { callbacks.OnStartCreate().to_result() } {
-            log::error!("aborting copy: an error occurred while starting the listener: {err}");
-            return;
-        }
-
         // Send the request, using an inner method to more easily handle errors.
         // Use the return value to determine which status we should use when
         // notifying the end of the request.

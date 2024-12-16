@@ -4,15 +4,17 @@
 
 #include "EwsFolder.h"
 
-#include "ErrorList.h"
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
+#include "EwsMessageCopyHandler.h"
+
+#include "ErrorList.h"
 #include "MailNewsTypes.h"
+#include "nsIMsgCopyService.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsString.h"
 #include "nsMsgFolderFlags.h"
-#include "nsIInputStream.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgWindow.h"
 #include "nsMsgUtils.h"
@@ -68,117 +70,6 @@ NS_IMETHODIMP FolderCreateCallbacks::OnError(IEwsClient::Error err,
                                              const nsACString& desc) {
   NS_ERROR("Error occurred while creating EWS folder");
 
-  return NS_OK;
-}
-
-class MessageCreateCallbacks : public IEwsMessageCreateCallbacks {
- public:
-  NS_DECL_ISUPPORTS
-  NS_DECL_IEWSMESSAGECREATECALLBACKS
-
-  MessageCreateCallbacks(EwsFolder* folder, nsIFile* file,
-                         nsIMsgCopyServiceListener* copyListener)
-      : mFolder(folder), mFile(file), mCopyListener(copyListener) {}
-
- protected:
-  virtual ~MessageCreateCallbacks() = default;
-
- private:
-  RefPtr<EwsFolder> mFolder;
-  nsCOMPtr<nsIFile> mFile;
-  nsCOMPtr<nsIMsgCopyServiceListener> mCopyListener;
-};
-
-NS_IMPL_ISUPPORTS(MessageCreateCallbacks, IEwsMessageCreateCallbacks)
-
-NS_IMETHODIMP MessageCreateCallbacks::OnRemoteCreateSuccessful(
-    const nsACString& ewsId, nsIMsgDBHdr** newHdr) {
-  // Open an input stream on the file.
-  nsCOMPtr<nsIInputStream> inputStream;
-  nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), mFile);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Create a new header in the database for this message. We could do it in one
-  // go via `nsIMsgPluggableStore::GetNewMsgOutputStream`, but we'll want the
-  // message database and store to be more decoupled going forwards.
-  nsCOMPtr<nsIMsgDatabase> msgDB;
-  rv = mFolder->GetMsgDatabase(getter_AddRefs(msgDB));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgDBHdr> hdr;
-  rv = msgDB->CreateNewHdr(nsMsgKey_None, getter_AddRefs(hdr));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Create a new output stream to the folder's message store.
-  nsCOMPtr<nsIOutputStream> outStream;
-  rv = mFolder->GetOfflineStoreOutputStream(hdr, getter_AddRefs(outStream));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Stream the message content to the store.
-  uint64_t bytesCopied;
-  rv = SyncCopyStream(inputStream, outStream, bytesCopied);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgPluggableStore> store;
-  rv = mFolder->GetMsgStore(getter_AddRefs(store));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = store->FinishNewMessage(outStream, hdr);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Udpate some of the header's metadata, such as the size, the offline flag
-  // and the EWS ID.
-  rv = hdr->SetMessageSize(bytesCopied);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = hdr->SetOfflineMessageSize(bytesCopied);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  uint32_t unused;
-  rv = hdr->OrFlags(nsMsgMessageFlags::Offline, &unused);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = hdr->SetStringProperty(ID_PROPERTY, ewsId);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Return the newly-created header so that the consumer can update it with
-  // metadata from the message headers before adding it to the message database.
-  hdr.forget(newHdr);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP MessageCreateCallbacks::CommitHeader(nsIMsgDBHdr* hdr) {
-  nsCOMPtr<nsIMsgDatabase> msgDB;
-  nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(msgDB));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = msgDB->AddNewHdrToDB(hdr, true);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = msgDB->Commit(nsMsgDBCommitType::kLargeCommit);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP MessageCreateCallbacks::OnStartCreate() {
-  return mCopyListener->OnStartCopy();
-}
-
-NS_IMETHODIMP MessageCreateCallbacks::SetMessageKey(nsMsgKey aKey) {
-  return mCopyListener->SetMessageKey(aKey);
-}
-
-NS_IMETHODIMP MessageCreateCallbacks::OnStopCreate(nsresult status) {
-  nsresult rv = mCopyListener->OnStopCopy(status);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Note: at some point this will need to call
-  // `nsMsgCopyService::NotifyCompletion` to let the copy service it can dequeue
-  // the copy request. There seems to be a trick to it, so we'll take a look at
-  // it in a later step, see
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=1931599
   return NS_OK;
 }
 
@@ -549,22 +440,77 @@ NS_IMETHODIMP EwsFolder::CopyFileMessage(
     nsIFile* aFile, nsIMsgDBHdr* msgToReplace, bool isDraftOrTemplate,
     uint32_t newMsgFlags, const nsACString& aNewMsgKeywords,
     nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* copyListener) {
+  // Ensure both a source file and a listener have been provided.
+  NS_ENSURE_ARG_POINTER(aFile);
+  NS_ENSURE_ARG_POINTER(copyListener);
+
+  //  Instantiate a `MessageCopyHandler` for this operation.
   nsCString ewsId;
   nsresult rv = GetEwsId(ewsId);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIInputStream> inputStream;
-  rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<IEwsClient> client;
   rv = GetEwsClient(getter_AddRefs(client));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  RefPtr<MessageCreateCallbacks> ewsListener =
-      new MessageCreateCallbacks(this, aFile, copyListener);
-  return client->CreateMessage(ewsId, isDraftOrTemplate, inputStream,
-                               ewsListener);
+  RefPtr<MessageCopyHandler> handler = new MessageCopyHandler(
+      aFile, this, isDraftOrTemplate, msgWindow, ewsId, client, copyListener);
+
+  // Start copying the message. Once it has finished, `MessageCopyHandler` will
+  // take care of sending the relevant notifications.
+  rv = handler->StartCopyingNextMessage();
+  if (NS_FAILED(rv)) {
+    // If setting up the operation has failed, send the relevant notifications
+    // before exiting.
+    handler->OnCopyCompleted(rv);
+  }
+
+  return rv;
+}
+
+NS_IMETHODIMP EwsFolder::CopyMessages(
+    nsIMsgFolder* srcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& srcHdrs,
+    bool isMove, nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* listener,
+    bool isFolder, bool allowUndo) {
+  NS_ENSURE_ARG_POINTER(srcFolder);
+
+  // Instantiate a `MessageCopyHandler` for this operation.
+  nsCString ewsId;
+  nsresult rv = GetEwsId(ewsId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<IEwsClient> client;
+  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
+
+  RefPtr<MessageCopyHandler> handler = new MessageCopyHandler(
+      srcFolder, this, srcHdrs, isMove, msgWindow, ewsId, client, listener);
+
+  // `isFolder` indicates we're moving/copying the whole folder.
+  if (isFolder) {
+    NS_ERROR("Move/Copy of whole folders is not supported yet");
+    return handler->OnCopyCompleted(NS_ERROR_NOT_IMPLEMENTED);
+  }
+
+  // Make sure we're not moving/copying to the root folder for the server, since
+  // it cannot hold messages.
+  bool isServer;
+  MOZ_TRY(GetIsServer(&isServer));
+  if (isServer) {
+    NS_ERROR("Destination is the root folder. Cannot move/copy here");
+    return handler->OnCopyCompleted(NS_ERROR_FAILURE);
+  }
+
+  // Start the copy for the first message. Once this copy has finished, the
+  // `MessageCopyHandler` will automatically start the copy for the next message
+  // in line, and so on until every message in `srcHdrs` have been copied.
+  rv = handler->StartCopyingNextMessage();
+  if (NS_FAILED(rv)) {
+    // If setting up the operation has failed, send the relevant notifications
+    // before exiting.
+    handler->OnCopyCompleted(rv);
+  }
+
+  return rv;
 }
 
 NS_IMETHODIMP EwsFolder::DeleteMessages(

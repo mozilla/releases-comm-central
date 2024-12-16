@@ -2307,6 +2307,13 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
           uint32_t carryOver = nsMsgMessageFlags::New |
                                nsMsgMessageFlags::Read |
                                nsMsgMessageFlags::HasRe;
+
+          // The first half of this OR operation represents the values of the
+          // flags that are *not* part of `carryOver`, which `parseMsgState` has
+          // identified and we want to preserve. The second half represents the
+          // values of the flags defined by `carryOver` in the original message,
+          // which we want to, well, carry over onto the new header (and
+          // overwrite any value the parser has found for them).
           newHdr->SetFlags((newFlags & ~carryOver) |
                            ((mCopyState->m_flags) & carryOver));
 
@@ -2320,6 +2327,13 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
           uint32_t carryOver = nsMsgMessageFlags::New |
                                nsMsgMessageFlags::Read |
                                nsMsgMessageFlags::Marked;
+
+          // The first half of this OR operation represents the values of the
+          // flags that are *not* part of `carryOver`, which `parseMsgState` has
+          // identified and we want to preserve. The second half represents the
+          // values of the flags defined by `carryOver` in the original message,
+          // which we want to, well, carry over onto the new header (and
+          // overwrite any value the parser has found for them).
           newHdr->SetFlags((newFlags & ~carryOver) |
                            ((mCopyState->m_flags) & carryOver));
         }

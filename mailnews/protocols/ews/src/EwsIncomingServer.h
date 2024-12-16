@@ -27,7 +27,8 @@ class EwsIncomingServer : public nsMsgIncomingServer,
  protected:
   virtual ~EwsIncomingServer();
 
-  // nsMsgIncomingServer
+  // Locally creates a folder with the given properties. Intended to be called
+  // by a friend class such as `FolderSyncListener`.
   nsresult CreateFolderWithDetails(const nsACString& id,
                                    const nsACString& parentId,
                                    const nsAString& name, uint32_t flags);

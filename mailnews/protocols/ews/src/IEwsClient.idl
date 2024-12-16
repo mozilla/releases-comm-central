@@ -161,21 +161,24 @@ interface IEwsMessageCallbacks : nsISupports
 };
 
 /**
- * A set of callbacks for handling creation of a new message on an Exchange
+ * A set of callbacks called during the creation of a new message on an Exchange
  * server.
  */
 [uuid(ff45569f-d618-4bb0-9686-6cb24b92b02b)]
 interface IEwsMessageCreateCallbacks : nsISupports
 {
   /**
-   * The following three methods are based on similarly-named ones in the
-   * `nsIMsgCopyServiceListener` interface. They are intended to simplify
-   * support for message copy and to support future implementation of a solution
-   * for https://bugzilla.mozilla.org/show_bug.cgi?id=1931599.
+   * Inform consumers that the message creation has finished, both on the server
+   * and the relevant local database and message store, with the provided
+   * status.
    */
 
-  void onStartCreate();
   void onStopCreate(in nsresult status);
+
+  /**
+   * Inform consumers of the key for the newly-created message in the local
+   * message database.
+   */
   void setMessageKey(in nsMsgKey aKey);
 
   /**

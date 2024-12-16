@@ -6,6 +6,7 @@
 #define __COMM_MAILNEWS_PROTOCOLS_EWS_FOLDER_H
 
 #include "IEwsClient.h"
+#include "nsICopyMessageListener.h"
 #include "nsMsgDBFolder.h"
 #include "nscore.h"
 
@@ -29,6 +30,11 @@ class EwsFolder : public nsMsgDBFolder {
                              const nsACString& aNewMsgKeywords,
                              nsIMsgWindow* msgWindow,
                              nsIMsgCopyServiceListener* listener) override;
+  NS_IMETHOD CopyMessages(nsIMsgFolder* srcFolder,
+                          nsTArray<RefPtr<nsIMsgDBHdr>> const& srcHdrs,
+                          bool isMove, nsIMsgWindow* msgWindow,
+                          nsIMsgCopyServiceListener* listener, bool isFolder,
+                          bool allowUndo) override;
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
                                   nsIMsgDatabase** _retval) override;
 
@@ -43,7 +49,7 @@ class EwsFolder : public nsMsgDBFolder {
   NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
   NS_IMETHOD MarkMessagesRead(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages,
                               bool markRead) override;
-  NS_IMETHOD DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHeaders,
+  NS_IMETHOD DeleteMessages(const nsTArray<RefPtr<nsIMsgDBHdr>>& msgHeaders,
                             nsIMsgWindow* msgWindow, bool deleteStorage,
                             bool isMove, nsIMsgCopyServiceListener* listener,
                             bool allowUndo) override;
