@@ -64,6 +64,28 @@ NS_IMETHODIMP LiveView::InitWithTag(const nsACString& aTag) {
   return NS_OK;
 }
 
+NS_IMETHODIMP LiveView::GetSortDescending(bool* aSortDescending) {
+  *aSortDescending = mSortDescending;
+  return NS_OK;
+}
+
+NS_IMETHODIMP LiveView::SetSortDescending(bool aSortDescending) {
+  mSortDescending = aSortDescending;
+  if (mCountStmt) {
+    mCountStmt->Finalize();
+    mCountStmt = nullptr;
+  }
+  if (mCountUnreadStmt) {
+    mCountUnreadStmt->Finalize();
+    mCountUnreadStmt = nullptr;
+  }
+  if (mSelectStmt) {
+    mSelectStmt->Finalize();
+    mSelectStmt = nullptr;
+  }
+  return NS_OK;
+}
+
 /**
  * Create the WHERE part of an SQL query from the current filters.
  */
@@ -195,7 +217,9 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
         FROM messages \
         WHERE ");
     sql.Append(GetSQLClause());
-    sql.Append(" ORDER BY date DESC LIMIT :limit OFFSET :offset");
+    sql.Append(" ORDER BY date ");
+    sql.Append(mSortDescending ? "DESC" : "ASC");
+    sql.Append(" LIMIT :limit OFFSET :offset");
     MOZ_LOG(gLiveViewLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
     DatabaseCore::sConnection->CreateStatement(sql,
                                                getter_AddRefs(mSelectStmt));

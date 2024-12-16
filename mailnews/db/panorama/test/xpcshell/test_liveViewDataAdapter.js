@@ -52,6 +52,7 @@ function subtestFillFromTop(sortColumn, sortDirection, idsInOrder) {
 
   const liveView = new LiveView();
   const adapter = new LiveViewDataAdapter(liveView);
+  adapter.sortBy(sortColumn, sortDirection);
 
   try {
     Assert.equal(adapter._rowMap.length, 10);
@@ -94,6 +95,7 @@ function subtestFillFromBottom(sortColumn, sortDirection, idsInOrder) {
 
   const liveView = new LiveView();
   const adapter = new LiveViewDataAdapter(liveView);
+  adapter.sortBy(sortColumn, sortDirection);
 
   try {
     Assert.equal(adapter._rowMap.length, 10);
@@ -140,6 +142,7 @@ function subtestAddRemove1(
 
   const liveView = new LiveView();
   const adapter = new LiveViewDataAdapter(liveView);
+  adapter.sortBy(sortColumn, sortDirection);
 
   try {
     Assert.equal(adapter._rowMap.at(0).message.id, idsInOrder[0]);
@@ -237,6 +240,7 @@ function subtestAddRemove2(
 
   const liveView = new LiveView();
   const adapter = new LiveViewDataAdapter(liveView);
+  adapter.sortBy(sortColumn, sortDirection);
 
   try {
     Assert.equal(adapter._rowMap.at(5).message.id, idsInOrder[5]);
@@ -305,6 +309,7 @@ function subtestAddRemove3(
 
   const liveView = new LiveView();
   const adapter = new LiveViewDataAdapter(liveView);
+  adapter.sortBy(sortColumn, sortDirection);
 
   try {
     Assert.equal(adapter._rowMap.at(2).message.id, idsInOrder[2]);
@@ -380,13 +385,16 @@ function subtestAddRemove3(
 }
 
 const dateDesc = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+const dateAsc = dateDesc.toReversed();
 
 add_task(function testDateFillFromTop() {
   subtestFillFromTop("date", "descending", dateDesc);
+  subtestFillFromTop("date", "ascending", dateAsc);
 });
 
 add_task(function testDateFillFromBottom() {
   subtestFillFromBottom("date", "descending", dateDesc);
+  subtestFillFromBottom("date", "ascending", dateAsc);
 });
 
 add_task(function testDateAddRemove() {
@@ -404,6 +412,22 @@ add_task(function testDateAddRemove() {
     { date: 1692000000000 },
     { date: 1569000000000 },
     { date: 1570000000000 },
+  ]);
+
+  subtestAddRemove1("date", "ascending", dateAsc, [
+    { date: 1500000000000 },
+    { date: 1600000000000 },
+    { date: 1700000000000 },
+  ]);
+  subtestAddRemove2("date", "ascending", dateAsc, [
+    { date: 1500000000000 },
+    { date: 1684000000000 },
+    { date: 1700000000000 },
+  ]);
+  subtestAddRemove3("date", "ascending", dateAsc, [
+    { date: 1570000000000 },
+    { date: 1692000000000 },
+    { date: 1691900000000 },
   ]);
 });
 

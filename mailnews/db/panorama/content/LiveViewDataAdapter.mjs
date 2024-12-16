@@ -56,6 +56,29 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
     this._rowMap = new LiveViewRowMap(liveView, this);
   }
 
+  /**
+   * Overrides TreeDataAdapter.sortBy. If the sorting changes, LiveViewRowMap
+   * will flush its cache and inform the LiveView, so messages will be fetched
+   * again in the new order.
+   *
+   * @param {string} sortColumn
+   * @param {"ascending"|"descending"} sortDirection
+   * @param {boolean} [_resort=false] - If true, the rows will be sorted again,
+   *   even if `sortColumn` and `sortDirection` match the current sort.
+   */
+  sortBy(sortColumn, sortDirection, _resort = false) {
+    this._rowMap.sortBy(sortColumn, sortDirection);
+    this.sortColumn = sortColumn;
+    this.sortDirection = sortDirection;
+    this._tree?.reset();
+  }
+
+  /**
+   * Extends TreeDataAdapter.setTree so that references are cleaned up when
+   * the tree changes.
+   *
+   * @param {TreeView} tree
+   */
   setTree(tree) {
     if (!tree) {
       this._rowMap.cleanup();
@@ -81,6 +104,7 @@ class LiveViewRowMap {
    * A sparse array a slot for each message in the `LiveView`.
    */
   #rows = [];
+  #sortDescending = true;
 
   constructor(liveView, dataAdapter) {
     this.#liveView = liveView;
@@ -170,7 +194,22 @@ class LiveViewRowMap {
    * @returns {boolean} - True if message A should be above message B.
    */
   #compareMessages(a, b) {
-    return a.date > b.date;
+    if (this.#sortDescending) {
+      [a, b] = [b, a];
+    }
+    return a.date < b.date;
+  }
+
+  /**
+   * Flush the row cache and update the sort column and direction.
+   *
+   * @param {string} sortColumn
+   * @param {"ascending"|"descending"} sortDirection
+   */
+  sortBy(sortColumn, sortDirection) {
+    this.#sortDescending = this.#liveView.sortDescending =
+      sortDirection == "descending";
+    this.resetRows();
   }
 
   // nsILiveViewListener implementation.

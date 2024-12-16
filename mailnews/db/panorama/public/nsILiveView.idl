@@ -20,6 +20,11 @@ interface nsILiveView : nsISupports {
   void initWithTag(in AUTF8String tag);
 
   /**
+   * If the messages are sorted in descending order.
+   */
+  attribute boolean sortDescending;
+
+  /**
    * Get the total number of messages in the database matching this live view.
    */
   unsigned long long countMessages();

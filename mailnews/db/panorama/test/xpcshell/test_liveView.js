@@ -129,6 +129,46 @@ add_task(function testInitWithTag() {
   assertInitFails(liveView);
 });
 
+add_task(function testSort() {
+  const liveView = new LiveView();
+
+  liveView.sortDescending = false;
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.date),
+    [
+      new Date("2019-02-01T04:48:00.000Z"),
+      new Date("2019-09-14T05:21:00.000Z"),
+      new Date("2019-11-02T18:19:00.000Z"),
+      new Date("2019-11-03T17:51:00.000Z"),
+      new Date("2023-04-10T17:26:00.000Z"),
+      new Date("2023-05-13T13:23:00.000Z"),
+      new Date("2023-06-26T18:05:00.000Z"),
+      new Date("2023-08-06T06:02:00.000Z"),
+      new Date("2023-08-14T17:54:00.000Z"),
+      new Date("2023-09-14T19:34:00.000Z"),
+    ],
+    "messages should be in ascending date order"
+  );
+
+  liveView.sortDescending = true;
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.date),
+    [
+      new Date("2023-09-14T19:34:00.000Z"),
+      new Date("2023-08-14T17:54:00.000Z"),
+      new Date("2023-08-06T06:02:00.000Z"),
+      new Date("2023-06-26T18:05:00.000Z"),
+      new Date("2023-05-13T13:23:00.000Z"),
+      new Date("2023-04-10T17:26:00.000Z"),
+      new Date("2019-11-03T17:51:00.000Z"),
+      new Date("2019-11-02T18:19:00.000Z"),
+      new Date("2019-09-14T05:21:00.000Z"),
+      new Date("2019-02-01T04:48:00.000Z"),
+    ],
+    "messages should be in descending date order"
+  );
+});
+
 add_task(function testListener() {
   const earlierId = addMessage({
     folderId: 2,
