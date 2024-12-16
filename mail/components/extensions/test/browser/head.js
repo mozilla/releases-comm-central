@@ -671,7 +671,9 @@ async function checkComposeHeaders(expected) {
  * Click on an item in a browser until the expected event is observed.
  *
  * @param {String} selector - A CSS selector to identify the element which should
- *   be clicked on, inside the provided browser.
+ *   be clicked on, inside the provided browser, or a stringified arrow function,
+ *   which will be executed in the content process, returning the to-be-clicked
+ *   element. The stringified arrow function must start with "() => ".
  * @param {Object} [event] - The mouse event to be used to open the menu popup.
  *   It is an object which may contain the properties:
  *     `shiftKey`, `ctrlKey`, `altKey`, `metaKey`, `accessKey`, `clickCount`,
@@ -701,7 +703,30 @@ async function synthesizeMouseAtCenterAndRetry(selector, event, browser) {
       browser.ownerGlobal.setTimeout(r, 500)
     ).then(() => false);
 
-    await BrowserTestUtils.synthesizeMouseAtCenter(selector, event, browser);
+    event.centered = true;
+    const browsingContext = BrowserTestUtils.getBrowsingContextFrom(browser);
+
+    // Replicating BrowserTestUtils.synthesizeMouseAtCenter(). However, this
+    // implementation allows the caller to specify the function as a string,
+    // instead of using target.toString() on the specified function.
+    let target = null;
+    let targetFn = null;
+    if (typeof selector == "function") {
+      targetFn = selector.toString();
+    } else if (selector.startsWith("() => ")) {
+      targetFn = selector;
+    } else {
+      target = selector;
+    }
+
+    BrowserTestUtils.sendQuery(browsingContext, "Test:SynthesizeMouse", {
+      target,
+      targetFn,
+      x: 0,
+      y: 0,
+      event,
+    });
+
     success = await Promise.race([clickPromise, failPromise]);
   }
   Assert.ok(success, `Should have received ${type} event.`);

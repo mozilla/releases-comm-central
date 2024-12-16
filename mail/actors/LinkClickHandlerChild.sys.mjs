@@ -7,6 +7,10 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  BrowserUtils: "resource://gre/modules/BrowserUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyServiceGetter(
   lazy,
   "protocolSvc",
@@ -15,59 +19,15 @@ XPCOMUtils.defineLazyServiceGetter(
 );
 
 /**
- * Extract the href from the link click event. We look for HTMLAnchorElement,
- * HTMLAreaElement, HTMLLinkElement and nested anchor tags.
+ * Extract the target from the link node and determine, if the link can be
+ * navigated to directly, or needs to be opened in a new tab.
  *
- * @param {Event} event
- * @returns {string} the url for the link being clicked.
- */
-function hRefForClickEvent(event) {
-  const target = event.target;
-
-  if (
-    HTMLImageElement.isInstance(target) &&
-    target.hasAttribute("overflowing")
-  ) {
-    // Click on zoomed image.
-    return [null, null];
-  }
-
-  let href = null;
-  if (
-    HTMLAnchorElement.isInstance(target) ||
-    HTMLAreaElement.isInstance(target) ||
-    HTMLLinkElement.isInstance(target)
-  ) {
-    if (target.hasAttribute("href") && !target.download) {
-      href = target.href;
-    }
-  } else {
-    // We may be nested inside of a link node.
-    let linkNode = event.target;
-    while (linkNode && !HTMLAnchorElement.isInstance(linkNode)) {
-      linkNode = linkNode.parentNode;
-    }
-
-    if (linkNode && !linkNode.download) {
-      href = linkNode.href;
-    }
-  }
-  return href;
-}
-
-/**
- * Extract the target from the link click event and determine, if the link can
- * be navigated to directly, or needs to be opened in a new tab.
- *
- * @param {Event} event
+ * @param {?DOMNode} linkNode
  * @param {DOMWindow} window - the window which initiated the actor event
  *
  * @returns {boolean}
  */
-function canNavigate(event, window) {
-  // We may be nested inside of a link node.
-  const linkNode = event.target?.closest("a");
-
+function canNavigate(linkNode, window) {
   const target = linkNode?.getAttribute("target");
   if (!target) {
     return true;
@@ -102,7 +62,8 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
       return;
     }
 
-    const eventHRef = hRefForClickEvent(event);
+    const [eventHRef, linkNode] =
+      lazy.BrowserUtils.hrefAndLinkNodeForClickEvent(event) || [];
     if (!eventHRef) {
       return;
     }
@@ -113,7 +74,7 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
     try {
       // Avoid using the eTLD service, and this also works for IP addresses.
       if (pageURI.host == eventURI.host) {
-        if (!canNavigate(event, this.contentWindow)) {
+        if (!canNavigate(linkNode, this.contentWindow)) {
           event.preventDefault();
           this.sendAsyncMessage("openLinkInNewTab", {
             url: eventHRef,
@@ -128,7 +89,7 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
           Services.eTLD.getBaseDomain(eventURI) ==
           Services.eTLD.getBaseDomain(pageURI)
         ) {
-          if (!canNavigate(event, this.contentWindow)) {
+          if (!canNavigate(linkNode, this.contentWindow)) {
             event.preventDefault();
             this.sendAsyncMessage("openLinkInNewTab", {
               url: eventHRef,
@@ -181,7 +142,8 @@ export class StrictLinkClickHandlerChild extends JSWindowActorChild {
       return;
     }
 
-    const eventHRef = hRefForClickEvent(event);
+    const [eventHRef, linkNode] =
+      lazy.BrowserUtils.hrefAndLinkNodeForClickEvent(event) || [];
     if (!eventHRef) {
       return;
     }
@@ -189,7 +151,7 @@ export class StrictLinkClickHandlerChild extends JSWindowActorChild {
     const pageURI = Services.io.newURI(this.document.location.href);
     const eventURI = Services.io.newURI(eventHRef);
     if (eventURI.specIgnoringRef == pageURI.specIgnoringRef) {
-      if (!canNavigate(event, this.contentWindow)) {
+      if (!canNavigate(linkNode, this.contentWindow)) {
         event.preventDefault();
         this.sendAsyncMessage("openLinkInNewTab", {
           url: eventHRef,

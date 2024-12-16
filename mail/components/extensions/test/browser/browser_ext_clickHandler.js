@@ -119,7 +119,7 @@ const getCommonFiles = async () => {
       // Open local file and click link to a different site.
       await window.expectLinkOpenInExternalBrowser(
         browser.runtime.getURL("test.html"),
-        "#link1",
+        "#shadow1:#link1",
         "https://www.example.de/"
       );
 
@@ -155,13 +155,13 @@ const getCommonFiles = async () => {
       if (expectedLinkHandler == "single-page") {
         await window.expectLinkOpenInExternalBrowser(
           "https://example.org/browser/comm/mail/components/extensions/test/browser/data/linktest.html",
-          "#linkExt1",
+          "#shadowExt1:#linkExt1",
           "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html"
         );
       } else {
         await window.expectLinkOpenInSameTab(
           "https://example.org/browser/comm/mail/components/extensions/test/browser/data/linktest.html",
-          "#linkExt1",
+          "#shadowExt1:#linkExt1",
           "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html"
         );
       }
@@ -223,11 +223,19 @@ const getCommonFiles = async () => {
         </head>
         <body>
           <ul>
-            <li><a id="link1" href="https://www.example.de/">external</a>
-            <li><a id="link2" href="example.html">no target</a>
-            <li><a id="link3" href="example.html#self" target = "_self">_self target</a>
-            <li><a id="link4" href="example.html#blank" target = "_blank">_blank target</a>
-            <li><a id="link5" href="example.html#other" target = "_other">_other target</a>
+            <li>
+              <div id="shadow1">
+                <template shadowrootmode="open">
+                  <a href="https://www.example.de/">
+                    <span id="link1">external</span>
+                  </a>
+                </template>
+              </div>
+            </li>
+            <li><a id="link2" href="example.html">no target</a></li>
+            <li><a id="link3" href="example.html#self" target = "_self">_self target</a></li>
+            <li><a href="example.html#blank" target = "_blank"><span id="link4">_blank target</span></a></li>
+            <li><a id="link5" href="example.html#other" target = "_other">_other target</a></li>
           </ul>
         </body>
       </html>`,
@@ -239,9 +247,16 @@ const subtest_clickInBrowser = async (
   expectedLinkHandler,
   getBrowser
 ) => {
-  async function clickLink(linkId, browser) {
+  async function clickLink(target, browser) {
     await awaitBrowserLoaded(browser, url => url != "about:blank");
-    await synthesizeMouseAtCenterAndRetry(linkId, {}, browser);
+    // Allow to specify a click target inside a shadow DOM.
+    if (target.includes(":")) {
+      const [containerQuery, elementQuery] = target.split(":");
+      target = `() => this.document.querySelector("${
+        containerQuery
+      }").shadowRoot.querySelector("${elementQuery}")`;
+    }
+    await synthesizeMouseAtCenterAndRetry(target, {}, browser);
   }
 
   await extension.startup();
@@ -252,7 +267,11 @@ const subtest_clickInBrowser = async (
   // Wait for click on #link1 (external).
   {
     const { linkId, expectedUrl } = await extension.awaitMessage("click");
-    Assert.equal("#link1", linkId, `Test should click on the correct link.`);
+    Assert.equal(
+      "#shadow1:#link1",
+      linkId,
+      `Test should click on the correct link.`
+    );
     Assert.equal(
       "https://www.example.de/",
       expectedUrl,
@@ -318,7 +337,11 @@ const subtest_clickInBrowser = async (
   if (expectedLinkHandler == "single-page") {
     // Should open extern with single-page link handler.
     const { linkId, expectedUrl } = await extension.awaitMessage("click");
-    Assert.equal("#linkExt1", linkId, `Test should click on the correct link.`);
+    Assert.equal(
+      "#shadowExt1:#linkExt1",
+      linkId,
+      `Test should click on the correct link.`
+    );
     Assert.equal(
       "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html",
       expectedUrl,
@@ -333,7 +356,11 @@ const subtest_clickInBrowser = async (
   } else {
     // Should open in same tab with single-site link handler.
     const { linkId } = await extension.awaitMessage("click");
-    Assert.equal("#linkExt1", linkId, `Test should click on the correct link.`);
+    Assert.equal(
+      "#shadowExt1:#linkExt1",
+      linkId,
+      `Test should click on the correct link.`
+    );
     await clickLink(linkId, getBrowser());
     Assert.ok(
       !mockExternalProtocolService.hasAnyUrlLoaded(),
