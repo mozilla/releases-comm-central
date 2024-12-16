@@ -384,6 +384,8 @@ function subtestAddRemove3(
   }
 }
 
+// Sort by date.
+
 const dateDesc = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 const dateAsc = dateDesc.toReversed();
 
@@ -428,6 +430,55 @@ add_task(function testDateAddRemove() {
     { date: 1570000000000 },
     { date: 1692000000000 },
     { date: 1691900000000 },
+  ]);
+});
+
+// Sort by subject.
+
+const subjectDesc = [9, 5, 3, 6, 4, 2, 1, 7, 10, 8];
+const subjectAsc = subjectDesc.toReversed();
+
+add_task(function testSubjectFillFromTop() {
+  subtestFillFromTop("subject", "descending", subjectDesc);
+  subtestFillFromTop("subject", "ascending", subjectAsc);
+});
+
+add_task(function testSubjectFillFromBottom() {
+  subtestFillFromBottom("subject", "descending", subjectDesc);
+  subtestFillFromBottom("subject", "ascending", subjectAsc);
+});
+
+add_task(function testSubjectAddRemove() {
+  subtestAddRemove1("subject", "descending", subjectDesc, [
+    { subject: "Visionary optimizing benchmark" },
+    { subject: "Innovative discrete success" },
+    { subject: "Balanced mission-critical encryption" },
+  ]);
+  subtestAddRemove2("subject", "descending", subjectDesc, [
+    { subject: "Visionary optimizing benchmark" },
+    { subject: "Innovative discrete success" },
+    { subject: "Balanced mission-critical encryption" },
+  ]);
+  subtestAddRemove3("subject", "descending", subjectDesc, [
+    { subject: "Total bi-directional knowledge base" },
+    { subject: "Down-sized 3rd generation core" },
+    { subject: "Enhanced client-driven projection" },
+  ]);
+
+  subtestAddRemove1("subject", "ascending", subjectAsc, [
+    { subject: "Balanced mission-critical encryption" },
+    { subject: "Innovative discrete success" },
+    { subject: "Visionary optimizing benchmark" },
+  ]);
+  subtestAddRemove2("subject", "ascending", subjectAsc, [
+    { subject: "Balanced mission-critical encryption" },
+    { subject: "Robust real-time interface" },
+    { subject: "Visionary optimizing benchmark" },
+  ]);
+  subtestAddRemove3("subject", "ascending", subjectAsc, [
+    { subject: "Enhanced client-driven projection" },
+    { subject: "Total optimal product" },
+    { subject: "Switchable contextually-based implementation" },
   ]);
 });
 

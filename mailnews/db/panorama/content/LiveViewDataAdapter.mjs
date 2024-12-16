@@ -22,6 +22,11 @@ XPCOMUtils.defineLazyPreferenceGetter(lazy, "bufferRows", "mail.bufferRows", 9);
 
 ChromeUtils.defineLazyGetter(
   lazy,
+  "collator",
+  () => new Intl.Collator(undefined, { sensitivity: "base" })
+);
+ChromeUtils.defineLazyGetter(
+  lazy,
   "dateFormatter",
   () =>
     new Intl.DateTimeFormat(undefined, {
@@ -89,6 +94,42 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
 }
 
 /**
+ * A map of column names to nsILiveView_SortColumn constants.
+ */
+const columns = {
+  date: Ci.nsILiveView.DATE,
+  subject: Ci.nsILiveView.SUBJECT,
+};
+
+/**
+ * Compare two messages for ordering their rows.
+ *
+ * @typedef {Function} Comparator
+ * @param {Message} a - A message object.
+ * @param {Message} b - A message object.
+ * @returns {boolean} - True if message A should be above message B.
+ */
+
+/**
+ * Get a comparator that can be used to put messages in alphabetical order.
+ *
+ * @param {string} property - The message property to be used for ordering.
+ * @returns {Comparator} - A function that accepts two messages, A and B, and
+ *   returns true if message A is ahead of message B in the alphabet.
+ */
+function getTextComparator(property) {
+  return (a, b) => lazy.collator.compare(a[property], b[property]) < 0;
+}
+
+/**
+ * A map of column names to comparators for ordering.
+ */
+const comparators = {
+  date: (a, b) => a.date < b.date,
+  subject: getTextComparator("subject"),
+};
+
+/**
  * A lazily-filled collection of `LiveViewDataRow`s pretending to be an array.
  * If a row not already in the collection is requested then it and
  * `lazy.bufferRows` rows on either side are fetched from the database.
@@ -105,6 +146,7 @@ class LiveViewRowMap {
    */
   #rows = [];
   #sortDescending = true;
+  #sortComparator = comparators.date;
 
   constructor(liveView, dataAdapter) {
     this.#liveView = liveView;
@@ -197,7 +239,7 @@ class LiveViewRowMap {
     if (this.#sortDescending) {
       [a, b] = [b, a];
     }
-    return a.date < b.date;
+    return this.#sortComparator(a, b);
   }
 
   /**
@@ -207,8 +249,10 @@ class LiveViewRowMap {
    * @param {"ascending"|"descending"} sortDirection
    */
   sortBy(sortColumn, sortDirection) {
+    this.#liveView.sortColumn = columns[sortColumn] ?? columns.date;
     this.#sortDescending = this.#liveView.sortDescending =
       sortDirection == "descending";
+    this.#sortComparator = comparators[sortColumn] ?? comparators.date;
     this.resetRows();
   }
 

@@ -19,6 +19,16 @@ interface nsILiveView : nsISupports {
   // `tag` is the tag's identifier (nsIMsgTag.key).
   void initWithTag(in AUTF8String tag);
 
+  cenum SortColumn : 8 {
+    DATE = 1,
+    SUBJECT = 2,
+  };
+
+  /**
+   * Which property the messages are sorted by.
+   */
+  attribute nsILiveView_SortColumn sortColumn;
+
   /**
    * If the messages are sorted in descending order.
    */

@@ -18,7 +18,7 @@ namespace mailnews {
 
 class LiveView : public nsILiveView, public MessageListener {
  public:
-  LiveView() : mSortDescending(true) {}
+  LiveView() : mSortColumn(LiveView::SortColumn::DATE), mSortDescending(true) {}
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSILIVEVIEW
@@ -42,6 +42,7 @@ class LiveView : public nsILiveView, public MessageListener {
   nsAutoCString mClause;
   LiveViewFilter* mFolderFilter = nullptr;
 
+  nsILiveView::SortColumn mSortColumn;
   bool mSortDescending;
 
   nsCOMPtr<mozIStorageStatement> mCountStmt;

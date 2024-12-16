@@ -64,6 +64,28 @@ NS_IMETHODIMP LiveView::InitWithTag(const nsACString& aTag) {
   return NS_OK;
 }
 
+NS_IMETHODIMP LiveView::GetSortColumn(nsILiveView::SortColumn* aSortColumn) {
+  *aSortColumn = mSortColumn;
+  return NS_OK;
+}
+
+NS_IMETHODIMP LiveView::SetSortColumn(nsILiveView::SortColumn aSortColumn) {
+  mSortColumn = aSortColumn;
+  if (mCountStmt) {
+    mCountStmt->Finalize();
+    mCountStmt = nullptr;
+  }
+  if (mCountUnreadStmt) {
+    mCountUnreadStmt->Finalize();
+    mCountUnreadStmt = nullptr;
+  }
+  if (mSelectStmt) {
+    mSelectStmt->Finalize();
+    mSelectStmt = nullptr;
+  }
+  return NS_OK;
+}
+
 NS_IMETHODIMP LiveView::GetSortDescending(bool* aSortDescending) {
   *aSortDescending = mSortDescending;
   return NS_OK;
@@ -217,7 +239,15 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
         FROM messages \
         WHERE ");
     sql.Append(GetSQLClause());
-    sql.Append(" ORDER BY date ");
+    sql.Append(" ORDER BY ");
+    switch (mSortColumn) {
+      case nsILiveView::SortColumn::DATE:
+        sql.Append("date ");
+        break;
+      case nsILiveView::SortColumn::SUBJECT:
+        sql.Append("subject COLLATE locale ");
+        break;
+    }
     sql.Append(mSortDescending ? "DESC" : "ASC");
     sql.Append(" LIMIT :limit OFFSET :offset");
     MOZ_LOG(gLiveViewLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));

@@ -167,6 +167,42 @@ add_task(function testSort() {
     ],
     "messages should be in descending date order"
   );
+
+  liveView.sortColumn = Ci.nsILiveView.SUBJECT;
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.subject),
+    [
+      "Virtual solution-oriented knowledge user",
+      "Universal 5th generation conglomeration",
+      "Streamlined bandwidth-monitored help-desk",
+      "Self-enabling clear-thinking archive",
+      "Proactive intermediate collaboration",
+      "Networked even-keeled forecast",
+      "Fundamental empowering pricing structure",
+      "Enterprise-wide mission-critical middleware",
+      "Distributed mobile access",
+      "Balanced static project",
+    ],
+    "messages should be in descending subject order"
+  );
+
+  liveView.sortDescending = false;
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.subject),
+    [
+      "Balanced static project",
+      "Distributed mobile access",
+      "Enterprise-wide mission-critical middleware",
+      "Fundamental empowering pricing structure",
+      "Networked even-keeled forecast",
+      "Proactive intermediate collaboration",
+      "Self-enabling clear-thinking archive",
+      "Streamlined bandwidth-monitored help-desk",
+      "Universal 5th generation conglomeration",
+      "Virtual solution-oriented knowledge user",
+    ],
+    "messages should be in ascending subject order"
+  );
 });
 
 add_task(function testListener() {
