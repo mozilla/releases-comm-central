@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import "mail/components/inappnotifications/content/in-app-notification.mjs"; //eslint-disable-line import/no-unassigned-import
+import "mail/themes/shared/mail/icons.css"; //eslint-disable-line import/no-unassigned-import
 
 export default {
   title: "Widgets/In App Notifications/Notification",
@@ -11,7 +12,7 @@ export default {
 };
 
 export const InAppNotification = {
-  render({ setData }) {
+  render({ setData, title, description, CTA, type }) {
     const container = document.createElement("div");
     container.insertAdjacentHTML(
       "beforeend",
@@ -22,7 +23,7 @@ export const InAppNotification = {
 
 <template id="inAppNotificationContainerTemplate" xmlns="http://www.w3.org/1999/xhtml">
   <div
-    class="in-app-notification-container in-app-notification-donation"
+    class="in-app-notification-container"
     tabindex="0"
   >
     <button is="in-app-notification-close-button"></button>
@@ -44,23 +45,28 @@ export const InAppNotification = {
 <template id="inAppNotificationTemplate" xmlns="http://www.w3.org/1999/xhtml">
   <in-app-notification-container></in-app-notification-container>
 </template>
+<in-app-notification></in-app-notification>
 `
     );
     if (setData) {
       const component = container.querySelector("in-app-notification");
       component.setNotificationData({
         id: "test-notification",
-        title: "Test",
-        description: "Notification text",
-        CTA: "Click here",
+        title,
+        description,
+        CTA,
         URL: "https://example.com",
-        type: "donation",
+        type,
         severity: 4,
       });
     }
     return container;
   },
   args: {
-    setData: false,
+    setData: true,
+    type: "donation",
+    title: "Test",
+    description: "Notification text",
+    CTA: "Click here",
   },
 };
