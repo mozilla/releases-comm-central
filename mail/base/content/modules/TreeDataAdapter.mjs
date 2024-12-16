@@ -81,7 +81,7 @@ export class TreeDataAdapter {
    * @returns {string}
    */
   getCellText(rowIndex, columnID) {
-    return this._rowMap[rowIndex].getText(columnID);
+    return this._rowMap.at(rowIndex).getText(columnID);
   }
 
   /**
@@ -92,7 +92,7 @@ export class TreeDataAdapter {
    * @returns {string|number}
    */
   getCellValue(rowIndex, columnID) {
-    return this._rowMap[rowIndex].getValue(columnID);
+    return this._rowMap.at(rowIndex).getValue(columnID);
   }
 
   /**
@@ -102,7 +102,7 @@ export class TreeDataAdapter {
    * @returns {string}
    */
   getRowProperties(rowIndex) {
-    return this._rowMap[rowIndex].getProperties();
+    return this._rowMap.at(rowIndex).getProperties();
   }
 
   /**
@@ -112,7 +112,7 @@ export class TreeDataAdapter {
    * @returns {integer}
    */
   getLevel(rowIndex) {
-    return this._rowMap[rowIndex].level;
+    return this._rowMap.at(rowIndex).level;
   }
 
   /**
@@ -123,7 +123,7 @@ export class TreeDataAdapter {
    * @returns {integer}
    */
   getParentIndex(rowIndex) {
-    return this._rowMap.indexOf(this._rowMap[rowIndex].parent);
+    return this._rowMap.indexOf(this._rowMap.at(rowIndex).parent);
   }
 
   /**
@@ -133,7 +133,7 @@ export class TreeDataAdapter {
    * @returns {boolean}
    */
   isContainer(rowIndex) {
-    return this._rowMap[rowIndex].children.length > 0;
+    return this._rowMap.at(rowIndex).children.length > 0;
   }
 
   /**
@@ -144,7 +144,7 @@ export class TreeDataAdapter {
    */
   isContainerEmpty(rowIndex) {
     // If the container has no children, the container is empty.
-    return !this._rowMap[rowIndex].children.length;
+    return !this._rowMap.at(rowIndex).children.length;
   }
 
   /**
@@ -154,7 +154,7 @@ export class TreeDataAdapter {
    * @returns {boolean}
    */
   isContainerOpen(rowIndex) {
-    return this._rowMap[rowIndex].open;
+    return this._rowMap.at(rowIndex).open;
   }
 
   /**
@@ -165,7 +165,7 @@ export class TreeDataAdapter {
    */
   toggleOpenState(rowIndex) {
     // Ok, this is a bit tricky.
-    const row = this._rowMap[rowIndex];
+    const row = this._rowMap.at(rowIndex);
     row.open = !row.open;
 
     if (!row.open) {
@@ -178,7 +178,7 @@ export class TreeDataAdapter {
       let newRowIndex = rowIndex + 1;
       while (
         newRowIndex < this._rowMap.length &&
-        this._rowMap[newRowIndex].level > level
+        this._rowMap.at(newRowIndex).level > level
       ) {
         newRowIndex++;
       }
