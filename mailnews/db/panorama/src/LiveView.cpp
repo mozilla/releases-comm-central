@@ -8,6 +8,7 @@
 #include "js/Array.h"
 #include "js/Date.h"
 #include "jsapi.h"
+#include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/RefPtr.h"
 
@@ -238,6 +239,54 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
   aMessages.set(ObjectValue(*arr));
 
   mSelectStmt->Reset();
+  return NS_OK;
+}
+
+void LiveView::OnMessageAdded(Folder* aFolder, Message* aMessage) {
+  if (!mListener || !mCx || !Matches(*aMessage)) {
+    return;
+  }
+
+  JSObject* obj = CreateJSMessage(aMessage, mCx);
+  Rooted<Value> message(mCx, ObjectValue(*obj));
+  MutableHandle<Value> handle(&message);
+  mListener->OnMessageAdded(handle);
+}
+
+void LiveView::OnMessageRemoved(Folder* aFolder, Message* aMessage) {
+  if (!mListener || !mCx || !Matches(*aMessage)) {
+    return;
+  }
+
+  JSObject* obj = CreateJSMessage(aMessage, mCx);
+  Rooted<Value> message(mCx, ObjectValue(*obj));
+  MutableHandle<Value> handle(&message);
+  mListener->OnMessageRemoved(handle);
+}
+
+NS_IMETHODIMP LiveView::SetListener(nsILiveViewListener* aListener,
+                                    JSContext* aCx) {
+  bool hadListener = mListener;
+  mListener = aListener;
+  mCx = aCx;
+
+  if (!hadListener && aListener) {
+    nsCOMPtr<nsIDatabaseCore> core = components::DatabaseCore::Service();
+    nsCOMPtr<nsIMessageDatabase> messages;
+    core->GetMessages(getter_AddRefs(messages));
+    messages->AddMessageListener(this);
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP LiveView::ClearListener() {
+  mListener = nullptr;
+  mCx = nullptr;
+
+  nsCOMPtr<nsIDatabaseCore> core = components::DatabaseCore::Service();
+  nsCOMPtr<nsIMessageDatabase> messages;
+  core->GetMessages(getter_AddRefs(messages));
+  messages->RemoveMessageListener(this);
   return NS_OK;
 }
 

@@ -5,6 +5,7 @@
 #include "nsISupports.idl"
 
 interface nsIFolder;
+interface nsILiveViewListener;
 
 [scriptable, builtinclass, uuid(f13755f5-9a54-4503-9531-1f5bcb2f84c7)]
 interface nsILiveView : nsISupports {
@@ -35,4 +36,28 @@ interface nsILiveView : nsISupports {
   [implicit_jscontext]
   jsval selectMessages([optional] in unsigned long long limit,
                        [optional] in unsigned long long offset);
+
+  /**
+   * Register as the one and only listener for this live view.
+   */
+  [implicit_jscontext]
+  void setListener(in nsILiveViewListener listener);
+
+  /**
+   * Clean up this live view's listener, if it exists.
+   */
+  void clearListener();
+};
+
+[scriptable, uuid(94bc7a80-60af-4ffc-b7a6-6a799b66f9b6)]
+interface nsILiveViewListener : nsISupports {
+  /**
+   * A message matching the live view's filters was added to the database.
+   */
+  void onMessageAdded(in jsval message);
+
+  /**
+   * A message matching the live view's filters was removed from the database.
+   */
+  void onMessageRemoved(in jsval message);
 };

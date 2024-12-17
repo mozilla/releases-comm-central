@@ -48,8 +48,8 @@ MessageDatabase::GetTotalCount(uint64_t* aTotalCount) {
 }
 
 NS_IMETHODIMP MessageDatabase::AddMessage(
-    const nsACString& aMessageId, PRTime aDate, const nsACString& aSender,
-    const nsACString& aSubject, uint64_t aFolderId, uint64_t aFlags,
+    uint64_t aFolderId, const nsACString& aMessageId, PRTime aDate,
+    const nsACString& aSender, const nsACString& aSubject, uint64_t aFlags,
     const nsACString& aTags, uint64_t* aId) {
   // TODO: normalise
 

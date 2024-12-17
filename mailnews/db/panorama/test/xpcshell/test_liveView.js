@@ -129,6 +129,71 @@ add_task(function testInitWithTag() {
   assertInitFails(liveView);
 });
 
+add_task(function testListener() {
+  const earlierId = addMessage({
+    folderId: 2,
+    messageId: "earlier-message",
+    date: Date.UTC(2024, 11, 31, 12, 31),
+    flags: 1,
+  });
+
+  const listener = {
+    onMessageAdded(message) {
+      Assert.ok(
+        !this._addedMessage,
+        "there should be only one call to onMessageAdded"
+      );
+      this._addedMessage = message;
+    },
+    onMessageRemoved(message) {
+      Assert.ok(
+        !this._removedMessage,
+        "there should be only one call to onMessageRemoved"
+      );
+      this._removedMessage = message;
+    },
+  };
+  const liveView = new LiveView();
+  liveView.setListener(listener);
+
+  const addedId = addMessage({
+    folderId: 4,
+    messageId: "added-message",
+    date: Date.UTC(2025, 0, 14, 7, 20),
+    tags: "$label4",
+  });
+  Assert.equal(listener._addedMessage.id, addedId);
+  Assert.equal(listener._addedMessage.folderId, 4);
+  Assert.equal(listener._addedMessage.messageId, "added-message");
+  Assert.equal(
+    listener._addedMessage.date.toISOString(),
+    "2025-01-14T07:20:00.000Z"
+  );
+  Assert.equal(listener._addedMessage.sender, "sender");
+  Assert.equal(listener._addedMessage.subject, "subject");
+  Assert.equal(listener._addedMessage.flags, 0);
+  Assert.equal(listener._addedMessage.tags, "$label4");
+
+  messages.removeMessage(earlierId);
+  Assert.equal(listener._removedMessage.id, earlierId);
+  Assert.equal(listener._removedMessage.folderId, 2);
+  Assert.equal(listener._removedMessage.messageId, "earlier-message");
+  Assert.equal(
+    listener._removedMessage.date.toISOString(),
+    "2024-12-31T12:31:00.000Z"
+  );
+  Assert.equal(listener._removedMessage.sender, "sender");
+  Assert.equal(listener._removedMessage.subject, "subject");
+  Assert.equal(listener._removedMessage.flags, 1);
+  Assert.equal(listener._removedMessage.tags, "");
+
+  liveView.clearListener(listener);
+  // If the listener was not cleared these calls would cause failures.
+  const laterId = addMessage({ folderId: 3, messageId: "later-message" });
+  messages.removeMessage(addedId);
+  messages.removeMessage(laterId);
+});
+
 function assertInitFails(liveView) {
   const folderA = folders.getFolderByPath("server/folderA");
 

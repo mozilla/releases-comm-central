@@ -5,6 +5,7 @@
 #ifndef LiveView_h__
 #define LiveView_h__
 
+#include "js/Context.h"
 #include "LiveViewFilters.h"
 #include "MessageDatabase.h"
 #include "mozIStorageConnection.h"
@@ -15,12 +16,15 @@
 namespace mozilla {
 namespace mailnews {
 
-class LiveView : public nsILiveView {
+class LiveView : public nsILiveView, public MessageListener {
  public:
   LiveView() {}
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSILIVEVIEW
+
+  void OnMessageAdded(Folder* folder, Message* message) override;
+  void OnMessageRemoved(Folder* folder, Message* message) override;
 
  private:
   virtual ~LiveView() {
@@ -47,6 +51,12 @@ class LiveView : public nsILiveView {
                             const char* sender, const char* subject,
                             uint64_t flags, const char* tags, JSContext* aCx);
   JSObject* CreateJSMessage(Message* aMessage, JSContext* aCx);
+
+  // The one and only listener for this live view, if set.
+  nsCOMPtr<nsILiveViewListener> mListener;
+  // The JS context containing `mListener`. Used for creating JS objects to
+  // pass to the listener.
+  JSContext* mCx;
 };
 
 }  // namespace mailnews

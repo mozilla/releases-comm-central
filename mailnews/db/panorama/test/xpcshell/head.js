@@ -75,3 +75,37 @@ function checkOrdinals(expected) {
   }
   stmt.finalize();
 }
+
+/**
+ * Add a new message to the database. See the other messages in db/messages.sql
+ * for appropriate values.
+ *
+ * @param {object} message - Details of the new message to add.
+ * @param {integer} [message.folderId=1]
+ * @param {string} [message.messageId="messageId"]
+ * @param {integer|Date} [message.date=1600000000000]
+ * @param {string} [message.sender="sender"]
+ * @param {string} [message.subject="subject"]
+ * @param {integer} [message.flags=0]
+ * @param {string} [message.tags=""]
+ * @returns {integer} - The database ID of the new message.
+ */
+function addMessage({
+  folderId = 1,
+  messageId = "messageId",
+  date = 1600000000000,
+  sender = "sender",
+  subject = "subject",
+  flags = 0,
+  tags = "",
+}) {
+  return messages.addMessage(
+    folderId,
+    messageId,
+    date,
+    sender,
+    subject,
+    flags,
+    tags
+  );
+}

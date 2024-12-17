@@ -32,6 +32,20 @@ ChromeUtils.defineLazyGetter(
 );
 
 /**
+ * Represents a message in the message database. These fields are not live.
+ *
+ * @typedef {object} Message
+ * @property {integer} id - Identifier in the messages database.
+ * @property {integer} folderId - Identifier of the containing folder.
+ * @property {string} messageId - The Message-ID header.
+ * @property {Date} date - Value of the Date header.
+ * @property {string} sender
+ * @property {string} subject
+ * @property {integer} flags
+ * @property {string} tags - A space-separated list of nsIMsgTag keys.
+ */
+
+/**
  * Adapts message data from nsILiveView for display in a TreeView.
  *
  * @augments {TreeDataAdapter}
@@ -39,7 +53,7 @@ ChromeUtils.defineLazyGetter(
 export class LiveViewDataAdapter extends TreeDataAdapter {
   constructor(liveView) {
     super();
-    this._rowMap = new LiveViewRowMap(liveView);
+    this._rowMap = new LiveViewRowMap(liveView, this);
   }
 
   setTree(tree) {
@@ -55,26 +69,33 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
  * A lazily-filled collection of `LiveViewDataRow`s pretending to be an array.
  * If a row not already in the collection is requested then it and
  * `lazy.bufferRows` rows on either side are fetched from the database.
+ *
+ * @implements {nsILiveViewListener}
  */
 class LiveViewRowMap {
   QueryInterface = ChromeUtils.generateQI(["nsILiveViewListener"]);
 
   #liveView = null;
+  #dataAdapter = null;
   /**
    * A sparse array a slot for each message in the `LiveView`.
    */
   #rows = [];
 
-  constructor(liveView) {
+  constructor(liveView, dataAdapter) {
     this.#liveView = liveView;
+    this.#dataAdapter = dataAdapter;
     this.resetRows();
+    liveView.setListener(this);
   }
 
   /**
    * Clear references and the message cache.
    */
   cleanup() {
+    this.#liveView.clearListener();
     this.#liveView = null;
+    this.#dataAdapter = null;
     this.#rows.length = 0;
   }
 
@@ -139,6 +160,91 @@ class LiveViewRowMap {
    */
   _hasMessageAt(index) {
     return !!this.#rows.at(index);
+  }
+
+  /**
+   * Compare two messages for ordering their rows.
+   *
+   * @param {Message} a - A message object.
+   * @param {Message} b - A message object.
+   * @returns {boolean} - True if message A should be above message B.
+   */
+  #compareMessages(a, b) {
+    return a.date > b.date;
+  }
+
+  // nsILiveViewListener implementation.
+
+  /**
+   * A message matching the live view's filters was added to the database.
+   *
+   * @param {Message} message - The added message.
+   */
+  onMessageAdded(message) {
+    // Iterate over the rows array looking for a place to add the message.
+    // The `forEach` loop will visit only indices with values, which is fast,
+    // but unfortunately we can't return early from it.
+    let added = false;
+    this.#rows.forEach((value, key) => {
+      if (added || !value) {
+        return;
+      }
+      if (this.#compareMessages(message, value.message)) {
+        // The new message goes above i.
+        if (key == 0 || this.#rows[key - 1]) {
+          // The new message goes immediately above i.
+          this.#rows.splice(key, 0, new LiveViewDataRow(message));
+        } else {
+          // The new message goes somewhere above this one, but we don't know where.
+          this.#rows.splice(key, 0, undefined);
+        }
+        this.#dataAdapter._tree?.rowCountChanged(key, 1);
+        added = true;
+      }
+    });
+    if (!added) {
+      // The new message goes after all the others.
+      if (this.#rows.at(-1)) {
+        // We have a last row, add another.
+        this.#rows.push(new LiveViewDataRow(message));
+      } else {
+        this.#rows.length++;
+      }
+      this.#dataAdapter._tree?.rowCountChanged(this.#rows.length - 1, 1);
+    }
+  }
+
+  /**
+   * A message matching the live view's filters was removed from the database.
+   *
+   * @param {Message} message - The removed message.
+   */
+  onMessageRemoved(message) {
+    // Iterate over the rows array looking for the message to remove.
+    // The `forEach` loop will visit only indices with values, which is fast,
+    // but unfortunately we can't return early from it.
+    let removed = false;
+    this.#rows.forEach((value, key) => {
+      if (removed || !value) {
+        return;
+      }
+      if (message.id == value.message.id) {
+        // The removed message was this one.
+        this.#rows.splice(key, 1);
+        this.#dataAdapter._tree?.rowCountChanged(key, -1);
+        removed = true;
+      } else if (this.#compareMessages(message, value.message)) {
+        // The removed message was above this one.
+        this.#rows.splice(key - 1, 1);
+        this.#dataAdapter._tree?.rowCountChanged(key - 1, -1);
+        removed = true;
+      }
+    });
+    if (!removed) {
+      // The removed message was after all the others.
+      this.#rows.length--;
+      this.#dataAdapter._tree?.rowCountChanged(this.#rows.length, -1);
+    }
   }
 }
 

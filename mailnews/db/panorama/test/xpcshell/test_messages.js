@@ -14,11 +14,11 @@ add_setup(function testMessagesDBWorks() {
   Assert.equal(messages.totalCount, 10);
 
   const added = messages.addMessage(
-    "253372@example.invalid",
-    new Date("Wed, 20 Oct 1993 02:49:00 +0000"),
-    "karlie@example.org",
-    "Synergized real-time portal",
     2, // folderId
+    "253372@example.invalid", // messageId
+    new Date("Wed, 20 Oct 1993 02:49:00 +0000"), // date
+    "karlie@example.org", // sender
+    "Synergized real-time portal", // subject
     0, // flags
     "" // tags
   );

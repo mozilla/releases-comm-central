@@ -23,11 +23,11 @@ interface nsIMessageDatabase : nsISupports {
   /**
    * Add a row to the database.
    */
-  unsigned long long addMessage(in AUTF8String messageId,
+  unsigned long long addMessage(in unsigned long long folderId,
+                                in AUTF8String messageId,
                                 in PRTime date,
                                 in AUTF8String sender,
                                 in AUTF8String subject,
-                                in unsigned long long folderId,
                                 in unsigned long long flags,
                                 in AUTF8String tags);
 
