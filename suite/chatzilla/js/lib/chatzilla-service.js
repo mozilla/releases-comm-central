@@ -304,18 +304,6 @@ BogusChannel.prototype =
 };
 
 
-function IRCProtocolHandler()
-{
-}
-
-IRCProtocolHandler.prototype = new GenericIRCProtocolHandler(false);
-
-function IRCSProtocolHandler()
-{
-}
-
-IRCSProtocolHandler.prototype = new GenericIRCProtocolHandler(true);
-
 const IRCProtocolHandlerFactory =
 {
     createInstance(outer, iid)
@@ -326,7 +314,7 @@ const IRCProtocolHandlerFactory =
         if (!iid.equals(Ci.nsIProtocolHandler) && !iid.equals(Ci.nsISupports))
             throw Cr.NS_ERROR_INVALID_ARG;
 
-        return new IRCProtocolHandler(false);
+        return new GenericIRCProtocolHandler(false);
     },
 };
 
@@ -341,7 +329,7 @@ const IRCSProtocolHandlerFactory =
         if (!iid.equals(Ci.nsIProtocolHandler) && !iid.equals(Ci.nsISupports))
             throw Cr.NS_ERROR_INVALID_ARG;
 
-        return new IRCProtocolHandler(true);
+        return new GenericIRCProtocolHandler(true);
     },
 };
 
