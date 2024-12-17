@@ -35,36 +35,44 @@ class EwsFolder : public nsMsgDBFolder {
                           bool isMove, nsIMsgWindow* msgWindow,
                           nsIMsgCopyServiceListener* listener, bool isFolder,
                           bool allowUndo) override;
+  NS_IMETHOD DeleteMessages(const nsTArray<RefPtr<nsIMsgDBHdr>>& msgHeaders,
+                            nsIMsgWindow* msgWindow, bool deleteStorage,
+                            bool isMove, nsIMsgCopyServiceListener* listener,
+                            bool allowUndo) override;
+  NS_IMETHOD DeleteSelf(nsIMsgWindow* aWindow) override;
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
                                   nsIMsgDatabase** _retval) override;
-
+  NS_IMETHOD GetDeletable(bool* deletable) override;
   NS_IMETHOD GetFolderURL(nsACString& aFolderURL) override;
   NS_IMETHOD GetIncomingServerType(nsACString& aIncomingServerType) override;
   NS_IMETHOD GetNewMessages(nsIMsgWindow* aWindow,
                             nsIUrlListener* aListener) override;
   NS_IMETHOD GetSubFolders(
       nsTArray<RefPtr<nsIMsgFolder>>& aSubFolders) override;
+  NS_IMETHOD MarkMessagesRead(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages,
+                              bool markRead) override;
   NS_IMETHOD RenameSubFolders(nsIMsgWindow* msgWindow,
                               nsIMsgFolder* oldFolder) override;
   NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
-  NS_IMETHOD MarkMessagesRead(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages,
-                              bool markRead) override;
-  NS_IMETHOD DeleteMessages(const nsTArray<RefPtr<nsIMsgDBHdr>>& msgHeaders,
-                            nsIMsgWindow* msgWindow, bool deleteStorage,
-                            bool isMove, nsIMsgCopyServiceListener* listener,
-                            bool allowUndo) override;
-  NS_IMETHOD DeleteSelf(nsIMsgWindow* aWindow) override;
-  NS_IMETHOD GetDeletable(bool* deletable) override;
 
  private:
   bool mHasLoadedSubfolders;
 
-  // Generate or retrieve an EWS API client capable of interacting with the EWS
-  // server this folder depends from.
+  /**
+   * Generate or retrieve an EWS API client capable of interacting with the EWS
+   * server this folder depends from.
+   */
   nsresult GetEwsClient(IEwsClient** ewsClient);
 
-  // Locally look up the EWS ID for the current folder.
+  /**
+   * Locally look up the EWS ID for the current folder.
+   */
   nsresult GetEwsId(nsACString& ewsId);
+
+  /**
+   * Looks up the trash folder for the current account.
+   */
+  nsresult GetTrashFolder(nsIMsgFolder** result);
 };
 
 #endif

@@ -519,7 +519,12 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
     bool allowUndo) {
   nsresult rv;
 
-  if (deleteStorage) {
+  bool isTrashFolder = mFlags & nsMsgFolderFlags::Trash;
+
+  // If we're performing a "hard" delete, or if we're deleting from the trash
+  // folder, perform a "real" deletion (i.e. delete the messages from both the
+  // storage and the server).
+  if (deleteStorage || isTrashFolder) {
     // Iterate through the message headers to get the EWS IDs to delete.
     nsTArray<nsCString> ewsIds;
     for (const auto& header : msgHeaders) {
@@ -545,32 +550,18 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
     return client->DeleteMessages(ewsIds, ewsMsgListener);
   }
 
-  return NS_OK;
-}
+  // We're moving the messages to trash folder. Start by kicking off a copy.
+  nsCOMPtr<nsIMsgFolder> trashFolder;
+  MOZ_TRY(GetTrashFolder(getter_AddRefs(trashFolder)));
 
-nsresult EwsFolder::GetEwsId(nsACString& ewsId) {
-  nsresult rv = GetStringProperty(ID_PROPERTY, ewsId);
+  nsCOMPtr<nsIMsgCopyService> copyService =
+      do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (ewsId.IsEmpty()) {
-    NS_ERROR(nsPrintfCString(
-                 "folder %s initialized as EWS folder, but has no EWS ID",
-                 URI().get())
-                 .get());
-    return NS_ERROR_UNEXPECTED;
-  }
-
-  return NS_OK;
-}
-
-nsresult EwsFolder::GetEwsClient(IEwsClient** ewsClient) {
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  nsresult rv = GetServer(getter_AddRefs(server));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<IEwsIncomingServer> ewsServer(do_QueryInterface(server));
-
-  return ewsServer->GetEwsClient(ewsClient);
+  // When the copy completes, DeleteMessages() will be called again (with
+  // `isMove` and `deleteStorage` set to `true`) to perform the actual delete.
+  return copyService->CopyMessages(this, msgHeaders, trashFolder, true,
+                                   listener, msgWindow, allowUndo);
 }
 
 NS_IMETHODIMP EwsFolder::DeleteSelf(nsIMsgWindow* aWindow) {
@@ -604,5 +595,52 @@ NS_IMETHODIMP EwsFolder::GetDeletable(bool* deletable) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   *deletable = !(isServer || (mFlags & nsMsgFolderFlags::SpecialUse));
+  return NS_OK;
+}
+
+nsresult EwsFolder::GetEwsId(nsACString& ewsId) {
+  nsresult rv = GetStringProperty(ID_PROPERTY, ewsId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (ewsId.IsEmpty()) {
+    NS_ERROR(nsPrintfCString(
+                 "folder %s initialized as EWS folder, but has no EWS ID",
+                 URI().get())
+                 .get());
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  return NS_OK;
+}
+
+nsresult EwsFolder::GetEwsClient(IEwsClient** ewsClient) {
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<IEwsIncomingServer> ewsServer(do_QueryInterface(server));
+
+  return ewsServer->GetEwsClient(ewsClient);
+}
+
+nsresult EwsFolder::GetTrashFolder(nsIMsgFolder** result) {
+  NS_ENSURE_ARG_POINTER(result);
+  nsCOMPtr<nsIMsgFolder> rootFolder;
+
+  nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgFolder> trashFolder;
+  rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Trash,
+                                 getter_AddRefs(trashFolder));
+
+  // `GetFolderWithFlags()` returns NS_OK even if no folder was found, so we
+  // need to check whether it returned it returned a valid folder.
+  if (!trashFolder) {
+    return NS_ERROR_FAILURE;
+  }
+
+  trashFolder.forget(result);
+
   return NS_OK;
 }
