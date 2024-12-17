@@ -68,6 +68,16 @@ this.spacesToolbar = class extends ExtensionAPI {
     const { tabManager } = extension;
     this.widgetId = makeWidgetId(extension.id);
 
+    // Enforce full startup of the parent implementation of the tabs API. This is
+    // needed, because `tabs.onCreated.addListener()` is a synchronous child
+    // implementation, which returns as soon as the listener has been registered
+    // in the current child process, not waiting for the parent implementation of
+    // the tabs API to actually register a listener for the native TabOpen event.
+    // If the tab is opened through the spacesToolbar API, the parent implementation
+    // of the tabs API may not even be fully initialized and the pending event
+    // listener for the TabOpen event may not get registered in time.
+    extensions.loadModule("tabs");
+
     return {
       spacesToolbar: {
         async addButton(name, buttonProperties) {
