@@ -762,12 +762,16 @@ cookies-button =
     .label = Show Cookies…
     .accesskey = S
 
-do-not-track-label =
-    .label = Send websites a “Do Not Track” signal that you don’t want to be tracked
+# Do not translate.
+# "Global Privacy Control" or "GPC" are a web platform feature name and abbreviation
+# included to facilitate power-user search of the about:preferences page.
+global-privacy-control-search = Global Privacy Control (GPC)
+
+global-privacy-control-description =
+    .label = Tell websites not to sell or share my data
     .accesskey = n
 
-dnt-learn-more-button =
-    .value = Learn more
+do-not-track-removal = We no longer support the “Do Not Track” signal
 
 passwords-description = { -brand-short-name } can remember passwords for all of your accounts.
 

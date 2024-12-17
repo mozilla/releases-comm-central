@@ -131,13 +131,21 @@
       <separator class="thin"/>
 
       <hbox align="center">
-        <checkbox id="privacyDoNotTrackCheckbox"
+        <checkbox id="globalPrivacyControlCheckbox"
                   class="tail-with-learn-more"
-                  data-l10n-id="do-not-track-label"
-                  preference="privacy.donottrackheader.enabled"/>
-        <label is="text-link" id="doNotTrackInfo"
-               href="https://www.mozilla.org/dnt"
-               data-l10n-id="dnt-learn-more-button"/>
+                  preference="privacy.globalprivacycontrol.enabled"
+                  data-l10n-id="global-privacy-control-description"
+                  search-l10n-ids="global-privacy-control-search" />
+        <html:a is="moz-support-link"
+                id="globalPrivacyControlLearnMoreLink"
+                support-page="global-privacy-control" />
+      </hbox>
+
+      <hbox align="center">
+        <html:a is="moz-support-link"
+                id="doNotTrackRemoval"
+                support-page="how-do-i-turn-do-not-track-feature"
+                data-l10n-id="do-not-track-removal" />
       </hbox>
     </html:fieldset>
     </html:div>

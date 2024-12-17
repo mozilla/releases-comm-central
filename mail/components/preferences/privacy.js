@@ -45,6 +45,7 @@ Preferences.addAll([
   { id: "places.history.enabled", type: "bool" },
   { id: "network.cookie.cookieBehavior", type: "int" },
   { id: "network.cookie.blockFutureCookies", type: "bool" },
+  { id: "privacy.globalprivacycontrol.enabled", type: "bool" },
   { id: "privacy.donottrackheader.enabled", type: "bool" },
   { id: "security.default_personal_cert", type: "string" },
   { id: "security.disable_button.openCertManager", type: "bool" },

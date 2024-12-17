@@ -30,8 +30,8 @@ add_task(async () => {
       unaffectedElements: ["#cookieExceptions"],
     },
     {
-      checkboxID: "privacyDoNotTrackCheckbox",
-      pref: "privacy.donottrackheader.enabled",
+      checkboxID: "globalPrivacyControlCheckbox",
+      pref: "privacy.globalprivacycontrol.enabled",
     }
   );
 });

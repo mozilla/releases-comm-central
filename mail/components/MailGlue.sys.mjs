@@ -1304,6 +1304,7 @@ function reportPreferences() {
     "pref.privacy.disable_button.view_cookies",
     "pref.privacy.disable_button.view_passwords",
     "privacy.donottrackheader.enabled",
+    "privacy.globalprivacycontrol.enabled",
     "security.disable_button.openCertManager",
     "security.disable_button.openDeviceManager",
 
