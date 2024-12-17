@@ -1645,7 +1645,7 @@ nsresult MsgStreamMsgHeaders(nsIInputStream* aInputStream,
   nsCOMPtr<nsIStringInputStream> hdrsStream =
       do_CreateInstance("@mozilla.org/io/string-input-stream;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  hdrsStream->SetData(msgHeaders.get(), msgHeaders.Length());
+  hdrsStream->SetByteStringData(msgHeaders);
 
   nsCOMPtr<nsIInputStreamPump> pump;
   rv = NS_NewInputStreamPump(getter_AddRefs(pump), hdrsStream.forget());

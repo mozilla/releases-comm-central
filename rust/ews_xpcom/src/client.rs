@@ -7,7 +7,6 @@ mod create_folder;
 use std::{
     collections::{HashMap, HashSet, VecDeque},
     env,
-    ffi::c_char,
 };
 
 use base64::prelude::{Engine, BASE64_STANDARD};
@@ -31,7 +30,7 @@ use fxhash::FxHashMap;
 use mail_parser::MessageParser;
 use moz_http::StatusCode;
 use nserror::nsresult;
-use nsstring::{nsCString, nsString};
+use nsstring::{nsACString, nsCString, nsString};
 use thin_vec::ThinVec;
 use thiserror::Error;
 use url::Url;
@@ -505,10 +504,11 @@ impl XpComEwsClient {
         ))
         .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
 
-        // We use `SetData()` here instead of one of the alternatives to ensure
-        // that the data is copied. Otherwise, the pointer may become invalid
-        // before the stream is dropped.
-        unsafe { stream.SetData(mime_content.as_ptr() as *const c_char, len) }.to_result()?;
+        // We use `SetByteStringData()` here instead of one of the alternatives
+        // to ensure that the data is copied. Otherwise, the pointer may become
+        // invalid before the stream is dropped.
+        unsafe { stream.SetByteStringData(mime_content.as_ptr() as *const nsACString) }
+            .to_result()?;
 
         unsafe { callbacks.OnDataAvailable(&*stream.coerce(), len as u32) }.to_result()?;
 

@@ -77,7 +77,7 @@ export var EnigmailStreams = {
     const inputStream = Cc[
       "@mozilla.org/io/string-input-stream;1"
     ].createInstance(Ci.nsIStringInputStream);
-    inputStream.setData(data, -1);
+    inputStream.setByteStringData(data);
 
     if (!contentCharset || contentCharset.length === 0) {
       const netUtil = Services.io.QueryInterface(Ci.nsINetUtil);

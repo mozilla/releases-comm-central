@@ -241,7 +241,7 @@ class BaseMessageService {
     const headersStream = Cc[
       "@mozilla.org/io/string-input-stream;1"
     ].createInstance(Ci.nsIStringInputStream);
-    headersStream.setData(headers, headers.length);
+    headersStream.setByteStringData(headers);
     const pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
       Ci.nsIInputStreamPump
     );

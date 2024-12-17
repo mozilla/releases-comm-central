@@ -87,7 +87,7 @@ class WinSearchStreamListener extends StreamListenerBase {
       const stringStream = Cc[
         "@mozilla.org/io/string-input-stream;1"
       ].createInstance(Ci.nsIStringInputStream);
-      stringStream.setData(this.#message, this.#message.length);
+      stringStream.setByteStringData(this.#message);
       const contentType = {};
       const folder = this._msgHdr.folder;
       const text = folder.getMsgTextFromStream(

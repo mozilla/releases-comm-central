@@ -2910,7 +2910,7 @@ export var XMPPAccountPrototype = {
     const istream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
       Ci.nsIStringInputStream
     );
-    istream.setData(content, content.length);
+    istream.setByteStringData(content);
 
     const fileName = resource._photoHash + "." + kExt[type];
     const file = new lazy.FileUtils.File(

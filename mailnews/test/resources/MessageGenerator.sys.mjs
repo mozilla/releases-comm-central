@@ -790,7 +790,7 @@ SyntheticMessage.prototype = {
       Ci.nsIStringInputStream
     );
     const str = this.toMessageString();
-    stream.setData(str, str.length);
+    stream.setByteStringData(str);
     return stream;
   },
 };

@@ -92,7 +92,7 @@ class SpotlightStreamListener extends StreamListenerBase {
       const stringStream = Cc[
         "@mozilla.org/io/string-input-stream;1"
       ].createInstance(Ci.nsIStringInputStream);
-      stringStream.setData(this.#message, this.#message.length);
+      stringStream.setByteStringData(this.#message);
       const folder = this._msgHdr.folder;
       let text = folder.getMsgTextFromStream(
         stringStream,

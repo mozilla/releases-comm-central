@@ -141,7 +141,7 @@ export var CardDAVUtils = {
         const stream = Cc[
           "@mozilla.org/io/string-input-stream;1"
         ].createInstance(Ci.nsIStringInputStream);
-        stream.setUTF8Data(body, body.length);
+        stream.setUTF8Data(body);
 
         channel.QueryInterface(Ci.nsIUploadChannel);
         channel.setUploadStream(stream, contentType, -1);

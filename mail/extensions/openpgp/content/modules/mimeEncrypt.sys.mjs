@@ -564,10 +564,7 @@ PgpMimeEncrypt.prototype = {
   },
 
   flushOutput() {
-    this.outStringStream.setData(
-      this.outgoingMessageBuffer,
-      this.outgoingMessageBuffer.length
-    );
+    this.outStringStream.setByteStringData(this.outgoingMessageBuffer);
     this.outStream.writeFrom(
       this.outStringStream,
       this.outgoingMessageBuffer.length

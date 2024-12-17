@@ -113,7 +113,7 @@ export var provider = {
         stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
           Ci.nsIStringInputStream
         );
-        stream.setUTF8Data(aUploadData, aUploadData.length);
+        stream.setUTF8Data(aUploadData);
       }
 
       httpchannel.setUploadStream(stream, aContentType, -1);

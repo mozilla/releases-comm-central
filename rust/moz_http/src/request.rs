@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use std::collections::HashMap;
-use std::ffi::c_char;
 use std::ptr;
 
 use cstr::cstr;
 use url::Url;
 
-use nsstring::nsCString;
+use nsstring::{nsACString, nsCString};
 use xpcom::interfaces::{
     nsIChannel, nsIContentPolicy, nsIHttpChannel, nsIIOService, nsILoadInfo, nsINSSErrorsService,
     nsIPrincipal, nsIScriptSecurityManager, nsIStringInputStream, nsITransportSecurityInfo,
@@ -252,16 +251,16 @@ impl<'rb> RequestBuilder<'rb> {
         // We've already checked that self.body is not None, so we can safely
         // unwrap.
         let body = self.body.as_ref().unwrap();
-        let len = <i32>::try_from(body.content.0.len())?;
+        let len = <i64>::try_from(body.content.0.len())?;
         let content_type = nsCString::from(body.content_type);
 
         unsafe {
             // Set the data for the stream.
             //
-            // SAFETY: SetData() makes a copy of the provided buffer to ensure
-            // it's always reading from valid and allocated memory. This isn't
-            // ideal because it means all request bodies are duplicated in
-            // memory.
+            // SAFETY: SetByteStringData() makes a copy of the provided buffer
+            // to ensure it's always reading from valid and allocated memory.
+            // This isn't ideal because it means all request bodies are
+            // duplicated in memory.
             //
             // Ideally we would use ShareData(). However, currently, the
             // nsIChannel is passed to the Response instance (so we can read
@@ -281,12 +280,12 @@ impl<'rb> RequestBuilder<'rb> {
             // request, to ensure it stays in scope while the nsIChannel does,
             // and use ShareData() instead.
             body_stream
-                .SetData(body.content.0.as_ptr() as *const c_char, len)
+                .SetByteStringData(body.content.0.as_ptr() as *const nsACString)
                 .to_result()?;
 
             // Set the stream as the channel's upload stream.
             upload_channel
-                .SetUploadStream(body_stream.coerce(), &*content_type, len as i64)
+                .SetUploadStream(body_stream.coerce(), &*content_type, len)
                 .to_result()?
         }
 

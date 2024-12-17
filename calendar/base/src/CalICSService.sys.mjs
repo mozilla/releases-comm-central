@@ -561,7 +561,7 @@ calIcalComponent.prototype = {
     const stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
       Ci.nsIStringInputStream
     );
-    stream.setUTF8Data(data, data.length);
+    stream.setUTF8Data(data);
     return stream;
   },
 };
