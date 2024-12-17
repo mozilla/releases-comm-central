@@ -172,46 +172,63 @@ add_task(
           // "2 attachments" message.
 
           attachments = await browser.messages.listAttachments(messages[3].id);
-          browser.test.assertEq("2 attachments", messages[3].subject);
-          browser.test.assertEq(2, attachments.length);
-
-          attachment = attachments[0];
-          browser.test.assertEq(
-            attachment.contentType,
-            "application/octet-stream"
+          window.assertDeepEqual(
+            [
+              {
+                contentDisposition: "attachment",
+                contentType: "application/octet-stream",
+                headers: {
+                  "content-type": [
+                    'application/octet-stream; charset=ISO-8859-1; format=flowed; name="test"',
+                  ],
+                  "content-transfer-encoding": ["base64"],
+                  "content-disposition": ['attachment; filename="test"'],
+                },
+                name: "test",
+                partName: "1.2",
+                size: 16,
+              },
+              {
+                contentDisposition: "attachment",
+                contentType: "text/plain",
+                headers: {
+                  "content-type": [
+                    'text/plain; charset=ISO-8859-1; format=flowed; name="test.txt"',
+                  ],
+                  "content-transfer-encoding": ["7bit"],
+                  "content-disposition": ['attachment; filename="test.txt"'],
+                },
+                name: "test.txt",
+                partName: "1.3",
+                size: 14,
+              },
+            ],
+            attachments,
+            "Should find the correct attachments for message #3",
+            { strict: true }
           );
-          browser.test.assertEq("test", attachment.name);
-          browser.test.assertEq("1.2", attachment.partName);
-          browser.test.assertEq(16, attachment.size);
 
           file = await browser.messages.getAttachmentFile(
             messages[3].id,
-            attachment.partName
+            attachments[0].partName
           );
           // eslint-disable-next-line mozilla/use-isInstance
           browser.test.assertTrue(file instanceof File);
           browser.test.assertEq("test", file.name);
           browser.test.assertEq(16, file.size);
-
           browser.test.assertEq("binaryAttachment", await file.text());
-
-          attachment = attachments[1];
-          browser.test.assertEq("text/plain", attachment.contentType);
-          browser.test.assertEq("test.txt", attachment.name);
-          browser.test.assertEq("1.3", attachment.partName);
-          browser.test.assertEq(14, attachment.size);
 
           file = await browser.messages.getAttachmentFile(
             messages[3].id,
-            attachment.partName
+            attachments[1].partName
           );
           // eslint-disable-next-line mozilla/use-isInstance
           browser.test.assertTrue(file instanceof File);
           browser.test.assertEq("test.txt", file.name);
           browser.test.assertEq(14, file.size);
-
           browser.test.assertEq("textAttachment", await file.text());
 
+          // Test invalid function calls.
           await browser.test.assertRejects(
             browser.messages.listAttachments(100),
             /^Message not found: \d+\.$/,
@@ -267,11 +284,20 @@ add_task(
           window.assertDeepEqual(
             [
               {
+                contentDisposition: "inline",
                 contentType: "image/png",
                 name: "blue_pixel_1x1.png",
                 size: 179,
                 partName: "1.2",
                 contentId: "part1.FxEY2Ivx.xSFtCdX4@example.com",
+                headers: {
+                  "content-type": ['image/png; name="blue_pixel_1x1.png"'],
+                  "content-disposition": [
+                    'inline; filename="blue_pixel_1x1.png"',
+                  ],
+                  "content-id": ["<part1.FxEY2Ivx.xSFtCdX4@example.com>"],
+                  "content-transfer-encoding": ["base64"],
+                },
               },
             ],
             attachments,

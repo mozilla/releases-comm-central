@@ -279,11 +279,25 @@
       {
         "id": "MessageAttachment",
         "type": "object",
-        "description": "Represents an attachment in a message. This includes all MIME parts with a <em>content-disposition</em> header set to <var>attachment</var>, but also related parts like inline images.",
+        "description": "Represents an attachment in a message.",
         "properties": {
+          "contentDisposition": {
+            "type": "string",
+            "description": "The content disposition of the attachment, for example <var>attachment</var> for normal attachments, or <var>inline</var> for inline attachments."
+          },
           "contentType": {
             "type": "string",
             "description": "The content type of the attachment. A value of <var>text/x-moz-deleted</var> indicates that the original attachment was permanently deleted and replaced by a placeholder text attachment with some meta information about the original attachment."
+          },
+          "headers": {
+            "type": "object",
+            "description": "A <em>dictionary object</em> of RFC 2047 decoded attachment headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>.",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           },
           "name": {
             "type": "string",

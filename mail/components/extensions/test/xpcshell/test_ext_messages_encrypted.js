@@ -251,10 +251,18 @@ add_task(async function test_openpgp_enc_nested_messages() {
         window.assertDeepEqual(
           [
             {
+              contentDisposition: "attachment",
               contentType: "message/rfc822",
+              headers: {
+                "content-type": [
+                  'message/rfc822; charset=UTF-8; name="message1.eml"',
+                ],
+                "content-disposition": ['attachment; filename="message1.eml"'],
+                "content-transfer-encoding": ["7bit"],
+              },
               name: "message1.eml",
-              size: 442,
               partName: "1.1.2",
+              size: 442,
               message: {
                 id: 2,
                 date: new Date("2000-05-17T23:32:47.000Z"),
@@ -276,10 +284,18 @@ add_task(async function test_openpgp_enc_nested_messages() {
               },
             },
             {
+              contentDisposition: "attachment",
               contentType: "image/png",
+              headers: {
+                "content-type": ["image/png;"],
+                "content-transfer-encoding": ["base64"],
+                "content-disposition": [
+                  'attachment;  filename="yellowPixel.png"',
+                ],
+              },
               name: "yellowPixel.png",
-              size: 119,
               partName: "1.1.3",
+              size: 119,
             },
           ],
           attachments1,
@@ -432,28 +448,56 @@ add_task(async function test_openpgp_enc_nested_messages() {
         window.assertDeepEqual(
           [
             {
+              contentDisposition: "attachment",
               contentType: "image/png",
+              headers: {
+                "content-type": ['image/png;\tname="whitePixel.png"'],
+                "content-transfer-encoding": ["base64"],
+                "content-disposition": [
+                  'attachment;\tfilename="whitePixel.png"',
+                ],
+              },
               name: "whitePixel.png",
-              size: 69,
               partName: "1.2",
+              size: 69,
             },
             {
+              contentDisposition: "attachment",
               contentType: "image/png",
+              headers: {
+                "content-type": ['image/png;\tname="greenPixel.png"'],
+                "content-transfer-encoding": ["base64"],
+                "content-disposition": ["attachment"],
+              },
               name: "greenPixel.png",
-              size: 119,
               partName: "1.3",
-            },
-            {
-              contentType: "image/png",
-              name: "redPixel.png",
               size: 119,
-              partName: "1.4",
             },
             {
+              contentDisposition: "attachment",
+              contentType: "image/png",
+              headers: {
+                "content-type": ["image/png"],
+                "content-transfer-encoding": ["base64"],
+                "content-disposition": ['attachment;\tfilename="redPixel.png"'],
+              },
+              name: "redPixel.png",
+              partName: "1.4",
+              size: 119,
+            },
+            {
+              contentDisposition: "attachment",
               contentType: "message/rfc822",
+              headers: {
+                "content-type": [
+                  'message/rfc822; charset=UTF-8; name="message2.eml"',
+                ],
+                "content-disposition": ['attachment; filename="message2.eml"'],
+                "content-transfer-encoding": ["7bit"],
+              },
               name: "message2.eml",
-              size: 100,
               partName: "1.5",
+              size: 100,
               message: {
                 id: 3,
                 date: new Date("2000-05-16T23:32:47.000Z"),
@@ -619,10 +663,18 @@ add_task(async function test_openpgp_enc_nested_messages() {
         window.assertDeepEqual(
           [
             {
+              contentDisposition: "attachment",
               contentType: "image/png",
+              headers: {
+                "content-type": ['image/png;  name="whitePixel.png"'],
+                "content-transfer-encoding": ["base64"],
+                "content-disposition": [
+                  'attachment;  filename="whitePixel.png"',
+                ],
+              },
               name: "whitePixel.png",
-              size: 69,
               partName: "1.2",
+              size: 69,
             },
           ],
           attachments3,
@@ -984,14 +1036,24 @@ add_task(async function test_openpgp_enc_msg_attachment() {
         window.assertDeepEqual(
           [
             {
+              contentDisposition: "attachment",
               contentType: "text/plain",
+              headers: {
+                "content-type": [
+                  'text/plain; charset="UTF-8"; name="encrypted-attachment.txt"',
+                ],
+                "content-disposition": [
+                  'attachment; filename="encrypted-attachment.txt"',
+                ],
+                "content-transfer-encoding": ["base64"],
+              },
               name: "encrypted-attachment.txt",
-              size: 14,
               partName: "1.2",
+              size: 14,
             },
           ],
           attachments,
-          "Attachments of should be correct",
+          "The decrypted attachments should be correct",
           { strict: true }
         );
 

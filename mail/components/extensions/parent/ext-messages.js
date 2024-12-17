@@ -251,11 +251,21 @@ function convertMessagePart(
  * @see mail/components/extensions/schemas/messages.json
  */
 async function convertAttachment(msgHdr, mimeTreePart, extension) {
+  const contentDisposition = mimeTreePart.headers.has("content-disposition")
+    ? mimeTreePart.headers
+        .get("content-disposition")[0]
+        .split(";")[0]
+        .trim()
+        .toLowerCase()
+    : "attachment";
+
   const rv = {
+    contentDisposition,
     contentType: mimeTreePart.headers.contentType.type || "text/plain",
+    headers: convertHeaders(mimeTreePart),
     name: mimeTreePart.name || "",
-    size: mimeTreePart.size,
     partName: mimeTreePart.partNum,
+    size: mimeTreePart.size,
   };
 
   // If it is an attached message, create a dummy msgHdr for it.
