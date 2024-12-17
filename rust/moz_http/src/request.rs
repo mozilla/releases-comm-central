@@ -8,7 +8,7 @@ use std::ptr;
 use cstr::cstr;
 use url::Url;
 
-use nsstring::{nsACString, nsCString};
+use nsstring::nsCString;
 use xpcom::interfaces::{
     nsIChannel, nsIContentPolicy, nsIHttpChannel, nsIIOService, nsILoadInfo, nsINSSErrorsService,
     nsIPrincipal, nsIScriptSecurityManager, nsIStringInputStream, nsITransportSecurityInfo,
@@ -279,9 +279,8 @@ impl<'rb> RequestBuilder<'rb> {
             // be to stick the body onto the Response struct when sending the
             // request, to ensure it stays in scope while the nsIChannel does,
             // and use ShareData() instead.
-            body_stream
-                .SetByteStringData(body.content.0.as_ptr() as *const nsACString)
-                .to_result()?;
+            let body_content = nsCString::from(body.content.0);
+            body_stream.SetByteStringData(&*body_content).to_result()?;
 
             // Set the stream as the channel's upload stream.
             upload_channel

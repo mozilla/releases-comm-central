@@ -30,7 +30,7 @@ use fxhash::FxHashMap;
 use mail_parser::MessageParser;
 use moz_http::StatusCode;
 use nserror::nsresult;
-use nsstring::{nsACString, nsCString, nsString};
+use nsstring::{nsCString, nsString};
 use thin_vec::ThinVec;
 use thiserror::Error;
 use url::Url;
@@ -507,8 +507,8 @@ impl XpComEwsClient {
         // We use `SetByteStringData()` here instead of one of the alternatives
         // to ensure that the data is copied. Otherwise, the pointer may become
         // invalid before the stream is dropped.
-        unsafe { stream.SetByteStringData(mime_content.as_ptr() as *const nsACString) }
-            .to_result()?;
+        let mime_content = nsCString::from(mime_content);
+        unsafe { stream.SetByteStringData(&*mime_content) }.to_result()?;
 
         unsafe { callbacks.OnDataAvailable(&*stream.coerce(), len as u32) }.to_result()?;
 
