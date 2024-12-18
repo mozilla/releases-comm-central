@@ -4,6 +4,7 @@
 
 categories:
     overview_doc:
+        - documentation
         - mots
         - architecture
         - inappnotifications
@@ -32,6 +33,7 @@ doc_trees:
     storybook: mail/components/storybook/docs
     telemetry: docs/telemetry
     inappnotifications: mail/components/inappnotifications/docs
+    documentation: docs/docs
 
 python_package_dirs: []
 
