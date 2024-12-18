@@ -133,16 +133,19 @@ function setupSearchRows(aSearchTerms) {
 }
 
 function updateOnlineSearchState() {
-  var enableCheckbox = false;
-  var checkbox = document.getElementById("searchOnline");
-  // only enable the checkbox for selection, for online servers
-  var srchFolderUriArray = gSearchFolderURIs.split("|");
-  if (srchFolderUriArray[0]) {
-    var realFolder = MailUtils.getOrCreateFolder(srchFolderUriArray[0]);
-    enableCheckbox = realFolder.server.offlineSupportLevel; // anything greater than 0 is an online server like IMAP or news
-  }
+  // Enable only if there are search folders on online servers such as IMAP or
+  // NNTP (offlineSupportLevel > 0).
+  const includesOnlineServers =
+    gSearchFolderURIs &&
+    gSearchFolderURIs
+      .split("|")
+      .some(
+        folderURI =>
+          MailUtils.getExistingFolder(folderURI).server.offlineSupportLevel
+      );
 
-  if (enableCheckbox) {
+  const checkbox = document.getElementById("searchOnline");
+  if (includesOnlineServers) {
     checkbox.removeAttribute("disabled");
   } else {
     checkbox.setAttribute("disabled", true);
