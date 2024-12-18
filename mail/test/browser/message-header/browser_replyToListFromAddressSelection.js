@@ -8,6 +8,9 @@
 
 "use strict";
 
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
 var { close_compose_window, open_compose_with_reply_to_list } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/ComposeHelpers.sys.mjs"
@@ -16,19 +19,78 @@ var { assert_selected_and_displayed, be_in_folder, select_click_row } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
-
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
+var { localAccountUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
+);
+var { nsMailServer } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Maild.sys.mjs"
+);
+var { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Smtpd.sys.mjs"
 );
 
+var gServer;
 var testFolder = null;
 var replyToListWindow = null;
 
 var identityString1 = "tinderbox_correct_identity@foo.invalid";
 
+/** Setup the daemon and server. */
+function setupServerDaemon(handler) {
+  if (!handler) {
+    handler = function (d) {
+      return new SMTP_RFC2821_handler(d);
+    };
+  }
+  return new nsMailServer(handler, new SmtpDaemon());
+}
+
+function makeBasicSmtpServer(port = 1, hostname = "localhost") {
+  const server = localAccountUtils.create_outgoing_server(
+    "smtp",
+    "user",
+    "password",
+    { port, hostname }
+  );
+
+  // Override the default greeting so we get something predictable
+  // in the ELHO message
+  Services.prefs.setCharPref("mail.smtpserver.default.hello_argument", "test");
+  return server;
+}
+
 add_setup(function () {
-  addIdentitiesAndFolder();
+  gServer = setupServerDaemon();
+  gServer.start();
+
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = identityString1;
+  identity.smtpServerKey = makeBasicSmtpServer(gServer.port).key;
+
+  const identity2 = MailServices.accounts.createIdentity();
+  identity2.email = "tinderbox_identity1@foo.invalid";
+
+  const server = MailServices.accounts.createIncomingServer(
+    "nobody",
+    "TestLocalFolders",
+    "pop3"
+  );
+  const localRoot = server.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  testFolder = localRoot.createLocalSubfolder("Test Folder");
+
+  const account = MailServices.accounts.createAccount();
+  account.incomingServer = server;
+  account.addIdentity(identity);
+  account.addIdentity(identity2);
+
   addMessageToFolder(testFolder);
+  Services.prefs.setBoolPref("mailnews.show_send_progress", false);
+
+  registerCleanupFunction(() => {
+    gServer.stop();
+    MailServices.accounts.removeAccount(account, true);
+    Services.prefs.clearUserPref("mailnews.show_send_progress");
+  });
 });
 
 function addMessageToFolder(aFolder) {
@@ -66,29 +128,6 @@ function addMessageToFolder(aFolder) {
   return aFolder.msgDatabase.getMsgHdrForMessageID(msgId);
 }
 
-function addIdentitiesAndFolder() {
-  const identity2 = MailServices.accounts.createIdentity();
-  // identity.fullName = "Tinderbox_Identity1";
-  identity2.email = "tinderbox_identity1@foo.invalid";
-
-  const identity = MailServices.accounts.createIdentity();
-  // identity.fullName = "Tinderbox_Identity1";
-  identity.email = identityString1;
-
-  const server = MailServices.accounts.createIncomingServer(
-    "nobody",
-    "TestLocalFolders",
-    "pop3"
-  );
-  const localRoot = server.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  testFolder = localRoot.createLocalSubfolder("Test Folder");
-
-  const account = MailServices.accounts.createAccount();
-  account.incomingServer = server;
-  account.addIdentity(identity);
-  account.addIdentity(identity2);
-}
-
 add_task(async function test_Reply_To_List_From_Address() {
   await be_in_folder(testFolder);
 
@@ -97,24 +136,29 @@ add_task(async function test_Reply_To_List_From_Address() {
 
   replyToListWindow = await open_compose_with_reply_to_list();
 
-  var identityList = replyToListWindow.document.getElementById("msgIdentity");
+  const identityList = replyToListWindow.document.getElementById("msgIdentity");
 
-  // see if it's the correct identity selected
-  if (!identityList.selectedItem.label.includes(identityString1)) {
-    throw new Error(
-      "The From address is not correctly selected! Expected: " +
-        identityString1 +
-        "; Actual: " +
-        identityList.selectedItem.label
-    );
-  }
+  Assert.ok(
+    identityList.selectedItem.label.includes(identityString1),
+    `${identityList.selectedItem.label} should contain ${identityString1}`
+  );
+
+  // Do a real send, as that's the only time address collection occurs.
+  const aftersend = BrowserTestUtils.waitForEvent(
+    replyToListWindow,
+    "aftersend"
+  );
+  replyToListWindow.goDoCommand("cmd_sendNow");
+  await aftersend;
+
+  // Check the name was blanked out for the collected list address,
+  // since it may be, or contain, the name of a list poster.
+  const book = MailServices.ab.directories.find(d =>
+    d.cardForEmailAddress("list@mozillamessaging.invalid")
+  );
+  const card = book.cardForEmailAddress("list@mozillamessaging.invalid");
+  Assert.equal(card.displayName, "", "Should not collect list display name");
+  book.deleteCards([card]);
 
   await close_compose_window(replyToListWindow);
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
 });

@@ -80,6 +80,7 @@ export class MessageSend {
     this._sendListener = listener;
     this._parentWindow = parentWindow;
     this._originalMsgURI = originalMsgURI;
+    this._compType = compType;
     this._shouldRemoveMessageFile = true;
 
     this._sendReport = Cc[
@@ -1172,9 +1173,7 @@ export class MessageSend {
 
     // Collect all recipients into the address book at once.
     this._collectAddressesToAddressBook(
-      [this._compFields.to, this._compFields.cc, this._compFields.bcc].filter(
-        Boolean
-      )
+      [...parsedVisibleRecipients, ...parsedBccRecipients].filter(Boolean)
     );
 
     lazy.MsgUtils.sendLogger.debug(
@@ -1246,19 +1245,33 @@ export class MessageSend {
   /**
    * Collect outgoing addresses to address book.
    *
-   * @param {string[]} recipients - Outgoing addresses including to/cc/bcc.
+   * @param {msgIAddressObject[]} addresses - Outgoing addresses including to/cc/bcc.
    */
-  _collectAddressesToAddressBook(recipients) {
+  _collectAddressesToAddressBook(addresses) {
     const createCard = Services.prefs.getBoolPref(
       "mail.collect_email_address_outgoing",
       false
     );
-
     const addressCollector = Cc[
       "@mozilla.org/addressbook/services/addressCollector;1"
     ].getService(Ci.nsIAbAddressCollector);
-    for (const recipient of recipients) {
-      addressCollector.collectAddress(recipient, createCard);
+
+    for (const addr of addresses) {
+      let displayName = addr.name;
+      // If we know this is a list, or it seems likely, don't collect the
+      // displayName which may contain the sender's name instead of the (only)
+      // name of the list.
+      if (
+        this._compType == Ci.nsIMsgCompType.ReplyToList ||
+        addr.name.includes(" via ")
+      ) {
+        displayName = "";
+      }
+      addressCollector.collectSingleAddress(
+        addr.email,
+        displayName,
+        createCard
+      );
     }
   }
 
