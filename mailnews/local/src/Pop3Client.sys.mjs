@@ -1233,9 +1233,10 @@ export class Pop3Client {
         const uidlState = this._uidlMap.get(uidl);
         if (uidlState) {
           if (
-            uidlState.status == UIDL_KEEP &&
-            (!this._server.leaveMessagesOnServer ||
-              uidlState.receivedAt < this._cutOffTimestamp)
+            (uidlState.status == UIDL_KEEP &&
+              (!this._server.leaveMessagesOnServer ||
+                uidlState.receivedAt < this._cutOffTimestamp)) ||
+            uidlState.status == UIDL_DELETE
           ) {
             // Delete this message.
             this._messagesToHandle.push({
@@ -1243,15 +1244,13 @@ export class Pop3Client {
               messageNumber,
               status: UIDL_DELETE,
             });
-          } else if (
-            [UIDL_FETCH_BODY, UIDL_DELETE].includes(uidlState.status)
-          ) {
+          } else if (uidlState.status == UIDL_FETCH_BODY) {
             // Fetch the full message.
             this._newMessageTotal++;
             this._messagesToHandle.push({
               ...uidlState,
               messageNumber,
-              status: uidlState.status,
+              status: UIDL_FETCH_BODY,
             });
           } else {
             // Do nothing to this message.
