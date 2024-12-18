@@ -52,12 +52,19 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   :root[customtitlebar][sizemode=normal] {
     border-top: .5px solid rgba(0, 0, 0, 0.7);
 
-    @media (-moz-windows-accent-color-in-titlebar) {
+    @media (-moz-windows-accent-color-in-titlebar) or (-moz-windows-mica) {
       border-top-color: ActiveBorder;
 
       &:-moz-window-inactive {
         border-top-color: InactiveBorder;
       }
+    }
+  }
+
+  /* Only apply mica when accent color in titlebar is disabled */
+  @media (-moz-windows-mica) and (-moz-windows-accent-color-in-titlebar: 0) {
+    :root[customtitlebar]:not([lwtheme]) {
+      background-color: transparent;
     }
   }
 }

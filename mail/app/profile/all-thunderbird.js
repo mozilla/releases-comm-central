@@ -1400,12 +1400,10 @@ pref("toolbar.unifiedtoolbar.buttonstyle", 0);
 // Enable on macOS the non-native context menus
 pref("widget.macos.native-context-menus", false);
 
-#ifdef XP_MACOSX
-#ifdef NIGHTLY_BUILD
-pref("mail.theme.macos.native-theme", true);
+#if defined(XP_MACOSX) && defined(NIGHTLY_BUILD)
+pref("mail.theme.native-theme", true);
 #else
-pref("mail.theme.macos.native-theme", false);
-#endif
+pref("mail.theme.native-theme", false);
 #endif
 
 // Bug 1773079 : check if true causes issues for Thunderbird
