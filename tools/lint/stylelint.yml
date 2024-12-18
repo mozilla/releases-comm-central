@@ -4,7 +4,7 @@ stylelint:
     # Stylelint infra handles its own path filtering, so just include cwd
     include: ['.']
     exclude: []
-    extensions: ['css']
+    extensions: ['css','']
     support-files:
         - 'package.json'
         - 'comm/**/.stylelintrc.js'
