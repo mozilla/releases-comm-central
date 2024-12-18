@@ -22,7 +22,7 @@ from mozbuild.util import cpu_count, memoize
 here = os.path.abspath(os.path.dirname(__file__))
 topsrcdir = os.path.abspath(os.path.dirname(os.path.dirname(here)))
 topcommdir = os.path.join(topsrcdir, "comm")
-DOC_ROOT = os.path.join(topsrcdir, "docs")
+DOC_ROOT = os.path.join(topcommdir, "docs")
 
 
 @Command(
@@ -170,11 +170,11 @@ def build_docs(
     with open(os.path.join(DOC_ROOT, "config.yml"), "r") as fh:
         docs_config = yaml.safe_load(fh)
 
-    if not disable_fatal_errors:
+    if not disable_fatal_errors and "allowed_errors" in docs_config:
         fatal_errors = _check_sphinx_errors(warnings, docs_config)
         if fatal_errors:
             msg += f"Error: Got fatal errors:\n{''.join(fatal_errors)}"
-    if not disable_fatal_warnings:
+    if not disable_fatal_warnings and "fatal warnings" in docs_config:
         fatal_warnings = _check_sphinx_fatal_warnings(warnings, docs_config)
         if fatal_warnings:
             msg += f"Error: Got fatal warnings:\n{''.join(fatal_warnings)}"
