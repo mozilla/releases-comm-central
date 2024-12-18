@@ -8,7 +8,6 @@ EXPORTS += [
 ]
 
 SOURCES += [
-    "nsAbAddressCollector.cpp",
     "nsAbBooleanExpression.cpp",
     "nsAbCardProperty.cpp",
     "nsAbDirectoryQuery.cpp",

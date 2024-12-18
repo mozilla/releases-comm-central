@@ -2,30 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { collectSingleAddress } = ChromeUtils.importESModule(
+  "resource:///modules/AddressCollector.sys.mjs"
+);
+
 /*
  * Test suite for the Address Collector Service part 2.
  *
  * This test checks that we don't collect addresses when they already exist
  * in other address books.
  */
-
 function run_test() {
   // Test - Get the address collector
   loadABFile("data/collect", kPABData.fileName);
 
-  // Get the actual collector
-  var addressCollect = Cc[
-    "@mozilla.org/addressbook/services/addressCollector;1"
-  ].getService(Ci.nsIAbAddressCollector);
-
   // Set the new pref afterwards to ensure we change correctly
   Services.prefs.setCharPref("mail.collect_addressbook", kCABData.URI);
 
-  // XXX Getting all directories ensures we create all ABs because the
-  // address collector can't currently create ABs itself (bug 314448).
-  MailServices.ab.directories;
-
-  addressCollect.collectAddress("Other Book <other@book.invalid>", true);
+  collectSingleAddress("other@book.invalid", "Other Book", true);
 
   const PAB = MailServices.ab.getDirectory(kPABData.URI);
 

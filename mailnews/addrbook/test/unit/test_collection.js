@@ -11,6 +11,10 @@
  * Tests against cards in different ABs are done in test_collection_2.js.
  */
 
+var { collectSingleAddress } = ChromeUtils.importESModule(
+  "resource:///modules/AddressCollector.sys.mjs"
+);
+
 // Source fields (emailHeader) and expected results for use for
 // testing the addition of new addresses to the database.
 //
@@ -59,31 +63,6 @@ var addEmailChecks =
       firstName: "",
       lastName: "",
       screenName: "",
-    },
-    // Screen names
-    {
-      emailHeader: "invalid\u00D00@aol.com",
-      primaryEmail: "invalid\u00D00@aol.com",
-      displayName: "",
-      firstName: "",
-      lastName: "",
-      screenName: "invalid\u00D00",
-    },
-    {
-      emailHeader: "invalid1\u00D00@cs.com",
-      primaryEmail: "invalid1\u00D00@cs.com",
-      displayName: "",
-      firstName: "",
-      lastName: "",
-      screenName: "invalid1\u00D00",
-    },
-    {
-      emailHeader: "invalid2\u00D00@netscape.net",
-      primaryEmail: "invalid2\u00D00@netscape.net",
-      displayName: "",
-      firstName: "",
-      lastName: "",
-      screenName: "invalid2\u00D00",
     },
     // Collection of names
     {
@@ -261,7 +240,6 @@ var collectChecker = {
       Assert.equal(card.displayName, aDetails.displayName);
       Assert.equal(card.firstName, aDetails.firstName);
       Assert.equal(card.lastName, aDetails.lastName);
-      Assert.equal(card.getProperty("_AimScreenName", ""), aDetails.screenName);
     } catch (e) {
       throw new Error(
         "FAILED in checkCardResult emailHeader: " +
@@ -276,10 +254,6 @@ var collectChecker = {
 function run_test() {
   // Test - Get the address collecter
 
-  // XXX Getting all directories ensures we create all ABs because the
-  // address collecter can't currently create ABs itself (bug 314448).
-  MailServices.ab.directories;
-
   // Get the actual AB for the collector so we can check cards have been
   // added.
   collectChecker.AB = MailServices.ab.getDirectory(
@@ -287,9 +261,18 @@ function run_test() {
   );
 
   // Get the actual collecter
-  collectChecker.addressCollect = Cc[
-    "@mozilla.org/addressbook/services/addressCollector;1"
-  ].getService(Ci.nsIAbAddressCollector);
+  const collectAddress = (addresses, addCard) => {
+    const parsedAddresses =
+      MailServices.headerParser.parseEncodedHeaderW(addresses);
+    for (const addr of parsedAddresses.filter(a => a.email)) {
+      collectChecker.addressCollect.collectSingleAddress(
+        addr.email,
+        addr.name,
+        addCard
+      );
+    }
+  };
+  collectChecker.addressCollect = { collectAddress, collectSingleAddress };
 
   // Test - Addition of header without email address.
 

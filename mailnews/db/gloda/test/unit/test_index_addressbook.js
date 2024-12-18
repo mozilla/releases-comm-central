@@ -32,6 +32,9 @@ var { MessageGenerator } = ChromeUtils.importESModule(
 var { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
+var { collectSingleAddress } = ChromeUtils.importESModule(
+  "resource:///modules/AddressCollector.sys.mjs"
+);
 
 var EMAIL_ADDRESS = "all.over@the.world.invalid";
 var DISPLAY_NAME = "every day";
@@ -114,9 +117,7 @@ add_task(function test_add_card_cache_indication() {
 });
 
 function add_card(aEmailAddress, aDisplayName) {
-  Cc["@mozilla.org/addressbook/services/addressCollector;1"]
-    .getService(Ci.nsIAbAddressCollector)
-    .collectSingleAddress(aEmailAddress, aDisplayName, true, true);
+  collectSingleAddress(aEmailAddress, aDisplayName, true, true);
 }
 
 function get_card_for_email(aEmailAddress) {

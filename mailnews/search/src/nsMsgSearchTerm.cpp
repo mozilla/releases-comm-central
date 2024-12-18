@@ -889,7 +889,7 @@ nsresult nsMsgSearchTerm::MatchInAddressBook(const nsAString& aAddress,
     nsCOMPtr<nsIAbCard> cardForAddress = nullptr;
     rv = mDirectory->CardForEmailAddress(NS_ConvertUTF16toUTF8(aAddress),
                                          getter_AddRefs(cardForAddress));
-    if (NS_FAILED(rv) && rv != NS_ERROR_NOT_IMPLEMENTED) return rv;
+    if (NS_FAILED(rv)) return rv;
     switch (m_operator) {
       case nsMsgSearchOp::IsInAB:
         if (cardForAddress) *pResult = true;

@@ -70,14 +70,13 @@ interface nsIAbDirectory : nsISupports {
    * Matching is performed in a case-insensitive manner.
    *
    * This method performs a synchronous operation. If the collection cannot do
-   * the search in such a manner, then it should throw NS_ERROR_NOT_IMPLEMENTED.
+   * the search in such a manner, then it should return null;
    *
    * @param  emailAddress The email address to find in any of the email address
    *                      fields. If emailAddress is empty, the database won't
    *                      be searched and the function will return as if no card
    *                      was found.
-   * @return              An nsIAbCard if one was found, else returns NULL.
-   * @exception NS_ERROR_NOT_IMPLEMENTED If the collection cannot do this.
+   * @return              An nsIAbCard if one was found, else returns null.
    */
   nsIAbCard cardForEmailAddress(in AUTF8String emailAddress);
 
@@ -88,7 +87,7 @@ interface nsIAbDirectory : nsISupports {
    * method will return one of these cards in an implementation-defined manner.
    *
    * This method performs a synchronous operation. If the collection cannot do
-   * the search in such a manner, then it should throw NS_ERROR_NOT_IMPLEMENTED.
+   * the search in such a manner, then it should return null
    *
    * If the property is not natively a string, it can still be searched for
    * using the string-encoded value of the property, e.g. "0". See
@@ -98,8 +97,7 @@ interface nsIAbDirectory : nsISupports {
    * @param  aProperty      The property to look for.
    * @param  aValue         The value to search for.
    * @param  aCaseSensitive True if matching should be done case-sensitively.
-   * @result                An nsIAbCard if one was found, else returns NULL.
-   * @exception NS_ERROR_NOT_IMPLEMENTED If the collection cannot do this.
+   * @result                An nsIAbCard if one was found, else returns null.
    */
   nsIAbCard getCardFromProperty(in string aProperty, in AUTF8String aValue,
                                 in boolean aCaseSensitive);

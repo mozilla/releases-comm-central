@@ -648,7 +648,6 @@ files_changed:
   - comm/mailnews/addrbook/moz.build
   - comm/mailnews/addrbook/public/nsIAbCard.idl
   - comm/mailnews/addrbook/public/nsIMsgVCardService.idl
-  - comm/mailnews/addrbook/src/nsAbAddressCollector.cpp
   - comm/mailnews/addrbook/src/nsAbBooleanExpression.cpp
   - comm/mailnews/addrbook/src/nsAbBooleanExpression.h
   - comm/mailnews/addrbook/src/nsAbCardProperty.cpp

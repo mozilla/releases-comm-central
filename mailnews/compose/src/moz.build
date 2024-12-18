@@ -44,6 +44,7 @@ if CONFIG["CC_TYPE"] == "clang-cl":
     CXXFLAGS += ["-Wno-switch"]
 
 EXTRA_JS_MODULES += [
+    "AddressCollector.sys.mjs",
     "MailtoProtocolHandler.sys.mjs",
     "MessageSend.sys.mjs",
     "MimeEncoder.sys.mjs",

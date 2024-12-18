@@ -254,11 +254,6 @@ function permute(aArray, aPermutationId) {
  *  personal address book.
  */
 export function makeABCardForAddressPair(nameAndAddress) {
-  // XXX bug 314448 demands that we trigger creation of the ABs...  If we don't
-  //  do this, then the call to addCard will fail if someone else hasn't tickled
-  //  this.
-  MailServices.ab.directories;
-
   // kPABData is copied from abSetup.js
   const kPABData = {
     URI: "jsaddrbook://abook.sqlite",
