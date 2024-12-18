@@ -170,6 +170,8 @@ nsresult DatabaseCore::EnsureConnection() {
   sConnection->CreateFunction("tags_include"_ns, 2, tagsInclude);
   RefPtr<TagsMatchFunction> tagsExclude = new TagsMatchFunction(false);
   sConnection->CreateFunction("tags_exclude"_ns, 2, tagsExclude);
+  RefPtr<AddressFormatFunction> addressFormat = new AddressFormatFunction();
+  sConnection->CreateFunction("address_format"_ns, 1, addressFormat);
 
   return NS_OK;
 }

@@ -232,7 +232,7 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
           folderId, \
           messageId, \
           date, \
-          sender, \
+          ADDRESS_FORMAT(sender) AS formattedSender, \
           subject, \
           flags, \
           tags \
@@ -246,6 +246,9 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
         break;
       case nsILiveView::SortColumn::SUBJECT:
         sql.Append("subject COLLATE locale ");
+        break;
+      case nsILiveView::SortColumn::SENDER:
+        sql.Append("formattedSender COLLATE locale ");
         break;
     }
     sql.Append(mSortDescending ? "DESC" : "ASC");

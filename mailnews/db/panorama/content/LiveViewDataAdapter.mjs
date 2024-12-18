@@ -99,6 +99,7 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
 const columns = {
   date: Ci.nsILiveView.DATE,
   subject: Ci.nsILiveView.SUBJECT,
+  sender: Ci.nsILiveView.SENDER,
 };
 
 /**
@@ -127,6 +128,7 @@ function getTextComparator(property) {
 const comparators = {
   date: (a, b) => a.date < b.date,
   subject: getTextComparator("subject"),
+  sender: getTextComparator("sender"),
 };
 
 /**

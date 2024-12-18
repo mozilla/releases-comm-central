@@ -25,7 +25,7 @@ add_task(function testMessageProperties() {
   Assert.equal(message.folderId, 4);
   Assert.equal(message.messageId, "");
   Assert.equal(message.date.toISOString(), "2023-08-06T06:02:00.000Z");
-  Assert.equal(message.sender, "");
+  Assert.equal(message.sender, "Edgar Stokes <edgar@stokes.invalid>");
   Assert.equal(message.subject, "Balanced static project");
   Assert.equal(message.flags, 0);
   Assert.equal(message.tags, "$label1");
@@ -202,6 +202,42 @@ add_task(function testSort() {
       "Virtual solution-oriented knowledge user",
     ],
     "messages should be in ascending subject order"
+  );
+
+  liveView.sortColumn = Ci.nsILiveView.SENDER;
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.sender),
+    [
+      "Abe Koepp <abe@koepp.invalid>",
+      "Christian Murray <christian@murray.invalid>",
+      "Edgar Stokes <edgar@stokes.invalid>",
+      "Eliseo Bauch <eliseo@bauch.invalid>",
+      "Frederick Rolfson <frederick@rolfson.invalid>",
+      "Hope Bosco <hope@bosco.invalid>",
+      "Kip Mann <kip@mann.invalid>",
+      "Lydia Rau <lydia@rau.invalid>",
+      "Neal Jast <neal@jast.invalid>",
+      "Tara White <tara@white.invalid>",
+    ],
+    "messages should be in ascending sender order"
+  );
+
+  liveView.sortDescending = true;
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.sender),
+    [
+      "Tara White <tara@white.invalid>",
+      "Neal Jast <neal@jast.invalid>",
+      "Lydia Rau <lydia@rau.invalid>",
+      "Kip Mann <kip@mann.invalid>",
+      "Hope Bosco <hope@bosco.invalid>",
+      "Frederick Rolfson <frederick@rolfson.invalid>",
+      "Eliseo Bauch <eliseo@bauch.invalid>",
+      "Edgar Stokes <edgar@stokes.invalid>",
+      "Christian Murray <christian@murray.invalid>",
+      "Abe Koepp <abe@koepp.invalid>",
+    ],
+    "messages should be in descending sender order"
   );
 });
 

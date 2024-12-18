@@ -5,8 +5,14 @@
 #ifndef DatabaseUtils_h__
 #define DatabaseUtils_h__
 
+#include "mozilla/Preferences.h"
 #include "mozIStorageFunction.h"
+#include "nsCOMPtr.h"
+#include "nsIAbManager.h"
+#include "nsIObserver.h"
 #include "nsTString.h"
+
+using mozilla::Preferences;
 
 namespace mozilla {
 namespace mailnews {
@@ -31,6 +37,39 @@ class TagsMatchFunction final : public mozIStorageFunction {
  private:
   ~TagsMatchFunction() = default;
   bool mWanted;
+};
+
+class AddressFormatFunction final : public mozIStorageFunction,
+                                    public nsIObserver {
+ public:
+  AddressFormatFunction() {
+    // All of this will be unnecessary once we have static preferences.
+    mShowCondensedAddresses =
+        Preferences::GetBool("mail.showCondensedAddresses", true);
+    mAddressDisplayFormat = Preferences::GetInt("mail.addressDisplayFormat", 0);
+
+    Preferences::AddStrongObserver(this, "mail.showCondensedAddresses");
+    Preferences::AddStrongObserver(this, "mail.addressDisplayFormat");
+  }
+
+  NS_DECL_ISUPPORTS
+  NS_DECL_MOZISTORAGEFUNCTION
+  NS_DECL_NSIOBSERVER
+
+ private:
+  ~AddressFormatFunction() = default;
+
+  nsCOMPtr<nsIAbManager> mAbManager;
+
+  bool mShowCondensedAddresses;
+  int32_t mAddressDisplayFormat;
+
+  nsCString ExpandAddress(const nsCString& aName,
+                          const nsACString& aEmailAddress);
+  nsCString NoSpoofingSender(const nsCString& aName,
+                             const nsACString& aEmailAddress);
+  nsresult GetDisplayNameInAddressBook(const nsACString& aEmailAddress,
+                                       nsACString& aDisplayName);
 };
 
 }  // namespace mailnews
