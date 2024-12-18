@@ -70,6 +70,7 @@ mapped_hyph = { git = "https://github.com/jfkthame/mapped_hyph.git", rev = "eff1
 mdns_service = { path = "../../../dom/media/webrtc/transport/mdns_service", optional = true }
 midir_impl = { path = "../../../dom/midi/midir_impl", optional = true }
 mime-guess-ffi = { path = "../../../dom/fs/parent/rust/mime-guess-ffi" }
+mls_gk = { path = "../../../security/mls/mls_gk" }
 moz_asserts = { version = "0.1" }
 mozannotation_client = { path = "../../../toolkit/crashreporter/mozannotation_client", optional = true }
 mozannotation_server = { path = "../../../toolkit/crashreporter/mozannotation_server", optional = true }
