@@ -324,7 +324,7 @@ label.label {
 }
 
 #event-grid-tabbox #notify-options {
-  padding: 0px 9px;
+  padding: 0 9px;
 }
 
 #FormatToolbox {
@@ -636,7 +636,7 @@ label.label {
 #calendar-summary-dialog .item-attachment-cell,
 #calendar-event-summary-dialog .item-attachment-cell,
 #calendar-task-summary-dialog .item-attachment-cell {
-  margin-left: 0px;
+  margin-left: 0;
 }
 
 #calendar-summary-dialog .item-attachment-cell-label,
