@@ -98,7 +98,9 @@ class AccountHubEmail extends HTMLElement {
   /**
    * Store methods to interrupt abortable operations like testing
    * a server configuration or installing an add-on.
+   * Name is overridden to avoid conflict in JSDoc generation.
    *
+   * @name AccountHub~abortable
    * @type {Abortable}
    */
   #abortable;
@@ -291,11 +293,11 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
-   * Set the abortable property and updates the hidden state of the cancel
+   * Handle for async operation that's cancellable.
+   * Setting the abortable property updates the hidden state of the cancel
    * button and the disabled state of the forward button.
    *
-   * @param {?Abortable} abortablePromise - Handle for async operation that's
-   *   cancellable.
+   * @type {?Abortable}
    */
   set abortable(abortablePromise) {
     const stateDetails = this.#states[this.#currentState];
@@ -308,11 +310,6 @@ class AccountHubEmail extends HTMLElement {
     this.#abortable = abortablePromise;
   }
 
-  /**
-   * Gets the abortable property
-   *
-   * @param {?Abortable} - Handle for async operation that's cancellable.
-   */
   get abortable() {
     return this.#abortable;
   }
