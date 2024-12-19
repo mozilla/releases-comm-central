@@ -3825,8 +3825,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-common"
-version = "0.10.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.10.0#214ad48e0dbb8cc35c7148b225fbc6f58eb85f36"
+version = "0.11.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.11.0#c6d5502fb5b827473e7c5d7c4c380275cdb3d931"
 dependencies = [
  "enum-map",
  "env_logger",
@@ -3837,8 +3837,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-crypto"
-version = "0.10.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.10.0#214ad48e0dbb8cc35c7148b225fbc6f58eb85f36"
+version = "0.11.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.11.0#c6d5502fb5b827473e7c5d7c4c380275cdb3d931"
 dependencies = [
  "bindgen 0.69.4",
  "log",
@@ -3852,8 +3852,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-http3"
-version = "0.10.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.10.0#214ad48e0dbb8cc35c7148b225fbc6f58eb85f36"
+version = "0.11.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.11.0#c6d5502fb5b827473e7c5d7c4c380275cdb3d931"
 dependencies = [
  "enumset",
  "log",
@@ -3868,8 +3868,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-qpack"
-version = "0.10.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.10.0#214ad48e0dbb8cc35c7148b225fbc6f58eb85f36"
+version = "0.11.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.11.0#c6d5502fb5b827473e7c5d7c4c380275cdb3d931"
 dependencies = [
  "log",
  "neqo-common",
@@ -3880,8 +3880,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-transport"
-version = "0.10.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.10.0#214ad48e0dbb8cc35c7148b225fbc6f58eb85f36"
+version = "0.11.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.11.0#c6d5502fb5b827473e7c5d7c4c380275cdb3d931"
 dependencies = [
  "enum-map",
  "indexmap",
@@ -3895,8 +3895,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-udp"
-version = "0.10.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.10.0#214ad48e0dbb8cc35c7148b225fbc6f58eb85f36"
+version = "0.11.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.11.0#c6d5502fb5b827473e7c5d7c4c380275cdb3d931"
 dependencies = [
  "log",
  "neqo-common",
