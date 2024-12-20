@@ -308,6 +308,17 @@ mapping:
         locale_prefix: 'multi/'
         pretty_name: Thunderbird Setup ${version}.msix
         checksums_path: ${path_platform}/multi/Thunderbird Setup ${version}.msix
+    target.deb:
+        <<: *default
+        description: "Debian package for Linux platforms"
+        all_locales: true
+        from:
+            - release-deb-repackage
+        only_for_platforms:
+            - linux-shippable
+            - linux64-shippable
+        pretty_name: thunderbird-${version}.deb
+        checksums_path: ${path_platform}/${locale}/thunderbird-${version}.deb
     target.complete.mar:
         <<: *default
         description: "Complete MAR to serve as updates"
