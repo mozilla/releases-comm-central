@@ -721,11 +721,21 @@ void BatchCompactor::OnDone(nsresult status, int64_t bytesRecovered) {
             ("Failed to compact folder='%s', status=0x%" PRIx32 "",
              folder->URI().get(), (uint32_t)status));
     if (!FolderCompactor::ShutdownObserver::IsShuttingDown()) {
+      // NOTE: NS_MSG_ codes are not actually nsresult, so can't use switch
+      // statement here (see Bug 1927029).
       if (status == NS_ERROR_FILE_NO_DEVICE_SPACE) {
         folder->ThrowAlertMsg("compactFolderInsufficientSpace", mWindow);
       } else if (status == NS_MSG_FOLDER_BUSY) {
         folder->ThrowAlertMsg("compactFolderDeniedLock", mWindow);
+      } else if (status == NS_MSG_ERROR_MBOX_MALFORMED) {
+        // Uhoh... looks like the mbox was bad.
+        // It does seem like there are old mboxes in the wild which don't
+        // have "From " separators so we can't reliably compact those.
+        // Show a generic message for now, but there are other
+        // possibilities (see Bug 1935331).
+        folder->ThrowAlertMsg("compactFolderWriteFailed", mWindow);
       } else {
+        // Show a catch-all error message.
         folder->ThrowAlertMsg("compactFolderWriteFailed", mWindow);
       }
     }

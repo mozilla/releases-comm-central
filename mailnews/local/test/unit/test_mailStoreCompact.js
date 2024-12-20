@@ -257,6 +257,54 @@ async function test_sizesAtCompletion() {
   localAccountUtils.clearAll();
 }
 
+/**
+ * Make sure asyncCompact() fails with NS_MSG_ERROR_MBOX_MALFORMED for
+ * malformed mbox files we can't sensibly parse.
+ */
+async function test_malformedMboxes() {
+  localAccountUtils.loadLocalMailAccount();
+  const inbox = localAccountUtils.inboxFolder;
+
+  const badMboxes = [
+    // An mbox which has two messages but no "From " separators (see Bug 1935331):
+    "Message-Id: one\r\n" +
+      "From: alice@invalid.com\r\n" +
+      "To: bob@invalid.com\r\n" +
+      "Subject: hello\r\n" +
+      "\r\n" +
+      "Hi there bob!\r\n" +
+      "\r\n" +
+      "Message-Id: two\r\n" +
+      "From: bob@invalid.com\r\n" +
+      "To: alice@invalid.com\r\n" +
+      "Subject: re: hello\r\n" +
+      "\r\n" +
+      "Hi Alice!\r\n" +
+      "\r\n",
+
+    // An mbox file with some random rubbish:
+    "foo\r\nbar\r\nwibble\r\n",
+  ];
+
+  for (const mbox of badMboxes) {
+    await IOUtils.writeUTF8(inbox.filePath.path, mbox);
+    // Note: we're writing an mbox file to the folder, but there are no
+    // corresponding message entries in the database.
+    // But that's OK - asyncCompact doesn't use the DB at all.
+    const l = new PromiseStoreCompactListener();
+    await Assert.rejects(
+      (async function () {
+        inbox.msgStore.asyncCompact(inbox, l, true);
+        await l.promise;
+      })(),
+      /2153054244/,
+      "Bad mbox should cause msgStore.asyncCompact() to fail with NS_MSG_ERROR_MBOX_MALFORMED"
+    );
+  }
+
+  localAccountUtils.clearAll();
+}
+
 // TODO
 // More test ideas:
 // - Test X-Mozilla-* header patching (higher-level folder-compact tests
@@ -276,3 +324,4 @@ add_task(withStore(mboxStore, test_discardAll));
 add_task(withStore(mboxStore, test_listenerErrors));
 add_task(withStore(mboxStore, test_midwayFail));
 add_task(withStore(mboxStore, test_sizesAtCompletion));
+add_task(withStore(mboxStore, test_malformedMboxes));
