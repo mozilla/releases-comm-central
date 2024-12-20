@@ -18,9 +18,9 @@ var gPluggableStores = [
  * Check whether the expected folder structure
  * exists in the root folder "mailFolder".
  *
- * @param expected  array of folders and subfolders
- *                  we expect
- * @param actual    actual subfolders enumerator
+ * @param {nsIMsgFolder[]} expected - An array of folders and subfolders
+ *   we expect.
+ * @param {nsIMsgFolder[]} actual - Actual subfolders enumerator.
  */
 function check_sub_folders(expected, actual) {
   for (const actualFolder of actual) {
@@ -59,11 +59,9 @@ function test_default_mailbox(expected, type) {
  * A helper method to add the folders in aFolderArray
  * to the aParentFolder as subfolders.
  *
- * @param aFolderArray   array of folders and subfolders
- *                       (js objects).
- * @param aParentFolder  folder (nsIMsgFolder) to which
- *                       the folders and subfolders from
- *                       aFolderArray are to be added.
+ * @param {nsIMsgFolder[]} aFolderArray - Array of folders and subfolders.
+ * @param {nsIMsgFolder} aParentFolder - Folder to which the folders and
+ *   subfolders from aFolderArray are to be added.
  */
 function add_sub_folders(aFolderArray, aParentFolder) {
   for (const msgFolder of aFolderArray) {

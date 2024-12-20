@@ -5,6 +5,7 @@
 
 import { jsmime } from "resource:///modules/jsmime.sys.mjs";
 
+/** @implements {MimeEmitter} */
 var ExtractHeadersEmitter = {
   startPart(partNum, headers) {
     if (partNum == "") {
@@ -13,6 +14,7 @@ var ExtractHeadersEmitter = {
   },
 };
 
+/** @implements {MimeEmitter} */
 var ExtractHeadersAndBodyEmitter = {
   body: "",
   startPart: ExtractHeadersEmitter.startPart,
@@ -37,12 +39,10 @@ export var MimeParser = {
    * @param {string} headerStr - The string containing all parts of the header.
    * @param {string} parameter - The parameter we are looking for.
    *
-   *
    * 'multipart/signed; protocol="xyz"', 'protocol' --> returns "xyz"
    *
    * @return {string} String containing the value of the parameter; or "".
    */
-
   getParameter(headerStr, parameter) {
     parameter = parameter.toLowerCase();
     headerStr = headerStr.replace(/[\r\n]+[ \t]+/g, "");
@@ -70,9 +70,9 @@ export var MimeParser = {
    * supported by this implementation, but it is still guaranteed that the first
    * callback will not happen before this method returns.
    *
-   * @param input   An input stream of text to parse.
-   * @param emitter The emitter to receive callbacks on.
-   * @param opts    A set of options for the parser.
+   * @param {nsIInputStream} input - An input stream of text to parse.
+   * @param {MimeEmitter} emitter - The emitter to receive callbacks on.
+   * @param {MimeParserOptions} opts - A set of options for the parser.
    */
   parseAsync(input, emitter, opts) {
     // Normalize the input into an input stream.
@@ -98,9 +98,9 @@ export var MimeParser = {
    * The input is a string that is immediately parsed, calling all functions on
    * the emitter before this function returns.
    *
-   * @param input   A string or input stream of text to parse.
-   * @param emitter The emitter to receive callbacks on.
-   * @param opts    A set of options for the parser.
+   * @param {string} input - A string of text to parse.
+   * @param {MimeEmitter} emitter - The emitter to receive callbacks on.
+   * @param {MimeParserOptions} opts - A set of options for the parser.
    */
   parseSync(input, emitter, opts) {
     // We only support string parsing if we are trying to do this parse
@@ -121,8 +121,8 @@ export var MimeParser = {
    * generated stream listener will also make calls to onStartRequest and
    * onStopRequest on the emitter (if they exist).
    *
-   * @param emitter The emitter to receive callbacks on.
-   * @param opts    A set of options for the parser.
+   * @param {MimeEmitter} emitter - The emitter to receive callbacks on.
+   * @param {MimeParserOptions} opts - A set of options for the parser.
    */
   makeStreamListenerParser(emitter, opts) {
     var StreamListener = {
@@ -165,20 +165,13 @@ export var MimeParser = {
    * Prefer one of the other methods where possible, since the input here must
    * be driven manually.
    *
-   * @param emitter The emitter to receive callbacks on.
-   * @param opts    A set of options for the parser.
+   * @param {MimeEmitter} emitter - The emitter to receive callbacks on.
+   * @param {MimeParserOptions} opts - A set of options for the parser.
    */
   makeParser(emitter, opts) {
     setDefaultParserOptions(opts);
     return new jsmime.MimeParser(emitter, opts);
   },
-
-  /**
-   * @typedef MimeParseOptions
-   * @property {boolean} [decodeSubMessages] - decode attached messages, instead
-   *   of returning them as attachments
-   * @property {boolean} [includeAttachmentData] - include the data of attachments
-   */
 
   /**
    * Returns a dictionary of headers for the given input.
@@ -188,7 +181,7 @@ export var MimeParser = {
    * envelope as would be received by startPart when partNum is the empty
    * string.
    *
-   * @param input   A string of text to parse.
+   * @param {string} input - A string of text to parse.
    */
   extractHeaders(input) {
     var emitter = Object.create(ExtractHeadersEmitter);
@@ -203,7 +196,7 @@ export var MimeParser = {
    * headers (as would be returned by extractHeaders) and whose second element
    * is a binary string of the entire body of the message.
    *
-   * @param input   A string of text to parse.
+   * @param {string} input - A string of text to parse.
    */
   extractHeadersAndBody(input) {
     var emitter = Object.create(ExtractHeadersAndBodyEmitter);
@@ -263,9 +256,9 @@ export var MimeParser = {
    * HEADER_OPTION_ALLOW_RAW is not passed, then no attempt will be made to
    * convert charsets.
    *
-   * @param text    The value of a MIME or message header to parse.
-   * @param flags   A set of flags that controls interpretation of the header.
-   * @param charset A default charset to assume if no information may be found.
+   * @param {string} text - The value of a MIME or message header to parse.
+   * @param {integer} flags - A set of flags that controls interpretation of the header.
+   * @param {string} charset - A default charset to assume if no information may be found.
    */
   parseHeaderField(text, flags, charset) {
     // If we have a raw string, convert it to Unicode first

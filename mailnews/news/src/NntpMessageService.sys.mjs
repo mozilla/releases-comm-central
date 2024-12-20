@@ -238,14 +238,14 @@ class BaseMessageService {
    *
    * @param {nsIURI} uri - URL representing the message.
    * @param {string} messageUri - URI including the part to fetch.
-   * @param {nsIStreamListener} - Stream listener.
+   * @param {nsIStreamListener} streamListener - Stream listener.
    * @param {nsIMsgWindow} msgWindow
    * @param {nsIUrlListener} urlListener - URL listener.
    * @returns {nsIURI} the URL that gets run, if any.
    */
   fetchMimePart(uri, messageUri, streamListener, msgWindow, urlListener) {
     this._logger.debug("fetchMimePart", uri.spec);
-    this.streamMessage(
+    return this.streamMessage(
       uri.spec,
       streamListener,
       msgWindow,

@@ -309,8 +309,8 @@ async function test_message_attachments(info) {
  * counts bytes differently on Windows, where it counts newlines (\r\n) as 2
  * bytes. Mac and Linux treats them as 1 byte.
  *
- * @param message a synthetic message from makeMessage()
- * @returns the message's size in bytes
+ * @param {SyntheticMessage} message - A synthetic message from makeMessage()
+ * @returns {integer} the message's size in bytes.
  */
 function get_message_size(message) {
   const messageString = message.toMessageString();

@@ -45,7 +45,6 @@ ChromeUtils.defineLazyGetter(
 export class NntpClient {
   /**
    * @param {nsINntpIncomingServer} server - The associated server instance.
-   * @param {string} uri - The server uri.
    */
   constructor(server) {
     this._server = server;
@@ -121,7 +120,7 @@ export class NntpClient {
    *
    * @param {nsIUrlListener} urlListener - Callback for the request.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
-   * @param {nsIMsgMailNewsUrl} [runningUrl] - The url to run, if provided.
+   * @param {nsIMsgMailNewsUrl} [runningUri] - The url to run, if provided.
    * @returns {nsIMsgMailNewsUrl}
    */
   startRunningUrl(urlListener, msgWindow, runningUri) {

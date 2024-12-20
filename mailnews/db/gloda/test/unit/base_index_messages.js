@@ -725,7 +725,7 @@ async function test_attributes_fundamental_from_disk() {
  * We are just a wrapper around verify_attributes_fundamental, adapting the
  *  return callback from getMessagesByMessageID.
  *
- * @param aGlodaMessageLists This should be [[theGlodaMessage]].
+ * @param {GlodaMessage} aGlodaMessage
  */
 function verify_attributes_fundamental_from_disk(aGlodaMessage) {
   // Teturn the message id for test_attributes_fundamental_from_disk's benefit.

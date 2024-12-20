@@ -202,7 +202,7 @@ function initializeSearchRows(scope, searchTerms) {
 /**
  * Enables/disables all the visible elements inside the search terms listbox.
  *
- * @param matchAllValue boolean value from the first search term
+ * @param {boolean} matchAllValue - value from the first search term
  */
 function updateSearchTermsListbox(matchAllValue) {
   var searchTerms = document.getElementById("searchTermList");
@@ -330,11 +330,12 @@ function booleanChanged(event) {
 /**
  * Create a new search row with all the needed elements.
  *
- * @param index       index of the position in the menulist where to add the row
- * @param scope       a nsMsgSearchScope constant indicating scope of this search rule
- * @param searchTerm  nsIMsgSearchTerm object to hold the search term
- * @param aUserAdded  boolean indicating if the row addition was initiated by the user
- *                    (e.g. via the '+' button)
+ * @param {integer} index - Index of the position in the menulist where to add the row.
+ * @param {nsMsgSearchScope} scope - A nsMsgSearchScope constant indicating
+ *   scope of this search rule.
+ * @param {nsIMsgSearchTerm} searchTerm  - The search term.
+ * @param {boolean} aUserAdded - Boolean indicating if the row addition was
+ *   initiated by the user (e.g. via the '+' button).
  */
 function createSearchRow(index, scope, searchTerm, aUserAdded) {
   var searchAttr = document.createXULElement("search-attribute");
@@ -443,10 +444,9 @@ function initializeTermFromIndex(index) {
  * Creates a <richlistitem> using the array children as the children
  * of each listcell.
  *
- * @param aChildren  An array of XUL elements to put into the listitem.
- *                   Each array member is put into a separate listcell.
- *                   If the member itself is an array of elements,
- *                   all of them are put into the same listcell.
+ * @param {Element[]} aChildren - An array of XUL elements to put into the
+ *   listitem. Each array member is put into a separate listcell. If the member
+ *   itself is an array of elements, all of them are put into the same listcell.
  */
 function constructRow(aChildren) {
   const cols = gSearchTermList.firstElementChild.children; // treecol elements
@@ -472,6 +472,9 @@ function constructRow(aChildren) {
   return listitem;
 }
 
+/**
+ * @param {integer} index - Index of row to remove.
+ */
 function removeSearchRow(index) {
   var searchTermObj = gSearchTerms[index].obj;
   if (!searchTermObj) {

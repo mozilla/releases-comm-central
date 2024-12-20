@@ -106,7 +106,7 @@ const openpgpSink = {
 /**
  * All the tests we are going to run.
  *
- * @type Test[]
+ * @type {Test[]}
  */
 const tests = [
   {

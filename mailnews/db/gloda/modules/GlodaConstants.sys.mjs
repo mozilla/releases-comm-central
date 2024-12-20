@@ -190,7 +190,7 @@ export var GlodaConstants = {
    *  folder to the list of gloda messages in that folder, as well as the
    *  indexing preferences for that folder.
    *
-   * @TODO folder noun and related abstraction
+   * TODO: folder noun and related abstraction
    */
   NOUN_FOLDER: 100,
   /**

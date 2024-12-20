@@ -52,17 +52,17 @@ GenericImportHelper.prototype = {
     do_test_pending();
     this.checkProgress();
   },
+
   /**
    * GenericImportHelper.getInterface
    *
-   * @returns An nsIImportGeneric import interface.
+   * @returns {nsIImportGeneric} an nsIImportGeneric import interface.
    */
   getInterface() {
     return this.mInterface;
   },
 
   /**
-   * GenericImportHelper.checkProgress
    * Checks the progress of an import every 200 milliseconds until it is
    * complete.  Checks the test results if there is an original address book,
    * otherwise evaluates the optional command, or calls do_test_finished().
@@ -87,7 +87,6 @@ GenericImportHelper.prototype = {
   },
 
   /**
-   * GenericImportHelper.checkResults
    * Checks the results of the import.
    * Child class should implement this method.
    */
@@ -95,8 +94,7 @@ GenericImportHelper.prototype = {
 };
 
 /**
- * SettingsImportHelper
- * A helper for settings imports.
+ * SettingsImportHelper: A helper for settings imports.
  *
  * @param {nsIFile} aFile - A file to import.
  * @param {string} aContractID - The contract ID of the importer to fetch.

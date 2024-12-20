@@ -1992,70 +1992,91 @@ const JsMIMEmimeparser = function () {
   };
 
   /**
+   * On object which contains several callbacks.
+   *
+   * @typedef {MimeEmitter}
+   * Note that any and all of these methods are optional; the parser will not
+   * crash if one is missing.
+   *
+   * @property {?function():void} startMessage - Called when the stream to be parsed
+   *   has started delivering data. This will be called exactly once, before any
+   *   other call.
+   *
+   * @property {?function():void} endMessage - Called after all data has been delivered
+   *   and the message parsing has been completed. This will be called exactly
+   *   once, after any other call.
+   *
+   * @property {?function(string,StructuredHeaders):void} startPart - Called
+   *   after the headers for a body part (including the top-level
+   *   message) have been parsed. The first parameter is the part number (see
+   *   the discussion on part numbering). The second parameter is an instance
+   *   of StructuredHeaders that represents all of the headers for the part.
+   *
+   * @property {?function(string):void} endPart - Called after all of the
+   *   data for a body part (including sub-parts) has been parsed. The first
+   *   parameter is the part number.
+   *
+   * @property {?function(string,(string|typedarray)):void} deliverPartData - Called when some
+   *   data for a body part has been delivered. The first parameter is the
+   *   part number. The second parameter is the data which is
+   *   being delivered; the exact type of this data depends on the options
+   *   used. Note that data is only delivered for leaf body parts.
+   */
+
+  /**
+   * Object containing the options that the parser may use.
+   *
+   * @typedef {MimeParserOptions}
+   *
+   * @property {string} [pruneat=""] - Treat the message as starting at the
+   *   given part number, so that no parts above <string> are returned.
+   *
+   * @property {"none"|"raw"|"nodecode"|"decode"} [bodyformat="nodecode"] - How
+   *   to return the bodies of parts:
+   *    - none: no part data is returned
+   *    - raw: the body of the part is passed through raw
+   *    - nodecode: the body is passed through without decoding QP/Base64
+   *    - decode: quoted-printable and base64 are fully decoded
+   *
+   * @property {"binarystring"|"unicode"|"typedarray"} [strformat="binarystring"] - How
+   *   to treat output strings:
+   *    - binarystring: Data is a JS string with chars in the range [\x00-\xff]
+   *    - unicode: Data for text parts is converted to UTF-16; data for other
+   *      parts is a typed array buffer, akin to typedarray.
+   *    - typedarray: Data is a JS typed array buffer
+   *
+   * @property {string} [charset=""] - What charset to assume if no charset
+   *   information is explicitly provided.
+   *   This only matters if strformat is unicode. See above note on charsets
+   *   for more details.
+   *
+   * @property {boolean} [force-charset=false] - If true, this coerces all
+   *   types to use the charset option, even if the message specifies a
+   *   different content-type.
+   *
+   * @property {boolean} [stripcontinuations=true] - If true, then the newlines
+   *   in headers are removed in the returned header objects.
+   *
+   * @property {Function} [onerror=function{}] - An error function that is
+   *   called if an emitter callback throws an error.
+   *   By default, such errors are swallowed by the parser. If you want the
+   *   parser itself to throw an error, rethrow it via the onerror function.
+   *
+   * @property {boolean} [decodeSubMessages=true] - Parse attached messages
+   *   (message/rfc822, message/global & message/news)
+   *   and return all of their mime data instead of returning their content
+   *   as regular attachments.
+   */
+
+  /**
    * A MIME parser.
    *
    * The inputs to the constructor consist of a callback object which receives
    * information about the output data and an optional object containing the
    * settings for the parser.
    *
-   * The first parameter, emitter, is an object which contains several callbacks.
-   * Note that any and all of these methods are optional; the parser will not
-   * crash if one is missing. The callbacks are as follows:
-   *   startMessage()
-   *      Called when the stream to be parsed has started delivering data. This
-   *      will be called exactly once, before any other call.
-   *   endMessage()
-   *      Called after all data has been delivered and the message parsing has
-   *      been completed. This will be called exactly once, after any other call.
-   *   startPart(string partNum, object headers)
-   *      Called after the headers for a body part (including the top-level
-   *      message) have been parsed. The first parameter is the part number (see
-   *      the discussion on part numbering). The second parameter is an instance
-   *      of StructuredHeaders that represents all of the headers for the part.
-   *   endPart(string partNum)
-   *      Called after all of the data for a body part (including sub-parts) has
-   *      been parsed. The first parameter is the part number.
-   *   deliverPartData(string partNum, {string,typedarray} data)
-   *      Called when some data for a body part has been delivered. The first
-   *      parameter is the part number. The second parameter is the data which is
-   *      being delivered; the exact type of this data depends on the options
-   *      used. Note that data is only delivered for leaf body parts.
-   *
-   *  The second parameter, options, is an optional object containing the options
-   *  for the parser. The following are the options that the parser may use:
-   *    pruneat: <string> [default=""]
-   *      Treat the message as starting at the given part number, so that no parts
-   *      above <string> are returned.
-   *    bodyformat: one of {none, raw, nodecode, decode} [default=nodecode]
-   *      How to return the bodies of parts:
-   *        none: no part data is returned
-   *        raw: the body of the part is passed through raw
-   *        nodecode: the body is passed through without decoding QP/Base64
-   *        decode: quoted-printable and base64 are fully decoded
-   *    strformat: one of {binarystring, unicode, typedarray} [default=binarystring]
-   *      How to treat output strings:
-   *        binarystring: Data is a JS string with chars in the range [\x00-\xff]
-   *        unicode: Data for text parts is converted to UTF-16; data for other
-   *          parts is a typed array buffer, akin to typedarray.
-   *        typedarray: Data is a JS typed array buffer
-   *    charset: <string> [default=""]
-   *      What charset to assume if no charset information is explicitly provided.
-   *      This only matters if strformat is unicode. See above note on charsets
-   *      for more details.
-   *    force-charset: <boolean> [default=false]
-   *      If true, this coerces all types to use the charset option, even if the
-   *      message specifies a different content-type.
-   *    stripcontinuations: <boolean> [default=true]
-   *      If true, then the newlines in headers are removed in the returned
-   *      header objects.
-   *    onerror: <function(thrown error)> [default = nop-function]
-   *      An error function that is called if an emitter callback throws an error.
-   *      By default, such errors are swallowed by the parser. If you want the
-   *      parser itself to throw an error, rethrow it via the onerror function.
-   *    decodeSubMessages: <boolean> [default=true]
-   *      Parse attached messages (message/rfc822, message/global & message/news)
-   *      and return all of their mime data instead of returning their content
-   *      as regular attachments.
+   * @param {MimeEmitter} emitter
+   * @param {MimeParserOptions} options
    */
   function MimeParser(emitter, options) {
     // The actual emitter

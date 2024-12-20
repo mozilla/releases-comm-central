@@ -12,19 +12,19 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * A module to import iCalendar (.ics) file.
  */
 export class CalendarFileImporter {
-  /**
-   * Callback for progress updates.
-   *
-   * @param {number} current - Current imported items count.
-   * @param {number} total - Total items count.
-   */
-  onProgress = () => {};
-
   _logger = console.createInstance({
     prefix: "mail.import",
     maxLogLevel: "Warn",
     maxLogLevelPref: "mail.import.loglevel",
   });
+
+  /**
+   * Callback for progress updates.
+   *
+   * @param {number} _current - Current imported items count.
+   * @param {number} _total - Total items count.
+   */
+  onProgress = (_current, _total) => {};
 
   /**
    * Parse an ics file to an array of items.
@@ -104,7 +104,7 @@ export class CalendarFileImporter {
   /**
    * Actually start importing items into a calendar.
    *
-   * @param {nsIFile} sourceFile - The source file to import from.
+   * @param {calIItemBase[]} items - Items to import.
    * @param {calICalendar} targetCalendar - The calendar to import into.
    */
   async startImport(items, targetCalendar) {

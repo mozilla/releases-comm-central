@@ -25,10 +25,10 @@ import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
  * @abstract
  */
 export class BaseProfileImporter {
-  /** @type boolean - Whether to allow importing from a user picked dir. */
+  /** @type {boolean} - Whether to allow importing from a user picked dir. */
   USE_FILE_PICKER = true;
 
-  /** @type ImportItems */
+  /** @type {ImportItems} */
   SUPPORTED_ITEMS = {
     accounts: true,
     addressBooks: true,
@@ -42,10 +42,10 @@ export class BaseProfileImporter {
   /**
    * Callback for progress updates.
    *
-   * @param {number} current - Current imported items count.
-   * @param {number} total - Total items count.
+   * @param {number} _current - Current imported items count.
+   * @param {number} _total - Total items count.
    */
-  onProgress = () => {};
+  onProgress = (_current, _total) => {};
 
   /**
    * @returns {SourceProfile[]} Profiles found on this machine.
@@ -60,12 +60,12 @@ export class BaseProfileImporter {
   /**
    * Actually start importing things to the current profile.
    *
-   * @param {nsIFile} sourceProfileDir - The source location to import from.
-   * @param {ImportItems} items - The items to import.
+   * @param {nsIFile} _sourceProfileDir - The source location to import from.
+   * @param {ImportItems} _items - The items to import.
    * @returns {boolean} Returns true when accounts have been imported, which
    *   means a restart is needed. Otherwise, no restart is needed.
    */
-  async startImport() {
+  async startImport(_sourceProfileDir, _items) {
     throw Components.Exception(
       `startImport not implemented in ${this.constructor.name}`,
       Cr.NS_ERROR_NOT_IMPLEMENTED

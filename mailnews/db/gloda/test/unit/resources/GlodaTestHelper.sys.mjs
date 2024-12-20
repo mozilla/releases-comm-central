@@ -560,21 +560,21 @@ class GlodaCollectionListener {
  * Throws Errors if something is not according and returns always [true, string]
  * for `Assert.ok` in your tests. This ensures proper testing output.
  *
- * @param {SyntheticMessage[]} aSynMessageSets A list of SyntheticMessageSets
- *     containing exactly the messages we should expect to see.
- * @param [aConfig.verifier] The function to call to verify that the indexing
- *     had the desired result.  Takes arguments aSynthMessage (the synthetic
- *     message just indexed), aGlodaMessage (the gloda message representation of
- *     the indexed message), and aPreviousResult (the value last returned by the
- *     verifier function for this given set of messages, or undefined if it is
- *     the first message.)
- * @param [aConfig.augment=false] Should we augment the synthetic message sets
- *     with references to their corresponding gloda messages?  The messages
- *     will show up in a 'glodaMessages' list on the syn set.
+ * @param {SyntheticMessage[]} aSynMessageSets - A list of SyntheticMessageSets
+ *   containing exactly the messages we should expect to see.
+ * @param {Function} [aConfig.verifier] - The function to call to verify that
+ *   the indexing had the desired result. Takes arguments aSynthMessage (the synthetic
+ *   message just indexed), aGlodaMessage (the gloda message representation of
+ *   the indexed message), and aPreviousResult (the value last returned by the
+ *   verifier function for this given set of messages, or undefined if it is
+ *   the first message.)
+ * @param {boolean] [aConfig.augment=false] - Should we augment the synthetic
+ *   message sets with references to their corresponding gloda messages?
+ *   The messages will show up in a 'glodaMessages' list on the syn set.
  * @param {SyntheticMessageSet[]} [aConfig.deleted] A list of SyntheticMessageSets
  *     containing messages that should be recognized as deleted by the gloda
  *     indexer in this pass.
- * @param [aConfig.fullyIndexed] A count of the number of messages we expect
+ * @param {integer} [aConfig.fullyIndexed] - A count of the number of messages we expect
  *     to observe being fully indexed.  This is relevant because in the case
  *     of message moves, gloda may generate an onItemsModified notification but
  *     not reindex the message.  This attribute allows the tests to distinguish
@@ -753,8 +753,6 @@ export function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
 
 /**
  * Resets the IndexMessageState
- *
- * @TODO more docs
  */
 function resetIndexMessageState() {
   indexMessageState.synMessageSets = [];

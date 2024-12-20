@@ -97,18 +97,18 @@ var gCopyListener = {
 };
 
 /**
- * copyFileMessageInLocalFolder
  * A utility wrapper of nsIMsgCopyService.copyFileMessage to copy a message
  * into local inbox folder.
  *
- * @param aMessageFile     An instance of nsIFile to copy.
- * @param aMessageFlags    Message flags which will be set after message is
- *                         copied
- * @param aMessageKeyword  Keywords which will be set for newly copied
- *                         message
- * @param aMessageWindow   Window for notification callbacks, can be null
- * @param aCallback        Callback function which will be invoked after
- *                         message is copied
+ * @param {nsIFile} aMessageFile - An instance of nsIFile to copy.
+ * @param {integer} aMessageFlags - Message flags which will be set after
+ *   message is copied.
+ * @param {string} aMessageKeywords - Keywords which will be set for newly copied
+ *   message.
+ * @param {?nsIMsgWindow} aMessageWindow - Window for notification callbacks.
+ * @param {Function} aCallback - Callback function which will be invoked after
+ *   message is copied.
+ * @see {nsIMsgCopyService.copyFileMessage}
  */
 function copyFileMessageInLocalFolder(
   aMessageFile,

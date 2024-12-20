@@ -416,7 +416,7 @@ export var Gloda = {
    * The contact is based on the default account's default identity. The user
    *  can change both, if desired, in Account Settings.
    *
-   * @TODO attempt to deal with multiple people using the same profile
+   * TODO: attempt to deal with multiple people using the same profile
    */
   myContact: null,
   /**
@@ -425,8 +425,8 @@ export var Gloda = {
    *  accounts defined in the profile belong to them.  The single contact is
    *  stored on myContact.
    *
-   * @TODO deal with account addition/modification/removal
-   * @TODO attempt to deal with multiple people using the same profile
+   * TODO: deal with account addition/modification/removal
+   * TODO: attempt to deal with multiple people using the same profile
    */
   _initMyIdentities() {
     let myContact = null;
@@ -970,7 +970,7 @@ export var Gloda = {
            *  adapt for added/deleted folders.  However, it is sufficient for
            *  faceting.  Also, we don't persist constraints yet.
            *
-           * @TODO The long-term solution is to move towards using arithmetic
+           * TODO: The long-term solution is to move towards using arithmetic
            *     encoding on folder-id's like we use for MIME types and friends.
            */
           Account(aAttrDef, aArguments) {
@@ -1769,7 +1769,7 @@ export var Gloda = {
    *  will just occur on the attribute name instead.  Also, this can turn
    *  extensions into liars as name changes/moves to core/etc. happen.
    *
-   * @TODO consider removing the extension name argument parameter requirement
+   * TODO: consider removing the extension name argument parameter requirement
    */
   getAttrDef(aPluginName, aAttrName) {
     const compoundName = aPluginName + ":" + aAttrName;

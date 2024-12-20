@@ -27,7 +27,7 @@ var { setTimeout } = ChromeUtils.importESModule(
 let gCertValidityResult = 0;
 
 /**
- * @implements nsICertVerificationCallback
+ * @implements {nsICertVerificationCallback}
  */
 class CertVerificationResultCallback {
   constructor(callback) {
@@ -39,6 +39,10 @@ class CertVerificationResultCallback {
   }
 }
 
+/**
+ * @param {nsIX509Cert} cert
+ * @param {integer} date
+ */
 function testCertValidity(cert, date) {
   const prom = new Promise(resolve => {
     const certificateUsageEmailRecipient = 0x0020;

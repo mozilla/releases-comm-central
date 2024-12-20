@@ -330,8 +330,8 @@ var ts_convCollections = [];
  *  use of test_query_messages_by_conversation_nonmatches who verifies the
  *  query.test() logic doesn't match on things it should not match on.
  *
- * @tests gloda.noun.message.attr.conversation
- * @tests gloda.datastore.sqlgen.kConstraintIn
+ * Tests gloda.noun.message.attr.conversation
+ * Tests gloda.datastore.sqlgen.kConstraintIn
  */
 async function test_query_messages_by_conversation() {
   const convNum = ts_convNum++;
@@ -345,7 +345,7 @@ async function test_query_messages_by_conversation() {
 }
 
 /**
- * @tests gloda.query.test.kConstraintIn
+ * Tests gloda.query.test.kConstraintIn
  */
 function test_query_messages_by_conversation_nonmatches() {
   verify_nonMatches(ts_convQueries, ts_convCollections);
@@ -355,8 +355,8 @@ var ts_folderNum = 0;
 var ts_folderQueries = [];
 var ts_folderCollections = [];
 /**
- * @tests gloda.noun.message.attr.folder
- * @tests gloda.datastore.sqlgen.kConstraintIn
+ * Tests gloda.noun.message.attr.folder
+ * Tests gloda.datastore.sqlgen.kConstraintIn
  */
 async function test_query_messages_by_folder() {
   const folderNum = ts_folderNum++;
@@ -370,14 +370,14 @@ async function test_query_messages_by_folder() {
 }
 
 /**
- * @tests gloda.query.test.kConstraintIn
+ * Tests gloda.query.test.kConstraintIn
  */
 function test_query_messages_by_folder_nonmatches() {
   verify_nonMatches(ts_folderQueries, ts_folderCollections);
 }
 
 /**
- * @tests Gloda.ns.getMessageCollectionForHeader()
+ * Tests Gloda.ns.getMessageCollectionForHeader()
  */
 async function test_get_message_for_header() {
   // Pick an arbitrary message.
@@ -398,7 +398,7 @@ async function test_get_message_for_header() {
 }
 
 /**
- * @tests Gloda.ns.getMessageCollectionForHeaders()
+ * Tests Gloda.ns.getMessageCollectionForHeaders()
  */
 async function test_get_messages_for_headers() {
   const messageCollection = ts_convCollections[0];
@@ -419,8 +419,8 @@ async function test_get_messages_for_headers() {
 var ts_messageIdentityQueries = [];
 var ts_messageIdentityCollections = [];
 /**
- * @tests gloda.noun.message.attr.involves
- * @tests gloda.datastore.sqlgen.kConstraintIn
+ * Tests gloda.noun.message.attr.involves
+ * Tests gloda.datastore.sqlgen.kConstraintIn
  */
 async function test_query_messages_by_identity_peoples() {
   const query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
@@ -433,7 +433,7 @@ async function test_query_messages_by_identity_peoples() {
 }
 
 /**
- * @tests gloda.noun.message.attr.involves
+ * Tests gloda.noun.message.attr.involves
  */
 async function test_query_messages_by_identity_outlier() {
   const query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
@@ -448,7 +448,7 @@ async function test_query_messages_by_identity_outlier() {
 }
 
 /**
- * @tests gloda.query.test.kConstraintIn
+ * Tests gloda.query.test.kConstraintIn
  */
 function test_query_messages_by_identity_nonmatches() {
   verify_nonMatches(ts_messageIdentityQueries, ts_messageIdentityCollections);
@@ -461,8 +461,8 @@ function test_query_messages_by_contact() {
 
 var ts_messagesDateQuery;
 /**
- * @tests gloda.noun.message.attr.date
- * @tests gloda.datastore.sqlgen.kConstraintRanges
+ * Tests gloda.noun.message.attr.date
+ * Tests gloda.datastore.sqlgen.kConstraintRanges
  */
 async function test_query_messages_by_date() {
   ts_messagesDateQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
@@ -476,7 +476,7 @@ async function test_query_messages_by_date() {
 }
 
 /**
- * @tests gloda.query.test.kConstraintRanges
+ * Tests gloda.query.test.kConstraintRanges
  */
 function test_query_messages_by_date_nonmatches() {
   if (
@@ -507,8 +507,8 @@ function test_query_conversations_by_subject_text() {}
 /**
  * Test subject searching using the conversation unique subject term.
  *
- * @tests gloda.noun.message.attr.subjectMatches
- * @tests gloda.datastore.sqlgen.kConstraintFulltext
+ * Tests gloda.noun.message.attr.subjectMatches
+ * Tests gloda.datastore.sqlgen.kConstraintFulltext
  */
 async function test_query_messages_by_subject_text() {
   // We only need to use one conversation.
@@ -525,8 +525,8 @@ async function test_query_messages_by_subject_text() {
 /**
  * Test body searching using the conversation unique body term.
  *
- * @tests gloda.noun.message.attr.bodyMatches
- * @tests gloda.datastore.sqlgen.kConstraintFulltext
+ * Tests gloda.noun.message.attr.bodyMatches
+ * Tests gloda.datastore.sqlgen.kConstraintFulltext
  */
 async function test_query_messages_by_body_text() {
   // We only need to use one conversation.
@@ -545,8 +545,8 @@ async function test_query_messages_by_body_text() {
 /**
  * Test attachment name searching using the conversation unique attachment term.
  *
- * @tests gloda.noun.message.attr.attachmentNamesMatch
- * @tests gloda.datastore.sqlgen.kConstraintFulltext
+ * Tests gloda.noun.message.attr.attachmentNamesMatch
+ * Tests gloda.datastore.sqlgen.kConstraintFulltext
  */
 async function test_query_messages_by_attachment_names() {
   const convNum = 0;
@@ -564,8 +564,8 @@ async function test_query_messages_by_attachment_names() {
 /**
  * Test author name fulltext searching using an arbitrary author.
  *
- * @tests gloda.noun.message.attr.authorMatches
- * @tests gloda.datastore.sqlgen.kConstraintFulltext
+ * Tests gloda.noun.message.attr.authorMatches
+ * Tests gloda.datastore.sqlgen.kConstraintFulltext
  */
 async function test_query_messages_by_authorMatches_name() {
   const [authorName, authorMail] = world.peoples[0];
@@ -577,8 +577,8 @@ async function test_query_messages_by_authorMatches_name() {
 /**
  * Test author mail address fulltext searching using an arbitrary author.
  *
- * @tests gloda.noun.message.attr.authorMatches
- * @tests gloda.datastore.sqlgen.kConstraintFulltext
+ * Tests gloda.noun.message.attr.authorMatches
+ * Tests gloda.datastore.sqlgen.kConstraintFulltext
  */
 async function test_query_messages_by_authorMatches_email() {
   const [, authorMail] = world.peoples[0];
@@ -592,8 +592,8 @@ async function test_query_messages_by_authorMatches_email() {
  *  all 'peoples' messages are sent to all of them, any choice from peoples
  *  gets us all 'peoplesMessages'.
  *
- * @tests gloda.noun.message.attr.recipientsMatch
- * @tests gloda.datastore.sqlgen.kConstraintFulltext
+ * Tests gloda.noun.message.attr.recipientsMatch
+ * Tests gloda.datastore.sqlgen.kConstraintFulltext
  */
 async function test_query_messages_by_recipients_name() {
   const name = world.peoples[0][0];
@@ -607,8 +607,8 @@ async function test_query_messages_by_recipients_name() {
  *  all 'peoples' messages are sent to all of them, any choice from peoples
  *  gets us all 'peoplesMessages'.
  *
- * @tests gloda.noun.message.attr.recipientsMatch
- * @tests gloda.datastore.sqlgen.kConstraintFulltext
+ * Tests gloda.noun.message.attr.recipientsMatch
+ * Tests gloda.datastore.sqlgen.kConstraintFulltext
  */
 async function test_query_messages_by_recipients_email() {
   const [, mail] = world.peoples[0];
@@ -621,8 +621,8 @@ async function test_query_messages_by_recipients_email() {
 
 var contactLikeQuery;
 /**
- * @tests gloda.noun.contact.attr.name
- * @tests gloda.datastore.sqlgen.kConstraintStringLike
+ * Tests gloda.noun.contact.attr.name
+ * Tests gloda.datastore.sqlgen.kConstraintStringLike
  */
 async function test_query_contacts_by_name() {
   // Let's use like... we need to test that.
@@ -641,7 +641,7 @@ async function test_query_contacts_by_name() {
 }
 
 /**
- * @tests gloda.query.test.kConstraintStringLike
+ * Tests gloda.query.test.kConstraintStringLike
  */
 function test_query_contacts_by_name_nonmatch() {
   const otherContact = outlierIdentityCollection.items[0].contact;

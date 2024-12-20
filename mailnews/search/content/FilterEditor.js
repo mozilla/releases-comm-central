@@ -314,8 +314,7 @@ function initializeFilterTypeSelector() {
     /**
      * Sets the checkboxes to represent the filter type passed in.
      *
-     * @param aType  the filter type to set in terms
-     *               of Ci.Ci.nsMsgFilterType values.
+     * @param {nsMsgFilterType}aType - The filter type to set in terms.
      */
     setType(aType) {
       // If there is no type (event) requested, force "when manually run"
