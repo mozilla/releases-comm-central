@@ -731,9 +731,10 @@ void BatchCompactor::OnDone(nsresult status, int64_t bytesRecovered) {
         // Uhoh... looks like the mbox was bad.
         // It does seem like there are old mboxes in the wild which don't
         // have "From " separators so we can't reliably compact those.
-        // Show a generic message for now, but there are other
-        // possibilities (see Bug 1935331).
-        folder->ThrowAlertMsg("compactFolderWriteFailed", mWindow);
+        // Trigger an automatic repair
+        nsCOMPtr<nsIObserverService> obs =
+            mozilla::services::GetObserverService();
+        obs->NotifyObservers(folder, "folder-needs-repair", nullptr);
       } else {
         // Show a catch-all error message.
         folder->ThrowAlertMsg("compactFolderWriteFailed", mWindow);

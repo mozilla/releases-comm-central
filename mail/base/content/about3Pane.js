@@ -1588,6 +1588,7 @@ var folderPane = {
     Services.obs.addObserver(this, "server-color-preview");
     Services.obs.addObserver(this, "search-folders-changed");
     Services.obs.addObserver(this, "folder-properties-changed");
+    Services.obs.addObserver(this, "folder-needs-repair");
 
     folderTree.addEventListener("auxclick", this);
     folderTree.addEventListener("contextmenu", this);
@@ -1659,6 +1660,7 @@ var folderPane = {
     Services.obs.removeObserver(this, "server-color-preview");
     Services.obs.removeObserver(this, "search-folders-changed");
     Services.obs.removeObserver(this, "folder-properties-changed");
+    Services.obs.removeObserver(this, "folder-needs-repair");
   },
 
   handleEvent(event) {
@@ -1732,6 +1734,12 @@ var folderPane = {
       case "server-color-preview":
         this._changeServerRow(subject, row => row.setIconColor(data));
         break;
+      case "folder-needs-repair": {
+        const folder = subject.QueryInterface(Ci.nsIMsgFolder);
+        console.warn("caught folder-needs-repair for " + folder.URI);
+        this.rebuildFolderSummary(folder);
+        break;
+      }
     }
   },
 
@@ -3346,6 +3354,47 @@ var folderPane = {
     );
   },
 
+  async rebuildFolderSummary(folder) {
+    if (folder.locked) {
+      folder.throwAlertMsg("operationFailedFolderBusy", top.msgWindow);
+      return;
+    }
+    if (folder.supportsOffline) {
+      // Remove the offline store, if any.
+      await IOUtils.remove(folder.filePath.path, { recursive: true }).catch(
+        console.error
+      );
+    }
+
+    // The following notification causes all DBViewWrappers that include
+    // this folder to rebuild their views.
+    MailServices.mfn.notifyFolderReindexTriggered(folder);
+
+    folder.msgDatabase.summaryValid = false;
+    try {
+      const isIMAP = folder.server.type == "imap";
+      let transferInfo = null;
+      if (isIMAP) {
+        transferInfo = folder.dBTransferInfo.QueryInterface(
+          Ci.nsIWritablePropertyBag2
+        );
+        transferInfo.setPropertyAsACString("numMsgs", "0");
+        transferInfo.setPropertyAsACString("numNewMsgs", "0");
+        // Reset UID validity so that nsImapMailFolder::UpdateImapMailboxInfo
+        // will recognize that a folder repair is in progress.
+        transferInfo.setPropertyAsACString("UIDValidity", "-1"); // == kUidUnknown
+      }
+      folder.closeAndBackupFolderDB("");
+      if (isIMAP && transferInfo) {
+        folder.dBTransferInfo = transferInfo;
+      }
+    } catch (e) {
+      // In a failure, proceed anyway since we're dealing with problems
+      folder.ForceDBClosed();
+    }
+    folder.updateFolder(top.msgWindow);
+  },
+
   /**
    * Opens the dialog to edit the properties for a folder
    *
@@ -3372,47 +3421,6 @@ var folderPane = {
       }
     }
 
-    async function rebuildSummary() {
-      if (folder.locked) {
-        folder.throwAlertMsg("operationFailedFolderBusy", top.msgWindow);
-        return;
-      }
-      if (folder.supportsOffline) {
-        // Remove the offline store, if any.
-        await IOUtils.remove(folder.filePath.path, { recursive: true }).catch(
-          console.error
-        );
-      }
-
-      // The following notification causes all DBViewWrappers that include
-      // this folder to rebuild their views.
-      MailServices.mfn.notifyFolderReindexTriggered(folder);
-
-      folder.msgDatabase.summaryValid = false;
-      try {
-        const isIMAP = folder.server.type == "imap";
-        let transferInfo = null;
-        if (isIMAP) {
-          transferInfo = folder.dBTransferInfo.QueryInterface(
-            Ci.nsIWritablePropertyBag2
-          );
-          transferInfo.setPropertyAsACString("numMsgs", "0");
-          transferInfo.setPropertyAsACString("numNewMsgs", "0");
-          // Reset UID validity so that nsImapMailFolder::UpdateImapMailboxInfo
-          // will recognize that a folder repair is in progress.
-          transferInfo.setPropertyAsACString("UIDValidity", "-1"); // == kUidUnknown
-        }
-        folder.closeAndBackupFolderDB("");
-        if (isIMAP && transferInfo) {
-          folder.dBTransferInfo = transferInfo;
-        }
-      } catch (e) {
-        // In a failure, proceed anyway since we're dealing with problems
-        folder.ForceDBClosed();
-      }
-      folder.updateFolder(top.msgWindow);
-    }
-
     window.openDialog(
       "chrome://messenger/content/folderProps.xhtml",
       "",
@@ -3425,7 +3433,7 @@ var folderPane = {
         okCallback: editFolderCallback,
         tabID,
         name: folder.prettyName,
-        rebuildSummaryCallback: rebuildSummary,
+        rebuildSummaryCallback: this.rebuildFolderSummary,
       }
     );
   },
