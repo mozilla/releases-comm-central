@@ -194,6 +194,15 @@ interface nsIMsgDBService : nsISupports
   nsIMsgDatabase cachedDBForFolder(in nsIMsgFolder aFolder);
 
   /**
+   * Get the db for an absolute path, if already open.
+   *
+   * @param filePath  The location to get the cached (open) db for.
+   *
+   * @returns         null if the db isn't open, otherwise the db.
+   */
+  nsIMsgDatabase cachedDBForFilePath(in nsIFile filePath);
+
+  /**
    * Close the db for a folder, if already open.
    *
    * @param aFolder   The folder to close the cached (open) db for.

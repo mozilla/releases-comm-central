@@ -393,6 +393,20 @@ NS_IMETHODIMP nsMsgDBService::CachedDBForFolder(nsIMsgFolder* aFolder,
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgDBService::CachedDBForFilePath(nsIFile* filePath,
+                                                  nsIMsgDatabase** retDB) {
+  NS_ENSURE_ARG_POINTER(filePath);
+  NS_ENSURE_ARG_POINTER(retDB);
+
+  nsCOMPtr<nsIFile> summaryFilePath;
+  nsresult rv =
+      GetSummaryFileLocation(filePath, getter_AddRefs(summaryFilePath));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  *retDB = FindInCache(summaryFilePath);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgDBService::ForceFolderDBClosed(nsIMsgFolder* aFolder) {
   nsCOMPtr<nsIMsgDatabase> mailDB;
   nsresult rv = CachedDBForFolder(aFolder, getter_AddRefs(mailDB));

@@ -76,7 +76,9 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
         nsCOMPtr<nsIMsgFolder> folder;
         nsCOMPtr<nsIMsgDBHdr> msgHdr;
         rv = msgUrl->GetMessageHeader(getter_AddRefs(msgHdr));
-        if (NS_SUCCEEDED(rv) && msgHdr) {
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        if (msgHdr) {
           uint32_t msgSize = 0;
           msgHdr->GetMessageSize(&msgSize);
           m_runningUrl->SetMessageSize(msgSize);
@@ -85,7 +87,8 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
           mailnewsUrl->SetMaxProgress(msgSize);
 
           rv = msgHdr->GetFolder(getter_AddRefs(folder));
-          if (NS_SUCCEEDED(rv) && folder) {
+          NS_ENSURE_SUCCESS(rv, rv);
+          if (folder) {
             nsCOMPtr<nsIInputStream> stream;
             rv = folder->GetLocalMsgStream(msgHdr, getter_AddRefs(stream));
             NS_ENSURE_SUCCESS(rv, rv);
@@ -98,12 +101,14 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
 
             m_socketIsOpen = false;
           }
-        }
-        if (!folder) {  // must be a .eml file
+        } else {
+          nsMsgKey msgKey;
+          m_runningUrl->GetMessageKey(&msgKey);
+          NS_ENSURE_TRUE(msgKey == 0, NS_ERROR_FAILURE);
+          // This appears to be an .eml file.
           rv = OpenFileSocket(aURL);
         }
       }
-      NS_ASSERTION(NS_SUCCEEDED(rv), "oops....i messed something up");
     }
   }
 
