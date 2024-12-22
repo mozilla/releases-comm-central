@@ -79,6 +79,14 @@ add_setup(async function () {
   await make_message_sets_in_folders([newsgroupFolder], [{ count: 3 }]);
 
   tagArray = MailServices.tags.getAllTags();
+
+  registerCleanupFunction(function () {
+    Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);
+    unreadFolder.deleteSelf(null);
+    shiftDeleteFolder.deleteSelf(null);
+    threadDeleteFolder.deleteSelf(null);
+    newsgroupFolder.deleteSelf(null);
+  });
 });
 
 /**
@@ -157,6 +165,7 @@ async function mark_read_via_menu(index, read) {
     { id: menuItem },
   ]);
   await close_popup(window, getMailContext());
+  await TestUtils.waitForTick();
 }
 
 add_task(async function test_mark_one_read() {
@@ -625,15 +634,20 @@ add_task(async function test_delete_from_newsgroup_prompt() {
   Services.prefs.clearUserPref("news.warn_on_delete");
 });
 
+/**
+ * @param {nsIMsgDBHdr} message
+ * @param {nsIMsgTag} tag - Tag to check.
+ * @param {boolean} isSet - Whether the tag is expected to be set.
+ */
 function check_tag_in_message(message, tag, isSet) {
   const tagSet = message
     .getStringProperty("keywords")
     .split(" ")
     .includes(tag.key);
   if (isSet) {
-    Assert.ok(tagSet, "Tag '" + tag.name + "' expected on message!");
+    Assert.ok(tagSet, "Tag '" + tag.tag + "' expected on message!");
   } else {
-    Assert.ok(!tagSet, "Tag '" + tag.name + "' not expected on message!");
+    Assert.ok(!tagSet, "Tag '" + tag.tag + "' not expected on message!");
   }
 }
 
@@ -651,7 +665,7 @@ add_task(async function test_tag_keys() {
   EventUtils.synthesizeKey("0", {});
   check_tag_in_message(curMessage, tagArray[0], false);
   check_tag_in_message(curMessage, tagArray[1], false);
-}).skip(); // TODO: not working
+});
 
 add_task(async function test_tag_keys_disabled_in_content_tab() {
   await be_in_folder(unreadFolder);
@@ -669,8 +683,4 @@ add_task(async function test_tag_keys_disabled_in_content_tab() {
   check_tag_in_message(curMessage, tagArray[0], false);
 
   document.getElementById("tabmail").closeTab(tab);
-}).skip(); // TODO: not working
-
-registerCleanupFunction(function () {
-  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);
 });
