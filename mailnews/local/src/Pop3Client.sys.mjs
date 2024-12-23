@@ -1294,6 +1294,14 @@ export class Pop3Client {
           this._messagesToHandle = this._messagesToHandle.filter(
             msg => msg.uidl == this._singleUidlToDownload
           );
+          // The message may have since been removed from the server.
+          if (!this._messagesToHandle.length) {
+            this._logger.error(
+              `Single UIDL ${this._singleUidlToDownload} not found on server.`
+            );
+            this._actionDone(Cr.NS_ERROR_FILE_NOT_FOUND);
+            return;
+          }
           this._newUidlMap = this._uidlMap;
         }
 
@@ -1715,7 +1723,7 @@ export class Pop3Client {
     if (runningUrl.value) {
       this.urlListener?.OnStopRunningUrl(this.runningUri, status);
     }
-    this.runningUri.SetUrlState(false, Cr.NS_OK);
+    this.runningUri.SetUrlState(false, status);
     this.onDone?.(status);
     if (this._folderLocked) {
       this._sink.abortMailDelivery(this);

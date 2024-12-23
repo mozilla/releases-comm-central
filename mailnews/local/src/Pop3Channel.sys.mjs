@@ -33,13 +33,14 @@ export class Pop3Channel {
     this.URI = uri;
     this.loadInfo = loadInfo;
     this.contentLength = 0;
+    this._status = Cr.NS_OK;
   }
 
   /**
    * @see nsIRequest
    */
   get status() {
-    return Cr.NS_OK;
+    return this._status;
   }
 
   /**
@@ -66,6 +67,14 @@ export class Pop3Channel {
 
   asyncOpen(listener) {
     this._logger.debug(`asyncOpen ${this.URI.spec}`);
+
+    if (Services.io.offline) {
+      throw Components.Exception(
+        "The requested action could not be completed in the offline state",
+        Cr.NS_ERROR_OFFLINE
+      );
+    }
+
     const match = this.URI.spec.match(/pop3?:\/\/.+\/(?:\?|&)uidl=([^&]+)/);
     const uidl = decodeURIComponent(match?.[1] || "");
     if (!uidl) {
@@ -85,6 +94,7 @@ export class Pop3Channel {
         );
       };
       client.onDone = status => {
+        this._status = status;
         listener.onStopRequest(this, status);
       };
     });
