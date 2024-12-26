@@ -206,8 +206,8 @@ AddressBookStore.prototype = {
   /**
    * Obtain the set of all known record IDs.
    *
-   * @return Object with ID strings as keys and values of true. The values
-   *         are ignored.
+   * @returns {object} an object with ID strings as keys and values of true.
+   *   The values are ignored.
    */
   async getAllIDs() {
     const ids = await super.getAllIDs();
@@ -226,12 +226,10 @@ AddressBookStore.prototype = {
    * the store. If the ID is not known, the record should be created with the
    * delete field set to true.
    *
-   * @param  id
-   *         string record ID
-   * @param  collection
-   *         Collection to add record to. This is typically passed into the
-   *         constructor for the newly-created record.
-   * @return record type for this engine
+   * @param {string} id - Record ID.
+   * @param {object} collection - Collection to add record to. This is typically
+   *   passed into the constructor for the newly-created record.
+   * @returns {object} record type for this engine
    */
   async createRecord(id, collection) {
     const record = new AddressBookRecord(collection, id);

@@ -26,8 +26,8 @@ const {
  *
  * @param {SuccessiveAbortable} successiveAbortable - Encapsulates abortables
  * in function call.
- * @param {String} domain - The domain of the emailAddress used for discovery.
- * @param {String} emailAddress - The emailAddress used for discovery.
+ * @param {string} domain - The domain of the emailAddress used for discovery.
+ * @param {string} emailAddress - The emailAddress used for discovery.
  *
  * @returns {?AccountConfig} @see AccountConfig.sys.mjs
  */
@@ -229,7 +229,7 @@ function ewsifyConfig(config) {
  * Returns the exchange config object if available.
  *
  * @param {AccountConfig} config - The found AccountConfig object.
- * @returns {?Object} An object containing the exchange config, or undefined.
+ * @returns {?object} An object containing the exchange config, or undefined.
  */
 function getIncomingExchangeConfig(config) {
   return [config.incoming, ...config.incomingAlternatives].find(

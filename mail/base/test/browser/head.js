@@ -70,7 +70,7 @@ class MenuTestHelper {
   /**
    * An object describing the state of a <menu> or <menuitem>.
    *
-   * @typedef {Object} MenuItemData
+   * @typedef {object} MenuItemData
    * @property {boolean|string[]} [hidden] - true if the item should be hidden
    *   in all modes, or a list of modes in which it should be hidden.
    * @property {boolean|string[]} [disabled] - true if the item should be
@@ -348,6 +348,7 @@ async function openMessageFromFile(file) {
 
 /**
  * Wait for a message to be fully loaded in the given about:message.
+ *
  * @param {browser} aboutMessageBrowser - The browser for the about:message
  *   window displaying the message.
  */

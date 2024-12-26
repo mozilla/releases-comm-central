@@ -16,7 +16,7 @@ import {
  *   detail field contains the row that was re-ordered.
  * @note All children of this element should be HTML. If there are XUL
  *   elements, you're gonna have a bad time.
- * @extends HTMLOListElement
+ * @augments HTMLOListElement
  * @mixes TreeListboxMixin
  * @tagname orderable-tree-listbox
  */

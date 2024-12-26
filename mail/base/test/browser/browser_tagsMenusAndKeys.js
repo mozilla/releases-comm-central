@@ -87,6 +87,7 @@ add_setup(async function () {
 
 /**
  * Tests Tags menu items with a single message selected.
+ *
  * @param {nsIMsgDBHdr} message - The message to operate on.
  * @param {Function} openPopupCallback - One of the "open" functions below.
  */
@@ -186,6 +187,7 @@ async function subtestSingleMessage(message, openPopupCallback) {
 /**
  * Tests Tags menu items with multiple messages selected. Unlike
  * `subtestSingleMessage` this function selects the messages to operate on.
+ *
  * @param {Function} openPopupCallback - One of the "open" functions below.
  */
 async function subtestMultipleMessages(openPopupCallback) {
@@ -282,6 +284,7 @@ async function subtestMultipleMessages(openPopupCallback) {
 
 /**
  * Tests key shortcuts to set and clear tags.
+ *
  * @param {nsIMsgDBHdr[]} messages - The currently selected messages.
  * @param {Window} win - The window to simulate key presses in.
  */
@@ -451,6 +454,7 @@ add_task(async function testMessageWindow() {
 
 /**
  * Selects the first message in the thread pane and waits for it to load.
+ *
  * @returns {nsIMsgDBHdr}
  */
 async function selectMessageInAbout3Pane() {
@@ -462,6 +466,7 @@ async function selectMessageInAbout3Pane() {
 
 /**
  * Open the context menu from the thread pane and the Tags menu within.
+ *
  * @param {integer} indexToClick - The index of the row to right-click on.
  * @returns {MozMenuPopup}
  */
@@ -483,6 +488,7 @@ async function openMailContextFromThreadTree(indexToClick) {
 
 /**
  * Open the context menu from the message pane and the Tags menu within.
+ *
  * @param {Window} [aboutMessage] - If not given, the about:message window
  *   from the current tab in the main window.
  * @returns {MozMenuPopup}
@@ -512,6 +518,7 @@ async function openMailContextFromMessagePane(
 
 /**
  * Open the message header More button and the Tags menu within.
+ *
  * @param {Window} [aboutMessage] - If not given, the about:message window
  *   from the current tab in the main window.
  * @returns {MozMenuPopup}
@@ -531,6 +538,7 @@ async function openHeaderPopup(aboutMessage = tabmail.currentAboutMessage) {
 
 /**
  * Open the Tags toolbar button popup.
+ *
  * @param {Window} [win] - If not given, the main window.
  * @returns {MozMenuPopup}
  */
@@ -550,6 +558,7 @@ async function openToolbarPopup(win = window) {
 /**
  * Open the menu bar Message menu and the Tags menu within. This must not be
  * called on macOS where the menu bar is inaccessible to tests.
+ *
  * @param {Window} [win] - If not given, the main window.
  * @returns {MozMenuPopup}
  */
@@ -569,6 +578,7 @@ async function openMessageMenu(win = window) {
 /**
  * Wait for a tags menu, and its parent if there is one, to be closed. If the
  * menu is open, close it.
+ *
  * @param {MozMenuPopup} tagsPopup
  */
 async function promisePopupClosed(tagsPopup) {
@@ -591,6 +601,7 @@ async function promisePopupClosed(tagsPopup) {
 
 /**
  * Check the tag items on a menu are present and correct.
+ *
  * @param {MozMenuPopup} tagsPopup
  * @param {Map<string, object>} expectedTags - A map of the tags that should
  *   be present on the menu. An entry's key is the tag key, and its value is
@@ -631,6 +642,7 @@ function checkTagItems(tagsPopup, expectedTags, expectedChecked = []) {
 
 /**
  * Wait for the new tag dialog to show, and fill it in.
+ *
  * @param {string} tagToAdd
  * @param {string} colorToUse
  * @returns {Promise} - Resolves when the tag has shown, filled, and closed.
@@ -663,6 +675,7 @@ function handleNewTagDialog(tagToAdd, colorToUse) {
 
 /**
  * Wait for a message's tags to change.
+ *
  * @param {nsIMsgDBHdr} header
  * @returns {Promise} - Resolves when the header's tags change.
  */

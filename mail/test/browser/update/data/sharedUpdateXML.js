@@ -23,9 +23,8 @@ const STATE_SUCCEEDED = "succeeded";
 /**
  * Constructs a string representing a local update xml file.
  *
- * @param  aUpdates
- *         The string representing the update elements.
- * @return The string representing a local update xml file.
+ * @param {string} aUpdates - The string representing the update elements.
+ * @returns {string} the string representing a local update xml file.
  */
 function getLocalUpdatesXMLString(aUpdates) {
   if (!aUpdates || aUpdates == "") {

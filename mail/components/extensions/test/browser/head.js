@@ -127,7 +127,8 @@ const makeIconSet = (url, url2x) =>
 
 /**
  * Enforce a certain state in the unified toolbar.
- * @param {Object} state - A dictionary with arrays of buttons assigned to a space
+ *
+ * @param {object} state - A dictionary with arrays of buttons assigned to a space
  */
 async function enforceState(state) {
   const stateChangeObserved = TestUtils.topicObserved(
@@ -291,7 +292,7 @@ function getPanelForNode(node) {
  * Wait until the browser is fully loaded.
  *
  * @param {xul:browser} browser - A xul:browser.
- * @param {string|function} [wantLoad = null] - If a function, takes a URL and
+ * @param {string | Function} [wantLoad = null] - If a function, takes a URL and
  *   returns true if that's the load we're interested in. If a string, gives the
  *   URL of the load we're interested in. If not present, the first load resolves
  *   the promise.
@@ -670,11 +671,11 @@ async function checkComposeHeaders(expected) {
 /**
  * Click on an item in a browser until the expected event is observed.
  *
- * @param {String} selector - A CSS selector to identify the element which should
+ * @param {string} selector - A CSS selector to identify the element which should
  *   be clicked on, inside the provided browser, or a stringified arrow function,
  *   which will be executed in the content process, returning the to-be-clicked
  *   element. The stringified arrow function must start with "() => ".
- * @param {Object} [event] - The mouse event to be used to open the menu popup.
+ * @param {object} [event] - The mouse event to be used to open the menu popup.
  *   It is an object which may contain the properties:
  *     `shiftKey`, `ctrlKey`, `altKey`, `metaKey`, `accessKey`, `clickCount`,
  *     `button`, `type`.
@@ -736,7 +737,7 @@ async function synthesizeMouseAtCenterAndRetry(selector, event, browser) {
  * Click on an element inside an action popup.
  *
  * @param {Extension} extension - The extension the action popup belongs to.
- * @param {String} selector - A CSS selector to identify the element which should
+ * @param {string} selector - A CSS selector to identify the element which should
  *   be clicked on, inside the action popup.
  * @param {Winow} [win] - The window which has the action popup. Defaults to the
  *   current window.
@@ -753,7 +754,7 @@ async function clickElementInActionPopup(extension, selector, win = window) {
 /**
  * Open the standard browser context menu popup inside the current tab.
  *
- * @param {String} selector - A CSS selector to identify the element which should
+ * @param {string} selector - A CSS selector to identify the element which should
  *   be clicked on, inside the current tab.
  * @param {Window} [win] - The window which has the tab. Defaults to the current
  *   window.
@@ -773,7 +774,7 @@ async function openBrowserContextMenuInTab(selector, win = window) {
  * Open the standard browser context menu popup inside an action popup.
  *
  * @param {Extension} extension - The extension the action popup belongs to.
- * @param {String} selector - A CSS selector to identify the element which should
+ * @param {string} selector - A CSS selector to identify the element which should
  *   be clicked on, inside the action popup.
  * @param {Winow} [win] - The window which has the action popup. Defaults to the
  *   current window.
@@ -799,7 +800,7 @@ async function openBrowserContextMenuInActionPopup(
  *
  * @param {Browser} browser
  * @param {Element} menu - The <menu> that should appear.
- * @param {String} selector - A CSS selector to identify the element which should
+ * @param {string} selector - A CSS selector to identify the element which should
  *   be clicked on, inside the browser.
  * @returns {Promise} A promise that resolves once the menu was opened. Rejects
  *   if unsucessfull for more then 3 tries.
@@ -825,7 +826,7 @@ async function openMenuPopupInBrowser(browser, menu, selector) {
  *
  * @param {Element} menu - The <menu> that should appear.
  * @param {Element} element - The element to be clicked on.
- * @param {Object} [event] - The mouse event to be used to open the menu popup.
+ * @param {object} [event] - The mouse event to be used to open the menu popup.
  *   It is an object which may contain the properties:
  *     `shiftKey`, `ctrlKey`, `altKey`, `metaKey`, `accessKey`, `clickCount`,
  *     `button`, `type`.

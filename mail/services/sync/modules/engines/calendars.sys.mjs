@@ -68,7 +68,7 @@ CalendarsEngine.prototype = {
   version: 2,
   syncPriority: 6,
 
-  /*
+  /**
    * Returns a changeset for this sync. Engine implementations can override this
    * method to bypass the tracker for certain or all changed items.
    */
@@ -88,8 +88,7 @@ CalendarStore.prototype = {
    * This is called by the default implementation of applyIncoming(). If using
    * applyIncomingBatch(), this won't be called unless your store calls it.
    *
-   * @param record
-   *        The store record to create an item from
+   * @param {object} record - The store record to create an item from.
    */
   async create(record) {
     await super.create(record);
@@ -124,8 +123,7 @@ CalendarStore.prototype = {
    * This is called by the default implementation of applyIncoming(). If using
    * applyIncomingBatch(), this won't be called unless your store calls it.
    *
-   * @param record
-   *        The store record to delete an item from
+   * @param {object} record - The store record to delete an item from.
    */
   async remove(record) {
     await super.remove(record);
@@ -143,8 +141,7 @@ CalendarStore.prototype = {
    * This is called by the default implementation of applyIncoming(). If using
    * applyIncomingBatch(), this won't be called unless your store calls it.
    *
-   * @param record
-   *        The record to use to update an item from
+   * @param {object} record - The record to use to update an item from.
    */
   async update(record) {
     await super.update(record);
@@ -179,8 +176,8 @@ CalendarStore.prototype = {
   /**
    * Obtain the set of all known record IDs.
    *
-   * @return Object with ID strings as keys and values of true. The values
-   *         are ignored.
+   * @returns {object} an object with ID strings as keys and values of true.
+   *   The values are ignored.
    */
   async getAllIDs() {
     const ids = await super.getAllIDs();
@@ -199,12 +196,10 @@ CalendarStore.prototype = {
    * the store. If the ID is not known, the record should be created with the
    * delete field set to true.
    *
-   * @param  id
-   *         string record ID
-   * @param  collection
-   *         Collection to add record to. This is typically passed into the
-   *         constructor for the newly-created record.
-   * @return record type for this engine
+   * @param {string} id - Record ID
+   * @param {object} collection - Collection to add record to. This is typically
+   *   passed into the constructor for the newly-created record.
+   * @returns {object} record type for this engine
    */
   async createRecord(id, collection) {
     const record = new CalendarRecord(collection, id);

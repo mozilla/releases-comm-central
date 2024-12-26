@@ -46,6 +46,7 @@ add_setup(async function () {
 
 /**
  * The message window.
+ *
  * @type {Window}
  */
 var msgc;

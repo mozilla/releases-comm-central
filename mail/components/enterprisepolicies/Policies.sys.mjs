@@ -1481,7 +1481,6 @@ export function runOnce(actionName, callback) {
  *        The callback to be run when the pref value changes
  * @returns Promise
  *        A promise that will resolve once the callback finishes running.
- *
  */
 async function runOncePerModification(actionName, policyValue, callback) {
   const prefName = `browser.policies.runOncePerModification.${actionName}`;

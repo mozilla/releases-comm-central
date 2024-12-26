@@ -630,6 +630,7 @@ export class MsgHdrProcessor {
 
   /**
    * Returns the parsed original MimeTreePart. Throws if message could not be read.
+   *
    * @returns {Promise<MimeTreePart>}
    */
   async getOriginalTree() {
@@ -655,6 +656,7 @@ export class MsgHdrProcessor {
 
   /**
    * Returns the decrypted MimeTreePart. Throws if message could not be read.
+   *
    * @returns {Promise<MimeTreePart>}
    */
   async getDecryptedTree() {
@@ -703,6 +705,7 @@ export class MsgHdrProcessor {
   /**
    * Gets the decrypted message as a binary string. Throws if message could not
    * be read or decrypted.
+   *
    * @returns {Promise<string>}
    */
   async getDecryptedMessage() {

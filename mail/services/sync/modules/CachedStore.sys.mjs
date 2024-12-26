@@ -48,7 +48,7 @@ async function setData(engine, key, value) {
 /**
  * An engine store that automatically caches data sent to and from the server.
  *
- * @extends {Store}
+ * @augments {Store}
  * @see {engines.sys.mjs}
  */
 export function CachedStore(name, engine) {
@@ -100,7 +100,7 @@ CachedStore.prototype = {
    * Determine whether a record with the specified ID exists.
    *
    * @param {string} id
-   * @return {boolean}
+   * @returns {boolean}
    */
   async itemExists(id) {
     return id in (await this.getAllIDs());
@@ -109,7 +109,7 @@ CachedStore.prototype = {
   /**
    * Obtain the set of all known record IDs.
    *
-   * @return {object}
+   * @returns {object}
    */
   async getAllIDs() {
     const ids = {};
@@ -125,7 +125,7 @@ CachedStore.prototype = {
   /**
    * Get record data from the cache, but not if the ID is marked as deleted.
    *
-   * @return {object}
+   * @returns {object}
    */
   async getCreateRecordData(id) {
     if (this._deleted.has(id)) {

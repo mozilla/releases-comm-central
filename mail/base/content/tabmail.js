@@ -212,14 +212,14 @@ ChromeUtils.defineESModuleGetters(this, {
    *   expect the instantiating element to provide a child hbox for overlays
    *   to contribute buttons to.
    *
-   * From a javascript perspective, there are three types of code that we
+   * From a JavaScript perspective, there are three types of code that we
    *  expect to interact with:
    * 1) Code that wants to open new tabs.
    * 2) Code that wants to contribute one or more varieties of tabs.
    * 3) Code that wants to monitor to know when the active tab changes.
    *
    * Consumer code should use the following methods:
-   * openTab(aTabModeName, aArgs)
+   * - openTab(aTabModeName, aArgs)
    *     Open a tab of the given "mode", passing the provided arguments as an
    *     object. The tab type author should tell you the modes they implement
    *     and the required/optional arguments.
@@ -233,7 +233,7 @@ ChromeUtils.defineESModuleGetters(this, {
    *       be switched to automatically by tabmail if the new tab is immediately
    *       closed.
    *
-   * closeTab(aOptionalTabIndexInfoOrTabNode, aNoUndo):
+   * - closeTab(aOptionalTabIndexInfoOrTabNode, aNoUndo):
    *     If no argument is provided, the current tab is closed. The first
    *     argument specifies a specific tab to be closed. It can be a tab index,
    *     a tab info object, or a tab's DOM element. In case the second
@@ -241,49 +241,49 @@ ChromeUtils.defineESModuleGetters(this, {
    *     undoCloseTab().
    *     Please note, some tabs cannot be closed. Trying to close such tab,
    *     will fail silently.
-   * undoCloseTab():
+   * - undoCloseTab():
    *     Restores the most recent tab closed by the user.
-   * switchToTab(aTabIndexInfoOrTabNode):
+   * - switchToTab(aTabIndexInfoOrTabNode):
    *     Switch to the tab by providing a tab index, tab info object, or tab
    *     node (tabmail-tab bound element.) Instead of calling this method,
    *     you can also just poke at tabmail.tabContainer and its selectedIndex
    *     and selectedItem properties.
-   * replaceTabWithWindow(aTab):
+   * - replaceTabWithWindow(aTab):
    *     Detaches a tab from this tabbar to new window. The argument "aTab" is
    *     required and can be a tab index, a tab info object or a tabs's
    *     DOM element. Calling this method works only for tabs implementing
    *     session restore.
-   * moveTabTo(aTab, aIndex):
+   * - moveTabTo(aTab, aIndex):
    *     moves the given tab to the given Index. The first argument can be
    *     a tab index, a tab info object or a tab's DOM element. The second
    *     argument specifies the tabs new absolute position within the tabbar.
    *
    * Less-friendly consumer methods:
-   * * persistTab(tab):
+   * - persistTab(tab):
    *     serializes a tab into an object, by passing  a tab info object as
    *     argument. It is used for session restore and moving tabs between
    *     windows. Returns null in case persist fails.
-   * * removeCurrentTab():
+   * - removeCurrentTab():
    *     Close the current tab.
-   * * removeTabByNode(aTabElement):
+   * - removeTabByNode(aTabElement):
    *     Close the tab whose tabmail-tab bound element is passed in.
    * Changing the currently displayed tab is accomplished by changing
    *  tabmail.tabContainer's selectedIndex or selectedItem property.
    *
    * Code that lives in a tab should use the following methods:
-   * * setTabTitle([aOptionalTabInfo]): Tells us that the title of the current
+   * - setTabTitle([aOptionalTabInfo]): Tells us that the title of the current
    *   tab (if no argument is provided) or provided tab needs to be updated.
    *   This will result in a call to the tab mode's logic to update the title.
    *   In the event this is not for the current tab, the caller is responsible
    *   for ensuring that the underlying tab mode is capable of providing a tab
    *   title when it is in the background.  (The is currently not the case for
    *   "folder" and "mail" modes because of their implementation.)
-   * * setTabBusy(aTabNode, aBusyState): Tells us that the tab in question
+   * - setTabBusy(aTabNode, aBusyState): Tells us that the tab in question
    *   is now busy or not busy.  "Busy" means that it is occupied and
    *   will not be able to respond to you until it is no longer busy.
    *   This impacts the cursor display, as well as potentially
    *   providing tab display hints.
-   * * setTabThinking(aTabNode, aThinkingState): Tells us that the
+   * - setTabThinking(aTabNode, aThinkingState): Tells us that the
    *   tab in question is now thinking or not thinking.  "Thinking" means
    *   that the tab is involved in some ongoing process but you can still
    *   interact with the tab while it is thinking.  A search would be an
@@ -310,16 +310,16 @@ ChromeUtils.defineESModuleGetters(this, {
    *  mail/components/extensions/parent/ext-mail.js.
    *
    * The tab type definition should include the following attributes:
-   * * name: The name of the tab-type, mainly to aid in debugging.
-   * * panelId or perTabPanel: If using a single tab panel, the id of the
+   * - name: The name of the tab-type, mainly to aid in debugging.
+   * - panelId or perTabPanel: If using a single tab panel, the id of the
    *     panel must be provided in panelId.  If using one tab panel per tab,
    *     perTabPanel should be either the XUL element name that should be
    *     created for each tab, or a helper function to create and return the
    *     element.
-   * * modes: An object whose attributes are mode names (which are
+   * - modes: An object whose attributes are mode names (which are
    *     automatically propagated to a 'name' attribute for debugging) and
    *     values are objects with the following attributes...
-   * * any of the openTab/closeTab/saveTabState/showTab/onTitleChanged
+   * any of the openTab/closeTab/saveTabState/showTab/onTitleChanged
    *     functions as described on the mode definitions.  These will only be
    *     called if the mode does not provide the functions.  Note that because
    *     the 'this' variable passed to the functions will always reference the
@@ -327,23 +327,23 @@ ChromeUtils.defineESModuleGetters(this, {
    *     functions can defer to the tab type functions by calling
    *     this.functionName().  (This should prove convenient.)
    * Mode definition attributes:
-   * * type: The "type" attribute to set on the displayed tab for CSS purposes.
+   * - type: The "type" attribute to set on the displayed tab for CSS purposes.
    *     Generally, this would be the same as the mode name, but you can do as
    *     you please.
-   * * isDefault: This should only be present and should be true for the tab
+   * - isDefault: This should only be present and should be true for the tab
    *     mode that is the tab displayed automatically on startup.
-   * * maxTabs: The maximum number of this mode that can be opened at a time.
+   * - maxTabs: The maximum number of this mode that can be opened at a time.
    *     If this limit is reached, any additional calls to openTab for this
    *     mode will simply result in the first existing tab of this mode being
    *     displayed.
-   * * shouldSwitchTo(aArgs): Optional function. Called when openTab is called
+   * - shouldSwitchTo(aArgs): Optional function. Called when openTab is called
    *     on the top-level tabmail binding. It is used to decide if the openTab
    *     function should switch to an existing tab or actually open a new tab.
    *     If the openTab function should switch to an existing tab, return the
    *     index of that tab; otherwise return -1.
    *     aArgs is a set of named parameters (the ones that are later passed to
    *     openTab).
-   * * openTab(aTab, aArgs): Called when a tab of the given mode is in the
+   * - openTab(aTab, aArgs): Called when a tab of the given mode is in the
    *     process of being opened.  aTab will have its "mode" attribute
    *     set to the mode definition of the tab mode being opened.  You should
    *     set the "title" attribute on it, and may set any other attributes
@@ -353,16 +353,16 @@ ChromeUtils.defineESModuleGetters(this, {
    *     tab type for use by multiple modes and to defer to it.  Any arguments
    *     provided to the caller of tabmail.openTab will be passed to your
    *     function as well, including background.
-   * * closeTab(aTab): Called when aTab is being closed.  The tab need not be
+   * - closeTab(aTab): Called when aTab is being closed.  The tab need not be
    *     currently displayed.  You are responsible for properly cleaning up
    *     any state you preserved in aTab.
-   * * saveTabState(aTab): Called when aTab is being switched away from so that
+   * - saveTabState(aTab): Called when aTab is being switched away from so that
    *     you can preserve its state on aTab.  This is primarily for single
    *     tab panel implementations; you may not have much state to save if your
    *     tab has its own tab panel.
-   * * showTab(aTab): Called when aTab is being displayed and you should
+   * - showTab(aTab): Called when aTab is being displayed and you should
    *     restore its state (if required).
-   * * persistTab(aTab): Called when we want to persist the tab because we are
+   * - persistTab(aTab): Called when we want to persist the tab because we are
    *     saving the session state.  You should return an object suitable for
    *     JSON serialization.  The object will be provided to your restoreTab
    *     method when we attempt to restore the session.  If your code is
@@ -370,7 +370,7 @@ ChromeUtils.defineESModuleGetters(this, {
    *     return null in that case.  If your code never wants to persist the tab
    *     you should not implement this method.  You must implement restoreTab
    *     if you implement this method.
-   * * restoreTab(aTabmail, aPersistedState): Called when we are restoring a
+   * - restoreTab(aTabmail, aPersistedState): Called when we are restoring a
    *     tab session and a tab with your mode was previously persisted via a
    *     call to your persistTab implementation.  You are provided with a
    *     reference to this tabmail instance and the (deserialized) state object
@@ -381,21 +381,21 @@ ChromeUtils.defineESModuleGetters(this, {
    *     while letting you do whatever you want.  Since openTab is synchronous
    *     and returns the tabInfo structure built for the tab, you can perform
    *     any additional work you need after the call to openTab.
-   * * onTitleChanged(aTab): Called when someone calls tabmail.setTabTitle() to
+   * - onTitleChanged(aTab): Called when someone calls tabmail.setTabTitle() to
    *     hint that the tab's title needs to be updated.  This function should
    *     update aTab.title if it can.
    * Mode definition functions to do with menu/toolbar commands:
-   * * supportsCommand(aCommand, aTab): Called when a menu or toolbar needs to
+   * - supportsCommand(aCommand, aTab): Called when a menu or toolbar needs to
    *     be updated. Return true if you support that command in
    *     isCommandEnabled and doCommand, return false otherwise.
-   * * isCommandEnabled(aCommand, aTab): Called when a menu or toolbar needs
+   * - isCommandEnabled(aCommand, aTab): Called when a menu or toolbar needs
    *     to be updated. Return true if the command can be executed at the
    *     current time, false otherwise.
-   * * doCommand(aCommand, aTab): Called when a menu or toolbar command is to
+   * - doCommand(aCommand, aTab): Called when a menu or toolbar command is to
    *     be executed. Perform the action appropriate to the command.
-   * * onEvent(aEvent, aTab): This can be used to handle different events on
+   * - onEvent(aEvent, aTab): This can be used to handle different events on
    *     the window.
-   * * getBrowser(aTab): This function should return the browser element for
+   * - getBrowser(aTab): This function should return the browser element for
    *     your tab if there is one (return null or don't define this function
    *     otherwise). It is used for some toolkit functions that require a
    *     global "getBrowser" function, e.g. ZoomManager.
@@ -405,7 +405,7 @@ ChromeUtils.defineESModuleGetters(this, {
    *  changes.
    * Tab monitoring code (un)registers itself via (un)registerTabMonitor.
    *  The following attributes should be provided on the monitor object:
-   * * monitorName: A string value naming the tab monitor/extension.  This is
+   * - monitorName: A string value naming the tab monitor/extension.  This is
    *     the canonical name for the tab monitor for all persistence purposes.
    *     If the tab monitor wants to store data in the tab info object and its
    *     name is FOO it should store it in 'tabInfo._ext.FOO'.  This is the
@@ -416,21 +416,21 @@ ChromeUtils.defineESModuleGetters(this, {
    *     does not need to do anything in that case; the name is automatically
    *     used in the course of wrapping the object.
    *  The following functions should be provided on the monitor object:
-   * * onTabTitleChanged(aTab): Called when the tab's title changes.
-   * * onTabSwitched(aTab, aOldTab): Called when a new tab is made active.
+   * - onTabTitleChanged(aTab): Called when the tab's title changes.
+   * - onTabSwitched(aTab, aOldTab): Called when a new tab is made active.
    *     Also called when the monitor is registered if one or more tabs exist.
    *     If this is the first call, aOldTab will be null, otherwise aOldTab
    *     will be the previously active tab.
-   * * onTabOpened(aTab, aIsFirstTab, aWasCurrentTab): Called when a new tab is
+   * - onTabOpened(aTab, aIsFirstTab, aWasCurrentTab): Called when a new tab is
    *     opened.  This method is invoked after the tab mode's openTab method
    *     is invoked.  This method is invoked before the tab monitor
    *     onTabSwitched method in the case where it will be invoked.  (It is
    *     not invoked if the tab is opened in the background.)
-   * * onTabClosing(aTab): Called when a tab is being closed.  This method is
+   * - onTabClosing(aTab): Called when a tab is being closed.  This method is
    *     is invoked before the call to the tab mode's closeTab function.
-   * * onTabPersist(aTab): Return a JSON-representable object to persist for
+   * - onTabPersist(aTab): Return a JSON-representable object to persist for
    *     the tab.  Return null if you do not have anything to persist.
-   * * onTabRestored(aTab, aState, aIsFirstTab): Called when a tab is being
+   * - onTabRestored(aTab, aState, aIsFirstTab): Called when a tab is being
    *     restored and there is data previously persisted by the tab monitor.
    *     This method is called instead of invoking onTabOpened.  This is done
    *     because the restoreTab method (potentially) uses the tabmail openTab

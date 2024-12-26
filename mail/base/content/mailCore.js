@@ -427,7 +427,7 @@ function focusOnMail(tabNo, event) {
 /**
  * Open the address book and optionally display/edit a card.
  *
- * @param {?array} openArgs - Command and arguments to execute once the address
+ * @param {?Array} openArgs - Command and arguments to execute once the address
  *   book was opened. Available commands are declared in
  *   aboutAddressBookCommands.mjs.
  * @returns {?Window} The address book's window global, if the address book was

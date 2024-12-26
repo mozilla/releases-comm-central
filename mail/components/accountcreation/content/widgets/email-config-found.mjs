@@ -132,7 +132,7 @@ class EmailConfigFound extends AccountHubStep {
   /**
    * Sets the current selected config.
    *
-   * @param {String} configType - The config type (imap, pop3, exchange).
+   * @param {string} configType - The config type (imap, pop3, exchange).
    */
   #selectConfig(configType) {
     const username = this.#currentConfig.incoming.username;

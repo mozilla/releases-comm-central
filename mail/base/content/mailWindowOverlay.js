@@ -1135,6 +1135,7 @@ function ConfirmUnsubscribe(folders) {
 
 /**
  * Unsubscribe from selected or passed in newsgroup/s.
+ *
  * @param {nsIMsgFolder[]} selectedFolders - The folders to unsubscribe.
  */
 function MsgUnsubscribe(folders) {

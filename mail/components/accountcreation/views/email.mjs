@@ -144,7 +144,7 @@ class AccountHubEmail extends HTMLElement {
    * States of the email setup flow, based on the ID's of the steps in the
    * flow.
    *
-   * @type {Object}
+   * @type {object}
    */
   #states = {
     autoConfigSubview: {
@@ -566,7 +566,7 @@ class AccountHubEmail extends HTMLElement {
    * button is pressed.
    *
    * @param {string} currentState - The current state of the email flow.
-   * @param {Object} stateData - The current state data of the email flow.
+   * @param {object} stateData - The current state data of the email flow.
    */
   async #handleForwardAction(currentState, stateData) {
     switch (currentState) {
@@ -850,7 +850,7 @@ class AccountHubEmail extends HTMLElement {
   /**
    * Guess an account configuration with the provided domain.
    *
-   * @param {String} domain - The domain from the email address.
+   * @param {string} domain - The domain from the email address.
    * @param {AccountConfig} initialConfig - Account Config object.
    *
    * @returns {Promise} - A promise waiting for guessConfig to complete.
@@ -927,7 +927,7 @@ class AccountHubEmail extends HTMLElement {
    * Adds name and email address to AccountConfig object.
    *
    * @param {AccountConfig} accountConfig - AccountConfig from findConfig().
-   * @param {String} password - The password for the account.
+   * @param {string} password - The password for the account.
    *
    * @returns {AccountConfig} - The concrete AccountConfig object.
    */
@@ -1201,7 +1201,7 @@ class AccountHubEmail extends HTMLElement {
    * Request the opening of the account manager after the creation of a new
    * account and reset any leftover data in the current setup flow.
    *
-   * @param {Object} data - The data passed to the template.
+   * @param {object} data - The data passed to the template.
    */
   async #moveToAccountManager(data) {
     this.dispatchEvent(

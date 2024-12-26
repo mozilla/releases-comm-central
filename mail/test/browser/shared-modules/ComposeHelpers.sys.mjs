@@ -1930,7 +1930,7 @@ export class FormatHelper {
    * Note, this method does not currently work on mac/osx.
    *
    * @param {MozMenuPopup} menu - A closed menu below the Format menu to open.
-   * @param {function} test - A test to run, without arguments, when the menu is
+   * @param {Function} test - A test to run, without arguments, when the menu is
    *   open. Should return a truthy value on success.
    * @param {string} message - The message to use when asserting the success of
    *   the test.

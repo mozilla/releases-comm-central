@@ -23,7 +23,7 @@ import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
  * Open a subscribe dialog from the context menu.
  *
  * @param {nsIMsgFolder} aFolder - The folder to open the subscribe dialog for.
- * @param {function} aFunction - Callback that will be invoked with a window
+ * @param {Function} aFunction - Callback that will be invoked with a window
  *   for the subscribe dialogue as parameter.
  */
 export async function open_subscribe_window_from_context_menu(

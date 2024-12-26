@@ -60,7 +60,7 @@ export async function promise_new_window(aWindowType) {
  *
  * @param {string} aWindowType - The window type that you expect the modal
  *   dialog to have or the ID of the window if there is no window type available.
- * @param {function} aSubTestFunction - The sub-test function that will be run
+ * @param {Function} aSubTestFunction - The sub-test function that will be run
  *   once the modal dialog appears and is loaded. This function should take one
  *   argument, the modal dialog.
  */
@@ -118,7 +118,7 @@ export async function wait_for_window_focused(aWindow) {
  * Given a <browser>, waits for it to completely load.
  *
  * @param {XULBrowserElement} aBrowser - The <browser> element to wait for.
- * @param {string|function} aURLOrPredicate - The URL that should be loaded
+ * @param {string | Function} aURLOrPredicate - The URL that should be loaded
  *   (string) or a predicate for the URL (function).
  * @returns {Window} The browser's content window.
  */

@@ -100,6 +100,7 @@ var tabFolder, tabMessage, tabMessageBackground, curMessage, nextMessage;
 
 /**
  * The message window.
+ *
  * @type {Window}
  */
 var msgc;

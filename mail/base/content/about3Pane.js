@@ -902,6 +902,7 @@ var folderPane = {
 
   /**
    * If the local folders should be hidden.
+   *
    * @type {boolean}
    */
   _hideLocalFolders: false,
@@ -1537,6 +1538,7 @@ var folderPane = {
 
   /**
    * Initialize the folder pane if needed.
+   *
    * @returns {Promise<void>} when the folder pane is initialized.
    */
   async init() {
@@ -1839,6 +1841,7 @@ var folderPane = {
   /**
    * Ensures all the folder pane mode context menuitems in the folder
    * pane mode context menu are checked to reflect the current compact mode.
+   *
    * @param {Event} event - The DOMEvent.
    */
   onFolderPaneModeContextOpening(event) {
@@ -3914,31 +3917,37 @@ var folderPane = {
 var threadPaneHeader = {
   /**
    * The header bar element.
+   *
    * @type {?HTMLElement}
    */
   bar: null,
   /**
    * The h2 element receiving the folder name.
+   *
    * @type {?HTMLHeadElement}
    */
   folderName: null,
   /**
    * The span element receiving the message count.
+   *
    * @type {?HTMLSpanElement}
    */
   folderCount: null,
   /**
    * The quick filter toolbar toggle button.
+   *
    * @type {?HTMLButtonElement}
    */
   filterButton: null,
   /**
    * The display options button opening the popup.
+   *
    * @type {?HTMLButtonElement}
    */
   displayButton: null,
   /**
    * If the header area is hidden.
+   *
    * @type {boolean}
    */
   isHidden: false,
@@ -5927,6 +5936,7 @@ function restoreState({
 
 /**
  * Ensures the given row is visible and all its parent folders are expanded.
+ *
  * @param {FolderTreeRow} row
  */
 function ensureFolderTreeRowIsVisible(row) {
@@ -5941,6 +5951,7 @@ function ensureFolderTreeRowIsVisible(row) {
 
 /**
  * Set up the given folder to be selected in the folder pane.
+ *
  * @param {nsIMsgFolder|string} folder - The folder to display, or its URI.
  */
 function displayFolder(folder) {

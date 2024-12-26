@@ -322,7 +322,7 @@ async function testRadioButtons(paneID, scrollPaneTo, ...tests) {
  *
  * @param {Element} buttonToClick - The button which opens the subdialog.
  * @param {string} dialogURL - URL of the subdialog we are expecting to open.
- * @param {function} callback - A (possibly async) callback function to run
+ * @param {Function} callback - A (possibly async) callback function to run
  *   once the subdialog is open and has focus. The callback takes one
  *   argument, the `window` of the subdialog.
  * @param {string} buttonNameOrID - The name or ID of the button to click,

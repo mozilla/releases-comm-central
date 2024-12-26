@@ -61,6 +61,7 @@ add_task(async function test_create_messages() {
 
 /**
  * The search window.
+ *
  * @type {Window}
  */
 var swc = null;

@@ -614,6 +614,7 @@ export class TreeView extends HTMLElement {
 
   /**
    * Using a keyboard, navigate cells in a row left or right.
+   *
    * @param {KeyboardEvent} event
    */
   navigateRowCells(event) {
@@ -657,6 +658,7 @@ export class TreeView extends HTMLElement {
 
   /**
    * Select sibling cell.
+   *
    * @param {KeyboardEvent} event
    * @param {HTMLTableCellElement} currentCell - Cell HTML element.
    * @param {string} nextKey - Key used for moving to next cell.
@@ -670,6 +672,7 @@ export class TreeView extends HTMLElement {
 
   /**
    * Select next or previous visible adjacent cell.
+   *
    * @param {KeyboardEvent} event
    * @param {HTMLTableCellElement} currentCell - Cell HTML element.
    * @param {string} nextKey - Key used for moving to next cell.
@@ -1647,7 +1650,8 @@ export class TreeView extends HTMLElement {
   /**
    * Loop through all available child elements of the placeholder slot and
    * show those that are needed.
-   * @param {array} idsToShow - Array of ids to show.
+   *
+   * @param {Array} idsToShow - Array of ids to show.
    */
   updatePlaceholders(idsToShow) {
     for (const element of this.placeholder.children) {
@@ -1723,6 +1727,7 @@ class TreeViewTable extends HTMLTableElement {
   /**
    * The array of objects containing the data to generate the needed columns.
    * Keep this public so child elements can access it if needed.
+   *
    * @type {ColumnDef[]}
    */
   columns;
@@ -1737,6 +1742,7 @@ class TreeViewTable extends HTMLTableElement {
   /**
    * Array containing the IDs of templates holding menu items to dynamically add
    * to the menupopup of the column picker.
+   *
    * @type {Array}
    */
   popupMenuTemplates = [];
@@ -2317,24 +2323,28 @@ customElements.define("tree-view-table-header", TreeViewTableHeader, {
 class TreeViewTableHeaderCell extends HTMLTableCellElement {
   /**
    * The div needed to handle the header button in an absolute position.
+   *
    * @type {HTMLElement}
    */
   #container;
 
   /**
    * The clickable button to change the sorting of the table.
+   *
    * @type {HTMLButtonElement}
    */
   #button;
 
   /**
    * If this cell is resizable.
+   *
    * @type {boolean}
    */
   #resizable = true;
 
   /**
    * If this cell can be clicked to affect the sorting order of the tree.
+   *
    * @type {boolean}
    */
   #sortable = true;
@@ -2524,12 +2534,14 @@ customElements.define("tree-view-table-header-cell", TreeViewTableHeaderCell, {
 class TreeViewTableColumnPicker extends HTMLTableCellElement {
   /**
    * The clickable button triggering the picker context menu.
+   *
    * @type {HTMLButtonElement}
    */
   #button;
 
   /**
    * The menupopup allowing users to show and hide columns.
+   *
    * @type {XULElement}
    */
   #context;

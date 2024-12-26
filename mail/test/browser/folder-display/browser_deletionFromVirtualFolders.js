@@ -49,6 +49,7 @@ var setNormal;
 
 /**
  * The message window.
+ *
  * @type {Window}
  */
 var msgc;

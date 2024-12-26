@@ -856,6 +856,7 @@ var gSendListener = {
 
 /**
  * All progress notifications are done through progressListener.
+ *
  * @implements {nsIWebProgressListener}
  */
 var progressListener = {

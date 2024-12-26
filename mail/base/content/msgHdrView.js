@@ -106,7 +106,7 @@ var gMessageListeners = [];
  * @param {string} name - The name of the header. i.e. "to", "subject". This
  *   must be in lower case and the name of the header is used to help
  *   dynamically generate ids for objects in the document.
- * @param {function} [outputFunction=updateHeaderValue] - Takes a headerEntry
+ * @param {Function} [outputFunction=updateHeaderValue] - Takes a headerEntry
  *   (see the definition below) and a header value. This allows to provide a
  *   unique methods for determining how the header value is displayed. Defaults
  *   to `updateHeaderValue` which just sets the header value on the text node.
@@ -392,6 +392,7 @@ function initializeHeaderViewTables() {
 
 /**
  * Show security info dialog when keyboard shortcut it invoked.
+ *
  * @param {Event} event - keypress event
  */
 async function msgSecurityKeypressHandler(event) {
@@ -3368,7 +3369,7 @@ function MarkSelectedMessagesFlagged(markFlagged) {
 }
 
 /**
- * @param headermode {Ci.nsMimeHeaderDisplayTypes}
+ * @param {nsMimeHeaderDisplayTypes} headermode
  */
 function AdjustHeaderView(headermode) {
   document
@@ -3382,7 +3383,7 @@ function AdjustHeaderView(headermode) {
 /**
  * Should the reply command/button be enabled?
  *
- * @return whether the reply command/button should be enabled.
+ * @returns {boolean} whether the reply command/button should be enabled.
  */
 function IsReplyEnabled() {
   // If we're in an rss item, we never want to Reply, because there's
@@ -3393,7 +3394,7 @@ function IsReplyEnabled() {
 /**
  * Should the reply-all command/button be enabled?
  *
- * @return whether the reply-all command/button should be enabled.
+ * @returns {boolean} whether the reply-all command/button should be enabled.
  */
 function IsReplyAllEnabled() {
   if (gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
@@ -3444,7 +3445,7 @@ function IsReplyAllEnabled() {
 /**
  * Should the reply-list command/button be enabled?
  *
- * @return whether the reply-list command/button should be enabled.
+ * @returns {boolean} whether the reply-list command/button should be enabled.
  */
 function IsReplyListEnabled() {
   // ReplyToList is enabled if there is a List-Post header
@@ -3663,7 +3664,7 @@ function updateHeaderToolbarButtons() {
  * Checks if the selected messages can be marked as read or unread
  *
  * @param markingRead true if trying to mark messages as read, false otherwise
- * @return true if the chosen operation can be performed
+ * @returns true if the chosen operation can be performed
  */
 function CanMarkMsgAsRead(markingRead) {
   return gMessage && SelectedMessagesAreRead() != markingRead;
@@ -4225,6 +4226,7 @@ function setMsgHdrPropertyAndReload(aProperty, aValue) {
 
 /**
  * Mark a specified message as read.
+ *
  * @param msgHdr header (nsIMsgDBHdr) of the message to mark as read
  */
 function MarkMessageAsRead(msgHdr) {

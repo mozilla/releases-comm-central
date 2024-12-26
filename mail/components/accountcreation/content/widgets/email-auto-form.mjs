@@ -26,7 +26,7 @@ class EmailAutoForm extends AccountHubStep {
   /**
    * The current email auto config form inputs.
    *
-   * @type {Object}
+   * @type {object}
    */
   #currentConfig;
 

@@ -179,7 +179,7 @@ function isDefaultIcon(icon) {
  *        regular expression it is tested against the icon url, and if
  *        it is a function, it is called with the icon url and returns
  *        true if the url is correct.
- * @param {Object[]} permissions
+ * @param {object[]} permissions
  *        The expected entries in the permissions list. Each element
  *        in this array is itself a 2-element array with the string key
  *        for the item (e.g., "webext-perms-description-foo") for permission foo

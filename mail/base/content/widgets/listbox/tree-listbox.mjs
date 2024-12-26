@@ -7,8 +7,8 @@ import { TreeListboxMixin } from "chrome://messenger/content/tree-listbox-mixin.
 /**
  * An unordered list with the functionality of TreeListboxMixin.
  *
- * @extends HTMLUListElement
- * @mixes TreeListboxMixin
+ * @augments {HTMLUListElement}
+ * @mixes {TreeListboxMixin}
  * @tagname tree-listbox
  */
 class TreeListbox extends TreeListboxMixin(HTMLUListElement) {}

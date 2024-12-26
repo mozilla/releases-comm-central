@@ -113,6 +113,7 @@ async function getOrOpen3PaneWindow() {
 
 /**
  * Open the given uri.
+ *
  * @param {nsIURI} uri - The uri to open.
  */
 export function openURI(uri) {

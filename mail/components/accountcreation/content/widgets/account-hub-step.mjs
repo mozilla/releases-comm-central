@@ -76,7 +76,7 @@ export class AccountHubStep extends HTMLElement {
   /**
    * Calls the error notification method in the header template.
    *
-   * @param {Object} options
+   * @param {object} options
    */
   showNotification(options) {
     this.#header.showNotification(options);

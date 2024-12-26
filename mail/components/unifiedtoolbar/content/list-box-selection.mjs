@@ -398,7 +398,7 @@ export default class ListBoxSelection extends HTMLUListElement {
    *   to.
    * @param {boolean} afterSibling - If the item should be inserted after the
    *   sibling.
-   * @return {CustomizableElement} The dropped customizable element created by
+   * @returns {CustomizableElement} The dropped customizable element created by
    *   this handler.
    */
   handleDrop(itemId, sibling, afterSibling) {

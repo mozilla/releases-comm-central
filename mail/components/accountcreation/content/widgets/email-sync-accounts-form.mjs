@@ -40,14 +40,14 @@ class EmailSyncAccountsForm extends AccountHubStep {
   /**
    * Contains 2 arrays of the available calendars and address books.
    *
-   * @type {Object}
+   * @type {object}
    */
   #availableSyncAccounts;
 
   /**
    * Contains the current counters for addressBooks and calendars.
    *
-   * @type {Object}
+   * @type {object}
    */
   counters;
 
@@ -112,7 +112,7 @@ class EmailSyncAccountsForm extends AccountHubStep {
   }
 
   /**
-   * @typedef {Object} SyncAccounts
+   * @typedef {object} SyncAccounts
    * @property {Array} calendars - The account's calendars.
    * @property {Array} addressBooks - The account's address books.
    */
@@ -197,7 +197,7 @@ class EmailSyncAccountsForm extends AccountHubStep {
   /**
    * Creates the label and checkbox input for a sync account.
    *
-   * @type {Object} syncAccount - A syncable account.
+   * @type {object} syncAccount - A syncable account.
    * @type {string} inputClass - Class name for input type.
    * @returns {HTMLElement} The account label with the checkbox input.
    */

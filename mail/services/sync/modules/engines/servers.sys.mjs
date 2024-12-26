@@ -242,7 +242,7 @@ ServerStore.prototype = {
   /**
    * Obtain the set of all known record IDs.
    *
-   * @return Object with ID strings as keys and values of true. The values
+   * @returns Object with ID strings as keys and values of true. The values
    *         are ignored.
    */
   async getAllIDs() {
@@ -273,7 +273,7 @@ ServerStore.prototype = {
    * @param  collection
    *         Collection to add record to. This is typically passed into the
    *         constructor for the newly-created record.
-   * @return record type for this engine
+   * @returns record type for this engine
    */
   async createRecord(id, collection) {
     const record = new ServerRecord(collection, id);

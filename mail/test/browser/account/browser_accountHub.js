@@ -1319,7 +1319,7 @@ add_task(async function test_invalid_manual_config_flow() {
  * testing.
  *
  * @returns {Promise<HTMLElement>}
- **/
+ */
 async function subtest_open_account_hub_dialog() {
   await window.openAccountHub();
 

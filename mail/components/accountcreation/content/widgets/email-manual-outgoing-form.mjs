@@ -145,7 +145,7 @@ class EmailOutgoingForm extends AccountHubStep {
    * Return the current state of the email setup form, with the updated
    * outgoing fields.
    *
-   * @return {AccountConfig}
+   * @returns {AccountConfig}
    */
   captureState() {
     return this.getConfig();

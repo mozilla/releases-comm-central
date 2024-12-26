@@ -8,7 +8,7 @@ import { TreeViewTableRow } from "chrome://messenger/content/tree-view.mjs";
  * The tr element row of the TreeView table.
  *
  * @note The main child is a clone of the `#threadPaneRowTemplate` template.
- * @extends TreeViewTableRow
+ * @augments {TreeViewTableRow}
  * @tagname thread-row
  */
 class ThreadRow extends TreeViewTableRow {

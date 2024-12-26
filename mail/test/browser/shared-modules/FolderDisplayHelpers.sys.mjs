@@ -37,6 +37,7 @@ export var FAKE_SERVER_HOSTNAME = "tinderbox123";
 
 /**
  * The main 3-pane window.
+ *
  * @type {Window}
  */
 export var mc = wait_for_existing_window("mail:3pane");
@@ -794,7 +795,6 @@ export async function select_column_click_row(aViewIndex, aWin = mc) {
  * @param aViewIndex If >= 0, the view index provided, if < 0, a reference to
  *     a view index counting from the last row in the tree.  -1 indicates the
  *     last message in the tree, -2 the second to last, etc.
- *
  */
 export async function toggle_thread_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
@@ -1410,32 +1410,31 @@ export function plan_for_message_display() {}
 
 /**
  * If a message or summary is in the process of loading, let it finish;
- *  optionally, be sure to wait for a load to happen (assuming
- *  |plan_for_message_display| is used, modulo the conditions below.)
+ * optionally, be sure to wait for a load to happen (assuming
+ * |plan_for_message_display| is used, modulo the conditions below.)
  *
  * This method is used defensively by a lot of other code in this file that is
- *  really not sure whether there might be a load in progress or not.  So by
- *  default we only do something if there is obviously a message display in
- *  progress.  Since some events may end up getting deferred due to script
- *  blockers or the like, it is possible the event that triggers the display
- *  may not have happened by the time you call this.  In that case, you should
+ * really not sure whether there might be a load in progress or not.  So by
+ * default we only do something if there is obviously a message display in
+ * progress.  Since some events may end up getting deferred due to script
+ * blockers or the like, it is possible the event that triggers the display
+ * may not have happened by the time you call this.  In that case, you should
  *
- *  1) pass true for aLoadDemanded, and
- *  2) invoke |plan_for_message_display|
+ * 1) pass true for aLoadDemanded, and
+ * 2) invoke |plan_for_message_display|
  *
- *  before triggering the event that will induce a message display.  Note that:
- *  - You cannot do #2 if you are opening a new message window and can assume
- *    that this will be the first message ever displayed in the window. This is
- *    fine, because messageLoaded is initially false.
- *  - You should not do #2 if you are opening a new folder or message tab. That
- *    is because you'll affect the old tab's message display instead of the new
- *    tab's display. Again, this is fine, because a new message display will be
- *    created for the new tab, and messageLoaded will initially be false for it.
+ * before triggering the event that will induce a message display.  Note that:
+ * - You cannot do #2 if you are opening a new message window and can assume
+ * that this will be the first message ever displayed in the window. This is
+ * fine, because messageLoaded is initially false.
+ * - You should not do #2 if you are opening a new folder or message tab. That
+ * is because you'll affect the old tab's message display instead of the new
+ * tab's display. Again, this is fine, because a new message display will be
+ * created for the new tab, and messageLoaded will initially be false for it.
  *
  * If we didn't use this method defensively, we would get horrible assertions
- *  like so:
+ * like so:
  * ###!!! ASSERTION: Overwriting an existing document channel!
- *
  *
  * @param {Window} [aWin] - The window in whose context to do this, defaults to
  *   the first window.

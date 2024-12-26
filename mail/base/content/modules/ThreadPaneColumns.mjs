@@ -442,6 +442,7 @@ function getDefaultColumnsForCardsView(folder) {
 
 /**
  * Callback function to retrieve the icon to be used for the given msgHdr.
+ *
  * @callback IconCallback
  * @param {nsIMsgDBHdr} msgHdr
  *
@@ -451,6 +452,7 @@ function getDefaultColumnsForCardsView(folder) {
 
 /**
  * Callback function to retrieve a numeric sort key for the given msgHdr.
+ *
  * @callback SortCallback
  * @param {nsIMsgDBHdr} msgHdr
  *
@@ -459,6 +461,7 @@ function getDefaultColumnsForCardsView(folder) {
 
 /**
  * Callback function to retrieve the text to be used for the given msgHdr.
+ *
  * @callback TextCallback
  * @param {nsIMsgDBHdr} msgHdr
  *

@@ -226,7 +226,7 @@ class MultiMessageSummary {
    * Create a summary item for a message or thread.
    *
    * @param {nsIMsgDBHdr[]} messages - An array of messages to summarize.
-   * @param {Object} [options={}] - Optional object to customize the output:
+   * @param {object} [options={}] - Optional object to customize the output:
    *   - showSubject: true if the subject of the message should be shown.
    *   - snippetLength: the length in bytes of the message snippet.
    *   - belongsToThread: true if we're rendering a message that belongs to the

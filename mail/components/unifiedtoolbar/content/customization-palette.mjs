@@ -148,7 +148,7 @@ class CustomizationPalette extends ListBoxSelection {
    * item to the target.
    *
    * @param {CustomizationTarget} target
-   * @returns {function} Context menu item event handler curried with the given
+   * @returns {Function} Context menu item event handler curried with the given
    *   target.
    */
   #makeAddToTargetHandler(target) {

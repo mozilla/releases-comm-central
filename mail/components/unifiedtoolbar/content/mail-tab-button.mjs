@@ -29,7 +29,7 @@ export class MailTabButton extends UnifiedToolbarButton {
   /**
    * Listeners we've added in tabs.
    *
-   * @type {{tabId: any, target: EventTarget, event: string, callback: function}[]}
+   * @type {{tabId: any, target: EventTarget, event: string, callback: Function}[]}
    */
   #listeners = [];
 

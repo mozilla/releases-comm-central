@@ -159,9 +159,8 @@ function writeFile(aFile, aText) {
 /**
  * Reads text from a file and returns the string.
  *
- * @param  aFile
- *         The file to read from.
- * @return The string of text read from the file.
+ * @param {nsIFile} aFile - The file to read from.
+ * @returns {string} the string of text read from the file.
  */
 function readFile(aFile) {
   const fis = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
@@ -185,17 +184,15 @@ function readFile(aFile) {
 /**
  * Gets the specified update file or directory.
  *
- * @param   aLogLeafName
- *          The leafName of the file or directory to get.
- * @param   aWhichDir
- *          Since we started having a separate patch directory and downloading
- *          directory, there are now files with the same name that can be in
- *          either directory. This argument is optional and defaults to the
- *          patch directory for historical reasons. But if it is specified as
- *          DIR_DOWNLOADING, this function will provide the version of the file
- *          in the downloading directory. For files that aren't in the patch
- *          directory or the downloading directory, this value is ignored.
- * @return  nsIFile for the file or directory.
+ * @param {string} aLogLeafName - The leafName of the file or directory to get.
+ * @param {string} aWhichDir - Since we started having a separate patch directory
+ *   and downloading directory, there are now files with the same name that can be in
+ *   either directory. This argument is optional and defaults to the
+ *   patch directory for historical reasons. But if it is specified as
+ *   DIR_DOWNLOADING, this function will provide the version of the file
+ *   in the downloading directory. For files that aren't in the patch
+ *   directory or the downloading directory, this value is ignored.
+ * @returns {nsIFile} file for the file or directory.
  */
 function getUpdateDirFile(aLeafName, aWhichDir = null) {
   const file = Services.dirsvc.get(XRE_UPDATE_ROOT_DIR, Ci.nsIFile);
@@ -254,12 +251,11 @@ function getUpdateDirFile(aLeafName, aWhichDir = null) {
  * to the current time and if the update changes any files in the root directory
  * then it wouldn't be possible to test (bug 600098).
  *
- * @param   aRelPath (optional)
- *          The relative path to the file or directory to get from the root of
- *          the stage directory. If not specified the stage directory will be
- *          returned.
- * @return  The nsIFile for the file in the directory where the update will be
- *          staged.
+ * @param {string} [aRelPath] - The relative path to the file or directory to
+ *  get from the root of the stage directory. If not specified the stage
+ *  directory will be returned.
+ * @returns {nsIFile} the nsIFile for the file in the directory where the update
+ *   will be staged.
  */
 function getStageDirFile(aRelPath) {
   let file;
@@ -285,9 +281,9 @@ function getStageDirFile(aRelPath) {
  * removing the directories since removing the directories has caused issues
  * when running tests with --verify and recursively removes the stage directory.
  *
- * @param   aRemoveLogFiles
- *          When true the update log files will also be removed. This allows
- *          for the inspection of the log files while troubleshooting tests.
+ * @param {boolean} aRemoveLogFiles - When true the update log files will also
+ *   be removed. This allows for the inspection of the log files while
+ *   troubleshooting tests.
  */
 function removeUpdateFiles(aRemoveLogFiles) {
   let files = [
@@ -345,8 +341,7 @@ function removeUpdateFiles(aRemoveLogFiles) {
  * If that fails it will fall back to recursing, setting the appropriate
  * permissions, and deleting the current entry.
  *
- * @param  aDir
- *         nsIFile for the directory to be deleted.
+ * @param {nsIFile} aDir - nsIFile for the directory to be deleted.
  */
 function removeDirRecursive(aDir) {
   if (!aDir.exists()) {
@@ -398,7 +393,7 @@ function removeDirRecursive(aDir) {
  * binaries are located. On Mac OS X this will be <bundle>/Contents/Resources/
  * and the installation directory on all other platforms.
  *
- * @return nsIFile for the Gecko Runtime Engine directory.
+ * @returns {nsIFile} nsIFile for the Gecko Runtime Engine directory.
  */
 function getGREDir() {
   return Services.dirsvc.get(NS_GRE_DIR, Ci.nsIFile);
@@ -411,7 +406,7 @@ function getGREDir() {
  * <bundle>/Contents/MacOS/ and the installation directory on all other
  * platforms.
  *
- * @return nsIFile for the Gecko Runtime Engine Binary directory.
+ * @returns nsIFile for the Gecko Runtime Engine Binary directory.
  */
 function getGREBinDir() {
   return Services.dirsvc.get(NS_GRE_BIN_DIR, Ci.nsIFile);
@@ -420,11 +415,9 @@ function getGREBinDir() {
 /**
  * Logs TEST-INFO messages.
  *
- * @param  aText
- *         The text to log.
- * @param  aCaller (optional)
- *         An optional Components.stack.caller. If not specified
- *         Components.stack.caller will be used.
+ * @param {string} aText - The text to log.
+ * @param {object} [aCaller] - An optional Components.stack.caller. If not
+ *   specified Components.stack.caller will be used.
  */
 function logTestInfo(aText, aCaller) {
   const caller = aCaller ? aCaller : Components.stack.caller;
@@ -462,11 +455,9 @@ function logTestInfo(aText, aCaller) {
 /**
  * Logs TEST-INFO messages when gDebugTest evaluates to true.
  *
- * @param  aText
- *         The text to log.
- * @param  aCaller (optional)
- *         An optional Components.stack.caller. If not specified
- *         Components.stack.caller will be used.
+ * @param {string} aText - The text to log.
+ * @param {object} [aCaller] - An optional Components.stack.caller. If not
+ *   specified Components.stack.caller will be used.
  */
 function debugDump(aText, aCaller) {
   if (gDebugTest) {

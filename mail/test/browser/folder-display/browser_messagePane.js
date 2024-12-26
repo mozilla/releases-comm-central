@@ -4,7 +4,7 @@
 
 /**
  * Test that the message pane behaves properly when showing and hiding messages
- * */
+ */
 
 "use strict";
 

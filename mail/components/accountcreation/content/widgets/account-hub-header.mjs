@@ -50,7 +50,7 @@ class AccountHubHeader extends HTMLElement {
   /**
    * Show an error notification in-case something went wrong.
    *
-   * @param {Object} options - An options object for displaying notification.
+   * @param {object} options - An options object for displaying notification.
    * @param {string} options.description - A raw string to show in the title.
    * @param {Error} options.error - An error object.
    * @param {string} options.fluentTitleId - A string representing a fluent id
@@ -130,7 +130,7 @@ class AccountHubHeader extends HTMLElement {
   /**
    * Set the title of the notification
    *
-   * @param {Object} options
+   * @param {object} options
    * @param {string} options.title - The the raw text title of notification
    *   to be shown
    * @param {string} options.fluentTitleId - The fluent id to of a string to

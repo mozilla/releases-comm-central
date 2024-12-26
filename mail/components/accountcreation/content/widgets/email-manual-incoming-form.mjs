@@ -78,7 +78,7 @@ class EmailIncomingForm extends AccountHubStep {
   /**
    * Indicates if the form has been updated by the user.
    *
-   * @type {Boolean}
+   * @type {boolean}
    */
   #edited;
 
@@ -165,7 +165,7 @@ class EmailIncomingForm extends AccountHubStep {
   /**
    * @typedef {object} ConfigFormState
    * @property {AccountConfig} config - The updated AccountConfig.
-   * @property {Boolean} edited - If form has been edited.
+   * @property {boolean} edited - If form has been edited.
    */
 
   /**
@@ -232,6 +232,7 @@ class EmailIncomingForm extends AccountHubStep {
   /**
    * Make OAuth2 visible as an authentication method when a hostname that
    * OAuth2 can be used with is entered.
+   *
    * @param {AccountConfig} [accountConfig] - Complete AccountConfig.
    */
   #adjustOAuth2Visibility(accountConfig) {
