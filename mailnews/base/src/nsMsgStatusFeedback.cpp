@@ -239,8 +239,16 @@ NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest* request,
   nsString msg;
   nsAutoString host;
   host.Append(aStatusArg);
-  rv = FormatStatusMessage(aStatus, host, msg);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (aStatus == NS_OK) {
+    // Already formatted message.
+    if (!aStatusArg) {
+      return NS_ERROR_FAILURE;  // No message to format
+    }
+    msg.Assign(aStatusArg);
+  } else {
+    rv = FormatStatusMessage(aStatus, host, msg);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   // prefixing the account name to the status message if status message isn't
   // blank and doesn't already contain the account name.
