@@ -114,7 +114,6 @@ function SetUpTree(forceToServer, getOnlyNew) {
     document.getElementById("refreshButton").disabled = true;
 
     gStatusFeedback._startMeteors();
-    gStatusFeedback.setStatusString("");
     gStatusFeedback.showStatusString(
       gSubscribeBundle.getString("pleaseWaitString")
     );
@@ -124,12 +123,12 @@ function SetUpTree(forceToServer, getOnlyNew) {
   } catch (e) {
     if (e.result == 0x80550014) {
       // NS_MSG_ERROR_OFFLINE
-      gStatusFeedback.setStatusString(
+      gStatusFeedback.showStatusString(
         gSubscribeBundle.getString("offlineState")
       );
     } else {
       console.error("Failed to populate subscribe tree: ", e);
-      gStatusFeedback.setStatusString(
+      gStatusFeedback.showStatusString(
         gSubscribeBundle.getString("errorPopulating")
       );
     }

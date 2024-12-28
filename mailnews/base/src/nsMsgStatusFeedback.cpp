@@ -154,14 +154,6 @@ nsMsgStatusFeedback::ShowStatusString(const nsAString& aStatus) {
 }
 
 NS_IMETHODIMP
-nsMsgStatusFeedback::SetStatusString(const nsAString& aStatus) {
-  nsCOMPtr<nsIMsgStatusFeedback> jsStatusFeedback(
-      do_QueryReferent(mJSStatusFeedbackWeak));
-  if (jsStatusFeedback) jsStatusFeedback->SetStatusString(aStatus);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgStatusFeedback::ShowProgress(int32_t aPercentage) {
   // If the percentage hasn't changed...OR if we are going from 0 to 100% in one
   // step then don't bother....just fall out....

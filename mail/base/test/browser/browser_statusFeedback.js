@@ -69,3 +69,37 @@ add_task(async function testMessageOpen() {
     "status message should eventually reset"
   );
 });
+
+add_task(async function testManyStatuses() {
+  const statusFeedback = window.MsgStatusFeedback;
+  const statuses = [];
+  for (let i = 0; i < 25; i++) {
+    const str = `Hey hey hey #${i}`;
+    if (i < 10) {
+      // after 10 messages, messages should get dropped
+      statuses.push(
+        BrowserTestUtils.waitForMutationCondition(
+          statusText,
+          {
+            attributes: true,
+            attributeFilter: ["value"],
+          },
+          () => statusText.value == str
+        )
+      );
+    }
+    statusFeedback.showStatusString(str);
+  }
+  await Promise.all(statuses);
+  Assert.ok(true, `The ${statuses.length} first statuses should be shown`);
+
+  // After that, it should clear up.
+  await BrowserTestUtils.waitForMutationCondition(
+    statusText,
+    {
+      attributes: true,
+      attributeFilter: ["value"],
+    },
+    () => statusText.value == ""
+  );
+});

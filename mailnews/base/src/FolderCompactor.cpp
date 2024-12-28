@@ -792,7 +792,7 @@ static void GUIShowCompactingMsg(nsIMsgWindow* window, nsIMsgFolder* folder) {
   if (feedback) {
     // Not all windows have .statusFeedback set, especially during
     // xpcshell-tests (search for gDummyMsgWindow, set up in alertTestUtils.js).
-    feedback->SetStatusString(statusMessage);
+    feedback->ShowStatusString(statusMessage);
     feedback->StartMeteors();
   }
 }
@@ -823,7 +823,7 @@ static void GUIShowDoneMsg(nsIMsgWindow* window, int64_t totalBytesRecovered) {
   nsCOMPtr<nsIMsgStatusFeedback> feedback;
   window->GetStatusFeedback(getter_AddRefs(feedback));
   if (feedback) {
-    feedback->SetStatusString(doneMsg);
+    feedback->ShowStatusString(doneMsg);
     feedback->StopMeteors();
   }
 }

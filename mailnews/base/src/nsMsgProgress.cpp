@@ -192,11 +192,6 @@ NS_IMETHODIMP nsMsgProgress::ShowStatusString(const nsAString& aStatus) {
                         PromiseFlatString(aStatus).get());
 }
 
-NS_IMETHODIMP nsMsgProgress::SetStatusString(const nsAString& aStatus) {
-  return OnStatusChange(nullptr, nullptr, NS_OK,
-                        PromiseFlatString(aStatus).get());
-}
-
 NS_IMETHODIMP nsMsgProgress::StartMeteors() { return NS_ERROR_NOT_IMPLEMENTED; }
 
 NS_IMETHODIMP nsMsgProgress::StopMeteors() { return NS_ERROR_NOT_IMPLEMENTED; }

@@ -314,6 +314,7 @@ function nsMsgStatusFeedback() {
   );
   this._throbber = document.getElementById("throbber-box");
   this._activeProcesses = [];
+  this._statusQueue = [];
 
   // make sure the stop button is accurate from the get-go
   goUpdateCommand("cmd_stop");
@@ -340,12 +341,11 @@ nsMsgStatusFeedback.prototype = {
   // How many start meteors have been requested.
   _startRequests: 0,
   _meteorsSpinning: false,
-  _defaultStatusText: "",
   _progressBarVisible: false,
   _activeProcesses: null,
   _statusFeedbackProgress: -1,
   _statusLastShown: 0,
-  _lastStatusText: null,
+  _statusQueue: null,
   _timeoutDelay: ChromeUtils.isInAutomation ? 50 : 500,
 
   // unload - call to remove links to listeners etc.
@@ -435,50 +435,52 @@ nsMsgStatusFeedback.prototype = {
     "nsISupportsWeakReference",
   ]),
 
-  // nsIMsgStatusFeedback implementation.
+  /**
+   * @param {string} statusText - The status string to display.
+   * @see {nsIMsgStatusFeedback}
+   */
   showStatusString(statusText) {
-    if (!statusText) {
-      statusText = this._defaultStatusText;
-    } else {
-      this._defaultStatusText = "";
-    }
     // Let's make sure the display doesn't flicker.
-    const timeBetweenDisplay = 500;
-    const now = Date.now();
-    if (now - this._statusLastShown > timeBetweenDisplay) {
-      // Cancel any pending status message. The timeout is not guaranteed
-      // to run within timeBetweenDisplay milliseconds.
-      this._lastStatusText = null;
-
-      this._statusLastShown = now;
+    const MIN_DISPLAY_TIME = 750;
+    if (
+      !this._statusIntervalId &&
+      Date.now() - this._statusLastShown > MIN_DISPLAY_TIME
+    ) {
+      this._statusLastShown = Date.now();
       if (this._statusText.value != statusText) {
         this._statusText.value = statusText;
       }
-    } else {
-      if (this._lastStatusText !== null) {
-        // There's already a pending display. Replace it.
-        this._lastStatusText = statusText;
+      return;
+    }
+    if (this._statusQueue.length >= 10) {
+      // Drop further messages until the queue has cleared up.
+      return;
+    }
+    if (!statusText && this._statusQueue.length > 0) {
+      // Don't queue empty strings in the middle.
+      return;
+    }
+    this._statusQueue.push(statusText);
+    if (this._statusIntervalId) {
+      return;
+    }
+
+    // Arrange for this to be shown in MIN_DISPLAY_TIME ms.
+    this._statusIntervalId = setInterval(() => {
+      const text = this._statusQueue.shift();
+      if (text === undefined) {
+        clearInterval(this._statusIntervalId);
+        this._statusIntervalId = null;
+        if (!this._meteorsSpinning) {
+          this._statusText.value = ""; // Clear status text once done.
+        }
         return;
       }
-      // Arrange for this to be shown in timeBetweenDisplay milliseconds.
-      this._lastStatusText = statusText;
-      setTimeout(() => {
-        if (this._lastStatusText !== null) {
-          this._statusLastShown = Date.now();
-          if (this._statusText.value != this._lastStatusText) {
-            this._statusText.value = this._lastStatusText;
-          }
-          this._lastStatusText = null;
-        }
-      }, timeBetweenDisplay);
-    }
-  },
-
-  setStatusString(status) {
-    if (status.length > 0) {
-      this._defaultStatusText = status;
-      this._statusText.value = status;
-    }
+      this._statusLastShown = Date.now();
+      if (this._statusText.value != text) {
+        this._statusText.value = text;
+      }
+    }, MIN_DISPLAY_TIME);
   },
 
   _startMeteors() {
@@ -523,7 +525,7 @@ nsMsgStatusFeedback.prototype = {
   },
 
   _stopMeteors() {
-    this.showStatusString(this._defaultStatusText);
+    this.showStatusString("");
 
     // stop the throbber
     if (this._throbber) {
