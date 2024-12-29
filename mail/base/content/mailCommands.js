@@ -271,7 +271,7 @@ async function ComposeMessage(
           }
 
           if (
-            /^(.*[._-])?(do[._-]?not|no)[._-]?reply([._-].*)?@/i.test(email)
+            /^(.*[._-])?(do[._-]?not|no)[._-]?reply([._+-].*)?@/i.test(email)
           ) {
             const [title, message, replyAnywayButton] =
               await document.l10n.formatValues([
