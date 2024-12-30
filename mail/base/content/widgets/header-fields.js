@@ -399,11 +399,13 @@
       this.abIndicator.tabIndex = -1;
       this.abIndicator.addEventListener("click", event => {
         event.stopPropagation();
+        if (event.detail == 2) {
+          return; // Ignore double clicks.
+        }
         if (this.cardDetails.card) {
           gMessageHeader.editContact(this);
           return;
         }
-
         this.addToAddressBook();
       });
 
@@ -470,9 +472,8 @@
       }
 
       this.abIndicator.hidden = false;
-      const card = MailServices.ab.cardForEmailAddress(
-        this.#recipient.emailAddress
-      );
+      const card = MailServices.ab.cardForEmailAddress(this.emailAddress);
+
       this.cardDetails = {
         card,
         book: card
@@ -495,9 +496,9 @@
       // contacts.
       if (showCondensedAddress && displayName) {
         this.email.textContent = displayName;
-        this.email.setAttribute("title", this.#recipient.fullAddress);
+        this.email.setAttribute("title", this.fullAddress);
       } else {
-        this.email.textContent = this.#recipient.fullAddress;
+        this.email.textContent = this.fullAddress;
         this.email.removeAttribute("title");
       }
 
