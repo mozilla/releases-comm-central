@@ -8,14 +8,14 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
+  const { XPCOMUtils } = ChromeUtils.importESModule(
+    "resource://gre/modules/XPCOMUtils.sys.mjs"
+  );
   const { IMServices } = ChromeUtils.importESModule(
     "resource:///modules/IMServices.sys.mjs"
   );
   const { Status } = ChromeUtils.importESModule(
     "resource:///modules/imStatusUtils.sys.mjs"
-  );
-  const { TextboxSize } = ChromeUtils.importESModule(
-    "resource:///modules/imTextboxUtils.sys.mjs"
   );
   const { AppConstants } = ChromeUtils.importESModule(
     "resource://gre/modules/AppConstants.sys.mjs"
@@ -35,6 +35,15 @@
       return {
         browser: "autoscrollpopup",
       };
+    }
+
+    static {
+      XPCOMUtils.defineLazyPreferenceGetter(
+        this,
+        "autoResize",
+        "messenger.conversations.textbox.autoResize",
+        true
+      );
     }
 
     constructor() {
@@ -1047,7 +1056,7 @@
       this._statusText = "";
       this.displayStatusText();
 
-      if (TextboxSize.autoResize) {
+      if (MozChatConversation.autoResize) {
         const currHeight = Math.round(
           this.inputBox.parentNode.getBoundingClientRect().height
         );
@@ -1068,7 +1077,7 @@
       // This feature has been disabled, or the user is currently dragging
       // the splitter and the textbox has received an overflow event
       if (
-        !TextboxSize.autoResize ||
+        !MozChatConversation.autoResize ||
         this.splitter.getAttribute("state") == "dragging"
       ) {
         this.inputBox.style.overflowY = "";
@@ -1120,13 +1129,13 @@
             "px";
         }
       }
-      if (TextboxSize.autoResize) {
+      if (MozChatConversation.autoResize) {
         this.inputExpand();
       }
     }
 
     _onTextboxUnderflow() {
-      if (TextboxSize.autoResize) {
+      if (MozChatConversation.autoResize) {
         this.style.overflowY = "hidden";
       }
     }
