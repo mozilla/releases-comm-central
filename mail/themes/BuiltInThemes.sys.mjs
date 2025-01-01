@@ -59,14 +59,14 @@ class _BuiltInThemes {
   }
 
   /**
-   * @param {string} id
+   * @param {string} _id
    *   The theme's id.
    * @returns {boolean}
-   *   True if the theme with id `id` is both expired and retained. That is,
+   *   True if the theme with id `_id` is both expired and retained. That is,
    *   the user has the ability to use it after its expiry date.
    *   Or it would - this is just a shim not to break assumptions...
    */
-  isRetainedExpiredTheme() {
+  isRetainedExpiredTheme(_id) {
     return false;
   }
 
