@@ -140,9 +140,6 @@ add_task(async function test_opening_thread_in_tabs_closing_behaviour() {
  * Open some message tabs in the background from the folder tab.
  *
  * @param {number} numAdd - The number of tabs to add.
- *
- * @param {TestTab[]} An array of tab objects corresponding to all the open
- *   tabs.
  */
 async function openTabs(numAdd) {
   await be_in_folder(gFolder);

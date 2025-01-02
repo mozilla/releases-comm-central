@@ -119,8 +119,8 @@ function dumpAllowlistItem(item) {
  * Check if an error should be ignored due to matching one of the allowlist
  * objects.
  *
- * @param aErrorObject the error to check
- * @returns true if the error should be ignored, false otherwise.
+ * @param {object} aErrorObject - The error to check.
+ * @returns {boolean} true if the error should be ignored, false otherwise.
  */
 function ignoredError(aErrorObject) {
   for (const list of [ignoreList, thunderbirdIgnoreList]) {

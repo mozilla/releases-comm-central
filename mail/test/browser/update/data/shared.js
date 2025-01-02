@@ -95,10 +95,9 @@ XPCOMUtils.defineLazyServiceGetter(
 /**
  * Reloads the update xml files.
  *
- * @param  skipFiles (optional)
- *         If true, the update xml files will not be read and the metadata will
- *         be reset. If false (the default), the update xml files will be read
- *         to populate the update metadata.
+ * @param {boolean} [skipFiles=false] - If true, the update xml files will not
+ *   be read and the metadata will be reset. If false (the default), the update
+ *   xml files will be read to populate the update metadata.
  */
 function reloadUpdateManagerData(skipFiles = false) {
   gUpdateManager.internal.reload(skipFiles);
@@ -108,11 +107,10 @@ function reloadUpdateManagerData(skipFiles = false) {
  * Writes the updates specified to either the active-update.xml or the
  * updates.xml.
  *
- * @param  aContent
- *         The updates represented as a string to write to the XML file.
- * @param  isActiveUpdate
- *         If true this will write to the active-update.xml otherwise it will
- *         write to the updates.xml file.
+ * @param {string} aContent - The updates represented as a string to write to
+ *   the XML file.
+ * @param {boolean} aIsActiveUpdate - If true this will write to the
+ *    active-update.xml otherwise it will write to the updates.xml file.
  */
 function writeUpdatesToXMLFile(aContent, aIsActiveUpdate) {
   const file = getUpdateDirFile(
@@ -126,8 +124,7 @@ function writeUpdatesToXMLFile(aContent, aIsActiveUpdate) {
  * directory, indicating to the patching system that operations need
  * to be performed.
  *
- * @param  aStatus
- *         The status value to write.
+ * @param {string} aStatus - The status value to write.
  */
 function writeStatusFile(aStatus) {
   const file = getUpdateDirFile(FILE_UPDATE_STATUS);
@@ -138,11 +135,10 @@ function writeStatusFile(aStatus) {
  * Writes text to a file. This will replace existing text if the file exists
  * and create the file if it doesn't exist.
  *
- * @param  aFile
- *         The file to write to. Will be created if it doesn't exist.
- * @param  aText
- *         The text to write to the file. If there is existing text it will be
- *         replaced.
+ * @param {nsIFile} aFile - The file to write to. Will be created if it
+ *   doesn't exist.
+ * @param {string} aText - The text to write to the file. If there is existing
+ *   text it will be replaced.
  */
 function writeFile(aFile, aText) {
   const fos = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
@@ -184,7 +180,7 @@ function readFile(aFile) {
 /**
  * Gets the specified update file or directory.
  *
- * @param {string} aLogLeafName - The leafName of the file or directory to get.
+ * @param {string} aLeafName - The leafName of the file or directory to get.
  * @param {string} aWhichDir - Since we started having a separate patch directory
  *   and downloading directory, there are now files with the same name that can be in
  *   either directory. This argument is optional and defaults to the
@@ -406,7 +402,7 @@ function getGREDir() {
  * <bundle>/Contents/MacOS/ and the installation directory on all other
  * platforms.
  *
- * @returns nsIFile for the Gecko Runtime Engine Binary directory.
+ * @returns {nsIFile} for the Gecko Runtime Engine Binary directory.
  */
 function getGREBinDir() {
   return Services.dirsvc.get(NS_GRE_BIN_DIR, Ci.nsIFile);

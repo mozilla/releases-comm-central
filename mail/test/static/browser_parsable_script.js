@@ -38,8 +38,8 @@ init();
  * Check if an error should be ignored due to matching one of the allowlist
  * objects defined in kAllowlist
  *
- * @param uri the uri to check against the allowlist
- * @returns true if the uri should be skipped, false otherwise.
+ * @param {nsIURI} uri - The uri to check against the allowlist
+ * @returns {boolean} true if the uri should be skipped, false otherwise.
  */
 function uriIsAllowed(uri) {
   for (const allowlistItem of kAllowlist) {

@@ -20,8 +20,8 @@ const ZipReader = new Components.Constructor(
  * extensions passed, represented by their nsIURI objects, which exist inside
  * the directory passed.
  *
- * @param dir the directory which to scan for files (nsIFile)
- * @param extensions the extensions of files we're interested in (Array).
+ * @param {nsIFile} dir - The directory which to scan for files.
+ * @param {string[]} extensions - The extensions of files we're interested in.
  */
 function generateURIsFromDirTree(dir, extensions) {
   if (!Array.isArray(extensions)) {
@@ -98,8 +98,11 @@ async function iterateOverPath(path, extensions) {
   return { files, subdirs };
 }
 
-/* Helper function to generate a URI spec (NB: not an nsIURI yet!)
- * given an nsIFile object */
+/**
+ * Helper function to generate a URI spec (NB: not an nsIURI yet!)
+ *
+ * @param {nsIFile} file - The file to generate spec from.
+ */
 function getURLForFile(file) {
   let fileHandler = Services.io.getProtocolHandler("file");
   fileHandler = fileHandler.QueryInterface(Ci.nsIFileProtocolHandler);
@@ -110,8 +113,8 @@ function getURLForFile(file) {
  * A generator that generates nsIURIs for particular files found in jar files
  * like omni.ja.
  *
- * @param jarFile an nsIFile object for the jar file that needs checking.
- * @param extension the extension we're interested in.
+ * @param {nsIFile} jarFile - The jar file that needs checking.
+ * @param {string} extension - The extension we're interested in.
  */
 function* generateEntriesFromJarFile(jarFile, extension) {
   const zr = new ZipReader(jarFile);
@@ -128,6 +131,9 @@ function* generateEntriesFromJarFile(jarFile, extension) {
   zr.close();
 }
 
+/**
+ * @param {string} uri
+ */
 function fetchFile(uri) {
   return new Promise(resolve => {
     const xhr = new XMLHttpRequest();
