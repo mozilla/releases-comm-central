@@ -3,17 +3,19 @@
 
 "use strict";
 
+/**
+ * Test if the correct What's New Page will be displayed
+ * when a major Thunderbird update is installed by a different profile.
+ * Also ensures no What's New Page will be displayed when an installed update
+ * has a new appVersion.
+ * Adapted from the Firefox test in toolkit/mozapps/update/test/browser/browser_showWhatsNewPageTest.js,
+ * replacing all platformVersion usage to appVersion and removing the update
+ * ping tests.
+ */
+
 var { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
-
-// Test if the correct What's New Page will be displayed
-// when a major Thunderbird update is installed by a different profile.
-// Also ensures no What's New Page will be displayed when an installed update
-// has a new appVersion.
-// Adapted from the Firefox test in toolkit/mozapps/update/test/browser/browser_showWhatsNewPageTest.js,
-// replacing all platformVersion usage to appVersion and removing the update
-// ping tests.
 
 const UPDATE_PROVIDED_PAGE = "https://default.example.com/";
 const UPDATE_PROVIDED_PAGE2 = "https://default2.example.com/";
@@ -60,26 +62,23 @@ add_setup(() => {
  * Loads an update into the update system and checks that the What's New Page
  * is shown correctly.
  *
- * @param origAppVersion
- *    Version information that should be written into prefs as the last version
- *    that this profile ran
- * @param updateAppVersion
- * @param updateWnp
- *    Information about an update to load into the update system via XML. If
- *    this were real instead of a test, this information would have come from
- *    Balrog.
- * @param setUpdateHistoryOnly
- *    Normally, this function loads the specified update information such that
- *    it appears that this update has just been installed. If this is set to
- *    `true`, the update will instead be loaded into the update history.
- * @param installedAppVersion
- *    Information about the version that Firefox is running at after the
- *    (simulated) update.
+ * @param {object} details
+ * @param {string} details.origAppVersion - Version information that should be
+ *   written into prefs as the last version that this profile ran.
+ * @param {string} details.updateAppVersion - The updated app version.
+ * @param {string} details.updateWnp - Information about an update to load into the
+ *   update system via XML. If this were real instead of a test, this
+ *   information would have come from Balrog.
+ * @param {boolean} details.setUpdateHistoryOnly - Normally, this function loads the
+ *   specified update information such that it appears that this update has just
+ *   been installed. If this is set to `true`, the update will instead be loaded
+ *   into the update history.
+ * @param {string} details.installedAppVersion - Information about the version that
+ *   Thunderbird is running at after the (simulated) update.
  *    These default to the corresponding `update*` values if they aren't
  *    specified.
- * @param expectedPostUpdatePage
- *    If provided, this will assert that the post update page shown after the
- *    update matches the one provided.
+ * @param {string} details.expectedPostUpdatePage - If provided, this will assert
+ *   that the post update page shown after the update matches the one provided.
  */
 async function WnpTest({
   origAppVersion,

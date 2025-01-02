@@ -76,7 +76,7 @@ export async function promise_modal_dialog(aWindowType, aSubTestFunction) {
 /**
  * Wait for the window to be focused.
  *
- * @param aWindow the window to be focused.
+ * @param {Window} aWindow - The window to be focused.
  */
 export async function wait_for_window_focused(aWindow) {
   let targetWindow = {};
@@ -130,20 +130,24 @@ export async function wait_for_browser_load(aBrowser, aURLOrPredicate) {
 /**
  * Given an HTML <frame> or <iframe>, waits for it to completely load.
  *
- * @param aFrame The element to wait for.
- * @param aURLOrPredicate The URL that should be loaded (string) or a predicate
- *                        for the URL (function).
- * @returns The frame.
+ * @param {HTMLFrameElement|HTMLIFrameElement} aFrame - The element to wait for.
+ * @param {string|nsIURI} aURLOrPredicate - The URL that should be loaded
+ *  (string) or a predicate for the URL (function).
+ * @returns {HTMLFrameElement|HTMLIFrameElement}
  */
 export async function wait_for_frame_load(aFrame, aURLOrPredicate) {
   return _wait_for_generic_load(aFrame, aURLOrPredicate);
 }
 
 /**
- * Generic function to wait for some sort of document to load. We expect
- * aDetails to have three fields:
- * - webProgress: an nsIWebProgress associated with the contentWindow.
- * - currentURI: the currently loaded page (nsIURI).
+ * Generic function to wait for some sort of document to load.
+ *
+ * @param {object} aDetails
+ * @param {nsIWebProgress} aDetails.webProgress - nsIWebProgress associated with
+ *   the contentWindow.
+ * @param {nsIURI} aDetails.currentURI - The currently loaded page.
+ * @param {Window} aDetails.contentWindow - The content window.
+ * @returns {?Window} the window of the loaded document.
  */
 async function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   let predicate;
@@ -181,20 +185,20 @@ async function _wait_for_generic_load(aDetails, aURLOrPredicate) {
 }
 
 /**
- * Dynamically-built/XBL-defined menus can be hard to work with, this makes it
+ * Dynamically-built menus can be hard to work with, this makes it
  *  easier.
  *
- * @param aRootPopup  The base popup. The caller is expected to activate it
- *     (by clicking/rightclicking the right widget). We will only wait for it
- *     to open if it is in the process.
- * @param aActions  An array of objects where each object has attributes
- *     with a value defined. We pick the menu item whose DOM node matches
- *     all the attributes with the specified names and value. We click whatever
- *     we find. We throw if the element being asked for is not found.
- * @param aKeepOpen  If set to true the popups are not closed after last click.
- *
- * @returns An array of popup elements that were left open. It will be
- *          an empty array if aKeepOpen was set to false.
+ * @param {Element} aRootPopup - The base popup. The caller is expected to
+ *   activate it (by clicking/rightclicking the right widget). We will only wait
+ *   for it to open if it is in the process.
+ * @param {object[]} aActions - An array of objects where each object has attributes
+ *   with a value defined. We pick the menu item whose DOM node matches
+ *   all the attributes with the specified names and value. We click whatever
+ *   we find. We throw if the element being asked for is not found.
+ * @param {boolean} aKeepOpen - If set to true the popups are not closed after
+ *   last click.
+ * @returns {Element[]} An array of popup elements that were left open.
+ *    It will be an empty array if aKeepOpen was set to false.
  */
 export async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
   if (aRootPopup.state != "open") {
@@ -208,7 +212,7 @@ export async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
    *
    * @param {Element} node - The node to check.
    * @param {object} actionObj - Contains attribute-value pairs to match.
-   * @returns {Element|null} The matched node or null if no match.
+   * @returns {?Element} The matched node or null if no match.
    */
   const findMatch = function (node, actionObj) {
     // Ignore some elements and just use their children instead.
@@ -288,9 +292,9 @@ export async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
 /**
  * Close given menupopups.
  *
- * @param aCloseStack  An array of menupopup elements that are to be closed.
- *                     The elements are processed from the end of the array
- *                     to the front (a stack).
+ * @param {Element[]} aCloseStack  An array of menupopup elements that are to
+ *   be closed. The elements are processed from the end of the array to the
+ *   front (a stack).
  */
 export function close_popup_sequence(aCloseStack) {
   while (aCloseStack.length) {

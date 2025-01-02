@@ -25,7 +25,7 @@ export function mark_selected_messages_as_junk() {
  * Delete all mail marked as junk in the selected folder. This is done by
  * activating the menu option from the Tools menu.
  *
- * @param aNumDeletesExpected The number of deletes expected.
+ * @param {integer} aNumDeletesExpected - The number of deletes expected.
  */
 export async function delete_mail_marked_as_junk(aNumDeletesExpected) {
   const about3Pane = get_about_3pane();
