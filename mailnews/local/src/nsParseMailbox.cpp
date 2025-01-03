@@ -411,7 +411,6 @@ nsParseMailMessageState::nsParseMailMessageState() {
   // E.g., if mailnews.customDBHeaders is "X-Spam-Score", and we're parsing
   // a mail message with the X-Spam-Score header, we'll set the
   // "x-spam-score" property of nsMsgHdr to the value of the header.
-  m_customDBHeaderValues = nullptr;
   nsCString customDBHeaders;  // not shown in search UI
   nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
   if (!pPrefBranch) {
@@ -431,21 +430,13 @@ nsParseMailMessageState::nsParseMailMessageState() {
   customHeadersString.StripWhitespace();
   ParseString(customHeadersString, ':', customHeadersArray);
   for (uint32_t i = 0; i < customHeadersArray.Length(); i++) {
-    if (!m_customDBHeaders.Contains(customHeadersArray[i]))
+    if (!m_customDBHeaders.Contains(customHeadersArray[i])) {
       m_customDBHeaders.AppendElement(customHeadersArray[i]);
+    }
   }
+  m_customDBHeaderData.SetLength(m_customDBHeaders.Length());
 
-  if (m_customDBHeaders.Length()) {
-    m_customDBHeaderValues =
-        new struct message_header[m_customDBHeaders.Length()];
-  }
   Clear();
-}
-
-nsParseMailMessageState::~nsParseMailMessageState() {
-  ClearAggregateHeader(m_toList);
-  ClearAggregateHeader(m_ccList);
-  delete[] m_customDBHeaderValues;
 }
 
 NS_IMETHODIMP nsParseMailMessageState::Clear() {
@@ -476,14 +467,15 @@ NS_IMETHODIMP nsParseMailMessageState::Clear() {
   m_newMsgHdr = nullptr;
   m_envelope_pos = 0;
   m_new_key = nsMsgKey_None;
-  ClearAggregateHeader(m_toList);
-  ClearAggregateHeader(m_ccList);
+  m_toList.Clear();
+  m_ccList.Clear();
   m_headers.ResetWritePos();
   m_receivedTime = 0;
   m_receivedValue.Truncate();
-  for (uint32_t i = 0; i < m_customDBHeaders.Length(); i++) {
-    m_customDBHeaderValues[i].length = 0;
-  }
+  for (auto& headerData : m_customDBHeaderData) {
+    headerData.value = nullptr;
+    headerData.length = 0;
+  };
   m_headerstartpos = 0;
   return NS_OK;
 }
@@ -598,64 +590,6 @@ NS_IMETHODIMP nsParseMailMessageState::GetHeaders(char** pHeaders) {
   return NS_OK;
 }
 
-struct message_header* nsParseMailMessageState::GetNextHeaderInAggregate(
-    nsTArray<struct message_header*>& list) {
-  // When parsing a message with multiple To or CC header lines, we're storing
-  // each line in a list, where the list represents the "aggregate" total of all
-  // the header. Here we get a new line for the list
-
-  struct message_header* header =
-      (struct message_header*)PR_Calloc(1, sizeof(struct message_header));
-  if (!header) {
-    return nullptr;
-  }
-  list.AppendElement(header);
-  return header;
-}
-
-void nsParseMailMessageState::GetAggregateHeader(
-    nsTArray<struct message_header*>& list, struct message_header* outHeader) {
-  // When parsing a message with multiple To or CC header lines, we're storing
-  // each line in a list, where the list represents the "aggregate" total of all
-  // the header. Here we combine all the lines together, as though they were
-  // really all found on the same line
-
-  size_t length = 0;
-
-  // Count up the bytes required to allocate the aggregated header
-  for (size_t i = 0; i < list.Length(); i++) {
-    struct message_header* header = list.ElementAt(i);
-    length += (header->length + 1);  //+ for ","
-  }
-
-  outHeader->length = 0;
-  outHeader->value = nullptr;
-  if (length > 0) {
-    char* value = (char*)PR_CALLOC(length + 1);  //+1 for null term
-    if (value) {
-      // Catenate all the To lines together, separated by commas
-      value[0] = '\0';
-      size_t size = list.Length();
-      for (size_t i = 0; i < size; i++) {
-        struct message_header* header = list.ElementAt(i);
-        PL_strncat(value, header->value, header->length);
-        if (i + 1 < size) PL_strcat(value, ",");
-      }
-      outHeader->length = length;
-      outHeader->value = value;
-    }
-  }
-}
-
-void nsParseMailMessageState::ClearAggregateHeader(
-    nsTArray<struct message_header*>& list) {
-  // Reset the aggregate headers. Free only the message_header struct since
-  // we don't own the value pointer
-
-  for (size_t i = 0; i < list.Length(); i++) PR_Free(list.ElementAt(i));
-  list.Clear();
-}
-
 /* largely lifted from mimehtml.c, which does similar parsing, sigh...
  */
 nsresult nsParseMailMessageState::ParseHeaders() {
@@ -675,8 +609,8 @@ nsresult nsParseMailMessageState::ParseHeaders() {
   while (buf < buf_end) {
     char* colon = PL_strnchr(buf, ':', buf_end - buf);
     char* value = 0;
-    struct message_header* header = 0;
-    struct message_header receivedBy;
+    HeaderData* header = nullptr;
+    HeaderData receivedBy;
 
     if (!colon) break;
 
@@ -697,10 +631,7 @@ nsresult nsParseMailMessageState::ParseHeaders() {
         break;
       case 'c':
         if (headerStr.EqualsLiteral("cc")) {  // XXX: RFC 5322 says it's 0 or 1.
-          header = GetNextHeaderInAggregate(m_ccList);
-          if (!header) {
-            return NS_ERROR_OUT_OF_MEMORY;
-          }
+          header = m_ccList.AppendElement(HeaderData());
         } else if (headerStr.EqualsLiteral("content-type")) {
           header = &m_content_type;
         }
@@ -766,10 +697,7 @@ nsresult nsParseMailMessageState::ParseHeaders() {
         break;
       case 't':
         if (headerStr.EqualsLiteral("to")) {  // XXX: RFC 5322 says it's 0 or 1.
-          header = GetNextHeaderInAggregate(m_toList);
-          if (!header) {
-            return NS_ERROR_OUT_OF_MEMORY;
-          }
+          header = m_toList.AppendElement(HeaderData());
         }
         break;
       case 'x':
@@ -791,9 +719,12 @@ nsresult nsParseMailMessageState::ParseHeaders() {
     }
 
     if (!header && m_customDBHeaders.Length()) {
+      MOZ_ASSERT(m_customDBHeaders.Length() == m_customDBHeaderData.Length(),
+                 "m_customDBHeaderData should be in sync.");
       size_t customHeaderIndex = m_customDBHeaders.IndexOf(headerStr);
-      if (customHeaderIndex != m_customDBHeaders.NoIndex)
-        header = &m_customDBHeaderValues[customHeaderIndex];
+      if (customHeaderIndex != nsTArray<nsCString>::NoIndex) {
+        header = &m_customDBHeaderData[customHeaderIndex];
+      }
     }
 
     buf = colon + 1;
@@ -907,7 +838,7 @@ nsresult nsParseMailMessageState::ParseHeaders() {
   return NS_OK;
 }
 
-nsresult nsParseMailMessageState::InternSubject(struct message_header* header) {
+nsresult nsParseMailMessageState::InternSubject(HeaderData* header) {
   if (!header || header->length == 0) {
     m_newMsgHdr->SetSubject(""_ns);
     return NS_OK;
@@ -940,29 +871,29 @@ nsresult nsParseMailMessageState::InternSubject(struct message_header* header) {
 }
 
 // we've reached the end of the envelope, and need to turn all our accumulated
-// message_headers into a single nsIMsgDBHdr to store in a database.
+// header data into a single nsIMsgDBHdr to store in a database.
 nsresult nsParseMailMessageState::FinalizeHeaders() {
   nsresult rv;
-  struct message_header* sender;
-  struct message_header* recipient;
-  struct message_header* subject;
-  struct message_header* id;
-  struct message_header* inReplyTo;
-  struct message_header* replyTo;
-  struct message_header* references;
-  struct message_header* date;
-  struct message_header* deliveryDate;
-  struct message_header* statush;
-  struct message_header* mozstatus;
-  struct message_header* mozstatus2;
-  struct message_header* priority;
-  struct message_header* keywords;
-  struct message_header* account_key;
-  struct message_header* ccList;
-  struct message_header* bccList;
-  struct message_header* mdn_dnt;
-  struct message_header md5_header;
-  struct message_header* content_type;
+  HeaderData* sender;
+  HeaderData* recipient;
+  HeaderData* subject;
+  HeaderData* id;
+  HeaderData* inReplyTo;
+  HeaderData* replyTo;
+  HeaderData* references;
+  HeaderData* date;
+  HeaderData* deliveryDate;
+  HeaderData* statush;
+  HeaderData* mozstatus;
+  HeaderData* mozstatus2;
+  HeaderData* priority;
+  HeaderData* keywords;
+  HeaderData* account_key;
+  HeaderData* ccList;
+  HeaderData* bccList;
+  HeaderData* mdn_dnt;
+  HeaderData md5_header;
+  HeaderData* content_type;
   char md5_data[50];
 
   uint32_t flags = 0;
@@ -971,10 +902,34 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
   if (!m_mailDB)  // if we don't have a valid db, skip the header.
     return NS_OK;
 
-  struct message_header to;
-  GetAggregateHeader(m_toList, &to);
-  struct message_header cc;
-  GetAggregateHeader(m_ccList, &cc);
+  // Unlike RFC 5322, we support multiple "Cc:" or "To:" header lines. In this
+  // case, this function combines these lines into one and stores it in the
+  // given nsCString, returning a HeaderData object pointing to it.
+  auto getAggregateHeaderData = [](nsTArray<HeaderData>& list,
+                                   nsCString& buffer) -> HeaderData {
+    size_t size = list.Length();
+    if (size < 1) {
+      return {};
+    }
+    if (size == 1) {
+      return list[0];
+    }
+    for (size_t i = 0; i < size; i++) {
+      const auto& header = list[i];
+      buffer.Append(header.value, header.length);
+      if (i + 1 < size) {
+        buffer.Append(",");
+      }
+    }
+    MOZ_ASSERT(strlen(buffer.get()) == buffer.Length(),
+               "Aggregate header should have the correct length.");
+    return {buffer.get(), buffer.Length()};
+  };
+
+  nsCString aggregateToHeaders;
+  HeaderData to = getAggregateHeaderData(m_toList, aggregateToHeaders);
+  nsCString aggregateCcHeaders;
+  HeaderData cc = getAggregateHeaderData(m_ccList, aggregateCcHeaders);
   // we don't aggregate bcc, as we only generate it locally,
   // and we don't use multiple lines
 
@@ -1282,11 +1237,13 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
           }
           m_newMsgHdr->SetStringProperty("keywords", newKeywords);
         }
+        MOZ_ASSERT(m_customDBHeaders.Length() == m_customDBHeaderData.Length(),
+                   "m_customDBHeaderData should be in sync.");
         for (uint32_t i = 0; i < m_customDBHeaders.Length(); i++) {
-          if (m_customDBHeaderValues[i].length)
+          if (m_customDBHeaderData[i].length)
             m_newMsgHdr->SetStringProperty(
                 m_customDBHeaders[i].get(),
-                nsDependentCString(m_customDBHeaderValues[i].value));
+                nsDependentCString(m_customDBHeaderData[i].value));
           // The received header is accumulated separately
           if (m_customDBHeaders[i].EqualsLiteral("received") &&
               !m_receivedValue.IsEmpty())
@@ -1331,12 +1288,6 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
     }
   } else
     rv = NS_OK;
-
-  // ### why is this stuff const?
-  char* tmp = (char*)to.value;
-  PR_Free(tmp);
-  tmp = (char*)cc.value;
-  PR_Free(tmp);
 
   return rv;
 }

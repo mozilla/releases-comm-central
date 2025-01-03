@@ -7,11 +7,13 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
 Date: Sat, 3 Dec 2011 17:07:41 +0400
+To: second.to.field@invalid, more@recipients.invalid
+To: third.to.field@invalid, even.more@recipients.invalid
 From: notifier.mars@krw.rzd
 Message-Id: <1322917661.14@mars>
 To: LyukshinRA@krw.rzd,
     biakus@krw.rzd,
-    
+
 
 The following incident occurred on "mars"
 

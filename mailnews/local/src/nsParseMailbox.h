@@ -29,12 +29,11 @@
 class nsOutputFileStream;
 class nsIMsgFolder;
 
-/* Used for the various things that parse RFC822 headers...
- */
-typedef struct message_header {
-  const char* value; /* The contents of a header (after ": ") */
-  size_t length;     /* The length of the data (it is not NULL-terminated.) */
-} message_header;
+// Used for the various things that parse RFC822 headers...
+struct HeaderData {
+  const char* value = nullptr;  // The contents of a header (after ": ")
+  size_t length = 0;  // The length of the data (it is not NULL-terminated.)
+};
 
 // This object maintains the parse state for a single mail message.
 class nsParseMailMessageState : public nsIMsgParseMailMsgState,
@@ -49,7 +48,7 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   nsresult ParseFolderLine(const char* line, uint32_t lineLength);
   nsresult ParseHeaders();
   nsresult FinalizeHeaders();
-  nsresult InternSubject(struct message_header* header);
+  nsresult InternSubject(HeaderData* header);
 
   // A way to pass in 'out-of-band' envelope sender/timestamp data.
   // Totally optional, but envDate is used to fill in on malformed messages
@@ -58,13 +57,6 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
     m_EnvAddr = envAddr;
     m_EnvDate = envDate;
   }
-
-  // Helpers for dealing with multi-value headers.
-  struct message_header* GetNextHeaderInAggregate(
-      nsTArray<struct message_header*>& list);
-  void GetAggregateHeader(nsTArray<struct message_header*>& list,
-                          struct message_header*);
-  void ClearAggregateHeader(nsTArray<struct message_header*>& list);
 
   nsCOMPtr<nsIMsgDBHdr> m_newMsgHdr; /* current message header we're building */
   nsCOMPtr<nsIMsgDatabase> m_mailDB;
@@ -89,34 +81,34 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   ::nsByteArray m_headers;
 
   // These all point into the m_headers buffer.
-  struct message_header m_message_id;
-  struct message_header m_references;
-  struct message_header m_date;
-  struct message_header m_delivery_date;
-  struct message_header m_from;
-  struct message_header m_sender;
-  struct message_header m_newsgroups;
-  struct message_header m_subject;
-  struct message_header m_status;
-  struct message_header m_mozstatus;
-  struct message_header m_mozstatus2;
-  struct message_header m_in_reply_to;
-  struct message_header m_replyTo;
-  struct message_header m_content_type;
-  struct message_header m_bccList;
+  HeaderData m_message_id;
+  HeaderData m_references;
+  HeaderData m_date;
+  HeaderData m_delivery_date;
+  HeaderData m_from;
+  HeaderData m_sender;
+  HeaderData m_newsgroups;
+  HeaderData m_subject;
+  HeaderData m_status;
+  HeaderData m_mozstatus;
+  HeaderData m_mozstatus2;
+  HeaderData m_in_reply_to;
+  HeaderData m_replyTo;
+  HeaderData m_content_type;
+  HeaderData m_bccList;
 
   // Support for having multiple To or Cc header lines in a message
-  nsTArray<struct message_header*> m_toList;
-  nsTArray<struct message_header*> m_ccList;
+  AutoTArray<HeaderData, 1> m_toList;
+  AutoTArray<HeaderData, 1> m_ccList;
 
-  struct message_header m_priority;
-  struct message_header m_account_key;
-  struct message_header m_keywords;
+  HeaderData m_priority;
+  HeaderData m_account_key;
+  HeaderData m_keywords;
 
   // Mdn support
-  struct message_header m_mdn_original_recipient;
-  struct message_header m_return_path;
-  struct message_header m_mdn_dnt; /* MDN Disposition-Notification-To: header */
+  HeaderData m_mdn_original_recipient;
+  HeaderData m_return_path;
+  HeaderData m_mdn_dnt; /* MDN Disposition-Notification-To: header */
 
   PRTime m_receivedTime;
   uint16_t m_body_lines;
@@ -125,10 +117,10 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   // the .msf file as properties of nsIMsgHdr. It is initialized from a
   // pref, mailnews.customDBHeaders
   nsTArray<nsCString> m_customDBHeaders;
-  struct message_header* m_customDBHeaderValues;
+  nsTArray<HeaderData> m_customDBHeaderData;
   nsCString m_receivedValue;  // accumulated received header
  protected:
-  virtual ~nsParseMailMessageState();
+  virtual ~nsParseMailMessageState() {};
 };
 
 // NOTE:
