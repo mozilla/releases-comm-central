@@ -892,9 +892,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
   HeaderData* ccList;
   HeaderData* bccList;
   HeaderData* mdn_dnt;
-  HeaderData md5_header;
   HeaderData* content_type;
-  char md5_data[50];
 
   uint32_t flags = 0;
   nsMsgPriorityValue priorityFlags = nsMsgPriority::notSet;
@@ -1085,6 +1083,8 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
 
       rv = InternSubject(subject);
       if (NS_SUCCEEDED(rv)) {
+        nsAutoCString md5IdBuffer("md5:");
+        HeaderData md5Id;
         if (!id) {
           // what to do about this? we used to do a hash of all the headers...
           nsAutoCString hash;
@@ -1097,13 +1097,16 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
                 NS_SUCCEEDED(
                     hasher->Update((const uint8_t*)m_headers.GetBuffer(),
                                    m_headers.GetBufferPos())) &&
-                NS_SUCCEEDED(hasher->Finish(true, hash)))
+                NS_SUCCEEDED(hasher->Finish(true, hash))) {
               md5_b64 = hash.get();
+            }
           }
-          PR_snprintf(md5_data, sizeof(md5_data), "<md5:%s>", md5_b64);
-          md5_header.value = md5_data;
-          md5_header.length = strlen(md5_data);
-          id = &md5_header;
+          md5IdBuffer.Append(md5_b64);
+          md5Id.value = md5IdBuffer.get();
+          md5Id.length = md5IdBuffer.Length();
+          MOZ_ASSERT(strlen(md5Id.value) == md5Id.length,
+                     "Problem with length of md5Id.");
+          id = &md5Id;
         }
 
         if (!rawMsgId.IsEmpty()) {
