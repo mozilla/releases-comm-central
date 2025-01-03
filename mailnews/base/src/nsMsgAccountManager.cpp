@@ -3107,93 +3107,94 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
 
   uint32_t folderFlags;
   folder->GetFlags(&folderFlags);
-
-  bool addToSmartFolders = false;
-  folder->IsSpecialFolder(nsMsgFolderFlags::Inbox |
-                              nsMsgFolderFlags::Templates |
-                              nsMsgFolderFlags::Trash |
-                              nsMsgFolderFlags::Drafts | nsMsgFolderFlags::Junk,
-                          false, &addToSmartFolders);
-  // For Sent/Archives/Trash, we treat sub-folders of those folders as
-  // "special", and want to add them the smart folders search scope.
-  // So we check if this is a sub-folder of one of those special folders
-  // and set the corresponding folderFlag if so.
-  if (!addToSmartFolders) {
-    bool isSpecial = false;
-    folder->IsSpecialFolder(nsMsgFolderFlags::SentMail, true, &isSpecial);
-    if (isSpecial) {
-      addToSmartFolders = true;
-      folderFlags |= nsMsgFolderFlags::SentMail;
-    }
-    folder->IsSpecialFolder(nsMsgFolderFlags::Archive, true, &isSpecial);
-    if (isSpecial) {
-      addToSmartFolders = true;
-      folderFlags |= nsMsgFolderFlags::Archive;
-    }
-    folder->IsSpecialFolder(nsMsgFolderFlags::Trash, true, &isSpecial);
-    if (isSpecial) {
-      addToSmartFolders = true;
-      folderFlags |= nsMsgFolderFlags::Trash;
-    }
-  }
   nsresult rv = NS_OK;
-  // if this is a special folder, check if we have a saved search over
-  // folders with this flag, and if so, add this folder to the scope.
-  if (addToSmartFolders) {
-    // quick way to enumerate the saved searches.
-    for (nsCOMPtr<nsIMsgFolder> virtualFolder : m_virtualFolders) {
-      nsCOMPtr<nsIMsgDatabase> db;
-      nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-      virtualFolder->GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo),
-                                          getter_AddRefs(db));
-      if (dbFolderInfo) {
-        uint32_t vfFolderFlag;
-        dbFolderInfo->GetUint32Property("searchFolderFlag", 0, &vfFolderFlag);
-        // found a saved search over folders w/ the same flag as the new folder.
-        if (vfFolderFlag & folderFlags) {
-          nsCString searchURI;
-          dbFolderInfo->GetCharProperty(kSearchFolderUriProp, searchURI);
 
-          // "normalize" searchURI so we can search for |folderURI|.
-          if (!searchURI.IsEmpty()) {
-            searchURI.Insert('|', 0);
-            searchURI.Append('|');
-          }
-          nsCString folderURI;
-          folder->GetURI(folderURI);
-          folderURI.Insert('|', 0);
-          folderURI.Append('|');
+  if (!(folderFlags & nsMsgFolderFlags::Virtual)) {
+    bool addToSmartFolders = false;
+    folder->IsSpecialFolder(
+        nsMsgFolderFlags::Inbox | nsMsgFolderFlags::Templates |
+            nsMsgFolderFlags::Trash | nsMsgFolderFlags::Drafts |
+            nsMsgFolderFlags::Junk,
+        false, &addToSmartFolders);
+    // For Sent/Archives/Trash, we treat sub-folders of those folders as
+    // "special", and want to add them the smart folders search scope.
+    // So we check if this is a sub-folder of one of those special folders
+    // and set the corresponding folderFlag if so.
+    if (!addToSmartFolders) {
+      bool isSpecial = false;
+      folder->IsSpecialFolder(nsMsgFolderFlags::SentMail, true, &isSpecial);
+      if (isSpecial) {
+        addToSmartFolders = true;
+        folderFlags |= nsMsgFolderFlags::SentMail;
+      }
+      folder->IsSpecialFolder(nsMsgFolderFlags::Archive, true, &isSpecial);
+      if (isSpecial) {
+        addToSmartFolders = true;
+        folderFlags |= nsMsgFolderFlags::Archive;
+      }
+      folder->IsSpecialFolder(nsMsgFolderFlags::Trash, true, &isSpecial);
+      if (isSpecial) {
+        addToSmartFolders = true;
+        folderFlags |= nsMsgFolderFlags::Trash;
+      }
+    }
+    // if this is a special folder, check if we have a saved search over
+    // folders with this flag, and if so, add this folder to the scope.
+    if (addToSmartFolders) {
+      // quick way to enumerate the saved searches.
+      for (nsCOMPtr<nsIMsgFolder> virtualFolder : m_virtualFolders) {
+        nsCOMPtr<nsIMsgDatabase> db;
+        nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
+        virtualFolder->GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo),
+                                            getter_AddRefs(db));
+        if (dbFolderInfo) {
+          uint32_t vfFolderFlag;
+          dbFolderInfo->GetUint32Property("searchFolderFlag", 0, &vfFolderFlag);
+          // found a saved search over folders w/ the same flag as the new
+          // folder.
+          if (vfFolderFlag & folderFlags) {
+            nsCString searchURI;
+            dbFolderInfo->GetCharProperty(kSearchFolderUriProp, searchURI);
 
-          int32_t index = searchURI.Find(folderURI);
-          if (index == kNotFound) {
-            searchURI.Cut(0, 1);
-            folderURI.Cut(0, 1);
-            folderURI.SetLength(folderURI.Length() - 1);
-            searchURI.Append(folderURI);
-            dbFolderInfo->SetCharProperty(kSearchFolderUriProp, searchURI);
-            nsCOMPtr<nsIObserverService> obs =
-                mozilla::services::GetObserverService();
-            obs->NotifyObservers(virtualFolder, "search-folders-changed",
-                                 nullptr);
-          }
+            // "normalize" searchURI so we can search for |folderURI|.
+            if (!searchURI.IsEmpty()) {
+              searchURI.Insert('|', 0);
+              searchURI.Append('|');
+            }
+            nsCString folderURI;
+            folder->GetURI(folderURI);
+            folderURI.Insert('|', 0);
+            folderURI.Append('|');
 
-          // Add sub-folders to smart folder.
-          nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
-          rv = folder->GetDescendants(allDescendants);
-          NS_ENSURE_SUCCESS(rv, rv);
+            int32_t index = searchURI.Find(folderURI);
+            if (index == kNotFound) {
+              searchURI.Cut(0, 1);
+              folderURI.Cut(0, 1);
+              folderURI.SetLength(folderURI.Length() - 1);
+              searchURI.Append(folderURI);
+              dbFolderInfo->SetCharProperty(kSearchFolderUriProp, searchURI);
+              nsCOMPtr<nsIObserverService> obs =
+                  mozilla::services::GetObserverService();
+              obs->NotifyObservers(virtualFolder, "search-folders-changed",
+                                   nullptr);
+            }
 
-          nsCOMPtr<nsIMsgFolder> parentFolder;
-          for (auto subFolder : allDescendants) {
-            subFolder->GetParent(getter_AddRefs(parentFolder));
-            OnFolderAdded(parentFolder, subFolder);
+            // Add sub-folders to smart folder.
+            nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
+            rv = folder->GetDescendants(allDescendants);
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            nsCOMPtr<nsIMsgFolder> parentFolder;
+            for (auto subFolder : allDescendants) {
+              subFolder->GetParent(getter_AddRefs(parentFolder));
+              OnFolderAdded(parentFolder, subFolder);
+            }
           }
         }
       }
     }
-  }
 
-  // Find any virtual folders that search `parent`, and add `folder` to them.
-  if (!(folderFlags & nsMsgFolderFlags::Virtual)) {
+    // Find any virtual folders that search `parent`, and add `folder` to them.
     nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
         m_virtualFolderListeners);
     RefPtr<VirtualFolderChangeListener> listener;

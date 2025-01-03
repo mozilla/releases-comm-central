@@ -335,7 +335,6 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName,
   if (imapChild) {
     imapChild->SetHierarchyDelimiter(m_hierarchyDelimiter);
   }
-  NotifyFolderAdded(*aChild);
   return rv;
 }
 
