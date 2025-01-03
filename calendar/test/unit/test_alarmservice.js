@@ -259,6 +259,7 @@ async function addTestItems(aCalendar) {
   // should fire, and a timer should be set for the next occurrence only
   date = cal.dtz.now();
   date.hour -= 47;
+  date.hour; // Will cause the date to normalize. Otherwise fails on Jan 1.
   [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M", "RRULE:FREQ=DAILY");
   item.title = "addTestItems Test 7";
   alarmObserver.expectOccurrences(aCalendar, item, alarm, [
