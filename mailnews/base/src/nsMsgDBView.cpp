@@ -3004,20 +3004,16 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
 
 nsresult nsMsgDBView::DownloadForOffline(
     nsIMsgWindow* window, nsTArray<nsMsgViewIndex> const& selection) {
-  nsresult rv = NS_OK;
+  nsTArray<RefPtr<nsIMsgDBHdr>> selectedMessages;
+  nsresult rv = GetHeadersFromSelection(selection, selectedMessages);
   nsTArray<RefPtr<nsIMsgDBHdr>> messages;
-  for (nsMsgViewIndex viewIndex : selection) {
-    nsMsgKey key = m_keys[viewIndex];
-    nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv = m_db->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (msgHdr) {
-      uint32_t flags;
-      msgHdr->GetFlags(&flags);
-      if (!(flags & nsMsgMessageFlags::Offline)) {
-        messages.AppendElement(msgHdr);
-      }
-    }
+  if (NS_SUCCEEDED(rv)) {
+    std::copy_if(selectedMessages.cbegin(), selectedMessages.cend(),
+                 MakeBackInserter(messages), [](const auto& msgHdr) {
+                   uint32_t flags = 0;
+                   msgHdr->GetFlags(&flags);
+                   return !(flags & nsMsgMessageFlags::Offline);
+                 });
   }
 
   m_folder->DownloadMessagesForOffline(messages, window);

@@ -174,7 +174,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
   // Used when headers_only is TRUE
   NS_IMETHOD DownloadMessagesForOffline(
-      nsTArray<RefPtr<nsIMsgDBHdr>> const& aMessages,
+      nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
       nsIMsgWindow* aWindow) override;
   NS_IMETHOD HasMsgOffline(nsMsgKey msgKey, bool* result) override;
   NS_IMETHOD GetLocalMsgStream(nsIMsgDBHdr* hdr,
@@ -267,7 +267,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
   // state variables for DownloadMessagesForOffline
 
-  nsCOMArray<nsIMsgDBHdr> mDownloadPartialMessages;
+  nsTArray<RefPtr<nsIMsgDBHdr>> mDownloadPartialMessages;;
   nsCOMPtr<nsIMsgWindow> mDownloadWindow;
   bool mDownloadInProgress;
 };

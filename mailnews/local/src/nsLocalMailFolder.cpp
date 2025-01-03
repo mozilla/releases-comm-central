@@ -2796,7 +2796,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::RetrieveHdrOfPartialMessage(
   // Walk through all the selected headers, looking for a matching
   // Message-ID.
   for (uint32_t i = 0; i < mDownloadPartialMessages.Length(); i++) {
-    nsCOMPtr<nsIMsgDBHdr> msgDBHdr = mDownloadPartialMessages[i];
+    auto msgDBHdr = mDownloadPartialMessages[i];
     nsCString oldMsgId;
     msgDBHdr->GetMessageId(oldMsgId);
 
@@ -2812,28 +2812,26 @@ NS_IMETHODIMP nsMsgLocalMailFolder::RetrieveHdrOfPartialMessage(
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
-    nsTArray<RefPtr<nsIMsgDBHdr>> const& aMessages, nsIMsgWindow* aWindow) {
-  if (mDownloadInProgress)
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, nsIMsgWindow* aWindow) {
+  if (mDownloadInProgress) {
     return NS_ERROR_FAILURE;  // already has a download in progress
-
+  }
   // We're starting a download...
   mDownloadInProgress = true;
-
-  MarkMsgsOnPop3Server(aMessages, POP3_FETCH_BODY);
-
-  // Pull out all the PARTIAL messages into a new array
-  nsresult rv;
-  for (nsIMsgDBHdr* hdr : aMessages) {
-    uint32_t flags = 0;
-    hdr->GetFlags(&flags);
-    if (flags & nsMsgMessageFlags::Partial) {
-      mDownloadPartialMessages.AppendElement(hdr);
-    }
-  }
+  mDownloadPartialMessages.Clear();
+  // Do not download already completed messages.
+  std::copy_if(messages.cbegin(), messages.cend(),
+               MakeBackInserter(mDownloadPartialMessages),
+               [](const auto& msgHdr) {
+                 uint32_t flags = 0;
+                 msgHdr->GetFlags(&flags);
+                 return flags & nsMsgMessageFlags::Partial;
+               });
+  MarkMsgsOnPop3Server(mDownloadPartialMessages, POP3_FETCH_BODY);
   mDownloadWindow = aWindow;
 
   nsCOMPtr<nsIMsgIncomingServer> server;
-  rv = GetServer(getter_AddRefs(server));
+  nsresult rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, NS_MSG_INVALID_OR_MISSING_SERVER);
 
   nsCOMPtr<nsILocalMailIncomingServer> localMailServer =
@@ -3360,7 +3358,8 @@ nsMsgLocalMailFolder::AddMessageBatch(
       NS_ENSURE_SUCCESS(rv, rv);
 
       // Get a msgWindow. Proceed without one, but filter actions to imap
-      // folders will silently fail if not signed in and no window for a prompt.
+      // folders will silently fail if not signed in and no window for a
+      // prompt.
       nsCOMPtr<nsIMsgWindow> msgWindow;
       nsCOMPtr<nsIMsgMailSession> mailSession =
           do_GetService("@mozilla.org/messenger/services/session;1", &rv);
