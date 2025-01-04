@@ -191,7 +191,6 @@ export var EnigmailKey = {
         keyBlockStr,
         pubkey,
         seckey,
-        true,
         withPubKey
       );
     } catch (ex) {

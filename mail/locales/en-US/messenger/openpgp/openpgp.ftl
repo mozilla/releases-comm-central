@@ -699,7 +699,6 @@ fail-key-import = Error - key importing failed
 # $output (String) - File that writing was attempted to.
 file-write-failed = Failed to write to file { $output }
 no-pgp-block = Error - No valid armored OpenPGP data block found
-confirm-permissive-import = Import failed. The key you are trying to import might be corrupt or use unknown attributes. Would you like to attempt to import the parts that are correct? This might result in the import of incomplete and unusable keys.
 
 # Variables:
 # $fingerprints (String) - A comma-separated list of fingerprints, either one or multiple, for example "ABCDEF7890ABCDEF7890ABCDEF7890ABCDEF7890, 0123456789012345678901234567890123456789"

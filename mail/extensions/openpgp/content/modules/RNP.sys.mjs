@@ -2708,7 +2708,12 @@ export var RNP = {
     Services.obs.notifyObservers(null, "openpgp-key-change");
   },
 
-  importToFFI(ffi, keyBlockStr, usePublic, useSecret, permissive) {
+  importToFFI(ffi, keyBlockStr, usePublic, useSecret) {
+    if (usePublic && useSecret) {
+      throw new Error("Cannot import public and secret keys at the same time");
+    }
+    const permissive = !useSecret; // permissive only for public keys
+
     const input_from_memory = new RNPLib.rnp_input_t();
 
     if (!keyBlockStr) {
@@ -2759,7 +2764,7 @@ export var RNP = {
       flags |= RNPLib.RNP_LOAD_SAVE_PERMISSIVE;
     }
 
-    const rv = RNPLib.rnp_import_keys(
+    let rv = RNPLib.rnp_import_keys(
       ffi,
       input_from_memory,
       flags,
@@ -2767,6 +2772,12 @@ export var RNP = {
     );
     if (rv) {
       lazy.log.warn(`rnp_import_keys FAILED; rv=${rv}`);
+    } else {
+      const info = JSON.parse(jsonInfo.readString());
+      if (!("keys" in info) || !info.keys.length) {
+        lazy.log.warn("rnp_import_keys found no supported keys");
+        rv = -1;
+      }
     }
 
     // TODO: parse jsonInfo and return a list of keys,
@@ -2781,7 +2792,7 @@ export var RNP = {
 
   maxImportKeyBlockSize: 5000000,
 
-  async getOnePubKeyFromKeyBlock(keyBlockStr, fpr, permissive = true) {
+  async getOnePubKeyFromKeyBlock(keyBlockStr, fpr) {
     if (!keyBlockStr) {
       throw new Error(`Invalid parameter; keyblock: ${keyBlockStr}`);
     }
@@ -2796,7 +2807,7 @@ export var RNP = {
     }
 
     let pubKey;
-    if (!this.importToFFI(tempFFI, keyBlockStr, true, false, permissive)) {
+    if (!this.importToFFI(tempFFI, keyBlockStr, true, false)) {
       pubKey = await this.getPublicKey("0x" + fpr, tempFFI);
     }
 
@@ -2808,7 +2819,6 @@ export var RNP = {
     keyBlockStr,
     pubkey = true,
     seckey = false,
-    permissive = true,
     withPubKey = false
   ) {
     if (!keyBlockStr) {
@@ -2825,7 +2835,7 @@ export var RNP = {
     }
 
     let keyList = null;
-    if (!this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey, permissive)) {
+    if (!this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey)) {
       keyList = await this.getKeysFromFFI(
         tempFFI,
         true,
@@ -2861,11 +2871,8 @@ export var RNP = {
       throw new Error("Couldn't initialize librnp.");
     }
 
-    const pubkey = true;
-    const seckey = false;
-    const permissive = false;
     for (const block of new Set(keyBlocks)) {
-      if (this.importToFFI(tempFFI, block, pubkey, seckey, permissive)) {
+      if (this.importToFFI(tempFFI, block, true, false)) {
         throw new Error("Merging public keys failed");
       }
     }
@@ -2922,7 +2929,6 @@ export var RNP = {
     passCB,
     keepPassphrases,
     keyBlockStr,
-    permissive = false,
     limitedFPRs = []
   ) {
     return this._importKeyBlockWithAutoAccept(
@@ -2933,7 +2939,6 @@ export var RNP = {
       false,
       true,
       null,
-      permissive,
       limitedFPRs
     );
   },
@@ -2942,7 +2947,6 @@ export var RNP = {
     win,
     keyBlockStr,
     acceptance,
-    permissive = false,
     limitedFPRs = []
   ) {
     return this._importKeyBlockWithAutoAccept(
@@ -2953,7 +2957,6 @@ export var RNP = {
       true,
       false,
       acceptance,
-      permissive,
       limitedFPRs
     );
   },
@@ -2982,9 +2985,6 @@ export var RNP = {
    * @param {string} acceptance - The key acceptance level that should
    *   be assigned to imported public keys.
    *   TODO: Write better documentation for the allowed values.
-   * @param {boolean} permissive - Whether it's allowed to fall back
-   *   to a permissive import, if strict import fails.
-   *   (See RNP documentation for RNP_LOAD_SAVE_PERMISSIVE.)
    * @param {string[]} limitedFPRs - This is a filtering parameter.
    *   If the array is empty, all keys will be imported.
    *   If the array contains at least one entry, a key will be imported
@@ -2999,18 +2999,15 @@ export var RNP = {
     pubkey,
     seckey,
     acceptance,
-    permissive = false,
     limitedFPRs = []
   ) {
     if (keyBlockStr.length > RNP.maxImportKeyBlockSize) {
       throw new Error("rejecting big keyblock");
     }
     if (pubkey && seckey) {
-      // Currently no caller needs to import both at the save time,
-      // and the implementation hasn't been reviewed, whether it
-      // supports it or not, so we refuse this request.
       throw new Error("Cannot import public and secret keys at the same time");
     }
+    const permissive = !seckey; // permissive only for public keys
 
     /*
      * Import strategy:
@@ -3036,7 +3033,7 @@ export var RNP = {
     }
 
     // TODO: check result
-    if (this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey, permissive)) {
+    if (this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey)) {
       result.errorMsg = "RNP.importToFFI failed";
       return result;
     }

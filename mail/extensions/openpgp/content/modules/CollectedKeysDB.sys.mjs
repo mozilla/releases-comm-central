@@ -207,7 +207,6 @@ export class CollectedKeysDB {
         pubKey,
         true,
         false,
-        false,
         false
       );
       if (!keys || !keys.length) {

@@ -1298,7 +1298,6 @@ const accessVksServer = {
           r,
           true,
           false,
-          true,
           false
         );
         if (!keyList) {

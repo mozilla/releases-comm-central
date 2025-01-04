@@ -188,7 +188,6 @@ export const OpenPGPTestUtils = {
       localPassphraseProvider,
       passphrase != null && keepPassphrase,
       pgpBlock,
-      false,
       []
     );
 
