@@ -1185,6 +1185,7 @@ toolbarbutton.formatting-button {
   -moz-context-properties: fill, stroke;
   fill: currentColor;
   stroke: Field;
+  width: 8px;
   margin-inline-end: -8px;
   margin-bottom: 1em;
   transition: fill .2s ease, stroke .2s ease;
