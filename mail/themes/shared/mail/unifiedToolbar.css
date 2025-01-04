@@ -47,7 +47,7 @@ unified-toolbar {
   & .titlebar-buttonbox-container {
     flex: 0 0 auto;
 
-    @media (-moz-platform: windows) {
+    @media (-moz-platform: windows) or (-moz-platform: linux) {
       align-self: stretch;
     }
   }
