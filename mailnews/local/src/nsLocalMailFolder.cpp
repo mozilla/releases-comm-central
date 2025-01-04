@@ -2828,7 +2828,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
                  return flags & nsMsgMessageFlags::Partial;
                });
   MarkMsgsOnPop3Server(mDownloadPartialMessages, POP3_FETCH_BODY);
-  mDownloadWindow = aWindow;
 
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = GetServer(getter_AddRefs(server));
@@ -2957,7 +2956,6 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   if (mDownloadInProgress) {
     mDownloadInProgress = false;
     mDownloadPartialMessages.Clear();
-    mDownloadWindow = nullptr;
     return nsMsgDBFolder::OnStopRunningUrl(aUrl, aExitCode);
   }
 
@@ -3479,12 +3477,5 @@ NS_IMETHODIMP nsMsgLocalMailFolder::UpdateNewMsgHdr(nsIMsgDBHdr* aOldHdr,
   if (junkScoreOrigin.EqualsLiteral("plugin"))
     aNewHdr->SetStringProperty("junkscore", ""_ns);
 
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgLocalMailFolder::GetDownloadInProgress(bool* downloadInProgress) {
-  NS_ENSURE_ARG_POINTER(downloadInProgress);
-  *downloadInProgress = mDownloadInProgress;
   return NS_OK;
 }

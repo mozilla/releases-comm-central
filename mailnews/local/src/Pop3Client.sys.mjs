@@ -206,23 +206,7 @@ export class Pop3Client {
     await this._loadUidlState();
 
     const uidlState = this._uidlMap.get(uidl);
-    if (!uidlState) {
-      // This uidl is no longer on the server, use this._sink to delete the
-      // msgHdr.
-      try {
-        this._sink.beginMailDelivery(true, null);
-        this._folderLocked = true;
-        this._logger.debug(
-          `Folder lock acquired uri=${this._sink.folder.URI}.`
-        );
-        this._sink.incorporateBegin(uidl, 0);
-        this._actionDone(Cr.NS_ERROR_FAILURE);
-      } catch (e) {
-        this._actionError("pop3MessageWriteError");
-      }
-      return;
-    }
-    if (uidlState.status != UIDL_TOO_BIG) {
+    if (uidlState?.status != UIDL_TOO_BIG) {
       this._actionDone(Cr.NS_ERROR_FAILURE);
       return;
     }

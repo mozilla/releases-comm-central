@@ -56,24 +56,22 @@ nsPop3Sink::~nsPop3Sink() {
   ReleaseFolderLock();
 }
 
-partialRecord::partialRecord() : m_msgDBHdr(nullptr) {}
+nsresult nsPop3Sink::DiscardStalePartialMessages(nsIPop3Protocol* protocol) {
+  struct PartialRecord {
+    nsCOMPtr<nsIMsgDBHdr> m_msgDBHdr = nullptr;
+    nsCString m_uidl;
+  };
+  nsTArray<PartialRecord> partialMsgsArray;
 
-partialRecord::~partialRecord() {}
+  // Walk through all the messages in this folder and look for any
+  // partial messages. For each of those, dig through the mailbox and
+  // find the account that the message belongs to. If that account
+  // matches the current Account, then look for the UIDL and save
+  // this message for later processing.
 
-// Walk through all the messages in this folder and look for any
-// PARTIAL messages. For each of those, dig through the mailbox and
-// find the Account that the message belongs to. If that Account
-// matches the current Account, then look for the Uidl and save
-// this message for later processing.
-nsresult nsPop3Sink::FindPartialMessages() {
   nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_folder);
   if (!localFolder) {
     return NS_ERROR_FAILURE;
-  }
-  bool downloadInProgress = false;
-  localFolder->GetDownloadInProgress(&downloadInProgress);
-  if (downloadInProgress) {
-    return NS_OK;
   }
 
   nsCOMPtr<nsIMsgEnumerator> messages;
@@ -96,10 +94,11 @@ nsresult nsPop3Sink::FindPartialMessages() {
       // Open the various streams we need to seek and read from the mailbox
       if (!isOpen) {
         rv = localFolder->GetFolderScanState(&folderScanState);
-        if (NS_SUCCEEDED(rv))
+        if (NS_SUCCEEDED(rv)) {
           isOpen = true;
-        else
+        } else {
           break;
+        }
       }
       rv = localFolder->GetUidlFromFolder(&folderScanState, msgDBHdr);
       if (!NS_SUCCEEDED(rv)) break;
@@ -109,60 +108,42 @@ nsresult nsPop3Sink::FindPartialMessages() {
       if (folderScanState.m_uidl &&
           m_accountKey.Equals(folderScanState.m_accountKey,
                               nsCaseInsensitiveCStringComparator)) {
-        partialRecord* partialMsg = new partialRecord();
-        if (partialMsg) {
-          partialMsg->m_uidl = folderScanState.m_uidl;
-          partialMsg->m_msgDBHdr = msgDBHdr;
-          m_partialMsgsArray.AppendElement(partialMsg);
-        }
+        partialMsgsArray.AppendElement(
+            PartialRecord{msgDBHdr, nsCString{folderScanState.m_uidl}});
       }
     }
     messages->HasMoreElements(&hasMore);
   }
-  if (isOpen && folderScanState.m_inputStream)
+  if (isOpen && folderScanState.m_inputStream) {
     folderScanState.m_inputStream->Close();
-  return rv;
-}
-
-// For all the partial messages saved by FindPartialMessages,
-// ask the protocol handler if they still exist on the server.
-// Any messages that don't exist any more are deleted from the
-// msgDB.
-void nsPop3Sink::CheckPartialMessages(nsIPop3Protocol* protocol) {
-  nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_folder);
-  if (!localFolder) {
-    return;
   }
-  bool downloadInProgress = false;
-  localFolder->GetDownloadInProgress(&downloadInProgress);
-  if (downloadInProgress) {
-    return;
-  }
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t count = m_partialMsgsArray.Length();
+  // For all the partial messages saved above, ask the protocol handler if they
+  // still exist on the server. Any messages that don't exist any more are
+  // deleted from the msgDB.
+
   bool deleted = false;
-
-  for (uint32_t i = 0; i < count; i++) {
-    partialRecord* partialMsg;
+  for (PartialRecord& partialMsg : partialMsgsArray) {
     bool found = true;
-    partialMsg = m_partialMsgsArray.ElementAt(i);
-    protocol->CheckMessage(partialMsg->m_uidl.get(), &found);
-    if (!found && partialMsg->m_msgDBHdr) {
-      if (m_newMailParser)
-        m_newMailParser->m_mailDB->DeleteHeader(partialMsg->m_msgDBHdr, nullptr,
-                                                false, true);
+    protocol->CheckMessage(partialMsg.m_uidl.get(), &found);
+    if (!found && partialMsg.m_msgDBHdr) {
+      rv = db->DeleteHeader(partialMsg.m_msgDBHdr, nullptr, false, true);
+      if (NS_FAILED(rv)) {
+        continue;
+      }
       deleted = true;
     }
-    delete partialMsg;
   }
-  m_partialMsgsArray.Clear();
+  partialMsgsArray.Clear();
   if (deleted) {
     localFolder->NotifyDelete();
   }
+  return NS_OK;
 }
 
 nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
-                                       nsIMsgWindow* aMsgWindow, bool* aBool) {
+                                       nsIMsgWindow* aMsgWindow) {
   nsresult rv;
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_popServer);
   if (!server) return NS_ERROR_UNEXPECTED;
@@ -192,7 +173,6 @@ nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
     return NS_MSG_FOLDER_BUSY;
   }
   m_uidlDownload = uidlDownload;
-  if (!uidlDownload) FindPartialMessages();
 
   m_folder->GetNumNewMessages(false, &m_numNewMessagesInFolder);
 
@@ -203,12 +183,13 @@ nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
       do_GetService("@mozilla.org/messenger/popservice;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   pop3Service->NotifyDownloadStarted(m_folder);
-  if (aBool) *aBool = true;
   return NS_OK;
 }
 
 nsresult nsPop3Sink::EndMailDelivery(nsIPop3Protocol* protocol) {
-  CheckPartialMessages(protocol);
+  if (!m_uidlDownload) {
+    DiscardStalePartialMessages(protocol);
+  }
 
   if (m_newMailParser) {
     if (m_outFileStream) m_outFileStream->Flush();  // try this.
@@ -324,8 +305,6 @@ nsresult nsPop3Sink::ReleaseFolderLock() {
 }
 
 nsresult nsPop3Sink::AbortMailDelivery(nsIPop3Protocol* protocol) {
-  CheckPartialMessages(protocol);
-
   // ### PS TODO - discard any new message?
 
   if (m_outFileStream) {

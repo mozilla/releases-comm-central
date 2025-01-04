@@ -37,7 +37,7 @@ interface nsIPop3Sink : nsISupports {
    * @param uidlDownload ?????
    * @param msgWindow
    */
-  boolean beginMailDelivery(in boolean uidlDownload, in nsIMsgWindow msgWindow);
+  void beginMailDelivery(in boolean uidlDownload, in nsIMsgWindow msgWindow);
 
   /**
    * Indicate the successful conclusion of mail delivery.

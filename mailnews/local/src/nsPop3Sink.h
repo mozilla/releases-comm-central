@@ -20,14 +20,6 @@
 class nsParseNewMailState;
 class nsIMsgFolder;
 
-struct partialRecord {
-  partialRecord();
-  ~partialRecord();
-
-  nsCOMPtr<nsIMsgDBHdr> m_msgDBHdr;
-  nsCString m_uidl;
-};
-
 class nsPop3Sink : public nsIPop3Sink {
  public:
   nsPop3Sink();
@@ -35,8 +27,6 @@ class nsPop3Sink : public nsIPop3Sink {
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIPOP3SINK
   nsresult GetServerFolder(nsIMsgFolder** aFolder);
-  nsresult FindPartialMessages();
-  void CheckPartialMessages(nsIPop3Protocol* protocol);
 
   static char* GetDummyEnvelope(void);
 
@@ -44,6 +34,7 @@ class nsPop3Sink : public nsIPop3Sink {
   virtual ~nsPop3Sink();
   nsresult WriteLineToMailbox(const nsACString& buffer);
   nsresult ReleaseFolderLock();
+  nsresult DiscardStalePartialMessages(nsIPop3Protocol* protocol);
 
   uint32_t m_biffState;
   int32_t m_numNewMessages;
@@ -64,7 +55,6 @@ class nsPop3Sink : public nsIPop3Sink {
   nsCString m_baseMessageUri;
   nsCString m_origMessageUri;
   nsCString m_accountKey;
-  nsTArray<partialRecord*> m_partialMsgsArray;
 };
 
 #endif

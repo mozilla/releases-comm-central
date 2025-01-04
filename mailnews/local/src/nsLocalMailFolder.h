@@ -268,8 +268,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   // state variables for DownloadMessagesForOffline
 
   nsTArray<RefPtr<nsIMsgDBHdr>> mDownloadPartialMessages;
-  ;
-  nsCOMPtr<nsIMsgWindow> mDownloadWindow;
   bool mDownloadInProgress;
 };
 
