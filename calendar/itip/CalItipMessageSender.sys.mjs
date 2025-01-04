@@ -381,8 +381,10 @@ export class CalItipMessageSender {
    * @returns {calIAttendee[]} the attendees with calendar owner removed.
    */
   #filterOwnerFromAttendees(attendees, calendar) {
-    const calendarEmail = cal.provider.getEmailIdentityOfCalendar(calendar)?.email;
-    return attendees.filter(attendee => cal.email.removeMailTo(attendee.id) != calendarEmail);
+    const calendarEmail = cal.provider.getEmailIdentityOfCalendar(calendar)?.email?.toLowerCase();
+    return attendees.filter(
+      attendee => cal.email.removeMailTo(attendee.id).toLowerCase() != calendarEmail
+    );
   }
 }
 
@@ -412,7 +414,7 @@ function stripUserData(item_) {
     att.deleteProperty("RECEIVED-DTSTAMP");
   });
 
-  // according to RfC 6638, the following items must not be exposed in client side
+  // According to RFC 6638, the following items must not be exposed in client side
   // scheduling messages, so let's remove it if present
   const removeSchedulingParams = aCalUser => {
     aCalUser.deleteProperty("SCHEDULE-AGENT");

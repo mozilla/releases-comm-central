@@ -572,8 +572,8 @@ function updateLink(itemUrlString, linkRow, urlLink) {
 }
 
 /**
- * Adapts the scheduling responsibility for caldav servers according to RfC 6638
- * based on forceEmailScheduling preference for the respective calendar
+ * Adapts the scheduling responsibility for CalDAV servers according to RFC 6638
+ * based on forceEmailScheduling preference for the respective calendar.
  *
  * @param {calIEvent|calIToDo} aItem - Item to apply the change on
  */
@@ -584,16 +584,16 @@ function adaptScheduleAgent(aItem) {
     aItem.calendar.getProperty("capabilities.autoschedule.supported")
   ) {
     const identity = aItem.calendar.getProperty("imip.identity");
-    const orgEmail = identity && identity.QueryInterface(Ci.nsIMsgIdentity).email;
-    const organizerAction =
-      aItem.organizer && orgEmail && aItem.organizer.id == "mailto:" + orgEmail;
+    const orgEmail = identity?.QueryInterface(Ci.nsIMsgIdentity).email?.toLowerCase();
+    const isOrganizerAction =
+      aItem.organizer && orgEmail && aItem.organizer.id.toLowerCase() == "mailto:" + orgEmail;
     if (aItem.calendar.getProperty("forceEmailScheduling")) {
       cal.LOG("Enforcing clientside email based scheduling.");
-      // for attendees, we change schedule-agent only in case of an
+      // For attendees, we change schedule-agent only in case of an
       // organizer triggered action
-      if (organizerAction) {
+      if (isOrganizerAction) {
         aItem.getAttendees().forEach(aAttendee => {
-          // overwriting must always happen consistently for all
+          // Overwriting must always happen consistently for all
           // attendees regarding SERVER or CLIENT but must not override
           // e.g. NONE, so we only overwrite if the param is set to
           // SERVER or doesn't exist
@@ -611,13 +611,13 @@ function adaptScheduleAgent(aItem) {
         (aItem.organizer.getProperty("SCHEDULE-AGENT") == "SERVER" ||
           !aItem.organizer.getProperty("SCHEDULE-AGENT"))
       ) {
-        // for organizer, we change the schedule-agent only in case of
+        // For organizer, we change the schedule-agent only in case of
         // an attendee triggered action
         aItem.organizer.setProperty("SCHEDULE-AGENT", "CLIENT");
         aItem.organizer.deleteProperty("SCHEDULE-STATUS");
         aItem.organizer.deleteProperty("SCHEDULE-FORCE-SEND");
       }
-    } else if (organizerAction) {
+    } else if (isOrganizerAction) {
       aItem.getAttendees().forEach(aAttendee => {
         if (aAttendee.getProperty("SCHEDULE-AGENT") == "CLIENT") {
           aAttendee.deleteProperty("SCHEDULE-AGENT");
