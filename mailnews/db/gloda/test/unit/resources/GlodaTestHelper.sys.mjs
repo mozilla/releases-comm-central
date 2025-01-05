@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * This file provides gloda testing infrastructure.
  *
  * A few words about how tests should expect to interact with indexing:
@@ -84,7 +84,7 @@ var collectionListener;
  * Registers MessageInjection listeners and Gloda listeners for our tests.
  *
  * @param {MessageInjection} messageInjection Instance of MessageInjection
- *                                            to register Events to.
+ *   to register Events to.
  */
 export function glodaTestHelperInitialize(messageInjection) {
   // Initialize the message state if we are dealing with messages.  At some
@@ -209,10 +209,10 @@ class IndexMessageState {
   /**
    * Beware this scoping for this class is lost where _testHookRecover is used.
    *
-   * @param aRecoverResult
-   * @param aOriginEx
-   * @param aActiveJob
-   * @param aCallbackHandle
+   * @param {integer} aRecoverResult
+   * @param {Error} aOriginEx
+   * @param {IndexingJob} aActiveJob
+   * @param {object} aCallbackHandle - See GlodaIndexer._callbackHandle
    */
   _testHookRecover(aRecoverResult, aOriginEx, aActiveJob, aCallbackHandle) {
     log.debug(
@@ -236,10 +236,10 @@ class IndexMessageState {
   /**
    * Beware this scoping for this class is lost where _testHookCleanup is used.
    *
-   * @param aHadCleanupFunc
-   * @param aOriginEx
-   * @param aActiveJob
-   * @param aCallbackHandle
+   * @param {boolean} aHadCleanupFunc
+   * @param {Error} aOriginEx
+   * @param {IndexingJob} aActiveJob
+   * @param {object} aCallbackHandle - See GlodaIndexer._callbackHandle
    */
   _testHookCleanup(aHadCleanupFunc, aOriginEx, aActiveJob, aCallbackHandle) {
     log.debug(
@@ -259,6 +259,10 @@ class IndexMessageState {
       indexMessageState._workerHadNoCleanUpCount++;
     }
   }
+
+  /**
+   * @param {object} aCallbackHandle - See GlodaIndexer._callbackHandle
+   */
   _jsonifyCallbackHandleState(aCallbackHandle) {
     return {
       _stringRep: aCallbackHandle.activeStack.length + " active generators",
@@ -562,13 +566,14 @@ class GlodaCollectionListener {
  *
  * @param {SyntheticMessage[]} aSynMessageSets - A list of SyntheticMessageSets
  *   containing exactly the messages we should expect to see.
+ * @param {object} aConfig - Config.
  * @param {Function} [aConfig.verifier] - The function to call to verify that
  *   the indexing had the desired result. Takes arguments aSynthMessage (the synthetic
  *   message just indexed), aGlodaMessage (the gloda message representation of
  *   the indexed message), and aPreviousResult (the value last returned by the
  *   verifier function for this given set of messages, or undefined if it is
  *   the first message.)
- * @param {boolean] [aConfig.augment=false] - Should we augment the synthetic
+ * @param {boolean} [aConfig.augment=false] - Should we augment the synthetic
  *   message sets with references to their corresponding gloda messages?
  *   The messages will show up in a 'glodaMessages' list on the syn set.
  * @param {SyntheticMessageSet[]} [aConfig.deleted] A list of SyntheticMessageSets
