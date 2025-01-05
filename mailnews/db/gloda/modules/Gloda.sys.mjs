@@ -165,7 +165,7 @@ export var Gloda = {
    * with this getter. If the GlodaDatastore has not been
    * initialized, this value is null.
    *
-   * @returns a UUID as a string, ex: "c4dd0159-9287-480f-a648-a4613e147fdb"
+   * @returns {string} a UUID as a string, ex: "c4dd0159-9287-480f-a648-a4613e147fdb"
    */
   get datastoreID() {
     return GlodaDatastore._datastoreID;
@@ -179,14 +179,12 @@ export var Gloda = {
    *  in your listener's onQueryCompleted method; the result will not be in
    *  the collection when this method returns.)
    *
-   * @param aMsgHdr The header of the message you want the gloda message for.
-   * @param aListener The listener that should be registered with the collection
-   * @param aData The (optional) value to set as the data attribute on the
+   * @param {nsIMsgDBHdr} aMsgHdr - The header of the message you want the gloda message for.
+   * @param {object} aListener - The listener that should be registered with the collection.
+   * @param {object} aData - The (optional) value to set as the data attribute on the
    *     collection.
    *
-   * @returns The collection that will receive the results.
-   *
-   * @testpoint gloda.ns.getMessageCollectionForHeader()
+   * @returns {GlodaCollection} The collection that will receive the results.
    */
   getMessageCollectionForHeader(aMsgHdr, aListener, aData) {
     const query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
@@ -203,14 +201,11 @@ export var Gloda = {
    *  in your listener's onQueryCompleted method; no results will be present in
    *  the collection when this method returns.)
    *
-   * @param aHeaders An array of headers
-   * @param aListener The listener that should be registered with the collection
-   * @param aData The (optional) value to set as the data attribute on the
-   *     collection.
-   *
-   * @returns The collection that will receive the results.
-   *
-   * @testpoint gloda.ns.getMessageCollectionForHeaders()
+   * @param {nsIMsgDBHdr[]} aHeaders An array of headers
+   * @param {object} aListener The listener that should be registered with the collection
+   * @param {object} aData The (optional) value to set as the data attribute on the
+   *   collection.
+   * @returns {GlodaCollection} The collection that will receive the results.
    */
   getMessageCollectionForHeaders(aHeaders, aListener, aData) {
     // group the headers by the folder they are found in
@@ -247,9 +242,6 @@ export var Gloda = {
     return query.getCollection(aListener, aData);
   },
 
-  /**
-   * @testpoint gloda.ns.getMessageContent
-   */
   getMessageContent(aGlodaMessage, aMimeMsg) {
     return mimeMsgToContentAndMeta(
       aMimeMsg,
@@ -277,15 +269,16 @@ export var Gloda = {
    *
    * We normalize all e-mail addresses to be lowercase as a normative measure.
    *
-   * @param aCallbackHandle The GlodaIndexer callback handle (or equivalent)
+   * @param {Function} aCallbackHandle - The GlodaIndexer callback handle (or equivalent)
    *   that you are operating under.
-   * @param aAddrGroups... One or more strings.  Each string can contain zero or more
+   * @param {string|string[]} aAddrGroups - One or more strings.
+   *   Each string can contain zero or more
    *   e-mail addresses with display name.  If more than one address is given,
    *   they should be comma-delimited.  For example
    *   '"Bob Smith" <bob@example.com>' is an address with display name.  Mime
    *   header decoding is performed, but is ignorant of any folder-level
    *   character set overrides.
-   * @returns via the callback handle mechanism, a list containing one sub-list
+   * @returns {GlodaIdentity[]} via the callback handle mechanism, a list containing one sub-list
    *   for each string argument passed.  Each sub-list contains zero or more
    *   GlodaIdentity instances corresponding to the addresses provided.
    */
@@ -409,6 +402,7 @@ export var Gloda = {
    *  the accounts defined.
    */
   myIdentities: {},
+
   /**
    * The contact corresponding to the current user.  We are assuming that only
    *  a single user/human being uses the current profile.  This is known to be
@@ -419,6 +413,7 @@ export var Gloda = {
    * TODO: attempt to deal with multiple people using the same profile
    */
   myContact: null,
+
   /**
    * Populate myIdentities with all of our identities.  Currently we do this
    *  by assuming that there is one human/user per profile, and that all of the
@@ -584,16 +579,17 @@ export var Gloda = {
   /**
    * Define a noun.  Takes a dictionary with the following keys/values:
    *
-   * @param aNounDef.name The name of the noun.  This is not a display name
+   * @param {object} aNounDef
+   * @param {string} aNounDef.name - The name of the noun. This is not a display name
    *     (anything being displayed needs to be localized, after all), but simply
    *     the canonical name for debugging purposes and for people to pass to
    *     lookupNoun.  The suggested convention is lower-case-dash-delimited,
    *     with names being singular (since it's a single noun we are referring
    *     to.)
-   * @param aNounDef.class The 'class' to which an instance of the noun will
+   * @param {class} aNounDef.class - The 'class' to which an instance of the noun will
    *     belong (aka will pass an instanceof test).  You may also provide this
    *     as 'clazz' if the keyword makes your IDE angry.
-   * @param aNounDef.allowsArbitraryAttrs Is this a 'first class noun'/can it be
+   * @param {boolean} aNounDef.allowsArbitraryAttrs - Is this a 'first class noun'/can it be
    *     a subject, AKA can this noun have attributes stored on it that relate
    *     it to other things?  For example, a message is first-class; we store
    *     attributes of messages.  A date is not first-class now, nor is it
@@ -601,7 +597,7 @@ export var Gloda = {
    *     will be the objects of other subjects.  (For example: we might
    *     associate a date with a calendar event, but the date is an attribute of
    *     the calendar event and not vice versa.)
-   * @param aNounDef.usesParameter A boolean indicating whether this noun
+   * @param {boolean} aNounDef.usesParameter A boolean indicating whether this noun
    *     requires use of the 'parameter' BLOB storage field on the attribute
    *     bindings in the database to persist itself.  Use of parameters should
    *     be limited to a reasonable number of values (16-32 is okay, more than
@@ -610,20 +606,20 @@ export var Gloda = {
    *     toParamAndValue function is expected to return null for the parameter
    *     and likewise your fromParamAndValue should expect ignore and generally
    *     ignore the argument.
-   * @param aNounDef.toParamAndValue A function that takes an instantiated noun
+   * @param {Function} aNounDef.toParamAndValue - A function that takes an instantiated noun
    *     instance and returns a 2-element list of [parameter, value] where
    *     parameter may only be non-null if you passed a usesParameter of true.
    *     Parameter may be of any type (BLOB), and value must be numeric (pass
    *     0 if you don't need the value).
    *
-   * @param aNounDef.isPrimitive True when the noun instance is a raw numeric
+   * @param {boolean} aNounDef.isPrimitive - True when the noun instance is a raw numeric
    *     value/string/boolean.  False when the instance is an object.  When
    *     false, it is assumed the attribute that serves as a unique identifier
    *     for the value is "id" unless 'idAttr' is provided.
-   * @param [aNounDef.idAttr="id"] For non-primitive nouns, this is the
+   * @param {string} [aNounDef.idAttr="id"] - For non-primitive nouns, this is the
    *     attribute on the object that uniquely identifies it.
    *
-   * @param aNounDef.schema Unsupported mechanism by which you can define a
+   * @param {object} aNounDef.schema - Unsupported mechanism by which you can define a
    *     table that corresponds to this noun.  The table will be created if it
    *     does not exist.
    *     - name The table name; don't conflict with other things!
@@ -780,8 +776,8 @@ export var Gloda = {
    *  standard and well-defined, this works out pretty well, but suggests we
    *  need to think things through.
    *
-   * @param aNounID The ID of the noun you want to define an action on.
-   * @param aActionMeta The dictionary describing the noun.  The dictionary
+   * @param {integer} aNounID - The ID of the noun you want to define an action on.
+   * @param {object} aActionMeta - The dictionary describing the noun.  The dictionary
    *     should have the following fields:
    * - actionType: a string indicating the type of action.  Currently, only
    *   "filter" is a legal value.
@@ -1372,7 +1368,7 @@ export var Gloda = {
    *  code provides the properties) but still depend on this method to
    *  establish their constraint helper methods.
    *
-   * @XXX potentially rename to not suggest binding is required.
+   * TODO: potentially rename to not suggest binding is required.
    */
   _bindAttribute(aAttrDef, aSubjectNounDef) {
     const objectNounDef = aAttrDef.objectNounDef;
@@ -1501,17 +1497,18 @@ export var Gloda = {
    * Define an attribute and all its meta-data.  Takes a single dictionary as
    *  its argument, with the following required properties:
    *
-   * @param aAttrDef.provider The object instance providing a 'process' method.
-   * @param aAttrDef.extensionName The name of the extension providing these
+   * @param {object} aAttrDef
+   * @param {object} aAttrDef.provider - The object instance providing a 'process' method.
+   * @param {string} aAttrDef.extensionName - The name of the extension providing these
    *     attributes.
-   * @param aAttrDef.attributeType The type of attribute, one of the values from
+   * @param {integer} aAttrDef.attributeType - The type of attribute, one of the values from
    *     the kAttr* enumeration.
-   * @param aAttrDef.attributeName The name of the attribute, which also doubles
+   * @param {string} aAttrDef.attributeName - The name of the attribute, which also doubles
    *     as the bound property name if you pass 'bind' a value of true.  You are
    *     responsible for avoiding collisions, which presumably will mean
    *     checking/updating a wiki page in the future, or just prefixing your
    *     attribute name with your extension name or something like that.
-   * @param aAttrDef.bind Should this attribute be 'bound' as a convenience
+   * @param {boolean} aAttrDef.bind - Should this attribute be 'bound' as a convenience
    *     attribute on the subject's object (true/false)?  For example, with an
    *     attributeName of "foo" and passing true for 'bind' with a subject noun
    *     of NOUN_MESSAGE, GlodaMessage instances will expose a "foo" getter that
@@ -1521,17 +1518,17 @@ export var Gloda = {
    *     list of instances of the object class corresponding to the noun type,
    *     where the list may be empty if no instances of the attribute are
    *     present.
-   * @param aAttrDef.bindName Optional override of attributeName for purposes of
+   * @param {string} aAttrDef.bindName - Optional override of attributeName for purposes of
    *     the binding property's name.
-   * @param aAttrDef.singular Is the attribute going to happen at most once
+   * @param {boolean} aAttrDef.singular - Is the attribute going to happen at most once
    *     (true), or potentially multiple times (false).  This affects whether
    *     the binding returns a list or just a single item (which is null when
    *     the attribute is not present).
-   * @param [aAttrDef.emptySetIsSignificant=false] Should we
-   * @param aAttrDef.subjectNouns A list of object types (NOUNs) that this
+   * @param {boolean} [aAttrDef.emptySetIsSignificant=false] - Should we
+   * @param {integer} aAttrDef.subjectNouns - A list of object types (NOUNs) that this
    *     attribute can be set on.  Each element in the list should be one of the
    *     NOUN_* constants or a dynamically registered noun type.
-   * @param aAttrDef.objectNoun The object type (one of the NOUN_* constants or
+   * @param {integer} aAttrDef.objectNoun - The object type (one of the NOUN_* constants or
    *     a dynamically registered noun types) that is the 'object' in the
    *     traditional RDF triple.  More pragmatically, in the database row used
    *     to represent an attribute, we store the subject (ex: message ID),
@@ -1810,9 +1807,9 @@ export var Gloda = {
    *  arguments are the strings that should be passed to the SQLite FTS3
    *  MATCH clause.
    *
-   * @param aNounID The (integer) noun-id of the noun you want to query on.
-   * @param aOptions an optional dictionary of query options, see the GlodaQuery
-   *     class documentation.
+   * @param {integer} aNounID - The (integer) noun-id of the noun you want to query on.
+   * @param {object} aOptions - An optional dictionary of query options, see the GlodaQuery
+   *   class documentation.
    */
   newQuery(aNounID, aOptions) {
     const nounDef = this._nounIDToDef[aNounID];
@@ -1875,8 +1872,8 @@ export var Gloda = {
    * - In-memory representation.
    * - JSON-able representation.
    *
-   * @param aItem The noun instance you want processed.
-   * @param aRawReps A dictionary that we pass to the attribute providers.
+   * @param {object} aItem - The noun instance you want processed.
+   * @param {object} aRawReps - A dictionary that we pass to the attribute providers.
    *     There is a(n implied) contract between the caller of grokNounItem for a
    *     given noun type and the attribute providers for that noun type, and we
    *     have nothing to do with it OTHER THAN inserting a 'trueGlodaRep'
@@ -1888,19 +1885,19 @@ export var Gloda = {
    *     once indexing completes.  The 'trueGlodaRep' is then useful for
    *     objects that hang off of the gloda instance that need a reference
    *     back to their containing object for API convenience purposes.
-   * @param aIsConceptuallyNew Is the item "new" in the sense that it would
+   * @param {boolean} aIsConceptuallyNew - Is the item "new" in the sense that it would
    *     never have been visible from within user code?  This translates into
    *     whether this should trigger an itemAdded notification or an
    *     itemModified notification.
-   * @param aIsRecordNew Is the item "new" in the sense that we should INSERT
+   * @param {boolean} aIsRecordNew - Is the item "new" in the sense that we should INSERT
    *     a record rather than UPDATE-ing a record.  For example, when dealing
    *     with messages where we may have a ghost, the ghost message is not a
    *     new record, but is conceptually new.
-   * @param aCallbackHandle The GlodaIndexer-style callback handle that is being
+   * @param {Function} aCallbackHandle - The GlodaIndexer-style callback handle that is being
    *     used to drive this processing in an async fashion.  (See
    *     GlodaIndexer._callbackHandle).
-   * @param aDoCache Should we allow this item to be contributed to its noun
-   *     cache?
+   * @param {boolean} aDoCache - Should we allow this item to be contributed to
+   *   its noun cache?
    */
   *grokNounItem(
     aItem,
@@ -2206,10 +2203,10 @@ export var Gloda = {
    *  be used elsewhere too.  (It does, however, depend on the complicity of the
    *  score method implementations to not get confused.)
    *
-   * @param aItems The non-empty list of items to score.
-   * @param aContext A noun-specific dictionary that we just pass to the funcs.
-   * @param aExtraScoreFuncs A list of extra scoring functions to apply.
-   * @returns A list of integer scores equal in length to aItems.
+   * @param {object[]} aItems - The non-empty list of items to score.
+   * @param {object} aContext - A noun-specific dictionary that we just pass to the funcs.
+   * @param {Function[]} aExtraScoreFuncs - A list of extra scoring functions to apply.
+   * @returns {integer[]} A list of integer scores equal in length to aItems.
    */
   scoreNounItems(aItems, aContext, aExtraScoreFuncs) {
     const scores = [];
