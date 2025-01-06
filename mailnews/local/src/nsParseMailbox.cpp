@@ -959,7 +959,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
   if (mozstatus) {
     if (mozstatus->length == 4) {
       NS_ASSERTION(MsgIsHex(mozstatus->value, 4),
-                   "Expected 4 hex digits for flags.");
+                   "Expected 4 hex digits for X-Mozilla-Status.");
       flags = MsgUnhex(mozstatus->value, 4);
       // strip off and remember priority bits.
       flags &= ~nsMsgMessageFlags::RuntimeOnly;
@@ -970,9 +970,12 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
   }
 
   if (mozstatus2) {
-    uint32_t flags2 = 0;
-    sscanf(mozstatus2->value, " %x ", &flags2);
-    flags |= flags2;
+    if (mozstatus2->length == 8) {
+      NS_ASSERTION(MsgIsHex(mozstatus2->value, 8),
+                   "Expected 8 hex digits for X-Mozilla-Status2.");
+      uint32_t flags2 = MsgUnhex(mozstatus2->value, 8);
+      flags |= flags2 & 0xFFFF0000;
+    }
   }
 
   if (!(flags & nsMsgMessageFlags::Expunged))  // message was deleted, don't
