@@ -25,6 +25,7 @@
 #include "nsTArray.h"
 #include "nsTHashMap.h"
 #include "mozilla/UniquePtr.h"
+#include "mozilla/Vector.h"
 
 class nsOutputFileStream;
 class nsIMsgFolder;
@@ -78,7 +79,7 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   nsMsgKey m_new_key;  // DB key for the new header.
 
   // The raw header data.
-  ::nsByteArray m_headers;
+  mozilla::Vector<char> m_headers;
 
   // These all point into the m_headers buffer.
   HeaderData m_message_id;

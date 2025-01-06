@@ -469,7 +469,7 @@ NS_IMETHODIMP nsParseMailMessageState::Clear() {
   m_new_key = nsMsgKey_None;
   m_toList.Clear();
   m_ccList.Clear();
-  m_headers.ResetWritePos();
+  m_headers.clear();
   m_receivedTime = 0;
   m_receivedValue.Truncate();
   for (auto& headerData : m_customDBHeaderData) {
@@ -530,7 +530,7 @@ nsresult nsParseMailMessageState::ParseFolderLine(const char* line,
       /* Otherwise, this line belongs to a header.  So append it to the
          header data, and stay in MBOX `MIME_PARSE_HEADERS' state.
       */
-      m_headers.AppendBuffer(line, lineLength);
+      NS_ENSURE_TRUE(m_headers.append(line, lineLength), NS_ERROR_FAILURE);
     }
   } else if (m_state == nsIMsgParseMailMsgState::ParseBodyState) {
     m_body_lines++;
@@ -569,8 +569,8 @@ NS_IMETHODIMP nsParseMailMessageState::FinishHeader() {
 NS_IMETHODIMP nsParseMailMessageState::GetAllHeaders(char** pHeaders,
                                                      int32_t* pHeadersSize) {
   if (!pHeaders || !pHeadersSize) return NS_ERROR_NULL_POINTER;
-  *pHeaders = m_headers.GetBuffer();
-  *pHeadersSize = m_headers.GetBufferPos();
+  *pHeaders = m_headers.begin();
+  *pHeadersSize = static_cast<int32_t>(m_headers.length());
   return NS_OK;
 }
 
@@ -578,8 +578,8 @@ NS_IMETHODIMP nsParseMailMessageState::GetAllHeaders(char** pHeaders,
 NS_IMETHODIMP nsParseMailMessageState::GetHeaders(char** pHeaders) {
   NS_ENSURE_ARG_POINTER(pHeaders);
   nsCString crlfHeaders;
-  char* curHeader = m_headers.GetBuffer();
-  for (uint32_t headerPos = 0; headerPos < m_headers.GetBufferPos();) {
+  char* curHeader = m_headers.begin();
+  for (uint32_t headerPos = 0; headerPos < m_headers.length();) {
     crlfHeaders.Append(curHeader);
     crlfHeaders.Append(CRLF);
     int32_t headerLen = strlen(curHeader);
@@ -593,8 +593,8 @@ NS_IMETHODIMP nsParseMailMessageState::GetHeaders(char** pHeaders) {
 /* largely lifted from mimehtml.c, which does similar parsing, sigh...
  */
 nsresult nsParseMailMessageState::ParseHeaders() {
-  char* buf = m_headers.GetBuffer();
-  uint32_t buf_length = m_headers.GetBufferPos();
+  char* buf = m_headers.begin();
+  uint32_t buf_length = m_headers.length();
   if (buf_length == 0) {
     // No header of an expected type is present. Consider this a successful
     // parse so email still shows on summary and can be accessed and deleted.
@@ -1097,9 +1097,8 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
               do_CreateInstance("@mozilla.org/security/hash;1", &rv);
           if (NS_SUCCEEDED(rv)) {
             if (NS_SUCCEEDED(hasher->Init(nsICryptoHash::MD5)) &&
-                NS_SUCCEEDED(
-                    hasher->Update((const uint8_t*)m_headers.GetBuffer(),
-                                   m_headers.GetBufferPos())) &&
+                NS_SUCCEEDED(hasher->Update((const uint8_t*)m_headers.begin(),
+                                            m_headers.length())) &&
                 NS_SUCCEEDED(hasher->Finish(true, hash))) {
               md5_b64 = hash.get();
             }
@@ -1503,8 +1502,8 @@ void nsParseNewMailState::ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow) {
         m_rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox,
                                          getter_AddRefs(downloadFolder));
       if (downloadFolder) downloadFolder->GetURI(m_inboxUri);
-      char* headers = m_headers.GetBuffer();
-      uint32_t headersSize = m_headers.GetBufferPos();
+      char* headers = m_headers.begin();
+      uint32_t headersSize = m_headers.length();
       nsAutoCString tok;
       msgHdr->GetStoreToken(tok);
       if (m_filterList) {
