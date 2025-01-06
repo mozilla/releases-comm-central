@@ -494,6 +494,65 @@ add_task(function formatTime_test_with_arbitrary_timezone() {
   ok(expected.includes(formatted), `expected '${expected}', actual result ${formatted}`);
 });
 
+add_task(async function formatDateTime_test() {
+  const data = [
+    {
+      input: {
+        datetime: "20250107",
+        dateformat: 0, // long
+      },
+      expected: ["Tuesday, 7 January 2025 All Day", "Tuesday, January 7, 2025 All Day"],
+    },
+    {
+      input: {
+        datetime: "20250107",
+        dateformat: 1, // short
+      },
+      expected: ["1/7/2025 All Day", "1/7/25 All Day"],
+    },
+    {
+      input: {
+        datetime: "20250107T180000",
+        timezone: "Pacific/Fakaofo",
+        dateformat: 0, // long
+      },
+      expected: [
+        "Tuesday, January 7, 2025 at 6:00 PM",
+        "Tuesday, January 7, 2025, 6:00 PM",
+        "Tuesday, January 7, 2025 at 18:00",
+      ],
+    },
+    {
+      input: {
+        datetime: "20250107T180000",
+        timezone: "Pacific/Fakaofo",
+        dateformat: 1, // short
+      },
+      expected: ["1/7/2025, 18:00", "1/7/25, 18:00", "1/7/2025, 6:00 PM", "1/7/25, 6:00 PM"],
+    },
+  ];
+
+  const dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
+  const tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
+  Services.prefs.setStringPref("calendar.timezone.local", "Pacific/Fakaofo");
+
+  let i = 0;
+  for (const test of data) {
+    i++;
+    Services.prefs.setIntPref("calendar.date.format", test.input.dateformat);
+    const date = cal.createDateTime(test.input.datetime);
+
+    const formatted = formatter.formatDateTime(date);
+    ok(
+      test.expected.includes(formatted),
+      "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
+    );
+  }
+  // let's reset the preferences
+  Services.prefs.setStringPref("calendar.timezone.local", tzlocal);
+  Services.prefs.setIntPref("calendar.date.format", dateformat);
+});
+
 add_task(async function formatInterval_test() {
   const data = [
     //1: task-without-dates

@@ -146,6 +146,10 @@ export var formatter = {
    * @returns {string} A string representing the datetime.
    */
   formatDateTime(aDate) {
+    if (aDate.isDate) {
+      return this.formatDate(aDate) + " " + lazy.gDateStringBundle.GetStringFromName("AllDay");
+    }
+
     return formatDateTimeWithOptions(aDate, {
       dateStyle: lazy.dateFormat == 0 ? "full" : "short",
       timeStyle: "short",
