@@ -238,8 +238,9 @@ nsresult nsMsgXFViewThread::AddHdr(nsIMsgDBHdr* newHdr, bool reparentChildren,
       m_folders.InsertObjectAt(newHdrFolder, 0);
       whereInserted = 0;
       // Adjust level of old root hdr and its children
-      for (nsMsgViewIndex i = 1; i < m_keys.Length(); i++)
-        m_levels[i] = m_levels[1] + 1;
+      for (nsMsgViewIndex i = 1; i < m_keys.Length(); i++) {
+        m_levels[i] = m_levels[i] + 1;
+      }
     } else {
       m_keys.AppendElement(newHdrKey);
       m_levels.AppendElement(1);
