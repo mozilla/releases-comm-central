@@ -9,6 +9,9 @@
 #include "nsIInputStream.h"
 #include "nsCOMPtr.h"
 #include "mozilla/Buffer.h"
+#include "mozilla/Mutex.h"
+
+using namespace mozilla;
 
 class MboxParser;
 
@@ -120,6 +123,9 @@ class MboxMsgInputStream : public nsIInputStream {
 
   // Hide gory parsing details with pIMPL.
   mozilla::UniquePtr<MboxParser> mParser;
+
+ private:
+  Mutex mLock;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_MBOXMSGINPUTSTREAM_H_

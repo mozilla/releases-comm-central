@@ -36,7 +36,7 @@ using mozilla::LogLevel;
  *   and aim to return messages as accurately as possible, even if malformed.
  * - Avoid copying and memory reallocation as much as possible.
  * - Cope with pathological cases without buffering up huge quantities of data.
- *   eg "From " followed by gigabytes of non-EOL characters.
+ *   e.g. "From " followed by gigabytes of non-EOL characters.
  *   Output buffer size is kept down to roughly what you pass in with a
  *   single call to Feed().
  *
@@ -150,7 +150,8 @@ class MboxParser {
    * The number of bytes actually read is returned.
    */
   size_t Drain(char* buf, size_t count) {
-    size_t n = std::min(count, Available());
+    size_t available = Available();
+    size_t n = std::min(count, available);
     auto start = mOutBuffer.cbegin() + mCursor;
     std::copy(start, start + n, buf);
 
@@ -160,7 +161,7 @@ class MboxParser {
     // If only a small proportion (<25%) has been left unconsumed, move it to
     // the beginning of the buffer. Ideally, the caller would drain all
     // available data in one go, but that's not always possible.
-    if (Available() < (mOutBuffer.Length() / 4)) {
+    if (available < (mOutBuffer.Length() / 4)) {
       mOutBuffer.RemoveElementsAt(0, mCursor);
       mCursor = 0;
     }
@@ -738,7 +739,8 @@ MboxMsgInputStream::MboxMsgInputStream(nsIInputStream* mboxStream,
       mLimitOutputBytes(maxAllowedSize),
       mOutputBytes(0),
       mOverflow(false),
-      mParser(new MboxParser()) {
+      mParser(new MboxParser()),
+      mLock("MboxMsgInputStream.mLock") {
   // Ensure the first chunk is read and parsed.
   // This should include the "From " line, so EnvAddr()/EnvDate()
   // can be used right away.
@@ -754,6 +756,7 @@ NS_IMETHODIMP MboxMsgInputStream::Close() {
 }
 
 bool MboxMsgInputStream::IsNullMessage() {
+  MutexAutoLock lock(mLock);
   return mParser->IsFinished() && (mMsgOffset == mTotalUsed);
 }
 
@@ -819,6 +822,8 @@ NS_IMETHODIMP MboxMsgInputStream::Read(char* buf, uint32_t count,
   if (NS_FAILED(mStatus)) {
     return mStatus;
   }
+
+  MutexAutoLock lock(mLock);
 
   // We just keep feeding data into the parser and copying out its output.
   while (count > 0 && !mOverflow) {
@@ -925,6 +930,7 @@ NS_IMETHODIMP MboxMsgInputStream::ReadSegments(nsWriteSegmentFun writer,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
+// We're using a blocking input stream.
 NS_IMETHODIMP MboxMsgInputStream::IsNonBlocking(bool* nonBlocking) {
   *nonBlocking = false;
   return NS_OK;
