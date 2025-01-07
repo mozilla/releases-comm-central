@@ -82,7 +82,7 @@ class MboxMsgInputStream : public nsIInputStream {
    * positioned when the MboxMsgInputStream was constructed!
    * If a seek was performed beforehand, that position is considered offset 0.
    */
-  uint64_t MsgOffset() { return mMsgOffset; }
+  uint64_t MsgOffset();
 
   /**
    * If the "From " line contained a sender, it can be accessed here.
