@@ -1011,7 +1011,7 @@ var folderPane = {
       },
 
       regenerateMode() {
-        if (this._smartServer) {
+        if (this._smartMailbox) {
           SmartMailboxUtils.removeAll(true);
         }
         this.init();
