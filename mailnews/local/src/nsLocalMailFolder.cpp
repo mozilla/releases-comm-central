@@ -3379,7 +3379,7 @@ nsMsgLocalMailFolder::AddMessageBatch(
 
       msgStore->FinishNewMessage(outFileStream, newHdr);
       outFileStream = nullptr;
-      newMailParser->OnStopRequest(nullptr, NS_OK);
+      newMailParser->DoneParsing();
       newMailParser->EndMsgDownload();
       aHdrArray.AppendElement(newHdr);
     }

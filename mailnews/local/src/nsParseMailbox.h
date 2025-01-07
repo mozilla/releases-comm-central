@@ -7,18 +7,14 @@
 #define nsParseMailbox_H
 
 #include "nsIMsgParseMailMsgState.h"
-#include "nsIStreamListener.h"
 #include "nsMsgLineBuffer.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
-#include "nsIMsgStatusFeedback.h"
 #include "nsCOMPtr.h"
 #include "nsCOMArray.h"
 #include "nsIDBChangeListener.h"
-#include "nsIWeakReferenceUtils.h"
 #include "nsIMsgWindow.h"
 #include "nsImapMoveCoalescer.h"
-#include "nsString.h"
 #include "nsIMsgFilterList.h"
 #include "nsIMsgFilter.h"
 #include "nsIMsgFilterHitNotify.h"
@@ -74,8 +70,6 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   int64_t m_position;
   // The start of the "From " line (the line before the start of the message).
   uint64_t m_envelope_pos;
-  // The start of the message headers (immediately follows "From " line).
-  uint64_t m_headerstartpos;
   nsMsgKey m_new_key;  // DB key for the new header.
 
   // The raw header data.
@@ -124,69 +118,8 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   virtual ~nsParseMailMessageState() {};
 };
 
-// NOTE:
-// nsMsgMailboxParser is a vestigial class, no longer used directly.
-// It's been left in because it's a base class for nsParseNewMailState, but
-// ultimately it should be removed completely.
-// Originally, a single parser instance was used to handle multiple
-// messages. But that made lots of inherent mbox-specific assumptions, and
-// the carried-between-messages state made it very hard to follow.
-class nsMsgMailboxParser : public nsIStreamListener,
-                           public nsParseMailMessageState,
-                           public nsMsgLineBuffer {
- public:
-  explicit nsMsgMailboxParser(nsIMsgFolder*);
-  nsMsgMailboxParser();
-  nsresult Init();
-
-  NS_DECL_ISUPPORTS_INHERITED
-
-  ////////////////////////////////////////////////////////////////////////////////////////
-  // we support the nsIStreamListener interface
-  ////////////////////////////////////////////////////////////////////////////////////////
-  NS_DECL_NSIREQUESTOBSERVER
-  NS_DECL_NSISTREAMLISTENER
-
-  void SetDB(nsIMsgDatabase* mailDB) { m_mailDB = mailDB; }
-
-  // message socket libnet callbacks, which come through folder pane
-  nsresult ProcessMailboxInputStream(nsIInputStream* aIStream,
-                                     uint32_t aLength);
-
-  virtual void DoneParsingFolder(nsresult status);
-  virtual void AbortNewHeader();
-
-  // for nsMsgLineBuffer
-  virtual nsresult HandleLine(const char* line, uint32_t line_length) override;
-
-  void UpdateDBFolderInfo();
-  void UpdateDBFolderInfo(nsIMsgDatabase* mailDB);
-  void UpdateStatusText(const char* stringName);
-
-  // Update the progress bar based on what we know.
-  virtual void UpdateProgressPercent();
-  virtual void OnNewMessage(nsIMsgWindow* msgWindow);
-
- protected:
-  virtual ~nsMsgMailboxParser();
-  nsCOMPtr<nsIMsgStatusFeedback> m_statusFeedback;
-
-  virtual void PublishMsgHeader(nsIMsgWindow* msgWindow);
-
-  // data
-  nsString m_folderName;
-  nsCString m_inboxUri;
-  ::nsByteArray m_inputStream;
-  uint64_t m_graph_progress_total;
-  uint64_t m_graph_progress_received;
-
- private:
-  nsWeakPtr m_folder;
-  void ReleaseFolderLock();
-  nsresult AcquireFolderLock();
-};
-
-class nsParseNewMailState : public nsMsgMailboxParser,
+class nsParseNewMailState : public nsParseMailMessageState,
+                            public nsMsgLineBuffer,
                             public nsIMsgFilterHitNotify {
  public:
   nsParseNewMailState();
@@ -196,14 +129,13 @@ class nsParseNewMailState : public nsMsgMailboxParser,
                 nsIMsgWindow* aMsgWindow, nsIMsgDBHdr* aHdr,
                 nsIOutputStream* aOutputStream);
 
-  virtual void DoneParsingFolder(nsresult status) override;
+  void DoneParsing();
 
   void DisableFilters() { m_disableFilters = true; }
 
   NS_DECL_NSIMSGFILTERHITNOTIFY
 
-  nsOutputFileStream* GetLogFile();
-  virtual void PublishMsgHeader(nsIMsgWindow* msgWindow) override;
+  virtual void PublishMsgHeader(nsIMsgWindow* msgWindow);
   void GetMsgWindow(nsIMsgWindow** aMsgWindow);
   nsresult EndMsgDownload();
 
@@ -212,7 +144,6 @@ class nsParseNewMailState : public nsMsgMailboxParser,
 
   void ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow);
   nsresult ApplyForwardAndReplyFilter(nsIMsgWindow* msgWindow);
-  virtual void OnNewMessage(nsIMsgWindow* msgWindow) override;
 
   // These three vars are public because they need to be carried between
   // messages.
@@ -224,6 +155,12 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   RefPtr<nsImapMoveCoalescer> m_moveCoalescer;
   mozilla::UniquePtr<nsTHashMap<nsCStringHashKey, int32_t>>
       m_filterTargetFoldersMsgMovedCount;
+
+  // for nsMsgLineBuffer
+  virtual nsresult HandleLine(const char* line, uint32_t line_length) override;
+
+  void UpdateDBFolderInfo();
+  void UpdateDBFolderInfo(nsIMsgDatabase* mailDB);
 
  protected:
   virtual ~nsParseNewMailState();
@@ -243,6 +180,7 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   nsCOMPtr<nsIMsgFolder> m_downloadFolder;
   nsCOMPtr<nsIOutputStream> m_outputStream;
   nsCOMArray<nsIMsgFolder> m_filterTargetFolders;
+  nsCString m_inboxUri;
 
   bool m_msgMovedByFilter;
   bool m_msgCopiedByFilter;
