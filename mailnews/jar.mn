@@ -16,9 +16,6 @@ messenger.jar:
     content/messenger/addressbook/abResultsPane.js                             (addrbook/content/abResultsPane.js)
     content/messenger/addressbook/abDragDrop.js                                (addrbook/content/abDragDrop.js)
     content/messenger/addressbook/abMailListDialog.js                          (addrbook/content/abMailListDialog.js)
-#ifdef MOZ_SUITE
-    content/messenger/addressbook/map-list.js                                  (addrbook/content/map-list.js)
-#endif
 *   content/messenger/AccountManager.xhtml                                     (base/prefs/content/AccountManager.xhtml)
     content/messenger/AccountManager.js                                        (base/prefs/content/AccountManager.js)
     content/messenger/am-main.xhtml                                            (base/prefs/content/am-main.xhtml)
