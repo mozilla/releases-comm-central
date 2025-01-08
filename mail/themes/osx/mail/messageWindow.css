@@ -45,6 +45,7 @@
 }
 
 #titlebar-title {
+  overflow: hidden;
   /* Equalize the titlebar-buttonbox width */
   padding-inline-end: 60px;
 }
