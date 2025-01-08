@@ -53,6 +53,8 @@ void FolderCollector::FindChildren(nsIFolder* aParent, nsIFile* aFile) {
   MOZ_ASSERT(!NS_IsMainThread());
 
   nsTHashMap<nsCString, RefPtr<nsIFile>> childFiles;
+  // For folders where the name isn't the file name.
+  nsTHashMap<nsCString, RefPtr<nsIFile>> aliasFiles;
 
   bool isDirectory;
   nsAutoString leafName;
@@ -130,8 +132,41 @@ void FolderCollector::FindChildren(nsIFolder* aParent, nsIFile* aFile) {
   // Now save the children in the database.
 
   nsTArray<nsCString> childNames;
+  nsTHashMap<nsCString, int64_t> childFlags;
   for (auto iter = childFiles.ConstIter(); !iter.Done(); iter.Next()) {
-    childNames.AppendElement(iter.Key());
+    nsAutoCString childName;
+    childName.Assign(iter.Key());
+
+    RefPtr<nsIFile> file = iter.UserData();
+    nsCOMPtr<nsIFile> summaryFile;
+    file->Clone(getter_AddRefs(summaryFile));
+    nsAutoString leafName;
+    summaryFile->GetLeafName(leafName);
+    summaryFile->SetLeafName(leafName + u".msf"_ns);
+
+    nsCString persistentPath;
+    if (NS_SUCCEEDED(summaryFile->GetPersistentDescriptor(persistentPath))) {
+      EnsureFolderCache();
+      nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
+      mFolderCache->GetCacheElement(persistentPath, false,
+                                    getter_AddRefs(cacheElement));
+
+      if (cacheElement) {
+        nsAutoCString folderName;
+        rv = cacheElement->GetCachedString("folderName", folderName);
+        if (NS_SUCCEEDED(rv) && !folderName.IsEmpty()) {
+          childName.Assign(folderName);
+          aliasFiles.InsertOrUpdate(folderName, file);
+        }
+        int64_t flags;
+        rv = cacheElement->GetCachedInt64("flags", &flags);
+        if (NS_SUCCEEDED(rv)) {
+          childFlags.InsertOrUpdate(folderName, flags);
+        }
+      }
+    }
+
+    childNames.AppendElement(childName);
   }
 
   EnsureDatabase();
@@ -142,30 +177,16 @@ void FolderCollector::FindChildren(nsIFolder* aParent, nsIFile* aFile) {
   for (auto child : children) {
     nsAutoCString name;
     child->GetName(name);
+
+    int64_t flags;
+    if (childFlags.Get(name, &flags)) {
+      mDatabase->UpdateFlags(child, flags);
+    }
+
     RefPtr<nsIFile> file;
     if (childFiles.Get(name, &file)) {
-      nsCOMPtr<nsIFile> summaryFile;
-      file->Clone(getter_AddRefs(summaryFile));
-      nsAutoString leafName;
-      summaryFile->GetLeafName(leafName);
-      summaryFile->SetLeafName(leafName + u".msf"_ns);
-
-      nsCString persistentPath;
-      if (NS_SUCCEEDED(summaryFile->GetPersistentDescriptor(persistentPath))) {
-        EnsureFolderCache();
-        nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
-        mFolderCache->GetCacheElement(persistentPath, false,
-                                      getter_AddRefs(cacheElement));
-
-        if (cacheElement) {
-          uint32_t flags;
-          cacheElement->GetCachedUInt32("flags", &flags);
-          if (flags) {
-            mDatabase->UpdateFlags(child, flags);
-          }
-        }
-      }
-
+      FindChildren(child, file);
+    } else if (aliasFiles.Get(name, &file)) {
       FindChildren(child, file);
     }
   }

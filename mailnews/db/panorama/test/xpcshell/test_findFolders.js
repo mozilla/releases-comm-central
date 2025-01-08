@@ -56,15 +56,15 @@ add_task(async function testFindFolders() {
     flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Trash,
   });
 
-  const unsent = folders.getFolderByPath("server1/Unsent Messages");
-  Assert.ok(unsent);
-  Assert.equal(unsent.parent, root);
-  Assert.equal(unsent.name, "Unsent Messages");
-  checkRow(unsent.id, {
-    id: unsent.id,
+  const outbox = folders.getFolderByPath("server1/Outbox");
+  Assert.ok(outbox);
+  Assert.equal(outbox.parent, root);
+  Assert.equal(outbox.name, "Outbox");
+  checkRow(outbox.id, {
+    id: outbox.id,
     parent: 1,
     ordinal: null,
-    name: "Unsent Messages",
+    name: "Outbox",
     flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Queue,
   });
 
@@ -107,6 +107,6 @@ add_task(async function testFindFolders() {
     flags: 0,
   });
 
-  Assert.deepEqual(root.children, [test1, test3, trash, unsent]);
-  Assert.deepEqual(root.descendants, [test1, test2, test3, trash, unsent]);
+  Assert.deepEqual(root.children, [outbox, test1, test3, trash]);
+  Assert.deepEqual(root.descendants, [outbox, test1, test2, test3, trash]);
 });
