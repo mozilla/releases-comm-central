@@ -11,6 +11,7 @@
 #include "nsISafeOutputStream.h"
 #include "nsISeekableStream.h"
 #include "nsString.h"
+#include "mozilla/Mutex.h"
 
 /**
  * MboxMsgOutputStream writes a single message out to an underlying mbox
@@ -52,7 +53,10 @@ class MboxMsgOutputStream : public nsIOutputStream, nsISafeOutputStream {
   explicit MboxMsgOutputStream(nsIOutputStream* mboxStream,
                                bool closeInnerWhenDone = false);
   MboxMsgOutputStream() = delete;
-  int64_t StartPos() { return mStartPos; }
+
+  // Returns the offset within the underlying mbox where this new message
+  // begins. If we're in an error state, this value is undefined.
+  int64_t StartPos();
 
   // Set details to use in the "From " separator line.
   // MUST be called before any writes are attempted!
@@ -60,6 +64,9 @@ class MboxMsgOutputStream : public nsIOutputStream, nsISafeOutputStream {
 
  private:
   virtual ~MboxMsgOutputStream();
+
+  // As a blocking stream, we could be called from other threads.
+  mozilla::Mutex mLock;
 
   // The actual stream we're writing the mbox into.
   nsCOMPtr<nsIOutputStream> mInner;
@@ -96,6 +103,8 @@ class MboxMsgOutputStream : public nsIOutputStream, nsISafeOutputStream {
 
   nsresult Emit(nsACString const& data);
   nsresult Emit(const char* data, uint32_t numBytes);
+
+  nsresult InternalClose();
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_MBOXMSGOUTPUTSTREAM_H_

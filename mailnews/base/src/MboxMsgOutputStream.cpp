@@ -17,7 +17,9 @@ NS_IMPL_ISUPPORTS(MboxMsgOutputStream, nsIOutputStream, nsISafeOutputStream);
 
 MboxMsgOutputStream::MboxMsgOutputStream(nsIOutputStream* mboxStream,
                                          bool closeInnerWhenDone)
-    : mInner(mboxStream), mCloseInnerWhenDone(closeInnerWhenDone) {
+    : mLock("MboxMsgOutputStream::mLock"),
+      mInner(mboxStream),
+      mCloseInnerWhenDone(closeInnerWhenDone) {
   // Record the starting position of the underlying mbox file.
   // If this fails, the stream will be kept in error state.
   nsresult rv;
@@ -39,8 +41,16 @@ MboxMsgOutputStream::MboxMsgOutputStream(nsIOutputStream* mboxStream,
 
 MboxMsgOutputStream::~MboxMsgOutputStream() { Close(); }
 
+int64_t MboxMsgOutputStream::StartPos() {
+  mozilla::MutexAutoLock lock(mLock);
+  MOZ_ASSERT(mState != eError);
+  MOZ_ASSERT(mStartPos != -1);
+  return mStartPos;
+}
+
 void MboxMsgOutputStream::SetEnvelopeDetails(nsACString const& sender,
                                              PRTime received) {
+  mozilla::MutexAutoLock lock(mLock);
   // If MboxMsgOutputStream was badly constructed (with a non-seekable
   // underlying mboxStream), just quietly bail out.
   if (mState == eError) {
@@ -91,6 +101,7 @@ static nsCString buildFromLine(nsACString const& envSender,
   return nsPrintfCString("From %s %s\r\n", sender.get(), dateBuf);
 }
 
+// Internal helper.
 nsresult MboxMsgOutputStream::Emit(nsACString const& data) {
   return Emit(data.Data(), data.Length());
 }
@@ -149,6 +160,7 @@ static EscapingDecision DecideEscaping(const char* begin, const char* end) {
 
 // Implementation for nsIOutputStream.streamStatus().
 NS_IMETHODIMP MboxMsgOutputStream::StreamStatus() {
+  mozilla::MutexAutoLock lock(mLock);
   switch (mState) {
     case eClosed:
       return NS_BASE_STREAM_CLOSED;
@@ -162,6 +174,7 @@ NS_IMETHODIMP MboxMsgOutputStream::StreamStatus() {
 // Implementation for nsIOutputStream.write().
 NS_IMETHODIMP MboxMsgOutputStream::Write(const char* buf, uint32_t count,
                                          uint32_t* bytesWritten) {
+  mozilla::MutexAutoLock lock(mLock);
   MOZ_LOG(gMboxLog, LogLevel::Verbose,
           ("MboxMsgOutputStream::Write() %" PRIu32 " bytes: `%s`", count,
            CEscapeString(nsDependentCSubstring(buf, count), 80).get()));
@@ -289,6 +302,7 @@ NS_IMETHODIMP MboxMsgOutputStream::IsNonBlocking(bool* nonBlocking) {
 
 // Implementation for nsIOutputStream.flush().
 NS_IMETHODIMP MboxMsgOutputStream::Flush() {
+  mozilla::MutexAutoLock lock(mLock);
   if (mState == eClosed) {
     return NS_OK;
   }
@@ -308,6 +322,12 @@ NS_IMETHODIMP MboxMsgOutputStream::Flush() {
 // If Finish() has not already been called, this will attempt to truncate
 // the mbox file back to where it started.
 NS_IMETHODIMP MboxMsgOutputStream::Close() {
+  mozilla::MutexAutoLock lock(mLock);
+  return InternalClose();
+}
+
+// Internal helper for closing - mLock should already be held by caller.
+nsresult MboxMsgOutputStream::InternalClose() {
   if (mState == eClosed) {
     return NS_OK;
   }
@@ -357,13 +377,14 @@ NS_IMETHODIMP MboxMsgOutputStream::Close() {
 
 // Implementation for nsISafeOutputStream.finish().
 NS_IMETHODIMP MboxMsgOutputStream::Finish() {
+  mozilla::MutexAutoLock lock(mLock);
   MOZ_LOG(gMboxLog, LogLevel::Debug,
           ("MboxMsgOutputStream::Finish() startPos=%" PRIi64 "", mStartPos));
   if (mState == eClosed) {
     return NS_OK;
   }
   if (mState == eError) {
-    Close();  // Roll back
+    InternalClose();  // Roll back
     return mStatus;
   }
 
@@ -396,7 +417,7 @@ NS_IMETHODIMP MboxMsgOutputStream::Finish() {
 
   if (NS_FAILED(rv)) {
     // If any of the final writes failed, roll back!
-    Close();
+    InternalClose();
     return rv;
   }
 
