@@ -201,31 +201,34 @@ class QueryExpectationListener {
  *  the query noun type) if available, or assume that calling toString is
  *  sufficient.
  *
- * @param aQuery Either a query to execute, or a dict with the following keys:
+ * @param {GlodaQueryClass|object} aQuery - Either a query to execute, or a
+ *   dict with the following keys:
  *     - queryFunc: The function to call that returns a function.
  *     - queryThis: The 'this' to use for the invocation of queryFunc.
  *     - args: A list (possibly empty) or arguments to precede the traditional
  *         arguments to query.getCollection.
  *     - nounId: The (numeric) noun id of the noun type expected to be returned.
- * @param aExpectedSet The list of expected results from the query where each
- *     item is suitable for extraction using aExpectedExtractor.  We have a soft
- *     spot for SyntheticMessageSets and automatically unbox them.
- * @param aGlodaExtractor The extractor function to take an instance of the
- *     gloda representation and return a string for comparison/equivalence
- *     against that returned by the expected extractor (against the input
- *     instance in aExpectedSet.)  The value returned must be unique for all
+ * @param {SyntheticMessageSet} aExpectedSet - The list of expected results
+ *   from the query where each item is suitable for extraction using
+ *   aExpectedExtractor.  We have a soft spot for SyntheticMessageSets and
+ *   automatically unbox them.
+ * @param {Function} aGlodaExtractor - The extractor function to take an
+ *   instance of the gloda representation and return a string for
+ *   comparison/equivalence against that returned by the expected extractor
+ *   (against the input instance in aExpectedSet.)
+ *   The value returned must be unique for all
  *     of the expected gloda representations of the expected set.  If omitted,
  *     the default extractor for the gloda noun type is used.  If no default
  *     extractor exists, toString is called on the item.
- * @param aExpectedExtractor The extractor function to take an instance from the
- *     values in the aExpectedSet and return a string for comparison/equivalence
- *     against that returned by the gloda extractor.  The value returned must
- *     be unique for all of the values in the expected set.  If omitted, the
- *     default extractor for the presumed input type based on the gloda noun
- *     type used for the query is used, failing over to toString.
- * @param aOrderVerifier Optional function to verify the order the results are
- *     received in.  Function signature should be of the form (aZeroBasedIndex,
- *     aItem, aCollectionResultIsFor).
+ * @param {Function} [aExpectedExtractor] - The extractor function to take an
+ *   instance from the values in the aExpectedSet and return a string for
+ *   comparison/equivalence against that returned by the gloda extractor.
+ *   The value returned must be unique for all of the values in the expected set.
+ *   If omitted, the default extractor for the presumed input type based on
+ *   the gloda noun type used for the query is used, failing over to toString.
+ * @param {Function} [aOrderVerifier] - Optional function to verify the order
+ *   the results are received in.
+ *   Function signature should be of the form (aZeroBasedIndex, aItem, aCollectionResultIsFor).
  */
 export async function queryExpect(
   aQuery,
