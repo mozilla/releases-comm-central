@@ -520,20 +520,3 @@ NS_IMETHODIMP nsAbCardProperty::GenerateName(int32_t aGenerateFormat,
 
   return NS_OK;
 }
-
-NS_IMETHODIMP nsAbCardProperty::GeneratePhoneticName(bool aLastNameFirst,
-                                                     nsAString& aResult) {
-  nsAutoString firstName, lastName;
-  GetPropertyAsAString(kPhoneticFirstNameProperty, firstName);
-  GetPropertyAsAString(kPhoneticLastNameProperty, lastName);
-
-  if (aLastNameFirst) {
-    aResult = lastName;
-    aResult += firstName;
-  } else {
-    aResult = firstName;
-    aResult += lastName;
-  }
-
-  return NS_OK;
-}

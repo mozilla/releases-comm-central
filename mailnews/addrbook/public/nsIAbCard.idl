@@ -30,7 +30,6 @@ interface nsIAbPreferMailFormat : nsISupports {
  * The following are the core properties that are used:
  * - Names:
  *   - FirstName, LastName
- *   - PhoneticFirstName, PhoneticLastName
  *   - DisplayName, NickName
  *   - SpouseName, FamilyName
  * - PrimaryEmail, SecondEmail
@@ -263,20 +262,6 @@ interface nsIAbCard : nsISupports {
   AUTF8String toVCard();
 
   /**
-   * Translates a card from the specified format
-   */
-  //void translateFrom(in AUTF8String aType, in AUTF8String aData);
-
-  /**
-   * Generate a phonetic name from the card, using the firstName and lastName
-   * values.
-   *
-   * @param  aLastNameFirst  Set to True to put the last name before the first.
-   * @return                 A string containing the generated phonetic name.
-   */
-  AString generatePhoneticName(in boolean aLastNameFirst);
-
-  /**
    * This function will copy all values from one card to another.
    *
    * @param  srcCard         The source card to copy values from.
@@ -324,8 +309,6 @@ interface nsIAbCard : nsISupports {
 #define kLastModifiedDateProperty   "LastModifiedDate"
 #define kPopularityIndexProperty    "PopularityIndex"
 
-#define kPhoneticFirstNameProperty  "PhoneticFirstName"
-#define kPhoneticLastNameProperty   "PhoneticLastName"
 #define kSpouseNameProperty         "SpouseName"
 #define kFamilyNameProperty         "FamilyName"
 #define k2ndEmailProperty           "SecondEmail"

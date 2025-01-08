@@ -53,8 +53,6 @@ nsAddrDatabase::nsAddrDatabase()
       m_UIDColumnToken(0),
       m_FirstNameColumnToken(0),
       m_LastNameColumnToken(0),
-      m_PhoneticFirstNameColumnToken(0),
-      m_PhoneticLastNameColumnToken(0),
       m_DisplayNameColumnToken(0),
       m_NickNameColumnToken(0),
       m_PriEmailColumnToken(0),
@@ -295,10 +293,6 @@ nsresult nsAddrDatabase::InitMDBInfo() {
                                 &m_FirstNameColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv, kLastNameProperty,
                                 &m_LastNameColumnToken);
-      m_mdbStore->StringToToken(m_mdbEnv, kPhoneticFirstNameProperty,
-                                &m_PhoneticFirstNameColumnToken);
-      m_mdbStore->StringToToken(m_mdbEnv, kPhoneticLastNameProperty,
-                                &m_PhoneticLastNameColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv, kDisplayNameProperty,
                                 &m_DisplayNameColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv, kNicknameProperty,

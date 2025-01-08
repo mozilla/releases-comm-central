@@ -38,7 +38,6 @@ var gSearchStopButton;
 var gPropertiesCmd;
 var gComposeCmd;
 var gDeleteCmd;
-var gSearchPhoneticName = "false";
 
 var gSearchAbViewListener = {
   onSelectionChanged() {
@@ -80,12 +79,6 @@ function searchOnLoad() {
   gSearchSession = Cc[searchSessionContractID].createInstance(
     Ci.nsIMsgSearchSession
   );
-
-  // initialize a flag for phonetic name search
-  gSearchPhoneticName = Services.prefs.getComplexValue(
-    "mail.addr_book.show_phonetic_fields",
-    Ci.nsIPrefLocalizedString
-  ).data;
 
   if (window.arguments && window.arguments[0]) {
     SelectDirectory(window.arguments[0].directory);
@@ -302,25 +295,13 @@ function onSearch() {
 
     switch (searchTerm.attrib) {
       case Ci.nsMsgSearchAttrib.Name:
-        if (gSearchPhoneticName != "true") {
-          attrs = [
-            "DisplayName",
-            "FirstName",
-            "LastName",
-            "NickName",
-            "_AimScreenName",
-          ];
-        } else {
-          attrs = [
-            "DisplayName",
-            "FirstName",
-            "LastName",
-            "NickName",
-            "_AimScreenName",
-            "PhoneticFirstName",
-            "PhoneticLastName",
-          ];
-        }
+        attrs = [
+          "DisplayName",
+          "FirstName",
+          "LastName",
+          "NickName",
+          "_AimScreenName",
+        ];
         break;
       case Ci.nsMsgSearchAttrib.DisplayName:
         attrs = ["DisplayName"];

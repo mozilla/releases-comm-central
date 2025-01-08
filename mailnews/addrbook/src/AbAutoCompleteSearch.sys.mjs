@@ -20,8 +20,6 @@ function nsAbAutoCompleteResult(aSearchString) {
   this._searchResults = []; // final results
   this.searchString = aSearchString;
   this._collectedValues = new Map(); // temporary unsorted results
-  // Get model query from pref; this will return mail.addr_book.autocompletequery.format.phonetic
-  // if mail.addr_book.show_phonetic_fields == true
   this.modelQuery = getModelQuery("mail.addr_book.autocompletequery.format");
   // check if the currently active model query has been modified by user
   this._modelQueryHasUserValue = modelQueryHasUserValue(

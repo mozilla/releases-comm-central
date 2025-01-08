@@ -1139,68 +1139,6 @@ add_task(async function test_basic_edit() {
   await promiseDirectoryRemoved(book.URI);
 });
 
-add_task(async function test_special_fields() {
-  Services.prefs.setStringPref("mail.addr_book.show_phonetic_fields", "true");
-
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
-  let createContactButton = abDocument.getElementById("booksPaneCreateContact");
-
-  await openDirectory(personalBook);
-  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
-  await inEditingMode();
-
-  // The order of the FirstName and LastName fields can be reversed by L10n.
-  // This means they can be broken by L10n. Check that they're alright in the
-  // default configuration. We need to find a more robust way of doing this,
-  // but it is what it is for now.
-
-  const firstName = abDocument.getElementById("FirstName");
-  const lastName = abDocument.getElementById("LastName");
-  Assert.equal(
-    firstName.compareDocumentPosition(lastName),
-    Node.DOCUMENT_POSITION_FOLLOWING,
-    "LastName follows FirstName"
-  );
-
-  // The phonetic name fields should be visible, because the preference is set.
-  // They can also be broken by L10n.
-
-  let phoneticFirstName = abDocument.getElementById("PhoneticFirstName");
-  let phoneticLastName = abDocument.getElementById("PhoneticLastName");
-  Assert.ok(BrowserTestUtils.isVisible(phoneticFirstName));
-  Assert.ok(BrowserTestUtils.isVisible(phoneticLastName));
-  Assert.equal(
-    phoneticFirstName.compareDocumentPosition(phoneticLastName),
-    Node.DOCUMENT_POSITION_FOLLOWING,
-    "PhoneticLastName follows PhoneticFirstName"
-  );
-
-  await closeAddressBookWindow();
-
-  Services.prefs.setStringPref("mail.addr_book.show_phonetic_fields", "false");
-
-  abWindow = await openAddressBookWindow();
-  abDocument = abWindow.document;
-  createContactButton = abDocument.getElementById("booksPaneCreateContact");
-
-  await openDirectory(personalBook);
-  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
-  await inEditingMode();
-
-  // The phonetic name fields should be visible, because the preference is set.
-  // They can also be broken by L10n.
-
-  phoneticFirstName = abDocument.getElementById("PhoneticFirstName");
-  phoneticLastName = abDocument.getElementById("PhoneticLastName");
-  Assert.ok(BrowserTestUtils.isHidden(phoneticFirstName));
-  Assert.ok(BrowserTestUtils.isHidden(phoneticLastName));
-
-  await closeAddressBookWindow();
-
-  Services.prefs.clearUserPref("mail.addr_book.show_phonetic_fields");
-}).skip(); // Phonetic fields not implemented.
-
 /**
  * Test that the display name field is populated when it should be, and not
  * when it shouldn't be.

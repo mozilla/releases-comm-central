@@ -60,28 +60,15 @@ export function getSearchTokens(aSearchString) {
 }
 
 /**
- * For AB quicksearch or recipient autocomplete, get the normal or phonetic model
- * query URL part from prefs, allowing users to customize these searches.
+ * For AB quicksearch or recipient autocomplete, get the query URL part from
+ * prefs, allowing users to customize these searches.
  *
- * @param {string} aBasePrefName - The full pref name of default, non-phonetic
- *   model query, e.g. mail.addr_book.quicksearchquery.format. If phonetic
- *   search is used, corresponding pref must exist:
- *   e.g. mail.addr_book.quicksearchquery.format.phonetic
- * @returns {boolean} depending on mail.addr_book.show_phonetic_fields pref,
- *   the value of aBasePrefName or aBasePrefName + ".phonetic"
+ * @param {string} aBasePrefName - The full pref name of model query,
+ *   e.g. mail.addr_book.quicksearchquery.format.
+ * @returns {boolean} the value of aBasePrefName.
  */
 export function getModelQuery(aBasePrefName) {
-  let modelQuery = "";
-  if (
-    Services.prefs.getComplexValue(
-      "mail.addr_book.show_phonetic_fields",
-      Ci.nsIPrefLocalizedString
-    ).data == "true"
-  ) {
-    modelQuery = Services.prefs.getCharPref(aBasePrefName + ".phonetic");
-  } else {
-    modelQuery = Services.prefs.getCharPref(aBasePrefName);
-  }
+  let modelQuery = Services.prefs.getCharPref(aBasePrefName);
   // remove leading "?" to migrate existing customized values for mail.addr_book.quicksearchquery.format
   // todo: could this be done in a once-off migration at install time to avoid repetitive calls?
   if (modelQuery.startsWith("?")) {
@@ -93,21 +80,11 @@ export function getModelQuery(aBasePrefName) {
 /**
  * Check if the currently used pref with the model query was customized by user.
  *
- * @param {string} aBasePrefName - The full pref name of default, non-phonetic
- *   model query, e.g. mail.addr_book.quicksearchquery.format
- *   If phonetic search is used, corresponding pref must exist:
- *   e.g. mail.addr_book.quicksearchquery.format.phonetic
+ * @param {string} aBasePrefName - The full pref name of model query,
+ *   e.g. mail.addr_book.quicksearchquery.format.
  * @returns {boolean} true or false
  */
 export function modelQueryHasUserValue(aBasePrefName) {
-  if (
-    Services.prefs.getComplexValue(
-      "mail.addr_book.show_phonetic_fields",
-      Ci.nsIPrefLocalizedString
-    ).data == "true"
-  ) {
-    return Services.prefs.prefHasUserValue(aBasePrefName + ".phonetic");
-  }
   return Services.prefs.prefHasUserValue(aBasePrefName);
 }
 

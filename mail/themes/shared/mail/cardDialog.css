@@ -17,10 +17,6 @@ window {
 
 .input-inline {
   margin-inline-end: 0 !important;
-
-  .showingPhonetic & {
-    max-width: 16ch;
-  }
 }
 
 /* ::::: Card Edit dialog ::::: */

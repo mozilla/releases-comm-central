@@ -85,8 +85,6 @@ class nsAddrDatabase {
   mdb_token m_UIDColumnToken;
   mdb_token m_FirstNameColumnToken;
   mdb_token m_LastNameColumnToken;
-  mdb_token m_PhoneticFirstNameColumnToken;
-  mdb_token m_PhoneticLastNameColumnToken;
   mdb_token m_DisplayNameColumnToken;
   mdb_token m_NickNameColumnToken;
   mdb_token m_PriEmailColumnToken;

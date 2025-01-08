@@ -56,8 +56,6 @@ MOZ_RUNINIT const nsAbOSXPropertyMap nsAbOSXUtils::kPropertyMap[] = {
     DEFINE_PROPERTY(FirstName, kABFirstNameProperty, nil, nil)
     DEFINE_PROPERTY(LastName, kABLastNameProperty, nil, nil)
     DONT_MAP("DisplayName", nil, nil, nil)
-    DEFINE_PROPERTY(PhoneticFirstName, kABFirstNamePhoneticProperty, nil, nil)
-    DEFINE_PROPERTY(PhoneticLastName, kABLastNamePhoneticProperty, nil, nil)
     DEFINE_PROPERTY(NickName, kABNicknameProperty, nil, nil)
     DONT_MAP(PrimaryEmail, kABEmailProperty, nil, nil)
     DONT_MAP(SecondEmail, kABEmailProperty, nil, nil)

@@ -424,18 +424,6 @@ AddrBookCard.prototype = {
     }
     return this._vCardProperties.toVCard();
   },
-  generatePhoneticName(lastNameFirst) {
-    if (lastNameFirst) {
-      return (
-        this.getProperty("PhoneticLastName", "") +
-        this.getProperty("PhoneticFirstName", "")
-      );
-    }
-    return (
-      this.getProperty("PhoneticFirstName", "") +
-      this.getProperty("PhoneticLastName", "")
-    );
-  },
   copy() {
     throw Components.Exception(
       "nsIAbCard.copy() not implemented",

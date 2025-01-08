@@ -115,22 +115,6 @@ add_task(function testAbCardProperty() {
 
   Assert.equal(card.generateName(1, bundle), kLNValue + ", " + kFNValue);
 
-  // Test - generatePhoneticName
-
-  card.setProperty("PhoneticFirstName", kFNValue);
-  card.setProperty("PhoneticLastName", kLNValue);
-  Assert.equal(card.generatePhoneticName(false), kFNValue + kLNValue);
-  Assert.equal(card.generatePhoneticName(true), kLNValue + kFNValue);
-
-  card.setProperty("PhoneticLastName", "");
-  Assert.equal(card.generatePhoneticName(false), kFNValue);
-  Assert.equal(card.generatePhoneticName(true), kFNValue);
-
-  card.setProperty("PhoneticFirstName", "");
-  card.setProperty("PhoneticLastName", kLNValue);
-  Assert.equal(card.generatePhoneticName(false), kLNValue);
-  Assert.equal(card.generatePhoneticName(true), kLNValue);
-
   // Test - emailAddresses
 
   card.deleteProperty("PrimaryEmail");
