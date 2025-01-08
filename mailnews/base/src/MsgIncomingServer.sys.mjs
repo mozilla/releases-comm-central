@@ -249,7 +249,6 @@ export class MsgIncomingServer {
     this.canHaveFilters = true;
     this.canBeDefaultServer = false;
     this.supportsDiskSpace = true;
-    this.canUndoDeleteOnServer = true;
 
     // @type {Map<string, number>} - The key is MsgId+Subject, the value is
     //   this._hdrIndex.

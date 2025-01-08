@@ -1637,12 +1637,13 @@ function CommandUpdate_UndoRedo() {
   EnableMenuItem("menu_redo", SetupUndoRedoCommand("cmd_redo"));
 }
 
+/**
+ * @param {string} command - A command, usually "cmd_<something>".
+ */
 function SetupUndoRedoCommand(command) {
   let mainWindow;
-  let folder = null;
   const tabmail = document.getElementById("tabmail");
   if (tabmail) {
-    folder = tabmail.currentTabInfo.folder;
     mainWindow = window;
   } else {
     mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
@@ -1650,10 +1651,6 @@ function SetupUndoRedoCommand(command) {
     if (!mainWindow) {
       return false;
     }
-    folder = document.getElementById("messageBrowser")?.contentWindow?.gFolder;
-  }
-  if (!folder?.server.canUndoDeleteOnServer) {
-    return false;
   }
 
   let canUndoOrRedo = false;

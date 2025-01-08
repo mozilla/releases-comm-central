@@ -2367,15 +2367,6 @@ nsImapIncomingServer::GetCanBeDefaultServer(bool* canBeDefaultServer) {
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::GetCanUndoDeleteOnServer(bool* canUndoDeleteOnServer) {
-  NS_ENSURE_ARG_POINTER(canUndoDeleteOnServer);
-  // Initialize canUndoDeleteOnServer true, a default value for IMAP
-  *canUndoDeleteOnServer = true;
-  GetPrefForServerAttribute("canUndoDeleteOnServer", canUndoDeleteOnServer);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsImapIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
   NS_ENSURE_ARG_POINTER(canSearchMessages);
   // Initialize canSearchMessages true, a default value for IMAP

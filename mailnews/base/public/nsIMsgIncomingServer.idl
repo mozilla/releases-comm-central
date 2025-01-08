@@ -21,7 +21,7 @@ interface nsIFile;
 interface nsIURI;
 interface nsIMsgPluggableStore;
 
-/*
+/**
  * Interface for incoming mail/news host
  * this is the base interface for all mail server types (imap, pop, nntp, etc)
  * often you will want to add extra interfaces that give you server-specific
@@ -424,9 +424,6 @@ interface nsIMsgIncomingServer : nsISupports {
 
   /* can this server allows message filing ? */
   attribute boolean canFileMessagesOnServer;
-
-  /* can this server allow undo delete ? */
-  readonly attribute boolean canUndoDeleteOnServer;
 
   /* used for setting up the filter UI */
   readonly attribute nsMsgSearchScopeValue filterScope;

@@ -350,14 +350,6 @@ nsMsgIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgIncomingServer::GetCanUndoDeleteOnServer(bool* canUndoDeleteOnServer) {
-  // derived class should override if they need to do this.
-  NS_ENSURE_ARG_POINTER(canUndoDeleteOnServer);
-  *canUndoDeleteOnServer = true;
-  return NS_OK;
-}
-
 // construct <localStoreType>://[<username>@]<hostname
 NS_IMETHODIMP
 nsMsgIncomingServer::GetServerURI(nsACString& aResult) {
