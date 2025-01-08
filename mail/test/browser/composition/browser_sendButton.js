@@ -12,15 +12,10 @@ var { create_contact, create_mailing_list, load_contacts_into_address_book } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/AddressBookHelpers.sys.mjs"
   );
-var {
-  be_in_folder,
-  click_tree_row,
-  FAKE_SERVER_HOSTNAME,
-  get_special_folder,
-  wait_for_popup_to_open,
-} = ChromeUtils.importESModule(
-  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-);
+var { be_in_folder, click_tree_row, FAKE_SERVER_HOSTNAME, get_special_folder } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+  );
 var {
   clear_recipients,
   get_first_pill,
@@ -115,7 +110,7 @@ add_task(async function test_send_enabled_manual_address() {
   clear_recipients(cwc);
   EventUtils.synthesizeMouseAtCenter(menuButton, {}, menuButton.ownerGlobal);
   await new Promise(resolve => setTimeout(resolve));
-  await wait_for_popup_to_open(menu);
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
   menu.activateItem(
     cwc.document.getElementById("addr_replyShowAddressRowMenuItem")
   );

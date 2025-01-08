@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * Test the many horrors involving right-clicks and selections.
  */
 
@@ -33,7 +33,6 @@ var {
   select_shift_click_row,
   set_context_menu_background_tabs,
   set_open_message_behavior,
-  wait_for_popup_to_open,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
@@ -79,7 +78,7 @@ add_task(async function test_right_click_with_nothing_selected() {
 
   await right_click_on_row(1);
   // Check that the popup opens.
-  await wait_for_popup_to_open(getMailContext());
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "shown");
 
   assert_selected(1);
   await assert_displayed();

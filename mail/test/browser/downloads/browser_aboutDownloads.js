@@ -18,7 +18,6 @@ var {
   make_message_sets_in_folders,
   select_click_row,
   switch_tab,
-  wait_for_popup_to_open,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
@@ -255,7 +254,7 @@ add_task(async function test_remove_file() {
   );
 
   const contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
-  await wait_for_popup_to_open(contextMenu);
+  await BrowserTestUtils.waitForPopupEvent(contextMenu, "shown");
   await click_menus_in_sequence(contextMenu, [
     { command: "msgDownloadsCmd_remove" },
   ]);
@@ -308,7 +307,7 @@ add_task(async function test_remove_multiple_files() {
   );
 
   const contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
-  await wait_for_popup_to_open(contextMenu);
+  await BrowserTestUtils.waitForPopupEvent(contextMenu, "shown");
   await click_menus_in_sequence(contextMenu, [
     { command: "msgDownloadsCmd_remove" },
   ]);
@@ -351,7 +350,7 @@ add_task(async function test_clear_all_files() {
   );
 
   const contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
-  await wait_for_popup_to_open(contextMenu);
+  await BrowserTestUtils.waitForPopupEvent(contextMenu, "shown");
   await click_menus_in_sequence(contextMenu, [
     { command: "msgDownloadsCmd_clearDownloads" },
   ]);

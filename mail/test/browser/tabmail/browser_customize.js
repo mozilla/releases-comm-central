@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * Tests customization features of the tabs toolbar.
  */
 
 "use strict";
 
-const { close_popup, wait_for_popup_to_open } = ChromeUtils.importESModule(
+const { close_popup } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
@@ -51,7 +51,7 @@ add_task(async function test_open_unified_by_context() {
   );
 
   // Ensure that the popup opened.
-  await wait_for_popup_to_open(contextPopup);
+  await BrowserTestUtils.waitForPopupEvent(contextPopup, "shown");
   Assert.equal(contextPopup.state, "open", "Context menu was not opened!");
 
   const customizeButton = document.getElementById("CustomizeMailToolbar");

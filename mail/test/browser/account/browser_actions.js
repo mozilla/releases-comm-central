@@ -8,7 +8,7 @@ var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
   );
-var { close_popup, wait_for_popup_to_open } = ChromeUtils.importESModule(
+var { close_popup } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
@@ -93,7 +93,10 @@ async function subtest_check_account_actions(
     { clickCount: 1 },
     button.ownerGlobal
   );
-  await wait_for_popup_to_open(content_tab_e(tab, "accountAddPopup"));
+  await BrowserTestUtils.waitForPopupEvent(
+    content_tab_e(tab, "accountAddPopup"),
+    "shown"
+  );
 
   const actionAddMailAccount = content_tab_e(
     tab,

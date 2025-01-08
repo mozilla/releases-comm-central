@@ -24,7 +24,6 @@ var {
   create_folder,
   create_message,
   select_click_row,
-  wait_for_popup_to_open,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
@@ -408,7 +407,7 @@ async function subtest_reordering(
     aCwc.showReorderAttachmentsPanel();
     await new Promise(resolve => setTimeout(resolve));
     panel = aCwc.document.getElementById("reorderAttachmentsPanel");
-    await wait_for_popup_to_open(panel);
+    await BrowserTestUtils.waitForPopupEvent(panel, "shown");
   }
 
   for (const action of aReorder_actions) {
@@ -486,7 +485,7 @@ add_task(async function test_attachment_reordering() {
   contextMenu.activateItem(
     cwc.document.getElementById("composeAttachmentContext_reorderItem")
   );
-  await wait_for_popup_to_open(panel);
+  await BrowserTestUtils.waitForPopupEvent(panel, "shown");
 
   // Click on the editor which should close the panel.
   EventUtils.synthesizeMouseAtCenter(editorEl, {}, editorEl.ownerGlobal);

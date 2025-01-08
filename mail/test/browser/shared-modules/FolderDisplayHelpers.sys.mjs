@@ -1259,14 +1259,6 @@ export async function delete_via_popup() {
 }
 
 /**
- * @deprecated Use BrowserTestUtils.waitForPopupEvent directly.
- * @param {XULPopupElement} popupElem
- */
-export async function wait_for_popup_to_open(popupElem) {
-  await BrowserTestUtils.waitForPopupEvent(popupElem, "shown");
-}
-
-/**
  * Close the open pop-up.
  *
  * @param {DOMWindow} aWin

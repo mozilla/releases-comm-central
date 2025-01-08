@@ -29,7 +29,6 @@ var {
   right_click_on_row,
   select_click_row,
   select_shift_click_row,
-  wait_for_popup_to_open,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
@@ -159,7 +158,7 @@ async function check_read_menuitems(index, canMarkRead, canMarkUnread) {
 async function mark_read_via_menu(index, read) {
   const menuItem = read ? "mailContext-markRead" : "mailContext-markUnread";
   await right_click_on_row(index);
-  await wait_for_popup_to_open(getMailContext());
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "shown");
   await click_menus_in_sequence(getMailContext(), [
     { id: "mailContext-mark" },
     { id: menuItem },
@@ -310,7 +309,7 @@ add_task(async function test_mark_all_read() {
 
   // Make sure we can mark all read with >0 messages unread.
   await right_click_on_row(0);
-  await wait_for_popup_to_open(getMailContext());
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "shown");
   await click_menus_in_sequence(getMailContext(), [
     { id: "mailContext-mark" },
     { id: "mailContext-markAllRead" },
@@ -321,7 +320,7 @@ add_task(async function test_mark_all_read() {
 
   // Make sure we can't mark all read, now that all messages are already read.
   await right_click_on_row(0);
-  await wait_for_popup_to_open(getMailContext());
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "shown");
   const hiddenPromise = BrowserTestUtils.waitForEvent(
     getMailContext(),
     "popuphidden"
@@ -352,7 +351,7 @@ add_task(async function test_mark_thread_as_read() {
 
   // Make sure Mark Thread as Read is enabled with >0 messages in thread unread.
   await right_click_on_row(0);
-  await wait_for_popup_to_open(getMailContext());
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "shown");
   await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
 
   let markThreadAsReadDisabled = document.getElementById(
@@ -365,7 +364,7 @@ add_task(async function test_mark_thread_as_read() {
 
   // Make sure messages are read when Mark Thread as Read is clicked.
   await right_click_on_row(0);
-  await wait_for_popup_to_open(getMailContext());
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "shown");
   await click_menus_in_sequence(getMailContext(), [
     { id: "mailContext-mark" },
     { id: "mailContext-markThreadAsRead" },
@@ -377,7 +376,7 @@ add_task(async function test_mark_thread_as_read() {
 
   // Make sure Mark Thread as Read is now disabled with all messages read.
   await right_click_on_row(0);
-  await wait_for_popup_to_open(getMailContext());
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "shown");
   await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
 
   markThreadAsReadDisabled = document.getElementById(
@@ -391,7 +390,7 @@ add_task(async function test_mark_thread_as_read() {
   // Make sure that adding an unread message enables Mark Thread as Read once more.
   curMessage.markRead(false);
   await right_click_on_row(0);
-  await wait_for_popup_to_open(getMailContext());
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "shown");
   await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
 
   markThreadAsReadDisabled = document.getElementById(

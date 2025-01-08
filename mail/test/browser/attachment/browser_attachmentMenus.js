@@ -22,7 +22,6 @@ var {
   create_message,
   get_about_message,
   select_click_row,
-  wait_for_popup_to_open,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
@@ -370,8 +369,9 @@ async function check_toolbar_menu_states_single(expected) {
       "#attachmentSaveAllSingle .toolbarbutton-menubutton-dropmarker"
     );
     EventUtils.synthesizeMouseAtCenter(dm, { clickCount: 1 }, aboutMessage);
-    await wait_for_popup_to_open(
-      aboutMessage.document.getElementById("attachmentSaveAllSingleMenu")
+    await BrowserTestUtils.waitForPopupEvent(
+      aboutMessage.document.getElementById("attachmentSaveAllSingleMenu"),
+      "shown"
     );
 
     try {
@@ -405,8 +405,9 @@ async function check_toolbar_menu_states_multiple(expected) {
       "#attachmentSaveAllMultiple .toolbarbutton-menubutton-dropmarker"
     );
     EventUtils.synthesizeMouseAtCenter(dm, { clickCount: 1 }, aboutMessage);
-    await wait_for_popup_to_open(
-      aboutMessage.document.getElementById("attachmentSaveAllMultipleMenu")
+    await BrowserTestUtils.waitForPopupEvent(
+      aboutMessage.document.getElementById("attachmentSaveAllMultipleMenu"),
+      "shown"
     );
 
     try {

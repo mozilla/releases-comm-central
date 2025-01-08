@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Test functionality in the message header,
+ * Test functionality in the message header.
  */
 
 "use strict";
@@ -33,7 +33,6 @@ var {
   select_click_row,
   select_none,
   wait_for_message_display_completion,
-  wait_for_popup_to_open,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
@@ -553,8 +552,9 @@ add_task(async function test_msg_id_context_menu() {
     { type: "contextmenu" },
     aboutMessage
   );
-  await wait_for_popup_to_open(
-    aboutMessage.document.getElementById("messageIdContext")
+  await BrowserTestUtils.waitForPopupEvent(
+    aboutMessage.document.getElementById("messageIdContext"),
+    "shown"
   );
 
   // Ensure Open Message For ID is shown and that Open Browser With Message-ID
@@ -809,8 +809,9 @@ add_task(async function test_context_menu_list_id() {
     aboutMessage
   );
   const listIdPopup = aboutMessage.document.getElementById("listIdPopup");
-  await wait_for_popup_to_open(
-    aboutMessage.document.getElementById("listIdPopup")
+  await BrowserTestUtils.waitForPopupEvent(
+    aboutMessage.document.getElementById("listIdPopup"),
+    "shown"
   );
 
   const listIdPlaceHolder =

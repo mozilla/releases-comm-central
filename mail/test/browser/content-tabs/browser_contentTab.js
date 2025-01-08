@@ -16,10 +16,9 @@ var { be_in_folder, inboxFolder } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
-var { assert_tab_has_title, close_popup, wait_for_popup_to_open } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-  );
+var { assert_tab_has_title, close_popup } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
 
 var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-tabs/html/";
@@ -71,7 +70,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
     tabmail.selectedTab.browser
   );
   const browserContext = document.getElementById("browserContext");
-  await wait_for_popup_to_open(browserContext);
+  await BrowserTestUtils.waitForPopupEvent(browserContext, "shown");
   assert_element_visible("browserContext-spell-dictionaries");
   assert_element_visible("browserContext-spell-check-enabled");
   await close_popup(window, browserContext);
@@ -82,7 +81,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
     { type: "contextmenu" },
     tabmail.selectedTab.browser
   );
-  await wait_for_popup_to_open(browserContext);
+  await BrowserTestUtils.waitForPopupEvent(browserContext, "shown");
   assert_element_not_visible("browserContext-spell-dictionaries");
   assert_element_not_visible("browserContext-spell-check-enabled");
   await close_popup(window, browserContext);
@@ -95,7 +94,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
     { type: "contextmenu", button: 2 },
     tabmail.selectedTab.browser
   );
-  await wait_for_popup_to_open(browserContext);
+  await BrowserTestUtils.waitForPopupEvent(browserContext, "shown");
   let suggestions = document.getElementsByClassName("spell-suggestion");
   Assert.ok(suggestions.length > 0, "What, is zombocom a registered word now?");
   const addToDict = document.getElementById(
@@ -118,7 +117,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
     { type: "contextmenu", button: 2 },
     tabmail.selectedTab.browser
   );
-  await wait_for_popup_to_open(browserContext);
+  await BrowserTestUtils.waitForPopupEvent(browserContext, "shown");
   suggestions = document.getElementsByClassName("spell-suggestion");
   Assert.ok(suggestions.length == 0, "But I just taught you this word!");
   await close_popup(window, browserContext);
