@@ -13,6 +13,7 @@
 
 extern mozilla::LazyLogModule gMboxLog;
 using mozilla::LogLevel;
+using mozilla::MutexAutoLock;
 
 /**
  * MboxParser is a helper class to manage parsing messages out of an mbox
@@ -744,7 +745,6 @@ MboxMsgInputStream::MboxMsgInputStream(nsIInputStream* mboxStream,
   // Ensure the first chunk is read and parsed.
   // This should include the "From " line, so EnvAddr()/EnvDate()
   // can be used right away.
-  MutexAutoLock lock(mLock);
   mStatus = PumpData();
 }
 
@@ -901,7 +901,8 @@ NS_IMETHODIMP MboxMsgInputStream::Read(char* buf, uint32_t count,
 // Luckily such parser stalls tend to involve small quantities of
 // data (e.g. a "From " line falling between read boundaries).
 //
-// PumpData assumes the caller already acquired the lock.
+// PumpData() doesn't perform any locking. It's up to the caller to ensure
+// we're in a thread safe state.
 nsresult MboxMsgInputStream::PumpData() {
   // Feed data to the parser until there's data available to output (or until
   // message is completed).

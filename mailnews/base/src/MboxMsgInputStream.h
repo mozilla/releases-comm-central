@@ -11,8 +11,6 @@
 #include "mozilla/Buffer.h"
 #include "mozilla/Mutex.h"
 
-using namespace mozilla;
-
 class MboxParser;
 
 /**
@@ -125,7 +123,7 @@ class MboxMsgInputStream : public nsIInputStream {
   mozilla::UniquePtr<MboxParser> mParser;
 
  private:
-  Mutex mLock;
+  mozilla::Mutex mLock;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_MBOXMSGINPUTSTREAM_H_
