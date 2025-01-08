@@ -804,6 +804,7 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
   nsresult rv = NS_ERROR_FAILURE;
   NS_ASSERTION(aURL, "null URL passed into Imap Protocol");
   if (aURL) {
+    MutexAutoLock mon(mLock);
     nsCOMPtr<nsIImapUrl> imapURL = do_QueryInterface(aURL, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     m_runningUrl = imapURL;
@@ -2492,12 +2493,13 @@ NS_IMETHODIMP nsImapProtocol::CanHandleUrl(nsIImapUrl* aImapUrl,
                                            bool* aCanRunUrl, bool* hasToWait) {
   if (!aCanRunUrl || !hasToWait || !aImapUrl) return NS_ERROR_NULL_POINTER;
   nsresult rv = NS_OK;
-  MutexAutoLock mon(mLock);
 
   *aCanRunUrl = false;  // assume guilty until proven otherwise...
   *hasToWait = false;
 
   if (DeathSignalReceived()) return NS_ERROR_FAILURE;
+
+  MutexAutoLock mon(mLock);
 
   bool isBusy = false;
   bool isInboxConnection = false;
@@ -4587,10 +4589,13 @@ uint32_t nsImapProtocol::CountMessagesInIdString(const char* idString) {
 bool nsImapProtocol::DeathSignalReceived() {
   // ignore mock channel status if we've been pseudo interrupted
   // ### need to make sure we clear pseudo interrupted status appropriately.
-  if (!GetPseudoInterrupted() && m_mockChannel) {
-    nsresult returnValue;
-    m_mockChannel->GetStatus(&returnValue);
-    if (NS_FAILED(returnValue)) return false;
+  if (!GetPseudoInterrupted()) {
+    MutexAutoLock mon(mLock);
+    if (m_mockChannel) {
+      nsresult returnValue;
+      m_mockChannel->GetStatus(&returnValue);
+      if (NS_FAILED(returnValue)) return false;
+    }
   }
 
   // Check the other way of cancelling.
