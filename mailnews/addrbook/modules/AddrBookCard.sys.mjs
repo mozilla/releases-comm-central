@@ -436,24 +436,6 @@ AddrBookCard.prototype = {
       this.getProperty("PhoneticLastName", "")
     );
   },
-  generateChatName() {
-    for (const name of [
-      "_GoogleTalk",
-      "_AimScreenName",
-      "_Yahoo",
-      "_Skype",
-      "_QQ",
-      "_MSN",
-      "_ICQ",
-      "_JabberId",
-      "_IRC",
-    ]) {
-      if (this._properties.has(name)) {
-        return this._properties.get(name);
-      }
-    }
-    return "";
-  },
   copy() {
     throw Components.Exception(
       "nsIAbCard.copy() not implemented",

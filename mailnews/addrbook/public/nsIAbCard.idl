@@ -277,14 +277,6 @@ interface nsIAbCard : nsISupports {
   AString generatePhoneticName(in boolean aLastNameFirst);
 
   /**
-   * Generate a chat name from the card, containing the value of the
-   * first non-empty chat field.
-   *
-   * @return                 A string containing the generated chat name.
-   */
-  AString generateChatName();
-
-  /**
    * This function will copy all values from one card to another.
    *
    * @param  srcCard         The source card to copy values from.

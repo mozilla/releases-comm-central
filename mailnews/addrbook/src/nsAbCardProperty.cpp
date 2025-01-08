@@ -537,22 +537,3 @@ NS_IMETHODIMP nsAbCardProperty::GeneratePhoneticName(bool aLastNameFirst,
 
   return NS_OK;
 }
-
-NS_IMETHODIMP nsAbCardProperty::GenerateChatName(nsAString& aResult) {
-  aResult.Truncate();
-
-#define CHECK_CHAT_PROPERTY(aProtocol)                                       \
-  if (NS_SUCCEEDED(GetPropertyAsAString(k##aProtocol##Property, aResult)) && \
-      !aResult.IsEmpty())                                                    \
-  return NS_OK
-  CHECK_CHAT_PROPERTY(Gtalk);
-  CHECK_CHAT_PROPERTY(AIM);
-  CHECK_CHAT_PROPERTY(Yahoo);
-  CHECK_CHAT_PROPERTY(Skype);
-  CHECK_CHAT_PROPERTY(QQ);
-  CHECK_CHAT_PROPERTY(MSN);
-  CHECK_CHAT_PROPERTY(ICQ);
-  CHECK_CHAT_PROPERTY(XMPP);
-  CHECK_CHAT_PROPERTY(IRC);
-  return NS_OK;
-}
