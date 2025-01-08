@@ -1486,19 +1486,31 @@ void nsImapProtocol::ImapThreadMainLoop() {
     bool urlReadyToRun;
 
     // wait for a URL or idle response to process...
-    {
-      ReentrantMonitorAutoEnter mon(m_urlReadyToRunMonitor);
-
-      while (NS_SUCCEEDED(rv) && !DeathSignalReceived() &&
-             !m_nextUrlReadyToRun && !m_idleResponseReadyToHandle &&
-             !m_threadShouldDie) {
-        rv = mon.Wait(sleepTime);
-        if (idlePending) break;
+    while (!DeathSignalReceived()) {
+      {
+        ReentrantMonitorAutoEnter mon(m_threadDeathMonitor);
+        if (m_threadShouldDie) {
+          break;
+        }
       }
-
-      urlReadyToRun = m_nextUrlReadyToRun;
-      m_nextUrlReadyToRun = false;
+      {
+        ReentrantMonitorAutoEnter mon(m_urlReadyToRunMonitor);
+        if (m_nextUrlReadyToRun || m_idleResponseReadyToHandle) {
+          break;
+        }
+        rv = mon.Wait(sleepTime);
+        if (NS_FAILED(rv)) {
+          break;
+        }
+        if (idlePending) {
+          break;
+        }
+      }
     }
+
+    urlReadyToRun = m_nextUrlReadyToRun;
+    m_nextUrlReadyToRun = false;
+
     // This will happen if the UI thread signals us to die
     if (m_threadShouldDie) {
       TellThreadToDie();
