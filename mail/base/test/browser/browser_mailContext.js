@@ -570,6 +570,7 @@ add_task(async function testSingleMessage() {
     !threadTree.getRowAtIndex(threadTree.currentIndex),
     "Current row is scrolled out of view"
   );
+  await new Promise(resolve => window.requestAnimationFrame(resolve));
   EventUtils.synthesizeMouseAtCenter(
     threadTree,
     { type: "contextmenu", button: 0 },
