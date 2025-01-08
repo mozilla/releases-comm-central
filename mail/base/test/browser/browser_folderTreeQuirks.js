@@ -553,6 +553,25 @@ add_task(async function testSmartFolders() {
     trashFolder,
     ...localExtraFolders,
   ]);
+
+  // Check that marking a unified folder as favorite works and is persistent.
+  const smartMailboxes = { URI: "mailbox://nobody@smart%20mailboxes" };
+  folderPane.activeModes = ["smart", "favorite"];
+  await checkModeListItems("favorite", []);
+
+  smartInbox.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  await checkModeListItems("favorite", [smartMailboxes, smartInbox]);
+
+  folderPane.activeModes = ["smart"];
+  folderPane.activeModes = ["favorite"];
+  await checkModeListItems("favorite", [smartMailboxes, smartInbox]);
+
+  smartInbox.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  await checkModeListItems("favorite", []);
+
+  folderPane.activeModes = ["smart"];
+  folderPane.activeModes = ["smart", "favorite"];
+  await checkModeListItems("favorite", []);
 });
 
 /**

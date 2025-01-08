@@ -2096,6 +2096,18 @@ var folderPane = {
       }
       mode.initServer(account.incomingServer);
     }
+
+    if (mode.name == "favorite") {
+      // Add favorite unified folders as well.
+      const smartServer = MailServices.accounts.findServer(
+        "nobody",
+        "smart mailboxes",
+        "none"
+      );
+      if (smartServer) {
+        mode.initServer(smartServer);
+      }
+    }
   },
 
   /**
