@@ -9,13 +9,6 @@ interface nsIProperty;
 interface nsIStringBundle;
 interface nsIVariant;
 
-[scriptable, uuid(97448252-F189-11d4-A422-001083003D0C)]
-interface nsIAbPreferMailFormat : nsISupports {
-    const unsigned long unknown   = 0;
-    const unsigned long plaintext = 1;
-    const unsigned long html      = 2;
-};
-
 /**
  * An interface representing an address book card.
  *
