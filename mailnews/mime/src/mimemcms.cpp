@@ -132,12 +132,11 @@ static MimeClosure MimeMultCMS_init(MimeObject* obj) {
 
   if (data->self->options->stream_closure) {
     mime_stream_data* msd =
-        data->self->options->stream_closure.AsMimeStreamData();
-    if (!msd) {
-      return MimeClosure::zero();
-    }
+        data->self->options->stream_closure.IsMimeDraftData()
+            ? nullptr
+            : data->self->options->stream_closure.AsMimeStreamData();
+    nsIChannel* channel = msd ? msd->channel.get() : nullptr;
 
-    nsIChannel* channel = msd->channel;  // note the lack of ref counting...
     if (channel) {
       nsCOMPtr<nsIURI> uri;
       channel->GetURI(getter_AddRefs(uri));

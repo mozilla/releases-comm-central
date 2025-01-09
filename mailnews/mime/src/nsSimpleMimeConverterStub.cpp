@@ -74,12 +74,12 @@ static int EndGather(MimeObject* obj, bool abort_p) {
 
   if (ssobj->buffer->IsEmpty()) return 0;
 
-  mime_stream_data* msd = obj->options->stream_closure.AsMimeStreamData();
-  if (!msd) {
-    return 0;
-  }
+  mime_stream_data* msd =
+      obj->options->stream_closure.IsMimeDraftData()
+          ? nullptr
+          : obj->options->stream_closure.AsMimeStreamData();
+  nsIChannel* channel = msd ? msd->channel.get() : nullptr;
 
-  nsIChannel* channel = msd->channel;  // note the lack of ref counting...
   if (channel) {
     nsCOMPtr<nsIURI> uri;
     channel->GetURI(getter_AddRefs(uri));
