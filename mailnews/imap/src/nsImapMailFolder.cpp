@@ -3718,6 +3718,11 @@ NS_IMETHODIMP nsImapMailFolder::AddMoveResultPseudoKey(nsMsgKey aMsgKey) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsImapMailFolder::HasPseudoActivity(bool* hasPseudo) {
+  *hasPseudo = m_pseudoHdrs.Count() != 0;
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsImapMailFolder::StoreImapFlags(int32_t flags, bool addFlags,
                                                const nsTArray<nsMsgKey>& keys,
                                                nsIUrlListener* aUrlListener) {

@@ -199,6 +199,38 @@ NS_IMETHODIMP nsMailDatabase::GetOfflineOpForKey(
   return err;
 }
 
+NS_IMETHODIMP nsMailDatabase::HasOfflineActivity(bool* hasOffline) {
+  *hasOffline = false;
+  nsresult rv = GetAllOfflineOpsTable();
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsIMdbTableRowCursor* rowCursor;
+
+  if (m_mdbAllOfflineOpsTable) {
+    rv = m_mdbAllOfflineOpsTable->GetTableRowCursor(GetEnv(), -1, &rowCursor);
+
+    if (NS_SUCCEEDED(rv) && rowCursor) {
+      mdb_pos outPos;
+      nsIMdbRow* offlineOpRow;
+
+      rv = rowCursor->NextRow(GetEnv(), &offlineOpRow, &outPos);
+      if (NS_SUCCEEDED(rv)) {
+        if (!(outPos < 0 || offlineOpRow == nullptr)) {
+          *hasOffline = true;
+        }
+        if (offlineOpRow) {
+          offlineOpRow->Release();
+        }
+      }
+    }
+
+    if (rowCursor) {
+      rowCursor->Release();
+    }
+  }
+
+  return rv;
+}
+
 NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(
     nsTArray<nsMsgKey>& offlineOpIds) {
   nsresult rv = GetAllOfflineOpsTable();

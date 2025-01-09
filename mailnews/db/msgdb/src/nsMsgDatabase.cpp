@@ -4344,6 +4344,10 @@ NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsTArray<nsMsgKey>& keys) {
   return rv;
 }
 
+NS_IMETHODIMP nsMsgDatabase::HasOfflineActivity(bool* hasOffline) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 NS_IMETHODIMP nsMsgDatabase::ListAllOfflineOpIds(
     nsTArray<nsMsgKey>& offlineOpIds) {
   NS_ASSERTION(false, "overridden by nsMailDatabase");

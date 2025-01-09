@@ -112,6 +112,12 @@ interface nsIMsgImapMailFolder : nsISupports {
    * @param aMsgKey msg key of move result pseudo hdr.
    */
   void addMoveResultPseudoKey(in nsMsgKey aMsgKey);
+
+  /**
+   * @returns true if there are pseudo operations waiting.
+   */
+  boolean hasPseudoActivity();
+
   /**
    * Select this folder on the imap server without doing a sync of flags or
    * headers. This is used for offline playback, where we don't want to

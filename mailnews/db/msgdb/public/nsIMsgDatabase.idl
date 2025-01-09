@@ -575,4 +575,9 @@ interface nsIMsgOfflineOpsDatabase : nsIMsgDatabase {
   void removeOfflineOp(in nsIMsgOfflineImapOperation op);
   Array<nsMsgKey> listAllOfflineOpIds();
   Array<nsMsgKey> listAllOfflineDeletes();
+
+  /**
+   * @returns true if there is any offline activity waiting.
+   */
+  boolean hasOfflineActivity();
 };
