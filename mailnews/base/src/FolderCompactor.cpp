@@ -682,9 +682,7 @@ BatchCompactor::BatchCompactor(nsTArray<RefPtr<nsIMsgFolder>> const& folders,
       mWindow(window),
       mTotalBytesRecovered(0) {}
 
-BatchCompactor::~BatchCompactor() {
-  StopTimer();
-}
+BatchCompactor::~BatchCompactor() { StopTimer(); }
 
 void BatchCompactor::StopTimer() {
   if (mTimer) {
