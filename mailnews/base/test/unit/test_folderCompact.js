@@ -175,7 +175,7 @@ add_task(async function testCompactFolder() {
     "duration should be recorded in Glean"
   );
   Assert.equal(
-    Glean.mail.compactBytesRecovered.testGetValue().sum,
+    Glean.mail.compactSpaceRecovered.testGetValue().sum,
     expungedBytes + fromLineLength,
     "bytes saved should be recorded in Glean"
   );
@@ -235,7 +235,7 @@ add_task(async function testCompactAllFolders() {
     "duration should be recorded in Glean"
   );
   Assert.equal(
-    Glean.mail.compactBytesRecovered.testGetValue().sum,
+    Glean.mail.compactSpaceRecovered.testGetValue().sum,
     expungedBytes + fromLineLength * 3,
     "bytes saved should be recorded in Glean"
   );
@@ -305,7 +305,7 @@ add_task(async function testAbortCompactingFolder() {
     "duration should not be recorded in Glean"
   );
   Assert.equal(
-    Glean.mail.compactBytesRecovered.testGetValue(),
+    Glean.mail.compactSpaceRecovered.testGetValue(),
     null,
     "bytes saved should not be recorded in Glean"
   );

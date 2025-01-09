@@ -532,8 +532,8 @@ NS_IMETHODIMP FolderCompactor::OnCompactionComplete(nsresult status,
         dbFolderInfo->SetExpungedBytes(0);
       }
       mDB->SetSummaryValid(true);
-      mozilla::glean::mail::compact_bytes_recovered.AccumulateSingleSample(
-          oldSize - newSize);
+      mozilla::glean::mail::compact_space_recovered.Accumulate(oldSize -
+                                                               newSize);
     } else {
       NS_ERROR("Failed to commit changes to DB!");
       status = rv;  // Make sure our completion fn hears about the failure.

@@ -495,17 +495,14 @@ mail:
       - telemetry-client-dev@thunderbird.net
     expires: never
 
-  compact_bytes_recovered:
-    type: custom_distribution
+  compact_space_recovered:
+    type: memory_distribution
+    memory_unit: byte
     description: >
       Number of bytes recovered by compaction.
-    range_min: 1
-    range_max: 1073741824 # 1GiB
-    bucket_count: 50
-    histogram_type: exponential
-    unit: bytes
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1940674
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152#c7
     notification_emails:
