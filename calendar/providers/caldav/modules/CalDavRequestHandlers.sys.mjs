@@ -398,7 +398,6 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
   changeLogListener = null;
   logXML = "";
   isInPropStat = false;
-  changeCount = 0;
   unhandledErrors = 0;
   itemsReported = null;
   itemsNeedFetching = null;
@@ -572,7 +571,12 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
       // sync
       for (const path in this.calendar.mHrefIndex) {
         if (!this.itemsReported[path]) {
-          await this.calendar.deleteTargetCalendarItem(path);
+          try {
+            await this.calendar.deleteTargetCalendarItem(path);
+          } catch (ex) {
+            // Don't let an exception here prevent us continuing.
+            cal.ERROR(`Delete item FAILED; path=${path}`, ex);
+          }
         }
       }
     }
@@ -671,8 +675,12 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
           resp.status.indexOf(" 404") > 0
         ) {
           if (this.calendar.mHrefIndex[resp.href]) {
-            this.changeCount++;
-            await this.calendar.deleteTargetCalendarItem(resp.href);
+            try {
+              await this.calendar.deleteTargetCalendarItem(resp.href);
+            } catch (ex) {
+              // Don't let an exception here prevent us continuing.
+              cal.ERROR(`Delete item FAILED; path=${resp.href}`, ex);
+            }
           } else {
             cal.LOG("CalDAV: skipping unfound deleted item : " + resp.href);
           }
@@ -1029,7 +1037,12 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
           resp.status.indexOf(" 404") > 0
         ) {
           if (this.calendar.mHrefIndex[resp.href]) {
-            await this.calendar.deleteTargetCalendarItem(resp.href);
+            try {
+              await this.calendar.deleteTargetCalendarItem(resp.href);
+            } catch (ex) {
+              // Don't let an exception here prevent us continuing.
+              cal.ERROR(`Delete item FAILED; path=${resp.href}`, ex);
+            }
           } else {
             cal.LOG("CalDAV: skipping unfound deleted item : " + resp.href);
           }
@@ -1050,13 +1063,18 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
             oldEtag = null;
           }
           if (!oldEtag || oldEtag != resp.getetag || this.listener) {
-            await this.calendar.addTargetCalendarItem(
-              resp.href,
-              resp.calendardata,
-              this.baseUri,
-              resp.getetag,
-              this.listener
-            );
+            try {
+              await this.calendar.addTargetCalendarItem(
+                resp.href,
+                resp.calendardata,
+                this.baseUri,
+                resp.getetag,
+                this.listener
+              );
+            } catch (ex) {
+              // Don't let an exception here prevent us continuing.
+              cal.ERROR(`Add item FAILED; path=${resp.href}`, ex);
+            }
 
             // Every 10 items yield the event loop. Otherwise, we could end up parsing every
             // item and adding them all to the calendar without stopping, which makes the UI

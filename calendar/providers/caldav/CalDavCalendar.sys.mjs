@@ -956,10 +956,15 @@ CalDavCalendar.prototype = {
     const isInboxItem = this.isInbox(aUri.spec);
 
     if (this.mHrefIndex[path] && !this.mItemInfoCache[item.id]) {
-      // If we get here it means a meeting has kept the same filename
-      // but changed its uid, which can happen server side.
-      // Delete the meeting before re-adding it
-      this.deleteTargetCalendarItem(path);
+      try {
+        // If we get here it means a meeting has kept the same filename
+        // but changed its uid, which can happen server side.
+        // Delete the meeting before re-adding it.
+        this.deleteTargetCalendarItem(path);
+      } catch (ex) {
+        // Don't let an exception here prevent us continuing.
+        cal.ERROR(`Delete item FAILED; path=${path}, id=${item.id}`, ex);
+      }
     }
 
     if (this.mItemInfoCache[item.id]) {
