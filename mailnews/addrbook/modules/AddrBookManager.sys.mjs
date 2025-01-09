@@ -7,9 +7,7 @@ import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   MailGlue: "resource:///modules/MailGlue.sys.mjs",
-  clearTimeout: "resource://gre/modules/Timer.sys.mjs",
   compareAddressBooks: "resource:///modules/AddrBookUtils.sys.mjs",
-  setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
 /** Test for valid directory URIs. */
@@ -181,14 +179,16 @@ Services.obs.addObserver(async () => {
   Services.obs.notifyObservers(null, "addrbook-reloaded");
 }, "addrbook-reload");
 
-/** Cache for the cardForEmailAddress function, and timer to clear it. */
-const addressCache = new Map();
-let addressCacheTimer = null;
+/**
+ * A cache for the cardForEmailAddress function. When initialized, a map of
+ * email addresses to cards. Set this to null to clear the cache.
+ */
+let addressCache = null;
 
 // Throw away cached cards if the display name properties change, so we can
 // get the updated version of the card that changed.
 Services.prefs.addObserver("mail.displayname.version", () => {
-  addressCache.clear();
+  addressCache = null;
   Services.obs.notifyObservers(null, "addrbook-displayname-changed");
 });
 
@@ -196,18 +196,21 @@ Services.prefs.addObserver("mail.displayname.version", () => {
 // mail.displayname.version, which notifies its preference observer (above).
 // This will then notify the addrbook-displayname-changed observer, and change
 // the displayname in the thread tree and message header.
-Services.prefs.addObserver("mail.showCondensedAddresses", () => {
+
+function incrementDisplayNameVersion() {
   Services.prefs.setIntPref(
     "mail.displayname.version",
     Services.prefs.getIntPref("mail.displayname.version", 0) + 1
   );
-});
-Services.prefs.addObserver("mail.addressDisplayFormat", () => {
-  Services.prefs.setIntPref(
-    "mail.displayname.version",
-    Services.prefs.getIntPref("mail.displayname.version", 0) + 1
-  );
-});
+}
+Services.prefs.addObserver(
+  "mail.showCondensedAddresses",
+  incrementDisplayNameVersion
+);
+Services.prefs.addObserver(
+  "mail.addressDisplayFormat",
+  incrementDisplayNameVersion
+);
 
 /**
  * @implements {nsIAbManager}
@@ -532,6 +535,7 @@ AddrBookManager.prototype = {
 
     store.delete(uri);
     updateSortedDirectoryList();
+    incrementDisplayNameVersion();
 
     // Clear this reference to the deleted address book.
     if (Services.prefs.getStringPref("mail.collect_addressbook") == uri) {
@@ -578,31 +582,24 @@ AddrBookManager.prototype = {
       return null;
     }
 
-    if (addressCacheTimer) {
-      lazy.clearTimeout(addressCacheTimer);
-    }
-    addressCacheTimer = lazy.setTimeout(() => {
-      addressCacheTimer = null;
-      addressCache.clear();
-    }, 60000);
-
-    if (addressCache.has(emailAddress)) {
-      return addressCache.get(emailAddress);
-    }
-
-    for (const directory of sortedDirectoryList) {
-      try {
-        const card = directory.cardForEmailAddress(emailAddress);
-        if (card) {
-          addressCache.set(emailAddress, card);
-          return card;
+    if (!addressCache) {
+      addressCache = new Map();
+      ensureInitialized();
+      // Iterate the directories and cards in reverse so cards that appear
+      // first (in the usual ordering) are prioritized.
+      for (const directory of sortedDirectoryList.toReversed()) {
+        try {
+          for (const card of directory.childCards.toReversed()) {
+            for (const _emailAddress of card.emailAddresses) {
+              addressCache.set(_emailAddress, card);
+            }
+          }
+        } catch (ex) {
+          // Directories can throw, that's okay.
         }
-      } catch (ex) {
-        // Directories can throw, that's okay.
       }
     }
 
-    addressCache.set(emailAddress, null);
-    return null;
+    return addressCache.get(emailAddress);
   },
 };

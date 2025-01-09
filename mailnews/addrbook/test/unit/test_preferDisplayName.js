@@ -32,7 +32,12 @@ add_task(async function () {
   Assert.equal(getPrefValue(), -999, "pref has no initial value");
   Assert.equal(getDisplayNameInAddressBook(), null, "card doesn't exist yet");
 
-  const book = MailServices.ab.getDirectory(kPABData.URI);
+  const dirPrefId = MailServices.ab.newAddressBook(
+    "new book",
+    "",
+    Ci.nsIAbManager.JS_DIRECTORY_TYPE
+  );
+  const book = MailServices.ab.getDirectoryFromId(dirPrefId);
   let card = new AddrBookCard();
   card.firstName = "first";
   card.lastName = "last";
@@ -60,5 +65,15 @@ add_task(async function () {
   book.deleteCards([card]);
 
   Assert.equal(getPrefValue(), 4, "pref updated by deleting card");
+  Assert.equal(getDisplayNameInAddressBook(), null, "card no longer exists");
+
+  book.addCard(card);
+
+  Assert.equal(getPrefValue(), 5, "pref updated by adding card");
+  Assert.equal(getDisplayNameInAddressBook(), "display name");
+
+  await promiseDirectoryRemoved(book.URI);
+
+  Assert.equal(getPrefValue(), 6, "pref updated by removing book");
   Assert.equal(getDisplayNameInAddressBook(), null, "card no longer exists");
 });
