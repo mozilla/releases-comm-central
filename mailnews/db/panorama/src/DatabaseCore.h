@@ -41,7 +41,11 @@ class DatabaseCore : public nsIDatabaseCore,
                                mozIStorageStatement** aStmt);
 
  private:
+  friend class LiveView;
+
   static nsCOMPtr<mozIStorageConnection> sConnection;
+
+ private:
   static nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>> sStatements;
 
   static nsresult EnsureConnection();

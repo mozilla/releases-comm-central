@@ -22,6 +22,7 @@ support-files = [
 ["test_findFolders.js"]
 ["test_flags.js"]
 ["test_insert.js"]
+["test_liveView.js"]
 ["test_lookup.js"]
 ["test_messages.js"]
 ["test_move.js"]

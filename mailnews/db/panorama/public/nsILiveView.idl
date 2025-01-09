@@ -1,0 +1,36 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface nsIFolder;
+
+[scriptable, builtinclass, uuid(f13755f5-9a54-4503-9531-1f5bcb2f84c7)]
+interface nsILiveView : nsISupports {
+  /**
+   * Initialization functions.
+   * Once a LiveView is initialised with one of these functions, or a database
+   * call is made on an uninitialised LiveView, these cannot be called again.
+   */
+  void initWithFolder(in nsIFolder folder);
+  void initWithFolders(in Array<nsIFolder> folders);
+
+  /**
+   * Get the total number of messages in the database matching this live view.
+   */
+  unsigned long long countMessages();
+
+  /**
+   * Get the number of unread messages in the database matching this live view.
+   */
+  unsigned long long countUnreadMessages();
+
+  /**
+   * Get the messages matching this live view from the database. The return
+   * value is a JS array of plain objects containing the message properties.
+   */
+  [implicit_jscontext]
+  jsval selectMessages([optional] in unsigned long long limit,
+                       [optional] in unsigned long long offset);
+};
