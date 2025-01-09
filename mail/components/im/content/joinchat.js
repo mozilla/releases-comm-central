@@ -8,6 +8,9 @@ var { IMServices } = ChromeUtils.importESModule(
 var { ChatIcons } = ChromeUtils.importESModule(
   "resource:///modules/chatIcons.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 var autoJoinPref = "autoJoin";
 
@@ -32,6 +35,7 @@ var joinChat = {
       throw new Error("No connected MUC enabled account!");
     }
     accountList.selectedIndex = 0;
+    UIFontSize.registerWindow(window);
   },
 
   onAccountSelect() {

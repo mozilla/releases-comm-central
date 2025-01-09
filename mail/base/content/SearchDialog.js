@@ -21,6 +21,9 @@ var { PluralForm } = ChromeUtils.importESModule(
 var { TagUtils } = ChromeUtils.importESModule(
   "resource:///modules/TagUtils.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 var messenger;
 var msgWindow;
@@ -48,6 +51,8 @@ window.addEventListener("unload", () => {
   onSearchStop();
   searchOnUnload();
 });
+
+UIFontSize.registerWindow(window);
 
 // Controller object for search results thread pane
 var nsSearchResultsController = {

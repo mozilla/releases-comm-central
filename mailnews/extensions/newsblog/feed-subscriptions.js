@@ -24,6 +24,9 @@ var { FileUtils } = ChromeUtils.importESModule(
 var { PluralForm } = ChromeUtils.importESModule(
   "resource:///modules/PluralForm.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 var FeedSubscriptions = {
   get mMainWin() {
@@ -72,6 +75,8 @@ var FeedSubscriptions = {
     if (this.mMainWin) {
       MailServices.mfn.addListener(this.FolderListener, this.FOLDER_ACTIONS);
     }
+
+    UIFontSize.registerWindow(window);
   },
 
   onDialogAccept() {

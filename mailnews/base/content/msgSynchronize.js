@@ -5,6 +5,9 @@
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 var gSynchronizeTree = null;
 var gParentMsgWindow;
@@ -31,6 +34,8 @@ function onLoad() {
   document.getElementById("workOffline").checked = Services.prefs.getBoolPref(
     "mailnews.offline_sync_work_offline"
   );
+
+  UIFontSize.registerWindow(window);
 }
 
 function syncOkButton() {

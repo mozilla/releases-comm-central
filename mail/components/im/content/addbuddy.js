@@ -8,6 +8,9 @@ var { IMServices } = ChromeUtils.importESModule(
 var { ChatIcons } = ChromeUtils.importESModule(
   "resource:///modules/chatIcons.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 var addBuddy = {
   onload() {
@@ -29,6 +32,7 @@ var addBuddy = {
       throw new Error("No connected account!");
     }
     accountList.selectedIndex = 0;
+    UIFontSize.registerWindow(window);
   },
 
   oninput() {

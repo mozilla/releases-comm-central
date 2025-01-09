@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
+
 window.addEventListener("DOMContentLoaded", onLoad);
 document.addEventListener("dialogaccept", onOK);
 
@@ -26,6 +30,7 @@ function onLoad() {
   dialog.preselectedFolderURI = windowArgs.preselectedURI;
 
   doEnabling();
+  UIFontSize.registerWindow(window);
 }
 
 function onOK() {

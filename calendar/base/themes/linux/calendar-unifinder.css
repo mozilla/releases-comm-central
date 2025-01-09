@@ -25,7 +25,8 @@
 #unifinder-searchBox {
   background-color: transparent;
   border-bottom: 1px solid ThreeDShadow;
-  height: 37px;
+  height: 1.5em;
+  min-height: 35px;
 }
 
 .unifinder-closebutton {

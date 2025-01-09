@@ -7,7 +7,8 @@
 /* added for new id ..... search box ..... */
 #unifinder-searchBox {
   border-bottom: 1px solid #bebebe;
-  height: 30px;
+  height: 1.5em;
+  min-height: 32px;
 }
 
 .unifinder-closebutton > .toolbarbutton-text {

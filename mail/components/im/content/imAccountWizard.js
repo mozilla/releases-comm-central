@@ -17,6 +17,9 @@ var { MailServices } = ChromeUtils.importESModule(
 var { ChatIcons } = ChromeUtils.importESModule(
   "resource:///modules/chatIcons.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 var PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 
@@ -86,6 +89,8 @@ var accountWizard = {
 
     Services.obs.addObserver(this, "prpl-quit");
     window.addEventListener("unload", this.unload);
+
+    UIFontSize.registerWindow(window);
   },
   unload() {
     Services.obs.removeObserver(accountWizard, "prpl-quit");

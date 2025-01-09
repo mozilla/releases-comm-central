@@ -39,7 +39,8 @@
 }
 
 #task-addition-box {
-  height: 35px;
+  height: 1.5em;
+  min-height: 35px;
 }
 
 @media not (prefers-color-scheme: dark) {

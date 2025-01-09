@@ -39,9 +39,10 @@
 }
 
 toolbarbutton[is="toolbarbutton-menu-button"] {
+  padding-block: 1px !important;
   padding-inline-end: 8px !important;
 
   & > dropmarker {
-    padding-inline-start: 6px;
+    margin-inline: 3px -3px;
   }
 }

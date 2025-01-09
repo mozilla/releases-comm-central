@@ -5,9 +5,14 @@
 var { MailE10SUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailE10SUtils.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 window.addEventListener("load", loadRequestedUrl);
 window.addEventListener("close", reportUserClosed);
+
+UIFontSize.registerWindow(window);
 
 /* Magic global things the <browser> and its entourage of logic expect. */
 var PopupNotifications = {

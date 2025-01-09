@@ -11,7 +11,8 @@
 }
 
 #today-pane-panel > .sidebar-header {
-  height: 35px;
+  height: 1.5em;
+  min-height: 35px;
 }
 
 #today-none-box {

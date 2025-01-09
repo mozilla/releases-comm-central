@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
+
 var gAddButton;
 var gRemoveButton;
 var gHeaderInputElement;
@@ -30,6 +34,8 @@ function onLoad() {
   initializeDialog(hdrs);
   updateAddButton(true);
   updateRemoveButton();
+
+  UIFontSize.registerWindow(window);
 }
 
 function initializeDialog(hdrs) {

@@ -9,6 +9,9 @@ var { PluralForm } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 window.addEventListener("load", onLoad);
 window.addEventListener("unload", onFilterUnload);
@@ -145,7 +148,10 @@ function onLoad() {
     filterEditorQuitObserver,
     "quit-application-requested"
   );
+
+  UIFontSize.registerWindow(window);
 }
+
 /**
  * Set up the toolbarbutton to have an index and an EvenListener for proper
  * keyboard navigation.

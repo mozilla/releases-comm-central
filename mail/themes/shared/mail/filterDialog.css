@@ -121,17 +121,20 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
 
   & > dropmarker {
     appearance: none;
-    content: var(--icon-nav-down-sm);
+    width: 22px;
+    background-image: var(--icon-nav-down-sm);
+    background-repeat: no-repeat;
+    background-position: center;
     -moz-context-properties: stroke;
     stroke: currentColor;
-    display: inline-flex;
-    flex: 0;
-    align-items: center;
-    justify-content: center;
   }
 }
 
 #filterListGrid toolbarbutton *:focus-visible {
   outline: var(--focus-outline);
   outline-offset: var(--focus-outline-offset);
+}
+
+#runFiltersFolder {
+  overflow: hidden;
 }

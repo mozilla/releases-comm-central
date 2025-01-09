@@ -5,6 +5,9 @@
 var FOLDERS = 1;
 var MESSAGES = 2;
 var dialog;
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 window.addEventListener("load", onLoad);
 document.addEventListener("dialogaccept", onOK);
@@ -46,6 +49,7 @@ function onLoad() {
   }
 
   doEnabling();
+  UIFontSize.registerWindow(window);
 }
 
 function onFolderSelect(event) {

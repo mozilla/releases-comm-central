@@ -4,6 +4,10 @@
 
 /* import-globals-from sanitize.js */
 
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
+
 window.addEventListener("load", () => {
   gSanitizePromptDialog.init();
 });
@@ -73,6 +77,8 @@ var gSanitizePromptDialog = {
     } else {
       this.warningBox.hidden = true;
     }
+
+    UIFontSize.registerWindow(window);
   },
 
   selectByTimespan() {

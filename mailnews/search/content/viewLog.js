@@ -5,6 +5,9 @@
 var { MailE10SUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailE10SUtils.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 var gFilterList;
 var gLogFilters;
@@ -24,6 +27,8 @@ function onLoad() {
   gLogView.browsingContext.allowJavascript = false;
 
   MailE10SUtils.loadURI(gLogView, gFilterList.logURL);
+
+  UIFontSize.registerWindow(window);
 }
 
 function toggleLogFilters() {

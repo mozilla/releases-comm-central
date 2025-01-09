@@ -7,6 +7,9 @@
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 var gSubscribeTree = null;
 var gSubscribeBody = null;
@@ -27,6 +30,8 @@ window.addEventListener("unload", SubscribeOnUnload);
 
 document.addEventListener("dialogaccept", subscribeOK);
 document.addEventListener("dialogcancel", subscribeCancel);
+
+UIFontSize.registerWindow(window);
 
 function Stop() {
   if (gSubscribableServer) {

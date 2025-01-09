@@ -16,6 +16,9 @@ var { IMServices } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 ChromeUtils.defineESModuleGetters(this, {
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });
@@ -110,6 +113,8 @@ var gAccountManager = {
         this.close();
       }
     );
+
+    UIFontSize.registerWindow(window);
   },
   unload() {
     clearInterval(this._connectedLabelInterval);

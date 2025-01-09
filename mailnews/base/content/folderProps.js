@@ -14,6 +14,9 @@ var { Gloda } = ChromeUtils.importESModule(
 var { openLinkExternally } = ChromeUtils.importESModule(
   "resource:///modules/LinkHelper.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 var gMsgFolder;
 var gLockedPref = null;
@@ -23,6 +26,8 @@ var gDefaultColor = "";
 window.addEventListener("load", folderPropsOnLoad);
 document.addEventListener("dialogaccept", folderPropsOKButton);
 document.addEventListener("dialogcancel", folderCancelButton);
+
+UIFontSize.registerWindow(window);
 
 /**
  * The folderPropsSink is the class that gets notified of an imap folder's

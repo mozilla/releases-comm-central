@@ -9,7 +9,8 @@
 }
 
 #today-pane-panel > .sidebar-header {
-  height: 33px;
+  height: 1.5em;
+  min-height: 35px;
 }
 
 .miniday-nav-buttons {

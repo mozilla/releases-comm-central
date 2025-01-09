@@ -9,7 +9,8 @@
 }
 
 #unifinder-searchBox {
-  height: 35px;
+  height: 1.5em;
+  min-height: 35px;
   border-bottom: 1px solid ThreeDShadow;
 }
 

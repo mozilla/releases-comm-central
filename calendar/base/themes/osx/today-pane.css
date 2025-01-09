@@ -5,7 +5,8 @@
 @import url(chrome://calendar/skin/shared/today-pane.css);
 
 #today-pane-panel > .sidebar-header {
-  height: 32px;
+  height: 1.5em;
+  min-height: 32px;
 }
 
 :root[lwtheme] #today-pane-panel > .sidebar-header {

@@ -32,6 +32,9 @@ var { PluralForm } = ChromeUtils.importESModule(
 var { VirtualFolderHelper } = ChromeUtils.importESModule(
   "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 window.addEventListener("DOMContentLoaded", onLoad);
 
@@ -121,6 +124,7 @@ function onLoad() {
   }
   updateOnlineSearchState();
   updateFoldersCount();
+  UIFontSize.registerWindow(window);
 }
 
 function setupSearchRows(aSearchTerms) {

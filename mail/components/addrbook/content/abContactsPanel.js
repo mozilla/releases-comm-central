@@ -13,8 +13,12 @@ var { getSearchTokens, getModelQuery, generateQueryURI } =
 var { UIDensity } = ChromeUtils.importESModule(
   "resource:///modules/UIDensity.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 UIDensity.registerWindow(window);
+UIFontSize.registerWindow(window);
 
 window.addEventListener("load", () => {
   AbPanelLoad();

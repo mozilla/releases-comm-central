@@ -13,6 +13,9 @@ var { MailUtils } = ChromeUtils.importESModule(
 var { PluralForm } = ChromeUtils.importESModule(
   "resource:///modules/PluralForm.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 // The actual filter that we're editing if it is a _saved_ filter or prefill;
 // void otherwise.
@@ -195,6 +198,8 @@ function filterEditorOnLoad() {
   gFilterNameElement.select();
   // This call is required on mac and linux.  It has no effect under win32.  See bug 94800.
   gFilterNameElement.focus();
+
+  UIFontSize.registerWindow(window);
 }
 
 function onEnterInSearchTerm(event) {

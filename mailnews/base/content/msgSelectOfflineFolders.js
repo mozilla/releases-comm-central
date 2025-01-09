@@ -10,6 +10,9 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
@@ -41,6 +44,8 @@ var gSelectOffline = {
     this._treeElement = document.getElementById("synchronizeTree");
     // TODO: Expand relevant rows.
     this._treeElement.view = gFolderTreeView;
+
+    UIFontSize.registerWindow(window);
   },
 
   onKeyPress(aEvent) {

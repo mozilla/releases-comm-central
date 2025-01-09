@@ -4,6 +4,10 @@
 
 /* import-globals-from dateFormat.js */
 
+var { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
+
 var MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
 var MICROSECONDS_PER_DAY = 1000 * MILLISECONDS_PER_HOUR * 24;
 
@@ -25,6 +29,8 @@ function onLoad() {
   // we convert it to a date string, and then the time part is truncated
   upperDateBox.value = convertDateToString(initialDate);
   upperDateBox.select(); // allows to start overwriting immediately
+
+  UIFontSize.registerWindow(window);
 }
 
 function onAccept() {
