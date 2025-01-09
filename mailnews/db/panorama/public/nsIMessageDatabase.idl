@@ -1,0 +1,46 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+%{C++
+namespace mozilla {
+namespace mailnews {
+class MessageListener;
+}  // namespace mailnews
+}  // namespace mozilla
+%}
+[ptr] native MessageListener(mozilla::mailnews::MessageListener);
+
+[scriptable, builtinclass, uuid(eb321750-ba3f-4acb-a2b8-380f2f873da8)]
+interface nsIMessageDatabase : nsISupports {
+  /**
+   * The count of all messages in the database.
+   */
+  readonly attribute unsigned long long totalCount;
+
+  /**
+   * Add a row to the database.
+   */
+  unsigned long long addMessage(in AUTF8String messageId,
+                                in PRTime date,
+                                in AUTF8String sender,
+                                in AUTF8String subject,
+                                in unsigned long long folderId,
+                                in unsigned long long flags,
+                                in AUTF8String tags);
+
+  /**
+   * Remove a row from the database.
+   */
+  void removeMessage(in unsigned long long id);
+
+  /**
+   * Add or remove a message listener (as defined in MessageDatabase.h).
+   * Not available to JS code as it's intended that we only use Live Views
+   * there. This could change!
+   */
+  [notxpcom] void addMessageListener(in MessageListener listener);
+  [notxpcom] void removeMessageListener(in MessageListener listener);
+};

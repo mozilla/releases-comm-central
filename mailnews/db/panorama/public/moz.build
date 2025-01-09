@@ -6,6 +6,7 @@ XPIDL_SOURCES += [
     "nsIDatabaseCore.idl",
     "nsIFolder.idl",
     "nsIFolderDatabase.idl",
+    "nsIMessageDatabase.idl",
 ]
 
 XPIDL_MODULE = "msgbase"

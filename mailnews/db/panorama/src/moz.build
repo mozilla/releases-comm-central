@@ -8,6 +8,7 @@ EXPORTS += [
     "Folder.h",
     "FolderComparator.h",
     "FolderDatabase.h",
+    "MessageDatabase.h",
 ]
 
 SOURCES += [
@@ -17,6 +18,7 @@ SOURCES += [
     "FolderCollector.cpp",
     "FolderComparator.cpp",
     "FolderDatabase.cpp",
+    "MessageDatabase.cpp",
 ]
 
 FINAL_LIBRARY = "mail"

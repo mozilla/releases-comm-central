@@ -6,6 +6,7 @@
 #define DatabaseCore_h__
 
 #include "FolderDatabase.h"
+#include "MessageDatabase.h"
 #include "mozIStorageConnection.h"
 #include "mozIStorageStatement.h"
 #include "nsIDatabaseCore.h"
@@ -15,7 +16,9 @@
 namespace mozilla {
 namespace mailnews {
 
-class DatabaseCore : public nsIDatabaseCore, public nsIObserver {
+class DatabaseCore : public nsIDatabaseCore,
+                     public nsIObserver,
+                     public MessageListener {
  public:
   DatabaseCore();
 
@@ -23,11 +26,16 @@ class DatabaseCore : public nsIDatabaseCore, public nsIObserver {
   NS_DECL_NSIDATABASECORE
   NS_DECL_NSIOBSERVER
 
+  // MessageListener functions.
+  void OnMessageAdded(Folder* folder, Message* message) override;
+  void OnMessageRemoved(Folder* folder, Message* message) override;
+
  protected:
   virtual ~DatabaseCore() {};
 
  private:
   friend class FolderDatabase;
+  friend class MessageDatabase;
 
   static nsresult GetStatement(const nsCString& aName, const nsCString& aSQL,
                                mozIStorageStatement** aStmt);
@@ -39,6 +47,7 @@ class DatabaseCore : public nsIDatabaseCore, public nsIObserver {
   static nsresult EnsureConnection();
 
   RefPtr<FolderDatabase> mFolderDatabase;
+  RefPtr<MessageDatabase> mMessageDatabase;
 };
 
 }  // namespace mailnews

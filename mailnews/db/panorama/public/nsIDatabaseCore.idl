@@ -6,6 +6,7 @@
 
 interface mozIStorageConnection;
 interface nsIFolderDatabase;
+interface nsIMessageDatabase;
 
 [scriptable, builtinclass, uuid(f7aa8063-35b5-4692-829c-a49eff539064)]
 interface nsIDatabaseCore : nsISupports {
@@ -20,6 +21,11 @@ interface nsIDatabaseCore : nsISupports {
    * Access to the folders table on the database.
    */
   [infallible] readonly attribute nsIFolderDatabase folders;
+
+  /**
+   * Access to the messages table on the database.
+   */
+  [infallible] readonly attribute nsIMessageDatabase messages;
 
   /**
    * Access to the database for testing purposes only. If you are not a test,

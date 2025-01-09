@@ -5,6 +5,7 @@
 #include "DatabaseCore.h"
 
 #include "FolderDatabase.h"
+#include "MessageDatabase.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Services.h"
@@ -50,6 +51,12 @@ DatabaseCore::Startup(JSContext* aCx, Promise** aPromise) {
   }
 
   mFolderDatabase = new FolderDatabase();
+  mMessageDatabase = new MessageDatabase();
+
+  mMessageDatabase->Startup();
+  // Add a message listener purely for logging purposes while this code is
+  // under heavy development. TODO: Remove this.
+  mMessageDatabase->AddMessageListener(this);
 
   RefPtr<FolderDatabaseStartupPromise> foldersPromise =
       mFolderDatabase->Startup();
@@ -82,6 +89,9 @@ DatabaseCore::Observe(nsISupports* aSubject, const char* aTopic,
 
   mFolderDatabase->Shutdown();
   mFolderDatabase = nullptr;
+
+  mMessageDatabase->Shutdown();
+  mMessageDatabase = nullptr;
 
   if (sConnection) {
     sConnection->Close();
@@ -141,6 +151,19 @@ nsresult DatabaseCore::EnsureConnection() {
           flags INTEGER DEFAULT 0, \
           UNIQUE(parent, name) \
         );"_ns);
+    sConnection->ExecuteSimpleSQL(
+        "CREATE TABLE messages( \
+          id INTEGER PRIMARY KEY, \
+          folderId INTEGER REFERENCES folders(id), \
+          messageId TEXT, \
+          date INTEGER, \
+          sender TEXT, \
+          subject TEXT, \
+          flags INTEGER, \
+          tags TEXT \
+        );"_ns);
+    sConnection->ExecuteSimpleSQL(
+        "CREATE INDEX messages_date ON messages(date);"_ns);
   }
 
   return NS_OK;
@@ -178,6 +201,12 @@ DatabaseCore::GetFolders(nsIFolderDatabase** aFolderDatabase) {
 }
 
 NS_IMETHODIMP
+DatabaseCore::GetMessages(nsIMessageDatabase** aMessageDatabase) {
+  NS_IF_ADDREF(*aMessageDatabase = mMessageDatabase);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 DatabaseCore::GetConnection(mozIStorageConnection** aConnection) {
   if (!xpc::IsInAutomation()) {
     return NS_ERROR_NOT_AVAILABLE;
@@ -190,6 +219,22 @@ DatabaseCore::GetConnection(mozIStorageConnection** aConnection) {
 
   NS_IF_ADDREF(*aConnection = sConnection);
   return NS_OK;
+}
+
+void DatabaseCore::OnMessageAdded(Folder* folder, Message* m) {
+  MOZ_LOG(gPanoramaLog, LogLevel::Debug,
+          ("DatabaseCore::OnMessageAdded: %" PRIu64 " %" PRIu64 " %" PRId64
+           " '%s' '%s' %" PRIu64 " '%s'\n",
+           m->id, m->folderId, m->date, m->sender.get(), m->subject.get(),
+           m->flags, m->tags.get()));
+}
+
+void DatabaseCore::OnMessageRemoved(Folder* folder, Message* m) {
+  MOZ_LOG(gPanoramaLog, LogLevel::Debug,
+          ("DatabaseCore::OnMessageRemoved: %" PRIu64 " %" PRIu64 " %" PRId64
+           " '%s' '%s' %" PRIu64 " '%s'\n",
+           m->id, m->folderId, m->date, m->sender.get(), m->subject.get(),
+           m->flags, m->tags.get()));
 }
 
 }  // namespace mailnews
