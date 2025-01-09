@@ -3607,8 +3607,19 @@ nsresult nsMsgDBView::GetLongField(nsIMsgDBHdr* msgHdr,
 
   switch (sortType) {
     case nsMsgViewSortType::bySize:
-      rv = (mShowSizeInLines) ? msgHdr->GetLineCount(result)
-                              : msgHdr->GetMessageSize(result);
+      if (mShowSizeInLines) {
+        rv = msgHdr->GetLineCount(result);
+        break;
+      }
+      bits = 0;
+      *result = 0;
+      rv = msgHdr->GetFlags(&bits);
+      if (NS_SUCCEEDED(rv) && (bits & nsMsgMessageFlags::Partial)) {
+        rv = msgHdr->GetUint32Property("onlineSize", result);
+      }
+      if (NS_FAILED(rv) || *result == 0) {
+        rv = msgHdr->GetMessageSize(result);
+      }
       break;
     case nsMsgViewSortType::byPriority:
       nsMsgPriorityValue priority;
