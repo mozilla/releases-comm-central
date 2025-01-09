@@ -29,3 +29,4 @@ support-files = [
 ["test_reconcile.js"]
 ["test_relations.js"]
 ["test_sort.js"]
+["test_sqlFunctions.js"]

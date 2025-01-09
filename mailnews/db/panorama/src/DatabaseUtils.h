@@ -5,6 +5,7 @@
 #ifndef DatabaseUtils_h__
 #define DatabaseUtils_h__
 
+#include "mozIStorageFunction.h"
 #include "nsTString.h"
 
 namespace mozilla {
@@ -18,6 +19,18 @@ class DatabaseUtils {
    * mistakes when comparing strings containing non-ASCII characters.
    */
   static nsCString Normalize(const nsACString& inString);
+};
+
+class TagsMatchFunction final : public mozIStorageFunction {
+ public:
+  explicit TagsMatchFunction(bool aWanted) : mWanted(aWanted) {};
+
+  NS_DECL_ISUPPORTS
+  NS_DECL_MOZISTORAGEFUNCTION
+
+ private:
+  ~TagsMatchFunction() = default;
+  bool mWanted;
 };
 
 }  // namespace mailnews

@@ -53,6 +53,16 @@ NS_IMETHODIMP LiveView::InitWithFolders(
   return NS_OK;
 }
 
+NS_IMETHODIMP LiveView::InitWithTag(const nsACString& aTag) {
+  if (mFolderFilter) {
+    NS_WARNING("folder filter already set");
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  mFolderFilter = new TaggedMessagesFilter(aTag, true);
+  return NS_OK;
+}
+
 /**
  * Create the WHERE part of an SQL query from the current filters.
  */

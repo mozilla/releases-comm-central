@@ -65,6 +65,29 @@ class MultiFolderFilter final : public LiveViewFilter {
   nsTArray<uint64_t> mIds;
 };
 
+class TaggedMessagesFilter final : public LiveViewFilter {
+ public:
+  explicit TaggedMessagesFilter(const nsACString& aTag, bool aWanted)
+      : mTag(aTag), mWanted(aWanted) {
+    // There could be more than one tag filter, so use a unique parameter name.
+    mParamName.Assign("tag");
+    mParamName.AppendInt(mUID);
+
+    mSQLClause.Assign(aWanted ? "TAGS_INCLUDE(tags, :"
+                              : "TAGS_EXCLUDE(tags, :");
+    mSQLClause.Append(mParamName);
+    mSQLClause.Append(")");
+  }
+  void PrepareStatement(mozIStorageStatement* aStmt) override {
+    aStmt->BindStringByName(mParamName, NS_ConvertUTF8toUTF16(mTag));
+  }
+
+ protected:
+  nsAutoCString mParamName;
+  nsAutoCString mTag;
+  bool mWanted;
+};
+
 }  // namespace mailnews
 }  // namespace mozilla
 

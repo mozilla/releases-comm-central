@@ -105,6 +105,30 @@ add_task(function testInitWithFolders() {
   assertInitFails(liveView);
 });
 
+add_task(function testInitWithTag() {
+  const liveView = new LiveView();
+  liveView.initWithTag("$label1");
+  assertInitFails(liveView);
+
+  Assert.equal(
+    liveView.countMessages(),
+    3,
+    "countMessages should return the total number of messages"
+  );
+  Assert.equal(
+    liveView.countUnreadMessages(),
+    2,
+    "countUnreadMessages should return the number of unread messages"
+  );
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.id),
+    [8, 3, 2],
+    "selectMessages with no arguments should return all the messages"
+  );
+
+  assertInitFails(liveView);
+});
+
 function assertInitFails(liveView) {
   const folderA = folders.getFolderByPath("server/folderA");
 
@@ -115,6 +139,11 @@ function assertInitFails(liveView) {
   );
   Assert.throws(
     () => liveView.initWithFolders([folderA]),
+    /NS_ERROR_UNEXPECTED/,
+    "setting the folder a second time should throw"
+  );
+  Assert.throws(
+    () => liveView.initWithTag("$labelX"),
     /NS_ERROR_UNEXPECTED/,
     "setting the folder a second time should throw"
   );

@@ -166,6 +166,11 @@ nsresult DatabaseCore::EnsureConnection() {
         "CREATE INDEX messages_date ON messages(date);"_ns);
   }
 
+  RefPtr<TagsMatchFunction> tagsInclude = new TagsMatchFunction(true);
+  sConnection->CreateFunction("tags_include"_ns, 2, tagsInclude);
+  RefPtr<TagsMatchFunction> tagsExclude = new TagsMatchFunction(false);
+  sConnection->CreateFunction("tags_exclude"_ns, 2, tagsExclude);
+
   return NS_OK;
 }
 

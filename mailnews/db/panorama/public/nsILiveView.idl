@@ -15,6 +15,8 @@ interface nsILiveView : nsISupports {
    */
   void initWithFolder(in nsIFolder folder);
   void initWithFolders(in Array<nsIFolder> folders);
+  // `tag` is the tag's identifier (nsIMsgTag.key).
+  void initWithTag(in AUTF8String tag);
 
   /**
    * Get the total number of messages in the database matching this live view.
