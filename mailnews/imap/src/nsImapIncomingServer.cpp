@@ -63,6 +63,8 @@ NS_INTERFACE_MAP_BEGIN(nsImapIncomingServer)
   NS_INTERFACE_MAP_ENTRY(nsIUrlListener)
 NS_INTERFACE_MAP_END_INHERITING(nsMsgIncomingServer)
 
+LazyLogModule IMAP_DC("IMAP_DC");  // For imap folder discovery
+
 nsImapIncomingServer::nsImapIncomingServer()
     : mLock("nsImapIncomingServer.mLock"),
       mLogonMonitor("nsImapIncomingServer.mLogonMonitor") {
@@ -1408,6 +1410,8 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
   GetUnverifiedFolders(unverifiedFolders);
 
   int32_t count = unverifiedFolders.Count();
+  MOZ_LOG(IMAP_DC, mozilla::LogLevel::Debug,
+          ("DiscoveryDone, unverified folder count = %" PRIu32, count));
   for (int32_t k = 0; k < count; ++k) {
     bool explicitlyVerify = false;
     bool hasSubFolders = false;
@@ -1434,19 +1438,28 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
       if (!isNamespace)  // don't list namespaces explicitly
       {
         // If there are no subfolders and this is unverified, we don't want to
-        // run this url. That is, we want to undiscover the folder.
+        // run url listfolder. That is, we want to undiscover the folder.
         // If there are subfolders and no descendants are verified, we want to
         // undiscover all of the folders.
         // Only if there are subfolders and at least one of them is verified
         // do we want to refresh that folder's flags, because it won't be going
         // away.
         currentImapFolder->SetExplicitlyVerify(false);
-        currentImapFolder->List();
+        currentImapFolder->List();  // Run listfolder url
+        // If subscriptions are ignored, trigger a discoverchildren url so that
+        // any new folders are discovered. PerformExpand starts the url.
+        if (!usingSubscription) {
+          MOZ_LOG(IMAP_DC, mozilla::LogLevel::Debug,
+                  ("DiscoveryDone: run discoverchildren with PerformExpand"));
+          currentImapFolder->PerformExpand(nullptr);
+        }
       }
     } else {
       nsCOMPtr<nsIMsgFolder> parent;
       currentFolder->GetParent(getter_AddRefs(parent));
       if (parent) {
+        MOZ_LOG(IMAP_DC, mozilla::LogLevel::Debug,
+                ("DiscoveryDone: folder is gone so remove it"));
         currentImapFolder->RemoveLocalSelf();
       }
     }

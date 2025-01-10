@@ -89,6 +89,7 @@ using namespace mozilla;
 LazyLogModule IMAP("IMAP");
 LazyLogModule IMAP_CS("IMAP_CS");
 LazyLogModule IMAPCache("IMAPCache");
+extern LazyLogModule IMAP_DC;  // For imap folder discovery
 
 #define ONE_SECOND ((uint32_t)1000)  // one second
 
@@ -7325,33 +7326,18 @@ void nsImapProtocol::DiscoverMailboxList() {
           DiscoverMailboxSpec(boxSpec);
         }
 
-        // now do the folders within this namespace
-        nsCString pattern;
-        nsCString pattern2;
-        if (usingSubscription) {
-          pattern.Append(prefix);
-          pattern.Append('*');
-        } else {
-          pattern.Append(prefix);
-          pattern.Append('%');  // mscott just need one percent right?
-          // pattern = PR_smprintf("%s%%", prefix);
-          char delimiter = ns->GetDelimiter();
-          if (delimiter) {
-            // delimiter might be NIL, in which case there's no hierarchy anyway
-            pattern2 = prefix;
-            pattern2 += "%";
-            pattern2 += delimiter;
-            pattern2 += "%";
-            // pattern2 = PR_smprintf("%s%%%c%%", prefix, delimiter);
-          }
-        }
+        // Now do the folders within this namespace
+
         // Note: It is important to make sure we are respecting the
         // server_sub_directory preference when calling List and Lsub (2nd arg =
         // true), otherwise we end up with performance issues or even crashes
         // when connecting to servers that expose the users entire home
         // directory (like UW-IMAP).
-        if (usingSubscription) {  // && !GetSubscribingNow())  should never get
-                                  // here from subscribe pane
+        if (usingSubscription) {
+          nsCString pattern;
+          pattern.Append(prefix);
+          pattern.Append('*');
+
           if (GetServerStateParser().GetCapabilityFlag() &
               kHasListExtendedCapability)
             Lsub(pattern.get(), true);  // do LIST (SUBSCRIBED)
@@ -7366,8 +7352,14 @@ void nsImapProtocol::DiscoverMailboxList() {
             m_standardListMailboxes.Clear();
           }
         } else {
-          List(pattern.get(), true, hasXLIST);
-          List(pattern2.get(), true, hasXLIST);
+          // Not using subscriptions. Do no imap lists here. This will keep all
+          // folders "unverified" so that all folders will be checked for new
+          // children in nsImapIncomingServer::DiscoveryDone when
+          // discoverallboxes URL stop is signaled. This must be done instead of
+          // 'list "" *' (list all folders) so that database for each
+          // individually listed or newly discovered folder is properly closed
+          // when discoverchildren URL stop is signaled as required by
+          // test_listClosesDB.js.
         }
       }
     }
@@ -7862,6 +7854,8 @@ void nsImapProtocol::NthLevelChildList(const char* onlineMailboxPrefix,
   while (count < depth) {
     pattern += suffix;
     count++;
+    MOZ_LOG(IMAP_DC, LogLevel::Debug,
+            ("NthLevelChildList: list pattern=%s", pattern.get()));
     List(pattern.get(), false);
   }
 }

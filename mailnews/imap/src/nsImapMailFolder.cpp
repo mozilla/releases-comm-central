@@ -101,6 +101,7 @@ extern LazyLogModule gAutoSyncLog;  // defined in nsAutoSyncManager.cpp
 extern LazyLogModule IMAP;          // defined in nsImapProtocol.cpp
 extern LazyLogModule IMAP_CS;  // For CONDSTORE, defined in nsImapProtocol.cpp
 extern LazyLogModule FILTERLOGMODULE;  // defined in nsMsgFilterService.cpp
+extern LazyLogModule IMAP_DC;          // For imap folder discovery
 LazyLogModule IMAP_KW("IMAP_KW");      // for logging keyword (tag) processing
 
 /*
@@ -5202,7 +5203,10 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           break;
         case nsIImapUrl::nsImapListFolder:
           if (NS_SUCCEEDED(aExitCode)) {
-            // listing folder will open db; don't leave the db open.
+            // Doing listfolder URL will open db; don't leave the db open.
+            MOZ_LOG(IMAP_DC, mozilla::LogLevel::Debug,
+                    ("Onstop url listfolder, close db for folder=%s",
+                     m_onlineFolderName.get()));
             SetMsgDatabase(nullptr);
             if (!m_verifiedAsOnlineFolder) {
               // If folder is not verified, we remove it.
@@ -5211,9 +5215,24 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
               if (NS_SUCCEEDED(rv) && parent) {
                 nsCOMPtr<nsIMsgImapMailFolder> imapParent =
                     do_QueryInterface(parent);
-                if (imapParent) this->RemoveLocalSelf();
+                if (imapParent) {
+                  MOZ_LOG(IMAP_DC, mozilla::LogLevel::Debug,
+                          ("Onstop url listfolder, remove unverified folder=%s",
+                           m_onlineFolderName.get()));
+                  this->RemoveLocalSelf();
+                }
               }
             }
+          }
+          break;
+        case nsIImapUrl::nsImapDiscoverChildrenUrl:
+          // Url discoverchildren occurs only when subscriptions are ignored.
+          if (NS_SUCCEEDED(aExitCode)) {
+            MOZ_LOG(IMAP_DC, mozilla::LogLevel::Debug,
+                    ("Onstop url discoverchildren, close db for folder=%s",
+                     m_onlineFolderName.get()));
+            // Like url listfolder, this also leaves the db open so close it.
+            SetMsgDatabase(nullptr);
           }
           break;
         case nsIImapUrl::nsImapRefreshFolderUrls:
@@ -7999,6 +8018,9 @@ NS_IMETHODIMP nsImapMailFolder::PerformExpand(nsIMsgWindow* aMsgWindow) {
     nsCOMPtr<nsIImapService> imapService =
         do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
+    MOZ_LOG(IMAP_DC, mozilla::LogLevel::Debug,
+            ("PerformExpand: run discoverchildren url for folder=%s",
+             m_onlineFolderName.get()));
     rv = imapService->DiscoverChildren(this, this, m_onlineFolderName);
   }
   return rv;
