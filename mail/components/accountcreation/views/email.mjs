@@ -1055,7 +1055,7 @@ class AccountHubEmail extends HTMLElement {
   /**
    * Get the address books associated with the current account.
    *
-   * @type {string} password - The password for the current account.
+   * @param {string} password - The password for the current account.
    *
    * @returns {Array} - The address books assoicated with the account.
    */
@@ -1110,8 +1110,8 @@ class AccountHubEmail extends HTMLElement {
   /**
    * Get the calendars associated with the current account.
    *
-   * @type {string} password - The password for the current account.
-   * @type {boolean} rememberPassword - The remember password choice.
+   * @param {string} password - The password for the current account.
+   * @param {boolean} rememberPassword - The remember password choice.
    *
    * @returns {Array} - The calendars assoicated with the account.
    */
@@ -1185,7 +1185,7 @@ class AccountHubEmail extends HTMLElement {
   /**
    * Adds selected calendars and address books to Thunderbird.
    *
-   * @type {SyncAccounts} syncAccounts - The sync accounts for the user.
+   * @param {SyncAccounts[]} syncAccounts - The sync accounts for the user.
    */
   #addSyncAccounts(syncAccounts) {
     for (const calendar of syncAccounts.calendars) {

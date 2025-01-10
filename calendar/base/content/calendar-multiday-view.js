@@ -224,9 +224,9 @@
        */
       /**
        * Event data for all the events displayed in this column.
+       * A map from an event item's hashId to its data.
        *
-       * @type {Map<string,EventData>} - A map from an event item's hashId to
-       *   its data.
+       * @type {Map<string,EventData>}
        */
       this.eventDataMap = new Map();
 

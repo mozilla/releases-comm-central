@@ -121,7 +121,7 @@ class EmailSyncAccountsForm extends AccountHubStep {
    * Sets the list of calendars and address books available in the
    * currentConfig
    *
-   * @type {SyncAccounts} syncAccounts - The sync accounts for the user.
+   * @param {SyncAccounts} syncAccounts - The sync accounts for the user.
    */
   setState(syncAccounts) {
     this.#availableSyncAccounts = syncAccounts;
@@ -197,8 +197,8 @@ class EmailSyncAccountsForm extends AccountHubStep {
   /**
    * Creates the label and checkbox input for a sync account.
    *
-   * @type {object} syncAccount - A syncable account.
-   * @type {string} inputClass - Class name for input type.
+   * @param {object} syncAccount - A syncable account.
+   * @param {string} inputClass - Class name for input type.
    * @returns {HTMLElement} The account label with the checkbox input.
    */
   #createInput(syncAccount, inputClass) {
@@ -227,7 +227,7 @@ class EmailSyncAccountsForm extends AccountHubStep {
   /**
    * Selects/Deselects all inputs within the type group of checkboxes.
    *
-   * @type {string} type - The type of sync account.
+   * @param {string} type - The type of sync account.
    */
   #toggleSelectAllInputs(type) {
     const inputs = this.querySelectorAll(`#${type} input`);
@@ -246,8 +246,8 @@ class EmailSyncAccountsForm extends AccountHubStep {
   /**
    * Update strings associated with the sync account type.
    *
-   * @type {string} type - The type of sync account.
-   * @type {number} count - The current count of selected sync accounts.
+   * @param {string} type - The type of sync account.
+   * @param {number} count - The current count of selected sync accounts.
    */
   observeSyncAccountCounter(type, count) {
     const selectedLabel =

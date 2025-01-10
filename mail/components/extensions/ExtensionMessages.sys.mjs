@@ -1346,7 +1346,7 @@ export class MessageTracker extends EventEmitter {
    * @param {nsIMsgFolder} folder
    * @param {string} property
    * @param {integer} oldValue
-   * @param {integer*} newValue
+   * @param {integer} newValue
    */
   onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
     switch (property) {

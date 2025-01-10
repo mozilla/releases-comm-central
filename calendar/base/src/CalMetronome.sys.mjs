@@ -35,23 +35,23 @@ export var CalMetronome = {
   _lastFireTime: 0,
 
   /**
-   * The last minute for which the minute event fired.
+   * The last minute for which the minute event fired (0-59).
    *
-   * @type {integer} (0-59)
+   * @type {integer}
    */
   _lastMinute: -1,
 
   /**
-   * The last hour for which the hour event fired.
+   * The last hour for which the hour event fired {0-23}.
    *
-   * @type {integer} (0-23)
+   * @type {integer}
    */
   _lastHour: -1,
 
   /**
-   * The last day of the week for which the day event fired.
+   * The last day of the week for which the day event fired (0-7).
    *
-   * @type {integer} (0-7)
+   * @type {integer}
    */
   _lastDay: -1,
 

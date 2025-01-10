@@ -199,7 +199,7 @@ export class SearchBar extends HTMLElement {
   /**
    * The current search term.
    *
-   * @type {string} term
+   * @type {string}
    */
   get value() {
     return this.#input.value;

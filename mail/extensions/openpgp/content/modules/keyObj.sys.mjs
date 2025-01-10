@@ -18,92 +18,167 @@ ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
  * Key object.
  */
 export class EnigmailKeyObj {
-  /** @type {string} - 16 digits (8-byte) public key ID (/not/ preceded with 0x) */
+  /**
+   * 16 digits (8-byte) public key ID (/not/ preceded with 0x).
+   *
+   * @type {string}
+   */
   keyId = "";
 
-  /** @type {string} - Main user ID. */
+  /**
+   * Main user ID.
+   *
+   * @type {string}
+   */
   userId = "";
 
   /**
    * Fingerprint. Use `fprFormatted` getter to obtain a formatted version of the
+   *
    * fingerprint, like .... .... ....
    *
-   * @type {string} - Fingerprint.
+   * @type {string}
    */
   fpr = "";
 
-  /** @type {string} - Expiry date as printable string */
+  /**
+   * Expiry date as printable string
+   *
+   * @type {string}
+   */
   expiry = "";
 
-  /** @type {integer} - Expiry time as seconds after 01/01/1970. */
+  /**
+   * Expiry time as seconds after 01/01/1970.
+   *
+   * @type {integer}
+   */
   expiryTime = 0;
 
-  /** @type {string} - Key creation date as printable string. */
+  /**
+   * Key creation date as printable string.
+   *
+   * @type {string}
+   */
   created = "";
 
-  /** @type {integer} - Key creation date/time as number */
+  /**
+   * Key creation date/time as number.
+   *
+   * @type {integer}
+   */
   keyCreated = 0;
 
-  /** @type {string} - Key trust code as provided by GnuPG (calculated key validity). */
+  /**
+   * Key trust code as provided by GnuPG (calculated key validity).
+   *
+   * @type {string}
+   */
   keyTrust = "";
 
-  /** @type {string} - Key usage type as provided by GnuPG (key capabilities). */
+  /**
+   * Key usage type as provided by GnuPG (key capabilities).
+   *
+   * @type {string}
+   */
   keyUseFor = "";
 
-  /** @type {string} - Owner trust. */
+  /**
+   * Owner trust.
+   *
+   * @type {string}
+   */
   ownerTrust = "";
 
-  /** @type {boolean} - True if photo is available. */
+  /**
+   * True if photo is available.
+   *
+   * @type {boolean}
+   */
   photoAvailable = false;
 
-  /** @type {boolean} - True if secret key is available. */
+  /**
+   * True if secret key is available.
+   *
+   * @type {boolean}
+   */
   secretAvailable = false;
 
-  /** @type {boolean} - Is secret key material available. */
+  /**
+   * Is secret key material available.
+   *
+   * @type {boolean}
+   */
   secretMaterial = false;
 
-  /** @type {integer} - Bitmask of feature flags, see PGP_KEY_FEATURE_ . */
+  /**
+   * Bitmask of feature flags, see PGP_KEY_FEATURE_ .
+   *
+   * @type {integer}
+   */
   features = 0;
 
-  /** @type {string} - Public key algorithm type (e.g. RSA). */
+  /**
+   * Public key algorithm type (e.g. RSA).
+   *
+   * @type {string}
+   */
   algoSym = "";
 
-  /** @type {integer} - Size of public key. */
+  /**
+   * Size of public key.
+   *
+   * @type {integer}
+   */
   keySize = 0;
 
-  /** @type {string} - "pub" or "grp" */
+  /**
+   * "pub" or "grp".
+   *
+   * @type {string}
+   */
   type = "";
 
   /**
+   * @typedef {object} UserId
+   * @property {string} userId - User ID.
+   * @property {string} keyTrust - Trust level of user ID.
+   * @property {string} uidFpr - Fingerprint of the user ID
+   * @property {string} type - one of "uid" (regular user ID), "uat" (photo).
+   * @property {integer} uatNum - Photo number (starting with 0 for each key).
+   */
+  /**
    * Contains all UIDs (including the primary UID).
    *
-   * @type {object[]} ids
-   * @type {string} ids[].userId - User ID.
-   * @type {string} ids[].keyTrust - Trust level of user ID.
-   * @type {string} ids[].uidFpr - Fingerprint of the user ID
-   * @type {string} ids[].type - one of "uid" (regular user ID), "uat" (photo).
-   * @type {integer} ids[].uatNum - Photo number (starting with 0 for each key).
+   * @type {UserId[]}
    */
   userIds = [];
 
   /**
+   * @typedef {object} SubkeyData
+   * @property {string} keyId - Subkey ID (16 digits (8-byte)).
+   * @property {string} expiry - Expiry date as printable string.
+   * @property {integer} expiryTime - Expiry time as seconds after 01/01/1970.
+   * @property {string} created - Subkey creation date as printable string.
+   * @property {integer} keyCreated - Subkey creation date/time as number.
+   * @property {string} keyTrust - Key trust code as provided by GnuPG.
+   * @property {string} keyUseFor - Key usage type as provided by GnuPG.
+   * @property {string} algoSym - Subkey algorithm type (e.g. RSA).
+   * @property {integer} keySize - Subkey size.
+   * @property {string} type - Type "sub".
+   */
+  /**
    * Subkeys.
    *
-   * @type {object[]} keys
-   * @type {string} keys[].keyId - Subkey ID (16 digits (8-byte)).
-   * @type {string} keys[].expiry - Expiry date as printable string.
-   * @type {integer} keys[].expiryTime - Expiry time as seconds after 01/01/1970.
-   * @type {string} keys[].created - Subkey creation date as printable string.
-   * @type {integer} keys[].keyCreated - Subkey creation date/time as number.
-   * @type {string} keys[].keyTrust - Key trust code as provided by GnuPG.
-   * @type {string} keys[].keyUseFor - Key usage type as provided by GnuPG.
-   * @type {string} keys[].algoSym - Subkey algorithm type (e.g. RSA).
-   * @type {integer} keys[].keySize - Subkey size.
-   * @type {"sub"} keys[].type - Type.
+   * @type {SubkeyData[]}
    */
   subKeys = [];
 
-  /** @type {Map<string,string>} - Email to minimal keyblock map. */
+  /**
+   * Email to minimal keyblock map.
+   *
+   * @type {Map<string,string>}
+   */
   minimalKeyBlock = new Map();
 
   /**
