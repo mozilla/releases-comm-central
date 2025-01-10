@@ -370,6 +370,9 @@
             },
             "updates_disabled": {
               "type": "boolean"
+            },
+            "private_browsing": {
+              "type": "boolean"
             }
           }
         }
