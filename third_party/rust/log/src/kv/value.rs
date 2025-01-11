@@ -101,7 +101,7 @@ impl<'v> ToValue for Value<'v> {
 /// Values provide a number of ways to be serialized.
 ///
 /// For basic types the [`Value::visit`] method can be used to extract the
-/// underlying typed value. However this is limited in the amount of types
+/// underlying typed value. However, this is limited in the amount of types
 /// supported (see the [`VisitValue`] trait methods).
 ///
 /// For more complex types one of the following traits can be used:
@@ -373,19 +373,19 @@ impl_value_to_primitive![
 ];
 
 impl<'v> Value<'v> {
-    /// Try convert this value into an error.
+    /// Try to convert this value into an error.
     #[cfg(feature = "kv_std")]
     pub fn to_borrowed_error(&self) -> Option<&(dyn std::error::Error + 'static)> {
         self.inner.to_borrowed_error()
     }
 
-    /// Try convert this value into a borrowed string.
-    pub fn to_borrowed_str(&self) -> Option<&str> {
+    /// Try to convert this value into a borrowed string.
+    pub fn to_borrowed_str(&self) -> Option<&'v str> {
         self.inner.to_borrowed_str()
     }
 }
 
-#[cfg(feature = "kv_std")]
+#[cfg(feature = "std")]
 mod std_support {
     use std::borrow::Cow;
     use std::rc::Rc;
@@ -432,17 +432,26 @@ mod std_support {
         }
     }
 
-    impl<'v> Value<'v> {
-        /// Try convert this value into a string.
-        pub fn to_cow_str(&self) -> Option<Cow<'v, str>> {
-            self.inner.to_str()
-        }
-    }
-
     impl<'v> From<&'v String> for Value<'v> {
         fn from(v: &'v String) -> Self {
             Value::from(&**v)
         }
+    }
+}
+
+#[cfg(all(feature = "std", feature = "value-bag"))]
+impl<'v> Value<'v> {
+    /// Try to convert this value into a string.
+    pub fn to_cow_str(&self) -> Option<std::borrow::Cow<'v, str>> {
+        self.inner.to_str()
+    }
+}
+
+#[cfg(all(feature = "std", not(feature = "value-bag")))]
+impl<'v> Value<'v> {
+    /// Try to convert this value into a string.
+    pub fn to_cow_str(&self) -> Option<std::borrow::Cow<'v, str>> {
+        self.inner.to_borrowed_str().map(std::borrow::Cow::Borrowed)
     }
 }
 
@@ -725,7 +734,7 @@ pub(in crate::kv) mod inner {
 
     1. Conversions should always produce the same results. If a conversion here returns `Some`, then
        the same `value_bag`-based conversion must also. Of particular note here are floats to ints; they're
-       based on the standard library's `TryInto` conversions, which need to be convert to `i32` or `u32`,
+       based on the standard library's `TryInto` conversions, which need to be converted to `i32` or `u32`,
        and then to `f64`.
     2. VisitValues should always be called in the same way. If a particular type of value calls `visit_i64`,
        then the same `value_bag`-based visitor must also.
