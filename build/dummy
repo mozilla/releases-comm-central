@@ -6,7 +6,7 @@ but no other commits are pending.
 Instructions:
 
 If a new build for comm-central is desired, edit this file,
-and make change to the whitespace below the line.
+and make a change below the line.
 (For example, add another dot, or remove one.)
 -----------------------------------------------------------
-.
+..
