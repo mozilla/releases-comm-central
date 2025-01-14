@@ -559,6 +559,9 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           const window = await getNormalWindowReady();
           const nativeTab = window.gTabmail.openTab("mail3PaneTab", tabParams);
           await waitForMailTabReady(nativeTab);
+          // Be sure that about:3pane's DOMContentLoaded handler has finished,
+          // or we might not have a selected folder yet.
+          await new Promise(resolve => setTimeout(resolve));
           return updateMailTab(nativeTab, properties);
         },
 

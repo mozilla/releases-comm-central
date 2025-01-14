@@ -193,6 +193,10 @@ async function subtest(testFolder) {
 
   message = testMessages.getNext();
   Assert.ok(!message.isRead, "message 4 should not be read before load");
+  await TestUtils.waitForCondition(
+    () => secondAbout3Pane.gDBView,
+    "waiting for second tab to select a folder"
+  );
   secondAbout3Pane.threadTree.selectedIndex =
     secondAbout3Pane.gDBView.findIndexOfMsgHdr(message, false);
   await BrowserTestUtils.waitForEvent(window, "MsgLoaded");

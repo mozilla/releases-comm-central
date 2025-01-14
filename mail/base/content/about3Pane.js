@@ -186,6 +186,11 @@ window.addEventListener("DOMContentLoaded", async event => {
   // (triggered by `folderPane.init` and possibly `restoreState`) are ignored
   // to avoid unnecessarily loading the thread tree or Account Central.
   folderTree.addEventListener("select", folderPane);
+
+  // Delay inital folder selection until after the message list's resize
+  // observer has had a chance to respond to layout changes. Otherwise we
+  // might end up scrolling to the wrong part of the list.
+  await new Promise(resolve => setTimeout(resolve));
   folderTree.dispatchEvent(new CustomEvent("select"));
 
   mailContextMenu.init();
