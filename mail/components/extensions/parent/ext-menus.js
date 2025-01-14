@@ -263,17 +263,18 @@ var gMenuBuilder = {
 
     if (forceManifestIcons) {
       for (const rootElement of children) {
-        // Display the extension icon on the root element.
-        if (
-          root.extension.manifest.icons &&
-          rootElement.getAttribute("type") !== "checkbox"
-        ) {
+        // Display the extension icon on the root element. Fallback to the generic
+        // extension icon, if there is no extension icon specified in the manifest.
+        if (rootElement.getAttribute("type") !== "checkbox") {
           this.setMenuItemIcon(
             rootElement,
             root.extension,
             contextData,
-            root.extension.manifest.icons
+            root.extension.manifest.icons || {
+              16: "chrome://messenger/content/extension.svg",
+            }
           );
+          rootElement.classList.add("webextension-rootElement");
         } else {
           this.removeMenuItemIcon(rootElement);
         }
