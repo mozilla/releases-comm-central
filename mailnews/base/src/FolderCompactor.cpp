@@ -835,10 +835,20 @@ void BatchCompactor::OnDone(nsresult status, int64_t bytesRecovered) {
         // Uhoh... looks like the mbox was bad.
         // It does seem like there are old mboxes in the wild which don't
         // have "From " separators so we can't reliably compact those.
-        // Trigger an automatic repair
-        nsCOMPtr<nsIObserverService> obs =
-            mozilla::services::GetObserverService();
-        obs->NotifyObservers(folder, "folder-needs-repair", nullptr);
+
+        nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder);
+        if (imapFolder) {
+          // For IMAP, we can trigger a folder repair, which will re-download
+          // the messages.
+          nsCOMPtr<nsIObserverService> obs =
+              mozilla::services::GetObserverService();
+          obs->NotifyObservers(folder, "folder-needs-repair", nullptr);
+        } else {
+          // For local folders, there's not much we can do. If compact can't
+          // scan the mbox, then local folder repair won't be able to either.
+          // Show a catch-all error message.
+          folder->ThrowAlertMsg("compactFolderWriteFailed", mWindow);
+        }
       } else {
         // Show a catch-all error message.
         folder->ThrowAlertMsg("compactFolderWriteFailed", mWindow);
