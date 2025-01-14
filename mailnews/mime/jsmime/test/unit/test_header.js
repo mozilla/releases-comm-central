@@ -412,6 +412,22 @@ define(function (require) {
             },
           ],
         ],
+        // CVE-2024-49040 - bug 1940570. From confusion.
+        // Due to invalid phrase in the group name, we parse the name to "",
+        // ... which means this is not a group at all.
+        [
+          "<else@example.com>:<actual@example.com>",
+          [{ name: "", email: "actual@example.com" }],
+        ],
+        [
+          "Someone \t Else\u00A0 (you know) <else@example.com>:Actual <actual@example.com>",
+          [
+            {
+              name: "Someone Else (you know)",
+              group: [{ name: "Actual", email: "actual@example.com" }],
+            },
+          ],
+        ],
         [
           '"Joe Q. Public" <john.q.public@example.com>,' +
             'Test <"abc!x.yz"@foo.invalid>, Test <test@[xyz!]>,' +

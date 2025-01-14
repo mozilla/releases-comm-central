@@ -958,9 +958,10 @@ const JsMIMEheaderparser = function () {
       rfc2047: doRFC2047,
     })) {
       if (token === ":") {
-        groupName = displayName;
-        displayName = "";
-        localPart = "";
+        groupName = cleanToken(displayName).replace(/\s+/g, " ").trim();
+        // Reset any address we might have thought we found.
+        displayName = localPart = address = lastComment = "";
+        inAngle = inComment = needsSpace = afterAddress = false;
         // If we had prior email address results, commit them to the top-level.
         if (addrlist.length > 0) {
           results = results.concat(addrlist);

@@ -57,8 +57,15 @@ function run_test() {
       "Undisclosed recipients:;",
       "", // Mailboxes
       "", // Address Names
-      "",
-    ], // Address Name
+      "", // First address Name
+    ],
+    // Bug 1940570
+    [
+      "<else@example.com>:<actual@example.com>;",
+      "actual@example.com", // Mailboxes
+      "actual@example.com", // Address Names
+      "actual@example.com", // First address Name
+    ],
   ];
 
   // Test - empty strings
