@@ -3,14 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Given a MimeMsg and the corresponding folder, return the GlodaContent object.
+ * Given a MimeMessage and the corresponding folder, return the GlodaContent object.
  *
- * @param aMimeMsg: the MimeMessage instance
- * @param folder: the nsIMsgDBFolder
- * @returns an array containing the GlodaContent instance, and the meta dictionary
- * that the Gloda content providers may have filled with useful data.
+ * @param {MimeMessage} aMimeMsg - The MimeMessage instance.
+ * @param {nsIMsgFolder} folder - The folder the message is in.
+ * @returns {[]} an array containing the GlodaContent instance, and the meta
+ *   dictionary that the Gloda content providers may have filled with useful data.
  */
-
 export function mimeMsgToContentAndMeta(aMimeMsg, folder) {
   const content = new GlodaContent();
   const meta = { subject: aMimeMsg.get("subject") };
@@ -24,18 +23,18 @@ export function mimeMsgToContentAndMeta(aMimeMsg, folder) {
 }
 
 /**
- * Given a MimeMsg, return the whittled content string, suitable for summarizing
+ * Given a MimeMessage, return the whittled content string, suitable for summarizing
  * a message.
  *
- * @param aMimeMsg: the MimeMessage instance
- * @param folder: the nsIMsgDBFolder
- * @param length: optional number of characters to trim the whittled content.
- * If the actual length of the message is greater than |length|, then the return
- * value is the first (length-1) characters with an ellipsis appended.
- * @returns an array containing the text of the snippet, and the meta dictionary
- * that the Gloda content providers may have filled with useful data.
+ * @param {MimeMessage} aMimeMsg - The MimeMessage instance.
+ * @param {nsIMsgFolder} folder - The folder the message is in.
+ * @param {integer} [length] - Optional number of characters to trim the whittled
+ *   content. If the actual length of the message is greater than |length|,
+ *   then the return value is the first (length-1) characters with an ellipsis
+ *   appended.
+ * @returns {[]} an array containing the text of the snippet, and the meta dictionary
+ *   that the Gloda content providers may have filled with useful data.
  */
-
 export function mimeMsgToContentSnippetAndMeta(aMimeMsg, folder, length) {
   const [content, meta] = mimeMsgToContentAndMeta(aMimeMsg, folder);
 
@@ -58,13 +57,17 @@ function WhittlerRegistry() {
 WhittlerRegistry.prototype = {
   /**
    * Add a provider as a content whittler.
+   *
+   * @param {object} provider - The object instance providing a 'process' method.
    */
   registerWhittler(provider) {
     this._whittlers.push(provider);
   },
   /**
-   * get the list of content whittlers, sorted from the most specific to
-   * the most generic
+   * Get the list of content whittlers, sorted from the most specific to
+   * the most generic.
+   *
+   * @returns {object[]} providers.
    */
   getWhittlers() {
     // Use the concat() trick to avoid mutating the internal object and
@@ -105,7 +108,7 @@ GlodaContent.prototype = {
    * Return content suitable for snippet display.  This means that no quoting
    *  or meta-data should be returned.
    *
-   * @param aMaxLength The maximum snippet length desired.
+   * @param {integer} aMaxLength - The maximum snippet length desired.
    */
   getContentSnippet(aMaxLength) {
     let content = this.getContentString();
@@ -147,12 +150,12 @@ GlodaContent.prototype = {
    * Called by a producer with the priority they believe their interpretation
    *  of the content comes in at.
    *
-   * @returns true if we believe the producer's interpretation will be
-   *     interesting and they should go ahead and generate events.  We return
-   *     false if we don't think they are interesting, in which case they should
-   *     probably not issue calls to us, although we don't care.  (We will
-   *     ignore their calls if we return false, this allows the simplification
-   *     of code that needs to run anyways.)
+   * @returns {boolean} true if we believe the producer's interpretation will be
+   *   interesting and they should go ahead and generate events.  We return
+   *   false if we don't think they are interesting, in which case they should
+   *   probably not issue calls to us, although we don't care.  (We will
+   *   ignore their calls if we return false, this allows the simplification
+   *   of code that needs to run anyways.)
    */
   volunteerContent(aPriority) {
     if (this._contentPriority === null || this._contentPriority < aPriority) {
@@ -188,11 +191,12 @@ GlodaContent.prototype = {
    *  is not content and wouldn't be desired in a snippet, but is still
    *  potentially interesting meta-data.
    *
-   * @param aLineOrLines The line or list of lines that are meta-data.
-   * @param aAttr The attribute this meta-data is associated with.
-   * @param aIndex If the attribute is non-singular, indicate the specific
-   *     index of the item in the attribute's bound list that the meta-data
-   *     is associated with.
+   * @param {string|string[]} aLineOrLines - The line or list of lines that
+   *   are meta-data.
+   * @param {string} aAttr - The attribute this meta-data is associated with.
+   * @param {integer} aIndex - If the attribute is non-singular, indicate
+   *   the specific index of the item in the attribute's bound list that the
+   *   meta-data sis associated with.
    */
   meta(aLineOrLines, aAttr, aIndex) {
     if (!this._producing) {
@@ -217,12 +221,12 @@ GlodaContent.prototype = {
   /**
    * Quoted lines reference previous messages or what not.
    *
-   * @param aLineOrLiens The line or list of lines that are quoted.
-   * @param aDepth The depth of the quoting.
-   * @param aOrigin The item that originated the original content, if known.
-   *     For example, perhaps a GlodaMessage?
-   * @param aTarget A reference to the location in the original content, if
-   *     known.  For example, the index of a line in a message or something?
+   * @param {string|string[]} aLineOrLines - The line or list of lines that are quoted.
+   * @param {integer} aDepth - The depth of the quoting.
+   * @param {object} aOrigin - The item that originated the original content, if known.
+   *   For example, perhaps a GlodaMessage?
+   * @param {string} aTarget - A reference to the location in the original content, if
+   *   known. For example, the index of a line in a message or something?
    */
   quoted(aLineOrLines, aDepth, aOrigin, aTarget) {
     if (!this._producing) {
@@ -256,6 +260,7 @@ GlodaContent.prototype = {
     }
   },
 
+  /** @param {string|string[]} aLineOrLines */
   content(aLineOrLines) {
     if (!this._producing) {
       return;

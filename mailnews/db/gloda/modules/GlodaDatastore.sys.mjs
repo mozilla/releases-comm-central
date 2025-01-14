@@ -6,7 +6,6 @@
  * project's (https://hg.mozilla.org/labs/snowl/) modules/GlodaDatastore.sys.mjs
  * for inspiration and idioms (and also a name :).
  */
-
 import {
   GlodaAttributeDBDef,
   GlodaConversation,
@@ -1301,7 +1300,7 @@ export var GlodaDatastore = {
   /**
    * Generates and returns a UUID.
    *
-   * @returns a UUID as a string, ex: "c4dd0159-9287-480f-a648-a4613e147fdb"
+   * @returns {string} a UUID as a string, ex: "c4dd0159-9287-480f-a648-a4613e147fdb"
    */
   _generateDatastoreID() {
     const uuid = Services.uuid.generateUUID().toString();
@@ -1965,7 +1964,7 @@ export var GlodaDatastore = {
    *  to the caller since they know much more than actually needs to go in the
    *  database.
    *
-   * @returns The attribute id allocated to this attribute.
+   * @returns {number} The attribute id allocated to this attribute.
    */
   _createAttributeDef(aAttrType, aExtensionName, aAttrName, aParameter) {
     const attributeId = this._nextAttributeId++;
@@ -2178,9 +2177,9 @@ export var GlodaDatastore = {
    * Map a folder URI to a GlodaFolder instance, creating the mapping if it does
    *  not yet exist.
    *
-   * @param aFolder The nsIMsgFolder instance you would like the GlodaFolder
-   *     instance for.
-   * @returns The existing or newly created GlodaFolder instance.
+   * @param {nsIMsgFolder} aFolder - The nsIMsgFolder instance you would like
+   *   the GlodaFolder instance for.
+   * @returns {GlodaFolder} The existing or newly created GlodaFolder instance.
    */
   _mapFolder(aFolder) {
     const folderURI = aFolder.URI;
@@ -2231,10 +2230,10 @@ export var GlodaDatastore = {
   /**
    * Map an integer gloda folder ID to the corresponding GlodaFolder instance.
    *
-   * @param aFolderID The known valid gloda folder ID for which you would like
-   *     a GlodaFolder instance.
-   * @returns The GlodaFolder instance with the given id.  If no such instance
-   *     exists, we will throw an exception.
+   * @param {integer} aFolderID - The known valid gloda folder ID for which you
+   *   would like a GlodaFolder instance.
+   * @returns {GlodaFolder} The GlodaFolder instance with the given id.
+   * @throws {Error} If no such instance exists.
    */
   _mapFolderID(aFolderID) {
     if (aFolderID === null) {
@@ -2252,6 +2251,8 @@ export var GlodaDatastore = {
    *  latter is especially important in the case a folder with the same name
    *  is created afterwards; we don't want to confuse the new one with the old
    *  one!
+   *
+   * @param {GlodaFolder} aGlodaFolder
    */
   _killGlodaFolderIntoTombstone(aGlodaFolder) {
     aGlodaFolder._deleted = true;
@@ -2306,8 +2307,8 @@ export var GlodaDatastore = {
   /**
    * Non-recursive asynchronous folder renaming based on the URI.
    *
-   * @TODO provide a mechanism for recursive folder renames or have a higher
-   *     layer deal with it and remove this note.
+   * TODO: provide a mechanism for recursive folder renames or have a higher
+   *       layer deal with it and remove this note.
    */
   renameFolder(aOldFolder, aNewURI) {
     if (!(aOldFolder.URI in this._folderByURI)) {
@@ -3179,15 +3180,15 @@ export var GlodaDatastore = {
    *  The caller is responsible for ensuring that unwanted duplicates are
    *  avoided.
    *
-   * @param aMessage The GlodaMessage the attributes belong to.  This is used
-   *     to provide the message id and conversation id.
-   * @param aAddDBAttributes A list of attribute tuples to add, where each tuple
+   * @param {GlodaMessage} aMessage - The GlodaMessage the attributes belong to.
+   *   This is used to provide the message id and conversation id.
+   * @param {[]} aAddDBAttributes - A list of attribute tuples to add, where each tuple
    *     contains an attribute ID and a value.  Lest you forget, an attribute ID
    *     corresponds to a row in the attribute definition table.  The attribute
    *     definition table stores the 'parameter' for the attribute, if any.
    *     (Which is to say, our frequent Attribute-Parameter-Value triple has
    *     the Attribute-Parameter part distilled to a single attribute id.)
-   * @param aRemoveDBAttributes A list of attribute tuples to remove.
+   * @param {[]} aRemoveDBAttributes -  A list of attribute tuples to remove.
    */
   adjustMessageAttributes(aMessage, aAddDBAttributes, aRemoveDBAttributes) {
     const imas = this._insertMessageAttributeStatement;
@@ -3254,8 +3255,8 @@ export var GlodaDatastore = {
    *  are made to the in-memory representation of the message; it is up to the
    *  caller to ensure that it handles things correctly.
    *
-   * @param aMessage The GlodaMessage whose database attributes should be
-   *     purged.
+   * @param {GlodaMessage} aMessage - The GlodaMessage whose database attributes
+   *   should be purged.
    */
   clearMessageAttributes(aMessage) {
     if (aMessage.id != null) {
@@ -3536,7 +3537,7 @@ export var GlodaDatastore = {
    * This functionality is made user/extension visible by the Query's
    *  getCollection (asynchronous).
    *
-   * @param [aArgs] See |GlodaQuery.getCollection| for info.
+   * @see {GlodaQuery.getCollection()} for info about aArgs
    */
   queryFromQuery(
     aQuery,

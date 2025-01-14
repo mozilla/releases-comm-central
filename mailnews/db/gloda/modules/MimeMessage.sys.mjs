@@ -158,29 +158,30 @@ function stripEncryptedParts(aPart) {
  * Starts retrieval of a MimeMessage instance for the given message header.
  *  Your callback will be called with the message header you provide and the
  *
- * @param aMsgHdr The message header to retrieve the body for and build a MIME
- *     representation of the message.
- * @param aCallbackThis The (optional) 'this' to use for your callback function.
- * @param aCallback The callback function to invoke on completion of message
- *     parsing or failure.  The first argument passed will be the nsIMsgDBHdr
- *     you passed to this function.  The second argument will be the MimeMessage
+ * @param {nsIMsgDBHdr} aMsgHdr - The message header to retrieve the body for
+ *   and build a MIME representation of the message.
+ * @param {object} [aCallbackThis] The (optional) 'this' to use for your
+ *   callback function.
+ * @param {Function} aCallback - The callback function to invoke on completion
+ *   of message parsing or failure.
+ *   The first argument passed will be the nsIMsgDBHdr you passed to this function.
+ *   The second argument will be the MimeMessage
  *     instance resulting from the processing on success, and null on failure.
- * @param [aAllowDownload=false] Should we allow the message to be downloaded
- *     for this streaming request?  The default is false, which means that we
- *     require that the message be available offline.  If false is passed and
- *     the message is not available offline, we will propagate an exception
- *     thrown by the underlying code.
- * @param [aOptions] Optional options.
- * @param [aOptions.saneBodySize] Limit body sizes to a 'reasonable' size in
- *     order to combat corrupt offline/message stores creating pathological
- *     situations where we have erroneously multi-megabyte messages.  This
- *     also likely reduces the impact of legitimately ridiculously large
- *     messages.
- * @param [aOptions.examineEncryptedParts] By default, we won't reveal the
- *     contents of multipart/encrypted parts to the consumers, unless explicitly
- *     requested. In the case of MIME/PGP messages, for instance, the message
- *     will appear as an empty multipart/encrypted container, unless this option
- *     is used.
+ * @param {boolean} [aAllowDownload=false] - Should we allow the message to be downloaded
+ *   for this streaming request?  The default is false, which means that we
+ *   require that the message be available offline.  If false is passed and
+ *   the message is not available offline, we will propagate an exception
+ *   thrown by the underlying code.
+ * @param {object} [aOptions] - Optional options.
+ * @param {integer} [aOptions.saneBodySize] Limit body sizes to a 'reasonable'
+ *   size in order to combat corrupt offline/message stores creating pathological
+ *   situations where we have erroneously multi-megabyte messages.  This
+ *   also likely reduces the impact of legitimately ridiculously large messages.
+ * @param {boolean} [aOptions.examineEncryptedParts] - By default, we won't
+ *   reveal the contents of multipart/encrypted parts to the consumers, unless explicitly
+ *   requested. In the case of MIME/PGP messages, for instance, the message
+ *   will appear as an empty multipart/encrypted container, unless this option
+ *   is used.
  */
 export function MsgHdrToMimeMessage(
   aMsgHdr,
@@ -295,13 +296,14 @@ var HeaderHandlerBase = {
   /**
    * Look-up a header that should be present at most once.
    *
-   * @param aHeaderName The header name to retrieve, case does not matter.
-   * @param aDefaultValue The value to return if the header was not found, null
-   *     if left unspecified.
-   * @returns the value of the header if present, and the default value if not
-   *  (defaults to null).  If the header was present multiple times, the first
-   *  instance of the header is returned.  Use getAll if you want all of the
-   *  values for the multiply-defined header.
+   * @param {string} aHeaderName - The header name to retrieve, case does not
+   *   matter.
+   * @param {?string} [aDefaultValue=null] The value to return if the header was
+   *   not found, null if left unspecified.
+   * @returns {?string} the value of the header if present, and the default
+   *   value if not(defaults to null). If the header was present multiple times,
+   *   the first instance of the header is returned.
+   *   Use getAll if you want all of the values for the multiply-defined header.
    */
   get(aHeaderName, aDefaultValue) {
     if (aDefaultValue === undefined) {
@@ -318,9 +320,9 @@ var HeaderHandlerBase = {
    * Look-up a header that can be present multiple times.  Use get for headers
    *  that you only expect to be present at most once.
    *
-   * @param aHeaderName The header name to retrieve, case does not matter.
-   * @returns An array containing the values observed, which may mean a zero
-   *     length array.
+   * @param {string} aHeaderName - The header name to retrieve, case does not matter.
+   * @returns {string[]} An array containing the values observed, which may
+   *   mean a zero length array.
    */
   getAll(aHeaderName) {
     const lowerHeader = aHeaderName.toLowerCase();
@@ -330,9 +332,9 @@ var HeaderHandlerBase = {
     return [];
   },
   /**
-   * @param aHeaderName Header name to test for its presence.
-   * @returns true if the message has (at least one value for) the given header
-   *     name.
+   * @param {string} aHeaderName - Header name to test for its presence.
+   * @returns {boolean} true if the message has (at least one value for)
+   *   the given header name.
    */
   has(aHeaderName) {
     const lowerHeader = aHeaderName.toLowerCase();
@@ -352,17 +354,21 @@ var HeaderHandlerBase = {
 };
 
 /**
- * @ivar partName The MIME part, ex "1.2.2.1".  The partName of a (top-level)
- *     message is "1", its first child is "1.1", its second child is "1.2",
- *     its first child's first child is "1.1.1", etc.
- * @ivar headers Maps lower-cased header field names to a list of the values
- *     seen for the given header.  Use get or getAll as convenience helpers.
- * @ivar parts The list of the MIME part children of this message.  Children
- *     will be either MimeMessage instances, MimeMessageAttachment instances,
- *     MimeContainer instances, or MimeUnknown instances.  The latter two are
- *     the result of limitations in the Javascript representation generation
- *     at this time, combined with the need to most accurately represent the
- *     MIME structure.
+ * @class MimeMessage
+ *
+ * @property {string} partName - The MIME part, ex "1.2.2.1".
+ *   The partName of a (top-level) message is "1", its first child is "1.1",
+ *   its second child is "1.2", its first child's first child is "1.1.1", etc.
+ * @property {Map<string,string>} headers - Maps lower-cased header field names
+ *   to a list of the values seen for the given header.
+ *   Use get or getAll as convenience helpers.
+ * @property {MimeMessage[]|MimeMessageAttachment[]|MimeContainer[]|MimeUnknown[]} parts - The list
+ *   of the MIME part children of this message.  Children
+ *   will be either MimeMessage instances, MimeMessageAttachment instances,
+ *   MimeContainer instances, or MimeUnknown instances.  The latter two are
+ *   the result of limitations in the JavaScript representation generation
+ *   at this time, combined with the need to most accurately represent the
+ *   MIME structure.
  */
 export function MimeMessage() {
   this.partName = null;
@@ -376,9 +382,10 @@ MimeMessage.prototype = {
   contentType: "message/rfc822",
 
   /**
-   * @returns a list of all attachments contained in this message and all its
-   *     sub-messages.  Only MimeMessageAttachment instances will be present in
-   *     the list (no sub-messages).
+   * @returns {MimeMessageAttachment[]} a list of all attachments contained in
+   *   this message and all its sub-messages.
+   *   Only MimeMessageAttachment instances will be present in the list
+   *   (no sub-messages).
    */
   get allAttachments() {
     let results = []; // messages are not attachments, don't include self
@@ -390,8 +397,8 @@ MimeMessage.prototype = {
   },
 
   /**
-   * @returns a list of all attachments contained in this message and all its
-   *     sub-messages, including the sub-messages.
+   * @returns {MimeMessageAttachment[]}  a list of all attachments contained in
+   *   this message and all its sub-messages, including the sub-messages.
    */
   get allInlineAttachments() {
     // Do not include the top message, but only sub-messages.
@@ -404,9 +411,9 @@ MimeMessage.prototype = {
   },
 
   /**
-   * @returns a list of all attachments contained in this message, with
-   *    included/forwarded messages treated as real attachments. Attachments
-   *    contained in inner messages won't be shown.
+   * @returns  {MimeMessageAttachment[]} a list of all attachments contained in
+   *   this message, with included/forwarded messages treated as real
+   *   attachments. Attachments contained in inner messages won't be shown.
    */
   get allUserAttachments() {
     if (this.url) {
@@ -419,7 +426,7 @@ MimeMessage.prototype = {
   },
 
   /**
-   * @returns the total size of this message, that is, the size of all subparts
+   * @returns {integer} the total size of this message, that is, the size of all subparts
    */
   get size() {
     return this.parts
@@ -434,15 +441,17 @@ MimeMessage.prototype = {
    * being a nice guy, it will try to set a size on us. While this is the
    * expected behavior for MimeMsgAttachments, we must make sure we can handle
    * that (failing to write a setter results in exceptions being thrown).
+   *
+   * @param {integer} _whatever
    */
-  set size(whatever) {
-    // nop
+  set size(_whatever) {
+    // noop
   },
 
   /**
-   * @param aMsgFolder A message folder, any message folder.  Because this is
-   *    a hack.
-   * @returns The concatenation of all of the body parts where parts
+   * @param {nsIMsgFolder} aMsgFolder - A message folder, any message folder.
+   *   Because this is a hack.
+   * @returns {string} The concatenation of all of the body parts where parts
    *    available as text/plain are pulled as-is, and parts only available
    *    as text/html are converted to plaintext form first.  In other words,
    *    if we see a multipart/alternative with a text/plain, we take the
@@ -473,6 +482,10 @@ MimeMessage.prototype = {
    * Messages have their subject displayed, attachments have their filename and
    *  content-type (ex: image/jpeg) displayed.  "Filler" classes simply have
    *  their class displayed.
+   *
+   * @param {boolean} aVerbose - Verbose.
+   * @param {boolean} aIndent - Whether to indent or not.
+   * @param {boolean} aDumpBody - Whether to dump() body or not.
    */
   prettyString(aVerbose, aIndent, aDumpBody) {
     if (aIndent === undefined) {
@@ -509,13 +522,14 @@ MimeMessage.prototype = {
 };
 
 /**
- * @ivar contentType The content-type of this container.
- * @ivar parts The parts held by this container.  These can be instances of any
- *      of the classes found in this file.
+ * MimeContainer. The parts held by this container can be instances of any
+ * of the classes found in this file.
+ *
+ * @param {string} contentType - The content-type of this container.
  */
-export function MimeContainer(aContentType) {
+export function MimeContainer(contentType) {
   this.partName = null;
-  this.contentType = aContentType;
+  this.contentType = contentType;
   this.headers = {};
   this.parts = [];
   this.isEncrypted = false;
@@ -610,15 +624,15 @@ MimeContainer.prototype = {
 /**
  * @class Represents a body portion that we understand and do not believe to be
  *  a proper attachment.  This means text/plain or text/html and it has no
- *  filename.  (A filename suggests an attachment.)
+ *  filename. (A filename suggests an attachment.)
+ * @property {string} body - The actual body content.
  *
- * @ivar contentType The content type of this body materal; text/plain or
- *     text/html.
- * @ivar body The actual body content.
+ * @param {string} contentType - The content type of this body materal;
+ *   text/plain or text/html.
  */
-export function MimeBody(aContentType) {
+export function MimeBody(contentType) {
   this.partName = null;
-  this.contentType = aContentType;
+  this.contentType = contentType;
   this.headers = {};
   this.body = "";
   this.isEncrypted = false;
@@ -679,18 +693,18 @@ MimeBody.prototype = {
 };
 
 /**
- * @class A MIME Leaf node that doesn't have a filename so we assume it's not
+ * @class MimeUnknown - A MIME Leaf node that doesn't have a filename so we assume it's not
  *  intended to be an attachment proper.  This is probably meant for inline
  *  display or is the result of someone amusing themselves by composing messages
  *  by hand or a bad client.  This class should probably be renamed or we should
  *  introduce a better named class that we try and use in preference to this
  *  class.
  *
- * @ivar contentType The content type of this part.
+ * @param {string} contentType - The content type of this part.
  */
-export function MimeUnknown(aContentType) {
+export function MimeUnknown(contentType) {
   this.partName = null;
-  this.contentType = aContentType;
+  this.contentType = contentType;
   this.headers = {};
   // Looks like libmime does not always interpret us as an attachment, which
   //  means we'll have to have a default size. Returning undefined would cause
@@ -764,16 +778,23 @@ MimeUnknown.prototype = {
 };
 
 /**
- * @class An attachment proper.  We think it's an attachment because it has a
- *  filename that libmime was able to figure out.
+ * @class MimeMessageAttachment - An attachment proper.
+ *   We think it's an attachment because it has a filename that libmime was able
+ *   to figure out.
  *
- * @ivar partName @see{MimeMessage.partName}
- * @ivar name The filename of this attachment.
- * @ivar contentType The MIME content type of this part.
- * @ivar url The URL to stream if you want the contents of this part.
- * @ivar isExternal Is the attachment stored someplace else than in the message?
- * @ivar size The size of the attachment if available, -1 otherwise (size is set
+ * @property {string} partName - @see{MimeMessage.partName}
+ * @property {string} name - The filename of this attachment.
+ * @property {string} contentType - The MIME content type of this part.
+ * @property {string} url - The URL to stream if you want the contents of this part.
+ * @property {boolean} isExternal - Is the attachment stored someplace else than in the message?
+ * @property {integer} size - The size of the attachment if available, -1 otherwise (size is set
  *  after initialization by jsmimeemitter.js)
+ *
+ * @param {string} aPartName
+ * @param {string} aName
+ * @param {string} aContentType
+ * @param {string} aUrl
+ * @param {boolean} aIsExternal
  */
 export function MimeMessageAttachment(
   aPartName,

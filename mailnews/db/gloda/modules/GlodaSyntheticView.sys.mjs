@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * This file is charged with providing you a way to have a pretty gloda-backed
  *  nsIMsgDBView.
  */
@@ -11,12 +11,13 @@
  * Create a synthetic view suitable for passing to |FolderDisplayWidget.show|.
  * You must pass a query, collection, or conversation in.
  *
+ * @param {object} aArgs
  * @param {GlodaQuery} [aArgs.query] A gloda query to run.
  * @param {GlodaCollection} [aArgs.collection] An already-populated collection
- *     to display.  Do not call getCollection on a query and hand us that.  We
- *     will not register ourselves as a listener and things will not work.
+ *   to display. Do not call getCollection on a query and hand us that. We
+ *   will not register ourselves as a listener and things will not work.
  * @param {GlodaConversation} [aArgs.conversation] A conversation whose messages
- *     you want to display.
+ *   you want to display.
  */
 export function GlodaSyntheticView(aArgs) {
   if ("query" in aArgs) {

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * This file tests our querying support.  We build up a deterministic little
  *  'world' of messages spread across multiple conversations, multiple folders
  *  and multiple authors.  To verify expected negative results, in addition to
@@ -120,7 +120,7 @@ var UNIQUE_OFFSET_ATTACHMENT = 26 * 26 * 26;
  *  structure.  This is then used by the test code to generate and verify query
  *  data.
  *
- * @param aSynthMessage The synthetic message.
+ * @param {SyntheticMessage} aSynthMessage The synthetic message.
  */
 function categorizeMessage(aSynthMessage) {
   // Lump by author.

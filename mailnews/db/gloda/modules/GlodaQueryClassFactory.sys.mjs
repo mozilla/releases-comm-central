@@ -8,39 +8,40 @@ import { GlodaConstants } from "resource:///modules/gloda/GlodaConstants.sys.mjs
  * @class Query class core; each noun gets its own sub-class where attributes
  *  have helper methods bound.
  *
- * @param aOptions A dictionary of options.  Current legal options are:
- *     - noMagic: Indicates that the noun's dbQueryJoinMagic should be ignored.
- *                Currently, this means that messages will not have their
- *                full-text indexed values re-attached.  This is planned to be
- *                offset by having queries/cache lookups that do not request
- *                noMagic to ensure that their data does get loaded.
- *     - explicitSQL: A hand-rolled alternate representation for the core
- *           SELECT portion of the SQL query.  The queryFromQuery logic still
- *           generates its normal query, we just ignore its result in favor of
- *           your provided value.  This means that the positional parameter
- *           list is still built and you should/must rely on those bound
- *           parameters (using '?').  The replacement occurs prior to the
- *           outerWrapColumns, ORDER BY, and LIMIT contributions to the query.
- *     - outerWrapColumns: If provided, wraps the query in a "SELECT *,blah
- *           FROM (actual query)" where blah is your list of outerWrapColumns
- *           made comma-delimited.  The idea is that this allows you to
- *           reference the result of expressions inside the query using their
- *           names rather than having to duplicate the logic.  In practice,
- *           this makes things more readable but is unlikely to improve
- *           performance.  (Namely, my use of 'offsets' for full-text stuff
- *           ends up in the EXPLAIN plan twice despite this.)
- *     - noDbQueryValidityConstraints: Indicates that any validity constraints
- *           should be ignored. This should be used when you need to get every
- *           match regardless of whether it's valid.
+ * @param {object} aOptions - A dictionary of options.
+ * @param {boolean} aOptions.noMagic - Indicates that the noun's
+ *   dbQueryJoinMagic should be ignored.
+ *   Currently, this means that messages will not have their
+ *   full-text indexed values re-attached.  This is planned to be
+ *   offset by having queries/cache lookups that do not request
+ *   noMagic to ensure that their data does get loaded.
+ * @param {string} aOptions.explicitSQL - A hand-rolled alternate representation
+ *   for the core SELECT portion of the SQL query. The queryFromQuery logic
+ *   still  generates its normal query, we just ignore its result in favor of
+ *   your provided value.  This means that the positional parameter
+ *   list is still built and you should/must rely on those bound
+ *   parameters (using '?').  The replacement occurs prior to the
+ *   outerWrapColumns, ORDER BY, and LIMIT contributions to the query.
+ * @param {string} aOptions.outerWrapColumns - If provided, wraps the query in
+ *   a "SELECT *,blah FROM (actual query)" where blah is your list of
+ *   outerWrapColumns made comma-delimited. The idea is that this allows you to
+ *   reference the result of expressions inside the query using their
+ *   names rather than having to duplicate the logic.  In practice,
+ *   this makes things more readable but is unlikely to improve
+ *   performance.  (Namely, my use of 'offsets' for full-text stuff
+ *   ends up in the EXPLAIN plan twice despite this.)
+ * @param {boolean} aOptions.noDbQueryValidityConstraints - Indicates that any
+ *   validity constraints should be ignored. This should be used when you need
+ *   to get every match regardless of whether it's valid.
  *
- * @property _owner The query instance that holds the list of unions...
- * @property _constraints A list of (lists of OR constraints) that are ANDed
- *     together.  For example [[FROM bob, FROM jim], [DATE last week]] would
- *     be requesting us to find all the messages from either bob or jim, and
- *     sent in the last week.
- * @property _unions A list of other queries whose results are unioned with our
- *     own.  There is no concept of nesting or sub-queries apart from this
- *     mechanism.
+ * @property {object} _owner The query instance that holds the list of unions...
+ * @property {string[]} _constraints A list of (lists of OR constraints) that
+ *   are ANDed together. For example [[FROM bob, FROM jim], [DATE last week]]
+ *   would be requesting us to find all the messages from either bob or jim, and
+ *   sent in the last week.
+ * @property {GlodaQueryClass[]} _unions - A list of other queries whose results
+ *   are unioned with our own. There is no concept of nesting or sub-queries
+ *   apart from this mechanism.
  */
 function GlodaQueryClass(aOptions) {
   this.options = aOptions != null ? aOptions : {};
@@ -90,19 +91,20 @@ GlodaQueryClass.prototype = {
    *  argument which is the list of items which have been added, modified, or
    *  removed respectively.
    *
-   * @param aListener The collection listener.
-   * @param [aData] The data attribute to set on the collection.
-   * @param [aArgs.becomeExplicit] Make the collection explicit so that the
-   *     collection will only ever contain results found from the database
-   *     query and the query will not be updated as new items are indexed that
-   *     also match the query.
-   * @param [aArgs.becomeNull] Change the collection's query to a null query so
-   *     that it will never receive any additional added/modified/removed events
-   *     apart from the underlying database query.  This is really only intended
-   *     for gloda internal use but may be acceptable for non-gloda use.  Please
-   *     ask on mozilla.dev.apps.thunderbird first to make sure there isn't a
-   *     better solution for your use-case.  (Note: removals will still happen
-   *     when things get fully deleted.)
+   * @param {Function} aListener - The collection listener.
+   * @param {object} [aData] The data attribute to set on the collection.
+   * @param {object} aArgs - Arguments.
+   * @param {boolean} [aArgs.becomeExplicit] - Make the collection explicit so
+   *   that the collection will only ever contain results found from the database
+   *   query and the query will not be updated as new items are indexed that
+   *   also match the query.
+   * @param {boolean} [aArgs.becomeNull] - Change the collection's query to a
+   *   null query so that it will never receive any additional added/modified/removed events
+   *   apart from the underlying database query.  This is really only intended
+   *   for gloda internal use but may be acceptable for non-gloda use.  Please
+   *   ask on mozilla.dev.apps.thunderbird first to make sure there isn't a
+   *   better solution for your use-case.  (Note: removals will still happen
+   *   when things get fully deleted.)
    */
   getCollection(aListener, aData, aArgs) {
     this.completed = false;
@@ -119,8 +121,6 @@ GlodaQueryClass.prototype = {
   /* eslint-disable complexity */
   /**
    * Test whether the given first-class noun instance satisfies this query.
-   *
-   * @testpoint gloda.query.test
    */
   test(aObj) {
     // when changing this method, be sure that GlodaDatastore's queryFromQuery
@@ -468,7 +468,7 @@ GlodaNullQueryClass.prototype = {
    * Since our query never matches anything, it doesn't make sense to let
    *  someone attempt to construct a boolean OR involving us.
    *
-   * @returns null
+   * @returns {null} null
    */
   or() {
     return null;
@@ -484,7 +484,7 @@ GlodaNullQueryClass.prototype = {
    *  empty collection in the future for sentinel value purposes, but we'll
    *  cross that bridge when we come to it.
    *
-   * @returns null
+   * @returns {null} null
    */
   getCollection() {
     return null;
@@ -493,11 +493,11 @@ GlodaNullQueryClass.prototype = {
   /**
    * Never matches anything.
    *
-   * @param aObj The object someone wants us to test for relevance to our
-   *     associated collection.  But we don't care!  Not a fig!
-   * @returns false
+   * @param {object} _aObj - The object someone wants us to test for relevance
+   *    to our associated collection. But we don't care!  Not a fig!
+   * @returns {false}
    */
-  test() {
+  test(_aObj) {
     return false;
   },
 };
@@ -510,9 +510,9 @@ GlodaNullQueryClass.prototype = {
  *  from your collection because of deletion, but do not want to be notified
  *  about newly indexed items matching your normal query constraints.
  *
- * @param aCollection The collection this query belongs to.  This needs to be
- *     passed-in here or the collection should set the attribute directly when
- *     the query is passed in to a collection's constructor.
+ * @param {GlodaCollection} aCollection  -The collection this query belongs to.
+ *   This needs to be passed-in here or the collection should set the attribute
+ *   directly when the query is passed in to a collection's constructor.
  */
 function GlodaExplicitQueryClass(aCollection) {
   this.collection = aCollection;
@@ -530,7 +530,7 @@ GlodaExplicitQueryClass.prototype = {
    *  it doesn't make sense to let someone attempt to construct a boolean OR
    *  involving us.
    *
-   * @returns null
+   * @returns {null} null
    */
   or() {
     return null;
@@ -546,7 +546,7 @@ GlodaExplicitQueryClass.prototype = {
    *  this method on an instance of this type is an error, so it is helpful to
    *  return null because people will error hard.
    *
-   * @returns null
+   * @returns {null} null
    */
   getCollection() {
     return null;
@@ -556,10 +556,10 @@ GlodaExplicitQueryClass.prototype = {
    * Matches only items that are already in the collection associated with this
    *  query (by id).
    *
-   * @param aObj The object/item to test for already being in the associated
-   *     collection.
-   * @returns true when the object is in the associated collection, otherwise
-   *     false.
+   * @param {object} aObj - The object/item to test for already being in the
+   *  associated collection.
+   * @returns {boolean} true when the object is in the associated collection,
+   *   otherwise false.
    */
   test(aObj) {
     return aObj.id in this.collection._idMap;
@@ -567,8 +567,9 @@ GlodaExplicitQueryClass.prototype = {
 };
 
 /**
- * @class A query that 'tests' true for everything.  Intended for debugging purposes
- *  only.
+ * A query that 'tests' true for everything.  Intended for debugging purposes only.
+ *
+ * @class
  */
 function GlodaWildcardQueryClass() {}
 

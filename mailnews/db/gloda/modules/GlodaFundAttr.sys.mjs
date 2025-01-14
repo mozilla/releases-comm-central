@@ -364,8 +364,8 @@ export var GlodaFundAttr = {
          * Filter out 'me', as we have other facets that deal with that, and the
          *  'me' identities are so likely that they distort things.
          *
-         * @returns true if the identity is not one of my identities, false if it
-         *   is.
+         * @returns {boolean} true if the identity is not one of my identities,
+         *   false if it is.
          */
         filter(aItem) {
           return !(aItem.id in Gloda.myIdentities);

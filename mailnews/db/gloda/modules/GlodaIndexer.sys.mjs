@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * This file currently contains a fairly general implementation of asynchronous
  *  indexing with a very explicit message indexing implementation.  As gloda
  *  will eventually want to index more than just messages, the message-specific
@@ -19,26 +19,29 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 /**
- * @class Capture the indexing batch concept explicitly.
+ * @class IndexingJob - Capture the indexing batch concept explicitly.
  *
- * @param aJobType The type of thing we are indexing.  Current choices are:
- *   "folder" and "message".  Previous choices included "account".  The indexer
+ * @property {[]} items - The list of items to process during this job/batch.  (For
+ *   example, if this is a "messages" job, this would be the list of messages
+ *   to process, although the specific representation is determined by the
+ *   job.) The list will only be mutated through the addition of extra items.
+ * @property {integer} offset - The current offset into the 'items' list
+ *   (if used), updated as processing occurs.
+ *   If 'items' is not used, the processing code can also update this in a
+ *   similar fashion.  This is used by the status notification code in
+ *   conjunction with goal.
+ * @property {integer} goal - The total number of items to index/actions to
+ *   perform in this job.
+ *   This number may increase during the life of the job, but should not
+ *   decrease.  This is used by the status notification code in conjunction
+ *   with the goal.
+ *
+ * @param {"folder"|"message"} aJobType - The type of thing we are indexing.
+ *   Current choices are: "folder" and "message".
+ *   Previous choices included "account".  The indexer
  *   currently knows too much about these; they should be de-coupled.
- * @param aID Specific to the job type, but for now only used to hold folder
+ * @param {integer} aID - Specific to the job type, but for now only used to hold folder
  *     IDs.
- *
- * @ivar items The list of items to process during this job/batch.  (For
- *     example, if this is a "messages" job, this would be the list of messages
- *     to process, although the specific representation is determined by the
- *     job.)  The list will only be mutated through the addition of extra items.
- * @ivar offset The current offset into the 'items' list (if used), updated as
- *     processing occurs.  If 'items' is not used, the processing code can also
- *     update this in a similar fashion.  This is used by the status
- *     notification code in conjunction with goal.
- * @ivar goal The total number of items to index/actions to perform in this job.
- *     This number may increase during the life of the job, but should not
- *     decrease.  This is used by the status notification code in conjunction
- *     with the goal.
  */
 export function IndexingJob(aJobType, aID, aItems) {
   this.jobType = aJobType;
@@ -427,28 +430,30 @@ export var GlodaIndexer = {
   /**
    * Register an indexer with the Gloda indexing mechanism.
    *
-   * @param aIndexer.name The name of your indexer.
-   * @param aIndexer.enable Your enable function.  This will be called during
-   *     the call to registerIndexer if Gloda indexing is already enabled.  If
-   *     indexing is not yet enabled, you will be called
-   * @param aIndexer.disable Your disable function.  This will be called when
-   *     indexing is disabled or we are shutting down.  This will only be called
-   *     if enable has already been called.
-   * @param aIndexer.workers A list of tuples of the form [worker type code,
-   *     worker generator function, optional scheduling trigger function].  The
-   *     type code is the string used to uniquely identify the job type.  If you
-   *     are not core gloda, your job type must start with your extension's name
-   *     and a colon; you can collow that with anything you want.  The worker
-   *     generator is not easily explained in here.  The trigger function is
-   *     invoked immediately prior to calling the generator to create it.  The
-   *     trigger function takes the job as an argument and should perform any
-   *     finalization required on the job.  Most workers should not need to use
-   *     the trigger function.
-   * @param aIndexer.initialSweep We call this to tell each indexer when it is
-   *     its turn to run its indexing sweep.  The idea of the indexing sweep is
-   *     that this is when you traverse things eligible for indexing to make
-   *     sure they are indexed.  Right now we just call everyone at the same
-   *     time and hope that their jobs don't fight too much.
+   * @param {GlodaIndexer} aIndexer
+   * @param {string} aIndexer.name - The name of your indexer.
+   * @param {Function} aIndexer.enable - Your enable function.
+   *   This will be called during the call to registerIndexer if Gloda indexing
+   *   is already enabled. If indexing is not yet enabled, you will be called.
+   * @param {Function} aIndexer.disable - Your disable function.
+   *   This will be called when indexing is disabled or we are shutting down.
+   *   This will only be called if enable has already been called.
+   * @param {[]} aIndexer.workers - A list of tuples of the form [worker type code,
+   *   worker generator function, optional scheduling trigger function].  The
+   *   type code is the string used to uniquely identify the job type.  If you
+   *   are not core gloda, your job type must start with your extension's name
+   *   and a colon; you can collow that with anything you want.  The worker
+   *   generator is not easily explained in here.  The trigger function is
+   *   invoked immediately prior to calling the generator to create it.  The
+   *   trigger function takes the job as an argument and should perform any
+   *   finalization required on the job.  Most workers should not need to use
+   *   the trigger function.
+   * @param {Function} aIndexer.initialSweep - We call this to tell each indexer
+   *   when it is its turn to run its indexing sweep.
+   *   The idea of the indexing sweep is that this is when you traverse things
+   *   eligible for indexing to make sure they are indexed.
+   *   Right now we just call everyone at the same time and hope that their jobs
+   *   don't fight too much.
    */
   registerIndexer(aIndexer) {
     this._log.info("Registering indexer: " + aIndexer.name);
@@ -670,14 +675,15 @@ export var GlodaIndexer = {
    * If indexing is not active when the listener is added, a synthetic idle
    *  notification will be generated.
    *
-   * @param aListener A listener function, taking arguments: status (Gloda.
-   *     kIndexer*), the folder name if a folder is involved (string or null),
-   *     current zero-based job number (int),
-   *     current item number being indexed in this job (int), total number
-   *     of items in this job to be indexed (int).
+   * @param {Function} aListener - A listener function.
+   *   Listener arguments: status (Gloda.
+   *   kIndexer*), the folder name if a folder is involved (string or null),
+   *   current zero-based job number (int),
+   *   current item number being indexed in this job (int), total number
+   *   of items in this job to be indexed (int).
    *
-   * @TODO should probably allow for a 'this' value to be provided
-   * @TODO generalize to not be folder/message specific.  use nouns!
+   * TODO: should probably allow for a 'this' value to be provided
+   * TODO: generalize to not be folder/message specific.  use nouns!
    */
   addListener(aListener) {
     // should we weakify?
@@ -942,9 +948,10 @@ export var GlodaIndexer = {
      * Someone propagated an exception and we need to clean-up all the active
      *  logic as best we can.  Which is not really all that well.
      *
-     * @param [aOptionalStopAtDepth=0] The length the stack should be when this
-     *     method completes.  Pass 0 or omit for us to clear everything out.
-     *     Pass 1 to leave just the top-level generator intact.
+     * @param {integer} [aOptionalStopAtDepth=0] The length the stack should be
+     *   when this method completes.
+     *   Pass 0 or omit for us to clear everything out.
+     *   Pass 1 to leave just the top-level generator intact.
      */
     cleanup(aOptionalStopAtDepth) {
       if (aOptionalStopAtDepth === undefined) {
@@ -1395,7 +1402,7 @@ export var GlodaIndexer = {
    *  The only issue is to make sure that _workBatchData does not end up with
    *  the data.  We compel |_hireJobWorker| to erase it to this end.
    *
-   * @note You MUST NOT call this function from inside a job or an async function
+   * NOTE: You MUST NOT call this function from inside a job or an async function
    *    on the callbackHandle's stack of generators.  If you are in that
    *    situation, you should just throw an exception.  At the very least,
    *    use a timeout to trigger us.
@@ -1434,9 +1441,9 @@ export var GlodaIndexer = {
    *
    * Make sure to call this function before killActiveJob
    *
-   * @param aFilterElimFunc A filter function that takes an |IndexingJob| and
-   *     returns true if the job should be purged, false if it should not be.
-   *     The filter sees the jobs in the order they are scheduled.
+   * @param {function():boolean} aFilterElimFunc - A filter function that takes
+   *   an |IndexingJob| and returns true if the job should be purged, false if
+   *   it should not be. The filter sees the jobs in the order they are scheduled.
    */
   purgeJobsUsingFilter(aFilterElimFunc) {
     for (let iJob = 0; iJob < this._indexQueue.length; iJob++) {
