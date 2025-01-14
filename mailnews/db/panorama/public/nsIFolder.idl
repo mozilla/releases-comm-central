@@ -70,6 +70,16 @@ interface nsIFolder : nsISupports {
   boolean isAncestorOf(in nsIFolder other);
 
   /**
+   * If this folder has a child with the given name.
+   */
+  boolean containsChildNamed(in AUTF8String name);
+
+  /**
+   * The child folder with the given name or null if it doesn't exist.
+   */
+  nsIFolder getChildNamed(in AUTF8String name);
+
+  /**
    * Helper function for making test output readable.
    */
   AUTF8String toJSON();

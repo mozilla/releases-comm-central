@@ -21,7 +21,7 @@ add_task(function testReconcile() {
 
   drawTree(parent);
 
-  folders.reconcile(parent, ["sibling", "inserted"]);
+  folders.reconcile(parent, ["siblîng", "inserted"]);
   drawTree(parent);
 
   const inserted = folders.getFolderByPath("grandparent/parent/inserted");

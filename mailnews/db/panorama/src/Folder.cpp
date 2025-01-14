@@ -124,6 +124,34 @@ Folder::IsAncestorOf(nsIFolder* aOther, bool* aIsAncestor) {
 }
 
 NS_IMETHODIMP
+Folder::ContainsChildNamed(nsTSubstring<char> const& aName, bool* aContains) {
+  nsCString normalName = DatabaseUtils::Normalize(aName);
+  *aContains = false;
+
+  for (auto child : mChildren) {
+    if (child->mName.Equals(normalName)) {
+      *aContains = true;
+      break;
+    }
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+Folder::GetChildNamed(nsTSubstring<char> const& aName, nsIFolder** aChild) {
+  nsCString normalName = DatabaseUtils::Normalize(aName);
+
+  for (auto child : mChildren) {
+    if (child->mName.Equals(normalName)) {
+      NS_IF_ADDREF(*aChild = child);
+      return NS_OK;
+    }
+  }
+  *aChild = nullptr;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 Folder::ToJSON(nsACString& aJSON) {
   aJSON = "[Folder "_ns + mName + "]"_ns;
   return NS_OK;

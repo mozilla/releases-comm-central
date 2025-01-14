@@ -136,3 +136,24 @@ add_task(function testOtherRoot() {
   Assert.ok(otherChild.isDescendantOf(otherRoot));
   Assert.ok(!otherChild.isDescendantOf(grandparent));
 });
+
+add_task(function testChildFunctions() {
+  const parent = folders.getFolderById(6);
+  const child = folders.getFolderById(4);
+  const sibling = folders.getFolderById(2);
+
+  Assert.ok(parent.containsChildNamed("child"));
+  Assert.equal(parent.getChildNamed("child"), child);
+
+  // Using composed unicode character.
+  Assert.ok(parent.containsChildNamed("sibl\u00eeng"));
+  Assert.equal(parent.getChildNamed("sibl\u00eeng"), sibling);
+
+  // Using decomposed unicode character.
+  Assert.ok(parent.containsChildNamed("sibli\u0302ng"));
+  Assert.equal(parent.getChildNamed("sibli\u0302ng"), sibling);
+
+  // Child doesn't exist.
+  Assert.ok(!parent.containsChildNamed("friend"));
+  Assert.equal(parent.getChildNamed("friend"), null);
+});
