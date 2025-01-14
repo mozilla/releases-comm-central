@@ -20,7 +20,7 @@ menupopup {
     line-height: 0;
   }
 
-  &[needsgutter] > :is(menu, menuitem) > .menu-text {
+  &:is([needsgutter], .webextension-menupopup) > :is(menu, menuitem) > .menu-text {
     margin-inline-start: 21px;
   }
 

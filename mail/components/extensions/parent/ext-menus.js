@@ -323,6 +323,7 @@ var gMenuBuilder = {
     const element = doc.createXULElement("menu");
     // Menu elements need to have a menupopup child for its menu items.
     const menupopup = doc.createXULElement("menupopup");
+    menupopup.classList.add("webextension-menupopup");
     element.appendChild(menupopup);
     return element;
   },

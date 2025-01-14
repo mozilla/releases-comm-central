@@ -24,15 +24,15 @@ menupopup {
     padding-inline-end: 5px;
   }
 
-  &[needsgutter] > menu:not([icon], .menu-iconic),
-  &[needsgutter] > menuitem:not([checked="true"], [icon], .menuitem-iconic),
+  &:is([needsgutter], .webextension-menupopup) > menu:not([icon], .menu-iconic),
+  &:is([needsgutter], .webextension-menupopup) > menuitem:not([checked="true"], [icon], .menuitem-iconic),
   menubar > menu
     &:not([needsgutter]) > :is(menu:not(.menu-iconic),menuitem:not(.menuitem-iconic)) {
     padding-inline-start: 32px;
   }
 
   /* Override menu.css rule. */
-  &:not([needsgutter]) {
+  &:not([needsgutter], .webextension-menupopup) {
 
     & > menuitem:not([checked="true"], [icon], .menuitem-iconic) {
       padding-inline-start: 8px;

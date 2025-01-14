@@ -225,6 +225,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
           button.setAttribute("type", "menu");
           button.setAttribute("wantdropmarker", "true");
           const menupopup = document.createXULElement("menupopup");
+          menupopup.classList.add("webextension-menupopup");
           menupopup.dataset.actionMenu = this.manifestName;
           menupopup.dataset.extensionId = this.extension.id;
           button.appendChild(menupopup);
