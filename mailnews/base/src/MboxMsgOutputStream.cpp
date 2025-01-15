@@ -106,8 +106,10 @@ nsresult MboxMsgOutputStream::Emit(nsACString const& data) {
   return Emit(data.Data(), data.Length());
 }
 
-// Internal output helper to write to underlying target output stream.
+// Helper to write to underlying target output stream.
 // Makes sure the error state is checked and kept updated.
+// Internal function, so assumes we're already in a thread-safe state
+// i.e. caller is responsible for acquiring mLock, if needed.
 nsresult MboxMsgOutputStream::Emit(const char* data, uint32_t numBytes) {
   if (mState == eError) {
     MOZ_ASSERT(NS_FAILED(mStatus));
