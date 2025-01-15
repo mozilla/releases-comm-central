@@ -45,7 +45,19 @@
                    type="text"
                    placeholder="mail.example.com"
                    required="required"
-                   class="input-field manual-input" />
+                   class="input-field manual-input"
+                   aria-invalid="false"
+                   aria-errormessage="incomingHostnameErrorMessage" />
+            <img src="chrome://messenger/skin/icons/new/compact/warning.svg"
+                 alt=""
+                 class="form-icon icon-danger input-warning" />
+            <img src="chrome://messenger/skin/icons/new/compact/success.svg"
+                 alt=""
+                 class="form-icon icon-success input-success" />
+            <span id="incomingHostnameErrorMessage"
+                 class="input-error-message"
+                 data-l10n-id="account-hub-hostname-error-text">
+            </span>
           </div>
         </div>
       </div>
@@ -62,7 +74,19 @@
                    max="65535"
                    placeholder="993"
                    required="required"
-                   class="input-field number-input" />
+                   class="input-field number-input"
+                   aria-invalid="false"
+                   aria-errormessage="incomingPortErrorMessage" />
+            <img src="chrome://messenger/skin/icons/new/compact/warning.svg"
+                 alt=""
+                 class="form-icon icon-danger input-warning" />
+            <img src="chrome://messenger/skin/icons/new/compact/success.svg"
+                 alt=""
+                 class="form-icon icon-success input-success" />
+            <span id="incomingPortErrorMessage"
+                  class="input-error-message"
+                  data-l10n-id="account-hub-port-error-text">
+            </span>
           </div>
         </div>
 
@@ -140,7 +164,19 @@
                    type="text"
                    data-l10n-id="account-setup-email-input"
                    required="required"
-                   class="username input-field manual-input" />
+                   class="username input-field manual-input"
+                   aria-invalid="false"
+                   aria-errormessage="incomingUsernameErrorMessage" />
+            <img src="chrome://messenger/skin/icons/new/compact/warning.svg"
+                 alt=""
+                 class="form-icon icon-danger input-warning" />
+            <img src="chrome://messenger/skin/icons/new/compact/success.svg"
+                 alt=""
+                 class="form-icon icon-success input-success" />
+            <span id="incomingUsernameErrorMessage"
+                 class="input-error-message"
+                 data-l10n-id="account-hub-username-error-text">
+            </span>
           </div>
         </div>
       </div>

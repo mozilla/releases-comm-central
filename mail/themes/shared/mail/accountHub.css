@@ -338,7 +338,7 @@ header {
 
   &.manual-form-body {
     max-width: 500px;
-    gap: 10px;
+    gap: 20px;
 
     & .form-row {
       display: grid;

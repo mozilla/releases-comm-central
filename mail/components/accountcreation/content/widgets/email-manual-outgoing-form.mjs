@@ -116,9 +116,8 @@ class EmailOutgoingForm extends AccountHubStep {
       // is selected.
       this.#outgoingUsername.disabled = event.target.value == 1;
     });
-    this.#outgoingHostname.addEventListener("input", () => {
+    this.#outgoingUsername.addEventListener("input", () => {
       this.#configChanged();
-      this.#adjustOAuth2Visibility();
     });
 
     this.querySelector("#advancedConfigurationOutgoing").addEventListener(
@@ -281,9 +280,11 @@ class EmailOutgoingForm extends AccountHubStep {
       config.outgoing.hostname = Sanitizer.hostname(input);
       this.#outgoingHostname.value = config.outgoing.hostname;
       this.#outgoingHostname.setCustomValidity("");
+      this.#outgoingHostname.setAttribute("aria-invalid", false);
     } catch (error) {
       gAccountSetupLogger.warn(error);
       this.#outgoingHostname.setCustomValidity(error._message);
+      this.#outgoingHostname.setAttribute("aria-invalid", true);
     }
 
     try {
@@ -293,10 +294,12 @@ class EmailOutgoingForm extends AccountHubStep {
         65535
       );
       this.#outgoingPort.setCustomValidity("");
+      this.#outgoingPort.setAttribute("aria-invalid", false);
     } catch (error) {
       // Include default "Auto".
       config.outgoing.port = undefined;
       this.#outgoingPort.setCustomValidity(error._message);
+      this.#outgoingPort.setAttribute("aria-invalid", true);
     }
 
     config.outgoing.socketType = Sanitizer.integer(
@@ -307,6 +310,10 @@ class EmailOutgoingForm extends AccountHubStep {
     );
 
     config.outgoing.username = this.#outgoingUsername.value;
+    this.#outgoingUsername.setAttribute(
+      "aria-invalid",
+      !this.#outgoingUsername.value
+    );
 
     return config;
   }

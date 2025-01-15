@@ -1257,6 +1257,12 @@ add_task(async function test_invalid_manual_config_flow() {
     "#incomingHostname:invalid"
   );
   Assert.ok(incomingHostname, "The incoming hostname should be invalid.");
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      incomingConfigTemplate.querySelector("#incomingHostnameErrorMessage")
+    ),
+    "The incoming hostname error message should be visible"
+  );
 
   // Fixing the hostname should enable the continue button.
   EventUtils.synthesizeMouseAtCenter(incomingHostname, {});
@@ -1273,6 +1279,12 @@ add_task(async function test_invalid_manual_config_flow() {
   EventUtils.synthesizeKey("KEY_Backspace", {}, window);
   await deleteEvent;
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      incomingConfigTemplate.querySelector("#incomingHostnameErrorMessage")
+    ),
+    "The incoming hostname error message should be hidden"
+  );
 
   // Clicking continue should lead to the outgoing view, with an invalid
   // hostname again, with the continue button disabled.
@@ -1290,6 +1302,12 @@ add_task(async function test_invalid_manual_config_flow() {
     "#outgoingHostname:invalid"
   );
   Assert.ok(outgoingHostname, "The outgoing hostname should be invalid.");
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      outgoingConfigTemplate.querySelector("#outgoingHostnameErrorMessage")
+    ),
+    "The outgoing hostname error message should be visible"
+  );
 
   // Updating the hostname to be valid should not enable the continue button
   // as the incoming config was edited.
@@ -1306,6 +1324,12 @@ add_task(async function test_invalid_manual_config_flow() {
   EventUtils.synthesizeKey("KEY_Backspace", {}, window);
   await deleteEvent;
   Assert.ok(footerForward.disabled, "Continue button should be disabled");
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      incomingConfigTemplate.querySelector("#incomingHostnameErrorMessage")
+    ),
+    "The outgoing hostname error message should be hidden"
+  );
 
   // We still have a config that can't be found because of the testing domain,
   // so hitting the test button should lead back to the incoming config, with

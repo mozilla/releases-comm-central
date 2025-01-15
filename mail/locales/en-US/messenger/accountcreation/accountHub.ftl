@@ -202,3 +202,12 @@ account-hub-signature-link = Email signature
 account-hub-email-error-text = Please enter a valid email address
 
 account-hub-name-error-text = Please enter a name
+
+account-hub-hostname-error-text = Hostname empty or invalid. Only letters, numbers, - and . are allowed
+    .title = Hostname empty or invalid. Only letters, numbers, - and . are allowed
+
+account-hub-port-error-text = Port must be between 1 and 65535
+    .title = Port must be between 1 and 65535
+
+account-hub-username-error-text = Username is required
+    .title = Username is required

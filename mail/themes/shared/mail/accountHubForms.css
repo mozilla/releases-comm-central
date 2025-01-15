@@ -117,6 +117,10 @@ form {
       display: none;
       position: absolute;
       bottom: calc(-1 * var(--hub-form-input-line-height) - 5px);
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      width: -moz-available;
     }
 
     &:user-invalid,
@@ -134,7 +138,7 @@ form {
       }
 
       & ~ .input-error-message {
-        display: block;
+        display: inline;
       }
     }
 
@@ -292,7 +296,18 @@ div:has(legend) {
 .form-icon {
   width: 16px;
   height: 16px;
-  margin-inline: -26px 10px;
+
+  &.icon-danger,
+  &.icon-success {
+    position: absolute;
+    inset-inline-end: 0;
+    padding-inline-end: 10px;
+
+    #incomingPort ~ &,
+    #outgoingPort ~ & {
+      padding-inline-end: 30px;
+    }
+  }
 
   input:user-invalid ~ & {
     display: none;
@@ -459,7 +474,9 @@ div:has(legend) {
 
 .input-warning {
   display: none;
-  input:user-invalid ~ & {
+
+  input:user-invalid ~ &,
+  .manual-input:invalid ~ & {
     display: inline-block;
   }
 }

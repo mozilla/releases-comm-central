@@ -354,9 +354,11 @@ class EmailIncomingForm extends AccountHubStep {
       config.incoming.hostname = Sanitizer.hostname(inHostnameValue);
       this.#incomingHostname.value = config.incoming.hostname;
       this.#incomingHostname.setCustomValidity("");
+      this.#incomingHostname.setAttribute("aria-invalid", false);
     } catch (error) {
       gAccountSetupLogger.warn(error);
       this.#incomingHostname.setCustomValidity(error._message);
+      this.#incomingHostname.setAttribute("aria-invalid", true);
     }
 
     try {
@@ -366,10 +368,12 @@ class EmailIncomingForm extends AccountHubStep {
         65535
       );
       this.#incomingPort.setCustomValidity("");
+      this.#incomingPort.setAttribute("aria-invalid", false);
     } catch (error) {
       // Include default "Auto".
       config.incoming.port = undefined;
       this.#incomingPort.setCustomValidity(error._message);
+      this.#incomingPort.setAttribute("aria-invalid", true);
     }
 
     config.incoming.type = Sanitizer.translate(this.#incomingProtocol.value, {
@@ -385,6 +389,10 @@ class EmailIncomingForm extends AccountHubStep {
       this.#incomingAuthenticationMethod.value
     );
     config.incoming.username = this.#incomingUsername.value;
+    this.#incomingUsername.setAttribute(
+      "aria-invalid",
+      !this.#incomingUsername.value
+    );
 
     return config;
   }
