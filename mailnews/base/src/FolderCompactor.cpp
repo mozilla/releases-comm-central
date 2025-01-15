@@ -846,8 +846,7 @@ void BatchCompactor::OnDone(nsresult status, int64_t bytesRecovered) {
         } else {
           // For local folders, there's not much we can do. If compact can't
           // scan the mbox, then local folder repair won't be able to either.
-          // Show a catch-all error message.
-          folder->ThrowAlertMsg("compactFolderWriteFailed", mWindow);
+          folder->ThrowAlertMsg("compactFolderStorageCorruption", mWindow);
         }
       } else {
         // Show a catch-all error message.
