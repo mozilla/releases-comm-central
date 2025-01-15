@@ -198,3 +198,7 @@ account-hub-no-calendars = No calendars found
 account-hub-email-added-success-links-title = Explore options for security and personalization:
 
 account-hub-signature-link = Email signature
+
+account-hub-email-error-text = Please enter a valid email address
+
+account-hub-name-error-text = Please enter a name

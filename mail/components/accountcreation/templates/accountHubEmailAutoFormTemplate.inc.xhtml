@@ -3,50 +3,62 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <html:template id="accountHubEmailAutoFormTemplate" xmlns="http://www.w3.org/1999/xhtml">
-    <form id="autoConfigEmailForm" class="account-hub-form" slot="content">
-      <div class="hub-body">
-        <div class="input-control">
-          <input id="realName"
-                 type="text"
-                 class="input-field animated"
-                 placeholder=""
-                 required="required" />
-          <label for="realName"
-                 class="animated"
-                 data-l10n-id="account-hub-name-label"
-                 data-l10n-attrs="accesskey">
-          </label>
-          <img src="chrome://messenger/skin/icons/new/compact/warning.svg"
-               data-l10n-id="account-setup-name-warning-icon"
-               alt=""
-               class="form-icon icon-danger input-warning" />
-          <img src="chrome://messenger/skin/icons/new/compact/success.svg"
-               alt=""
-               class="form-icon icon-success input-success" />
-        </div>
-
-        <div class="input-control">
-          <input id="email"
-                 class="input-field animated"
-                 type="email"
-                 placeholder=""
-                 required="required" />
-          <label for="email"
-                 class="animated"
-                 data-l10n-id="account-setup-email-label"
-                 data-l10n-attrs="accesskey">
-          </label>
-          <img id="emailWarning"
-               src="chrome://messenger/skin/icons/new/compact/warning.svg"
-               data-l10n-id="account-setup-email-warning-icon"
-               alt=""
-               class="form-icon icon-danger input-warning" />
-          <img id="emailSuccess"
-               src="chrome://messenger/skin/icons/new/compact/success.svg"
-               alt=""
-               class="form-icon icon-success input-success" />
-        </div>
+  <form id="autoConfigEmailForm" class="account-hub-form" slot="content">
+    <div class="hub-body">
+      <div class="input-control">
+        <input id="realName"
+               type="text"
+               class="input-field animated"
+               aria-invalid="false"
+               aria-errormessage="nameErrorMessage"
+               placeholder=""
+               required="required" />
+        <label for="realName"
+               class="animated"
+               data-l10n-id="account-hub-name-label"
+               data-l10n-attrs="accesskey">
+        </label>
+        <img src="chrome://messenger/skin/icons/new/compact/warning.svg"
+             data-l10n-id="account-setup-name-warning-icon"
+             alt=""
+             class="form-icon icon-danger input-warning" />
+        <img src="chrome://messenger/skin/icons/new/compact/success.svg"
+             alt=""
+             class="form-icon icon-success input-success" />
+        <span id="nameErrorMessage"
+              class="input-error-message"
+              data-l10n-id="account-hub-name-error-text">
+        </span>
       </div>
-      <button type="submit" hidden="hidden"></button>
-    </form>
+
+      <div class="input-control">
+        <input id="email"
+               class="input-field animated"
+               aria-invalid="false"
+               aria-errormessage="emailErrorMessage"
+               type="email"
+               placeholder=""
+               required="required" />
+        <label for="email"
+               class="animated"
+               data-l10n-id="account-setup-email-label"
+               data-l10n-attrs="accesskey">
+        </label>
+        <img id="emailWarning"
+             src="chrome://messenger/skin/icons/new/compact/warning.svg"
+             data-l10n-id="account-setup-email-warning-icon"
+             alt=""
+             class="form-icon icon-danger input-warning" />
+        <img id="emailSuccess"
+             src="chrome://messenger/skin/icons/new/compact/success.svg"
+             alt=""
+             class="form-icon icon-success input-success" />
+        <span id="emailErrorMessage"
+              class="input-error-message"
+              data-l10n-id="account-hub-email-error-text">
+        </span>
+      </div>
+    </div>
+    <button type="submit" hidden="hidden"></button>
+  </form>
 </html:template>

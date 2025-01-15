@@ -251,6 +251,18 @@ add_task(async function test_account_email_step() {
     "Name success icon should be visible"
   );
 
+  Assert.ok(
+    BrowserTestUtils.isHidden(emailTemplate.querySelector("#nameErrorMessage")),
+    "Name error message should be hidden"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      emailTemplate.querySelector("#emailErrorMessage")
+    ),
+    "Email error message should be hidden"
+  );
+
   EventUtils.synthesizeMouseAtCenter(nameInput, { clickCount: 3 });
   // Delete text and move back to name input to reveal error icon.
   const clearInputEvent = BrowserTestUtils.waitForEvent(
@@ -276,6 +288,12 @@ add_task(async function test_account_email_step() {
     BrowserTestUtils.isVisible(nameDangerIcon),
     "Name danger icon should be visible"
   );
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      emailTemplate.querySelector("#nameErrorMessage")
+    ),
+    "Name error message should be visible"
+  );
 
   // Hit the enter key when in the name form input, and the email danger
   // icon should show.
@@ -283,6 +301,13 @@ add_task(async function test_account_email_step() {
   Assert.ok(
     BrowserTestUtils.isVisible(emailTemplate.querySelector("#emailWarning")),
     "Email danger icon should be visible"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      emailTemplate.querySelector("#emailErrorMessage")
+    ),
+    "Email error message should be visible"
   );
 
   // Fill name and incorrect email input, error email icon should be still

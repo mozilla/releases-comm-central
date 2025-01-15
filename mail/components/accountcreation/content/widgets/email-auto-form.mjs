@@ -86,23 +86,29 @@ class EmailAutoForm extends AccountHubStep {
    * update the hostname and domain for the complete form.
    */
   checkValidEmailForm() {
-    const isValidForm = this.querySelector("form").checkValidity();
+    const nameValidity = this.#realName.checkValidity();
+    const emailValidity = this.#email.checkValidity();
+
+    this.#realName.setAttribute("aria-invalid", !nameValidity);
+    this.#email.setAttribute("aria-invalid", !emailValidity);
 
     this.dispatchEvent(
       new CustomEvent("config-updated", {
         bubbles: true,
-        detail: { completed: isValidForm },
+        detail: { completed: nameValidity && emailValidity },
       })
     );
 
-    const domain = isValidForm
-      ? this.#email.value.split("@")[1].toLowerCase()
-      : "";
+    const domain =
+      nameValidity && emailValidity
+        ? this.#email.value.split("@")[1].toLowerCase()
+        : "";
     // TODO: Check for domain extension when validating email address.
     const outgoingHostname = domain;
     const incomingHostname = domain;
-    const incomingUsername = isValidForm ? this.#email.value : "";
-    const outgoingUsername = isValidForm ? this.#email.value : "";
+    const username = nameValidity && emailValidity ? this.#email.value : "";
+    const incomingUsername = username;
+    const outgoingUsername = username;
 
     this.#currentConfig = {
       realName: this.#realName.value,

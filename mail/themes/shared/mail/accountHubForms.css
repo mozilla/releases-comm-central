@@ -18,6 +18,7 @@ form {
   --hub-menupopup-border-color: var(--color-neutral-border);
   --hub-menuitem-color-selected: var(--color-neutral-base);
   --hub-menuitem-background-color-selected: var(--color-primary-default);
+  --hub-form-input-line-height: 1em;
   /* TODO: apply dark mode styling */
 
   grid-row: header / footer;
@@ -103,12 +104,20 @@ form {
   .input-field {
     flex: 1;
     font-size: 1.2rem;
+    line-height: var(--hub-form-input-line-height);
     margin-inline: 0;
     padding-block: 12px;
     padding-inline: 9px 14px;
     border: 1px solid var(--color-neutral-border);
     background-color: var(--hub-input-bg-color);
     font-weight: 200;
+
+    & ~ .input-error-message {
+      color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
+      display: none;
+      position: absolute;
+      bottom: calc(-1 * var(--hub-form-input-line-height) - 5px);
+    }
 
     &:user-invalid,
     &.manual-input:invalid {
@@ -122,6 +131,10 @@ form {
 
       & ~ label {
         color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
+      }
+
+      & ~ .input-error-message {
+        display: block;
       }
     }
 
@@ -268,6 +281,7 @@ div:has(legend) {
 .input-control {
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 .input-control.vertical {
