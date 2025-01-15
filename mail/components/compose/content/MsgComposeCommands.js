@@ -11692,6 +11692,13 @@ function updateEncryptionDependencies() {
  * @param {Event} event - The DOM Event
  */
 function composeWindowOnClick(event) {
+  if (event.button == 2) {
+    // Ignore context menu clicks.
+    // contextmenu event on a pill is causing a spurious click event on <body>,
+    // on linux. We must not clear selection for that, as then context menu
+    // pill actions won't have a selection to work with.
+    return;
+  }
   // Don't deselect pills if the click happened on another pill as the selection
   // and focus change is handled by the pill itself. We also ignore clicks on
   // toolbarbuttons, menus, and menu items. This will also prevent the unwanted
