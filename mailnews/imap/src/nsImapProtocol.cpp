@@ -2688,6 +2688,10 @@ void nsImapProtocol::ProcessSelectedStateURL() {
   // this can't fail, can it?
   nsresult res;
   res = m_runningUrl->GetImapAction(&m_imapAction);
+  // See nsIImapUrl.idl for m_imapAction values.
+  MOZ_LOG(IMAP, LogLevel::Debug,
+          ("ProcessSelectedStateURL [this=%p], m_imapAction = 0x%" PRIx32, this,
+           m_imapAction));
   m_runningUrl->MessageIdsAreUids(&bMessageIdsAreUids);
   m_runningUrl->GetMsgFlags(&msgFlags);
   m_runningUrl->GetMoreHeadersToDownload(&moreHeadersToDownload);
@@ -3007,6 +3011,9 @@ void nsImapProtocol::ProcessSelectedStateURL() {
           }
         } break;
         case nsIImapUrl::nsImapDeleteMsg: {
+          // Note: this never actually occurs to delete a message. Instead
+          // when messages are deleted or moved to another server, m_imapAction
+          // nsIImapUrl::nsImapAddMsgFlags occurs.
           nsCString messageIdString;
           m_runningUrl->GetListOfMessageIds(messageIdString);
 
@@ -3031,6 +3038,20 @@ void nsImapProtocol::ProcessSelectedStateURL() {
               m_imapMessageSink->NotifyMessageDeleted(
                   canonicalName.get(), false, messageIdString.get());
             // notice we don't wait for this to finish...
+
+            // Only when pref "expunge_after_delete" is set: if server is
+            // IMAPPLUS capable, expunge the UIDs just marked deleted;
+            // otherwise, go ahead and expunge the full mailbox of ALL
+            // emails marked as deleted in mailbox, not just the ones
+            // marked as deleted here.
+            if (gExpungeAfterDelete) {
+              if (GetServerStateParser().GetCapabilityFlag() &
+                  kUidplusCapability) {
+                UidExpunge(messageIdString);
+              } else {
+                Expunge();
+              }
+            }
           } else
             HandleMemoryFailure();
         } break;
@@ -3070,8 +3091,85 @@ void nsImapProtocol::ProcessSelectedStateURL() {
           nsCString messageIdString;
           m_runningUrl->GetListOfMessageIds(messageIdString);
 
+          // If server is gmail and \deleted flag is being set and not doing
+          // "just mark as deleted" and pref "expunge_after_delete" is set true
+          // and there exists a [Gmail]/Trash folder, move each message to be
+          // deleted to trash folder and mark each of these in trash as deleted
+          // and expunge from trash only these messages. With default gmail.com
+          // imap setting this completely removes the deleted messages, even
+          // from All Mail. Gmail supports UIDPLUS so no check of imap
+          // capabilites is needed, but if a command fails or is not supported
+          // below, the added flags (including \deleted) are set for the folder.
+          if (m_isGmailServer && !GetShowDeletedMessages() &&
+              (msgFlags & kImapMsgDeletedFlag) && gExpungeAfterDelete) {
+            // Check that trash exists
+            bool trashFolderExists = false;
+            m_hostSessionList->GetOnlineTrashFolderExistsForHost(
+                GetImapServerKey(), trashFolderExists);
+            if (trashFolderExists && !m_trashFolderPath.IsEmpty()) {
+              // Trash folder exists and have the trash folder path so do a
+              // "copy" of the message set to Trash. (Note: Copy of gmail
+              // messages to Trash actually expunges the messages from source
+              // folder so gmail copy to trash is effective move to trash.)
+              Copy(messageIdString.get(), m_trashFolderPath.get(), true);
+              if (GetServerStateParser().LastCommandSuccessful()) {
+                // Obtain new UIDs for the trash folder from COPYUID response
+                // code
+                nsCString trashIdString = GetServerStateParser().fCopyUidSet;
+                if (trashIdString.Last() == ']')
+                  trashIdString.Cut(trashIdString.Length() - 1, 1);
+                if (!trashIdString.IsEmpty()) {
+                  // Have new UIDs of message just moved into Trash, mark them
+                  // \deleted and expunge these UIDs. But first, since gmail
+                  // returns the destination response in COPYUID as a comma
+                  // separated descending list of each destination UID, it is
+                  // helpful to change the list to ranges. This will minimize
+                  // the string length when lots of messages are deleted.
+
+                  // Get array of UIDs from the COPYUID destination UIDs.
+                  nsTArray<nsMsgKey> msgKeys;
+                  ParseUidString(trashIdString.get(), msgKeys);
+
+                  // Re-create trashIdString as a ascending range or ranges.
+                  trashIdString.Truncate();
+                  nsImapMailFolder::AllocateUidStringFromKeys(msgKeys,
+                                                              trashIdString);
+
+                  // Imap SELECT trash folder and do UID Expunge on messages
+                  // just moved to trash. However, don't do a folder update to
+                  // avoid showing a temporary message count change and unread
+                  // message indication.
+                  SelectMailbox(m_trashFolderPath.get(), true);
+                  if (GetServerStateParser().LastCommandSuccessful()) {
+                    // Now selected on Trash.
+                    ProcessStoreFlags(trashIdString, true, kImapMsgDeletedFlag,
+                                      true);
+                    UidExpunge(trashIdString);
+                    if (!GetServerStateParser().LastCommandSuccessful()) {
+                      MOZ_LOG(IMAP_CS, LogLevel::Error,
+                              ("UidExpunge() of gmail Trash messages failed"));
+                    }
+                    // Select original mailbox.
+                    SelectMailbox(mailboxName.get(), true);
+                    break;
+                  }
+                }
+              }
+            }
+          }
           ProcessStoreFlags(messageIdString, bMessageIdsAreUids, msgFlags,
                             true);
+          // If flags contain \deleted and pref "expunge_after_delete" is set,
+          // if server is IMAPPLUS capable, expunge the UIDs just marked
+          // deleted; otherwise, go ahead and expunge the full mailbox of ALL
+          // emails marked as deleted in mailbox, not just the ones
+          // marked as deleted here.
+          if ((msgFlags & kImapMsgDeletedFlag) && gExpungeAfterDelete) {
+            if (GetServerStateParser().GetCapabilityFlag() & kUidplusCapability)
+              UidExpunge(messageIdString);
+            else
+              Expunge();
+          }
         } break;
         case nsIImapUrl::nsImapSubtractMsgFlags: {
           nsCString messageIdString;
@@ -3081,6 +3179,10 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                             false);
         } break;
         case nsIImapUrl::nsImapSetMsgFlags: {
+          // This changes the flags to the value in msgFlags. Any flags that
+          // are currently set and not in msgFlags are reset. Currently, the
+          // \deleted flag is not set by this imap action (see assertion).
+          MOZ_ASSERT(!(msgFlags & kImapMsgDeletedFlag));
           nsCString messageIdString;
           m_runningUrl->GetListOfMessageIds(messageIdString);
 
@@ -3140,18 +3242,30 @@ void nsImapProtocol::ProcessSelectedStateURL() {
             bool storeSuccessful =
                 GetServerStateParser().LastCommandSuccessful();
             if (storeSuccessful) {
+              // We are simulating a imap MOVE (on the same server). The
+              // message(s) has/(have) been COPY'd and marked deleted. Only when
+              // pref "expunge_after_delete" is set: if server is IMAPPLUS
+              // capable, expunge the UIDs just marked \deleted; otherwise, go
+              // ahead and expunge the full mailbox of ALL emails marked as
+              // deleted in mailbox, not just the ones copied.
               if (gExpungeAfterDelete) {
-                // This will expunge all emails marked as deleted in mailbox,
-                // not just the ones marked as deleted above.
-                Expunge();
+                if (GetServerStateParser().GetCapabilityFlag() &
+                    kUidplusCapability) {
+                  UidExpunge(messageIdString);
+                } else {
+                  // This will expunge all emails marked as deleted in mailbox,
+                  // not just the ones marked as deleted above.
+                  Expunge();
+                }
               } else {
-                // Check if UIDPLUS capable so we can just expunge emails we
-                // just copied and marked as deleted. This prevents expunging
-                // emails that other clients may have marked as deleted in the
-                // mailbox and don't want them to disappear. Only do
-                // UidExpunge() when user selected delete method is "Move it
-                // to this folder" or "Remove it immediately", not when the
-                // delete method is "Just mark it as deleted".
+                // When "expunge_after_delete" is not true, check if UIDPLUS
+                // capable so we can just expunge emails we just copied and
+                // marked as deleted. This prevents expunging emails that other
+                // clients may have marked as deleted in the mailbox and don't
+                // want them to disappear. Only do UidExpunge() when user
+                // selected delete method is "Move it to this folder" or "Remove
+                // it immediately", not when the delete method is "Just mark it
+                // as deleted".
                 if (!GetShowDeletedMessages() &&
                     (GetServerStateParser().GetCapabilityFlag() &
                      kUidplusCapability)) {
@@ -3171,6 +3285,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
         } break;
         case nsIImapUrl::nsImapOnlineToOfflineCopy:
         case nsIImapUrl::nsImapOnlineToOfflineMove: {
+          // Only happens for copy between servers, not for move.
           nsCString messageIdString;
           nsresult rv = m_runningUrl->GetListOfMessageIds(messageIdString);
           if (NS_SUCCEEDED(rv)) {
@@ -3191,14 +3306,27 @@ void nsImapProtocol::ProcessSelectedStateURL() {
               m_imapMailFolderSink->OnlineCopyCompleted(this, copyStatus);
               if (GetServerStateParser().LastCommandSuccessful() &&
                   (m_imapAction == nsIImapUrl::nsImapOnlineToOfflineMove)) {
+                // Note: action nsImapOnlineToOfflineMove never occurs.
                 Store(messageIdString, "+FLAGS (\\Deleted \\Seen)",
                       bMessageIdsAreUids);
                 if (GetServerStateParser().LastCommandSuccessful()) {
                   copyStatus = ImapOnlineCopyStateType::kSuccessfulDelete;
-                  if (gExpungeAfterDelete) Expunge();
-                } else
+                  // Only when pref "expunge_after_delete" is set: if server is
+                  // IMAPPLUS capable, expunge the UIDs just marked deleted;
+                  // otherwise, go ahead and expunge the full mailbox of ALL
+                  // emails marked as deleted in mailbox, not just the ones
+                  // marked as deleted here.
+                  if (gExpungeAfterDelete) {
+                    if (GetServerStateParser().GetCapabilityFlag() &
+                        kUidplusCapability) {
+                      UidExpunge(messageIdString);
+                    } else {
+                      Expunge();
+                    }
+                  }
+                } else {
                   copyStatus = ImapOnlineCopyStateType::kFailedDelete;
-
+                }
                 m_imapMailFolderSink->OnlineCopyCompleted(this, copyStatus);
               }
             }
@@ -3341,7 +3469,13 @@ void nsImapProtocol::CreateEscapedMailboxName(const char* rawName,
       escapedName.Insert('\\', strIndex++);
   }
 }
-void nsImapProtocol::SelectMailbox(const char* mailboxName) {
+
+// SELECT a mailbox and do a folder update unless noUpdate is set to true.
+// For example, when gmail messages are shift-deleted to gmail Trash, we don't
+// want to update. This prevents Trash folder message count badge from
+// temporarily increasing.
+void nsImapProtocol::SelectMailbox(const char* mailboxName,
+                                   bool noUpdate /* = false */) {
   ProgressEventFunctionUsingNameWithString("imapStatusSelectingMailbox",
                                            mailboxName);
   IncrementCommandTagNumber();
@@ -3368,6 +3502,9 @@ void nsImapProtocol::SelectMailbox(const char* mailboxName) {
   m_imapMailFolderSinkSelected = m_imapMailFolderSink;
   MOZ_ASSERT(m_imapMailFolderSinkSelected);
   Log("SelectMailbox", nullptr, "got m_imapMailFolderSinkSelected");
+
+  // Check for need to skip possible call to ProcessMailboxUpdate() below
+  if (noUpdate) return;
 
   int32_t numOfMessagesInFlagState = 0;
   nsImapAction imapAction;
@@ -7817,7 +7954,7 @@ void nsImapProtocol::Copy(const char* messageList,
     IncrementCommandTagNumber();
     nsAutoCString protocolString(GetServerCommandTag());
     if (idsAreUid) protocolString.AppendLiteral(" uid");
-    if ((m_imapAction == nsIImapUrl::nsImapOnlineMove) &&
+    if (m_imapAction == nsIImapUrl::nsImapOnlineMove &&
         GetServerStateParser().GetCapabilityFlag() & kHasMoveCapability)
       protocolString.AppendLiteral(" move ");
     else
@@ -7869,6 +8006,10 @@ void nsImapProtocol::ProcessAuthenticatedStateURL() {
   nsImapAction imapAction;
   nsCString sourceMailbox;
   m_runningUrl->GetImapAction(&imapAction);
+  // See nsIImapUrl.idl for imapAction values.
+  MOZ_LOG(IMAP, LogLevel::Debug,
+          ("ProcessAuthenticatedStateURL [this=%p], imapAction = 0x%" PRIx32,
+           this, imapAction));
 
   // switch off of the imap url action and take an appropriate action
   switch (imapAction) {

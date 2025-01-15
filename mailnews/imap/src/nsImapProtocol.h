@@ -319,7 +319,7 @@ class nsImapProtocol : public nsIImapProtocol,
   void UidExpunge(const nsCString& messageSet);
   void ImapClose(bool shuttingDown = false, bool waitForResponse = true);
   void Check();
-  void SelectMailbox(const char* mailboxName);
+  void SelectMailbox(const char* mailboxName, bool noUpdate = false);
   // more imap commands
   void Logout(bool shuttingDown = false, bool waitForResponse = true);
   void Noop();

@@ -361,10 +361,11 @@ nsImapIncomingServer::SetDeleteModel(int32_t ivalue) {
                                getter_AddRefs(trashFolder));
       if (NS_SUCCEEDED(rv) && trashFolder) {
         // If the trash folder is used, set the flag, otherwise clear it.
-        if (ivalue == nsMsgImapDeleteModels::MoveToTrash)
+        if (ivalue == nsMsgImapDeleteModels::MoveToTrash) {
           trashFolder->SetFlag(nsMsgFolderFlags::Trash);
-        else
+        } else {
           trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
+        }
       }
     }
   }
@@ -1048,8 +1049,9 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
       if (boxFlags & kImapTrash) {
         int32_t deleteModel;
         GetDeleteModel(&deleteModel);
-        if (deleteModel == nsMsgImapDeleteModels::MoveToTrash)
+        if (deleteModel == nsMsgImapDeleteModels::MoveToTrash) {
           child->SetFlag(nsMsgFolderFlags::Trash);
+        }
       }
 
       imapFolder->SetBoxFlags(boxFlags);
@@ -1264,6 +1266,30 @@ NS_IMETHODIMP nsImapIncomingServer::FolderVerifiedOnline(
   return rv;
 }
 
+/*
+ * Define a function to obtain the imap (short) path of a folder.
+ * Currently used only in nsImapIncomingServer::DiscoveryDone for folder(s)
+ * flagged as Trash.
+ */
+/*static*/
+nsresult nsImapIncomingServer::PathFromFolder(nsIMsgFolder* folder,
+                                              nsAString& shortPath) {
+  nsresult rv;
+  nsAutoCString folderURL;
+  rv = folder->GetFolderURL(folderURL);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIURI> uri;
+  rv = NS_NewURI(getter_AddRefs(uri), folderURL);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsAutoCString fullfolderPath;
+  uri->GetPathQueryRef(fullfolderPath);
+  nsAutoCString unescapedPath;
+  MsgUnescapeString(Substring(fullfolderPath, 1),  // Skip leading slash.
+                    nsINetUtil::ESCAPE_URL_PATH, unescapedPath);
+  rv = CopyFolderNameToUTF16(unescapedPath, shortPath);
+  return rv;
+}
+
 NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
   if (mDoingSubscribeDialog) return NS_OK;
 
@@ -1335,74 +1361,11 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
         SetIntValue("moveTargetMode", nsISpamSettings::MOVE_TARGET_MODE_FOLDER);
       }
     }
-
-    bool isGMailServer;
-    GetIsGMailServer(&isGMailServer);
-
-    // Verify there is only one trash folder. Another might be present if
-    // the trash name has been changed. Or we might be a gmail server and
-    // want to switch to gmail's trash folder.
-    nsTArray<RefPtr<nsIMsgFolder>> trashFolders;
-    rv = rootMsgFolder->GetFoldersWithFlags(nsMsgFolderFlags::Trash,
-                                            trashFolders);
-
-    if (NS_SUCCEEDED(rv)) {
-      nsAutoString trashName;
-      if (NS_SUCCEEDED(GetTrashFolderName(trashName))) {
-        for (auto trashFolder : trashFolders) {
-          // If we're a gmail server, we clear the trash flags from folder(s)
-          // without the kImapXListTrash flag. For normal servers, we clear
-          // the trash folder flag if the folder name doesn't match the
-          // pref trash folder name.
-          nsAutoString retval;
-          rv = GetUnicharValue(PREF_TRASH_FOLDER_PATH, retval);
-          if (isGMailServer && (NS_FAILED(rv) || retval.IsEmpty())) {
-            nsCOMPtr<nsIMsgImapMailFolder> imapFolder(
-                do_QueryInterface(trashFolder));
-            int32_t boxFlags;
-            imapFolder->GetBoxFlags(&boxFlags);
-            if (boxFlags & kImapXListTrash) {
-              continue;
-            }
-          } else {
-            // Store the trash folder path. We maintain the full path in the
-            // trash_folder_name preference since the full path is stored
-            // there when selecting a trash folder in the Account Manager.
-            nsAutoCString trashURL;
-            rv = trashFolder->GetFolderURL(trashURL);
-            if (NS_FAILED(rv)) {
-              continue;
-            }
-            nsCOMPtr<nsIURI> uri;
-            rv = NS_NewURI(getter_AddRefs(uri), trashURL);
-            if (NS_FAILED(rv)) {
-              continue;
-            }
-            nsAutoCString trashPath;
-            uri->GetPathQueryRef(trashPath);
-            nsAutoCString unescapedName;
-            MsgUnescapeString(Substring(trashPath, 1),  // Skip leading slash.
-                              nsINetUtil::ESCAPE_URL_PATH, unescapedName);
-            nsAutoString nameUnicode;
-            if (NS_FAILED(CopyFolderNameToUTF16(unescapedName, nameUnicode)) ||
-                trashName.Equals(nameUnicode)) {
-              continue;
-            }
-            if (trashFolders.Length() == 1) {
-              // We got here because the preferred trash folder does not
-              // exist, but a folder got discovered to be the trash folder.
-              SetUnicharValue(PREF_TRASH_FOLDER_PATH, nameUnicode);
-              continue;
-            }
-          }
-          // We clear the trash folder flag if the trash folder path doesn't
-          // match mail.server.serverX.trash_folder_name.
-          trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
-        }
-      }
-    }
   }
 
+  // Need to do this BEFORE trash folder checks and adjustments so if trash
+  // folder is deleted it is no longer present in the trashFolders array. Array
+  // obtained below.
   bool usingSubscription = true;
   GetUsingSubscription(&usingSubscription);
 
@@ -1465,6 +1428,100 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
     }
   }
 
+  if (rootMsgFolder) {
+    // Ensure there is at most one folder flagged as trash. Another might be
+    // flagged if the trash name has been changed. Also try to make sure that
+    // the trash folder pref is set to the path of the folder flagged as trash.
+    // First obtain array of folders flagged as trash.
+    nsTArray<RefPtr<nsIMsgFolder>> trashFolders;
+    rv = rootMsgFolder->GetFoldersWithFlags(nsMsgFolderFlags::Trash,
+                                            trashFolders);
+    NS_WARNING_ASSERTION(trashFolders.Length() <= 2,
+                         "why more than 2 folders flagged as trash?");
+    if (NS_SUCCEEDED(rv) && trashFolders.Length()) {
+      // See if there is a pref set for trash folder. Only check the "raw" value
+      // since here we don't want to see the default "Trash" string returned by
+      // GetTrashFolderName() when the pref is really empty.
+      nsAutoString prefPath;
+      rv = GetUnicharValue(PREF_TRASH_FOLDER_PATH, prefPath);
+      if (!prefPath.IsEmpty()) {
+        // Go through the trashFolders and un-flag as `trash` ones that don't
+        // match prefPath.
+        for (auto trashFolder : trashFolders) {
+          nsAutoString trashFolderPath;
+          if (NS_SUCCEEDED(PathFromFolder(trashFolder, trashFolderPath))) {
+            if (!prefPath.Equals(trashFolderPath)) {
+              // We clear the trash folder flag if the trash folder path doesn't
+              // match mail.server.serverX.trash_folder_name.
+              trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
+            }
+          }
+        }
+      } else {
+        // Trash pref is not set. Go through the trashFolders and set the trash
+        // pref for the folder with possible boxFlag kImapXListTrash (discovered
+        // as \trash special-use) and keep the Trash flag. If kImapXListTrash
+        // boxFlag is not set, remove the trash flag unless the folder name is
+        // the default name "Trash".
+
+        // First, look for folder with special-use \trash flag.
+        nsCOMPtr<nsIMsgFolder> specialUseFolder;
+        for (auto trashFolder : trashFolders) {
+          nsCOMPtr<nsIMsgImapMailFolder> imapFolder(
+              do_QueryInterface(trashFolder));
+          int32_t boxFlags;
+          imapFolder->GetBoxFlags(&boxFlags);
+          if (boxFlags & kImapXListTrash) {
+            // Found one. Deal with it below.
+            specialUseFolder = trashFolder;
+            break;
+          }
+        }
+
+        // No trash pref set, so get the default if needed.
+        nsAutoString defaultTrashName;
+        if (!specialUseFolder) GetTrashFolderName(defaultTrashName);
+        for (auto trashFolder : trashFolders) {
+          if (specialUseFolder) {
+            // Clear trash flag on folders w/o special-use kImapXListTrash flag.
+            nsCOMPtr<nsIMsgImapMailFolder> imapFolder(
+                do_QueryInterface(trashFolder));
+            int32_t boxFlags;
+            imapFolder->GetBoxFlags(&boxFlags);
+            if (!(boxFlags & kImapXListTrash)) {
+              trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
+            } else {
+              // Set pref to the path of the discovered special-use trash
+              // folder.
+              nsAutoString specialUseFolderPath;
+              rv = PathFromFolder(specialUseFolder, specialUseFolderPath);
+              if (NS_SUCCEEDED(rv)) {
+                SetUnicharValue(PREF_TRASH_FOLDER_PATH, specialUseFolderPath);
+              }
+            }
+          } else {
+            // No special-use trash found.
+            // Clear the trash flag unless folder has the default name "Trash",
+            // ignorng case. If folder matches default name, set that folder's
+            // name as the pref.
+            nsAutoString trashFolderPath;
+            rv = PathFromFolder(trashFolder, trashFolderPath);
+            if (NS_SUCCEEDED(rv)) {
+              if (!defaultTrashName.Equals(trashFolderPath,
+                                           nsCaseInsensitiveStringComparator)) {
+                trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
+              } else {
+                // Set the pref to the server's trashFolderPath
+                SetUnicharValue(PREF_TRASH_FOLDER_PATH, trashFolderPath);
+              }
+            }
+          }
+        }
+      }
+    } else {
+      SetUnicharValue(PREF_TRASH_FOLDER_PATH, u""_ns);
+    }
+  }
   return rv;
 }
 
@@ -2764,8 +2821,9 @@ NS_IMETHODIMP nsImapIncomingServer::SetTrashFolderName(
     }
     nsCOMPtr<nsIMsgFolder> newTrashFolder;
     rv = GetFolder(newTrashNameUtf7or8, getter_AddRefs(newTrashFolder));
-    if (NS_SUCCEEDED(rv) && newTrashFolder)
+    if (NS_SUCCEEDED(rv) && newTrashFolder) {
       newTrashFolder->SetFlag(nsMsgFolderFlags::Trash);
+    }
   }
 
   return SetUnicharValue(PREF_TRASH_FOLDER_PATH, chvalue);

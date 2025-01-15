@@ -1184,8 +1184,21 @@ NS_IMETHODIMP nsImapMailFolder::SetBoxFlags(int32_t aBoxFlags) {
     nsMsgImapDeleteModel deleteModel = nsMsgImapDeleteModels::MoveToTrash;
     (void)GetImapIncomingServer(getter_AddRefs(imapServer));
     if (imapServer) imapServer->GetDeleteModel(&deleteModel);
-    if (deleteModel == nsMsgImapDeleteModels::MoveToTrash)
-      newFlags |= nsMsgFolderFlags::Trash;
+    if (deleteModel == nsMsgImapDeleteModels::MoveToTrash) {
+      // Find out if there is no folder flagged as trash currently.
+      nsCOMPtr<nsIMsgFolder> rootFolder;
+      GetRootFolder(getter_AddRefs(rootFolder));
+      if (rootFolder) {
+        nsCOMPtr<nsIMsgFolder> trashFolder;
+        rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Trash,
+                                       getter_AddRefs(trashFolder));
+        if (!trashFolder) {
+          // No folder flagged as "Trash" so flag this folder (having
+          // boxflag kImapXListTrash) as THE trash folder.
+          newFlags |= nsMsgFolderFlags::Trash;
+        }
+      }
+    }
   }
   // Treat the GMail all mail folder as the archive folder.
   if (m_boxFlags & (kImapAllMail | kImapArchive))

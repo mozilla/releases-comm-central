@@ -129,6 +129,13 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   bool fUseModSeq;  // can use mod seq for currently selected folder
   uint64_t fHighestModSeq;
 
+  // Set of new UIDs at a destination folder obtained from UID COPY response
+  // when a message or messages are successfully copied or moved from a source
+  // folder.  Only set when server supports UIDPLUS capability and the response
+  // contains response code COPYUID. Currently only used when gmail messages are
+  // shift-deleted to trash.
+  nsCString fCopyUidSet;
+
  protected:
   virtual void flags();
   virtual void envelope_data();

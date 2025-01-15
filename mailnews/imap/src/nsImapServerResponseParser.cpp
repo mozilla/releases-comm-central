@@ -1648,6 +1648,7 @@ void nsImapServerResponseParser::resp_text_code() {
           AdvanceToNextToken();
           // clear copy response uid
           fServerConnection.SetCopyResponseUid(fNextToken);
+          fCopyUidSet = fNextToken;  // New UIDs for the copy destination
         }
         if (ContinueParse()) AdvanceToNextToken();
       }

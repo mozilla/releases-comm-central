@@ -602,18 +602,16 @@ function folderPickerChange(aEvent) {
   trashFolderPicker.menupopup.selectFolder(folder);
 }
 
-// Get trash_folder_name from prefs. Despite its name this returns
-// a folder path, for example INBOX/Trash.
+/**
+ * Get trash_folder_name from prefs. Despite its name this returns a folder
+ * path, e.g., "INBOX/Deleted" and "[Gmail]/Trash". If pref not set just return
+ * empty string and leave pref not set. This avoids showing a default name
+ * (e.g., "Trash") in trash folder picker when trash folder is something else or
+ * has yet to be determined.
+ */
 function getTrashFolderName() {
-  let trashFolderName = document
+  const trashFolderName = document
     .getElementById("imap.trashFolderName")
     .getAttribute("value");
-  // if the preference hasn't been set, set it to a sane default
-  if (!trashFolderName) {
-    trashFolderName = "Trash"; // XXX Is this a useful default?
-    document
-      .getElementById("imap.trashFolderName")
-      .setAttribute("value", trashFolderName);
-  }
   return trashFolderName;
 }

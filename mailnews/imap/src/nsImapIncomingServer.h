@@ -143,6 +143,9 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
                                 nsACString& folderUriWithNamespace,
                                 bool& namespacePrefixAdded,
                                 bool caseInsensitive, nsIMsgFolder** aFolder);
+
+  // Utility function to obtain the imap (short) path for a folder.
+  static nsresult PathFromFolder(nsIMsgFolder* folder, nsAString& shortPath);
 };
 
 #endif
