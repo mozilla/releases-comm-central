@@ -2297,6 +2297,7 @@ dependencies = [
  "nsstring",
  "oblivious_http",
  "origin-trials-ffi",
+ "osclientcerts",
  "oxilangtag",
  "oxilangtag-ffi",
  "prefs_parser",
@@ -4125,6 +4126,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "osclientcerts"
+version = "0.1.4"
+dependencies = [
+ "byteorder",
+ "core-foundation",
+ "env_logger",
+ "lazy_static",
+ "libloading",
+ "log",
+ "pkcs11-bindings",
+ "rsclientcerts",
+ "sha2",
+ "static_prefs",
+ "winapi",
+]
+
+[[package]]
 name = "oslog"
 version = "0.1.999"
 dependencies = [
@@ -4759,6 +4777,14 @@ dependencies = [
  "bitflags 2.6.0",
  "serde",
  "serde_derive",
+]
+
+[[package]]
+name = "rsclientcerts"
+version = "0.1.0"
+dependencies = [
+ "byteorder",
+ "pkcs11-bindings",
 ]
 
 [[package]]
