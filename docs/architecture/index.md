@@ -2,4 +2,5 @@
 
 ```{toctree}
 email_protocols
+folder_storage.md
 ```
