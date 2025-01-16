@@ -229,7 +229,7 @@ stylelint:
             ln -s ../tools/lint/eslint/eslint-plugin-spidermonkey-js node_modules &&
             ./mach commlint -v -l stylelint -f treeherder
             -f json:/builds/worker/mozlint.json
-            comm/*
+            comm
     optimization:
         skip-unless-mozlint: stylelint.yml
     fetches:
