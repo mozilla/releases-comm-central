@@ -28,7 +28,6 @@ export class MailNotificationManager {
   ]);
 
   constructor() {
-    this._systemAlertAvailable = true;
     this._unreadChatCount = 0;
     this._unreadMailCount = 0;
     // @type {Map<string, number>} - A map of folder URIs and the date of the
@@ -193,20 +192,26 @@ export class MailNotificationManager {
     this._logger.debug(
       `Filling alert info; folder.URI=${folder.URI}, numNewMessages=${numNewMessages}`
     );
-    const firstNewMsgHdr = folder.msgDatabase.getMsgHdrForKey(newMsgKeys[0]);
+    if (Services.prefs.getBoolPref("mail.biff.use_system_alert", true)) {
+      const firstNewMsgHdr = folder.msgDatabase.getMsgHdrForKey(newMsgKeys[0]);
 
-    const title = this._getAlertTitle(folder, numNewMessages);
-    let body;
-    try {
-      body = await this._getAlertBody(folder, firstNewMsgHdr);
-    } catch (e) {
-      this._logger.error(e);
+      const title = this._getAlertTitle(folder, numNewMessages);
+      let body;
+      try {
+        body = await this._getAlertBody(folder, firstNewMsgHdr);
+      } catch (e) {
+        this._logger.error(e);
+      }
+      if (!title || !body) {
+        return;
+      }
+
+      this._showAlert(firstNewMsgHdr, title, body);
+      this._saveNotificationTime(folder, newMsgKeys);
+    } else {
+      this._showCustomizedAlert(folder);
     }
-    if (!title || !body) {
-      return;
-    }
-    this._showAlert(firstNewMsgHdr, title, body);
-    this._saveNotificationTime(folder, newMsgKeys);
+
     this._animateDockIcon();
   }
 
@@ -327,38 +332,23 @@ export class MailNotificationManager {
   _showAlert(msgHdr, title, body) {
     const folder = msgHdr.folder;
 
-    // Try to use system alert first.
-    if (
-      Services.prefs.getBoolPref("mail.biff.use_system_alert", true) &&
-      this._systemAlertAvailable
-    ) {
-      const alertsService = Cc[
-        "@mozilla.org/system-alerts-service;1"
-      ].getService(Ci.nsIAlertsService);
-      const cookie = folder.generateMessageURI(msgHdr.messageKey);
-      try {
-        const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
-          Ci.nsIAlertNotification
-        );
-        alert.init(
-          cookie,
-          "chrome://messenger/skin/icons/new-mail-alert.png",
-          title,
-          body,
-          true /* text clickable */,
-          cookie
-        );
-        alertsService.showAlert(alert, this);
-        return;
-      } catch (e) {
-        this._logger.error(e);
-        this._systemAlertAvailable = false;
-      }
-    }
+    const alertsService = Cc["@mozilla.org/system-alerts-service;1"].getService(
+      Ci.nsIAlertsService
+    );
+    const cookie = folder.generateMessageURI(msgHdr.messageKey);
 
-    // The use_system_alert pref is false or showAlert somehow failed, use the
-    // customized alert window.
-    this._showCustomizedAlert(folder);
+    const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
+      Ci.nsIAlertNotification
+    );
+    alert.init(
+      cookie,
+      "chrome://messenger/skin/icons/new-mail-alert.png",
+      title,
+      body,
+      true /* text clickable */,
+      cookie
+    );
+    alertsService.showAlert(alert, this);
   }
 
   /**
