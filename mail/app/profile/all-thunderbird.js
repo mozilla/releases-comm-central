@@ -137,6 +137,19 @@ pref("app.releaseNotesURL", "https://live.thunderbird.net/%APP%/releasenotes?loc
   // in milliseconds. 5 min = 300000 ms.
   pref("app.update.noWindowAutoRestart.delayMs", 300000);
 #endif
+ 
+// The Multi Session Install Lockout prevents updates from being installed at
+// startup when they normally would be if there are other instances using the
+// installation. We only do this for a limited amount of time before we go ahead
+// and apply the update anyways.
+// Hopefully, at some point, updating Thunderbird while it is running will not break
+// things and this mechanism can be removed.
+// Note that these prefs are bit dangerous because having different values in
+// different profiles could cause erratic behavior.
+// This feature is also affected by
+// `app.update.multiSessionInstallLockout.timeoutMs`, which is in the branding
+// section.
+pref("app.update.multiSessionInstallLockout.enabled", true);
 
 // URL for "Learn More" for DataCollection
 pref("toolkit.datacollection.infoURL",
