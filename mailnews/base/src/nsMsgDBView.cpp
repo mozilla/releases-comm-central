@@ -2475,6 +2475,8 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
         }
 
         mTreeSelection->SetSelectEventsSuppressed(false);
+        if (mTree) mTree->Invalidate();
+        if (mJSTree) mJSTree->Invalidate();
       }
       break;
     case nsMsgViewCommandType::markAllRead:
