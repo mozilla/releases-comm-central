@@ -107,7 +107,7 @@ form {
     line-height: var(--hub-form-input-line-height);
     margin-inline: 0;
     padding-block: 12px;
-    padding-inline: 9px 14px;
+    padding-inline: 9px 30px;
     border: 1px solid var(--color-neutral-border);
     background-color: var(--hub-input-bg-color);
     font-weight: 200;
