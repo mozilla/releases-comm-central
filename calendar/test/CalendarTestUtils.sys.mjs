@@ -1153,11 +1153,10 @@ export const CalendarTestUtils = {
       // where P is the pixelsPerMinute of the view. Thus
       //   scrollMinute = min +- round(0.5 / P)
       const roundingError = Math.round(0.5 / view.pixelsPerMinute);
-      view.scrollToMinute(scrollMinute);
-      await TestUtils.waitForCondition(
-        () => Math.abs(view.scrollMinute - scrollMinute) <= roundingError,
-        "Waiting for scroll minute to restore"
-      );
+      await TestUtils.waitForCondition(() => {
+        view.scrollToMinute(scrollMinute);
+        return Math.abs(view.scrollMinute - scrollMinute) <= roundingError;
+      }, "Waiting for scroll minute to restore");
     }
     await CalendarTestUtils.closeCalendarTab(win);
   },
