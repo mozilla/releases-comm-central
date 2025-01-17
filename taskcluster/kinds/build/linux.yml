@@ -285,7 +285,7 @@ linux64-ccov/opt:
         toolchain:
             - linux64-libotr
             - linux64-grcov
-            - linux64-rust
+            - linux64-rust-1.83
             - sysroot-x86_64-linux-gnu
 
 linux64-ccov/debug:
@@ -315,7 +315,7 @@ linux64-ccov/debug:
         toolchain:
             - linux64-libotr
             - linux64-grcov
-            - linux64-rust
+            - linux64-rust-1.83
             - sysroot-x86_64-linux-gnu
 
 linux/opt:
