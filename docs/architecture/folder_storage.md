@@ -5,7 +5,7 @@ the roles and interactions of a folder, its database, and the local storage.
 
 # Foundational concepts
 
-It is imortant to note that locally each folder will contain both:
+It is important to note that locally each folder will contain both:
 
 * message database file - contains metadata about each message in the folder
 (relatively small)
@@ -154,7 +154,7 @@ mark a message as being deleted without needing to rewrite the entire mbox file.
 
 When a message is deleted, there will be the "deleted" flag added to the header
 in both the database and `mbox` files. If the message exists on the server as
-well, then the server is told to kick off a deletion operation. 
+well, then the server is told to kick off a deletion operation.
 
 ## Folder Compaction
 
@@ -162,9 +162,9 @@ Folder compaction is simply the act of rebuilding the `mbox` file to remove any
 messages with the "deleted" flag. The frequency of auto-compaction can be set in
 the Thunderbird settings. When this operation is initiated, it goes through
 every message in the local storage and keeps all messages that have not been
-marked as deleted. 
+marked as deleted.
 
-## IMAP Example 
+## IMAP Example
 
 ### Folder marked to not download messages
 
@@ -176,7 +176,7 @@ could be massive so the user would not want this to be automatically downloaded.
 
 The user has freshly connected and has not clicked on any of these IMAP messages
 to download yet. In this case, the user would have a message database file and
-an empty `mbox` file. 
+an empty `mbox` file.
 
 Then the user clicks and reads 5 messages. Now their database file is the same
 and because the folder has been marked to not download, their `mbox` file
