@@ -420,6 +420,19 @@ define(function (require) {
           [{ name: "", email: "actual@example.com" }],
         ],
         [
+          `"Spoofed" <slonser.bugbounty@example.com>: spoofed@example.com`,
+          [
+            {
+              name: "Spoofed",
+              group: [{ name: "", email: "spoofed@example.com" }],
+            },
+          ],
+        ],
+        [
+          `": <spoofer@example.com> "<real@example.com>"`,
+          [{ name: ": <spoofer@example.com>", email: "real@example.com" }],
+        ],
+        [
           "Someone \t Else\u00A0 (you know) <else@example.com>:Actual <actual@example.com>",
           [
             {
