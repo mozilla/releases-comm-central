@@ -61,7 +61,7 @@ module.exports = {
   ],
 
   // When adding items to this file please check for effects on sub-directories.
-  plugins: ["mozilla", "html", "import", "json"],
+  plugins: ["mozilla", "html", "import", "json", "promise"],
 
   rules: {
     complexity: ["error", 80],
