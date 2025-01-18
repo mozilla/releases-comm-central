@@ -456,7 +456,7 @@ export class Pop3Client {
     const content = await IOUtils.readUTF8(stateFile.path);
     this._uidlMap = new Map();
     let uidlLine = false;
-    for (const line of content.split(this._lineSeparator)) {
+    for (const line of content.split(/\r?\n/)) {
       if (!line) {
         continue;
       }
