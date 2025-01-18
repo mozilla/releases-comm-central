@@ -133,6 +133,10 @@ add_task(async function test_compose_identity_colors() {
     gComposeCtrl.document.getElementById("msgIdentityPopup"),
     [{ accountkey: gPopAccount.key }]
   );
+  if (AppConstants.DEBUG) {
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
 
   pseudoStyle = getComputedStyle(identityList._labelBox, "::before");
   Assert.equal(
@@ -156,6 +160,10 @@ add_task(async function test_compose_identity_colors() {
     gComposeCtrl.document.getElementById("msgIdentityPopup"),
     [{ accountkey: gLocalAccount.key }]
   );
+  if (AppConstants.DEBUG) {
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
 
   pseudoStyle = getComputedStyle(identityList._labelBox, "::before");
   Assert.equal(
@@ -172,6 +180,11 @@ add_task(async function test_compose_identity_colors() {
   // Clear colors.
   popAMUtils.resetServerColor();
   localAMUtils.resetServerColor();
+  if (AppConstants.DEBUG) {
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
   Assert.ok(
     !identityList.classList.contains("has-custom-color"),
     "The identity list should not display custom account colors"
