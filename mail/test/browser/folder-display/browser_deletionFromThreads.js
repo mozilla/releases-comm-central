@@ -52,6 +52,13 @@ add_setup(async function () {
   tab2 = await open_folder_in_new_tab(singleFolder);
 
   about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+
+  registerCleanupFunction(() => {
+    multiFolder.deleteSelf(null);
+    singleFolder.deleteSelf(null);
+    folderA.deleteSelf(null);
+    folderB.deleteSelf(null);
+  });
 });
 
 const assertReplyCount = async replyCount => {
@@ -139,7 +146,6 @@ add_task(async function delete_from_expanded_xfthread() {
 const assertMessagesCount = async (unreadCount, messagesCount) => {
   await switch_tab();
   await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
-
   const count = about3Pane.threadTree.querySelector(".sort-header-details");
   Assert.deepEqual(
     about3Pane.document.l10n.getAttributes(count),
