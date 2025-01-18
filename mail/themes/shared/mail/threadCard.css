@@ -162,11 +162,11 @@
         @media (prefers-contrast) {
           :root:not([lwtheme]) & {
             border-color: SelectedItemText;
+          }
 
-            & .replies-icon,
-            & .thread-replies {
-              color: inherit;
-            }
+          :root:not([lwtheme]) & .replies-icon,
+          :root:not([lwtheme]) & .thread-replies {
+            color: inherit;
           }
         }
       }

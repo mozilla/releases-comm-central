@@ -655,18 +655,16 @@ div:has(legend) {
           width: 30px;
         }
 
-        & .config-item-data {
-          p {
-            &:first-of-type {
-              color: light-dark(#2176d6, #feffff);
-              font-weight: 500;
-              font-size: 1.3rem;
-            }
+        & .config-item-data p {
+          &:first-of-type {
+            color: light-dark(#2176d6, #feffff);
+            font-weight: 500;
+            font-size: 1.3rem;
+          }
 
-            &:last-of-type {
-              font-size: 1rem;
-              color: var(--color-text-secondary);
-            }
+          &:last-of-type {
+            font-size: 1rem;
+            color: var(--color-text-secondary);
           }
         }
       }

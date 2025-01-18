@@ -252,8 +252,7 @@ module.exports = {
 
     "media-feature-name-no-unknown": true,
     "media-feature-name-value-no-unknown": true,
-    // Disabled for -moz-bool-pref
-    "media-query-no-invalid": null,
+    "max-nesting-depth": 5,
 
     "@stylistic/color-hex-case": "lower",
   },

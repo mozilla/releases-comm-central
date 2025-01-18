@@ -33,6 +33,7 @@ mailattachcount {
   background-color: #dedede;
 }
 
+/* stylelint-disable-next-line media-query-no-invalid */
 @media (prefers-color-scheme: dark) and (-moz-bool-pref: "mail.dark-reader.enabled") {
   .moz-header-part1 {
     background-color: var(--color-gray-70);
@@ -95,6 +96,7 @@ mailattachcount {
   height: 100vh;
 }
 
+/* stylelint-disable-next-line media-query-no-invalid */
 @media (prefers-color-scheme: dark) and (-moz-bool-pref: "mail.dark-reader.enabled") {
   html {
     background-color: var(--color-gray-90);
