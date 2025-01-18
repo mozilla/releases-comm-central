@@ -297,8 +297,12 @@ div:has(legend) {
   width: 16px;
   height: 16px;
 
-  &.icon-danger,
-  &.icon-success {
+  input:is(:user-invalid, :invalid) ~ & {
+    display: none;
+  }
+
+  &.input-warning,
+  &.input-success {
     position: absolute;
     inset-inline-end: 0;
     padding-inline-end: 10px;
@@ -307,14 +311,6 @@ div:has(legend) {
     #outgoingPort ~ & {
       padding-inline-end: 30px;
     }
-  }
-
-  input:user-invalid ~ & {
-    display: none;
-  }
-
-  input:valid ~ & {
-    display: none;
   }
 }
 
@@ -349,11 +345,6 @@ div:has(legend) {
     }
   }
 
-  .notification-icon {
-    margin-inline: 0 10px;
-    display: none;
-  }
-
   .notification-title-container {
     display: flex;
     align-items: center;
@@ -363,11 +354,15 @@ div:has(legend) {
       font-size: 1.1rem;
       padding-inline-start: 5px;
       margin-inline-start: auto;
-      white-space: nowrap;
     }
 
     #emailFormNotificationToggle {
       text-decoration: underline;
+      white-space: nowrap;
+    }
+
+    &:has(#emailFormNotificationToggle:not([hidden])) .notification-title {
+      text-align: start;
     }
   }
 
@@ -382,73 +377,45 @@ div:has(legend) {
   .notification-text {
     margin-block: 6px;
     font-size: 1rem;
+    padding-inline-start: 32px;
+    display: inline-block;
   }
 
   .form-icon {
+    margin-inline: 0 10px;
     cursor: pointer;
+    display: none;
+  }
+
+  &.error .icon-danger,
+  &.success .icon-success,
+  &.warning .icon-warning,
+  &.info .icon-info {
+    display: inline-block;
   }
 
   &.error {
     background-color: var(--color-danger-soft);
     color: var(--color-danger-pressed);
     border-color: var(--color-danger-default);
-
-    .icon-danger {
-      display: inline-block;
-    }
   }
 
   &.warning {
     background-color: var(--color-warning-soft);
     color: var(--color-text-warning);
     border-color: var(--color-warning-default);
-
-    .icon-warning {
-      display: inline-block;
-    }
   }
 
   &.success {
     background-color: var(--color-success-soft);
     color: var(--color-success-pressed);
     border-color: var(--color-success-default);
-
-    .icon-success {
-      display: inline-block;
-    }
   }
 
   &.info {
     background-color: var(--color-primary-soft);
     color: var(--color-primary-pressed);
     border-color: var(--color-primary-default);
-
-    .icon-info {
-      display: inline-block;
-    }
-  }
-}
-
-.form-toggle-button {
-  cursor: pointer;
-  appearance: none;
-  background: transparent;
-  border: none;
-  padding: 0 4px;
-  margin-inline: -30px 6px;
-  min-width: auto;
-  min-height: auto;
-  margin-block: 0;
-  line-height: 0;
-
-  &:hover,
-  &:active {
-    background-color: transparent !important;
-  }
-
-  & .form-icon {
-    pointer-events: none;
-    margin-inline: 0;
   }
 }
 
@@ -457,10 +424,30 @@ div:has(legend) {
     display: none;
   }
 
+  & ~ .form-toggle-button {
+    cursor: pointer;
+    appearance: none;
+    background: transparent;
+    border: none;
+    padding: 0 4px;
+    margin-inline: -30px 6px;
+    min-width: auto;
+    min-height: auto;
+    margin-block: 0;
+    line-height: 0;
+
+    &:hover,
+    &:active {
+      background-color: transparent !important;
+    }
+  }
+
   & ~ .form-toggle-button .form-icon {
     -moz-context-properties: fill, stroke;
     fill: color-mix(in srgb, currentColor 20%, transparent);
     stroke: currentColor;
+    pointer-events: none;
+    margin-inline: 0;
   }
 
   &[type="password"] ~ .form-toggle-button .form-icon {
