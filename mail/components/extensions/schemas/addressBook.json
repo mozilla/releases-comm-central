@@ -261,8 +261,9 @@
     "events": [
       {
         "name": "onSearchRequest",
+        "max_manifest_version": 2,
         "type": "function",
-        "description": "Registering this listener will create and list a read-only address book in Thunderbird's address book window, similar to LDAP address books. When selecting this address book, users will first see no contacts, but they can search for them, which will fire this event. Contacts returned by the listener callback will be displayed as contact cards in the address book. Several listeners can be registered, to create multiple address books.\n\nThe event also fires for each registered listener (for each created read-only address book), when users type something into the mail composer's <em>To:</em> field, or into similar fields like the calendar meeting attendees field. Contacts returned by the listener callback will be added to the autocomplete results in the dropdown of that field.\n\nExample: <literalinclude>includes/addressBooks/onSearchRequest.js<lang>JavaScript</lang></literalinclude>",
+        "description": "Registering this listener will create a read-only address book, similar to an LDAP address book. When selecting this address book, users will first see no contacts, but they can search for them, which will fire this event. Contacts returned by the listener callback will be displayed as contact cards in the address book. Several listeners can be registered, to create multiple address books.\n\nThe event also fires for each registered listener (for each created read-only address book), when users type something into the mail composer's <em>To:</em> field, or into similar fields like the calendar meeting attendees field. Contacts returned by the listener callback will be added to the autocomplete results in the dropdown of that field.\n\nExample: <literalinclude>includes/addressBooks/onSearchRequest_mv2.js<lang>JavaScript</lang></literalinclude>",
         "parameters": [
           {
             "name": "node",
@@ -290,7 +291,7 @@
               "addressBookName": {
                 "type": "string",
                 "optional": true,
-                "description": "The name of the created address book."
+                "description": "The name of the created address book. If not provided, the name of the extension is used."
               },
               "isSecure": {
                 "type": "boolean",
@@ -300,7 +301,55 @@
               "id": {
                 "type": "string",
                 "optional": true,
-                "description": "The unique ID of the created address book. If several listeners have been added, the <var>id</var> allows to identify which address book initiated the search request. If not provided, a unique ID will be generated for you."
+                "description": "The unique identifier of the created address book. If not provided, a unique identifier will be generated for you."
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "onSearchRequest",
+        "min_manifest_version": 3,
+        "type": "function",
+        "description": "Registering this listener will create a read-only address book, similar to an LDAP address book. When selecting this address book, users will first see no contacts, but they can search for them, which will fire this event. Contacts returned by the listener callback will be displayed as contact cards in the address book. Several listeners can be registered, to create multiple address books. **Ensure all listeners are at the top-level and use the synchronous pattern, otherwise the associated address books will be removed on background termination.**.\n\nThe event also fires for each registered listener (for each created read-only address book), when users type something into the mail composer's <em>To:</em> field, or into similar fields like the calendar meeting attendees field. Contacts returned by the listener callback will be added to the autocomplete results in the dropdown of that field.\n\nExample: <literalinclude>includes/addressBooks/onSearchRequest_mv3.js<lang>JavaScript</lang></literalinclude>",
+        "parameters": [
+          {
+            "name": "node",
+            "$ref": "AddressBookNode"
+          },
+          {
+            "name": "searchString",
+            "description": "The search text that the user entered. Not available when invoked from the advanced address book search dialog.",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "query",
+            "type": "string",
+            "description": "The boolean query expression corresponding to the search. **Note:** This parameter may change in future releases of Thunderbird.",
+            "optional": true
+          }
+        ],
+        "extraParameters": [
+          {
+            "name": "parameters",
+            "description": "Descriptions for the address book created by registering this listener.",
+            "type": "object",
+            "properties": {
+              "addressBookName": {
+                "type": "string",
+                "optional": true,
+                "description": "The name of the created address book. If not provided, the name of the extension is used."
+              },
+              "isSecure": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the address book search queries are using encrypted protocols like HTTPS."
+              },
+              "id": {
+                "type": "string",
+                "optional": true,
+                "description": "The unique identifier of the created address book. If not provided, a unique identifier will be generated for you."
               }
             }
           }

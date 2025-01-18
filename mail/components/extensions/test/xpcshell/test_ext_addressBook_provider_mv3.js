@@ -6,36 +6,34 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
 
+var { AddonTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/AddonTestUtils.sys.mjs"
+);
+
+ExtensionTestUtils.mockAppInfo();
+AddonTestUtils.maybeInit(this);
+
 add_task(async function () {
+  await AddonTestUtils.promiseStartupManager();
+
   const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
-      let id = "9b9074ff-8fa4-4c58-9c3b-bc9ea2e17db1";
-      const dummy = async () => {
-        await browser.test.assertTrue(
-          false,
-          "Should have removed this address book"
-        );
-      };
-      await browser.addressBooks.provider.onSearchRequest.addListener(dummy, {
-        addressBookName: "dummy",
-        isSecure: false,
-        id,
-      });
-      await browser.addressBooks.provider.onSearchRequest.removeListener(dummy);
-      id = "00e1d9af-a846-4ef5-a6ac-15e8926bf6d3";
-      await browser.addressBooks.provider.onSearchRequest.addListener(
+      // Persistent listeners.
+      const id1 = "00e1d9af-a846-4ef5-a6ac-15e8926bf6d3";
+      browser.addressBooks.provider.onSearchRequest.addListener(
         async (node, searchString) => {
           await browser.test.assertEq(
-            id,
+            id1,
             node.id,
             "Addressbook should have the id we requested"
           );
           return {
             results: [
-              {
-                DisplayName: searchString,
-                PrimaryEmail: searchString + "@example.com",
-              },
+              `BEGIN:VCARD
+VERSION:3.0
+FN;CHARSET=UTF-8:${searchString}
+EMAIL;TYPE=PREF,INTERNET:${searchString}@example.com
+END:VCARD`,
             ],
             isCompleteResult: true,
           };
@@ -43,10 +41,10 @@ add_task(async function () {
         {
           addressBookName: "xpcshell",
           isSecure: false,
-          id,
+          id: id1,
         }
       );
-      await browser.addressBooks.provider.onSearchRequest.addListener(
+      browser.addressBooks.provider.onSearchRequest.addListener(
         async () => {
           await browser.test.assertTrue(
             false,
@@ -56,13 +54,36 @@ add_task(async function () {
         {
           addressBookName: "xpcshell",
           isSecure: false,
-          id,
+          id: id1,
         }
       );
 
+      await new Promise(r => window.setTimeout(r));
+
+      // Non-persisting listeners (because after an await).
+      const id2 = "9b9074ff-8fa4-4c58-9c3b-bc9ea2e17db1";
+      const dummy = async () => {
+        await browser.test.assertTrue(
+          false,
+          "Should have removed this address book"
+        );
+      };
+      browser.addressBooks.provider.onSearchRequest.addListener(dummy, {
+        addressBookName: "dummy",
+        isSecure: false,
+        id: id2,
+      });
+      browser.addressBooks.provider.onSearchRequest.removeListener(dummy);
+
       browser.test.sendMessage("ready");
     },
-    manifest: { permissions: ["addressBooks"] },
+    manifest: {
+      manifest_version: 3,
+      browser_specific_settings: {
+        gecko: { id: "provider_test@mochi.test" },
+      },
+      permissions: ["addressBooks"],
+    },
   });
 
   await extension.startup();
@@ -128,6 +149,47 @@ add_task(async function () {
       },
     });
   });
+
+  // Terminate Background and prime listener.
+  assertPersistentListeners(extension, "addressBook", "onSearchRequest", {
+    primed: false,
+  });
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  assertPersistentListeners(extension, "addressBook", "onSearchRequest", {
+    primed: true,
+  });
+
+  // We should still be able to trigger our persistent listeners.
+  await new Promise(resolve => {
+    let foundCards = 0;
+    searchBook.search(null, "otherTest", {
+      onSearchFoundCard(card) {
+        Assert.notEqual(card, null, "A card was found.");
+        equal(card.directoryUID, UID, "The card comes from the directory.");
+        equal(
+          card.primaryEmail,
+          "otherTest@example.com",
+          "The card has the correct email address."
+        );
+        equal(
+          card.displayName,
+          "otherTest",
+          "The card has the correct display name."
+        );
+        foundCards++;
+      },
+      onSearchFinished(status, isCompleteResult) {
+        ok(Components.isSuccessCode(status), "Search finished successfully.");
+        equal(foundCards, 1, "One card was found.");
+        ok(isCompleteResult, "A full result set was received.");
+        resolve();
+      },
+    });
+  });
+
+  // We should have received an additional "ready" message from the restarted
+  // background script.
+  await extension.awaitMessage("ready");
 
   await extension.unload();
   searchBook = MailServices.ab.getDirectoryFromUID(UID);
