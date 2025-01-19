@@ -121,7 +121,7 @@ EOF
 # Install Thunderbird files into appdir
 appdir=build/files
 install -d "${appdir}/lib/"
-(cd "${appdir}/lib/" && tar jxf "${WORKSPACE}/thunderbird.tar.xz")
+(cd "${appdir}/lib/" && tar Jxf "${WORKSPACE}/thunderbird.tar.xz")
 install -D -m644 -t "${appdir}/share/appdata" org.mozilla.Thunderbird.appdata.xml
 install -D -m644 -t "${appdir}/share/applications" org.mozilla.Thunderbird.desktop
 for size in 16 32 48 64 128; do

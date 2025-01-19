@@ -18,6 +18,7 @@ RUN apt-get update && \
       locales \
       snapd \
       sudo \
+      xz-utils \
       && \
     locale-gen "en_US.UTF-8"
 

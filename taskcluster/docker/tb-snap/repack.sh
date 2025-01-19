@@ -34,7 +34,7 @@ mkdir -p "$DISTRIBUTION_DIR/extensions"
 # Download and extract en-US linux64 binary
 $CURL -o "${WORKSPACE}/${PRODUCT}.tar.xz" \
     "${CANDIDATES_DIR}/${VERSION}-candidates/build${BUILD_NUMBER}/linux-x86_64/en-US/${PRODUCT}-${VERSION}.tar.xz"
-tar -C "$SOURCE_DEST" -xf "${WORKSPACE}/${PRODUCT}.tar.xz" --strip-components=1
+tar -C "$SOURCE_DEST" -Jxf "${WORKSPACE}/${PRODUCT}.tar.xz" --strip-components=1
 
 # Download L10N XPIs (excluding ja-JP-mac)
 readarray -t locales < <(echo "$PKG_LOCALES" | jq -r '.[]')
