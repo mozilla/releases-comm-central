@@ -2285,19 +2285,9 @@ nsMsgDatabase::MarkThreadIgnored(nsIMsgThread* thread, nsMsgKey threadKey,
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::MarkHeaderKilled(nsIMsgDBHdr* msg, bool bIgnored,
-                                nsIDBChangeListener* instigator) {
-  uint32_t msgFlags;
-  msg->GetFlags(&msgFlags);
-  uint32_t oldFlags = msgFlags;
-  if (bIgnored) {
-    msgFlags |= nsMsgMessageFlags::Ignored;
-  } else {
-    msgFlags &= ~nsMsgMessageFlags::Ignored;
-  }
-  msg->SetFlags(msgFlags);
-
-  return NotifyHdrChangeAll(msg, oldFlags, msgFlags, instigator);
+nsMsgDatabase::MarkKilled(nsMsgKey key, bool bIgnored,
+                          nsIDBChangeListener* instigator) {
+  return SetKeyFlag(key, bIgnored, nsMsgMessageFlags::Ignored, instigator);
 }
 
 NS_IMETHODIMP
@@ -2510,12 +2500,6 @@ nsresult nsMsgDatabase::SetKeyFlag(nsMsgKey key, bool set,
     return NS_MSG_MESSAGE_NOT_FOUND;
   }
 
-  return SetMsgHdrFlag(msgHdr, set, flag, instigator);
-}
-
-nsresult nsMsgDatabase::SetMsgHdrFlag(nsIMsgDBHdr* msgHdr, bool set,
-                                      nsMsgMessageFlagType flag,
-                                      nsIDBChangeListener* instigator) {
   uint32_t oldFlags;
   (void)msgHdr->GetFlags(&oldFlags);
 
@@ -2551,8 +2535,8 @@ bool nsMsgDatabase::SetHdrFlag(nsIMsgDBHdr* msgHdr, bool bSet,
   return false;
 }
 
-NS_IMETHODIMP nsMsgDatabase::MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
-                                         nsIDBChangeListener* instigator) {
+nsresult nsMsgDatabase::MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
+                                    nsIDBChangeListener* instigator) {
   bool isReadInDB = true;
   nsresult rv = nsMsgDatabase::IsHeaderRead(msgHdr, &isReadInDB);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2589,25 +2573,11 @@ NS_IMETHODIMP nsMsgDatabase::MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::MarkHdrReplied(nsIMsgDBHdr* msgHdr, bool bReplied,
-                                            nsIDBChangeListener* instigator) {
-  return SetMsgHdrFlag(msgHdr, bReplied, nsMsgMessageFlags::Replied,
-                       instigator);
-}
-
-NS_IMETHODIMP nsMsgDatabase::MarkHdrMarked(nsIMsgDBHdr* msgHdr, bool mark,
-                                           nsIDBChangeListener* instigator) {
-  return SetMsgHdrFlag(msgHdr, mark, nsMsgMessageFlags::Marked, instigator);
-}
-
 NS_IMETHODIMP
-nsMsgDatabase::MarkHdrNotNew(nsIMsgDBHdr* aMsgHdr,
-                             nsIDBChangeListener* aInstigator) {
-  NS_ENSURE_ARG_POINTER(aMsgHdr);
-  nsMsgKey msgKey;
-  aMsgHdr->GetMessageKey(&msgKey);
-  m_newSet.RemoveElement(msgKey);
-  return SetMsgHdrFlag(aMsgHdr, false, nsMsgMessageFlags::New, aInstigator);
+nsMsgDatabase::MarkNotNew(nsMsgKey aKey, nsIDBChangeListener* aInstigator) {
+  NS_ENSURE_ARG_POINTER(aKey);
+  m_newSet.RemoveElement(aKey);
+  return SetKeyFlag(aKey, false, nsMsgMessageFlags::New, aInstigator);
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkAllRead(nsTArray<nsMsgKey>& aThoseMarked) {

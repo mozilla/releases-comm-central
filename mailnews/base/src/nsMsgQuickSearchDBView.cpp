@@ -88,9 +88,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::DoCommand(
                                   false);
 
     for (uint32_t i = 0; NS_SUCCEEDED(rv) && i < GetSize(); i++) {
-      nsCOMPtr<nsIMsgDBHdr> msgHdr;
-      m_db->GetMsgHdrForKey(m_keys[i], getter_AddRefs(msgHdr));
-      rv = m_db->MarkHdrRead(msgHdr, true, nullptr);
+      rv = m_db->MarkRead(m_keys[i], true, nullptr);
     }
 
     m_folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications,

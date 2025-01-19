@@ -362,74 +362,73 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
 
   nsIMsgThread getThreadContainingMsgHdr(in nsIMsgDBHdr msgHdr) ;
 
-  // helpers for user command functions like delete, mark read, etc.
-
-  void markHdrRead(in nsIMsgDBHdr msgHdr, in boolean bRead,
-                         in nsIDBChangeListener instigator);
-
-  void markHdrReplied(in nsIMsgDBHdr msgHdr, in boolean bReplied,
-                         in nsIDBChangeListener instigator);
-
-  void markHdrMarked(in nsIMsgDBHdr msgHdr, in boolean mark,
-                         in nsIDBChangeListener instigator);
   /**
    * Remove the new status from a message.
    *
-   * @param aMsgHdr        The database reference header for the message
-   * @param aInstigator    Reference to original calling object
+   * @param key - The database reference header for the message.
+   * @param instigator - Reference to original calling object.
    */
-  void markHdrNotNew(in nsIMsgDBHdr aMsgHdr,
-                     in nsIDBChangeListener aInstigator);
+  void markNotNew(in nsMsgKey key, in nsIDBChangeListener instigator);
 
-  // MDN support
-  void markMDNNeeded(in nsMsgKey key, in boolean bNeeded,
-                           in nsIDBChangeListener instigator);
+  void markMDNNeeded(in nsMsgKey key, in boolean needed,
+                     in nsIDBChangeListener instigator);
 
-  void markMDNSent(in nsMsgKey key, in boolean bSent,
-                         in nsIDBChangeListener instigator);
-  boolean isMDNSent(in nsMsgKey key);
+  void markMDNSent(in nsMsgKey key, in boolean sent,
+                   in nsIDBChangeListener instigator);
 
-  void markRead(in nsMsgKey key, in boolean bRead,
+  void markRead(in nsMsgKey key, in boolean read,
+                in nsIDBChangeListener instigator);
+
+  void markMarked(in nsMsgKey key, in boolean marked,
+                  in nsIDBChangeListener instigator);
+
+  void markReplied(in nsMsgKey key, in boolean replied,
+                   in nsIDBChangeListener instigator);
+
+  void markForwarded(in nsMsgKey key, in boolean forwarded,
+                     in nsIDBChangeListener instigator);
+
+  void markRedirected(in nsMsgKey key, in boolean redirected,
                       in nsIDBChangeListener instigator);
 
-  void markReplied(in nsMsgKey key, in boolean bReplied,
-                         in nsIDBChangeListener instigator);
+  void markHasAttachments(in nsMsgKey key, in boolean hasAttachments,
+                          in nsIDBChangeListener instigator);
 
-  void markForwarded(in nsMsgKey key, in boolean bForwarded,
-                           in nsIDBChangeListener instigator);
+  void markOffline(in nsMsgKey key, in boolean offline,
+                   in nsIDBChangeListener instigator);
 
-  void markRedirected(in nsMsgKey key, in boolean bRedirected,
-                      in nsIDBChangeListener instigator);
+  void markImapDeleted(in nsMsgKey key, in boolean deleted,
+                       in nsIDBChangeListener instigator);
 
-  void markHasAttachments(in nsMsgKey key, in boolean bHasAttachments,
-                                in nsIDBChangeListener instigator);
-
-  Array<nsMsgKey> markThreadRead(in nsIMsgThread thread, in nsIDBChangeListener instigator);
+  Array<nsMsgKey> markThreadRead(in nsIMsgThread thread,
+                                 in nsIDBChangeListener instigator);
 
   /// Mark the specified thread ignored.
   void markThreadIgnored(in nsIMsgThread thread, in nsMsgKey threadKey,
-                         in boolean bIgnored,
+                         in boolean ignored,
                          in nsIDBChangeListener instigator);
 
   /// Mark the specified thread watched.
   void markThreadWatched(in nsIMsgThread thread, in nsMsgKey threadKey,
-                         in boolean bWatched,
+                         in boolean watched,
                          in nsIDBChangeListener instigator);
 
   /// Mark the specified subthread ignored.
-  void markHeaderKilled(in nsIMsgDBHdr msg, in boolean bIgnored,
-                        in nsIDBChangeListener instigator);
+  void markKilled(in nsMsgKey key, in boolean killed,
+                  in nsIDBChangeListener instigator);
 
-  /// Is the message read.
+  /// Is the message read?
   boolean isRead(in nsMsgKey key);
-  /// Is the message part of an ignored thread.
+  /// Is the message part of an ignored thread?
   boolean isIgnored(in nsMsgKey key);
-  /// Is the message part of a watched thread.
+  /// Is the message part of a watched thread?
   boolean isWatched(in nsMsgKey key);
-  /// Is the message flagged/starred.
+  /// Is the message flagged/starred?
   boolean isMarked(in nsMsgKey key);
-  /// Does the message have attachments.
+  /// Does the message have attachments?
   boolean hasAttachments(in nsMsgKey key);
+  /// Has an MDN been sent?
+  boolean isMDNSent(in nsMsgKey key);
 
   Array<nsMsgKey> markAllRead();
 
@@ -446,10 +445,6 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
 
   void undoDelete(in nsIMsgDBHdr msgHdr);
 
-  void markMarked(in nsMsgKey key, in boolean mark,
-                        in nsIDBChangeListener instigator);
-  void markOffline(in nsMsgKey key, in boolean offline,
-                         in nsIDBChangeListener instigator);
   void setStringProperty(in nsMsgKey aKey, in string aProperty, in AUTF8String aValue);
   /**
    * Set the value of a string property in a message header
@@ -469,9 +464,6 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
    */
   void setUint32PropertyByHdr(in nsIMsgDBHdr aMsgHdr,
                               in string aProperty, in unsigned long aValue);
-
-  void markImapDeleted(in nsMsgKey key, in boolean deleted,
-                             in nsIDBChangeListener instigator);
 
   readonly attribute nsMsgKey firstNew;
 

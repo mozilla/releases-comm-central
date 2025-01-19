@@ -3345,7 +3345,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
             // msgHdr->OrFlags(nsMsgMessageFlags::Read, &newFlags);  // mark
             // read in trash.
           } else {
-            mDatabase->MarkHdrRead(msgHdr, true, nullptr);
+            mDatabase->MarkRead(msgKey, true, nullptr);
             mDatabase->MarkImapDeleted(msgKey, true, nullptr);
             rv = StoreImapFlags(kImapMsgSeenFlag | kImapMsgDeletedFlag, true,
                                 {msgKey}, nullptr);
@@ -3418,17 +3418,17 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
           }
         } break;
         case nsMsgFilterAction::MarkRead: {
-          mDatabase->MarkHdrRead(msgHdr, true, nullptr);
+          mDatabase->MarkRead(msgKey, true, nullptr);
           rv = StoreImapFlags(kImapMsgSeenFlag, true, {msgKey}, nullptr);
           msgIsNew = false;
         } break;
         case nsMsgFilterAction::MarkUnread: {
-          mDatabase->MarkHdrRead(msgHdr, false, nullptr);
+          mDatabase->MarkRead(msgKey, false, nullptr);
           rv = StoreImapFlags(kImapMsgSeenFlag, false, {msgKey}, nullptr);
           msgIsNew = true;
         } break;
         case nsMsgFilterAction::MarkFlagged: {
-          mDatabase->MarkHdrMarked(msgHdr, true, nullptr);
+          mDatabase->MarkMarked(msgKey, true, nullptr);
           rv = StoreImapFlags(kImapMsgFlaggedFlag, true, {msgKey}, nullptr);
         } break;
         case nsMsgFilterAction::KillThread:
@@ -3454,14 +3454,14 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
                                              nsMsgMessageFlags::Watched);
           }
           if (actionType == nsMsgFilterAction::KillThread) {
-            mDatabase->MarkHdrRead(msgHdr, true, nullptr);
+            mDatabase->MarkRead(msgKey, true, nullptr);
             rv = StoreImapFlags(kImapMsgSeenFlag, true, {msgKey}, nullptr);
             msgIsNew = false;
           }
         } break;
         case nsMsgFilterAction::KillSubthread: {
-          mDatabase->MarkHeaderKilled(msgHdr, true, nullptr);
-          mDatabase->MarkHdrRead(msgHdr, true, nullptr);
+          mDatabase->MarkKilled(msgKey, true, nullptr);
+          mDatabase->MarkRead(msgKey, true, nullptr);
           rv = StoreImapFlags(kImapMsgSeenFlag, true, {msgKey}, nullptr);
           msgIsNew = false;
         } break;
@@ -3493,7 +3493,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
             if (keysToClassify) keysToClassify->AppendElement(msgKey);
             if (msgIsNew && junkScore == nsIJunkMailPlugin::IS_SPAM_SCORE) {
               msgIsNew = false;
-              mDatabase->MarkHdrNotNew(msgHdr, nullptr);
+              mDatabase->MarkNotNew(msgKey, nullptr);
               // nsMsgDBFolder::SendFlagNotifications by the call to
               // SetBiffState(nsMsgBiffState_NoMail) will reset numNewMessages
               // only if the message is also read and database notifications
@@ -3605,7 +3605,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
     // to zero in nsMsgDBFolder::SendFlagNotifications by the call to
     // SetBiffState(nsMsgBiffState_NoMail), so don't repeat them here.
     if (!m_filterListRequiresBody) SetNumNewMessages(--numNewMessages);
-    if (mDatabase) mDatabase->MarkHdrNotNew(msgHdr, nullptr);
+    if (mDatabase) mDatabase->MarkNotNew(msgKey, nullptr);
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
             ("(Imap) Message will not be marked new"));
   }
@@ -4673,9 +4673,9 @@ nsresult nsImapMailFolder::NotifyMessageFlagsFromHdr(nsIMsgDBHdr* dbHdr,
   nsCOMPtr<nsIMsgDatabase> database(mDatabase);
   NS_ENSURE_STATE(database);
 
-  database->MarkHdrRead(dbHdr, (flags & kImapMsgSeenFlag) != 0, nullptr);
-  database->MarkHdrReplied(dbHdr, (flags & kImapMsgAnsweredFlag) != 0, nullptr);
-  database->MarkHdrMarked(dbHdr, (flags & kImapMsgFlaggedFlag) != 0, nullptr);
+  database->MarkRead(msgKey, (flags & kImapMsgSeenFlag) != 0, nullptr);
+  database->MarkReplied(msgKey, (flags & kImapMsgAnsweredFlag) != 0, nullptr);
+  database->MarkMarked(msgKey, (flags & kImapMsgFlaggedFlag) != 0, nullptr);
   database->MarkImapDeleted(msgKey, (flags & kImapMsgDeletedFlag) != 0,
                             nullptr);
 

@@ -5456,7 +5456,7 @@ nsresult nsMsgDBView::ListUnreadIdsInThread(
       bool isRead = AdjustReadFlag(msgHdr, &msgFlags);
       if (!isRead) {
         // Just make sure flag is right in db.
-        m_db->MarkHdrRead(msgHdr, false, nullptr);
+        m_db->MarkRead(msgKey, false, nullptr);
         if (msgKey != topLevelMsgKey) {
           InsertMsgHdrAt(
               viewIndex, msgHdr, msgKey, msgFlags,
@@ -5814,18 +5814,18 @@ nsresult nsMsgDBView::MarkThreadRead(nsIMsgThread* threadHdr,
     if (!msgHdr) continue;
 
     bool isRead;
-    nsMsgKey hdrMsgId;
-    msgHdr->GetMessageKey(&hdrMsgId);
+    nsMsgKey msgKey;
+    msgHdr->GetMessageKey(&msgKey);
     nsCOMPtr<nsIMsgDatabase> db;
     nsresult rv = GetDBForHeader(msgHdr, getter_AddRefs(db));
     NS_ENSURE_SUCCESS(rv, rv);
-    db->IsRead(hdrMsgId, &isRead);
+    db->IsRead(msgKey, &isRead);
 
     if (isRead != bRead) {
-      // MarkHdrRead will change the unread count on the thread.
-      db->MarkHdrRead(msgHdr, bRead, nullptr);
+      // MarkRead will change the unread count on the thread.
+      db->MarkRead(msgKey, bRead, nullptr);
       // Insert at the front. Should we insert at the end?
-      idsMarkedRead.InsertElementAt(0, hdrMsgId);
+      idsMarkedRead.InsertElementAt(0, msgKey);
     }
   }
 
@@ -5846,7 +5846,7 @@ bool nsMsgDBView::AdjustReadFlag(nsIMsgDBHdr* msgHdr, uint32_t* msgFlags) {
   else
     *msgFlags &= ~nsMsgMessageFlags::Read;
 
-  m_db->MarkHdrRead(msgHdr, isRead, nullptr);
+  m_db->MarkRead(msgKey, isRead, nullptr);
   return isRead;
 }
 
@@ -6363,7 +6363,10 @@ nsresult nsMsgDBView::SetSubthreadKilled(nsIMsgDBHdr* header,
 
   if (!m_db) return NS_ERROR_FAILURE;
 
-  nsresult rv = m_db->MarkHeaderKilled(header, ignored, this);
+  nsMsgKey headKey;
+  header->GetMessageKey(&headKey);
+
+  nsresult rv = m_db->MarkKilled(headKey, ignored, this);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (ignored) {
@@ -6375,9 +6378,6 @@ nsresult nsMsgDBView::SetSubthreadKilled(nsIMsgDBHdr* header,
 
     uint32_t children, current;
     thread->GetNumChildren(&children);
-
-    nsMsgKey headKey;
-    header->GetMessageKey(&headKey);
 
     for (current = 0; current < children; current++) {
       nsMsgKey newKey;

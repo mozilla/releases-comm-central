@@ -820,7 +820,9 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
         } break;
         case nsMsgFilterAction::KillSubthread: {
           for (auto msgHdr : m_searchHitHdrs) {
-            rv = m_curFolderDB->MarkHeaderKilled(msgHdr, true, nullptr);
+            nsMsgKey msgKey;
+            msgHdr->GetMessageKey(&msgKey);
+            rv = m_curFolderDB->MarkKilled(msgKey, true, nullptr);
             BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
           }
         } break;

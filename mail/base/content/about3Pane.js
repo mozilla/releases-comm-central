@@ -5758,7 +5758,7 @@ var threadPane = {
           messages.forEach(function (msg) {
             const msgDb = msg.folder.msgDatabase;
             if (subthreadOnly) {
-              msgDb.markHeaderKilled(msg, false, null);
+              msgDb.markKilled(msg.messageKey, false, null);
             } else if (threadIds.has(msg.threadId)) {
               const thread = msgDb.getThreadContainingMsgHdr(msg);
               msgDb.markThreadIgnored(

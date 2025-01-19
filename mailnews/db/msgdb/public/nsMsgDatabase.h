@@ -102,6 +102,7 @@ class nsMsgDatabase : public nsIMsgOfflineOpsDatabase {
   virtual nsresult Open(nsMsgDBService* aDBService, nsIFile* aFolderName,
                         bool aCreate, bool aLeaveInvalidDB);
   virtual nsresult IsHeaderRead(nsIMsgDBHdr* hdr, bool* pRead);
+  virtual nsresult MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead, nsIDBChangeListener* instigator);
   virtual nsresult MarkHdrReadInDB(nsIMsgDBHdr* msgHdr, bool bRead,
                                    nsIDBChangeListener* instigator);
   nsresult OpenInternal(nsMsgDBService* aDBService, nsIFile* summaryFile,
@@ -250,10 +251,6 @@ class nsMsgDatabase : public nsIMsgOfflineOpsDatabase {
   // Flag handling routines
   virtual nsresult SetKeyFlag(nsMsgKey key, bool set, nsMsgMessageFlagType flag,
                               nsIDBChangeListener* instigator = nullptr);
-  virtual nsresult SetMsgHdrFlag(nsIMsgDBHdr* msgHdr, bool set,
-                                 nsMsgMessageFlagType flag,
-                                 nsIDBChangeListener* instigator);
-
   virtual bool SetHdrFlag(nsIMsgDBHdr*, bool bSet, nsMsgMessageFlagType flag);
   virtual bool SetHdrReadFlag(nsIMsgDBHdr*, bool bRead);
   virtual uint32_t GetStatusFlags(nsIMsgDBHdr* msgHdr,

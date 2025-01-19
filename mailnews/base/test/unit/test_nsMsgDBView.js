@@ -730,12 +730,12 @@ function test_expand_collapse() {
 
   // test that expand/collapse works with killed sub-thread.
   oldRowCount = gDBView.rowCount;
-  gTestFolder.msgDatabase.markHeaderKilled(thirdChild, true, null);
+  gTestFolder.msgDatabase.markKilled(thirdChild.messageKey, true, null);
   gDBView.toggleOpenState(0);
   if (gDBView.rowCount != oldRowCount + 2) {
     view_throw("expanding first item should have aded 2 items");
   }
-  gTestFolder.msgDatabase.markHeaderKilled(thirdChild, false, null);
+  gTestFolder.msgDatabase.markKilled(thirdChild.messageKey, false, null);
   oldRowCount = gDBView.rowCount;
   gDBView.toggleOpenState(0);
   if (gDBView.rowCount != oldRowCount - 2) {

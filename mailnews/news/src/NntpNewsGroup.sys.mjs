@@ -357,10 +357,10 @@ export class NntpNewsGroup {
           this._addHdrToDB = false;
           break;
         case Ci.nsMsgFilterAction.MarkRead:
-          this._db.markHdrRead(this._filteringHdr, true, null);
+          this._db.markRead(this._filteringHdr.messageKey, true, null);
           break;
         case Ci.nsMsgFilterAction.MarkUnread:
-          this._db.markHdrRead(this._filteringHdr, false, null);
+          this._db.markRead(this._filteringHdr.messageKey, false, null);
           break;
         case Ci.nsMsgFilterAction.KillThread:
           this._filteringHdr.setUint32Property(
