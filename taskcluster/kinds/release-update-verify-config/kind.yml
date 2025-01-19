@@ -29,6 +29,7 @@ task-defaults:
     extra:
         app-name: mail
         branch-prefix: comm
+        last-linux-bz2-version: "134.0b4"
         archive-prefix:
             by-release-level:
                 staging: "http://ftp.stage.mozaws.net/pub"
