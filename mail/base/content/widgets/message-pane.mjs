@@ -345,10 +345,6 @@ class MessagePane extends HTMLElement {
       return;
     }
 
-    if (this.messageBrowser.contentWindow.gMessageURI == messageURI) {
-      return;
-    }
-
     this.#keepStartPageOpen = false;
     this.clearWebPage();
     this.#clearMessages();
