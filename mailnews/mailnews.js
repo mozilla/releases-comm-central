@@ -135,9 +135,12 @@ pref("mailnews.headers.showSender", false);
 // be greater than one hour so daylight savings time changes don't affect us.
 // We will still always regenerate .msf files if the file size changes.
 pref("mail.db_timestamp_leeway", 4000);
-// How long should we leave idle db's open, in milliseconds.
+// MsgDBCacheManager will close databases that have been idle for idle_limit
+// milliseconds and are smaller than keep_open_size bytes.
 pref("mail.db.idle_limit", 300000);
-// How many db's should we leave open? LRU db's will be closed first
+pref("mail.db.keep_open_size", 1048576);
+// How many db's should we leave open? MsgDBCacheManager will close the
+// smallest and least-recently-used first.
 pref("mail.db.max_open", 30);
 
 // Should we allow folders over 4GB in size?
