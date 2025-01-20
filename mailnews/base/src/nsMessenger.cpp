@@ -344,15 +344,6 @@ nsresult nsMessenger::PromptIfFileExists(nsIFile* file) {
   return file->InitWithFile(localFile);
 }
 
-NS_IMETHODIMP nsMessenger::SaveAttachmentToFile(nsIFile* aFile,
-                                                const nsACString& aURL,
-                                                const nsACString& aMessageUri,
-                                                const nsACString& aContentType,
-                                                nsIUrlListener* aListener) {
-  return SaveAttachment(aFile, aURL, aMessageUri, aContentType, nullptr,
-                        aListener);
-}
-
 NS_IMETHODIMP
 nsMessenger::DetachAttachmentsWOPrompts(
     nsIFile* aDestFolder, const nsTArray<nsCString>& aContentTypeArray,

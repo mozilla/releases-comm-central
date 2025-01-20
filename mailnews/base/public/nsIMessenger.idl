@@ -74,12 +74,6 @@ interface nsIMessenger : nsISupports {
                             in Array<AUTF8String> displayNameArray,
                             in Array<AUTF8String> messageUriArray);
 
-    void saveAttachmentToFile(in nsIFile aFile,
-                              in AUTF8String aUrl,
-                              in AUTF8String aMessageUri,
-                              in AUTF8String aContentType,
-                              in nsIUrlListener aListener);
-
     /**
      * For a single message and attachments, save these attachments to a file, and
      *  remove from the message. No warning windows will appear, so this is
