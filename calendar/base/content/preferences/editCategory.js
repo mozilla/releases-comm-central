@@ -101,8 +101,8 @@ function clickColor() {
  * Call the function after the given timeout, resetting the timer if delay is
  * called again with the same function.
  *
- * @param timeout   The timeout interval.
- * @param func      The function to call after the timeout.
+ * @param {integer} timeout - The timeout interval.
+ * @param {Function} func - The function to call after the timeout.
  */
 function delay(timeout, func) {
   if (func.timer) {

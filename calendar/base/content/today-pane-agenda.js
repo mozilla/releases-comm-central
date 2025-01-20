@@ -389,7 +389,7 @@
      * to the date header shown for this event, so only the first event on
      * each day needs to show a header.
      *
-     * @type string
+     * @type {string}
      */
     get dateString() {
       return this._dateString;

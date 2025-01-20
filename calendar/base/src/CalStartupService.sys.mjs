@@ -7,8 +7,8 @@
  * in 'services' in order (i.e wait until the first completes before calling the
  * second
  *
- * @param method        The method name to call. Usually startup/shutdown.
- * @param services      The array of service objects to call on.
+ * @param {"startup"|"shutdown"} method - The method name to call.
+ * @param {object[]} services - The array of service objects to call on.
  */
 function callOrderedServices(method, services) {
   const service = services.shift();
@@ -47,7 +47,7 @@ CalStartupService.prototype = {
    * Gets the startup order of services. This is an array of service objects
    * that should be called in order at startup.
    *
-   * @returns The startup order as an array.
+   * @returns {object[]} The startup order as an array.
    */
   getStartupOrder() {
     const self = this;

@@ -31,8 +31,8 @@ var gForeignTimezonesCache = {};
  * Transforms the text representation of this date object to a calIDateTime
  * object.
  *
- * @param text  The text to transform.
- * @returns The resulting calIDateTime.
+ * @param {string} text - The text to transform.
+ * @returns {calIDateTime} The resulting calIDateTime.
  */
 export function textToDate(text) {
   let textval;
@@ -63,8 +63,8 @@ export function textToDate(text) {
 /**
  * Gets the timezone for the given definition or identifier
  *
- * @param aTimezone     The timezone data
- * @returns The calITimezone object
+ * @param {string} aTimezone - The timezone data.
+ * @returns {calITimezone} The calITimezone object
  */
 export function getTimezone(aTimezone) {
   let timezone = null;
@@ -90,8 +90,9 @@ export function getTimezone(aTimezone) {
  * this case the timezone service will be asked for the definition), or a string
  * representation of the timezone component (i.e a VTIMEZONE component).
  *
- * @param aNativeTime       The native time, in microseconds
- * @param aTimezone         The timezone identifier or definition.
+ * @param {number} aNativeTime - The native time, in microseconds.
+ * @param {string} [aTimezone] - The timezone identifier or definition.
+ * @returns {calIDateTime}
  */
 export function newDateTime(aNativeTime, aTimezone) {
   let date = cal.createDateTime();

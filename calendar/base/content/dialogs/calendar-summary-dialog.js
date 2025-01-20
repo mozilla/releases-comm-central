@@ -367,6 +367,7 @@ function openDescriptionContextMenu(event) {
 
 /**
  * Copies the link text in a calender event description
+ *
  * @param {Event} event
  */
 async function copyLinkTextToClipboard(event) {

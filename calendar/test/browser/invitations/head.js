@@ -288,7 +288,7 @@ async function doReplyTest(transport, identity, partStat) {
  * attempt to send a reply.
  *
  * @param {ImipBarActionTestConf} conf
- * @param {calIEvent|calIEvent[]} item
+ * @param {calIEvent|calIEvent[]} event
  */
 async function doImipBarActionTest(conf, event) {
   const { calendar, transport, identity, partStat, isRecurring, noReply, noSend } = conf;

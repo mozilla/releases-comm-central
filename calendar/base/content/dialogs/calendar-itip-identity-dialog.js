@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global addMenuItem */
+/* global addMenuItem */ // From calendar-ui-utils.js
 
 var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 
@@ -12,14 +12,12 @@ var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServi
  */
 
 /**
- * @typdef {object} CalendarItipIdentityDialogArgs
+ * @typedef {object} CalendarItipIdentityDialogArgs
  * @property {nsIMsgIdentity[]} identities - List of identities to select from.
- * @property {number} responseMode         - One of the response mode constants
- *                                           from calIItipItem indicating the
- *                                           mode the user choose.
- * @property {Function} onCancel           - Called when the user clicks cancel.
- * @property {onOkCallback} onOk           - Called when the user selects an
- *                                           identity.
+ * @property {number} responseMode - One of the response mode constants
+ *   from calIItipItem indicating the mode the user choose.
+ * @property {Function} onCancel - Called when the user clicks cancel.
+ * @property {onOkCallback} onOk - Called when the user selects an identity.
  */
 
 /**

@@ -22,9 +22,9 @@ Services.prefs.setIntPref("calendar.date.format", 0);
 Services.prefs.setStringPref("calendar.timezone.local", "Europe/Berlin");
 
 /**
- * typedef {Object} FullIcsValue
+ * @typedef {object} FullIcsValue
  *
- * @property {Object<string, string>} params - Parameters for the ics property,
+ * @property {object} params - Parameters for the ics property,
  *   mapping from the parameter name to its value. Each name should be in camel
  *   case. For example, to set "PARTSTAT=ACCEPTED" on the "attendee" property,
  *   use `{ partstat: "ACCEPTED" }`.
@@ -39,7 +39,7 @@ Services.prefs.setStringPref("calendar.timezone.local", "Europe/Berlin");
 /**
  * Get a ics string for an event.
  *
- * @param {Object<string, (IcsValue | IcsValue[])>} [eventProperties] - Object
+ * @param {object} [eventProperties] - Object mapping <string, (IcsValue | IcsValue[])>
  *   used to set the event properties, mapping from the ics property name to its
  *   value. The property name should be in camel case, so "propertyName" should
  *   be used for the "PROPERTY-NAME" property. The value can either be a single

@@ -627,9 +627,9 @@ function setUpAddonCalendarSettingsPanel(calendarType) {
  * Handle change of the email (identity) menu for local calendar creation.
  * Show a notification when "none" is selected.
  *
- * @param {Event} event - The menu selection event.
+ * @param {Event} _event - The menu selection event.
  */
-function onChangeIdentity() {
+function onChangeIdentity(_event) {
   notifyOnIdentitySelection(gLocalCalendar);
 }
 
@@ -638,8 +638,7 @@ function onChangeIdentity() {
  * This can be monkeypatched to add additional values.
  *
  * @param {calICalendar} calendar - The calendar to prepare.
- * @returns {calICalendar} The same calendar, prepared with any
- *                                      extra values.
+ * @returns {calICalendar} The same calendar, prepared with any extra values.
  */
 function prepareLocalCalendar(calendar) {
   calendar.name = document.getElementById("local-calendar-name-input").value;
@@ -667,7 +666,7 @@ function registerLocalCalendar() {
  *
  * @param {string} [password] - The password for this attempt, if any.
  * @param {boolean} [savePassword] - Whether to save the password in the
- *                                    password manager.
+ *   password manager.
  */
 function findCalendars(password, savePassword = false) {
   selectNetworkStatus("loading");
@@ -693,9 +692,8 @@ function findCalendars(password, savePassword = false) {
  * Called when detection successfully finds calendars. Displays the UI for
  * selecting calendars to subscribe to.
  *
- * @param {Map<string, calICalendar[]>} providerMap   Map from provider type
- *                                                    (e.g. "ics", "caldav")
- *                                                    to an array of calendars.
+ * @param {Map<string, calICalendar[]>} providerMap - Map from provider type
+ *   (e.g. "ics", "caldav") to an array of calendars.
  */
 function onDetectionSuccess(providerMap) {
   // Disable the calendars the user has already subscribed to. In the future
@@ -790,8 +788,7 @@ function findCalendarsWithPassword(location) {
  * from additional form fields.
  *
  * @param {calICalendar} calendar - The calendar to prepare.
- * @returns {calICalendar} The same calendar, prepared with
- *                                            any extra values.
+ * @returns {calICalendar} The same calendar, prepared with any extra values.
  */
 function prepareNetworkCalendar(calendar) {
   const cached = document.getElementById("network-cache-checkbox").checked;

@@ -19,7 +19,7 @@
    * Represents an alarm in the alarms dialog. It appears there when an alarm is fired, and
    * allows the alarm to be snoozed, dismissed, etc.
    *
-   * @augments MozElements.MozRichlistitem
+   * @augments {MozElements.MozRichlistitem}
    */
   class MozCalendarAlarmWidgetRichlistitem extends MozElements.MozRichlistitem {
     connectedCallback() {
@@ -214,7 +214,7 @@
     /**
      * Click/keypress handler for "Details" link. Dispatches an event to open an item dialog.
      *
-     * @param event {Event} The click or keypress event.
+     * @param {Event} event - The click or keypress event.
      */
     showDetails(event) {
       if (event.type == "click" || (event.type == "keypress" && event.key == "Enter")) {
@@ -329,7 +329,7 @@
     /**
      * Dispatch a snooze event when an alarm is snoozed.
      *
-     * @param minutes {number|string} The number of minutes to snooze for.
+     * @param {number|string} minutes  - The number of minutes to snooze for.
      */
     snoozeAlarm(minutes) {
       const snoozeEvent = new Event("snooze", { bubbles: true, cancelable: false });
@@ -346,7 +346,7 @@
     /**
      * Click handler for snooze popup menu items (like "5 Minutes", "1 Hour", etc.).
      *
-     * @param event {Event} The click event.
+     * @param {Event} event - The click event.
      */
     snoozeItem(event) {
       this.snoozeAlarm(event.target.value);

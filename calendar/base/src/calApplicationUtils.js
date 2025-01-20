@@ -10,8 +10,8 @@ var { openLinkExternally } = ChromeUtils.importESModule("resource:///modules/Lin
  * Launch the given url (string) in the external browser. If an event is passed,
  * then this is only done on left click and the event propagation is stopped.
  *
- * @param url       The URL to open, as a string
- * @param event     (optional) The event that caused the URL to open
+ * @param {string} url - The URL to open, as a string.
+ * @param {Event} [event] - The event that caused the URL to open.
  */
 function launchBrowser(url, event) {
   // Bail out if there is no url set, or an event was passed without left-click

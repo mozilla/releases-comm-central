@@ -173,8 +173,8 @@ var gCategoriesPane = {
   /**
    * Saves the given category to the preferences.
    *
-   * @param categoryName      The name of the category.
-   * @param categoryColor     The color of the category
+   * @param {string} categoryName - The name of the category.
+   * @param {string}categoryColor - The color of the category.
    */
   async saveCategory(categoryName, categoryColor) {
     const list = document.getElementById("categorieslist");

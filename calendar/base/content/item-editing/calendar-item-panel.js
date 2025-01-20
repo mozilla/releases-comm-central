@@ -383,7 +383,7 @@ function onCancel(aIframeId) {
 /**
  * Closes tab or window. Called after prompting to save any unsaved changes.
  *
- * @param {string} aIframeId - The id of the iframe
+ * @param {string} iframeId - The id of the iframe.
  */
 function closeWindowOrTab(iframeId) {
   if (gTabmail) {
@@ -908,7 +908,7 @@ function removeDisableAndCollapseOnReadonly() {
  * Handler to toggle toolbar visibility.
  *
  * @param {string} aToolbarId - The id of the toolbar node to toggle
- * @param {string} aMenuitemId - The corresponding menuitem in the view menu
+ * @param {string} aMenuItemId - The corresponding menuitem in the view menu
  */
 function onCommandViewToolbar(aToolbarId, aMenuItemId) {
   const toolbar = document.getElementById(aToolbarId);
@@ -934,8 +934,6 @@ function onCommandViewToolbar(aToolbarId, aMenuItemId) {
  * Called after the customize toolbar dialog has been closed by the
  * user. We need to restore the state of all buttons and commands of
  * all customizable toolbars.
- *
- * @param {boolean} aToolboxChanged - When true the toolbox has changed
  */
 function dialogToolboxCustomizeDone() {
   // Re-enable menu items (disabled during toolbar customization).

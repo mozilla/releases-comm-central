@@ -1003,7 +1003,7 @@ function flushPrefs() {
  * Callback object for the refresh timer. Should be called as an object, i.e
  * let foo = new timerCallback(calendar);
  *
- * @param aCalendar     The calendar to refresh on notification
+ * @param {calICalendar} aCalendar - The calendar to refresh on notification.
  */
 function timerCallback(aCalendar) {
   this.notify = function () {

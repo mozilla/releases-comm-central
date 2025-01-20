@@ -18,7 +18,7 @@ ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/cal
 /**
  * Get this window's currently selected calendar.
  *
- * @returns The currently selected calendar.
+ * @returns {calICalendar} The currently selected calendar.
  */
 function getSelectedCalendar() {
   return cal.view.getCompositeCalendar(window).defaultCalendar;
@@ -29,7 +29,7 @@ function getSelectedCalendar() {
  * this. If there is only one calendar left, no calendar is removed and the user
  * is not prompted.
  *
- * @param aCalendar     The calendar to delete.
+ * @param {calICalendar} aCalendar - The calendar to delete.
  */
 function promptDeleteCalendar(aCalendar) {
   const calendars = cal.manager.getCalendars();
@@ -394,6 +394,8 @@ async function loadCalendarManager() {
 
 /**
  * Creates the initial "Home" calendar if no calendar exists.
+ *
+ * @returns {calICalendar}
  */
 function initHomeCalendar() {
   const composite = cal.view.getCompositeCalendar(window);
@@ -506,7 +508,7 @@ function openCalendarListItemContext(event) {
  * removeModes. The menuitem must have the attributes "labelremove",
  * "labeldelete" and "labelunsubscribe".
  *
- * @param aDeleteId     The id of the menuitem to delete the calendar
+ * @param {string} aDeleteId - The id of the menuitem to delete the calendar.
  */
 function setupDeleteMenuitem(aDeleteId, aCalendar) {
   const calendar = aCalendar === undefined ? getSelectedCalendar() : aCalendar;
@@ -531,7 +533,7 @@ function setupDeleteMenuitem(aDeleteId, aCalendar) {
 /**
  * Makes sure the passed calendar is visible to the user
  *
- * @param aCalendar   The calendar to make visible.
+ * @param {calICalendar} aCalendar - The calendar to make visible.
  */
 function ensureCalendarVisible(aCalendar) {
   // We use the main window's calendar list to ensure that the calendar is visible.
@@ -548,7 +550,7 @@ function ensureCalendarVisible(aCalendar) {
 /**
  * Hides the specified calendar if it is visible, or shows it if it is hidden.
  *
- * @param aCalendar   The calendar to show or hide
+ * @param {calICalendar} aCalendar - The calendar to show or hide.
  */
 function toggleCalendarVisible(aCalendar) {
   const composite = cal.view.getCompositeCalendar(window);
@@ -578,7 +580,7 @@ function showAllCalendars() {
 /**
  * Shows only the specified calendar, and hides all others.
  *
- * @param aCalendar   The calendar to show as the only visible calendar
+ * @param {calICalendar} aCalendar - The calendar to show as the only visible calendar.
  */
 function showOnlyCalendar(aCalendar) {
   const composite = cal.view.getCompositeCalendar(window);

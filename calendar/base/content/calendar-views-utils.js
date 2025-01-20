@@ -323,7 +323,6 @@ function currentView() {
  * selected day in the current view.
  *
  * @param event     The "dayselect" event emitted from the views.
- *
  */
 function observeViewDaySelect(event) {
   const date = event.detail;

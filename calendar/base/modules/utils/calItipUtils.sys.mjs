@@ -605,7 +605,7 @@ export var itip = {
    * @param {Function} aActionFunc - The function to call to do the scheduling
    *                                 operation
    * @param {calIItipItem} aItipItem - Scheduling item
-   * @param {array} aFoundItems - The items found when looking for the calendar item
+   * @param {Array} aFoundItems - The items found when looking for the calendar item
    * @param {Function} aUpdateFunction - A function to call which will update the UI
    * @returns {boolean} true, if the action succeeded
    */

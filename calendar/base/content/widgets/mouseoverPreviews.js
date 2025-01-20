@@ -43,10 +43,10 @@ function onMouseOverItem(occurrenceBoxMouseEvent) {
 }
 
 /**
- * PUBLIC: Displays a tooltip for a given item
+ * Displays a tooltip for a given item.
  *
- * @param  {Node}               aTooltip  the node to hold the tooltip
- * @param  {calIEvent|calIToDo} aItem     the item to create the tooltip for
+ * @param {Node} aToolTip - The node to hold the tooltip
+ * @param {calIEvent|calIToDo} aItem - he item to create the tooltip for
  * @returns {boolean} true, if the tooltip is displayed
  */
 function showToolTip(aToolTip, aItem) {
@@ -67,8 +67,8 @@ function showToolTip(aToolTip, aItem) {
  * PUBLIC:  Called when a user hovers over a todo element and the text for the
  * mouse over is changed.
  *
- * @param {calIToDo} toDoItem - the item to create the preview for
- * @param {boolean}  aIsTooltip  enabled if used for tooltip composition (default)
+ * @param {calIToDo} toDoItem - The item to create the preview for
+ * @param {boolean} [aIsTooltip=true] - Enabled if used for tooltip composition.
  */
 function getPreviewForItem(aItem, aIsTooltip = true) {
   if (aItem.isEvent()) {
@@ -83,8 +83,8 @@ function getPreviewForItem(aItem, aIsTooltip = true) {
  * PUBLIC: Returns the string for status (none), Tentative, Confirmed, or
  * Cancelled for a given event
  *
- * @param   {calIEvent} aEvent The event
- * @returns {string} The string for the status property of the event
+ * @param {calIEvent} aEvent - The event
+ * @returns {string} The string for the status property of the event.
  */
 function getEventStatusString(aEvent) {
   switch (aEvent.status) {
@@ -101,11 +101,11 @@ function getEventStatusString(aEvent) {
 }
 
 /**
- * PUBLIC: Returns the string for status (none), NeedsAction, InProcess,
+ * Returns the string for status (none), NeedsAction, InProcess,
  * Cancelled, orCompleted for a given ToDo
  *
- * @param   {calIToDo} aToDo   The ToDo
- * @returns {string} The string for the status property of the event
+ * @param {calIToDo} aToDo - The ToDo
+ * @returns {string} The string for the status property of the event.
  */
 function getToDoStatusString(aToDo) {
   switch (aToDo.status) {
@@ -290,9 +290,9 @@ function getPreviewForEvent(aEvent, aIsTooltip = true) {
 }
 
 /**
- * PRIVATE: Append a separator, a thin space between header and body.
+ * Append a separator, a thin space between header and body.
  *
- * @param {Node}  vbox  box to which to append separator.
+ * @param {Node} vbox - Box to which to append separator.
  */
 function boxAppendBodySeparator(vbox) {
   const separator = document.createXULElement("separator");
@@ -322,9 +322,9 @@ function boxAppendBody(box, textString, aIsTooltip) {
  * PRIVATE: Use dateFormatter to format date and time,
  * and to header table append a row containing localized Label: date.
  *
- * @param {Node}         box            The node to add the date label to
- * @param {string}       labelProperty  The label
- * @param {calIDateTime} date - The datetime object to format and add
+ * @param {Node} box - The node to add the date label to.
+ * @param {string} labelProperty - The label.
+ * @param {calIDateTime} date - The datetime object to format and add.
  */
 function boxAppendLabeledDateTime(box, labelProperty, date) {
   date = date.getInTimezone(cal.dtz.defaultTimezone);
@@ -336,9 +336,9 @@ function boxAppendLabeledDateTime(box, labelProperty, date) {
  * PRIVATE: Use dateFormatter to format date and time interval,
  * and to header table append a row containing localized Label: interval.
  *
- * @param box               contains header table.
- * @param labelProperty     name of property for localized field label.
- * @param item              the event or task
+ * @param {Node} box - Contains header table.
+ * @param {string} labelProperty - Name of property for localized field label.
+ * @param {calIItemBase} item - The event or task.
  */
 function boxAppendLabeledDateTimeInterval(box, labelProperty, item) {
   const dateString = cal.dtz.formatter.formatItemInterval(item);
@@ -348,7 +348,7 @@ function boxAppendLabeledDateTimeInterval(box, labelProperty, item) {
 /**
  * PRIVATE: create empty 2-column table for header fields, and append it to box.
  *
- * @param {Node}  box  The node to create a column table for
+ * @param {Node} box - The node to create a column table for
  */
 function boxInitializeHeaderTable(box) {
   const table = document.createElement("table");
@@ -360,9 +360,9 @@ function boxInitializeHeaderTable(box) {
  * PRIVATE: To headers table, append a row containing Label: value, where label
  * is localized text for labelProperty.
  *
- * @param box               box containing headers table
- * @param labelProperty     name of property for localized name of header
- * @param textString        value of header field.
+ * @param {Node} box - Box containing headers table.
+ * @param {string} labelProperty - Name of property for localized name of header.
+ * @param {string} textString - Value of header field.
  */
 function boxAppendLabeledText(box, labelProperty, textString) {
   const table = box.querySelector("table");
@@ -390,7 +390,7 @@ function createTooltipHeaderLabel(text) {
 /**
  * PRIVATE: Creates an element for field value (for header table)
  *
- * @param   {string} text  The text to display in the node
+ * @param {string} text - The text to display in the node
  * @returns {Node} The node
  */
 function createTooltipHeaderDescription(text) {
@@ -405,10 +405,9 @@ function createTooltipHeaderDescription(text) {
  * before an occurrence, return the next occurrence or otherwise the previous
  * occurrence.
  *
- * @param   {calIEvent}  calendarEvent   The text to display in the node
+ * @param {calIEvent} calendarEvent - The text to display in the node
  * @returns {mixed} Returns a calIDateTime for the detected
- *                                        occurrence or calIEvent, if this is a
- *                                        non-recurring event
+ *   occurrence or calIEvent, if this is a non-recurring event
  */
 function getCurrentNextOrPreviousRecurrence(calendarEvent) {
   if (!calendarEvent.recurrenceInfo) {

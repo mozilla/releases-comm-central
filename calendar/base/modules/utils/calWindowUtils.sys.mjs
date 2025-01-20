@@ -20,8 +20,9 @@ export var window = {
   /**
    * Opens the Create Calendar wizard
    *
-   * @param aWindow    the window to open the dialog on, or null for the main calendar window
-   * @param aCallback  a function to be performed after calendar creation
+   * @param {?window} aWindow - The window to open the dialog on, or null for
+   *   the main calendar window
+   * @param {Function} aCallback - A function to be performed after calendar creation.
    */
   openCalendarWizard(aWindow, aCallback) {
     const dialogWindow = aWindow || window.getCalendarWindow();
@@ -42,8 +43,8 @@ export var window = {
   /**
    * Opens the calendar properties window for aCalendar.
    *
-   * @param {ChromeWindow | null} aWindow   The window to open the dialog on,
-   *                                          or null for the main calendar window.
+   * @param {?window} aWindow - The window to open the dialog on,
+   *   or null for the main calendar window.
    * @param {OpenCalendarPropertiesArgs} args - Passed directly to the window.
    */
   openCalendarProperties(aWindow, args) {
@@ -57,7 +58,9 @@ export var window = {
   },
 
   /**
-   * Returns the most recent calendar window in an application independent way
+   * Returns the most recent calendar window in an application independent way.
+   *
+   * @returns {mozIDOMWindowProxy}
    */
   getCalendarWindow() {
     return (

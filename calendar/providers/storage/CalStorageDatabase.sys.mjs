@@ -153,7 +153,7 @@ export class CalStorageDatabase {
    *
    * @param {string} sql
    *
-   * @returns
+   * @returns {void}
    */
   executeSimpleSQL(sql) {
     return this.db.executeSimpleSQL(sql);
@@ -162,7 +162,7 @@ export class CalStorageDatabase {
   /**
    * Takes care of necessary preparations for most of our statements.
    *
-   * @param {mozIStorageAsyncStatement} aStmt
+   * @param {mozIStorageStatement} aStmt
    */
   prepareStatement(aStmt) {
     try {
@@ -177,9 +177,9 @@ export class CalStorageDatabase {
   /**
    * Executes a statement using an item as a parameter.
    *
-   * @param {mozIStorageStatement} stmt - The statement to execute.
-   * @param {string} idParam - The name of the parameter referring to the item id.
-   * @param {string} id - The id of the item.
+   * @param {mozIStorageStatement} aStmt - The statement to execute.
+   * @param {string} aIdParam - The name of the parameter referring to the item id.
+   * @param {string} aId - The id of the item.
    */
   executeSyncItemStatement(aStmt, aIdParam, aId) {
     try {
@@ -277,8 +277,8 @@ export class CalStorageDatabase {
    * it will log as much info as possible about the database context and
    * last statement so the problem can be investigated more easily.
    *
-   * @param message           Error message to log.
-   * @param exception         Exception that caused the error.
+   * @param {string} message - Error message to log.
+   * @param {Error} exception - Exception that caused the error.
    */
   logError(message, exception) {
     let logMessage = "Message: " + message;

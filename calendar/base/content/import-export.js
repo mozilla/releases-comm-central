@@ -88,7 +88,6 @@ function getItemsFromIcsFile(file) {
  *
  * @param {calICalendar} destCal - The destination calendar.
  * @param {calIItemBase[]} aItems - An array of items to put into the calendar.
- * @param {string} aFilePath - The original file path, for error messages.
  * @param {PutItemsIntoCalListener} [aListener] - Optional listener.
  */
 async function putItemsIntoCal(destCal, aItems, aListener) {

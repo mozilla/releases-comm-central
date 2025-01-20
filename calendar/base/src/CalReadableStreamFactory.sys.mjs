@@ -292,8 +292,8 @@ export class CalReadableStreamFactory {
    * Creates a ReadableStream from another stream where each chunk of the source
    * stream is passed to a MapStreamFunction before enqueuing in the final stream.
    *
-   * @param {ReadableStream}
-   * @param {MapStreamFunction}
+   * @param {ReadableStream} stream
+   * @param {MapStreamFunction} func
    *
    * @returns {ReadableStream}
    */

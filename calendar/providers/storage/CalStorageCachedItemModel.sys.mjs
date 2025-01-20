@@ -90,7 +90,7 @@ export class CalStorageCachedItemModel extends CalStorageItemModel {
    *
    * @param {CalStorageQuery} query
    *
-   * @returns {ReadableStream<calIItemBase>
+   * @returns {ReadableStream<calIItemBase>}
    */
   getItems(query) {
     const self = this;

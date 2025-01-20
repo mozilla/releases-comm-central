@@ -273,22 +273,24 @@ var calendarTaskButtonDNDObserver;
      * Overridden by child classes that handle DataTransferItems. By default, no
      * processing is done.
      *
-     * @param {DataTransferItem} item
+     * @param {DataTransferItem} _item
      */
-    async handleDataTransferItem() {}
+    async handleDataTransferItem(_item) {}
 
     /**
      * Overridden by child classes that handle string data. By default, no
      * processing is done.
      *
-     * @param {string} data
+     * @param {string} _data
      */
-    async handleString() {}
+    async handleString(_data) {}
   }
 
   /**
    * CalDNDMozMessageTransferHandler handles messages dropped from the
    * message pane.
+   *
+   * @augments {CalDNDTransferHandler}
    */
   class CalDNDMozMessageTransferHandler extends CalDNDTransferHandler {
     mimeTypes = ["text/x-moz-message"];
@@ -307,6 +309,8 @@ var calendarTaskButtonDNDObserver;
 
   /**
    * CalDNDAddressTransferHandler handles address book data internally dropped.
+   *
+   * @augments {CalDNDTransferHandler}
    */
   class CalDNDAddressTransferHandler extends CalDNDTransferHandler {
     mimeTypes = ["text/x-moz-address"];
@@ -324,6 +328,8 @@ var calendarTaskButtonDNDObserver;
   /**
    * CalDNDDefaultTransferHandler serves as a "catch all" and should be included
    * last in the list of handlers.
+   *
+   * @augments {CalDNDTransferHandler}
    */
   class CalDNDDefaultTransferHandler extends CalDNDTransferHandler {
     willTransfer() {
@@ -540,16 +546,16 @@ var calendarTaskButtonDNDObserver;
     /**
      * Handles calendar event items.
      *
-     * @param {calIItemBase[]} items
+     * @param {calIItemBase[]} _items
      */
-    onDropItems() {}
+    onDropItems(_items) {}
 
     /**
      * Handles mail messages.
      *
-     * @param {nsIMsgHdr} msgHdr
+     * @param {nsIMsgHdr} _msgHdr
      */
-    onDropMessage() {}
+    onDropMessage(_msgHdr) {}
 
     /**
      * Handles address book data.

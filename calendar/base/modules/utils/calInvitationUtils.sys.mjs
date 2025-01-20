@@ -90,7 +90,7 @@ export var invitation = {
    *   event.
    * @param {calIAttendee} [oldAttendee] - The previous version of this attendee
    *   for this event.
-   * @param {calIAttendee[]} [attendeeList] - The previous list of attendees for
+   * @param {calIAttendee[]} [oldAttendeeList] - The previous list of attendees for
    *   this event. This is not optional if oldAttendee is given.
    *
    * @returns {HTMLDivElement} - The new attendee label.
@@ -650,9 +650,10 @@ export var invitation = {
   /**
    * Returns a datetime string according to section 3.3 of RfC5322
    *
-   * @param  {Date}   [optional] Js Date object to format; if not provided current DateTime is used
+   * @param {Date} [aDate] Js Date object to format; if not provided current
+   *   DateTime is used.
    * @returns {string} Datetime string with a modified tz-offset notation compared to
-   *                             Date.toString() like "Fri, 20 Nov 2015 09:45:36 +0100"
+   *   Date.toString() like "Fri, 20 Nov 2015 09:45:36 +0100"
    */
   getRfc5322FormattedDate(aDate = null) {
     const date = aDate || new Date();
@@ -662,8 +663,9 @@ export var invitation = {
         /^(\w{3}) (\w{3}) (\d{2}) (\d{4}) ([0-9:]{8}) GMT([+-])(\d{4}).*$/,
         "$1, $3 $2 $4 $5 $6$7"
       );
-    // according to section 3.3 of RfC5322, +0000 should be used for defined timezones using
-    // UTC time, while -0000 should indicate a floating time instead
+    // According to section 3.3 of RFC5322, +0000 should be used for defined
+    //  timezones using UTC time, while -0000 should indicate a floating time
+    // instead.
     const timezone = cal.dtz.defaultTimezone;
     if (timezone && timezone.isFloating) {
       str.replace(/\+0000$/, "-0000");
@@ -674,7 +676,7 @@ export var invitation = {
   /**
    * Converts a given unicode text to utf-8 and normalizes line-breaks to \r\n
    *
-   * @param  {string} aText   a unicode encoded string
+   * @param {string} aText - A unicode encoded string.
    * @returns {string} the converted uft-8 encoded string
    */
   encodeUTF8(aText) {
@@ -684,9 +686,9 @@ export var invitation = {
   /**
    * Converts a header to a mime encoded header
    *
-   * @param  {string}  aHeader   a header to encode
-   * @param  {boolean} aIsEmail  if enabled, only the CN but not the email address gets
-   *                             converted - default value is false
+   * @param {string} aHeader - A header to encode.
+   * @param {boolean} [aIsEmail=false] - If enabled, only the CN but not the
+   *    email address gets converted.
    * @returns {string} the encoded string
    */
   encodeMimeHeader(aHeader, aIsEmail = false) {
@@ -702,14 +704,15 @@ export var invitation = {
   /**
    * Parses a counterproposal to extract differences to the existing event
    *
-   * @param  {calIEvent|calITodo} aProposedItem  The counterproposal
-   * @param  {calIEvent|calITodo} aExistingItem  The item to compare with
-   * @returns {JSObject} Objcet of result and differences of parsing
-   * @returns {string} JsObject.result.type       Parsing result: OK|OLDVERSION|ERROR|NODIFF
-   * @returns {string} JsObject.result.descr      Parsing result description
-   * @returns {Array} JsObject.differences       Array of objects consisting of property, proposed
-   *                                                 and original properties.
-   * @returns {string} JsObject.comment           A comment of the attendee, if any
+   * @param {calIEvent|calITodo} aProposedItem  The counterproposal
+   * @param {calIEvent|calITodo} aExistingItem  The item to compare with
+   * @returns {object} jsObject of result and differences of parsing
+   * @returns {object} jsObject.result
+   * @returns {string} jsObject.result.type - Parsing result: OK|OLDVERSION|ERROR|NODIFF
+   * @returns {string} jsObject.result.descr - Parsing result description
+   * @returns {object[]} JsObject.differences - Array of objects consisting of
+   *   property, proposed and original properties.
+   * @returns {string} JsObject.comment - A comment of the attendee, if any.
    */
   parseCounter(aProposedItem, aExistingItem) {
     const isEvent = aProposedItem.isEvent();

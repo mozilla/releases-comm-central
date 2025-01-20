@@ -22,7 +22,7 @@ export var alarms = {
    * event/todo passed in. The item's calendar should be set to ensure the
    * correct alarm type is set.
    *
-   * @param aItem     The item to apply the default alarm values to.
+   * @param {calIItemBase} aItem - The item to apply the default alarm values to.
    */
   setDefaultValues(aItem) {
     const type = aItem.isEvent() ? "event" : "todo";
@@ -59,9 +59,9 @@ export var alarms = {
   /**
    * Calculate the alarm date for a calIAlarm.
    *
-   * @param aItem     The item used to calculate the alarm date.
-   * @param aAlarm    The alarm to calculate the date for.
-   * @returns The alarm date.
+   * @param {calIItemBase} aItem - The item used to calculate the alarm date.
+   * @param {calIAlarm} aAlarm - The alarm to calculate the date for.
+   * @returns {?calIAlarm} The alarm date.
    */
   calculateAlarmDate(aItem, aAlarm) {
     if (aAlarm.related == Ci.calIAlarm.ALARM_RELATED_ABSOLUTE) {

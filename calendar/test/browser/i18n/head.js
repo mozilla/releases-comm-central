@@ -158,7 +158,7 @@ async function subtestIntervalDescription(dayText, weekText, multiweekText, mont
  *
  * @param {string[]} shortDays - The short names of the days of the week, in the
  *   expected language and starting with the expected first day of the week.
- * @param {string} monthText - Description of 2024-12 in the expected language.
+ * @param {string} monthName - Description of 2024-12 in the expected language.
  * @param {string} monthRangeText - Description of 2024-10 to 2024-12 in the
  *   expected language.
  */

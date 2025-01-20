@@ -120,7 +120,7 @@ function simulateDragToColumn(eventBox, day, hour) {
  * Simulates the dragging of an event box via one of the gripbars.
  *
  * @param {MozCalendarEventBox} eventBox - The event to resize.
- * @param {"start"|"end"} - The side to grab.
+ * @param {"start"|"end"} side - The side to grab.
  * @param {number} day - The day to move into.
  * @param {number} hour - The hour to move to.
  */

@@ -424,7 +424,10 @@ function sendMailToOrganizer() {
   );
 }
 
-// Install event listeners for the display deck change and connect task tree to filter field
+/**
+ * Install event listeners for the display deck change and connect task tree to
+ * filter field.
+ */
 function taskViewOnLoad() {
   const calendarDisplayBox = document.getElementById("calendarDisplayBox");
   const tree = document.getElementById("calendar-task-tree");
@@ -458,7 +461,7 @@ function taskViewOnLoad() {
 /**
  * Copy the value of the given link node to the clipboard
  *
- * @param linkNode      The node containing the value to copy to the clipboard
+ * @param {Node} linkNode - The node containing the value to copy to the clipboard
  */
 function taskViewCopyLink(linkNode) {
   if (linkNode) {

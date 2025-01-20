@@ -662,9 +662,9 @@ export const CalendarTestUtils = {
    *       no leading spaces and the second is indented by two spaces.
    * `;
    *
-   * @param strings       The string fragments from the template string
-   * @param ...values     The interpolated values
-   * @returns The interpolated, dedented string
+   * @param {string[]} strings - The string fragments from the template string.
+   * @param  {...string} values - The interpolated values.
+   * @returns {string} The interpolated, dedented string.
    */
   dedent(strings, ...values) {
     const parts = [];
@@ -704,8 +704,8 @@ export const CalendarTestUtils = {
    * Creates and registers a new calendar with the calendar manager. The
    * created calendar will be set as the default calendar.
    *
-   * @param {string} - name
-   * @param {string} - type
+   * @param {string} [name="Test"] - Name.
+   * @param {string} [type="storage"] - Type.
    *
    * @returns {calICalendar}
    */

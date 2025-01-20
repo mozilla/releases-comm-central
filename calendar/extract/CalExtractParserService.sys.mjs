@@ -173,7 +173,7 @@ const defaultRules = [
  *
  * @typedef  {object} CalExtractParserServiceContext
  * @property {Date} now - The Date to use when calculating start and relative
- *                       times.
+ *   times.
  */
 
 /**
@@ -189,7 +189,7 @@ export class CalExtractParserService {
    * rules of the locale given.
    *
    * @param {string} source
-   * @param {CalExtractParserServiceContext} context
+   * @param {CalExtractParserServiceContext} ctx - Context.
    * @param {string} locale
    */
   extract(source, ctx = { now: new Date() }, locale = "en-US") {
@@ -208,9 +208,8 @@ export class CalExtractParserService {
 /**
  * Populates the missing values of the startTime and endTime.
  *
- * @param {object?} guess - The result of CalExtractParserService.extract().
- * @param {Date}    now   - A Date object representing the contextual date and
- *                          time.
+ * @param {?object} guess - The result of CalExtractParserService.extract().
+ * @param {Date} now - A Date object representing the contextual date and time.
  *
  * @returns {object} The result with the populated startTime and endTime.
  */
@@ -222,9 +221,9 @@ function populateTimes(guess, now) {
  * Populates the missing values of the specified time property based on the Date
  * provided.
  *
- * @param {object?} guess
- * @param {Date}    now
- * @param {string}  prop
+ * @param {?object} guess
+ * @param {Date} now
+ * @param {string} prop
  *
  * @returns {object}
  */
@@ -250,7 +249,7 @@ function populateTime(guess, now, prop) {
  * Coverts an hour using the Meridiem to a 24 hour value.
  *
  * @param {number} hour - The hour value.
- * @param {string} meridiem - "am" or "pm"
+ * @param {"am"|"pm"} meridiem - "am" or "pm"
  *
  * @returns {number}
  */

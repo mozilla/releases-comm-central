@@ -54,8 +54,8 @@ function dispose() {
  * Sets the id of a Dialog to another value to allow different CSS styles
  * to be used.
  *
- * @param aDialog               The Dialog to be changed.
- * @param aNewId                The new ID as String.
+ * @param {MozDialog} aDialog - The Dialog to be changed.
+ * @param {string} aNewId - The new ID as String.
  */
 function setDialogId(aDialog, aNewId) {
   aDialog.setAttribute("id", aNewId);
@@ -67,7 +67,7 @@ function setDialogId(aDialog, aNewId) {
  * This needs to be invoked after changing a dialog id while loading to apply the values for the
  * new dialog id.
  *
- * @param aDialog               The Dialog to apply the property values for
+ * @param {MozDialog} aDialog - The Dialog to apply the property values for.
  */
 function applyPersistedProperties(aDialog) {
   const xulStore = Services.xulStore;
@@ -106,7 +106,7 @@ function applyPersistedProperties(aDialog) {
  *
  * @param {Element} aMenuitem - The menuitem to create the alarm from.
  * @param {calICalendar} aCalendar - The calendar for getting the default alarm type.
- * @returns The calIAlarm with information from the menuitem.
+ * @returns {calIAlarm} The calIAlarm with information from the menuitem.
  */
 function createReminderFromMenuitem(aMenuitem, aCalendar) {
   let reminder = aMenuitem.reminder || new CalAlarm();
@@ -418,11 +418,12 @@ function getDefaultAlarmType(calendar) {
  * @param {Element} reminderList - The reminders menu element.
  * @param {calIEvent | calITodo} calendarItem - The calendar item.
  * @param {number} lastAlarmSelection - Index of the previous selection in the reminders menu.
+ * @param {calICalendar} caledar - Calendar to use.
  * @param {Element} reminderDetails - The reminder details element.
  * @param {calITimezone} timezone - The relevant timezone.
- * @param {boolean} suppressDialogs - If true, controls are updated without prompting
- *                                    for changes with the dialog
- * @returns {number} Index of the item selected in the reminders menu.
+ * @param {boolean} suppressDialogs - If true, controls are updated without
+ *   prompting for changes with the dialog.
+ * @returns {integer} Index of the item selected in the reminders menu.
  */
 function commonUpdateReminder(
   reminderList,

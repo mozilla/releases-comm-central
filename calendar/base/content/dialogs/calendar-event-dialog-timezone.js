@@ -64,8 +64,8 @@ function onLoad() {
 /**
  * Find the index of the timezone menuitem corresponding to the given timezone.
  *
- * @param timezone      The calITimezone to look for.
- * @returns The index of the childnode below "timezone-menulist"
+ * @param {calITimezone} timezone - The calITimezone to look for.
+ * @returns {integer} The index of the childnode below "timezone-menulist".
  */
 function findTimezone(timezone) {
   const tzid = timezone.tzid;

@@ -80,13 +80,11 @@ function getStorageCal() {
 /**
  * Return an item property as string.
  *
- * @param aItem
- * @param string aProp possible item properties: start, end, duration,
- *                     generation, title,
- *                     id, calendar, creationDate, lastModifiedTime,
- *                     stampTime, priority, privacy, status,
- *                     alarmLastAck, recurrenceStartDate
- *                     and any property that can be obtained using getProperty()
+ * @param {calIItemBase} aItem
+ * @param {string} aProp - possible item properties: start, end, duration,
+ *   generation, title, id, calendar, creationDate, lastModifiedTime,
+ *   stampTime, priority, privacy, status, alarmLastAck, recurrenceStartDate
+ *   and any property that can be obtained using getProperty()
  */
 function getProps(aItem, aProp) {
   let value = null;
@@ -176,8 +174,8 @@ function compareItemsSpecific(aLeftItem, aRightItem, aPropArray) {
  * Unfold ics lines by removing any \r\n or \n followed by a linear whitespace
  * (space or htab).
  *
- * @param aLine     The line to unfold
- * @returns The unfolded line
+ * @param {string} aLine - The line to unfold.
+ * @returns {string} The unfolded line.
  */
 function ics_unfoldline(aLine) {
   return aLine.replace(/\r?\n[ \t]/g, "");
@@ -192,9 +190,9 @@ function ics_unfoldline(aLine) {
  *       no leading spaces and the second is indented by two spaces.
  * `;
  *
- * @param strings       The string fragments from the template string
- * @param ...values     The interpolated values
- * @returns The interpolated, dedented string
+ * @param {string[]} strings - The string fragments from the template string
+ * @param {...string} values - he interpolated values.
+ * @returns {string} The interpolated, dedented string.
  */
 function dedent(strings, ...values) {
   const parts = [];
@@ -301,9 +299,9 @@ function do_calendar_startup(callback) {
  * The first parameter of this function is the original function that can be
  * called at any time.
  *
- * @param obj           The object the function is on.
- * @param name          The string name of the function.
- * @param func          The function to monkey patch with.
+ * @param {object} obj - The object the function is on.
+ * @param {string} x - The string name of the function.
+ * @param {Function} func - The function to monkey patch with.
  */
 function monkeyPatch(obj, x, func) {
   const old = obj[x];
