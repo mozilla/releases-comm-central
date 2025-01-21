@@ -1300,6 +1300,7 @@ extern "C" void* mime_bridge_create_display_stream(
 
   msd->options->m_prefBranch = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
   if (NS_FAILED(rv)) {
+    PR_Free(msd->options);
     delete msd;
     return nullptr;
   }
@@ -1308,6 +1309,7 @@ extern "C" void* mime_bridge_create_display_stream(
   rv = CallCreateInstance(MOZ_TXTTOHTMLCONV_CONTRACTID, &(msd->options->conv));
   if (NS_FAILED(rv)) {
     msd->options->m_prefBranch = nullptr;
+    PR_Free(msd->options);
     delete msd;
     return nullptr;
   }
