@@ -30,7 +30,7 @@ The `NotificationManager` is what ultimately selects the notification to display
 
 The local cache of notifications is regularly refreshed against a server (specified by an URL that is formatted using the [URL formatter](https://searchfox.org/mozilla-central/source/toolkit/components/urlformatter/URLFormatter.sys.mjs)). If at startup of the system the server can't be reached and there's either no cache or the cache is older than the application build, it falls back to a set of notifications that were included at build time.
 
-There is a cache timestamp, with the lifetime controlled by a pref. If the cache is recent enough, the network is not contacted.
+The notification are cached based on the caching headers from the notification server, if the cache is not expired no network requests will be done. The time to the next update is influenced by notifications server via the cache headers.
 
 ### Cache
 
