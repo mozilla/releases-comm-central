@@ -371,7 +371,7 @@ nsStreamConverter::nsStreamConverter() {
   mForwardInline = false;
   mForwardInlineFilter = false;
   mOverrideComposeFormat = false;
-
+  mOutputType = nsMimeOutput::nsMimeUnknown;
   mPendingRequest = nullptr;
 }
 

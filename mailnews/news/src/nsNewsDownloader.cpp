@@ -105,14 +105,16 @@ nsresult nsNewsDownloader::DownloadNext(bool firstTimeP) {
 
 bool DownloadNewsArticlesToOfflineStore::GetNextHdrToRetrieve() {
   nsresult rv;
+  if (m_downloadFromKeys) {
+    return nsNewsDownloader::GetNextHdrToRetrieve();
+  }
 
-  if (m_downloadFromKeys) return nsNewsDownloader::GetNextHdrToRetrieve();
-
-  if (m_headerEnumerator == nullptr)
+  if (m_headerEnumerator == nullptr) {
     rv = m_newsDB->EnumerateMessages(getter_AddRefs(m_headerEnumerator));
+    NS_ENSURE_SUCCESS(rv, false);
+  }
 
   bool hasMore = false;
-
   while (NS_SUCCEEDED(rv = m_headerEnumerator->HasMoreElements(&hasMore)) &&
          hasMore) {
     rv = m_headerEnumerator->GetNext(getter_AddRefs(m_newsHeader));
