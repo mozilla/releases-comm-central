@@ -688,7 +688,12 @@ DBViewWrapper.prototype = {
    *  is a getter that will always try and load the message database!
    */
   _releaseFolderDatabase(aFolder) {
-    if (!aFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Inbox, false)) {
+    if (
+      !aFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Inbox, false) &&
+      aFolder.databaseOpen &&
+      aFolder.msgDatabase.databaseSize <
+        Services.prefs.getIntPref("mail.db.keep_open_size")
+    ) {
       aFolder.msgDatabase = null;
     }
   },
