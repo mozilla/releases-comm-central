@@ -1933,6 +1933,7 @@ nsresult nsMsgAccountManager::findServerInternal(
            .Finalize(url);
   if (NS_SUCCEEDED(rv)) {
     rv = url->GetHost(hostname);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   nsCOMPtr<nsIIOService> ioService = mozilla::components::IO::Service();
