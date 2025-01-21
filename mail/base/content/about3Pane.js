@@ -4785,9 +4785,13 @@ var threadPane = {
       threadTree.scrollToIndex(threadTree.currentIndex, true);
       if (!row) {
         row = threadTree.getRowAtIndex(threadTree.currentIndex);
-        // Try again once in the next frame.
+        // Try again after the scroll happens.
         if (!row && !retry) {
-          window.requestAnimationFrame(() => this._onContextMenu(event, true));
+          threadTree.addEventListener(
+            "scroll",
+            () => this._onContextMenu(event, true),
+            { once: true }
+          );
           return;
         }
       }
