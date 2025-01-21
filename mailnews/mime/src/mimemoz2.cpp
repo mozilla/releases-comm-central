@@ -302,8 +302,10 @@ nsresult GenerateAttachmentData(MimeObject* object, const char* aMessageURL,
   if (!urlSpec) return NS_ERROR_OUT_OF_MEMORY;
 
   if ((options->format_out == nsMimeOutput::nsMimeMessageBodyDisplay) &&
-      (PL_strncasecmp(aMessageURL, urlSpec, strlen(urlSpec)) == 0))
+      (PL_strncasecmp(aMessageURL, urlSpec, strlen(urlSpec)) == 0)) {
+    PR_FREEIF(urlSpec);
     return NS_OK;
+  }
 
   nsCString urlString(urlSpec);
 
