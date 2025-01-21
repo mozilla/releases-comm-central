@@ -227,7 +227,10 @@ MimeObject* mime_new(MimeObjectClass* clazz, MimeHeaders* hdrs,
   }
 
   object = (MimeObject*)PR_MALLOC(size);
-  if (!object) return 0;
+  if (!object) {
+    PR_Free(hdrs);
+    return 0;
+  }
 
   memset(object, 0, size);
   object->clazz = clazz;
