@@ -1587,7 +1587,12 @@ nsMsgSearchScopeTerm::nsMsgSearchScopeTerm(nsIMsgSearchSession* session,
   m_searchSession = do_GetWeakReference(session);
 }
 
-nsMsgSearchScopeTerm::nsMsgSearchScopeTerm() { m_searchServer = true; }
+nsMsgSearchScopeTerm::nsMsgSearchScopeTerm() {
+  m_attribute = 0;
+  m_folder = nullptr;
+  m_searchServer = true;
+  m_searchSession = nullptr;
+}
 
 nsMsgSearchScopeTerm::~nsMsgSearchScopeTerm() {
   if (m_inputStream) m_inputStream->Close();
