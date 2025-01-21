@@ -20,8 +20,19 @@ const { HttpServer } = ChromeUtils.importESModule(
   "resource://testing-common/httpd.sys.mjs"
 );
 
+const { clearTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
+
 let updateSpy;
 let notifications;
+
+function clear() {
+  clearTimeout(NotificationUpdater._timeout);
+  NotificationUpdater._timeout = null;
+}
+
+const getExpirationTime = NotificationUpdater.getExpirationTime;
 
 add_setup(async () => {
   updateSpy = sinon.spy();
@@ -34,10 +45,21 @@ add_setup(async () => {
   Services.prefs.setIntPref("datareporting.policy.currentPolicyVersion", 10);
 
   const server = new HttpServer();
-  server.registerDirectory("/", do_get_file("files/"));
+  const raw = await IOUtils.readUTF8(
+    do_get_file("files/notifications.json").path
+  );
+
+  server.registerPathHandler("/notifications.json", (request, response) => {
+    response.setStatusLine(request.httpVersion, 200, "OK");
+    response.setHeader("Content-Type", "application/json");
+    response.setHeader("Cache-Control", "max-age=100");
+    response.write(raw);
+  });
+
   server.registerPathHandler("/error.json", (request, response) => {
     response.setStatusLine(request.httpVersion, 404, "Not Found");
   });
+
   server.registerPrefixHandler("/formatted/", (request, response) => {
     response.setStatusLine(request.httpVersion, 200, "OK");
     response.setHeader("Content-Type", "application/json");
@@ -48,12 +70,13 @@ add_setup(async () => {
   const serverUrl = `http://localhost:${server.identity.primaryPort}/notifications.json`;
   Services.prefs.setStringPref("mail.inappnotifications.url", serverUrl);
 
-  notifications = await IOUtils.readJSON(
-    do_get_file("files/notifications.json").path
-  );
+  notifications = JSON.parse(raw);
 
   registerCleanupFunction(async () => {
     NotificationUpdater.onUpdate = null;
+
+    clear();
+    NotificationUpdater._timeout = null;
 
     Services.prefs.clearUserPref(
       "datareporting.policy.dataSubmissionPolicyAcceptedVersion"
@@ -132,10 +155,12 @@ add_task(async function test_fetch() {
     "Should call callback with the notifications"
   );
 
+  clear();
   updateSpy.resetHistory();
 });
 
 add_task(async function test_fetch_networkError() {
+  clearTimeout(NotificationUpdater._timeout);
   const url = Services.prefs.getStringPref("mail.inappnotifications.url", "");
   Services.prefs.setStringPref(
     "mail.inappnotifications.url",
@@ -148,6 +173,7 @@ add_task(async function test_fetch_networkError() {
   Assert.ok(updateSpy.notCalled, "Should not call callback with network error");
 
   Services.prefs.setStringPref("mail.inappnotifications.url", url);
+  clear();
   updateSpy.resetHistory();
 });
 
@@ -170,6 +196,7 @@ add_task(async function test_fetch_parseError() {
   );
 
   Services.prefs.setStringPref("mail.inappnotifications.url", url);
+  clear();
   updateSpy.resetHistory();
 });
 
@@ -199,6 +226,7 @@ add_task(async function test_fetch_updateError() {
     "Callback should report throw"
   );
 
+  clear();
   NotificationUpdater.onUpdate = updateSpy;
 });
 
@@ -217,77 +245,8 @@ add_task(async function test_fetch_noOnUpdate() {
   Assert.ok(!didFetch, "Should skip fetching notifications without onUpdate");
   Assert.equal(updateSpy.callCount, 0, "Should not call callback");
 
+  clear();
   NotificationUpdater.onUpdate = updateSpy;
-});
-
-add_task(async function test_init() {
-  Services.prefs.setIntPref("mail.inappnotifications.refreshInterval", 100);
-  const { resolve, promise } = Promise.withResolvers();
-
-  const initTs = Date.now();
-  const initResult = await NotificationUpdater.init(0);
-
-  Assert.ok(!initResult, "Should report successful fetch on init");
-  Assert.equal(updateSpy.callCount, 1, "Should call update callback in init");
-  Assert.ok(
-    updateSpy.calledWith(sinon.match(notifications)),
-    "Should pass notifications to update callback from init"
-  );
-
-  const initAgainResult = await NotificationUpdater.init(0);
-
-  Assert.ok(
-    !initAgainResult,
-    "Should ask caller to use cache if already initialized"
-  );
-  Assert.equal(
-    updateSpy.callCount,
-    1,
-    "Should not call update spy again after first init"
-  );
-
-  NotificationUpdater.onUpdate = sinon.spy(resolve);
-  await promise;
-  const now = Date.now();
-
-  clearInterval(NotificationUpdater._interval);
-  NotificationUpdater._interval = null;
-
-  Assert.equal(
-    NotificationUpdater.onUpdate.callCount,
-    1,
-    "Should call update spy from scheduled refresh"
-  );
-  Assert.ok(
-    NotificationUpdater.onUpdate.calledWith(sinon.match(notifications)),
-    "Should get notifications from scheduled refresh"
-  );
-  Assert.greaterOrEqual(
-    now,
-    initTs + 99,
-    "Should have waited for at least the configured length of the refresh interval"
-  );
-
-  Services.prefs.clearUserPref("mail.inappnotifications.refreshInterval");
-  NotificationUpdater.onUpdate = updateSpy;
-  updateSpy.resetHistory();
-});
-
-add_task(async function test_init_withRecentUpdate() {
-  const initTs = Date.now();
-  const initResult = await NotificationUpdater.init(initTs - 100);
-
-  clearInterval(NotificationUpdater._interval);
-  NotificationUpdater._interval = null;
-
-  Assert.ok(initResult, "Should not have fetched updates on init");
-  Assert.equal(
-    updateSpy.callCount,
-    0,
-    "Should not have called the update callback"
-  );
-
-  updateSpy.resetHistory();
 });
 
 add_task(async function test_fetch_formattedURL() {
@@ -316,5 +275,197 @@ add_task(async function test_fetch_formattedURL() {
   );
 
   Services.prefs.setStringPref("mail.inappnotifications.url", url);
+  clear();
   updateSpy.resetHistory();
+});
+
+add_task(async function test_init() {
+  NotificationUpdater.getExpirationTime = () => null;
+  NotificationUpdater._timeout = null;
+  Services.prefs.setIntPref("mail.inappnotifications.refreshInterval", 100);
+  const { resolve, promise } = Promise.withResolvers();
+
+  const initTs = Date.now();
+  const initResult = await NotificationUpdater.init();
+
+  Assert.ok(!initResult, "Should report successful fetch on init");
+  Assert.equal(updateSpy.callCount, 1, "Should call update callback in init");
+  Assert.ok(
+    updateSpy.calledWith(sinon.match(notifications)),
+    "Should pass notifications to update callback from init"
+  );
+
+  const initAgainResult = await NotificationUpdater.init();
+
+  Assert.ok(
+    !initAgainResult,
+    "Should ask caller to use cache if already initialized"
+  );
+  Assert.equal(
+    updateSpy.callCount,
+    1,
+    "Should not call update spy again after first init"
+  );
+
+  NotificationUpdater.onUpdate = sinon.spy(resolve);
+  await promise;
+  const now = Date.now();
+
+  Assert.equal(
+    NotificationUpdater.onUpdate.callCount,
+    1,
+    "Should call update spy from scheduled refresh"
+  );
+  Assert.ok(
+    NotificationUpdater.onUpdate.calledWith(sinon.match(notifications)),
+    "Should get notifications from scheduled refresh"
+  );
+  Assert.greaterOrEqual(
+    now,
+    initTs + 99,
+    "Should have waited for at least the configured length of the refresh interval"
+  );
+
+  Services.prefs.clearUserPref("mail.inappnotifications.refreshInterval");
+  NotificationUpdater.onUpdate = updateSpy;
+  clear();
+  updateSpy.resetHistory();
+  NotificationUpdater.getExpirationTime = getExpirationTime;
+});
+
+add_task(async function test_init_withRecentUpdate() {
+  clear();
+
+  const { resolve, promise } = Promise.withResolvers();
+  const schedule = NotificationUpdater._schedule;
+  const scheduleSpy = sinon.spy();
+
+  NotificationUpdater._schedule = scheduleSpy;
+  NotificationUpdater.onUpdate = sinon.spy(resolve);
+  NotificationUpdater._fetch();
+
+  await promise;
+
+  updateSpy.resetHistory();
+
+  const initResult = await NotificationUpdater.init();
+
+  Assert.ok(initResult, "Should not have fetched updates on init");
+  Assert.equal(
+    updateSpy.callCount,
+    0,
+    "Should not have called the update callback"
+  );
+
+  // The schedule is called twice once with 0 so it executes immediately and
+  // then the next update is scheduled.
+  Assert.equal(scheduleSpy.callCount, 2, "Should call schedule callback twice");
+
+  clear();
+  NotificationUpdater._schedule = schedule;
+  updateSpy.resetHistory();
+});
+
+add_task(async function test_getRemainingCacheTime() {
+  NotificationUpdater.getExpirationTime = () => {
+    return Date.now() / 1000 + 1;
+  };
+  const remainingTime = await NotificationUpdater.getRemainingCacheTime("test");
+
+  Assert.greater(remainingTime, 900);
+  Assert.lessOrEqual(
+    remainingTime,
+    1000,
+    "getRemainingTime returns correct amount of time"
+  );
+  NotificationUpdater.getExpirationTime = getExpirationTime;
+});
+
+add_task(async function test_getRemainingCacheTimeNull() {
+  NotificationUpdater.getExpirationTime = () => null;
+  const remainingTime = await NotificationUpdater.getRemainingCacheTime("test");
+
+  Assert.equal(
+    remainingTime,
+    0,
+    "getRemainingTime returns correct amount of time"
+  );
+  NotificationUpdater.getExpirationTime = getExpirationTime;
+});
+
+add_task(async function test_getRemainingCacheTimeZero() {
+  NotificationUpdater.getExpirationTime = () => 0;
+  const remainingTime = await NotificationUpdater.getRemainingCacheTime("test");
+
+  Assert.equal(
+    remainingTime,
+    0,
+    "getRemainingTime returns correct amount of time"
+  );
+  NotificationUpdater.getExpirationTime = getExpirationTime;
+});
+
+add_task(async function test_getRemainingCacheTimeNegative() {
+  NotificationUpdater.getExpirationTime = () => -9;
+  const remainingTime = await NotificationUpdater.getRemainingCacheTime("test");
+
+  Assert.equal(
+    remainingTime,
+    0,
+    "getRemainingTime returns correct amount of time"
+  );
+  NotificationUpdater.getExpirationTime = getExpirationTime;
+});
+
+add_task(async function test_getRemainingCacheTimeSmall() {
+  NotificationUpdater.getExpirationTime = () => 2;
+  const remainingTime = await NotificationUpdater.getRemainingCacheTime("test");
+
+  Assert.equal(
+    remainingTime,
+    0,
+    "getRemainingTime returns correct amount of time"
+  );
+  NotificationUpdater.getExpirationTime = getExpirationTime;
+});
+
+add_task(async function test_getRemainingCacheTimeNoCache() {
+  NotificationUpdater.getExpirationTime = () => 0xffffffff;
+  const remainingTime = await NotificationUpdater.getRemainingCacheTime("test");
+
+  Assert.equal(
+    remainingTime,
+    0,
+    "getRemainingTime returns correct amount of time"
+  );
+  NotificationUpdater.getExpirationTime = getExpirationTime;
+});
+
+add_task(async function test_fetchScheduling() {
+  const startTime = Date.now();
+  NotificationUpdater.getExpirationTime = () => Date.now() / 1000 + 0.1;
+  const onUpdate = NotificationUpdater.onUpdate;
+  let count = 0;
+  const { resolve, promise } = Promise.withResolvers();
+  NotificationUpdater.onUpdate = () => {
+    count++;
+
+    if (count > 3) {
+      resolve();
+      clear();
+    }
+  };
+
+  NotificationUpdater._fetch();
+
+  await promise;
+
+  Assert.ok(true, "fetch schedules next fetch");
+  Assert.greaterOrEqual(
+    Date.now(),
+    startTime + 100,
+    "at least 100ms has passed"
+  );
+  NotificationUpdater.onUpdate = onUpdate;
+  NotificationUpdater.getExpirationTime = getExpirationTime;
 });

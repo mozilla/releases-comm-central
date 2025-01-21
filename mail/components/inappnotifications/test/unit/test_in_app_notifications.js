@@ -78,7 +78,7 @@ add_task(function test_initializedData() {
     "function",
     "Should register update callback"
   );
-  Assert.ok(NotificationUpdater._interval, "Should initialize updater");
+  Assert.ok(NotificationUpdater._timeout, "Should initialize updater");
 
   Assert.deepEqual(
     InAppNotifications._jsonFile.data.interactedWith,

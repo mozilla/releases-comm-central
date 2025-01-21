@@ -5,7 +5,7 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  setInterval: "resource://gre/modules/Timer.sys.mjs",
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
 ChromeUtils.defineLazyGetter(lazy, "console", () =>
@@ -20,11 +20,11 @@ ChromeUtils.defineLazyGetter(lazy, "console", () =>
  */
 export const NotificationUpdater = {
   /**
-   * Reference to the update interval.
+   * Reference to the update timeout.
    *
    * @type {?number}
    */
-  _interval: null,
+  _timeout: null,
 
   /**
    * Callback for the updater, called with the latest parsed JSON from the
@@ -33,6 +33,61 @@ export const NotificationUpdater = {
    * @type {?Function}
    */
   onUpdate: null,
+
+  /**
+   *
+   * @param {string} url - The url to fetch the expiration time for.
+   * @returns {number} The time the cache expires in seconds since the unix
+   *   epoch.
+   */
+  async getExpirationTime(url) {
+    try {
+      const { resolve, promise } = Promise.withResolvers();
+      Services.cache2
+        .diskCacheStorage(Services.loadContextInfo.anonymous)
+        .asyncOpenURI(
+          Services.io.newURI(url),
+          "",
+          Ci.nsICacheStorage.READ_ONLY,
+          {
+            onCacheEntryCheck() {
+              return Ci.nsICacheEntryOpenCallback.ENTRY_WANTED;
+            },
+            onCacheEntryAvailable({ expirationTime }) {
+              resolve(expirationTime);
+            },
+          }
+        );
+
+      return promise;
+    } catch (error) {
+      lazy.console.error(error);
+      return null;
+    }
+  },
+
+  /**
+   *
+   * @param {string} url - The url to fetch the remaining cache time for.
+   *
+   * @returns {number} The number of milliseconds until the urls cache entry
+   *  expires.
+   */
+
+  async getRemainingCacheTime(url) {
+    const expirationTime = await this.getExpirationTime(url);
+
+    // If the time is falsey or 0xFFFFFFFF return zero to fetch immediately.
+    // 0xFFFFFFFF means there is no cache entry found.
+    if (
+      !expirationTime ||
+      expirationTime === Ci.nsICacheEntry.NO_EXPIRATION_TIME
+    ) {
+      return 0;
+    }
+
+    return Math.max(expirationTime * 1000 - Date.now(), 0);
+  },
 
   /**
    * If we can check the server for updates.
@@ -59,23 +114,21 @@ export const NotificationUpdater = {
    * Initialize the updater, setting up a scheduled update as well as
    * immediately checking for the latest data from the server.
    *
-   * @param {number} lastUpdate - Timestamp (in ms) of the last cached update.
    * @returns {boolean} True if the caller should initialize its state from
    *   cache, since updating from the network did not yield any information.
    */
-  async init(lastUpdate) {
-    if (this._interval) {
+  async init() {
+    if (this._timeout) {
       return false;
     }
-    const refreshInterval = Services.prefs.getIntPref(
-      "mail.inappnotifications.refreshInterval",
-      21600000
+
+    const expirationTime = await this.getRemainingCacheTime(
+      Services.urlFormatter.formatURLPref("mail.inappnotifications.url")
     );
-    this._interval = lazy.setInterval(() => {
-      this._fetch();
-    }, refreshInterval);
-    // Don't immediately update if the cache is new enough.
-    if (lastUpdate + refreshInterval > Date.now()) {
+
+    // Don't update if we have an expirationTime unless it's the defaultInterval
+    if (expirationTime) {
+      this._schedule(expirationTime);
       return true;
     }
     const didFetch = await this._fetch();
@@ -89,36 +142,72 @@ export const NotificationUpdater = {
    * @returns {boolean} If a response from the server was received.
    */
   async _fetch() {
-    if (!this.canUpdate) {
+    if (!this.canUpdate || !this.onUpdate) {
+      // Check again in ten minutes. Since no requests or updates are done
+      // unless something changes we can be a little more eager here.
+      this._schedule(1000 * 60 * 10);
+
+      // TODO: Update to check error state and not continue to warn on every
+      // iteration once we are storing if we are currently in an error state.
+      if (!this.onUpdate) {
+        lazy.console.warn(
+          "Not checking for in-app notifications updates because no callback is registered"
+        );
+      }
+
       return false;
     }
-    if (!this.onUpdate) {
-      lazy.console.warn(
-        "Not checking for in-app notifications updates because no callback is registered"
-      );
-      return false;
-    }
-    const refreshUrl = Services.urlFormatter.formatURLPref(
+
+    const url = Services.urlFormatter.formatURLPref(
       "mail.inappnotifications.url"
     );
-    if (refreshUrl === "about:blank" || !refreshUrl) {
+
+    if (url === "about:blank" || !url) {
       return false;
     }
+
+    let success = true;
+
+    const defaultInterval = Services.prefs.getIntPref(
+      "mail.inappnotifications.refreshInterval",
+      21600000
+    );
+
+    let cacheUrl;
     try {
-      const response = await fetch(refreshUrl, {
+      const response = await fetch(url, {
         headers: {
           Accept: "application/json",
         },
       });
+
       if (!response.ok || response.code >= 400) {
+        this._schedule(defaultInterval);
         return false;
       }
+
       const notificationJson = await response.json();
       this.onUpdate(notificationJson);
+      cacheUrl = response.url;
     } catch (error) {
       lazy.console.error("Error fetching in-app notifications:", error);
-      return false;
+      success = false;
     }
-    return true;
+
+    // Get the remining time on the cache, if it returns anything falsey
+    // including zero use the default interval. We should never fetch again
+    // without a delay
+    const time =
+      (await this.getRemainingCacheTime(cacheUrl)) || defaultInterval;
+
+    this._schedule(time);
+
+    return success;
+  },
+
+  _schedule(time) {
+    this._timeout = lazy.setTimeout(() => {
+      this._fetch();
+    }, time);
   },
 };
