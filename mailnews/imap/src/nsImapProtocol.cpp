@@ -8901,9 +8901,9 @@ nsresult nsImapCacheStreamListener::Peeker(nsIInputStream* aInStr,
                                            uint32_t aOffset, uint32_t aCount,
                                            uint32_t* aCountWritten) {
   char peekBuf[kPeekBufSize];
-  aCount = aCount > sizeof peekBuf ? sizeof peekBuf : aCount;
+  aCount = aCount >= sizeof peekBuf ? sizeof peekBuf - 1 : aCount;
   memcpy(peekBuf, aBuffer, aCount);
-  peekBuf[aCount] = 0;  // Null terminate the starting header data.
+  peekBuf[aCount] = '\0';  // Null terminate the starting header data.
   int32_t findPos = MsgFindCharInSet(nsDependentCString(peekBuf), ":\n\r", 0);
   // Check that the first line is a header line, i.e., with a ':' in it
   // Or that it begins with "From " because some IMAP servers allow that,
