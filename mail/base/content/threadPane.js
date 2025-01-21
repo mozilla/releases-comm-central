@@ -168,8 +168,8 @@ function ThreadPaneOnClick(event) {
   // (scrollbar buttons) and don't want those events to cause a doubleclick.
 
   const t = event.target;
-  if (t.localName == "treecol") {
-    HandleColumnClick(t.id);
+  if (t.closest("treecol")) {
+    HandleColumnClick(t.closest("treecol").id);
     return;
   }
 

@@ -154,6 +154,11 @@ add_task(async function () {
     columns.subjectCol.element.getAttribute("sortDirection"),
     "ascending"
   );
+  EventUtils.synthesizeMouseAtCenter(columns.flaggedCol.element, {}, win);
+  Assert.equal(
+    columns.flaggedCol.element.getAttribute("sortDirection"),
+    "ascending"
+  );
   EventUtils.synthesizeMouseAtCenter(columns.dateCol.element, {}, win);
   Assert.equal(
     columns.dateCol.element.getAttribute("sortDirection"),
