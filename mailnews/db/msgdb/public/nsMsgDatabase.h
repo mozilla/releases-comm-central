@@ -102,7 +102,8 @@ class nsMsgDatabase : public nsIMsgOfflineOpsDatabase {
   virtual nsresult Open(nsMsgDBService* aDBService, nsIFile* aFolderName,
                         bool aCreate, bool aLeaveInvalidDB);
   virtual nsresult IsHeaderRead(nsIMsgDBHdr* hdr, bool* pRead);
-  virtual nsresult MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead, nsIDBChangeListener* instigator);
+  virtual nsresult MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
+                               nsIDBChangeListener* instigator);
   virtual nsresult MarkHdrReadInDB(nsIMsgDBHdr* msgHdr, bool bRead,
                                    nsIDBChangeListener* instigator);
   nsresult OpenInternal(nsMsgDBService* aDBService, nsIFile* summaryFile,
