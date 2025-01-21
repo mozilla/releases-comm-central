@@ -26,7 +26,7 @@ if CONFIG["CC_TYPE"] == "clang-cl":
         "-Wno-inconsistent-dllimport",
         "-Wno-macro-redefined",  # 'WIN32_LEAN_AND_MEAN' macro redefined
     ]
-    USE_STATIC_LIBS = True
+    USE_STATIC_MSVCRT = True
     DEFINES["RNP_USE_STD_REGEX"] = True
 
 if CONFIG["MOZ_STDCXX_COMPAT"]:

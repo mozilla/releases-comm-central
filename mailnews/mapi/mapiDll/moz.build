@@ -6,7 +6,7 @@
 # Statically link against the CRT, so that we don't go hunting around for it
 # and not find it when we're loaded into explorer.exe or similar
 SharedLibrary("mozMapi32")
-USE_STATIC_LIBS = True
+USE_STATIC_MSVCRT = True
 
 LOCAL_INCLUDES += ["../include"]
 
