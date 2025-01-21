@@ -25,7 +25,12 @@ const mockExternalProtocolService = {
   getApplicationDescription() {},
   getProtocolHandlerInfo() {},
   getProtocolHandlerInfoFromOS() {},
-  isExposedProtocol() {},
+  isExposedProtocol(scheme) {
+    // Match current network.protocol-handler.expose.<scheme> prefs.
+    return /^(about|blob|chrome|data|file|https?|imap|javascript|mailto|mid|moz-extension|s?news|nntp|pop)$/.test(
+      scheme
+    );
+  },
   loadURI(aURI) {
     this._loadedURLs.push(aURI.spec);
   },
@@ -73,6 +78,7 @@ add_setup(async function () {
       TZ;VALUE=TEXT:Pacific/Auckland
       URL;TYPE=work:https://www.thunderbird.net/
       IMPP:xmpp:cowboy@example.org
+      IMPP:data:text/html,<script>alert("this is bad");</script>
       END:VCARD
     `)
   );
@@ -328,10 +334,35 @@ add_task(async function testDisplay() {
   // Instant messaging section
   Assert.ok(BrowserTestUtils.isVisible(imppSection));
   items = imppSection.querySelectorAll("li");
-  Assert.equal(items.length, 1);
+  Assert.equal(items.length, 2, "should list two im items");
   Assert.equal(
     items[0].children[1].querySelector("a").href,
-    "xmpp:cowboy@example.org"
+    "xmpp:cowboy@example.org",
+    "xmpp url should be correct"
+  );
+
+  Assert.equal(
+    items[1].children[1].firstChild.nodeName,
+    "#text",
+    "data url should be displayed as text"
+  );
+  Assert.equal(
+    items[1].children[1].textContent,
+    `data:text/html,<script>alert("this is bad");</script>`,
+    "data im url should display correctly"
+  );
+
+  items[0].children[1]
+    .querySelector("a")
+    .scrollIntoView({ block: "start", behavior: "instant" });
+  EventUtils.synthesizeMouseAtCenter(
+    items[0].children[1].querySelector("a"),
+    {},
+    abWindow
+  );
+  await TestUtils.waitForCondition(
+    () => mockExternalProtocolService.urlLoaded("xmpp:cowboy@example.org"),
+    "waited for xmpp to load"
   );
 
   // Other sections.

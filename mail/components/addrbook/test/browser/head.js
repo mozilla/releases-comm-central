@@ -65,8 +65,14 @@ registerCleanupFunction(function () {
   });
 });
 
+/**
+ * @param {TreeView} list - The "cards" list.
+ */
 async function waitForCardsListReady(list) {
-  Assert.ok(list, "The cardList should exists after opening an address book.");
+  Assert.ok(
+    !!list,
+    "The card list should exist after opening an address book."
+  );
   if (list.isReady) {
     return;
   }
