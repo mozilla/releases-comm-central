@@ -20,6 +20,8 @@ nsImapMoveCoalescer::nsImapMoveCoalescer(nsIMsgFolder* sourceFolder,
   m_sourceFolder = sourceFolder;
   m_msgWindow = msgWindow;
   m_hasPendingMoves = false;
+  m_doNewMailNotification = false;
+  m_outstandingMoves = 0;
 }
 
 nsImapMoveCoalescer::~nsImapMoveCoalescer() {}
