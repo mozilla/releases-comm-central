@@ -266,9 +266,7 @@ add_task(async function testNextUnreadMessageInAbout3Pane() {
   // collapsed.
   about3Pane.displayFolder(folderD.URI);
   threadTree.selectedIndex = 0;
-  const selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   goDoCommand("cmd_collapseAllThreads");
-  await selectPromise;
   assertSelectedMessage(folderDMessages[0]);
 
   // Go to the next thread without expanding it.

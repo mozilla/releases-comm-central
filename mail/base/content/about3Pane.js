@@ -5037,6 +5037,7 @@ var threadPane = {
       selectedUris: threadTree.selectedIndices
         .filter(i => !gViewWrapper.isGroupedByHeaderAtIndex(i))
         .map(gDBView.getURIForViewIndex),
+      rowCount: gDBView.rowCount,
     });
   },
 
@@ -5070,24 +5071,35 @@ var threadPane = {
       return;
     }
 
+    // Remember what was selected before restoring the selection.
+    const indicesBefore = threadTree.selectedIndices;
+
     // Ignore any updates from the gDBView caused by findIndexForMsgURI
     // expanding threads.
     this._jsTree.beginUpdateBatch();
 
-    const { currentUri, selectedUris } =
-      this._savedSelections.get(selectionKey);
-    const currentIndex = currentUri
-      ? gDBView.findIndexForMsgURI(currentUri, expand)
+    const selection = this._savedSelections.get(selectionKey);
+    const currentIndex = selection.currentUri
+      ? gDBView.findIndexForMsgURI(selection.currentUri, expand)
       : nsMsgViewIndex_None;
     const indices = new Set(
-      selectedUris
+      selection.selectedUris
         .map(uri => gDBView.findIndexForMsgURI(uri, expand))
         .filter(i => i != nsMsgViewIndex_None)
     );
     // Set the selection and stop ignoring updates.
     threadTree.setSelectedIndices(indices.values(), true);
     this._jsTree.endUpdateBatch();
-    threadTree.onSelectionChanged(false, !notify);
+
+    // If any of these conditions are true, the selection changed. If not,
+    // the selection didn't change. Don't tell the tree about it, and
+    // definitely don't fire a "select" event and cause any selected message
+    // to be reloaded (again).
+    const selectionDidChange =
+      gDBView.rowCount != selection.rowCount ||
+      indices.size != indicesBefore.length ||
+      indicesBefore.some(i => !indices.has(i));
+    threadTree.onSelectionChanged(false, !notify || !selectionDidChange);
 
     if (currentIndex == nsMsgViewIndex_None) {
       threadTree.currentIndex = -1;
@@ -5105,6 +5117,9 @@ var threadPane = {
     // data until explicitly requested.
     if (discard) {
       this._savedSelections.delete(selectionKey);
+    } else {
+      // Update the count for next time restoreSelection is called.
+      selection.rowCount = gDBView.rowCount;
     }
   },
 
