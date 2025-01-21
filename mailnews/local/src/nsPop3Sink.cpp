@@ -386,7 +386,6 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, uint32_t flags) {
     m_newMailParser = nullptr;
     MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Warning,
             (POP3LOG("Failed to initialize m_newMailParser")));
-    rv = NS_OK;
   }
 
   nsCString outputString;
