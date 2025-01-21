@@ -208,6 +208,7 @@ NS_IMETHODIMP nsMsgQuota::SetLimit(uint64_t aLimit) {
 nsImapMailFolder::nsImapMailFolder()
     : m_initialized(false),
       m_haveDiscoveredAllFolders(false),
+      m_msgMovedByFilter(false),
       m_curMsgUid(0),
       m_previousHighestUid(0),
       m_nextMessageByteLength(0),
@@ -221,10 +222,12 @@ nsImapMailFolder::nsImapMailFolder()
       m_performingBiff(false),
       m_updatingFolder(false),
       m_applyIncomingFilters(false),
+      m_isGmailServer(false),
       m_downloadingFolderForOfflineUse(false),
       m_filterListRequiresBody(false),
       m_folderQuotaCommandIssued(false),
-      m_folderQuotaDataIsValid(false) {
+      m_folderQuotaDataIsValid(false),
+      m_totalKeysToFetch(0) {
   m_boxFlags = 0;
   m_uidValidity = kUidUnknown;
   m_numServerRecentMessages = 0;
