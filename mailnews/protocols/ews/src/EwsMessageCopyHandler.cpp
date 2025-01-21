@@ -276,7 +276,7 @@ NS_IMETHODIMP MessageCopyHandler::EndMessage(nsMsgKey key) {
 NS_IMETHODIMP MessageCopyHandler::EndCopy(bool aCopySucceeded) {
   if (!aCopySucceeded) {
     // If we encountered a failure, bail now.
-    return OnCopyCompleted(aCopySucceeded ? NS_OK : NS_ERROR_FAILURE);
+    return OnCopyCompleted(NS_ERROR_FAILURE);
   }
 
   return CreateRemoteMessage();
