@@ -59,7 +59,7 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ErrorResult.h"
-#include "mozilla/glean/GleanMetrics.h"
+#include "mozilla/glean/CommMailComponentsComposeMetrics.h"
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
 #include "mozilla/dom/Selection.h"

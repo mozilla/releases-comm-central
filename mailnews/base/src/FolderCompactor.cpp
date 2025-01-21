@@ -33,7 +33,7 @@
 #include "mozilla/RefCounted.h"
 #include "mozilla/Services.h"
 #include "mozilla/ScopeExit.h"
-#include "mozilla/glean/GleanMetrics.h"
+#include "mozilla/glean/CommMailMetrics.h"
 
 mozilla::LazyLogModule gCompactLog("compact");
 using mozilla::LogLevel;

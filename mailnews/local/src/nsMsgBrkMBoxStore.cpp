@@ -34,7 +34,7 @@
 #include "HeaderReader.h"
 #include "MboxMsgInputStream.h"
 #include "MboxMsgOutputStream.h"
-#include "mozilla/glean/GleanMetrics.h"
+#include "mozilla/glean/CommMailMetrics.h"
 #include "mozilla/Buffer.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"

@@ -16,7 +16,7 @@
 #include "nsIMsgSearchTerm.h"
 #include "nsIMdbFactoryFactory.h"
 #include "mozilla/Logging.h"
-#include "mozilla/glean/GleanMetrics.h"
+#include "mozilla/glean/CommMailMetrics.h"
 #include "prprf.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgAccountManager.h"

@@ -7,7 +7,7 @@
 #include "nsString.h"
 #include "nsMsgUtils.h"
 #include "nsTArray.h"
-#include "mozilla/glean/GleanMetrics.h"
+#include "mozilla/glean/CommMailMetrics.h"
 #include "mozilla/Logging.h"
 #include <algorithm>
 
