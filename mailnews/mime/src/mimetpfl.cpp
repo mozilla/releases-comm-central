@@ -557,15 +557,18 @@ static void Convert_whitespace(const char16_t a_current_char,
     number_of_space = 0;
   }
 
-  while (number_of_nbsp--) {
-    a_out_string.AppendLiteral("&nbsp;");
+  if (number_of_nbsp != 0) {
+    while (number_of_nbsp--) {
+      a_out_string.AppendLiteral("&nbsp;");
+    }
   }
 
-  while (number_of_space--) {
-    // a_out_string += ' '; gives error
-    a_out_string.Append(' ');
+  if (number_of_space != 0) {
+    while (number_of_space--) {
+      // a_out_string += ' '; gives error
+      a_out_string.Append(' ');
+    }
   }
-
   return;
 }
 
