@@ -264,7 +264,7 @@ export class MailNotificationManager {
    * Get the body for the alert.
    *
    * @param {nsIMsgFolder} folder - The changed folder.
-   * @param {nsIMsgHdr} msgHdr - The nsIMsgHdr of the first new messages.
+   * @param {nsIMsgDBHdr} msgHdr - The nsIMsgHdr of the first new messages.
    * @returns {string} The alert body.
    */
   async _getAlertBody(folder, msgHdr) {
@@ -325,7 +325,7 @@ export class MailNotificationManager {
   /**
    * Show the alert.
    *
-   * @param {nsIMsgHdr} msgHdr - The nsIMsgHdr of the first new messages.
+   * @param {nsIMsgDBHdr} msgHdr - The nsIMsgHdr of the first new messages.
    * @param {string} title - The alert title.
    * @param {string} body - The alert body.
    */

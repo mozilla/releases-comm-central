@@ -125,7 +125,7 @@ export var MailUtils = {
    * Note: Do not use this if you want to open multiple messages at once. Use
    *  |displayMessages| instead.
    *
-   * @param {nsIMsgHdr} aMsgHdr - The message header to display.
+   * @param {nsIMsgDBHdr} aMsgHdr - The message header to display.
    * @param {DBViewWrapper} [aViewWrapperToClone] - A view wrapper to clone.
    *   If null or not given, the message header's folder's default view will
    *   be used.
@@ -318,7 +318,7 @@ export var MailUtils = {
   /**
    * Show this message in an existing window.
    *
-   * @param {nsIMsgHdr} aMsgHdr - The message header to display.
+   * @param {nsIMsgDBHdr} aMsgHdr - The message header to display.
    * @param {DBViewWrapper} [aViewWrapperToClone] - A DB view wrapper to clone
    *   for the message window.
    * @returns {boolean} true if an existing window was found and the message
@@ -336,7 +336,7 @@ export var MailUtils = {
   /**
    * Open a new standalone message window with this header.
    *
-   * @param {nsIMsgHdr} aMsgHdr the message header to display
+   * @param {nsIMsgDBHdr} aMsgHdr the message header to display
    * @param {DBViewWrapper} [aViewWrapperToClone] - A DB view wrapper to clone
    *   for the message window.
    * @returns {DOMWindow} the opened window
@@ -404,7 +404,7 @@ export var MailUtils = {
    * useful when the message needs to be displayed in the context of its folder
    * or thread.
    *
-   * @param {nsIMsgHdr} msgHdr - The message header to display.
+   * @param {nsIMsgDBHdr} msgHdr - The message header to display.
    * @param {boolean} [openIfMessagePaneHidden] - If true, and the folder tab's
    *   message pane is hidden, opens the message in a new tab or window.
    *   Otherwise uses the folder tab.
@@ -663,7 +663,7 @@ export var MailUtils = {
   /**
    * Get the identity for the given header.
    *
-   * @param {nsIMsgHdr} hdr - Message header.
+   * @param {nsIMsgDBHdr} hdr - Message header.
    * @param {nsIMsgCompType} type - Compose type the identity is used for.
    * @returns {Array} - An array of two elements, [identity, matchingHint].
    *   identity is an nsIMsgIdentity and matchingHint is a string.

@@ -553,7 +553,7 @@ var calendarTaskButtonDNDObserver;
     /**
      * Handles mail messages.
      *
-     * @param {nsIMsgHdr} _msgHdr
+     * @param {nsIMsgDBHdr} _msgHdr
      */
     onDropMessage(_msgHdr) {}
 
@@ -741,7 +741,7 @@ var calendarTaskButtonDNDObserver;
      * default event dialog and just use the subject of the message as the event
      * title.
      *
-     * @param {nsIMsgHdr} msgHdr
+     * @param {nsIMsgDBHdr} msgHdr
      */
     async onDropMessage(msgHdr) {
       const newItem = new CalEvent();
@@ -836,7 +836,7 @@ var calendarTaskButtonDNDObserver;
      * Gets called in case we're dropping a message on the 'open tasks tab'
      * -button.
      *
-     * @param {nsIMsgHdr} msgHdr
+     * @param {nsIMsgDBHdr} msgHdr
      */
     async onDropMessage(msgHdr) {
       const todo = new CalTodo();

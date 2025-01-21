@@ -3705,7 +3705,7 @@ function convertToEventOrTask(isTask = false) {
  *  display widget), this must be moved into the MessageDisplayWidget or
  *  otherwise be scoped to the tab.
  *
- * @param {nsIMsgHdr} msgHdr - The nsIMsgHdr of the message with a junk status change.
+ * @param {nsIMsgDBHdr} msgHdr - The nsIMsgHdr of the message with a junk status change.
  */
 function HandleJunkStatusChanged(msgHdr) {
   if (!msgHdr || !msgHdr.folder) {
