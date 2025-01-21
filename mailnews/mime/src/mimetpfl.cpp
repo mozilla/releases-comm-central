@@ -246,7 +246,6 @@ EarlyOut:
 static int MimeInlineTextPlainFlowed_parse_line(const char* aLine,
                                                 int32_t length,
                                                 MimeObject* obj) {
-  int status;
   bool quoting =
       (obj->options &&
        (obj->options->format_out == nsMimeOutput::nsMimeMessageQuoting ||
@@ -378,7 +377,6 @@ static int MimeInlineTextPlainFlowed_parse_line(const char* aLine,
     }
   } else {
     CopyUTF8toUTF16(nsDependentCString(line, length), lineResult);
-    status = 0;
   }
 
   nsAutoCString preface;
@@ -448,7 +446,7 @@ static int MimeInlineTextPlainFlowed_parse_line(const char* aLine,
   }  // End Fixed line
 
   if (!(exdata->isSig && quoting && tObj->mStripSig)) {
-    status = MimeObject_write(obj, preface.get(), preface.Length(), true);
+    int status = MimeObject_write(obj, preface.get(), preface.Length(), true);
     if (status < 0) return status;
     nsAutoCString outString;
     if (obj->options->format_out != nsMimeOutput::nsMimeMessageSaveAs ||
