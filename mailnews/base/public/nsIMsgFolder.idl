@@ -745,11 +745,10 @@ interface nsIMsgFolder : nsISupports {
   /**
    * Return the child folder which the specified name.
    *
-   * @param aName  The name of the child folder to find
-   * @return       The child folder
-   * @exception NS_ERROR_FAILURE Thrown if the folder with aName does not exist
+   * @param name - The name of the child folder to find
+   * @return The child folder, or null if the folder with 'name' does not exist.
    */
-  nsIMsgFolder getChildNamed(in AString aName);
+  nsIMsgFolder getChildNamed(in AString name);
 
   /**
    * Finds the sub folder with the specified name.

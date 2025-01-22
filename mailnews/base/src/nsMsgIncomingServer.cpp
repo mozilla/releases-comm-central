@@ -385,7 +385,7 @@ nsresult nsMsgIncomingServer::CreateLocalFolder(const nsAString& folderName) {
   nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgFolder> child;
-  rv = rootFolder->GetChildNamed(folderName, getter_AddRefs(child));
+  rootFolder->GetChildNamed(folderName, getter_AddRefs(child));
   if (child) return NS_OK;
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));

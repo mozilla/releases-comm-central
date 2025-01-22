@@ -198,13 +198,7 @@ class SmartMailbox {
    * @returns {?nsIMsgFolder}
    */
   getSmartFolder(name) {
-    // Note: folder.getChildNamed(name) throws if the folder does not exist,
-    // while folder.getChildWithURI() returns null;
-    return this.#rootFolder.getChildWithURI(
-      `${this.#rootFolder.URI}/${name}`,
-      false,
-      true
-    );
+    return this.#rootFolder.getChildNamed(name);
   }
 
   /**

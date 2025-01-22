@@ -193,14 +193,10 @@ function richCreateMessage(
   }
 
   const rootFolder = localAccountUtils.rootFolder;
-  gDraftFolder = null;
+  gDraftFolder =
+    rootFolder.getChildNamed("Drafts") ||
+    rootFolder.createLocalSubfolder("Drafts");
   // Make sure the drafts folder is empty
-  try {
-    gDraftFolder = rootFolder.getChildNamed("Drafts");
-  } catch (e) {
-    // we don't have to remove the folder because it doesn't exist yet
-    gDraftFolder = rootFolder.createLocalSubfolder("Drafts");
-  }
   // Clear all messages
   const msgs = [...gDraftFolder.msgDatabase.enumerateMessages()];
   if (msgs.length > 0) {

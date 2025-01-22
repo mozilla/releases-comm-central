@@ -109,15 +109,12 @@ function subtest_folder_operations(root) {
 
   Assert.equal(root.getChildNamed("folder1"), folder);
 
-  // Check for non match, this should throw
-  var thrown = false;
-  try {
-    root.getChildNamed("folder2");
-  } catch (e) {
-    thrown = true;
-  }
-
-  Assert.ok(thrown);
+  // Check for non match, this should return null.
+  Assert.equal(
+    root.getChildNamed("folder2"),
+    null,
+    "should get null folder2 child when not found"
+  );
 
   // folder2 is a child of folder however.
   folder2 = folder.getChildNamed("folder2");
@@ -172,14 +169,11 @@ function subtest_folder_operations(root) {
   var folder1Moved = folder3.getChildNamed("folder1");
   folder1Moved.getChildNamed("folder2");
 
-  thrown = false;
-  try {
-    root.getChildNamed("folder1");
-  } catch (e) {
-    thrown = true;
-  }
-
-  Assert.ok(thrown);
+  Assert.equal(
+    root.getChildNamed("folder1"),
+    null,
+    "should get null folder1 child when not found"
+  );
 
   if (folder.filePath.exists()) {
     dump("shouldn't exist - folder file path " + folder.URI + "\n");

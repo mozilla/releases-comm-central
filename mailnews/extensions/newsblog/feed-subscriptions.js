@@ -3042,9 +3042,8 @@ var FeedSubscriptions = {
           // the same level as in the opml structure, feeds are placed into the
           // existing folder.
           const folderName = outlineName;
-          try {
-            feedFolder = aParentFolder.getChildNamed(folderName);
-          } catch (ex) {
+          feedFolder = aParentFolder.getChildNamed(folderName);
+          if (!feedFolder) {
             // Folder not found, create it.
             FeedUtils.log.info(
               "importOPMLOutlines: creating folder - '" +

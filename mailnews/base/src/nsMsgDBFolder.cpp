@@ -3172,10 +3172,7 @@ nsMsgDBFolder::GetChildNamed(const nsAString& aName, nsIMsgFolder** aChild) {
       return NS_OK;
     }
   }
-  // don't return NS_OK if we didn't find the folder
-  // see http://bugzilla.mozilla.org/show_bug.cgi?id=210089#c15
-  // and http://bugzilla.mozilla.org/show_bug.cgi?id=210089#c17
-  return NS_ERROR_FAILURE;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::GetChildWithURI(const nsACString& uri, bool deep,
