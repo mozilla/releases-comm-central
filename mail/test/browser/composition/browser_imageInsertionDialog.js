@@ -96,6 +96,7 @@ add_task(async function test_image_insertion_dialog_persist() {
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
   await dialogPromise;
+  await new Promise(resolve => setTimeout(resolve));
 
   info("Will check we switch to 'no alt text'");
 
@@ -110,6 +111,7 @@ add_task(async function test_image_insertion_dialog_persist() {
   });
   EventUtils.synthesizeMouseAtCenter(img, { clickCount: 2 }, img.ownerGlobal);
   await dialogPromise;
+  await new Promise(resolve => setTimeout(resolve));
 
   info("Will check using alt text");
 
@@ -135,6 +137,7 @@ add_task(async function test_image_insertion_dialog_persist() {
   });
   EventUtils.synthesizeMouseAtCenter(img, { clickCount: 2 }, img.ownerGlobal);
   await dialogPromise;
+  await new Promise(resolve => setTimeout(resolve));
 
   info("Will check next time we edit, we still have 'use alt text' selected");
 
