@@ -684,6 +684,9 @@ this.folders = class extends ExtensionAPIPersistent {
               const tags = MailServices.tags.getAllTags();
               for (const tag of tags) {
                 const folder = smartMailbox.getTagFolder(tag);
+                if (!folder) {
+                  continue;
+                }
                 parentFolders.push({
                   rootFolder: folder,
                   accountId: smartMailbox.account.key,

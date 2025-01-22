@@ -341,7 +341,11 @@ add_task(
           await browser.messages.deleteTag(key.toLowerCase());
         }
 
-        await browser.messages.createTag("custom_tag", "Custom Tag", "#123456");
+        await browser.messages.createTag(
+          "custom:_tag",
+          "Custom Tag",
+          "#123456"
+        );
         const tags2 = await browser.messages.listTags();
         window.assertDeepEqual(
           [
@@ -376,7 +380,7 @@ add_task(
               ordinal: "",
             },
             {
-              key: "custom_tag",
+              key: "custom:_tag",
               tag: "Custom Tag",
               color: "#123456",
               ordinal: "",
@@ -423,7 +427,7 @@ add_task(
               ordinal: "",
             },
             {
-              key: "custom_tag",
+              key: "custom:_tag",
               tag: "Custom Tag",
               color: "#123456",
               ordinal: "",
@@ -470,7 +474,7 @@ add_task(
               ordinal: "",
             },
             {
-              key: "custom_tag",
+              key: "custom:_tag",
               tag: "Custom Tag",
               color: "#123456",
               ordinal: "",
@@ -529,11 +533,11 @@ add_task(
 
         await browser.test.assertRejects(
           browser.messages.createTag(
-            "Custom_Tag",
+            "Custom:_Tag",
             "Important Stuff",
             "#223344"
           ),
-          `Specified key already exists: custom_tag`,
+          `Specified key already exists: custom:_tag`,
           "Should reject creating a key which exists already"
         );
 
@@ -584,22 +588,41 @@ add_task(
 
         // Test tagging messages, deleting tag and re-creating tag.
         await browser.messages.update(folder4Messages[0].id, {
-          tags: ["custom_tag"],
+          tags: ["custom:_tag"],
         });
         const message1 = await browser.messages.get(folder4Messages[0].id);
-        window.assertDeepEqual(["custom_tag"], message1.tags);
+        window.assertDeepEqual(["custom:_tag"], message1.tags);
 
-        await browser.messages.tags.delete("custom_tag");
+        await browser.messages.tags.delete("custom:_tag");
         const message2 = await browser.messages.get(folder4Messages[0].id);
         window.assertDeepEqual([], message2.tags);
 
         await browser.messages.tags.create(
-          "custom_tag",
+          "custom:_tag",
           "Custom Tag",
           "#AB3456"
         );
         const message3 = await browser.messages.get(folder4Messages[0].id);
-        window.assertDeepEqual(["custom_tag"], message3.tags);
+        window.assertDeepEqual(["custom:_tag"], message3.tags);
+
+        // Check if a tag with hashed folder uri component is correctly returned.
+        const tagFolder = await browser.folders.getTagFolder("custom:_tag");
+        window.assertDeepEqual(
+          {
+            id: "tag://custom2fe99f47",
+            name: "Custom Tag",
+            path: "/tag/custom2fe99f47",
+            specialUse: [],
+            isFavorite: false,
+            isRoot: false,
+            isTag: true,
+            isUnified: false,
+            isVirtual: true,
+            accountId: "",
+          },
+          tagFolder,
+          "Should find the correct tag folder."
+        );
 
         // Test deleting built-in tag.
         await browser.messages.deleteTag("$label5");
@@ -631,7 +654,7 @@ add_task(
               ordinal: "",
             },
             {
-              key: "custom_tag",
+              key: "custom:_tag",
               tag: "Custom Tag",
               color: "#AB3456",
               ordinal: "",
@@ -642,7 +665,7 @@ add_task(
 
         // Clean up.
         await browser.messages.update(folder4Messages[0].id, { tags: [] });
-        await browser.messages.deleteTag("custom_tag");
+        await browser.messages.deleteTag("custom:_tag");
         await browser.messages.tags.create("$label5", "Later", "#993399");
         browser.test.notifyPass("finished");
       },
@@ -679,7 +702,7 @@ add_task(
         await browser.test.assertThrows(
           () =>
             browser.messages.createTag(
-              "custom_tag",
+              "custom:_tag",
               "Important Stuff",
               "#223344"
             ),

@@ -21,12 +21,14 @@ const folderTypes = [
   { flag: Ci.nsMsgFolderFlags.Trash, name: "Trash", type: "trash" },
   // { flag: Ci.nsMsgFolderFlags.Queue, name: "Outbox", type: "outbox" },
 ];
+const allFlags = folderTypes.reduce((all, cur) => all | cur.flag, 0);
 
 class SmartMailbox {
   #tagsFolder = null;
   #rootFolder = null;
   #server = null;
   #account = null;
+  #TagFolderURIs = new Map();
 
   constructor() {
     this.verify();
@@ -96,78 +98,11 @@ class SmartMailbox {
     );
 
     // Create smart folders, if missing.
-    let allFlags = 0;
-    folderTypes.forEach(folderType => (allFlags |= folderType.flag));
-
     for (const folderType of folderTypes) {
-      let folder = this.getSmartFolder(folderType.name);
-      if (folder) {
-        continue;
-      }
-      try {
-        const searchFolders = [];
-
-        const recurse = function (mainFolder) {
-          let subFolders;
-          try {
-            subFolders = mainFolder.subFolders;
-          } catch (ex) {
-            console.error(
-              new Error(
-                `Unable to access the subfolders of ${mainFolder.URI}`,
-                {
-                  cause: ex,
-                }
-              )
-            );
-          }
-          if (!subFolders?.length) {
-            return;
-          }
-
-          for (const sf of subFolders) {
-            // Add all of the subfolders except the ones that belong to
-            // a different folder type.
-            if (!(sf.flags & allFlags)) {
-              searchFolders.push(sf);
-              recurse(sf);
-            }
-          }
-        };
-
-        for (const server of lazy.MailServices.accounts.allServers) {
-          for (const f of server.rootFolder.getFoldersWithFlags(
-            folderType.flag
-          )) {
-            searchFolders.push(f);
-            recurse(f);
-          }
-        }
-
-        folder = this.#rootFolder.createLocalSubfolder(folderType.name);
-        folder.flags |= Ci.nsMsgFolderFlags.Virtual | folderType.flag;
-
-        const msgDatabase = folder.msgDatabase;
-        const folderInfo = msgDatabase.dBFolderInfo;
-
-        folderInfo.setCharProperty("searchStr", "ALL");
-        folderInfo.setCharProperty(
-          "searchFolderUri",
-          searchFolders.map(f => f.URI).join("|")
-        );
-        folderInfo.setUint32Property("searchFolderFlag", folderType.flag);
-        folderInfo.setBooleanProperty("searchOnline", true);
-        msgDatabase.summaryValid = true;
-        msgDatabase.close(true);
-
-        this.#rootFolder.notifyFolderAdded(folder);
-      } catch (ex) {
-        console.error(ex);
-        continue;
-      }
+      this.getSmartFolder(folderType.name);
     }
 
-    // Create tag folders, if missing.
+    // Create root tag folder, if missing.
     this.#tagsFolder =
       this.#rootFolder.getChildWithURI(
         `${this.#rootFolder.URI}/tags`,
@@ -176,15 +111,21 @@ class SmartMailbox {
       ) ?? this.#rootFolder.createLocalSubfolder("tags");
     this.#tagsFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-    for (const tag of lazy.MailServices.tags.getAllTags()) {
-      try {
-        this.getTagFolder(tag);
-      } catch (ex) {
-        console.error(ex);
-      }
+    // Remove obsolete tag folders.
+    const tags = lazy.MailServices.tags.getAllTags();
+    const obsoleteFolders = this.#tagsFolder.subFolders.filter(
+      folder => !tags.some(t => t.tag == folder.prettyName)
+    );
+    for (const folder of obsoleteFolders) {
+      folder.deleteSelf(null);
     }
-    lazy.MailServices.accounts.saveVirtualFolders();
 
+    // Create tag folders, if missing.
+    for (const tag of tags) {
+      this.getTagFolder(tag);
+    }
+
+    lazy.MailServices.accounts.saveVirtualFolders();
     this.#server = smartServer;
     this.#account = lazy.MailServices.accounts.findAccountForServer(
       this.#server
@@ -192,13 +133,86 @@ class SmartMailbox {
   }
 
   /**
-   * Returns the smart folder with the specified name, if it exists.
+   * Returns the smart folder with the specified name. Attempts to create it, if
+   * it does not exist yet.
    *
    * @param {string} name
    * @returns {?nsIMsgFolder}
    */
   getSmartFolder(name) {
-    return this.#rootFolder.getChildNamed(name);
+    // Note: Smart folder URIs use the names as listed in the folderTypes array
+    // (e.g.: mailbox://nobody@smart%20mailboxes/Inbox), but their actual names
+    // will be localized. A folder lookup here via getChildNamed() will therefore
+    // fail on localized systems (unless the localized name is used for the lookup).
+    const folderType = folderTypes.find(f => f.name == name);
+    const folderFromUri = this.#rootFolder.getChildWithURI(
+      `${this.#rootFolder.URI}/${folderType.name}`,
+      false,
+      true
+    );
+    if (folderFromUri) {
+      return folderFromUri;
+    }
+
+    try {
+      const searchFolders = [];
+
+      const recurse = function (mainFolder) {
+        let subFolders;
+        try {
+          subFolders = mainFolder.subFolders;
+        } catch (ex) {
+          console.error(
+            new Error(`Unable to access the subfolders of ${mainFolder.URI}`, {
+              cause: ex,
+            })
+          );
+        }
+        if (!subFolders?.length) {
+          return;
+        }
+
+        for (const sf of subFolders) {
+          // Add all of the subfolders except the ones that belong to
+          // a different folder type.
+          if (!(sf.flags & allFlags)) {
+            searchFolders.push(sf);
+            recurse(sf);
+          }
+        }
+      };
+
+      for (const server of lazy.MailServices.accounts.allServers) {
+        for (const f of server.rootFolder.getFoldersWithFlags(
+          folderType.flag
+        )) {
+          searchFolders.push(f);
+          recurse(f);
+        }
+      }
+
+      const folder = this.#rootFolder.createLocalSubfolder(folderType.name);
+      folder.flags |= Ci.nsMsgFolderFlags.Virtual | folderType.flag;
+
+      const msgDatabase = folder.msgDatabase;
+      const folderInfo = msgDatabase.dBFolderInfo;
+
+      folderInfo.setCharProperty("searchStr", "ALL");
+      folderInfo.setCharProperty(
+        "searchFolderUri",
+        searchFolders.map(f => f.URI).join("|")
+      );
+      folderInfo.setUint32Property("searchFolderFlag", folderType.flag);
+      folderInfo.setBooleanProperty("searchOnline", true);
+      msgDatabase.summaryValid = true;
+      msgDatabase.close(true);
+
+      this.#rootFolder.notifyFolderAdded(folder);
+    } catch (ex) {
+      console.error(`Failed to create smart folder <${folderType.name}>`, ex);
+    }
+
+    return null;
   }
 
   /**
@@ -209,45 +223,59 @@ class SmartMailbox {
    * @returns {nsIMsgFolder}
    */
   getTagFolder(tag) {
-    let folder = this.#tagsFolder.getChildWithURI(
-      this.getTagFolderUriForKey(tag.key),
-      false,
-      false
-    );
-    if (folder) {
-      return folder;
+    // Use getChildWithURI() to get the folder via its known URI.
+    const uri = this.#TagFolderURIs.get(tag.key);
+    if (uri) {
+      const folderFromUri = this.#tagsFolder.getChildWithURI(uri, false, true);
+      if (folderFromUri) {
+        return folderFromUri;
+      }
     }
 
-    folder = this.#tagsFolder.createLocalSubfolder(tag.key);
-    folder.flags |= Ci.nsMsgFolderFlags.Virtual;
-    folder.prettyName = tag.tag;
+    // Use folder.getChildNamed() to identify the tag folder by its name.
+    const folderFromName = this.#tagsFolder.getChildNamed(tag.tag);
+    if (folderFromName) {
+      this.#TagFolderURIs.set(tag.key, folderFromName.URI);
+      return folderFromName;
+    }
 
-    const msgDatabase = folder.msgDatabase;
-    const folderInfo = msgDatabase.dBFolderInfo;
+    try {
+      const folder = this.#tagsFolder.createLocalSubfolder(tag.key);
+      folder.flags |= Ci.nsMsgFolderFlags.Virtual;
+      folder.prettyName = tag.tag;
+      this.#TagFolderURIs.set(tag.key, folder.URI);
 
-    folderInfo.setCharProperty("searchStr", `AND (tag,contains,${tag.key})`);
-    folderInfo.setCharProperty("searchFolderUri", "*");
-    folderInfo.setUint32Property("searchFolderFlag", Ci.nsMsgFolderFlags.Inbox);
-    folderInfo.setBooleanProperty("searchOnline", false);
-    msgDatabase.summaryValid = true;
-    msgDatabase.close(true);
+      const msgDatabase = folder.msgDatabase;
+      const folderInfo = msgDatabase.dBFolderInfo;
 
-    this.#tagsFolder.notifyFolderAdded(folder);
-    return folder;
+      folderInfo.setCharProperty("searchStr", `AND (tag,contains,${tag.key})`);
+      folderInfo.setCharProperty("searchFolderUri", "*");
+      folderInfo.setUint32Property(
+        "searchFolderFlag",
+        Ci.nsMsgFolderFlags.Inbox
+      );
+      folderInfo.setBooleanProperty("searchOnline", false);
+      msgDatabase.summaryValid = true;
+      msgDatabase.close(true);
+
+      this.#tagsFolder.notifyFolderAdded(folder);
+      return folder;
+    } catch (ex) {
+      console.error(`Failed to create tag folder <${tag.tag}>`, ex);
+    }
+
+    return null;
   }
 
   /**
-   * Constructs and returns the uri of the tag folder for the specified key.
+   * Returns the currently known URI of the tag folder associated with a given
+   * key. The folder does not necessarily have to exist.
    *
    * @param {string} key
    * @returns {string}
    */
   getTagFolderUriForKey(key) {
-    // Don't use encodeURIComponent, folder URLs escape more characters.
-    return `${this.#tagsFolder.URI}/${Services.io.escapeString(
-      key,
-      Ci.nsINetUtil.ESCAPE_URL_PATH
-    )}`;
+    return this.#TagFolderURIs.get(key);
   }
 }
 

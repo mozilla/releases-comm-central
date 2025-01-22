@@ -1199,7 +1199,7 @@
       {
         "name": "getUnifiedFolder",
         "type": "function",
-        "description": "Get one of the special unified mailbox folders, which are virtual search folders and return the content from all mail accounts.",
+        "description": "Get one of the special unified mailbox folders, which are virtual search folders and return the content from all mail accounts. Throws if the requested folder does not exist.",
         "async": "callback",
         "parameters": [
           {
@@ -1238,7 +1238,7 @@
       {
         "name": "getTagFolder",
         "type": "function",
-        "description": "Get one of the special virtual tag folders, which are virtual search folders and group messages from all mail accounts based on their tags.",
+        "description": "Get one of the special virtual tag folders, which are virtual search folders and group messages from all mail accounts based on their tags. Throws if the requested folder does not exist.",
         "async": "callback",
         "parameters": [
           {

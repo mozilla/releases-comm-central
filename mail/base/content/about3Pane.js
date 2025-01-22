@@ -1497,14 +1497,13 @@ var folderPane = {
         this._smartMailbox = SmartMailboxUtils.getSmartMailbox();
 
         for (const tag of MailServices.tags.getAllTags()) {
-          try {
-            const folder = this._smartMailbox.getTagFolder(tag);
-            this.containerList.appendChild(
-              folderPane._createTagRow(this.name, folder, tag)
-            );
-          } catch (ex) {
-            console.error(ex);
+          const folder = this._smartMailbox.getTagFolder(tag);
+          if (!folder) {
+            continue;
           }
+          this.containerList.appendChild(
+            folderPane._createTagRow(this.name, folder, tag)
+          );
         }
         MailServices.accounts.saveVirtualFolders();
       },
@@ -1527,6 +1526,10 @@ var folderPane = {
 
         const tag = MailServices.tags.getAllTags().find(t => t.key == key);
         const folder = this._smartMailbox.getTagFolder(tag);
+        if (!folder) {
+          return;
+        }
+
         const row = folderPane.getRowForFolder(folder);
         folder.prettyName = tag.tag;
         if (row) {
