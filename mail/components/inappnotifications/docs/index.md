@@ -22,7 +22,9 @@ The custom elements start with an `in-app-notification-manager` element that con
 
 ### Selecting which notification to display
 
-The `NotificationManager` is what ultimately selects the notification to display, after the raw data was filtered by `NotificationFilter`. It chooses the notification with the highest severity (so lowest number). It tries to avoid switching notification if there is one already visible, only displacing the current notification if there is a notification with a higher severity to display instead. Lastly the notification manager handles the case where the notification expires (`end_at` transitioning to the past), requesting new notifications when that happens. It also requests new notifications to display when a notification is dismissed. It generally tries to wait a bit before showing the next notification.
+The `NotificationManager` is what ultimately selects the notification to display, after the raw data was filtered by `NotificationFilter`. The notifications eligible to be displayed are sorted by `severity` (ascending), then the `start_at` timestamp (ascending), and finally by the `percent_chance` (ascending), and the first message is selected for display. It tries to avoid switching notification if there is one already visible, only displacing the current notification if there is a notification with a higher severity to display instead. Lastly the notification manager handles the case where the notification expires (`end_at` transitioning to the past), requesting new notifications when that happens. It also requests new notifications to display when a notification is dismissed. It generally tries to wait a bit before showing the next notification.
+
+Display of notifications is rate limited to no more than 6 in a 24 hour period. If additional notifications are attempted to be displayed they will be deferred until 24 hours from the timestamp of the first of the last 6 notifications.
 
 `InAppNotifications` asks `NotificationManager` to recalculate the current notification whenever the raw data is updated, or when any new notification becomes available (its `start_at`transitioning to the past). It also handles the requests for current notifications from the `NotificationManager` by giving it the currently cached list of available notifications.
 
@@ -31,6 +33,8 @@ The `NotificationManager` is what ultimately selects the notification to display
 The local cache of notifications is regularly refreshed against a server (specified by an URL that is formatted using the [URL formatter](https://searchfox.org/mozilla-central/source/toolkit/components/urlformatter/URLFormatter.sys.mjs)). If at startup of the system the server can't be reached and there's either no cache or the cache is older than the application build, it falls back to a set of notifications that were included at build time.
 
 The notification are cached based on the caching headers from the notification server, if the cache is not expired no network requests will be done. The time to the next update is influenced by notifications server via the cache headers.
+
+In addition to the cache the requests are also rate limited to 24 requests in a 24 hour period. If additional requests are attempted they will be deferred until 24 hours from the timestamp of the first of the last 24 requests.
 
 ### Cache
 
