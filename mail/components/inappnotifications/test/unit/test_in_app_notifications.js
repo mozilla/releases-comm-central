@@ -56,6 +56,8 @@ add_setup(async () => {
   do_get_profile();
   await InAppNotifications.init();
 
+  NotificationManager._PER_TIME_UNIT = 1;
+
   registerCleanupFunction(() => {
     clearInterval(NotificationUpdater._interval);
     clearTimeout(InAppNotifications._showNotificationTimer);

@@ -16,33 +16,31 @@ const { MockRegistrar } = ChromeUtils.importESModule(
 const { PlacesUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/PlacesUtils.sys.mjs"
 );
+const { clearTimeout, setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
 
 const SAFETY_MARGIN_MS = 100000;
 
-function getMockNotifications() {
+function getMockNotifications(count = 2) {
   const now = Date.now();
   const startDate = new Date(now - SAFETY_MARGIN_MS).toISOString();
   const endDate = new Date(now + SAFETY_MARGIN_MS).toISOString();
-  return [
-    {
-      id: "foo",
-      title: "lorem ipsum",
-      start_at: startDate,
-      end_at: endDate,
-      severity: 4,
-      URL: "about:blank",
-      targeting: {},
-    },
-    {
-      id: "bar",
+  const notificationArray = [];
+
+  for (let i = 0; i < count; i++) {
+    notificationArray.push({
+      id: `${i}`,
       title: "dolor sit amet",
       start_at: startDate,
       end_at: endDate,
       severity: 1,
       URL: "about:blank",
       targeting: {},
-    },
-  ];
+    });
+  }
+
+  return notificationArray;
 }
 
 let didOpen = false;
@@ -109,7 +107,7 @@ add_task(async function test_updatedNotifications() {
   const notificationsClone = structuredClone(notifications);
   notificationManager.updatedNotifications(notifications);
   const { detail: notification } = await newNotificationEvent;
-  Assert.equal(notification.id, "bar", "Should pick the second notification");
+  Assert.equal(notification.id, "0", "Should pick the first notification");
   Assert.deepEqual(
     notifications,
     notificationsClone,
@@ -142,7 +140,7 @@ add_task(async function test_newNotificationReemit() {
   );
   Assert.equal(
     notification.id,
-    "bar",
+    "0",
     "Should get the current notification immediately"
   );
 
@@ -226,7 +224,7 @@ add_task(async function test_updatedNotifications_stillUpToDate() {
     notificationManager,
     NotificationManager.NEW_NOTIFICATION_EVENT
   );
-  Assert.equal(notification.id, "bar", "Should pick the second notification");
+  Assert.equal(notification.id, "0", "Should pick the first notification");
 
   let gotNotification = false;
   notificationManager.addEventListener(
@@ -265,7 +263,7 @@ add_task(async function test_executeNotificationCTA() {
     notificationManager,
     NotificationManager.NEW_NOTIFICATION_EVENT
   );
-  Assert.equal(notification.id, "bar", "Should pick the second notification");
+  Assert.equal(notification.id, "0", "Should pick the first notification");
 
   const notificationInteractionEvent = BrowserTestUtils.waitForEvent(
     notificationManager,
@@ -316,7 +314,7 @@ add_task(async function test_dismissNotification() {
     notificationManager,
     NotificationManager.NEW_NOTIFICATION_EVENT
   );
-  Assert.equal(notification.id, "bar", "Should pick the second notification");
+  Assert.equal(notification.id, "0", "Should pick the first notification");
 
   const notificationInteractionEvent = BrowserTestUtils.waitForEvent(
     notificationManager,
@@ -466,7 +464,7 @@ add_task(async function test_newNotificationReemit_handleEvent() {
   const { detail: notification } = await promise;
   Assert.equal(
     notification.id,
-    "bar",
+    "0",
     "Should get the current notification immediately"
   );
 
@@ -482,14 +480,14 @@ add_task(async function test_executeNotificationCTA_formatURL() {
   const notificationManager = new NotificationManager();
   const mockNotifications = getMockNotifications();
   const url = "https://example.com/%LOCALE%/file.json";
-  mockNotifications[1].URL = url;
+  mockNotifications[0].URL = url;
   expectedURI = Services.urlFormatter.formatURL(url);
   notificationManager.updatedNotifications(mockNotifications);
   const { detail: notification } = await BrowserTestUtils.waitForEvent(
     notificationManager,
     NotificationManager.NEW_NOTIFICATION_EVENT
   );
-  Assert.equal(notification.id, "bar", "Should pick the second notification");
+  Assert.equal(notification.id, "0", "Should pick the first notification");
 
   const notificationInteractionEvent = BrowserTestUtils.waitForEvent(
     notificationManager,
@@ -514,4 +512,66 @@ add_task(async function test_executeNotificationCTA_formatURL() {
   );
 
   notificationManager.updatedNotifications([]);
+});
+
+add_task(async function test_maxNotificationsPerDay() {
+  const notificationManager = new NotificationManager();
+  const notifications = getMockNotifications(7);
+  const timeUnit = NotificationManager._PER_TIME_UNIT;
+  let notification;
+  let newNotificationEvent = BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.NEW_NOTIFICATION_EVENT
+  );
+
+  notificationManager._MAX_MS_BETWEEN_NOTIFICATIONS = 100;
+  NotificationManager._PER_TIME_UNIT = 1000 * 10;
+  notificationManager.updatedNotifications(notifications);
+  const startTime = Date.now();
+
+  for (let i = 0; i <= 5; i++) {
+    ({ detail: notification } = await newNotificationEvent);
+    Assert.equal(notification.id, `${i}`, "correct notification shown");
+
+    newNotificationEvent = BrowserTestUtils.waitForEvent(
+      notificationManager,
+      NotificationManager.NEW_NOTIFICATION_EVENT,
+      false,
+      ({ detail }) => detail.id === `${i + 1}`
+    );
+
+    notifications.shift();
+    notification = null;
+    notificationManager.updatedNotifications(notifications);
+  }
+
+  newNotificationEvent.then(({ detail }) => {
+    notification = detail;
+  });
+
+  // Wait one second to make sure another notification is not shown.
+  /* eslint-disable-next-line mozilla/no-arbitrary-setTimeout */
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  Assert.equal(notification, null, "No new notifications shown");
+
+  await BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.REQUEST_NOTIFICATIONS_EVENT
+  );
+
+  Assert.ok(true, "Scheduled notification shown");
+  Assert.greaterOrEqual(
+    Date.now(),
+    startTime + 1000 * 10,
+    "Message shown after _PER_TIME_UNIT"
+  );
+
+  Assert.lessOrEqual(
+    Date.now(),
+    startTime + 1000 * 11,
+    "Message shown after _PER_TIME_UNIT"
+  );
+
+  NotificationManager._PER_TIME_UNIT = timeUnit;
 });

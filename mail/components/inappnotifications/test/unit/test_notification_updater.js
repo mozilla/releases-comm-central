@@ -20,7 +20,7 @@ const { HttpServer } = ChromeUtils.importESModule(
   "resource://testing-common/httpd.sys.mjs"
 );
 
-const { clearTimeout } = ChromeUtils.importESModule(
+const { clearTimeout, setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
 );
 
@@ -30,6 +30,7 @@ let notifications;
 function clear() {
   clearTimeout(NotificationUpdater._timeout);
   NotificationUpdater._timeout = null;
+  NotificationUpdater._updateHistory = [];
 }
 
 const getExpirationTime = NotificationUpdater.getExpirationTime;
@@ -466,6 +467,46 @@ add_task(async function test_fetchScheduling() {
     startTime + 100,
     "at least 100ms has passed"
   );
+  NotificationUpdater.onUpdate = onUpdate;
+  NotificationUpdater.getExpirationTime = getExpirationTime;
+  clear();
+});
+
+add_task(async function test_maxUpdatesPerDay() {
+  NotificationUpdater._PER_TIME_UNIT = 1000 * 5;
+  NotificationUpdater.getExpirationTime = () => Date.now() / 1000 + 0.1;
+
+  const onUpdate = NotificationUpdater.onUpdate;
+  let count = 0;
+  const { resolve, promise } = Promise.withResolvers();
+  NotificationUpdater.onUpdate = () => {
+    if (count === 24) {
+      // Wait one second to make sure no more updates take place
+      /* eslint-disable-next-line mozilla/no-arbitrary-setTimeout */
+      setTimeout(() => {
+        // clear();
+        resolve();
+      }, 1000);
+    }
+
+    count++;
+  };
+
+  NotificationUpdater._fetch();
+
+  await promise;
+
+  Assert.equal(count, 25, "fetch respects MAX_UPDATES_PER_DAY");
+
+  // Wait six seconds, one more then the _PER_TIME_UNIT, to make sure
+  // updates commence again.
+  /* eslint-disable-next-line mozilla/no-arbitrary-setTimeout */
+  await new Promise(_resolve => setTimeout(_resolve, 6000));
+
+  Assert.greaterOrEqual(count, 26, "Update called after delay");
+
+  clear();
+
   NotificationUpdater.onUpdate = onUpdate;
   NotificationUpdater.getExpirationTime = getExpirationTime;
 });

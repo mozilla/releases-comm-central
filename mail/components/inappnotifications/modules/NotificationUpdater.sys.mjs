@@ -15,10 +15,21 @@ ChromeUtils.defineLazyGetter(lazy, "console", () =>
   })
 );
 
+const MAX_UPDATES_PER_DAY = 24;
+
 /**
  * Regularily check the in-app notification server for the latest notifications.
  */
 export const NotificationUpdater = {
+  /**
+   * The timestamps of when the last MAX_UPDATES_PER_DAY updates were done. This is used
+   * to check to make sure that no more than the MAX_UPDATES_PER_DAY updates
+   * are done.
+   *
+   * @type {number[]}
+   */
+  _updateHistory: [],
+
   /**
    * Reference to the update timeout.
    *
@@ -33,6 +44,14 @@ export const NotificationUpdater = {
    * @type {?Function}
    */
   onUpdate: null,
+
+  /**
+   * The unit of time in MS, for which notifications are limited. This defaults
+   * to 1 day but can be modified to make testing possible.
+   *
+   * @type {number}
+   */
+  _PER_TIME_UNIT: 1000 * 60 * 60 * 24,
 
   /**
    *
@@ -166,6 +185,17 @@ export const NotificationUpdater = {
       return false;
     }
 
+    // Check how many updates we have done in the last 24 hours. If
+    // MAX_UPDATES_PER_DAY or more notifications have already been shown
+    // reschedule.
+    if (
+      this._updateHistory.length === MAX_UPDATES_PER_DAY &&
+      this._updateHistory[0] > Date.now() - this._PER_TIME_UNIT
+    ) {
+      this._schedule(this._updateHistory[0] + this._PER_TIME_UNIT - Date.now());
+      return false;
+    }
+
     let success = true;
 
     const defaultInterval = Services.prefs.getIntPref(
@@ -192,6 +222,13 @@ export const NotificationUpdater = {
     } catch (error) {
       lazy.console.error("Error fetching in-app notifications:", error);
       success = false;
+    }
+
+    // Add the current update into the update history and shift if nessasarry
+    this._updateHistory.push(Date.now());
+
+    if (this._updateHistory.length > MAX_UPDATES_PER_DAY) {
+      this._updateHistory.shift();
     }
 
     // Get the remining time on the cache, if it returns anything falsey

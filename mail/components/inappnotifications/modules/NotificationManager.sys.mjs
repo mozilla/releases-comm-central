@@ -34,14 +34,43 @@ export class NotificationManager extends EventTarget {
   static REQUEST_NOTIFICATIONS_EVENT = "requestnotifications";
 
   /**
+   * The maximum number of notifications shown per day. This prevents spam from
+   * either a misconfigured notifications payload or from use of an alternate
+   * notification server.
+   *
+   * @type {number}
+   */
+  static #MAX_NOTIFICATIONS_PER_DAY = 6;
+
+  /**
+   * The timestamps of when the last #MAX_NOTIFICATIONS_PER_DAY notifications
+   * were shown. This is used to check to make sure that no more than the
+   * #MAX_NOTIFICATIONS_PER_DAY
+   * notifications are shown
+   *
+   * @type {number[]}
+   */
+  #notificationHistory = [];
+
+  /**
    * Milliseconds between the next attempt of showing a notification after the
    * user interacted with a notification. If the application is idle before that
    * or we refresh the information from the server we might show a notifiation
    * earlier.
    *
+   * @private
    * @type {number}
    */
-  static #MAX_MS_BETWEEN_NOTIFICATIONS = 1000 * 60;
+  static _MAX_MS_BETWEEN_NOTIFICATIONS = 1000 * 60;
+
+  /**
+   * The unit of time in MS, for which notifications are limited. This defaults
+   * to 1 day but can be modified to make testing possible.
+   *
+   * @private
+   * @type {number}
+   */
+  static _PER_TIME_UNIT = 1000 * 60 * 60 * 24;
 
   /**
    * Check if a notification has UI that should be shown. The only notification
@@ -80,6 +109,14 @@ export class NotificationManager extends EventTarget {
     }
     this.#_currentNotification = notification;
     if (notification) {
+      this.#notificationHistory.push(Date.now());
+
+      if (
+        this.#notificationHistory.length >
+        NotificationManager.#MAX_NOTIFICATIONS_PER_DAY
+      ) {
+        this.#notificationHistory.shift();
+      }
       this.#notificationSelectedTimestamp = Date.now();
       if (NotificationManager.#isNotificationWithUI(notification)) {
         this.dispatchEvent(
@@ -87,6 +124,7 @@ export class NotificationManager extends EventTarget {
             detail: notification,
           })
         );
+
         Glean.inappnotifications.shown.record({
           notification_id: notification.id,
         });
@@ -189,6 +227,7 @@ export class NotificationManager extends EventTarget {
       notification_id: notificationId,
       active_this_session: this.#getActiveNotificationDuration(),
     });
+    lazy.clearTimeout(this.#timer);
     this.#currentNotification = null;
     this.#pickSoon();
   }
@@ -203,14 +242,26 @@ export class NotificationManager extends EventTarget {
    * @param {object[]} notifications
    */
   updatedNotifications(notifications) {
-    const [firstCandidate] = notifications.toSorted(
-      (a, b) => a.severity - b.severity
-    );
+    // Sort by severity, then start_at then percent_chance
+    const [firstCandidate] = notifications.sort((a, b) => {
+      if (a.severity === b.severity) {
+        const aStart = Date.parse(a.start_at);
+        const bStart = Date.parse(b.start_at);
+
+        if (aStart === bStart) {
+          return a.percent_chance - b.percent_chance;
+        }
+        return aStart - bStart;
+      }
+      return a.severity - b.severity;
+    });
+
     // We got an update, we no longer need new notifications.
     if (this.#idleCallback) {
       lazy.cancelIdleCallback(this.#idleCallback);
       this.#idleCallback = null;
     }
+
     // Check if the current notification is still a good choice.
     if (
       this.#currentNotification &&
@@ -223,12 +274,14 @@ export class NotificationManager extends EventTarget {
     ) {
       return;
     }
+
     // We're going to change the visible notification, stop the timer of the
     // current one.
     if (this.#timer) {
       lazy.clearTimeout(this.#timer);
       this.#timer = null;
     }
+
     if (!firstCandidate) {
       if (this.#currentNotification) {
         Glean.inappnotifications.dismissed.record({
@@ -239,11 +292,35 @@ export class NotificationManager extends EventTarget {
       this.#currentNotification = null;
       return;
     }
+
+    // Check how many notifications we have shown in the last 24 hours. If
+    // six or more notifications have already been shown reschedule.
+    if (
+      this.#notificationHistory.length ===
+        NotificationManager.#MAX_NOTIFICATIONS_PER_DAY &&
+      this.#notificationHistory[0] >
+        Date.now() - NotificationManager._PER_TIME_UNIT
+    ) {
+      this.#rescheduleNotification();
+      return;
+    }
     // Set up for displaying a new notification.
     this.#currentNotification = firstCandidate;
     this.#timer = lazy.setTimeout(
       this.#notificationExpired,
       Date.parse(firstCandidate.end_at) - Date.now() + 100
+    );
+  }
+
+  #rescheduleNotification() {
+    this.#timer = lazy.setTimeout(
+      () =>
+        this.dispatchEvent(
+          new CustomEvent(NotificationManager.REQUEST_NOTIFICATIONS_EVENT)
+        ),
+      this.#notificationHistory[0] +
+        NotificationManager._PER_TIME_UNIT -
+        Date.now()
     );
   }
 
@@ -267,7 +344,7 @@ export class NotificationManager extends EventTarget {
    */
   #pickSoon() {
     this.#idleCallback = lazy.requestIdleCallback(this.#idleCallbackExpired, {
-      timeout: NotificationManager.#MAX_MS_BETWEEN_NOTIFICATIONS,
+      timeout: this._MAX_MS_BETWEEN_NOTIFICATIONS,
     });
   }
 
