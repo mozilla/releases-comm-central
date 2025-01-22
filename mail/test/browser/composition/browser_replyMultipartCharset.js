@@ -84,6 +84,10 @@ async function subtest_replyEditAsNewForward_charset(
       { label: "FolderWithMessages" },
     ]
   );
+  await TestUtils.waitForCondition(
+    () => folder.getTotalMessages(false) == 1,
+    "waiting for copy to folder to complete"
+  );
   await BrowserTestUtils.closeWindow(msgc);
 
   const msg = await select_click_row(0);
