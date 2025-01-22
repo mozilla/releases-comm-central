@@ -83,7 +83,8 @@ function checkOrdinals(expected) {
  * @param {object} message - Details of the new message to add.
  * @param {integer} [message.folderId=1]
  * @param {string} [message.messageId="messageId"]
- * @param {integer|Date} [message.date=1600000000000]
+ * @param {string} [message.date="2025-01-22"] - Any string which can be
+ *   parsed by the Date constructor.
  * @param {string} [message.sender="sender"]
  * @param {string} [message.subject="subject"]
  * @param {integer} [message.flags=0]
@@ -93,7 +94,7 @@ function checkOrdinals(expected) {
 function addMessage({
   folderId = 1,
   messageId = "messageId",
-  date = 1600000000000,
+  date = "2025-01-22",
   sender = "sender",
   subject = "subject",
   flags = 0,
@@ -102,7 +103,7 @@ function addMessage({
   return messages.addMessage(
     folderId,
     messageId,
-    date,
+    new Date(date).valueOf() * 1000,
     sender,
     subject,
     flags,

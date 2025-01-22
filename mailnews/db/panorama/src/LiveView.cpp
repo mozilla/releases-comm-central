@@ -11,6 +11,7 @@
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/RefPtr.h"
+#include "prtime.h"
 
 using JS::MutableHandle;
 using JS::NewArrayObject;
@@ -195,7 +196,8 @@ JSObject* LiveView::CreateJSMessage(uint64_t id, uint64_t folderId,
   Rooted<Value> val1(aCx, StringValue(JS_NewStringCopyZ(aCx, messageId)));
   JS_DefineProperty(aCx, obj, "messageId", val1, JSPROP_ENUMERATE);
 
-  Rooted<JSObject*> val2(aCx, NewDateObject(aCx, TimeClip(date)));
+  Rooted<JSObject*> val2(aCx,
+                         NewDateObject(aCx, TimeClip(date / PR_USEC_PER_MSEC)));
   JS_DefineProperty(aCx, obj, "date", val2, JSPROP_ENUMERATE);
 
   Rooted<Value> val3(aCx, StringValue(JS_NewStringCopyZ(aCx, sender)));

@@ -401,35 +401,35 @@ add_task(function testDateFillFromBottom() {
 
 add_task(function testDateAddRemove() {
   subtestAddRemove1("date", "descending", dateDesc, [
-    { date: 1700000000000 },
-    { date: 1600000000000 },
-    { date: 1500000000000 },
+    { date: "2023-11-14" },
+    { date: "2020-09-13" },
+    { date: "2017-07-14" },
   ]);
   subtestAddRemove2("date", "descending", dateDesc, [
-    { date: 1700000000000 },
-    { date: 1600000000000 },
-    { date: 1500000000000 },
+    { date: "2023-11-14" },
+    { date: "2020-09-13" },
+    { date: "2017-07-14" },
   ]);
   subtestAddRemove3("date", "descending", dateDesc, [
-    { date: 1692000000000 },
-    { date: 1569000000000 },
-    { date: 1570000000000 },
+    { date: "2023-08-14" },
+    { date: "2019-09-20" },
+    { date: "2019-10-02" },
   ]);
 
   subtestAddRemove1("date", "ascending", dateAsc, [
-    { date: 1500000000000 },
-    { date: 1600000000000 },
-    { date: 1700000000000 },
+    { date: "2017-07-14" },
+    { date: "2020-09-13" },
+    { date: "2023-11-14" },
   ]);
   subtestAddRemove2("date", "ascending", dateAsc, [
-    { date: 1500000000000 },
-    { date: 1684000000000 },
-    { date: 1700000000000 },
+    { date: "2017-07-14" },
+    { date: "2023-05-13" },
+    { date: "2023-11-14" },
   ]);
   subtestAddRemove3("date", "ascending", dateAsc, [
-    { date: 1570000000000 },
-    { date: 1692000000000 },
-    { date: 1691900000000 },
+    { date: "2019-10-02" },
+    { date: "2023-08-13" },
+    { date: "2023-08-12" },
   ]);
 });
 
