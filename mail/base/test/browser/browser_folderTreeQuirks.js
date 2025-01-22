@@ -1505,25 +1505,27 @@ add_task(async function testMultiSelectionDelete() {
   ]);
 });
 
+/**
+ * @param {string} modeName
+ * @param {nsIMsgFolder[]} folders
+ */
 async function checkModeListItems(modeName, folders) {
   // Jump to the end of the event queue so that any code listening for changes
   // can run first.
   await new Promise(resolve => setTimeout(resolve));
-  expandAll(modeName);
+  for (const folderTreeRow of folderPane._modes[
+    modeName
+  ].containerList.querySelectorAll("li")) {
+    folderTree.expandRow(folderTreeRow);
+    await new Promise(resolve => requestAnimationFrame(resolve));
+  }
 
   Assert.deepEqual(
     Array.from(
       folderPane._modes[modeName].containerList.querySelectorAll("li"),
       folderTreeRow => folderTreeRow.uri
     ),
-    folders.map(folder => folder.URI)
+    folders.map(folder => folder.URI),
+    `should show correct items in ${modeName} mode`
   );
-}
-
-function expandAll(modeName) {
-  for (const folderTreeRow of folderPane._modes[
-    modeName
-  ].containerList.querySelectorAll("li")) {
-    folderTree.expandRow(folderTreeRow);
-  }
 }
