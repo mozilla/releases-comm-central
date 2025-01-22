@@ -1,21 +1,65 @@
 # Writing documentation
 
+The Thunderbird source documentation is based on [Sphinx](https://www.sphinx-doc.org/en/master/)
+with the Read the Docs theme.
+
+Sphinx documentation expects all documentation pages to be located within one
+`docs` directory however we have multiple `docs` directories spread across the
+Thunderbird codebase. This approach allows us to document code alongside the
+code as well as have one central `comm/docs/` directory for technical
+documentation that is not specific to a single piece of code.
+
+In order to make this approach work with Sphinx, we have some logic that gathers
+all of the `docs` directories across our codebase into one `docs` directory,
+according to the layout defined in our `comm/docs/config.yaml`, and then calls
+Sphinx on that one centralized `docs` directory.
+
 ## Extending the documentation
 
-To add new documentation to the Thunderbird source docs, you submit a patch to comm-central like you would for a code change.
+To add new documentation to the Thunderbird source docs, you submit a patch to
+comm-central like you would for a code change.
 
-Documentation is either in a `docs` folder within a component or in the `docs/` folder in the root of the repository and written in either Markdown or reStructuredText.
+**Documentation must live in a `docs` folder.** That can be either the root
+`comm/docs` folder or in a `docs` folder near the code it is documenting. For
+example, our documentation on our rust code can be found in `comm/rust/docs`.
 
-To add a new documentation topic, add it in `docs/config.yml` and if necessary also in `docs/index.rst`. If you're adding a page to an existing topic, refer to it from the `index.md`'s TOC to add it to the documentation tree.
+**Each `docs` folder must have an index file** written in Markdown or
+reStructuredText, so either an `index.md` or `index.rst`. While you are welcome
+to write reStructuredText, most people are more familiar with Markdown.
+
+### Documentation Placement Guidelines
+
+Here are the guidelines for where a documentation page should go:
+* `comm/docs/` is for documentation regarding the code but in a broader sense,
+such as general architecture documentation, coding best practices, etc.
+* Specific `docs/` somewhere within the `comm` codebase is for documentation of
+that *area* of code. A good example is the storybook documentation that details
+the frontend workshop for building UI components; the storybook documentation
+can be found in `comm/mail/components/storybook/docs`.
+
+### Documentation Checklist
+
+Below is a list of things you should double check are completed, in order to
+make sure your new documentation page is included:
+
+- [ ] Documentation lives in a `docs` folder somewhere within `comm`. If you added
+some documentation to a component in an area that didn't already have a `docs`
+folder then create one. That new `docs` folder should have an index file as well
+as your new documentation page.
+- [ ] Add the path to this new docs folder in
+`comm/docs/config.yaml`, under both the `categories` and `doc_trees` section.
+Even sub-folders of `comm/docs/` need to be added in these places as well. For
+example, `comm/docs/architecture` has been added in both sections of
+`config.yaml`.
 
 ## Building the docs
 
-To build the docs locally, run `../mach tb-doc`. It will build the docs and then open them in your browser.
+To build the docs locally, run `../mach tb-doc`. It will build the docs and then
+open them in your browser.
 
-There are a bunch of flags that can be passed to the command which can bypass build failures that might be irrelevant to your changes. Check out `../mach tb-doc --help`.
+There are a bunch of flags that can be passed to the command which can bypass
+build failures that might be irrelevant to your changes. Check out `../mach
+tb-doc --help`.
 
-When your patch has landed, the documentation site should automatically update with your changes.
-
-## Further reading
-
-This documentation is based on [Sphinx](https://www.sphinx-doc.org/en/master/) with the read the docs theme.
+When your patch has landed, the documentation site should automatically update
+with your changes.
