@@ -14,6 +14,10 @@ pane-general-title = General
 category-general =
     .tooltiptext = { pane-general-title }
 
+pane-appearance-title = Appearance
+category-appearance =
+    .tooltiptext = { pane-appearance-title }
+
 pane-compose-title = Composition
 category-compose =
     .tooltiptext = Composition
@@ -1169,3 +1173,123 @@ qr-export-summary-passwords-included = Passwords included
 qr-export-summary-passwords-excluded = Passwords excluded
 
 qr-export-more-accounts = Export more accounts
+
+## Appearance Tab
+
+appearance-category-header = Appearance
+
+default-message-list-legend = Message List
+
+default-message-list-description = Define the default sorting and threading options for newly created folders.
+
+default-flag-label =
+    .value = Default Threading:
+
+default-flag-unthreaded =
+    .label = Unthreaded
+
+default-flag-threaded =
+    .label = Threaded
+
+default-flag-grouped =
+    .label = Grouped by Sort
+
+default-sort-label = Default Sort by:
+
+default-sort-date =
+    .label = Date
+
+default-sort-subject =
+    .label = Subject
+
+default-sort-from =
+    .label = From
+
+default-sort-id =
+    .label = ID
+
+default-sort-thread =
+    .label = Thread
+
+default-sort-priority =
+    .label = Priority
+
+default-sort-status =
+    .label = Status
+
+default-sort-size =
+    .label = Size
+
+default-sort-star =
+    .label = Star
+
+default-sort-unread =
+    .label = Read
+
+default-sort-recipient =
+    .label = Recipient
+
+default-sort-location =
+    .label = Location
+
+default-sort-tags =
+    .label = Tags
+
+default-sort-spam =
+    .label = Spam Status
+
+default-sort-attachments =
+    .label = Attachments
+
+default-sort-account =
+    .label = Account
+
+default-sort-received =
+    .label = Order Received
+
+default-sort-correspondents =
+    .label = Correspondents
+
+default-order-label = Default Sort Order:
+
+default-sort-ascending =
+    .label = Ascending
+
+default-sort-ascending-description = New messages at the bottom
+
+default-sort-descending =
+    .label = Descending
+
+default-sort-descending-description = New messages at the top
+
+apply-sort-label = Apply these settings to:
+
+apply-sort-to-all-button =
+    .label = All existing folders
+    .accesskey = A
+
+choose-apply-sort-button =
+    .label = Choose…
+    .accesskey = C
+
+apply-current-view-to-folder =
+    .label = Folder…
+
+apply-current-view-to-folder-children =
+    .label = Folder and its children…
+
+apply-changes-prompt-title = Apply Changes?
+
+apply-changes-prompt-message = Apply the current threading and sorting settings to all folders?
+
+# Variables:
+#  $name (String): The name of the folder to apply to.
+apply-changes-prompt-folder-message = Apply the current threading and sorting settings to “{ $name }”?
+
+# Variables:
+#  $name (String): The name of the folder to apply to.
+apply-changes-prompt-folder-children-message = Apply the current threading and sorting settings to “{ $name }” and its children?
+
+apply-current-view-error = Unable to apply current view settings
+
+apply-current-view-success = Current view settings applied successfully

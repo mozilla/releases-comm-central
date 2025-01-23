@@ -1336,3 +1336,47 @@ qr-code-wizard {
 #qrExportRestart {
   margin-block-start: 24px;
 }
+
+/* Appearance Tab */
+
+.pane-appearance-sorting-options {
+  display: grid;
+  grid-template-columns: max-content 1fr 1fr;
+  align-items: center;
+  margin-block: 18px;
+
+  & label {
+    text-align: end;
+  }
+}
+
+.pane-appearance-sorting-buttons {
+  text-align: end;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.folder-chooser-popup-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 6px;
+  padding-inline-start: 6px;
+
+  -moz-context-properties: fill, stroke;
+  --icon-color: currentColor;
+  fill: color-mix(in srgb, var(--icon-color) 20%, transparent);
+  stroke: var(--icon-color);
+
+  &::before {
+    position: relative;
+    content: var(--icon-folder);
+  }
+
+  &::after {
+    position: relative;
+    content: var(--icon-nav-down-sm);
+  }
+}

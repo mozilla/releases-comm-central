@@ -43,6 +43,7 @@
     href="chrome://calendar/skin/shared/calendar-preferences.css"
   />
   <link rel="stylesheet" href="chrome://calendar/skin/calendar.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
 
   <link rel="localization" href="branding/brand.ftl" />
   <link rel="localization" href="messenger/preferences/preferences.ftl" />
@@ -112,6 +113,17 @@
                       src="chrome://messenger/skin/icons/new/touch/settings.svg"
                       alt="" />
             <label class="category-name" flex="1" data-l10n-id="pane-general-title"/>
+          </richlistitem>
+
+          <richlistitem id="category-appearance"
+                        class="category"
+                        value="paneAppearance"
+                        data-l10n-id="category-appearance"
+                        align="center">
+            <html:img class="category-icon"
+                      src="chrome://messenger/skin/icons/new/touch/paint-palette.svg"
+                      alt="" />
+            <label class="category-name" flex="1" data-l10n-id="pane-appearance-title"/>
           </richlistitem>
 
           <richlistitem id="category-compose"
@@ -215,6 +227,7 @@
           <vbox id="paneDeck">
 #include searchResults.inc.xhtml
 #include general.inc.xhtml
+#include appearance.inc.xhtml
 #include compose.inc.xhtml
 #include privacy.inc.xhtml
 #include chat.inc.xhtml

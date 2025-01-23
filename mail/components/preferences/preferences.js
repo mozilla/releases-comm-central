@@ -35,6 +35,7 @@ ChromeUtils.defineESModuleGetters(
   this,
   {
     qrExportPane: "chrome://messenger/content/preferences/qrExport.mjs",
+    appearancePane: "chrome://messenger/content/preferences/appearance.mjs",
   },
   { global: "current" }
 );
@@ -135,6 +136,7 @@ function register_module(categoryName, categoryObject) {
 
 function init() {
   register_module("paneGeneral", gGeneralPane);
+  register_module("paneAppearance", appearancePane);
   register_module("paneCompose", gComposePane);
   register_module("panePrivacy", gPrivacyPane);
   register_module("paneCalendar", gCalendarPane);

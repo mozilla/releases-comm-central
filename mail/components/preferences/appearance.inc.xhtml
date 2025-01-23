@@ -1,0 +1,108 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template id="paneAppearance">
+  <hbox id="appearanceCategory"
+        class="subcategory"
+        data-category="paneAppearance">
+    <html:h1 data-l10n-id="appearance-category-header"/>
+  </hbox>
+
+  <html:div data-category="paneAppearance">
+    <vbox id="appearance-notifications">
+      <!-- notificationbox will be added here lazily. -->
+    </vbox>
+
+    <html:fieldset>
+      <html:legend data-l10n-id="default-message-list-legend"></html:legend>
+      <description flex="1" data-l10n-id="default-message-list-description"/>
+
+      <html:div class="pane-appearance-sorting-options">
+        <label control="defaultViewFlags" data-l10n-id="default-flag-label" />
+        <menulist id="defaultViewFlags"
+                  preference="mailnews.default_view_flags">
+          <menupopup>
+            <menuitem value="0" data-l10n-id="default-flag-unthreaded"/>
+            <menuitem value="1" data-l10n-id="default-flag-threaded"/>
+            <menuitem value="40" data-l10n-id="default-flag-grouped"/>
+          </menupopup>
+        </menulist>
+        <separator/>
+
+        <label control="defaultSortType" data-l10n-id="default-sort-label" />
+        <menulist id="defaultSortType" preference="mailnews.default_sort_type">
+          <menupopup>
+            <menuitem value="18" data-l10n-id="default-sort-date"/>
+            <menuitem value="19" data-l10n-id="default-sort-subject"/>
+            <menuitem value="20" data-l10n-id="default-sort-from"/>
+            <menuitem value="21" data-l10n-id="default-sort-id"/>
+            <menuitem value="22" data-l10n-id="default-sort-thread"/>
+            <menuitem value="23" data-l10n-id="default-sort-priority"/>
+            <menuitem value="24" data-l10n-id="default-sort-status"/>
+            <menuitem value="25" data-l10n-id="default-sort-size"/>
+            <menuitem value="26" data-l10n-id="default-sort-star"/>
+            <menuitem value="27" data-l10n-id="default-sort-unread"/>
+            <menuitem value="28" data-l10n-id="default-sort-recipient"/>
+            <menuitem value="29" data-l10n-id="default-sort-location"/>
+            <menuitem value="30" data-l10n-id="default-sort-tags"/>
+            <menuitem value="31" data-l10n-id="default-sort-spam"/>
+            <menuitem value="32" data-l10n-id="default-sort-attachments"/>
+            <menuitem value="33" data-l10n-id="default-sort-account"/>
+            <menuitem value="35" data-l10n-id="default-sort-received"/>
+            <menuitem value="36" data-l10n-id="default-sort-correspondents"/>
+          </menupopup>
+        </menulist>
+        <separator/>
+      </html:div>
+
+      <label control="defaultSortOrder" data-l10n-id="default-order-label" />
+      <radiogroup id="defaultSortOrder"
+                  class="indent"
+                  preference="mailnews.default_sort_order">
+        <radio id="defaultSortOrderAscending"
+               value="1"
+               aria-describedby="sortOrderAscending"
+               data-l10n-id="default-sort-ascending" />
+        <description id="sortOrderAscending"
+                     class="indent tip-caption"
+                     data-l10n-id="default-sort-ascending-description" />
+        <radio id="defaultSortOrderDescending"
+               value="2"
+               aria-describedby="sortOrderDescending"
+               data-l10n-id="default-sort-descending" />
+        <description id="sortOrderDescending"
+                     class="indent tip-caption"
+                     data-l10n-id="default-sort-descending-description" />
+      </radiogroup>
+
+      <html:div class="pane-appearance-sorting-buttons">
+        <html:span data-l10n-id="apply-sort-label"></html:span>
+        <button is="highlightable-button" id="applyAll"
+                data-l10n-id="apply-sort-to-all-button"></button>
+        <button is="highlightable-button" id="applyChoose"
+                class="folder-chooser-popup-button"
+                data-l10n-id="choose-apply-sort-button"></button>
+        <menupopup id="folderPickerMenuPopup">
+          <menu id="applyViewToFolder"
+                class="apply-view-to-folder-menu"
+                data-l10n-id="apply-current-view-to-folder">
+            <menupopup is="folder-menupopup"
+                       mode="filing"
+                       showFileHereLabel="true"
+                       position="start_before"></menupopup>
+          </menu>
+          <menu id="applyViewToFolderAndChildren"
+                class="apply-view-to-folder-and-children-menu"
+                data-l10n-id="apply-current-view-to-folder-children">
+            <menupopup is="folder-menupopup"
+                       mode="filing"
+                       showFileHereLabel="true"
+                       showAccountsFileHere="true"
+                       position="start_before"></menupopup>
+          </menu>
+        </menupopup>
+      </html:div>
+    </html:fieldset>
+  </html:div>
+</html:template>

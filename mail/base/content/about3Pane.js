@@ -4226,6 +4226,7 @@ var threadPane = {
     Services.obs.addObserver(this, "custom-column-added");
     Services.obs.addObserver(this, "custom-column-removed");
     Services.obs.addObserver(this, "custom-column-refreshed");
+    Services.obs.addObserver(this, "global-view-flags-changed");
 
     threadTree = document.getElementById("threadTree");
     this.treeTable = threadTree.table;
@@ -4346,6 +4347,7 @@ var threadPane = {
     Services.obs.removeObserver(this, "custom-column-added");
     Services.obs.removeObserver(this, "custom-column-removed");
     Services.obs.removeObserver(this, "custom-column-refreshed");
+    Services.obs.removeObserver(this, "global-view-flags-changed");
   },
 
   handleEvent(event) {
@@ -4438,14 +4440,18 @@ var threadPane = {
         }
         break;
       case "addrbook-displayname-changed":
-        // This runs the when mail.displayname.version preference observer is
-        // notified/the mail.displayname.version number has been updated.
-        threadTree.invalidate();
-        break;
       case "custom-column-refreshed":
-        // Invalidate the whole thing. This used to refresh just the column,
+      case "global-view-flags-changed":
+        // addrbook-displayname-changed: This runs when mail.displayname.version
+        // preference observer is notified or the number of the
+        // mail.displayname.version preference has been updated.
+        // custom-column-refreshed: This used to refresh just the column,
         // but now that filling the cells happens asynchronously, that's too
-        // complicated. Kept for add-on compatibility.
+        // complicated, so it's better to invalidate the whole thing. Kept for
+        // add-on compatibility.
+        // global-view-flags-changed: Threading and sorting might have changed
+        // for the currently visible folder. Let's invalidate the tree to avoid
+        // showing a stale thread view.
         threadTree.invalidate();
         break;
       case "custom-column-added":
@@ -5661,7 +5667,7 @@ var threadPane = {
   },
 
   /**
-   * Prompt the user to confirm applying the current view sate to the chosen
+   * Prompt the user to confirm applying the current view state to the chosen
    * folder and its children.
    *
    * @param {nsIMsgFolder} folder - The chosen message folder.
