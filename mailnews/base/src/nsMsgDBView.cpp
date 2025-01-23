@@ -5865,17 +5865,15 @@ nsMsgDBView::ViewNavigate(nsMsgNavigationTypeValue motion, nsMsgKey* pResultKey,
   NS_ENSURE_ARG_POINTER(pResultIndex);
   NS_ENSURE_ARG_POINTER(pThreadIndex);
 
-  int32_t currentIndex;
   nsMsgViewIndex startIndex;
-
   if (!mTreeSelection) {
-    currentIndex = nsMsgViewIndex_None;
+    startIndex = nsMsgViewIndex_None;
   } else {
-    nsresult rv = mTreeSelection->GetCurrentIndex(&currentIndex);
+    int32_t idx;
+    nsresult rv = mTreeSelection->GetCurrentIndex(&idx);
     NS_ENSURE_SUCCESS(rv, rv);
+    startIndex = (idx < 0) ? nsMsgViewIndex_None : idx;
   }
-
-  startIndex = currentIndex;
   return nsMsgDBView::NavigateFromPos(motion, startIndex, pResultKey,
                                       pResultIndex, pThreadIndex, wrap);
 }
