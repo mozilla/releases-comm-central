@@ -32,6 +32,43 @@ add_setup(async function () {
   });
 });
 
+/**
+ * Test that we have the right values to display on the screen.
+ */
+add_task(function testColumnContents() {
+  const liveView = new LiveView();
+  const adapter = new LiveViewDataAdapter(liveView);
+
+  try {
+    const row2 = adapter._rowMap.at(2);
+    Assert.equal(row2.message.id, 8, "message 8 should be at row 2");
+    // We're not going to get into the intricacies of date/time formatting yet.
+    // Just check the value is right for sorting.
+    Assert.equal(row2.getValue("date"), 1691301720000);
+    Assert.equal(row2.getText("sender"), "Edgar Stokes <edgar@stokes.invalid>");
+    Assert.equal(row2.getText("subject"), "Balanced static project");
+    Assert.equal(row2.getText("flags"), "0");
+    Assert.equal(row2.getText("unread"), "1");
+    Assert.equal(row2.getText("flagged"), "0");
+    Assert.equal(row2.getText("tags"), "$label1");
+
+    const row6 = adapter._rowMap.at(6);
+    Assert.equal(row6.message.id, 4, "message 4 should be at row 6");
+    Assert.equal(row6.getValue("date"), 1572784496000);
+    Assert.equal(row6.getText("sender"), "Eliseo Bauch <eliseo@bauch.invalid>");
+    Assert.equal(
+      row6.getText("subject"),
+      "Proactive intermediate collaboration"
+    );
+    Assert.equal(row6.getText("flags"), "5");
+    Assert.equal(row6.getText("unread"), "0");
+    Assert.equal(row6.getText("flagged"), "1");
+    Assert.equal(row6.getText("tags"), "");
+  } finally {
+    adapter.setTree(null);
+  }
+});
+
 const tree = {
   rowCountChanged(index, delta) {
     this._index = index;

@@ -100,6 +100,8 @@ const columns = {
   date: Ci.nsILiveView.DATE,
   subject: Ci.nsILiveView.SUBJECT,
   sender: Ci.nsILiveView.SENDER,
+  unread: Ci.nsILiveView.READ_FLAG,
+  flagged: Ci.nsILiveView.MARKED_FLAG,
 };
 
 /**
@@ -129,6 +131,13 @@ const comparators = {
   date: (a, b) => a.date < b.date,
   subject: getTextComparator("subject"),
   sender: getTextComparator("sender"),
+  // Unread messages come first, but the flag is for read messages.
+  unread: (a, b) =>
+    (a.flags & Ci.nsMsgMessageFlags.Read) <
+    (b.flags & Ci.nsMsgMessageFlags.Read),
+  flagged: (a, b) =>
+    (a.flags & Ci.nsMsgMessageFlags.Marked) >
+    (b.flags & Ci.nsMsgMessageFlags.Marked),
 };
 
 /**
@@ -341,7 +350,13 @@ class LiveViewRowMap {
 export class LiveViewDataRow extends TreeDataRow {
   constructor(message) {
     super(
-      { ...message, date: lazy.dateFormatter.format(message.date) },
+      {
+        ...message,
+        date: lazy.dateFormatter.format(message.date),
+        // Invert the read flag for unread messages.
+        unread: !(message.flags & Ci.nsMsgMessageFlags.Read),
+        flagged: !!(message.flags & Ci.nsMsgMessageFlags.Marked),
+      },
       { date: message.date.valueOf() },
       ""
     );
@@ -351,7 +366,7 @@ export class LiveViewDataRow extends TreeDataRow {
   /**
    * The actual text to display in the tree for the given column.
    *
-   * @param {columnID} columnID
+   * @param {string} columnID
    * @returns {string}
    */
   getText(columnID) {
@@ -362,7 +377,7 @@ export class LiveViewDataRow extends TreeDataRow {
    * The string or numeric value for the given column, to be used when
    * comparing rows for sorting.
    *
-   * @param {columnID} columnID
+   * @param {string} columnID
    * @returns {string|number}
    */
   getValue(columnID) {

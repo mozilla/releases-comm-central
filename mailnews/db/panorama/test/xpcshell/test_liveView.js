@@ -239,6 +239,46 @@ add_task(function testSort() {
     ],
     "messages should be in descending sender order"
   );
+
+  liveView.sortColumn = Ci.nsILiveView.READ_FLAG;
+  Assert.deepEqual(
+    Array.from(
+      liveView.selectMessages(),
+      m => m.flags & Ci.nsMsgMessageFlags.Read
+    ),
+    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+    "messages should be sorted with unread messages last"
+  );
+
+  liveView.sortDescending = false;
+  Assert.deepEqual(
+    Array.from(
+      liveView.selectMessages(),
+      m => m.flags & Ci.nsMsgMessageFlags.Read
+    ),
+    [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+    "messages should be sorted with unread messages first"
+  );
+
+  liveView.sortColumn = Ci.nsILiveView.MARKED_FLAG;
+  Assert.deepEqual(
+    Array.from(
+      liveView.selectMessages(),
+      m => m.flags & Ci.nsMsgMessageFlags.Marked
+    ),
+    [4, 4, 4, 0, 0, 0, 0, 0, 0, 0],
+    "messages should be sorted with flagged messages first"
+  );
+
+  liveView.sortDescending = true;
+  Assert.deepEqual(
+    Array.from(
+      liveView.selectMessages(),
+      m => m.flags & Ci.nsMsgMessageFlags.Marked
+    ),
+    [0, 0, 0, 0, 0, 0, 0, 4, 4, 4],
+    "messages should be sorted with flagged messages last"
+  );
 });
 
 add_task(function testListener() {

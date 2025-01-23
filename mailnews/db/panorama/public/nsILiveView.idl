@@ -23,6 +23,8 @@ interface nsILiveView : nsISupports {
     DATE = 1,
     SUBJECT = 2,
     SENDER = 3,
+    READ_FLAG = 4,
+    MARKED_FLAG = 5,
   };
 
   /**

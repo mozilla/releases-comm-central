@@ -161,7 +161,7 @@ export class TreeDataAdapter {
    * Opens or closes a container with children.  The logic here is a bit hairy, so
    * be very careful about changing anything.
    *
-   * @param {integer} rowIndex.
+   * @param {integer} rowIndex
    */
   toggleOpenState(rowIndex) {
     // Ok, this is a bit tricky.
@@ -330,7 +330,7 @@ export class TreeDataRow {
   /**
    * The actual text to display in the tree for the given column.
    *
-   * @param {columnID} columnID
+   * @param {string} columnID
    * @returns {string}
    */
   getText(columnID) {
@@ -341,7 +341,7 @@ export class TreeDataRow {
    * The string or numeric value for the given column, to be used when
    * comparing rows for sorting.
    *
-   * @param {columnID} columnID
+   * @param {string} columnID
    * @returns {string|number}
    */
   getValue(columnID) {

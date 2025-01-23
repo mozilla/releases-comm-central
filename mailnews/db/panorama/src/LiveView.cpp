@@ -163,9 +163,8 @@ NS_IMETHODIMP LiveView::CountUnreadMessages(uint64_t* aCount) {
   if (!mCountUnreadStmt) {
     nsAutoCString sql("SELECT COUNT(*) AS count FROM messages WHERE ");
     sql.Append(GetSQLClause());
-    sql.Append(" AND flags & ");
+    sql.Append(" AND ~flags & ");
     sql.AppendInt(nsMsgMessageFlags::Read);
-    sql.Append(" = 0");
     MOZ_LOG(gLiveViewLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
     DatabaseCore::sConnection->CreateStatement(
         sql, getter_AddRefs(mCountUnreadStmt));
@@ -244,16 +243,29 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
     sql.Append(" ORDER BY ");
     switch (mSortColumn) {
       case nsILiveView::SortColumn::DATE:
-        sql.Append("date ");
+        sql.Append("date");
         break;
       case nsILiveView::SortColumn::SUBJECT:
-        sql.Append("subject COLLATE locale ");
+        sql.Append("subject COLLATE locale");
         break;
       case nsILiveView::SortColumn::SENDER:
-        sql.Append("formattedSender COLLATE locale ");
+        sql.Append("formattedSender COLLATE locale");
+        break;
+      case nsILiveView::SortColumn::READ_FLAG:
+        // Unread messages should be first when sorted in ascending order.
+        sql.Append("flags & ");
+        sql.AppendInt(nsMsgMessageFlags::Read);
+        break;
+      case nsILiveView::SortColumn::MARKED_FLAG:
+        // Twisted logic alert:
+        // Marked messages should be first when sorted in ascending order.
+        // The ~ flips the flags so marked = 0, unmarked = 1, and we
+        // don't have to mess with the ascending/descending logic.
+        sql.Append("~flags & ");
+        sql.AppendInt(nsMsgMessageFlags::Marked);
         break;
     }
-    sql.Append(mSortDescending ? "DESC" : "ASC");
+    sql.Append(mSortDescending ? " DESC" : " ASC");
     sql.Append(" LIMIT :limit OFFSET :offset");
     MOZ_LOG(gLiveViewLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
     DatabaseCore::sConnection->CreateStatement(sql,
