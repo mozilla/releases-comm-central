@@ -92,7 +92,7 @@ StartupRecorder.prototype = {
   record(name) {
     ChromeUtils.addProfilerMarker("startupRecorder:" + name);
     this.data.code[name] = {
-      modules: Cu.loadedJSModules.concat(Cu.loadedESModules),
+      modules: Cu.loadedESModules,
       services: Object.keys(Cc).filter(c => {
         try {
           return Cm.isServiceInstantiatedByContractID(c, Ci.nsISupports);
