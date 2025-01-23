@@ -55,11 +55,12 @@ add_task(async function test_move_message() {
   await right_click_on_row(0);
   let popups = await click_menus_in_sequence(
     getMailContext(),
-    [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
+    [{ id: "mailContext-moveMenu" }, { label: "Recent Destinations" }],
     true
   );
-  const recentMenu =
-    popups[popups.length - 2].querySelector('[label="Recent"]');
+  const recentMenu = popups[popups.length - 2].querySelector(
+    '[label="Recent Destinations"]'
+  );
   Assert.equal(recentMenu.getAttribute("disabled"), "true");
   gInitRecentMenuCount = recentMenu.itemCount;
   Assert.equal(gInitRecentMenuCount, 0);
@@ -105,7 +106,7 @@ add_task(async function test_move_message() {
   await right_click_on_row(0);
   popups = await click_menus_in_sequence(
     getMailContext(),
-    [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
+    [{ id: "mailContext-moveMenu" }, { label: "Recent Destinations" }],
     true
   );
   const recentChildren = popups[popups.length - 1].children;
@@ -135,7 +136,7 @@ add_task(async function test_delete_message() {
   await right_click_on_row(0);
   const popups = await click_menus_in_sequence(
     getMailContext(),
-    [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
+    [{ id: "mailContext-moveMenu" }, { label: "Recent Destinations" }],
     true
   );
   const recentChildren = popups[popups.length - 1].children;
@@ -171,7 +172,7 @@ add_task(async function test_archive_message() {
   await right_click_on_row(0);
   const popups = await click_menus_in_sequence(
     getMailContext(),
-    [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
+    [{ id: "mailContext-moveMenu" }, { label: "Recent Destinations" }],
     true
   );
   const recentChildren = popups[popups.length - 1].children;

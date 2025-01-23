@@ -78,7 +78,7 @@ add_task(async function test_copy_eml_message() {
     aboutMessage.document.getElementById("mailContext"),
     [
       { id: "mailContext-copyMenu" },
-      { label: "Recent" },
+      { label: "Recent Destinations" },
       { label: "CopyToFolder" },
     ]
   );
