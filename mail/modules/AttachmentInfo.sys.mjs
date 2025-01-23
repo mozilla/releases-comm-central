@@ -110,9 +110,9 @@ export class AttachmentInfo {
   /**
    * Save this attachment to a file.
    *
-   * @param {nsIMessenger} messenger - The messenger object associated with the window.
+   * @param {BrowsingContext} browsingContext - The browsing context to use.
    */
-  async save(messenger) {
+  async save(browsingContext) {
     if (!this.hasFile) {
       return;
     }
@@ -122,15 +122,43 @@ export class AttachmentInfo {
       return;
     }
 
-    // TODO: use .saveToFile() instead. The actual saving can be done that way
-    // but nsMessenger::SaveOneAttachment handles the file picker as well.
-    messenger.saveAttachment(
-      this.contentType,
-      this.url,
-      encodeURIComponent(this.name),
-      this.uri,
-      this.isExternalAttachment
+    const bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
     );
+    const title = bundle.GetStringFromName("SaveAttachment");
+
+    const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+    fp.init(browsingContext, title, Ci.nsIFilePicker.modeSave);
+    fp.defaultString = this.name.replaceAll(/[/:*?\"<>|]/g, "_");
+    const ext = this.name.includes(".") ? this.name.split(".").pop() : null;
+    if (ext && !ext.includes(" ")) {
+      fp.defaultExtension = ext;
+      try {
+        const mimeInfo = lazy.gMIMEService.getFromTypeAndExtension("", ext);
+        fp.appendFilter(mimeInfo?.description, `*.${ext}`);
+      } catch (e) {} // Nothing registered for that ext.
+    }
+    fp.appendFilters(Ci.nsIFilePicker.filterAll);
+
+    try {
+      const lastSaveDir = Services.prefs.getComplexValue(
+        "messenger.save.dir",
+        Ci.nsIFile
+      );
+      fp.displayDirectory = lastSaveDir;
+    } catch (e) {} // Pref may not be set, yet.
+
+    const result = await new Promise(resolve => fp.open(resolve));
+    if (result == Ci.nsIFilePicker.returnCancel) {
+      return;
+    }
+
+    Services.prefs.setComplexValue(
+      "messenger.save.dir",
+      Ci.nsIFile,
+      fp.file.parent
+    );
+    await this.saveToFile(fp.file.path);
   }
 
   /**

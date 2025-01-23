@@ -64,11 +64,6 @@ interface nsIMessenger : nsISupports {
     void saveMessages(in Array<AString> filenameArray,
                       in Array<AUTF8String> messageUriArray);
 
-    void saveAttachment(in AUTF8String contentType,
-                        in AUTF8String url,
-                        in AUTF8String displayName,
-                        in AUTF8String messageUri,
-                        in boolean isExternalAttachment);
     void saveAllAttachments(in Array<AUTF8String> contentTypeArray,
                             in Array<AUTF8String> urlArray,
                             in Array<AUTF8String> displayNameArray,

@@ -526,16 +526,6 @@ nsresult nsMessenger::SaveAttachment(nsIFile* aFile, const nsACString& aURL,
   return rv;
 }
 
-NS_IMETHODIMP
-nsMessenger::SaveAttachment(const nsACString& aContentType,
-                            const nsACString& aURL,
-                            const nsACString& aDisplayName,
-                            const nsACString& aMessageUri,
-                            bool aIsExternalAttachment) {
-  return SaveOneAttachment(aContentType, aURL, aDisplayName, aMessageUri,
-                           false);
-}
-
 nsresult nsMessenger::SaveOneAttachment(const nsACString& aContentType,
                                         const nsACString& aURL,
                                         const nsACString& aDisplayName,

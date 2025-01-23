@@ -2385,7 +2385,7 @@ function HandleMultipleAttachments(attachments, action) {
       // the folder path of each file for the save dialog of the next one.
       const saveAttachments = async infos => {
         for (const info of infos) {
-          await info.save(top.messenger);
+          await info.save(top.browsingContext);
         }
       };
       saveAttachments(attachments);

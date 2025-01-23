@@ -1944,7 +1944,9 @@ function addAttachmentToPopup(
   // Create the "save" menu item
   menuitem = document.createXULElement("menuitem");
   menuitem.attachment = attachment;
-  menuitem.addEventListener("command", () => attachment.save(messenger));
+  menuitem.addEventListener("command", () =>
+    attachment.save(aboutMessage.browsingContext)
+  );
   menuitem.setAttribute("label", getString("saveLabel"));
   menuitem.setAttribute("accesskey", getString("saveLabelAccesskey"));
   menuitem.setAttribute("disabled", deleted);
