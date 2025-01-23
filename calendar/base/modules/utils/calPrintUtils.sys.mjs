@@ -73,9 +73,10 @@ export var print = {
  *   - .category-color-box gets a 2px solid border in category color
  *   - .calendar-color-box gets background color of the calendar
  *
- * @param document          The DOM Document to set things on
- * @param item              The item to serialize
- * @param dayContainer      The DOM Node to insert the container in
+ * @param {HTMLDocument} document - The DOM Document to set things on.
+ * @param {calIItemBase} item - The item to serialize.
+ * @param {calIDateTime} boxDate - Date.
+ * @param {Node} dayContainer - The DOM Node to insert the container in-
  */
 function addItemToDaybox(document, item, boxDate, dayContainer) {
   // Clone our template
@@ -118,8 +119,8 @@ function addItemToDaybox(document, item, boxDate, dayContainer) {
  *   - .task-checkbox gets the "checked" attribute set, if completed
  *   - .task-title gets the item title.
  *
- * @param document          The DOM Document to set things on
- * @param item              The item to serialize
+ * @param {HTMLDocument} document - The DOM Document to set things on
+ * @param {calIItemBase} item - The item to serialize.
  */
 function addItemToDayboxNodate(document, item) {
   const taskContainer = document.getElementById("task-container");
@@ -155,8 +156,9 @@ function addItemToDayboxNodate(document, item) {
 /**
  * Get time interval string for the given item. Returns an empty string for all-day items.
  *
- * @param aItem     The item providing the interval
- * @returns The string describing the interval
+ * @param {calIItemBase} aItem - The item providing the interval.
+ * @param {calIDateTime} aBoxDate - Date.
+ * @returns {string} The string describing the interval
  */
 function getItemIntervalString(aItem, aBoxDate) {
   // omit time label for all-day items

@@ -92,15 +92,13 @@ export var DB_SCHEMA_VERSION = 23;
  * Gets the SQL for the given table data and table name. This can be both a real
  * table or the name of an index. Indexes must contain the idx_ prefix.
  *
- * @param tblName       The name of the table or index to retrieve sql for
- * @param tblData       The table data object, as returned from the upgrade_v*
- *                        functions. If null, then the latest table data is
- *                        retrieved.
- * @param alternateName (optional) The table or index name to be used in the
- *                        resulting CREATE statement. If not set, tblName will
- *                        be used.
- * @returns The SQL Statement for the given table or index and
- *                        version as a string.
+ * @param {string} tblName - The name of the table or index to retrieve sql for.
+ * @param {object} tblData - The table data object, as returned from the upgrade_v*
+ *   functions. If null, then the latest table data is retrieved.
+ * @param {string} [alternateName] The table or index name to be used in the
+ *   resulting CREATE statement. If not set, tblName will be used.
+ * @returns {string} The SQL Statement for the given table or index and
+ *   version as a string.
  */
 export function getSql(tblName, tblData, alternateName) {
   tblData = tblData || getSqlTable();
@@ -124,9 +122,9 @@ export function getSql(tblName, tblData, alternateName) {
 /**
  * Gets all SQL for the given table data
  *
- * @param version       The database schema version to retrieve. If null, the
- *                        latest schema version will be used.
- * @returns The SQL Statement for the given version as a string.
+ * @param {string} version - The database schema version to retrieve. If null,
+ *   the latest schema version will be used.
+ * @returns {string} The SQL Statement for the given version as a string.
  */
 export function getAllSql(version) {
   const tblData = getSqlTable(version);
@@ -142,10 +140,9 @@ export function getAllSql(version) {
  * Get the JS object corresponding to the given schema version. This object will
  * contain both tables and indexes, where indexes are prefixed with "idx_".
  *
- * @param schemaVersion       The schema version to get. If null, the latest
- *                              schema version will be used.
- * @returns The javascript object containing the table
- *                              definition.
+ * @param {?string} schemaVersion - The schema version to get. If null, the latest
+ *   schema version will be used.
+ * @returns {object} The JavaScript object containing the table definition.
  */
 export function getSqlTable(schemaVersion) {
   const version = "v" + (schemaVersion || DB_SCHEMA_VERSION);
@@ -214,7 +211,7 @@ export function backupDB(db, currentVersion) {
 /**
  * Upgrade the passed database.
  *
- * @param storageCalendar - An instance of CalStorageCalendar.
+ * @param {CalStorageCalendar} storageCalendar - An instance of CalStorageCalendar.
  */
 export function upgradeDB(storageCalendar) {
   const db = storageCalendar.db;
@@ -279,7 +276,7 @@ function upgradeExistingDB(db, version) {
  * have exported them to an ICS file before downgrading, and then they can
  * import them to get them back.
  *
- * @param storageCalendar - An instance of CalStorageCalendar.
+ * @param {CalStorageCalendar} storageCalendar - An instance of CalStorageCalendar.
  */
 function handleTooNewSchema(storageCalendar) {
   // Create a string like this: "2020-05-11T21-30-17".
@@ -304,8 +301,8 @@ function handleTooNewSchema(storageCalendar) {
 /**
  * Sets the db version and commits any open transaction.
  *
- * @param db        The mozIStorageConnection to commit on
- * @param version   The version to set
+ * @param {mozIStorageConnection} db - The mozIStorageConnection to commit on.
+ * @param {string} version - The version to set.
  */
 function setDbVersionAndCommit(db, version) {
   const sql =
@@ -322,8 +319,8 @@ function setDbVersionAndCommit(db, version) {
  * Creates a function that calls the given function |funcName| on it's passed
  * database. In addition, if no database is passed, the call is ignored.
  *
- * @param funcName      The function name to delegate.
- * @returns The delegate function for the passed named function.
+ * @param {string} funcName - The function name to delegate.
+ * @returns {Function} The delegate function for the passed named function.
  */
 function createDBDelegate(funcName) {
   return function (db, ...args) {
@@ -351,8 +348,8 @@ function createDBDelegate(funcName) {
  * can be called to get the specified attribute, if a database is passed. If no
  * database is passed, no error is thrown but null is returned.
  *
- * @param getterAttr        The getter to delegate.
- * @returns The function that delegates the getter.
+ * @param {string} getterAttr - The getter to delegate.
+ * @returns {Function} The function that delegates the getter.
  */
 function createDBDelegateGetter(getterAttr) {
   return function (db) {
@@ -376,10 +373,10 @@ var lastErrorString = createDBDelegateGetter("lastErrorString");
  * Helper function to create an index on the database if it doesn't already
  * exist.
  *
- * @param tblData       The table data object to save the index in.
- * @param tblName       The name of the table to index.
- * @param colNameArray  An array of columns to index over.
- * @param db            (optional) The database to create the index on.
+ * @param {object} tblData - The table data object to save the index in.
+ * @param {string} tblName       The name of the table to index.
+ * @param {string[]} colNameArray - An array of columns to index over.
+ * @param {mozIStorageAsyncConnection} [db] - The optional database to create the index on.
  */
 function createIndex(tblData, tblName, colNameArray, db) {
   const idxName = "idx_" + tblName + "_" + colNameArray.join("_");
@@ -397,8 +394,8 @@ function createIndex(tblData, tblName, colNameArray, db) {
  * Often in an upgrader we want to log something only if there is a database. To
  * make code less cludgy, here a helper function.
  *
- * @param db        The database, or null if nothing should be logged.
- * @param msg       The message to log.
+ * @param {mozIStorageAsyncConnection} db         The database, or null if nothing should be logged.
+ * @param {string} msg - The message to log.
  */
 function LOGdb(db, msg) {
   if (db) {
@@ -409,9 +406,9 @@ function LOGdb(db, msg) {
 /**
  * Report an error and roll back the last transaction.
  *
- * @param db        The database to roll back on.
- * @param e         The exception to report
- * @returns The passed exception, for chaining.
+ * @param {mozIStorageAsyncConnection} db - The database to roll back on.
+ * @param {Error} e - The exception to report
+ * @returns {Error} The passed exception, for chaining.
  */
 function reportErrorAndRollback(db, e) {
   if (db && db.transactionInProgress) {
@@ -426,7 +423,7 @@ function reportErrorAndRollback(db, e) {
 /**
  * Make sure the timezones of the events in the database are up to date.
  *
- * @param db        The database to bring up to date
+ * @param {mozIStorageAsyncConnection} db - The database to bring up to date
  */
 function ensureUpdatedTimezones(db) {
   // check if timezone version has changed:
@@ -525,11 +522,11 @@ function ensureUpdatedTimezones(db) {
 /**
  * Adds a column to the given table.
  *
- * @param tblData       The table data object to apply the operation on.
- * @param tblName       The table name to add on
- * @param colName       The column name to add
- * @param colType       The type of the column to add
- * @param db            (optional) The database to apply the operation on
+ * @param {object} tblData - The table data object to apply the operation on.
+ * @param {string} tblName - The table name to add on
+ * @param {string} colName  - The column name to add
+ * @param {string} colType - The type of the column to add
+ * @param {mozIStorageAsyncConnection} [db] - The optional database to apply the operation on
  */
 function addColumn(tblData, tblName, colName, colType, db) {
   cal.ASSERT(tblName in tblData, `Table ${tblName} is missing from table def`, true);
@@ -541,10 +538,10 @@ function addColumn(tblData, tblName, colName, colType, db) {
 /**
  * Deletes columns from the given table.
  *
- * @param tblData       The table data object to apply the operation on.
- * @param tblName       The table name to delete on
- * @param colNameArray  An array of column names to delete
- * @param db            (optional) The database to apply the operation on
+ * @param {object} tblData - The table data object to apply the operation on.
+ * @param {string} tblName - The table name to delete on
+ * @param {string[]} colNameArray - An array of column names to delete
+ * @param {mozIStorageAsyncConnection} [db] - The optional database to apply the operation on
  */
 function deleteColumns(tblData, tblName, colNameArray, db) {
   for (const colName of colNameArray) {
@@ -572,12 +569,12 @@ function deleteColumns(tblData, tblName, colNameArray, db) {
 /**
  * Does a full copy of the given table
  *
- * @param tblData       The table data object to apply the operation on.
- * @param tblName       The table name to copy
- * @param newTblName    The target table name.
- * @param db            (optional) The database to apply the operation on
- * @param condition     (optional) The condition to respect when copying
- * @param selectOptions (optional) Extra options for the SELECT, i.e DISTINCT
+ * @param {object} tblData - The table data object to apply the operation on.
+ * @param {string} tblName - The table name to copy.
+ * @param {string} newTblName - The target table name.
+ * @param {mozIStorageAsyncConnection} [db] - The optional database to apply the operation on.
+ * @param {string} [condition] - The condition to respect when copying.
+ * @param {string} [selectOptions] - Extra options for the SELECT, i.e. DISTINCT.
  */
 function copyTable(tblData, tblName, newTblName, db, condition, selectOptions) {
   function objcopy(obj) {
@@ -600,11 +597,11 @@ function copyTable(tblData, tblName, newTblName, db, condition, selectOptions) {
 /**
  * Alter the type of a certain column
  *
- * @param tblData       The table data object to apply the operation on.
- * @param tblName       The table name to alter
- * @param colNameArray  An array of column names to delete
- * @param newType       The new type of the column
- * @param db            (optional) The database to apply the operation on
+ * @param {object} tblData - The table data object to apply the operation on.
+ * @param {string} tblName - The table name to alter.
+ * @param {string[]} colNameArray - An array of column names to delete.
+ * @param {string} newType - The new type of the column.
+ * @param {mozIStorageAsyncConnection} [db] - The optional database to apply the operation on
  */
 function alterTypes(tblData, tblName, colNameArray, newType, db) {
   for (const colName of colNameArray) {
@@ -632,12 +629,12 @@ function alterTypes(tblData, tblName, colNameArray, newType, db) {
 /**
  * Renames the given table, giving it a new name.
  *
- * @param tblData       The table data object to apply the operation on.
- * @param tblName       The table name to rename.
- * @param newTblName    The new name of the table.
- * @param db            (optional) The database to apply the operation on.
- * @param overwrite     (optional) If true, the target table will be dropped
- *                        before the rename
+ * @param {object} tblData - The table data object to apply the operation on.
+ * @param {string} tblName - The table name to rename.
+ * @param {string} newTblName    The new name of the table.
+ * @param {mozIStorageAsyncConnection} [db] - The optional database to apply the operation on.
+ * @param {boolean} [overwrite=false] If true, the target table will be dropped
+ *   before the rename.
  */
 function renameTable(tblData, tblName, newTblName, db, overwrite) {
   if (overwrite) {
@@ -656,9 +653,9 @@ function renameTable(tblData, tblName, newTblName, db, overwrite) {
 /**
  * Drops the given table.
  *
- * @param tblData       The table data object to apply the operation on.
- * @param tblName       The table name to drop.
- * @param db            (optional) The database to apply the operation on.
+ * @param {object} tblData - The table data object to apply the operation on.
+ * @param {string} tblName - The table name to drop.
+ * @param {mozIStorageAsyncConnection} [db] - The optional database to apply the operation on.
  */
 function dropTable(tblData, tblName, db) {
   delete tblData[tblName];
@@ -669,10 +666,10 @@ function dropTable(tblData, tblName, db) {
 /**
  * Creates the given table.
  *
- * @param tblData       The table data object to apply the operation on.
- * @param tblName       The table name to add.
- * @param def           The table definition object.
- * @param db            (optional) The database to apply the operation on.
+ * @param {object} tblData - The table data object to apply the operation on.
+ * @param {string} tblName - The table name to add.
+ * @param {object} def - The table definition object.
+ * @param {mozIStorageAsyncConnection} [db] - The optional database to apply the operation on.
  */
 function addTable(tblData, tblName, def, db) {
   tblData[tblName] = def;
@@ -684,12 +681,12 @@ function addTable(tblData, tblName, def, db) {
  * Migrates the given columns to a single icalString, using the (previously
  * created) user function for processing.
  *
- * @param tblData       The table data object to apply the operation on.
- * @param tblName       The table name to migrate.
- * @param userFuncName  The name of the user function to call for migration
- * @param oldColumns    An array of columns to migrate to the new icalString
- *                        column
- * @param db            (optional) The database to apply the operation on.
+ * @param {object} tblData - The table data object to apply the operation on.
+ * @param {string} tblName - The table name to migrate.
+ * @param {string} userFuncName - The name of the user function to call for migration
+ * @param {string[]} oldColumns - An array of columns to migrate to the new
+ *   icalString column.
+ * @param {mozIStorageAsyncConnection} [db] - The optional database to apply the operation on.
  */
 function migrateToIcalString(tblData, tblName, userFuncName, oldColumns, db) {
   addColumn(tblData, tblName, ["icalString"], "TEXT", db);
@@ -709,25 +706,24 @@ function migrateToIcalString(tblData, tblName, userFuncName, oldColumns, db) {
 /**
  * Maps a mozIStorageValueArray to a JS array, converting types correctly.
  *
- * @param storArgs      The storage value array to convert
- * @returns An array with the arguments as js values.
+ * @param {mozIStorageValueArray} storArgs - The storage value array to convert.
+ * @returns {[]} An array with the arguments as js values.
  */
 function mapStorageArgs(storArgs) {
-  const mISVA = Ci.mozIStorageValueArray;
   const mappedArgs = [];
   for (let i = 0; i < storArgs.numEntries; i++) {
     switch (storArgs.getTypeOfIndex(i)) {
-      case mISVA.VALUE_TYPE_NULL:
+      case Ci.mozIStorageValueArray.VALUE_TYPE_NULL:
         mappedArgs.push(null);
         break;
-      case mISVA.VALUE_TYPE_INTEGER:
+      case Ci.mozIStorageValueArray.VALUE_TYPE_INTEGER:
         mappedArgs.push(storArgs.getInt64(i));
         break;
-      case mISVA.VALUE_TYPE_FLOAT:
+      case Ci.mozIStorageValueArray.VALUE_TYPE_FLOAT:
         mappedArgs.push(storArgs.getDouble(i));
         break;
-      case mISVA.VALUE_TYPE_TEXT:
-      case mISVA.VALUE_TYPE_BLOB:
+      case Ci.mozIStorageValueArray.VALUE_TYPE_TEXT:
+      case Ci.mozIStorageValueArray.VALUE_TYPE_BLOB:
         mappedArgs.push(storArgs.getUTF8String(i));
         break;
     }

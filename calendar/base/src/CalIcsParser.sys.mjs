@@ -195,7 +195,8 @@ CalIcsParser.prototype = {
  * The parser state, which helps process ical components without clogging up the
  * event queue.
  *
- * @param aParser       The parser that is using this state
+ * @param {calIIcsParser} aParser - The parser that is using this state.
+ * @param {calIIcsParsingListener} aListener - The parsing listener.
  */
 function parserState(aParser, aListener) {
   this.parser = aParser;
@@ -223,8 +224,8 @@ parserState.prototype = {
   /**
    * Checks if the timezones are missing and notifies the user via error console
    *
-   * @param item      The item to check for
-   * @param date      The datetime object to check with
+   * @param {calIItemBase} item - The item to check for.
+   * @param {calIDateTime} date - The datetime object to check with
    */
   checkTimezone(item, date) {
     function isPhantomTimezone(timezone) {
@@ -256,8 +257,8 @@ parserState.prototype = {
   /**
    * Submit processing of a subcomponent to the event queue
    *
-   * @param subComp       The component to process
-   * @param isGCal        If this is a Google Calendar invitation
+   * @param {calIIcalComponent} subComp - The component to process.
+   * @param {boolean} isGCal - If this is a Google Calendar invitation.
    */
   submit(subComp, isGCal) {
     const self = this;
@@ -322,7 +323,7 @@ parserState.prototype = {
    * Checks if the processing of all events has completed. If a join function
    * has been set, this function is called.
    *
-   * @returns True, if all tasks have been completed
+   * @returns {boolean} True, if all tasks have been completed.
    */
   checkCompletion() {
     if (this.joinFunc && this.threadCount == 0) {
@@ -335,7 +336,7 @@ parserState.prototype = {
   /**
    * Sets a join function that is called when all tasks have been completed
    *
-   * @param joinFunc      The join function to call
+   * @param {Function} joinFunc - The join function to call.
    */
   join(joinFunc) {
     this.joinFunc = joinFunc;

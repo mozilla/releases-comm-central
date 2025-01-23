@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Helper functions for parsing and serializing XML
+ * Helper functions for parsing and serializing XML.
  */
 
 // NOTE: This module should not be loaded directly, it is available when
@@ -11,21 +11,18 @@
 
 export var xml = {
   /**
-   * Evaluate an XPath query for the given node. Be careful with the return value
-   * here, as it may be:
+   * Evaluate an XPath query for the given node. Be careful with
    *
-   * - null, if there are no results
-   * - a number, string or boolean value
-   * - an array of strings or DOM elements
-   *
-   * @param {Node|Document} aNode     The context node to search from
-   * @param aExpr     The XPath expression to search for
-   * @param aResolver (optional) The namespace resolver to use for the expression
-   * @param aType     (optional) Force a result type, must be an XPathResult constant
-   * @returns The result, see above for details.
+   * @param {Node|Document} aNode - The context node to search from.
+   * @param {string} aExpr - The XPath expression to search for.
+   * @param {Node} [aResolver] The namespace resolver to use for the expression
+   * @param {integer} [aType] - Force a result type, must be an XPathResult constant.
+   * @returns {*} The result, the return value may be:
+   *   - null, if there are no results
+   *   - a number, string or boolean value
+   *   - an array of strings or DOM elements
    */
   evalXPath(aNode, aExpr, aResolver, aType) {
-    /** @type Document */
     const doc = aNode.ownerDocument ? aNode.ownerDocument : aNode;
     const resolver = aResolver || doc.createNSResolver(doc.documentElement);
     const resultType = aType || XPathResult.ANY_TYPE;
@@ -88,16 +85,16 @@ export var xml = {
   /**
    * Convenience function to evaluate an XPath expression and return null or the
    * first result. Helpful if you just expect one value in a text() expression,
-   * but its possible that there will be more than one. The result may be:
+   * but its possible that there will be more than one.
    *
-   * - null, if there are no results
-   * - A string, number, boolean or DOM Element value
-   *
-   * @param aNode     The context node to search from
-   * @param aExpr     The XPath expression to search for
-   * @param aResolver (optional) The namespace resolver to use for the expression
-   * @param aType     (optional) Force a result type, must be an XPathResult constant
-   * @returns The result, see above for details.
+   * @param {Node|Document} aNode - The context node to search from.
+   * @param {string} aExpr - The XPath expression to search for.
+   * @param {Node} [aResolver] The namespace resolver to use for the expression
+   * @param {integer} [aType] - Force a result type, must be an XPathResult constant.
+   * @returns {*} The result, the return value may be:
+   *   - null, if there are no results
+   *   - a number, string or boolean value
+   *   - an array of strings or DOM elements
    */
   evalXPathFirst(aNode, aExpr, aResolver, aType) {
     const result = xml.evalXPath(aNode, aExpr, aResolver, aType);
@@ -109,10 +106,10 @@ export var xml = {
   },
 
   /**
-   * Parse the given string into a DOM tree
+   * Parse the given string into a DOM tree.
    *
-   * @param str       The string to parse
-   * @returns The parsed DOM Document
+   * @param {string} str - The string to parse.
+   * @returns {Document} The parsed DOM Document.
    */
   parseString(str) {
     const parser = new DOMParser();
@@ -124,8 +121,8 @@ export var xml = {
    * Read an XML file synchronously. This method should be avoided, consider
    * rewriting the caller to be asynchronous.
    *
-   * @param uri       The URI to read.
-   * @returns The DOM Document resulting from the file.
+   * @param {string} uri - The URI to read.
+   * @returns {Document} The DOM Document resulting from the file.
    */
   parseFile(uri) {
     const req = new XMLHttpRequest();
@@ -138,8 +135,8 @@ export var xml = {
   /**
    * Serialize the DOM tree into a string.
    *
-   * @param doc       The DOM document to serialize
-   * @returns The DOM document as a string.
+   * @param {Document} doc - The DOM document to serialize.
+   * @returns {string} The DOM document as a string.
    */
   serializeDOM(doc) {
     const serializer = new XMLSerializer();
@@ -149,9 +146,9 @@ export var xml = {
   /**
    * Escape a string for use in XML
    *
-   * @param str           The string to escape
-   * @param isAttribute   If true, " and ' are also escaped
-   * @returns The escaped string
+   * @param {string} str - The string to escape
+   * @param {boolean} isAttribute - If true, " and ' are also escaped
+   * @returns {string} The escaped string.
    */
   escapeString(str, isAttribute) {
     return str.replace(/[&<>'"]/g, chr => {

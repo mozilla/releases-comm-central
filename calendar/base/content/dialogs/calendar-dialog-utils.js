@@ -418,7 +418,7 @@ function getDefaultAlarmType(calendar) {
  * @param {Element} reminderList - The reminders menu element.
  * @param {calIEvent | calITodo} calendarItem - The calendar item.
  * @param {number} lastAlarmSelection - Index of the previous selection in the reminders menu.
- * @param {calICalendar} caledar - Calendar to use.
+ * @param {calICalendar} calendar - Calendar to use.
  * @param {Element} reminderDetails - The reminder details element.
  * @param {calITimezone} timezone - The relevant timezone.
  * @param {boolean} suppressDialogs - If true, controls are updated without

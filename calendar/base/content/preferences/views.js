@@ -69,7 +69,7 @@ var gViewsPane = {
    * Updates the view end menu to only display hours after the selected view
    * start.
    *
-   * @param aStartValue       The value selected for view start.
+   * @param {string} aStartValue - The value selected for view start.
    */
   updateViewEndMenu(aStartValue) {
     const endMenuKids = document.getElementById("dayendhourpopup").children;
@@ -86,7 +86,7 @@ var gViewsPane = {
    * Updates the view start menu to only display hours before the selected view
    * end.
    *
-   * @param aEndValue         The value selected for view end.
+   * @param {string} aEndValue - The value selected for view end.
    */
   updateViewStartMenu(aEndValue) {
     const startMenuKids = document.getElementById("daystarthourpopup").children;
@@ -102,8 +102,8 @@ var gViewsPane = {
   /**
    * Update the workday checkboxes based on the start of the week.
    *
-   * @Param weekStart         The (0-based) index of the weekday the week
-   *                            should start at.
+   * @param {0|1|2|3|4|5|6} weekStart - The (0-based) index of the weekday the
+   *   week should start at.
    */
   updateViewWorkDayCheckboxes(weekStart) {
     weekStart = Number(weekStart);

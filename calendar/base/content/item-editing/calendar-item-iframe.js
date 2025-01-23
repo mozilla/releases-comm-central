@@ -460,7 +460,7 @@ function onEventDialogUnload() {
 /**
  * Handler function to be called when the accept button is pressed.
  *
- * @returns Returns true if the window should be closed
+ * @returns {boolean} true if the window should be closed
  */
 function onAccept() {
   dispose();
@@ -477,7 +477,7 @@ function onAccept() {
  *
  * XXX Could possibly be consolidated into onCancel()
  *
- * @returns Returns true if the window should be closed.
+ * @returns {boolean} true if the window should be closed.
  */
 function onCommandCancel() {
   // Allow closing if the item has not changed and no warning dialog has to be showed.
@@ -537,9 +537,9 @@ function onCommandCancel() {
  * Handler function to be called when the cancel button is pressed.
  * aPreventClose is true when closing the main window but leaving the tab open.
  *
- * @param  {string}  aIframeId      (optional) iframe id of the tab to be closed
- * @param  {boolean} aPreventClose  (optional) True means don't close, just ask about saving
- * @returns {boolean} True if the tab or window should be closed
+ * @param {string} [aIframeId] - Optional iframe id of the tab to be closed.
+ * @param {boolean} [aPreventClose] - true means don't close, just ask about saving.
+ * @returns {boolean} Ttue if the tab or window should be closed.
  */
 function onCancel(aIframeId, aPreventClose) {
   // The datepickers need to remove the focus in order to trigger the
@@ -578,7 +578,7 @@ function cancelItem() {
 /**
  * Get the currently selected calendar from the menulist of calendars.
  *
- * @returns The currently selected calendar.
+ * @returns {calICalendar} The currently selected calendar.
  */
 function getCurrentCalendar() {
   return document.getElementById("item-calendar").selectedItem.calendar;
@@ -587,7 +587,7 @@ function getCurrentCalendar() {
 /**
  * Sets up all dialog controls from the information of the passed item.
  *
- * @param aItem      The item to parse information out of.
+ * @param {calIItemBase} aItem - The item to parse information out of.
  */
 function loadDialog(aItem) {
   loadDateTime(aItem);
@@ -797,7 +797,7 @@ function changeUndiscloseCheckboxStatus() {
 /**
  * Loads the item's categories into the category panel
  *
- * @param aItem     The item to load into the category panel
+ * @param {calIItemBase} aItem - The item to load into the category panel.
  */
 function loadCategories(aItem) {
   const itemCategories = aItem.getCategories();
@@ -843,7 +843,7 @@ function loadCategories(aItem) {
 
 /**
  * Updates the category menulist to show the correct label, depending on the
- * selected categories in the category panel
+ * selected categories in the category panel.
  */
 function updateCategoryMenulist() {
   const categoryMenulist = document.getElementById("item-categories");
@@ -892,8 +892,8 @@ function updateCategoryMenulist() {
 /**
  * Updates the categories menulist label and decides if the popup should close
  *
- * @param aItem     The popuphiding event
- * @returns Whether the popup should close
+ * @param {Event} event - The popuphiding event.
+ * @returns {boolean} true if the popup should close.
  */
 function categoryPopupHiding(event) {
   updateCategoryMenulist();
@@ -974,7 +974,7 @@ function categoryTextboxKeypress(event) {
 /**
  * Saves the selected categories into the passed item
  *
- * @param aItem     The item to set the categories on
+ * @param {calIItemBase} aItem - The item to set the categories on.
  */
 function saveCategories(aItem) {
   const categoryPopup = document.getElementById("item-categories-popup");
@@ -988,7 +988,7 @@ function saveCategories(aItem) {
 /**
  * Sets up all date related controls from the passed item
  *
- * @param item      The item to parse information out of.
+ * @param {calIItemBase} item  - The item to parse information out of.
  */
 function loadDateTime(item) {
   const kDefaultTimezone = cal.dtz.defaultTimezone;
@@ -1078,8 +1078,8 @@ function toggleKeepDuration() {
  * set to true. In this case modifying the End date changes the Start date in
  * order to keep the same duration.
  *
- * @param aStartDatepicker     If true the Start or Entry datepicker has changed,
- *                             otherwise the End or Due datepicker has changed.
+ * @param {boolean} aStartDatepicker - If true the Start or Entry datepicker
+ *   has changed; otherwise the End or Due datepicker has changed.
  */
 function dateTimeControls2State(aStartDatepicker) {
   if (gIgnoreUpdate) {
@@ -1271,10 +1271,10 @@ function updateDueDate() {
  * Common function used by updateEntryDate and updateDueDate to set up the
  * checkboxes correctly.
  *
- * @param aDatePickerId     The XUL id of the datepicker to update.
- * @param aCheckboxId       The XUL id of the corresponding checkbox.
- * @param aDateTime         An object implementing the isValid and setDateTime
- *                            methods. XXX explain.
+ * @param {string} aDatePickerId - The id of the datepicker to update.
+ * @param {string} aCheckboxId - The id of the corresponding checkbox.
+ * @param {object} aDateTime  An object implementing the isValid and setDateTime
+ *   methods. XXX explain.
  */
 function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
   if (gIgnoreUpdate) {
@@ -1321,7 +1321,6 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
 /**
  * Get the item's recurrence information for displaying in dialog controls.
  *
- * @param {object} aItem - The calendar item
  * @returns {string[]} An array of two strings: [repeatType, untilDate]
  */
 function getRepeatTypeAndUntilDate() {
@@ -1332,7 +1331,7 @@ function getRepeatTypeAndUntilDate() {
   /**
    * Updates the until date (locally and globally).
    *
-   * @param aRule  The recurrence rule
+   * @param {calIRecurrenceRule} aRule - The recurrence rule.
    */
   const updateUntilDate = aRule => {
     if (!aRule.isByCount) {
@@ -1469,7 +1468,7 @@ function getRepeatTypeAndUntilDate() {
 }
 
 /**
- * Updates the XUL UI with the repeat type and the until date.
+ * Updates the UI with the repeat type and the until date.
  *
  * @param {string} aRepeatType - The type of repeat
  * @param {string} aUntilDate - The until date
@@ -1493,8 +1492,8 @@ function loadRepeat(aRepeatType, aUntilDate, aItem) {
 /**
  * Update reminder related elements on the dialog.
  *
- * @param aSuppressDialogs     If true, controls are updated without prompting
- *                               for changes with the custom dialog
+ * @param {boolean} aSuppressDialogs - If true, controls are updated without
+ *   prompting for changes with the custom dialog.
  */
 function updateReminder(aSuppressDialogs) {
   window.gLastAlarmSelection = commonUpdateReminder(
@@ -1512,7 +1511,7 @@ function updateReminder(aSuppressDialogs) {
 /**
  * Saves all values the user chose on the dialog to the passed item
  *
- * @param item    The item to save to.
+ * @param {calIItemBase} item - The item to save to.
  */
 function saveDialog(item) {
   // Calendar
@@ -1622,7 +1621,7 @@ function saveDialog(item) {
 /**
  * Save date and time related values from the dialog to the passed item.
  *
- * @param item    The item to save to.
+ * @param {calIItemBase} item - The item to save to.
  */
 function saveDateTime(item) {
   // Changes to the start date don't have to change the until date.
@@ -1661,6 +1660,8 @@ function saveDateTime(item) {
  * item.
  * It allows to keep the until date set in the dialog irrespective of the
  * changes that the user has done to the start date.
+ *
+ * @param {calIItemBase} aItem
  */
 function untilDateCompensation(aItem) {
   // The current start date in the item is always the date that we get
@@ -1777,7 +1778,7 @@ function updateAccept() {
  * Enables/disables the commands cmd_accept and cmd_save related to the
  * save operation.
  *
- * @param aEnable           true: enables the command
+ * @param {boolean} aEnable - true: enables the command
  */
 function enableAcceptCommand(aEnable) {
   sendMessage({ command: "enableAcceptCommand", argument: aEnable });
@@ -1911,7 +1912,7 @@ function openNewTask() {
  * Update the transparency status of this dialog, depending on if the event
  * is all-day or not.
  *
- * @param allDay    If true, the event is all-day
+ * @param {boolean} allDay - If true, the event is all-day.
  */
 function setShowTimeAs(allDay) {
   gConfig.showTimeAs = cal.item.getEventDefaultTransparency(allDay);
@@ -1991,11 +1992,11 @@ function editAttendees() {
  * selected calendar does not support them, or only supports certain
  * values, these are removed from the UI.
  *
- * @param {object} aArg - Container
- * @param {string} aArg.privacy - (optional) The new privacy value
- * @param {short} aArg.priority - (optional) The new priority value
- * @param {string} aArg.status - (optional) The new status value
- * @param {string} aArg.showTimeAs - (optional) The new transparency value
+ * @param {object} aArg - Container.
+ * @param {?string} aArg.privacy - (optional) The new privacy value.
+ * @param {?short} aArg.priority - (optional) The new priority value.
+ * @param {?string} aArg.status - (optional) The new status value.
+ * @param {?string} aArg.showTimeAs - (optional) The new transparency value.
  */
 function updateConfigState(aArg) {
   // We include additional info for priority and privacy.
@@ -2137,7 +2138,8 @@ function attachFileByAccountKey(aAccountKey) {
 /**
  * Attach a file to the item. Not passing a cloud provider is currently unsupported.
  *
- * @param cloudProvider     If set, the cloud provider will be used for attaching
+ * @param {object} cloudProvider - The cloud provider will be used for attaching.
+ * @see cloudFileAccounts
  */
 function attachFile(cloudProvider) {
   if (!cloudProvider) {
@@ -2192,10 +2194,9 @@ function attachFile(cloudProvider) {
 /**
  * Helper function to remember the last directory chosen when attaching files.
  *
- * @param aFileUri    (optional) If passed, the last directory will be set and
- *                                 returned. If null, the last chosen directory
- *                                 will be returned.
- * @returns The last directory that was set with this function.
+ * @param {?string} aFileUri - If passed, the last directory will be set and
+ *   returned. If null, the last chosen directory will be returned.
+ * @returns {?nsIFile} The last directory that was set with this function.
  */
 function lastDirectory(aFileUri) {
   if (aFileUri) {
@@ -2214,8 +2215,8 @@ function lastDirectory(aFileUri) {
  * - For a file:// url, shows the filename.
  * - For a http:// url, removes protocol and trailing slash
  *
- * @param aUri    The uri to parse.
- * @returns A string that can be used in UI.
+ * @param {nsIURI} aUri - The uri to parse.
+ * @returns {string} A string that can be used in UI.
  */
 function makePrettyName(aUri) {
   let name = aUri.spec;
@@ -2232,9 +2233,9 @@ function makePrettyName(aUri) {
  * Asynchronously uploads the given attachment to the cloud provider, updating
  * the passed listItem as things progress.
  *
- * @param attachment        A calIAttachment to upload.
- * @param cloudFileAccount  The cloud file account used for uploading.
- * @param listItem          The listitem in attachment-link listbox to update.
+ * @param {calIAttachment} attachment - A calIAttachment to upload.
+ * @param {object} cloudFileAccount - The cloud file account used for uploading.
+ * @param {Element} listItem - The richlistitem in attachment-link richlistbox to update.
  */
 function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
   const file = attachment.uri.QueryInterface(Ci.nsIFileURL).file;
@@ -2281,8 +2282,8 @@ function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
 /**
  * Adds the given attachment to dialog controls.
  *
- * @param attachment    The calIAttachment object to add
- * @param cloudFileAccount (optional) If set, the given cloud file account will be used.
+ * @param {calIAttachment} attachment - The calIAttachment object to add.
+ * @param {?object} cloudFileAccount - If set, the given cloud file account will be used.
  */
 function addAttachment(attachment, cloudFileAccount) {
   if (!attachment || !attachment.hashId || attachment.hashId in gAttachMap) {
@@ -2458,7 +2459,7 @@ function copyAttachment() {
 /**
  * Handler function to handle pressing keys in the attachment listbox.
  *
- * @param aEvent     The DOM event caused by the key press.
+ * @param {Event} aEvent - The DOM event caused by the key press.
  */
 function attachmentLinkKeyPress(aEvent) {
   switch (aEvent.key) {
@@ -2476,7 +2477,7 @@ function attachmentLinkKeyPress(aEvent) {
 /**
  * Handler function to take care of double clicking on an attachment
  *
- * @param aEvent     The DOM event caused by the clicking.
+ * @param {Event} aEvent - The DOM event caused by the clicking.
  */
 function attachmentDblClick(aEvent) {
   let item = aEvent.target;
@@ -2493,7 +2494,7 @@ function attachmentDblClick(aEvent) {
 /**
  * Handler function to take care of right clicking on an attachment or the attachment list
  *
- * @param aEvent     The DOM event caused by the clicking.
+ * @param {Event} aEvent - The DOM event caused by the clicking.
  */
 function attachmentClick(aEvent) {
   let item = aEvent.target.triggerNode;
@@ -2513,14 +2514,11 @@ function attachmentClick(aEvent) {
 /**
  * Helper function to show a notification in the event-dialog's notificationbox
  *
- * @param aMessage     the message text to show
- * @param aValue       string identifying the notification
- * @param aPriority    (optional) the priority of the warning (info, critical), default is 'warn'
- * @param aImage       (optional) URL of image to appear on the notification
- * @param aButtonset   (optional) array of button descriptions to appear on the notification
- * @param aCallback    (optional) a function to handle events from the notificationbox
+ * @param {string} aMessage - The message text to show
+ * @param {string} aValue - String identifying the notification
+ * @param {"info"|"warn"|"critical"} [aPriority="warn"] - The priority of the warning.
  */
-async function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) {
+async function notifyUser(aMessage, aValue, aPriority = "warn") {
   // only append, if the notification does not already exist
   if (gEventNotification.getNotificationWithValue(aValue) == null) {
     const prioMap = {
@@ -2528,16 +2526,10 @@ async function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCall
       critical: gEventNotification.PRIORITY_CRITICAL_MEDIUM,
     };
     const prio = prioMap[aPriority] || gEventNotification.PRIORITY_WARNING_MEDIUM;
-    await gEventNotification.appendNotification(
-      aValue,
-      {
-        label: aMessage,
-        image: aImage,
-        priority: prio,
-        eventCallback: aCallback,
-      },
-      aButtonset
-    );
+    await gEventNotification.appendNotification(aValue, {
+      label: aMessage,
+      priority: prio,
+    });
   }
 }
 
@@ -2714,11 +2706,11 @@ function editRepeat() {
  * after the dialog has been loaded as well as if the repeat pattern has
  * been changed.
  *
- * @param aSuppressDialogs     If true, controls are updated without prompting
- *                               for changes with the recurrence dialog
- * @param aItemRepeatCall      True when the function is being called from
- *                               the item-repeat menu list. It allows to detect
- *                               a change from the "custom" option.
+ * @param {boolean} aSuppressDialogs - If true, controls are updated without
+ *   prompting for changes with the recurrence dialog.
+ * @param {boolean} [aItemRepeatCall=false] - If true, when the function is
+ *   being called from the item-repeat menu list. It allows to detect a change
+ *   from the "custom" option.
  */
 function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
   function setUpEntrydateForTask(item) {
@@ -2915,7 +2907,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
  * Update the until date in the recurrence rule in order to set
  * the same time of the start date.
  *
- * @param recRule           (optional) The recurrence rule
+ * @param {calIRecurrenceRule} [recRule] - The optional recurrence rule.
  */
 function updateUntildateRecRule(recRule) {
   if (!recRule) {
@@ -3054,7 +3046,7 @@ function updateToDoStatus(aStatus, aCompletedDate = null) {
 /**
  * Saves all dialog controls back to the item.
  *
- * @returns a copy of the original item with changes made.
+ * @returns {calIItemBase} a copy of the original item with changes made.
  */
 function saveItem() {
   // we need to clone the item in order to apply the changes.
@@ -3136,8 +3128,8 @@ function saveItem() {
  * This function also takes care of notifying this dialog's caller that the item
  * is saved.
  *
- * @param aIsClosing            If true, the save action originates from the
- *                                save prompt just before the window is closing.
+ * @param {boolean} aIsClosing - If true, the save action originates from the
+ *   save prompt just before the window is closing.
  */
 function onCommandSave(aIsClosing) {
   // The datepickers need to remove the focus in order to trigger the
@@ -3216,7 +3208,6 @@ function onCommandSave(aIsClosing) {
 /**
  * This function is called when the user chooses to delete an Item
  * from the Event/Task dialog
- *
  */
 function onCommandDeleteItem() {
   // only ask for confirmation, if the User changed anything on a new item or we modify an existing item
@@ -3338,7 +3329,7 @@ editEndTimezone.complete = function (datetime) {
 /**
  * Called to choose a recent timezone from the timezone popup.
  *
- * @param event     The event with a target that holds the timezone id value.
+ * @param {Event} event - The event with a target that holds the timezone id value.
  */
 function chooseRecentTimezone(event) {
   const tzid = event.target.value;
@@ -3354,9 +3345,11 @@ function chooseRecentTimezone(event) {
 /**
  * Opens the timezone popup on the node the event target points at.
  *
- * @param event     The event causing the popup to open
- * @param dateTime  The datetime for which the timezone should be modified
- * @param editFunc  The function to be called when the custom menuitem is clicked.
+ * @param {Event} event - The event causing the popup to open.
+ * @param {calIDateTime} dateTime - The datetime for which the timezone should
+ *   be modified
+ * @param {Function} editFunc - The function to be called when the custom
+ *   menuitem is clicked.
  */
 function showTimezonePopup(event, dateTime, editFunc) {
   // Don't do anything for right/middle-clicks. Also, don't show the popup if
@@ -3400,9 +3393,9 @@ function showTimezonePopup(event, dateTime, editFunc) {
  * Common function of edit(Start|End)Timezone() to prompt the user for a
  * timezone change.
  *
- * @param aElementId        The XUL element id of the timezone label.
- * @param aDateTime         The Date/Time of the time to change zone on.
- * @param aCallback         What to do when the user has chosen a zone.
+ * @param {string} aElementId - The element id of the timezone label.
+ * @param {calIDateTime} aDateTime - The Date/Time of the time to change zone on.
+ * @param {Function} aCallback - What to do when the user has chosen a zone.
  */
 function editTimezone(aElementId, aDateTime, aCallback) {
   if (document.getElementById(aElementId).hasAttribute("disabled")) {
@@ -3588,6 +3581,11 @@ function updateDateTime() {
  * the links will be collapsed.
  */
 function updateTimezone() {
+  /**
+   * @param {calITimezone} aTimezone
+   * @param {string} aId
+   * @param {calIDateTime} aDateTime
+   */
   function updateTimezoneElement(aTimezone, aId, aDateTime) {
     const element = document.getElementById(aId);
     if (!element) {
@@ -3664,7 +3662,7 @@ function updateAttachment() {
  * Returns whether to show or hide the related link on the dialog
  * (rfc2445 URL property).
  *
- * @param {string} aUrl - The url in question.
+ * @param {string} url - The url in question.
  * @returns {boolean} true for show and false for hide
  */
 function showOrHideItemURL(url) {
@@ -3690,8 +3688,8 @@ function showOrHideItemURL(url) {
 /**
  * Updates the related link on the dialog (rfc2445 URL property).
  *
- * @param {boolean} aShow - Show the link (true) or not (false)
- * @param {string} aUrl - The url
+ * @param {boolean} aShow - Show the link (true) or not (false).
+ * @param {string} aUrl - The url.
  */
 function updateItemURL(aShow, aUrl) {
   // Hide or show the link
@@ -3834,8 +3832,8 @@ function updateRepeatDetails() {
  * This function does not strictly check if the given attendee has the status
  * TENTATIVE, but also if he hasn't responded.
  *
- * @param aAttendee     The attendee to check.
- * @returns True, if the attendee hasn't responded.
+ * @param {calIAttendee} aAttendee - The attendee to check.
+ * @returns {boolean} true, if the attendee hasn't responded.
  */
 function isAttendeeUndecided(aAttendee) {
   return (
@@ -3848,7 +3846,7 @@ function isAttendeeUndecided(aAttendee) {
 /**
  * Event handler for dblclick on attendee items.
  *
- * @param aEvent         The popupshowing event
+ * @param {Event} aEvent - The popupshowing event.
  */
 function attendeeDblClick(aEvent) {
   // left mouse button
@@ -3860,7 +3858,7 @@ function attendeeDblClick(aEvent) {
 /**
  * Event handler to set up the attendee-popup. This builds the popup menuitems.
  *
- * @param aEvent         The popupshowing event
+ * @param {Event} aEvent - The popupshowing event.
  */
 function setAttendeeContext(aEvent) {
   if (window.attendees.length == 0) {
@@ -3914,9 +3912,9 @@ function setAttendeeContext(aEvent) {
 }
 
 /**
- * Removes the selected attendee from the window
+ * Removes the selected attendee from the window.
  *
- * @param aAttendee
+ * @param {calIAttendee} aAttendee
  */
 function removeAttendee(aAttendee) {
   if (aAttendee) {
@@ -3926,7 +3924,7 @@ function removeAttendee(aAttendee) {
 }
 
 /**
- * Removes all attendees from the window
+ * Removes all attendees from the window.
  */
 function removeAllAttendees() {
   window.attendees = [];
@@ -3937,7 +3935,7 @@ function removeAllAttendees() {
 /**
  * Send Email to all attendees that haven't responded or are tentative.
  *
- * @param aAttendees    The attendees to check.
+ * @param {calIAttendee[]} aAttendees - The attendees to check.
  */
 function sendMailToUndecidedAttendees(aAttendees) {
   const targetAttendees = aAttendees.filter(isAttendeeUndecided);
@@ -3979,7 +3977,7 @@ function updateCapabilities() {
 /**
  * find out if the User already changed values in the Dialog
  *
- * @return:    true if the values in the Dialog have changed. False otherwise.
+ * @returns {boolean} true if the values in the dialog have changed.
  */
 function isItemChanged() {
   const newItem = saveItem();
@@ -3992,9 +3990,10 @@ function isItemChanged() {
 }
 
 /**
- * Test if a specific capability is supported
+ * Test if a specific capability is supported.
  *
- * @param aCap      The capability from "capabilities.<aCap>.supported"
+ * @param {string} aCap - The capability from "capabilities.<aCap>.supported".
+ * @returns {boolean}
  */
 function capSupported(aCap) {
   const calendar = getCurrentCalendar();
@@ -4004,8 +4003,9 @@ function capSupported(aCap) {
 /**
  * Return the values for a certain capability.
  *
- * @param aCap      The capability from "capabilities.<aCap>.values"
- * @returns The values for this capability
+ * @param {string} aCap - The capability from "capabilities.<aCap>.values".
+ * @param {string[]} aDefault - The default values.
+ * @returns {string[]} The values for this capability.
  */
 function capValues(aCap, aDefault) {
   const calendar = getCurrentCalendar();
@@ -4060,7 +4060,7 @@ function checkUntilDate() {
 }
 
 /**
- * Displays a counterproposal if any
+ * Displays a counterproposal if any.
  */
 function displayCounterProposal() {
   if (
@@ -4162,11 +4162,11 @@ function displayCounterProposal() {
 }
 
 /**
- * Get the property label to display for a counterproposal based on the respective label used in
- * the dialog
+ * Get the property label to display for a counterproposal based on the
+ * respective label used in the dialog.
  *
- * @param   {JSObject}     aProperty  The property to check for a label
- * @returns {string | null} The label to display or null if no such label
+ * @param {object} aProperty - The property to check for a label.
+ * @returns {?string} The label to display or null if no such label.
  */
 function lookupCounterLabel(aProperty) {
   const nodeIds = getPropertyMap();
@@ -4191,8 +4191,8 @@ function lookupCounterLabel(aProperty) {
 /**
  * Get the property value to display for a counterproposal as currently supported
  *
- * @param   {JSObject}     aProperty  The property to check for a label
- * @returns {string | null} The value to display or null if the property is not supported
+ * @param {object} aProperty - The property to check for a label.
+ * @returns {?string} The value to display or null if the property is not supported.
  */
 function formatCounterValue(aProperty) {
   const dateProps = ["DTSTART", "DTEND"];
@@ -4219,7 +4219,7 @@ function formatCounterValue(aProperty) {
 /**
  * Get a map of property names and labels of currently supported properties
  *
- * @returns {Map}
+ * @returns {Map<string,string>}
  */
 function getPropertyMap() {
   const map = new Map();
@@ -4233,7 +4233,7 @@ function getPropertyMap() {
 /**
  * Applies the proposal or original data to the respective dialog fields
  *
- * @param {string} aType Either 'proposed' or 'original'
+ * @param {"proposed"|"original"} aType - Either 'proposed' or 'original'.
  */
 function applyValues(aType) {
   if (!window.counterProposal || (aType != "proposed" && aType != "original")) {
@@ -4270,6 +4270,8 @@ function applyValues(aType) {
  * eaten by the context menu actor before the element's default
  * context menu processing. Since we know that the editor runs
  * in the parent process, we can just listen directly to the event.
+ *
+ * @param {Event} event
  */
 function openEditorContextMenu(event) {
   const popup = document.getElementById("editorContext");

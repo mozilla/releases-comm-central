@@ -9,11 +9,14 @@ export function CalWeekInfoService() {
   this.wrappedJSObject = this;
 }
 
+/** @implements {calIWeekInfoService} */
 CalWeekInfoService.prototype = {
   QueryInterface: ChromeUtils.generateQI(["calIWeekInfoService"]),
   classID: Components.ID("{6877bbdd-f336-46f5-98ce-fe86d0285cc1}"),
 
-  // calIWeekInfoService:
+  /**
+   * @param {calIDateTime} aDateTime - A date time object
+   */
   getWeekTitle(aDateTime) {
     /**
      * This implementation is based on the ISO 8601 standard.
@@ -75,11 +78,11 @@ CalWeekInfoService.prototype = {
   },
 
   /**
-   * gets the first day of a week of a passed day under consideration
+   * Gets the first day of a week of a passed day under consideration
    * of the preference setting "calendar.week.start"
    *
-   * @param aDate     a date time object
-   * @returns a dateTime-object denoting the first day of the week
+   * @param {calIDateTime} aDate - A date time object
+   * @returns {calIDateTime} a dateTime-object denoting the first day of the week.
    */
   getStartOfWeek(aDate) {
     const startWeekday = Services.prefs.getIntPref("calendar.week.start", SUNDAY);
@@ -97,8 +100,8 @@ CalWeekInfoService.prototype = {
    * gets the last day of a week of a passed day under consideration
    * of the preference setting "calendar.week.start"
    *
-   * @param aDate     a date time object
-   * @returns a dateTime-object denoting the last day of the week
+   * @param {calIDateTime} aDate - A date time object.
+   * @returns {calIDateTime} a dateTime-object denoting the last day of the week.
    */
   getEndOfWeek(aDate) {
     const date = this.getStartOfWeek(aDate);

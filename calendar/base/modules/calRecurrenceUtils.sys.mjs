@@ -55,11 +55,11 @@ export function recurrenceStringFromItem(item, bundleName, stringName, params) {
  * This function takes the recurrence info passed as argument and creates a
  * literal string representing the repeat pattern in natural language.
  *
- * @param recurrenceInfo    An item's recurrence info to parse.
- * @param startDate         The start date to base rules on.
- * @param endDate           The end date to base rules on.
- * @param allDay            If true, the pattern should assume an allday item.
- * @returns A human readable string describing the recurrence.
+ * @param {calIRecurrenceInfo} recurrenceInfo - An item's recurrence info to parse.
+ * @param {calIDateTime} startDate - The start date to base rules on.
+ * @param {calIDateTime} endDate - The end date to base rules on.
+ * @param {boolean} allDay - If true, the pattern should assume an allday item.
+ * @returns {string} A human readable string describing the recurrence.
  */
 export function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
   function getRString(name, args) {
@@ -437,9 +437,9 @@ export function hasUnsupported(recurrenceInfo) {
 /**
  * Split rules into negative and positive rules.
  *
- * @param recurrenceInfo    An item's recurrence info to parse.
- * @returns An array with two elements: an array of positive
- *                            rules and an array of negative rules.
+ * @param {calIRecurrenceInfo} recurrenceInfo    An item's recurrence info to parse.
+ * @returns {calIRecurrenceItem[][]} An array with two elements: an array of positive
+ *  rules and an array of negative rules.
  */
 export function splitRecurrenceRules(recurrenceInfo) {
   const ritems = recurrenceInfo.getRecurrenceItems();
@@ -458,10 +458,10 @@ export function splitRecurrenceRules(recurrenceInfo) {
 /**
  * Check if a recurrence rule's component is valid.
  *
- * @see                     calIRecurrenceRule
- * @param aRule             The recurrence rule to check.
- * @param aArray            An array of component names to check.
- * @returns Returns true if the rule is valid.
+ * @see {calIRecurrenceRule}
+ * @param {calIRecurrenceRule} aRule - The recurrence rule to check.
+ * @param {calIIcalComponent[]} aArray - An array of component names to check.
+ * @returns {boolean} true if the rule is valid.
  */
 export function checkRecurrenceRule(aRule, aArray) {
   for (const comp of aArray) {
@@ -476,11 +476,9 @@ export function checkRecurrenceRule(aRule, aArray) {
 /**
  * Counts the occurrences of the parent item if any of a provided item
  *
- * @param  {(calIEvent|calIToDo)}  aItem  item to count for
- * @returns {(number|null)} number of occurrences or null if the
- *                                          passed item's parent item isn't a
- *                                          recurring item or its recurrence is
- *                                          infinite
+ * @param {alIEvent|calIToDo} aItem - Item to count for.
+ * @returns {number|null} number of occurrences, or null if the passed items
+ *   parent item isn't a recurring item or its recurrence is infinite.
  */
 export function countOccurrences(aItem) {
   let occCounter = null;

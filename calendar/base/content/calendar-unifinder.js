@@ -132,9 +132,9 @@ function unifinderDoubleClick(event) {
  * Handle selection events in the unifinder, ensuring that they are synced to
  * the calendar view.
  *
- * @param {Event} event - The DOM selection event.
+ * @param {Event} _event - The DOM selection event.
  */
-async function unifinderSelect() {
+async function unifinderSelect(_event) {
   const treeView = getUnifinderView();
   const currentSelection = treeView.selection;
   if (!currentSelection || currentSelection.getRangeCount() == 0) {

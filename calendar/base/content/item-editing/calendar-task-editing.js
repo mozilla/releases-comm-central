@@ -26,9 +26,9 @@ var taskEdit = {
    * Helper function to set readonly and aria-disabled states and the value
    * for a given target.
    *
-   * @param aTarget   The ID or XUL node to set the value
-   * @param aDisable  A boolean if the target should be disabled.
-   * @param aValue    The value that should be set on the target.
+   * @param {string|Node} aTarget - The ID or Node of which to set the value on
+   * @param {boolean} aDisable - A boolean if the target should be disabled.
+   * @param {string} aValue - The value that should be set on the target.
    */
   setupTaskField(aTarget, aDisable, aValue) {
     aTarget.value = aValue;
@@ -39,7 +39,7 @@ var taskEdit = {
   /**
    * Handler function to call when the quick-add input gains focus.
    *
-   * @param aEvent    The DOM focus event
+   * @param {Event} aEvent - The DOM focus event.
    */
   onFocus(aEvent) {
     const edit = aEvent.target;
@@ -67,7 +67,7 @@ var taskEdit = {
   /**
    * Handler function to call when the quick-add input loses focus.
    *
-   * @param aEvent    The DOM blur event
+   * @param {Event} aEvent - The DOM blur event.
    */
   onBlur(aEvent) {
     const edit = aEvent.target;
@@ -102,7 +102,7 @@ var taskEdit = {
   /**
    * Handler function to call on keypress for the quick-add input.
    *
-   * @param aEvent    The DOM keypress event
+   * @param {Event} aEvent - The DOM keypress event.
    */
   onKeyPress(aEvent) {
     if (aEvent.key == "Enter") {
@@ -148,8 +148,8 @@ var taskEdit = {
   /**
    * Observer to watch for changes to the selected calendar.
    *
-   * @see calIObserver
-   * @see calICompositeObserver
+   * @implements {calIObserver}
+   * @implements {calICompositeObserver}
    */
   compositeObserver: {
     QueryInterface: ChromeUtils.generateQI(["calIObserver", "calICompositeObserver"]),

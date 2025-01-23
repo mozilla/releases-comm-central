@@ -41,13 +41,12 @@ export var view = {
    * Returns a parentnode  - or the passed node -  with the given attribute
    * value for the given attributename by traversing up the DOM hierarchy.
    *
-   * @param aChildNode      The childnode.
-   * @param aAttibuteName   The name of the attribute that is to be compared with
-   * @param aAttibuteValue  The value of the attribute that is to be compared with
-   * @returns The parent with the given attributeName set that has
-   *                          the same value as the given given attributevalue
-   *                          'aAttributeValue'. If no appropriate
-   *                          parent node can be retrieved it is returned 'null'.
+   * @param {Node} aChildNode - The childnode.
+   * @param {string} aAttributeName - The name of the attribute that is to be compared with.
+   * @param {string} aAttributeValue - The value of the attribute that is to be compared with.
+   * @returns {?Node} The parent with the given attributeName set that has
+   *   the same value as the given given attributevalue 'aAttributeValue'.
+   *   If no appropriate parent node can be retrieved it is returned null.
    */
   getParentNodeOrThisByAttribute(aChildNode, aAttributeName, aAttributeValue) {
     let node = aChildNode;
@@ -80,8 +79,8 @@ export var view = {
    *   name              {nmchar}+
    *   http://www.w3.org/TR/CSS21/grammar.html#scanner
    *
-   * @param aString       The unicode string to format
-   * @returns The formatted string using only chars [_a-zA-Z0-9-]
+   * @param {string} aString - The unicode string to format.
+   * @returns {string} The formatted string using only chars [_a-zA-Z0-9-].
    */
   formatStringForCSSRule(aString) {
     function toReplacement(char) {
@@ -101,7 +100,7 @@ export var view = {
   /**
    * Gets the cached instance of the composite calendar.
    *
-   * @param aWindow       The window to get the composite calendar for.
+   * @param {Window} aWindow - The window to get the composite calendar for.
    */
   getCompositeCalendar(aWindow) {
     if (typeof aWindow._compositeCalendar == "undefined") {
@@ -145,8 +144,8 @@ export var view = {
    * Hash the given string into a color from the color palette of the standard
    * color picker.
    *
-   * @param str           The string to hash into a color.
-   * @returns The hashed color.
+   * @param {string} str - The string to hash into a color.
+   * @returns {string} The hashed color.
    */
   hashColor(str) {
     // This is the palette of colors in the current colorpicker implementation.
@@ -233,7 +232,7 @@ export var view = {
    * Pick whichever of "black" or "white" will look better when used as a text
    * color against a background of bgColor.
    *
-   * @param bgColor   the background color as a "#RRGGBB" string
+   * @param {string} bgColor - The background color as a "#RRGGBB" string.
    */
   getContrastingTextColor(bgColor) {
     const calcColor = bgColor.replace(/#/g, "");
@@ -256,9 +255,9 @@ export var view = {
   /**
    * Item comparator for inserting items into dayboxes.
    *
-   * @param a     The first item
-   * @param b     The second item
-   * @returns The usual -1, 0, 1
+   * @param {calIItemBase} a - The first item.
+   * @param {calIItemBase} b - The second item.
+   * @returns {-1|0|1}
    */
   compareItems(a, b) {
     if (!a) {
@@ -404,6 +403,9 @@ export var view = {
 /**
  * Adds CSS variables for each calendar to registered windows for coloring
  * UI elements. Automatically tracks calendar creation, changes, and deletion.
+ *
+ * @implements {calICalendarManagerObserver}
+ * @implements {calIObserver}
  */
 view.colorTracker = {
   calendars: null,

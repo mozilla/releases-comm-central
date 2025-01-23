@@ -67,7 +67,7 @@ function showToolTip(aToolTip, aItem) {
  * PUBLIC:  Called when a user hovers over a todo element and the text for the
  * mouse over is changed.
  *
- * @param {calIToDo} toDoItem - The item to create the preview for
+ * @param {calIToDo} aItem - The item to create the preview for.
  * @param {boolean} [aIsTooltip=true] - Enabled if used for tooltip composition.
  */
 function getPreviewForItem(aItem, aIsTooltip = true) {

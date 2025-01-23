@@ -64,7 +64,7 @@ ChromeUtils.defineLazyGetter(this, "gReadOnlyNotification", () => {
 /**
  * Helper function to get the alarm service and cache it.
  *
- * @returns The alarm service component
+ * @returns {calIAlarmService} The alarm service component.
  */
 function getAlarmService() {
   if (!("mAlarmService" in window)) {
@@ -79,7 +79,7 @@ function getAlarmService() {
  * Event handler for the 'snooze' event. Snoozes the given alarm by the given
  * number of minutes using the alarm service.
  *
- * @param event     The snooze event
+ * @param {Event} event - The snooze event.
  */
 function onSnoozeAlarm(event) {
   // reschedule alarm:
@@ -95,7 +95,7 @@ function onSnoozeAlarm(event) {
  * Event handler for the 'dismiss' event. Dismisses the given alarm using the
  * alarm service.
  *
- * @param event     The snooze event
+ * @param {Event} event - The snooze event.
  */
 function onDismissAlarm(event) {
   getAlarmService().dismissAlarm(event.target.item, event.target.alarm);
@@ -133,7 +133,7 @@ function onDismissAllAlarms() {
  * Event handler fired when the alarm widget's "Details..." label was clicked.
  * Open the event dialog in the most recent Thunderbird window.
  *
- * @param event     The itemdetails event.
+ * @param {Event} event - The itemdetails event.
  */
 function onItemDetails(event) {
   // We want this to happen in a calendar window if possible. Otherwise open
@@ -226,7 +226,7 @@ function updateRelativeDates() {
 /**
  * Function to snooze all alarms the given number of minutes.
  *
- * @param aDurationMinutes    The duration in minutes
+ * @param {integer} aDurationMinutes - The duration in minutes.
  */
 function snoozeAllItems(aDurationMinutes) {
   const duration = getDuration(aDurationMinutes);
@@ -262,14 +262,14 @@ function snoozeAllItems(aDurationMinutes) {
 /**
  * Receive a calIDuration object for a given number of minutes
  *
- * @param  {long}           aMinutes     The number of minutes
+ * @param {integer} aMinutes - The number of minutes.
  * @returns {calIDuration}
  */
 function getDuration(aMinutes) {
   const MINUTESINWEEK = 7 * 24 * 60;
 
-  // converting to weeks if any is required to avoid an integer overflow of duration.minutes as
-  // this is of type short
+  // Converting to weeks if any is required to avoid an integer overflow of
+  // duration.minutes as this is of type short.
   const weeks = Math.floor(aMinutes / MINUTESINWEEK);
   aMinutes -= weeks * MINUTESINWEEK;
 
@@ -284,7 +284,7 @@ function getDuration(aMinutes) {
  * Check whether the snooze period exceeds the current limitation of the AlarmService and prompt
  * the user with a message if so
  *
- * @param   {calIDuration}   aDuration   The duration to snooze
+ * @param {calIDuration} aDuration - The duration to snooze.
  * @returns {boolean}
  */
 function aboveSnoozeLimit(aDuration) {
@@ -317,11 +317,14 @@ function setupTitle() {
  * Comparison function for the start date of a calendar item and
  * the start date of a calendar-alarm-widget.
  *
- * @param aItem                 A calendar item for the comparison of the start date property
- * @param aWidgetItem           The alarm widget item for the start date comparison with the given calendar item
- * @returns 1 - if the calendar item starts before the calendar-alarm-widget
- *                             -1 - if the calendar-alarm-widget starts before the calendar item
- *                              0 - otherwise
+ * @param {calIItemBase} aItem - A calendar item for the comparison of the
+ *   start date property.
+ * @param {MozCalendarAlarmWidgetRichlistitem} aWidgetItem - The alarm widget
+ *   item for the start date comparison with the given calendar item.
+ * @returns {1|0|-1} 1 if the calendar item starts before the
+ *   calendar-alarm-widget.
+ *  -1 if the calendar-alarm-widget starts before the calendar item.
+ *  0 otherwise.
  */
 function widgetAlarmComptor(aItem, aWidgetItem) {
   if (aItem == null || aWidgetItem == null) {
@@ -338,8 +341,8 @@ function widgetAlarmComptor(aItem, aWidgetItem) {
 /**
  * Add an alarm widget for the passed alarm and item.
  *
- * @param aItem       The calendar item to add a widget for.
- * @param aAlarm      The alarm to add a widget for.
+ * @param {calIItemBase} aItem - The calendar item to add a widget for.
+ * @param {calIAlarm} aAlarm - The alarm to add a widget for.
  */
 function addWidgetFor(aItem, aAlarm) {
   const widget = document.createXULElement("richlistitem", {
@@ -375,8 +378,8 @@ function addWidgetFor(aItem, aAlarm) {
 /**
  * Remove the alarm widget for the passed alarm and item.
  *
- * @param aItem       The calendar item to remove the alarm widget for.
- * @param aAlarm      The alarm to remove the widget for.
+ * @param {calIItemBase} aItem - The calendar item to remove the alarm widget for.
+ * @param {calIAlarm} aAlarm - The alarm to remove the widget for.
  */
 function removeWidgetFor(aItem, aAlarm) {
   const hashId = aItem.hashId;
@@ -470,7 +473,7 @@ function closeIfEmpty() {
 /**
  * Handler function called when an alarm entry in the richlistbox is selected
  *
- * @param event         The DOM event from the click action
+ * @param {Event} event - The DOM event from the click action
  */
 function onSelectAlarm(event) {
   const richList = document.getElementById("alarm-richlist");

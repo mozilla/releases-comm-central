@@ -195,7 +195,7 @@ var calImipBar = {
   /**
    * Provides a list of available menuitems of a button
    *
-   * @param aButton        button node
+   * @param {HTMLButtonElement} aButton - A button node.
    */
   getMenuItems(aButton) {
     const items = [];
@@ -243,11 +243,11 @@ var calImipBar = {
    * This is our callback function that is called each time the itip bar UI needs updating.
    * NOTE: This function is called without a valid this-context!
    *
-   * @param itipItem      The iTIP item to set up for
-   * @param rc            The status code from processing
-   * @param actionFunc    The action function called for execution
-   * @param foundItems    An array of items found while searching for the item
-   *                      in subscribed calendars
+   * @param {calIItipItem} itipItem - The iTIP item to set up for
+   * @param {nsstatus} rc - The status code from processing
+   * @param {Function} actionFunc - The action function called for execution
+   * @param {calIItemBase[]} foundItems - An array of items found while
+   *   searching for the item in subscribed calendars.
    */
   setupOptions(itipItem, rc, actionFunc, foundItems) {
     if (itipItem !== calImipBar.loadingItipItem) {

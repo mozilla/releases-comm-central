@@ -44,8 +44,8 @@ export var item = {
   /**
    * Checks if an item is supported by a Calendar.
    *
-   * @param {calICalendar} aCalendar - The calendar to check.
    * @param {calIItemBase} aItem - The item; either a task or an event.
+   * @param {calICalendar} aCalendar - The calendar to check.
    * @returns {boolean} true if supported.
    */
   isItemSupported(aItem, aCalendar) {
@@ -78,11 +78,12 @@ export var item = {
   /**
    * Checks whether the passed item fits into the demanded range.
    *
-   * @param calendarItem               the item
-   * @param rangeStart         (inclusive) range start or null (open range)
-   * @param rangeStart         (exclusive) range end or null (open range)
-   * @param returnDtstartOrDue returns item's start (or due) date in case
-   *                           the item is in the specified Range; null otherwise.
+   * @param {calIItemBase} calendarItem - The item.
+   * @param {?calIDateTime} rangeStart - (Inclusive) range start or null (open range).
+   * @param {?calIDateTime} rangeEnd - (Exclusive) range end or null (open range).
+   * @param {calIDateTime} returnDtstartOrDue - If true returns item's start
+   *  (or due) date in case the item is in the specified Range; null otherwise.
+   * @returns {?calIDateTime}
    */
   checkIfInRange(calendarItem, rangeStart, rangeEnd, returnDtstartOrDue) {
     let startDate;
@@ -225,9 +226,12 @@ export var item = {
   },
 
   /**
-   * Returns the default transparency to apply for an event depending on whether its an all-day event
+   * Returns the default transparency to apply for an event depending on whether
+   * its an all-day event.
    *
-   * @param aIsAllDay      If true, the default transparency for all-day events is returned
+   * @param {boolean} aIsAllDay - If true, the default transparency for all-day
+   *   events is returned
+   * @returns {string}
    */
   getEventDefaultTransparency(aIsAllDay) {
     let transp = null;
@@ -263,12 +267,12 @@ export var item = {
      *  ATTENDEE: CN
      *  ORGANIZER: CN
      *
-     * @param aFirstItem        The item to compare.
-     * @param aSecondItem       The item to compare to.
-     * @param aIgnoreProps      (optional) An array of parameters to ignore.
-     * @param aIgnoreParams     (optional) An object describing which parameters to
-     *                                     ignore.
-     * @returns True, if items match.
+     * @param {calIItemBase} aFirstItem - The item to compare.
+     * @param {calIItemBase} aSecondItem - The item to compare to.
+     * @param {string[]} [aIgnoreProps] - An array of parameters to ignore.
+     * @param {string} [aIgnoreParams] - An object describing which parameters to
+     *   ignore.
+     * @returns {boolean} true, if items match.
      */
   compareContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams) {
     const ignoreProps = arr2hash(
@@ -335,8 +339,8 @@ export var item = {
   /**
    * Shifts an item by the given timely offset.
    *
-   * @param calendarItem an item
-   * @param offset an offset (calIDuration)
+   * @param {calIItemBase} calendarItem - An item.
+   * @param {calIDuration} offset - An offset.
    */
   shiftOffset(calendarItem, offset) {
     // When modifying dates explicitly using the setters is important
@@ -351,7 +355,7 @@ export var item = {
       date.addDuration(offset);
       calendarItem.endDate = date;
     } else {
-      /* isToDo */
+      // isToDo
       if (calendarItem.entryDate) {
         const date = calendarItem.entryDate.clone();
         date.addDuration(offset);
@@ -368,9 +372,9 @@ export var item = {
   /**
    * moves an item to another startDate
    *
-   * @param aOldItem             The Item to be modified
-   * @param aNewDate             The date at which the new item is going to start
-   * @returns The modified item
+   * @param {calIItemBase} aOldItem - The Item to be modified
+   * @param {calIDateTime} aNewDate - The date at which the new item is going to start.
+   * @returns {calIItemBase} The modified item.
    */
   moveToDate(aOldItem, aNewDate) {
     const newItem = aOldItem.clone();
@@ -406,6 +410,8 @@ export var item = {
 
   /**
    * Shortcut function to serialize an item (including all overridden items).
+   *
+   * @param {calIItemBase} aItem
    */
   serialize(aItem) {
     const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
@@ -430,8 +436,8 @@ export var item = {
    * ical component.  This should be used whenever you need to set the prodid
    * and version on a calIcalComponent object.
    *
-   * @param aIcalComponent        The ical component to set the prodid and
-   *                                version on.
+   * @param {calIIcalComponent} aIcalComponent - The ical component to set
+   *   the prodid and version on.
    */
   setStaticProps(aIcalComponent) {
     // Throw for an invalid parameter
@@ -446,7 +452,7 @@ export var item = {
   /**
    * Search for already open item dialog.
    *
-   * @param aItem     The item of the dialog to search for.
+   * @param {calIItemBase} aItem - The item of the dialog to search for.
    */
   findWindow(aItem) {
     // check for existing dialog windows
@@ -472,9 +478,9 @@ export var item = {
   /**
    * sets the 'isDate' property of an item
    *
-   * @param aItem         The Item to be modified
-   * @param aIsDate       True or false indicating the new value of 'isDate'
-   * @returns The modified item
+   * @param {calIItemBase} aItem - The Item to be modified.
+   * @param {boolean} aIsDate - True or false indicating the new value of 'isDate'
+   * @returns {calIItemBase} The modified item.
    */
   setToAllDay(aItem, aIsDate) {
     let start = aItem[dtz.startDateProp(aItem)];
@@ -500,8 +506,8 @@ export var item = {
    * This function return the progress state of a task:
    * completed, overdue, duetoday, inprogress, future
    *
-   * @param aTask     The task to check.
-   * @returns The progress atom.
+   * @param {calITodo} aTask - The task to check.
+   * @returns {"completed"|"overdue"|"duetoday"|"inprogress"|"future"}
    */
   getProgressAtom(aTask) {
     const nowdate = new Date();

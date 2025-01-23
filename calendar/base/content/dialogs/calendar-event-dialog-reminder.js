@@ -135,8 +135,8 @@ function loadReminders() {
  * switching between absolute and relative alarms to disable and enable the
  * needed controls.
  *
- * @param aDisableAll       Disable all relation controls. Used when no alarms
- *                            are added yet.
+ * @param {boolean} aDisableAll - Disable all relation controls. Used when no
+ *   alarms are added yet.
  */
 function setupRadioEnabledState(aDisableAll) {
   const relationItem = document.getElementById("reminder-relation-radiogroup").selectedItem;
@@ -208,12 +208,12 @@ async function setupMaxReminders() {
 /**
  * Sets up a reminder listitem for the list of reminders applied to this item.
  *
- * @param aListItem     (optional) A reference listitem to set up. If not
- *                                   passed, a new listitem will be created.
- * @param aReminder     The calIAlarm to display in this listitem
- * @param aItem         The item the alarm is set up on.
- * @returns The  XUL listitem node showing the passed reminder, or
- *   null if no list item should be shown.
+ * @param {?calIAlarm[]} aListItem - An optional reference listitem to set up.
+ *  If notpassed, a new listitem will be created.
+ * @param {calIAlarm} aReminder - The calIAlarm to display in this listitem
+ * @param {calIItemBase} aItem - The item the alarm is set up on.
+ * @returns {?MozElements.MozRichlistitem} The richlistitem node showing the
+ *   passed reminder, or null if no list item should be shown.
  */
 function setupListItem(aListItem, aReminder, aItem) {
   let src;
@@ -341,7 +341,7 @@ function onReminderSelected() {
  * Handler function to be called when an aspect of the alarm has been changed
  * using the dialog controls.
  *
- * @param event         The DOM event caused by the change.
+ * @param {Event} event - The DOM event caused by the change.
  */
 function updateReminder(event) {
   if (
@@ -407,8 +407,8 @@ function updateReminder(event) {
  * Gets the locale stringname that is dependent on the item type. This function
  * appends the item type, i.e |aPrefix + "Event"|.
  *
- * @param aPrefix       The prefix to prepend to the item type
- * @returns The full string name.
+ * @param {string} aPrefix - The prefix to prepend to the item type
+ * @returns {string} The full string name.
  */
 function getItemBundleStringName(aPrefix) {
   if (window.arguments[0].item.isEvent()) {

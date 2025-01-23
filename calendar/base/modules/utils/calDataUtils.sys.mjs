@@ -177,10 +177,10 @@ export var data = {
    *     }
    * If no comptor is specified, the default greater-than comptor will be used.
    *
-   * @param itemArray             The array to search.
-   * @param newItem               The item to search in the array.
-   * @param comptor               A comparison function that can compare two items.
-   * @returns The index of the new item.
+   * @param {calIItemBase[]} itemArray - The array to search.
+   * @param {calIItemBase} newItem - The item to search in the array.
+   * @param {function():integer} comptor - A comparison function that can compare two items.
+   * @returns {integer} The index of the new item.
    */
   binarySearch(itemArray, newItem, comptor) {
     function binarySearchInternal(low, high) {
@@ -214,15 +214,17 @@ export var data = {
    * Insert a new node underneath the given parentNode, using binary search. See binarySearch
    * for a note on how the comptor works.
    *
-   * @param parentNode           The parent node underneath the new node should be inserted.
-   * @param inserNode            The node to insert
-   * @param aItem                The calendar item to add a widget for.
-   * @param comptor              A comparison function that can compare two items (not DOM Nodes!)
-   * @param discardDuplicates    Use the comptor function to check if the item in
-   *                               question is already in the array. If so, the
-   *                               new item is not inserted.
-   * @param itemAccessor         [optional] A function that receives a DOM node and returns the associated item
-   *                               If null, this function will be used: function(n) n.item
+   * @param {Node} parentNode - The parent node underneath the new node should be inserted.
+   * @param {Node} insertNode - The node to insert
+   * @param {calIItemBase} aItem - The calendar item to add a widget for.
+   * @param {function():integer} comptor - A comparison function that can
+   *   compare two items (not DOM Nodes!)
+   * @param {boolean} discardDuplicates - Use the comptor function to check if
+   *   the item in question is already in the array. If so, the new item is not
+   *   inserted.
+   * @param {function():calIItemBase} [itemAccessor] - A optional function that
+   *   receives a DOM node and returns the associated item
+   *   If null, this function will be used: function(n) n.item
    */
   binaryInsertNode(parentNode, insertNode, aItem, comptor, discardDuplicates, itemAccessor) {
     const accessor = itemAccessor || data.binaryInsertNodeDefaultAccessor;
@@ -253,13 +255,13 @@ export var data = {
    * Insert an item into the given array, using binary search. See binarySearch
    * for a note on how the comptor works.
    *
-   * @param itemArray             The array to insert into.
-   * @param item                  The item to insert into the array.
-   * @param comptor               A comparison function that can compare two items.
-   * @param discardDuplicates     Use the comptor function to check if the item in
-   *                                question is already in the array. If so, the
-   *                                new item is not inserted.
-   * @returns The index of the new item.
+   * @param {calIItemBase[]} itemArray - The array to insert into.
+   * @param {calIItemBase} item - The item to insert into the array.
+   * @param {function():integer} comptor - A comparison function that can compare two items.
+   * @param {boolean} discardDuplicates - Use the comptor function to check if
+   *   the item in question is already in the array. If so, the new item is not
+   *   inserted.
+   * @returns {integer} The index of the new item.
    */
   binaryInsert(itemArray, item, comptor, discardDuplicates) {
     let newIndex = data.binarySearch(itemArray, item, comptor);
@@ -283,9 +285,10 @@ export var data = {
    * Use to compare two objects which are not of type calIItemBase, in order
    * to avoid the js-wrapping issues mentioned above.
    *
-   * @param aObject        first object to be compared
-   * @param aOtherObject   second object to be compared
-   * @param aIID           IID to use in comparison, undefined/null defaults to nsISupports
+   * @param {object} aObject - First object to be compared.
+   * @param {object} aOtherObject   second object to be compared
+   * @param {?nsIDPtr} [aIID=Ci.nsISupports] - IID to use in comparison.
+   *   undefined/null defaults to nsISupports
    */
   compareObjects(aObject, aOtherObject, aIID) {
     // xxx todo: seems to work fine, but I still mistrust this trickery...

@@ -273,7 +273,10 @@ document.addEventListener("dialogcancel", () => {
  * Fills the job queue from the invitations-listbox's items. The job queue
  * contains objects for all items that have a modified participation status.
  *
- * @param queue     The queue to fill.
+ * @param {object} queue - The queue to fill.
+ * @param {string} queue.action - Action, e.g. "modify".
+ * @param {calIItemBase} queue.oldItem
+ * @param {calIItemBase} queue.newItem
  */
 function fillJobQueue(queue) {
   const richListBox = document.getElementById("invitations-listbox");

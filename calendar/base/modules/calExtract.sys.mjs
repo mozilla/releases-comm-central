@@ -7,12 +7,11 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 /**
  * Initializes extraction
  *
- * @param fallbackLocale  locale to use when others are not found or
- *                            detection is disabled
- * @param dayStart        ambiguous hours earlier than this are considered to
- *                            be in the afternoon, when null then by default
- *                            set to 6
- * @param fixedLang       whether to use only fallbackLocale for extraction
+ * @param {string} fallbackLocale - Locale to use when others are not found or
+ *   detection is disabled.
+ * @param {integer|null} dayStart - Ambiguous hours earlier than this are
+ *   considered to be in the afternoon, when null then by default set to 6.
+ * @param {boolean} fixedLang - Whether to use only fallbackLocale for extraction.
  */
 export function Extractor(fallbackLocale, dayStart, fixedLang) {
   this.bundleUrl = "resource:///chrome/LOCALE/locale/LOCALE/calendar/calendar-extract.properties";
@@ -241,13 +240,13 @@ Extractor.prototype = {
   /**
    * Extracts dates, times and durations from email
    *
-   * @param body  email body
-   * @param now   reference time against which relative times are interpreted,
-   *                  when null current time is used
-   * @param sel   selection object of email content, when defined times
-   *                  outside selection are discarded
-   * @param title email title
-   * @returns sorted list of extracted datetime objects
+   * @param {string} title - Email title.
+   * @param {string} body - Email body.
+   * @param {?Date} now - Reference time against which relative times are
+   *   interpreted. When set to null, current time is used.
+   * @param {Selection} sel - Selection object of email content, when defined
+   *   times outside selection are discarded.
+   * @returns {object[]} sorted - List of extracted datetime objects.
    */
   extract(title, body, now, sel) {
     const initial = {};
@@ -899,8 +898,8 @@ Extractor.prototype = {
   /**
    * Guesses start time from list of guessed datetimes
    *
-   * @param isTask    whether start time should be guessed for task or event
-   * @returns datetime object for start time
+   * @param {boolean} isTask - Whether start time should be guessed for task or event.
+   * @returns {object} datetime object for start time.
    */
   guessStart(isTask) {
     const startTimes = this.collected.filter(val => val.relation == "start");
@@ -974,9 +973,10 @@ Extractor.prototype = {
   /**
    * Guesses end time from list of guessed datetimes relative to start time
    *
-   * @param start         start time to consider when guessing
-   * @param doGuessStart  whether start time should be guessed for task or event
-   * @returns datetime object for end time
+   * @param {Date} start - Start time to consider when guessing.
+   * @param {boolean} doGuessStart - Whether start time should be guessed for
+   *   task or event.
+   * @returns {object} datetime object for end time.
    */
   guessEnd(start, doGuessStart) {
     const guess = {};

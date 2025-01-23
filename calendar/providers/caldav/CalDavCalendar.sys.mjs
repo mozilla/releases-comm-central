@@ -525,7 +525,7 @@ CalDavCalendar.prototype = {
    * addItem()
    * we actually use doAdoptItem()
    *
-   * @param aItem       item to add
+   * @param {calIItemBase} aItem - Item to add.
    */
   async addItem(aItem) {
     return this.adoptItem(aItem);
@@ -539,7 +539,7 @@ CalDavCalendar.prototype = {
    * adoptItem()
    * we actually use doAdoptItem()
    *
-   * @param aItem       item to check
+   * @param {calIItemBase} aItem - Item to check.
    */
   async adoptItem(aItem) {
     const adoptCallback = this._cachedAdoptItemCallback;
@@ -561,9 +561,9 @@ CalDavCalendar.prototype = {
   /**
    * Performs the actual addition of the item to CalDAV store
    *
-   * @param aItem       item to add
-   * @param aListener   listener for method completion
-   * @param aIgnoreEtag flag to indicate ignoring of Etag
+   * @param {calIItemBase} aItem - Item to add
+   * @param {calIOperationListener} aListener - Listener for method completion
+   * @param {boolean} aIgnoreEtag - Flag to indicate ignoring of Etag.
    */
   doAdoptItem(aItem, aListener, aIgnoreEtag) {
     const notifyListener = (status, detail, pure = false) => {
@@ -661,7 +661,8 @@ CalDavCalendar.prototype = {
    * modifyItem(); required by calICalendar.idl
    * we actually use doModifyItem()
    *
-   * @param aItem       item to check
+   * @param {calIItemBase} aNewItem - New item.
+   * @param {calIItemBase} aOldItem - Old item.
    */
   async modifyItem(aNewItem, aOldItem) {
     const modifyCallback = this._cachedModifyItemCallback;
@@ -688,10 +689,10 @@ CalDavCalendar.prototype = {
   /**
    * Modifies existing item in CalDAV store.
    *
-   * @param aItem       item to check
-   * @param aOldItem    previous version of item to be modified
-   * @param aListener   listener from original request
-   * @param aIgnoreEtag ignore item etag
+   * @param {calIItemBase} aNewItem -  Item to check.
+   * @param {calIItemBase} aOldItem - Previous version of item to be modified
+   * @param {calIOperationListener} aListener - Listener from original request
+   * @param {boolean} aIgnoreEtag - Ignore item etag.
    */
   doModifyItem(aNewItem, aOldItem, aListener, aIgnoreEtag) {
     const notifyListener = (status, detail, pure = false) => {
@@ -779,8 +780,7 @@ CalDavCalendar.prototype = {
    * deleteItem(); required by calICalendar.idl
    * the actual deletion is done in doDeleteItem()
    *
-   * @param {calIItemBase} item The item to delete
-   *
+   * @param {calIItemBase} item - The item to delete.
    * @returns {Promise<void>}
    */
   async deleteItem(item) {
@@ -790,10 +790,10 @@ CalDavCalendar.prototype = {
   /**
    * Deletes item from CalDAV store.
    *
-   * @param {calIItemBase}  item       Item to delete.
-   * @param {boolean}       ignoreEtag Ignore item etag.
-   * @param {boolean}       fromInbox  Delete from inbox rather than calendar.
-   * @param {string}        uri        Uri of item to delete.
+   * @param {calIItemBase} item - Item to delete.
+   * @param {boolean} ignoreEtag - Ignore item etag.
+   * @param {boolean} fromInbox - Delete from inbox rather than calendar.
+   * @param {string} uri - URI of item to delete.
    *
    * @returns {Promise<void>}
    */
@@ -898,10 +898,11 @@ CalDavCalendar.prototype = {
   /**
    * Add an item to the target calendar
    *
-   * @param path      Item path MUST NOT BE ENCODED
-   * @param calData   iCalendar string representation of the item
-   * @param aUri      Base URI of the request
-   * @param aListener Listener
+   * @param {string} path - Item path MUST NOT BE ENCODED.
+   * @param {string} calData - iCalendar string representation of the item
+   * @param {nsIURI} aUri - Base URI of the request.
+   * @param {string} etag - Etag.
+   * @param {calIOperationListener} aListener - Listener.
    */
   async addTargetCalendarItem(path, calData, aUri, etag, aListener) {
     const parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
@@ -1036,9 +1037,9 @@ CalDavCalendar.prototype = {
   },
 
   /**
-   * Deletes an item from the target calendar
+   * Deletes an item from the target calendar.
    *
-   * @param path Path of the item to delete, must not be encoded
+   * @param {string} path - Path of the item to delete, must not be encoded.
    */
   async deleteTargetCalendarItem(path) {
     const foundItem = await this.mOfflineStorage.getItem(this.mHrefIndex[path]);
@@ -1058,9 +1059,8 @@ CalDavCalendar.prototype = {
    * Perform tasks required after updating items in the calendar such as
    * notifying the observers and listeners
    *
-   * @param aChangeLogListener    Change log listener
-   * @param calendarURI           URI of the calendar whose items just got
-   *                              changed
+   * @param {calIGenericOperationListener} aChangeLogListener - Change log listener.
+   * @param {nsIURI} calendarURI - URI of the calendar whose items just got changed.
    */
   finalizeUpdatedItems(aChangeLogListener, calendarURI) {
     cal.LOG(
@@ -1101,9 +1101,10 @@ CalDavCalendar.prototype = {
   /**
    * Notifies the caller that a get request has failed.
    *
-   * @param errorMsg           Error message
-   * @param aListener          (optional) Listener of the request
-   * @param aChangeLogListener (optional)Listener for cached calendars
+   * @param {string} errorMsg - Error message.
+   * @param {calIOperationListener} [aListener] - Listener of the request.
+   * @param {calIGenericOperationListener} [aChangeLogListener] - Listener for
+   *   cached calendars.
    */
   notifyGetFailed(errorMsg, aListener, aChangeLogListener) {
     cal.WARN("CalDAV: Get failed: " + errorMsg);
@@ -1126,8 +1127,10 @@ CalDavCalendar.prototype = {
    * Retrieves a specific item from the CalDAV store.
    * Use when an outdated copy of the item is in hand.
    *
-   * @param aItem       item to fetch
-   * @param aListener   listener for method completion
+   * @param {calIItemBase} aItem - Item to fetch.
+   * @param {calIOperationListener} [aListener] - Listener of the request.
+   * @param {calIGenericOperationListener} [aChangeLogListener] - Listener for
+   *   cached calendars.
    */
   getUpdatedItem(aItem, aListener, aChangeLogListener) {
     if (aItem == null) {
@@ -1161,10 +1164,13 @@ CalDavCalendar.prototype = {
     return this.mOfflineStorage.getItem(aId);
   },
 
-  // ReadableStream<calIItemBase> getItems(in unsigned long filter,
-  //                                       in unsigned long count,
-  //                                       in calIDateTime rangeStart,
-  //                                       in calIDateTime rangeEnd)
+  /**
+   * @param {integer} filter
+   * @param {integer} count
+   * @param {calIDateTime} rangeStart
+   * @param {calIDateTime} rangeEnd
+   * @returns {ReadableStream<calIItemBase>}
+   */
   getItems(filter, count, rangeStart, rangeEnd) {
     if (this.isCached) {
       if (this.mOfflineStorage) {
@@ -1356,13 +1362,13 @@ CalDavCalendar.prototype = {
   },
 
   /**
-   * Get updated items
+   * Get updated items.
    *
    * @param {nsIURI} aUri - The uri to request the items from.
    *                        NOTE: This must be the uri without any uri
    *                        params. They will be appended in this function.
-   * @param aChangeLogListener - (optional) The listener to notify for cached
-   *                             calendars.
+   * @param {calIGenericOperationListener} [aChangeLogListener] - Listener to
+   *   notify for cached calendars.
    */
   getUpdatedItems(aUri, aChangeLogListener) {
     if (this.mDisabledByDavError) {
@@ -1415,7 +1421,7 @@ CalDavCalendar.prototype = {
   },
 
   /**
-   * @see nsIInterfaceRequestor
+   * @see {nsIInterfaceRequestor}
    * @see calProviderUtils.sys.mjs
    */
   getInterface: cal.provider.InterfaceRequestor_getInterface,
@@ -1458,10 +1464,9 @@ CalDavCalendar.prototype = {
    * change the calendar's URI to the target URI of the redirect.
    *
    * @param {PropfindResponse} response - Response to handle. Typically a
-   *                                      PropfindResponse but could be any
-   *                                      subclass of CalDavResponseBase.
-   * @returns {boolean} True if the user accepted the redirect.
-   *                   False, if the calendar should be disabled.
+   *   PropfindResponse but could be any subclass of CalDavResponseBase.
+   * @returns {boolean} true if the user accepted the redirect;
+   *   false, if the calendar should be disabled.
    */
   openUriRedirectDialog(response) {
     const args = {
@@ -1498,6 +1503,8 @@ CalDavCalendar.prototype = {
    * findPrincipalNS
    * checkPrincipalsNameSpace
    * completeCheckServerInfo
+   *
+   * @param {calIGenericOperationListener} aChangeLogListener
    */
   checkDavResourceType(aChangeLogListener) {
     this.ensureTargetCalendar();
@@ -1667,6 +1674,8 @@ CalDavCalendar.prototype = {
    * findPrincipalNS
    * checkPrincipalsNameSpace
    * completeCheckServerInfo
+   *
+   * @param {calIGenericOperationListener} aChangeLogListener
    */
   checkServerCaps(aChangeLogListener, calHomeSetUrlRetry) {
     const request = new CalDavHeaderRequest(
@@ -1746,6 +1755,8 @@ CalDavCalendar.prototype = {
    * findPrincipalNS                              * You are here
    * checkPrincipalsNameSpace
    * completeCheckServerInfo
+   *
+   * @param {calIGenericOperationListener} aChangeLogListener
    */
   findPrincipalNS(aChangeLogListener) {
     if (this.principalUrl) {
@@ -1793,7 +1804,8 @@ CalDavCalendar.prototype = {
    * checkPrincipalsNameSpace                     * You are here
    * completeCheckServerInfo
    *
-   * @param aNameSpaceList    List of available namespaces
+   * @param {string[]} aNameSpaceList - List of available namespaces.
+   * @param {calIGenericOperationListener} aChangeLogListener
    */
   checkPrincipalsNameSpace(aNameSpaceList, aChangeLogListener) {
     const doesntSupportScheduling = () => {
@@ -1930,6 +1942,9 @@ CalDavCalendar.prototype = {
    * findPrincipalNS
    * checkPrincipalsNameSpace
    * completeCheckServerInfo                      * You are here
+   *
+   * @param {calIGenericOperationListener} aChangeLogListener
+   * @param {nsresult} [aError=Cr.NS_OK]
    */
   completeCheckServerInfo(aChangeLogListener, aError = Cr.NS_OK) {
     if (Components.isSuccessCode(aError)) {
@@ -2106,6 +2121,9 @@ CalDavCalendar.prototype = {
   /**
    * Extract the path from the full spec, if the regexp failed, log
    * warning and return unaltered path.
+   *
+   * @param {string} aSpec
+   * @returns {string}
    */
   extractPathFromSpec(aSpec) {
     // The parsed array should look like this:
@@ -2124,7 +2142,7 @@ CalDavCalendar.prototype = {
    * This is called to create an encoded path from a unencoded path OR
    * encoded full url
    *
-   * @param aString {string} un-encoded path OR encoded uri spec.
+   * @param {string} aString - An un-encoded path OR encoded uri spec.
    */
   ensureEncodedPath(aString) {
     if (aString.charAt(0) != "/") {
@@ -2138,8 +2156,8 @@ CalDavCalendar.prototype = {
   /**
    * This is called to get a decoded path from an encoded path or uri spec.
    *
-   * @param {string} aString - Represents either a path
-   *                           or a full uri that needs to be decoded.
+   * @param {string} aString - Represents either a path or a full uri that needs
+   *   to be decoded.
    * @returns {string} A decoded path.
    */
   ensureDecodedPath(aString) {
@@ -2169,7 +2187,6 @@ CalDavCalendar.prototype = {
 
   /**
    * Query contents of scheduling inbox
-   *
    */
   pollInbox() {
     // If polling the inbox was switched off, no need to poll the inbox.
@@ -2234,6 +2251,10 @@ CalDavCalendar.prototype = {
     );
   },
 
+  /**
+   * @param {"REPLY"|"REQUEST"|"CANCEL"|"ADD"} aMethod - Method as per RFC 6638.
+   * @returns {boolean}
+   */
   canNotify(aMethod) {
     // canNotify should return false if the imip transport should takes care of notifying cal
     // users
@@ -2244,7 +2265,7 @@ CalDavCalendar.prototype = {
       // we go with server's scheduling capabilities here - we take care for exceptions if
       // schedule agent is set to CLIENT in sendItems()
       switch (aMethod) {
-        // supported methods as per RfC 6638
+        // supported methods as per RFC 6638
         case "REPLY":
         case "REQUEST":
         case "CANCEL":

@@ -28,8 +28,8 @@ UIFontSize.registerWindow(window);
  * enabled again the lock gets removed, but the control only
  * gets enabled if *all* possibly held locks have been removed.
  *
- * @param elementId     The element ID of the element to disable.
- * @param lockId        The ID of the lock to set.
+ * @param {string} elementId - The element ID of the element to disable.
+ * @param {string} lockId - The ID of the lock to set.
  */
 function disableElementWithLock(elementId, lockId) {
   // unconditionally disable the element.
@@ -53,9 +53,9 @@ function disableElementWithLock(elementId, lockId) {
  * above defined function 'disableElementWithLock()'.
  * See the respective comment for further details.
  *
- * @see disableElementWithLock
- * @param elementId     The element ID of the element to enable.
- * @param lockId        The ID of the lock to set.
+ * @see {disableElementWithLock()}
+ * @param {string} elementId - The element ID of the element to enable.
+ * @param {string} lockId - The ID of the lock to set.
  */
 function enableElementWithLock(elementId, lockId) {
   const element = document.getElementById(elementId);
@@ -82,7 +82,7 @@ function enableElementWithLock(elementId, lockId) {
  * Sorts a sorted array of calendars by pref |calendar.list.sortOrder|.
  * Repairs that pref if dangling entries exist.
  *
- * @param calendars     An array of calendars to sort.
+ * @param {calICalendar[]} calendars - An array of calendars to sort.
  */
 function sortCalendarArray(calendars) {
   const ret = calendars.concat([]);
@@ -118,14 +118,14 @@ function sortCalendarArray(calendars) {
  * Fills up a menu - either a menupopup or a menulist - with menuitems that refer
  * to calendars.
  *
- * @param aItem                 The event or task
- * @param aCalendarMenuParent   The direct parent of the menuitems - either a
- *                                menupopup or a menulist
- * @param aCalendarToUse        The default-calendar
- * @param aOnCommand            A string that is applied to the "oncommand"
- *                                attribute of each menuitem
- * @returns The index of the calendar that matches the
- *                                default-calendar. By default 0 is returned.
+ * @param {calIItemBase} aItem - The event or task.
+ * @param {Element} aCalendarMenuParent - The direct parent of the menuitems.
+ *   Either a menupopup or a menulist.
+ * @param {calICalendar} aCalendarToUse - The default-calendar.
+ * @param {string} aOnCommand - A string that is applied to the "oncommand"
+ *   attribute of each menuitem
+ * @returns {integer} The index of the calendar that matches the
+ *   default-calendar. By default 0 is returned.
  */
 function appendCalendarItems(aItem, aCalendarMenuParent, aCalendarToUse, aOnCommand) {
   const calendarToUse = aCalendarToUse || aItem.calendar;
@@ -162,11 +162,11 @@ function appendCalendarItems(aItem, aCalendarMenuParent, aCalendarToUse, aOnComm
 /**
  * Helper function to add a menuitem to a menulist or similar.
  *
- * @param aParent     The XUL node to add the menuitem to.
- * @param aLabel      The label string of the menuitem.
- * @param aValue      The value attribute of the menuitem.
- * @param aCommand    The oncommand attribute of the menuitem.
- * @returns The newly created menuitem
+ * @param {Element} aParent - The node to add the menuitem to.
+ * @param {string} aLabel - The label string of the menuitem.
+ * @param {string} aValue - The value attribute of the menuitem.
+ * @param {string} aCommand - The oncommand attribute of the menuitem.
+ * @returns {Element} The newly created menuitem.
  */
 function addMenuItem(aParent, aLabel, aValue, aCommand) {
   let item = null;
@@ -190,9 +190,9 @@ function addMenuItem(aParent, aLabel, aValue, aCommand) {
 /**
  * Update the given unit label to show the correct plural form.
  *
- * @param aLengthFieldId     The ID of the element containing the number
- * @param aLabelId           The ID of the label to update.
- * @param aUnit              The unit to use for the label.
+ * @param {string} aLengthFieldId - The ID of the element containing the number.
+ * @param {string} aLabelId - The ID of the label to update.
+ * @param {string} aUnit - The unit to use for the label.
  */
 function updateUnitLabelPlural(aLengthFieldId, aLabelId, aUnit) {
   const label = document.getElementById(aLabelId);
@@ -208,8 +208,8 @@ function updateUnitLabelPlural(aLengthFieldId, aLabelId, aUnit) {
 /**
  * Update the given menu to show the correct plural form in the list.
  *
- * @param aLengthFieldId    The ID of the element containing the number
- * @param aMenuId           The menu to update labels in.
+ * @param {string} aLengthFieldId - The ID of the element containing the number.
+ * @param {string} aMenuId - The menu to update labels in.
  */
 function updateMenuLabelsPlural(aLengthFieldId, aMenuId) {
   const menu = document.getElementById(aMenuId);
@@ -235,10 +235,10 @@ function updateMenuLabelsPlural(aLengthFieldId, aMenuId) {
  * see also
  * http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSSview-getComputedStyle
  *
- * @param aXULElement   The xul element to be inspected.
- * @param aStyleProps   The css style properties for which values are to be retrieved
- *                        e.g. 'font-size', 'min-width" etc.
- * @returns An integer value denoting the optimal minimum width
+ * @param {Elemen} aXULElement - The element to be inspected.
+ * @param {string[]} aStyleProps - The css style properties for which values
+ *   are to be retrieved, e.g. 'font-size', 'min-width" etc.
+ * @returns {integer} An integer value denoting the optimal minimum width.
  */
 function getSummarizedStyleValues(aXULElement, aStyleProps) {
   let retValue = 0;
@@ -254,8 +254,8 @@ function getSummarizedStyleValues(aXULElement, aStyleProps) {
  * by considering the css rules for the min-width, padding, border, margin
  * and border of the box.
  *
- * @param aXULElement   The xul element to be inspected.
- * @returns An integer value denoting the optimal minimum width
+ * @param {Element} aXULElement - The element to be inspected.
+ * @returns {integer} An integer value denoting the optimal minimum width.
  */
 function getOptimalMinimumWidth(aXULElement) {
   return getSummarizedStyleValues(aXULElement, [
@@ -275,8 +275,8 @@ function getOptimalMinimumWidth(aXULElement) {
  * and border of the box. In its current state the line-height is considered
  * by assuming that it's size is about one third of the size of the font-size
  *
- * @param aXULElement   The xul-element to be inspected.
- * @returns An integer value denoting the optimal minimum height
+ * @param {Element} aXULElement -  The element to be inspected.
+ * @returns {integer} An integer value denoting the optimal minimum height.
  */
 function getOptimalMinimumHeight(aXULElement) {
   // the following line of code presumes that the line-height is set to "normal"
@@ -296,10 +296,10 @@ function getOptimalMinimumHeight(aXULElement) {
 /**
  * Sets up the attendance context menu, based on the given items
  *
- * @param {Node}  aMenu   The context menu item containing the required
- *                          menu or menuitem elements
- * @param {Array} aItems - An array of the selected calEvent or calTodo
- *                          items to display the context menu for
+ * @param {Node} aMenu   The context menu item containing the required
+ *   menu or menuitem elements
+ * @param {calIItemBase[]} aItems - An array of the selected calEvent or calTodo
+ *   items to display the context menu for.
  */
 function setupAttendanceMenu(aMenu, aItems) {
   /**
@@ -459,9 +459,8 @@ function setupAttendanceMenu(aMenu, aItems) {
    * Hides the items from the provided node list. If a partstat is provided,
    * only the matching item will be hidden
    *
-   * @param {NodeList}  aMenuItems    A list of DOM nodes
-   * @param {string}    aPartStat     [optional] A valid participation
-   *                                    status as per RfC 5545
+   * @param {NodeList} aNodeList - A list of DOM nodes.
+   * @param {string} [aPartStat] A valid participation status as per RFC 5545.
    */
   function hideItems(aNodeList, aPartStat = null) {
     for (const item of aNodeList) {
@@ -475,10 +474,9 @@ function setupAttendanceMenu(aMenu, aItems) {
   /**
    * Provides the user's participation status for a provided item
    *
-   * @param   {calEvent|calTodo}  aItem  The calendar item to inspect
-   * @returns {?string} The participation status string
-   *                                       as per RfC 5545 or null if no
-   *                                       participant was detected
+   * @param {calEvent|calTodo}  aItem - The calendar item to inspect
+   * @returns {?string} The participation status string as per RFC 5545 or null
+   *   if no participant was detected.
    */
   function getInvitationStatus(aItem) {
     let party = null;

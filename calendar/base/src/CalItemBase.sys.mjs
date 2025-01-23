@@ -35,8 +35,8 @@ XPCOMUtils.defineLazyServiceGetter(
 /**
  * calItemBase prototype definition
  *
- * @implements calIItemBase
  * @class
+ * @implements {calIItemBase}
  */
 export function calItemBase() {
   cal.ASSERT(false, "Inheriting objects call initItemBase()!");
@@ -161,12 +161,11 @@ calItemBase.prototype = {
    * Initializes the base item to be an item proxy. Used by inheriting
    * objects createProxy() method.
    *
-   * XXXdbo Explain proxy a bit better, either here or in
-   * calIInternalShallowCopy.
+   * TODO: Explain proxy a bit better, either here or in calIInternalShallowCopy.
    *
-   * @see calIInternalShallowCopy
-   * @param aParentItem     The parent item to initialize the proxy on.
-   * @param aRecurrenceId   The recurrence id to initialize the proxy for.
+   * @see {calIInternalShallowCopy()}
+   * @param {calIItemBase} aParentItem - The parent item to initialize the proxy on.
+   * @param {string} aRecurrenceId - The recurrence id to initialize the proxy for.
    */
   initializeProxy(aParentItem, aRecurrenceId) {
     this.mIsProxy = true;
@@ -290,8 +289,9 @@ calItemBase.prototype = {
    * Clones the base item's properties into the passed object, potentially
    * setting a new parent item.
    *
-   * @param m     The item to clone this item into
-   * @param aNewParent    (optional) The new parent item to set on m.
+   * @param {calIItemBase} cloned -The item to clone this item into
+   * @param {calIItemBase} [aNewParent] The new parent item to set on `cloned`.
+   * @returns {calIItemBase}
    */
   cloneItemBaseInto(cloned, aNewParent) {
     cloned.mImmutable = false;
@@ -845,8 +845,8 @@ calItemBase.prototype = {
    * Walks through the propmap and sets all properties on this item from the
    * given icalcomp.
    *
-   * @param icalcomp      The calIIcalComponent to read from.
-   * @param propmap       The property map to walk through.
+   * @param {calIIcalComponent} icalcomp - The calIIcalComponent to read from.
+   * @param {object} propmap - The property map to walk through.
    */
   mapPropsFromICS(icalcomp, propmap) {
     for (let i = 0; i < propmap.length; i++) {
@@ -863,8 +863,8 @@ calItemBase.prototype = {
    * from the properties set on this item.
    * given icalcomp.
    *
-   * @param icalcomp      The calIIcalComponent to write to.
-   * @param propmap       The property map to walk through.
+   * @param {calIIcalComponent} icalcomp - The calIIcalComponent to write to.
+   * @param {object} propmap - The property map to walk through.
    */
   mapPropsToICS(icalcomp, propmap) {
     for (let i = 0; i < propmap.length; i++) {
@@ -880,7 +880,7 @@ calItemBase.prototype = {
    * Reads an ical component and sets up the base item's properties to match
    * it.
    *
-   * @param icalcomp      The ical component to read.
+   * @param {calIIcalComponent} icalcomp - The ical component to read.
    */
   setItemBaseFromICS(icalcomp) {
     this.modify();
@@ -986,8 +986,8 @@ calItemBase.prototype = {
    * Import all properties not in the promoted map into this item's extended
    * properties bag.
    *
-   * @param icalcomp      The ical component to read.
-   * @param promoted      The map of promoted properties.
+   * @param {calIIcalComponent} icalcomp - The ical component to read.
+   * @param {object} promoted - The map of promoted properties.
    */
   importUnpromotedProperties(icalcomp, promoted) {
     for (const prop of cal.iterate.icalProperty(icalcomp)) {
@@ -1029,7 +1029,7 @@ calItemBase.prototype = {
   /**
    * Fills the passed ical component with the base item's properties.
    *
-   * @param icalcomp    The ical component to write to.
+   * @param {calIIcalComponent} icalcomp - The ical component to write to.
    */
   fillIcalComponentFromBase(icalcomp) {
     this.ensureNotDirty();
@@ -1095,9 +1095,9 @@ calItemBase.prototype = {
    * Adds an alarm. The second parameter is for internal use only, i.e not
    * provided on the interface.
    *
-   * @see calIItemBase
-   * @param aDoNotValidate    Don't serialize the component to check for
-   *                            errors.
+   * @param {calIAlarm} aAlarm - Alarm to add.
+   * @param {boolean} aDoNotValidate - Don't serialize the component to check
+   *   for errors.
    */
   addAlarm(aAlarm, aDoNotValidate) {
     if (!aDoNotValidate) {
