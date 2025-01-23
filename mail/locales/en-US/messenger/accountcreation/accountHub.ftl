@@ -160,9 +160,13 @@ account-hub-result-ews-shortname = Exchange
 
 account-hub-result-ews-description = Use Microsoft Exchange Web Services to sync your folders and emails
 
+account-hub-result-exchange-description = Sync folders & emails with Exchange or Office 365
+
 account-hub-result-ews-text = Server
 
 account-hub-result-recommended-label = Recommended
+
+account-hub-result-addon-label = Requires Add-on
 
 account-hub-edit-configuration = Edit configuration
 
@@ -213,3 +217,5 @@ account-hub-username-error-text = Username is required
     .title = Username is required
 
 account-hub-oauth-pending = Waiting for authorization in login popup…
+
+account-hub-addon-needed = { -brand-full-name } doesn’t natively support this server. To access Exchange email, <a data-l10n-name="addon-install"> install a third-party add-on like Owl (paid).</a>

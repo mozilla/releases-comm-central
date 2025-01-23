@@ -190,3 +190,59 @@ add_task(async function testFindConfigExchange() {
     "mailnews.auto_config.fetchFromExchange.enabled"
   );
 });
+
+add_task(function testEWSifyConfig() {
+  Services.prefs.setBoolPref(
+    "mailnews.auto_config.fetchFromExchange.enabled",
+    true
+  );
+
+  const exchangeConfig = {
+    incoming: {},
+    incomingAlternatives: [
+      {
+        type: "exchange",
+        hostname: "outlook.office365.com",
+        useGlobalPreferredServer: false,
+        oauthSettings: {
+          issuer: "outlook.office365.com",
+          scope: "https://outlook.office365.com/owa/exchange.test/",
+        },
+        handlesOutgoing: false,
+      },
+    ],
+  };
+
+  FindConfig.ewsifyConfig(exchangeConfig);
+  const ewsConfigAlternative = [
+    exchangeConfig.incoming,
+    ...exchangeConfig.incomingAlternatives,
+  ].find(({ type }) => type === "ews");
+
+  Assert.ok(
+    !ewsConfigAlternative.useGlobalPreferredServer,
+    "useGlobalPreferredServer should be false for ews config."
+  );
+
+  Assert.ok(
+    ewsConfigAlternative.handlesOutgoing,
+    "handlesOutgoing should be true for ews config."
+  );
+
+  Assert.equals(
+    ewsConfigAlternative.oauthSettings.issuer,
+    "login.microsoftonline.com",
+    "EWS oauthsettings issuer should be updated."
+  );
+
+  Assert.ok(
+    ewsConfigAlternative.oauthSettings.scope.includes(
+      "https://outlook.office.com/EWS.AccessAsUser.All"
+    ),
+    "EWS oauthsettings scope should include EWS.AccessAsUser.All"
+  );
+
+  Services.prefs.clearUserPref(
+    "mailnews.auto_config.fetchFromExchange.enabled"
+  );
+});
