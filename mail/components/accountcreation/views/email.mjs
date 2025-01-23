@@ -20,8 +20,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CreateInBackend:
     "resource:///modules/accountcreation/CreateInBackend.sys.mjs",
   ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.sys.mjs",
-  ExchangeAutoDiscover:
-    "resource:///modules/accountcreation/ExchangeAutoDiscover.sys.mjs",
   FindConfig: "resource:///modules/accountcreation/FindConfig.sys.mjs",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
@@ -597,13 +595,6 @@ class AccountHubEmail extends HTMLElement {
             break;
           }
           this.#currentConfig = this.#fillAccountConfig(config);
-
-          if (
-            Services.prefs.getBoolPref("experimental.mail.ews.enabled", true)
-          ) {
-            lazy.FindConfig.ewsifyConfig(this.#currentConfig);
-          }
-
           await this.#initUI(this.#states[this.#currentState].nextStep);
           this.#stopLoading();
           this.#states.incomingConfigSubview.previousStep =
@@ -877,17 +868,6 @@ class AccountHubEmail extends HTMLElement {
       }
     }
 
-    if (config) {
-      try {
-        config = await this.#getExchangeAddons(config);
-      } catch (error) {
-        if (error instanceof UserCancelledException) {
-          throw error;
-        }
-      }
-    }
-
-    this.abortable = null;
     return config;
   }
 
@@ -922,6 +902,7 @@ class AccountHubEmail extends HTMLElement {
       },
       error => {
         gAccountSetupLogger.warn(`guessConfig failed: ${error}`);
+
         reject(error);
         this.abortable = null;
       },
@@ -1238,31 +1219,6 @@ class AccountHubEmail extends HTMLElement {
     for (const addressBook of syncAccounts.addressBooks) {
       addressBook.create();
     }
-  }
-
-  /**
-   * Add the applicable exchange add-on options to the config object.
-   *
-   * @param {AccountConfig} config - Account Config object.
-   * @returns {Promise} - A promise waiting for getAddonsList to complete.
-   */
-  async #getExchangeAddons(config) {
-    const { promise, resolve, reject } = Promise.withResolvers();
-
-    this.abortable = lazy.ExchangeAutoDiscover.getAddonsList(
-      config,
-      () => {
-        resolve(config);
-      },
-      error => {
-        // We reject here, but this will silently fail as we don't need to
-        // show the user if we were unable to find add-ons for the conifg.
-        gAccountSetupLogger.warn(`getExchangeAddons failed: ${error}`);
-        reject(error);
-      }
-    );
-
-    return promise;
   }
 
   /**
