@@ -37,6 +37,7 @@ void nsCopySource::AddMessage(nsIMsgDBHdr* aMsg) {
 nsCopyRequest::nsCopyRequest()
     : m_requestType(nsCopyMessagesType),
       m_isMoveOrDraftOrTemplate(false),
+      m_allowUndo(false),
       m_processed(false),
       m_newMsgFlags(0) {
   MOZ_COUNT_CTOR(nsCopyRequest);
