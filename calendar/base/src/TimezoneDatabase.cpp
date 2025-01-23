@@ -89,7 +89,9 @@ TimezoneDatabase::GetTimezoneDefinition(const nsACString& tzid,
   if (icuTimezone->hasSameRules(icu::TimeZone::getUnknown()) &&
       !tzid.Equals("Etc/Unknown")) {
     icu::UnicodeString actualTzid;
-    icu::TimeZone::createTimeZone(icuTzid)->getID(actualTzid);
+    icu::TimeZone* tz = icu::TimeZone::createTimeZone(icuTzid);
+    tz->getID(actualTzid);
+    delete tz;
 
     if (actualTzid == UNICODE_STRING("Etc/Unknown", 11)) {
       return NS_OK;
