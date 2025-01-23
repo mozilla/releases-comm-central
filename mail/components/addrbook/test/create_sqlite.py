@@ -8,8 +8,8 @@ import sqlite3
 
 def main(output, source):
     output.close()
-    with open(os.path.abspath(source), "r") as fp:
-        script = fp.read()
+    with open(os.path.abspath(source), "rb") as fp:
+        script = fp.read().decode()
 
     connection = sqlite3.connect(os.path.abspath(output.name))
     connection.executescript(script)
