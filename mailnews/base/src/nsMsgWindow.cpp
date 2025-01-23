@@ -137,17 +137,6 @@ NS_IMETHODIMP nsMsgWindow::SetTransactionManager(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetOpenFolder(nsIMsgFolder** aOpenFolder) {
-  NS_ENSURE_ARG_POINTER(aOpenFolder);
-  NS_IF_ADDREF(*aOpenFolder = mOpenFolder);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetOpenFolder(nsIMsgFolder* aOpenFolder) {
-  mOpenFolder = aOpenFolder;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgWindow::GetRootDocShell(nsIDocShell** aDocShell) {
   if (mRootDocShellWeak)
     CallQueryReferent(mRootDocShellWeak.get(), aDocShell);

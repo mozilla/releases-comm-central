@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * Tests imap msg header download chunking
  */
 
@@ -74,7 +74,6 @@ add_setup(async function () {
   setupIMAPPump();
   // We need to register the dummyMsgWindow so that we'll think the
   //  Inbox is open in a folder and fetch headers in chunks.
-  dummyMsgWindow.openFolder = IMAPPump.inbox;
   MailServices.mailSession.AddMsgWindow(dummyMsgWindow);
   MailServices.mailSession.AddFolderListener(
     gFolderListener,

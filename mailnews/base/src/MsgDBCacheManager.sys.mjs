@@ -6,21 +6,13 @@
  * Message DB Cache manager
  */
 
-/* :::::::: Constants and Helpers ::::::::::::::: */
-
-import { MailServices } from "resource:///modules/MailServices.sys.mjs";
-
 var log = console.createInstance({
   prefix: "mailnews.database.dbcache",
   maxLogLevel: "Warn",
   maxLogLevelPref: "mailnews.database.dbcache.loglevel",
 });
 
-/**
- */
 var DBCACHE_INTERVAL_DEFAULT_MS = 60000; // 1 minute
-
-/* :::::::: The Module ::::::::::::::: */
 
 export var msgDBCacheManager = {
   _initialized: false,
@@ -122,21 +114,12 @@ export var msgDBCacheManager = {
     );
     // Count databases that are already closed or get closed now due to inactivity.
     let numClosing = 0;
-    // Count databases whose folder is open in a window.
-    let numOpenInWindow = 0;
     const dbs = [];
     for (const db of cachedDBs) {
       if (!db.folder?.databaseOpen) {
         // The DB isn't really open anymore.
         log.debug("Skipping, DB not open for folder: " + db.folder?.name);
         numClosing++;
-        continue;
-      }
-
-      if (MailServices.mailSession.IsFolderOpenInWindow(db.folder)) {
-        // The folder is open in a window so this DB must not be closed.
-        log.debug("Skipping, DB open in window for folder: " + db.folder.name);
-        numOpenInWindow++;
         continue;
       }
 
@@ -151,18 +134,8 @@ export var msgDBCacheManager = {
       // Database eligible for closing.
       dbs.push(db);
     }
-    log.info(
-      "DBs open in a window: " +
-        numOpenInWindow +
-        ", DBs open: " +
-        dbs.length +
-        ", DBs already closing: " +
-        numClosing
-    );
-    let dbsToClose = Math.max(
-      dbs.length - Math.max(maxOpenDBs - numOpenInWindow, 0),
-      0
-    );
+    log.info(`DBs open: ${dbs.length}, DBs already closing: ${numClosing}`);
+    let dbsToClose = Math.max(dbs.length - Math.max(maxOpenDBs, 0), 0);
     if (dbsToClose > 0) {
       // Close some DBs so that we do not have more than maxOpenDBs.
       // However, we skipped DBs for folders that are open in a window

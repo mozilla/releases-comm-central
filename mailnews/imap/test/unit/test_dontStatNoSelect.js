@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// This file tests that checking folders for new mail with STATUS
-// doesn't try to STAT noselect folders.
+/**
+ * Tests that checking folders for new mail with STATUS
+ * doesn't try to STAT noselect folders.
+ */
 
 var gServer, gImapServer;
 var gIMAPInbox;

@@ -542,19 +542,15 @@ NS_IMETHODIMP nsAutoSyncState::SetState(int32_t aState) {
     ResetDownloadQ();
     // tell folder to let go of its cached msg db pointer
     nsresult rv;
-    nsCOMPtr<nsIMsgMailSession> session =
-        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-    if (NS_SUCCEEDED(rv) && session) {
-      nsCOMPtr<nsIMsgFolder> ownerFolder = do_QueryReferent(mOwnerFolder, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIMsgFolder> ownerFolder = do_QueryReferent(mOwnerFolder, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-      bool folderOpen;
-      uint32_t folderFlags;
-      ownerFolder->GetFlags(&folderFlags);
-      session->IsFolderOpenInWindow(ownerFolder, &folderOpen);
-      if (!folderOpen && !(folderFlags & nsMsgFolderFlags::Inbox))
-        ownerFolder->SetMsgDatabase(nullptr);
-    }
+    bool folderOpen;
+    ownerFolder->GetDatabaseOpen(&folderOpen);
+    uint32_t folderFlags;
+    ownerFolder->GetFlags(&folderFlags);
+    if (!folderOpen && !(folderFlags & nsMsgFolderFlags::Inbox))
+      ownerFolder->SetMsgDatabase(nullptr);
   }
   nsCString logStr("Sync State set to |");
   logStr.Append(stateStrings[aState]);

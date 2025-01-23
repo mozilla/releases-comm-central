@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * Tests imap save and detach attachments.
  */
 
@@ -38,40 +38,8 @@ SaveAttachmentCallback.prototype = {
 };
 var gCallbackObject = new SaveAttachmentCallback();
 
-// Dummy message window so we can say the inbox is open in a window.
-var dummyMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-
-function MsgsDeletedListener() {
-  this._promise = new Promise(resolve => (this._resolve = resolve));
-}
-MsgsDeletedListener.prototype = {
-  msgsDeleted() {
-    this._resolve();
-  },
-  get promise() {
-    return this._promise;
-  },
-};
-var trackDeletionMessageListener = new MsgsDeletedListener();
-
 add_setup(function () {
   setupIMAPPump();
-
-  // Add folder listeners that will capture async events
-  MailServices.mfn.addListener(
-    trackDeletionMessageListener,
-    Ci.nsIMsgFolderNotificationService.msgsDeleted
-  );
-
-  // We need to register the dummyMsgWindow so that when we've finished running
-  // the append url, in nsImapMailFolder::OnStopRunningUrl, we'll think the
-  // Inbox is open in a folder and update it, which the detach code relies
-  // on to finish the detach.
-
-  dummyMsgWindow.openFolder = IMAPPump.inbox;
-  MailServices.mailSession.AddMsgWindow(dummyMsgWindow);
 });
 
 // load and update a message in the imap fake server
@@ -119,20 +87,19 @@ add_task(async function startDetach() {
   );
   const attachment = gCallbackObject.attachments[0];
 
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   messenger.detachAttachmentsWOPrompts(
     do_get_profile(),
     [attachment.contentType],
     [attachment.url],
     [attachment.name],
     [msgURI],
-    null
+    listener
   );
-  // deletion of original message should kick async_driver.
-  await trackDeletionMessageListener.promise;
-});
+  await listener.promise;
 
-// test that the detachment was successful
-add_task(async function testDetach() {
+  // Now test that the detachment was successful.
+
   // Check that the file attached to the message now exists in the profile
   // directory.
   const checkFile = do_get_profile().clone();
@@ -143,9 +110,9 @@ add_task(async function testDetach() {
   //  and search for "AttachmentDetached" which is added on detachment.
 
   // Get the message header - detached copy has UID 2.
-  const msgHdr = IMAPPump.inbox.GetMessageHeader(2);
-  Assert.ok(msgHdr !== null);
-  const messageContent = await getContentFromMessage(msgHdr);
+  const msgHdr2 = IMAPPump.inbox.GetMessageHeader(2);
+  Assert.ok(msgHdr2 !== null);
+  const messageContent = await getContentFromMessage(msgHdr2);
   Assert.ok(messageContent.includes("AttachmentDetached"));
 });
 

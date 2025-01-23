@@ -15,9 +15,11 @@ var { MessageGenerator } = ChromeUtils.importESModule(
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
-
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
+);
+var { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
 );
 
 var gEmptyLocal1, gEmptyLocal2;
@@ -167,6 +169,7 @@ add_task(async function update1() {
   const listener = new PromiseTestUtils.PromiseUrlListener();
   folder1.updateFolderWithListener(null, listener);
   await listener.promise;
+  await new Promise(resolve => setTimeout(resolve, 1000));
 });
 
 add_task(async function update2() {

@@ -8,7 +8,6 @@
 const { FeedUtils } = ChromeUtils.importESModule(
   "resource:///modules/FeedUtils.sys.mjs"
 );
-
 const { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
 );
@@ -18,7 +17,6 @@ const { MailServices } = ChromeUtils.importESModule(
 const { MailTelemetryForTests } = ChromeUtils.importESModule(
   "resource:///modules/MailGlue.sys.mjs"
 );
-
 const { add_message_to_folder, msgGen, get_special_folder, create_folder } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
@@ -107,13 +105,36 @@ add_task(async function test_account_sizes() {
     false
   );
   const other = await create_folder("TestAccountSize");
+  registerCleanupFunction(async () => {
+    await new Promise(resolve => {
+      inbox.deleteMessages(
+        [...inbox.messages],
+        null,
+        true,
+        false,
+        { onStopCopy: resolve },
+        false
+      );
+    });
+    other.deleteSelf(null);
+  });
 
+  Assert.equal(
+    inbox.getTotalMessages(true),
+    0,
+    "inbox should start with 0 msgs"
+  );
   let expectInboxSize = 0;
   for (let i = 0; i < NUM_INBOX; i++) {
     const synMsg = msgGen.makeMessage({ body: { body: `test inbox ${i}` } });
     expectInboxSize += synMsg.toMessageString().length;
     await add_message_to_folder([inbox], synMsg);
   }
+  Assert.equal(
+    other.getTotalMessages(true),
+    0,
+    "other should start with 0 msgs"
+  );
   let expectOtherSize = 0;
   for (let i = 0; i < NUM_OTHER; i++) {
     const synMsg = msgGen.makeMessage({ body: { body: `test other ${i}` } });

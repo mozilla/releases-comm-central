@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
- * tests message moves with filter and quarantine enabled per bug 582918.
+/**
+ * Tests message moves with filter and quarantine enabled per bug 582918.
  * It then tests that subsequent moves of the filtered messages work.
  *
  * adapted from test_copyThenMoveManual.js
@@ -24,105 +24,95 @@ var gFiles = ["../../../data/bugmail1", "../../../data/bugmail10"];
 var gMoveFolder, gMoveFolder2;
 var gFilter; // the test filter
 var gFilterList;
-var gTestArray = [
-  function createFilters() {
-    gFilterList = gPOP3Pump.fakeServer.getFilterList(null);
-    gFilter = gFilterList.createFilter("MoveAll");
-    const searchTerm = gFilter.createTerm();
-    searchTerm.matchAll = true;
-    gFilter.appendTerm(searchTerm);
-    const moveAction = gFilter.createAction();
-    moveAction.type = Ci.nsMsgFilterAction.MoveToFolder;
-    moveAction.targetFolderUri = gMoveFolder.URI;
-    gFilter.appendAction(moveAction);
-    gFilter.enabled = true;
-    gFilter.filterType = Ci.nsMsgFilterType.InboxRule;
-    gFilterList.insertFilterAt(0, gFilter);
-  },
-  // just get a message into the local folder
-  async function getLocalMessages1() {
-    gPOP3Pump.files = gFiles;
-    const promise1 = PromiseTestUtils.promiseFolderNotification(
-      gMoveFolder,
-      "msgsClassified"
-    );
-    const promise2 = gPOP3Pump.run();
-    await Promise.all([promise1, promise2]);
-  },
-  async function verifyFolders1() {
-    Assert.equal(folderCount(gMoveFolder), 2);
-    // the local inbox folder should now be empty, since the second
-    // operation was a move
-    Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
+add_task(async function createFilters() {
+  gFilterList = gPOP3Pump.fakeServer.getFilterList(null);
+  gFilter = gFilterList.createFilter("MoveAll");
+  const searchTerm = gFilter.createTerm();
+  searchTerm.matchAll = true;
+  gFilter.appendTerm(searchTerm);
+  const moveAction = gFilter.createAction();
+  moveAction.type = Ci.nsMsgFilterAction.MoveToFolder;
+  moveAction.targetFolderUri = gMoveFolder.URI;
+  gFilter.appendAction(moveAction);
+  gFilter.enabled = true;
+  gFilter.filterType = Ci.nsMsgFilterType.InboxRule;
+  gFilterList.insertFilterAt(0, gFilter);
+});
 
-    const msgs = [...gMoveFolder.msgDatabase.enumerateMessages()];
-    const firstMsgHdr = msgs[0];
-    const secondMsgHdr = msgs[1];
-    // Check that the messages have content
-    let messageContent = await getContentFromMessage(firstMsgHdr);
-    Assert.ok(
-      messageContent.includes("Some User <bugmail@example.org> changed")
-    );
-    messageContent = await getContentFromMessage(secondMsgHdr);
-    Assert.ok(
-      messageContent.includes(
-        "https://bugzilla.mozilla.org/show_bug.cgi?id=436880"
-      )
-    );
-  },
-  async function copyMovedMessages() {
-    const msgs = [...gMoveFolder.msgDatabase.enumerateMessages()];
-    const firstMsgHdr = msgs[0];
-    const secondMsgHdr = msgs[1];
-    const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-    MailServices.copy.copyMessages(
-      gMoveFolder,
-      [firstMsgHdr, secondMsgHdr],
-      gMoveFolder2,
-      false,
-      promiseCopyListener,
-      null,
-      false
-    );
-    const promiseMoveMsg = PromiseTestUtils.promiseFolderEvent(
-      gMoveFolder,
-      "DeleteOrMoveMsgCompleted"
-    );
-    await Promise.all([promiseCopyListener.promise, promiseMoveMsg]);
-  },
-  async function verifyFolders2() {
-    Assert.equal(folderCount(gMoveFolder2), 2);
+// just get a message into the local folder
+add_task(async function getLocalMessages1() {
+  gPOP3Pump.files = gFiles;
+  const promise1 = PromiseTestUtils.promiseFolderNotification(
+    gMoveFolder,
+    "msgsClassified"
+  );
+  const promise2 = gPOP3Pump.run();
+  await Promise.all([promise1, promise2]);
+});
 
-    const msgs = [...gMoveFolder2.msgDatabase.enumerateMessages()];
-    const firstMsgHdr = msgs[0];
-    const secondMsgHdr = msgs[1];
-    // Check that the messages have content
-    let messageContent = await getContentFromMessage(firstMsgHdr);
-    Assert.ok(
-      messageContent.includes("Some User <bugmail@example.org> changed")
-    );
-    messageContent = await getContentFromMessage(secondMsgHdr);
-    Assert.ok(
-      messageContent.includes(
-        "https://bugzilla.mozilla.org/show_bug.cgi?id=436880"
-      )
-    );
-  },
-  function endTest() {
-    dump("Exiting mail tests\n");
-    gPOP3Pump = null;
-  },
-];
+add_task(async function verifyFolders1() {
+  Assert.equal(folderCount(gMoveFolder), 2);
+  // the local inbox folder should now be empty, since the second
+  // operation was a move
+  Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
+
+  const msgs = [...gMoveFolder.msgDatabase.enumerateMessages()];
+  const firstMsgHdr = msgs[0];
+  const secondMsgHdr = msgs[1];
+  // Check that the messages have content
+  let messageContent = await getContentFromMessage(firstMsgHdr);
+  Assert.ok(messageContent.includes("Some User <bugmail@example.org> changed"));
+  messageContent = await getContentFromMessage(secondMsgHdr);
+  Assert.ok(
+    messageContent.includes(
+      "https://bugzilla.mozilla.org/show_bug.cgi?id=436880"
+    )
+  );
+});
+
+add_task(async function copyMovedMessages() {
+  const msgs = [...gMoveFolder.msgDatabase.enumerateMessages()];
+  const firstMsgHdr = msgs[0];
+  const secondMsgHdr = msgs[1];
+  const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyMessages(
+    gMoveFolder,
+    [firstMsgHdr, secondMsgHdr],
+    gMoveFolder2,
+    false,
+    promiseCopyListener,
+    null,
+    false
+  );
+  const promiseMoveMsg = PromiseTestUtils.promiseFolderEvent(
+    gMoveFolder,
+    "DeleteOrMoveMsgCompleted"
+  );
+  await Promise.all([promiseCopyListener.promise, promiseMoveMsg]);
+});
+
+add_task(async function verifyFolders2() {
+  Assert.equal(folderCount(gMoveFolder2), 2);
+
+  const msgs = [...gMoveFolder2.msgDatabase.enumerateMessages()];
+  const firstMsgHdr = msgs[0];
+  const secondMsgHdr = msgs[1];
+  // Check that the messages have content
+  let messageContent = await getContentFromMessage(firstMsgHdr);
+  Assert.ok(messageContent.includes("Some User <bugmail@example.org> changed"));
+  messageContent = await getContentFromMessage(secondMsgHdr);
+  Assert.ok(
+    messageContent.includes(
+      "https://bugzilla.mozilla.org/show_bug.cgi?id=436880"
+    )
+  );
+});
 
 function folderCount(folder) {
   return [...folder.msgDatabase.enumerateMessages()].length;
 }
 
-function run_test() {
-  /* may not work in Linux */
-  // if ("@mozilla.org/gnome-gconf-service;1" in Cc)
-  //  return;
-  /**/
+add_setup(async function () {
   // quarantine messages
   Services.prefs.setBoolPref("mailnews.downloadToTempFile", true);
   if (!localAccountUtils.inboxFolder) {
@@ -132,10 +122,10 @@ function run_test() {
   gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
   gMoveFolder2 =
     localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder2");
-
-  gTestArray.forEach(x => add_task(x));
-  run_next_test();
-}
+  registerCleanupFunction(() => {
+    gPOP3Pump = null;
+  });
+});
 
 /**
  * Get the full message content.

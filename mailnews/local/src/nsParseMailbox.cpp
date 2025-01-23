@@ -1701,27 +1701,13 @@ nsresult nsParseNewMailState::EndMsgDownload() {
   if (m_moveCoalescer) m_moveCoalescer->PlaybackMoves();
 
   // need to do this for all folders that had messages filtered into them
-  uint32_t serverCount = m_filterTargetFolders.Count();
-  nsresult rv;
-  nsCOMPtr<nsIMsgMailSession> session =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  if (NS_SUCCEEDED(rv) && session)  // don't use NS_ENSURE_SUCCESS here - we
-                                    // need to release semaphore below
-  {
-    for (uint32_t index = 0; index < serverCount; index++) {
-      bool folderOpen;
-      session->IsFolderOpenInWindow(m_filterTargetFolders[index], &folderOpen);
-      if (!folderOpen) {
-        uint32_t folderFlags;
-        m_filterTargetFolders[index]->GetFlags(&folderFlags);
-        if (!(folderFlags &
-              (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Inbox))) {
-          bool filtersRun;
-          m_filterTargetFolders[index]->CallFilterPlugins(nullptr, &filtersRun);
-          if (!filtersRun)
-            m_filterTargetFolders[index]->SetMsgDatabase(nullptr);
-        }
-      }
+  for (auto folder : m_filterTargetFolders) {
+    uint32_t folderFlags;
+    folder->GetFlags(&folderFlags);
+    if (!(folderFlags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Inbox))) {
+      bool filtersRun;
+      folder->CallFilterPlugins(nullptr, &filtersRun);
+      if (!filtersRun) folder->SetMsgDatabase(nullptr);
     }
   }
   // means there are filter moved mail that moveCoalescer didn't handle, we need
@@ -1729,7 +1715,8 @@ nsresult nsParseNewMailState::EndMsgDownload() {
   if (m_filterTargetFoldersMsgMovedCount) {
     for (const auto& entry : *m_filterTargetFoldersMsgMovedCount) {
       nsCOMPtr<nsIMsgFolder> targetIFolder;
-      rv = GetExistingFolder(entry.GetKey(), getter_AddRefs(targetIFolder));
+      nsresult rv =
+          GetExistingFolder(entry.GetKey(), getter_AddRefs(targetIFolder));
       if (NS_FAILED(rv)) {
         continue;
       }
@@ -1756,7 +1743,7 @@ nsresult nsParseNewMailState::EndMsgDownload() {
     m_filterTargetFoldersMsgMovedCount = nullptr;
   }
   m_filterTargetFolders.Clear();
-  return rv;
+  return NS_OK;
 }
 
 nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream* fileStream,

@@ -2168,17 +2168,12 @@ nsImapIncomingServer::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
         nsCOMPtr<nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(imapUrl);
         mailUrl->GetFolder(getter_AddRefs(msgFolder));
         if (msgFolder) {
-          nsresult rv;
-          nsCOMPtr<nsIMsgMailSession> session =
-              do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-          NS_ENSURE_SUCCESS(rv, rv);
-          bool folderOpen;
-          rv = session->IsFolderOpenInWindow(msgFolder, &folderOpen);
-          if (NS_SUCCEEDED(rv) && !folderOpen && msgFolder)
-            msgFolder->SetMsgDatabase(nullptr);
           nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
               do_QueryInterface(msgFolder);
           m_foldersToStat.RemoveObject(imapFolder);
+          // This command is used for folders that are not opened.
+          // We need to close after we're done.
+          msgFolder->SetMsgDatabase(nullptr);
         }
         // if we get an error running the url, it's better
         // not to chain the next url.
@@ -2667,10 +2662,10 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
     aFolder->SetGettingNewMessages(true);
     if (performingBiff) imapFolder->SetPerformingBiff(true);
     bool isOpen = false;
-    nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService("@mozilla.org/messenger/services/session;1");
-    if (mailSession && aFolder)
-      mailSession->IsFolderOpenInWindow(aFolder, &isOpen);
+    if (aFolder) {
+      aFolder->GetDatabaseOpen(&isOpen);
+    }
+
     // eventually, the gGotStatusPref should go away, once we work out the kinks
     // from using STATUS.
     if (!gGotStatusPref) {

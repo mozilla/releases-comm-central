@@ -247,37 +247,6 @@ nsresult nsPop3Sink::EndMailDelivery(nsIPop3Protocol* protocol) {
   // in case it's not the open folder
   m_folder->UpdateSummaryTotals(true);
 
-  // check if the folder open in this window is not the current folder, and if
-  // it has new message, in which case we need to try to run the filter plugin.
-  if (m_newMailParser) {
-    nsCOMPtr<nsIMsgWindow> msgWindow;
-    m_newMailParser->GetMsgWindow(getter_AddRefs(msgWindow));
-    // this breaks down if it's biff downloading new mail because
-    // there's no msgWindow...
-    if (msgWindow) {
-      nsCOMPtr<nsIMsgFolder> openFolder;
-      (void)msgWindow->GetOpenFolder(getter_AddRefs(openFolder));
-      if (openFolder && openFolder != m_folder) {
-        // only call filter plugins if folder is a local folder, because only
-        // local folders get messages filtered into them synchronously by pop3.
-        nsCOMPtr<nsIMsgLocalMailFolder> localFolder =
-            do_QueryInterface(openFolder);
-        if (localFolder) {
-          bool hasNew, isLocked;
-          (void)openFolder->GetHasNewMessages(&hasNew);
-          if (hasNew) {
-            // if the open folder is locked, we shouldn't run the spam filters
-            // on it because someone is using the folder. see 218433.
-            // Ideally, the filter plugin code would try to grab the folder lock
-            // and hold onto it until done, but that's more difficult and I
-            // think this will actually fix the problem.
-            openFolder->GetLocked(&isLocked);
-            if (!isLocked) openFolder->CallFilterPlugins(nullptr, &filtersRun);
-          }
-        }
-      }
-    }
-  }
 #ifdef DEBUG
   printf("End mail message delivery.\n");
 #endif

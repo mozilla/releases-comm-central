@@ -83,7 +83,6 @@ interface nsIMsgMailSession : nsISupports {
   readonly attribute nsIMsgWindow topmostMsgWindow;
   void AddMsgWindow(in nsIMsgWindow msgWindow);
   void RemoveMsgWindow(in nsIMsgWindow msgWindow);
-  boolean IsFolderOpenInWindow(in nsIMsgFolder folder);
 
   AUTF8String ConvertMsgURIToMsgURL(in AUTF8String aURI, in nsIMsgWindow aMsgWindow);
   nsIFile getDataFilesDir(in string dirName);

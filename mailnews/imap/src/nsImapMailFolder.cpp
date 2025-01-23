@@ -1,5 +1,3 @@
-/* -*- Mode:
- C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -760,6 +758,8 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
       RefPtr<nsImapOfflineSync> goOnline = new nsImapOfflineSync();
       goOnline->Init(aMsgWindow, this, this, false);
       if (goOnline) {
+        // Save the listener, so when we arrive here again later (below)
+        // imapService->SelectFolder() gets the right listener.
         m_urlListener = aUrlListener;
         return goOnline->ProcessNextOperation();
       }
@@ -771,13 +771,14 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
 
   bool canOpenThisFolder = true;
   GetCanOpenFolder(&canOpenThisFolder);
+
   // Don't run select if we can't select the folder...
   if (!m_urlRunning && canOpenThisFolder && !isServer) {
     nsCOMPtr<nsIImapService> imapService =
         do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    /* Do a discovery in its own url if needed. Do before SELECT url. */
+    // Do a discovery in its own url if needed. Do before SELECT url.
     nsCOMPtr<nsIImapHostSessionList> hostSession =
         do_GetService(kCImapHostSessionList, &rv);
     if (NS_SUCCEEDED(rv) && hostSession) {
@@ -4094,26 +4095,17 @@ NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(
     return NS_OK;
   }
 
-  // if folder isn't open in a window, no reason to limit the number of headers
-  // we download.
-  nsCOMPtr<nsIMsgMailSession> session =
-      do_GetService("@mozilla.org/messenger/services/session;1");
-  bool folderOpen = false;
-  if (session) session->IsFolderOpenInWindow(this, &folderOpen);
-
   int32_t hdrChunkSize = 200;
-  if (folderOpen) {
-    nsresult rv;
-    nsCOMPtr<nsIPrefBranch> prefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (prefBranch)
-      prefBranch->GetIntPref("mail.imap.hdr_chunk_size", &hdrChunkSize);
-  }
+  nsresult rv;
+  nsCOMPtr<nsIPrefBranch> prefBranch(
+      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (prefBranch)
+    prefBranch->GetIntPref("mail.imap.hdr_chunk_size", &hdrChunkSize);
+
   int32_t numKeysToFetch = m_keysToFetch.Length();
   int32_t startIndex = 0;
-  if (folderOpen && hdrChunkSize > 0 &&
-      (int32_t)m_keysToFetch.Length() > hdrChunkSize) {
+  if (hdrChunkSize > 0 && (int32_t)m_keysToFetch.Length() > hdrChunkSize) {
     numKeysToFetch = hdrChunkSize;
     *aMoreToDownload = true;
     startIndex = m_keysToFetch.Length() - hdrChunkSize;
@@ -4949,9 +4941,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
     }
     nsCOMPtr<nsIMsgWindow> msgWindow;
     nsCOMPtr<nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(aUrl);
-    bool folderOpen = false;
     if (mailUrl) mailUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-    if (session) session->IsFolderOpenInWindow(this, &folderOpen);
 
     if (imapUrl) {
       DisplayStatusMsg(imapUrl, EmptyString());
@@ -4978,16 +4968,12 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           notifier->NotifyMsgsDeleted(m_copyState->m_messages);
         }
       }
-
       switch (imapAction) {
         case nsIImapUrl::nsImapDeleteMsg:
         case nsIImapUrl::nsImapOnlineMove:
         case nsIImapUrl::nsImapOnlineCopy:
           if (NS_SUCCEEDED(aExitCode)) {
-            if (folderOpen)
-              UpdateFolder(msgWindow);
-            else
-              UpdatePendingCounts();
+            UpdatePendingCounts();
           }
 
           if (m_copyState) {
@@ -5037,11 +5023,11 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                   // if we're showing preview text, update ourselves if we got a
                   // new unread message copied so that we can download the new
                   // headers and have a chance to preview the msg bodies.
-                  if (!folderOpen && showPreviewText &&
-                      m_copyState->m_unreadCount > 0 &&
+                  if (showPreviewText && m_copyState->m_unreadCount > 0 &&
                       !(mFlags &
-                        (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Junk)))
+                        (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Junk))) {
                     UpdateFolder(msgWindow);
+                  }
                 }
               } else {
                 srcFolder->EnableNotifications(allMessageCountNotifications,
@@ -5069,14 +5055,13 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
             (void)OnCopyCompleted(m_copyState->m_srcSupport, aExitCode);
           }
 
-          // we're the dest folder of a move/copy - if we're not open in the ui,
-          // then we should clear our nsMsgDatabase pointer. Otherwise, the db
-          // would be open until the user selected it and then selected another
-          // folder. but don't do this for the trash or inbox - we'll leave them
-          // open
-          if (!folderOpen &&
-              !(mFlags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Inbox)))
+          // We're the dest folder of a move/copy, then we should clear our
+          // nsMsgDatabase pointer. Otherwise, the db would be open until the
+          // user selected it and then selected another folder.
+          // But don't do this for the trash or inbox - we'll leave them open.
+          if (!(mFlags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Inbox))) {
             SetMsgDatabase(nullptr);
+          }
           break;
         case nsIImapUrl::nsImapSubtractMsgFlags: {
           // this isn't really right - we'd like to know we were
@@ -5154,15 +5139,6 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
 
               m_copyState->m_curIndex++;
               if (m_copyState->m_curIndex >= m_copyState->m_messages.Length()) {
-                nsCOMPtr<nsIUrlListener> saveUrlListener = m_urlListener;
-                if (folderOpen) {
-                  // This gives a way for the caller to get notified
-                  // when the UpdateFolder url is done.
-                  // (if the nsIMsgCopyServiceListener also implements
-                  // nsIUrlListener)
-                  if (m_copyState->m_listener)
-                    m_urlListener = do_QueryInterface(m_copyState->m_listener);
-                }
                 if (m_copyState->m_msgWindow && m_copyState->m_undoMsgTxn) {
                   nsCOMPtr<nsITransactionManager> txnMgr;
                   m_copyState->m_msgWindow->GetTransactionManager(
@@ -5174,10 +5150,8 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                   }
                 }
                 (void)OnCopyCompleted(m_copyState->m_srcSupport, aExitCode);
-                if (folderOpen ||
-                    imapAction == nsIImapUrl::nsImapAppendDraftFromFile) {
+                if (imapAction == nsIImapUrl::nsImapAppendDraftFromFile) {
                   UpdateFolderWithListener(msgWindow, m_urlListener);
-                  m_urlListener = saveUrlListener;
                 }
               }
             } else {
@@ -5208,13 +5182,9 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           break;
         case nsIImapUrl::nsImapDeleteAllMsgs:
           if (NS_SUCCEEDED(aExitCode)) {
-            if (folderOpen)
-              UpdateFolder(msgWindow);
-            else {
-              ChangeNumPendingTotalMessages(-mNumPendingTotalMessages);
-              ChangeNumPendingUnread(-mNumPendingUnreadMessages);
-              m_numServerUnseenMessages = 0;
-            }
+            ChangeNumPendingTotalMessages(-mNumPendingTotalMessages);
+            ChangeNumPendingUnread(-mNumPendingUnreadMessages);
+            m_numServerUnseenMessages = 0;
           }
           break;
         case nsIImapUrl::nsImapListFolder:

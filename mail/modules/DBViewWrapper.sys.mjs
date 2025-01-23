@@ -680,10 +680,6 @@ DBViewWrapper.prototype = {
    *  When the folder goes to ask for the database again, the service will have
    *  it, and it will not need to be re-opened.
    *
-   * Another heuristic we could theoretically use is use the mail session's
-   *  isFolderOpenInWindow call, except that uses the outmoded concept that each
-   *  window will have at most one folder open.  So nuts to that.
-   *
    * Note: regrettably a unit test cannot verify that we did this; msgDatabase
    *  is a getter that will always try and load the message database!
    */

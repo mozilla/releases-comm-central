@@ -6830,7 +6830,6 @@ nsresult nsMsgDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
   NS_ENSURE_ARG_POINTER(aNewMsgDBView);
   if (aMsgWindow) {
     aNewMsgDBView->mMsgWindowWeak = do_GetWeakReference(aMsgWindow);
-    aMsgWindow->SetOpenFolder(m_viewFolder ? m_viewFolder : m_folder);
   }
 
   aNewMsgDBView->mMessengerWeak = do_GetWeakReference(aMessengerInstance);

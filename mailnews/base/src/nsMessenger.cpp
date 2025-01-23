@@ -42,7 +42,7 @@
 #include "nsIMsgFolder.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgIncomingServer.h"
-
+#include "nsIMsgImapMailFolder.h"
 #include "nsIMsgMessageService.h"
 
 #include "nsIMsgHdr.h"
@@ -2042,9 +2042,10 @@ nsresult AttachmentDeleter::DeleteOriginalMessage() {
 NS_IMETHODIMP
 AttachmentDeleter::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   nsresult rv = NS_OK;
-  if (mOriginalMessage && m_state == eUpdatingFolder)
+  if (mOriginalMessage && m_state == eUpdatingFolder) {
+    // DeleteOriginalMessage will set m_state eDeletingOldMessage.
     rv = DeleteOriginalMessage();
-
+  }
   return rv;
 }
 
@@ -2112,20 +2113,21 @@ AttachmentDeleter::OnStopCopy(nsresult aStatus) {
     return NS_OK;
   }
 
-  // For non-IMAP messages, the original is deleted here, for IMAP messages
-  // that happens in `OnStopRunningUrl()` which isn't called for non-IMAP
-  // messages.
   const nsACString& messageUri = mAttach->mAttachmentArray[0].mMessageUri;
   if (mOriginalMessage &&
       !Substring(messageUri, 0, 13).EqualsLiteral("imap-message:")) {
+    // For non-IMAP messages, the original is deleted here.
     return DeleteOriginalMessage();
-  } else {
-    // Arrange for the message to be deleted in the next `OnStopRunningUrl()`
-    // call.
-    m_state = eUpdatingFolder;
   }
 
-  return NS_OK;
+  // For imap, that happens in `OnStopRunningUrl()` which isn't called for
+  // pop3 messages.
+
+  // Arrange for the message to be deleted in the next `OnStopRunningUrl()`
+  // call.
+  m_state = eUpdatingFolder;
+  nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(mMessageFolder);
+  return imapFolder->UpdateFolderWithListener(nullptr, this);
 }
 
 //

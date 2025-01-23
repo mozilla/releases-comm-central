@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * This file tests that a message saved as draft in an IMAP folder is correctly
  * marked as unread.
  */
@@ -12,6 +12,9 @@ var { MailServices } = ChromeUtils.importESModule(
 );
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
+var { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
 );
 
 var gDraftsFolder;
@@ -66,6 +69,7 @@ add_task(async function saveDraft() {
     progress
   );
   await progressListener.promise;
+  await new Promise(resolve => setTimeout(resolve, 1000));
 });
 
 add_task(async function updateDrafts() {

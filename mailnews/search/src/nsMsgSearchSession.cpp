@@ -509,11 +509,9 @@ void nsMsgSearchSession::ReleaseFolderDBRef() {
   uint32_t flags;
   nsCOMPtr<nsIMsgFolder> folder;
   scope->GetFolder(getter_AddRefs(folder));
-  nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService("@mozilla.org/messenger/services/session;1");
-  if (!mailSession || !folder) return;
+  if (!folder) return;
 
-  mailSession->IsFolderOpenInWindow(folder, &isOpen);
+  folder->GetDatabaseOpen(&isOpen);
   folder->GetFlags(&flags);
 
   /*we don't null out the db reference for inbox because inbox is like the

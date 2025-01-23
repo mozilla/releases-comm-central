@@ -2165,6 +2165,16 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow* aMsgWindow, bool* aFiltersRun) {
 
   nsString folderName;
   GetPrettyName(folderName);
+
+  bool isLocked;
+  GetLocked(&isLocked);
+  if (isLocked) {
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+            ("Won't run filter plugins on locked folder '%s'",
+             NS_ConvertUTF16toUTF8(folderName).get()));
+    return NS_ERROR_FAILURE;
+  }
+
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
           ("Running filter plugins on folder '%s'",
            NS_ConvertUTF16toUTF8(folderName).get()));
@@ -4833,14 +4843,7 @@ NS_IMETHODIMP nsMsgDBFolder::NotifyCompactCompleted() {
 }
 
 NS_IMETHODIMP nsMsgDBFolder::CloseDBIfFolderNotOpen(bool aForceClosed) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgMailSession> session =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  bool folderOpen;
-  session->IsFolderOpenInWindow(this, &folderOpen);
-  if (!folderOpen &&
-      !(mFlags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Inbox))) {
+  if (!(mFlags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Inbox))) {
     if (aForceClosed && mDatabase) mDatabase->ForceClosed();
     SetMsgDatabase(nullptr);
   }

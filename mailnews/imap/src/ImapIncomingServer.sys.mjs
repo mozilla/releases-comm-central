@@ -595,10 +595,7 @@ export class ImapIncomingServer extends MsgIncomingServer {
       }
     }
 
-    if (
-      Services.prefs.getBoolPref("mail.imap.use_status_for_biff", false) &&
-      !MailServices.mailSession.IsFolderOpenInWindow(folder)
-    ) {
+    if (Services.prefs.getBoolPref("mail.imap.use_status_for_biff", false)) {
       folder.updateStatus(this, msgWindow);
     } else {
       folder.updateFolder(msgWindow);

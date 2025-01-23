@@ -349,26 +349,6 @@ NS_IMETHODIMP nsMsgMailSession::RemoveMsgWindow(nsIMsgWindow* msgWindow) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailSession::IsFolderOpenInWindow(nsIMsgFolder* folder,
-                                                     bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-
-  *aResult = false;
-
-  uint32_t count = mWindows.Count();
-
-  for (uint32_t i = 0; i < count; i++) {
-    nsCOMPtr<nsIMsgFolder> openFolder;
-    mWindows[i]->GetOpenFolder(getter_AddRefs(openFolder));
-    if (folder == openFolder.get()) {
-      *aResult = true;
-      break;
-    }
-  }
-
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsMsgMailSession::ConvertMsgURIToMsgURL(const nsACString& aURI,
                                         nsIMsgWindow* aMsgWindow,

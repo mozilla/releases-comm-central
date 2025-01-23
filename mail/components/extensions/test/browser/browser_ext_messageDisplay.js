@@ -434,6 +434,190 @@ add_task(async function testGetDisplayedMessageActiveTab() {
   await extension.unload();
 });
 
+// NOTE: something in testOpenMessagesInTabs upsets this test;
+//   "onMessagesDisplayed received" never received?. Run this first.
+add_task(async function test_MV3_event_pages_onMessagesDisplayed() {
+  const files = {
+    "background.js": async () => {
+      // Whenever the extension starts or wakes up, hasFired is set to false. In
+      // case of a wake-up, the first fired event is the one that woke up the background.
+      let hasFired = false;
+
+      browser.messageDisplay.onMessagesDisplayed.addListener(
+        (tab, messageList) => {
+          // Only send the first event after background wake-up, this should be
+          // the only one expected.
+          if (!hasFired) {
+            hasFired = true;
+            browser.test.sendMessage("onMessagesDisplayed received", {
+              tab,
+              messageList,
+            });
+          }
+        }
+      );
+
+      browser.test.sendMessage("background started");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  const extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+      browser_specific_settings: {
+        gecko: { id: "onMessagesDisplayed@mochi.test" },
+      },
+    },
+  });
+
+  function checkPersistentListeners({ primed }) {
+    // A persistent event is referenced by its moduleName as defined in
+    // ext-mails.json, not by its actual namespace.
+    const persistent_events = ["messageDisplay.onMessagesDisplayed"];
+
+    for (const event of persistent_events) {
+      const [moduleName, eventName] = event.split(".");
+      assertPersistentListeners(extension, moduleName, eventName, {
+        primed,
+      });
+    }
+  }
+
+  await extension.startup();
+  await extension.awaitMessage("background started");
+
+  // The listeners should be persistent, but not primed.
+  checkPersistentListeners({ primed: false });
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  // Verify the primed persistent listeners.
+  checkPersistentListeners({ primed: true });
+
+  // Select multiple messages.
+  {
+    const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+    about3Pane.displayFolder(gFolder);
+    about3Pane.threadTree.selectedIndices = [0, 1, 2, 3, 4];
+
+    const displayInfo = await extension.awaitMessage(
+      "onMessagesDisplayed received"
+    );
+    Assert.equal(
+      displayInfo.messageList.messages.length,
+      5,
+      "The primed onMessagesDisplayed event should return the correct number of messages."
+    );
+    Assert.deepEqual(
+      [
+        "Big Meeting Today",
+        "Small Party Tomorrow",
+        "Huge Shindig Yesterday",
+        "Tiny Wedding In a Fortnight",
+        "Red Document Needs Attention",
+      ],
+      displayInfo.messageList.messages.map(e => e.subject),
+      "The primed onMessagesDisplayed event should return the correct messages."
+    );
+    Assert.deepEqual(
+      {
+        active: true,
+        type: "mail",
+      },
+      {
+        active: displayInfo.tab.active,
+        type: displayInfo.tab.type,
+      },
+      "The primed onMessagesDisplayed event should return the correct values"
+    );
+
+    await extension.awaitMessage("background started");
+    // The listeners should be persistent, but not primed.
+    checkPersistentListeners({ primed: false });
+  }
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  // Verify the primed persistent listeners.
+  checkPersistentListeners({ primed: true });
+
+  // Open a message in a window.
+
+  {
+    const messageWindow = await openMessageInWindow(gMessages[0]);
+    const displayInfo = await extension.awaitMessage(
+      "onMessagesDisplayed received"
+    );
+    Assert.equal(
+      displayInfo.messageList.messages.length,
+      1,
+      "The primed onMessagesDisplayed event should return the correct number of messages."
+    );
+    Assert.equal(
+      displayInfo.messageList.messages[0].subject,
+      "Big Meeting Today",
+      "The primed onMessagesDisplayed event should return the correct message."
+    );
+    Assert.deepEqual(
+      {
+        active: true,
+        type: "messageDisplay",
+      },
+      {
+        active: displayInfo.tab.active,
+        type: displayInfo.tab.type,
+      },
+      "The primed onMessagesDisplayed event should return the correct values"
+    );
+
+    await extension.awaitMessage("background started");
+    // The listeners should be persistent, but not primed.
+    checkPersistentListeners({ primed: false });
+    messageWindow.close();
+  }
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  // Verify the primed persistent listeners.
+  checkPersistentListeners({ primed: true });
+
+  // Open a message in a tab.
+
+  {
+    await openMessageInTab(gMessages[1]);
+    const displayInfo = await extension.awaitMessage(
+      "onMessagesDisplayed received"
+    );
+    Assert.equal(
+      displayInfo.messageList.messages.length,
+      1,
+      "The primed onMessagesDisplayed event should return the correct number of messages."
+    );
+    Assert.equal(
+      displayInfo.messageList.messages[0].subject,
+      "Small Party Tomorrow",
+      "The primed onMessagesDisplayed event should return the correct message."
+    );
+    Assert.deepEqual(
+      {
+        active: true,
+        type: "messageDisplay",
+      },
+      {
+        active: displayInfo.tab.active,
+        type: displayInfo.tab.type,
+      },
+      "The primed onMessagesDisplayed event should return the correct values"
+    );
+
+    await extension.awaitMessage("background started");
+    // The listeners should be persistent, but not primed.
+    checkPersistentListeners({ primed: false });
+    document.getElementById("tabmail").closeTab();
+  }
+
+  await extension.unload();
+});
+
 add_task(async function testOpenMessagesInTabs() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -903,187 +1087,5 @@ add_task(async function testOpenMessagesInWindows() {
 
   await extension.startup();
   await extension.awaitFinish();
-  await extension.unload();
-});
-
-add_task(async function test_MV3_event_pages_onMessagesDisplayed() {
-  const files = {
-    "background.js": async () => {
-      // Whenever the extension starts or wakes up, hasFired is set to false. In
-      // case of a wake-up, the first fired event is the one that woke up the background.
-      let hasFired = false;
-
-      browser.messageDisplay.onMessagesDisplayed.addListener(
-        (tab, messageList) => {
-          // Only send the first event after background wake-up, this should be
-          // the only one expected.
-          if (!hasFired) {
-            hasFired = true;
-            browser.test.sendMessage("onMessagesDisplayed received", {
-              tab,
-              messageList,
-            });
-          }
-        }
-      );
-
-      browser.test.sendMessage("background started");
-    },
-    "utils.js": await getUtilsJS(),
-  };
-  const extension = ExtensionTestUtils.loadExtension({
-    files,
-    manifest: {
-      manifest_version: 3,
-      background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["accountsRead", "messagesRead"],
-      browser_specific_settings: {
-        gecko: { id: "onMessagesDisplayed@mochi.test" },
-      },
-    },
-  });
-
-  function checkPersistentListeners({ primed }) {
-    // A persistent event is referenced by its moduleName as defined in
-    // ext-mails.json, not by its actual namespace.
-    const persistent_events = ["messageDisplay.onMessagesDisplayed"];
-
-    for (const event of persistent_events) {
-      const [moduleName, eventName] = event.split(".");
-      assertPersistentListeners(extension, moduleName, eventName, {
-        primed,
-      });
-    }
-  }
-
-  await extension.startup();
-  await extension.awaitMessage("background started");
-  // The listeners should be persistent, but not primed.
-  checkPersistentListeners({ primed: false });
-  await extension.terminateBackground({ disableResetIdleForTest: true });
-  // Verify the primed persistent listeners.
-  checkPersistentListeners({ primed: true });
-
-  // Select multiple messages.
-
-  {
-    const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-    about3Pane.displayFolder(gFolder);
-    about3Pane.threadTree.selectedIndices = [0, 1, 2, 3, 4];
-
-    const displayInfo = await extension.awaitMessage(
-      "onMessagesDisplayed received"
-    );
-    Assert.equal(
-      displayInfo.messageList.messages.length,
-      5,
-      "The primed onMessagesDisplayed event should return the correct number of messages."
-    );
-    Assert.deepEqual(
-      [
-        "Big Meeting Today",
-        "Small Party Tomorrow",
-        "Huge Shindig Yesterday",
-        "Tiny Wedding In a Fortnight",
-        "Red Document Needs Attention",
-      ],
-      displayInfo.messageList.messages.map(e => e.subject),
-      "The primed onMessagesDisplayed event should return the correct messages."
-    );
-    Assert.deepEqual(
-      {
-        active: true,
-        type: "mail",
-      },
-      {
-        active: displayInfo.tab.active,
-        type: displayInfo.tab.type,
-      },
-      "The primed onMessagesDisplayed event should return the correct values"
-    );
-
-    await extension.awaitMessage("background started");
-    // The listeners should be persistent, but not primed.
-    checkPersistentListeners({ primed: false });
-  }
-
-  await extension.terminateBackground({ disableResetIdleForTest: true });
-  // Verify the primed persistent listeners.
-  checkPersistentListeners({ primed: true });
-
-  // Open a message in a window.
-
-  {
-    const messageWindow = await openMessageInWindow(gMessages[0]);
-    const displayInfo = await extension.awaitMessage(
-      "onMessagesDisplayed received"
-    );
-    Assert.equal(
-      displayInfo.messageList.messages.length,
-      1,
-      "The primed onMessagesDisplayed event should return the correct number of messages."
-    );
-    Assert.equal(
-      displayInfo.messageList.messages[0].subject,
-      "Big Meeting Today",
-      "The primed onMessagesDisplayed event should return the correct message."
-    );
-    Assert.deepEqual(
-      {
-        active: true,
-        type: "messageDisplay",
-      },
-      {
-        active: displayInfo.tab.active,
-        type: displayInfo.tab.type,
-      },
-      "The primed onMessagesDisplayed event should return the correct values"
-    );
-
-    await extension.awaitMessage("background started");
-    // The listeners should be persistent, but not primed.
-    checkPersistentListeners({ primed: false });
-    messageWindow.close();
-  }
-
-  await extension.terminateBackground({ disableResetIdleForTest: true });
-  // Verify the primed persistent listeners.
-  checkPersistentListeners({ primed: true });
-
-  // Open a message in a tab.
-
-  {
-    await openMessageInTab(gMessages[1]);
-    const displayInfo = await extension.awaitMessage(
-      "onMessagesDisplayed received"
-    );
-    Assert.equal(
-      displayInfo.messageList.messages.length,
-      1,
-      "The primed onMessagesDisplayed event should return the correct number of messages."
-    );
-    Assert.equal(
-      displayInfo.messageList.messages[0].subject,
-      "Small Party Tomorrow",
-      "The primed onMessagesDisplayed event should return the correct message."
-    );
-    Assert.deepEqual(
-      {
-        active: true,
-        type: "messageDisplay",
-      },
-      {
-        active: displayInfo.tab.active,
-        type: displayInfo.tab.type,
-      },
-      "The primed onMessagesDisplayed event should return the correct values"
-    );
-
-    await extension.awaitMessage("background started");
-    // The listeners should be persistent, but not primed.
-    checkPersistentListeners({ primed: false });
-    document.getElementById("tabmail").closeTab();
-  }
-
   await extension.unload();
 });

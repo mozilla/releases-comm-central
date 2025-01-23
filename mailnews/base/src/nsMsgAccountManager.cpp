@@ -2565,14 +2565,8 @@ NS_IMETHODIMP VirtualFolderChangeListener::OnHdrFlagsChanged(
     NS_ENSURE_SUCCESS(rv, rv);
     int32_t totalDelta = 0, unreadDelta = 0;
     if (oldMatch != newMatch) {
-      // bool isOpen = false;
-      // nsCOMPtr<nsIMsgMailSession> mailSession =
-      //     do_GetService("@mozilla.org/messenger/services/session;1");
-      // if (mailSession && aFolder)
-      //   mailSession->IsFolderOpenInWindow(m_virtualFolder, &isOpen);
       // we can't remove headers that no longer match - but we might add headers
       // that newly match, someday.
-      // if (!isOpen)
       totalDelta = (oldMatch) ? -1 : 1;
     }
     bool msgHdrIsRead;
