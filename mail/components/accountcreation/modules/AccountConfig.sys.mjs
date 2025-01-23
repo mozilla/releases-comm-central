@@ -369,19 +369,6 @@ AccountConfig.prototype = {
     this.incomingAlternatives = alternatives;
     this.incoming = alternatives.shift();
   },
-
-  /**
-   * True if all servers use OAuth2 as authentication method and no password
-   * entry is required.
-   *
-   * @returns {boolean}
-   */
-  isOauthOnly() {
-    return (
-      this.incoming.auth === Ci.nsMsgAuthMethod.OAuth2 &&
-      this.outgoing.auth === Ci.nsMsgAuthMethod.OAuth2
-    );
-  },
 };
 
 // enum consts

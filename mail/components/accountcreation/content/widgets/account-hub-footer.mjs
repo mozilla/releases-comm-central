@@ -107,8 +107,8 @@ class AccountHubFooter extends HTMLElement {
   }
 
   set disabled(val) {
-    this.querySelector("#back").disabled = val;
     this.toggleForwardDisabled(val);
+    this.querySelector("#back").disabled = val;
     const customAction = this.querySelector("#custom");
     if (!customAction.hidden) {
       customAction.disabled = val;
