@@ -274,7 +274,7 @@ nsresult nsMsgBiffManager::PerformBiff() {
   MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("performing biffs"));
 
   uint32_t count = mBiffArray.Length();
-  for (uint32_t i = 0; i < count; i++) {
+  for (int32_t i = 0; i < (int32_t)count; i++) {
     // Take a copy of the entry rather than the a reference so that we can
     // remove and add if necessary, but keep the references and memory alive.
     nsBiffEntry current = mBiffArray[i];
