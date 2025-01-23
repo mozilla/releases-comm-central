@@ -69,7 +69,6 @@ module.exports = {
     "mozilla/prefer-boolean-length-check": "off",
     // Enforce using `let` only when variables are reassigned.
     "prefer-const": ["error", { destructuring: "all" }],
-    "mozilla/reject-chromeutils-import": "error",
   },
 
   overrides: [
