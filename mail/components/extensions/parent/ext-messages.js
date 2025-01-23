@@ -1366,7 +1366,10 @@ this.messages = class extends ExtensionAPIPersistent {
           return this.tags.list();
         },
         async createTag(key, tag, color) {
-          return this.tags.create(key, tag, color);
+          // browser.messages.tags.create() returns the associated key, but the
+          // deprecated method browser.messages.createTag() is not updated and
+          // should not return anything.
+          await this.tags.create(key, tag, color);
         },
         async updateTag(key, updateProperties) {
           return this.tags.update(key, updateProperties);
@@ -1390,14 +1393,22 @@ this.messages = class extends ExtensionAPIPersistent {
           },
           async create(key, tag, color) {
             const tags = MailServices.tags.getAllTags();
-            key = key.toLowerCase();
-            if (tags.find(t => t.key == key)) {
-              throw new ExtensionError(`Specified key already exists: ${key}`);
-            }
             if (tags.find(t => t.tag == tag)) {
               throw new ExtensionError(`Specified tag already exists: ${tag}`);
             }
-            MailServices.tags.addTagForKey(key, tag, color.toUpperCase(), "");
+            if (key != null) {
+              key = key.toLowerCase();
+              if (tags.find(t => t.key == key)) {
+                throw new ExtensionError(
+                  `Specified key already exists: ${key}`
+                );
+              }
+              MailServices.tags.addTagForKey(key, tag, color.toUpperCase(), "");
+            } else {
+              // Auto-generate a key.
+              MailServices.tags.addTag(tag, color.toUpperCase(), "");
+            }
+            return MailServices.tags.getKeyForTag(tag);
           },
           async update(key, updateProperties) {
             const tags = MailServices.tags.getAllTags();

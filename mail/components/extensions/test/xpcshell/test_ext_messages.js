@@ -663,9 +663,46 @@ add_task(
           tags4
         );
 
+        // Test creating a tag without providing a key, auto-generating one.
+        const autoKey = await browser.messages.tags.create(
+          "Auto Tag",
+          "#3456CD"
+        );
+        browser.test.assertEq(
+          "auto_tag",
+          autoKey,
+          "Auto-generated key should be correct"
+        );
+
+        // Rename the auto-created tag.
+        await browser.messages.tags.update(autoKey, {
+          tag: "Something very different",
+        });
+        const autoTag = await browser.messages.tags
+          .list()
+          .then(rv => rv.find(t => t.key == autoKey));
+        browser.test.assertEq(
+          "Something very different",
+          autoTag.tag,
+          "The renamed tag should be correct"
+        );
+
+        // Test creating the same tag again and verify that a different auto-
+        // generated key is returned.
+        const autoKeyNr2 = await browser.messages.tags.create(
+          "Auto Tag",
+          "#1234AB"
+        );
+        browser.test.assertEq(
+          "auto_taga",
+          autoKeyNr2,
+          "Auto-generated key should be correct the second time as well"
+        );
+
         // Clean up.
         await browser.messages.update(folder4Messages[0].id, { tags: [] });
         await browser.messages.deleteTag("custom:_tag");
+        await browser.messages.deleteTag(autoKey);
         await browser.messages.tags.create("$label5", "Later", "#993399");
         browser.test.notifyPass("finished");
       },
@@ -681,6 +718,7 @@ add_task(
           "accountsRead",
           "messagesTags",
           "messagesUpdate",
+          "messagesTagsList",
         ],
       },
     });

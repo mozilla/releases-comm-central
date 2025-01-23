@@ -1396,14 +1396,15 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new message tag. Tagging a message will store the tag's key in the user's message. Throws if the specified tag key is used already.",
+        "description": "Creates a new message tag and returns the associated key. Tagging a message will store the tag's key in the user's message. Throws if the specified tag key is used already.",
         "async": true,
         "permissions": ["messagesTags"],
         "parameters": [
           {
             "type": "string",
             "name": "key",
-            "description": "Unique tag identifier (will be converted to lower case). Must not include <var>()<>{/%*\"</var> or spaces.",
+            "optional": true,
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <var>()<>{/%*\"</var> or spaces. Will be auto-generated if not provided.",
             "pattern": "^[^ ()/{%*<>\"]+$"
           },
           {
@@ -1416,6 +1417,17 @@
             "name": "color",
             "description": "Tag color in hex format (i.e.: #000080 for navy blue). Value will be stored as upper case.",
             "pattern": "^#[0-9a-fA-F]{6}"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "string",
+                "name": "key"
+              }
+            ]
           }
         ]
       },
