@@ -204,7 +204,7 @@ function actuallyLoadMessage() {
  * supposed to be called whenever a message is supposed to be displayed in this
  * window.
  *
- * @param aMsgHdr the message to display
+ * @param {msgDBHdr} aMsgHdr - the message to display
  * @param aViewWrapperToClone [optional] a DB view wrapper to clone for the
  *                            message window
  */

@@ -339,12 +339,12 @@ async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
  * types some strings into the compose window, and then attaches some
  * Filelinks.
  *
- * @param aText an array of strings to type into the compose window. Each
- *              string is followed by pressing the RETURN key, except for
- *              the final string.  Pass an empty array if you don't want
- *              anything typed.
- * @param aFiles an array of filename strings for files located beneath
- *               the test directory.
+ * @param {string[]} aText - An array of strings to type into the compose
+ *   window. Each string is followed by pressing the RETURN key, except for
+ *   the final string. Pass an empty array if you don't want
+ *   anything typed.
+ * @param {string[]} aFiles - An array of filename strings for files located
+ *  beneath the test directory.
  */
 async function prepare_some_attachments_and_reply(aText, aFiles) {
   MockFilePicker.setFiles(collectFiles(aFiles));
@@ -400,12 +400,12 @@ async function prepare_some_attachments_and_reply(aText, aFiles) {
  * optionally types some strings into the compose window, and then attaches
  * some Filelinks.
  *
- * @param aText an array of strings to type into the compose window. Each
- *              string is followed by pressing the RETURN key, except for
- *              the final string.  Pass an empty array if you don't want
- *              anything typed.
- * @param aFiles an array of filename strings for files located beneath
- *               the test directory.
+ * @param {string[]} aText - An array of strings to type into the compose
+ *   window. Each string is followed by pressing the RETURN key, except for
+ *   the final string. Pass an empty array if you don't want
+ *   anything typed.
+ * @param {string[]} aFiles - An array of filename strings for files located
+ *  beneath the test directory.
  */
 async function prepare_some_attachments_and_forward(aText, aFiles) {
   MockFilePicker.setFiles(collectFiles(aFiles));
@@ -475,12 +475,12 @@ async function prepare_some_attachments_and_forward(aText, aFiles) {
  * signature-in-forward enabled, and then runs the test again with those
  * prefs disabled.
  *
- * @param aSpecialTest a test that takes two arguments - the first argument
- *                     is the aText array of any text that should be typed,
- *                     and the second is a boolean for whether or not the
- *                     special test should expect a signature or not.
- * @param aText any text to be typed into the compose window, passed to
- *              aSpecialTest.
+ * @param {Function} aSpecialTest - A test that takes two arguments.
+ *   The first argument is the aText array of any text that should be typed,
+ *   and the second is a boolean for whether or not the
+ *   special test should expect a signature or not.
+ * @param {string} aText - Aany text to be typed into the compose window,
+ *    passed to aSpecialTest.
  */
 async function try_with_and_without_signature_in_reply_or_fwd(
   aSpecialTest,
@@ -501,7 +501,7 @@ async function try_with_and_without_signature_in_reply_or_fwd(
  * Helper function that runs a test function without a signature, once
  * in HTML mode, and again in plaintext mode.
  *
- * @param aTest a test that takes no arguments.
+ * @param {Function} aTest - A test that takes no arguments.
  */
 async function try_without_signature(aTest) {
   const oldSig = Services.prefs.getCharPref(kSigPrefKey);
@@ -515,7 +515,7 @@ async function try_without_signature(aTest) {
  * Helper function that runs a test function for HTML mail composition, and
  * then again in plaintext mail composition.
  *
- * @param aTest a test that takes no arguments.
+ * @param {Function} aTest - A test that takes no arguments.
  */
 async function try_with_plaintext_and_html_mail(aTest) {
   await aTest();

@@ -8,14 +8,14 @@ import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
  * A helper function for determining whether or not a notification with
  * a particular value is being displayed.
  *
- * @param aWindow        the window to check
- * @param aBoxId         the id of the notification box
- * @param aValue         the value of the notification to look for
- * @param aNotification  an optional out parameter: object that will pass the
- *                       notification element out of this function in its
- *                       'notification' property
+ * @param {Window} aWindow - The window to check.
+ * @param {string} aBoxId - The id of the notification box.
+ * @param {string}aValue - The value of the notification to look for.
+ * @param {object} [aNotification] - An optional out parameter;
+ *   object that will pass the notification element out of this function in its
+ *   'notification' property.
  *
- * @returns True/false depending on the state of the notification.
+ * @returns {boolean} true/false depending on the state of the notification.
  */
 export function check_notification_displayed(
   aWindow,
@@ -45,13 +45,12 @@ export function check_notification_displayed(
  * a particular value is being displayed. Throws if the state is
  * not the expected one.
  *
- * @param aWindow     the window to check
- * @param aBoxId      the id of the notification box
- * @param aValue      the value of the notification to look for
- * @param aDisplayed  true if the notification should be displayed, false
- *                    otherwise
- * @returns the notification if we're asserting that the notification is
- *          displayed, and it actually shows up. Throws otherwise.
+ * @param {Window} aWindow - The window to check.
+ * @param {string} aBoxId - The id of the notification box.
+ * @param {string} aValue - The value of the notification to look for.
+ * @param {boolean} aDisplayed - true if the notification should be displayed.
+ * @returns {Element} the notification if we're asserting that the notification is
+ *   displayed, and it actually shows up. Throws otherwise.
  */
 export function assert_notification_displayed(
   aWindow,
@@ -82,9 +81,9 @@ export function assert_notification_displayed(
  * A helper function for closing a notification if one is currently displayed
  * in the window.
  *
- * @param aWindow  the window with the notification
- * @param aBoxId   the id of the notification box
- * @param aValue   the value of the notification to close
+ * @param {Window} aWindow - The window with the notification.
+ * @param {string} aBoxId - The id of the notification box.
+ * @param {string} aValue - The value of the notification to close.
  */
 export function close_notification(aWindow, aBoxId, aValue) {
   const nb = aWindow.document.getElementById(aBoxId);
@@ -103,9 +102,9 @@ export function close_notification(aWindow, aBoxId, aValue) {
  * A helper function that waits for a notification with value aValue
  * to stop displaying in the window.
  *
- * @param aWindow  the window with the notification
- * @param aBoxId   the id of the notification box
- * @param aValue   the value of the notification to wait to stop
+ * @param {Window} aWindow - the window with the notification.
+ * @param {string} aBoxId - the id of the notification box.
+ * @param {string} aValue - The value of the notification to wait to stop.
  */
 export async function wait_for_notification_to_stop(aWindow, aBoxId, aValue) {
   const nb = aWindow.document.getElementById(aBoxId);
@@ -124,9 +123,9 @@ export async function wait_for_notification_to_stop(aWindow, aBoxId, aValue) {
  * A helper function that waits for a notification with value aValue
  * to show in the window.
  *
- * @param aWindow  the window that we want the notification to appear in
- * @param aBoxId   the id of the notification box
- * @param aValue   the value of the notification to wait for
+ * @param {Window} aWindow - The window that we want the notification to appear in.
+ * @param {string} aBoxId - The id of the notification box.
+ * @param {string} aValue - The value of the notification to wait for.
  */
 export async function wait_for_notification_to_show(aWindow, aBoxId, aValue) {
   const nb = aWindow.document.getElementById(aBoxId);
@@ -171,11 +170,11 @@ export function get_notification(win, id, val) {
 /**
  * Gets a button in a notification, as those do not have IDs.
  *
- * @param aWindow  The window that has the notification.
- * @param aBoxId   The id of the notification box.
- * @param aValue   The value of the notification to find.
- * @param aMatch   Attributes of the button to find. An object with key:value
- *                   pairs, similar to click_menus_in_sequence().
+ * @param {Window} aWindow - The window that has the notification.
+ * @param {string} aBoxId - The id of the notification box.
+ * @param {string} aValue - The value of the notification to find.
+ * @param {object} aMatch - Attributes of the button to find.
+ *   An object with key:value pairs, similar to click_menus_in_sequence().
  */
 export function get_notification_button(aWindow, aBoxId, aValue, aMatch) {
   const notification = get_notification(aWindow, aBoxId, aValue);

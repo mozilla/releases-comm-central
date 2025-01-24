@@ -642,7 +642,7 @@ class nsContextMenu {
    * Determine whether the clicked-on link can be saved, and whether it
    * may be saved according to the ScriptSecurityManager.
    *
-   * @returns true if the protocol can be persisted and if the target has
+   * @returns {boolean} true if the protocol can be persisted and if the target has
    *         permission to link to the URL, false if not
    */
   isLinkSaveable() {
@@ -859,7 +859,7 @@ class nsContextMenu {
   /**
    * Determines whether the focused window has something selected.
    *
-   * @returns true if there is a selection, false if not
+   * @returns {boolean} true if there is a selection, false if not
    */
   isContentSelection() {
     return !document.commandDispatcher.focusedWindow.getSelection().isCollapsed;
@@ -886,7 +886,7 @@ class nsContextMenu {
    *
    * @param  aNode
    *         The DOM node to check
-   * @returns true for textboxes, false for other elements
+   * @returns {boolean} true for textboxes, false for other elements
    */
   isTargetATextBox(aNode) {
     if (HTMLInputElement.isInstance(aNode)) {

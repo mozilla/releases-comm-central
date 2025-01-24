@@ -16,8 +16,8 @@ import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
  * whether it is hidden or not (simply by poking at its hidden property). It
  * doesn't try to do anything smart, like is it not into view, or whatever.
  *
- * @param aElt The element to query.
- * @returns Whether the element is visible or not.
+ * @param {Element|string} aElt - The element, or ID to query.
+ * @returns {boolean} Whether the element is visible or not.
  */
 function element_visible(aElt) {
   let e;
@@ -32,8 +32,8 @@ function element_visible(aElt) {
 /**
  * Assert that en element's visible.
  *
- * @param aElt The element, an ID or an elementlibs.Elem
- * @param aWhy The error message in case of failure
+ * @param {Element|string} aElt - The element, or an ID.
+ * @param {string} aWhy - The error message in case of failure.
  */
 export function assert_element_visible(aElt, aWhy) {
   Assert.ok(element_visible(aElt), aWhy);
@@ -43,7 +43,7 @@ export function assert_element_visible(aElt, aWhy) {
  * Returns if a element is visible by traversing all parent elements and check
  * that all are visible.
  *
- * @param aElem The element to be checked
+ * @param {Element} aElem - The element to be checked
  */
 export function element_visible_recursive(aElem) {
   if (aElem.hidden || aElem.collapsed) {
@@ -69,8 +69,8 @@ export function element_visible_recursive(aElem) {
 /**
  * Assert that en element's not visible.
  *
- * @param aElt The element, an ID or an elementlibs.Elem
- * @param aWhy The error message in case of failure
+ * @param {Element|string} aElt - The element, or an ID.
+ * @param {string} aWhy - The error message in case of failure.
  */
 export function assert_element_not_visible(aElt, aWhy) {
   Assert.ok(!element_visible(aElt), aWhy);
@@ -79,8 +79,8 @@ export function assert_element_not_visible(aElt, aWhy) {
 /**
  * Wait for and return an element matching a particular CSS selector.
  *
- * @param aParent the node to begin searching from
- * @param aSelector the CSS selector to search with
+ * @param {Element} aParent - The node to begin searching from.
+ * @param {string} aSelector - The CSS selector to search with.
  */
 export async function promise_element(aParent, aSelector) {
   let target = null;
@@ -96,9 +96,9 @@ export async function promise_element(aParent, aSelector) {
  * Given some starting node aStart, ensure that aStart and the aNum next
  * siblings of aStart are nodes of type aNodeType.
  *
- * @param aNodeType the type of node to look for, example: "br".
- * @param aStart the first node to check.
- * @param aNum the number of sibling br nodes to check for.
+ * @param {string} aNodeType - The type of node to look for, example: "br".
+ * @param {Element} aStart the first node to check.
+ * @param {integer} aNum - The number of sibling br nodes to check for.
  */
 export function assert_next_nodes(aNodeType, aStart, aNum) {
   let node = aStart;
@@ -121,9 +121,9 @@ export function assert_next_nodes(aNodeType, aStart, aNum) {
  * Given some starting node aStart, ensure that aStart and the aNum previous
  * siblings of aStart are nodes of type aNodeType.
  *
- * @param aNodeType the type of node to look for, example: "br".
- * @param aStart the first node to check.
- * @param aNum the number of sibling br nodes to check for.
+ * @param {string} aNodeType - The type of node to look for, example: "br".
+ * @param {Element} aStart the first node to check.
+ * @param {integer} aNum - The number of sibling br nodes to check for.
  */
 export function assert_previous_nodes(aNodeType, aStart, aNum) {
   let node = aStart;

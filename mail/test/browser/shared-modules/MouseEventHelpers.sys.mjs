@@ -9,22 +9,18 @@ import { Assert } from "resource://testing-common/Assert.sys.mjs";
 /**
  * Execute a drag and drop session.
  *
- * @param {XULElement} aDragObject
- *   the element from which the drag session should be started.
- * @param {} aDragWindow
- *   the window the aDragObject is in
- * @param {XULElement} aDropObject
+ * @param {Element} aDragObject - The element from which the drag session should
+ *  be started.
+ * @param {Window} aDragWindow - The window the aDragObject is in.
+ * @param {Element} aDropObject
  *   the element at which the drag session should be ended.
- * @param {} aDropWindow
- *   the window the aDropObject is in
- * @param {} aRelDropX
- *   the relative x-position the element is dropped over the aDropObject
- *   in percent of the aDropObject width
- * @param {} aRelDropY
- *   the relative y-position the element is dropped over the aDropObject
- *   in percent of the aDropObject height
- * @param {XULElement} aListener
- *   the element who's drop target should be captured and returned.
+ * @param {Window} aDropWindow - The window the aDropObject is in
+ * @param {integer} aRelDropX - The relative x-position the element is dropped
+ *   over the aDropObject in percent of the aDropObject width.
+ * @param {integer} aRelDropY - The relative y-position the element is dropped
+ *   over the aDropObject in percent of the aDropObject height.
+ * @param {Element} aListener - The element who's drop target should be captured
+ *   and returned.
  */
 export function drag_n_drop_element(
   aDragObject,
@@ -50,13 +46,12 @@ export function drag_n_drop_element(
 /**
  * Starts a drag new session.
  *
- * @param {} aWindow
- * @param {XULElement} aDispatcher
- *   the element from which the drag session should be started.
- * @param {XULElement} aListener
- *   the element who's drop target should be captured and returned.
- * @returns {nsIDataTransfer}
- *   returns the DataTransfer Object of captured by aListener.
+ * @param {Window} aWindow
+ * @param {Element} aDispatcher - The element from which the drag session should
+ *   be started.
+ * @param {Element} aListener - The element who's drop target should be captured
+ *   and returned.
+ * @returns {nsIDataTransfer} the DataTransfer Object of captured by aListener.
  */
 export function synthesize_drag_start(aWindow, aDispatcher, aListener) {
   let dt;
@@ -97,13 +92,10 @@ export function synthesize_drag_start(aWindow, aDispatcher, aListener) {
 /**
  * Synthesizes a drag over event.
  *
- * @param {} aWindow
- * @param {XULElement} aDispatcher
- *   the element from which the drag session should be started.
- * @param {nsIDataTransfer} aDt
- *   the DataTransfer Object of captured by listener.
- * @param {} aArgs
- *   arguments passed to the mouse event.
+ * @param {Window} aWindow
+ * @param {Element} aDispatcher - The element from which the drag session should be started.
+ * @param {nsIDataTransfer} aDt - The DataTransfer Object of captured by listener.
+ * @param {[]} aArgs - Arguments passed to the mouse event.
  */
 export function synthesize_drag_over(aWindow, aDispatcher, aDt, aArgs) {
   _synthesizeDragEvent("dragover", aWindow, aDispatcher, aDt, aArgs);
@@ -112,13 +104,12 @@ export function synthesize_drag_over(aWindow, aDispatcher, aDt, aArgs) {
 /**
  * Synthesizes a drag end event.
  *
- * @param {} aWindow
- * @param {XULElement} aDispatcher
- *   the element from which the drag session should be started.
- * @param {nsIDataTransfer} aDt
- *   the DataTransfer Object of captured by listener.
- * @param {} aArgs
- *   arguments passed to the mouse event.
+ * @param {Window} aWindow
+ * @param {Element} aDispatcher - The element from which the drag session should
+ *   be started.
+ * @param {Element} aListener
+ * @param {nsIDataTransfer} aDt - The DataTransfer Object of captured by listener.
+ * @param {[]} aArgs - Arguments passed to the mouse event.
  */
 export function synthesize_drag_end(
   aWindow,
@@ -144,13 +135,11 @@ export function synthesize_drag_end(
 /**
  * Synthesizes a drop event.
  *
- * @param {} aWindow
- * @param {XULElement} aDispatcher
- *   the element from which the drag session should be started.
- * @param {nsIDataTransfer} aDt
- *   the DataTransfer Object of captured by listener.
- * @param {} aArgs
- *   arguments passed to the mouse event.
+ * @param {Window} aWindow
+ * @param {Element} aDispatcher - The element from which the drag session should
+ *   be started.
+ * @param {nsIDataTransfer} aDt - The DataTransfer Object of captured by listener.
+ * @param {[]} aArgs - Arguments passed to the mouse event.
  */
 export function synthesize_drop(aWindow, aDispatcher, aDt, aArgs) {
   _synthesizeDragEvent("drop", aWindow, aDispatcher, aDt, aArgs);
@@ -170,15 +159,12 @@ export function synthesize_drop(aWindow, aDispatcher, aDt, aArgs) {
 /**
  * Private function: Synthesizes a specified drag event.
  *
- * @param {} aType
- *   the type of the drag event to be synthesiyzed.
- * @param {} aWindow
- * @param {XULElement} aDispatcher
- *   the element from which the drag session should be started.
- * @param {nsIDataTransfer} aDt
- *   the DataTransfer Object of captured by listener.
- * @param {} aArgs
- *   arguments passed to the mouse event.
+ * @param {string} aType - The type of the drag event to be synthesiyzed.
+ * @param {Window} aWindow
+ * @param {Element} aDispatcher - The element from which the drag session should
+ *   be started.
+ * @param {nsIDataTransfer} aDt - The DataTransfer Object of captured by listener.
+ * @param {[]} aArgs - Arguments passed to the mouse event.
  */
 function _synthesizeDragEvent(aType, aWindow, aDispatcher, aDt, aArgs) {
   let screenX;

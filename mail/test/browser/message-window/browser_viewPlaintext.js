@@ -15,7 +15,7 @@ var { open_message_from_file } = ChromeUtils.importESModule(
 /**
  * Retrieve the textual content of the message and compare it.
  *
- * @param aWindow         Message window.
+ * @param {Window} aWindow - Message window.
  * @param aExpected       Expected content.
  * @param aDontWantToSee  Content of other MIME parts we don't want to see.
  */

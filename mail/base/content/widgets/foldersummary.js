@@ -83,7 +83,7 @@
      *   to fetch msgs.
      * @param Object outAsync - Object with value property set to true if there
      *   are async fetches pending (a message preview will be available later).
-     * @returns true if the folder knows about messages that should be shown.
+     * @returns {boolean} true if the folder knows about messages that should be shown.
      */
     parseFolder(folder, urlListener, outAsync) {
       // Skip servers, Trash, Junk folders and newsgroups.

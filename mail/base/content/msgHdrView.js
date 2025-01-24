@@ -3664,7 +3664,7 @@ function updateHeaderToolbarButtons() {
  * Checks if the selected messages can be marked as read or unread
  *
  * @param markingRead true if trying to mark messages as read, false otherwise
- * @returns true if the chosen operation can be performed
+ * @returns {boolean} true if the chosen operation can be performed
  */
 function CanMarkMsgAsRead(markingRead) {
   return gMessage && SelectedMessagesAreRead() != markingRead;

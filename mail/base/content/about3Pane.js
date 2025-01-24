@@ -3711,8 +3711,8 @@ var folderPane = {
    * Prompts for confirmation, if the user hasn't already chosen the "don't ask
    * again" option.
    *
-   * @param aCommand - The command to prompt for.
-   * @param aFolder - The folder for which the confirmation is requested.
+   * @param {string} aCommand - The command to prompt for.
+   * @param {nsIMsgFolder} aFolder - The folder for which the confirmation is requested.
    */
   _checkConfirmationPrompt(aCommand, aFolder) {
     // If no folder was specified, reject the operation.

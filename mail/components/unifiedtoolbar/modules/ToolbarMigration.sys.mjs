@@ -104,7 +104,7 @@ const EMPTY_SET = "__empty";
  * migrating were removed from the DOM. The value should be the value of the
  * defaultset attribute of the respective element in the markup.
  *
- * @type {{[string]: string}}
+ * @type {object} string -> string mapping.
  */
 const XUL_TOOLBAR_DEFAULT_SET = {
   "mail-bar3":

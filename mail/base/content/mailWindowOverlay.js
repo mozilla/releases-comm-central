@@ -1056,8 +1056,8 @@ function MsgGetMessagesForAllAuthenticatedAccounts() {
  * Get messages for the account selected from Menu dropdowns.
  * if offline, prompt for getting messages.
  *
- * @param aFolder (optional) a folder in the account for which messages should
- *                           be retrieved.  If null, all accounts will be used.
+ * @param {nsIMsgFolder} [aFolder] - A folder in the account for which messages
+ *   should be retrieved. If null, all accounts will be used.
  */
 function MsgGetMessagesForAccount(aFolder) {
   if (!aFolder) {
@@ -1116,7 +1116,7 @@ function MsgSubscribe(folder) {
  * from the given newsgroup/s.
  *
  * @folders an array of newsgroup folders to unsubscribe from
- * @returns true if the user said it's ok to unsubscribe
+ * @returns {boolean} true if the user said it's ok to unsubscribe
  */
 function ConfirmUnsubscribe(folders) {
   var bundle = document.getElementById("bundle_messenger");
@@ -1223,7 +1223,7 @@ function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
 /**
  * Display the given message in an existing folder tab.
  *
- * @param aMsgHdr The message header to display.
+ * @param {msgDBHdr} aMsgHdr - The message header to display.
  */
 function MsgDisplayMessageInFolderTab(aMsgHdr) {
   const tabmail = document.getElementById("tabmail");

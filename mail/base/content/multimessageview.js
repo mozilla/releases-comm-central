@@ -129,7 +129,7 @@ class MultiMessageSummary {
    * Store a mapping from a message header to the summary node in the DOM. We
    * use this to update things when Gloda tells us to.
    *
-   * @param aMsgHdr The nsIMsgDBHdr.
+   * @param {msgDBHdr} aMsgHdr - The nsIMsgDBHdr.
    * @param aNode   The related DOM node.
    */
   mapMsgToNode(aMsgHdr, aNode) {
@@ -347,7 +347,7 @@ class MultiMessageSummary {
    * messy work of understanding how tags are stored in nsIMsgDBHdrs.  It would
    * be a good candidate for a utility library.
    *
-   * @param aMsgHdr The msgHdr whose tags we want.
+   * @param {msgDBHdr} aMsgHdr - The msgHdr whose tags we want.
    * @returns An array of nsIMsgTag objects.
    */
   _getTagsForMsg(aMsgHdr) {

@@ -382,7 +382,7 @@ function check_attachment_names(aWin, aNames) {
  *   - key: keycode of key to press instead of a click,
  *   - key_modifiers: { accelKey, ctrlKey, shiftKey, altKey, etc.},
  *   - result: an array of attachment names in the new order that should result.
- * @param {boolean} openPanel - Whether to open reorderAttachmentsPanel for the test.
+ * @param {boolean} [aOpenPanel] - Whether to open reorderAttachmentsPanel for the test.
  */
 async function subtest_reordering(
   aCwc,

@@ -6,8 +6,6 @@
  * Tests whether JavaScript in a local/remote message works. The test
  * mailnews/extensions/newsblog/test/browser/browser_feedDisplay.js does the
  * same thing for feeds.
- *
- * @note This assumes an existing local account.
  */
 
 "use strict";

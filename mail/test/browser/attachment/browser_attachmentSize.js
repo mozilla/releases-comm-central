@@ -260,7 +260,7 @@ add_setup(async function () {
 /**
  * Make sure that the attachment's size is what we expect
  *
- * @param index the attachment's index, starting at 0
+ * @param {integer} index - the attachment's index, starting at 0
  * @param expectedSize the expected size of the attachment, in bytes
  */
 function check_attachment_size(index, expectedSize) {
@@ -287,7 +287,7 @@ function check_attachment_size(index, expectedSize) {
 /**
  * Make sure that the attachment's size is not displayed
  *
- * @param index the attachment's index, starting at 0
+ * @param {integer} index - the attachment's index, starting at 0
  */
 function check_no_attachment_size(index) {
   const win = get_about_message();
@@ -312,7 +312,7 @@ function check_no_attachment_size(index) {
 /**
  * Make sure that the total size of all attachments is what we expect.
  *
- * @param count the expected number of attachments
+ * @param {integer} count - the expected number of attachments
  * @param expectedSize the expected size in bytes of all the attachments
  * @param exact true if the size of all attachments is known, false otherwise
  */
@@ -375,7 +375,7 @@ function check_total_attachment_size(count, expectedSize, exact) {
  * Make sure that the individual and total attachment sizes for this message
  * are as expected
  *
- * @param index the index of the message to check in the thread pane
+ * @param {integer} index - the index of the message to check in the thread pane
  */
 async function help_test_attachment_size(index) {
   await be_in_folder(folder);

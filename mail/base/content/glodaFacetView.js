@@ -226,7 +226,7 @@ ActiveSingularConstraint.prototype = {
    *  just append the new values to the existing set of values.  If it is not
    *  the same, we replace them.
    *
-   * @returns true if the caller needs to revalidate their understanding of the
+   * @returns {boolean} true if the caller needs to revalidate their understanding of the
    *     constraint because we have flipped whether we are inclusive or
    *     exclusive and have thrown away some constraints as a result.
    */
@@ -248,7 +248,7 @@ ActiveSingularConstraint.prototype = {
    * Relax something we previously constrained.  Remove it, some might say.  It
    *  is possible after relaxing that we will no longer be an active constraint.
    *
-   * @returns true if we are no longer constrained at all.
+   * @returns {boolean} true if we are no longer constrained at all.
    */
   relax(aInclusive, aGroupValues) {
     if (aInclusive != this.inclusive) {
@@ -380,7 +380,7 @@ ActiveNonSingularConstraint.prototype = {
    * Relax something we previously constrained.  Remove it, some might say.  It
    *  is possible after relaxing that we will no longer be an active constraint.
    *
-   * @returns true if we are no longer constrained at all.
+   * @returns {boolean} true if we are no longer constrained at all.
    */
   relax(aInclusive, aGroupValues) {
     const groupIdAttr = this.attrDef.objectNounDef.isPrimitive
@@ -892,7 +892,7 @@ var FacetContext = {
    *     a date constraint applied.)
    * @param [aCallback] The callback to call once (re-)faceting has completed.
    *
-   * @returns true if the caller needs to revalidate because the constraint has
+   * @returns {boolean} true if the caller needs to revalidate because the constraint has
    *     changed in a way other than explicitly requested.  This can occur if
    *     a singular constraint flips its inclusive state and throws away
    *     constraints.
@@ -954,7 +954,7 @@ var FacetContext = {
    * @param aGroupValues The list of group values to remove.
    * @param aCallback The callback to call once all facets have been updated.
    *
-   * @returns true if the constraint has been completely removed.  Under the
+   * @returns {boolean} true if the constraint has been completely removed.  Under the
    *     current regime, this will likely cause the binding that is calling us
    *     to be rebuilt, so be aware if you are trying to do any cool animation
    *     that might no longer make sense.

@@ -405,9 +405,10 @@ function scrollContentTo(element) {
 /**
  * Selects the specified preferences pane
  *
- * @param paneID              ID of prefpane to select
- * @param scrollPaneTo        ID of the element to scroll into view
- * @param otherArgs.subdialog ID of button to activate, opening a subdialog
+ * @param {string} paneID - ID of prefpane to select.
+ * @param {string} scrollPaneTo - ID of the element to scroll into view.
+ * @param {object} otherArgs
+ * @param {string} otherArgs.subdialog - ID of button to activate, opening a subdialog
  */
 function selectPrefPane(paneID, scrollPaneTo, otherArgs) {
   if (paneID) {
@@ -423,8 +424,8 @@ function selectPrefPane(paneID, scrollPaneTo, otherArgs) {
 /**
  * Select the specified tab
  *
- * @param scrollPaneTo ID of the element to scroll into view
- * @param subdialogID  ID of button to activate, opening a subdialog
+ * @param {string} scrollPaneTo - ID of the element to scroll into view.
+ * @param {string} subdialogID - ID of button to activate, opening a subdialog.
  */
 function showTab(scrollPaneTo, subdialogID) {
   setTimeout(function () {

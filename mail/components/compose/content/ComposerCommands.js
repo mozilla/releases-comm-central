@@ -664,7 +664,7 @@ function PromptForSaveLocation(
  * If needed, prompt for document title and set the document title to the
  * preferred value.
  *
- * @returns true if the title was set up successfully;
+ * @returns {boolean} true if the title was set up successfully;
  *         false if the user cancelled the title prompt
  */
 function PromptAndSetTitleIfNone() {

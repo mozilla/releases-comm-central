@@ -26,13 +26,10 @@ export class PromptParent extends JSWindowActorParent {
    * Opens a window prompt for a BrowsingContext, and puts the associated
    * browser in the modal state until the prompt is closed.
    *
-   * @param {object} args
-   *        The arguments passed up from the BrowsingContext to be passed
-   *        directly to the modal window.
-   * @returns {Promise}
-   *         Resolves when the window prompt is dismissed.
-   * @resolves {object}
-   *           The arguments returned from the window prompt.
+   * @param {object} args - The arguments passed up from the BrowsingContext
+   *   to be passed directly to the modal window.
+   * @returns {Promise<object>} The arguments returned from the window prompt
+   *   when the window prompt is dismissed.
    */
   async openWindowPrompt(args) {
     const COMMON_DIALOG = "chrome://global/content/commonDialog.xhtml";

@@ -153,7 +153,7 @@ async function assert_mode_not_selected(mode) {
 /**
  * Toggle the folder mode by clicking in the menu.
  *
- * @param mode  The base name of the mode to select.
+ * @param {string} mode - The base name of the mode to select.
  */
 async function select_mode_in_menu(mode) {
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, window);

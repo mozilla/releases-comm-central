@@ -680,7 +680,7 @@ add_task(async function test_palette_contents() {
    * @param {string} itemId - ID of the item.
    * @param {UnifiedToolbarCustomizationPane} pane - The pane to check.
    * @param {boolean} spaceSpecific - If the item is space specific.
-   * @returns
+   * @returns {boolean} true if offered
    */
   function inPaneOrTarget(itemId, pane, spaceSpecific) {
     document.getElementById(pane.getAttribute("aria-labelledby")).select();

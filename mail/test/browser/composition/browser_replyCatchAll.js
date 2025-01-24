@@ -236,8 +236,8 @@ add_task(async function test_reply_identity_selection() {
  * composer window.
  *
  * @param {Window} cwc - Compose window.
- * @param {string} aIdentityKey - The key of the expected identity.
- * @param {string} aFrom - The expected displayed From address.
+ * @param {string} identityKey - The key of the expected identity.
+ * @param {string} from - The expected displayed From address.
  */
 function checkCompIdentity(cwc, identityKey, from) {
   Assert.equal(

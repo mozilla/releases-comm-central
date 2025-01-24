@@ -191,8 +191,8 @@ add_setup(async function () {
 /**
  * Make sure that the attachment's icon is what we expect.
  *
- * @param index the attachment's index, starting at 0
- * @param expectedSize the URL of the expected icon of the attachment
+ * @param {integer} index - the attachment's index, starting at 0
+ * @param {string} expectedIcon - The URL of the expected icon of the attachment.
  */
 function check_attachment_icon(index, expectedIcon) {
   const win = get_about_message();
@@ -209,7 +209,7 @@ function check_attachment_icon(index, expectedIcon) {
 /**
  * Make sure that the individual icons are as expected.
  *
- * @param index the index of the message to check in the thread pane
+ * @param {integer} index - The index of the message to check in the thread pane.
  */
 async function help_test_attachment_icon(index) {
   await be_in_folder(folder);

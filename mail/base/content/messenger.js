@@ -617,7 +617,7 @@ function getWindowStateForSessionPersistence() {
  * @param {boolean} aDontRestoreFirstTab - If this is true, the first tab will
  *   not be restored, and will continue to retain focus at the end. This is
  *   needed if the window was opened with a folder or a message as an argument.
- * @returns true if the restoration was successful, false otherwise.
+ * @returns {boolean} true if the restoration was successful, false otherwise.
  */
 async function atStartupRestoreTabs(aDontRestoreFirstTab) {
   const state = await SessionStoreManager.loadingWindow(window);

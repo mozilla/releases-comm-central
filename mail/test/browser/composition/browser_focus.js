@@ -26,7 +26,6 @@ requestLongerTimeout(3);
  * @param {boolean} options.languageButton - Whether to show the language
  *   menu button.
  * @param {boolean} options.contacts - Whether to show the contacts side pane.
- * @param {string} otherHeader - The name of the custom header to show.
  */
 async function checkFocusCycling(win, options) {
   const doc = win.document;

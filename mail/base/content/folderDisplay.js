@@ -99,7 +99,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @returns true if the selection should be summarized for this folder. This
+   * @returns {boolean} true if the selection should be summarized for this folder. This
    *     is based on the mail.operate_on_msgs_in_collapsed_threads pref and
    *     if we are in a newsgroup folder. XXX When bug 478167 is fixed, this
    *     should be limited to being disabled for newsgroups that are not stored
@@ -192,7 +192,7 @@ FolderDisplayWidget.prototype = {
   // @{
 
   /**
-   * @returns true if the mail view picker is visible.  This affects whether the
+   * @returns {boolean} true if the mail view picker is visible.  This affects whether the
    *     DBViewWrapper will actually use the persisted mail view or not.
    */
   get shouldUseMailViews() {
@@ -204,7 +204,7 @@ FolderDisplayWidget.prototype = {
    *  want the user to connect to the server first so password authentication
    *  can occur.
    *
-   * @returns true if the folder should be shown immediately, false if we should
+   * @returns {boolean} true if the folder should be shown immediately, false if we should
    *     wait for updateFolder to complete.
    */
   get shouldDeferMessageDisplayUntilAfterServerConnect() {
@@ -558,7 +558,7 @@ FolderDisplayWidget.prototype = {
   // @{
 
   /**
-   * @returns true if there is a db view and the command is enabled on the view.
+   * @returns {boolean} true if there is a db view and the command is enabled on the view.
    *  This function hides some of the XPCOM-odditities of the getCommandStatus
    *  call.
    */
@@ -589,7 +589,7 @@ FolderDisplayWidget.prototype = {
    *  folderDisplayWidget.view.dbView.doCommandWithFolder.
    *
    * @param aCommandName The command name to invoke.
-   * @param aFolder The folder context for the command.
+   * @param {nsIMsgFolder} aFolder - The folder context for the command.
    */
   doCommandWithFolder(aCommandName, aFolder) {
     return (
@@ -615,7 +615,7 @@ FolderDisplayWidget.prototype = {
    * @param {boolean} [aSelect=true] should we select the message if we find
    *     one?
    *
-   * @returns true if the navigation constraint matched anything, false if not.
+   * @returns {boolean} true if the navigation constraint matched anything, false if not.
    *     We will have navigated if true, we will have done nothing if false.
    */
   navigate(aNavType, aSelect) {
@@ -712,7 +712,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @returns true if there is a selected message and it's an RSS feed message;
+   * @returns {boolean} true if there is a selected message and it's an RSS feed message;
    *  a feed message does not have to be in an rss account folder if stored in
    *  Tb15 and later.
    */

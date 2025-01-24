@@ -96,7 +96,7 @@ export async function open_content_tab_with_click(
  * in the given tab that state is sufficiently cleaned up so it doesn't trick us
  * into thinking that there is no need to wait.
  *
- * @param [aTab] optional tab, defaulting to the current tab.
+ * @param {TabInfo} [aTab] - Optional tab, defaulting to the current tab.
  */
 export function plan_for_content_tab_load(aTab) {
   if (aTab === undefined) {
@@ -113,9 +113,9 @@ export function plan_for_content_tab_load(aTab) {
  * Note that you cannot call |plan_for_content_tab_load| if you're opening a new
  * tab. That is fine, because pageLoaded is initially false.
  *
- * @param [aTab]      Optional tab, defaulting to the current tab.
- * @param aURL        The URL being loaded in the tab.
- * @param [aTimeout]  Optional time to wait for the load.
+ * @param {TabInfo} [aTab] - Optional tab, defaulting to the current tab.
+ * @param {string} aURL - The URL being loaded in the tab.
+ * @param {integer} [aTimeout] - Optional time to wait for the load.
  */
 export async function promise_content_tab_load(aTab, aURL, aTimeout) {
   if (aTab === undefined) {
@@ -188,8 +188,8 @@ export async function promise_content_tab_element_display(aTab, aElem) {
  * Finds element in document fragment, containing only the specified text
  * as its textContent value.
  *
- * @param aRootNode  Root node of the node tree where search should start.
- * @param aText      The string to search.
+ * @param {Node} aRootNode - Root node of the node tree where search should start.
+ * @param {string} aText - The string to search.
  */
 export function get_element_by_text(aRootNode, aText) {
   // Check every node existing.
@@ -235,6 +235,8 @@ export function assert_content_tab_text_absent(aTab, aText) {
 /**
  * Returns the notification bar for a tab if one is currently visible,
  * null if otherwise.
+ *
+ * @returns {?Element}
  */
 export function get_notification_bar_for_tab() {
   const notificationBoxEls = mc.document

@@ -37,8 +37,10 @@ add_setup(async function () {
 /**
  * Helper to get the full message content.
  *
- * @param aMsgHdr: nsIMsgDBHdr object whose text body will be read
- * @returns {Map(partnum -> message headers), Map(partnum -> message text)}
+ * @param {msgDBHdr} aMsgHdr - nsIMsgDBHdr object whose text body will be read.
+ * @returns {object} content
+ * @returns {Map} content.headers - partnum -> message headers
+ * @returns {Map} content.text - partnum -> message text
  */
 async function getMsgHeaders(aMsgHdr) {
   const msgFolder = aMsgHdr.folder;
@@ -75,8 +77,6 @@ async function getMsgHeaders(aMsgHdr) {
   return { headers: handler._data, text: handler._text };
 }
 
-/**
- */
 add_task(async function test_basic_multipart_related() {
   const compWin = await open_compose_new_mail();
   compWin.focus();

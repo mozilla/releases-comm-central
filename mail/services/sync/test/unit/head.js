@@ -124,7 +124,7 @@ async function roundTripRecord(record, constructor) {
  *
  * @param {Tracker} tracker
  * @param {string} expectedUID - The UID of an object that has changed.
- * @param {CryptoWrapper} record - The result of `createRecord` called before
+ * @returns {CryptoWrapper} the result of `createRecord` called before
  *   clearing the tracker.
  */
 async function assertChangeTracked(tracker, expectedUID) {
