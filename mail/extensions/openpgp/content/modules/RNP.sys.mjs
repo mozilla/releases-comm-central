@@ -2060,13 +2060,14 @@ export var RNP = {
       const cipher = prot_cipher_str.readString();
       const validIntegrityProtection = prot_is_valid.value;
 
+      lazy.log.debug(`Decryption mode=${mode}, cipher=${cipher}`);
       if (mode != "none") {
         if (!validIntegrityProtection) {
           useDecodedData = false;
           result.statusFlags |=
             lazy.EnigmailConstants.MISSING_MDC |
             lazy.EnigmailConstants.DECRYPTION_FAILED;
-        } else if (mode == "null" || this.policyForbidsAlg(cipher)) {
+        } else if (cipher == "null" || this.policyForbidsAlg(cipher)) {
           // don't indicate decryption, because a non-protecting or insecure cipher was used
           result.statusFlags |= lazy.EnigmailConstants.UNKNOWN_ALGO;
         } else {
