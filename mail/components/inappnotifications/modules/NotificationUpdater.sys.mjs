@@ -243,7 +243,13 @@ export const NotificationUpdater = {
   },
 
   _schedule(time) {
+    if (this._timeout) {
+      lazy.console.warn("update already scheduled");
+      return;
+    }
     this._timeout = lazy.setTimeout(() => {
+      this._timeout = null;
+
       this._fetch();
     }, time);
   },

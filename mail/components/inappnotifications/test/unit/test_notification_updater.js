@@ -27,7 +27,8 @@ const { clearTimeout, setTimeout } = ChromeUtils.importESModule(
 let updateSpy;
 let notifications;
 
-function clear() {
+async function clear() {
+  await new Promise(resolve => setTimeout(resolve));
   clearTimeout(NotificationUpdater._timeout);
   NotificationUpdater._timeout = null;
   NotificationUpdater._updateHistory = [];
@@ -76,7 +77,7 @@ add_setup(async () => {
   registerCleanupFunction(async () => {
     NotificationUpdater.onUpdate = null;
 
-    clear();
+    await clear();
     NotificationUpdater._timeout = null;
 
     Services.prefs.clearUserPref(
@@ -156,7 +157,7 @@ add_task(async function test_fetch() {
     "Should call callback with the notifications"
   );
 
-  clear();
+  await clear();
   updateSpy.resetHistory();
 });
 
@@ -174,7 +175,7 @@ add_task(async function test_fetch_networkError() {
   Assert.ok(updateSpy.notCalled, "Should not call callback with network error");
 
   Services.prefs.setStringPref("mail.inappnotifications.url", url);
-  clear();
+  await clear();
   updateSpy.resetHistory();
 });
 
@@ -197,7 +198,7 @@ add_task(async function test_fetch_parseError() {
   );
 
   Services.prefs.setStringPref("mail.inappnotifications.url", url);
-  clear();
+  await clear();
   updateSpy.resetHistory();
 });
 
@@ -227,7 +228,7 @@ add_task(async function test_fetch_updateError() {
     "Callback should report throw"
   );
 
-  clear();
+  await clear();
   NotificationUpdater.onUpdate = updateSpy;
 });
 
@@ -246,7 +247,7 @@ add_task(async function test_fetch_noOnUpdate() {
   Assert.ok(!didFetch, "Should skip fetching notifications without onUpdate");
   Assert.equal(updateSpy.callCount, 0, "Should not call callback");
 
-  clear();
+  await clear();
   NotificationUpdater.onUpdate = updateSpy;
 });
 
@@ -276,7 +277,7 @@ add_task(async function test_fetch_formattedURL() {
   );
 
   Services.prefs.setStringPref("mail.inappnotifications.url", url);
-  clear();
+  await clear();
   updateSpy.resetHistory();
 });
 
@@ -329,13 +330,13 @@ add_task(async function test_init() {
 
   Services.prefs.clearUserPref("mail.inappnotifications.refreshInterval");
   NotificationUpdater.onUpdate = updateSpy;
-  clear();
+  await clear();
   updateSpy.resetHistory();
   NotificationUpdater.getExpirationTime = getExpirationTime;
 });
 
 add_task(async function test_init_withRecentUpdate() {
-  clear();
+  await clear();
 
   const { resolve, promise } = Promise.withResolvers();
   const schedule = NotificationUpdater._schedule;
@@ -362,7 +363,7 @@ add_task(async function test_init_withRecentUpdate() {
   // then the next update is scheduled.
   Assert.equal(scheduleSpy.callCount, 2, "Should call schedule callback twice");
 
-  clear();
+  await clear();
   NotificationUpdater._schedule = schedule;
   updateSpy.resetHistory();
 });
@@ -469,7 +470,7 @@ add_task(async function test_fetchScheduling() {
   );
   NotificationUpdater.onUpdate = onUpdate;
   NotificationUpdater.getExpirationTime = getExpirationTime;
-  clear();
+  await clear();
 });
 
 add_task(async function test_maxUpdatesPerDay() {
@@ -480,11 +481,10 @@ add_task(async function test_maxUpdatesPerDay() {
   let count = 0;
   const { resolve, promise } = Promise.withResolvers();
   NotificationUpdater.onUpdate = () => {
-    if (count === 24) {
+    if (count === 23) {
       // Wait one second to make sure no more updates take place
       /* eslint-disable-next-line mozilla/no-arbitrary-setTimeout */
       setTimeout(() => {
-        // clear();
         resolve();
       }, 1000);
     }
@@ -496,7 +496,7 @@ add_task(async function test_maxUpdatesPerDay() {
 
   await promise;
 
-  Assert.equal(count, 25, "fetch respects MAX_UPDATES_PER_DAY");
+  Assert.equal(count, 24, "fetch respects MAX_UPDATES_PER_DAY");
 
   // Wait six seconds, one more then the _PER_TIME_UNIT, to make sure
   // updates commence again.
@@ -505,8 +505,18 @@ add_task(async function test_maxUpdatesPerDay() {
 
   Assert.greaterOrEqual(count, 26, "Update called after delay");
 
-  clear();
+  await clear();
 
   NotificationUpdater.onUpdate = onUpdate;
   NotificationUpdater.getExpirationTime = getExpirationTime;
+
+  const schedule = NotificationUpdater._schedule;
+  NotificationUpdater._schedule = () => {};
+
+  // Wait six seconds, one more then the _PER_TIME_UNIT, to make sure
+  // updates commence again.
+  /* eslint-disable-next-line mozilla/no-arbitrary-setTimeout */
+  await new Promise(_resolve => setTimeout(_resolve, 6000));
+
+  NotificationUpdater._schedule = schedule;
 });
