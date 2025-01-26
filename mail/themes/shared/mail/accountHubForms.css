@@ -481,6 +481,7 @@ div:has(legend) {
 
 .config-form-data {
   display: grid;
+  align-items: start;
   grid-template-columns: 2fr 60%;
   column-gap: 20px;
 
@@ -528,6 +529,10 @@ div:has(legend) {
       padding: 2px;
       border: 1px solid transparent;
       border-radius: 3px;
+
+      &.addon {
+        display: flex;
+      }
     }
 
     &.recommended-protocol .recommended {
@@ -595,6 +600,11 @@ div:has(legend) {
       & .recommended {
         background-color: light-dark(var(--color-primary-soft), transparent);
         color: light-dark(var(--color-primary-default), currentColor);
+
+        &.addon {
+          background-color: var(--color-warning-soft);
+          color: var(--color-text-warning);
+        }
       }
 
       & input[type="radio"]:checked {
@@ -687,6 +697,19 @@ div:has(legend) {
             font-weight: 400;
           }
         }
+      }
+    }
+
+    & .owl-exchange-text {
+      padding: 10px;
+      background-color: var(--color-warning-soft);
+      border: 1px solid var(--color-text-warning);
+      color: var(--color-text-warning);
+      font-size: 0.9rem;
+      border-radius: 5px;
+
+      & .install-addon {
+        margin: 0;
       }
     }
   }

@@ -4,6 +4,12 @@
 
 import { AccountHubStep } from "./account-hub-step.mjs";
 
+const {
+  AccountCreationUtils: { AddonInstaller },
+} = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
+);
+
 const { Sanitizer } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/Sanitizer.sys.mjs"
 );
@@ -29,11 +35,25 @@ class EmailConfigFound extends AccountHubStep {
   #protocolForm;
 
   /**
+   * The install link.
+   *
+   * @type {HTMLElement}
+   */
+  #installAddon;
+
+  /**
    * The Account Config object with the selected incoming set.
    *
    * @type {AccountConfig}
    */
   #selectedConfig;
+
+  /**
+   * The object containing the add-on information.
+   *
+   * @type {Object}
+   */
+  #addon;
 
   connectedCallback() {
     if (this.hasConnected) {
@@ -50,6 +70,7 @@ class EmailConfigFound extends AccountHubStep {
     this.appendChild(template);
 
     this.#protocolForm = this.querySelector("#protocolForm");
+    this.#installAddon = this.querySelector("#addonInstall");
 
     this.#protocolForm.addEventListener("change", event => {
       // Remove 'selected' class from all label elements.
@@ -62,15 +83,28 @@ class EmailConfigFound extends AccountHubStep {
       this.#selectConfig(event.target.value);
     });
 
-    this.querySelector("#editConfiguration").addEventListener("click", () => {
-      this.dispatchEvent(
-        new CustomEvent("edit-configuration", {
-          bubbles: true,
-        })
-      );
-    });
+    this.querySelector("#editConfiguration").addEventListener("click", this);
+    this.#installAddon.addEventListener("click", this);
 
     this.#currentConfig = {};
+  }
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "click":
+        if (event.target.id === "editConfiguration") {
+          this.dispatchEvent(
+            new CustomEvent("edit-configuration", {
+              bubbles: true,
+            })
+          );
+        } else if (event.target.id === "installAddon") {
+          // TODO: Install the add-on and hide the button.
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   /**
@@ -87,6 +121,7 @@ class EmailConfigFound extends AccountHubStep {
    */
   setState(configData) {
     this.#currentConfig = configData;
+    this.#setAddon();
     this.#updateFields();
   }
 
@@ -103,6 +138,10 @@ class EmailConfigFound extends AccountHubStep {
       this.querySelector("#pop3"),
       this.querySelector("#exchange"),
     ];
+
+    if (Services.prefs.getBoolPref("experimental.mail.ews.enabled", true)) {
+      configLabels.push(this.querySelector("#ews"));
+    }
 
     const alternatives = this.#currentConfig.incomingAlternatives.map(
       a => a.type
@@ -151,6 +190,8 @@ class EmailConfigFound extends AccountHubStep {
     this.querySelector("#incomingType").title = incoming.type;
     this.querySelector("#incomingHost").title = incoming.hostname;
     this.querySelector("#incomingUsername").title = username;
+    this.querySelector("#owlExchangeDescription").hidden = true;
+    this.querySelector("#editConfiguration").hidden = false;
     const incomingSSL = Sanitizer.translate(incoming.socketType, {
       0: "no-encryption",
       2: "starttls",
@@ -178,16 +219,20 @@ class EmailConfigFound extends AccountHubStep {
     }
 
     // Hide outgoing config details if unavailable.
-    if (!outgoing || incoming.type === "exchange") {
+    if (!outgoing || incoming.type === "ews" || incoming.type === "exchange") {
       this.querySelector("#outgoingConfigType").hidden = true;
       this.querySelector("#outgoingConfig").hidden = true;
-      this.querySelector("#configSelection").classList.add("single");
-
       document.l10n.setAttributes(
         this.querySelector("#incomingTypeText"),
         "account-hub-result-ews-text"
       );
 
+      if (incoming.type === "exchange" && !this.#addon?.isInstalled) {
+        this.querySelector("#owlExchangeDescription").hidden = false;
+        this.querySelector("#editConfiguration").hidden = true;
+      }
+
+      this.querySelector("#configSelection").classList.add("single");
       return;
     }
 
@@ -214,6 +259,48 @@ class EmailConfigFound extends AccountHubStep {
       this.querySelector("#outgoingAuth"),
       `account-setup-result-${outgoingSsl}`
     );
+  }
+
+  /**
+   * Sets and updates the add-on for exchange.
+   */
+  async #setAddon() {
+    // Get the first available add-on in the config object.
+    this.#addon = this.#currentConfig.addons?.at(0);
+
+    if (!this.#addon) {
+      return;
+    }
+
+    const installer = new AddonInstaller(this.#addon);
+    this.#addon.isInstalled = await installer.isInstalled();
+    this.#addon.isDisabled = await installer.isDisabled();
+
+    if (this.#addon.isInstalled) {
+      this.#currentConfig.incoming.addonAccountType =
+        this.#addon.useType.addonAccountType;
+      this.querySelector("#owlExchangeDescription").hidden = true;
+      return;
+    }
+
+    if (this.#addon.isDisabled) {
+      this.#installAddon.disabled = true;
+
+      // Trigger an add-on update check. If an update is available,
+      // enable the install button to (re)install.
+      AddonManager.getAddonByID(this.#addon.id).then(addon => {
+        if (!addon) {
+          return;
+        }
+        const listener = {
+          onUpdateAvailable() {
+            this.querySelector("#installAddon").disabled = false;
+          },
+          onNoUpdateAvailable() {},
+        };
+        addon.findUpdates(listener, AddonManager.UPDATE_WHEN_USER_REQUESTED);
+      });
+    }
   }
 }
 
