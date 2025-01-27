@@ -16,8 +16,8 @@ var { open_message_from_file } = ChromeUtils.importESModule(
  * Retrieve the textual content of the message and compare it.
  *
  * @param {Window} aWindow - Message window.
- * @param aExpected       Expected content.
- * @param aDontWantToSee  Content of other MIME parts we don't want to see.
+ * @param {string} aExpected - Expected content.
+ * @param {string} aDontWantToSee - Content of other MIME parts we don't want to see.
  */
 function check_content(aWindow, aExpected, aDontWantToSee) {
   const messageContent = aWindow.content.document.documentElement.textContent;
@@ -47,9 +47,9 @@ function check_content(aWindow, aExpected, aDontWantToSee) {
  * Load a message from a file and display it as plain text and HTML. Check that the
  * correct MIME part is displayed.
  *
- * @param aFilePath            Path to the file containing the message to load and display.
- * @param aExpectedPlainText   Expected content when viewed as plain text.
- * @param aExpectedHTML        Expected content when viewed as HTML.
+ * @param {string} aFilePath - Path to the file containing the message to load and display.
+ * @param {string} aExpectedPlainText - Expected content when viewed as plain text.
+ * @param {string} aExpectedHTML - Expected content when viewed as HTML.
  */
 async function checkSingleMessage(
   aFilePath,

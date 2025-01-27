@@ -18,8 +18,8 @@ collectedAddresses = MailServices.ab.getDirectory(
 /**
  * Make sure that there is a card for this email address
  *
- * @param emailAddress the address that should have a card
- * @param displayName the display name the card should have
+ * @param {string} emailAddress - The address that should have a card.
+ * @param {string} displayName - The display name the card should have.
  */
 export function ensure_card_exists(emailAddress, displayName) {
   ensure_no_card_exists(emailAddress);
@@ -30,7 +30,7 @@ export function ensure_card_exists(emailAddress, displayName) {
 /**
  * Make sure that there is no card for this email address
  *
- * @param emailAddress the address that should have no cards
+ * @param {string} emailAddress - The address that should have no cards.
  */
 export function ensure_no_card_exists(emailAddress) {
   for (const ab of MailServices.ab.directories) {
@@ -46,7 +46,7 @@ export function ensure_no_card_exists(emailAddress) {
 /**
  * Return all address book cards for a particular email address
  *
- * @param aEmailAddress the address to search for
+ * @param {string} aEmailAddress - The address to search for.
  */
 export function get_cards_in_all_address_books_for_email(aEmailAddress) {
   var result = [];
@@ -64,8 +64,8 @@ export function get_cards_in_all_address_books_for_email(aEmailAddress) {
 /**
  * Creates and returns a SQLite-backed address book.
  *
- * @param aName the name for the address book
- * @returns the nsIAbDirectory address book
+ * @param {string} aName - The name for the address book.
+ * @returns {?nsIAbDirectory} the nsIAbDirectory address book
  */
 export function create_address_book(aName) {
   const abPrefString = MailServices.ab.newAddressBook(aName, "", 101);
@@ -78,9 +78,9 @@ export function create_address_book(aName) {
  * This function will automatically fill in a dummy
  * LDAP URI if no URI is supplied.
  *
- * @param aName the name for the address book
- * @param aURI an optional URI for the address book
- * @returns the nsIAbDirectory address book
+ * @param {string} aName - The name for the address book.
+ * @param {string} aURI - An optional URI for the address book.
+ * @returns {?nsIAbDirectory} the nsIAbDirectory address book
  */
 export function create_ldap_address_book(aName, aURI) {
   if (!aURI) {
@@ -93,8 +93,8 @@ export function create_ldap_address_book(aName, aURI) {
 /**
  * Creates and returns an address book contact
  *
- * @param aEmailAddress the e-mail address for this contact
- * @param aDisplayName the display name for the contact
+ * @param {string} aEmailAddress - The e-mail address for this contact
+ * @param {string} aDisplayName - The display name for the contact
  */
 export function create_contact(aEmailAddress, aDisplayName) {
   const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
@@ -105,8 +105,11 @@ export function create_contact(aEmailAddress, aDisplayName) {
   return card;
 }
 
-/* Creates and returns a mailing list
- * @param aMailingListName the display name for the new mailing list
+/**
+ * Creates and returns a mailing list.
+ *
+ * @param {string} aMailingListName - The display name for the new mailing list.
+ * @returns {nsIAbDirectory}
  */
 export function create_mailing_list(aMailingListName) {
   var mailList = Cc[
@@ -117,10 +120,12 @@ export function create_mailing_list(aMailingListName) {
   return mailList;
 }
 
-/* Finds and returns a mailing list with a given dirName within a
- * given address book.
- * @param aAddressBook the address book to search
- * @param aDirName the dirName of the mailing list
+/**
+ * Finds and returns a mailing list with a given dirName within a given
+ * address book.
+ *
+ * @param {nsIAbDirectory} aAddressBook - The address book to search.
+ * @param {string} aDirName - The dirName of the mailing list.
  */
 export function get_mailing_list_from_address_book(aAddressBook, aDirName) {
   for (const list of aAddressBook.childNodes) {
@@ -133,10 +138,9 @@ export function get_mailing_list_from_address_book(aAddressBook, aDirName) {
 
 /* Given some address book, adds a collection of contacts to that
  * address book.
- * @param aAddressBook an address book to add the contacts to
- * @param aContacts a collection of nsIAbCards, or contacts,
- *                  where each contact has members "email"
- *                  and "displayName"
+ * @param {nsIAbDirectory} aAddressBook - An address book to add the contacts to.
+ * @param {object[]} aContacts - A collection of nsIAbCards, or contacts,
+ *   where each contact has members "email" and "displayName"
  *
  *                  Example:
  *                  [{email: 'test@example.com', displayName: 'Sammy Jenkis'}]
@@ -154,6 +158,8 @@ export function load_contacts_into_address_book(aAddressBook, aContacts) {
 
 /**
  * Deletes an address book.
+ *
+ * @param {nsIAbDirectory} aAddrBook
  */
 export function delete_address_book(aAddrBook) {
   MailServices.ab.deleteAddressBook(aAddrBook.URI);

@@ -1007,8 +1007,8 @@ ChromeUtils.defineESModuleGetters(this, {
      *  In other cases, having an MRU order and choosing the MRU tab might
      *  be more appropriate.
      *
-     * @returns the tab info object for the tab meeting the above criteria,
-     *     or null if no such tab exists.
+     * @returns {?TabInfo} the tab info object for the tab meeting the above
+     *   criteria, or null if no such tab exists.
      */
     getTabInfoForCurrentOrFirstModeInstance(aTabMode) {
       // If we're in the middle of opening a new tab

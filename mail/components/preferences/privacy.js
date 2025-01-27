@@ -171,8 +171,8 @@ var gPrivacyPane = {
    * Enables/disables the "keep until" label and menulist in response to the
    * "accept cookies" checkbox being checked or unchecked.
    *
-   * @returns 0 if cookies are accepted, 2 if they are not;
-   *         the value network.cookie.cookieBehavior should get
+   * @returns {integer} 0 if cookies are accepted, 2 if they are not;
+   *   the value network.cookie.cookieBehavior
    */
   writeAcceptCookies() {
     const accept = document.getElementById("acceptCookies");

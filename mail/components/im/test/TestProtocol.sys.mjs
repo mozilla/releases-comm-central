@@ -95,7 +95,6 @@ const SharedConversationPrototype = {
    * Send an outgoing message.
    *
    * @param {string} aMsg - Message to send.
-   * @returns
    */
   dispatchMessage(aMsg, aNotice = false) {
     if (this._disconnected) {
@@ -107,8 +106,8 @@ const SharedConversationPrototype = {
   /**
    *
    * @param {Array<object>} messages - Array of messages to add to the
-   * conversation. Expects an object with a |who|, |content| and |options|
-   * properties, corresponding to the three params of |writeMessage|.
+   *   conversation. Expects an object with a |who|, |content| and |options|
+   *   properties, corresponding to the three params of |writeMessage|.
    */
   addMessages(messages) {
     for (const message of messages) {
@@ -144,7 +143,6 @@ MUC.prototype = {
    *
    * @param {string} who - Nick of the user to add.
    * @param {string} alias - Display name of the participant.
-   * @returns
    */
   addParticipant(who, alias) {
     if (this._participants.has(who)) {
@@ -157,7 +155,6 @@ MUC.prototype = {
 };
 
 /**
- *
  * @param {prplIAccount} account
  * @param {string} name - Name of the conversation.
  */
@@ -182,7 +179,6 @@ Account.prototype = {
   _conversations: null,
 
   /**
-   *
    * @param {string} name - Name of the conversation.
    * @returns {MUC}
    */
@@ -193,7 +189,6 @@ Account.prototype = {
   },
 
   /**
-   *
    * @param {string} name - Name of the conversation.
    * @returns {DM}
    */

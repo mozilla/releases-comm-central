@@ -1220,7 +1220,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
     /**
      * Generate the layout for the current card.
      *
-     * @note This element could be recycled, make sure you set or clear all
+     * NOTE: This element could be recycled, make sure you set or clear all
      * properties.
      */
     _fillRow() {
@@ -1314,7 +1314,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
     /**
      * Generate the layout for the current card.
      *
-     * @note This element could be recycled, make sure you set or clear all
+     * NOTE: This element could be recycled, make sure you set or clear all
      * properties.
      */
     _fillRow() {
@@ -1345,7 +1345,7 @@ var cardsPane = {
   /**
    * The array of columns for the table layout.
    *
-   * @type {Array}
+   * @type {Array<object>}
    */
   COLUMNS: [
     {
@@ -1742,7 +1742,7 @@ var cardsPane = {
   /**
    * Display a list.
    *
-   * @param {bookUID} uid - The UID of the address book containing the list.
+   * @param {bookUID} bookUID - The UID of the address book containing the list.
    * @param {string} uid - The UID of the list to display.
    */
   displayList(bookUID, uid) {
@@ -1811,7 +1811,8 @@ var cardsPane = {
   /**
    * Set the name format to be displayed.
    *
-   * @param {integer} format - One of the nsIAbCard.GENERATE_* constants.
+   * @param {Event} event - Event whose value is one of the
+   *   nsIAbCard.GENERATE_* constants.
    */
   setNameFormat(event) {
     // AddrBookDataAdapter will detect this change and update automatically.
@@ -3011,7 +3012,7 @@ var detailsPane = {
   /**
    * Sanitize the link if linkifying is not desired (based on href value).
    *
-   * @param {HTMLAnchorElement) anchor
+   * @param {HTMLAnchorElement} anchor
    * @returns {HTMLAnchorElement|Text} sanitized anchor
    */
   _sanitizeHref(anchor) {

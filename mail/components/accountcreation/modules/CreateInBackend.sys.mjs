@@ -330,10 +330,9 @@ async function rememberPassword(server, password) {
  * in the config.
  * (We also check the email address as username.)
  *
- * @param config {AccountConfig} filled in (no placeholders)
- * @returns {nsIMsgIncomingServer} If it already exists, the server
- *     object is returned.
- *     If it's a new server, |null| is returned.
+ * @param {AccountConfig} config - AccountConfig filled in (no placeholders)
+ * @returns {?nsIMsgIncomingServer} If it already exists, the server object is
+ *   returned. If it's a new server, |null| is returned.
  */
 function checkIncomingServerAlreadyExists(config) {
   lazy.AccountCreationUtils.assert(config instanceof lazy.AccountConfig);
@@ -363,10 +362,9 @@ function checkIncomingServerAlreadyExists(config) {
  * which matches (hostname, port, username) the primary one
  * in the config.
  *
- * @param {AccountConfig} config - filled in (no placeholders).
- * @returns {nsIMsgOutgoingServer} If it already exists, the server
- *     object is returned.
- *     If it's a new server, |null| is returned.
+ * @param {AccountConfig} config - AccountConfig filled in (no placeholders).
+ * @returns {?nsIMsgOutgoingServer} If it already exists, the server object is
+ *   returned. If it's a new server, |null| is returned.
  */
 function checkOutgoingServerAlreadyExists(config) {
   lazy.AccountCreationUtils.assert(config instanceof lazy.AccountConfig);
@@ -390,7 +388,7 @@ function checkOutgoingServerAlreadyExists(config) {
  * protocols (eg. IMAP and POP3).
  *
  * @param {string} name - The name or email address of the new account.
- * @returns {boolean} True if an account with the same name is found.
+ * @returns {boolean} true if an account with the same name is found.
  */
 function checkAccountNameAlreadyExists(name) {
   return MailServices.accounts.accounts.some(
@@ -427,6 +425,8 @@ function generateUniqueAccountName(config) {
 /**
  * Check if there already is a "Local Folders". If not, create it.
  * Copied from AccountWizard.js with minor updates.
+ *
+ * @param {nsIMsgAccountManager} am - MailServices.accounts (FIXME, use directly!)
  */
 function verifyLocalFoldersAccount(am) {
   let localMailServer;

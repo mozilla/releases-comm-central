@@ -1328,10 +1328,8 @@ export var Policies = {
  * is stored as the user value).
  * The value is only changed in memory, and not stored to disk.
  *
- * @param {string} prefName
- *        The pref to be changed
- * @param {boolean,number,string} prefValue
- *        The value to set and lock
+ * @param {string} prefName - The pref to be changed.
+ * @param {boolean|number|string} prefValue - The value to set and lock.
  */
 export function setAndLockPref(prefName, prefValue) {
   PoliciesUtils.setDefaultPref(prefName, prefValue, true);
@@ -1343,12 +1341,9 @@ export function setAndLockPref(prefName, prefValue) {
  * Sets the _default_ value of a pref and optionally locks it.
  * The value is only changed in memory, and not stored to disk.
  *
- * @param {string} prefName
- *        The pref to be changed
- * @param {boolean,number,string} prefValue
- *        The value to set
- * @param {boolean} locked
- *        Optionally lock the pref
+ * @param {string} prefName - The pref to be changed.
+ * @param {boolean|number|string} prefValue - The value to set and lock.
+ * @param {boolean} [locked=false] - Optionally lock the pref.
  */
 export var PoliciesUtils = {
   setDefaultPref(prefName, prefValue, locked = false) {
@@ -1460,8 +1455,6 @@ export function runOnce(actionName, callback) {
 }
 
 /**
- * runOncePerModification
- *
  * Helper function similar to runOnce. The difference is that runOnce runs the
  * callback once when the policy is set, then never again.
  * runOncePerModification runs the callback once each time the policy value
@@ -1469,18 +1462,14 @@ export function runOnce(actionName, callback) {
  * If the callback that was passed is an async function, you can await on this
  * function to await for the callback.
  *
- * @param {string} actionName
- *        A given name which will be used to track if this callback has run.
- *        This string will be part of a pref name.
- * @param {string} policyValue
- *        The current value of the policy. This will be compared to previous
- *        values given to this function to determine if the policy value has
- *        changed. Regardless of the data type of the policy, this must be a
- *        string.
- * @param {Function} callback
- *        The callback to be run when the pref value changes
- * @returns Promise
- *        A promise that will resolve once the callback finishes running.
+ * @param {string} actionName - A given name which will be used to track if
+ *   this callback has run. This string will be part of a pref name.
+ * @param {string} policyValue - The current value of the policy. This will be
+ *   compared to previous values given to this function to determine if the
+ *   policy value has changed. Regardless of the data type of the policy, this
+ *   must be a string.
+ * @param {Function} callback - The callback to be run when the pref value changes.
+ * @returns {Promise} A promise that will resolve once the callback finishes running.
  */
 async function runOncePerModification(actionName, policyValue, callback) {
   const prefName = `browser.policies.runOncePerModification.${actionName}`;
@@ -1496,8 +1485,6 @@ async function runOncePerModification(actionName, policyValue, callback) {
 }
 
 /**
- * clearRunOnceModification
- *
  * Helper function that clears a runOnce policy.
  */
 function clearRunOnceModification(actionName) {
@@ -1516,8 +1503,6 @@ function replacePathVariables(path) {
 }
 
 /**
- * installAddonFromURL
- *
  * Helper function that installs an addon from a URL
  * and verifies that the addon ID matches.
  */

@@ -330,8 +330,8 @@ class Theme {
    * Properties are commonly used to specify more advanced behavior of colors,
    * images or icons.
    *
-   * @param {object} - properties Dictionary mapping properties to values.
-   * @param {object} - styles Styles object in which to store the colors.
+   * @param {object} properties - Dictionary mapping properties to values.
+   * @param {object} styles - Styles object in which to store the colors.
    */
   loadProperties(properties, styles) {
     const additionalBackgroundsCount =

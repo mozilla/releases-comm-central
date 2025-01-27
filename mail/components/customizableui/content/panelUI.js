@@ -197,7 +197,7 @@ const PanelUI = {
   /**
    * Opens the menu panel if it's closed, or closes it if it's open.
    *
-   * @param event the event that triggers the toggle.
+   * @param {Event} event - The event that triggers the toggle.
    */
   toggle(event) {
     // Don't show the panel if the window is in customization mode,
@@ -225,7 +225,7 @@ const PanelUI = {
    * toolbarbutton-icon attribute, the panel will be anchored on that child.
    * Otherwise, the panel is anchored on the event target itself.
    *
-   * @param aEvent the event (if any) that triggers showing the menu.
+   * @param {?Event} aEvent - The event (if any) that triggers showing the menu.
    */
   show(aEvent) {
     this._ensureShortcutsShown();
@@ -285,6 +285,7 @@ const PanelUI = {
     }
   },
 
+  /** @param {Event} event */
   handleEvent(event) {
     // Ignore context menus and menu button menus showing and hiding:
     if (event.type.startsWith("popup") && event.target != this.panel) {
@@ -395,11 +396,7 @@ const PanelUI = {
    * event that customization mode is started before the panel has been opened
    * by the user.
    *
-   * @param aCustomizing (optional) set to true if this was called while entering
-   *        customization mode. If that's the case, we trust that customization
-   *        mode will handle calling beginBatchUpdate and endBatchUpdate.
-   *
-   * @returns a Promise that resolves once the panel is ready to roll.
+   * @returns {Promise} a Promise that resolves once the panel is ready to roll.
    */
   async ensureReady() {
     if (this._isReady) {
@@ -415,8 +412,8 @@ const PanelUI = {
   /**
    * Shows a subview in the panel with a given ID.
    *
-   * @param aViewId the ID of the subview to show.
-   * @param aAnchor the element that spawned the subview.
+   * @param {string} aViewId - The ID of the subview to show.
+   * @param {Element} aAnchor - The element that spawned the subview.
    */
   async showSubView(aViewId, aAnchor) {
     this._ensureEventListenersAdded();
@@ -767,7 +764,7 @@ XPCOMUtils.defineConstant(this, "PanelUI", PanelUI);
 /**
  * Gets the currently selected locale for display.
  *
- * @returns the selected locale
+ * @returns {string} the selected locale
  */
 function getLocale() {
   return Services.locale.appLocaleAsBCP47;

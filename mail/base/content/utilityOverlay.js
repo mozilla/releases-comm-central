@@ -157,7 +157,7 @@ function goToggleToolbar(id, elementID) {
  * Toggle a splitter to show or hide some piece of UI (e.g. the message preview
  * pane).
  *
- * @param splitterId the splliter that should be toggled
+ * @param {string} splitterId - The splliter that should be toggled.
  */
 function togglePaneSplitter(splitterId) {
   var splitter = document.getElementById(splitterId);
@@ -200,10 +200,10 @@ function openLinkText(event, what) {
 /**
  * Open the specified tab type (possibly in a new window)
  *
- * @param tabType the tab type to open (e.g. "contentTab")
- * @param tabParams the parameters to pass to the tab
- * @param where 'tab' to open in a new tab (default) or 'window' to open in a
- *        new window
+ * @param {string} tabType - The tab type to open (e.g. "contentTab").
+ * @param {object} tabParams - The parameters to pass to the tab
+ * @param {"tab"|"window"} where - 'tab' to open in a new tab (default)
+ *   or 'window' to open in a new window.
  */
 function openTab(tabType, tabParams, where) {
   if (where != "window") {
@@ -240,8 +240,8 @@ function openTab(tabType, tabParams, where) {
  * Open the specified URL as a content tab (or window)
  *
  * @param {string} url - The location to open.
- * @param {string} [where="tab"] - 'tab' to open in a new tab or 'window' to
- *     open in a new window
+ * @param {"tab"|"window"} where - 'tab' to open in a new tab (default)
+ *   or 'window' to open in a new window.
  * @param {string} [linkHandler] - See specialTabs.contentTabType.openTab.
  */
 function openContentTab(url, where, linkHandler) {
@@ -251,9 +251,9 @@ function openContentTab(url, where, linkHandler) {
 /**
  * Open the preferences page for the specified query in a new tab.
  *
- * @param paneID       ID of prefpane to select automatically.
- * @param scrollPaneTo ID of the element to scroll into view.
- * @param otherArgs    other prefpane specific arguments.
+ * @param {string} paneID - ID of prefpane to select automatically.
+ * @param {string} scrollPaneTo - ID of the element to scroll into view.
+ * @param {*} otherArgs - Other prefpane specific arguments.
  */
 function openPreferencesTab(paneID, scrollPaneTo, otherArgs) {
   openTab("preferencesTab", {
@@ -270,8 +270,8 @@ function openPreferencesTab(paneID, scrollPaneTo, otherArgs) {
  * Open the dictionary list in a new content tab, if possible in an available
  * mail:3pane window, otherwise by opening a new mail:3pane.
  *
- * @param where the context to open the dictionary list in (e.g. 'tab',
- *        'window'). See openContentTab for more details.
+ * @param {"tab"|"window"} where - 'tab' to open in a new tab (default)
+ *   or 'window' to open in a new window.
  */
 function openDictionaryList(where) {
   const dictUrl = Services.urlFormatter.formatURLPref(
@@ -285,8 +285,8 @@ function openDictionaryList(where) {
  * Open the privacy policy in a new content tab, if possible in an available
  * mail:3pane window, otherwise by opening a new mail:3pane.
  *
- * @param where the context to open the privacy policy in (e.g. 'tab',
- *        'window'). See openContentTab for more details.
+ * @param {"tab"|"window"} where - 'tab' to open in a new tab (default)
+ *   or 'window' to open in a new window.
  */
 function openPrivacyPolicy(where) {
   const kTelemetryInfoUrl = "toolkit.telemetry.infoURL";
@@ -304,7 +304,7 @@ function openPrivacyPolicy(where) {
  *
  * @param {string} url - The URL to load.
  * @param {string} [where] - Ignored, only here for compatibility.
- * @param {object} [openParams] - Optional parameters for changing behaviour.
+ * @param {object} [params] - Optional parameters for changing behaviour.
  */
 function openTrustedLinkIn(url, where, params = {}) {
   if (!params.triggeringPrincipal) {
@@ -325,7 +325,7 @@ function openTrustedLinkIn(url, where, params = {}) {
  *
  * @param {string} url - The URL to load.
  * @param {string} [where] - Ignored, only here for compatibility.
- * @param {object} [openParams] - Optional parameters for changing behaviour.
+ * @param {object} [params] - Optional parameters for changing behaviour.
  */
 function openWebLinkIn(url, where, params = {}) {
   if (url.startsWith("https://developer.mozilla.org/")) {

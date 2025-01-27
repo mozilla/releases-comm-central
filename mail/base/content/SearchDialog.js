@@ -410,7 +410,7 @@ function getSearchTerms() {
 }
 
 /**
- * @returns the list of folders the search should cover.
+ * @returns {nsIMsgFolder[]} the list of folders the search should cover.
  */
 function getSearchFolders() {
   const searchFolders = [];
@@ -582,7 +582,7 @@ function MsgDeleteSelectedMessages(aCommandType) {
 /**
  * Move selected messages to the destination folder
  *
- * @param destFolder {nsIMsgFolder} - destination folder
+ * @param {nsIMsgFolder} destFolder - Destination folder.
  */
 function MoveMessageInSearch(destFolder) {
   gFolderDisplay.hintAboutToDeleteMessages();

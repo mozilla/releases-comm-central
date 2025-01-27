@@ -118,7 +118,7 @@ class MultiMessageSummary {
   /**
    * Register a summarizer for a particular type of message summary.
    *
-   * @param aSummarizer The summarizer object.
+   * @param {ThreadSummarizer|MultipleSelectionSummarizer} aSummarizer - The summarizer object.
    */
   registerSummarizer(aSummarizer) {
     this._summarizers[aSummarizer.name] = aSummarizer;
@@ -129,8 +129,8 @@ class MultiMessageSummary {
    * Store a mapping from a message header to the summary node in the DOM. We
    * use this to update things when Gloda tells us to.
    *
-   * @param {msgDBHdr} aMsgHdr - The nsIMsgDBHdr.
-   * @param aNode   The related DOM node.
+   * @param {nsIMsgDBHdr} aMsgHdr - The nsIMsgDBHdr.
+   * @param {Node} aNode - The related DOM node.
    */
   mapMsgToNode(aMsgHdr, aNode) {
     const key = aMsgHdr.messageKey + aMsgHdr.folder.URI;
@@ -157,13 +157,13 @@ class MultiMessageSummary {
   /**
    * Fill in the summary pane describing the selected messages.
    *
-   * @param aType       The type of summary to perform (e.g. 'multimessage').
-   * @param aMessages   The messages to summarize.
-   * @param aDBView     The current DB view.
-   * @param aSelectCallback  Called with an array of nsIMsgHdrs when one of
-   *                    a summarized message is clicked on.
-   * @param [aListener] A listener to be notified when the summary starts and
-   *                    finishes.
+   * @param {string} aType - The type of summary to perform (e.g. 'multimessage').
+   * @param {nsIMsgDBHdr[]} aMessages - The messages to summarize.
+   * @param {nsIMsgDBView} aDBView - The current DB view.
+   * @param {function(nsIMsgDBHdr[]):void} aSelectCallback - Called with an
+   *   array of messages when one of a summarized message is clicked on.
+   * @param {Function} [aListener] A listener to be notified when the summary
+   *   starts and finishes.
    */
   summarize(aType, aMessages, aDBView, aSelectCallback, aListener) {
     this.clear();
@@ -212,8 +212,8 @@ class MultiMessageSummary {
   /**
    * Set the heading for the summary.
    *
-   * @param title    The title for the heading.
-   * @param subtitle A smaller subtitle for the heading.
+   * @param {string} title - The title for the heading.
+   * @param {string} subtitle - A smaller subtitle for the heading.
    */
   setHeading(title, subtitle) {
     const titleNode = document.getElementById("summaryTitle");
@@ -227,10 +227,12 @@ class MultiMessageSummary {
    *
    * @param {nsIMsgDBHdr[]} messages - An array of messages to summarize.
    * @param {object} [options={}] - Optional object to customize the output:
-   *   - showSubject: true if the subject of the message should be shown.
-   *   - snippetLength: the length in bytes of the message snippet.
-   *   - belongsToThread: true if we're rendering a message that belongs to the
-   *   currently single selected thread.
+   * @param {boolean} options.showSubject - true if the subject of the message
+   *   should be shown.
+   * @param {integer} options.snippetLength - The length in bytes of the message
+   *   snippet.
+   * @param {boolean} options.belongsToThread - true if we're rendering a
+   *   message that belongs to the currently single selected thread.
    * @returns {HTMLLIElement} - The list item node.
    */
   makeSummaryItem(messages, options = {}) {
@@ -335,7 +337,7 @@ class MultiMessageSummary {
    * Show an informative notice about the summarized messages (e.g. if we only
    * summarized some of them).
    *
-   * @param aNoticeText The text to show in the notice.
+   * @param {string} aNoticeText The text to show in the notice.
    */
   showNotice(aNoticeText) {
     const notice = document.getElementById("notice");
@@ -347,8 +349,8 @@ class MultiMessageSummary {
    * messy work of understanding how tags are stored in nsIMsgDBHdrs.  It would
    * be a good candidate for a utility library.
    *
-   * @param {msgDBHdr} aMsgHdr - The msgHdr whose tags we want.
-   * @returns An array of nsIMsgTag objects.
+   * @param {nsIMsgDBHdr} aMsgHdr - The msgHdr whose tags we want.
+   * @returns {nsIMsgTag[]} An array of nsIMsgTag objects.
    */
   _getTagsForMsg(aMsgHdr) {
     const keywords = new Set(aMsgHdr.getStringProperty("keywords").split(" "));
@@ -362,8 +364,8 @@ class MultiMessageSummary {
   /**
    * Add a list of tags to a DOM node.
    *
-   * @param aTags An array (or any iterable) of nsIMsgTag objects.
-   * @param aTagsNode The DOM node to contain the list of tags.
+   * @param {nsIMsgTag[]} aTags - An array of nsIMsgTag objects.
+   * @param {Node} aTagsNode - The DOM node to contain the list of tags.
    */
   _addTagNodes(aTags, aTagsNode) {
     // Make sure the tags are sorted in their natural order.
@@ -396,7 +398,7 @@ class MultiMessageSummary {
    * Compute the size of the messages in the selection and display it in the
    * element of id "size".
    *
-   * @param aMessages A LimitIterator of the messages to calculate the size of.
+   * @param {nsIMsgDBHdr} aMessages - Messages.
    */
   _computeSize(aMessages) {
     let numBytes = 0;
@@ -424,7 +426,7 @@ class MultiMessageSummary {
    * Given a set of items from a gloda collection, process them and update
    * the display accordingly.
    *
-   * @param aItems Contents of a gloda collection.
+   * @param {GlodaMessage[]} aItems - Contents of a gloda collection.
    */
   _processItems(aItems) {
     const knownMessageNodes = new Map();
@@ -498,7 +500,7 @@ class ThreadSummarizer {
   kSnippetLength = 300;
 
   /**
-   * Returns a canonical name for this summarizer.
+   * @returns {string} returns a canonical name for this summarizer.
    */
   get name() {
     return "thread";
@@ -508,7 +510,7 @@ class ThreadSummarizer {
    * A function to be called once the summarizer has been registered with the
    * main summary object.
    *
-   * @param aContext The MultiMessageSummary object holding this summarizer.
+   * @param {MultiMessageSummary} aContext - The MultiMessageSummary object holding this summarizer.
    */
   onregistered(aContext) {
     this.context = aContext;
@@ -517,8 +519,8 @@ class ThreadSummarizer {
   /**
    * Summarize a list of messages.
    *
-   * @param aMessages A LimitIterator of the messages to summarize.
-   * @returns An array of the messages actually summarized.
+   * @param {nsIMsgDBHdr[]} aMessages - The messages to summarize.
+   * @returns {nsIMsgDBHdr[]} an array of the messages actually summarized.
    */
   summarize(aMessages) {
     const messageList = document.getElementById("messageList");
@@ -609,7 +611,8 @@ class MultipleSelectionSummarizer {
    * A function to be called once the summarizer has been registered with the
    * main summary object.
    *
-   * @param aContext The MultiMessageSummary object holding this summarizer.
+   * @param {MultiMessageSummary} aContext - The MultiMessageSummary object
+   *   holding this summarizer.
    */
   onregistered(aContext) {
     this.context = aContext;
@@ -618,7 +621,7 @@ class MultipleSelectionSummarizer {
   /**
    * Summarize a list of messages.
    *
-   * @param aMessages The messages to summarize.
+   * @param {nsIMsgDBHdr[]} aMessages - The messages to summarize.
    */
   summarize(aMessages, aDBView) {
     const messageList = document.getElementById("messageList");
@@ -681,8 +684,8 @@ class MultipleSelectionSummarizer {
   /**
    * Group all the messages to be summarized into threads.
    *
-   * @param aMessages The messages to group.
-   * @returns An array of arrays of messages, grouped by thread.
+   * @param {nsIMsgDBHdr[]} aMessages The messages to group.
+   * @returns {nsIMsgDBHdr[]} An array of arrays of messages, grouped by thread.
    */
   _buildThreads(aMessages, aDBView) {
     // First, we group the messages in threads and count the threads.

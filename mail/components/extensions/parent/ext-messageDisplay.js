@@ -38,7 +38,7 @@ function getDisplayedMessages(tab) {
 /**
  * Wrapper to convert multiple nsIMsgDBHdr to MessageHeader objects.
  *
- * @param {nsIMsgDBHdr[]} Array of nsIMsgDBHdr
+ * @param {nsIMsgDBHdr[]} messages - Array of nsIMsgDBHdr
  * @param {ExtensionData} extension
  * @returns {MessageHeader[]} Array of MessageHeader objects
  *
@@ -58,7 +58,7 @@ function convertMessages(messages, extension) {
 /**
  * Check the users preference on opening new messages in tabs or windows.
  *
- * @returns {string} - either "tab" or "window"
+ * @returns {"tab"|"window"} - Either "tab" or "window".
  */
 function getDefaultMessageOpenLocation() {
   const pref = Services.prefs.getIntPref("mail.openMessageBehavior");

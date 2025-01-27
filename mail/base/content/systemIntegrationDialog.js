@@ -113,8 +113,8 @@ var gSystemIntegrationDialog = {
   /**
    * Called when the dialog is closed by any button.
    *
-   * @param aSetAsDefault  If true, set TB as the default application for the
-   *                       checked actions (mail/news/rss). Otherwise do nothing.
+   * @param {boolean} aSetAsDefault - If true, set TB as the default application
+   *   for the checked actions (mail/news/rss). Otherwise do nothing.
    */
   onDialogClose(aSetAsDefault) {
     // In all cases, save the user's decision for "always check at startup".

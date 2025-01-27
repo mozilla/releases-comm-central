@@ -55,8 +55,8 @@ export var cloudFileAccounts = new (class extends EventEmitter {
    * Ensure that we have the account key for an account. If we already have the
    * key, just return it. If we have the account, get the key from it.
    *
-   * @param aKeyOrAccount the key or the account object
-   * @returns the account key
+   * @param {string|object} aKeyOrAccount - The key or the account object.
+   * @returns {string} the account key
    */
   _ensureKey(aKeyOrAccount) {
     if (typeof aKeyOrAccount == "string") {
@@ -71,7 +71,8 @@ export var cloudFileAccounts = new (class extends EventEmitter {
   /**
    * Register a cloudfile provider, e.g. from an extension.
    *
-   * @param {object} The implementation to register
+   * @param {string} aType - Type to register.
+   * @param {object} aProvider - The implementation to register.
    */
   registerProvider(aType, aProvider) {
     if (this._providers.has(aType)) {
@@ -84,7 +85,7 @@ export var cloudFileAccounts = new (class extends EventEmitter {
   /**
    * Unregister a cloudfile provider.
    *
-   * @param {string} aType - The provider type to unregister
+   * @param {string} aType - The provider type to unregister.
    */
   unregisterProvider(aType) {
     if (!this._providers.has(aType)) {
@@ -163,6 +164,10 @@ export var cloudFileAccounts = new (class extends EventEmitter {
     return this.accounts.filter(account => account.configured);
   }
 
+  /**
+   * @param {string} aKey - Account key.
+   * @returns {?object}
+   */
   getAccount(aKey) {
     if (this._accounts.has(aKey)) {
       return this._accounts.get(aKey);

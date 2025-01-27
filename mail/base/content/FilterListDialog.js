@@ -350,7 +350,7 @@ function setRunFolder(aFolder) {
 /**
  * Toggle enabled state of a filter, in both the filter properties and the UI.
  *
- * @param aFilterItem  an item (row) of the filter list to be toggled
+ * @param {Element} aFilterItem - An item (row) of the filter list to be toggled.
  */
 function toggleFilter(aFilterItem, aSetForEvent) {
   const filter = aFilterItem._filter;
@@ -378,9 +378,9 @@ function toggleFilter(aFilterItem, aSetForEvent) {
  * Selects a specific filter in the filter list.
  * The listbox view is scrolled to the corresponding item.
  *
- * @param aFilter  The nsIMsgFilter to select.
- *
- * @returns {boolean} true/false indicating whether the filter was found and selected.
+ * @param {nsIMsgFilter} aFilter - The nsIMsgFilter to select.
+ * @returns {boolean} true/false indicating whether the filter was found and
+ *   selected.
  */
 function selectFilter(aFilter) {
   if (currentFilter() == aFilter) {
@@ -403,6 +403,8 @@ function selectFilter(aFilter) {
 /**
  * Returns the currently selected filter. If multiple filters are selected,
  * returns the first one. If none are selected, returns null.
+ *
+ * @returns {?nsIMsgFilter}
  */
 function currentFilter() {
   const currentItem = gFilterListbox.selectedItem;
@@ -608,8 +610,8 @@ function onBottom() {
  *   but it would be better if it moved "just as far as necessary"
  *   which would further "compact" related filters
  *
- * @param motion
- *   msgMoveMotion.Up, msgMoveMotion.Down, msgMoveMotion.Top, msgMoveMotion.Bottom
+ * @param {integer} motion - msgMoveMotion.Up, msgMoveMotion.Down,
+ *   msgMoveMotion.Top, msgMoveMotion.Bottom.
  */
 function moveFilter(motion) {
   // At the moment, do not allow moving groups of filters.
@@ -1093,8 +1095,8 @@ function onFilterListKeyPress(aEvent) {
  * @param {nsIMsgFilter} aFilter - nsIMsgFilter to check.
  * @param {string} aKeyword - The string to find in the filter name.
  * @returns {boolean} true if the filter name contains the searched keyword.
-     Otherwise false. In the future this may be extended to match
-     other filter attributes.
+ *   Otherwise false. In the future this may be extended to match
+ *  other filter attributes.
  */
 function filterSearchMatch(aFilter, aKeyword) {
   return aFilter.filterName.toLocaleLowerCase().includes(aKeyword);
@@ -1103,8 +1105,8 @@ function filterSearchMatch(aFilter, aKeyword) {
 /**
  * Called from rebuildFilterList when the list needs to be redrawn.
  *
- * @returns Uses the search term in search box, to produce an array of
- *          row (filter) numbers (indexes) that match the search term.
+ * @returns {?object[]} Uses the search term in search box, to produce an
+ *   array of row (filter) numbers (indexes) that match the search term.
  */
 function onFindFilter() {
   const keyWord = gSearchBox.value.toLocaleLowerCase();

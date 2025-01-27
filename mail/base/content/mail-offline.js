@@ -98,7 +98,7 @@ var MailOfflineMgr = {
    * Prompt the user about going online to send unsent messages, and then send them
    * if appropriate. Puts the app back into online mode.
    *
-   * @param aMsgWindow the msg window to be used when going online
+   * @param {nsIMsgWindow} aMsgWindow - The msg window to be used when going online.
    */
   goOnlineToSendMessages(aMsgWindow) {
     const goOnlineToSendMsgs = Services.prompt.confirm(

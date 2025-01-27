@@ -40,44 +40,26 @@ const {
  * @param {string} url - URL of the server function.
  *    ATTENTION: The caller needs to make sure that the URL is secure to call.
  * @param {object} args - Additional parameters as properties, see below
- *
- * @param {Function({string} result)} successCallback
- *   Called when the server call worked (no errors).
- *   |result| will contain the body of the HTTP response, as string.
- * @param {Function(ex)} errorCallback
- *   Called in case of error. ex contains the error
- *   with a user-displayable but not localized |.message| and maybe a
- *   |.code|, which can be either
- *  - an nsresult error code,
- *  - an HTTP result error code (0...1000) or
- *  - negative: 0...-100 :
- *     -2 = can't resolve server in DNS etc.
- *     -4 = response body (e.g. XML) malformed
- *
- * The following optional parameters are supported as properties of the |args| object:
- *
- * @param {Object, associative array} urlArgs - Parameters to add
- *   to the end of the URL as query string. E.g.
- *   { foo: "bla", bar: "blub blub" } will add "?foo=bla&bar=blub%20blub"
- *   to the URL
- *   (unless the URL already has a "?", then it adds "&foo...").
+ * @param {object} [args.urlArgs] - Parameters to add to the end of the URL as
+ *   query string.
+ *   E.g. { foo: "bla", bar: "blub blub" } will add "?foo=bla&bar=blub%20blub"
+ *   to the URL (unless the URL already has a "?", then it adds "&foo...").
  *   The values will be urlComponentEncoded, so pass them unencoded.
- * @param {Object, associative array} headers - HTTP headers to be added
- *   to the HTTP request.
+ * @param {object} [args.headers] - HTTP headers to be added to the HTTP request.
  *   { foo: "blub blub" } will add HTTP header "Foo: Blub blub".
  *   The values will be passed verbatim.
- * @param {boolean} post - HTTP GET or POST
+ * @param {boolean} [args.post] - HTTP GET or POST
  *   Only influences the HTTP request method,
  *   i.e. first line of the HTTP request, not the body or parameters.
  *   Use POST when you modify server state,
  *   GET when you only request information.
  *   Default is GET.
- * @param {Object, associative array} bodyFormArgs - Like urlArgs,
+ * @param {object} [args.bodyFormArgs] - Like urlArgs,
  *   just that the params will be sent x-url-encoded in the body,
  *   like a HTML form post.
  *   The values will be urlComponentEncoded, so pass them unencoded.
  *   This cannot be used together with |uploadBody|.
- * @param {object} uploadBody - Arbitrary object, which to use as
+ * @param {object} [args.uploadBody=null] - Arbitrary object, which to use as
  *   body of the HTTP request. Will also set the mimetype accordingly.
  *   Only supported object types, currently only JXON is supported
  *   (sending XML).
@@ -89,13 +71,25 @@ const {
  *   If you want to override the body mimetype, set header Content-Type below.
  *   Usually, you have nothing to upload, so just leave it at |null|.
  *   Default |null|.
- * @param {boolean} allowCache (default true)
- * @param {string} username (default null = no authentication)
- * @param {string} password (default null = no authentication)
- * @param {boolean} allowAuthPrompt (default true)
- * @param {boolean} requireSecureAuth (default false)
+ * @param {boolean} [args.allowCache=true]
+ * @param {string} [args.username=null] (default null = no authentication)
+ * @param {string} [args.password=null] (default null = no authentication)
+ * @param {boolean} [args.allowAuthPrompt=true]
+ * @param {boolean} [args.requireSecureAuth=false]
  *   Ignore the username and password unless we are using https:
  *   This also applies to both https: to http: and http: to https: redirects.
+ * @param {function(string):void} successCallback - Success callback.
+ *   Called when the server call worked (no errors).
+ *   |result| will contain the body of the HTTP response, as string.
+ * @param {function(Error):void} errorCallback - Error callack.
+ *   Called in case of error. ex contains the error
+ *   with a user-displayable but not localized |.message| and maybe a
+ *   |.code|, which can be either
+ *  - an nsresult error code,
+ *  - an HTTP result error code (0...1000) or
+ *  - negative: 0...-100 :
+ *     -2 = can't resolve server in DNS etc.
+ *     -4 = response body (e.g. XML) malformed
  */
 export function FetchHTTP(url, args, successCallback, errorCallback) {
   assert(typeof successCallback == "function", "BUG: successCallback");

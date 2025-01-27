@@ -1197,7 +1197,7 @@ async function subtestRowCountChange() {
  * Checks that expanding and collapsing works. Twisties in the test file are
  * styled as coloured squares: red for collapsed, green for expanded.
  *
- * @note This is practically the same test as in browser_treeListbox.js, but
+ * NOTE: This is practically the same test as in browser_treeListbox.js, but
  * for TreeView instead of TreeListbox. If you make changes here you
  * may want to make changes there too.
  */

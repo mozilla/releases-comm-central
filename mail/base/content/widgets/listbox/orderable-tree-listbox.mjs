@@ -11,14 +11,17 @@ import {
 /**
  * An ordered list with the functionality of TreeListboxMixin, plus the
  * ability to re-order the top-level list by drag-and-drop/Alt+Up/Alt+Down.
- *
- * @fires {CustomEvent} ordered - Fired when the list is re-ordered. The
- *   detail field contains the row that was re-ordered.
- * @note All children of this element should be HTML. If there are XUL
+
+ * NOTE: All children of this element should be HTML. If there are XUL
  *   elements, you're gonna have a bad time.
- * @augments HTMLOListElement
- * @mixes TreeListboxMixin
- * @tagname orderable-tree-listbox
+ *
+ * tagname: orderable-tree-listbox
+ *
+ * @fires CustomEvent#ordered - Fired when the list is re-ordered. The
+ *   detail field contains the row that was re-ordered.
+ *
+ * @augments {HTMLOListElement}
+ * @mixes {TreeListboxMixin}
  */
 class OrderableTreeListbox extends TreeListboxMixin(HTMLOListElement) {
   connectedCallback() {
@@ -54,7 +57,7 @@ class OrderableTreeListbox extends TreeListboxMixin(HTMLOListElement) {
    * An array of all top-level rows that can be reordered. Override this
    * getter to prevent reordering of one or more rows.
    *
-   * @note So far this has only been used to prevent the last row being
+   * NOTE: So far this has only been used to prevent the last row being
    *   moved. Any other use is untested. It likely also works for rows at
    *   the top of the list.
    *

@@ -1511,7 +1511,7 @@ export class TreeView extends HTMLElement {
    *
    * @param {number} start - Start index of selection. -1 for current index.
    * @param {number} end - End index of selection.
-   * @param {boolean} extend[false] - If the new selection range should extend
+   * @param {boolean} [extend=false] - If the new selection range should extend
    *   the current selection.
    */
   _selectRange(start, end, extend = false) {
@@ -2456,8 +2456,7 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
   /**
    * Set this table header as responsible for the sorting of rows.
    *
-   * @param {string["ascending"|"descending"]} direction - The new sorting
-   *   direction.
+   * @param {"ascending"|"descending"} direction - The new sorting direction.
    */
   setSorting(direction) {
     this.#button.classList.add("sorting", direction);
@@ -2733,7 +2732,7 @@ export class TreeViewTableRow extends HTMLTableRowElement {
    * the index will also need to wait for an animation frame before checking
    * the row's content.
    *
-   * @note Don't short-circuit the setter if the given index is equal to the
+   * NOTE: Don't short-circuit the setter if the given index is equal to the
    * existing index. Rows can be reused to display new data at the same index.
    *
    * @type {integer}

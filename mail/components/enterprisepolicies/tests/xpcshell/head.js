@@ -54,10 +54,9 @@ async function setupPolicyEngineWithJson(json, customSchema) {
  * with the new policy. Also waits for the search service to write the settings
  * file to disk.
  *
- * @param {object} policy
- *   The enterprise policy to use.
- * @param {object} customSchema
- *   A custom schema to use to validate the enterprise policy.
+ * @param {object} json - The enterprise policy to use.
+ * @param {object} customSchema - A custom schema to use to validate the
+ *   enterprise policy.
  */
 async function setupPolicyEngineWithJsonWithSearch(json, customSchema) {
   Services.search.wrappedJSObject.reset();

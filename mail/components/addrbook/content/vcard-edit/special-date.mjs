@@ -252,6 +252,7 @@ export class VCardSpecialDateComponent extends HTMLElement {
   }
 
   /**
+   * @param {object} options
    * @param {boolean} options.hasBday
    */
   birthdayAvailability(options) {

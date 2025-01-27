@@ -32,10 +32,10 @@ export class ConfigVerifier {
   }
 
   /**
-   * @param {nsIURI} url - The URL being processed.
+   * @param {nsIURI} _url - The URL being processed.
    * @see {nsIUrlListener}
    */
-  OnStartRunningUrl() {
+  OnStartRunningUrl(_url) {
     this._log.debug(`Starting to verify configuration;
       email as username=${
         this.config.incoming.username != this.config.identity.emailAddress
@@ -235,10 +235,10 @@ export class ConfigVerifier {
    * This checks a given config, by trying a real connection and login,
    * with username and password.
    *
-   * @param  {AccountConfig} config - The guessed account config.
+   * @param {AccountConfig} config - The guessed account config.
    *   username, password, realname, emailaddress etc. are not filled out,
    *   but placeholders to be filled out via replaceVariables().
-   * @param alter {boolean} - Try other usernames and login schemes, until
+   * @param {boolean} alter - Try other usernames and login schemes, until
    *   login works. Warning: Modifies |config|.
    * @returns {Promise<AccountConfig>} the successful configuration.
    * @throws {Error} when we could guess not the config, either

@@ -711,7 +711,7 @@ function loadExtraTabs() {
  * Loads the given message header at window open. Exactly one out of this and
  * |loadStartFolder| should be called.
  *
- * @param aStartMsgHdr The message header to load at window open
+ * @param {nsIMsgDBHdr} aStartMsgHdr - The message header to load at window open.
  */
 async function loadStartMsgHdr(aStartMsgHdr) {
   const mailStartupObserver = {

@@ -78,7 +78,7 @@ const ABOUT_SUPPORT_ERROR_STRINGS = new Map([
 /**
  * Opens about:support and waits for it to load.
  *
- * @returns the about:support tab.
+ * @returns {TabInfo} - The about:support tab.
  */
 async function open_about_support() {
   const openAboutSupport = async function () {
@@ -139,7 +139,7 @@ async function open_about_support() {
 /**
  * Opens a compose window containing the troubleshooting information.
  *
- * @param aTab The about:support tab.
+ * @param {TabInfo} aTab - The about:support tab.
  */
 async function open_send_via_email(aTab) {
   const button = content_tab_e(aTab, "send-via-email");
@@ -335,8 +335,8 @@ add_task(async function test_private_data() {
  * If it is a node tree, find the element whole contents is the searched text.
  * If it is plain text string, just check in text is anywhere in it.
  *
- * @param aDocument  A node tree or a string of plain text data.
- * @param aText      The text to find in the document.
+ * @param {Document|string} aDocument - A node tree or a string of plain text data.
+ * @param {string} aText - The text to find in the document.
  */
 function check_text_in_body(aDocument, aText) {
   if (typeof aDocument == "object") {

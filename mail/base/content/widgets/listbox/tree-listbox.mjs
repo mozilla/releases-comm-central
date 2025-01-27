@@ -7,9 +7,10 @@ import { TreeListboxMixin } from "chrome://messenger/content/tree-listbox-mixin.
 /**
  * An unordered list with the functionality of TreeListboxMixin.
  *
+ * tagname: tree-listbox
+ *
  * @augments {HTMLUListElement}
  * @mixes {TreeListboxMixin}
- * @tagname tree-listbox
  */
 class TreeListbox extends TreeListboxMixin(HTMLUListElement) {}
 customElements.define("tree-listbox", TreeListbox, { extends: "ul" });

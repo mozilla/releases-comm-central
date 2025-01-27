@@ -754,8 +754,8 @@ var commandController = {
    * Calls the ComposeMessage function with the desired type, and proper default
    * based on the event that fired it.
    *
-   * @param composeType  the nsIMsgCompType to pass to the function
-   * @param event (optional) the event that triggered the call
+   * @param {nsIMsgCompType} composeType - The nsIMsgCompType type to pass.
+   * @param {Event} [event] - The event that triggered the call.
    */
   _composeMsgByType(composeType, event) {
     // If we're the hidden window, then we're not going to have a gFolderDisplay

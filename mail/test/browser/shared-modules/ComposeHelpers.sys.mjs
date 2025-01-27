@@ -697,7 +697,7 @@ export function assert_previous_text(aStart, aText) {
 /**
  * Helper to get the raw contents of a message. It only reads the first 64KiB.
  *
- * @param {msgDBHdr} aMsgHdr - nsIMsgDBHdr addressing a message which will be
+ * @param {nsIMsgDBHdr} aMsgHdr - nsIMsgDBHdr addressing a message which will be
  *   returned as text.
  * @param {string} aCharset - Charset to use to decode the message.
  *

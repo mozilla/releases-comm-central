@@ -54,8 +54,8 @@ function runAsync(func) {
 /**
  * Reads UTF8 data from a URL.
  *
- * @param uri {nsIURI} - what you want to read
- * @returns {Array of String} the contents of the file, one string per line
+ * @param {nsIURI} uri - What you want to read.
+ * @returns {string[]} the contents of the file, one string per line.
  */
 function readURLasUTF8(uri) {
   assert(uri instanceof Ci.nsIURI, "uri must be an nsIURI");
@@ -93,8 +93,8 @@ function readURLasUTF8(uri) {
 }
 
 /**
- * @param bundleURI {String} - chrome URL to properties file
- * @returns nsIStringBundle
+ * @param {string} bundleURI - chrome URL to properties file
+ * @returns {nsIStringBundle}
  */
 function getStringBundle(bundleURI) {
   try {
@@ -194,7 +194,7 @@ PromiseAbortable.prototype.constructor = PromiseAbortable;
  * Utility implementation, for allowing to abort a setTimeout.
  * Use like: return new TimeoutAbortable(setTimeout(function(){ ... }, 0));
  *
- * @param setTimeoutID {Integer} - Return value of setTimeout()
+ * @param {integer} setTimeoutID - Return value of setTimeout().
  */
 function TimeoutAbortable(setTimeoutID) {
   Abortable.call(this); // call super constructor
@@ -210,7 +210,7 @@ TimeoutAbortable.prototype.cancel = function () {
  * Utility implementation, for allowing to abort a setTimeout.
  * Use like: return new TimeoutAbortable(setTimeout(function(){ ... }, 0));
  *
- * @param setIntervalID {Integer} - Return value of setInterval()
+ * @param {integer} setIntervalID - Return value of setInterval().
  */
 function IntervalAbortable(setIntervalID) {
   Abortable.call(this); // call super constructor
@@ -262,7 +262,7 @@ function ParallelAbortable() {
 ParallelAbortable.prototype = {
   __proto__: Abortable.prototype,
   /**
-   * @returns {Array of ParallelCall}
+   * @returns {ParallelCall[]}
    */
   get results() {
     return this._calls;
@@ -280,7 +280,7 @@ ParallelAbortable.prototype = {
    * Observers will be called once one of the functions
    * finishes, i.e. returns successfully or fails.
    *
-   * @param {Function({ParallelCall} call)} func
+   * @param {function(ParallelCall):void} func
    */
   addOneFinishedObserver(func) {
     assert(typeof func == "function");
@@ -291,10 +291,11 @@ ParallelAbortable.prototype = {
    * It gives you a list of all functions that succeeded or failed,
    * respectively.
    *
-   * @param {Function(
-   *    {Array of ParallelCall} succeeded,
-   *    {Array of ParallelCall} failed
-   *   )} func
+   * @param {function(ParallelCall[],ParallelCall[]):void} func - Function like
+   *   {Function(
+   *      {ParallelCall[]} succeeded,
+   *      {ParallelCall[]} failed
+   *   )}
    */
   addAllFinishedObserver(func) {
     assert(typeof func == "function");
@@ -355,7 +356,7 @@ ParallelCall.prototype = {
    * Returns a successCallback(result) function that you pass
    * to your function that runs in parallel.
    *
-   * @returns {Function(result)} successCallback
+   * @returns {function(AccountConfig):void} successCallback
    */
   successCallback() {
     return result => {
@@ -379,7 +380,7 @@ ParallelCall.prototype = {
    * Returns an errorCallback(e) function that you pass
    * to your function that runs in parallel.
    *
-   * @returns {Function(e)} errorCallback
+   * @returns {function(Error):void} errorCallback
    */
   errorCallback() {
     return e => {
@@ -427,15 +428,19 @@ ParallelCall.prototype = {
  * It aborts the forth (because the third succeeded), and it waits for the second to return.
  * If the second succeeds, it is the result, otherwise the third is the result.
  *
- * @param {Function(
+ * @param {function(object, ParallelCall): void} successCallback -  A call
+ *   returned successfully. Function like
+ *   {Function(
  *     {Object} result - Result of winner call
  *     {ParallelCall} call - Winner call info
- *   )} successCallback -  A call returned successfully
- * @param {Function(e, allErrors)} errorCallback - All calls failed.
+ *   )}
+ * @param {function(Exception,Exception[]):void} errorCallback - All calls failed.
+ *   Function like
+ *   {Function(e, allErrors)}
  *     {Exception} e - The first CancelledException, and otherwise
  *       the exception returned by the first call.
  *     This is just to adhere to the standard API of errorCallback(e).
- *     {Array of Exception} allErrors - The exceptions from all calls.
+ *     {Exception[]} allErrors - The exceptions from all calls.
  */
 function PriorityOrderAbortable(successCallback, errorCallback) {
   assert(typeof successCallback == "function");
@@ -506,22 +511,22 @@ NoLongerNeededException.prototype.constructor = NoLongerNeededException;
  * installer.install();
  *
  * @param {object} args - Contains parameters:
- * @param {string} name (Optional) - Name of the addon (not important)
- * @param {string} id (Optional) - Addon ID
- * If you pass an ID, and the addon is already installed (and the version matches),
- * then install() will do nothing.
- * After the XPI is downloaded, the ID will be verified. If it doesn't match, the
- * install will fail.
- * If you don't pass an ID, these checks will be skipped and the addon be installed
- * unconditionally.
- * It is recommended to pass at least an ID, because it can confuse some addons
- * to be reloaded at runtime.
- * @param {string} minVersion (Optional) - Minimum version of the addon
- * If you pass a minVersion (in addition to ID), and the installed addon is older than this,
- * the install will be done anyway. If the downloaded addon has a lower version,
- * the install will fail.
- * If you do not pass a minVersion, there will be no version check.
- * @param {URL} xpiURL - Where to download the XPI from
+ * @param {string} [args.name] - Name of the addon (not important).
+ * @param {string} [args.id] - Addon ID.
+ *   If you pass an ID, and the addon is already installed (and the version
+ *   matches), then install() will do nothing.
+ *   After the XPI is downloaded, the ID will be verified. If it doesn't match,
+ *   the install will fail.
+ *   If you don't pass an ID, these checks will be skipped and the addon be
+ *   installed unconditionally.
+ *   It is recommended to pass at least an ID, because it can confuse some
+ *   addons to be reloaded at runtime.
+ * @param {string} [args.minVersion] - Minimum version of the addon.
+ *   If you pass a minVersion (in addition to ID), and the installed addon is
+ *   older than this, the install will be done anyway.
+ *   If the downloaded addon has a lower version, the install will fail.
+ *   If you do not pass a minVersion, there will be no version check.
+ * @param {string} args.xpiURL - Where to download the XPI from.
  */
 function AddonInstaller(args) {
   Abortable.call(this);
@@ -537,8 +542,8 @@ AddonInstaller.prototype.constructor = AddonInstaller;
  * Checks whether the passed-in addon matches the
  * id and minVersion requested by the caller.
  *
- * @param {nsIAddon} addon
- * @returns {boolean} is OK
+ * @param {object} addon
+ * @returns {boolean} true if matches
  */
 AddonInstaller.prototype.matches = function (addon) {
   return (
@@ -550,9 +555,9 @@ AddonInstaller.prototype.matches = function (addon) {
 };
 
 /**
- * Start the installation
+ * Start the installation.
  *
- * @throws Exception in case of failure
+ * @throws {Error} in case of failure
  */
 AddonInstaller.prototype.install = async function () {
   if (await this.isInstalled()) {
@@ -565,7 +570,7 @@ AddonInstaller.prototype.install = async function () {
  * Checks whether we already have an addon installed that matches the
  * id and minVersion requested by the caller.
  *
- * @returns {boolean} is already installed and enabled
+ * @returns {boolean} true if the add-on is already installed and enabled.
  */
 AddonInstaller.prototype.isInstalled = async function () {
   if (!this._id) {
@@ -578,7 +583,7 @@ AddonInstaller.prototype.isInstalled = async function () {
 /**
  * Checks whether we already have an addon but it is disabled.
  *
- * @returns {boolean} is already installed but disabled
+ * @returns {boolean} true if the add-on is already installed but disabled.
  */
 AddonInstaller.prototype.isDisabled = async function () {
   if (!this._id) {
@@ -615,7 +620,7 @@ AddonInstaller.prototype._installDirect = async function () {
 /**
  * Install confirmation. You may override this, if needed.
  *
- * @throws Exception If you want to cancel install, then throw an exception.
+ * @throws {Error} If you want to cancel install, then throw an exception.
  */
 AddonInstaller.prototype.prompt = async function (info) {
   if (!this.matches(info.addon)) {
@@ -664,7 +669,6 @@ function deepCopy(org) {
   }
 
   // TODO still instanceof org != instanceof copy
-  // var result = new org.constructor();
   var result = {};
   if (typeof org.length != "undefined") {
     result = [];

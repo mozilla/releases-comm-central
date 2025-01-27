@@ -49,7 +49,7 @@ export class VCardNComponent extends HTMLElement {
    * Assigns the vCardPropertyEntry values to the individual
    * NListComponentText elements.
    *
-   * @TODO sort-as param should be used for the order.
+   * TODO: sort-as param should be used for the order.
    * The use-case is that not every language has the order of
    * prefix, firstName, middleName, lastName, suffix.
    * Aswell that the user is able to change the sorting as he like
@@ -60,10 +60,7 @@ export class VCardNComponent extends HTMLElement {
       // eslint-disable-next-line no-useless-return
       return;
     }
-    /**
-     * @TODO
-     * The sort-as DOM Mutation
-     */
+    //TODO: The sort-as DOM Mutation
   }
 
   fromVCardPropertyEntryToUI() {

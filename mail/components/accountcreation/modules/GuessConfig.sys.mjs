@@ -45,33 +45,32 @@ const {
  *
  * This function is async.
  *
- * @param domain {String} the domain part of the email address
- * @param progressCallback {function(type, hostname, port, socketType, done)}
+ * @param {string} domain - The domain part of the email address.
+ * @param {function(string,string,integer,nsMsgSocketType,boolean):void} progressCallback - A function: {function(type, hostname, port, socketType, done)}
  *   Called when we try a new hostname/port.
- *   type {String-enum} @see AccountConfig type - "imap", "pop3", "smtp"
- *   hostname {String}
- *   port {Integer}
- *   socketType {nsMsgSocketType} @see MailNewsTypes2.idl
+ *   - type {String-enum} @see AccountConfig type - "imap", "pop3", "smtp"
+ *   - hostname {String}
+ *   - port {Integer}
+ *   - socketType {nsMsgSocketType} @see MailNewsTypes2.idl
  *      0 = plain, 2 = STARTTLS, 3 = SSL
- *   done {Boolean}   false, if we start probing this host/port, true if we're
+ *   - done {Boolean} - false, if we start probing this host/port, true if we're
  *       done and the host is good.  (there is no notification when a host is
  *       bad, we'll just tell about the next host tried)
- * @param successCallback {function(config {AccountConfig})}
+ * @param {function(AccountCofig):void} successCallback - A function {function(config {AccountConfig})}
  *   Called when we could guess the config.
- *   param accountConfig {AccountConfig} The guessed account config.
+ *   - accountConfig {AccountConfig} The guessed account config.
  *       username, password, realname, emailaddress etc. are not filled out,
  *       but placeholders to be filled out via replaceVariables().
- * @param errorCallback function(ex)
+ * @param {function(Error):void} errorCallback - A function(ex)
  *   Called when we could guess not the config, either
  *   because we have not found anything or
  *   because there was an error (e.g. no network connection).
  *   The ex.message will contain a user-presentable message.
- * @param resultConfig {AccountConfig} (optional)
- *   A config which may be partially filled in. If so, it will be used as base
- *   for the guess.
- * @param which {String-enum} (optional)  "incoming", "outgoing", or "both".
- *   Default "both". Whether to guess only the incoming or outgoing server.
- * @result {Abortable} Allows you to cancel the guess
+ * @param {AccountConfig} [resultConfig] - A config which may be partially
+ *   filled in. If so, it will be used as base for the guess.
+ * @param {"incoming"|"outgoing"|"both"} [which="both"] - Whether to guess only
+ *   the incoming or outgoing server.
+ * @returns {Abortable} Allows you to cancel the guess.
  */
 function guessConfig(
   domain,
@@ -348,28 +347,34 @@ var kSuccess = 3;
  */
 function HostTry() {}
 HostTry.prototype = {
-  // IMAP, POP or SMTP
+  /** @type {integer} - IMAP, POP or SMTP */
   protocol: UNKNOWN,
-  // {String}
+  /** @type {string} */
   hostname: undefined,
-  // {Integer}
+  /** @type {integer} */
   port: undefined,
-  // {nsMsgSocketType}
+  /** @type {nsMsgSocketType} */
   socketType: UNKNOWN,
-  // {String} what to send to server
+  /** @type {string} - What to send to server. */
   commands: null,
-  // {Integer-enum} kNotTried, kOngoing, kFailed or kSuccess
+  /** @type {integer} - kNotTried, kOngoing, kFailed or kSuccess */
   status: kNotTried,
-  // {Abortable} allows to cancel the socket comm
+  /** @type {Abortable} - Allows to cancel the socket comm. */
   abortable: null,
 
-  // {Array of {Integer-enum}} @see _advertisesAuthMethods() result
-  // Info about the server, from the protocol and SSL chat
+  /**
+   * @type {integer[]}
+   * @see _advertisesAuthMethods() result
+   * Info about the server, from the protocol and SSL chat.
+   */
   authMethods: null,
-  // {String} Whether the SSL cert is not from a proper CA
+
+  /** @type {boolean} - Whether the SSL cert is not from a proper CA. */
   selfSignedCert: false,
-  // {String} Which host the SSL cert is made for, if not hostname.
-  // If set, this is an SSL error.
+  /**
+   * @type {string} - If set, this is an SSL error. Which host the SSL cert
+   * is made for, if not hostname.
+   */
   targetSite: null,
 };
 
@@ -385,14 +390,17 @@ CancelOthersException.prototype = Object.create(CancelledException.prototype);
 CancelOthersException.prototype.constructor = CancelOthersException;
 
 /**
- * @param successCallback {function(result {HostTry}, alts {Array of HostTry})}
+ * @param {function(HostTry):void} progressCallback - A function
+ *   {function(server {HostTry})}. Called when we tried(will try?) a new
+ *   hostname and port.
+ * @param {function(Function,Function):void} successCallback - A function
+ *   {function(result {HostTry}, alts {Array of HostTry})}
  *    Called when the config is OK
  *    |result| is the most preferred server.
  *    |alts| currently exists only for |IncomingHostDetector| and contains
  *    some servers of the other type (POP3 instead of IMAP), if available.
- * @param errorCallback {function(ex)} Called when we could not find a config
- * @param progressCallback { function(server {HostTry}) } Called when we tried
- *    (will try?) a new hostname and port
+ * @param {function(Error):void} errorCallback - A function {function(ex)}.
+ *   Called when we could not find a config.
  */
 function HostDetector(progressCallback, successCallback, errorCallback) {
   this.mSuccessCallback = successCallback;
@@ -439,7 +447,7 @@ HostDetector.prototype = {
    *   If hostIsPrecise == true, it should be a full hostname.
    * @param {boolean} hostIsPrecise - If true, use only this hostname,
    *   do not guess hostnames.
-   * @param {"pop3"|"imap"|"exchange"|"smtp"|""} - Account type.
+   * @param {"pop3"|"imap"|"exchange"|"smtp"|""} type - Account type.
    * @param {integer} port - The port to use. 0 to autodetect
    * @param {nsMsgSocketType|-1} socketType - Socket type. -1 to autodetect.
    * @param {nsMsgAuthMethod|0} authMethod - Authentication method. 0 to autodetect.
@@ -844,8 +852,8 @@ CMDS[SMTP] = ["EHLO we-guess.mozilla.org\r\n", "QUIT\r\n"];
 /**
  * Sort by preference of SSL, IMAP etc.
  *
- * @param tries {Array of {HostTry}}
- * @returns {Array of {HostTry}}
+ * @param {HostTry[]} tries
+ * @returns {HostTry[]}
  */
 function sortTriesByPreference(tries) {
   return tries.sort(function (a, b) {
@@ -923,7 +931,7 @@ function getIncomingTryOrder(host, protocol, socketType, port) {
 }
 
 /**
- * @returns {Array of {HostTry}}
+ * @returns {HostTry[]}
  */
 function getOutgoingTryOrder(host, protocol, socketType, port) {
   assert(
@@ -963,8 +971,10 @@ function getOutgoingTryOrder(host, protocol, socketType, port) {
 }
 
 /**
- * @returns {HostTry} with proper default port and commands,
- *     but without hostname.
+ * @param {integer} protocol
+ * @param {nsMsgSocketType|-1} socketType
+ * @param {integer} port
+ * @returns {HostTry} with proper default port and commands, but without hostname.
  */
 function getHostEntry(protocol, socketType, port) {
   if (!port || port == UNKNOWN) {
@@ -991,7 +1001,10 @@ function getHostEntry(protocol, socketType, port) {
   return r;
 }
 
-// here -> AccountConfig
+/**
+ * @param {integer} type
+ * @returns {string}
+ */
 function protocolToString(type) {
   if (type == IMAP) {
     return "imap";
@@ -1002,15 +1015,14 @@ function protocolToString(type) {
   if (type == SMTP) {
     return "smtp";
   }
-  throw new NotReached("unexpected protocol");
+  throw new NotReached(`Unexpected protocol; type=${type}`);
 }
 
-// ----------------------
-// SSL cert error handler
-
 /**
- * @param thisTry {HostTry}
- * @param logger {ConsoleAPI}
+ * SSL cert error handler.
+ *
+ * @param {HostTry} thisTry
+ * @param {Console} logger
  */
 function SSLErrorHandler(thisTry, logger) {
   this._try = thisTry;
@@ -1033,31 +1045,30 @@ SSLErrorHandler.prototype = {
     const host = parts[0];
     const port = parts[1];
 
-    /* The following 2 cert problems are unfortunately common:
-     * 1) hostname mismatch:
-     * user is customer at a domain hoster, he owns yourname.org,
-     * and the IMAP server is imap.hoster.com (but also reachable as
-     * imap.yourname.org), and has a cert for imap.hoster.com.
-     * 2) self-signed:
-     * a company has an internal IMAP server, and it's only for
-     * 30 employees, and they didn't want to buy a cert, so
-     * they use a self-signed cert.
-     *
-     * We would like the above to pass, somehow, with user confirmation.
-     * The following case should *not* pass:
-     *
-     * 1) MITM
-     * User has @gmail.com, and an attacker is between the user and
-     * the Internet and runs a man-in-the-middle (MITM) attack.
-     * Attacker controls DNS and sends imap.gmail.com to his own
-     * imap.attacker.com. He has either a valid, CA-issued
-     * cert for imap.attacker.com, or a self-signed cert.
-     * Of course, attacker.com could also be legit-sounding gmailservers.com.
-     *
-     * What makes it dangerous is that we (!) propose the server to the user,
-     * and he cannot judge whether imap.gmailservers.com is correct or not,
-     * and he will likely approve it.
-     */
+    // The following 2 cert problems are unfortunately common:
+    // 1) hostname mismatch:
+    // user is customer at a domain hoster, he owns yourname.org,
+    // and the IMAP server is imap.hoster.com (but also reachable as
+    // imap.yourname.org), and has a cert for imap.hoster.com.
+    // 2) self-signed:
+    // a company has an internal IMAP server, and it's only for
+    // 30 employees, and they didn't want to buy a cert, so
+    // they use a self-signed cert.
+    //
+    // We would like the above to pass, somehow, with user confirmation.
+    // The following case should *not* pass:
+    //
+    // 1) MITM
+    // User has @gmail.com, and an attacker is between the user and
+    // the Internet and runs a man-in-the-middle (MITM) attack.
+    // Attacker controls DNS and sends imap.gmail.com to his own
+    // imap.attacker.com. He has either a valid, CA-issued
+    // cert for imap.attacker.com, or a self-signed cert.
+    // Of course, attacker.com could also be legit-sounding gmailservers.com.
+    //
+    // What makes it dangerous is that we (!) propose the server to the user,
+    // and he cannot judge whether imap.gmailservers.com is correct or not,
+    // and he will likely approve it.
 
     if (
       secInfo.overridableErrorCategory ==
@@ -1080,17 +1091,16 @@ SSLErrorHandler.prototype = {
       this._try._gotCertError = -1; // other
     }
 
-    /* We will add a temporary cert exception here, so that
-     * we can continue and connect and try.
-     * But we will remove it again as soon as we close the
-     * connection, in _processResult().
-     * _gotCertError will serve as the marker that we
-     * have to clear the override later.
-     *
-     * In verifyConfig(), before we send the password, we *must*
-     * get another cert exception, this time with dialog to the user
-     * so that he gets informed about this and can make a choice.
-     */
+    // We will add a temporary cert exception here, so that
+    // we can continue and connect and try.
+    // But we will remove it again as soon as we close the
+    // connection, in _processResult().
+    // _gotCertError will serve as the marker that we
+    // have to clear the override later.
+    //
+    // In verifyConfig(), before we send the password, we *must*
+    // get another cert exception, this time with dialog to the user
+    // so that he gets informed about this and can make a choice.
     this._try.targetSite = targetSite;
     Cc["@mozilla.org/security/certoverride;1"]
       .getService(Ci.nsICertOverrideService)
@@ -1103,18 +1113,17 @@ SSLErrorHandler.prototype = {
 // Socket Util
 
 /**
- * @param hostname {String} The DNS hostname to connect to.
- * @param port {Integer} The numeric port to connect to on the host.
- * @param socketType {nsMsgSocketType} SSL, STARTTLS or NONE
- * @param commands {Array of String}: protocol commands
- *          to send to the server.
- * @param timeout {Integer} seconds to wait for a server response, then cancel.
- * @param proxy {nsIProxyInfo} The proxy to use (or null to not use any).
- * @param sslErrorHandler {SSLErrorHandler}
- * @param resultCallback {function(wiredata)} This function will
- *            be called with the result string array from the server
- *            or null if no communication occurred.
- * @param errorCallback {function(e)}
+ * @param {string} hostname - The DNS hostname to connect to.
+ * @param {integer} port - The numeric port to connect to on the host.
+ * @param {nsMsgSocketType} socketType - SSL, STARTTLS or NONE
+ * @param {string[]} commands - Protocol commands to send to the server.
+ * @param {integer} timeout - Seconds to wait for a server response, then cancel.
+ * @param {?nsIProxyInfo} proxy - The proxy to use (or null to not use any).
+ * @param {SSLErrorHandler} sslErrorHandler
+ * @param {function(?string):void} resultCallback - This function will
+ *   be called with the result string array from the server
+ *   or null if no communication occurred.
+ * @param {function(Error):void} errorCallback
  */
 function SocketUtil(
   hostname,
@@ -1307,11 +1316,10 @@ SocketAbortable.prototype.cancel = function () {
 /**
  * Resolve a proxy for some domain and expose it via a callback.
  *
- * @param hostname {String} The hostname which a proxy will be resolved for
- * @param resultCallback {function(proxyInfo)}
- *   Called after the proxy has been resolved for hostname.
- *   proxy {nsIProxyInfo} The resolved proxy, or null if none were found
- *         for hostname
+ * @param {string} hostname - The hostname which a proxy will be resolved for
+ * @param {function(?nsIProxyInfo):void} resultCallback - Called after the proxy
+ *   has been resolved for hostname with the resolved proxy, or null if none
+ *   were found for hostname.
  */
 function doProxy(hostname, resultCallback) {
   // This implements the nsIProtocolProxyCallback interface:

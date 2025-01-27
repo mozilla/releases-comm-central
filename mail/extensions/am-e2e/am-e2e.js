@@ -1599,7 +1599,7 @@ function updateUIForSelectedOpenPgpKey() {
 /**
  * Generic method to copy a string in the user's clipboard.
  *
- * @param {string} val - The formatted string to be copied in the clipboard.
+ * @param {string} keyId - The formatted string to be copied in the clipboard.
  */
 async function openPgpCopyToClipboard(keyId) {
   const exitCodeObj = {};

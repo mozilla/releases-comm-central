@@ -15,10 +15,11 @@ const tagsTitleFormatter = new Intl.ListFormat();
 
 /**
  * The tr element row of the TreeView table for the cards view layout.
+ * NOTE: The main child is a clone of the `#threadPaneCardTemplate` template.
  *
- * @note The main child is a clone of the `#threadPaneCardTemplate` template.
+ * tagname: thread-row
+ *
  * @augments {TreeViewTableRow}
- * @tagname thread-row
  */
 class ThreadCard extends TreeViewTableRow {
   static ROW_HEIGHT = 46;

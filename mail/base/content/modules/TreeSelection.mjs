@@ -4,10 +4,12 @@
 
 /**
  * This implementation attempts to mimic the behavior of nsTreeSelection.  In
- *  a few cases, this leads to potentially confusing actions.  I attempt to note
- *  when we are doing this and why we do it.
+ * a few cases, this leads to potentially confusing actions.  I attempt to note
+ * when we are doing this and why we do it.
  *
  * Unit test is in mail/base/test/unit/test_treeSelection.js
+ *
+ * @implements {nsITreeSelection}
  */
 export class TreeSelection {
   QueryInterface = ChromeUtils.generateQI(["nsITreeSelection"]);
@@ -145,7 +147,7 @@ export class TreeSelection {
    *  "cell" (a single cell may be selected), or "text" (the row gets selected
    *  but only the primary column shows up as selected.)
    *
-   * @returns false because we don't support single-selection.
+   * @returns {boolean} false because we don't support single-selection.
    */
   get single() {
     return false;
@@ -173,6 +175,8 @@ export class TreeSelection {
 
   /**
    * Select the given row.  It does nothing if that row was already selected.
+   *
+   * @param {number} viewIndex
    */
   select(viewIndex) {
     this._invalidateSelection();
@@ -280,13 +284,13 @@ export class TreeSelection {
   }
 
   /**
-   * @param rangeStart If omitted, it implies a shift-selection is happening,
-   *     in which case we use _shiftSelectPivot as the start if we have it,
-   *     _currentIndex if we don't, and if we somehow didn't have a
-   *     _currentIndex, we use the range end.
-   * @param rangeEnd Just the inclusive end of the range.
-   * @param augment Does this set a new selection or should it be merged with
-   *     the existing selection?
+   * @param {number} rangeStart - If omitted, it implies a shift-selection is
+   *   happening, in which case we use _shiftSelectPivot as the start if we
+   *   have it, _currentIndex if we don't, and if we somehow didn't have a
+   *   _currentIndex, we use the range end.
+   * @param {number} rangeEnd - Just the inclusive end of the range.
+   * @param {boolean} augment - Does this set a new selection or should it be
+   *   merged with the existing selection?
    */
   rangedSelect(rangeStart, rangeEnd, augment) {
     if (rangeStart == -1) {
@@ -505,9 +509,9 @@ export class TreeSelection {
   /**
    * Helper method to adjust points in the face of row additions/removal.
    *
-   * @param point The point, null if there isn't one, or an index otherwise.
-   * @param deltaAt The row at which the change is happening.
-   * @param delta The number of rows added if positive, or the (negative)
+   * @param {object|integer|null} point - The point, null if there isn't one, or an index otherwise.
+   * @param {integer} deltaAt - The row at which the change is happening.
+   * @param {integer} delta - The number of rows added if positive, or the (negative)
    *     number of rows removed.
    */
   _adjustPoint(point, deltaAt, delta) {
@@ -530,8 +534,9 @@ export class TreeSelection {
    * Find the index of the range, if any, that contains the given index, and
    *  the index at which to insert a range if one does not exist.
    *
-   * @returns A tuple containing: 1) the index if there is one, null otherwise,
-   *     2) the index at which to insert a range that would contain the point.
+   * @returns {[]} A tuple containing:
+   *    1) the index if there is one, null otherwise,
+   *    2) the index at which to insert a range that would contain the point.
    */
   _findRangeContainingRow(index) {
     for (const [iTupe, [low, high]] of this._ranges.entries()) {
@@ -565,7 +570,7 @@ export class TreeSelection {
    * Stop logging calls to adjustSelection and replay the existing log against
    *  selection.
    *
-   * @param selection {nsITreeSelection}.
+   * @param {nsITreeSelection} selection
    */
   replayAdjustSelectionLog(selection) {
     if (this._adjustSelectionLog.length) {
@@ -698,8 +703,10 @@ export class TreeSelection {
   }
   /**
    * Sets the current index.  Other than updating the variable, this just
-   *  invalidates the tree row if we have a tree.
+   * invalidates the tree row if we have a tree.
    * The real selection object would send a DOM event we don't care about.
+   *
+   * @param {number} index
    */
   set currentIndex(index) {
     if (index == this.currentIndex) {
@@ -725,10 +732,11 @@ export class TreeSelection {
    * when you would like to discard this selection for a real tree selection.
    * We assume that both selections are for the same tree.
    *
-   * @note We don't transfer the correct shiftSelectPivot over.
-   * @note This will fire a selectionChanged event on the tree view.
+   * NOTE: We don't transfer the correct shiftSelectPivot over.
+   * NOTE: This will fire a selectionChanged event on the tree view.
    *
-   * @param selection an nsITreeSelection to duplicate this selection onto
+   * @param {nsITreeSelection} selection - An nsITreeSelection to duplicate
+   *   this selection onto.
    */
   duplicateSelection(selection) {
     selection.selectEventsSuppressed = true;

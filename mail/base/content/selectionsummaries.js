@@ -8,8 +8,8 @@
  * Summarize a set of selected messages.  This can either be a single thread or
  * multiple threads.
  *
- * @param aMessageDisplay The MessageDisplayWidget object responsible for
- *                         showing messages.
+ * @param {MessageDisplayWidget} aMessageDisplay - The MessageDisplayWidget
+ *   object responsible for showing messages.
  */
 function summarizeSelection(aMessageDisplay) {
   // Figure out if we're looking at one thread or more than one thread. We want
@@ -44,9 +44,9 @@ function summarizeSelection(aMessageDisplay) {
 /**
  * Given an array of messages which are all in the same thread, summarize them.
  *
- * @param aSelectedMessages Array of message headers.
- * @param aMessageDisplay   The MessageDisplayWidget object responsible for
- *                          showing messages.
+ * @param {nsIMsgDBHdr[]} aSelectedMessages - Array of message headers.
+ * @param {MessageDisplayWidget} aMessageDisplay - The MessageDisplayWidget
+ *   object responsible for showing messages.
  */
 function summarizeThread(aSelectedMessages, aMessageDisplay) {
   const kSummaryURL = "chrome://messenger/content/multimessageview.xhtml";
@@ -75,9 +75,9 @@ function summarizeThread(aSelectedMessages, aMessageDisplay) {
  * Given an array of message URIs, cause the message panel to display a summary
  * of them.
  *
- * @param aSelectedMessages Array of message headers.
- * @param aMessageDisplay   The MessageDisplayWidget object responsible for
- *                          showing messages.
+ * @param {nsIMsgDBHdr[]} aSelectedMessages - Array of message headers.
+ * @param {MessageDisplayWidget} aMessageDisplay - The MessageDisplayWidget
+ *   object responsible for showing messages.
  */
 function summarizeMultipleSelection(aSelectedMessages, aMessageDisplay) {
   const kSummaryURL = "chrome://messenger/content/multimessageview.xhtml";

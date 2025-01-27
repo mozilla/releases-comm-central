@@ -6,7 +6,7 @@ const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
-/** @type MenuData */
+/** @type {MenuData} */
 const viewMenuData = {
   menu_Toolbars: {},
   view_toolbars_popup_quickFilterBar: { checked: true },

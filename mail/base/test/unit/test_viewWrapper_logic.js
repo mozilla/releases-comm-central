@@ -259,7 +259,7 @@ add_task(async function test_mailviews_persistence() {
  * - That the view update depth is zeroed by a close so that we don't
  *    get into awkward states.
  *
- * @bug 498145
+ * @see bug 498145
  */
 add_task(function test_view_update_depth_logic() {
   const viewWrapper = make_view_wrapper();

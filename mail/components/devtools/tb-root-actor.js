@@ -57,8 +57,9 @@ loader.lazyRequireGetter(
 /**
  * Create the root actor for Thunderbird.
  *
- * @param aConnection       The debugger connection to create the actor for.
- * @returns The mail actor for the connection.
+ * @param {DevToolsServerConnection} aConnection - The debugger connection to
+ *   create the actor for.
+ * @returns {RootActor} The mail actor for the connection.
  */
 exports.createRootActor = function (aConnection) {
   const parameters = {

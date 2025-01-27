@@ -22,6 +22,10 @@ var kDefaults = {
   uploadCancelled: cloudFileAccounts.constants.uploadCancelled,
 };
 
+/**
+ * @param {string} aFilename
+ * @param {string} aRoot
+ */
 export function getFile(aFilename, aRoot) {
   var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   file.initWithPath(aRoot);
@@ -34,10 +38,10 @@ export function getFile(aFilename, aRoot) {
  * Helper function for getting the nsIFile's for some files located
  * in a subdirectory of the test directory.
  *
- * @param aFiles an array of filename strings for files underneath the test
- *               file directory.
- * @param aFileRoot the file who's parent directory we should start looking
- *                  for aFiles in.
+ * @param {string[]} aFiles - An array of filename strings for files underneath
+ *   the test file directory.
+ * @param {string} aFileRoot - The file who's parent directory we should start
+ *   looking for aFiles in.
  *
  * Example:
  * let files = collectFiles(['./data/testFile1', './data/testFile2'],
@@ -213,8 +217,8 @@ export class CloudFileTestProvider {
   /**
    * Register an extension based cloudFile provider.
    *
-   * @param testScope - scope of the test, mostly "this"
-   * @param [background] - optional background script, overriding the default
+   * @param {object} testScope - Scope of the test, mostly "this"
+   * @param {Function} [background] - Optional background script, overriding the default.
    */
   async register(testScope, background) {
     if (!testScope) {

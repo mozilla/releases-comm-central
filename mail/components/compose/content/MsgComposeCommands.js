@@ -474,8 +474,8 @@ ChromeUtils.defineLazyGetter(this, "gComposeNotification", () => {
 /**
  *  Get the first next sibling element matching the selector (if specified).
  *
- *  @param {HTMLElement} element - The source element whose sibling to look for.
- *  @param {string} [selector] - The CSS query selector to match.
+ * @param {HTMLElement} element - The source element whose sibling to look for.
+ * @param {string} [selector] - The CSS query selector to match.
  *
  *  @returns {(HTMLElement|null)} - The first matching sibling element, or null.
  */
@@ -499,8 +499,8 @@ function getNextSibling(element, selector) {
 /**
  *  Get the first previous sibling element matching the selector (if specified).
  *
- *  @param {HTMLElement} element - The source element whose sibling to look for.
- *  @param {string} [selector] - The CSS query selector to match.
+ * @param {HTMLElement} element - The source element whose sibling to look for.
+ * @param {string} [selector] - The CSS query selector to match.
  *
  *  @returns {(HTMLElement|null)} - The first matching sibling element, or null.
  */
@@ -524,8 +524,8 @@ function getPreviousSibling(element, selector) {
 /**
  * Get a pretty, human-readable shortcut key string from a given <key> id.
  *
- * @param aKeyId   the ID of a <key> element
- * @returns string  pretty, human-readable shortcut key string from the <key>
+ * @param {string} aKeyId - The ID of a <key> element.
+ * @returns {string} pretty, human-readable shortcut key string from the <key>.
  */
 function getPrettyKey(aKeyId) {
   return ShortcutUtils.prettifyShortcut(document.getElementById(aKeyId));
@@ -2828,7 +2828,7 @@ async function attachToCloudRepeat(upload, account) {
 /**
  * Prompt the user for a list of files to attach via a cloud provider.
  *
- * @param aAccount the cloud provider to upload the files to
+ * @param {object} aAccount - The cloud provider to upload the files to.
  */
 async function attachToCloudNew(aAccount) {
   // We need to let the user pick local file(s) to upload to the cloud and
@@ -4112,11 +4112,12 @@ attachmentWorker.findAttachmentKeywords = (data, keywordsInCsv) =>
  * Update attachment-related internal flags, UI, and commands.
  * Called when number of attachments changes.
  *
- * @param aShowPane {string} "show":  show the attachment pane
- *                           "hide":  hide the attachment pane
- *                           omitted: just update without changing pane visibility
- * @param aContentChanged {Boolean} optional value to assign to gContentChanged;
- *                                  defaults to true.
+ * @param {?string} aShowPane - Command.
+ *  - "show":  show the attachment pane
+ *  - "hide":  hide the attachment pane
+ *  - omitted: just update without changing pane visibility
+ * @param {boolean} [aContentChanged=true] - Optional value to assign to
+ *   gContentChanged; defaults to true.
  */
 function AttachmentsChanged(aShowPane, aContentChanged = true) {
   gContentChanged = aContentChanged;
@@ -4143,7 +4144,7 @@ function AttachmentsChanged(aShowPane, aContentChanged = true) {
  *
  * @param {string[]|null} [draftLanguages] - Languages that the message was
  *  composed in.
- * @returns {string[]}
+ * @returns {string[]} valid dictionaries
  */
 function getValidSpellcheckerDictionaries(draftLanguages) {
   const prefValue = Services.prefs.getCharPref("spellchecker.dictionary");
@@ -6601,7 +6602,7 @@ function updateSendLock() {
 /**
  * Check if the entered addresses are valid and alert the user if they are not.
  *
- * @param aMsgCompFields  A nsIMsgCompFields object containing the fields to check.
+ * @param {nsIMsgCompFields} aMsgCompFields - Fields containing the fields to check.
  */
 function CheckValidEmailAddress(aMsgCompFields) {
   let invalidStr;
@@ -6671,9 +6672,9 @@ async function pillifyRecipients() {
 }
 
 /**
- *  Handle the dragover event on a recipient disclosure label.
+ * Handle the dragover event on a recipient disclosure label.
  *
- *  @param {Event} - The DOM dragover event on a recipient disclosure label.
+ * @param {Event} event - The DOM dragover event on a recipient disclosure label.
  */
 function showAddressRowButtonOnDragover(event) {
   // Prevent dragover event's default action (which resets the current drag
@@ -6684,7 +6685,7 @@ function showAddressRowButtonOnDragover(event) {
 /**
  *  Handle the drop event on a recipient disclosure label.
  *
- *  @param {Event} - The DOM drop event on a recipient disclosure label.
+ * @param {Event} event - The DOM drop event on a recipient disclosure label.
  */
 function showAddressRowButtonOnDrop(event) {
   if (event.dataTransfer.types.includes("text/pills")) {
@@ -7329,16 +7330,18 @@ function onRecipientsChanged(automatic) {
  * Except aPopupID, all parameters are optional.
  * Example: showPopupById("aPopupID", "aAnchorID");
  *
- * @param aPopupID   the ID of the popup element to be shown
- * @param aAnchorID  the ID of an element to which the popup should be anchored
- * @param aPosition  a single-word alignment value for the position parameter
- *                   of openPopup() method; defaults to "after_start" if omitted.
- * @param x          x offset from default position
- * @param y          y offset from default position
- * @param isContextMenu {boolean} For details, see documentation.
- * @param attributesOverride {boolean} whether the position attribute on the
- *                                     popup node overrides the position parameter
- * @param triggerEvent the event that triggered the popup
+ * @param {string} aPopupID - The ID of the popup element to be shown.
+ * @param {string} aAnchorID - The ID of an element to which the popup should
+ *   be anchored.
+ * @param {string} [aPosition="after_start"] - A single-word alignment value
+ *   for the position parameter of openPopup() method;
+ *   Defaults to "after_start" if omitted.
+ * @param {integer} x - x offset from default position
+ * @param {integer} y - y offset from default position
+ * @param {boolean} isContextMenu - For details, see documentation.
+ * @param {boolean} attributesOverride - Whether the position attribute on the
+ *   popup node overrides the position parameter.
+ * @param {Event} triggerEvent - The event that triggered the popup
  */
 function showPopupById(
   aPopupID,
@@ -8277,14 +8280,13 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
 /**
  * Returns a sorted-by-index, "non-live" array of attachment list items.
  *
- * @param aAscending {boolean}: true (default): sort return array ascending
- *                              false         : sort return array descending
- * @param aSelectedOnly {boolean}: true: return array of selected items only.
- *                                 false (default): return array of all items.
+ * @param {boolean} [aAscending=true] - If true, sort return array ascending.
+ * @param {boolean} [aSelectedOnly=false] - If true, return array of selected
+ *   items only. If false (default): return array of all items.
  *
- * @returns {Array} an array of (all | selected) listItem elements in
- *                 attachmentBucket listbox, "non-live" and sorted by their index
- *                 in the list; [] if there are (no | no selected) attachments.
+ * @returns {Element[]} an array of (all | selected) listItem elements in
+ *   attachmentBucket listbox, "non-live" and sorted by their index
+ *   in the list; [] if there are (no | no selected) attachments.
  */
 function attachmentsGetSortedArray(aAscending = true, aSelectedOnly = false) {
   let listItems;
@@ -8329,11 +8331,10 @@ function attachmentsGetSortedArray(aAscending = true, aSelectedOnly = false) {
 /**
  * Returns a sorted-by-index, "non-live" array of selected attachment list items.
  *
- * @param aAscending {boolean}: true (default): sort return array ascending
- *                              false         : sort return array descending
- * @returns {Array} an array of selected listitem elements in attachmentBucket
- *                 listbox, "non-live" and sorted by their index in the list;
- *                 [] if no attachments selected
+ * @param {boolean} [aAscending=true] - If true, sort return array ascending.
+ * @returns {Element[]} an array of selected listitem elements in attachmentBucket
+ *  listbox, "non-live" and sorted by their index in the list;
+ *  [] if no attachments selected.
  */
 function attachmentsSelectionGetSortedArray(aAscending = true) {
   return attachmentsGetSortedArray(aAscending, true);
@@ -8343,17 +8344,16 @@ function attachmentsSelectionGetSortedArray(aAscending = true) {
  * Return true if the selected attachment items are a coherent block in the list,
  * otherwise false.
  *
- * @param aListPosition (optional) - "top"   : Return true only if the block is
- *                                            at the top of the list.
- *                                  "bottom": Return true only if the block is
- *                                            at the bottom of the list.
- * @returns {boolean} true : The selected attachment items are a coherent block
- *                          (at the list edge if/as specified by 'aListPosition'),
- *                          or only 1 item selected.
- *                   false: The selected attachment items are NOT a coherent block
- *                          (at the list edge if/as specified by 'aListPosition'),
- *                          or no attachments selected, or no attachments,
- *                          or no attachmentBucket.
+ * @param {string} [aListPosition] Position. For
+ *   - "top": return true only if the block is at the top of the list.
+ *   - "bottom": return true only if the block is at the bottom of the list.
+ * @returns {boolean} true when the selected attachment items are a coherent
+ *   block (at the list edge if/as specified by 'aListPosition'), or only 1
+ *   item selected.
+ *   false when selected attachment items are NOT a coherent block
+ *   (at the list edge if/as specified by 'aListPosition'),
+ *   or no attachments selected, or no attachments,
+ *   or no attachmentBucket.
  */
 function attachmentsSelectionIsBlock(aListPosition) {
   if (!gAttachmentBucket.selectedCount) {
@@ -8460,7 +8460,7 @@ async function RemoveAllAttachments() {
  * Show or hide the attachment pane after updating its header bar information
  * (number and total file size of attachments) and tooltip.
  *
- * @param {boolean} aShowBucket - Show bucket or not.
+ * @param {boolean} aShowBucket - Show bucket or not:
  *   - true: show the attachment pane
  *   - false (or omitted): hide the attachment pane
  */
@@ -8472,9 +8472,10 @@ function UpdateAttachmentBucket(aShowBucket) {
  * Update the header bar information (number and total file size of attachments)
  * and tooltip of attachment pane, then (optionally) show or hide the pane.
  *
- * @param {"show"|"hide"} [aShowPane} "show":  show the attachment pane
+ * @param {"show"|"hide"} [aShowPane] Command:
+ *   - "show": show the attachment pane
  *   - "hide":  hide the attachment pane
- *   -  omitted: just update without changing pane visibility
+ *   - omitted: just update without changing pane visibility
  */
 function updateAttachmentPane(aShowPane) {
   const count = gAttachmentBucket.itemCount;
@@ -9761,18 +9762,18 @@ function subjectKeyPress(event) {
 /**
  * Handle the input event of the editable from field..
  *
- * @param {Event} event - A DOM input event on #msgIdentity.
+ * @param {Event} _event - A DOM input event on #msgIdentity.
  */
-function msgIdentityOnInput() {
+function msgIdentityOnInput(_event) {
   gContentChanged = true;
 }
 
 /**
  * Handle the input event of the subject input element.
  *
- * @param {Event} event - A DOM input event on #msgSubject.
+ * @param {Event} _event - A DOM input event on #msgSubject.
  */
-function msgSubjectOnInput() {
+function msgSubjectOnInput(_event) {
   gSubjectChanged = true;
   gContentChanged = true;
   SetComposeWindowTitle();
@@ -10627,10 +10628,9 @@ function focusNotification() {
 /**
  * Focus the first focusable descendant of the status bar.
  *
- * Note, this is used as a {@link moveFocusWithin} method.
+ * NOTE: this is used as a {@link moveFocusWithin} method.
  *
- * @param {Element} attachmentArea - The status bar.
- *
+ * @param {Element} statusBar - The status bar.
  * @returns {boolean} whether a status bar descendant received focused.
  */
 function focusStatusBar(statusBar) {
@@ -10646,7 +10646,7 @@ function focusStatusBar(statusBar) {
  * Fast-track focus ring: Switch focus between important (not all) elements
  * in the message compose window in response to Ctrl+[Shift+]Tab or [Shift+]F6.
  *
- * @param {Event} event - A DOM keyboard event of a fast focus ring shortcut key
+ * @param {Event} event - A DOM keyboard event of a fast focus ring shortcut key.
  */
 function moveFocusToNeighbouringArea(event) {
   event.preventDefault();

@@ -6,7 +6,7 @@ const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
-/** @type MenuData */
+/** @type {MenuData} */
 const fileMenuData = {
   menu_New: {},
   menu_newNewMsgCmd: {},

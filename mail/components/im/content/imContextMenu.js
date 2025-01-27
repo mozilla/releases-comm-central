@@ -252,8 +252,7 @@ imContextMenu.prototype = {
  * space. A maximum of 150 characters will be returned, regardless of the value
  * of aCharLen.
  *
- * @param aCharLen
- *        The maximum number of characters to return.
+ * @param {integer} aCharLen - The maximum number of characters to return.
  */
 function getBrowserSelection(aCharLen) {
   // selections of more than 150 characters aren't useful

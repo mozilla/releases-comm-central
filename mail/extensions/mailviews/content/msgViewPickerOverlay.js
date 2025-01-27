@@ -107,7 +107,7 @@ var ViewPickerBinding = {
   },
 
   /**
-   * @returns The label for the current mail view value.
+   * @returns {?string} The label for the current mail view value.
    */
   get currentViewLabel() {
     return document.querySelector(

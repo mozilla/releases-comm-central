@@ -213,7 +213,7 @@ async function setPhotoFile(id, file) {
  * Gets the VCardProperties of the given card either directly or by reconstructing
  * from a set of flat standard properties.
  *
- * @param {nsIAbCard/AddrBookCard} card
+ * @param {nsIAbCard|AddrBookCard} card
  * @returns {VCardProperties}
  */
 function vCardPropertiesFromCard(card) {
@@ -228,8 +228,8 @@ function vCardPropertiesFromCard(card) {
 /**
  * Creates a new AddrBookCard from a set of flat standard properties.
  *
- * @param {ContactProperties} properties - a key/value properties object
- * @param {string} uid - optional UID for the card
+ * @param {ContactProperties} properties - A key/value properties object.
+ * @param {string} [uid] - Optional UID for the card.
  * @returns {AddrBookCard}
  */
 function flatPropertiesToAbCard(properties, uid) {
@@ -244,7 +244,7 @@ function flatPropertiesToAbCard(properties, uid) {
  * Checks if the given property is a custom contact property, which can be exposed
  * to WebExtensions.
  *
- * @param {string} name - property name
+ * @param {string} name - Property name.
  * @returns {boolean}
  */
 function isCustomProperty(name) {
@@ -257,14 +257,14 @@ function isCustomProperty(name) {
 
 /**
  * Adds the provided originalProperties to the card, adjusted by the changes
- * given in updateProperties. All banished properties are skipped and the updated
- * properties must be valid according to isCustomProperty().
+ * given in updateProperties. All banished properties are skipped and the
+ *  updated properties must be valid according to isCustomProperty().
  *
- * @param {AddrBookCard} card - a card to receive the provided properties
- * @param {ContactProperties} updateProperties - a key/value object with properties
+ * @param {AddrBookCard} card - A card to receive the provided properties.
+ * @param {ContactProperties} updateProperties - A key/value object with properties.
  *   to update the provided originalProperties
- * @param {nsIProperties} originalProperties - properties to be cloned onto
- *   the provided card
+ * @param {nsIProperties} originalProperties - Properties to be cloned onto
+ *   the provided card.
  */
 function addProperties(card, updateProperties, originalProperties) {
   const updates = Object.entries(updateProperties).filter(e =>

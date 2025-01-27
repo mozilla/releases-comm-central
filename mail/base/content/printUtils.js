@@ -196,7 +196,7 @@ class TabDialogBox {
    * @param {object} [aOptions]
    * @param {string} [aOptions.features] - Comma separated list of window
    *   features.
-   * @param {boolean} [aOptions.allowDuplicateDialogs] - Whether to allow
+   * @param {boolean} [aOptions.allowDuplicateDialogs=true] - Whether to allow
    *   showing multiple dialogs with aURL at the same time. If false calls for
    *   duplicate dialogs will be dropped.
    * @param {string} [aOptions.sizeTo] - Pass "available" to stretch dialog to
@@ -206,6 +206,7 @@ class TabDialogBox {
    *   Set to true to keep the dialog open for same origin navigation.
    * @param {number} [aOptions.modalType] - The modal type to create the dialog for.
    *   By default, we show the dialog for tab prompts.
+   * @param {boolean} [aOptions.allowFocusCheckbox=false] - Whether to allow
    * @returns {object} [result] Returns an object { closedPromise, dialog }.
    * @returns {Promise} [result.closedPromise] Resolves once the dialog has been closed.
    * @returns {SubDialog} [result.dialog] A reference to the opened SubDialog.

@@ -177,8 +177,8 @@ add_task(async function test_upload_multiple_and_cancel() {
  * @param {Window} aWin - The compose window to use.
  * @param {object} aProvider - A MockCloudfileAccount for which the uploads
  *   have already started.
- * @param {nsIRequestObserver} aListener - The observer passed to aProvider's
- *   uploadFile function.
+ * @param {Promise} aPromise - The promise passed to aProvider's uploadFile
+ *   function.
  * @param {nsIFile} aTargetFile - The file to cancel the upload for.
  */
 async function assert_can_cancel_upload(
@@ -254,8 +254,8 @@ async function assert_can_cancel_upload(
  * A helper function to find the attachment bucket index for a particular
  * nsIFile. Returns null if no attachmentitem is found.
  *
- * @param aWin the compose window to use.
- * @param aFile the nsIFile to search for.
+ * @param {Window} aWin - The compose window to use.
+ * @param {nsIFile} aFile - The nsIFile to search for.
  */
 function get_attachmentitem_index_for_file(aWin, aFile) {
   // Get the fileUrl from the file.
@@ -277,9 +277,11 @@ function get_attachmentitem_index_for_file(aWin, aFile) {
  * Helper function to start uploads and check number and icon of attachments
  * after successful or failed uploads.
  *
- * @param error - to be returned error by uploadFile in case of failure
- * @param expectedAttachments - number of expected attachments at the end of the test
- * @param expectedAlerts - number of expected alerts at the end of the test
+ * @param {Window} cw - Window.
+ * @param {?Error} error - To be returned error by uploadFile in case of failure
+ * @param {integer} expectedAttachments - Number of expected attachments at the end of the test
+ * @param {integer} expectedAlerts - Number of expected alerts at the end of the test
+ * @returns {Promise}
  */
 async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
   const kFiles = ["./data/testFile1", "./data/testFile2", "./data/testFile3"];

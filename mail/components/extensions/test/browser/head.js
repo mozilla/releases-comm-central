@@ -291,8 +291,8 @@ function getPanelForNode(node) {
 /**
  * Wait until the browser is fully loaded.
  *
- * @param {xul:browser} browser - A xul:browser.
- * @param {string | Function} [wantLoad = null] - If a function, takes a URL and
+ * @param {Browser} browser - A xul:browser.
+ * @param {string|function():boolean} [wantLoad = null] - If a function, takes a URL and
  *   returns true if that's the load we're interested in. If a string, gives the
  *   URL of the load we're interested in. If not present, the first load resolves
  *   the promise.
@@ -449,13 +449,13 @@ async function promiseMessageLoaded(browser, msgHdr) {
  *
  * @param {object} expected - A dictionary of expected headers.
  *    Omit headers that should have no value.
- * @param {string[]} [fields.to]
- * @param {string[]} [fields.cc]
- * @param {string[]} [fields.bcc]
- * @param {string[]} [fields.replyTo]
- * @param {string[]} [fields.followupTo]
- * @param {string[]} [fields.newsgroups]
- * @param {string} [fields.subject]
+ * @param {string[]} [expected.to]
+ * @param {string[]} [expected.cc]
+ * @param {string[]} [expected.bcc]
+ * @param {string[]} [expected.replyTo]
+ * @param {string[]} [expected.followupTo]
+ * @param {string[]} [expected.newsgroups]
+ * @param {string} [expected.subject]
  */
 async function checkComposeHeaders(expected) {
   const composeWindows = [...Services.wm.getEnumerator("msgcompose")];

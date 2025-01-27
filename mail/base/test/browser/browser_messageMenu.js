@@ -12,7 +12,7 @@ const { MessageGenerator } = ChromeUtils.importESModule(
 const nothingSelected = ["rootFolder", "noSelection", "contentTab"];
 const nothingOrMultiSelected = [...nothingSelected, "multiSelection"];
 
-/** @type MenuData */
+/** @type {MenuData} */
 const messageMenuData = {
   newMsgCmd: {},
   replyMainMenu: { disabled: nothingSelected },

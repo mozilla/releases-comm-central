@@ -317,10 +317,10 @@ function awRemoveRecipients(msgCompFields, recipientType, recipientsList) {
 /**
  * Adds a batch of new rows matching recipientType and drops in the list of addresses.
  *
- * @param msgCompFields  A nsIMsgCompFields object that is only used as a helper,
- *                       it will not get the addresses appended.
- * @param recipientType  Type of recipient, e.g. "addr_to".
- * @param recipientList  A string of addresses to add.
+ * @param {nsIMsgCompFields} msgCompFields -Object that is only used as a helper,
+ *   it will not get the addresses appended.
+ * @param {string} recipientType - Type of recipient, e.g. "addr_to".
+ * @param {string} recipientsList - A string of addresses to add.
  */
 function awAddRecipients(msgCompFields, recipientType, recipientsList) {
   if (!msgCompFields || !recipientsList) {
@@ -341,7 +341,7 @@ function awAddRecipients(msgCompFields, recipientType, recipientsList) {
  *
  * @param {Element} row - The row to add the addresses to.
  * @param {string[]} addressArray - Recipient addresses (strings) to add.
- * @param {boolean=false} select - If the newly generated pills should be
+ * @param {boolean} [select=false] - If the newly generated pills should be
  *   selected.
  */
 function addressRowAddRecipientsArray(row, addressArray, select = false) {
@@ -379,7 +379,7 @@ function addressRowAddRecipientsArray(row, addressArray, select = false) {
 /**
  * Find the autocomplete input when an address is dropped in the compose header.
  *
- * @param {XULElement} target - The element where an address was dropped.
+ * @param {Element} target - The element where an address was dropped.
  * @param {string} recipient - The email address dragged by the user.
  */
 function DropRecipient(target, recipient) {
@@ -398,7 +398,11 @@ function DropRecipient(target, recipient) {
   addressRowAddRecipientsArray(row, [recipient]);
 }
 
-// Returns the load context for the current window
+/**
+ * Returns the load context for the current window.
+ *
+ * @returns {nsILoadContext}
+ */
 function getLoadContext() {
   return window.docShell.QueryInterface(Ci.nsILoadContext);
 }

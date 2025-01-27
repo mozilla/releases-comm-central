@@ -23,12 +23,12 @@
   /**
    * A tree column header with an icon instead of a label.
    *
-   * @augments MozTreecol
+   * @augments {MozTreecol}
    *
-   * @note Icon column headers should have their "label" attribute set to
+   * NOTE: Icon column headers should have their "label" attribute set to
    * describe the icon for the accessibility tree.
    *
-   * @note Ideally we could listen for the "alt" attribute and pass it on to the
+   * NOTE: Ideally we could listen for the "alt" attribute and pass it on to the
    * contained <img>, but the accessibility tree only seems to read the "label"
    * for a <treecol>, and ignores the alt text.
    */

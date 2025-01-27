@@ -1147,7 +1147,7 @@ export class MessageTracker extends EventEmitter {
   /**
    * Returns the internal message identifier for the given message.
    *
-   * @param {nsIMsgDBHdr} - msgHdr of the requested message
+   * @param {nsIMsgDBHdr} msgHdr - The requested message.
    * @returns {object} The msgIdentifier of the message.
    */
   getIdentifier(msgHdr) {
@@ -1183,7 +1183,7 @@ export class MessageTracker extends EventEmitter {
   /**
    * Finds a message in the messageTracker or adds it.
    *
-   * @param {nsIMsgDBHdr} - msgHdr of the requested message
+   * @param {nsIMsgDBHdr} msgHdr - The requested message.
    * @returns {integer} The messageTracker id of the message.
    */
   getId(msgHdr) {
@@ -1279,7 +1279,6 @@ export class MessageTracker extends EventEmitter {
    * emits a "messages-received" event for them.
    *
    * @param {nsIMsgFolder} changedFolder
-   *
    * @see MailNotificationManager._getFirstRealFolderWithNewMail()
    */
   findNewMessages(changedFolder) {
@@ -1764,7 +1763,7 @@ export class MessageListTracker {
    * Takes an array or enumerator of messages and returns a Promise for the first
    * page.
    *
-   * @param {nsIMsgDBHdr[]} Array or enumerator of messages.
+   * @param {nsIMsgDBHdr[]} messages - Array or enumerator of messages.
    * @param {ExtensionData} extension
    *
    * @returns {Promise<MessageList>}
@@ -1784,8 +1783,8 @@ export class MessageListTracker {
    * Add messages to a messageList and finalize the list once all messages have
    * been added.
    *
-   * @param {nsIMsgDBHdr[]} Array or enumerator of messages.
-   * @param {MessageList}
+   * @param {nsIMsgDBHdr[]|Iterator} messages - Array or enumerator of messages.
+   * @param {MessageList} messageList
    */
   async _addMessages(messages, messageList) {
     if (messageList.isDone) {
@@ -1839,6 +1838,8 @@ export class MessageListTracker {
   /**
    * Returns the messageList object for a given id.
    *
+   * @param {string} messageListId
+   * @param {ExtensionData} extension
    * @returns {MessageList}
    */
   getList(messageListId, extension) {
@@ -2500,7 +2501,7 @@ function prepareAddress(displayAddr) {
 /**
  * Check multiple addresses if they match the provided search address.
  *
- * @returns A boolean indicating if search was successful.
+ * @returns {boolean} true if search was successful.
  */
 function searchInMultipleAddresses(searchAddress, addresses) {
   // Return on first positive match.
@@ -2534,7 +2535,7 @@ function searchInMultipleAddresses(searchAddress, addresses) {
  * Substring match on name and exact match on email. If searchTerm
  * includes multiple addresses, all of them must match.
  *
- * @returns A boolean indicating if search was successful.
+ * @returns {boolean} true if search was successful.
  */
 function isAddressMatch(searchTerm, addressObjects) {
   const searchAddresses =

@@ -436,7 +436,7 @@ export async function open_selected_message_in_new_window() {
  * preference. However, we do check that the tab we're returning is a folder
  * tab.
  *
- * @param {msgDBHdr} aMsgHdr - The message header to display.
+ * @param {nsIMsgDBHdr} aMsgHdr - The message header to display.
  * @param {boolean} [aExpectNew3Pane=false] - This should be set to true if it
  *   is expected that a new 3-pane window will be opened as a result of
  *   the API call.

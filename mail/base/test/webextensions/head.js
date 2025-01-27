@@ -59,14 +59,10 @@ function promisePopupNotificationShown(name) {
 /**
  * Wait for a specific install event to fire for a given addon
  *
- * @param {AddonWrapper} addon
- *        The addon to watch for an event on
- * @param {string}
- *        The name of the event to watch for (e.g., onInstallEnded)
- *
- * @returns {Promise}
- *          Resolves when the event triggers with the first argument
- *          to the event handler as the resolution value.
+ * @param {AddonWrapper} addon - The addon to watch for an event on.
+ * @param {string} event - The name of the event to watch for (e.g., onInstallEnded).
+ * @returns {Promise} Resolves when the event triggers with the first argument
+ *   to the event handler as the resolution value.
  */
 function promiseInstallEvent(addon, event) {
   return new Promise(resolve => {
@@ -84,14 +80,11 @@ function promiseInstallEvent(addon, event) {
 /**
  * Install an (xpi packaged) extension
  *
- * @param {string} url
- *        URL of the .xpi file to install
- * @param {object?} installTelemetryInfo
- *        an optional object that contains additional details used by the telemetry events.
- *
- * @returns {Promise}
- *          Resolves when the extension has been installed with the Addon
- *          object as the resolution value.
+ * @param {string} url - URL of the .xpi file to install.
+ * @param {?object} telemetryInfo - An optional object that contains
+ *   additional details used by the telemetry events.
+ * @returns {Promise<AddonWrapper>} Resolves when the extension has been
+ *   installed with the Addon object as the resolution value.
  */
 async function promiseInstallAddon(url, telemetryInfo) {
   const install = await AddonManager.getInstallForURL(url, { telemetryInfo });
@@ -125,11 +118,8 @@ async function promiseInstallAddon(url, telemetryInfo) {
  * (This does not actually perform an update, it just watches for
  * the events that occur as a result of an update.)
  *
- * @param {AddonWrapper} addon
- *        The addon to be updated.
- *
- * @returns {Promise}
- *          Resolves when the extension has ben updated.
+ * @param {AddonWrapper} addon - The addon to be updated.
+ * @returns {Promise<AddonWrapper>} Resolves when the extension has ben updated.
  */
 async function waitForUpdate(addon) {
   const installPromise = promiseInstallEvent(addon, "onInstallEnded");
@@ -171,23 +161,20 @@ function isDefaultIcon(icon) {
 /**
  * Check the contents of a permission popup notification
  *
- * @param {Window} panel
- *        The popup window.
- * @param {string | RegExp | Function} checkIcon
- *        The icon expected to appear in the notification.  If this is a
- *        string, it must match the icon url exactly.  If it is a
- *        regular expression it is tested against the icon url, and if
- *        it is a function, it is called with the icon url and returns
- *        true if the url is correct.
- * @param {object[]} permissions
- *        The expected entries in the permissions list. Each element
- *        in this array is itself a 2-element array with the string key
- *        for the item (e.g., "webext-perms-description-foo") for permission foo
- *        and an optional formatting parameter.
- * @param {boolean} sideloaded
- *        Whether the notification is for a sideloaded extenion.
- * @param {boolean} [warning]
- *        Whether the experiments warning should be visible.
+ * @param {Window} panel - The popup window.
+ * @param {string|RegExp|Function} checkIcon - The icon expected to appear in
+ *   the notification.  If this is a string, it must match the icon url exactly.
+ *   If it is a regular expression it is tested against the icon url, and if
+ *   it is a function, it is called with the icon url and returns
+ *   true if the url is correct.
+ * @param {object[]} permissions - The expected entries in the permissions list.
+ *   Each element in this array is itself a 2-element array with the string key
+ *   for the item (e.g., "webext-perms-description-foo") for permission foo
+ *   and an optional formatting parameter.
+ * @param {boolean} sideloaded - Whether the notification is for a sideloaded
+ *   extenion.
+ * @param {boolean} [warning=false] Whether the experiments warning should be
+ *   visible.
  */
 async function checkNotification(
   panel,
@@ -253,11 +240,10 @@ async function checkNotification(
  * Test that install-time permission prompts work for a given
  * installation method.
  *
- * @param {Function} installFn
- *        Callable that takes the name of an xpi file to install and
- *        starts to install it.  Should return a Promise that resolves
- *        when the install is finished or rejects if the install is canceled.
- *
+ * @param {function(string):Promise} installFn - Callable that takes the name
+ *   of an xpi file to install and starts to install it.
+ *   Should return a Promise that resolves when the install is finished or
+ *   rejects if the install is canceled.
  * @returns {Promise}
  */
 async function testInstallMethod(installFn) {

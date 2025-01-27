@@ -131,6 +131,8 @@ function GetRootFoldersInFolderPaneOrder() {
 /**
  * @callback navigateCallback
  * @param {nsMsgNavigationType} type - The type of navigation.
+ */
+
 /**
  * Handle switching the folder if required for the given kind of navigation.
  * Only used in about:3pane.

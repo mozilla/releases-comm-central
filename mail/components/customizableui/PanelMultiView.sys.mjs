@@ -201,14 +201,12 @@ var AssociatedToNode = class {
    * This helps to prevent deadlocks if any of the event handlers does not
    * resolve a blocker promise.
    *
-   * @note Since there is no use case for dispatching different asynchronous
+   * NOTE: Since there is no use case for dispatching different asynchronous
    *       events in parallel for the same element, this function will also wait
    *       for previous blockers when the event name is different.
    *
-   * @param eventName
-   *        Name of the custom event to dispatch.
-   *
-   * @resolves True if the event was canceled by a handler, false otherwise.
+   * @param {string} eventName - Name of the custom event to dispatch.
+   * @returns {Promise<boolean>} true if the event was canceled by a handler
    */
   async dispatchAsyncEvent(eventName) {
     // Wait for all the previous blockers before dispatching the event.
@@ -440,21 +438,18 @@ export class PanelMultiView extends AssociatedToNode {
    * this method is called, but the containing panel must have its display
    * turned on, for example it shouldn't have the "hidden" attribute.
    *
-   * @param anchor
-   *        The node to anchor the popup to.
-   * @param options
-   *        Either options to use or a string position. This is forwarded to
-   *        the openPopup method of the panel.
-   * @param args
-   *        Additional arguments to be forwarded to the openPopup method of the
-   *        panel.
+   * @param {Node} anchor - The node to anchor the popup to.
+   * @param {object|string} options - Either options to use or a string position.
+   *   This is forwarded to the openPopup method of the panel.
+   * @param {...object} args - Additional arguments to be forwarded to the
+   *    openPopup method of the panel.
    *
-   * @resolves With true as soon as the request to display the panel has been
-   *           sent, or with false if the operation was canceled. The state of
-   *           the panel at this point is not guaranteed. It may be still
-   *           showing, completely shown, or completely hidden.
-   * @rejects If an exception is thrown at any point in the process before the
-   *          request to display the panel is sent.
+   * @returns {Promise<boolean>} Resolves with true, true as soon as the request
+   *   to display the panel has been  sent, or with false if the operation was
+   *   canceled. The state of the panel at this point is not guaranteed. It may
+   *   be still showing, completely shown, or completely hidden.
+   * @throws {Error} If an exception is thrown at any point in the process
+   *   before the request to display the panel is sent.
    */
   async openPopup(anchor, options, ...args) {
     // Set up the function that allows hidePopup or a second call to showPopup
@@ -601,12 +596,11 @@ export class PanelMultiView extends AssociatedToNode {
   /**
    * Slides in the specified view as a subview.
    *
-   * @param viewIdOrNode
-   *        DOM element or string ID of the <panelview> to display.
-   * @param anchor
-   *        DOM element that triggered the subview, which will be highlighted
-   *        and whose "label" attribute will be used for the title of the
-   *        subview when a "title" attribute is not specified.
+   * @param {string|Node} viewIdOrNode - DOM element or string ID of the
+   *   <panelview> to display.
+   * @param {Node} anchor - DOM element that triggered the subview, which will
+   *   be highlighted and whose "label" attribute will be used for the title of
+   *   the subview when a "title" attribute is not specified.
    */
   showSubView(viewIdOrNode, anchor) {
     this._showSubView(viewIdOrNode, anchor).catch(console.error);
@@ -772,7 +766,7 @@ export class PanelMultiView extends AssociatedToNode {
    * This also clears all the attributes and styles that may be left by a
    * transition that was interrupted.
    *
-   * @resolves With true if the view was opened, false otherwise.
+   * @returns {Promise<boolean>} true if the view was opened, false otherwise.
    */
   async _openView(panelView) {
     if (panelView.node.parentNode != this._viewStack) {
@@ -828,8 +822,8 @@ export class PanelMultiView extends AssociatedToNode {
   /**
    * Closes the most recent PanelView and raises the ViewHiding event.
    *
-   * @note The ViewHiding event is not cancelable and should probably be renamed
-   *       to ViewHidden or ViewClosed instead, see bug 1438507.
+   * NOTE: The ViewHiding event is not cancelable and should probably be renamed
+   *  to ViewHidden or ViewClosed instead, see bug 1438507.
    */
   _closeLatestView() {
     const panelView = this.openViews.pop();
@@ -1625,8 +1619,8 @@ export class PanelView extends AssociatedToNode {
   /**
    * Focus the last selected element in the view, if any.
    *
-   * @param byKey {Boolean} whether focus was moved by the user pressing a key.
-   *                        Needed to ensure we show focus styles in the right cases.
+   * @param {boolean} byKey - Whether focus was moved by the user pressing a key.
+   *   Needed to ensure we show focus styles in the right cases.
    */
   focusSelectedElement(byKey = false) {
     const selected = this.selectedElement;

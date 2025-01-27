@@ -112,10 +112,8 @@ async function addMsgToFolder(targetFolder) {
 /**
  * Check remote content in a compose window.
  *
- * @param test        The test from TESTS that is being performed.
- * @param replyType   The type of the compose window, 0 = normal compose,
- *                    1 = reply, 2 = forward.
- * @param loadAllowed Whether or not the load is expected to be allowed.
+ * @param {boolean} replyType - The type of the compose window;
+ *   set to true for "reply", false for "forward".
  */
 async function checkComposeWindow(replyType) {
   let errMsg = "";

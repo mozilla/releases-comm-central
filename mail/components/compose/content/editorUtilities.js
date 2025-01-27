@@ -754,7 +754,7 @@ function Clone(obj) {
 /**
  * Is the passed in image URI a shortened data URI?
  *
- * @returns {bool}
+ * @returns {boolean}
  */
 function isImageDataShortened(aImageData) {
   return /^data:/i.test(aImageData) && aImageData.includes("…");
@@ -763,7 +763,7 @@ function isImageDataShortened(aImageData) {
 /**
  * Event handler for Copy or Cut
  *
- * @param aEvent  the event
+ * @param {Event} aEvent - The event.
  */
 function onCopyOrCutShortened(aEvent) {
   // Put the original data URI onto the clipboard in case the value
@@ -795,10 +795,10 @@ function onCopyOrCutShortened(aEvent) {
  * Set up element showing an image URI with a shortened version.
  * and add event handler for Copy or Cut.
  *
- * @param aImageData    the data: URL of the image to be shortened.
- *                      Note: Original stored in 'aDialogField.fullDataURI'.
- * @param aDialogField  The field of the dialog to contain the data.
- * @returns {bool} URL was shortened?
+ * @param {string} aImageData - The data: URL of the image to be shortened.
+ *   Note: Original stored in 'aDialogField.fullDataURI'.
+ * @param {Element} aDialogField - The field of the dialog to contain the data.
+ * @returns {boolean} true if the URL was shortened
  */
 function shortenImageData(aImageData, aDialogField) {
   let shortened = false;
@@ -829,7 +829,7 @@ function shortenImageData(aImageData, aDialogField) {
 /**
  * Return full data URIs for a shortened element.
  *
- * @param aDialogField  The field of the dialog containing the data.
+ * @param {string} aDialogField - The field of the dialog containing the data.
  */
 function restoredImageData(aDialogField) {
   return aDialogField.fullDataURI;

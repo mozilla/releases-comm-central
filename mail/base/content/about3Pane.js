@@ -218,7 +218,7 @@ var folderPaneContextMenu = {
   /**
    * Commands handled by commandController.
    *
-   * @type {Object.<string, string>}
+   * @type {object} - An object {Object.<string, string>}
    */
   _commands: {
     "folderPaneContext-new": "cmd_newFolder",
@@ -233,7 +233,7 @@ var folderPaneContextMenu = {
    * Current state of commandController commands. Set to null to invalidate
    * the states.
    *
-   * @type {Object.<string, boolean>|null}
+   * @type {object} - An object {Object.<string, boolean>|null}
    */
   _commandStates: null,
 
@@ -1778,7 +1778,7 @@ var folderPane = {
   /**
    * Reload the folder tree when the option changes.
    *
-   * @param {boolean} - True if local folders should be hidden.
+   * @param {boolean} value - True if local folders should be hidden.
    */
   set hideLocalFolders(value) {
     if (value == this._hideLocalFolders) {
@@ -1905,9 +1905,9 @@ var folderPane = {
   /**
    * Moves active folder mode up
    *
-   * @param {Event} event - The DOMEvent.
+   * @param {Event} _event - The DOMEvent.
    */
-  moveFolderModeUp() {
+  moveFolderModeUp(_event) {
     const currentModes = this.activeModes;
     const mode = this.mode;
     const index = currentModes.indexOf(mode);
@@ -1923,9 +1923,9 @@ var folderPane = {
   /**
    * Moves active folder mode down
    *
-   * @param {Event} event - The DOMEvent.
+   * @param {Event} _event - The DOMEvent.
    */
-  moveFolderModeDown() {
+  moveFolderModeDown(_event) {
     const currentModes = this.activeModes;
     const mode = this.mode;
     const index = currentModes.indexOf(mode);
@@ -2262,7 +2262,7 @@ var folderPane = {
    * @param {string} modeName - The name of the mode this row belongs to.
    * @param {folderFilterCallback} [filterFunction] - Optional callback to stop
    *   ascending.
-   * @param {boolean=false} childAlreadyGone - Is this function being called
+   * @param {boolean} [childAlreadyGone=false] - Is this function being called
    *   to remove the parent of a row that's already been removed?
    */
   _removeFolderAndAncestors(
@@ -2591,7 +2591,6 @@ var folderPane = {
    * Called when a folder's total count changes, to update the UI.
    *
    * @param {nsIMsgFolder} folder
-   * @param {integer} newValue
    */
   changeTotalCount(folder) {
     this._changeRows(folder, row => {
@@ -3465,8 +3464,8 @@ var folderPane = {
    * Opens the dialog to rename a particular folder, and does the renaming if
    * the user clicks OK in that dialog
    *
-   * @param [aFolder] - The folder to rename, if different than the currently
-   *   selected one.
+   * @param {nsIMsgFolder} [aFolder] - The folder to rename, if different than
+   *   the currently selected one.
    */
   renameFolder(aFolder) {
     const folder = aFolder;
@@ -3495,7 +3494,7 @@ var folderPane = {
    * Deletes a folder from its parent. Also handles unsubscribe from newsgroups
    * if the selected folder/s happen to be nntp.
    *
-   * @param {nsIMsgFolder} - The folder to delete.
+   * @param {nsIMsgFolder} folder - The folder to delete.
    */
   deleteFolder(folder) {
     // For newsgroups, "delete" means "unsubscribe".
@@ -3563,8 +3562,8 @@ var folderPane = {
    * Prompts the user to confirm and empties the trash for the selected folder.
    * The folder and its children are only emptied if it has the proper Trash flag.
    *
-   * @param [aFolder] - The trash folder to empty. If unspecified or not a trash
-   *   folder, the currently selected server's trash folder is used.
+   * @param {nsIMsgFolder} [aFolder] - The trash folder to empty. If unspecified
+   *   or not a trash folder, the currently selected server's trash folder is used.
    */
   emptyTrash(aFolder) {
     let folder = aFolder;
@@ -3659,9 +3658,10 @@ var folderPane = {
   /**
    * Opens the dialog to create a new virtual folder
    *
-   * @param aName - The default name for the new folder.
-   * @param aSearchTerms - The search terms associated with the folder.
-   * @param aParent - The folder to run the search terms on.
+   * @param {string} aName - The default name for the new folder.
+   * @param {nsIMsgSearchTerm[]} aSearchTerms - The search terms associated
+   *   with the folder.
+   * @param {nsIMsgFolder} aParent - The folder to run the search terms on.
    */
   newVirtualFolder(aName, aSearchTerms, aParent) {
     const folder = aParent || top.GetDefaultAccountRootFolder();
@@ -3686,6 +3686,9 @@ var folderPane = {
     );
   },
 
+  /**
+   * @param {nsIMsgFolder} aFolder
+   */
   editVirtualFolder(aFolder) {
     const folder = aFolder;
 
@@ -5063,12 +5066,13 @@ var threadPane = {
   /**
    * Restore the previously saved thread tree selection.
    *
-   * @param {boolean} [discard=true] - If false, the selection data is kept for
-   *   another call of this function.
-   * @param {boolean} [notify=true] - Whether a change in "select" event
+   * @param {object} [options={}] - Options.
+   * @param {boolean} [options.discard=true] - If false, the selection data is
+   *   kept for another call of this function.
+   * @param {boolean} [options.notify=true] - Whether a change in "select" event
    *   should be fired and the current index should be scrolled into view.
-   * @param {boolean} [expand=true] - Try to expand threads containing selected
-   *   messages.
+   * @param {boolean} [options.expand=true] - Try to expand threads containing
+   *   selected messages.
    */
   restoreSelection({ discard = true, notify = true, expand = true } = {}) {
     const selectionKey = this._getSavedSelectionKey();
@@ -5891,17 +5895,21 @@ var threadPane = {
 /**
  * Restore the UI to the given state.
  *
- * @param {boolean} folderPaneVisible - Whether to show the folder pane. If undefined,
- *    the folder pane is shown if a folder URI is provided or we're not restoring to a
- *    synthetic view.
- * @param {boolean} messagePaneVisible - Whether to show the message pane. If undefined,
- *    the message pane is shown as long as its wrapper is not collapsed.
- * @param {?nsIMsgFolder|string} folder - The folder to display, or its URI, if any.
- * @param {?GlodaSyntheticView} syntheticView - The synthetic view to restore to, if any.
- * @param {boolean} first - Whether this is the first call to this function (i.e. we're
- *    setting the state at the start of the application), in which case we want to greet
- *    the user with the start page.
- * @param {?string} title - If any, the title to set.
+ * @param {object} [options={}] - Options.
+ * @param {boolean} options.folderPaneVisible - Whether to show the folder pane.
+ *   If undefined, the folder pane is shown if a folder URI is provided or we're
+ *   not restoring to a synthetic view.
+ * @param {boolean} options.messagePaneVisible - Whether to show the message
+ *   pane. If undefined, the message pane is shown as long as its wrapper is
+ *   not collapsed.
+ * @param {?nsIMsgFolder|string} options.folderURI - The folder to display,
+ *   or its URI, if any.
+ * @param {?GlodaSyntheticView} options.syntheticView - The synthetic view to
+ *   restore to, if any.
+ * @param {boolean} options.first - Whether this is the first call to this
+ *   function (i.e. we're setting the state at the start of the application),
+ *   in which case we want to greet the user with the start page.
+ * @param {?string} options.title - If any, the title to set.
  */
 function restoreState({
   folderPaneVisible,

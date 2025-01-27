@@ -351,7 +351,7 @@ function getActiveElement() {
  * Then presses Shift+F6 to go back through the elements.
  * Note that the currently selected element should *not* be the first element.
  *
- * @param {Element[]}
+ * @param {...Element} elements
  */
 function cycle(...elements) {
   let activeElement = getActiveElement();

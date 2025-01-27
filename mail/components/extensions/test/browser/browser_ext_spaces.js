@@ -16,10 +16,10 @@ add_setup(() => {
  * @param {Function} background - The background script executed by the test.
  * @param {object} config - Additional config data for the test. Tests can
  *   include arbitrary data, but the following have a dedicated purpose:
- *   @param {string} selectedTheme - The selected theme (default, light or dark),
+ *   @param {?string} config.selectedTheme - The selected theme (default, light or dark),
  *     used to select the expected button/menuitem icon.
- *   @param {?object} manifestIcons - The icons entry of the extension manifest.
- *   @param {?object} permissions - Permissions assigned to the extension.
+ *   @param {?object} config.manifestIcons - The icons entry of the extension manifest.
+ *   @param {?object} config.permissions - Permissions assigned to the extension.
  */
 async function test_space(background, config = {}) {
   const loadData = {

@@ -14,7 +14,7 @@ var { AppConstants } = ChromeUtils.importESModule(
 /**
  * Create warning text to add to any private data.
  *
- * @returns A HTML paragraph node containing the warning.
+ * @returns {HTMLParagraphElement} A HTML paragraph node containing the warning.
  */
 function createWarning() {
   const bundle = Services.strings.createBundle(
@@ -164,8 +164,14 @@ function cleanUpText(aElem, aHidePrivateData) {
   }
 }
 
-// Return the plain text representation of an element.  Do a little bit
-// of pretty-printing to make it human-readable.
+/**
+ * Return the plain text representation of an element. Do a little bit
+ * of pretty-printing to make it human-readable.
+ *
+ * @param {Element} elem
+ * @param {boolean} aHidePrivateData
+ * @returns {string}
+ */
 function createTextForElement(elem, aHidePrivateData) {
   // Generate the initial text.
   const textFragmentAccumulator = [];

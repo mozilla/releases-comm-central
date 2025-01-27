@@ -108,7 +108,7 @@ function goDoCommand(command, ...args) {
  *
  * @param {string} id
  * @param {boolean} enabled
- * @fires {CustomEvent} commandstate - Fired on the window when there is no
+ * @fires CustomEvent#commandstate - Fired on the window when there is no
  *   command element matching the id. Detail is an object with the command
  *   property containing the id, and the enabled property containing the passed
  *   value.

@@ -63,8 +63,8 @@ var AboutSupport = {
   /**
    * Gets details about SMTP servers for a given nsIMsgAccount.
    *
-   * @returns An array of records, each record containing the name and other details
-   *          about one SMTP server.
+   * @returns {object[]} An array of records, each record containing the name
+   *   and other details about one SMTP server.
    */
   _getSMTPDetails(aAccount) {
     const defaultIdentity = aAccount.defaultIdentity;

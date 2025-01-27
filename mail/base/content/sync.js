@@ -56,8 +56,6 @@ var gSync = {
 
   /**
    * Opens the FxA log-in page in a tab.
-   *
-   * @param {string = ""} entryPoint
    */
   async initFxA() {
     EnsureFxAccountsWebChannel();
@@ -68,7 +66,7 @@ var gSync = {
   /**
    * Opens the FxA account management page in a tab.
    *
-   * @param {string = ""} entryPoint
+   * @param {string} [entryPoint=""]
    */
   async openFxAManagePage(entryPoint = "") {
     EnsureFxAccountsWebChannel();
@@ -79,7 +77,7 @@ var gSync = {
   /**
    * Opens the FxA avatar management page in a tab.
    *
-   * @param {string = ""} entryPoint
+   * @param {string} [entryPoint=""]
    */
   async openFxAAvatarPage(entryPoint = "") {
     EnsureFxAccountsWebChannel();
@@ -90,11 +88,12 @@ var gSync = {
   /**
    * Disconnect from sync, and optionally disconnect from the FxA account.
    *
-   * @param {boolean} confirm - Should the user be asked to confirm the
+   * @param {object} options
+   * @param {boolean} [options.confirm=false] - Should the user be asked to confirm the
    *   disconnection?
-   * @param {boolean} disconnectAccount - If true, disconnect from FxA as well
-   *   as Sync. If false, just disconnect from Sync.
-   * @returns {boolean} - true if the disconnection happened (ie, if the user
+   * @param {boolean} [options.disconnectAccount=true] - If true, disconnect from FxA
+   *   as wellas Sync. If false, just disconnect from Sync.
+   * @returns {boolean} - true if the disconnection happened (i.e., if the user
    *   didn't decline when asked to confirm)
    */
   async disconnect({ confirm = false, disconnectAccount = true }) {

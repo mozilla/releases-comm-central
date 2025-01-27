@@ -36,9 +36,6 @@ const tabListener = {
    *
    * @param {Element} browser - The browser element that caused the change
    * @param {nsIWebProgress} webProgress - The web progress for the location change
-   * @param {nsIRequest} request - The xpcom request for this change
-   * @param {nsIURI} locationURI - The target uri
-   * @param {Integer} flags - The web progress flags for this change
    */
   onLocationChange(browser, webProgress) {
     if (webProgress && webProgress.isTopLevel) {

@@ -402,7 +402,8 @@ var quickFilterBar = {
   /**
    * Update the UI to reflect the state of the filterer constraints.
    *
-   * @param [aFilterName] If only a single filter needs to be updated, name it.
+   * @param {string} [aFilterName] If only a single filter needs to be updated,
+   *   name it.
    */
   reflectFiltererState(aFilterName) {
     // If we aren't visible then there is no need to update the widgets.
@@ -468,8 +469,8 @@ var quickFilterBar = {
    *  causes the filter to be the last touched filter for escape undo-ish
    *  purposes.
    *
-   * @param aName Filter name.
-   * @param aValue The new filter state.
+   * @param {string} aName - Filter name.
+   * @param {FilterDefinition} aValue - The new filter state.
    */
   setFilterValue(aName, aValue) {
     this.filterer.setFilterValue(aName, aValue);

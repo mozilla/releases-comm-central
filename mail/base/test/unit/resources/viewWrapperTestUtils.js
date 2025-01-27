@@ -228,9 +228,11 @@ function async_view_end_update(aViewWrapper) {
  *  too, but we don't care what it does.)  We provide a |delete_folder| alias
  *  so code can look clean.
  *
- * @param aViewWrapper Required when you want us to operate asynchronously.
- * @param aDontEmptyTrash This function will empty the trash after deleting the
- *                        folder, unless you set this parameter to true.
+ * @param {nsIMsgFolder} aFolder - The folder
+ * @param {DBViewWrapper} aViewWrapper - Required when you want us to operate
+ *   asynchronously.
+ * @param {boolean} aDontEmptyTrash - delete_folder will empty the trash after
+ *   deleting the folder, unless you set this parameter to true.
  */
 async function delete_folder(aFolder, aViewWrapper, aDontEmptyTrash) {
   VWTU_testHelper.active_real_folders.splice(
@@ -309,9 +311,10 @@ function dump_message_header(aMsgHdr) {
  *  sets or contains messages not in the provided sets, do_throw will be invoked
  *  with a human readable explanation of the problem.
  *
- * @param aSynSets A single SyntheticMessageSet or a list of
- *     SyntheticMessageSets.
- * @param aViewWrapper The DBViewWrapper whose contents you want to validate.
+ * @param {SyntheticMessageSet|SyntheticMessageSet[]} aSynSets - A single
+ *   SyntheticMessageSet or a list of SyntheticMessageSets.
+ * @param {DBViewWrapper} aViewWrapper - The DBViewWrapper whose contents you
+ *   want to validate.
  */
 function verify_messages_in_view(aSynSets, aViewWrapper) {
   if (!("length" in aSynSets)) {
@@ -421,8 +424,8 @@ function verify_view_level_histogram(aExpectedHisto, aViewWrapper) {
  * Given a view wrapper and one or more view indices, verify that the row
  *  returns true for isContainer.
  *
- * @param aViewWrapper The view wrapper in question
- * @param ... View indices to check.
+ * @param {DBViewWrapper} aViewWrapper - The view wrapper in question.
+ * @param {...integer} aArgs - View indices to check.
  */
 function verify_view_row_at_index_is_container(aViewWrapper, ...aArgs) {
   const treeView = aViewWrapper.dbView.QueryInterface(Ci.nsITreeView);
@@ -438,8 +441,8 @@ function verify_view_row_at_index_is_container(aViewWrapper, ...aArgs) {
  * Given a view wrapper and one or more view indices, verify that there is a
  *  dummy header at each provided index.
  *
- * @param aViewWrapper The view wrapper in question
- * @param ... View indices to check.
+ * @param {DBViewWrapper} aViewWrapper - The view wrapper in question.
+ * @param {...integer} aArgs - View indices to check.
  */
 function verify_view_row_at_index_is_dummy(aViewWrapper, ...aArgs) {
   const MSG_VIEW_FLAG_DUMMY = 0x20000000;

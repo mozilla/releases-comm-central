@@ -13,7 +13,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * @implements {VCardPropertyEntryView}
  * @see RFC6350 TEL
  *
- * @TODO missing type-param-tel support.
+ * TODO: missing type-param-tel support.
  * "text, voice, video, textphone"
  */
 export class VCardTelComponent extends HTMLElement {

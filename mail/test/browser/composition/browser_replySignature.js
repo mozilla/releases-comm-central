@@ -91,8 +91,8 @@ add_task(async function test_sig_strip_false_nonff() {
 /**
  * Helper function to check signature stripping works as it should.
  *
- * @param aRow the row index of the message to test
- * @param aShouldStrip true if the signature should be stripped
+ * @param {integer} aRow - The row index of the message to test.
+ * @param {boolean} aShouldStrip true if the signature should be stripped.
  */
 async function check_sig_strip_works(aRow, aShouldStrip) {
   await be_in_folder(folder);

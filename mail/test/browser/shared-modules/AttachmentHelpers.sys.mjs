@@ -5,10 +5,10 @@
 /**
  * Create a body part with attachments for the message generator
  *
- * @param body the text of the main body of the message
- * @param attachments an array of attachment objects (as strings)
- * @param boundary an optional string defining the boundary of the parts
- * @returns an object suitable for passing as the |bodyPart| for create_message
+ * @param {string} body - The text of the main body of the message.
+ * @param {string[]} attachments - An array of attachment objects (as strings).
+ * @param {string} boundary - An optional string defining the boundary of the parts.
+ * @returns {object} an object suitable for passing as the |bodyPart| for create_message
  */
 export function create_body_part(body, attachments, boundary) {
   if (!boundary) {
@@ -60,9 +60,9 @@ function help_create_detached_deleted_attachment(filename, type) {
 /**
  * Create the raw data for a detached attachment
  *
- * @param file an nsIFile for the external file for the attachment
- * @param type the content type
- * @returns a string representing the attachment
+ * @param {nsIFile} file - An nsIFile for the external file for the attachment.
+ * @param {string} type - The content type.
+ * @returns {string} a string representing the attachment
  */
 export function create_detached_attachment(file, type) {
   const fileHandler = Services.io
@@ -91,9 +91,9 @@ export function create_detached_attachment(file, type) {
 /**
  * Create the raw data for a deleted attachment
  *
- * @param filename the "original" filename
- * @param type the content type
- * @returns a string representing the attachment
+ * @param {string} filename - The "original" filename
+ * @param {string} type - The content type.
+ * @returns {string} a string representing the attachment
  */
 export function create_deleted_attachment(filename, type) {
   let str =
@@ -113,11 +113,11 @@ export function create_deleted_attachment(filename, type) {
 /**
  * Create the raw data for a feed enclosure attachment.
  *
- * @param filename the filename
- * @param type the content type
- * @param url the remote link url
- * @param size the optional size (use > 1 for real size)
- * @returns a string representing the attachment
+ * @param {string} filename - The filename.
+ * @param {string} type - The content type.
+ * @param {string} url - The remote link url.
+ * @param {integer} size - The optional size (use > 1 for real size)
+ * @returns {string} a string representing the attachment
  */
 export function create_enclosure_attachment(filename, type, url, size) {
   return (

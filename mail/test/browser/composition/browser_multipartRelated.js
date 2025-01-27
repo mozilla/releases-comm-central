@@ -37,7 +37,7 @@ add_setup(async function () {
 /**
  * Helper to get the full message content.
  *
- * @param {msgDBHdr} aMsgHdr - nsIMsgDBHdr object whose text body will be read.
+ * @param {nsIMsgDBHdr} aMsgHdr - nsIMsgDBHdr object whose text body will be read.
  * @returns {object} content
  * @returns {Map} content.headers - partnum -> message headers
  * @returns {Map} content.text - partnum -> message text

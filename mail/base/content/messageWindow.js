@@ -204,9 +204,9 @@ function actuallyLoadMessage() {
  * supposed to be called whenever a message is supposed to be displayed in this
  * window.
  *
- * @param {msgDBHdr} aMsgHdr - the message to display
- * @param aViewWrapperToClone [optional] a DB view wrapper to clone for the
- *                            message window
+ * @param {nsIMsgDBHdr} aMsgHdr - the message to display
+ * @param {DBViewWrapper} [aViewWrapperToClone] a DB view wrapper to clone for
+ *   the message window.
  */
 function displayMessage(aMsgHdr, aViewWrapperToClone) {
   const contentWindow = messageBrowser.contentWindow;
@@ -453,7 +453,10 @@ function OnUnloadMessageWindow() {
   OnMailWindowUnload();
 }
 
-// MessageWindowController object (handles commands when one of the trees does not have focus)
+/**
+ * MessageWindowController - handles commands when one of the trees does not
+ * have focus.
+ */
 var MessageWindowController = {
   supportsCommand(command) {
     switch (command) {

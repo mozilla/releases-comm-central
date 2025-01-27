@@ -514,10 +514,10 @@ var messageProgressListener = {
    * @param {nsIWebProgress} webProgress
    * @param {nsIRequest} request
    * @param {integer} stateFlags
-   * @param {nsresult} status
+   * @param {nsresult} _status
    * @see {nsIWebProgressListener}
    */
-  onStateChange(webProgress, request, stateFlags) {
+  onStateChange(webProgress, request, stateFlags, _status) {
     if (
       !(request instanceof Ci.nsIMailChannel) ||
       !(stateFlags & Ci.nsIWebProgressListener.STATE_START)
@@ -563,10 +563,10 @@ var messageProgressListener = {
   /**
    * Step 3: The parser has finished reading the body of the message.
    *
-   * @param {nsIMailChannel} mailChannel
+   * @param {nsIMailChannel} _mailChannel
    * @see {nsIMailProgressListener}
    */
-  onBodyComplete() {
+  onBodyComplete(_mailChannel) {
     autoMarkAsRead();
   },
 
@@ -1131,7 +1131,7 @@ function OnTagsChange() {
 /**
  * Flush out any local state being held by a header entry for a given table.
  *
- * @param aHeaderTable Table of header entries
+ * @param {object} aHeaderTable - {object} Table of header entries.
  */
 function ClearHeaderView(aHeaderTable) {
   for (const name in aHeaderTable) {
@@ -1146,7 +1146,7 @@ function ClearHeaderView(aHeaderTable) {
 /**
  * Make sure that any valid header entry in the table is collapsed.
  *
- * @param aHeaderTable Table of header entries
+ * @param {object} aHeaderTable - Table of header entries.
  */
 function hideHeaderView(aHeaderTable) {
   for (const name in aHeaderTable) {
@@ -1158,7 +1158,7 @@ function hideHeaderView(aHeaderTable) {
 /**
  * Make sure that any valid header entry in the table specified is visible.
  *
- * @param aHeaderTable Table of header entries
+ * @param {object} aHeaderTable - Table of header entries.
  */
 function showHeaderView(aHeaderTable) {
   for (const name in aHeaderTable) {
@@ -1260,8 +1260,8 @@ function updateExpandedView() {
 /**
  * Default method for updating a header value into a header entry
  *
- * @param aHeaderEntry  A single header from currentHeaderData
- * @param aHeaderValue  The new value for headerEntry
+ * @param {MsgHeaderEntry} aHeaderEntry - A single header from currentHeaderData
+ * @param {object} aHeaderValue - The new value for headerEntry.
  */
 function updateHeaderValue(aHeaderEntry, aHeaderValue) {
   aHeaderEntry.enclosingBox.headerValue = aHeaderValue;
@@ -1271,9 +1271,9 @@ function updateHeaderValue(aHeaderEntry, aHeaderValue) {
  * Create the DOM nodes (aka "View") for a non-standard header and insert them
  * into the grid.  Create and return the corresponding headerEntry object.
  *
- * @param {string} headerName - name of the header we're adding, used to
- *                             construct the element IDs (in lower case)
- * @param {string} label - name of the header as displayed in the UI
+ * @param {string} headerName - Name of the header we're adding, used to
+ *   construct the element IDs (in lower case).
+ * @param {string} label - Name of the header as displayed in the UI.
  */
 class HeaderView {
   constructor(headerName, label) {
@@ -1326,7 +1326,7 @@ class HeaderView {
 /**
  * Removes all non-predefined header nodes from the view.
  *
- * @param aHeaderTable  Table of header entries.
+ * @param {object} aHeaderTable - Table of header entries.
  */
 function RemoveNewHeaderViews(aHeaderTable) {
   for (const name in aHeaderTable) {
@@ -1743,9 +1743,9 @@ function onShowSaveAttachmentMenuMultiple() {
  * This is our oncommand handler for the attachment list items. A double click
  * or enter press in an attachmentitem simulates "opening" the attachment.
  *
- * @param event  the event object
+ * @param {Event} _event - The event.
  */
-function attachmentItemCommand() {
+function attachmentItemCommand(_event) {
   HandleSelectedAttachments("open");
 }
 
@@ -2166,12 +2166,11 @@ function getAttachmentsTotalSizeStr() {
  * Expand/collapse the attachment list. When expanding it, automatically resize
  * it to an appropriate height (1/4 the message pane or smaller).
  *
- * @param expanded  True if the attachment list should be expanded, false
- *                  otherwise. If |expanded| is not specified, toggle the state.
- * @param updateFocus  (optional) True if the focus should be updated, focusing
- *                     on the attachmentList when expanding, or the messagepane
- *                     when collapsing (but only when the attachmentList was
- *                     originally focused).
+ * @param {boolean} [expanded] - true if the attachment list should be expanded,
+ *   false otherwise. If |expanded| is not specified, toggle the state.
+ * @param {boolean} updateFocus - true if the focus should be updated,
+ *   focusing on the attachmentList when expanding, or the messagepane
+ *   when collapsing (but only when the attachmentList was originally focused).
  */
 function toggleAttachmentList(expanded, updateFocus) {
   var attachmentView = document.getElementById("attachmentView");
@@ -2231,7 +2230,7 @@ function toggleAttachmentList(expanded, updateFocus) {
 /**
  * Open an attachment from the attachment bar.
  *
- * @param event the event that triggered this action
+ * @param {Event} event - The event that triggered this action.
  */
 function OpenAttachmentFromBar(event) {
   if (event.button == 0) {
@@ -2247,7 +2246,7 @@ function OpenAttachmentFromBar(event) {
 /**
  * Handle all the attachments in this message (save them, open them, etc).
  *
- * @param action one of "open", "save", "saveAs", "detach", or "delete"
+ * @param {"open"|"save"|"saveAs"|"detach"|"delete"} action
  */
 function HandleAllAttachments(action) {
   HandleMultipleAttachments(currentAttachments, action);
@@ -2257,7 +2256,7 @@ function HandleAllAttachments(action) {
  * Try to handle all the attachments in this message (save them, open them,
  * etc). If the action fails for whatever reason, catch the error and report it.
  *
- * @param action  one of "open", "save", "saveAs", "detach", or "delete"
+ * @param {"open"|"save"|"saveAs"|"detach"|"delete"} action
  */
 function TryHandleAllAttachments(action) {
   try {
@@ -2271,7 +2270,7 @@ function TryHandleAllAttachments(action) {
  * Handle the currently-selected attachments in this message (save them, open
  * them, etc).
  *
- * @param action  one of "open", "save", "saveAs", "detach", or "delete"
+ * @param {"open"|"save"|"saveAs"|"detach"|"delete"} action
  */
 function HandleSelectedAttachments(action) {
   const attachmentList = document.getElementById("attachmentList");
@@ -2632,7 +2631,7 @@ const gHeaderCustomize = {
   /**
    * The object storing all saved customization options.
    *
-   * @note Any keys added to this object should also be added to the telemetry
+   * NOTE: Any keys added to this object should also be added to the telemetry
    * scalar tb.ui.configuration.message_header.
    *
    * @type {object}
@@ -3663,7 +3662,7 @@ function updateHeaderToolbarButtons() {
 /**
  * Checks if the selected messages can be marked as read or unread
  *
- * @param markingRead true if trying to mark messages as read, false otherwise
+ * @param {boolean} markingRead - true if trying to mark messages as read.
  * @returns {boolean} true if the chosen operation can be performed
  */
 function CanMarkMsgAsRead(markingRead) {
@@ -3673,8 +3672,8 @@ function CanMarkMsgAsRead(markingRead) {
 /**
  * Marks the selected messages as read or unread
  *
- * @param read true if trying to mark messages as read, false if marking unread,
- *        undefined if toggling the read status
+ * @param {boolean} [read] - true if trying to mark messages as read,
+ *  false if marking unread, undefined if toggling the read status.
  */
 function MsgMarkMsgAsRead(read) {
   if (read == undefined) {
@@ -3689,6 +3688,8 @@ function MsgMarkAsFlagged() {
 
 /**
  * Extract email data and prefill the event/task dialog with that data.
+ *
+ * @param {boolean} [isTask=false]
  */
 function convertToEventOrTask(isTask = false) {
   window.top.calendarExtract.extractFromEmail(gMessage, isTask);
@@ -4161,8 +4162,8 @@ function onRemoteContentOptionsShowing(aEvent) {
 /**
  * Add privileges to display remote content for the given uri.
  *
- * @param aUriSpec |String| uri for the site to add permissions for.
- * @param aReload  Reload the message display after allowing the URI.
+ * @param {string} aUriSpec - uri for the site to add permissions for.
+ * @param {boolean} aReload - Reload the message display after allowing the URI.
  */
 function allowRemoteContentForURI(aUriSpec, aReload = true) {
   const uri = Services.io.newURI(aUriSpec);
@@ -4179,7 +4180,7 @@ function allowRemoteContentForURI(aUriSpec, aReload = true) {
 /**
  * Add privileges to display remote content for the given uri.
  *
- * @param aListNode  The menulist element containing the URIs to allow.
+ * @param {Node} aListNode - The menulist element containing the URIs to allow.
  */
 function allowRemoteContentForAll(aListNode) {
   const uriNodes = aListNode.querySelectorAll(".allow-remote-uri");
@@ -4199,7 +4200,7 @@ function editRemoteContentSettings() {
 }
 
 /**
- *  Set the msg hdr flag to ignore the phishing warning and reload the message.
+ * Set the msg hdr flag to ignore the phishing warning and reload the message.
  */
 function IgnorePhishingWarning() {
   // This property should really be called skipPhishingWarning or something
@@ -4209,7 +4210,7 @@ function IgnorePhishingWarning() {
 }
 
 /**
- *  Open the preferences dialog to allow disabling the scam feature.
+ * Open the preferences dialog to allow disabling the scam feature.
  */
 function OpenPhishingSettings() {
   top.openOptionsDialog("panePrivacy", "privacySecurityCategory");
@@ -4227,7 +4228,7 @@ function setMsgHdrPropertyAndReload(aProperty, aValue) {
 /**
  * Mark a specified message as read.
  *
- * @param msgHdr header (nsIMsgDBHdr) of the message to mark as read
+ * @param {nsIMsgDBHdr} msgHdr - nsIMsgDBHdr to mark as read.
  */
 function MarkMessageAsRead(msgHdr) {
   ClearPendingReadTimer();

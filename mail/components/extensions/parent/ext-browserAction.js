@@ -49,8 +49,8 @@ this.browserAction = class extends ToolbarButtonAPI {
   /**
    * Return the toolbar button if it is currently visible in the given window.
    *
-   * @param window
-   * @returns {DOMElement} the toolbar button element, or null
+   * @param {Window} window
+   * @returns {?DOMElement} the toolbar button element, or null.
    */
   getToolbarButton(window) {
     // Return the visible button from the unified toolbar, if this is the main window.

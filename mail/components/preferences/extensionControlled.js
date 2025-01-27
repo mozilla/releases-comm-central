@@ -37,7 +37,7 @@ const API_PROXY_PREFS = [
 /**
  * Get the addon extension that is controlling the proxy settings.
  *
- * @returns - The found addon, or undefined if none was found.
+ * @returns {?object} the found addon, or undefined if none was found.
  */
 async function getControllingProxyExtensionAddon() {
   await ExtensionSettingsStore.initialize();

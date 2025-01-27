@@ -182,10 +182,9 @@ add_setup(async function () {
 });
 
 /**
- * Set the pref to ensure that the attachments pane starts out (un)expanded
+ * Set the pref to ensure that the attachments pane starts out (un)expanded.
  *
- * @param expand true if the attachment pane should start out expanded,
- *        false otherwise
+ * @param {true} expand true if the attachment pane should start out expanded.
  */
 function ensure_starts_expanded(expand) {
   Services.prefs.setBoolPref(
@@ -344,8 +343,8 @@ add_task(async function test_attachment_name_click() {
  * Test that right-clicking on a particular element opens the expected context
  * menu.
  *
- * @param elementId the id of the element to right click on
- * @param contextMenuId the id of the context menu that should appear
+ * @param {string} elementId - The id of the element to right click on.
+ * @param {string} contextMenuId - The id of the context menu that should appear.
  */
 async function subtest_attachment_right_click(elementId, contextMenuId) {
   const aboutMessage = get_about_message();
@@ -442,7 +441,7 @@ add_task(async function test_attachment_right_click_multiple() {
  * Test that clicking on various elements in the attachment bar toggles the
  * attachment list.
  *
- * @param elementId the id of the element to click
+ * @param {string} elementId - The id of the element to click.
  */
 function subtest_attachment_list_toggle(elementId) {
   const aboutMessage = get_about_message();

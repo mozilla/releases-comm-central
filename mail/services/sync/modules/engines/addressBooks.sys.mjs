@@ -91,8 +91,7 @@ AddressBookStore.prototype = {
    * This is called by the default implementation of applyIncoming(). If using
    * applyIncomingBatch(), this won't be called unless your store calls it.
    *
-   * @param record
-   *        The store record to create an item from
+   * @param {AddressBookRecord} record - The store record to create an item from.
    */
   async create(record) {
     await super.create(record);
@@ -131,8 +130,7 @@ AddressBookStore.prototype = {
    * This is called by the default implementation of applyIncoming(). If using
    * applyIncomingBatch(), this won't be called unless your store calls it.
    *
-   * @param record
-   *        The store record to delete an item from
+   * @param {AddressBookRecord} record - The store record to delete an item from.
    */
   async remove(record) {
     await super.remove(record);
@@ -163,8 +161,7 @@ AddressBookStore.prototype = {
    * This is called by the default implementation of applyIncoming(). If using
    * applyIncomingBatch(), this won't be called unless your store calls it.
    *
-   * @param record
-   *        The record to use to update an item from
+   * @param {AddressBookRecord} record - The record to use to update an item from.
    */
   async update(record) {
     await super.update(record);
@@ -229,7 +226,7 @@ AddressBookStore.prototype = {
    * @param {string} id - Record ID.
    * @param {object} collection - Collection to add record to. This is typically
    *   passed into the constructor for the newly-created record.
-   * @returns {object} record type for this engine
+   * @returns {AddressBookRecord} record type for this engine.
    */
   async createRecord(id, collection) {
     const record = new AddressBookRecord(collection, id);

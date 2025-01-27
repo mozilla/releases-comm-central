@@ -644,6 +644,9 @@ var GlodaIMIndexer = {
   },
 
   /**
+   * @param {Function} aCallbackHandle
+   * @param {string} aLogPath
+   * @param {integer} aLastModifiedTime - Time in ms.
    * @param {object} aCache - An object mapping file names to their last
    *   modified times at the time they were last indexed. The value for the file
    *   currently being indexed is updated to the aLastModifiedTime parameter's

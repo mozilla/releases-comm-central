@@ -51,7 +51,7 @@ class EmailConfigFound extends AccountHubStep {
   /**
    * The object containing the add-on information.
    *
-   * @type {Object}
+   * @type {object}
    */
   #addon;
 

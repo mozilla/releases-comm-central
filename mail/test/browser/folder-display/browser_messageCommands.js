@@ -91,8 +91,8 @@ add_setup(async function () {
 /**
  * Ensures that all messages have a particular read status
  *
- * @param messages an array of nsIMsgDBHdrs to check
- * @param read true if the messages should be marked read, false otherwise
+ * @param {nsIMsgDBHdr[]} messages - An array of nsIMsgDBHdrs to check.
+ * @param {boolean} read - true if the messages should be marked read.
  */
 function check_read_status(messages, read) {
   function read_str(isRead) {
@@ -113,9 +113,9 @@ function check_read_status(messages, read) {
 /**
  * Ensures that the mark read/unread menu items are enabled/disabled properly
  *
- * @param {integer} index - the row in the thread pane of the message to query
- * @param canMarkRead true if the mark read item should be enabled
- * @param canMarkUnread true if the mark unread item should be enabled
+ * @param {integer} index - The row in the thread pane of the message to query.
+ * @param {boolean} canMarkRead - true if the mark read item should be enabled
+ * @param {boolean} canMarkUnread - true if the mark unread item should be enabled
  */
 async function check_read_menuitems(index, canMarkRead, canMarkUnread) {
   await right_click_on_row(index);
@@ -152,8 +152,9 @@ async function check_read_menuitems(index, canMarkRead, canMarkUnread) {
 /**
  * Mark a message read or unread via the context menu
  *
- * @param {integer} index - the row in the thread pane of the message to mark read/unread
- * @param read true the message should be marked read, false otherwise
+ * @param {integer} index - The row in the thread pane of the message to mark
+ *   read/unread.
+ * @param {boolean} read - true the message should be marked read, false otherwise.
  */
 async function mark_read_via_menu(index, read) {
   const menuItem = read ? "mailContext-markRead" : "mailContext-markUnread";

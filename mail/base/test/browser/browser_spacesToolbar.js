@@ -450,7 +450,7 @@ add_task(async function testSpacesToolbarContextMenu() {
   /**
    * Ensure the tab is scrolled into view.
    *
-   * @param {MozTabmailTab} - The tab to scroll into view.
+   * @param {MozTabmailTab} tab - The tab to scroll into view.
    */
   async function scrollToTab(tab) {
     function tabInView() {
@@ -497,7 +497,7 @@ add_task(async function testSpacesToolbarContextMenu() {
    * This should be used alongside waitForNewTab so the test can keep track of
    * the expected number of tabs.
    *
-   * @param {MozTabmailTab} - The tab to close.
+   * @param {MozTabmailTab} tab - The tab to close.
    */
   async function closeTab(tab) {
     numTabs--;

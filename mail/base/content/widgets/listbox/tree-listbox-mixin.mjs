@@ -30,11 +30,11 @@ const { AppConstants } = ChromeUtils.importESModule(
  * If a list item can't be selected it should have the "unselectable" class.
  *
  * @mixin
- * @fires {CustomEvent} collapsed - Fired on a row when it is collapsed.
+ * @fires CustomEvent#collapsed - Fired on a row when it is collapsed.
  *   Bubbles.
- * @fires {CustomEvent} expanded - Fired on a row when it is expanded. Bubbles.
- * @fires {CustomEvent} select - Fired when the selection changes.
- * @attribute {"tree"|"listbox"} role - Must be either tree or listbox,
+ * @fires CustomEvent#expanded - Fired on a row when it is expanded. Bubbles.
+ * @fires CustomEvent#select - Fired when the selection changes.
+ * @property {"tree"|"listbox"} role - Must be either tree or listbox,
  *   depending on the mode of the widget.
  */
 export const TreeListboxMixin = Base =>

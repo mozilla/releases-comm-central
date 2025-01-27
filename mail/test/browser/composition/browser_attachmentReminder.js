@@ -75,7 +75,7 @@ add_setup(async function () {
  *
  * @param {Window} aCwc - A compose window.
  * @param {boolean} aShown - True for expecting the bar to be shown, false otherwise.
- * @returns If the bar is shown, return the notification object.
+ * @returns {?Element} If the bar is shown, return the notification object.
  */
 function assert_automatic_reminder_state(aCwc, aShown) {
   return assert_notification_displayed(aCwc, kBoxId, kNotificationId, aShown);

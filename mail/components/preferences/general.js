@@ -708,7 +708,8 @@ var gGeneralPane = {
   /**
    * Look up OpenSearch Description URL.
    *
-   * @param url - the url to use as basis for discovery
+   * @param {string} url - The url to use as basis for discovery.
+   * @returns {string} the OpenSearch Description URL.
    */
   async lookupOpenSearch(url) {
     const response = await fetch(url);
@@ -1896,8 +1897,8 @@ var gGeneralPane = {
    * Get the details for the type represented by the given handler info
    * object.
    *
-   * @param aHandlerInfo {nsIHandlerInfo} the type to get the extensions for.
-   * @returns {string} the extensions for the type
+   * @param {nsIHandlerInfo} aHandlerInfo - The type to get the extensions for.
+   * @returns {string} the extensions for the type.
    */
   _typeDetails(aHandlerInfo) {
     let exts = [];
@@ -1933,8 +1934,8 @@ var gGeneralPane = {
   /**
    * Whether or not the given handler app is valid.
    *
-   * @param aHandlerApp {nsIHandlerApp} the handler app in question
-   * @returns {boolean} whether or not it's valid
+   * @param {nsIHandlerInfo} aHandlerApp - The handler app in question.
+   * @returns {boolean} whether or not it's valid.
    */
   isValidHandlerApp(aHandlerApp) {
     if (!aHandlerApp) {
@@ -1956,6 +1957,9 @@ var gGeneralPane = {
     return false;
   },
 
+  /**
+   * @param {?nsIFile} aExecutable
+   */
   _isValidHandlerExecutable(aExecutable) {
     const isExecutable =
       aExecutable && aExecutable.exists() && aExecutable.isExecutable();

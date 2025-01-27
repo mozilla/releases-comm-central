@@ -8,26 +8,28 @@
  * Toolbar button implementation for the unified toolbar.
  * Template ID: unifiedToolbarButtonTemplate
  *
- * @tagname unified-toolbar-button
- * @attribute {string} command - ID string of the command to execute when the
+ * tagname: unified-toolbar-button
+ *
+ * @class UnifiedToolbarButton
+ * @property {string} command - ID string of the command to execute when the
  *   button is pressed.
- * @attribute {string} observes - ID of command to observe for disabled state.
+ * @property {string} observes - ID of command to observe for disabled state.
  *   Defaults to value of the command attribute.
- * @attribute {string} popup - ID of the popup to open when the button is
+ * @property {string} popup - ID of the popup to open when the button is
  *   pressed. The popup is anchored to the button. Overrides any other click
  *   handling.
- * @attribute {boolean} disabled - When set the button is disabled.
- * @attribute {string} title - Tooltip to show on the button.
- * @attribute {string} label - Label text of the button. Observed for changes.
- * @attribute {string} label-id - A fluent ID for the label instead of the label
+ * @property {boolean} disabled - When set the button is disabled.
+ * @property {string} title - Tooltip to show on the button.
+ * @property {string} label - Label text of the button. Observed for changes.
+ * @property {string} label-id - A fluent ID for the label instead of the label
  *   attribute. Observed for changes.
- * @attribute {string} badge - When set, the value of the attribute is shown as
+ * @property {string} badge - When set, the value of the attribute is shown as
  *   badge.
- * @attribute {string} aria-pressed - Set to "false" to make the button behave
+ * @property {string} aria-pressed - Set to "false" to make the button behave
  *   like a toggle.
- * @fires {CustomEvent} buttondisabled- Fired on the parent element when the
+ * @fires CustomEvent#buttondisabled - Fired on the parent element when the
  *   button gets disabled while it is keyboard navigable.
- * @fires {CustomEvent} buttonenabled - Fired when the button gets enabled again
+ * @fires CustomEvent#buttonenabled - Fired when the button gets enabled again
  *   but isn't marked to be keyboard navigable.
  */
 export class UnifiedToolbarButton extends HTMLButtonElement {

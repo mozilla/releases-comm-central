@@ -327,8 +327,8 @@ add_setup(async function () {
 /**
  * Ensure that the specified element is visible/hidden
  *
- * @param id the id of the element to check
- * @param visible true if the element should be visible, false otherwise
+ * @param {string} id - The id of the element to check.
+ * @param {boolean} visible - true if the element should be visible.
  */
 function assert_shown(id, visible) {
   Assert.notEqual(
@@ -341,8 +341,8 @@ function assert_shown(id, visible) {
 /**
  * Ensure that the specified element is enabled/disabled
  *
- * @param id the id of the element to check
- * @param enabled true if the element should be enabled, false otherwise
+ * @param {string} id the id of the element to check
+ * @param {boolean} enabled true if the element should be enabled.
  */
 function assert_enabled(id, enabled) {
   Assert.notEqual(
@@ -355,7 +355,7 @@ function assert_enabled(id, enabled) {
 /**
  * Check that the menu states in the "save" toolbar button are correct.
  *
- * @param expected a dictionary containing the expected states
+ * @param {object} expected - A dictionary containing the expected states.
  */
 async function check_toolbar_menu_states_single(expected) {
   assert_shown("attachmentSaveAllSingle", true);
@@ -391,7 +391,7 @@ async function check_toolbar_menu_states_single(expected) {
 /**
  * Check that the menu states in the "save all" toolbar button are correct.
  *
- * @param expected a dictionary containing the expected states
+ * @param {object} expected - A dictionary containing the expected states.
  */
 async function check_toolbar_menu_states_multiple(expected) {
   assert_shown("attachmentSaveAllSingle", false);
@@ -427,7 +427,8 @@ async function check_toolbar_menu_states_multiple(expected) {
 /**
  * Check that the menu states in the single item context menu are correct
  *
- * @param expected a dictionary containing the expected states
+ * @param {integer} index - Index of the attachment in the attachmentList.
+ * @param {object} expected - A dictionary containing the expected states.
  */
 async function check_menu_states_single(index, expected) {
   const attachmentList = aboutMessage.document.getElementById("attachmentList");
@@ -470,7 +471,7 @@ async function check_menu_states_single(index, expected) {
 /**
  * Check that the menu states in the all items context menu are correct
  *
- * @param expected a dictionary containing the expected states
+ * @param {object} expected - A dictionary containing the expected states.
  */
 async function check_menu_states_all(expected) {
   // Using a rightClick here is unsafe, because we need to hit the empty area

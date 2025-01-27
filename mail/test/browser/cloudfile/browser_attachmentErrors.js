@@ -226,10 +226,10 @@ add_task(async function test_offline_error_during_upload() {
 /**
  * Subtest for testing error messages during upload operation.
  *
- * @param error - defines the the thrown exception and the expected alert messages
- * @param error.exception - the exception to be thrown by uploadFile()
- * @param error.expectedAlerts - array with { title, message } objects for expected
- *   alerts for each uploaded file
+ * @param {Error} error - The thrown exception and the expected alert messages.
+ * @param {Error} error.exception - The exception to be thrown by uploadFile()
+ * @param {object[]} error.expectedAlerts - Array with { title, message }
+ *   objects for expected alerts for each uploaded file.
  */
 async function subtest_errors_during_upload(error) {
   MockFilePicker.setFiles(collectFiles(kFiles));
@@ -370,9 +370,10 @@ add_task(async function test_offline_error_during_rename() {
 /**
  * Subtest for testing error messages during rename operation.
  *
- * @param error - defines the the thrown exception and the expected alert messagees
- * @param error.exception - the exception to be thrown by renameFile()
- * @param error.expectedAlerts - array with { title, message } objects for each renamed file
+ * @param {Error} error - The thrown exception and the expected alert messages.
+ * @param {Error} error.exception - the exception to be thrown by renameFile()
+ * @param {object[]} error.expectedAlerts - Array with { title, message }
+ *   objects for each renamed file.
  */
 async function subtest_errors_during_rename(error) {
   MockFilePicker.setFiles(collectFiles(kFiles));

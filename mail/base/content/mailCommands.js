@@ -34,7 +34,8 @@ function GetNextNMessages(folder) {
 /**
  * Figure out the message key from the message uri.
  *
- * @param uri string defining internal storage
+ * @param {string} uri - string defining internal storage.
+ * @returns {?string}
  */
 function GetMsgKeyFromURI(uri) {
   // Format of 'uri' : protocol://email/folder#key?params

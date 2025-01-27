@@ -193,8 +193,7 @@ appUpdater.prototype = {
    * Sets the panel of the updateDeck and the visibility of icons
    * in the #icons element.
    *
-   * @param  aChildID
-   *         The id of the deck's child to select, e.g. "apply".
+   * @param {string} aChildID - The id of the deck's child to select, e.g. "apply".
    */
   selectPanel(aChildID) {
     const panel = document.getElementById(aChildID);

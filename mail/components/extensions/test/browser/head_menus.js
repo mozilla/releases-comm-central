@@ -43,7 +43,7 @@ async function rightClickOnContent(menu, selector, browser) {
  *
  * @see mail/components/extensions/schemas/menus.json
  *
- * @param extension
+ * @param {ExtensionWrapper} extension
  * @param {object} expectedInfo
  * @param {?Array} expectedInfo.menuIds
  * @param {?Array} expectedInfo.contexts
@@ -177,7 +177,7 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
  *
  * @see mail/components/extensions/schemas/menus.json
  *
- * @param extension
+ * @param {ExtensionWrapper} extension
  * @param {object} expectedInfo
  * @param {?string} expectedInfo.selectionText
  * @param {?string} expectedInfo.linkText

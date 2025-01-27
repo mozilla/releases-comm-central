@@ -83,17 +83,17 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
  *   rely on insecure DNS and http, which means the results may be
  *   forged when under attack. The same is true for guessConfig(), though.
  *
- * @param domain {String} - The domain part of the user's email address
- * @param emailAddress {String} - The user's email address
- * @param successCallback {Function(config {AccountConfig}})}   A callback that
- *         will be called when we could retrieve a configuration.
- *         The AccountConfig object will be passed in as first parameter.
- * @param errorCallback {Function(ex)} - A callback that
- *         will be called when we could not retrieve a configuration,
- *         for whatever reason. This is expected (e.g. when there's no config
- *         for this domain at this location),
- *         so do not unconditionally show this to the user.
- *         The first parameter will be an exception object or error string.
+ * @param {string} domain - The domain part of the user's email address
+ * @param {string} emailAddress - The user's email address
+ * @param {function(AccountConfig):void} successCallback - A callback that
+ *   will be called when we could retrieve a configuration.
+ *   The AccountConfig object will be passed in as first parameter.
+ * @param {function(Error):void} errorCallback - A callback that
+ *   will be called when we could not retrieve a configuration,
+ *   for whatever reason. This is expected (e.g. when there's no config
+ *   for this domain at this location),
+ *   so do not unconditionally show this to the user.
+ *   The first parameter will be an exception object or error string.
  */
 function fetchConfigFromISP(
   domain,
@@ -329,11 +329,11 @@ function fetchConfigForMX(
  * is used. If there are several most preferred servers (i.e. round robin),
  * only one of them is used.
  *
- * @param {string}  sanitizedDomain @see fetchConfigFromISP()
- * @param {function(hostname {string})} - successCallback
- *   Called when we found an MX for the domain.
+ * @param {string} sanitizedDomain - @see fetchConfigFromISP()
+ * @param {function(string):void} successCallback - Function, taking hostname
+ *   as argument. Called when we found an MX for the domain.
  *   For |hostname|, see description above.
- * @param {function({Exception|string})}  errorCallback @see fetchConfigFromISP()
+ * @param {function(Exception|string):void} errorCallback - @see fetchConfigFromISP()
  */
 function getMX(sanitizedDomain, successCallback, errorCallback) {
   return new PromiseAbortable(

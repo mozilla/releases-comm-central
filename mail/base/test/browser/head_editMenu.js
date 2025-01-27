@@ -20,7 +20,7 @@ const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-/** @type MenuData */
+/** @type {MenuData}*/
 const editMenuData = {
   menu_undo: { disabled: true },
   menu_redo: { disabled: true },

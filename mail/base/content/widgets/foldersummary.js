@@ -81,7 +81,7 @@
      * @param {nsIMsgFolder} folder - The folder to examine.
      * @param {nsIUrlListener} urlListener - Listener to notify if we run urls
      *   to fetch msgs.
-     * @param Object outAsync - Object with value property set to true if there
+     * @param {object} outAsync - Object with value property set to true if there
      *   are async fetches pending (a message preview will be available later).
      * @returns {boolean} true if the folder knows about messages that should be shown.
      */

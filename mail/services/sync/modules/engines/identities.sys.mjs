@@ -23,7 +23,6 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
  * add-ons present in a Sync account.
  *
  * The record contains the following fields:
- *
  */
 export function IdentityRecord(collection, id) {
   CryptoWrapper.call(this, collection, id);
@@ -80,8 +79,7 @@ IdentityStore.prototype = {
    * This is called by the default implementation of applyIncoming(). If using
    * applyIncomingBatch(), this won't be called unless your store calls it.
    *
-   * @param record
-   *        The store record to create an item from
+   * @param {IdentityRecord} record - The store record to create an item from.
    */
   async create(record) {
     await super.create(record);
@@ -126,8 +124,7 @@ IdentityStore.prototype = {
    * This is called by the default implementation of applyIncoming(). If using
    * applyIncomingBatch(), this won't be called unless your store calls it.
    *
-   * @param record
-   *        The store record to delete an item from
+   * @param {IdentityRecord} record - The store record to delete an item from.
    */
   async remove(record) {
     await super.remove(record);
@@ -156,8 +153,7 @@ IdentityStore.prototype = {
    * This is called by the default implementation of applyIncoming(). If using
    * applyIncomingBatch(), this won't be called unless your store calls it.
    *
-   * @param record
-   *        The record to use to update an item from
+   * @param {IdentityRecord} record - The record to use to update an item from.
    */
   async update(record) {
     await super.update(record);
@@ -191,8 +187,8 @@ IdentityStore.prototype = {
   /**
    * Obtain the set of all known record IDs.
    *
-   * @returns Object with ID strings as keys and values of true. The values
-   *         are ignored.
+   * @returns {object} Object with ID strings as keys and values of true.
+   *   The values are ignored.
    */
   async getAllIDs() {
     const ids = await super.getAllIDs();
@@ -212,12 +208,10 @@ IdentityStore.prototype = {
    * the store. If the ID is not known, the record should be created with the
    * delete field set to true.
    *
-   * @param  id
-   *         string record ID
-   * @param  collection
-   *         Collection to add record to. This is typically passed into the
-   *         constructor for the newly-created record.
-   * @returns record type for this engine
+   * @param {string} id - String record ID.
+   * @param {CryptoCollection} collection - Collection to add record to. This
+   *   is typically passed into the constructor for the newly-created record.
+   * @returns {IdentityRecord} record type for this engine.
    */
   async createRecord(id, collection) {
     const record = new IdentityRecord(collection, id);

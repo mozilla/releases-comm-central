@@ -661,8 +661,8 @@ class SecurityIcon {
   /**
    * Set the security level of the page.
    *
-   * @param {"high"|"broken"|""} - The security level for the page, or empty if
-   *   it is to be ignored.
+   * @param {"high"|"broken"|""} securityLevel - The security level for the
+   *   page, or empty if it is to be ignored.
    */
   setSecurityLevel(securityLevel) {
     if (this.securityLevel !== securityLevel) {
@@ -768,6 +768,7 @@ var specialTabs = {
      * This is the internal function used by content tabs to open a new tab. To
      * open a contentTab, use specialTabs.openTab("contentTab", aArgs)
      *
+     * @param {TabInfo} aTab - The tab.
      * @param {object} aArgs - The options that content tabs accept.
      * @param {string} aArgs.url - The URL that is to be opened
      * @param {nsIOpenWindowInfo} [aArgs.openWindowInfo] - The opener window
@@ -1257,7 +1258,8 @@ var specialTabs = {
   /**
    * Determine if we should load fav icons or not.
    *
-   * @param aURI  An nsIURI containing the current url.
+   * @param {nsIURI} aURI - An nsIURI containing the current url.
+   * @returns {boolean} true if we should load.
    */
   _shouldLoadFavIcon(aURI) {
     return (

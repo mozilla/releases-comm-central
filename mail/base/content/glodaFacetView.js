@@ -561,8 +561,8 @@ var FacetContext = {
   /**
    * Remove duplicate messages from search results.
    *
-   * @param aItems the initial set of messages to deduplicate
-   * @returns the subset of those, with duplicates removed.
+   * @param {GlodaMessage[]} aItems - The initial set of messages to deduplicate
+   * @returns {GlodaMessage[]} the subset of those, with duplicates removed.
    *
    * Some IMAP servers (here's looking at you, Gmail) will create message
    * duplicates unbeknownst to the user.  We'd like to deal with them earlier
@@ -587,8 +587,8 @@ var FacetContext = {
   /**
    * Kick-off a new faceting pass.
    *
-   * @param aNewSet the set of items to facet.
-   * @param aCallback the callback to invoke when faceting is completed.
+   * @param {GlodaMessage[]} aNewSet - The set of items to facet.
+   * @param {Function} aCallback - The callback to invoke when faceting is completed.
    */
   build(aNewSet, aCallback) {
     this._activeSet = aNewSet;
@@ -871,31 +871,31 @@ var FacetContext = {
    * Called by facet bindings when the user does some clicking and wants to
    *  impose a new constraint.
    *
-   * @param aFaceter The faceter that is the source of this constraint.  We
-   *     need to know this because once a facet has a constraint attached,
-   *     the UI stops updating it.
-   * @param {boolean} aInclusive Is this an inclusive (true) or exclusive
+   * @param {object} aFaceter - The faceter that is the source of this
+   *   constraint. We need to know this because once a facet has a constraint
+   *   attached, the UI stops updating it. See Facet.sys.mjs
+   * @param {boolean} aInclusive - Is this an inclusive (true) or exclusive
    *     (false) constraint?  The constraint instance is the one that deals with
    *     the nuances resulting from this.
-   * @param aGroupValues A list of the group values this constraint covers.  In
-   *     general, we expect that only one group value will be present in the
-   *     list since this method should get called each time the user clicks
-   *     something.  Previously, we provided support for an "other" case which
-   *     covered multiple groupValues so a single click needed to be able to
-   *     pass in a list.  The "other" case is gone now, but semantically it's
-   *     okay for us to support a list.
-   * @param [aRanged] Is it a ranged constraint?  (Currently only for dates)
-   * @param [aNukeExisting] Do we need to replace the existing constraint and
-   *     re-sieve everything?  This currently only happens for dates, where
-   *     our display allows a click to actually make our range more generic
-   *     than it currently is.  (But this only matters if we already have
-   *     a date constraint applied.)
-   * @param [aCallback] The callback to call once (re-)faceting has completed.
+   * @param {object[]} aGroupValues - A list of the group values this constraint
+   *   covers. In  general, we expect that only one group value will be present
+   *   in the list since this method should get called each time the user clicks
+   *   something.  Previously, we provided support for an "other" case which
+   *   covered multiple groupValues so a single click needed to be able to
+   *   pass in a list.  The "other" case is gone now, but semantically it's
+   *   okay for us to support a list.
+   * @param {boolean} [aRanged] Is it a ranged constraint? (Only for dates)
+   * @param {boolean} [aNukeExisting] Do we need to replace the existing
+   *   constraint and re-sieve everything? This currently only happens for
+   *   dates, where our display allows a click to actually make our range more
+   *   generic than it currently is. (But this only matters if we already have
+   *   a date constraint applied.)
+   * @param {Function} [aCallback] - The callback to call once (re-)faceting has completed.
    *
    * @returns {boolean} true if the caller needs to revalidate because the constraint has
-   *     changed in a way other than explicitly requested.  This can occur if
-   *     a singular constraint flips its inclusive state and throws away
-   *     constraints.
+   *   changed in a way other than explicitly requested.  This can occur if
+   *   a singular constraint flips its inclusive state and throws away
+   *   constraints.
    */
   addFacetConstraint(
     aFaceter,
@@ -947,17 +947,19 @@ var FacetContext = {
    *  when |addFacetConstraint| returns true indicating that you need to
    *  revalidate.
    *
-   * @param aFaceter
-   * @param aInclusive Whether the group values were previously included /
-   *     excluded.  If you want to remove some values that were included and
-   *     some that were excluded then you need to call us once for each case.
-   * @param aGroupValues The list of group values to remove.
-   * @param aCallback The callback to call once all facets have been updated.
+   * @param {object} aFaceter
+   * @param {boolean} aInclusive - Whether the group values were previously
+   *   included / excluded.  If you want to remove some values that were
+   *    included and some that were excluded then you need to call us once for
+   *    each case.
+   * @param {object[]} aGroupValues - The list of group values to remove.
+   * @param {Function} aCallback - The callback to call once all facets have
+   *   been updated.
    *
-   * @returns {boolean} true if the constraint has been completely removed.  Under the
-   *     current regime, this will likely cause the binding that is calling us
-   *     to be rebuilt, so be aware if you are trying to do any cool animation
-   *     that might no longer make sense.
+   * @returns {boolean} true if the constraint has been completely removed.
+   *   Under the current regime, this will likely cause the binding that is
+   *   calling us to be rebuilt, so be aware if you are trying to do any cool
+   *   animation that might no longer make sense.
    */
   removeFacetConstraint(aFaceter, aInclusive, aGroupValues, aCallback) {
     const attrName = aFaceter.attrDef.attributeName;
@@ -1017,8 +1019,8 @@ var FacetContext = {
   /**
    * Show the conversation in a new 3-pane tab.
    *
-   * @param {glodaFacetBindings.xml#result-message} aResultMessage The
-   *     result the user wants to see in more details.
+   * @param {MozFacetResultMessage} aResultMessage - The result the user wants
+   *   to see in more details.
    * @param {boolean} [aBackground] Whether it should be in the background.
    */
   showConversationInTab(aResultMessage, aBackground) {

@@ -90,9 +90,8 @@ function FolderDisplayWidget() {
 }
 FolderDisplayWidget.prototype = {
   /**
-   * @returns the currently displayed folder.  This is just proxied from the
-   *     view wrapper.
-   * @groupName Displayed
+   * @returns {nsIMsgFolder} the currently displayed folder.
+   *   This is just proxied from the view wrapper.
    */
   get displayedFolder() {
     return this._nonViewFolder || this.view.displayedFolder;
@@ -100,10 +99,10 @@ FolderDisplayWidget.prototype = {
 
   /**
    * @returns {boolean} true if the selection should be summarized for this folder. This
-   *     is based on the mail.operate_on_msgs_in_collapsed_threads pref and
-   *     if we are in a newsgroup folder. XXX When bug 478167 is fixed, this
-   *     should be limited to being disabled for newsgroups that are not stored
-   *     offline.
+   *   is based on the mail.operate_on_msgs_in_collapsed_threads pref and
+   *   if we are in a newsgroup folder. XXX When bug 478167 is fixed, this
+   *   should be limited to being disabled for newsgroups that are not stored
+   *   offline.
    */
   get summarizeSelectionInFolder() {
     return (
@@ -113,7 +112,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @returns the nsITreeSelection object for our tree view.  This exists for
+   * @returns {nsITreeSelection} the nsITreeSelection object for our tree view.  This exists for
    *     the benefit of message tabs that haven't been switched to yet.
    *     We provide a fake tree selection in those cases.
    * @protected
@@ -577,7 +576,7 @@ FolderDisplayWidget.prototype = {
    * Make code cleaner by allowing peoples to call doCommand on us rather than
    *  having to do folderDisplayWidget.view.dbView.doCommand.
    *
-   * @param aCommandName The command name to invoke.
+   * @param {string} aCommandName - The command name to invoke.
    */
   doCommand(aCommandName) {
     return this.view.dbView && this.view.dbView.doCommand(aCommandName);
@@ -588,7 +587,7 @@ FolderDisplayWidget.prototype = {
    *  rather than having to do:
    *  folderDisplayWidget.view.dbView.doCommandWithFolder.
    *
-   * @param aCommandName The command name to invoke.
+   * @param {string} aCommandName - The command name to invoke.
    * @param {nsIMsgFolder} aFolder - The folder context for the command.
    */
   doCommandWithFolder(aCommandName, aFolder) {
@@ -614,7 +613,6 @@ FolderDisplayWidget.prototype = {
    * @param {nsMsgNavigationType} aNavType navigation command.
    * @param {boolean} [aSelect=true] should we select the message if we find
    *     one?
-   *
    * @returns {boolean} true if the navigation constraint matched anything, false if not.
    *     We will have navigated if true, we will have done nothing if false.
    */
@@ -686,8 +684,8 @@ FolderDisplayWidget.prototype = {
   // @{
 
   /**
-   * @returns the message header for the first selected message, or null if
-   *  there is no selected message.
+   * @returns {?nsIMsgDBHdr} the message header for the first selected message,
+   *   or null if there is no selected message.
    *
    * If the user has right-clicked on a message, this method will return that
    *  message and not the 'current index' (the dude with the dotted selection
@@ -721,7 +719,8 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @returns the number of selected messages.  If summarizeSelectionInFolder is
+   * @returns {integer} the number of selected messages.
+   *  If summarizeSelectionInFolder is
    *  true, then any collapsed thread roots that are selected will also
    *  conceptually have all of the messages in that thread selected.
    */
@@ -740,7 +739,7 @@ FolderDisplayWidget.prototype = {
    * If the user has right-clicked on a message, this will return that message
    *  and not the selection prior to the right-click.
    *
-   * @returns a list of the view indices that are currently selected
+   * @returns {number[]} a list of the view indices that are currently selected
    */
   get selectedIndices() {
     if (!this.view.dbView) {
@@ -760,8 +759,9 @@ FolderDisplayWidget.prototype = {
    *  (and any collapsed children if so enabled) and not the selection prior to
    *  the right-click.
    *
-   * @returns a list of the message headers for the currently selected messages.
-   *     If there are no selected messages, the result is an empty list.
+   * @returns {nsIMsgDBHdr} a list of the message headers for the currently
+   *   selected messages. If there are no selected messages, the result is
+   *   an empty list.
    */
   get selectedMessages() {
     if (!this.view.dbView) {
@@ -771,10 +771,10 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @returns a list of the URIs for the currently selected messages or null
-   *     (instead of a list) if there are no selected messages.  Do not
-   *     pass around URIs unless you have a good reason.  Legacy code is an
-   *     ok reason.
+   * @returns {?string[]} a list of the URIs for the currently selected messages
+   *   or null (instead of a list) if there are no selected messages. Do not
+   *    pass around URIs unless you have a good reason. Legacy code is an
+   *    ok reason.
    *
    * If the user has right-clicked on a message, this will return that message's
    *  URI and not the selection prior to the right-click.
@@ -791,9 +791,9 @@ FolderDisplayWidget.prototype = {
   /**
    * Select the message at view index.
    *
-   * @param aViewIndex The view index to select.  This will be bounds-checked
-   *     and if it is outside the bounds, we will clear the selection and
-   *     bail.
+   * @param {number} aViewIndex - The view index to select. This will be
+   *   bounds-checked and if it is outside the bounds, we will clear the
+   *   selection and bail.
    */
   selectViewIndex(aViewIndex) {
     const treeSelection = this.treeSelection;

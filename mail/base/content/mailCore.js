@@ -567,9 +567,9 @@ function toSanitize() {
 /**
  * Opens the Preferences (Options) dialog.
  *
- * @param aPaneID       ID of prefpane to select automatically.
- * @param aScrollPaneTo ID of the element to scroll into view.
- * @param aOtherArgs    other prefpane specific arguments
+ * @param {string} aPaneID - ID of prefpane to select automatically.
+ * @param {string} aScrollPaneTo - ID of the element to scroll into view.
+ * @param {*} aOtherArgs - Other prefpane specific arguments
  */
 function openOptionsDialog(aPaneID, aScrollPaneTo, aOtherArgs) {
   openPreferencesTab(aPaneID, aScrollPaneTo, aOtherArgs);
@@ -728,10 +728,11 @@ function openSupportURL() {
 }
 
 /**
- *  Fetches the url for the passed in pref name, formats it and then loads it in the default
- *  browser.
+ * Fetches the url for the passed in pref name, formats it and then loads it in the default
+ * browser.
  *
- *  @param aPrefName - name of the pref that holds the url we want to format and open
+ * @param {string} aPrefName - Name of the pref that holds the url we want to
+ *   format and open.
  */
 function openFormattedURL(aPrefName) {
   var urlToOpen = Services.urlFormatter.formatURLPref(aPrefName);
@@ -849,8 +850,8 @@ function getMostRecentMailWindow() {
  * whitespace or identical characters. Windows especially will drop trailing
  * dots and whitespace from filename extensions.
  *
- * @param aAttachment the AttachmentInfo object
- * @returns a sanitized display name for the attachment
+ * @param {AttachmentInfo} aAttachment - The AttachmentInfo object.
+ * @returns {string} a sanitized display name for the attachment.
  */
 function SanitizeAttachmentDisplayName(aAttachment) {
   let displayName = aAttachment.name.trim().replace(/\s+/g, " ");

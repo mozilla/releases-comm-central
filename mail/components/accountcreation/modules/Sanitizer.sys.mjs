@@ -178,13 +178,13 @@ export const Sanitizer = {
   /**
    * Allows only certain values as input, otherwise throw.
    *
-   * @param unchecked {Any} The value to check
-   * @param allowedValues {Array} List of values that |unchecked| may have.
-   * @param defaultValue {Any} (Optional) If |unchecked| does not match
-   *       anything in |mapping|, a |defaultValue| can be returned instead of
-   *       throwing an exception. The latter is the default and happens when
-   *       no |defaultValue| is passed.
-   * @throws MalformedException
+   * @param {*} unchecked - The value to check.
+   * @param {[]} allowedValues - List of values that |unchecked| may have.
+   * @param {*} [defaultValue] - If |unchecked| does not match
+   *   anything in |mapping|, a |defaultValue| can be returned instead of
+   *   throwing an exception. The latter is the default and happens when
+   *   no |defaultValue| is passed.
+   * @throws {MalformedException}
    */
   enum(unchecked, allowedValues, defaultValue) {
     for (const allowedValue of allowedValues) {
@@ -205,16 +205,16 @@ export const Sanitizer = {
    * if unchecked == "foo", return 1, if unchecked == "bar", return 2,
    * otherwise throw. This allows to translate string enums into integer enums.
    *
-   * @param unchecked {Any} The value to check
-   * @param mapping {Object} Associative array. property name is the input
-   *       value, property value is the output value. E.g. the example above
-   *       would be: { foo: 1, bar : 2 }.
-   *       Use quotes when you need freaky characters: "baz-" : 3.
-   * @param defaultValue {Any} (Optional) If |unchecked| does not match
-   *       anything in |mapping|, a |defaultValue| can be returned instead of
-   *       throwing an exception. The latter is the default and happens when
-   *       no |defaultValue| is passed.
-   * @throws MalformedException
+   * @param {*} unchecked - The value to check.
+   * @param {object[]} mapping - Associative array. property name is the input
+   *   value, property value is the output value. E.g. the example above
+   *   would be: { foo: 1, bar : 2 }.
+   *   Use quotes when you need freaky characters: "baz-" : 3.
+   * @param {*} [defaultValue] - If |unchecked| does not match
+   *   anything in |mapping|, a |defaultValue| can be returned instead of
+   *   throwing an exception. The latter is the default and happens when
+   *   no |defaultValue| is passed.
+   * @throws {MalformedException}
    */
   translate(unchecked, mapping, defaultValue) {
     for (var inputValue in mapping) {
@@ -230,6 +230,10 @@ export const Sanitizer = {
   },
 };
 
+/**
+ * @param {string} msgID - Id for localized string in accountCreationUtil.properties
+ * @param {*} uncheckedBadValue
+ */
 function MalformedException(msgID, uncheckedBadValue) {
   var stringBundle = AccountCreationUtils.getStringBundle(
     "chrome://messenger/locale/accountCreationUtil.properties"

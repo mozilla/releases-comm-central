@@ -981,6 +981,7 @@ class VCardTypeSelectionComponent extends HTMLElement {
    *
    * @param {VCardPropertyEntry} vCardPropertyEntry - The VCardPropertyEntry
    *   this element should control.
+   * @param {object} options - The options.
    * @param {boolean} [options.createLabel] - Whether a Type label should be
    *   created for the selectEl element. If this is not `true`, then the label
    *   for the selectEl should be provided through some other means, such as the

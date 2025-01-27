@@ -122,20 +122,22 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
  *
  * @param {string} domain - The domain part of the user's email address
  * @param {string} emailAddress - The user's email address
- * @param {string} username - (Optional) The user's login name.
- *         If null, email address will be used.
+ * @param {?string} username - (Optional) The user's login name.
+ *   If null, email address will be used.
  * @param {string} password - The user's password for that email address
- * @param {Function(domain, okCallback, cancelCallback)} confirmCallback - A
- *        callback that will be called to confirm redirection to another domain.
- * @param {Function(config {AccountConfig})} successCallback - A callback that
- *         will be called when we could retrieve a configuration.
- *         The AccountConfig object will be passed in as first parameter.
- * @param {Function(ex)} errorCallback - A callback that
- *         will be called when we could not retrieve a configuration,
- *         for whatever reason. This is expected (e.g. when there's no config
- *         for this domain at this location),
- *         so do not unconditionally show this to the user.
- *         The first parameter will be an exception object or error string.
+ * @param {function(string,Function,Function):void} confirmCallback - A callback
+ *   Function(domain, okCallback, cancelCallback) that will be called to confirm
+ *   redirection to another domain.
+ * @param {function(AccountConfig):void} successCallback - A callback function
+ *   {Function(config {AccountConfig})} that
+ *   will be called when we could retrieve a configuration.
+ *   The AccountConfig object will be passed in as first parameter.
+ * @param {function(Error):void} errorCallback - A callback that
+ *   will be called when we could not retrieve a configuration,
+ *   for whatever reason. This is expected (e.g. when there's no config
+ *   for this domain at this location),
+ *   so do not unconditionally show this to the user.
+ *   The first parameter will be an exception object or error string.
  */
 export function fetchConfigFromExchange(
   domain,
@@ -308,8 +310,16 @@ export function fetchConfigFromExchange(
 var gLoopCounter = 0;
 
 /**
- * @param {JXON} xml - The Exchange server AutoDiscover response
- * @param {Function(config {AccountConfig})} successCallback - @see accountConfig.js
+ * @param {object} autoDiscoverXML - The Exchange server AutoDiscover response, as JXON.
+ * @param {Abortable} successive
+ * @param {string} emailAddress - Email address.
+ * @param {string} username - Username.
+ * @param {string} password - Password.
+ * @param {function(string,Function,Function):void} confirmCallback - A callback
+ *   Function(domain, okCallback, cancelCallback) that will be called to confirm
+ *   redirection to another domain.
+ * @param {function(AccountConfig):void} successCallback - @see accountConfig.js
+ * @param {function(Error):void} errorCallback - @see accountConfig.js
  */
 function readAutoDiscoverResponse(
   autoDiscoverXML,
@@ -362,11 +372,11 @@ function readAutoDiscoverResponse(
 
 /* eslint-disable complexity */
 /**
- * @param {JXON} xml - The Exchange server AutoDiscover response
- * @param {string} username - (Optional) The user's login name
- *     If null, email address placeholder will be used.
+ * @param {object} autoDiscoverXML - The Exchange server AutoDiscover response,
+ *  as JXON.
+ * @param {?string} username - (Optional) The user's login name
+ *   If null, email address placeholder will be used.
  * @returns {AccountConfig} - @see accountConfig.js
- *
  * @see <https://www.msxfaq.de/exchange/autodiscover/autodiscover_xml.htm>
  */
 function readAutoDiscoverXML(autoDiscoverXML, username) {
@@ -529,7 +539,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
  * Ask server which addons can handle this config.
  *
  * @param {AccountConfig} config
- * @param {Function(config {AccountConfig})} successCallback
+ * @param {function(AccountConfig):void} successCallback
  * @returns {Abortable}
  */
 export function getAddonsList(config, successCallback, errorCallback) {
@@ -585,7 +595,7 @@ export function getAddonsList(config, successCallback, errorCallback) {
  * It also chooses the right language etc..
  *
  * @param {JSON} json - the addons.json file contents
- * @returns {Array of AddonInfo} - @see AccountConfig.addons
+ * @returns {AddonInfo[]} - @see AccountConfig.addons
  *
  * accountTypes are listed in order of decreasing preference.
  * Languages are 2-letter codes. If a language is not available,
@@ -675,7 +685,7 @@ function readAddonsJSON(json) {
  *
  * @param {AccountConfig} config - The initial detected Exchange configuration.
  * @param {string} domain - The domain part of the user's email address
- * @param {Function(config {AccountConfig})} successCallback - A callback that
+ * @param {function(AccountConfig):void} successCallback - A callback that
  *   will be called when we found an appropriate configuration.
  *   The AccountConfig object will be passed in as first parameter.
  */

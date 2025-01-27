@@ -155,7 +155,6 @@ class PaneLayout extends HTMLBodyElement {
    *
    * @param {PaneSplitter} splitter - The splitter element.
    * @param {string[]} properties - Array of properties for the xul store.
-   * @param {string} storeID - The ID used by the xul store.
    */
   #setValues(splitter, properties) {
     const storeID = PaneLayout.#STORE_MAP.get(splitter.id);

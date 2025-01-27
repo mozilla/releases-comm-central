@@ -519,7 +519,8 @@ class TabTracker extends TabTrackerBase {
    * Function to call when a tab was close, deletes tab information for the tab.
    *
    * @param {Event} event - The event triggering the detroyal
-   * @param {{ nativeTabInfo:NativeTabInfo}} - The object containing tab info
+   * @param {object} object nativeTabInfo - The object containing tab info.
+   * @param {NativeTabInfo} object.nativeTabInfo
    */
   _handleTabDestroyed(event, { nativeTabInfo }) {
     const id = this._tabs.get(nativeTabInfo);
@@ -1525,12 +1526,10 @@ class TabManager extends TabManagerBase {
   /**
    * Determines access using extension context.
    *
-   * @param {NativeTab} nativeTab
-   *        The tab to check access on.
-   * @returns {boolean}
-   *        True if the extension has permissions for this tab.
+   * @param {NativeTab} _nativeTab - The tab to check access on.
+   * @returns {boolean} True if the extension has permissions for this tab.
    */
-  canAccessTab() {
+  canAccessTab(_nativeTab) {
     return true;
   }
 

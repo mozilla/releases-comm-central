@@ -945,9 +945,8 @@ class AccountHubEmail extends HTMLElement {
   /**
    * Adds name and email address to AccountConfig object.
    *
-   * @param {AccountConfig} accountConfig - AccountConfig from findConfig().
-   * @param {string} password - The password for the account.
-   *
+   * @param {AccountConfig} configData - AccountConfig from findConfig().
+   * @param {string} [password=""] - The password for the account.
    * @returns {AccountConfig} - The concrete AccountConfig object.
    */
   #fillAccountConfig(configData, password = "") {
@@ -980,7 +979,7 @@ class AccountHubEmail extends HTMLElement {
    * Called from the "onContinue" function, does final validation on the
    * the complete config that is provided by the user and modified by helper.
    *
-   * @param {AccountConfig} completeConfig - The completed config
+   * @param {AccountConfig} completeConfig - The completed config.
    */
   async #validateAndFinish(completeConfig) {
     if (

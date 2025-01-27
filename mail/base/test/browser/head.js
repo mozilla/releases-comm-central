@@ -85,11 +85,12 @@ class MenuTestHelper {
    *   item should be displaying. If not specified, the string should not have
    *   arguments.
    */
+
   /**
    * An object describing the possible states of a menu's items. Object keys
    * are the item's ID, values describe the item's state.
    *
-   * @typedef {Object.<string, MenuItemData>} MenuData
+   * @typedef {object} MenuData - An object like Object.<string,MenuItemData>
    */
 
   /** @type {MenuData} */
@@ -255,8 +256,8 @@ class MenuTestHelper {
 
   /**
    * Activates the item in the menu.
+   * NOTE: This currently only works on top-level items.
    *
-   * @note This currently only works on top-level items.
    * @param {string} menuItemID - The item to activate.
    * @param {MenuData} [data] - If given, the expected state of the menu item
    *   before activation.

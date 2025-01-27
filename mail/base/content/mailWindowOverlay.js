@@ -697,7 +697,7 @@ function showCommandInSpecialFolder(aCommandIds, aFolderFlag) {
  * folder again, based on the value of mail.last_msg_movecopy_target_uri.
  * The menu item label and accesskey are adjusted to include the folder name.
  *
- * @param aMenuItem the menu item to adjust
+ * @param {Element} aMenuItem - The menu item to adjust.
  */
 function initMoveToFolderAgainMenu(aMenuItem) {
   const lastFolderURI = Services.prefs.getStringPref(
@@ -1115,7 +1115,7 @@ function MsgSubscribe(folder) {
  * Show a confirmation dialog - check if the user really want to unsubscribe
  * from the given newsgroup/s.
  *
- * @folders an array of newsgroup folders to unsubscribe from
+ * @param {nsIMsgFolder[]} folders - Newsgroup folders to unsubscribe from.
  * @returns {boolean} true if the user said it's ok to unsubscribe
  */
 function ConfirmUnsubscribe(folders) {
@@ -1136,7 +1136,7 @@ function ConfirmUnsubscribe(folders) {
 /**
  * Unsubscribe from selected or passed in newsgroup/s.
  *
- * @param {nsIMsgFolder[]} selectedFolders - The folders to unsubscribe.
+ * @param {nsIMsgFolder[]} folders - The folders to unsubscribe.
  */
 function MsgUnsubscribe(folders) {
   if (!ConfirmUnsubscribe(folders)) {
@@ -1223,7 +1223,7 @@ function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
 /**
  * Display the given message in an existing folder tab.
  *
- * @param {msgDBHdr} aMsgHdr - The message header to display.
+ * @param {nsIMsgDBHdr} aMsgHdr - The message header to display.
  */
 function MsgDisplayMessageInFolderTab(aMsgHdr) {
   const tabmail = document.getElementById("tabmail");
@@ -1501,8 +1501,8 @@ function GetFolderMessages(selectedFolders = GetSelectedMsgFolders()) {
 /**
  * Gets new messages for the given server, for the given folder.
  *
- * @param server which nsIMsgIncomingServer to check for new messages
- * @param folder which nsIMsgFolder folder to check for new messages
+ * @param {nsIMsgIncomingServer} server - Server which to check for new messages.
+ * @param {nsIMsgFolder} folder - Folder to check for new messages.
  */
 function GetNewMsgs(server, folder) {
   // Note that for Global Inbox folder.server != server when we want to get

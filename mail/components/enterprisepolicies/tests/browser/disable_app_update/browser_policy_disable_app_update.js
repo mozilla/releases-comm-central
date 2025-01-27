@@ -77,8 +77,8 @@ add_task(async function test_update_about_ui() {
 /**
  * Waits for the About Dialog to load.
  *
- * @returns A promise that returns the domWindow for the About Dialog and
- *         resolves when the About Dialog loads.
+ * @returns {Promise<Window>} A promise that returns the domWindow for the
+ *   About Dialog and resolves when the About Dialog loads.
  */
 function waitForAboutDialog() {
   return new Promise(resolve => {

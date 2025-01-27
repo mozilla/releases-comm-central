@@ -288,11 +288,11 @@ export var CustomizableUI = {
    * and an onWidgetBeforeDOMChange and onWidgetAfterDOMChange notification
    * for each window CustomizableUI knows about.
    *
-   * @param _aWidgetId the ID of the widget to add
-   * @param _aArea     the ID of the area to add the widget to
-   * @param _aPosition the position at which to add the widget. If you do not
-   *                  pass a position, the widget will be added to the end
-   *                  of the area.
+   * @param {string} _aWidgetId - The ID of the widget to add.
+   * @param {string} _aArea - The ID of the area to add the widget to.
+   * @param {object} _aPosition - The position at which to add the widget.
+   *   If you do not pass a position, the widget will be added to the end
+   *   of the area.
    */
   addWidgetToArea(_aWidgetId, _aArea, _aPosition) {},
   /**
@@ -302,7 +302,7 @@ export var CustomizableUI = {
    * onWidgetAfterDOMChange notification for each window CustomizableUI knows
    * about.
    *
-   * @param _aWidgetId the ID of the widget to remove
+   * @param {string} _aWidgetId - The ID of the widget to remove.
    */
   removeWidgetFromArea(_aWidgetId) {},
   /**
@@ -311,8 +311,9 @@ export var CustomizableUI = {
    * this call are cheap (no DOM necessary) and you will know where the user
    * has put your widget.
    *
-   * @param _aWidgetId the ID of the widget whose placement you want to know
-   * @returns
+   * @param {string} _aWidgetId - The ID of the widget whose placement you want
+   *   to know.
+   * @returns {?object}
    *   {
    *     area: "somearea", // The ID of the area where the widget is placed
    *     position: 42 // the index in the placements array corresponding to
@@ -331,7 +332,7 @@ export var CustomizableUI = {
    * and overflowable toolbar implementations, unlikely to be useful for
    * consumers.
    *
-   * @param aPanel the panel to which listeners should be attached.
+   * @param {object} aPanel - The panel to which listeners should be attached.
    */
   addPanelCloseListeners(aPanel) {
     CustomizableUIInternal.addPanelCloseListeners(aPanel);
@@ -341,7 +342,7 @@ export var CustomizableUI = {
    * addPanelCloseListeners. For use from the menu panel and overflowable
    * toolbar implementations, unlikely to be useful for consumers.
    *
-   * @param aPanel the panel from which listeners should be removed.
+   * @param {object} aPanel - The panel from which listeners should be removed.
    */
   removePanelCloseListeners(aPanel) {
     CustomizableUIInternal.removePanelCloseListeners(aPanel);
@@ -351,9 +352,9 @@ export var CustomizableUI = {
    * all toolboxes will be notified. For use from Customize Mode only,
    * do not use otherwise.
    *
-   * @param _aEvent the name of the event to send.
-   * @param _aDetails optional, the details of the event.
-   * @param _aWindow optional, the window in which to send the event.
+   * @param {string} _aEvent - The name of the event to send.
+   * @param {object} [_aDetails] - The optional details of the event.
+   * @param {Window} [_aWindow] - The optional window in which to send the event.
    */
   dispatchToolboxEvent(_aEvent, _aDetails, _aWindow) {},
 };

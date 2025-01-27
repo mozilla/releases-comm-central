@@ -108,7 +108,7 @@ function onSetupComplete() {
  *
  * @param {string} domain - Text with the question.
  * @param {Function} okCallback - Called when the user clicks OK.
- * @param {function(ex)} cancelCallback - Called when the user clicks Cancel
+ * @param {function(Error):void} cancelCallback - Called when the user clicks Cancel
  *   or if you call `Abortable.cancel()`.
  * @returns {Abortable} - If `Abortable.cancel()` is called,
  *   the dialog is closed and the `cancelCallback()` is called.
@@ -1886,7 +1886,7 @@ var gAccountSetup = {
    * If the user changed the port manually, adjust the SSL value,
    * (only) if the new port is impossible with the old SSL value.
    *
-   * @param config {AccountConfig}
+   * @param {AccountConfig} config
    */
   adjustIncomingSSLToPort(config) {
     const incoming = config.incoming;
@@ -2974,10 +2974,10 @@ var gSecurityWarningDialog = {
    * (Given that this dialog object is static/global and persistent,
    * we can store that approval state here in this object.)
    *
-   * @param configSchema @see open()
-   * @param configFilledIn @see open()
-   * @returns {boolean} - True when the dialog should be shown
-   *   (call open()). if false, the dialog can and should be skipped.
+   * @param {AccountConfig} configSchema @see open()
+   * @param {AccountConfig} configFilledIn @see open()
+   * @returns {boolean} true when the dialog should be shown.
+   *   (call open()). If false, the dialog can and should be skipped.
    */
   needed(configSchema, configFilledIn) {
     assert(configSchema instanceof AccountConfig);
@@ -3024,17 +3024,19 @@ var gSecurityWarningDialog = {
    * OK or Cancel, the callbacks are called. There the callers proceed as
    * appropriate.
    *
-   * @param configSchema   The config, with placeholders not replaced yet.
-   *      This object may be modified to store the user's confirmations, but
-   *      currently that's not the case.
-   * @param configFilledIn   The concrete config with placeholders replaced.
-   * @param onlyIfNeeded {Boolean} - If there is nothing to warn about,
-   *     call okCallback() immediately (and sync).
-   * @param okCallback {function(config {AccountConfig})}
-   *      Called when the user clicked OK and approved the config including
-   *      the warnings. |config| is without placeholders replaced.
-   * @param cancalCallback {function()}
-   *      Called when the user decided to heed the warnings and not approve.
+   * @param {AccountConfig} configSchema - The config, with placeholders not
+   *   replaced yet.
+   *   This object may be modified to store the user's confirmations, but
+   *    currently that's not the case.
+   * @param {AccountConfig} configFilledIn - The concrete config with
+   *   placeholders replaced.
+   * @param {boolean} onlyIfNeeded - If there is nothing to warn about,
+   *   call okCallback() immediately (and sync).
+   * @param {function(AccountConfig):void} okCallback - Called when the user
+   *   clicked OK and approved the config including the warnings.
+   *  |config| is without placeholders replaced.
+   * @param {function():void} cancelCallback - Called when the user decided to
+   *   heed the warnings and not approve.
    */
   open(configSchema, configFilledIn, onlyIfNeeded, okCallback, cancelCallback) {
     assert(typeof okCallback == "function");

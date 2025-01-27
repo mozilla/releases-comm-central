@@ -43,10 +43,10 @@ var { DefaultMap } = ExtensionUtils;
  * WebExtension MessagePart.
  *
  * @param {MimeTreePart} mimeTreePart
- * @returns {Object<string, string[]>} The headers of the part. Each key is the
- *   name of a header and its value is an array of the header values.
- *
- * @see mail/extensions/openpgp/content/modules/MimeTree.sys.mjs
+ * @returns {object} An <string, string[]> mapping. The headers of the part.
+ *   Each key is the name of a header and its value is an array of the header
+ *   values.
+ * @see {MimeTree}
  */
 function convertRawHeaders(mimeTreePart) {
   const partHeaders = {};
@@ -64,10 +64,10 @@ function convertRawHeaders(mimeTreePart) {
  * WebExtension MessagePart. Adds a content-type header if missing.
  *
  * @param {MimeTreePart} mimeTreePart
- * @returns {Object<string, string[]>} The headers of the part. Each key is the
- *   name of a header and its value is an array of the header values.
- *
- * @see mail/extensions/openpgp/content/modules/MimeTree.sys.mjs
+ * @returns {object} An <string, string[]> mapping. The headers of the part.
+ *   Each key is the name of a header and its value is an array of the header
+ *   values.
+ * @see {MimeTree}
  */
 function convertHeaders(mimeTreePart) {
   // For convenience, the API has always decoded the returned headers. That turned
@@ -105,31 +105,31 @@ function convertHeaders(mimeTreePart) {
 }
 
 /**
- * @typedef MessagePart
+ * @typedef {object} MessagePart
  *
  * The WebExtension type "MessagePart", as defined in messages.json.
  *
  * @property {string} [body] - The quoted-printable or base64 decoded content of
- *    the part. Only present for parts with a content type of <var>text/*</var>
- *    and only if requested.
+ *   the part. Only present for parts with a content type of <var>text/*</var>
+ *   and only if requested.
  * @property {string} [contentType] - The contentType of the part.
  * @property {string} [decryptionStatus] - The decryptionStatus of the part, one
- *    of "none", "skipped", "success" or "fail".
- * @property {Object<string, string[]>} [headers] - The RFC2047 decoded headers
- *    of the part. Each key is the name of a header and its value is an array of
- *    header values (if header is specified more than once).
+ *   of "none", "skipped", "success" or "fail".
+ * @property {object} [headers] - A <string, string[]> mapping.
+ *   The RFC2047 decoded headers of the part. Each key is the name of a header
+ *   and its value is an array of header values (if header is specified more
+ *   than once).
  * @property {string} [name] - Name of the part, if it is an attachment/file.
  * @property {string} [partName] - The identifier of this part in the message
- *    (for example "1.2").
+ *   (for example "1.2").
  * @property {MessagePart[]} [parts] - Any sub-parts of this part.
  * @property {string} [rawBody] - The raw content of the part.
- * @property {Object<string, string[]>} [rawHeaders] - The raw headers of the part.
- *    Each key is the name of a header and its value is an array of the header
- *    values (if header is specified more than once).
+ * @property {object} [rawHeaders] - An <string, string[]> mapping. The raw
+ *   headers of the part. Each key is the name of a header and its value is an
+ *   array of the header values (if header is specified more than once).
  * @property {integer} [size] - The size of this part. The size of message/* parts
- *    is not the actual message size (on disc), but the total size of its decoded
- *    body parts, excluding headers.
- *
+ *   is not the actual message size (on disc), but the total size of its decoded
+ *   body parts, excluding headers.
  * @see mail/components/extensions/schemas/messages.json
  */
 
@@ -145,9 +145,7 @@ function convertHeaders(mimeTreePart) {
  *   this determines if a "body" member only for text/* parts, or if a "rawBody"
  *   member for all parts is to be returned. The actual decoding is done elsewhere
  *   and the option should match the content data in the provided mimeTreePart.
- *
  * @returns {MessagePart}
- *
  * @see mail/extensions/openpgp/content/modules/MimeTree.sys.mjs
  */
 function convertMessagePart(
@@ -244,9 +242,7 @@ function convertMessagePart(
  *
  * @param {nsIMsgDBHdr} msgHdr - the msgHdr of the attachment's message
  * @param {MimeTreePart} mimeTreePart
- *
  * @returns {MessageAttachment}
- *
  * @see mail/extensions/openpgp/content/modules/MimeTree.sys.mjs
  * @see mail/components/extensions/schemas/messages.json
  */

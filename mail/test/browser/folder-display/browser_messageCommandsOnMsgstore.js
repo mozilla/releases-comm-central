@@ -82,10 +82,10 @@ add_setup(async function () {
  * Checks that a message has particular status stored in the mbox file,
  * in the X-Mozilla-Status header.
  *
- * @param folder         The folder containing the message to check.
- * @param storeToken     Offset to the start of the message within mbox file
- *                       (as a string).
- * @param expectedStatus The required status of the message.
+ * @param {nsIMsgFolder} folder - The folder containing the message to check.
+ * @param {string} storeToken - Offset to the start of the message within mbox
+ *    file (as a string).
+ * @param {integer} expectedStatus - The required status of the message.
  */
 async function check_status(folder, storeToken, expectedStatus) {
   const mboxstring = await IOUtils.readUTF8(folder.filePath.path);
@@ -216,8 +216,8 @@ async function subtest_check_queued_message() {
 /**
  * Create a reply or forward of a message and queue it for sending later.
  *
- * @param aMsgRow  Row index of message in Inbox that is to be replied/forwarded.
- * @param aReply   true = reply, false = forward.
+ * @param {integer} aMsgRow - Row index of message in Inbox that is to be replied/forwarded.
+ * @param {boolean} aReply - true = reply, false = forward.
  */
 async function reply_forward_message(aMsgRow, aReply) {
   await be_in_folder(gInbox);

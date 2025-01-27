@@ -8,7 +8,7 @@ import { UnifiedToolbarButton } from "chrome://messenger/content/unifiedtoolbar/
  * Unified toolbar button handling the events for the create address book button
  * popup.
  *
- * @attribute {string} popup - Element ID of the popup to show when the button
+ * @property {string} popup - Element ID of the popup to show when the button
  *   is clicked. Must have menuitems with a data-command attribute with the
  *   command to execute when the item is clicked.
  */

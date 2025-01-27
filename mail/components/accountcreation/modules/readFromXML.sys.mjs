@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
   AccountCreationUtils:
@@ -25,9 +24,9 @@ import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
  * The XML format is documented at
  * <https://wiki.mozilla.org/Thunderbird:Autoconfiguration:ConfigFileFormat>
  *
- * @param clientConfigXML {JXON} - The <clientConfig> node.
- * @param source {String} - Used for the subSource field of AccountConfig.
- * @returns AccountConfig   object filled with the data from XML
+ * @param {object} clientConfigXML - The <clientConfig> node as JXON.
+ * @param {string} subSource - Used for the subSource field of AccountConfig.
+ * @returns {AccountConfig} AccountConfig object filled with the data from XML.
  */
 export function readFromXML(clientConfigXML, subSource) {
   function array_or_undef(value) {

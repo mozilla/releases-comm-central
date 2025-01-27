@@ -297,10 +297,10 @@ async function addMsgToFolderAndCheckContent(targetFolder, test) {
 /**
  * Check remote content in a compose window.
  *
- * @param test        The test from TESTS that is being performed.
- * @param replyType   The type of the compose window, set to true for "reply",
- *                    false for "forward".
- * @param loadAllowed Whether or not the load is expected to be allowed.
+ * @param {object} test - The test from TESTS that is being performed.
+ * @param {boolean} replyType - The type of the compose window;
+ *    set to true for "reply", false for "forward".
+ * @param {boolean} loadAllowed - Whether or not the load is expected to be allowed.
  */
 async function checkComposeWindow(test, replyType, loadAllowed) {
   if (loadAllowed && test.neverAllowed) {
@@ -334,7 +334,7 @@ async function checkComposeWindow(test, replyType, loadAllowed) {
 }
 
 /**
- * Check remote content in stand-alone message window, and reload
+ * Check remote content in stand-alone message window, and reload.
  */
 async function checkStandaloneMessageWindow(test, loadAllowed) {
   if (loadAllowed && test.neverAllowed) {
@@ -391,7 +391,7 @@ async function checkEMLMessageWindow(test, emlFile) {
 /**
  * Helper method to save one of the test files as an .eml file.
  *
- * @returns the file the message was safed to
+ * @returns {nsIFile} the file the message was safed to.
  */
 async function saveAsEMLFile(msgNo) {
   const msgHdr = await select_click_row(msgNo);
@@ -494,6 +494,8 @@ async function checkContentTab(test) {
 /**
  * Check remote content is not blocked in feed message (flagged with
  * nsMsgMessageFlags::FeedMsg)
+ *
+ * @param {object} test
  */
 async function checkAllowFeedMsg(test) {
   if (test.neverAllowed) {
