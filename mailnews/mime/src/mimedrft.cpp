@@ -2134,7 +2134,7 @@ FAIL:
   if (mdd) {
     PR_Free(mdd->url_name);
     if (mdd->options) delete mdd->options;
-    PR_Free(mdd);
+    delete mdd;
   }
   PR_Free(stream);
   PR_Free(obj);
