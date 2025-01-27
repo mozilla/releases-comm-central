@@ -34,8 +34,9 @@ TimezoneDatabase::GetCanonicalTimezoneIds(nsTArray<nsCString>& aTimezoneIds) {
 
   UErrorCode err = U_ZERO_ERROR;
 
-  // Because this list of IDs is not intended to be restrictive, we only request
-  // the canonical IDs to avoid providing lots of redundant options to users
+  // Because this list of IDs is not intended to be restrictive (it's intended
+  // to be used for offering a list of timezones to users), we only request the
+  // canonical IDs to avoid providing lots of redundant options.
   icu::StringEnumeration* icuEnum = icu::VTimeZone::createTimeZoneIDEnumeration(
       UCAL_ZONE_TYPE_CANONICAL, nullptr, nullptr, err);
   if (U_FAILURE(err)) {
@@ -46,13 +47,17 @@ TimezoneDatabase::GetCanonicalTimezoneIds(nsTArray<nsCString>& aTimezoneIds) {
   const char* value;
   err = U_ZERO_ERROR;
   while ((value = icuEnum->next(nullptr, err)) != nullptr && U_SUCCESS(err)) {
+    // The string pointed to by the call to `next()` is owned by ICU and must
+    // not be freed.
     nsCString tzid(value);
     aTimezoneIds.AppendElement(tzid);
   }
 
+  delete icuEnum;
+
   if (U_FAILURE(err)) {
     // If we encountered any error during enumeration of the timezones, we want
-    // to return an empty list
+    // to return an empty list.
     aTimezoneIds.Clear();
 
     NS_WARNING(nsPrintfCString("ICU error: %s", u_errorName(err)).get());
@@ -70,7 +75,7 @@ TimezoneDatabase::GetTimezoneDefinition(const nsACString& tzid,
   NS_ConvertUTF8toUTF16 convertedTzid(tzid);
 
   // It seems Windows can potentially build `convertedTzid` with wchar_t
-  // underlying, which makes the UnicodeString ctor ambiguous; be explicit here
+  // underlying, which makes the UnicodeString ctor ambiguous; be explicit here.
   const char16_t* convertedTzidPtr = convertedTzid.get();
 
   icu::UnicodeString icuTzid(convertedTzidPtr,
@@ -81,35 +86,46 @@ TimezoneDatabase::GetTimezoneDefinition(const nsACString& tzid,
     return NS_OK;
   }
 
-  // Work around https://unicode-org.atlassian.net/browse/ICU-22175
+  // Work around https://unicode-org.atlassian.net/browse/ICU-22175.
   // This workaround is overly complex because there's no simple, reliable way
-  // to determine if a VTimeZone is Etc/Unknown; getID() doesn't work because
-  // the ctor doesn't set the ID field, and hasSameRules() against Etc/Unknown
-  // will return true if icuTimezone is GMT
-  if (icuTimezone->hasSameRules(icu::TimeZone::getUnknown()) &&
-      !tzid.Equals("Etc/Unknown")) {
+  // to determine if a `VTimeZone` is "Etc/Unknown". `getID()` doesn't work
+  // because the `VTimeZone` ctor doesn't set the ID field, and `hasSameRules()`
+  // will return true for "Etc/Unknown" and "GMT". We need to use the `TimeZone`
+  // class instead of `VTimeZone` to get the ID field.
+  if (!tzid.Equals("Etc/Unknown") &&
+      icuTimezone->hasSameRules(icu::TimeZone::getUnknown())) {
     icu::UnicodeString actualTzid;
+
+    // `createTimeZone()` is guaranteed to never return `nullptr`, but it does
+    // allocate memory.
     icu::TimeZone* tz = icu::TimeZone::createTimeZone(icuTzid);
     tz->getID(actualTzid);
     delete tz;
 
     if (actualTzid == UNICODE_STRING("Etc/Unknown", 11)) {
+      // The caller has requested a timezone other than "Etc/Unknown", but ICU
+      // has returned "Etc/Unknown", meaning the TZID was not recognized.
+      delete icuTimezone;
       return NS_OK;
     }
   }
 
-  // Extract the VTIMEZONE definition from the timezone object
+  // Extract the VTIMEZONE definition from the timezone object as a string.
   icu::UnicodeString vtimezoneDef;
   UErrorCode err = U_ZERO_ERROR;
   icuTimezone->write(vtimezoneDef, err);
+  delete icuTimezone;
+
   if (U_FAILURE(err)) {
-    NS_WARNING(nsPrintfCString("ICU error: %s", u_errorName(err)).get());
+    NS_WARNING(
+        nsPrintfCString("ICU error while generating VTIMEZONE definition: %s",
+                        u_errorName(err))
+            .get());
 
     return NS_ERROR_FAILURE;
   }
 
   NS_ConvertUTF16toUTF8 convertedDef(vtimezoneDef.getTerminatedBuffer());
-
   _retval.Assign(convertedDef);
 
   return NS_OK;

@@ -5,9 +5,9 @@
 #include "nsISupports.idl"
 
 /**
- * Provides access to raw iCalendar timezone definitions. Intended for providing
- * a backing database for a calITimezoneService; most consumers will want to use
- * calITimezoneService instead.
+ * Provides access to raw iCalendar timezone definitions. Intended for
+ * providing a backing database for a calITimezoneService; most consumers will
+ * want to use calITimezoneService instead.
  */
 [scriptable, uuid(dcace7e1-9600-47ba-a27e-b3bc8222192a)]
 interface calITimezoneDatabase : nsISupports
@@ -18,20 +18,23 @@ interface calITimezoneDatabase : nsISupports
     readonly attribute AUTF8String version;
 
     /**
-     * Get all supported canonical timezone IDs. This does not include link
-     * timezone IDs and should only be used to provide users with a list of
-     * timezones they may select, not to restrict supported timezone values.
+     * Get all supported canonical timezone IDs.
      *
-     * @return         a list of supported canonical timezone IDs
+     * This method is intended to provide a listing of timezones a user may
+     * select in the interface. As such, it does not contain link timezones and
+     * should not be used to restrict the list of valid timezone IDs.
+     *
+     * @return A list of supported canonical timezone IDs.
      */
     Array<AUTF8String> getCanonicalTimezoneIds();
 
     /**
      * Get an iCalendar timezone definition by timezone ID.
      *
-     * @param tzid       timezone ID for which to return definition
-     * @return           a string containing an ical VTIMEZONE definition, or
-     *                   the empty string if the timezone ID is not recognized
+     * @param tzid       The timezone ID for which to return the definition.
+     * @return           A string containing an iCalendar VTIMEZONE definition,
+     *                   or the empty string if the timezone ID is not
+     *                   recognized.
      */
     AUTF8String getTimezoneDefinition(in AUTF8String tzid);
 };
