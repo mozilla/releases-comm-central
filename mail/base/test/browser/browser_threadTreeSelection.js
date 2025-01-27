@@ -18,7 +18,8 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
-const { dbViewWrapperListener, displayFolder, threadTree } = about3Pane;
+const { dbViewWrapperListener, displayFolder, threadTree, threadPane } =
+  about3Pane;
 
 const generator = new MessageGenerator();
 let testFolder1, testFolder2, virtualFolder;
@@ -61,6 +62,9 @@ add_setup(async function () {
   tabmail.currentAbout3Pane.restoreState({ messagePaneVisible: false });
 
   registerCleanupFunction(() => {
+    threadPane.forgetSelection(testFolder1.URI);
+    threadPane.forgetSelection(testFolder2.URI);
+    threadPane.forgetSelection(virtualFolder.URI);
     MailServices.accounts.removeAccount(account, false);
     Services.prefs.clearUserPref("mailnews.scroll_to_new_message");
     Services.prefs.clearUserPref("ui.prefersReducedMotion");
