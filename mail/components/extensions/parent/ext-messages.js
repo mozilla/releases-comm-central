@@ -430,6 +430,58 @@ this.messages = class extends ExtensionAPIPersistent {
         },
       };
     },
+
+    onTagCreated({ fire }) {
+      const listener = async (event, key, { tag, color, ordinal }) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async({ key, tag, color, ordinal });
+      };
+      tagTracker.on("tag-created", listener);
+      return {
+        unregister: () => {
+          tagTracker.off("tag-created", listener);
+        },
+        convert(newFire) {
+          fire = newFire;
+        },
+      };
+    },
+    onTagDeleted({ fire }) {
+      const listener = async (event, key) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(key);
+      };
+      tagTracker.on("tag-deleted", listener);
+      return {
+        unregister: () => {
+          tagTracker.off("tag-deleted", listener);
+        },
+        convert(newFire) {
+          fire = newFire;
+        },
+      };
+    },
+    onTagUpdated({ fire }) {
+      const listener = async (event, key, changedValues, oldValues) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(key, changedValues, oldValues);
+      };
+      tagTracker.on("tag-updated", listener);
+      return {
+        unregister: () => {
+          tagTracker.off("tag-updated", listener);
+        },
+        convert(newFire) {
+          fire = newFire;
+        },
+      };
+    },
   };
 
   getAPI(context) {
@@ -1378,14 +1430,12 @@ this.messages = class extends ExtensionAPIPersistent {
           async list() {
             return MailServices.tags
               .getAllTags()
-              .map(({ key, tag, color, ordinal }) => {
-                return {
-                  key,
-                  tag,
-                  color,
-                  ordinal,
-                };
-              });
+              .map(({ key, tag, color, ordinal }) => ({
+                key,
+                tag,
+                color: color.toUpperCase(),
+                ordinal,
+              }));
           },
           async create(key, tag, color) {
             const tags = MailServices.tags.getAllTags();
@@ -1399,10 +1449,10 @@ this.messages = class extends ExtensionAPIPersistent {
                   `Specified key already exists: ${key}`
                 );
               }
-              MailServices.tags.addTagForKey(key, tag, color.toUpperCase(), "");
+              MailServices.tags.addTagForKey(key, tag, color, "");
             } else {
               // Auto-generate a key.
-              MailServices.tags.addTag(tag, color.toUpperCase(), "");
+              MailServices.tags.addTag(tag, color, "");
             }
             return MailServices.tags.getKeyForTag(tag);
           },
@@ -1418,6 +1468,9 @@ this.messages = class extends ExtensionAPIPersistent {
               if (newColor != tag.color.toUpperCase()) {
                 MailServices.tags.setColorForKey(key, newColor);
               }
+            }
+            if (updateProperties.ordinal != null) {
+              MailServices.tags.setOrdinalForKey(key, updateProperties.ordinal);
             }
             if (updateProperties.tag && tag.tag != updateProperties.tag) {
               // Don't let the user edit a tag to the name of another existing tag.
@@ -1437,6 +1490,26 @@ this.messages = class extends ExtensionAPIPersistent {
             }
             MailServices.tags.deleteKey(key);
           },
+
+          // The module name is messages as defined in ext-mail.json.
+          onCreated: new EventManager({
+            context,
+            module: "messages",
+            event: "onTagCreated",
+            extensionApi: this,
+          }).api(),
+          onUpdated: new EventManager({
+            context,
+            module: "messages",
+            event: "onTagUpdated",
+            extensionApi: this,
+          }).api(),
+          onDeleted: new EventManager({
+            context,
+            module: "messages",
+            event: "onTagDeleted",
+            extensionApi: this,
+          }).api(),
         },
       },
     };

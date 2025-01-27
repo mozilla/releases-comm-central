@@ -8,7 +8,7 @@ var { ExtensionSupport } = ChromeUtils.importESModule(
 var { AccountManager, FolderManager } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
-var { MessageListTracker, MessageTracker, MessageManager } =
+var { MessageListTracker, MessageTracker, MessageManager, TagTracker } =
   ChromeUtils.importESModule("resource:///modules/ExtensionMessages.sys.mjs");
 var { SpaceTracker } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSpaces.sys.mjs"
@@ -1663,10 +1663,12 @@ async function getNormalWindowReady(context, windowId) {
 }
 
 const tabTracker = new TabTracker();
+const tagTracker = new TagTracker();
 const spaceTracker = new SpaceTracker();
 const windowTracker = new WindowTracker();
 Object.assign(global, {
   tabTracker,
+  tagTracker,
   spaceTracker,
   windowTracker,
 });

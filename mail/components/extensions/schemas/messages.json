@@ -1265,7 +1265,7 @@
           {
             "type": "string",
             "name": "color",
-            "description": "Tag color in hex format (i.e.: <var>#000080</var> for navy blue). Value will be stored as upper case.",
+            "description": "Tag color in hex format (i.e.: <var>#000080</var> for navy blue).",
             "pattern": "^#[0-9a-fA-F]{6}"
           }
         ]
@@ -1297,7 +1297,7 @@
               "color": {
                 "type": "string",
                 "pattern": "^#[0-9a-fA-F]{6}",
-                "description": "Tag color in hex format (i.e.: #000080 for navy blue). Value will be stored as upper case.",
+                "description": "Tag color in hex format (i.e.: <var>#000080</var> for navy blue).",
                 "optional": true
               }
             }
@@ -1340,11 +1340,33 @@
           },
           "color": {
             "type": "string",
-            "description": "Tag color."
+            "description": "Tag color in upper case hex format (i.e.: <var>#000080</var> for navy blue)."
           },
           "ordinal": {
             "type": "string",
-            "description": "Custom sort string (usually empty)."
+            "description": "A custom sort string."
+          }
+        }
+      },
+      {
+        "id": "MessageTagProperties",
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "optional": true,
+            "description": "Human-readable tag name."
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}",
+            "optional": true,
+            "description": "Tag color in upper case hex format (i.e.: <var>#000080</var> for navy blue)."
+          },
+          "ordinal": {
+            "type": "string",
+            "optional": true,
+            "description": "A custom sort string."
           }
         }
       },
@@ -1368,6 +1390,56 @@
             "enum": ["all", "any"]
           }
         }
+      }
+    ],
+    "events": [
+      {
+        "name": "onCreated",
+        "permissions": ["messagesTagsList"],
+        "type": "function",
+        "description": "Fired when a new message tag has been created.",
+        "parameters": [
+          {
+            "name": "tag",
+            "$ref": "messages.tags.MessageTag"
+          }
+        ]
+      },
+      {
+        "name": "onUpdated",
+        "permissions": ["messagesTagsList"],
+        "type": "function",
+        "description": "Fired when one or more properties of a message tag have been updated.",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "key",
+            "description": "Unique tag identifier of the updated message tag."
+          },
+          {
+            "name": "changedProperties",
+            "$ref": "messages.tags.MessageTagProperties",
+            "description": "The changed message tag properties."
+          },
+          {
+            "name": "oldProperties",
+            "$ref": "messages.tags.MessageTagProperties",
+            "description": "The old values of the changed message tag properties."
+          }
+        ]
+      },
+      {
+        "name": "onDeleted",
+        "type": "function",
+        "description": "Fired when a message tag has been deleted.",
+        "permissions": ["accountsRead"],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "key",
+            "description": "Unique tag identifier of the deleted message tag."
+          }
+        ]
       }
     ],
     "functions": [
@@ -1415,7 +1487,7 @@
           {
             "type": "string",
             "name": "color",
-            "description": "Tag color in hex format (i.e.: #000080 for navy blue). Value will be stored as upper case.",
+            "description": "Tag color in hex format (i.e.: <var>#000080</var> for navy blue).",
             "pattern": "^#[0-9a-fA-F]{6}"
           },
           {
@@ -1445,21 +1517,8 @@
             "pattern": "^[^ ()/{%*<>\"]+$"
           },
           {
-            "type": "object",
             "name": "updateProperties",
-            "properties": {
-              "tag": {
-                "type": "string",
-                "optional": true,
-                "description": "Human-readable tag name."
-              },
-              "color": {
-                "type": "string",
-                "pattern": "^#[0-9a-fA-F]{6}",
-                "description": "Tag color in hex format (i.e.: #000080 for navy blue). Value will be stored as upper case.",
-                "optional": true
-              }
-            }
+            "$ref": "messages.tags.MessageTagProperties"
           }
         ]
       },

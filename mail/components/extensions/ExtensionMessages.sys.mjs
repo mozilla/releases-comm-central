@@ -2610,3 +2610,77 @@ async function retrieveMessageFromServer(mid, server) {
   const uri = Services.io.newFileURI(tempFile).spec;
   return MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
 }
+
+/**
+ * Tracks tags in order to include the new and old value in update events.
+ */
+export class TagTracker extends EventEmitter {
+  #tags;
+  constructor() {
+    super();
+    this.#tags = new Map(
+      MailServices.tags
+        .getAllTags()
+        .map(({ key, tag, color, ordinal }) => [
+          key,
+          { tag, color: color.toUpperCase(), ordinal },
+        ])
+    );
+    Services.prefs.addObserver("mailnews.tags.", this);
+  }
+
+  observe(subject, topic, data) {
+    if (topic != "nsPref:changed") {
+      return;
+    }
+    const [, , key, property] = data.split(".");
+    if (!["tag", "color", "ordinal"].includes(property)) {
+      return;
+    }
+
+    let newValue = Services.prefs.getStringPref(data, null);
+    if (newValue == null) {
+      // Removing a tag. Is fired for each property, handle it only once for the
+      // "tag" property.
+      if (property == "tag") {
+        this.#tags.delete(key);
+        this.emit("tag-deleted", key);
+      }
+      return;
+    }
+
+    const knownEntry = this.#tags.get(key);
+    if (!knownEntry) {
+      // Adding a new tag. The sequence of a new tag being added ends with the
+      // "color" property. Skip all other property notifications.
+      if (property == "color") {
+        const [createdTag] = MailServices.tags
+          .getAllTags()
+          .filter(t => t.key == key)
+          .map(({ tag, color, ordinal }) => ({
+            tag,
+            color: color.toUpperCase(),
+            ordinal,
+          }));
+        this.#tags.set(key, createdTag);
+        this.emit("tag-created", key, createdTag);
+      }
+      return;
+    }
+
+    // Updating the property of an existing tag.
+    if (property == "color") {
+      newValue = newValue.toUpperCase();
+    }
+    const oldValue = knownEntry[property];
+    if (oldValue != newValue) {
+      knownEntry[property] = newValue;
+      this.emit(
+        "tag-updated",
+        key,
+        { [property]: newValue },
+        { [property]: oldValue }
+      );
+    }
+  }
+}

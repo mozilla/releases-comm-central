@@ -185,11 +185,11 @@ NS_IMETHODIMP nsMsgTagService::AddTagForKey(const nsACString& key,
   prefName.AppendLiteral(TAG_PREF_SUFFIX_TAG);
   nsresult rv = SetUnicharPref(prefName.get(), tag);
   NS_ENSURE_SUCCESS(rv, rv);
+  rv = SetOrdinalForKey(key, ordinal);
+  NS_ENSURE_SUCCESS(rv, rv);
   rv = SetColorForKey(key, color);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = RefreshKeyCache();
-  NS_ENSURE_SUCCESS(rv, rv);
-  return SetOrdinalForKey(key, ordinal);
+  return RefreshKeyCache();
 }
 
 /* void addTag (in wstring tag, in long color); */
