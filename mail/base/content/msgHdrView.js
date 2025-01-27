@@ -1582,10 +1582,10 @@ function outputEmailAddresses(headerEntry, emailAddresses) {
  */
 function CanDetachAttachments() {
   var canDetach =
+    gFolder && // We can't detach from loaded eml files yet.
     !gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false) &&
     (!gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.ImapBox, false) ||
-      MailOfflineMgr.isOnline()) &&
-    gFolder; // We can't detach from loaded eml files yet.
+      MailOfflineMgr.isOnline());
   if (canDetach && "content-type" in currentHeaderData) {
     canDetach = !ContentTypeIsSMIME(
       currentHeaderData["content-type"].headerValue

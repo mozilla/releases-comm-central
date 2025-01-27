@@ -1,0 +1,30 @@
+Content-Type: multipart/mixed; boundary="--------------CHOPCHOP1"
+Subject: Red Document Needs Attention
+From: "Idina Ivarsson" <idina@ivarsson.invalid>
+To: "Johnny Jones" <johnny@jones.invalid>
+Message-Id: <4@made.up.invalid>
+Date: Tue, 01 Feb 2000 04:00:00 +0100
+
+This is a multi-part message in MIME format.
+----------------CHOPCHOP1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hello Johnny Jones!
+----------------CHOPCHOP1
+Content-Type: text/plain; charset=ISO-8859-1;
+ name="ubik.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="ubik.txt"
+
+Can't make the frug contest, Helen; stomach's upset. I'll fix you, Ubik! Ubik drops you back in the thick of things fast. Taken as directed, Ubik speeds relief to head and stomach. Remember: Ubik is only seconds away. Avoid prolonged use.
+----------------CHOPCHOP1
+Content-Type: text/plain; charset=ISO-8859-1;
+ name="ubik2.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="ubik2.txt"
+
+Can't make the frug contest, Helen; stomach's upset. I'll fix you, Ubik! Ubik drops you back in the thick of things fast. Taken as directed, Ubik speeds relief to head and stomach. Remember: Ubik is only seconds away. Avoid prolonged use.
+----------------CHOPCHOP1--

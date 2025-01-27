@@ -21,6 +21,7 @@ var {
   create_folder,
   create_message,
   get_about_message,
+  open_message_from_file,
   select_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
@@ -536,6 +537,27 @@ for (let i = 0; i < messages.length; i++) {
     return help_test_attachment_menus(i);
   });
 }
+
+/**
+ * Tests that the detach and delete attachment menu items are disabled for .eml
+ * files.
+ */
+add_task(async function test_attachment_menus_eml_file() {
+  const file = new FileUtils.File(
+    getTestFilePath("data/multiple_attachments.eml")
+  );
+  const msgc = await open_message_from_file(file);
+  aboutMessage = get_about_message(msgc);
+
+  aboutMessage.toggleAttachmentList(true);
+  const menuStates = { open: true, save: true, detach: false, delete_: false };
+  await check_toolbar_menu_states_multiple(menuStates);
+  await check_menu_states_all(menuStates);
+  await check_menu_states_single(0, menuStates);
+  await check_menu_states_single(1, menuStates);
+
+  await BrowserTestUtils.closeWindow(msgc);
+});
 
 add_task(() => {
   Assert.report(
