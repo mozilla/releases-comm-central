@@ -138,6 +138,8 @@ export class MimeMessage {
 
   /**
    * Collect top level headers like From/To/Subject into a Map.
+   *
+   * @returns {Map<string,*>} headers to value mapping.
    */
   _gatherMimeHeaders() {
     let messageId = this._compFields.messageId;
@@ -149,26 +151,20 @@ export class MimeMessage {
         !this._compFields.newsgroups ||
         this._userIdentity.getBoolAttribute("generate_news_message_id"))
     ) {
-      // Try to use the domain name of the From header to generate the message ID. We
+      // Try to use the domain name of the From header to generate the Message-ID. We
       // specifically don't use the nsIMsgIdentity associated with the account, because
       // the user might have changed the address in the From header to use a different
       // domain, and we don't want to leak the relationship between the domains.
       const fromHdr = MailServices.headerParser.parseEncodedHeaderW(
         this._compFields.from
       );
-      const fromAddr = fromHdr[0].email;
 
-      // Extract the host from the address, if any, and generate a message ID from it.
-      // If we can't get a host for the message ID, let SMTP populate the header.
-      const atIndex = fromAddr.indexOf("@");
-      if (atIndex >= 0) {
-        messageId = Cc["@mozilla.org/messengercompose/computils;1"]
-          .createInstance(Ci.nsIMsgCompUtils)
-          .msgGenerateMessageId(
-            this._userIdentity,
-            fromAddr.slice(atIndex + 1)
-          );
-      }
+      // Extract the hostname from the address, if any, and generate a
+      // Message-ID from it.
+      const hostname = fromHdr[0]?.email.replace(/.*@/, "");
+      messageId = Cc["@mozilla.org/messengercompose/computils;1"]
+        .createInstance(Ci.nsIMsgCompUtils)
+        .msgGenerateMessageId(this._userIdentity, hostname);
 
       this._compFields.messageId = messageId;
     }
@@ -462,7 +458,7 @@ export class MimeMessage {
   /**
    * If crypto encapsulation is required, returns an nsIMsgComposeSecure instance.
    *
-   * @returns {nsIMsgComposeSecure}
+   * @returns {?nsIMsgComposeSecure}
    */
   _getComposeSecure() {
     const secureCompose = this._compFields.composeSecure;
