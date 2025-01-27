@@ -968,7 +968,7 @@ static mime_image_stream_data* mime_image_begin(const char* image_url,
 
   mid->url = (char*)strdup(image_url);
   if (!mid->url) {
-    PR_Free(mid);
+    delete mid;
     return nullptr;
   }
 
