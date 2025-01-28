@@ -41,6 +41,13 @@ const LAST_MSG = EnigmailSingletons.lastDecryptedMessage;
 
 export var EnigmailMimeDecrypt = {
   /**
+   * Sreate a new instance of a PGP/MIME decryption handler.
+   */
+  newPgpMimeHandler() {
+    return new MimeDecryptHandler();
+  },
+
+  /**
    * Wrap the decrypted output into a message/rfc822 attachment
    *
    * @param {string} decryptingMimePartNum - Requested MIME part number
@@ -81,13 +88,11 @@ export var EnigmailMimeDecrypt = {
   },
 };
 
-/**
- * Handler for PGP/MIME encrypted messages.
- * Data is processed from libmime -> nsPgpMimeProxy.
- *
- * @implements {nsIStreamListener}
- */
-export function MimeDecryptHandler() {
+////////////////////////////////////////////////////////////////////
+// handler for PGP/MIME encrypted messages
+// data is processed from libmime -> nsPgpMimeProxy
+
+function MimeDecryptHandler() {
   this.initOk = false;
   this.boundary = "";
   this.pipe = null;
@@ -119,9 +124,6 @@ MimeDecryptHandler.prototype = {
     Ci.nsIScriptableInputStream
   ),
 
-  /**
-   * @param {nsIRequest} request
-   */
   onStartRequest(request) {
     lazy.EnigmailCore.init();
 
@@ -215,14 +217,6 @@ MimeDecryptHandler.prototype = {
     }
   },
 
-  /**
-   * @param {nsIRequest} req - Request corresponding to the source of the data.
-   * @param {nsIInputStream} stream - Input stream containing the data chunk.
-   * @param {integer} offset - Number of bytes that were sent in previous
-   *   onDataAvailable calls for this request. In other words, the sum of all
-   *   previous count parameters
-   * @param {integer} count - Number of bytes available in the stream. May not be 0.
-   */
   onDataAvailable(req, stream, offset, count) {
     // get data from libmime
     if (!this.initOk) {
@@ -333,11 +327,7 @@ MimeDecryptHandler.prototype = {
     return false;
   },
 
-  /**
-   * @param {nsIRequest} request
-   * @param {nsresult} _statusCode
-   */
-  onStopRequest(request, _statusCode) {
+  onStopRequest(request) {
     if (!this.initOk) {
       return;
     }
@@ -363,6 +353,9 @@ MimeDecryptHandler.prototype = {
       return;
     }
 
+    const url = {};
+    const currMsg = lazy.EnigmailURIs.msgIdentificationFromUrl(this.uri);
+
     this.backgroundJob = false;
 
     if (this.uri) {
@@ -373,9 +366,8 @@ MimeDecryptHandler.prototype = {
         this.uri.spec.search(/[&?]header=(print|quotebody)/) >= 0;
 
       try {
-        let url = null;
         if (this.msgUriSpec) {
-          url = lazy.EnigmailFuncs.getUrlFromUriSpec(this.msgUriSpec);
+          url.value = lazy.EnigmailFuncs.getUrlFromUriSpec(this.msgUriSpec);
         }
 
         if (
@@ -395,14 +387,14 @@ MimeDecryptHandler.prototype = {
           this.uri.spec.search(/[&?]part=[.0-9]+/) < 0 &&
           this.uri.spec.search(/[&?]examineEncryptedParts=true/) < 0
         ) {
-          if (this.uri && url) {
+          if (this.uri && url && url.value) {
             const fixedQueryRef = this.uri.pathQueryRef.replace(
               /&number=0$/,
               ""
             );
             if (
-              url.host !== this.uri.host ||
-              url.pathQueryRef !== fixedQueryRef
+              url.value.host !== this.uri.host ||
+              url.value.pathQueryRef !== fixedQueryRef
             ) {
               return;
             }
@@ -465,9 +457,7 @@ MimeDecryptHandler.prototype = {
       // The processing of a contained signed message must be able to
       // check that this parent object is encrypted. We set the msg ID
       // early, despite the full results not yet being available.
-      LAST_MSG.lastMessageURI = lazy.EnigmailURIs.msgIdentificationFromUrl(
-        this.uri
-      );
+      LAST_MSG.lastMessageURI = currMsg;
       LAST_MSG.mimePartNumber = this.mimePartNumber;
 
       options.noOutput = false;
@@ -491,6 +481,36 @@ MimeDecryptHandler.prototype = {
       ) {
         this.returnStatus.statusFlags |=
           lazy.EnigmailConstants.PGP_MIME_ENCRYPTED;
+      }
+
+      if (this.returnStatus.exitCode) {
+        // Failure
+        if (this.returnStatus.decryptedData) {
+          // However, we got decrypted data.
+          // Did we get any verification failure flags?
+          // If yes, then conclude only verification failed.
+          if (
+            this.returnStatus.statusFlags &
+            (lazy.EnigmailConstants.BAD_SIGNATURE |
+              lazy.EnigmailConstants.UNCERTAIN_SIGNATURE |
+              lazy.EnigmailConstants.EXPIRED_SIGNATURE |
+              lazy.EnigmailConstants.EXPIRED_KEY_SIGNATURE)
+          ) {
+            lazy.log.debug(
+              `Decrypting MIME succeeded, but verification failed.`
+            );
+            this.returnStatus.statusFlags |=
+              lazy.EnigmailConstants.DECRYPTION_OKAY;
+          } else {
+            lazy.log.debug(`Decrypting MIME failed.`);
+            this.returnStatus.statusFlags |=
+              lazy.EnigmailConstants.DECRYPTION_FAILED;
+          }
+        } else {
+          lazy.log.debug("Decrypting MIME failure. Got no data.");
+          this.returnStatus.statusFlags |=
+            lazy.EnigmailConstants.DECRYPTION_FAILED;
+        }
       }
 
       this.decryptedData = this.returnStatus.decryptedData;
@@ -679,10 +699,6 @@ MimeDecryptHandler.prototype = {
       "--\r\n";
   },
 
-  /**
-   * @param {string} data - Data to extract content type from.
-   * @returns {?string}
-   */
   extractContentType(data) {
     const i = data.search(/\n\r?\n/);
     if (i <= 0) {
