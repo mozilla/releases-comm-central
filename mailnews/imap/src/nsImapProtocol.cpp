@@ -8834,7 +8834,10 @@ NS_INTERFACE_MAP_BEGIN(nsImapCacheStreamListener)
   NS_INTERFACE_MAP_ENTRY(nsIStreamListener)
 NS_INTERFACE_MAP_END
 
-nsImapCacheStreamListener::nsImapCacheStreamListener() {}
+nsImapCacheStreamListener::nsImapCacheStreamListener() {
+  mCache2 = false;
+  mStarting = true;
+}
 bool nsImapCacheStreamListener::mGoodCache2 = false;
 const uint32_t nsImapCacheStreamListener::kPeekBufSize = 101;
 
