@@ -828,6 +828,49 @@ add_task(async function testOpenEncryptedForRevokedKey() {
   await OpenPGPTestUtils.removeKeyById("0xEF2FD01608AFD744", true);
 });
 
+/**
+ * Test that a git commit isn't confusing signed/encrypted states.
+ */
+add_task(async function testGitCommitSpoof() {
+  await OpenPGPTestUtils.importPublicKey(
+    window,
+    new FileUtils.File(
+      getTestFilePath("data/keys/benny-hashwell-0xc55ccd9c5ab482b2-pub.asc")
+    )
+  );
+  const opengpgprocessed = openpgpProcessed();
+  const msgc = await open_message_from_file(
+    new FileUtils.File(getTestFilePath("data/eml/sigspoof-git-commit.eml"))
+  );
+  const aboutMessage = get_about_message(msgc);
+  await opengpgprocessed;
+
+  // This (text#1) should be visible, and not confused with mail headers.
+  Assert.ok(
+    getMsgBodyTxt(msgc).includes(
+      "tree 870fc0aaa5383d845fa9431c9d08cfd486e11a65"
+    ),
+    "message text#1 should be in body"
+  );
+  // This (text#2), the normal text shoudl be visible too.
+  Assert.ok(
+    getMsgBodyTxt(msgc).includes("Hope you find something good elsewhere!"),
+    "message text#2 should be in body"
+  );
+  // Mistmatch (at least) due to the fact that content had to be modified
+  // for it to mimic a message.
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
+    "should say signed mismatch"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasNoEncryptedIconState(aboutMessage.document),
+    "should not be say encrypted"
+  );
+  await BrowserTestUtils.closeWindow(msgc);
+  await OpenPGPTestUtils.removeKeyById("0xc55ccd9c5ab482b2", false);
+});
+
 registerCleanupFunction(async function tearDown() {
   MailServices.accounts.removeAccount(aliceAcct, true);
   await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);

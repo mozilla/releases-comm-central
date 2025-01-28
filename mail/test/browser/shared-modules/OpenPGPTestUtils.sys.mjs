@@ -193,7 +193,7 @@ export const OpenPGPTestUtils = {
 
     if (!result || result.exitCode !== 0) {
       throw new Error(
-        `EnigmailKeyRing.importKey failed with result "${result.errorMsg}"!`
+        `RNP.importSecKeyBlockImpl() failed with result "${result.errorMsg}"!`
       );
     }
     if (!result.importedKeys || !result.importedKeys.length) {
@@ -276,6 +276,9 @@ export const OpenPGPTestUtils = {
     const ids = Array.isArray(idOrList) ? idOrList : [idOrList];
     for (const id of ids) {
       const key = lazy.EnigmailKeyRing.getKeyById(id);
+      if (!key) {
+        throw new Error(`Could not find key by id=${id}`);
+      }
       await lazy.RNP.deleteKey(key.fpr, deleteSecret);
       await lazy.PgpSqliteDb2.deleteAcceptance(key.fpr);
     }

@@ -3404,6 +3404,12 @@ export var RNP = {
     return result;
   },
 
+  /**
+   * Delete the given key.
+   *
+   * @param {string} keyFingerprint - Fingerprint.
+   * @param {boolean} deleteSecret - Whether to delete secret key as well.
+   */
   async deleteKey(keyFingerprint, deleteSecret) {
     const handle = new RNPLib.rnp_key_handle_t();
     if (
@@ -3414,7 +3420,7 @@ export var RNP = {
         handle.address()
       )
     ) {
-      throw new Error("rnp_locate_key failed");
+      throw new Error(`rnp_locate_key failed for ${keyFingerprint}`);
     }
 
     let flags = RNPLib.RNP_KEY_REMOVE_PUBLIC | RNPLib.RNP_KEY_REMOVE_SUBKEYS;
@@ -3423,13 +3429,18 @@ export var RNP = {
     }
 
     if (RNPLib.rnp_key_remove(handle, flags)) {
-      throw new Error("rnp_key_remove failed");
+      throw new Error(`rnp_key_remove failed; deleteSecret=${deleteSecret}`);
     }
 
     RNPLib.rnp_key_handle_destroy(handle);
     await this.saveKeyRings();
   },
 
+  /**
+   * Revoke the given key.
+   *
+   * @param {string} keyFingerprint - Fingerprint.
+   */
   async revokeKey(keyFingerprint) {
     const tracker =
       RnpPrivateKeyUnlockTracker.constructFromFingerprint(keyFingerprint);
