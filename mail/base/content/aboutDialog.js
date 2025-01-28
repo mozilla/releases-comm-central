@@ -118,10 +118,7 @@ function onLoad(loadEvent) {
     const channelAttrs = document.l10n.getAttributes(channelLabel);
     const channel = UpdateUtils.UpdateChannel;
     document.l10n.setAttributes(channelLabel, channelAttrs.id, { channel });
-    if (
-      /^release($|\-)/.test(channel) ||
-      Services.sysinfo.getProperty("isPackagedApp")
-    ) {
+    if (Services.sysinfo.getProperty("isPackagedApp")) {
       channelLabel.hidden = true;
     }
   }
