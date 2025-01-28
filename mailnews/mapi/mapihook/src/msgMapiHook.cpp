@@ -306,8 +306,11 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
   if (WeAreOffline()) return NS_OK;
 
   // Wait for OnStopSending to be called.
-  mozilla::SpinEventLoopUntil("nsIMsgCompose::SendMsg is async"_ns,
-                              [=]() { return sendListener->IsDone(); });
+  mozilla::SpinEventLoopUntil("nsIMsgCompose::SendMsg is async"_ns, [=]() {
+    bool shutdownInProgress = false;
+    accountManager->GetShutdownInProgress(&shutdownInProgress);
+    return sendListener->IsDone() || shutdownInProgress;
+  });
 
   return rv;
 }
