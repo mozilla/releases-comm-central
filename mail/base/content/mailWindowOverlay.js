@@ -576,8 +576,13 @@ function InitMessageMenu() {
     message = document.getElementById("messageBrowser")?.contentWindow.gMessage;
     isDummy = !message?.folder;
   }
+  const aboutMessage =
+    document.getElementById("tabmail")?.currentAboutMessage ||
+    document.getElementById("messageBrowser")?.contentWindow;
 
-  const isNews = message?.folder?.flags & Ci.nsMsgFolderFlags.Newsgroup;
+  const isNews =
+    message?.folder?.flags & Ci.nsMsgFolderFlags.Newsgroup ||
+    aboutMessage?.currentHeaderData?.newsgroups;
   const isFeed = message && FeedUtils.isFeedMessage(message);
 
   // We show reply to Newsgroups only for news messages.
@@ -608,9 +613,6 @@ function InitMessageMenu() {
 
   // Disable the Attachments menu if no message is selected and we don't have
   // any attachment.
-  const aboutMessage =
-    document.getElementById("tabmail")?.currentAboutMessage ||
-    document.getElementById("messageBrowser")?.contentWindow;
   document.getElementById("msgAttachmentMenu").disabled =
     !message || !aboutMessage?.currentAttachments.length;
 

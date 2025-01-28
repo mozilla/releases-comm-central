@@ -416,19 +416,33 @@ async function ComposeMessage(
               { saneBodySize: true }
             );
           } else {
-            // Fall back to traditional behavior.
-            const [hdrIdentity] = MailUtils.getIdentityForHeader(
-              hdr,
-              type,
-              findDeliveredToIdentityEmail(hdr)
-            );
+            let bestIdentity = null;
+            if (!identity && currentHeaderData.newsgroups) {
+              // This appears to be a standalone newsgroup message opened from
+              // a file or 'news:' URI. Try to get the identity of the first
+              // NNTP account.
+              const server = MailServices.accounts.accounts.find(
+                account => account.incomingServer.type == "nntp"
+              )?.incomingServer;
+              if (server) {
+                [bestIdentity] = MailUtils.getIdentityForServer(server);
+              }
+            }
+            if (!bestIdentity) {
+              // Fall back to traditional behavior.
+              [bestIdentity] = MailUtils.getIdentityForHeader(
+                hdr,
+                type,
+                findDeliveredToIdentityEmail(hdr)
+              );
+            }
             MailServices.compose.OpenComposeWindow(
               null,
               hdr,
               messageUri,
               type,
               format,
-              hdrIdentity,
+              bestIdentity,
               null,
               msgWindow,
               selection,

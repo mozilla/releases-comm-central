@@ -90,7 +90,11 @@ var commandController = {
       );
     },
     cmd_reply(event) {
-      if (gFolder?.flags & Ci.nsMsgFolderFlags.Newsgroup) {
+      if (
+        gFolder?.flags & Ci.nsMsgFolderFlags.Newsgroup ||
+        (window.messageBrowser?.contentWindow ?? window).currentHeaderData
+          ?.newsgroups
+      ) {
         commandController.doCommand("cmd_replyGroup", event);
       } else {
         commandController.doCommand("cmd_replySender", event);
@@ -603,7 +607,11 @@ var commandController = {
           folder()?.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)
         );
       case "cmd_replyGroup":
-        return isNewsgroup();
+        return (
+          isNewsgroup() ||
+          (window.messageBrowser?.contentWindow ?? window).currentHeaderData
+            ?.newsgroups
+        );
       case "cmd_markAsRead":
         return (
           numSelectedMessages >= 1 &&

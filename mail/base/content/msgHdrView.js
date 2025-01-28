@@ -1406,7 +1406,7 @@ function UpdateExpandedMessageHeaders() {
         !(
           gViewAllHeaders ||
           Services.prefs.getBoolPref("mailnews.headers.showReferences") ||
-          gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)
+          currentHeaderData.newsgroups
         )
       ) {
         // Hide references header if view all headers mode isn't selected, the
@@ -2888,16 +2888,21 @@ const gHeaderCustomize = {
  */
 const gMessageHeader = {
   /**
-   * Get the newsgroup server corresponding to the currently selected message.
+   * Get the newsgroup server corresponding to the currently selected message,
+   * or the server of the first NNTP account.
    *
-   * @returns {?nsISubscribableServer} The server for the newsgroup, or null.
+   * @returns {?nsINntpIncomingServer} The server for the newsgroup, or null.
    */
   get newsgroupServer() {
-    if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
-      return gFolder.server?.QueryInterface(Ci.nsISubscribableServer);
-    }
-
-    return null;
+    const server = gFolder?.isSpecialFolder(
+      Ci.nsMsgFolderFlags.Newsgroup,
+      false
+    )
+      ? gFolder.server
+      : MailServices.accounts.accounts.find(
+          account => account.incomingServer.type == "nntp"
+        )?.incomingServer;
+    return server?.QueryInterface(Ci.nsINntpIncomingServer);
   },
 
   /**
@@ -2990,9 +2995,9 @@ const gMessageHeader = {
       .getElementById("newsgroupPlaceHolder")
       .setAttribute("label", element.textContent);
 
-    const subscribed = this.newsgroupServer
-      ?.QueryInterface(Ci.nsINntpIncomingServer)
-      .containsNewsgroup(element.textContent);
+    const subscribed = this.newsgroupServer?.containsNewsgroup(
+      element.textContent
+    );
     document.getElementById("subscribeToNewsgroupItem").hidden = subscribed;
     document.getElementById("subscribeToNewsgroupSeparator").hidden =
       subscribed;
@@ -3068,7 +3073,7 @@ const gMessageHeader = {
     // Show "Open Browser With Message-ID" only for nntp messages or mailing
     // lists hosted by Google.
     document.getElementById("messageIdContext-openBrowserWithMsgId").hidden =
-      !gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false) &&
+      !currentHeaderData.newsgroups &&
       !currentHeaderData["list-archive"]?.headerValue.includes(
         "<https://groups.google.com/"
       );
@@ -3165,27 +3170,22 @@ const gMessageHeader = {
   },
 
   copyNewsgroupURL(event) {
+    const newsgroup = event.currentTarget.parentNode.headerField.textContent;
     const server = this.newsgroupServer;
-    if (!server) {
+    if (
+      !gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false) ||
+      !server
+    ) {
+      // For standalone newsgroup messages, use a URI with no server specified.
+      navigator.clipboard.writeText("news:" + newsgroup);
       return;
     }
 
-    const newsgroup = event.currentTarget.parentNode.headerField.textContent;
-
-    let url;
-    if (server.socketType != Ci.nsMsgSocketType.SSL) {
-      url = "news://" + server.hostName;
-      if (server.port != Ci.nsINntpUrl.DEFAULT_NNTP_PORT) {
-        url += ":" + server.port;
-      }
-      url += "/" + newsgroup;
-    } else {
-      url = "snews://" + server.hostName;
-      if (server.port != Ci.nsINntpUrl.DEFAULT_NNTPS_PORT) {
-        url += ":" + server.port;
-      }
-      url += "/" + newsgroup;
+    let url = "news://" + server.hostName;
+    if (server.port != Ci.nsINntpUrl.DEFAULT_NNTP_PORT) {
+      url += ":" + server.port;
     }
+    url += "/" + newsgroup;
 
     try {
       const uri = Services.io.newURI(url);
@@ -3202,11 +3202,14 @@ const gMessageHeader = {
    */
   subscribeToNewsgroup(event) {
     const server = this.newsgroupServer;
-    if (server) {
-      const newsgroup = event.currentTarget.parentNode.headerField.textContent;
-      server.subscribe(newsgroup);
-      server.commitSubscribeChanges();
+    if (!server) {
+      console.warn("No news server set up.");
+      return;
     }
+
+    const newsgroup = event.currentTarget.parentNode.headerField.textContent;
+    server.subscribeToNewsgroup(newsgroup);
+    server.commitSubscribeChanges();
   },
 
   /**
@@ -3396,7 +3399,7 @@ function IsReplyEnabled() {
  * @returns {boolean} whether the reply-all command/button should be enabled.
  */
 function IsReplyAllEnabled() {
-  if (gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
+  if (currentHeaderData.newsgroups) {
     // If we're in a news item, we always want ReplyAll, because we can
     // reply to the sender and the newsgroup.
     return true;
@@ -3475,7 +3478,7 @@ function UpdateReplyButtons() {
   }
 
   let buttonToShow;
-  if (gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
+  if (currentHeaderData.newsgroups) {
     // News messages always default to the "followup" dual-button.
     buttonToShow = "followup";
   } else if (FeedUtils.isFeedMessage(gMessage)) {
@@ -3554,14 +3557,6 @@ function SelectedMessagesAreRead() {
 
 function SelectedMessagesAreFlagged() {
   return gMessage?.isFlagged;
-}
-
-function MsgReplyMessage(event) {
-  if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
-    MsgReplyGroup(event);
-  } else {
-    MsgReplySender(event);
-  }
 }
 
 function MsgReplySender(event) {
