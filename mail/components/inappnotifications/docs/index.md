@@ -36,6 +36,8 @@ The notification are cached based on the caching headers from the notification s
 
 In addition to the cache the requests are also rate limited to 24 requests in a 24 hour period. If additional requests are attempted they will be deferred until 24 hours from the timestamp of the first of the last 24 requests.
 
+If a request fails for some reason like a network error, the request will be retried progressively waiting longer each time. The first request will be retried in 1 minute, then ten minutes and finally once an hour until a successful request is completed.
+
 ### Cache
 
 The notification data provided by the server is cached locally (`notifications`), in addition the cache also contains seeds for the set of notifications currently returned by the server (`seeds`), a list of notification IDs that should no longer be shown because the user interacted with them (`interactedWith`) - also limited to notifications that the server currently returns - and lastly the timestamp of when the cached data from the server was last updated (`lastUpdate`).
