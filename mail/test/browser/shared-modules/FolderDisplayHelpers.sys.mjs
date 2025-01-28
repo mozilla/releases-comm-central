@@ -778,9 +778,6 @@ export async function select_column_click_row(aViewIndex, aWin = mc) {
     !(dbView.selection.count == 1 && dbView.selection.isSelected(aViewIndex)) &&
     dbView.selection.currentIndex !== aViewIndex;
 
-  if (willDisplayMessage) {
-    plan_for_message_display(aWin);
-  }
   _row_click_helper(
     aWin,
     aWin.document.getElementById("threadTree"),
@@ -1341,9 +1338,6 @@ export async function archive_selected_messages(win = mc) {
   // How many messages do we expect to remain after the archival?
   const expectedCount = dbView.rowCount - dbView.numSelected;
 
-  // if (expectedCount && win.messageDisplay.visible) {
-  //   plan_for_message_display(win);
-  // }
   EventUtils.synthesizeKey("a", {}, win);
 
   // Wait for the view rowCount to decrease by the number of selected messages.
@@ -1393,22 +1387,8 @@ export async function wait_for_all_messages_to_load(win = mc) {
 }
 
 /**
- * Call this before triggering a message display that you are going to wait for
- *  using |wait_for_message_display_completion| where you are passing true for
- *  the aLoadDemanded argument.  This ensures that if a message is already
- *  displayed for the given window that state is sufficiently cleaned up
- *  so it doesn't trick us into thinking that there is no need to wait.
- *
- * @param {Window|TabInfo} [_winOrTab] optional window or tab, defaulting to
- *   the first window. If the message display is going to be caused by a tab
- *   switch, a reference to the tab to switch to should be passed in.
- */
-export function plan_for_message_display(_winOrTab) {}
-
-/**
  * If a message or summary is in the process of loading, let it finish;
- * optionally, be sure to wait for a load to happen (assuming
- * |plan_for_message_display| is used, modulo the conditions below.)
+ * optionally, be sure to wait for a load to happen.
  *
  * This method is used defensively by a lot of other code in this file that is
  * really not sure whether there might be a load in progress or not.  So by
@@ -1416,9 +1396,7 @@ export function plan_for_message_display(_winOrTab) {}
  * progress.  Since some events may end up getting deferred due to script
  * blockers or the like, it is possible the event that triggers the display
  * may not have happened by the time you call this.  In that case, you should
- *
- * 1) pass true for aLoadDemanded, and
- * 2) invoke |plan_for_message_display|
+ * pass true for aLoadDemanded.
  *
  * before triggering the event that will induce a message display.  Note that:
  * - You cannot do #2 if you are opening a new message window and can assume

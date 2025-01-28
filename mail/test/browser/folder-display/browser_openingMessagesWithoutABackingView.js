@@ -22,7 +22,6 @@ var {
   create_folder,
   get_about_3pane,
   make_message_sets_in_folders,
-  plan_for_message_display,
   reset_open_message_behavior,
   set_mail_view,
   set_open_message_behavior,
@@ -79,9 +78,7 @@ async function test_open_single_message_without_backing_view_in_tab() {
   const msgHdr = msgHdrsInFolder[4];
   // Open it
   MailUtils.displayMessage(msgHdr);
-  // This is going to trigger a message display in the main 3pane window. Since
-  // the message will open in a new tab, we shouldn't
-  // plan_for_message_display().
+  // This is going to trigger a message display in the main 3pane window.
   await wait_for_message_display_completion(window, true);
   // Check that the tab count has increased by 1
   assert_number_of_tabs_open(preCount + 1);
@@ -114,9 +111,7 @@ async function test_open_multiple_messages_without_backing_views_in_tabs() {
 
   // Open them
   MailUtils.displayMessages(msgHdrs);
-  // This is going to trigger a message display in the main 3pane window. Since
-  // the message will open in a new tab, we shouldn't
-  // plan_for_message_display().
+  // This is going to trigger a message display in the main 3pane window.
   await wait_for_message_display_completion(window, true);
   // Check that the tab count has increased by the correct number
   assert_number_of_tabs_open(preCount + NUM_MESSAGES_TO_OPEN);
@@ -184,7 +179,6 @@ async function test_open_message_without_backing_view_in_existing_window() {
 
   // Open another message
   const msgHdr = msgHdrsInFolder[7];
-  plan_for_message_display(msgc);
   MailUtils.displayMessage(msgHdr);
   await wait_for_message_display_completion(msgc, true);
 

@@ -15,7 +15,6 @@ const {
   get_special_folder,
   select_click_row,
   press_delete,
-  plan_for_message_display,
   wait_for_message_display_completion,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
@@ -233,7 +232,6 @@ add_task(async function testBrokenMSExchangeEncryption() {
       popup: null,
     }
   );
-  plan_for_message_display(window);
   EventUtils.synthesizeMouseAtCenter(repairButton, {}, aboutMessage);
 
   // Wait for the "fixing in progress" notification to go away.

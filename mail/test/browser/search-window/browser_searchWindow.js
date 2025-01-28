@@ -21,7 +21,6 @@ var {
   make_message_sets_in_folders,
   open_selected_message,
   open_selected_messages,
-  plan_for_message_display,
   reset_open_message_behavior,
   set_open_message_behavior,
   switch_tab,
@@ -271,7 +270,6 @@ add_task(async function test_open_search_result_in_existing_window() {
 
   // Select another message and open it
   const msgHdr = select_click_search_row(2, swc);
-  plan_for_message_display(msgc);
   open_selected_message(swc);
   await wait_for_message_display_completion(msgc, true);
 

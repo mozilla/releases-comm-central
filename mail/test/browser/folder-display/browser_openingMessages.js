@@ -30,7 +30,6 @@ var {
   make_message_sets_in_folders,
   open_selected_message,
   open_selected_messages,
-  plan_for_message_display,
   reset_open_message_behavior,
   select_click_row,
   select_shift_click_row,
@@ -174,7 +173,6 @@ add_task(async function test_open_message_in_existing_window() {
 
   // Select another message and open it
   const msgHdr = await select_click_row(2);
-  plan_for_message_display(msgc);
   open_selected_message();
   await wait_for_message_display_completion(msgc, true);
 

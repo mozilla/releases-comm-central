@@ -16,7 +16,6 @@ var {
   create_folder,
   create_thread,
   open_selected_message_in_new_window,
-  plan_for_message_display,
   press_delete,
   select_click_row,
   wait_for_message_display_completion,
@@ -101,7 +100,6 @@ add_task(function test_toggle_read() {
  * and verify that it is indeed loaded.
  */
 add_task(async function test_navigate_to_next_message() {
-  plan_for_message_display(msgc);
   EventUtils.synthesizeKey("f", {}, msgc);
   await wait_for_message_display_completion(msgc, true);
   await assert_selected_and_displayed(msgc, 1);
@@ -113,7 +111,6 @@ add_task(async function test_navigate_to_next_message() {
  * the previous message was deleted.
  */
 add_task(async function test_delete_single_message() {
-  plan_for_message_display(msgc);
   await press_delete(msgc);
   await wait_for_message_display_completion(msgc, true);
   await assert_selected_and_displayed(msgc, 1);
@@ -124,7 +121,6 @@ add_task(async function test_delete_single_message() {
  * a single message, not the messages in the collapsed thread
  */
 add_task(async function test_del_collapsed_thread() {
-  plan_for_message_display(msgc);
   await press_delete(msgc);
   if (folderA.getTotalMessages(false) != 4) {
     throw new Error("should have only deleted one message");
@@ -141,7 +137,6 @@ add_task(async function test_del_collapsed_thread() {
  */
 add_task(async function test_next_unread() {
   for (let i = 0; i < 3; ++i) {
-    plan_for_message_display(msgc);
     EventUtils.synthesizeKey("n", {}, msgc);
     await wait_for_message_display_completion(msgc, true);
   }
@@ -152,7 +147,6 @@ add_task(async function test_next_unread() {
 
   const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   EventUtils.synthesizeKey("n", {}, msgc);
-  plan_for_message_display(msgc);
   await dialogPromise;
   await wait_for_message_display_completion(msgc, true);
 
