@@ -30,10 +30,13 @@ fi
 
 MILLDIR="$(pwd)/../../../../mail/test/browser/smime/data"
 
-# When executing mozmill in the CI environment, the files from this
-# directory aren't available. Copy all files that mozmill requires to
-# the mozmill directory.
-cp -rv Bob.p12 TestCA.pem "$MILLDIR"
+# When executing mochitests in the CI environment, the files from this
+# directory aren't available. Copy all files that mochitests requires to
+# the mochitests directory.
+cp -rv Alice.p12 Bob.p12 TestCA.pem "$MILLDIR"
+cp -rv alice.dsig.SHA256.multipart.env.eml "$MILLDIR"
+cp -rv alice.sig.SHA256.opaque.env.eml "$MILLDIR"
+cp -rv alice.env.eml "$MILLDIR"
 
 TMPDIR="./tmp-local"
 mkdir $TMPDIR

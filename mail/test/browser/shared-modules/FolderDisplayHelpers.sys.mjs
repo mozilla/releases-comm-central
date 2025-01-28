@@ -218,26 +218,6 @@ export function create_message(aArgs) {
 }
 
 /**
- * Create and return an SMIME SyntheticMessage object.
- *
- * @param {MakeMessageOptions} aArgs An arguments object to be passed to
- *                       MessageGenerator.makeEncryptedSMimeMessage()
- */
-export function create_encrypted_smime_message(aArgs) {
-  return msgGen.makeEncryptedSMimeMessage(aArgs);
-}
-
-/**
- * Create and return an OpenPGP SyntheticMessage object.
- *
- * @param {MakeMessageOptions} aArgs An arguments object to be passed to
- *                       MessageGenerator.makeEncryptedOpenPGPMessage()
- */
-export function create_encrypted_openpgp_message(aArgs) {
-  return msgGen.makeEncryptedOpenPGPMessage(aArgs);
-}
-
-/**
  * Adds a SyntheticMessage as a SyntheticMessageSet to a folder or folders.
  *
  * @see MessageInjection.addSetsToFolders
