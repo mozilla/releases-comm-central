@@ -274,7 +274,8 @@ export var EnigmailWkdLookup = {
           Authorization: "Basic " + btoa("no-user:"),
           // Add padding as packet size allows adversaries to guess which key
           // is requested by the client, despite using TLS.
-          "X-OpenPGP-Padding": "x".padEnd((url.length % 512) + 1, "x"),
+          // This padding ensures the total packet size is a multiple of 512.
+          "X-OpenPGP-Padding": "x".repeat((512 - (url.length % 512)) % 512),
         },
         mode: "cors",
         redirect: "follow",
