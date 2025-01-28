@@ -150,7 +150,7 @@ async function check_read_menuitems(index, canMarkRead, canMarkUnread) {
 }
 
 /**
- * Mark a message read or unread via the context menu
+ * Mark a message read or unread via the context menu.
  *
  * @param {integer} index - The row in the thread pane of the message to mark
  *   read/unread.
@@ -164,7 +164,8 @@ async function mark_read_via_menu(index, read) {
     { id: "mailContext-mark" },
     { id: menuItem },
   ]);
-  await close_popup(window, getMailContext());
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "hidden");
+  await TestUtils.waitForTick();
   await TestUtils.waitForTick();
 }
 
@@ -248,6 +249,7 @@ add_task(async function test_toggle_read() {
 
   curMessage.markRead(false);
   EventUtils.synthesizeKey("m", {});
+  await TestUtils.waitForTick();
   check_read_status([curMessage], true);
 });
 
@@ -257,6 +259,7 @@ add_task(async function test_toggle_unread() {
 
   curMessage.markRead(true);
   EventUtils.synthesizeKey("m", {});
+  await TestUtils.waitForTick();
   check_read_status([curMessage], false);
 });
 
@@ -268,11 +271,13 @@ add_task(async function test_toggle_mixed() {
   curMessages[0].markRead(false);
   curMessages[1].markRead(true);
   EventUtils.synthesizeKey("m", {});
+  await TestUtils.waitForTick();
   check_read_status(curMessages, true);
 
   curMessages[0].markRead(true);
   curMessages[1].markRead(false);
   EventUtils.synthesizeKey("m", {});
+  await TestUtils.waitForTick();
   check_read_status(curMessages, false);
 });
 
@@ -315,19 +320,17 @@ add_task(async function test_mark_all_read() {
     { id: "mailContext-mark" },
     { id: "mailContext-markAllRead" },
   ]);
-  await close_popup(window, getMailContext());
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "hidden");
+  await new Promise(resolve => requestAnimationFrame(resolve));
 
   Assert.ok(curMessage.isRead, "Message should have been marked read!");
 
   // Make sure we can't mark all read, now that all messages are already read.
   await right_click_on_row(0);
   await BrowserTestUtils.waitForPopupEvent(getMailContext(), "shown");
-  const hiddenPromise = BrowserTestUtils.waitForEvent(
-    getMailContext(),
-    "popuphidden"
-  );
+
   await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "hidden");
   await new Promise(resolve => requestAnimationFrame(resolve));
 
   const allReadDisabled = getMailContext().querySelector(
