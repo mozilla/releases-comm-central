@@ -141,7 +141,6 @@ static int MimeExternalObject_parse_begin(MimeObject* obj) {
     PR_FREEIF(id);
     PR_FREEIF(id_url);
     PR_FREEIF(id_name);
-    if (status < 0) return status;
   }
 
   return 0;
