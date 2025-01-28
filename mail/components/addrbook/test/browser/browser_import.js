@@ -215,6 +215,7 @@ function checkImported(destinationBook, listsSupported) {
 }
 
 add_task(async function testImportCSV() {
+  Services.fog.testResetFOG();
   const csvFile = dataDir.clone();
   csvFile.append("import.csv");
   await startImport();
@@ -274,9 +275,26 @@ add_task(async function testImportCSV() {
   // Check what was imported.
 
   checkImported(personalBook, false);
+
+  const gleanEvents = Glean.mail.import.testGetValue();
+  Assert.equal(
+    gleanEvents.length,
+    1,
+    "the import should have been recorded in telemetry"
+  );
+  Assert.deepEqual(
+    gleanEvents[0].extra,
+    {
+      importer: "addrbook",
+      types: "csv",
+      result: "succeeded",
+    },
+    "the telemetry data should be correct"
+  );
 });
 
 add_task(async function testImportLDIF() {
+  Services.fog.testResetFOG();
   const ldifFile = dataDir.clone();
   ldifFile.append("import.ldif");
   await startImport();
@@ -291,9 +309,26 @@ add_task(async function testImportLDIF() {
 
   await doImport(personalBook.dirPrefId, ["*.ldif", "*.*"], ldifFile.path);
   checkImported(personalBook, true);
+
+  const gleanEvents = Glean.mail.import.testGetValue();
+  Assert.equal(
+    gleanEvents.length,
+    1,
+    "the import should have been recorded in telemetry"
+  );
+  Assert.deepEqual(
+    gleanEvents[0].extra,
+    {
+      importer: "addrbook",
+      types: "ldif",
+      result: "succeeded",
+    },
+    "the telemetry data should be correct"
+  );
 });
 
 add_task(async function testImportVCard() {
+  Services.fog.testResetFOG();
   const vCardFile = dataDir.clone();
   vCardFile.append("import.vcf");
   await startImport();
@@ -316,9 +351,26 @@ add_task(async function testImportVCard() {
   );
   checkImported(newBook, false);
   await promiseDirectoryRemoved(newBook.URI);
+
+  const gleanEvents = Glean.mail.import.testGetValue();
+  Assert.equal(
+    gleanEvents.length,
+    1,
+    "the import should have been recorded in telemetry"
+  );
+  Assert.deepEqual(
+    gleanEvents[0].extra,
+    {
+      importer: "addrbook",
+      types: "vcard",
+      result: "succeeded",
+    },
+    "the telemetry data should be correct"
+  );
 });
 
 add_task(async function testImportSQLite() {
+  Services.fog.testResetFOG();
   const sqliteFile = dataDir.clone();
   sqliteFile.append("import.sqlite");
   await startImport();
@@ -333,9 +385,26 @@ add_task(async function testImportSQLite() {
 
   await doImport(personalBook.dirPrefId, ["*.sqlite", "*.*"], sqliteFile.path);
   checkImported(personalBook, true);
+
+  const gleanEvents = Glean.mail.import.testGetValue();
+  Assert.equal(
+    gleanEvents.length,
+    1,
+    "the import should have been recorded in telemetry"
+  );
+  Assert.deepEqual(
+    gleanEvents[0].extra,
+    {
+      importer: "addrbook",
+      types: "sqlite",
+      result: "succeeded",
+    },
+    "the telemetry data should be correct"
+  );
 });
 
 add_task(async function testImportMAB() {
+  Services.fog.testResetFOG();
   const mabFile = dataDir.clone();
   mabFile.append("import.mab");
   await startImport();
@@ -350,4 +419,20 @@ add_task(async function testImportMAB() {
 
   await doImport(historyBook.dirPrefId, ["*.mab", "*.*"], mabFile.path);
   checkImported(historyBook, true);
+
+  const gleanEvents = Glean.mail.import.testGetValue();
+  Assert.equal(
+    gleanEvents.length,
+    1,
+    "the import should have been recorded in telemetry"
+  );
+  Assert.deepEqual(
+    gleanEvents[0].extra,
+    {
+      importer: "addrbook",
+      types: "mab",
+      result: "succeeded",
+    },
+    "the telemetry data should be correct"
+  );
 });

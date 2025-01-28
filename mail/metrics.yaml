@@ -560,3 +560,34 @@ mail:
       result:
         description: If the authentication succeeded or was cancelled.
         type: string
+
+  import:
+    type: event
+    description: >
+      Records each time about:import is used to import a profile, calendar
+      entries, or address book entries.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1942711
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1942711
+    data_sensitivity:
+      - interaction
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    extra_keys:
+      importer:
+        description: >
+          Which import module was used to import the data. For profiles, this
+          also includes where the profile was imported from - the other
+          application's profile files, an arbitrary directory, or zip file.
+        type: string
+      types:
+        description: >
+          The types of data imported. For profiles, these are the options
+          selected in the UI. For other data, this is the format of the file
+          that was imported.
+        type: string
+      result:
+        description: Success or failure.
+        type: string

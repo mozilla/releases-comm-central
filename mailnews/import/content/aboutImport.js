@@ -695,15 +695,28 @@ class ProfileImporterController extends ImporterController {
   }
 
   async startImport() {
+    const gleanData = {
+      importer: this._importer.NAME,
+      types: Object.entries(this._getItemsChecked())
+        .filter(entry => entry[1])
+        .map(entry => entry[0])
+        .join(","),
+    };
     this.showProgress("progress-pane-importing2");
     if (this._importingFromZip) {
+      gleanData.importer += ",zip";
       this._extractedFileCount = 0;
       try {
         await this._extractZipFile();
       } catch (e) {
         this.showError("error-message-extract-zip-file-failed2");
+        Glean.mail.import.record({ ...gleanData, result: "unzipFailed" });
         throw e;
       }
+    } else if (this._sourceProfile.name) {
+      gleanData.importer += ",profile";
+    } else {
+      gleanData.importer += ",directory";
     }
     this._importer.onProgress = (current, total) => {
       this.updateProgress(
@@ -711,14 +724,15 @@ class ProfileImporterController extends ImporterController {
       );
     };
     try {
-      this.finish(
-        await this._importer.startImport(
-          this._sourceProfile.dir,
-          this._getItemsChecked()
-        )
+      const restartNeeded = await this._importer.startImport(
+        this._sourceProfile.dir,
+        this._getItemsChecked()
       );
+      Glean.mail.import.record({ ...gleanData, result: "succeeded" });
+      this.finish(restartNeeded);
     } catch (e) {
       this.showError("error-message-failed");
+      Glean.mail.import.record({ ...gleanData, result: "failed" });
       throw e;
     } finally {
       if (this._importingFromZip) {
@@ -980,8 +994,18 @@ class AddrBookImporterController extends ImporterController {
       this.finish(
         await this._importer.startImport(this._sourceFile, targetDirectory)
       );
+      Glean.mail.import.record({
+        importer: "addrbook",
+        types: this._fileType,
+        result: "succeeded",
+      });
     } catch (e) {
       this.showError("error-message-failed");
+      Glean.mail.import.record({
+        importer: "addrbook",
+        types: this._fileType,
+        result: "failed",
+      });
       throw e;
     }
   }
@@ -1367,9 +1391,11 @@ class CalendarImporterController extends ImporterController {
         [...this._selectedItems],
         targetCalendar
       );
+      Glean.mail.import.record({ importer: "calendar", result: "succeeded" });
       this.finish();
     } catch (e) {
       this.showError("error-message-failed");
+      Glean.mail.import.record({ importer: "calendar", result: "failed" });
       throw e;
     }
   }

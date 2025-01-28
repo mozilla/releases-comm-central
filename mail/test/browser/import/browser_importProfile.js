@@ -48,6 +48,8 @@ add_setup(() => {
 });
 
 add_task(async function testProfileImport() {
+  Services.fog.testResetFOG();
+
   const profileDir = await IOUtils.createUniqueDirectory(
     PathUtils.tempDir,
     "profile-tmp"
@@ -214,6 +216,22 @@ add_task(async function testProfileImport() {
   // We close the tab ourselves instead of hitting the finish button, since
   // restarting Thunderbird within the test is a headache.
   document.getElementById("tabmail").closeTab(tab);
+
+  const gleanEvents = Glean.mail.import.testGetValue();
+  Assert.equal(
+    gleanEvents.length,
+    1,
+    "the import should have been recorded in telemetry"
+  );
+  Assert.deepEqual(
+    gleanEvents[0].extra,
+    {
+      importer: "Thunderbird,directory",
+      types: "accounts,addressBooks,calendars,mailMessages",
+      result: "succeeded",
+    },
+    "the telemetry data should be correct"
+  );
 });
 
 add_task(async function testImportLargeZIP() {

@@ -31,6 +31,8 @@ add_setup(async function () {
 });
 
 add_task(async function () {
+  Services.fog.testResetFOG();
+
   const tabOpenPromise = BrowserTestUtils.waitForEvent(tabmail.tabContainer, "TabOpen");
   window.goDoCommand("calendar_import_command");
   const {
@@ -199,6 +201,14 @@ add_task(async function () {
   const tabClosePromise = BrowserTestUtils.waitForEvent(tabmail.tabContainer, "TabClose");
   EventUtils.synthesizeMouseAtCenter(summaryPane.querySelector("button.progressFinish"), {}, win);
   await tabClosePromise;
+
+  const gleanEvents = Glean.mail.import.testGetValue();
+  Assert.equal(gleanEvents.length, 1, "the import should have been recorded in telemetry");
+  Assert.deepEqual(
+    gleanEvents[0].extra,
+    { importer: "calendar", result: "succeeded" },
+    "the telemetry data should be correct"
+  );
 
   // Check that the items were actually successfully imported.
   const result = await calendar.getItemsAsArray(
