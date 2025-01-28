@@ -358,7 +358,7 @@ nsresult nsMapiHook::HandleAttachments(nsIMsgCompFields* aCompFields,
       pTempDir->AppendRelativePath(u"moz_mapi"_ns);
       pTempDir->Exists(&bExist);
       if (!bExist) {
-        rv = pTempDir->Create(nsIFile::DIRECTORY_TYPE, 777);
+        rv = pTempDir->Create(nsIFile::DIRECTORY_TYPE, 0777);
         if (NS_FAILED(rv)) return rv;
       }
 
@@ -474,7 +474,7 @@ nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields* aCompFields,
       pTempDir->AppendRelativePath(u"moz_mapi"_ns);
       pTempDir->Exists(&bExist);
       if (!bExist) {
-        rv = pTempDir->Create(nsIFile::DIRECTORY_TYPE, 777);
+        rv = pTempDir->Create(nsIFile::DIRECTORY_TYPE, 0777);
         if (NS_FAILED(rv)) return rv;
       }
 
@@ -785,7 +785,7 @@ nsresult nsMapiHook::PopulateCompFieldsForSendDocs(
       pTempDir->AppendRelativePath(u"moz_mapi"_ns);
       pTempDir->Exists(&bExist);
       if (!bExist) {
-        rv = pTempDir->Create(nsIFile::DIRECTORY_TYPE, 777);
+        rv = pTempDir->Create(nsIFile::DIRECTORY_TYPE, 0777);
         if (NS_FAILED(rv)) return rv;
       }
 
