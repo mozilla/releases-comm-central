@@ -8,6 +8,12 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   AddrBookCard: "resource:///modules/AddrBookCard.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "addresscollector",
+    maxLogLevel: "Warn",
+  });
+});
 
 /**
  * Collects a single name and email address into the address book.
@@ -17,7 +23,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * @param {string} displayName - The display name associated with the email
  *   address.
  * @param {boolean} createCard - Set to true if a card should be created if the
- *    email address doesn't exist (ignored if skipCheckExisting is true).
+ *   email address doesn't exist (ignored if skipCheckExisting is true).
  * @param {boolean} [skipCheckExisting=false] - If this is set then the
  *   implementation will skip checking for an existing card, and just create
  *   a new card.
@@ -53,9 +59,19 @@ export function collectSingleAddress(
     }
 
     const abURI = Services.prefs.getStringPref("mail.collect_addressbook", "");
-    const collectedAddressesBook = MailServices.ab.getDirectory(abURI);
+    if (!abURI) {
+      return;
+    }
+    let collectedAddressesBook;
+    try {
+      collectedAddressesBook = MailServices.ab.getDirectory(abURI);
+    } catch (e) {
+      lazy.log.warn(`Collected addresses address book missing: ${abURI}`, e);
+      return;
+    }
     if (collectedAddressesBook.readOnly) {
-      throw new Error("Can't collect to readOnly address book.");
+      lazy.log.warn(`Can't collect to readOnly address book: ${abURI}`);
+      return;
     }
     collectedAddressesBook.addCard(card);
   } else if (card && !book.readOnly) {
