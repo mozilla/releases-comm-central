@@ -31,6 +31,13 @@ export const NotificationUpdater = {
   _updateHistory: [],
 
   /**
+   * Version of the schema to be used.
+   *
+   * @type {string}
+   */
+  _SCHEMA_VERSION: "2.0",
+
+  /**
    * Reference to the update timeout.
    *
    * @type {?number}
@@ -141,9 +148,7 @@ export const NotificationUpdater = {
       return false;
     }
 
-    const expirationTime = await this.getRemainingCacheTime(
-      Services.urlFormatter.formatURLPref("mail.inappnotifications.url")
-    );
+    const expirationTime = await this.getRemainingCacheTime(this._getUrl());
 
     // Don't update if we have an expirationTime unless it's the defaultInterval
     if (expirationTime) {
@@ -152,6 +157,23 @@ export const NotificationUpdater = {
     }
     const didFetch = await this._fetch();
     return !didFetch;
+  },
+
+  /**
+   * Get the url preference with all necessary replacements done and formatted.
+   *
+   * Step 1: Replace version-specific placeholders, such as IAN_SCHEMA_VERSION.
+   * Step 2: Replace placeholders derived from preferences, such as %LOCALE%,
+   *  %OS%, and %CHANNEL%.
+   *
+   * @returns {string} Notification server url.
+   */
+  _getUrl() {
+    const url = Services.prefs.getStringPref("mail.inappnotifications.url");
+
+    return Services.urlFormatter.formatURL(
+      url.replace("%IAN_SCHEMA_VERSION%", this._SCHEMA_VERSION)
+    );
   },
 
   /**
@@ -177,9 +199,7 @@ export const NotificationUpdater = {
       return false;
     }
 
-    const url = Services.urlFormatter.formatURLPref(
-      "mail.inappnotifications.url"
-    );
+    const url = this._getUrl();
 
     if (url === "about:blank" || !url) {
       return false;

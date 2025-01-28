@@ -520,3 +520,22 @@ add_task(async function test_maxUpdatesPerDay() {
 
   NotificationUpdater._schedule = schedule;
 });
+
+add_task(async function test_testUrlVersionReplacement() {
+  const url = Services.prefs.getStringPref("mail.inappnotifications.url", "");
+  Services.prefs.setStringPref(
+    "mail.inappnotifications.url",
+    url.replace("notifications.json", "%IAN_SCHEMA_VERSION%/notifications.json")
+  );
+
+  Assert.equal(
+    NotificationUpdater._getUrl(),
+    url.replace(
+      "notifications.json",
+      `${NotificationUpdater._SCHEMA_VERSION}/notifications.json`
+    ),
+    "Correctly replace the version in the url"
+  );
+
+  Services.prefs.setStringPref("mail.inappnotifications.url", url);
+});

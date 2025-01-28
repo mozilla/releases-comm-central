@@ -45,4 +45,4 @@ pref("app.update.multiSessionInstallLockout.timeoutMs", 0);
 pref("app.vendorURL", "https://www.thunderbird.net/%LOCALE%/");
 
 // In-app notification server endpoint
-pref("mail.inappnotifications.url", "https://notifications-stage.thunderbird.net/notifications.json");
+pref("mail.inappnotifications.url", "https://notifications-stage.thunderbird.net/%IAN_SCHEMA_VERSION%/notifications.json");

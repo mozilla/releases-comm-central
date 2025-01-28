@@ -34,4 +34,4 @@ pref("app.vendorURL", "https://www.thunderbird.net/%LOCALE%/");
 pref("browser.search.param.ms-pc", "MOZT");
 
 // In-app notification server endpoint
-pref("mail.inappnotifications.url", "https://notifications.thunderbird.net/notifications.json");
+pref("mail.inappnotifications.url", "https://notifications.thunderbird.net/%IAN_SCHEMA_VERSION%/notifications.json");
