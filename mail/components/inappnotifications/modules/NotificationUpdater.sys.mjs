@@ -45,6 +45,21 @@ export const NotificationUpdater = {
   _timeout: null,
 
   /**
+   * The number of failed network attempts since the last successful one.
+   *
+   * @type {number}
+   */
+  _failureCount: 0,
+
+  /**
+   * The retry intervals in ms to retry at if there is an issue with the
+   * request.
+   *
+   * @type {number[]}
+   */
+  _fallbackIntervals: [1000 * 60, 1000 * 60 * 10, 1000 * 60 * 60],
+
+  /**
    * Callback for the updater, called with the latest parsed JSON from the
    * server.
    *
@@ -216,8 +231,6 @@ export const NotificationUpdater = {
       return false;
     }
 
-    let success = true;
-
     const defaultInterval = Services.prefs.getIntPref(
       "mail.inappnotifications.refreshInterval",
       21600000
@@ -232,7 +245,7 @@ export const NotificationUpdater = {
       });
 
       if (!response.ok || response.code >= 400) {
-        this._schedule(defaultInterval);
+        this._handleUpdateFail();
         return false;
       }
 
@@ -241,9 +254,11 @@ export const NotificationUpdater = {
       cacheUrl = response.url;
     } catch (error) {
       lazy.console.error("Error fetching in-app notifications:", error);
-      success = false;
+      this._handleUpdateFail();
+      return false;
     }
 
+    this._failureCount = 0;
     // Add the current update into the update history and shift if nessasarry
     this._updateHistory.push(Date.now());
 
@@ -259,7 +274,18 @@ export const NotificationUpdater = {
 
     this._schedule(time);
 
-    return success;
+    return true;
+  },
+
+  _handleUpdateFail() {
+    // Retry sooner to get updates as soon as possible but back off if the
+    // failure continues following the fallbackIntervals.
+    this._schedule(
+      this._fallbackIntervals[
+        Math.min(this._failureCount, this._fallbackIntervals.length - 1)
+      ]
+    );
+    this._failureCount++;
   },
 
   _schedule(time) {

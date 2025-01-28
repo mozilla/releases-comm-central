@@ -32,6 +32,7 @@ async function clear() {
   clearTimeout(NotificationUpdater._timeout);
   NotificationUpdater._timeout = null;
   NotificationUpdater._updateHistory = [];
+  NotificationUpdater._failureCount = 0;
 }
 
 const getExpirationTime = NotificationUpdater.getExpirationTime;
@@ -517,6 +518,43 @@ add_task(async function test_maxUpdatesPerDay() {
   // updates commence again.
   /* eslint-disable-next-line mozilla/no-arbitrary-setTimeout */
   await new Promise(_resolve => setTimeout(_resolve, 6000));
+
+  NotificationUpdater._schedule = schedule;
+});
+
+add_task(async function test_progressiveRetry() {
+  clear();
+  NotificationUpdater.getExpirationTime = () => Date.now() / 1000 - 0.01;
+
+  const url = Services.prefs.getStringPref("mail.inappnotifications.url", "");
+  Services.prefs.setStringPref(
+    "mail.inappnotifications.url",
+    url.replace("notifications.json", "error.json")
+  );
+
+  const schedule = NotificationUpdater._schedule;
+  const times = [10, 100, 200, 300];
+  const { promise, resolve } = Promise.withResolvers();
+  let count = 0;
+
+  NotificationUpdater._fallbackIntervals = times;
+  NotificationUpdater._schedule = time => {
+    schedule.apply(NotificationUpdater, [time]);
+
+    Assert.equal(time, times[count] || 300, "calls schedule with correct time");
+    count++;
+
+    if (count > times.length) {
+      resolve();
+    }
+  };
+
+  NotificationUpdater._fetch();
+
+  await promise;
+
+  Assert.equal(count, 5, "Should have seen the expected amount of calls");
+  Services.prefs.setStringPref("mail.inappnotifications.url", url);
 
   NotificationUpdater._schedule = schedule;
 });
