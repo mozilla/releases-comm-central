@@ -1,0 +1,53 @@
+Date: Sat, 21 Oct 2023 23:55:39 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+From: Benny Hashwell <benny.hashwell@example.com>
+To: Alice Scrambler <alice.scrambler@example.com>
+Subject: You are fired!
+Content-Type: multipart/encrypted;
+ protocol="application/pgp-encrypted";
+ boundary="------------lMWTRZPG9u87fW0tsiWBI13c"
+
+This is an OpenPGP/MIME encrypted message (RFC 4880 and 3156)
+--------------lMWTRZPG9u87fW0tsiWBI13c
+Content-Type: application/pgp-encrypted
+Content-Description: PGP/MIME version identification
+
+Version: 1
+
+--------------lMWTRZPG9u87fW0tsiWBI13c
+Content-Type: application/octet-stream; name="encrypted.asc"
+Content-Description: OpenPGP encrypted message
+Content-Disposition: inline; filename="encrypted.asc"
+
+-----BEGIN PGP SIGNED MESSAGE-----
+
+tree 870fc0aaa5383d845fa9431c9d08cfd486e11a65
+parent 6f85fa977ab95931222920a2cc48c81200e9ad48
+author Benny Hashwell <benny.hashwell@example.com> 1697890465 +0000
+committer Benny Hashwell <benny.hashwell@example.com> 1697890465 +0000
+
+Hi,
+
+sad to say that we had to cut our expenses and dispense of your services.
+Hope you find something good elsewhere!
+
+Yours,
+Benny
+
+-----BEGIN PGP SIGNATURE-----
+
+iQHPBAABCgA5FiEEEjuUFrI4yomiOlVNxVzNnFq0grIFAmUzwLAbHGJlbm55Lmhh
+c2h3ZWxsQGV4YW1wbGUuY29tAAoJEMVczZxatIKynEcL/1ao7RzOEow9VR+KaADw
+AQ7e2a1RWxoraR27aUAqhEfpmfV4RHgTWJAz5qJtBSGkxkXKqKvArTv5qjgTl3Kq
+iMd6szwfUHbyeX4qN3xs6luNzzx/dZtW9ls1ZWh4zgBrnQd7XFi+ypWvMsTHnS/c
+VINejs54OW7CChOclZifkBNnV0Px+MNdcJqgf/FmOqc0Wt3IL/5wDkKh6xNyeXtw
+lE4tcDErhZBx4Gfaurj+1/j4DKMj4VoVAj4ab7UQlIQWTswiJfCR6CML2yAz+Bi5
+iU6uF4N6IfkxTKTsIgy3YuADKeE7lF+so/ofB+vtRJCq53i5HvDoyXMwm7tobdYz
+/MFg8ILp2dH0XBJZ5rQHX+IElRvTLys3xCqQrQrpO1Aa2vO3kWi4x9a3ocGbqsy7
+HVjaAQ+3A688YrTwjTtB9JaUM2QZYEnig5C3sN8L4ISRviI37y7XSMyblu5FCjzo
+f2k3o03R9sD/WouRqu572SFaItAOWExLy+fmK+yFZ5QkWg==
+=xbTp
+-----END PGP SIGNATURE-----
+
+--------------lMWTRZPG9u87fW0tsiWBI13c--

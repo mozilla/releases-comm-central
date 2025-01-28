@@ -12,7 +12,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
-  EnigmailMimeDecrypt: "chrome://openpgp/content/modules/mimeDecrypt.sys.mjs",
+  MimeDecryptHandler: "chrome://openpgp/content/modules/mimeDecrypt.sys.mjs",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
 });
 
@@ -116,7 +116,7 @@ export class PgpMimeHandler {
       }
       // PGP/MIME encrypted message
 
-      cth = lazy.EnigmailMimeDecrypt.newPgpMimeHandler();
+      cth = new lazy.MimeDecryptHandler();
     } else if (ct.search(/^multipart\/signed/i) === 0) {
       if (ct.search(/application\/pgp-signature/i) > 0) {
         // PGP/MIME signed message
