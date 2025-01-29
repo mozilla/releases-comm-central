@@ -30,7 +30,7 @@ Display of notifications is rate limited to no more than 6 in a 24 hour period. 
 
 ### Updating
 
-The local cache of notifications is regularly refreshed against a server (specified by an URL that is formatted using the [URL formatter](https://searchfox.org/mozilla-central/source/toolkit/components/urlformatter/URLFormatter.sys.mjs)). If at startup of the system the server can't be reached and there's no valid network cache or the cache is empty, it falls back to a set of notifications that were included at build time.
+The local cache of notifications is regularly refreshed against a server (specified by an URL that is formatted using the [URL formatter](https://searchfox.org/mozilla-central/source/toolkit/components/urlformatter/URLFormatter.sys.mjs)). If the url contains the token `%IAN_SCHEMA_VERSION%` it will be replaced with the current hardcoded schema version before formatting. If at startup of the system the server can't be reached and there's no valid network cache or the cache is empty, it falls back to a set of notifications that were included at build time.
 
 The notification are cached based on the caching headers from the notification server, if the cache is not expired no network requests will be done. The time to the next update is influenced by notifications server via the cache headers.
 
