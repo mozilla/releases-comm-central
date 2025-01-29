@@ -21,12 +21,12 @@ export class MessageScrollParent extends JSWindowActorParent {
   /**
    * Gets the x and y scroll position and max scroll of the child window
    *
-   * @returns Promise<{
+   * @returns {Promise<{
    *    scrollX: number;
    *    scrollY: number;
    *    scrollMaxX: number;
    *    scrollMaxY: number;
-   *  }>;
+   *  }>}
    */
   async getSize() {
     return this.sendQuery("getSize");
