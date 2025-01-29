@@ -260,9 +260,11 @@ function loadRequestedUrl() {
     }
     if (tabParams.userContextId) {
       extBrowser.setAttribute("usercontextid", tabParams.userContextId);
-      // The usercontextid is only read on frame creation, so recreate it.
-      extBrowser.replaceWith(browser);
     }
+    if (createData.linkHandler) {
+      extBrowser.setAttribute("messagemanagergroup", createData.linkHandler);
+    }
+
     ExtensionParent.apiManager.emit("extension-browser-inserted", extBrowser);
     MailE10SUtils.loadURI(extBrowser, tabParams.url, {
       triggeringPrincipal: createData.triggeringPrincipal,

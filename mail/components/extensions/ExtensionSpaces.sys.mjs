@@ -5,6 +5,7 @@
 import { ExtensionCommon } from "resource://gre/modules/ExtensionCommon.sys.mjs";
 import { ExtensionParent } from "resource://gre/modules/ExtensionParent.sys.mjs";
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
+import { getMessageManagerGroup } from "resource:///modules/ExtensionUtilities.sys.mjs";
 import { getIconData } from "resource:///modules/ExtensionToolbarButtons.sys.mjs";
 
 var { ExtensionError } = ExtensionUtils;
@@ -129,10 +130,12 @@ export function getNativeTabProperties({ extension, tabProperties }) {
     throw new Error(url ? `Invalid URL: ${url}` : `Missing URL`);
   }
 
+  const linkHandler = getMessageManagerGroup(tabProperties?.linkHandler);
+
   return {
     url,
     userContextId,
-    linkHandler: "single-site",
+    linkHandler,
     initialBrowsingContextGroupId: extension.policy.browsingContextGroupId,
     triggeringPrincipal: extension.principal,
   };

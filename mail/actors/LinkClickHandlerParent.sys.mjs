@@ -36,5 +36,6 @@ export class LinkClickHandlerParent extends JSWindowActorParent {
     }
   }
 }
+export class RelaxedLinkClickHandlerParent extends LinkClickHandlerParent {}
 
 export class StrictLinkClickHandlerParent extends LinkClickHandlerParent {}

@@ -114,9 +114,9 @@ add_task(async function valid_cookieStoreId() {
       createParams: {
         type: "popup",
         url: ["about:blank"],
-        cookieStoreId: "firefox-container-1",
+        cookieStoreId: "firefox-container-2",
       },
-      expectedCookieStoreIds: ["firefox-container-1"],
+      expectedCookieStoreIds: ["firefox-container-2"],
       expectedExecuteScriptResult: ["about:blank"],
     },
   ];

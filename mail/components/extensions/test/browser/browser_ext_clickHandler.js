@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+requestLongerTimeout(2);
+
 const { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
@@ -112,16 +114,24 @@ const getCommonFiles = async () => {
       };
     },
     "background.js": async () => {
-      const expectedLinkHandler = await window.sendMessage(
+      window.expectedLinkHandler = await window.sendMessage(
         "expectedLinkHandler"
       );
 
       // Open local file and click link to a different site.
-      await window.expectLinkOpenInExternalBrowser(
-        browser.runtime.getURL("test.html"),
-        "#shadow1:#link1",
-        "https://www.example.de/"
-      );
+      if (window.expectedLinkHandler == "browsers") {
+        await window.expectLinkOpenInSameTab(
+          browser.runtime.getURL("test.html"),
+          "#shadow1:#link1",
+          "https://example.org/"
+        );
+      } else {
+        await window.expectLinkOpenInExternalBrowser(
+          browser.runtime.getURL("test.html"),
+          "#shadow1:#link1",
+          "https://example.org/"
+        );
+      }
 
       // Open local file and click same site link (no target).
       await window.expectLinkOpenInSameTab(
@@ -152,7 +162,7 @@ const getCommonFiles = async () => {
       );
 
       // Open a remote page and click link on same site.
-      if (expectedLinkHandler == "single-page") {
+      if (window.expectedLinkHandler == "single-page") {
         await window.expectLinkOpenInExternalBrowser(
           "https://example.org/browser/comm/mail/components/extensions/test/browser/data/linktest.html",
           "#shadowExt1:#linkExt1",
@@ -167,14 +177,22 @@ const getCommonFiles = async () => {
       }
 
       // Open a remote page and click link to a different site.
-      await window.expectLinkOpenInExternalBrowser(
-        "https://example.org/browser/comm/mail/components/extensions/test/browser/data/linktest.html",
-        "#linkExt2",
-        "https://mozilla.org/"
-      );
+      if (window.expectedLinkHandler == "browsers") {
+        await window.expectLinkOpenInSameTab(
+          "https://example.org/browser/comm/mail/components/extensions/test/browser/data/linktest.html",
+          "#linkExt2",
+          "https://example.net/"
+        );
+      } else {
+        await window.expectLinkOpenInExternalBrowser(
+          "https://example.org/browser/comm/mail/components/extensions/test/browser/data/linktest.html",
+          "#linkExt2",
+          "https://example.net/"
+        );
+      }
 
       // Open a remote page and click link on same site but with _blank target.
-      if (expectedLinkHandler == "single-page") {
+      if (window.expectedLinkHandler == "single-page") {
         await window.expectLinkOpenInExternalBrowser(
           "https://example.org/browser/comm/mail/components/extensions/test/browser/data/linktest.html",
           "#linkExt3",
@@ -189,7 +207,7 @@ const getCommonFiles = async () => {
       }
 
       // Open a remote page and click link on same site but with _self target.
-      if (expectedLinkHandler == "single-page") {
+      if (window.expectedLinkHandler == "single-page") {
         await window.expectLinkOpenInExternalBrowser(
           "https://example.org/browser/comm/mail/components/extensions/test/browser/data/linktest.html",
           "#linkExt4",
@@ -226,7 +244,7 @@ const getCommonFiles = async () => {
             <li>
               <div id="shadow1">
                 <template shadowrootmode="open">
-                  <a href="https://www.example.de/">
+                  <a href="https://example.org/">
                     <span id="link1">external</span>
                   </a>
                 </template>
@@ -242,6 +260,205 @@ const getCommonFiles = async () => {
   };
 };
 
+const getTabFunctions = () => {
+  return () => {
+    const openTestTab = async url => {
+      const createdTestTab = new window.CreateTabPromise();
+      const updatedTestTab = new window.UpdateTabPromise();
+
+      let linkHandler = "balanced";
+      if (window.expectedLinkHandler == "browsers") {
+        linkHandler = "relaxed";
+      } else if (window.expectedLinkHandler == "single-page") {
+        linkHandler = "strict";
+      }
+
+      const testTab = await browser.tabs.create({
+        url,
+        linkHandler,
+      });
+      await createdTestTab.done();
+      await updatedTestTab.verify(testTab.id, url);
+      return testTab;
+    };
+
+    window.expectLinkOpenInNewTab = async (testUrl, linkId, expectedUrl) => {
+      const testTab = await openTestTab(testUrl);
+
+      // Click a link in testTab to open a new tab.
+      const createdNewTab = new window.CreateTabPromise();
+      const updatedNewTab = new window.UpdateTabPromise();
+      await window.sendMessage("click", { linkId });
+      const createdTab = await createdNewTab.done();
+      await updatedNewTab.verify(createdTab.id, expectedUrl);
+
+      await browser.tabs.remove(createdTab.id);
+      await browser.tabs.remove(testTab.id);
+    };
+
+    window.expectLinkOpenInSameTab = async (testUrl, linkId, expectedUrl) => {
+      const testTab = await openTestTab(testUrl);
+
+      // Click a link in testTab to open in self.
+      const updatedTab = new window.UpdateTabPromise();
+      await window.sendMessage("click", { linkId });
+      await updatedTab.verify(testTab.id, expectedUrl);
+
+      await browser.tabs.remove(testTab.id);
+    };
+
+    window.expectLinkOpenInExternalBrowser = async (
+      testUrl,
+      linkId,
+      expectedUrl
+    ) => {
+      const testTab = await openTestTab(testUrl);
+      await window.sendMessage("click", { linkId, expectedUrl });
+      await browser.tabs.remove(testTab.id);
+    };
+  };
+};
+
+const getSpaceFunctions = () => {
+  return () => {
+    const openTestTab = async url => {
+      let linkHandler = "balanced";
+      if (window.expectedLinkHandler == "browsers") {
+        linkHandler = "relaxed";
+      } else if (window.expectedLinkHandler == "single-page") {
+        linkHandler = "strict";
+      }
+
+      const space = await browser.spaces.create(
+        "test",
+        {
+          url,
+          linkHandler,
+        },
+        {
+          title: "Test",
+        }
+      );
+
+      const createdTestTab = new window.CreateTabPromise();
+      const updatedTestTab = new window.UpdateTabPromise();
+      const testTab = await browser.spaces.open(space.id);
+      await createdTestTab.done();
+      await updatedTestTab.verify(testTab.id, url);
+      return { space, testTab };
+    };
+
+    window.expectLinkOpenInNewTab = async (testUrl, linkId, expectedUrl) => {
+      const { space, testTab } = await openTestTab(testUrl);
+
+      // Click a link in testTab to open a new tab.
+      const createdNewTab = new window.CreateTabPromise();
+      const updatedNewTab = new window.UpdateTabPromise();
+      await window.sendMessage("click", { linkId });
+      const createdTab = await createdNewTab.done();
+      await updatedNewTab.verify(createdTab.id, expectedUrl);
+
+      await browser.tabs.remove(createdTab.id);
+      await browser.tabs.remove(testTab.id);
+      await browser.spaces.remove(space.id);
+    };
+
+    window.expectLinkOpenInSameTab = async (testUrl, linkId, expectedUrl) => {
+      const { space, testTab } = await openTestTab(testUrl);
+
+      // Click a link in testTab to open in self.
+      const updatedTab = new window.UpdateTabPromise();
+      await window.sendMessage("click", { linkId });
+      await updatedTab.verify(testTab.id, expectedUrl);
+
+      await browser.tabs.remove(testTab.id);
+      await browser.spaces.remove(space.id);
+    };
+
+    window.expectLinkOpenInExternalBrowser = async (
+      testUrl,
+      linkId,
+      expectedUrl
+    ) => {
+      const { space, testTab } = await openTestTab(testUrl);
+      await window.sendMessage("click", { linkId, expectedUrl });
+      await browser.tabs.remove(testTab.id);
+      await browser.spaces.remove(space.id);
+    };
+  };
+};
+
+const getWinFunctions = () => {
+  return () => {
+    const openTestTab = async url => {
+      const createdTestTab = new window.CreateTabPromise();
+      const updatedTestTab = new window.UpdateTabPromise();
+
+      let linkHandler = "balanced";
+      if (window.expectedLinkHandler == "browsers") {
+        linkHandler = "relaxed";
+      } else if (window.expectedLinkHandler == "single-page") {
+        linkHandler = "strict";
+      }
+
+      const testWindow = await browser.windows.create({
+        type: "popup",
+        url,
+        linkHandler,
+      });
+      await createdTestTab.done();
+
+      const [testTab] = await browser.tabs.query({
+        windowId: testWindow.id,
+      });
+      await updatedTestTab.verify(testTab.id, url);
+      return testTab;
+    };
+
+    window.expectLinkOpenInNewTab = async (testUrl, linkId, expectedUrl) => {
+      const testTab = await openTestTab(testUrl);
+
+      // Click a link in testWindow to open a new tab.
+      const createdNewTab = new window.CreateTabPromise();
+      const updatedNewTab = new window.UpdateTabPromise();
+      await window.sendMessage("click", { linkId });
+      const createdTab = await createdNewTab.done();
+      await updatedNewTab.verify(createdTab.id, expectedUrl);
+
+      await browser.tabs.remove(createdTab.id);
+      await browser.tabs.remove(testTab.id);
+    };
+
+    window.expectLinkOpenInSameTab = async (testUrl, linkId, expectedUrl) => {
+      const testTab = await openTestTab(testUrl);
+
+      // Click a link in testWindow to open in self.
+      const updatedTab = new window.UpdateTabPromise();
+      await window.sendMessage("click", { linkId });
+      await updatedTab.verify(testTab.id, expectedUrl);
+      await browser.tabs.remove(testTab.id);
+    };
+
+    window.expectLinkOpenInExternalBrowser = async (
+      testUrl,
+      linkId,
+      expectedUrl
+    ) => {
+      const testTab = await openTestTab(testUrl);
+      await window.sendMessage("click", { linkId, expectedUrl });
+      await browser.tabs.remove(testTab.id);
+    };
+  };
+};
+
+/**
+ * @param {Extension} extension - The extension to be used during the test.
+ * @param {string} expectedLinkHandler - The link handler to be used during the
+ *    test, the extension will use the matching WebExtension link handler (default,
+ *    strict or relaxed).
+ * @param {Function} getBrowser - A callback, which returns the content browser
+ *    to run the test in.
+ */
 const subtest_clickInBrowser = async (
   extension,
   expectedLinkHandler,
@@ -265,7 +482,20 @@ const subtest_clickInBrowser = async (
   extension.sendMessage(expectedLinkHandler);
 
   // Wait for click on #link1 (external).
-  {
+  if (expectedLinkHandler == "browsers") {
+    const { linkId } = await extension.awaitMessage("click");
+    Assert.equal(
+      "#shadow1:#link1",
+      linkId,
+      `Test should click on the correct link.`
+    );
+    await clickLink(linkId, getBrowser());
+    Assert.ok(
+      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      `Link should not have been opened in external browser.`
+    );
+    await extension.sendMessage();
+  } else {
     const { linkId, expectedUrl } = await extension.awaitMessage("click");
     Assert.equal(
       "#shadow1:#link1",
@@ -273,7 +503,7 @@ const subtest_clickInBrowser = async (
       `Test should click on the correct link.`
     );
     Assert.equal(
-      "https://www.example.de/",
+      "https://example.org/",
       expectedUrl,
       `Test should open the correct link.`
     );
@@ -370,11 +600,20 @@ const subtest_clickInBrowser = async (
   }
 
   // Wait for click on #linkExt2 (external).
-  {
+  if (expectedLinkHandler == "browsers") {
+    const { linkId } = await extension.awaitMessage("click");
+    Assert.equal("#linkExt2", linkId, `Test should click on the correct link.`);
+    await clickLink(linkId, getBrowser());
+    Assert.ok(
+      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      `Link should not have been opened in external browser.`
+    );
+    await extension.sendMessage();
+  } else {
     const { linkId, expectedUrl } = await extension.awaitMessage("click");
     Assert.equal("#linkExt2", linkId, `Test should click on the correct link.`);
     Assert.equal(
-      "https://mozilla.org/",
+      "https://example.net/",
       expectedUrl,
       `Test should open the correct link.`
     );
@@ -449,59 +688,7 @@ const subtest_clickInBrowser = async (
 add_task(async function test_tabs() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
-      "tabFunctions.js": async () => {
-        const openTestTab = async url => {
-          const createdTestTab = new window.CreateTabPromise();
-          const updatedTestTab = new window.UpdateTabPromise();
-          const testTab = await browser.tabs.create({ url });
-          await createdTestTab.done();
-          await updatedTestTab.verify(testTab.id, url);
-          return testTab;
-        };
-
-        window.expectLinkOpenInNewTab = async (
-          testUrl,
-          linkId,
-          expectedUrl
-        ) => {
-          const testTab = await openTestTab(testUrl);
-
-          // Click a link in testTab to open a new tab.
-          const createdNewTab = new window.CreateTabPromise();
-          const updatedNewTab = new window.UpdateTabPromise();
-          await window.sendMessage("click", { linkId });
-          const createdTab = await createdNewTab.done();
-          await updatedNewTab.verify(createdTab.id, expectedUrl);
-
-          await browser.tabs.remove(createdTab.id);
-          await browser.tabs.remove(testTab.id);
-        };
-
-        window.expectLinkOpenInSameTab = async (
-          testUrl,
-          linkId,
-          expectedUrl
-        ) => {
-          const testTab = await openTestTab(testUrl);
-
-          // Click a link in testTab to open in self.
-          const updatedTab = new window.UpdateTabPromise();
-          await window.sendMessage("click", { linkId });
-          await updatedTab.verify(testTab.id, expectedUrl);
-
-          await browser.tabs.remove(testTab.id);
-        };
-
-        window.expectLinkOpenInExternalBrowser = async (
-          testUrl,
-          linkId,
-          expectedUrl
-        ) => {
-          const testTab = await openTestTab(testUrl);
-          await window.sendMessage("click", { linkId, expectedUrl });
-          await browser.tabs.remove(testTab.id);
-        };
-      },
+      "tabFunctions.js": getTabFunctions(),
       ...(await getCommonFiles()),
     },
     manifest: {
@@ -519,68 +706,115 @@ add_task(async function test_tabs() {
   );
 });
 
+add_task(async function test_tabs_relaxed() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "tabFunctions.js": getTabFunctions(),
+      ...(await getCommonFiles()),
+    },
+    manifest: {
+      background: {
+        scripts: ["utils.js", "common.js", "tabFunctions.js", "background.js"],
+      },
+      permissions: ["tabs"],
+    },
+  });
+
+  await subtest_clickInBrowser(
+    extension,
+    "browsers",
+    () => document.getElementById("tabmail").currentTabInfo.browser
+  );
+});
+
+add_task(async function test_tabs_strict() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "tabFunctions.js": getTabFunctions(),
+      ...(await getCommonFiles()),
+    },
+    manifest: {
+      background: {
+        scripts: ["utils.js", "common.js", "tabFunctions.js", "background.js"],
+      },
+      permissions: ["tabs"],
+    },
+  });
+
+  await subtest_clickInBrowser(
+    extension,
+    "single-page",
+    () => document.getElementById("tabmail").currentTabInfo.browser
+  );
+});
+
+add_task(async function test_spaces() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "tabFunctions.js": getSpaceFunctions(),
+      ...(await getCommonFiles()),
+    },
+    manifest: {
+      background: {
+        scripts: ["utils.js", "common.js", "tabFunctions.js", "background.js"],
+      },
+      permissions: ["tabs"],
+    },
+  });
+
+  await subtest_clickInBrowser(
+    extension,
+    "single-site",
+    () => document.getElementById("tabmail").currentTabInfo.browser
+  );
+});
+
+add_task(async function test_spaces_relaxed() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "tabFunctions.js": getSpaceFunctions(),
+      ...(await getCommonFiles()),
+    },
+    manifest: {
+      background: {
+        scripts: ["utils.js", "common.js", "tabFunctions.js", "background.js"],
+      },
+      permissions: ["tabs"],
+    },
+  });
+
+  await subtest_clickInBrowser(
+    extension,
+    "browsers",
+    () => document.getElementById("tabmail").currentTabInfo.browser
+  );
+});
+
+add_task(async function test_spaces_strict() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "tabFunctions.js": getSpaceFunctions(),
+      ...(await getCommonFiles()),
+    },
+    manifest: {
+      background: {
+        scripts: ["utils.js", "common.js", "tabFunctions.js", "background.js"],
+      },
+      permissions: ["tabs"],
+    },
+  });
+
+  await subtest_clickInBrowser(
+    extension,
+    "single-page",
+    () => document.getElementById("tabmail").currentTabInfo.browser
+  );
+});
+
 add_task(async function test_windows() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
-      "windowFunctions.js": async () => {
-        const openTestTab = async url => {
-          const createdTestTab = new window.CreateTabPromise();
-          const updatedTestTab = new window.UpdateTabPromise();
-          const testWindow = await browser.windows.create({
-            type: "popup",
-            url,
-          });
-          await createdTestTab.done();
-
-          const [testTab] = await browser.tabs.query({
-            windowId: testWindow.id,
-          });
-          await updatedTestTab.verify(testTab.id, url);
-          return testTab;
-        };
-
-        window.expectLinkOpenInNewTab = async (
-          testUrl,
-          linkId,
-          expectedUrl
-        ) => {
-          const testTab = await openTestTab(testUrl);
-
-          // Click a link in testWindow to open a new tab.
-          const createdNewTab = new window.CreateTabPromise();
-          const updatedNewTab = new window.UpdateTabPromise();
-          await window.sendMessage("click", { linkId });
-          const createdTab = await createdNewTab.done();
-          await updatedNewTab.verify(createdTab.id, expectedUrl);
-
-          await browser.tabs.remove(createdTab.id);
-          await browser.tabs.remove(testTab.id);
-        };
-
-        window.expectLinkOpenInSameTab = async (
-          testUrl,
-          linkId,
-          expectedUrl
-        ) => {
-          const testTab = await openTestTab(testUrl);
-
-          // Click a link in testWindow to open in self.
-          const updatedTab = new window.UpdateTabPromise();
-          await window.sendMessage("click", { linkId });
-          await updatedTab.verify(testTab.id, expectedUrl);
-          await browser.tabs.remove(testTab.id);
-        };
-
-        window.expectLinkOpenInExternalBrowser = async (
-          testUrl,
-          linkId,
-          expectedUrl
-        ) => {
-          const testTab = await openTestTab(testUrl);
-          await window.sendMessage("click", { linkId, expectedUrl });
-          await browser.tabs.remove(testTab.id);
-        };
-      },
+      "windowFunctions.js": getWinFunctions(),
       ...(await getCommonFiles()),
     },
     manifest: {
@@ -603,6 +837,59 @@ add_task(async function test_windows() {
   );
 });
 
+add_task(async function test_windows_relaxed() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "windowFunctions.js": getWinFunctions(),
+      ...(await getCommonFiles()),
+    },
+    manifest: {
+      background: {
+        scripts: [
+          "utils.js",
+          "common.js",
+          "windowFunctions.js",
+          "background.js",
+        ],
+      },
+      permissions: ["tabs"],
+    },
+  });
+
+  await subtest_clickInBrowser(
+    extension,
+    "browsers",
+    () => Services.wm.getMostRecentWindow("mail:extensionPopup").browser
+  );
+});
+
+add_task(async function test_windows_strict() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "windowFunctions.js": getWinFunctions(),
+      ...(await getCommonFiles()),
+    },
+    manifest: {
+      background: {
+        scripts: [
+          "utils.js",
+          "common.js",
+          "windowFunctions.js",
+          "background.js",
+        ],
+      },
+      permissions: ["tabs"],
+    },
+  });
+
+  await subtest_clickInBrowser(
+    extension,
+    "single-page",
+    () => Services.wm.getMostRecentWindow("mail:extensionPopup").browser
+  );
+});
+
+// We do not allow anything but single-page for the browser in mail3pane.
 add_task(async function test_mail3pane() {
   const account = createAccount();
   const subFolders = account.incomingServer.rootFolder.subFolders;

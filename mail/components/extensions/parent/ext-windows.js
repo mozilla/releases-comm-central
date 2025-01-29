@@ -5,6 +5,9 @@
 // The ext-* files are imported into the same scopes.
 /* import-globals-from ext-mail.js */
 
+var { getMessageManagerGroup } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionUtilities.sys.mjs"
+);
 var { getClonedPrincipalWithProtocolPermission, openLinkExternally } =
   ChromeUtils.importESModule("resource:///modules/LinkHelper.sys.mjs");
 var { openURI } = ChromeUtils.importESModule(
@@ -410,12 +413,14 @@ this.windows = class extends ExtensionAPIPersistent {
               }
             }
 
+            const linkHandler = getMessageManagerGroup(cdata?.linkHandler);
             const args = Cc["@mozilla.org/array;1"].createInstance(
               Ci.nsIMutableArray
             );
             const actionData = {
               action: "open",
               allowScriptsToClose: createData.allowScriptsToClose,
+              linkHandler,
               triggeringPrincipal: getClonedPrincipalWithProtocolPermission(
                 context.principal,
                 uri,

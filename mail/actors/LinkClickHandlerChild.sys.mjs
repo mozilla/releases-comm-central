@@ -120,6 +120,44 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
 }
 
 /**
+ * Listens for click events and check the requested target and, if the target
+ * does not exist on the current page, open the link in a new tab.
+ *
+ * This actor applies to browsers in the "browsers" message manager group.
+ */
+export class RelaxedLinkClickHandlerChild extends JSWindowActorChild {
+  handleEvent(event) {
+    // Don't handle events that:
+    //   a) are in the parent process (handled by onclick),
+    //   b) aren't trusted,
+    //   c) have already been handled or
+    //   d) aren't left-click.
+    if (
+      this.manager.isInProcess ||
+      !event.isTrusted ||
+      event.defaultPrevented ||
+      event.button
+    ) {
+      return;
+    }
+
+    const [eventHRef, linkNode] =
+      lazy.BrowserUtils.hrefAndLinkNodeForClickEvent(event) || [];
+    if (!eventHRef) {
+      return;
+    }
+
+    if (!canNavigate(linkNode, this.contentWindow)) {
+      event.preventDefault();
+      this.sendAsyncMessage("openLinkInNewTab", {
+        url: eventHRef,
+        refererTopBrowsingContextId: this.browsingContext.top.id,
+      });
+    }
+  }
+}
+
+/**
  * Listens for click events and, if the click would result in loading a
  * different page from the current page, cancels the click event, redirecting
  * the URI to an external browser, effectively creating a single-page browser.

@@ -16,6 +16,12 @@
             "type": "string",
             "optional": true,
             "description": "The <a href='url-cookieStore'>CookieStore</a> id used by the tab. Either a custom id created using the <a href='url-contextualIdentity'>contextualIdentities API</a>, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons. The <permission>cookies</permission> permission is required to be able to specify this property. Furthermore, the <permission>contextualIdentities</permission> permission should be requested, to enable the contextual identities feature (enabled by default only on Thunderbird Daily)."
+          },
+          "linkHandler": {
+            "type": "string",
+            "enum": ["strict", "balanced", "relaxed"],
+            "optional": true,
+            "description": "Thunderbird is a mail client, not a browser. It is possible to load a web page, but opening follow-up pages through hyperlinks should be handled by the user's default browser. This property specifies to what extent this behavior should be enforced. The default <var>balanced</var> link handler will open links to the same host directly in Thunderbird, everything else will be opened in the user's default browser. A <var>relaxed</var> link handler will open all links inside of Thunderbird, a <var>strict</var> link handler will open all links in the user's default browser, except links to the same page."
           }
         }
       },

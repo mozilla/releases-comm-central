@@ -6,6 +6,9 @@ ChromeUtils.defineESModuleGetters(this, {
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
 });
 
+var { getMessageManagerGroup } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionUtilities.sys.mjs"
+);
 var { getClonedPrincipalWithProtocolPermission, openLinkExternally } =
   ChromeUtils.importESModule("resource:///modules/LinkHelper.sys.mjs");
 var { openURI } = ChromeUtils.importESModule(
@@ -533,13 +536,17 @@ this.tabs = class extends ExtensionAPIPersistent {
               }
             );
 
+          const linkHandler = getMessageManagerGroup(
+            createProperties?.linkHandler
+          );
+
           const currentTab = tabmail.selectedTab;
           const active = createProperties.active ?? true;
           tabListener.initTabReady();
 
           const nativeTabInfo = tabmail.openTab("contentTab", {
             url: url || "about:blank",
-            linkHandler: "single-site",
+            linkHandler,
             background: !active,
             initialBrowsingContextGroupId:
               context.extension.policy.browsingContextGroupId,

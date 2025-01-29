@@ -239,6 +239,20 @@ const JSWINDOWACTORS = {
     allFrames: true,
   },
 
+  RelaxedLinkClickHandler: {
+    parent: {
+      esModuleURI: "resource:///actors/LinkClickHandlerParent.sys.mjs",
+    },
+    child: {
+      esModuleURI: "resource:///actors/LinkClickHandlerChild.sys.mjs",
+      events: {
+        click: {},
+      },
+    },
+    messageManagerGroups: ["browsers"],
+    allFrames: true,
+  },
+
   StrictLinkClickHandler: {
     parent: {
       esModuleURI: "resource:///actors/LinkClickHandlerParent.sys.mjs",
