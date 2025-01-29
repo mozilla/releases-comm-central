@@ -690,6 +690,7 @@
   skin/classic/messenger/icons/new/calendar-empty.svg         (../shared/mail/icons/new/calendar-empty.svg)
   skin/classic/messenger/icons/new/circle-sm.svg              (../shared/mail/icons/new/circle-sm.svg)
   skin/classic/messenger/icons/new/mail-sm.svg                (../shared/mail/icons/new/mail-sm.svg)
+  skin/classic/messenger/icons/new/moon-xs.svg                (../shared/mail/icons/new/moon-xs.svg)
   skin/classic/messenger/icons/new/nav-down-sm.svg            (../shared/mail/icons/new/nav-down-sm.svg)
   skin/classic/messenger/icons/new/nav-down-xs.svg            (../shared/mail/icons/new/nav-down-xs.svg)
   skin/classic/messenger/icons/new/nav-left-sm.svg            (../shared/mail/icons/new/nav-left-sm.svg)
@@ -712,6 +713,7 @@
   skin/classic/messenger/icons/new/event-end.svg              (../shared/mail/icons/new/event-end.svg)
   skin/classic/messenger/icons/new/event-continue.svg         (../shared/mail/icons/new/event-continue.svg)
   skin/classic/messenger/icons/new/subtract-circle-sm.svg     (../shared/mail/icons/new/subtract-circle-sm.svg)
+  skin/classic/messenger/icons/new/sun-xs.svg                 (../shared/mail/icons/new/sun-xs.svg)
 
   skin/classic/messenger/icons/new/compact/forward-col.svg    (../shared/mail/icons/new/compact/forward-col.svg)
   skin/classic/messenger/icons/new/compact/reply-col.svg      (../shared/mail/icons/new/compact/reply-col.svg)

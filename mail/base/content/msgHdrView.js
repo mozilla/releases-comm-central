@@ -2783,6 +2783,9 @@ const gHeaderCustomize = {
 
     document.getElementById("headerViewAllHeaders").checked =
       Ci.nsMimeHeaderDisplayTypes.AllHeaders == pref;
+
+    document.getElementById("headerShowDarkToggle").checked =
+      Services.prefs.getBoolPref("mail.dark-reader.show-toggle");
   },
 
   /**
@@ -2860,6 +2863,18 @@ const gHeaderCustomize = {
     Services.prefs.setIntPref("mail.show_headers", mode);
     AdjustHeaderView(mode);
     ReloadMessage();
+  },
+
+  /**
+   * Show or hide the quick dark message mode toggle in the message header.
+   *
+   * @param {DOMEvent} event - The checkbox command event.
+   */
+  toggleDarkToggle(event) {
+    Services.prefs.setBoolPref(
+      "mail.dark-reader.show-toggle",
+      event.target.checked
+    );
   },
 
   /**

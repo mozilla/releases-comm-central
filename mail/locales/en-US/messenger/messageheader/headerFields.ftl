@@ -142,3 +142,8 @@ message-header-field-show-more = More
     .title = Show all recipients
 
 message-ids-field-show-all = Show all
+
+## Dark Message Mode
+
+dark-message-mode-disable-toggle =
+  .title = Disable dark message mode

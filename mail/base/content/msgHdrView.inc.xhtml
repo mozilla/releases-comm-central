@@ -421,6 +421,14 @@
                class="message-header-datetime"
                aria-readonly="true"
                hidden="hidden"></html:time>
+    <html:div id="darkReaderToggle" xmlns="http://www.w3.org/1999/xhtml">
+      <label for="disableDarkReader" class="toggle-label">
+        <input id="disableDarkReader"
+               type="checkbox"
+               class="toggle-checkbox toggle-checkbox-sm dark-reader-toggle"
+               data-l10n-id="dark-message-mode-disable-toggle" />
+      </label>
+    </html:div>
   </html:div>
 
   <!-- Tags -->
@@ -590,6 +598,10 @@
         <checkbox id="headerViewAllHeaders"
                   data-l10n-id="message-header-all-headers"
                   oncommand="gHeaderCustomize.toggleAllHeaders(event);"/>
+
+        <checkbox id="headerShowDarkToggle"
+                  data-l10n-id="message-header-dark-message-toggle"
+                  oncommand="gHeaderCustomize.toggleDarkToggle(event);"/>
       </html:div>
     </html:div>
 

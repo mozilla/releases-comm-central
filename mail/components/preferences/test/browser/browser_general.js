@@ -157,6 +157,10 @@ add_task(async () => {
     {
       checkboxID: "darkReader",
       pref: "mail.dark-reader.enabled",
+    },
+    {
+      checkboxID: "darkReaderToggle",
+      pref: "mail.dark-reader.show-toggle",
     }
   );
 

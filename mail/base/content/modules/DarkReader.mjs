@@ -39,7 +39,7 @@ export const luminance = color => {
 
 /**
  * Return the contrast ratio between a background and foreground color for
- * readabilty validation.
+ * readability validation.
  *
  * @param {string} background - The background color.
  * @param {string} foreground - The foreground color.

@@ -557,12 +557,17 @@ conversation-view-checkbox-description = Experimental feature based on Gloda, us
 
 label-experiment = Experimental
 
-dark-reader-legend = Reader colors
+dark-message-mode-legend = Message reader style
 
-dark-reader-checkbox-label =
-    .label = Adapt to dark theme
+dark-message-mode-checkbox-label =
+    .label = Enable dark message mode
     .accesskey = d
-dark-reader-checkbox-description = Experimental feature to make the message pane follow dark themes
+dark-message-mode-checkbox-description = Experimental feature to make the message body follow dark themes
+
+dark-message-mode-toggle-label =
+    .label = Show dark message mode toggle
+    .accesskey = t
+dark-message-mode-toggle-description = Show a toggle in the message header to quickly disable the dark message mode
 
 account-hub-legend = Account hub
 

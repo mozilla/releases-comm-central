@@ -1149,7 +1149,7 @@ calendar-notifications-setting {
   display: inline-block;
   padding: 3px;
   background-color: var(--color-warning-default);
-  color: var(--color-text-warning);
+  color: var(--color-yellow-90);
   border-radius: 3px;
   margin-inline-start: 12px;
 }

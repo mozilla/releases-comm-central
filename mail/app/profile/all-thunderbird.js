@@ -137,7 +137,7 @@ pref("app.releaseNotesURL", "https://live.thunderbird.net/%APP%/releasenotes?loc
   // in milliseconds. 5 min = 300000 ms.
   pref("app.update.noWindowAutoRestart.delayMs", 300000);
 #endif
- 
+
 // The Multi Session Install Lockout prevents updates from being installed at
 // startup when they normally would be if there are other instances using the
 // installation. We only do this for a limited amount of time before we go ahead
@@ -1441,11 +1441,9 @@ pref("mail.inappnotifications.bypass-filtering", false);
 pref("mail.thread.conversation.enabled", false);
 #endif
 
-#ifdef NIGHTLY_BUILD
+// Enable the conversion to dark mode for all messages when using a dark theme.
 pref("mail.dark-reader.enabled", true);
-#else
-pref("mail.dark-reader.enabled", false);
-#endif
+pref("mail.dark-reader.show-toggle", true);
 
 // Enable the new account setup (starting from the second account)
 pref("mail.accounthub.enabled", false);

@@ -1003,3 +1003,69 @@ button.email-action-flagged {
     display: none;
   }
 }
+
+/* Dark Message Mode */
+
+#darkReaderToggle {
+  display: none;
+
+  & input {
+    margin-block: 0;
+  }
+}
+
+#headerShowDarkToggle {
+  display: none;
+}
+
+/* stylelint-disable-next-line media-query-no-invalid */
+@media (prefers-color-scheme: dark) and (-moz-bool-pref: "mail.dark-reader.show-toggle") {
+  #darkReaderToggle {
+    display: initial;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  #headerShowDarkToggle {
+    display: flex;
+  }
+}
+
+.dark-reader-toggle {
+  position: relative;
+
+  &::after {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    content: var(--icon-moon-xs);
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 10%, transparent);
+    stroke: color-mix(in srgb, currentColor 55%, transparent);
+    inset-block: 0;
+    inset-inline-end: 3px;
+  }
+
+  &:checked::after {
+    content: var(--icon-sun-xs);
+    fill: color-mix(in srgb, AccentColorText 40%, transparent);
+    stroke: color-mix(in srgb, AccentColorText 90%, transparent);
+    translate: -23px;
+  }
+
+  &.toggle-checkbox-sm {
+    &::after {
+      inset-inline-end: 2px;
+    }
+
+    &:checked::after {
+      translate: -20px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dark-reader-toggle::after {
+    transition: translate .21s ease;
+  }
+}

@@ -166,6 +166,7 @@ mail:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1757993#c6
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1942206#c2
     data_sensitivity:
       - technical
     notification_emails:
@@ -202,6 +203,7 @@ mail:
       - mail.compose.big_attachments.notify
       - mail.compose.default_to_paragraph
       - mail.dark-reader.enabled
+      - mail.dark-reader.show-toggle
       - mail.delete_matches_sort_order
       - mail.display_glyph
       - mail.e2ee.auto_disable

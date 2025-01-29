@@ -16,7 +16,7 @@ const { open_message_from_file, get_about_message } =
 let aboutMessage, msgc, lightTheme, darkTheme;
 
 add_setup(async function () {
-  // Disable dark reader before setting up anything else.
+  // Disable dark message mode before setting up anything else.
   Services.prefs.setBoolPref("mail.dark-reader.enabled", false);
 
   const file = new FileUtils.File(getTestFilePath("data/dark_mode_test.eml"));
@@ -33,6 +33,9 @@ add_setup(async function () {
   registerCleanupFunction(async () => {
     await BrowserTestUtils.closeWindow(msgc);
     Services.prefs.clearUserPref("mail.dark-reader.enabled");
+    Services.prefs.clearUserPref("mail.dark-reader.show-toggle");
+    lightTheme.disable();
+    darkTheme.disable();
   });
 });
 
@@ -56,7 +59,7 @@ add_task(async function test_dark_light_reader_mode() {
   // Check that the default style is correct.
   await assert_light_style();
 
-  info("Enable dark reader.");
+  info("Enable dark message mode.");
   await toggle_dark_reader(true);
   // Changing that pref shouldn't affect anything if we're still in light theme.
   await assert_light_style();
@@ -68,12 +71,91 @@ add_task(async function test_dark_light_reader_mode() {
   // Check that we're adapting the style for dark theme.
   await assert_dark_style();
 
-  info("Disable dark reader.");
+  info("Disable dark message mode.");
   await toggle_dark_reader(false);
-  // Check that we don't keep any alteration after dark reader is disabled.
+  // Check that we don't keep any alteration after dark message mode is
+  // disabled.
   await assert_light_style();
+});
 
-  await toggle_theme(darkTheme, false);
+add_task(async function test_message_header_toggle() {
+  info("Enable dark message mode.");
+  await toggle_dark_reader(true);
+
+  info("Enable light theme.");
+  await toggle_theme(lightTheme, true);
+
+  const toggle = aboutMessage.document.getElementById("darkReaderToggle");
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(toggle),
+    "toggle button should be hidden"
+  );
+
+  info("Enable dark theme.");
+  let msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+  await toggle_theme(darkTheme, true);
+  await msgLoaded;
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(toggle),
+    "toggle button should be visible"
+  );
+
+  info("Disable the toggle visibility");
+  Services.prefs.setBoolPref("mail.dark-reader.show-toggle", false);
+  await BrowserTestUtils.waitForCondition(
+    () => BrowserTestUtils.isHidden(toggle),
+    "toggle button should be hidden"
+  );
+
+  info("Enable the toggle visibility");
+  Services.prefs.setBoolPref("mail.dark-reader.show-toggle", true);
+
+  await BrowserTestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(toggle),
+    "toggle button should be visible"
+  );
+
+  info("Disable the toggle visibility from the header customizer");
+  const moreBtn = aboutMessage.document.getElementById("otherActionsButton");
+  const popup = aboutMessage.document.getElementById("otherActionsPopup");
+  EventUtils.synthesizeMouseAtCenter(moreBtn, {}, aboutMessage);
+  await BrowserTestUtils.waitForPopupEvent(popup, "shown");
+
+  const panel = aboutMessage.document.getElementById(
+    "messageHeaderCustomizationPanel"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("messageHeaderMoreMenuCustomize"),
+    {},
+    aboutMessage
+  );
+  await BrowserTestUtils.waitForPopupEvent(panel, "shown");
+
+  const darkToggleCustomizer = aboutMessage.document.getElementById(
+    "headerShowDarkToggle"
+  );
+  EventUtils.synthesizeMouseAtCenter(darkToggleCustomizer, {}, aboutMessage);
+  await BrowserTestUtils.waitForCondition(
+    () => BrowserTestUtils.isHidden(toggle),
+    "toggle button should be hidden"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(darkToggleCustomizer, {}, aboutMessage);
+  await BrowserTestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(toggle),
+    "toggle button should be visible"
+  );
+
+  EventUtils.synthesizeKey("KEY_Escape", {}, aboutMessage);
+  await BrowserTestUtils.waitForPopupEvent(panel, "hidden");
+
+  msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+  EventUtils.synthesizeMouseAtCenter(toggle, {}, aboutMessage);
+  await msgLoaded;
+
+  await assert_light_style();
 });
 
 async function assert_light_style() {

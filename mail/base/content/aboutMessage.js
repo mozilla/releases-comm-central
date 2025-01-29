@@ -46,6 +46,19 @@ const prefersDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 var gMessage, gMessageURI;
 var autodetectCharset;
 
+let reloadTimeout = null;
+function timeoutReload() {
+  if (reloadTimeout) {
+    return;
+  }
+  // Clear the event queue before reloading the message. Several prefs may
+  // be changed at once.
+  reloadTimeout = setTimeout(() => {
+    reloadTimeout = null;
+    ReloadMessage();
+  });
+}
+
 function getMessagePaneBrowser() {
   return document.getElementById("messagepane");
 }
@@ -179,6 +192,15 @@ window.addEventListener("DOMContentLoaded", event => {
 
   window.addEventListener("MsgLoaded", msgObserver);
   prefersDarkQuery.addEventListener("change", msgObserver);
+
+  const disableDarkReaderToggle = document.getElementById("disableDarkReader");
+  disableDarkReaderToggle.checked = !Services.prefs.getBoolPref(
+    "mail.dark-reader.enabled",
+    true
+  );
+  disableDarkReaderToggle.addEventListener("click", e => {
+    Services.prefs.setBoolPref("mail.dark-reader.enabled", !e.target.checked);
+  });
 });
 
 window.addEventListener("unload", () => {
@@ -389,8 +411,6 @@ var folderListener = {
 var msgObserver = {
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 
-  _reloadTimeout: null,
-
   observe(subject, topic, data) {
     if (
       topic == "message-content-updated" &&
@@ -411,15 +431,7 @@ var msgObserver = {
         }
         break;
       case "change":
-        if (!this._reloadTimeout) {
-          // Clear the event queue before reloading the message and use a
-          // a timeout as other operations might be happening before we can
-          // reload the message.
-          this._reloadTimeout = setTimeout(() => {
-            this._reloadTimeout = null;
-            ReloadMessage();
-          });
-        }
+        timeoutReload();
         break;
     }
   },
@@ -441,8 +453,6 @@ var preferenceObserver = {
     "rss.show.summary",
   ],
 
-  _reloadTimeout: null,
-
   init() {
     for (const topic of this._topics) {
       Services.prefs.addObserver(topic, this);
@@ -459,14 +469,11 @@ var preferenceObserver = {
     if (data == "mail.show_headers") {
       AdjustHeaderView(Services.prefs.getIntPref(data));
     }
-    if (!this._reloadTimeout) {
-      // Clear the event queue before reloading the message. Several prefs may
-      // be changed at once.
-      this._reloadTimeout = setTimeout(() => {
-        this._reloadTimeout = null;
-        ReloadMessage();
-      });
+    if (data == "mail.dark-reader.enabled") {
+      document.getElementById("disableDarkReader").checked =
+        !Services.prefs.getBoolPref(data);
     }
+    timeoutReload();
   },
 };
 
