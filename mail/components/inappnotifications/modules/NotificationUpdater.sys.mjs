@@ -155,12 +155,14 @@ export const NotificationUpdater = {
    * Initialize the updater, setting up a scheduled update as well as
    * immediately checking for the latest data from the server.
    *
-   * @returns {boolean} True if the caller should initialize its state from
-   *   cache, since updating from the network did not yield any information.
+   * @returns {{loadFromCache: boolean, hasCache: boolean }} The load from cache
+   *   property indicates if the caller should initialize its state from cache.
+   *   Only if loadFromCache is true the hasCache property has any meaning. It
+   *   then indicates if the network cache is considered valid.
    */
   async init() {
     if (this._timeout) {
-      return false;
+      return { loadFromCache: true, hasCache: true };
     }
 
     const expirationTime = await this.getRemainingCacheTime(this._getUrl());
@@ -168,10 +170,10 @@ export const NotificationUpdater = {
     // Don't update if we have an expirationTime unless it's the defaultInterval
     if (expirationTime) {
       this._schedule(expirationTime);
-      return true;
+      return { loadFromCache: true, hasCache: true };
     }
     const didFetch = await this._fetch();
-    return !didFetch;
+    return { loadFromCache: !didFetch, hasCache: false };
   },
 
   /**

@@ -26,17 +26,17 @@ add_setup(() => {
     mockExternalProtocolService
   );
 
-  registerCleanupFunction(() => {
-    InAppNotifications.updateNotifications([]);
+  registerCleanupFunction(async () => {
+    await InAppNotifications.updateNotifications([]);
     MockRegistrar.unregister(mockExternalProtocolServiceCID);
   });
 });
 
-add_task(function test_maintainsFocusWhenOpened() {
+add_task(async function test_maintainsFocusWhenOpened() {
   const searchBar = document.querySelector("global-search-bar");
   searchBar.focus();
 
-  InAppNotifications.updateNotifications([
+  await InAppNotifications.updateNotifications([
     {
       id: "testNotification" + Date.now(),
       title: "Test notification",
@@ -65,7 +65,7 @@ add_task(function test_maintainsFocusWhenOpened() {
 });
 
 add_task(async function test_maintainsFocusWhenClosed() {
-  InAppNotifications.updateNotifications([
+  await InAppNotifications.updateNotifications([
     {
       id: "testNotification" + Date.now(),
       title: "Test notification",
@@ -105,7 +105,7 @@ add_task(async function test_maintainsFocusWhenClosed() {
 });
 
 add_task(async function test_doesNotStoreFocusElementInsideNotification() {
-  InAppNotifications.updateNotifications([
+  await InAppNotifications.updateNotifications([
     {
       id: "testNotification" + Date.now(),
       title: "Test notification",

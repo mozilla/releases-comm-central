@@ -30,7 +30,7 @@ Display of notifications is rate limited to no more than 6 in a 24 hour period. 
 
 ### Updating
 
-The local cache of notifications is regularly refreshed against a server (specified by an URL that is formatted using the [URL formatter](https://searchfox.org/mozilla-central/source/toolkit/components/urlformatter/URLFormatter.sys.mjs)). If at startup of the system the server can't be reached and there's either no cache or the cache is older than the application build, it falls back to a set of notifications that were included at build time.
+The local cache of notifications is regularly refreshed against a server (specified by an URL that is formatted using the [URL formatter](https://searchfox.org/mozilla-central/source/toolkit/components/urlformatter/URLFormatter.sys.mjs)). If at startup of the system the server can't be reached and there's no valid network cache or the cache is empty, it falls back to a set of notifications that were included at build time.
 
 The notification are cached based on the caching headers from the notification server, if the cache is not expired no network requests will be done. The time to the next update is influenced by notifications server via the cache headers.
 
@@ -40,7 +40,7 @@ If a request fails for some reason like a network error, the request will be ret
 
 ### Cache
 
-The notification data provided by the server is cached locally (`notifications`), in addition the cache also contains seeds for the set of notifications currently returned by the server (`seeds`), a list of notification IDs that should no longer be shown because the user interacted with them (`interactedWith`) - also limited to notifications that the server currently returns - and lastly the timestamp of when the cached data from the server was last updated (`lastUpdate`).
+The notification data provided by the server is cached locally (`notifications`), in addition the cache also contains seeds for the set of notifications currently returned by the server (`seeds`), a list of notification IDs that should no longer be shown because the user interacted with them (`interactedWith`) - also limited to notifications that the server currently returns.
 
 See also the [displayed_notifications](#displayed-notifications) section for some more usage info related to the list of notifications that were shown.
 
@@ -129,7 +129,7 @@ This means an unset pref can be targeted with the following:
 
 ### `mail.inappnotifications.bypass-filtering`
 
-This preference disables all filtering logic (including if a notification has been shown before and was interacted with), leading to the most severe notification provided by the server being shown. This applies the next time the active notification is updated, so either when the currently shown notification is closed, a new notification could become active or when the application is restarted.
+This preference disables all filtering logic (excluding if a notification has been shown before and was interacted with), leading to the most severe notification provided by the server being shown. This applies the next time the active notification is updated, so either when the currently shown notification is closed, a new notification could become active or when the application is restarted.
 
 ### `mail.inappnotifications.url`
 

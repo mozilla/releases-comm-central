@@ -17,5 +17,6 @@ messenger.jar:
   content/branding/icon128.png                      (default128.png)
   content/branding/icon256.png                      (default256.png)
   content/branding/aboutDialog.css                  (content/aboutDialog.css)
+  content/branding/inAppNotificationData.json       (content/inAppNotificationData.json)
   content/branding/logo-gradient.svg                (content/logo-gradient.svg)
   ../classic/skin/classic/messenger/icons/new-mail-alert.png  (default48.png)

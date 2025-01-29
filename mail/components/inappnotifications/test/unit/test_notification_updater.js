@@ -291,7 +291,11 @@ add_task(async function test_init() {
   const initTs = Date.now();
   const initResult = await NotificationUpdater.init();
 
-  Assert.ok(!initResult, "Should report successful fetch on init");
+  Assert.deepEqual(
+    initResult,
+    { loadFromCache: false, hasCache: false },
+    "Should report successful fetch on init"
+  );
   Assert.equal(updateSpy.callCount, 1, "Should call update callback in init");
   Assert.ok(
     updateSpy.calledWith(sinon.match(notifications)),
@@ -300,8 +304,9 @@ add_task(async function test_init() {
 
   const initAgainResult = await NotificationUpdater.init();
 
-  Assert.ok(
-    !initAgainResult,
+  Assert.deepEqual(
+    initAgainResult,
+    { loadFromCache: true, hasCache: true },
     "Should ask caller to use cache if already initialized"
   );
   Assert.equal(
@@ -353,7 +358,11 @@ add_task(async function test_init_withRecentUpdate() {
 
   const initResult = await NotificationUpdater.init();
 
-  Assert.ok(initResult, "Should not have fetched updates on init");
+  Assert.deepEqual(
+    initResult,
+    { loadFromCache: true, hasCache: true },
+    "Should not have fetched updates on init"
+  );
   Assert.equal(
     updateSpy.callCount,
     0,

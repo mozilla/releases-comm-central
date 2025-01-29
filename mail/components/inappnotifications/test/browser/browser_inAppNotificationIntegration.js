@@ -21,7 +21,7 @@ add_task(async function testInAppNotificationDonationTab() {
     "TabOpen"
   );
 
-  InAppNotifications.updateNotifications([
+  await InAppNotifications.updateNotifications([
     {
       id: "testNotification" + Date.now(),
       title: "Test notification with a really really long title",
@@ -52,6 +52,6 @@ add_task(async function testInAppNotificationDonationTab() {
     "loaded url in new tab"
   );
 
-  InAppNotifications.updateNotifications([]);
+  await InAppNotifications.updateNotifications([]);
   tabmail.closeOtherTabs(0);
 });

@@ -25,6 +25,9 @@ const { clearInterval, clearTimeout } = ChromeUtils.importESModule(
 const { NotificationUpdater } = ChromeUtils.importESModule(
   "resource:///modules/NotificationUpdater.sys.mjs"
 );
+const { OfflineNotifications } = ChromeUtils.importESModule(
+  "resource:///modules/OfflineNotifications.sys.mjs"
+);
 
 const SAFETY_MARGIN_MS = 100000;
 
@@ -52,9 +55,12 @@ function getMockNotifications() {
   ];
 }
 
+let bakedNotifications = [];
+
 add_setup(async () => {
   do_get_profile();
   await InAppNotifications.init();
+  bakedNotifications = await OfflineNotifications.getDefaultNotifications();
 
   NotificationManager._PER_TIME_UNIT = 1;
 
@@ -66,11 +72,6 @@ add_setup(async () => {
 
 add_task(function test_initializedData() {
   Assert.ok(InAppNotifications._jsonFile.dataReady, "JSON file is ready");
-  Assert.deepEqual(
-    InAppNotifications.getNotifications(),
-    [],
-    "Should initialize notifications with an empty array"
-  );
   Assert.ok(
     InAppNotifications.notificationManager instanceof NotificationManager,
     "Should expose a NotificationManager instance"
@@ -87,17 +88,60 @@ add_task(function test_initializedData() {
     [],
     "Should initialize interacted with notifications"
   );
-  Assert.deepEqual(
-    InAppNotifications._jsonFile.data.seeds,
-    {},
-    "Should initialize seeds"
-  );
-  Assert.equal(
-    InAppNotifications._jsonFile.data.lastUpdate,
-    0,
-    "Should initialize lastUpdate to 0"
-  );
 });
+
+add_task(
+  {
+    skip_if: () => bakedNotifications.length === 0,
+  },
+  function test_initWithBuiltinNotifications() {
+    Assert.deepEqual(
+      InAppNotifications._jsonFile.data.notifications,
+      bakedNotifications,
+      "Should initialize to baked notifications if available"
+    );
+    const notifications = InAppNotifications.getNotifications();
+    Assert.lessOrEqual(
+      notifications.length,
+      bakedNotifications.length,
+      "Should at most get as many notifications as are built in"
+    );
+    Assert.equal(
+      typeof InAppNotifications._jsonFile.data.seeds,
+      "object",
+      "Seeds should be an object"
+    );
+    Assert.equal(
+      Object.keys(InAppNotifications._jsonFile.data.seeds).length,
+      bakedNotifications.length,
+      "Should generate a seed for each built in notification"
+    );
+    for (const notification of bakedNotifications) {
+      Assert.ok(
+        Object.hasOwn(InAppNotifications._jsonFile.data.seeds, notification.id),
+        `Should have seed for built in notification ${notification.id}`
+      );
+    }
+  }
+);
+
+add_task(
+  {
+    skip_if: () => bakedNotifications.length > 0,
+  },
+  function test_initializedDataWithoutBuiltinNotifications() {
+    Assert.deepEqual(
+      InAppNotifications.getNotifications(),
+      [],
+      "Should initialize notifications with an empty array"
+    );
+    Assert.deepEqual(
+      InAppNotifications._jsonFile.data.seeds,
+      {},
+      "Should initialize seeds"
+    );
+  }
+);
 
 add_task(async function test_noReinitialization() {
   const currentNotificationManager = InAppNotifications.notificationManager;
@@ -109,22 +153,13 @@ add_task(async function test_noReinitialization() {
   );
 });
 
-add_task(function test_updateNotifications() {
+add_task(async function test_updateNotifications() {
   const mockData = getMockNotifications();
   InAppNotifications.updateNotifications(mockData);
   Assert.deepEqual(
     InAppNotifications.getNotifications(),
     mockData,
     "Should save data to notifications"
-  );
-  Assert.ok(
-    Number.isInteger(InAppNotifications._jsonFile.data.lastUpdate),
-    "Last update should be an integer"
-  );
-  Assert.lessOrEqual(
-    InAppNotifications._jsonFile.data.lastUpdate,
-    Date.now(),
-    "Last update should be a timestamp in the past"
   );
 
   InAppNotifications.markAsInteractedWith(mockData[0].id);
@@ -141,7 +176,7 @@ add_task(function test_updateNotifications() {
     "Has seed for notifications"
   );
 
-  InAppNotifications.updateNotifications([]);
+  await InAppNotifications.updateNotifications([]);
   Assert.deepEqual(
     InAppNotifications.getNotifications(),
     [],
@@ -152,16 +187,28 @@ add_task(function test_updateNotifications() {
     [],
     "Should have cleared interacted with notifications"
   );
-  Assert.deepEqual(
-    InAppNotifications._jsonFile.data.seeds,
-    {},
-    "Should have cleared seeds"
-  );
+  if (bakedNotifications.length === 0) {
+    Assert.deepEqual(
+      InAppNotifications._jsonFile.data.seeds,
+      {},
+      "Should have cleared seeds"
+    );
+  } else {
+    Assert.equal(
+      Object.keys(InAppNotifications._jsonFile.data.seeds).length,
+      bakedNotifications.length,
+      "Should only retain seeds of baked notifications"
+    );
+    Assert.ok(
+      !Object.hasOwn(InAppNotifications._jsonFile.data.seeds, mockData[0].id),
+      "Should no longer have seed of mock data notification"
+    );
+  }
 });
 
-add_task(function test_markAsInteractedWith() {
+add_task(async function test_markAsInteractedWith() {
   const mockData = getMockNotifications();
-  InAppNotifications.updateNotifications(mockData);
+  await InAppNotifications.updateNotifications(mockData);
   Assert.deepEqual(
     InAppNotifications.getNotifications(),
     mockData,
@@ -175,7 +222,7 @@ add_task(function test_markAsInteractedWith() {
 
   InAppNotifications.markAsInteractedWith("foo");
 
-  InAppNotifications.updateNotifications(mockData);
+  await InAppNotifications.updateNotifications(mockData);
   Assert.deepEqual(
     InAppNotifications.getNotifications(),
     [mockData[1]],
@@ -189,7 +236,7 @@ add_task(function test_markAsInteractedWith() {
     "Should only store the ID once"
   );
 
-  InAppNotifications.updateNotifications([]);
+  await InAppNotifications.updateNotifications([]);
   Assert.deepEqual(
     InAppNotifications._jsonFile.data.interactedWith,
     [],
@@ -197,7 +244,7 @@ add_task(function test_markAsInteractedWith() {
   );
 });
 
-add_task(function test_getNotifications_expiry() {
+add_task(async function test_getNotifications_expiry() {
   const now = Date.now();
   const mockData = [
     {
@@ -229,19 +276,19 @@ add_task(function test_getNotifications_expiry() {
       targeting: {},
     },
   ];
-  InAppNotifications.updateNotifications(mockData);
+  await InAppNotifications.updateNotifications(mockData);
   Assert.deepEqual(
     InAppNotifications.getNotifications(),
     [mockData[0]],
     "Should have only current notifications"
   );
 
-  InAppNotifications.updateNotifications([]);
+  await InAppNotifications.updateNotifications([]);
 });
 
-add_task(function test_notificationInteractionEvent() {
+add_task(async function test_notificationInteractionEvent() {
   const mockData = getMockNotifications();
-  InAppNotifications.updateNotifications(mockData);
+  await InAppNotifications.updateNotifications(mockData);
 
   InAppNotifications.notificationManager.dispatchEvent(
     new CustomEvent(NotificationManager.NOTIFICATION_INTERACTION_EVENT, {
@@ -255,12 +302,12 @@ add_task(function test_notificationInteractionEvent() {
     "Should no longer include the first notification"
   );
 
-  InAppNotifications.updateNotifications([]);
+  await InAppNotifications.updateNotifications([]);
 });
 
 add_task(async function test_requestNotifictionsEvent() {
   const mockData = getMockNotifications();
-  InAppNotifications.updateNotifications(mockData);
+  await InAppNotifications.updateNotifications(mockData);
   InAppNotifications.notificationManager.updatedNotifications([]);
 
   const newNotificationEvent = BrowserTestUtils.waitForEvent(
@@ -274,7 +321,7 @@ add_task(async function test_requestNotifictionsEvent() {
   Assert.deepEqual(notification, mockData[0], "Should pick first notification");
 });
 
-add_task(function test_getSeed() {
+add_task(async function test_getSeed() {
   const seedId = "foo";
   const seed = InAppNotifications._getSeed(seedId);
   Assert.strictEqual(
@@ -314,14 +361,14 @@ add_task(function test_getSeed() {
     Assert.lessOrEqual(testSeed, 100, `Seed ${i} is at most 100`);
   }
 
-  InAppNotifications.updateNotifications([]);
+  await InAppNotifications.updateNotifications([]);
 });
 
-add_task(function test_getNotification_seed() {
+add_task(async function test_getNotification_seed() {
   const mockData = getMockNotifications();
   mockData[0].targeting.percent_chance = 42;
   mockData[1].targeting.percent_chance = 42;
-  InAppNotifications.updateNotifications(mockData);
+  await InAppNotifications.updateNotifications(mockData);
 
   InAppNotifications._jsonFile.data.seeds[mockData[0].id] = 2;
   InAppNotifications._jsonFile.data.seeds[mockData[1].id] = 100;
@@ -338,7 +385,7 @@ add_task(function test_getNotification_seed() {
     "Resulting notifications are stable"
   );
 
-  InAppNotifications.updateNotifications([]);
+  await InAppNotifications.updateNotifications([]);
 });
 
 add_task(async function test_updateNotificationManager() {
@@ -370,7 +417,7 @@ add_task(async function test_updateNotificationManager() {
     InAppNotifications.notificationManager,
     NotificationManager.NEW_NOTIFICATION_EVENT
   );
-  InAppNotifications.updateNotifications(mockData);
+  await InAppNotifications.updateNotifications(mockData);
   const { detail: notification } = await newNotificationEvent;
 
   Assert.deepEqual(
@@ -385,7 +432,7 @@ add_task(async function test_updateNotificationManager() {
     "Should have passed the filtered list to updatedNotifiations"
   );
 
-  InAppNotifications.updateNotifications([]);
+  await InAppNotifications.updateNotifications([]);
   InAppNotifications.notificationManager.updatedNotifications.restore();
 });
 
@@ -414,7 +461,7 @@ add_task(async function test_updateNotifications_filtered() {
     InAppNotifications.notificationManager,
     NotificationManager.NEW_NOTIFICATION_EVENT
   );
-  InAppNotifications.updateNotifications(mockData);
+  await InAppNotifications.updateNotifications(mockData);
   const { detail: notification } = await newNotificationEvent;
   Assert.deepEqual(
     notification,
@@ -422,7 +469,7 @@ add_task(async function test_updateNotifications_filtered() {
     "Should have filtered current notification"
   );
 
-  InAppNotifications.updateNotifications([]);
+  await InAppNotifications.updateNotifications([]);
 });
 
 add_task(async function test_updateNotificationManager_localeChange() {
@@ -465,7 +512,7 @@ add_task(async function test_updateNotificationManager_localeChange() {
       severity: 5,
     },
   ];
-  InAppNotifications.updateNotifications(mockData);
+  await InAppNotifications.updateNotifications(mockData);
 
   const { detail: notification } = await BrowserTestUtils.waitForEvent(
     InAppNotifications.notificationManager,
@@ -501,7 +548,7 @@ add_task(async function test_updateNotificationManager_localeChange() {
 
   Services.locale.availableLocales = availableLocales;
   Services.locale.requestedLocales = currentLocales;
-  InAppNotifications.updateNotifications([]);
+  await InAppNotifications.updateNotifications([]);
 });
 
 add_task(async function test_scheduledNotification() {
@@ -522,7 +569,7 @@ add_task(async function test_scheduledNotification() {
     InAppNotifications.notificationManager,
     NotificationManager.NEW_NOTIFICATION_EVENT
   );
-  InAppNotifications.updateNotifications(mockData);
+  await InAppNotifications.updateNotifications(mockData);
   Assert.ok(
     InAppNotifications._showNotificationTimer,
     "Should have scheduled a timer for when the notification starts"
@@ -543,5 +590,42 @@ add_task(async function test_scheduledNotification() {
     "Should have no timer for any future notifications"
   );
 
-  InAppNotifications.updateNotifications([]);
+  await InAppNotifications.updateNotifications([]);
 });
+
+add_task(
+  {
+    skip_if: () => bakedNotifications.length === 0,
+  },
+  async function test_builtinIdsStay() {
+    for (const notification of bakedNotifications) {
+      await InAppNotifications.markAsInteractedWith(notification.id);
+      InAppNotifications._getSeed(notification.id);
+    }
+
+    await InAppNotifications.updateNotifications([]);
+
+    for (const notification of bakedNotifications) {
+      Assert.ok(
+        InAppNotifications._jsonFile.data.interactedWith.includes(
+          notification.id
+        ),
+        `Should retain interacted with state of built in notification ${notification.id}`
+      );
+      Assert.ok(
+        Object.hasOwn(InAppNotifications._jsonFile.data.seeds, notification.id),
+        `Seed of built in notification ${notification.id} should be persisted`
+      );
+    }
+
+    InAppNotifications._jsonFile.data.interactedWith = [];
+    await InAppNotifications.updateNotifications([]);
+
+    for (const notification of bakedNotifications) {
+      Assert.ok(
+        Object.hasOwn(InAppNotifications._jsonFile.data.seeds, notification.id),
+        `Should still have seed of built in notification ${notification.id}`
+      );
+    }
+  }
+);

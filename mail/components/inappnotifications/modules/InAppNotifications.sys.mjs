@@ -12,6 +12,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   NotificationUpdater: "resource:///modules/NotificationUpdater.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
   clearTimeout: "resource://gre/modules/Timer.sys.mjs",
+  OfflineNotifications: "resource:///modules/OfflineNotifications.sys.mjs",
 });
 
 const PROFILE_LOCATION = ["scheduled-notifications", "notifications.json"];
@@ -63,10 +64,14 @@ export const InAppNotifications = {
     lazy.NotificationUpdater.onUpdate = updatedNotifications => {
       this.updateNotifications(updatedNotifications);
     };
-    const shouldPopulateFromStorage = await lazy.NotificationUpdater.init(
-      this._jsonFile.data.lastUpdate || 0
-    );
-    if (shouldPopulateFromStorage) {
+    const { loadFromCache, hasCache } = await lazy.NotificationUpdater.init();
+    if (loadFromCache) {
+      if (!this._jsonFile.data.notifications.length || !hasCache) {
+        await this.updateNotifications(
+          await lazy.OfflineNotifications.getDefaultNotifications()
+        );
+        return;
+      }
       this._updateNotificationManager();
     }
   },
@@ -76,16 +81,18 @@ export const InAppNotifications = {
    *
    * @param {object[]} notifications
    */
-  updateNotifications(notifications) {
+  async updateNotifications(notifications) {
     this._jsonFile.data.notifications = notifications;
-    this._jsonFile.data.lastUpdate = Date.now();
 
     const notificationIds = new Set(
       notifications.map(notification => notification.id)
     );
+    const defaultNotificationIds =
+      await lazy.OfflineNotifications.getDefaultNotificationIds();
+    const allNotificationIds = notificationIds.union(defaultNotificationIds);
     const interactedWithSet = new Set(this._jsonFile.data.interactedWith);
     const stillExistingInteractedWith =
-      interactedWithSet.intersection(notificationIds);
+      interactedWithSet.intersection(allNotificationIds);
     if (stillExistingInteractedWith.size < interactedWithSet.size) {
       this._jsonFile.data.interactedWith = Array.from(
         stillExistingInteractedWith
@@ -93,7 +100,7 @@ export const InAppNotifications = {
     }
     this._jsonFile.data.seeds = Object.fromEntries(
       Object.entries(this._jsonFile.data.seeds).filter(([notificationId]) =>
-        notificationIds.has(notificationId)
+        allNotificationIds.has(notificationId)
       )
     );
     this._updateNotificationManager();
@@ -166,9 +173,6 @@ export const InAppNotifications = {
     }
     if (typeof data.seeds !== "object") {
       data.seeds = {};
-    }
-    if (!Number.isInteger(data.lastUpdate) || data.lastUpdate > Date.now()) {
-      data.lastUpdate = 0;
     }
     return data;
   },

@@ -25,11 +25,14 @@ export const NotificationFilter = {
    * @returns {boolean} If this notification should be shown.
    */
   isActiveNotification(notification, seed, interactedWithIds) {
-    if (lazy.bypassFiltering) {
-      return true;
-    }
     if (interactedWithIds.includes(notification.id)) {
       return false;
+    }
+    // Bypass after the interaction check, so we don't keep showing the same
+    // notification. Especially relevant with _tab variants that would else just
+    // keep opening tabs (until we hit the limiter in the NotificationManager).
+    if (lazy.bypassFiltering) {
+      return true;
     }
     const now = Date.now();
     const parsedEnd = Date.parse(notification.end_at);
