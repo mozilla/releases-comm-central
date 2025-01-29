@@ -257,3 +257,66 @@ add_task(async function test_feedBodyFormat_selectFolder() {
 
   Services.prefs.clearUserPref("rss.show.summary");
 });
+
+add_task(async function test_feedBodyScroll() {
+  Services.prefs.setIntPref("rss.show.summary", 0);
+
+  await displayFeedMessage(true);
+
+  const about3Pane = tabmail.currentAbout3Pane;
+  const browser =
+    about3Pane.messageBrowser.contentDocument.getElementById("messagepane");
+
+  /**
+   * Scroll the window 1 page at a time by hitting spacebar until it reaches the
+   * bottom. Once it reaches the bottom hit spacebar one more time to trigger
+   * loading the next message.
+   *
+   * @param {number} [value=0]
+   * @returns Promise<{
+   *    scrollY: number;
+   *    scrollMaxY: number;
+   *  } | null>
+   */
+  async function checkScroll(value = 0) {
+    EventUtils.synthesizeKey(" ", {}, window);
+    const scroll = await SpecialPowers.spawn(browser, [], async () => {
+      const { promise, resolve } = Promise.withResolvers();
+      content.addEventListener(
+        "scroll",
+        () => {
+          resolve();
+        },
+        { once: true }
+      );
+
+      await promise;
+
+      return {
+        scrollY: Math.round(content.scrollY),
+        scrollMaxY: Math.round(content.scrollMaxY),
+      };
+    });
+
+    if (scroll.scrollY < scroll.scrollMaxY) {
+      Assert.notEqual(scroll.scrollY, value, "Window has scrolled");
+      return checkScroll(scroll.scrollY);
+    }
+
+    Assert.equal(
+      scroll.scrollY,
+      scroll.scrollMaxY,
+      "Window has scrolled to bottom"
+    );
+
+    return EventUtils.synthesizeKey(" ", {}, window);
+  }
+
+  await checkScroll();
+
+  await BrowserTestUtils.browserLoaded(browser, undefined, url => {
+    return url.endsWith("sampleContent2.html");
+  });
+
+  Services.prefs.clearUserPref("rss.show.summary");
+});
