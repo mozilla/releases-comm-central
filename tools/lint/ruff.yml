@@ -14,4 +14,3 @@ ruff:
     type: external
     payload: commlint:lint_wrapper
     wraps: python.ruff:lint
-    setup: python.ruff:setup

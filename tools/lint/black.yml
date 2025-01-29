@@ -13,4 +13,3 @@ black:
     type: external
     payload: commlint:lint_wrapper
     wraps: commlint:black_lint
-    setup: python.black:setup
