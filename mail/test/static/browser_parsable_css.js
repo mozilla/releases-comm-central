@@ -27,7 +27,7 @@ const ignoreList = [
   },
   {
     sourceName:
-      /\b(contenteditable|EditorOverride|svg|forms|html|mathml|ua)\.css$/i,
+      /\b(contenteditable|EditorOverride|svg|forms|html|mathml|ua|scrollbars|xul)\.css$/i,
     errorMessage: /Unknown pseudo-class.*-moz-/i,
     isFromDevTools: false,
   },
@@ -35,11 +35,6 @@ const ignoreList = [
     sourceName:
       /\b(scrollbars|xul|html|mathml|ua|EditorOverride|contenteditable|forms|svg|manageDialog|autocomplete-item-shared|formautofill)\.css$/i,
     errorMessage: /Unknown property.*-moz-/i,
-    isFromDevTools: false,
-  },
-  {
-    sourceName: /(scrollbars|xul)\.css$/i,
-    errorMessage: /Unknown pseudo-class.*-moz-/i,
     isFromDevTools: false,
   },
   {
@@ -78,6 +73,20 @@ if (!Services.prefs.getBoolPref("layout.css.scroll-anchoring.enabled")) {
     sourceName: /webconsole\.css$/i,
     errorMessage: /Unknown property .*\boverflow-anchor\b/i,
     isFromDevTools: true,
+  });
+}
+
+if (!Services.prefs.getBoolPref("dom.viewTransitions.enabled")) {
+  // view-transition selectors
+  ignoreList.push({
+    sourceName: /\b(ua)\.css$/i,
+    errorMessage: /Unknown pseudo-class.*view-transition/i,
+    isFromDevTools: false,
+  });
+  ignoreList.push({
+    sourceName: /\b(ua)\.css$/i,
+    errorMessage: /Unknown property.*view-transition/i,
+    isFromDevTools: false,
   });
 }
 
