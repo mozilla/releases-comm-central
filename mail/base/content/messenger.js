@@ -272,15 +272,15 @@ var gMailInit = {
     PeriodicFilterManager.setupFiltering();
     msgDBCacheManager.init();
 
-    this.delayedStartupFinished = true;
-    _resolveDelayedStartup(window);
-    Services.obs.notifyObservers(window, "browser-delayed-startup-finished");
+    this._loadComponentsAtStartup().then(() => {
+      this.delayedStartupFinished = true;
+      _resolveDelayedStartup(window);
+      Services.obs.notifyObservers(window, "browser-delayed-startup-finished");
 
-    // Notify observer to resolve the browserStartupPromise, which is used for the
-    // delayed background startup of WebExtensions.
-    Services.obs.notifyObservers(window, "extensions-late-startup");
-
-    this._loadComponentsAtStartup();
+      // Notify observer to resolve the browserStartupPromise, which is used for the
+      // delayed background startup of WebExtensions.
+      Services.obs.notifyObservers(window, "extensions-late-startup");
+    });
   },
 
   /**

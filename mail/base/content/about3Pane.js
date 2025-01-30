@@ -105,6 +105,11 @@ var paneLayout;
 var messagePane;
 
 /**
+ * A Promise with resolvers, indicating if DOMContentLoaded has finished.
+ */
+var hasDOMContentLoaded = Promise.withResolvers();
+
+/**
  * This is called at midnight to have messages grouped by their relative date
  * (such as today, yesterday, etc.) correctly categorized.
  */
@@ -198,6 +203,9 @@ window.addEventListener("DOMContentLoaded", async event => {
   CalMetronome.on("day", refreshGroupedBySortView);
 
   updateZoomCommands();
+
+  // Update the state of the about:3pane being fully loaded.
+  hasDOMContentLoaded.resolve();
 });
 
 window.addEventListener("unload", () => {

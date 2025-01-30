@@ -175,26 +175,30 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
         ? tabManager.get(tabId)
         : tabManager.wrapTab(tabTracker.activeTab);
       if (tab?.type == "mail") {
+        const contentWindow = tab.nativeTab.chromeBrowser.contentWindow;
+        if (!contentWindow) {
+          return null;
+        }
+        await contentWindow.hasDOMContentLoaded.promise;
+
         // In about:3pane only the messageBrowser needs to be checked for its
         // load state. The webBrowser is invalid, the multiMessageBrowser can
         // bypass.
-        if (!tab.nativeTab.chromeBrowser.contentWindow.webBrowser.hidden) {
+        if (!contentWindow.webBrowser.hidden) {
           return null;
         }
-        if (
-          tab.nativeTab.chromeBrowser.contentWindow.messagePane.isMultiMessageBrowserVisible()
-        ) {
+        if (contentWindow.messagePane.isMultiMessageBrowserVisible()) {
           return tab;
         }
-        msgContentWindow =
-          tab.nativeTab.chromeBrowser.contentWindow.messageBrowser
-            .contentWindow;
+        msgContentWindow = contentWindow.messageBrowser.contentWindow;
       } else if (tab?.type == "messageDisplay") {
         msgContentWindow =
           tab instanceof TabmailTab
             ? tab.nativeTab.chromeBrowser.contentWindow
             : tab.nativeTab.messageBrowser.contentWindow;
-      } else {
+      }
+
+      if (!msgContentWindow) {
         return null;
       }
 
