@@ -4,7 +4,6 @@
 
 import { AppConstants } from "resource:///modules/AppConstants.sys.mjs";
 
-// Export all available functions for Mozmill
 function computeButton(aEvent) {
   if (typeof aEvent.button != "undefined") {
     return aEvent.button;
@@ -104,6 +103,9 @@ export function sendChar(aChar, aWindow) {
  *
  * For now this method only works for ASCII characters and emulates the shift
  * key state on US keyboard layout.
+ *
+ * @param {string} aStr - The string to "type in".
+ * @param {window} aWindow - Window to use.
  */
 export function sendString(aStr, aWindow) {
   for (let i = 0; i < aStr.length; ++i) {
@@ -143,7 +145,7 @@ export function sendString(aStr, aWindow) {
  *
  * aWindow is optional, and defaults to the current window object.
  *
- * Returns whether the event had preventDefault() called on it.
+ * @returns {boolean} whether the event had preventDefault() called on it.
  */
 export function synthesizeMouse(aTarget, aOffsetX, aOffsetY, aEvent, aWindow) {
   var rect = aTarget.getBoundingClientRect();
@@ -155,7 +157,7 @@ export function synthesizeMouse(aTarget, aOffsetX, aOffsetY, aEvent, aWindow) {
   );
 }
 
-/*
+/**
  * Synthesize a mouse event at a particular point in aWindow.
  *
  * aEvent is an object which may contain the properties:
@@ -333,27 +335,15 @@ export function synthesizeMouseScroll(
  * Synthesize a key event. It is targeted at whatever would be targeted by an
  * actual keypress by the user, typically the focused element.
  *
- * aKey should be:
+ * @param {string|integer} aKey - Should be:
  *  - key value (recommended).  If you specify a non-printable key name,
  *    append "KEY_" prefix.  Otherwise, specifying a printable key, the
  *    key value should be specified.
  *  - keyCode name starting with "VK_" (e.g., VK_RETURN).  This is available
  *    only for compatibility with legacy API.  Don't use this with new tests.
  *
- * aEvent is an object which may contain the properties:
- *  - code: If you emulates a physical keyboard's key event, this should be
- *          specified.
- *  - repeat: If you emulates auto-repeat, you should set the count of repeat.
- *            This method will automatically synthesize keydown (and keypress).
- *  - location: If you want to specify this, you can specify this explicitly.
- *              However, if you don't specify this value, it will be computed
- *              from code value.
- *  - type: Basically, you shouldn't specify this.  Then, this function will
- *          synthesize keydown (, keypress) and keyup.
- *          If keydown is specified, this only fires keydown (and keypress if
- *          it should be fired).
- *          If keyup is specified, this only fires keyup.
- *  - altKey, altGraphKey, ctrlKey, capsLockKey, fnKey, fnLockKey, numLockKey,
+ * @param {object} aEvent - An object which may contain the properties.
+ *   - altKey, altGraphKey, ctrlKey, capsLockKey, fnKey, fnLockKey, numLockKey,
  *    metaKey, osKey, scrollLockKey, shiftKey, symbolKey, symbolLockKey:
  *        Basically, you shouldn't use these attributes.  nsITextInputProcessor
  *        manages modifier key state when you synthesize modifier key events.
@@ -361,11 +351,37 @@ export function synthesizeMouseScroll(
  *        the modifiers only during dispatching the key events.
  *        Note that if some of these values are false, they are ignored (i.e.,
  *        not inactivated with this function).
- *  - keyCode: Must be 0 - 255 (0xFF). If this is specified explicitly,
- *             .keyCode value is initialized with this value.
- *
- * aWindow is optional, and defaults to the current window object.
- * aCallback is optional, use the callback for receiving notifications of TIP.
+ * @param {integer} [aEvent.code] - If you emulates a physical keyboard's
+ *   key event, this should be specified.
+ * @param {integer} [aEvent.repeat] - If you emulates auto-repeat, you should set
+ *   the count of repeat. This method will automatically synthesize keydown
+ *  (and keypress).
+ * @param {integer} [aEvent.location] - If you want to specify this, you can
+ *   specify this explicitly. E.g. KeyboardEvent.DOM_KEY_LOCATION_RIGHT.
+ *   However, if you don't specify this value, it will be computed
+ *   from code value.
+ * @param {integer} [aEvent.type] - Basically, you shouldn't specify this.
+ *   Then, this function will synthesize keydown (, keypress) and keyup.
+ *   If keydown is specified, this only fires keydown (and keypress if
+ *   it should be fired).
+ *   If keyup is specified, this only fires keyup.
+ * @param {boolean} [aEvent.altKey]
+ * @param {boolean} [aEvent.altGraphKey]
+ * @param {boolean} [aEvent.ctrlKey]
+ * @param {boolean} [aEvent.capsLockKey]
+ * @param {boolean} [aEvent.fnKey]
+ * @param {boolean} [aEvent.numLockKey]
+ * @param {boolean} [aEvent.metaKey]
+ * @param {boolean} [aEvent.osKey]
+ * @param {boolean} [aEvent.scrollLockKey]
+ * @param {boolean} [aEvent.shiftKey]
+ * @param {boolean} [aEvent.symbolKey]
+ * @param {boolean} [aEvent.symbolLockKey]
+ * @param {integer} [aEvent.keyCode] - Must be 0 - 255 (0xFF). If this is
+ *   specified explicitly, .keyCode value is initialized with this value.
+ * @param {window} [aWindow] optional window. defaults to the current window.
+ * @param {Function} [aCallback] optional, use the callback for receiving
+ *   notifications of TIP.
  */
 export function synthesizeKey(aKey, aEvent, aWindow, aCallback) {
   var TIP = _getTIP(aWindow, aCallback);
