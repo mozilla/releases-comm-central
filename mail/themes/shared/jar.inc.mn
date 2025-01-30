@@ -474,6 +474,9 @@
   skin/classic/messenger/illustrations/in-app-notification-donation-default-dark.svg (../shared/mail/illustrations/in-app-notification-donation-default-dark.svg)
   skin/classic/messenger/illustrations/accounthub-success-dark.svg                   (../shared/mail/illustrations/accounthub-success-dark.svg)
   skin/classic/messenger/illustrations/accounthub-success.svg                        (../shared/mail/illustrations/accounthub-success.svg)
+  skin/classic/messenger/illustrations/pictograph-grouped.svg                        (../shared/mail/illustrations/pictograph-grouped.svg)
+  skin/classic/messenger/illustrations/pictograph-threaded.svg                       (../shared/mail/illustrations/pictograph-threaded.svg)
+  skin/classic/messenger/illustrations/pictograph-unthreaded.svg                     (../shared/mail/illustrations/pictograph-unthreaded.svg)
 
 # New design system
   skin/classic/messenger/avatars.css                          (../shared/mail/avatars.css)
@@ -756,7 +759,9 @@
   skin/classic/messenger/icons/new/activity/error.svg          (../shared/mail/icons/new/activity/error.svg)
 
 # XS - 12x12px icons
+  skin/classic/messenger/icons/xs/ascending.svg                (../shared/mail/icons/xs/ascending.svg)
   skin/classic/messenger/icons/xs/close.svg                    (../shared/mail/icons/xs/close.svg)
+  skin/classic/messenger/icons/xs/descending.svg               (../shared/mail/icons/xs/descending.svg)
   skin/classic/messenger/icons/xs/dot.svg                      (../shared/mail/icons/xs/dot.svg)
   skin/classic/messenger/icons/xs/sparkle-star.svg             (../shared/mail/icons/xs/sparkle-star.svg)
   skin/classic/messenger/icons/xs/replies.svg                  (../shared/mail/icons/xs/replies.svg)

@@ -1380,3 +1380,94 @@ qr-code-wizard {
     content: var(--icon-nav-down-sm);
   }
 }
+
+#defaultSortOrder {
+  & .radio-icon {
+    margin-inline-end: 3px;
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+  }
+
+  & [selected="true"] .radio-icon {
+    stroke: AccentColor;
+  }
+}
+
+#defaultSortOrderAscending .radio-icon {
+  list-style-image: var(--icon-ascending-xs);
+}
+
+#defaultSortOrderDescending .radio-icon {
+  list-style-image: var(--icon-descending-xs);
+}
+
+.appearance-options {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  margin-block-start: 9px;
+
+  & .radio-icon {
+    -moz-context-properties: fill, stroke;
+    fill: var(--color-text-base);
+    stroke: var(--color-text-secondary);
+    margin-inline-start: -22px;
+    background-color: var(--color-neutral-base);
+    border-radius: 6px;
+  }
+
+  & radio {
+    display: flex;
+    align-items: end;
+    background-color: var(--color-neutral-subtle);
+    border: 1px solid var(--color-neutral-border);
+    border-radius: 10px;
+    padding: 3px;
+    margin: 0;
+
+    & .radio-check {
+      margin-block: 0;
+    }
+
+    & .radio-label-box {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin: 0;
+      padding: 0;
+    }
+
+    & .radio-label {
+      align-self: start;
+      margin: 0;
+      padding: 0;
+      line-height: 1.3;
+    }
+
+    &:hover {
+      background-color: var(--color-neutral-border);
+    }
+
+    &[selected="true"] {
+      border-color: AccentColor;
+      outline: 1px solid AccentColor;
+
+      .radio-icon {
+        fill: AccentColor;
+        stroke: AccentColor;
+      }
+    }
+  }
+}
+
+#defaultFlagThreaded .radio-icon {
+  list-style-image: var(--threaded-illustration);
+}
+
+#defaultFlagUnthreaded .radio-icon {
+  list-style-image: var(--unthreaded-illustration);
+}
+
+#defaultFlagGrouped .radio-icon {
+  list-style-image: var(--grouped-illustration);
+}

@@ -6,7 +6,9 @@
 
 :root {
   /* XS - 12x12px icons */
+  --icon-ascending-xs: url("chrome://messenger/skin/icons/xs/ascending.svg");
   --icon-close-xs: url("chrome://messenger/skin/icons/xs/close.svg");
+  --icon-descending-xs: url("chrome://messenger/skin/icons/xs/descending.svg");
   --icon-dot-xs: url("chrome://messenger/skin/icons/xs/dot.svg");
   --icon-sparkle-star-xs: url("chrome://messenger/skin/icons/xs/sparkle-star.svg");
   --icon-replies-xs: url("chrome://messenger/skin/icons/xs/replies.svg");
@@ -277,6 +279,10 @@
   --addons-manager-recent-updates: url("chrome://messenger/skin/icons/new/touch/extension-update-recent.svg");
 
   --icon-account-sync: url("chrome://messenger/skin/icons/account-sync.svg");
+
+  --grouped-illustration: url("chrome://messenger/skin/illustrations/pictograph-grouped.svg");
+  --threaded-illustration: url("chrome://messenger/skin/illustrations/pictograph-threaded.svg");
+  --unthreaded-illustration: url("chrome://messenger/skin/illustrations/pictograph-unthreaded.svg");
 }
 
 :root[uidensity="compact"] {

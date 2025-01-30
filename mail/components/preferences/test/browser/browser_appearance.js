@@ -78,7 +78,11 @@ add_task(async function test_default_preferences_flags() {
 add_task(async function test_edit_flags_all_folders() {
   info("Ensure that changing the menulist updates the preferences correctly.");
 
-  await changeMenuItem(prefsDocument.getElementById("defaultViewFlags"), 2);
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("defaultFlagGrouped"),
+    {},
+    prefsWindow
+  );
 
   Assert.equal(
     Services.prefs.getIntPref("mailnews.default_view_flags"),
@@ -162,7 +166,11 @@ add_task(async function test_edit_flags_all_folders() {
 add_task(async function test_edit_flags_single_folders() {
   info("Change flags and only apply them to a single folder");
 
-  await changeMenuItem(prefsDocument.getElementById("defaultViewFlags"), 1);
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("defaultFlagThreaded"),
+    {},
+    prefsWindow
+  );
   await changeMenuItem(prefsDocument.getElementById("defaultSortType"), 0);
 
   EventUtils.synthesizeMouseAtCenter(
@@ -209,7 +217,11 @@ add_task(async function test_edit_flags_single_folders() {
 
   info("Change flags and apply them to a folder and its children");
 
-  await changeMenuItem(prefsDocument.getElementById("defaultViewFlags"), 2);
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("defaultFlagGrouped"),
+    {},
+    prefsWindow
+  );
   await changeMenuItem(prefsDocument.getElementById("defaultSortType"), 1);
   EventUtils.synthesizeMouseAtCenter(
     prefsDocument.getElementById("defaultSortOrderAscending"),
