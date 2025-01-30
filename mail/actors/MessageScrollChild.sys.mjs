@@ -15,15 +15,15 @@ export class MessageScrollChild extends JSWindowActorChild {
    *   name: 'getSize' | 'scrollByPages';
    *   data: number | null;
    *   json: number | null;
-   *   sync: boolean;
+   *   sync: Boolean;
    *   target: Record<unknown, any>;
    * }} args
-   * @returns {Promise<{
+   * @returns Promise<{
    *    scrollX: number;
    *    scrollY: number;
    *    scrollMaxX: number;
    *    scrollMaxY: number;
-   *  } | null>}
+   *  } | null>
    */
   async receiveMessage(args) {
     if (args.name === "getSize") {

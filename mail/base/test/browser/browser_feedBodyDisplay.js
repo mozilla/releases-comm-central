@@ -273,10 +273,10 @@ add_task(async function test_feedBodyScroll() {
    * loading the next message.
    *
    * @param {number} [value=0]
-   * @returns {Promise<{
+   * @returns Promise<{
    *    scrollY: number;
    *    scrollMaxY: number;
-   *  } | null>}
+   *  } | null>
    */
   async function checkScroll(value = 0) {
     EventUtils.synthesizeKey(" ", {}, window);
