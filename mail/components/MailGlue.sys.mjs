@@ -97,6 +97,20 @@ if (AppConstants.MOZ_UPDATER) {
 
 const PREF_PDFJS_ISDEFAULT_CACHE_STATE = "pdfjs.enabledCache.state";
 
+const JSPROCESSACTORS = {
+  // Miscellaneous stuff that needs to be initialized per process.
+  BrowserProcess: {
+    child: {
+      esModuleURI: "resource:///actors/BrowserProcessChild.sys.mjs",
+      observers: [
+        // WebRTC related notifications. WebRTC is not support by Thunderbird and
+        // notifications are only handled to properly deny requests.
+        "PeerConnection:request",
+      ],
+    },
+  },
+};
+
 const JSWINDOWACTORS = {
   ChatAction: {
     matches: ["chrome://chat/content/conv.html"],
@@ -347,6 +361,7 @@ MailGlue.prototype = {
     ChromeUtils.unregisterWindowActor("FindBar");
     ChromeUtils.unregisterWindowActor("LoginManager");
 
+    lazy.ActorManagerParent.addJSProcessActors(JSPROCESSACTORS);
     lazy.ActorManagerParent.addJSWindowActors(JSWINDOWACTORS);
   },
 

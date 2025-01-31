@@ -13,6 +13,7 @@ with Files("**"):
 FINAL_TARGET_FILES.actors += [
     "../../../browser/actors/ContextMenuChild.sys.mjs",
     "../../../browser/actors/LinkHandlerChild.sys.mjs",
+    "BrowserProcessChild.sys.mjs",
     "ChatActionChild.sys.mjs",
     "ChatActionParent.sys.mjs",
     "ContextMenuParent.sys.mjs",
