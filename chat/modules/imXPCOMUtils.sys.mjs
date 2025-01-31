@@ -7,15 +7,12 @@ var kLogLevelPref = "purple.debug.loglevel";
 /**
  * Creates an nsIScriptError instance and logs it.
  *
- * @param aModule
- *        string identifying the module within which the error occurred.
- * @param aLevel
- *        the error level as defined in imIDebugMessage.
- * @param aMessage
- *        the error message string.
- * @param aOriginalError
- *        (optional) JS Error object containing the location where the
- *        actual error occurred. Its error message is appended to aMessage.
+ * @param {string} aModule - String identifying the module within which the
+ *   error occurred.
+ * @param {1|2|3|4} aLevel - The error level as defined in imIDebugMessage.
+ * @param {string} aMessage - The error message string.
+ * @param {Error} [aOriginalError] - JS Error object containing the location
+ *   where the actual error occurred. Its error message is appended to aMessage.
  */
 export function scriptError(aModule, aLevel, aMessage, aOriginalError) {
   // Figure out the log level, based on the module and the prefs set.
@@ -193,8 +190,7 @@ ClassInfo.prototype = {
  * Constructs an nsISimpleEnumerator for the given array of items.
  * Copied from netwerk/test/httpserver/httpd.js
  *
- * @param items : Array
- *   the items, which must all implement nsISupports
+ * @param {nsISupports[]} items - Items, which must all implement nsISupports.
  */
 export function nsSimpleEnumerator(items) {
   this._items = items;

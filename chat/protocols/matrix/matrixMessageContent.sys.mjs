@@ -88,7 +88,7 @@ function formatMention(userId, doc) {
  *
  * @param {MatrixEvent} replyEvent - Event to quote.
  * @param {string} homeserverUrl - The base URL of the homeserver.
- * @param {string => MatrixEvent} getEvent - Get the event with the given ID.
+ * @param {function(string):MatrixEvent} getEvent - Get the event with the given ID.
  *  Used to fetch the replied to event.
  * @param {boolean} rich - When true prefers the HTML representation of the
  *  event body.
@@ -120,7 +120,7 @@ function getReplyContent(replyEvent, homeserverUrl, getEvent, rich) {
  *
  * @param {MatrixEvent} event - The event to format the body of.
  * @param {string} homeserverUrl - The base URL of the homeserver.
- * @param {(string) => MatrixEvent} getEvent - Get the event with the given ID.
+ * @param {function(string):MatrixEvent} getEvent - Get the event with the given ID.
  * @param {boolean} [includeReply=true] - If the message should contain the message it's replying to.
  * @returns {string} Plain text message for the event.
  */
@@ -269,7 +269,7 @@ export var MatrixMessageContent = {
    * @param {MatrixEvent} event - Event to format the body of.
    * @param {string} homeserverUrl - The base URL of the homserver used to
    *  resolve mxc URIs.
-   * @param {string => MatrixEvent} getEvent - Get the event with the given ID.
+   * @param {function(string):MatrixEvent} getEvent - Get the event with the given ID.
    *  Used to fetch the replied to event.
    * @param {boolean} [includeReply=true] - If the message should contain the
    *  message it's replying to.
@@ -328,7 +328,7 @@ export var MatrixMessageContent = {
    * @param {MatrixEvent} event - Event to format the body of.
    * @param {string} homeserverUrl - The base URL of the homserver used to
    *  resolve mxc URIs.
-   * @param {string => MatrixEvent} getEvent - Get the event with the given ID.
+   * @param {function(string):MatrixEvent} getEvent - Get the event with the given ID.
    * @param {boolean} [includeReply=true] - If the message should contain the
    *  message it's replying to.
    * @returns {string} Returns a formatted body ready for display or an empty

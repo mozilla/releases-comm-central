@@ -73,9 +73,11 @@ export var InteractiveBrowser = {
   /**
    * Listen for a browser window to redirect to the specified URL.
    *
-   * @param {Window} param0.window - Window to listen in.
-   * @param {nsIWebProgress} param0.webProgress - Web progress instance.
-   * @param {AbortSignal} param0.signal - Abort signal indicating that this should no longer listen for redirects.
+   * @param {object} options
+   * @param {Window} options.window - Window to listen in.
+   * @param {nsIWebProgress} options.webProgress - Web progress instance.
+   * @param {AbortSignal} options.signal - Abort signal indicating that this
+   *   should no longer listen for redirects.
    * @returns {Promise<string>} Resolves with the resulting redirect URL.
    */
   _listenForRedirect({ window, webProgress, signal }) {

@@ -141,8 +141,8 @@
     /**
      * Refresh the shown connection state.
      *
-     * @param {"connected"|"connecting"|"disconnected"|"disconnecting"}
-     *   [forceState] - The connection state to show. Otherwise, determined
+     * @param {"connected"|"connecting"|"disconnected"|"disconnecting"} [forceState] - The
+     *   connection state to show. Otherwise, determined
      *   through the account status.
      */
     refreshState(forceState) {
@@ -169,12 +169,12 @@
           break;
       }
 
-      /* "state" and "error" attributes are needed for CSS styling of the
-       * accountIcon and the connection buttons. */
+      // "state" and "error" attributes are needed for CSS styling of the
+      // accountIcon and the connection buttons.
       this.setAttribute("state", state);
 
       if (account.connectionErrorReason !== Ci.prplIAccount.NO_ERROR) {
-        /* Icon and error attribute set in other method. */
+        // Icon and error attribute set in other method.
         this.updateConnectionError();
         return;
       }

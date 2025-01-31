@@ -468,9 +468,9 @@ export function closeLogWriter(aConversation) {
  *
  * YYYY-MM-DD.HHmmSS+ZZzz.format
  *
- * @param aFilename the name of the file
- * @returns an Array, where the first element is a Date object for the date
- *          that the log file represents, and the file type as a string.
+ * @param {string} aFilename - The name of the file.
+ * @returns {[]} an Array, where the first element is a Date object for the date
+ *   that the log file represents, and the file type as a string.
  */
 function getDateFromFilename(aFilename) {
   const kRegExp =
@@ -933,7 +933,7 @@ export class Logger {
    * Get logs for a contact.
    *
    * @param {imIContact} aContact
-   * @returns {Promise<Log[]}
+   * @returns {Promise<Log[]>}
    */
   async getLogsForContact(aContact) {
     let entries = [];
@@ -1039,7 +1039,7 @@ export class Logger {
    * until the promise resolves. If the callback throws (or rejects), iteration
    * will stop and the returned promise will reject with the same error.
    *
-   * @param {{processLog(string): Promise}} aCallback - The callback can return
+   * @param {function(string):Promise} aCallback - The callback can return
    *   a promise. If it does, then it will not be called on the next log until
    *   this promise resolves. If it throws (or rejects), iteration will stop.
    */

@@ -2857,7 +2857,7 @@ export var XMPPAccountPrototype = {
   /**
    * Save the icon for a resource to the local file system.
    *
-   * @param photo - The vcard photo node representing the icon.
+   * @param {Node} photo - The vcard photo node representing the icon.
    * @param {prplIChatBuddy|prplIConversation} resource - Resource the icon is for.
    * @returns {Promise<string>} Resolves with the file:// URI to the local icon file.
    */

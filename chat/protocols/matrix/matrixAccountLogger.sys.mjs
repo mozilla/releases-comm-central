@@ -26,7 +26,7 @@ export class Logger {
    *
    * @param {MatrixAccount} account - The matrix account this logger should log
    *   to.
-   * @param {string} [namespace = ""] - The namespace of this logger.
+   * @param {string} [namespace=""] - The namespace of this logger.
    */
   constructor(account, namespace = "") {
     this.#account = account;
@@ -34,8 +34,9 @@ export class Logger {
   }
 
   /**
+   * Format the message.
    *
-   * @param {any[]]} msg - Array of parameters passed into the logging function.
+   * @param {[*]} msg - Array of parameters passed into the logging function.
    * @returns {string} String to log, including the namespace of this logger.
    */
   #formatMessage(msg) {

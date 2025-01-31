@@ -178,7 +178,7 @@ class TagsService {
    * Get an existing tag by name (will do an SQL query). Returns null
    * if not found.
    *
-   * @param {string} name - The tag name.
+   * @param {string} aName - The tag name.
    * @returns {?imITag} The tag or null if the tag doesn't exist.
    */
   getTagByName(aName) {

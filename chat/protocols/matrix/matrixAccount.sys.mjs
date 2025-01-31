@@ -1417,7 +1417,8 @@ MatrixRoom.prototype = {
  * the challenge string and description.
  *
  * @param {VerificationRequest} request - Matrix SDK verification request.
- * @returns {Promise<{ challenge: string, challengeDescription: string?, handleResult: (boolean) => {}, cancel: () => {}, cancelPromise: Promise}}
+ * @returns {Promise<object>} an object like
+ *  { challenge: string, challengeDescription: string?, handleResult: (boolean) => {}, cancel: () => {}, cancelPromise: Promise}
  */
 async function startVerification(request) {
   if (!request.verifier) {
@@ -3035,8 +3036,7 @@ MatrixAccount.prototype = {
   /**
    * Returns the room ID for user ID if exists for direct messaging.
    *
-   * @param {string} roomId - ID of the user.
-   *
+   * @param {string} userId - ID of the user.
    * @returns {string} - ID of the room.
    */
   getDMRoomIdForUserId(userId) {
@@ -3095,9 +3095,8 @@ MatrixAccount.prototype = {
    * Sets the room ID for for corresponding user ID for direct messaging
    * by setting the "m.direct" event of account data of the SDK client.
    *
-   * @param {string} roomId - ID of the user.
-   *
-   * @param {string} - ID of the room.
+   * @param {string} userId - ID of the user.
+   * @param {string} roomId - ID of the room.
    */
   setDirectRoom(userId, roomId) {
     const dmRoomMap = this._userToRoom;
@@ -3218,27 +3217,26 @@ MatrixAccount.prototype = {
    * 3) Create a new room if the conversation does not exist.
    *
    * @param {string} userId - ID of the user for which we want to get the
-   *                          direct conversation.
+   *   direct conversation.
    * @param {string} [roomId] - ID of the room.
    * @param {string} [roomName] - Name of the room.
-   *
    * @returns {MatrixRoom} - The resulted conversation.
    */
-  getDirectConversation(userId, roomID, roomName) {
+  getDirectConversation(userId, roomId, roomName) {
     let DMRoomId = this.getDMRoomIdForUserId(userId);
-    if (roomID && DMRoomId !== roomID) {
-      this.setDirectRoom(userId, roomID);
-      DMRoomId = roomID;
+    if (roomId && DMRoomId !== roomId) {
+      this.setDirectRoom(userId, roomId);
+      DMRoomId = roomId;
     }
-    if (!DMRoomId && roomID) {
-      DMRoomId = roomID;
+    if (!DMRoomId && roomId) {
+      DMRoomId = roomId;
     }
     if (DMRoomId && this.roomList.has(DMRoomId)) {
       return this.roomList.get(DMRoomId);
     }
 
     // If user is invited to the room then DMRoomId will be null. In such
-    // cases, we will pass roomID so that user will be joined to the room
+    // cases, we will pass roomId so that user will be joined to the room
     // and we will create corresponding conversation.
     if (DMRoomId) {
       const conv = new MatrixRoom(this, false, roomName || DMRoomId);
@@ -3284,8 +3282,8 @@ MatrixAccount.prototype = {
         visibility: lazy.MatrixSDK.Visibility.Private,
         preset: lazy.MatrixSDK.Preset.TrustedPrivateChat,
       },
-      roomId => {
-        this.setDirectRoom(userId, roomId);
+      roomID => {
+        this.setDirectRoom(userId, roomID);
       }
     );
     return conv;

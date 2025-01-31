@@ -366,16 +366,16 @@
     /**
      * Sets the shown user icon.
      *
-     * @param {string|null} iconURI - The image uri to show, or "" to use the
+     * @param {string|null} iconUri - The image uri to show, or "" to use the
      *   fallback, or null to hide the icon.
-     * @param {boolean} useFallback - True if the "fallback" icon should be shown
-     *   if iconUri isn't provided.
+     * @param {boolean} useFallback - True if the "fallback" icon should be
+     *   shown if iconUri isn't provided.
      */
-    setUserIcon(iconUri, useFalback) {
+    setUserIcon(iconUri, useFallback) {
       ChatIcons.setUserIconSrc(
         this.querySelector(".userIcon"),
         iconUri,
-        useFalback
+        useFallback
       );
     }
 

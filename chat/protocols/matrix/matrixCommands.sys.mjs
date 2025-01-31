@@ -223,13 +223,18 @@ function publishRoomDetails(account, conv) {
 /**
  * Generic command handler for commands with up to 2 params.
  *
- * @param {(imIAccount, prplIConversation, string[]) => boolean} commandCallback - Command handler implementation. Returns true when successful.
+ * @param {function(imIAccount,prplIConversation,string[]):boolean} commandCallback - Command
+ *   handler implementation. Returns true when successful.
  * @param {number} parameterCount - Number of parameters. Maximum 2.
  * @param {object} [options] - Extra options.
- * @param {number} [options.requiredCount] - How many of the parameters are required (from the start).
- * @param {(string[]) => boolean} [options.validateParams] - Validator function for params.
- * @param {(prplIConversation, string[]) => any[]} [options.formatParams] - Formatting function for params.
- * @returns {(string, IMConversation) => boolean} Command handler function that returns true when the command was handled.
+ * @param {number} [options.requiredCount] - How many of the parameters are
+ *   required (from the start).
+ * @param {function(string[]):boolean} [options.validateParams] - Validator
+ *   function for params.
+ * @param {function(prplIConversation,string[]):[]} [options.formatParams] - Formatting
+ *   function for params.
+ * @returns {function(string,IMConversation):boolean} Command handler function
+ *   that returns true when the command was handled.
  */
 function runCommand(
   commandCallback,
@@ -292,10 +297,14 @@ function runCommand(
  * @param {string} clientMethod - Name of the method on the matrix client.
  * @param {number} parameterCount - Number of parameters. Maximum 2.
  * @param {object} [options] - Extra options.
- * @param {number} [options.requiredCount] - How many of the parameters are required (from the start).
- * @param {(string[]) => boolean} [options.validateParams] - Validator function for params.
- * @param {(prplIConversation, string[]) => any[]} [options.formatParams] - Formatting function for params.
- * @returns {(string, IMConversation) => boolean} Command handler function that returns true when the command was handled.
+ * @param {number} [options.requiredCount] - How many of the parameters are
+ *   required (from the start).
+ * @param {function(string[]):boolean} [options.validateParams] - Validator function
+ *   for params.
+ * @param {function(prplIConversation,string[]):[]} [options.formatParams] - Formatting
+ *   function for params.
+ * @returns {function(string,IMConversation):boolean} Command handler function
+ *   that returns true when the command was handled.
  */
 function clientCommand(clientMethod, parameterCount, options) {
   return runCommand(

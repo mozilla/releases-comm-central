@@ -279,9 +279,9 @@ export var GenericAccountPrototype = {
    *
    * @param {string} conversationName - Name of the conversation the user is
    *   invited to.
-   * @param {(prplIChatRequest) => void} grantCallback - Function to be called
+   * @param {function(prplIChatRequest):void} grantCallback - Function to be called
    *   when the invite is accepted.
-   * @param {(prplIChatRequest?, boolean) => void} [denyCallback] - Function to
+   * @param {function(?prplIChatRequest,boolean):void} [denyCallback] - Function to
    *   be called when the invite is rejected. If omitted, |canDeny| will be
    *   |false|. Callback is passed a boolean indicating whether the rejection should be
    *   sent to the other party. It being false is equivalent to ignoring the invite, in
@@ -456,8 +456,8 @@ export var GenericAccountPrototype = {
   /**
    *
    * @param {string} aDisplayName - Display name the request is from.
-   * @param {() => Promise<{challenge: string, challengeDescription: string?}>} aGetChallenge - Accept request and generate
-   *   the challenge.
+   * @param {function():Promise<object>} aGetChallenge - Accept request and generate
+   *   the challenge. Returns an object {challenge: string, challengeDescription: string?}
    * @param {AbortSignal} [aAbortSignal] - Abort signal to indicate the request
    *   was cancelled.
    * @returns {Promise<boolean>} Completion promise for the verification.
@@ -665,7 +665,8 @@ export var GenericAccountBuddyPrototype = {
    * _startVerification of GenericSessionPrototype. If the property is not a
    * function, |canVerifyIdentity| is false.
    *
-   * @type {() => {challenge: string, challengeDescription: string?, handleResult: (boolean) => void, cancel: () => void, cancelPromise: Promise}?}
+   * @type {function():object} a function returning an object like
+   *   {challenge: string, challengeDescription: string?, handleResult: (boolean) => void, cancel: () => void, cancelPromise: Promise}?}
    */
   _startVerification: null,
   get canVerifyIdentity() {
@@ -1437,7 +1438,8 @@ export var GenericConvChatBuddyPrototype = {
    * _startVerification of GenericSessionPrototype. If the property is not a
    * function, |canVerifyIdentity| is false.
    *
-   * @type {() => {challenge: string, challengeDescription: string?, handleResult: (boolean) => void, cancel: () => void, cancelPromise: Promise}?}
+   * @type {function():object} function returning an object like
+   *   {challenge: string, challengeDescription: string?, handleResult: (boolean) => void, cancel: () => void, cancelPromise: Promise}?}
    */
   _startVerification: null,
   get canVerifyIdentity() {
@@ -1863,7 +1865,8 @@ export var GenericSessionPrototype = {
    * expected to update the trusted property on the session if it becomes
    * trusted after verification.
    *
-   * @returns {Promise<{challenge: string, challengeDescription: string?, handleResult: (boolean) => void, cancel: () => void, cancelPromise: Promise<void>}>}
+   * @returns {Promise<object>} and object like
+   *   {challenge: string, challengeDescription: string?, handleResult: (boolean) => void, cancel: () => void, cancelPromise: Promise<void>}
    *  Promise resolves to an object holding the challenge string, as well as a
    *  callback that handles the result of the verification flow. The cancel
    *  callback is called when the verification is cancelled and the cancelPromise
