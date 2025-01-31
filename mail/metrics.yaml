@@ -217,7 +217,7 @@ mail:
       - mail.minimizeToTray
       - mail.operate_on_msgs_in_collapsed_threads
       - mail.phishing.detection.enabled
-      - mail.prompt_purge_threshhold
+      - mail.prompt_purge_threshold
       - mail.purge.ask
       - mail.receipt.request_return_receipt_on
       - mail.shell.checkDefaultClient

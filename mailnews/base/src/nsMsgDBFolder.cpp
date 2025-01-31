@@ -79,8 +79,8 @@ extern LazyLogModule gCompactLog;  // "compact" (Defined in FolderCompactor).
 static PRTime gtimeOfLastPurgeCheck;  // variable to know when to check for
                                       // purge threshold
 
-#define PREF_MAIL_PROMPT_PURGE_THRESHOLD "mail.prompt_purge_threshhold"
-#define PREF_MAIL_PURGE_THRESHOLD_MB "mail.purge_threshhold_mb"
+#define PREF_MAIL_PROMPT_PURGE_THRESHOLD "mail.prompt_purge_threshold"
+#define PREF_MAIL_PURGE_THRESHOLD_MB "mail.purge_threshold_mb"
 #define PREF_MAIL_PURGE_ASK "mail.purge.ask"
 #define PREF_MAIL_WARN_FILTER_CHANGED "mail.warn_filter_changed"
 #define PREF_MAIL_DISCARD_OFFLINE_ON_FAILURE \

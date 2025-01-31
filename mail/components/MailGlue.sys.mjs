@@ -1266,7 +1266,7 @@ function reportPreferences() {
     "mail.delete_matches_sort_order",
     "mail.display_glyph",
     "mail.mailnews.scroll_to_new_message",
-    "mail.prompt_purge_threshhold",
+    "mail.prompt_purge_threshold",
     "mail.purge.ask",
     "mail.addressDisplayFormat",
     "mail.showCondensedAddresses",

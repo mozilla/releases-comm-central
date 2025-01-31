@@ -28,7 +28,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 46;
+    const UI_VERSION = 47;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -213,9 +213,28 @@ export var MailMigrator = {
 
       if (currentUIVersion < 46) {
         // Clean out an old default value that got stuck in a lot of profiles.
-        if (Services.prefs.getIntPref("mail.purge_threshhold_mb") == 20) {
+        try {
+          // This will throw if no value is set since the pref doesn't exist any more.
+          if (Services.prefs.getIntPref("mail.purge_threshhold_mb") == 20) {
+            Services.prefs.clearUserPref("mail.purge_threshhold_mb");
+          }
+        } catch (ex) {}
+      }
+
+      if (currentUIVersion < 47) {
+        // Use value in mail.purge_threshhold_mb/mail.prompt_purge_threshhold if any.
+        try {
+          const old = Services.prefs.getIntPref("mail.purge_threshhold_mb");
+          Services.prefs.setIntPref("mail.purge_threshold_mb", old);
           Services.prefs.clearUserPref("mail.purge_threshhold_mb");
-        }
+        } catch (ex) {}
+        try {
+          const old = Services.prefs.getBoolPref(
+            "mail.prompt_purge_threshhold"
+          );
+          Services.prefs.setBoolPref("mail.prompt_purge_threshold", old);
+          Services.prefs.clearUserPref("mail.prompt_purge_threshhold");
+        } catch (ex) {}
       }
 
       // Migration tasks that may take a long time are not run immediately, but
