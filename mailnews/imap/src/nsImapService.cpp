@@ -1912,7 +1912,6 @@ NS_IMETHODIMP nsImapService::MoveFolder(nsIMsgFolder* srcFolder,
       }
       rv = mailnewsurl->SetSpecInternal(urlSpec);
       if (NS_SUCCEEDED(rv)) {
-        GetFolderName(srcFolder, folderName);
         rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, nullptr);
       }
     }
