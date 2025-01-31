@@ -166,8 +166,10 @@ class AccountHubHeader extends HTMLElement {
     );
 
     delete notificationTitle.querySelector(".localized-title").dataset.l10nId;
+    notificationTitle.querySelector(".localized-title").textContent = "";
     delete notificationText.querySelector(".localized-description").dataset
       .l10nId;
+    notificationText.querySelector(".localized-description").textContent = "";
     notificationTitle.querySelector(".raw-title").textContent = "";
     notificationText.querySelector(".raw-description").textContent = "";
 
