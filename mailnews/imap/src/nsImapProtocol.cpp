@@ -2825,7 +2825,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
               m_imapAction == nsIImapUrl::nsImapMsgPreview) {
             if (m_imapAction == nsIImapUrl::nsImapMsgPreview) {
               // Autosync does its own progress. Don't show progress here
-              // unless preview. This voids lots of "1 of 1", "1 of 3" etc.
+              // unless preview. This avoids lots of "1 of 1", "1 of 3", etc.
               // interspersed with autosync progress.
               SetProgressString(IMAP_MESSAGES_STRING_INDEX);
 

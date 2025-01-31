@@ -20,8 +20,7 @@ class MimeClosure {
   // MimeClosure is a helper class to make it safer to pass the various mime
   // data objects through callbacks without relying on void* and risky casting.
   // The basic idea is that attempts to pull out the wrong kind of pointer will
-  // assert on debug builds and produce a null pointer on release builds.class
-  // MimeClosure {
+  // assert on debug builds and produce a null pointer on release builds.
  public:
   enum ClosureType {
     isUndefined = 0,
