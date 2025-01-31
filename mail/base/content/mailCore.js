@@ -29,6 +29,10 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
+});
+
 ChromeUtils.defineLazyGetter(this, "gViewSourceUtils", function () {
   const scope = {};
   Services.scriptloader.loadSubScript(
@@ -914,7 +918,7 @@ function setupDataTransfer(event, attachments) {
     );
     event.dataTransfer.mozSetDataAt(
       "application/x-moz-file-promise",
-      new nsFlavorDataProvider(),
+      new FlavorDataProvider(),
       index
     );
     event.dataTransfer.mozSetDataAt(
@@ -944,64 +948,68 @@ function updateTroubleshootMenuItem() {
   }
 }
 
-function nsFlavorDataProvider() {}
+/**
+ * @implements {nsIFlavorDataProvider}
+ */
+class FlavorDataProvider {
+  QueryInterface = ChromeUtils.generateQI(["nsIFlavorDataProvider"]);
 
-nsFlavorDataProvider.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
-
-  getFlavorData(aTransferable, aFlavor, aData) {
-    // get the url for the attachment
-    if (aFlavor == "application/x-moz-file-promise") {
-      var urlPrimitive = {};
-      aTransferable.getTransferData(
-        "application/x-moz-file-promise-url",
-        urlPrimitive
-      );
-
-      var srcUrlPrimitive = urlPrimitive.value.QueryInterface(
-        Ci.nsISupportsString
-      );
-
-      // now get the destination file location from kFilePromiseDirectoryMime
-      var dirPrimitive = {};
-      aTransferable.getTransferData(
-        "application/x-moz-file-promise-dir",
-        dirPrimitive
-      );
-      var destDirectory = dirPrimitive.value.QueryInterface(Ci.nsIFile);
-
-      // now save the attachment to the specified location
-      // XXX: we need more information than just the attachment url to save it,
-      // fortunately, we have an array of all the current attachments so we can
-      // cheat and scan through them
-
-      var attachment = null;
-      for (const index of currentAttachments.keys()) {
-        attachment = currentAttachments[index];
-        if (attachment.url == srcUrlPrimitive) {
-          break;
-        }
-      }
-
-      // call our code for saving attachments
-      if (attachment) {
-        const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-          Ci.nsIMessenger
-        );
-        const name = attachment.name || attachment.displayName;
-        const destFilePath = messenger.saveAttachmentToFolder(
-          attachment.contentType,
-          attachment.url,
-          name.replace(/(.{74}).*(.{10})$/u, "$1...$2"),
-          attachment.uri,
-          destDirectory
-        );
-        aData.value = destFilePath.QueryInterface(Ci.nsISupports);
-      }
-      if (AppConstants.platform == "macosx") {
-        // Workaround dnd of multiple attachments creating duplicates. See bug 1494588.
-        aTransferable.removeDataFlavor("application/x-moz-file-promise");
-      }
+  /**
+   * Retrieve the data from this data provider.
+   *
+   * @param {nsITransferable} transferable - Transferable we're being called for.
+   * @param {string} flavor - The flavor of data to retrieve.
+   * @param {nsISupports} data - Out param. The data. Some variant of class in
+   *   nsISupportsPrimitives...
+   */
+  getFlavorData(transferable, flavor, data) {
+    if (flavor != "application/x-moz-file-promise") {
+      return;
     }
-  },
-};
+
+    // Get the url for the attachment.
+    const urlPrimitive = {};
+    transferable.getTransferData(
+      "application/x-moz-file-promise-url",
+      urlPrimitive
+    );
+    const srcUrlPrimitive = urlPrimitive.value.QueryInterface(
+      Ci.nsISupportsString
+    );
+
+    // Get the destination file location.
+    const dirPrimitive = {};
+    transferable.getTransferData(
+      "application/x-moz-file-promise-dir",
+      dirPrimitive
+    );
+    const destDirectory = dirPrimitive.value.QueryInterface(Ci.nsIFile);
+
+    // Save the attachment to the specified location
+    // We need more information than just the attachment url to save it,
+    // fortunately, we have an array of all the current attachments so we can
+    // cheat and scan through them
+
+    const attachment = currentAttachments.find(a => a.url == srcUrlPrimitive);
+    if (!attachment) {
+      return;
+    }
+
+    // Save the attachment.
+    const destFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    destFile.initWithPath(destDirectory);
+    destFile.append(attachment.name.replace(/(.{74}).*(.{10})$/u, "$1...$2"));
+    destFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
+    data.value = destFile.QueryInterface(Ci.nsISupports);
+
+    if (AppConstants.platform == "macosx") {
+      // Workaround dnd of multiple attachments creating duplicates.
+      // See bug 1494588.
+      transferable.removeDataFlavor("application/x-moz-file-promise");
+    }
+
+    // `saveToFile` is async. We call it in a fire-and-forget manner here
+    // so we can return while it runs in the background.
+    attachment.saveToFile(destFile.path, attachment.uri);
+  }
+}

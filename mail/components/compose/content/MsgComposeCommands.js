@@ -47,6 +47,7 @@ var { ExtensionParent } = ChromeUtils.importESModule(
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
@@ -8192,23 +8193,25 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
         Ci.nsIFile
       );
       tempDir.initWithPath(pathTempDir);
-      // Ensure we don't mess with an existing file in saveAttachmentToFolder.
+      attachment.name = attachment.name.replaceAll(/[/:*?\"<>|]/g, "_");
+      // Ensure we don't mess with an existing file.
       const uniquePath = await IOUtils.createUniqueFile(
         pathTempDir,
-        attachment.name.replaceAll(/[/:*?\"<>|]/g, "_")
+        attachment.name
       );
-      const uniqueTmpFile = await IOUtils.getFile(uniquePath);
-      const tempFile = gMessenger.saveAttachmentToFolder(
-        attachment.contentType,
-        attachment.url,
-        encodeURIComponent(uniqueTmpFile.leafName),
-        attachment.msgUri,
-        tempDir
-      );
+      // attachment is an nsIMsgAttachment. Convert to AttachmentInfo and save.
+      const attachmentInfo = new AttachmentInfo({
+        contentType: attachment.contentType,
+        url: attachment.url,
+        name: attachment.name,
+        uri: attachment.msgUri,
+      });
+      await attachmentInfo.saveToFile(uniquePath);
+
       gTempDirsToDelete.push(tempDir);
       // Store the original mailbox:// url in contentLocation.
       attachment.contentLocation = attachment.url;
-      attachment.url = Services.io.newFileURI(tempFile).spec;
+      attachment.url = PathUtils.toFileURI(uniquePath);
     }
 
     const item = gAttachmentBucket.appendItem(attachment);
