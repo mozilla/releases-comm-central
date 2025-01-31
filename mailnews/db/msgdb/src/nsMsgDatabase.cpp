@@ -4915,7 +4915,8 @@ NS_IMETHODIMP nsMsgDatabase::GetDefaultSortType(
   NS_ENSURE_ARG_POINTER(aDefaultSortType);
   GetIntPref("mailnews.default_sort_type", aDefaultSortType);
   if (*aDefaultSortType < nsMsgViewSortType::byDate ||
-      *aDefaultSortType > nsMsgViewSortType::byAccount) {
+      *aDefaultSortType > nsMsgViewSortType::byCorrespondent ||
+      *aDefaultSortType == nsMsgViewSortType::byCustom) {
     *aDefaultSortType = nsMsgViewSortType::byDate;
   }
   return NS_OK;
