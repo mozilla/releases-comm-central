@@ -48,7 +48,15 @@ function onLoad() {
     document.getElementById("folderGroup").selectedItem.doCommand();
   }
 
-  doEnabling();
+  // Handle enabling/disabling of the OK button.
+  dialog.nameField.addEventListener("input", event => {
+    const childName = event.target.value;
+    // Disable if no value set, or if child folder with that name alredy exists.
+    document.querySelector("dialog").getButton("accept").disabled =
+      !childName || dialog.folder.getChildNamed(childName);
+  });
+  document.querySelector("dialog").getButton("accept").disabled = true;
+
   UIFontSize.registerWindow(window);
 }
 
@@ -60,10 +68,7 @@ function onFolderSelect(event) {
 }
 
 function onOK() {
-  var name = dialog.nameField.value;
-
-  // do name validity check?
-
+  const name = dialog.nameField.value;
   // make sure name ends in  "/" if folder to create can only contain folders
   if (dialog.folderType == FOLDERS && !name.endsWith("/")) {
     dialog.okCallback(name + "/", dialog.folder);
@@ -78,9 +83,4 @@ function onFoldersOnly() {
 
 function onMessagesOnly() {
   dialog.folderType = MESSAGES;
-}
-
-function doEnabling() {
-  document.querySelector("dialog").getButton("accept").disabled =
-    !dialog.nameField.value;
 }

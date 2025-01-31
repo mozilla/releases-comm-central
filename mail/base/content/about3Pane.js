@@ -3339,13 +3339,11 @@ var folderPane = {
    * Opens the dialog to create a new sub-folder, and creates it if the user
    * accepts.
    *
-   * @param {?nsIMsgFolder} aParent - The parent for the new subfolder.
+   * @param {nsIMsgFolder} folder - The parent for the new subfolder.
    */
-  newFolder(aParent) {
-    let folder = aParent;
-
+  newFolder(folder) {
     // Make sure we actually can create subfolders.
-    if (!folder?.canCreateSubfolders) {
+    if (!folder.canCreateSubfolders) {
       // Check if we can create them at the root, otherwise use the default
       // account as root folder.
       const rootMsgFolder = folder.server.rootMsgFolder;
@@ -3354,33 +3352,59 @@ var folderPane = {
         : top.GetDefaultAccountRootFolder();
     }
 
-    if (!folder) {
-      return;
-    }
-
     let dualUseFolders = true;
     if (folder.server instanceof Ci.nsIImapIncomingServer) {
       dualUseFolders = folder.server.dualUseFolders;
     }
 
-    function newFolderCallback(aName, aFolder) {
-      // createSubfolder can throw an exception, causing the newFolder dialog
-      // to not close and wait for another input.
+    /**
+     * Callback executed when the user selects OK in the create folder dialog.
+     *
+     * @param {string} subfolderName
+     * @param {nsIMsgFolder} parentFolder
+     */
+    const newFolderOkCallback = async (subfolderName, parentFolder) => {
       // TODO: Rewrite this logic and also move the opening of alert dialogs from
       // nsMsgLocalMailFolder::CreateSubfolderInternal to here (bug 831190#c16).
-      if (!aName) {
+      if (!subfolderName) {
         return;
       }
-      aFolder.createSubfolder(aName, top.msgWindow);
-      // Don't call the rebuildAfterChange() here as we'll need to wait for the
-      // new folder to be properly created before rebuilding the tree.
-    }
+
+      const promiseNewFolder = new Promise(resolve => {
+        const listener = {
+          folderAdded: addedFolder => {
+            if (addedFolder.name == subfolderName) {
+              MailServices.mfn.removeListener(listener);
+              resolve(addedFolder);
+            }
+          },
+        };
+        MailServices.mfn.addListener(
+          listener,
+          Ci.nsIMsgFolderNotificationService.folderAdded
+        );
+      });
+      parentFolder.createSubfolder(subfolderName, top.msgWindow);
+      if (!parentFolder.isServer) {
+        // Inherit view/sort/columns from parent folder.
+        const newFolder = await promiseNewFolder;
+        const parentInfo = parentFolder.msgDatabase.dBFolderInfo;
+        const newInfo = newFolder.msgDatabase.dBFolderInfo;
+        newInfo.viewFlags = parentInfo.viewFlags;
+        newInfo.sortType = parentInfo.sortType;
+        newInfo.sortOrder = parentInfo.sortOrder;
+        newInfo.setCharProperty(
+          "columnStates",
+          parentInfo.getCharProperty("columnStates")
+        );
+      }
+    };
 
     window.openDialog(
       "chrome://messenger/content/newFolderDialog.xhtml",
       "",
       "chrome,modal,resizable=no,centerscreen",
-      { folder, dualUseFolders, okCallback: newFolderCallback }
+      { folder, dualUseFolders, okCallback: newFolderOkCallback }
     );
   },
 

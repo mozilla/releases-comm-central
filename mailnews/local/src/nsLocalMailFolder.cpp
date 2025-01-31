@@ -551,8 +551,10 @@ nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
     const nsAString& folderName, nsIMsgWindow* msgWindow,
     nsIMsgFolder** aNewFolder) {
   nsresult rv = CheckIfFolderExists(folderName, this, msgWindow);
-  // No need for an assertion: we already throw an alert.
-  if (NS_FAILED(rv)) return rv;
+  if (NS_FAILED(rv)) {
+    // CheckIfFolderExists() already shows alert if a folder exists.
+    return rv;
+  }
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -560,16 +562,16 @@ nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
   if (rv == NS_MSG_ERROR_INVALID_FOLDER_NAME) {
     ThrowAlertMsg("folderCreationFailed", msgWindow);
   } else if (rv == NS_MSG_FOLDER_EXISTS) {
+    // May happen here due to localized folder name vs. name on disk.
     ThrowAlertMsg("folderExists", msgWindow);
   }
 
   if (NS_SUCCEEDED(rv)) {
-    // we need to notify explicitly the flag change because it failed when we
-    // did AddSubfolder
+    // We need to notify explicitly the flag change because it failed when we
+    // did AddSubfolder()
     (*aNewFolder)->OnFlagChange(mFlags);
-    (*aNewFolder)
-        ->SetPrettyName(
-            folderName);  // because empty trash will create a new trash folder
+    // Set pretty name because empty trash will create a new trash folder.
+    (*aNewFolder)->SetPrettyName(folderName);
     NotifyFolderAdded(*aNewFolder);
   }
 
