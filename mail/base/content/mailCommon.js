@@ -689,6 +689,9 @@ var commandController = {
           folder()?.server.canHaveFilters
         );
       case "cmd_watchThread": {
+        if (gViewWrapper?.showGroupedBySort) {
+          return false;
+        }
         const enabledObj = {};
         const checkStatusObj = {};
         gViewWrapper.dbView.getCommandStatus(

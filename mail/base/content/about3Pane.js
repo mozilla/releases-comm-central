@@ -6323,7 +6323,7 @@ commandController.registerCallback(
 commandController.registerCallback(
   "cmd_selectThread",
   () => gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.selectThread),
-  () => !!gViewWrapper?.dbView
+  () => gViewWrapper?.dbView && !gViewWrapper.showGroupedBySort
 );
 commandController.registerCallback(
   "cmd_selectFlagged",
@@ -6754,7 +6754,11 @@ commandController.registerCallback(
     // properly and resists attempts to fix this.
     threadTree.reset();
   },
-  () => gDBView?.numSelected >= 1 && gFolder && !gViewWrapper.isMultiFolder
+  () =>
+    gDBView?.numSelected >= 1 &&
+    gFolder &&
+    !gViewWrapper.isMultiFolder &&
+    !gViewWrapper.showGroupedBySort
 );
 commandController.registerCallback(
   "cmd_killSubthread",
@@ -6771,7 +6775,11 @@ commandController.registerCallback(
     // properly and resists attempts to fix this.
     threadTree.reset();
   },
-  () => gDBView?.numSelected >= 1 && gFolder && !gViewWrapper.isMultiFolder
+  () =>
+    gDBView?.numSelected >= 1 &&
+    gFolder &&
+    !gViewWrapper.isMultiFolder &&
+    !gViewWrapper?.showGroupedBySort
 );
 
 /* Forward find commands to about:message if message view is open, otherwise
