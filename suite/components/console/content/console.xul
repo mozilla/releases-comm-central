@@ -95,8 +95,7 @@
 
       <menu id="menu_View">
         <menupopup>
-          <menu label="&toolbarsCmd.label;"
-                accesskey="&toolbarsCmd.accesskey;">
+          <menu id="menu_Toolbars">
             <menupopup>
               <menuitem id="toggleToolbarMode"
                         type="checkbox"

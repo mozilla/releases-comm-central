@@ -28,8 +28,6 @@ left instead of right. -->
 <!ENTITY findOnCmd.label "Find in This Page…">
 
 <!-- View Menu -->
-<!ENTITY toolbarsCmd.label "Show/Hide">
-<!ENTITY toolbarsCmd.accesskey "w">
 <!ENTITY tabbarCmd.label "Tab Bar">
 <!ENTITY tabbarCmd.accesskey "T">
 <!ENTITY taskbarCmd.label "Status Bar">

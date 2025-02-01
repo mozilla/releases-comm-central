@@ -355,7 +355,7 @@
 
     <menu id="menu_View">
       <menupopup id="menu_View_Popup" onpopupshowing="EnableCharsetMenu();">
-        <menu label="&toolbarsCmd.label;" accesskey="&toolbarsCmd.accesskey;" id="menu_Toolbars">
+        <menu id="menu_Toolbars">
           <menupopup id="view_toolbars_popup"
                      onpopupshowing="updateToolbarStates(event);"
                      oncommand="onViewToolbarCommand(event);">
