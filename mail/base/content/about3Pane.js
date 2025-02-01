@@ -6740,7 +6740,11 @@ commandController.registerCallback(
       gViewWrapper.isVirtual && gViewWrapper.isSingleFolder
         ? gViewWrapper._underlyingFolders[0]
         : gFolder;
-    if (!folder.msgDatabase.isIgnored(gDBView.keyForFirstSelectedMessage)) {
+    if (
+      !folder.msgDatabase.isIgnored(
+        gDBView.hdrForFirstSelectedMessage?.messageKey
+      )
+    ) {
       threadPane.showIgnoredMessageNotification(
         gDBView.getSelectedMsgHdrs(),
         false

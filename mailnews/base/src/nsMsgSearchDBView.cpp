@@ -1123,16 +1123,6 @@ NS_IMETHODIMP nsMsgSearchDBView::Sort(nsMsgViewSortTypeValue sortType,
   return rv;
 }
 
-// If nothing selected, return an NS_ERROR.
-NS_IMETHODIMP
-nsMsgSearchDBView::GetHdrForFirstSelectedMessage(nsIMsgDBHdr** hdr) {
-  NS_ENSURE_ARG_POINTER(hdr);
-  nsMsgViewIndex index;
-  nsresult rv = GetViewIndexForFirstSelectedMsg(&index);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return GetMsgHdrForViewIndex(index, hdr);
-}
-
 NS_IMETHODIMP
 nsMsgSearchDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                                 nsMsgViewSortTypeValue aSortType,

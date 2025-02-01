@@ -627,12 +627,12 @@ function test_selected_messages() {
 
   // Select all messages
   gTreeView.selection.selectAll();
-  if (gDBView.numSelected != gTreeView.rowCount) {
+  if (gDBView.numSelected != gDBView.numMsgsInView) {
     do_throw(
       "numSelected is " +
         gDBView.numSelected +
         " but should be " +
-        gTreeView.rowCount +
+        gDBView.numMsgsInView +
         "\n"
     );
   }

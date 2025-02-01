@@ -6451,25 +6451,33 @@ nsMsgDBView::GetNumSelected(uint32_t* aNumSelected) {
 
   // We call this a lot from the front end JS, so make it fast.
   nsresult rv = mTreeSelection->GetCount((int32_t*)aNumSelected);
-  if (!*aNumSelected || !includeCollapsedMsgs ||
-      !(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay))
+  if (!*aNumSelected || !(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)) {
     return rv;
-
-  int32_t numSelectedIncludingCollapsed = *aNumSelected;
-  nsMsgViewIndexArray selection;
-  GetIndicesForSelection(selection);
-  int32_t numIndices = selection.Length();
-  // Iterate over the selection, counting up the messages in collapsed
-  // threads.
-  for (int32_t i = 0; i < numIndices; i++) {
-    if (m_flags[selection[i]] & nsMsgMessageFlags::Elided) {
-      int32_t collapsedCount;
-      ExpansionDelta(selection[i], &collapsedCount);
-      numSelectedIncludingCollapsed += collapsedCount;
-    }
   }
 
-  *aNumSelected = numSelectedIncludingCollapsed;
+  int32_t numSelectedGroupedOrThreaded = static_cast<int32_t>(*aNumSelected);
+  nsMsgViewIndexArray selection;
+  GetIndicesForSelection(selection);
+  int32_t numIndices = static_cast<int32_t>(selection.Length());
+  NS_ASSERTION(numSelectedGroupedOrThreaded == numIndices,
+               "Selection count and number of selected indices should match.");
+
+  // Iterate over the selection, excluding grouped header dummy rows, and
+  // counting up the messages in collapsed threads if enabled.
+  for (int32_t i = 0; i < numIndices; i++) {
+    uint32_t flags = m_flags[selection[i]];
+    if (flags & MSG_VIEW_FLAG_DUMMY) {
+      --numSelectedGroupedOrThreaded;
+    }
+    if (includeCollapsedMsgs && flags & nsMsgMessageFlags::Elided) {
+      int32_t collapsedCount;
+      ExpansionDelta(selection[i], &collapsedCount);
+      numSelectedGroupedOrThreaded += collapsedCount;
+    }
+  }
+  NS_ASSERTION(numSelectedGroupedOrThreaded >= 0,
+               "numSelected must not be negative");
+  *aNumSelected = numSelectedGroupedOrThreaded;
   return rv;
 }
 
@@ -6573,23 +6581,18 @@ nsMsgDBView::GetMsgToSelectAfterDelete(nsMsgViewIndex* msgToSelectAfterDelete) {
 NS_IMETHODIMP
 nsMsgDBView::GetHdrForFirstSelectedMessage(nsIMsgDBHdr** hdr) {
   NS_ENSURE_ARG_POINTER(hdr);
+  nsMsgViewIndex index;
+  nsresult rv = GetViewIndexForFirstSelectedMsg(&index);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  nsresult rv;
-  nsMsgKey key;
-  rv = GetKeyForFirstSelectedMessage(&key);
-  // Don't assert, it is legal for nothing to be selected.
-  if (NS_FAILED(rv)) return rv;
-
-  if (key == nsMsgKey_None) {
+  // Do not return a message header if an expanded grouped header is selected.
+  uint32_t flags = m_flags[index];
+  if (flags & MSG_VIEW_FLAG_DUMMY && !(flags & nsMsgMessageFlags::Elided)) {
     *hdr = nullptr;
     return NS_OK;
   }
 
-  if (!m_db) return NS_MSG_MESSAGE_NOT_FOUND;
-
-  rv = m_db->GetMsgHdrForKey(key, hdr);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return NS_OK;
+  return GetMsgHdrForViewIndex(index, hdr);
 }
 
 // If nothing selected, return an NS_ERROR.
@@ -6707,38 +6710,6 @@ nsMsgDBView::GetViewIndexForFirstSelectedMsg(nsMsgViewIndex* aViewIndex) {
     return NS_ERROR_UNEXPECTED;
 
   *aViewIndex = startRange;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgDBView::GetKeyForFirstSelectedMessage(nsMsgKey* key) {
-  NS_ENSURE_ARG_POINTER(key);
-  if (!mTreeSelection) {
-    *key = nsMsgKey_None;
-    return NS_OK;
-  }
-
-  int32_t selectionCount;
-  mTreeSelection->GetRangeCount(&selectionCount);
-  if (selectionCount == 0) {
-    *key = nsMsgKey_None;
-    return NS_OK;
-  }
-
-  int32_t startRange;
-  int32_t endRange;
-  nsresult rv = mTreeSelection->GetRangeAt(0, &startRange, &endRange);
-  // Don't assert, it is legal for nothing to be selected.
-  if (NS_FAILED(rv)) return rv;
-
-  // Check that the first index is valid, it may not be if nothing is selected.
-  if (startRange < 0 || uint32_t(startRange) >= GetSize())
-    return NS_ERROR_UNEXPECTED;
-
-  if (m_flags[startRange] & MSG_VIEW_FLAG_DUMMY)
-    return NS_MSG_INVALID_DBVIEW_INDEX;
-
-  *key = m_keys[startRange];
   return NS_OK;
 }
 

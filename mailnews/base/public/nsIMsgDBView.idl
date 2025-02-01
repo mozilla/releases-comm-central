@@ -257,7 +257,6 @@ interface nsIMsgDBView : nsISupports
    *  value is to affect the secondary sort of a grouped view.
    */
   attribute nsMsgViewSortOrderValue secondarySortOrder;
-  readonly attribute nsMsgKey keyForFirstSelectedMessage;
   readonly attribute nsMsgViewIndex viewIndexForFirstSelectedMsg;
   /**
    * this method will automatically expand the destination thread,

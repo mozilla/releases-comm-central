@@ -51,7 +51,6 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue command) override;
   NS_IMETHOD DoCommandWithFolder(nsMsgViewCommandTypeValue command,
                                  nsIMsgFolder* destFolder) override;
-  NS_IMETHOD GetHdrForFirstSelectedMessage(nsIMsgDBHdr** hdr) override;
   NS_IMETHOD OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder,
