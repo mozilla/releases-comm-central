@@ -3117,9 +3117,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Shutdown(bool shutdownChildren) {
 NS_IMETHODIMP
 nsMsgLocalMailFolder::OnMessageClassified(const nsACString& aMsgURI,
                                           nsMsgJunkStatus aClassification,
-                                          uint32_t aJunkPercent)
-
-{
+                                          uint32_t aJunkPercent) {
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
