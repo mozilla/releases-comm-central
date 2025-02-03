@@ -209,7 +209,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   bool mAddListener;
   bool mNewMessages;
   bool mGettingNewMessages;
-  nsMsgKey mLastMessageLoaded;
 
   /*
    * Start of offline-message-writing vars.

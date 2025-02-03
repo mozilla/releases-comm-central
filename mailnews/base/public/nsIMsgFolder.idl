@@ -699,9 +699,6 @@ interface nsIMsgFolder : nsISupports {
    */
   AUTF8String getStringProperty(in string propertyName);
 
-  /* does not persist across sessions */
-  attribute nsMsgKey lastMessageLoaded;
-
   /**
    * Returns an array containing nsIMsgFolder items that are
    * subfolders (direct children) of the instance this is called on.

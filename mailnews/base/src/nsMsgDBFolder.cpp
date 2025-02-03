@@ -226,7 +226,6 @@ nsMsgDBFolder::nsMsgDBFolder(void)
     : mAddListener(true),
       mNewMessages(false),
       mGettingNewMessages(false),
-      mLastMessageLoaded(nsMsgKey_None),
       m_numOfflineMsgLines(0),
       m_bytesAddedToLocalMsg(0),
       m_tempMessageStreamBytesWritten(0),
@@ -2524,19 +2523,6 @@ nsresult nsMsgDBFolder::NotifyHdrsNotBeingClassified() {
                                        false, false);
     }
   }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgDBFolder::GetLastMessageLoaded(nsMsgKey* aMsgKey) {
-  NS_ENSURE_ARG_POINTER(aMsgKey);
-  *aMsgKey = mLastMessageLoaded;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgDBFolder::SetLastMessageLoaded(nsMsgKey aMsgKey) {
-  mLastMessageLoaded = aMsgKey;
   return NS_OK;
 }
 

@@ -1879,9 +1879,6 @@ function HandleSelectColClick(event, row) {
 
   // There is no longer any selection, clean up for correct state of things.
   if (selection.count == 0) {
-    if (gFolderDisplay.displayedFolder) {
-      gFolderDisplay.displayedFolder.lastMessageLoaded = nsMsgKey_None;
-    }
     gFolderDisplay._mostRecentSelectionCounts[1] = 0;
   }
 }
