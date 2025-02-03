@@ -24,6 +24,10 @@
       padding: 0;
       list-style: none;
     }
+    ul[is="tree-listbox"] ul {
+      overflow: hidden;
+      height: auto;
+    }
     li > div {
       display: flex;
       align-items: center;
@@ -34,9 +38,6 @@
     }
     li > ul {
       padding-inline-start: 1em;
-    }
-    li.collapsed > ul {
-      display: none;
     }
     div.twisty {
       width: 1em;

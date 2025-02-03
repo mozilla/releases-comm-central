@@ -496,7 +496,7 @@ export const TreeListboxMixin = Base =>
       for (const childList of this.querySelectorAll(
         "li.collapsed > :is(ol, ul)"
       )) {
-        childList.style.height = "0";
+        this._hideChildList(childList);
       }
     }
 
@@ -799,14 +799,17 @@ export const TreeListboxMixin = Base =>
 
       if (reducedMotionMedia.matches) {
         if (childList) {
-          childList.style.height = "0";
+          this._hideChildList(childList);
         }
         return;
       }
 
       const childListHeight = childList.scrollHeight;
 
-      const animation = childList.animate(
+      childList.animation?.cancel();
+      childList.classList.remove("animating-expand");
+      childList.classList.add("animating-collapse");
+      childList.animation = childList.animate(
         [{ height: `${childListHeight}px` }, { height: "0" }],
         {
           duration: ANIMATION_DURATION_MS,
@@ -814,9 +817,11 @@ export const TreeListboxMixin = Base =>
           fill: "both",
         }
       );
-      animation.onfinish = () => {
-        childList.style.height = "0";
-        animation.cancel();
+      childList.animation.onfinish = () => {
+        childList.classList.remove("animating-collapse");
+        this._hideChildList(childList);
+        childList.animation.cancel();
+        delete childList.animation;
       };
     }
 
@@ -827,6 +832,7 @@ export const TreeListboxMixin = Base =>
      */
     _animateExpandRow(row) {
       const childList = row.querySelector("ol, ul");
+      childList.hidden = false;
 
       if (reducedMotionMedia.matches) {
         if (childList) {
@@ -837,7 +843,10 @@ export const TreeListboxMixin = Base =>
 
       const childListHeight = childList.scrollHeight;
 
-      const animation = childList.animate(
+      childList.animation?.cancel();
+      childList.classList.remove("animating-collapse");
+      childList.classList.add("animating-expand");
+      childList.animation = childList.animate(
         [{ height: "0" }, { height: `${childListHeight}px` }],
         {
           duration: ANIMATION_DURATION_MS,
@@ -845,9 +854,28 @@ export const TreeListboxMixin = Base =>
           fill: "both",
         }
       );
-      animation.onfinish = () => {
+      childList.animation.onfinish = () => {
+        childList.classList.remove("animating-expand");
         childList.style.height = null;
-        animation.cancel();
+        childList.animation.cancel();
+        delete childList.animation;
       };
+    }
+
+    /**
+     * Set the appropriate styles on the child list of a collapsed row.
+     *
+     * @param {HTMLOListElement|HTMLUListElement} childList
+     */
+    _hideChildList(childList) {
+      childList.style.height = "0";
+      // If we're currently collapsing or expanding, don't hide the element.
+      // We don't want to be hidden during an animation.
+      if (
+        !childList.classList.contains("animating-collapse") &&
+        !childList.classList.contains("animating-expand")
+      ) {
+        childList.hidden = true;
+      }
     }
   };
