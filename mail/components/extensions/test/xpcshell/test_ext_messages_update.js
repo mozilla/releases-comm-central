@@ -111,25 +111,49 @@ add_task(
           return eventPageExtensionFinishedPromise;
         }
 
-        function newUpdatePromise(numberOfEventsToCollapse = 1) {
+        function newUpdatePromise(options = {}) {
+          const numberOfEventsToCollapse =
+            options.numberOfEventsToCollapse ?? 1;
+          const reportIndividualEvents = options.reportIndividualEvents;
+
           return new Promise(resolve => {
             const seenEvents = {};
-            const listener = (msg, props) => {
+            const listener = (msg, newProps, oldProps) => {
               if (!seenEvents.hasOwnProperty(msg.id)) {
                 seenEvents[msg.id] = {
+                  events: [],
                   counts: 0,
-                  props: {},
                 };
               }
 
+              if (
+                reportIndividualEvents ||
+                seenEvents[msg.id].events.length == 0
+              ) {
+                seenEvents[msg.id].events.push({
+                  newProps: {},
+                  oldProps: {},
+                });
+              }
               seenEvents[msg.id].counts++;
-              for (const prop of Object.keys(props)) {
-                seenEvents[msg.id].props[prop] = props[prop];
+              const idx = seenEvents[msg.id].events.length - 1;
+
+              for (const prop of Object.keys(newProps)) {
+                seenEvents[msg.id].events[idx].newProps[prop] = newProps[prop];
+                seenEvents[msg.id].events[idx].oldProps[prop] = oldProps[prop];
               }
 
               if (seenEvents[msg.id].counts == numberOfEventsToCollapse) {
                 browser.messages.onUpdated.removeListener(listener);
-                resolve({ msg, props: seenEvents[msg.id].props });
+                resolve({
+                  msg,
+                  newProps: reportIndividualEvents
+                    ? seenEvents[msg.id].events.map(e => e.newProps)
+                    : seenEvents[msg.id].events[idx].newProps,
+                  oldProps: reportIndividualEvents
+                    ? seenEvents[msg.id].events.map(e => e.oldProps)
+                    : seenEvents[msg.id].events[idx].oldProps,
+                });
               }
             };
             browser.messages.onUpdated.addListener(listener);
@@ -158,13 +182,14 @@ add_task(
         let updateInfo = await updatePromise;
 
         window.assertDeepEqual(
-          [updateInfo.msg, updateInfo.props],
+          [updateInfo.msg, updateInfo.newProps],
           [primedUpdatedInfo[0], primedUpdatedInfo[1]],
           "The primed and non-primed onUpdated events should return the same values",
           { strict: true }
         );
         browser.test.assertEq(message.id, updateInfo.msg.id);
-        window.assertDeepEqual({ flagged: true }, updateInfo.props);
+        window.assertDeepEqual({ flagged: true }, updateInfo.newProps);
+        window.assertDeepEqual({ flagged: false }, updateInfo.oldProps);
         await window.sendMessage("flagged");
 
         // Test that setting read works.
@@ -175,13 +200,14 @@ add_task(
         updateInfo = await updatePromise;
 
         window.assertDeepEqual(
-          [updateInfo.msg, updateInfo.props],
+          [updateInfo.msg, updateInfo.newProps],
           [primedUpdatedInfo[0], primedUpdatedInfo[1]],
           "The primed and non-primed onUpdated events should return the same values",
           { strict: true }
         );
         browser.test.assertEq(message.id, updateInfo.msg.id);
-        window.assertDeepEqual({ read: true }, updateInfo.props);
+        window.assertDeepEqual({ read: true }, updateInfo.newProps);
+        window.assertDeepEqual({ read: false }, updateInfo.oldProps);
         await window.sendMessage("read");
 
         // Test that setting junk works.
@@ -192,13 +218,14 @@ add_task(
         updateInfo = await updatePromise;
 
         window.assertDeepEqual(
-          [updateInfo.msg, updateInfo.props],
+          [updateInfo.msg, updateInfo.newProps],
           [primedUpdatedInfo[0], primedUpdatedInfo[1]],
           "The primed and non-primed onUpdated events should return the same values",
           { strict: true }
         );
         browser.test.assertEq(message.id, updateInfo.msg.id);
-        window.assertDeepEqual({ junk: true }, updateInfo.props);
+        window.assertDeepEqual({ junk: true }, updateInfo.newProps);
+        window.assertDeepEqual({ junk: false }, updateInfo.oldProps);
         await window.sendMessage("junk");
 
         // Test that setting one tag works.
@@ -209,27 +236,40 @@ add_task(
         updateInfo = await updatePromise;
 
         window.assertDeepEqual(
-          [updateInfo.msg, updateInfo.props],
+          [updateInfo.msg, updateInfo.newProps],
           [primedUpdatedInfo[0], primedUpdatedInfo[1]],
           "The primed and non-primed onUpdated events should return the same values",
           { strict: true }
         );
         browser.test.assertEq(message.id, updateInfo.msg.id);
-        window.assertDeepEqual({ tags: [tags[0].key] }, updateInfo.props);
+        window.assertDeepEqual({ tags: [tags[0].key] }, updateInfo.newProps);
+        window.assertDeepEqual({ tags: [] }, updateInfo.oldProps);
+
         await window.sendMessage("tags1");
 
         // Test that setting two tags works. We get 3 events: one removing tags0,
         // one adding tags1 and one adding tags2. updatePromise is waiting for
         // the third one before resolving.
-        updatePromise = newUpdatePromise(3);
+        updatePromise = newUpdatePromise({
+          numberOfEventsToCollapse: 3,
+          reportIndividualEvents: true,
+        });
         await browser.messages.update(message.id, {
           tags: [tags[1].key, tags[2].key],
         });
         updateInfo = await updatePromise;
         browser.test.assertEq(message.id, updateInfo.msg.id);
         window.assertDeepEqual(
-          { tags: [tags[1].key, tags[2].key] },
-          updateInfo.props
+          [
+            { tags: [] },
+            { tags: [tags[1].key] },
+            { tags: [tags[1].key, tags[2].key] },
+          ],
+          updateInfo.newProps
+        );
+        window.assertDeepEqual(
+          [{ tags: [tags[0].key] }, { tags: [] }, { tags: [tags[1].key] }],
+          updateInfo.oldProps
         );
         await window.sendMessage("tags2");
 
@@ -261,7 +301,7 @@ add_task(
         browser.test.assertEq("0@made.up.invalid", message.headerMessageId);
 
         // Test that clearing properties works.
-        updatePromise = newUpdatePromise(5);
+        updatePromise = newUpdatePromise({ numberOfEventsToCollapse: 5 });
         await browser.messages.update(message.id, {
           flagged: false,
           read: false,
@@ -276,7 +316,7 @@ add_task(
             junk: false,
             tags: [],
           },
-          updateInfo.props
+          updateInfo.newProps
         );
         await window.sendMessage("clear");
 

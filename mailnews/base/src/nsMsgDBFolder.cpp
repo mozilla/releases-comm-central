@@ -4337,11 +4337,19 @@ nsMsgDBFolder::SetJunkScoreForMessages(
     const nsACString& junkScore) {
   GetDatabase();
   if (mDatabase) {
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
     for (auto message : aMessages) {
       nsMsgKey msgKey;
       (void)message->GetMessageKey(&msgKey);
+      nsCString oldJunkscore;
+      message->GetStringProperty("junkscore", oldJunkscore);
       mDatabase->SetStringProperty(msgKey, "junkscore", junkScore);
       mDatabase->SetStringProperty(msgKey, "junkscoreorigin", "filter"_ns);
+      if (notifier) {
+        notifier->NotifyMsgPropertyChanged(message, "junkscore", oldJunkscore,
+                                           junkScore);
+      }
     }
   }
   return NS_OK;
@@ -5265,9 +5273,11 @@ NS_IMETHODIMP nsMsgDBFolder::AddKeywordsToMessages(
   GetDatabase();
   if (mDatabase) {
     nsCString keywords;
+    nsCString oldKeywords;
 
     for (auto message : aMessages) {
       message->GetStringProperty("keywords", keywords);
+      oldKeywords = keywords;
       nsTArray<nsCString> keywordArray;
       ParseString(aKeywords, ' ', keywordArray);
       uint32_t addCount = 0;
@@ -5284,7 +5294,16 @@ NS_IMETHODIMP nsMsgDBFolder::AddKeywordsToMessages(
       // turned on, the message key is wrong.
       mDatabase->SetStringPropertyByHdr(message, "keywords", keywords);
 
-      if (addCount) NotifyPropertyFlagChanged(message, kKeywords, 0, addCount);
+      if (addCount) {
+        NotifyPropertyFlagChanged(message, kKeywords, 0, addCount);
+
+        nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+            do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+        if (notifier) {
+          notifier->NotifyMsgPropertyChanged(message, "keywords", oldKeywords,
+                                             keywords);
+        }
+      }
     }
   }
   return rv;
@@ -5300,10 +5319,12 @@ NS_IMETHODIMP nsMsgDBFolder::RemoveKeywordsFromMessages(
     nsTArray<nsCString> keywordArray;
     ParseString(aKeywords, ' ', keywordArray);
     nsCString keywords;
+    nsCString oldKeywords;
     // If the tag is also a label, we should remove the label too...
 
     for (auto message : aMessages) {
       rv = message->GetStringProperty("keywords", keywords);
+      oldKeywords = keywords;
       uint32_t removeCount = 0;
       for (uint32_t j = 0; j < keywordArray.Length(); j++) {
         int32_t startOffset, length;
@@ -5326,6 +5347,12 @@ NS_IMETHODIMP nsMsgDBFolder::RemoveKeywordsFromMessages(
       if (removeCount) {
         mDatabase->SetStringPropertyByHdr(message, "keywords", keywords);
         NotifyPropertyFlagChanged(message, kKeywords, removeCount, 0);
+        nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+            do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+        if (notifier) {
+          notifier->NotifyMsgPropertyChanged(message, "keywords", oldKeywords,
+                                             keywords);
+        }
       }
     }
   }

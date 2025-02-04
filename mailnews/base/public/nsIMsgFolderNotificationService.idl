@@ -43,6 +43,9 @@ interface nsIMsgFolderNotificationService : nsISupports {
   /// nsIMsgFolderListener::msgUnincorporatedMoved notification
   const msgFolderListenerFlag msgUnincorporatedMoved = 0x20;
 
+  /// nsIMsgFolderListener::msgPropertyChanged notification
+  const msgFolderListenerFlag msgPropertyChanged = 0x40;
+
   /// nsIMsgFolderListener::folderAdded notification
   const msgFolderListenerFlag folderAdded = 0x8000;
 
@@ -77,6 +80,10 @@ interface nsIMsgFolderNotificationService : nsISupports {
   // message-specific functions
   // single message for added, array for delete/move/copy
   void notifyMsgAdded(in nsIMsgDBHdr aMsg);
+  void notifyMsgPropertyChanged(in nsIMsgDBHdr aMsg,
+                                in string aProperty,
+                                in AUTF8String aOldValue,
+                                in AUTF8String aNewValue);
   void notifyMsgsClassified(in Array<nsIMsgDBHdr> aMsgs,
                             in boolean aJunkProcessed,
                             in boolean aTraitProcessed);

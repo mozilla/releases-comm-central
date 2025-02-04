@@ -1045,7 +1045,7 @@ export class MessageTracker extends EventEmitter {
     // nsIMsgFolderListener
     MailServices.mfn.addListener(
       this,
-      MailServices.mfn.msgsJunkStatusChanged |
+      MailServices.mfn.msgPropertyChanged |
         MailServices.mfn.msgAdded |
         MailServices.mfn.msgsDeleted |
         MailServices.mfn.msgsMoveCopyCompleted |
@@ -1307,35 +1307,37 @@ export class MessageTracker extends EventEmitter {
   /**
    * Implements nsIFolderListener.onFolderPropertyFlagChanged().
    *
-   * @param {nsIMsgDBHdr} item
+   * @param {nsIMsgDBHdr} msgHdr
    * @param {string} property
    * @param {integer} oldFlag
    * @param {integer} newFlag
    */
-  onFolderPropertyFlagChanged(item, property, oldFlag, newFlag) {
-    const changes = {};
+  onFolderPropertyFlagChanged(msgHdr, property, oldFlag, newFlag) {
+    const newProperties = {};
     switch (property) {
       case "Status":
         if ((oldFlag ^ newFlag) & Ci.nsMsgMessageFlags.Read) {
-          changes.read = item.isRead;
+          newProperties.read = msgHdr.isRead;
         }
         if ((oldFlag ^ newFlag) & Ci.nsMsgMessageFlags.New) {
-          changes.new = !!(newFlag & Ci.nsMsgMessageFlags.New);
+          newProperties.new = !!(newFlag & Ci.nsMsgMessageFlags.New);
         }
         break;
       case "Flagged":
-        changes.flagged = item.isFlagged;
-        break;
-      case "Keywords":
-        {
-          let tags = item.getStringProperty("keywords");
-          tags = tags ? tags.split(" ") : [];
-          changes.tags = tags.filter(MailServices.tags.isValidKey);
-        }
+        newProperties.flagged = msgHdr.isFlagged;
         break;
     }
-    if (Object.keys(changes).length) {
-      this.emit("message-updated", item, changes);
+    if (Object.keys(newProperties).length) {
+      // Reconstruct old values of changed boolean properties.
+      const oldProperties = Object.fromEntries(
+        Object.entries(newProperties).map(([name, value]) => [name, !value])
+      );
+      this.emit(
+        "message-updated",
+        new CachedMsgHeader(this, msgHdr),
+        newProperties,
+        oldProperties
+      );
     }
   }
 
@@ -1388,17 +1390,52 @@ export class MessageTracker extends EventEmitter {
   // Implements nsIMsgFolderListener.
 
   /**
-   * Implements nsIMsgFolderListener.msgsJunkStatusChanged().
+   * Implements nsIMsgFolderListener.msgPropertyChanged().
    *
-   * @param {nsIMsgDBHdr[]} messages
+   * @param {nsIMsgDBHdr} msgHdr
+   * @param {string} property
+   * @param {string} oldValue
+   * @param {string} newValue
    */
-  msgsJunkStatusChanged(messages) {
-    for (const msgHdr of messages) {
-      const junkScore =
-        parseInt(msgHdr.getStringProperty("junkscore"), 10) || 0;
-      this.emit("message-updated", new CachedMsgHeader(this, msgHdr), {
-        junk: junkScore >= lazy.gJunkThreshold,
-      });
+  msgPropertyChanged(msgHdr, property, oldValue, newValue) {
+    const newProperties = {};
+    const oldProperties = {};
+
+    switch (property) {
+      case "keywords":
+        {
+          const newKeywords = newValue
+            ? newValue.split(" ").filter(MailServices.tags.isValidKey)
+            : [];
+          const oldKeywords = oldValue
+            ? oldValue.split(" ").filter(MailServices.tags.isValidKey)
+            : [];
+          if (newKeywords != oldKeywords) {
+            newProperties.tags = newKeywords;
+            oldProperties.tags = oldKeywords;
+          }
+        }
+        break;
+
+      case "junkscore":
+        {
+          const newJunk = (parseInt(newValue, 10) || 0) >= lazy.gJunkThreshold;
+          const oldJunk = (parseInt(oldValue, 10) || 0) >= lazy.gJunkThreshold;
+          if (newJunk != oldJunk) {
+            newProperties.junk = newJunk;
+            oldProperties.junk = oldJunk;
+          }
+        }
+        break;
+    }
+
+    if (Object.keys(newProperties).length) {
+      this.emit(
+        "message-updated",
+        new CachedMsgHeader(this, msgHdr),
+        newProperties,
+        oldProperties
+      );
     }
   }
 

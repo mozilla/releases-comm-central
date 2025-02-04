@@ -354,6 +354,10 @@
           {
             "name": "changedProperties",
             "$ref": "messages.MessageProperties"
+          },
+          {
+            "name": "oldProperties",
+            "$ref": "messages.MessageProperties"
           }
         ]
       },

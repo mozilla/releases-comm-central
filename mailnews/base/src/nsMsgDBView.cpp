@@ -3120,6 +3120,12 @@ nsresult nsMsgDBView::SetMsgHdrJunkStatus(nsIJunkMailPlugin* aJunkPlugin,
   db->SetStringProperty(msgKey, "junkscore", msgJunkScore);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+  if (notifier) {
+    notifier->NotifyMsgPropertyChanged(aMsgHdr, "junkscore", junkScoreStr,
+                                       msgJunkScore);
+  }
   return rv;
 }
 

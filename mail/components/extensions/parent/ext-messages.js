@@ -331,7 +331,7 @@ this.messages = class extends ExtensionAPIPersistent {
       };
     },
     onUpdated({ fire }) {
-      const listener = async (event, message, properties) => {
+      const listener = async (event, message, newProperties, oldProperties) => {
         const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert it early.
         const convertedMessage = extension.messageManager.convert(message);
@@ -341,7 +341,7 @@ this.messages = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.async(convertedMessage, properties);
+        fire.async(convertedMessage, newProperties, oldProperties);
       };
       messageTracker.on("message-updated", listener);
       return {
@@ -1101,17 +1101,13 @@ this.messages = class extends ExtensionAPIPersistent {
               msgHdr.folder.markMessagesFlagged(msgs, newProperties.flagged);
             }
             if (newProperties.junk !== null) {
-              const score = newProperties.junk
+              const newJunkScore = newProperties.junk
                 ? Ci.nsIJunkMailPlugin.IS_SPAM_SCORE
                 : Ci.nsIJunkMailPlugin.IS_HAM_SCORE;
-              msgHdr.folder.setJunkScoreForMessages(msgs, score);
-              // nsIFolderListener::OnFolderEvent is notified about changes through
-              // setJunkScoreForMessages(), but does not provide the actual message.
-              // nsIMsgFolderListener::msgsJunkStatusChanged is notified only by
-              // nsMsgDBView::ApplyCommandToIndices(). Since it only works on
-              // selected messages, we cannot use it here.
-              // Notify msgsJunkStatusChanged() manually.
-              MailServices.mfn.notifyMsgsJunkStatusChanged(msgs);
+              // FIXME: This sets the junkorigin to "filter", even though we should
+              // set it to "user". Note: The IMAP implementation also sets the keyword
+              // Junk/NoJunk.
+              msgHdr.folder.setJunkScoreForMessages(msgs, newJunkScore);
             }
             if (Array.isArray(newProperties.tags)) {
               const currentTags = msgHdr

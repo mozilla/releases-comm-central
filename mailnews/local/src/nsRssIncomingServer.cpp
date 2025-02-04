@@ -158,6 +158,12 @@ NS_IMETHODIMP nsRssIncomingServer::MsgAdded(nsIMsgDBHdr* aMsg) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
+NS_IMETHODIMP nsRssIncomingServer::MsgPropertyChanged(
+    nsIMsgDBHdr* aMsg, const char* aProperty, const nsACString& aOldValue,
+    const nsACString& aNewValue) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 NS_IMETHODIMP nsRssIncomingServer::MsgsClassified(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgs, bool aJunkProcessed,
     bool aTraitProcessed) {

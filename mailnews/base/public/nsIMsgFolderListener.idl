@@ -46,6 +46,20 @@ interface nsIMsgFolderListener : nsISupports {
   void msgAdded(in nsIMsgDBHdr aMsg);
 
   /**
+   * Notification that properties of a message have changed. Currently limited to
+   * "keywords" and "junkscore". Only user-initiated changes for "junkscore" are
+   * reported (filters via `nsMsgDBFolder::SetJunkScoreForMessages` and UI via
+   * `nsMsgDBView::ApplyCommandToIndices`).
+   *
+   * @param aMsg The message header of the changed message.
+   * @param aProperty The changed property.
+   * @param aOldValue The value before the change.
+   * @param aNewValue The value after the change.
+   */
+  void msgPropertyChanged(in nsIMsgDBHdr aMsg, in string aProperty,
+                          in AUTF8String aOldValue, in AUTF8String aNewValue);
+
+  /**
    * Notification that (new to the client) messages have been through junk and
    * trait classification.  This event will occur for all messages at some point
    * after their existence is revealed by msgAdded.

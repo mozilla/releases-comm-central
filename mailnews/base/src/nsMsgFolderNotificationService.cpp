@@ -61,6 +61,14 @@ NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgAdded(
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgPropertyChanged(
+    nsIMsgDBHdr* aMsg, const char* aProperty, const nsACString& aOldValue,
+    const nsACString& aNewValue) {
+  NOTIFY_MSGFOLDER_LISTENERS(msgPropertyChanged, MsgPropertyChanged,
+                             (aMsg, aProperty, aOldValue, aNewValue));
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsClassified(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgs, bool aJunkProcessed,
     bool aTraitProcessed) {
