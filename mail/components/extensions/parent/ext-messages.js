@@ -307,7 +307,11 @@ this.messages = class extends ExtensionAPIPersistent {
       const listener = async (event, folder, newMessages) => {
         const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert it early.
-        const page = await messageListTracker.startList(newMessages, extension);
+        const page = await messageListTracker.startList(
+          newMessages,
+          extension,
+          { includeDeletedMessages: true }
+        );
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -359,11 +363,13 @@ this.messages = class extends ExtensionAPIPersistent {
         // The msgHdr could be gone after the wakeup, convert them early.
         const srcPage = await messageListTracker.startList(
           srcMessages,
-          extension
+          extension,
+          { includeDeletedMessages: true }
         );
         const dstPage = await messageListTracker.startList(
           dstMessages,
-          extension
+          extension,
+          { includeDeletedMessages: true }
         );
         if (fire.wakeup) {
           await fire.wakeup();
@@ -386,11 +392,13 @@ this.messages = class extends ExtensionAPIPersistent {
         // The msgHdr could be gone after the wakeup, convert them early.
         const srcPage = await messageListTracker.startList(
           srcMessages,
-          extension
+          extension,
+          { includeDeletedMessages: true }
         );
         const dstPage = await messageListTracker.startList(
           dstMessages,
-          extension
+          extension,
+          { includeDeletedMessages: true }
         );
         if (fire.wakeup) {
           await fire.wakeup();
@@ -413,7 +421,8 @@ this.messages = class extends ExtensionAPIPersistent {
         // The msgHdr could be gone after the wakeup, convert them early.
         const deletedPage = await messageListTracker.startList(
           deletedMessages,
-          extension
+          extension,
+          { includeDeletedMessages: true }
         );
         if (fire.wakeup) {
           await fire.wakeup();

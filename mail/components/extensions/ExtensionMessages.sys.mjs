@@ -1378,12 +1378,6 @@ export class MessageTracker extends EventEmitter {
     const cachedHdr = new CachedMsgHeader(this, msgHdr, {
       addToMessageTracker: false,
     });
-    // Since this message is removed, it will have certain flags set which will
-    // prevent it from being returned to the caller. For the purpose of this cache,
-    // this needs to be ignored.
-    cachedHdr.flags &= ~(
-      Ci.nsMsgMessageFlags.IMAPDeleted | Ci.nsMsgMessageFlags.Expunged
-    );
     this._msgHdrCache.set(hash, cachedHdr);
   }
 
@@ -1662,22 +1656,30 @@ class MessagePage {
 }
 
 /**
+ * @typedef {object} MessageListOptions - Options for the MessageList class.
+ *
+ * @property {integer} [messagesPerPage]
+ * @property {boolean} [includeDeletedMessages]
+ */
+
+/**
  * Convenience class to keep track of the status of message lists.
  */
 export class MessageList {
   /**
    * @param {ExtensionData} extension
    * @param {MessageTracker} messageTracker
-   * @param {integer} [messagesPerPage]
+   * @param {MessageListOptions} [options]
    */
-  constructor(extension, messageTracker, messagesPerPage) {
+  constructor(extension, messageTracker, options) {
     this.messageListId = Services.uuid.generateUUID().number.substring(1, 37);
     this.extension = extension;
     this.isDone = false;
     this.pages = [];
     this._messageTracker = messageTracker;
     this.folderCache = new Map();
-    this.messagesPerPage = messagesPerPage ?? lazy.gMessagesPerPage;
+    this.messagesPerPage = options?.messagesPerPage ?? lazy.gMessagesPerPage;
+    this.includeDeletedMessages = options?.includeDeletedMessages ?? false;
     this.log = new Set();
 
     this.pages.push(new MessagePage());
@@ -1721,6 +1723,15 @@ export class MessageList {
 
   async addMessage(msgHdr) {
     if (this.isDone || !this.currentPage) {
+      return;
+    }
+
+    // Skip messages, which are actually deleted, if reporting is not enforced.
+    if (
+      !this.includeDeletedMessages &&
+      msgHdr.flags &
+        (Ci.nsMsgMessageFlags.IMAPDeleted | Ci.nsMsgMessageFlags.Expunged)
+    ) {
       return;
     }
 
@@ -1802,12 +1813,13 @@ export class MessageListTracker {
    *
    * @param {nsIMsgDBHdr[]} messages - Array or enumerator of messages.
    * @param {ExtensionData} extension
+   * @param {MessageListOptions} options
    *
    * @returns {Promise<MessageList>}
    * @see /mail/components/extensions/schemas/messages.json
    */
-  async startList(messages, extension) {
-    const messageList = this.createList(extension);
+  async startList(messages, extension, options) {
+    const messageList = this.createList(extension, options);
     // Do not await _addMessages() here, to let the function return the Promise
     // for the first page as soon as possible and not after all messages have
     // been added.
@@ -1853,15 +1865,15 @@ export class MessageListTracker {
    * Creates and returns a new messageList object.
    *
    * @param {ExtensionData} extension
-   * @param {integer} [messagesPerPage]
+   * @param {MessageListOptions} [options]
    *
    * @returns {MessageList}
    */
-  createList(extension, messagesPerPage) {
+  createList(extension, options) {
     const messageList = new MessageList(
       extension,
       this._messageTracker,
-      messagesPerPage
+      options
     );
     let lists = this._contextLists.get(extension);
     if (!lists) {
@@ -1946,14 +1958,6 @@ export class MessageManager {
       msgHdr instanceof CachedMsgHeader
         ? msgHdr
         : new CachedMsgHeader(this._messageTracker, msgHdr);
-
-    // Skip messages, which are actually deleted.
-    if (
-      cachedHdr.flags &
-      (Ci.nsMsgMessageFlags.IMAPDeleted | Ci.nsMsgMessageFlags.Expunged)
-    ) {
-      return null;
-    }
 
     const junkScore =
       parseInt(cachedHdr.getStringProperty("junkscore"), 10) || 0;
@@ -2047,10 +2051,9 @@ export class MessageQuery {
     this.queryInfo = queryInfo;
     this.messageListTracker = messageListTracker;
 
-    this.messageList = this.messageListTracker.createList(
-      this.extension,
-      queryInfo.messagesPerPage
-    );
+    this.messageList = this.messageListTracker.createList(this.extension, {
+      messagesPerPage: queryInfo.messagesPerPage,
+    });
 
     this.checkSearchCriteriaFn =
       checkSearchCriteriaFn || this.checkSearchCriteria;
