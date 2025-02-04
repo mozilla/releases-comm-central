@@ -273,6 +273,14 @@ class CalendarFilteredTreeView extends CalendarFilteredViewMixin(PROTO_TREE_VIEW
     }
 
     this.#sortBy(column.id, direction);
+    this._tree?.dispatchEvent(
+      new CustomEvent("sort-changed", {
+        detail: {
+          column: this.#sortColumn,
+          direction: this.#sortDirection,
+        },
+      })
+    );
   }
 
   #sortBy(sortColumn, sortDirection, force) {

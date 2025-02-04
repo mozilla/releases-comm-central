@@ -74,6 +74,16 @@ async function prepareCalendarUnifinder() {
   // the calendar view.
   unifinderTree.addEventListener("select", unifinderSelect, true);
 
+  unifinderTree.addEventListener("sort-changed", function (event) {
+    for (const existing of this.querySelectorAll("treecol[sortDirection]")) {
+      existing.removeAttribute("sortDirection");
+    }
+
+    const { column, direction } = event.detail;
+    const columnHeader = document.getElementById(column);
+    columnHeader.setAttribute("sortDirection", direction);
+  });
+
   const searchBox = document.getElementById("unifinder-search-field");
   searchBox.addEventListener("command", updateUnifinderFilterText);
 }

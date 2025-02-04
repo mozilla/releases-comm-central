@@ -193,7 +193,6 @@
           <tree id="unifinder-search-results-tree" flex="1"
                 onkeypress="unifinderKeyPress(event)"
                 _selectDelay="500"
-                persist="sort-active sort-direction"
                 enableColumnDrag="true">
             <treecols id="unifinder-search-results-tree-cols">
               <treecol id="unifinder-search-results-tree-col-title"
@@ -208,6 +207,7 @@
                        style="flex: 1 auto"
                        closemenu="none"
                        itemproperty="startDate"
+                       sortDirection="ascending"
                        data-l10n-id="calendar-event-listing-column-start-date"/>
               <splitter class="tree-splitter"/>
               <treecol id="unifinder-search-results-tree-col-enddate"
