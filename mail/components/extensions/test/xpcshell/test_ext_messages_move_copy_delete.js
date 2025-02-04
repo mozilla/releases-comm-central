@@ -548,7 +548,9 @@ add_task(
         browser.test.log(" --> Delete the copied message.");
         const deletePromise = newDeletePromise();
         const [primedDeleteLog] = await capturePrimedEvent("onDeleted", () =>
-          browser.messages.delete([folder2Messages[0].id], true)
+          browser.messages.delete([folder2Messages[0].id], {
+            deletePermanently: true,
+          })
         );
         // Check if the delete information is correct.
         const deleteLog = await deletePromise;

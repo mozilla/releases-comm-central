@@ -150,7 +150,10 @@ add_task(
 
         // Try to delete a message.
         await browser.test.assertThrows(
-          () => browser.messages.delete([folder4Messages[0].id], true),
+          () =>
+            browser.messages.delete([folder4Messages[0].id], {
+              deletePermanently: true,
+            }),
           `browser.messages.delete is not a function`,
           "Should reject deleting without proper permission"
         );

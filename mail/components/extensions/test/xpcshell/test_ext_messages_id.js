@@ -52,6 +52,20 @@ add_task(
           const testFolder2 = folders.find(f => f.name == "test2");
           const testFolder3 = folders.find(f => f.name == "test3");
 
+          class OneTimeListener {
+            constructor(type) {
+              this.task = Promise.withResolvers();
+              this.listener = (...args) => {
+                browser.messages[type].removeListener(this.listener);
+                this.task.resolve([...args]);
+              };
+              browser.messages[type].addListener(this.listener);
+            }
+            seen() {
+              return this.task.promise;
+            }
+          }
+
           let { messages } = await browser.messages.list(testFolder1.id);
           browser.test.assertEq(
             5,
@@ -68,8 +82,12 @@ add_task(
 
           // Move two messages. We could do this in one operation, but to be
           // sure of the order, do it in separate operations.
+          const onMovedPart1 = new OneTimeListener("onMoved");
           await browser.messages.move([1], testFolder2.id);
+          await onMovedPart1.seen();
+          const onMovedPart2 = new OneTimeListener("onMoved");
           await browser.messages.move([3], testFolder2.id);
+          await onMovedPart2.seen();
 
           ({ messages } = await browser.messages.list(testFolder1.id));
           browser.test.assertEq(
@@ -118,7 +136,9 @@ add_task(
 
           // Copy one message.
 
+          const onCopied = new OneTimeListener("onCopied");
           await browser.messages.copy([6], testFolder3.id);
+          await onCopied.seen();
 
           ({ messages } = await browser.messages.list(testFolder2.id));
           browser.test.assertEq(
@@ -143,7 +163,9 @@ add_task(
           // Move the copied message back to the previous folder. There should
           // now be two copies there, each with their own ID.
 
+          const onMoved = new OneTimeListener("onMoved");
           await browser.messages.move([8], testFolder2.id);
+          await onMoved.seen();
 
           ({ messages } = await browser.messages.list(testFolder2.id));
           browser.test.assertEq(

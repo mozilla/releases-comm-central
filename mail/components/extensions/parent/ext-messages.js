@@ -537,7 +537,12 @@ this.messages = class extends ExtensionAPIPersistent {
       return emlFile;
     }
 
-    async function moveOrCopyMessages(messageIds, destination, isMove) {
+    async function moveOrCopyMessages(
+      messageIds,
+      destination,
+      isUserAction,
+      isMove
+    ) {
       const functionName = isMove ? "messages.move()" : "messages.copy()";
 
       if (
@@ -608,7 +613,9 @@ this.messages = class extends ExtensionAPIPersistent {
                         }
                       },
                     },
-                    /* msgWindow */ null
+                    (isUserAction &&
+                      windowTracker.topNormalWindow?.msgWindow) ||
+                      null
                   );
                 })
               );
@@ -641,8 +648,9 @@ this.messages = class extends ExtensionAPIPersistent {
                     }
                   },
                 },
-                /* msgWindow */ null,
-                /* allowUndo */ true
+                (isUserAction && windowTracker.topNormalWindow?.msgWindow) ||
+                  null,
+                isUserAction // allowUndo
               );
             })
           );
@@ -1138,13 +1146,32 @@ this.messages = class extends ExtensionAPIPersistent {
             throw new ExtensionError(`Error updating message: ${ex.message}`);
           }
         },
-        async move(messageIds, destination) {
-          return moveOrCopyMessages(messageIds, destination, true);
+        async move(messageIds, destination, options) {
+          const isUserAction = options?.isUserAction ?? false;
+          return moveOrCopyMessages(
+            messageIds,
+            destination,
+            isUserAction,
+            true
+          );
         },
-        async copy(messageIds, destination) {
-          return moveOrCopyMessages(messageIds, destination, false);
+        async copy(messageIds, destination, options) {
+          const isUserAction = options?.isUserAction ?? false;
+          return moveOrCopyMessages(
+            messageIds,
+            destination,
+            isUserAction,
+            false
+          );
         },
-        async delete(messageIds, skipTrash) {
+        async delete(messageIds, deletePermanentlyOrOptions) {
+          const options =
+            typeof deletePermanentlyOrOptions == "boolean"
+              ? { deletePermanently: deletePermanentlyOrOptions }
+              : deletePermanentlyOrOptions;
+          const deletePermanently = options?.deletePermanently ?? false;
+          const isUserAction = options?.isUserAction ?? false;
+
           try {
             const promises = [];
             const folderMap = collectMessagesInFolders(messageIds);
@@ -1163,9 +1190,11 @@ this.messages = class extends ExtensionAPIPersistent {
                 new Promise((resolve, reject) => {
                   sourceFolder.deleteMessages(
                     [...msgHeaderSet],
-                    /* msgWindow */ null,
-                    /* deleteStorage */ skipTrash,
-                    /* isMove */ false,
+                    (isUserAction &&
+                      windowTracker.topNormalWindow?.msgWindow) ||
+                      null,
+                    deletePermanently, // deleteStorage
+                    false, // isMove
                     /** @implements {nsIMsgCopyServiceListener} */
                     {
                       onStartCopy() {},
@@ -1182,7 +1211,7 @@ this.messages = class extends ExtensionAPIPersistent {
                         }
                       },
                     },
-                    /* allowUndo */ true
+                    isUserAction // allowUndo
                   );
                 })
               );
