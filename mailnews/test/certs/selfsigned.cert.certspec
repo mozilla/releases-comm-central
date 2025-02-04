@@ -1,3 +1,4 @@
 issuer:selfsigned.test.test
 subject:selfsigned.test.test
 extension:subjectAlternativeName:selfsigned.test.test
+validity:20250101-20300401

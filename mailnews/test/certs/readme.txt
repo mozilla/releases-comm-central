@@ -5,4 +5,7 @@ To add a new certificate, make a file named foo.cert.certspec, then run:
 This will generate foo.cert and foo.key. All three files should be checked in.
 The .cert and .key files should be added to mailnews/moz.build.
 
+To renew a certificate, update the validity line in foo.cert.certspec, then
+repeat the steps above.
+
 See ServerTestUtils.sys.mjs to see how to use the files.

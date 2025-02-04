@@ -1,3 +1,4 @@
 subject:oauth.test.test
 extension:extKeyUsage:serverAuth
 extension:subjectAlternativeName:oauth.test.test
+validity:20250101-20300401

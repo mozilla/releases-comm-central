@@ -1,3 +1,4 @@
 subject:test.test
 extension:extKeyUsage:serverAuth
 extension:subjectAlternativeName:test.test,alt.test.test,imap.test.test,pop3.test.test,smtp.test.test
+validity:20250101-20300401
