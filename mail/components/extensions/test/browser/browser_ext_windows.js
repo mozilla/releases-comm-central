@@ -415,7 +415,7 @@ add_task(async function test_popupLayoutProperties() {
           </body>
         </html>`,
       "background.js": async () => {
-        async function checkWindow(windowId, expected, retries = 0) {
+        async function checkWindow(windowId, expected, retries = 0, info = "") {
           const win = await browser.windows.get(windowId);
 
           if (
@@ -429,14 +429,14 @@ add_task(async function test_popupLayoutProperties() {
             );
             // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
             await new Promise(resolve => setTimeout(resolve, 200));
-            return checkWindow(windowId, expected, retries - 1);
+            return checkWindow(windowId, expected, retries - 1, info);
           }
 
           for (const [key, value] of Object.entries(expected)) {
             browser.test.assertEq(
               value,
               win[key],
-              `Should find the correct updated value for ${key}`
+              `${info}: Should find the correct value for ${key}`
             );
           }
 
@@ -460,7 +460,12 @@ add_task(async function test_popupLayoutProperties() {
             url: "test.html",
             ...test.properties,
           });
-          await checkWindow(win.id, test.properties, test.retries);
+          await checkWindow(
+            win.id,
+            test.properties,
+            test.retries,
+            "browser.windows.create()"
+          );
           await browser.windows.remove(win.id);
         }
 
@@ -471,7 +476,12 @@ add_task(async function test_popupLayoutProperties() {
             url: "test.html",
           });
           await browser.windows.update(win.id, test.properties);
-          await checkWindow(win.id, test.properties, test.retries);
+          await checkWindow(
+            win.id,
+            test.properties,
+            test.retries,
+            "browser.windows.update()"
+          );
           await browser.windows.remove(win.id);
         }
 

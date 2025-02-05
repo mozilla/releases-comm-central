@@ -63,23 +63,37 @@ add_task(async () => {
               );
             }
             const [actualEvent, ...actualArgs] = queue.shift();
-            browser.test.assertEq(expectedEvent, actualEvent);
-            browser.test.assertEq(expectedArgs.length, actualArgs.length);
+            browser.test.assertEq(
+              expectedEvent,
+              actualEvent,
+              `${expectedEvent}: Event should be correct`
+            );
+            browser.test.assertEq(
+              expectedArgs.length,
+              actualArgs.length,
+              `${expectedEvent}: Number of arguments should be correct`
+            );
 
             for (let i = 0; i < expectedArgs.length; i++) {
               browser.test.assertEq(
                 typeof expectedArgs[i],
-                typeof actualArgs[i]
+                typeof actualArgs[i],
+                `${expectedEvent}: Type should be correct`
               );
               if (typeof expectedArgs[i] == "object") {
                 for (const key of Object.keys(expectedArgs[i])) {
                   browser.test.assertEq(
                     expectedArgs[i][key],
-                    actualArgs[i][key]
+                    actualArgs[i][key],
+                    `${expectedEvent}: Value for ${key} should be correct`
                   );
                 }
               } else {
-                browser.test.assertEq(expectedArgs[i], actualArgs[i]);
+                browser.test.assertEq(
+                  expectedArgs[i],
+                  actualArgs[i],
+                  `${expectedEvent}: Value should be correct`
+                );
               }
             }
 
@@ -229,7 +243,8 @@ add_task(async () => {
               height: 500,
             },
           ],
-          primedPopupWindowInfo
+          primedPopupWindowInfo,
+          "Info returned from the primed onCreated event should be correct"
         );
 
         browser.test.log("Pause to let windows load properly.");

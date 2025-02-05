@@ -160,7 +160,7 @@ function sanitizePositionParams(params, window = null, positionOffset = 0) {
  * @param {integer} [options.height]
  *        The new pixel height of the window.
  */
-function updateGeometry(window, options) {
+async function updateGeometry(window, options) {
   if (options.left !== null || options.top !== null) {
     const left = options.left === null ? window.screenX : options.left;
     const top = options.top === null ? window.screenY : options.top;
@@ -168,10 +168,14 @@ function updateGeometry(window, options) {
   }
 
   if (options.width !== null || options.height !== null) {
-    const width = options.width === null ? window.outerWidth : options.width;
-    const height =
-      options.height === null ? window.outerHeight : options.height;
-    window.resizeTo(width, height);
+    const diffX = options.width ? options.width - window.outerWidth : 0;
+    const diffY = options.height ? options.height - window.outerHeight : 0;
+    if (diffX || diffY) {
+      await new Promise(resolve => {
+        window.addEventListener("resize", resolve, { once: true });
+        window.resizeBy(diffX, diffY);
+      });
+    }
   }
 }
 
@@ -455,6 +459,22 @@ this.windows = class extends ExtensionAPIPersistent {
               "titlebar",
               "close"
             );
+            // Set initial size. On Linux the decorations are added after the
+            // initial creation of the window, which will make it bigger, thus
+            // not honoring these values. They will be adjusted after initial
+            // focus.
+            if (createData.width !== null) {
+              features.push("outerWidth=" + createData.width);
+            }
+            if (createData.height !== null) {
+              features.push("outerHeight=" + createData.height);
+            }
+            if (createData.left !== null) {
+              features.push("left=" + createData.left);
+            }
+            if (createData.top !== null) {
+              features.push("top=" + createData.top);
+            }
             if (createData.left === null && createData.top === null) {
               features.push("centerscreen");
             }
@@ -503,8 +523,6 @@ this.windows = class extends ExtensionAPIPersistent {
 
           window.webExtensionWindowCreatePending = true;
 
-          updateGeometry(window, createData);
-
           // TODO: focused, type
 
           // Wait till the newly created window is focused. On Linux the initial
@@ -519,13 +537,14 @@ this.windows = class extends ExtensionAPIPersistent {
               window.addEventListener("focus", resolve, { once: true });
             }
           });
-
           const loadPromise = new Promise(resolve => {
             window.addEventListener("load", resolve, { once: true });
           });
 
-          await Promise.all([focusPromise, loadPromise]);
+          await focusPromise;
+          await updateGeometry(window, createData);
 
+          await loadPromise;
           const win = windowManager.getWrapper(window);
 
           if (
@@ -620,7 +639,7 @@ this.windows = class extends ExtensionAPIPersistent {
             win.window.getAttention();
           }
 
-          updateGeometry(win.window, updateInfo);
+          await updateGeometry(win.window, updateInfo);
 
           if (updateInfo.titlePreface !== null) {
             win.setTitlePreface(updateInfo.titlePreface);
