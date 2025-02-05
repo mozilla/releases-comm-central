@@ -97,6 +97,14 @@ add_task(async function test_onNewMailReceived_default() {
           messageList,
         ]);
       });
+
+      browser.folders.onFolderInfoChanged.addListener((folder, info) => {
+        browser.test.assertTrue(
+          info.lastUsed,
+          "Should have received a lastUsed update"
+        );
+        browser.test.sendMessage("onFolderInfoChanged event received");
+      });
     },
     "utils.js": await getUtilsJS(),
   };
@@ -126,6 +134,7 @@ add_task(async function test_onNewMailReceived_default() {
     onNewMailReceivedEventData[1].messages[0].subject,
     inboxMessages[0].subject
   );
+  await extension.awaitMessage("onFolderInfoChanged event received");
 
   // Create 2 more new messages.
 
@@ -171,6 +180,7 @@ add_task(async function test_onNewMailReceived_default() {
     onNewMailReceivedEventData[1].messages[1].subject,
     inboxMessages[2].subject
   );
+  await extension.awaitMessage("onFolderInfoChanged event received");
 
   await extension.unload();
 

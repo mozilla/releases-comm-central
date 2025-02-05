@@ -26,6 +26,7 @@
 #include "nsISpamSettings.h"
 #include "nsIMsgAccountManager.h"
 #include "nsTreeColumns.h"
+#include "nsMsgDBFolder.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsServiceManagerUtils.h"
@@ -6982,6 +6983,7 @@ void nsMsgDBView::SetMRUTimeForFolder(nsIMsgFolder* folder) {
   nsAutoCString nowStr;
   nowStr.AppendInt(seconds);
   folder->SetStringProperty(MRU_TIME_PROPERTY, nowStr);
+  folder->NotifyFolderEvent(kMRUTimeChanged);
 }
 
 nsMsgDBView::nsMsgViewHdrEnumerator::nsMsgViewHdrEnumerator(nsMsgDBView* view) {
