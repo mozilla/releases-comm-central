@@ -3,6 +3,9 @@
  * Test suite for local folder functions.
  */
 
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
@@ -269,10 +272,90 @@ function test_store_rename(root) {
   Assert.ok(!root.containsChildNamed("newfolder3"));
 }
 
-var gPluggableStores = [
-  "@mozilla.org/msgstore/berkeleystore;1",
-  "@mozilla.org/msgstore/maildirstore;1",
-];
+function test_unsafe_characters(root) {
+  // Create α, β, and γ.
+
+  root.createSubfolder("folder α", null);
+  const folderAlpha = root.getChildNamed("folder α");
+  const folderBeta = root.createLocalSubfolder("folder β");
+  folderBeta.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderBeta.createLocalSubfolder("folder γ");
+
+  const safeAlpha = AppConstants.platform == "win" ? "0750df29" : "folder α";
+  Assert.ok(root.containsChildNamed("folder α"));
+  Assert.equal(folderAlpha.name, "folder α");
+  Assert.equal(folderAlpha.filePath.leafName, safeAlpha);
+  Assert.ok(folderAlpha.filePath.exists());
+  Assert.equal(folderAlpha.summaryFile.leafName, `${safeAlpha}.msf`);
+  Assert.ok(folderAlpha.summaryFile.exists());
+
+  const safeBeta = AppConstants.platform == "win" ? "6b171c02" : "folder β";
+  Assert.ok(root.containsChildNamed("folder β"));
+  Assert.equal(root.getChildNamed("folder β"), folderBeta);
+  Assert.equal(folderBeta.name, "folder β");
+  Assert.equal(folderBeta.filePath.leafName, safeBeta);
+  Assert.ok(folderBeta.filePath.exists());
+  Assert.equal(folderBeta.summaryFile.leafName, `${safeBeta}.msf`);
+  Assert.ok(folderBeta.summaryFile.exists());
+  Assert.equal(
+    folderBeta.subFolders[0].filePath.parent.leafName,
+    `${safeBeta}.sbd`
+  );
+  Assert.ok(folderBeta.subFolders[0].filePath.parent.exists());
+
+  // Rename β to δ.
+
+  folderBeta.rename("folder δ", null);
+  Assert.ok(!root.containsChildNamed("folder β"));
+  Assert.ok(root.containsChildNamed("folder δ"));
+
+  const folderDelta = root.getChildNamed("folder δ");
+  folderDelta.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const safeDelta = AppConstants.platform == "win" ? "32a395b4" : "folder δ";
+  Assert.equal(folderDelta.name, "folder δ");
+  Assert.equal(folderDelta.filePath.leafName, safeDelta);
+  Assert.ok(folderDelta.filePath.exists());
+  Assert.equal(folderDelta.summaryFile.leafName, `${safeDelta}.msf`);
+  Assert.ok(folderDelta.summaryFile.exists());
+  Assert.equal(
+    folderDelta.subFolders[0].filePath.parent.leafName,
+    `${safeDelta}.sbd`
+  );
+  Assert.ok(folderDelta.subFolders[0].filePath.parent.exists());
+
+  // Copy α into δ.
+
+  // Note: this operation is synchronous and even if we passed a listener it
+  // wouldn't get called anyway. Such consistency!
+  folderDelta.copyFolderLocal(folderAlpha, false, null, null);
+
+  Assert.ok(root.containsChildNamed("folder α"));
+  Assert.ok(folderDelta.containsChildNamed("folder α"));
+  const newFolderAlpha = folderDelta.getChildNamed("folder α");
+  Assert.notEqual(newFolderAlpha, folderAlpha);
+  Assert.equal(newFolderAlpha.name, "folder α");
+  Assert.equal(newFolderAlpha.filePath.leafName, safeAlpha);
+  Assert.ok(newFolderAlpha.filePath.exists());
+  Assert.equal(newFolderAlpha.summaryFile.leafName, `${safeAlpha}.msf`);
+  Assert.ok(newFolderAlpha.summaryFile.exists());
+  Assert.equal(newFolderAlpha.filePath.parent.leafName, `${safeDelta}.sbd`);
+}
+
+add_task(function testMbox() {
+  Services.prefs.setCharPref(
+    "mail.serverDefaultStoreContractID",
+    "@mozilla.org/msgstore/berkeleystore;1"
+  );
+  run_all_tests("LocalFoldersTest-mbox");
+});
+
+add_task(function testMaildir() {
+  Services.prefs.setCharPref(
+    "mail.serverDefaultStoreContractID",
+    "@mozilla.org/msgstore/maildirstore;1"
+  );
+  run_all_tests("LocalFoldersTest-maildir");
+});
 
 function run_all_tests(aHostName) {
   const server = MailServices.accounts.createIncomingServer(
@@ -287,30 +370,5 @@ function run_all_tests(aHostName) {
   subtest_folder_operations(root);
   subtest_folder_deletion(root);
   test_store_rename(root);
-}
-
-function run_test() {
-  let hostName = "LocalFoldersTest";
-  let index = 0;
-  while (index < gPluggableStores.length) {
-    Services.prefs.setCharPref(
-      "mail.serverDefaultStoreContractID",
-      gPluggableStores[index]
-    );
-    run_all_tests(hostName);
-    hostName += "-" + ++index;
-  }
-
-  // At this point,
-  // we should have <root>
-  //                  +--newfolder1
-  //                     +--newfolder1-subfolder
-  //                  +--newfolder3-anotherName
-  //                     +--newfolder3-sub
-  //                  +--folder(3)
-  //                  +--Trash
-  //                     +--folder
-  //                     +--folder(2)
-  //                     +--folder(3)
-  //                        +--subfolder
+  test_unsafe_characters(root);
 }
