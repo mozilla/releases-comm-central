@@ -656,6 +656,13 @@ this.messages = class extends ExtensionAPIPersistent {
           );
         }
         await Promise.all(promises);
+        if (isUserAction) {
+          Services.prefs.setStringPref(
+            "mail.last_msg_movecopy_target_uri",
+            destinationFolder.URI
+          );
+          Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
+        }
       } catch (ex) {
         console.error(ex);
         throw new ExtensionError(
