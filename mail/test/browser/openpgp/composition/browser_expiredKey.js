@@ -102,7 +102,7 @@ add_task(async function testExpiredKeyShowsNotificationBar() {
 
   const buttons = notification._buttons;
   Assert.equal(
-    buttons[0]["l10n-id"],
+    buttons[0].buttonInfo["l10n-id"],
     "settings-context-open-account-settings-item2",
     "button0 should be the button to open account settings"
   );
