@@ -322,7 +322,6 @@ class AccountHubEmail extends HTMLElement {
    * @param {string} subview - Subview for which the UI is being inititialized.
    */
   async #initUI(subview) {
-    this.#stopLoading();
     this.#hideSubviews();
     this.#clearNotifications();
     this.#currentState = subview;
@@ -420,9 +419,6 @@ class AccountHubEmail extends HTMLElement {
    * the spinner if it was visible.
    */
   #stopLoading() {
-    if (!this.classList.contains("busy")) {
-      return;
-    }
     this.#clearNotifications();
     this.#states[this.#currentState].subview.disabled = false;
     this.#emailFooter.disabled = false;
@@ -604,8 +600,9 @@ class AccountHubEmail extends HTMLElement {
             lazy.FindConfig.ewsifyConfig(this.#currentConfig);
           }
 
-          await this.#initUI(this.#states[this.#currentState].nextStep);
           this.#stopLoading();
+          await this.#initUI(this.#states[this.#currentState].nextStep);
+
           this.#states.incomingConfigSubview.previousStep =
             "emailConfigFoundSubview";
           this.#currentSubview.showNotification({
@@ -658,7 +655,8 @@ class AccountHubEmail extends HTMLElement {
         });
         break;
       case "emailPasswordSubview":
-        // TODO: Add loading notification here.
+        this.#startLoading("account-hub-creating-account");
+
         // Get password and remember from the state and apply it to the config.
         this.#currentConfig = this.#fillAccountConfig(
           this.#currentConfig,
@@ -666,7 +664,15 @@ class AccountHubEmail extends HTMLElement {
         );
         this.#currentConfig.rememberPassword = stateData.rememberPassword;
         gAccountSetupLogger.debug("Create button clicked.");
-        await this.#validateAndFinish(this.#currentConfig.copy());
+
+        try {
+          await this.#validateAndFinish(this.#currentConfig.copy());
+        } catch (error) {
+          this.#stopLoading();
+          throw error;
+        }
+
+        this.#stopLoading();
         await this.#initUI(this.#states[this.#currentState].nextStep);
         try {
           // TODO: Loading notification for fetching address books.
