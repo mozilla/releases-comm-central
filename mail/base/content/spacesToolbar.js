@@ -1056,6 +1056,11 @@ var gSpacesToolbar = {
         );
       }
 
+      if (document.getElementById(id)) {
+        // Button exists already, bail out.
+        return resolve();
+      }
+
       // Create the button.
       const button = document.createElement("button");
       button.classList.add("spaces-toolbar-button", "spaces-addon-button");
