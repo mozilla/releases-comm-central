@@ -720,7 +720,6 @@ div:has(legend) {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
-  background-color: var(--color-neutral-base);
 
   & .sync-type-container {
     width: 100%;
@@ -733,10 +732,12 @@ div:has(legend) {
     font-size: 1.1rem;
     margin: 0;
     padding: 0;
+    background-color: var(--color-neutral-base);
 
     & .sync-title {
       display: flex;
       flex-direction: row;
+      align-items: center;
       gap: 12px;
       padding: 12px;
       font-weight: bold;
@@ -748,6 +749,7 @@ div:has(legend) {
         display: flex;
         flex-direction: column;
         gap: 2px;
+        flex-grow: 1;
 
         & .title {
           color: var(--color-text-base);
@@ -759,6 +761,11 @@ div:has(legend) {
           color: var(--color-primary-default);
         }
       }
+
+      & .sync-icon {
+        width: 32px;
+        height: 32px;
+      }
     }
 
     & .sync-input-container {
@@ -769,12 +776,10 @@ div:has(legend) {
     }
 
     & .select-all {
-      position: absolute;
-      bottom: 0;
-      right: 0;
       line-height: var(--hub-floating-button-line-height);
-      inset-block-end: calc(var(--hub-floating-button-inset-block-end) + var(--hub-floating-button-line-height)/2);
-      z-index: 1;
+      align-self: end;
+      margin-inline: 0;
+      margin-block: 0 -20px;
     }
 
     & .sync-option {
