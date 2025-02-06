@@ -17,10 +17,6 @@ var {
   "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 var { content_tab_e } = ChromeUtils.importESModule(
   "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );

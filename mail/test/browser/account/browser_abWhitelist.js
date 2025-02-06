@@ -12,10 +12,6 @@ var { FAKE_SERVER_HOSTNAME } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 var gKeyString = null;
 var gAccount = null;
 

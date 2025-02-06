@@ -15,9 +15,6 @@ var { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
 );
 var { DNS } = ChromeUtils.importESModule("resource:///modules/DNS.sys.mjs");
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
 
 var testUser = {
   name: "Yamato Nadeshiko",
@@ -34,77 +31,6 @@ var imapUser = {
   password: "abc12345",
   incomingHost: "testin.imap.test",
   outgoingHost: "testout.imap.test",
-};
-
-var IMAPServer = {
-  open() {
-    const {
-      ImapDaemon,
-      ImapMessage,
-      IMAP_RFC2195_extension,
-      IMAP_RFC3501_handler,
-      mixinExtension,
-    } = ChromeUtils.importESModule(
-      "resource://testing-common/mailnews/Imapd.sys.mjs"
-    );
-    const { nsMailServer } = ChromeUtils.importESModule(
-      "resource://testing-common/mailnews/Maild.sys.mjs"
-    );
-    IMAPServer.ImapMessage = ImapMessage;
-
-    this.daemon = new ImapDaemon();
-    this.server = new nsMailServer(daemon => {
-      const handler = new IMAP_RFC3501_handler(daemon);
-      mixinExtension(handler, IMAP_RFC2195_extension);
-
-      handler.kUsername = "john.doe@imap.test";
-      handler.kPassword = "abc12345";
-      handler.kAuthRequired = true;
-      handler.kAuthSchemes = ["PLAIN"];
-      return handler;
-    }, this.daemon);
-    this.server.start(1993);
-    info(`IMAP server started on port ${this.server.port}`);
-
-    registerCleanupFunction(() => this.close());
-  },
-  close() {
-    this.server.stop();
-  },
-  get port() {
-    return this.server.port;
-  },
-};
-
-var SMTPServer = {
-  open() {
-    const { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.importESModule(
-      "resource://testing-common/mailnews/Smtpd.sys.mjs"
-    );
-    const { nsMailServer } = ChromeUtils.importESModule(
-      "resource://testing-common/mailnews/Maild.sys.mjs"
-    );
-
-    this.daemon = new SmtpDaemon();
-    this.server = new nsMailServer(daemon => {
-      const handler = new SMTP_RFC2821_handler(daemon);
-      handler.kUsername = "john.doe@imap.test";
-      handler.kPassword = "abc12345";
-      handler.kAuthRequired = true;
-      handler.kAuthSchemes = ["PLAIN"];
-      return handler;
-    }, this.daemon);
-    this.server.start(1587);
-    info(`SMTP server started on port ${this.server.port}`);
-
-    registerCleanupFunction(() => this.close());
-  },
-  close() {
-    this.server.stop();
-  },
-  get port() {
-    return this.server.port;
-  },
 };
 
 var _srv = DNS.srv;

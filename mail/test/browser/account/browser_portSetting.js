@@ -15,10 +15,6 @@ var { input_value, delete_all_existing } = ChromeUtils.importESModule(
   "resource://testing-common/mail/KeyboardHelpers.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 var PORT_NUMBERS_TO_TEST = [
   "110", // The original port number. We don't input this though.
   "456", // Random port number.

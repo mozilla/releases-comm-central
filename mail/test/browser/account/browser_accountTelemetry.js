@@ -11,9 +11,6 @@ const { FeedUtils } = ChromeUtils.importESModule(
 const { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
 );
-const { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
 const { MailTelemetryForTests } = ChromeUtils.importESModule(
   "resource:///modules/MailGlue.sys.mjs"
 );

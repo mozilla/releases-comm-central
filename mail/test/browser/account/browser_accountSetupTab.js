@@ -4,10 +4,6 @@
 
 "use strict";
 
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 /**
  * Test the ability of dismissing the account setup without triggering the
  * generation of a local folders account nor the update of the mail UI.

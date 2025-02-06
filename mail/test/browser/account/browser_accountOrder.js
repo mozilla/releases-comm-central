@@ -13,10 +13,6 @@ var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
     "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
   );
 
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 var gPopAccount, gOriginalAccountCount;
 
 add_setup(function () {

@@ -12,10 +12,6 @@ var { open_advanced_settings, remove_account } = ChromeUtils.importESModule(
   "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 var gPopAccount, gImapAccount, gOriginalAccountCount;
 
 add_setup(function () {

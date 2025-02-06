@@ -12,10 +12,6 @@ var { promise_modal_dialog } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 var defaultIdentity;
 
 add_setup(function () {

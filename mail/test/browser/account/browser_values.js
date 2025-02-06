@@ -20,10 +20,6 @@ var { gMockPromptService } = ChromeUtils.importESModule(
   "resource://testing-common/mail/PromptHelpers.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 var gPopAccount, gOriginalAccountCount;
 
 add_setup(function () {

@@ -4,6 +4,80 @@
 
 // From browser/components/preferences/tests/head.js
 
+const { nsMailServer } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Maild.sys.mjs"
+);
+
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+
+const IMAPServer = {
+  open() {
+    const {
+      ImapDaemon,
+      ImapMessage,
+      IMAP_RFC2195_extension,
+      IMAP_RFC3501_handler,
+      mixinExtension,
+    } = ChromeUtils.importESModule(
+      "resource://testing-common/mailnews/Imapd.sys.mjs"
+    );
+
+    IMAPServer.ImapMessage = ImapMessage;
+
+    this.daemon = new ImapDaemon();
+    this.server = new nsMailServer(daemon => {
+      const handler = new IMAP_RFC3501_handler(daemon);
+      mixinExtension(handler, IMAP_RFC2195_extension);
+
+      handler.kUsername = "john.doe@imap.test";
+      handler.kPassword = "abc12345";
+      handler.kAuthRequired = true;
+      handler.kAuthSchemes = ["PLAIN"];
+      return handler;
+    }, this.daemon);
+    this.server.start(1993);
+    info(`IMAP server started on port ${this.server.port}`);
+
+    registerCleanupFunction(() => this.close());
+  },
+  close() {
+    this.server.stop();
+  },
+  get port() {
+    return this.server.port;
+  },
+};
+
+const SMTPServer = {
+  open() {
+    const { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.importESModule(
+      "resource://testing-common/mailnews/Smtpd.sys.mjs"
+    );
+
+    this.daemon = new SmtpDaemon();
+    this.server = new nsMailServer(daemon => {
+      const handler = new SMTP_RFC2821_handler(daemon);
+      handler.kUsername = "john.doe@imap.test";
+      handler.kPassword = "abc12345";
+      handler.kAuthRequired = true;
+      handler.kAuthSchemes = ["PLAIN"];
+      return handler;
+    }, this.daemon);
+    this.server.start(1587);
+    info(`SMTP server started on port ${this.server.port}`);
+
+    registerCleanupFunction(() => this.close());
+  },
+  close() {
+    this.server.stop();
+  },
+  get port() {
+    return this.server.port;
+  },
+};
+
 function is_element_visible(aElement, aMsg) {
   isnot(aElement, null, "Element should not be null, when checking visibility");
   ok(!BrowserTestUtils.isHidden(aElement), aMsg);
@@ -75,4 +149,327 @@ function promiseLoadSubDialog(aURL) {
       }
     );
   });
+}
+
+/**
+ * Subtest to open the account dialog, and returns the dialog for further
+ * testing.
+ *
+ * @returns {Promise<HTMLElement>}
+ */
+async function subtest_open_account_hub_dialog() {
+  await window.openAccountHub();
+
+  const hub = document.querySelector("account-hub-container");
+  await BrowserTestUtils.waitForMutationCondition(
+    hub,
+    { childList: true },
+    () => !!hub.shadowRoot.querySelector(".account-hub-dialog")
+  );
+
+  const dialog = hub.shadowRoot.querySelector(".account-hub-dialog");
+  Assert.ok(dialog, "The dialog element should be created");
+
+  await BrowserTestUtils.waitForMutationCondition(
+    dialog,
+    {
+      childList: true,
+    },
+    () => !!dialog.querySelector("email-auto-form")
+  );
+
+  const emailForm = dialog.querySelector("email-auto-form");
+  Assert.ok(emailForm, "The email element should be available");
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(emailForm),
+    "The initial email template should be in view"
+  );
+
+  return dialog;
+}
+/**
+ * Subtest to close the account hub dialog.
+ *
+ * @param {Promise<HTMLElement>} dialog - The account hub dialog.
+ */
+async function subtest_close_account_hub_dialog(dialog) {
+  const hub = document.querySelector("account-hub-container");
+  const closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
+  EventUtils.synthesizeMouseAtCenter(
+    hub.shadowRoot.querySelector("#closeButton"),
+    {}
+  );
+  await closeEvent;
+}
+
+/**
+ * Subtest fill in the fields of the first step of the account hub email setup.
+ *
+ * @param {Promise<HTMLElement>} dialog - The account hub dialog.
+ * @param {object?} emailUser - An object containing a dummy user's email data.
+ */
+async function subtest_fill_initial_config_fields(dialog, emailUser = null) {
+  emailUser = emailUser || {
+    name: "John Doe",
+    email: "john.doe@momo.invalid",
+    password: "abc12345",
+    incomingHost: "mail.momo.invalid",
+    outgoingHost: "mail.momo.invalid",
+    outgoingPort: 465,
+  };
+
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const nameInput = emailTemplate.querySelector("#realName");
+  const emailInput = emailTemplate.querySelector("#email");
+  const footerForward = dialog
+    .querySelector("#emailFooter")
+    .querySelector("#forward");
+
+  // Ensure fields are empty.
+  nameInput.value = "";
+  emailInput.value = "";
+
+  EventUtils.synthesizeMouseAtCenter(nameInput, {});
+  let inputEvent = BrowserTestUtils.waitForEvent(
+    nameInput,
+    "input",
+    false,
+    event => event.target.value === emailUser.name
+  );
+  EventUtils.sendString(emailUser.name, window);
+  await inputEvent;
+
+  EventUtils.synthesizeMouseAtCenter(emailInput, {});
+  inputEvent = BrowserTestUtils.waitForEvent(
+    emailInput,
+    "input",
+    false,
+    event => event.target.value === emailUser.email
+  );
+  EventUtils.sendString(emailUser.email, window);
+  await inputEvent;
+
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  // Click continue and wait for config found template to be in view.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(configFoundTemplate),
+    "The config found template should be in view"
+  );
+}
+
+/**
+ * Subtest that waits for the status bar to clear and the meteros to stop
+ * spinning.
+ */
+async function subtest_clear_status_bar() {
+  const status = window.MsgStatusFeedback;
+  try {
+    await TestUtils.waitForCondition(
+      () =>
+        !status._startTimeoutID &&
+        !status._meteorsSpinning &&
+        !status._stopTimeoutID,
+      "waiting for meteors to stop spinning"
+    );
+  } catch (ex) {
+    // If the meteors don't stop spinning within 5 seconds, something has got
+    // confused somewhere and they'll probably keep spinning forever.
+    // Reset and hope we can continue without more problems.
+    Assert.ok(!status._startTimeoutID, "meteors should not have a start timer");
+    Assert.ok(!status._meteorsSpinning, "meteors should not be spinning");
+    Assert.ok(!status._stopTimeoutID, "meteors should not have a stop timer");
+    if (status._startTimeoutID) {
+      clearTimeout(status._startTimeoutID);
+      status._startTimeoutID = null;
+    }
+    if (status._stopTimeoutID) {
+      clearTimeout(status._stopTimeoutID);
+      status._stopTimeoutID = null;
+    }
+    status._stopMeteors();
+  }
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(status._progressBar),
+    "progress bar should not be visible"
+  );
+  Assert.ok(
+    status._progressBar.hasAttribute("value"),
+    "progress bar should not be in the indeterminate state"
+  );
+  if (BrowserTestUtils.isVisible(status._progressBar)) {
+    // Somehow the progress bar is still visible and probably in the
+    // indeterminate state, meaning vsync timers are still active. Reset it.
+    status._stopMeteors();
+  }
+
+  Assert.equal(
+    status._startRequests,
+    0,
+    "status bar should not have any start requests"
+  );
+  Assert.equal(
+    status._activeProcesses.length,
+    0,
+    "status bar should not have any active processes"
+  );
+  status._startRequests = 0;
+  status._activeProcesses.length = 0;
+}
+
+/**
+ * Subtest to check that the account hub email found config step has the
+ * correct data.
+ *
+ * @param {HTMLElement} template - The account hub step HTML template.
+ * @param {string} configType - The config server type.
+ */
+function subtest_config_results(template, configType) {
+  const type = configType === "pop" ? "pop3" : configType;
+
+  Assert.equal(
+    template.querySelector("#incomingType").textContent,
+    type,
+    "Incoming type should be expected type"
+  );
+
+  Assert.equal(
+    template.querySelector("#outgoingType").textContent,
+    "smtp",
+    `${configType}: Outgoing type should be expected type`
+  );
+
+  Assert.equal(
+    template.querySelector("#incomingHost").textContent,
+    `${configType}.mail.momo.invalid`,
+    `${configType}: Incoming host should be ${configType}.mail.momo.invalid`
+  );
+
+  Assert.equal(
+    template.querySelector("#outgoingHost").textContent,
+    "smtp.mail.momo.invalid",
+    `${configType}: Outgoing host should be expected host`
+  );
+
+  Assert.equal(
+    template.l10n.getAttributes(template.querySelector("#incomingAuth")).id,
+    "account-setup-result-ssl",
+    `${configType}: Incoming auth should be expected auth`
+  );
+
+  Assert.equal(
+    template.l10n.getAttributes(template.querySelector("#outgoingAuth")).id,
+    "account-setup-result-ssl",
+    `${configType}: Outgoing auth should be expected auth`
+  );
+
+  Assert.equal(
+    template.querySelector("#incomingUsername").textContent,
+    "john.doe",
+    `${configType}: Incoming username should be expected username`
+  );
+
+  Assert.equal(
+    template.querySelector("#outgoingUsername").textContent,
+    "john.doe",
+    `${configType}: Outgoing username should be expected username`
+  );
+}
+
+/**
+ * Subtest to check that the account hub email found config step has the
+ * correct data.
+ *
+ * @param {Tab} tab - The tab containing the account settings.
+ * @param {object} user - The user data meant for the added email account.
+ * @param {string} type - The config's server type.
+ */
+async function subtest_verify_account_hub_account(tab, user, type) {
+  await BrowserTestUtils.waitForCondition(
+    () => !!tab.browser.contentWindow.currentAccount,
+    "The new account should have been created"
+  );
+
+  const account = tab.browser.contentWindow.currentAccount;
+  const identity = account.defaultIdentity;
+  const incoming = account.incomingServer;
+  const outgoing = MailServices.outgoingServer.getServerByKey(
+    identity.smtpServerKey
+  );
+
+  const config = {
+    "incoming server username": {
+      actual: incoming.username,
+      expected: user.email.split("@")[0],
+    },
+    "outgoing server username": {
+      actual: outgoing.username,
+      expected: user.email.split("@")[0],
+    },
+    "incoming server hostname": {
+      // Note: N in the hostName is uppercase
+      actual: incoming.hostName,
+      expected: `${type}.${user.incomingHost}`,
+    },
+    "outgoing server hostname": {
+      // And this is lowercase
+      actual: outgoing.serverURI.host,
+      expected: `smtp.${user.outgoingHost}`,
+    },
+    "user real name": { actual: identity.fullName, expected: user.name },
+    "user email address": { actual: identity.email, expected: user.email },
+    "incoming port": {
+      actual: incoming.port,
+      expected: user.incomingPort,
+    },
+    "outgoing port": {
+      actual: outgoing.port,
+      expected: user.outgoingPort,
+    },
+  };
+
+  try {
+    for (const detail in config) {
+      Assert.equal(
+        config[detail].actual,
+        config[detail].expected,
+        `Configured ${detail} is ${config[detail].actual}. It should be ${config[detail].expected}`
+      );
+    }
+  } finally {
+    removeAccountInternal(tab, account);
+  }
+}
+
+/**
+ * Remove an account in the Account Manager, but not via the UI.
+ *
+ * @param {Tab} tab - The tab containing the account settings.
+ * @param {nsIMsgAccount} account - The added email account.
+ */
+function removeAccountInternal(tab, account) {
+  const identity = account.defaultIdentity;
+  const incoming = account.incomingServer;
+  const outgoing = MailServices.outgoingServer.getServerByKey(
+    identity.smtpServerKey
+  );
+  const win = tab.browser.contentWindow;
+
+  // Remove the account and incoming server
+  const serverId = incoming.serverURI;
+  MailServices.accounts.removeAccount(account);
+  account = null;
+  if (serverId in win.accountArray) {
+    delete win.accountArray[serverId];
+  }
+  win.selectServer(null, null);
+
+  // Remove the outgoing server
+  const smtpKey = outgoing.key;
+  MailServices.outgoingServer.deleteServer(outgoing);
+  win.replaceWithDefaultSmtpServer(smtpKey);
 }
