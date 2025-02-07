@@ -863,7 +863,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
         }
 
         if (account_key != nullptr)
-          m_newMsgHdr->SetAccountKey(account_key->value);
+          m_newMsgHdr->SetAccountKey(nsDependentCString(account_key->value));
         // use in-reply-to header as references, if there's no references header
         if (references != nullptr) {
           m_newMsgHdr->SetReferences(nsDependentCString(references->value));
@@ -986,9 +986,9 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
                   // to generate a new string without the trailing crud
                   nsAutoCString rawCharSet;
                   rawCharSet.Assign(charset, end - charset);
-                  m_newMsgHdr->SetCharset(rawCharSet.get());
+                  m_newMsgHdr->SetCharset(rawCharSet);
                 } else {
-                  m_newMsgHdr->SetCharset(charset);
+                  m_newMsgHdr->SetCharset(nsDependentCString(charset));
                 }
               }
             }

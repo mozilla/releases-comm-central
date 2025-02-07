@@ -2262,7 +2262,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
 
       nsTArray<RefPtr<nsIMsgIdentity>> identities;
       nsCString accountKey;
-      mOrigMsgHdr->GetAccountKey(getter_Copies(accountKey));
+      mOrigMsgHdr->GetAccountKey(accountKey);
       if (replyToSelfCheckAll) {
         // Check all available identities if the pref was set.
         accountManager->GetAllIdentities(identities);

@@ -643,7 +643,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
   compFields->SetRawHeader("Auto-Submitted", "auto-replied"_ns);
 
   nsCString charset;
-  rv = mTemplateHdr->GetCharset(getter_Copies(charset));
+  rv = mTemplateHdr->GetCharset(charset);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = nsMsgI18NConvertToUnicode(charset, mTemplateBody, body);
   NS_WARNING_ASSERTION(NS_SUCCEEDED(rv),

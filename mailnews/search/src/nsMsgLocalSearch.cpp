@@ -395,7 +395,7 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
 
   nsMsgSearchAttribValue attrib;
   aTerm->GetAttrib(&attrib);
-  msgToMatch->GetCharset(getter_Copies(msgCharset));
+  msgToMatch->GetCharset(msgCharset);
   charset = msgCharset.get();
   if (!charset || !*charset) charset = (const char*)defaultCharset;
   msgToMatch->GetFlags(&msgFlags);

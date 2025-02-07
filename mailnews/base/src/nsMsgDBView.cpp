@@ -411,7 +411,7 @@ nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aSenderString) {
 
 nsresult nsMsgDBView::FetchAccount(nsIMsgDBHdr* aHdr, nsAString& aAccount) {
   nsCString accountKey;
-  nsresult rv = aHdr->GetAccountKey(getter_Copies(accountKey));
+  nsresult rv = aHdr->GetAccountKey(accountKey);
 
   // Cache the account manager?
   nsCOMPtr<nsIMsgAccountManager> accountManager(

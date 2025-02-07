@@ -13,7 +13,7 @@ interface nsIUTF8StringEnumerator;
 [scriptable, uuid(3c11ddbe-c805-40c5-b9c9-d065fad5d0be)]
 interface nsIMsgDBHdr : nsISupports
 {
-    void setStringProperty(in string propertyName, in  AUTF8String propertyValue);
+    void setStringProperty(in string propertyName, in AUTF8String propertyValue);
     AUTF8String getStringProperty(in string propertyName);
     unsigned long getUint32Property(in string propertyName);
     void setUint32Property(in string propertyName,
@@ -91,16 +91,16 @@ interface nsIMsgDBHdr : nsISupports
     Array<octet> getSubjectCollationKey();
     Array<octet> getRecipientsCollationKey();
 
-    attribute string charset;
+    attribute AUTF8String charset;
 
     /**
      * Returns the effective character set for the message (@ref charset).
      * For NNTP, if there is no specific set defined for the message,
      * the character set of the server instead.
      */
-    readonly attribute ACString effectiveCharset;
+    readonly attribute AUTF8String effectiveCharset;
 
-    attribute string accountKey;
+    attribute AUTF8String accountKey;
     readonly attribute nsIMsgFolder folder;
 
     /// Array of names of all database properties in the header.

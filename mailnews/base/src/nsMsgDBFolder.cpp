@@ -5223,7 +5223,7 @@ nsresult nsMsgDBFolder::GetMsgPreviewTextFromStream(nsIMsgDBHdr* msgHdr,
                                                     nsIInputStream* stream) {
   nsCString msgBody;
   nsAutoCString charset;
-  msgHdr->GetCharset(getter_Copies(charset));
+  msgHdr->GetCharset(charset);
   nsAutoCString contentType;
   nsresult rv = GetMsgTextFromStream(stream, charset, 4096, 255, true, true,
                                      contentType, msgBody);

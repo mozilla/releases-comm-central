@@ -399,9 +399,9 @@ NS_IMETHODIMP nsMsgFileHdr::GetRecipientsCollationKey(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::GetCharset(char** aCharset) { return NS_OK; }
+NS_IMETHODIMP nsMsgFileHdr::GetCharset(nsACString& aCharset) { return NS_OK; }
 
-NS_IMETHODIMP nsMsgFileHdr::SetCharset(const char* aCharset) {
+NS_IMETHODIMP nsMsgFileHdr::SetCharset(const nsACString& aCharset) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -409,9 +409,11 @@ NS_IMETHODIMP nsMsgFileHdr::GetEffectiveCharset(nsACString& aEffectiveCharset) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::GetAccountKey(char** aAccountKey) { return NS_OK; }
+NS_IMETHODIMP nsMsgFileHdr::GetAccountKey(nsACString& aAccountKey) {
+  return NS_OK;
+}
 
-NS_IMETHODIMP nsMsgFileHdr::SetAccountKey(const char* aAccountKey) {
+NS_IMETHODIMP nsMsgFileHdr::SetAccountKey(const nsACString& aAccountKey) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

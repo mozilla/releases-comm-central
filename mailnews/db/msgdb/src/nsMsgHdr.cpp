@@ -388,18 +388,12 @@ NS_IMETHODIMP nsMsgHdr::GetPriority(nsMsgPriorityValue* result) {
 // This might be problematic when a message gets moved...
 // And I'm not sure if we should short circuit it here,
 // or at a higher level where it might be more efficient.
-NS_IMETHODIMP nsMsgHdr::SetAccountKey(const char* aAccountKey) {
-  return SetStringProperty("account", nsDependentCString(aAccountKey));
+NS_IMETHODIMP nsMsgHdr::SetAccountKey(const nsACString& aAccountKey) {
+  return SetStringProperty("account", aAccountKey);
 }
 
-NS_IMETHODIMP nsMsgHdr::GetAccountKey(char** aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-
-  nsCString key;
-  nsresult rv = GetStringProperty("account", key);
-  NS_ENSURE_SUCCESS(rv, rv);
-  *aResult = ToNewCString(key);
-  return NS_OK;
+NS_IMETHODIMP nsMsgHdr::GetAccountKey(nsACString& aResult) {
+  return GetStringProperty("account", aResult);
 }
 
 NS_IMETHODIMP nsMsgHdr::GetStoreToken(nsACString& result) {
@@ -504,13 +498,14 @@ NS_IMETHODIMP nsMsgHdr::GetRecipientsCollationKey(
       GetMDBRow(), m_mdb->m_recipientsColumnToken, resultRecipients);
 }
 
-NS_IMETHODIMP nsMsgHdr::GetCharset(char** aCharset) {
+NS_IMETHODIMP nsMsgHdr::GetCharset(nsACString& aCharset) {
   return m_mdb->RowCellColumnToCharPtr(
-      GetMDBRow(), m_mdb->m_messageCharSetColumnToken, aCharset);
+      GetMDBRow(), m_mdb->m_messageCharSetColumnToken, getter_Copies(aCharset));
 }
 
-NS_IMETHODIMP nsMsgHdr::SetCharset(const char* aCharset) {
-  return SetStringColumn(aCharset, m_mdb->m_messageCharSetColumnToken);
+NS_IMETHODIMP nsMsgHdr::SetCharset(const nsACString& aCharset) {
+  return SetStringColumn(PromiseFlatCString(aCharset).get(),
+                         m_mdb->m_messageCharSetColumnToken);
 }
 
 NS_IMETHODIMP nsMsgHdr::GetEffectiveCharset(nsACString& resultCharset) {
