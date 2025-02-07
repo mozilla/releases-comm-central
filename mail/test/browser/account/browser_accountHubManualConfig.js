@@ -3,21 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
-
-let emailUser;
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
 add_setup(function () {
-  emailUser = {
-    name: "John Doe",
-    email: "john.doe@momo.invalid",
-    password: "abc12345",
-    incomingHost: "mail.momo.invalid",
-    outgoingHost: "mail.momo.invalid",
-    outgoingPort: 465,
-  };
-
   // Set the pref to load a local autoconfig file.
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
@@ -34,7 +23,17 @@ add_task(async function test_account_email_advanced_setup_incoming() {
   // view to be shown.
   const dialog = await subtest_open_account_hub_dialog();
 
-  await subtest_fill_initial_config_fields(dialog);
+  const emailUser = {
+    name: "John Doe",
+    email: "john.doe@momo.invalid",
+    password: "abc12345",
+    incomingHost: "mail.momo.invalid",
+    incomingPort: 123,
+    outgoingHost: "mail.momo.invalid",
+    outgoingPort: 465,
+  };
+
+  await subtest_fill_initial_config_fields(dialog, emailUser);
 
   const configFoundTemplate = dialog.querySelector("email-config-found");
 
@@ -71,7 +70,6 @@ add_task(async function test_account_email_advanced_setup_incoming() {
     event => event.target.value === "123"
   );
   EventUtils.sendString("123", window);
-  emailUser.incomingPort = 123;
   await inputEvent;
 
   const advancedConfigButton = incomingConfigTemplate.querySelector(
@@ -109,7 +107,16 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
   // view to be shown.
   const dialog = await subtest_open_account_hub_dialog();
 
-  await subtest_fill_initial_config_fields(dialog);
+  const emailUser = {
+    name: "John Doe",
+    email: "john.doe@momo.invalid",
+    password: "abc12345",
+    incomingHost: "mail.momo.invalid",
+    outgoingHost: "mail.momo.invalid",
+    outgoingPort: 465,
+  };
+
+  await subtest_fill_initial_config_fields(dialog, emailUser);
   const footerForward = dialog
     .querySelector("account-hub-footer")
     .querySelector("#forward");
@@ -205,7 +212,17 @@ add_task(async function test_account_email_manual_form() {
   // view to be shown.
   const dialog = await subtest_open_account_hub_dialog();
 
-  await subtest_fill_initial_config_fields(dialog);
+  const emailUser = {
+    name: "John Doe",
+    email: "john.doe@momo.invalid",
+    password: "abc12345",
+    incomingHost: "mail.momo.invalid",
+    incomingPort: 123,
+    outgoingHost: "mail.momo.invalid",
+    outgoingPort: 465,
+  };
+
+  await subtest_fill_initial_config_fields(dialog, emailUser);
   const footer = dialog.querySelector("account-hub-footer");
   const footerForward = footer.querySelector("#forward");
   const footerBack = footer.querySelector("#back");

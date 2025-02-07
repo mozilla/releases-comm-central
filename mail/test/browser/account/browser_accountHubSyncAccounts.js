@@ -10,7 +10,6 @@ const { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
 );
 
-let emailUser;
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 const _srv = DNS.srv;
@@ -58,15 +57,6 @@ DNS.txt = function (name) {
 };
 
 add_setup(function () {
-  emailUser = {
-    name: "John Doe",
-    email: "john.doe@momo.invalid",
-    password: "abc12345",
-    incomingHost: "mail.momo.invalid",
-    outgoingHost: "mail.momo.invalid",
-    outgoingPort: 465,
-  };
-
   // Set the pref to load a local autoconfig file.
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
@@ -83,7 +73,7 @@ registerCleanupFunction(function () {
 add_task(async function test_account_load_sync_accounts_imap_account() {
   IMAPServer.open();
   SMTPServer.open();
-  emailUser = {
+  const emailUser = {
     name: "John Doe",
     email: "john.doe@imap.test",
     password: "abc12345",

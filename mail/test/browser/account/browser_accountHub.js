@@ -4,20 +4,10 @@
 
 "use strict";
 
-let emailUser;
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
 add_setup(function () {
-  emailUser = {
-    name: "John Doe",
-    email: "john.doe@momo.invalid",
-    password: "abc12345",
-    incomingHost: "mail.momo.invalid",
-    outgoingHost: "mail.momo.invalid",
-    outgoingPort: 465,
-  };
-
   // Set the pref to load a local autoconfig file.
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
@@ -345,7 +335,7 @@ add_task(async function test_account_email_config_found() {
 add_task(async function test_account_enter_password_imap_account() {
   IMAPServer.open();
   SMTPServer.open();
-  emailUser = {
+  const emailUser = {
     name: "John Doe",
     email: "john.doe@imap.test",
     password: "abc12345",

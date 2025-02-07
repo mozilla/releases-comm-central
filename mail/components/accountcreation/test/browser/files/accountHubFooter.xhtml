@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Account hub footer element test</title>
+    <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/account-hub-footer.mjs"></script>
+  </head>
+  <body>
+    <template id="accountHubFooterTemplate" class="hub-footer" xmlns="http://www.w3.org/1999/xhtml">
+      <!-- Email setup footer -->
+      <footer id="accountHubFooter">
+        <menu id="accountHubFooterMenu" class="dialog-menu-container two-columns">
+          <li id="footerButtonsLeftColumn">
+            <button id="custom"
+                    class="button secondary-button footer-button"
+                    type="button"
+                    disabled="disabled"
+                    hidden="hidden">
+            </button>
+          </li>
+          <li id="footerButtonsRightColumn">
+            <button id="back"
+                    type="button"
+                    data-l10n-id="account-hub-email-back-button"
+                    class="button secondary-button footer-button"
+                    hidden="hidden">
+            </button>
+            <button id="forward"
+                    data-l10n-id="account-hub-email-continue-button"
+                    class="button primary-button footer-button"
+                    disabled="disabled">
+            </button>
+          </li>
+        </menu>
+        <hr/>
+        <ul class="reset-list footer-links">
+          <li>
+            <a href="https://support.mozilla.org/products/thunderbird"
+              data-l10n-id="account-hub-support"
+              onclick="openLinkExternally(this.href);">
+            </a>
+          </li>
+          <li hidden="hidden">
+            <a id="hubReleaseNotes"
+              href=""
+              data-l10n-id="account-hub-release-notes"
+              onclick="openLinkExternally(this.href)">
+            </a>
+          </li>
+          <li>
+            <a href="https://www.thunderbird.net/donate/?utm_source=thunderbird_account_hub&amp;utm_medium=referral&amp;utm_content=hub_footer"
+              data-l10n-id="account-hub-donate"
+              onclick="openLinkExternally(this.href);">
+            </a>
+          </li>
+        </ul>
+      </footer>
+    </template>
+
+    <account-hub-footer></account-hub-footer>
+  </body>
+</html>

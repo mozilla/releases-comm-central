@@ -631,6 +631,41 @@ class AccountHubEmail extends HTMLElement {
         // TODO: Validate incoming config details.
         break;
       case "outgoingConfigSubview":
+      case "emailConfigFoundSubview":
+        if (this.#currentConfig.isOauthOnly()) {
+          //TODO share this with the code path for pw entry...
+          this.#startLoading("account-hub-oauth-pending");
+          gAccountSetupLogger.debug("Create button clicked.");
+          try {
+            await this.#validateAndFinish(this.#currentConfig.copy());
+          } finally {
+            this.#stopLoading();
+          }
+          await this.#initUI("emailSyncAccountsSubview");
+          this.#states[this.#currentState].previousStep = currentState;
+          try {
+            // TODO: Loading notification for fetching address books.
+            const syncAccounts = {};
+            //TODO fetch address books and calendars in parallel?
+            syncAccounts.addressBooks = await this.#getAddressBooks("");
+            // TODO: Loading notification for fetching calendars.
+            syncAccounts.calendars = await this.#getCalendars("", false);
+            this.#currentSubview.setState(syncAccounts);
+            this.#configVerifier.cleanup();
+          } catch (error) {
+            this.#currentSubview.showNotification({
+              fluentTitleId: "account-hub-sync-failure",
+              type: "error",
+              error,
+            });
+            break;
+          }
+          this.#currentSubview.showNotification({
+            fluentTitleId: "account-hub-sync-success",
+            type: "success",
+          });
+          break;
+        }
         // Move to the password stage where validateAndFinish is run.
         await this.#initUI(this.#states[this.#currentState].nextStep);
         // The password stage should now have the outgoing subview as the
@@ -638,17 +673,6 @@ class AccountHubEmail extends HTMLElement {
         this.#states[this.#currentState].previousStep = currentState;
         this.#currentSubview.setState();
 
-        this.#currentSubview.showNotification({
-          fluentTitleId: "account-hub-password-info",
-          type: "info",
-        });
-        break;
-      case "emailConfigFoundSubview":
-        await this.#initUI(this.#states[this.#currentState].nextStep);
-        // The password stage should now have the config found subview as the
-        // previous step.
-        this.#states[this.#currentState].previousStep = currentState;
-        this.#currentSubview.setState();
         this.#currentSubview.showNotification({
           fluentTitleId: "account-hub-password-info",
           type: "info",
