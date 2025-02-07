@@ -16,8 +16,10 @@ var {
   CachedFolder,
   folderURIToPath,
   getFolder,
+  getFolderTime,
   getMailAccounts,
   getWildcardVirtualFolders,
+  sortFoldersByTime,
   specialUseMap,
 } = ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
 
@@ -152,14 +154,29 @@ var folderTracker = new (class extends EventEmitter {
     }
 
     switch (event) {
-      case "MRUTimeChanged":
-        try {
-          const time = Number(folder.getStringProperty("MRUTime")) * 1000;
-          if (time) {
-            this.addPendingInfoNotification(folder, "lastUsed", new Date(time));
-          }
-        } catch (e) {}
+      case "MRMTimeChanged": {
+        const mrmTime = getFolderTime(folder, "MRMTime");
+        if (mrmTime) {
+          this.addPendingInfoNotification(
+            folder,
+            "lastUsedAsDestination",
+            new Date(mrmTime)
+          );
+        }
         break;
+      }
+
+      case "MRUTimeChanged": {
+        const mruTime = getFolderTime(folder, "MRUTime");
+        if (mruTime) {
+          this.addPendingInfoNotification(
+            folder,
+            "lastUsed",
+            new Date(mruTime)
+          );
+        }
+        break;
+      }
     }
   }
 
@@ -597,11 +614,9 @@ this.folders = class extends ExtensionAPIPersistent {
           event: "onUpdated",
           extensionApi: this,
         }).api(),
-        async query(queryInfo) {
-          const monthOld = Math.floor(
-            (Date.now() - FolderUtils.ONE_MONTH_IN_MILLISECONDS) / 1000
-          );
 
+        /* eslint-disable complexity */
+        async query(queryInfo) {
           // Generator function to flatten the folder structure.
           function* getFlatFolderStructure(folder) {
             yield folder;
@@ -633,12 +648,40 @@ this.folders = class extends ExtensionAPIPersistent {
             return true;
           }
 
-          function isRecent(folder) {
-            try {
-              const time = Number(folder.getStringProperty("MRUTime")) || 0;
-              return !(time < monthOld);
-            } catch (e) {
-              return false;
+          // Prepare query dates.
+          const queryDates = {};
+          const recentTime = Date.now() - FolderUtils.ONE_MONTH_IN_MILLISECONDS;
+          if (
+            queryInfo.recent === true ||
+            queryInfo.lastUsed?.recent === true
+          ) {
+            queryDates.lastUsedAfter = recentTime;
+          } else if (
+            queryInfo.recent === false ||
+            queryInfo.lastUsed?.recent === false
+          ) {
+            queryDates.lastUsedBefore = recentTime;
+          } else {
+            if (queryInfo.lastUsed?.after) {
+              queryDates.lastUsedAfter = queryInfo.lastUsed.after.getTime();
+            }
+            if (queryInfo.lastUsed?.before) {
+              queryDates.lastUsedBefore = queryInfo.lastUsed.before.getTime();
+            }
+          }
+
+          if (queryInfo.lastUsedAsDestination?.recent === true) {
+            queryDates.lastUsedAsDestinationAfter = recentTime;
+          } else if (queryInfo.lastUsedAsDestination?.recent === false) {
+            queryDates.lastUsedAsDestinationBefore = recentTime;
+          } else {
+            if (queryInfo.lastUsedAsDestination?.after) {
+              queryDates.lastUsedAsDestinationAfter =
+                queryInfo.lastUsedAsDestination.after.getTime();
+            }
+            if (queryInfo.lastUsedAsDestination?.before) {
+              queryDates.lastUsedAsDestinationBefore =
+                queryInfo.lastUsedAsDestination.before.getTime();
             }
           }
 
@@ -754,10 +797,36 @@ this.folders = class extends ExtensionAPIPersistent {
           for (const parentFolder of parentFolders) {
             const { accountId, rootFolder } = parentFolder;
             for (const folder of getFlatFolderStructure(rootFolder)) {
-              // Apply search criteria.
+              // Apply lastUsed search criteria.
               if (
-                queryInfo.recent !== null &&
-                queryInfo.recent != isRecent(folder)
+                queryDates.lastUsedAfter &&
+                !(getFolderTime(folder, "MRUTime") > queryDates.lastUsedAfter)
+              ) {
+                continue;
+              }
+              if (
+                queryDates.lastUsedBefore &&
+                !(getFolderTime(folder, "MRUTime") < queryDates.lastUsedBefore)
+              ) {
+                continue;
+              }
+
+              // Apply lastUsedAsDestination search criteria.
+              if (
+                queryDates.lastUsedAsDestinationAfter &&
+                !(
+                  getFolderTime(folder, "MRMTime") >
+                  queryDates.lastUsedAsDestinationAfter
+                )
+              ) {
+                continue;
+              }
+              if (
+                queryDates.lastUsedAsDestinationBefore &&
+                !(
+                  getFolderTime(folder, "MRMTime") <
+                  queryDates.lastUsedAsDestinationBefore
+                )
               ) {
                 continue;
               }
@@ -889,30 +958,40 @@ this.folders = class extends ExtensionAPIPersistent {
             }
           }
 
-          // Sort by recentness for recent queries. Apply the limit, but ignore
-          // limit of -1 = mail.folder_widget.max_recent for non-recent queries.
-          if (queryInfo.recent) {
-            let limit = queryInfo.limit || Infinity;
-            if (limit == -1) {
-              limit = Services.prefs.getIntPref(
-                "mail.folder_widget.max_recent"
-              );
-            }
-            foundFolders = FolderUtils.getMostRecentFolders(
-              foundFolders,
-              limit,
-              "MRUTime"
+          // Apply sort.
+          if (queryInfo.recent || queryInfo.sort == "lastUsed") {
+            foundFolders = sortFoldersByTime(foundFolders, "MRUTime");
+          } else if (queryInfo.sort == "lastUsedAsDestination") {
+            foundFolders = sortFoldersByTime(foundFolders, "MRMTime");
+          } else if (queryInfo.sort == "name") {
+            foundFolders.sort((a, b) =>
+              a.prettyName.localeCompare(b.prettyName, undefined, {
+                sensitivity: "base",
+              })
             );
-          } else if (queryInfo.limit && queryInfo.limit > 0) {
-            // If limit is used without recent, mail.folder_widget.max_recent is
-            // ignored.
-            foundFolders.splice(queryInfo.limit);
+          }
+
+          // Apply limit. It can be set to -1 = mail.folder_widget.max_recent for
+          // recent queries.
+          if (queryInfo.limit) {
+            const recentQuery =
+              queryInfo.recent ||
+              queryInfo.lastUsed?.recent ||
+              queryInfo.lastUsedAsDestination?.recent;
+            const limit =
+              queryInfo.limit == -1 && recentQuery
+                ? Services.prefs.getIntPref("mail.folder_widget.max_recent")
+                : queryInfo.limit;
+            if (limit > 0) {
+              foundFolders.splice(limit);
+            }
           }
 
           return foundFolders.map(folder =>
             context.extension.folderManager.convert(folder)
           );
         },
+
         async get(folderId, includeSubFolders) {
           const { folder, accountKey } = getFolder(folderId);
           if (includeSubFolders) {
@@ -1209,12 +1288,15 @@ this.folders = class extends ExtensionAPIPersistent {
             );
           }
 
-          try {
-            const time = Number(folder.getStringProperty("MRUTime")) * 1000;
-            if (time) {
-              mailFolderInfo.lastUsed = new Date(time);
-            }
-          } catch (e) {}
+          const mrmTime = getFolderTime(folder, "MRMTime");
+          if (mrmTime) {
+            mailFolderInfo.lastUsedAsDestination = new Date(mrmTime);
+          }
+
+          const mruTime = getFolderTime(folder, "MRUTime");
+          if (mruTime) {
+            mailFolderInfo.lastUsed = new Date(mruTime);
+          }
 
           return mailFolderInfo;
         },

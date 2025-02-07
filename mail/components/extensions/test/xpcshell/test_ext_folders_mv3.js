@@ -380,11 +380,15 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
         );
 
         // Verify lastUsed.
-        const lastUsedSeconds = Math.floor(info.lastUsed.getTime() / 1000);
-        const startTimeSeconds = Math.floor(startTime.getTime() / 1000);
         browser.test.assertTrue(
-          lastUsedSeconds >= startTimeSeconds,
-          `Should be correct: MailFolder.lastUsed (${lastUsedSeconds}) >= startTime (${startTimeSeconds})`
+          info.lastUsed.getTime() >= startTime.getTime(),
+          `Should be correct: MailFolder.lastUsed (${info.lastUsed}) >= startTime (${startTime})`
+        );
+
+        // Verify lastUsedAsDestination.
+        browser.test.assertTrue(
+          info.lastUsedAsDestination.getTime() >= startTime.getTime(),
+          `Should be correct: MailFolder.lastUsedAsDestination (${info.lastUsedAsDestination}) >= startTime (${startTime})`
         );
       }
 
@@ -506,6 +510,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
   });
 
   const startTime = new Date();
+  const startTimeSeconds = Math.floor(startTime.getTime() / 1000);
   const account = createAccount();
   // Not all folders appear immediately on IMAP. Creating a new one causes them
   // to appear.
@@ -514,6 +519,10 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
     "InfoTest"
   );
   await createMessages(InfoTestFolder, 12);
+
+  // Mock MRUTime and MRMTime.
+  InfoTestFolder.setStringProperty("MRUTime", startTimeSeconds + 10);
+  InfoTestFolder.setStringProperty("MRMTime", startTimeSeconds + 5);
 
   const OtherTestFolder = await createSubfolder(
     account.incomingServer.rootFolder,

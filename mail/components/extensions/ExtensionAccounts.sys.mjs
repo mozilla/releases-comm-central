@@ -507,7 +507,6 @@ export class FolderManager {
    *
    * @param {nsIMsgFolder} folder - The folder to get the direct subfolders for.
    * @param {boolean} isUnified - Whether the folder is a unified folder.
-   *
    * @returns {nsIMsgFolder[]}
    */
   getDirectSubfolders(folder, isUnified) {
@@ -638,7 +637,6 @@ export class CachedFolder {
  * @param {?string} identifier.accountId - MailFolder.accountId
  * @param {?string} identifier.folderId - MailFolder.id
  * @param {?string} identifier.path - MailFolder.path
- *
  * @returns {FolderDetails} info - Details about the specified folder.
  */
 function getFolderDetails({ accountId, folderId, path }) {
@@ -764,4 +762,35 @@ export function getFolder(identifier) {
   }
   // A MailFolder.id.
   return getFolderDetails({ folderId: identifier });
+}
+
+/**
+ * Retrieves the given time property of the given folder.
+ *
+ * @param {nsIMsgFolder} folder
+ * @param {"MRUTime"|"MRMTime"} timeProperty
+ * @param {boolean} [inSeconds=false] - Whether to return a timestamp in seconds
+ *    instead of milliseconds.
+ * @returns {integer}
+ */
+export function getFolderTime(folder, timeProperty, inSeconds = false) {
+  const time = Number(folder.getStringProperty(timeProperty)) || 0;
+  return inSeconds ? time : time * 1000;
+}
+
+/**
+ * Sorts the given folders by the given time property.
+ *
+ * @param {nsIMsgFolder[]} folderList
+ * @param {"MRUTime"|"MRMTime"} timeProperty
+ * @returns {nsIMsgFolder[]}
+ */
+export function sortFoldersByTime(folderList, timeProperty) {
+  return folderList
+    .map(folder => ({
+      folder,
+      time: getFolderTime(folder, timeProperty, true),
+    }))
+    .sort((a, b) => b.time - a.time)
+    .map(f => f.folder);
 }

@@ -171,7 +171,12 @@
           "lastUsed": {
             "$ref": "extensionTypes.Date",
             "optional": true,
-            "description": "Date the folder was last used (precision: seconds)."
+            "description": "Date the folder was last used. It is updated every time the folder was accessed, when the user moved or copied messages into the folder and when the folder received new messages. (precision: seconds)."
+          },
+          "lastUsedAsDestination": {
+            "$ref": "extensionTypes.Date",
+            "optional": true,
+            "description": "Date the folder was last used as a destination. It is updated every time the user moved or copied messages into the folder. (precision: seconds)."
           },
           "quota": {
             "type": "array",
@@ -270,9 +275,39 @@
         }
       },
       {
+        "id": "QueryDateRange",
+        "description": "An object defining a range for a date value to be used in queries.",
+        "choices": [
+          {
+            "type": "object",
+            "properties": {
+              "recent": {
+                "type": "boolean",
+                "description": "Whether the date must be considered to be recent by Thunderbird (within the last month) or not, to match the query."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "properties": {
+              "after": {
+                "$ref": "extensionTypes.Date",
+                "optional": true,
+                "description": "The minimum date required to match the query."
+              },
+              "before": {
+                "$ref": "extensionTypes.Date",
+                "optional": true,
+                "description": "The maximum date required to match the query."
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "QueryRange",
         "type": "object",
-        "description": "An object defining a range.",
+        "description": "An object defining a range for an integer value to be used in queries.",
         "properties": {
           "min": {
             "type": "integer",
@@ -306,7 +341,7 @@
     "properties": {
       "DEFAULT_MOST_RECENT_LIMIT": {
         "value": -1,
-        "description": "The number of most recent folders used in Thunderbird's UI. Controled by the <var>mail.folder_widget.max_recent</var> preference."
+        "description": "The number of most recent folders used in Thunderbird's UI. Controlled by the <var>mail.folder_widget.max_recent</var> preference."
       }
     },
     "functions": [
@@ -430,6 +465,16 @@
                 "optional": true,
                 "description": "Whether the folder is a virtual search folder, or not."
               },
+              "lastUsed": {
+                "$ref": "QueryDateRange",
+                "optional": true,
+                "description": "Date the folder was last used (folder was accessed, user moved or copied messages into the folder or folder received new messages)."
+              },
+              "lastUsedAsDestination": {
+                "$ref": "QueryDateRange",
+                "optional": true,
+                "description": "Date the folder was last used as a destination (user moved or copied messages into the folder)."
+              },
               "limit": {
                 "type": "integer",
                 "optional": true,
@@ -461,8 +506,16 @@
               },
               "recent": {
                 "type": "boolean",
+                "deprecated": "Deprecated. Use <var>queryInfo.lastUsed</var> and <var>queryInfo.sort</var>.",
                 "optional": true,
-                "description": "Whether the folder (excluding subfolders) has been used within the last month, or not. The returned folders will be sorted by their recentness."
+                "description": "Whether the folder (excluding subfolders) has been used within the last month, or not. The returned folders will be sorted by <var>lastUsed</var>."
+              },
+              "sort": {
+                "type": "string",
+                "enum": ["lastUsed", "lastUsedAsDestination", "name", "path"],
+                "optional": true,
+                "default": "path",
+                "description": "The sort order of the returned folders. If not specified, folders will be sorted by <var>path</var>. Sorting by <var>name</var> is case-insensitive."
               },
               "specialUse": {
                 "type": "array",

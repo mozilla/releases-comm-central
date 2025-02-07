@@ -212,11 +212,15 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         );
 
         // Verify lastUsed.
-        const lastUsedSeconds = Math.floor(info.lastUsed.getTime() / 1000);
-        const startTimeSeconds = Math.floor(startTime.getTime() / 1000);
         browser.test.assertTrue(
-          lastUsedSeconds >= startTimeSeconds,
-          `Should be correct: MailFolder.lastUsed (${lastUsedSeconds}) >= startTime (${startTimeSeconds})`
+          info.lastUsed.getTime() > startTime.getTime(),
+          `Should be correct: MailFolder.lastUsed (${info.lastUsed}) > startTime (${startTime})`
+        );
+
+        // Verify lastUsedAsDestination.
+        browser.test.assertTrue(
+          info.lastUsedAsDestination.getTime() >= startTime.getTime(),
+          `Should be correct: MailFolder.lastUsedAsDestination (${info.lastUsedAsDestination}) > startTime (${startTime})`
         );
       }
 
@@ -272,6 +276,73 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         expectedAccountFolders.filter(
           f => !["InfoTest", "OtherTest"].includes(f)
         )
+      );
+
+      // LastUsed recently.
+      await queryCheck(
+        {
+          folderId: rootFolder.id,
+          lastUsed: { recent: true },
+          sort: "lastUsed",
+          limit: browser.folders.DEFAULT_MOST_RECENT_LIMIT,
+        },
+        ["OtherTest"]
+      );
+      await queryCheck(
+        {
+          folderId: rootFolder.id,
+          lastUsed: { recent: true },
+          sort: "lastUsed",
+        },
+        ["OtherTest", "InfoTest"]
+      );
+      await queryCheck(
+        {
+          folderId: rootFolder.id,
+          lastUsed: { recent: true },
+          sort: "name",
+        },
+        ["InfoTest", "OtherTest"]
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, lastUsed: { recent: false } },
+        expectedAccountFolders.filter(
+          f => !["InfoTest", "OtherTest"].includes(f)
+        )
+      );
+
+      // LastUsed with before/after
+      await queryCheck(
+        {
+          folderId: rootFolder.id,
+          lastUsed: {
+            after: new Date(startTime.getTime() + 3000),
+            before: new Date(startTime.getTime() + 5000),
+          },
+        },
+        ["OtherTest"]
+      );
+      await queryCheck(
+        {
+          folderId: rootFolder.id,
+          lastUsed: {
+            after: new Date(startTime.getTime() + 1000),
+            before: new Date(startTime.getTime() + 3000),
+          },
+        },
+        ["InfoTest"]
+      );
+
+      // lastUsedAsDestination with before/after
+      await queryCheck(
+        {
+          folderId: rootFolder.id,
+          lastUsedAsDestination: {
+            after: new Date(startTime.getTime() + 9000),
+            before: new Date(startTime.getTime() + 11000),
+          },
+        },
+        ["InfoTest"]
       );
 
       // Name.
@@ -658,6 +729,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
   });
 
   const startTime = new Date();
+  const startTimeSeconds = Math.floor(startTime.getTime() / 1000);
   const account = createAccount();
 
   // Add a second account to test query working across multiple accounts.
@@ -679,24 +751,18 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
     "InfoTest"
   );
   await createMessages(InfoTestFolder, 12);
-
   const OtherTestFolder = await createSubfolder(
     account.incomingServer.rootFolder,
     "OtherTest"
   );
   await createMessages(OtherTestFolder, 1);
 
-  // Enforce different MRUTime values for folders used for recent tests. The
-  // "OtherTest" folder was created after the "InfoTest" folder and should be more
-  // recent.
-  InfoTestFolder.setStringProperty(
-    "MRUTime",
-    Math.floor(startTime.getTime() / 1000) + 1
-  );
-  OtherTestFolder.setStringProperty(
-    "MRUTime",
-    Math.floor(startTime.getTime() / 1000) + 2
-  );
+  // Enforce different MRUTime values for folders used for recent tests.
+  InfoTestFolder.setStringProperty("MRUTime", startTimeSeconds + 2);
+  OtherTestFolder.setStringProperty("MRUTime", startTimeSeconds + 4);
+
+  // Mock MRMTimes.
+  InfoTestFolder.setStringProperty("MRMTime", startTimeSeconds + 10);
 
   extension.onMessage("markSomeAsUnread", count => {
     const messages = InfoTestFolder.messages;
