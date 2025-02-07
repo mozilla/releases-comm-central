@@ -8,6 +8,8 @@ EXPORTS += [
 ]
 
 SOURCES += [
+    "MboxCompactor.cpp",
+    "MboxScanner.cpp",
     "nsLocalMailFolder.cpp",
     "nsLocalUndoTxn.cpp",
     "nsLocalUtils.cpp",

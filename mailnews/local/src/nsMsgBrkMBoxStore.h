@@ -12,10 +12,11 @@
 
 #include "nsMsgLocalStoreUtils.h"
 #include "nsIMsgPluggableStore.h"
-#include "nsIFile.h"
-#include "nsIOutputStream.h"
 #include "nsTStringHasher.h"  // IWYU pragma: keep, mozilla::DefaultHasher<nsCString>
 #include "mozilla/HashTable.h"
+
+class nsIFile;
+class nsIOutputStream;
 
 class nsMsgBrkMBoxStore final : public nsMsgLocalStoreUtils,
                                 nsIMsgPluggableStore {
