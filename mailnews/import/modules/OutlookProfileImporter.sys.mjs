@@ -11,6 +11,7 @@ import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
  * profile.
  */
 export class OutlookProfileImporter extends BaseProfileImporter {
+  NAME = "Outlook";
   USE_FILE_PICKER = false;
 
   SUPPORTED_ITEMS = {

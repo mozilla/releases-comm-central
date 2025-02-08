@@ -11,6 +11,7 @@ import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
  * profile.
  */
 export class AppleMailProfileImporter extends BaseProfileImporter {
+  NAME = "AppleMail";
   USE_FILE_PICKER = true;
 
   SUPPORTED_ITEMS = {
