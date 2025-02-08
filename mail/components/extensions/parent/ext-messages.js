@@ -21,6 +21,7 @@ var {
   messagePartToRaw,
   parseEncodedAddrHeader,
   CachedMsgHeader,
+  FolderPropertyChangeListener,
   MAILBOX_HEADERS,
   MessageQuery,
   MsgHdrProcessor,
@@ -1124,6 +1125,44 @@ this.messages = class extends ExtensionAPIPersistent {
             if (newProperties.flagged !== null) {
               msgHdr.folder.markMessagesFlagged(msgs, newProperties.flagged);
             }
+
+            if (Array.isArray(newProperties.tags)) {
+              const newKeywords = newProperties.tags.filter(
+                MailServices.tags.isValidKey
+              );
+              const currentKeywords = msgHdr
+                .getStringProperty("keywords")
+                .split(" ")
+                .filter(MailServices.tags.isValidKey);
+              const missingKeywords = newKeywords
+                .filter(k => !currentKeywords.includes(k))
+                .join(" ");
+              const obsoleteKeywords = currentKeywords
+                .filter(k => !newKeywords.includes(k))
+                .join(" ");
+              if (obsoleteKeywords) {
+                const tagsRemoved = new FolderPropertyChangeListener(
+                  msgHdr,
+                  "Keywords"
+                );
+                msgHdr.folder.removeKeywordsFromMessages(
+                  msgs,
+                  obsoleteKeywords
+                );
+                await tagsRemoved.seen();
+              }
+              if (missingKeywords) {
+                const tagsAdded = new FolderPropertyChangeListener(
+                  msgHdr,
+                  "Keywords"
+                );
+                msgHdr.folder.addKeywordsToMessages(msgs, missingKeywords);
+                await tagsAdded.seen();
+              }
+            }
+
+            // Changing the junk score can cause a reload of the message and it
+            // should be done after all other changes to minimize UI hiccups.
             if (newProperties.junk !== null) {
               const newJunkScore = newProperties.junk
                 ? Ci.nsIJunkMailPlugin.IS_SPAM_SCORE
@@ -1132,21 +1171,6 @@ this.messages = class extends ExtensionAPIPersistent {
               // set it to "user". Note: The IMAP implementation also sets the keyword
               // Junk/NoJunk.
               msgHdr.folder.setJunkScoreForMessages(msgs, newJunkScore);
-            }
-            if (Array.isArray(newProperties.tags)) {
-              const currentTags = msgHdr
-                .getStringProperty("keywords")
-                .split(" ");
-
-              for (const { key: tagKey } of MailServices.tags.getAllTags()) {
-                if (newProperties.tags.includes(tagKey)) {
-                  if (!currentTags.includes(tagKey)) {
-                    msgHdr.folder.addKeywordsToMessages(msgs, tagKey);
-                  }
-                } else if (currentTags.includes(tagKey)) {
-                  msgHdr.folder.removeKeywordsFromMessages(msgs, tagKey);
-                }
-              }
             }
           } catch (ex) {
             console.error(ex);

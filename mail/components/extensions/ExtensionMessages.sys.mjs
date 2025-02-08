@@ -2724,3 +2724,34 @@ export class TagTracker extends EventEmitter {
     }
   }
 }
+
+export class FolderPropertyChangeListener {
+  constructor(msgHdr, property) {
+    this.mshHdr = msgHdr;
+    this.property = property;
+    this.task = Promise.withResolvers();
+    MailServices.mailSession.AddFolderListener(
+      this,
+      Ci.nsIFolderListener.propertyFlagChanged
+    );
+  }
+
+  seen() {
+    return this.task.promise;
+  }
+
+  /**
+   * Implements nsIFolderListener.onFolderPropertyFlagChanged().
+   *
+   * @param {nsIMsgDBHdr} msgHdr
+   * @param {string} property
+   * @param {integer} _oldFlag
+   * @param {integer} _newFlag
+   */
+  onFolderPropertyFlagChanged(msgHdr, property, _oldFlag, _newFlag) {
+    if (msgHdr == this.mshHdr && property == this.property) {
+      MailServices.mailSession.RemoveFolderListener(this);
+      this.task.resolve();
+    }
+  }
+}

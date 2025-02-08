@@ -251,7 +251,7 @@ add_task(
         // one adding tags1 and one adding tags2. updatePromise is waiting for
         // the third one before resolving.
         updatePromise = newUpdatePromise({
-          numberOfEventsToCollapse: 3,
+          numberOfEventsToCollapse: 2,
           reportIndividualEvents: true,
         });
         await browser.messages.update(message.id, {
@@ -260,16 +260,14 @@ add_task(
         updateInfo = await updatePromise;
         browser.test.assertEq(message.id, updateInfo.msg.id);
         window.assertDeepEqual(
-          [
-            { tags: [] },
-            { tags: [tags[1].key] },
-            { tags: [tags[1].key, tags[2].key] },
-          ],
-          updateInfo.newProps
+          [{ tags: [] }, { tags: [tags[1].key, tags[2].key] }],
+          updateInfo.newProps,
+          "Received new properties should be correct"
         );
         window.assertDeepEqual(
-          [{ tags: [tags[0].key] }, { tags: [] }, { tags: [tags[1].key] }],
-          updateInfo.oldProps
+          [{ tags: [tags[0].key] }, { tags: [] }],
+          updateInfo.oldProps,
+          "Received old properties should be correct"
         );
         await window.sendMessage("tags2");
 
@@ -301,7 +299,7 @@ add_task(
         browser.test.assertEq("0@made.up.invalid", message.headerMessageId);
 
         // Test that clearing properties works.
-        updatePromise = newUpdatePromise({ numberOfEventsToCollapse: 5 });
+        updatePromise = newUpdatePromise({ numberOfEventsToCollapse: 4 });
         await browser.messages.update(message.id, {
           flagged: false,
           read: false,
