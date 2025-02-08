@@ -140,9 +140,15 @@
     "manifest": ["messages"],
     "paths": [["messages"]]
   },
+  "messengerSettings": {
+    "url": "chrome://messenger/content/parent/ext-messengerSettings.js",
+    "schema": "chrome://messenger/content/schemas/messenger_settings.json",
+    "scopes": ["addon_parent"],
+    "paths": [["messengerSettings"]]
+  },
   "messengerUtilities": {
-    "url": "chrome://messenger/content/parent/ext-utilities.js",
-    "schema": "chrome://messenger/content/schemas/utilities.json",
+    "url": "chrome://messenger/content/parent/ext-messengerUtilities.js",
+    "schema": "chrome://messenger/content/schemas/messenger_utilities.json",
     "scopes": ["addon_parent"],
     "paths": [["messengerUtilities"]]
   },

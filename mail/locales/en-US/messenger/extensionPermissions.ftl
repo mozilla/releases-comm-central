@@ -26,3 +26,4 @@ webext-perms-description-messagesUpdate = Change properties and tags of your ema
 webext-perms-description-messagesTags = Create, modify and delete message tags
 webext-perms-description-messagesTagsList = List message tags
 webext-perms-description-sensitiveDataUpload = Transfer sensitive user data (if access has been granted) to a remote server for further processing
+webext-perms-description-messengerSettings = Read { -brand-short-name } settings

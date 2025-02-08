@@ -208,6 +208,7 @@ for (const perm of [
   "messagesUpdate",
   "messagesTags",
   "messagesTagsList",
+  "messengerSettings",
   "sensitiveDataUpload",
 ]) {
   PERMISSIONS_WITH_MESSAGE.add(perm);
