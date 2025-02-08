@@ -647,6 +647,7 @@ const contextsMap = {
   selectedComposeAttachments: "compose_attachments",
   selectedMessageAttachments: "message_attachments",
   allMessageAttachments: "all_message_attachments",
+  onHeaderPaneLink: "header_pane_link",
 };
 
 const chromeElementsMap = {
@@ -857,6 +858,10 @@ async function addMenuEventInfo(
     info.attachments = contextData.selectedComposeAttachments.map(a =>
       global.composeAttachmentTracker.convert(a, contextData.menu.ownerGlobal)
     );
+  }
+  if (contextData.onHeaderPaneLink && extension.hasPermission("messagesRead")) {
+    info.linkText = contextData.linkText;
+    info.linkUrl = contextData.linkUrl;
   }
 }
 

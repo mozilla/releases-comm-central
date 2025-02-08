@@ -3101,6 +3101,19 @@ const gMessageHeader = {
       return;
     }
 
+    // This block sends menu information to WebExtensions.
+    const messageId = element.id;
+    const subject = {
+      menu: popup,
+      tab: popup.ownerGlobal,
+      onHeaderPaneLink: true,
+      linkText: messageId,
+      linkUrl: `mid:${messageId.substring(1, messageId.length - 1)}`,
+      pageUrl: getMessagePaneBrowser().contentDocument?.URL,
+    };
+    subject.wrappedJSObject = subject;
+    Services.obs.notifyObservers(subject, "on-build-contextmenu");
+
     popup.openPopupAtScreen(event.screenX, event.screenY, true);
   },
 
