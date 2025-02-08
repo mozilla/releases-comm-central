@@ -46,8 +46,7 @@ add_setup(async function () {
   popAccount = MailServices.accounts.createAccount();
   popAccount.incomingServer = popServer;
   popAccount.addIdentity(popIdentity);
-  const popOutgoing = MailServices.outgoingServer.createServer("smtp");
-  popIdentity.smtpServerKey = popOutgoing.key;
+  popIdentity.smtpServerKey = ""; // Use default outgoing server.
 
   const oauthServer = MailServices.accounts.createIncomingServer(
     "oauth@foo.invalid",

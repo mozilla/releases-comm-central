@@ -9,10 +9,11 @@ ChromeUtils.defineESModuleGetters(lazy, {
   default: "resource:///modules/qrcode.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
-ChromeUtils.defineLazyGetter(lazy, "console", () =>
+ChromeUtils.defineLazyGetter(lazy, "log", () =>
   console.createInstance({
     prefix: "QRExport",
     maxLogLevel: "Warn",
+    maxLogLevelPref: "mail.qrexport.loglevel",
   })
 );
 
@@ -25,9 +26,15 @@ const INCOMING_SERVER_TYPES = new Set(["imap", "pop3"]);
  * Auth methods not supported by the Android app.
  */
 const UNSUPPORTED_AUTH_METHODS = new Set([
+  // Unsupported:
   Ci.nsMsgAuthMethod.GSSAPI,
   Ci.nsMsgAuthMethod.NTLM,
   Ci.nsMsgAuthMethod.External,
+
+  // Do not map to anything:
+  Ci.nsMsgAuthMethod.old,
+  Ci.nsMsgAuthMethod.secure,
+  Ci.nsMsgAuthMethod.anything,
 ]);
 
 // QR Code data content constants
@@ -74,28 +81,46 @@ export const QRExport = {
   getEligibleAccounts() {
     return MailServices.accounts.accounts.filter(account => {
       if (!account.defaultIdentity) {
+        lazy.log.debug(`${account.key} ineligible: no default identity`);
         return false;
       }
       // For each account we want ingoing and outgoing and the default identiy.
       const incomingServer = account.incomingServer;
-      if (
-        !INCOMING_SERVER_TYPES.has(incomingServer.type) ||
-        UNSUPPORTED_AUTH_METHODS.has(incomingServer.authMethod)
-      ) {
+      if (!INCOMING_SERVER_TYPES.has(incomingServer.type)) {
+        lazy.log.debug(
+          `${account.key} type ineligible: ${incomingServer.type}`
+        );
+        return false;
+      }
+      if (UNSUPPORTED_AUTH_METHODS.has(incomingServer.authMethod)) {
+        lazy.log.debug(
+          `${account.key} authMethod ineligible: ${incomingServer.authMethod}`
+        );
         return false;
       }
       const identity = account.defaultIdentity;
       // eslint-disable-next-line no-control-regex
       if (!/^[\x00-\x7F]+$/.test(identity.email)) {
+        lazy.log.debug(`${identity.email} ineligible: non-ascii email`);
         return false;
       }
-      const outgoingServer = MailServices.outgoingServer.getServerByKey(
-        identity.smtpServerKey
-      );
-      return (
-        outgoingServer instanceof Ci.nsISmtpServer &&
-        !UNSUPPORTED_AUTH_METHODS.has(outgoingServer.authMethod)
-      );
+      const outgoingServer = identity.smtpServerKey
+        ? MailServices.outgoingServer.getServerByKey(identity.smtpServerKey)
+        : MailServices.outgoingServer.defaultServer;
+      if (!(outgoingServer instanceof Ci.nsISmtpServer)) {
+        lazy.log.debug(
+          `${account.key} outgoing server ineligible: ${outgoingServer?.type}`
+        );
+        return false;
+      }
+      if (UNSUPPORTED_AUTH_METHODS.has(outgoingServer.authMethod)) {
+        lazy.log.debug(
+          `${account.key} outgoing server authMethod ineligible: ${outgoingServer.authMethod}`
+        );
+        return false;
+      }
+      lazy.log.debug(`${account.key} (${identity.fullName}) is eligible`);
+      return true;
     });
   },
 
@@ -124,10 +149,8 @@ export const QRExport = {
       const chunkData = this.getQRData(chunk, chunkPart, chunkCount);
       const serializedChunk = JSON.stringify(chunkData);
       if (serializedChunk.length > MAX_CHUNK_LENGTH) {
-        lazy.console.warn(
-          "Data for QR code",
-          chunkPart,
-          "is longer than expected, result might be hard to read"
+        lazy.log.warn(
+          `QR code #${chunkPart} is longer than expected; result might be hard to read.`
         );
       }
       qrCodes.push(this.renderQR(serializedChunk));
@@ -159,8 +182,12 @@ export const QRExport = {
     const account = MailServices.accounts.getAccount(accountKey);
     const incomingServer = account.incomingServer;
     const defaultSmtpServerKey = account.defaultIdentity.smtpServerKey;
-    const outgoingServer =
-      MailServices.outgoingServer.getServerByKey(defaultSmtpServerKey);
+    const outgoingServer = account.defaultIdentity.smtpServerKey
+      ? MailServices.outgoingServer.getServerByKey(
+          account.defaultIdentity.smtpServerKey
+        )
+      : MailServices.outgoingServer.defaultServer;
+
     outgoingServer.QueryInterface(Ci.nsISmtpServer);
     const identites = account.identities.filter(
       identity =>
@@ -227,12 +254,14 @@ export const QRExport = {
    *   outgoing servers use OAuth as authentication method.
    */
   getAccountOAuthUsage(account) {
+    const outgoingServer = account.defaultIdentity.smtpServerKey
+      ? MailServices.outgoingServer.getServerByKey(
+          account.defaultIdentity.smtpServerKey
+        )
+      : MailServices.outgoingServer.defaultServer;
     return {
       incoming: account.incomingServer.authMethod === Ci.nsMsgAuthMethod.OAuth2,
-      outgoing:
-        MailServices.outgoingServer.getServerByKey(
-          account.defaultIdentity.smtpServerKey
-        ).authMethod === Ci.nsMsgAuthMethod.OAuth2,
+      outgoing: outgoingServer.authMethod === Ci.nsMsgAuthMethod.OAuth2,
     };
   },
 };

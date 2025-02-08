@@ -78,6 +78,14 @@ add_task(async function test_getEligibleAccounts() {
   );
   const popAccount = await createMailAccount("pop", "tinderbox", "pop3");
 
+  const noOutgoingServerAccount = await createMailAccount(
+    "nooutgoing",
+    "nooutgoing",
+    "imap"
+  );
+  // Nooutgoing is a bit misleading. This will mean: use default smtp server.
+  noOutgoingServerAccount.defaultIdentity.smtpServerKey = null;
+
   // Ineligible accounts
   const unsupportedIncomingAuthAccount = await createMailAccount(
     "incomingauth",
@@ -97,14 +105,9 @@ add_task(async function test_getEligibleAccounts() {
   );
   unspoortedAuthOutgoingServer.authMethod = Ci.nsMsgAuthMethod.GSSAPI;
 
-  const noOutgoingServerAccount = await createMailAccount(
-    "nooutgoing",
-    "nooutgoing",
-    "imap"
-  );
-  noOutgoingServerAccount.defaultIdentity.smtpServerKey = null;
-
-  const otherAccounts = [
+  const accounts = [
+    popAccount,
+    imapAccount,
     unsupportedIncomingAuthAccount,
     unsupportedOutgoingAuthAccount,
     noOutgoingServerAccount,
@@ -117,7 +120,11 @@ add_task(async function test_getEligibleAccounts() {
 
   const eligibleAccounts = QRExport.getEligibleAccounts();
 
-  Assert.equal(eligibleAccounts.length, 2, "Should find an eligible account");
+  Assert.equal(
+    eligibleAccounts.length,
+    3,
+    "Should find correct eligible accounts"
+  );
   Assert.ok(
     eligibleAccounts.includes(imapAccount),
     "Should return eligible IMAP account"
@@ -126,10 +133,12 @@ add_task(async function test_getEligibleAccounts() {
     eligibleAccounts.includes(popAccount),
     "Should return eligible POP account"
   );
+  Assert.ok(
+    eligibleAccounts.includes(noOutgoingServerAccount),
+    "Should return eligible account that's using default stmp"
+  );
 
-  MailServices.accounts.removeAccount(popAccount, false);
-  MailServices.accounts.removeAccount(imapAccount, false);
-  for (const account of otherAccounts) {
+  for (const account of accounts) {
     MailServices.accounts.removeAccount(account, false);
   }
 });

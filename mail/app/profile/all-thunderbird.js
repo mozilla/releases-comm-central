@@ -1447,3 +1447,6 @@ pref("mail.dark-reader.show-toggle", true);
 
 // Enable the new account setup (starting from the second account)
 pref("mail.accounthub.enabled", false);
+
+// Export to mobile logging level.
+pref("mail.qrexport.loglevel", "Warn");
