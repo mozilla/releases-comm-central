@@ -117,13 +117,13 @@ var uiListener = new (class extends EventEmitter {
   }
 
   handleEvent(event) {
-    const browser = event.target.browsingContext.embedderElement;
-    const tabmail = browser.ownerGlobal.top.document.getElementById("tabmail");
+    const targetWindow = event.target.ownerGlobal;
+    if (targetWindow.location.href != "about:3pane") {
+      return;
+    }
+    const tabmail = targetWindow.top.document.getElementById("tabmail");
     const nativeTab = tabmail.tabInfo.find(
-      t =>
-        t.chromeBrowser &&
-        (t.chromeBrowser == browser ||
-          t.chromeBrowser == browser.browsingContext.parent.embedderElement)
+      t => t?.chromeBrowser?.contentWindow == targetWindow
     );
 
     if (nativeTab.mode.name != "mail3PaneTab") {
@@ -141,10 +141,9 @@ var uiListener = new (class extends EventEmitter {
       }
       this.lastSelected.set(tab, folder);
       this.emit("folder-changed", tab, folder);
-    } else if (event.type == "messageURIChanged") {
-      const about3PaneWindow = nativeTab.chromeBrowser.contentWindow;
-      if (about3PaneWindow?.gDBView) {
-        const messages = getActualSelectedMessages(about3PaneWindow);
+    } else if (event.type == "select") {
+      if (targetWindow?.gDBView) {
+        const messages = getActualSelectedMessages(targetWindow);
         this.emit("messages-changed", tab, messages);
       }
     }
@@ -154,14 +153,14 @@ var uiListener = new (class extends EventEmitter {
     this.listenerCount++;
     if (this.listenerCount == 1) {
       windowTracker.addListener("folderURIChanged", this);
-      windowTracker.addListener("messageURIChanged", this);
+      windowTracker.addListener("select", this);
     }
   }
   decrementListeners() {
     this.listenerCount--;
     if (this.listenerCount == 0) {
       windowTracker.removeListener("folderURIChanged", this);
-      windowTracker.removeListener("messageURIChanged", this);
+      windowTracker.removeListener("select", this);
       this.lastSelected = new WeakMap();
     }
   }

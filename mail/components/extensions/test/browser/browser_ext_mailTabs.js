@@ -434,38 +434,43 @@ add_task(async function test_selectedMessagesChanged() {
       return messageList;
     }
 
-    let messageList;
-    messageList = await selectMessages(3);
-    checkMessageList(false, 1, messageList);
-    messageList = await selectMessages(7);
-    checkMessageList(false, 1, messageList);
-    messageList = await selectMessages(4, 6);
-    checkMessageList(false, 2, messageList);
-    messageList = await selectMessages();
-    checkMessageList(false, 0, messageList);
-    messageList = await selectMessages(
-      2,
-      3,
-      5,
-      7,
-      11,
-      13,
-      17,
-      19,
-      23,
-      29,
-      31,
-      37
-    );
-    checkMessageList(true, 10, messageList);
-    messageList = await browser.messages.continueList(messageList.id);
-    checkMessageList(false, 2, messageList);
-    messageList = await browser.mailTabs.getSelectedMessages();
-    checkMessageList(true, 10, messageList);
-    messageList = await browser.messages.continueList(messageList.id);
-    checkMessageList(false, 2, messageList);
+    // Test the event works independently of the message pane being visible.
+    for (const visible of [true, false, true, false]) {
+      await window.sendMessage("setMessagePaneVisibility", visible);
 
-    await new Promise(resolve => setTimeout(resolve));
+      let messageList;
+      messageList = await selectMessages(3);
+      checkMessageList(false, 1, messageList);
+      messageList = await selectMessages(7);
+      checkMessageList(false, 1, messageList);
+      messageList = await selectMessages(4, 6);
+      checkMessageList(false, 2, messageList);
+      messageList = await selectMessages();
+      checkMessageList(false, 0, messageList);
+      messageList = await selectMessages(
+        2,
+        3,
+        5,
+        7,
+        11,
+        13,
+        17,
+        19,
+        23,
+        29,
+        31,
+        37
+      );
+      checkMessageList(true, 10, messageList);
+      messageList = await browser.messages.continueList(messageList.id);
+      checkMessageList(false, 2, messageList);
+      messageList = await browser.mailTabs.getSelectedMessages();
+      checkMessageList(true, 10, messageList);
+      messageList = await browser.messages.continueList(messageList.id);
+      checkMessageList(false, 2, messageList);
+      await new Promise(resolve => setTimeout(resolve));
+    }
+
     browser.test.notifyPass("mailTabs");
   }
 
@@ -482,18 +487,24 @@ add_task(async function test_selectedMessagesChanged() {
   });
 
   tabmail.currentTabInfo.folder = subFolders.test2;
-  tabmail.currentTabInfo.messagePaneVisible = true;
 
   extension.onMessage("selectMessage", newMessages => {
     tabmail.currentAbout3Pane.threadTree.selectedIndices = newMessages;
   });
 
+  extension.onMessage("setMessagePaneVisibility", async visible => {
+    tabmail.currentAbout3Pane.paneLayout.messagePaneVisible = visible;
+    await check3PaneState(true, visible);
+    extension.sendMessage();
+  });
+
   await extension.startup();
-  extension.sendMessage(account.key);
   await extension.awaitFinish("mailTabs");
   await extension.unload();
 
   tabmail.currentTabInfo.folder = rootFolder;
+  tabmail.currentAbout3Pane.paneLayout.messagePaneVisible = true;
+  await check3PaneState(true, true);
 });
 
 add_task(async function test_background_tab() {
