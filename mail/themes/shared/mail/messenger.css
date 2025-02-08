@@ -1080,7 +1080,7 @@ findbar {
 }
 
 /* menupopup/panel */
-:is(panel, menupopup)::part(content) {
+:is(panel, menupopup):not(.autoscroller)::part(content) {
   --panel-color: var(--layout-color-1);
   --panel-background: var(--layout-background-1);
   --panel-border-color: var(--layout-border-1);
