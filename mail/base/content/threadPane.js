@@ -68,6 +68,7 @@ function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect) {
   event.stopPropagation();
 }
 
+// This code is used when dragging a message from a "Search Messages" panel.
 function ThreadPaneOnDragStart(aEvent) {
   if (aEvent.target.localName != "treechildren") {
     return;
@@ -132,14 +133,23 @@ function ThreadPaneOnDragStart(aEvent) {
 
     msgFileName = msgFileName + ".eml";
 
-    const msgUrl = msgService.getUrlForUri(msgUri);
-    const separator = msgUrl.spec.includes("?") ? "&" : "?";
+    // When dragging messages to the filesystem:
+    // - Windows fetches application/x-moz-file-promise-url and writes it to
+    //     a file.
+    // - Linux uses the flavor data provider, if a single message is dragged.
+    //     If multiple messages are dragged AND text/x-moz-url exists, it
+    //     fetches application/x-moz-file-promise-url and writes it to a file.
+    // - MacOS always uses the flavor data provider.
 
+    // text/plain should be unnecessary, but getFlavorData can't get at
+    // text/x-moz-message for some reason.
+    aEvent.dataTransfer.mozSetDataAt("text/plain", msgUri, index);
     aEvent.dataTransfer.mozSetDataAt("text/x-moz-message", msgUri, index);
-    aEvent.dataTransfer.mozSetDataAt("text/x-moz-url", msgUrl.spec, index);
+    const msgUrlSpec = msgService.getUrlForUri(msgUri).spec;
+    aEvent.dataTransfer.mozSetDataAt("text/x-moz-url", msgUrlSpec, index);
     aEvent.dataTransfer.mozSetDataAt(
       "application/x-moz-file-promise-url",
-      msgUrl.spec + separator + "fileName=" + encodeURIComponent(msgFileName),
+      msgUrlSpec,
       index
     );
     aEvent.dataTransfer.mozSetDataAt(

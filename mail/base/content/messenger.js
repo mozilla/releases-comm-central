@@ -864,48 +864,36 @@ function messageFlavorDataProvider() {}
 messageFlavorDataProvider.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
 
+  // This code is used when dragging a message from a "Search Messages" panel.
   getFlavorData(aTransferable, aFlavor) {
     if (aFlavor !== "application/x-moz-file-promise") {
       return;
     }
-    const fileUriPrimitive = {};
+    const fileName = {};
     aTransferable.getTransferData(
-      "application/x-moz-file-promise-url",
-      fileUriPrimitive
+      "application/x-moz-file-promise-dest-filename",
+      fileName
     );
+    fileName.value.QueryInterface(Ci.nsISupportsString);
 
-    const fileUriStr = fileUriPrimitive.value.QueryInterface(
-      Ci.nsISupportsString
-    );
-    const fileUri = Services.io.newURI(fileUriStr.data);
-    const fileUrl = fileUri.QueryInterface(Ci.nsIURL);
-    const fileName = fileUrl.fileName.replace(/(.{74}).*(.{10})$/u, "$1...$2");
-
-    const destDirPrimitive = {};
+    const destDir = {};
     aTransferable.getTransferData(
       "application/x-moz-file-promise-dir",
-      destDirPrimitive
+      destDir
     );
-    const destDirectory = destDirPrimitive.value.QueryInterface(Ci.nsIFile);
-    const file = destDirectory.clone();
-    file.append(fileName);
+    destDir.value.QueryInterface(Ci.nsIFile);
 
-    const messageUriPrimitive = {};
-    aTransferable.getTransferData("text/x-moz-message", messageUriPrimitive);
-    const messageUri = messageUriPrimitive.value.QueryInterface(
-      Ci.nsISupportsString
-    );
+    const file = destDir.value.clone();
+    file.append(fileName.value.data);
+
+    const messageURI = {};
+    aTransferable.getTransferData("text/plain", messageURI);
+    messageURI.value.QueryInterface(Ci.nsISupportsString);
 
     const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
       Ci.nsIMessenger
     );
-    messenger.saveAs(
-      messageUri.data,
-      true,
-      null,
-      decodeURIComponent(file.path),
-      true
-    );
+    messenger.saveAs(messageURI.value.data, true, null, file.path, true);
   },
 };
 

@@ -4719,14 +4719,11 @@ var threadPane = {
       // text/x-moz-message for some reason.
       event.dataTransfer.mozSetDataAt("text/plain", uri, index);
       event.dataTransfer.mozSetDataAt("text/x-moz-message", uri, index);
-      event.dataTransfer.mozSetDataAt(
-        "text/x-moz-url",
-        msgService.getUrlForUri(uri).spec,
-        index
-      );
+      const msgUrlSpec = msgService.getUrlForUri(uri).spec;
+      event.dataTransfer.mozSetDataAt("text/x-moz-url", msgUrlSpec, index);
       event.dataTransfer.mozSetDataAt(
         "application/x-moz-file-promise-url",
-        msgService.getUrlForUri(uri).spec,
+        msgUrlSpec,
         index
       );
       event.dataTransfer.mozSetDataAt(
