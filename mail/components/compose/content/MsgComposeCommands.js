@@ -4708,9 +4708,6 @@ async function ComposeStartup() {
           }
         }
       }
-      if (args.newshost) {
-        composeFields.newshost = args.newshost;
-      }
       if (args.message) {
         const msgFile = Cc["@mozilla.org/file/local;1"].createInstance(
           Ci.nsIFile

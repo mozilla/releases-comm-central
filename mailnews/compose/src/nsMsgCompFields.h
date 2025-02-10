@@ -35,7 +35,7 @@ class nsMsgCompFields : public nsIMsgCompFields {
   NS_FORWARD_MSGIWRITABLESTRUCTUREDHEADERS(mStructuredHeaders->)
   NS_DECL_NSIMSGCOMPFIELDS
 
-  typedef enum MsgHeaderID {
+  using MsgHeaderID = enum MsgHeaderID {
     MSG_FROM_HEADER_ID = 0,
     MSG_REPLY_TO_HEADER_ID,
     MSG_TO_HEADER_ID,
@@ -48,7 +48,6 @@ class nsMsgCompFields : public nsIMsgCompFields {
     MSG_SUBJECT_HEADER_ID,
     MSG_ORGANIZATION_HEADER_ID,
     MSG_REFERENCES_HEADER_ID,
-    MSG_NEWSPOSTURL_HEADER_ID,
     MSG_PRIORITY_HEADER_ID,
     MSG_CHARACTER_SET_HEADER_ID,
     MSG_MESSAGE_ID_HEADER_ID,
@@ -59,7 +58,7 @@ class nsMsgCompFields : public nsIMsgCompFields {
     MSG_CREATOR_IDENTITY_KEY_ID,
 
     MSG_MAX_HEADERS  // Must be the last one.
-  } MsgHeaderID;
+  };
 
   nsresult SetAsciiHeader(MsgHeaderID header, const char* value);
   const char* GetAsciiHeader(
@@ -139,10 +138,6 @@ class nsMsgCompFields : public nsIMsgCompFields {
 
   const char* GetReferences() {
     return GetAsciiHeader(MSG_REFERENCES_HEADER_ID);
-  }
-
-  const char* GetNewspostUrl() {
-    return GetAsciiHeader(MSG_NEWSPOSTURL_HEADER_ID);
   }
 
   const char* GetPriority() { return GetAsciiHeader(MSG_PRIORITY_HEADER_ID); }

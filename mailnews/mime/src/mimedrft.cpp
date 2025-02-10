@@ -55,7 +55,6 @@ using namespace mozilla::mailnews;
 //
 // Header strings...
 //
-#define HEADER_NNTP_POSTING_HOST "NNTP-Posting-Host"
 #define MIME_HEADER_TABLE                        \
   "<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 " \
   "class=\"moz-email-headers-table\">"
@@ -283,13 +282,15 @@ nsresult ForwardMsgInline(nsIMsgCompFields* compFields,
   return rv;
 }
 
-nsresult CreateCompositionFields(
-    const char* from, const char* reply_to, const char* to, const char* cc,
-    const char* bcc, const char* fcc, const char* newsgroups,
-    const char* followup_to, const char* organization, const char* subject,
-    const char* references, const char* priority, const char* newspost_url,
-    const nsTArray<nsString>& otherHeaders, char* charset,
-    nsIMsgCompFields** _retval) {
+nsresult CreateCompositionFields(const char* from, const char* reply_to,
+                                 const char* to, const char* cc,
+                                 const char* bcc, const char* fcc,
+                                 const char* newsgroups,
+                                 const char* followup_to,
+                                 const char* organization, const char* subject,
+                                 const char* references, const char* priority,
+                                 const nsTArray<nsString>& otherHeaders,
+                                 char* charset, nsIMsgCompFields** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   nsresult rv;
@@ -382,11 +383,6 @@ nsresult CreateCompositionFields(
     nsAutoCString priorityName;
     NS_MsgGetUntranslatedPriorityName(priorityValue, priorityName);
     cFields->SetPriority(priorityName.get());
-  }
-
-  if (newspost_url) {
-    MIME_DecodeMimeHeader(newspost_url, charset, false, true, val);
-    cFields->SetNewspostUrl(!val.IsEmpty() ? val.get() : newspost_url);
   }
 
   nsTArray<nsString> cFieldsOtherHeaders;
@@ -1135,8 +1131,6 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
   int htmlAction = 0;
   int lineWidth = 0;
 
-  char* host = 0;
-  char* news_host = 0;
   char* to_and_cc = 0;
   char* re_subject = 0;
   char* new_refs = 0;
@@ -1239,27 +1233,9 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
       grps = MimeHeaders_get(mdd->headers, HEADER_NEWSGROUPS, false, true);
       foll = MimeHeaders_get(mdd->headers, HEADER_FOLLOWUP_TO, false, true);
 
-      host = MimeHeaders_get(mdd->headers, HEADER_X_MOZILLA_NEWSHOST, false,
-                             false);
-      if (!host)
-        host = MimeHeaders_get(mdd->headers, HEADER_NNTP_POSTING_HOST, false,
-                               false);
-
       id = MimeHeaders_get(mdd->headers, HEADER_MESSAGE_ID, false, false);
       refs = MimeHeaders_get(mdd->headers, HEADER_REFERENCES, false, true);
       priority = MimeHeaders_get(mdd->headers, HEADER_X_PRIORITY, false, false);
-
-      if (host) {
-        char* secure = NULL;
-
-        secure = PL_strcasestr(host, "secure");
-        if (secure) {
-          *secure = 0;
-          news_host = PR_smprintf("snews://%s", host);
-        } else {
-          news_host = PR_smprintf("news://%s", host);
-        }
-      }
 
       // Other headers via pref.
       nsCString otherHeaders;
@@ -1282,8 +1258,8 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
     }
 
     CreateCompositionFields(from, repl, to, cc, bcc, fcc, grps, foll, org, subj,
-                            refs, priority, news_host, readOtherHeaders,
-                            mdd->mailcharset, getter_AddRefs(fields));
+                            refs, priority, readOtherHeaders, mdd->mailcharset,
+                            getter_AddRefs(fields));
 
     contentLanguage =
         MimeHeaders_get(mdd->headers, HEADER_CONTENT_LANGUAGE, false, false);
@@ -1641,8 +1617,8 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
     }
   } else {
     CreateCompositionFields(from, repl, to, cc, bcc, fcc, grps, foll, org, subj,
-                            refs, priority, news_host, readOtherHeaders,
-                            mdd->mailcharset, getter_AddRefs(fields));
+                            refs, priority, readOtherHeaders, mdd->mailcharset,
+                            getter_AddRefs(fields));
     if (fields)
       CreateTheComposeWindow(fields, newAttachData, nsIMsgCompType::New,
                              nsIMsgCompFormat::Default, mdd->identity,
@@ -1673,7 +1649,6 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
   mdd->origMsgHdr = nullptr;
   PR_Free(mdd);
 
-  PR_FREEIF(host);
   PR_FREEIF(to_and_cc);
   PR_FREEIF(re_subject);
   PR_FREEIF(new_refs);

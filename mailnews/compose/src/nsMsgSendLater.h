@@ -121,7 +121,6 @@ class nsMsgSendLater : public nsIMsgSendLater,
   char* m_fcc;
   char* m_messageId;
   char* m_newsgroups;
-  char* m_newshost;
   char* m_headers;
   int32_t m_flags;
   int32_t m_headersFP;

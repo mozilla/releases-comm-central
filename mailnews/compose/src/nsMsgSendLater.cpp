@@ -63,7 +63,6 @@ nsMsgSendLater::nsMsgSendLater() {
   m_fcc = nullptr;
   m_messageId = nullptr;
   m_newsgroups = nullptr;
-  m_newshost = nullptr;
   m_headers = nullptr;
   m_flags = 0;
   m_headersFP = 0;
@@ -87,7 +86,6 @@ nsMsgSendLater::~nsMsgSendLater() {
   PR_Free(m_fcc);
   PR_Free(m_bcc);
   PR_Free(m_newsgroups);
-  PR_Free(m_newshost);
   PR_Free(m_headers);
   PR_Free(mLeftoverBuffer);
   PR_Free(mIdentityKey);
@@ -552,12 +550,6 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
     PR_FREEIF(param);
   }
 
-#if 0
-  // needs cleanup. Is this needed?
-  if (m_newshost)
-    fields->SetNewspostUrl(m_newshost);
-#endif
-
   // Create the listener for the send operation...
   RefPtr<SendOperationListener> sendListener = new SendOperationListener(this);
 
@@ -880,7 +872,6 @@ nsresult nsMsgSendLater::BuildHeaders() {
   PR_FREEIF(m_to);
   PR_FREEIF(m_bcc);
   PR_FREEIF(m_newsgroups);
-  PR_FREEIF(m_newshost);
   PR_FREEIF(m_fcc);
   PR_FREEIF(mIdentityKey);
   PR_FREEIF(mAccountKey);
@@ -958,7 +949,6 @@ nsresult nsMsgSendLater::BuildHeaders() {
           prune_p = true;
         else if (!PL_strncasecmp(HEADER_X_MOZILLA_NEWSHOST, buf, end - buf)) {
           prune_p = true;
-          header = &m_newshost;
         } else if (!PL_strncasecmp(HEADER_X_MOZILLA_IDENTITY_KEY, buf,
                                    end - buf)) {
           prune_p = true;
@@ -1109,7 +1099,6 @@ nsresult nsMsgSendLater::DeliverQueuedLine(const char* line, int32_t length) {
       PR_FREEIF(m_to);
       PR_FREEIF(m_bcc);
       PR_FREEIF(m_newsgroups);
-      PR_FREEIF(m_newshost);
       PR_FREEIF(m_fcc);
       PR_FREEIF(mIdentityKey);
     }

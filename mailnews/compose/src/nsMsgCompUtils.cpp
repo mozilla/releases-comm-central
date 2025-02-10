@@ -324,25 +324,10 @@ nsresult mime_generate_headers(nsIMsgCompFields* fields,
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCString newsgroupsHeaderVal;
-    nsCString newshostHeaderVal;
     rv = nntpService->GenerateNewsHeaderValsForPosting(
-        newsgroups, getter_Copies(newsgroupsHeaderVal),
-        getter_Copies(newshostHeaderVal));
+        newsgroups, getter_Copies(newsgroupsHeaderVal));
     NS_ENSURE_SUCCESS(rv, rv);
     finalHeaders->SetRawHeader("Newsgroups", newsgroupsHeaderVal);
-
-    // If we are here, we are NOT going to send this now. (i.e. it is a Draft,
-    // Send Later file, etc...). Because of that, we need to store what the user
-    // typed in on the original composition window for use later when rebuilding
-    // the headers
-    if (deliver_mode != nsIMsgSend::nsMsgDeliverNow &&
-        deliver_mode != nsIMsgSend::nsMsgSendUnsent) {
-      // This is going to be saved for later, that means we should just store
-      // what the user typed into the "Newsgroup" line in the
-      // HEADER_X_MOZILLA_NEWSHOST header for later use by "Send Unsent
-      // Messages", "Drafts" or "Templates"
-      finalHeaders->SetRawHeader(HEADER_X_MOZILLA_NEWSHOST, newshostHeaderVal);
-    }
 
     // Newsgroups are a recipient...
     hasDisclosedRecipient = true;

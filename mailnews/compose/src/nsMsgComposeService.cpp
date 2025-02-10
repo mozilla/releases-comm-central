@@ -390,24 +390,21 @@ nsMsgComposeService::OpenComposeWindow(
         if (type == nsIMsgCompType::NewsPost) {
           nsAutoCString newsURI(originalMsgURI);
           nsAutoCString group;
-          nsAutoCString host;
 
+          // URI is "[s]news://host[:port]/group".
           int32_t slashpos = newsURI.RFindChar('/');
           if (slashpos > 0) {
-            // uri is "[s]news://host[:port]/group"
-            host = StringHead(newsURI, slashpos);
             group = Substring(newsURI, slashpos + 1);
 
-          } else
+          } else {
             group = originalMsgURI;
-
+          }
           nsAutoCString unescapedName;
           MsgUnescapeString(group,
                             nsINetUtil::ESCAPE_URL_FILE_BASENAME |
                                 nsINetUtil::ESCAPE_URL_FORCED,
                             unescapedName);
           pMsgCompFields->SetNewsgroups(NS_ConvertUTF8toUTF16(unescapedName));
-          pMsgCompFields->SetNewspostUrl(host.get());
         } else {
           pMsgComposeParams->SetOriginalMsgURI(originalMsgURI);
           pMsgComposeParams->SetOrigMsgHdr(origMsgHdr);

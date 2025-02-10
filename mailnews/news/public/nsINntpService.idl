@@ -17,17 +17,7 @@ interface nsICacheStorage;
 [scriptable, uuid(dc5cadb0-966c-4ef1-a4c8-cc1e48d1ac61)]
 interface nsINntpService : nsISupports {
 
-  /* newsgroupsList is a comma separated list of newsgroups, which may be
-   * in news://host/group or group form
-   * "news://host/group1,news://host/group2" or "group1,group2"
-   *
-   * newsgroupsHeaderVal is a comma separated list of groups in the group form
-   * "group1,group2"
-   *
-   * newshostHeaderVal is a single hostname.
-   * "host"
-   */
-  void generateNewsHeaderValsForPosting(in ACString newsgroupsList, out string newsgroupsHeaderVal, out string newshostHeaderVal);
+  void generateNewsHeaderValsForPosting(in ACString newsgroupsList, out string newsgroupsHeaderVal);
 
   nsIURI postMessage(in nsIFile aFileToPost, in string newsgroupNames, in string aAccountKey, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
 

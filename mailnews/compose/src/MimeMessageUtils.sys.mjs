@@ -645,41 +645,23 @@ export var MsgUtils = {
   },
 
   /**
-   * Get the value of Newsgroups and X-Mozilla-News-Host header.
+   * Get the value of the Newsgroups header.
    *
-   * @param {nsMsgDeliverMode} deliverMode - Message deliver mode.
    * @param {string} newsgroups - Raw newsgroups header content.
-   * @returns {{newsgroups: string, newshost: string}}
+   * @returns {{newsgroups: string}}
    */
-  getNewsgroups(deliverMode, newsgroups) {
+  getNewsgroups(newsgroups) {
     const nntpService = Cc["@mozilla.org/messenger/nntpservice;1"].getService(
       Ci.nsINntpService
     );
     const newsgroupsHeaderVal = {};
-    const newshostHeaderVal = {};
     nntpService.generateNewsHeaderValsForPosting(
       newsgroups,
-      newsgroupsHeaderVal,
-      newshostHeaderVal
+      newsgroupsHeaderVal
     );
 
-    // If we are here, we are NOT going to send this now. (i.e. it is a Draft,
-    // Send Later file, etc...). Because of that, we need to store what the user
-    // typed in on the original composition window for use later when rebuilding
-    // the headers
-    if (
-      deliverMode == Ci.nsIMsgSend.nsMsgDeliverNow ||
-      deliverMode == Ci.nsIMsgSend.nsMsgSendUnsent
-    ) {
-      // This is going to be saved for later, that means we should just store
-      // what the user typed into the "Newsgroup" line in the
-      // HEADER_X_MOZILLA_NEWSHOST header for later use by "Send Unsent
-      // Messages", "Drafts" or "Templates"
-      newshostHeaderVal.value = "";
-    }
     return {
       newsgroups: newsgroupsHeaderVal.value,
-      newshost: newshostHeaderVal.value,
     };
   },
 

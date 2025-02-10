@@ -25,7 +25,6 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
   attribute AString fcc2;
 
   attribute AString newsgroups;
-  attribute string  newspostUrl;
   attribute AString followupTo;
 
   attribute AString subject;

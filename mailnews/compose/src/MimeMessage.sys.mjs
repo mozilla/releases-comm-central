@@ -296,15 +296,11 @@ export class MimeMessage {
 
     const rawNewsgroups = headers.get("newsgroups");
     if (rawNewsgroups) {
-      const { newsgroups, newshost } = MsgUtils.getNewsgroups(
-        this._deliverMode,
-        rawNewsgroups
-      );
+      const { newsgroups } = MsgUtils.getNewsgroups(rawNewsgroups);
       // Don't reset "newsgroups" header if newsgroups is undefined.
       if (newsgroups) {
         headers.set("newsgroups", newsgroups);
       }
-      headers.set("x-mozilla-news-host", newshost);
     }
 
     return headers;
