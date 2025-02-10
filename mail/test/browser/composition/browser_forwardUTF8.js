@@ -96,6 +96,10 @@ async function forwardViaFolder(aFilePath) {
       { label: "FolderWithUTF8" },
     ]
   );
+  await TestUtils.waitForCondition(
+    () => folderToSendFrom.getTotalMessages(false) == 1,
+    "waiting for copy to folder to complete"
+  );
 
   const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
