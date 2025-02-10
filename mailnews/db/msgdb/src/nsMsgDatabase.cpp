@@ -1601,6 +1601,7 @@ nsresult nsMsgDatabase::InitExistingDB() {
       if (NS_FAILED(mdberr) || !m_mdbAllMsgHeadersTable) {
         err = NS_ERROR_FAILURE;
       }
+      NS_ENSURE_SUCCESS(err, err);
     }
 
     struct mdbOid allThreadsTableOID{};
@@ -1615,6 +1616,7 @@ nsresult nsMsgDatabase::InitExistingDB() {
       if (NS_FAILED(mdberr) || !m_mdbAllThreadsTable) {
         err = NS_ERROR_FAILURE;
       }
+      NS_ENSURE_SUCCESS(err, err);
     }
   }
   if (NS_SUCCEEDED(err) && m_dbFolderInfo) {
