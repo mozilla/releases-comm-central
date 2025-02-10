@@ -25,6 +25,10 @@
     <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
     <script defer="defer" src="chrome://calendar/content/calendar-conflicts-dialog.js"></script>
     <title data-l10n-id="item-modified-on-server-title"></title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src chrome:; script-src chrome: 'unsafe-inline'; style-src chrome: 'unsafe-inline'"
+    />
   </head>
   <body>
     <xul:dialog data-l10n-attrs="buttonlabelcancel" data-l10n-id="calendar-conflicts-dialog">
