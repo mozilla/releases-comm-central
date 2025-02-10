@@ -33,7 +33,6 @@ async function promiseIdle() {
     () =>
       calendar.wrappedJSObject._queue.length == 0 && calendar.wrappedJSObject._isLocked === false
   );
-  await fetch(`${ICSServer.origin}/ping`);
 }
 
 add_task(async function testAlarms() {

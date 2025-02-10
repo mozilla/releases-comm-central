@@ -41,7 +41,6 @@ async function promiseIdle() {
       calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject._queue.length == 0 &&
       calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject._isLocked === false
   );
-  await fetch(`${ICSServer.origin}/ping`);
 }
 
 add_task(async function testAlarms() {

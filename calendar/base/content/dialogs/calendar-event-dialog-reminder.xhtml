@@ -15,6 +15,10 @@
 >
   <head>
     <title>&reminderdialog.title;</title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src chrome:; script-src chrome: 'unsafe-inline'; style-src chrome: 'unsafe-inline'"
+    />
     <link rel="localization" href="calendar/calendar.ftl" />
     <link rel="localization" href="calendar/calendar-alarms.ftl" />
     <link rel="localization" href="calendar/calendar-event-dialog-reminder.ftl" />

@@ -900,8 +900,7 @@ async function closeBrowserContextMenuPopup() {
 }
 
 async function getUtilsJS() {
-  const response = await fetch(getRootDirectory(gTestPath) + "utils.js");
-  return response.text();
+  return IOUtils.readUTF8(getTestFilePath("utils.js"));
 }
 
 async function checkContent(browser, expected) {

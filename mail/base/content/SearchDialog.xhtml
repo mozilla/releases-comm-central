@@ -24,6 +24,10 @@
       persist="screenX screenY width height sizemode">
 <head>
   <title>&searchDialogTitle.label;</title>
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src chrome:; script-src chrome: 'unsafe-inline'; style-src chrome: 'unsafe-inline'"
+  />
   <link rel="stylesheet" href="chrome://messenger/skin/searchDialog.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/folderPane.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/tagColors.css" />

@@ -10,9 +10,6 @@ const { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
-const TEST_MESSAGE_URL =
-  "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.eml";
-
 const tabmail = document.getElementById("tabmail");
 let testMessage;
 let webSearchCount = 0;
@@ -403,8 +400,8 @@ add_setup(async function () {
   const testFolder = rootFolder
     .createLocalSubfolder("mailContext messageContent")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  const message = await fetch(TEST_MESSAGE_URL).then(response =>
-    response.text()
+  const message = await IOUtils.readUTF8(
+    getTestFilePath("files/sampleContent.eml")
   );
   testFolder.addMessage(message);
   testMessage = testFolder.messages.getNext();

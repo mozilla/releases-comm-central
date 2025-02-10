@@ -20,7 +20,7 @@ add_setup(async () => {
     count: 1,
     body: {
       contentType: "text/html",
-      body: await fetch(`${URL_BASE}/content.html`).then(r => r.text()),
+      body: await IOUtils.readUTF8(getTestFilePath(`data/content.html`)),
     },
   });
   gMessage = [...gFolders[0].messages][0];
@@ -44,8 +44,8 @@ async function subtest_compose(manifest) {
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
-  params.composeFields.body = await fetch(`${URL_BASE}/content_body.html`).then(
-    r => r.text()
+  params.composeFields.body = await IOUtils.readUTF8(
+    getTestFilePath(`data/content_body.html`)
   );
 
   for (const ordinal of ["first", "second", "third", "fourth"]) {

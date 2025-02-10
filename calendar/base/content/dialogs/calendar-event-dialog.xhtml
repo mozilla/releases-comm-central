@@ -24,6 +24,10 @@
 >
   <head>
     <title>&event.title.label;</title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src chrome:; script-src chrome: 'unsafe-inline'; style-src chrome: 'unsafe-inline'"
+    />
     <link rel="localization" href="branding/brand.ftl" />
     <link rel="stylesheet" href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />

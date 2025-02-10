@@ -140,6 +140,9 @@
      *   iconSrc is missing or broken.
      */
     setIcon(iconSrc, fallbackSrc) {
+      if (iconSrc?.startsWith("http")) {
+        iconSrc = `moz-icon:${iconSrc}`;
+      }
       const icon = this.querySelector(".tab-icon-image");
       if (!fallbackSrc) {
         if (iconSrc) {

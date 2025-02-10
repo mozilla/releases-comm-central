@@ -459,7 +459,7 @@ add_task(async function testDragImportFileMessage() {
     messagePaneVisible: false,
   });
   [droppedMessage] = await doDrag(
-    new FileUtils.File(getTestFilePath("files/formContent.eml")),
+    new FileUtils.File(getTestFilePath("files/sampleContent.eml")),
     threadTree
   );
   Assert.equal(
@@ -469,7 +469,7 @@ add_task(async function testDragImportFileMessage() {
   );
   Assert.equal(
     droppedMessage.messageId,
-    "form.content@made.up.invalid",
+    "sample.content@made.up.invalid",
     "the right message should be added"
   );
 });

@@ -6,9 +6,6 @@ const { LDAPServer } = ChromeUtils.importESModule(
   "resource://testing-common/LDAPServer.sys.mjs"
 );
 
-const jsonFile =
-  "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/ldap_contacts.json";
-
 add_task(async () => {
   function waitForCountChange(expectedCount) {
     return new Promise(resolve => {
@@ -38,8 +35,9 @@ add_task(async () => {
   // Set up the LDAP server.
 
   LDAPServer.open();
-  const response = await fetch(jsonFile);
-  const ldapContacts = await response.json();
+  const ldapContacts = await IOUtils.readJSON(
+    getTestFilePath("ldap_contacts.json")
+  );
 
   const bookPref = MailServices.ab.newAddressBook(
     "Mochitest",

@@ -160,7 +160,7 @@ add_setup(async function () {
     count: 1,
     body: {
       contentType: "text/html",
-      body: await fetch(`${URL_BASE}/content.html`).then(r => r.text()),
+      body: await IOUtils.readUTF8(getTestFilePath(`data/content.html`)),
     },
     attachments: [
       {
@@ -174,7 +174,7 @@ add_setup(async function () {
     count: 1,
     body: {
       contentType: "text/html",
-      body: await fetch(`${URL_BASE}/content.html`).then(r => r.text()),
+      body: await IOUtils.readUTF8(getTestFilePath(`data/content.html`)),
     },
     attachments: [
       {

@@ -61,6 +61,10 @@
       fullscreenbutton="true">
 <head>
   <title>&titledefault.label;@PRE_RELEASE_SUFFIX@</title>
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src chrome:; style-src chrome: 'unsafe-inline'; script-src chrome: resource: 'unsafe-inline'"
+  />
   <link rel="stylesheet" href="chrome://messenger/skin/messageWindow.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/popupPanel.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messageHeader.css" />

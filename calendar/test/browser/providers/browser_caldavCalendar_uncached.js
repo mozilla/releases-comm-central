@@ -28,9 +28,7 @@ add_setup(async function () {
   });
 });
 
-async function promiseIdle() {
-  await fetch(`${CalDAVServer.origin}/ping`);
-}
+async function promiseIdle() {}
 
 add_task(async function testAlarms() {
   calendarObserver._batchRequired = true;

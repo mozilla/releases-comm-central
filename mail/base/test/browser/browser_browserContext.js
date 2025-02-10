@@ -13,24 +13,12 @@ var { MessageGenerator } = ChromeUtils.importESModule(
 
 const TEST_DOCUMENT_URL =
   "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.html";
-const TEST_MESSAGE_URL =
-  "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.eml";
-const TEST_IMAGE_URL =
-  "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/tb-logo.png";
 
 let about3Pane, testFolder;
 
 async function getImageArrayBuffer() {
-  const response = await fetch(TEST_IMAGE_URL);
-  const blob = await response.blob();
-
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.addEventListener("loadend", event => {
-      resolve(event.target.result);
-    });
-    reader.readAsArrayBuffer(blob);
-  });
+  const array = await IOUtils.read(getTestFilePath("files/tb-logo.png"));
+  return array.buffer;
 }
 
 function checkMenuitems(menu, ...expectedItems) {
@@ -199,7 +187,9 @@ add_setup(async function () {
   testFolder = rootFolder
     .createLocalSubfolder("browserContextFolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  const message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
+  const message = await IOUtils.readUTF8(
+    getTestFilePath("files/sampleContent.eml")
+  );
   testFolder.addMessageBatch([message]);
   const messages = new MessageGenerator().makeMessages({ count: 5 });
   const messageStrings = messages.map(m => m.toMessageString());
@@ -237,8 +227,8 @@ add_task(async function testExtensionTab() {
       browser.test.notifyPass("ready");
     },
     files: {
-      "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
-        response.text()
+      "sampleContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/sampleContent.html")
       ),
       "tb-logo.png": await getImageArrayBuffer(),
     },
@@ -266,8 +256,8 @@ add_task(async function testExtensionPopupWindow() {
       browser.test.notifyPass("ready");
     },
     files: {
-      "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
-        response.text()
+      "sampleContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/sampleContent.html")
       ),
       "tb-logo.png": await getImageArrayBuffer(),
     },
@@ -288,8 +278,8 @@ add_task(async function testExtensionPopupWindow() {
 add_task(async function testExtensionBrowserAction() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
-      "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
-        response.text()
+      "sampleContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/sampleContent.html")
       ),
       "tb-logo.png": await getImageArrayBuffer(),
     },
@@ -324,8 +314,8 @@ add_task(async function testExtensionBrowserAction() {
 add_task(async function testExtensionComposeAction() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
-      "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
-        response.text()
+      "sampleContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/sampleContent.html")
       ),
       "tb-logo.png": await getImageArrayBuffer(),
     },
@@ -369,8 +359,8 @@ add_task(async function testExtensionComposeAction() {
 add_task(async function testExtensionMessageDisplayAction() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
-      "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
-        response.text()
+      "sampleContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/sampleContent.html")
       ),
       "tb-logo.png": await getImageArrayBuffer(),
     },

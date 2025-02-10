@@ -9,9 +9,7 @@ var { MailServices } = ChromeUtils.importESModule(
 );
 
 const TEST_DOCUMENT_URL =
-  "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/formContent.html";
-const TEST_MESSAGE_URL =
-  "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/formContent.eml";
+  "http://mochi.test:8888/browser/comm/mail/base/test/widgets/files/formContent.html";
 
 const tabmail = document.getElementById("tabmail");
 let testFolder;
@@ -190,7 +188,9 @@ add_setup(async function () {
   testFolder = rootFolder
     .createLocalSubfolder("formPickerFolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  const message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
+  const message = await IOUtils.readUTF8(
+    getTestFilePath("files/formContent.eml")
+  );
   testFolder.addMessage(message);
 
   registerCleanupFunction(async () => {
@@ -280,8 +280,8 @@ add_task(async function testExtensionPopupWindow() {
       browser.test.notifyPass("ready");
     },
     files: {
-      "formContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
-        response.text()
+      "formContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/formContent.html")
       ),
     },
   });
@@ -301,8 +301,8 @@ add_task(async function testExtensionPopupWindow() {
 add_task(async function testExtensionBrowserAction() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
-      "formContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
-        response.text()
+      "formContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/formContent.html")
       ),
     },
     manifest: {
@@ -332,8 +332,8 @@ add_task(async function testExtensionBrowserAction() {
 add_task(async function testExtensionComposeAction() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
-      "formContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
-        response.text()
+      "formContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/formContent.html")
       ),
     },
     manifest: {
@@ -376,8 +376,8 @@ add_task(async function testExtensionComposeAction() {
 add_task(async function testExtensionMessageDisplayAction() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
-      "formContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
-        response.text()
+      "formContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/formContent.html")
       ),
     },
     manifest: {

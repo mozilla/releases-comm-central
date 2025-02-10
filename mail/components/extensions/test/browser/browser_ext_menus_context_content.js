@@ -19,7 +19,7 @@ add_setup(async () => {
     count: 1,
     body: {
       contentType: "text/html",
-      body: await fetch(`${URL_BASE}/content.html`).then(r => r.text()),
+      body: await IOUtils.readUTF8(getTestFilePath(`data/content.html`)),
     },
   });
   gMessage = [...gFolders[0].messages][0];

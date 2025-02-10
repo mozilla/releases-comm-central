@@ -32,7 +32,6 @@ add_setup(async function () {
 
 async function promiseIdle() {
   await TestUtils.waitForCondition(() => !calendar.wrappedJSObject.mPendingSync);
-  await fetch(`${CalDAVServer.origin}/ping`);
 }
 
 add_task(async function testAlarms() {
