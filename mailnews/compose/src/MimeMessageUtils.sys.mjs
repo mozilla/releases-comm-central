@@ -645,27 +645,6 @@ export var MsgUtils = {
   },
 
   /**
-   * Get the value of the Newsgroups header.
-   *
-   * @param {string} newsgroups - Raw newsgroups header content.
-   * @returns {{newsgroups: string}}
-   */
-  getNewsgroups(newsgroups) {
-    const nntpService = Cc["@mozilla.org/messenger/nntpservice;1"].getService(
-      Ci.nsINntpService
-    );
-    const newsgroupsHeaderVal = {};
-    nntpService.generateNewsHeaderValsForPosting(
-      newsgroups,
-      newsgroupsHeaderVal
-    );
-
-    return {
-      newsgroups: newsgroupsHeaderVal.value,
-    };
-  },
-
-  /**
    * Get the Content-Location header value.
    *
    * @param {string} baseUrl - The base url of an HTML attachment.

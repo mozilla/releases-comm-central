@@ -19,19 +19,6 @@ export class NntpService {
     return this._cacheStorage;
   }
 
-  generateNewsHeaderValsForPosting(newsgroupsList, outNewsgroupsHeader) {
-    const groups = newsgroupsList.split(",");
-    outNewsgroupsHeader.value = newsgroupsList;
-    let hosts = groups.map(name => this._findHostFromGroupName(name));
-    hosts = [...new Set(hosts)].filter(Boolean);
-    if (hosts.length > 1) {
-      throw Components.Exception(
-        `Cross posting not allowed, hosts=${hosts.join(",")}`,
-        Cr.NS_ERROR_ILLEGAL_VALUE
-      );
-    }
-  }
-
   postMessage(messageFile, groupNames, accountKey, urlListener, msgWindow) {
     let server = MailServices.accounts.getAccount(accountKey)?.incomingServer;
     if (!server) {

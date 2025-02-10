@@ -315,20 +315,6 @@ nsresult mime_generate_headers(nsIMsgCompFields* fields,
   nsAutoCString newsgroups;
   finalHeaders->GetRawHeader("Newsgroups", newsgroups);
   if (!newsgroups.IsEmpty()) {
-    // Since the newsgroup header can contain data in the form of:
-    // "news://news.mozilla.org/netscape.test,news://news.mozilla.org/netscape.junk"
-    // we need to turn that into: "netscape.test,netscape.junk"
-    // (XXX: can it really?)
-    nsCOMPtr<nsINntpService> nntpService =
-        do_GetService("@mozilla.org/messenger/nntpservice;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCString newsgroupsHeaderVal;
-    rv = nntpService->GenerateNewsHeaderValsForPosting(
-        newsgroups, getter_Copies(newsgroupsHeaderVal));
-    NS_ENSURE_SUCCESS(rv, rv);
-    finalHeaders->SetRawHeader("Newsgroups", newsgroupsHeaderVal);
-
     // Newsgroups are a recipient...
     hasDisclosedRecipient = true;
   }

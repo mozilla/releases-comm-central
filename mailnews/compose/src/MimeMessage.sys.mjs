@@ -294,15 +294,6 @@ export class MimeMessage {
       headers.set("x-forwarded-message-id", rawReferences);
     }
 
-    const rawNewsgroups = headers.get("newsgroups");
-    if (rawNewsgroups) {
-      const { newsgroups } = MsgUtils.getNewsgroups(rawNewsgroups);
-      // Don't reset "newsgroups" header if newsgroups is undefined.
-      if (newsgroups) {
-        headers.set("newsgroups", newsgroups);
-      }
-    }
-
     return headers;
   }
 

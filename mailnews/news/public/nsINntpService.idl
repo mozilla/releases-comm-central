@@ -17,8 +17,6 @@ interface nsICacheStorage;
 [scriptable, uuid(dc5cadb0-966c-4ef1-a4c8-cc1e48d1ac61)]
 interface nsINntpService : nsISupports {
 
-  void generateNewsHeaderValsForPosting(in ACString newsgroupsList, out string newsgroupsHeaderVal);
-
   nsIURI postMessage(in nsIFile aFileToPost, in string newsgroupNames, in string aAccountKey, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
 
   nsIURI getNewNews(in nsINntpIncomingServer nntpServer, in AUTF8String uri, in boolean getOld, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
