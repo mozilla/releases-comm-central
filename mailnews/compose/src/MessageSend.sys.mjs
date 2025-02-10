@@ -608,18 +608,18 @@ export class MessageSend {
   /**
    * Handle the exit code of message delivery.
    *
-   * @param {boolean} isNewsDelivery - The message was delivered to newsgroup.
    * @param {nsIURI} serverURI - The URI of the server used for the delivery.
    * @param {nsresult} exitCode - The exit code of message delivery.
    * @param {nsITransportSecurityInfo} secInfo - The info to use in case of a security error.
    * @param {string} errMsg - A localized error message.
+   * @param {boolean} isNewsDelivery - The message was delivered to newsgroup.
    */
   _deliveryExitProcessing(
-    isNewsDelivery,
     serverURI,
     exitCode,
     secInfo,
-    errMsg
+    errMsg,
+    isNewsDelivery
   ) {
     lazy.MsgUtils.sendLogger.debug(
       `Delivery exit processing; exitCode=${exitCode}`
@@ -723,7 +723,13 @@ export class MessageSend {
     this._doFcc();
   }
 
-  sendDeliveryCallback(isNewsDelivery, serverURI, exitCode, secInfo, errMsg) {
+  sendDeliveryCallback(
+    serverURI,
+    exitCode,
+    secInfo,
+    errMsg,
+    isNewsDelivery = false
+  ) {
     if (isNewsDelivery) {
       if (
         !Components.isSuccessCode(exitCode) &&
@@ -733,10 +739,11 @@ export class MessageSend {
         exitCode = lazy.MsgUtils.NS_ERROR_POST_FAILED;
       }
       return this._deliveryExitProcessing(
-        isNewsDelivery,
+        serverURI,
         exitCode,
         secInfo,
-        errMsg
+        errMsg,
+        isNewsDelivery
       );
     }
     if (!Components.isSuccessCode(exitCode)) {
@@ -761,11 +768,11 @@ export class MessageSend {
       }
     }
     return this._deliveryExitProcessing(
-      isNewsDelivery,
       serverURI,
       exitCode,
       secInfo,
-      errMsg
+      errMsg,
+      isNewsDelivery
     );
   }
 
@@ -1492,7 +1499,7 @@ class NewsDeliveryListener {
       url.UnRegisterListener(this);
     }
 
-    this._msgSend.sendDeliveryCallback(url, true, exitCode);
+    this._msgSend.sendDeliveryCallback(url, exitCode, null, null, true);
   }
 }
 
@@ -1569,13 +1576,7 @@ class PromiseMsgOutgoingListener {
    *    message.
    */
   onSendStop(serverURI, exitCode, secInfo, errMsg) {
-    this.#msgSend.sendDeliveryCallback(
-      false,
-      serverURI,
-      exitCode,
-      secInfo,
-      errMsg
-    );
+    this.#msgSend.sendDeliveryCallback(serverURI, exitCode, secInfo, errMsg);
   }
 
   /**

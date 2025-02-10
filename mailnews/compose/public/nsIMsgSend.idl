@@ -312,7 +312,11 @@ interface nsIMsgSend : nsISupports
     void deliverAsMailExit(in nsIURI aUrl, in nsresult aExitCode);
     void deliverAsNewsExit(in nsIURI aUrl, in nsresult aExitCode);
 
-    void sendDeliveryCallback(in nsIURI aUrl, in boolean inIsNewsDelivery, in nsresult aExitCode);
+    void sendDeliveryCallback(in nsIURI aServerURI,
+                              in nsresult aExitCode,
+                              [optional] in nsITransportSecurityInfo secInfo,
+                              [optional] in string errMsg,
+                              [optional] in boolean inIsNewsDelivery);
 
     /* methods for copy listener ... */
     void notifyListenerOnStartCopy();
