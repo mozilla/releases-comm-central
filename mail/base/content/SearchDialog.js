@@ -52,8 +52,6 @@ window.addEventListener("unload", () => {
   searchOnUnload();
 });
 
-UIFontSize.registerWindow(window);
-
 // Controller object for search results thread pane
 var nsSearchResultsController = {
   supportsCommand(command) {
@@ -235,6 +233,7 @@ SearchFolderDisplayWidget.prototype = {
 };
 
 function searchOnLoad() {
+  UIFontSize.registerWindow(window);
   TagUtils.loadTagsIntoCSS(document);
   initializeSearchWidgets();
   initializeSearchWindowWidgets();

@@ -16,9 +16,6 @@
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-var { UIFontSize } = ChromeUtils.importESModule("resource:///modules/UIFontSize.sys.mjs");
-
-UIFontSize.registerWindow(window);
 
 /**
  * This function unconditionally disables the element for

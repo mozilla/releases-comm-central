@@ -12,8 +12,6 @@ var { UIFontSize } = ChromeUtils.importESModule(
 window.addEventListener("load", loadRequestedUrl);
 window.addEventListener("close", reportUserClosed);
 
-UIFontSize.registerWindow(window);
-
 /* Magic global things the <browser> and its entourage of logic expect. */
 var PopupNotifications = {
   show(browser, id, message) {
@@ -119,6 +117,7 @@ function reportUserClosed() {
 }
 
 function loadRequestedUrl() {
+  UIFontSize.registerWindow(window);
   const request = window.arguments[0]?.wrappedJSObject;
   // Bug 1879038: This is also called for WebExtension popup windows, but they do
   // not send a request.

@@ -24,9 +24,6 @@ var { UIFontSize } = ChromeUtils.importESModule(
   "resource:///modules/UIFontSize.sys.mjs"
 );
 
-UIDensity.registerWindow(window);
-UIFontSize.registerWindow(window);
-
 window.addEventListener("load", searchOnLoad);
 window.addEventListener("unload", searchOnUnload);
 window.addEventListener("close", onSearchStop);
@@ -63,6 +60,9 @@ var gSearchAbViewListener = {
 };
 
 function searchOnLoad() {
+  UIDensity.registerWindow(window);
+  UIFontSize.registerWindow(window);
+
   initializeSearchWidgets();
   initializeSearchWindowWidgets();
 

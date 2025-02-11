@@ -17,10 +17,9 @@ var { UIFontSize } = ChromeUtils.importESModule(
   "resource:///modules/UIFontSize.sys.mjs"
 );
 
-UIDensity.registerWindow(window);
-UIFontSize.registerWindow(window);
-
 window.addEventListener("load", () => {
+  UIDensity.registerWindow(window);
+  UIFontSize.registerWindow(window);
   AbPanelLoad();
 });
 window.addEventListener("unload", () => {

@@ -27,8 +27,6 @@ window.addEventListener("load", folderPropsOnLoad);
 document.addEventListener("dialogaccept", folderPropsOKButton);
 document.addEventListener("dialogcancel", folderCancelButton);
 
-UIFontSize.registerWindow(window);
-
 /**
  * The folderPropsSink is the class that gets notified of an imap folder's
  * properties.
@@ -200,6 +198,7 @@ function folderCancelButton() {
 }
 
 function folderPropsOnLoad() {
+  UIFontSize.registerWindow(window);
   const styles = getComputedStyle(document.body);
   const folderColors = {
     Inbox: styles.getPropertyValue("--folder-color-inbox"),

@@ -31,8 +31,6 @@ window.addEventListener("unload", SubscribeOnUnload);
 document.addEventListener("dialogaccept", subscribeOK);
 document.addEventListener("dialogcancel", subscribeCancel);
 
-UIFontSize.registerWindow(window);
-
 function Stop() {
   if (gSubscribableServer) {
     gSubscribableServer.stopPopulating(msgWindow);
@@ -156,6 +154,7 @@ function EnableSearchUI() {
 }
 
 function SubscribeOnLoad() {
+  UIFontSize.registerWindow(window);
   gSubscribeBundle = document.getElementById("bundle_subscribe");
 
   gSubscribeTree = document.getElementById("subscribeTree");
