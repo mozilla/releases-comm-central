@@ -615,6 +615,8 @@ div:has(legend) {
   }
 
   & .form-selection {
+    position: sticky;
+    top: 0;
     display: flex;
     flex-direction: column;
     gap: 12px;

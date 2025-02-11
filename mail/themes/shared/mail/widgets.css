@@ -213,6 +213,7 @@
       color: var(--button-link-text-color);
       border-color: transparent;
       text-decoration: underline;
+      cursor: pointer;
 
       &:active {
         background-color: transparent;

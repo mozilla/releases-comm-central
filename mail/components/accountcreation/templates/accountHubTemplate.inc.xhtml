@@ -84,33 +84,40 @@
 
 <html:template id="accountHubEmailSetup" xmlns="http://www.w3.org/1999/xhtml">
 
-  <email-auto-form id="emailAutoConfigSubview" title-id="account-hub-email-setup-header" >
+  <email-auto-form id="emailAutoConfigSubview"
+                   title-id="account-hub-email-setup-header"
+                   class="account-hub-step">
   </email-auto-form>
 
   <email-manual-incoming-form id="emailIncomingConfigSubview"
                               title-id="account-hub-email-setup-incoming"
+                              class="account-hub-step"
                               hidden="hidden">
   </email-manual-incoming-form>
 
   <email-manual-outgoing-form id="emailOutgoingConfigSubview"
                               title-id="account-hub-email-setup-outgoing"
+                              class="account-hub-step"
                               hidden="hidden">
   </email-manual-outgoing-form>
 
   <email-config-found id="emailConfigFoundSubview"
                       title-id="account-hub-email-config-found"
+                      class="account-hub-step"
                       hidden="hidden">
     <!-- Account Hub Email Config Found Subview -->
   </email-config-found >
 
   <email-password-form id="emailPasswordSubview"
                        title-id="account-hub-email-enter-password"
+                       class="account-hub-step"
                        hidden="hidden">
     <!-- Account Hub Email Password Subview -->
   </email-password-form>
 
   <email-sync-accounts-form id="emailSyncAccountsSubview"
                             title-id="account-hub-email-sync-accounts"
+                            class="account-hub-step"
                             hidden="hidden">
     <!-- Account Hub Email Sync Accounts Subview -->
   </email-sync-accounts-form>
