@@ -525,7 +525,6 @@ div:has(legend) {
       text-transform: uppercase;
       font-size: 0.9rem;
       font-weight: 600;
-      margin-inline-start: auto;
       padding: 2px;
       border: 1px solid transparent;
       border-radius: 3px;
@@ -543,9 +542,14 @@ div:has(legend) {
       color: light-dark( var(--color-primary-default), #feffff);
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       padding-block: 8px 2px;
       padding-inline: 8px;
       font-weight: bold;
+
+      & .config-title-text {
+        flex: 1;
+      }
 
       & input[type="radio"] {
         appearance: none;
