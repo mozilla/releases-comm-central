@@ -283,14 +283,6 @@ int32_t MsgFindCharInSet(const nsString& aString, const char16_t* aChars,
   return aString.FindCharInSet(aChars, aOffset);
 }
 
-static bool ConvertibleToNative(const nsAString& str) {
-  nsAutoCString native;
-  nsAutoString roundTripped;
-  NS_CopyUnicodeToNative(str, native);
-  NS_CopyNativeToUnicode(native, roundTripped);
-  return str.Equals(roundTripped);
-}
-
 const static uint32_t MAX_LEN = 55;
 
 // XXX : The number of UTF-16 2byte code units are half the number of
@@ -326,8 +318,6 @@ nsString NS_MsgHashIfNecessary(const nsAString& unsafeName) {
   int32_t keptLength = -1;
   if (illegalCharacterIndex != -1)
     keptLength = illegalCharacterIndex;
-  else if (!ConvertibleToNative(name))
-    keptLength = 0;
   else if (name.Length() > MAX_LEN) {
     keptLength = MAX_LEN - 8;
     // To avoid keeping only the high surrogate of a surrogate pair

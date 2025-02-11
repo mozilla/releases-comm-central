@@ -151,7 +151,6 @@ add_task(async function test_accounts() {
 
       await window.sendMessage("create folders");
       const result5 = await browser.accounts.get(account1Id);
-      const platformInfo = await browser.runtime.getPlatformInfo();
       window.assertDeepEqual(
         [
           {
@@ -167,9 +166,7 @@ add_task(async function test_accounts() {
               {
                 accountId: account1Id,
                 name: "Ϟ",
-                // This character is not supported on Windows, so it gets hashed,
-                // by NS_MsgHashIfNecessary.
-                path: platformInfo.os == "win" ? "/Trash/b52bc214" : "/Trash/Ϟ",
+                path: "/Trash/Ϟ",
               },
             ],
             type: "trash",

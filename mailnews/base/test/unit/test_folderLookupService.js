@@ -72,12 +72,7 @@ add_task(async function test_unicode_uris() {
 
   // Make sure we can find it.
   // (URI is percent-escaped utf-8)
-  let tapNameEscaped = "Sp%C4%B1n%CC%88al%20Tap";
-  if (AppConstants.platform == "win") {
-    // For !ConvertibleToNative(), folder name is hashed on Windows.
-    tapNameEscaped = "a2d874f7";
-  }
-  const tapURI = kRootURI + "/" + tapNameEscaped;
+  const tapURI = kRootURI + "/Sp%C4%B1n%CC%88al%20Tap";
   const tap = fls.getFolderForURL(tapURI);
   Assert.equal(tap.URI, tapURI);
 });

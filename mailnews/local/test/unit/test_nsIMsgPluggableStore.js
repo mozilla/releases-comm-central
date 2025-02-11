@@ -11,8 +11,61 @@ const { PromiseTestUtils } = ChromeUtils.importESModule(
  */
 
 function test_discoverSubFolders() {
-  const mailbox = setup_mailbox("none", create_temporary_directory());
-  mailbox.msgStore.discoverSubFolders(mailbox, true);
+  const directory = create_temporary_directory();
+
+  // Just an ordinary folder with an ordinary name.
+  const file = directory.clone();
+  // Create a directory for maildir stores to find.
+  file.append("file");
+  file.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+  // And a summary file.
+  file.leafName += ".msf";
+  file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+
+  // A folder with a name that once was hashed by NS_MsgHashIfNecessary.
+  // This name no longer needs hashing but this test is making sure it still
+  // works with the hashed file names.
+  const hashedFile = directory.clone();
+  hashedFile.append("1ad41a64");
+  hashedFile.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+  // Copy the summary file containing the folder's real name.
+  do_get_file("data/hashedFolder.msf").copyTo(directory, "1ad41a64.msf");
+
+  // A folder with a name that used to require hashing (on Windows).
+  // This is only really here for completeness.
+  const unhashedFile = directory.clone();
+  unhashedFile.append("test π");
+  unhashedFile.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+  unhashedFile.leafName += ".msf";
+  unhashedFile.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+
+  const rootFolder = setup_mailbox("none", directory);
+  rootFolder.msgStore.discoverSubFolders(rootFolder, true);
+
+  const prefix = rootFolder.URI;
+  Assert.deepEqual(Array.from(rootFolder.descendants, f => f.URI).toSorted(), [
+    `${prefix}/1ad41a64`,
+    `${prefix}/Trash`, // Created automagically.
+    `${prefix}/Unsent%20Messages`, // Created automagically.
+    `${prefix}/file`,
+    `${prefix}/test%20%CF%80`,
+  ]);
+
+  const hashedFolder = MailServices.folderLookup.getFolderForURL(
+    `${prefix}/1ad41a64`
+  );
+  Assert.equal(hashedFolder.name, "test τ");
+  Assert.equal(hashedFolder.prettyName, "test τ");
+  Assert.equal(hashedFolder.filePath.leafName, "1ad41a64");
+  Assert.equal(hashedFolder.summaryFile.leafName, "1ad41a64.msf");
+
+  const unhashedFolder = MailServices.folderLookup.getFolderForURL(
+    `${prefix}/test%20%CF%80`
+  );
+  Assert.equal(unhashedFolder.name, "test π");
+  Assert.equal(unhashedFolder.prettyName, "test π");
+  Assert.equal(unhashedFolder.filePath.leafName, "test π");
+  Assert.equal(unhashedFolder.summaryFile.leafName, "test π.msf");
 }
 
 // Load messages into a msgStore and make sure we can read

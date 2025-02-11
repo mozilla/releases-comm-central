@@ -1,0 +1,40 @@
+// <!-- <mdb:mork:z v="1.4"/> -->
+< <(a=c)> // (f=iso-8859-1)
+  (B8=keywords)(B9=gloda-id)(BA=sender_name)(BB=ProtoThreadFlags)
+  (BC=account)(BD=columnStates)(BE=sortType)(BF=sortOrder)(C0=viewFlags)
+  (C1=viewType)(C2=sortColumns)(C3=customSortCol)(C4=useServerRetention)
+  (C5=retainBy)(C6=daysToKeepHdrs)(C7=numHdrsToKeep)(C8=daysToKeepBodies)
+  (C9=useServerDefaults)(CA=cleanupBodies)(CB=applyToFlaggedMessages)
+  (CC=imageSize)(CD=remoteContentPolicy)(CE=gloda-dirty)
+  (80=ns:msg:db:row:scope:msgs:all)(81=subject)(82=sender)(83=message-id)
+  (84=references)(85=recipients)(86=date)(87=size)(88=flags)(89=priority)
+  (8A=label)(8B=numLines)(8C=ccList)(8D=bccList)(8E=msgThreadId)
+  (8F=threadId)(90=threadFlags)(91=threadNewestMsgDate)(92=children)
+  (93=unreadChildren)(94=threadSubject)(95=msgCharSet)
+  (96=ns:msg:db:table:kind:msgs)(97=ns:msg:db:table:kind:thread)
+  (98=ns:msg:db:table:kind:allthreads)
+  (99=ns:msg:db:row:scope:threads:all)(9A=threadParent)(9B=threadRoot)
+  (9C=msgOffset)(9D=offlineMsgSize)(9E=uidOnServer)
+  (9F=ns:msg:db:row:scope:dbfolderinfo:all)
+  (A0=ns:msg:db:table:kind:dbfolderinfo)(A1=numMsgs)(A2=numNewMsgs)
+  (A3=folderSize)(A4=expungedBytes)(A5=folderDate)(A6=highWaterKey)
+  (A7=mailboxName)(A8=UIDValidity)(A9=totPendingMsgs)
+  (AA=unreadPendingMsgs)(AB=expiredMark)(AC=version)(AD=forceReparse)
+  (AE=fixedBadRefThreading)(AF=maildirValid)(B0=indexingPriority)
+  (B1=folderName)(B2=MRUTime)(B3=MRMTime)(B4=storeToken)(B5=dateReceived)
+  (B6=junkscore)(B7=junkscoreorigin)>
+
+<(80=1)(81=0)(82=88225a5f)(83=4)(B1=test $CF$84)(B2=1739412347)(9B
+    =1739350538)(A7=2)(98=12)(99=$121)(AE=97a2)>
+{1:^9F {(k^A0:c)(s=9u)} 
+  [1(^AC=1)(^AD=0)(^AE=1)(^A7^82)(^AF=1)(^88=4)(^B1^B1)(^B2^B2)(^B3^9B)
+    (^A1=0)(^A6=2)(^BE=12)(^BF=1)(^C0=1)(^C1=0)(^C2^99)(^C4=1)(^A4^AE)]}
+
+@$${25{@
+@$$}25}@
+
+@$${27{@
+{-1:^80 {(k^96:c)(s=9)} }
+{-FFFFFFFD:^99 {(k^98:c)(s=9)} }
+<(B3=1739412430)>[1:^9F(^B2^B3)]
+@$$}27}@

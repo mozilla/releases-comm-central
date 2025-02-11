@@ -271,16 +271,13 @@ function test_parse_uri(root) {
   );
   Assert.equal(testFolder3.filePath.path, testDirectory3.path);
 
-  // All of these are legal characters! (Or they will be, when I fix Windows
-  // in the next few patches.)
+  // All of these are legal characters!
   const testFolder4 = new MsgFolder(
     rootURI + "/test%2Btest!test%5B%5D(%CF%86%3D1.618%E2%80%A6)"
   );
   Assert.equal(testFolder4.name, "test+test!test[](φ=1.618…)");
   const testDirectory4 = rootDirectory.clone();
-  testDirectory4.append(
-    AppConstants.platform == "win" ? "e0923004" : "test+test!test[](φ=1.618…)"
-  );
+  testDirectory4.append("test+test!test[](φ=1.618…)");
   Assert.equal(testFolder4.filePath.path, testDirectory4.path);
 }
 
@@ -334,7 +331,7 @@ function test_unsafe_characters(root) {
   folderBeta.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderBeta.createLocalSubfolder("folder γ");
 
-  const safeAlpha = AppConstants.platform == "win" ? "0750df29" : "folder α";
+  const safeAlpha = "folder α";
   Assert.ok(root.containsChildNamed("folder α"));
   Assert.equal(folderAlpha.name, "folder α");
   Assert.equal(folderAlpha.filePath.leafName, safeAlpha);
@@ -342,7 +339,7 @@ function test_unsafe_characters(root) {
   Assert.equal(folderAlpha.summaryFile.leafName, `${safeAlpha}.msf`);
   Assert.ok(folderAlpha.summaryFile.exists());
 
-  const safeBeta = AppConstants.platform == "win" ? "6b171c02" : "folder β";
+  const safeBeta = "folder β";
   Assert.ok(root.containsChildNamed("folder β"));
   Assert.equal(root.getChildNamed("folder β"), folderBeta);
   Assert.equal(folderBeta.name, "folder β");
@@ -364,7 +361,7 @@ function test_unsafe_characters(root) {
 
   const folderDelta = root.getChildNamed("folder δ");
   folderDelta.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  const safeDelta = AppConstants.platform == "win" ? "32a395b4" : "folder δ";
+  const safeDelta = "folder δ";
   Assert.equal(folderDelta.name, "folder δ");
   Assert.equal(folderDelta.filePath.leafName, safeDelta);
   Assert.ok(folderDelta.filePath.exists());
