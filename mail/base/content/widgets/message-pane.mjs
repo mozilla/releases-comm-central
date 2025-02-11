@@ -263,24 +263,33 @@ class MessagePane extends HTMLElement {
   }
 
   /**
-   * Ensure all message pane browsers are blank.
+   * Ensure all message pane browsers are blank. Default behavior is to not clear
+   * the web browser, if the start page is still being displayed.
+   *
+   * @param {object} [options]
+   * @param {boolean} [options.alwaysClearWebBrowser] - Clear the web browser,
+   *    even if it is still displaying the start page.
    */
-  clearAll() {
+  clearAll(options) {
     this.#hideCurrentFindBar();
-    this.clearWebPage();
+    if (options?.alwaysClearWebBrowser) {
+      this.#keepStartPageOpen = false;
+    }
+    if (!this.#keepStartPageOpen) {
+      this.clearWebPage();
+    }
     this.#clearMessage();
     this.#clearMessages();
   }
 
   /**
-   * Ensure the web page browser is blank, unless the start page is shown.
+   * Ensure the web page browser is blank.
    */
   clearWebPage() {
-    if (!this.#keepStartPageOpen) {
-      this.webBrowser.hidden = true;
-      this.webBrowser.docShellIsActive = false;
-      MailE10SUtils.loadAboutBlank(this.webBrowser);
-    }
+    this.#keepStartPageOpen = false;
+    this.webBrowser.hidden = true;
+    this.webBrowser.docShellIsActive = false;
+    MailE10SUtils.loadAboutBlank(this.webBrowser);
   }
 
   /**
@@ -296,7 +305,6 @@ class MessagePane extends HTMLElement {
     }
 
     if (!url || url == "about:blank") {
-      this.#keepStartPageOpen = false;
       this.clearWebPage();
       return;
     }
@@ -345,7 +353,6 @@ class MessagePane extends HTMLElement {
       return;
     }
 
-    this.#keepStartPageOpen = false;
     this.clearWebPage();
     this.#clearMessages();
 
@@ -391,7 +398,6 @@ class MessagePane extends HTMLElement {
       return;
     }
 
-    this.#keepStartPageOpen = false;
     this.clearWebPage();
     this.#clearMessage();
 
