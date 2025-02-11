@@ -198,8 +198,20 @@ window.addEventListener("DOMContentLoaded", event => {
     "mail.dark-reader.enabled",
     true
   );
+  document.l10n.setAttributes(
+    disableDarkReaderToggle,
+    disableDarkReaderToggle.checked
+      ? "dark-message-mode-toggle-disabled"
+      : "dark-message-mode-toggle-enabled"
+  );
   disableDarkReaderToggle.addEventListener("click", e => {
     Services.prefs.setBoolPref("mail.dark-reader.enabled", !e.target.checked);
+    document.l10n.setAttributes(
+      disableDarkReaderToggle,
+      disableDarkReaderToggle.checked
+        ? "dark-message-mode-toggle-disabled"
+        : "dark-message-mode-toggle-enabled"
+    );
   });
 });
 

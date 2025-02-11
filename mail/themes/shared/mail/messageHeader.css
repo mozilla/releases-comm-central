@@ -1048,8 +1048,8 @@ button.email-action-flagged {
 
   &:checked::after {
     content: var(--icon-sun-xs);
-    fill: color-mix(in srgb, AccentColorText 40%, transparent);
-    stroke: color-mix(in srgb, AccentColorText 90%, transparent);
+    fill: color-mix(in srgb, var(--selected-item-text-color) 40%, transparent);
+    stroke: color-mix(in srgb, var(--selected-item-text-color) 90%, transparent);
     translate: -23px;
   }
 
@@ -1061,11 +1061,5 @@ button.email-action-flagged {
     &:checked::after {
       translate: -20px;
     }
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .dark-reader-toggle::after {
-    transition: translate .21s ease;
   }
 }

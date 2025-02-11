@@ -498,18 +498,18 @@
   }
 
   &:checked {
-    background-color: AccentColor;
-    border-color: color-mix(in srgb, AccentColor 80%, black);
+    background-color: var(--selected-item-color);
+    border-color: color-mix(in srgb, var(--selected-item-color) 80%, black);
 
     &::before {
       translate: 23px;
-      background-color: AccentColorText;
-      border-color: color-mix(in srgb, AccentColor 80%, black);
+      background-color: var(--selected-item-text-color);
+      border-color: color-mix(in srgb, var(--selected-item-color) 80%, black);
     }
 
     &:is(:hover, :active) {
-      background-color: color-mix(in srgb, AccentColor 90%, black);
-      border-color: color-mix(in srgb, AccentColor 80%, black);
+      background-color: color-mix(in srgb, var(--selected-item-color) 90%, black);
+      border-color: color-mix(in srgb, var(--selected-item-color) 80%, black);
     }
   }
 
@@ -554,16 +554,14 @@
     }
 
     &:checked {
-      background-color: AccentColor;
       border-color: rgba(0, 0, 0, 0.4);
 
       &::before {
-        background-color: AccentColorText;
-        border-color: color-mix(in srgb, AccentColor, black 40%);
+        border-color: color-mix(in srgb, var(--selected-item-color), black 40%);
       }
 
       &:is(:hover, :active) {
-        background-color: color-mix(in srgb, AccentColor, black 20%);
+        background-color: color-mix(in srgb, var(--selected-item-color), black 20%);
         border-color: rgba(0, 0, 0, 0.4);
       }
     }
