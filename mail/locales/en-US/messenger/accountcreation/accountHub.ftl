@@ -130,7 +130,7 @@ account-hub-lookup-email-configuration-subheader = Trying common server names…
 
 account-hub-email-account-added-title = Account successfully added
 
-account-hub-find-settings-failed = { -brand-full-name } failed to find the settings for your email account.
+account-hub-find-account-settings-failed = { -brand-short-name } failed to find the settings for your email account.
 
 account-hub-notification-show-more = Show more
 
@@ -176,11 +176,11 @@ account-hub-password-info = Your credentials will only be stored locally on your
 
 account-hub-creating-account = Creating account…
 
-account-hub-sync-success = Thunderbird found some connected services
+account-hub-sync-accounts-found = { -brand-short-name } found some connected services
 
-account-hub-sync-failure = Thunderbird was unable to find connected services
+account-hub-sync-accounts-not-found = { -brand-short-name } was unable to find connected services
 
-account-hub-unable-to-sync-accounts = Thunderbird was unable to connect the selected services
+account-hub-sync-accounts-failure = { -brand-short-name } was unable to connect the selected services
 
 account-hub-email-added-success = Email account connected successfully
 
@@ -220,4 +220,4 @@ account-hub-username-error-text = Username is required
 
 account-hub-oauth-pending = Waiting for authorization in login popup…
 
-account-hub-addon-needed = { -brand-full-name } doesn’t natively support this server. To access Exchange email, <a data-l10n-name="addon-install"> install a third-party add-on like Owl (paid).</a>
+account-hub-addon-install-needed = { -brand-short-name } doesn’t natively support this server. To access Exchange email, <a data-l10n-name="addon-install"> install a third-party add-on like Owl (paid).</a>

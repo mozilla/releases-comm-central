@@ -586,7 +586,7 @@ class AccountHubEmail extends HTMLElement {
             await this.#initUI("incomingConfigSubview");
             this.#states[this.#currentState].previousStep = currentState;
             this.#currentSubview.showNotification({
-              fluentTitleId: "account-hub-find-settings-failed",
+              fluentTitleId: "account-hub-find-account-settings-failed",
               type: "warning",
             });
             this.#setCurrentConfigForSubview();
@@ -654,14 +654,14 @@ class AccountHubEmail extends HTMLElement {
             this.#configVerifier.cleanup();
           } catch (error) {
             this.#currentSubview.showNotification({
-              fluentTitleId: "account-hub-sync-failure",
+              fluentTitleId: "account-hub-sync-accounts-not-found",
               type: "error",
               error,
             });
             break;
           }
           this.#currentSubview.showNotification({
-            fluentTitleId: "account-hub-sync-success",
+            fluentTitleId: "account-hub-sync-accounts-found",
             type: "success",
           });
           break;
@@ -713,7 +713,7 @@ class AccountHubEmail extends HTMLElement {
           this.#configVerifier.cleanup();
         } catch (error) {
           this.#currentSubview.showNotification({
-            fluentTitleId: "account-hub-sync-failure",
+            fluentTitleId: "account-hub-sync-accounts-not-found",
             type: "error",
             error,
           });
@@ -721,7 +721,7 @@ class AccountHubEmail extends HTMLElement {
         }
 
         this.#currentSubview.showNotification({
-          fluentTitleId: "account-hub-sync-success",
+          fluentTitleId: "account-hub-sync-accounts-found",
           type: "success",
         });
         break;
@@ -738,7 +738,7 @@ class AccountHubEmail extends HTMLElement {
           });
         } catch (error) {
           this.#currentSubview.showNotification({
-            fluentTitleId: "account-hub-unable-to-sync-accounts",
+            fluentTitleId: "account-hub-sync-accounts-failure",
             type: "error",
             error,
           });
@@ -799,7 +799,7 @@ class AccountHubEmail extends HTMLElement {
             // show an error.
             this.#initUI(this.#states[this.#currentState].previousStep);
             this.#currentSubview.showNotification({
-              fluentTitleId: "account-hub-find-settings-failed",
+              fluentTitleId: "account-hub-find-account-settings-failed",
               type: "error",
             });
           }
