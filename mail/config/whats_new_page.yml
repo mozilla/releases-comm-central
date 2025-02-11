@@ -29,7 +29,7 @@
   url: https://live.thunderbird.net/thunderbird/whatsnew?locale=%LOCALE%&version={version}&channel=release&oldversion=%OLD_VERSION%
   conditions:
       blob-types: [wnp]
-      release-types: [release]
+      release-types: []
       products: [thunderbird]
       update-channel: release
       versions: ["<{version.major_number}.0"]
