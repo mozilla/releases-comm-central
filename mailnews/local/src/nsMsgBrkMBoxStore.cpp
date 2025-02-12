@@ -76,8 +76,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder* aParent,
   if (aFolderName.IsEmpty()) return NS_MSG_ERROR_INVALID_FOLDER_NAME;
 
   // Make sure the new folder name is valid
-  nsAutoString safeFolderName16 = NS_ConvertUTF8toUTF16(aFolderName);
-  NS_MsgHashIfNecessary(safeFolderName16);
+  nsString safeFolderName16 = NS_MsgHashIfNecessary(aFolderName);
   nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
 
   // Register the subfolder in memory before creating any on-disk file or
@@ -347,8 +346,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RenameFolder(nsIMsgFolder* aFolder,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  nsAutoString safeFolderName16 = NS_ConvertUTF8toUTF16(aNewName);
-  NS_MsgHashIfNecessary(safeFolderName16);
+  nsString safeFolderName16 = NS_MsgHashIfNecessary(aNewName);
   nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
 
   nsCOMPtr<nsIFile> parentPathFile;
@@ -398,8 +396,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
     folderName.Assign(aNewName);
   }
 
-  nsAutoString safeFolderName16 = NS_ConvertUTF8toUTF16(folderName);
-  NS_MsgHashIfNecessary(safeFolderName16);
+  nsString safeFolderName16 = NS_MsgHashIfNecessary(folderName);
   nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
 
   nsCOMPtr<nsIMsgLocalMailFolder> localSrcFolder(do_QueryInterface(aSrcFolder));

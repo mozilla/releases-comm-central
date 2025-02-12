@@ -60,7 +60,8 @@ nsresult NS_MsgGetPriorityValueString(const nsMsgPriorityValue p,
 nsresult NS_MsgGetUntranslatedPriorityName(const nsMsgPriorityValue p,
                                            nsACString& outName);
 
-nsresult NS_MsgHashIfNecessary(nsAutoString& name);
+[[nodiscard]] nsString NS_MsgHashIfNecessary(const nsACString& unsafeName);
+[[nodiscard]] nsString NS_MsgHashIfNecessary(const nsAString& unsafeName);
 
 nsresult FormatFileSize(int64_t size, bool useKB, nsAString& formattedSize);
 

@@ -267,7 +267,7 @@ static uint32_t StringHash(const char* ubuf, int32_t len = -1) {
   return h;
 }
 
-inline uint32_t StringHash(const nsAutoString& str) {
+inline uint32_t StringHash(const nsString& str) {
   const char16_t* strbuf = str.get();
   return StringHash(reinterpret_cast<const char*>(strbuf), str.Length() * 2);
 }
@@ -283,7 +283,7 @@ int32_t MsgFindCharInSet(const nsString& aString, const char16_t* aChars,
   return aString.FindCharInSet(aChars, aOffset);
 }
 
-static bool ConvertibleToNative(const nsAutoString& str) {
+static bool ConvertibleToNative(const nsAString& str) {
   nsAutoCString native;
   nsAutoString roundTripped;
   NS_CopyUnicodeToNative(str, native);
@@ -291,21 +291,20 @@ static bool ConvertibleToNative(const nsAutoString& str) {
   return str.Equals(roundTripped);
 }
 
-#if defined(XP_UNIX)
 const static uint32_t MAX_LEN = 55;
-#elif defined(XP_WIN)
-const static uint32_t MAX_LEN = 55;
-#else
-#  error need_to_define_your_max_filename_length
-#endif
 
 // XXX : The number of UTF-16 2byte code units are half the number of
 // bytes in legacy encodings for CJK strings and non-Latin1 in UTF-8.
 // The ratio can be 1/3 for CJK strings in UTF-8. However, we can
 // get away with using the same MAX_LEN for nsCString and nsString
 // because MAX_LEN is defined rather conservatively in the first place.
-nsresult NS_MsgHashIfNecessary(nsAutoString& name) {
-  if (name.IsEmpty()) return NS_OK;  // Nothing to do.
+nsString NS_MsgHashIfNecessary(const nsACString& unsafeName) {
+  return NS_MsgHashIfNecessary(NS_ConvertUTF8toUTF16(unsafeName));
+}
+
+nsString NS_MsgHashIfNecessary(const nsAString& unsafeName) {
+  nsString name(unsafeName);
+  if (name.IsEmpty()) return name;  // Nothing to do.
   int32_t illegalCharacterIndex = MsgFindCharInSet(
       name,
       u"" FILE_PATH_SEPARATOR FILE_ILLEGAL_CHARACTERS ILLEGAL_FOLDER_CHARS, 0);
@@ -341,7 +340,7 @@ nsresult NS_MsgHashIfNecessary(nsAutoString& name) {
     name.Append(NS_ConvertASCIItoUTF16(hashedname));
   }
 
-  return NS_OK;
+  return name;
 }
 
 nsresult FormatFileSize(int64_t size, bool useKB, nsAString& formattedSize) {
@@ -445,8 +444,7 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char* aFolderURI,
         CopyUTF16toMUTF7(pathPiece, tmp);
         CopyASCIItoUTF16(tmp, pathPiece);
       }
-      NS_MsgHashIfNecessary(pathPiece);
-      path += pathPiece;
+      path += NS_MsgHashIfNecessary(pathPiece);
       haveFirst = true;
     }
     // look for the next slash

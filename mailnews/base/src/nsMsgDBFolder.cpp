@@ -3653,8 +3653,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsACString& aNewName,
 
   if (count > 0) rv = CreateDirectoryForFolder(getter_AddRefs(dirFile));
 
-  nsAutoString newDiskName = NS_ConvertUTF8toUTF16(aNewName);
-  NS_MsgHashIfNecessary(newDiskName);
+  nsString newDiskName = NS_MsgHashIfNecessary(aNewName);
 
   if (mName.Equals(aNewName, nsCaseInsensitiveUTF8StringComparator)) {
     rv = ThrowAlertMsg("folderExists", msgWindow);

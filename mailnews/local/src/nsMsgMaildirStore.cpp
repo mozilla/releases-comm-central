@@ -333,8 +333,7 @@ NS_IMETHODIMP nsMsgMaildirStore::CreateFolder(nsIMsgFolder* aParent,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Make sure the new folder name is valid
-  nsAutoString safeFolderName16 = NS_ConvertUTF8toUTF16(aFolderName);
-  NS_MsgHashIfNecessary(safeFolderName16);
+  nsString safeFolderName16 = NS_MsgHashIfNecessary(aFolderName);
   nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
 
   path->Append(safeFolderName16);
@@ -499,8 +498,7 @@ NS_IMETHODIMP nsMsgMaildirStore::RenameFolder(nsIMsgFolder* aFolder,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Validate new name
-  nsAutoString safeFolderName16 = NS_ConvertUTF8toUTF16(aNewName);
-  NS_MsgHashIfNecessary(safeFolderName16);
+  nsString safeFolderName16 = NS_MsgHashIfNecessary(aNewName);
   nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
 
   aFolder->ForceDBClosed();
@@ -511,7 +509,7 @@ NS_IMETHODIMP nsMsgMaildirStore::RenameFolder(nsIMsgFolder* aFolder,
 
   if (numChildren > 0) {
     // rename "*.sbd" directory
-    nsAutoString sbdName = safeFolderName16;
+    nsAutoString sbdName(safeFolderName16);
     sbdName.AppendLiteral(FOLDER_SUFFIX);
     sbdPathFile->MoveTo(nullptr, sbdName);
   }
@@ -542,8 +540,7 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(
     folderName.Assign(aNewName);
   }
 
-  nsAutoString safeFolderName16 = NS_ConvertUTF8toUTF16(folderName);
-  NS_MsgHashIfNecessary(safeFolderName16);
+  nsString safeFolderName16 = NS_MsgHashIfNecessary(folderName);
   nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
 
   aSrcFolder->ForceDBClosed();

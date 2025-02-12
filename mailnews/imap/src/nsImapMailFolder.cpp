@@ -870,8 +870,7 @@ nsresult nsImapMailFolder::CreateFileForDB(const nsAString& userLeafName,
                                            nsIFile* path, nsIFile** dbFile) {
   NS_ENSURE_ARG_POINTER(dbFile);
 
-  nsAutoString proposedDBName(userLeafName);
-  NS_MsgHashIfNecessary(proposedDBName);
+  nsString proposedDBName = NS_MsgHashIfNecessary(userLeafName);
 
   // (note, the caller of this will be using the dbFile to call db->Open()
   // will turn the path into summary file path, and append the ".msf" extension)
@@ -1705,8 +1704,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameLocal(const nsACString& newName,
 
   oldSummaryFile->Remove(false);
   if (count > 0) {
-    nsAutoString safeLeafName16 = NS_ConvertUTF8toUTF16(leafname);
-    NS_MsgHashIfNecessary(safeLeafName16);
+    nsString safeLeafName16 = NS_MsgHashIfNecessary(leafname);
 
     safeLeafName16.AppendLiteral(FOLDER_SUFFIX);
     nsAutoString leafName;
@@ -7369,8 +7367,7 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
       nsAutoCString folderName;
       srcFolder->GetName(folderName);
 
-      nsAutoString safeFolderName16 = NS_ConvertUTF8toUTF16(folderName);
-      NS_MsgHashIfNecessary(safeFolderName16);
+      nsString safeFolderName16 = NS_MsgHashIfNecessary(folderName);
       nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
 
       srcFolder->ForceDBClosed();
