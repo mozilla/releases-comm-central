@@ -2162,6 +2162,7 @@ nsMsgDBFolder::OnMessageTraitsClassified(const nsACString& aMsgURI,
 NS_IMETHODIMP
 nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow* aMsgWindow, bool* aFiltersRun) {
   NS_ENSURE_ARG_POINTER(aFiltersRun);
+  *aFiltersRun = false;
 
   nsString folderName;
   GetPrettyName(folderName);
@@ -2179,7 +2180,6 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow* aMsgWindow, bool* aFiltersRun) {
           ("Running filter plugins on folder '%s'",
            NS_ConvertUTF16toUTF8(folderName).get()));
 
-  *aFiltersRun = false;
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsCOMPtr<nsISpamSettings> spamSettings;
   int32_t spamLevel = 0;
