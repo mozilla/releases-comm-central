@@ -394,28 +394,37 @@ var commandController = {
         );
       }
     },
-    cmd_space(event) {
+    async cmd_space(event) {
       let messagePaneBrowser;
+      let scrollSource;
+      let messageScroller;
       if (window.messageBrowser) {
         messagePaneBrowser =
           window.messageBrowser.contentWindow.getMessagePaneBrowser();
       } else {
         messagePaneBrowser = window.getMessagePaneBrowser();
       }
-      const contentWindow = messagePaneBrowser.contentWindow;
+
+      scrollSource = messageScroller = messagePaneBrowser.contentWindow;
+
+      if (!scrollSource) {
+        messageScroller =
+          messagePaneBrowser.browsingContext.currentWindowGlobal.getActor(
+            "MessageScroll"
+          );
+        scrollSource = await messageScroller.getSize();
+      }
 
       if (event?.shiftKey) {
         // If at the start of the message, go to the previous one.
-        if (contentWindow?.scrollY > 0) {
-          contentWindow.scrollByPages(-1);
+        if (scrollSource.scrollY > 0) {
+          messageScroller.scrollByPages(-1);
         } else if (Services.prefs.getBoolPref("mail.advance_on_spacebar")) {
           top.goDoCommand("cmd_previousUnreadMsg");
         }
-      } else if (
-        Math.ceil(contentWindow?.scrollY) < contentWindow?.scrollMaxY
-      ) {
+      } else if (Math.ceil(scrollSource.scrollY) < scrollSource.scrollMaxY) {
         // If at the end of the message, go to the next one.
-        contentWindow.scrollByPages(1);
+        messageScroller.scrollByPages(1);
       } else if (Services.prefs.getBoolPref("mail.advance_on_spacebar")) {
         top.goDoCommand("cmd_nextUnreadMsg");
       }

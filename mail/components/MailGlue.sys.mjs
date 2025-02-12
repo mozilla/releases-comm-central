@@ -234,6 +234,17 @@ const JSWINDOWACTORS = {
     allFrames: true,
   },
 
+  MessageScroll: {
+    parent: {
+      esModuleURI: "resource:///actors/MessageScrollParent.sys.mjs",
+    },
+    child: {
+      esModuleURI: "resource:///actors/MessageScrollChild.sys.mjs",
+    },
+    allFrames: true,
+    messageManagerGroups: ["single-page"],
+  },
+
   Pdfjs: {
     parent: {
       esModuleURI: "resource://pdf.js/PdfjsParent.sys.mjs",
