@@ -43,7 +43,6 @@ module.exports = {
     MAIN_WINDOW_URI: true,
     MESSAGE_WINDOW_URI: true,
     MESSAGE_PROTOCOLS: true,
-    NOTIFICATION_COLLAPSE_TIME: true,
     ExtensionError: true,
     ExtensionSupport: true,
     Tab: true,

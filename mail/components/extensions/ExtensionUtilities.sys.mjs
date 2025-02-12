@@ -3,6 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
+ * The default time between events of the same kind, which should be collapsed
+ * into a single WebExtension event.
+ */
+export const NOTIFICATION_COLLAPSE_TIME = 200;
+
+/**
  * Returns the native messageManager group associated with the given WebExtension
  * linkHandler.
  *

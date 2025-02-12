@@ -408,7 +408,7 @@
       {
         "name": "onNewMailReceived",
         "type": "function",
-        "description": "Fired when a new message is received, and has been through junk classification and message filters.",
+        "description": "Fired when a new message is received, and has been handled by message filters and junk classification. Filters running after junk classification may move the message again.",
         "permissions": ["accountsRead"],
         "parameters": [
           {

@@ -12,6 +12,11 @@ ChromeUtils.defineESModuleGetters(this, {
   SmartMailboxUtils: "resource:///modules/SmartMailboxUtils.sys.mjs",
   VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.sys.mjs",
 });
+
+var { NOTIFICATION_COLLAPSE_TIME } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionUtilities.sys.mjs"
+);
+
 var {
   CachedFolder,
   folderURIToPath,

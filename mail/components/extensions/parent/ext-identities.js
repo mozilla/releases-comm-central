@@ -14,6 +14,10 @@ var { convertMailIdentity, getMailAccounts } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
 
+var { NOTIFICATION_COLLAPSE_TIME } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionUtilities.sys.mjs"
+);
+
 function findIdentityAndAccount(identityId) {
   for (const account of getMailAccounts()) {
     for (const identity of account.identities) {
