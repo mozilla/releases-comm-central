@@ -83,62 +83,93 @@ add_task(async function test_archive_options_enabled() {
   MailServices.accounts.removeAccount(account);
 });
 
-async function subtest_initial_state(identity) {
-  const dialogPromise = promise_modal_dialog(
-    "archiveOptions",
-    async function (ac) {
-      Assert.equal(
-        ac.document.getElementById("archiveGranularity").selectedIndex,
-        identity.archiveGranularity
-      );
-      Assert.equal(
-        ac.document.getElementById("archiveKeepFolderStructure").checked,
-        identity.archiveKeepFolderStructure
-      );
-      Assert.equal(
-        ac.document.getElementById("archiveRecreateInbox").checked,
-        identity.archiveRecreateInbox
-      );
-      ac.close();
+async function subtest_initial_state(tab, identity) {
+  const iframe =
+    tab.browser.contentWindow.document.getElementById("contentFrame");
+  const button = iframe.contentDocument.getElementById(
+    "archiveHierarchyButton"
+  );
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    undefined,
+    "chrome://messenger/content/am-archiveoptions.xhtml",
+    {
+      isSubDialog: true,
+      async callback(ac) {
+        if (ac.document.readyState != "complete") {
+          await BrowserTestUtils.waitForEvent(ac, "load");
+        }
+
+        Assert.equal(
+          ac.document.getElementById("archiveGranularity").selectedIndex,
+          identity.archiveGranularity
+        );
+        Assert.equal(
+          ac.document.getElementById("archiveKeepFolderStructure").checked,
+          identity.archiveKeepFolderStructure
+        );
+        Assert.equal(
+          ac.document.getElementById("archiveRecreateInbox").checked,
+          identity.archiveRecreateInbox
+        );
+        ac.close();
+      },
     }
   );
-  window.openDialog(
-    "chrome://messenger/content/am-archiveoptions.xhtml",
-    "",
-    "centerscreen,chrome,modal,titlebar,resizable=yes",
-    { identity }
-  );
+  EventUtils.synthesizeMouseAtCenter(button, {}, button.ownerGlobal);
   await dialogPromise;
 }
 
 add_task(async function test_open_archive_options() {
-  for (let granularity = 0; granularity < 3; granularity++) {
-    defaultIdentity.archiveGranularity = granularity;
-    for (let kfs = 0; kfs < 2; kfs++) {
-      defaultIdentity.archiveKeepFolderStructure = kfs;
-      for (let ri = 0; ri < 2; ri++) {
-        defaultIdentity.archiveRecreateInbox = ri;
-        await subtest_initial_state(defaultIdentity);
+  const defaultAccount = MailServices.accounts.defaultAccount;
+  await open_advanced_settings(async function (tab) {
+    const accountRow = get_account_tree_row(
+      defaultAccount.key,
+      "am-copies.xhtml",
+      tab
+    );
+    await click_account_tree_row(tab, accountRow);
+
+    for (let granularity = 0; granularity < 3; granularity++) {
+      defaultIdentity.archiveGranularity = granularity;
+      for (let kfs = 0; kfs < 2; kfs++) {
+        defaultIdentity.archiveKeepFolderStructure = kfs;
+        for (let ri = 0; ri < 2; ri++) {
+          defaultIdentity.archiveRecreateInbox = ri;
+          await subtest_initial_state(tab, defaultIdentity);
+        }
       }
     }
-  }
+  });
 });
 
-async function subtest_save_state(identity, granularity, kfs, ri) {
-  const dialogPromise = promise_modal_dialog("archiveOptions", function (ac) {
-    ac.document.getElementById("archiveGranularity").selectedIndex =
-      granularity;
-    ac.document.getElementById("archiveKeepFolderStructure").checked = kfs;
-    ac.document.getElementById("archiveRecreateInbox").checked = ri;
-    EventUtils.synthesizeKey("VK_RETURN", {}, ac);
-    ac.document.querySelector("dialog").acceptDialog();
-  });
-  window.openDialog(
-    "chrome://messenger/content/am-archiveoptions.xhtml",
-    "",
-    "centerscreen,chrome,modal,titlebar,resizable=yes",
-    { identity }
+async function subtest_save_state(tab, identity, granularity, kfs, ri) {
+  const iframe =
+    tab.browser.contentWindow.document.getElementById("contentFrame");
+  const button = iframe.contentDocument.getElementById(
+    "archiveHierarchyButton"
   );
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    undefined,
+    "chrome://messenger/content/am-archiveoptions.xhtml",
+    {
+      isSubDialog: true,
+      async callback(ac) {
+        if (ac.document.readyState != "complete") {
+          await BrowserTestUtils.waitForEvent(ac, "load");
+        }
+
+        ac.document.getElementById("archiveGranularity").selectedIndex =
+          granularity;
+        ac.document.getElementById("archiveKeepFolderStructure").checked = kfs;
+        ac.document.getElementById("archiveRecreateInbox").checked = ri;
+        EventUtils.synthesizeKey("VK_RETURN", {}, ac);
+        ac.document.querySelector("dialog").acceptDialog();
+      },
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(button, {}, button.ownerGlobal);
   await dialogPromise;
 }
 
@@ -146,7 +177,18 @@ add_task(async function test_save_archive_options() {
   defaultIdentity.archiveGranularity = 0;
   defaultIdentity.archiveKeepFolderStructure = false;
   defaultIdentity.archiveRecreateInbox = false;
-  await subtest_save_state(defaultIdentity, 1, true, true);
+
+  const defaultAccount = MailServices.accounts.defaultAccount;
+  await open_advanced_settings(async function (tab) {
+    const accountRow = get_account_tree_row(
+      defaultAccount.key,
+      "am-copies.xhtml",
+      tab
+    );
+    await click_account_tree_row(tab, accountRow);
+
+    await subtest_save_state(tab, defaultIdentity, 1, true, true);
+  });
 
   Assert.equal(defaultIdentity.archiveGranularity, 1);
   Assert.equal(defaultIdentity.archiveKeepFolderStructure, true);
