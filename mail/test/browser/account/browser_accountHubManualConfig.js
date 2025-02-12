@@ -429,6 +429,27 @@ add_task(async function test_invalid_manual_config_flow() {
     "The incoming hostname error message should be hidden"
   );
 
+  // Changing the connection security to "None" should show a warning message
+  // but keep the continue button enabled.
+  const incomingConnectionSecurity = incomingConfigTemplate.querySelector(
+    "#incomingConnectionSecurity"
+  );
+  const noEncryptionOption = incomingConfigTemplate.querySelector(
+    "#incomingConnectionSecurityNoEncryption"
+  );
+  EventUtils.synthesizeMouseAtCenter(incomingConnectionSecurity, {});
+  await TestUtils.waitForTick();
+  EventUtils.synthesizeMouseAtCenter(noEncryptionOption, {});
+  const securityWarningPromise = TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(
+        incomingConfigTemplate.querySelector("#incomingSecurityWarning")
+      ),
+    "The incoming security warning message should be visible"
+  );
+  await securityWarningPromise;
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
   // Clicking continue should lead to the outgoing view, with an invalid
   // hostname again, with the continue button disabled.
   EventUtils.synthesizeMouseAtCenter(footerForward, {});

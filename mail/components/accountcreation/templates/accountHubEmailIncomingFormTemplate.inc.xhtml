@@ -46,8 +46,7 @@
                    placeholder="mail.example.com"
                    required="required"
                    class="input-field manual-input"
-                   aria-invalid="false"
-                   aria-errormessage="incomingHostnameErrorMessage" />
+                   aria-invalid="false" />
             <img src="chrome://messenger/skin/icons/new/compact/warning.svg"
                  alt=""
                  class="form-icon icon-danger input-warning" />
@@ -55,8 +54,8 @@
                  alt=""
                  class="form-icon icon-success input-success" />
             <span id="incomingHostnameErrorMessage"
-                 class="input-error-message"
-                 data-l10n-id="account-hub-hostname-error-text">
+                  class="input-error-message"
+                  data-l10n-id="account-hub-hostname-error-text">
             </span>
           </div>
         </div>
@@ -75,8 +74,7 @@
                    placeholder="993"
                    required="required"
                    class="input-field number-input"
-                   aria-invalid="false"
-                   aria-errormessage="incomingPortErrorMessage" />
+                   aria-invalid="false" />
             <img src="chrome://messenger/skin/icons/new/compact/warning.svg"
                  alt=""
                  class="form-icon icon-danger input-warning" />
@@ -96,14 +94,18 @@
                  class="option-label">
           </label>
           <div class="input-control">
-            <xul:menulist id="incomingConnectionSecurity" class="menulist" value="0" flex="1">
+            <xul:menulist id="incomingConnectionSecurity"
+                          class="menulist"
+                          value="0"
+                          aria-invalid="false"
+                          flex="1">
               <xul:menupopup id="incomingConnectionSecurityMenupopup"
                              class="menupopup"
                              position="after_start">
                 <xul:menuitem id="incomingConnectionSecurityAutodetect"
                               data-l10n-id="account-hub-ssl-autodetect-option"
                               value="-1" />
-                <xul:menuitem id="incomingConnectionSecurityNonEncryption"
+                <xul:menuitem id="incomingConnectionSecurityNoEncryption"
                               data-l10n-id="account-hub-ssl-noencryption-option"
                               value="0" />
                 <xul:menuitem id="incomingConnectionSecurityStartTtls"
@@ -114,16 +116,30 @@
                               value="3" />
               </xul:menupopup>
             </xul:menulist>
+            <p id="incomingSecurityWarning"
+               class="input-error-message security-warning"
+               data-l10n-id="account-hub-security-warning">
+              <span data-l10n-name="security-warning"></span>
+              <a id="moreInfoLink" data-l10n-name="faq-link"></a>
+            </p>
           </div>
         </div>
       </div>
       <div class="form-row responsive-row">
         <div>
-          <label for="incomingAuthMethod" data-l10n-id="account-hub-auth-label" class="option-label">
+          <label for="incomingAuthMethod"
+                 data-l10n-id="account-hub-auth-label"
+                 class="option-label">
           </label>
           <div class="input-control">
-            <xul:menulist id="incomingAuthMethod" class="menulist" required="required" value="0" flex="1">
-              <xul:menupopup id="incomingAuthMenupopup" class="menupopup" position="after_start">
+            <xul:menulist id="incomingAuthMethod"
+                          class="menulist"
+                          required="required"
+                          value="0"
+                          flex="1">
+              <xul:menupopup id="incomingAuthMenupopup"
+                             class="menupopup"
+                             position="after_start">
                 <xul:menuitem id="incomingAuthMethodAutodetect"
                               data-l10n-id="account-hub-ssl-autodetect-option"
                               value="0">
@@ -165,8 +181,7 @@
                    data-l10n-id="account-setup-email-input"
                    required="required"
                    class="username input-field manual-input"
-                   aria-invalid="false"
-                   aria-errormessage="incomingUsernameErrorMessage" />
+                   aria-invalid="false" />
             <img src="chrome://messenger/skin/icons/new/compact/warning.svg"
                  alt=""
                  class="form-icon icon-danger input-warning" />
@@ -174,8 +189,8 @@
                  alt=""
                  class="form-icon icon-success input-success" />
             <span id="incomingUsernameErrorMessage"
-                 class="input-error-message"
-                 data-l10n-id="account-hub-username-error-text">
+                  class="input-error-message"
+                  data-l10n-id="account-hub-username-error-text">
             </span>
           </div>
         </div>

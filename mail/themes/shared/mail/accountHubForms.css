@@ -112,36 +112,6 @@ form {
     background-color: var(--hub-input-bg-color);
     font-weight: 200;
 
-    & ~ .input-error-message {
-      color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
-      display: none;
-      position: absolute;
-      bottom: calc(-1 * var(--hub-form-input-line-height) - 5px);
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      width: -moz-available;
-    }
-
-    &:user-invalid,
-    &.manual-input:invalid {
-      border-color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
-      outline: 1px solid light-dark(var(--color-danger-default), var(--color-danger-pressed));
-      outline-offset: 0;
-
-      &:focus {
-        border-color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
-      }
-
-      & ~ label {
-        color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
-      }
-
-      & ~ .input-error-message {
-        display: inline;
-      }
-    }
-
     &::placeholder {
       font-weight: 200;
       color: var(--color-text-secondary);
@@ -232,6 +202,57 @@ form {
     }
   }
 
+  .menulist,
+  .input-field {
+     & ~ .input-error-message {
+      color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
+      display: none;
+      position: absolute;
+      bottom: calc(-1 * var(--hub-form-input-line-height) - 5px);
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      width: -moz-available;
+
+      &.security-warning {
+        white-space: normal;
+        position: relative;
+        font-size: 1rem;
+        bottom: 0;
+        margin-block: 2px -15px;
+
+        & #moreInfoLink {
+          color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
+          text-decoration: underline;
+        }
+      }
+
+      & span {
+        font-weight: 600;
+      }
+    }
+
+    &:user-invalid,
+    &.manual-input:invalid,
+    &.warning {
+      border-color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
+      outline: 1px solid light-dark(var(--color-danger-default), var(--color-danger-pressed));
+      outline-offset: 0;
+
+      &:focus {
+        border-color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
+      }
+
+      & ~ label {
+        color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
+      }
+
+      & ~ .input-error-message {
+        display: inline;
+      }
+    }
+  }
+
   menulist::part(label-box) {
     font-weight: 400;
   }
@@ -286,6 +307,10 @@ div:has(legend) {
   display: flex;
   align-items: center;
   position: relative;
+
+  &:has(.security-warning) {
+    flex-wrap: wrap;
+  }
 }
 
 .input-control.vertical {

@@ -17,6 +17,10 @@ const { OAuth2Providers } = ChromeUtils.importESModule(
   "resource:///modules/OAuth2Providers.sys.mjs"
 );
 
+const { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
+
 const { gAccountSetupLogger, standardPorts, assert } = AccountCreationUtils;
 
 import { AccountHubStep } from "./account-hub-step.mjs";
@@ -124,6 +128,10 @@ class EmailOutgoingForm extends AccountHubStep {
       "click",
       this
     );
+    this.querySelector("#outgoingSecurityWarning").addEventListener(
+      "click",
+      this
+    );
   }
 
   handleEvent(event) {
@@ -133,6 +141,12 @@ class EmailOutgoingForm extends AccountHubStep {
           new CustomEvent("advanced-config", {
             bubbles: true,
           })
+        );
+        break;
+      case "moreInfoLink":
+        openLinkExternally(
+          Services.urlFormatter.formatURLPref("app.support.baseURL"),
+          { addToHistory: false }
         );
         break;
       default:
@@ -209,17 +223,37 @@ class EmailOutgoingForm extends AccountHubStep {
   #adjustPortToSSLAndProtocol(accountConfig) {
     // Get current config.
     const config = accountConfig || this.getConfig();
+    const socketType = config.outgoing.socketType;
+    const plainSecurity = socketType == Ci.nsMsgSocketType.plain;
+
+    // If connection security chosen is none, show insecure connection warning.
+    this.#outgoingConnectionSecurity.classList.toggle("warning", plainSecurity);
+    if (plainSecurity) {
+      this.#outgoingConnectionSecurity.setAttribute("aria-invalid", true);
+      this.#outgoingConnectionSecurity.setAttribute(
+        "aria-describedby",
+        "outgoingSecurityWarning"
+      );
+      this.querySelector("#outgoingSecurityWarning").setAttribute(
+        "role",
+        "alert"
+      );
+    } else {
+      this.#outgoingConnectionSecurity.setAttribute("aria-invalid", false);
+      this.#outgoingConnectionSecurity.removeAttribute("aria-describedby");
+      this.querySelector("#outgoingSecurityWarning").removeAttribute("role");
+    }
 
     if (config.outgoing.port && !standardPorts.includes(config.outgoing.port)) {
       return;
     }
 
     // Implicit TLS for SMTP is on port 465.
-    if (config.outgoing.socketType == Ci.nsMsgSocketType.SSL) {
+    if (socketType == Ci.nsMsgSocketType.SSL) {
       this.#outgoingPort.value = 465;
     } else if (
       (config.outgoing.port == 465 || !config.outgoing.port) &&
-      config.outgoing.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS
+      socketType == Ci.nsMsgSocketType.alwaysSTARTTLS
     ) {
       // Implicit TLS for SMTP is on port 465. STARTTLS won't work there.
       this.#outgoingPort.value = 587;
@@ -281,10 +315,15 @@ class EmailOutgoingForm extends AccountHubStep {
       this.#outgoingHostname.value = config.outgoing.hostname;
       this.#outgoingHostname.setCustomValidity("");
       this.#outgoingHostname.setAttribute("aria-invalid", false);
+      this.#outgoingHostname.removeAttribute("aria-describedby");
     } catch (error) {
       gAccountSetupLogger.warn(error);
       this.#outgoingHostname.setCustomValidity(error._message);
       this.#outgoingHostname.setAttribute("aria-invalid", true);
+      this.#outgoingHostname.setAttribute(
+        "aria-describedby",
+        "outgoingHostnameErrorMessage"
+      );
     }
 
     try {
@@ -295,11 +334,16 @@ class EmailOutgoingForm extends AccountHubStep {
       );
       this.#outgoingPort.setCustomValidity("");
       this.#outgoingPort.setAttribute("aria-invalid", false);
+      this.#outgoingPort.removeAttribute("aria-describedby");
     } catch (error) {
       // Include default "Auto".
       config.outgoing.port = undefined;
       this.#outgoingPort.setCustomValidity(error._message);
       this.#outgoingPort.setAttribute("aria-invalid", true);
+      this.#outgoingPort.setAttribute(
+        "aria-describedby",
+        "outgoingPortErrorMessage"
+      );
     }
 
     config.outgoing.socketType = Sanitizer.integer(
@@ -310,6 +354,12 @@ class EmailOutgoingForm extends AccountHubStep {
     );
 
     config.outgoing.username = this.#outgoingUsername.value;
+    !this.#outgoingUsername.value
+      ? this.#outgoingUsername.setAttribute(
+          "aria-describedby",
+          "outgoingUsernameErrorMessage"
+        )
+      : this.#outgoingUsername.removeAttribute("aria-describedby");
     this.#outgoingUsername.setAttribute(
       "aria-invalid",
       !this.#outgoingUsername.value

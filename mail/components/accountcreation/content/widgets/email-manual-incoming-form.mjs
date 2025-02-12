@@ -17,6 +17,10 @@ const { OAuth2Providers } = ChromeUtils.importESModule(
   "resource:///modules/OAuth2Providers.sys.mjs"
 );
 
+const { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
+
 const { gAccountSetupLogger, standardPorts, assert } = AccountCreationUtils;
 
 import { AccountHubStep } from "./account-hub-step.mjs";
@@ -146,6 +150,10 @@ class EmailIncomingForm extends AccountHubStep {
       "click",
       this
     );
+    this.querySelector("#incomingSecurityWarning").addEventListener(
+      "click",
+      this
+    );
   }
 
   handleEvent(event) {
@@ -155,6 +163,12 @@ class EmailIncomingForm extends AccountHubStep {
           new CustomEvent("advanced-config", {
             bubbles: true,
           })
+        );
+        break;
+      case "moreInfoLink":
+        openLinkExternally(
+          Services.urlFormatter.formatURLPref("app.support.baseURL"),
+          { addToHistory: false }
         );
         break;
       default:
@@ -264,6 +278,26 @@ class EmailIncomingForm extends AccountHubStep {
   #adjustPortToSSLAndProtocol(accountConfig) {
     // Get current config.
     const config = accountConfig || this.getIncomingUserConfig();
+    const socketType = config.incoming.socketType;
+    const plainSecurity = socketType == Ci.nsMsgSocketType.plain;
+
+    // If connection security chosen is none, show insecure connection warning.
+    this.#incomingConnectionSecurity.classList.toggle("warning", plainSecurity);
+    if (plainSecurity) {
+      this.#incomingConnectionSecurity.setAttribute("aria-invalid", true);
+      this.#incomingConnectionSecurity.setAttribute(
+        "aria-describedby",
+        "incomingSecurityWarning"
+      );
+      this.querySelector("#incomingSecurityWarning").setAttribute(
+        "role",
+        "alert"
+      );
+    } else {
+      this.#incomingConnectionSecurity.setAttribute("aria-invalid", false);
+      this.#incomingConnectionSecurity.removeAttribute("aria-describedby");
+      this.querySelector("#incomingSecurityWarning").removeAttribute("role");
+    }
 
     if (config.incoming.port && !standardPorts.includes(config.incoming.port)) {
       return;
@@ -272,12 +306,12 @@ class EmailIncomingForm extends AccountHubStep {
     switch (config.incoming.type) {
       case "imap":
         this.#incomingPort.value =
-          config.incoming.socketType == Ci.nsMsgSocketType.SSL ? 993 : 143;
+          socketType == Ci.nsMsgSocketType.SSL ? 993 : 143;
         break;
 
       case "pop3":
         this.#incomingPort.value =
-          config.incoming.socketType == Ci.nsMsgSocketType.SSL ? 995 : 110;
+          socketType == Ci.nsMsgSocketType.SSL ? 995 : 110;
         break;
 
       case "exchange":
@@ -355,10 +389,15 @@ class EmailIncomingForm extends AccountHubStep {
       this.#incomingHostname.value = config.incoming.hostname;
       this.#incomingHostname.setCustomValidity("");
       this.#incomingHostname.setAttribute("aria-invalid", false);
+      this.#incomingHostname.removeAttribute("aria-describedby");
     } catch (error) {
       gAccountSetupLogger.warn(error);
       this.#incomingHostname.setCustomValidity(error._message);
       this.#incomingHostname.setAttribute("aria-invalid", true);
+      this.#incomingHostname.setAttribute(
+        "aria-describedby",
+        "incomingHostnameErrorMessage"
+      );
     }
 
     try {
@@ -369,11 +408,16 @@ class EmailIncomingForm extends AccountHubStep {
       );
       this.#incomingPort.setCustomValidity("");
       this.#incomingPort.setAttribute("aria-invalid", false);
+      this.#incomingPort.removeAttribute("aria-describedby");
     } catch (error) {
       // Include default "Auto".
       config.incoming.port = undefined;
       this.#incomingPort.setCustomValidity(error._message);
       this.#incomingPort.setAttribute("aria-invalid", true);
+      this.#incomingPort.setAttribute(
+        "aria-describedby",
+        "incomingPortErrorMessage"
+      );
     }
 
     config.incoming.type = Sanitizer.translate(this.#incomingProtocol.value, {
@@ -389,6 +433,12 @@ class EmailIncomingForm extends AccountHubStep {
       this.#incomingAuthenticationMethod.value
     );
     config.incoming.username = this.#incomingUsername.value;
+    !this.#incomingUsername.value
+      ? this.#incomingUsername.setAttribute(
+          "aria-describedby",
+          "incomingUsernameErrorMessage"
+        )
+      : this.#incomingUsername.removeAttribute("aria-describedby");
     this.#incomingUsername.setAttribute(
       "aria-invalid",
       !this.#incomingUsername.value
