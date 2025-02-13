@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ExtensionShortcuts } from "resource://gre/modules/ExtensionShortcuts.sys.mjs";
+import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
 
 const lazy = {};
 
@@ -20,6 +21,20 @@ ChromeUtils.defineLazyGetter(lazy, "composeActionFor", () => {
 
 ChromeUtils.defineLazyGetter(lazy, "messageDisplayActionFor", () => {
   return lazy.ExtensionParent.apiManager.global.messageDisplayActionFor;
+});
+
+/**
+ * These properties cannot be lazy getters otherwise they
+ * get defined on first use, at a time when some modules
+ * may not have been loaded.  In that case, the getter would
+ * become undefined until next app restart.
+ */
+Object.defineProperties(lazy, {
+  windowTracker: {
+    get() {
+      return lazy.ExtensionParent.apiManager.global.windowTracker;
+    },
+  },
 });
 
 const EXECUTE_ACTION = "_execute_action";
@@ -75,5 +90,16 @@ export class MailExtensionShortcuts extends ExtensionShortcuts {
     /* eslint-enable mozilla/balanced-listeners */
 
     return keyElement;
+  }
+
+  async openShortcutSettings() {
+    const window = lazy.windowTracker.topNormalWindow;
+    if (!window) {
+      throw new ExtensionUtils.ExtensionError("No mail window available");
+    }
+
+    const { extension } = this;
+    const viewId = `addons://shortcuts/${encodeURIComponent(extension.id)}`;
+    await window.openAddonsMgr(viewId);
   }
 }

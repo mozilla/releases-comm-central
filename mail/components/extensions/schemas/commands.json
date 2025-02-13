@@ -209,6 +209,49 @@
     ],
     "functions": [
       {
+        "name": "getAll",
+        "type": "function",
+        "async": "callback",
+        "description": "Returns all the registered extension commands for this extension and their shortcut (if active).",
+        "parameters": [
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "commands",
+                "type": "array",
+                "items": {
+                  "$ref": "Command"
+                }
+              }
+            ],
+            "description": "Called to return the registered commands."
+          }
+        ]
+      },
+      {
+        "name": "openShortcutSettings",
+        "type": "function",
+        "async": true,
+        "description": "Open extension shortcuts configuration page.",
+        "parameters": []
+      },
+      {
+        "name": "reset",
+        "type": "function",
+        "async": true,
+        "description": "Reset a command's details to what is specified in the manifest.",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "description": "The name of the command."
+          }
+        ]
+      },
+      {
         "name": "update",
         "type": "function",
         "async": true,
@@ -235,42 +278,6 @@
                 "description": "An empty string to clear the shortcut, or a string matching the format defined by the <a href='url-commands-shortcuts'>MDN page of the commands API</a>  to set a new shortcut key. If the string does not match this format, the function throws an error."
               }
             }
-          }
-        ]
-      },
-      {
-        "name": "reset",
-        "type": "function",
-        "async": true,
-        "description": "Reset a command's details to what is specified in the manifest.",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "description": "The name of the command."
-          }
-        ]
-      },
-      {
-        "name": "getAll",
-        "type": "function",
-        "async": "callback",
-        "description": "Returns all the registered extension commands for this extension and their shortcut (if active).",
-        "parameters": [
-          {
-            "type": "function",
-            "name": "callback",
-            "optional": true,
-            "parameters": [
-              {
-                "name": "commands",
-                "type": "array",
-                "items": {
-                  "$ref": "Command"
-                }
-              }
-            ],
-            "description": "Called to return the registered commands."
           }
         ]
       }
