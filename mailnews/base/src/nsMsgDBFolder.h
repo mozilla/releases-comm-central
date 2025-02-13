@@ -136,7 +136,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
                                    bool* confirmed);
   nsresult GetWarnFilterChanged(bool* aVal);
   nsresult SetWarnFilterChanged(bool aVal);
-  nsresult CreateCollationKey(const nsString& aSource, uint8_t** aKey,
+  nsresult CreateCollationKey(const nsCString& aSource, uint8_t** aKey,
                               uint32_t* aLength);
 
   virtual nsresult ReadDBFolderInfo(bool force);
@@ -153,12 +153,12 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult GetFolderCacheElemFromFile(nsIFile* file,
                                       nsIMsgFolderCacheElement** cacheElement);
   nsresult AddDirectorySeparator(nsIFile* path);
-  nsresult CheckIfFolderExists(const nsAString& newFolderName,
+  nsresult CheckIfFolderExists(const nsACString& newFolderName,
                                nsIMsgFolder* parentFolder,
                                nsIMsgWindow* msgWindow);
   bool ConfirmAutoFolderRename(nsIMsgWindow* aMsgWindow,
-                               const nsString& aOldName,
-                               const nsString& aNewName);
+                               const nsCString& aOldName,
+                               const nsCString& aNewName);
 
   // Returns true if: a) there is no need to prompt or b) the user is already
   // logged in or c) the user logged in successfully.
@@ -283,8 +283,8 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   bool mHaveParsedURI;  // is the URI completely parsed?
   bool mIsServerIsValid;
   bool mIsServer;
-  nsString mName;
-  nsString mOriginalName;
+  nsCString mName;
+  nsCString mOriginalName;
   nsCOMPtr<nsIFile> mPath;
   nsCString mBaseMessageURI;  // The uri with the message scheme
 

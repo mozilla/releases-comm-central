@@ -77,7 +77,7 @@ interface nsIMsgLocalMailFolder : nsISupports {
    * @param aFolderName name of the folder to create.
    * @return newly created folder.
    */
-  nsIMsgFolder createLocalSubfolder(in AString aFolderName);
+  nsIMsgFolder createLocalSubfolder(in AUTF8String aFolderName);
 
   /**
    * Adds a message to the end of the folder, parsing it as it goes, and

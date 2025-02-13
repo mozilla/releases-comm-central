@@ -93,17 +93,6 @@ nsMsgMailSession::OnFolderPropertyChanged(nsIMsgFolder* aItem,
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::OnFolderUnicharPropertyChanged(nsIMsgFolder* aItem,
-                                                 const nsACString& aProperty,
-                                                 const nsAString& aOldValue,
-                                                 const nsAString& aNewValue) {
-  NOTIFY_FOLDER_LISTENERS(unicharPropertyChanged,
-                          OnFolderUnicharPropertyChanged,
-                          (aItem, aProperty, aOldValue, aNewValue));
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgMailSession::OnFolderIntPropertyChanged(nsIMsgFolder* aItem,
                                              const nsACString& aProperty,
                                              int64_t aOldValue,

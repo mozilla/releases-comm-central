@@ -21,16 +21,16 @@ static void ImportMailThread(void* stuff);
 
 // forward decl for proxy methods
 nsresult ProxyGetSubFolders(nsIMsgFolder* aFolder);
-nsresult ProxyGetChildNamed(nsIMsgFolder* aFolder, const nsAString& aName,
+nsresult ProxyGetChildNamed(nsIMsgFolder* aFolder, const nsACString& aName,
                             nsIMsgFolder** aChild);
 nsresult ProxyGetParent(nsIMsgFolder* aFolder, nsIMsgFolder** aParent);
-nsresult ProxyContainsChildNamed(nsIMsgFolder* aFolder, const nsAString& aName,
+nsresult ProxyContainsChildNamed(nsIMsgFolder* aFolder, const nsACString& aName,
                                  bool* aResult);
 nsresult ProxyGenerateUniqueSubfolderName(nsIMsgFolder* aFolder,
-                                          const nsAString& aPrefix,
+                                          const nsACString& aPrefix,
                                           nsIMsgFolder* aOtherFolder,
-                                          nsAString& aName);
-nsresult ProxyCreateSubfolder(nsIMsgFolder* aFolder, const nsAString& aName);
+                                          nsACString& aName);
+nsresult ProxyCreateSubfolder(nsIMsgFolder* aFolder, const nsACString& aName);
 nsresult ProxyForceDBClosed(nsIMsgFolder* aFolder);
 
 nsresult NS_NewGenericMail(nsIImportGeneric** aImportGeneric) {
@@ -484,7 +484,8 @@ static void ImportMailThread(void* stuff) {
       // be the new parent folder.
       IMPORT_LOG1("ImportMailThread: Processing child folder '%s'.",
                   NS_ConvertUTF16toUTF8(lastName).get());
-      rv = ProxyGetChildNamed(curFolder, lastName, getter_AddRefs(subFolder));
+      rv = ProxyGetChildNamed(curFolder, NS_ConvertUTF16toUTF8(lastName),
+                              getter_AddRefs(subFolder));
       if (NS_FAILED(rv)) {
         IMPORT_LOG1(
             "*** ImportMailThread: Failed to get the interface for child "
@@ -543,7 +544,8 @@ static void ImportMailThread(void* stuff) {
       pData->mailImport->TranslateFolderName(lastName, lastName);
 
     exists = false;
-    rv = ProxyContainsChildNamed(curFolder, lastName, &exists);
+    rv = ProxyContainsChildNamed(curFolder, NS_ConvertUTF16toUTF8(lastName),
+                                 &exists);
 
     // If we are performing profile migration (as opposed to importing) then
     // we are starting with empty local folders. In that case, always choose
@@ -551,18 +553,21 @@ static void ImportMailThread(void* stuff) {
     // unique subfolder name. Otherwise you end up with "Inbox, Inbox0" or
     // "Unsent Folders, UnsentFolders0"
     if (exists && !pData->performingMigration) {
-      nsString subName;
-      ProxyGenerateUniqueSubfolderName(curFolder, lastName, nullptr, subName);
-      if (!subName.IsEmpty()) lastName.Assign(subName);
+      nsCString subName;
+      ProxyGenerateUniqueSubfolderName(
+          curFolder, NS_ConvertUTF16toUTF8(lastName), nullptr, subName);
+      if (!subName.IsEmpty()) lastName.Assign(NS_ConvertUTF8toUTF16(subName));
     }
 
     IMPORT_LOG1("ImportMailThread: Creating new import folder '%s'.",
                 NS_ConvertUTF16toUTF8(lastName).get());
     ProxyCreateSubfolder(
         curFolder,
-        lastName);  // this may fail if the folder already exists..that's ok
+        NS_ConvertUTF16toUTF8(lastName));  // this may fail if the folder
+                                           // already exists..that's ok
 
-    rv = ProxyGetChildNamed(curFolder, lastName, getter_AddRefs(newFolder));
+    rv = ProxyGetChildNamed(curFolder, NS_ConvertUTF16toUTF8(lastName),
+                            getter_AddRefs(newFolder));
     if (NS_FAILED(rv)) {
       IMPORT_LOG1(
           "*** ImportMailThread: Failed to locate subfolder '%s' after it's "
@@ -690,33 +695,32 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder** ppFolder) {
       nsTArray<RefPtr<nsIMsgFolder>> dummy;
       rv = localRootFolder->GetSubFolders(dummy);
       if (NS_SUCCEEDED(rv)) {
+        nsAutoCString utf8Name = NS_ConvertUTF16toUTF8(folderName);
         // check if the folder name we picked already exists.
         bool exists = false;
-        rv = localRootFolder->ContainsChildNamed(folderName, &exists);
+        rv = localRootFolder->ContainsChildNamed(utf8Name, &exists);
         if (exists) {
-          nsString name;
-          localRootFolder->GenerateUniqueSubfolderName(folderName, nullptr,
-                                                       name);
+          nsAutoCString name;
+          localRootFolder->GenerateUniqueSubfolderName(utf8Name, nullptr, name);
           if (!name.IsEmpty())
-            folderName.Assign(name);
+            utf8Name.Assign(name);
           else {
             IMPORT_LOG0("*** Failed to find a unique folder name!\n");
             return false;
           }
         }
         IMPORT_LOG1("Creating folder for importing mail: '%s'\n",
-                    NS_ConvertUTF16toUTF8(folderName).get());
+                    utf8Name.get());
 
         // Bug 564162 identifies a dataloss design flaw.
         // A working Thunderbird client can have mail in Local Folders and a
         // subsequent import 'Everything' will trigger a migration which
         // overwrites existing mailboxes with the imported mailboxes.
-        rv = localRootFolder->CreateSubfolder(folderName, nullptr);
+        rv = localRootFolder->CreateSubfolder(utf8Name, nullptr);
         if (NS_SUCCEEDED(rv)) {
-          rv = localRootFolder->GetChildNamed(folderName, ppFolder);
+          rv = localRootFolder->GetChildNamed(utf8Name, ppFolder);
           if (*ppFolder) {
-            IMPORT_LOG1("Folder '%s' created successfully\n",
-                        NS_ConvertUTF16toUTF8(folderName).get());
+            IMPORT_LOG1("Folder '%s' created successfully\n", utf8Name.get());
             return true;
           }
         }
@@ -766,19 +770,19 @@ nsresult ProxyGetSubFolders(nsIMsgFolder* aFolder) {
 
 class GetChildNamedRunnable : public mozilla::Runnable {
  public:
-  GetChildNamedRunnable(nsIMsgFolder* aFolder, const nsAString& aName,
+  GetChildNamedRunnable(nsIMsgFolder* aFolder, const nsACString& aName,
                         nsIMsgFolder** aChild);
   NS_DECL_NSIRUNNABLE
   nsresult mResult;
 
  protected:
   nsCOMPtr<nsIMsgFolder> m_folder;
-  nsString m_name;
+  nsCString m_name;
   nsIMsgFolder** m_child;
 };
 
 GetChildNamedRunnable::GetChildNamedRunnable(nsIMsgFolder* aFolder,
-                                             const nsAString& aName,
+                                             const nsACString& aName,
                                              nsIMsgFolder** aChild)
     : mozilla::Runnable("GetChildNamedRunnable"),
       mResult(NS_OK),
@@ -791,7 +795,7 @@ NS_IMETHODIMP GetChildNamedRunnable::Run() {
   return NS_OK;  // Sync runnable must return OK.
 }
 
-nsresult ProxyGetChildNamed(nsIMsgFolder* aFolder, const nsAString& aName,
+nsresult ProxyGetChildNamed(nsIMsgFolder* aFolder, const nsACString& aName,
                             nsIMsgFolder** aChild) {
   RefPtr<GetChildNamedRunnable> getChildNamed =
       new GetChildNamedRunnable(aFolder, aName, aChild);
@@ -836,19 +840,19 @@ nsresult ProxyGetParent(nsIMsgFolder* aFolder, nsIMsgFolder** aParent) {
 
 class ContainsChildNamedRunnable : public mozilla::Runnable {
  public:
-  ContainsChildNamedRunnable(nsIMsgFolder* aFolder, const nsAString& aName,
+  ContainsChildNamedRunnable(nsIMsgFolder* aFolder, const nsACString& aName,
                              bool* aResult);
   NS_DECL_NSIRUNNABLE
   nsresult mResult;
 
  protected:
   nsCOMPtr<nsIMsgFolder> m_folder;
-  nsString m_name;
+  nsCString m_name;
   bool* m_result;
 };
 
 ContainsChildNamedRunnable::ContainsChildNamedRunnable(nsIMsgFolder* aFolder,
-                                                       const nsAString& aName,
+                                                       const nsACString& aName,
                                                        bool* aResult)
     : mozilla::Runnable("ContainsChildNamedRunnable"),
       mResult(NS_OK),
@@ -861,7 +865,7 @@ NS_IMETHODIMP ContainsChildNamedRunnable::Run() {
   return NS_OK;  // Sync runnable must return OK.
 }
 
-nsresult ProxyContainsChildNamed(nsIMsgFolder* aFolder, const nsAString& aName,
+nsresult ProxyContainsChildNamed(nsIMsgFolder* aFolder, const nsACString& aName,
                                  bool* aResult) {
   NS_ENSURE_ARG(aFolder);
   RefPtr<ContainsChildNamedRunnable> containsChildNamed =
@@ -876,22 +880,22 @@ nsresult ProxyContainsChildNamed(nsIMsgFolder* aFolder, const nsAString& aName,
 class GenerateUniqueSubfolderNameRunnable : public mozilla::Runnable {
  public:
   GenerateUniqueSubfolderNameRunnable(nsIMsgFolder* aFolder,
-                                      const nsAString& prefix,
+                                      const nsACString& prefix,
                                       nsIMsgFolder* otherFolder,
-                                      nsAString& name);
+                                      nsACString& name);
   NS_DECL_NSIRUNNABLE
   nsresult mResult;
 
  protected:
   nsCOMPtr<nsIMsgFolder> m_folder;
-  nsString m_prefix;
+  nsCString m_prefix;
   nsCOMPtr<nsIMsgFolder> m_otherFolder;
-  nsString m_name;
+  nsCString m_name;
 };
 
 GenerateUniqueSubfolderNameRunnable::GenerateUniqueSubfolderNameRunnable(
-    nsIMsgFolder* aFolder, const nsAString& aPrefix, nsIMsgFolder* aOtherFolder,
-    nsAString& aName)
+    nsIMsgFolder* aFolder, const nsACString& aPrefix,
+    nsIMsgFolder* aOtherFolder, nsACString& aName)
     : mozilla::Runnable("GenerateUniqueSubfolderNameRunnable"),
       mResult(NS_OK),
       m_folder(aFolder),
@@ -906,9 +910,9 @@ NS_IMETHODIMP GenerateUniqueSubfolderNameRunnable::Run() {
 }
 
 nsresult ProxyGenerateUniqueSubfolderName(nsIMsgFolder* aFolder,
-                                          const nsAString& aPrefix,
+                                          const nsACString& aPrefix,
                                           nsIMsgFolder* aOtherFolder,
-                                          nsAString& aName)
+                                          nsACString& aName)
 
 {
   RefPtr<GenerateUniqueSubfolderNameRunnable> generateUniqueSubfolderName =
@@ -924,17 +928,17 @@ nsresult ProxyGenerateUniqueSubfolderName(nsIMsgFolder* aFolder,
 
 class CreateSubfolderRunnable : public mozilla::Runnable {
  public:
-  CreateSubfolderRunnable(nsIMsgFolder* aFolder, const nsAString& aName);
+  CreateSubfolderRunnable(nsIMsgFolder* aFolder, const nsACString& aName);
   NS_DECL_NSIRUNNABLE
   nsresult mResult;
 
  protected:
   nsCOMPtr<nsIMsgFolder> m_folder;
-  nsString m_name;
+  nsCString m_name;
 };
 
 CreateSubfolderRunnable::CreateSubfolderRunnable(nsIMsgFolder* aFolder,
-                                                 const nsAString& aName)
+                                                 const nsACString& aName)
     : mozilla::Runnable("CreateSubfolderRunnable"),
       mResult(NS_OK),
       m_folder(aFolder),
@@ -945,7 +949,7 @@ NS_IMETHODIMP CreateSubfolderRunnable::Run() {
   return NS_OK;  // Sync runnable must return OK.
 }
 
-nsresult ProxyCreateSubfolder(nsIMsgFolder* aFolder, const nsAString& aName) {
+nsresult ProxyCreateSubfolder(nsIMsgFolder* aFolder, const nsACString& aName) {
   NS_ENSURE_ARG_POINTER(aFolder);
   RefPtr<CreateSubfolderRunnable> createSubfolder =
       new CreateSubfolderRunnable(aFolder, aName);

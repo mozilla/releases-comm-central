@@ -45,13 +45,13 @@ interface nsIMsgIncomingServer : nsISupports {
    * pretty name - should be "userid on hostname"
    * if the pref is not set
    */
-  attribute AString prettyName;
+  attribute AUTF8String prettyName;
 
   /**
   * helper function to construct the pretty name in a server type
   * specific way - e.g., mail for foo@test.com, news on news.mozilla.org
   */
-  readonly attribute AString constructedPrettyName;
+  readonly attribute AUTF8String constructedPrettyName;
 
   /**
    * hostname of the server
@@ -70,13 +70,13 @@ interface nsIMsgIncomingServer : nsISupports {
    * protocol type, i.e. "pop3", "imap", "nntp", "none", etc
    * used to construct URLs
    */
-  attribute ACString type;
+  attribute AUTF8String type;
 
   /**
    * The CLIENTID to use for this server.
    * @see https://tools.ietf.org/html/draft-yu-imap-client-id-01
    */
-  attribute ACString clientid;
+  attribute AUTF8String clientid;
 
   /**
    * Whether the CLIENTID feature above is enabled.
@@ -302,11 +302,8 @@ interface nsIMsgIncomingServer : nsISupports {
   boolean getBoolValue(in string attr);
   void setBoolValue(in string attr, in boolean value);
 
-  ACString getCharValue(in string attr);
-  void setCharValue(in string attr, in ACString value);
-
-  AString getUnicharValue(in string attr);
-  void setUnicharValue(in string attr, in AString value);
+  AUTF8String getStringValue(in string attr);
+  void setStringValue(in string attr, in AUTF8String value);
 
   long getIntValue(in string attr);
   void setIntValue(in string attr, in long value);
@@ -510,12 +507,12 @@ interface nsIMsgIncomingServer : nsISupports {
 NS_IMETHODIMP                              \
 _class::Get##_postfix(nsACString& retval)  \
 {                                          \
-  return GetCharValue(_prefname, retval);  \
+  return GetStringValue(_prefname, retval);  \
 }                                          \
 NS_IMETHODIMP                              \
 _class::Set##_postfix(const nsACString& chvalue) \
 {                                          \
-  return SetCharValue(_prefname, chvalue); \
+  return SetStringValue(_prefname, chvalue); \
 }
 
 #define NS_IMPL_SERVERPREF_BOOL(_class, _postfix, _prefname)\

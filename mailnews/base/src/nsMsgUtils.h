@@ -61,7 +61,6 @@ nsresult NS_MsgGetUntranslatedPriorityName(const nsMsgPriorityValue p,
                                            nsACString& outName);
 
 nsresult NS_MsgHashIfNecessary(nsAutoString& name);
-nsresult NS_MsgHashIfNecessary(nsAutoCString& name);
 
 nsresult FormatFileSize(int64_t size, bool useKB, nsAString& formattedSize);
 
@@ -74,8 +73,7 @@ nsresult FormatFileSize(int64_t size, bool useKB, nsAString& formattedSize);
  * @param[optional] aIsNewsFolder is this a news folder?
  */
 nsresult NS_MsgCreatePathStringFromFolderURI(const char* aFolderURI,
-                                             nsCString& aPathString,
-                                             const nsCString& aScheme,
+                                             nsString& aPathString,
                                              bool aIsNewsFolder = false);
 
 /**
@@ -94,7 +92,7 @@ char* NS_MsgSACopy(char** destination, const char* source);
 
 char* NS_MsgSACat(char** destination, const char* source);
 
-nsresult NS_MsgEscapeEncodeURLPath(const nsAString& aStr, nsCString& aResult);
+nsresult NS_MsgEscapeEncodeURLPath(const nsACString& aStr, nsCString& aResult);
 
 nsresult NS_MsgDecodeUnescapeURLPath(const nsACString& aPath,
                                      nsAString& aResult);
@@ -252,7 +250,7 @@ int32_t MsgFindCharInSet(const nsString& aString, const char16_t* aChars,
 nsresult MsgPromptLoginFailed(nsIMsgWindow* aMsgWindow,
                               const nsACString& aHostname,
                               const nsACString& aUsername,
-                              const nsAString& aAccountname, int32_t* aResult);
+                              const nsACString& aAccountname, int32_t* aResult);
 
 /**
  * Calculate a PRTime value used to determine if a date is XX

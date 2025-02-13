@@ -549,7 +549,6 @@ var FListener = {
     }
   },
   onFolderBoolPropertyChanged() {},
-  onFolderUnicharPropertyChanged() {},
   onFolderPropertyFlagChanged() {},
   onFolderEvent() {},
 };

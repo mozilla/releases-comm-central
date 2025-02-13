@@ -282,7 +282,7 @@ static bool nsShouldIgnoreFile(nsString& name) {
   return true;
 }
 
-NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName,
+NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsACString& aName,
                                              nsIMsgFolder** aChild) {
   NS_ENSURE_ARG_POINTER(aChild);
 
@@ -341,7 +341,7 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName,
 }
 
 // Creates a new child nsIMsgFolder locally, with no IMAP traffic.
-nsresult nsImapMailFolder::AddSubfolderWithPath(nsAString& name,
+nsresult nsImapMailFolder::AddSubfolderWithPath(const nsACString& name,
                                                 nsIFile* folderPath,
                                                 nsIMsgFolder** child,
                                                 bool brandNew) {
@@ -350,7 +350,7 @@ nsresult nsImapMailFolder::AddSubfolderWithPath(nsAString& name,
 
   nsAutoCString uri(mURI);
   uri.Append('/');
-  AppendUTF16toUTF8(name, uri);
+  uri.Append(name);
 
   bool isServer;
   rv = GetIsServer(&isServer);
@@ -395,7 +395,7 @@ nsresult nsImapMailFolder::AddSubfolderWithPath(nsAString& name,
     nsMsgImapDeleteModel deleteModel;
     imapServer->GetDeleteModel(&deleteModel);
     if (deleteModel == nsMsgImapDeleteModels::MoveToTrash) {
-      nsAutoString trashName;
+      nsAutoCString trashName;
       GetTrashFolderName(trashName);
       if (name.Equals(trashName)) flags |= nsMsgFolderFlags::Trash;
     }
@@ -500,12 +500,13 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
     }
     // Use the name as the uri for the folder.
     nsCOMPtr<nsIMsgFolder> child;
-    AddSubfolderWithPath(utfLeafName, msfFilePath, getter_AddRefs(child));
+    AddSubfolderWithPath(NS_ConvertUTF16toUTF8(utfLeafName), msfFilePath,
+                         getter_AddRefs(child));
     if (child) {
       // use the unicode name as the "pretty" name. Set it so it won't be
       // automatically computed from the URI.
       if (!currentFolderNameStr.IsEmpty())
-        child->SetPrettyName(currentFolderNameStr);
+        child->SetPrettyName(NS_ConvertUTF16toUTF8(currentFolderNameStr));
       child->SetMsgDatabase(nullptr);
     }
   }
@@ -611,15 +612,14 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
   GetInheritedStringProperty("applyIncomingFilters", applyIncomingFilters);
   m_applyIncomingFilters = applyIncomingFilters.EqualsLiteral("true");
 
-  nsString folderName;
+  nsCString folderName;
   GetPrettyName(folderName);
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
           ("(Imap) nsImapMailFolder::UpdateFolderWithListener() on folder '%s'",
-           NS_ConvertUTF16toUTF8(folderName).get()));
+           folderName.get()));
   if (mFlags & nsMsgFolderFlags::Inbox || m_applyIncomingFilters) {
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-            ("(Imap) Preparing filter run on folder '%s'",
-             NS_ConvertUTF16toUTF8(folderName).get()));
+            ("(Imap) Preparing filter run on folder '%s'", folderName.get()));
 
     if (!m_filterList) {
       rv = GetFilterList(aMsgWindow, getter_AddRefs(m_filterList));
@@ -835,12 +835,12 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::CreateSubfolder(const nsAString& folderName,
+NS_IMETHODIMP nsImapMailFolder::CreateSubfolder(const nsACString& folderName,
                                                 nsIMsgWindow* msgWindow) {
   if (folderName.IsEmpty()) return NS_MSG_ERROR_INVALID_FOLDER_NAME;
 
   nsresult rv;
-  nsAutoString trashName;
+  nsAutoCString trashName;
   GetTrashFolderName(trashName);
   if (folderName.Equals(trashName))  // Trash , a special folder
   {
@@ -981,8 +981,8 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
   rv = StripSummarySuffix(dbFile, getter_AddRefs(folderPath));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = AddSubfolderWithPath(folderNameStr, folderPath, getter_AddRefs(child),
-                            true);
+  rv = AddSubfolderWithPath(NS_ConvertUTF16toUTF8(folderNameStr), folderPath,
+                            getter_AddRefs(child), true);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = msgDBService->OpenDBFromFile(dbFile, child, true, true,
                                     getter_AddRefs(unusedDB));
@@ -1029,13 +1029,13 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
 
       nsString unicodeName;
       rv = CopyFolderNameToUTF16(folderName, unicodeName);
-      if (NS_SUCCEEDED(rv)) child->SetPrettyName(unicodeName);
+      if (NS_SUCCEEDED(rv))
+        child->SetPrettyName(NS_ConvertUTF16toUTF8(unicodeName));
 
       // store the online name as the mailbox name in the db folder info
       // I don't think anyone uses the mailbox name, so we'll use it
       // to restore the online name when blowing away an imap db.
-      if (folderInfo)
-        folderInfo->SetMailboxName(NS_ConvertUTF8toUTF16(onlineName));
+      if (folderInfo) folderInfo->SetMailboxName(onlineName);
     }
 
     unusedDB->SetSummaryValid(true);
@@ -1095,7 +1095,7 @@ NS_IMETHODIMP nsImapMailFolder::CreateStorageIfMissing(
     }
   }
   if (msgParent) {
-    nsString folderName;
+    nsCString folderName;
     GetName(folderName);
     nsresult rv;
     nsCOMPtr<nsIImapService> imapService =
@@ -1591,12 +1591,12 @@ NS_IMETHODIMP nsImapMailFolder::DeleteStorage() {
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::Rename(const nsAString& newName,
+NS_IMETHODIMP nsImapMailFolder::Rename(const nsACString& newName,
                                        nsIMsgWindow* msgWindow) {
   if (mFlags & nsMsgFolderFlags::Virtual)
     return nsMsgDBFolder::Rename(newName, msgWindow);
   nsresult rv;
-  nsAutoString newNameStr(newName);
+  nsAutoCString newNameStr(newName);
   if (newNameStr.FindChar(m_hierarchyDelimiter, 0) != kNotFound) {
     nsCOMPtr<nsIDocShell> docShell;
     if (msgWindow) msgWindow->GetRootDocShell(getter_AddRefs(docShell));
@@ -1615,10 +1615,11 @@ NS_IMETHODIMP nsImapMailFolder::Rename(const nsAString& newName,
         rv = GetServer(getter_AddRefs(server));
         NS_ENSURE_SUCCESS(rv, rv);
         nsString dialogTitle;
-        nsString accountName;
+        nsAutoCString accountName;
         rv = server->GetPrettyName(accountName);
         NS_ENSURE_SUCCESS(rv, rv);
-        AutoTArray<nsString, 1> titleParams = {accountName};
+        AutoTArray<nsString, 1> titleParams = {
+            NS_ConvertUTF8toUTF16(accountName)};
         rv = bundle->FormatStringFromName("imapAlertDialogTitle", titleParams,
                                           dialogTitle);
 
@@ -1702,22 +1703,22 @@ NS_IMETHODIMP nsImapMailFolder::RenameLocal(const nsACString& newName,
   rv = GetSummaryFileLocation(oldPathFile, getter_AddRefs(oldSummaryFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsAutoCString newNameStr;
   oldSummaryFile->Remove(false);
   if (count > 0) {
-    newNameStr = leafname;
-    NS_MsgHashIfNecessary(newNameStr);
-    newNameStr.AppendLiteral(FOLDER_SUFFIX8);
-    nsAutoCString leafName;
-    dirFile->GetNativeLeafName(leafName);
-    if (!leafName.Equals(newNameStr))
-      return dirFile->MoveToNative(
-          nullptr,
-          newNameStr);  // in case of rename operation leaf names will differ
+    nsAutoString safeLeafName16 = NS_ConvertUTF8toUTF16(leafname);
+    NS_MsgHashIfNecessary(safeLeafName16);
 
-    parentPathFile->AppendNative(
-        newNameStr);  // only for move we need to progress further in case the
-                      // parent differs
+    safeLeafName16.AppendLiteral(FOLDER_SUFFIX);
+    nsAutoString leafName;
+    dirFile->GetLeafName(leafName);
+    if (!leafName.Equals(safeLeafName16)) {
+      // In case of rename operation leaf names will differ.
+      return dirFile->MoveTo(nullptr, safeLeafName16);
+    }
+
+    // Only for move we need to progress further in case the parent differs.
+    parentPathFile->Append(safeLeafName16);
+
     bool isDirectory = false;
     parentPathFile->IsDirectory(&isDirectory);
     if (!isDirectory) {
@@ -1733,7 +1734,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameLocal(const nsACString& newName,
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetPrettyName(nsAString& prettyName) {
+NS_IMETHODIMP nsImapMailFolder::GetPrettyName(nsACString& prettyName) {
   return GetName(prettyName);
 }
 
@@ -1980,7 +1981,7 @@ NS_IMETHODIMP nsImapMailFolder::SetOnlineName(
     nsAutoString onlineName;
     CopyUTF8toUTF16(aOnlineFolderName, onlineName);
     rv = folderInfo->SetProperty("onlineName", onlineName);
-    rv = folderInfo->SetMailboxName(onlineName);
+    rv = folderInfo->SetMailboxName(aOnlineFolderName);
     // so, when are we going to commit this? Definitely not every time!
     // We could check if the online name has changed.
     db->Commit(nsMsgDBCommitType::kLargeCommit);
@@ -2017,7 +2018,7 @@ nsImapMailFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
   if (!onlineName.IsEmpty())
     m_onlineFolderName.Assign(onlineName);
   else {
-    nsAutoString autoOnlineName;
+    nsAutoCString autoOnlineName;
     (*folderInfo)->GetMailboxName(autoOnlineName);
     if (autoOnlineName.IsEmpty()) {
       nsCString uri;
@@ -2040,9 +2041,9 @@ nsImapMailFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
         onlineCName.ReplaceChar('/', m_hierarchyDelimiter);
       // XXX: What if online name contains slashes? Breaks?
       m_onlineFolderName.Assign(onlineCName);
-      CopyUTF8toUTF16(onlineCName, autoOnlineName);
+      autoOnlineName.Assign(onlineCName);
     }
-    (*folderInfo)->SetProperty("onlineName", autoOnlineName);
+    (*folderInfo)->SetCharProperty("onlineName", autoOnlineName);
   }
   return rv;
 }
@@ -2309,10 +2310,10 @@ nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
     rv = IMAPGetStringBundle(getter_AddRefs(bundle));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsAutoString folderName;
+    nsAutoCString folderName;
     rv = GetName(folderName);
     NS_ENSURE_SUCCESS(rv, rv);
-    AutoTArray<nsString, 1> formatStrings = {folderName};
+    AutoTArray<nsString, 1> formatStrings = {NS_ConvertUTF8toUTF16(folderName)};
 
     nsAutoString deleteFolderDialogTitle;
     rv = bundle->GetStringFromName("imapDeleteFolderDialogTitle",
@@ -3661,7 +3662,8 @@ NS_IMETHODIMP nsImapMailFolder::PlaybackOfflineFolderCreate(
   nsCOMPtr<nsIImapService> imapService =
       do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return imapService->CreateFolder(this, aFolderName, this, url);
+  return imapService->CreateFolder(this, NS_ConvertUTF16toUTF8(aFolderName),
+                                   this, url);
 }
 
 // "this" is the source folder.
@@ -5545,14 +5547,12 @@ nsImapMailFolder::HeaderFetchCompleted(nsIImapProtocol* aProtocol) {
         if (MOZ_LOG_TEST(gAutoSyncLog, mozilla::LogLevel::Debug)) {
           int32_t flags = 0;
           GetFlags((uint32_t*)&flags);
-          nsString folderName;
+          nsCString folderName;
           GetName(folderName);
-          nsCString utfLeafName;
-          CopyUTF16toUTF8(folderName, utfLeafName);
           MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
                   ("%s: foldername=%s, flags=0x%X, "
                    "isOffline=%s, nsMsgFolderFlags::Offline=0x%X",
-                   __func__, utfLeafName.get(), flags,
+                   __func__, folderName.get(), flags,
                    (flags & nsMsgFolderFlags::Offline) ? "true" : "false",
                    nsMsgFolderFlags::Offline));
           MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
@@ -6300,9 +6300,10 @@ nsImapMailFolder::PercentProgress(nsIImapProtocol* aProtocol,
             // Use the localized (pretty) name and not the the standard imap
             // name. I.e., don't use INBOX but use the local name, e.g.,
             // "Bandeja de entrada".
-            nsString prettyName;
+            nsAutoCString prettyName;
             GetPrettyName(prettyName);
-            AutoTArray<nsString, 3> params = {current, expected, prettyName};
+            AutoTArray<nsString, 3> params = {
+                current, expected, NS_ConvertUTF8toUTF16(prettyName)};
 
             nsCOMPtr<nsIStringBundle> bundle;
             nsresult rv = IMAPGetStringBundle(getter_AddRefs(bundle));
@@ -7199,7 +7200,7 @@ nsresult nsImapFolderCopyState::StartNextCopy() {
   nsCOMPtr<nsIImapService> imapService =
       do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsString folderName;
+  nsAutoCString folderName;
   m_curSrcFolder->GetName(folderName);
   return imapService->EnsureFolderExists(m_curDestParent, folderName,
                                          m_msgWindow, this);
@@ -7243,7 +7244,7 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           // Our EnsureFolderExists() call has completed successfully,
           // so our dest folder is ready.
           nsCOMPtr<nsIMsgFolder> newMsgFolder;
-          nsString folderName;
+          nsAutoCString folderName;
           nsCString utfLeafName;
           m_curSrcFolder->GetName(folderName);
           bool utf8AcceptEnabled;
@@ -7252,9 +7253,10 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           rv = imapFolder->GetShouldUseUtf8FolderName(&utf8AcceptEnabled);
           NS_ENSURE_SUCCESS(rv, rv);
           if (utf8AcceptEnabled) {
-            CopyUTF16toUTF8(folderName, utfLeafName);
+            utfLeafName = folderName;
           } else {
-            CopyUTF16toMUTF7(folderName, utfLeafName);
+            CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(folderName),
+                             utfLeafName);  // Ewww...
           }
           // Create the nsIMsgFolder object which represents the folder on
           // the IMAP server.
@@ -7364,11 +7366,12 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
     // if our source folder is a virtual folder
     if (folderFlags & nsMsgFolderFlags::Virtual) {
       nsCOMPtr<nsIMsgFolder> newMsgFolder;
-      nsString folderName;
+      nsAutoCString folderName;
       srcFolder->GetName(folderName);
 
-      nsAutoString safeFolderName(folderName);
-      NS_MsgHashIfNecessary(safeFolderName);
+      nsAutoString safeFolderName16 = NS_ConvertUTF8toUTF16(folderName);
+      NS_MsgHashIfNecessary(safeFolderName16);
+      nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
 
       srcFolder->ForceDBClosed();
 
@@ -7557,15 +7560,16 @@ nsresult nsImapMailFolder::CopyStreamMessage(
   if (NS_SUCCEEDED(rv) && m_copyState->m_msgService) {
     // put up status message here, if copying more than one message.
     if (m_copyState->m_messages.Length() > 1) {
-      nsString dstFolderName, progressText;
+      nsAutoCString dstFolderName;
+      nsString progressText;
       GetName(dstFolderName);
       nsAutoString curMsgString;
       nsAutoString totalMsgString;
       totalMsgString.AppendInt((int32_t)m_copyState->m_messages.Length());
       curMsgString.AppendInt(m_copyState->m_curIndex + 1);
 
-      AutoTArray<nsString, 3> formatStrings = {curMsgString, totalMsgString,
-                                               dstFolderName};
+      AutoTArray<nsString, 3> formatStrings = {
+          curMsgString, totalMsgString, NS_ConvertUTF8toUTF16(dstFolderName)};
 
       nsCOMPtr<nsIStringBundle> bundle;
       rv = IMAPGetStringBundle(getter_AddRefs(bundle));
@@ -8055,22 +8059,15 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
   int32_t boxflags = 0;
   oldImapFolder->GetBoxFlags(&boxflags);
 
-  nsAutoString newLeafName;
-  NS_ConvertUTF8toUTF16 newNameString(newName);
-  NS_ENSURE_SUCCESS(rv, rv);
-  newLeafName = newNameString;
-  nsAutoString folderNameStr;
+  nsAutoCString newLeafName(newName);
   int32_t folderStart = newLeafName.RFindChar(
       '/');  // internal use of hierarchyDelimiter is always '/'
   if (folderStart > 0) {
-    newLeafName = Substring(newNameString, folderStart + 1);
+    newLeafName = Substring(newName, folderStart + 1);
     CreateDirectoryForFolder(
         getter_AddRefs(pathFile));  // needed when we move a folder to a folder
                                     // with no subfolders.
   }
-
-  // if we get here, it's really a leaf, and "this" is the parent.
-  folderNameStr = newLeafName;
 
   // Create an empty database for this mail folder, set its name from the user
   nsCOMPtr<nsIMsgDatabase> mailDBFactory;
@@ -8085,7 +8082,8 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
   nsCOMPtr<nsIFile> dbFile;
 
   // Get db filename e.g. "foo/bar/folder.msf"
-  rv = CreateFileForDB(folderNameStr, pathFile, getter_AddRefs(dbFile));
+  rv = CreateFileForDB(NS_ConvertUTF8toUTF16(newLeafName), pathFile,
+                       getter_AddRefs(dbFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIFile> folderPath;
@@ -8102,18 +8100,18 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
     rv = unusedDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
 
     // Now let's create the actual new folder
-    rv = AddSubfolderWithPath(folderNameStr, folderPath, getter_AddRefs(child));
+    rv = AddSubfolderWithPath(newLeafName, folderPath, getter_AddRefs(child));
     if (!child || NS_FAILED(rv)) return rv;
     nsAutoString unicodeName;
-    rv = CopyFolderNameToUTF16(NS_ConvertUTF16toUTF8(folderNameStr),
-                               unicodeName);
-    if (NS_SUCCEEDED(rv)) child->SetPrettyName(unicodeName);
+    rv = CopyFolderNameToUTF16(newLeafName, unicodeName);
+    if (NS_SUCCEEDED(rv))
+      child->SetPrettyName(NS_ConvertUTF16toUTF8(unicodeName));
     imapFolder = do_QueryInterface(child);
     if (imapFolder) {
       nsAutoCString onlineName(m_onlineFolderName);
 
       if (!onlineName.IsEmpty()) onlineName.Append(hierarchyDelimiter);
-      onlineName.Append(NS_ConvertUTF16toUTF8(folderNameStr));
+      onlineName.Append(newLeafName);
       imapFolder->SetVerifiedAsOnlineFolder(true);
       imapFolder->SetOnlineName(onlineName);
       imapFolder->SetHierarchyDelimiter(hierarchyDelimiter);
@@ -8122,9 +8120,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
       // I don't think anyone uses the mailbox name, so we'll use it
       // to restore the online name when blowing away an imap db.
       if (folderInfo) {
-        nsAutoString unicodeOnlineName;
-        CopyUTF8toUTF16(onlineName, unicodeOnlineName);
-        folderInfo->SetMailboxName(unicodeOnlineName);
+        folderInfo->SetMailboxName(onlineName);
       }
       bool changed = false;
       msgFolder->MatchOrChangeFilterDestination(
@@ -8183,9 +8179,9 @@ NS_IMETHODIMP nsImapMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
     if (NS_FAILED(rv)) return rv;
 
     rv = AddDirectorySeparator(newParentPathFile);
-    nsAutoCString oldLeafName;
-    oldPathFile->GetNativeLeafName(oldLeafName);
-    newParentPathFile->AppendNative(oldLeafName);
+    nsAutoString oldLeafName;
+    oldPathFile->GetLeafName(oldLeafName);
+    newParentPathFile->Append(oldLeafName);
 
     nsCOMPtr<nsIFile> dbFilePath = new nsLocalFile();
     rv = dbFilePath->InitWithFile(newParentPathFile);
@@ -8193,7 +8189,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
 
     nsCOMPtr<nsIMsgFolder> child;
 
-    nsString folderName;
+    nsAutoCString folderName;
     rv = msgFolder->GetName(folderName);
     if (folderName.IsEmpty() || NS_FAILED(rv)) return rv;
 
@@ -8203,17 +8199,12 @@ NS_IMETHODIMP nsImapMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
     rv = imapFolder->GetShouldUseUtf8FolderName(&utf8AcceptEnabled);
     NS_ENSURE_SUCCESS(rv, rv);
     if (utf8AcceptEnabled) {
-      CopyUTF16toUTF8(folderName, utfLeafName);
+      utfLeafName = folderName;
     } else {
-      CopyUTF16toMUTF7(folderName, utfLeafName);
+      CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(folderName), utfLeafName);
     }
 
-    // XXX : Fix this non-sense by fixing AddSubfolderWithPath
-    nsAutoString unicodeLeafName;
-    CopyUTF8toUTF16(utfLeafName, unicodeLeafName);
-
-    rv = AddSubfolderWithPath(unicodeLeafName, dbFilePath,
-                              getter_AddRefs(child));
+    rv = AddSubfolderWithPath(utfLeafName, dbFilePath, getter_AddRefs(child));
     if (!child || NS_FAILED(rv)) return rv;
 
     child->SetName(folderName);
@@ -8560,7 +8551,7 @@ nsImapMailFolder::GetShouldDownloadAllHeaders(bool* aResult) {
                         : NS_OK;
 }
 
-void nsImapMailFolder::GetTrashFolderName(nsAString& aFolderName) {
+void nsImapMailFolder::GetTrashFolderName(nsACString& aFolderName) {
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsCOMPtr<nsIImapIncomingServer> imapServer;
   nsresult rv;

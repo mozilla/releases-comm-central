@@ -40,8 +40,8 @@ interface nsINntpIncomingServer : nsISupports {
     attribute ACString charset;
 
     /* the server keeps track of all the newsgroups we are subscribed to */
-    void addNewsgroup(in AString name);
-    void removeNewsgroup(in AString name);
+    void addNewsgroup(in AUTF8String name);
+    void removeNewsgroup(in AUTF8String name);
 
     void writeNewsrcFile();
 

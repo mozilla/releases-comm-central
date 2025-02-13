@@ -107,7 +107,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD OnAnnouncerGoingAway(nsIDBChangeAnnouncer* instigator) override;
   NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
 
-  NS_IMETHOD CreateSubfolder(const nsAString& folderName,
+  NS_IMETHOD CreateSubfolder(const nsACString& folderName,
                              nsIMsgWindow* msgWindow) override;
 
   NS_IMETHOD Compact(nsIUrlListener* aListener,
@@ -117,14 +117,14 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD EmptyTrash(nsIUrlListener* aListener) override;
   NS_IMETHOD DeleteSelf(nsIMsgWindow* msgWindow) override;
   NS_IMETHOD CreateStorageIfMissing(nsIUrlListener* urlListener) override;
-  NS_IMETHOD Rename(const nsAString& aNewName,
+  NS_IMETHOD Rename(const nsACString& aNewName,
                     nsIMsgWindow* msgWindow) override;
   NS_IMETHOD RenameSubFolders(nsIMsgWindow* msgWindow,
                               nsIMsgFolder* oldFolder) override;
 
-  NS_IMETHOD GetPrettyName(nsAString& prettyName)
+  NS_IMETHOD GetPrettyName(nsACString& prettyName)
       override;  // Override of the base, for top-level mail folder
-  NS_IMETHOD SetPrettyName(const nsAString& aName) override;
+  NS_IMETHOD SetPrettyName(const nsACString& aName) override;
 
   NS_IMETHOD GetFolderURL(nsACString& url) override;
 
@@ -170,7 +170,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD ReadFromFolderCacheElem(
       nsIMsgFolderCacheElement* element) override;
 
-  NS_IMETHOD GetName(nsAString& aName) override;
+  NS_IMETHOD GetName(nsACString& aName) override;
 
   // Used when headers_only is TRUE
   NS_IMETHOD DownloadMessagesForOffline(
@@ -202,7 +202,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   nsresult WriteStartOfNewMessage();
 
   // CreateSubfolder, but without the nsIMsgFolderListener notification
-  nsresult CreateSubfolderInternal(const nsAString& folderName,
+  nsresult CreateSubfolderInternal(const nsACString& folderName,
                                    nsIMsgWindow* msgWindow,
                                    nsIMsgFolder** aNewFolder);
 
@@ -260,7 +260,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   bool m_parsingFolder;
   nsCOMPtr<nsIUrlListener> mReparseListener;
   nsTArray<nsMsgKey> mSpamKeysToMove;
-  nsresult setSubfolderFlag(const nsAString& aFolderName, uint32_t flags);
+  nsresult setSubfolderFlag(const nsACString& aFolderName, uint32_t flags);
 
   // Helper fn used by ParseFolder().
   void FinishUpAfterParseFolder(nsresult status);

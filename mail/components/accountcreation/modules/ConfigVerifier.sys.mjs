@@ -312,13 +312,13 @@ export class ConfigVerifier {
           }
         }
         if (config.incoming.owaURL) {
-          this.server.setUnicharValue("owa_url", config.incoming.owaURL);
+          this.server.setStringValue("owa_url", config.incoming.owaURL);
         }
         if (config.incoming.ewsURL) {
-          this.server.setUnicharValue("ews_url", config.incoming.ewsURL);
+          this.server.setStringValue("ews_url", config.incoming.ewsURL);
         }
         if (config.incoming.easURL) {
-          this.server.setUnicharValue("eas_url", config.incoming.easURL);
+          this.server.setStringValue("eas_url", config.incoming.easURL);
         }
 
         if (

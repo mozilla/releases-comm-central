@@ -43,9 +43,9 @@ function run_test() {
     subFolder22.getInheritedStringProperty(propertyName),
     globalValue
   );
-  Assert.equal(rootFolder.getInheritedStringProperty(invalidName), null);
-  Assert.equal(subFolder11.getInheritedStringProperty(invalidName), null);
-  Assert.equal(subFolder22.getInheritedStringProperty(invalidName), null);
+  Assert.equal(rootFolder.getInheritedStringProperty(invalidName), "");
+  Assert.equal(subFolder11.getInheritedStringProperty(invalidName), "");
+  Assert.equal(subFolder22.getInheritedStringProperty(invalidName), "");
 
   // set a value on a subfolder and check
   subFolder11.setStringProperty(propertyName, folderValue);
@@ -71,7 +71,7 @@ function run_test() {
   );
 
   // set a root folder value and check
-  localAccountUtils.incomingServer.setCharValue(propertyName, rootValue);
+  localAccountUtils.incomingServer.setStringValue(propertyName, rootValue);
   Assert.equal(rootFolder.getInheritedStringProperty(propertyName), rootValue);
   Assert.equal(
     subFolder11.getInheritedStringProperty(propertyName),
@@ -86,7 +86,7 @@ function run_test() {
 
   // check with all levels populated
   subFolder21.setStringProperty(propertyName, folderValue2);
-  localAccountUtils.incomingServer.setCharValue(propertyName, rootValue);
+  localAccountUtils.incomingServer.setStringValue(propertyName, rootValue);
   Assert.equal(rootFolder.getInheritedStringProperty(propertyName), rootValue);
   Assert.equal(
     subFolder11.getInheritedStringProperty(propertyName),
@@ -101,16 +101,16 @@ function run_test() {
 
   // clear the global value and the root value
   Services.prefs.clearUserPref(globalPref);
-  localAccountUtils.incomingServer.setCharValue(propertyName, "");
-  Assert.equal(rootFolder.getInheritedStringProperty(propertyName), null);
+  localAccountUtils.incomingServer.setStringValue(propertyName, "");
+  Assert.equal(rootFolder.getInheritedStringProperty(propertyName), "");
   Assert.equal(
     subFolder11.getInheritedStringProperty(propertyName),
     folderValue
   );
-  Assert.equal(subFolder12.getInheritedStringProperty(propertyName), null);
+  Assert.equal(subFolder12.getInheritedStringProperty(propertyName), "");
   Assert.equal(
     subFolder21.getInheritedStringProperty(propertyName),
     folderValue2
   );
-  Assert.equal(subFolder22.getInheritedStringProperty(propertyName), null);
+  Assert.equal(subFolder22.getInheritedStringProperty(propertyName), "");
 }

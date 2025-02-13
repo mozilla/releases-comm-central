@@ -50,10 +50,10 @@ interface nsIMsgFolder : nsISupports {
 
   /* folder name properties */
   readonly attribute AUTF8String URI;
-  attribute AString name;
-  attribute AString prettyName;
-  readonly attribute AString abbreviatedName;
-  readonly attribute AString prettyPath;
+  attribute AUTF8String name;
+  attribute AUTF8String prettyName;
+  readonly attribute AUTF8String abbreviatedName;
+  readonly attribute AUTF8String prettyPath;
 
 %{C++
   /**
@@ -243,7 +243,7 @@ interface nsIMsgFolder : nsISupports {
    *
    * @exception NS_MSG_FOLDER_EXISTS
    */
-  void createSubfolder(in AString folderName, in nsIMsgWindow msgWindow);
+  void createSubfolder(in AUTF8String folderName, in nsIMsgWindow msgWindow);
 
   /**
    * Adds the subfolder with the passed name to the folder hierarchy.
@@ -255,7 +255,7 @@ interface nsIMsgFolder : nsISupports {
    * @param aFolderName Name of the folder to add.
    * @returns The folder added.
    */
-  nsIMsgFolder addSubfolder(in AString aFolderName);
+  nsIMsgFolder addSubfolder(in AUTF8String aFolderName);
 
   /* this method ensures the storage for the folder exists.
     For local folders, it creates the berkeley mailbox if missing.
@@ -293,11 +293,11 @@ interface nsIMsgFolder : nsISupports {
    *
    * @param name the new name of the folder
    */
-  void rename(in AString name, in nsIMsgWindow msgWindow);
-  void renameSubFolders( in nsIMsgWindow msgWindow, in nsIMsgFolder oldFolder);
+  void rename(in AUTF8String name, in nsIMsgWindow msgWindow);
+  void renameSubFolders(in nsIMsgWindow msgWindow, in nsIMsgFolder oldFolder);
 
-  AString generateUniqueSubfolderName(in AString prefix,
-                                      in nsIMsgFolder otherFolder);
+  AUTF8String generateUniqueSubfolderName(in AUTF8String prefix,
+                                          in nsIMsgFolder otherFolder);
 
   void updateSummaryTotals(in boolean force);
   void summaryChanged();
@@ -331,10 +331,9 @@ interface nsIMsgFolder : nsISupports {
   void changeNumPendingUnread(in long delta);
   void changeNumPendingTotalMessages(in long delta);
 
- /**
-  * does this folder have new messages
-  *
-  */
+  /**
+   * Does this folder have new messages?
+   */
   attribute boolean hasNewMessages;
 
   /**
@@ -740,7 +739,7 @@ interface nsIMsgFolder : nsISupports {
    *
    * @param name the name of the target subfolder
    */
-  boolean containsChildNamed(in AString name);
+  boolean containsChildNamed(in AUTF8String name);
 
   /**
    * Return the child folder which the specified name.
@@ -748,7 +747,7 @@ interface nsIMsgFolder : nsISupports {
    * @param name - The name of the child folder to find
    * @return The child folder, or null if the folder with 'name' does not exist.
    */
-  nsIMsgFolder getChildNamed(in AString name);
+  nsIMsgFolder getChildNamed(in AUTF8String name);
 
   /**
    * Finds the sub folder with the specified name.
@@ -779,10 +778,6 @@ interface nsIMsgFolder : nsISupports {
                                  in ACString property,
                                  in unsigned long oldValue,
                                  in unsigned long newValue);
-  void NotifyUnicharPropertyChanged(in ACString property,
-                                    in AString oldValue,
-                                    in AString newValue);
-
   void notifyMessageAdded(in nsIMsgDBHdr msg);
   void notifyMessageRemoved(in nsIMsgDBHdr msg);
   void notifyFolderAdded(in nsIMsgFolder child);
@@ -882,9 +877,9 @@ interface nsIMsgFolder : nsISupports {
    *
    * If a folder is the root folder for a server, then instead of
    * checking the folder property, check the property of the same name
-   * for the server using nsIMsgIncomingServer.getCharValue(...)
+   * for the server using nsIMsgIncomingServer.getStringValue(...)
    *
-   * Note nsIMsgIncomingServer.getCharValue for a server inherits from
+   * Note nsIMsgIncomingServer.getStringValue for a server inherits from
    * the preference mail.server.default.(propertyName) as a global value
    *
    * (ex: if propertyName = "IAmAGlobal" and no folder nor server properties
@@ -895,7 +890,7 @@ interface nsIMsgFolder : nsISupports {
    *
    * @param propertyName  The name of the property for the value to retrieve.
    */
-  ACString getInheritedStringProperty(in string propertyName);
+  AUTF8String getInheritedStringProperty(in string propertyName);
 
   /**
    * Pluggable store for this folder. Currently, this will always be the same

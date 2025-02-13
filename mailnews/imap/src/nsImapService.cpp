@@ -1920,7 +1920,7 @@ NS_IMETHODIMP nsImapService::MoveFolder(nsIMsgFolder* srcFolder,
 }
 
 NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
-                                        const nsAString& newLeafName,
+                                        const nsACString& newLeafName,
                                         nsIUrlListener* urlListener,
                                         nsIMsgWindow* msgWindow) {
   NS_ENSURE_ARG_POINTER(srcFolder);
@@ -1959,9 +1959,9 @@ NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
       rv = imapFolder->GetShouldUseUtf8FolderName(&utf8AcceptEnabled);
       NS_ENSURE_SUCCESS(rv, rv);
       if (utf8AcceptEnabled) {
-        CopyUTF16toUTF8(newLeafName, utfNewName);
+        utfNewName.Assign(newLeafName);
       } else {
-        CopyUTF16toMUTF7(newLeafName, utfNewName);
+        CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(newLeafName), utfNewName);
       }
       nsCString escapedNewName;
       MsgEscapeString(utfNewName, nsINetUtil::ESCAPE_URL_PATH, escapedNewName);
@@ -1980,7 +1980,7 @@ NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
 }
 
 NS_IMETHODIMP nsImapService::CreateFolder(nsIMsgFolder* parent,
-                                          const nsAString& newFolderName,
+                                          const nsACString& newFolderName,
                                           nsIUrlListener* urlListener,
                                           nsIURI** url) {
   NS_ENSURE_ARG_POINTER(parent);
@@ -2015,9 +2015,9 @@ NS_IMETHODIMP nsImapService::CreateFolder(nsIMsgFolder* parent,
       rv = imapFolder->GetShouldUseUtf8FolderName(&utf8AcceptEnabled);
       NS_ENSURE_SUCCESS(rv, rv);
       if (utf8AcceptEnabled) {
-        CopyUTF16toUTF8(newFolderName, utfNewName);
+        utfNewName.Assign(newFolderName);
       } else {
-        CopyUTF16toMUTF7(newFolderName, utfNewName);
+        CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(newFolderName), utfNewName);
       }
       nsCString escapedFolderName;
       MsgEscapeString(utfNewName, nsINetUtil::ESCAPE_URL_PATH,
@@ -2033,7 +2033,7 @@ NS_IMETHODIMP nsImapService::CreateFolder(nsIMsgFolder* parent,
 }
 
 NS_IMETHODIMP nsImapService::EnsureFolderExists(nsIMsgFolder* parent,
-                                                const nsAString& newFolderName,
+                                                const nsACString& newFolderName,
                                                 nsIMsgWindow* msgWindow,
                                                 nsIUrlListener* urlListener) {
   NS_ENSURE_ARG_POINTER(parent);
@@ -2064,9 +2064,9 @@ NS_IMETHODIMP nsImapService::EnsureFolderExists(nsIMsgFolder* parent,
       rv = imapFolder->GetShouldUseUtf8FolderName(&utf8AcceptEnabled);
       NS_ENSURE_SUCCESS(rv, rv);
       if (utf8AcceptEnabled) {
-        CopyUTF16toUTF8(newFolderName, utfNewName);
+        utfNewName.Assign(newFolderName);
       } else {
-        CopyUTF16toMUTF7(newFolderName, utfNewName);
+        CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(newFolderName), utfNewName);
       }
       nsCString escapedFolderName;
       MsgEscapeString(utfNewName, nsINetUtil::ESCAPE_URL_PATH,
@@ -2450,9 +2450,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
           // running a subscribe url and returning that as the uri we've
           // created. We need to convert this to unicode because that's what
           // subscribe wants.
-          nsAutoString unicodeName;
-          CopyFolderNameToUTF16(fullFolderName, unicodeName);
-          rv = imapServer->SubscribeToFolder(unicodeName, true,
+          rv = imapServer->SubscribeToFolder(fullFolderName, true,
                                              getter_AddRefs(subscribeURI));
           if (NS_SUCCEEDED(rv) && subscribeURI) {
             nsCOMPtr<nsIImapUrl> imapSubscribeUrl =
@@ -2678,7 +2676,7 @@ NS_IMETHODIMP nsImapService::GetListOfFoldersOnServer(
 }
 
 NS_IMETHODIMP nsImapService::SubscribeFolder(nsIMsgFolder* aFolder,
-                                             const nsAString& aFolderName,
+                                             const nsACString& aFolderName,
                                              nsIUrlListener* urlListener,
                                              nsIURI** url) {
   return ChangeFolderSubscription(aFolder, aFolderName, "/subscribe>",
@@ -2686,7 +2684,7 @@ NS_IMETHODIMP nsImapService::SubscribeFolder(nsIMsgFolder* aFolder,
 }
 
 nsresult nsImapService::ChangeFolderSubscription(nsIMsgFolder* folder,
-                                                 const nsAString& folderName,
+                                                 const nsACString& folderName,
                                                  const char* command,
                                                  nsIUrlListener* urlListener,
                                                  nsIURI** url) {
@@ -2705,9 +2703,8 @@ nsresult nsImapService::ChangeFolderSubscription(nsIMsgFolder* folder,
       urlSpec.Append(command);
       urlSpec.Append(hierarchyDelimiter);
       // `folderName` contains MUFT-7 or UTF-8 as required by the server here.
-      NS_ConvertUTF16toUTF8 utfFolderName(folderName);
       nsCString escapedFolderName;
-      MsgEscapeString(utfFolderName, nsINetUtil::ESCAPE_URL_PATH,
+      MsgEscapeString(folderName, nsINetUtil::ESCAPE_URL_PATH,
                       escapedFolderName);
       urlSpec.Append(escapedFolderName);
       rv = mailnewsurl->SetSpecInternal(urlSpec);
@@ -2719,7 +2716,7 @@ nsresult nsImapService::ChangeFolderSubscription(nsIMsgFolder* folder,
 }
 
 NS_IMETHODIMP nsImapService::UnsubscribeFolder(nsIMsgFolder* aFolder,
-                                               const nsAString& aFolderName,
+                                               const nsACString& aFolderName,
                                                nsIUrlListener* aUrlListener,
                                                nsIURI** aUrl) {
   return ChangeFolderSubscription(aFolder, aFolderName, "/unsubscribe>",

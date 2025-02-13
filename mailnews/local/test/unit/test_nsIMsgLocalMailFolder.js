@@ -231,6 +231,59 @@ function subtest_folder_operations(root) {
   Assert.ok(!path2.exists());
 }
 
+/**
+ * Tests that URIs containing special characters are parsed correctly.
+ */
+function test_parse_uri(root) {
+  const MsgFolder = Components.Constructor(
+    "@mozilla.org/mail/folder-factory;1?name=mailbox",
+    "nsIMsgFolder",
+    "Init"
+  );
+
+  const rootURI = root.URI;
+  const rootDirectory = root.filePath;
+
+  const testFolder1 = new MsgFolder(rootURI + "/test");
+  Assert.equal(testFolder1.name, "test");
+  const testDirectory1 = rootDirectory.clone();
+  testDirectory1.append("test");
+  Assert.equal(testFolder1.filePath.path, testDirectory1.path);
+
+  const testFolder2 = new MsgFolder(rootURI + "/test/test");
+  Assert.equal(testFolder2.name, "test");
+  const testDirectory2 = rootDirectory.clone();
+  testDirectory2.append("test.sbd");
+  testDirectory2.append("test");
+  Assert.equal(testFolder2.filePath.path, testDirectory2.path);
+
+  // If you made a folder named "test/test" it would be hashed to "test24ddc4ea".
+  // "test%2Ftest" is a path component we don't expect to see, and parseURI
+  // handles it badly, so it's not tested here.
+
+  // On Windows, if you made a folder named "test\test" it would be hashed to
+  // "testc6574bcf". It isn't hashed elsewhere.
+  const testFolder3 = new MsgFolder(rootURI + "/test%5Ctest");
+  Assert.equal(testFolder3.name, "test\\test");
+  const testDirectory3 = rootDirectory.clone();
+  testDirectory3.append(
+    AppConstants.platform == "win" ? "testc6574bcf" : "test\\test"
+  );
+  Assert.equal(testFolder3.filePath.path, testDirectory3.path);
+
+  // All of these are legal characters! (Or they will be, when I fix Windows
+  // in the next few patches.)
+  const testFolder4 = new MsgFolder(
+    rootURI + "/test%2Btest!test%5B%5D(%CF%86%3D1.618%E2%80%A6)"
+  );
+  Assert.equal(testFolder4.name, "test+test!test[](φ=1.618…)");
+  const testDirectory4 = rootDirectory.clone();
+  testDirectory4.append(
+    AppConstants.platform == "win" ? "e0923004" : "test+test!test[](φ=1.618…)"
+  );
+  Assert.equal(testFolder4.filePath.path, testDirectory4.path);
+}
+
 function test_store_rename(root) {
   let folder1 = root
     .createLocalSubfolder("newfolder1")
@@ -369,6 +422,7 @@ function run_all_tests(aHostName) {
   const root = server.rootMsgFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   subtest_folder_operations(root);
   subtest_folder_deletion(root);
+  test_parse_uri(root);
   test_store_rename(root);
   test_unsafe_characters(root);
 }

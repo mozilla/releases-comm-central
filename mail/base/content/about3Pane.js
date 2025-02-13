@@ -6116,7 +6116,15 @@ var folderListener = {
       window.threadPaneHeader.updateMessageCount(gDBView.numMsgsInView);
     }
   },
-  onFolderPropertyChanged() {},
+  onFolderPropertyChanged(folder, property, oldValue, newValue) {
+    switch (property) {
+      case "Name":
+        if (folder.isServer) {
+          folderPane.changeServerName(folder, newValue);
+        }
+        break;
+    }
+  },
   onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
     switch (property) {
       case "BiffState":
@@ -6162,15 +6170,6 @@ var folderListener = {
         break;
       case "NewMessages":
         folderPane.changeNewMessages(folder, newValue);
-        break;
-    }
-  },
-  onFolderUnicharPropertyChanged(folder, property, oldValue, newValue) {
-    switch (property) {
-      case "Name":
-        if (folder.isServer) {
-          folderPane.changeServerName(folder, newValue);
-        }
         break;
     }
   },

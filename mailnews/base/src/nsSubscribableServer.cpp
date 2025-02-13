@@ -242,13 +242,13 @@ nsSubscribableServer::UpdateSubscribed() {
 }
 
 NS_IMETHODIMP
-nsSubscribableServer::Subscribe(const char16_t* aName) {
+nsSubscribableServer::Subscribe(const nsACString& aName) {
   NS_ASSERTION(false, "override this.");
   return NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP
-nsSubscribableServer::Unsubscribe(const char16_t* aName) {
+nsSubscribableServer::Unsubscribe(const nsACString& aName) {
   NS_ASSERTION(false, "override this.");
   return NS_ERROR_FAILURE;
 }

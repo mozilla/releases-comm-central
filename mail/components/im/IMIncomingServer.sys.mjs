@@ -16,7 +16,7 @@ IMIncomingServer.prototype = {
       return this._imAccount;
     }
 
-    const id = this.getCharValue("imAccount");
+    const id = this.getStringValue("imAccount");
     if (!id) {
       return null;
     }
@@ -25,7 +25,7 @@ IMIncomingServer.prototype = {
   },
   set imAccount(aImAccount) {
     this._imAccount = aImAccount;
-    this.setCharValue("imAccount", aImAccount.id);
+    this.setStringValue("imAccount", aImAccount.id);
   },
   _prefBranch: null,
   valid: true,
@@ -136,18 +136,20 @@ IMIncomingServer.prototype = {
   },
 
   // This is used for user-visible advanced preferences.
-  setUnicharValue(aPrefName, aValue) {
+  setStringValue(aPrefName, aValue) {
     if (aPrefName == "autojoin") {
       this.autojoin = aValue;
     } else if (aPrefName == "alias") {
       this.alias = aValue;
     } else if (aPrefName == "password") {
       this.password = aValue;
+    } else if (aPrefName == "imAccount") {
+      this._prefBranch.setStringPref(aPrefName, aValue);
     } else {
       this.imAccount.setString(aPrefName, aValue);
     }
   },
-  getUnicharValue(aPrefName) {
+  getStringValue(aPrefName) {
     if (aPrefName == "autojoin") {
       return this.autojoin;
     }
@@ -156,6 +158,9 @@ IMIncomingServer.prototype = {
     }
     if (aPrefName == "password") {
       return this.password;
+    }
+    if (aPrefName == "imAccount") {
+      return this._prefBranch.getStringPref(aPrefName, "");
     }
 
     try {
@@ -225,18 +230,6 @@ IMIncomingServer.prototype = {
       }
     }
     return this._defaultOptionValues[aPrefName];
-  },
-
-  // the "Char" type will be used only for "imAccount" and internally.
-  setCharValue(aPrefName, aValue) {
-    this._prefBranch.setCharPref(aPrefName, aValue);
-  },
-  getCharValue(aPrefName) {
-    try {
-      return this._prefBranch.getCharPref(aPrefName);
-    } catch (x) {
-      return "";
-    }
   },
 
   get type() {

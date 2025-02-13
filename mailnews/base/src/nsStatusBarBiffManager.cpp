@@ -199,13 +199,6 @@ nsStatusBarBiffManager::OnFolderBoolPropertyChanged(nsIMsgFolder* folder,
 }
 
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnFolderUnicharPropertyChanged(
-    nsIMsgFolder* folder, const nsACString& property, const nsAString& oldValue,
-    const nsAString& newValue) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsStatusBarBiffManager::OnFolderPropertyFlagChanged(nsIMsgDBHdr* msg,
                                                     const nsACString& property,
                                                     uint32_t oldFlag,

@@ -30,7 +30,7 @@ use fxhash::FxHashMap;
 use mail_parser::MessageParser;
 use moz_http::StatusCode;
 use nserror::nsresult;
-use nsstring::{nsCString, nsString};
+use nsstring::nsCString;
 use thin_vec::ThinVec;
 use thiserror::Error;
 use url::Url;
@@ -640,14 +640,7 @@ impl XpComEwsClient {
                         let id = nsCString::from(id);
                         let parent_struct = parent_folder_id.ok_or(nserror::NS_ERROR_FAILURE)?;
                         let parent_folder_id = nsCString::from(parent_struct.id);
-
-                        let display_name = {
-                            let mut string = nsString::new();
-                            string.assign_str(&display_name);
-
-                            string
-                        };
-
+                        let display_name = nsCString::from(display_name);
                         let flags = nsMsgFolderFlags::Mail | well_known_folder_flag;
 
                         unsafe {

@@ -218,9 +218,9 @@ class nsImapMailFolder : public nsMsgDBFolder,
 
   NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
 
-  NS_IMETHOD CreateSubfolder(const nsAString& folderName,
+  NS_IMETHOD CreateSubfolder(const nsACString& folderName,
                              nsIMsgWindow* msgWindow) override;
-  NS_IMETHOD AddSubfolder(const nsAString& aName,
+  NS_IMETHOD AddSubfolder(const nsACString& aName,
                           nsIMsgFolder** aChild) override;
   NS_IMETHODIMP CreateStorageIfMissing(nsIUrlListener* urlListener) override;
 
@@ -234,12 +234,13 @@ class nsImapMailFolder : public nsMsgDBFolder,
       nsIOutputStream* outputStream) override;
   NS_IMETHOD CopyDataDone() override;
   NS_IMETHOD DeleteStorage() override;
-  NS_IMETHOD Rename(const nsAString& newName, nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD Rename(const nsACString& newName,
+                    nsIMsgWindow* msgWindow) override;
   NS_IMETHOD RenameSubFolders(nsIMsgWindow* msgWindow,
                               nsIMsgFolder* oldFolder) override;
   NS_IMETHOD GetNoSelect(bool* aResult) override;
 
-  NS_IMETHOD GetPrettyName(nsAString& prettyName)
+  NS_IMETHOD GetPrettyName(nsACString& prettyName)
       override;  // Override of the base, for top-level mail folder
 
   NS_IMETHOD GetFolderURL(nsACString& url) override;
@@ -343,7 +344,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
 
   NS_IMETHOD GetIncomingServerType(nsACString& serverType) override;
 
-  nsresult AddSubfolderWithPath(nsAString& name, nsIFile* folderPath,
+  nsresult AddSubfolderWithPath(const nsACString& name, nsIFile* folderPath,
                                 nsIMsgFolder** child, bool brandNew = false);
   nsresult MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
                                    nsIMsgDatabase* sourceDB,
@@ -469,7 +470,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
                               nsIMsgDBHdr* origHdr, nsIInputStream* inputStream,
                               nsIOutputStream* outputStream);
 
-  void GetTrashFolderName(nsAString& aFolderName);
+  void GetTrashFolderName(nsACString& aFolderName);
   bool ShowPreviewText();
 
   // Pseudo-Offline operation playback timer

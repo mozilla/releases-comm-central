@@ -330,12 +330,17 @@ NS_IMETHODIMP nsDBFolderInfo::ChangeExpungedBytes(int32_t delta) {
   return SetExpungedBytes(m_expungedBytes + delta);
 }
 
-NS_IMETHODIMP nsDBFolderInfo::SetMailboxName(const nsAString& newBoxName) {
-  return SetPropertyWithToken(m_mailboxNameColumnToken, newBoxName);
+NS_IMETHODIMP nsDBFolderInfo::SetMailboxName(const nsACString& newBoxName) {
+  return SetPropertyWithToken(m_mailboxNameColumnToken,
+                              NS_ConvertUTF8toUTF16(newBoxName));
 }
 
-NS_IMETHODIMP nsDBFolderInfo::GetMailboxName(nsAString& boxName) {
-  return GetPropertyWithToken(m_mailboxNameColumnToken, boxName);
+NS_IMETHODIMP nsDBFolderInfo::GetMailboxName(nsACString& boxName) {
+  nsAutoString name;
+  nsresult rv = GetPropertyWithToken(m_mailboxNameColumnToken, name);
+  NS_ENSURE_SUCCESS(rv, rv);
+  boxName.Assign(NS_ConvertUTF16toUTF8(name));
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsDBFolderInfo::ChangeNumUnreadMessages(int32_t delta) {

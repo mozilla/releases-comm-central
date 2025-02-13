@@ -223,7 +223,9 @@
           // xxx I stole this listener list from nsMsgFolderDatasource.cpp, but
           // someone should really document what events are fired when, so that
           // we make sure we're updating at the right times.
-          onFolderPropertyChanged() {},
+          onFolderPropertyChanged(item) {
+            this._setCssSelectorsForItem(item);
+          },
           onFolderIntPropertyChanged(item, property, old, aNew) {
             if (item instanceof Ci.nsIMsgFolder) {
               if (property == "FolderFlag") {
@@ -245,9 +247,6 @@
             this._setCssSelectorsForItem(item);
           },
           onFolderBoolPropertyChanged(item) {
-            this._setCssSelectorsForItem(item);
-          },
-          onFolderUnicharPropertyChanged(item) {
             this._setCssSelectorsForItem(item);
           },
           onFolderPropertyFlagChanged() {},

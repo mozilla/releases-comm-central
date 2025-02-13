@@ -28,7 +28,7 @@ add_setup(function () {
   const server = IMAPPump.incomingServer;
   const spamSettings = server.spamSettings;
   server.setBoolValue("useServerFilter", true);
-  server.setCharValue("serverFilterName", "SpamAssassin");
+  server.setStringValue("serverFilterName", "SpamAssassin");
   server.setIntValue(
     "serverFilterTrustFlags",
     Ci.nsISpamSettings.TRUST_POSITIVES
@@ -38,7 +38,7 @@ add_setup(function () {
     "moveTargetMode",
     Ci.nsISpamSettings.MOVE_TARGET_MODE_ACCOUNT
   );
-  server.setCharValue("spamActionTargetAccount", server.serverURI);
+  server.setStringValue("spamActionTargetAccount", server.serverURI);
 
   spamSettings.initialize(server);
 });

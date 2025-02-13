@@ -158,7 +158,6 @@ export class MailNotificationManager {
     }
   }
   onFolderBoolPropertyChanged() {}
-  onFolderUnicharPropertyChanged() {}
   onFolderPropertyFlagChanged() {}
   onFolderEvent() {}
 

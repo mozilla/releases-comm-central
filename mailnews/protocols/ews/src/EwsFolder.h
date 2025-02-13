@@ -23,7 +23,7 @@ class EwsFolder : public nsMsgDBFolder {
   virtual nsresult GetDatabase() override;
 
   NS_IMETHOD CreateStorageIfMissing(nsIUrlListener* urlListener) override;
-  NS_IMETHOD CreateSubfolder(const nsAString& folderName,
+  NS_IMETHOD CreateSubfolder(const nsACString& folderName,
                              nsIMsgWindow* msgWindow) override;
   NS_IMETHOD CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
                              bool isDraftOrTemplate, uint32_t newMsgFlags,

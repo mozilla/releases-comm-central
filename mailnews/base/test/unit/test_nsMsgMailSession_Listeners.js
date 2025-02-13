@@ -7,16 +7,28 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-var numListenerFunctions = 8;
-
 // The MailSession also implements nsIFolderListener - used to relay
 // notifications onward to all the registered listeners.
 var gMailSessionNotifier = MailServices.mailSession.QueryInterface(
   Ci.nsIFolderListener
 );
 
+var functionNames = [
+  "added",
+  "removed",
+  "propertyChanged",
+  "intPropertyChanged",
+  "boolPropertyChanged",
+  "propertyFlagChanged",
+  "event",
+];
+var allFlags = functionNames.reduce(
+  (acc, cur) => acc | Ci.nsIFolderListener[cur],
+  0
+);
+
 var gFLAll;
-var gFLSingle = new Array(numListenerFunctions);
+var gFLSingle = {};
 
 function fL() {}
 
@@ -66,12 +78,6 @@ fL.prototype = {
       MailServices.mailSession.RemoveFolderListener(this);
     }
   },
-  onFolderUnicharPropertyChanged() {
-    this.mReceived |= Ci.nsIFolderListener.unicharPropertyChanged;
-    if (this.mAutoRemoveItem) {
-      MailServices.mailSession.RemoveFolderListener(this);
-    }
-  },
   onFolderPropertyFlagChanged() {
     this.mReceived |= Ci.nsIFolderListener.propertyFlagChanged;
     if (this.mAutoRemoveItem) {
@@ -94,14 +100,11 @@ function NotifyMailSession() {
   gMailSessionNotifier.onFolderPropertyChanged(null, null, null, null);
   gMailSessionNotifier.onFolderIntPropertyChanged(null, null, null, null);
   gMailSessionNotifier.onFolderBoolPropertyChanged(null, null, null, null);
-  gMailSessionNotifier.onFolderUnicharPropertyChanged(null, null, null, null);
   gMailSessionNotifier.onFolderPropertyFlagChanged(null, null, null, null);
   gMailSessionNotifier.onFolderEvent(null, null);
 }
 
 function run_test() {
-  var i;
-
   Assert.ok(MailServices.mailSession != null);
 
   // Test - Add a listener
@@ -110,24 +113,30 @@ function run_test() {
 
   MailServices.mailSession.AddFolderListener(gFLAll, Ci.nsIFolderListener.all);
 
-  for (i = 0; i < numListenerFunctions; ++i) {
-    gFLSingle[i] = new fL();
-    MailServices.mailSession.AddFolderListener(gFLSingle[i], Math.pow(2, i));
+  for (const functionName of functionNames) {
+    gFLSingle[functionName] = new fL();
+    MailServices.mailSession.AddFolderListener(
+      gFLSingle[functionName],
+      Ci.nsIFolderListener[functionName]
+    );
   }
 
   // Test - Notify listener on all available items
 
   NotifyMailSession();
 
-  Assert.equal(gFLAll.mReceived, Math.pow(2, numListenerFunctions) - 1);
+  Assert.equal(gFLAll.mReceived, allFlags);
   gFLAll.mReceived = 0;
 
-  for (i = 0; i < numListenerFunctions; ++i) {
-    Assert.equal(gFLSingle[i].mReceived, Math.pow(2, i));
-    gFLSingle[i].mReceived = 0;
+  for (const functionName of functionNames) {
+    Assert.equal(
+      gFLSingle[functionName].mReceived,
+      Ci.nsIFolderListener[functionName]
+    );
+    gFLSingle[functionName].mReceived = 0;
 
     // And prepare for test 3.
-    gFLSingle[i].mAutoRemoveItem = true;
+    gFLSingle[functionName].mAutoRemoveItem = true;
   }
 
   // Test - Remove Single Listeners as we go through the functions
@@ -136,23 +145,26 @@ function run_test() {
 
   NotifyMailSession();
 
-  Assert.equal(gFLAll.mReceived, Math.pow(2, numListenerFunctions) - 1);
+  Assert.equal(gFLAll.mReceived, allFlags);
   gFLAll.mReceived = 0;
 
-  for (i = 0; i < numListenerFunctions; ++i) {
-    Assert.equal(gFLSingle[i].mReceived, Math.pow(2, i));
-    gFLSingle[i].mReceived = 0;
+  for (const functionName of functionNames) {
+    Assert.equal(
+      gFLSingle[functionName].mReceived,
+      Ci.nsIFolderListener[functionName]
+    );
+    gFLSingle[functionName].mReceived = 0;
   }
 
   // Test - Ensure the single listeners have been removed.
 
   NotifyMailSession();
 
-  Assert.equal(gFLAll.mReceived, Math.pow(2, numListenerFunctions) - 1);
+  Assert.equal(gFLAll.mReceived, allFlags);
   gFLAll.mReceived = 0;
 
-  for (i = 0; i < numListenerFunctions; ++i) {
-    Assert.equal(gFLSingle[i].mReceived, 0);
+  for (const functionName of functionNames) {
+    Assert.equal(gFLSingle[functionName].mReceived, 0);
   }
 
   // Test - Remove main listener

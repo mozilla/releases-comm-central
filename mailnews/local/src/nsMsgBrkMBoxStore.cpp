@@ -69,15 +69,16 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::DiscoverSubFolders(nsIMsgFolder* aParentFolder,
 }
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder* aParent,
-                                              const nsAString& aFolderName,
+                                              const nsACString& aFolderName,
                                               nsIMsgFolder** aResult) {
   NS_ENSURE_ARG_POINTER(aParent);
   NS_ENSURE_ARG_POINTER(aResult);
   if (aFolderName.IsEmpty()) return NS_MSG_ERROR_INVALID_FOLDER_NAME;
 
   // Make sure the new folder name is valid
-  nsAutoString safeFolderName(aFolderName);
-  NS_MsgHashIfNecessary(safeFolderName);
+  nsAutoString safeFolderName16 = NS_ConvertUTF8toUTF16(aFolderName);
+  NS_MsgHashIfNecessary(safeFolderName16);
+  nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
 
   // Register the subfolder in memory before creating any on-disk file or
   // directory for the folder. This way, we don't run the risk of getting in a
@@ -105,7 +106,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder* aParent,
     return rv;
   }
 
-  path->Append(safeFolderName);
+  path->Append(safeFolderName16);
   bool exists;
   path->Exists(&exists);
   // check this because localized names are different from disk names
@@ -318,15 +319,13 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteFolder(nsIMsgFolder* folder) {
 }
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::RenameFolder(nsIMsgFolder* aFolder,
-                                              const nsAString& aNewName,
+                                              const nsACString& aNewName,
                                               nsIMsgFolder** aNewFolder) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aNewFolder);
 
   uint32_t numChildren;
   aFolder->GetNumSubFolders(&numChildren);
-  nsString existingName;
-  aFolder->GetName(existingName);
 
   nsCOMPtr<nsIFile> oldPathFile;
   nsresult rv = aFolder->GetFilePath(getter_AddRefs(oldPathFile));
@@ -348,11 +347,9 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RenameFolder(nsIMsgFolder* aFolder,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  nsAutoString safeName(aNewName);
-  NS_MsgHashIfNecessary(safeName);
-
-  nsAutoCString oldLeafName;
-  oldPathFile->GetNativeLeafName(oldLeafName);
+  nsAutoString safeFolderName16 = NS_ConvertUTF8toUTF16(aNewName);
+  NS_MsgHashIfNecessary(safeFolderName16);
+  nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
 
   nsCOMPtr<nsIFile> parentPathFile;
   parentFolder->GetFilePath(getter_AddRefs(parentPathFile));
@@ -370,38 +367,41 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RenameFolder(nsIMsgFolder* aFolder,
 
   aFolder->ForceDBClosed();
   // save off dir name before appending .msf
-  rv = oldPathFile->MoveTo(nullptr, safeName);
+  rv = oldPathFile->MoveTo(nullptr, safeFolderName16);
   if (NS_FAILED(rv)) return rv;
 
-  nsString dbName(safeName);
+  nsString dbName(safeFolderName16);
   dbName.AppendLiteral(SUMMARY_SUFFIX);
   oldSummaryFile->MoveTo(nullptr, dbName);
 
   if (numChildren > 0) {
     // rename "*.sbd" directory
-    nsAutoString newNameDirStr(safeName);
+    nsAutoString newNameDirStr(safeFolderName16);
     newNameDirStr.AppendLiteral(FOLDER_SUFFIX);
     dirFile->MoveTo(nullptr, newNameDirStr);
   }
 
-  return parentFolder->AddSubfolder(safeName, aNewFolder);
+  return parentFolder->AddSubfolder(safeFolderName, aNewFolder);
 }
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
     nsIMsgFolder* aSrcFolder, nsIMsgFolder* aDstFolder, bool aIsMoveFolder,
     nsIMsgWindow* aMsgWindow, nsIMsgCopyServiceListener* aListener,
-    const nsAString& aNewName) {
+    const nsACString& aNewName) {
   NS_ENSURE_ARG_POINTER(aSrcFolder);
   NS_ENSURE_ARG_POINTER(aDstFolder);
 
-  nsAutoString folderName;
-  if (aNewName.IsEmpty())
+  nsAutoCString folderName;
+  if (aNewName.IsEmpty()) {
     aSrcFolder->GetName(folderName);
-  else
+  } else {
     folderName.Assign(aNewName);
+  }
 
-  nsAutoString safeFolderName(folderName);
-  NS_MsgHashIfNecessary(safeFolderName);
+  nsAutoString safeFolderName16 = NS_ConvertUTF8toUTF16(folderName);
+  NS_MsgHashIfNecessary(safeFolderName16);
+  nsAutoCString safeFolderName = NS_ConvertUTF16toUTF8(safeFolderName16);
+
   nsCOMPtr<nsIMsgLocalMailFolder> localSrcFolder(do_QueryInterface(aSrcFolder));
   nsCOMPtr<nsIMsgDatabase> srcDB;
   if (localSrcFolder)
@@ -434,7 +434,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
   oldPath->Clone(getter_AddRefs(origPath));
 
   // copying necessary for aborting.... if failure return
-  rv = oldPath->CopyTo(newPath, safeFolderName);
+  rv = oldPath->CopyTo(newPath, safeFolderName16);
   NS_ENSURE_SUCCESS(rv, rv);  // Will fail if a file by that name exists
 
   // Copy to dir can fail if filespec does not exist. If copy fails, we test
@@ -442,7 +442,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
   // without copying it. If it fails and filespec exist and is not zero sized
   // there is real problem
   // Copy the file to the new dir
-  nsAutoString dbName(safeFolderName);
+  nsAutoString dbName(safeFolderName16);
   dbName.AppendLiteral(SUMMARY_SUFFIX);
   rv = summaryFile->CopyTo(newPath, dbName);
   if (NS_FAILED(rv))  // Test if the copy is successful
@@ -1144,14 +1144,16 @@ nsresult nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder* parent,
     if (nsShouldIgnoreFile(leafName, currentFile)) continue;
 
     nsCOMPtr<nsIMsgFolder> child;
-    rv = parent->AddSubfolder(leafName, getter_AddRefs(child));
+    rv = parent->AddSubfolder(NS_ConvertUTF16toUTF8(leafName),
+                              getter_AddRefs(child));
     if (NS_FAILED(rv) && rv != NS_MSG_FOLDER_EXISTS) {
       return rv;
     }
     if (child) {
-      nsString folderName;
+      nsAutoCString folderName;
       child->GetName(folderName);  // try to get it from cache/db
-      if (folderName.IsEmpty()) child->SetPrettyName(leafName);
+      if (folderName.IsEmpty())
+        child->SetPrettyName(NS_ConvertUTF16toUTF8(leafName));
       if (deep) {
         nsCOMPtr<nsIFile> path;
         rv = child->GetFilePath(getter_AddRefs(path));

@@ -127,7 +127,7 @@ add_task(function testMigrateSpamActionsOnChangeUsernameHostname() {
     "pop3.localhost",
     "pop3"
   );
-  incomingServer1.setUnicharValue(
+  incomingServer1.setStringValue(
     "spamActionTargetFolder",
     incomingServer1.serverURI + "/Спам"
   );

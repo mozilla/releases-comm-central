@@ -131,11 +131,10 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(
     nsCOMPtr<nsIMsgIncomingServer> server;
     rv = rootFolder->GetServer(getter_AddRefs(server));
     NS_ENSURE_SUCCESS(rv, rv);
-    nsString serverName;
+    nsAutoCString serverName;
     server->GetPrettyName(serverName);
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-            ("Reading filter list for account '%s'",
-             NS_ConvertUTF16toUTF8(serverName).get()));
+            ("Reading filter list for account '%s'", serverName.get()));
   }
 
   nsString fileName;
@@ -515,18 +514,15 @@ nsresult nsMsgFilterAfterTheFact::AdvanceToNextFolder() {
     // m_curFolder may be null when the folder is deleted externally.
     CONTINUE_IF_FALSE(m_curFolder, "Next folder returned null");
 
-    nsString folderName;
+    nsAutoCString folderName;
     (void)m_curFolder->GetName(folderName);
-    MOZ_LOG(
-        FILTERLOGMODULE, LogLevel::Info,
-        ("(Post) Folder name: %s", NS_ConvertUTF16toUTF8(folderName).get()));
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+            ("(Post) Folder name: %s", folderName.get()));
 
     nsCOMPtr<nsIFile> folderPath;
     (void)m_curFolder->GetFilePath(getter_AddRefs(folderPath));
-    (void)folderPath->GetPath(folderName);
-    MOZ_LOG(
-        FILTERLOGMODULE, LogLevel::Debug,
-        ("(Post) Folder path: %s", NS_ConvertUTF16toUTF8(folderName).get()));
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
+            ("(Post) Folder path: %s", folderPath->HumanReadablePath().get()));
 
     rv = m_curFolder->GetMsgDatabase(getter_AddRefs(m_curFolderDB));
     if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE) {
@@ -1272,7 +1268,7 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(
   filterList->GetFilterCount(&filterCount);
   nsCString listId;
   filterList->GetListId(listId);
-  nsString folderName;
+  nsAutoCString folderName;
   aFolder->GetName(folderName);
   nsCString typeName;
   FilterTypeName(aFilterType, typeName);
@@ -1283,7 +1279,7 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(
           ("(Post) Running %" PRIu32 " filters from %s on %" PRIu32
            " message(s) in folder '%s'",
            filterCount, listId.get(), (uint32_t)aMsgHdrList.Length(),
-           NS_ConvertUTF16toUTF8(folderName).get()));
+           folderName.get()));
 
   // Create our nsMsgApplyFiltersToMessages object which will be called when
   // ApplyFiltersToHdr finds one or more filters that hit.

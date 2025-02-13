@@ -198,7 +198,7 @@ nsMsgIncomingServer::GetUID(nsACString& uid) {
   nsresult rv = mPrefBranch->PrefHasUserValue("uid", &hasValue);
   NS_ENSURE_SUCCESS(rv, rv);
   if (hasValue) {
-    return GetCharValue("uid", uid);
+    return GetStringValue("uid", uid);
   }
 
   nsCOMPtr<nsIUUIDGenerator> uuidgen =
@@ -224,7 +224,7 @@ nsMsgIncomingServer::SetUID(const nsACString& uid) {
   if (hasValue) {
     return NS_ERROR_ABORT;
   }
-  return SetCharValue("uid", uid);
+  return SetStringValue("uid", uid);
 }
 
 // this will return the root folder of this account,
@@ -380,7 +380,7 @@ nsMsgIncomingServer::GetServerURI(nsACString& aResult) {
 }
 
 // helper routine to create local folder on disk, if it doesn't exist.
-nsresult nsMsgIncomingServer::CreateLocalFolder(const nsAString& folderName) {
+nsresult nsMsgIncomingServer::CreateLocalFolder(const nsACString& folderName) {
   nsCOMPtr<nsIMsgFolder> rootFolder;
   nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -514,30 +514,17 @@ nsMsgIncomingServer::SetIntValue(const char* prefname, int32_t val) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetCharValue(const char* prefname, nsACString& val) {
+nsMsgIncomingServer::GetStringValue(const char* prefname, nsACString& val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
-  nsCString tmpVal;
-  if (NS_FAILED(mPrefBranch->GetCharPref(prefname, tmpVal)))
-    mDefPrefBranch->GetCharPref(prefname, tmpVal);
-  val = tmpVal;
+  if (NS_FAILED(mPrefBranch->GetStringPref(prefname, ""_ns, 0, val)))
+    mDefPrefBranch->GetStringPref(prefname, ""_ns, 0, val);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetUnicharValue(const char* prefname, nsAString& val) {
-  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
-
-  nsCString valueUtf8;
-  if (NS_FAILED(
-          mPrefBranch->GetStringPref(prefname, EmptyCString(), 0, valueUtf8)))
-    mDefPrefBranch->GetStringPref(prefname, EmptyCString(), 0, valueUtf8);
-  CopyUTF8toUTF16(valueUtf8, val);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgIncomingServer::SetCharValue(const char* prefname, const nsACString& val) {
+nsMsgIncomingServer::SetStringValue(const char* prefname,
+                                    const nsACString& val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   if (val.IsEmpty()) {
@@ -546,42 +533,20 @@ nsMsgIncomingServer::SetCharValue(const char* prefname, const nsACString& val) {
   }
 
   nsCString defaultVal;
-  nsresult rv = mDefPrefBranch->GetCharPref(prefname, defaultVal);
+  nsresult rv = mDefPrefBranch->GetStringPref(prefname, ""_ns, 0, defaultVal);
 
   if (NS_SUCCEEDED(rv) && defaultVal.Equals(val))
     mPrefBranch->ClearUserPref(prefname);
   else
-    rv = mPrefBranch->SetCharPref(prefname, val);
-
-  return rv;
-}
-
-NS_IMETHODIMP
-nsMsgIncomingServer::SetUnicharValue(const char* prefname,
-                                     const nsAString& val) {
-  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
-
-  if (val.IsEmpty()) {
-    mPrefBranch->ClearUserPref(prefname);
-    return NS_OK;
-  }
-
-  nsCString defaultVal;
-  nsresult rv =
-      mDefPrefBranch->GetStringPref(prefname, EmptyCString(), 0, defaultVal);
-
-  if (NS_SUCCEEDED(rv) && defaultVal.Equals(NS_ConvertUTF16toUTF8(val)))
-    mPrefBranch->ClearUserPref(prefname);
-  else
-    rv = mPrefBranch->SetStringPref(prefname, NS_ConvertUTF16toUTF8(val));
+    rv = mPrefBranch->SetStringPref(prefname, val);
 
   return rv;
 }
 
 // pretty name is the display name to show to the user
 NS_IMETHODIMP
-nsMsgIncomingServer::GetPrettyName(nsAString& retval) {
-  nsresult rv = GetUnicharValue("name", retval);
+nsMsgIncomingServer::GetPrettyName(nsACString& retval) {
+  nsresult rv = GetStringValue("name", retval);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // if there's no name, then just return the hostname
@@ -589,8 +554,8 @@ nsMsgIncomingServer::GetPrettyName(nsAString& retval) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetPrettyName(const nsAString& value) {
-  SetUnicharValue("name", value);
+nsMsgIncomingServer::SetPrettyName(const nsACString& value) {
+  SetStringValue("name", value);
   nsCOMPtr<nsIMsgFolder> rootFolder;
   GetRootFolder(getter_AddRefs(rootFolder));
   if (rootFolder) rootFolder->SetPrettyName(value);
@@ -600,12 +565,12 @@ nsMsgIncomingServer::SetPrettyName(const nsAString& value) {
 // construct the pretty name to show to the user if they haven't
 // specified one. This should be overridden for news and mail.
 NS_IMETHODIMP
-nsMsgIncomingServer::GetConstructedPrettyName(nsAString& retval) {
+nsMsgIncomingServer::GetConstructedPrettyName(nsACString& retval) {
   nsCString username;
   nsresult rv = GetUsername(username);
   NS_ENSURE_SUCCESS(rv, rv);
   if (!username.IsEmpty()) {
-    CopyASCIItoUTF16(username, retval);
+    retval.Assign(username);
     retval.AppendLiteral(" on ");
   }
 
@@ -613,7 +578,7 @@ nsMsgIncomingServer::GetConstructedPrettyName(nsAString& retval) {
   rv = GetHostName(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  retval.Append(NS_ConvertASCIItoUTF16(hostname));
+  retval.Append(hostname);
   return NS_OK;
 }
 
@@ -892,10 +857,10 @@ nsMsgIncomingServer::GetMsgStore(nsIMsgPluggableStore** aMsgStore) {
     // berkeley store, and then set the store pref off of some sort
     // of default when creating a server. But we need to make sure
     // that we do always write a store pref.
-    GetCharValue("storeContractID", storeContractID);
+    GetStringValue("storeContractID", storeContractID);
     if (storeContractID.IsEmpty()) {
       storeContractID.AssignLiteral("@mozilla.org/msgstore/berkeleystore;1");
-      SetCharValue("storeContractID", storeContractID);
+      SetStringValue("storeContractID", storeContractID);
     }
 
     // After someone starts using the pluggable store, we can no longer
@@ -983,7 +948,7 @@ nsMsgIncomingServer::RemoveFiles() {
   // IMPORTANT, see bug #77652
   // TODO: Decide what to do for deferred accounts.
   nsCString deferredToAccount;
-  GetCharValue("deferred_to_account", deferredToAccount);
+  GetStringValue("deferred_to_account", deferredToAccount);
   bool isDeferredTo = true;
   GetIsDeferredTo(&isDeferredTo);
   if (!deferredToAccount.IsEmpty() || isDeferredTo) {
@@ -1015,7 +980,7 @@ nsMsgIncomingServer::GetFilterList(nsIMsgWindow* aMsgWindow,
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCString filterType;
-    rv = GetCharValue("filter.type", filterType);
+    rv = GetStringValue("filter.type", filterType);
     NS_ENSURE_SUCCESS(rv, rv);
 
     if (!filterType.IsEmpty() && !filterType.EqualsLiteral("default")) {
@@ -1091,7 +1056,7 @@ nsMsgIncomingServer::GetEditableFilterList(nsIMsgWindow* aMsgWindow,
       return GetFilterList(aMsgWindow, aResult);
 
     nsCString filterType;
-    rv = GetCharValue("filter.editable.type", filterType);
+    rv = GetStringValue("filter.editable.type", filterType);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsAutoCString contractID("@mozilla.org/filterlist;1?type=");
@@ -1132,7 +1097,7 @@ nsresult nsMsgIncomingServer::InternalSetHostName(const nsACString& aHostname,
     int32_t port = portString.ToInteger(&err);
     if (NS_SUCCEEDED(err)) SetPort(port);
   }
-  return SetCharValue(prefName, hostname);
+  return SetStringValue(prefName, hostname);
 }
 
 NS_IMETHODIMP
@@ -1149,7 +1114,7 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
   }
 
   // 2. Replace all occurrences of old name in the acct name with the new one.
-  nsString acctName;
+  nsAutoCString acctName;
   rv = GetPrettyName(acctName);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1181,8 +1146,8 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
   if (!hostnameChanged && (atPos != kNotFound)) {
     // ...if username changed and the previous username was equal to the part
     // of the account name before @
-    if (StringHead(acctName, atPos).Equals(NS_ConvertASCIItoUTF16(userName)))
-      acctName.Replace(0, userName.Length(), NS_ConvertASCIItoUTF16(newName));
+    if (StringHead(acctName, atPos).Equals(userName))
+      acctName.Replace(0, userName.Length(), newName);
   }
   if (hostnameChanged) {
     // ...if hostname changed and the previous hostname was equal to the part
@@ -1191,9 +1156,8 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
       atPos = 0;
     else
       atPos += 1;
-    if (Substring(acctName, atPos).Equals(NS_ConvertASCIItoUTF16(hostName))) {
-      acctName.Replace(atPos, acctName.Length() - atPos,
-                       NS_ConvertASCIItoUTF16(newName));
+    if (Substring(acctName, atPos).Equals(hostName)) {
+      acctName.Replace(atPos, acctName.Length() - atPos, newName);
     }
   }
 
@@ -1215,11 +1179,11 @@ nsMsgIncomingServer::SetHostName(const nsACString& aHostname) {
 
 NS_IMETHODIMP
 nsMsgIncomingServer::GetHostName(nsACString& aResult) {
-  nsresult rv = GetCharValue("hostname", aResult);
+  nsresult rv = GetStringValue("hostname", aResult);
   if (aResult.CountChar(':') == 1) {
     // gack, we need to reformat the hostname - SetHostName will do that
     SetHostName(aResult);
-    rv = GetCharValue("hostname", aResult);
+    rv = GetStringValue("hostname", aResult);
   }
   return rv;
 }
@@ -1239,18 +1203,18 @@ nsMsgIncomingServer::SetUsername(const nsACString& aUsername) {
              .Equals(NS_ConvertASCIItoUTF16(oldName))) {
       ForgetPassword();
     }
-    rv = SetCharValue("userName", aUsername);
+    rv = SetStringValue("userName", aUsername);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = OnUserOrHostNameChanged(oldName, aUsername, false);
   } else {
-    rv = SetCharValue("userName", aUsername);
+    rv = SetStringValue("userName", aUsername);
   }
   return rv;
 }
 
 NS_IMETHODIMP
 nsMsgIncomingServer::GetUsername(nsACString& aResult) {
-  return GetCharValue("userName", aResult);
+  return GetStringValue("userName", aResult);
 }
 
 #define BIFF_PREF_NAME "check_new_mail"
@@ -1891,10 +1855,10 @@ nsMsgIncomingServer::GetSpamSettings(nsISpamSettings** aSpamSettings) {
   NS_ENSURE_ARG_POINTER(aSpamSettings);
 
   nsAutoCString spamActionTargetAccount;
-  GetCharValue("spamActionTargetAccount", spamActionTargetAccount);
+  GetStringValue("spamActionTargetAccount", spamActionTargetAccount);
   if (spamActionTargetAccount.IsEmpty()) {
     GetServerURI(spamActionTargetAccount);
-    SetCharValue("spamActionTargetAccount", spamActionTargetAccount);
+    SetStringValue("spamActionTargetAccount", spamActionTargetAccount);
   }
 
   if (!mSpamSettings) {
@@ -1969,7 +1933,7 @@ NS_IMETHODIMP nsMsgIncomingServer::GetIsDeferredTo(bool* aIsDeferredTo) {
       for (auto server : allServers) {
         if (server) {
           nsCString deferredToAccount;
-          server->GetCharValue("deferred_to_account", deferredToAccount);
+          server->GetStringValue("deferred_to_account", deferredToAccount);
           if (deferredToAccount.Equals(accountKey)) {
             *aIsDeferredTo = true;
             return NS_OK;

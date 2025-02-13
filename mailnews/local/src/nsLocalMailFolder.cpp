@@ -109,7 +109,7 @@ NS_IMPL_ISUPPORTS_INHERITED(nsMsgLocalMailFolder, nsMsgDBFolder,
 ////////////////////////////////////////////////////////////////////////////////
 
 NS_IMETHODIMP nsMsgLocalMailFolder::CreateLocalSubfolder(
-    const nsAString& aFolderName, nsIMsgFolder** aChild) {
+    const nsACString& aFolderName, nsIMsgFolder** aChild) {
   NS_ENSURE_ARG_POINTER(aChild);
   nsresult rv = CreateSubfolderInternal(aFolderName, nullptr, aChild);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -145,7 +145,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* window,
   // reports.
   nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
   nsCOMPtr<nsIStringBundle> bundle;
-  nsString folderName;
+  nsAutoCString folderName;
   GetName(folderName);
   if (window) {
     window->GetStatusFeedback(getter_AddRefs(statusFeedback));
@@ -184,8 +184,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* window,
     if (statusFeedback) {
       statusFeedback->StopMeteors();
       nsAutoString msg;
-      nsresult rv = bundle->FormatStringFromName("localStatusDocumentDone",
-                                                 {folderName}, msg);
+      nsresult rv = bundle->FormatStringFromName(
+          "localStatusDocumentDone", {NS_ConvertUTF8toUTF16(folderName)}, msg);
       if (NS_SUCCEEDED(rv)) {
         statusFeedback->ShowStatusString(msg);
       }
@@ -201,7 +201,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* window,
 
   if (statusFeedback) {
     nsAutoString msg;
-    rv = bundle->FormatStringFromName("buildingSummary", {folderName}, msg);
+    rv = bundle->FormatStringFromName("buildingSummary",
+                                      {NS_ConvertUTF8toUTF16(folderName)}, msg);
     if (NS_SUCCEEDED(rv)) {
       statusFeedback->ShowStatusString(msg);
       statusFeedback->StartMeteors();
@@ -522,7 +523,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CreateStorageIfMissing(
   }
 
   if (msgParent) {
-    nsString folderName;
+    nsAutoCString folderName;
     GetName(folderName);
     rv = msgParent->CreateSubfolder(folderName, nullptr);
     // by definition, this is OK.
@@ -533,7 +534,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CreateStorageIfMissing(
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::CreateSubfolder(const nsAString& folderName,
+nsMsgLocalMailFolder::CreateSubfolder(const nsACString& folderName,
                                       nsIMsgWindow* msgWindow) {
   nsCOMPtr<nsIMsgFolder> newFolder;
   nsresult rv =
@@ -548,7 +549,7 @@ nsMsgLocalMailFolder::CreateSubfolder(const nsAString& folderName,
 }
 
 nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
-    const nsAString& folderName, nsIMsgWindow* msgWindow,
+    const nsACString& folderName, nsIMsgWindow* msgWindow,
     nsIMsgFolder** aNewFolder) {
   nsresult rv = CheckIfFolderExists(folderName, this, msgWindow);
   if (NS_FAILED(rv)) {
@@ -644,7 +645,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIUrlListener* aListener) {
       trashFolder->GetDBTransferInfo(getter_AddRefs(transferInfo));
       trashFolder->SetParent(nullptr);
       parentFolder->PropagateDelete(trashFolder, true);
-      parentFolder->CreateSubfolder(u"Trash"_ns, nullptr);
+      parentFolder->CreateSubfolder("Trash"_ns, nullptr);
       nsCOMPtr<nsIMsgFolder> newTrashFolder;
       rv = GetTrashFolder(getter_AddRefs(newTrashFolder));
       if (NS_SUCCEEDED(rv) && newTrashFolder) {
@@ -756,10 +757,11 @@ nsresult nsMsgLocalMailFolder::ConfirmFolderDeletion(nsIMsgWindow* aMsgWindow,
           getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      nsAutoString folderName;
+      nsAutoCString folderName;
       rv = aFolder->GetName(folderName);
       NS_ENSURE_SUCCESS(rv, rv);
-      AutoTArray<nsString, 1> formatStrings = {folderName};
+      AutoTArray<nsString, 1> formatStrings = {
+          NS_ConvertUTF8toUTF16(folderName)};
 
       nsAutoString deleteFolderDialogTitle;
       rv = bundle->GetStringFromName("pop3DeleteFolderDialogTitle",
@@ -797,7 +799,7 @@ nsresult nsMsgLocalMailFolder::ConfirmFolderDeletion(nsIMsgWindow* aMsgWindow,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsAString& aNewName,
+NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsACString& aNewName,
                                            nsIMsgWindow* msgWindow) {
   // Renaming to the same name is easy
   if (mName.Equals(aNewName)) return NS_OK;
@@ -830,7 +832,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsAString& aNewName,
     // name has changed. This hack forces the pretty name to get set in the db.
     // We could set the new pretty name on the db before renaming the .msf file,
     // but if the rename failed, it would be out of sync.
-    newFolder->SetPrettyName(EmptyString());
+    newFolder->SetPrettyName(EmptyCString());
     newFolder->SetPrettyName(aNewName);
     bool changed = false;
     MatchOrChangeFilterDestination(newFolder, true /*case-insensitive*/,
@@ -875,7 +877,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (nsIMsgFolder* msgFolder : subFolders) {
-    nsString folderName;
+    nsAutoCString folderName;
     rv = msgFolder->GetName(folderName);
     nsCOMPtr<nsIMsgFolder> newFolder;
     AddSubfolder(folderName, getter_AddRefs(newFolder));
@@ -891,22 +893,21 @@ NS_IMETHODIMP nsMsgLocalMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::GetPrettyName(nsAString& prettyName) {
+NS_IMETHODIMP nsMsgLocalMailFolder::GetPrettyName(nsACString& prettyName) {
   return nsMsgDBFolder::GetPrettyName(prettyName);
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::SetPrettyName(const nsAString& aName) {
+NS_IMETHODIMP nsMsgLocalMailFolder::SetPrettyName(const nsACString& aName) {
   nsresult rv = nsMsgDBFolder::SetPrettyName(aName);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCString folderName;
   rv = GetStringProperty("folderName", folderName);
-  NS_ConvertUTF16toUTF8 utf8FolderName(mName);
-  return NS_FAILED(rv) || !folderName.Equals(utf8FolderName)
-             ? SetStringProperty("folderName", utf8FolderName)
+  return NS_FAILED(rv) || !folderName.Equals(mName)
+             ? SetStringProperty("folderName", mName)
              : rv;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::GetName(nsAString& aName) {
+NS_IMETHODIMP nsMsgLocalMailFolder::GetName(nsACString& aName) {
   ReadDBFolderInfo(false);
   return nsMsgDBFolder::GetName(aName);
 }
@@ -972,18 +973,14 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ReadFromFolderCacheElem(
   NS_ENSURE_ARG_POINTER(element);
   nsresult rv = nsMsgDBFolder::ReadFromFolderCacheElem(element);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCString utf8Name;
-  rv = element->GetCachedString("folderName", utf8Name);
-  NS_ENSURE_SUCCESS(rv, rv);
-  CopyUTF8toUTF16(utf8Name, mName);
-  return rv;
+  return element->GetCachedString("folderName", mName);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::WriteToFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
   NS_ENSURE_ARG_POINTER(element);
   nsMsgDBFolder::WriteToFolderCacheElem(element);
-  return element->SetCachedString("folderName", NS_ConvertUTF16toUTF8(mName));
+  return element->SetCachedString("folderName", mName);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::GetDeletable(bool* deletable) {
@@ -1559,7 +1556,7 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
     nsIMsgCopyServiceListener* listener, bool moveMsgs) {
   mInitialized = true;
 
-  nsString folderName;
+  nsAutoCString folderName;
   srcFolder->GetName(folderName);
 
   nsCOMPtr<nsIMsgFolder> newMsgFolder;
@@ -1681,8 +1678,8 @@ nsMsgLocalMailFolder::CopyFolderLocal(nsIMsgFolder* srcFolder,
     }
   }
 
-  nsAutoString newFolderName;
-  nsAutoString folderName;
+  nsAutoCString newFolderName;
+  nsAutoCString folderName;
   rv = srcFolder->GetName(folderName);
   if (NS_WARN_IF(NS_FAILED(rv))) {
     return rv;
@@ -2990,13 +2987,13 @@ nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg() {
       NS_ENSURE_SUCCESS(rv, rv);
     }
     if (mCopyState->m_statusFeedback && mCopyState->m_stringBundle) {
-      nsString folderName;
+      nsAutoCString folderName;
       GetName(folderName);
       nsString finalString;
       // Use imap strings for this. They have correct text and formatting.
       rv = mCopyState->m_stringBundle->FormatStringFromName(
           (mCopyState->m_isMove) ? "imapMovingMessages" : "imapCopyingMessages",
-          {folderName}, finalString);
+          {NS_ConvertUTF8toUTF16(folderName)}, finalString);
       mCopyState->m_statusFeedback->ShowStatusString(finalString);
     }
   }
@@ -3006,33 +3003,33 @@ nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg() {
 NS_IMETHODIMP
 nsMsgLocalMailFolder::SetFlagsOnDefaultMailboxes(uint32_t flags) {
   if (flags & nsMsgFolderFlags::Inbox)
-    setSubfolderFlag(u"Inbox"_ns, nsMsgFolderFlags::Inbox);
+    setSubfolderFlag("Inbox"_ns, nsMsgFolderFlags::Inbox);
 
   if (flags & nsMsgFolderFlags::SentMail)
-    setSubfolderFlag(u"Sent"_ns, nsMsgFolderFlags::SentMail);
+    setSubfolderFlag("Sent"_ns, nsMsgFolderFlags::SentMail);
 
   if (flags & nsMsgFolderFlags::Drafts)
-    setSubfolderFlag(u"Drafts"_ns, nsMsgFolderFlags::Drafts);
+    setSubfolderFlag("Drafts"_ns, nsMsgFolderFlags::Drafts);
 
   if (flags & nsMsgFolderFlags::Templates)
-    setSubfolderFlag(u"Templates"_ns, nsMsgFolderFlags::Templates);
+    setSubfolderFlag("Templates"_ns, nsMsgFolderFlags::Templates);
 
   if (flags & nsMsgFolderFlags::Trash)
-    setSubfolderFlag(u"Trash"_ns, nsMsgFolderFlags::Trash);
+    setSubfolderFlag("Trash"_ns, nsMsgFolderFlags::Trash);
 
   if (flags & nsMsgFolderFlags::Queue)
-    setSubfolderFlag(u"Unsent Messages"_ns, nsMsgFolderFlags::Queue);
+    setSubfolderFlag("Unsent Messages"_ns, nsMsgFolderFlags::Queue);
 
   if (flags & nsMsgFolderFlags::Junk)
-    setSubfolderFlag(u"Junk"_ns, nsMsgFolderFlags::Junk);
+    setSubfolderFlag("Junk"_ns, nsMsgFolderFlags::Junk);
 
   if (flags & nsMsgFolderFlags::Archive)
-    setSubfolderFlag(u"Archives"_ns, nsMsgFolderFlags::Archive);
+    setSubfolderFlag("Archives"_ns, nsMsgFolderFlags::Archive);
 
   return NS_OK;
 }
 
-nsresult nsMsgLocalMailFolder::setSubfolderFlag(const nsAString& aFolderName,
+nsresult nsMsgLocalMailFolder::setSubfolderFlag(const nsACString& aFolderName,
                                                 uint32_t flags) {
   // FindSubFolder() expects the folder name to be escaped
   // see bug #192043

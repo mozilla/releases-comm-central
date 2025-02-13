@@ -72,7 +72,7 @@ NS_IMETHODIMP nsRssIncomingServer::GetFeedItemsPath(nsIFile** aLocation) {
 
 NS_IMETHODIMP nsRssIncomingServer::CreateDefaultMailboxes() {
   // For Feeds, all we have is Trash.
-  return CreateLocalFolder(u"Trash"_ns);
+  return CreateLocalFolder("Trash"_ns);
 }
 
 NS_IMETHODIMP nsRssIncomingServer::SetFlagsOnDefaultMailboxes() {

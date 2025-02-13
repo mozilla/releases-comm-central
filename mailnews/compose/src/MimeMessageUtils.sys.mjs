@@ -239,7 +239,7 @@ export var MsgUtils = {
             folder &&
             folder.canFileMessages &&
             folder.server &&
-            folder.server.getCharValue("type") != "rss" &&
+            folder.server.getStringValue("type") != "rss" &&
             userIdentity.fccReplyFollowsParent
           ) {
             fcc = folder.URI;

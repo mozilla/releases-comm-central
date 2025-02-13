@@ -242,17 +242,17 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString spamActionTargetAccount;
-  rv =
-      aServer->GetCharValue("spamActionTargetAccount", spamActionTargetAccount);
+  rv = aServer->GetStringValue("spamActionTargetAccount",
+                               spamActionTargetAccount);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = SetActionTargetAccount(spamActionTargetAccount);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsString spamActionTargetFolder;
-  rv = aServer->GetUnicharValue("spamActionTargetFolder",
-                                spamActionTargetFolder);
+  nsCString spamActionTargetFolder;
+  rv =
+      aServer->GetStringValue("spamActionTargetFolder", spamActionTargetFolder);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = SetActionTargetFolder(NS_ConvertUTF16toUTF8(spamActionTargetFolder));
+  rv = SetActionTargetFolder(spamActionTargetFolder);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool useWhiteList;
@@ -262,7 +262,7 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString whiteListAbURI;
-  rv = aServer->GetCharValue("whiteListAbURI", whiteListAbURI);
+  rv = aServer->GetStringValue("whiteListAbURI", whiteListAbURI);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = SetWhiteListAbURI(whiteListAbURI);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -286,7 +286,7 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString serverFilterName;
-  rv = aServer->GetCharValue("serverFilterName", serverFilterName);
+  rv = aServer->GetStringValue("serverFilterName", serverFilterName);
   if (NS_SUCCEEDED(rv)) SetServerFilterName(serverFilterName);
   int32_t serverFilterTrustFlags = 0;
   rv = aServer->GetIntValue("serverFilterTrustFlags", &serverFilterTrustFlags);
@@ -366,7 +366,7 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
       loopAccount->GetIncomingServer(getter_AddRefs(loopServer));
       nsAutoCString deferredToAccountKey;
       if (loopServer)
-        loopServer->GetCharValue("deferred_to_account", deferredToAccountKey);
+        loopServer->GetStringValue("deferred_to_account", deferredToAccountKey);
 
       // Add the emails for any account that defers to this one, or for the
       // account itself.

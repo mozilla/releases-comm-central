@@ -55,7 +55,6 @@ add_setup(function () {
         }
       },
       onFolderBoolPropertyChanged() {},
-      onFolderUnicharPropertyChanged() {},
       onFolderPropertyFlagChanged() {},
       onFolderEvent() {},
     },

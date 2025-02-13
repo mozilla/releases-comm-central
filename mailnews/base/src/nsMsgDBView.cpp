@@ -431,10 +431,13 @@ nsresult nsMsgDBView::FetchAccount(nsIMsgDBHdr* aHdr, nsAString& aAccount) {
     if (folder) folder->GetServer(getter_AddRefs(server));
   }
 
-  if (server)
-    server->GetPrettyName(aAccount);
-  else
+  if (server) {
+    nsAutoCString name;
+    server->GetPrettyName(name);
+    aAccount.Assign(NS_ConvertUTF8toUTF16(name));
+  } else {
     CopyASCIItoUTF16(accountKey, aAccount);
+  }
 
   return NS_OK;
 }
@@ -1969,7 +1972,9 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         nsCOMPtr<nsIMsgFolder> folder;
         nsresult rv = GetFolderForViewIndex(aRow, getter_AddRefs(folder));
         NS_ENSURE_SUCCESS(rv, rv);
-        folder->GetPrettyPath(aValue);
+        nsAutoCString prettyPath;
+        folder->GetPrettyPath(prettyPath);
+        aValue.Assign(NS_ConvertUTF8toUTF16(prettyPath));
       }
       break;
     }
@@ -3981,11 +3986,12 @@ nsresult nsMsgDBView::GetLocationCollationKey(nsIMsgDBHdr* msgHdr,
   rv = folder->GetMsgDatabase(getter_AddRefs(dbToUse));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsString locationString;
+  nsCString locationString;
   rv = folder->GetPrettyName(locationString);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return dbToUse->CreateCollationKey(locationString, result);
+  return dbToUse->CreateCollationKey(NS_ConvertUTF8toUTF16(locationString),
+                                     result);
 }
 
 nsresult nsMsgDBView::SaveSortInfo(nsMsgViewSortTypeValue sortType,

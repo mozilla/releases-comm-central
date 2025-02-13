@@ -21,7 +21,6 @@ var folderListener = {
   onFolderPropertyChanged() {},
   onFolderIntPropertyChanged() {},
   onFolderBoolPropertyChanged() {},
-  onFolderUnicharPropertyChanged() {},
   onFolderPropertyFlagChanged() {},
   onFolderEvent() {},
 };

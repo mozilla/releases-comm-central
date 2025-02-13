@@ -29,13 +29,14 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
 
   NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
 
-  NS_IMETHOD CreateSubfolder(const nsAString& folderName,
+  NS_IMETHOD CreateSubfolder(const nsACString& folderName,
                              nsIMsgWindow* msgWindow) override;
 
   NS_IMETHOD DeleteStorage() override;
-  NS_IMETHOD Rename(const nsAString& newName, nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD Rename(const nsACString& newName,
+                    nsIMsgWindow* msgWindow) override;
 
-  NS_IMETHOD GetAbbreviatedName(nsAString& aAbbreviatedName) override;
+  NS_IMETHOD GetAbbreviatedName(nsACString& aAbbreviatedName) override;
 
   NS_IMETHOD GetFolderURL(nsACString& url) override;
 
@@ -89,7 +90,7 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
  protected:
   virtual ~nsMsgNewsFolder();
   // helper routine to parse the URI and update member variables
-  nsresult AbbreviatePrettyName(nsAString& prettyName, int32_t fullwords);
+  nsresult AbbreviatePrettyName(nsACString& prettyName, int32_t fullwords);
   nsresult ParseFolder(nsIFile* path);
   nsresult CreateSubFolders(nsIFile* path);
   nsresult AddDirectorySeparator(nsIFile* path);

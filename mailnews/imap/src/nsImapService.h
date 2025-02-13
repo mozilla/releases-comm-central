@@ -99,7 +99,7 @@ class nsImapService : public nsIImapService,
                          nsIURI** url);
 
   nsresult ChangeFolderSubscription(nsIMsgFolder* folder,
-                                    const nsAString& folderName,
+                                    const nsACString& folderName,
                                     const char* aCommand,
                                     nsIUrlListener* urlListener, nsIURI** url);
 

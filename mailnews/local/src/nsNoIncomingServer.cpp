@@ -60,9 +60,7 @@ nsNoIncomingServer::SetFlagsOnDefaultMailboxes() {
 
 // TODO: make this work with maildir message store, bug 890742.
 NS_IMETHODIMP nsNoIncomingServer::CopyDefaultMessages(
-    const char* folderNameOnDisk) {
-  NS_ENSURE_ARG(folderNameOnDisk);
-
+    const nsACString& folderNameOnDisk) {
   nsresult rv;
   nsCOMPtr<nsIMsgMailSession> mailSession =
       do_GetService("@mozilla.org/messenger/services/session;1", &rv);
@@ -79,7 +77,7 @@ NS_IMETHODIMP nsNoIncomingServer::CopyDefaultMessages(
   // check if bin/defaults/messenger/<folderNameOnDisk>
   // (or bin/defaults/messenger/<locale>/<folderNameOnDisk> if we had a locale
   // provide) exists. it doesn't have to exist.  if it doesn't, return
-  rv = defaultMessagesFile->AppendNative(nsDependentCString(folderNameOnDisk));
+  rv = defaultMessagesFile->Append(NS_ConvertUTF8toUTF16(folderNameOnDisk));
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool exists;
@@ -97,7 +95,7 @@ NS_IMETHODIMP nsNoIncomingServer::CopyDefaultMessages(
     rv = parentDir->Clone(getter_AddRefs(testDir));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = testDir->AppendNative(nsDependentCString(folderNameOnDisk));
+    rv = testDir->Append(NS_ConvertUTF8toUTF16(folderNameOnDisk));
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = testDir->Exists(&exists);
@@ -107,14 +105,15 @@ NS_IMETHODIMP nsNoIncomingServer::CopyDefaultMessages(
   // if it exists add to the end, else copy
   if (exists) {
 #ifdef DEBUG
-    printf("append default %s (unimplemented)\n", folderNameOnDisk);
+    printf("append default %s (unimplemented)\n",
+           nsAutoCString(folderNameOnDisk).get());
 #endif
     // todo for bug #1181 (the bug ID seems wrong...)
     // open folderFile, seek to end
     // read defaultMessagesFile, write to folderFile
   } else {
 #ifdef DEBUG
-    printf("copy default %s\n", folderNameOnDisk);
+    printf("copy default %s\n", nsAutoCString(folderNameOnDisk).get());
 #endif
     rv = defaultMessagesFile->CopyTo(parentDir, EmptyString());
     NS_ENSURE_SUCCESS(rv, rv);
@@ -131,18 +130,18 @@ NS_IMETHODIMP nsNoIncomingServer::CreateDefaultMailboxes() {
   // notice, no Inbox, unless we're deferred to...
   bool isDeferredTo;
   if (NS_SUCCEEDED(GetIsDeferredTo(&isDeferredTo)) && isDeferredTo) {
-    rv = CreateLocalFolder(u"Inbox"_ns);
+    rv = CreateLocalFolder("Inbox"_ns);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  rv = CreateLocalFolder(u"Trash"_ns);
+  rv = CreateLocalFolder("Trash"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // copy the default templates into the Templates folder
-  rv = CopyDefaultMessages("Templates");
+  rv = CopyDefaultMessages("Templates"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return CreateLocalFolder(u"Unsent Messages"_ns);
+  return CreateLocalFolder("Unsent Messages"_ns);
 }
 
 NS_IMETHODIMP

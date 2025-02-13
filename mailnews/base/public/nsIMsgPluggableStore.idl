@@ -64,7 +64,7 @@ interface nsIMsgPluggableStore : nsISupports {
    * @exception NS_MSG_FOLDER_EXISTS If the child exists.
    * @exception NS_MSG_CANT_CREATE_FOLDER for other errors.
    */
-  nsIMsgFolder createFolder(in nsIMsgFolder aParent, in AString aFolderName);
+  nsIMsgFolder createFolder(in nsIMsgFolder aParent, in AUTF8String aFolderName);
 
   /**
    * Delete storage for a folder and its subfolders, if any.
@@ -81,7 +81,7 @@ interface nsIMsgPluggableStore : nsISupports {
    * @param aNewName name to give new folder
    * @return the renamed folder object
    */
-  nsIMsgFolder renameFolder(in nsIMsgFolder aFolder, in AString aNewName);
+  nsIMsgFolder renameFolder(in nsIMsgFolder aFolder, in AUTF8String aNewName);
 
   /**
    * Tells if the store has the requested amount of space available in the
@@ -116,7 +116,7 @@ interface nsIMsgPluggableStore : nsISupports {
   void copyFolder(in nsIMsgFolder aSrcFolder, in nsIMsgFolder aDstFolder,
                   in boolean aIsMoveFolder, in nsIMsgWindow aMsgWindow,
                   in nsIMsgCopyServiceListener aListener,
-                  in AString aNewName);
+                  in AUTF8String aNewName);
 
   /**
    * Get an output stream for a message in a folder.

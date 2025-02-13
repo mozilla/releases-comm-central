@@ -108,13 +108,13 @@ async function createAccountInBackend(config) {
     inServer.setBoolValue("download_on_biff", config.incoming.downloadOnBiff);
   }
   if (config.incoming.owaURL) {
-    inServer.setUnicharValue("owa_url", config.incoming.owaURL);
+    inServer.setStringValue("owa_url", config.incoming.owaURL);
   }
   if (config.incoming.ewsURL) {
-    inServer.setUnicharValue("ews_url", config.incoming.ewsURL);
+    inServer.setStringValue("ews_url", config.incoming.ewsURL);
   }
   if (config.incoming.easURL) {
-    inServer.setUnicharValue("eas_url", config.incoming.easURL);
+    inServer.setStringValue("eas_url", config.incoming.easURL);
   }
   inServer.valid = true;
 

@@ -35,10 +35,10 @@ interface nsISubscribableServer : nsISupports {
 
   void subscribeCleanup();
 
-  void subscribe(in wstring name);
-  void unsubscribe(in wstring name);
+  void subscribe(in AUTF8String name);
+  void unsubscribe(in AUTF8String name);
 
-    void commitSubscribeChanges();
+  void commitSubscribeChanges();
 
     // other stuff
   void setIncomingServer(in nsIMsgIncomingServer server);

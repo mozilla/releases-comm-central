@@ -1045,11 +1045,11 @@ nsresult nsParseNewMailState::Init(nsIMsgFolder* serverFolder,
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = serverFolder->GetServer(getter_AddRefs(server));
   if (NS_SUCCEEDED(rv)) {
-    nsString serverName;
+    nsAutoCString serverName;
     server->GetPrettyName(serverName);
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
             ("(Local) Detected new local messages on account '%s'",
-             NS_ConvertUTF16toUTF8(serverName).get()));
+             serverName.get()));
     rv = server->GetFilterList(aMsgWindow, getter_AddRefs(m_filterList));
 
     if (m_filterList) rv = server->ConfigureTemporaryFilters(m_filterList);

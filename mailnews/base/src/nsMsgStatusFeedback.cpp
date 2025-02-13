@@ -225,7 +225,11 @@ NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest* request,
   if (url) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     url->GetServer(getter_AddRefs(server));
-    if (server) server->GetPrettyName(accountName);
+    if (server) {
+      nsAutoCString name;
+      server->GetPrettyName(name);
+      accountName.Assign(NS_ConvertUTF8toUTF16(name));
+    }
   }
 
   nsString msg;

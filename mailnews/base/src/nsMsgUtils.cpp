@@ -299,53 +299,6 @@ const static uint32_t MAX_LEN = 55;
 #  error need_to_define_your_max_filename_length
 #endif
 
-nsresult NS_MsgHashIfNecessary(nsAutoCString& name) {
-  if (name.IsEmpty()) return NS_OK;  // Nothing to do.
-  nsAutoCString str(name);
-
-  // Given a filename, make it safe for filesystem
-  // certain filenames require hashing because they
-  // are too long or contain illegal characters
-  int32_t illegalCharacterIndex = MsgFindCharInSet(
-      str, FILE_PATH_SEPARATOR FILE_ILLEGAL_CHARACTERS ILLEGAL_FOLDER_CHARS, 0);
-
-  // Need to check the first ('.') and last ('.', '~' and ' ') char
-  if (illegalCharacterIndex == -1) {
-    int32_t lastIndex = str.Length() - 1;
-    if (nsLiteralCString(ILLEGAL_FOLDER_CHARS_AS_FIRST_LETTER)
-            .FindChar(str[0]) != -1)
-      illegalCharacterIndex = 0;
-    else if (nsLiteralCString(ILLEGAL_FOLDER_CHARS_AS_LAST_LETTER)
-                 .FindChar(str[lastIndex]) != -1)
-      illegalCharacterIndex = lastIndex;
-    else
-      illegalCharacterIndex = -1;
-  }
-
-  char hashedname[MAX_LEN + 1];
-  if (illegalCharacterIndex == -1) {
-    // no illegal chars, it's just too long
-    // keep the initial part of the string, but hash to make it fit
-    if (str.Length() > MAX_LEN) {
-      PL_strncpy(hashedname, str.get(), MAX_LEN + 1);
-      PR_snprintf(hashedname + MAX_LEN - 8, 9, "%08lx",
-                  (unsigned long)StringHash(str.get()));
-      name = hashedname;
-    }
-  } else {
-    // found illegal chars, hash the whole thing
-    // if we do substitution, then hash, two strings
-    // could hash to the same value.
-    // for example, on mac:  "foo__bar", "foo:_bar", "foo::bar"
-    // would map to "foo_bar".  this way, all three will map to
-    // different values
-    PR_snprintf(hashedname, 9, "%08lx", (unsigned long)StringHash(str.get()));
-    name = hashedname;
-  }
-
-  return NS_OK;
-}
-
 // XXX : The number of UTF-16 2byte code units are half the number of
 // bytes in legacy encodings for CJK strings and non-Latin1 in UTF-8.
 // The ratio can be 1/3 for CJK strings in UTF-8. However, we can
@@ -459,8 +412,7 @@ nsresult FormatFileSize(int64_t size, bool useKB, nsAString& formattedSize) {
 }
 
 nsresult NS_MsgCreatePathStringFromFolderURI(const char* aFolderURI,
-                                             nsCString& aPathCString,
-                                             const nsCString& aScheme,
+                                             nsString& aPathString,
                                              bool aIsNewsFolder) {
   // A file name has to be in native charset. Here we convert
   // to UTF-16 and check for 'unsafe' characters before converting
@@ -476,11 +428,6 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char* aFolderURI,
                             ? oldPath.FindChar('/', startSlashPos + 1) - 1
                             : oldPath.Length() - 1;
   if (endSlashPos < 0) endSlashPos = oldPath.Length();
-#if defined(XP_UNIX) || defined(XP_MACOSX)
-  bool isLocalUri = aScheme.EqualsLiteral("none") ||
-                    aScheme.EqualsLiteral("pop3") ||
-                    aScheme.EqualsLiteral("rss");
-#endif
   // trick to make sure we only add the path to the first n-1 folders
   bool haveFirst = false;
   while (startSlashPos != -1) {
@@ -498,13 +445,7 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char* aFolderURI,
         CopyUTF16toMUTF7(pathPiece, tmp);
         CopyASCIItoUTF16(tmp, pathPiece);
       }
-#if defined(XP_UNIX) || defined(XP_MACOSX)
-      // Don't hash path pieces because local mail folder uri's have already
-      // been hashed. We're only doing this on the mac to limit potential
-      // regressions.
-      if (!isLocalUri)
-#endif
-        NS_MsgHashIfNecessary(pathPiece);
+      NS_MsgHashIfNecessary(pathPiece);
       path += pathPiece;
       haveFirst = true;
     }
@@ -518,7 +459,9 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char* aFolderURI,
 
     if (startSlashPos >= endSlashPos) break;
   }
-  return NS_CopyUnicodeToNative(path, aPathCString);
+
+  aPathString = path;
+  return NS_OK;
 }
 
 bool NS_MsgStripRE(const nsCString& subject, nsCString& modifiedSubject) {
@@ -645,9 +588,8 @@ char* NS_MsgSACat(char** destination, const char* source) {
   return *destination;
 }
 
-nsresult NS_MsgEscapeEncodeURLPath(const nsAString& aStr, nsCString& aResult) {
-  return MsgEscapeString(NS_ConvertUTF16toUTF8(aStr),
-                         nsINetUtil::ESCAPE_URL_PATH, aResult);
+nsresult NS_MsgEscapeEncodeURLPath(const nsACString& aStr, nsCString& aResult) {
+  return MsgEscapeString(aStr, nsINetUtil::ESCAPE_URL_PATH, aResult);
 }
 
 nsresult NS_MsgDecodeUnescapeURLPath(const nsACString& aPath,
@@ -894,12 +836,12 @@ nsresult GetOrCreateJunkFolder(const nsACString& aURI,
     if (!exists) {
       // Hack to work around a localization bug with the Junk Folder.
       // Please see Bug #270261 for more information...
-      nsString localizedJunkName;
+      nsCString localizedJunkName;
       msgFolder->GetName(localizedJunkName);
 
       // force the junk folder name to be Junk so it gets created on disk
       // correctly...
-      msgFolder->SetName(u"Junk"_ns);
+      msgFolder->SetName("Junk"_ns);
       msgFolder->SetFlag(nsMsgFolderFlags::Junk);
       rv = msgFolder->CreateStorageIfMissing(aListener);
       NS_ENSURE_SUCCESS(rv, rv);
@@ -1486,7 +1428,8 @@ nsresult MsgExamineForProxyAsync(nsIChannel* channel,
 nsresult MsgPromptLoginFailed(nsIMsgWindow* aMsgWindow,
                               const nsACString& aHostname,
                               const nsACString& aUsername,
-                              const nsAString& aAccountname, int32_t* aResult) {
+                              const nsACString& aAccountname,
+                              int32_t* aResult) {
   nsCOMPtr<mozIDOMWindowProxy> domWindow;
   if (aMsgWindow) {
     aMsgWindow->GetDomWindow(getter_AddRefs(domWindow));
@@ -1520,7 +1463,8 @@ nsresult MsgPromptLoginFailed(nsIMsgWindow* aMsgWindow,
     // Account name may be empty e.g. on a SMTP server.
     rv = bundle->GetStringFromName("mailServerLoginFailedTitle", title);
   } else {
-    AutoTArray<nsString, 1> formatStrings = {nsString(aAccountname)};
+    AutoTArray<nsString, 1> formatStrings = {
+        NS_ConvertUTF8toUTF16(aAccountname)};
     rv = bundle->FormatStringFromName("mailServerLoginFailedTitleWithAccount",
                                       formatStrings, title);
   }

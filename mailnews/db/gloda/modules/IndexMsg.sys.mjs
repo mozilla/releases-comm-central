@@ -2929,7 +2929,6 @@ export var GlodaMsgIndexer = {
       GlodaMsgIndexer.resetFolderIndexingPriority(aFolderItem);
     },
     onFolderBoolPropertyChanged() {},
-    onFolderUnicharPropertyChanged() {},
     /**
      * Notice when user activity adds/removes tags or changes a message's
      *  status.

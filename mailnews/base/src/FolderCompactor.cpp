@@ -885,7 +885,7 @@ static void GUIShowCompactingMsg(nsIMsgWindow* window, nsIMsgFolder* folder) {
   rv = folder->GetStringWithFolderNameFromBundle("compactingFolder",
                                                  compactingMsg);
   // Prepend account name.
-  nsAutoString accountName;
+  nsAutoCString accountName;
   {
     nsCOMPtr<nsIMsgIncomingServer> server;
     rv = folder->GetServer(getter_AddRefs(server));
@@ -895,7 +895,8 @@ static void GUIShowCompactingMsg(nsIMsgWindow* window, nsIMsgFolder* folder) {
   }
 
   nsAutoString statusMessage;
-  AutoTArray<nsString, 2> params = {accountName, compactingMsg};
+  AutoTArray<nsString, 2> params = {NS_ConvertUTF8toUTF16(accountName),
+                                    compactingMsg};
   rv = bundle->FormatStringFromName("statusMessage", params, statusMessage);
   NS_ENSURE_SUCCESS_VOID(rv);
 

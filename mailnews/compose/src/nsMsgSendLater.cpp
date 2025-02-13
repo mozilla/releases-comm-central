@@ -1396,14 +1396,6 @@ nsMsgSendLater::OnFolderBoolPropertyChanged(nsIMsgFolder* aFolder,
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnFolderUnicharPropertyChanged(nsIMsgFolder* aFolder,
-                                               const nsACString& aProperty,
-                                               const nsAString& aOldValue,
-                                               const nsAString& aNewValue) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgSendLater::OnFolderPropertyFlagChanged(nsIMsgDBHdr* aMsg,
                                             const nsACString& aProperty,
                                             uint32_t aOldValue,

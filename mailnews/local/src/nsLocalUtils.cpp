@@ -134,15 +134,15 @@ nsresult nsLocalURI2Path(const char* rootURI, const char* uriStr,
     while ((*curPos) == '/') curPos++;
     while (*curPos && (*curPos) != '/') curPos++;
 
-    nsAutoCString newPath("");
+    nsAutoString newPath;
 
     // Unescape folder name
     nsCString unescapedStr;
     MsgUnescapeString(nsDependentCString(curPos), 0, unescapedStr);
-    NS_MsgCreatePathStringFromFolderURI(unescapedStr.get(), newPath, "none"_ns);
+    NS_MsgCreatePathStringFromFolderURI(unescapedStr.get(), newPath);
 
     pathResult.Append('/');
-    pathResult.Append(newPath);
+    pathResult.Append(NS_ConvertUTF16toUTF8(newPath));
   }
 
   return NS_OK;

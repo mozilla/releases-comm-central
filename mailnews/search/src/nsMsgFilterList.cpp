@@ -282,7 +282,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
   RefPtr<nsMsgSearchScopeTerm> scope =
       new nsMsgSearchScopeTerm(nullptr, nsMsgSearchScope::offlineMail, folder);
 
-  nsString folderName;
+  nsAutoCString folderName;
   folder->GetName(folderName);
   nsMsgKey msgKey;
   msgHdr->GetMessageKey(&msgKey);
@@ -296,8 +296,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
           ("(Auto) Running %" PRIu32
            " filters from %s on message with key %" PRIu32 " in folder '%s'",
-           filterCount, m_listId.get(), msgKeyToInt(msgKey),
-           NS_ConvertUTF16toUTF8(folderName).get()));
+           filterCount, m_listId.get(), msgKeyToInt(msgKey), folderName.get()));
 
   for (uint32_t filterIndex = 0; filterIndex < filterCount; filterIndex++) {
     if (NS_SUCCEEDED(GetFilterAt(filterIndex, getter_AddRefs(filter)))) {

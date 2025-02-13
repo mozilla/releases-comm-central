@@ -107,7 +107,7 @@ export class NntpNewsGroup {
           "@mozilla.org/messenger/newsdownloaddialogargs;1"
         ].createInstance(Ci.nsINewsDownloadDialogArgs);
         args.articleCount = end - start + 1;
-        args.groupName = this._folder.unicodeName;
+        args.groupName = this._folder.name;
         args.serverKey = this._server.key;
         this._msgWindow.domWindow.openDialog(
           "chrome://messenger/content/downloadheaders.xhtml",

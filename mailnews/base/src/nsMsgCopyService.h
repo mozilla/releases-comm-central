@@ -62,7 +62,7 @@ class nsCopyRequest {
   bool m_processed;
   uint32_t m_newMsgFlags;
   nsCString m_newMsgKeywords;
-  nsString m_dstFolderName;                   // used for copy folder.
+  nsCString m_dstFolderName;                  // used for copy folder.
   nsTArray<nsCopySource*> m_copySourceArray;  // array of nsCopySource
 };
 

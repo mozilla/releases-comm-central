@@ -175,7 +175,7 @@ interface nsIImapService : nsISupports
                   in nsIMsgWindow msgWindow);
 
   void renameLeaf(in nsIMsgFolder aSrcFolder,
-                  in AString aLeafName,
+                  in AUTF8String aLeafName,
                   in nsIUrlListener aUrlListener,
                   in nsIMsgWindow msgWindow);
 
@@ -184,18 +184,18 @@ interface nsIImapService : nsISupports
                     in nsIMsgWindow aMsgWindow);
 
   nsIURI createFolder(in nsIMsgFolder aParentFolder,
-                      in AString aLeafName,
+                      in AUTF8String aLeafName,
                       in nsIUrlListener aUrlListener);
 
   void listFolder(in nsIMsgFolder aMailFolder,
                     in nsIUrlListener aUrlListener);
 
   nsIURI subscribeFolder(in nsIMsgFolder aMailFolder,
-                         in AString mailboxName,
+                         in AUTF8String mailboxName,
                          in nsIUrlListener aUrlListener);
 
   nsIURI unsubscribeFolder(in nsIMsgFolder aMailFolder,
-                           in AString mailboxName,
+                           in AUTF8String mailboxName,
                            in nsIUrlListener aUrlListener);
 
   // this method will first check if the folder exists but is
@@ -203,7 +203,7 @@ interface nsIImapService : nsISupports
   // otherwise, it will try to create the folder. It will try to do this
   // with one url.
   void ensureFolderExists(in nsIMsgFolder aParentFolder,
-                          in AString aLeafName,
+                          in AUTF8String aLeafName,
                           in nsIMsgWindow aMsgWindow,
                           in nsIUrlListener aUrlListener);
 

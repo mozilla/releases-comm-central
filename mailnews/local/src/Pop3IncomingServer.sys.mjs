@@ -156,7 +156,7 @@ export class Pop3IncomingServer extends MsgIncomingServer {
 
   /** @see nsIPop3IncomingServer */
   get deferredToAccount() {
-    let accountKey = this.getCharValue("deferred_to_account");
+    let accountKey = this.getStringValue("deferred_to_account");
     if (!accountKey) {
       return "";
     }
@@ -175,7 +175,7 @@ export class Pop3IncomingServer extends MsgIncomingServer {
         return "";
       }
       accountKey = localAccount.key;
-      this.setCharValue("deferred_to_account", accountKey);
+      this.setStringValue("deferred_to_account", accountKey);
     }
 
     return accountKey;
@@ -185,7 +185,7 @@ export class Pop3IncomingServer extends MsgIncomingServer {
     this._rootMsgFolder = null;
 
     const wasDeferred = Boolean(this.deferredToAccount);
-    this.setCharValue("deferred_to_account", accountKey);
+    this.setStringValue("deferred_to_account", accountKey);
 
     // If isDeferred state has changed, send notification.
     if (Boolean(accountKey) != wasDeferred) {

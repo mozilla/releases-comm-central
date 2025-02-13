@@ -31,7 +31,7 @@ class EwsIncomingServer : public nsMsgIncomingServer,
   // by a friend class such as `FolderSyncListener`.
   nsresult CreateFolderWithDetails(const nsACString& id,
                                    const nsACString& parentId,
-                                   const nsAString& name, uint32_t flags);
+                                   const nsACString& name, uint32_t flags);
 
   // nsIMsgIncomingServer
   NS_IMETHOD GetLocalStoreType(nsACString& aLocalStoreType) override;

@@ -42,7 +42,7 @@ add_setup(async function () {
     "user",
     "password"
   );
-  incomingServer.setUnicharValue(
+  incomingServer.setStringValue(
     "ews_url",
     `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
   );

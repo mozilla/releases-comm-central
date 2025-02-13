@@ -110,7 +110,7 @@ interface IEwsFolderCallbacks : nsISupports
 {
   void recordRootFolder(in AUTF8String id);
 
-  void create(in AUTF8String id, in AUTF8String parentId, in AString name, in unsigned long flags);
+  void create(in AUTF8String id, in AUTF8String parentId, in AUTF8String name, in unsigned long flags);
   void update(in AUTF8String id, in AUTF8String name);
   void delete(in AUTF8String id);
 

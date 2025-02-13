@@ -168,7 +168,10 @@ nsresult nsMsgSearchDBView::HashHdr(nsIMsgDBHdr* msgHdr, nsString& aHashKey) {
     aHashKey.Truncate();
     nsCOMPtr<nsIMsgFolder> folder;
     msgHdr->GetFolder(getter_AddRefs(folder));
-    return folder->GetPrettyName(aHashKey);
+    nsAutoCString prettyName;
+    folder->GetPrettyName(prettyName);
+    aHashKey.Assign(NS_ConvertUTF8toUTF16(prettyName));
+    return NS_OK;
   }
 
   return nsMsgGroupView::HashHdr(msgHdr, aHashKey);
@@ -179,7 +182,10 @@ nsresult nsMsgSearchDBView::FetchLocation(int32_t aRow,
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = GetFolderForViewIndex(aRow, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
-  return folder->GetPrettyPath(aLocationString);
+  nsAutoCString prettyPath;
+  folder->GetPrettyPath(prettyPath);
+  aLocationString.Assign(NS_ConvertUTF8toUTF16(prettyPath));
+  return NS_OK;
 }
 
 nsresult nsMsgSearchDBView::OnNewHeader(nsIMsgDBHdr* newHdr,

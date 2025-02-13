@@ -472,13 +472,14 @@ nsresult nsPop3Sink::WriteLineToMailbox(const nsACString& buffer) {
 
       if (NS_SUCCEEDED(rv2) && NS_SUCCEEDED(rv3)) {
         if (before_seek_pos != after_seek_pos) {
-          nsString folderName;
+          nsAutoCString folderName;
           if (m_folder) m_folder->GetPrettyName(folderName);
           // This merits a console message, it's poor man's telemetry.
           MsgLogToConsole4(
               u"Unexpected file position change detected"_ns +
                   (folderName.IsEmpty() ? EmptyString() : u" in folder "_ns) +
-                  (folderName.IsEmpty() ? EmptyString() : folderName) +
+                  (folderName.IsEmpty() ? EmptyString()
+                                        : NS_ConvertUTF8toUTF16(folderName)) +
                   u". "
                   "If you can reliably reproduce this, please report the "
                   "steps you used to dev-apps-thunderbird@lists.mozilla.org "
@@ -492,7 +493,7 @@ nsresult nsPop3Sink::WriteLineToMailbox(const nsACString& buffer) {
             fprintf(stderr,
                     "(seekdebug) WriteLineToMailbox() detected an unexpected "
                     "file position change in folder %s.\n",
-                    NS_ConvertUTF16toUTF8(folderName).get());
+                    folderName.get());
           } else {
             fprintf(stderr,
                     "(seekdebug) WriteLineToMailbox() detected an unexpected "

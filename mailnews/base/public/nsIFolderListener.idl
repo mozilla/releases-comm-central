@@ -51,11 +51,7 @@ interface nsIFolderListener : nsISupports {
                                    in boolean oldValue,
                                    in boolean newValue);
 
-  const folderListenerNotifyFlagValue unicharPropertyChanged = 0x20;
-  void onFolderUnicharPropertyChanged(in nsIMsgFolder folder,
-                                      in ACString property,
-                                      in AString oldValue,
-                                      in AString newValue);
+  // 0x20 was once unicharPropertyChanged, but is now unused.
 
   const folderListenerNotifyFlagValue propertyFlagChanged = 0x40;
   void onFolderPropertyFlagChanged(in nsIMsgDBHdr msg,

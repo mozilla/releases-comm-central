@@ -105,7 +105,7 @@ function doChecks(server) {
   // Set an empty white list.
   // To really empty this, I have to change the default value as well
   Services.prefs.setCharPref("mail.server.default.whiteListAbURI", "");
-  server.setCharValue("whiteListAbURI", "");
+  server.setStringValue("whiteListAbURI", "");
   spamSettings.initialize(server);
   Assert.ok(!spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
@@ -125,7 +125,7 @@ function doChecks(server) {
   Assert.ok(!spamSettings.checkWhiteList(hdrs[kDomainExample]));
 
   // add back the Personal Address Book
-  server.setCharValue("whiteListAbURI", kPABData.URI);
+  server.setStringValue("whiteListAbURI", kPABData.URI);
   spamSettings.initialize(server);
   Assert.ok(spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
@@ -152,7 +152,7 @@ function doChecks(server) {
   // settings. But because we are testing here one of those other settings,
   // let's just pretend that it works like the real POP3 stuff, and set
   // the correct setting for deferring.
-  gPOP3Pump.fakeServer.setCharValue("deferred_to_account", "account1");
+  gPOP3Pump.fakeServer.setStringValue("deferred_to_account", "account1");
 
   // suppress whitelisting for sender
   server.setBoolValue("inhibitWhiteListingIdentityUser", true);

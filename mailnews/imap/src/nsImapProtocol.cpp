@@ -907,12 +907,13 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
     imapServer->GetFetchByChunks(&m_fetchByChunks);
     imapServer->GetSendID(&m_sendID);
 
-    nsAutoString trashFolderPath;
+    nsAutoCString trashFolderPath;
     if (NS_SUCCEEDED(imapServer->GetTrashFolderName(trashFolderPath))) {
       if (m_allowUTF8Accept)
-        CopyUTF16toUTF8(trashFolderPath, m_trashFolderPath);
+        m_trashFolderPath = trashFolderPath;
       else
-        CopyUTF16toMUTF7(trashFolderPath, m_trashFolderPath);
+        CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(trashFolderPath),
+                         m_trashFolderPath);
     }
 
     nsCOMPtr<nsIPrefBranch> prefBranch(

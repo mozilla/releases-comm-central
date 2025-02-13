@@ -85,7 +85,7 @@ interface  nsIDBFolderInfo : nsISupports {
   void initFromTransferInfo(in nsIPropertyBag2 transferInfo);
 
   attribute AString locale;
-  attribute AString mailboxName;
+  attribute AUTF8String mailboxName;
 
 
   AString getProperty(in string propertyName);

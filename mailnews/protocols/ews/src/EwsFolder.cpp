@@ -34,7 +34,7 @@ class FolderCreateCallbacks : public IEwsFolderCreateCallbacks {
   NS_DECL_ISUPPORTS
   NS_DECL_IEWSFOLDERCREATECALLBACKS
 
-  FolderCreateCallbacks(EwsFolder* parentFolder, const nsAString& folderName)
+  FolderCreateCallbacks(EwsFolder* parentFolder, const nsACString& folderName)
       : mParentFolder(parentFolder), mFolderName(folderName) {}
 
  protected:
@@ -42,7 +42,7 @@ class FolderCreateCallbacks : public IEwsFolderCreateCallbacks {
 
  private:
   RefPtr<EwsFolder> mParentFolder;
-  const nsString mFolderName;
+  const nsCString mFolderName;
 };
 
 NS_IMPL_ISUPPORTS(FolderCreateCallbacks, IEwsFolderCreateCallbacks)
@@ -292,7 +292,7 @@ NS_IMETHODIMP EwsFolder::CreateStorageIfMissing(nsIUrlListener* urlListener) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP EwsFolder::CreateSubfolder(const nsAString& folderName,
+NS_IMETHODIMP EwsFolder::CreateSubfolder(const nsACString& folderName,
                                          nsIMsgWindow* msgWindow) {
   nsCString ewsId;
   nsresult rv = GetEwsId(ewsId);
@@ -305,10 +305,7 @@ NS_IMETHODIMP EwsFolder::CreateSubfolder(const nsAString& folderName,
   RefPtr<FolderCreateCallbacks> callbacks =
       new FolderCreateCallbacks(this, folderName);
 
-  nsCString convertedName;
-  CopyUTF16toUTF8(folderName, convertedName);
-
-  return client->CreateFolder(ewsId, convertedName, callbacks);
+  return client->CreateFolder(ewsId, folderName, callbacks);
 }
 
 NS_IMETHODIMP

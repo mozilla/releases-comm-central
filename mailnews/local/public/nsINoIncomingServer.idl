@@ -12,5 +12,5 @@ interface nsINoIncomingServer : nsISupports {
    * bin/defaults/messenger/<folderNameOnDisk> to <rootFolder>/<folderNameOnDisk>.
    * This is useful when first creating the standard folders (like Templates).
    */
-  void copyDefaultMessages(in string folderNameOnDisk);
+  void copyDefaultMessages(in AUTF8String folderNameOnDisk);
 };

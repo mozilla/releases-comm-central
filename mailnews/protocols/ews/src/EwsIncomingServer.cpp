@@ -42,7 +42,7 @@ NS_IMETHODIMP FolderSyncListener::RecordRootFolder(const nsACString& id) {
 
 NS_IMETHODIMP FolderSyncListener::Create(const nsACString& id,
                                          const nsACString& parentId,
-                                         const nsAString& name,
+                                         const nsACString& name,
                                          uint32_t flags) {
   return mServer->CreateFolderWithDetails(id, parentId, name, flags);
 }
@@ -66,7 +66,7 @@ NS_IMETHODIMP FolderSyncListener::Delete(const nsACString& id) {
 
 NS_IMETHODIMP FolderSyncListener::UpdateSyncState(
     const nsACString& syncStateToken) {
-  return mServer->SetCharValue(SYNC_STATE_PROPERTY, syncStateToken);
+  return mServer->SetStringValue(SYNC_STATE_PROPERTY, syncStateToken);
 }
 
 NS_IMETHODIMP FolderSyncListener::OnError(IEwsClient::Error err,
@@ -91,7 +91,7 @@ EwsIncomingServer::~EwsIncomingServer() {}
  */
 nsresult EwsIncomingServer::CreateFolderWithDetails(const nsACString& id,
                                                     const nsACString& parentId,
-                                                    const nsAString& name,
+                                                    const nsACString& name,
                                                     uint32_t flags) {
   RefPtr<nsIMsgFolder> parent;
   nsresult rv = FindFolderWithId(parentId, getter_AddRefs(parent));
@@ -227,7 +227,7 @@ NS_IMETHODIMP EwsIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
   // EWS provides us an opaque value which specifies the last version of
   // upstream folders we received. Provide that to simplify sync.
   nsCString syncStateToken;
-  rv = GetCharValue(SYNC_STATE_PROPERTY, syncStateToken);
+  rv = GetStringValue(SYNC_STATE_PROPERTY, syncStateToken);
   if (NS_FAILED(rv)) {
     syncStateToken = EmptyCString();
   }
@@ -296,7 +296,7 @@ NS_IMETHODIMP EwsIncomingServer::GetEwsClient(IEwsClient** ewsClient) {
   // EWS uses an HTTP(S) endpoint for calls rather than a simple hostname. This
   // is stored as a pref against this server.
   nsCString endpoint;
-  rv = GetCharValue("ews_url", endpoint);
+  rv = GetStringValue("ews_url", endpoint);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Set up the client object with access details.

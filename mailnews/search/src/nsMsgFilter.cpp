@@ -657,9 +657,7 @@ nsresult nsMsgFilter::ConvertMoveOrCopyToFolderValue(
 #endif
         destFolderUri.Append('/');
         if (filterVersion == k45Version) {
-          nsAutoString unicodeStr;
-          NS_CopyNativeToUnicode(moveValue, unicodeStr);
-          rv = NS_MsgEscapeEncodeURLPath(unicodeStr, moveValue);
+          rv = NS_MsgEscapeEncodeURLPath(moveValue, moveValue);
         }
         destFolderUri.Append(moveValue);
         localMailRoot->GetChildWithURI(destFolderUri, true,

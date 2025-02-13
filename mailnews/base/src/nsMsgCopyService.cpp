@@ -76,7 +76,7 @@ nsresult nsCopyRequest::Init(nsCopyRequestType type, nsISupports* aSupport,
     // able to find the right request when copy finishes.
     nsCOMPtr<nsIMsgFolder> srcFolder = do_QueryInterface(aSupport, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    nsString folderName;
+    nsCString folderName;
     rv = srcFolder->GetName(folderName);
     NS_ENSURE_SUCCESS(rv, rv);
     m_dstFolderName = folderName;

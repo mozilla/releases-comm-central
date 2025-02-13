@@ -13,8 +13,8 @@ function run_test() {
     // On Linux test file with '`' in the name.
     testFolderName = "bugmail`1";
   } else if (OSname == "Darwin") {
-    // On Mac test file with ':' in the name (generated from Mozilla 1.8 branch).
-    testFolderName = "bugmail:1";
+    // On Mac test file with '+' in the name.
+    testFolderName = "bugmail+1";
   } else {
     // Not sure what this OS is so just use a safe name.
     testFolderName = "bugmail1";

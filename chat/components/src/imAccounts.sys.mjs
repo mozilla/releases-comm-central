@@ -1015,7 +1015,7 @@ class AccountsService {
     this._accountsById = {};
     gAccountsService = this;
     const accountIdArray = MailServices.accounts.accounts
-      .map(account => account.incomingServer.getCharValue("imAccount"))
+      .map(account => account.incomingServer.getStringValue("imAccount"))
       .filter(accountKey => accountKey?.startsWith(kAccountKeyPrefix));
     for (const account of accountIdArray) {
       new imAccount(account);
@@ -1032,7 +1032,7 @@ class AccountsService {
     }
 
     const imAccounts = MailServices.accounts.accounts
-      .map(account => account.incomingServer.getCharValue("imAccount"))
+      .map(account => account.incomingServer.getStringValue("imAccount"))
       .filter(k => k?.startsWith(kAccountKeyPrefix))
       .map(k =>
         this.getAccountByNumericId(parseInt(k.substr(kAccountKeyPrefix.length)))

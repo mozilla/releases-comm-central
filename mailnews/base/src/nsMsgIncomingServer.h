@@ -64,7 +64,7 @@ class nsMsgIncomingServer : public nsIMsgIncomingServer,
 
   /// Helper routine to create local folder on disk if it doesn't exist
   /// under the account's rootFolder.
-  nsresult CreateLocalFolder(const nsAString& folderName);
+  nsresult CreateLocalFolder(const nsACString& folderName);
 
   static nsresult GetDeferredServers(
       nsIMsgIncomingServer* destServer,

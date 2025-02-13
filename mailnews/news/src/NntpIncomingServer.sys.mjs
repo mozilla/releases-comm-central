@@ -334,11 +334,11 @@ export class NntpIncomingServer extends MsgIncomingServer {
 
   /** @see nsINntpIncomingServer */
   get charset() {
-    return this.getCharValue("charset") || "UTF-8";
+    return this.getStringValue("charset") || "UTF-8";
   }
 
   set charset(value) {
-    this.setCharValue("charset", value);
+    this.setStringValue("charset", value);
   }
 
   get maximumConnectionsNumber() {

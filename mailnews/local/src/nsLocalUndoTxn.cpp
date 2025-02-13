@@ -322,12 +322,6 @@ NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnFolderBoolPropertyChanged(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnFolderUnicharPropertyChanged(
-    nsIMsgFolder* item, const nsACString& property, const nsAString& oldValue,
-    const nsAString& newValue) {
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnFolderPropertyFlagChanged(
     nsIMsgDBHdr* item, const nsACString& property, uint32_t oldFlag,
     uint32_t newFlag) {
@@ -384,12 +378,6 @@ NS_IMETHODIMP nsLocalUndoFolderListener::OnFolderIntPropertyChanged(
 NS_IMETHODIMP nsLocalUndoFolderListener::OnFolderBoolPropertyChanged(
     nsIMsgFolder* item, const nsACString& property, bool oldValue,
     bool newValue) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsLocalUndoFolderListener::OnFolderUnicharPropertyChanged(
-    nsIMsgFolder* item, const nsACString& property, const nsAString& oldValue,
-    const nsAString& newValue) {
   return NS_OK;
 }
 

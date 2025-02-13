@@ -49,8 +49,8 @@ class OutlookSettings {
   static nsresult SetSmtpServerKey(nsIMsgIdentity* aId,
                                    nsIMsgOutgoingServer* aServer);
   static nsresult GetAccountName(nsIWindowsRegKey* aKey,
-                                 const nsString& aDefaultName,
-                                 nsAString& aAccountName);
+                                 const nsCString& aDefaultName,
+                                 nsACString& aAccountName);
 };
 
 #define OUTLOOK2003_REGISTRY_KEY \
@@ -238,11 +238,16 @@ bool OutlookSettings::DoImport(nsIMsgAccount** aAccount) {
 }
 
 nsresult OutlookSettings::GetAccountName(nsIWindowsRegKey* aKey,
-                                         const nsString& aDefaultName,
-                                         nsAString& aAccountName) {
+                                         const nsCString& aDefaultName,
+                                         nsACString& aAccountName) {
   nsresult rv;
-  rv = aKey->ReadStringValue(u"Account Name"_ns, aAccountName);
-  if (NS_FAILED(rv)) aAccountName.Assign(aDefaultName);
+  nsAutoString accountName;
+  rv = aKey->ReadStringValue(u"Account Name"_ns, accountName);
+  if (NS_SUCCEEDED(rv)) {
+    aAccountName.Assign(NS_ConvertUTF16toUTF8(accountName));
+  } else {
+    aAccountName.Assign(aDefaultName);
+  }
 
   return NS_OK;
 }
@@ -277,8 +282,8 @@ bool OutlookSettings::DoIMAPServer(nsIMsgAccountManager* aMgr,
       IMPORT_LOG2("Created IMAP server named: %s, userName: %s\n",
                   nativeServerName.get(), nativeUserName.get());
 
-      nsAutoString prettyName;
-      if (NS_SUCCEEDED(GetAccountName(aKey, aServerName, prettyName)))
+      nsAutoCString prettyName;
+      if (NS_SUCCEEDED(GetAccountName(aKey, nativeServerName, prettyName)))
         rv = in->SetPrettyName(prettyName);
       // We have a server, create an account.
       nsCOMPtr<nsIMsgAccount> account;
@@ -361,8 +366,8 @@ bool OutlookSettings::DoPOP3Server(nsIMsgAccountManager* aMgr,
   IMPORT_LOG2("Created POP3 server named: %s, userName: %s\n",
               nativeServerName.get(), nativeUserName.get());
 
-  nsString prettyName;
-  rv = GetAccountName(aKey, aServerName, prettyName);
+  nsAutoCString prettyName;
+  rv = GetAccountName(aKey, nativeServerName, prettyName);
   if (NS_FAILED(rv)) return false;
 
   rv = in->SetPrettyName(prettyName);

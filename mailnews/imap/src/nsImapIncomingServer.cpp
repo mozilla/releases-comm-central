@@ -146,7 +146,7 @@ NS_IMETHODIMP nsImapIncomingServer::SetKey(
 // construct the pretty name to show to the user if they haven't
 // specified one. This should be overridden for news and mail.
 NS_IMETHODIMP
-nsImapIncomingServer::GetConstructedPrettyName(nsAString& retval) {
+nsImapIncomingServer::GetConstructedPrettyName(nsACString& retval) {
   nsAutoCString username;
   nsAutoCString hostName;
   nsresult rv;
@@ -178,8 +178,12 @@ nsImapIncomingServer::GetConstructedPrettyName(nsAString& retval) {
     }
   }
 
-  return GetFormattedStringFromName(emailAddress, "imapDefaultAccountName",
-                                    retval);
+  nsAutoString prettyName;
+  rv = GetFormattedStringFromName(emailAddress, "imapDefaultAccountName",
+                                  prettyName);
+  NS_ENSURE_SUCCESS(rv, rv);
+  retval.Assign(NS_ConvertUTF16toUTF8(prettyName));
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsImapIncomingServer::GetLocalStoreType(nsACString& type) {
@@ -194,7 +198,7 @@ NS_IMETHODIMP nsImapIncomingServer::GetLocalDatabaseType(nsACString& type) {
 
 NS_IMETHODIMP
 nsImapIncomingServer::GetServerDirectory(nsACString& serverDirectory) {
-  return GetCharValue("server_sub_directory", serverDirectory);
+  return GetStringValue("server_sub_directory", serverDirectory);
 }
 
 NS_IMETHODIMP
@@ -208,7 +212,7 @@ nsImapIncomingServer::SetServerDirectory(const nsACString& serverDirectory) {
       hostSession->SetOnlineDirForHost(
           serverKey.get(), PromiseFlatCString(serverDirectory).get());
   }
-  return SetCharValue("server_sub_directory", serverDirectory);
+  return SetStringValue("server_sub_directory", serverDirectory);
 }
 
 NS_IMETHODIMP
@@ -339,16 +343,17 @@ nsImapIncomingServer::SetDeleteModel(int32_t ivalue) {
 
     // Despite its name, this returns the trash folder path, for example
     // INBOX/Trash.
-    nsAutoString trashFolderName;
+    nsAutoCString trashFolderName;
     nsresult rv = GetTrashFolderName(trashFolderName);
     if (NS_SUCCEEDED(rv)) {
       nsAutoCString trashFolderNameUtf7or8;
       bool useUTF8 = false;
       GetUtf8AcceptEnabled(&useUTF8);
       if (useUTF8) {
-        CopyUTF16toUTF8(trashFolderName, trashFolderNameUtf7or8);
+        trashFolderNameUtf7or8 = trashFolderName;
       } else {
-        CopyUTF16toMUTF7(trashFolderName, trashFolderNameUtf7or8);
+        CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(trashFolderName),
+                         trashFolderNameUtf7or8);
       }
       nsCOMPtr<nsIMsgFolder> trashFolder;
       // 'trashFolderName' being a path here works well since this is appended
@@ -1076,7 +1081,7 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
         nsImapUrl::UnescapeSlashes(folderName);
       }
       if (NS_SUCCEEDED(CopyFolderNameToUTF16(folderName, unicodeName)))
-        child->SetPrettyName(unicodeName);
+        child->SetPrettyName(NS_ConvertUTF16toUTF8(unicodeName));
     }
   }
   if (!found && child)
@@ -1273,7 +1278,7 @@ NS_IMETHODIMP nsImapIncomingServer::FolderVerifiedOnline(
  */
 /*static*/
 nsresult nsImapIncomingServer::PathFromFolder(nsIMsgFolder* folder,
-                                              nsAString& shortPath) {
+                                              nsACString& shortPath) {
   nsresult rv;
   nsAutoCString folderURL;
   rv = folder->GetFolderURL(folderURL);
@@ -1283,11 +1288,9 @@ nsresult nsImapIncomingServer::PathFromFolder(nsIMsgFolder* folder,
   NS_ENSURE_SUCCESS(rv, rv);
   nsAutoCString fullfolderPath;
   uri->GetPathQueryRef(fullfolderPath);
-  nsAutoCString unescapedPath;
   MsgUnescapeString(Substring(fullfolderPath, 1),  // Skip leading slash.
-                    nsINetUtil::ESCAPE_URL_PATH, unescapedPath);
-  rv = CopyFolderNameToUTF16(unescapedPath, shortPath);
-  return rv;
+                    nsINetUtil::ESCAPE_URL_PATH, shortPath);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
@@ -1356,8 +1359,7 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
         spamSettings->SetMoveTargetMode(
             nsISpamSettings::MOVE_TARGET_MODE_FOLDER);
         // Set the preferences too so that the values persist.
-        SetUnicharValue("spamActionTargetFolder",
-                        NS_ConvertUTF8toUTF16(existingUri));
+        SetStringValue("spamActionTargetFolder", existingUri);
         SetIntValue("moveTargetMode", nsISpamSettings::MOVE_TARGET_MODE_FOLDER);
       }
     }
@@ -1442,13 +1444,13 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
       // See if there is a pref set for trash folder. Only check the "raw" value
       // since here we don't want to see the default "Trash" string returned by
       // GetTrashFolderName() when the pref is really empty.
-      nsAutoString prefPath;
-      rv = GetUnicharValue(PREF_TRASH_FOLDER_PATH, prefPath);
+      nsAutoCString prefPath;
+      rv = GetStringValue(PREF_TRASH_FOLDER_PATH, prefPath);
       if (!prefPath.IsEmpty()) {
         // Go through the trashFolders and un-flag as `trash` ones that don't
         // match prefPath.
         for (auto trashFolder : trashFolders) {
-          nsAutoString trashFolderPath;
+          nsAutoCString trashFolderPath;
           if (NS_SUCCEEDED(PathFromFolder(trashFolder, trashFolderPath))) {
             if (!prefPath.Equals(trashFolderPath)) {
               // We clear the trash folder flag if the trash folder path doesn't
@@ -1479,7 +1481,7 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
         }
 
         // No trash pref set, so get the default if needed.
-        nsAutoString defaultTrashName;
+        nsAutoCString defaultTrashName;
         if (!specialUseFolder) GetTrashFolderName(defaultTrashName);
         for (auto trashFolder : trashFolders) {
           if (specialUseFolder) {
@@ -1493,10 +1495,10 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
             } else {
               // Set pref to the path of the discovered special-use trash
               // folder.
-              nsAutoString specialUseFolderPath;
+              nsAutoCString specialUseFolderPath;
               rv = PathFromFolder(specialUseFolder, specialUseFolderPath);
               if (NS_SUCCEEDED(rv)) {
-                SetUnicharValue(PREF_TRASH_FOLDER_PATH, specialUseFolderPath);
+                SetStringValue(PREF_TRASH_FOLDER_PATH, specialUseFolderPath);
               }
             }
           } else {
@@ -1504,22 +1506,22 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
             // Clear the trash flag unless folder has the default name "Trash",
             // ignorng case. If folder matches default name, set that folder's
             // name as the pref.
-            nsAutoString trashFolderPath;
+            nsAutoCString trashFolderPath;
             rv = PathFromFolder(trashFolder, trashFolderPath);
             if (NS_SUCCEEDED(rv)) {
-              if (!defaultTrashName.Equals(trashFolderPath,
-                                           nsCaseInsensitiveStringComparator)) {
+              if (!defaultTrashName.Equals(
+                      trashFolderPath, nsCaseInsensitiveUTF8StringComparator)) {
                 trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
               } else {
                 // Set the pref to the server's trashFolderPath
-                SetUnicharValue(PREF_TRASH_FOLDER_PATH, trashFolderPath);
+                SetStringValue(PREF_TRASH_FOLDER_PATH, trashFolderPath);
               }
             }
           }
         }
       }
     } else {
-      SetUnicharValue(PREF_TRASH_FOLDER_PATH, u""_ns);
+      SetStringValue(PREF_TRASH_FOLDER_PATH, ""_ns);
     }
   }
   return rv;
@@ -1553,7 +1555,7 @@ bool nsImapIncomingServer::CheckSpecialFolder(nsCString& folderUri,
       folder->SetFlag(folderFlag);
     }
 
-    nsString folderName;
+    nsCString folderName;
     folder->GetPrettyName(folderName);
     // this will set the localized name based on the folder flag.
     folder->SetPrettyName(folderName);
@@ -1626,7 +1628,7 @@ nsImapIncomingServer::PromptLoginFailed(nsIMsgWindow* aMsgWindow,
   nsAutoCString userName;
   GetUsername(userName);
 
-  nsAutoString accountName;
+  nsAutoCString accountName;
   GetPrettyName(accountName);
 
   return MsgPromptLoginFailed(aMsgWindow, hostName, userName, accountName,
@@ -1639,12 +1641,13 @@ nsImapIncomingServer::FEAlert(const nsAString& aAlertString,
   GetStringBundle();
 
   if (m_stringBundle) {
-    nsAutoString hostName;
+    nsAutoCString hostName;
     nsresult rv = GetPrettyName(hostName);
     if (NS_SUCCEEDED(rv)) {
       nsString message;
       nsString tempString(aAlertString);
-      AutoTArray<nsString, 2> params = {hostName, tempString};
+      AutoTArray<nsString, 2> params = {NS_ConvertUTF8toUTF16(hostName),
+                                        tempString};
 
       rv = m_stringBundle->FormatStringFromName("imapServerAlert", params,
                                                 message);
@@ -1721,10 +1724,10 @@ NS_IMETHODIMP nsImapIncomingServer::FEAlertFromServer(
   // Adjust the message.
   if (pos != -1) message = Substring(message, pos + 1);
 
-  nsString hostName;
+  nsAutoCString hostName;
   GetPrettyName(hostName);
 
-  AutoTArray<nsString, 3> formatStrings = {hostName};
+  AutoTArray<nsString, 3> formatStrings = {NS_ConvertUTF8toUTF16(hostName)};
 
   const char* msgName;
   nsString fullMessage;
@@ -1736,7 +1739,7 @@ NS_IMETHODIMP nsImapIncomingServer::FEAlertFromServer(
 
   imapUrl->GetRequiredImapState(&imapState);
   imapUrl->GetImapAction(&imapAction);
-  nsString folderName;
+  nsCString folderName;
 
   NS_ConvertUTF8toUTF16 unicodeMsg(message);
 
@@ -1749,7 +1752,7 @@ NS_IMETHODIMP nsImapIncomingServer::FEAlertFromServer(
     aUrl->GetFolder(getter_AddRefs(folder));
     if (folder) folder->GetPrettyName(folderName);
     msgName = "imapFolderCommandFailed";
-    formatStrings.AppendElement(folderName);
+    formatStrings.AppendElement(NS_ConvertUTF8toUTF16(folderName));
   } else {
     msgName = "imapServerCommandFailed";
   }
@@ -2270,20 +2273,17 @@ nsImapIncomingServer::GetSubscribeListener(nsISubscribeListener** aListener) {
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::Subscribe(const char16_t* aName) {
-  NS_ENSURE_ARG_POINTER(aName);
-  return SubscribeToFolder(nsDependentString(aName), true, nullptr);
+nsImapIncomingServer::Subscribe(const nsACString& aName) {
+  return SubscribeToFolder(aName, true, nullptr);
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::Unsubscribe(const char16_t* aName) {
-  NS_ENSURE_ARG_POINTER(aName);
-
-  return SubscribeToFolder(nsDependentString(aName), false, nullptr);
+nsImapIncomingServer::Unsubscribe(const nsACString& aName) {
+  return SubscribeToFolder(aName, false, nullptr);
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::SubscribeToFolder(const nsAString& aName, bool subscribe,
+nsImapIncomingServer::SubscribeToFolder(const nsACString& aName, bool subscribe,
                                         nsIURI** aUri) {
   nsresult rv;
   nsCOMPtr<nsIImapService> imapService =
@@ -2298,10 +2298,9 @@ nsImapIncomingServer::SubscribeToFolder(const nsAString& aName, bool subscribe,
   // folder pathnames, otherwise root's (ie, '^') is used and this is wrong.
 
   // aName is not a genuine UTF-16 but just a zero-padded MUTF-7.
-  NS_ConvertUTF16toUTF8 folderCName(aName);
   nsCOMPtr<nsIMsgFolder> msgFolder;
   if (rootMsgFolder && !aName.IsEmpty())
-    rv = rootMsgFolder->FindSubFolder(folderCName, getter_AddRefs(msgFolder));
+    rv = rootMsgFolder->FindSubFolder(aName, getter_AddRefs(msgFolder));
 
   nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
 
@@ -2769,23 +2768,22 @@ nsImapIncomingServer::GetUriWithNamespacePrefixIfNecessary(
   return rv;
 }
 
-NS_IMETHODIMP nsImapIncomingServer::GetTrashFolderName(nsAString& retval) {
+NS_IMETHODIMP nsImapIncomingServer::GetTrashFolderName(nsACString& retval) {
   // Despite its name, this returns a path, for example INBOX/Trash.
-  nsresult rv = GetUnicharValue(PREF_TRASH_FOLDER_PATH, retval);
+  nsresult rv = GetStringValue(PREF_TRASH_FOLDER_PATH, retval);
   if (NS_FAILED(rv)) return rv;
-  if (retval.IsEmpty())
-    retval = NS_LITERAL_STRING_FROM_CSTRING(DEFAULT_TRASH_FOLDER_PATH);
+  if (retval.IsEmpty()) retval = nsCString(DEFAULT_TRASH_FOLDER_PATH);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImapIncomingServer::SetTrashFolderName(
-    const nsAString& chvalue) {
+    const nsACString& chvalue) {
   // Clear trash flag from the old pref.
   // Despite its name, this returns the trash folder path, for example
   // INBOX/Trash.
   bool useUTF8 = false;
   GetUtf8AcceptEnabled(&useUTF8);
-  nsAutoString oldTrashName;
+  nsAutoCString oldTrashName;
   nsresult rv = GetTrashFolderName(oldTrashName);
   if (NS_SUCCEEDED(rv)) {
     nsAutoCString oldTrashNameUtf7or8;
@@ -2793,9 +2791,10 @@ NS_IMETHODIMP nsImapIncomingServer::SetTrashFolderName(
     // 'trashFolderName' being a path here works well since this is appended
     // to the server's root folder in GetFolder().
     if (useUTF8) {
-      CopyUTF16toUTF8(oldTrashName, oldTrashNameUtf7or8);
+      oldTrashNameUtf7or8 = oldTrashName;
     } else {
-      CopyUTF16toMUTF7(oldTrashName, oldTrashNameUtf7or8);
+      CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(oldTrashName),
+                       oldTrashNameUtf7or8);
     }
     rv = GetFolder(oldTrashNameUtf7or8, getter_AddRefs(oldFolder));
     if (NS_SUCCEEDED(rv) && oldFolder)
@@ -2810,9 +2809,9 @@ NS_IMETHODIMP nsImapIncomingServer::SetTrashFolderName(
   if (NS_SUCCEEDED(rv) && (deleteModel == nsMsgImapDeleteModels::MoveToTrash)) {
     nsAutoCString newTrashNameUtf7or8;
     if (useUTF8) {
-      CopyUTF16toUTF8(PromiseFlatString(chvalue), newTrashNameUtf7or8);
+      newTrashNameUtf7or8 = chvalue;
     } else {
-      CopyUTF16toMUTF7(PromiseFlatString(chvalue), newTrashNameUtf7or8);
+      CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(chvalue), newTrashNameUtf7or8);
     }
     nsCOMPtr<nsIMsgFolder> newTrashFolder;
     rv = GetFolder(newTrashNameUtf7or8, getter_AddRefs(newTrashFolder));
@@ -2821,7 +2820,7 @@ NS_IMETHODIMP nsImapIncomingServer::SetTrashFolderName(
     }
   }
 
-  return SetUnicharValue(PREF_TRASH_FOLDER_PATH, chvalue);
+  return SetStringValue(PREF_TRASH_FOLDER_PATH, chvalue);
 }
 
 NS_IMETHODIMP

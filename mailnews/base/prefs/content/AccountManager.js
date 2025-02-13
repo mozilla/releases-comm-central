@@ -1005,11 +1005,8 @@ function saveAccount(accountValues, account) {
           case "int":
             methodName += "Int";
             break;
-          case "wstring":
-            methodName += "Unichar";
-            break;
           case "string":
-            methodName += "Char";
+            methodName += "String";
             break;
           case "bool":
             // in some cases
@@ -1381,11 +1378,8 @@ function getAccountValue(
           case "int":
             methodName += "Int";
             break;
-          case "wstring":
-            methodName += "Unichar";
-            break;
           case "string":
-            methodName += "Char";
+            methodName += "String";
             break;
           case "bool":
             methodName += "Bool";
