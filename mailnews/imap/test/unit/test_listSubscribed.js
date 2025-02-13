@@ -76,10 +76,6 @@ add_task(async function testListSubscribed() {
 });
 
 add_task(async function testZimbraServerVersions() {
-  if (Services.prefs.getBoolPref("mailnews.imap.jsmodule", false)) {
-    return;
-  }
-
   // older versions of Zimbra can crash if we send LIST (SUBSCRIBED) so we want
   // to make sure that we are checking for versions
 

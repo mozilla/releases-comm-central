@@ -15,47 +15,33 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-var gJS;
 var gFolder1;
 var gSub1;
 var gSub2;
 var gSub3;
 
 add_setup(async function () {
-  // See if testing JS or cpp imap code
-  gJS = Services.prefs.getBoolPref("mailnews.imap.jsmodule", false);
-
   setupIMAPPump();
   IMAPPump.incomingServer.usingSubscription = false;
 
-  if (gJS) {
-    // Note: test currently fails if sub3 is "subscribed: true".
+  // For cpp, vary which folder is subscribed during the test run for mbox or
+  // maildir. Shouldn't really matter if subscribed or not but make sure.
+  // eslint-disable-next-line no-lonely-if  -- not an "else if" fan.
+  if (IMAPPump.inbox.msgStore.storeType == "mbox") {
+    IMAPPump.daemon.createMailbox("folder1", { subscribed: false });
+    IMAPPump.daemon.createMailbox("folder1/sub1", { subscribed: true });
+    IMAPPump.daemon.createMailbox("folder1/sub1/sub2", { subscribed: false });
+    IMAPPump.daemon.createMailbox("folder1/sub1/sub2/sub3", {
+      subscribed: true,
+    });
+  } else {
+    // cpp/maildir
     IMAPPump.daemon.createMailbox("folder1", { subscribed: true });
     IMAPPump.daemon.createMailbox("folder1/sub1", { subscribed: false });
-    IMAPPump.daemon.createMailbox("folder1/sub1/sub2", { subscribed: false });
+    IMAPPump.daemon.createMailbox("folder1/sub1/sub2", { subscribed: true });
     IMAPPump.daemon.createMailbox("folder1/sub1/sub2/sub3", {
       subscribed: false,
     });
-  } else {
-    // For cpp, vary which folder is subscribed during the test run for mbox or
-    // maildir. Shouldn't really matter if subscribed or not but make sure.
-    // eslint-disable-next-line no-lonely-if  -- not an "else if" fan.
-    if (IMAPPump.inbox.msgStore.storeType == "mbox") {
-      IMAPPump.daemon.createMailbox("folder1", { subscribed: false });
-      IMAPPump.daemon.createMailbox("folder1/sub1", { subscribed: true });
-      IMAPPump.daemon.createMailbox("folder1/sub1/sub2", { subscribed: false });
-      IMAPPump.daemon.createMailbox("folder1/sub1/sub2/sub3", {
-        subscribed: true,
-      });
-    } else {
-      // cpp/maildir
-      IMAPPump.daemon.createMailbox("folder1", { subscribed: true });
-      IMAPPump.daemon.createMailbox("folder1/sub1", { subscribed: false });
-      IMAPPump.daemon.createMailbox("folder1/sub1/sub2", { subscribed: true });
-      IMAPPump.daemon.createMailbox("folder1/sub1/sub2/sub3", {
-        subscribed: false,
-      });
-    }
   }
 
   const rootFolder = IMAPPump.incomingServer.rootFolder.QueryInterface(
@@ -63,17 +49,10 @@ add_setup(async function () {
   );
   rootFolder.hierarchyDelimiter = "/";
   IMAPPump.inbox.hierarchyDelimiter = "/";
-  if (gJS) {
-    const folder1 = rootFolder.addSubfolder("folder1");
-    const sub1 = folder1.addSubfolder("sub1");
-    const sub2 = sub1.addSubfolder("sub2");
-    gSub3 = sub2.addSubfolder("sub3");
-  } else {
-    gFolder1 = rootFolder.addSubfolder("folder1");
-    gSub1 = gFolder1.addSubfolder("sub1");
-    gSub2 = gSub1.addSubfolder("sub2");
-    gSub3 = gSub2.addSubfolder("sub3");
-  }
+  gFolder1 = rootFolder.addSubfolder("folder1");
+  gSub1 = gFolder1.addSubfolder("sub1");
+  gSub2 = gSub1.addSubfolder("sub2");
+  gSub3 = gSub2.addSubfolder("sub3");
   IMAPPump.server.performTest("LIST");
   await PromiseTestUtils.promiseDelay(1000);
 });
@@ -88,16 +67,11 @@ add_task(function checkCachedDBForFolder() {
   const gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
     Ci.nsIMsgDBService
   );
-  if (gJS) {
-    // Note: Currently can only pass for jsmodule for folder sub3 not subscribed.
-    Assert.equal(gDbService.cachedDBForFolder(gSub3), null);
-  } else {
-    // Check that all folder DBs are closed.
-    Assert.equal(gDbService.cachedDBForFolder(gFolder1), null);
-    Assert.equal(gDbService.cachedDBForFolder(gSub1), null);
-    Assert.equal(gDbService.cachedDBForFolder(gSub2), null);
-    Assert.equal(gDbService.cachedDBForFolder(gSub3), null);
-  }
+  // Check that all folder DBs are closed.
+  Assert.equal(gDbService.cachedDBForFolder(gFolder1), null);
+  Assert.equal(gDbService.cachedDBForFolder(gSub1), null);
+  Assert.equal(gDbService.cachedDBForFolder(gSub2), null);
+  Assert.equal(gDbService.cachedDBForFolder(gSub3), null);
 });
 
 add_task(function teardown() {

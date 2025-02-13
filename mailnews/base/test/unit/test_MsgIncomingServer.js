@@ -2,11 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Services.prefs.setBoolPref("mailnews.imap.jsmodule", true);
-
 registerCleanupFunction(() => {
   Services.logins.removeAllLogins();
-  Services.prefs.clearUserPref("mailnews.imap.jsmodule");
 });
 
 /**
@@ -70,15 +67,15 @@ add_task(async function testMigratePasswordOnChangeUsernameHostname() {
  * Test identity folders are migrated when changing hostname/username.
  */
 add_task(function testMigrateIdentitiesOnChangeUsernameHostname() {
-  // Create an imap server.
-  const incomingServer1 = MailServices.accounts.createIncomingServer(
-    "user-imap",
-    "imap.localhost",
-    "imap"
-  );
   // Create a pop server.
+  const incomingServer1 = MailServices.accounts.createIncomingServer(
+    "mike",
+    "pop3.invalid",
+    "pop3"
+  );
+  // Create another pop server.
   const incomingServer2 = MailServices.accounts.createIncomingServer(
-    "user-pop",
+    "oscar",
     "pop3.localhost",
     "pop3"
   );
@@ -91,6 +88,7 @@ add_task(function testMigrateIdentitiesOnChangeUsernameHostname() {
   identity1.stationeryFolder = incomingServer1.serverURI + "/Templates";
   const account1 = MailServices.accounts.createAccount();
   account1.addIdentity(identity1);
+
   // Create another identity and point folders to both servers.
   const identity2 = MailServices.accounts.createIdentity();
   identity2.fccFolder = incomingServer1.serverURI + "/Sent";
@@ -99,38 +97,35 @@ add_task(function testMigrateIdentitiesOnChangeUsernameHostname() {
   account2.addIdentity(identity2);
 
   // Check folders were correctly set.
-  equal(identity1.fccFolder, "imap://user-imap@imap.localhost/Sent");
-  equal(identity1.draftFolder, "imap://user-imap@imap.localhost/Drafts");
-  equal(identity1.archiveFolder, "imap://user-imap@imap.localhost/Archives");
-  equal(
-    identity1.stationeryFolder,
-    "imap://user-imap@imap.localhost/Templates"
-  );
-  equal(identity2.fccFolder, "imap://user-imap@imap.localhost/Sent");
-  equal(identity2.draftFolder, "mailbox://user-pop@pop3.localhost/Drafts");
+  equal(identity1.fccFolder, "mailbox://mike@pop3.invalid/Sent");
+  equal(identity1.draftFolder, "mailbox://mike@pop3.invalid/Drafts");
+  equal(identity1.archiveFolder, "mailbox://mike@pop3.invalid/Archives");
+  equal(identity1.stationeryFolder, "mailbox://mike@pop3.invalid/Templates");
+  equal(identity2.fccFolder, "mailbox://mike@pop3.invalid/Sent");
+  equal(identity2.draftFolder, "mailbox://oscar@pop3.localhost/Drafts");
 
   // Change the hostname.
   incomingServer1.hostName = "localhost";
 
   // Check folders were correctly updated.
   identity1 = MailServices.accounts.getIdentity(identity1.key);
-  equal(identity1.fccFolder, "imap://user-imap@localhost/Sent");
-  equal(identity1.draftFolder, "imap://user-imap@localhost/Drafts");
-  equal(identity1.archiveFolder, "imap://user-imap@localhost/Archives");
-  equal(identity1.stationeryFolder, "imap://user-imap@localhost/Templates");
-  equal(identity2.fccFolder, "imap://user-imap@localhost/Sent");
-  equal(identity2.draftFolder, "mailbox://user-pop@pop3.localhost/Drafts");
+  equal(identity1.fccFolder, "mailbox://mike@localhost/Sent");
+  equal(identity1.draftFolder, "mailbox://mike@localhost/Drafts");
+  equal(identity1.archiveFolder, "mailbox://mike@localhost/Archives");
+  equal(identity1.stationeryFolder, "mailbox://mike@localhost/Templates");
+  equal(identity2.fccFolder, "mailbox://mike@localhost/Sent");
+  equal(identity2.draftFolder, "mailbox://oscar@pop3.localhost/Drafts");
 });
 
 /**
  * Test spam action prefs are migrated when changing hostname/username.
  */
 add_task(function testMigrateSpamActionsOnChangeUsernameHostname() {
-  // Create an imap server.
+  // Create an pop3 server.
   const incomingServer1 = MailServices.accounts.createIncomingServer(
-    "user-imap",
-    "imap.localhost",
-    "imap"
+    "mike",
+    "pop3.localhost",
+    "pop3"
   );
   incomingServer1.setUnicharValue(
     "spamActionTargetFolder",
@@ -139,11 +134,11 @@ add_task(function testMigrateSpamActionsOnChangeUsernameHostname() {
 
   equal(
     incomingServer1.spamSettings.actionTargetAccount,
-    "imap://user-imap@imap.localhost"
+    "mailbox://mike@pop3.localhost"
   );
   equal(
     incomingServer1.spamSettings.actionTargetFolder,
-    "imap://user-imap@imap.localhost/Спам"
+    "mailbox://mike@pop3.localhost/Спам"
   );
 
   // Change the username.
@@ -151,11 +146,11 @@ add_task(function testMigrateSpamActionsOnChangeUsernameHostname() {
 
   equal(
     incomingServer1.spamSettings.actionTargetAccount,
-    "imap://user@imap.localhost"
+    "mailbox://user@pop3.localhost"
   );
   equal(
     incomingServer1.spamSettings.actionTargetFolder,
-    "imap://user@imap.localhost/Спам"
+    "mailbox://user@pop3.localhost/Спам"
   );
 });
 

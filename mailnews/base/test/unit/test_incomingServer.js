@@ -78,13 +78,6 @@ function subtestUID(type) {
 }
 
 /**
- * Tests the UID attribute of IMAP servers.
- */
-add_task(function testUID_IMAP() {
-  subtestUID("imap");
-});
-
-/**
  * Tests the UID attribute of NNTP servers.
  */
 add_task(function testUID_NNTP() {

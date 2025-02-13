@@ -995,12 +995,6 @@ nsresult nsMsgAccountManager::LoadAccounts() {
   // ignore it.
   if (m_shutdownInProgress || m_haveShutdown) return NS_ERROR_FAILURE;
 
-  // Make sure correct modules are loaded before creating any server.
-  nsCOMPtr<nsIObserver> moduleLoader;
-  moduleLoader =
-      do_GetService("@mozilla.org/messenger/imap-module-loader;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIMsgMailSession> mailSession =
       do_GetService("@mozilla.org/messenger/services/session;1", &rv);
 

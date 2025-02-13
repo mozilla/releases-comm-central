@@ -344,10 +344,6 @@ pref("mailnews.nntp.loglevel", "Warn");
 
 pref("mailnews.pop3.loglevel", "Warn");
 
-// If true, ImapService.sys.mjs is used. Otherwise, nsImapService.cpp is used.
-pref("mailnews.imap.jsmodule", false);
-pref("mailnews.imap.loglevel", "Warn");
-
 pref("mail.operate_on_msgs_in_collapsed_threads", false);
 pref("mail.warn_on_collapsed_thread_operation", true);
 pref("mail.warn_on_shift_delete", true);

@@ -197,7 +197,3 @@ function setupSmtpServerDaemon(handler) {
   var server = new nsMailServer(handler, new SmtpDaemon());
   return server;
 }
-
-// profile-after-change is not triggered in xpcshell tests, manually run the
-// getService to load the correct imap modules.
-Cc["@mozilla.org/messenger/imap-module-loader;1"].getService();
