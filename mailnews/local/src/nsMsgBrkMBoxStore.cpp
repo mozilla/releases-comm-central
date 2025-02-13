@@ -473,7 +473,12 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
     nsCOMPtr<nsIMsgDBService> msgDBService =
         do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = msgDBService->OpenMailDBFromFile(newPath, newMsgFolder, false, true,
+
+    nsCOMPtr<nsIFile> newDBFile;
+    // "foo/bar/INBOX" -> "foo/bar/INBOX.msf"
+    rv = GetSummaryFileLocation(newPath, getter_AddRefs(newDBFile));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = msgDBService->OpenMailDBFromFile(newDBFile, newMsgFolder, false, true,
                                           getter_AddRefs(destDB));
     if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE && destDB)
       destDB->SetSummaryValid(true);

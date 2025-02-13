@@ -342,7 +342,7 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName,
 
 // Creates a new child nsIMsgFolder locally, with no IMAP traffic.
 nsresult nsImapMailFolder::AddSubfolderWithPath(nsAString& name,
-                                                nsIFile* dbPath,
+                                                nsIFile* folderPath,
                                                 nsIMsgFolder** child,
                                                 bool brandNew) {
   NS_ENSURE_ARG_POINTER(child);
@@ -369,7 +369,7 @@ nsresult nsImapMailFolder::AddSubfolderWithPath(nsAString& name,
   rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  folder->SetFilePath(dbPath);
+  folder->SetFilePath(folderPath);
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder, &rv);
   mozilla::Unused << imapFolder;
   NS_ENSURE_SUCCESS(rv, rv);
@@ -864,6 +864,8 @@ NS_IMETHODIMP nsImapMailFolder::CreateSubfolder(const nsAString& folderName,
 
 // Path coming in is the root path without the leaf name,
 // on the way out, it's the whole path.
+// e.g.
+// CreateFileForDB("blah", "foo/bar") => "foo/bar/blah.msf"
 nsresult nsImapMailFolder::CreateFileForDB(const nsAString& userLeafName,
                                            nsIFile* path, nsIFile** dbFile) {
   NS_ENSURE_ARG_POINTER(dbFile);
@@ -894,11 +896,29 @@ nsresult nsImapMailFolder::CreateFileForDB(const nsAString& userLeafName,
     NS_ENSURE_SUCCESS(rv, rv);
     dbPath->GetLeafName(proposedDBName);
   }
-  // now, take the ".msf" off
-  proposedDBName.SetLength(proposedDBName.Length() - SUMMARY_SUFFIX_LENGTH);
-  dbPath->SetLeafName(proposedDBName);
 
   dbPath.forget(dbFile);
+  return NS_OK;
+}
+
+// Remove the ".msf" suffix from a path (case-insensitive).
+// e.g. "foo/bar/folder.msf" => "foo/bar/folder"
+static nsresult StripSummarySuffix(nsIFile* dbPath, nsIFile** out) {
+  nsCOMPtr<nsIFile> f;
+  nsresult rv = dbPath->Clone(getter_AddRefs(f));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoString name;
+  rv = f->GetLeafName(name);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsLiteralString suffix(SUMMARY_SUFFIX);
+  if (StringEndsWith(name, suffix, nsCaseInsensitiveStringComparator)) {
+    name.SetLength(name.Length() - suffix.Length());
+    f->SetLeafName(name);
+  }
+
+  f.forget(out);
   return NS_OK;
 }
 
@@ -952,12 +972,17 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
   nsCOMPtr<nsIMsgDatabase> unusedDB;
   nsCOMPtr<nsIFile> dbFile;
 
-  // warning, path will be changed
+  // Get db filename e.g. "foo/bar/folder.msf"
   rv = CreateFileForDB(folderNameStr, path, getter_AddRefs(dbFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Now let's create the actual new folder
-  rv = AddSubfolderWithPath(folderNameStr, dbFile, getter_AddRefs(child), true);
+  nsCOMPtr<nsIFile> folderPath;
+  rv = StripSummarySuffix(dbFile, getter_AddRefs(folderPath));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = AddSubfolderWithPath(folderNameStr, folderPath, getter_AddRefs(child),
+                            true);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = msgDBService->OpenMailDBFromFile(dbFile, child, true, true,
                                         getter_AddRefs(unusedDB));
@@ -8059,8 +8084,12 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
   nsCOMPtr<nsIMsgDatabase> unusedDB;
   nsCOMPtr<nsIFile> dbFile;
 
-  // warning, path will be changed
+  // Get db filename e.g. "foo/bar/folder.msf"
   rv = CreateFileForDB(folderNameStr, pathFile, getter_AddRefs(dbFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIFile> folderPath;
+  rv = StripSummarySuffix(dbFile, getter_AddRefs(folderPath));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Use openMailDBFromFile() and not OpenFolderDB() here, since we don't use
@@ -8073,7 +8102,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
     rv = unusedDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
 
     // Now let's create the actual new folder
-    rv = AddSubfolderWithPath(folderNameStr, dbFile, getter_AddRefs(child));
+    rv = AddSubfolderWithPath(folderNameStr, folderPath, getter_AddRefs(child));
     if (!child || NS_FAILED(rv)) return rv;
     nsAutoString unicodeName;
     rv = CopyFolderNameToUTF16(NS_ConvertUTF16toUTF8(folderNameStr),

@@ -170,6 +170,7 @@ void Seconds2PRTime(uint32_t seconds, PRTime* prTime);
 
 // Appends the correct summary file extension onto the supplied fileLocation
 // and returns it in summaryLocation.
+// e.g. "foo/bar/folder" => "foo/bar/folder.msf"
 nsresult GetSummaryFileLocation(nsIFile* fileLocation,
                                 nsIFile** summaryLocation);
 

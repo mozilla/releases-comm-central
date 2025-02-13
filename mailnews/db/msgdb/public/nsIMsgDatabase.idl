@@ -133,13 +133,15 @@ interface nsIMsgDBService : nsISupports
   nsIMsgDatabase createNewDB(in nsIMsgFolder aFolder);
 
   /**
-   * Opens or creates a database for a given file.
+   * Opens or creates a database for a given .msf file.
    *
-   * This method should only be used if the caller does not have a folder
-   * instance, because the resulting db and message headers retrieved from the
+   * One should prefer openFolderDB() to this, as usually the db file location
+   * is provided by the folder. However there are cases (folder compaction!)
+   * where we want to open/create a db file in a non-default location.
+   *
+   * While you _can_ open a DB which has a null folder, you probably
+   * shouldn't. The resulting db and message headers retrieved from the
    * database would not know their owning folder, which limits their usefulness.
-   * For this reason, one should use nsIMsgDBService::openFolderDB instead
-   * except under special circumstances.
    *
    * Unlike nsIMsgDBService::openFolderDB, there is no corresponding method to
    * create a new database if opening the database failed. However, this method

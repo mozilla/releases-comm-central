@@ -343,7 +343,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
 
   NS_IMETHOD GetIncomingServerType(nsACString& serverType) override;
 
-  nsresult AddSubfolderWithPath(nsAString& name, nsIFile* dbPath,
+  nsresult AddSubfolderWithPath(nsAString& name, nsIFile* folderPath,
                                 nsIMsgFolder** child, bool brandNew = false);
   nsresult MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
                                    nsIMsgDatabase* sourceDB,

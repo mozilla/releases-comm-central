@@ -399,11 +399,15 @@ NS_IMETHODIMP nsMsgDBFolder::OpenBackupMsgDatabase() {
   NS_ENSURE_SUCCESS(rv, rv);
   rv = backupDBDummyFolder->Append(folderName);
   NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIFile> backupDBFile;
+  rv =
+      GetSummaryFileLocation(backupDBDummyFolder, getter_AddRefs(backupDBFile));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBService> msgDBService =
       do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = msgDBService->OpenMailDBFromFile(backupDBDummyFolder, this, false, true,
+  rv = msgDBService->OpenMailDBFromFile(backupDBFile, this, false, true,
                                         getter_AddRefs(mBackupDatabase));
   // we add a listener so that we can close the db during OnAnnouncerGoingAway.
   // There should not be any other calls to the listener with the backup

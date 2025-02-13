@@ -93,7 +93,7 @@ NS_IMETHODIMP nsMailDatabase::GetSummaryValid(bool* aResult) {
     // of the summary file. For now, this is an expected condition when the
     // message database is being opened from a URL in
     // nsMailboxUrl::GetMsgHdrForKey() which calls
-    // nsMsgDBService::OpenMailDBFromFile() without a folder.
+    // nsMsgDBService::CachedDBForFilePath() without a folder.
     // Returning an error here would lead to the deletion of the MSF in the
     // caller nsMsgDatabase::CheckForErrors().
     *aResult = true;

@@ -150,7 +150,7 @@ NS_IMETHODIMP nsMsgDBService::OpenFolderDB(nsIMsgFolder* aFolder,
 
   nsMsgDatabase* cacheDB = FindInCache(summaryFilePath);
   if (cacheDB) {
-    // this db could have ended up in the folder cache w/o an m_folder pointer
+    // This db could have ended up in the folder cache w/o an m_folder pointer
     // via OpenMailDBFromFile. If so, take this chance to fix the folder.
     if (!cacheDB->m_folder) {
       cacheDB->m_folder = aFolder;
@@ -263,24 +263,21 @@ nsMsgDatabase* nsMsgDBService::FindInCache(nsIFile* dbName) {
 // having a corresponding nsIMsgFolder object.  This happens in a few
 // situations, including imap folder discovery, compacting local folders,
 // and copying local folders.
-NS_IMETHODIMP nsMsgDBService::OpenMailDBFromFile(nsIFile* aFolderName,
+NS_IMETHODIMP nsMsgDBService::OpenMailDBFromFile(nsIFile* aDBPath,
                                                  nsIMsgFolder* aFolder,
                                                  bool aCreate,
                                                  bool aLeaveInvalidDB,
                                                  nsIMsgDatabase** pMessageDB) {
-  NS_ENSURE_ARG_POINTER(aFolderName);
+  nsresult rv;
+  MOZ_ASSERT(aDBPath);
 
-  nsCOMPtr<nsIFile> dbPath;
-  nsresult rv = GetSummaryFileLocation(aFolderName, getter_AddRefs(dbPath));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  *pMessageDB = FindInCache(dbPath);
+  *pMessageDB = FindInCache(aDBPath);
   if (*pMessageDB) {
     return NS_OK;
   }
 
   RefPtr<nsMailDatabase> msgDB = new nsMailDatabase;
-  rv = msgDB->Open(this, dbPath, aCreate, aLeaveInvalidDB);
+  rv = msgDB->Open(this, aDBPath, aCreate, aLeaveInvalidDB);
   if (rv == NS_ERROR_FILE_NOT_FOUND) {
     return rv;
   }
