@@ -819,19 +819,28 @@ export function getMessagesInFolder(folder) {
   }
 
   if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
-    // We first try to read the cached results.
-    try {
-      return [...folder.parent.msgDatabase.getCachedHits(folder.URI)];
-    } catch (e) {}
-
-    // Manually search the folder.
     const messages = [];
+    const searchFolders = [];
     const wrappedVirtualFolder =
       lazy.VirtualFolderHelper.wrapVirtualFolder(folder);
 
-    const searchFolders = getWildcardVirtualFolders(wrappedVirtualFolder);
-    for (const searchFolder of wrappedVirtualFolder.searchFolders) {
-      searchFolders.push(searchFolder);
+    // Check explicitly listed searchFolders and all folders selected by wildcard,
+    // if any.
+    for (const searchFolder of [
+      ...getWildcardVirtualFolders(wrappedVirtualFolder),
+      ...wrappedVirtualFolder.searchFolders,
+    ]) {
+      // Use cached hits or schedule the folder to be searched manually.
+      // Note: The cached hits are stored in the db of each search folder using
+      // the URI of the virtual folder as identifier.
+      try {
+        const cachedHits = searchFolder.msgDatabase.getCachedHits(folder.URI);
+        for (const msg of cachedHits) {
+          messages.push(msg);
+        }
+      } catch (e) {
+        searchFolders.push(searchFolder);
+      }
     }
 
     for (const searchFolder of searchFolders) {
@@ -842,6 +851,7 @@ export function getMessagesInFolder(folder) {
         messages.push(msg);
       }
     }
+
     return messages;
   }
 
