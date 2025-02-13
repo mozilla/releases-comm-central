@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Dialog</title>
+    <script src="chrome://messenger/content/calendar-dialog.mjs" type="module"></script>
+  </head>
+  <body>
+    <template id="calendarDialogTemplate">
+      <div class="titlebar">
+        <button class="close-button">
+          <img src="" data-l10n-id="calendar-dialog-close-image"/>
+        </button>
+      </div>
+      <div class="content"></div>
+      <div class="footer"></div>
+    </template>
+
+    <dialog is="calendar-dialog"></dialog>
+  </body>
+</html>
