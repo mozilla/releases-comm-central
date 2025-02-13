@@ -2,8 +2,12 @@
 <html>
   <head>
     <title>Remote Image Test</title>
+    <meta charset="utf-8" />
   </head>
   <body bgcolor="#FFFFFF">
-    <img id="testelement" src="pass.png"/>
+    <img id="testelement" src="pass.png" alt="[testelement pass]" />
+    <a id="javascript-link" href="javascript:void(0);">javascript: link</a>
+    <a id="http-link" href="http://mochi.test:8888/browser/comm/mail/test/browser/content-policy/html/pass.png">http: link</a>
+    <a id="data-link" href="data:text/html,<html><p>data uri here</p></html>">data: link</a>
   </body>
 </html>

@@ -179,39 +179,57 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
 
   switch (aContentType) {
       // Plugins (nsIContentPolicy::TYPE_OBJECT) are blocked on document load.
-    case ExtContentPolicy::TYPE_DOCUMENT:
+    case ExtContentPolicy::TYPE_DOCUMENT: {
       // At this point, we have no intention of supporting a different JS
       // setting on a subdocument, so we don't worry about TYPE_SUBDOCUMENT
       // here.
 
-      if (NS_IsMainThread()) {
-        rv = SetDisableItemsOnMailNewsUrlDocshells(aContentLocation, aLoadInfo);
-      } else {
-        auto SetDisabling = [&, location = nsCOMPtr(aContentLocation),
-                             loadInfo = nsCOMPtr(aLoadInfo)]() -> auto {
-          rv = SetDisableItemsOnMailNewsUrlDocshells(location, loadInfo);
-        };
-        nsCOMPtr<nsIRunnable> task =
-            NS_NewRunnableFunction("SetDisabling", SetDisabling);
-        mozilla::SyncRunnable::DispatchToThread(
-            mozilla::GetMainThreadSerialEventTarget(), task);
+      // Assert document mailnews urls are always loaded in the parent process.
+      nsCOMPtr<nsIMsgMessageUrl> msgURL(do_QueryInterface(aContentLocation));
+      if (msgURL) {
+        MOZ_RELEASE_ASSERT(
+            XRE_IsParentProcess(),
+            "nsIMsgMessageUrls needs to be loaded in the content process");
       }
-      // if something went wrong during the tweaking, reject this content
-      if (NS_FAILED(rv)) {
-        NS_WARNING("Failed to set disable items on docShells");
-        *aDecision = nsIContentPolicy::REJECT_TYPE;
-        return NS_OK;
+
+      if (!XRE_IsParentProcess()) {
+        // For content process documents, do nothing.
+        // Notably clicking javascript: links end up run in the content process
+        // which would crash the process since
+        // SetDisableItemsOnMailNewsUrlDocshells calls SetAllowJavascript that
+        // is only allowed in the parent process.
+      } else {
+        if (NS_IsMainThread()) {
+          rv = SetDisableItemsOnMailNewsUrlDocshells(aContentLocation,
+                                                     aLoadInfo);
+        } else {
+          auto SetDisabling = [&, location = nsCOMPtr(aContentLocation),
+                               loadInfo = nsCOMPtr(aLoadInfo)]() -> auto {
+            rv = SetDisableItemsOnMailNewsUrlDocshells(location, loadInfo);
+          };
+          nsCOMPtr<nsIRunnable> task =
+              NS_NewRunnableFunction("SetDisabling", SetDisabling);
+          mozilla::SyncRunnable::DispatchToThread(
+              mozilla::GetMainThreadSerialEventTarget(), task);
+        }
+        // if something went wrong during the tweaking, reject this content
+        if (NS_FAILED(rv)) {
+          NS_WARNING("Failed to set disable items on docShells");
+          *aDecision = nsIContentPolicy::REJECT_TYPE;
+          return NS_OK;
+        }
       }
       break;
-
-    case ExtContentPolicy::TYPE_CSP_REPORT:
+    }
+    case ExtContentPolicy::TYPE_CSP_REPORT: {
       // We cannot block CSP reports.
       *aDecision = nsIContentPolicy::ACCEPT;
       return NS_OK;
       break;
-
-    default:
+    }
+    default: {
       break;
+    }
   }
 
   // NOTE: Not using NS_ENSURE_ARG_POINTER because this is a legitimate case

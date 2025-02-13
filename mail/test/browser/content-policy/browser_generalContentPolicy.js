@@ -703,6 +703,18 @@ add_task(async function test_generalContentPolicy() {
   }
 });
 
+/** Test that a javascript: link in content works as it should. */
+add_task(async function test_javascriptLink() {
+  const tab = await open_content_tab_with_url(`${url}remoteimage.html`);
+
+  await SpecialPowers.spawn(tab.browser, [], async () => {
+    // Ensure the click doesn't cause the content process to crash.
+    content.document.getElementById("javascript-link").click();
+    await new Promise(resolve => content.setTimeout(resolve, 500));
+  });
+  document.getElementById("tabmail").closeTab(tab);
+});
+
 /** Test that an image requiring auth won't ask for credentials in compose. */
 add_task(async function test_imgAuth() {
   addToFolder(
