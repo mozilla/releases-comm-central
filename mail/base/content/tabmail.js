@@ -949,12 +949,28 @@ ChromeUtils.defineESModuleGetters(this, {
         }
 
         const moving = restoreState ? restoreState.moving : null;
-        // Dispatch tab opening event
-        const evt = new CustomEvent("TabOpen", {
-          bubbles: true,
-          detail: { tabInfo: tab, moving },
-        });
-        t.dispatchEvent(evt);
+        // Dispatch tab opening event.
+        t.dispatchEvent(
+          new CustomEvent("TabOpen", {
+            bubbles: true,
+            detail: {
+              tabInfo: tab,
+              moving,
+            },
+          })
+        );
+        // Dispatch tab select event if the new tab is active.
+        if (!background) {
+          t.dispatchEvent(
+            new CustomEvent("TabSelect", {
+              bubbles: true,
+              detail: {
+                tabInfo: tab,
+                previousTabInfo: oldTab,
+              },
+            })
+          );
+        }
         delete tab.beforeTabOpen;
 
         contentProgress.addProgressListenerToBrowser(browser);

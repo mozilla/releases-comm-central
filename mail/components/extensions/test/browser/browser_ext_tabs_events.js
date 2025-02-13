@@ -64,24 +64,16 @@ add_task(async () => {
           async checkEvent(expectedEvent, ...expectedArgs) {
             await this.nextEvent();
             const [actualEvent, ...actualArgs] = this.events.shift();
-            browser.test.assertEq(expectedEvent, actualEvent);
-            browser.test.assertEq(expectedArgs.length, actualArgs.length);
-            for (let i = 0; i < expectedArgs.length; i++) {
-              browser.test.assertEq(
-                typeof expectedArgs[i],
-                typeof actualArgs[i]
-              );
-              if (typeof expectedArgs[i] == "object") {
-                for (const key of Object.keys(expectedArgs[i])) {
-                  browser.test.assertEq(
-                    expectedArgs[i][key],
-                    actualArgs[i][key]
-                  );
-                }
-              } else {
-                browser.test.assertEq(expectedArgs[i], actualArgs[i]);
-              }
-            }
+            browser.test.assertEq(
+              expectedEvent,
+              actualEvent,
+              "event type should be correct"
+            );
+            window.assertDeepEqual(
+              expectedArgs,
+              actualArgs,
+              "event args should be correct"
+            );
             return actualArgs;
           },
           async pageLoad(tab, type, active = true) {
@@ -111,7 +103,7 @@ add_task(async () => {
               { status: "complete" },
               {
                 id: tab,
-                windowId: initialWindow,
+                windowId: initialWindowId,
                 active,
                 type,
               }
@@ -136,7 +128,7 @@ add_task(async () => {
         browser.test.assertEq(1, initialTabs.length);
         browser.test.assertEq(0, initialTabs[0].index);
         browser.test.assertEq("mail", initialTabs[0].type);
-        const [{ id: initialTab, windowId: initialWindow }] = initialTabs;
+        const [{ id: initialTabId, windowId: initialWindowId }] = initialTabs;
 
         browser.test.log("Add a first content tab and wait for it to load.");
 
@@ -144,7 +136,7 @@ add_task(async () => {
           [
             {
               index: 1,
-              windowId: initialWindow,
+              windowId: initialWindowId,
               active: true,
               type: "content",
             },
@@ -155,17 +147,23 @@ add_task(async () => {
             })
           )
         );
-        const [{ id: contentTab1 }] = await listener.checkEvent("onCreated", {
+        const [{ id: contentTab1Id }] = await listener.checkEvent("onCreated", {
           index: 1,
-          windowId: initialWindow,
+          windowId: initialWindowId,
           active: true,
           type: "content",
         });
-        browser.test.assertTrue(contentTab1 != initialTab);
-        await listener.pageLoad(contentTab1, "content");
+        browser.test.assertTrue(contentTab1Id != initialTabId);
+        await listener.checkEvent("onActivated", {
+          tabId: contentTab1Id,
+          windowId: initialWindowId,
+          previousTabId: initialTabId,
+        });
+
+        await listener.pageLoad(contentTab1Id, "content");
         browser.test.assertEq(
           "content",
-          (await browser.tabs.get(contentTab1)).type
+          (await browser.tabs.get(contentTab1Id)).type
         );
 
         browser.test.log("Add a second content tab and wait for it to load.");
@@ -191,11 +189,16 @@ add_task(async () => {
               url: browser.runtime.getURL("page2.html"),
             })
         );
-        const [{ id: contentTab2 }] = await listener.checkEvent("onCreated", {
+        const [{ id: contentTab2Id }] = await listener.checkEvent("onCreated", {
           index: 2,
-          windowId: initialWindow,
+          windowId: initialWindowId,
           active: true,
           type: "content",
+        });
+        await listener.checkEvent("onActivated", {
+          tabId: contentTab2Id,
+          windowId: initialWindowId,
+          previousTabId: contentTab1Id,
         });
 
         const locContentTabUpdateInfo = await locContentTabUpdateInfoPromise;
@@ -231,12 +234,12 @@ add_task(async () => {
         );
 
         browser.test.assertTrue(
-          ![initialTab, contentTab1].includes(contentTab2)
+          ![initialTabId, contentTab1Id].includes(contentTab2Id)
         );
-        await listener.pageLoad(contentTab2, "content");
+        await listener.pageLoad(contentTab2Id, "content");
         browser.test.assertEq(
           "content",
-          (await browser.tabs.get(contentTab2)).type
+          (await browser.tabs.get(contentTab2Id)).type
         );
 
         browser.test.log("Add the calendar tab.");
@@ -245,7 +248,7 @@ add_task(async () => {
           [
             {
               index: 3,
-              windowId: initialWindow,
+              windowId: initialWindowId,
               active: true,
               type: "calendar",
             },
@@ -254,15 +257,20 @@ add_task(async () => {
             browser.test.sendMessage("openCalendarTab")
           )
         );
-        const [{ id: calendarTab }] = await listener.checkEvent("onCreated", {
+        const [{ id: calendarTabId }] = await listener.checkEvent("onCreated", {
           index: 3,
-          windowId: initialWindow,
+          windowId: initialWindowId,
           active: true,
           type: "calendar",
         });
         browser.test.assertTrue(
-          ![initialTab, contentTab1, contentTab2].includes(calendarTab)
+          ![initialTabId, contentTab1Id, contentTab2Id].includes(calendarTabId)
         );
+        await listener.checkEvent("onActivated", {
+          tabId: calendarTabId,
+          windowId: initialWindowId,
+          previousTabId: contentTab2Id,
+        });
 
         browser.test.log("Add the task tab.");
 
@@ -270,7 +278,7 @@ add_task(async () => {
           [
             {
               index: 4,
-              windowId: initialWindow,
+              windowId: initialWindowId,
               active: true,
               type: "tasks",
             },
@@ -279,15 +287,22 @@ add_task(async () => {
             browser.test.sendMessage("openTaskTab")
           )
         );
-        const [{ id: taskTab }] = await listener.checkEvent("onCreated", {
+        const [{ id: taskTabId }] = await listener.checkEvent("onCreated", {
           index: 4,
-          windowId: initialWindow,
+          windowId: initialWindowId,
           active: true,
           type: "tasks",
         });
         browser.test.assertTrue(
-          ![initialTab, contentTab1, contentTab2, calendarTab].includes(taskTab)
+          ![initialTabId, contentTab1Id, contentTab2Id, calendarTabId].includes(
+            taskTabId
+          )
         );
+        await listener.checkEvent("onActivated", {
+          tabId: taskTabId,
+          windowId: initialWindowId,
+          previousTabId: calendarTabId,
+        });
 
         browser.test.log("Open a folder in a tab.");
 
@@ -295,7 +310,7 @@ add_task(async () => {
           [
             {
               index: 5,
-              windowId: initialWindow,
+              windowId: initialWindowId,
               active: true,
               type: "mail",
             },
@@ -304,20 +319,26 @@ add_task(async () => {
             browser.test.sendMessage("openFolderTab")
           )
         );
-        const [{ id: folderTab }] = await listener.checkEvent("onCreated", {
+        const [{ id: folderTabId }] = await listener.checkEvent("onCreated", {
           index: 5,
-          windowId: initialWindow,
+          windowId: initialWindowId,
           active: true,
           type: "mail",
         });
+        await listener.checkEvent("onActivated", {
+          tabId: folderTabId,
+          windowId: initialWindowId,
+          previousTabId: taskTabId,
+        });
+
         browser.test.assertTrue(
           ![
-            initialTab,
-            contentTab1,
-            contentTab2,
-            calendarTab,
-            taskTab,
-          ].includes(folderTab)
+            initialTabId,
+            contentTab1Id,
+            contentTab2Id,
+            calendarTabId,
+            taskTabId,
+          ].includes(folderTabId)
         );
 
         browser.test.log("Open a first message in a tab.");
@@ -326,7 +347,7 @@ add_task(async () => {
           [
             {
               index: 6,
-              windowId: initialWindow,
+              windowId: initialWindowId,
               active: true,
               type: "messageDisplay",
             },
@@ -336,23 +357,29 @@ add_task(async () => {
           )
         );
 
-        const [{ id: messageTab1 }] = await listener.checkEvent("onCreated", {
+        const [{ id: messageTab1Id }] = await listener.checkEvent("onCreated", {
           index: 6,
-          windowId: initialWindow,
+          windowId: initialWindowId,
           active: true,
           type: "messageDisplay",
         });
+        await listener.checkEvent("onActivated", {
+          tabId: messageTab1Id,
+          windowId: initialWindowId,
+          previousTabId: folderTabId,
+        });
+
         browser.test.assertTrue(
           ![
-            initialTab,
-            contentTab1,
-            contentTab2,
-            calendarTab,
-            taskTab,
-            folderTab,
-          ].includes(messageTab1)
+            initialTabId,
+            contentTab1Id,
+            contentTab2Id,
+            calendarTabId,
+            taskTabId,
+            folderTabId,
+          ].includes(messageTab1Id)
         );
-        await listener.pageLoad(messageTab1, "messageDisplay");
+        await listener.pageLoad(messageTab1Id, "messageDisplay");
 
         browser.test.log(
           "Open a second message in a tab. In the background, just because."
@@ -362,7 +389,7 @@ add_task(async () => {
           [
             {
               index: 7,
-              windowId: initialWindow,
+              windowId: initialWindowId,
               active: false,
               type: "messageDisplay",
             },
@@ -371,42 +398,43 @@ add_task(async () => {
             browser.test.sendMessage("openMessageTab", true)
           )
         );
-        const [{ id: messageTab2 }] = await listener.checkEvent("onCreated", {
+        const [{ id: messageTab2Id }] = await listener.checkEvent("onCreated", {
           index: 7,
-          windowId: initialWindow,
+          windowId: initialWindowId,
           active: false,
           type: "messageDisplay",
         });
+
         browser.test.assertTrue(
           ![
-            initialTab,
-            contentTab1,
-            contentTab2,
-            calendarTab,
-            taskTab,
-            folderTab,
-            messageTab1,
-          ].includes(messageTab2)
+            initialTabId,
+            contentTab1Id,
+            contentTab2Id,
+            calendarTabId,
+            taskTabId,
+            folderTabId,
+            messageTab1Id,
+          ].includes(messageTab2Id)
         );
-        await listener.pageLoad(messageTab2, "messageDisplay", false);
+        await listener.pageLoad(messageTab2Id, "messageDisplay", false);
 
         browser.test.log(
           "Activate each of the tabs in a somewhat random order to test the onActivated event."
         );
 
-        let previousTabId = messageTab1;
+        let previousTabId = messageTab1Id;
         for (const tab of [
-          initialTab,
-          calendarTab,
-          messageTab1,
-          taskTab,
-          contentTab1,
-          messageTab2,
-          folderTab,
-          contentTab2,
+          initialTabId,
+          calendarTabId,
+          messageTab1Id,
+          taskTabId,
+          contentTab1Id,
+          messageTab2Id,
+          folderTabId,
+          contentTab2Id,
         ]) {
           window.assertDeepEqual(
-            [{ tabId: tab, windowId: initialWindow }],
+            [{ tabId: tab, windowId: initialWindowId }],
             await capturePrimedEvent("onActivated", () =>
               browser.tabs.update(tab, { active: true })
             )
@@ -414,7 +442,7 @@ add_task(async () => {
           await listener.checkEvent("onActivated", {
             tabId: tab,
             previousTabId,
-            windowId: initialWindow,
+            windowId: initialWindowId,
           });
           previousTabId = tab;
         }
@@ -424,13 +452,16 @@ add_task(async () => {
         );
 
         window.assertDeepEqual(
-          [contentTab1, { windowId: initialWindow, isWindowClosing: false }],
+          [
+            contentTab1Id,
+            { windowId: initialWindowId, isWindowClosing: false },
+          ],
           await capturePrimedEvent("onRemoved", () =>
-            browser.tabs.remove(contentTab1)
+            browser.tabs.remove(contentTab1Id)
           )
         );
-        await listener.checkEvent("onRemoved", contentTab1, {
-          windowId: initialWindow,
+        await listener.checkEvent("onRemoved", contentTab1Id, {
+          windowId: initialWindowId,
           isWindowClosing: false,
         });
 
@@ -439,37 +470,40 @@ add_task(async () => {
         );
 
         window.assertDeepEqual(
-          [contentTab2, { windowId: initialWindow, isWindowClosing: false }],
+          [
+            contentTab2Id,
+            { windowId: initialWindowId, isWindowClosing: false },
+          ],
           await capturePrimedEvent("onRemoved", () =>
-            browser.tabs.remove(contentTab2)
+            browser.tabs.remove(contentTab2Id)
           )
         );
-        await listener.checkEvent("onRemoved", contentTab2, {
-          windowId: initialWindow,
+        await listener.checkEvent("onRemoved", contentTab2Id, {
+          windowId: initialWindowId,
           isWindowClosing: false,
         });
         await listener.checkEvent("onActivated", {
-          tabId: calendarTab,
-          windowId: initialWindow,
+          tabId: calendarTabId,
+          windowId: initialWindowId,
         });
 
         browser.test.log("Remove the remaining tabs.");
 
         for (const tab of [
-          taskTab,
-          messageTab1,
-          messageTab2,
-          folderTab,
-          calendarTab,
+          taskTabId,
+          messageTab1Id,
+          messageTab2Id,
+          folderTabId,
+          calendarTabId,
         ]) {
           window.assertDeepEqual(
-            [tab, { windowId: initialWindow, isWindowClosing: false }],
+            [tab, { windowId: initialWindowId, isWindowClosing: false }],
             await capturePrimedEvent("onRemoved", () =>
               browser.tabs.remove(tab)
             )
           );
           await listener.checkEvent("onRemoved", tab, {
-            windowId: initialWindow,
+            windowId: initialWindowId,
             isWindowClosing: false,
           });
         }
@@ -477,8 +511,8 @@ add_task(async () => {
         // Since the last tab was activated because all other tabs have been
         // removed, previousTabId should be undefined.
         await listener.checkEvent("onActivated", {
-          tabId: initialTab,
-          windowId: initialWindow,
+          tabId: initialTabId,
+          windowId: initialWindowId,
           previousTabId: undefined,
         });
 

@@ -38,12 +38,12 @@ add_task(async function () {
   }
   async function switchTab(index) {
     const tabElement = getTabElements()[index];
-    eventPromise = BrowserTestUtils.waitForEvent(
+    tabOpenPromise = BrowserTestUtils.waitForEvent(
       tabmail.tabContainer,
       "TabSelect"
     );
     EventUtils.synthesizeMouseAtCenter(tabElement, {});
-    event = await eventPromise;
+    event = await tabOpenPromise;
     Assert.equal(
       event.target,
       tabElement,
@@ -52,7 +52,7 @@ add_task(async function () {
   }
   async function closeTab(index) {
     const tabElement = getTabElements()[index];
-    eventPromise = BrowserTestUtils.waitForEvent(
+    tabOpenPromise = BrowserTestUtils.waitForEvent(
       tabmail.tabContainer,
       "TabClose"
     );
@@ -60,7 +60,7 @@ add_task(async function () {
       tabElement.querySelector(".tab-close-button"),
       {}
     );
-    event = await eventPromise;
+    event = await tabOpenPromise;
     Assert.equal(
       event.target,
       tabElement,
@@ -80,7 +80,8 @@ add_task(async function () {
   const calendarTabPanel = document.getElementById("calendarTabPanel");
   const calendarList = document.getElementById("calendar-list");
 
-  let eventPromise;
+  let tabOpenPromise;
+  let tabSelectPromise;
   let event;
 
   // Check we're in a good state to start with.
@@ -105,9 +106,17 @@ add_task(async function () {
 
   // Switch to the calendar tab.
 
-  eventPromise = BrowserTestUtils.waitForEvent(tabmail.tabContainer, "TabOpen");
+  tabOpenPromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabOpen"
+  );
+  tabSelectPromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabSelect"
+  );
   EventUtils.synthesizeMouseAtCenter(calendarTabButton, {});
-  event = await eventPromise;
+  event = await tabOpenPromise;
+  await tabSelectPromise;
   Assert.equal(
     event.target,
     getTabElements()[1],
@@ -184,12 +193,20 @@ add_task(async function () {
 
   // Open a content tab.
 
-  eventPromise = BrowserTestUtils.waitForEvent(tabmail.tabContainer, "TabOpen");
+  tabOpenPromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabOpen"
+  );
+  tabSelectPromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabSelect"
+  );
   const contentTab = window.openContentTab("https://example.org/");
   const contentTabPanel = contentTab.browser.closest(
     ".contentTabInstance"
   ).parentNode;
-  event = await eventPromise;
+  event = await tabOpenPromise;
+  await tabSelectPromise;
   Assert.equal(
     event.target,
     getTabElements()[2],
