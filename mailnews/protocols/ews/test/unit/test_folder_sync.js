@@ -31,10 +31,8 @@ add_setup(async function () {
   // Ensure we have an on-disk profile.
   do_get_profile();
 
-  // Create a new mock EWS server.
+  // Create a new mock EWS server, and start it.
   ewsServer = new MockEWSServer();
-
-  // Start the server.
   ewsServer.start();
 
   // Create and configure the EWS incoming server.
@@ -67,16 +65,8 @@ add_task(async function test_get_new_messages() {
     // Folders are created in the order we give them to the EWS server in.
     // Therefore if the last one in the array has been created, we can safely
     // assume all of the folders have been correctly synchronised.
-    const lastFolder = folders[folders.length - 1];
-
-    // getChildNamed() throws with NS_ERROR_FAILURE if the child could not be
-    // found.
-    try {
-      rootFolder.getChildNamed(lastFolder.mDisplayName);
-      return true;
-    } catch (e) {
-      return false;
-    }
+    const lastFolder = folders.at(-1);
+    return !!rootFolder.getChildNamed(lastFolder.mDisplayName);
   }, "waiting for subfolders to populate");
 
   // Check that all of the subfolders have been created.
@@ -86,16 +76,7 @@ add_task(async function test_get_new_messages() {
       return;
     }
 
-    // getChildNamed() throws with NS_ERROR_FAILURE if the child could not be
-    // found.
-    let found;
-    try {
-      rootFolder.getChildNamed(folder.mDisplayName);
-      found = true;
-    } catch (e) {
-      found = false;
-    }
-
-    Assert.ok(found, `${folder.mDisplayName} should exists`);
+    const child = rootFolder.getChildNamed(folder.mDisplayName);
+    Assert.ok(!!child, `${folder.mDisplayName} should exist`);
   });
 });
