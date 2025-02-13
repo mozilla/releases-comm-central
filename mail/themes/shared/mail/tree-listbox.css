@@ -391,7 +391,7 @@ table[is="tree-view-table"] {
   color: var(--tree-view-color);
 
   /* stylelint-disable-next-line media-query-no-invalid */
-  @media (-moz-bool-pref: "mail.threadpane.table.horizontal_scroll") {
+  @media -moz-pref("mail.threadpane.table.horizontal_scroll") {
     flex-basis: auto;
   }
 }

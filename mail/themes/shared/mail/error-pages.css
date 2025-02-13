@@ -5,7 +5,7 @@
 @import url("chrome://messenger/skin/colors.css");
 
 /* stylelint-disable-next-line media-query-no-invalid */
-@media (prefers-color-scheme: dark) and (-moz-bool-pref: "mail.dark-reader.enabled") {
+@media (prefers-color-scheme: dark) and -moz-pref("mail.dark-reader.enabled") {
   html {
     background-color: var(--color-gray-90);
     color: var(--color-white);

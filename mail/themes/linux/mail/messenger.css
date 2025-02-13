@@ -98,7 +98,7 @@
   }
 
   /* stylelint-disable-next-line media-query-no-invalid */
-  @media (-moz-bool-pref: "widget.gtk.rounded-bottom-corners.enabled") {
+  @media -moz-pref("widget.gtk.rounded-bottom-corners.enabled") {
     body {
       border-bottom-left-radius: env(-moz-gtk-csd-titlebar-radius);
       border-bottom-right-radius: env(-moz-gtk-csd-titlebar-radius);
@@ -131,7 +131,7 @@
   }
 
   /* stylelint-disable-next-line media-query-no-invalid */
-  @media (-moz-bool-pref: "widget.gtk.non-native-titlebar-buttons.enabled") {
+  @media -moz-pref("widget.gtk.non-native-titlebar-buttons.enabled") {
     /* When using lightweight themes, use our own buttons since native ones might
      * assume a native background in order to be visible. */
     :root[lwtheme] & {

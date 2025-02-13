@@ -12,7 +12,7 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 /* stylelint-disable-next-line media-query-no-invalid */
-@media (-moz-bool-pref: "mail.theme.native-theme") {
+@media -moz-pref("mail.theme.native-theme") {
   :root:not([lwtheme]) {
     #compose-toolbox {
       background: transparent;

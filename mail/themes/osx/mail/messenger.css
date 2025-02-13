@@ -9,7 +9,7 @@
 @import url("chrome://messenger/skin/shared/messenger.css");
 
 /* stylelint-disable-next-line media-query-no-invalid */
-@media (-moz-bool-pref: "mail.theme.native-theme") {
+@media -moz-pref("mail.theme.native-theme") {
   :root[customtitlebar]:not([lwtheme]) {
     #navigation-toolbox {
       background: transparent;

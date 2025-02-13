@@ -1019,7 +1019,7 @@ button.email-action-flagged {
 }
 
 /* stylelint-disable-next-line media-query-no-invalid */
-@media (prefers-color-scheme: dark) and (-moz-bool-pref: "mail.dark-reader.show-toggle") {
+@media (prefers-color-scheme: dark) and -moz-pref("mail.dark-reader.show-toggle") {
   #darkReaderToggle {
     display: initial;
   }

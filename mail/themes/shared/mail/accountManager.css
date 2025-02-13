@@ -62,7 +62,7 @@ body {
 }
 
 /* stylelint-disable-next-line media-query-no-invalid */
-@media not (-moz-bool-pref: "mail.chat.enabled") {
+@media not -moz-pref("mail.chat.enabled") {
   #accountActionsAddChatAccount {
     display: none;
   }

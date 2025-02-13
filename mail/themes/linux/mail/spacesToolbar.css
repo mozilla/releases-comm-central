@@ -12,7 +12,7 @@
 
 :root[customtitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) {
   /* stylelint-disable-next-line media-query-no-invalid */
-  @media (-moz-bool-pref: "widget.gtk.rounded-bottom-corners.enabled") {
+  @media -moz-pref("widget.gtk.rounded-bottom-corners.enabled") {
     .spaces-toolbar:not([hidden]) {
       &:-moz-locale-dir(ltr) {
         border-bottom-left-radius: env(-moz-gtk-csd-titlebar-radius);

@@ -12,7 +12,7 @@
 /* ::::: Mail Toolbars and Menubars ::::: */
 
 /* stylelint-disable-next-line media-query-no-invalid */
-@media (-moz-bool-pref: "mail.theme.native-theme") {
+@media -moz-pref("mail.theme.native-theme") {
   #mail-toolbox:not([lwtheme]) {
     background: transparent;
 
