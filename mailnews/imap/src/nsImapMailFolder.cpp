@@ -984,8 +984,8 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
   rv = AddSubfolderWithPath(folderNameStr, folderPath, getter_AddRefs(child),
                             true);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = msgDBService->OpenMailDBFromFile(dbFile, child, true, true,
-                                        getter_AddRefs(unusedDB));
+  rv = msgDBService->OpenDBFromFile(dbFile, child, true, true,
+                                    getter_AddRefs(unusedDB));
   if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING) rv = NS_OK;
 
   if (NS_SUCCEEDED(rv) && unusedDB) {
@@ -8092,10 +8092,10 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
   rv = StripSummarySuffix(dbFile, getter_AddRefs(folderPath));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Use openMailDBFromFile() and not OpenFolderDB() here, since we don't use
+  // Use OpenDBFromFile() and not OpenFolderDB() here, since we don't use
   // the DB.
-  rv = msgDBService->OpenMailDBFromFile(dbFile, nullptr, true, true,
-                                        getter_AddRefs(unusedDB));
+  rv = msgDBService->OpenDBFromFile(dbFile, nullptr, true, true,
+                                    getter_AddRefs(unusedDB));
   if (NS_SUCCEEDED(rv) && unusedDB) {
     // need to set the folder name
     nsCOMPtr<nsIDBFolderInfo> folderInfo;

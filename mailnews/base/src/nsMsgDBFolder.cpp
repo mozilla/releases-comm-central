@@ -407,8 +407,8 @@ NS_IMETHODIMP nsMsgDBFolder::OpenBackupMsgDatabase() {
   nsCOMPtr<nsIMsgDBService> msgDBService =
       do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = msgDBService->OpenMailDBFromFile(backupDBFile, this, false, true,
-                                        getter_AddRefs(mBackupDatabase));
+  rv = msgDBService->OpenDBFromFile(backupDBFile, this, false, true,
+                                    getter_AddRefs(mBackupDatabase));
   // we add a listener so that we can close the db during OnAnnouncerGoingAway.
   // There should not be any other calls to the listener with the backup
   // database

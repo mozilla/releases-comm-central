@@ -478,8 +478,8 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
     // "foo/bar/INBOX" -> "foo/bar/INBOX.msf"
     rv = GetSummaryFileLocation(newPath, getter_AddRefs(newDBFile));
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = msgDBService->OpenMailDBFromFile(newDBFile, newMsgFolder, false, true,
-                                          getter_AddRefs(destDB));
+    rv = msgDBService->OpenDBFromFile(newDBFile, newMsgFolder, false, true,
+                                      getter_AddRefs(destDB));
     if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE && destDB)
       destDB->SetSummaryValid(true);
   }

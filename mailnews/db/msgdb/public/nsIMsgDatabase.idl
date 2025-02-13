@@ -93,7 +93,7 @@ interface nsIMsgDBService : nsISupports
   /**
    * Opens a database for a given folder.
    *
-   * This method is preferred over nsIMsgDBService::openMailDBFromFile if the
+   * This method is preferred over nsIMsgDBService::openDBFromFile if the
    * caller has an actual nsIMsgFolder around. If the database detects that it
    * is unreadable or out of date (using nsIMsgDatabase::outOfDate) it will
    * destroy itself and prepare to be rebuilt, unless aLeaveInvalidDB is true.
@@ -160,10 +160,10 @@ interface nsIMsgDBService : nsISupports
    * @see nsIMsgDBService::openFolderDB
    * @see nsIMsgDatabase::Open
    */
-  nsIMsgDatabase openMailDBFromFile(in nsIFile aFile,
-                                    in nsIMsgFolder aFolder,
-                                    in boolean aCreate,
-                                    in boolean aLeaveInvalidDB);
+  nsIMsgDatabase openDBFromFile(in nsIFile aFile,
+                                in nsIMsgFolder aFolder,
+                                in boolean aCreate,
+                                in boolean aLeaveInvalidDB);
   /**
    * Adds the given listener to the listener set for the folder.
    *
