@@ -5005,7 +5005,9 @@ nsMsgDatabase::GetCachedHits(const nsACString& aSearchFolderUri,
   nsCOMPtr<nsIMdbTable> table;
   (void)GetSearchResultsTable(aSearchFolderUri, false, getter_AddRefs(table));
   if (!table) {
-    return NS_ERROR_FAILURE;  // expected result for no cached hits
+    // No cached hits.
+    *aEnumerator = nullptr;
+    return NS_OK;
   }
 
   NS_ADDREF(*aEnumerator =

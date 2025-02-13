@@ -833,13 +833,13 @@ export function getMessagesInFolder(folder) {
       // Use cached hits or schedule the folder to be searched manually.
       // Note: The cached hits are stored in the db of each search folder using
       // the URI of the virtual folder as identifier.
-      try {
-        const cachedHits = searchFolder.msgDatabase.getCachedHits(folder.URI);
-        for (const msg of cachedHits) {
-          messages.push(msg);
-        }
-      } catch (e) {
+      const cachedHits = searchFolder.msgDatabase.getCachedHits(folder.URI);
+      if (!cachedHits) {
         searchFolders.push(searchFolder);
+        continue;
+      }
+      for (const msg of cachedHits) {
+        messages.push(msg);
       }
     }
 

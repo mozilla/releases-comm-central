@@ -547,6 +547,11 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   Array<nsMsgKey> getNewList();
 
   // These are used for caching search hits in a db, to speed up saved search folders.
+
+  /**
+   * Gets cached messages for the given folder.
+   * @returns the cached messages, or null there was no cache yet.
+   */
   nsIMsgEnumerator getCachedHits(in AUTF8String aSearchFolderUri);
 
   /**
