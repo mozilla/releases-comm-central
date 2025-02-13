@@ -226,8 +226,11 @@ var quickFilterBar = {
   _bindUI() {
     for (const filterDef of QuickFilterManager.filterDefs) {
       const domNode = document.getElementById(filterDef.domId);
-      const menuItemNode = document.getElementById(filterDef.menuItemID);
+      if (!domNode) {
+        continue;
+      }
 
+      const menuItemNode = document.getElementById(filterDef.menuItemID);
       let handlerDomId, handlerMenuItems;
 
       if (!("onCommand" in filterDef)) {
@@ -416,6 +419,9 @@ var quickFilterBar = {
         }
 
         const domNode = document.getElementById(filterDef.domId);
+        if (!domNode) {
+          continue;
+        }
 
         const value =
           filterDef.name in filterValues ? filterValues[filterDef.name] : null;
@@ -569,6 +575,9 @@ var quickFilterBar = {
         );
         if (update) {
           const domNode = document.getElementById(filterDef.domId);
+          if (!domNode) {
+            continue;
+          }
           // We are passing update as a super-secret data propagation channel
           //  exclusively for one-off cases like the text filter gloda upsell.
           filterDef.reflectInDOM(domNode, newState, document, this, update);
