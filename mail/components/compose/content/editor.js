@@ -228,10 +228,6 @@ var gEditorDocumentObserver = {
   },
 };
 
-function SetFocusOnStartup() {
-  gContentWindow.focus();
-}
-
 function EditorLoadUrl(url) {
   try {
     if (url) {
