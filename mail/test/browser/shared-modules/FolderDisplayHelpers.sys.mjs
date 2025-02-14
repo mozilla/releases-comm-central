@@ -2745,23 +2745,6 @@ export function set_pane_layout(aLayout) {
   Services.prefs.setIntPref("mail.pane_config.dynamic", aLayout);
 }
 
-/*
- * Check window sizes of the main Tb window whether they are at the default values.
- * Some tests change the window size so need to be sure what size they start with.
- */
-export function assert_default_window_size() {
-  Assert.equal(
-    mc.outerWidth,
-    gDefaultWindowWidth,
-    "Main window didn't meet the expected width"
-  );
-  Assert.equal(
-    mc.outerHeight,
-    gDefaultWindowHeight,
-    "Main window didn't meet the expected height"
-  );
-}
-
 /**
  * Toggle visibility of the Main menu bar.
  *
