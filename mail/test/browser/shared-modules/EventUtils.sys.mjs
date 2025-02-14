@@ -453,32 +453,6 @@ function _expectEvent(aExpectedTarget, aExpectedEvent, aTestName) {
 }
 
 /**
- * Check if the event was fired or not. The event handler aEventHandler
- * will be removed.
- */
-function _checkExpectedEvent(
-  aExpectedTarget,
-  aExpectedEvent,
-  aEventHandler,
-  aTestName
-) {
-  if (aEventHandler) {
-    var expectEvent = aExpectedEvent.charAt(0) != "!";
-    var type = expectEvent ? aExpectedEvent : aExpectedEvent.substring(1);
-    aExpectedTarget.removeEventListener(type, aEventHandler);
-    var desc = type + " event";
-    if (expectEvent) {
-      desc += " not";
-    }
-    if (_gSeenEvent != expectEvent) {
-      throw new Error(aTestName + ": " + desc + " fired.");
-    }
-  }
-
-  _gSeenEvent = false;
-}
-
-/**
  * The functions that follow were copied from
  * mozilla-central/testing/mochitest/tests/SimpleTest/EventUtils.js
  */
