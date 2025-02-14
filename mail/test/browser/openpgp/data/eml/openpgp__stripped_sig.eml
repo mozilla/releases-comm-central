@@ -1,0 +1,15 @@
+To: test@example.com
+From: test@example.com
+Content-Type: multipart/signed; micalg="pgp-sha256";
+	protocol="application/pgp-signature"; boundary="=-y4Kf2Cz5xIQ8VgDV75yt"
+Date: Fri, 14 Feb 2025 15:03:05 +0000
+MIME-Version: 1.0
+Subject: Test
+
+
+--=-y4Kf2Cz5xIQ8VgDV75yt
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+This is a test.
+--=-y4Kf2Cz5xIQ8VgDV75yt--

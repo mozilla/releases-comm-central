@@ -871,6 +871,34 @@ add_task(async function testGitCommitSpoof() {
   await OpenPGPTestUtils.removeKeyById("0xc55ccd9c5ab482b2", false);
 });
 
+/**
+ * Test that a missing signature is treated as bad signature.
+ */
+add_task(async function testStrippedSig() {
+  const opengpgprocessed = openpgpProcessed();
+  const msgc = await open_message_from_file(
+    new FileUtils.File(getTestFilePath("data/eml/openpgp__stripped_sig.eml"))
+  );
+  const aboutMessage = get_about_message(msgc);
+  await opengpgprocessed;
+
+  // This (text#1) should be visible, and not confused with mail headers.
+  Assert.ok(
+    getMsgBodyTxt(msgc).includes("This is a test"),
+    "message text should be in body"
+  );
+
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
+    "should say signed mismatch"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasNoEncryptedIconState(aboutMessage.document),
+    "should not be say encrypted"
+  );
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
 registerCleanupFunction(async function tearDown() {
   MailServices.accounts.removeAccount(aliceAcct, true);
   await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);
