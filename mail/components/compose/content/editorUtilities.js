@@ -270,13 +270,6 @@ function IsDocumentEditable() {
   return false;
 }
 
-function IsDocumentEmpty() {
-  try {
-    return GetCurrentEditor().documentIsEmpty;
-  } catch (e) {}
-  return false;
-}
-
 function IsDocumentModified() {
   try {
     return GetCurrentEditor().documentModified;
