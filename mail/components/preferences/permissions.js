@@ -508,7 +508,3 @@ var gPermissionManager = {
 function setOrigin(aOrigin) {
   gPermissionManager.setOrigin(aOrigin);
 }
-
-function initWithParams(aParams) {
-  gPermissionManager.init(aParams);
-}
