@@ -419,39 +419,6 @@ export function synthesizeKey(aKey, aEvent, aWindow, aCallback) {
   }
 }
 
-var _gSeenEvent = false;
-
-/**
- * Indicate that an event with an original target of aExpectedTarget and
- * a type of aExpectedEvent is expected to be fired, or not expected to
- * be fired.
- */
-function _expectEvent(aExpectedTarget, aExpectedEvent, aTestName) {
-  if (!aExpectedTarget || !aExpectedEvent) {
-    return null;
-  }
-
-  _gSeenEvent = false;
-
-  var type =
-    aExpectedEvent.charAt(0) == "!"
-      ? aExpectedEvent.substring(1)
-      : aExpectedEvent;
-  var eventHandler = function (event) {
-    var epassed =
-      !_gSeenEvent && event.target == aExpectedTarget && event.type == type;
-    if (!epassed) {
-      throw new Error(
-        aTestName + " " + type + " event target " + (_gSeenEvent ? "twice" : "")
-      );
-    }
-    _gSeenEvent = true;
-  };
-
-  aExpectedTarget.addEventListener(type, eventHandler);
-  return eventHandler;
-}
-
 /**
  * The functions that follow were copied from
  * mozilla-central/testing/mochitest/tests/SimpleTest/EventUtils.js
