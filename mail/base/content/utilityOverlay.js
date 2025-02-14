@@ -46,12 +46,6 @@ function goUpdatePasteMenuItems() {
   goUpdateCommand("cmd_paste");
 }
 
-// update Find As You Type menu items, they rely on focus
-function goUpdateFindTypeMenuItems() {
-  goUpdateCommand("cmd_findTypeText");
-  goUpdateCommand("cmd_findTypeLinks");
-}
-
 /**
  * Gather all descendent text under given node.
  *
