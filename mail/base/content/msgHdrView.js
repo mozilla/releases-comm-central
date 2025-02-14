@@ -3624,10 +3624,6 @@ function MsgNewMessageFromTemplate(aEvent) {
   commandController._composeMsgByType(Ci.nsIMsgCompType.Template, aEvent);
 }
 
-function MsgEditTemplateMessage(aEvent) {
-  commandController._composeMsgByType(Ci.nsIMsgCompType.EditTemplate, aEvent);
-}
-
 function MsgComposeDraftMessage() {
   top.ComposeMessage(
     Ci.nsIMsgCompType.Draft,
