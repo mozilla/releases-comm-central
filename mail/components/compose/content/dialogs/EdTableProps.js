@@ -1087,15 +1087,6 @@ function ValidateData() {
   return true;
 }
 
-function ChangeCellTextbox(textboxID) {
-  // Filter input for just integers
-  forceInteger(textboxID);
-
-  if (gDialog.TabBox.selectedTab == gDialog.CellTab) {
-    gCellDataChanged = true;
-  }
-}
-
 // Call this when a textbox or menulist is changed
 //   so the checkbox is automatically set
 function SetCheckbox(checkboxID) {
