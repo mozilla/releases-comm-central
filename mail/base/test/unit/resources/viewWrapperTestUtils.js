@@ -465,15 +465,6 @@ function make_person_with_word_in_name(aWord) {
   return [aWord, dude[1]];
 }
 
-/**
- * Create a name and address pair where the provided word is part of the mail
- *  address.
- */
-function make_person_with_word_in_address(aWord) {
-  const dude = gMessageGenerator.makeNameAndAddress();
-  return [dude[0], aWord + "@madeup.nul"];
-}
-
 class MockViewWrapperListener extends IDBViewWrapperListener {
   shouldUseMailViews = true;
   shouldDeferMessageDisplayUntilAfterServerConnect = false;
