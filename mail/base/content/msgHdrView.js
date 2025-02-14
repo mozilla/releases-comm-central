@@ -3411,17 +3411,6 @@ function AdjustHeaderView(headermode) {
 }
 
 /**
- * Should the reply command/button be enabled?
- *
- * @returns {boolean} whether the reply command/button should be enabled.
- */
-function IsReplyEnabled() {
-  // If we're in an rss item, we never want to Reply, because there's
-  // usually no-one useful to reply to.
-  return !FeedUtils.isFeedMessage(gMessage);
-}
-
-/**
  * Should the reply-all command/button be enabled?
  *
  * @returns {boolean} whether the reply-all command/button should be enabled.
