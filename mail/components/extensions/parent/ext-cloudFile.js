@@ -13,23 +13,6 @@ var { cloudFileAccounts } = ChromeUtils.importESModule(
 
 XPCOMUtils.defineLazyGlobalGetters(this, ["File", "FileReader"]);
 
-async function promiseFileRead(nsifile) {
-  const blob = await File.createFromNsIFile(nsifile);
-
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.addEventListener("loadend", event => {
-      if (event.target.error) {
-        reject(event.target.error);
-      } else {
-        resolve(event.target.result);
-      }
-    });
-
-    reader.readAsArrayBuffer(blob);
-  });
-}
-
 class CloudFileAccount {
   constructor(accountKey, extension) {
     this.accountKey = accountKey;

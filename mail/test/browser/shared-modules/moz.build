@@ -16,7 +16,6 @@ TESTING_JS_MODULES.mail += [
     "JunkHelpers.sys.mjs",
     "KeyboardHelpers.sys.mjs",
     "MouseEventHelpers.sys.mjs",
-    "NewMailAccountHelpers.sys.mjs",
     "NNTPHelpers.sys.mjs",
     "NotificationBoxHelpers.sys.mjs",
     "OpenPGPTestUtils.sys.mjs",
