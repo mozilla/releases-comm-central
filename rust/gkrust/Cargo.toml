@@ -27,7 +27,7 @@ authrs_bridge = { path = "../../../dom/webauthn/authrs_bridge" }
 binary_http = { path = "../../../netwerk/protocol/http/binary_http" }
 bitsdownload = { path = "../../../toolkit/components/bitsdownload", optional = true }
 bookmark_sync = { path = "../../../toolkit/components/places/bookmark_sync", optional = true }
-buildid_reader = { path = "../../../toolkit/library/buildid_reader" }
+buildid_reader_ffi = { path = "../../../toolkit/library/buildid_reader/ffi" }
 cascade_bloom_filter = { path = "../../../toolkit/components/cascade_bloom_filter" }
 cert_storage = { path = "../../../security/manager/ssl/cert_storage" }
 chardetng_c = { version = "0.1.1" }
