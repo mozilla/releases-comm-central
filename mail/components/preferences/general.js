@@ -2172,16 +2172,6 @@ function getDisplayNameForFile(aFile) {
   return aFile.leafName;
 }
 
-function getLocalHandlerApp(aFile) {
-  var localHandlerApp = Cc[
-    "@mozilla.org/uriloader/local-handler-app;1"
-  ].createInstance(Ci.nsILocalHandlerApp);
-  localHandlerApp.name = getDisplayNameForFile(aFile);
-  localHandlerApp.executable = aFile;
-
-  return localHandlerApp;
-}
-
 // eslint-disable-next-line no-undef
 const gHandlerRowFragment = MozXULElement.parseXULToFragment(`
   <html:tr>
