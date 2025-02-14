@@ -14,7 +14,11 @@ class CalendarDialog extends HTMLDialogElement {
         .getElementById("calendarDialogTemplate")
         .content.cloneNode(true);
 
-      this.append(template);
+      const styles = document.createElement("link");
+      styles.rel = "stylesheet";
+      styles.href = "chrome://messenger/skin/calendar/calendarDialog.css";
+
+      this.append(template, styles);
 
       window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
 
