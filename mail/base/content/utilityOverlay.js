@@ -13,10 +13,6 @@ var { openLinkExternally, openUILink } = ChromeUtils.importESModule(
 
 var gShowBiDi = false;
 
-function getBrowserURL() {
-  return AppConstants.BROWSER_CHROME_URL;
-}
-
 // update menu items that rely on focus
 function goUpdateGlobalEditMenuItems() {
   goUpdateCommand("cmd_undo");
