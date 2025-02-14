@@ -3620,10 +3620,6 @@ function MsgRedirectMessage(event) {
   commandController._composeMsgByType(Ci.nsIMsgCompType.Redirect, event);
 }
 
-function MsgNewMessageFromTemplate(aEvent) {
-  commandController._composeMsgByType(Ci.nsIMsgCompType.Template, aEvent);
-}
-
 function MsgComposeDraftMessage() {
   top.ComposeMessage(
     Ci.nsIMsgCompType.Draft,
