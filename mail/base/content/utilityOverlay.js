@@ -323,15 +323,6 @@ function openWebLinkIn(url, where, params = {}) {
   openLinkIn(url, where, params);
 }
 
-// Thunderbird itself is not using this function. It is however called for the
-// "contribute" button for add-ons in the add-on manager. We ignore all additional
-// parameters including "where" and always open the link externally. We don't
-// want to open donation pages in a tab due to their complexity, and we don't
-// want to handle them inside Thunderbird.
-function openUILinkIn(url) {
-  openLinkExternally(url);
-}
-
 /**
  * Loads a URL in Thunderbird. If this is a mail:3pane window, the URL opens
  * in a content tab, otherwise a new window is opened.
