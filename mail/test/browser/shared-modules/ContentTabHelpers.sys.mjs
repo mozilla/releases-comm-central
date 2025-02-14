@@ -231,20 +231,3 @@ export function assert_content_tab_text_absent(aTab, aText) {
     `String "${aText}" should not be on the content tab's page`
   );
 }
-
-/**
- * Returns the notification bar for a tab if one is currently visible,
- * null if otherwise.
- *
- * @returns {?Element}
- */
-export function get_notification_bar_for_tab() {
-  const notificationBoxEls = mc.document
-    .getElementById("tabmail")
-    .selectedTab.panel.querySelector("notificationbox");
-  if (!notificationBoxEls) {
-    return null;
-  }
-
-  return notificationBoxEls;
-}
