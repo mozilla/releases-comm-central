@@ -657,23 +657,6 @@ function StripUsernamePasswordFromURI(uri) {
   return urlspec;
 }
 
-function InsertUsernameIntoUrl(urlspec, username) {
-  if (!urlspec || !username) {
-    return urlspec;
-  }
-
-  try {
-    const URI = Services.io.newURI(
-      urlspec,
-      GetCurrentEditor().documentCharacterSet
-    );
-    URI.username = username;
-    return URI.spec;
-  } catch (e) {}
-
-  return urlspec;
-}
-
 function ConvertRGBColorIntoHEXColor(color) {
   if (/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/.test(color)) {
     var r = Number(RegExp.$1).toString(16);
