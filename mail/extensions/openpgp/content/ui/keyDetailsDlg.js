@@ -670,21 +670,6 @@ function manageUids() {
 }
 */
 
-function genRevocationCert() {
-  throw new Error("Not implemented");
-
-  /*
-  var defaultFileName = userId.replace(/[<>]/g, "");
-  defaultFileName += " (0x" + keyId + ") rev.asc";
-  var outFile = EnigFilePicker("XXXsaveRevokeCertAs",
-    "", true, "*.asc",
-    defaultFileName, ["XXXasciiArmorFile", "*.asc"];
-  if (!outFile) return -1;
-
-  return 0;
-  */
-}
-
 /**
  * @param {object[]} signatures - list of signature objects
  *   signatures.userId {string} - User ID.
