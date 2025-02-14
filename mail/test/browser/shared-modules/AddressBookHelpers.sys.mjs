@@ -155,12 +155,3 @@ export function load_contacts_into_address_book(aAddressBook, aContacts) {
     aContacts[i] = aAddressBook.addCard(contact);
   }
 }
-
-/**
- * Deletes an address book.
- *
- * @param {nsIAbDirectory} aAddrBook
- */
-export function delete_address_book(aAddrBook) {
-  MailServices.ab.deleteAddressBook(aAddrBook.URI);
-}
