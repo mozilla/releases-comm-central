@@ -11307,10 +11307,6 @@ function enableInlineSpellCheck(aEnableInlineSpellCheck) {
     .setAttribute("spellcheck", aEnableInlineSpellCheck);
 }
 
-function getMailToolbox() {
-  return document.getElementById("compose-toolbox");
-}
-
 /** Update state of zoom type (text vs. full) menu item. */
 function UpdateFullZoomMenu() {
   const menuItem = document.getElementById("menu_fullZoomToggle");
