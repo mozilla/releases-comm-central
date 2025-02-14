@@ -187,16 +187,6 @@ export async function compose_window_ready(composePromise) {
   return _wait_for_compose_window(replyWindow);
 }
 
-/**
- * Waits for a new compose window to open.
- *
- * @returns {Window} The loaded window of type "msgcompose".
- */
-export async function promise_compose_window() {
-  const replyWindow = promise_new_window("msgcompose");
-  return _wait_for_compose_window(replyWindow);
-}
-
 async function _wait_for_compose_window(replyWindow) {
   await TestUtils.waitForCondition(
     () => Services.focus.activeWindow == replyWindow,
