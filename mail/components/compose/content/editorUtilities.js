@@ -323,26 +323,6 @@ function SetDocumentTitle(title) {
   } catch (e) {}
 }
 
-function EditorGetTextProperty(
-  property,
-  attribute,
-  value,
-  firstHas,
-  anyHas,
-  allHas
-) {
-  try {
-    return GetCurrentEditor().getInlinePropertyWithAttrValue(
-      property,
-      attribute,
-      value,
-      firstHas,
-      anyHas,
-      allHas
-    );
-  } catch (e) {}
-}
-
 function EditorSetTextProperty(property, attribute, value) {
   try {
     GetCurrentEditor().setInlineProperty(property, attribute, value);
