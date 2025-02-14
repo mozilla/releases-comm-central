@@ -520,15 +520,6 @@ export function assert_selected_tab(aTab) {
 }
 
 /**
- * Assert that the currently selected tab is _not_ the given one.
- *
- * @param {TabInfo} aTab - The tab that should currently not be selected.
- */
-export function assert_not_selected_tab(aTab) {
-  Assert.notEqual(mc.document.getElementById("tabmail").currentTabInfo, aTab);
-}
-
-/**
  * Assert that the given tab has the given mode name. Valid mode names include
  * "message" and "folder".
  *
