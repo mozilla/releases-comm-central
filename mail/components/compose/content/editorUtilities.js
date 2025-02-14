@@ -254,10 +254,6 @@ function IsHTMLEditor() {
   return false;
 }
 
-function PageIsEmptyAndUntouched() {
-  return IsDocumentEmpty() && !IsDocumentModified() && !IsHTMLSourceChanged();
-}
-
 function IsInHTMLSourceMode() {
   return gEditorDisplayMode == kDisplayModeSource;
 }
