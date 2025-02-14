@@ -479,35 +479,6 @@ function _checkExpectedEvent(
 }
 
 /**
- * Similar to synthesizeMouse except that a test is performed to see if an
- * event is fired at the right target as a result.
- *
- * aExpectedTarget - the expected originalTarget of the event.
- * aExpectedEvent - the expected type of the event, such as 'select'.
- * aTestName - the test name when outputting results
- *
- * To test that an event is not fired, use an expected type preceded by an
- * exclamation mark, such as '!select'. This might be used to test that a
- * click on a disabled element doesn't fire certain events for instance.
- *
- * aWindow is optional, and defaults to the current window object.
- */
-export function synthesizeMouseExpectEvent(
-  aTarget,
-  aOffsetX,
-  aOffsetY,
-  aEvent,
-  aExpectedTarget,
-  aExpectedEvent,
-  aTestName,
-  aWindow
-) {
-  var eventHandler = _expectEvent(aExpectedTarget, aExpectedEvent, aTestName);
-  synthesizeMouse(aTarget, aOffsetX, aOffsetY, aEvent, aWindow);
-  _checkExpectedEvent(aExpectedTarget, aExpectedEvent, eventHandler, aTestName);
-}
-
-/**
  * The functions that follow were copied from
  * mozilla-central/testing/mochitest/tests/SimpleTest/EventUtils.js
  */
