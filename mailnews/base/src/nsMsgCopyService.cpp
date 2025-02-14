@@ -327,51 +327,37 @@ nsresult nsMsgCopyService::DoNextCopy() {
  */
 nsCopyRequest* nsMsgCopyService::FindRequest(nsISupports* aSupport,
                                              nsIMsgFolder* dstFolder) {
-  nsCopyRequest* copyRequest = nullptr;
-  uint32_t cnt = m_copyRequests.Length();
-  for (uint32_t i = 0; i < cnt; i++) {
-    copyRequest = m_copyRequests.ElementAt(i);
-    if (SameCOMIdentity(copyRequest->m_srcSupport, aSupport) &&
-        SameCOMIdentity(copyRequest->m_dstFolder.get(), dstFolder))
+  nsCopyRequest* matchingRequest = nullptr;
+  for (auto copyRequest : m_copyRequests) {
+    if (!SameCOMIdentity(copyRequest->m_srcSupport, aSupport)) {
+      continue;
+    }
+    if (SameCOMIdentity(copyRequest->m_dstFolder.get(), dstFolder)) {
+      matchingRequest = copyRequest;
       break;
+    }
 
     // When copying folders the notification of the message copy serves as a
     // proxy for the folder copy. Check for that here.
     if (copyRequest->m_requestType == nsCopyFoldersType) {
-      // If the src is different then check next request.
-      if (!SameCOMIdentity(copyRequest->m_srcSupport, aSupport)) {
-        copyRequest = nullptr;
-        continue;
-      }
-
       // See if the parent of the copied folder is the same as the one when the
       // request was made. Note if the destination folder is already a server
       // folder then no need to get parent.
-      nsCOMPtr<nsIMsgFolder> parentMsgFolder;
-      nsresult rv = NS_OK;
       bool isServer = false;
       dstFolder->GetIsServer(&isServer);
-      if (!isServer) rv = dstFolder->GetParent(getter_AddRefs(parentMsgFolder));
-      if ((NS_FAILED(rv)) || (!parentMsgFolder && !isServer) ||
-          (copyRequest->m_dstFolder.get() != parentMsgFolder)) {
-        copyRequest = nullptr;
-        continue;
+      if (!isServer) {
+        nsCOMPtr<nsIMsgFolder> parentMsgFolder;
+        nsresult rv = dstFolder->GetParent(getter_AddRefs(parentMsgFolder));
+        if (NS_FAILED(rv) || !parentMsgFolder ||
+            (copyRequest->m_dstFolder.get() != parentMsgFolder)) {
+          continue;
+        }
       }
-
-      // Now checks if the folder name is the same.
-      nsString folderName;
-      rv = dstFolder->GetName(folderName);
-      if (NS_FAILED(rv)) {
-        copyRequest = nullptr;
-        continue;
-      }
-
-      if (copyRequest->m_dstFolderName == folderName) break;
-    } else
-      copyRequest = nullptr;
+      matchingRequest = copyRequest;
+      break;
+    }
   }
-
-  return copyRequest;
+  return matchingRequest;
 }
 
 NS_IMPL_ISUPPORTS(nsMsgCopyService, nsIMsgCopyService)
