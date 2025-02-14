@@ -271,67 +271,6 @@ export function synthesizeMouseAtCenter(aTarget, aEvent, aWindow) {
 }
 
 /**
- * Synthesize a mouse scroll event on a target. The actual client point is determined
- * by taking the aTarget's client box and offsetting it by aOffsetX and
- * aOffsetY.
- *
- * aEvent is an object which may contain the properties:
- *   shiftKey, ctrlKey, altKey, metaKey, accessKey, button, type, axis, delta, hasPixels
- *
- * If the type is specified, a mouse scroll event of that type is fired. Otherwise,
- * "DOMMouseScroll" is used.
- *
- * If the axis is specified, it must be one of "horizontal" or "vertical". If not specified,
- * "vertical" is used.
- *
- * 'delta' is the amount to scroll by (can be positive or negative). It must
- * be specified.
- *
- * 'hasPixels' specifies whether kHasPixels should be set in the scrollFlags.
- *
- * aWindow is optional, and defaults to the current window object.
- */
-export function synthesizeMouseScroll(
-  aTarget,
-  aOffsetX,
-  aOffsetY,
-  aEvent,
-  aWindow
-) {
-  var utils = aWindow.windowUtils;
-  if (utils) {
-    // See nsMouseScrollFlags in nsGUIEvent.h
-    const kIsVertical = 0x02;
-    const kIsHorizontal = 0x04;
-    const kHasPixels = 0x08;
-
-    var button = aEvent.button || 0;
-    var modifiers = _parseModifiers(aEvent);
-
-    var rect = aTarget.getBoundingClientRect();
-
-    var left = rect.left;
-    var top = rect.top;
-
-    var type = ("type" in aEvent && aEvent.type) || "DOMMouseScroll";
-    var axis = aEvent.axis || "vertical";
-    var scrollFlags = axis == "horizontal" ? kIsHorizontal : kIsVertical;
-    if (aEvent.hasPixels) {
-      scrollFlags |= kHasPixels;
-    }
-    utils.sendMouseScrollEvent(
-      type,
-      left + aOffsetX,
-      top + aOffsetY,
-      button,
-      scrollFlags,
-      aEvent.delta,
-      modifiers
-    );
-  }
-}
-
-/**
  * Synthesize a key event. It is targeted at whatever would be targeted by an
  * actual keypress by the user, typically the focused element.
  *
