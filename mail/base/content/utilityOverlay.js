@@ -272,19 +272,6 @@ function openDictionaryList(where) {
 }
 
 /**
- * Open the privacy policy in a new content tab, if possible in an available
- * mail:3pane window, otherwise by opening a new mail:3pane.
- *
- * @param {"tab"|"window"} where - 'tab' to open in a new tab (default)
- *   or 'window' to open in a new window.
- */
-function openPrivacyPolicy(where) {
-  const kTelemetryInfoUrl = "toolkit.telemetry.infoURL";
-  const url = Services.prefs.getCharPref(kTelemetryInfoUrl);
-  openContentTab(url, where);
-}
-
-/**
  * Used by the developer tools (in the toolbox process) and a few toolkit pages
  * for opening URLs.
  *
