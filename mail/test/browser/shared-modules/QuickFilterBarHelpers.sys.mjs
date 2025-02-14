@@ -224,34 +224,6 @@ export function assert_tag_constraints_visible(...aArgs) {
   }
 }
 
-/**
- * Verify that only the buttons corresponding to the provided tag keys are
- * checked.
- */
-export function assert_tag_constraints_checked(...aArgs) {
-  const expected = {};
-  for (const arg of aArgs) {
-    const nodeId = "qfb-tag-" + arg;
-    expected[nodeId] = true;
-  }
-
-  const kids = mc.document.getElementById(
-    "quickFilterBarTagsContainer"
-  ).children;
-  for (let iNode = 0; iNode < kids.length; iNode++) {
-    const node = kids[iNode];
-    if (node.pressed != node.id in expected) {
-      throw new Error(
-        "node " +
-          node.id +
-          " should " +
-          (node.id in expected ? "be " : "not be ") +
-          "checked."
-      );
-    }
-  }
-}
-
 var nameToTextDomId = {
   sender: "qfb-qs-sender",
   recipients: "qfb-qs-recipients",
