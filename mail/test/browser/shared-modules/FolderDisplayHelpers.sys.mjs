@@ -2225,20 +2225,6 @@ export function focus_message_pane() {
 }
 
 /**
- * Focus the multimessage pane.
- */
-export function focus_multimessage_pane() {
-  const multiMessageBrowser = get_about_3pane().document.getElementById(
-    "multiMessageBrowser"
-  );
-  Assert.ok(
-    BrowserTestUtils.isVisible(multiMessageBrowser),
-    "multi message browser is visible"
-  );
-  multiMessageBrowser.focus();
-}
-
-/**
  * Returns a string indicating whatever's currently focused. This will return
  * either one of the strings in RECOGNIZED_WINDOWS/RECOGNIZED_ELEMENTS or null.
  */
