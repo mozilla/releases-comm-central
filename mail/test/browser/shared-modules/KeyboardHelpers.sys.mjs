@@ -21,20 +21,6 @@ export function input_value(aWin, aStr, aElement) {
 }
 
 /**
- * Emulates deleting strings via the keyboard.
- *
- * @param {Window} aWin - The window to input keypresses into.
- * @param {Element} aElement - The element in which to delete characters.
- * @param {integer} aNumber - The number of times to press the delete key.
- */
-export function delete_existing(aWin, aElement, aNumber) {
-  for (let i = 0; i < aNumber; ++i) {
-    aElement.focus();
-    EventUtils.synthesizeKey("VK_BACK_SPACE", {}, aWin);
-  }
-}
-
-/**
  * Emulates deleting the entire string by pressing Ctrl+A and DEL.
  *
  * @param {Window} aWin - The window to input keypresses into.
