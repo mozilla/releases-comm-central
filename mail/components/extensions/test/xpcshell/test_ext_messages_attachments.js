@@ -17,9 +17,13 @@ add_setup(
   },
   async function test_setup() {
     const _account = createAccount();
-    const _testFolder = await createSubfolder(
+    const _testFolder1 = await createSubfolder(
       _account.incomingServer.rootFolder,
       "test1"
+    );
+    const _testFolder2 = await createSubfolder(
+      _account.incomingServer.rootFolder,
+      "test2"
     );
 
     const textAttachment = {
@@ -34,45 +38,51 @@ add_setup(
       encoding: "base64",
     };
 
-    await createMessages(_testFolder, {
+    await createMessages(_testFolder1, {
       count: 1,
       subject: "0 attachments",
     });
-    await createMessages(_testFolder, {
+    await createMessages(_testFolder1, {
       count: 1,
       subject: "1 text attachment",
       attachments: [textAttachment],
     });
-    await createMessages(_testFolder, {
+    await createMessages(_testFolder1, {
       count: 1,
       subject: "1 binary attachment",
       attachments: [binaryAttachment],
     });
-    await createMessages(_testFolder, {
+    await createMessages(_testFolder1, {
       count: 1,
       subject: "2 attachments",
       attachments: [binaryAttachment, textAttachment],
     });
     await createMessageFromFile(
-      _testFolder,
+      _testFolder1,
       do_get_file("messages/nestedMessages.eml").path
     );
     await createMessageFromFile(
-      _testFolder,
+      _testFolder1,
       do_get_file("messages/attachmentOnly.eml").path
     );
     await createMessageFromFile(
-      _testFolder,
+      _testFolder1,
       do_get_file("messages/nestedMessageInline.eml").path
     );
     // A multipart/related message with an embedded image.
     await createMessageFromFile(
-      _testFolder,
+      _testFolder1,
       do_get_file("messages/sample08.eml").path
     );
     await createMessageFromFile(
-      _testFolder,
+      _testFolder1,
       do_get_file("messages/nestedMessageNoContentDispositionHeader.eml").path
+    );
+
+    // A binary attachment marked as inline.
+    await createMessageFromFile(
+      _testFolder2,
+      do_get_file("messages/inlineBinaryAttachment.eml").path
     );
   }
 );
@@ -1052,6 +1062,45 @@ add_task(
           "messagesRead",
           "messagesModifyPermanent",
         ],
+      },
+    });
+
+    await extension.startup();
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
+
+add_task(
+  {
+    skip_if: () => IS_IMAP,
+  },
+  async function test_binary_attachments_as_inline_attachments() {
+    const extension = ExtensionTestUtils.loadExtension({
+      files: {
+        "background.js": async () => {
+          const [account] = await browser.accounts.list();
+          const testFolder = account.folders.find(f => f.name == "test2");
+          const { messages } = await browser.messages.list(testFolder.id);
+          browser.test.assertEq(1, messages.length);
+          const message = messages[0];
+
+          // Request attachments.
+          const attachments = await browser.messages.listAttachments(
+            message.id
+          );
+          browser.test.assertEq(1, attachments.length);
+          browser.test.assertEq("1.2", attachments[0].partName);
+          browser.test.assertEq("Simple_file.pdf", attachments[0].name);
+          browser.test.assertEq("inline", attachments[0].contentDisposition);
+
+          browser.test.notifyPass("finished");
+        },
+        "utils.js": await getUtilsJS(),
+      },
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesRead"],
       },
     });
 

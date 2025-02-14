@@ -162,7 +162,7 @@ function convertMessagePart(
   };
 
   if (decodeContent) {
-    // Supress content of attachments or other binary parts.
+    // Suppress content of attachments or other binary parts.
     const mediatype = mimeTreePart.headers.contentType.mediatype || "text";
     if (
       mimeTreePart.body &&

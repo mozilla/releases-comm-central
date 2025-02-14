@@ -286,58 +286,55 @@ function getParentMsgInfo(msgHdr) {
  * Custom MimeTreeEmitter class with custom determination of attachment names.
  */
 class WebExtMimeTreeEmitter extends MimeTreeEmitter {
+  /**
+   * Extract the attachment name of this part, if it is an attachment.
+   *
+   * Note: The content of parts which are _not_ considered to be attachments will
+   * be included in the return value of messages.getFull().
+   *
+   * @param {MimeTreePart} mimeTreePart
+   * @returns {?string} Name of the attachment, or null.
+   */
   getAttachmentName(mimeTreePart) {
-    const getName = header => {
-      if (!header) {
-        return "";
-      }
-      const filename = lazy.MimeParser.getParameter(header, "filename");
-      if (filename) {
-        return filename;
-      }
-      if (mimeTreePart.fullContentType) {
-        const name = lazy.MimeParser.getParameter(
-          mimeTreePart.fullContentType,
-          "name"
-        );
-        if (name) {
-          return name;
-        }
-      }
-      return "";
-    };
-
-    const contentDisposition = mimeTreePart.headers.has("content-disposition")
-      ? mimeTreePart.headers.get("content-disposition")[0]
-      : undefined;
-
-    // Forwarded messages are sometimes not marked as attachments, but we always
-    // consider them as such.
-    if (
-      contentDisposition ||
-      mimeTreePart.headers.contentType.type == "message/rfc822"
-    ) {
-      if (mimeTreePart.headers.contentType.type == "message/rfc822") {
-        return getName(contentDisposition) || "ForwardedMessage.eml";
-      }
-
-      // We also consider related (inline) attachments as attachments.
-      if (mimeTreePart.headers._rawHeaders.has("content-id")) {
-        return (
-          getName(contentDisposition) ||
-          mimeTreePart.headers.contentType.get("name") ||
-          ""
-        );
-      }
-
-      if (
-        /^attachment/i.test(contentDisposition) ||
-        mimeTreePart.headers.contentType.type == "text/x-moz-deleted"
-      ) {
-        return getName(contentDisposition);
-      }
+    const { mediatype, type } = mimeTreePart.headers.contentType;
+    // Early exit on multipart parts.
+    if (mediatype == "multipart") {
+      return null;
     }
-    return null;
+
+    let name;
+    const contentDisposition = mimeTreePart.headers.get("content-disposition");
+    if (contentDisposition) {
+      name = lazy.MimeParser.getParameter(contentDisposition[0], "filename");
+    }
+    if (!name) {
+      name = mimeTreePart.headers.contentType.get("name") || "";
+    }
+
+    // Handle forwarded messages.
+    if (type == "message/rfc822") {
+      return name || "ForwardedMessage.eml";
+    }
+
+    // Handle deleted attachments.
+    if (type == "text/x-moz-deleted") {
+      return name;
+    }
+
+    // Handle related attachments.
+    if (mimeTreePart.headers._rawHeaders.has("content-id")) {
+      return name;
+    }
+
+    // Skip text parts which are not clearly marked as attachments.
+    if (
+      mediatype == "text" &&
+      (!contentDisposition || !/^attachment/i.test(contentDisposition[0]))
+    ) {
+      return null;
+    }
+
+    return name;
   }
 }
 
