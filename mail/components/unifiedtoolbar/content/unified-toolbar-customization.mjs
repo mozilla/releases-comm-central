@@ -35,6 +35,8 @@ const BUILTIN_SPACES = new Set([
  * custom element for state management. When visible, the document should have
  * the customizingUnifiedToolbar class.
  * Template: #unifiedToolbarCustomizationTemplate.
+ *
+ * @tagname unified-toolbar-customization
  */
 class UnifiedToolbarCustomization extends HTMLElement {
   /**

@@ -6,26 +6,26 @@
  * Search input with customizable search button and placeholder.
  * Template ID: #searchBarTemplate (from search-bar.inc.xhtml)
  *
- * tagname: search-bar
+ * @tagname search-bar
  *
  * @property {string} label - Search field label for accessibility tree.
  * @property {boolean} disabled - When present, disable the search field and
  *   button.
  * @property {number} maxlength - Max length of the input in the search field.
  *
- * slot placeholder - Content displayed as placeholder. When not provided, the
+ * @slot placeholder - Content displayed as placeholder. When not provided, the
  *   value of the label attribute is shown as placeholder.
- * slot clear-button - Content displayed on the clear button.
- * slot search-button - Content displayed on the search button.
+ * @slot clear-button - Content displayed on the clear button.
+ * @slot search-button - Content displayed on the search button.
  *
  * @fires CustomEvent#search - Event when a search should be executed. detail
  *   holds the search term.
  * @fires CustomEvent#autocomplete - Auto complete update. detail holds the
  *   current search term.
- * cssproperty --search-bar-color - Text color of the search bar.
- * cssproperty --search-bar-border-color - Border color of the search bar.
- * cssproperty --search-bar-background - Background color of the search bar.
- * cssproperty --search-bar-focus-background - Background color of the search
+ * @cssproperty --search-bar-color - Text color of the search bar.
+ * @cssproperty --search-bar-border-color - Border color of the search bar.
+ * @cssproperty --search-bar-background - Background color of the search bar.
+ * @cssproperty --search-bar-focus-background - Background color of the search
  *   bar when focused.
  */
 export class SearchBar extends HTMLElement {

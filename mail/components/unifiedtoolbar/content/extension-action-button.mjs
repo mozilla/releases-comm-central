@@ -21,9 +21,9 @@ const BADGE_BACKGROUND_COLOR = "--toolbar-button-badge-bg-color";
 const BADGE_TEXT_COLOR = "--toolbar-button-badge-text-color";
 
 /**
- * Attributes:
- * - extension: ID of the extension this button is for.
- * - open: true if the popup is currently open. Gets redirected to aria-pressed.
+ * @tagname extension-action-button
+ * @attribute {string} extension - ID of the extension this button is for.
+ * @attribute {boolean} open - true if the popup is currently open. Gets redirected to aria-pressed.
  */
 class ExtensionActionButton extends UnifiedToolbarButton {
   static get observedAttributes() {

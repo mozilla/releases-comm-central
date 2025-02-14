@@ -15,7 +15,7 @@ import {
  * NOTE: All children of this element should be HTML. If there are XUL
  *   elements, you're gonna have a bad time.
  *
- * tagname: orderable-tree-listbox
+ * @tagname orderable-tree-listbox
  *
  * @fires CustomEvent#ordered - Fired when the list is re-ordered. The
  *   detail field contains the row that was re-ordered.

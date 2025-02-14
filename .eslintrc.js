@@ -183,6 +183,21 @@ module.exports = {
       files: ["*.*"],
       excludedFiles: [".eslintrc.js"],
       extends: ["plugin:mozilla/valid-jsdoc"],
+      rules: {
+        "jsdoc/check-tag-names": [
+          "error",
+          {
+            definedTags: [
+              "attribute",
+              "cssproperty",
+              "property",
+              "part",
+              "slot",
+              "tagname",
+            ],
+          },
+        ],
+      },
     },
   ],
 };

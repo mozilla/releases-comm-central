@@ -11,14 +11,14 @@ const { getAvailableItemIdsForSpace } = ChromeUtils.importESModule(
 
 /**
  * Customization target where items can be placed, rearranged and removed.
- * Attributes:
- * - aria-label: Name of the target area.
- * - current-items: Comma separated item IDs currently in this area. When
+ *
+ * @tagname customization-target
+ * @attribute {string} aria-label - Name of the target area.
+ * @attribute {string} current-items - Comma separated item IDs currently in this area. When
  *   changed initialize should be called.
- * Events:
- * - itemchange: Fired whenever the items inside the toolbar are added, moved or
+ * @fires itemchange - Fired whenever the items inside the toolbar are added, moved or
  *   removed.
- * - space: The space this target is in.
+ * @fires space - The space this target is in.
  */
 class CustomizationTarget extends ListBoxSelection {
   contextMenuId = "customizationTargetMenu";

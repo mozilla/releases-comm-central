@@ -3,12 +3,14 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Template ID: unifiedToolbarTabTemplate
- * Attributes:
- * - selected: If the tab is active.
- * - aria-controls: The ID of the tab pane this controls.
- * Events:
- * - tabswitch: When the active tab is changed.
+ * Template ID: #unifiedToolbarTabTemplate
+ *
+ * @tagname unified-toolbar-tab
+ * @attribute {boolean} selected If the tab is active.
+ * @attribute {string} aria-controls The ID of the tab pane this controls.
+ * @slot The default slot contains the tab label.
+ * @part icon - The tab icon.
+ * @fires tabswitch When the active tab is changed.
  */
 class UnifiedToolbarTab extends HTMLElement {
   /**

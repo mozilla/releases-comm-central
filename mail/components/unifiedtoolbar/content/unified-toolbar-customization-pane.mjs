@@ -15,11 +15,11 @@ const { getDefaultItemIdsForSpace } = ChromeUtils.importESModule(
 );
 
 /**
- * Template ID: unifiedToolbarCustomizationPaneTemplate
- * Attributes:
- * - space: Identifier of the space this pane is for. Changes are not observed.
- * - current-items: Currently used items in this space.
- * - builtin-space: Boolean indicating if the space is a built in space (true) or an
+ * Template ID: #unifiedToolbarCustomizationPaneTemplate
+ *
+ * @attribute {string} space - Identifier of the space this pane is for. Changes are not observed.
+ * @attribute {string} current-items - Currently used items in this space.
+ * @attribute {boolean} builtin-space - Boolean indicating if the space is a built in space (true) or an
  *   extension provided space (false).
  */
 class UnifiedToolbarCustomizationPane extends HTMLElement {

@@ -11,10 +11,11 @@ const { getAvailableItemIdsForSpace, MULTIPLE_ALLOWED_ITEM_IDS } =
 /**
  * Customization palette containing items that can be added to a customization
  * target.
- * Attributes:
- * - space: ID of the space the widgets are for. "all" for space agnostic
+ *
+ * @tagname customization-palette
+ * @attribute {string} space - ID of the space the widgets are for. "all" for space agnostic
  *   widgets. Not observed.
- * - items-in-use: Comma-separated IDs of items that are in a target at the time
+ * @attribute {string} items-in-use - Comma-separated IDs of items that are in a target at the time
  *   this is initialized. When changed, initialize should be called.
  */
 class CustomizationPalette extends ListBoxSelection {

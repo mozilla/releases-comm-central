@@ -31,6 +31,9 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * management and interaction logic. Template: #unifiedToolbarTemplate.
  * Requires unifiedToolbarPopups.inc.xhtml to be in a popupset of the same
  * document.
+ * Template ID: #unifiedToolbarTemplate
+ *
+ * @tagname unified-toolbar
  */
 class UnifiedToolbar extends HTMLElement {
   constructor() {

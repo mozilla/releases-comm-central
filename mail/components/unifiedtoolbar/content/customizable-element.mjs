@@ -22,9 +22,10 @@ const browserActionFor = extensionId =>
  * Wrapper element for elements whose position can be customized.
  *
  * Template ID: #unifiedToolbarCustomizableElementTemplate
- * Attributes:
- * - item-id: ID of the customizable item this represents. Not observed.
- * - disabled: Gets passed on to the live content.
+ *
+ * @tagname customizable-element
+ * @attribute {string} item-id - ID of the customizable item this represents. Not observed.
+ * @attribute {boolean} disabled - Gets passed on to the live content.
  */
 export default class CustomizableElement extends HTMLLIElement {
   static get observedAttributes() {
