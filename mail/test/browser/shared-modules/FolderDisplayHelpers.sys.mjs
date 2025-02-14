@@ -2325,13 +2325,6 @@ export function assert_message_pane_focused() {
 }
 
 /**
- * Assert that the multimessage pane is focused.
- */
-export function assert_multimessage_pane_focused() {
-  _assert_thing_focused("multimessage");
-}
-
-/**
  * Assert that the attachment list is focused.
  */
 export function assert_attachment_list_focused() {
