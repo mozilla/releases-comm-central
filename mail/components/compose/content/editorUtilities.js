@@ -270,11 +270,6 @@ function IsDocumentEditable() {
   return false;
 }
 
-function IsHTMLSourceChanged() {
-  // gSourceTextEditor will not be defined if we're just a text editor.
-  return gSourceTextEditor ? gSourceTextEditor.documentModified : false;
-}
-
 function newCommandParams() {
   try {
     return Cu.createCommandParams();
