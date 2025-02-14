@@ -164,15 +164,6 @@ function make_view_wrapper() {
 }
 
 /**
- * Clone an open and valid view wrapper.
- */
-function clone_view_wrapper(aViewWrapper) {
-  const wrapper = aViewWrapper.clone(gMockViewWrapperListener);
-  VWTU_testHelper.active_view_wrappers.push(wrapper);
-  return wrapper;
-}
-
-/**
  * Open a folder for view display.  This is an async operation, relying on the
  *  onMessagesLoaded(true) notification to get he test going again.
  */
