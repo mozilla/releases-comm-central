@@ -1674,14 +1674,6 @@ export function toggle_message_pane() {
 }
 
 /**
- * Make the folder pane visible in order to run tests.
- * This is necessary as the FolderPane is collapsed if no account is available.
- */
-export function show_folder_pane() {
-  mc.document.getElementById("folderPaneBox").collapsed = false;
-}
-
-/**
  * Helper function for use by assert_selected / assert_selected_and_displayed /
  *  assert_displayed.
  *
