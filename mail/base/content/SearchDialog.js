@@ -146,8 +146,6 @@ function UpdateMailSearch() {
   document.commandDispatcher.updateCommands("mail-search");
 }
 
-function SetAdvancedSearchStatusText() {}
-
 /**
  * Subclass the FolderDisplayWidget to deal with UI specific to the search
  *  window.
