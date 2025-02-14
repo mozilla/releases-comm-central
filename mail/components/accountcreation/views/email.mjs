@@ -652,6 +652,16 @@ class AccountHubEmail extends HTMLElement {
             syncAccounts.calendars = await this.#getCalendars("", false);
             this.#currentSubview.setState(syncAccounts);
             this.#configVerifier.cleanup();
+
+            const accountsFound =
+              syncAccounts.addressBooks.length || syncAccounts.calendars.length;
+            this.#currentSubview.showNotification({
+              fluentTitleId: accountsFound
+                ? "account-hub-sync-accounts-found"
+                : "account-hub-sync-accounts-not-found",
+              type: accountsFound ? "success" : "info",
+            });
+            break;
           } catch (error) {
             this.#currentSubview.showNotification({
               fluentTitleId: "account-hub-sync-accounts-not-found",
@@ -660,11 +670,6 @@ class AccountHubEmail extends HTMLElement {
             });
             break;
           }
-          this.#currentSubview.showNotification({
-            fluentTitleId: "account-hub-sync-accounts-found",
-            type: "success",
-          });
-          break;
         }
         // Move to the password stage where validateAndFinish is run.
         await this.#initUI(this.#states[this.#currentState].nextStep);
@@ -711,6 +716,16 @@ class AccountHubEmail extends HTMLElement {
           );
           this.#currentSubview.setState(syncAccounts);
           this.#configVerifier.cleanup();
+          const accountsFound =
+            syncAccounts.addressBooks.length || syncAccounts.calendars.length;
+
+          this.#currentSubview.showNotification({
+            fluentTitleId: accountsFound
+              ? "account-hub-sync-accounts-found"
+              : "account-hub-sync-accounts-not-found",
+            type: accountsFound ? "success" : "info",
+          });
+          break;
         } catch (error) {
           this.#currentSubview.showNotification({
             fluentTitleId: "account-hub-sync-accounts-not-found",
@@ -720,11 +735,6 @@ class AccountHubEmail extends HTMLElement {
           break;
         }
 
-        this.#currentSubview.showNotification({
-          fluentTitleId: "account-hub-sync-accounts-found",
-          type: "success",
-        });
-        break;
       case "emailSyncAccountsSubview":
         try {
           // Add the selected sync address books and calendars.
