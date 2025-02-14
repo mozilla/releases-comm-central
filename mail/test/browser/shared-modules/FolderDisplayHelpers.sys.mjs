@@ -2587,32 +2587,6 @@ export async function set_mail_view(aMailViewIndex, aData) {
 }
 
 /**
- * Assert that the current mail view is as given. See the documentation for
- * |set_mail_view| for information about aData.
- */
-export function assert_mail_view(aMailViewIndex, aData) {
-  const actualMailViewIndex = mc.gFolderDisplay.view.mailViewIndex;
-  if (actualMailViewIndex != aMailViewIndex) {
-    throw new Error(
-      "The mail view index should be " +
-        aMailViewIndex +
-        ", but is actually " +
-        actualMailViewIndex
-    );
-  }
-
-  const actualMailViewData = mc.gFolderDisplay.view.mailViewData;
-  if (actualMailViewData != aData) {
-    throw new Error(
-      "The mail view data should be " +
-        aData +
-        ", but is actually " +
-        actualMailViewData
-    );
-  }
-}
-
-/**
  * Expand all threads in the current view.
  */
 export async function expand_all_threads() {
