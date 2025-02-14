@@ -397,6 +397,20 @@ function getProperSenderForCardsView(folder) {
  * @returns {string[]}
  */
 function getDefaultColumnsForCardsView(folder) {
+  const columns = [
+    "subject",
+    "sender",
+    "date",
+    "size",
+    "tagKeys",
+    "total",
+    "unread",
+  ];
+
+  if (isOutgoing(folder)) {
+    return columns;
+  }
+
   const sender = getProperSenderForCardsView(folder);
   return [
     "subjectCol",
