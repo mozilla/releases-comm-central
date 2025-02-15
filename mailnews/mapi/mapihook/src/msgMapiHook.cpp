@@ -388,7 +388,7 @@ nsresult nsMapiHook::HandleAttachments(nsIMsgCompFields* aCompFields,
       nsCOMPtr<nsIMsgAttachment> attachment =
           do_CreateInstance("@mozilla.org/messengercompose/attachment;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
-      attachment->SetName(leafName);
+      attachment->SetName(NS_ConvertUTF16toUTF8(leafName));
 
       nsCOMPtr<nsIFile> pTempFile;
       rv = pTempDir->Clone(getter_AddRefs(pTempFile));
@@ -498,7 +498,7 @@ nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields* aCompFields,
       nsCOMPtr<nsIMsgAttachment> attachment =
           do_CreateInstance("@mozilla.org/messengercompose/attachment;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
-      attachment->SetName(leafName);
+      attachment->SetName(NS_ConvertUTF16toUTF8(leafName));
 
       nsCOMPtr<nsIFile> pTempFile;
       rv = pTempDir->Clone(getter_AddRefs(pTempFile));

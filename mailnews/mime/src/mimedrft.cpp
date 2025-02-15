@@ -161,12 +161,12 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams>& pMsgComposeParams,
                                          nameStr);
           if (NS_FAILED(rv))
             CopyASCIItoUTF16(curAttachment->m_realName, nameStr);
-          attachment->SetName(nameStr);
+          attachment->SetName(NS_ConvertUTF16toUTF8(nameStr));
           attachment->SetUrl(spec);
           attachment->SetTemporary(true);
-          attachment->SetContentType(curAttachment->m_realType.get());
-          attachment->SetMacType(curAttachment->m_xMacType.get());
-          attachment->SetMacCreator(curAttachment->m_xMacCreator.get());
+          attachment->SetContentType(curAttachment->m_realType);
+          attachment->SetMacType(curAttachment->m_xMacType);
+          attachment->SetMacCreator(curAttachment->m_xMacCreator);
           attachment->SetSize(curAttachment->m_size);
           if (!curAttachment->m_cloudPartInfo.IsEmpty()) {
             nsCString provider;

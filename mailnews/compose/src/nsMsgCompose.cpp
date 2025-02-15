@@ -1251,13 +1251,13 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
         if (index != kNotFound) userid.SetLength(index);
 
         if (userid.IsEmpty())
-          attachment->SetName(u"vcard.vcf"_ns);
+          attachment->SetName("vcard.vcf"_ns);
         else {
           // Replace any dot with underscore to stop vCards
           // generating false positives with some heuristic scanners
           userid.ReplaceChar('.', '_');
           userid.AppendLiteral(".vcf");
-          attachment->SetName(NS_ConvertASCIItoUTF16(userid));
+          attachment->SetName(userid);
         }
 
         attachment->SetUrl(vCardUrl);
@@ -1863,8 +1863,9 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
             // change all '.' to '_'  see bug #271211
             sanitizedSubj.ReplaceChar(u".", u'_');
             if (addExtension) sanitizedSubj.AppendLiteral(".eml");
-            attachment->SetName(sanitizedSubj);
+            attachment->SetName(NS_ConvertUTF16toUTF8(sanitizedSubj));
             attachment->SetUrl(nsDependentCString(uri));
+            attachment->SetContentType("message/rfc822"_ns);
             m_compFields->AddAttachment(attachment);
           }
 

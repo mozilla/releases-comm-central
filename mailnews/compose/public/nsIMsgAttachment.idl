@@ -14,7 +14,7 @@ interface nsIMsgAttachment : nsISupports {
    * @Attachment real name, will be sent with the attachment's header.
    * @If no name has been provided, a name will be generated using the url.
    */
-  attribute AString name;
+  attribute AUTF8String name;
 
   /**
    * url attribute
@@ -36,7 +36,7 @@ interface nsIMsgAttachment : nsISupports {
    * @specify the Charset of url  (used to convert url to Unicode after
    *  unescaping)
    */
-  attribute ACString urlCharset;
+  attribute AUTF8String urlCharset;
 
 
   /**
@@ -55,7 +55,7 @@ interface nsIMsgAttachment : nsISupports {
   /**
    * Cloud provider account key for this attachment, if any.
    */
-  attribute ACString cloudFileAccountKey;
+  attribute AUTF8String cloudFileAccountKey;
 
   /**
    * A data string stored in the x-mozilla-cloud-part header of draft messages,
@@ -77,7 +77,7 @@ interface nsIMsgAttachment : nsISupports {
    * the original mailbox:// url of attachments, after they have been saves as
    * temporary files.
    */
-  attribute ACString contentLocation;
+  attribute AUTF8String contentLocation;
 
   /**
    * contentType attribute
@@ -86,7 +86,7 @@ interface nsIMsgAttachment : nsISupports {
    * @you need to specify extra information, use contentTypeParam, charset, macType or macCreator.
    * @If omitted, it will be determined base on either the name, the url or the content of the file.
    */
-  attribute string contentType;
+  attribute AUTF8String contentType;
 
   /**
    * contentTypeParam attribute
@@ -94,7 +94,7 @@ interface nsIMsgAttachment : nsISupports {
    * @Specify the any content-type parameter (other than the content-type itself, charset, macType or macCreator).
    * @It will be added to the content-type during the send/save operation.
    */
-  attribute string contentTypeParam;
+  attribute AUTF8String contentTypeParam;
 
   /**
    * Content-ID for embedded attachments inside a multipart/related container.
@@ -108,7 +108,7 @@ interface nsIMsgAttachment : nsISupports {
    * @send/save operation
    * @If omitted, will be determined automatically (if possible).
    */
-  attribute string charset;
+  attribute AUTF8String charset;
 
   /**
    * size attribute
@@ -124,7 +124,7 @@ interface nsIMsgAttachment : nsISupports {
    * @send/save operation
    * @If omitted, will be determined automatically on Macintosh OS.
    */
-  attribute string macType;
+  attribute AUTF8String macType;
 
   /**
    * macCreator attribute
@@ -133,7 +133,7 @@ interface nsIMsgAttachment : nsISupports {
    * @send/save operation
    * @If omitted, will be determined automatically on Macintosh OS.
    */
-  attribute string macCreator;
+  attribute AUTF8String macCreator;
 
   /**
     * equalsUrl

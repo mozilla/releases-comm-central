@@ -21,12 +21,12 @@ nsMsgAttachment::~nsMsgAttachment() {
 }
 
 /* attribute wstring name; */
-NS_IMETHODIMP nsMsgAttachment::GetName(nsAString& aName) {
+NS_IMETHODIMP nsMsgAttachment::GetName(nsACString& aName) {
   aName = mName;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::SetName(const nsAString& aName) {
+NS_IMETHODIMP nsMsgAttachment::SetName(const nsACString& aName) {
   mName = aName;
   return NS_OK;
 }
@@ -134,14 +134,12 @@ NS_IMETHODIMP nsMsgAttachment::SetContentLocation(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::GetContentType(char** aContentType) {
-  NS_ENSURE_ARG_POINTER(aContentType);
-
-  *aContentType = ToNewCString(mContentType);
-  return (*aContentType ? NS_OK : NS_ERROR_OUT_OF_MEMORY);
+NS_IMETHODIMP nsMsgAttachment::GetContentType(nsACString& aContentType) {
+  aContentType = mContentType;
+  return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::SetContentType(const char* aContentType) {
+NS_IMETHODIMP nsMsgAttachment::SetContentType(const nsACString& aContentType) {
   mContentType = aContentType;
   // a full content type could also contains parameters but we need to
   // keep only the content type alone. Therefore we need to cleanup it.
@@ -151,20 +149,22 @@ NS_IMETHODIMP nsMsgAttachment::SetContentType(const char* aContentType) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::GetContentTypeParam(char** aContentTypeParam) {
-  NS_ENSURE_ARG_POINTER(aContentTypeParam);
-
-  *aContentTypeParam = ToNewCString(mContentTypeParam);
-  return (*aContentTypeParam ? NS_OK : NS_ERROR_OUT_OF_MEMORY);
+NS_IMETHODIMP nsMsgAttachment::GetContentTypeParam(
+    nsACString& aContentTypeParam) {
+  aContentTypeParam = mContentTypeParam;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgAttachment::SetContentTypeParam(
-    const char* aContentTypeParam) {
-  if (aContentTypeParam)
-    while (*aContentTypeParam == ';' || *aContentTypeParam == ' ')
-      aContentTypeParam++;
-  mContentTypeParam = aContentTypeParam;
-
+    const nsACString& aContentTypeParam) {
+  if (!aContentTypeParam.IsEmpty()) {
+    nsCString contentTypeParam(aContentTypeParam);
+    const char* ctp = contentTypeParam.get();
+    while (*ctp == ';' || *ctp == ' ') {
+      ctp++;
+    }
+    mContentTypeParam = nsDependentCString(ctp);
+  }
   return NS_OK;
 }
 
@@ -178,38 +178,29 @@ NS_IMETHODIMP nsMsgAttachment::SetContentId(const nsACString& aContentId) {
   return NS_OK;
 }
 
-/* attribute string charset; */
-NS_IMETHODIMP nsMsgAttachment::GetCharset(char** aCharset) {
-  NS_ENSURE_ARG_POINTER(aCharset);
-
-  *aCharset = ToNewCString(mCharset);
-  return (*aCharset ? NS_OK : NS_ERROR_OUT_OF_MEMORY);
+NS_IMETHODIMP nsMsgAttachment::GetCharset(nsACString& aCharset) {
+  aCharset = mCharset;
+  return NS_OK;
 }
-NS_IMETHODIMP nsMsgAttachment::SetCharset(const char* aCharset) {
+NS_IMETHODIMP nsMsgAttachment::SetCharset(const nsACString& aCharset) {
   mCharset = aCharset;
   return NS_OK;
 }
 
-/* attribute string macType; */
-NS_IMETHODIMP nsMsgAttachment::GetMacType(char** aMacType) {
-  NS_ENSURE_ARG_POINTER(aMacType);
-
-  *aMacType = ToNewCString(mMacType);
-  return (*aMacType ? NS_OK : NS_ERROR_OUT_OF_MEMORY);
+NS_IMETHODIMP nsMsgAttachment::GetMacType(nsACString& aMacType) {
+  aMacType = mMacType;
+  return NS_OK;
 }
-NS_IMETHODIMP nsMsgAttachment::SetMacType(const char* aMacType) {
+NS_IMETHODIMP nsMsgAttachment::SetMacType(const nsACString& aMacType) {
   mMacType = aMacType;
   return NS_OK;
 }
 
-/* attribute string macCreator; */
-NS_IMETHODIMP nsMsgAttachment::GetMacCreator(char** aMacCreator) {
-  NS_ENSURE_ARG_POINTER(aMacCreator);
-
-  *aMacCreator = ToNewCString(mMacCreator);
-  return (*aMacCreator ? NS_OK : NS_ERROR_OUT_OF_MEMORY);
+NS_IMETHODIMP nsMsgAttachment::GetMacCreator(nsACString& aMacCreator) {
+  aMacCreator = mMacCreator;
+  return NS_OK;
 }
-NS_IMETHODIMP nsMsgAttachment::SetMacCreator(const char* aMacCreator) {
+NS_IMETHODIMP nsMsgAttachment::SetMacCreator(const nsACString& aMacCreator) {
   mMacCreator = aMacCreator;
   return NS_OK;
 }

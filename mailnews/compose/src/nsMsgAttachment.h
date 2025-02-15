@@ -20,7 +20,7 @@ class nsMsgAttachment : public nsIMsgAttachment {
   virtual ~nsMsgAttachment();
   nsresult DeleteAttachment();
 
-  nsString mName;
+  nsCString mName;
   nsCString mUrl;
   nsCString mMsgUri;
   nsCString mUrlCharset;

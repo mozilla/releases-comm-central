@@ -270,3 +270,58 @@ add_task(async function test_mailto_link_in_eml() {
   await close_compose_window(cwc);
   await BrowserTestUtils.closeWindow(msgc); // close base .eml message
 });
+
+/**
+ * Test that forward as attachment works.
+ */
+add_task(async function test_forward_eml_as_attachment() {
+  Services.prefs.setIntPref("mail.forward_message_mode", 0);
+
+  const file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
+  const msgc = await open_message_from_file(file);
+
+  // Case 1 - with extension.
+  Services.prefs.setBoolPref("mail.forward_add_extension", true);
+  const win = await open_compose_with_forward(msgc);
+  const attachment =
+    win.document.getElementById("attachmentBucket").itemChildren[0]?.attachment;
+  Assert.equal(attachment.name, "why.eml", "should get correct name w/ ext");
+  Assert.equal(
+    attachment.contentType,
+    "message/rfc822",
+    "should get correct mime type w/ ext"
+  );
+  await close_compose_window(win);
+
+  // Case 2 - without extension.
+  Services.prefs.setBoolPref("mail.forward_add_extension", false);
+  const win2 = await open_compose_with_forward(msgc);
+  const attachment2 =
+    win2.document.getElementById("attachmentBucket").itemChildren[0]
+      ?.attachment;
+  Assert.equal(attachment2.name, "why", "should get correct name w/o ext");
+  Assert.equal(
+    attachment2.contentType,
+    "message/rfc822",
+    "should get correct mime type w/o ext"
+  );
+  await save_compose_message(win2);
+  await close_compose_window(win2);
+
+  await TestUtils.waitForCondition(
+    () => gDrafts.getTotalMessages(false) == 1,
+    "message saved to drafts folder"
+  );
+
+  // Drafts folder should exist now.
+  await be_in_folder(gDrafts);
+  const draftMsg = await select_click_row(0);
+  if (!draftMsg) {
+    throw new Error("No draft saved!");
+  }
+  await press_delete(); // Delete the draft.
+
+  await BrowserTestUtils.closeWindow(msgc); // close base .eml message
+  Services.prefs.clearUserPref("mail.forward_add_extension");
+  Services.prefs.clearUserPref("mail.forward_message_mode");
+});
