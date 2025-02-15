@@ -207,6 +207,7 @@
     <!-- Content area context menu -->
     <command id="cmd_copyLink"/>
     <command id="cmd_copyImage"/>
+    <command id="cmd_searchselect"/>
 
     <!-- View Menu -->
     <command id="View:PageSource" oncommand="BrowserViewSource(gBrowser.selectedBrowser);" observes="isImage"/>

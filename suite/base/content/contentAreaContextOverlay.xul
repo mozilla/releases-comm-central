@@ -267,8 +267,7 @@
                 label="&keywordfield.label;"
                 accesskey="&keywordfield.accesskey;"
                 oncommand="AddKeywordForSearchField();"/>
-      <menuitem id="context-searchselect"
-                oncommand="BrowserSearch.loadSearch(gContextMenu.searchSelected(), true, event);"/>
+      <menuitem id="context-searchselect"/>
       <menuseparator id="context-sep-properties"/>
       <menuitem id="context-viewpartialsource-selection"
                 label="&viewPartialSourceForSelectionCmd.label;"

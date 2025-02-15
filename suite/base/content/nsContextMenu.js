@@ -1512,16 +1512,7 @@ nsContextMenu.prototype = {
     if (searchSelectText.length > 15)
       searchSelectText = searchSelectText.substr(0, 15) + this.ellipsis;
 
-    // Use the current engine if it's a browser window and the search bar is
-    // visible, the default engine otherwise.
-    var engineName = "";
-    if (window.BrowserSearch &&
-        (isElementVisible(BrowserSearch.searchBar) ||
-         BrowserSearch.searchSidebar))
-      engineName = Services.search.currentEngine.name;
-    else
-      engineName = Services.search.defaultEngine.name;
-
+    let engineName = this.searchEngine().name;
     // format "Search <engine> for <selection>" string to show in menu
     const bundle = document.getElementById("contentAreaCommandsBundle");
     var menuLabel = bundle.getFormattedString("searchSelected",
@@ -1531,6 +1522,17 @@ nsContextMenu.prototype = {
                      bundle.getString("searchSelected.accesskey"));
 
     return true;
+  },
+
+  searchEngine: function() {
+    // Use the current engine if it's a browser window and the search bar is
+    // visible, the default engine otherwise.
+    if (window.BrowserSearch && (isElementVisible(BrowserSearch.searchBar) ||
+                                 BrowserSearch.searchSidebar)) {
+      return Services.search.currentEngine;
+    }
+
+    return Services.search.defaultEngine;
   },
 
   searchSelected: function(aCharlen) {
@@ -1668,7 +1670,20 @@ nsContextMenu.prototype = {
     if (this.onImage)
       return this.mediaURL;
     return "";
-  }
+  },
+
+  openSearch: function(aEvent) {
+    let submission = this.searchEngine().getSubmission(this.searchSelected());
+    // If you change /suite/navigator/navigator.js->BrowserSearch::loadSearch()
+    // make sure you make corresponding changes here.
+    if (!submission) {
+      return;
+    }
+
+    let newTabPref = Services.prefs.getBoolPref("browser.search.opentabforcontextsearch");
+    let where = newTabPref ? aEvent && aEvent.shiftKey ? "tabshifted" : "tab" : "window";
+    openUILinkIn(submission.uri.spec, where, null, submission.postData);
+  },
 };
 
 XPCOMUtils.defineLazyGetter(nsContextMenu.prototype, "ellipsis", function() {

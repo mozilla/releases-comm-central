@@ -121,6 +121,8 @@
   <command id="cmd_newEditor"/>
   <command id="cmd_createFilterFromPopup" oncommand="goDoCommand('cmd_createFilterFromPopup')"/>
   <command id="cmd_pageSetup"/>
+  <!-- context menu -->
+  <command id="cmd_searchselect"/>
 </commandset>
 
 <commandset id="mailViewMenuItems"
@@ -540,8 +542,7 @@
     <menuseparator id="mailContext-sep-link"/>
     <menuitem id="context-selectall"/>
     <menuitem id="context-copy"/>
-    <menuitem id="context-searchselect"
-              oncommand="MsgOpenSearch(gContextMenu.searchSelected(), event);"/>
+    <menuitem id="context-searchselect"/>
     <menuitem id="mailContext-openNewTab"
               label="&contextOpenNewTab.label;"
               accesskey="&contextOpenNewTab.accesskey;"

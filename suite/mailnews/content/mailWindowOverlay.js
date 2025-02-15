@@ -1472,18 +1472,6 @@ function MsgOpenSelectedMessageInExistingWindow() {
   return false;
 }
 
-function MsgOpenSearch(aSearchStr, aEvent) {
-  // If you change /suite/navigator/navigator.js->BrowserSearch::loadSearch()
-  // make sure you make corresponding changes here.
-  var submission = Services.search.defaultEngine.getSubmission(aSearchStr);
-  if (!submission)
-    return;
-
-  var newTabPref = Services.prefs.getBoolPref("browser.search.opentabforcontextsearch");
-  var where = newTabPref ? aEvent && aEvent.shiftKey ? "tabshifted" : "tab" : "window";
-  openUILinkIn(submission.uri.spec, where, null, submission.postData);
-}
-
 function MsgOpenNewWindowForMessage(messageUri, folderUri) {
   if (!messageUri)
     messageUri = gFolderDisplay.selectedMessageUri;

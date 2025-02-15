@@ -422,6 +422,8 @@
             label="&selectAllCmd.label;"
             accesskey="&selectAllCmd.accesskey;"
             command="cmd_selectAll"/>
+  <menuitem id="context-searchselect"
+            command="cmd_searchselect"/>
 
   <!-- These key nodes are here only for show. The real bindings come from
        XBL, in platformHTMLBindings.xml. See bugs 57078 and 71779. -->
@@ -538,6 +540,8 @@
   <command id="cmd_selectAll"
            oncommand="goDoCommand('cmd_selectAll')"
            disabled="true"/>
+  <command id="cmd_searchselect"
+           oncommand="gContextMenu.openSearch(event);"/>
   <command id="cmd_switchTextDirection"
            oncommand="goDoCommand('cmd_switchTextDirection');"/>
   <command id="cmd_findTypeText"
