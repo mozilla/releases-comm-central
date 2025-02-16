@@ -77,10 +77,12 @@ add_setup(async function () {
  */
 add_task(async function testSelectionRestoredOnReopen() {
   async function switchFolder(folder, expectedSelection, newSelection) {
-    displayFolder(folder);
-    await TestUtils.waitForCondition(
-      () => dbViewWrapperListener._allMessagesLoaded
+    const allMessagesLoadedPromise = BrowserTestUtils.waitForEvent(
+      about3Pane,
+      "allMessagesLoaded"
     );
+    displayFolder(folder);
+    await allMessagesLoadedPromise;
     Assert.deepEqual(
       threadTree.selectedIndices,
       expectedSelection,
