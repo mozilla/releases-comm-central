@@ -1373,6 +1373,8 @@ button:is(
 }
 
 #findbar-replaceButton {
+  flex-direction: initial;
+  min-width: unset;
   margin-block: 0;
 }
 
