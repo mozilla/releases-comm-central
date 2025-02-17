@@ -74,18 +74,6 @@ function OnSelect() {
   return true;
 }
 
-function SortSynchronizePane(column, sortKey) {
-  var node = FindInWindow(window, column);
-  if (!node) {
-    dump("Couldn't find sort column\n");
-    return;
-  }
-
-  node.setAttribute("sort", sortKey);
-  node.setAttribute("sortDirection", "natural");
-  var col = gSynchronizeTree.columns[column];
-  gSynchronizeTree.view.cycleHeader(col);
-}
 
 function FindInWindow(currentWindow, id) {
   var item = currentWindow.document.getElementById(id);
