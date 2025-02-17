@@ -286,6 +286,8 @@ chrome/toolkit/skin/classic/global/icons/calendar-arrow-right.svg
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/icons/input-clear.svg
 chrome/toolkit/skin/classic/global/icons/input-clear.svg
 
+default.locale
+
 # Compatibility gif files for modern theme.
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/gtk/tree/sort-dsc.gif
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/mac/tree/sort-asc.gif
