@@ -74,22 +74,6 @@ function OnSelect() {
   return true;
 }
 
-function UpdateNode(resource) {
-  var folder = resource.QueryInterface(Ci.nsIMsgFolder);
-
-  if (folder.isServer) {
-    return;
-  }
-
-  if (!(resource.Value in gInitialFolderStates)) {
-    gInitialFolderStates[resource.Value] = folder.getFlag(
-      Ci.nsMsgFolderFlags.Offline
-    );
-  }
-
-  folder.toggleFlag(Ci.nsMsgFolderFlags.Offline);
-}
-
 function GetFolderResource(aTree, aIndex) {
   return aTree.view.getResourceAtIndex(aIndex);
 }
