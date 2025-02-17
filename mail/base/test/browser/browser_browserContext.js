@@ -103,7 +103,7 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
   checkMenuitems(browserContext, ...expectedContextItems);
   browserContext.hidePopup();
 
-  // A link.
+  // A link. Also test "Save Link As" works.
 
   shownPromise = BrowserTestUtils.waitForEvent(browserContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
@@ -119,7 +119,16 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
     "browserContext-copylink",
     "browserContext-savelink"
   );
-  browserContext.hidePopup();
+  const pickerPromise2 = new Promise(resolve => {
+    SpecialPowers.MockFilePicker.init(window.browsingContext);
+    SpecialPowers.MockFilePicker.showCallback = picker => {
+      resolve(picker.defaultString);
+      return Ci.nsIFilePicker.returnCancel;
+    };
+  });
+  browserContext.activateItem(doc.getElementById("browserContext-savelink"));
+  Assert.equal(await pickerPromise2, "Link to a web page");
+  SpecialPowers.MockFilePicker.cleanup();
 
   // A text input widget.
 
