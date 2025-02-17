@@ -23,12 +23,6 @@ function getControls() {
   return gControls;
 }
 
-function getLocalFoldersAccount() {
-  return MailServices.accounts.findAccountForServer(
-    MailServices.accounts.localFoldersServer
-  );
-}
-
 function onLoad() {
   var prettyName = gServerSettings.serverPrettyName;
 
