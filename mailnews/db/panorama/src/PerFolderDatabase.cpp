@@ -8,6 +8,7 @@
 #include "MailNewsTypes.h"
 #include "Message.h"
 #include "MessageDatabase.h"
+#include "mozilla/Components.h"
 #include "nsMsgMessageFlags.h"
 
 namespace mozilla::mailnews {
@@ -65,7 +66,8 @@ NS_IMETHODIMP PerFolderDatabase::ResetHdrCacheSize(uint32_t size) {
 }
 NS_IMETHODIMP PerFolderDatabase::GetDBFolderInfo(
     nsIDBFolderInfo** aDBFolderInfo) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  NS_IF_ADDREF(*aDBFolderInfo = new FolderInfo(mFolderId));
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetDatabaseSize(int64_t* aDatabaseSize) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -486,6 +488,210 @@ NS_IMETHODIMP MessageEnumerator::HasMoreElements(bool* aHasNext) {
 
   *aHasNext = mHasNext;
   return NS_OK;
+}
+
+NS_IMPL_ISUPPORTS(FolderInfo, nsIDBFolderInfo)
+
+FolderInfo::FolderInfo(uint64_t aFolderId) {
+  nsCOMPtr<nsIDatabaseCore> core = components::DatabaseCore::Service();
+  core->GetFolders(getter_AddRefs(mDatabase));
+  mDatabase->GetFolderById(aFolderId, getter_AddRefs(mFolder));
+}
+
+NS_IMETHODIMP FolderInfo::GetFlags(int32_t* aFlags) {
+  (*aFlags = mFolder->GetFlags());
+  return NS_OK;
+}
+NS_IMETHODIMP FolderInfo::SetFlags(int32_t aFlags) {
+  return mDatabase->UpdateFlags(mFolder, aFlags);
+}
+NS_IMETHODIMP FolderInfo::OrFlags(int32_t aFlags, int32_t* aOutFlags) {
+  nsresult rv = mDatabase->UpdateFlags(mFolder, mFolder->GetFlags() | aFlags);
+  *aOutFlags = mFolder->GetFlags();
+  return rv;
+}
+NS_IMETHODIMP FolderInfo::AndFlags(int32_t aFlags, int32_t* aOutFlags) {
+  nsresult rv = mDatabase->UpdateFlags(mFolder, mFolder->GetFlags() & aFlags);
+  *aOutFlags = mFolder->GetFlags();
+  return rv;
+}
+NS_IMETHODIMP FolderInfo::OnKeyAdded(nsMsgKey aNewKey) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetHighWater(nsMsgKey* aHighWater) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetHighWater(nsMsgKey aHighWater) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetExpiredMark(nsMsgKey* aExpiredMark) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetExpiredMark(nsMsgKey aExpiredMark) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetFolderSize(int64_t* aFolderSize) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetFolderSize(int64_t aFolderSize) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetFolderDate(uint32_t* aFolderDate) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetFolderDate(uint32_t aFolderDate) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::ChangeNumUnreadMessages(int32_t aDelta) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::ChangeNumMessages(int32_t aDelta) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetNumUnreadMessages(int32_t* aNumUnreadMessages) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetNumUnreadMessages(int32_t aNumUnreadMessages) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetNumMessages(int32_t* aNumMessages) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetNumMessages(int32_t aNumMessages) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetExpungedBytes(int64_t* aExpungedBytes) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetExpungedBytes(int64_t aExpungedBytes) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetImapUidValidity(int32_t* aImapUidValidity) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetImapUidValidity(int32_t aImapUidValidity) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetVersion(uint32_t* aVersion) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetVersion(uint32_t aVersion) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetImapTotalPendingMessages(
+    int32_t* aImapTotalPendingMessages) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetImapTotalPendingMessages(
+    int32_t aImapTotalPendingMessages) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetImapUnreadPendingMessages(
+    int32_t* aImapUnreadPendingMessages) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetImapUnreadPendingMessages(
+    int32_t aImapUnreadPendingMessages) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetViewType(nsMsgViewTypeValue* aViewType) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetViewType(nsMsgViewTypeValue aViewType) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetViewFlags(nsMsgViewFlagsTypeValue* aViewFlags) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetSortType(nsMsgViewSortTypeValue* aSortType) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetSortType(nsMsgViewSortTypeValue aSortType) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetSortOrder(nsMsgViewSortOrderValue* aSortOrder) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetSortOrder(nsMsgViewSortOrderValue aSortOrder) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::ChangeExpungedBytes(int32_t aDelta) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetCharProperty(const char* propertyName,
+                                          nsACString& _retval) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetCharProperty(const char* aPropertyName,
+                                          const nsACString& aPropertyValue) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetUint32Property(const char* propertyName,
+                                            uint32_t propertyValue) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetInt64Property(const char* propertyName,
+                                           int64_t propertyValue) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetUint32Property(const char* propertyName,
+                                            uint32_t defaultValue,
+                                            uint32_t* _retval) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetInt64Property(const char* propertyName,
+                                           int64_t defaultValue,
+                                           int64_t* _retval) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetBooleanProperty(const char* propertyName,
+                                             bool defaultValue, bool* _retval) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetBooleanProperty(const char* propertyName,
+                                             bool aPropertyValue) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetTransferInfo(nsIPropertyBag2** _retval) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::InitFromTransferInfo(nsIPropertyBag2* transferInfo) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetLocale(nsAString& aLocale) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetLocale(const nsAString& aLocale) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetMailboxName(nsACString& aMailboxName) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetMailboxName(const nsACString& aMailboxName) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetProperty(const char* propertyName,
+                                      nsAString& _retval) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetProperty(const char* propertyName,
+                                      const nsAString& propertyStr) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetKnownArtsSet(char** aKnownArtsSet) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetKnownArtsSet(const char* aKnownArtsSet) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::GetFolderName(nsACString& aFolderName) {
+  return mFolder->GetName(aFolderName);
+}
+NS_IMETHODIMP FolderInfo::SetFolderName(const nsACString& aFolderName) {
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 }  // namespace mozilla::mailnews

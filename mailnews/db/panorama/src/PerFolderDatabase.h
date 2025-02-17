@@ -8,6 +8,9 @@
 #include "mozilla/WeakPtr.h"
 #include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
+#include "nsIDBFolderInfo.h"
+#include "nsIFolder.h"
+#include "FolderDatabase.h"
 #include "nsIMsgDatabase.h"
 #include "nsMsgEnumerator.h"
 
@@ -48,6 +51,20 @@ class MessageEnumerator : public nsBaseMsgEnumerator {
   MessageDatabase* mDatabase;
   nsCOMPtr<mozIStorageStatement> mStmt;
   bool mHasNext = false;
+};
+
+class FolderInfo : public nsIDBFolderInfo {
+ public:
+  explicit FolderInfo(uint64_t aFolderId);
+
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIDBFOLDERINFO
+
+ private:
+  virtual ~FolderInfo() {};
+
+  nsCOMPtr<nsIFolderDatabase> mDatabase;
+  nsCOMPtr<nsIFolder> mFolder;
 };
 
 }  // namespace mozilla::mailnews

@@ -165,6 +165,39 @@ add_task(async function testFolderMethods() {
   Assert.deepEqual(folderDatabase.getNewList(), [3]);
 });
 
+add_task(async function testFolderInfo() {
+  const folderA = MailServices.folderLookup.getOrCreateFolderForURL(
+    account.incomingServer.rootFolder.URI + "/folderA"
+  );
+  const folderDatabase = database.openFolderDB(folderA, false);
+  const folderInfo = folderDatabase.dBFolderInfo;
+  Assert.ok(folderInfo);
+  Assert.equal(folderInfo.folderName, "folderA");
+
+  Assert.equal(folderInfo.flags, 0);
+
+  folderInfo.flags = Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Inbox;
+  Assert.equal(
+    folderInfo.flags,
+    Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Inbox
+  );
+
+  Assert.equal(
+    folderInfo.andFlags(Ci.nsMsgFolderFlags.Mail),
+    Ci.nsMsgFolderFlags.Mail
+  );
+  Assert.equal(folderInfo.flags, Ci.nsMsgFolderFlags.Mail);
+
+  Assert.equal(
+    folderInfo.orFlags(Ci.nsMsgFolderFlags.Virtual),
+    Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Virtual
+  );
+  Assert.equal(
+    folderInfo.flags,
+    Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Virtual
+  );
+});
+
 add_task(async function testHeaderMethods() {
   const folderC = MailServices.folderLookup.getOrCreateFolderForURL(
     account.incomingServer.rootFolder.URI + "/folderC"
