@@ -6,7 +6,10 @@
 #define PerFolderDatabase_h__
 
 #include "mozilla/WeakPtr.h"
+#include "mozIStorageStatement.h"
+#include "nsCOMPtr.h"
 #include "nsIMsgDatabase.h"
+#include "nsMsgEnumerator.h"
 
 namespace mozilla::mailnews {
 
@@ -26,6 +29,24 @@ class PerFolderDatabase : public nsIMsgDatabase, public SupportsWeakPtr {
 
   MessageDatabase* mDatabase;
   uint64_t mFolderId;
+};
+
+class MessageEnumerator : public nsBaseMsgEnumerator {
+ public:
+  MessageEnumerator(MessageDatabase* aDatabase, mozIStorageStatement* aStmt);
+
+  // nsIMsgEnumerator support.
+  NS_IMETHOD GetNext(nsIMsgDBHdr** aItem) override;
+  NS_IMETHOD HasMoreElements(bool* aResult) override;
+
+ private:
+  ~MessageEnumerator() {
+    if (mStmt) mStmt->Finalize();
+  }
+
+  MessageDatabase* mDatabase;
+  nsCOMPtr<mozIStorageStatement> mStmt;
+  bool mHasNext = false;
 };
 
 }  // namespace mozilla::mailnews

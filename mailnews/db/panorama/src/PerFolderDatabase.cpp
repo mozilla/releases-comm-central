@@ -4,6 +4,7 @@
 
 #include "PerFolderDatabase.h"
 
+#include "DatabaseCore.h"
 #include "Message.h"
 #include "MessageDatabase.h"
 #include "nsMsgMessageFlags.h"
@@ -136,12 +137,45 @@ NS_IMETHODIMP PerFolderDatabase::CopyHdrFromExistingHdr(
 NS_IMETHODIMP PerFolderDatabase::ListAllKeys(nsTArray<nsMsgKey>& aKeys) {
   return mDatabase->ListAllKeys(mFolderId, aKeys);
 }
-NS_IMETHODIMP PerFolderDatabase::EnumerateMessages(nsIMsgEnumerator** aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP PerFolderDatabase::EnumerateMessages(
+    nsIMsgEnumerator** aEnumerator) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv =
+      DatabaseCore::GetStatement("GetAllMessages"_ns,
+                                 "SELECT "_ns MESSAGE_SQL_FIELDS
+                                 " FROM messages WHERE folderId = :folderId"_ns,
+                                 getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<mozIStorageStatement> stmtClone;
+  rv = stmt->Clone(getter_AddRefs(stmtClone));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmtClone->BindInt64ByName("folderId"_ns, mFolderId);
+
+  MessageEnumerator* enumerator = new MessageEnumerator(mDatabase, stmtClone);
+  NS_IF_ADDREF(*aEnumerator = enumerator);
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::ReverseEnumerateMessages(
-    nsIMsgEnumerator** aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    nsIMsgEnumerator** aEnumerator) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "GetAllMessagesReverse"_ns,
+      "SELECT "_ns MESSAGE_SQL_FIELDS
+      " FROM messages WHERE folderId = :folderId ORDER BY id DESC"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<mozIStorageStatement> stmtClone;
+  rv = stmt->Clone(getter_AddRefs(stmtClone));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmtClone->BindInt64ByName("folderId"_ns, mFolderId);
+
+  MessageEnumerator* enumerator = new MessageEnumerator(mDatabase, stmtClone);
+  NS_IF_ADDREF(*aEnumerator = enumerator);
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::EnumerateThreads(
     nsIMsgThreadEnumerator** aRetVal) {
@@ -413,6 +447,32 @@ NS_IMETHODIMP PerFolderDatabase::UpdateHdrInCache(
 NS_IMETHODIMP PerFolderDatabase::HdrIsInCache(
     const nsACString& aSearchFolderUri, nsIMsgDBHdr* aHdr, bool* aRetVal) {
   return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+MessageEnumerator::MessageEnumerator(MessageDatabase* aDatabase,
+                                     mozIStorageStatement* aStmt)
+    : mDatabase(aDatabase), mStmt(aStmt) {
+  mStmt->ExecuteStep(&mHasNext);
+}
+
+NS_IMETHODIMP MessageEnumerator::GetNext(nsIMsgDBHdr** aItem) {
+  NS_ENSURE_ARG_POINTER(aItem);
+  *aItem = nullptr;
+
+  if (!mHasNext) {
+    return NS_ERROR_FAILURE;
+  }
+
+  NS_IF_ADDREF(*aItem = new Message(mDatabase, mStmt));
+  mStmt->ExecuteStep(&mHasNext);
+  return NS_OK;
+}
+
+NS_IMETHODIMP MessageEnumerator::HasMoreElements(bool* aHasNext) {
+  NS_ENSURE_ARG_POINTER(aHasNext);
+
+  *aHasNext = mHasNext;
+  return NS_OK;
 }
 
 }  // namespace mozilla::mailnews

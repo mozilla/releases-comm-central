@@ -48,6 +48,7 @@ class DatabaseCore : public nsIDatabaseCore,
  private:
   friend class FolderDatabase;
   friend class MessageDatabase;
+  friend class PerFolderDatabase;
 
   static nsresult GetStatement(const nsCString& aName, const nsCString& aSQL,
                                mozIStorageStatement** aStmt);
