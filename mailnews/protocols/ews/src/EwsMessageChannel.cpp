@@ -170,10 +170,14 @@ NS_IMETHODIMP MessageFetchListener::OnFetchStop(nsresult status) {
  * nsIChannel/nsIRequest impl for EwsOfflineMessageChannel
  */
 
-NS_IMPL_ISUPPORTS(EwsMessageChannel, nsIMailChannel, nsIChannel, nsIRequest)
+NS_IMPL_ISUPPORTS_INHERITED(EwsMessageChannel, nsHashPropertyBag,
+                            nsIMailChannel, nsIChannel, nsIRequest)
 
-EwsMessageChannel::EwsMessageChannel(nsIURI* uri)
-    : mURI(uri),
+EwsMessageChannel::EwsMessageChannel(nsIURI* uri, bool convert)
+    : mConvert(convert),
+      mURI(uri),
+      mContentDisposition(nsIChannel::DISPOSITION_INLINE),
+      mContentLength(-1),
       mLoadFlags(nsIRequest::LOAD_NORMAL),
       mPending(true),
       mStatus(NS_OK) {
@@ -365,6 +369,7 @@ NS_IMETHODIMP EwsMessageChannel::GetSecurityInfo(
 
 NS_IMETHODIMP EwsMessageChannel::GetContentType(nsACString& aContentType) {
   aContentType.Assign(mContentType);
+
   return NS_OK;
 }
 
@@ -397,13 +402,13 @@ NS_IMETHODIMP EwsMessageChannel::SetContentCharset(
 }
 
 NS_IMETHODIMP EwsMessageChannel::GetContentLength(int64_t* aContentLength) {
-  NS_WARNING("GetContentLength");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  *aContentLength = mContentLength;
+  return NS_OK;
 }
 
 NS_IMETHODIMP EwsMessageChannel::SetContentLength(int64_t aContentLength) {
-  NS_WARNING("SetContentLength");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  mContentLength = aContentLength;
+  return NS_OK;
 }
 
 NS_IMETHODIMP EwsMessageChannel::Open(nsIInputStream** _retval) {
@@ -497,32 +502,29 @@ NS_IMETHODIMP EwsMessageChannel::GetCanceled(bool* aCanceled) {
 
 NS_IMETHODIMP EwsMessageChannel::GetContentDisposition(
     uint32_t* aContentDisposition) {
-  *aContentDisposition = nsIChannel::DISPOSITION_INLINE;
+  *aContentDisposition = mContentDisposition;
   return NS_OK;
 }
 
 NS_IMETHODIMP EwsMessageChannel::SetContentDisposition(
     uint32_t aContentDisposition) {
-  NS_WARNING("SetContentDisposition");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  mContentDisposition = aContentDisposition;
+  return NS_OK;
 }
 
 NS_IMETHODIMP EwsMessageChannel::GetContentDispositionFilename(
     nsAString& aContentDispositionFilename) {
-  NS_WARNING("GetContentDispositionFilename");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP EwsMessageChannel::SetContentDispositionFilename(
     const nsAString& aContentDispositionFilename) {
-  NS_WARNING("SetContentDispositionFilename");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP EwsMessageChannel::GetContentDispositionHeader(
     nsACString& aContentDispositionHeader) {
-  NS_WARNING("GetContentDispositionHeader");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP EwsMessageChannel::GetLoadInfo(nsILoadInfo** aLoadInfo) {
@@ -536,8 +538,7 @@ NS_IMETHODIMP EwsMessageChannel::SetLoadInfo(nsILoadInfo* aLoadInfo) {
 }
 
 NS_IMETHODIMP EwsMessageChannel::GetIsDocument(bool* aIsDocument) {
-  NS_WARNING("GetIsDocument");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_GetIsDocumentChannel(this, aIsDocument);
 }
 
 nsresult EwsMessageChannel::OnDownloadStart() {
@@ -559,7 +560,7 @@ nsresult EwsMessageChannel::OnDownloadFinished(nsresult status) {
 }
 
 nsresult EwsMessageChannel::StartMessageReadFromStore() {
-  nsresult rv = AsyncReadMessageFromStore(mHdr, mStreamListener, false, this,
+  nsresult rv = AsyncReadMessageFromStore(mHdr, mStreamListener, mConvert, this,
                                           getter_AddRefs(mReadRequest));
   NS_ENSURE_SUCCESS(rv, rv);
 

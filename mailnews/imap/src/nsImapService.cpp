@@ -2285,10 +2285,10 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
   rv = aURI->GetSpec(spec);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Add the attachment disposition. This forces docShell to open the
-  // attachment instead of displaying it. Content types we have special
-  // handlers for are white-listed. This white list also exists in
-  // nsMailboxService::NewChannel and nsNntpService::NewChannel, so if you're
+  // Add the attachment disposition. This forces docShell to open the attachment
+  // instead of displaying it. Content types we have special handlers for are
+  // white-listed. This white list also exists in nsMailboxService::NewChannel,
+  // EwsProtocolHandler::NewChannel and nsNntpService::NewChannel, so if you're
   // changing this, update those too.
   if (spec.Find("part=") >= 0 && spec.Find("type=message/rfc822") < 0 &&
       spec.Find("type=application/x-message-display") < 0 &&

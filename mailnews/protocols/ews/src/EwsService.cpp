@@ -12,6 +12,7 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgPluggableStore.h"
+#include "nsIStreamConverterService.h"
 #include "nsIStreamListener.h"
 #include "nsIURIMutator.h"
 #include "nsIWebNavigation.h"
@@ -22,7 +23,8 @@
 
 #define ID_PROPERTY "ewsId"
 
-NS_IMPL_ISUPPORTS(EwsService, nsIMsgMessageService)
+NS_IMPL_ISUPPORTS(EwsService, nsIMsgMessageService,
+                  nsIMsgMessageFetchPartService)
 
 EwsService::EwsService() = default;
 
@@ -38,16 +40,7 @@ NS_IMETHODIMP EwsService::CopyMessage(const nsACString& aSrcURI,
   nsCOMPtr<nsIURI> channelURI;
   MOZ_TRY(GetUrlForUri(aSrcURI, aMsgWindow, getter_AddRefs(channelURI)));
 
-  nsCOMPtr<nsIIOService> netService = mozilla::components::IO::Service();
-  NS_ENSURE_TRUE(netService, NS_ERROR_UNEXPECTED);
-
-  nsCOMPtr<nsIChannel> messageChannel;
-  MOZ_TRY(netService->NewChannelFromURI(
-      channelURI, nullptr, nsContentUtils::GetSystemPrincipal(), nullptr,
-      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-      nsIContentPolicy::TYPE_OTHER, getter_AddRefs(messageChannel)));
-
-  return messageChannel->AsyncOpen(aCopyListener);
+  return FetchMessage(channelURI, aCopyListener);
 }
 
 NS_IMETHODIMP EwsService::CopyMessages(
@@ -108,6 +101,10 @@ NS_IMETHODIMP EwsService::GetUrlForUri(const nsACString& aMessageURI,
   path.Append("/");
   path.Append(ref);
 
+  nsCString query;
+  rv = messageURI->GetQuery(query);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   // "x-moz-ews" is the scheme we use for URIs that must be used for channels
   // opened via a protocol handler consumer (such as a docshell or the I/O
   // service). These channels are expected to serve the raw content RFC822
@@ -115,6 +112,7 @@ NS_IMETHODIMP EwsService::GetUrlForUri(const nsACString& aMessageURI,
   return NS_MutateURI(messageURI)
       .SetScheme("x-moz-ews"_ns)
       .SetPathQueryRef(path)
+      .SetQuery(query)
       .Finalize(_retval);
 }
 
@@ -126,25 +124,62 @@ NS_IMETHODIMP EwsService::Search(nsIMsgSearchSession* aSearchSession,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
+NS_IMETHODIMP EwsService::FetchMimePart(nsIURI* aURI,
+                                        const nsACString& aMessageURI,
+                                        nsIStreamListener* aStreamListener,
+                                        nsIMsgWindow* aMsgWindow,
+                                        nsIUrlListener* aUrlListener,
+                                        nsIURI** aURL) {
+  NS_ENSURE_ARG_POINTER(aURI);
+  NS_ENSURE_ARG_POINTER(aStreamListener);
+
+  // This method is usually called with the URI of the message as it was known
+  // when it was being parsed for display. Because this operation happens in a
+  // channel, this should be an `x-moz-ews` URI, so we don't need further
+  // conversion.
+  nsCString scheme;
+  MOZ_TRY(aURI->GetScheme(scheme));
+  MOZ_ASSERT(
+      scheme.EqualsLiteral("x-moz-ews"),
+      "the URI passed to FetchMimePart does not follow the expected format");
+
+  NS_IF_ADDREF(*aURL = aURI);
+
+  return FetchMessage(aURI, aStreamListener);
+}
+
 NS_IMETHODIMP EwsService::StreamMessage(
     const nsACString& aMessageURI, nsIStreamListener* aStreamListener,
     nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener, bool aConvertData,
     const nsACString& aAdditionalHeader, bool aLocalOnly, nsIURI** _retval) {
-  // TODO: Convert the message content when `aConvertData = true`. It's usually
-  // not the case, except when we're deleting an attachment.
+  NS_ENSURE_ARG_POINTER(aStreamListener);
+
   nsCOMPtr<nsIURI> channelURI;
   MOZ_TRY(GetUrlForUri(aMessageURI, aMsgWindow, getter_AddRefs(channelURI)));
 
-  nsCOMPtr<nsIIOService> netService = mozilla::components::IO::Service();
-  NS_ENSURE_TRUE(netService, NS_ERROR_UNEXPECTED);
+  // If we need to convert the message's data, update the URI's query
+  // accordingly. We _could_ set up the stream converter here instead, but we
+  // already have a code path for data conversion in the channel (so we can
+  // display attachments like images or PDFs), so we might as well use it here.
+  if (aConvertData) {
+    nsCString query;
+    MOZ_TRY(channelURI->GetQuery(query));
 
-  nsCOMPtr<nsIChannel> messageChannel;
-  MOZ_TRY(netService->NewChannelFromURI(
-      channelURI, nullptr, nsContentUtils::GetSystemPrincipal(), nullptr,
-      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-      nsIContentPolicy::TYPE_OTHER, getter_AddRefs(messageChannel)));
+    if (!query.IsEmpty()) {
+      query.AppendLiteral("&");
+    }
 
-  return messageChannel->AsyncOpen(aStreamListener);
+    query.AppendLiteral("convert=true");
+
+    nsresult rv = NS_MutateURI(channelURI)
+                      .SetQuery(query)
+                      .Finalize(getter_AddRefs(channelURI));
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  NS_IF_ADDREF(*_retval = channelURI);
+
+  return FetchMessage(channelURI, aStreamListener);
 }
 
 NS_IMETHODIMP EwsService::StreamHeaders(const nsACString& aMessageURI,
@@ -170,7 +205,6 @@ NS_IMETHODIMP EwsService::MessageURIToMsgHdr(const nsACString& uri,
   return MsgHdrFromUri(uriObj, _retval);
 }
 
-//
 nsresult EwsService::MsgKeyStringFromMessageURI(nsIURI* uri,
                                                 nsACString& msgKey) {
   // We expect the provided URI to be of the following form:
@@ -192,6 +226,11 @@ nsresult EwsService::MsgKeyStringFromChannelURI(nsIURI* uri, nsACString& msgKey,
                                                 nsACString& folderURIPath) {
   nsresult rv = uri->GetFilePath(folderURIPath);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  // Make sure we don't have a trailing slash in the URI, otherwise we'll use an
+  // empty string as the message key (and include the actual message key in the
+  // folder path).
+  folderURIPath.Trim("/", false, true);
 
   // Iterate over each slash-separated word.
   for (const auto& word : folderURIPath.Split('/')) {
@@ -255,4 +294,18 @@ nsresult EwsService::MsgHdrFromUri(nsIURI* uri, nsIMsgDBHdr** _retval) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   return folder->GetMessageHeader(key, _retval);
+}
+
+nsresult EwsService::FetchMessage(nsIURI* aURI,
+                                  nsIStreamListener* aStreamListener) {
+  nsCOMPtr<nsIIOService> netService = mozilla::components::IO::Service();
+  NS_ENSURE_TRUE(netService, NS_ERROR_UNEXPECTED);
+
+  nsCOMPtr<nsIChannel> messageChannel;
+  MOZ_TRY(netService->NewChannelFromURI(
+      aURI, nullptr, nsContentUtils::GetSystemPrincipal(), nullptr,
+      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      nsIContentPolicy::TYPE_OTHER, getter_AddRefs(messageChannel)));
+
+  return messageChannel->AsyncOpen(aStreamListener);
 }

@@ -5,6 +5,7 @@
 #ifndef __COMM_MAILNEWS_PROTOCOLS_EWS_MESSAGE_CHANNEL_H
 #define __COMM_MAILNEWS_PROTOCOLS_EWS_MESSAGE_CHANNEL_H
 
+#include "nsHashPropertyBag.h"
 #include "nsIChannel.h"
 #include "nsIInputStreamPump.h"
 #include "nsIMsgHdr.h"
@@ -40,13 +41,16 @@ class MessageFetchListener;
  *    currently rendered (so it doesn't need to render it again); this would
  *    lead to every message in a folder being considered the same document.
  */
-class EwsMessageChannel : public nsMailChannel, public nsIChannel {
+class EwsMessageChannel : public nsMailChannel,
+                          public nsIChannel,
+                          public nsHashPropertyBag {
  public:
-  NS_DECL_ISUPPORTS
+  NS_DECL_ISUPPORTS_INHERITED
+
   NS_DECL_NSIREQUEST
   NS_DECL_NSICHANNEL
 
-  explicit EwsMessageChannel(nsIURI* uri);
+  explicit EwsMessageChannel(nsIURI* uri, bool convert);
 
   friend class MessageFetchListener;
 
@@ -75,6 +79,7 @@ class EwsMessageChannel : public nsMailChannel, public nsIChannel {
 
   // The stream listener to use to stream the message's content to the consumer.
   nsCOMPtr<nsIStreamListener> mStreamListener;
+  bool mConvert;
 
   // The URI for the message which content we want to stream.
   nsCOMPtr<nsIURI> mURI;
@@ -95,7 +100,8 @@ class EwsMessageChannel : public nsMailChannel, public nsIChannel {
 
   // These attributes mostly exist to allow a basic implementation of most
   // `nsIChannel` methods. The content type (`mContentType`) will default to
-  // "message/rfc822".
+  // "message/rfc822", the content disposition to inline, and the content length
+  // to -1 (i.e. unknown).
   //
   // `mContentType` has a 255 characters buffer, since that's the maximum length
   // according to RFC4288, and, if streaming a specific attachment, the stream
@@ -104,6 +110,8 @@ class EwsMessageChannel : public nsMailChannel, public nsIChannel {
   // small set of expected content types).
   nsAutoCStringN<255> mContentType;
   nsAutoCString mCharset;
+  uint32_t mContentDisposition;
+  int64_t mContentLength;
   RefPtr<nsILoadGroup> mLoadGroup;
   nsLoadFlags mLoadFlags;
   nsCOMPtr<nsIInterfaceRequestor> mNotificationCallbacks;

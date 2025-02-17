@@ -279,10 +279,14 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
     // HACK: news urls require us to use the originalSpec. Everyone
     // else uses GetURI to get the RDF resource which describes the message.
     nsCOMPtr<nsINntpUrl> nntpUrl(do_QueryInterface(mURL, &rv));
-    if (NS_SUCCEEDED(rv) && nntpUrl)
+    if (NS_SUCCEEDED(rv) && nntpUrl) {
       rv = msgurl->GetOriginalSpec(uriString);
-    else
+    } else {
       rv = msgurl->GetUri(uriString);
+    }
+  } else {
+    // If the URL isn't a MailNews URL, then just use it as is.
+    MOZ_TRY(mURL->GetSpec(uriString));
   }
 
   // The attachment name has already been RFC2047 processed

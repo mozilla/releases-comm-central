@@ -6,12 +6,13 @@
 #define __COMM_MAILNEWS_PROTOCOLS_EWS_SERVICE_H
 
 #include "nsIMsgMessageService.h"
-#include "nsIMsgHdr.h"
 
-class EwsService : public nsIMsgMessageService {
+class EwsService : public nsIMsgMessageService,
+                   public nsIMsgMessageFetchPartService {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGMESSAGESERVICE
+  NS_DECL_NSIMSGMESSAGEFETCHPARTSERVICE
 
   EwsService();
 
@@ -19,16 +20,32 @@ class EwsService : public nsIMsgMessageService {
   virtual ~EwsService();
 
  private:
-  // Extracts the message key as a string from a message URI. Message URIs are
-  // expected in the form:
-  // ews-message://{user}@{server}/{Path/To/Folder}#{MessageKey}
+  /**
+   * Retrieves the message at the given URI, downloading it first if requested,
+   * then optionally converting it to the desired output format.
+   *
+   * When fetching a part of a message (e.g. to save an attachment), the URI's
+   * query is expected to describe which part to isolate and what the output
+   * format should be. This query is processed by the stream converter, and thus
+   * will be ignored unless `aConvert` is true.
+   */
+  nsresult FetchMessage(nsIURI* uri, nsIStreamListener* streamListener);
+
+  /**
+   * Extracts the message key as a string from a message URI. Message URIs
+   * are expected in the form:
+   * ews-message://{user}@{server}/{Path/To/Folder}#{MessageKey}
+   */
   nsresult MsgKeyStringFromMessageURI(nsIURI* uri, nsACString& msgKey);
 
-  // Extracts the message key as a string from a URI used by an EWS message
-  // channel. Such URIs are expected in the form:
-  // x-moz-ews://{user}@{server}/{Path/To/Folder}/{MessageKey}
-  // This method also returns the URI path to the folder, i.e. the path from the
-  // original URI without the message key.
+  /**
+   * Extracts the message key as a string from a URI used by an EWS message
+   * channel. Such URIs are expected in the form:
+   * x-moz-ews://{user}@{server}/{Path/To/Folder}/{MessageKey}
+   *
+   * This method also returns the URI path to the folder, i.e. the path from the
+   * original URI without the message key.
+   */
   nsresult MsgKeyStringFromChannelURI(nsIURI* uri, nsACString& msgKey,
                                       nsACString& folderURIPath);
 
