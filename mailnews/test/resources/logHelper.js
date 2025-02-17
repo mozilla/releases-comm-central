@@ -464,10 +464,6 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
   return simple_obj;
 }
 
-function register_json_normalizer(aType, aHandler) {
-  _registered_json_normalizers.push([aType, aHandler]);
-}
-
 /*
  * Wrap the xpcshell test functions that do interesting things.  The idea is
  *  that we clobber these only if we're going to value-add; that decision
