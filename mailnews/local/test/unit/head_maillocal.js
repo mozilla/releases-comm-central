@@ -178,21 +178,6 @@ function create_sub_folders(parent, subFolders) {
   }
 }
 
-function create_mail_directory(subFolders) {
-  const root = create_temporary_directory();
-
-  for (const folder in subFolders) {
-    if (!subFolders[folder].subFolders) {
-      continue;
-    }
-    const directory = root.clone();
-    directory.append(subFolders[folder].name);
-    create_sub_folders(directory, subFolders[folder].subFolders);
-  }
-
-  return root;
-}
-
 function setup_mailbox(type, mailboxPath) {
   const user = Services.uuid.generateUUID().toString();
   const incomingServer = MailServices.accounts.createIncomingServer(
