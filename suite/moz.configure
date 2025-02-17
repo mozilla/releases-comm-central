@@ -157,6 +157,7 @@ set_config(
     "MOZ_GLEAN_EXTRA_METRICS_FILES",
     [
         "comm/mail/metrics.yaml",
+        "comm/mail/components/compose/metrics.yaml",
         "comm/calendar/metrics.yaml",
     ],
 )
