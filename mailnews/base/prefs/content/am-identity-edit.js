@@ -516,10 +516,6 @@ function editVCardReset() {
   form.removeEventListener("reset", editVCardReset);
 }
 
-function getAccountForFolderPickerState() {
-  return gAccount;
-}
-
 /**
  * Build the SMTP server list for display.
  */
