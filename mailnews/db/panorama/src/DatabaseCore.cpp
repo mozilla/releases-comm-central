@@ -11,8 +11,10 @@
 #include "mozilla/Services.h"
 #include "mozIStorageService.h"
 #include "nsAppDirectoryServiceDefs.h"
+#include "nsIClassInfoImpl.h"
 #include "nsIFile.h"
 #include "nsIObserverService.h"
+#include "PerFolderDatabase.h"
 #include "xpcpublic.h"
 
 using mozilla::LazyLogModule;
@@ -24,7 +26,10 @@ namespace mailnews {
 
 LazyLogModule gPanoramaLog("panorama");
 
-NS_IMPL_ISUPPORTS(DatabaseCore, nsIDatabaseCore, nsIObserver)
+NS_IMPL_CLASSINFO(DatabaseCore, nullptr, nsIClassInfo::SINGLETON,
+                  DATABASE_CORE_CID)
+NS_IMPL_ISUPPORTS_CI(DatabaseCore, nsIDatabaseCore, nsIMsgDBService,
+                     nsIObserver)
 
 MOZ_RUNINIT nsCOMPtr<mozIStorageConnection> DatabaseCore::sConnection;
 MOZ_RUNINIT nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>>
@@ -230,7 +235,7 @@ DatabaseCore::GetConnection(mozIStorageConnection** aConnection) {
 
 void DatabaseCore::OnMessageAdded(Folder* folder, Message* m) {
   MOZ_LOG(gPanoramaLog, LogLevel::Debug,
-          ("DatabaseCore::OnMessageAdded: %" PRIu64 " %" PRIu64 " %" PRId64
+          ("DatabaseCore::OnMessageAdded: %" PRId32 " %" PRIu64 " %" PRId64
            " '%s' '%s' %" PRIu64 " '%s'\n",
            m->id, m->folderId, m->date, m->sender.get(), m->subject.get(),
            m->flags, m->tags.get()));
@@ -238,10 +243,109 @@ void DatabaseCore::OnMessageAdded(Folder* folder, Message* m) {
 
 void DatabaseCore::OnMessageRemoved(Folder* folder, Message* m) {
   MOZ_LOG(gPanoramaLog, LogLevel::Debug,
-          ("DatabaseCore::OnMessageRemoved: %" PRIu64 " %" PRIu64 " %" PRId64
+          ("DatabaseCore::OnMessageRemoved: %" PRId32 " %" PRIu64 " %" PRId64
            " '%s' '%s' %" PRIu64 " '%s'\n",
            m->id, m->folderId, m->date, m->sender.get(), m->subject.get(),
            m->flags, m->tags.get()));
+}
+
+NS_IMETHODIMP DatabaseCore::OpenFolderDB(nsIMsgFolder* aFolder,
+                                         bool aLeaveInvalidDB,
+                                         nsIMsgDatabase** _retval) {
+  nsCOMPtr<nsIFolder> folder;
+  nsresult rv = GetFolderForMsgFolder(aFolder, getter_AddRefs(folder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!folder) {
+    return NS_ERROR_FAILURE;
+  }
+
+  uint64_t folderId = folder->GetId();
+  WeakPtr<PerFolderDatabase> existingDatabase = mOpenDatabases.Get(folderId);
+  if (existingDatabase) {
+    NS_IF_ADDREF(*_retval = existingDatabase);
+    return NS_OK;
+  }
+
+  RefPtr<PerFolderDatabase> db =
+      new PerFolderDatabase(mMessageDatabase, folderId);
+  NS_IF_ADDREF(*_retval = db);
+
+  mOpenDatabases.InsertOrUpdate(folderId, db);
+
+  return NS_OK;
+}
+NS_IMETHODIMP DatabaseCore::CreateNewDB(nsIMsgFolder* aFolder,
+                                        nsIMsgDatabase** _retval) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP DatabaseCore::OpenDBFromFile(nsIFile* aFile,
+                                           nsIMsgFolder* aFolder, bool aCreate,
+                                           bool aLeaveInvalidDB,
+                                           nsIMsgDatabase** _retval) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP DatabaseCore::RegisterPendingListener(
+    nsIMsgFolder* aFolder, nsIDBChangeListener* aListener) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP DatabaseCore::UnregisterPendingListener(
+    nsIDBChangeListener* aListener) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP DatabaseCore::CachedDBForFolder(nsIMsgFolder* aFolder,
+                                              nsIMsgDatabase** _retval) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP DatabaseCore::CachedDBForFilePath(nsIFile* filePath,
+                                                nsIMsgDatabase** _retval) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP DatabaseCore::ForceFolderDBClosed(nsIMsgFolder* aFolder) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP DatabaseCore::GetOpenDBs(
+    nsTArray<RefPtr<nsIMsgDatabase>>& aOpenDBs) {
+  aOpenDBs.Clear();
+  return NS_OK;
+}
+
+nsresult DatabaseCore::GetFolderForMsgFolder(nsIMsgFolder* aMsgFolder,
+                                             nsIFolder** aFolder) {
+  NS_ENSURE_ARG(aMsgFolder);
+  NS_ENSURE_ARG_POINTER(aFolder);
+
+  nsresult rv;
+
+  bool isServer;
+  aMsgFolder->GetIsServer(&isServer);
+  if (isServer) {
+    nsCOMPtr<nsIMsgIncomingServer> incomingServer;
+    rv = aMsgFolder->GetServer(getter_AddRefs(incomingServer));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoCString serverKey;
+    rv = incomingServer->GetKey(serverKey);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = mFolderDatabase->GetFolderByPath(serverKey, aFolder);
+    NS_ENSURE_SUCCESS(rv, rv);
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIMsgFolder> msgParent;
+  rv = aMsgFolder->GetParent(getter_AddRefs(msgParent));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIFolder> parent;
+  rv = GetFolderForMsgFolder(msgParent, getter_AddRefs(parent));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!parent) {
+    return NS_ERROR_FAILURE;
+  }
+
+  nsAutoCString msgName;
+  rv = aMsgFolder->GetName(msgName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return parent->GetChildNamed(msgName, aFolder);
 }
 
 }  // namespace mailnews

@@ -5,6 +5,7 @@
 #ifndef MessageDatabase_h__
 #define MessageDatabase_h__
 
+#include "MailNewsTypes2.h"
 #include "nsIMessageDatabase.h"
 #include "nsTObserverArray.h"
 #include "nsTString.h"
@@ -20,7 +21,7 @@ namespace mailnews {
 class Folder;
 
 struct Message {
-  uint64_t id;
+  nsMsgKey id;
   uint64_t folderId;
   nsCString messageId;
   PRTime date;
@@ -51,6 +52,15 @@ class MessageDatabase : public nsIMessageDatabase {
   MessageDatabase() {};
   void Startup();
   void Shutdown();
+
+ private:
+  friend class PerFolderDatabase;
+
+  nsresult ListAllKeys(uint64_t aFolderId, nsTArray<nsMsgKey>& aKeys);
+  nsresult GetMessage(nsMsgKey aKey, Message* aMessage);
+  nsresult GetMessageFlag(nsMsgKey aKey, uint64_t aFlag, bool* aHasFlag);
+  nsresult SetMessageFlag(nsMsgKey aKey, uint64_t aFlag, bool aSetFlag);
+  nsresult MarkAllRead(uint64_t aFolderId, nsTArray<nsMsgKey>& aMarkedKeys);
 
  private:
   nsTObserverArray<MessageListener*> mMessageListeners;

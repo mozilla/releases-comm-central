@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
+#include "MailNewsTypes2.idl"
 
 %{C++
 namespace mozilla {
@@ -23,18 +24,18 @@ interface nsIMessageDatabase : nsISupports {
   /**
    * Add a row to the database.
    */
-  unsigned long long addMessage(in unsigned long long folderId,
-                                in AUTF8String messageId,
-                                in PRTime date,
-                                in AUTF8String sender,
-                                in AUTF8String subject,
-                                in unsigned long long flags,
-                                in AUTF8String tags);
+  nsMsgKey addMessage(in unsigned long long folderId,
+                      in AUTF8String messageId,
+                      in PRTime date,
+                      in AUTF8String sender,
+                      in AUTF8String subject,
+                      in unsigned long long flags,
+                      in AUTF8String tags);
 
   /**
    * Remove a row from the database.
    */
-  void removeMessage(in unsigned long long id);
+  void removeMessage(in nsMsgKey id);
 
   /**
    * Add or remove a message listener (as defined in MessageDatabase.h).

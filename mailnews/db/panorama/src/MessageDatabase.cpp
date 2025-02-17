@@ -6,6 +6,7 @@
 
 #include "DatabaseCore.h"
 #include "mozilla/Logging.h"
+#include "nsMsgMessageFlags.h"
 
 using mozilla::LazyLogModule;
 using mozilla::LogLevel;
@@ -50,7 +51,7 @@ MessageDatabase::GetTotalCount(uint64_t* aTotalCount) {
 NS_IMETHODIMP MessageDatabase::AddMessage(
     uint64_t aFolderId, const nsACString& aMessageId, PRTime aDate,
     const nsACString& aSender, const nsACString& aSubject, uint64_t aFlags,
-    const nsACString& aTags, uint64_t* aId) {
+    const nsACString& aTags, nsMsgKey* aKey) {
   // TODO: normalise
 
   nsCOMPtr<mozIStorageStatement> stmt;
@@ -79,7 +80,7 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
   }
 
   Message m;
-  m.id = stmt->AsInt64(0);
+  m.id = (nsMsgKey)(stmt->AsInt64(0));
   m.messageId = aMessageId;
   m.date = aDate;
   m.sender = aSender;
@@ -96,11 +97,11 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
     messageListener->OnMessageAdded(nullptr, &m);
   }
 
-  *aId = m.id;
+  *aKey = m.id;
   return NS_OK;
 }
 
-NS_IMETHODIMP MessageDatabase::RemoveMessage(uint64_t aId) {
+NS_IMETHODIMP MessageDatabase::RemoveMessage(nsMsgKey aKey) {
   nsCOMPtr<mozIStorageStatement> stmt;
   DatabaseCore::GetStatement("RemoveMessage"_ns,
                              "DELETE FROM messages \
@@ -108,7 +109,7 @@ NS_IMETHODIMP MessageDatabase::RemoveMessage(uint64_t aId) {
                               RETURNING folderId, messageId, date, sender, subject, flags, tags"_ns,
                              getter_AddRefs(stmt));
 
-  stmt->BindInt64ByName("id"_ns, aId);
+  stmt->BindInt64ByName("id"_ns, aKey);
 
   bool hasResult;
   nsresult rv = stmt->ExecuteStep(&hasResult);
@@ -120,7 +121,7 @@ NS_IMETHODIMP MessageDatabase::RemoveMessage(uint64_t aId) {
 
   uint32_t len;
   Message m;
-  m.id = aId;
+  m.id = aKey;
   m.folderId = stmt->AsInt64(0);
   m.messageId = stmt->AsSharedUTF8String(1, &len);
   m.date = stmt->AsDouble(2);
@@ -136,6 +137,109 @@ NS_IMETHODIMP MessageDatabase::RemoveMessage(uint64_t aId) {
     MessageListener* messageListener = iter.GetNext();
     messageListener->OnMessageRemoved(nullptr, &m);
   }
+
+  return NS_OK;
+}
+
+nsresult MessageDatabase::ListAllKeys(uint64_t aFolderId,
+                                      nsTArray<nsMsgKey>& aKeys) {
+  aKeys.Clear();
+
+  nsCOMPtr<mozIStorageStatement> stmt;
+  DatabaseCore::GetStatement(
+      "ListAllKeys"_ns, "SELECT id FROM messages WHERE folderId = :folderId"_ns,
+      getter_AddRefs(stmt));
+  stmt->BindInt64ByName("folderId"_ns, aFolderId);
+
+  bool hasResult;
+  while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    aKeys.AppendElement((nsMsgKey)(stmt->AsInt64(0)));
+  }
+
+  stmt->Reset();
+  return NS_OK;
+}
+
+nsresult MessageDatabase::GetMessage(nsMsgKey aKey, Message* aMessage) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  DatabaseCore::GetStatement(
+      "GetMessage"_ns,
+      "SELECT folderId, messageId, date, sender, subject, flags, tags FROM messages WHERE id = :id"_ns,
+      getter_AddRefs(stmt));
+  stmt->BindInt64ByName("id"_ns, aKey);
+
+  bool hasResult;
+  nsresult rv = stmt->ExecuteStep(&hasResult);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!hasResult) {
+    stmt->Reset();
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  uint32_t len;
+  Message m;
+  m.id = aKey;
+  m.folderId = stmt->AsInt64(0);
+  m.messageId = stmt->AsSharedUTF8String(1, &len);
+  m.date = stmt->AsDouble(2);
+  m.sender = stmt->AsSharedUTF8String(3, &len);
+  m.subject = stmt->AsSharedUTF8String(4, &len);
+  m.flags = stmt->AsInt64(5);
+  m.tags = stmt->AsSharedUTF8String(6, &len);
+
+  stmt->Reset();
+
+  *aMessage = m;
+  return NS_OK;
+}
+
+nsresult MessageDatabase::GetMessageFlag(nsMsgKey aKey, uint64_t aFlag,
+                                         bool* aHasFlag) {
+  Message message;
+  GetMessage(aKey, &message);
+  *aHasFlag = message.flags & aFlag;
+  return NS_OK;
+}
+
+nsresult MessageDatabase::SetMessageFlag(nsMsgKey aKey, uint64_t aFlag,
+                                         bool aSetFlag) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  if (aSetFlag) {
+    DatabaseCore::GetStatement(
+        "SetMessageFlag"_ns,
+        "UPDATE messages SET flags = flags | :flag WHERE id = :id"_ns,
+        getter_AddRefs(stmt));
+  } else {
+    DatabaseCore::GetStatement(
+        "MessageClearFlag"_ns,
+        "UPDATE messages SET flags = flags & ~:flag WHERE id = :id"_ns,
+        getter_AddRefs(stmt));
+  }
+
+  stmt->BindInt64ByName("id"_ns, aKey);
+  stmt->BindInt64ByName("flag"_ns, aFlag);
+  return stmt->Execute();
+}
+
+nsresult MessageDatabase::MarkAllRead(uint64_t aFolderId,
+                                      nsTArray<nsMsgKey>& aMarkedKeys) {
+  aMarkedKeys.Clear();
+
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "MarkAllRead"_ns,
+      "UPDATE messages SET flags = flags | :flag WHERE folderId = :folderId AND flags & :flag = 0 RETURNING id"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("flag"_ns, nsMsgMessageFlags::Read);
+  stmt->BindInt64ByName("folderId"_ns, aFolderId);
+
+  bool hasResult;
+  while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    aMarkedKeys.AppendElement((nsMsgKey)(stmt->AsInt64(0)));
+  }
+  stmt->Reset();
 
   return NS_OK;
 }
