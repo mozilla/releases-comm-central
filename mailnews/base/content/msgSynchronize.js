@@ -74,23 +74,6 @@ function OnSelect() {
   return true;
 }
 
-
-function FindInWindow(currentWindow, id) {
-  var item = currentWindow.document.getElementById(id);
-  if (item) {
-    return item;
-  }
-
-  for (var i = 0; i < currentWindow.frames.length; i++) {
-    var frameItem = FindInWindow(currentWindow.frames[i], id);
-    if (frameItem) {
-      return frameItem;
-    }
-  }
-
-  return null;
-}
-
 function UpdateNode(resource) {
   var folder = resource.QueryInterface(Ci.nsIMsgFolder);
 
