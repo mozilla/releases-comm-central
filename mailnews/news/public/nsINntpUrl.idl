@@ -6,8 +6,6 @@
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
-interface nsINNTPNewsgroupPost;
-
 typedef long nsNewsAction;
 
 /**
@@ -35,9 +33,6 @@ typedef long nsNewsAction;
  */
 [scriptable, uuid(ef920ca3-9c46-48b8-9fa3-cb430d3681ea)]
 interface nsINntpUrl : nsISupports {
-  /// For ActionPostArticle URIs, the message to be posted.
-  attribute nsINNTPNewsgroupPost messageToPost;
-
   /**
    * The action that this URL will take when run.
    *

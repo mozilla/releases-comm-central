@@ -133,11 +133,6 @@ class nsSmtpUrl : public nsISmtpUrl, public nsMsgMailNewsUrl {
   nsCOMPtr<nsIAuthPrompt> m_netAuthPrompt;
   nsCOMPtr<nsIInterfaceRequestor> m_callbacks;
   nsCOMPtr<nsIMsgOutgoingServer> m_smtpServer;
-
-  // it is possible to encode the message to parse in the form of a url.
-  // This function is used to decompose the search and path part into the bare
-  // message components (to, fcc, bcc, etc.)
-  nsresult ParseMessageToPost(char* searchPart);
 };
 
 #endif  // nsSmtpUrl_h__

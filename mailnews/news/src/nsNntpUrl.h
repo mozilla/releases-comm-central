@@ -8,7 +8,6 @@
 
 #include "nsINntpUrl.h"
 #include "nsMsgMailNewsUrl.h"
-#include "nsINNTPNewsgroupPost.h"
 #include "nsIFile.h"
 
 class nsNntpUrl : public nsINntpUrl,
@@ -43,7 +42,6 @@ class nsNntpUrl : public nsINntpUrl,
   nsresult ParseNewsURL();
   nsresult ParseNntpURL();
 
-  nsCOMPtr<nsINNTPNewsgroupPost> m_newsgroupPost;
   nsNewsAction m_newsAction;  // the action this url represents...parse mailbox,
                               // display messages, etc.
 

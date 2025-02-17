@@ -180,18 +180,6 @@ function setupProtocolTest(port, newsUrl, incomingServer) {
   newsServer.loadNewsUrl(url, null, listener);
 }
 
-function create_post(baseURL, file) {
-  var url = Services.io.newURI(baseURL);
-  url.QueryInterface(Ci.nsINntpUrl);
-
-  var post = Cc["@mozilla.org/messenger/nntpnewsgrouppost;1"].createInstance(
-    Ci.nsINNTPNewsgroupPost
-  );
-  post.postMessageFile = do_get_file(file);
-  url.messageToPost = post;
-  return url;
-}
-
 function resetFolder(folder) {
   var headers = [...folder.messages];
 
