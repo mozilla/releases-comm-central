@@ -74,12 +74,6 @@ function OnSelect() {
   return true;
 }
 
-// All the code below is only used by Seamonkey.
-
-function selectOkButton() {
-  return true;
-}
-
 function SortSynchronizePane(column, sortKey) {
   var node = FindInWindow(window, column);
   if (!node) {
