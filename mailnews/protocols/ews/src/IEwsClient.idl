@@ -222,6 +222,6 @@ interface IEwsMessageDeleteCallbacks : nsISupports
 interface IEwsMessageFetchCallbacks : nsISupports
 {
   void onFetchStart();
-  void onDataAvailable(in nsIInputStream inputStream, in unsigned long count);
+  void onFetchedDataAvailable(in nsIInputStream inputStream, in unsigned long count);
   void onFetchStop(in nsresult status);
 };

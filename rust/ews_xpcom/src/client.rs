@@ -510,7 +510,7 @@ impl XpComEwsClient {
         let mime_content = nsCString::from(mime_content);
         unsafe { stream.SetByteStringData(&*mime_content) }.to_result()?;
 
-        unsafe { callbacks.OnDataAvailable(&*stream.coerce(), len as u32) }.to_result()?;
+        unsafe { callbacks.OnFetchedDataAvailable(&*stream.coerce(), len as u32) }.to_result()?;
 
         Ok(())
     }

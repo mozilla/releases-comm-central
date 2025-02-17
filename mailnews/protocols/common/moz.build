@@ -3,13 +3,5 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    "common",
+    "src",
 ]
-
-if CONFIG["MOZ_THUNDERBIRD_RUST"]:
-    DIRS += [
-        "ews/public",
-        "ews/src",
-    ]
-
-    TEST_DIRS += ["ews/test"]
