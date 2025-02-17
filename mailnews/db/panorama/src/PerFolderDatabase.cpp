@@ -4,6 +4,7 @@
 
 #include "PerFolderDatabase.h"
 
+#include "Message.h"
 #include "MessageDatabase.h"
 #include "nsMsgMessageFlags.h"
 
@@ -76,9 +77,15 @@ NS_IMETHODIMP PerFolderDatabase::GetLastUseTime(PRTime* aLastUseTime) {
 NS_IMETHODIMP PerFolderDatabase::SetLastUseTime(PRTime aLastUseTime) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForKey(nsMsgKey key,
-                                                 nsIMsgDBHdr** aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForKey(nsMsgKey aKey,
+                                                 nsIMsgDBHdr** aMsgHdr) {
+  Message* message;
+  nsresult rv = mDatabase->GetMessage(aKey, &message);
+  if (NS_FAILED(rv) || message->mFolderId != mFolderId) {
+    return NS_ERROR_ILLEGAL_VALUE;
+  }
+  NS_IF_ADDREF(*aMsgHdr = message);
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForMessageID(const char* messageID,
                                                        nsIMsgDBHdr** aRetVal) {
@@ -93,9 +100,9 @@ NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForEwsItemID(const nsACString& itemID,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::ContainsKey(nsMsgKey aKey, bool* aContains) {
-  Message message;
+  Message* message;
   nsresult rv = mDatabase->GetMessage(aKey, &message);
-  *aContains = NS_SUCCEEDED(rv) && message.folderId == mFolderId;
+  *aContains = NS_SUCCEEDED(rv) && message->mFolderId == mFolderId;
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgKeysForUIDs(

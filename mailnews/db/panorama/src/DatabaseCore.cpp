@@ -5,6 +5,7 @@
 #include "DatabaseCore.h"
 
 #include "FolderDatabase.h"
+#include "Message.h"
 #include "MessageDatabase.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/Logging.h"
@@ -237,16 +238,16 @@ void DatabaseCore::OnMessageAdded(Folder* folder, Message* m) {
   MOZ_LOG(gPanoramaLog, LogLevel::Debug,
           ("DatabaseCore::OnMessageAdded: %" PRId32 " %" PRIu64 " %" PRId64
            " '%s' '%s' %" PRIu64 " '%s'\n",
-           m->id, m->folderId, m->date, m->sender.get(), m->subject.get(),
-           m->flags, m->tags.get()));
+           m->mId, m->mFolderId, m->mDate, m->mSender.get(), m->mSubject.get(),
+           m->mFlags, m->mTags.get()));
 }
 
 void DatabaseCore::OnMessageRemoved(Folder* folder, Message* m) {
   MOZ_LOG(gPanoramaLog, LogLevel::Debug,
           ("DatabaseCore::OnMessageRemoved: %" PRId32 " %" PRIu64 " %" PRId64
            " '%s' '%s' %" PRIu64 " '%s'\n",
-           m->id, m->folderId, m->date, m->sender.get(), m->subject.get(),
-           m->flags, m->tags.get()));
+           m->mId, m->mFolderId, m->mDate, m->mSender.get(), m->mSubject.get(),
+           m->mFlags, m->mTags.get()));
 }
 
 NS_IMETHODIMP DatabaseCore::OpenFolderDB(nsIMsgFolder* aFolder,

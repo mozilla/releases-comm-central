@@ -13,23 +13,8 @@
 namespace mozilla {
 namespace mailnews {
 
-/**
- * These are just stub classes so that we can get on with developing other
- * parts of the code. Nothing here is final!
- */
-
 class Folder;
-
-struct Message {
-  nsMsgKey id;
-  uint64_t folderId;
-  nsCString messageId;
-  PRTime date;
-  nsCString sender;
-  nsCString subject;
-  uint64_t flags;
-  nsCString tags;
-};
+class Message;
 
 class MessageListener {
  public:
@@ -54,12 +39,14 @@ class MessageDatabase : public nsIMessageDatabase {
   void Shutdown();
 
  private:
+  friend class Message;
   friend class PerFolderDatabase;
 
   nsresult ListAllKeys(uint64_t aFolderId, nsTArray<nsMsgKey>& aKeys);
-  nsresult GetMessage(nsMsgKey aKey, Message* aMessage);
+  nsresult GetMessage(nsMsgKey aKey, Message** aMessage);
   nsresult GetMessageFlag(nsMsgKey aKey, uint64_t aFlag, bool* aHasFlag);
   nsresult SetMessageFlag(nsMsgKey aKey, uint64_t aFlag, bool aSetFlag);
+  nsresult SetMessageFlags(uint64_t aId, uint64_t aFlags);
   nsresult MarkAllRead(uint64_t aFolderId, nsTArray<nsMsgKey>& aMarkedKeys);
 
  private:

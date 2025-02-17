@@ -6,6 +6,7 @@
 #define LiveViewFilters_h__
 
 #include "Folder.h"
+#include "Message.h"
 #include "MessageDatabase.h"
 #include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
@@ -39,7 +40,7 @@ class SingleFolderFilter final : public LiveViewFilter {
     mSQLClause.AppendInt(mFolderId);
   }
 
-  bool Matches(Message& aMessage) { return aMessage.folderId == mFolderId; }
+  bool Matches(Message& aMessage) { return aMessage.mFolderId == mFolderId; }
 
  protected:
   uint64_t mFolderId;
@@ -59,7 +60,7 @@ class MultiFolderFilter final : public LiveViewFilter {
     mSQLClause.Append(")");
   }
 
-  bool Matches(Message& aMessage) { return mIds.Contains(aMessage.folderId); }
+  bool Matches(Message& aMessage) { return mIds.Contains(aMessage.mFolderId); }
 
  protected:
   nsTArray<uint64_t> mIds;

@@ -10,6 +10,7 @@ EXPORTS += [
     "FolderDatabase.h",
     "LiveView.h",
     "LiveViewFilters.h",
+    "Message.h",
     "MessageDatabase.h",
     "PerFolderDatabase.h",
 ]
@@ -22,6 +23,7 @@ SOURCES += [
     "FolderComparator.cpp",
     "FolderDatabase.cpp",
     "LiveView.cpp",
+    "Message.cpp",
     "MessageDatabase.cpp",
     "PerFolderDatabase.cpp",
 ]

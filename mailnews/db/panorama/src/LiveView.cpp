@@ -217,10 +217,10 @@ JSObject* LiveView::CreateJSMessage(uint64_t id, uint64_t folderId,
  * Create an object of JS primitives representing a message.
  */
 JSObject* LiveView::CreateJSMessage(Message* aMessage, JSContext* aCx) {
-  return CreateJSMessage(aMessage->id, aMessage->folderId,
-                         aMessage->messageId.get(), aMessage->date,
-                         aMessage->sender.get(), aMessage->subject.get(),
-                         aMessage->flags, aMessage->tags.get(), aCx);
+  return CreateJSMessage(aMessage->mId, aMessage->mFolderId,
+                         aMessage->mMessageId.get(), aMessage->mDate,
+                         aMessage->mSender.get(), aMessage->mSubject.get(),
+                         aMessage->mFlags, aMessage->mTags.get(), aCx);
 }
 
 NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
