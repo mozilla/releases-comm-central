@@ -73,7 +73,3 @@ function OnSelect() {
   );
   return true;
 }
-
-function GetFolderResource(aTree, aIndex) {
-  return aTree.view.getResourceAtIndex(aIndex);
-}
