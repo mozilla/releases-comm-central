@@ -39,13 +39,10 @@ def test(mod, path, entity=None):
                 re.match(r"searchplugins\/.+\.xml", path)
                 or path == "profile/bookmarks.extra"
                 or path == "profile/panels.extra"
-                or path == "defines.inc"
                 or re.match(r"chrome\/common\/help\/images\/[A-Za-z-_]+\.[a-z]+", path)
             )
             else "error"
         )
-    if path == "defines.inc":
-        return "ignore" if (entity == "MOZ_LANGPACK_CONTRIBUTORS") else "error"
 
     if path == "chrome/common/region.properties":
         return (

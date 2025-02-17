@@ -73,24 +73,11 @@ locales = [
     reference = "{mozilla}/devtools/shim/locales/en-US/**"
     l10n = "{l}devtools/shim/**"
 
-# ignore MOZ_LANGPACK_CONTRIBUTORS
-[[filters]]
-    path = "{l}suite/defines.inc"
-    key = "MOZ_LANGPACK_CONTRIBUTORS"
-    action = "ignore"
-
-# defines.inc and suite-l10n.js can be missing completely
+# suite-l10n.js can be missing completely
 [[filters]]
     path = [
-        "{l}suite/defines.inc",
         "{l}suite/suite-l10n.js",
     ]
-    action = "ignore"
-
-# ignore MOZ_LANGPACK_CONTRIBUTORS
-[[filters]]
-    path = "{l}suite/chatzilla/defines.inc"
-    key = "MOZ_LANGPACK_CONTRIBUTORS"
     action = "ignore"
 
 # search prefs don't have the same number for all locales
