@@ -191,21 +191,6 @@ async function MsgAccountManager(selectPage, server) {
   });
 }
 
-function loadInboxForNewAccount() {
-  // gNewAccountToLoad is set in the final screen of the Account Wizard if a POP account
-  // was created, the download messages box is checked, and the wizard was opened from the 3pane
-  if (gNewAccountToLoad) {
-    var rootMsgFolder = gNewAccountToLoad.incomingServer.rootMsgFolder;
-    var inboxFolder = rootMsgFolder.getFolderWithFlags(
-      Ci.nsMsgFolderFlags.Inbox
-    );
-    SelectFolder(inboxFolder.URI);
-    window.focus();
-    setTimeout(MsgGetMessage, 0);
-    gNewAccountToLoad = null;
-  }
-}
-
 /**
  * Open the Account Setup Tab or focus it if it's already open.
  *
