@@ -42,7 +42,7 @@ add_setup(async function () {
  * shows the correct UI.
  * The party crashing dialog should not show.
  */
-add_task(async function test_event_from_eml() {
+add_task(async function test_message_non_invite_eml() {
   const file = new FileUtils.File(getTestFilePath("data/message-non-invite.eml"));
 
   const win = await openMessageFromFile(file);
@@ -53,7 +53,7 @@ add_task(async function test_event_from_eml() {
   info("Ok, iMIP bar is showing");
 
   const imipAddButton = aboutMessage.document.getElementById("imipAddButton");
-  Assert.ok(!imipAddButton.hidden, "Add button should show");
+  await TestUtils.waitForCondition(() => !imipAddButton.hidden, "Add button should show");
 
   EventUtils.synthesizeMouseAtCenter(imipAddButton, {}, aboutMessage);
 

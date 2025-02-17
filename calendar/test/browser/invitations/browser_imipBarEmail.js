@@ -23,7 +23,7 @@ function getFileFromChromeURL(leafName) {
  * Test that when opening a message containing a Teams meeting invite
  * works as it should.
  */
-add_task(async function test_event_from_eml() {
+add_task(async function test_teams_meeting_invite_eml() {
   const file = getFileFromChromeURL("data/teams-meeting-invite.eml");
 
   const msgWindow = await openMessageFromFile(file);
@@ -69,15 +69,13 @@ add_task(async function test_event_from_eml() {
   );
 
   await BrowserTestUtils.closeWindow(msgWindow);
-
-  Assert.ok(true, "test_event_from_eml test ran to completion");
 });
 
 /**
  * Test that when opening a message containing a Meet meeting invite
  * works as it should.
  */
-add_task(async function test_event_from_eml() {
+add_task(async function test_meeting_invite_eml() {
   const file = getFileFromChromeURL("data/meet-meeting-invite.eml");
 
   const msgWindow = await openMessageFromFile(file);
@@ -118,8 +116,6 @@ add_task(async function test_event_from_eml() {
   );
 
   await BrowserTestUtils.closeWindow(msgWindow);
-
-  Assert.ok(true, "test_event_from_eml test ran to completion");
 });
 
 /**
@@ -146,14 +142,12 @@ add_task(async function test_outlook_event_from_eml() {
   );
 
   await BrowserTestUtils.closeWindow(msgWindow);
-
-  Assert.ok(true, "test_outlook_event_from_eml test ran to completion");
 });
 
 /**
  * Test that when opening a message containing an event, the IMIP bar shows.
  */
-add_task(async function test_event_from_eml() {
+add_task(async function test_message_event_eml() {
   const file = getFileFromChromeURL("data/message-containing-event.eml");
 
   const msgWindow = await openMessageFromFile(file);
@@ -165,6 +159,4 @@ add_task(async function test_event_from_eml() {
   info("Ok, iMIP bar is showing");
 
   await BrowserTestUtils.closeWindow(msgWindow);
-
-  Assert.ok(true, "test_event_from_eml test ran to completion");
 });
