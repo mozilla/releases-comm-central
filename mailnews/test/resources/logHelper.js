@@ -220,20 +220,6 @@ function mark_sub_test_end() {
   mark_test_end(_testLoggerContexts.length - 1);
 }
 
-/**
- * Express that all tests were run to completion.  This helps the listener
- *  distinguish between successful termination and abort-style termination where
- *  the process just keeled over and on one told us.
- *
- * This also tells us to clean up.
- */
-function mark_all_tests_run() {
-  // make sure all tests get closed out
-  mark_test_end();
-
-  _xpcshellLogger.info("All finished");
-}
-
 function _explode_flags(aFlagWord, aFlagDefs) {
   const flagList = [];
 
