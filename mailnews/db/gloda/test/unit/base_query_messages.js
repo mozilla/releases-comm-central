@@ -237,10 +237,6 @@ function glodaInfoStasher(aSynthMessage, aGlodaMessage) {
   }
 }
 
-// We override these for the IMAP tests.
-var pre_setup_populate_hook = function default_pre_setup_populate_hook() {};
-var post_setup_populate_hook = function default_post_setup_populate_hook() {};
-
 // First, we must populate our message store with delicious messages.
 async function setup_populate() {
   world.glodaHolderCollection = Gloda.explicitCollection(
@@ -692,13 +688,9 @@ function test_sanity_test_environment() {
 
 var base_query_messages_tests = [
   test_sanity_test_environment,
-  function pre_setup_populate() {
-    pre_setup_populate_hook();
-  },
+  function pre_setup_populate() {},
   setup_populate,
-  function post_setup_populate() {
-    post_setup_populate_hook();
-  },
+  function post_setup_populate() {},
   test_query_messages_by_conversation,
   test_query_messages_by_conversation,
   test_query_messages_by_conversation_nonmatches,
