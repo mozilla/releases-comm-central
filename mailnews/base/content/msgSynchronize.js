@@ -80,18 +80,6 @@ function selectOkButton() {
   return true;
 }
 
-function selectCancelButton() {
-  for (var resourceValue in gInitialFolderStates) {
-    const folder = MailUtils.getExistingFolder(resourceValue);
-    if (gInitialFolderStates[resourceValue]) {
-      folder.setFlag(Ci.nsMsgFolderFlags.Offline);
-    } else {
-      folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
-    }
-  }
-  return true;
-}
-
 function SortSynchronizePane(column, sortKey) {
   var node = FindInWindow(window, column);
   if (!node) {
