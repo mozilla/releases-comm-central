@@ -730,12 +730,6 @@ function SetBusyCursor(window, enable) {
   }
 }
 
-/* globals openHelp */
-// suite/components/helpviewer/content/contextHelp.js
-function doHelpButton() {
-  openHelp("mail-filters");
-}
-
 function getCustomActions() {
   if (!gCustomActions) {
     gCustomActions = MailServices.filters.getCustomActions();
