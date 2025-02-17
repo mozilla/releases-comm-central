@@ -148,6 +148,21 @@ add_task(async function testFolderMethods() {
   Assert.ok(folderDatabase.isRead(2));
   Assert.ok(folderDatabase.isRead(3));
   Assert.ok(folderDatabase.isRead(4));
+
+  Assert.ok(!folderDatabase.hasNew());
+  Assert.equal(folderDatabase.firstNew, 0xffffffff); // nsMsgKey_None
+  folderDatabase.addToNewList(2);
+  Assert.ok(folderDatabase.hasNew());
+  Assert.equal(folderDatabase.firstNew, 2);
+  Assert.deepEqual(folderDatabase.getNewList(), [2]);
+  folderDatabase.addToNewList(2);
+  Assert.deepEqual(folderDatabase.getNewList(), [2]);
+  folderDatabase.addToNewList(3);
+  Assert.deepEqual(folderDatabase.getNewList(), [2, 3]);
+  folderDatabase.markNotNew(2, null);
+  Assert.deepEqual(folderDatabase.getNewList(), [3]);
+  folderDatabase.markNotNew(2, null);
+  Assert.deepEqual(folderDatabase.getNewList(), [3]);
 });
 
 add_task(async function testHeaderMethods() {

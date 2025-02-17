@@ -29,6 +29,7 @@ class PerFolderDatabase : public nsIMsgDatabase, public SupportsWeakPtr {
 
   MessageDatabase* mDatabase;
   uint64_t mFolderId;
+  nsTArray<nsMsgKey> mNewList;
 };
 
 class MessageEnumerator : public nsBaseMsgEnumerator {

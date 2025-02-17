@@ -5,6 +5,7 @@
 #include "PerFolderDatabase.h"
 
 #include "DatabaseCore.h"
+#include "MailNewsTypes.h"
 #include "Message.h"
 #include "MessageDatabase.h"
 #include "nsMsgMessageFlags.h"
@@ -195,6 +196,7 @@ NS_IMETHODIMP PerFolderDatabase::GetThreadContainingMsgHdr(
 }
 NS_IMETHODIMP PerFolderDatabase::MarkNotNew(nsMsgKey aKey,
                                             nsIDBChangeListener* aInstigator) {
+  mNewList.RemoveElement(aKey);
   return mDatabase->SetMessageFlag(aKey, nsMsgMessageFlags::New, false);
 }
 NS_IMETHODIMP PerFolderDatabase::MarkMDNNeeded(
@@ -321,7 +323,12 @@ NS_IMETHODIMP PerFolderDatabase::SetUint32PropertyByHdr(nsIMsgDBHdr* aMsgHdr,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::GetFirstNew(nsMsgKey* aFirstNew) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  if (mNewList.IsEmpty()) {
+    *aFirstNew = nsMsgKey_None;
+  } else {
+    *aFirstNew = mNewList[0];
+  }
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgRetentionSettings(
     nsIMsgRetentionSettings** aMsgRetentionSettings) {
@@ -343,17 +350,22 @@ NS_IMETHODIMP PerFolderDatabase::SetMsgDownloadSettings(
     nsIMsgDownloadSettings* aMsgDownloadSettings) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP PerFolderDatabase::HasNew(bool* aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP PerFolderDatabase::HasNew(bool* aHasNew) {
+  *aHasNew = !mNewList.IsEmpty();
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::SortNewKeysIfNeeded() {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP PerFolderDatabase::ClearNewList(bool notify) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP PerFolderDatabase::ClearNewList(bool aNotify) {
+  mNewList.Clear();
+  return NS_OK;
 }
-NS_IMETHODIMP PerFolderDatabase::AddToNewList(nsMsgKey key) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP PerFolderDatabase::AddToNewList(nsMsgKey aKey) {
+  if (!mNewList.Contains(aKey)) {
+    mNewList.AppendElement(aKey);
+  }
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetSummaryValid(bool* aSummaryValid) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -428,8 +440,9 @@ NS_IMETHODIMP PerFolderDatabase::GetMsgHdrCacheSize(
 NS_IMETHODIMP PerFolderDatabase::SetMsgHdrCacheSize(uint32_t aMsgHdrCacheSize) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP PerFolderDatabase::GetNewList(nsTArray<nsMsgKey>& aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP PerFolderDatabase::GetNewList(nsTArray<nsMsgKey>& aNewList) {
+  aNewList = mNewList.Clone();
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetCachedHits(
     const nsACString& aSearchFolderUri, nsIMsgEnumerator** aRetVal) {
