@@ -35,6 +35,8 @@ LazyLogModule gLiveViewLog("panorama");
 NS_IMPL_ISUPPORTS(LiveView, nsILiveView)
 
 NS_IMETHODIMP LiveView::InitWithFolder(nsIFolder* aFolder) {
+  NS_ENSURE_ARG_POINTER(aFolder);
+
   if (mFolderFilter) {
     NS_WARNING("folder filter already set");
     return NS_ERROR_UNEXPECTED;
@@ -46,6 +48,12 @@ NS_IMETHODIMP LiveView::InitWithFolder(nsIFolder* aFolder) {
 
 NS_IMETHODIMP LiveView::InitWithFolders(
     const nsTArray<RefPtr<nsIFolder>>& aFolders) {
+  for (auto folder : aFolders) {
+    if (!folder) {
+      return NS_ERROR_ILLEGAL_VALUE;
+    }
+  }
+
   if (mFolderFilter) {
     NS_WARNING("folder filter already set");
     return NS_ERROR_UNEXPECTED;

@@ -1,0 +1,203 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+
+let account;
+
+add_setup(async function () {
+  await installDB("messages.sqlite");
+
+  account = MailServices.accounts.createLocalMailAccount();
+  Assert.equal(account.incomingServer.key, "server1");
+
+  const rootFolder = account.incomingServer.rootFolder;
+  // Assert.deepEqual(Array.from(rootFolder.subFolders, f => f.name).toSorted(), [
+  //   "Outbox",
+  //   "Trash",
+  // ]);
+
+  rootFolder.addSubfolder("folderA");
+  rootFolder.addSubfolder("folderB");
+  rootFolder.addSubfolder("folderC");
+});
+
+add_task(async function testFolderMethods() {
+  const folderA = MailServices.folderLookup.getOrCreateFolderForURL(
+    account.incomingServer.rootFolder.URI + "/folderA"
+  );
+  Assert.ok(folderA.filePath.path);
+
+  const folderDatabase = database.openFolderDB(folderA, false);
+  Assert.ok(folderDatabase);
+  Assert.deepEqual(folderDatabase.listAllKeys(), [1, 2, 3, 4]);
+  Assert.ok(!folderDatabase.containsKey(0));
+  Assert.ok(folderDatabase.containsKey(1));
+  Assert.ok(folderDatabase.containsKey(4));
+  Assert.ok(!folderDatabase.containsKey(5));
+
+  // Test getting a message header.
+  let header = folderDatabase.getMsgHdrForKey(4);
+  Assert.equal(header.messageKey, 4);
+  Assert.equal(header.date, new Date("2019-11-03T12:34:56Z").valueOf() * 1000);
+  Assert.equal(header.author, '"Eliseo Bauch" <eliseo@bauch.invalid>');
+  Assert.equal(header.subject, "Proactive intermediate collaboration");
+  Assert.equal(
+    header.flags,
+    Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.Marked
+  );
+
+  // Test getting and changing message flags.
+  Assert.ok(folderDatabase.isRead(4));
+  Assert.ok(!folderDatabase.isIgnored(4));
+  Assert.ok(!folderDatabase.isWatched(4));
+  Assert.ok(folderDatabase.isMarked(4));
+  Assert.ok(!folderDatabase.hasAttachments(4));
+  Assert.ok(!folderDatabase.isMDNSent(4));
+  folderDatabase.markNotNew(4, null);
+  folderDatabase.markMDNNeeded(4, true, null);
+  folderDatabase.markMDNSent(4, true, null);
+  Assert.ok(folderDatabase.isMDNSent(4));
+  folderDatabase.markRead(4, false, null);
+  Assert.ok(!folderDatabase.isRead(4));
+  folderDatabase.markMarked(4, false, null);
+  Assert.ok(!folderDatabase.isMarked(4));
+  folderDatabase.markReplied(4, true, null);
+  folderDatabase.markForwarded(4, true, null);
+  folderDatabase.markRedirected(4, true, null);
+  folderDatabase.markHasAttachments(4, true, null);
+  Assert.ok(folderDatabase.hasAttachments(4));
+  folderDatabase.markOffline(4, true, null);
+  folderDatabase.markImapDeleted(4, true, null);
+  folderDatabase.markKilled(4, true, null);
+
+  header = folderDatabase.getMsgHdrForKey(4);
+  Assert.equal(
+    header.flags,
+    Ci.nsMsgMessageFlags.MDNReportNeeded |
+      Ci.nsMsgMessageFlags.MDNReportSent |
+      Ci.nsMsgMessageFlags.Replied |
+      Ci.nsMsgMessageFlags.Forwarded |
+      Ci.nsMsgMessageFlags.Redirected |
+      Ci.nsMsgMessageFlags.Attachment |
+      Ci.nsMsgMessageFlags.Offline |
+      Ci.nsMsgMessageFlags.IMAPDeleted |
+      Ci.nsMsgMessageFlags.Ignored
+  );
+
+  folderDatabase.markMDNNeeded(4, false, null);
+  folderDatabase.markMDNSent(4, false, null);
+  Assert.ok(!folderDatabase.isMDNSent(4));
+  folderDatabase.markRead(4, true, null);
+  Assert.ok(folderDatabase.isRead(4));
+  folderDatabase.markMarked(4, true, null);
+  Assert.ok(folderDatabase.isMarked(4));
+  folderDatabase.markReplied(4, false, null);
+  folderDatabase.markForwarded(4, false, null);
+  folderDatabase.markRedirected(4, false, null);
+  folderDatabase.markHasAttachments(4, false, null);
+  Assert.ok(!folderDatabase.hasAttachments(4));
+  folderDatabase.markOffline(4, false, null);
+  folderDatabase.markImapDeleted(4, false, null);
+  folderDatabase.markKilled(4, false, null);
+  header = folderDatabase.getMsgHdrForKey(4);
+  Assert.equal(
+    header.flags,
+    Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.Marked
+  );
+
+  // Test enumerateMessages and reverseEnumerateMessages. Do this twice to
+  // make sure we get a fresh enumerator the second time.
+  Assert.deepEqual(
+    Array.from(folderDatabase.enumerateMessages(), m => m.messageKey),
+    [1, 2, 3, 4]
+  );
+  Assert.deepEqual(
+    Array.from(folderDatabase.enumerateMessages(), m => m.subject),
+    [
+      "Fundamental empowering pricing structure",
+      "Networked even-keeled forecast",
+      "Streamlined bandwidth-monitored help-desk",
+      "Proactive intermediate collaboration",
+    ]
+  );
+
+  Assert.deepEqual(
+    Array.from(folderDatabase.reverseEnumerateMessages(), m => m.messageKey),
+    [4, 3, 2, 1]
+  );
+  Assert.deepEqual(
+    Array.from(folderDatabase.reverseEnumerateMessages(), m => m.subject),
+    [
+      "Proactive intermediate collaboration",
+      "Streamlined bandwidth-monitored help-desk",
+      "Networked even-keeled forecast",
+      "Fundamental empowering pricing structure",
+    ]
+  );
+
+  Assert.ok(!folderDatabase.isRead(1));
+  Assert.ok(!folderDatabase.isRead(2));
+  Assert.ok(folderDatabase.isRead(3));
+  Assert.ok(folderDatabase.isRead(4));
+  Assert.deepEqual(folderDatabase.markAllRead(), [1, 2]);
+  Assert.ok(folderDatabase.isRead(1));
+  Assert.ok(folderDatabase.isRead(2));
+  Assert.ok(folderDatabase.isRead(3));
+  Assert.ok(folderDatabase.isRead(4));
+});
+
+add_task(async function testHeaderMethods() {
+  const folderC = MailServices.folderLookup.getOrCreateFolderForURL(
+    account.incomingServer.rootFolder.URI + "/folderC"
+  );
+  Assert.ok(folderC.filePath.path);
+
+  const folderDatabase = database.openFolderDB(folderC, false);
+  Assert.ok(folderDatabase);
+
+  let header = folderDatabase.getMsgHdrForKey(7);
+  Assert.equal(header.flags, 0);
+  Assert.ok(!header.isRead);
+  Assert.ok(!header.isFlagged);
+  Assert.ok(!header.isKilled);
+
+  header.flags = Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.Marked;
+  Assert.equal(
+    header.flags,
+    Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.Marked
+  );
+  Assert.ok(header.isRead);
+  Assert.ok(header.isFlagged);
+  Assert.ok(!header.isKilled);
+
+  Assert.equal(
+    header.andFlags(~Ci.nsMsgMessageFlags.Marked),
+    Ci.nsMsgMessageFlags.Read
+  );
+  Assert.equal(
+    header.orFlags(Ci.nsMsgMessageFlags.Ignored),
+    Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.Ignored
+  );
+
+  header = folderDatabase.getMsgHdrForKey(7);
+  Assert.equal(
+    header.flags,
+    Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.Ignored
+  );
+
+  header.markRead(false);
+  Assert.ok(!header.isRead);
+  header.markFlagged(true);
+  Assert.ok(header.isFlagged);
+  header.markHasAttachments(true);
+  Assert.equal(
+    header.flags,
+    Ci.nsMsgMessageFlags.Marked |
+      Ci.nsMsgMessageFlags.Ignored |
+      Ci.nsMsgMessageFlags.Attachment
+  );
+});

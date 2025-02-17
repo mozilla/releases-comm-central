@@ -24,12 +24,6 @@ const LiveView = Components.Constructor(
 
 add_setup(async function () {
   await installDB("messages.sqlite");
-
-  registerCleanupFunction(function () {
-    // Make sure the LiveView destructor runs, to finalize the SQL statements,
-    // even if the test fails.
-    Cu.forceGC();
-  });
 });
 
 /**

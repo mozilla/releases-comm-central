@@ -25,6 +25,9 @@ registerCleanupFunction(function () {
   folders = null;
   messages = null;
   database = null;
+
+  // Make sure destructors run, to finalize statements even if the test fails.
+  Cu.forceGC();
 });
 
 function drawTree(root, level = 0) {

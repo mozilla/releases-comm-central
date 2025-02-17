@@ -7,7 +7,7 @@ CREATE TABLE folders (
 ) STRICT;
 
 INSERT INTO folders (id, parent, name) VALUES
-  (1, 0, 'server'),
+  (1, 0, 'server1'),
   (2, 1, 'folderA'),
   (3, 1, 'folderB'),
   (4, 1, 'folderC');

@@ -9,12 +9,6 @@ const LiveView = Components.Constructor(
 
 add_setup(async function () {
   await installDB("messages.sqlite");
-
-  registerCleanupFunction(function () {
-    // Make sure the LiveView destructor runs, to finalize the SQL statements,
-    // even if the test fails.
-    Cu.forceGC();
-  });
 });
 
 add_task(function testMessageProperties() {
@@ -32,9 +26,15 @@ add_task(function testMessageProperties() {
 });
 
 add_task(function testInitWithFolder() {
-  const folderA = folders.getFolderByPath("server/folderA");
+  const folderA = folders.getFolderByPath("server1/folderA");
 
   const liveView = new LiveView();
+  Assert.throws(
+    () => liveView.initWithFolder(null),
+    /NS_ERROR_ILLEGAL_VALUE/,
+    "setting with a null folder should throw"
+  );
+
   liveView.initWithFolder(folderA);
   assertInitFails(liveView);
 
@@ -68,11 +68,17 @@ add_task(function testInitWithFolder() {
 });
 
 add_task(function testInitWithFolders() {
-  const folderA = folders.getFolderByPath("server/folderA");
-  const folderB = folders.getFolderByPath("server/folderB");
-  const folderC = folders.getFolderByPath("server/folderC");
+  const folderA = folders.getFolderByPath("server1/folderA");
+  const folderB = folders.getFolderByPath("server1/folderB");
+  const folderC = folders.getFolderByPath("server1/folderC");
 
   const liveView = new LiveView();
+  Assert.throws(
+    () => liveView.initWithFolders([null]),
+    /NS_ERROR_ILLEGAL_VALUE/,
+    "setting with a null folder should throw"
+  );
+
   liveView.initWithFolders([folderA, folderB, folderC]);
   assertInitFails(liveView);
 
@@ -347,7 +353,7 @@ add_task(function testListener() {
 });
 
 function assertInitFails(liveView) {
-  const folderA = folders.getFolderByPath("server/folderA");
+  const folderA = folders.getFolderByPath("server1/folderA");
 
   Assert.throws(
     () => liveView.initWithFolder(folderA),
