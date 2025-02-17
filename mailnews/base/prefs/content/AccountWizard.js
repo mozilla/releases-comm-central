@@ -582,9 +582,3 @@ function GetPageData() {
 
   return gPageData;
 }
-
-// flush the XUL cache - just for debugging purposes - not called
-function onFlush() {
-  Services.prefs.setBoolPref("nglayout.debug.disable_xul_cache", true);
-  Services.prefs.setBoolPref("nglayout.debug.disable_xul_cache", false);
-}
