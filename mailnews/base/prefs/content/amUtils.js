@@ -54,27 +54,6 @@ function BrowseForLocalFolders() {
 }
 
 /**
- * Return server/folder name formatted with server name if needed.
- *
- * @param {nsIMsgFolder} aTargetFolder - nsIMsgFolder to format name for
-   @returns {string} THe formatted name.
- *   If target.isServer then only its name is returned.
- *   Otherwise return the name as "<foldername> on <servername>".
- */
-function prettyFolderName(aTargetFolder) {
-  if (aTargetFolder.isServer) {
-    return aTargetFolder.prettyName;
-  }
-
-  return document
-    .getElementById("bundle_messenger")
-    .getFormattedString("verboseFolderFormat", [
-      aTargetFolder.prettyName,
-      aTargetFolder.server.prettyName,
-    ]);
-}
-
-/**
  * Checks validity of junk target server name and folder.
  *
  * @param {string} aTargetURI - The URI specification to check.
