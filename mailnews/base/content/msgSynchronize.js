@@ -121,46 +121,6 @@ function FindInWindow(currentWindow, id) {
   return null;
 }
 
-function onSynchronizeClick(event) {
-  // we only care about button 0 (left click) events
-  if (event.button != 0) {
-    return;
-  }
-
-  const treeCellInfo = gSynchronizeTree.getCellAt(event.clientX, event.clientY);
-  if (treeCellInfo.row == -1) {
-    return;
-  }
-
-  if (treeCellInfo.childElt == "twisty") {
-    var folderResource = GetFolderResource(gSynchronizeTree, treeCellInfo.row);
-    var folder = folderResource.QueryInterface(Ci.nsIMsgFolder);
-
-    if (!gSynchronizeTree.view.isContainerOpen(treeCellInfo.row)) {
-      var serverType = folder.server.type;
-      // imap is the only server type that does folder discovery
-      if (serverType != "imap") {
-        return;
-      }
-
-      if (folder.isServer) {
-        var server = folder.server;
-        server.performExpand(gMsgWindow);
-      } else {
-        var imapFolder = folderResource.QueryInterface(Ci.nsIMsgImapMailFolder);
-        if (imapFolder) {
-          imapFolder.performExpand(gMsgWindow);
-        }
-      }
-    }
-  } else if (treeCellInfo.col.id == "syncCol") {
-    UpdateNode(
-      GetFolderResource(gSynchronizeTree, treeCellInfo.row),
-      treeCellInfo.row
-    );
-  }
-}
-
 function onSynchronizeTreeKeyPress(event) {
   // for now, only do something on space key
   if (event.charCode != KeyEvent.DOM_VK_SPACE) {
