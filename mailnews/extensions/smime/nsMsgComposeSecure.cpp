@@ -826,8 +826,8 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
       NS_ENSURE_SUCCESS(res, res);
 
       if (certVerifier->VerifyCert(
-              certBytes, certificateUsageEmailRecipient, mozilla::pkix::Now(),
-              nullptr, nullptr, builtChain,
+              certBytes, mozilla::psm::VerifyUsage::EmailRecipient,
+              mozilla::pkix::Now(), nullptr, nullptr, builtChain,
               // Only local checks can run on the main thread.
               // Skipping OCSP for the user's own cert seems accaptable.
               CertVerifier::FLAG_LOCAL_ONLY) != mozilla::pkix::Success) {
@@ -850,8 +850,8 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
       NS_ENSURE_SUCCESS(res, res);
 
       if (certVerifier->VerifyCert(
-              certBytes, certificateUsageEmailSigner, mozilla::pkix::Now(),
-              nullptr, nullptr, builtChain,
+              certBytes, mozilla::psm::VerifyUsage::EmailSigner,
+              mozilla::pkix::Now(), nullptr, nullptr, builtChain,
               // Only local checks can run on the main thread.
               // Skipping OCSP for the user's own cert seems accaptable.
               CertVerifier::FLAG_LOCAL_ONLY) != mozilla::pkix::Success) {
@@ -1206,8 +1206,9 @@ nsresult FindSMimeCertTask::CalculateResult() {
     nsTArray<nsTArray<uint8_t>> unusedCertChain;
 
     mozilla::pkix::Result result = certVerifier->VerifyCert(
-        certBytes, certificateUsageEmailRecipient, mozilla::pkix::Now(),
-        nullptr /*XXX pinarg*/, nullptr /*hostname*/, unusedCertChain);
+        certBytes, mozilla::psm::VerifyUsage::EmailRecipient,
+        mozilla::pkix::Now(), nullptr /*XXX pinarg*/, nullptr /*hostname*/,
+        unusedCertChain);
     if (result == mozilla::pkix::Success) {
       mozilla::StaticMutexAutoLock lock(sMutex);
       mCert = new nsNSSCertificate(node->cert);

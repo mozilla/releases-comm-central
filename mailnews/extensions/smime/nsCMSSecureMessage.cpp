@@ -69,11 +69,23 @@ nsresult nsCMSSecureMessage::CheckUsageOk(nsIX509Cert* aCert,
   RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
+  mozilla::psm::VerifyUsage usageForPkix;
+  switch (aUsage) {
+    case certUsageEmailSigner:
+      usageForPkix = mozilla::psm::VerifyUsage::EmailSigner;
+      break;
+    case certUsageEmailRecipient:
+      usageForPkix = mozilla::psm::VerifyUsage::EmailRecipient;
+      break;
+    default:
+      return NS_ERROR_UNEXPECTED;
+  }
+
   nsTArray<nsTArray<uint8_t>> unusedBuiltChain;
   // It's fine to skip OCSP, because this is called only from code
   // for selecting the user's own configured cert.
-  if (certVerifier->VerifyCert(certBytes, aUsage, mozilla::pkix::Now(), nullptr,
-                               nullptr, unusedBuiltChain,
+  if (certVerifier->VerifyCert(certBytes, usageForPkix, mozilla::pkix::Now(),
+                               nullptr, nullptr, unusedBuiltChain,
                                CertVerifier::FLAG_LOCAL_ONLY) ==
       mozilla::pkix::Success) {
     *aCanBeUsed = true;

@@ -243,14 +243,14 @@ static SECStatus myExtraVerificationOnCert(CERTCertificate* cert,
     return SECFailure;
   }
 
-  SECCertificateUsage usageForPkix;
+  mozilla::psm::VerifyUsage usageForPkix;
 
   switch (certusage) {
     case certUsageEmailSigner:
-      usageForPkix = certificateUsageEmailSigner;
+      usageForPkix = mozilla::psm::VerifyUsage::EmailSigner;
       break;
     case certUsageEmailRecipient:
-      usageForPkix = certificateUsageEmailRecipient;
+      usageForPkix = mozilla::psm::VerifyUsage::EmailRecipient;
       break;
     default:
       return SECFailure;

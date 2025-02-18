@@ -4,6 +4,10 @@
 
 /* import-globals-from ../../../mail/base/content/aboutMessage.js */
 
+const { getCertViewerUrl } = ChromeUtils.importESModule(
+  "resource://gre/modules/psm/pippki.sys.mjs"
+);
+
 var gEncryptionStatus = -1;
 var gSignatureStatus = -1;
 var gSignerCert = null;
@@ -226,26 +230,26 @@ function loadSmimeMessageSecurityInfo() {
   }
 }
 
-function viewSignatureCert() {
-  if (!gSignerCert) {
-    return;
-  }
-
-  const url = `about:certificate?cert=${encodeURIComponent(
-    gSignerCert.getBase64DERString()
-  )}`;
+/**
+ * Open UI that displays the given certificate.
+ * or subdirectory of the given special system/app directory (aDirToCheck).
+ *
+ * @param {nsIX509Cert} cert - The certificate to display.
+ */
+async function viewCert(cert) {
+  const url = await getCertViewerUrl(cert);
   const mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
   mail3PaneWindow.switchToTabHavingURI(url, true, {});
 }
 
-function viewEncryptionCert() {
-  if (!gEncryptionCert) {
-    return;
+async function viewSignatureCert() {
+  if (gSignerCert) {
+    viewCert(gSignerCert);
   }
+}
 
-  const url = `about:certificate?cert=${encodeURIComponent(
-    gEncryptionCert.getBase64DERString()
-  )}`;
-  const mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
-  mail3PaneWindow.switchToTabHavingURI(url, true, {});
+function viewEncryptionCert() {
+  if (gEncryptionCert) {
+    viewCert(gEncryptionCert);
+  }
 }
