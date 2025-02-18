@@ -11,6 +11,7 @@
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/RefPtr.h"
+#include "nsServiceManagerUtils.h"
 #include "prtime.h"
 
 using JS::MutableHandle;
@@ -350,7 +351,8 @@ NS_IMETHODIMP LiveView::SetListener(nsILiveViewListener* aListener,
   mCx = aCx;
 
   if (!hadListener && aListener) {
-    nsCOMPtr<nsIDatabaseCore> core = components::DatabaseCore::Service();
+    nsCOMPtr<nsIDatabaseCore> core =
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
     nsCOMPtr<nsIMessageDatabase> messages;
     core->GetMessages(getter_AddRefs(messages));
     messages->AddMessageListener(this);
@@ -362,7 +364,8 @@ NS_IMETHODIMP LiveView::ClearListener() {
   mListener = nullptr;
   mCx = nullptr;
 
-  nsCOMPtr<nsIDatabaseCore> core = components::DatabaseCore::Service();
+  nsCOMPtr<nsIDatabaseCore> core =
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
   nsCOMPtr<nsIMessageDatabase> messages;
   core->GetMessages(getter_AddRefs(messages));
   messages->RemoveMessageListener(this);

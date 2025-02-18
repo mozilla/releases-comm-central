@@ -191,4 +191,8 @@ set_config(
     when="--enable-thunderbird-rust",
 )
 
+# Build with (but not necessarily use) the new database.
+set_config("MOZ_PANORAMA", True, when=milestone.is_nightly)
+set_define("MOZ_PANORAMA", True, when=milestone.is_nightly)
+
 include("../../toolkit/moz.configure")

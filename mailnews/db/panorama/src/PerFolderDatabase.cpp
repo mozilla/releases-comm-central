@@ -8,8 +8,8 @@
 #include "MailNewsTypes.h"
 #include "Message.h"
 #include "MessageDatabase.h"
-#include "mozilla/Components.h"
 #include "nsMsgMessageFlags.h"
+#include "nsServiceManagerUtils.h"
 
 namespace mozilla::mailnews {
 
@@ -514,7 +514,8 @@ NS_IMETHODIMP MessageEnumerator::HasMoreElements(bool* aHasNext) {
 NS_IMPL_ISUPPORTS(FolderInfo, nsIDBFolderInfo)
 
 FolderInfo::FolderInfo(uint64_t aFolderId) {
-  nsCOMPtr<nsIDatabaseCore> core = components::DatabaseCore::Service();
+  nsCOMPtr<nsIDatabaseCore> core =
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
   core->GetFolders(getter_AddRefs(mDatabase));
   mDatabase->GetFolderById(aFolderId, getter_AddRefs(mFolder));
 }

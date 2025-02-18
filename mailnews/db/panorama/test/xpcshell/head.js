@@ -4,6 +4,25 @@
 
 let database, folders, messages;
 
+add_setup(function () {
+  // Replace the database service. This is the same code as in MailGlue, and
+  // it's here because we don't run that copy in xpcshell tests.
+  const componentRegistrar = Components.manager.QueryInterface(
+    Ci.nsIComponentRegistrar
+  );
+
+  componentRegistrar.registerFactory(
+    Services.uuid.generateUUID(),
+    "",
+    "@mozilla.org/msgDatabase/msgDBService;1",
+    {
+      createInstance(iid) {
+        return Cc["@mozilla.org/mailnews/database-core;1"].getService(iid);
+      },
+    }
+  );
+});
+
 async function installDB(dbName) {
   const profileDir = do_get_profile();
   const dbFile = do_get_file(`db/${dbName}`);

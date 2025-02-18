@@ -18,7 +18,12 @@ const lazy = {};
  *
  * TODO: Raise this number before release.
  */
-XPCOMUtils.defineLazyPreferenceGetter(lazy, "bufferRows", "mail.bufferRows", 9);
+XPCOMUtils.defineLazyPreferenceGetter(
+  lazy,
+  "bufferRows",
+  "mail.panorama.bufferRows",
+  9
+);
 
 ChromeUtils.defineLazyGetter(
   lazy,

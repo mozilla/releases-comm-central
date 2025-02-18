@@ -10,6 +10,7 @@
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgFolderCacheElement.h"
 #include "nsMsgLocalStoreUtils.h"
+#include "nsServiceManagerUtils.h"
 
 namespace mozilla {
 namespace mailnews {
@@ -28,7 +29,8 @@ FolderCollector::~FolderCollector() {
 
 void FolderCollector::EnsureDatabase() {
   if (!mDatabase) {
-    nsCOMPtr<nsIDatabaseCore> core = components::DatabaseCore::Service();
+    nsCOMPtr<nsIDatabaseCore> core =
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
     core->GetFolders(getter_AddRefs(mDatabase));
   }
 }

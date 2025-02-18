@@ -3675,7 +3675,8 @@ NS_IMETHODIMP nsMsgDatabase::SetSummaryValid(bool valid /* = true */) {
   // it may
   //  not have been added to the cache. Add it now if missing.
   if (valid) {
-    nsCOMPtr<nsIMsgDBService> serv(mozilla::components::DB::Service());
+    nsCOMPtr<nsIMsgDBService> serv =
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
     static_cast<nsMsgDBService*>(serv.get())->EnsureCached(this);
   }
   // setting the version to 0 ought to make it pretty invalid.

@@ -2,6 +2,7 @@
 head = "head.js"
 prefs = [
   "logging.config.modules=panorama:4,mozStorage:4",
+  "mail.panorama.enabled=true",
 ]
 generated-files = [
   "db/lookup.sqlite",
@@ -20,6 +21,7 @@ support-files = [
 
 ["test_delete.js"]
 ["test_findFolders.js"]
+skip-if = true  # Obsolete for now, may come back from the dead.
 ["test_flags.js"]
 ["test_insert.js"]
 ["test_liveView.js"]

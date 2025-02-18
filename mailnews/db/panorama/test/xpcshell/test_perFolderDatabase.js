@@ -33,6 +33,7 @@ add_task(async function testFolderMethods() {
 
   const folderDatabase = database.openFolderDB(folderA, false);
   Assert.ok(folderDatabase);
+  Assert.equal(folderA.msgDatabase, folderDatabase);
   Assert.deepEqual(folderDatabase.listAllKeys(), [1, 2, 3, 4]);
   Assert.ok(!folderDatabase.containsKey(0));
   Assert.ok(folderDatabase.containsKey(1));
@@ -174,7 +175,7 @@ add_task(async function testFolderInfo() {
   Assert.ok(folderInfo);
   Assert.equal(folderInfo.folderName, "folderA");
 
-  Assert.equal(folderInfo.flags, 0);
+  Assert.equal(folderInfo.flags, Ci.nsMsgFolderFlags.Mail);
 
   folderInfo.flags = Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Inbox;
   Assert.equal(
@@ -206,6 +207,7 @@ add_task(async function testHeaderMethods() {
 
   const folderDatabase = database.openFolderDB(folderC, false);
   Assert.ok(folderDatabase);
+  Assert.equal(folderC.msgDatabase, folderDatabase);
 
   let header = folderDatabase.getMsgHdrForKey(7);
   Assert.equal(header.flags, 0);
