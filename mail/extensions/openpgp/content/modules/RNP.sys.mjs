@@ -511,6 +511,28 @@ before importing and publishing this revocation certificate.
 
 :`;
 
+/**
+ * Object to hold result status of decryption/verification.
+ */
+export class DecryptVerifyResult {
+  /** @type {string} */
+  decryptedData = "";
+  /** @type {integer} */
+  exitCode = -1;
+  /** @type {integer} */
+  statusFlags = 0;
+  /** @type {integer} */
+  extStatusFlags = 0;
+  /** @type {string} */
+  userId = "";
+  /** @type {string} */
+  keyId = "";
+  /** @type {object} */
+  sigDetails = { sigDate: null };
+  /** @type {object} */
+  encToDetails = { myRecipKey: {}, allRecipKeys: [] };
+}
+
 export var RNP = {
   hasRan: false,
   libLoaded: false,
@@ -1801,18 +1823,7 @@ export var RNP = {
    *   function decrypt().
    */
   async decryptArray(encrypted_array, options, alreadyDecrypted = false) {
-    const result = {};
-    result.decryptedData = "";
-    result.statusFlags = 0;
-    result.extStatusFlags = 0;
-
-    result.userId = "";
-    result.keyId = "";
-    result.encToDetails = {};
-    result.encToDetails.myRecipKey = {};
-    result.encToDetails.allRecipKeys = [];
-    result.sigDetails = {};
-    result.sigDetails.sigDate = null;
+    const result = new DecryptVerifyResult();
 
     if (alreadyDecrypted) {
       result.encToDetails = options.encToDetails;
@@ -2500,15 +2511,7 @@ export var RNP = {
   },
 
   async verifyDetached(data, options) {
-    const result = {};
-    result.decryptedData = "";
-    result.statusFlags = 0;
-    result.exitCode = -1;
-    result.extStatusFlags = 0;
-    result.userId = "";
-    result.keyId = "";
-    result.sigDetails = {};
-    result.sigDetails.sigDate = null;
+    const result = new DecryptVerifyResult();
 
     const sig_arr = options.mimeSignatureData
       .split("")

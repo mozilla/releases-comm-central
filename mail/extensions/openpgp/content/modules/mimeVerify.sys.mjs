@@ -17,6 +17,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.sys.mjs",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
   RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
+  DecryptVerifyResult: "chrome://openpgp/content/modules/RNP.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
@@ -516,10 +517,9 @@ MimeVerify.prototype = {
       lazy.EnigmailCore.init();
       if (!this.mimeSignatureData) {
         this.exitCode = -1;
-        this.returnStatus = {
-          statusFlags: EnigmailConstants.BAD_SIGNATURE,
-          errorMsg: "Signature data missing",
-        };
+        this.returnStatus = new lazy.DecryptVerifyResult();
+        this.returnStatus.statusFlags = EnigmailConstants.BAD_SIGNATURE;
+        this.returnStatus.errorMsg = "Signature data missing";
         this.displayStatus(mimeSvc.mailChannel?.openpgpSink);
         return;
       }
