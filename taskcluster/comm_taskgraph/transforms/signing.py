@@ -27,19 +27,21 @@ def remove_widevine(config, jobs):
     This is to avoid adding special cases for handling signed artifacts
     in mozilla-central code. Artifact signature formats are determined in
     gecko_taskgraph.util.signed_artifacts. There's no override mechanism so we
-    remove the autograph_widevine format here.
+    remove the gcp_prod_autograph_widevine format here.
     """
     for job in jobs:
         task = job["task"]
         payload = task["payload"]
 
-        widevine_scope = "project:comm:thunderbird:releng:signing:format:autograph_widevine"
+        widevine_scope = (
+            "project:comm:thunderbird:releng:signing:format:gcp_prod_autograph_widevine"
+        )
         if widevine_scope in task["scopes"]:
             task["scopes"].remove(widevine_scope)
         if "upstreamArtifacts" in payload:
             for artifact in payload["upstreamArtifacts"]:
-                if "autograph_widevine" in artifact.get("formats", []):
-                    artifact["formats"].remove("autograph_widevine")
+                if "gcp_prod_autograph_widevine" in artifact.get("formats", []):
+                    artifact["formats"].remove("gcp_prod_autograph_widevine")
 
         yield job
 

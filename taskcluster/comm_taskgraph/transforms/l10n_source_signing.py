@@ -30,7 +30,7 @@ def define_upstream_artifacts(config, jobs):
                     get_artifact_path(job, "strings_all.tar.zst"),
                     get_artifact_path(job, "l10n-changesets.json"),
                 ],
-                "formats": ["autograph_gpg"],
+                "formats": ["gcp_prod_autograph_gpg"],
             }
         ]
 
