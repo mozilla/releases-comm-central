@@ -307,7 +307,6 @@ add_task(async () => {
 
   Assert.equal(obs._result.getValueAt(0), "dis <email@foo.invalid>");
   Assert.equal(obs._result.getLabelAt(0), "dis <email@foo.invalid>");
-  Assert.equal(obs._result.getCommentAt(0), "");
   Assert.equal(obs._result.getStyleAt(0), "local-abook");
   Assert.equal(obs._result.getImageAt(0), "");
 
@@ -338,8 +337,10 @@ add_task(async () => {
   Assert.equal(obs._result.defaultIndex, 0);
 
   Assert.equal(obs._result.getValueAt(0), "dis <email@foo.invalid>");
-  Assert.equal(obs._result.getLabelAt(0), "dis <email@foo.invalid>");
-  Assert.equal(obs._result.getCommentAt(0), kPABData.dirName);
+  Assert.equal(
+    obs._result.getLabelAt(0),
+    `dis <email@foo.invalid> — ${kPABData.dirName}`
+  );
   Assert.equal(obs._result.getStyleAt(0), "local-abook");
   Assert.equal(obs._result.getImageAt(0), "");
 
@@ -356,8 +357,10 @@ add_task(async () => {
   Assert.equal(obs._result.defaultIndex, 0);
 
   Assert.equal(obs._result.getValueAt(0), "dis <email@foo.invalid>");
-  Assert.equal(obs._result.getLabelAt(0), "dis <email@foo.invalid>");
-  Assert.equal(obs._result.getCommentAt(0), kPABData.dirName);
+  Assert.equal(
+    obs._result.getLabelAt(0),
+    `dis <email@foo.invalid> — ${kPABData.dirName}`
+  );
   Assert.equal(obs._result.getStyleAt(0), "local-abook");
   Assert.equal(obs._result.getImageAt(0), "");
 
@@ -398,11 +401,7 @@ add_task(async () => {
       );
       Assert.equal(
         obs._result.getLabelAt(i),
-        results[element.expected[i]].email
-      );
-      Assert.equal(
-        obs._result.getCommentAt(i),
-        results[element.expected[i]].dirName
+        `${results[element.expected[i]].email} — ${results[element.expected[i]].dirName}`
       );
       Assert.equal(obs._result.getStyleAt(i), "local-abook");
       Assert.equal(obs._result.getImageAt(i), "");

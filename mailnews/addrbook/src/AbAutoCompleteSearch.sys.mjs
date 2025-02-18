@@ -46,11 +46,11 @@ nsAbAutoCompleteResult.prototype = {
   },
 
   getLabelAt(aIndex) {
-    return this.getValueAt(aIndex);
+    return this._searchResults[aIndex].label;
   },
 
-  getCommentAt(aIndex) {
-    return this._searchResults[aIndex].comment;
+  getCommentAt() {
+    return "";
   },
 
   getStyleAt() {
@@ -105,6 +105,16 @@ AbAutoCompleteSearch.prototype = {
   _result: null,
 
   // Private methods
+
+  /**
+   * Creates the label that is actually displayed for an entry.
+   *
+   * @param {string} emailAddress
+   * @param {string} addressbook
+   */
+  _createLabel(emailAddress, addressbook) {
+    return emailAddress + (addressbook ? ` — ${addressbook}` : "");
+  },
 
   /**
    * Returns the popularity index for a given card. This takes account of a
@@ -351,7 +361,7 @@ AbAutoCompleteSearch.prototype = {
 
     result._collectedValues.set(lcEmailAddress, {
       value: emailAddress,
-      comment: commentColumn,
+      label: this._createLabel(emailAddress, commentColumn),
       card,
       isPrimaryEmail,
       emailToUse,
@@ -430,7 +440,7 @@ AbAutoCompleteSearch.prototype = {
             // Add matches into the results array. We re-sort as needed later.
             result._searchResults.push({
               value: aPreviousResult.getValueAt(i),
-              comment: aPreviousResult.getCommentAt(i),
+              label: aPreviousResult.getLabelAt(i),
               card,
               isPrimaryEmail: card.primaryEmail == email,
               emailToUse: email,
@@ -560,7 +570,7 @@ AbAutoCompleteSearch.prototype = {
                 .toString();
               result._searchResults.push({
                 value,
-                comment,
+                label: this._createLabel(value, comment),
                 card,
                 emailToUse,
                 isCompleteResult,

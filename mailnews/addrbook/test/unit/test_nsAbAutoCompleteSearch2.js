@@ -44,11 +44,11 @@ nsAbAutoCompleteResult.prototype = {
   },
 
   getLabelAt: function getLabelAt(aIndex) {
-    return this.getValueAt(aIndex);
+    return this._searchResults[aIndex].label;
   },
 
-  getCommentAt: function getCommentAt(aIndex) {
-    return this._searchResults[aIndex].comment;
+  getCommentAt: function getCommentAt() {
+    return "";
   },
 
   getStyleAt: function getStyleAt() {
@@ -143,7 +143,7 @@ add_task(async () => {
   for (let i = 0; i < results.length; ++i) {
     lastResult._searchResults.push({
       value: results[i].email,
-      comment: results[i].dirName,
+      label: `${results[i].email} – ${results[i].dirName}`,
       card: createCard(i + 1, 0),
     });
   }
@@ -174,11 +174,7 @@ add_task(async () => {
       );
       Assert.equal(
         obs._result.getLabelAt(i),
-        results[element.expected[i]].email
-      );
-      Assert.equal(
-        obs._result.getCommentAt(i),
-        results[element.expected[i]].dirName
+        `${results[element.expected[i]].email} – ${results[element.expected[i]].dirName}`
       );
       Assert.equal(obs._result.getStyleAt(i), "local-abook");
       Assert.equal(obs._result.getImageAt(i), "");

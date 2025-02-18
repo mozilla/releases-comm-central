@@ -31,7 +31,10 @@ nsAbLDAPAutoCompleteResult.prototype = {
   },
 
   getLabelAt(aIndex) {
-    return this.getValueAt(aIndex);
+    return (
+      this._searchResults[aIndex].value +
+      (this._commentColumn ? ` — ${this._commentColumn}` : "")
+    );
   },
 
   getValueAt(aIndex) {
@@ -39,7 +42,7 @@ nsAbLDAPAutoCompleteResult.prototype = {
   },
 
   getCommentAt() {
-    return this._commentColumn;
+    return "";
   },
 
   getStyleAt() {

@@ -39,11 +39,12 @@ NewsAutoCompleteResult.prototype = {
   },
 
   getLabelAt(aIndex) {
-    return this._searchResults[aIndex].value;
+    const entry = this._searchResults[aIndex];
+    return entry.value + (entry.comment ? ` — ${entry.comment}` : "");
   },
 
-  getCommentAt(aIndex) {
-    return this._searchResults[aIndex].comment;
+  getCommentAt() {
+    return "";
   },
 
   getStyleAt() {

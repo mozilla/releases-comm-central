@@ -93,8 +93,8 @@ add_task(async () => {
         results[element.expected[i]].email
       );
       Assert.equal(
-        obs._result.getCommentAt(i),
-        results[element.expected[i]].dirName
+        obs._result.getLabelAt(i),
+        `${results[element.expected[i]].email} — ${results[element.expected[i]].dirName}`
       );
       Assert.equal(obs._result.getStyleAt(i), "local-abook");
       Assert.equal(obs._result.getImageAt(i), "");
