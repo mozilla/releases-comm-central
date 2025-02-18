@@ -103,6 +103,14 @@ var pendingAccount;
 var pendingPageId;
 
 /**
+ * Track if the tab has already been loaded and we're only refreshing it after a
+ * new account selection.
+ *
+ * @type {boolean}
+ */
+var hasLoaded = false;
+
+/**
  * This array contains filesystem folders that are deemed inappropriate
  * for use as the local directory pref for message storage.
  * It is global to allow extensions to add to/remove from it if needed.
@@ -187,14 +195,22 @@ function onLoad() {
         });
       }
     }
-    UIFontSize.registerWindow(contentFrame.contentWindow);
+    if (!hasLoaded) {
+      UIFontSize.registerWindow(contentFrame.contentWindow);
+      // TODO: Add the density registration once the account settings style is
+      // updated to support density variations.
+    }
   });
 
-  UIDensity.registerWindow(window);
-  UIFontSize.registerWindow(window);
+  if (!hasLoaded) {
+    UIDensity.registerWindow(window);
+    UIFontSize.registerWindow(window);
+    hasLoaded = true;
+  }
 }
 
 function onUnload() {
+  hasLoaded = false;
   gAccountTree.unload();
 }
 
@@ -1631,6 +1647,10 @@ var gAccountTree = {
   ]),
 
   async load() {
+    if (hasLoaded) {
+      return;
+    }
+
     await FolderTreeProperties.ready;
 
     this._build();
