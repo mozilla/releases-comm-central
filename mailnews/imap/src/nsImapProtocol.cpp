@@ -3180,9 +3180,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
         } break;
         case nsIImapUrl::nsImapSetMsgFlags: {
           // This changes the flags to the value in msgFlags. Any flags that
-          // are currently set and not in msgFlags are reset. Currently, the
-          // \deleted flag is not set by this imap action (see assertion).
-          MOZ_ASSERT(!(msgFlags & kImapMsgDeletedFlag));
+          // are currently set and not in msgFlags are reset.
           nsCString messageIdString;
           m_runningUrl->GetListOfMessageIds(messageIdString);
 
