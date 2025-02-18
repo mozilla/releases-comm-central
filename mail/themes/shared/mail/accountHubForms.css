@@ -655,7 +655,7 @@ div:has(legend) {
     border-radius: 10px;
 
     &.single .selection-grid {
-      grid-template-columns: auto;
+      display: block;
     }
 
     & .config-item-icon {
