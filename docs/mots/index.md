@@ -368,10 +368,13 @@ widths: 30 70
 ---
 * - Owner(s)
   -
-    * [Sean Burke (leftmostcat)](https://people.mozilla.org/s?query=leftmostcat)
+    * [Brendan Abolivier (babolivier)](https://people.mozilla.org/s?query=babolivier)
 * - Peer(s)
   -
-    * [Brendan Abolivier (babolivier)](https://people.mozilla.org/s?query=babolivier)
+    * [Heather Ellsworth (heather)](https://people.mozilla.org/s?query=heather)
+    * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
+* - Owner(s) Emeritus
+  - Sean Burke
 * - Includes
   -
     * mailnews/protocols/ews/\*\*
