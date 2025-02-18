@@ -4,6 +4,10 @@
 
 #include "nsISupports.idl"
 
+%{C++
+#include "nsTString.h"
+%}
+
 [scriptable, builtinclass, uuid(c8d71b1d-f03b-40d9-a986-0e1f53ab6c23)]
 interface nsIFolder : nsISupports {
   /**
@@ -15,12 +19,28 @@ interface nsIFolder : nsISupports {
    * Name of this folder. For root folders, this is the server key.
    */
   readonly attribute AUTF8String name;
+%{C++
+  inline nsCString GetName() {
+    nsAutoCString name;
+    mozilla::DebugOnly<nsresult> rv = GetName(name);
+    MOZ_ASSERT(NS_SUCCEEDED(rv));
+    return name;
+  }
+%}
 
   /**
    * Path of this folder. This is the names of all ancestor folders and of
    * this folder, joined by the `/` character.
    */
   readonly attribute AUTF8String path;
+%{C++
+  inline nsCString GetPath() {
+    nsAutoCString path;
+    mozilla::DebugOnly<nsresult> rv = GetPath(path);
+    MOZ_ASSERT(NS_SUCCEEDED(rv));
+    return path;
+  }
+%}
 
   /**
    * The flags associated with this folder.
@@ -83,4 +103,13 @@ interface nsIFolder : nsISupports {
    * Helper function for making test output readable.
    */
   AUTF8String toJSON();
+};
+
+[uuid(5c9472eb-1798-4436-83b5-d41afb31a569)]
+interface nsIInitableWithFolder : nsISupports {
+  /**
+   * Function specifically for initializing an nsIMsgFolder with an nsIfolder.
+   * This is a separate interface as nsIFolder only exists if MOZ_PANORAMA=1.
+   */
+  void initWithFolder(in nsIFolder folder);
 };

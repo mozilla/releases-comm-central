@@ -13,16 +13,6 @@ add_setup(async function () {
 
   account = MailServices.accounts.createLocalMailAccount();
   Assert.equal(account.incomingServer.key, "server1");
-
-  const rootFolder = account.incomingServer.rootFolder;
-  // Assert.deepEqual(Array.from(rootFolder.subFolders, f => f.name).toSorted(), [
-  //   "Outbox",
-  //   "Trash",
-  // ]);
-
-  rootFolder.addSubfolder("folderA");
-  rootFolder.addSubfolder("folderB");
-  rootFolder.addSubfolder("folderC");
 });
 
 add_task(async function testFolderMethods() {
@@ -175,7 +165,7 @@ add_task(async function testFolderInfo() {
   Assert.ok(folderInfo);
   Assert.equal(folderInfo.folderName, "folderA");
 
-  Assert.equal(folderInfo.flags, Ci.nsMsgFolderFlags.Mail);
+  Assert.equal(folderInfo.flags, 0);
 
   folderInfo.flags = Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Inbox;
   Assert.equal(

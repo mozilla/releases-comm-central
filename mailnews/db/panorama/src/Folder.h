@@ -22,9 +22,8 @@ class Folder : public nsIFolder {
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIFOLDER
 
-  // C++ shortcuts.
-  nsCString GetName();
-  nsCString GetPath();
+  using nsIFolder::GetName;
+  using nsIFolder::GetPath;
 
  protected:
   virtual ~Folder() {};

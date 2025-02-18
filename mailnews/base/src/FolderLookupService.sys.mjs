@@ -107,6 +107,28 @@ FolderLookupService.prototype = {
   },
 
   /**
+   * Store a folder in the service's cache. This is used by the new database
+   * because creating a new folder by URI is not allowed.
+   *
+   * Only for use when mail.panorama.enabled is true!
+   *
+   * @param {string} url - The folder URL.
+   * @param {nsIMsgFolder} folder - The folder to cache.
+   */
+  cache(url, folder) {
+    if (!Services.prefs.getBoolPref("mail.panorama.enabled", false)) {
+      throw new Components.Exception(
+        "nsIFolderLookupService.cache must not be used when Panorama is not enabled.",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+    const weakRef = folder
+      .QueryInterface(Ci.nsISupportsWeakReference)
+      .GetWeakReference();
+    this._map.set(url, weakRef);
+  },
+
+  /**
    * Set pretty name again from original name on all folders,
    * typically used when locale changes.
    */

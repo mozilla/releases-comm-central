@@ -55,6 +55,8 @@
 #include <algorithm>
 #include <functional>
 
+using mozilla::Preferences;
+
 //////////////////////////////////////////////////////////////////////////////
 // nsLocal
 /////////////////////////////////////////////////////////////////////////////
@@ -254,7 +256,7 @@ nsMsgLocalMailFolder::GetMsgDatabase(nsIMsgDatabase** aMsgDatabase) {
 
 NS_IMETHODIMP
 nsMsgLocalMailFolder::GetSubFolders(nsTArray<RefPtr<nsIMsgFolder>>& folders) {
-  if (!mInitialized) {
+  if (!mInitialized && !Preferences::GetBool("mail.panorama.enabled", false)) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     nsresult rv = GetServer(getter_AddRefs(server));
     NS_ENSURE_SUCCESS(rv, NS_MSG_INVALID_OR_MISSING_SERVER);

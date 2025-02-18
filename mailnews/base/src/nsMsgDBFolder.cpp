@@ -67,6 +67,9 @@
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
 #include "nsIWritablePropertyBag2.h"
+#ifdef MOZ_PANORAMA
+#  include "nsIFolderLookupService.h"
+#endif  // MOZ_PANORAMA
 
 #define oneHour 3600000000U
 
@@ -218,6 +221,9 @@ constexpr nsLiteralCString kNumNewBiffMessages = "NumNewBiffMessages"_ns;
 constexpr nsLiteralCString kRenameCompleted = "RenameCompleted"_ns;
 
 NS_IMPL_ISUPPORTS(nsMsgDBFolder, nsISupportsWeakReference, nsIMsgFolder,
+#ifdef MOZ_PANORAMA
+                  nsIInitableWithFolder,
+#endif  // MOZ_PANORAMA
                   nsIDBChangeListener, nsIUrlListener,
                   nsIJunkMailClassificationListener,
                   nsIMsgTraitClassificationListener)
@@ -2630,6 +2636,7 @@ nsresult nsMsgDBFolder::createCollationKeyGenerator() {
 
 NS_IMETHODIMP
 nsMsgDBFolder::Init(const nsACString& uri) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
   mURI = uri;
   return CreateBaseMessageURI(uri);
 }
@@ -2751,6 +2758,68 @@ NS_IMETHODIMP nsMsgDBFolder::GetServer(nsIMsgIncomingServer** aServer) {
   server.forget(aServer);
   return *aServer ? NS_OK : NS_ERROR_FAILURE;
 }
+
+#ifdef MOZ_PANORAMA
+NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
+  MOZ_ASSERT(Preferences::GetBool("mail.panorama.enabled", false));
+
+  mIsServer = folder->GetIsServer();
+  mIsServerIsValid = true;
+  mName = folder->GetName();
+
+  nsresult rv;
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsCOMPtr<nsIFolder> root = folder->GetRootFolder();
+  rv = accountManager->GetIncomingServer(root->GetName(),
+                                         getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  mServer = do_GetWeakReference(server);
+
+  rv = server->GetLocalPath(getter_AddRefs(mPath));
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
+  nsTArray<RefPtr<nsIFolder>> ancestors;
+  folder->GetAncestors(ancestors);
+  for (int i = ancestors.Length() - 2; i >= 0; --i) {
+    mPath->Append(NS_ConvertUTF8toUTF16(ancestors[i]->GetName()) + u".sbd"_ns);
+  }
+  mPath->Append(NS_ConvertUTF8toUTF16(mName));
+
+  server->GetServerURI(mURI);
+  nsCString path = folder->GetPath();
+  mURI.Append(Substring(path, path.FindChar('/')));  // HAX.
+  mHaveParsedURI = true;
+  mInitializedFromCache = true;
+
+  nsCOMPtr<nsIFolderLookupService> fls =
+      do_GetService("@mozilla.org/mail/folder-lookup;1", &rv);
+  fls->Cache(mURI, this);
+
+  nsTArray<RefPtr<nsIFolder>> children;
+  folder->GetChildren(children);
+  for (auto subFolder : children) {
+    nsCOMPtr<nsIMsgFolder> msgFolder =
+        do_CreateInstance("@mozilla.org/mail/folder;1?name=mailbox", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIInitableWithFolder> initable = do_QueryInterface(msgFolder);
+    rv = initable->InitWithFolder(subFolder);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    msgFolder->SetParent(this);
+    mSubFolders.AppendObject(msgFolder);
+  }
+
+  return NS_OK;
+}
+#endif  // MOZ_PANORAMA
 
 nsresult nsMsgDBFolder::parseURI(bool needServer) {
   nsresult rv;

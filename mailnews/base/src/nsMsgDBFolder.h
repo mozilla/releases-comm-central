@@ -29,6 +29,9 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgFilterPlugin.h"
 #include "mozilla/intl/Collator.h"
+#ifdef MOZ_PANORAMA
+#  include "nsIFolder.h"
+#endif
 
 // We declare strings for folder properties and events.
 // Properties:
@@ -89,6 +92,9 @@ class nsMsgFolderService final : public nsIMsgFolderService {
  */
 class nsMsgDBFolder : public nsSupportsWeakReference,
                       public nsIMsgFolder,
+#ifdef MOZ_PANORAMA
+                      public nsIInitableWithFolder,
+#endif  // MOZ_PANORAMA
                       public nsIDBChangeListener,
                       public nsIUrlListener,
                       public nsIJunkMailClassificationListener,
@@ -99,6 +105,9 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsMsgDBFolder(void);
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMSGFOLDER
+#ifdef MOZ_PANORAMA
+  NS_DECL_NSIINITABLEWITHFOLDER
+#endif  // MOZ_PANORAMA
   NS_DECL_NSIDBCHANGELISTENER
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIJUNKMAILCLASSIFICATIONLISTENER

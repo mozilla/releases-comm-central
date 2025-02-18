@@ -41,6 +41,17 @@ interface nsIFolderLookupService : nsISupports
   nsIMsgFolder getOrCreateFolderForURL(in AUTF8String aUrl);
 
   /**
+   * Store a folder in the service's cache. This is used by the new database
+   * because creating a new folder by URI is not allowed.
+   *
+   * Only for use when mail.panorama.enabled is true!
+   *
+   * @param aUrl - The folder URL.
+   * @param aFolder - The folder to cache.
+   */
+  void cache(in AUTF8String aUrl, in nsIMsgFolder aFolder);
+
+  /**
    * Set pretty name again from original name on all folders,
    * typically used when locale changes.
    */

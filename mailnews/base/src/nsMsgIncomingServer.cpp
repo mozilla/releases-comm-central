@@ -42,8 +42,15 @@
 #include "mozilla/Unused.h"
 #include "nsIUUIDGenerator.h"
 #include "nsIArray.h"
+#ifdef MOZ_PANORAMA
+#  include "nsIDatabaseCore.h"
+#  include "nsIFolderDatabase.h"
+#  include "nsIFolder.h"
+#endif  // MOZ_PANORAMA
 
 #define PORT_NOT_SET -1
+
+using mozilla::Preferences;
 
 nsMsgIncomingServer::nsMsgIncomingServer()
     : m_hasShutDown(false),
@@ -399,9 +406,28 @@ nsresult nsMsgIncomingServer::CreateRootFolder() {
   nsCString serverUri;
   rv = GetServerURI(serverUri);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = GetOrCreateFolder(serverUri, getter_AddRefs(m_rootFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return NS_OK;
+
+#ifdef MOZ_PANORAMA
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    nsCOMPtr<nsIDatabaseCore> core =
+        mozilla::components::DatabaseCore::Service();
+    nsCOMPtr<nsIFolderDatabase> folders;
+    core->GetFolders(getter_AddRefs(folders));
+
+    nsCOMPtr<nsIFolder> root;
+    rv = folders->GetFolderByPath(m_serverKey, getter_AddRefs(root));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    m_rootFolder =
+        do_CreateInstance("@mozilla.org/mail/folder;1?name=mailbox", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIInitableWithFolder> initable = do_QueryInterface(m_rootFolder);
+    rv = initable->InitWithFolder(root);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+#endif  // MOZ_PANORAMA
+  return GetOrCreateFolder(serverUri, getter_AddRefs(m_rootFolder));
 }
 
 NS_IMETHODIMP
