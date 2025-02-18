@@ -1,3 +1,18 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.titlebar {
+  --calendar-bar-color-fallback: #1373d9;
+  --calendar-bar-color: #1373d9;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset-block-start: -11px;
+    inset-inline: -11px;
+    height: 6px;
+    background: var(--calendar-bar-color, var(--calendar-bar-color-fallback));
+ }
+}
