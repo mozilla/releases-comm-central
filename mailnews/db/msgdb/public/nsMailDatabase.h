@@ -23,8 +23,6 @@ class nsMailDatabase : public nsMsgDatabase {
   NS_IMETHOD DeleteMessages(nsTArray<nsMsgKey> const& nsMsgKeys,
                             nsIDBChangeListener* instigator) override;
 
-  nsresult Open(nsMsgDBService* aDBService, nsIFile* aSummaryFile, bool create,
-                bool upgrading) override;
   virtual nsMailDatabase* GetMailDB() { return this; }
 
   virtual uint32_t GetCurVersion() override { return kMsgDBVersion; }
