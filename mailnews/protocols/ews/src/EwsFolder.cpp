@@ -9,6 +9,7 @@
 #include "EwsMessageCopyHandler.h"
 
 #include "ErrorList.h"
+#include "FolderCompactor.h"
 #include "MailNewsTypes.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgDatabase.h"
@@ -596,6 +597,47 @@ NS_IMETHODIMP EwsFolder::GetDeletable(bool* deletable) {
 
   *deletable = !(isServer || (mFlags & nsMsgFolderFlags::SpecialUse));
   return NS_OK;
+}
+
+NS_IMETHODIMP EwsFolder::CompactAll(nsIUrlListener* aListener,
+                                    nsIMsgWindow* aMsgWindow) {
+  nsresult rv = NS_OK;
+  nsCOMPtr<nsIMsgFolder> rootFolder;
+  rv = GetRootFolder(getter_AddRefs(rootFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+  bool storeSupportsCompaction;
+  msgStore->GetSupportsCompaction(&storeSupportsCompaction);
+  nsTArray<RefPtr<nsIMsgFolder>> folderArray;
+  if (storeSupportsCompaction) {
+    nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
+    rv = rootFolder->GetDescendants(allDescendants);
+    NS_ENSURE_SUCCESS(rv, rv);
+    int64_t expungedBytes = 0;
+    for (auto folder : allDescendants) {
+      // If folder doesn't currently have a DB, expungedBytes might be out of
+      // whack. Also the compact might do a folder reparse first, which could
+      // change the expungedBytes count (via Expunge flag in X-Mozilla-Status).
+      bool hasDB;
+      folder->GetDatabaseOpen(&hasDB);
+
+      expungedBytes = 0;
+      if (folder) rv = folder->GetExpungedBytes(&expungedBytes);
+
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      if (!hasDB || expungedBytes > 0) folderArray.AppendElement(folder);
+    }
+  }
+
+  return AsyncCompactFolders(folderArray, aListener, aMsgWindow);
+}
+
+NS_IMETHODIMP EwsFolder::Compact(nsIUrlListener* aListener,
+                                 nsIMsgWindow* aMsgWindow) {
+  return AsyncCompactFolders({this}, aListener, aMsgWindow);
 }
 
 nsresult EwsFolder::GetEwsId(nsACString& ewsId) {
