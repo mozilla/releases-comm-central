@@ -200,10 +200,12 @@ add_task(async function testSelectionRestoredOnReopen() {
  */
 add_task(async function testSelectionRestoredOnContextClose() {
   async function switchFolder(folder) {
-    displayFolder(folder);
-    await TestUtils.waitForCondition(
-      () => dbViewWrapperListener._allMessagesLoaded
+    const allMessagesLoadedPromise = BrowserTestUtils.waitForEvent(
+      about3Pane,
+      "allMessagesLoaded"
     );
+    displayFolder(folder);
+    await allMessagesLoadedPromise;
   }
 
   async function showContextAt(index) {

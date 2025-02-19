@@ -976,6 +976,18 @@ var dbViewWrapperListener = {
       return true;
     },
     selectedMessageRemoved() {
+      // Virtual folders end up here while being loaded, when they restore their
+      // hits from cache, and then realize that some messages no longer exist.
+      // Exit early, to not trigger code which resets the selection after delete,
+      // which would interfere with selection restore while the virtual folder is
+      // being loaded.
+      if (
+        !dbViewWrapperListener.allMessagesLoaded &&
+        gFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)
+      ) {
+        return;
+      }
+
       // We need to invalidate the tree, but this method could get called
       // multiple times, so we won't invalidate until we get to the end of the
       // event loop.
