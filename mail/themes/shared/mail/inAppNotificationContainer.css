@@ -11,42 +11,17 @@
   /* Close button colors */
   --close-button-background: light-dark(#fafafa, #18181b);
   --close-button-background-active: light-dark(#18181b, #fafafa);
+  --close-button-background-hover: var(--close-button-background);
   --close-button-text: var(--text);
   --close-button-text-active: light-dark(#fafafa, #18181b);
   --close-button-border: transparent;
-  --close-button-border-hover: currentColor;
+  --close-button-border-hover: light-dark(#777580, #fafafa);
   --close-button-border-active: light-dark(#18181b, #fafafa);
   --close-button-outline: currentColor;
 
   --illustration-light: url("chrome://messenger/skin/illustrations/in-app-notification-donation-default.svg");
   --illustration-dark: url("chrome://messenger/skin/illustrations/in-app-notification-donation-default-dark.svg");
   --illustration: var(--illustration-light);
-}
-
-@media (prefers-contrast) {
-  :host {
-    --background: Canvas;
-    --contianer-border: AccentColor;
-    --content-border: AccentColor;
-    --title-text: CanvasText;
-    --text: CanvasText;
-    --button-background: ButtonFace;
-    --button-stroke: ButtonBorder;
-    --button-text: ButtonText;
-    --button-text-active: SelectedItemText;
-    --button-background-hover: SelectedItem;
-    --button-background-active: SelectedItem;
-    --button-focus-ring: SelectedItem;
-    --illustration: none;
-    --close-button-background: ButtonFace;
-    --close-button-background-active: SelectedItem;
-    --close-button-text: ButtonText;
-    --close-button-text-active: SelectedItemText;
-    --close-button-border: transparent;
-    --close-button-border-hover: ButtonBorder;
-    --close-button-border-active: SelectedItem;
-    --close-button-outline: Highlight;
-  }
 }
 
 .in-app-notification-container {
@@ -68,7 +43,7 @@
     --title-text: light-dark(#6b21a8, #f5e8ff);
     --button-background: linear-gradient(#6b21a8, #571c87);
     --button-stroke: light-dark(#3a0764, #ddb4fe);
-    --button-background-hover: linear-gradient(#6b21a8, #571c87);
+    --button-background-hover: var(--button-background);
     --button-background-active: light-dark(#3a0764, #ddb4fe);
     --button-focus-ring: light-dark(#3a0764, #ddb4fe);
     --button-text: light-dark(#fafafa, #18181b);
@@ -103,6 +78,10 @@
       --button-background: linear-gradient(#f5e8ff, #ecd5ff);
       --illustration: var(--illustration-dark);
     }
+
+    @media (prefers-contrast: more) {
+      --content-border: #ae55f7;
+    }
   }
 
   /* Styles for the blog notification type */
@@ -110,7 +89,7 @@
     --title-text: light-dark(#1373d9, #eeeef0);
     --button-background: linear-gradient(#1373d9, #175fb6);
     --button-stroke: light-dark(#19518f, #32aeff);
-    --button-background-hover: linear-gradient(#1373d9, #175fb6);
+    --button-background-hover: var(--button-background);
     --button-background-active: light-dark(#19518f, #32aeff);
     --button-focus-ring: light-dark(#19518f, #32aeff);
     --button-text: light-dark(#fafafa, #18181b);
@@ -122,6 +101,12 @@
 
     @media (prefers-color-scheme: dark) {
       --button-background: linear-gradient(#58c9ff, #32aeff);
+    }
+
+    @media (prefers-contrast: more) {
+      --content-border: #32aeff;
+      --icon-stroke: #32aeff;
+      --icon-fill: transparent;
     }
 
     & .in-app-notification-content {
@@ -139,7 +124,7 @@
     --title-text: light-dark(#713f12, #fee78a);
     --button-background: linear-gradient(#facc15, #eabd08);
     --button-stroke: light-dark(#caa204, #caa204);
-    --button-background-hover: linear-gradient(#facc15, #eabd08);
+    --button-background-hover: var(--button-background);
     --button-background-active: light-dark(#caa204, #caa204);
     --button-focus-ring: light-dark(#caa204, #caa204);
     --button-text: #18181b;
@@ -150,6 +135,12 @@
     --icon-stroke: #713f12;
     --container-background: linear-gradient(#ffdf8d, #fac439);
     --content-background: linear-gradient(#fefae8, #f7f7f7);
+
+    @media (prefers-contrast: more) {
+      --content-border: #eabd08;;
+      --icon-stroke: #eabd08;;
+      --icon-fill: transparent;
+    }
   }
 
   /* Colors for the security notification type */
@@ -158,6 +149,7 @@
     --button-stroke: #7f1d1d;
     --button-background: linear-gradient(#cb1f1f, #7f1d1d);
     --button-background-active: #7f1d1d;
+    --button-background-hover: var(--button-background);
     --button-text: #fafafa;
     --button-focus-ring: #ef4444;
     --content-border: light-dark(#7f1d1d, #ef4444);
@@ -170,6 +162,12 @@
 
     @media (prefers-color-scheme: dark) {
       --container-background: linear-gradient(#b91c1c, #fca5a5);
+    }
+
+    @media (prefers-contrast: more) {
+      --content-border: #ef4444;
+      --icon-stroke: #ef4444;
+      --icon-fill: transparent;
     }
   }
 
@@ -185,6 +183,18 @@
       inset-block-start: 8px;
       inset-inline-start: 3px;
     }
+
+    @media (prefers-contrast: more) {
+      & .in-app-notification-content {
+        margin: 0;
+        padding-inline-start: 26px;
+      }
+
+      & .icon {
+        inset-block-start: 8px;
+        inset-inline-start: 8px;
+      }
+    }
   }
 
   &.in-app-notification-blog,
@@ -198,6 +208,45 @@
       /* Roughly the height of the button. Padding on the button is 12px
          vertically. */
       margin-block-end: calc(1.5em + 14px);
+    }
+  }
+
+
+  &.in-app-notification-blog,
+  &.in-app-notification-message,
+  &.in-app-notification-security,
+  &.in-app-notification-donation {
+    @media (prefers-contrast: more) {
+      --container-background: transparent;
+      --container-border: transparent;
+      --content-background: Canvas;
+      --title-text: CanvasText;
+      --text: CanvasText;
+      --button-background: ButtonFace;
+      --button-stroke: ButtonBorder;
+      --button-text: ButtonText;
+      --button-text-active: HighlightText;
+      --button-stroke-hover: CanvasText;
+      --button-background-hover: Highlight;
+      --button-background-active: Highlight;
+      --button-focus-ring: Highlight;
+      --illustration: none;
+      --close-button-background: ButtonFace;
+      --close-button-background-active: Highlight;
+      --close-button-background-hover: Highlight;
+      --close-button-text: ButtonText;
+      --close-button-text-active: HighlightText;
+      --close-button-border: ButtonBorder;
+      --close-button-border-hover: CanvasText;
+      --close-button-border-active: Highlight;
+      --close-button-outline: Highlight;
+
+      & button:hover,
+      & button:focus,
+      & a:hover,
+      & a:focus {
+        color: HighlightText;
+      }
     }
   }
 
@@ -236,19 +285,22 @@
     max-width: calc(100% - 52px);
 
     &:hover,
-    &:active,
     &:focus {
       text-decoration: none;
+      background: var(--button-background-hover);
+      border: 1px solid var(--button-stroke-hover, var(--button-stroke));
     }
 
     &:focus-visible {
       outline: 2px solid var(--button-focus-ring);
+      border: 1px solid var(--button-stroke-hover, var(--button-stroke));
       outline-offset: 2px;
     }
 
     &:active {
       background: var(--button-background-active);
-      color: var(--button-text);
+      border: 1px solid var(--button-stroke-hover, var(--button-stroke));
+      color: var(--button-text-active, var(--button-text));
     }
   }
 
@@ -273,11 +325,12 @@
     align-items: center;
 
     &:hover {
-      border-color: var(--close-button-border-hover);
+      border: 1px solid var(--close-button-border-hover);
+      background: var(--close-button-background-hover);
     }
 
     &:focus-visible {
-      border-color: var(--close-button-border-hover);
+      border: 1px solid var(--close-button-border-hover);
       outline: 2px solid var(--close-button-outline);
       outline-offset: 1px;
     }
@@ -285,7 +338,7 @@
     &:active {
       background: var(--close-button-background-active);
       color: var(--close-button-text-active);
-      border-color: var(--close-button-border-active);
+      border: 1px solid var(--close-button-border-active);
     }
 
     & img {
