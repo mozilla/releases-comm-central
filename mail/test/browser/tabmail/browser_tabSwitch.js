@@ -38,12 +38,12 @@ add_task(async function () {
   }
   async function switchTab(index) {
     const tabElement = getTabElements()[index];
-    tabOpenPromise = BrowserTestUtils.waitForEvent(
+    tabSelectPromise = BrowserTestUtils.waitForEvent(
       tabmail.tabContainer,
       "TabSelect"
     );
     EventUtils.synthesizeMouseAtCenter(tabElement, {});
-    event = await tabOpenPromise;
+    event = await tabSelectPromise;
     Assert.equal(
       event.target,
       tabElement,
@@ -52,7 +52,7 @@ add_task(async function () {
   }
   async function closeTab(index) {
     const tabElement = getTabElements()[index];
-    tabOpenPromise = BrowserTestUtils.waitForEvent(
+    tabClosePromise = BrowserTestUtils.waitForEvent(
       tabmail.tabContainer,
       "TabClose"
     );
@@ -60,7 +60,7 @@ add_task(async function () {
       tabElement.querySelector(".tab-close-button"),
       {}
     );
-    event = await tabOpenPromise;
+    event = await tabClosePromise;
     Assert.equal(
       event.target,
       tabElement,
@@ -80,6 +80,7 @@ add_task(async function () {
   const calendarTabPanel = document.getElementById("calendarTabPanel");
   const calendarList = document.getElementById("calendar-list");
 
+  let tabClosePromise;
   let tabOpenPromise;
   let tabSelectPromise;
   let event;
