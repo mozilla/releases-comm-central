@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Dialog Row Test</title>
+    <script type="module" src="chrome://messenger/content/calendar-dialog-row.mjs"></script>
+  </head>
+  <body>
+    <template id="calendarDialogRowTemplate">
+      <div class="calendar-dialog-row">
+        <div class="row-icon">
+          <slot name="icon"></slot>
+        </div>
+        <div class="row-data">
+          <slot name="label"></slot>
+          <slot name="content"></slot>
+        </div>
+      </div>
+    </template>
+    <calendar-dialog-row>
+      <img slot="icon"
+           src="chrome://messenger/skin/icons/new/compact/globe.svg"
+           data-l10n-id="calendar-dialog-globe-image" />
+      <span slot="label">Test Label</span>
+      <div slot="content">Test Content</div>
+    </calendar-dialog-row>
+  </body>
+</html>
