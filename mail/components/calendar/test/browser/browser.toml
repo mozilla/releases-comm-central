@@ -8,8 +8,7 @@ prefs = [
   "mailnews.start_page.url=about:blank",
 ]
 support-files = [
-  "files/*"
+  "files/calendarDialog.xhtml",
 ]
 subsuite = "thunderbird"
 ["browser_calendarDialog.js"]
-["browser_calendarDialogRow.js"]

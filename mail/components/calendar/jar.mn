@@ -3,7 +3,4 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-  content/messenger/calendar-dialog.mjs                                            (content/calendar-dialog.mjs)
-
-# Custom elements
-  content/messenger/calendar-dialog-row.mjs                                        (content/calendar-dialog-row.mjs)
+  content/messenger/calendar-dialog.mjs                        (content/calendar-dialog.mjs)
