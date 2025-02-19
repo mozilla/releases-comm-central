@@ -1180,9 +1180,17 @@ export class MessageSend {
     }
 
     // Collect all recipients into the address book at once.
-    this._collectAddressesToAddressBook(
-      [...parsedVisibleRecipients, ...parsedBccRecipients].filter(Boolean)
-    );
+    try {
+      this._collectAddressesToAddressBook(
+        [...parsedVisibleRecipients, ...parsedBccRecipients].filter(Boolean)
+      );
+    } catch (e) {
+      // Db access issues, etc. Not fatal for sending.
+      lazy.MsgUtils.sendLogger.warn(
+        `Collecting outging addresses FAILED: ${e.message}`,
+        e
+      );
+    }
 
     lazy.MsgUtils.sendLogger.debug(
       `Delivering mail message <${this._compFields.messageId}>`
