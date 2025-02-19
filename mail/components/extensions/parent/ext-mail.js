@@ -1610,6 +1610,7 @@ async function waitForMailTabReady(tabInfo) {
         });
       }
     });
+    await chromeBrowser.contentWindow.hasDOMContentLoaded.promise;
   }
 }
 
