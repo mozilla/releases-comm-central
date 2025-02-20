@@ -42,6 +42,12 @@ Thunderbird Source Tree Documentation
 
    {rust_doc}
 
+.. toctree::
+   :caption: Panorama
+   :maxdepth: 2
+
+   {panorama_doc}
+
 
 Indices and tables
 ==================

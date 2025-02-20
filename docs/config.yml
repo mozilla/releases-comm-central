@@ -19,6 +19,8 @@ categories:
         - frontend
     rust_doc:
         - rust
+    panorama_doc:
+        - panorama
 
 # Note: doc_trees does not include the "comm/" prefix to paths
 # Note: In order for CI to pick up the need to rebuild docs, documentation
@@ -34,6 +36,7 @@ doc_trees:
     telemetry: docs/telemetry
     inappnotifications: mail/components/inappnotifications/docs
     documentation: docs/docs
+    panorama: mailnews/db/panorama/docs
 
 python_package_dirs: []
 
