@@ -124,6 +124,10 @@ class EmailSyncAccountsForm extends AccountHubStep {
    * @param {SyncAccounts} syncAccounts - The sync accounts for the user.
    */
   setState(syncAccounts) {
+    this.classList.toggle(
+      "stacked",
+      Services.prefs.getIntPref("mail.uifontsize") >= 18
+    );
     this.#availableSyncAccounts = syncAccounts;
     const calendars = syncAccounts.calendars;
     const addressBooks = syncAccounts.addressBooks;

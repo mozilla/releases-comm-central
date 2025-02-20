@@ -117,8 +117,8 @@ dialog {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding-block-start: 45px;
   overflow-y: auto;
+  padding-block-start: 20px;
 }
 
 .account-hub-view:not([hidden]) {
@@ -246,14 +246,15 @@ header {
   font-size: 1.8rem;
   line-height: 1em;
   margin-block: 0;
+  padding-block-end: 20px;
 
-  .sub-view-title {
+  & .sub-view-title {
     font-size: 2rem;
     font-weight: 400;
     margin-block-start: 35px;
   }
 
-  .sub-view-subheader {
+  & .sub-view-subheader {
     font-size: 1.3rem;
     font-weight: 400;
     margin-block-start: 15px;
@@ -369,6 +370,21 @@ header {
 
   &.sync-accounts-form-body {
     max-width: 500px;
+
+    & .sync-accounts-container {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .stacked & .sync-accounts-container {
+      grid-template-columns: 1fr;
+    }
+
+    .stacked & .sync-type-container {
+      height: auto;
+    }
   }
 }
 
