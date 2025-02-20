@@ -147,6 +147,7 @@ window.addEventListener("DOMContentLoaded", async event => {
   await customElements.whenDefined("folder-tree-row");
   await customElements.whenDefined("thread-row");
   await customElements.whenDefined("thread-card");
+  await customElements.whenDefined("tree-view");
 
   UIDensity.registerWindow(window);
   UIFontSize.registerWindow(window);
