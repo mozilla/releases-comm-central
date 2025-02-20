@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* eslint-env webextensions */
+
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -196,93 +198,147 @@ add_setup(async function () {
   });
 });
 
-add_task(async function testMessagePaneMessageBrowser() {
-  const about3Pane = tabmail.currentAbout3Pane;
-  about3Pane.restoreState({
-    folderURI: testFolder.URI,
-    messagePaneVisible: true,
-  });
-  const { gDBView, messageBrowser, threadTree } = about3Pane;
-  const messagePaneBrowser =
-    messageBrowser.contentWindow.getMessagePaneBrowser();
-
-  const loadedPromise = BrowserTestUtils.browserLoaded(
-    messagePaneBrowser,
-    undefined,
-    url => url.endsWith(gDBView.getKeyAt(0))
-  );
-  threadTree.selectedIndex = 0;
-  threadTree.scrollToIndex(0, true);
-  await loadedPromise;
-
-  Assert.ok(BrowserTestUtils.isVisible(about3Pane.messageBrowser));
-  Assert.ok(BrowserTestUtils.isVisible(messagePaneBrowser));
-  await checkABrowser(messagePaneBrowser);
-});
-
-add_task(async function testMessagePaneWebBrowser() {
-  const about3Pane = tabmail.currentAbout3Pane;
-  about3Pane.restoreState({
-    folderURI: testFolder.URI,
-    messagePaneVisible: true,
+add_task(async function testExtensionPopupWindow() {
+  const extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      await browser.windows.create({
+        url: "formContent.html",
+        type: "popup",
+        width: 800,
+        height: 500,
+      });
+      browser.test.notifyPass("ready");
+    },
+    files: {
+      "formContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/formContent.html")
+      ),
+    },
   });
 
-  about3Pane.messagePane.displayWebPage(TEST_DOCUMENT_URL);
-  Assert.ok(BrowserTestUtils.isVisible(about3Pane.webBrowser));
-  await checkABrowser(about3Pane.webBrowser);
+  await extension.startup();
+  await extension.awaitFinish("ready");
+
+  const extensionPopup = Services.wm.getMostRecentWindow("mail:extensionPopup");
+  // extensionPopup.xhtml needs time to initialise properly.
+  await new Promise(resolve => extensionPopup.setTimeout(resolve, 500));
+  await checkABrowser(extensionPopup.document.getElementById("requestFrame"));
+  await BrowserTestUtils.closeWindow(extensionPopup);
+
+  await extension.unload();
 });
 
-add_task(async function testContentTab() {
-  const tab = window.openContentTab(TEST_DOCUMENT_URL);
-  await checkABrowser(tab.browser);
-
-  tabmail.closeTab(tab);
-});
-
-add_task(async function testMessageTab() {
-  const tabPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
-  window.OpenMessageInNewTab([...testFolder.messages][0], {
-    background: false,
-  });
-  await tabPromise;
-  await new Promise(resolve => setTimeout(resolve));
-
-  const aboutMessage = tabmail.currentAboutMessage;
-  await checkABrowser(aboutMessage.getMessagePaneBrowser());
-
-  tabmail.closeOtherTabs(0);
-});
-
-add_task(async function testMessageWindow() {
-  const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
-  window.MsgOpenNewWindowForMessage([...testFolder.messages][0]);
-  const win = await winPromise;
-  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
-  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
-
-  const aboutMessage = win.messageBrowser.contentWindow;
-  await checkABrowser(aboutMessage.getMessagePaneBrowser());
-
-  await BrowserTestUtils.closeWindow(win);
-});
-
-add_task(async function testBrowserRequestWindow() {
-  const requestWindow = await new Promise(resolve => {
-    Services.ww.openWindow(
-      null,
-      "chrome://messenger/content/browserRequest.xhtml",
-      null,
-      "chrome,private,centerscreen,width=980,height=750",
-      {
-        url: TEST_DOCUMENT_URL,
-        cancelled() {},
-        loaded(window) {
-          resolve(window);
+add_task(async function testExtensionBrowserAction() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "formContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/formContent.html")
+      ),
+    },
+    manifest: {
+      applications: {
+        gecko: {
+          id: "formpickers@mochi.test",
         },
-      }
-    );
+      },
+      browser_action: {
+        default_popup: "formContent.html",
+      },
+    },
   });
 
-  await checkABrowser(requestWindow.document.getElementById("requestFrame"));
-  await BrowserTestUtils.closeWindow(requestWindow);
+  await extension.startup();
+
+  const { panel, browser } = await openExtensionPopup(
+    window,
+    "ext-formpickers@mochi.test"
+  );
+  await checkABrowser(browser);
+  panel.hidePopup();
+
+  await extension.unload();
+});
+
+add_task(async function testExtensionComposeAction() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "formContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/formContent.html")
+      ),
+    },
+    manifest: {
+      applications: {
+        gecko: {
+          id: "formpickers@mochi.test",
+        },
+      },
+      compose_action: {
+        default_popup: "formContent.html",
+      },
+    },
+  });
+
+  await extension.startup();
+
+  const params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  params.composeFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+
+  const composeWindowPromise = BrowserTestUtils.domWindowOpened();
+  MailServices.compose.OpenComposeWindowWithParams(null, params);
+  const composeWindow = await composeWindowPromise;
+  await BrowserTestUtils.waitForEvent(composeWindow, "load");
+
+  const { panel, browser } = await openExtensionPopup(
+    composeWindow,
+    "formpickers_mochi_test-composeAction-toolbarbutton"
+  );
+  await checkABrowser(browser);
+  panel.hidePopup();
+
+  await extension.unload();
+  await BrowserTestUtils.closeWindow(composeWindow);
+});
+
+add_task(async function testExtensionMessageDisplayAction() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "formContent.html": await IOUtils.readUTF8(
+        getTestFilePath("files/formContent.html")
+      ),
+    },
+    manifest: {
+      applications: {
+        gecko: {
+          id: "formpickers@mochi.test",
+        },
+      },
+      message_display_action: {
+        default_popup: "formContent.html",
+      },
+    },
+  });
+
+  await extension.startup();
+
+  const messageWindowPromise = BrowserTestUtils.domWindowOpened();
+  window.MsgOpenNewWindowForMessage([...testFolder.messages][0]);
+  const messageWindow = await messageWindowPromise;
+  const { target: aboutMessage } = await BrowserTestUtils.waitForEvent(
+    messageWindow,
+    "aboutMessageLoaded"
+  );
+
+  const { panel, browser } = await openExtensionPopup(
+    aboutMessage,
+    "formpickers_mochi_test-messageDisplayAction-toolbarbutton"
+  );
+  await checkABrowser(browser);
+  panel.hidePopup();
+
+  await extension.unload();
+  await BrowserTestUtils.closeWindow(messageWindow);
 });
