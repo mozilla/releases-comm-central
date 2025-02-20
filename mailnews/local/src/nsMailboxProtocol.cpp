@@ -74,11 +74,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
       nsMsgKey msgKey;
       m_runningUrl->GetMessageKey(&msgKey);
       if (msgKey == 0) {
-        // This appears to be an .eml file. Be sure not to call
-        // nsMailboxUrl::GetMessageHeader in this case, as it would
-        // loop through all folders unsuccessfully looking for a database
-        // with a matching file path, with potentially huge performance
-        // implications.
+        // This appears to be an .eml file.
         rv = OpenFileSocket(aURL);
       } else {
         nsCOMPtr<nsIMsgMessageUrl> msgUrl =
