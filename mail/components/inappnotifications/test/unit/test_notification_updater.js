@@ -484,36 +484,55 @@ add_task(async function test_fetchScheduling() {
 });
 
 add_task(async function test_maxUpdatesPerDay() {
-  NotificationUpdater._PER_TIME_UNIT = 1000 * 5;
+  // Note: MAX_UPDATES_PER_DAY is defined as 24 in NotificationUpdater.sys.mjs.
+  const MAX_UPDATES_PER_DAY = 24;
+
+  // Set a day to be 5s long.
+  const TIME_PER_DAY = 1000 * 5;
+  NotificationUpdater._PER_TIME_UNIT = TIME_PER_DAY;
+
+  // Set the time between updates to 100ms.
   NotificationUpdater.getExpirationTime = () => Date.now() / 1000 + 0.1;
 
   const onUpdate = NotificationUpdater.onUpdate;
   let count = 0;
+
   const { resolve, promise } = Promise.withResolvers();
   NotificationUpdater.onUpdate = () => {
-    if (count === 23) {
-      // Wait one second to make sure no more updates take place
-      /* eslint-disable-next-line mozilla/no-arbitrary-setTimeout */
-      setTimeout(() => {
-        resolve();
-      }, 1000);
-    }
-
     count++;
+
+    const now = Date.now();
+
+    if (count <= MAX_UPDATES_PER_DAY) {
+      Assert.lessOrEqual(
+        now - timeOfStart,
+        TIME_PER_DAY,
+        `Update #${count} should be seen before one day has passed.`
+      );
+    } else {
+      Assert.greaterOrEqual(
+        now - timeOfStart,
+        TIME_PER_DAY,
+        `Update #${count} should be seen after one day has passed.`
+      );
+      resolve();
+    }
   };
 
+  const timeOfStart = Date.now();
   NotificationUpdater._fetch();
-
   await promise;
-
-  Assert.equal(count, 24, "fetch respects MAX_UPDATES_PER_DAY");
 
   // Wait six seconds, one more then the _PER_TIME_UNIT, to make sure
   // updates commence again.
   /* eslint-disable-next-line mozilla/no-arbitrary-setTimeout */
   await new Promise(_resolve => setTimeout(_resolve, 6000));
 
-  Assert.greaterOrEqual(count, 26, "Update called after delay");
+  Assert.greaterOrEqual(
+    count,
+    26,
+    `Update called after delay, in total: ${count}`
+  );
 
   await clear();
 
