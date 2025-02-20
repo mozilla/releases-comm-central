@@ -54,7 +54,8 @@ class EwsFolder : public nsMsgDBFolder {
   NS_IMETHOD RenameSubFolders(nsIMsgWindow* msgWindow,
                               nsIMsgFolder* oldFolder) override;
   NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
-  NS_IMETHOD Compact(nsIUrlListener* aListener, nsIMsgWindow* aMsgWindow) override;
+  NS_IMETHOD Compact(nsIUrlListener* aListener,
+                     nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD CompactAll(nsIUrlListener* aListener,
                         nsIMsgWindow* aMsgWindow) override;
 
