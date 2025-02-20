@@ -676,7 +676,6 @@ dependencies = [
  "nserror",
  "nsstring",
  "rkv",
- "rust_cascade",
  "sha2",
  "static_prefs",
  "storage_variant",
