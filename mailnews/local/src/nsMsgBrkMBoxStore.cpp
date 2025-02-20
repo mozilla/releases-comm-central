@@ -1015,7 +1015,6 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(
     // Work out the flags we want to write.
     uint32_t flags = 0;
     (void)msgHdr->GetFlags(&flags);
-    flags &= ~(nsMsgMessageFlags::RuntimeOnly | nsMsgMessageFlags::Offline);
     if (aSet) {
       flags |= aFlags;
     } else {

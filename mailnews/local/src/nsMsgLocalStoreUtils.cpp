@@ -125,6 +125,10 @@ nsresult nsMsgLocalStoreUtils::RewriteMsgFlags(nsISeekableStream* seekable,
                                                uint32_t msgFlags) {
   nsresult rv;
 
+  // Some flags are really folder state, not message state.
+  // So we don't want to save them into the message.
+  msgFlags &= ~nsMsgMessageFlags::RuntimeOnly;
+
   // Remember where we started.
   int64_t msgStart;
   rv = seekable->Tell(&msgStart);

@@ -1937,12 +1937,9 @@ nsresult nsMsgLocalMailFolder::WriteStartOfNewMessage() {
 
       // write out x-mozilla-status, but make sure we don't write out
       // nsMsgMessageFlags::Offline
-      PR_snprintf(
-          statusStrBuf, sizeof(statusStrBuf),
-          X_MOZILLA_STATUS_FORMAT MSG_LINEBREAK,
-          dbFlags &
-              ~(nsMsgMessageFlags::RuntimeOnly | nsMsgMessageFlags::Offline) &
-              0x0000FFFF);
+      PR_snprintf(statusStrBuf, sizeof(statusStrBuf),
+                  X_MOZILLA_STATUS_FORMAT MSG_LINEBREAK,
+                  dbFlags & ~(nsMsgMessageFlags::RuntimeOnly) & 0x0000FFFF);
     } else {
       strcpy(statusStrBuf, "X-Mozilla-Status: 0001" MSG_LINEBREAK);
     }

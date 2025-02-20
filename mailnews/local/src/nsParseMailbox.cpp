@@ -687,6 +687,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
       NS_ASSERTION(MsgIsHex(mozstatus2->value, 8),
                    "Expected 8 hex digits for X-Mozilla-Status2.");
       uint32_t flags2 = MsgUnhex(mozstatus2->value, 8);
+      flags2 &= ~nsMsgMessageFlags::RuntimeOnly;
       flags |= flags2 & 0xFFFF0000;
     }
   }

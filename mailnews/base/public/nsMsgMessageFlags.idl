@@ -127,8 +127,8 @@ interface nsMsgMessageFlags : nsISupports
   // We're trying to reserve the high byte of the flags for view flags, so,
   // don't add flags to the high byte if possible.
 
-  /// The list of all message flags to not write to disk
-  const nsMsgMessageFlagType RuntimeOnly     = Elided;
+  /// The flags we don't want written to X-Mozilla-Status/X-Mozilla-Status2.
+  const nsMsgMessageFlagType RuntimeOnly     = Elided | New | Offline;
 };
 
 typedef unsigned long nsMsgProcessingFlagType;

@@ -9,6 +9,7 @@
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
 #include "nsMsgLocalFolderHdrs.h"  // For X_MOZILLA_KEYWORDS_BLANK_LEN.
+#include "nsMsgMessageFlags.h"
 #include "nsMailHeaders.h"
 #include "HeaderReader.h"
 #include "MboxCompactor.h"
@@ -84,6 +85,10 @@ NS_IMETHODIMP MboxCompactor::OnStartMessage(nsACString const& storeToken,
   if (NS_FAILED(rv)) {
     return rv;  // Abort the scan.
   }
+
+  // Some flags are really folder state, not message state.
+  // We don't want to write them into the message.
+  mMsgFlags &= ~nsMsgMessageFlags::RuntimeOnly;
 
   mCurToken = storeToken;
   mNewMsgSize = 0;

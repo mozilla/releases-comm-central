@@ -1254,7 +1254,6 @@ NS_IMETHODIMP nsMsgMaildirStore::ChangeFlags(
     // Work out the flags we want to write.
     uint32_t flags = 0;
     (void)msgHdr->GetFlags(&flags);
-    flags &= ~(nsMsgMessageFlags::RuntimeOnly | nsMsgMessageFlags::Offline);
     if (aSet) {
       flags |= aFlags;
     } else {
@@ -1265,7 +1264,7 @@ NS_IMETHODIMP nsMsgMaildirStore::ChangeFlags(
     nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(outputStream, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
     rv = RewriteMsgFlags(seekable, flags);
-    if (NS_FAILED(rv)) NS_WARNING("updateFolderFlag failed");
+    if (NS_FAILED(rv)) NS_WARNING("ChangeFlags() failed");
   }
   return NS_OK;
 }

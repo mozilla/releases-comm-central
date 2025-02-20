@@ -98,7 +98,7 @@ async function checkMbox(folder, expectedMsgs) {
 // re-written in place when flags and keywords are modified).
 const xhdrs =
   `X-Mozilla-Status: 0000\r\n` +
-  `X-Mozilla-Status2: 00010000\r\n` + // 'New' flag is set
+  `X-Mozilla-Status2: 00000000\r\n` +
   `X-Mozilla-Keys:                                                                                 \r\n`;
 
 const hdrs1 =
@@ -277,7 +277,7 @@ add_task(async function testBigXMozillaKeys() {
 
   const bigxhdrs =
     `X-Mozilla-Status: 0000\r\n` +
-    `X-Mozilla-Status2: 00010000\r\n` + // 'New' flag is set
+    `X-Mozilla-Status2: 00000000\r\n` +
     `X-Mozilla-Keys: ${bigKeyword}\r\n`;
 
   // The messages we expect to see in the final mbox:
