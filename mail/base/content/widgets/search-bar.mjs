@@ -8,10 +8,10 @@
  *
  * @tagname search-bar
  *
- * @property {string} label - Search field label for accessibility tree.
- * @property {boolean} disabled - When present, disable the search field and
+ * @attribute {string} label - Search field label for accessibility tree.
+ * @attribute {boolean} disabled - When present, disable the search field and
  *   button.
- * @property {number} maxlength - Max length of the input in the search field.
+ * @attribute {number} maxlength - Max length of the input in the search field.
  *
  * @slot placeholder - Content displayed as placeholder. When not provided, the
  *   value of the label attribute is shown as placeholder.

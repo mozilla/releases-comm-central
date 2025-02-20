@@ -15,7 +15,8 @@
   should be imported in the element's module.
 - External features of the custom element (attributes, slots, parts, css custom
   properties, events etc.) are documented using these jsdoc tags:
-  https://custom-elements-manifest.open-wc.org/analyzer/getting-started/#supported-jsdoc
+  https://custom-elements-manifest.open-wc.org/analyzer/getting-started/#supported-jsdoc.
+  We currently support the following subset of extra tags: `@attribute`, `@cssproperty`, `@part`, `@slot`, and `@tagname`. Of course standard JSDoc tags used by custom element manifest like `@fires` and `@property` work as well.
 - For events the `handleEvents` method callback should be used, and just the
   `this` reference is passed to `addEventListener`. See https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#the_event_listener_callback
   - This also lets us modify event handling through inheritance.
