@@ -354,8 +354,16 @@ header {
       grid-template-columns: 115px 1fr;
       gap: 10px;
 
+      .stacked & {
+        grid-template-columns: 1fr;
+      }
+
       &.responsive-row {
         grid-template-columns: auto 1fr;
+
+        .stacked & {
+          grid-template-columns: 1fr;
+        }
       }
 
       & .expanded {

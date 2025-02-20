@@ -185,6 +185,10 @@ class EmailOutgoingForm extends AccountHubStep {
    * @param {AccountConfig} configData - Applies the config data to this state.
    */
   setState(configData) {
+    this.classList.toggle(
+      "stacked",
+      Services.prefs.getIntPref("mail.uifontsize") >= 17
+    );
     this.#currentConfig = configData;
     this.updateFields(this.#currentConfig);
     this.#currentConfig = this.getConfig();
