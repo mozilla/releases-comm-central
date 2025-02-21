@@ -204,7 +204,9 @@ async function subtestPrint(shortDays, monthName, monthRangeText) {
 
     fromMonth.value = 9;
     fromMonth.dispatchEvent(new CustomEvent("change"));
-    await TestUtils.waitForTick();
+    await TestUtils.waitForCondition(
+      () => previewDoc.getElementById("month-container").childElementCount > 1
+    );
 
     Assert.equal(previewDoc.getElementById("month-container").childElementCount, 3);
     Assert.equal(previewDoc.title, monthRangeText);
