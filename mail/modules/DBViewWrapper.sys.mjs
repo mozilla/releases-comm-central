@@ -1363,17 +1363,11 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * Compacting a local folder nukes its message keys, requiring the view to be
-   *  rebuilt.  If the folder is IMAP, it doesn't matter because the UIDs are
-   *  the message keys and we can ignore it.  In the local case we want to
-   *  notify our listener so they have a chance to save the selected messages.
+   * Compacting will likely replace the message database, requiring the view
+   * to be rebuilt. We want to notify our listener so they have a chance to
+   * save the selected messages.
    */
-  _aboutToCompactFolder(aFolder) {
-    // IMAP compaction does not affect us unless we are holding headers
-    if (aFolder.server.type == "imap") {
-      return;
-    }
-
+  _aboutToCompactFolder(_aFolder) {
     // we will have to re-create the view, so nuke the view now.
     if (this.dbView) {
       // Save the view's flags that will be restored in
@@ -1387,12 +1381,11 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * Compaction is all done, let's re-create the view!  (Unless the folder is
-   *  IMAP, in which case we are ignoring this event sequence.)
+   * Compaction is all done. There's likely a new database, so we'll need to
+   * re-create the view.
    */
   _compactedFolder(aFolder) {
-    // IMAP compaction does not affect us unless we are holding headers
-    if (aFolder != this.displayedFolder || aFolder.server.type == "imap") {
+    if (aFolder != this.displayedFolder) {
       return;
     }
 

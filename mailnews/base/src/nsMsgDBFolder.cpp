@@ -4835,8 +4835,8 @@ nsresult nsMsgDBFolder::SetWarnFilterChanged(bool aVal) {
 }
 
 NS_IMETHODIMP nsMsgDBFolder::NotifyCompactCompleted() {
-  NS_ASSERTION(false, "should be overridden by child class");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  NotifyFolderEvent(kCompactCompleted);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::CloseDBIfFolderNotOpen(bool aForceClosed) {

@@ -1369,9 +1369,6 @@ NS_IMETHODIMP nsImapMailFolder::Compact(nsIUrlListener* aListener,
   return ExpungeAndCompact(aListener, aMsgWindow);
 }
 
-NS_IMETHODIMP
-nsImapMailFolder::NotifyCompactCompleted() { return NS_OK; }
-
 NS_IMETHODIMP nsImapMailFolder::MarkPendingRemoval(nsIMsgDBHdr* aHdr,
                                                    bool aMark) {
   NS_ENSURE_ARG_POINTER(aHdr);

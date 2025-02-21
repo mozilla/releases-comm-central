@@ -318,8 +318,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
       const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
       const nsACString& aKeywords) override;
 
-  NS_IMETHOD NotifyCompactCompleted() override;
-
   // overrides nsMsgDBFolder::HasMsgOffline()
   NS_IMETHOD HasMsgOffline(nsMsgKey msgKey, bool* _retval) override;
   NS_IMETHOD GetLocalMsgStream(nsIMsgDBHdr* hdr,

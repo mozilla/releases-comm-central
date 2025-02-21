@@ -3072,8 +3072,7 @@ nsMsgLocalMailFolder::NotifyCompactCompleted() {
   ClearProcessingFlags();
   (void)RefreshSizeOnDisk();
   (void)CloseDBIfFolderNotOpen(false);
-  NotifyFolderEvent(kCompactCompleted);
-  return NS_OK;
+  return nsMsgDBFolder::NotifyCompactCompleted();
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::Shutdown(bool shutdownChildren) {
