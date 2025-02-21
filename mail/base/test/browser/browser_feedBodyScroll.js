@@ -76,7 +76,6 @@ add_task(async function test_feedBodyScroll() {
    * @returns {Promise<?ScrollState>}
    */
   async function checkScroll(value = 0) {
-    EventUtils.synthesizeKey(" ", {}, window);
     const scroll = await SpecialPowers.spawn(browser, [], async () => {
       const { promise, resolve } = Promise.withResolvers();
       content.addEventListener(
@@ -86,6 +85,7 @@ add_task(async function test_feedBodyScroll() {
         },
         { once: true }
       );
+      EventUtils.synthesizeKey(" ", {}, content);
 
       await promise;
 
