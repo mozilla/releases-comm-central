@@ -134,7 +134,10 @@ export const UIFontSize = {
    */
   registerWindow(win) {
     if (registeredWindows.has(win)) {
-      console.error("Trying to register the same window twice", win);
+      console.error(
+        "Trying to register the same window twice",
+        win.location.pathname
+      );
       return;
     }
 
@@ -144,7 +147,7 @@ export const UIFontSize = {
       if (win.document.readyState == "loading") {
         console.error(
           "Trying to register a window before it is fully loaded",
-          win
+          win.location.pathname
         );
         return;
       }

@@ -195,11 +195,14 @@ function onLoad() {
         });
       }
     }
-    if (!hasLoaded) {
-      UIFontSize.registerWindow(contentFrame.contentWindow);
-      // TODO: Add the density registration once the account settings style is
-      // updated to support density variations.
-    }
+    // Always add the contentFrame window to the UIFontSize because most of the
+    // sub pages remove themselves on onload. This doesn't happen consistently
+    // and the RSS feed seems to be loading twice.
+    // Accept this temporarily and let the API handle the early return. The
+    // account settings will need to be rebuilt from scratch anyway.
+    UIFontSize.registerWindow(contentFrame.contentWindow);
+    // TODO: Add the density registration once the account settings style is
+    // updated to support density variations.
   });
 
   if (!hasLoaded) {
