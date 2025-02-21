@@ -623,14 +623,66 @@ add_task(async function test_read_new_properties() {
     folderURI: folderC.URI,
   });
 
+  /**
+   * Select a message which is currently new and unread, and wait for the message
+   * being fully loaded, the folder status updates and the UI updates.
+   *
+   * @param {object} info
+   * @param {integer} info.rowIndex - index of the row in the tree to be selected
+   * @param {integer} info.messageIndex - index of the message in the sourceMessageIDs
+   *    array which is expected to be loaded
+   */
+  async function selectNewMessage(info) {
+    // Ensure the message is new and unread.
+    const row = threadTree.getRowAtIndex(info.rowIndex);
+    Assert.ok(row.dataset.properties.includes("new"), "Message should be new");
+    Assert.ok(
+      row.dataset.properties.includes("unread"),
+      "Message should be unread"
+    );
+
+    // Select the message and wait for the Folder Status update.
+    const folderPropertyEvent = Promise.withResolvers();
+    const listener = {
+      QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
+      onFolderPropertyFlagChanged(_msgHdr, property, oldFlag, newFlag) {
+        if (
+          property == "Status" &&
+          oldFlag & Ci.nsMsgMessageFlags.New &&
+          !(newFlag & Ci.nsMsgMessageFlags.New)
+        ) {
+          folderPropertyEvent.resolve();
+        }
+      },
+    };
+    MailServices.mailSession.AddFolderListener(
+      listener,
+      Ci.nsIFolderListener.propertyFlagChanged
+    );
+    const loadPromise = messageLoaded(info.messageIndex);
+    threadTree.selectedIndex = info.rowIndex;
+    await loadPromise;
+    await folderPropertyEvent.promise;
+    MailServices.mailSession.RemoveFolderListener(listener);
+
+    // The tree does not issue an event when it updates a card, but we know that
+    // the selected message must update its UI representation from new to read.
+    await TestUtils.waitForCondition(
+      () =>
+        !row.dataset.properties.includes("new") &&
+        !row.dataset.properties.includes("unread"),
+      "waiting for card to remove unread and new properties"
+    );
+  }
+
   // Clicking the twisty to collapse a row should update the message display.
   goDoCommand("cmd_expandAllThreads");
   await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
-  threadTree.selectedIndex = 5;
-  await messageLoaded(10);
+
+  await selectNewMessage({ rowIndex: 5, messageIndex: 10 });
 
   // Ensure that a new message thread that is selected and expanded only
-  // marks its children as new and unread.
+  // marks its root entry as read, but keeps the children as new and unread.
   let row = threadTree.getRowAtIndex(5);
   Assert.ok(!row.dataset.properties.includes("new"));
   Assert.stringContains(row.dataset.properties, "hasNew");
@@ -638,21 +690,17 @@ add_task(async function test_read_new_properties() {
   Assert.stringContains(row.dataset.properties, "hasUnread");
 
   // Ensure that a new message thread that hasn't been selected marks both root
-  // message and its childre and new and unread.
+  // message and its children as new and unread.
   row = threadTree.getRowAtIndex(0);
   Assert.stringContains(row.dataset.properties, "new");
   Assert.stringContains(row.dataset.properties, "hasNew");
   Assert.stringContains(row.dataset.properties, "unread");
   Assert.stringContains(row.dataset.properties, "hasUnread");
 
-  threadTree.selectedIndex = 4;
-  await messageLoaded(9);
-  threadTree.selectedIndex = 3;
-  await messageLoaded(8);
-  threadTree.selectedIndex = 2;
-  await messageLoaded(7);
-  threadTree.selectedIndex = 1;
-  await messageLoaded(6);
+  await selectNewMessage({ rowIndex: 4, messageIndex: 9 });
+  await selectNewMessage({ rowIndex: 3, messageIndex: 8 });
+  await selectNewMessage({ rowIndex: 2, messageIndex: 7 });
+  await selectNewMessage({ rowIndex: 1, messageIndex: 6 });
 
   // Ensure that if all the child messages of a thread have been read, only the
   // root message is marked as new and unread.
