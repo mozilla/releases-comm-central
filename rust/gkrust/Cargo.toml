@@ -97,6 +97,7 @@ rust_minidump_writer_linux = { path = "../../../toolkit/crashreporter/rust_minid
 signature_cache = { path = "../../../security/certverifier/signature_cache" }
 static_prefs = { path = "../../../modules/libpref/init/static_prefs" }
 storage = { path = "../../../storage/rust" }
+trust-anchors = { path = "../../../security/manager/ssl/trust_anchors" }
 unic-langid = { version = "0.9", features = ['likelysubtags'] }
 unic-langid-ffi = { path = "../../../intl/locale/rust/unic-langid-ffi" }
 unicode-bidi = { version = "0.3.15" }
