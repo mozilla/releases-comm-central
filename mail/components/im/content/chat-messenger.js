@@ -338,16 +338,8 @@ var chatTabType = {
   openTab(aTab, aArgs) {
     aTab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/chat.svg");
     if (!this.hasBeenOpened) {
-      if (chatHandler.ChatCore && chatHandler.ChatCore.initialized) {
-        const convs = IMServices.conversations.getUIConversations();
-        if (convs.length != 0) {
-          convs.sort((a, b) =>
-            a.title.toLowerCase().localeCompare(b.title.toLowerCase())
-          );
-          for (const conv of convs) {
-            chatHandler._addConversation(conv);
-          }
-        }
+      if (chatHandler.ChatCore?.initialized) {
+        chatHandler._loadConversations();
       }
       this.hasBeenOpened = true;
     }
@@ -496,11 +488,11 @@ var chatHandler = {
           convs.nextElementSibling.localName != "richlistitem" &&
           convs.nextSibling.getAttribute("is") != "chat-imconv-richlistitem"));
     const elt = convs.addContact(aConv, "imconv");
-    if (shouldSelect) {
+    if (shouldSelect && elt) {
       list.selectedItem = elt;
     }
 
-    if (aConv.isChat || !aConv.buddy) {
+    if (aConv.isChat || !aConv.buddy || !elt) {
       return;
     }
 
@@ -510,6 +502,18 @@ var chatHandler = {
     const item = document.getElementById(groupName).removeContact(contact);
     if (list.selectedItem == item) {
       list.selectedItem = elt;
+    }
+  },
+
+  _loadConversations() {
+    const convs = IMServices.conversations.getUIConversations();
+    if (convs.length != 0) {
+      convs.sort((a, b) =>
+        a.title.toLowerCase().localeCompare(b.title.toLowerCase())
+      );
+      for (const conv of convs) {
+        this._addConversation(conv);
+      }
     }
   },
 
@@ -1710,6 +1714,10 @@ var chatHandler = {
 
     chatHandler._updateNoConvPlaceHolder();
     statusSelector.init();
+
+    if (chatTabType.hasBeenOpened) {
+      this._loadConversations();
+    }
   },
   _observedTopics: [],
   _addObserver(aTopic) {
