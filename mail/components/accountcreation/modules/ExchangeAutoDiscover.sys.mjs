@@ -634,12 +634,19 @@ export function getAddonsList(config, successCallback, errorCallback) {
  */
 function readAddonsJSON(json) {
   const addons = [];
-  function ensureArray(value) {
+
+  function ensureJsonArray(value) {
+    if (typeof value === "string") {
+      try {
+        value = JSON.parse(value);
+      } catch {}
+    }
     return Array.isArray(value) ? value : [];
   }
+
   const xulLocale = Services.locale.requestedLocale;
   const locale = xulLocale ? xulLocale.substring(0, 5) : "default";
-  for (const addonJSON of ensureArray(json)) {
+  for (const addonJSON of ensureJsonArray(json)) {
     try {
       const addon = {
         id: addonJSON.id,
@@ -659,7 +666,7 @@ function readAddonsJSON(json) {
         locale in addonJSON.description
           ? addonJSON.description[locale]
           : addonJSON.description[0];
-      for (const typeJSON of ensureArray(addonJSON.accountTypes)) {
+      for (const typeJSON of ensureJsonArray(addonJSON.accountTypes)) {
         try {
           addon.supportedTypes.push({
             generalType: lazy.Sanitizer.alphanumdash(typeJSON.generalType),

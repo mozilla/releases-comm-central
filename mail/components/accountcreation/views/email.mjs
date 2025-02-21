@@ -7,6 +7,7 @@ const {
     gAccountSetupLogger,
     SuccessiveAbortable,
     UserCancelledException,
+    AddonInstaller,
   },
 } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
@@ -20,13 +21,13 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CreateInBackend:
     "resource:///modules/accountcreation/CreateInBackend.sys.mjs",
   ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.sys.mjs",
-  ExchangeAutoDiscover:
-    "resource:///modules/accountcreation/ExchangeAutoDiscover.sys.mjs",
   FindConfig: "resource:///modules/accountcreation/FindConfig.sys.mjs",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+  getAddonsList:
+    "resource:///modules/accountcreation/ExchangeAutoDiscover.sys.mjs",
 });
 
 ChromeUtils.defineLazyGetter(
@@ -270,6 +271,8 @@ class AccountHubEmail extends HTMLElement {
     this.#emailOutgoingConfigSubview.addEventListener("config-updated", this);
     this.#emailPasswordSubview.addEventListener("config-updated", this);
     this.#emailConfigFoundSubview.addEventListener("edit-configuration", this);
+    this.#emailConfigFoundSubview.addEventListener("config-updated", this);
+    this.#emailConfigFoundSubview.addEventListener("install-addon", this);
     this.#emailIncomingConfigSubview.addEventListener("advanced-config", this);
     this.#emailOutgoingConfigSubview.addEventListener("advanced-config", this);
 
@@ -524,6 +527,25 @@ class AccountHubEmail extends HTMLElement {
             type: "error",
           });
         }
+        break;
+      case "install-addon":
+        try {
+          this.#startLoading("account-setup-installing-addon");
+          await this.#installAddon();
+          // Update the add-on state in the found config list.
+          this.#currentSubview.setAddon();
+          this.#emailFooter.toggleForwardDisabled(false);
+        } catch (error) {
+          this.#currentSubview.showNotification({
+            fluentTitleId: "account-hub-addon-error",
+            type: "error",
+          });
+        }
+        this.#stopLoading();
+        this.#currentSubview.showNotification({
+          fluentTitleId: "account-setup-success-addon",
+          type: "success",
+        });
         break;
       default:
         break;
@@ -1264,7 +1286,7 @@ class AccountHubEmail extends HTMLElement {
   async #getExchangeAddons(config) {
     const { promise, resolve, reject } = Promise.withResolvers();
 
-    this.abortable = lazy.ExchangeAutoDiscover.getAddonsList(
+    this.abortable = lazy.getAddonsList(
       config,
       () => {
         resolve(config);
@@ -1278,6 +1300,16 @@ class AccountHubEmail extends HTMLElement {
     );
 
     return promise;
+  }
+
+  /**
+   * Installs the first available add-on in the config object for exchange.
+   */
+  async #installAddon() {
+    const addon = this.#currentConfig.addons[0];
+    const installer = (this.abortable = new AddonInstaller(addon));
+    await installer.install();
+    this.abortable = null;
   }
 
   /**

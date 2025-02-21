@@ -84,7 +84,7 @@ class EmailConfigFound extends AccountHubStep {
     });
 
     this.querySelector("#editConfiguration").addEventListener("click", this);
-    this.#installAddon.addEventListener("click", this);
+    this.querySelector("#addonInfo").addEventListener("click", this);
 
     this.#currentConfig = {};
   }
@@ -98,8 +98,12 @@ class EmailConfigFound extends AccountHubStep {
               bubbles: true,
             })
           );
-        } else if (event.target.id === "installAddon") {
-          // TODO: Install the add-on and hide the button.
+        } else if (event.target.id === "addonInstall") {
+          this.dispatchEvent(
+            new CustomEvent("install-addon", {
+              bubbles: true,
+            })
+          );
         }
         break;
       default:
@@ -121,7 +125,7 @@ class EmailConfigFound extends AccountHubStep {
    */
   setState(configData) {
     this.#currentConfig = configData;
-    this.#setAddon();
+    this.setAddon();
     this.#updateFields();
   }
 
@@ -218,6 +222,8 @@ class EmailConfigFound extends AccountHubStep {
         );
     }
 
+    this.#setContinueState();
+
     // Hide outgoing config details if unavailable.
     if (!outgoing || incoming.type === "ews" || incoming.type === "exchange") {
       this.querySelector("#outgoingConfigType").hidden = true;
@@ -227,8 +233,9 @@ class EmailConfigFound extends AccountHubStep {
         "account-hub-result-ews-text"
       );
 
-      if (incoming.type === "exchange" && !this.#addon?.isInstalled) {
-        this.querySelector("#owlExchangeDescription").hidden = false;
+      if (incoming.type === "exchange") {
+        this.querySelector("#owlExchangeDescription").hidden =
+          this.#addon?.isInstalled;
         this.querySelector("#editConfiguration").hidden = true;
       }
 
@@ -264,7 +271,7 @@ class EmailConfigFound extends AccountHubStep {
   /**
    * Sets and updates the add-on for exchange.
    */
-  async #setAddon() {
+  async setAddon() {
     // Get the first available add-on in the config object.
     this.#addon = this.#currentConfig.addons?.at(0);
 
@@ -301,6 +308,27 @@ class EmailConfigFound extends AccountHubStep {
         addon.findUpdates(listener, AddonManager.UPDATE_WHEN_USER_REQUESTED);
       });
     }
+  }
+
+  /**
+   * Dispatches an event to email.mjs to enable/disable the continue button
+   * based on if an Exchange config option was selected and the add-on is
+   * installed.
+   */
+  #setContinueState() {
+    const addonInstalled =
+      this.#selectedConfig.incoming.type === "exchange" &&
+      this.#addon?.isInstalled;
+
+    this.dispatchEvent(
+      new CustomEvent("config-updated", {
+        bubbles: true,
+        detail: {
+          completed:
+            this.#selectedConfig.incoming.type != "exchange" || addonInstalled,
+        },
+      })
+    );
   }
 }
 

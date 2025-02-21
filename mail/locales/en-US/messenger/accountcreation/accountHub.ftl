@@ -222,4 +222,6 @@ account-hub-oauth-pending = Waiting for authorization in login popup…
 
 account-hub-addon-install-needed = { -brand-short-name } doesn’t natively support this server. To access Exchange email, <a data-l10n-name="addon-install"> install a third-party add-on like Owl (paid).</a>
 
+account-hub-addon-error = Add-on installation failed. Please try again or contact the add-on author for assistance.
+
 account-hub-security-warning = <span data-l10n-name="security-warning">Warning: Insecure mail server detected.</span> This server lacks encryption, exposing your password and data. Contact your administrator to secure the connection or proceed at your own risk. <a data-l10n-name="faq-link">See FAQ for more.</a>
