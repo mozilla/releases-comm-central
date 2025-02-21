@@ -25,17 +25,17 @@
 menupopup {
   /* Complement the :is(menu, menuitem) margin. */
   --arrowpanel-padding: 4px 0;
-  --panel-background: var(--arrowpanel-background);
-  --panel-color: var(--arrowpanel-color);
-  --panel-border-color: var(--arrowpanel-border-color);
   --panel-border-radius: var(--arrowpanel-border-radius);
   --panel-padding: var(--arrowpanel-padding);
-  --menu-color: var(--arrowpanel-color);
-  --menu-border-color: var(--arrowpanel-border-color);
-  --menu-background-color: var(--arrowpanel-background);
   font: menu;
   font-size: inherit;
   text-align: start;
+
+  @media not (-moz-windows-mica-popups) {
+    --panel-background: var(--arrowpanel-background);
+    --panel-color: var(--arrowpanel-color);
+    --panel-border-color: var(--arrowpanel-border-color);
+  }
 
   :root:not([lwtheme]) menubar > menu & {
     --panel-background: Menu;
@@ -133,11 +133,26 @@ menupopup {
   }
 }
 
+@media (-moz-windows-mica-popups) {
+  panel[type="arrow"] {
+    appearance: auto;
+    -moz-default-appearance: menupopup;
+    /* The blur behind doesn't blur all that much, add a semi-transparent
+     * background to improve contrast */
+    --arrowpanel-background: light-dark(rgba(255, 255, 255, 0.5), rgba(0, 0, 0, 0.5));
+    --panel-border-color: transparent;
+  }
+}
+
 #ContentSelectDropdown {
   & > menupopup {
     /* !important to override inline styles */
     --content-select-background-image: none !important;
     --panel-color: var(--arrowpanel-color) !important;
+
+    @media (-moz-windows-mica-popups) {
+      margin: 0;
+    }
   }
 
   & > menupopup[customoptionstyling="true"]::part(arrowscrollbox) {
@@ -149,6 +164,10 @@ menupopup {
   & .ContentSelectDropdown-item-0:not([_moz-menuactive="true"]) {
     background-color: var(--arrowpanel-background) !important;
     color: var(--arrowpanel-color) !important;
+
+    @media (-moz-windows-mica-popups) {
+      background-color: transparent !important;
+    }
   }
 }
 

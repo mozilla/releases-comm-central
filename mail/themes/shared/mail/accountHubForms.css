@@ -265,9 +265,6 @@ form {
     --panel-border-color: var(--hub-menupopup-border-color);
     --panel-border-radius: var(--hub-input-border-radius);
     --panel-padding: var(--arrowpanel-padding);
-    --menu-color: var(--arrowpanel-color);
-    --menu-border-color: var(--arrowpanel-border-color);
-    --menu-background-color: var(--color-neutral-base);
     margin-block-start: 6px;
 
     & > xul|menuitem {

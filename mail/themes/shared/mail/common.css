@@ -110,9 +110,11 @@ menulist > menupopup {
 }
 
 menupopup {
-  --panel-border-color: var(--in-content-box-border-color);
-  --panel-background: var(--background-color-box);
-  --panel-color: var(--in-content-text-color);
+  @media not (-moz-windows-mica-popups) {
+    --panel-border-color: var(--in-content-box-border-color);
+    --panel-background: var(--background-color-box);
+    --panel-color: var(--in-content-text-color);
+  }
 
   &::part(content) {
     border-radius: var(--arrowpanel-border-radius);
