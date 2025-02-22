@@ -1780,15 +1780,15 @@ function cmdToggleGroup(e) {
 }
 
 function cmdToggleUI(e) {
-  var ids = new Array();
+  var id;
 
   switch (e.thing) {
     case "tabstrip":
-      ids = ["view-tabs"];
+      id = "view-tabs";
       break;
 
     case "userlist":
-      ids = ["main-splitter", "user-list-box"];
+      id = "user-list-box";
       break;
 
     case "header":
@@ -1797,7 +1797,7 @@ function cmdToggleUI(e) {
       return;
 
     case "status":
-      ids = ["status-bar"];
+      id = "status-bar";
       break;
 
     default:
@@ -1808,15 +1808,8 @@ function cmdToggleUI(e) {
       return;
   }
 
-  var newState;
-  var elem = document.getElementById(ids[0]);
-  var sourceObject = e.sourceObject;
-  var newState = !elem.collapsed;
-
-  for (var i in ids) {
-    elem = document.getElementById(ids[i]);
-    elem.collapsed = newState;
-  }
+  var elem = document.getElementById(id);
+  elem.collapsed = !elem.collapsed;
 
   updateTitle();
   dispatch("focus-input");

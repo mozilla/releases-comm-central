@@ -274,6 +274,7 @@
         </vbox> <!-- user-list-box -->
 
         <splitter id="main-splitter" collapse="before" persist="collapsed left">
+          <observes element="user-list-box" attribute="collapsed"/>
           <grippy/>
         </splitter>
 
