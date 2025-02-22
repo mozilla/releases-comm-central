@@ -891,7 +891,7 @@ CIRCDCCFileTransfer.prototype.request = function dfile_request(localFile) {
 
   this.localIP = this.parent.localIP;
 
-  this.connection = new CBSConnection(true);
+  this.connection = new CBSConnection();
   if (!this.connection.listen(this.port, this)) {
     this.state.failed();
     this.dispose();
@@ -929,12 +929,10 @@ CIRCDCCFileTransfer.prototype.accept = function dfile_accept(localFile) {
   this.localFile = new LocalFile(localFile, ">");
   this.localPath = localFile.path;
 
-  this.filestream = Cc["@mozilla.org/binaryoutputstream;1"]
-    .createInstance(Ci.nsIBinaryOutputStream)
-    .setOutputStream(this.localFile.outputStream);
+  this.filestream = toSOutputStream(this.localFile.outputStream);
 
   this.position = 0;
-  this.connection = new CBSConnection(true);
+  this.connection = new CBSConnection();
   this.connection.connect(this.remoteIP, this.port, null, this);
 
   return true;
@@ -1010,9 +1008,7 @@ CIRCDCCFileTransfer.prototype.onSocketAccepted = function (socket, transport) {
   this.eventPump.addEvent(new CEvent("dcc-file", "connect", this, "onConnect"));
 
   try {
-    this.filestream = Cc["@mozilla.org/binaryinputstream;1"]
-      .createInstance(Ci.nsIBinaryInputStream)
-      .setInputStream(this.localFile.baseInputStream);
+    this.filestream = toSInputStream(this.localFile.baseInputStream);
 
     // Start the reading!
     var d;
