@@ -228,9 +228,6 @@
       <!-- ChatZilla menu placeholder, see menus.js -->
       <menu id="mainmenu:chatzilla"><menupopup/></menu>
 
-      <!-- IRC menu placeholder, see menus.js -->
-      <menu id="mainmenu:irc"><menupopup/></menu>
-
       <!-- Edit menu placeholder, see menus.js -->
       <menu id="mainmenu:edit"><menupopup/></menu>
 
@@ -238,7 +235,19 @@
       <menu id="mainmenu:view"><menupopup/></menu>
 
       <!-- Tasks menu -->
-      <menu id="tasksMenu"/>
+      <menu id="tasksMenu">
+        <menupopup id="taskPopup">
+          <menuitem id="editNetworks"
+                    label="&editNetworks.label;"
+                    accesskey="&editNetworks.accesskey;"
+                    oncommand="cmdEditNetworks();"/>
+          <menuitem id="installPlugin"
+                    label="&installPlugin.label;"
+                    accesskey="&installPlugin.accesskey;"
+                    oncommand="cmdInstallPlugin();"/>
+          <menuseparator id="czTasksSeparator"/>
+        </menupopup>
+      </menu>
 
       <!-- Window menu -->
       <menu id="windowMenu"/>

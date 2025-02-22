@@ -4397,7 +4397,20 @@ function cmdInputTextDirection(e) {
 }
 
 function cmdInstallPlugin(e) {
-  var ipURL = "chrome://chatzilla/content/install-plugin/install-plugin.xul";
+  if (!e || !e.url) {
+    if ("installPluginDialog" in client) {
+      return client.installPluginDialog.focus();
+    }
+
+    window.openDialog(
+      "chrome://chatzilla/content/install-plugin/install-plugin.xul",
+      "",
+      "chrome,dialog",
+      client
+    );
+    return;
+  }
+
   var ctx = {};
   var pluginDownloader = {
     onStartRequest: function _onStartRequest(request, context) {
@@ -4438,15 +4451,6 @@ function cmdInstallPlugin(e) {
       }
     },
   };
-
-  if (!e.url) {
-    if ("installPluginDialog" in client) {
-      return client.installPluginDialog.focus();
-    }
-
-    window.openDialog(ipURL, "", "chrome,dialog", client);
-    return;
-  }
 
   var urlMatches = e.url.match(/([^\/]+?)((\..{0,3}){0,2})$/);
   if (!e.name) {

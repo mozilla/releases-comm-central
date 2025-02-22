@@ -92,32 +92,9 @@ function initMenus() {
     accesskey: getAccessKeyForMenu("MSG_MNU_CHATZILLA"),
     getContext: getDefaultContext,
     items: [
-      ["cmd-prefs"],
-      ["install-plugin"],
+      ["join"],
       ["goto-startup"],
       ["-"],
-      ["print"],
-      ["save"],
-      ["-", { visibleif: NotMac }],
-      ["exit", { visibleif: Win }],
-      ["quit", { visibleif: NotMac + " and " + NotWin }],
-    ],
-  };
-
-  client.menuSpecs["mainmenu:irc"] = {
-    label: MSG_MNU_IRC,
-    accesskey: getAccessKeyForMenu("MSG_MNU_IRC"),
-    getContext: getDefaultContext,
-    items: [
-      ["join"],
-      ["-"],
-      ["edit-networks"],
-      ["-"],
-      [">popup:views"],
-      [">popup:nickname"],
-      ["-"],
-      ["clear-view"],
-      ["hide-view", { enabledif: "client.viewsArray.length > 1" }],
       [
         "toggle-oas",
         {
@@ -136,7 +113,13 @@ function initMenus() {
       ["disconnect", { visibleif: NetConnected }],
       ["reconnect", { visibleif: NetDisconnected }],
       ["-"],
-      ["toggle-text-dir"],
+      [">popup:nickname"],
+      ["-"],
+      ["save"],
+      ["print"],
+      ["-", { visibleif: NotMac }],
+      ["exit", { visibleif: Win }],
+      ["quit", { visibleif: NotMac + " and " + NotWin }],
     ],
   };
 
@@ -176,6 +159,9 @@ function initMenus() {
       ["find"],
       ["find-again", { enabledif: "canFindAgainInPage()" }],
       ["-"],
+      ["toggle-text-dir"],
+      ["-"],
+      ["cmd-prefs"],
       ["cmd-mozilla-prefs"],
     ],
   };
@@ -194,6 +180,8 @@ function initMenus() {
     accesskey: getAccessKeyForMenu("MSG_MNU_VIEW"),
     getContext: getDefaultContext,
     items: [
+      [">popup:views"],
+      ["-"],
       ["tabstrip", { type: "checkbox", checkedif: "isVisible('view-tabs')" }],
       [
         "header",
@@ -207,6 +195,9 @@ function initMenus() {
         { type: "checkbox", checkedif: "isVisible('user-list-box')" },
       ],
       ["statusbar", { type: "checkbox", checkedif: "isVisible('status-bar')" }],
+      ["-"],
+      ["clear-view"],
+      ["hide-view", { enabledif: "client.viewsArray.length > 1" }],
       ["-"],
       [">popup:motifs"],
       [">popup:fonts"],
