@@ -991,9 +991,10 @@ PrefWindow.prototype.onLoad = function pwin_onLoad() {
     "^networks.([^.]+)" + "(?:\\.(users|channels)?\\.([^.]+))?\\."
   );
   var rv = new Object();
-  var netList = client.prefManager.prefBranch.getChildList("networks.", rv);
-  for (var i in netList) {
-    var m = netList[i].match(prefRE);
+  let branch = Services.prefs.getBranch("extensions.irc.");
+  let netList = branch.getChildList("networks.", rv);
+  for (let item of netList) {
+    let m = item.match(prefRE);
     if (!m) {
       continue;
     }
@@ -1008,7 +1009,7 @@ PrefWindow.prototype.onLoad = function pwin_onLoad() {
      *       the object will only come into existance if this magical
      *       [hidden] pref is set.
      */
-    var force = client.prefManager.prefBranch.prefHasUserValue(netList[i]);
+    let force = branch.prefHasUserValue(item);
 
     // Don't bother with the new if it's already there (time saving).
     if (!(":" + netName in client.networks)) {

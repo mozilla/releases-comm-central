@@ -186,24 +186,18 @@ function initMunger() {
   );
 
   client.enableColors = client.prefs["munger.colorCodes"];
-  var branch = client.prefManager.prefBranch;
-  for (var entry in munger.entries) {
-    if (!isinstance(munger.entries[entry], Object)) {
+  let branch = Services.prefs.getBranch("extensions.irc.munger.");
+  for (let entry of munger.entries) {
+    if (!isinstance(entry, Object)) {
       continue;
     }
 
-    for (var rule in munger.entries[entry]) {
+    for (let rule in entry) {
       if (rule[0] == ".") {
         continue;
       }
 
-      try {
-        munger.entries[entry][rule].enabled = branch.getBoolPref(
-          "munger." + rule
-        );
-      } catch (ex) {
-        // nada
-      }
+      entry[rule].enabled = branch.getBoolPref(rule, true);
     }
   }
 }

@@ -384,20 +384,12 @@ function initStatic() {
   }
 
   // Migrate old list preference to file.
-  try {
-    // Throws if the preference doesn't exist.
-    if (client.urlLogger) {
-      var urls = client.prefManager.prefBranch.getCharPref("urls.list");
-    }
-  } catch (ex) {}
-  if (urls) {
+  if (client.urlLogger) {
+    let urls = Services.prefs.getCharPref("extensions.irc.urls.list", "");
     // Add the old URLs to the new file.
-    urls = client.prefManager.stringToArray(urls);
-    for (var i = 0; i < urls.length; i++) {
-      client.urlLogger.append(urls[i]);
-    }
+    client.urlLogger.append(client.prefManager.stringToArray(urls));
     // Completely purge the old preference.
-    client.prefManager.prefBranch.clearUserPref("urls.list");
+    Services.prefs.clearUserPref("extensions.irc.urls.list");
   }
 
   client.defaultCompletion = client.COMMAND_CHAR + "help ";
@@ -891,9 +883,7 @@ function updateStalkExpression(network) {
 
 function getDefaultFontSize() {
   // PX size pref: font.size.variable.x-western
-  var pxSize = Services.prefs
-    .getBranch(null)
-    .getIntPref("font.size.variable.x-western", 16);
+  var pxSize = Services.prefs.getIntPref("font.size.variable.x-western", 16);
 
   var dpi = 96;
   try {
