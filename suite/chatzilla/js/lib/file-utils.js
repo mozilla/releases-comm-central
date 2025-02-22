@@ -61,20 +61,7 @@ futils.getPicker = function futils_nosepicker(
   }
 
   if (initialPath) {
-    var localFile;
-
-    if (typeof initialPath == "string") {
-      localFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-      localFile.initWithPath(initialPath);
-    } else {
-      if (!isinstance(initialPath, Ci.nsIFile)) {
-        throw "bad type for argument |initialPath|";
-      }
-
-      localFile = initialPath;
-    }
-
-    picker.displayDirectory = localFile;
+    picker.displayDirectory = returnFile(initialPath);
   }
 
   var allIncluded = false;
@@ -237,6 +224,16 @@ function nsLocalFile(path) {
   return localFile;
 }
 
+function returnFile(file) {
+  if (typeof file == "string") {
+    return new nsLocalFile(file);
+  }
+  if (isinstance(file, Ci.nsIFile)) {
+    return file;
+  }
+  throw "bad type for argument |file|.";
+}
+
 function LocalFile(file, mode) {
   let perms = 0o666 & ~futils.umask;
 
@@ -256,14 +253,7 @@ function LocalFile(file, mode) {
     }
   }
 
-  if (typeof file == "string") {
-    this.localFile = new nsLocalFile(file);
-  } else if (isinstance(file, Ci.nsIFile)) {
-    this.localFile = file;
-  } else {
-    throw "bad type for argument |file|.";
-  }
-
+  this.localFile = returnFile(file);
   this.path = this.localFile.path;
 
   if (mode & (MODE_WRONLY | MODE_RDWR)) {

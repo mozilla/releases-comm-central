@@ -7,11 +7,7 @@
  */
 
 function JSONSerializer(file) {
-  if (typeof file == "string") {
-    this._file = new nsLocalFile(file);
-  } else {
-    this._file = file;
-  }
+  this._file = returnFile(file);
   this._open = false;
 }
 

@@ -42,11 +42,7 @@
 
 function TextSerializer(file) {
   this._initialized = false;
-  if (typeof file == "string") {
-    this._file = new nsLocalFile(file);
-  } else {
-    this._file = file;
-  }
+  this._file = returnFile(file);
   this._open = false;
   this._buffer = "";
   this._lines = [];
