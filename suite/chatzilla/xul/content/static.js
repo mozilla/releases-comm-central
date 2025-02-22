@@ -1513,16 +1513,6 @@ function getCommandEnabled(command) {
   }
 }
 
-function doCommand(command) {
-  try {
-    var dispatcher = document.commandDispatcher;
-    var controller = dispatcher.getControllerForCommand(command);
-    if (controller && controller.isCommandEnabled(command)) {
-      controller.doCommand(command);
-    }
-  } catch (e) {}
-}
-
 function gotoIRCURL(url, e) {
   var urlspec = url;
   if (typeof url == "string") {

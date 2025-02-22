@@ -3672,16 +3672,8 @@ function cmdDoCommand(e) {
     } else {
       prefWin.focus();
     }
-  } else if (e.cmdName == "cmd_selectAll") {
-    var elemFocused = document.commandDispatcher.focusedElement;
-
-    if (elemFocused == client.list) {
-      client.list.selectAll();
-    } else {
-      doCommand("cmd_selectAll");
-    }
   } else {
-    doCommand(e.cmdName);
+    goDoCommand(e.cmdName);
   }
 }
 

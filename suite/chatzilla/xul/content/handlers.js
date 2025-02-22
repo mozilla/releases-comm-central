@@ -88,7 +88,40 @@ function initHandlers() {
 
   var singleInput = document.getElementById("input");
   singleInput.addEventListener("paste", onPaste);
+
+  client.list.controllers.appendController(gUserListController);
 }
+
+var gUserListController = {
+  supportsCommand(aCommand) {
+    switch (aCommand) {
+      case "cmd_selectAll":
+        return true;
+      default:
+        return false;
+    }
+  },
+
+  isCommandEnabled(aCommand) {
+    switch (aCommand) {
+      case "cmd_selectAll":
+        return true;
+      default:
+        return false;
+    }
+  },
+
+  doCommand(aCommand) {
+    switch (aCommand) {
+      case "cmd_selectAll":
+        client.list.selectAll();
+        break;
+      default:
+    }
+  },
+
+  onEvent(event) {},
+};
 
 function onPaste(event) {
   let startPos = client.input.selectionStart;
@@ -169,6 +202,8 @@ function onUnload() {
   if ("aboutDialog" in client) {
     client.aboutDialog.close();
   }
+
+  client.list.controllers.removeController(gUserListController);
 
   // We don't trust anybody.
   client.hiddenDocument = null;
