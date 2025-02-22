@@ -2982,6 +2982,10 @@ const gMessageHeader = {
     document.getElementById("viewContactItem").hidden =
       !element.cardDetails.card || !element.cardDetails.book?.readOnly;
 
+    // Working around bug 1949890, where the screen coordinates in the event are
+    // calculated incorrectly for HiDPI screens after an await.
+    const { screenX = 0, screenY = 0 } = event;
+
     const discoverKeyMenuItem = document.getElementById("searchKeysOpenPGP");
     if (discoverKeyMenuItem) {
       const hidden = await PgpSqliteDb2.hasAnyPositivelyAcceptedKeyForEmail(
@@ -2997,12 +3001,12 @@ const gMessageHeader = {
     const popup = document.getElementById("emailAddressPopup");
     popup.headerField = element;
 
-    if (!event.screenX) {
+    if (!screenX) {
       popup.openPopup(event.target, "after_start", 0, 0, true);
       return;
     }
 
-    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+    popup.openPopupAtScreen(screenX, screenY, true);
   },
 
   openNewsgroupPopup(event, element) {
@@ -3035,7 +3039,7 @@ const gMessageHeader = {
    * @param {number} screenX - Where to show it, x.
    * @param {number} screenY - Where to show it, y.
    */
-  async openListIdPopup(element, screenX, screenY) {
+  openListIdPopup(element, screenX, screenY) {
     document
       .getElementById("listIdPlaceHolder")
       .setAttribute(
@@ -3368,8 +3372,8 @@ const gMessageHeader = {
 };
 window.addEventListener(
   "openListId",
-  async event => {
-    await gMessageHeader.openListIdPopup(
+  event => {
+    gMessageHeader.openListIdPopup(
       event.target,
       event.detail.screenX,
       event.detail.screenY
