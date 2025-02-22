@@ -219,15 +219,6 @@ function formatException(ex) {
   return String(ex);
 }
 
-function encodeChar(ch) {
-  return "%" + ch.charCodeAt(0).toString(16);
-}
-
-function escapeFileName(fileName) {
-  // Escape / \ : * ? " < > | so they don't cause trouble.
-  return fileName.replace(/[\/\\\:\*\?"<>\|]/g, encodeChar);
-}
-
 function getContentWindow(frame) {
   try {
     if (!frame || !("contentWindow" in frame)) {

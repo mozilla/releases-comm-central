@@ -55,7 +55,7 @@ function initPrefs() {
   }
 
   var logDefault = client.prefManager.logPath.clone();
-  logDefault.append(escapeFileName("client.log"));
+  logDefault.append("client.log");
 
   // Set up default nickname, if possible.
   var defaultNick = DEFAULT_NICK;
@@ -360,8 +360,8 @@ function makeLogName(obj, type) {
 }
 
 function pref_mungeName(name) {
-  var safeName = name.replace(/\./g, "-").replace(/:/g, "_").toLowerCase();
-  return ecmaEscape(safeName);
+  let safeName = name.replace(/\./g, "-").replace(/:/g, "_");
+  return encodeURIComponent(safeName).toLowerCase();
 }
 
 function getNetworkPrefManager(network) {
@@ -378,9 +378,7 @@ function getNetworkPrefManager(network) {
   }
 
   var logDefault = client.prefManager.logPath.clone();
-  logDefault.append(
-    escapeFileName(pref_mungeName(network.encodedName)) + ".log"
-  );
+  logDefault.append(pref_mungeName(network.encodedName) + ".log");
 
   var prefs = [
     ["alert.enabled", defer, ".palert"],
@@ -503,12 +501,9 @@ function getChannelPrefManager(channel) {
   }
 
   var logDefault = client.prefManager.logPath.clone();
-  var filename =
-    pref_mungeName(network.encodedName) +
-    "," +
-    pref_mungeName(channel.encodedName);
-
-  logDefault.append(escapeFileName(filename) + ".log");
+  var filename = pref_mungeName(network.encodedName);
+  filename += "," + pref_mungeName(channel.encodedName);
+  logDefault.append(filename + ".log");
 
   var prefs = [
     ["alert.enabled", defer, ".palert"],
@@ -577,7 +572,7 @@ function getUserPrefManager(user) {
   var logDefault = client.prefManager.logPath.clone();
   var filename = pref_mungeName(network.encodedName);
   filename += "," + pref_mungeName(user.encodedName);
-  logDefault.append(escapeFileName(filename) + ".log");
+  logDefault.append(filename + ".log");
 
   var prefs = [
     ["alert.enabled", defer, ".palert"],

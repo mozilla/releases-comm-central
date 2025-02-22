@@ -3687,7 +3687,7 @@ function onDCCAutoAcceptTimeout(o, folder) {
       leaf,
       tries = 0;
     while (true) {
-      leaf = escapeFileName(o.filename);
+      leaf = encodeURIComponent(o.filename).toLowerCase();
       if (++tries > 1) {
         // A file with the same name as the offered file already exists
         // in the user's download folder. Add [x] before the extension.
