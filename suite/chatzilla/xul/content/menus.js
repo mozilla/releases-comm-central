@@ -61,10 +61,6 @@ function initMenus() {
   );
   client.menuManager = menuManager;
 
-  client.menuSpecs.maintoolbar = {
-    items: [["disconnect"], ["quit"], ["part"]],
-  };
-
   // OS values
   var Win = "(client.platform == 'Windows')";
   var NotWin = "(client.platform != 'Windows')";

@@ -33,12 +33,6 @@ function MenuManager(commandManager, menuSpecs, contextFunction, commandStr) {
   this.onCallbackPopupHiding = null;
 }
 
-MenuManager.prototype.appendMenuItems = function mmgr_append(menuId, items) {
-  for (var i = 0; i < items.length; ++i) {
-    this.menuSpecs[menuId].items.push(items[i]);
-  }
-};
-
 MenuManager.prototype.createContextMenus = function mmgr_initcxs(document) {
   for (var id in this.menuSpecs) {
     if (id.indexOf("context:") == 0) {
@@ -80,16 +74,6 @@ MenuManager.prototype.createMenus = function mmgr_createtb(document, menuid) {
       this.createMenu(menu, null, id, domID);
     }
   }
-};
-
-MenuManager.prototype.createMainToolbar = function mmgr_createtb(document, id) {
-  var toolbar = document.getElementById(id);
-  var spec = this.menuSpecs[id];
-  for (var i in spec.items) {
-    this.appendToolbarItem(toolbar, null, spec.items[i]);
-  }
-
-  toolbar.className = "toolbar-primary chromeclass-toolbar";
 };
 
 MenuManager.prototype.updateMenus = function mmgr_updatemenus(document, menus) {
@@ -729,83 +713,6 @@ MenuManager.prototype.appendMenuSeparator = function mmgr_addsep(
   parentNode.insertBefore(menuitem, beforeNode);
 
   return menuitem;
-};
-
-/**
- * Appends a toolbaritem to an existing box element.
- * @param parentNode  DOM Node to insert into
- * @param beforeNode  DOM Node already contained by parentNode, to insert before
- * @param command A reference to the CommandRecord this toolbaritem will
- *                represent.
- * @param attribs Object containing CSS attributes to set on the element.
- */
-MenuManager.prototype.appendToolbarItem = function mmgr_addtb(
-  parentNode,
-  beforeNode,
-  commandName,
-  attribs
-) {
-  if (commandName == "-") {
-    return this.appendToolbarSeparator(parentNode, beforeNode, attribs);
-  }
-
-  var parentId = parentNode.getAttribute("id");
-
-  if (
-    !ASSERT(
-      commandName in this.commandManager.commands,
-      "unknown command " + commandName + " targeted for " + parentId
-    )
-  ) {
-    return null;
-  }
-
-  var command = this.commandManager.commands[commandName];
-  var document = parentNode.ownerDocument;
-  var tbitem = document.createElement("toolbarbutton");
-
-  var id = parentNode.getAttribute("id") + ":" + commandName;
-  tbitem.setAttribute("id", id);
-  tbitem.setAttribute("class", "toolbarbutton-1");
-  if (command.tip) {
-    tbitem.setAttribute("tooltiptext", command.tip);
-  }
-  tbitem.setAttribute("label", command.label.replace("&", ""));
-  tbitem.setAttribute("oncommand", "dispatch('" + commandName + "');");
-  if (typeof attribs == "object") {
-    for (var p in attribs) {
-      tbitem.setAttribute(p, attribs[p]);
-    }
-  }
-
-  command.uiElements.push(tbitem);
-  parentNode.insertBefore(tbitem, beforeNode);
-
-  return tbitem;
-};
-
-/**
- * Appends a toolbarseparator to an existing box.
- * @param parentNode  DOM Node to insert into
- * @param beforeNode  DOM Node already contained by parentNode, to insert before
- * @param attribs Object containing CSS attributes to set on the element.
- */
-MenuManager.prototype.appendToolbarSeparator = function mmgr_addmenu(
-  parentNode,
-  beforeNode,
-  attribs
-) {
-  var document = parentNode.ownerDocument;
-  var tbitem = document.createElement("toolbarseparator");
-  tbitem.setAttribute("isSeparator", true);
-  if (typeof attribs == "object") {
-    for (var p in attribs) {
-      tbitem.setAttribute(p, attribs[p]);
-    }
-  }
-  parentNode.appendChild(tbitem);
-
-  return tbitem;
 };
 
 /**
