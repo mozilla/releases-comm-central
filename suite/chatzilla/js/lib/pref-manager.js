@@ -233,25 +233,19 @@ PrefManager.prototype.getPref = function pm_getpref(prefName, reload) {
     defaultValue = record.defaultValue;
   }
 
-  var realValue = defaultValue;
+  let realValue;
 
-  try {
-    if (typeof defaultValue == "boolean") {
-      realValue = this.prefBranch.getBoolPref(prefName);
-    } else if (typeof defaultValue == "number") {
-      realValue = this.prefBranch.getIntPref(prefName);
-    } else if (isinstance(defaultValue, Array)) {
-      realValue = this.prefBranch.getCharPref(prefName);
-      realValue = this.stringToArray(realValue);
-      realValue.update = updateArrayPref;
-    } else if (typeof defaultValue == "string" || defaultValue == null) {
-      realValue = toUnicode(
-        this.prefBranch.getCharPref(prefName),
-        PREF_CHARSET
-      );
-    }
-  } catch (ex) {
-    // if the pref doesn't exist, ignore the exception.
+  if (typeof defaultValue == "boolean") {
+    realValue = this.prefBranch.getBoolPref(prefName, defaultValue);
+  } else if (typeof defaultValue == "number") {
+    realValue = this.prefBranch.getIntPref(prefName, defaultValue);
+  } else if (isinstance(defaultValue, Array)) {
+    realValue = this.prefBranch.getCharPref(prefName, "");
+    realValue = realValue ? this.stringToArray(realValue) : defaultValue;
+    realValue.update = updateArrayPref;
+  } else if (typeof defaultValue == "string" || defaultValue == null) {
+    realValue = this.prefBranch.getCharPref(prefName, defaultValue || "");
+    realValue = toUnicode(realValue, PREF_CHARSET);
   }
 
   record.realValue = realValue;
