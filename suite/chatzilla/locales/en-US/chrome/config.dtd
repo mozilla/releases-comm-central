@@ -6,9 +6,6 @@
 
 <!ENTITY loading.label  "Please wait, loading…">
 
-<!ENTITY homepage.url   "http://chatzilla.hacksrus.com/">
-<!ENTITY homepage.label "ChatZilla Homepage">
-
 <!ENTITY object.add.label       "Add…">
 <!ENTITY object.add.hint        "Add a new network, channel or user to set preferences on">
 <!ENTITY object.add.accesskey   "A">

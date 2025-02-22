@@ -30,7 +30,6 @@
           <label class="header" id="version" value="&version.unknown.label;" format="&version.known.label;"/>
         </hbox>
         <hbox>
-          <label class="text-link" onclick="openHomepage()" value="&homepage.label;"/>
           <spacer flex="1"/>
           <label class="text-link" onclick="copyVersion()" value="&copyversion.label;"/>
         </hbox>

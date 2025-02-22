@@ -9,7 +9,6 @@
 <!ENTITY version.known.label   "Version &#37;S">
 <!ENTITY description.label     "A clean, easy to use and highly extensible Internet Relay Chat (IRC) client.">
 
-<!ENTITY homepage.label    "Visit Home Page">
 <!ENTITY copyversion.label "Copy Version Details">
 
 <!ENTITY section.core.label    "Core Development Team:">

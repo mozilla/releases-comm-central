@@ -72,9 +72,6 @@
               accesskey="&object.reset.accesskey;" 
               oncommand="gPrefWindow.onResetObject();"/>
           <spacer flex="1"/>
-          <html:a onclick="" target="_blank" href="&homepage.url;" 
-              style="display: block; color: blue; text-decoration: 
-              underline;">&homepage.label;</html:a>
         </hbox>
       </vbox>
     </hbox>

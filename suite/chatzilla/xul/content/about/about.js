@@ -71,8 +71,8 @@ function onLoad() {
   }
 
   /* Find and focus the dialog's default button (OK), otherwise the focus
-   * lands on the first focusable content - the homepage link. Links in XUL
-   * look horrible when focused.
+   * lands on the first focusable content - the copy version link. Links in
+   * XUL look horrible when focused.
    */
   var binding = document.documentElement;
   var defaultButton = binding.getButton(binding.defaultButton);
@@ -101,12 +101,4 @@ function copyVersion() {
   str.data = client.userAgent;
   tr.setTransferData("text/unicode", str, str.data.length * 2);
   Services.clipboard.setData(tr, null, Services.clipboard.kGlobalClipboard);
-}
-
-function openHomepage() {
-  if (ownerClient) {
-    ownerClient.dispatch("goto-url", { url: MSG_SOURCE_REPLY });
-  } else {
-    window.opener.open(MSG_SOURCE_REPLY, "_blank");
-  }
 }
