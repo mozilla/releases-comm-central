@@ -47,7 +47,7 @@ function initCommands() {
     ["cmd-chatzilla-opts", "cmd-docommand cmd_chatzillaPrefs", 0],
     ["cmd-docommand", cmdDoCommand, 0, "<cmd-name>"],
     ["create-tab-for-view", cmdCreateTabForView, 0, "<view>"],
-    ["custom-away", cmdAway, 0],
+    ["custom-away", customAway, 0],
     ["op", cmdChanUserMode, CMD_NEED_CHAN | CMD_CONSOLE, "<nickname> [<...>]"],
     ["dcc-accept", cmdDCCAccept, CMD_CONSOLE, "[<nickname> [<type> [<file>]]]"],
     ["dcc-accept-list", cmdDCCAutoAcceptList, CMD_NEED_NET | CMD_CONSOLE],
@@ -2756,6 +2756,18 @@ function cmdAlias(e) {
 }
 
 function cmdAway(e) {
+  setAwayMsg(e, e.reason || null, e.command.name);
+}
+
+function customAway(e) {
+  let reason = prompt(MSG_AWAY_PROMPT);
+  // prompt() returns null for cancelling, a string otherwise (even if empty).
+  if (reason != null) {
+    setAwayMsg(e, reason, "away");
+  }
+}
+
+function setAwayMsg(e, reason, type) {
   function sendToAllNetworks(command, reason) {
     for (var n in client.networks) {
       var net = client.networks[n];
@@ -2764,42 +2776,32 @@ function cmdAway(e) {
         // already idly-away, or they're not away to begin with:
         if (overrideAway || net.isIdleAway || !net.prefs.away) {
           net.dispatch(command, { reason });
-          net.isIdleAway = e.command.name == "idle-away";
+          net.isIdleAway = idleAway;
         }
       }
     }
   }
 
   // Idle away shouldn't override away state set by the user.
-  var overrideAway = e.command.name.indexOf("idle") != 0;
+  var overrideAway = !type.startsWith("idle");
+  var idleAway = type == "idle-away";
 
-  if (
-    e.command.name == "away" ||
-    e.command.name == "custom-away" ||
-    e.command.name == "idle-away"
-  ) {
+  if (type.includes("away")) {
     /* going away */
-    if (e.command.name == "custom-away") {
-      e.reason = prompt(MSG_AWAY_PROMPT);
-      // prompt() returns null for cancelling, a string otherwise (even if empty).
-      if (e.reason == null) {
-        return;
-      }
-    }
     // No parameter, or user entered nothing in the prompt.
-    if (!e.reason) {
-      e.reason = MSG_AWAY_DEFAULT;
+    if (!reason) {
+      reason = MSG_AWAY_DEFAULT;
     }
 
     // Update away list (remove from current location).
     for (var i = 0; i < client.awayMsgs.length; i++) {
-      if (client.awayMsgs[i].message == e.reason) {
+      if (client.awayMsgs[i].message == reason) {
         client.awayMsgs.splice(i, 1);
         break;
       }
     }
     // Always put new item at start.
-    var newMsg = { message: e.reason };
+    var newMsg = { message: reason };
     client.awayMsgs.unshift(newMsg);
     // Make sure we've not exceeded the limit set.
     if (client.awayMsgs.length > client.awayMsgCount) {
@@ -2822,23 +2824,24 @@ function cmdAway(e) {
           let user = e.server.me.unicodeName;
           client.currentObject.updateUser(user);
         }
-        e.server.sendData("AWAY :" + fromUnicode(e.reason, e.network) + "\n");
+        e.server.sendData("AWAY :" + fromUnicode(reason, e.network) + "\n");
       }
       if (awayNick && normalNick != awayNick) {
         e.network.preferredNick = awayNick;
       }
-      e.network.prefs.away = e.reason;
+      e.network.prefs.away = reason;
     } else {
       // Client view, do command for all networks.
-      sendToAllNetworks("away", e.reason);
-      client.prefs.away = e.reason;
+      sendToAllNetworks("away", reason);
+      client.prefs.away = reason;
 
       // Don't tell people how to get back if they're idle:
-      var idleMsgParams = [e.reason, client.prefs.awayIdleTime];
-      if (e.command.name == "idle-away") {
-        var msg = getMsg(MSG_IDLE_AWAY_ON, idleMsgParams);
+      var idleMsgParams = [reason, client.prefs.awayIdleTime];
+      let msg;
+      if (idleAway) {
+        msg = getMsg(MSG_IDLE_AWAY_ON, idleMsgParams);
       } else {
-        msg = getMsg(MSG_AWAY_ON, e.reason);
+        msg = getMsg(MSG_AWAY_ON, reason);
       }
 
       // Display on the *client* tab, or on the current tab iff
