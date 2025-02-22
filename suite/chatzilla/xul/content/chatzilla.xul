@@ -70,8 +70,8 @@
   <popupset id="dynamic-popups"/>
 
   <!-- tooltip thingy -->
-  <tooltip id="html-tooltip-node" onpopupshowing="return onTooltip(event);"/>
-  <tooltip id="xul-tooltip-node" onpopupshowing="return onTooltip(event);"/>
+  <tooltip id="aHTMLTooltip"
+           onpopupshowing="return FillInHTMLTooltip(document.tooltipNode);"/>
   <tooltip id="percentTooltip">
     <grid>
       <columns>

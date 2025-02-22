@@ -308,35 +308,6 @@ function onMultilineSend(e) {
   }
 }
 
-function onTooltip(event) {
-  const XLinkNS = "http://www.w3.org/1999/xlink";
-
-  var tipNode = event.originalTarget;
-  var titleText = null;
-  var XLinkTitleText = null;
-
-  var element = document.tooltipNode;
-  while (element && element != document.documentElement) {
-    if (element.nodeType == Node.ELEMENT_NODE) {
-      var text;
-      if (element.hasAttribute("title")) {
-        text = element.getAttribute("title");
-      } else if (element.hasAttributeNS(XLinkNS, "title")) {
-        text = element.getAttributeNS(XLinkNS, "title");
-      }
-
-      if (text) {
-        tipNode.setAttribute("label", text);
-        return true;
-      }
-    }
-
-    element = element.parentNode;
-  }
-
-  return false;
-}
-
 function onInputKeyPress(e) {
   if (client.prefs["outgoing.colorCodes"]) {
     setTimeout(onInputKeyPressCallback, 100, e.target);

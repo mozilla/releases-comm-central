@@ -3130,7 +3130,7 @@ function getTabForObject(source, create) {
     browser.setAttribute("class", "output-container");
     browser.setAttribute("type", "content");
     browser.setAttribute("flex", "1");
-    browser.setAttribute("tooltip", "html-tooltip-node");
+    browser.setAttribute("tooltip", "aHTMLTooltip");
     browser.setAttribute("onclick", "return onMessageViewClick(event)");
     browser.setAttribute("onmousedown", "return onMessageViewMouseDown(event)");
     browser.setAttribute(
