@@ -53,6 +53,7 @@ chatzilla.jar:
   content/chatzilla/chatzillaOverlay.xul               (xul/content/chatzillaOverlay.xul)
   content/chatzilla/chatzillaOverlay.js                (xul/content/chatzillaOverlay.js)
   content/chatzilla/browserOverlay.xul                 (xul/content/browserOverlay.xul)
+  content/chatzilla/helpOverlay.xul                    (xul/content/helpOverlay.xul)
   content/chatzilla/prefsOverlay.xul                   (xul/content/prefsOverlay.xul)
   content/chatzilla/pref-irc-toolkit.xul               (xul/content/pref-irc-toolkit.xul)
   content/chatzilla/config.xul                         (xul/content/config.xul)

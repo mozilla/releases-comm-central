@@ -10,6 +10,8 @@
 <?xml-stylesheet href="chrome://chatzilla/skin/chatzilla.css" type="text/css"?>
 <?xml-stylesheet href="chrome://chatzilla/content/output-base.css" type="text/css"?>
 
+<?xul-overlay href="chrome://chatzilla/content/helpOverlay.xul"?>
+
 <window id="chatzilla-window"
   xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"

@@ -226,21 +226,6 @@ function initMenus() {
     ],
   };
 
-  /* Mac expects a help menu with this ID, and there is nothing we can do
-   * about it. */
-  client.menuSpecs["mainmenu:help"] = {
-    label: MSG_MNU_HELP,
-    accesskey: getAccessKeyForMenu("MSG_MNU_HELP"),
-    domID: "menu_Help",
-    items: [
-      ["-"],
-      ["homepage"],
-      ["faq"],
-      ["-"],
-      ["about", { id: "aboutName" }],
-    ],
-  };
-
   client.menuSpecs["popup:fonts"] = {
     label: MSG_MNU_FONTS,
     accesskey: getAccessKeyForMenu("MSG_MNU_FONTS"),

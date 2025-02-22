@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay SYSTEM "chrome://chatzilla/locale/helpOverlay.dtd" >
+
+<!-- This is the overlay that adds menu items to the ChatZilla Help menu. -->
+
+<overlay id="ChatzillaHelpOverlayID"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <menupopup id="helpPopup">
+    <menuseparator id="chatZillaFAQ_separator"
+                   insertafter="aboutName"/>
+    <menuitem id="chatZillaFAQ"
+              label="&chatZillaFAQ.label;"
+              accesskey="&chatZillaFAQ.accesskey;"
+              oncommand="openFAQ('');"/>
+    <menuseparator id="aboutChatZilla_separator"/>
+    <menuitem id="aboutChatZilla"
+              label="&aboutChatZilla.label;"
+              accesskey="&aboutChatZilla.accesskey;"
+              oncommand="aboutChatZilla();"/>
+  </menupopup>
+</overlay>

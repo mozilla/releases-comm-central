@@ -291,7 +291,6 @@ function initCommands() {
     ["raw", "quote", CMD_CONSOLE],
     // Shortcuts to useful URLs:
     ["faq", "goto-url-newtab faq", 0],
-    ["homepage", "goto-url-newtab homepage", 0],
     // Used to display a nickname in the menu only.
     ["label-user", "echo", 0, "<unspecified>"],
     ["label-user-multi", "echo", 0, "<unspecified>"],
@@ -2220,18 +2219,15 @@ function cmdGotoURL(e) {
     return;
   }
 
+  if (e.url == "faq") {
+    openFAQ("anchor" in e && e.anchor ? "#" + e.anchor : "");
+    return;
+  }
+
   try {
     var uri = Services.io.newURI(e.url, "UTF-8");
   } catch (ex) {
-    // Given "goto-url faq bar", expand to "http://.../faq/#bar"
-    var localeURLKey = "msg.localeurl." + e.url;
-    var hash = "anchor" in e && e.anchor ? "#" + e.anchor : "";
-    if (localeURLKey != getMsg(localeURLKey)) {
-      dispatch(e.command.name + " " + getMsg(localeURLKey) + hash);
-    } else {
-      display(getMsg(MSG_ERR_INVALID_URL, e.url), MT_ERROR);
-    }
-
+    display(getMsg(MSG_ERR_INVALID_URL, e.url), MT_ERROR);
     dispatch("focus-input");
     return;
   }
@@ -2263,6 +2259,17 @@ function cmdGotoURL(e) {
   } catch (ex) {
     dd(formatException(ex));
   }
+  dispatch("focus-input");
+}
+
+function openFAQ(hash) {
+  let localeURLKey = "msg.localeurl.faq";
+  if (localeURLKey != getMsg(localeURLKey)) {
+    dispatch("goto-url-newtab " + getMsg(localeURLKey) + hash);
+  } else {
+    display(getMsg(MSG_ERR_INVALID_URL, "faq"), MT_ERROR);
+  }
+
   dispatch("focus-input");
 }
 
@@ -2670,23 +2677,26 @@ function cmdTopic(e) {
 
 function cmdAbout(e) {
   if (e.source) {
-    if ("aboutDialog" in client) {
-      return client.aboutDialog.focus();
-    }
-
-    window.openDialog(
-      "chrome://chatzilla/content/about/about.xul",
-      "",
-      "chrome,dialog",
-      { client }
-    );
+    aboutChatZilla();
   } else {
     var ver = CIRCServer.prototype.VERSION_RPLY;
     client.munger.getRule(".inline-buttons").enabled = true;
     display(getMsg(MSG_ABOUT_VERSION, [ver, "about"]));
-    display(MSG_ABOUT_HOMEPAGE);
     client.munger.getRule(".inline-buttons").enabled = false;
   }
+}
+
+function aboutChatZilla() {
+  if ("aboutDialog" in client) {
+    return client.aboutDialog.focus();
+  }
+
+  window.openDialog(
+    "chrome://chatzilla/content/about/about.xul",
+    "",
+    "chrome,dialog",
+    { client }
+  );
 }
 
 function cmdAlias(e) {
