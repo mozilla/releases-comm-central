@@ -1355,8 +1355,8 @@ function cmdTestDisplay(e) {
     display(MSG_TEST_STYLES, "PRIVMSG", sampleUser, me);
     display(MSG_TEST_EMOTICON, "PRIVMSG", sampleUser, me);
     display(MSG_TEST_RHEET, "PRIVMSG", sampleUser, me);
-    display(unescape(MSG_TEST_CTLCHR), "PRIVMSG", sampleUser, me);
-    display(unescape(MSG_TEST_COLOR), "PRIVMSG", sampleUser, me);
+    display(decodeURIComponent(MSG_TEST_CTLCHR), "PRIVMSG", sampleUser, me);
+    display(decodeURIComponent(MSG_TEST_COLOR), "PRIVMSG", sampleUser, me);
     display(MSG_TEST_QUOTE, "PRIVMSG", sampleUser, me);
 
     if (e.channel) {

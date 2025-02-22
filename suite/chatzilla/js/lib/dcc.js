@@ -263,7 +263,7 @@ function CIRCDCCUser(parent, user, remoteIP) {
   this.canonicalName = user.collectionKey.substr(1);
   this.remoteIP = remoteIP;
 
-  this.key = escape(user.collectionKey) + ":" + remoteIP;
+  this.key = encodeURIComponent(user.collectionKey) + ":" + remoteIP;
   user.dccUser = this;
   this.parent.users[this.key] = this;
 

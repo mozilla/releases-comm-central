@@ -191,9 +191,9 @@ PrefManager.prototype.stringToArray = function pm_s2a(string) {
     return [];
   }
 
-  var ary = string.split(/\s*;\s*/);
-  for (var i = 0; i < ary.length; ++i) {
-    ary[i] = toUnicode(unescape(ary[i]), PREF_CHARSET);
+  let ary = new Array();
+  for (let item of string.split(/\s*;\s*/)) {
+    ary.push(toUnicode(decodeURIComponent(item), PREF_CHARSET));
   }
 
   return ary;
@@ -201,8 +201,8 @@ PrefManager.prototype.stringToArray = function pm_s2a(string) {
 
 PrefManager.prototype.arrayToString = function pm_a2s(ary) {
   var escapedAry = new Array();
-  for (var i = 0; i < ary.length; ++i) {
-    escapedAry[i] = escape(fromUnicode(ary[i], PREF_CHARSET));
+  for (let item of ary) {
+    escapedAry.push(encodeURIComponent(fromUnicode(item, PREF_CHARSET)));
   }
 
   return escapedAry.join("; ");
