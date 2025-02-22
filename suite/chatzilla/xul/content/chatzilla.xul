@@ -201,6 +201,9 @@
   <!-- Keys -->
 
   <keyset id="chatzillaKeys">
+    <key id="key:focus-input"
+         keycode="&focusInput.keycode;"
+         oncommand="cmdFocusInput();"/>
     <key id="key:reloadui"
          modifiers="accel,alt"
          key="&reloadUI.commandkey;"

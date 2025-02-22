@@ -7,6 +7,7 @@
 <!ENTITY editNetworks.label "Edit Networks…">
 <!ENTITY editNetworks.accesskey "E">
 
+<!ENTITY focusInput.keycode "VK_ESCAPE">
 <!ENTITY reloadUI.commandkey "r">
 
 <!ENTITY Menubar.tooltip    "Main Menu">
