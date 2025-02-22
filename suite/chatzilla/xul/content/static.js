@@ -3478,15 +3478,6 @@ function updateTimestampFor(view, displayRow, forceOldStamp) {
   }
 }
 
-client.updateMenus = function c_updatemenus(menus) {
-  // Don't bother if the menus aren't even created yet.
-  if (!client.initialized) {
-    return null;
-  }
-
-  return this.menuManager.updateMenus(document, menus);
-};
-
 client.checkURLScheme = function c_checkURLScheme(url) {
   if (!("schemes" in client)) {
     var pfx = "@mozilla.org/network/protocol;1?name=";
