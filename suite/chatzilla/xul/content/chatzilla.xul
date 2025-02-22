@@ -199,8 +199,10 @@
   <!-- Keys -->
 
   <keyset id="chatzillaKeys">
-    <key id="key:reloadui" modifiers="accel alt" key="R"
-         oncommand="if (typeof cmdReloadUI =='function') cmdReloadUI(); else window.location.href = window.location.href;"/>
+    <key id="key:reloadui"
+         modifiers="accel,alt"
+         key="&reloadUI.commandkey;"
+         oncommand="cmdReloadUI();"/>
 
     <!-- Edit keys -->
     <key id="key_undo"/>
