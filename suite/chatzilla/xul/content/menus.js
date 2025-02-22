@@ -442,20 +442,6 @@ function initMenus() {
     ],
   };
 
-  client.menuSpecs["context:edit"] = {
-    getContext: getDefaultContext,
-    items: [
-      ["cmd-undo", { enabledif: "getCommandEnabled('cmd_undo')" }],
-      ["-"],
-      ["cmd-cut", { enabledif: "getCommandEnabled('cmd_cut')" }],
-      ["cmd-copy", { enabledif: "getCommandEnabled('cmd_copy')" }],
-      ["cmd-paste", { enabledif: "getCommandEnabled('cmd_paste')" }],
-      ["cmd-delete", { enabledif: "getCommandEnabled('cmd_delete')" }],
-      ["-"],
-      ["cmd-selectall", { enabledif: "getCommandEnabled('cmd_selectAll')" }],
-    ],
-  };
-
   // Gross hacks to figure out if we're away:
   var netAway = "cx.network.prefs['away']";
   var cliAway = "client.prefs['away']";

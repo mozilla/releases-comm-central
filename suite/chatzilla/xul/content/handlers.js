@@ -240,21 +240,9 @@ function onMessageViewMouseDown(e) {
 }
 
 function onMessageViewContextMenu(e) {
-  var elem = e.target;
   var menu = document.getElementById("context:messages");
-  while (elem) {
-    if (elem.localName && elem.localName.toLowerCase() == "input") {
-      menu = document.getElementById("context:edit");
-      break;
-    }
-    elem = elem.parentNode;
-  }
   document.popupNode = e.target;
-  if ("openPopupAtScreen" in menu) {
-    menu.openPopupAtScreen(e.screenX, e.screenY, true);
-  } else {
-    menu.showPopup(null, e.screenX + 2, e.screenY + 2, "context", "", "");
-  }
+  menu.openPopupAtScreen(e.screenX, e.screenY, true);
   e.stopPropagation();
   e.preventDefault();
 }
