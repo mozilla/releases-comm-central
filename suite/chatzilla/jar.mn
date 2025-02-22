@@ -10,7 +10,7 @@ chatzilla.jar:
 % overlay chrome://communicator/content/pref/preferences.xul chrome://chatzilla/content/prefsOverlay.xul
 % overlay chrome://communicator/content/pref/pref-appearance.xul chrome://chatzilla/content/prefsOverlay.xul
 % overlay chrome://chatzilla/content/chatzilla.xul chrome://communicator/content/utilityOverlay.xul
-% overlay chrome://chatzilla/content/menus.xul chrome://communicator/content/tasksOverlay.xul
+% overlay chrome://chatzilla/content/chatzilla.xul chrome://communicator/content/tasksOverlay.xul
 % style chrome://communicator/content/customizeToolbar.xul chrome://chatzilla/skin/browserOverlay.css
   content/chatzilla/lib/js/utils.js                    (js/lib/utils.js)
   content/chatzilla/lib/js/events.js                   (js/lib/events.js)
@@ -31,9 +31,6 @@ chatzilla.jar:
   content/chatzilla/lib/xul/munger.js                  (xul/lib/munger.js)
   content/chatzilla/lib/xul/tree-utils.js              (xul/lib/tree-utils.js)
   content/chatzilla/chatzilla.xul                      (xul/content/chatzilla.xul)
-  content/chatzilla/scripts.xul                        (xul/content/scripts.xul)
-  content/chatzilla/menus.xul                          (xul/content/menus.xul)
-  content/chatzilla/popups.xul                         (xul/content/popups.xul)
   content/chatzilla/channels.xul                       (xul/content/channels.xul)
   content/chatzilla/channels.js                        (xul/content/channels.js)
   content/chatzilla/output-window.html                 (xul/content/output-window.html)
