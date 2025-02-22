@@ -58,15 +58,11 @@ BadCertHandler.prototype.getInterface = function badcert_getinterface(aIID) {
   return this.QueryInterface(aIID);
 };
 
-BadCertHandler.prototype.QueryInterface = function badcert_queryinterface(aIID) {
-  if (aIID.equals(Ci.nsIBadCertListener2) ||
-      aIID.equals(Ci.nsIInterfaceRequestor) ||
-      aIID.equals(Ci.nsISupports)) {
-    return this;
-  }
-
-  throw Cr.NS_ERROR_NO_INTERFACE;
-};
+BadCertHandler.prototype.QueryInterface = XPCOMUtils.generateQI([
+  Ci.nsIBadCertListener2,
+  Ci.nsIInterfaceRequestor,
+  Ci.nsISupports,
+]);
 
 /* Returning true in the following two callbacks
  * means suppress default the error UI (modal alert).
