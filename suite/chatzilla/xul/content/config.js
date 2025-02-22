@@ -1375,11 +1375,6 @@ PrefWindow.prototype.onSelectObject = function pwin_onSelectObject() {
 
 // Browse button for file prefs.
 (PrefWindow.prototype.onPrefBrowse = function pwin_onPrefBrowse(button) {
-  var spec = "$all";
-  if (button.hasAttribute("spec")) {
-    spec = button.getAttribute("spec") + " " + spec;
-  }
-
   var type = button.getAttribute("kind");
   var edit = button.previousSibling.lastChild;
 
@@ -1394,7 +1389,13 @@ PrefWindow.prototype.onSelectObject = function pwin_onSelectObject() {
     }
     rv = pickGetFolder(MSG_PREFS_BROWSE_TITLE, current);
   } else {
-    rv = pickOpen(MSG_PREFS_BROWSE_TITLE, spec);
+    let typeList = [];
+    if (button.hasAttribute("spec")) {
+      let spec = button.getAttribute("spec");
+      typeList.push([spec, spec]);
+    }
+
+    rv = pickOpen(MSG_PREFS_BROWSE_TITLE, typeList);
   }
 
   if (!rv.ok) {
@@ -1497,9 +1498,7 @@ PrefWindow.prototype.onPrefListAdd = function pwin_onPrefListAdd(object) {
       break;
     case "file":
     case "fileurl":
-      var spec = "$all";
-
-      var rv = pickOpen(MSG_PREFS_BROWSE_TITLE, spec);
+      let rv = pickOpen(MSG_PREFS_BROWSE_TITLE);
       if (rv.ok) {
         var data = { file: rv.file.path, fileurl: rv.picker.fileURL.spec };
         var kind = list.getAttribute("kind");

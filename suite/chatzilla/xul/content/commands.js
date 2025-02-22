@@ -3450,7 +3450,7 @@ function cmdSave(e) {
     [MSG_SAVE_COMPLETEVIEW, "*.htm;*.html"],
     [MSG_SAVE_HTMLONLYVIEW, "*.htm;*.html"],
     [MSG_SAVE_PLAINTEXTVIEW, "*.txt"],
-    "$noAll",
+    ["$noAll", ""],
   ];
   // constants and variables for the wbp.saveDocument call
   var saveTypes = {
@@ -4222,15 +4222,16 @@ function cmdDCCAccept(e) {
 
     // Accept the request passed in...
     var filename = c.filename;
-    var ext = "*";
+    let typeList = [["$all", ""]];
     var m = filename.match(/...\.([a-z]+)$/i);
     if (m) {
-      ext = "*." + m[1];
+      let ext = "*." + m[1];
+      typeList.push([ext, ext]);
     }
 
     var pickerRv = pickSaveAs(
       getMsg(MSG_DCCFILE_SAVE_TO, filename),
-      ["$all", ext],
+      typeList,
       filename
     );
     if (!pickerRv.ok) {

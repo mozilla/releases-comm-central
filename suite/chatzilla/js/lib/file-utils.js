@@ -64,61 +64,51 @@ futils.getPicker = function futils_nosepicker(
     picker.displayDirectory = returnFile(initialPath);
   }
 
-  var allIncluded = false;
-
-  if (typeof typeList == "string") {
-    typeList = typeList.split(" ");
+  let includeAll = true;
+  if (!typeList) {
+    typeList = [];
   }
 
-  if (isinstance(typeList, Array)) {
-    for (var i in typeList) {
-      switch (typeList[i]) {
-        case "$all":
-          allIncluded = true;
-          picker.appendFilters(Ci.nsIFilePicker.filterAll);
-          break;
+  for (let type of typeList) {
+    switch (type[0]) {
+      case "$all":
+        picker.appendFilters(Ci.nsIFilePicker.filterAll);
+        includeAll = false;
+        break;
 
-        case "$html":
-          picker.appendFilters(Ci.nsIFilePicker.filterHTML);
-          break;
+      case "$noAll":
+        includeAll = false;
+        break;
 
-        case "$text":
-          picker.appendFilters(Ci.nsIFilePicker.filterText);
-          break;
+      case "$html":
+        picker.appendFilters(Ci.nsIFilePicker.filterHTML);
+        break;
 
-        case "$images":
-          picker.appendFilters(Ci.nsIFilePicker.filterImages);
-          break;
+      case "$text":
+        picker.appendFilters(Ci.nsIFilePicker.filterText);
+        break;
 
-        case "$xml":
-          picker.appendFilters(Ci.nsIFilePicker.filterXML);
-          break;
+      case "$images":
+        picker.appendFilters(Ci.nsIFilePicker.filterImages);
+        break;
 
-        case "$xul":
-          picker.appendFilters(Ci.nsIFilePicker.filterXUL);
-          break;
+      case "$xml":
+        picker.appendFilters(Ci.nsIFilePicker.filterXML);
+        break;
 
-        case "$noAll":
-          // This prevents the automatic addition of "All Files"
-          // as a file type option by pretending it is already there.
-          allIncluded = true;
-          break;
+      case "$xul":
+        picker.appendFilters(Ci.nsIFilePicker.filterXUL);
+        break;
 
-        default:
-          if (
-            typeof typeList[i] == "object" &&
-            isinstance(typeList[i], Array)
-          ) {
-            picker.appendFilter(typeList[i][0], typeList[i][1]);
-          } else {
-            picker.appendFilter(typeList[i], typeList[i]);
-          }
-          break;
-      }
+      default:
+        /* type should always be a pair but check anyway. */
+        let extns = type.length > 1 ? type[1] : "*.*";
+        picker.appendFilter(type[0], extns);
+        break;
     }
   }
 
-  if (!allIncluded) {
+  if (includeAll) {
     picker.appendFilters(Ci.nsIFilePicker.filterAll);
   }
 
