@@ -2806,17 +2806,7 @@ function cmdAway(e) {
       client.awayMsgs.splice(client.awayMsgCount);
     }
     // And now, to save the list!
-    try {
-      var awayFile = new nsLocalFile(client.prefs.profilePath);
-      awayFile.append("awayMsgs.txt");
-      var awayLoader = new TextSerializer(awayFile);
-      if (awayLoader.open(">")) {
-        awayLoader.serialize(client.awayMsgs);
-        awayLoader.close();
-      }
-    } catch (ex) {
-      display(getMsg(MSG_ERR_AWAY_SAVE, formatException(ex)), MT_ERROR);
-    }
+    awayMsgsSave();
 
     // Actually do away stuff, is this on a specific network?
     if (e.server) {

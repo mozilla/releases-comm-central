@@ -298,17 +298,23 @@ function initStatic() {
   setInterval(onWhoTimeout, client.AWAY_TIMEOUT);
 
   client.awayMsgs = [{ message: MSG_AWAY_DEFAULT }];
-  var awayFile = new nsLocalFile(client.prefs.profilePath);
-  awayFile.append("awayMsgs.txt");
+  let migrated = Services.prefs.getBoolPref(
+    "extensions.irc.away_migrated",
+    false
+  );
+  let awayFile = new nsLocalFile(client.prefs.profilePath);
+  awayFile.append("awayMsgs." + (migrated ? "json" : "txt"));
   if (awayFile.exists()) {
-    var awayLoader = new TextSerializer(awayFile);
+    let awayLoader = migrated
+      ? new JSONSerializer(awayFile)
+      : new TextSerializer(awayFile);
     if (awayLoader.open("<")) {
       // Load the first item from the file.
       var item = awayLoader.deserialize();
       if (isinstance(item, Array)) {
         // If the first item is an array, it is the entire thing.
         client.awayMsgs = item;
-      } else if (item != null) {
+      } else if (!migrated && item != null) {
         /* Not an array, so we have the old format of a single object
          * per entry.
          */
@@ -333,6 +339,9 @@ function initStatic() {
           client.display(msg, MT_WARN);
         }, 0);
         awayFile.moveTo(null, invalidFile.leafName);
+      } else if (!migrated) {
+        awayMsgsSave();
+        Services.prefs.setBoolPref("extensions.irc.away_migrated", true);
       }
     }
   }
@@ -394,6 +403,20 @@ function initStatic() {
   client.defaultCompletion = client.COMMAND_CHAR + "help ";
 
   client.deck = document.getElementById("output-deck");
+}
+
+function awayMsgsSave() {
+  try {
+    let awayFile = new nsLocalFile(client.prefs.profilePath);
+    awayFile.append("awayMsgs.json");
+    let awayLoader = new JSONSerializer(awayFile);
+    if (awayLoader.open(">")) {
+      awayLoader.serialize(client.awayMsgs);
+      awayLoader.close();
+    }
+  } catch (ex) {
+    display(getMsg(MSG_ERR_AWAY_SAVE, formatException(ex)), MT_ERROR);
+  }
 }
 
 function getVersionInfo() {
