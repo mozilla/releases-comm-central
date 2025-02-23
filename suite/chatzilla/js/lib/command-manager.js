@@ -352,41 +352,6 @@ CommandManager.prototype.installKey = function cmgr_instkey(
 };
 
 /**
- * Uninstalls accelerator keys for commands from a document.
- *
- * @internal
- * @param commands Optional. An |Array| or |Object| continaing |CommandRecord|
- *                 objects. If not specified, all commands in the
- *                 |CommandManager| are uninstalled.
- */
-CommandManager.prototype.uninstallKeys = function cmgr_uninstkeys(commands) {
-  if (!commands) {
-    commands = this.commands;
-  }
-
-  for (var c in commands) {
-    this.uninstallKey(commands[c]);
-  }
-};
-
-/**
- * Uninstalls the accelerator key for a single command.
- *
- * @internal
- * @param command    The |CommandRecord| to uninstall.
- */
-CommandManager.prototype.uninstallKey = function cmgr_uninstkey(command) {
-  for (var i in command.keyNodes) {
-    try {
-      /* document may no longer exist in a useful state. */
-      command.keyNodes[i].parentNode.removeChild(command.keyNodes[i]);
-    } catch (ex) {
-      dd("*** caught exception uninstalling key node: " + ex);
-    }
-  }
-};
-
-/**
  * Use |defineCommand|.
  *
  * @internal
