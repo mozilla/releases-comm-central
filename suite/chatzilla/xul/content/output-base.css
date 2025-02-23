@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* 
+/*
  * This file contains the CSS rules for the output window in ChatZilla.
  * The output window is layed out as a table with two columns.  The first
  * column holds a message type or a nickname, depending on what view the
@@ -56,7 +56,7 @@
  *  + .msg-nested-table  is used as the class for the surrounding <TABLE> for
  *     messages sent from users with long nicknames.  A new table is created, and
  *     nested inside a <TR colspan="2"> of the .msg-table.  The rows of this
- *     table have their classes set as if they were direct children of the 
+ *     table have their classes set as if they were direct children of the
  *     .msg-table.  Placing messages from users with long nicknames in a nested
  *      table keeps the nickname column from getting too wide.
  *
@@ -100,7 +100,7 @@
  *
  *   + msg-dest is the name of the object that the message is directed to.  It
  *     could be a channel name, or a nickname (both in lowercase.)
- *  
+ *
  *   + dest-type is the type of object the message is directed to.  The types
  *     are:
  *          "IRCChannel" for messages sent to a channel.
@@ -108,7 +108,7 @@
  *           private messages that appear in a network or channel view (when
  *           a dedicated query view does not exist.)
  *
- *   + mark is either the text "even" or "odd".  When the first user speaks on 
+ *   + mark is either the text "even" or "odd".  When the first user speaks on
  *     a channel, that message is marked as "even".  Messages will continue to
  *     be marked "even" until a different user speaks, when the mark switches
  *     to "odd".  Each view maintains it's own mark state.  An example of how
@@ -432,7 +432,7 @@ a.chatzilla-overline.chatzilla-strikethrough.chatzilla-underline.chatzilla-link 
  ******************************************************************************/
 
 /* msg-user is the nickname of the person who spoke, or "ME!" if you said it.
- * msg-type is the type of the message, taken from the irc message.  If you 
+ * msg-type is the type of the message, taken from the irc message.  If you
  * turn on debug messages (options->debug messages), the msg-types will be
  * displayed to the left of the messages for all messages except:
  * PRIVMSG: when a user sends you, or a channel you are on a message.

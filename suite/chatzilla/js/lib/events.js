@@ -9,67 +9,64 @@
  * if you pass an array of pattern objects, |negate| controls whether to check
  * if the object matches ANY of the patterns, or NONE of the patterns.
  */
-function matchObject(o, pattern, negate)
-{
-    negate = Boolean(negate);
+function matchObject(o, pattern, negate) {
+  negate = Boolean(negate);
 
-    function _match(o, pattern)
-    {
-        if (isinstance(pattern, Function))
-            return pattern(o);
+  function _match(o, pattern) {
+    if (isinstance(pattern, Function)) {
+      return pattern(o);
+    }
 
-        for (let p in pattern)
-        {
-            let val;
-                /* nice to have, but slow as molases, allows you to match
-                 * properties of objects with obj$prop: "foo" syntax      */
-                /*
+    for (let p in pattern) {
+      let val;
+      /* nice to have, but slow as molases, allows you to match
+       * properties of objects with obj$prop: "foo" syntax      */
+      /*
                   if (p[0] == "$")
                   val = eval ("o." +
                   p.substr(1,p.length).replace (/\$/g, "."));
                   else
                 */
-            val = o[p];
+      val = o[p];
 
-            if (isinstance(pattern[p], Function))
-            {
-                if (!pattern[p](val))
-                    return false;
-            }
-            else
-            {
-                let ary = (new String(val)).match(pattern[p]);
-                if (ary == null)
-                    return false;
-                else
-                    o.matchresult = ary;
-            }
+      if (isinstance(pattern[p], Function)) {
+        if (!pattern[p](val)) {
+          return false;
         }
-
-        return true;
+      } else {
+        let ary = new String(val).match(pattern[p]);
+        if (ary == null) {
+          return false;
+        }
+        o.matchresult = ary;
+      }
     }
 
-    if (!isinstance(pattern, Array))
-        return Boolean(negate ^ _match(o, pattern));
+    return true;
+  }
 
-    for (let i in pattern)
-        if (_match (o, pattern[i]))
-            return !negate;
+  if (!isinstance(pattern, Array)) {
+    return Boolean(negate ^ _match(o, pattern));
+  }
 
-    return negate;
+  for (let i in pattern) {
+    if (_match(o, pattern[i])) {
+      return !negate;
+    }
+  }
+
+  return negate;
 }
 
 /**
  * Event class for |CEventPump|.
  */
-function CEvent (set, type, destObject, destMethod)
-{
-    this.set = set;
-    this.type = type;
-    this.destObject = destObject;
-    this.destMethod = destMethod;
-    this.hooks = new Array();
-
+function CEvent(set, type, destObject, destMethod) {
+  this.set = set;
+  this.type = type;
+  this.destObject = destObject;
+  this.destMethod = destMethod;
+  this.hooks = new Array();
 }
 
 /**
@@ -79,76 +76,75 @@ function CEvent (set, type, destObject, destMethod)
  * event pump through |client.eventPump|. Most code should only need to use the
  * |addHook|, |getHook| and |removeHookByName| methods.
  */
-function CEventPump (eventsPerStep)
-{
-    /* event routing stops after this many levels, safety valve */
-    this.MAX_EVENT_DEPTH = 50;
-    /* When there are this many 'used' items in a queue, always clean up. At
-     * this point it is MUCH more effecient to remove a block than a single
-     * item (i.e. removing 1000 is much much faster than removing 1 item 1000
-     * times [1]).
-     */
-    this.FORCE_CLEANUP_PTR = 1000;
-    /* If there are less than this many items in a queue, clean up. This keeps
-     * the queue empty normally, and is not that ineffecient [1].
-     */
-    this.MAX_AUTO_CLEANUP_LEN = 100;
-    this.eventsPerStep = eventsPerStep;
-    this.queue = new Array();
-    this.queuePointer = 0;
-    this.bulkQueue = new Array();
-    this.bulkQueuePointer = 0;
-    this.hooks = new Array();
+function CEventPump(eventsPerStep) {
+  /* event routing stops after this many levels, safety valve */
+  this.MAX_EVENT_DEPTH = 50;
+  /* When there are this many 'used' items in a queue, always clean up. At
+   * this point it is MUCH more effecient to remove a block than a single
+   * item (i.e. removing 1000 is much much faster than removing 1 item 1000
+   * times [1]).
+   */
+  this.FORCE_CLEANUP_PTR = 1000;
+  /* If there are less than this many items in a queue, clean up. This keeps
+   * the queue empty normally, and is not that ineffecient [1].
+   */
+  this.MAX_AUTO_CLEANUP_LEN = 100;
+  this.eventsPerStep = eventsPerStep;
+  this.queue = new Array();
+  this.queuePointer = 0;
+  this.bulkQueue = new Array();
+  this.bulkQueuePointer = 0;
+  this.hooks = new Array();
 
-    /* [1] The delay when removing items from an array (with unshift or splice,
-     * and probably most operations) is NOT perportional to the number of items
-     * being removed, instead it is proportional to the number of items LEFT.
-     * Because of this, it is better to only remove small numbers of items when
-     * the queue is small (MAX_AUTO_CLEANUP_LEN), and when it is large remove
-     * only large chunks at a time (FORCE_CLEANUP_PTR), reducing the number of
-     * resizes being done.
-     */
+  /* [1] The delay when removing items from an array (with unshift or splice,
+   * and probably most operations) is NOT perportional to the number of items
+   * being removed, instead it is proportional to the number of items LEFT.
+   * Because of this, it is better to only remove small numbers of items when
+   * the queue is small (MAX_AUTO_CLEANUP_LEN), and when it is large remove
+   * only large chunks at a time (FORCE_CLEANUP_PTR), reducing the number of
+   * resizes being done.
+   */
 }
 
-CEventPump.prototype.onHook =
-function ep_hook(e, hooks)
-{
-    var h;
+CEventPump.prototype.onHook = function ep_hook(e, hooks) {
+  var h;
 
-    if (typeof hooks == "undefined")
-        hooks = this.hooks;
+  if (typeof hooks == "undefined") {
+    hooks = this.hooks;
+  }
 
-  hook_loop:
-    for (h = hooks.length - 1; h >= 0; h--)
-    {
-        if (!hooks[h].enabled ||
-            !matchObject (e, hooks[h].pattern, hooks[h].neg))
-            continue hook_loop;
-
-        e.hooks.push(hooks[h]);
-        try
-        {
-            var rv = hooks[h].f(e);
-        }
-        catch(ex)
-        {
-            dd("hook #" + h + " '" +
-               ((typeof hooks[h].name != "undefined") ? hooks[h].name :
-                "") + "' had an error!");
-            dd(formatException(ex));
-        }
-        if ((typeof rv == "boolean") &&
-            (rv == false))
-        {
-            dd("hook #" + h + " '" +
-               ((typeof hooks[h].name != "undefined") ? hooks[h].name :
-                "") + "' stopped hook processing.");
-            return true;
-        }
+  hook_loop: for (h = hooks.length - 1; h >= 0; h--) {
+    if (!hooks[h].enabled || !matchObject(e, hooks[h].pattern, hooks[h].neg)) {
+      continue hook_loop;
     }
 
-    return false;
-}
+    e.hooks.push(hooks[h]);
+    try {
+      var rv = hooks[h].f(e);
+    } catch (ex) {
+      dd(
+        "hook #" +
+          h +
+          " '" +
+          (typeof hooks[h].name != "undefined" ? hooks[h].name : "") +
+          "' had an error!"
+      );
+      dd(formatException(ex));
+    }
+    if (typeof rv == "boolean" && rv == false) {
+      dd(
+        "hook #" +
+          h +
+          " '" +
+          (typeof hooks[h].name != "undefined" ? hooks[h].name : "") +
+          "' stopped hook processing."
+      );
+      return true;
+    }
+  }
+
+  return false;
+};
 
 /**
  * Adds an event hook to be called when matching events are processed.
@@ -168,35 +164,42 @@ function ep_hook(e, hooks)
  *                |getHook|.
  * @param hooks Internal. Do not use.
  */
-CEventPump.prototype.addHook =
-function ep_addhook(pattern, f, name, neg, enabled, hooks)
-{
-    if (typeof hooks == "undefined")
-        hooks = this.hooks;
+CEventPump.prototype.addHook = function ep_addhook(
+  pattern,
+  f,
+  name,
+  neg,
+  enabled,
+  hooks
+) {
+  if (typeof hooks == "undefined") {
+    hooks = this.hooks;
+  }
 
-    if (typeof f != "function")
-        return false;
+  if (typeof f != "function") {
+    return false;
+  }
 
-    if (typeof enabled == "undefined")
-        enabled = true;
-    else
-        enabled = Boolean(enabled);
+  if (typeof enabled == "undefined") {
+    enabled = true;
+  } else {
+    enabled = Boolean(enabled);
+  }
 
-    neg = Boolean(neg);
+  neg = Boolean(neg);
 
-    var hook = {
-        pattern: pattern,
-        f: f,
-        name: name,
-        neg: neg,
-        enabled: enabled
-    };
+  var hook = {
+    pattern,
+    f,
+    name,
+    neg,
+    enabled,
+  };
 
-    hooks.push(hook);
+  hooks.push(hook);
 
-    return hook;
-
-}
+  return hook;
+};
 
 /**
  * Finds and returns data about a named event hook.
@@ -210,19 +213,19 @@ function ep_addhook(pattern, f, name, neg, enabled, hooks)
  * @returns If a match is found, an |Object| with properties matching the
  *          arguments to |addHook| is returned. Otherwise, |null| is returned.
  */
-CEventPump.prototype.getHook =
-function ep_gethook(name, hooks)
-{
-    if (typeof hooks == "undefined")
-        hooks = this.hooks;
+CEventPump.prototype.getHook = function ep_gethook(name, hooks) {
+  if (typeof hooks == "undefined") {
+    hooks = this.hooks;
+  }
 
-    for (var h in hooks)
-        if (hooks[h].name.toLowerCase() == name.toLowerCase())
-            return hooks[h];
+  for (var h in hooks) {
+    if (hooks[h].name.toLowerCase() == name.toLowerCase()) {
+      return hooks[h];
+    }
+  }
 
-    return null;
-
-}
+  return null;
+};
 
 /**
  * Removes an existing event hook by its name.
@@ -231,190 +234,181 @@ function ep_gethook(name, hooks)
  * @param hooks Internal. Do not use.
  * @returns |true| if the hook was found and removed, |false| otherwise.
  */
-CEventPump.prototype.removeHookByName =
-function ep_remhookname(name, hooks)
-{
-    if (typeof hooks == "undefined")
-        hooks = this.hooks;
+CEventPump.prototype.removeHookByName = function ep_remhookname(name, hooks) {
+  if (typeof hooks == "undefined") {
+    hooks = this.hooks;
+  }
 
-    for (var h in hooks)
-        if (hooks[h].name.toLowerCase() == name.toLowerCase())
-        {
-            hooks.splice(h, 1);
-            return true;
+  for (var h in hooks) {
+    if (hooks[h].name.toLowerCase() == name.toLowerCase()) {
+      hooks.splice(h, 1);
+      return true;
+    }
+  }
+
+  return false;
+};
+
+CEventPump.prototype.removeHookByIndex = function ep_remhooki(idx, hooks) {
+  if (typeof hooks == "undefined") {
+    hooks = this.hooks;
+  }
+
+  return hooks.splice(idx, 1);
+};
+
+CEventPump.prototype.addEvent = function ep_addevent(e) {
+  e.queuedAt = new Date();
+  this.queue.push(e);
+  return true;
+};
+
+CEventPump.prototype.addBulkEvent = function ep_addevent(e) {
+  e.queuedAt = new Date();
+  this.bulkQueue.push(e);
+  return true;
+};
+
+CEventPump.prototype.routeEvent = function ep_routeevent(e) {
+  var count = 0;
+
+  this.currentEvent = e;
+
+  e.level = 0;
+  while (e.destObject) {
+    e.level++;
+    this.onHook(e);
+    var destObject = e.destObject;
+    e.currentObject = destObject;
+    e.destObject = void 0;
+
+    switch (typeof destObject[e.destMethod]) {
+      case "function":
+        if (1) {
+          try {
+            destObject[e.destMethod](e);
+          } catch (ex) {
+            if (typeof ex == "string") {
+              dd("Error routing event " + e.set + "." + e.type + ": " + ex);
+            } else {
+              dd(
+                "Error routing event " +
+                  e.set +
+                  "." +
+                  e.type +
+                  ": " +
+                  dumpObjectTree(ex) +
+                  " in " +
+                  e.destMethod +
+                  "\n" +
+                  ex
+              );
+              if ("stack" in ex) {
+                dd(ex.stack);
+              }
+            }
+          }
+        } else {
+          destObject[e.destMethod](e);
         }
 
-    return false;
-
-}
-
-CEventPump.prototype.removeHookByIndex =
-function ep_remhooki(idx, hooks)
-{
-    if (typeof hooks == "undefined")
-        hooks = this.hooks;
-
-    return hooks.splice(idx, 1);
-
-}
-
-CEventPump.prototype.addEvent =
-function ep_addevent (e)
-{
-    e.queuedAt = new Date();
-    this.queue.push(e);
-    return true;
-}
-
-CEventPump.prototype.addBulkEvent =
-function ep_addevent (e)
-{
-    e.queuedAt = new Date();
-    this.bulkQueue.push(e);
-    return true;
-}
-
-CEventPump.prototype.routeEvent =
-function ep_routeevent (e)
-{
-    var count = 0;
-
-    this.currentEvent = e;
-
-    e.level = 0;
-    while (e.destObject)
-    {
-        e.level++;
-        this.onHook (e);
-        var destObject = e.destObject;
-        e.currentObject = destObject;
-        e.destObject = (void 0);
-
-        switch (typeof destObject[e.destMethod])
-        {
-            case "function":
-                if (1)
-                    try
-                    {
-                        destObject[e.destMethod] (e);
-                    }
-                    catch (ex)
-                    {
-                        if (typeof ex == "string")
-                        {
-                            dd ("Error routing event " + e.set + "." +
-                                e.type + ": " + ex);
-                        }
-                        else
-                        {
-                            dd ("Error routing event " + e.set + "." +
-                                e.type + ": " + dumpObjectTree(ex) +
-                                " in " + e.destMethod + "\n" + ex);
-                            if ("stack" in ex)
-                                dd(ex.stack);
-                        }
-                    }
-                else
-                    destObject[e.destMethod] (e);
-
-                if (count++ > this.MAX_EVENT_DEPTH)
-                    throw "Too many events in chain";
-                break;
-
-            case "undefined":
-                //dd ("** " + e.destMethod + " does not exist.");
-                break;
-
-            default:
-                dd ("** " + e.destMethod + " is not a function.");
+        if (count++ > this.MAX_EVENT_DEPTH) {
+          throw "Too many events in chain";
         }
+        break;
 
-        if ((e.type != "event-end") && (!e.destObject))
-        {
-            e.lastSet = e.set;
-            e.set = "eventpump";
-            e.lastType = e.type;
-            e.type = "event-end";
-            e.destMethod = "onEventEnd";
-            e.destObject = this;
-        }
+      case "undefined":
+        //dd ("** " + e.destMethod + " does not exist.");
+        break;
 
+      default:
+        dd("** " + e.destMethod + " is not a function.");
     }
 
-    delete this.currentEvent;
-
-    return true;
-
-}
-
-CEventPump.prototype.stepEvents =
-function ep_stepevents()
-{
-    var i = 0;
-    var st, en, e;
-
-    st = new Date();
-    while (i < this.eventsPerStep)
-    {
-        if (this.queuePointer >= this.queue.length)
-            break;
-
-        e = this.queue[this.queuePointer++];
-
-        if (e.type == "yield")
-            break;
-
-        this.routeEvent(e);
-        i++;
+    if (e.type != "event-end" && !e.destObject) {
+      e.lastSet = e.set;
+      e.set = "eventpump";
+      e.lastType = e.type;
+      e.type = "event-end";
+      e.destMethod = "onEventEnd";
+      e.destObject = this;
     }
-    while (i < this.eventsPerStep)
-    {
-        if (this.bulkQueuePointer >= this.bulkQueue.length)
-            break;
+  }
 
-        e = this.bulkQueue[this.bulkQueuePointer++];
+  delete this.currentEvent;
 
-        if (e.type == "yield")
-            break;
+  return true;
+};
 
-        this.routeEvent(e);
-        i++;
-    }
-    en = new Date();
+CEventPump.prototype.stepEvents = function ep_stepevents() {
+  var i = 0;
+  var st, en, e;
 
-    // i == number of items handled this time.
-    // We only want to do this if we handled at least 25% of our step-limit
-    // and if we have a sane interval between st and en (not zero).
-    if ((i * 4 >= this.eventsPerStep) && (en - st > 0))
-    {
-        // Calculate the number of events that can be processed in 400ms.
-        var newVal = (400 * i) / (en - st);
-
-        // If anything skews it majorly, limit it to a minimum value.
-        if (newVal < 10)
-            newVal = 10;
-
-        // Adjust the step-limit based on this "target" limit, but only do a 
-        // 25% change (underflow filter).
-        this.eventsPerStep += Math.round((newVal - this.eventsPerStep) / 4);
+  st = new Date();
+  while (i < this.eventsPerStep) {
+    if (this.queuePointer >= this.queue.length) {
+      break;
     }
 
-    // Clean up if we've handled a lot, or the queue is small.
-    if ((this.queuePointer >= this.FORCE_CLEANUP_PTR) ||
-        (this.queue.length <= this.MAX_AUTO_CLEANUP_LEN))
-    {
-        this.queue.splice(0, this.queuePointer);
-        this.queuePointer = 0;
+    e = this.queue[this.queuePointer++];
+
+    if (e.type == "yield") {
+      break;
     }
 
-    // Clean up if we've handled a lot, or the queue is small.
-    if ((this.bulkQueuePointer >= this.FORCE_CLEANUP_PTR) ||
-        (this.bulkQueue.length <= this.MAX_AUTO_CLEANUP_LEN))
-    {
-        this.bulkQueue.splice(0, this.bulkQueuePointer);
-        this.bulkQueuePointer = 0;
+    this.routeEvent(e);
+    i++;
+  }
+  while (i < this.eventsPerStep) {
+    if (this.bulkQueuePointer >= this.bulkQueue.length) {
+      break;
     }
 
-    return i;
+    e = this.bulkQueue[this.bulkQueuePointer++];
 
-}
+    if (e.type == "yield") {
+      break;
+    }
+
+    this.routeEvent(e);
+    i++;
+  }
+  en = new Date();
+
+  // i == number of items handled this time.
+  // We only want to do this if we handled at least 25% of our step-limit
+  // and if we have a sane interval between st and en (not zero).
+  if (i * 4 >= this.eventsPerStep && en - st > 0) {
+    // Calculate the number of events that can be processed in 400ms.
+    var newVal = (400 * i) / (en - st);
+
+    // If anything skews it majorly, limit it to a minimum value.
+    if (newVal < 10) {
+      newVal = 10;
+    }
+
+    // Adjust the step-limit based on this "target" limit, but only do a
+    // 25% change (underflow filter).
+    this.eventsPerStep += Math.round((newVal - this.eventsPerStep) / 4);
+  }
+
+  // Clean up if we've handled a lot, or the queue is small.
+  if (
+    this.queuePointer >= this.FORCE_CLEANUP_PTR ||
+    this.queue.length <= this.MAX_AUTO_CLEANUP_LEN
+  ) {
+    this.queue.splice(0, this.queuePointer);
+    this.queuePointer = 0;
+  }
+
+  // Clean up if we've handled a lot, or the queue is small.
+  if (
+    this.bulkQueuePointer >= this.FORCE_CLEANUP_PTR ||
+    this.bulkQueue.length <= this.MAX_AUTO_CLEANUP_LEN
+  ) {
+    this.bulkQueue.splice(0, this.bulkQueuePointer);
+    this.bulkQueuePointer = 0;
+  }
+
+  return i;
+};

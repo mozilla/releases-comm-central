@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var ASSERT = function(cond, msg) {
+var ASSERT = function (cond, msg) {
   if (!cond) {
     Services.prompt.alert(window, client.mainWindow.MSG_ALERT, msg);
   }
   return cond;
-}
+};
 var client;
 
 // To be able to load static.js, we need a few things defined first:
@@ -32,34 +32,45 @@ var gNetworkWindow = {
    */
   networkList: null,
 
-  alert: function(aSubject, aVar) {
+  alert(aSubject, aVar) {
     let title = this.mBundle.getString(aSubject + "Title");
     let msg = this.mBundle.getFormattedString(aSubject, [aVar]);
     Services.prompt.alert(window, title, msg);
   },
 
-  confirmEx: function(aSubject, aVar) {
+  confirmEx(aSubject, aVar) {
     let title = this.mBundle.getString(aSubject + "Title");
-    let msg = aVar ? this.mBundle.getFormattedString(aSubject, [aVar])
-                   : this.mBundle.getString(aSubject);
-    return Services.prompt.confirmEx(window, title, msg,
-                                     Services.prompt.STD_YES_NO_BUTTONS, null,
-                                     null, null, null, { });
+    let msg = aVar
+      ? this.mBundle.getFormattedString(aSubject, [aVar])
+      : this.mBundle.getString(aSubject);
+    return Services.prompt.confirmEx(
+      window,
+      title,
+      msg,
+      Services.prompt.STD_YES_NO_BUTTONS,
+      null,
+      null,
+      null,
+      null,
+      {}
+    );
   },
 
-  prompt: function(aSubject, aInitial) {
+  prompt(aSubject, aInitial) {
     let title = this.mBundle.getString(aSubject + "Title");
     let msg = this.mBundle.getString(aSubject);
     let rv = { value: aInitial };
 
-    if (!Services.prompt.prompt(window, title, msg, rv, null, {value: null})) {
+    if (
+      !Services.prompt.prompt(window, title, msg, rv, null, { value: null })
+    ) {
       return null;
     }
 
     return rv.value.toLowerCase().trim();
   },
 
-  refreshNetworks: function(aNetwork) {
+  refreshNetworks(aNetwork) {
     // Remove all children.
     while (this.mNetworkList.hasChildNodes()) {
       this.mNetworkList.lastChild.remove();
@@ -74,7 +85,7 @@ var gNetworkWindow = {
       let listitem = document.createElement("listitem");
       listitem.appendChild(label);
       listitem.id = name;
-      if (aNetwork && (aNetwork == name)) {
+      if (aNetwork && aNetwork == name) {
         network = listitem;
       }
       this.mNetworkList.appendChild(listitem);
@@ -91,7 +102,7 @@ var gNetworkWindow = {
     this.updateNetworkButtons(hasChildren);
   },
 
-  updateNetworkButtons: function(aSelected) {
+  updateNetworkButtons(aSelected) {
     let editButton = document.getElementById("networkListEditButton");
     let removeButton = document.getElementById("networkListRemoveButton");
     if (!aSelected) {
@@ -104,7 +115,7 @@ var gNetworkWindow = {
   },
 
   // Loads the networks list.
-  onLoad: function() {
+  onLoad() {
     client = window.arguments[0];
 
     // Needed for ASSERT.
@@ -123,16 +134,14 @@ var gNetworkWindow = {
   },
 
   // Closing the window. Clean up.
-  onClose: function() {
-  },
+  onClose() {},
 
   // OK button.
-  onOK: function() {
+  onOK() {
     // Save the list and update client.networks
     try {
       networksSaveList(this.networkList);
-    }
-    catch (e) {
+    } catch (e) {
       this.alert("network-saveError", e);
       return false;
     }
@@ -145,13 +154,13 @@ var gNetworkWindow = {
   },
 
   // Cancel button.
-  onCancel: function() {
+  onCancel() {
     window.close();
     return true;
   },
 
   // Restore Defaults button.
-  onRestore: function() {
+  onRestore() {
     // Ask for confirmation.
     if (this.confirmEx("network-confirmRestoreDefaults") != 0) {
       return;
@@ -163,23 +172,24 @@ var gNetworkWindow = {
   },
 
   // Connect to Network button.
-  onConnect: function() {
+  onConnect() {
     let selection = this.mNetworkList.selectedItem;
-    if (!selection)
+    if (!selection) {
       return;
+    }
 
     let network = this.networkList[selection.id];
     if (this.onOK()) {
       if (networkHasSecure(network.servers)) {
-          client.dispatch("sslserver " + network.name);
+        client.dispatch("sslserver " + network.name);
       } else {
-          client.dispatch("server " + network.name);
+        client.dispatch("server " + network.name);
       }
     }
   },
 
   // Select a network listitem.
-  onSelectNetwork: function(aId = 0) {
+  onSelectNetwork(aId = 0) {
     let header = document.getElementById("network-header");
 
     // Remove all children.
@@ -189,8 +199,10 @@ var gNetworkWindow = {
 
     let selection = this.mNetworkList.selectedItem;
     if (!selection) {
-      header.setAttribute("title",
-                          this.mBundle.getString("network-headerDefault"));
+      header.setAttribute(
+        "title",
+        this.mBundle.getString("network-headerDefault")
+      );
       this.updateServerButtons(null, true);
       return;
     }
@@ -219,13 +231,14 @@ var gNetworkWindow = {
       this.onSelectServer();
     }
 
-    header.setAttribute("title",
-                        this.mBundle.getFormattedString("network-headerName",
-                                                        [network.name]));
+    header.setAttribute(
+      "title",
+      this.mBundle.getFormattedString("network-headerName", [network.name])
+    );
   },
 
   // Network Add button.
-  onAddNetwork: function() {
+  onAddNetwork() {
     let name = this.prompt("network-add");
     if (!name) {
       return;
@@ -237,16 +250,16 @@ var gNetworkWindow = {
     }
 
     // Create new network entry.
-    this.networkList[name] = { name: name, displayName: name, servers: [] };
+    this.networkList[name] = { name, displayName: name, servers: [] };
 
     this.refreshNetworks(name);
   },
 
   // Network Edit button.
-  onEditNetwork: function() {
+  onEditNetwork() {
     let oldName = this.mNetworkList.selectedItem.id;
     let name = this.prompt("network-edit", oldName);
-    if (!name || (name == oldName)) {
+    if (!name || name == oldName) {
       return;
     }
 
@@ -256,8 +269,11 @@ var gNetworkWindow = {
     }
 
     // Create new network entry.
-    this.networkList[name] = { name: name, displayName: name,
-                               servers: this.networkList[oldName].servers };
+    this.networkList[name] = {
+      name,
+      displayName: name,
+      servers: this.networkList[oldName].servers,
+    };
     // Remove old network entry.
     delete this.networkList[oldName];
 
@@ -265,7 +281,7 @@ var gNetworkWindow = {
   },
 
   // Network Remove button.
-  onRemoveNetwork: function() {
+  onRemoveNetwork() {
     let selected = this.mNetworkList.selectedItem;
 
     // Confirm definitely want to remove this network.
@@ -280,7 +296,7 @@ var gNetworkWindow = {
   },
 
   // Move up / down buttons.
-  onMoveServer: function(aDir) {
+  onMoveServer(aDir) {
     let item = this.mServerList.selectedItem;
     let network = this.mNetworkList.selectedItem.id;
     let id = parseInt(item.getAttribute("server_id"));
@@ -293,12 +309,12 @@ var gNetworkWindow = {
   },
 
   // Add Server button.
-  onAddServer: function() {
+  onAddServer() {
     this.openServerEditor(null);
   },
 
   // Edit Server button.
-  onEditServer: function() {
+  onEditServer() {
     let item = this.mServerList.selectedItem;
     if (!item) {
       return;
@@ -307,7 +323,7 @@ var gNetworkWindow = {
   },
 
   // Remove Server button.
-  onRemoveServer: function() {
+  onRemoveServer() {
     let item = this.mServerList.selectedItem;
     let network = this.mNetworkList.selectedItem.id;
     let id = item.getAttribute("server_id");
@@ -323,13 +339,13 @@ var gNetworkWindow = {
     this.onSelectNetwork();
   },
 
-  onSelectServer: function() {
+  onSelectServer() {
     let server = this.mServerList.selectedItem;
     this.updateServerButtons(server, false);
     this.updateServerInfoBox(server);
   },
 
-  openServerEditor: function(aItem) {
+  openServerEditor(aItem) {
     let network = this.mNetworkList.selectedItem.id;
     let id;
     let server;
@@ -338,9 +354,13 @@ var gNetworkWindow = {
       server = this.networkList[network].servers[id];
     }
 
-    let args = { server: server, result: false };
-    window.openDialog("chrome://chatzilla/content/networks-server.xul",
-                      "serverEdit", "chrome,titlebar,modal,centerscreen", args);
+    let args = { server, result: false };
+    window.openDialog(
+      "chrome://chatzilla/content/networks-server.xul",
+      "serverEdit",
+      "chrome,titlebar,modal,centerscreen",
+      args
+    );
     // Now update the server which was just added / edited and select it.
     if (args.result) {
       if (server) {
@@ -354,17 +374,21 @@ var gNetworkWindow = {
     }
   },
 
-  updateServerButtons: function(aServer, aNone) {
-    this.disableButton("serverListUpButton", aNone || !aServer ||
-                                             !aServer.previousSibling);
-    this.disableButton("serverListDownButton", aNone || !aServer ||
-                                               !aServer.nextSibling);
+  updateServerButtons(aServer, aNone) {
+    this.disableButton(
+      "serverListUpButton",
+      aNone || !aServer || !aServer.previousSibling
+    );
+    this.disableButton(
+      "serverListDownButton",
+      aNone || !aServer || !aServer.nextSibling
+    );
     this.disableButton("serverListAddButton", aNone);
     this.disableButton("serverListEditButton", aNone || !aServer);
     this.disableButton("serverListRemoveButton", aNone || !aServer);
   },
 
-  disableButton: function(aButtonId, aDisable) {
+  disableButton(aButtonId, aDisable) {
     let button = document.getElementById(aButtonId);
     if (aDisable) {
       button.setAttribute("disabled", "true");
@@ -373,7 +397,7 @@ var gNetworkWindow = {
     }
   },
 
-  updateServerInfoBox: function(aServer) {
+  updateServerInfoBox(aServer) {
     let name = document.getElementById("nameValue");
     let port = document.getElementById("portValue");
     let connection = document.getElementById("connectionSecurityValue");

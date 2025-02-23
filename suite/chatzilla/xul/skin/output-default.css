@@ -3,10 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* 
+/*
  *  a version of the output window that uses only your default foreground and
  *  backgrond colors.  Message types are distinguished by font changes.
- *  see output-base.css for details. 
+ *  see output-base.css for details.
  */
 
 @import url(chrome://chatzilla/content/output-base.css);

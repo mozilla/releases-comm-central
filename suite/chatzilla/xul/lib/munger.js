@@ -46,200 +46,208 @@
  *
  */
 
-function CMungerEntry(name, regex, className, priority, startPriority,
-                      enable, tagName)
-{
-    this.name = name;
-    if (name[0] != ".")
-        this.description = getMsg("munger." + name, null, null);
-    this.enabled = (typeof enable == "undefined" ? true : enable);
-    this.enabledDefault = this.enabled;
-    this.startPriority = (startPriority) ? startPriority : 0;
-    this.priority = priority;
-    this.tagName = (tagName) ? tagName : "html:span";
+function CMungerEntry(
+  name,
+  regex,
+  className,
+  priority,
+  startPriority,
+  enable,
+  tagName
+) {
+  this.name = name;
+  if (name[0] != ".") {
+    this.description = getMsg("munger." + name, null, null);
+  }
+  this.enabled = typeof enable == "undefined" ? true : enable;
+  this.enabledDefault = this.enabled;
+  this.startPriority = startPriority ? startPriority : 0;
+  this.priority = priority;
+  this.tagName = tagName ? tagName : "html:span";
 
-    if (isinstance(regex, RegExp))
-        this.regex = regex;
-    else
-        this.lambdaMatch = regex;
+  if (isinstance(regex, RegExp)) {
+    this.regex = regex;
+  } else {
+    this.lambdaMatch = regex;
+  }
 
-    if (typeof className == "function")
-        this.lambdaReplace = className;
-    else
-        this.className = className;
+  if (typeof className == "function") {
+    this.lambdaReplace = className;
+  } else {
+    this.className = className;
+  }
 }
 
-function CMunger(textMunger)
-{
-    this.entries = new Array();
-    this.tagName = "html:span";
-    this.enabled = true;
-    if (textMunger)
-        this.insertPlainText = textMunger;
+function CMunger(textMunger) {
+  this.entries = new Array();
+  this.tagName = "html:span";
+  this.enabled = true;
+  if (textMunger) {
+    this.insertPlainText = textMunger;
+  }
 }
 
 CMunger.prototype.enabled = true;
 CMunger.prototype.insertPlainText = insertText;
 
-CMunger.prototype.getRule =
-function mng_getrule(name)
-{
-    for (var p in this.entries)
-    {
-        if (isinstance(this.entries[p], Object))
-        {
-            if (name in this.entries[p])
-                return this.entries[p][name];
-        }
+CMunger.prototype.getRule = function mng_getrule(name) {
+  for (var p in this.entries) {
+    if (isinstance(this.entries[p], Object)) {
+      if (name in this.entries[p]) {
+        return this.entries[p][name];
+      }
     }
-    return null;
-}
+  }
+  return null;
+};
 
-CMunger.prototype.addRule =
-function mng_addrule(name, regex, className, priority, startPriority, enable)
-{
-    if (typeof this.entries[priority] != "object")
-        this.entries[priority] = new Object();
-    var entry = new CMungerEntry(name, regex, className, priority,
-                                 startPriority, enable);
-    this.entries[priority][name] = entry;
-}
+CMunger.prototype.addRule = function mng_addrule(
+  name,
+  regex,
+  className,
+  priority,
+  startPriority,
+  enable
+) {
+  if (typeof this.entries[priority] != "object") {
+    this.entries[priority] = new Object();
+  }
+  var entry = new CMungerEntry(
+    name,
+    regex,
+    className,
+    priority,
+    startPriority,
+    enable
+  );
+  this.entries[priority][name] = entry;
+};
 
-CMunger.prototype.delRule =
-function mng_delrule(name)
-{
-    for (var i in this.entries)
-    {
-        if (typeof this.entries[i] == "object")
-        {
-            if (name in this.entries[i])
-                delete this.entries[i][name];
-        }
+CMunger.prototype.delRule = function mng_delrule(name) {
+  for (var i in this.entries) {
+    if (typeof this.entries[i] == "object") {
+      if (name in this.entries[i]) {
+        delete this.entries[i][name];
+      }
     }
-}
+  }
+};
 
-CMunger.prototype.munge =
-function mng_munge(text, containerTag, data)
-{
+CMunger.prototype.munge = function mng_munge(text, containerTag, data) {
+  if (!containerTag) {
+    containerTag = document.createElementNS(XHTML_NS, this.tagName);
+  }
 
-    if (!containerTag)
-        containerTag = document.createElementNS(XHTML_NS, this.tagName);
-
-    // Starting from the top, for each valid priority, check all the rules,
-    // return as soon as something matches.
-    if (this.enabled)
-    {
-        for (var i = this.entries.length - 1; i >= 0; i--)
-        {
-            if (i in this.entries)
-            {
-                if (this.mungePriority(i, text, containerTag, data))
-                    return containerTag;
-            }
+  // Starting from the top, for each valid priority, check all the rules,
+  // return as soon as something matches.
+  if (this.enabled) {
+    for (var i = this.entries.length - 1; i >= 0; i--) {
+      if (i in this.entries) {
+        if (this.mungePriority(i, text, containerTag, data)) {
+          return containerTag;
         }
+      }
+    }
+  }
+
+  // If nothing matched, we don't have to do anything,
+  // just insert text (if any).
+  if (text) {
+    this.insertPlainText(text, containerTag, data);
+  }
+  return containerTag;
+};
+
+CMunger.prototype.mungePriority = function mng_mungePriority(
+  priority,
+  text,
+  containerTag,
+  data
+) {
+  var matches = new Object();
+  var entry;
+  // Find all the matches in this priority
+  for (entry in this.entries[priority]) {
+    var munger = this.entries[priority][entry];
+    if (!munger.enabled) {
+      continue;
     }
 
-    // If nothing matched, we don't have to do anything,
-    // just insert text (if any).
-    if (text)
-        this.insertPlainText(text, containerTag, data);
+    var match = null;
+    if (typeof munger.lambdaMatch == "function") {
+      var rval = munger.lambdaMatch(text, containerTag, data, munger);
+      if (typeof rval == "string") {
+        match = { start: text.indexOf(rval), text: rval };
+      } else if (typeof rval == "object") {
+        match = rval;
+      }
+    } else {
+      var ary = text.match(munger.regex);
+      if (ary != null && ary[1]) {
+        match = { start: text.indexOf(ary[1]), text: ary[1] };
+      }
+    }
+
+    if (match && match.start >= 0) {
+      match.munger = munger;
+      matches[entry] = match;
+    }
+  }
+
+  // Find the first matching entry...
+  var firstMatch = { start: text.length, munger: null };
+  var firstPriority = 0;
+  for (entry in matches) {
+    // If it matches before the existing first, or at the same spot but
+    // with a higher start-priority, this is a better match.
+    if (
+      matches[entry].start < firstMatch.start ||
+      (matches[entry].start == firstMatch.start &&
+        this.entries[priority][entry].startPriority > firstPriority)
+    ) {
+      firstMatch = matches[entry];
+      firstPriority = this.entries[priority][entry].startPriority;
+    }
+  }
+
+  // Replace it.
+  if (firstMatch.munger) {
+    var munger = firstMatch.munger;
+    firstMatch.end = firstMatch.start + firstMatch.text.length;
+
+    // Need to deal with the text before the match, if there is any.
+    var beforeText = text.substr(0, firstMatch.start);
+    if (firstMatch.start > 0) {
+      this.munge(beforeText, containerTag, data);
+    }
+
+    if (typeof munger.lambdaReplace == "function") {
+      // The munger rule itself should take care of munging the 'inside'
+      // of the match.
+      munger.lambdaReplace(firstMatch.text, containerTag, data, munger);
+      this.munge(text.substr(firstMatch.end), containerTag, data);
+
+      return containerTag;
+    }
+
+    var tag = document.createElementNS(XHTML_NS, munger.tagName);
+    tag.setAttribute("class", munger.className + calcClass(data));
+
+    // Don't let this rule match again when we recurse.
+    munger.enabled = false;
+    this.munge(firstMatch.text, tag, data);
+    munger.enabled = true;
+
+    containerTag.appendChild(tag);
+
+    this.munge(text.substr(firstMatch.end), containerTag, data);
+
     return containerTag;
+  }
+  return null;
+};
+
+function insertText(text, containerTag, data) {
+  var textNode = document.createTextNode(text);
+  containerTag.appendChild(textNode);
 }
-
-CMunger.prototype.mungePriority =
-function mng_mungePriority(priority, text, containerTag, data)
-{
-    var matches = new Object();
-    var entry;
-    // Find all the matches in this priority
-    for (entry in this.entries[priority])
-    {
-        var munger = this.entries[priority][entry];
-        if (!munger.enabled)
-            continue;
-
-        var match = null;
-        if (typeof munger.lambdaMatch == "function")
-        {
-            var rval = munger.lambdaMatch(text, containerTag, data, munger);
-            if (typeof rval == "string")
-                match = { start: text.indexOf(rval), text: rval };
-            else if (typeof rval == "object")
-                match = rval;
-        }
-        else
-        {
-            var ary = text.match(munger.regex);
-            if ((ary != null) && (ary[1]))
-                match = { start: text.indexOf(ary[1]), text: ary[1] };
-        }
-
-        if (match && (match.start >= 0))
-        {
-            match.munger = munger;
-            matches[entry] = match;
-        }
-    }
-
-    // Find the first matching entry...
-    var firstMatch = { start: text.length, munger: null };
-    var firstPriority = 0;
-    for (entry in matches)
-    {
-        // If it matches before the existing first, or at the same spot but
-        // with a higher start-priority, this is a better match.
-        if (matches[entry].start < firstMatch.start ||
-            ((matches[entry].start == firstMatch.start) &&
-             (this.entries[priority][entry].startPriority > firstPriority)))
-        {
-            firstMatch = matches[entry];
-            firstPriority = this.entries[priority][entry].startPriority;
-        }
-    }
-
-    // Replace it.
-    if (firstMatch.munger)
-    {
-        var munger = firstMatch.munger;
-        firstMatch.end = firstMatch.start + firstMatch.text.length;
-
-        // Need to deal with the text before the match, if there is any.
-        var beforeText = text.substr(0, firstMatch.start);
-        if (firstMatch.start > 0)
-            this.munge(beforeText, containerTag, data);
-
-        if (typeof munger.lambdaReplace == "function")
-        {
-            // The munger rule itself should take care of munging the 'inside'
-            // of the match.
-            munger.lambdaReplace(firstMatch.text, containerTag, data, munger);
-            this.munge(text.substr(firstMatch.end), containerTag, data);
-
-            return containerTag;
-        }
-        else
-        {
-            var tag = document.createElementNS(XHTML_NS, munger.tagName);
-            tag.setAttribute("class", munger.className + calcClass(data));
-
-            // Don't let this rule match again when we recurse.
-            munger.enabled = false;
-            this.munge(firstMatch.text, tag, data);
-            munger.enabled = true;
-
-            containerTag.appendChild(tag);
-
-            this.munge(text.substr(firstMatch.end), containerTag, data);
-
-            return containerTag;
-        }
-    }
-    return null;
-}
-
-function insertText(text, containerTag, data)
-{
-    var textNode = document.createTextNode(text);
-    containerTag.appendChild(textNode);
-}
-

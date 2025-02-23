@@ -3,16 +3,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* 
+/*
  *  a dark background/light text version of the output window.
- *  see output-base.css for details. 
+ *  see output-base.css for details.
  */
 
 @import url(chrome://chatzilla/content/output-base.css);
 
 .chatzilla-body {                   /* The topmost container in the ChatZilla */
     background: black;              /* output window. */
-    color: lightgrey;    
+    color: lightgrey;
 }
 
 a.chatzilla-link {

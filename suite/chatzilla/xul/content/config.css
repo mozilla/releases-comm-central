@@ -6,8 +6,8 @@
 
 /* OSX uses lotsa padding on tabs. Need to allow window to expand. */
 
-/* Instead of setting on dialog, we're going to set it on the two main 
- * components of the window, so that large changes in the size of bits of the 
+/* Instead of setting on dialog, we're going to set it on the two main
+ * components of the window, so that large changes in the size of bits of the
  * dialog don't upset things.
  */
 

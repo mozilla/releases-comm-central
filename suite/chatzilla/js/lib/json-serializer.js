@@ -7,10 +7,11 @@
  */
 
 function JSONSerializer(file) {
-  if (typeof file == "string")
+  if (typeof file == "string") {
     this._file = new nsLocalFile(file);
-  else
+  } else {
     this._file = file;
+  }
   this._open = false;
 }
 
@@ -26,8 +27,8 @@ JSONSerializer.prototype = {
    * @param dir   The string representing the direction of serialization.
    * @returns     Value indicating whether the file was opened successfully.
    */
-  open: function(dir) {
-    if (!ASSERT((dir == ">") || (dir == "<"), "Bad serialization direction!")) {
+  open(dir) {
+    if (!ASSERT(dir == ">" || dir == "<", "Bad serialization direction!")) {
       return false;
     }
     if (this._open) {
@@ -35,7 +36,7 @@ JSONSerializer.prototype = {
     }
 
     this._fileStream = new LocalFile(this._file, dir);
-    if ((typeof this._fileStream == "object") && this._fileStream) {
+    if (typeof this._fileStream == "object" && this._fileStream) {
       this._open = true;
     }
 
@@ -47,7 +48,7 @@ JSONSerializer.prototype = {
    *
    * @returns     Value indicating whether the file was closed successfully.
    */
-  close: function() {
+  close() {
     if (this._open) {
       this._fileStream.close();
       delete this._fileStream;
@@ -63,7 +64,7 @@ JSONSerializer.prototype = {
    *
    * @param obj   JS object to serialize to the file.
    */
-  serialize: function(obj) {
+  serialize(obj) {
     if (!this._open) {
       this.open(">");
     }
@@ -81,18 +82,18 @@ JSONSerializer.prototype = {
    *
    * @returns     JS object parsed from the file.
    */
-  deserialize: function() {
+  deserialize() {
     if (!this._open) {
       this.open("<");
     }
-    if (!ASSERT(this._open, "Unable to open the file for reading!"))
+    if (!ASSERT(this._open, "Unable to open the file for reading!")) {
       return false;
+    }
 
     let rv = null;
     try {
       rv = JSON.parse(this._fileStream.read());
-    }
-    catch(ex) {
+    } catch (ex) {
       dd("Syntax error while deserializing file!");
       dd(ex.message);
       dd(ex.stack);

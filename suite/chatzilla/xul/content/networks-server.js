@@ -3,8 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { isLegalHostNameOrIP = 
-  ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
+var { isLegalHostNameOrIP } = ChromeUtils.import(
+  "resource:///modules/hostnameUtils.jsm"
+);
 
 var gNetworkServer;
 var gNetworksBundle;
@@ -85,8 +86,12 @@ function sslChanged(aUserAction) {
   // If the port is not set, or the user is causing the default port to change,
   // and the port is set to the default for the other protocol,
   // then set the port to the default for the new protocol.
-  if ((gPortValue.value == 0) ||
-      (aUserAction && (gDefaultPort.value != prevDefaultPort) &&
-       (gPortValue.value == otherDefaultPort)))
+  if (
+    gPortValue.value == 0 ||
+    (aUserAction &&
+      gDefaultPort.value != prevDefaultPort &&
+      gPortValue.value == otherDefaultPort)
+  ) {
     gPortValue.value = gDefaultPort.value;
+  }
 }

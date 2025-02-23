@@ -40,18 +40,18 @@
  * name, it will be push()ed into the array instead.
  */
 
-function TextSerializer(file)
-{
-    this._initialized = false;
-    if (typeof file == "string")
-        this._file = new nsLocalFile(file);
-    else
-        this._file = file;
-    this._open = false;
-    this._buffer = "";
-    this._lines = [];
-    this.lineEnd = "\n";
-    this._initialized = true;
+function TextSerializer(file) {
+  this._initialized = false;
+  if (typeof file == "string") {
+    this._file = new nsLocalFile(file);
+  } else {
+    this._file = file;
+  }
+  this._open = false;
+  this._buffer = "";
+  this._lines = [];
+  this.lineEnd = "\n";
+  this._initialized = true;
 }
 
 /* open(direction)
@@ -63,114 +63,110 @@ function TextSerializer(file)
  * Note: serialize and deserialize automatically open the file if it is not
  *       open.
  */
-TextSerializer.prototype.open =
-function ts_open(dir)
-{
-    if (!ASSERT((dir == ">") || (dir == "<"), "Bad serialization direction!"))
-        return false;
-    if (this._open)
-        return false;
+TextSerializer.prototype.open = function ts_open(dir) {
+  if (!ASSERT(dir == ">" || dir == "<", "Bad serialization direction!")) {
+    return false;
+  }
+  if (this._open) {
+    return false;
+  }
 
-    this._fileStream = new LocalFile(this._file, dir);
-    if ((typeof this._fileStream == "object") && this._fileStream)
-        this._open = true;
+  this._fileStream = new LocalFile(this._file, dir);
+  if (typeof this._fileStream == "object" && this._fileStream) {
+    this._open = true;
+  }
 
-    return this._open;
-}
+  return this._open;
+};
 
 /* close()
  *
  * Closes the file stream and ends reading or writing.
  */
-TextSerializer.prototype.close =
-function ts_close()
-{
-    if (this._open)
-    {
-        this._fileStream.close();
-        delete this._fileStream;
-        this._open = false;
-    }
-    return true;
-}
+TextSerializer.prototype.close = function ts_close() {
+  if (this._open) {
+    this._fileStream.close();
+    delete this._fileStream;
+    this._open = false;
+  }
+  return true;
+};
 
 /* serialize(object)
  *
  * Serializes a single object into the file stream. All properties of the object
  * are stored in the stream, including properties that contain other objects.
  */
-TextSerializer.prototype.serialize =
-function ts_serialize(obj)
-{
-    if (!this._open)
-        this.open(">");
-    if (!ASSERT(this._open, "Unable to open the file for writing!"))
-        return;
+TextSerializer.prototype.serialize = function ts_serialize(obj) {
+  if (!this._open) {
+    this.open(">");
+  }
+  if (!ASSERT(this._open, "Unable to open the file for writing!")) {
+    return;
+  }
 
-    var me = this;
+  var me = this;
 
-    function writeObjProps(o, indent)
-    {
-        function writeProp(name, val)
-        {
-            me._fileStream.write(indent + "\"" + ecmaEscape(name) + "\" " + val +
-                                 me.lineEnd);
-        };
+  function writeObjProps(o, indent) {
+    function writeProp(name, val) {
+      me._fileStream.write(
+        indent + '"' + ecmaEscape(name) + '" ' + val + me.lineEnd
+      );
+    }
 
-        for (var p in o)
-        {
-            switch (typeof o[p])
-            {
-                case "string":
-                    writeProp(p, '"' + ecmaEscape(o[p]) + '"');
-                    break;
+    for (var p in o) {
+      switch (typeof o[p]) {
+        case "string":
+          writeProp(p, '"' + ecmaEscape(o[p]) + '"');
+          break;
 
-                case "number":
-                case "boolean":
-                case "null": // (just in case)
-                case "undefined":
-                    // These all serialise to what we want.
-                    writeProp(p, o[p]);
-                    break;
+        case "number":
+        case "boolean":
+        case "null": // (just in case)
+        case "undefined":
+          // These all serialise to what we want.
+          writeProp(p, o[p]);
+          break;
 
-                case "function":
-                    if (isinstance(o[p], RegExp))
-                        writeProp(p, ecmaEscape("" + o[p]));
-                    // Can't serialize non-RegExp functions (yet).
-                    break;
+        case "function":
+          if (isinstance(o[p], RegExp)) {
+            writeProp(p, ecmaEscape("" + o[p]));
+          }
+          // Can't serialize non-RegExp functions (yet).
+          break;
 
-                case "object":
-                    if (o[p] == null)
-                    {
-                        // typeof null == "object", just to catch us out.
-                        writeProp(p, "null");
-                    }
-                    else
-                    {
-                        var className = "";
-                        if (isinstance(o[p], Array))
-                            className = "<Array> ";
-
-                        me._fileStream.write(indent + "START " + className +
-                                             ecmaEscape(p) + me.lineEnd);
-                        writeObjProps(o[p], indent + "  ");
-                        me._fileStream.write(indent + "END" + me.lineEnd);
-                    }
-                    break;
-
-                default:
-                    // Can't handle anything else!
+        case "object":
+          if (o[p] == null) {
+            // typeof null == "object", just to catch us out.
+            writeProp(p, "null");
+          } else {
+            var className = "";
+            if (isinstance(o[p], Array)) {
+              className = "<Array> ";
             }
-        }
-    };
 
-    if (isinstance(obj, Array))
-        this._fileStream.write("START <Array>" + this.lineEnd);
-    else
-        this._fileStream.write("START" + this.lineEnd);
-    writeObjProps(obj, "  ");
-    this._fileStream.write("END" + this.lineEnd);
-}
+            me._fileStream.write(
+              indent + "START " + className + ecmaEscape(p) + me.lineEnd
+            );
+            writeObjProps(o[p], indent + "  ");
+            me._fileStream.write(indent + "END" + me.lineEnd);
+          }
+          break;
+
+        default:
+        // Can't handle anything else!
+      }
+    }
+  }
+
+  if (isinstance(obj, Array)) {
+    this._fileStream.write("START <Array>" + this.lineEnd);
+  } else {
+    this._fileStream.write("START" + this.lineEnd);
+  }
+  writeObjProps(obj, "  ");
+  this._fileStream.write("END" + this.lineEnd);
+};
 
 /* deserialize()
  *
@@ -178,171 +174,163 @@ function ts_serialize(obj)
  * object deserialized is returned; all sub-properties of the object are
  * deserialized with it.
  */
-TextSerializer.prototype.deserialize =
-function ts_deserialize()
-{
-    if (!this._open)
-        this.open("<");
-    if (!ASSERT(this._open, "Unable to open the file for reading!"))
-        return false;
+TextSerializer.prototype.deserialize = function ts_deserialize() {
+  if (!this._open) {
+    this.open("<");
+  }
+  if (!ASSERT(this._open, "Unable to open the file for reading!")) {
+    return false;
+  }
 
-    var obj = null;
-    var rv = null;
-    var objs = new Array();
+  var obj = null;
+  var rv = null;
+  var objs = new Array();
 
-    while (true)
-    {
-        if (this._lines.length == 0)
-        {
-            var newData = this._fileStream.read();
-            if (newData)
-                this._buffer += newData;
-            else if (this._buffer.length == 0)
-                break;
+  while (true) {
+    if (this._lines.length == 0) {
+      var newData = this._fileStream.read();
+      if (newData) {
+        this._buffer += newData;
+      } else if (this._buffer.length == 0) {
+        break;
+      }
 
-            // Got more data in the buffer, so split into lines. Unless we're
-            // done, the last one might not be complete yet, so save that one.
-            var lines = this._buffer.split(/[\r\n]+/);
-            if (!newData)
-                this._buffer = "";
-            else
-                this._buffer = lines.pop();
+      // Got more data in the buffer, so split into lines. Unless we're
+      // done, the last one might not be complete yet, so save that one.
+      var lines = this._buffer.split(/[\r\n]+/);
+      if (!newData) {
+        this._buffer = "";
+      } else {
+        this._buffer = lines.pop();
+      }
 
-            this._lines = this._lines.concat(lines);
-            if (this._lines.length == 0)
-                break;
-        }
-
-        // Split each line into "command params...".
-        var parts = this._lines[0].match(/^\s*(\S+)(?:\s+(.*))?$/);
-        var command = parts[1];
-        var params = parts[2];
-
-        // 'start' and 'end' commands are special.
-        switch (command.toLowerCase())
-        {
-            case "start":
-                var paramList = new Array();
-                if (params)
-                    paramList = params.split(/\s+/g);
-
-                var className = "";
-                if ((paramList.length > 0) && /^<\w+>$/i.test(paramList[0]))
-                {
-                    className = paramList[0].substr(1, paramList[0].length - 2);
-                    paramList.shift();
-                }
-
-                if (!rv)
-                {
-                    /* The top-level objects are not allowed a property name
-                     * in their START command (it is meaningless).
-                     */
-                    ASSERT(paramList.length == 0, "Base object with name!");
-                    // Construct the top-level object.
-                    if (className)
-                        rv = obj = new window[className]();
-                    else
-                        rv = obj = new Object();
-                }
-                else
-                {
-                    var n;
-                    if (paramList.length == 0)
-                    {
-                        /* Create a new object level, but with no name. This is
-                         * only valid if the parent level is an array.
-                         */
-                        if (!ASSERT(isinstance(obj, Array), "Parent not Array!"))
-                            return null;
-                        if (className)
-                            n = new window[className]();
-                        else
-                            n = new Object();
-                        objs.push(obj);
-                        obj.push(n);
-                        obj = n;
-                    }
-                    else
-                    {
-                        /* Create a new object level, store the reference on the
-                         * parent, and set the new object as the current.
-                         */
-                        if (className)
-                            n = new window[className]();
-                        else
-                            n = new Object();
-                        objs.push(obj);
-                        obj[ecmaUnescape(paramList[0])] = n;
-                        obj = n;
-                    }
-                }
-
-                this._lines.shift();
-                break;
-
-            case "end":
-                this._lines.shift();
-                if (rv && (objs.length == 0))
-                {
-                    // We're done for the day.
-                    return rv;
-                }
-                // Return to the previous object level.
-                obj = objs.pop();
-                if (!ASSERT(obj, "Waaa! no object level to return to!"))
-                    return rv;
-                break;
-
-            default:
-                this._lines.shift();
-                // The property name may be enclosed in quotes.
-                if (command[0] == '"')
-                    command = command.substr(1, command.length - 2);
-                // But it is always escaped.
-                command = ecmaUnescape(command);
-
-                if (!obj)
-                {
-                    /* If we find a line that is NOT starting a new object, and
-                     * we don't have a current object, we just assume the START
-                     * command was missed.
-                     */
-                    rv = obj = new Object();
-                }
-                if (params[0] == '"') // String
-                {
-                    // Remove quotes, then unescape.
-                    params = params.substr(1, params.length - 2);
-                    obj[command] = ecmaUnescape(params);
-                }
-                else if (params[0] == "/") // RegExp
-                {
-                    var p = params.match(/^\/(.*)\/(\w*)$/);
-                    if (ASSERT(p, "RepExp entry malformed, ignored!"))
-                    {
-                        var re = new RegExp(ecmaUnescape(p[1]), p[2]);
-                        obj[command] = re;
-                    }
-                }
-                else if (params == "null") // null
-                {
-                    obj[command] = null;
-                }
-                else if (params == "undefined") // undefined
-                {
-                    obj[command] = undefined;
-                }
-                else if ((params == "true") || (params == "false")) // boolean
-                {
-                    obj[command] = (params == "true");
-                }
-                else // Number
-                {
-                    obj[command] = Number(params);
-                }
-                break;
-        }
+      this._lines = this._lines.concat(lines);
+      if (this._lines.length == 0) {
+        break;
+      }
     }
-    return null;
-}
+
+    // Split each line into "command params...".
+    var parts = this._lines[0].match(/^\s*(\S+)(?:\s+(.*))?$/);
+    var command = parts[1];
+    var params = parts[2];
+
+    // 'start' and 'end' commands are special.
+    switch (command.toLowerCase()) {
+      case "start":
+        var paramList = new Array();
+        if (params) {
+          paramList = params.split(/\s+/g);
+        }
+
+        var className = "";
+        if (paramList.length > 0 && /^<\w+>$/i.test(paramList[0])) {
+          className = paramList[0].substr(1, paramList[0].length - 2);
+          paramList.shift();
+        }
+
+        if (!rv) {
+          /* The top-level objects are not allowed a property name
+           * in their START command (it is meaningless).
+           */
+          ASSERT(paramList.length == 0, "Base object with name!");
+          // Construct the top-level object.
+          if (className) {
+            rv = obj = new window[className]();
+          } else {
+            rv = obj = new Object();
+          }
+        } else {
+          var n;
+          if (paramList.length == 0) {
+            /* Create a new object level, but with no name. This is
+             * only valid if the parent level is an array.
+             */
+            if (!ASSERT(isinstance(obj, Array), "Parent not Array!")) {
+              return null;
+            }
+            if (className) {
+              n = new window[className]();
+            } else {
+              n = new Object();
+            }
+            objs.push(obj);
+            obj.push(n);
+            obj = n;
+          } else {
+            /* Create a new object level, store the reference on the
+             * parent, and set the new object as the current.
+             */
+            if (className) {
+              n = new window[className]();
+            } else {
+              n = new Object();
+            }
+            objs.push(obj);
+            obj[ecmaUnescape(paramList[0])] = n;
+            obj = n;
+          }
+        }
+
+        this._lines.shift();
+        break;
+
+      case "end":
+        this._lines.shift();
+        if (rv && objs.length == 0) {
+          // We're done for the day.
+          return rv;
+        }
+        // Return to the previous object level.
+        obj = objs.pop();
+        if (!ASSERT(obj, "Waaa! no object level to return to!")) {
+          return rv;
+        }
+        break;
+
+      default:
+        this._lines.shift();
+        // The property name may be enclosed in quotes.
+        if (command[0] == '"') {
+          command = command.substr(1, command.length - 2);
+        }
+        // But it is always escaped.
+        command = ecmaUnescape(command);
+
+        if (!obj) {
+          /* If we find a line that is NOT starting a new object, and
+           * we don't have a current object, we just assume the START
+           * command was missed.
+           */
+          rv = obj = new Object();
+        }
+        if (params[0] == '"') {
+          // String
+          // Remove quotes, then unescape.
+          params = params.substr(1, params.length - 2);
+          obj[command] = ecmaUnescape(params);
+        } else if (params[0] == "/") {
+          // RegExp
+          var p = params.match(/^\/(.*)\/(\w*)$/);
+          if (ASSERT(p, "RepExp entry malformed, ignored!")) {
+            var re = new RegExp(ecmaUnescape(p[1]), p[2]);
+            obj[command] = re;
+          }
+        } else if (params == "null") {
+          // null
+          obj[command] = null;
+        } else if (params == "undefined") {
+          // undefined
+          obj[command] = undefined;
+        } else if (params == "true" || params == "false") {
+          // boolean
+          obj[command] = params == "true";
+        } // Number
+        else {
+          obj[command] = Number(params);
+        }
+        break;
+    }
+  }
+  return null;
+};

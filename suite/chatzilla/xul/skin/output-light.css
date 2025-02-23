@@ -3,16 +3,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* 
+/*
  *  a light background/dark text version of the output window.
- *  see output-base.css for details. 
+ *  see output-base.css for details.
  */
 
 @import url(chrome://chatzilla/content/output-base.css);
 
 .chatzilla-body {                   /* The topmost container in the ChatZilla */
     background: white;              /* output window.                         */
-    color: #222222;    
+    color: #222222;
 }
 
 a.chatzilla-link {
@@ -125,8 +125,8 @@ a.chatzilla-link {
 .msg-user {                                 /* msg-user = nickname portion of */
     color: black !important;                /* a message (channel and query   */
     font-weight: bold;                      /* views)                         */
-}                     
- 
+}
+
 .msg[mark="even"] .msg-data {               /* use even/odd marks to create a */
     color: #555555;                         /* subtle brightness change when  */
 }                                           /* the speaker changes.           */
@@ -134,7 +134,7 @@ a.chatzilla-link {
 .msg[msg-type="JOIN"] .msg-data,
 .msg[msg-type="PART"] .msg-data {
     color: #0e9e0e;
-    background-color: #c3f7c3; 
+    background-color: #c3f7c3;
     font-weight: bold;
     border-radius: 5px 5px 5px 5px;
 }

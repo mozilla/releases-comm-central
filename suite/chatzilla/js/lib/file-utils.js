@@ -5,27 +5,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* notice that these valuse are octal. */
-const PERM_IRWXU = 0o700;  /* read, write, execute/search by owner */
-const PERM_IRUSR = 0o400;  /* read permission, owner */
-const PERM_IWUSR = 0o200;  /* write permission, owner */
-const PERM_IXUSR = 0o100;  /* execute/search permission, owner */
-const PERM_IRWXG = 0o070;  /* read, write, execute/search by group */
-const PERM_IRGRP = 0o040;  /* read permission, group */
-const PERM_IWGRP = 0o020;  /* write permission, group */
-const PERM_IXGRP = 0o010;  /* execute/search permission, group */
-const PERM_IRWXO = 0o007;  /* read, write, execute/search by others */
-const PERM_IROTH = 0o004;  /* read permission, others */
-const PERM_IWOTH = 0o002;  /* write permission, others */
-const PERM_IXOTH = 0o001;  /* execute/search permission, others */
+const PERM_IRWXU = 0o700; /* read, write, execute/search by owner */
+const PERM_IRUSR = 0o400; /* read permission, owner */
+const PERM_IWUSR = 0o200; /* write permission, owner */
+const PERM_IXUSR = 0o100; /* execute/search permission, owner */
+const PERM_IRWXG = 0o070; /* read, write, execute/search by group */
+const PERM_IRGRP = 0o040; /* read permission, group */
+const PERM_IWGRP = 0o020; /* write permission, group */
+const PERM_IXGRP = 0o010; /* execute/search permission, group */
+const PERM_IRWXO = 0o007; /* read, write, execute/search by others */
+const PERM_IROTH = 0o004; /* read permission, others */
+const PERM_IWOTH = 0o002; /* write permission, others */
+const PERM_IXOTH = 0o001; /* execute/search permission, others */
 
-const MODE_RDONLY   = 0x01;
-const MODE_WRONLY   = 0x02;
-const MODE_RDWR     = 0x04;
-const MODE_CREATE   = 0x08;
-const MODE_APPEND   = 0x10;
+const MODE_RDONLY = 0x01;
+const MODE_WRONLY = 0x02;
+const MODE_RDWR = 0x04;
+const MODE_CREATE = 0x08;
+const MODE_APPEND = 0x10;
 const MODE_TRUNCATE = 0x20;
-const MODE_SYNC     = 0x40;
-const MODE_EXCL     = 0x80;
+const MODE_SYNC = 0x40;
+const MODE_EXCL = 0x80;
 
 var futils = new Object();
 
@@ -50,119 +50,113 @@ futils.lastOpenDir = null;
  * @returns An |Object| with |ok| (Boolean), |file| (|nsIFile|) and
  *          |picker| (|nsIFilePicker|) properties.
  */
-futils.getPicker =
-function futils_nosepicker(initialPath, typeList, defaultString)
-{
-    let picker = Cc["@mozilla.org/filepicker;1"]
-                   .createInstance(Ci.nsIFilePicker);
-    if (defaultString)
-    {
-        picker.defaultString = defaultString;
+futils.getPicker = function futils_nosepicker(
+  initialPath,
+  typeList,
+  defaultString
+) {
+  let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+  if (defaultString) {
+    picker.defaultString = defaultString;
+  }
+
+  if (initialPath) {
+    var localFile;
+
+    if (typeof initialPath == "string") {
+      localFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+      localFile.initWithPath(initialPath);
+    } else {
+      if (!isinstance(initialPath, Ci.nsIFile)) {
+        throw "bad type for argument |initialPath|";
+      }
+
+      localFile = initialPath;
     }
 
-    if (initialPath)
-    {
-        var localFile;
+    picker.displayDirectory = localFile;
+  }
 
-        if (typeof initialPath == "string")
-        {
-            localFile = Cc["@mozilla.org/file/local;1"]
-                          .createInstance(Ci.nsIFile);
-            localFile.initWithPath(initialPath);
-        }
-        else
-        {
-            if (!isinstance(initialPath, Ci.nsIFile))
-                throw "bad type for argument |initialPath|";
+  var allIncluded = false;
 
-            localFile = initialPath;
-        }
+  if (typeof typeList == "string") {
+    typeList = typeList.split(" ");
+  }
 
-        picker.displayDirectory = localFile
+  if (isinstance(typeList, Array)) {
+    for (var i in typeList) {
+      switch (typeList[i]) {
+        case "$all":
+          allIncluded = true;
+          picker.appendFilters(Ci.nsIFilePicker.filterAll);
+          break;
+
+        case "$html":
+          picker.appendFilters(Ci.nsIFilePicker.filterHTML);
+          break;
+
+        case "$text":
+          picker.appendFilters(Ci.nsIFilePicker.filterText);
+          break;
+
+        case "$images":
+          picker.appendFilters(Ci.nsIFilePicker.filterImages);
+          break;
+
+        case "$xml":
+          picker.appendFilters(Ci.nsIFilePicker.filterXML);
+          break;
+
+        case "$xul":
+          picker.appendFilters(Ci.nsIFilePicker.filterXUL);
+          break;
+
+        case "$noAll":
+          // This prevents the automatic addition of "All Files"
+          // as a file type option by pretending it is already there.
+          allIncluded = true;
+          break;
+
+        default:
+          if (
+            typeof typeList[i] == "object" &&
+            isinstance(typeList[i], Array)
+          ) {
+            picker.appendFilter(typeList[i][0], typeList[i][1]);
+          } else {
+            picker.appendFilter(typeList[i], typeList[i]);
+          }
+          break;
+      }
     }
+  }
 
-    var allIncluded = false;
+  if (!allIncluded) {
+    picker.appendFilters(Ci.nsIFilePicker.filterAll);
+  }
 
-    if (typeof typeList == "string")
-        typeList = typeList.split(" ");
+  return picker;
+};
 
-    if (isinstance(typeList, Array))
-    {
-        for (var i in typeList)
-        {
-            switch (typeList[i])
-            {
-                case "$all":
-                    allIncluded = true;
-                    picker.appendFilters(Ci.nsIFilePicker.filterAll);
-                    break;
+function getPickerChoice(picker) {
+  var obj = new Object();
+  obj.picker = picker;
+  obj.ok = false;
+  obj.file = null;
 
-                case "$html":
-                    picker.appendFilters(Ci.nsIFilePicker.filterHTML);
-                    break;
-
-                case "$text":
-                    picker.appendFilters(Ci.nsIFilePicker.filterText);
-                    break;
-
-                case "$images":
-                    picker.appendFilters(Ci.nsIFilePicker.filterImages);
-                    break;
-
-                case "$xml":
-                    picker.appendFilters(Ci.nsIFilePicker.filterXML);
-                    break;
-
-                case "$xul":
-                    picker.appendFilters(Ci.nsIFilePicker.filterXUL);
-                    break;
-
-                case "$noAll":
-                    // This prevents the automatic addition of "All Files"
-                    // as a file type option by pretending it is already there.
-                    allIncluded = true;
-                    break;
-
-                default:
-                    if ((typeof typeList[i] == "object") && isinstance(typeList[i], Array))
-                        picker.appendFilter(typeList[i][0], typeList[i][1]);
-                    else
-                        picker.appendFilter(typeList[i], typeList[i]);
-                    break;
-            }
-        }
-    }
-
-    if (!allIncluded)
-        picker.appendFilters(Ci.nsIFilePicker.filterAll);
-
-    return picker;
-}
-
-function getPickerChoice(picker)
-{
-    var obj = new Object();
-    obj.picker = picker;
-    obj.ok = false;
-    obj.file = null;
-
-    try
-    {
-        obj.reason = picker.show();
-    }
-    catch (ex)
-    {
-        dd ("caught exception from file picker: " + ex);
-        return obj;
-    }
-
-    if (obj.reason != Ci.nsIFilePicker.returnCancel)
-    {
-        obj.file = picker.file;
-        obj.ok = true;
-    }
-
+  try {
+    obj.reason = picker.show();
+  } catch (ex) {
+    dd("caught exception from file picker: " + ex);
     return obj;
+  }
+
+  if (obj.reason != Ci.nsIFilePicker.returnCancel) {
+    obj.file = picker.file;
+    obj.ok = true;
+  }
+
+  return obj;
 }
 
 /**
@@ -174,16 +168,16 @@ function getPickerChoice(picker)
  * @returns An |Object| with "ok" (Boolean), "file" (|nsIFile|) and
  *          "picker" (|nsIFilePicker|) properties.
  */
-function pickSaveAs(title, typeList, defaultFile)
-{
-    let picker = futils.getPicker(futils.lastSaveAsDir, typeList, defaultFile);
-    picker.init(window, title, Ci.nsIFilePicker.modeSave);
+function pickSaveAs(title, typeList, defaultFile) {
+  let picker = futils.getPicker(futils.lastSaveAsDir, typeList, defaultFile);
+  picker.init(window, title, Ci.nsIFilePicker.modeSave);
 
-    var rv = getPickerChoice(picker);
-    if (rv.ok)
-        futils.lastSaveAsDir = picker.file.parent;
+  var rv = getPickerChoice(picker);
+  if (rv.ok) {
+    futils.lastSaveAsDir = picker.file.parent;
+  }
 
-    return rv;
+  return rv;
 }
 
 /**
@@ -194,16 +188,16 @@ function pickSaveAs(title, typeList, defaultFile)
  * @returns An |Object| with "ok" (Boolean), "file" (|nsIFile|) and
  *          "picker" (|nsIFilePicker|) properties.
  */
-function pickOpen(title, typeList)
-{
-    let picker = futils.getPicker(futils.lastOpenDir, typeList);
-    picker.init(window, title, Ci.nsIFilePicker.modeOpen);
+function pickOpen(title, typeList) {
+  let picker = futils.getPicker(futils.lastOpenDir, typeList);
+  picker.init(window, title, Ci.nsIFilePicker.modeOpen);
 
-    var rv = getPickerChoice(picker);
-    if (rv.ok)
-        futils.lastOpenDir = picker.file.parent;
+  var rv = getPickerChoice(picker);
+  if (rv.ok) {
+    futils.lastOpenDir = picker.file.parent;
+  }
 
-    return rv;
+  return rv;
 }
 
 /**
@@ -214,136 +208,120 @@ function pickOpen(title, typeList)
  * @returns An |Object| with "ok" (Boolean), "file" (|nsIFile|) and
  *          "picker" (|nsIFilePicker|) properties.
  */
-function pickGetFolder(title, defaultDir)
-{
-    let picker = futils.getPicker(defaultDir ? defaultDir : futils.lastOpenDir);
-    picker.init(window, title, Ci.nsIFilePicker.modeGetFolder);
+function pickGetFolder(title, defaultDir) {
+  let picker = futils.getPicker(defaultDir ? defaultDir : futils.lastOpenDir);
+  picker.init(window, title, Ci.nsIFilePicker.modeGetFolder);
 
-    var rv = getPickerChoice(picker);
-    if (rv.ok)
-        futils.lastOpenDir = picker.file;
+  var rv = getPickerChoice(picker);
+  if (rv.ok) {
+    futils.lastOpenDir = picker.file;
+  }
 
-    return rv;
+  return rv;
 }
 
-function mkdir(localFile)
-{
-    localFile.create(Ci.nsIFile.DIRECTORY_TYPE, 0o766 & ~futils.umask);
+function mkdir(localFile) {
+  localFile.create(Ci.nsIFile.DIRECTORY_TYPE, 0o766 & ~futils.umask);
 }
 
-function getTempFile(path, name)
-{
-    var tempFile = new nsLocalFile(path);
-    tempFile.append(name);
-    tempFile.createUnique(0, 0o600);
-    return tempFile;
+function getTempFile(path, name) {
+  var tempFile = new nsLocalFile(path);
+  tempFile.append(name);
+  tempFile.createUnique(0, 0o600);
+  return tempFile;
 }
 
-function nsLocalFile(path)
-{
-    let localFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    localFile.initWithPath(path);
-    return localFile;
+function nsLocalFile(path) {
+  let localFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  localFile.initWithPath(path);
+  return localFile;
 }
 
-function LocalFile(file, mode)
-{
-    let perms = 0o666 & ~futils.umask;
+function LocalFile(file, mode) {
+  let perms = 0o666 & ~futils.umask;
 
-    if (typeof mode == "string")
-    {
-        switch (mode)
-        {
-            case ">":
-                mode = MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE;
-                break;
-            case ">>":
-                mode = MODE_WRONLY | MODE_CREATE | MODE_APPEND;
-                break;
-            case "<":
-                mode = MODE_RDONLY;
-                break;
-            default:
-                throw "Invalid mode ``" + mode + "''";
-        }
+  if (typeof mode == "string") {
+    switch (mode) {
+      case ">":
+        mode = MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE;
+        break;
+      case ">>":
+        mode = MODE_WRONLY | MODE_CREATE | MODE_APPEND;
+        break;
+      case "<":
+        mode = MODE_RDONLY;
+        break;
+      default:
+        throw "Invalid mode ``" + mode + "''";
     }
+  }
 
-    if (typeof file == "string")
-    {
-        this.localFile = new nsLocalFile(file);
-    }
-    else if (isinstance(file, Ci.nsIFile))
-    {
-        this.localFile = file;
-    }
-    else
-    {
-        throw "bad type for argument |file|.";
-    }
+  if (typeof file == "string") {
+    this.localFile = new nsLocalFile(file);
+  } else if (isinstance(file, Ci.nsIFile)) {
+    this.localFile = file;
+  } else {
+    throw "bad type for argument |file|.";
+  }
 
-    this.path = this.localFile.path;
+  this.path = this.localFile.path;
 
-    if (mode & (MODE_WRONLY | MODE_RDWR))
-    {
-        this.outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
-                              .createInstance(Ci.nsIFileOutputStream);
-        this.outputStream.init(this.localFile, mode, perms, 0);
-    }
+  if (mode & (MODE_WRONLY | MODE_RDWR)) {
+    this.outputStream = Cc[
+      "@mozilla.org/network/file-output-stream;1"
+    ].createInstance(Ci.nsIFileOutputStream);
+    this.outputStream.init(this.localFile, mode, perms, 0);
+  }
 
-    if (mode & (MODE_RDONLY | MODE_RDWR))
-    {
-        this.baseInputStream = Cc["@mozilla.org/network/file-input-stream;1"]
-                                 .createInstance(Ci.nsIFileInputStream);
-        this.baseInputStream.init(this.localFile, mode, perms, 0);
-        this.inputStream = Cc["@mozilla.org/scriptableinputstream;1"]
-                             .createInstance(Ci.nsIScriptableInputStream);
-        this.inputStream.init(this.baseInputStream);
-    }
+  if (mode & (MODE_RDONLY | MODE_RDWR)) {
+    this.baseInputStream = Cc[
+      "@mozilla.org/network/file-input-stream;1"
+    ].createInstance(Ci.nsIFileInputStream);
+    this.baseInputStream.init(this.localFile, mode, perms, 0);
+    this.inputStream = Cc[
+      "@mozilla.org/scriptableinputstream;1"
+    ].createInstance(Ci.nsIScriptableInputStream);
+    this.inputStream.init(this.baseInputStream);
+  }
 }
 
-LocalFile.prototype.write =
-function fo_write(buf)
-{
-    if (!("outputStream" in this))
-        throw "file not open for writing.";
+LocalFile.prototype.write = function fo_write(buf) {
+  if (!("outputStream" in this)) {
+    throw "file not open for writing.";
+  }
 
-    return this.outputStream.write(buf, buf.length);
-}
+  return this.outputStream.write(buf, buf.length);
+};
 
 // Will return null if there is no more data in the file.
 // Will block until it has some data to return.
 // Will return an empty string if there is data, but it couldn't be read.
-LocalFile.prototype.read =
-function fo_read(max)
-{
-    if (!("inputStream" in this))
-        throw "file not open for reading.";
+LocalFile.prototype.read = function fo_read(max) {
+  if (!("inputStream" in this)) {
+    throw "file not open for reading.";
+  }
 
-    if (typeof max == "undefined")
-        max = this.inputStream.available();
+  if (typeof max == "undefined") {
+    max = this.inputStream.available();
+  }
 
-    try
-    {
-        var rv = this.inputStream.read(max);
-        return (rv != "") ? rv : null;
-    }
-    catch (ex)
-    {
-        return "";
-    }
-}
+  try {
+    var rv = this.inputStream.read(max);
+    return rv != "" ? rv : null;
+  } catch (ex) {
+    return "";
+  }
+};
 
-LocalFile.prototype.close =
-function fo_close()
-{
-    if ("outputStream" in this)
-        this.outputStream.close();
-    if ("inputStream" in this)
-        this.inputStream.close();
-}
+LocalFile.prototype.close = function fo_close() {
+  if ("outputStream" in this) {
+    this.outputStream.close();
+  }
+  if ("inputStream" in this) {
+    this.inputStream.close();
+  }
+};
 
-LocalFile.prototype.flush =
-function fo_close()
-{
-    return this.outputStream.flush();
-}
+LocalFile.prototype.flush = function fo_close() {
+  return this.outputStream.flush();
+};
