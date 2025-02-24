@@ -40,18 +40,34 @@ add_setup(async function () {
     [singleFolder],
     [{ count: 9, msgsPerThread: 9 }]
   );
+  await TestUtils.waitForCondition(
+    () => [...singleFolder.messages].length == 9,
+    "singleFolder should have 9 messages"
+  );
   folderA = await create_folder("underlyingFolderA");
   folderB = await create_folder("underlyingFolderB");
   await make_message_sets_in_folders(
     [folderA, folderB],
     [{ count: 7, msgsPerThread: 7 }]
   );
+  await TestUtils.waitForCondition(
+    () => [...folderA.messages].length == 4,
+    "folderA should have 4 messages"
+  );
+  await TestUtils.waitForCondition(
+    () => [...folderB.messages].length == 3,
+    "folderB should have 3 messages"
+  );
   multiFolder = create_virtual_folder([folderA, folderB], {});
 
   tab1 = await be_in_folder(singleFolder);
   tab2 = await open_folder_in_new_tab(singleFolder);
-
-  about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const currentTabInfo = document.getElementById("tabmail").currentTabInfo;
+  Assert.ok(
+    !currentTabInfo.first,
+    "Active tab should not be the initial 3pane tab"
+  );
+  about3Pane = currentTabInfo.chromeBrowser.contentWindow;
 
   registerCleanupFunction(() => {
     multiFolder.deleteSelf(null);
