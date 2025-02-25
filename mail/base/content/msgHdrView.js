@@ -3633,6 +3633,16 @@ function MsgComposeDraftMessage() {
   );
 }
 
+const trashButtonClickHandler = event => {
+  if (event.button == 0) {
+    goDoCommand(
+      event.shiftKey && event.target.dataset.imapDeleted == "false"
+        ? "cmd_shiftDelete"
+        : "cmd_delete"
+    );
+  }
+};
+
 /**
  * Update the "archive", "junk" and "delete" buttons in the message header area.
  */
@@ -3657,6 +3667,14 @@ function updateHeaderToolbarButtons() {
   }
   junkButton.disabled = hideJunk;
   trashButton.disabled = false;
+
+  trashButton.addEventListener("click", trashButtonClickHandler);
+  const isIMAPDeleted = gMessage?.flags & Ci.nsMsgMessageFlags.IMAPDeleted;
+  document.l10n.setAttributes(
+    trashButton,
+    isIMAPDeleted ? "message-header-undelete" : "message-header-delete"
+  );
+  trashButton.dataset.imapDeleted = !!isIMAPDeleted;
 }
 
 /**

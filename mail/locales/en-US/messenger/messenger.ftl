@@ -316,6 +316,14 @@ message-header-msg-flagged =
     .title = Starred
     .aria-label = Starred
 
+message-header-delete =
+    .label = Delete
+    .tooltiptext = Delete this message
+
+message-header-undelete =
+    .label = Undelete
+    .tooltiptext = Undelete this message
+
 # Variables:
 # $address (String) - The email address of the recipient this picture belongs to.
 message-header-recipient-avatar =

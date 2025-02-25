@@ -378,6 +378,9 @@ var mailContextMenu = {
       showItem("navContext-markAsJunk", true);
       showItem("navContext-markAsNotJunk", false);
     }
+    const areIMAPDeleted = gViewWrapper.dbView
+      .getSelectedMsgHdrs()
+      .every(msg => msg.flags & Ci.nsMsgMessageFlags.IMAPDeleted);
 
     setSingleSelection("mailContext-openNewTab", inThreadTree);
     setSingleSelection("mailContext-openNewWindow", inThreadTree);
@@ -431,13 +434,11 @@ var mailContextMenu = {
     );
 
     const contextDelete = document.getElementById("navContext-delete");
-    contextDelete.setAttribute(
-      "active",
-      !!(message.flags & Ci.nsMsgMessageFlags.IMAPDeleted)
-    );
+    contextDelete.setAttribute("active", !!areIMAPDeleted);
+    contextDelete.dataset.imapDeleted = !!areIMAPDeleted;
     document.l10n.setAttributes(
       contextDelete,
-      message.flags & Ci.nsMsgMessageFlags.IMAPDeleted
+      areIMAPDeleted
         ? "mail-context-messages-undelete"
         : "mail-context-messages-delete",
       {
@@ -552,7 +553,10 @@ var mailContextMenu = {
     switch (event.target.id) {
       case "navContext-delete":
         commandController.doCommand(
-          event.shiftKey ? "cmd_shiftDeleteMessage" : "cmd_deleteMessage"
+          // No Shift-Undelete.
+          event.shiftKey && event.target.dataset.imapDeleted == "false"
+            ? "cmd_shiftDeleteMessage"
+            : "cmd_deleteMessage"
         );
         break;
       // Links

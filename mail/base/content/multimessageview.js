@@ -154,6 +154,22 @@ class MultiMessageSummary {
     document.getElementById("notice").textContent = "";
   }
 
+  _archiveBtnClickHandler = event => {
+    if (event.button == 0) {
+      window.browsingContext.topChromeWindow.goDoCommand("cmd_archive");
+    }
+  };
+
+  _trashBtnClickHandler = event => {
+    if (event.button == 0) {
+      window.browsingContext.topChromeWindow.goDoCommand(
+        event.shiftKey && event.target.dataset.imapDeleted == "false"
+          ? "cmd_shiftDelete"
+          : "cmd_delete"
+      );
+    }
+  };
+
   /**
    * Fill in the summary pane describing the selected messages.
    *
@@ -174,22 +190,22 @@ class MultiMessageSummary {
       this._listener.onLoadStarted();
     }
 
-    // Enable/disable the archive button as appropriate.
     const archiveBtn = document.getElementById("hdrArchiveButton");
     archiveBtn.hidden = !MessageArchiver.canArchive(aMessages);
+    archiveBtn.addEventListener("click", this._archiveBtnClickHandler);
 
-    // Set archive and delete button listeners.
-    const topChromeWindow = window.browsingContext.topChromeWindow;
-    archiveBtn.onclick = event => {
-      if (event.button == 0) {
-        topChromeWindow.goDoCommand("cmd_archive");
-      }
-    };
-    document.getElementById("hdrTrashButton").onclick = event => {
-      if (event.button == 0) {
-        topChromeWindow.goDoCommand("cmd_delete");
-      }
-    };
+    const trashBtn = document.getElementById("hdrTrashButton");
+    trashBtn.addEventListener("click", this._trashBtnClickHandler);
+    const areIMAPDeleted = aDBView
+      ?.getSelectedMsgHdrs()
+      .every(msg => msg.flags & Ci.nsMsgMessageFlags.IMAPDeleted);
+    document.l10n.setAttributes(
+      trashBtn,
+      areIMAPDeleted
+        ? "multi-message-undelete-button"
+        : "multi-message-delete-button"
+    );
+    trashBtn.dataset.imapDeleted = !!areIMAPDeleted;
 
     headerToolbarNavigation.init();
 

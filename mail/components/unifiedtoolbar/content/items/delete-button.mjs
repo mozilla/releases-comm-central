@@ -19,13 +19,22 @@ class DeleteButton extends MailTabButton {
 
       this.disabled = !controller || !message;
 
-      if (!this.disabled && message.flags & Ci.nsMsgMessageFlags.IMAPDeleted) {
+      const areIMAPDeleted = () => {
+        return tab?.mode.name == "mail3PaneTab"
+          ? tab.chromeBrowser?.contentWindow.gDBView
+              ?.getSelectedMsgHdrs()
+              .every(msg => msg.flags & Ci.nsMsgMessageFlags.IMAPDeleted)
+          : message?.flags & Ci.nsMsgMessageFlags.IMAPDeleted;
+      };
+
+      if (!this.disabled && areIMAPDeleted()) {
         this.setAttribute("label-id", "toolbar-undelete-label");
         document.l10n.setAttributes(this, "toolbar-undelete");
       } else {
         this.setAttribute("label-id", "toolbar-delete-label");
         document.l10n.setAttributes(this, "toolbar-delete-title");
       }
+      this.dataset.imapDeleted = !!areIMAPDeleted();
     } catch {
       this.disabled = true;
     }
@@ -33,8 +42,12 @@ class DeleteButton extends MailTabButton {
 
   handleClick(event) {
     goDoCommand(
-      event.shiftKey ? "cmd_shiftDeleteMessage" : "cmd_deleteMessage"
+      event.shiftKey && event.target.dataset.imapDeleted == "false"
+        ? "cmd_shiftDelete"
+        : "cmd_delete"
     );
+    // IMAP deleted state may have changed.
+    this.onCommandContextChange();
     event.preventDefault();
     event.stopPropagation();
   }
