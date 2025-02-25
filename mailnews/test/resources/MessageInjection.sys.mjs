@@ -697,6 +697,15 @@ export class MessageInjection {
       for (const folder of msgFolders) {
         folder.callFilterPlugins(null);
       }
+
+      if (doNotForceUpdate) {
+        return;
+      }
+      for (const folder of msgFolders) {
+        await new Promise(resolve => {
+          mailTestUtils.updateFolderAndNotify(folder, resolve);
+        });
+      }
     } else if (this._mis.injectionConfig.mode == "imap") {
       iterFolders = this._looperator(msgFolders);
       // we need to call updateFolder on all the folders, not just the first
