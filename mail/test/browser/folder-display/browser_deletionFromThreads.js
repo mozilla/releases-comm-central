@@ -91,6 +91,20 @@ const assertReplyCount = async replyCount => {
   await switch_tab();
 };
 
+async function verify_message_read_status(expected, msg) {
+  const dbView =
+    document.getElementById("tabmail").currentTabInfo.chromeBrowser
+      .contentWindow.gDBView;
+  await TestUtils.waitForCondition(() => {
+    const state = [];
+    for (let i = 0; i < dbView.rowCount; i++) {
+      state.push(dbView.getMsgHdrAt(i).isRead);
+    }
+    // We are comparing two simple arrays, no need to be fancy.
+    return JSON.stringify(expected) == JSON.stringify(state);
+  }, `Message read states should be correct (${msg})`);
+}
+
 add_task(async function delete_from_collapsed_thread() {
   await switch_tab(tab2);
   await collapse_all_threads();
@@ -100,10 +114,26 @@ add_task(async function delete_from_collapsed_thread() {
   let curMessage = await select_click_row(3);
   await assert_selected_and_displayed(curMessage);
   await assertReplyCount(8);
+  await verify_message_read_status(
+    [false, false, false, true, false, false, false, false, false],
+    "before 1st delete"
+  );
   await press_delete();
+  await verify_message_read_status(
+    [false, false, false, true, false, false, false, false],
+    "after 1st delete"
+  );
   await assertReplyCount(7);
   curMessage = await select_click_row(0);
+  await verify_message_read_status(
+    [true, false, false, true, false, false, false, false],
+    "before 2nd delete"
+  );
   await press_delete();
+  await verify_message_read_status(
+    [true, false, true, false, false, false, false],
+    "after 2nd delete"
+  );
   await assertReplyCount(6);
 });
 
@@ -116,10 +146,26 @@ add_task(async function delete_from_expanded_thread() {
   let curMessage = await select_click_row(3);
   await assert_selected_and_displayed(curMessage);
   await assertReplyCount(6);
+  await verify_message_read_status(
+    [true, false, true, true, false, false, false],
+    "before 3rd delete"
+  );
   await press_delete();
+  await verify_message_read_status(
+    [true, false, true, true, false, false],
+    "after 3rd delete"
+  );
   await assertReplyCount(5);
   curMessage = await select_click_row(0);
+  await verify_message_read_status(
+    [true, false, true, true, false, false],
+    "before 4th delete"
+  );
   await press_delete();
+  await verify_message_read_status(
+    [true, true, true, false, false],
+    "after 4th delete"
+  );
   await assertReplyCount(4);
 });
 
@@ -134,10 +180,26 @@ add_task(async function delete_from_collapsed_xfthread() {
   let curMessage = await select_click_row(3);
   await assert_selected_and_displayed(curMessage);
   await assertReplyCount(6);
+  await verify_message_read_status(
+    [false, false, false, true, false, false, false],
+    "before 5th delete"
+  );
   await press_delete();
+  await verify_message_read_status(
+    [false, false, false, true, false, false],
+    "after 5th delete"
+  );
   await assertReplyCount(5);
   curMessage = await select_click_row(0);
+  await verify_message_read_status(
+    [true, false, false, true, false, false],
+    "before 6th delete"
+  );
   await press_delete();
+  await verify_message_read_status(
+    [true, false, true, false, false],
+    "after 6th delete"
+  );
   await assertReplyCount(4);
 });
 
@@ -152,10 +214,23 @@ add_task(async function delete_from_expanded_xfthread() {
   let curMessage = await select_click_row(3);
   await assert_selected_and_displayed(curMessage);
   await assertReplyCount(4);
+  await verify_message_read_status(
+    [true, false, true, true, false],
+    "before 7th delete"
+  );
   await press_delete();
+  await verify_message_read_status(
+    [true, false, true, true],
+    "after 7th delete"
+  );
   await assertReplyCount(3);
   curMessage = await select_click_row(0);
+  await verify_message_read_status(
+    [true, false, true, true],
+    "before 8th delete"
+  );
   await press_delete();
+  await verify_message_read_status([true, true, true], "after 8th delete");
   await assertReplyCount(2);
 });
 
@@ -188,8 +263,16 @@ add_task(async function delete_from_expanded_group() {
 
   const curMessage = await select_click_row(3);
   await assert_selected_and_displayed(curMessage);
+  await verify_message_read_status(
+    [false, false, false, true, true, true],
+    "before 9th delete"
+  );
   await assertMessagesCount(2, 5);
   await press_delete();
+  await verify_message_read_status(
+    [false, false, false, true, true],
+    "after 9th delete"
+  );
   await assertMessagesCount(2, 4);
 });
 
@@ -203,8 +286,16 @@ add_task(async function delete_from_collapsed_group() {
 
   const curMessage = await select_click_row(3);
   await assert_selected_and_displayed(curMessage);
+  await verify_message_read_status(
+    [false, false, false, true, true],
+    "before 10th delete"
+  );
   await assertMessagesCount(2, 4);
   await press_delete();
+  await verify_message_read_status(
+    [false, false, false, true],
+    "after 10th delete"
+  );
   await assertMessagesCount(2, 3);
 
   await close_tab(tab2);
