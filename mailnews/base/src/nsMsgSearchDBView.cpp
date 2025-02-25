@@ -462,7 +462,8 @@ nsresult nsMsgSearchDBView::AddHdrFromFolder(nsIMsgDBHdr* msgHdr,
                    "threadRoot incorrect, or level incorrect");
 
       bool moveThread = false;
-      if (m_sortType == nsMsgViewSortType::byDate) {
+      if (m_sortType == nsMsgViewSortType::byDate ||
+          m_sortType == nsMsgViewSortType::byReceived) {
         uint32_t newestMsgInThread = 0, msgDate = 0;
         viewThread->GetNewestMsgDate(&newestMsgInThread);
         msgHdr->GetDateInSeconds(&msgDate);
