@@ -316,36 +316,6 @@ nsMsgNewsFolder::GetCanCompact(bool* aResult) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetFolderURL(nsACString& aUrl) {
-  nsCString hostName;
-  nsresult rv = GetHostname(hostName);
-  nsAutoCString groupName;
-  rv = GetName(groupName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  rv = GetServer(getter_AddRefs(server));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  int32_t socketType;
-  rv = server->GetSocketType(&socketType);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  int32_t port;
-  rv = server->GetPort(&port);
-  NS_ENSURE_SUCCESS(rv, rv);
-  const char* newsScheme =
-      (socketType == nsMsgSocketType::SSL) ? SNEWS_SCHEME : NEWS_SCHEME;
-  nsCString escapedName;
-  rv = NS_MsgEscapeEncodeURLPath(groupName, escapedName);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCString tmpStr;
-  tmpStr.Adopt(PR_smprintf("%s//%s:%ld/%s", newsScheme, hostName.get(), port,
-                           escapedName.get()));
-  aUrl.Assign(tmpStr);
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgNewsFolder::SetNewsrcHasChanged(bool newsrcHasChanged) {
   nsresult rv;
 

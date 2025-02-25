@@ -971,10 +971,10 @@ class MsgDBReporter final : public nsIMemoryReporter {
       if (aAnonymize) {
         memoryPath.AppendLiteral("<anonymized>");
       } else {
-        nsAutoCString folderURL;
-        folder->GetFolderURL(folderURL);
-        folderURL.ReplaceChar('/', '\\');
-        memoryPath += folderURL;
+        nsAutoCString folderURI;
+        folder->GetURI(folderURI);
+        folderURI.ReplaceChar('/', '\\');
+        memoryPath += folderURI;
       }
     } else {
       memoryPath.AppendLiteral("UNKNOWN-FOLDER");

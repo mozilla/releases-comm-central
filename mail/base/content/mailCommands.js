@@ -162,7 +162,7 @@ async function ComposeMessage(
         type == Ci.nsIMsgCompType.New
       ) {
         type = Ci.nsIMsgCompType.NewsPost;
-        newsgroup = folder.folderURL;
+        newsgroup = folder.URI;
       }
 
       identity = folder.customIdentity;

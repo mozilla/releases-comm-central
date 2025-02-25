@@ -2774,11 +2774,6 @@ nsMsgDBFolder::UpdateFolder(nsIMsgWindow*) { return NS_OK; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NS_IMETHODIMP nsMsgDBFolder::GetFolderURL(nsACString& url) {
-  url.Assign(EmptyCString());
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgDBFolder::GetServer(nsIMsgIncomingServer** aServer) {
   NS_ENSURE_ARG_POINTER(aServer);
   nsresult rv;

@@ -593,7 +593,7 @@ add_task(async function testPropertiesSettingsFilters() {
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
         Assert.equal(nameInput.value, "folderPaneContextFolder");
-        Assert.equal(locationInput.value, plainFolder.folderURL);
+        Assert.equal(locationInput.value, plainFolder.URI);
 
         acceptButton.click();
       },

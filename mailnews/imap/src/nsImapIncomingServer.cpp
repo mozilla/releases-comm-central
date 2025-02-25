@@ -1280,11 +1280,11 @@ NS_IMETHODIMP nsImapIncomingServer::FolderVerifiedOnline(
 nsresult nsImapIncomingServer::PathFromFolder(nsIMsgFolder* folder,
                                               nsACString& shortPath) {
   nsresult rv;
-  nsAutoCString folderURL;
-  rv = folder->GetFolderURL(folderURL);
+  nsAutoCString folderURI;
+  rv = folder->GetURI(folderURI);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIURI> uri;
-  rv = NS_NewURI(getter_AddRefs(uri), folderURL);
+  rv = NS_NewURI(getter_AddRefs(uri), folderURI);
   NS_ENSURE_SUCCESS(rv, rv);
   nsAutoCString fullfolderPath;
   uri->GetPathQueryRef(fullfolderPath);

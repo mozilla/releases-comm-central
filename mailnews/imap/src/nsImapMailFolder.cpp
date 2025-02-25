@@ -7800,23 +7800,6 @@ nsresult nsImapMailFolder::CreateBaseMessageURI(const nsACString& aURI) {
   return nsCreateImapBaseMessageURI(aURI, mBaseMessageURI);
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetFolderURL(nsACString& aFolderURL) {
-  nsCOMPtr<nsIMsgFolder> rootFolder;
-  nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rootFolder->GetURI(aFolderURL);
-  if (rootFolder == this) return NS_OK;
-
-  NS_ASSERTION(mURI.Length() > aFolderURL.Length(),
-               "Should match with a folder name!");
-  nsCString escapedName;
-  MsgEscapeString(Substring(mURI, aFolderURL.Length()),
-                  nsINetUtil::ESCAPE_URL_PATH, escapedName);
-  if (escapedName.IsEmpty()) return NS_ERROR_OUT_OF_MEMORY;
-  aFolderURL.Append(escapedName);
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsImapMailFolder::GetFolderNeedsSubscribing(bool* bVal) {
   NS_ENSURE_ARG_POINTER(bVal);
   *bVal = m_folderNeedsSubscribing;

@@ -243,8 +243,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   NS_IMETHOD GetPrettyName(nsACString& prettyName)
       override;  // Override of the base, for top-level mail folder
 
-  NS_IMETHOD GetFolderURL(nsACString& url) override;
-
   NS_IMETHOD UpdateSummaryTotals(bool force) override;
 
   NS_IMETHOD GetDeletable(bool* deletable) override;

@@ -43,7 +43,6 @@ class EwsFolder : public nsMsgDBFolder {
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
                                   nsIMsgDatabase** _retval) override;
   NS_IMETHOD GetDeletable(bool* deletable) override;
-  NS_IMETHOD GetFolderURL(nsACString& aFolderURL) override;
   NS_IMETHOD GetIncomingServerType(nsACString& aIncomingServerType) override;
   NS_IMETHOD GetNewMessages(nsIMsgWindow* aWindow,
                             nsIUrlListener* aListener) override;

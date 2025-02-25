@@ -301,8 +301,8 @@ function folderPropsOnLoad() {
     // whereas imap and news urls are sent around.
     locationTextbox.value =
       serverType == "imap" || serverType == "nntp"
-        ? gMsgFolder.folderURL
-        : decodeURI(gMsgFolder.folderURL);
+        ? gMsgFolder.URI
+        : decodeURI(gMsgFolder.URI);
 
     if (gMsgFolder.canRename) {
       document.getElementById("name").removeAttribute("readonly");

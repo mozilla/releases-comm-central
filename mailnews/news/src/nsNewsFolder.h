@@ -38,8 +38,6 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
 
   NS_IMETHOD GetAbbreviatedName(nsACString& aAbbreviatedName) override;
 
-  NS_IMETHOD GetFolderURL(nsACString& url) override;
-
   NS_IMETHOD GetExpungedBytesCount(int64_t* count);
   NS_IMETHOD GetDeletable(bool* deletable) override;
 

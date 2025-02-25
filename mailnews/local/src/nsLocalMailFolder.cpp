@@ -486,20 +486,6 @@ nsMsgLocalMailFolder::UpdateFolder(nsIMsgWindow* aWindow) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::GetFolderURL(nsACString& aUrl) {
-  nsresult rv;
-  nsCOMPtr<nsIFile> path;
-  rv = GetFilePath(getter_AddRefs(path));
-  if (NS_FAILED(rv)) return rv;
-
-  rv = NS_GetURLSpecFromFile(path, aUrl);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  aUrl.Replace(0, strlen("file:"), "mailbox:");
-
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgLocalMailFolder::CreateStorageIfMissing(
     nsIUrlListener* aUrlListener) {
   nsresult rv = NS_OK;

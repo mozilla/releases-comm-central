@@ -232,8 +232,7 @@ function onLeave() {
   if (gToggleOccurred) {
     for (const folder of gIncomingServer.rootFolder.descendants) {
       if (
-        gOfflineMap[folder.folderURL] !=
-        folder.getFlag(Ci.nsMsgFolderFlags.Offline)
+        gOfflineMap[folder.URI] != folder.getFlag(Ci.nsMsgFolderFlags.Offline)
       ) {
         // A change to the Offline flag to a folder was made.
         changed = true;
@@ -391,9 +390,7 @@ function toggleOffline() {
 function collectOfflineFolders() {
   const offlineFolderMap = {};
   for (const folder of gIncomingServer.rootFolder.descendants) {
-    offlineFolderMap[folder.folderURL] = folder.getFlag(
-      Ci.nsMsgFolderFlags.Offline
-    );
+    offlineFolderMap[folder.URI] = folder.getFlag(Ci.nsMsgFolderFlags.Offline);
   }
 
   return offlineFolderMap;
@@ -401,7 +398,7 @@ function collectOfflineFolders() {
 
 function restoreOfflineFolders(offlineFolderMap) {
   for (const folder of gIncomingServer.rootFolder.descendants) {
-    if (offlineFolderMap[folder.folderURL]) {
+    if (offlineFolderMap[folder.URI]) {
       folder.setFlag(Ci.nsMsgFolderFlags.Offline);
     } else {
       folder.clearFlag(Ci.nsMsgFolderFlags.Offline);

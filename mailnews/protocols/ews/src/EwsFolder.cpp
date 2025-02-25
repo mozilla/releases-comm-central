@@ -326,11 +326,6 @@ EwsFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
   return (*database)->GetDBFolderInfo(folderInfo);
 }
 
-NS_IMETHODIMP EwsFolder::GetFolderURL(nsACString& aFolderURL) {
-  NS_WARNING("GetFolderURL");
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP EwsFolder::GetIncomingServerType(nsACString& aServerType) {
   aServerType.AssignLiteral("ews");
 
