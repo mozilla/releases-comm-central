@@ -21,9 +21,14 @@ export class CalendarDialogRow extends HTMLElement {
 
     const shadowRoot = this.attachShadow({ mode: "open" });
 
+    // Load styles in the shadowRoot so we don't leak it.
+    const style = document.createElement("link");
+    style.rel = "stylesheet";
+    style.href = "chrome://messenger/skin/calendar/calendarDialogRow.css";
+
     const template = document.getElementById("calendarDialogRowTemplate");
     const clonedNode = template.content.cloneNode(true);
-    shadowRoot.append(clonedNode);
+    shadowRoot.append(clonedNode, style);
   }
 }
 

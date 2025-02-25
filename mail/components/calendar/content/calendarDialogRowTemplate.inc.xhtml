@@ -4,12 +4,8 @@
 
 <html:template id="calendarDialogRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
   <div class="calendar-dialog-row">
-    <div class="row-icon">
-      <slot name="icon"></slot>
-    </div>
-    <div class="row-data">
-      <slot name="label"></slot>
-      <slot name="content"></slot>
-    </div>
+    <slot name="icon"></slot>
+    <slot name="label"></slot>
+    <slot name="content"></slot>
   </div>
 </html:template>
