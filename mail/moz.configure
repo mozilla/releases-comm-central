@@ -12,9 +12,7 @@ set_config("MOZ_APPUPDATE_HOST", "aus.thunderbird.net")
 
 imply_option("--enable-default-browser-agent", False)
 imply_option("MOZ_REQUIRE_SIGNING", False)
-imply_option(
-    "--enable-unverified-updates", False, when=target_is_windows & ~have_64_bit
-)
+imply_option("--enable-unverified-updates", False, when=target_is_windows & ~have_64_bit)
 
 
 @depends(milestone)
@@ -114,9 +112,7 @@ def thunderbird_official_branding(milestone, update_channel):
         rv = "thunderbird"
     elif update_channel == "beta":
         rv = "tb_beta"
-    elif (
-        update_channel == "default"
-    ):  # For distros that want official branding but updates
+    elif update_channel == "default":  # For distros that want official branding but updates
         version_display = milestone.app_version_display
         m = re.search(r"([ab])\d+", version_display)
         if m:  # Alpha or beta, alpha will fall back to nightly
@@ -132,9 +128,12 @@ def thunderbird_official_branding(milestone, update_channel):
 def thunderbird_official_branding_directory(thunderbird_official_branding):
     return f"comm/mail/branding/{thunderbird_official_branding}"
 
-imply_option("MOZ_OFFICIAL_BRANDING_DIRECTORY",
-             thunderbird_official_branding_directory,
-             reason=thunderbird_official_branding)
+
+imply_option(
+    "MOZ_OFFICIAL_BRANDING_DIRECTORY",
+    thunderbird_official_branding_directory,
+    reason=thunderbird_official_branding,
+)
 
 # Thunderbird Rust code is now the default
 option("--disable-thunderbird-rust", help="Enable Rust support within Thunderbird")
