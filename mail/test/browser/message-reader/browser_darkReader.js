@@ -80,10 +80,14 @@ add_task(async function test_dark_light_reader_mode() {
 
 add_task(async function test_message_header_toggle() {
   info("Enable dark message mode.");
+  let msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
   await toggle_dark_reader(true);
+  await msgLoaded;
 
   info("Enable light theme.");
+  msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
   await toggle_theme(lightTheme, true);
+  await msgLoaded;
 
   const toggle = aboutMessage.document.getElementById("darkReaderToggle");
 
@@ -93,7 +97,7 @@ add_task(async function test_message_header_toggle() {
   );
 
   info("Enable dark theme.");
-  let msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+  msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
   await toggle_theme(darkTheme, true);
   await msgLoaded;
 
@@ -120,21 +124,37 @@ add_task(async function test_message_header_toggle() {
   info("Disable the toggle visibility from the header customizer");
   const moreBtn = aboutMessage.document.getElementById("otherActionsButton");
   const popup = aboutMessage.document.getElementById("otherActionsPopup");
+  Assert.equal(
+    "closed",
+    popup.state,
+    "Popup state should be correct before synthesizing a mouse click"
+  );
   EventUtils.synthesizeMouseAtCenter(moreBtn, {}, aboutMessage);
   await BrowserTestUtils.waitForPopupEvent(popup, "shown");
 
   const panel = aboutMessage.document.getElementById(
     "messageHeaderCustomizationPanel"
   );
+  Assert.equal(
+    "closed",
+    panel.state,
+    "Panel state should be correct before synthesizing a mouse click"
+  );
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("messageHeaderMoreMenuCustomize"),
     {},
     aboutMessage
   );
+  await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
   await BrowserTestUtils.waitForPopupEvent(panel, "shown");
 
   const darkToggleCustomizer = aboutMessage.document.getElementById(
     "headerShowDarkToggle"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(toggle),
+    "Dark reader toggle should be visible before synthesizing mouse click"
   );
   EventUtils.synthesizeMouseAtCenter(darkToggleCustomizer, {}, aboutMessage);
   await BrowserTestUtils.waitForCondition(
@@ -142,18 +162,29 @@ add_task(async function test_message_header_toggle() {
     "toggle button should be hidden"
   );
 
+  Assert.ok(
+    BrowserTestUtils.isHidden(toggle),
+    "Dark reader toggle should be hidden before synthesizing mouse click"
+  );
   EventUtils.synthesizeMouseAtCenter(darkToggleCustomizer, {}, aboutMessage);
   await BrowserTestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(toggle),
     "toggle button should be visible"
   );
 
+  Assert.equal(
+    "open",
+    panel.state,
+    "Panel should be open before synthesizing the ESC key"
+  );
   EventUtils.synthesizeKey("KEY_Escape", {}, aboutMessage);
   await BrowserTestUtils.waitForPopupEvent(panel, "hidden");
 
+  info(`Synthesizing mouse click on dark reader toggle`);
   msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
   EventUtils.synthesizeMouseAtCenter(toggle, {}, aboutMessage);
   await msgLoaded;
+  info(`Message loaded after switching reader mode`);
 
   await assert_light_style();
 });
