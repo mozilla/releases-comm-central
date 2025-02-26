@@ -40,8 +40,6 @@
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/searchWidgets.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailWindow.js"></script>
-  <script defer="defer" src="chrome://messenger/content/folderDisplay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/threadPane.js"></script>
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
   <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/searchTerm.js"></script>
@@ -128,7 +126,205 @@
 
     <vbox id="searchResults" persist="height">
       <vbox id="searchResultListBox" flex="1">
-#include threadTree.inc.xhtml
+        <tree id="threadTree"
+              class="plain"
+              persist="lastfoldersent width"
+              treelines="true"
+              enableColumnDrag="true"
+              _selectDelay="250"
+              lastfoldersent="false"
+              keepcurrentinview="true"
+              disableKeyNavigation="true"
+              onkeydown="ThreadPaneKeyDown(event);"
+              onselect="ThreadPaneSelectionChanged();">
+          <treecols id="threadCols"
+                    pickertooltiptext="&columnChooser2.tooltip;">
+
+             <!--
+               The below code may suggest that 'ordinal' is still a supported XUL
+               XUL attribute. It is not. This is a crutch so that we can
+               continue persisting the CSS -moz-box-ordinal-group attribute,
+               which is the appropriate replacement for the ordinal attribute
+               but cannot yet be easily persisted. The code that synchronizes
+               the attribute with the CSS lives in
+               toolkit/content/widget/tree.js and is specific to tree elements.
+             -->
+            <treecol is="treecol-image" id="selectCol"
+                     class="thread-tree-icon-header selectColumnHeader"
+                     persist="hidden ordinal"
+                     fixed="true"
+                     cycler="true"
+                     currentView="unthreaded"
+                     hidden="true"
+                     closemenu="none"
+                     src="chrome://messenger/skin/icons/new/compact/checkbox.svg"
+                     label="&selectColumn.label;"
+                     tooltiptext="&selectColumn.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol is="treecol-image" id="flaggedCol"
+                     class="thread-tree-icon-header flagColumnHeader"
+                     persist="hidden ordinal sortDirection"
+                     fixed="true"
+                     cycler="true"
+                     closemenu="none"
+                     src="chrome://messenger/skin/icons/new/star-sm.svg"
+                     label="&starredColumn.label;"
+                     tooltiptext="&starredColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol is="treecol-image" id="attachmentCol"
+                     class="thread-tree-icon-header attachmentColumnHeader"
+                     persist="hidden ordinal sortDirection"
+                     fixed="true"
+                     closemenu="none"
+                     src="chrome://messenger/skin/icons/new/attachment-sm.svg"
+                     label="&attachmentColumn.label;"
+                     tooltiptext="&attachmentColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="subjectCol"
+                     persist="ordinal width sortDirection"
+                     ignoreincolumnpicker="true"
+                     closemenu="none"
+                     label="&subjectColumn.label;"
+                     tooltiptext="&subjectColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol is="treecol-image" id="unreadButtonColHeader"
+                     class="thread-tree-icon-header readColumnHeader"
+                     persist="hidden ordinal sortDirection"
+                     fixed="true"
+                     cycler="true"
+                     closemenu="none"
+                     src="chrome://messenger/skin/icons/new/unread-sm.svg"
+                     label="&readColumn.label;"
+                     tooltiptext="&readColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="senderCol"
+                     persist="hidden ordinal sortDirection width"
+                     hidden="true"
+                     closemenu="none"
+                     label="&fromColumn.label;"
+                     tooltiptext="&fromColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="recipientCol"
+                     persist="hidden ordinal sortDirection width"
+                     hidden="true"
+                     closemenu="none"
+                     label="&recipientColumn.label;"
+                     tooltiptext="&recipientColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="correspondentCol"
+                     persist="hidden ordinal sortDirection width"
+                     closemenu="none"
+                     label="&correspondentColumn.label;"
+                     tooltiptext="&correspondentColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol is="treecol-image" id="junkStatusCol"
+                     class="thread-tree-icon-header junkStatusHeader"
+                     persist="hidden ordinal sortDirection"
+                     fixed="true"
+                     cycler="true"
+                     closemenu="none"
+                     src="chrome://messenger/skin/icons/new/spam-sm.svg"
+                     label="&junkStatusColumn.label;"
+                     tooltiptext="&junkStatusColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="receivedCol"
+                     persist="hidden ordinal sortDirection width"
+                     hidden="true"
+                     closemenu="none"
+                     label="&receivedColumn.label;"
+                     tooltiptext="&receivedColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="dateCol"
+                     persist="hidden ordinal sortDirection width"
+                     closemenu="none"
+                     label="&dateColumn.label;"
+                     tooltiptext="&dateColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="statusCol"
+                     persist="hidden ordinal sortDirection width"
+                     style="flex: 1 auto"
+                     hidden="true"
+                     closemenu="none"
+                     label="&statusColumn.label;"
+                     tooltiptext="&statusColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="sizeCol"
+                     persist="hidden ordinal sortDirection width"
+                     style="flex: 1 auto"
+                     hidden="true"
+                     closemenu="none"
+                     label="&sizeColumn.label;"
+                     tooltiptext="&sizeColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="tagsCol"
+                     persist="hidden ordinal sortDirection width"
+                     style="flex: 1 auto"
+                     hidden="true"
+                     closemenu="none"
+                     label="&tagsColumn.label;"
+                     tooltiptext="&tagsColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="accountCol"
+                     persist="hidden ordinal sortDirection width"
+                     style="flex: 1 auto"
+                     hidden="true"
+                     closemenu="none"
+                     label="&accountColumn.label;"
+                     tooltiptext="&accountColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="priorityCol"
+                     persist="hidden ordinal sortDirection width"
+                     style="flex: 1 auto"
+                     hidden="true"
+                     closemenu="none"
+                     label="&priorityColumn.label;"
+                     tooltiptext="&priorityColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="unreadCol"
+                     persist="hidden ordinal sortDirection width"
+                     style="flex: 1 auto"
+                     hidden="true"
+                     closemenu="none"
+                     label="&unreadColumn.label;"
+                     tooltiptext="&unreadColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="totalCol"
+                     persist="hidden ordinal sortDirection width"
+                     style="flex: 1 auto"
+                     hidden="true"
+                     closemenu="none"
+                     label="&totalColumn.label;"
+                     tooltiptext="&totalColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="locationCol"
+                     persist="hidden ordinal sortDirection width"
+                     style="flex: 1 auto"
+                     closemenu="none"
+                     label="&locationColumn.label;"
+                     tooltiptext="&locationColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="idCol"
+                     persist="hidden ordinal sortDirection width"
+                     style="flex: 1 auto"
+                     hidden="true"
+                     closemenu="none"
+                     label="&idColumn.label;"
+                     tooltiptext="&idColumn2.tooltip;"/>
+            <splitter class="tree-splitter"/>
+            <treecol is="treecol-image" id="deleteCol"
+                     class="thread-tree-icon-header deleteColumnHeader"
+                     persist="hidden ordinal"
+                     fixed="true"
+                     cycler="true"
+                     currentView="unthreaded"
+                     hidden="true"
+                     closemenu="none"
+                     src="chrome://messenger/skin/icons/new/trash-sm.svg"
+                     label="&deleteColumn.label;"
+                     tooltiptext="&deleteColumn.tooltip;"/>
+          </treecols>
+          <treechildren ondragstart="ThreadPaneOnDragStart(event);"/>
+        </tree>
       </vbox>
       <hbox align="start">
         <button label="&openButton.label;" id="openButton" command="cmd_open" accesskey="&openButton.accesskey;"/>

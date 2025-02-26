@@ -2056,11 +2056,7 @@ nsMsgDBView::ToggleOpenState(int32_t index) {
 }
 
 NS_IMETHODIMP
-nsMsgDBView::CycleHeader(nsTreeColumn* aCol) {
-  // Let HandleColumnClick() in threadPane.js handle it
-  // since it will set / clear the sort indicators.
-  return NS_OK;
-}
+nsMsgDBView::CycleHeader(nsTreeColumn* aCol) { return NS_OK; }
 
 NS_IMETHODIMP
 nsMsgDBView::CycleCell(int32_t row, nsTreeColumn* col) {

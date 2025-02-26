@@ -51,7 +51,7 @@ add_task(async function testDropMozMessage() {
   const msgStr = about3PaneTab.folder.getUriForMsg(msg);
   const msgUrl = MailServices.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
 
-  // Setup a DataTransfer to mimic what ThreadPaneOnDragStart sends.
+  // Se tup a DataTransfer.
   const dataTransfer = new DataTransfer();
   dataTransfer.mozSetDataAt("text/x-moz-message", msgStr, 0);
   dataTransfer.mozSetDataAt("text/x-moz-url", msgUrl.spec, 0);

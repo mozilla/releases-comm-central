@@ -155,7 +155,6 @@ files_changed:
   - comm/mail/base/content/contentAreaClick.js
   - comm/mail/base/content/customizeToolbar.xhtml
   - comm/mail/base/content/editContactPanel.js
-  - comm/mail/base/content/folderDisplay.js
   - comm/mail/base/content/helpMenu.inc.xhtml
   - comm/mail/base/content/mailCommon.js
   - comm/mail/base/content/mailContext.js
@@ -175,7 +174,6 @@ files_changed:
   - comm/mail/base/content/quickFilterBar.js
   - comm/mail/base/content/specialTabs.js
   - comm/mail/base/content/tabmail.js
-  - comm/mail/base/content/threadPane.js
   - comm/mail/base/content/utilityOverlay.js
   - comm/mail/base/content/widgets/auto-tree-view.mjs
   - comm/mail/base/content/widgets/listbox/tree-listbox-mixin.mjs
