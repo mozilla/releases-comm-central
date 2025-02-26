@@ -8,6 +8,8 @@
 
 "use strict";
 
+requestLongerTimeout(2);
+
 const {
   get_about_message,
   open_message_from_file,
