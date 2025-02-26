@@ -1,1 +1,58 @@
-[]
+[
+  {
+    "id": "PREBAKED-Spring25",
+    "start_at": "2025-04-01T00:00:00Z",
+    "end_at": "2025-05-01T00:00:00Z",
+    "title": "Prebaked Appeal Spring25",
+    "description": "",
+    "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-Spring25",
+    "CTA": "",
+    "severity": 3,
+    "type": "donation_tab",
+    "targeting": {
+      "percent_chance": 100
+    }
+  },
+  {
+    "id": "PREBAKED-ESR25",
+    "start_at": "2025-07-01T00:00:00Z",
+    "end_at": "2025-08-01T00:00:00Z",
+    "title": "Prebaked Appeal ESR25",
+    "description": "",
+    "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-ESR25",
+    "CTA": "",
+    "severity": 3,
+    "type": "donation_tab",
+    "targeting": {
+      "percent_chance": 100
+    }
+  },
+  {
+    "id": "PREBAKED-EoY25-1",
+    "start_at": "2025-11-03T00:00:00Z",
+    "end_at": "2025-11-30T00:00:00Z",
+    "title": "Prebaked Appeal EoY25-1",
+    "description": "",
+    "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-EoY25-1",
+    "CTA": "",
+    "severity": 3,
+    "type": "donation_tab",
+    "targeting": {
+      "percent_chance": 100
+    }
+  },
+  {
+    "id": "PREBAKED-EoY25-2",
+    "start_at": "2025-12-01T00:00:00Z",
+    "end_at": "2025-12-31T00:00:00Z",
+    "title": "Prebaked Appeal EoY25-2",
+    "description": "",
+    "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-EoY25-2",
+    "CTA": "",
+    "severity": 3,
+    "type": "donation_tab",
+    "targeting": {
+      "percent_chance": 100
+    }
+  }
+]
