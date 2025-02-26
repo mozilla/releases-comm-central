@@ -88,3 +88,18 @@ inappnotifications:
       active_this_session:
         description: Amount of seconds this notification was active in this session.
         type: quantity
+  preferences:
+    type: labeled_boolean
+    description: If in app notifications are being shown based on prefrences.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1933294
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1933294
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    labels:
+      - mail.inappnotifications.enabled
+      - mail.inappnotifications.url

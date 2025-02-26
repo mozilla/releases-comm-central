@@ -29,3 +29,12 @@ add_task(async function test_documentContainsManagerWhenPrefTrue() {
     "Does not contain notification element"
   );
 });
+
+add_task(async function test_disabledTelemetryProbe() {
+  Assert.ok(
+    !(await Glean.inappnotifications.preferences[
+      "mail.inappnotifications.enabled"
+    ].testGetValue()),
+    "Telemetry should show notifications disabled based on enabled prefrence"
+  );
+});

@@ -326,6 +326,10 @@ var gMailInit = {
         })
         .catch(console.error);
     }
+
+    Glean.inappnotifications.preferences["mail.inappnotifications.enabled"].set(
+      Services.prefs.getBoolPref("mail.inappnotifications.enabled", false)
+    );
   },
 
   /**

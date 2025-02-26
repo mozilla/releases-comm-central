@@ -1,0 +1,11 @@
+[DEFAULT]
+prefs = [
+  "datareporting.policy.dataSubmissionPolicyAcceptedVersion=10",
+  "datareporting.policy.currentPolicyVersion=10",
+  "mail.inappnotifications.enabled=true"
+]
+support-files = [
+  "files/notifications.json",
+]
+
+["test_notification_updater_default.js"]

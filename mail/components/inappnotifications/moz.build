@@ -16,9 +16,7 @@ EXTRA_JS_MODULES += [
 
 JAR_MANIFESTS += ["jar.mn"]
 
-XPCSHELL_TESTS_MANIFESTS += [
-    "test/unit/xpcshell.toml",
-]
+XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.toml", "test/unit/xpcshell_default.toml"]
 
 BROWSER_CHROME_MANIFESTS += [
     "test/browser/browser.toml",

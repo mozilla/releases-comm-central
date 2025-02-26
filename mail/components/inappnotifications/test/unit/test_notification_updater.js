@@ -19,6 +19,9 @@ const { clearInterval } = ChromeUtils.importESModule(
 const { HttpServer } = ChromeUtils.importESModule(
   "resource://testing-common/httpd.sys.mjs"
 );
+const { PlacesUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/PlacesUtils.sys.mjs"
+);
 
 const { clearTimeout, setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
@@ -38,6 +41,12 @@ async function clear() {
 const getExpirationTime = NotificationUpdater.getExpirationTime;
 
 add_setup(async () => {
+  // FOG needs a profile directory to put its data in.
+  do_get_profile();
+
+  // FOG needs to be initialized in order for data to flow.
+  Services.fog.initializeFOG();
+
   updateSpy = sinon.spy();
   NotificationUpdater.onUpdate = updateSpy;
 
@@ -87,6 +96,7 @@ add_setup(async () => {
     Services.prefs.clearUserPref("datareporting.policy.currentPolicyVersion");
     Services.prefs.setStringPref("mail.inappnotifications.url", "");
     await new Promise(resolve => server.stop(resolve));
+    await PlacesUtils.history.clear();
   });
 });
 
@@ -604,4 +614,42 @@ add_task(async function test_testUrlVersionReplacement() {
   );
 
   Services.prefs.setStringPref("mail.inappnotifications.url", url);
+});
+
+add_task(async function test_updateUrlPrefObserverToUser() {
+  await Services.fog.testResetFOG();
+  const url = Services.prefs.getStringPref("mail.inappnotifications.url", "");
+  Services.prefs.setStringPref(
+    "mail.inappnotifications.url",
+    url.replace("notifications.json", "%IAN_SCHEMA_VERSION%/notifications.json")
+  );
+
+  Assert.ok(
+    !Glean.inappnotifications.preferences[
+      "mail.inappnotifications.url"
+    ].testGetValue(),
+    "Telemetry should show notifications using non-default url"
+  );
+
+  await clear();
+
+  Services.prefs.setStringPref("mail.inappnotifications.url", url);
+});
+
+add_task(async function test_initUserTelemetry() {
+  await Services.fog.testResetFOG();
+
+  NotificationUpdater.getExpirationTime = () => Date.now() / 1000 + 100;
+
+  await NotificationUpdater.init();
+
+  Assert.ok(
+    !Glean.inappnotifications.preferences[
+      "mail.inappnotifications.url"
+    ].testGetValue(),
+    "Telemetry should show notifications disabled based on url prefrence"
+  );
+
+  await clear();
+  NotificationUpdater.getExpirationTime = getExpirationTime;
 });

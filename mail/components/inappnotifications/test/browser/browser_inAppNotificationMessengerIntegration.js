@@ -42,3 +42,12 @@ add_task(async function test_documentContainsManagerWhenPrefTrue() {
     "Is an instance of in-app-notification-manager"
   );
 });
+
+add_task(async function test_enabledTelemetryProbeEnabled() {
+  Assert.ok(
+    await Glean.inappnotifications.preferences[
+      "mail.inappnotifications.enabled"
+    ].testGetValue(),
+    "Telemetry should show notifications enabled based on enabled prefrence"
+  );
+});
