@@ -1449,7 +1449,6 @@ function UpdateExpandedMessageHeaders() {
 }
 
 function ClearCurrentHeaders() {
-  gSecureMsgProbe = {};
   // eslint-disable-next-line no-global-assign
   currentHeaderData = {};
   // eslint-disable-next-line no-global-assign
@@ -4408,31 +4407,88 @@ function IgnoreMDNResponse() {
   gMessageNotificationBar.mdnGenerator.userDeclined();
 }
 
-// An object to help collecting reading statistics of secure emails.
-var gSecureMsgProbe = {};
+// A Map() to help collecting statistics of emails.
+var gMsgProbe = new Map();
 
 /**
- * Update gSecureMsgProbe and report to telemetry if necessary.
+ * Process and clear the collected telemetry data.
+ */
+function flushPendingTelemetryData() {
+  // Clear any pending action.
+  window.clearTimeout(gMsgProbe.get("timeoutId"));
+
+  const security = gMsgProbe.get("security");
+
+  // Only process telemetry for encrypted and/or signed messages.
+  if (security) {
+    let skipped = true;
+
+    // Skip telemetry data for messages which are not new.
+    if (gMsgProbe.has("isNewRead")) {
+      const is_signed = gMsgProbe.has("is_signed");
+      const is_encrypted = gMsgProbe.has("is_encrypted");
+      Glean.mail.mailsReadSecure.record({ security, is_signed, is_encrypted });
+      skipped = false;
+    }
+
+    // Let tests and other consumers know when the data has been processed or
+    // skipped.
+    window.dispatchEvent(
+      new CustomEvent("MsgSecurityTelemetryProcessed", {
+        bubbles: true,
+        detail: {
+          skipped,
+        },
+      })
+    );
+  }
+
+  // Reset collected data.
+  gMsgProbe.clear();
+}
+
+/**
+ * Update gMsgProbe and schedule submission of collected telemetry if necessary.
  */
 function reportMsgRead({ isNewRead = false, key = null }) {
+  // Usually telemetry data is processed after a short delay to ensure all data
+  // has been captured and the full telemetry information is available (security,
+  // is_signed and is_encrypted). Forcfully process any pending telemetry data,
+  // if a different message is loaded.
+  let pendingMsgURI = gMsgProbe.get("messageURI");
+  if (pendingMsgURI && pendingMsgURI != gMessageURI) {
+    flushPendingTelemetryData();
+    pendingMsgURI = undefined;
+  }
+
+  // Update probe data.
+  if (!pendingMsgURI) {
+    gMsgProbe.set("messageURI", gMessageURI);
+  }
   if (isNewRead) {
-    gSecureMsgProbe.isNewRead = true;
+    gMsgProbe.set("isNewRead", true);
   }
   if (key) {
-    gSecureMsgProbe.key = key;
-  }
-  if (gSecureMsgProbe.key && gSecureMsgProbe.isNewRead) {
     // The key is one of:
     // - 'signed-smime'
     // - 'signed-openpgp'
     // - 'encrypted-smime'
     // - 'encrypted-openpgp'
-    const is_signed = gSecureMsgProbe.key.startsWith("signed-");
-    const is_encrypted = gSecureMsgProbe.key.startsWith("encrypted-");
-    const security = gSecureMsgProbe.key.endsWith("-openpgp")
-      ? "OpenPGP"
-      : "S/MIME";
-    Glean.mail.mailsReadSecure.record({ security, is_signed, is_encrypted });
+    if (key.startsWith("signed-")) {
+      gMsgProbe.set("is_signed", true);
+    }
+    if (key.startsWith("encrypted-")) {
+      gMsgProbe.set("is_encrypted", true);
+    }
+    gMsgProbe.set("security", key.endsWith("-openpgp") ? "OpenPGP" : "S/MIME");
+
+    // This seems to be an encrypted and/or signed message. Schedule to process
+    // the collected telemetry data.
+    window.clearTimeout(gMsgProbe.get("timeoutId"));
+    gMsgProbe.set(
+      "timeoutId",
+      window.setTimeout(flushPendingTelemetryData, 500)
+    );
   }
 }
 
