@@ -238,9 +238,8 @@ NS_IMETHODIMP nsMsgSearchSession::InterruptSearch() {
   }
   if (m_backgroundTimer) {
     m_backgroundTimer->Cancel();
-    NotifyListenersDone(NS_MSG_SEARCH_INTERRUPTED);
-
     m_backgroundTimer = nullptr;
+    NotifyListenersDone(NS_MSG_SEARCH_INTERRUPTED);
   }
   return NS_OK;
 }
