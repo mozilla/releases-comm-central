@@ -128,8 +128,9 @@ FolderCompactor::~FolderCompactor() {
     mBackupDBFile->Remove(false);
     mBackupDBFile = nullptr;
   }
-  // Should have already released folder in OnCompactionComplete(), but
-  // it's safe to release even if we don't hold the lock.
+  // Should have already released folder in OnFinalSummary(), but
+  // ReleaseSemaphore() is OK with being called even if we don't hold the
+  // lock.
   mFolder->ReleaseSemaphore(this);
 }
 
@@ -209,13 +210,15 @@ nsresult FolderCompactor::BeginCompacting(
 
   // Kick it off by telling the store to start compacting the mbox file.
   // The msgStore will hold us in existence until our
-  // OnCompactionComplete() handler returns.
+  // handler returns.
   //
   // After AsyncCompact() is called, we'll receive callbacks to:
-  // OnCompactionBegin()     - At the start of the compaction.
-  // OnRetentionQuery()   - For each message, we give a thumbs up or down.
-  // OnMessageRetained()         - After each kept message has been written.
-  // OnCompactionComplete()  - At the end of the compaction.
+  // OnCompactionBegin()    - At the start of the compaction.
+  // OnRetentionQuery()     - For each message, we give a thumbs up or down.
+  // OnMessageRetained()    - After each kept message has been written.
+  // OnCompactionComplete() - The new mbox is ready to go, so we should
+  //                          install the new db.
+  // OnFinalSummary()       - At the end of the compaction.
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = mFolder->GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -492,17 +495,70 @@ NS_IMETHODIMP FolderCompactor::OnMessageRetained(nsACString const& oldToken,
   return NS_OK;
 }
 
-// nsIStoreCompactListener callback, called after compaction is complete.
-// Success or failure indicated by status param.
-// After this callback is called, the FolderCompactor will likely be
-// destroyed.
-// At this point the mbox file has been compacted, unless the status is
-// a failure. In which case it has been rolled back.
-NS_IMETHODIMP FolderCompactor::OnCompactionComplete(nsresult status,
-                                                    int64_t oldSize,
-                                                    int64_t newSize) {
+// nsIStoreCompactListener callback, called after the low-level compaction
+// is complete, but before it has been committed.
+//
+// In practice, for mbox: the newly compacted mbox is ready to go
+// (in "foo/.compact-temp/folder.compacted"), the old mbox has been moved out
+// of the way (to "foo/.compact-temp/folder.original"). The new mbox will be
+// installed (via a file rename) as soon as this function returns
+// successfully.
+// If this function returns a failure code, an attempt will be made to
+// restore the old mbox file.
+//
+// If we crash or lose power before returning from this function, we'll be
+// out of sync. But at least the condition can be detected and could be
+// recovered.
+//
+// If the AsyncCompact() operation failed, then status passed in here will
+// hold a failure code, we shouldn't install our DB changes, and the
+// lower-level (mbox) compaction will be reverted no matter what error code
+// we return from this function.
+NS_IMETHODIMP FolderCompactor::OnCompactionComplete(nsresult status) {
   MOZ_LOG(gCompactLog, LogLevel::Info,
-          ("OnCompactionComplete(status=0x%" PRIx32 " oldSize=%" PRId64
+          ("OnCompactionComplete(status=0x%" PRIx32 ")", (uint32_t)status));
+
+  nsresult rv = status;
+  if (NS_SUCCEEDED(rv)) {
+    // Commit all the changes.
+    rv = mDB->Commit(nsMsgDBCommitType::kCompressCommit);
+    if (NS_SUCCEEDED(rv)) {
+      mBackupDBFile->Remove(false);
+      mBackupDBFile = nullptr;
+    }
+  }
+
+  if (NS_FAILED(rv)) {
+    // Kill db and replace with backup.
+    mDB->ForceClosed();
+    nsAutoString dbFilename;
+    nsresult rv2 = mDBFile->GetLeafName(dbFilename);
+    if (NS_SUCCEEDED(rv2)) {
+      rv2 = mBackupDBFile->MoveTo(nullptr, dbFilename);
+    }
+    if (NS_SUCCEEDED(rv2)) {
+      // All done with backup db.
+      mBackupDBFile = nullptr;
+    } else {
+      NS_ERROR("Failed to restore db after compaction failure.");
+      // Everything is going pear-shaped at this point.
+      // The mbox file will be rolled back, but there's not
+      // much in the way of recovery options for the DB.
+      // TODO: Maybe should just delete DB and require a reparse?
+    }
+  }
+  return rv;
+}
+
+// nsIStoreCompactListener callback, the last thing called.
+// Informs us about the final results of the compaction.
+// After this callback returns, the FolderCompactor will likely be
+// destroyed.
+// Any error code returned from here is ignored.
+NS_IMETHODIMP FolderCompactor::OnFinalSummary(nsresult status, int64_t oldSize,
+                                              int64_t newSize) {
+  MOZ_LOG(gCompactLog, LogLevel::Info,
+          ("OnFinalSummary(status=0x%" PRIx32 " oldSize=%" PRId64
            " newSize=%" PRId64 ")",
            (uint32_t)status, oldSize, newSize));
 
@@ -518,47 +574,14 @@ NS_IMETHODIMP FolderCompactor::OnCompactionComplete(nsresult status,
       mFolder->URI());
 
   if (NS_SUCCEEDED(status)) {
-    // Commit all the changes.
-    nsresult rv = mDB->Commit(nsMsgDBCommitType::kCompressCommit);
-    if (NS_SUCCEEDED(rv)) {
-      // Don't need the DB backup any longer.
-      mBackupDBFile->Remove(false);
-      mBackupDBFile = nullptr;
-
-      // Update expungedbytes count in db.
-      nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-      mDB->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
-      if (dbFolderInfo) {
-        dbFolderInfo->SetExpungedBytes(0);
-      }
-      mDB->SetSummaryValid(true);
-      mozilla::glean::mail::compact_space_recovered.Accumulate(oldSize -
-                                                               newSize);
-    } else {
-      NS_ERROR("Failed to commit changes to DB!");
-      status = rv;  // Make sure our completion fn hears about the failure.
+    mozilla::glean::mail::compact_space_recovered.Accumulate(oldSize - newSize);
+    // Update expungedbytes count in db.
+    nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
+    mDB->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
+    if (dbFolderInfo) {
+      dbFolderInfo->SetExpungedBytes(0);
     }
-  } else {
-    // Roll back all the DB changes.
-    mDB->ForceClosed();
-
-    // Replace db file with the backup one.
-    nsAutoString dbFilename;
-    nsresult rv = mDBFile->GetLeafName(dbFilename);
-    if (NS_SUCCEEDED(rv)) {
-      rv = mBackupDBFile->MoveTo(nullptr, dbFilename);
-    }
-    if (NS_SUCCEEDED(rv)) {
-      // All done with backup db.
-      mBackupDBFile = nullptr;
-    }
-    if (NS_FAILED(rv)) {
-      NS_ERROR("Failed to restore db after compaction failure.");
-      // Everything is going pear-shaped at this point.
-      // The mbox file will have been rolled back, but there's not
-      // much in the way of recovery options for the DB.
-      // TODO: Maybe should just delete DB and require a reparse?
-    }
+    mDB->SetSummaryValid(true);
   }
 
   // Release our lock on the folder.
@@ -575,7 +598,7 @@ NS_IMETHODIMP FolderCompactor::OnCompactionComplete(nsresult status,
   }
   mFolder->NotifyCompactCompleted();  // Sigh. Would be nice to ditch this.
 
-  return NS_OK;
+  return NS_OK;  // This is ignored.
 }
 
 NS_IMPL_ISUPPORTS(FolderCompactor::ShutdownObserver, nsIObserver)

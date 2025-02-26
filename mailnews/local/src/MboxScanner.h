@@ -6,10 +6,10 @@
 #ifndef COMM_MAILNEWS_LOCAL_SRC_MBOXSCANNER_H_
 #define COMM_MAILNEWS_LOCAL_SRC_MBOXSCANNER_H_
 
+#include "nsIInputStreamPump.h"
 #include "nsIStreamListener.h"
+#include "MboxMsgInputStream.h"
 
-class MboxMsgInputStream;
-class nsIInputStreamPump;
 class nsIFile;
 class nsIStoreScanListener;
 
@@ -35,7 +35,7 @@ class MboxScanner : public nsIStreamListener {
   nsresult BeginScan(nsIFile* mboxFile, nsIStoreScanListener* scanListener);
 
  private:
-  virtual ~MboxScanner() {}
+  virtual ~MboxScanner() = default;
   nsCOMPtr<nsIStoreScanListener> mScanListener;
 
   RefPtr<MboxScanner> mKungFuDeathGrip;

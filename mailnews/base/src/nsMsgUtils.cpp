@@ -1825,3 +1825,28 @@ nsresult IsOnSameServer(nsIMsgFolder* folder1, nsIMsgFolder* folder2,
   NS_ENSURE_TRUE(server2, NS_ERROR_NULL_POINTER);
   return server2->Equals(server1, sameServer);
 }
+
+nsresult GetOrCreateCompactionDir(nsIFile* srcFile, nsIFile** tempDir) {
+  nsCOMPtr<nsIFile> path;
+  srcFile->Clone(getter_AddRefs(path));
+
+  // Files/dirs with a leading '.' are not treated as folders - see
+  // nsMsgLocalStoreUtils::nsShouldIgnoreFile().
+  nsresult rv = path->SetLeafName(u".compact-temp"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = path->Create(nsIFile::DIRECTORY_TYPE, 0755, true);  // skipAncestors=true
+  if (rv == NS_ERROR_FILE_ALREADY_EXISTS) {
+    // OK if it already exists, but make sure it's a directory.
+    bool isDir;
+    rv = path->IsDirectory(&isDir);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!isDir) {
+      rv = NS_ERROR_FILE_NOT_DIRECTORY;
+    }
+  }
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  path.forget(tempDir);
+  return NS_OK;
+}

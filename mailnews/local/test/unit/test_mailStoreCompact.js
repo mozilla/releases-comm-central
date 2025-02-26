@@ -40,7 +40,8 @@ class PromiseStoreCompactListener {
     return true;
   }
   onMessageRetained(_oldToken, _newToken, _newSize) {}
-  onCompactionComplete(status, _oldSize, _newSize) {
+  onCompactionComplete(_status) {}
+  onFinalSummary(status, _oldSize, _newSize) {
     if (status == Cr.NS_OK) {
       this.#promise.resolve();
     } else {
@@ -152,8 +153,20 @@ async function test_listenerErrors() {
     Assert.equal(checksumBefore, checksumAfter);
   }
 
-  // Don't bother failing onCompactionComplete() - the compaction is already
-  // complete by then.
+  {
+    // Check that onCompactionComplete() can abort.
+    const l = new PromiseStoreCompactListener();
+    l.onCompactionComplete = function (_status) {
+      throw Components.Exception("", Cr.NS_ERROR_CRYPTOMINING_URI);
+    };
+    inbox.msgStore.asyncCompact(inbox, l, true);
+    await Assert.rejects(l.promise, e => {
+      return e === Cr.NS_ERROR_CRYPTOMINING_URI;
+    });
+    // Unchanged mbox file?
+    const checksumAfter = await fileChecksum(inbox.filePath.path);
+    Assert.equal(checksumBefore, checksumAfter);
+  }
 
   // Clear up so we can run again on different store type.
   localAccountUtils.clearAll();
@@ -209,7 +222,7 @@ async function test_midwayFail() {
 }
 
 /**
- * Test that onCompactionComplete returns sensible before and after sizes.
+ * Test that onFinalSummary returns sensible before and after sizes.
  * See Bug 1900172.
  */
 async function test_sizesAtCompletion() {
@@ -236,11 +249,11 @@ async function test_sizesAtCompletion() {
     ++this.msgCount;
     return this.msgCount % 2 == 0;
   };
-  l._onCompactionComplete = l.onCompactionComplete;
-  l.onCompactionComplete = function (status, oldSize, newSize) {
+  l._onFinalSummary = l.onFinalSummary;
+  l.onFinalSummary = function (status, oldSize, newSize) {
     this.newSize = newSize;
     this.oldSize = oldSize;
-    this._onCompactionComplete(status, oldSize, newSize);
+    this._onFinalSummary(status, oldSize, newSize);
   };
 
   inbox.msgStore.asyncCompact(inbox, l, true);

@@ -253,9 +253,13 @@ interface nsIMsgPluggableStore : nsISupports {
    * caller-provided nsIStoreCompactListener object to decide which messages
    * should be kept and which should be discarded.
    *
-   * This method will return *before* the operation completes.
-   * After that, any ongoing updates are provided via the
-   * nsIStoreCompactListener object.
+   * The compaction is an entirely store-based operation, and is decoupled
+   * from the folder and database.
+   * The expectation is that a higher-level folder compaction module can
+   * use asyncCompact() to avoid getting bogged down in all the low-level
+   * store details.
+   * The nsIStoreCompactListener provided by the caller is responsible for
+   * coordinating between the two layers.
    *
    * If the call to asyncCompact() returns a failure code, the operation will
    * not start, and no nsIStoreCompactListener callbacks will be invoked.
@@ -287,22 +291,24 @@ interface nsIMsgPluggableStore : nsISupports {
    *     If the message was kept:
    *         .onMessageRetained() - gives the new storeToken and size.
    *
-   * Finally:
-   *  .onCompactionComplete() - at the end, with a status code.
+   * Then:
+   * .onCompactionComplete() - once complete. This is where the higher-level
+   *                           layer (the caller) should finalise its own
+   *                           changes (to the database, say).
+   *                           The listener can return an error here to abort the
+   *                           whole thing.
+   * And finally:
+   * .onFinalSummary() - to give the final status and byte savings.
    *
    * If any callbacks return an error, the whole operation will be rolled back
-   * and .onCompactionComplete() will be called with the failure code.
+   * and .onFinalSummary() will be called with the failure code.
    *
    * asyncCompact() keeps a reference to compactListener, releasing it after the
    * .onCompactionComplete() callback has been invoked.
    *
-   * The compaction is an entirely store-based operation, and is decoupled
-   * from the folder and database.
-   * The expectation is that a higher-level folder compaction module can
-   * use asyncCompact() to avoid getting bogged down in all the low-level
-   * store details.
-   *
-   * @param folder - The folder to compact.
+   * @param folder - The folder to compact (used purely to find the location of
+   *                 the data within the store. The folder is not touched in any
+   *                 other way).
    * @param compactListener - Callbacks to direct the compaction.
    * @param patchXMozillaHeaders - If true, X-Mozilla-* headers will be patched
    *                               or added in kept messages.
@@ -457,7 +463,7 @@ interface nsIStoreScanListener : nsIStreamListener
  * nsIMsgPluggableStore.asyncCompact().
  * See asyncCompact() for an overview of how these callbacks are called.
  * If any of these callbacks return an error (other than
- * .onCompactionComplete()), the store will be rolled back to its
+ * .onFinalSummary()), the store will be rolled back to its
  * original state.
  */
 [scriptable, uuid(d97f29f6-d9b7-11ee-88d9-4b3c6085612e)]
@@ -506,25 +512,49 @@ interface nsIStoreCompactListener : nsISupports
                          in long long newSize);
 
   /**
-   * This will be called when the compaction operation finishes (or fails).
-   * If the compaction fails, or if any of the other nsIStoreCompactListener
-   * callbacks returned an error, .onCompactionComplete() will be still
-   * be called, with status holding an error code.
+   * This will be called when the compaction operation has completed it's
+   * work, but before the new store data is actually made active (committed).
+   * In the case of mbox, this means a new mbox file has been built, is
+   * sitting in a temporary location on the same filesystem, and is ready
+   * to be installed via a file rename (which is about the most atomic
+   * operation we've got).
+   * It's a chance for the listener to commit its own data (e.g. install an
+   * updated database file to match the compacted mbox).
+   * As soon as this callback returns, the lower level commit will be
+   * performed (e.g. rename the new mbox into the live location).
+   * We want to minimise the delay between the two commits as much as possible to
+   * reduce the likelyhood of, say, losing power after the callback has updated
+   * the database, but before the new mbox can be made live.
    *
-   * Any error returned from .onCompactionComplete() will be ignored.
-   * The store compaction has already either completed or been rolled back,
-   * so this is just an opportunity for the caller to perform whatever
-   * other commit/rollback behaviour might be required on top of that.
+   * If the listener needs to perform any other notifications or GUI updates
+   * or anything that is not effectively instant, save them until the
+   * .onFinalSummary() call.
+   *
+   * If an error code is returned here, the low level commit will be rolled
+   * back instead of committed. For mbox, that means the original file will
+   * be restored.
+   *
+   * @param status - The result of the compaction.
+   */
+  void onCompactionComplete(in nsresult status);
+
+  /**
+   * Provides the final summary of the compaction.
    *
    * The space recovered by the compaction is given by oldSize-newSize.
    * But keep in mind that patching X-Mozilla-* headers means that sometimes
    * compaction can _increase_ the size of the store!
    *
+   * oldSize and newSize are only valid if status is OK, otherwise they
+   * should be considered undefined.
+   *
+   * Any error returned by onFinalSummary() will be ignored.
+   *
    * @param status - The result of the compaction.
    * @param oldSize - The size of the store before compaction, in bytes.
    * @param newSize - The size of the store after compaction, in bytes.
    */
-  void onCompactionComplete(in nsresult status,
-                            in long long oldSize,
-                            in long long newSize);
+  void onFinalSummary(in nsresult status,
+                      in long long oldSize,
+                      in long long newSize);
 };

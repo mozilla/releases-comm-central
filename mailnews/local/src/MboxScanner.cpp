@@ -10,7 +10,6 @@
 #include "nsIMsgPluggableStore.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
-#include "MboxMsgInputStream.h"
 #include "MboxScanner.h"
 #include "mozilla/Logging.h"
 #include "mozilla/ScopeExit.h"

@@ -424,4 +424,13 @@ already_AddRefed<nsIStreamListener> SyncStreamListenerCreate();
 nsresult IsOnSameServer(nsIMsgFolder* folder1, nsIMsgFolder* folder2,
                         bool* sameServer);
 
+/**
+ * Creates a temporary directory to use for folder compaction.
+ * The directory will be created as a sibling of srcFile, with the intention
+ * that they are both on the same filesystem, which is required for atomic file
+ * renames (or at least as atomic as we can be guaranteed).
+ * If the directory already exists, it'll be returned.
+ */
+nsresult GetOrCreateCompactionDir(nsIFile* srcFile, nsIFile** tempDir);
+
 #endif

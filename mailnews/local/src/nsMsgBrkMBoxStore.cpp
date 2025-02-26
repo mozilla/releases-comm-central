@@ -1232,8 +1232,12 @@ nsMsgBrkMBoxStore::GetSupportsCompaction(bool* aSupportsCompaction) {
 NS_IMETHODIMP nsMsgBrkMBoxStore::AsyncCompact(
     nsIMsgFolder* folder, nsIStoreCompactListener* compactListener,
     bool patchXMozillaHeaders) {
+  nsCOMPtr<nsIFile> srcMbox;
+  nsresult rv = folder->GetFilePath(getter_AddRefs(srcMbox));
+  NS_ENSURE_SUCCESS(rv, rv);
+
   // Fire and forget. MboxScanner will hold itself in existence until finished.
-  RefPtr<MboxCompactor> compactor(
-      new MboxCompactor(folder, compactListener, patchXMozillaHeaders));
-  return compactor->BeginCompaction();
+  RefPtr<MboxCompactor> compactor = new MboxCompactor();
+  return compactor->BeginCompaction(srcMbox, compactListener,
+                                    patchXMozillaHeaders);
 }
