@@ -152,17 +152,16 @@ performance. For this reason, every time a message is deleted, we do not rewrite
 the mbox file to remove the message. There are extra header fields to help us
 mark a message as being deleted without needing to rewrite the entire mbox file.
 
-When a message is deleted, there will be the "deleted" flag added to the header
-in both the database and `mbox` files. If the message exists on the server as
-well, then the server is told to kick off a deletion operation.
+When a message is deleted, it is removed from the database and an attempt will
+be made to edit its X-Mozilla-Status header (if it has one) in the mbox to add
+"Expunged" flag.
+For server-backed accounts (IMAP, EWS), a delete operation is also issued to
+the server.
 
-## Folder Compaction
-
-Folder compaction is simply the act of rebuilding the `mbox` file to remove any
-messages with the "deleted" flag. The frequency of auto-compaction can be set in
-the Thunderbird settings. When this operation is initiated, it goes through
-every message in the local storage and keeps all messages that have not been
-marked as deleted.
+Deleted messages are left in place in the mbox until a [folder compaction](folder_compaction) operation occurs.
+Folder compaction reclaims disk space by rebuilding the mbox, discarding any deleted messages.
+It can be instigated manually or run automatically, according to criteria in
+the Thunderbird settings.
 
 ## IMAP Example
 
