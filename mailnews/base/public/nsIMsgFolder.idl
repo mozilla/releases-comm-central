@@ -588,9 +588,6 @@ interface nsIMsgFolder : nsISupports {
    */
   attribute nsIMsgDatabase msgDatabase;
 
-  /// Close the database if not open in folder.
-  void closeDBIfFolderNotOpen(in boolean forceClosed);
-
   /// Does the folder have a local reference to the msgDatabase?
   readonly attribute boolean databaseOpen;
 
