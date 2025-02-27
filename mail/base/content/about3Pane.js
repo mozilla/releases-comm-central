@@ -4667,12 +4667,19 @@ var threadPane = {
    */
   _onDragStart(event) {
     const row = event.target.closest(`tr[is^="thread-"]`);
-    if (!row || gViewWrapper.isExpandedGroupedByHeaderAtIndex(row.index)) {
+    const alreadySelected =
+      row && threadTree.selectedIndices.includes(row.index);
+    if (
+      !row ||
+      gViewWrapper.isExpandedGroupedByHeaderAtIndex(row.index) ||
+      (!alreadySelected && (event.ctrlKey || event.shiftKey))
+    ) {
       event.preventDefault();
+      threadTree.ensureCorrectFocus();
       return;
     }
 
-    if (!threadTree.selectedIndices.includes(row.index)) {
+    if (!alreadySelected) {
       threadTree.selectedIndex = row.index;
     }
     const messageURIs = gDBView.getURIsForSelection();
