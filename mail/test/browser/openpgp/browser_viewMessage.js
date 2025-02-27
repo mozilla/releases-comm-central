@@ -267,6 +267,77 @@ add_task(async function testOpenForwardedEncrypted() {
   await BrowserTestUtils.closeWindow(msgc);
 });
 
+/**
+ * Test that opening an attached signed message has no effect
+ * on security status icons of the parent message window, and that the
+ * opened attachment displays the text of the signed message.
+ */
+add_task(async function testOpenForwardedSigned() {
+  const msgc = await open_message_from_file(
+    new FileUtils.File(getTestFilePath("data/eml/fwd-signed.eml"))
+  );
+  const aboutMessage = get_about_message(msgc);
+  const SIGNED_TEXT = "signed message";
+
+  Assert.ok(
+    getMsgBodyTxt(msgc).includes("outer text"),
+    "wrapper message text should be shown"
+  );
+  Assert.ok(
+    getMsgBodyTxt(msgc).includes(SIGNED_TEXT),
+    "message text should be shown, because inline viewing of attachments"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon is not displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon is not displayed"
+  );
+
+  const newWindowPromise = promise_new_window("mail:messageWindow");
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("attachmentName"),
+    { clickCount: 1 },
+    aboutMessage
+  );
+  const mc2 = await newWindowPromise;
+  await wait_for_message_display_completion(mc2, true);
+  await wait_for_window_focused(mc2);
+  const aboutMessage2 = get_about_message(mc2);
+
+  // Check properties of the opened attachment window.
+  Assert.ok(
+    getMsgBodyTxt(mc2).includes(SIGNED_TEXT),
+    "message text should be shown"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage2.document, "unknown"),
+    "signed icon is displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage2.document, "ok"),
+    "encrypted icon is not displayed"
+  );
+
+  await BrowserTestUtils.closeWindow(mc2);
+
+  await wait_for_window_focused(msgc);
+
+  // Ensure there were no side effects for the primary window.
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon is still not displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon is still not displayed"
+  );
+
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
 // TODO: the above tests that an encrypted .eml can be opened from an unencrypted message.
 // We should also test/handle:
 //  - other attachment (like .doc) in an encrypted message

@@ -1,0 +1,65 @@
+Content-Type: multipart/mixed; boundary="------------8DzhZLWM0p20XArvy0vjKzo9"
+Message-ID: <bf9753c4-0a46-4d37-b449-11f00b36feff@openpgp.example>
+Date: Mon, 24 Feb 2025 22:57:00 +0100
+MIME-Version: 1.0
+Subject: A message that contains an attached signed message 
+Content-Language: en-US
+To: alice@openpgp.example
+From: alice@openpgp.example
+
+This is a multi-part message in MIME format.
+--------------8DzhZLWM0p20XArvy0vjKzo9
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+outer text
+
+--------------8DzhZLWM0p20XArvy0vjKzo9
+Content-Type: message/rfc822; name="signed.eml"
+Content-Disposition: attachment; filename="signed.eml"
+Content-Transfer-Encoding: 7bit
+
+Message-ID: <0b943d39-489c-42b2-ba15-51dfc8666f17@openpgp.example>
+Date: Mon, 24 Feb 2025 22:56:15 +0100
+MIME-Version: 1.0
+Content-Language: en-US
+To: alice@openpgp.example
+From: alice@openpgp.example
+Subject: signed
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------37y3af86ecPgBEzVTDXuXNnx"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------37y3af86ecPgBEzVTDXuXNnx
+Content-Type: multipart/mixed; boundary="------------b1VW73mMy76jPz70e3lGFEig";
+ protected-headers="v1"
+To: alice@openpgp.example
+From: alice@openpgp.example
+Message-ID: <0b943d39-489c-42b2-ba15-51dfc8666f17@openpgp.example>
+Subject: signed
+
+--------------b1VW73mMy76jPz70e3lGFEig
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+c2lnbmVkIG1lc3NhZ2UNCg0K
+
+--------------b1VW73mMy76jPz70e3lGFEig--
+
+--------------37y3af86ecPgBEzVTDXuXNnx
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wnsEABYIACMWIQTbU6PYxn9IFjJ1R6JpevsbNyK8BAUCZ7zq/wUDAAAAAAAKCRBpevsbNyK8BKOD
+AQCB/Dez9yTax+PgVTDUrTc5BatlC06vy3mm5cJp/ebNTAD+JJUIHBGk+bzKMrsuSGA0y8LeRytw
+hiD7sYTo7PIrugw=
+=UrPz
+-----END PGP SIGNATURE-----
+
+--------------37y3af86ecPgBEzVTDXuXNnx--
+
+--------------8DzhZLWM0p20XArvy0vjKzo9--

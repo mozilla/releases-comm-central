@@ -113,7 +113,6 @@ function MimeVerify(protocol) {
  * @implements {nsIStreamListener}
  */
 MimeVerify.prototype = {
-  dataCount: 0,
   foundMsg: false,
   startMsgStr: "",
   window: null,
@@ -157,8 +156,8 @@ MimeVerify.prototype = {
     this.msgUriSpec = EnigmailVerify.lastMsgUri;
     this.mimePartNumber = this.mimeSvc.mimePart;
     this.uri = this.mimeSvc.messageURI;
+    this.outputRaw = this.uri && /[&?]outputformat=raw/.test(this.uri.spec);
 
-    this.dataCount = 0;
     this.foundMsg = false;
     this.backgroundJob = false;
     this.startMsgStr = "";
@@ -189,14 +188,18 @@ MimeVerify.prototype = {
     if (count > 0) {
       this.inStream.init(stream);
       const data = this.inStream.read(count);
-      this.onTextData(data);
+      if (this.outputRaw) {
+        // Don't go through signature extraction/processing, collect
+        // all data. We reuse variable signedData.
+        this.signedData += data;
+      } else {
+        this.onTextData(data);
+      }
     }
   },
 
   /** @param {string} data */
   onTextData(data) {
-    this.dataCount += data.length;
-
     this.keepData += data;
     if (this.readMode === 0) {
       // header data
@@ -452,6 +455,13 @@ MimeVerify.prototype = {
       href == "about:blank" ||
       href == "chrome://messenger/content/viewSource.xhtml"
     ) {
+      return;
+    }
+
+    if (this.outputRaw) {
+      // Return all collected data, without signature processing.
+      this.returnData(this.signedData);
+      this.exitCode = 0;
       return;
     }
 
