@@ -126,6 +126,8 @@ EXTRA_JS_MODULES += [
     "MailServices.sys.mjs",
     "mailstoreConverter.sys.mjs",
     "MailStringUtils.sys.mjs",
+    "MboxRepair.sys.mjs",
+    "MboxRepair.worker.mjs",
     "MsgAsyncPrompter.sys.mjs",
     "MsgDBCacheManager.sys.mjs",
     "MsgIncomingServer.sys.mjs",

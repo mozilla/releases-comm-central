@@ -47,6 +47,7 @@ ChromeUtils.defineESModuleGetters(this, {
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  repairMbox: "resource:///modules/MboxRepair.sys.mjs",
   SmartMailboxUtils: "resource:///modules/SmartMailboxUtils.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
@@ -3420,6 +3421,20 @@ var folderPane = {
       await IOUtils.remove(folder.filePath.path, { recursive: true }).catch(
         console.error
       );
+    } else if (
+      Services.prefs.getCharPref(
+        `mail.server.${folder.server.key}.storeContractID`
+      ) == "@mozilla.org/msgstore/berkeleystore;1"
+    ) {
+      // For local mbox, fix classic MacOS line endings.
+      try {
+        folder.acquireSemaphore(folder);
+        await repairMbox(folder.filePath.path);
+      } catch (e) {
+        console.warn(`Repair mbox FAILED; ${e.message}`);
+      } finally {
+        folder.releaseSemaphore(folder);
+      }
     }
 
     // The following notification causes all DBViewWrappers that include
