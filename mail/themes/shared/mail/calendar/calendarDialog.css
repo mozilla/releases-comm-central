@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/widgets.css");
-@import url("chrome://messenger/skin/icons.css");
-@import url("chrome://messenger/skin/variables.css");
-
 :root {
   --calendar-dialog-row-padding-inline: 12px;
   --calendar-dialog-row-column-gap: 9px;
@@ -49,8 +45,4 @@
   -moz-context-properties: fill, stroke;
   fill: light-dark(color-mix(in srgb, #4c4d58 20%, transparent), color-mix(in srgb, #3d4d67 20%, transparent));
   stroke: light-dark(#4c4d58, #3d4d67);
-}
-
-.button.close-button {
-  background-image: var(--icon-close);
 }
