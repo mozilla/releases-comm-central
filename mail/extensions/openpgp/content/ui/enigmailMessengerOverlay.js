@@ -2899,12 +2899,12 @@ Enigmail.msg = {
 
     const otherLabel = document.getElementById("otherLabel");
     if (myIdToSkipInList) {
-      document.l10n.setAttributes(otherLabel, "openpgp-other-enc-all-key-ids");
-    } else {
       document.l10n.setAttributes(
         otherLabel,
         "openpgp-other-enc-additional-key-ids"
       );
+    } else {
+      document.l10n.setAttributes(otherLabel, "openpgp-other-enc-all-key-ids");
     }
 
     if (!Enigmail.hdrView.msgEncryptionAllKeyIds) {
@@ -2932,13 +2932,13 @@ Enigmail.msg = {
       );
 
       // Use textContent for label XUl elements to enable text wrapping.
-      const name = document.createXULElement("label");
-      name.classList.add("openpgp-key-name");
-      name.setAttribute("context", "simpleCopyPopup");
-      if (keyInfo) {
+
+      if (keyInfo?.userId) {
+        const name = document.createXULElement("label");
+        name.classList.add("openpgp-key-name");
+        name.setAttribute("context", "simpleCopyPopup");
         name.textContent = keyInfo.userId;
-      } else {
-        document.l10n.setAttributes(name, "openpgp-other-enc-all-key-ids");
+        container.appendChild(name);
       }
 
       const id = document.createXULElement("label");
@@ -2947,8 +2947,6 @@ Enigmail.msg = {
       id.textContent = havePrimaryId2
         ? ` 0x${key.primaryKeyId} (0x${key.keyId})`
         : ` 0x${key.keyId}`;
-
-      container.appendChild(name);
       container.appendChild(id);
 
       keyList.appendChild(container);
