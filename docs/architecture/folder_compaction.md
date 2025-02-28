@@ -51,7 +51,7 @@ These are the steps we take:
 9. Rename `.compact-temp/foo.msf.compacted` to `foo.msf`
 10. Rename `.compact-temp/foo.compacted` to `foo`
 11. Done!
-12. Clean up by deleting `.compact-temp/foo.orignal` and `.compact-temp/foo.msf.orignal`, then by removing `.compact-temp` dir entirely.
+12. Clean up by deleting `.compact-temp/foo.original` and `.compact-temp/foo.msf.original`, then by removing `.compact-temp` dir entirely.
 
 So the filename conventions are:
 - `.compacting` - a file being compacted, but not yet complete.
@@ -133,4 +133,3 @@ The mbox `AsyncCompact()` implementation of `nsIMsgPluggableStore.AsyncCompact()
 When done, it'll invoke the `.onCompactionComplete` on the `FolderCompactor` to let it know it should install it's own changes (the new DB file).
 When that callback returns, the new mbox file will be installed.
 `MboxCompactor` can also update the `X-Mozilla-*` headers inserted into messages in local folders as it goes.
-
