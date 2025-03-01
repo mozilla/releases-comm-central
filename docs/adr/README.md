@@ -75,7 +75,7 @@ accepted and should be adhered to.
 3. **Deprecated**: The decision described in the ADR is no longer relevant due
 to changes in system context.
 4. **Superseded**: The decision described in the ADR has been replaced by
-another decision. Link to the new ADR doc that superseeds the existing one.
+another decision. Link to the new ADR doc that supersedes the existing one.
 
 Each ADR will have a status indicating its current life-cycle stage. An ADR can
 be updated over time, either to change the status or to add more information.

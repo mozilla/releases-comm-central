@@ -22,7 +22,7 @@ adhered to.
 - **Deprecated**: The decision described in the ADR is no longer
 relevant due to changes in system context.
 - **Superseded**: The decision described in the ADR has been replaced by
-another decision. Link to the new ADR doc that superseeds the existing one.
+another decision. Link to the new ADR doc that supersedes the existing one.
 
 See the "ADR Life Cycle" section in the docs/adr/README.md
 -->
