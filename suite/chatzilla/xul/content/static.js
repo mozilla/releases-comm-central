@@ -19,8 +19,7 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/PlacesUtils.jsm"
 );
 
-#expand const __cz_version   = "__CHATZILLA_VERSION__";
-const __cz_condition = "green";
+#expand const __cz_version = "__CHATZILLA_VERSION__";
 
 var warn;
 var ASSERT;
@@ -178,7 +177,6 @@ function init() {
    * to the global object so they can be used.
    */
   window.__cz_version = __cz_version;
-  window.__cz_condition = __cz_condition;
   window.NET_CONNECTING = NET_CONNECTING;
 
   importFromFrame("updateHeader");

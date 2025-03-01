@@ -41,7 +41,6 @@ function onLoad() {
   var verLabel = document.getElementById("version");
   var verString = verLabel.getAttribute("format").replace("%S", version.cz);
   verLabel.setAttribute("value", verString);
-  verLabel.setAttribute("condition", __cz_condition);
 
   var localizers = document.getElementById("localizers");
   var localizerNames = getMsg("locale.authors", null, "");

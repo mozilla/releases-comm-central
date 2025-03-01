@@ -441,7 +441,6 @@ function updateClient() {
   }
 
   setAttribute("version-container", "title", client.userAgent);
-  setAttribute("version-container", "condition", mainWindow.__cz_condition);
   setText("version", mainWindow.__cz_version);
   setText("netcount", String(n));
   setText("connectcount", String(c));
