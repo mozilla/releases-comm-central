@@ -983,21 +983,6 @@ NS_IMETHODIMP nsMsgDBFolder::OnEvent(nsIMsgDatabase* aDB, const char* aEvent) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetManyHeadersToDownload(bool* retval) {
-  NS_ENSURE_ARG_POINTER(retval);
-  int32_t numTotalMessages;
-
-  // is there any reason to return false?
-  if (!mDatabase)
-    *retval = true;
-  else if (NS_SUCCEEDED(GetTotalMessages(false, &numTotalMessages)) &&
-           numTotalMessages <= 0)
-    *retval = true;
-  else
-    *retval = false;
-  return NS_OK;
-}
-
 nsresult nsMsgDBFolder::MsgFitsDownloadCriteria(nsMsgKey msgKey, bool* result) {
   if (!mDatabase) return NS_ERROR_FAILURE;
 
@@ -2668,13 +2653,6 @@ nsCString nsIMsgFolder::URI() {
   return uri;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-#if 0
-typedef bool
-(*nsArrayFilter)(nsISupports* element, void* data);
-#endif
-////////////////////////////////////////////////////////////////////////////////
-
 NS_IMETHODIMP
 nsMsgDBFolder::GetSubFolders(nsTArray<RefPtr<nsIMsgFolder>>& folders) {
   folders.ClearAndRetainStorage();
@@ -3196,12 +3174,6 @@ NS_IMETHODIMP nsMsgDBFolder::GetChildWithURI(const nsACString& uri, bool deep,
       if (*child) return NS_OK;
     }
   }
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::GetShowDeletedMessages(bool* showDeletedMessages) {
-  NS_ENSURE_ARG_POINTER(showDeletedMessages);
-  *showDeletedMessages = false;
   return NS_OK;
 }
 
@@ -4048,16 +4020,6 @@ NS_IMETHODIMP nsMsgDBFolder::IsSpecialFolder(uint32_t aFlags,
 NS_IMETHODIMP nsMsgDBFolder::GetDeletable(bool* deletable) {
   NS_ENSURE_ARG_POINTER(deletable);
   *deletable = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::GetDisplayRecipients(bool* displayRecipients) {
-  *displayRecipients = false;
-  if (mFlags & nsMsgFolderFlags::SentMail &&
-      !(mFlags & nsMsgFolderFlags::Inbox))
-    *displayRecipients = true;
-  else if (mFlags & nsMsgFolderFlags::Queue)
-    *displayRecipients = true;
   return NS_OK;
 }
 

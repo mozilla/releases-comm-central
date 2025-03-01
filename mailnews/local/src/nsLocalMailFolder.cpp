@@ -121,19 +121,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CreateLocalSubfolder(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::GetManyHeadersToDownload(bool* retval) {
-  bool isLocked;
-  // if the folder is locked, we're probably reparsing - let's build the
-  // view when we've finished reparsing.
-  GetLocked(&isLocked);
-  if (isLocked) {
-    *retval = true;
-    return NS_OK;
-  }
-
-  return nsMsgDBFolder::GetManyHeadersToDownload(retval);
-}
-
 // Rebuild the msgDB by scanning the msgStore.
 NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* window,
                                                 nsIUrlListener* listener) {

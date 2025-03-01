@@ -126,8 +126,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
       override;  // Override of the base, for top-level mail folder
   NS_IMETHOD SetPrettyName(const nsACString& aName) override;
 
-  NS_IMETHOD GetManyHeadersToDownload(bool* retval) override;
-
   NS_IMETHOD GetDeletable(bool* deletable) override;
   NS_IMETHOD GetSizeOnDisk(int64_t* size) override;
 

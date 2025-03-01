@@ -91,11 +91,6 @@ interface nsIMsgFolder : nsISupports {
   void updateFolder(in nsIMsgWindow aWindow);
 
   /**
-   * should probably move to the server
-   */
-  readonly attribute boolean showDeletedMessages;
-
-  /**
    * this folder's parent server
    */
   readonly attribute nsIMsgIncomingServer server;
@@ -354,20 +349,6 @@ interface nsIMsgFolder : nsISupports {
    * For example, special folders and isServer folders cannot be deleted.
    */
   readonly attribute boolean deletable;
-
-  /**
-   * should we be displaying recipients instead of the sender?
-   * for example, in the Sent folder, recipients are more relevant
-   * than the sender
-   */
-  readonly attribute boolean displayRecipients;
-
-  /**
-   * used to determine if it will take a long time to download all
-   * the headers in this folder - so that we can do folder notifications
-   * synchronously instead of asynchronously
-   */
-  readonly attribute boolean manyHeadersToDownload;
 
   readonly attribute ACString relativePathName;
 
