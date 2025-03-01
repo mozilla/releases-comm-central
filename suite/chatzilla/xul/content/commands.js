@@ -1596,7 +1596,7 @@ function cmdHideView(e) {
   if ("messages" in e.view) {
     // Detach messages from output window content.
     if (e.view.messages.parentNode) {
-      e.view.messages.parentNode.removeChild(e.view.messages);
+      e.view.messages.remove();
     }
 
     /* XXX Bug 335998: Adopt the messages into our own internal document
@@ -3535,7 +3535,7 @@ function cmdSave(e) {
   var titleElements = docToBeSaved.getElementsByTagName("title");
   // Remove an existing title, there shouldn't be more than one.
   if (titleElements.length > 0) {
-    titleElements[0].parentNode.removeChild(titleElements[0]);
+    titleElements[0].remove();
   }
   title = docToBeSaved.createElement("title");
   title.appendChild(

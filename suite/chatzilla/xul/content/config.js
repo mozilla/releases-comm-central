@@ -424,9 +424,9 @@ ObjectPrivateData.prototype.clear = function opdata_clear() {
   //dd("}");
 
   if (this.deckIndex >= 0) {
-    this.deck.removeChild(this.tabbox);
+    this.tabbox.remove();
     this.treeContainer.removeAttribute("container");
-    this.treeContainer.parentNode.removeChild(this.treeContainer);
+    this.treeContainer.remove();
   }
 };
 
@@ -729,8 +729,8 @@ PrefData.prototype.loadData = function pdata_loadData() {
 
     case "array":
       // Remove old entires.
-      while (this.edit.firstChild) {
-        this.edit.removeChild(this.edit.firstChild);
+      while (this.edit.hasChildNodes()) {
+        this.edit.firstChild.remove();
       }
 
       // Add new ones.
@@ -754,7 +754,7 @@ PrefData.prototype.loadData = function pdata_loadData() {
 PrefData.prototype.clear = function pdata_clear() {
   //dd("Clearing pref " + this.name);
   if ("box" in this && this.box) {
-    this.box.parentNode.removeChild(this.box);
+    this.box.remove();
     delete this.box;
   }
   try {
@@ -1546,7 +1546,7 @@ PrefWindow.prototype.onPrefListDelete = function pwin_onPrefListDelete(object) {
       getMsg(MSG_PREFS_LIST_DELETE, listItem.value)
     )
   ) {
-    list.removeChild(listItem);
+    listItem.remove();
   }
 };
 

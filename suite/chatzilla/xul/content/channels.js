@@ -184,8 +184,8 @@ function onKeyPress(event) {
 }
 
 function onShowingNetworks() {
-  while (xul.networks.lastChild) {
-    xul.networks.removeChild(xul.networks.lastChild);
+  while (xul.networks.hasChildNodes()) {
+    xul.networks.lastChild.remove();
   }
 
   /* Show any network meeting at least 1 requirement:

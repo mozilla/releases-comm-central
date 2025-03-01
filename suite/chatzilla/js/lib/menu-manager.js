@@ -232,7 +232,7 @@ MenuManager.prototype.showPopup = function mmgr_showpop(event) {
       menuitem.previousSibling &&
       menuitem.previousSibling.hasAttribute("repeatgenerated")
     ) {
-      menuitem.parentNode.removeChild(menuitem.previousSibling);
+      menuitem.previousSibling.remove();
     }
 
     if (!("repeatList" in cx)) {

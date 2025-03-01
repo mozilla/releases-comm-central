@@ -719,7 +719,7 @@ function processStartupURLs() {
    * stop XBL breaking later. Oh, the irony.
    */
   if (client.tabs.firstChild.hidden) {
-    client.tabs.removeChild(client.tabs.firstChild);
+    client.tabs.firstChild.remove();
     updateTabAttributes();
   }
 }
@@ -3086,7 +3086,7 @@ function getTabForObject(source, create) {
     for (i = viewKey; i < client.viewsArray.length; i++) {
       client.viewsArray[i].tb.setAttribute("viewKey", i);
     }
-    client.tabs.removeChild(tb);
+    tb.remove();
   } else if (tb || (!tb && !create)) {
     /* Either: we have a tab and don't want it moved, or didn't find one
      * and don't wish to create one.
@@ -3397,7 +3397,7 @@ function deleteTab(tb) {
     client.viewsArray[i].tb.setAttribute("viewKey", i - 1);
   }
   client.viewsArray.splice(key, 1);
-  client.tabs.removeChild(tb);
+  tb.remove();
   setTimeout(updateTabAttributes, 0);
 
   return key;
@@ -3413,7 +3413,7 @@ function deleteFrame(view) {
     dd(formatException(ex));
   }
 
-  client.deck.removeChild(view.frame);
+  view.frame.remove();
   delete view.frame;
 }
 
@@ -3463,8 +3463,8 @@ function updateTimestampFor(view, displayRow, forceOldStamp) {
     fmt = strftime(view.prefs["timestamps.display"], time);
   }
 
-  while (tsCell.lastChild) {
-    tsCell.removeChild(tsCell.lastChild);
+  while (tsCell.hasChildNodes()) {
+    tsCell.lastChild.remove();
   }
 
   var needStamp =
@@ -4483,7 +4483,7 @@ function addHistory(source, obj, mergeData) {
       }
 
       // Remove nickname column from new row.
-      obj.removeChild(thisUserCol);
+      thisUserCol.remove();
 
       // Expand previous grouping's nickname cell(s) to fill-in the gap.
       for (var i = 0; i < nickColumns.length; ++i) {
@@ -4527,7 +4527,7 @@ function removeExcessMessages(source) {
       var toBeRemoved = source.messageCount - source.MAX_MESSAGES;
       // If we can remove the entire table, do that...
       if (table.rows.length <= toBeRemoved) {
-        tbody.removeChild(tbody.firstChild);
+        tbody.firstChild.remove();
         source.messageCount -= table.rows.length;
         table = null; // Don't hang onto this.
         continue;
@@ -4546,7 +4546,7 @@ function removeExcessMessages(source) {
       nickElem.setAttribute("rowspan", rowspan);
       nextLastNode.insertBefore(nickElem, nextLastNode.lastChild);
     }
-    tbody.removeChild(tbody.firstChild);
+    tbody.firstChild.remove();
     --source.messageCount;
   }
   var oldestItem = rows[0];

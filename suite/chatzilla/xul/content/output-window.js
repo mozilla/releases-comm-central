@@ -476,7 +476,7 @@ function updateNetwork() {
 }
 
 function updateChannel() {
-  header.topicnodes.removeChild(header.topicnodes.firstChild);
+  header.topicnodes.firstChild.remove();
 
   if (view.active) {
     var str = view.mode.getModeStr();
@@ -533,7 +533,7 @@ function updateUser() {
 
   setText("title", getMsg(MSG_TITLE_USER, [view.unicodeName, source]));
 
-  header.descnodes.removeChild(header.descnodes.firstChild);
+  header.descnodes.firstChild.remove();
   if (typeof view.desc != "undefined") {
     var data = getObjectDetails(view);
     data.dontLogURLs = true;
