@@ -201,11 +201,6 @@ function initPrefs() {
     ["nicknameList", [], "lists.nicknameList"],
     ["notify.aggressive", true, "global"],
     ["outgoing.colorCodes", true, "global"],
-    [
-      "outputWindowURL",
-      "chrome://chatzilla/content/output-window.html",
-      "hidden",
-    ],
     ["proxy.typeOverride", "", ".connect"],
     ["reconnect", true, ".connect"],
     ["sasl.plain.enabled", false, ".ident"],
@@ -416,7 +411,6 @@ function getNetworkPrefManager(network) {
     ["nickname", defer, ".ident"],
     ["nicknameList", defer, "lists.nicknameList"],
     ["notifyList", [], "lists.notifyList"],
-    ["outputWindowURL", defer, "hidden"],
     ["proxy.typeOverride", defer, ".connect"],
     ["reconnect", defer, ".connect"],
     ["sasl.plain.enabled", defer, ".ident"],
@@ -527,7 +521,6 @@ function getChannelPrefManager(channel) {
     ["log", client.prefs.channelLog, ".log"],
     ["logFileName", makeLogNameChannel, "hidden"],
     ["motif.current", defer, "appearance.motif"],
-    ["outputWindowURL", defer, "hidden"],
     ["sound.channel.chat", defer, ".soundEvts"],
     ["sound.channel.event", defer, ".soundEvts"],
     ["sound.channel.stalk", defer, ".soundEvts"],
@@ -588,7 +581,6 @@ function getUserPrefManager(user) {
     ["log", client.prefs.userLog, ".log"],
     ["logFileName", makeLogNameUser, "hidden"],
     ["motif.current", defer, "appearance.motif"],
-    ["outputWindowURL", defer, "hidden"],
     ["sound.user.stalk", defer, ".soundEvts"],
     ["sound.user.start", defer, ".soundEvts"],
     ["tabLabel", "", "hidden"],
@@ -638,7 +630,6 @@ function getDCCUserPrefManager(user) {
     ["log", client.prefs.dccUserLog, ".log"],
     ["logFileName", makeLogNameUser, "hidden"],
     ["motif.current", defer, "appearance.motif"],
-    ["outputWindowURL", defer, "hidden"],
     ["tabLabel", "", "hidden"],
     ["timestamps", defer, "appearance.timestamps"],
     ["timestamps.display", defer, "appearance.timestamps"],
@@ -795,10 +786,6 @@ function onPrefChanged(prefName, newValue, oldValue) {
       CIRCNetwork.prototype.MAX_MESSAGES = newValue;
       break;
 
-    case "outputWindowURL":
-      client.dispatch("sync-window");
-      break;
-
     case "displayHeader":
       client.dispatch("sync-header");
       break;
@@ -931,10 +918,6 @@ function onNetworkPrefChanged(network, prefName, newValue, oldValue) {
       }
       break;
 
-    case "outputWindowURL":
-      network.dispatch("sync-window");
-      break;
-
     case "displayHeader":
       network.dispatch("sync-header");
       break;
@@ -1012,10 +995,6 @@ function onChannelPrefChanged(channel, prefName, newValue, oldValue) {
       channel.dispatch("sync-motif");
       break;
 
-    case "outputWindowURL":
-      channel.dispatch("sync-window");
-      break;
-
     case "displayHeader":
       channel.dispatch("sync-header");
       break;
@@ -1066,10 +1045,6 @@ function onUserPrefChanged(user, prefName, newValue, oldValue) {
       user.dispatch("sync-motif");
       break;
 
-    case "outputWindowURL":
-      user.dispatch("sync-window");
-      break;
-
     case "displayHeader":
       user.dispatch("sync-header");
       break;
@@ -1112,10 +1087,6 @@ function onDCCUserPrefChanged(user, prefName, newValue, oldValue) {
 
       case "motif.current":
         view.dispatch("sync-motif");
-        break;
-
-      case "outputWindowURL":
-        view.dispatch("sync-window");
         break;
 
       case "displayHeader":

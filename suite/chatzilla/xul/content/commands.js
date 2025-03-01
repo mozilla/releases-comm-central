@@ -249,7 +249,6 @@ function initCommands() {
     ["sync-log", cmdSync, 0],
     ["sync-motif", cmdSync, 0],
     ["sync-timestamp", cmdSync, 0],
-    ["sync-window", cmdSync, 0],
     ["testdisplay", cmdTestDisplay, CMD_CONSOLE],
     ["text-direction", cmdTextDirection, 0, "<dir>"],
     ["time", cmdTime, CMD_NEED_SRV | CMD_CONSOLE, "[<nickname>]"],
@@ -1215,18 +1214,6 @@ function cmdSync(e) {
     case "sync-timestamp":
       fun = function () {
         updateTimestamps(view);
-      };
-      break;
-
-    case "sync-window":
-      fun = function () {
-        if (
-          window &&
-          window.location &&
-          window.location.href != view.prefs.outputWindowURL
-        ) {
-          syncOutputFrame(view);
-        }
       };
       break;
 
