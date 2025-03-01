@@ -8,5 +8,5 @@
 langpack-creator = "SeaMonkey e.V."
 
 # To credit multiple contributors, use a comma-delimited list.
-# Example: Joe Solon, Suzy Solon
+# Example: Jane Doe, John Doe
 langpack-contributors = { "" }

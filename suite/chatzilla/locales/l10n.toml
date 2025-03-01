@@ -36,9 +36,3 @@ locales = [
 [[paths]]
     reference = "suite/chatzilla/locales/en-US/**"
     l10n = "{l}suite/chatzilla/**"
-
-# ignore MOZ_LANGPACK_CONTRIBUTORS
-[[filters]]
-    path = "{l}suite/chatzilla/defines.inc"
-    key = "MOZ_LANGPACK_CONTRIBUTORS"
-    action = "ignore"
