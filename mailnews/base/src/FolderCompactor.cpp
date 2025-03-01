@@ -41,6 +41,7 @@ using mozilla::LogLevel;
 static bool IsLocalFolder(nsIMsgFolder* folder);
 static nsresult BuildKeepMap(nsIMsgDatabase* db,
                              mozilla::HashMap<nsCString, nsMsgKey>& keepMap);
+static nsresult BackupFile(nsIFile* srcFile, nsIFile** backupFile);
 static nsresult SpaceRequiredToCompact(nsIMsgFolder* folder,
                                        int64_t* extraSpace);
 static void GUIShowCompactingMsg(nsIMsgWindow* window, nsIMsgFolder* folder);
@@ -98,11 +99,14 @@ class FolderCompactor : public nsIStoreCompactListener {
   // The folder we're compacting.
   nsCOMPtr<nsIMsgFolder> mFolder;
 
-  // We need this in a couple of places, so hold onto it.
-  nsCOMPtr<nsIMsgDBService> mDBService;
-
   // The database we're compacting.
   nsCOMPtr<nsIMsgDatabase> mDB;
+
+  // Filename of mDB.
+  nsCOMPtr<nsIFile> mDBFile;
+
+  // The filename of our backed up DB file.
+  nsCOMPtr<nsIFile> mBackupDBFile;
 
   // Map of all the messages we want to keep. storeToken => messageKey
   mozilla::HashMap<nsCString, nsMsgKey> mMsgsToKeep;
@@ -112,29 +116,6 @@ class FolderCompactor : public nsIStoreCompactListener {
 
   // Glean timer.
   uint64_t mTimerId{0};
-
-  // Collect together the various file paths we want to wrangle.
-  struct {
-    // Path to folder db file we're compacting.
-    nsCOMPtr<nsIFile> Source;     // "foo/folder.msf"
-    nsCOMPtr<nsIFile> SourceDir;  // "foo"
-    nsString SourceName;          // "folder.msf"
-
-    // Temp dir to use (must be in same filesystem as Source!)
-    nsCOMPtr<nsIFile> TempDir;  // ".../foo/.compact-temp"
-
-    // The db file we're compacting into.
-    nsCOMPtr<nsIFile> Compacting;  // "foo/.compact-temp/folder.msf.compacting"
-    nsString CompactingName;       // "folder.msf.compacting"
-
-    // The db file once successfully compacted (but not yet installed).
-    nsCOMPtr<nsIFile> Compacted;  // "foo/.compact-temp/folder.msf.compacted"
-    nsString CompactedName;       // "folder.msf.compacted"
-
-    // Where to move the old db file (in case installing the new one fails).
-    nsCOMPtr<nsIFile> Backup;  // "foo/.compact-temp/folder.msf.original"
-    nsString BackupName;       // "folder.msf.original"
-  } mPaths;
 };
 
 NS_IMPL_ISUPPORTS(FolderCompactor, nsIStoreCompactListener)
@@ -142,6 +123,11 @@ NS_IMPL_ISUPPORTS(FolderCompactor, nsIStoreCompactListener)
 FolderCompactor::FolderCompactor(nsIMsgFolder* folder) : mFolder(folder) {}
 
 FolderCompactor::~FolderCompactor() {
+  // Just in case db backup file is still lingering...
+  if (mBackupDBFile) {
+    mBackupDBFile->Remove(false);
+    mBackupDBFile = nullptr;
+  }
   // Should have already released folder in OnFinalSummary(), but
   // ReleaseSemaphore() is OK with being called even if we don't hold the
   // lock.
@@ -151,9 +137,6 @@ FolderCompactor::~FolderCompactor() {
 nsresult FolderCompactor::BeginCompacting(
     std::function<void(int)> progressFn = {},
     std::function<void(nsresult, int64_t)> completionFn = {}) {
-  MOZ_ASSERT(mDB == nullptr);
-  MOZ_ASSERT(mDBService == nullptr);
-
   nsresult rv;
 
   mProgressFn = progressFn;
@@ -162,121 +145,71 @@ nsresult FolderCompactor::BeginCompacting(
   MOZ_LOG(gCompactLog, LogLevel::Info,
           ("BeginCompacting() folder='%s'", mFolder->URI().get()));
 
-  mDBService = do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
+  // Get the folder DB. If it's a local folder and the DB needs to be
+  // rebuilt, this will fail. That's OK. We shouldn't be here if the DB
+  // isn't ready to go.
+  rv = mFolder->GetMsgDatabase(getter_AddRefs(mDB));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // Returns NS_MSG_FOLDER_BUSY if locked
   rv = mFolder->AcquireSemaphore(this);
-  if (rv == NS_MSG_FOLDER_BUSY) {
-    return rv;  // Semi-expected, don't want a warning message.
-  }
   NS_ENSURE_SUCCESS(rv, rv);
-
   // Just in case we exit early...
   auto guardSemaphore =
       mozilla::MakeScopeExit([&] { mFolder->ReleaseSemaphore(this); });
 
-  // If it's a local folder and the DB needs to be rebuilt, this will fail.
-  // That's OK. We shouldn't be here if the DB isn't ready to go.
-  nsCOMPtr<nsIMsgDatabase> db;
-  rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
-  NS_ENSURE_SUCCESS(rv, rv);
-  // There could be changes which aren't yet written to disk.
-  rv = db->Commit(nsMsgDBCommitType::kLargeCommit);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Get file location of the folder db.
-  rv = mFolder->GetSummaryFile(getter_AddRefs(mPaths.Source));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // Check available disk space against estimate of space required.
   // Return NS_ERROR_FILE_NO_DEVICE_SPACE if we think it'll fail.
   {
-    int64_t availableSpace;
-    rv = mPaths.Source->GetDiskSpaceAvailable(&availableSpace);
-    // If GetDiskSpaceAvailable() isn't implemented, we'll just plough
-    // on without a space check. Otherwise bail out now.
-    if (NS_FAILED(rv) && rv != NS_ERROR_NOT_IMPLEMENTED) {
-      return rv;
-    }
-    int64_t requiredSpace;
-    rv = SpaceRequiredToCompact(mFolder, &requiredSpace);
+    nsCOMPtr<nsIFile> path;
+    rv = mFolder->GetSummaryFile(getter_AddRefs(path));
     NS_ENSURE_SUCCESS(rv, rv);
-    if (availableSpace < requiredSpace) {
-      return NS_ERROR_FILE_NO_DEVICE_SPACE;
+
+    int64_t availableSpace;
+    rv = path->GetDiskSpaceAvailable(&availableSpace);
+    if (NS_SUCCEEDED(rv)) {
+      int64_t requiredSpace;
+      rv = SpaceRequiredToCompact(mFolder, &requiredSpace);
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (availableSpace < requiredSpace) {
+        return NS_ERROR_FILE_NO_DEVICE_SPACE;
+      }
+    } else if (rv != NS_ERROR_NOT_IMPLEMENTED) {
+      // If GetDiskSpaceAvailable() isn't implemented, we'll just plough
+      // on without a space check. Otherwise bail out now.
+      return rv;
     }
   }
 
   // Decide which messages we want to keep. Builds a storeToken => msgKey
   // hashmap of them.
-  rv = BuildKeepMap(db, mMsgsToKeep);
+  rv = BuildKeepMap(mDB, mMsgsToKeep);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // We've read what we need from the DB now. Close it. We'll be working on a
-  // copy from now on.
-  mFolder->ForceDBClosed();
-
-  // Set up temp dir and all the paths and filenames we want to track.
-  {
-    rv =
-        GetOrCreateCompactionDir(mPaths.Source, getter_AddRefs(mPaths.TempDir));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // The original folder db file.
-    // "foo/folder.msf"
-    rv = mPaths.Source->GetParent(getter_AddRefs(mPaths.SourceDir));
-    NS_ENSURE_SUCCESS(rv, rv);
-    // "folder.msf"
-    rv = mPaths.Source->GetLeafName(mPaths.SourceName);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // The new db file, in temp dir, while it's being built.
-    mPaths.CompactingName = mPaths.SourceName + u".compacting"_ns;
-    rv = mPaths.TempDir->Clone(getter_AddRefs(mPaths.Compacting));
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = mPaths.Compacting->Append(mPaths.CompactingName);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // The new db file, in temp dir, once it's been successfully compacted.
-    mPaths.CompactedName = mPaths.SourceName + u".compacted"_ns;
-    rv = mPaths.TempDir->Clone(getter_AddRefs(mPaths.Compacted));
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = mPaths.Compacted->Append(mPaths.CompactedName);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // The original db file, moved to temp dir just before we install the
-    // compacted one. If we crash at that critical moment, this could be
-    // used for recovery.
-    mPaths.BackupName = mPaths.SourceName + u".original"_ns;
-    rv = mPaths.TempDir->Clone(getter_AddRefs(mPaths.Backup));
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = mPaths.Backup->Append(mPaths.BackupName);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  // Copy the original DB file to work on.
-  // cp "foo/folder.msf" "foo/.compact-temp/folder.msf.compacting"
-  {
-    rv = mPaths.Source->CopyTo(mPaths.TempDir, mPaths.CompactingName);
-    MOZ_LOG(gCompactLog, NS_SUCCEEDED(rv) ? LogLevel::Debug : LogLevel::Error,
-            ("FolderCompactor - copy '%s' to '%s' (rv=0x%x)",
-             mPaths.Source->HumanReadablePath().get(),
-             mPaths.Compacting->HumanReadablePath().get(), (uint32_t)rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  // Open the output ("*.compacting") DB for writing.
-  // This DB will be linked to the folder but no listeners will be attached to
-  // it.
-  rv = mDBService->OpenDBFromFile(mPaths.Compacting, mFolder, false, true,
-                                  getter_AddRefs(mDB));
+  // If anything goes wrong during the compaction, the mbox file will be
+  // left unchanged. In that case, we also want the DB to be left in
+  // same condition as when we started.
+  // We don't really have a proper transaction system in the DB, so
+  // for now let's just take a copy of the DB file before we start
+  // so we can restore it if anything goes wrong.
+  rv = mDB->Commit(nsMsgDBCommitType::kLargeCommit);
   NS_ENSURE_SUCCESS(rv, rv);
+  rv = mFolder->GetSummaryFile(getter_AddRefs(mDBFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = BackupFile(mDBFile, getter_AddRefs(mBackupDBFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+  // Ditch the backup if we exit early.
+  auto guardBackup = mozilla::MakeScopeExit([&] {
+    mBackupDBFile->Remove(false);
+    mBackupDBFile = nullptr;
+  });
 
   // Local folders maintain X-Mozilla-* headers in the messages and they
   // may need patching up.
   bool patchXMozillaHeaders = IsLocalFolder(mFolder);
 
   // Kick it off by telling the store to start compacting the mbox file.
-  // The msgStore will hold us in existence until our OnFinalSummary()
+  // The msgStore will hold us in existence until our
   // handler returns.
   //
   // After AsyncCompact() is called, we'll receive callbacks to:
@@ -303,6 +236,7 @@ nsresult FolderCompactor::BeginCompacting(
   }
 
   guardSemaphore.release();
+  guardBackup.release();
   return NS_OK;
 }
 
@@ -346,6 +280,36 @@ static nsresult SpaceRequiredToCompact(nsIMsgFolder* folder,
 static bool IsLocalFolder(nsIMsgFolder* folder) {
   nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(folder);
   return localFolder ? true : false;
+}
+
+// Helper. Make a copy of srcFile in the same directory, using a unique name
+// returning the new filename in backupFile.
+static nsresult BackupFile(nsIFile* srcFile, nsIFile** backupFile) {
+  MOZ_ASSERT(backupFile);
+  nsresult rv;
+  // Want a file in the same directory
+  nsCOMPtr<nsIFile> backup;
+  rv = srcFile->Clone(getter_AddRefs(backup));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Add a suffix to the filename and make sure it's unique.
+  nsAutoString filename;
+  rv = backup->GetLeafName(filename);
+  NS_ENSURE_SUCCESS(rv, rv);
+  filename.AppendLiteral(".compact-backup");
+  rv = backup->SetLeafName(filename);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = backup->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Copy it.
+  rv = backup->GetLeafName(filename);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = srcFile->CopyTo(nullptr, filename);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  backup.forget(backupFile);
+  return NS_OK;
 }
 
 // Helper to decide which messages in a database we want to keep, and
@@ -412,12 +376,6 @@ static nsresult BuildKeepMap(nsIMsgDatabase* db,
 
 // nsIStoreCompactListener callback invoked when the compaction starts.
 NS_IMETHODIMP FolderCompactor::OnCompactionBegin() {
-  MOZ_ASSERT(mDB);
-  MOZ_ASSERT(mPaths.Source);
-  MOZ_ASSERT(mPaths.Compacting);
-  MOZ_ASSERT(mPaths.Compacted);
-  MOZ_ASSERT(mPaths.Backup);
-
   if (ShutdownObserver::IsShuttingDown()) {
     return NS_ERROR_ABORT;
   }
@@ -559,70 +517,36 @@ NS_IMETHODIMP FolderCompactor::OnMessageRetained(nsACString const& oldToken,
 NS_IMETHODIMP FolderCompactor::OnCompactionComplete(nsresult status) {
   MOZ_LOG(gCompactLog, LogLevel::Info,
           ("OnCompactionComplete(status=0x%" PRIx32 ")", (uint32_t)status));
+
   nsresult rv = status;
   if (NS_SUCCEEDED(rv)) {
-    // Update the DBs expungedbytes count.
-    nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-    mDB->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
-    if (dbFolderInfo) {
-      rv = dbFolderInfo->SetExpungedBytes(0);
+    // Commit all the changes.
+    rv = mDB->Commit(nsMsgDBCommitType::kCompressCommit);
+    if (NS_SUCCEEDED(rv)) {
+      mBackupDBFile->Remove(false);
+      mBackupDBFile = nullptr;
     }
   }
 
-  if (NS_SUCCEEDED(rv)) {
-    // Commit all the DB changes to disk.
-    rv = mDB->Commit(nsMsgDBCommitType::kCompressCommit);
+  if (NS_FAILED(rv)) {
+    // Kill db and replace with backup.
+    mDB->ForceClosed();
+    nsAutoString dbFilename;
+    nsresult rv2 = mDBFile->GetLeafName(dbFilename);
+    if (NS_SUCCEEDED(rv2)) {
+      rv2 = mBackupDBFile->MoveTo(nullptr, dbFilename);
+    }
+    if (NS_SUCCEEDED(rv2)) {
+      // All done with backup db.
+      mBackupDBFile = nullptr;
+    } else {
+      NS_ERROR("Failed to restore db after compaction failure.");
+      // Everything is going pear-shaped at this point.
+      // The mbox file will be rolled back, but there's not
+      // much in the way of recovery options for the DB.
+      // TODO: Maybe should just delete DB and require a reparse?
+    }
   }
-
-  if (NS_SUCCEEDED(rv)) {
-    // We're done with the DB now. Close so we can start moving files about.
-    rv = mDB->ForceClosed();
-    mDB = nullptr;
-  }
-
-  // If we succeeded thus far, it's time to replace the old DB file with our
-  // shiny new one. File renames are the most atomic tool we've got, so we'll
-  // use them to make sure even if there's a crash or power-loss, things should
-  // be recoverable.
-  if (NS_SUCCEEDED(rv)) {
-    // rename from "foo/.compact-temp/folder.msf.compacting"
-    // to "foo/.compact-temp/folder.msf.compacted"
-    rv = mPaths.Compacting->RenameTo(mPaths.TempDir, mPaths.CompactedName);
-    MOZ_LOG(gCompactLog, NS_SUCCEEDED(rv) ? LogLevel::Debug : LogLevel::Error,
-            ("FolderCompactor - rename '%s' to '%s' (rv=0x%x)",
-             mPaths.Compacting->HumanReadablePath().get(),
-             mPaths.Compacted->HumanReadablePath().get(), (uint32_t)rv));
-  }
-  if (NS_SUCCEEDED(rv)) {
-    // Move the old DB file into the temp dir.
-    // mv "foo/folder.msf" "foo/.compact-temp/folder.msf.original"
-    // NOTE: I'm not sure if this is really worth doing. I can't think of
-    // any recovery plan which needs it - we've already got the new db
-    // and mbox files sitting in the temp dir, all ready to go.
-    // But it seems wrong to _not_ keep this around until we're all done!
-    rv = mPaths.Source->RenameTo(mPaths.TempDir, mPaths.BackupName);
-    MOZ_LOG(gCompactLog, NS_SUCCEEDED(rv) ? LogLevel::Debug : LogLevel::Error,
-            ("FolderCompactor - rename '%s' to '%s' (rv=0x%x)",
-             mPaths.Source->HumanReadablePath().get(),
-             mPaths.Backup->HumanReadablePath().get(), (uint32_t)rv));
-  }
-  if (NS_SUCCEEDED(rv)) {
-    // Install the new DB file. This is where the critical phase begins.
-    // mv "foo/.compact-temp/folder.msf.compacted" "foo/folder.msf"
-    MOZ_LOG(gCompactLog, LogLevel::Debug,
-            ("FolderCompactor - Install new DB file. PR_Now()=%" PRIu64 "\n",
-             PR_Now()));
-    rv = mPaths.Compacted->RenameTo(mPaths.SourceDir, mPaths.SourceName);
-    MOZ_LOG(gCompactLog, NS_SUCCEEDED(rv) ? LogLevel::Debug : LogLevel::Error,
-            ("FolderCompactor - rename '%s' to '%s' (rv=0x%x)",
-             mPaths.Compacted->HumanReadablePath().get(),
-             mPaths.Source->HumanReadablePath().get(), (uint32_t)rv));
-  }
-  // Return as soon as possible - we're in a critial phase here.
-  // We've updated the high-level (db) stuff, so we're out of sync until the
-  // low-level side commits it's changes (e.g. installs the compacted mbox).
-  // If anything went wrong, returning an error here tells the lower-level
-  // compaction to roll back (e.g. restore the original mbox file).
   return rv;
 }
 
@@ -651,30 +575,17 @@ NS_IMETHODIMP FolderCompactor::OnFinalSummary(nsresult status, int64_t oldSize,
 
   if (NS_SUCCEEDED(status)) {
     mozilla::glean::mail::compact_space_recovered.Accumulate(oldSize - newSize);
+    // Update expungedbytes count in db.
+    nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
+    mDB->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
+    if (dbFolderInfo) {
+      dbFolderInfo->SetExpungedBytes(0);
+    }
+    mDB->SetSummaryValid(true);
   }
-
-  // Clean up our working.
-  mPaths.Compacting->Remove(false);
-  if (NS_SUCCEEDED(status)) {
-    mPaths.Compacted->Remove(false);
-    mPaths.Backup->Remove(false);
-  }
-  mPaths.TempDir->Remove(false);  // Only if empty.
 
   // Release our lock on the folder.
   mFolder->ReleaseSemaphore(this);
-
-  if (NS_SUCCEEDED(status)) {
-    // Need to set nsIMsgDatabase.summaryValid, but can't access DB via
-    // nsIMsgFolder.msgDatabase, because summaryValid isn't set! But we can
-    // open it with nsIMsgDBService.openFolderDB(). It'll still return
-    // NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE, but does return the DB object.
-    nsCOMPtr<nsIMsgDatabase> db;
-    mDBService->OpenFolderDB(mFolder, true, getter_AddRefs(db));
-    if (db) {
-      db->SetSummaryValid(true);
-    }
-  }
 
   // Indicate that we're done (and how many bytes we clawed back).
   mCompletionFn(status, oldSize - newSize);
@@ -685,7 +596,7 @@ NS_IMETHODIMP FolderCompactor::OnFinalSummary(nsresult status, int64_t oldSize,
   if (notifier) {
     notifier->NotifyFolderCompactFinish(mFolder);
   }
-  mFolder->NotifyCompactCompleted();
+  mFolder->NotifyCompactCompleted();  // Sigh. Would be nice to ditch this.
 
   return NS_OK;  // This is ignored.
 }
