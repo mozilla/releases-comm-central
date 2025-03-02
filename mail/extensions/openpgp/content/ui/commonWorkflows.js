@@ -42,11 +42,22 @@ function passphrasePromptCallback(win, promptString, resultFlags) {
 
 /**
  * @param {nsIFile} file
+ * @param {boolean} wantSecret - Find private key block if true, public if false.
  * @returns {string} The first block of the wanted type, or empty string.
  *   Skip blocks of wrong type.
  */
 async function getKeyBlockFromFile(file, wantSecret) {
   const contents = await IOUtils.readUTF8(file.path).catch(() => "");
+  return getKeyBlock(contents, wantSecret);
+}
+
+/**
+ * @param {string} contents
+ * @param {boolean} wantSecret - Find private key block if true, public if false.
+ * @returns {string} The first block of the wanted type, or empty string.
+ *   Skip blocks of wrong type.
+ */
+function getKeyBlock(contents, wantSecret) {
   let searchOffset = 0;
 
   while (searchOffset < contents.length) {

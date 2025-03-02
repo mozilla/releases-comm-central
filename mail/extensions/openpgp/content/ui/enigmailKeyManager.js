@@ -6,7 +6,7 @@
 
 "use strict";
 
-/* global EnigRevokeKey */
+/* global EnigRevokeKey, getKeyBlock */ // from commonWorkfows.js
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -593,8 +593,10 @@ async function enigmailImportFromClipbrd() {
 
   const cBoardContent = await navigator.clipboard.readText();
   var errorMsgObj = {};
+
+  const keyBlock = getKeyBlock(cBoardContent, false);
   var preview = await EnigmailKey.getKeyListFromKeyBlock(
-    cBoardContent,
+    keyBlock,
     errorMsgObj,
     true,
     true,
@@ -778,8 +780,9 @@ function enigmailImportKeysFromUrl() {
     var cbFunc = async function (data) {
       var errorMsgObj = {};
 
+      const keyBlock = getKeyBlock(data, false);
       var preview = await EnigmailKey.getKeyListFromKeyBlock(
-        data,
+        keyBlock,
         errorMsgObj,
         true,
         true,
