@@ -9,7 +9,7 @@
 // process of connecting, it won't stop listening until they're all done.
 
 function IdentServer(parent) {
-  this.responses = new Array();
+  this.responses = [];
   this.listening = false;
   this.dns = Cc["@mozilla.org/network/dns-service;1"].getService(
     Ci.nsIDNSService
@@ -73,7 +73,7 @@ IdentServer.prototype.addNetwork = function ident_add(net, serv) {
 };
 
 IdentServer.prototype.removeNetwork = function ident_remove(net) {
-  var newResponses = new Array();
+  var newResponses = [];
 
   for (var i = 0; i < this.responses.length; ++i) {
     if (this.responses[i].net != net) {

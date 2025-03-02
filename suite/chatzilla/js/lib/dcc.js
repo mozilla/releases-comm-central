@@ -14,9 +14,9 @@ const DCC_ID_MAX = 0xffff;
 function CIRCDCC(parent) {
   this.parent = parent;
 
-  this.users = new Object();
-  this.chats = new Array();
-  this.files = new Array();
+  this.users = {};
+  this.chats = [];
+  this.files = [];
   this.last = null;
   this.lastTime = null;
 
@@ -26,7 +26,7 @@ function CIRCDCC(parent) {
   this.requestTimeout = 3 * 60 * 1000; // 3 minutes.
 
   // Can't do anything 'til this is set!
-  this.localIPlist = new Array();
+  this.localIPlist = [];
   this.localIP = null;
   this._lastPort = null;
 
@@ -120,7 +120,7 @@ CIRCDCC.prototype.getMatches = function dcc_getmatches(
   }
 
   var k;
-  var list = new Array();
+  var list = [];
   if (!types) {
     types = ["chat", "file"];
   }
@@ -1089,7 +1089,7 @@ CIRCDCCFileTransfer.prototype.onDataAvailable = function dfile_dataavailable(
 
       // Send back ack data.
       this.position += e.data.length;
-      var bytes = new Array();
+      var bytes = [];
       for (var i = 0; i < 4; i++) {
         bytes.push(Math.floor(this.position / Math.pow(256, i)) & 255);
       }

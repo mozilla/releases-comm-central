@@ -74,7 +74,7 @@ function spawnChatZilla(uri, count) {
 
   dump("cz-service: No windows, starting new one.\n");
   // Ok, no available window, loading or otherwise, so start ChatZilla.
-  const args = new Object();
+  const args = {};
   if (uri) {
     args.url = uri;
   }

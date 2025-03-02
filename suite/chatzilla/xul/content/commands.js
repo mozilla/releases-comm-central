@@ -426,7 +426,7 @@ function dispatch(text, e, isInteractive, flags) {
   }
 
   if (!e) {
-    e = new Object();
+    e = {};
   }
 
   if (!("sourceObject" in e)) {
@@ -759,7 +759,7 @@ function dispatchCommand(command, e, flags) {
    * var c = new Clone (obj);
    */
   function Clone(obj) {
-    let robj = new Object();
+    let robj = {};
 
     if ("__proto__" in obj) {
       // Special clone for Spidermonkey.
@@ -975,7 +975,7 @@ function cmdBanOrExcept(e) {
     e.user = e.server.getUser(e.nickname);
   }
 
-  var masks = new Array();
+  var masks = [];
 
   if (e.userList) {
     for (var i = 0; i < e.userList.length; i++) {
@@ -1077,7 +1077,7 @@ function cmdChanUserMode(e) {
 
   var nicks;
   var user;
-  var nickList = new Array();
+  var nickList = [];
   // Prefer pre-canonicalised list, then a * passed to the command directly,
   // then a normal list, then finally a singular item (canon. or otherwise).
   if (e.canonNickList) {
@@ -2512,7 +2512,7 @@ function cmdLoad(e) {
   }
 
   if (!e.scope) {
-    e.scope = new Object();
+    e.scope = {};
   }
 
   if (!("plugin" in e.scope)) {
@@ -3171,8 +3171,8 @@ function cmdNotify(e) {
       display(MSG_NO_NOTIFY_LIST);
     }
   } else {
-    var adds = new Array();
-    var subs = new Array();
+    var adds = [];
+    var subs = [];
 
     for (var i in e.nicknameList) {
       var nickname = e.server.toLowerCase(e.nicknameList[i]);
@@ -3587,7 +3587,7 @@ function cmdSupports(e) {
   }
 
   if ("userModes" in server) {
-    var list = new Array();
+    var list = [];
     for (var m in server.userModes) {
       list.push(
         getMsg(MSG_SUPPORTS_USERMODE, [
@@ -3599,9 +3599,9 @@ function cmdSupports(e) {
     display(getMsg(MSG_SUPPORTS_USERMODES, list.join(", ")));
   }
 
-  var listB1 = new Array();
-  var listB2 = new Array();
-  var listN = new Array();
+  var listB1 = [];
+  var listB2 = [];
+  var listN = [];
   for (var k in data) {
     if (typeof data[k] == "boolean") {
       if (data[k]) {
@@ -3620,8 +3620,8 @@ function cmdSupports(e) {
   display(getMsg(MSG_SUPPORTS_FLAGSOFF, listB2.join(", ")));
   display(getMsg(MSG_SUPPORTS_MISCOPTIONS, listN.join(", ")));
 
-  var listCaps = new Array();
-  var listCapsEnabled = new Array();
+  var listCaps = [];
+  var listCapsEnabled = [];
   for (var cap in server.caps) {
     listCaps.push(cap);
     if (server.caps[cap]) {
@@ -3744,7 +3744,7 @@ function cmdIgnore(e) {
     e.network.prefs.ignoreList = ignoreList;
     e.network.prefs.ignoreList.update();
   } else {
-    var list = new Array();
+    var list = [];
     for (var m in e.network.ignoreList) {
       list.push(m);
     }
@@ -4156,7 +4156,7 @@ function cmdDCCAutoAcceptDel(e) {
   }
 
   var maskObj,
-    newList = new Array();
+    newList = [];
   for (var m = 0; m < list.length; ++m) {
     maskObj = getHostmaskParts(list[m]);
     if (

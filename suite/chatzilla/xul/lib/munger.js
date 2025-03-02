@@ -79,7 +79,7 @@ function CMungerEntry(
 }
 
 function CMunger(textMunger) {
-  this.entries = new Array();
+  this.entries = [];
   this.tagName = "html:span";
   this.enabled = true;
   if (textMunger) {
@@ -110,7 +110,7 @@ CMunger.prototype.addRule = function mng_addrule(
   enable
 ) {
   if (typeof this.entries[priority] != "object") {
-    this.entries[priority] = new Object();
+    this.entries[priority] = {};
   }
   var entry = new CMungerEntry(
     name,
@@ -164,7 +164,7 @@ CMunger.prototype.mungePriority = function mng_mungePriority(
   containerTag,
   data
 ) {
-  var matches = new Object();
+  var matches = {};
   var entry;
   // Find all the matches in this priority
   for (entry in this.entries[priority]) {

@@ -61,7 +61,7 @@ function initNetworks() {
 }
 
 function networksGetDefaults() {
-  var networks = new Object();
+  var networks = {};
 
   // Set up default network list.
   networks["libera.chat"] = {

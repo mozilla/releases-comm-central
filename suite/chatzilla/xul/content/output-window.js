@@ -205,7 +205,7 @@ function cancelTopicEdit(force) {
 
 function cacheNodes(pfx, ary, nodes) {
   if (!nodes) {
-    nodes = new Object();
+    nodes = {};
   }
 
   for (var i = 0; i < ary.length; ++i) {
@@ -342,7 +342,7 @@ function updateMotifSettings(existingTimeout) {
 function getMotifSettings() {
   var re = new RegExp("czsettings\\.(\\w*)", "i");
   var rules = document.getElementById("main-css").sheet.cssRules;
-  var rv = new Object();
+  var rv = {};
   var ary;
   // Copy any settings, which are available in the motif using the
   // "CZSETTINGS" selector. We only store the regexp match after checking

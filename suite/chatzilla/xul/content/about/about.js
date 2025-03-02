@@ -30,7 +30,7 @@ function onLoad() {
     ownerClient.aboutDialog = window;
   }
 
-  client.entities = new Object();
+  client.entities = {};
   client.messageManager = new MessageManager(client.entities);
   client.messageManager.loadBrands();
   client.defaultBundle = client.messageManager.addBundle(propsPath);

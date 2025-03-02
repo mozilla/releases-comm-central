@@ -44,9 +44,9 @@ function CommandRecord(
   this.tip = tip;
   this.flags = flags;
   this._enabled = true;
-  this.keyNodes = new Array();
+  this.keyNodes = [];
   this.keystr = keystr;
-  this.uiElements = new Array();
+  this.uiElements = [];
 }
 
 CommandRecord.prototype.__defineGetter__("enabled", cr_getenable);
@@ -91,7 +91,7 @@ CommandRecord.prototype.scanUsage = function cr_scanusage() {
   var capNext = false;
 
   this._usage = spec;
-  this.argNames = new Array();
+  this.argNames = [];
 
   for (var i = 0; i < len; ++i) {
     switch (spec[i]) {
@@ -134,8 +134,8 @@ CommandRecord.prototype.scanUsage = function cr_scanusage() {
  *                      labels a help text from.
  */
 function CommandManager(defaultBundle) {
-  this.commands = new Object();
-  this.commandHistory = new Object();
+  this.commands = {};
+  this.commandHistory = {};
   this.defaultBundle = defaultBundle;
   this.currentDispatchDepth = 0;
   this.maxDispatchDepth = 10;
@@ -156,7 +156,7 @@ CommandManager.prototype.defaultFlags = 0;
  */
 CommandManager.prototype.defineCommands = function cmgr_defcmds(cmdary) {
   var len = cmdary.length;
-  var commands = new Object();
+  var commands = {};
   var bundle = "stringBundle" in cmdary ? cmdary.stringBundle : null;
 
   for (var i = 0; i < len; ++i) {
@@ -363,7 +363,7 @@ CommandManager.prototype.addCommand = function cmgr_add(command) {
      * storage so that we can undo this back to its original state.
      */
     if (!objectContains(this.commandHistory, command.name)) {
-      this.commandHistory[command.name] = new Array();
+      this.commandHistory[command.name] = [];
     }
     this.commandHistory[command.name].push(this.commands[command.name]);
   }
@@ -439,12 +439,12 @@ CommandManager.prototype.addHook = function cmgr_hook(
 
   if (before) {
     if (!("beforeHooks" in command)) {
-      command.beforeHooks = new Object();
+      command.beforeHooks = {};
     }
     command.beforeHooks[id] = func;
   } else {
     if (!("afterHooks" in command)) {
-      command.afterHooks = new Object();
+      command.afterHooks = {};
     }
     command.afterHooks[id] = func;
   }
@@ -549,7 +549,7 @@ CommandManager.prototype.list = function cmgr_list(partialName, flags, exact) {
     return -1;
   }
 
-  var ary = new Array();
+  var ary = [];
   var commandNames = Object.keys(this.commands);
 
   for (var name of commandNames) {
@@ -581,7 +581,7 @@ CommandManager.prototype.listNames = function cmgr_listnames(
   flags
 ) {
   var cmds = this.list(partialName, flags, false);
-  var cmdNames = new Array();
+  var cmdNames = [];
 
   for (var c in cmds) {
     cmdNames.push(cmds[c].name);
@@ -798,7 +798,7 @@ CommandManager.prototype.parseArgument = function cmgr_parsearg(e, name) {
 };
 
 // @undocumented
-CommandManager.prototype.argTypes = new Object();
+CommandManager.prototype.argTypes = {};
 
 /**
  * Convenience function used to map a list of new types to an existing parse

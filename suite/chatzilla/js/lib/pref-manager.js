@@ -32,12 +32,12 @@ function PrefManager(branchName, defaultBundle) {
   this.prefSaveTime = 0;
   this.prefSaveTimer = 0;
   this.branchName = branchName;
-  this.defaultValues = new Object();
-  this.prefs = new Object();
-  this.prefNames = new Array();
-  this.prefRecords = new Object();
+  this.defaultValues = {};
+  this.prefs = {};
+  this.prefNames = [];
+  this.prefRecords = {};
   this.observer = { observe: pm_observe, branch: branchName };
-  this.observers = new Array();
+  this.observers = [];
 
   this.nsIPrefBranch = this.prefBranch.QueryInterface(Ci.nsIPrefBranch);
   this.nsIPrefBranch.addObserver("", this.observer);
@@ -140,7 +140,7 @@ PrefManager.prototype.onPrefChanged = function pm_prefchanged(
 };
 
 PrefManager.prototype.listPrefs = function pm_listprefs(prefix) {
-  var list = new Array();
+  var list = [];
   var names = this.prefNames;
   for (var i = 0; i < names.length; ++i) {
     if (!prefix || names[i].indexOf(prefix) == 0) {
@@ -191,7 +191,7 @@ PrefManager.prototype.stringToArray = function pm_s2a(string) {
     return [];
   }
 
-  let ary = new Array();
+  let ary = [];
   for (let item of string.split(/\s*;\s*/)) {
     ary.push(toUnicode(decodeURIComponent(item), PREF_CHARSET));
   }
@@ -200,7 +200,7 @@ PrefManager.prototype.stringToArray = function pm_s2a(string) {
 };
 
 PrefManager.prototype.arrayToString = function pm_a2s(ary) {
-  var escapedAry = new Array();
+  var escapedAry = [];
   for (let item of ary) {
     escapedAry.push(encodeURIComponent(fromUnicode(item, PREF_CHARSET)));
   }

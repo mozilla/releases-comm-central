@@ -41,7 +41,7 @@ if (DEBUG) {
   dd = warn = TEST = ASSERT = function () {};
 }
 
-var client = new Object();
+var client = {};
 
 client.TYPE = "IRCClient";
 client.COMMAND_CHAR = "/";
@@ -81,16 +81,16 @@ client.SAFE_LIST_COUNT = 500;
  */
 client.CONFERENCE_LOW_PASS = 10;
 
-client.viewsArray = new Array();
-client.activityList = new Object();
-client.hostCompat = new Object();
-client.inputHistory = new Array();
+client.viewsArray = [];
+client.activityList = {};
+client.hostCompat = {};
+client.inputHistory = [];
 client.lastHistoryReferenced = -1;
 client.incompleteLine = "";
 client.lastTabUp = new Date();
-client.awayMsgs = new Array();
+client.awayMsgs = [];
 client.awayMsgCount = 5;
-client.statusMessages = new Array();
+client.statusMessages = [];
 
 CIRCNetwork.prototype.INITIAL_CHANNEL = "";
 CIRCNetwork.prototype.STS_MODULE = new CIRCSTS();
@@ -115,8 +115,8 @@ function init() {
 
   client.initialized = false;
 
-  client.networks = new Object();
-  client.entities = new Object();
+  client.networks = {};
+  client.entities = {};
   client.eventPump = new CEventPump(200);
 
   if (DEBUG) {
@@ -216,17 +216,17 @@ function initStatic() {
   try {
     client.sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
 
-    client.soundList = new Object();
+    client.soundList = {};
   } catch (ex) {
     dd("Sound failed to initialize: " + ex);
   }
 
   try {
-    client.alert = new Object();
+    client.alert = {};
     client.alert.service = Cc["@mozilla.org/alerts-service;1"].getService(
       Ci.nsIAlertsService
     );
-    client.alert.alertList = new Object();
+    client.alert.alertList = {};
     client.alert.floodProtector = new FloodProtector(
       client.prefs["alert.floodDensity"],
       client.prefs["alert.floodDispersion"]
@@ -275,7 +275,7 @@ function initStatic() {
   CIRCServer.prototype.HOST_RPLY = version.host;
   CIRCServer.prototype.SOURCE_RPLY = MSG_SOURCE_REPLY;
 
-  client.statusBar = new Object();
+  client.statusBar = {};
 
   client.statusBar["server-nick"] = document.getElementById("server-nick");
 
@@ -410,7 +410,7 @@ function awayMsgsSave() {
 }
 
 function getVersionInfo() {
-  var version = new Object();
+  var version = {};
   version.cz = __cz_version;
 
   var app = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
@@ -545,7 +545,7 @@ function importFromFrame(method) {
 }
 
 function processStartupScripts() {
-  client.plugins = new Object();
+  client.plugins = {};
   var scripts = client.prefs.initialScripts;
   var basePath = getURLSpecFromFile(client.prefs.profilePath);
   var baseURL = Services.io.newURI(basePath);
@@ -605,7 +605,7 @@ function loadPluginDirectory(localPath, recurse) {
 
 function loadLocalFile(localFile) {
   var url = getURLSpecFromFile(localFile);
-  var glob = new Object();
+  var glob = {};
   dispatch("load", { url, scope: glob });
 }
 
@@ -861,7 +861,7 @@ function updateStalkExpression(network) {
 
   var list = client.prefs.stalkWords;
 
-  var ary = new Array();
+  var ary = [];
 
   ary.push(network.primServ.me.unicodeName.replace(/[^\w\d]/g, escapeChar));
 
@@ -903,7 +903,7 @@ function getDefaultFontSize() {
 
 function getDefaultContext(cx) {
   if (!cx) {
-    cx = new Object();
+    cx = {};
   }
   /* Use __proto__ here and in all other get*Context so that the command can
    * tell the difference between getObjectDetails and actual parameters. See
@@ -915,7 +915,7 @@ function getDefaultContext(cx) {
 
 function getMessagesContext(cx, element) {
   if (!cx) {
-    cx = new Object();
+    cx = {};
   }
   cx.__proto__ = getObjectDetails(client.currentObject);
   if (!element) {
@@ -966,7 +966,7 @@ function getMessagesContext(cx, element) {
 
 function getTabContext(cx, element) {
   if (!cx) {
-    cx = new Object();
+    cx = {};
   }
   if (!element) {
     element = document.popupNode;
@@ -985,7 +985,7 @@ function getTabContext(cx, element) {
 
 function getUserlistContext(cx) {
   if (!cx) {
-    cx = new Object();
+    cx = {};
   }
   cx.__proto__ = getObjectDetails(client.currentObject);
   if (!cx.channel) {
@@ -999,8 +999,8 @@ function getUserlistContext(cx) {
     cx.nicknameList.push(getNicknameForUserlistRow(item));
   }
 
-  cx.userList = new Array();
-  cx.canonNickList = new Array();
+  cx.userList = [];
+  cx.canonNickList = [];
 
   for (var i = 0; i < cx.nicknameList.length; ++i) {
     let user = cx.channel.getUser(cx.nicknameList[i]);
@@ -1061,12 +1061,12 @@ function getViewsContext(cx) {
   }
 
   if (!cx) {
-    cx = new Object();
+    cx = {};
   }
   cx.__proto__ = getObjectDetails(client.currentObject);
 
-  cx.views = new Array();
-  var urls = new Object();
+  cx.views = [];
+  var urls = {};
 
   /* XXX The code here works its way through all the open views *and* any
    * possibly visible objects in the object model. This is necessary because
@@ -1111,7 +1111,7 @@ function getViewsContext(cx) {
 
 function getFontContext(cx) {
   if (!cx) {
-    cx = new Object();
+    cx = {};
   }
   cx.__proto__ = getObjectDetails(client.currentObject);
   cx.fontSizeDefault = getDefaultFontSize();
@@ -1152,7 +1152,7 @@ function ensureCachedCanonicalURLs(array) {
    * a new array if the preference changes, but otherwise keeps the same
    * one around.
    */
-  array.canonicalURLs = new Array();
+  array.canonicalURLs = [];
   for (var i = 0; i < array.length; i++) {
     array.canonicalURLs.push(makeCanonicalIRCURL(array[i]));
   }
@@ -1378,7 +1378,7 @@ function arraySpeak(ary, single, plural) {
 
 function getObjectDetails(obj, rv) {
   if (!rv) {
-    rv = new Object();
+    rv = {};
   }
 
   if (
@@ -1653,7 +1653,7 @@ function gotoIRCURL(url, e) {
 
     // We're not completely online, so everything else is pending.
     if (!("pendingURLs" in network)) {
-      network.pendingURLs = new Array();
+      network.pendingURLs = [];
     }
     network.pendingURLs.unshift({ url, e });
     return;
@@ -2097,7 +2097,7 @@ function updateTitle(obj) {
   }
 
   if (0 && !client.uiState.tabstrip) {
-    var actl = new Array();
+    var actl = [];
     for (var i in client.activityList) {
       actl.push(
         client.activityList[i] == "!" ? Number(i) + 1 + "!" : Number(i) + 1
@@ -2630,7 +2630,7 @@ function removeColorCodes(msg) {
   return msg;
 }
 
-client.progressListener = new Object();
+client.progressListener = {};
 
 client.progressListener.QueryInterface = function qi(iid) {
   return this;
@@ -3133,7 +3133,7 @@ function getTabForObject(source, create) {
     syncOutputFrame(source);
 
     if (!("userList" in source) && source.TYPE == "IRCChannel") {
-      source.userList = new Array();
+      source.userList = [];
     }
   }
 
@@ -3480,7 +3480,7 @@ client.checkURLScheme = function c_checkURLScheme(url) {
     var pfx = "@mozilla.org/network/protocol;1?name=";
     var len = pfx.length;
 
-    client.schemes = new Object();
+    client.schemes = {};
     for (var c in Cc) {
       if (c.startsWith(pfx)) {
         client.schemes[c.substr(len)] = true;
@@ -4047,7 +4047,7 @@ client.display =
       // Statusbar text, and the line that gets saved to the log.
       var statusString;
       var logStringPfx = timeStamp + " ";
-      var logStrings = new Array();
+      var logStrings = [];
 
       if (fromUser) {
         statusString = getMsg(MSG_FMT_STATUS, [
@@ -4562,7 +4562,7 @@ function removeExcessMessages(source) {
 
 function findPreviousColumnInfo(table) {
   // All the rows in the grouping (for merged rows).
-  var extents = new Array();
+  var extents = [];
   // Get the last row in the table.
   var tr = table.firstChild.lastChild;
   // Bail if there's no rows.
@@ -4602,7 +4602,7 @@ function findPreviousColumnInfo(table) {
   // Time to collect the nick data...
   var nickCol = tr.firstChild;
   // All the cells that contain nickname info.
-  var nickCols = new Array();
+  var nickCols = [];
   while (nickCol) {
     // Just collect nickname column cells.
     if (nickCol.getAttribute("class") == "msg-user") {
@@ -4951,7 +4951,7 @@ CIRCChannel.prototype.performTabMatch =
         );
       }
 
-      var matchList = new Array();
+      var matchList = [];
       var users;
       var channels;
       var userIndex = -1;
@@ -4989,7 +4989,7 @@ CIRCChannel.prototype.performTabMatch =
 
       var matches = matchEntry(word, matchList, lcFn);
 
-      var list = new Array();
+      var list = [];
       for (var i = 0; i < matches.length; i++) {
         list.push(matchList[matches[i]]);
       }
@@ -5191,7 +5191,7 @@ function matchEntry(partialName, list, lcFn) {
     return text.toLowerCase();
   }
 
-  let ary = new Array();
+  let ary = [];
 
   if (typeof partialName == "undefined" || String(partialName) == "") {
     for (let i in list) {

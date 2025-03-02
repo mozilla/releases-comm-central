@@ -88,10 +88,10 @@ function CIRCNetwork(name, serverList, eventPump, temporary) {
   this.canonicalName = name;
   this.collectionKey = ":" + name;
   this.encodedName = name;
-  this.servers = new Object();
-  this.serverList = new Array();
-  this.ignoreList = new Object();
-  this.ignoreMaskCache = new Object();
+  this.servers = {};
+  this.serverList = [];
+  this.ignoreList = {};
+  this.ignoreMaskCache = {};
   this.state = NET_OFFLINE;
   this.temporary = Boolean(temporary);
 
@@ -218,8 +218,8 @@ CIRCNetwork.prototype.clearServerList = function net_clearserverlist() {
   /* Note: we don't have to worry about being connected, since primServ
    * keeps the currently connected server alive if we still need it.
    */
-  this.servers = new Object();
-  this.serverList = new Array();
+  this.servers = {};
+  this.serverList = [];
 };
 
 /**
@@ -491,7 +491,7 @@ CIRCNetwork.prototype.ignore = function net_ignore(hostmask) {
   }
 
   this.ignoreList[input.mask] = input;
-  this.ignoreMaskCache = new Object();
+  this.ignoreMaskCache = {};
   return true;
 };
 
@@ -503,7 +503,7 @@ CIRCNetwork.prototype.unignore = function net_ignore(hostmask) {
   }
 
   delete this.ignoreList[input.mask];
-  this.ignoreMaskCache = new Object();
+  this.ignoreMaskCache = {};
   return true;
 };
 
@@ -515,8 +515,8 @@ function CIRCServer(parent, hostname, port, isSecure, password) {
     s = parent.servers[serverName];
   } else {
     s = this;
-    s.channels = new Object();
-    s.users = new Object();
+    s.channels = {};
+    s.users = {};
   }
 
   s.unicodeName = serverName;
@@ -531,7 +531,7 @@ function CIRCServer(parent, hostname, port, isSecure, password) {
   s.password = password;
   s.connection = null;
   s.isConnected = false;
-  s.sendQueue = new Array();
+  s.sendQueue = [];
   s.lastSend = new Date("1/1/1980");
   s.lastPingSent = null;
   s.lastPing = null;
@@ -544,8 +544,8 @@ function CIRCServer(parent, hostname, port, isSecure, password) {
   s.channelCount = -1;
   s.userModes = null;
   s.maxLineLength = 400;
-  s.caps = new Object();
-  s.capvals = new Object();
+  s.caps = {};
+  s.capvals = {};
 
   parent.servers[s.collectionKey] = s;
   if ("onInit" in s) {
@@ -692,7 +692,7 @@ CIRCServer.prototype.renameProperties = function serv_renameproperties(
 
 // Encodes tag data to send.
 CIRCServer.prototype.encodeTagData = function serv_encodetagdata(obj) {
-  var dict = new Object();
+  var dict = {};
   dict[";"] = ":";
   dict[" "] = "s";
   dict["\\"] = "\\";
@@ -742,7 +742,7 @@ CIRCServer.prototype.decodeTagData = function serv_decodetagdata(str) {
     str = str.substring(1);
   }
 
-  var dict = new Object();
+  var dict = {};
   dict[":"] = ";";
   dict.s = " ";
   dict["\\"] = "\\";
@@ -899,8 +899,8 @@ CIRCServer.prototype.onConnect = function serv_onconnect(e) {
   this.sendData("CAP LS 302\n");
   this.pendingCapNegotiation = true;
 
-  this.caps = new Object();
-  this.capvals = new Object();
+  this.caps = {};
+  this.capvals = {};
 
   this.login(
     this.parent.INITIAL_NICK,
@@ -1267,7 +1267,7 @@ CIRCServer.prototype.onDisconnect = function serv_disconnect(e) {
   e.quitting = this.quitting;
 
   for (var c in this.channels) {
-    this.channels[c].users = new Object();
+    this.channels[c].users = {};
     this.channels[c].active = false;
   }
 
@@ -1431,8 +1431,8 @@ CIRCServer.prototype.onRawData = function serv_onRawData(e) {
     e.tags = this.decodeTagData(e.tagdata);
     l = l.substring(l.indexOf(" ") + 1);
   } else {
-    e.tagdata = new Object();
-    e.tags = new Object();
+    e.tagdata = {};
+    e.tags = {};
   }
 
   if (l[0] == ":") {
@@ -1599,7 +1599,7 @@ CIRCServer.prototype.on001 = function serv_001(e) {
    * These defaults are taken from the draft 005 RPL_ISUPPORTS here:
    * http://www.ietf.org/internet-drafts/draft-brocklesby-irc-isupport-02.txt
    */
-  this.supports = new Object();
+  this.supports = {};
   this.supports.modes = 3;
   this.supports.maxchannels = 10;
   this.supports.nicklen = 9;
@@ -1942,7 +1942,7 @@ CIRCServer.prototype.on315 = function serv_315(e) {
 CIRCServer.prototype.on353 = function serv_353(e) {
   e.channel = new CIRCChannel(this, null, e.params[3]);
   if (e.channel.usersStable) {
-    e.channel.users = new Object();
+    e.channel.users = {};
     e.channel.usersStable = false;
   }
 
@@ -1958,7 +1958,7 @@ CIRCServer.prototype.on353 = function serv_353(e) {
       break;
     }
 
-    var modes = new Array();
+    var modes = [];
     var multiPrefix =
       ("namesx" in this.supports && this.supports.namesx) ||
       ("multi-prefix" in this.caps && this.caps["multi-prefix"]);
@@ -2236,8 +2236,8 @@ CIRCServer.prototype.onCap = function my_cap(e) {
      * capability is just "cap" whilst a disabled capability is "-cap".
      */
     var caps = e.params[3].trim().split(/\s+/);
-    e.capsOn = new Array();
-    e.capsOff = new Array();
+    e.capsOn = [];
+    e.capsOff = [];
     for (var i = 0; i < caps.length; i++) {
       var cap = caps[i].replace(/^-/, "").trim();
       var enabled = caps[i][0] != "-";
@@ -2274,7 +2274,7 @@ CIRCServer.prototype.onCap = function my_cap(e) {
   } else if (e.params[2] == "NAK") {
     // A capability change has failed.
     var caps = e.params[3].trim().split(/\s+/);
-    e.caps = new Array();
+    e.caps = [];
     for (var i = 0; i < caps.length; i++) {
       var cap = caps[i].replace(/^-/, "").trim();
       e.caps.push(cap);
@@ -2363,12 +2363,12 @@ CIRCServer.prototype.onBatch = function serv_batch(e) {
       }
 
       if (!this.batches) {
-        this.batches = new Object();
+        this.batches = {};
       }
       // The batch object holds the messages queued up as part
       // of this batch, and a boolean value indicating whether
       // it is being played back.
-      var newBatch = new Object();
+      var newBatch = {};
       newBatch.messages = [e];
       newBatch.type = e.params[2].toUpperCase();
       if (e.params[3] && e.params[3] in this.channels) {
@@ -2561,7 +2561,7 @@ CIRCServer.prototype.onChanMode = function serv_chanmode(e) {
   params_eaten++;
 
   e.modeStr = mode_str;
-  e.usersAffected = new Array();
+  e.usersAffected = [];
 
   var nick;
   var user;
@@ -3062,7 +3062,7 @@ CIRCServer.prototype.onCTCP = function serv_ctcp(e) {
 };
 
 CIRCServer.prototype.onCTCPClientinfo = function serv_ccinfo(e) {
-  var clientinfo = new Array();
+  var clientinfo = [];
 
   if (e.CTCPData) {
     var cmdName =
@@ -3273,9 +3273,9 @@ function CIRCChannel(parent, unicodeName, encodedName) {
   this.unicodeName = unicodeName || toUnicode(encodedName, this);
   this.viewName = this.unicodeName;
 
-  this.users = new Object();
-  this.bans = new Object();
-  this.excepts = new Object();
+  this.users = {};
+  this.bans = {};
+  this.excepts = {};
   this.mode = new CIRCChanMode(this);
   this.usersStable = true;
   /* These next two flags represent a subtle difference in state:
@@ -3446,7 +3446,7 @@ CIRCChannel.prototype.part = function chan_part(reason) {
   this.parent.sendData(
     "PART " + this.encodedName + " :" + fromUnicode(reason, this) + "\n"
   );
-  this.users = new Object();
+  this.users = {};
   return true;
 };
 
@@ -3487,10 +3487,10 @@ CIRCChannel.prototype.findUsers = function chan_findUsers(mask) {
 function CIRCChanMode(parent) {
   this.parent = parent;
 
-  this.modeA = new Object();
-  this.modeB = new Object();
-  this.modeC = new Object();
-  this.modeD = new Object();
+  this.modeA = {};
+  this.modeB = {};
+  this.modeC = {};
+  this.modeD = {};
 
   this.invite = false;
   this.moderated = false;
@@ -3833,7 +3833,7 @@ function CIRCChanUser(
   this.parent = parent;
   this.TYPE = "IRCChanUser";
 
-  this.modes = new Array();
+  this.modes = [];
   if (typeof modes != "undefined") {
     this.modes = modes;
   }
@@ -4001,7 +4001,7 @@ function cusr_whois() {
 function parseIRCURL(url) {
   var specifiedHost = "";
 
-  var rv = new Object();
+  var rv = {};
   rv.spec = url;
   rv.scheme = url.split(":")[0];
   rv.host = null;
@@ -4136,7 +4136,7 @@ function parseIRCURL(url) {
 
 function constructIRCURL(obj) {
   function parseQuery(obj) {
-    var rv = new Array();
+    var rv = [];
     if ("msg" in obj) {
       rv.push("msg=" + ecmaEscape(obj.msg.replace("\\n", "\n")));
     }
@@ -4153,7 +4153,7 @@ function constructIRCURL(obj) {
     return rv.length ? "?" + rv.join("&") : "";
   }
   function parseFlags(obj) {
-    var rv = new Array();
+    var rv = [];
     var haveTarget = "target" in obj && obj.target;
     if ("needpass" in obj && obj.needpass) {
       rv.push(",needpass");

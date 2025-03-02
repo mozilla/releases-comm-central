@@ -6,8 +6,8 @@
  * The base CIRCSTS object.
  */
 function CIRCSTS() {
-  this.policyList = new Object();
-  this.preloadList = new Object();
+  this.policyList = {};
+  this.preloadList = {};
 }
 
 CIRCSTS.prototype.ENABLED = false;
@@ -76,7 +76,7 @@ CIRCSTS.prototype.isPolicyExpired = function (expireTime) {
  *
  */
 CIRCSTS.prototype.parseParameters = function (params) {
-  var rv = new Object();
+  var rv = {};
   var keys = params.toLowerCase().split(",");
   for (var i = 0; i < keys.length; i++) {
     var [key, value] = keys[i].split("=");

@@ -187,7 +187,7 @@ function onUnload() {
       } catch (ex) {}
     }
   }
-  client.plugins = new Object();
+  client.plugins = {};
 
   // Close all dialogs.
   if ("joinDialog" in client) {
@@ -889,7 +889,7 @@ function formatDateOffset(offset) {
   let days = Math.floor(hours / 24);
   hours = hours % 24;
 
-  let ary = new Array();
+  let ary = [];
 
   if (days == 1) {
     ary.push(MSG_DAY);
@@ -1357,15 +1357,15 @@ CIRCNetwork.prototype.on303 = function my_303(e) {
     return e.server.toLowerCase(text);
   }
 
-  var onList = new Array();
+  var onList = [];
   // split() gives an array of one item ("") when splitting "", which we
   // don't want, so only do the split if there's something to split.
   if (e.params[2]) {
     onList = e.server.toLowerCase(e.params[2]).trim().split(/\s+/);
   }
-  var offList = new Array();
-  var newArrivals = new Array();
-  var newDepartures = new Array();
+  var offList = [];
+  var newArrivals = [];
+  var newDepartures = [];
   var o = getObjectDetails(client.currentObject);
   var displayTab;
   var i;
@@ -1606,7 +1606,7 @@ CIRCNetwork.prototype.list = function my_list(word, file) {
     return false;
   }
 
-  this._list = new Array();
+  this._list = [];
   this._list.string = word;
   this._list.regexp = null;
   this._list.done = false;
@@ -1702,7 +1702,7 @@ CIRCNetwork.prototype.listInit = function my_list_init() {
   }
 
   if (!("_list" in this)) {
-    this._list = new Array();
+    this._list = [];
     this._list.string = MSG_UNKNOWN;
     this._list.regexp = null;
     this._list.done = false;
@@ -1921,7 +1921,7 @@ CIRCNetwork.prototype.on352 = function my_352(e) {
   }
 
   if (!("whoUpdates" in this)) {
-    this.whoUpdates = new Object();
+    this.whoUpdates = {};
   }
 
   if (e.userHasChanges) {
@@ -1929,7 +1929,7 @@ CIRCNetwork.prototype.on352 = function my_352(e) {
       var chan = e.server.channels[c];
       if (chan.active && e.user.collectionKey in chan.users) {
         if (!(c in this.whoUpdates)) {
-          this.whoUpdates[c] = new Array();
+          this.whoUpdates[c] = [];
         }
         this.whoUpdates[c].push(chan.users[e.user.collectionKey]);
       }
@@ -1974,7 +1974,7 @@ CIRCNetwork.prototype.on354 = function my_354(e) {
   }
 
   if (!("whoUpdates" in this)) {
-    this.whoUpdates = new Object();
+    this.whoUpdates = {};
   }
 
   if (e.userHasChanges) {
@@ -1982,7 +1982,7 @@ CIRCNetwork.prototype.on354 = function my_354(e) {
       var chan = e.server.channels[c];
       if (chan.active && e.user.collectionKey in chan.users) {
         if (!(c in this.whoUpdates)) {
-          this.whoUpdates[c] = new Array();
+          this.whoUpdates[c] = [];
         }
         this.whoUpdates[c].push(chan.users[e.user.collectionKey]);
       }
@@ -2670,7 +2670,7 @@ CIRCNetwork.prototype.onCap = function my_cap(e) {
 
     // Don't show the raw message until we've registered.
     if (this.state == NET_ONLINE) {
-      var listCaps = new Array();
+      var listCaps = [];
       for (var cap in e.server.caps) {
         var value = e.server.capvals[cap];
         if (value) {
@@ -2690,7 +2690,7 @@ CIRCNetwork.prototype.onCap = function my_cap(e) {
       client.sts.setPolicy(e.server.hostname, e.server.port, policy.duration);
     }
   } else if (e.params[2] == "LIST") {
-    var listCapsEnabled = new Array();
+    var listCapsEnabled = [];
     for (var cap in e.server.caps) {
       if (e.server.caps[cap]) {
         listCapsEnabled.push(cap);
@@ -3539,7 +3539,7 @@ CIRCChannel.prototype._clearUserList = function _my_clearuserlist() {
       client.list.firstChild.remove();
     }
   }
-  this.userList = new Array();
+  this.userList = [];
 };
 
 CIRCUser.prototype.onInit = function user_oninit() {

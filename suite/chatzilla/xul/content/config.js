@@ -28,7 +28,7 @@ function CIRCDCCFileTransfer() {}
 function CIRCSTS() {}
 
 function getObjectDetails(obj) {
-  var rv = new Object();
+  var rv = {};
   rv.sourceObject = obj;
   rv.TYPE = obj.TYPE;
   rv.parent = "parent" in obj ? obj.parent : null;
@@ -67,12 +67,12 @@ function getObjectDetails(obj) {
  * prefs.
  */
 function PrefGlobal() {
-  this.networks = new Object();
-  this.commandManager = new Object();
+  this.networks = {};
+  this.commandManager = {};
   this.commandManager.defineCommand = function () {};
   this.commandManager.removeCommand = function () {};
-  this.entities = new Object();
-  this.hostCompat = new Object();
+  this.entities = {};
+  this.hostCompat = {};
 }
 PrefGlobal.prototype.TYPE = "PrefGlobal";
 
@@ -96,7 +96,7 @@ function PrefNetwork(parent, name, force, show) {
   this.collectionKey = ":" + name;
   this.encodedName = name;
   this.prettyName = getMsg(MSG_PREFS_FMT_DISPLAY_NETWORK, this.unicodeName);
-  this.servers = new Object();
+  this.servers = {};
   this.primServ = new PrefServer(this, "dummy server");
   this.channels = this.primServ.channels;
   this.users = this.primServ.users;
@@ -135,8 +135,8 @@ function PrefServer(parent, name) {
   this.collectionKey = ":" + name;
   this.encodedName = name;
   this.prettyName = this.unicodeName; // Not used, thus not localised.
-  this.channels = new Object();
-  this.users = new Object();
+  this.channels = {};
+  this.users = {};
   this.parent.servers[this.collectionKey] = this;
   return this;
 }
@@ -226,7 +226,7 @@ PrefUser.prototype.clear = function puser_clear() {
 
 // Stores a list of |PrefObject|s.
 function PrefObjectList() {
-  this.objects = new Array();
+  this.objects = [];
 
   return this;
 }
@@ -260,8 +260,8 @@ PrefObjectList.getPrivateData = function polist_getPrivateData(object) {
 // Stores the pref object's private data.
 function ObjectPrivateData(parent, index) {
   this.parent = parent; // Real pref object.
-  this.prefs = new Object();
-  this.groups = new Object();
+  this.prefs = {};
+  this.groups = {};
 
   this.arrayIndex = index;
   this.deckIndex = -1;
@@ -781,7 +781,7 @@ function PrefMainGroup(parent, name) {
   // Init this group's object.
   this.parent = parent; // Private data for pref object.
   this.name = name;
-  this.groups = new Object();
+  this.groups = {};
   this.label = getMsg("pref.group." + this.name + ".label", null, this.name);
   this.tab = document.createElement("tab");
   this.tabPanel = document.createElement("tabpanel");
@@ -990,7 +990,7 @@ PrefWindow.prototype.onLoad = function pwin_onLoad() {
   var prefRE = new RegExp(
     "^networks.([^.]+)" + "(?:\\.(users|channels)?\\.([^.]+))?\\."
   );
-  var rv = new Object();
+  var rv = {};
   let branch = Services.prefs.getBranch("extensions.irc.");
   let netList = branch.getChildList("networks.", rv);
   for (let item of netList) {
@@ -1217,7 +1217,7 @@ PrefWindow.prototype.onApply = function pwin_onApply() {
           value = list[i].checked;
           break;
         case "array":
-          var l = new Array();
+          var l = [];
           for (var j = 0; j < list[i].childNodes.length; j++) {
             l.push(list[i].childNodes[j].value);
           }
@@ -1330,7 +1330,7 @@ PrefWindow.prototype.onTooltipPopupShowing = function (popup) {
 // Selected an item in the tree.
 PrefWindow.prototype.onSelectObject = function pwin_onSelectObject() {
   var prefTree = document.getElementById("pref-tree-object");
-  var rv = new Object();
+  var rv = {};
   if ("selection" in prefTree.treeBoxObject) {
     prefTree.treeBoxObject.selection.getRangeAt(0, rv, {});
   } else {
@@ -1408,7 +1408,7 @@ PrefWindow.prototype.onPrefBrowse = function pwin_onPrefBrowse(button) {
 // Selection changed on listbox.
 PrefWindow.prototype.onPrefListSelect = function pwin_onPrefListSelect(object) {
   var list = getRelatedItem(object, "list");
-  var buttons = new Object();
+  var buttons = {};
   buttons.up = getRelatedItem(object, "button-up");
   buttons.down = getRelatedItem(object, "button-down");
   buttons.add = getRelatedItem(object, "button-add");
@@ -1552,7 +1552,7 @@ PrefWindow.prototype.onPrefListDelete = function pwin_onPrefListDelete(object) {
 
 /* Add... button. */
 PrefWindow.prototype.onAddObject = function pwin_onAddObject() {
-  var rv = new Object();
+  var rv = {};
 
   /* Try to nobble the current selection and pre-fill as needed. */
   switch (this.currentObject.parent.TYPE) {
@@ -1754,7 +1754,7 @@ function appendSeparator(cont, attr) {
  * all elements that are for prefs.
  */
 function getPrefTags() {
-  var rv = new Array();
+  var rv = [];
   var i, list;
 
   list = document.getElementsByTagName("textbox");

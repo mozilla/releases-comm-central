@@ -35,7 +35,7 @@ BasicOView.prototype.centerLine = function bov_ctrln(line) {
 
 /* call this to set the association between column names and data columns */
 BasicOView.prototype.setColumnNames = function bov_setcn(aryNames) {
-  this.columnNames = new Object();
+  this.columnNames = {};
   for (var i = 0; i < aryNames.length; ++i) {
     this.columnNames[aryNames[i]] = i;
   }
@@ -119,7 +119,7 @@ function bov_getsel() {
     return -1;
   }
 
-  var min = new Object();
+  var min = {};
   this.tree.view.selection.getRangeAt(0, min, {});
   return min.value;
 }
@@ -462,7 +462,7 @@ XULTreeViewRecord.prototype.setColumnPropertyName = function xtvr_setcol(
   }
 
   if (!("_colValues" in this)) {
-    this._colValues = new Object();
+    this._colValues = {};
   }
 
   this.__defineGetter__(propertyName, xtvr_getValueShim);
@@ -512,7 +512,7 @@ XULTreeViewRecord.prototype.invalidate = function xtvr_invalidate() {
  * invalidate any data in the cache.
  */
 XULTreeViewRecord.prototype.invalidateCache = function xtvr_killcache() {
-  this._share.rowCache = new Object();
+  this._share.rowCache = {};
   this._share.lastComputedIndex = -1;
   this._share.lastIndexOwner = null;
 };
@@ -596,7 +596,7 @@ XULTreeViewRecord.prototype.reSort = function xtvr_resort(leafSort) {
  */
 XULTreeViewRecord.prototype.reserveChildren = function xtvr_rkids(always) {
   if (!("childData" in this)) {
-    this.childData = new Array();
+    this.childData = [];
   }
   if (!("isContainerOpen" in this)) {
     this.isContainerOpen = false;
@@ -1101,7 +1101,7 @@ XTRootRecord.prototype.onVisualFootprintChanged = function torr_vfpchange(
  */
 function XULTreeView(share) {
   if (!share) {
-    share = new Object();
+    share = {};
   }
   this.childData = new XTRootRecord(this, share);
   this.childData.invalidateCache();
@@ -1160,7 +1160,7 @@ XULTreeView.prototype.saveBranchState = function xtv_savebranch(
   var len = source.length;
   for (var i = 0; i < len; ++i) {
     if (source[i].isContainerOpen) {
-      target[i] = new Object();
+      target[i] = {};
       target[i].name = source[i]._colValues["col-0"];
       if (recurse) {
         this.saveBranchState(target[i], source[i].childData, true);
@@ -1227,7 +1227,7 @@ function xtv_getsel() {
     return -1;
   }
 
-  var min = new Object();
+  var min = {};
   this.tree.view.selection.getRangeAt(0, min, {});
   return min.value;
 }

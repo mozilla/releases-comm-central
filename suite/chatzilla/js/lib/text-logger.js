@@ -94,8 +94,8 @@ TextLogger.prototype.limit = function tl_limit(dataOrCount) {
  * Reads out the data currently in the file, and returns an array.
  */
 TextLogger.prototype.read = function tl_read() {
-  var rv = new Array(),
-    parsedLines = new Array(),
+  var rv = [],
+    parsedLines = [],
     buffer = "";
   var file = new LocalFile(this.path, "<");
   while (true) {

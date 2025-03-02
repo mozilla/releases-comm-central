@@ -16,7 +16,7 @@ if (DEBUG) {
   var _dd_indentLength = _dd_singleIndent.length;
   var _dd_currentIndent = "";
   var _dd_lastDumpWasOpen = false;
-  var _dd_timeStack = new Array();
+  var _dd_timeStack = [];
   var _dd_disableDepth = Number.MAX_VALUE;
   var _dd_currentDepth = 0;
   dd = function _dd(str) {
@@ -342,7 +342,7 @@ function confirmEx(msg, buttons, defaultButton, checkText, checkVal) {
   }
 
   if (!checkVal) {
-    checkVal = new Object();
+    checkVal = {};
   }
 
   return ps.confirmEx(

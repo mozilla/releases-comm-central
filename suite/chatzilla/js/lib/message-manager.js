@@ -10,7 +10,7 @@ function MessageManager(entities) {
     "@mozilla.org/intl/scriptableunicodeconverter"
   ].getService(Ci.nsIScriptableUnicodeConverter);
   this.defaultBundle = null;
-  this.bundleList = new Array();
+  this.bundleList = [];
   // Provide a fallback so we don't break getMsg and related constants later.
   this.entities = entities || {};
 }

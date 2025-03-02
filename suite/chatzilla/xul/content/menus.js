@@ -38,7 +38,7 @@ function initMenus() {
 
   function onMenuCommand(event, window) {
     var commandName = event.originalTarget.getAttribute("commandname");
-    var params = new Object();
+    var params = {};
     if ("cx" in client.menuManager && client.menuManager.cx) {
       params = client.menuManager.cx;
     }
@@ -52,7 +52,7 @@ function initMenus() {
   }
 
   client.onMenuCommand = onMenuCommand;
-  client.menuSpecs = new Object();
+  client.menuSpecs = {};
   var menuManager = new MenuManager(
     client.commandManager,
     client.menuSpecs,

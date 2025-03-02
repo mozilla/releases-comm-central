@@ -4,12 +4,12 @@
 
 var client;
 var network;
-var channels = new Array();
-var tree = { view: null, newItem: null, share: new Object() };
-var xul = new Object();
+var channels = [];
+var tree = { view: null, newItem: null, share: {} };
+var xul = {};
 
 // Create list of operations. These are handled by common code.
-const OPS = new Array();
+const OPS = [];
 OPS.push({ key: "noop", ignore: true });
 OPS.push({ key: "list", canStop: false });
 OPS.push({ key: "load", canStop: true });
@@ -193,7 +193,7 @@ function onShowingNetworks() {
    *   - Currently connected.
    *   - Has visible tab in main window.
    */
-  var networks = new Array();
+  var networks = [];
   for (var n in client.networks) {
     if (
       !client.networks[n].temporary ||
@@ -558,7 +558,7 @@ function processOpLoadStart(opData) {
   }
 
   // Nuke more stuff.
-  channels = new Array();
+  channels = [];
 
   // And... here we go.
   opData.loadFile = new LocalFile(file, "<");
@@ -679,7 +679,7 @@ function processOpFilterStart(opData) {
   opData.channelText = opData.text;
 
   // Log the filter, indicating which features the user is using.
-  var filters = new Array();
+  var filters = [];
   if (opData.channelText) {
     filters.push("name");
   }

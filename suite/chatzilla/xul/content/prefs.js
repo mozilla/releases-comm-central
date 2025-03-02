@@ -320,7 +320,7 @@ function makeLogName(obj, type) {
 
   // Three longs codes: $(network), $(channel) and $(user).
   // Each is available only if appropriate for the object.
-  var longCodes = new Object();
+  var longCodes = {};
   if (info.network) {
     longCodes.network = info.network.unicodeName;
   }
@@ -1119,7 +1119,7 @@ function onDCCUserPrefChanged(user, prefName, newValue, oldValue) {
 }
 
 function initAliases() {
-  client.commandManager.aliasList = new Object();
+  client.commandManager.aliasList = {};
   updateAliases();
 }
 

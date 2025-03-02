@@ -27,7 +27,7 @@ const MODE_TRUNCATE = 0x20;
 const MODE_SYNC = 0x40;
 const MODE_EXCL = 0x80;
 
-var futils = new Object();
+var futils = {};
 
 futils.umask = PERM_IWOTH | PERM_IWGRP;
 futils.lastSaveAsDir = null;
@@ -116,7 +116,7 @@ futils.getPicker = function futils_nosepicker(
 };
 
 function getPickerChoice(picker) {
-  var obj = new Object();
+  var obj = {};
   obj.picker = picker;
   obj.ok = false;
   obj.file = null;

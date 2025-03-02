@@ -13,7 +13,7 @@ function MenuManager(commandManager, menuSpecs, contextFunction, commandStr) {
   this.contextFunction = contextFunction;
   this.commandStr = commandStr;
   this.repeatId = 0;
-  this.cxStore = new Object();
+  this.cxStore = {};
 
   this.onPopupShowing = function mmgr_onshow(event) {
     return menuManager.showPopup(event);
@@ -236,7 +236,7 @@ MenuManager.prototype.showPopup = function mmgr_showpop(event) {
     }
 
     if (!("repeatList" in cx)) {
-      cx.repeatList = new Object();
+      cx.repeatList = {};
     }
 
     /* Get the array of new items to add by evaluating "repeatfor" with

@@ -942,7 +942,7 @@ function insertHyphenatedWord(longWord, containerTag, data) {
       return [str];
     }
 
-    let ary = new Array();
+    let ary = [];
     let right = str;
 
     while (right.length > pos) {

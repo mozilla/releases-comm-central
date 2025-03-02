@@ -66,7 +66,7 @@ function CEvent(set, type, destObject, destMethod) {
   this.type = type;
   this.destObject = destObject;
   this.destMethod = destMethod;
-  this.hooks = new Array();
+  this.hooks = [];
 }
 
 /**
@@ -90,11 +90,11 @@ function CEventPump(eventsPerStep) {
    */
   this.MAX_AUTO_CLEANUP_LEN = 100;
   this.eventsPerStep = eventsPerStep;
-  this.queue = new Array();
+  this.queue = [];
   this.queuePointer = 0;
-  this.bulkQueue = new Array();
+  this.bulkQueue = [];
   this.bulkQueuePointer = 0;
-  this.hooks = new Array();
+  this.hooks = [];
 
   /* [1] The delay when removing items from an array (with unshift or splice,
    * and probably most operations) is NOT perportional to the number of items

@@ -104,7 +104,7 @@ TextSerializer.prototype.deserialize = function ts_deserialize() {
 
   var obj = null;
   var rv = null;
-  var objs = new Array();
+  var objs = [];
 
   while (true) {
     if (this._lines.length == 0) {
@@ -138,7 +138,7 @@ TextSerializer.prototype.deserialize = function ts_deserialize() {
     // 'start' and 'end' commands are special.
     switch (command.toLowerCase()) {
       case "start":
-        var paramList = new Array();
+        var paramList = [];
         if (params) {
           paramList = params.split(/\s+/g);
         }
@@ -158,7 +158,7 @@ TextSerializer.prototype.deserialize = function ts_deserialize() {
           if (className) {
             rv = obj = new window[className]();
           } else {
-            rv = obj = new Object();
+            rv = obj = {};
           }
         } else {
           var n;
@@ -172,7 +172,7 @@ TextSerializer.prototype.deserialize = function ts_deserialize() {
             if (className) {
               n = new window[className]();
             } else {
-              n = new Object();
+              n = {};
             }
             objs.push(obj);
             obj.push(n);
@@ -184,7 +184,7 @@ TextSerializer.prototype.deserialize = function ts_deserialize() {
             if (className) {
               n = new window[className]();
             } else {
-              n = new Object();
+              n = {};
             }
             objs.push(obj);
             obj[ecmaUnescape(paramList[0])] = n;
@@ -222,7 +222,7 @@ TextSerializer.prototype.deserialize = function ts_deserialize() {
            * we don't have a current object, we just assume the START
            * command was missed.
            */
-          rv = obj = new Object();
+          rv = obj = {};
         }
         if (params[0] == '"') {
           // String
