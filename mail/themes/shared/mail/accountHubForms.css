@@ -23,21 +23,6 @@ form {
 
   grid-row: header / footer;
 
-  .hub-body {
-    align-items: stretch;
-    justify-content: flex-start;
-    place-self: center;
-    gap: 40px;
-    width: 100%;
-    max-width: 400px;
-    text-align: start;
-    margin-inline: 0;
-  }
-
-  .hub-body.flex-direction-row {
-    max-width: 700px;
-  }
-
   input[type="checkbox"] {
     box-sizing: border-box;
     width: 16px;
@@ -337,8 +322,10 @@ div:has(legend) {
 }
 
 .notification-bar {
-  padding: 4px 12px;
-  margin: 16px 75px 5px;
+  padding: 6px 12px;
+  margin-block-start: var(--hub-notification-bar-margin-block-start);
+  margin-inline: auto;
+  width: var(--hub-width);
   text-align: start;
   border: 1px solid;
   border-radius: 3px;
@@ -391,15 +378,14 @@ div:has(legend) {
   .notification-title {
     font-size: 1.1rem;
     font-weight: 700;
-    margin-block: 4px;
     width: 100%;
     text-align: center;
+    margin-block: 0;
   }
 
   .notification-text {
-    margin-block: 6px;
+    margin-block-start: var(--hub-notification-text-margin-block-start);
     font-size: 1rem;
-    padding-inline-start: 32px;
     display: inline-block;
   }
 
@@ -836,7 +822,7 @@ div:has(legend) {
 
 .remember-button-container {
   align-self: start;
-  margin-block-start: -18px;
+  margin-block-start: calc(-1 * var(--hub-body-elements-column-gap));
 }
 
 #accountHubFooterMenu {

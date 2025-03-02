@@ -38,6 +38,7 @@ dialog {
   --hub-loader-background: var(--color-neutral-base);
   --hub-loader-color: var(--color-primary-default);
   --hub-floating-button-line-height: 1.3em;
+  --hub-width: 500px;
 
   --hub-box-shadow: 0 2px 4px rgba(58, 57, 68, 0.3);
   --hub-input-height: 33px;
@@ -108,9 +109,9 @@ dialog {
 
 .account-hub-step {
   grid-area: body;
-  display: flex;
-  flex-direction: column;
-
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--hub-header-body-gap);
 }
 
 .account-hub-form {
@@ -118,13 +119,13 @@ dialog {
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
-  padding-block-start: 20px;
+  justify-content: center;
 }
 
 .account-hub-view:not([hidden]) {
   max-height: 90vh;
   padding-inline: 20px;
-  padding-block: 40px 20px;
+  padding-block-start: 40px;
   border-radius: inherit;
   border: 1px solid var(--hub-border-color);
   /* Background color to better hide loading of the webp (>=100ms) */
@@ -239,29 +240,20 @@ dialog {
   }
 }
 
-/* Typography */
+/* Header */
 
 header {
   font-weight: 300;
   font-size: 1.8rem;
   line-height: 1em;
   margin-block: 0;
-  padding-block-end: 20px;
 
   & .sub-view-title {
     font-size: 2rem;
     font-weight: 400;
-    margin-block-start: 35px;
-  }
-
-  & .sub-view-subheader {
-    font-size: 1.3rem;
-    font-weight: 400;
-    margin-block-start: 15px;
+    margin-block: var(--hub-header-margin-block-start) 0;
   }
 }
-
-/* Header */
 
 .branding-header {
   display: flex;
@@ -330,12 +322,16 @@ header {
 
 .hub-body {
   display: flex;
-  gap: 30px;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  margin-inline: 30px;
+  align-items: stretch;
+  justify-content: flex-start;
+  place-self: center;
+  gap: var(--hub-body-elements-column-gap);
+  width: 100%;
+  max-width: var(--hub-width);
   max-height: 40vh;
+  text-align: start;
+  margin-inline: 0;
 
   &.flex-direction-row {
     flex-direction: row;
@@ -346,7 +342,6 @@ header {
   }
 
   &.manual-form-body {
-    max-width: 500px;
     gap: 20px;
 
     & .form-row {
@@ -372,13 +367,12 @@ header {
     }
   }
 
-  &.password-form-body {
-    gap: 25px;
+  &.password-form-body,
+  &.email-form-body {
+    max-width: 400px;
   }
 
   &.sync-accounts-form-body {
-    max-width: 500px;
-
     & .sync-accounts-container {
       width: 100%;
       display: grid;
@@ -635,7 +629,7 @@ header {
   hr {
     border: none;
     height: 1px;
-    margin-block: 20px;
+    margin-block-start: var(--hub-footer-margin-block);
     background: linear-gradient(to right, transparent, rgba(26, 32, 44, 0.2), transparent);
     color: transparent;
   }
@@ -660,6 +654,7 @@ header {
   gap: 3px 10px;
   justify-content: center;
   align-items: baseline;
+  margin-block: var(--hub-footer-margin-block);
 
   li > a {
     font-size: 1.1rem;

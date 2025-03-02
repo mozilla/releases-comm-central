@@ -238,6 +238,15 @@
 
 /* UI Density customization */
 
+:root {
+  --hub-body-elements-column-gap: 39px;
+  --hub-header-body-gap: 30px;
+  --hub-notification-bar-margin-block-start: 15px;
+  --hub-header-margin-block-start: 36px;
+  --hub-notification-text-margin-block-start: 9px;
+  --hub-footer-margin-block: 18px;
+}
+
 :root[uidensity="compact"] {
   --tab-min-height: 30px;
   --button-margin: 3px;
@@ -245,10 +254,22 @@
   --button-pressed-indicator-padding: 9px;
   --sidebar-header-gap: 6px;
   --sidebar-header-spacing: 4px 6px 3px;
+  --hub-body-elements-column-gap: 36px;
+  --hub-header-body-gap: 21px;
+  --hub-notification-bar-margin-block-start: 12px;
+  --hub-header-margin-block-start: 18px;
+  --hub-notification-text-margin-block-start: 3px;
+  --hub-footer-margin-block: 6px;
 }
 
 :root[uidensity="touch"] {
   --tab-min-height: 39px;
   --button-pressed-indicator-padding: 3px;
   --sidebar-header-gap: 12px;
+  --hub-body-elements-column-gap: 42px;
+  --hub-header-body-gap: 39px;
+  --hub-notification-bar-margin-block-start: 18px;
+  --hub-header-margin-block-start: 39px;
+  --hub-notification-text-margin-block-start: 12px;
+  --hub-footer-margin-block: 21px;
 }
