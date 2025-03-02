@@ -2204,7 +2204,7 @@ CIRCServer.prototype.onCap = function my_cap(e) {
         caps_noreq.push("sasl");
       }
 
-      caps_req = caps_req.filter(i => caps_noreq.indexOf(i) === -1);
+      caps_req = caps_req.filter(i => !caps_noreq.includes(i));
 
       if (caps_req.length > 0) {
         caps_req = caps_req.join(" ");
@@ -2250,7 +2250,7 @@ CIRCServer.prototype.onCap = function my_cap(e) {
     }
 
     // Try SASL authentication if we are configured to do so.
-    if (caps.indexOf("sasl") != -1) {
+    if (caps.includes("sasl")) {
       var ev = new CEvent("server", "sasl-start", this, "onSASLStart");
       ev.server = this;
       if (this.capvals.sasl) {
@@ -2305,7 +2305,7 @@ CIRCServer.prototype.onCap = function my_cap(e) {
 
     // Don't send requests for these caps.
     caps_noreq = ["tls", "sts", "sasl", "echo-message"];
-    caps_req = caps_req.filter(i => caps_noreq.indexOf(i) === -1);
+    caps_req = caps_req.filter(i => !caps_noreq.includes(i));
 
     if (caps_req.length > 0) {
       caps_req = caps_req.join(" ");
@@ -4185,7 +4185,7 @@ function constructIRCURL(obj) {
     url += ":" + obj.port;
   }
   // Need to add ",isserver" if there's no port and no dots in the hostname:
-  else if ("isserver" in obj && obj.isserver && obj.host.indexOf(".") == -1) {
+  else if ("isserver" in obj && obj.isserver && !obj.host.includes(".")) {
     flags += ",isserver";
   }
   url += "/";

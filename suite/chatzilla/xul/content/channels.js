@@ -90,7 +90,7 @@ function onLoad() {
 
   // Import "MSG_CD_*"...
   for (var m in client.mainWindow) {
-    if (m.substr(0, 7) == "MSG_CD_") {
+    if (m.startsWith("MSG_CD_")) {
       window[m] = client.mainWindow[m];
     }
   }
@@ -735,8 +735,8 @@ function processOpFilterRun(opData) {
     var c = channels[i];
 
     var match =
-      c.nameLC.indexOf(opData.text) != -1 ||
-      (opData.searchTopics && c.topicLC.indexOf(opData.text) != -1);
+      c.nameLC.includes(opData.text) ||
+      (opData.searchTopics && c.topicLC.includes(opData.text));
 
     if (opData.minUsers && c.users < opData.minUsers) {
       match = false;

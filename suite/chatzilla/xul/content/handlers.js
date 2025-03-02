@@ -132,7 +132,7 @@ function onPaste(event) {
   let clipboard = event.clipboardData.getData("text/plain");
   clipboard = clipboard.replace(/(^\s*[\r\n]+|[\r\n]+\s*$)/g, "");
 
-  if (clipboard.indexOf("\n") == -1) {
+  if (!clipboard.includes("\n")) {
     // If, after stripping leading/trailing empty lines, the string is a
     // single line, return.
     return;
@@ -1464,7 +1464,7 @@ CIRCNetwork.prototype.on730 =
       var nick = e.server.toLowerCase(userList[i].split("!")[0]);
 
       // Make sure this nick is in the notify list.
-      if (this.prefs.notifyList.indexOf(nick) < 0) {
+      if (!this.prefs.notifyList.includes(nick)) {
         this.prefs.notifyList.push(nick);
         this.prefs.notifyList.update();
       }
@@ -2754,7 +2754,7 @@ CIRCNetwork.prototype.onReceiveCTCP = function my_ccrecv(e) {
 
 /* SASL authentication start */
 CIRCNetwork.prototype.onSASLStart = function my_saslstart(e) {
-  if (!e.mechs || e.mechs.indexOf("plain") !== -1) {
+  if (!e.mechs || e.mechs.includes("plain")) {
     e.server.sendData("AUTHENTICATE PLAIN\n");
   }
 };

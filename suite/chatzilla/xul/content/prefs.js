@@ -305,16 +305,16 @@ function makeLogName(obj, type) {
 
   // Store the most specific time short code on the object.
   obj.smallestLogInterval = "";
-  if (file.indexOf("$y") != -1) {
+  if (file.includes("$y")) {
     obj.smallestLogInterval = "y";
   }
-  if (file.indexOf("$m") != -1) {
+  if (file.includes("$m")) {
     obj.smallestLogInterval = "m";
   }
-  if (file.indexOf("$d") != -1) {
+  if (file.includes("$d")) {
     obj.smallestLogInterval = "d";
   }
-  if (file.indexOf("$h") != -1) {
+  if (file.includes("$h")) {
     obj.smallestLogInterval = "h";
   }
 
@@ -905,10 +905,10 @@ function onNetworkPrefChanged(network, prefName, newValue, oldValue) {
         break;
       }
       var adds = newValue.filter(el => {
-        return oldValue.indexOf(el) < 0;
+        return !oldValue.includes(el);
       });
       var subs = oldValue.filter(el => {
-        return newValue.indexOf(el) < 0;
+        return !newValue.includes(el);
       });
       if (adds.length > 0) {
         network.primServ.sendMonitorList(adds, true);

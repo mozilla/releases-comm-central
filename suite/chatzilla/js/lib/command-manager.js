@@ -341,7 +341,7 @@ CommandManager.prototype.installKey = function cmgr_instkey(
     key.setAttribute("modifiers", ary[1]);
   }
 
-  if (ary[2].indexOf("VK_") == 0) {
+  if (ary[2].startsWith("VK_")) {
     key.setAttribute("keycode", ary[2]);
   } else {
     key.setAttribute("key", ary[2]);

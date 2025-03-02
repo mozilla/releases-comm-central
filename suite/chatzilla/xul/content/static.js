@@ -1725,7 +1725,7 @@ function gotoIRCURL(url, e) {
     if (url.msg) {
       client.pendingViewContext = e;
       var msg;
-      if (url.msg.indexOf("\01ACTION") == 0) {
+      if (url.msg.startsWith("\01ACTION")) {
         msg = filterOutput(url.msg, "ACTION", targetObject);
         targetObject.display(msg, "ACTION", "ME!", client.currentObject);
       } else {
@@ -2537,19 +2537,19 @@ function notifyAttention(source) {
 }
 
 function setDebugMode(mode) {
-  if (mode.indexOf("t") != -1) {
+  if (mode.includes("t")) {
     client.debugHook.enabled = true;
   } else {
     client.debugHook.enabled = false;
   }
 
-  if (mode.indexOf("c") != -1) {
+  if (mode.includes("c")) {
     client.dbgContexts = true;
   } else {
     delete client.dbgContexts;
   }
 
-  if (mode.indexOf("d") != -1) {
+  if (mode.includes("d")) {
     client.dbgDispatch = true;
   } else {
     delete client.dbgDispatch;
@@ -2838,7 +2838,7 @@ client.installPlugin = function cli_installPlugin(name, source) {
         items = zipReader.findEntries("*");
         while (items.hasMore()) {
           itemName = items.getNext();
-          if (itemName.substr(0, zipPathBase.length) != zipPathBase) {
+          if (!itemName.startsWith(zipPathBase)) {
             display(MSG_INSTALL_PLUGIN_ERR_MIXED_BASE, MT_WARN);
             zipPathBase = "";
             break;
@@ -3482,7 +3482,7 @@ client.checkURLScheme = function c_checkURLScheme(url) {
 
     client.schemes = new Object();
     for (var c in Cc) {
-      if (c.indexOf(pfx) == 0) {
+      if (c.startsWith(pfx)) {
         client.schemes[c.substr(len)] = true;
       }
     }
@@ -3937,7 +3937,7 @@ client.display =
       }
 
       var msgprefix = "";
-      if (msgtype.indexOf("/") != -1) {
+      if (msgtype.includes("/")) {
         var ary = msgtype.match(/^(.*)\/(.*)$/);
         msgtype = ary[1];
         msgprefix = ary[2];
@@ -5205,7 +5205,7 @@ function matchEntry(partialName, list, lcFn) {
   }
 
   for (let i in list) {
-    if (lcFn(list[i]).indexOf(lcFn(partialName)) == 0) {
+    if (lcFn(list[i]).startsWith(lcFn(partialName))) {
       ary.push(i);
     }
   }

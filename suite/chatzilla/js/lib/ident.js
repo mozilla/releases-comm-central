@@ -128,7 +128,6 @@ IdentListener.prototype.onStreamClose = function ident_listener_sclose(
 IdentListener.prototype.onDataAvailable = function ident_listener_dataavailable(
   e
 ) {
-  var incomplete = e.line.substr(-2) != "\r\n";
   var lines = e.line.split(/\r\n/);
 
   if (this.savedLine) {
@@ -136,7 +135,7 @@ IdentListener.prototype.onDataAvailable = function ident_listener_dataavailable(
     this.savedLine = "";
   }
 
-  if (incomplete) {
+  if (!e.line.endsWith("\r\n")) {
     this.savedLine = lines.pop();
   }
 

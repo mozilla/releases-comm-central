@@ -115,7 +115,7 @@ CIRCDCC.prototype.getMatches = function dcc_getmatches(
   function matchNames(name, otherName) {
     return (
       name.match(new RegExp(otherName, "i")) ||
-      name.toLowerCase().indexOf(otherName.toLowerCase()) != -1
+      name.toLowerCase().includes(otherName.toLowerCase())
     );
   }
 

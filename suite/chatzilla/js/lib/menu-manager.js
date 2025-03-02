@@ -35,7 +35,7 @@ function MenuManager(commandManager, menuSpecs, contextFunction, commandStr) {
 
 MenuManager.prototype.createContextMenus = function mmgr_initcxs(document) {
   for (var id in this.menuSpecs) {
-    if (id.indexOf("context:") == 0) {
+    if (id.startsWith("context:")) {
       this.createContextMenu(document, id);
     }
   }
@@ -70,7 +70,7 @@ MenuManager.prototype.createMenus = function mmgr_createtb(document, menuid) {
       domID = id;
     }
 
-    if (id.indexOf(menuid + ":") == 0) {
+    if (id.startsWith(menuid + ":")) {
       this.createMenu(menu, null, id, domID);
     }
   }
@@ -353,7 +353,7 @@ MenuManager.prototype.showPopup = function mmgr_showpop(event) {
     /* it's visible, maybe it has a dynamic label? */
     if (menuitem.hasAttribute("format")) {
       var label = replaceVars(menuitem.getAttribute("format"), cx);
-      if (label.indexOf("$") != -1) {
+      if (label.includes("$")) {
         label = menuitem.getAttribute("backupLabel");
       }
       menuitem.setAttribute("label", label);
@@ -597,7 +597,7 @@ MenuManager.prototype.appendMenuItem = function mmgr_addmenu(
   menuitem.setAttribute("id", parentId + ":" + commandName);
   menuitem.setAttribute("commandname", command.name);
   // Add keys if this isn't a context menu:
-  if (parentId.indexOf("context") != 0) {
+  if (!parentId.startsWith("context")) {
     menuitem.setAttribute("key", "key:" + command.name);
   }
   menuitem.setAttribute("accesskey", command.accesskey);

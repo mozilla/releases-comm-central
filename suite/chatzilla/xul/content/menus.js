@@ -74,7 +74,7 @@ function initMenus() {
   var ViewNetwork = "(cx.TYPE == 'IRCNetwork')";
   var ViewChannel = "(cx.TYPE == 'IRCChannel')";
   var ViewUser = "(cx.TYPE == 'IRCUser')";
-  var ViewDCC = "(cx.TYPE.substr(0, 6) == 'IRCDCC')";
+  var ViewDCC = "(cx.TYPE.startsWith('IRCDCC'))";
 
   // IRC specific combinations
   var ChannelActive = "(" + ViewChannel + " and cx.channel.active)";
@@ -255,7 +255,7 @@ function initMenus() {
   // Me is op or half-op.
   var isopish = "(cx.channel.iAmOp() || cx.channel.iAmHalfOp()) && ";
   // Server has half-ops.
-  var shop = "(cx.server.supports.prefix.indexOf('h') > 0) && ";
+  var shop = "cx.server.supports.prefix.includes('h', 1) && ";
   // User is Me or Me is op.
   var isoporme = "((cx.user == cx.server.me) || cx.channel.iAmOp()) && ";
 

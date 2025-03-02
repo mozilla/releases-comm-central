@@ -230,7 +230,7 @@ function insertLink(matchText, containerTag, data, mungerEntry) {
     // We special-case links that end with (something), often found on wikis
     // if "trailing" starts with ) and there's an unclosed ( in the
     // "linkText"; then we put the final ) back in
-    if (trailing.indexOf(")") == 0 && linkText.match(/\([^\)]*$/)) {
+    if (trailing.startsWith(")") && linkText.match(/\([^\)]*$/)) {
       linkText += ")";
       trailing = trailing.substr(1);
     }
@@ -299,7 +299,7 @@ function insertMailToLink(matchText, containerTag, eventData, mungerEntry) {
 
   var href;
 
-  if (matchText.toLowerCase().indexOf("mailto:") != 0) {
+  if (!matchText.toLowerCase().startsWith("mailto:")) {
     href = "mailto:" + matchText;
   } else {
     href = matchText;

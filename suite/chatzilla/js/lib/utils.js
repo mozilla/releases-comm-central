@@ -29,7 +29,7 @@ if (DEBUG) {
       if (_dd_currentDepth >= _dd_disableDepth) {
         return;
       }
-      if (str.indexOf("OFF") == 0) {
+      if (str.startsWith("OFF")) {
         _dd_disableDepth = _dd_currentDepth;
       }
       _dd_timeStack.push(new Date());

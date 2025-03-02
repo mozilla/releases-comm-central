@@ -44,7 +44,7 @@ function onLoad() {
 
   var localizers = document.getElementById("localizers");
   var localizerNames = getMsg("locale.authors", null, "");
-  if (localizerNames && localizerNames.substr(0, 11) != "XXX REPLACE") {
+  if (localizerNames && !localizerNames.startsWith("XXX REPLACE")) {
     localizerNames = localizerNames.split(/\s*;\s*/);
 
     for (var i = 0; i < localizerNames.length; i++) {

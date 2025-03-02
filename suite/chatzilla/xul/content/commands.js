@@ -1524,7 +1524,7 @@ function cmdDeleteView(e) {
     return;
   }
 
-  if (e.view.TYPE.substr(0, 6) == "IRCDCC") {
+  if (e.view.TYPE.startsWith("IRCDCC")) {
     if (e.view.isActive()) {
       e.view.abort();
     }
@@ -3476,7 +3476,7 @@ function cmdSave(e) {
       } else {
         // No saveType and no decent extension --> out!
         var errMsg;
-        if (extension.indexOf(".") < 0) {
+        if (!extension.includes(".")) {
           errMsg = MSG_SAVE_ERR_NO_EXT;
         } else {
           errMsg = getMsg(MSG_SAVE_ERR_INVALID_EXT, extension);
@@ -3886,7 +3886,7 @@ function cmdDCCClose(e) {
   // If there is no nickname specified, use current view.
   if (!e.nickname) {
     // Both DCC chat and file transfers can be aborted like this.
-    if (e.sourceObject.TYPE.substr(0, 6) == "IRCDCC") {
+    if (e.sourceObject.TYPE.startsWith("IRCDCC")) {
       if (e.sourceObject.isActive()) {
         return e.sourceObject.abort();
       }
