@@ -7,9 +7,15 @@
 set_config("MOZ_SUITE", True)
 set_define("MOZ_SUITE", True)
 
+imply_option("MOZ_APP_NAME", "seamonkey")
 imply_option("MOZ_APP_BASENAME", "SeaMonkey")
+imply_option("MOZ_APP_DISPLAYNAME", "SeaMonkey")
+
 imply_option("MOZ_APP_ID", "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}")
 imply_option("MOZ_APP_VENDOR", "Mozilla")
+
+imply_option("MOZ_UPDATER", True)
+imply_option("MOZ_PROFILE_MIGRATOR", True)
 # Include the DevTools client, not just the server (which is the default)
 imply_option("MOZ_DEVTOOLS", "all")
 imply_option("NSS_EXTRA_SYMBOLS_FILE", "../comm/mailnews/nss-extra.symbols")
@@ -82,6 +88,9 @@ set_defconf("SEAMONKEY_VERSION", seamonkey_version.version)
 set_defconf("SEAMONKEY_VERSION_DISPLAY", seamonkey_version.version_display)
 # Currently not set in suite comm-central
 # set_defconf("MOZ_PKG_VERSION", seamonkey_version.version_package)
+imply_option("MOZ_APP_VERSION", seamonkey_version.version)
+imply_option("MOZ_APP_VERSION_DISPLAY", seamonkey_version.version_display)
+imply_option("BROWSER_CHROME_URL", "chrome://navigator/content/navigator.xul")
 
 
 imply_option("MOZ_PLACES", True)
