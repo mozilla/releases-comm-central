@@ -7,8 +7,6 @@
 set_config("MOZ_THUNDERBIRD", True)
 set_define("MOZ_THUNDERBIRD", True)
 
-imply_option("MOZ_APP_NAME", "thunderbird")
-imply_option("MOZ_APP_PROFILE", "thunderbird")
 imply_option("MOZ_APP_BASENAME", "Thunderbird")
 set_config("MOZ_APPUPDATE_HOST", "aus.thunderbird.net")
 
