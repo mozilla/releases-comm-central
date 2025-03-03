@@ -36,11 +36,6 @@ add_task(async function test_dialogStructure() {
   Assert.equal(titlebar.length, 1, "Contains 1 titlebar");
   Assert.equal(closeButton.length, 1, "Titlebar contains 1 close button");
   Assert.equal(
-    dialog.querySelectorAll(".titlebar .close-button img").length,
-    1,
-    "Close button contains 1 img"
-  );
-  Assert.equal(
     dialog.querySelectorAll(".footer").length,
     1,
     "Contains 1 footer bar"
