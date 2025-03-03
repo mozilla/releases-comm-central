@@ -151,6 +151,10 @@ class nsParseNewMailState : public nsParseMailMessageState,
   // this keeps track of how many messages we downloaded that
   // aren't new - e.g., marked read, or moved to an other server.
   int32_t m_numNotNewMessages;
+  // Filter-initiated moves are collected to run all at once.
+  RefPtr<nsImapMoveCoalescer> m_moveCoalescer;
+  mozilla::UniquePtr<nsTHashMap<nsCStringHashKey, int32_t>>
+      m_filterTargetFoldersMsgMovedCount;
 
   // for nsMsgLineBuffer
   virtual nsresult HandleLine(const char* line, uint32_t line_length) override;

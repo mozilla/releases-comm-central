@@ -331,16 +331,21 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, uint32_t flags) {
       oldFilterTargetFoldersMsgMovedCount;
   if (m_newMailParser) {
     oldNotNewCount = m_newMailParser->m_numNotNewMessages;
+    oldCoalescer = m_newMailParser->m_moveCoalescer;
+    oldFilterTargetFoldersMsgMovedCount.swap(
+        m_newMailParser->m_filterTargetFoldersMsgMovedCount);
+    m_newMailParser->m_moveCoalescer = nullptr;
     m_newMailParser = nullptr;
   }
   // Create a new mail parser to parse out the headers of the message and
   // load the details into the message database.
   m_newMailParser = new nsParseNewMailState;
-  // TODO: kill m_outFileStream param - only used by MoveIncorporatedMessage()
-  // which we hope to ditch.
   rv = m_newMailParser->Init(serverFolder, m_folder, m_window, newHdr,
                              m_outFileStream);
   m_newMailParser->m_numNotNewMessages = oldNotNewCount;
+  m_newMailParser->m_moveCoalescer = oldCoalescer;
+  m_newMailParser->m_filterTargetFoldersMsgMovedCount.swap(
+      oldFilterTargetFoldersMsgMovedCount);
 
   if (m_uidlDownload) m_newMailParser->DisableFilters();
 
@@ -618,6 +623,8 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
 NS_IMETHODIMP
 nsPop3Sink::IncorporateAbort() {
   NS_ENSURE_STATE(m_outFileStream);
+  nsresult rv = m_outFileStream->Close();
+  NS_ENSURE_SUCCESS(rv, rv);
   if (m_msgStore && m_newMailParser && m_newMailParser->m_newMsgHdr) {
     m_msgStore->DiscardNewMessage(m_outFileStream,
                                   m_newMailParser->m_newMsgHdr);
@@ -625,7 +632,7 @@ nsPop3Sink::IncorporateAbort() {
 #ifdef DEBUG
   printf("Incorporate message abort.\n");
 #endif
-  return NS_OK;
+  return rv;
 }
 
 nsresult nsPop3Sink::SetBiffStateAndUpdateFE(uint32_t aBiffState,
