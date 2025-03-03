@@ -52,8 +52,6 @@ void FolderCollector::EnsureFolderCache() {
  *   entries for mailboxes.
  */
 void FolderCollector::FindChildren(nsIFolder* aParent, nsIFile* aFile) {
-  MOZ_ASSERT(!NS_IsMainThread());
-
   nsTHashMap<nsCString, RefPtr<nsIFile>> childFiles;
   // For folders where the name isn't the file name.
   nsTHashMap<nsCString, RefPtr<nsIFile>> aliasFiles;

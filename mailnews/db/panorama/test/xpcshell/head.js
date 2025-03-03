@@ -35,7 +35,6 @@ async function loadExistingDB() {
   database = Cc["@mozilla.org/mailnews/database-core;1"].getService(
     Ci.nsIDatabaseCore
   );
-  await database.startup();
   folders = database.folders;
   messages = database.messages;
 }

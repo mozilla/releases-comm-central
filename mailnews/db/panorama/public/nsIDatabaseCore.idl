@@ -14,8 +14,7 @@ interface nsIDatabaseCore : nsISupports {
    * Open a connection to the database and load in the folders from it.
    * Returns a promise that resolves (with no value) when loading is complete.
    */
-  [implicit_jscontext]
-  Promise startup();
+  void startup();
 
   /**
    * Access to the folders table on the database.

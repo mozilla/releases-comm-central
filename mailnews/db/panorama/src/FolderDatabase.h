@@ -17,8 +17,6 @@ using mozilla::MozPromise;
 namespace mozilla {
 namespace mailnews {
 
-using FolderDatabaseStartupPromise = MozPromise<bool, nsresult, true>;
-
 class Folder;
 class FolderComparator;
 
@@ -34,12 +32,10 @@ class FolderDatabase : public nsIFolderDatabase {
   friend class DatabaseCore;
 
   FolderDatabase() {};
-  RefPtr<FolderDatabaseStartupPromise> Startup();
+  nsresult Startup();
   void Shutdown();
 
  private:
-  MozPromiseHolder<FolderDatabaseStartupPromise> mPromiseHolder;
-
   nsTHashMap<uint64_t, RefPtr<Folder>> mFoldersById;
   nsTHashMap<nsCString, RefPtr<Folder>> mFoldersByPath;
   FolderComparator mComparator;

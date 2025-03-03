@@ -44,38 +44,23 @@ DatabaseCore::DatabaseCore() {
 }
 
 NS_IMETHODIMP
-DatabaseCore::Startup(JSContext* aCx, Promise** aPromise) {
+DatabaseCore::Startup() {
   MOZ_LOG(gPanoramaLog, LogLevel::Info, ("DatabaseCore starting up"));
 
-  ErrorResult result;
-  RefPtr<Promise> promise =
-      Promise::Create(xpc::CurrentNativeGlobal(aCx), result);
-
   nsresult rv = EnsureConnection();
-  if (NS_FAILED(rv)) {
-    promise->MaybeReject(rv);
-  }
+  NS_ENSURE_SUCCESS(rv, rv);
 
   mFolderDatabase = new FolderDatabase();
-  mMessageDatabase = new MessageDatabase();
+  rv = mFolderDatabase->Startup();
+  NS_ENSURE_SUCCESS(rv, rv);
 
+  mMessageDatabase = new MessageDatabase();
   mMessageDatabase->Startup();
   // Add a message listener purely for logging purposes while this code is
   // under heavy development. TODO: Remove this.
   mMessageDatabase->AddMessageListener(this);
 
-  RefPtr<FolderDatabaseStartupPromise> foldersPromise =
-      mFolderDatabase->Startup();
-  foldersPromise->Then(
-      mozilla::GetCurrentSerialEventTarget(), __func__,
-      [promise]() {
-        MOZ_LOG(gPanoramaLog, LogLevel::Info,
-                ("DatabaseCore startup complete"));
-        promise->MaybeResolveWithUndefined();
-      },
-      [promise]() { promise->MaybeReject(NS_ERROR_DOM_ABORT_ERR); });
-
-  promise.forget(aPromise);
+  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("DatabaseCore startup complete"));
   return NS_OK;
 }
 

@@ -38,75 +38,26 @@ NS_IMPL_ISUPPORTS(FolderDatabase, nsIFolderDatabase)
  * are not emitted during initialization.
  */
 
-RefPtr<FolderDatabaseStartupPromise> FolderDatabase::Startup() {
+nsresult FolderDatabase::Startup() {
   MOZ_ASSERT(NS_IsMainThread(), "loadfolders must happen on the main thread");
 
   MOZ_LOG(gPanoramaLog, LogLevel::Info, ("FolderDatabase starting up"));
   PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", OTHER,
                           MarkerOptions(MarkerTiming::IntervalStart()));
 
-  RefPtr<FolderDatabaseStartupPromise> promise =
-      mPromiseHolder.Ensure(__func__);
+  InternalLoadFolders();
 
-  nsCOMPtr<nsIMsgAccountManager> accountManager =
-      components::AccountManager::Service();
+  PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", OTHER,
+                          MarkerOptions(MarkerTiming::IntervalEnd()));
+  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("FolderDatabase startup complete"));
 
-  // Ensure the folder cache has been loaded for the first time.
-  // This needs to happen on the main thread.
-  nsCOMPtr<nsIMsgFolderCache> folderCache;
-  nsresult rv = accountManager->GetFolderCache(getter_AddRefs(folderCache));
-  if (NS_FAILED(rv)) {
-    mPromiseHolder.Reject(rv, __func__);
-  }
-
-  nsTHashMap<nsCString, nsCOMPtr<nsIFile>> serverRoots;
-  nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
-  rv = accountManager->GetAllServers(allServers);
-  if (NS_FAILED(rv)) {
-    mPromiseHolder.Reject(rv, __func__);
-  }
-
-  for (auto server : allServers) {
-    nsAutoCString serverKey;
-    server->GetKey(serverKey);
-    nsCOMPtr<nsIFile> rootFile;
-    server->GetLocalPath(getter_AddRefs(rootFile));
-    serverRoots.InsertOrUpdate(serverKey, rootFile);
-  }
-
-  NS_DispatchBackgroundTask(NS_NewRunnableFunction(
-      __func__, [&, serverRoots = std::move(serverRoots)]() {
-        InternalLoadFolders();
-
-        for (auto iter = serverRoots.ConstIter(); !iter.Done(); iter.Next()) {
-          // Ask each of the servers to find their folders on disk. For now
-          // we'll use a temporary class to do this, eventually we'll move
-          // the functionality to each message store.
-          nsCOMPtr<nsIFolder> root;
-          InsertRoot(iter.Key(), getter_AddRefs(root));
-          nsCOMPtr<nsIFile> file = iter.UserData();
-          FolderCollector collector;
-          collector.FindChildren(root, file);
-        }
-
-        PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", OTHER,
-                                MarkerOptions(MarkerTiming::IntervalEnd()));
-        MOZ_LOG(gPanoramaLog, LogLevel::Info,
-                ("FolderDatabase startup complete"));
-
-        mPromiseHolder.Resolve(true, __func__);
-      }));
-
-  return promise;
+  return NS_OK;
 }
 
 /**
  * Reads from the database into `Folder` objects, and creates the hierarchy.
  */
 nsresult FolderDatabase::InternalLoadFolders() {
-  MOZ_ASSERT(!NS_IsMainThread(),
-             "loading folders must happen off the main thread");
-
   mFoldersById.Clear();
 
   nsCOMPtr<mozIStorageStatement> stmt;

@@ -68,6 +68,9 @@
 #include "nsICacheStorageService.h"
 #include "UrlListener.h"
 #include "nsIIDNService.h"
+#ifdef MOZ_PANORAMA
+#  include "nsIDatabaseCore.h"
+#endif  // MOZ_PANORAMA
 
 #define PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS "mail.accountmanager.accounts"
 #define PREF_MAIL_ACCOUNTMANAGER_DEFAULTACCOUNT \
@@ -91,6 +94,8 @@ static NS_DEFINE_CID(kMsgAccountCID, NS_MSGACCOUNT_CID);
 
 #define SEARCH_FOLDER_FLAG "searchFolderFlag"
 #define SEARCH_FOLDER_FLAG_LEN (sizeof(SEARCH_FOLDER_FLAG) - 1)
+
+using mozilla::Preferences;
 
 const char* kSearchFolderUriProp = "searchFolderUri";
 
@@ -158,6 +163,14 @@ nsresult nsMsgAccountManager::Init() {
   }
 
   nsresult rv;
+#ifdef MOZ_PANORAMA
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    // Start up the database.
+    nsCOMPtr<nsIDatabaseCore> unused =
+        do_GetService("@mozilla.org/mailnews/database-core;1", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+#endif  // MOZ_PANORAMA
 
   m_prefs = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
