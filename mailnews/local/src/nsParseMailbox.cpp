@@ -1130,6 +1130,7 @@ void nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
               nsCOMPtr<nsIMsgFolder> trash;
               GetTrashFolder(getter_AddRefs(trash));
               if (trash) {
+                // TODO: use copyservice.
                 uint32_t newFlags;
                 bool msgMoved;
                 m_newMsgHdr->AndFlags(~nsMsgMessageFlags::New, &newFlags);
@@ -1324,77 +1325,48 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
           [[fallthrough]];
         case nsMsgFilterAction::MoveToFolder: {
           // If moving to a different folder, do it.
+          // TODO: why are we checking `m_inboxUri` here, but copy action checks
+          // `m_rootFolder`?
           if (!actionTargetFolderUri.IsEmpty() &&
               !m_inboxUri.Equals(actionTargetFolderUri,
                                  nsCaseInsensitiveCStringComparator)) {
-            nsCOMPtr<nsIMsgFolder> destIFolder;
-            // XXX TODO: why do we create the folder here, while we do not in
-            // the Copy action?
-            rv = GetOrCreateFolder(actionTargetFolderUri,
-                                   getter_AddRefs(destIFolder));
+            nsCOMPtr<nsIMsgFolder> dstFolder;
+            rv = GetExistingFolder(actionTargetFolderUri,
+                                   getter_AddRefs(dstFolder));
             if (NS_FAILED(rv)) {
+              // Let's show a more specific warning.
               MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
                       ("(Local) Target Folder for Move action does not exist"));
+              NS_WARNING("Target Folder for move does not exist.");
               break;
             }
-            bool msgMoved = false;
-            // If we're moving to an imap folder, or this message has already
-            // has a pending copy action, use the imap coalescer so that
-            // we won't truncate the inbox before the copy fires.
 
-            // For pop3 and when mail moved to target folder by filter, if
-            // condition is false and else block is executed. So we don't have
-            // imap move coalescer, have to keep track of moved messages and
-            // target folders using m_filterTargetFoldersMsgMovedCount Map.
-            if (m_msgCopiedByFilter ||
-                StringBeginsWith(actionTargetFolderUri, "imap:"_ns)) {
-              if (!m_moveCoalescer)
-                m_moveCoalescer =
-                    new nsImapMoveCoalescer(m_downloadFolder, m_msgWindow);
-              NS_ENSURE_TRUE(m_moveCoalescer, NS_ERROR_OUT_OF_MEMORY);
-              rv = m_moveCoalescer->AddMove(destIFolder, msgKey);
-              msgIsNew = false;
-              if (NS_FAILED(rv)) break;
-            } else {
-              uint32_t old_flags;
-              msgHdr->GetFlags(&old_flags);
+            nsCOMPtr<nsIMsgCopyService> copyService;
+            copyService = do_GetService(
+                "@mozilla.org/messenger/messagecopyservice;1", &rv);
+            if (NS_SUCCEEDED(rv)) {
+              rv = copyService->CopyMessages(
+                  m_downloadFolder, {&*msgHdr}, dstFolder, true, /* isMove */
+                  nullptr,         /* nsIMsgCopyServiceListener */
+                  msgWindow, false /*allowUndo */
+              );
 
-              nsCOMPtr<nsIMsgPluggableStore> msgStore;
-              rv = m_downloadFolder->GetMsgStore(getter_AddRefs(msgStore));
-              if (NS_SUCCEEDED(rv))
-                rv = msgStore->MoveNewlyDownloadedMessage(msgHdr, destIFolder,
-                                                          &msgMoved);
-              if (NS_SUCCEEDED(rv) && !msgMoved)
-                rv = MoveIncorporatedMessage(msgHdr, m_mailDB, destIFolder,
-                                             filter, msgWindow);
-              m_msgMovedByFilter = NS_SUCCEEDED(rv);
-
-              if (m_msgMovedByFilter &&
-                  !(old_flags & nsMsgMessageFlags::Read)) {
-                // Setting msgIsNew to false will execute the block at the end
-                // that decreases inbox's NumNewMessages.
-                msgIsNew = false;
-
-                if (!m_filterTargetFoldersMsgMovedCount) {
-                  m_filterTargetFoldersMsgMovedCount = mozilla::MakeUnique<
-                      nsTHashMap<nsCStringHashKey, int32_t>>();
-                }
-                int32_t targetFolderMsgMovedCount =
-                    m_filterTargetFoldersMsgMovedCount->Get(
-                        actionTargetFolderUri);
-                targetFolderMsgMovedCount++;
-                m_filterTargetFoldersMsgMovedCount->InsertOrUpdate(
-                    actionTargetFolderUri, targetFolderMsgMovedCount);
-              }
-
-              if (!m_msgMovedByFilter /* == NS_FAILED(err) */) {
+              if (NS_FAILED(rv)) {
                 // XXX: Invoke MSG_LOG_TO_CONSOLE once bug 1135265 lands.
                 if (loggingEnabled) {
                   (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
                                                "filterFailureMoveFailed"_ns);
                 }
+                break;
               }
+              // TODO: because copyService is async, the move could still fail.
+              // Current system doesn't really have any way of dealing with
+              // that. Think this whole process needs to be more async to
+              // cope...
+
+              m_msgMovedByFilter = true;
             }
+
           } else {
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
                     ("(Local) Target folder is the same as source folder, "
@@ -1699,8 +1671,6 @@ void nsParseNewMailState::MarkFilteredMessageUnread(nsIMsgDBHdr* msgHdr) {
 }
 
 nsresult nsParseNewMailState::EndMsgDownload() {
-  if (m_moveCoalescer) m_moveCoalescer->PlaybackMoves();
-
   // need to do this for all folders that had messages filtered into them
   for (auto folder : m_filterTargetFolders) {
     uint32_t folderFlags;
@@ -1711,42 +1681,11 @@ nsresult nsParseNewMailState::EndMsgDownload() {
       if (!filtersRun) folder->SetMsgDatabase(nullptr);
     }
   }
-  // means there are filter moved mail that moveCoalescer didn't handle, we need
-  // to do it from m_filterTargetFoldersMsgMovedCount.
-  if (m_filterTargetFoldersMsgMovedCount) {
-    for (const auto& entry : *m_filterTargetFoldersMsgMovedCount) {
-      nsCOMPtr<nsIMsgFolder> targetIFolder;
-      nsresult rv =
-          GetExistingFolder(entry.GetKey(), getter_AddRefs(targetIFolder));
-      if (NS_FAILED(rv)) {
-        continue;
-      }
-      uint32_t destFlags;
-      targetIFolder->GetFlags(&destFlags);
-      if (!(destFlags &
-            nsMsgFolderFlags::Junk))  // don't set has new on junk folder
-      {
-        int32_t filterFolderNumNewMessages;
-        int32_t filterFolderNumNewMovedMessages = entry.GetData();
-
-        targetIFolder->GetNumNewMessages(false, &filterFolderNumNewMessages);
-        filterFolderNumNewMessages += filterFolderNumNewMovedMessages;
-        targetIFolder->SetNumNewMessages(filterFolderNumNewMessages);
-
-        if (filterFolderNumNewMessages > 0) {
-          targetIFolder->SetHasNewMessages(true);
-          targetIFolder->SetBiffState(nsIMsgFolder::nsMsgBiffState_NewMail);
-        }
-      }
-    }
-
-    m_filterTargetFoldersMsgMovedCount->Clear();
-    m_filterTargetFoldersMsgMovedCount = nullptr;
-  }
   m_filterTargetFolders.Clear();
   return NS_OK;
 }
 
+// TODO: kill this
 nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream* fileStream,
                                                   nsIMsgDBHdr* aHdr,
                                                   nsIMsgFolder* destFolder) {
@@ -1771,6 +1710,7 @@ nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream* fileStream,
  * Moves message pointed to by mailHdr into folder destIFolder.
  * After successful move mailHdr is no longer usable by the caller.
  */
+// TODO: kill this
 nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
                                                       nsIMsgDatabase* sourceDB,
                                                       nsIMsgFolder* destIFolder,
@@ -1779,6 +1719,7 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   NS_ENSURE_ARG_POINTER(destIFolder);
   nsresult rv = NS_OK;
 
+  // TODO: move this check out into ApplyFilterHit().
   // check if the destination is a real folder (by checking for null parent)
   // and if it can file messages (e.g., servers or news folders can't file
   // messages). Or read only imap folders...
