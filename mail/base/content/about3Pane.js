@@ -2728,7 +2728,7 @@ var folderPane = {
         gFolder.hasNewMessages &&
         Services.prefs.getBoolPref("mailnews.scroll_to_new_message");
       if (threadPane.scrollToNewMessage) {
-        threadPane.forgetSelection(uri);
+        threadPane.forgetSavedSelection(uri);
       }
 
       gViewWrapper.open(gFolder);
@@ -4618,6 +4618,13 @@ var threadPane = {
    * Handle threadPane select events.
    */
   _onSelect() {
+    if (
+      !dbViewWrapperListener.allMessagesLoaded &&
+      !this._selectionIsBeingRestored
+    ) {
+      // The user selected something, stop restoring a saved selection.
+      this.forgetSavedSelection();
+    }
     if (paneLayout.messagePaneVisible.isCollapsed) {
       updateZoomCommands();
       return;
@@ -5103,10 +5110,11 @@ var threadPane = {
    * Forget any saved selection of the given folder. This is useful if you're
    * going to set the selection after switching to the folder.
    *
-   * @param {string} folderURI
+   * @param {string} [selectionKey] - A folder's URI if given, or whatever is
+   *   currently being displayed.
    */
-  forgetSelection(folderURI) {
-    this._savedSelections.delete(folderURI);
+  forgetSavedSelection(selectionKey = this._getSavedSelectionKey()) {
+    this._savedSelections.delete(selectionKey);
   },
 
   /**
@@ -5158,7 +5166,9 @@ var threadPane = {
       gDBView.rowCount != selection.rowCount ||
       indices.size != indicesBefore.length ||
       indicesBefore.some(i => !indices.has(i));
+    this._selectionIsBeingRestored = true;
     threadTree.onSelectionChanged(false, !notify || !selectionDidChange);
+    this._selectionIsBeingRestored = false;
 
     if (currentIndex == nsMsgViewIndex_None) {
       threadTree.currentIndex = -1;
@@ -6089,7 +6099,7 @@ function selectMessage(msgHdr) {
   // Change to correct folder if needed. We might not be in a folder, or the
   // message might not be found in the current folder.
   if (index === undefined || index === nsMsgViewIndex_None) {
-    threadPane.forgetSelection(msgHdr.folder.URI);
+    threadPane.forgetSavedSelection(msgHdr.folder.URI);
     displayFolder(msgHdr.folder.URI);
     index = threadTree.view.findIndexOfMsgHdr(msgHdr, true);
     threadTree.scrollToIndex(index, true);

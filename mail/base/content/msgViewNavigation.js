@@ -199,7 +199,7 @@ function CrossFolderNavigation(type, navigateFunction) {
     window.addEventListener("allMessagesLoaded", () => navigateFunction(type), {
       once: true,
     });
-    window.threadPane.forgetSelection(folder.URI);
+    window.threadPane.forgetSavedSelection(folder.URI);
     window.displayFolder(folder.URI);
   } else {
     // In standalone about:message. Do just enough to call

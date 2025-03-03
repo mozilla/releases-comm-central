@@ -269,7 +269,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
       about3Pane.ensureFolderTreeRowIsVisible(row);
 
       if (clearPreviousSelection) {
-        about3Pane.threadPane.forgetSelection(row.uri);
+        about3Pane.threadPane.forgetSavedSelection(row.uri);
       }
 
       await new Promise(resolve => {
