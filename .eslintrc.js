@@ -5,9 +5,7 @@
 "use strict";
 
 const path = require("path");
-
-const xpcshellTestConfig = require("eslint-plugin-mozilla/lib/configs/xpcshell-test.js");
-const browserTestConfig = require("eslint-plugin-mozilla/lib/configs/browser-test.js");
+const mozilla = require("eslint-plugin-mozilla");
 const fs = require("fs");
 
 function readFile(filePath) {
@@ -150,10 +148,10 @@ module.exports = {
       },
     },
     {
-      ...xpcshellTestConfig,
+      ...mozilla.configs["xpcshell-test"],
       files: xpcshellTestPaths.map(filePath => `${filePath}**`),
       rules: {
-        ...xpcshellTestConfig.rules,
+        ...mozilla.configs["xpcshell-test"].rules,
         "func-names": "off",
       },
       excludedFiles: ["**/*.mjs", "**/*.sjs"],
@@ -178,10 +176,10 @@ module.exports = {
       },
     },
     {
-      ...browserTestConfig,
+      ...mozilla.configs["browser-test"],
       files: browserTestPaths.map(filePath => `${filePath}**`),
       rules: {
-        ...browserTestConfig.rules,
+        ...mozilla.configs["browser-test"].rules,
         "func-names": "off",
       },
       excludedFiles: ["**/*.mjs", "**/*.sjs"],
