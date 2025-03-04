@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Dialog Suview Manager</title>
+    <script
+      type="module"
+      src="chrome://messenger/content/calendar-dialog-subview-manager.mjs"
+    ></script>
+  </head>
+  <body>
+    <calendar-dialog-subview-manager default-subview="calendarDialogMainSubview">
+      <div id="calendarDialogMainSubview" hidden="hidden">
+        <h1>Just a subview minding its business</h1>
+      </div>
+      <div id="calendarDialogMassiveSubview" style="height: 200vh; width: 200vw" hidden="hidden">
+        <p>Subview with 200% larger dimensions than the viewport.</p>
+      </div>
+      <div id="calendarDialogAnotherSubview" hidden="hidden">
+        <p>Just another subview to show.</p>
+      </div>
+    </calendar-dialog-subview-manager>
+  </body>
+</html>

@@ -7,3 +7,4 @@ messenger.jar:
 
 # Custom elements
   content/messenger/calendar-dialog-row.mjs                                        (content/calendar-dialog-row.mjs)
+  content/messenger/calendar-dialog-subview-manager.mjs                            (content/calendar-dialog-subview-manager.mjs)
