@@ -12,19 +12,19 @@ const tabmail = document.getElementById("tabmail");
 let rssFeedFolder;
 
 add_setup(async () => {
+  const feedURL =
+    "https://example.org/browser/comm/mail/base/test/browser/files/rssScroll.xml?feedBodyScroll";
   const feedAccount = FeedUtils.createRssAccount("rssBodyMode");
   const rssRootFolder = feedAccount.incomingServer.rootFolder;
-  FeedUtils.subscribeToFeed(
-    "https://example.org/browser/comm/mail/base/test/browser/files/rssScroll.xml?feedBodyScroll",
-    rssRootFolder,
-    null
-  );
+  FeedUtils.subscribeToFeed(feedURL, rssRootFolder, null);
+  // Wait for Trash and "Test Feed" folders.
   await TestUtils.waitForCondition(() => rssRootFolder.subFolders.length == 2);
   rssFeedFolder = rssRootFolder.getChildNamed("Test Feed");
+  Assert.ok(rssFeedFolder, "rssFeedFolder should exist after subscribe");
 
   registerCleanupFunction(() => {
-    // Has to be false so the feed account counter goes up for subsequent tests.
-    MailServices.accounts.removeAccount(feedAccount, false);
+    rssFeedFolder.deleteSelf(null);
+    MailServices.accounts.removeAccount(feedAccount, true);
   });
 });
 
@@ -63,30 +63,22 @@ add_task(async function test_feedBodyScroll() {
    * An object containing the scroll state in the Y direction of the window.
    *
    * @typedef {object} ScrollState
-   * @property {number} scrollY
-   * @property {boolean} scrollMaxY
+   * @property {integer} scrollY
+   * @property {integer} scrollMaxY
    */
 
   /**
-   * Scroll the window 1 page at a time by hitting spacebar until it reaches the
-   * bottom. Once it reaches the bottom hit spacebar one more time to trigger
-   * loading the next message.
+   * Scroll the window one page down by hitting spacebar until it reaches the
+   * bottom.
    *
-   * @param {number} [value=0]
-   * @returns {Promise<?ScrollState>}
+   * @param {integer} [value=0] - Initial scrollY value.
+   * @returns {Promise<void>}
    */
-  async function checkScroll(value = 0) {
+  async function scrollDown(value = 0) {
     const scroll = await SpecialPowers.spawn(browser, [], async () => {
       const { promise, resolve } = Promise.withResolvers();
-      content.addEventListener(
-        "scroll",
-        () => {
-          resolve();
-        },
-        { once: true }
-      );
+      content.addEventListener("scroll", () => resolve(), { once: true });
       EventUtils.synthesizeKey(" ", {}, content);
-
       await promise;
 
       return {
@@ -97,7 +89,8 @@ add_task(async function test_feedBodyScroll() {
 
     if (scroll.scrollY < scroll.scrollMaxY) {
       Assert.notEqual(scroll.scrollY, value, "Window has scrolled");
-      return checkScroll(scroll.scrollY);
+      await scrollDown(scroll.scrollY);
+      return;
     }
 
     Assert.equal(
@@ -105,15 +98,17 @@ add_task(async function test_feedBodyScroll() {
       scroll.scrollMaxY,
       "Window has scrolled to bottom"
     );
-
-    return EventUtils.synthesizeKey(" ", {}, window);
   }
 
-  await checkScroll();
-
-  await BrowserTestUtils.browserLoaded(browser, undefined, url => {
-    return url.endsWith("sampleContent2.html");
-  });
+  await scrollDown();
+  const nextItemLoaded = BrowserTestUtils.browserLoaded(
+    browser,
+    undefined,
+    url => url.endsWith("sampleContent2.html")
+  );
+  // Click once more to load the next message.
+  EventUtils.synthesizeKey(" ", {}, window);
+  await nextItemLoaded;
 
   Services.prefs.clearUserPref("rss.show.summary");
 });
