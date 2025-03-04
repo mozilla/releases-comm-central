@@ -22,24 +22,26 @@ add_task(async function testInsertRemoveCSS() {
           target: { tabId: tab.id },
           css: "body { background-color: lime; }",
         });
-        await window.sendMessage();
+        await window.sendMessage("code insertCSS()");
 
         await browser.scripting.removeCSS({
           target: { tabId: tab.id },
           css: "body { background-color: lime; }",
         });
-        await window.sendMessage();
+        await window.sendMessage("code removeCSS()");
 
         await browser.scripting.insertCSS({
           target: { tabId: tab.id },
           files: ["test.css"],
         });
-        await window.sendMessage();
+        await window.sendMessage("file insertCSS()");
 
         await browser.scripting.removeCSS({
           target: { tabId: tab.id },
           files: ["test.css"],
         });
+        await window.sendMessage("file removeCSS()");
+
         browser.test.notifyPass("finished");
       },
       "test.css": "body { background-color: green; }",
@@ -58,21 +60,23 @@ add_task(async function testInsertRemoveCSS() {
 
   await extension.startup();
 
-  await extension.awaitMessage(); // insertCSS with code
+  await extension.awaitMessage("code insertCSS()");
   await checkContent(tab.browser, { backgroundColor: "rgb(0, 255, 0)" });
   extension.sendMessage();
 
-  await extension.awaitMessage(); // removeCSS with code
+  await extension.awaitMessage("code removeCSS()");
   await checkContent(tab.browser, UNCHANGED_VALUES);
   extension.sendMessage();
 
-  await extension.awaitMessage(); // insertCSS with file
+  await extension.awaitMessage("file insertCSS()");
   await checkContent(tab.browser, { backgroundColor: "rgb(0, 128, 0)" });
   extension.sendMessage();
 
-  await extension.awaitFinish("finished"); // removeCSS with file
+  await extension.awaitMessage("file removeCSS()");
   await checkContent(tab.browser, UNCHANGED_VALUES);
+  extension.sendMessage();
 
+  await extension.awaitFinish("finished");
   await extension.unload();
 
   document.getElementById("tabmail").closeTab(tab);
@@ -111,6 +115,7 @@ add_task(async function testInsertRemoveCSSNoHostPermissions() {
           /Missing host permission for the tab/,
           "insertCSS without permission should throw"
         );
+        await window.sendMessage("ready");
 
         browser.test.notifyPass("finished");
       },
@@ -129,9 +134,11 @@ add_task(async function testInsertRemoveCSSNoHostPermissions() {
 
   await extension.startup();
 
-  await extension.awaitFinish("finished");
+  await extension.awaitMessage("ready");
   await checkContent(tab.browser, UNCHANGED_VALUES);
+  extension.sendMessage();
 
+  await extension.awaitFinish("finished");
   await extension.unload();
 
   document.getElementById("tabmail").closeTab(tab);
@@ -148,18 +155,22 @@ add_task(async function testExecuteScript() {
           target: { tabId: tab.id },
           func: () => {
             document.body.setAttribute("foo", "bar");
+            browser.test.sendMessage("expected code injection");
           },
         });
-        await window.sendMessage();
+        await window.sendMessage("code executeScript()");
 
         await browser.scripting.executeScript({
           target: { tabId: tab.id },
           files: ["test.js"],
         });
+        await window.sendMessage("file executeScript()");
+
         browser.test.notifyPass("finished");
       },
       "test.js": () => {
         document.body.textContent = "Hey look, the script ran!";
+        browser.test.sendMessage("expected file injection");
       },
       "utils.js": await getUtilsJS(),
     },
@@ -176,16 +187,20 @@ add_task(async function testExecuteScript() {
 
   await extension.startup();
 
-  await extension.awaitMessage(); // executeScript with code
+  await extension.awaitMessage("code executeScript()");
+  await extension.awaitMessage("expected code injection");
   await checkContent(tab.browser, { foo: "bar" });
   extension.sendMessage();
 
-  await extension.awaitFinish("finished"); // executeScript with file
+  await extension.awaitMessage("file executeScript()");
+  await extension.awaitMessage("expected file injection");
   await checkContent(tab.browser, {
     foo: "bar",
     textContent: "Hey look, the script ran!",
   });
+  extension.sendMessage();
 
+  await extension.awaitFinish("finished");
   await extension.unload();
 
   document.getElementById("tabmail").closeTab(tab);
@@ -203,6 +218,7 @@ add_task(async function testExecuteScriptNoHostPermissions() {
             target: { tabId: tab.id },
             func: () => {
               document.body.setAttribute("foo", "bar");
+              browser.test.sendMessage("unexpected code injection");
             },
           }),
           /Missing host permission for the tab/,
@@ -226,11 +242,13 @@ add_task(async function testExecuteScriptNoHostPermissions() {
           /Missing host permission for the tab/,
           "executeScript without permission should throw"
         );
+        await window.sendMessage("ready");
 
         browser.test.notifyPass("finished");
       },
       "test.js": () => {
         document.body.textContent = "Hey look, the script ran!";
+        browser.test.sendMessage("unexpected file injection");
       },
       "utils.js": await getUtilsJS(),
     },
@@ -246,9 +264,11 @@ add_task(async function testExecuteScriptNoHostPermissions() {
 
   await extension.startup();
 
-  await extension.awaitFinish("finished");
+  await extension.awaitMessage("ready");
   await checkContent(tab.browser, UNCHANGED_VALUES);
+  extension.sendMessage();
 
+  await extension.awaitFinish("finished");
   await extension.unload();
 
   document.getElementById("tabmail").closeTab(tab);
@@ -267,8 +287,11 @@ add_task(async function testExecuteScriptAlias() {
             // eslint-disable-next-line no-undef
             const id = messenger.runtime.getManifest().applications.gecko.id;
             document.body.textContent = id;
+            browser.test.sendMessage("expected code injection");
           },
         });
+        await window.sendMessage("code executeScript()");
+
         browser.test.notifyPass("finished");
       },
       "utils.js": await getUtilsJS(),
@@ -287,9 +310,12 @@ add_task(async function testExecuteScriptAlias() {
 
   await extension.startup();
 
-  await extension.awaitFinish("finished");
+  await extension.awaitMessage("code executeScript()");
+  await extension.awaitMessage("expected code injection");
   await checkContent(tab.browser, { textContent: "content_scripts@mochitest" });
+  extension.sendMessage();
 
+  await extension.awaitFinish("finished");
   await extension.unload();
 
   document.getElementById("tabmail").closeTab(tab);
@@ -353,8 +379,7 @@ add_task(async function testRegister() {
             { strict: true }
           );
         }
-
-        await window.sendMessage();
+        await window.sendMessage("registered");
 
         // Test unregisterScripts(filter).
         const testsForUnregisterScripts = [
@@ -423,6 +448,7 @@ add_task(async function testRegister() {
         }
 
         await browser.scripting.unregisterContentScripts();
+
         window.assertDeepEqual(
           [],
           await browser.scripting.getRegisteredContentScripts(),
@@ -430,7 +456,7 @@ add_task(async function testRegister() {
           { strict: true }
         );
 
-        await window.sendMessage();
+        await window.sendMessage("unregistered");
 
         browser.test.notifyPass("finished");
       },
@@ -438,6 +464,7 @@ add_task(async function testRegister() {
       "test.js": () => {
         document.body.setAttribute("foo", "bar");
         document.body.textContent = "Hey look, the script ran!";
+        browser.test.sendMessage("expected file injection");
       },
       "utils.js": await getUtilsJS(),
     },
@@ -455,7 +482,7 @@ add_task(async function testRegister() {
 
   await extension.startup();
 
-  await extension.awaitMessage(); // register
+  await extension.awaitMessage("registered");
   // Registering a script will not inject it into already open tabs, wait a moment
   // to make sure we still get the unchanged values.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
@@ -464,6 +491,7 @@ add_task(async function testRegister() {
 
   // Tab 2: loads after the script is registered.
   const tab2 = window.openContentTab(CONTENT_PAGE + "?tab2");
+  await extension.awaitMessage("expected file injection");
   await awaitBrowserLoaded(tab2.browser, CONTENT_PAGE + "?tab2");
   await checkContent(tab2.browser, {
     backgroundColor: "rgb(0, 128, 0)",
@@ -473,7 +501,7 @@ add_task(async function testRegister() {
   });
 
   extension.sendMessage();
-  await extension.awaitMessage(); // unregister
+  await extension.awaitMessage("unregistered");
 
   await checkContent(tab2.browser, {
     backgroundColor: "rgb(0, 128, 0)",
@@ -511,6 +539,7 @@ add_task(async function testManifest() {
       "test.css": "body { background-color: lime; }",
       "test.js": () => {
         document.body.textContent = "Hey look, the script ran!";
+        browser.test.sendMessage("expected file injection");
       },
     },
     manifest: {
@@ -539,6 +568,7 @@ add_task(async function testManifest() {
 
   // The extension started and the content script defined in the manifest should
   // be injected into the already open tab.
+  await extension.awaitMessage("expected file injection");
   await checkContent(tab1.browser, {
     backgroundColor: "rgb(0, 255, 0)",
     textContent: "Hey look, the script ran!",
@@ -547,6 +577,7 @@ add_task(async function testManifest() {
   // Tab 2: loads after the script is registered.
   const tab2 = window.openContentTab(CONTENT_PAGE + "?tab2");
   await awaitBrowserLoaded(tab2.browser, CONTENT_PAGE + "?tab2");
+  await extension.awaitMessage("expected file injection");
   await checkContent(tab2.browser, {
     backgroundColor: "rgb(0, 255, 0)",
     textContent: "Hey look, the script ran!",
@@ -571,6 +602,7 @@ add_task(async function testManifestNoPermissions() {
       "test.css": "body { background-color: red; }",
       "test.js": () => {
         document.body.textContent = "Hey look, the script ran!";
+        browser.test.sendMessage("unexpected file injection");
       },
     },
     manifest: {
