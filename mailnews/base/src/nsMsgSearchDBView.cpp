@@ -1413,7 +1413,12 @@ nsMsgSearchDBView::OnDeleteCompleted(bool aSucceeded) {
   if (m_deletingRows) {
     SetSuppressChangeNotifications(false);
     m_deletingRows = false;
-    if (mTree) mTree->Invalidate();
+    if (mTree) {
+      mTree->BeginUpdateBatch();
+      // This seems to be the easiest way to update the row count of the
+      // XUL tree and invalidate it.
+      mTree->EndUpdateBatch();
+    }
     if (mJSTree) mJSTree->Invalidate();
   }
   return NS_OK;
