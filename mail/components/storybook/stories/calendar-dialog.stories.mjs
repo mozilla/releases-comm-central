@@ -16,16 +16,25 @@ export const calendarDialog = {
     container.insertAdjacentHTML(
       "beforeend",
       `
-    <template id="calendarDialogTemplate">
-      <div class="titlebar">
-        <button class="button icon-button icon-only button-flat close-button"
-                data-l10n-id="calendar-dialog-close-button">
-        </button>
-      </div>
-      <div class="content"></div>
-      <div class="footer"></div>
-    </template>
-    <dialog is="calendar-dialog"></dialog>
+  <template id="calendarDialogTemplate">
+    <div class="titlebar">
+      <button
+        class="button icon-button icon-only button-flat back-button"
+        data-l10n-id="calendar-dialog-back-button"
+      ></button>
+      <button class="button icon-button icon-only button-flat close-button"
+              data-l10n-id="calendar-dialog-close-button">
+    </div>
+    <div class="content">
+      <calendar-dialog-subview-manager
+        default-subview="calendarDialogMainSubview"
+      >
+        <div id="calendarDialogMainSubview" hidden="hidden"></div>
+      </calendar-dialog-subview-manager>
+    </div>
+    <div class="footer"></div>
+  </template>
+  <dialog is="calendar-dialog"></dialog>
 `
     );
 

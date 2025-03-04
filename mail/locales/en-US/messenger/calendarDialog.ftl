@@ -5,3 +5,7 @@
 calendar-dialog-close-button =
   .aria-label = Close
   .title = Close
+
+calendar-dialog-back-button =
+  .aria-label = Back
+  .title = Back
