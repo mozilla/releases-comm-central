@@ -165,8 +165,7 @@ async function mark_read_via_menu(index, read) {
     { id: menuItem },
   ]);
   await BrowserTestUtils.waitForPopupEvent(getMailContext(), "hidden");
-  await TestUtils.waitForTick();
-  await TestUtils.waitForTick();
+  await new Promise(resolve => window.requestIdleCallback(resolve));
 }
 
 add_task(async function test_mark_one_read() {
