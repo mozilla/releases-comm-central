@@ -65,7 +65,7 @@ add_setup(async function () {
   moreButton = about3Pane.document.querySelector("#folderPaneMoreButton");
   moreContext = about3Pane.document.getElementById("folderPaneMoreContext");
 
-  messageInjection.addSetsToFolders(
+  await messageInjection.addSetsToFolders(
     [folderA, folderB, folderC],
     [
       new SyntheticMessageSet(generator.makeMessages({ read: true })),
