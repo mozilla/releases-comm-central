@@ -10,7 +10,7 @@
 
 @namespace url("http://www.w3.org/1999/xhtml");
 
-/* Override overflow: hidden in some messages. */ 
+/* Override overflow: hidden in some messages. */
 :root {
   overflow: auto !important;
 }
