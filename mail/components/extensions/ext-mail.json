@@ -61,6 +61,15 @@
     "events": ["uninstall"],
     "paths": [["composeAction"]]
   },
+  "contextualIdentities": {
+    "url": "chrome://extensions/content/parent/ext-contextualIdentities.js",
+    "schema": "chrome://extensions/content/schemas/contextual_identities.json",
+    "scopes": ["addon_parent"],
+    "settings": true,
+    "events": ["startup"],
+    "permissions": ["contextualIdentities"],
+    "paths": [["contextualIdentities"]]
+  },
   "extensionScripts": {
     "url": "chrome://messenger/content/parent/ext-extensionScripts.js",
     "schema": "chrome://messenger/content/schemas/extensionScripts.json",
