@@ -38,11 +38,6 @@ var gFolderPicker;
 var gStatusFeedback;
 var gSearchBundle;
 
-// Datasource search listener -- made global as it has to be registered
-// and unregistered in different functions.
-var gDataSourceSearchListener;
-var gViewSearchListener;
-
 var gSearchStopButton;
 
 // Should we try to search online?
@@ -74,10 +69,6 @@ window.addEventListener("load", ThreadPaneOnLoad, true);
  *  manipulations...
  */
 function FolderDisplayWidget() {
-  // If the folder does not get handled by the DBViewWrapper, stash it here.
-  //  ex: when isServer is true.
-  this._nonViewFolder = null;
-
   this.view = new DBViewWrapper(this);
 
   /**
@@ -98,7 +89,6 @@ function FolderDisplayWidget() {
    *  navigation history.  At some point we might touch it for those reasons.
    */
   this.messenger = null;
-  this.threadPaneCommandUpdater = this;
 
   /**
    * Flag to expose whether all messages are loaded or not.  Set by
@@ -106,30 +96,10 @@ function FolderDisplayWidget() {
    */
   this._allMessagesLoaded = false;
 
-  /**
-   * Save the top row displayed when we go inactive, restore when we go active,
-   *  nuke it when we destroy the view.
-   */
-  this._savedFirstVisibleRow = null;
   /** the next view index to select once the delete completes */
   this._nextViewIndexAfterDelete = null;
-  /**
-   * Track when a message is being deleted so we can respond appropriately.
-   */
-  this._deleteInProgress = false;
-
-  this._mostRecentSelectionCounts = [];
-  this._mostRecentCurrentIndices = [];
 }
 FolderDisplayWidget.prototype = {
-  /**
-   * @returns {nsIMsgFolder} the currently displayed folder.
-   *   This is just proxied from the view wrapper.
-   */
-  get displayedFolder() {
-    return this._nonViewFolder || this.view.displayedFolder;
-  },
-
   /**
    * @returns {boolean} true if the selection should be summarized for this folder. This
    *   is based on the mail.operate_on_msgs_in_collapsed_threads pref and
@@ -140,7 +110,7 @@ FolderDisplayWidget.prototype = {
   get summarizeSelectionInFolder() {
     return (
       Services.prefs.getBoolPref("mail.operate_on_msgs_in_collapsed_threads") &&
-      !(this.displayedFolder instanceof Ci.nsIMsgNewsFolder)
+      !(this.view.displayedFolder instanceof Ci.nsIMsgNewsFolder)
     );
   },
 
@@ -158,18 +128,6 @@ FolderDisplayWidget.prototype = {
     }
     return null;
   },
-
-  /**
-   * Number of headers to tell the message database to cache when we enter a
-   *  folder.  This value is being propagated from legacy code which provided
-   *  no explanation for its choice.
-   *
-   * We definitely want the header cache size to be larger than the number of
-   *  rows that can be displayed on screen simultaneously.
-   *
-   * @private
-   */
-  PERF_HEADER_CACHE_SIZE: 100,
 
   /**
    * @name Columns
@@ -295,7 +253,7 @@ FolderDisplayWidget.prototype = {
     //  valid at the time we generate the notification.  In such a case, you
     //  can easily get that information from the gDBView.  (The documentation
     //  on creating a custom column assumes gDBView.)
-    Services.obs.notifyObservers(this.displayedFolder, "MsgCreateDBView");
+    Services.obs.notifyObservers(this.view.displayedFolder, "MsgCreateDBView");
   },
 
   /**
@@ -311,7 +269,6 @@ FolderDisplayWidget.prototype = {
     // but the actual tree view selection (based on view indices) is a goner no
     //  matter what, make everyone forget.
     this.view.dbView.selection = null;
-    this._savedFirstVisibleRow = null;
     this._nextViewIndexAfterDelete = null;
   },
 
@@ -405,8 +362,6 @@ FolderDisplayWidget.prototype = {
    * For the imap mark-as-deleted we won't know beforehand.
    */
   onMessagesRemoved() {
-    this._deleteInProgress = false;
-
     // - we saw this coming
     const rowCount = this.view.dbView.rowCount;
     if (this._nextViewIndexAfterDelete != null) {
@@ -442,26 +397,7 @@ FolderDisplayWidget.prototype = {
       treeSelection.clearRange(0, 0);
     }
 
-    // Check if we now no longer have a selection, but we had exactly one
-    //  message selected previously.  If we did, then try and do some
-    //  'persistence of having a thing selected'.
-    if (
-      treeSelection.count == 0 &&
-      this._mostRecentSelectionCounts.length > 1 &&
-      this._mostRecentSelectionCounts[1] == 1 &&
-      this._mostRecentCurrentIndices[1] != -1
-    ) {
-      let targetIndex = this._mostRecentCurrentIndices[1];
-      if (targetIndex >= rowCount) {
-        targetIndex = rowCount - 1;
-      }
-      this.selectViewIndex(targetIndex);
-      return;
-    }
-
-    // Otherwise, just tell the view that things have changed so it can update
-    //  itself to the new state of things.
-    // tell the view that things have changed so it can update itself suitably.
+    // Tell the view that things have changed so it can update itself suitably.
     if (this.view.dbView) {
       this.view.dbView.selectionChanged();
     }
@@ -483,70 +419,6 @@ FolderDisplayWidget.prototype = {
   // @}
   /* ===== End IDBViewWrapperListener ===== */
 
-  /*   ==================================   */
-  /* ===== nsIMsgDBViewCommandUpdater ===== */
-  /*   ==================================   */
-
-  /**
-   * @name nsIMsgDBViewCommandUpdater Interface
-   * @private
-   */
-  // @{
-
-  /**
-   * This gets called when the selection changes AND !suppressCommandUpdating
-   *  AND (we're not removing a row OR we are now out of rows).
-   * In response, we update the toolbar.
-   */
-  updateCommandStatus() {},
-
-  /**
-   * This gets called as a hint that the currently selected message is junk and
-   *  said junked message is going to be moved out of the current folder, or
-   *  right before a header is removed from the db view.  The legacy behaviour
-   *  is to retrieve the msgToSelectAfterDelete attribute off the db view,
-   *  stashing it for benefit of the code that gets called when a message
-   *  move/deletion is completed so that we can trigger its display.
-   */
-  updateNextMessageAfterDelete() {
-    this.hintAboutToDeleteMessages();
-  },
-
-  /**
-   * The most recent currentIndexes on the selection (from the last time
-   *  summarizeSelection got called).  We use this in onMessagesRemoved if
-   *  we get an unexpected notification.
-   * We keep a maximum of 2 entries in this list.
-   */
-  _mostRecentCurrentIndices: undefined, // initialized in constructor
-  /**
-   * The most recent counts on the selection (from the last time
-   *  summarizeSelection got called).  We use this in onMessagesRemoved if
-   *  we get an unexpected notification.
-   * We keep a maximum of 2 entries in this list.
-   */
-  _mostRecentSelectionCounts: undefined, // initialized in constructor
-
-  /**
-   * Always called by the db view when the selection changes in
-   *  SelectionChanged.  This event will come before the notification to
-   *  updateCommandStatus (if one happens).
-   */
-  summarizeSelection() {
-    // save the current index off in case the selection gets deleted out from
-    //  under us and we want to have persistence of actually-having-something
-    //  selected.
-    const treeSelection = this.treeSelection;
-    if (treeSelection) {
-      this._mostRecentCurrentIndices.unshift(treeSelection.currentIndex);
-      this._mostRecentCurrentIndices.splice(2);
-      this._mostRecentSelectionCounts.unshift(treeSelection.count);
-      this._mostRecentSelectionCounts.splice(2);
-    }
-  },
-  // @}
-  /* ===== End nsIMsgDBViewCommandUpdater ===== */
-
   /* ===== Hints from the command infrastructure ===== */
   /**
    * @name Command Infrastructure Hints
@@ -566,7 +438,6 @@ FolderDisplayWidget.prototype = {
    * Our automated complement (that calls us) is updateNextMessageAfterDelete.
    */
   hintAboutToDeleteMessages() {
-    this._deleteInProgress = true;
     // save the value, even if it is nsMsgViewIndex_None.
     this._nextViewIndexAfterDelete = this.view.dbView.msgToSelectAfterDelete;
   },
@@ -840,7 +711,7 @@ FolderDisplayWidget.prototype = {
       aViewIndex < 0 ||
       aViewIndex >= rowCount
     ) {
-      this.clearSelection();
+      treeSelection.clearSelection();
       return;
     }
 
@@ -877,9 +748,6 @@ FolderDisplayWidget.prototype = {
     }
 
     this.ensureRowIsVisible(aViewIndex);
-
-    // The saved selection is invalidated, since we've got something newer
-    this._savedSelection = null;
   },
 
   // @}
@@ -1623,59 +1491,6 @@ function MsgOpenSelectedMessages() {
   );
 }
 
-/**
- * When right-clicks happen, we do not want to corrupt the underlying
- * selection.  The right-click is a transient selection.  So, unless the
- * user is right-clicking on the current selection, we create a new
- * selection object (thanks to TreeSelection) and set that as the
- * current/transient selection.
- *
- * @param {Event} event
- * @param {XULTreeElement} tree
- * @param {boolean} aSingleSelect - Should the selection we create be a single
- *   selection? This is relevant if the row being clicked on is already part of
- *   the selection. If it is part of the selection and !aSingleSelect, then we
- *   leave the selection as is.  If it is part of the selection and
- *   aSingleSelect then we create a transient single-row selection.
- */
-function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect) {
-  var treeSelection = tree.view.selection;
-
-  var row = tree.getRowAt(event.clientX, event.clientY);
-  // Only do something if:
-  // - the row is valid
-  // - it's not already selected (or we want a single selection)
-  if (row >= 0 && (aSingleSelect || !treeSelection.isSelected(row))) {
-    // Check if the row is exactly the existing selection.  In that case
-    //  there is no need to create a bogus selection.
-    if (treeSelection.count == 1) {
-      const minObj = {};
-      treeSelection.getRangeAt(0, minObj, {});
-      if (minObj.value == row) {
-        event.stopPropagation();
-        return;
-      }
-    }
-
-    const transientSelection = new TreeSelection(tree);
-    transientSelection.logAdjustSelectionForReplay();
-
-    var saveCurrentIndex = treeSelection.currentIndex;
-
-    // tell it to log calls to adjustSelection
-    // attach it to the view
-    tree.view.selection = transientSelection;
-    // Don't generate any selection events! (we never set this to false, because
-    //  that would generate an event, and we never need one of those from this
-    //  selection object.
-    transientSelection.selectEventsSuppressed = true;
-    transientSelection.select(row);
-    transientSelection.currentIndex = saveCurrentIndex;
-    tree.ensureRowIsVisible(row);
-  }
-  event.stopPropagation();
-}
-
 // This code is used when dragging a message from a "Search Messages" panel.
 function ThreadPaneOnDragStart(aEvent) {
   if (aEvent.target.localName != "treechildren") {
@@ -1876,11 +1691,6 @@ function HandleSelectColClick(event, row) {
   if (event.detail == 1) {
     selection.toggleSelect(row);
   }
-
-  // There is no longer any selection, clean up for correct state of things.
-  if (selection.count == 0) {
-    gFolderDisplay._mostRecentSelectionCounts[1] = 0;
-  }
 }
 
 /**
@@ -1896,14 +1706,40 @@ function handleDeleteColClick(event) {
 
   // Simulate a right click on the message row to inherit all the validations
   // and alerts coming from the "cmd_delete" command.
-  ChangeSelectionWithoutContentLoad(
-    event,
-    event.target.parentNode,
-    event.button == 1
-  );
+  const tree = gFolderDisplay.tree;
+  const realSelection = tree.view.selection;
+  let transientSelection = {};
+  const row = tree.getRowAt(event.clientX, event.clientY);
+
+  // Check if the row is exactly the existing selection. In that case there
+  // is no need to create a bogus selection.
+  const haveTransientSelection =
+    row >= 0 && !(realSelection.count == 1 && realSelection.isSelected(row));
+  if (haveTransientSelection) {
+    transientSelection = new TreeSelection(tree);
+    // Tell it to log calls to adjustSelection.
+    transientSelection.logAdjustSelectionForReplay();
+    // Attach it to the view.
+    tree.view.selection = transientSelection;
+    // Don't generate any selection events! (We never set this to false,
+    // because that would generate an event, and we never need one of those
+    // from this selection object.
+    transientSelection.selectEventsSuppressed = true;
+    transientSelection.select(row);
+    transientSelection.currentIndex = realSelection.currentIndex;
+    tree.ensureRowIsVisible(row);
+  }
+  event.stopPropagation();
 
   // Trigger the message deletion.
   goDoCommand("cmd_delete");
+
+  if (haveTransientSelection) {
+    // Restore the selection.
+    tree.view.selection = realSelection;
+    // Replay any calls to adjustSelection, this handles suppression.
+    transientSelection.replayAdjustSelectionLog(realSelection);
+  }
 }
 
 function ThreadPaneKeyDown(event) {
