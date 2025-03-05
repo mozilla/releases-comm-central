@@ -418,6 +418,11 @@ nsresult nsMsgIncomingServer::CreateRootFolder() {
     rv = folders->GetFolderByPath(m_serverKey, getter_AddRefs(root));
     NS_ENSURE_SUCCESS(rv, rv);
 
+    if (!root) {
+      folders->InsertRoot(m_serverKey, getter_AddRefs(root));
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+
     m_rootFolder =
         do_CreateInstance("@mozilla.org/mail/folder;1?name=mailbox", &rv);
     NS_ENSURE_SUCCESS(rv, rv);

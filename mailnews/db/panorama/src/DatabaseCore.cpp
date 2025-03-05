@@ -11,6 +11,7 @@
 #include "mozilla/Logging.h"
 #include "mozilla/Services.h"
 #include "mozIStorageService.h"
+#include "msgCore.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsIClassInfoImpl.h"
 #include "nsIFile.h"
@@ -242,7 +243,7 @@ NS_IMETHODIMP DatabaseCore::OpenFolderDB(nsIMsgFolder* aFolder,
   nsresult rv = GetFolderForMsgFolder(aFolder, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
   if (!folder) {
-    return NS_ERROR_FAILURE;
+    return NS_MSG_ERROR_FOLDER_SUMMARY_MISSING;
   }
 
   uint64_t folderId = folder->GetId();
@@ -262,7 +263,17 @@ NS_IMETHODIMP DatabaseCore::OpenFolderDB(nsIMsgFolder* aFolder,
 }
 NS_IMETHODIMP DatabaseCore::CreateNewDB(nsIMsgFolder* aFolder,
                                         nsIMsgDatabase** _retval) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsAutoCString name;
+  aFolder->GetName(name);
+  nsCOMPtr<nsIMsgFolder> msgParent;
+  aFolder->GetParent(getter_AddRefs(msgParent));
+  nsCOMPtr<nsIFolder> parent;
+  GetFolderForMsgFolder(msgParent, getter_AddRefs(parent));
+
+  nsCOMPtr<nsIFolder> unused;
+  mFolderDatabase->InsertFolder(parent, name, getter_AddRefs(unused));
+
+  return OpenFolderDB(aFolder, false, _retval);
 }
 NS_IMETHODIMP DatabaseCore::OpenDBFromFile(nsIFile* aFile,
                                            nsIMsgFolder* aFolder, bool aCreate,
