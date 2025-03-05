@@ -346,6 +346,7 @@
 
 ; Modules
 @RESPATH@/modules/*
+@RESPATH@/moz-src/*
 @RESPATH@/actors/*
 
 ; ANGLE GLES-on-D3D rendering library
