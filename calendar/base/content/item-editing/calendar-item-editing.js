@@ -565,7 +565,7 @@ function openEventDialog(
     tabmail.openTab(tabtype, args);
   } else {
     // open in a window
-    openDialog(url, "_blank", "chrome,titlebar,toolbar,resizable", args);
+    openDialog(url, "_blank", "centerscreen,chrome,titlebar,toolbar,resizable", args);
   }
 }
 
