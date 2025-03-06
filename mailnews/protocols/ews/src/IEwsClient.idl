@@ -35,7 +35,7 @@ interface IEwsMessageFetchCallbacks;
  * be asynchronous, with implementations of the callback interfaces used to
  * handle the results of the operations or handle errors.
  */
-[uuid(4a117361-653b-48a5-9ddb-588482ef9dbb)]
+[scriptable, uuid(4a117361-653b-48a5-9ddb-588482ef9dbb)]
 interface IEwsClient : nsISupports
 {
   /**
@@ -105,7 +105,7 @@ interface IEwsClient : nsISupports
   void deleteFolder(in IEwsFolderDeleteCallbacks callbacks, in AUTF8String folderId);
 };
 
-[uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
+[scriptable, uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
 interface IEwsFolderCallbacks : nsISupports
 {
   void recordRootFolder(in AUTF8String id);
@@ -114,6 +114,7 @@ interface IEwsFolderCallbacks : nsISupports
   void update(in AUTF8String id, in AUTF8String name);
   void delete(in AUTF8String id);
 
+  /** Called after all sync items have been processed. */
   void updateSyncState(in AUTF8String syncStateToken);
   void onError(in IEwsClient_Error err, in AUTF8String desc);
 };
@@ -122,7 +123,7 @@ interface IEwsFolderCallbacks : nsISupports
  * Callbacks for communicating the results of creating a folder on the remote
  * Exchange server.
  */
-[uuid(db950950-0824-4a8c-bace-871a950ace28)]
+[scriptable, uuid(db950950-0824-4a8c-bace-871a950ace28)]
 interface IEwsFolderCreateCallbacks : nsISupports
 {
   /**
@@ -141,7 +142,7 @@ interface IEwsFolderCreateCallbacks : nsISupports
   void onError(in IEwsClient_Error err, in AUTF8String desc);
 };
 
-[uuid(a439c288-7cee-422a-96ab-6aa69259827c)]
+[scriptable, uuid(a439c288-7cee-422a-96ab-6aa69259827c)]
 interface IEwsFolderDeleteCallbacks : nsISupports
 {
   /**
@@ -150,7 +151,7 @@ interface IEwsFolderDeleteCallbacks : nsISupports
   void onRemoteDeleteFolderSuccessful();
 };
 
-[uuid(dec2ddd5-b5a2-4724-bfc7-e5de31840f76)]
+[scriptable, uuid(dec2ddd5-b5a2-4724-bfc7-e5de31840f76)]
 interface IEwsMessageCallbacks : nsISupports
 {
   nsIMsgDBHdr createNewHeaderForItem(in AUTF8String ewsId);
@@ -164,7 +165,7 @@ interface IEwsMessageCallbacks : nsISupports
  * A set of callbacks called during the creation of a new message on an Exchange
  * server.
  */
-[uuid(ff45569f-d618-4bb0-9686-6cb24b92b02b)]
+[scriptable, uuid(ff45569f-d618-4bb0-9686-6cb24b92b02b)]
 interface IEwsMessageCreateCallbacks : nsISupports
 {
   /**
@@ -203,7 +204,7 @@ interface IEwsMessageCreateCallbacks : nsISupports
   void commitHeader(in nsIMsgDBHdr hdr);
 };
 
-[uuid(2bd557ee-a1ce-4563-aaf3-653914256452)]
+[scriptable, uuid(2bd557ee-a1ce-4563-aaf3-653914256452)]
 interface IEwsMessageDeleteCallbacks : nsISupports
 {
   void onRemoteDeleteSuccessful();
@@ -218,7 +219,7 @@ interface IEwsMessageDeleteCallbacks : nsISupports
  * in method calls when fetching a message's content (and using `nullptr`
  * everywhere is quite ugly and potentially unsafe).
  */
-[uuid(027150b1-d127-41a9-8945-18f9374755b3)]
+[scriptable, uuid(027150b1-d127-41a9-8945-18f9374755b3)]
 interface IEwsMessageFetchCallbacks : nsISupports
 {
   void onFetchStart();
