@@ -95,6 +95,38 @@ set_config(
 )
 # set_config("MOZ_GLEAN_EXTRA_PINGS_FILES", ["comm/mail/pings.yaml"])
 set_config("MOZ_GLEAN_EXTRA_TAGS_FILES", ["comm/mail/tags.yaml"])
+set_config(
+    "MOZ_GLEAN_INTERESTING_METRICS_FILES",
+    [
+        "comm/mail/metrics.yaml",
+        "comm/mail/components/addrbook/metrics.yaml",
+        "comm/mail/components/cloudfile/metrics.yaml",
+        "comm/mail/components/compose/metrics.yaml",
+        "comm/mail/components/inappnotifications/metrics.yaml",
+        "comm/calendar/metrics.yaml",
+        "modules/libpref/metrics.yaml",
+        "parser/htmlparser/metrics.yaml",
+        # NOTE: test_pkcs11_module.js will fail without this.
+        # The pkcs11 runs before serverknobs can be applied.
+        "security/manager/ssl/metrics.yaml",
+        "toolkit/content/metrics.yaml",
+        "toolkit/components/crashes/metrics.yaml",
+        "toolkit/components/pdfjs/metrics.yaml",
+        # Could be useful, but fails "Sorry, Glean found some glinter nits".
+        # "toolkit/components/startup/metrics.yaml",
+        "toolkit/mozapps/defaultagent/metrics.yaml",
+        "toolkit/mozapps/extensions/metrics.yaml",
+        "toolkit/mozapps/update/metrics.yaml",
+        # NOTE: BackgroundTask_shouldprocessupdates.sys.mjs will fail without this
+        # It doesn't consider itself to be in automation, and is also
+        # collecting metrics too early, in XRE_mainStartup.
+        "toolkit/mozapps/update/shared_metrics.yaml",
+        # Could be useful, but fails "Sorry, Glean found some glinter nits".
+        # "toolkit/profile/metrics.yaml",
+        "toolkit/xre/metrics.yaml",
+    ],
+)
+
 
 include("../build/moz.configure/gecko_source.configure")
 

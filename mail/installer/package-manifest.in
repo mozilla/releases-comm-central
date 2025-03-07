@@ -487,3 +487,7 @@
 
 ; Shutdown Terminator
 @RESPATH@/components/terminator.manifest
+
+; Shipped so that Glean tests are enabled on CI even if we have disabled
+; them during regular usage.
+@RESPATH@/interesting_serverknobs.json
