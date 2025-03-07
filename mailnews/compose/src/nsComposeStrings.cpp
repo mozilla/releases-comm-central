@@ -37,8 +37,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "dontShowAlert";
     case NS_MSG_ERROR_ATTACHING_FILE:
       return "errorAttachingFile";
-    case NS_ERROR_SMTP_GREETING:
-      return "incorrectSmtpGreeting";
     case NS_ERROR_SENDING_RCPT_COMMAND:
       return "errorSendingRcptCommand";
     case NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS:

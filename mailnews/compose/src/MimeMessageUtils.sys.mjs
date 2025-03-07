@@ -49,8 +49,6 @@ export var MsgUtils = {
 
   NS_MSG_ERROR_ATTACHING_FILE: generateNSError(12570),
 
-  NS_ERROR_SMTP_GREETING: generateNSError(12572),
-
   NS_ERROR_SENDING_RCPT_COMMAND: generateNSError(12575),
 
   NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS: generateNSError(12582),
@@ -875,7 +873,6 @@ export var MsgUtils = {
       [this.NS_MSG_UNABLE_TO_SEND_LATER]: "unableToSendLater",
       [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
       [this.NS_MSG_ERROR_ATTACHING_FILE]: "errorAttachingFile",
-      [this.NS_ERROR_SMTP_GREETING]: "incorrectSmtpGreeting",
       [this.NS_ERROR_SENDING_RCPT_COMMAND]: "errorSendingRcptCommand",
       [this.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS]: "startTlsFailed",
       [this.NS_ERROR_SMTP_PASSWORD_UNDEFINED]: "smtpPasswordUndefined",
