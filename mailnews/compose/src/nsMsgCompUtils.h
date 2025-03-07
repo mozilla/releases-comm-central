@@ -56,13 +56,6 @@ nsresult mime_sanity_check_fields_recipients(const char* to, const char* cc,
                                              const char* bcc,
                                              const char* newsgroups);
 
-nsresult mime_sanity_check_fields(
-    const char* from, const char* reply_to, const char* to, const char* cc,
-    const char* bcc, const char* fcc, const char* newsgroups,
-    const char* followup_to, const char* /*subject*/,
-    const char* /*references*/, const char* /*organization*/,
-    const char* /*other_random_headers*/);
-
 nsresult mime_generate_headers(nsIMsgCompFields* fields,
                                nsMsgDeliverMode deliver_mode,
                                msgIWritableStructuredHeaders* headers);

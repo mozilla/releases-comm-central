@@ -155,8 +155,6 @@ async function sendMessageLater(aTestFileIndex) {
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
-  // Setting the compFields sender and recipient to any value is required to
-  // survive mime_sanity_check_fields in nsMsgCompUtils.cpp.
   // Sender and recipient are required for sendMessageFile but SMTP
   // transaction values will be used directly from mail body.
   compFields.from = "irrelevant@foo.invalid";

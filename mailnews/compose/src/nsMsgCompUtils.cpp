@@ -130,30 +130,6 @@ nsresult mime_sanity_check_fields_recipients(const char* to, const char* cc,
   return NS_OK;
 }
 
-/**
- * Checks if the compose fields have sane values for message send.
- */
-nsresult mime_sanity_check_fields(
-    const char* from, const char* reply_to, const char* to, const char* cc,
-    const char* bcc, const char* fcc, const char* newsgroups,
-    const char* followup_to, const char* /*subject*/,
-    const char* /*references*/, const char* /*organization*/,
-    const char* /*other_random_headers*/) {
-  if (from)
-    while (IS_SPACE(*from)) from++;
-  if (reply_to)
-    while (IS_SPACE(*reply_to)) reply_to++;
-  if (fcc)
-    while (IS_SPACE(*fcc)) fcc++;
-  if (followup_to)
-    while (IS_SPACE(*followup_to)) followup_to++;
-
-  // TODO: sanity check other_random_headers for newline conventions
-  if (!from || !*from) return NS_MSG_NO_SENDER;
-
-  return mime_sanity_check_fields_recipients(to, cc, bcc, newsgroups);
-}
-
 // Helper macro for generating the X-Mozilla-Draft-Info header.
 #define APPEND_BOOL(method, param)         \
   do {                                     \

@@ -17,8 +17,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "unableToSaveDraft";
     case NS_MSG_COULDNT_OPEN_FCC_FOLDER:
       return "couldntOpenFccFolder";
-    case NS_MSG_NO_SENDER:
-      return "noSender";
     case NS_MSG_NO_RECIPIENTS:
       return "noRecipients";
     case NS_MSG_ERROR_WRITING_FILE:
