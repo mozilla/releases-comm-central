@@ -9,6 +9,7 @@
 #include "Message.h"
 #include "MessageDatabase.h"
 #include "mozilla/RefPtr.h"
+#include "nsIDBChangeListener.h"
 #include "nsMsgMessageFlags.h"
 #include "nsServiceManagerUtils.h"
 
@@ -16,11 +17,27 @@ namespace mozilla::mailnews {
 
 NS_IMPL_ISUPPORTS(PerFolderDatabase, nsIDBChangeAnnouncer, nsIMsgDatabase)
 
+void PerFolderDatabase::OnMessageAdded(Message* message) {
+  if (mListeners.IsEmpty() || message->mFolderId != mFolderId) {
+    return;
+  }
+  NotifyHdrAddedAll(message, nsMsgKey_None, message->mFlags, nullptr);
+}
+
+void PerFolderDatabase::OnMessageRemoved(Message* message) {
+  if (mListeners.IsEmpty() || message->mFolderId != mFolderId) {
+    return;
+  }
+  NotifyHdrDeletedAll(message, nsMsgKey_None, message->mFlags, nullptr);
+}
+
 NS_IMETHODIMP PerFolderDatabase::AddListener(nsIDBChangeListener* listener) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  mListeners.AppendElement(listener);
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::RemoveListener(nsIDBChangeListener* listener) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  mListeners.RemoveElement(listener);
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::NotifyHdrChangeAll(
     nsIMsgDBHdr* aHdrChanged, uint32_t aOldFlags, uint32_t aNewFlags,
@@ -28,14 +45,20 @@ NS_IMETHODIMP PerFolderDatabase::NotifyHdrChangeAll(
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::NotifyHdrAddedAll(
-    nsIMsgDBHdr* aHdrAdded, nsMsgKey parentKey, int32_t flags,
+    nsIMsgDBHdr* hdrAdded, nsMsgKey parentKey, int32_t flags,
     nsIDBChangeListener* instigator) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  for (RefPtr<nsIDBChangeListener> listener : mListeners.EndLimitedRange()) {
+    listener->OnHdrAdded(hdrAdded, parentKey, flags, instigator);
+  }
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::NotifyHdrDeletedAll(
-    nsIMsgDBHdr* aHdrDeleted, nsMsgKey parentKey, int32_t flags,
+    nsIMsgDBHdr* hdrDeleted, nsMsgKey parentKey, int32_t flags,
     nsIDBChangeListener* instigator) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  for (RefPtr<nsIDBChangeListener> listener : mListeners.EndLimitedRange()) {
+    listener->OnHdrDeleted(hdrDeleted, parentKey, flags, instigator);
+  }
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::NotifyParentChangedAll(
     nsMsgKey keyReparented, nsMsgKey oldParent, nsMsgKey newParent,

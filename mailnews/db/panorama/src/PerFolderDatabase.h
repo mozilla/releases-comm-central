@@ -6,26 +6,38 @@
 #define PerFolderDatabase_h__
 
 #include "FolderDatabase.h"
+#include "MessageDatabase.h"
+#include "mozilla/RefPtr.h"
 #include "mozilla/WeakPtr.h"
 #include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
+#include "nsIDBChangeListener.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIFolder.h"
 #include "nsIMsgDatabase.h"
+#include "nsIMsgFolder.h"
 #include "nsMsgEnumerator.h"
 
 namespace mozilla::mailnews {
 
 class MessageDatabase;
 
-class PerFolderDatabase : public nsIMsgDatabase, public SupportsWeakPtr {
+class PerFolderDatabase : public nsIMsgDatabase,
+                          public SupportsWeakPtr,
+                          public MessageListener {
  public:
   explicit PerFolderDatabase(MessageDatabase* aDatabase, uint64_t aFolderId)
-      : mDatabase(aDatabase), mFolderId(aFolderId) {}
+      : mDatabase(aDatabase), mFolderId(aFolderId) {
+    mDatabase->AddMessageListener(this);
+  }
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIDBCHANGEANNOUNCER
   NS_DECL_NSIMSGDATABASE
+
+  // MessageListener functions.
+  void OnMessageAdded(Message* message) override;
+  void OnMessageRemoved(Message* message) override;
 
  private:
   virtual ~PerFolderDatabase() {};
@@ -33,6 +45,7 @@ class PerFolderDatabase : public nsIMsgDatabase, public SupportsWeakPtr {
   MessageDatabase* mDatabase;
   uint64_t mFolderId;
   nsTArray<nsMsgKey> mNewList;
+  nsTObserverArray<RefPtr<nsIDBChangeListener>> mListeners;
 };
 
 class MessageEnumerator : public nsBaseMsgEnumerator {

@@ -220,7 +220,7 @@ DatabaseCore::GetConnection(mozIStorageConnection** aConnection) {
   return NS_OK;
 }
 
-void DatabaseCore::OnMessageAdded(Folder* folder, Message* m) {
+void DatabaseCore::OnMessageAdded(Message* m) {
   MOZ_LOG(gPanoramaLog, LogLevel::Debug,
           ("DatabaseCore::OnMessageAdded: %" PRId32 " %" PRIu64 " %" PRId64
            " '%s' '%s' %" PRIu64 " '%s'\n",
@@ -228,7 +228,7 @@ void DatabaseCore::OnMessageAdded(Folder* folder, Message* m) {
            m->mFlags, m->mTags.get()));
 }
 
-void DatabaseCore::OnMessageRemoved(Folder* folder, Message* m) {
+void DatabaseCore::OnMessageRemoved(Message* m) {
   MOZ_LOG(gPanoramaLog, LogLevel::Debug,
           ("DatabaseCore::OnMessageRemoved: %" PRId32 " %" PRIu64 " %" PRId64
            " '%s' '%s' %" PRIu64 " '%s'\n",

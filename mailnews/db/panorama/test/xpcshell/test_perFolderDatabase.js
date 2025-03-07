@@ -16,7 +16,7 @@ add_setup(async function () {
 });
 
 add_task(async function testFolderMethods() {
-  const folderA = MailServices.folderLookup.getOrCreateFolderForURL(
+  const folderA = MailServices.folderLookup.getFolderForURL(
     account.incomingServer.rootFolder.URI + "/folderA"
   );
   Assert.ok(folderA.filePath.path);
@@ -157,7 +157,7 @@ add_task(async function testFolderMethods() {
 });
 
 add_task(async function testFolderInfo() {
-  const folderA = MailServices.folderLookup.getOrCreateFolderForURL(
+  const folderA = MailServices.folderLookup.getFolderForURL(
     account.incomingServer.rootFolder.URI + "/folderA"
   );
   const folderDatabase = database.openFolderDB(folderA, false);
@@ -190,7 +190,7 @@ add_task(async function testFolderInfo() {
 });
 
 add_task(async function testHeaderMethods() {
-  const folderC = MailServices.folderLookup.getOrCreateFolderForURL(
+  const folderC = MailServices.folderLookup.getFolderForURL(
     account.incomingServer.rootFolder.URI + "/folderC"
   );
   Assert.ok(folderC.filePath.path);
@@ -240,4 +240,96 @@ add_task(async function testHeaderMethods() {
       Ci.nsMsgMessageFlags.Ignored |
       Ci.nsMsgMessageFlags.Attachment
   );
+});
+
+add_task(async function testListener() {
+  class FolderListener {
+    QueryInterface = ChromeUtils.generateQI(["nsIDBChangeListener"]);
+    reset() {
+      this._headerAdded = null;
+      this._headerRemoved = null;
+    }
+    onHdrFlagsChanged(_hdrChanged, _oldFlags, _newFlags, _instigator) {
+      Assert.ok(false, "unexpected onHdrFlagsChanged event");
+    }
+    onHdrDeleted(hdrChanged, parentKey, flags, instigator) {
+      this._headerRemoved = [hdrChanged, parentKey, flags, instigator];
+    }
+    onHdrAdded(hdrChanged, parentKey, flags, instigator) {
+      this._headerAdded = [hdrChanged, parentKey, flags, instigator];
+    }
+    onParentChanged(_keyChanged, _oldParent, _newParent, _instigator) {
+      Assert.ok(false, "unexpected onParentChanged event");
+    }
+    onAnnouncerGoingAway(_instigator) {
+      Assert.ok(false, "unexpected onAnnouncerGoingAway event");
+    }
+    onReadChanged(_instigator) {
+      Assert.ok(false, "unexpected onReadChanged event");
+    }
+    onJunkScoreChanged(_instigator) {
+      Assert.ok(false, "unexpected onJunkScoreChanged event");
+    }
+    onHdrPropertyChanged(
+      _hdrToChange,
+      _property,
+      _preChange,
+      _status,
+      _instigator
+    ) {
+      Assert.ok(false, "unexpected onHdrPropertyChanged event");
+    }
+    onEvent(_db, _event) {
+      Assert.ok(false, "unexpected onEvent event");
+    }
+  }
+
+  const listenerB = new FolderListener();
+  const folderB = MailServices.folderLookup.getFolderForURL(
+    account.incomingServer.rootFolder.URI + "/folderB"
+  );
+  const folderDatabaseB = database.openFolderDB(folderB, false);
+  folderDatabaseB.addListener(listenerB);
+
+  const listenerC = new FolderListener();
+  const folderC = MailServices.folderLookup.getFolderForURL(
+    account.incomingServer.rootFolder.URI + "/folderC"
+  );
+  const folderDatabaseC = database.openFolderDB(folderC, false);
+  folderDatabaseC.addListener(listenerC);
+
+  const addedId = addMessage({ folderId: 4 });
+  Assert.ok(!listenerB._headerAdded);
+  Assert.ok(!listenerB._headerRemoved);
+  Assert.ok(listenerC._headerAdded);
+  Assert.ok(!listenerC._headerRemoved);
+
+  const [headerAdded] = listenerC._headerAdded;
+  Assert.ok(headerAdded instanceof Ci.nsIMsgDBHdr);
+  Assert.equal(headerAdded.messageKey, addedId);
+  // Assert.equal(headerAdded.folder, folderC);
+  Assert.equal(headerAdded.messageId, "messageId");
+  Assert.equal(headerAdded.date, new Date("2025-01-22").valueOf() * 1000);
+  Assert.equal(headerAdded.author, "sender");
+  Assert.equal(headerAdded.subject, "subject");
+  Assert.equal(headerAdded.flags, 0);
+  // Assert.equal(headerAdded.getStringProperty("keywords"), "");
+
+  listenerC.reset();
+  messages.removeMessage(headerAdded.messageKey);
+  Assert.ok(!listenerB._headerAdded);
+  Assert.ok(!listenerB._headerRemoved);
+  Assert.ok(!listenerC._headerAdded);
+  Assert.ok(listenerC._headerRemoved);
+
+  const [headerRemoved] = listenerC._headerRemoved;
+  Assert.ok(headerRemoved instanceof Ci.nsIMsgDBHdr);
+  Assert.equal(headerRemoved.messageKey, addedId);
+  // Assert.equal(headerAdded.folder, folderC);
+  Assert.equal(headerAdded.messageId, "messageId");
+  Assert.equal(headerAdded.date, new Date("2025-01-22").valueOf() * 1000);
+  Assert.equal(headerAdded.author, "sender");
+  Assert.equal(headerAdded.subject, "subject");
+  Assert.equal(headerAdded.flags, 0);
+  // Assert.equal(headerAdded.getStringProperty("keywords"), "");
 });

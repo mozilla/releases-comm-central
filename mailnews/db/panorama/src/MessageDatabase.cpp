@@ -92,11 +92,9 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
 
   stmt->Reset();
 
-  nsTObserverArray<RefPtr<MessageListener>>::ForwardIterator iter(
-      mMessageListeners);
-  while (iter.HasMore()) {
-    RefPtr<MessageListener> messageListener = iter.GetNext();
-    messageListener->OnMessageAdded(nullptr, message);
+  for (RefPtr<MessageListener> messageListener :
+       mMessageListeners.EndLimitedRange()) {
+    messageListener->OnMessageAdded(message);
   }
 
   *aKey = message->mId;
@@ -134,11 +132,9 @@ NS_IMETHODIMP MessageDatabase::RemoveMessage(nsMsgKey aKey) {
 
   stmt->Reset();
 
-  nsTObserverArray<RefPtr<MessageListener>>::ForwardIterator iter(
-      mMessageListeners);
-  while (iter.HasMore()) {
-    RefPtr<MessageListener> messageListener = iter.GetNext();
-    messageListener->OnMessageRemoved(nullptr, message);
+  for (RefPtr<MessageListener> messageListener :
+       mMessageListeners.EndLimitedRange()) {
+    messageListener->OnMessageRemoved(message);
   }
 
   return NS_OK;

@@ -322,7 +322,7 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
   return NS_OK;
 }
 
-void LiveView::OnMessageAdded(Folder* aFolder, Message* aMessage) {
+void LiveView::OnMessageAdded(Message* aMessage) {
   if (!mListener || !mCx || !Matches(*aMessage)) {
     return;
   }
@@ -333,7 +333,7 @@ void LiveView::OnMessageAdded(Folder* aFolder, Message* aMessage) {
   mListener->OnMessageAdded(handle);
 }
 
-void LiveView::OnMessageRemoved(Folder* aFolder, Message* aMessage) {
+void LiveView::OnMessageRemoved(Message* aMessage) {
   if (!mListener || !mCx || !Matches(*aMessage)) {
     return;
   }

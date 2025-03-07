@@ -40,8 +40,8 @@ class DatabaseCore : public nsIDatabaseCore,
   NS_DECL_NSIOBSERVER
 
   // MessageListener functions.
-  void OnMessageAdded(Folder* folder, Message* message) override;
-  void OnMessageRemoved(Folder* folder, Message* message) override;
+  void OnMessageAdded(Message* message) override;
+  void OnMessageRemoved(Message* message) override;
 
  protected:
   virtual ~DatabaseCore() {};

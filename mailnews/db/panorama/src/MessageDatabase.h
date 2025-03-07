@@ -19,8 +19,8 @@ class Message;
 
 class MessageListener : public nsISupports {
  public:
-  virtual void OnMessageAdded(Folder* folder, Message* message) = 0;
-  virtual void OnMessageRemoved(Folder* folder, Message* message) = 0;
+  virtual void OnMessageAdded(Message* message) = 0;
+  virtual void OnMessageRemoved(Message* message) = 0;
   virtual ~MessageListener() {};
 };
 
