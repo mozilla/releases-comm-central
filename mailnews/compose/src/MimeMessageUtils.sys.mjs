@@ -45,7 +45,6 @@ export var MsgUtils = {
   NS_ERROR_POST_FAILED: generateNSError(12518),
   NS_ERROR_SMTP_SERVER_ERROR: generateNSError(12524),
   NS_MSG_UNABLE_TO_SEND_LATER: generateNSError(12525),
-  NS_ERROR_COMMUNICATIONS_ERROR: generateNSError(12526),
   NS_ERROR_BUT_DONT_SHOW_ALERT: generateNSError(12527),
   NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS: generateNSError(12529),
   NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY: generateNSError(12530),
@@ -882,7 +881,6 @@ export var MsgUtils = {
       [this.NS_ERROR_POST_FAILED]: "postFailed",
       [this.NS_ERROR_SMTP_SERVER_ERROR]: "smtpServerError",
       [this.NS_MSG_UNABLE_TO_SEND_LATER]: "unableToSendLater",
-      [this.NS_ERROR_COMMUNICATIONS_ERROR]: "communicationsError",
       [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
       [this.NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS]:
         "couldNotGetUsersMailAddress2",

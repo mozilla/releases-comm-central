@@ -33,8 +33,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "smtpServerError";
     case NS_MSG_UNABLE_TO_SEND_LATER:
       return "unableToSendLater";
-    case NS_ERROR_COMMUNICATIONS_ERROR:
-      return "communicationsError";
     case NS_ERROR_BUT_DONT_SHOW_ALERT:
       return "dontShowAlert";
     case NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS:
