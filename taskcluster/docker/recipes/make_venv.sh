@@ -18,6 +18,6 @@ VENV_NAME=${2:-"venv"}
 mkdir -p "$VENV_DIR" && cd "$VENV_DIR"
 
 # Create Python virtual environment and install dependencies
-python3 -m venv --system-site-packages "$VENV_NAME"
+/usr/bin/python3 -m venv --system-site-packages "$VENV_NAME"
 source "./$VENV_NAME/bin/activate"
 python3 -m pip install -r "$1"
