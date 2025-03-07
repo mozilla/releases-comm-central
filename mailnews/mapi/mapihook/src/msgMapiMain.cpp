@@ -201,7 +201,6 @@ HRESULT nsMAPIConfiguration::GetMAPIErrorFromNSError(nsresult res) {
     case NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT:
       hr = MAPI_E_LOGIN_FAILURE;
       break;
-    case NS_MSG_UNABLE_TO_OPEN_FILE:
     case NS_MSG_UNABLE_TO_OPEN_TMP_FILE:
     case NS_MSG_COULDNT_OPEN_FCC_FOLDER:
     case NS_ERROR_FILE_INVALID_PATH:

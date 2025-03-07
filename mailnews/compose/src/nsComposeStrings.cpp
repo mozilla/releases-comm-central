@@ -11,8 +11,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
 #  pragma GCC diagnostic ignored "-Wswitch"
 #endif
   switch (aCode) {
-    case NS_MSG_UNABLE_TO_OPEN_FILE:
-      return "unableToOpenFile";
     case NS_MSG_UNABLE_TO_OPEN_TMP_FILE:
       return "unableToOpenTmpFile";
     case NS_MSG_UNABLE_TO_SAVE_TEMPLATE:
