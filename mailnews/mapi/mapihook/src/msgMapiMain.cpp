@@ -186,7 +186,6 @@ HRESULT nsMAPIConfiguration::GetMAPIErrorFromNSError(nsresult res) {
     case NS_MSG_NO_RECIPIENTS:
       hr = MAPI_E_BAD_RECIPTYPE;
       break;
-    case NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS:
     case NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY:
       // Something went wrong with the sender. There's no error we can map to
       // so we use a general error, see:
