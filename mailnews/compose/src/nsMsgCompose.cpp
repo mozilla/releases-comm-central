@@ -3643,7 +3643,7 @@ nsresult nsMsgCompose::LoadDataFromFile(nsIFile* file, nsString& sigData,
   file->IsDirectory(&isDirectory);
   if (isDirectory) {
     NS_ERROR("file is a directory");
-    return NS_MSG_ERROR_READING_FILE;
+    return NS_ERROR_FAILURE;
   }
 
   nsAutoCString data;

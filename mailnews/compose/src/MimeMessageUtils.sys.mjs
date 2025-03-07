@@ -47,9 +47,6 @@ export var MsgUtils = {
   NS_MSG_UNABLE_TO_SEND_LATER: generateNSError(12525),
   NS_ERROR_BUT_DONT_SHOW_ALERT: generateNSError(12527),
 
-  // For message sending report
-  NS_MSG_ERROR_READING_FILE: generateNSError(12563),
-
   NS_MSG_ERROR_ATTACHING_FILE: generateNSError(12570),
 
   NS_ERROR_SMTP_GREETING: generateNSError(12572),
@@ -877,7 +874,6 @@ export var MsgUtils = {
       [this.NS_ERROR_SMTP_SERVER_ERROR]: "smtpServerError",
       [this.NS_MSG_UNABLE_TO_SEND_LATER]: "unableToSendLater",
       [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
-      [this.NS_MSG_ERROR_READING_FILE]: "errorReadingFile",
       [this.NS_MSG_ERROR_ATTACHING_FILE]: "errorAttachingFile",
       [this.NS_ERROR_SMTP_GREETING]: "incorrectSmtpGreeting",
       [this.NS_ERROR_SENDING_RCPT_COMMAND]: "errorSendingRcptCommand",
