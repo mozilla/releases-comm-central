@@ -46,7 +46,6 @@ export var MsgUtils = {
   NS_ERROR_SMTP_SERVER_ERROR: generateNSError(12524),
   NS_MSG_UNABLE_TO_SEND_LATER: generateNSError(12525),
   NS_ERROR_BUT_DONT_SHOW_ALERT: generateNSError(12527),
-  NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY: generateNSError(12530),
   NS_ERROR_MIME_MPART_ATTACHMENT_ERROR: generateNSError(12531),
 
   // 12554 is taken by NS_ERROR_NNTP_NO_CROSS_POSTING.  use 12555 as the next one
@@ -881,8 +880,6 @@ export var MsgUtils = {
       [this.NS_ERROR_SMTP_SERVER_ERROR]: "smtpServerError",
       [this.NS_MSG_UNABLE_TO_SEND_LATER]: "unableToSendLater",
       [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
-      [this.NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY]:
-        "couldNotGetSendersIdentity",
       [this.NS_ERROR_MIME_MPART_ATTACHMENT_ERROR]: "mimeMpartAttachmentError",
       [this.NS_ERROR_NNTP_NO_CROSS_POSTING]: "nntpNoCrossPosting",
       [this.NS_MSG_ERROR_READING_FILE]: "errorReadingFile",

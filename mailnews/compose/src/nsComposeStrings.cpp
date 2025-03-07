@@ -35,8 +35,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "unableToSendLater";
     case NS_ERROR_BUT_DONT_SHOW_ALERT:
       return "dontShowAlert";
-    case NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY:
-      return "couldNotGetSendersIdentity";
     case NS_ERROR_MIME_MPART_ATTACHMENT_ERROR:
       return "mimeMpartAttachmentError";
     case NS_ERROR_NNTP_NO_CROSS_POSTING:

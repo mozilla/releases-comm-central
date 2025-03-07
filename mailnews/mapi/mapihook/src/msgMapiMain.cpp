@@ -186,12 +186,6 @@ HRESULT nsMAPIConfiguration::GetMAPIErrorFromNSError(nsresult res) {
     case NS_MSG_NO_RECIPIENTS:
       hr = MAPI_E_BAD_RECIPTYPE;
       break;
-    case NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY:
-      // Something went wrong with the sender. There's no error we can map to
-      // so we use a general error, see:
-      // https://msdn.microsoft.com/en-us/library/hh802867(v=vs.85).aspx
-      hr = MAPI_E_FAILURE;
-      break;
     case NS_ERROR_SMTP_AUTH_FAILURE:
     case NS_ERROR_SMTP_AUTH_GSSAPI:
     case NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED:
