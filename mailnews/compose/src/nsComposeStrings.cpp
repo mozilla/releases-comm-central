@@ -35,8 +35,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "unableToSendLater";
     case NS_ERROR_BUT_DONT_SHOW_ALERT:
       return "dontShowAlert";
-    case NS_ERROR_NNTP_NO_CROSS_POSTING:
-      return "nntpNoCrossPosting";
     case NS_MSG_ERROR_READING_FILE:
       return "errorReadingFile";
     case NS_MSG_ERROR_ATTACHING_FILE:

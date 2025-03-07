@@ -47,8 +47,6 @@ export var MsgUtils = {
   NS_MSG_UNABLE_TO_SEND_LATER: generateNSError(12525),
   NS_ERROR_BUT_DONT_SHOW_ALERT: generateNSError(12527),
 
-  // 12554 is taken by NS_ERROR_NNTP_NO_CROSS_POSTING.  use 12555 as the next one
-
   // For message sending report
   NS_MSG_ERROR_READING_FILE: generateNSError(12563),
 
@@ -879,7 +877,6 @@ export var MsgUtils = {
       [this.NS_ERROR_SMTP_SERVER_ERROR]: "smtpServerError",
       [this.NS_MSG_UNABLE_TO_SEND_LATER]: "unableToSendLater",
       [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
-      [this.NS_ERROR_NNTP_NO_CROSS_POSTING]: "nntpNoCrossPosting",
       [this.NS_MSG_ERROR_READING_FILE]: "errorReadingFile",
       [this.NS_MSG_ERROR_ATTACHING_FILE]: "errorAttachingFile",
       [this.NS_ERROR_SMTP_GREETING]: "incorrectSmtpGreeting",

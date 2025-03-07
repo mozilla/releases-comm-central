@@ -27,8 +27,6 @@
 #define NS_ERROR_BUT_DONT_SHOW_ALERT                NS_MSG_GENERATE_FAILURE(12527)
 #define NS_ERROR_MIME_MPART_ATTACHMENT_ERROR        NS_MSG_GENERATE_FAILURE(12531)
 
-/* 12554 is taken by NS_ERROR_NNTP_NO_CROSS_POSTING.  use 12555 as the next one */
-
 // For message sending report
 #define NS_MSG_ERROR_READING_FILE                   NS_MSG_GENERATE_FAILURE(12563)
 
