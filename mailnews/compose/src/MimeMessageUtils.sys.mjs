@@ -34,7 +34,6 @@ export var MsgUtils = {
   /**
    * Error codes defined in nsComposeStrings.h
    */
-  NS_MSG_UNABLE_TO_OPEN_TMP_FILE: generateNSError(12501),
   NS_MSG_UNABLE_TO_SAVE_TEMPLATE: generateNSError(12502),
   NS_MSG_UNABLE_TO_SAVE_DRAFT: generateNSError(12503),
   NS_MSG_COULDNT_OPEN_FCC_FOLDER: generateNSError(12506),
@@ -873,7 +872,6 @@ export var MsgUtils = {
    */
   getErrorStringName(exitCode) {
     const codeNameMap = {
-      [this.NS_MSG_UNABLE_TO_OPEN_TMP_FILE]: "unableToOpenTmpFile",
       [this.NS_MSG_UNABLE_TO_SAVE_TEMPLATE]: "unableToSaveTemplate",
       [this.NS_MSG_UNABLE_TO_SAVE_DRAFT]: "unableToSaveDraft",
       [this.NS_MSG_COULDNT_OPEN_FCC_FOLDER]: "couldntOpenFccFolder",
