@@ -56,7 +56,6 @@ export var MsgUtils = {
   NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED: generateNSError(12586),
   NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2: generateNSError(12588),
 
-  NS_ERROR_SMTP_SEND_FAILED_TIMEOUT: generateNSError(12592),
   NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON: generateNSError(12593),
 
   NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL: generateNSError(12594),
@@ -877,7 +876,8 @@ export var MsgUtils = {
       [Cr.NS_ERROR_CONNECTION_REFUSED]: "smtpSendRequestRefused",
       [Cr.NS_ERROR_PROXY_CONNECTION_REFUSED]: "smtpSendRequestRefused",
       [Cr.NS_ERROR_NET_INTERRUPT]: "smtpSendInterrupted",
-      [this.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT]: "smtpSendTimeout",
+      [Cr.NS_ERROR_NET_TIMEOUT]: "smtpSendTimeout",
+      [Cr.NS_ERROR_NET_RESET]: "smtpSendTimeout",
       [this.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON]:
         "smtpSendFailedUnknownReason",
       [this.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL]:

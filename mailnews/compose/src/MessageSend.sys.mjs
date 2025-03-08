@@ -635,7 +635,8 @@ export class MessageSend {
           Cr.NS_ERROR_CONNECTION_REFUSED,
           Cr.NS_ERROR_PROXY_CONNECTION_REFUSED,
           Cr.NS_ERROR_NET_INTERRUPT,
-          lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT,
+          Cr.NS_ERROR_NET_TIMEOUT,
+          Cr.NS_ERROR_NET_RESET,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_GSSAPI,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED,
@@ -746,16 +747,6 @@ export class MessageSend {
         errMsg,
         isNewsDelivery
       );
-    }
-    if (!Components.isSuccessCode(exitCode)) {
-      switch (exitCode) {
-        case Cr.NS_ERROR_NET_TIMEOUT:
-        case Cr.NS_ERROR_NET_RESET:
-          exitCode = lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT;
-          break;
-        default:
-          break;
-      }
     }
     return this._deliveryExitProcessing(
       serverURI,
