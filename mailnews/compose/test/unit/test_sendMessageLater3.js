@@ -52,8 +52,7 @@ msll.prototype = {
   onStopSending(aStatus, aMsg, aTotal, aSuccessful) {
     print("msll onStopSending\n");
 
-    // NS_ERROR_SMTP_SEND_FAILED_REFUSED is 2153066798
-    Assert.equal(aStatus, 2153066798);
+    Assert.equal(aStatus, Cr.NS_ERROR_CONNECTION_REFUSED);
     Assert.equal(aTotal, 1);
     Assert.equal(aSuccessful, 0);
     Assert.equal(this._initialTotal, 1);

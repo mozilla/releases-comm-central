@@ -56,7 +56,6 @@ export var MsgUtils = {
   NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED: generateNSError(12586),
   NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2: generateNSError(12588),
 
-  NS_ERROR_SMTP_SEND_FAILED_REFUSED: generateNSError(12590),
   NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED: generateNSError(12591),
   NS_ERROR_SMTP_SEND_FAILED_TIMEOUT: generateNSError(12592),
   NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON: generateNSError(12593),
@@ -876,7 +875,8 @@ export var MsgUtils = {
       [this.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2]: "smtpPermSizeExceeded2",
       [Cr.NS_ERROR_UNKNOWN_HOST]: "smtpSendFailedUnknownServer",
       [Cr.NS_ERROR_UNKNOWN_PROXY_HOST]: "smtpSendFailedUnknownServer",
-      [this.NS_ERROR_SMTP_SEND_FAILED_REFUSED]: "smtpSendRequestRefused",
+      [Cr.NS_ERROR_CONNECTION_REFUSED]: "smtpSendRequestRefused",
+      [Cr.NS_ERROR_PROXY_CONNECTION_REFUSED]: "smtpSendRequestRefused",
       [this.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED]: "smtpSendInterrupted",
       [this.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT]: "smtpSendTimeout",
       [this.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON]:
