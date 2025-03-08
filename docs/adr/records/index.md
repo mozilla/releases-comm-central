@@ -3,4 +3,3 @@
 ```{toctree}
 0000-adr-template.md
 ```
-
