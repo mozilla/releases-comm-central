@@ -6,6 +6,7 @@ categories:
     overview_doc:
         - documentation
         - mots
+        - adr
         - architecture
         - inappnotifications
     build_doc:
@@ -26,6 +27,7 @@ categories:
 # Note: In order for CI to pick up the need to rebuild docs, documentation
 #  paths must include a "docs/" directory.
 doc_trees:
+    adr: docs/adr
     architecture: docs/architecture
     build: docs/build
     frontend: docs/frontend

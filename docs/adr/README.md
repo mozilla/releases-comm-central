@@ -1,4 +1,4 @@
-# Architecture Decision Records
+# ADR Process
 
 The [docs/adr](/docs/adr) folder contains the
 architecture decision records (ADRs) for our project.
