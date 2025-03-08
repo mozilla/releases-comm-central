@@ -41,8 +41,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "errorSendingRcptCommand";
     case NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS:
       return "startTlsFailed";
-    case NS_ERROR_SMTP_PASSWORD_UNDEFINED:
-      return "smtpPasswordUndefined";
     case NS_ERROR_SMTP_SEND_NOT_ALLOWED:
       return "smtpSendNotAllowed";
     case NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED:

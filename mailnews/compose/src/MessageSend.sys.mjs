@@ -634,7 +634,6 @@ export class MessageSend {
           lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_REFUSED,
           lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED,
           lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT,
-          lazy.MsgUtils.NS_ERROR_SMTP_PASSWORD_UNDEFINED,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_GSSAPI,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED,
