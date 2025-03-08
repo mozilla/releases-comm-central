@@ -53,7 +53,6 @@ export var MsgUtils = {
 
   NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS: generateNSError(12582),
 
-  NS_ERROR_SMTP_SEND_NOT_ALLOWED: generateNSError(12585),
   NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED: generateNSError(12586),
   NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2: generateNSError(12588),
 
@@ -874,7 +873,6 @@ export var MsgUtils = {
       [this.NS_MSG_ERROR_ATTACHING_FILE]: "errorAttachingFile",
       [this.NS_ERROR_SENDING_RCPT_COMMAND]: "errorSendingRcptCommand",
       [this.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS]: "startTlsFailed",
-      [this.NS_ERROR_SMTP_SEND_NOT_ALLOWED]: "smtpSendNotAllowed",
       [this.NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED]: "smtpTooManyRecipients",
       [this.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2]: "smtpPermSizeExceeded2",
       [this.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER]:
