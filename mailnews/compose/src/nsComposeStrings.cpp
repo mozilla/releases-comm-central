@@ -45,8 +45,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "smtpTooManyRecipients";
     case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2:
       return "smtpPermSizeExceeded2";
-    case NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON:
-      return "smtpSendFailedUnknownReason";
     case NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL:
       return "smtpHintAuthEncryptToPlainNoSsl";
     case NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL:
