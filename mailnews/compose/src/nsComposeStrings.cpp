@@ -45,8 +45,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "smtpTooManyRecipients";
     case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2:
       return "smtpPermSizeExceeded2";
-    case NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER:
-      return "smtpSendFailedUnknownServer";
     case NS_ERROR_SMTP_SEND_FAILED_REFUSED:
       return "smtpSendRequestRefused";
     case NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED:

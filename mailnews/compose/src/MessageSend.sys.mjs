@@ -630,7 +630,8 @@ export class MessageSend {
       let errorMsg;
       if (
         [
-          lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER,
+          Cr.NS_ERROR_UNKNOWN_HOST,
+          Cr.NS_ERROR_UNKNOWN_PROXY_HOST,
           lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_REFUSED,
           lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED,
           lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT,
@@ -747,10 +748,6 @@ export class MessageSend {
     }
     if (!Components.isSuccessCode(exitCode)) {
       switch (exitCode) {
-        case Cr.NS_ERROR_UNKNOWN_HOST:
-        case Cr.NS_ERROR_UNKNOWN_PROXY_HOST:
-          exitCode = lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER;
-          break;
         case Cr.NS_ERROR_CONNECTION_REFUSED:
         case Cr.NS_ERROR_PROXY_CONNECTION_REFUSED:
           exitCode = lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_REFUSED;
