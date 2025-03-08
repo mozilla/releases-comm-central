@@ -634,7 +634,7 @@ export class MessageSend {
           Cr.NS_ERROR_UNKNOWN_PROXY_HOST,
           Cr.NS_ERROR_CONNECTION_REFUSED,
           Cr.NS_ERROR_PROXY_CONNECTION_REFUSED,
-          lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED,
+          Cr.NS_ERROR_NET_INTERRUPT,
           lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_GSSAPI,
@@ -749,9 +749,6 @@ export class MessageSend {
     }
     if (!Components.isSuccessCode(exitCode)) {
       switch (exitCode) {
-        case Cr.NS_ERROR_NET_INTERRUPT:
-          exitCode = lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED;
-          break;
         case Cr.NS_ERROR_NET_TIMEOUT:
         case Cr.NS_ERROR_NET_RESET:
           exitCode = lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT;
