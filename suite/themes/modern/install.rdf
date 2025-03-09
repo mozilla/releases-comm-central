@@ -11,15 +11,15 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>modern@themes.mozilla.org</em:id>
-    <em:version>@SEAMONKEY_VERSION@</em:version>
+    <em:version>@MOZ_APP_VERSION@</em:version>
 
     <!-- Target Application this theme can install into,
         with minimum and maximum supported versions. -->
     <em:targetApplication>
       <Description>
         <em:id>{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}</em:id>
-        <em:minVersion>@SEAMONKEY_VERSION@</em:minVersion>
-        <em:maxVersion>@SEAMONKEY_VERSION@</em:maxVersion>
+        <em:minVersion>@MOZ_APP_VERSION@</em:minVersion>
+        <em:maxVersion>@MOZ_APP_VERSION@</em:maxVersion>
       </Description>
     </em:targetApplication>
 

@@ -58,41 +58,7 @@ add_old_configure_assignment("commtopsrcdir", commtopsrcdir)
 set_config("commtopsrcdir", commtopsrcdir)
 
 
-@depends(build_environment, application)
-@imports(_from="os.path", _import="exists")
-@imports(_from="__builtin__", _import="open")
-def seamonkey_version(build_env, app_path):
-    version_file = os.path.join(
-        build_env.topsrcdir, app_path[0], "config", "version.txt"
-    )
-    version_file_display = os.path.join(
-        build_env.topsrcdir, app_path[0], "config", "version_display.txt"
-    )
-    version_file_package = os.path.join(
-        build_env.topsrcdir, app_path[0], "config", "version_package.txt"
-    )
-    rv = []
-    for f in [version_file, version_file_display, version_file_package]:
-        if exists(f):
-            f_value = open(f).read().strip()
-        else:
-            f_value = "unknown"
-        rv.append(f_value)
-
-    return namespace(version=rv[0],
-                     version_display=rv[1],
-                     version_package=rv[2])
-
-
-set_defconf("SEAMONKEY_VERSION", seamonkey_version.version)
-set_defconf("SEAMONKEY_VERSION_DISPLAY", seamonkey_version.version_display)
-# Currently not set in suite comm-central
-# set_defconf("MOZ_PKG_VERSION", seamonkey_version.version_package)
-imply_option("MOZ_APP_VERSION", seamonkey_version.version)
-imply_option("MOZ_APP_VERSION_DISPLAY", seamonkey_version.version_display)
 imply_option("BROWSER_CHROME_URL", "chrome://navigator/content/navigator.xul")
-
-
 imply_option("MOZ_PLACES", True)
 imply_option("MOZ_SERVICES_SYNC", False)
 
