@@ -4,10 +4,6 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
-const OP_ADD = Ci.calIOperationListener.ADD;
-const OP_MODIFY = Ci.calIOperationListener.MODIFY;
-const OP_DELETE = Ci.calIOperationListener.DELETE;
-
 let transactionManager = null;
 
 /**
@@ -285,13 +281,13 @@ class CalBaseTransaction extends CalTransaction {
 export class CalAddTransaction extends CalBaseTransaction {
   async doTransaction() {
     const item = await this.calendar.addItem(this.item);
-    this._dispatch(OP_ADD, item, this.oldItem);
+    this._dispatch(Ci.calIOperationListener.ADD, item, this.oldItem);
     this.item = item;
   }
 
   async undoTransaction() {
     await this.calendar.deleteItem(this.item);
-    this._dispatch(OP_DELETE, this.item, this.item);
+    this._dispatch(Ci.calIOperationListener.DELETE, this.item, this.item);
     this.oldItem = this.item;
   }
 }
@@ -307,13 +303,13 @@ export class CalModifyTransaction extends CalBaseTransaction {
         cal.itip.prepareSequence(this.item, this.oldItem),
         this.oldItem
       );
-      this._dispatch(OP_MODIFY, item, this.oldItem);
+      this._dispatch(Ci.calIOperationListener.MODIFY, item, this.oldItem);
     } else {
       this.oldCalendar = this.oldItem.calendar;
       item = await this.calendar.addItem(this.item);
-      this._dispatch(OP_ADD, item, this.oldItem);
+      this._dispatch(Ci.calIOperationListener.ADD, item, this.oldItem);
       await this.oldItem.calendar.deleteItem(this.oldItem);
-      this._dispatch(OP_DELETE, this.oldItem, this.oldItem);
+      this._dispatch(Ci.calIOperationListener.DELETE, this.oldItem, this.oldItem);
     }
     this.item = item;
   }
@@ -321,12 +317,12 @@ export class CalModifyTransaction extends CalBaseTransaction {
   async undoTransaction() {
     if (this.oldItem.calendar.id == this.item.calendar.id) {
       await this.calendar.modifyItem(cal.itip.prepareSequence(this.oldItem, this.item), this.item);
-      this._dispatch(OP_MODIFY, this.oldItem, this.oldItem);
+      this._dispatch(Ci.calIOperationListener.MODIFY, this.oldItem, this.oldItem);
     } else {
       await this.calendar.deleteItem(this.item);
-      this._dispatch(OP_DELETE, this.item, this.item);
+      this._dispatch(Ci.calIOperationListener.DELETE, this.item, this.item);
       await this.oldCalendar.addItem(this.oldItem);
-      this._dispatch(OP_ADD, this.oldItem, this.item);
+      this._dispatch(Ci.calIOperationListener.ADD, this.oldItem, this.item);
     }
   }
 }
@@ -337,12 +333,12 @@ export class CalModifyTransaction extends CalBaseTransaction {
 export class CalDeleteTransaction extends CalBaseTransaction {
   async doTransaction() {
     await this.calendar.deleteItem(this.item);
-    this._dispatch(OP_DELETE, this.item, this.oldItem);
+    this._dispatch(Ci.calIOperationListener.DELETE, this.item, this.oldItem);
   }
 
   async undoTransaction() {
     await this.calendar.addItem(this.item);
-    this._dispatch(OP_ADD, this.item, this.item);
+    this._dispatch(Ci.calIOperationListener.ADD, this.item, this.item);
   }
 }
 
