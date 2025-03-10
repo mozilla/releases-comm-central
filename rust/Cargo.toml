@@ -199,7 +199,8 @@ redox_users = { path = "../../build/rust/redox_users" }
 redox_syscall = { path = "../../build/rust/redox_syscall" }
 hermit-abi = { path = "../../build/rust/hermit-abi" }
 base64 = { path = "../../build/rust/base64" }
-wasi = { path = "../../build/rust/wasi" }
+wasi_0_10 = { package = "wasi", path = "../../build/rust/wasi-0.10" }
+wasi_0_11 = { package = "wasi", path = "../../build/rust/wasi" }
 backtrace = { path = "../../build/rust/backtrace" }
 bindgen_0_63 = { package = "bindgen", path = "../../build/rust/bindgen-0.63" }
 bindgen = { path = "../../third_party/rust/bindgen" }
@@ -207,6 +208,7 @@ nix = { path = "../../build/rust/nix" }
 derive_more = { path = "../../build/rust/derive_more" }
 autocfg = { path = "../../third_party/rust/autocfg" }
 goblin = { path = "../../build/rust/goblin" }
+getrandom = { path = "../../build/rust/getrandom" }
 memoffset = { path = "../../build/rust/memoffset" }
 hashbrown = { path = "../../build/rust/hashbrown" }
 socket2 = { path = "../../build/rust/socket2" }
