@@ -4,69 +4,123 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-set_config("MOZ_SUITE", True)
-set_define("MOZ_SUITE", True)
+# =============================================================================
+# = Configuration and Options
+# =============================================================================
+@template
+def seamonkey_confvars():
+    config = {
+        "MOZ_SUITE": True,
+    }
 
-imply_option("MOZ_APP_NAME", "seamonkey")
-imply_option("MOZ_APP_BASENAME", "SeaMonkey")
+    options = {
+        "--enable-crashreporter": True,             # MOZ_CRASHREPORTER
+        "BROWSER_CHROME_URL": "chrome://navigator/content/navigator.xul",
+        "MOZ_APP_BASENAME": "SeaMonkey",
+        "MOZ_APP_ID": "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}",
+        "MOZ_APP_VENDOR": "Mozilla",
+        "MOZ_DEVTOOLS": "all",
+        "MOZ_PLACES": True,
+        "MOZ_PROFILE_MIGRATOR": True,
+        "MOZ_SERVICES_SYNC": True,
+        "NSS_EXTRA_SYMBOLS_FILE": "../comm/mailnews/nss-extra.symbols",
+    }
 
-imply_option("MOZ_APP_ID", "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}")
-imply_option("MOZ_APP_VENDOR", "Mozilla")
+    # Config and Define
+    for k, v in config.items():
+        set_config(k, v)
+        set_define(k, v)
+        add_old_configure_assignment(k, v)
 
-imply_option("MOZ_PROFILE_MIGRATOR", True)
-# Include the DevTools client, not just the server (which is the default)
-imply_option("MOZ_DEVTOOLS", "all")
-imply_option("NSS_EXTRA_SYMBOLS_FILE", "../comm/mailnews/nss-extra.symbols")
+    # Imply Options
+    for k, v in options.items():
+        imply_option(k, v)
 
-imply_option('--enable-default-browser-agent', False)
+# Do it.
+seamonkey_confvars()
 
-@depends(target_is_windows, target_has_linux_kernel)
-def bundled_fonts(is_windows, is_linux):
-    if is_windows or is_linux:
-        return True
-
-
-set_config("MOZ_BUNDLED_FONTS", bundled_fonts)
-add_old_configure_assignment("MOZ_BUNDLED_FONTS", bundled_fonts)
-
-
+# =============================================================================
+# = Set Comm"s TOPSRCDIR
+# =============================================================================
 @depends(build_environment, "--help")
 @imports(_from="os.path", _import="join")
 def commtopsrcdir(build_env, _):
     topsrcdir = build_env.topsrcdir
     return join(topsrcdir, "comm")
 
+set_config("commtopsrcdir", commtopsrcdir)
+add_old_configure_assignment("commtopsrcdir", commtopsrcdir)
 
-@template
-def set_defconf(k, v):
-    set_config(k, v)
-    set_define(k, v)
-    add_old_configure_assignment(k, v)
+# =============================================================================
+# = Bundled Fonts
+# =============================================================================
+@depends(target_is_windows, target_has_linux_kernel)
+def bundled_fonts(is_windows, is_linux):
+    if is_windows or is_linux:
+        return True
 
+set_config("MOZ_BUNDLED_FONTS", bundled_fonts)
+add_old_configure_assignment("MOZ_BUNDLED_FONTS", bundled_fonts)
 
-set_define("MAR_CHANNEL_ID", "\"seamonkey-comm-release\"")
-add_old_configure_assignment("MAR_CHANNEL_ID", "seamonkey-comm-release")
+# =============================================================================
+# = Updater
+# =============================================================================
+set_define("MAR_CHANNEL_ID",
+           "\"seamonkey-comm-release\"")
+
+add_old_configure_assignment("MAR_CHANNEL_ID",
+                             "seamonkey-comm-release")
 
 set_define("ACCEPTED_MAR_CHANNEL_IDS",
-            "\"seamonkey-comm-release,seamonkey-comm-central\"")
+           "\"seamonkey-comm-release,seamonkey-comm-central\"")
+
 add_old_configure_assignment("ACCEPTED_MAR_CHANNEL_IDS",
                              "seamonkey-comm-release,seamonkey-comm-central")
 
-add_old_configure_assignment("commtopsrcdir", commtopsrcdir)
-set_config("commtopsrcdir", commtopsrcdir)
+# =============================================================================
+# = ChatZilla extension
+# =============================================================================
+option("--enable-irc",
+       default=False,
+       help="Enable building of the ChatZilla IRC extension")
 
+@depends_if("--enable-irc")
+def irc(arg):
+    return True
 
-imply_option("BROWSER_CHROME_URL", "chrome://navigator/content/navigator.xul")
-imply_option("MOZ_PLACES", True)
-imply_option("MOZ_SERVICES_SYNC", False)
+set_config("MOZ_IRC", irc)
 
-# Thunderbird Rust code is now the default
-option("--disable-thunderbird-rust", help="Enable Rust support within Thunderbird")
+# =============================================================================
+# = DebugQA extension
+# =============================================================================
+option("--enable-debugqa",
+       default=False,
+       help="Enable building of the DebugQA extension")
+
+@depends_if("--enable-debugqa")
+def debugqa(arg):
+    return True
+
+set_config("MOZ_DEBUGQA", debugqa)
+
+# =============================================================================
+# = PIE
+# =============================================================================
+with only_when(target_has_linux_kernel & compile_environment):
+    option(env="MOZ_NO_PIE_COMPAT", help="Enable non-PIE wrapper")
+
+    set_config("MOZ_NO_PIE_COMPAT",
+               depends_if("MOZ_NO_PIE_COMPAT")(lambda _: True))
+
+# =============================================================================
+# = Thunderbird Rust
+# =============================================================================
+option("--disable-thunderbird-rust",
+       help="Enable Rust support within Thunderbird")
 
 set_config("MOZ_THUNDERBIRD_RUST", True, when="--enable-thunderbird-rust")
 set_define("MOZ_THUNDERBIRD_RUST", True, when="--enable-thunderbird-rust")
 set_config("MOZ_OVERRIDE_GKRUST", True, when="--enable-thunderbird-rust")
-
 
 @depends("--enable-thunderbird-rust")
 def moz_override_cargo_config(enable_rust):
@@ -76,56 +130,13 @@ def moz_override_cargo_config(enable_rust):
         return rust_override
 
 
-set_config(
-    "MOZ_OVERRIDE_CARGO_CONFIG",
-    moz_override_cargo_config,
-    when="--enable-thunderbird-rust",
-)
+set_config("MOZ_OVERRIDE_CARGO_CONFIG",
+           moz_override_cargo_config,
+           when="--enable-thunderbird-rust")
 
-# Building extensions is disabled by default.
-
-# =========================================================
-# = ChatZilla extension
-# =========================================================
-option(
-    "--enable-irc", default=False, help="Enable building of the ChatZilla IRC extension"
-)
-
-
-@depends_if("--enable-irc")
-def irc(arg):
-    return True
-
-
-set_config("MOZ_IRC", irc)
-
-# =========================================================
-# = DebugQA extension
-# =========================================================
-option(
-    "--enable-debugqa", default=False, help="Enable building of the DebugQA extension"
-)
-
-
-@depends_if("--enable-debugqa")
-def debugqa(arg):
-    return True
-
-
-set_config("MOZ_DEBUGQA", debugqa)
-
-with only_when(target_has_linux_kernel & compile_environment):
-    option(env='MOZ_NO_PIE_COMPAT',
-           help='Enable non-PIE wrapper')
-
-    set_config('MOZ_NO_PIE_COMPAT',
-               depends_if('MOZ_NO_PIE_COMPAT')(lambda _: True))
-
-# Miscellaneous programs
-# ==============================================================
-
-check_prog("ZIP", ("zip",))
-
+# =============================================================================
+# = Glean
+# =============================================================================
 set_config(
     "MOZ_GLEAN_EXTRA_METRICS_FILES",
     [
@@ -134,10 +145,17 @@ set_config(
         "comm/calendar/metrics.yaml",
     ],
 )
-# set_config("MOZ_GLEAN_EXTRA_PINGS_FILES", ["comm/mail/pings.yaml"])
+
 set_config("MOZ_GLEAN_EXTRA_TAGS_FILES", ["comm/mail/tags.yaml"])
 
-include("../build/moz.configure/gecko_source.configure")
+# =============================================================================
+# = Miscellaneous programs
+# =============================================================================
+check_prog("ZIP", ("zip",))
 
+# =============================================================================
+# = Includes
+# =============================================================================
+include("../build/moz.configure/gecko_source.configure")
 include("../mailnews/moz.configure")
 include("../../toolkit/moz.configure")
