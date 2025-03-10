@@ -65,7 +65,6 @@ var Enigmail = {};
 Enigmail.msg = {
   decryptedMessage: null,
   securityInfo: null,
-  lastSaveDir: "",
   messagePane: null,
   decryptButton: null,
   savedHeaders: null,
@@ -1847,17 +1846,16 @@ Enigmail.msg = {
     outFile2.remove(false);
   },
 
+  /**
+   * Take action on attachments.
+   *
+   * @param {string} actionType - Type of action.
+   * @param {AttachmentInfo} attachment - The attachment.
+   */
   handleAttachment(actionType, attachment) {
     const bufferListener = EnigmailStreams.newStringStreamListener(
       async data => {
-        Enigmail.msg.decryptAttachmentCallback([
-          {
-            actionType,
-            attachment,
-            forceBrowser: false,
-            data,
-          },
-        ]);
+        Enigmail.msg.decryptAttachmentCallback(actionType, attachment, data);
       }
     );
     const msgUri = Services.io.newURI(attachment.url);
@@ -1888,53 +1886,59 @@ Enigmail.msg = {
     }
   },
 
-  async decryptAttachmentCallback(cbArray) {
-    var callbackArg = cbArray[0];
-
+  /**
+   * Decrypt attachment callback.
+   *
+   * @param {string} actionType
+   * @param {AttachmentInfo} attachment
+   * @param {string} data
+   */
+  async decryptAttachmentCallback(actionType, attachment, data) {
     var exitCodeObj = {};
     var statusFlagsObj = {};
     var errorMsgObj = {};
     var exitStatus = -1;
 
     var outFile;
-    var origFilename;
-    var rawFileName = EnigmailMsgRead.getAttachmentName(
-      callbackArg.attachment
-    ).replace(/\.(asc|pgp|gpg)$/i, "");
+    const rawFileName = EnigmailMsgRead.getAttachmentName(attachment).replace(
+      /\.(asc|pgp|gpg)$/i,
+      ""
+    );
 
-    // TODO: We don't have code yet to extract the original filename
-    // from an encrypted data block.
-    /*
-    if (callbackArg.actionType != "importKey") {
-      let origFilename = await ???.getFileName(window, callbackArg.data);
-      if (origFilename && origFilename.length > rawFileName.length) {
-        rawFileName = origFilename;
-      }
-    }
-    */
-
-    if (callbackArg.actionType == "saveAttachment") {
+    if (actionType == "saveAttachment") {
       const title = l10n.formatValueSync("save-attachment-header");
       const fp = Cc["@mozilla.org/filepicker;1"].createInstance(
         Ci.nsIFilePicker
       );
       fp.init(window.browsingContext, title, Ci.nsIFilePicker.modeSave);
       fp.defaultString = rawFileName;
-      fp.displayDirectory = Enigmail.msg.lastSaveDir;
+      try {
+        const lastSaveDir = Services.prefs.getComplexValue(
+          "messenger.save.dir",
+          Ci.nsIFile
+        );
+        fp.displayDirectory = lastSaveDir;
+      } catch (e) {} // Pref may not be set, yet.
       fp.appendFilters(Ci.nsIFilePicker.filterAll);
       const rv = await new Promise(resolve => fp.open(resolve));
-      if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
+      if (rv == Ci.nsIFilePicker.returnCancel || !fp.file) {
         return;
       }
+      Services.prefs.setComplexValue(
+        "messenger.save.dir",
+        Ci.nsIFile,
+        fp.file.parent
+      );
       outFile = fp.file;
-    } else if (callbackArg.actionType.substr(0, 10) == "revealName") {
-      if (origFilename && origFilename.length > 0) {
-        Enigmail.msg.setAttachmentName(
-          callbackArg.attachment,
-          origFilename + ".pgp",
-          callbackArg.actionType.substr(11, 10)
-        );
-      }
+    } else if (actionType.substr(0, 10) == "revealName") {
+      // TODO: We don't have code yet to extract the original filename
+      // from an encrypted data block.
+      const origFilename = attachment.name;
+      Enigmail.msg.setAttachmentName(
+        attachment,
+        origFilename + ".pgp",
+        actionType.substr(11, 10)
+      );
       return;
     } else {
       // open
@@ -1943,9 +1947,9 @@ Enigmail.msg = {
       outFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
     }
 
-    if (callbackArg.actionType == "importKey") {
+    if (actionType == "importKey") {
       var preview = await EnigmailKey.getKeyListFromKeyBlock(
-        callbackArg.data,
+        data,
         errorMsgObj,
         true,
         true,
@@ -1957,19 +1961,17 @@ Enigmail.msg = {
         exitStatus = await EnigmailDecryption.decryptAttachment(
           window,
           outFile,
-          EnigmailMsgRead.getAttachmentName(callbackArg.attachment),
-          callbackArg.data,
+          EnigmailMsgRead.getAttachmentName(attachment),
+          data,
           exitCodeObj,
           statusFlagsObj,
           errorMsgObj
         );
         if (exitStatus && exitCodeObj.value === 0) {
           // success decrypting, let's try again
-          callbackArg.data = String.fromCharCode(
-            ...(await IOUtils.read(outFile.path))
-          );
+          data = String.fromCharCode(...(await IOUtils.read(outFile.path)));
           preview = await EnigmailKey.getKeyListFromKeyBlock(
-            callbackArg.data,
+            data,
             errorMsgObj,
             true,
             true,
@@ -1982,7 +1984,7 @@ Enigmail.msg = {
         EnigmailKeyRing.importKeyDataWithConfirmation(
           window,
           preview,
-          callbackArg.data,
+          data,
           false
         );
       } else {
@@ -1997,8 +1999,8 @@ Enigmail.msg = {
     exitStatus = await EnigmailDecryption.decryptAttachment(
       window,
       outFile,
-      EnigmailMsgRead.getAttachmentName(callbackArg.attachment),
-      callbackArg.data,
+      EnigmailMsgRead.getAttachmentName(attachment),
+      data,
       exitCodeObj,
       statusFlagsObj,
       errorMsgObj
@@ -2010,7 +2012,7 @@ Enigmail.msg = {
         statusFlagsObj.value & EnigmailConstants.DECRYPTION_OKAY &&
         statusFlagsObj.value & EnigmailConstants.UNCERTAIN_SIGNATURE
       ) {
-        if (callbackArg.actionType == "openAttachment") {
+        if (actionType == "openAttachment") {
           const [title, button] = await document.l10n.formatValues([
             { id: "decrypt-ok-no-sig" },
             { id: "msg-ovl-button-cont-anyway" },
@@ -2046,36 +2048,31 @@ Enigmail.msg = {
     if (exitStatus) {
       if (statusFlagsObj.value & EnigmailConstants.IMPORTED_KEY) {
         if (exitCodeObj.keyList) {
-          const importKeyList = exitCodeObj.keyList.map(function (a) {
-            return a.id;
-          });
+          const importKeyList = exitCodeObj.keyList.map(a => a.id);
           EnigmailDialog.keyImportDlg(window, importKeyList);
         }
       } else if (statusFlagsObj.value & EnigmailConstants.DISPLAY_MESSAGE) {
         HandleSelectedAttachments("open");
       } else if (
         statusFlagsObj.value & EnigmailConstants.DISPLAY_MESSAGE ||
-        callbackArg.actionType == "openAttachment"
+        actionType == "openAttachment"
       ) {
-        var ioServ = Services.io;
-        var outFileUri = ioServ.newFileURI(outFile);
-        var fileExt = outFile.leafName.replace(/(.*\.)(\w+)$/, "$2");
-        if (fileExt && !callbackArg.forceBrowser) {
-          var extAppLauncher = Cc[
-            "@mozilla.org/uriloader/external-helper-app-service;1"
-          ].getService(Ci.nsPIExternalAppLauncher);
-          extAppLauncher.deleteTemporaryFileOnExit(outFile);
+        const outFileUri = Services.io.newFileURI(outFile);
+        const fileExt = outFile.leafName.replace(/(.*\.)(\w+)$/, "$2");
+        if (fileExt) {
+          Cc["@mozilla.org/uriloader/external-helper-app-service;1"]
+            .getService(Ci.nsPIExternalAppLauncher)
+            .deleteTemporaryFileOnExit(outFile);
 
           try {
-            var mimeService = Cc["@mozilla.org/mime;1"].getService(
+            const mimeService = Cc["@mozilla.org/mime;1"].getService(
               Ci.nsIMIMEService
             );
-            var fileMimeType = mimeService.getTypeFromFile(outFile);
-            var fileMimeInfo = mimeService.getFromTypeAndExtension(
+            const fileMimeType = mimeService.getTypeFromFile(outFile);
+            const fileMimeInfo = mimeService.getFromTypeAndExtension(
               fileMimeType,
               fileExt
             );
-
             fileMimeInfo.launchWithFile(outFile);
           } catch (ex) {
             // if the attachment file type is unknown, an exception is thrown,
