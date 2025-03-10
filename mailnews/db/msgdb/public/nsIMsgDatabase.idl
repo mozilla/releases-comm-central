@@ -22,6 +22,9 @@
  */
 #include "nsISupports.idl"
 #include "nsIDBChangeAnnouncer.idl"
+%{C++
+#include "MailNewsTypes.h"
+%}
 
 interface nsIMsgDatabase;
 interface nsIDBChangeListener;
@@ -215,6 +218,56 @@ interface nsIMsgDBService : nsISupports
   readonly attribute Array<nsIMsgDatabase> openDBs;
 };
 
+%{ C++
+// Define an struct to describe data for a message entry _without_ using
+// nsIMsgDBHdr. Mork allows detached rows, and we use that feature to
+// carry message data not in the db, but other databases don't support
+// that, so we'd like to stop doing it.
+// A lot of these values are directly from raw RFC5322 headers. In
+// those cases, the data here should be decoded/space-folded/etc.
+struct RawHdr {
+  nsMsgKey key{nsMsgKey_None};
+  nsCString messageId;
+  nsCString references; // should be array?
+  PRTime date{0};
+  uint32_t dateReceived{0}; // in seconds (TODO: should be PRTime).
+  nsCString subject;
+  nsCString sender;    // aka author
+  nsCString recipients; // format?    (can be newsgroups)
+  nsCString ccList;   // format?
+  nsCString bccList;  // format?
+  nsCString replyTo;
+  uint32_t flags{0};
+  nsCString keywords; // should be array?
+  nsMsgPriorityValue priority{nsMsgPriority::notSet};  // 0 = notSet
+  nsCString charset;
+  nsCString accountKey;
+  //uint64_t msgSize{0};
+  //nsCString storeToken;
+  //uint64_t offlineMsgSize{0};
+  //uint32_t numLines{0};
+  //nsCString preview;
+  //nsCString junkscoreorigin;
+  //nsCString junkpercent;
+  //nsCString senderName;
+  //nsCString prevkeywords;
+  //int remoteContentPolicy{0};
+  //int protoThreadFlags{0};
+  //int glodaId{0};
+  //nsCString xGmMsgId;
+  //nsCString xGmThrId;
+  //nsCString xGmLabels;
+  //int pseudoHdr{0};
+  //int enigmail{0};
+  //int notAPhishMessage{0};
+
+  // Extra data (e.g. pref-defined custom headers).
+  struct kv {nsCString k; nsCString v;};
+  nsTArray<kv> extras;
+};
+%}
+[ptr] native RawHdr(RawHdr);
+
 [scriptable, uuid(b64e66f8-4717-423a-be42-482658fb2199)]
 interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   void close(in boolean aForceCommit);
@@ -300,6 +353,14 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
    * If uid is 0, or not found in the database, this call will fail.
    */
   nsIMsgDBHdr getMsgHdrForUID(in unsigned long uid);
+
+
+  /**
+   * Add a new message to the database, returning the newly created msgHdr.
+   * If notify is set, the usual DB notifications will be issued.
+   */
+  [noscript]
+  nsIMsgDBHdr addMsgHdr(in RawHdr msg, in boolean notify);
 
   /**
    * Create a new nsIMsgDBHdr, but don't add it to the database.

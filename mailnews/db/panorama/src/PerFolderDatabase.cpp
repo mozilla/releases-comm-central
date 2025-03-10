@@ -137,6 +137,27 @@ NS_IMETHODIMP PerFolderDatabase::CopyHdrFromExistingHdr(
     nsIMsgDBHdr** aRetVal) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
+
+NS_IMETHODIMP PerFolderDatabase::AddMsgHdr(RawHdr* msg, bool notify,
+                                           nsIMsgDBHdr** newHdr) {
+  MOZ_ASSERT(newHdr);
+  nsMsgKey key;
+  nsresult rv =
+      mDatabase->AddMessage(mFolderId, msg->messageId, msg->date, msg->sender,
+                            msg->subject, msg->flags, msg->keywords, &key);
+  NS_ENSURE_SUCCESS(rv, rv);
+  MOZ_ASSERT(key != nsMsgKey_None);
+
+  // We do have enough info here to construct the header without
+  // doing another DB query, but let's keep it simple.
+  // (even better if the header only contained folderid and msgKey,
+  // anyway, and no data fields).
+  RefPtr<Message> newMsg;
+  rv = mDatabase->GetMessage(key, getter_AddRefs(newMsg));
+  newMsg.forget(newHdr);
+  return rv;
+}
+
 NS_IMETHODIMP PerFolderDatabase::ListAllKeys(nsTArray<nsMsgKey>& aKeys) {
   return mDatabase->ListAllKeys(mFolderId, aKeys);
 }
