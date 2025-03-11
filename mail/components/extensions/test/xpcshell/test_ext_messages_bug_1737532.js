@@ -10,6 +10,7 @@ var { FileUtils } = ChromeUtils.importESModule(
 var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
+
 add_setup(async () => {
   const _account = createAccount();
   const _folder = await createSubfolder(

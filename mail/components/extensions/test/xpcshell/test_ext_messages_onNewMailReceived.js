@@ -2,27 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
 var { AddonTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/AddonTestUtils.sys.mjs"
 );
-
-ExtensionTestUtils.mockAppInfo();
-AddonTestUtils.maybeInit(this);
-
-registerCleanupFunction(async () => {
-  // Remove the temporary MozillaMailnews folder, which is not deleted in time when
-  // the cleanupFunction registered by AddonTestUtils.maybeInit() checks for left over
-  // files in the temp folder.
-  // Note: PathUtils.tempDir points to the system temp folder, which is different.
-  const path = PathUtils.join(
-    Services.dirsvc.get("TmpD", Ci.nsIFile).path,
-    "MozillaMailnews"
-  );
-  await IOUtils.remove(path, { recursive: true });
-});
 
 // Function to start an event page extension (MV3), which can be called whenever
 // the main test is about to trigger an event. The extension terminates its
@@ -75,6 +62,23 @@ async function event_page_extension(eventName, actionCallback) {
   await ext.unload();
   return rv;
 }
+
+add_setup(async () => {
+  ExtensionTestUtils.mockAppInfo();
+  AddonTestUtils.maybeInit(this);
+
+  registerCleanupFunction(async () => {
+    // Remove the temporary MozillaMailnews folder, which is not deleted in time when
+    // the cleanupFunction registered by AddonTestUtils.maybeInit() checks for left over
+    // files in the temp folder.
+    // Note: PathUtils.tempDir points to the system temp folder, which is different.
+    const path = PathUtils.join(
+      Services.dirsvc.get("TmpD", Ci.nsIFile).path,
+      "MozillaMailnews"
+    );
+    await IOUtils.remove(path, { recursive: true });
+  });
+});
 
 add_task(async function test_onNewMailReceived_default() {
   await AddonTestUtils.promiseStartupManager();

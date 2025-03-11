@@ -8,7 +8,7 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
 
-add_setup(async function setup() {
+add_setup(async () => {
   // There are a couple of deprecated properties in MV3, which we still want to
   // test in MV2 but also report to the user. By default, tests throw when
   // deprecated properties are used.

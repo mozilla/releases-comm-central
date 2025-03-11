@@ -7,7 +7,8 @@
 var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
-var subFolders;
+
+let gSubFolders;
 
 add_task(
   {
@@ -16,19 +17,19 @@ add_task(
   async function setup() {
     const account = createAccount();
     const rootFolder = account.incomingServer.rootFolder;
-    subFolders = {
+    gSubFolders = {
       test1: await createSubfolder(rootFolder, "test1"),
       test2: await createSubfolder(rootFolder, "test2"),
       test3: await createSubfolder(rootFolder, "test3"),
       attachment: await createSubfolder(rootFolder, "attachment"),
     };
-    await createMessages(subFolders.test1, 5);
+    await createMessages(gSubFolders.test1, 5);
     const textAttachment = {
       body: "textAttachment",
       filename: "test.txt",
       contentType: "text/plain",
     };
-    await createMessages(subFolders.attachment, {
+    await createMessages(gSubFolders.attachment, {
       count: 1,
       subject: "Msg with text attachment",
       attachments: [textAttachment],
@@ -293,7 +294,7 @@ add_task(
     Services.obs.addObserver(observer, "attachment-delete-msgkey-changed");
 
     extension.onMessage("removeAttachment", () => {
-      const msgHdr = subFolders.attachment.messages.getNext();
+      const msgHdr = gSubFolders.attachment.messages.getNext();
       const msgUri = msgHdr.folder.getUriForMsg(msgHdr);
       const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
         Ci.nsIMessenger

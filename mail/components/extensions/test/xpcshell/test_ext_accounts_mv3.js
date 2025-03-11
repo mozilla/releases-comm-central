@@ -22,7 +22,7 @@ const OPENPGP_KEY_PATH = PathUtils.join(
   "alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
 );
 
-add_setup(async function setup() {
+add_setup(async () => {
   await OpenPGPTestUtils.initOpenPGP();
 });
 

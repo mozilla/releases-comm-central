@@ -1,5 +1,7 @@
-/* -*- Mode: indent-tabs-mode: nil; js-indent-level: 2 -*- */
-/* vim: set sts=2 sw=2 et tw=80: */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 "use strict";
 
 var { getCachedAllowedSpaces, setCachedAllowedSpaces } =
@@ -9,17 +11,17 @@ var { getCachedAllowedSpaces, setCachedAllowedSpaces } =
 var { storeState, getState } = ChromeUtils.importESModule(
   "resource:///modules/CustomizationState.mjs"
 );
-const { AddonManager } = ChromeUtils.importESModule(
+var { AddonManager } = ChromeUtils.importESModule(
   "resource://gre/modules/AddonManager.sys.mjs"
 );
 var { AddonTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/AddonTestUtils.sys.mjs"
 );
-const { TestUtils } = ChromeUtils.importESModule(
+var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
 
-const {
+var {
   createAppInfo,
   createHttpServer,
   createTempXPIFile,
@@ -30,24 +32,7 @@ const {
   promiseFindAddonUpdates,
 } = AddonTestUtils;
 
-// Prepare test environment to be able to load add-on updates.
-const PREF_EM_CHECK_UPDATE_SECURITY = "extensions.checkUpdateSecurity";
-Services.prefs.setBoolPref(PREF_EM_CHECK_UPDATE_SECURITY, false);
-
-const gProfD = do_get_profile();
-const profileDir = gProfD.clone();
-profileDir.append("extensions");
-const stageDir = profileDir.clone();
-stageDir.append("staged");
-
-const server = createHttpServer({
-  hosts: ["example.com"],
-});
-
-AddonTestUtils.init(this);
-AddonTestUtils.overrideCertDB();
-
-createAppInfo("xpcshell@tests.mozilla.org", "XPCShell", "1", "102");
+let gServer;
 
 async function enforceState(state) {
   const stateChangeObserved = TestUtils.topicObserved(
@@ -85,7 +70,7 @@ function check(testType, expectedCache, expectedMail, expectedCalendar) {
 }
 
 function addXPI(testType, thisVersion, nextVersion, browser_action) {
-  server.registerFile(
+  gServer.registerFile(
     `/addons/${testType}_v${thisVersion}.xpi`,
     createTempXPIFile({
       "manifest.json": {
@@ -122,7 +107,7 @@ function addUpdateJSON(testType, nextVersion) {
   const extensionId = `browser_action_spaces_${testType}@mochi.test`;
 
   AddonTestUtils.registerJSON(
-    server,
+    gServer,
     `/${testType}_updates_v${nextVersion}.json`,
     {
       addons: {
@@ -341,6 +326,26 @@ async function runTest(testType) {
 
   await promiseShutdownManager();
 }
+
+add_setup(async () => {
+  // Prepare test environment to be able to load add-on updates.
+  const PREF_EM_CHECK_UPDATE_SECURITY = "extensions.checkUpdateSecurity";
+  Services.prefs.setBoolPref(PREF_EM_CHECK_UPDATE_SECURITY, false);
+
+  const profileDir = do_get_profile().clone();
+  profileDir.append("extensions");
+  const stageDir = profileDir.clone();
+  stageDir.append("staged");
+
+  gServer = createHttpServer({
+    hosts: ["example.com"],
+  });
+
+  AddonTestUtils.init(this);
+  AddonTestUtils.overrideCertDB();
+
+  createAppInfo("xpcshell@tests.mozilla.org", "XPCShell", "1", "102");
+});
 
 add_task(async function test_normal_updates() {
   await runTest("normal");

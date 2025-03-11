@@ -240,7 +240,7 @@ add_task(
   },
   async function test_archive() {
     const account2 = createAccount();
-    account2.addIdentity(MailServices.accounts.createIdentity());
+    addIdentity(account2);
     const inbox2 = await createSubfolder(
       account2.incomingServer.rootFolder,
       "test"

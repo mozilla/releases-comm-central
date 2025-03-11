@@ -22,7 +22,7 @@ const OPENPGP_KEY_PATH = PathUtils.join(
   "alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
 );
 
-add_setup(async function setup() {
+add_setup(async () => {
   // There are a couple of deprecated properties in MV3, which we still want to
   // test in MV2 but also report to the user. By default, tests throw when
   // deprecated properties are used.

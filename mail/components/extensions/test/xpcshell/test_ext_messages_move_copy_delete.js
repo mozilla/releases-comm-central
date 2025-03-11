@@ -20,26 +20,6 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-ExtensionTestUtils.mockAppInfo();
-AddonTestUtils.maybeInit(this);
-
-Services.prefs.setBoolPref(
-  "mail.server.server1.autosync_offline_stores",
-  false
-);
-
-registerCleanupFunction(async () => {
-  // Remove the temporary MozillaMailnews folder, which is not deleted in time when
-  // the cleanupFunction registered by AddonTestUtils.maybeInit() checks for left over
-  // files in the temp folder.
-  // Note: PathUtils.tempDir points to the system temp folder, which is different.
-  const path = PathUtils.join(
-    Services.dirsvc.get("TmpD", Ci.nsIFile).path,
-    "MozillaMailnews"
-  );
-  await IOUtils.remove(path, { recursive: true });
-});
-
 // Function to start an event page extension (MV3), which can be called whenever
 // the main test is about to trigger an event. The extension terminates its
 // background and listens for that single event, verifying it is waking up correctly.
@@ -91,6 +71,28 @@ async function event_page_extension(eventName, actionCallback) {
   await ext.unload();
   return rv;
 }
+
+add_setup(async () => {
+  ExtensionTestUtils.mockAppInfo();
+  AddonTestUtils.maybeInit(this);
+
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
+
+  registerCleanupFunction(async () => {
+    // Remove the temporary MozillaMailnews folder, which is not deleted in time when
+    // the cleanupFunction registered by AddonTestUtils.maybeInit() checks for left over
+    // files in the temp folder.
+    // Note: PathUtils.tempDir points to the system temp folder, which is different.
+    const path = PathUtils.join(
+      Services.dirsvc.get("TmpD", Ci.nsIFile).path,
+      "MozillaMailnews"
+    );
+    await IOUtils.remove(path, { recursive: true });
+  });
+});
 
 add_task(
   {

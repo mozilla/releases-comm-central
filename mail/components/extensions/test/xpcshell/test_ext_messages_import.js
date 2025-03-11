@@ -14,6 +14,13 @@ var { MailStringUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailStringUtils.sys.mjs"
 );
 
+add_setup(async () => {
+  registerCleanupFunction(() => {
+    // Return to online mode at the end of the test.
+    Services.io.offline = true;
+  });
+});
+
 add_task(async function test_import() {
   const _account = createAccount();
   await createSubfolder(_account.incomingServer.rootFolder, "test1-offline");
@@ -147,9 +154,4 @@ add_task(async function test_import() {
   await extension.unload();
 
   cleanUpAccount(_account);
-});
-
-registerCleanupFunction(() => {
-  // Return to online mode at the end of the test.
-  Services.io.offline = true;
 });

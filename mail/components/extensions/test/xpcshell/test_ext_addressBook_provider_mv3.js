@@ -2,16 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
-
 var { AddonTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/AddonTestUtils.sys.mjs"
 );
 
-ExtensionTestUtils.mockAppInfo();
-AddonTestUtils.maybeInit(this);
+add_setup(async () => {
+  ExtensionTestUtils.mockAppInfo();
+  AddonTestUtils.maybeInit(this);
+
+  registerCleanupFunction(() => {
+    // Make sure any open database is given a chance to close.
+    Services.startup.advanceShutdownPhase(
+      Services.startup.SHUTDOWN_PHASE_APPSHUTDOWNCONFIRMED
+    );
+  });
+});
 
 add_task(async function () {
   await AddonTestUtils.promiseStartupManager();
@@ -194,11 +204,4 @@ END:VCARD`,
   await extension.unload();
   searchBook = MailServices.ab.getDirectoryFromUID(UID);
   Assert.equal(searchBook, null, "Extension directory removed after unload");
-});
-
-registerCleanupFunction(() => {
-  // Make sure any open database is given a chance to close.
-  Services.startup.advanceShutdownPhase(
-    Services.startup.SHUTDOWN_PHASE_APPSHUTDOWNCONFIRMED
-  );
 });

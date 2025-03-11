@@ -7,24 +7,25 @@
 var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
-
 var { AddonTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/AddonTestUtils.sys.mjs"
 );
 
-ExtensionTestUtils.mockAppInfo();
-AddonTestUtils.maybeInit(this);
+add_setup(async () => {
+  ExtensionTestUtils.mockAppInfo();
+  AddonTestUtils.maybeInit(this);
 
-registerCleanupFunction(async () => {
-  // Remove the temporary MozillaMailnews folder, which is not deleted in time when
-  // the cleanupFunction registered by AddonTestUtils.maybeInit() checks for left over
-  // files in the temp folder.
-  // Note: PathUtils.tempDir points to the system temp folder, which is different.
-  const path = PathUtils.join(
-    Services.dirsvc.get("TmpD", Ci.nsIFile).path,
-    "MozillaMailnews"
-  );
-  await IOUtils.remove(path, { recursive: true });
+  registerCleanupFunction(async () => {
+    // Remove the temporary MozillaMailnews folder, which is not deleted in time when
+    // the cleanupFunction registered by AddonTestUtils.maybeInit() checks for left over
+    // files in the temp folder.
+    // Note: PathUtils.tempDir points to the system temp folder, which is different.
+    const path = PathUtils.join(
+      Services.dirsvc.get("TmpD", Ci.nsIFile).path,
+      "MozillaMailnews"
+    );
+    await IOUtils.remove(path, { recursive: true });
+  });
 });
 
 // Test events and persistent events for Manifest V3 for onCreated, onRenamed,
@@ -124,7 +125,7 @@ add_task(
     // Create a test folder before terminating the background script, to make sure
     // everything is sane.
 
-    rootFolder.createSubfolder("TestFolder", null);
+    await createSubfolder(rootFolder, "TestFolder");
     await extension.awaitMessage("onCreated received");
     if (IS_IMAP) {
       // IMAP creates a default Trash folder on the fly.
@@ -134,7 +135,7 @@ add_task(
     // Create SubFolder1.
 
     {
-      rootFolder.createSubfolder("SubFolder1", null);
+      await createSubfolder(rootFolder, "SubFolder1");
       const createData = await extension.awaitMessage("onCreated received");
       Assert.deepEqual(
         [
@@ -161,8 +162,8 @@ add_task(
     {
       const primedChangeData = await event_page_extension(
         "onFolderInfoChanged",
-        () => {
-          rootFolder.createSubfolder("SubFolder3", null);
+        async () => {
+          await createSubfolder(rootFolder, "SubFolder3");
         }
       );
       const createData = await extension.awaitMessage("onCreated received");

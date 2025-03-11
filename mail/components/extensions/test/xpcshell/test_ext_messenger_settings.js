@@ -16,7 +16,7 @@ function clearUserPrefs() {
   Services.prefs.clearUserPref("mailnews.send_plaintext_flowed");
 }
 
-add_setup(function setup() {
+add_setup(async () => {
   // Start with defaults.
   clearUserPrefs();
   // Return to defaults at end of test.

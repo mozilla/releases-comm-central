@@ -7,24 +7,23 @@
 var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
-
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-
-ChromeUtils.defineESModuleGetters(this, {
-  AddrBookCard: "resource:///modules/AddrBookCard.sys.mjs",
-  AddrBookUtils: "resource:///modules/AddrBookUtils.sys.mjs",
-});
-
+var { AddrBookCard } = ChromeUtils.importESModule(
+  "resource:///modules/AddrBookCard.sys.mjs"
+);
+var { AddrBookUtils } = ChromeUtils.importESModule(
+  "resource:///modules/AddrBookUtils.sys.mjs"
+);
 var { AddonTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/AddonTestUtils.sys.mjs"
 );
 
-ExtensionTestUtils.mockAppInfo();
-AddonTestUtils.maybeInit(this);
-
 add_setup(async () => {
+  ExtensionTestUtils.mockAppInfo();
+  AddonTestUtils.maybeInit(this);
+
   Services.prefs.setIntPref("ldap_2.servers.osx.dirType", -1);
 
   registerCleanupFunction(() => {
@@ -1483,7 +1482,7 @@ add_task(async function test_photos() {
 
     const getDataUrl = function (file) {
       return new Promise((resolve, reject) => {
-        var reader = new FileReader();
+        const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = function () {
           resolve(reader.result);

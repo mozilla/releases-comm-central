@@ -14,7 +14,7 @@ var { SmartMailboxUtils } = ChromeUtils.importESModule(
   "resource:///modules/SmartMailboxUtils.sys.mjs"
 );
 
-add_setup(async function setup() {
+add_setup(async () => {
   const account1 = createAccount("pop3");
   const rootFolder1 = account1.incomingServer.rootFolder;
   const inbox1 = rootFolder1.subFolders.find(f => f.prettyName == "Inbox");

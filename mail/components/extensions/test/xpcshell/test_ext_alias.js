@@ -2,25 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 var { AddonTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/AddonTestUtils.sys.mjs"
 );
 var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
-// ExtensionContent.sys.mjs needs to know when it's running from xpcshell,
-// to use the right timeout for content scripts executed at document_idle.
-ExtensionTestUtils.mockAppInfo();
 
-AddonTestUtils.maybeInit(this);
-const server = AddonTestUtils.createHttpServer({ hosts: ["example.com"] });
+add_setup(async () => {
+  // ExtensionContent.sys.mjs needs to know when it's running from xpcshell,
+  // to use the right timeout for content scripts executed at document_idle.
+  ExtensionTestUtils.mockAppInfo();
 
-server.registerPathHandler("/dummy", (request, response) => {
-  response.setStatusLine(request.httpVersion, 200, "OK");
-  response.setHeader("Content-Type", "text/html", false);
-  response.write(
-    "<!DOCTYPE html><html><head><meta charset='utf8'></head><body></body></html>"
-  );
+  AddonTestUtils.maybeInit(this);
+  const server = AddonTestUtils.createHttpServer({ hosts: ["example.com"] });
+  server.registerPathHandler("/dummy", (request, response) => {
+    response.setStatusLine(request.httpVersion, 200, "OK");
+    response.setHeader("Content-Type", "text/html", false);
+    response.write(
+      "<!DOCTYPE html><html><head><meta charset='utf8'></head><body></body></html>"
+    );
+  });
 });
 
 add_task(async function test_alias() {

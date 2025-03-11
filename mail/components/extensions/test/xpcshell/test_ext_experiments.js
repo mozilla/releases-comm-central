@@ -8,6 +8,15 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
 
+add_setup(async () => {
+  registerCleanupFunction(() => {
+    // Make sure any open database is given a chance to close.
+    Services.startup.advanceShutdownPhase(
+      Services.startup.SHUTDOWN_PHASE_APPSHUTDOWNCONFIRMED
+    );
+  });
+});
+
 add_task(async function test_managers() {
   const account = createAccount();
   const folder = await createSubfolder(
@@ -285,11 +294,4 @@ add_task(async function test_managers() {
     Services.obs.addObserver(observer, "addrbook-directory-deleted");
     MailServices.ab.deleteAddressBook(book.URI);
   });
-});
-
-registerCleanupFunction(() => {
-  // Make sure any open database is given a chance to close.
-  Services.startup.advanceShutdownPhase(
-    Services.startup.SHUTDOWN_PHASE_APPSHUTDOWNCONFIRMED
-  );
 });
