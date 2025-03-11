@@ -35,23 +35,6 @@ var { makeWidgetId } = ExtensionCommon;
 // Persistent Listener test functionality
 var { assertPersistentListeners } = ExtensionTestUtils.testAssertions;
 
-// There are shutdown issues for which multiple rejections are left uncaught.
-// This bug should be fixed, but for the moment this directory is forcefully
-// allowed.
-//
-// NOTE: Allowing an entire directory should be kept to a minimum. Normally you
-//       should use "expectUncaughtRejection" to flag individual failures.
-const { PromiseTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/PromiseTestUtils.sys.mjs"
-);
-PromiseTestUtils.allowMatchingRejectionsGlobally(
-  /Message manager disconnected/
-);
-PromiseTestUtils.allowMatchingRejectionsGlobally(/No matching message handler/);
-PromiseTestUtils.allowMatchingRejectionsGlobally(
-  /Receiving end does not exist/
-);
-
 var { PromiseTestUtils: MailPromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
