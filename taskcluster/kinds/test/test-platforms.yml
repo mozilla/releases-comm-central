@@ -165,3 +165,10 @@ macosx1015-64-shippable-qr/opt:
 #     test-sets:
 #         - mochitest-tests
 #         - xpcshell-tests
+
+macosx1470-64-shippable/opt:
+    build-platform: macosx64-shippable/opt
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
