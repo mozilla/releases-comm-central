@@ -141,6 +141,7 @@ menupopup {
      * background to improve contrast */
     --arrowpanel-background: light-dark(rgba(255, 255, 255, 0.5), rgba(0, 0, 0, 0.5));
     --panel-border-color: transparent;
+    --panel-shadow-margin: 0;
   }
 }
 
