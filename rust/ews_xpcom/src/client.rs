@@ -392,12 +392,12 @@ impl XpComEwsClient {
                     }
 
                     sync_folder_items::Change::Delete { item_id } => {
-                        log::error!(
-                            "Attempt to Delete message with ID {id} - not yet supported",
-                            id = item_id.id
-                        );
+                        // The message id that was deleted
+                        let id = item_id.id;
 
-                        // TODO: Need to actually handle this rather than just logging error.
+                        // Delete the messages from the folder's database.
+                        let ews_id = nsCString::from(id);
+                        unsafe { callbacks.DeleteHeaderFromDB(&*ews_id) }.to_result()?;
                     }
 
                     sync_folder_items::Change::ReadFlagChange { item_id, is_read } => {

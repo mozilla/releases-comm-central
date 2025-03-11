@@ -155,6 +155,7 @@ interface IEwsFolderDeleteCallbacks : nsISupports
 interface IEwsMessageCallbacks : nsISupports
 {
   nsIMsgDBHdr createNewHeaderForItem(in AUTF8String ewsId);
+  void deleteHeaderFromDB(in AUTF8String ewsId);
   void commitHeader(in nsIMsgDBHdr hdr);
 
   void updateSyncState(in AUTF8String syncStateToken);

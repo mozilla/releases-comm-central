@@ -16,6 +16,9 @@ class EwsFolder : public nsMsgDBFolder {
 
   EwsFolder();
 
+  friend class MessageDeletionCallbacks;
+  friend class MessageOperationCallbacks;
+
  protected:
   virtual ~EwsFolder();
 
@@ -57,6 +60,13 @@ class EwsFolder : public nsMsgDBFolder {
                      nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD CompactAll(nsIUrlListener* aListener,
                         nsIMsgWindow* aMsgWindow) override;
+  /**
+   * Delete messages from the local database as well as any downloaded
+   * messages from the local message store.
+   *
+   * This method is intended to be used by friend classes.
+   */
+  nsresult LocalDeleteMessages(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages);
 
  private:
   bool mHasLoadedSubfolders;

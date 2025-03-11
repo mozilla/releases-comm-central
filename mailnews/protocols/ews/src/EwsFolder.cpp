@@ -98,47 +98,7 @@ class MessageDeletionCallbacks : public IEwsMessageDeleteCallbacks {
 NS_IMPL_ISUPPORTS(MessageDeletionCallbacks, IEwsMessageDeleteCallbacks)
 
 NS_IMETHODIMP MessageDeletionCallbacks::OnRemoteDeleteSuccessful() {
-  nsresult rv;
-
-  nsTArray<RefPtr<nsIMsgDBHdr>> offlineMessages;
-  nsTArray<nsMsgKey> msgKeys;
-
-  // Collect keys for messages which need deletion from our message listing. We
-  // also collect a list of messages for which we have a full local copy which
-  // needs deletion.
-  for (const auto& header : mHeaders) {
-    nsMsgKey msgKey;
-    rv = header->GetMessageKey(&msgKey);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    msgKeys.AppendElement(msgKey);
-
-    bool hasOffline;
-    rv = mFolder->HasMsgOffline(msgKey, &hasOffline);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (hasOffline) {
-      offlineMessages.AppendElement(header);
-    }
-  }
-
-  // Delete any locally-stored message from the store.
-  if (offlineMessages.Length()) {
-    nsCOMPtr<nsIMsgPluggableStore> store;
-    rv = mFolder->GetMsgStore(getter_AddRefs(store));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = store->DeleteMessages(offlineMessages);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  // Delete the message headers from the database. If a key in the array is
-  // unknown to the database, it's simply ignored.
-  nsCOMPtr<nsIMsgDatabase> db;
-  rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return db->DeleteMessages(msgKeys, nullptr);
+  return mFolder->LocalDeleteMessages(mHeaders);
 }
 
 NS_IMETHODIMP MessageDeletionCallbacks::OnError(IEwsClient::Error err,
@@ -199,6 +159,20 @@ NS_IMETHODIMP MessageOperationCallbacks::CreateNewHeaderForItem(
 
   newHeader.forget(_retval);
   return NS_OK;
+}
+
+NS_IMETHODIMP MessageOperationCallbacks::DeleteHeaderFromDB(
+    const nsACString& ewsId) {
+  // Delete the message headers from the database.
+  RefPtr<nsIMsgDatabase> db;
+  nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  RefPtr<nsIMsgDBHdr> existingHeader;
+  rv = db->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHeader));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return mFolder->LocalDeleteMessages({existingHeader});
 }
 
 NS_IMETHODIMP MessageOperationCallbacks::UpdateSyncState(
@@ -589,6 +563,51 @@ NS_IMETHODIMP EwsFolder::GetDeletable(bool* deletable) {
 
   *deletable = !(isServer || (mFlags & nsMsgFolderFlags::SpecialUse));
   return NS_OK;
+}
+
+nsresult EwsFolder::LocalDeleteMessages(
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& messages) {
+  nsresult rv;
+
+  nsTArray<RefPtr<nsIMsgDBHdr>> offlineMessages;
+  nsTArray<nsMsgKey> msgKeys;
+
+  // Collect keys for messages which need deletion from our message listing.
+  // We also collect a list of messages for which we have a full local copy
+  // which needs deletion.
+  for (const auto& message : messages) {
+    nsMsgKey msgKey;
+    rv = message->GetMessageKey(&msgKey);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    msgKeys.AppendElement(msgKey);
+
+    bool hasOffline;
+    rv = HasMsgOffline(msgKey, &hasOffline);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    if (hasOffline) {
+      offlineMessages.AppendElement(message);
+    }
+  }
+
+  // Delete any locally-stored message from the store.
+  if (offlineMessages.Length()) {
+    nsCOMPtr<nsIMsgPluggableStore> store;
+    rv = GetMsgStore(getter_AddRefs(store));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = store->DeleteMessages(offlineMessages);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // Delete the message headers from the database. If a key in the array is
+  // unknown to the database, it's simply ignored.
+  nsCOMPtr<nsIMsgDatabase> db;
+  rv = GetMsgDatabase(getter_AddRefs(db));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return db->DeleteMessages(msgKeys, nullptr);
 }
 
 NS_IMETHODIMP EwsFolder::CompactAll(nsIUrlListener* aListener,
