@@ -8,6 +8,9 @@ var { MailConsts } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+var { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
+);
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
@@ -172,8 +175,13 @@ async function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
   }
 }
 
-var IMAPServer = {
-  open(extensions = []) {
+var gIMAPServers = new Map();
+class IMAPServer {
+  constructor(options = {}) {
+    this.extensions = options?.extensions ?? [];
+  }
+
+  open() {
     const ImapD = ChromeUtils.importESModule(
       "resource://testing-common/mailnews/Imapd.sys.mjs"
     );
@@ -183,12 +191,11 @@ var IMAPServer = {
       "resource://testing-common/mailnews/Maild.sys.mjs"
     );
 
-    IMAPServer.ImapMessage = ImapMessage;
-
+    this.ImapMessage = ImapMessage;
     this.daemon = new ImapDaemon();
     this.server = new nsMailServer(daemon => {
       const handler = new IMAP_RFC3501_handler(daemon);
-      for (const ext of extensions) {
+      for (const ext of this.extensions) {
         mixinExtension(handler, ImapD[`IMAP_${ext}_extension`]);
       }
       return handler;
@@ -197,17 +204,17 @@ var IMAPServer = {
     this.server.start();
 
     registerCleanupFunction(() => this.close());
-  },
+  }
   close() {
     this.server.stop();
-  },
+  }
   get port() {
     return this.server.port;
-  },
+  }
 
   addMessages(folder, messages) {
     folder.QueryInterface(Ci.nsIMsgImapMailFolder);
-    const fakeFolder = IMAPServer.daemon.getMailbox(folder.prettyPath);
+    const fakeFolder = this.daemon.getMailbox(folder.prettyPath);
     messages.forEach(message => {
       if (typeof message != "string") {
         message = message.toMessageString();
@@ -215,7 +222,7 @@ var IMAPServer = {
       const msgURI = Services.io.newURI(
         "data:text/plain;base64," + btoa(message)
       );
-      const imapMsg = new IMAPServer.ImapMessage(
+      const imapMsg = new this.ImapMessage(
         msgURI.spec,
         fakeFolder.uidnext++,
         []
@@ -226,10 +233,10 @@ var IMAPServer = {
     const listener = new MailPromiseTestUtils.PromiseUrlListener();
     folder.updateFolderWithListener(null, listener);
     return listener.promise;
-  },
-};
+  }
+}
 
-function createAccount(type = "none") {
+function createAccount(type = "none", options = {}) {
   let account;
 
   if (type == "local") {
@@ -244,15 +251,14 @@ function createAccount(type = "none") {
   }
 
   if (type == "imap") {
-    // Create IMAP server which supports UIDPLUS, which is needed to be notified
-    // of finished message upload to update the message key (for example when
-    // deleting attachments).
-    IMAPServer.open(["RFC4315"]);
-    account.incomingServer.port = IMAPServer.port;
+    const server = new IMAPServer(options);
+    server.open();
+    account.incomingServer.port = server.port;
     account.incomingServer.username = "user";
     account.incomingServer.password = "password";
     const inbox = account.incomingServer.rootFolder.getChildNamed("INBOX");
     inbox.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter = "/";
+    gIMAPServers.set(account.incomingServer.key, server);
   }
 
   info(`Created account ${account.toString()}`);
@@ -314,14 +320,17 @@ async function createMessages(folder, makeMessagesArg) {
   const messages =
     createMessages.messageGenerator.makeMessages(makeMessagesArg);
 
-  if (folder.server.type == "imap") {
-    return IMAPServer.addMessages(folder, messages);
+  if (folder.server.type == "imap" && gIMAPServers.has(folder.server.key)) {
+    return gIMAPServers.get(folder.server.key).addMessages(folder, messages);
   }
 
   const messageStrings = messages.map(message => message.toMessageString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch(messageStrings);
-  return Promise.resolve();
+
+  return new Promise(resolve =>
+    mailTestUtils.updateFolderAndNotify(folder, resolve)
+  );
 }
 
 async function createMessageFromFile(folder, path) {
@@ -332,9 +341,17 @@ async function createMessageFromFile(folder, path) {
   const fromAddress = message.match(/From: .* <(.*@.*)>/)[0];
   message = `From ${fromAddress}\r\n${message}`;
 
+  if (folder.server.type == "imap" && gIMAPServers.has(folder.server.key)) {
+    return gIMAPServers.get(folder.server.key).addMessages(folder, [message]);
+  }
+
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch([message]);
   folder.callFilterPlugins(null);
+
+  return new Promise(resolve =>
+    mailTestUtils.updateFolderAndNotify(folder, resolve)
+  );
 }
 
 async function promiseAnimationFrame(win = window) {
@@ -398,11 +415,7 @@ function awaitBrowserLoaded(browser, wantLoad) {
   );
 }
 
-var awaitExtensionPanel = async function (
-  extension,
-  win = window,
-  awaitLoad = true
-) {
+async function awaitExtensionPanel(extension, win = window, awaitLoad = true) {
   const { originalTarget: browser } = await BrowserTestUtils.waitForEvent(
     win.document,
     "WebExtPopupLoaded",
@@ -415,7 +428,7 @@ var awaitExtensionPanel = async function (
   }
   await BrowserTestUtils.waitForPopupEvent(getPanelForNode(browser), "shown");
   return browser;
-};
+}
 
 function getBrowserActionPopup(extension, win = window) {
   return win.top.document.getElementById("webextension-remote-preload-panel");
