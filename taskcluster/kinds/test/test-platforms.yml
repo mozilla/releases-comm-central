@@ -15,6 +15,7 @@
 # should be performed in the target task selection phase of task-graph
 # generation.
 
+##
 # Linux platforms (matching /linux.*/)
 
 linux1804-64-qr/opt:
@@ -60,26 +61,11 @@ linux1804-64-ccov-qr/opt:
         - mochitest-tests
         - xpcshell-tests
 
-# Windows platforms (matching /windows.*/)
+##
+# Windows platforms (matching /windows.*/) 24H2 (no -qr)
 
-# windows 11 - 32bit
-windows11-32-2009-qr/opt:
-    build-platform: win32/opt
-    build-signing-label: build-signing-win32/opt
-    test-sets:
-        - gtest-tests
-        - mochitest-tests
-        - xpcshell-tests
-
-windows11-32-2009-shippable-qr/opt:
-    build-platform: win32-shippable/opt
-    build-signing-label: build-signing-win32-shippable/opt
-    test-sets:
-        - gtest-tests
-        - mochitest-tests
-        - xpcshell-tests
-
-windows11-32-2009-qr/debug:
+# Windows 11 - 32bit - 24H2
+windows11-32-24h2/debug:
     build-platform: win32/debug
     build-signing-label: build-signing-win32/debug
     test-sets:
@@ -87,40 +73,24 @@ windows11-32-2009-qr/debug:
         - mochitest-tests
         - xpcshell-tests
 
-# windows 11 - 64bit
-windows11-64-2009-ccov-qr/opt:
-    build-platform: win64-ccov/opt
-    build-signing-label: build-signing-win64-ccov/opt
-    test-sets:
-        - marionette-tests
-        - mochitest-tests
-        - xpcshell-tests
-
-windows11-64-2009-qr/opt:
-    build-platform: win64/opt
-    build-signing-label:
-        by-variant:
-            msix: repackage-signing-msix-win64/opt
-            default: build-signing-win64/opt
+windows11-32-24h2/opt:
+    build-platform: win32/opt
+    build-signing-label: build-signing-win32/opt
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
-windows11-64-2009-shippable-qr/opt:
-    build-platform: win64-shippable/opt
-    build-signing-label:
-        by-variant:
-            msix: repackage-signing-shippable-l10n-msix-win64-shippable/opt
-            default: build-signing-win64-shippable/opt
+windows11-32-24h2-shippable/opt:
+    build-platform: win32-shippable/opt
+    build-signing-label: build-signing-win32-shippable/opt
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
-windows11-64-2009-qr/debug:
+# Windows 11 - 64bit - 24H2
+windows11-64-24h2/debug:
     build-platform: win64/debug
     build-signing-label:
         by-variant:
@@ -132,11 +102,44 @@ windows11-64-2009-qr/debug:
         - mochitest-tests
         - xpcshell-tests
 
-windows11-64-2009-asan-qr/opt:
+windows11-64-24h2/opt:
+    build-platform: win64/opt
+    build-signing-label:
+        by-variant:
+            msix: repackage-signing-msix-win64/opt
+            default: build-signing-win64/opt
+    test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+windows11-64-24h2-shippable/opt:
+    build-platform: win64-shippable/opt
+    build-signing-label:
+        by-variant:
+            msix: repackage-signing-shippable-l10n-msix-win64-shippable/opt
+            default: build-signing-win64-shippable/opt
+    test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+windows11-64-24h2-ccov/opt:
+    build-platform: win64-ccov/opt
+    build-signing-label: build-signing-win64-ccov/opt
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+windows11-64-24h2-asan/opt:
     build-platform: win64-asan/opt
     test-sets:
         - mochitest-tests
 
+##
 # MacOS X platforms (matching /macosx.*/)
 
 macosx1015-64-qr/opt:

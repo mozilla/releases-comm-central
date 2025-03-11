@@ -49,7 +49,7 @@ xpcshell:
             default: 5
     worker-type:
         by-test-platform:
-            windows11-64-2009-ccov-qr/opt: win11-64-2009-ssd
+            windows11-64-24h2-ccov/opt: win11-64-24h2-ssd
             default: default
     instance-size: default
     max-run-time:
@@ -83,7 +83,7 @@ xpcshell:
                 default: []
         requires-signed-builds:
             by-test-platform:
-                windows1.-64-asan-qr/opt: false
+                windows1.-64.*-asan/opt: false
                 windows.*: true
                 default: false
     fetches:
@@ -154,7 +154,7 @@ mochitest-thunderbird:
         by-test-platform:
             linux.*64-asan.*/opt: 16
             linux.*64-tsan.*/opt: 15
-            windows1.-64-asan.*/opt: 9
+            windows1.-64.*-asan.*/opt: 9
             windows1.*-ccov.*/.*: 9
             default: 7
     mozharness:
@@ -174,7 +174,7 @@ mochitest-thunderbird:
                     - unittests/thunderbird_extra.py
     worker-type:
         by-test-platform:
-            windows11-64-2009-ccov-qr/opt: win11-64-2009-ssd
+            windows11-64-24h2-ccov/opt: win11-64-24h2-ssd
             default: default
     instance-size:
         by-test-platform:

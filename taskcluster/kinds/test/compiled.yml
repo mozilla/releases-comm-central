@@ -25,7 +25,11 @@ gtest:
     description: "GTests run"
     suite: gtest
     treeherder-symbol: GTest
-    instance-size: xlarge-noscratch
+    instance-size:
+        by-test-platform:
+            linux.*: xlarge-noscratch
+            windows.*asan.*: xlarge
+            default: default
     run-on-projects:
         by-test-platform:
             macosx.*: []  # currently fails on macOS
