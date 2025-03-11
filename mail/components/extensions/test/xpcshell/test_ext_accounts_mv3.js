@@ -318,10 +318,6 @@ add_task(async function test_accounts() {
 
   await extension.awaitMessage("create account 2");
   const account2 = createAccount("imap");
-  IMAPServer.open();
-  account2.incomingServer.port = IMAPServer.port;
-  account2.incomingServer.username = "user";
-  account2.incomingServer.password = "password";
   MailServices.accounts.defaultAccount = account2;
   extension.sendMessage(account2.key, account2.incomingServer.prettyName);
 
