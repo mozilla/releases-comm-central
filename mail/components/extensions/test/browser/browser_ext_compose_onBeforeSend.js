@@ -2,22 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 var { ExtensionSupport } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSupport.sys.mjs"
 );
 
-const gAccount = createAccount();
-addIdentity(gAccount);
-addIdentity(gAccount, "nondefault@invalid");
-
-// A local outbox is needed so we can use "send later".
-const localAccount = createAccount("local");
-const outbox = localAccount.incomingServer.rootFolder.getChildNamed("outbox");
-
 function messagesInOutbox(count) {
   info(`Checking for ${count} messages in outbox`);
 
-  count -= [...outbox.messages].length;
+  count -= [...gOutbox.messages].length;
   if (count <= 0) {
     return Promise.resolve();
   }
@@ -37,6 +31,18 @@ function messagesInOutbox(count) {
     );
   });
 }
+
+let gAccount, gOutbox;
+
+add_setup(async () => {
+  gAccount = createAccount();
+  addIdentity(gAccount);
+  addIdentity(gAccount, "nondefault@invalid");
+
+  // A local outbox is needed so we can use "send later".
+  const localAccount = createAccount("local");
+  gOutbox = localAccount.incomingServer.rootFolder.getChildNamed("outbox");
+});
 
 add_task(async function testCancel() {
   const files = {
@@ -415,7 +421,7 @@ add_task(async function testChangeDetails() {
 
   await messagesInOutbox(2);
 
-  const outboxMessages = [...outbox.messages];
+  const outboxMessages = [...gOutbox.messages];
   Assert.greater(outboxMessages.length, 0);
   const sentMessage5 = outboxMessages.shift();
   is(sentMessage5.author, "nondefault@invalid", "author was changed");
@@ -455,7 +461,7 @@ add_task(async function testChangeDetails() {
   Assert.equal(outboxMessages.length, 0);
 
   await new Promise(resolve => {
-    outbox.deleteMessages(
+    gOutbox.deleteMessages(
       [sentMessage5, sentMessage6],
       null,
       true,
@@ -544,7 +550,7 @@ add_task(async function testChangeAttachments() {
 
   await messagesInOutbox(1);
 
-  const outboxMessages = [...outbox.messages];
+  const outboxMessages = [...gOutbox.messages];
   Assert.greater(outboxMessages.length, 0);
   const sentMessage12 = outboxMessages.shift();
 
@@ -561,7 +567,7 @@ add_task(async function testChangeAttachments() {
   Assert.equal(outboxMessages.length, 0);
 
   await new Promise(resolve => {
-    outbox.deleteMessages(
+    gOutbox.deleteMessages(
       [sentMessage12],
       null,
       true,
@@ -723,7 +729,7 @@ add_task(async function testListExpansion() {
 
   await messagesInOutbox(2);
 
-  const outboxMessages = [...outbox.messages];
+  const outboxMessages = [...gOutbox.messages];
   Assert.greater(outboxMessages.length, 0);
   const sentMessage7 = outboxMessages.shift();
   is(sentMessage7.subject, "Changed by listener7", "subject was changed");
@@ -750,7 +756,7 @@ add_task(async function testListExpansion() {
   Assert.equal(outboxMessages.length, 0);
 
   await new Promise(resolve => {
-    outbox.deleteMessages(
+    gOutbox.deleteMessages(
       [sentMessage7, sentMessage8],
       null,
       true,
@@ -879,7 +885,7 @@ add_task(async function testMultipleListeners() {
 
   await messagesInOutbox(1);
 
-  const outboxMessages = [...outbox.messages];
+  const outboxMessages = [...gOutbox.messages];
   Assert.ok(outboxMessages.length > 0);
   const sentMessage = outboxMessages.shift();
   Assert.equal(
@@ -896,7 +902,7 @@ add_task(async function testMultipleListeners() {
   Assert.ok(outboxMessages.length == 0);
 
   await new Promise(resolve => {
-    outbox.deleteMessages(
+    gOutbox.deleteMessages(
       [sentMessage],
       null,
       true,

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 // Load subscript shared with all menu tests.
 Services.scriptloader.loadSubScript(
   new URL("head_menus.js", gTestPath).href,
@@ -9,13 +11,14 @@ Services.scriptloader.loadSubScript(
 );
 
 let gAccount, gFolders, gMessage;
+
 add_setup(async () => {
   await Services.search.init();
 
   gAccount = createAccount();
   addIdentity(gAccount);
   gFolders = gAccount.incomingServer.rootFolder.subFolders;
-  createMessages(gFolders[0], {
+  await createMessages(gFolders[0], {
     count: 1,
     body: {
       contentType: "text/html",

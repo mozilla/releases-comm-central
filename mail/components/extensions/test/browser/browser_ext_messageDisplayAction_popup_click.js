@@ -2,18 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account;
-let messages;
-const tabmail = document.getElementById("tabmail");
+"use strict";
+
+let gAccount, gMessages, gDefaultTabmail;
 
 add_setup(async () => {
-  account = createAccount();
-  const rootFolder = account.incomingServer.rootFolder;
+  gAccount = createAccount();
+  const rootFolder = gAccount.incomingServer.rootFolder;
   const subFolders = rootFolder.subFolders;
-  createMessages(subFolders[0], 10);
-  messages = subFolders[0].messages;
+  await createMessages(subFolders[0], 10);
+  gMessages = subFolders[0].messages;
 
-  const about3Pane = tabmail.currentAbout3Pane;
+  gDefaultTabmail = document.getElementById("tabmail");
+  const about3Pane = gDefaultTabmail.currentAbout3Pane;
   about3Pane.restoreState({
     folderPaneVisible: true,
     folderURI: subFolders[0],
@@ -32,7 +33,7 @@ add_task(async function test_popup_open_with_click() {
     const testConfig = {
       actionType: "message_display_action",
       testType: "open-with-mouse-click",
-      window: tabmail.currentAboutMessage,
+      window: gDefaultTabmail.currentAboutMessage,
     };
 
     await run_popup_test({
@@ -50,11 +51,11 @@ add_task(async function test_popup_open_with_click() {
 
   info("Message tab");
   {
-    await openMessageInTab(messages.getNext());
+    await openMessageInTab(gMessages.getNext());
     const testConfig = {
       actionType: "message_display_action",
       testType: "open-with-mouse-click",
-      window: tabmail.currentAboutMessage,
+      window: gDefaultTabmail.currentAboutMessage,
     };
 
     await run_popup_test({
@@ -74,7 +75,7 @@ add_task(async function test_popup_open_with_click() {
 
   info("Message window");
   {
-    const messageWindow = await openMessageInWindow(messages.getNext());
+    const messageWindow = await openMessageInWindow(gMessages.getNext());
     const testConfig = {
       actionType: "message_display_action",
       testType: "open-with-mouse-click",
@@ -291,7 +292,7 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
     },
   });
 
-  const messageWindow = await openMessageInWindow(messages.getNext());
+  const messageWindow = await openMessageInWindow(gMessages.getNext());
 
   extension.onMessage("popup opened", async windowId => {
     const window = Services.wm.getOuterWindowWithId(windowId);

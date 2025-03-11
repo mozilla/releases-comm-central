@@ -1,5 +1,7 @@
-/* -*- Mode: indent-tabs-mode: nil; js-indent-level: 2 -*- */
-/* vim: set sts=2 sw=2 et tw=80: */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 "use strict";
 
 async function testExecuteBrowserActionWithOptions_mv2(options = {}) {
@@ -101,7 +103,7 @@ async function testExecuteBrowserActionWithOptions_mv2(options = {}) {
   await extension.unload();
 }
 
-add_setup(() => {
+add_setup(async () => {
   // This test uses default_area in an anction manifest, to ensure we do not
   // throw but simply ignore this property, which is used by Firefox, but not by
   // us. However, by default, tests throw when deprecated properties are used,

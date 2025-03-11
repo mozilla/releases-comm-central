@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 "use strict";
 
 function getVisibleChildrenIds(menuElem) {
@@ -601,7 +602,7 @@ add_task(
     addIdentity(account);
     const rootFolder = account.incomingServer.rootFolder;
     const subFolders = rootFolder.subFolders;
-    createMessages(subFolders[0], 10);
+    await createMessages(subFolders[0], 10);
 
     const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
     about3Pane.displayFolder(subFolders[0]);
@@ -622,7 +623,7 @@ add_task(
     addIdentity(account);
     const rootFolder = account.incomingServer.rootFolder;
     const subFolders = rootFolder.subFolders;
-    createMessages(subFolders[0], 10);
+    await createMessages(subFolders[0], 10);
     const messages = subFolders[0].messages;
 
     const messageWindow = await openMessageInWindow(messages.getNext());
@@ -641,7 +642,7 @@ add_task(
     addIdentity(account);
     const rootFolder = account.incomingServer.rootFolder;
     const subFolders = rootFolder.subFolders;
-    createMessages(subFolders[0], 10);
+    await createMessages(subFolders[0], 10);
     const messages = subFolders[0].messages;
 
     await openMessageInTab(messages.getNext());

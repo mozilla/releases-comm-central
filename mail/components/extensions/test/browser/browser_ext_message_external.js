@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var gAccount;
-var gFolder;
+"use strict";
 
-add_setup(() => {
+let gAccount, gFolder;
+
+add_setup(async () => {
   gAccount = createAccount();
   const rootFolder = gAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test0", null);
-  gFolder = rootFolder.getChildNamed("test0");
-  createMessages(gFolder, 5);
+  gFolder = await createSubfolder(rootFolder, "test0");
+  await createMessages(gFolder, 5);
 });
 
 add_task(async function testExternalMessage() {

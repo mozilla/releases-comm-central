@@ -2,14 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+"use strict";
 
-let gMessages;
+let gMessages, gDefaultAbout3Pane;
+
 add_setup(async () => {
   const account = createAccount();
   const rootFolder = account.incomingServer.rootFolder;
   const subFolders = rootFolder.subFolders;
-  createMessages(subFolders[0], 10);
+  await createMessages(subFolders[0], 10);
 
   // Modify the messages so the filters can be checked against them.
 
@@ -20,7 +21,8 @@ add_setup(async () => {
   gMessages.at(-7).markRead(true);
   gMessages.at(-9).markRead(true);
 
-  about3Pane.displayFolder(subFolders[0]);
+  gDefaultAbout3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  gDefaultAbout3Pane.displayFolder(subFolders[0]);
 });
 
 add_task(async () => {
@@ -107,7 +109,7 @@ add_task(async () => {
 
   extension.onMessage("checkVisible", async expected => {
     const actual = [];
-    const dbView = about3Pane.gDBView;
+    const dbView = gDefaultAbout3Pane.gDBView;
     for (let i = 0; i < dbView.rowCount; i++) {
       actual.push(gMessages.indexOf(dbView.getMsgHdrAt(i)));
     }
@@ -118,7 +120,7 @@ add_task(async () => {
 
   extension.onMessage("checkVisibleSubjects", async expected => {
     const actual = [];
-    const dbView = about3Pane.gDBView;
+    const dbView = gDefaultAbout3Pane.gDBView;
     for (let i = 0; i < dbView.rowCount; i++) {
       actual.push(dbView.getMsgHdrAt(i).subject);
     }

@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 "use strict";
 
 // This test checks whether browser.theme.onUpdated works
@@ -9,7 +13,7 @@ const BACKGROUND =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0" +
   "DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
 
-add_setup(() => {
+add_setup(async () => {
   // Reduce animations to prevent intermittent fails due to late theme changes.
   Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
   registerCleanupFunction(() => {

@@ -2,24 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var gAccount;
-var gMessages;
-var gFolder;
-var gAbout3Pane;
+"use strict";
+
+let gAccount, gMessages, gFolder, gDefaultAbout3Pane;
 
 add_setup(async () => {
   gAccount = createAccount();
   const rootFolder = gAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test0", null);
+  await createSubfolder(rootFolder, "test0");
 
   const subFolders = {};
   for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test0, {
+  await createMessages(subFolders.test0, {
     count: 1,
   });
-  createMessages(subFolders.test0, {
+  await createMessages(subFolders.test0, {
     count: 3,
     msgsPerThread: 3,
   });
@@ -29,9 +28,9 @@ add_setup(async () => {
 
   await ensure_table_view();
 
-  gAbout3Pane = document.getElementById("tabmail").currentAbout3Pane;
-  gAbout3Pane.displayFolder(gFolder);
-  gAbout3Pane.threadTree.selectedIndex = 0;
+  gDefaultAbout3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  gDefaultAbout3Pane.displayFolder(gFolder);
+  gDefaultAbout3Pane.threadTree.selectedIndex = 0;
 });
 
 /**
@@ -310,13 +309,15 @@ add_task(async function test_context_click_in_threadpane() {
   });
 
   extension.onMessage("click on message", rowNr => {
-    const row = gAbout3Pane.document.getElementById(`threadTree-row${rowNr}`);
+    const row = gDefaultAbout3Pane.document.getElementById(
+      `threadTree-row${rowNr}`
+    );
     Assert.ok(!!row, `Should find row${rowNr}`);
-    EventUtils.synthesizeMouseAtCenter(row, {}, gAbout3Pane);
+    EventUtils.synthesizeMouseAtCenter(row, {}, gDefaultAbout3Pane);
   });
 
   extension.onMessage("context-click on message", async rowNr => {
-    const menu = gAbout3Pane.document.getElementById("mailContext");
+    const menu = gDefaultAbout3Pane.document.getElementById("mailContext");
     Assert.ok(!!menu, `Should find menu "mailContext"`);
     Assert.equal(
       "closed",
@@ -324,12 +325,14 @@ add_task(async function test_context_click_in_threadpane() {
       `The menu "mailContext" should still be closed`
     );
 
-    const row = gAbout3Pane.document.getElementById(`threadTree-row${rowNr}`);
+    const row = gDefaultAbout3Pane.document.getElementById(
+      `threadTree-row${rowNr}`
+    );
     Assert.ok(!!row, `Should find row${rowNr}`);
     EventUtils.synthesizeMouseAtCenter(
       row,
       { type: "contextmenu" },
-      gAbout3Pane
+      gDefaultAbout3Pane
     );
     await BrowserTestUtils.waitForPopupEvent(menu, "shown");
     Assert.equal("open", menu.state, `The menu "mailContext" should be open`);
@@ -338,7 +341,7 @@ add_task(async function test_context_click_in_threadpane() {
   });
 
   extension.onMessage("close-context-menu", () => {
-    const menu = gAbout3Pane.document.getElementById("mailContext");
+    const menu = gDefaultAbout3Pane.document.getElementById("mailContext");
     Assert.ok(!!menu, `Should find menu "mailContext"`);
     Assert.equal(
       "open",

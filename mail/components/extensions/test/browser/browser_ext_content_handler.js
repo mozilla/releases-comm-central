@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 const getCommonFiles = async () => {
   return {
     "utils.js": await getUtilsJS(),
@@ -144,13 +146,13 @@ const subtest_clickInBrowser = async (extension, getBrowser) => {
 add_setup(async () => {
   const account = createAccount();
   const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test0", null);
+  await createSubfolder(rootFolder, "test0");
 
   const subFolders = {};
   for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test0, 5);
+  await createMessages(subFolders.test0, 5);
 
   const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(subFolders.test0.URI);

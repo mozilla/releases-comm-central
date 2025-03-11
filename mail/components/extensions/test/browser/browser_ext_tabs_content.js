@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 /**
  * Common core of the test. This is complicated by how WebExtensions tests work.
  *
@@ -126,10 +128,10 @@ add_task(async function testFirstTab() {
     return tabmail.currentTabInfo.browser;
   }
 
-  const gAccount = createAccount();
+  const account = createAccount();
   tabmail.currentAbout3Pane.restoreState({
     folderPaneVisible: true,
-    folderURI: gAccount.incomingServer.rootFolder.subFolders[0].URI,
+    folderURI: account.incomingServer.rootFolder.subFolders[0].URI,
   });
 
   return subTest(createTab, getBrowser, false);

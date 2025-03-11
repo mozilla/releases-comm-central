@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals getUtilsJS, contentTabOpenPromise, makeIconSet, closeMenuPopup */
-
 "use strict";
+
+/* globals getUtilsJS, contentTabOpenPromise, makeIconSet, closeMenuPopup */
 
 /**
  * Helper Function, creates a test extension to verify expected button states.

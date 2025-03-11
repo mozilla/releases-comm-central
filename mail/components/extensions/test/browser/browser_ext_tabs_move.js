@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 add_setup(async () => {
   const account = createAccount();
   const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("testFolder", null);
-  await createMessages(rootFolder.getChildNamed("testFolder"), 5);
+  const testFolder = await createSubfolder(rootFolder, "testFolder");
+  await createMessages(testFolder, 5);
 });
 
 add_task(async function test_tabs_move() {

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 add_setup(async () => {
   // Create IMAP server which supports UIDPLUS, which is needed to be notified
   // of finished message upload to update the message key (for example when

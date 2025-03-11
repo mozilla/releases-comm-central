@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { MockRegistrar } = ChromeUtils.importESModule(
+"use strict";
+
+var { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
@@ -10,7 +12,7 @@ const { MockRegistrar } = ChromeUtils.importESModule(
 // the correct url is being handled and to test the correct tab behavior.
 
 /** @implements {nsIExternalProtocolService} */
-const mockExternalProtocolService = {
+const MockExternalProtocolService = {
   _loadedURLs: [],
   externalProtocolHandlerExists() {
     // Signal that we have an external app for this protocol.
@@ -33,28 +35,26 @@ const mockExternalProtocolService = {
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };
 
-var gAccount;
-var gMessages;
-var gFolder;
+let gAccount, gMessages, gFolder;
 
-add_setup(() => {
+add_setup(async () => {
   gAccount = createAccount();
   addIdentity(gAccount);
   const rootFolder = gAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test0", null);
+  await createSubfolder(rootFolder, "test0");
 
   const subFolders = {};
   for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test0, 5);
+  await createMessages(subFolders.test0, 5);
 
   gFolder = subFolders.test0;
   gMessages = [...subFolders.test0.messages];
 
   const mockExternalProtocolServiceCID = MockRegistrar.register(
     "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
+    MockExternalProtocolService
   );
   registerCleanupFunction(() => {
     MockRegistrar.unregister(mockExternalProtocolServiceCID);
@@ -382,15 +382,15 @@ add_task(async function testUpdateTabs_with_application_chooser() {
 
   extension.onMessage("check_external_loaded_url", async expected => {
     await TestUtils.waitForCondition(
-      () => mockExternalProtocolService._loadedURLs.length == 1,
+      () => MockExternalProtocolService._loadedURLs.length == 1,
       "Should have found a single loaded url"
     );
     Assert.equal(
-      mockExternalProtocolService._loadedURLs[0],
+      MockExternalProtocolService._loadedURLs[0],
       expected,
       "Should have found the expected url"
     );
-    mockExternalProtocolService._loadedURLs = [];
+    MockExternalProtocolService._loadedURLs = [];
     extension.sendMessage();
   });
 
@@ -400,7 +400,7 @@ add_task(async function testUpdateTabs_with_application_chooser() {
 
   Assert.equal(
     0,
-    mockExternalProtocolService._loadedURLs.length,
+    MockExternalProtocolService._loadedURLs.length,
     "Should not have any unexpected urls loaded externally"
   );
 });
@@ -451,15 +451,15 @@ add_task(async function testCreateTabs_with_application_chooser() {
 
   extension.onMessage("check_external_loaded_url", async expected => {
     await TestUtils.waitForCondition(
-      () => mockExternalProtocolService._loadedURLs.length == 1,
+      () => MockExternalProtocolService._loadedURLs.length == 1,
       "Should have found a single loaded url"
     );
     Assert.equal(
-      mockExternalProtocolService._loadedURLs[0],
+      MockExternalProtocolService._loadedURLs[0],
       expected,
       "Should have found the expected url"
     );
-    mockExternalProtocolService._loadedURLs = [];
+    MockExternalProtocolService._loadedURLs = [];
     extension.sendMessage();
   });
 
@@ -469,7 +469,7 @@ add_task(async function testCreateTabs_with_application_chooser() {
 
   Assert.equal(
     0,
-    mockExternalProtocolService._loadedURLs.length,
+    MockExternalProtocolService._loadedURLs.length,
     "Should not have any unexpected urls loaded externally"
   );
 });

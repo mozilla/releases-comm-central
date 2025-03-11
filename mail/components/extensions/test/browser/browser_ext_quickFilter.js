@@ -2,38 +2,39 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let messages;
-const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+"use strict";
+
+let gMessages, gDefaultAbout3Pane;
 
 add_setup(async () => {
   const account = createAccount();
   const rootFolder = account.incomingServer.rootFolder;
   const subFolders = rootFolder.subFolders;
-  createMessages(subFolders[0], 10);
+  await createMessages(subFolders[0], 10);
 
   // Modify the messages so the filters can be checked against them.
 
-  messages = [...subFolders[0].messages];
-  messages.at(-1).markRead(true);
-  messages.at(-3).markRead(true);
-  messages.at(-5).markRead(true);
-  messages.at(-7).markRead(true);
-  messages.at(-9).markRead(true);
-  messages.at(-2).markFlagged(true);
-  messages.at(-7).markFlagged(true);
-  messages.at(-1).setStringProperty("keywords", "$label1");
-  messages.at(-2).setStringProperty("keywords", "$label2");
-  messages.at(-4).setStringProperty("keywords", "$label1 $label2");
-  messages.at(-6).setStringProperty("keywords", "$label2");
-  messages.at(-7).setStringProperty("keywords", "$label1");
-  messages.at(-8).setStringProperty("keywords", "$label2 $label3");
-  messages.at(-9).setStringProperty("keywords", "$label3");
-  messages.at(0).setStringProperty("keywords", "$label1 $label2 $label3");
-  messages.at(0).markHasAttachments(true);
+  gMessages = [...subFolders[0].messages];
+  gMessages.at(-1).markRead(true);
+  gMessages.at(-3).markRead(true);
+  gMessages.at(-5).markRead(true);
+  gMessages.at(-7).markRead(true);
+  gMessages.at(-9).markRead(true);
+  gMessages.at(-2).markFlagged(true);
+  gMessages.at(-7).markFlagged(true);
+  gMessages.at(-1).setStringProperty("keywords", "$label1");
+  gMessages.at(-2).setStringProperty("keywords", "$label2");
+  gMessages.at(-4).setStringProperty("keywords", "$label1 $label2");
+  gMessages.at(-6).setStringProperty("keywords", "$label2");
+  gMessages.at(-7).setStringProperty("keywords", "$label1");
+  gMessages.at(-8).setStringProperty("keywords", "$label2 $label3");
+  gMessages.at(-9).setStringProperty("keywords", "$label3");
+  gMessages.at(0).setStringProperty("keywords", "$label1 $label2 $label3");
+  gMessages.at(0).markHasAttachments(true);
 
   // Add an author to the address book.
 
-  const author = messages.at(-8).author.replace(/["<>]/g, "").split(" ");
+  const author = gMessages.at(-8).author.replace(/["<>]/g, "").split(" ");
   const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
@@ -44,7 +45,8 @@ add_setup(async () => {
   const ab = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
   const addedCard = ab.addCard(card);
 
-  about3Pane.displayFolder(subFolders[0]);
+  gDefaultAbout3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  gDefaultAbout3Pane.displayFolder(subFolders[0]);
 
   registerCleanupFunction(() => {
     ab.deleteCards([addedCard]);
@@ -117,13 +119,13 @@ add_task(async () => {
 
   extension.onMessage("checkVisible", async (...expected) => {
     await TestUtils.waitForCondition(
-      () => about3Pane.dbViewWrapperListener.allMessagesLoaded,
+      () => gDefaultAbout3Pane.dbViewWrapperListener.allMessagesLoaded,
       "waiting for message list to finish loading"
     );
     const actual = [];
-    const dbView = about3Pane.gDBView;
+    const dbView = gDefaultAbout3Pane.gDBView;
     for (let i = 0; i < dbView.rowCount; i++) {
-      actual.push(messages.indexOf(dbView.getMsgHdrAt(i)));
+      actual.push(gMessages.indexOf(dbView.getMsgHdrAt(i)));
     }
 
     Assert.deepEqual(actual, expected);
@@ -134,7 +136,7 @@ add_task(async () => {
   await extension.awaitFinish("quickFilter");
   await extension.unload();
 
-  about3Pane.quickFilterBar._resetFilterState();
+  gDefaultAbout3Pane.quickFilterBar._resetFilterState();
 });
 
 add_task(async function test_setQuickFilter_UI() {
@@ -201,7 +203,7 @@ add_task(async function test_setQuickFilter_UI() {
     },
   });
 
-  const qfb = about3Pane.quickFilterBar;
+  const qfb = gDefaultAbout3Pane.quickFilterBar;
   extension.onMessage("checkState", async state => {
     Assert.equal(
       qfb.filterer.visible,
@@ -226,7 +228,7 @@ add_task(async function test_setQuickFilter_UI() {
         "Should set text filter"
       );
       Assert.equal(
-        about3Pane.document
+        gDefaultAbout3Pane.document
           .getElementById("qfb-qs-textbox")
           .shadowRoot.querySelector("input").value,
         state.text.text || "",
@@ -238,7 +240,7 @@ add_task(async function test_setQuickFilter_UI() {
         "Should set the subject filter"
       );
       Assert.equal(
-        about3Pane.document.getElementById("qfb-qs-subject").pressed,
+        gDefaultAbout3Pane.document.getElementById("qfb-qs-subject").pressed,
         state.text.subject,
         "Should reflect toggle state in UI"
       );
@@ -248,7 +250,7 @@ add_task(async function test_setQuickFilter_UI() {
         "Should update flagged state"
       );
       Assert.equal(
-        about3Pane.document.getElementById("qfb-starred").pressed,
+        gDefaultAbout3Pane.document.getElementById("qfb-starred").pressed,
         Boolean(state.flagged),
         "Should reflect flagged state"
       );
@@ -260,5 +262,5 @@ add_task(async function test_setQuickFilter_UI() {
   await extension.awaitFinish("quickFilter");
   await extension.unload();
 
-  about3Pane.quickFilterBar._resetFilterState();
+  gDefaultAbout3Pane.quickFilterBar._resetFilterState();
 });

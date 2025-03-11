@@ -2,15 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const account = createAccount("pop3");
-const defaultIdentity = addIdentity(account);
-MailServices.accounts.defaultAccount = account;
-const nonDefaultIdentity = addIdentity(account);
-const gRootFolder = account.incomingServer.rootFolder;
+"use strict";
 
-gRootFolder.createSubfolder("test", null);
-const gTestFolder = gRootFolder.getChildNamed("test");
-createMessages(gTestFolder, 4);
+add_setup(async () => {
+  const account = createAccount("pop3");
+  addIdentity(account);
+
+  MailServices.accounts.defaultAccount = account;
+
+  const rootFolder = account.incomingServer.rootFolder;
+  const testFolder = await createSubfolder(rootFolder, "test");
+  await createMessages(testFolder, 4);
+});
 
 add_task(async function testPlainTextBody() {
   const files = {

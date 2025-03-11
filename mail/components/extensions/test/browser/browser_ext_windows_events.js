@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 add_task(async () => {
   const account = createAccount();
   addIdentity(account);
   const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("windowsEvents", null);
-  const testFolder = rootFolder.findSubFolder("windowsEvents");
-  createMessages(testFolder, 5);
+  const testFolder = await createSubfolder(rootFolder, "windowsEvents");
+  await createMessages(testFolder, 5);
 
   const extension = ExtensionTestUtils.loadExtension({
     files: {

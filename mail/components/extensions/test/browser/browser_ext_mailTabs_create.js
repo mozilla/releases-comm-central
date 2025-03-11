@@ -2,23 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account, rootFolder, subFolders;
-const tabmail = document.getElementById("tabmail");
+"use strict";
+
+let gAccount, gRootFolder, gSubFolders, gDefaultTabmail;
 
 add_setup(async () => {
-  account = createAccount();
-  rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test1", null);
-  rootFolder.createSubfolder("test2", null);
-  subFolders = {};
-  for (const folder of rootFolder.subFolders) {
-    subFolders[folder.name] = folder;
+  gAccount = createAccount();
+  gRootFolder = gAccount.incomingServer.rootFolder;
+  await createSubfolder(gRootFolder, "test1");
+  await createSubfolder(gRootFolder, "test2");
+  gSubFolders = {};
+  for (const folder of gRootFolder.subFolders) {
+    gSubFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test1, 10);
-  createMessages(subFolders.test2, 50);
+  await createMessages(gSubFolders.test1, 10);
+  await createMessages(gSubFolders.test2, 50);
 
-  tabmail.currentTabInfo.folder = rootFolder;
-  tabmail.currentAbout3Pane.displayFolder(subFolders.test1.URI);
+  gDefaultTabmail = document.getElementById("tabmail");
+  gDefaultTabmail.currentTabInfo.folder = gRootFolder;
+  gDefaultTabmail.currentAbout3Pane.displayFolder(gSubFolders.test1.URI);
   await ensure_table_view();
 
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
@@ -132,7 +134,7 @@ add_task(async function test_create() {
       expected.messagePaneVisible
     );
     Assert.equal(
-      "/" + (tabmail.currentTabInfo.folder.URI || "").split("/").pop(),
+      "/" + (gDefaultTabmail.currentTabInfo.folder.URI || "").split("/").pop(),
       expected.displayedFolder.path,
       "Should display the correct folder"
     );
@@ -147,7 +149,7 @@ add_task(async function test_create() {
     };
 
     const { primarySortType, primarySortOrder } =
-      tabmail.currentAbout3Pane.gViewWrapper;
+      gDefaultTabmail.currentAbout3Pane.gViewWrapper;
 
     Assert.equal(
       primarySortOrder,
@@ -183,7 +185,7 @@ add_task(async function test_create() {
     };
 
     const { showThreaded, showUnthreaded, showGroupedBySort } =
-      tabmail.currentAbout3Pane.gViewWrapper;
+      gDefaultTabmail.currentAbout3Pane.gViewWrapper;
 
     Assert.equal(
       showThreaded,
@@ -206,11 +208,11 @@ add_task(async function test_create() {
   await check3PaneState(true, true);
 
   await extension.startup();
-  extension.sendMessage(account.key);
+  extension.sendMessage(gAccount.key);
   await extension.awaitFinish("mailTabs");
   await extension.unload();
 
-  tabmail.currentTabInfo.folder = rootFolder;
+  gDefaultTabmail.currentTabInfo.folder = gRootFolder;
 });
 
 add_task(async function test_create_mv3() {
@@ -248,7 +250,7 @@ add_task(async function test_create_mv3() {
 
   extension.onMessage("checkDisplayedFolder", async expected => {
     Assert.equal(
-      "/" + (tabmail.currentTabInfo.folder.URI || "").split("/").pop(),
+      "/" + (gDefaultTabmail.currentTabInfo.folder.URI || "").split("/").pop(),
       expected.displayedFolder.path,
       "Should display the correct folder"
     );
@@ -258,9 +260,9 @@ add_task(async function test_create_mv3() {
   await check3PaneState(true, true);
 
   await extension.startup();
-  extension.sendMessage(account.key);
+  extension.sendMessage(gAccount.key);
   await extension.awaitFinish("mailTabs");
   await extension.unload();
 
-  tabmail.currentTabInfo.folder = rootFolder;
+  gDefaultTabmail.currentTabInfo.folder = gRootFolder;
 });

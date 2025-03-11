@@ -2,23 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-const gAccount = createAccount("pop3");
-createAccount("local");
-MailServices.accounts.defaultAccount = gAccount;
+let gAccount, gDefaultIdentity, gNonDefaultIdentity;
 
-const gDefaultIdentity = addIdentity(gAccount);
-gDefaultIdentity.composeHtml = true;
-const gNonDefaultIdentity = addIdentity(gAccount);
-gNonDefaultIdentity.composeHtml = false;
+add_setup(async () => {
+  gAccount = createAccount("pop3");
+  createAccount("local");
+  MailServices.accounts.defaultAccount = gAccount;
 
-const gRootFolder = gAccount.incomingServer.rootFolder;
-gRootFolder.createSubfolder("test", null);
-const gFolder = gRootFolder.getChildNamed("test");
-createMessages(gFolder, 4);
+  gDefaultIdentity = addIdentity(gAccount);
+  gDefaultIdentity.composeHtml = true;
+  gNonDefaultIdentity = addIdentity(gAccount);
+  gNonDefaultIdentity.composeHtml = false;
+
+  const rootFolder = gAccount.incomingServer.rootFolder;
+  const folder = await createSubfolder(rootFolder, "test");
+  await createMessages(folder, 4);
+});
 
 add_task(async function testIdentity() {
   const files = {

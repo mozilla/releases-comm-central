@@ -2,14 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 add_task(async () => {
   const tabmail = document.getElementById("tabmail");
 
   const account = createAccount();
   const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("tabsEvents", null);
-  const testFolder = rootFolder.findSubFolder("tabsEvents");
-  createMessages(testFolder, 5);
+  const testFolder = await createSubfolder(rootFolder, "tabsEvents");
+  await createMessages(testFolder, 5);
   const messages = [...testFolder.messages];
 
   const extension = ExtensionTestUtils.loadExtension({

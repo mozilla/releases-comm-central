@@ -2,18 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-add_setup(() => {
-  const gAccount = createAccount();
-  const rootFolder = gAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test0", null);
-  rootFolder.createSubfolder("test1", null);
+"use strict";
+
+add_setup(async () => {
+  const account = createAccount();
+  const rootFolder = account.incomingServer.rootFolder;
+  await createSubfolder(rootFolder, "test0");
+  await createSubfolder(rootFolder, "test1");
 
   const subFolders = {};
   for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test0, 6);
-  createMessages(subFolders.test1, 6);
+  await createMessages(subFolders.test0, 6);
+  await createMessages(subFolders.test1, 6);
 
   // The test uses a deprecated option which throws an error in tests by default.
   Services.prefs.setBoolPref(

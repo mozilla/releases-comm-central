@@ -2,20 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let messages;
-const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+"use strict";
+
+let gDefaultAbout3Pane;
 
 add_setup(async () => {
   const account = createAccount();
   const rootFolder = account.incomingServer.rootFolder;
   const trashFolder = rootFolder.getChildNamed("Trash");
 
-  rootFolder.createSubfolder("Test1", null);
-  const testFolder = rootFolder.getChildNamed("Test1");
-  testFolder.createSubfolder("Test2", null);
+  const testFolder = await createSubfolder(rootFolder, "Test1");
+  await createSubfolder(testFolder, "Test2");
 
-  createMessages(trashFolder, 10);
-  about3Pane.displayFolder(trashFolder);
+  await createMessages(trashFolder, 10);
+
+  gDefaultAbout3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  gDefaultAbout3Pane.displayFolder(trashFolder);
 });
 
 add_task(async () => {
@@ -290,9 +292,9 @@ add_task(async () => {
 
   extension.onMessage("checkNativeState", async expected => {
     const actual = {
-      modeName: about3Pane.folderTree.selectedRow.modeName,
-      activeModes: about3Pane.folderPane.activeModes,
-      folderUri: about3Pane.folderTree.selectedRow.uri,
+      modeName: gDefaultAbout3Pane.folderTree.selectedRow.modeName,
+      activeModes: gDefaultAbout3Pane.folderPane.activeModes,
+      folderUri: gDefaultAbout3Pane.folderTree.selectedRow.uri,
     };
     Assert.deepEqual(actual, expected);
     extension.sendMessage();

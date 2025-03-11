@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-add_setup(() => {
+add_setup(async () => {
   const account = createAccount("pop3");
   createAccount("local");
   MailServices.accounts.defaultAccount = account;
@@ -14,9 +16,8 @@ add_setup(() => {
   addIdentity(account);
 
   const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test", null);
-  const folder = rootFolder.getChildNamed("test");
-  createMessages(folder, 4);
+  const folder = await createSubfolder(rootFolder, "test");
+  await createMessages(folder, 4);
 });
 
 /* Test if getComposeDetails() is waiting until the entire init procedure of

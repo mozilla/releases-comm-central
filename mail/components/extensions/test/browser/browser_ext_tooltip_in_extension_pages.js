@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account;
-let subFolders;
-let messages;
+"use strict";
+
+let gAccount, gSubFolders, gMessages;
 
 async function showTooltip(elementSelector, tooltip, browser, description) {
   Assert.ok(!!tooltip, "tooltip element should exist");
@@ -44,21 +44,21 @@ async function showTooltip(elementSelector, tooltip, browser, description) {
 }
 
 add_setup(async () => {
-  account = createAccount();
-  addIdentity(account);
-  const rootFolder = account.incomingServer.rootFolder;
-  subFolders = rootFolder.subFolders;
-  createMessages(subFolders[0], 10);
+  gAccount = createAccount();
+  addIdentity(gAccount);
+  const rootFolder = gAccount.incomingServer.rootFolder;
+  gSubFolders = rootFolder.subFolders;
+  await createMessages(gSubFolders[0], 10);
   await TestUtils.waitForCondition(
-    () => subFolders[0].messages.hasMoreElements(),
+    () => gSubFolders[0].messages.hasMoreElements(),
     "Messages should be added to folder"
   );
-  messages = subFolders[0].messages;
+  gMessages = gSubFolders[0].messages;
 
   const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.restoreState({
     folderPaneVisible: true,
-    folderURI: subFolders[0],
+    folderURI: gSubFolders[0],
     messagePaneVisible: true,
   });
   about3Pane.threadTree.selectedIndex = 0;

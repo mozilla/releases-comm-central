@@ -2,18 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account;
+"use strict";
+
+let gAccount;
 
 add_setup(async () => {
-  account = createAccount();
-  addIdentity(account);
+  gAccount = createAccount();
+  addIdentity(gAccount);
 });
 
 async function subtest_popup_open_with_click_MV3_event_pages(
   terminateBackground
 ) {
   for (const area of [null, "formattoolbar"]) {
-    const composeWindow = await openComposeWindow(account);
+    const composeWindow = await openComposeWindow(gAccount);
     await focusWindow(composeWindow);
     const testConfig = {
       manifest_version: 3,

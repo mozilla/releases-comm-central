@@ -1,18 +1,22 @@
-var gAccount;
-var gMessages;
-var gFolder;
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-add_setup(() => {
+"use strict";
+
+let gAccount, gMessages, gFolder;
+
+add_setup(async () => {
   gAccount = createAccount();
   addIdentity(gAccount);
   const rootFolder = gAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test0", null);
+  await createSubfolder(rootFolder, "test0");
 
   const subFolders = {};
   for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test0, 5);
+  await createMessages(subFolders.test0, 5);
 
   gFolder = subFolders.test0;
   gMessages = [...subFolders.test0.messages];

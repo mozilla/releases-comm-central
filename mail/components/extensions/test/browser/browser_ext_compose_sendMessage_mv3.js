@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 var { ExtensionSupport } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSupport.sys.mjs"
 );
@@ -26,7 +28,7 @@ function setupServerDaemon(handler) {
       return new SMTP_RFC2821_handler(d);
     };
   }
-  var server = new nsMailServer(handler, new SmtpDaemon());
+  const server = new nsMailServer(handler, new SmtpDaemon());
   return server;
 }
 
@@ -56,29 +58,29 @@ function getSmtpIdentity(senderName, smtpServer) {
 
 let gPopAccount;
 
-add_setup(() => {
-  const gServer = setupServerDaemon();
-  gServer.start();
+add_setup(async () => {
+  const server = setupServerDaemon();
+  server.start();
 
   // Test needs a non-local default account to be able to send messages.
   gPopAccount = createAccount("pop3");
-  const gLocalAccount = createAccount("local");
+  const localAccount = createAccount("local");
   MailServices.accounts.defaultAccount = gPopAccount;
 
   const identity = getSmtpIdentity(
     "identity@foo.invalid",
-    getBasicSmtpServer(gServer.port)
+    getBasicSmtpServer(server.port)
   );
   gPopAccount.addIdentity(identity);
   gPopAccount.defaultIdentity = identity;
 
   // Test is using the Sent folder and Outbox folder of the local account.
-  const rootFolder = gLocalAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("Sent", null);
+  const rootFolder = localAccount.incomingServer.rootFolder;
+  await createSubfolder(rootFolder, "Sent");
   MailServices.accounts.setSpecialFolders();
 
   registerCleanupFunction(() => {
-    gServer.stop();
+    server.stop();
   });
 });
 

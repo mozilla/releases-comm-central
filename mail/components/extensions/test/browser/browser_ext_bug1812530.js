@@ -3,18 +3,20 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. *
  */
 
+"use strict";
+
 // Load subscript shared with all menu tests.
 Services.scriptloader.loadSubScript(
   new URL("head_menus.js", gTestPath).href,
   this
 );
 
-const { MockRegistrar } = ChromeUtils.importESModule(
+var { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
 /** @implements {nsIExternalProtocolService} */
-const mockExternalProtocolService = {
+const MockExternalProtocolService = {
   _loadedURLs: [],
   externalProtocolHandlerExists() {},
   getApplicationDescription() {},
@@ -31,16 +33,11 @@ const mockExternalProtocolService = {
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };
 
-const mockExternalProtocolServiceCID = MockRegistrar.register(
-  "@mozilla.org/uriloader/external-protocol-service;1",
-  mockExternalProtocolService
-);
-
 add_setup(async () => {
   const account = createAccount();
   const rootFolder = account.incomingServer.rootFolder;
   const subFolders = rootFolder.subFolders;
-  createMessages(subFolders[0], 10);
+  await createMessages(subFolders[0], 10);
 
   const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.restoreState({
@@ -52,10 +49,14 @@ add_setup(async () => {
   await awaitBrowserLoaded(
     about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser()
   );
-});
 
-registerCleanupFunction(() => {
-  MockRegistrar.unregister(mockExternalProtocolServiceCID);
+  const mockExternalProtocolServiceCID = MockRegistrar.register(
+    "@mozilla.org/uriloader/external-protocol-service;1",
+    MockExternalProtocolService
+  );
+  registerCleanupFunction(() => {
+    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+  });
 });
 
 const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
@@ -92,7 +93,7 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
     );
     await contextClick(elementSelector, getBrowser());
     Assert.ok(
-      mockExternalProtocolService.urlLoaded(url),
+      MockExternalProtocolService.urlLoaded(url),
       `Page should have correctly been opened in external browser.`
     );
     await extension.sendMessage();

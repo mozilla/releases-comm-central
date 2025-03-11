@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 add_task(async function test_webrtc_deny() {
   const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
-      var peerConn = new RTCPeerConnection({});
+      const peerConn = new RTCPeerConnection({});
       peerConn.createDataChannel("files");
 
       await browser.test.assertRejects(

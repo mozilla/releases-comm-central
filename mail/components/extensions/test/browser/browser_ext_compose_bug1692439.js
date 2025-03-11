@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 var { localAccountUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
@@ -23,7 +25,7 @@ function setupServerDaemon(handler) {
       return new SMTP_RFC2821_handler(d);
     };
   }
-  var server = new nsMailServer(handler, new SmtpDaemon());
+  const server = new nsMailServer(handler, new SmtpDaemon());
   return server;
 }
 
@@ -51,10 +53,9 @@ function getSmtpIdentity(senderName, smtpServer) {
   return identity;
 }
 
-var gServer;
-var gOutbox;
+let gServer, gOutbox;
 
-add_setup(() => {
+add_setup(async () => {
   gServer = setupServerDaemon();
   gServer.start();
 
@@ -72,7 +73,7 @@ add_setup(() => {
 
   // Test is using the Sent folder and Outbox folder of the local account.
   const rootFolder = localAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("Sent", null);
+  await createSubfolder(rootFolder, "Sent");
   MailServices.accounts.setSpecialFolders();
   gOutbox = rootFolder.getChildNamed("Outbox");
 

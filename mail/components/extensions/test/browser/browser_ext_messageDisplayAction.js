@@ -2,18 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account;
-let messages;
-const tabmail = document.getElementById("tabmail");
+"use strict";
+
+let gAccount, gMessages, gDefaultTabmail;
 
 add_setup(async () => {
-  account = createAccount();
-  const rootFolder = account.incomingServer.rootFolder;
+  gAccount = createAccount();
+  const rootFolder = gAccount.incomingServer.rootFolder;
   const subFolders = rootFolder.subFolders;
-  createMessages(subFolders[0], 10);
-  messages = subFolders[0].messages;
+  await createMessages(subFolders[0], 10);
+  gMessages = subFolders[0].messages;
 
-  const about3Pane = tabmail.currentAbout3Pane;
+  gDefaultTabmail = document.getElementById("tabmail");
+  const about3Pane = gDefaultTabmail.currentAbout3Pane;
   about3Pane.restoreState({
     folderPaneVisible: true,
     folderURI: subFolders[0],
@@ -32,7 +33,7 @@ add_task(async function test_popup_open_with_menu_command() {
     const testConfig = {
       actionType: "message_display_action",
       testType: "open-with-menu-command",
-      window: tabmail.currentAboutMessage,
+      window: gDefaultTabmail.currentAboutMessage,
     };
 
     await run_popup_test({
@@ -50,11 +51,11 @@ add_task(async function test_popup_open_with_menu_command() {
 
   info("Message tab");
   {
-    await openMessageInTab(messages.getNext());
+    await openMessageInTab(gMessages.getNext());
     const testConfig = {
       actionType: "message_display_action",
       testType: "open-with-menu-command",
-      window: tabmail.currentAboutMessage,
+      window: gDefaultTabmail.currentAboutMessage,
     };
 
     await run_popup_test({
@@ -74,7 +75,7 @@ add_task(async function test_popup_open_with_menu_command() {
 
   info("Message window");
   {
-    const messageWindow = await openMessageInWindow(messages.getNext());
+    const messageWindow = await openMessageInWindow(gMessages.getNext());
     const testConfig = {
       actionType: "message_display_action",
       testType: "open-with-menu-command",
@@ -126,7 +127,7 @@ add_task(async function test_theme_icons() {
 
   await extension.startup();
 
-  const aboutMessage = tabmail.currentAboutMessage;
+  const aboutMessage = gDefaultTabmail.currentAboutMessage;
   const uuid = extension.uuid;
   const button = aboutMessage.document.getElementById(
     "message_display_action_mochi_test-messageDisplayAction-toolbarbutton"
@@ -188,12 +189,12 @@ add_task(async function test_button_order() {
         toolbar: "header-view-toolbar",
       },
     ],
-    tabmail.currentAboutMessage,
+    gDefaultTabmail.currentAboutMessage,
     "message_display_action"
   );
 
   info("Message tab");
-  await openMessageInTab(messages.getNext());
+  await openMessageInTab(gMessages.getNext());
   await run_action_button_order_test(
     [
       {
@@ -205,13 +206,13 @@ add_task(async function test_button_order() {
         toolbar: "header-view-toolbar",
       },
     ],
-    tabmail.currentAboutMessage,
+    gDefaultTabmail.currentAboutMessage,
     "message_display_action"
   );
-  tabmail.closeTab();
+  gDefaultTabmail.closeTab();
 
   info("Message window");
-  const messageWindow = await openMessageInWindow(messages.getNext());
+  const messageWindow = await openMessageInWindow(gMessages.getNext());
   await run_action_button_order_test(
     [
       {
@@ -284,7 +285,7 @@ add_task(async function test_upgrade() {
   await updatedExtension2.startup();
   await updatedExtension2.awaitMessage("Extension2 updated");
 
-  const aboutMessage = tabmail.currentAboutMessage;
+  const aboutMessage = gDefaultTabmail.currentAboutMessage;
   const button = aboutMessage.document.getElementById(
     "extension2_mochi_test-messageDisplayAction-toolbarbutton"
   );
@@ -331,7 +332,7 @@ add_task(async function test_iconPath() {
     },
   });
 
-  const aboutMessage = tabmail.currentAboutMessage;
+  const aboutMessage = gDefaultTabmail.currentAboutMessage;
   extension.onMessage("checkState", async expected => {
     const uuid = extension.uuid;
     const button = aboutMessage.document.getElementById(

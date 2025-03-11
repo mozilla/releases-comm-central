@@ -2,15 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account;
-let messages;
+"use strict";
+
+let gMessages;
 
 add_setup(async () => {
-  account = createAccount();
+  const account = createAccount();
   const rootFolder = account.incomingServer.rootFolder;
   const subFolders = rootFolder.subFolders;
-  createMessages(subFolders[0], 10);
-  messages = subFolders[0].messages;
+  await createMessages(subFolders[0], 10);
+  gMessages = subFolders[0].messages;
 });
 
 // This test uses a command from the menus API to open the popup.
@@ -38,7 +39,7 @@ add_task(async function test_popup_open_with_menu_command_mv2() {
 
   info("Message window");
   {
-    const messageWindow = await openMessageInWindow(messages.getNext());
+    const messageWindow = await openMessageInWindow(gMessages.getNext());
     const testConfig = {
       actionType: "browser_action",
       testType: "open-with-menu-command",
@@ -86,7 +87,7 @@ add_task(async function test_popup_open_with_menu_command_mv3() {
 
   info("Message window");
   {
-    const messageWindow = await openMessageInWindow(messages.getNext());
+    const messageWindow = await openMessageInWindow(gMessages.getNext());
     const testConfig = {
       manifest_version: 3,
       actionType: "action",
@@ -194,7 +195,7 @@ add_task(async function test_theme_icons() {
 });
 
 add_task(async function test_theme_icons_messagewindow() {
-  const messageWindow = await openMessageInWindow(messages.getNext());
+  const messageWindow = await openMessageInWindow(gMessages.getNext());
   const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     manifest: {
@@ -295,7 +296,7 @@ add_task(async function test_button_order() {
   );
 
   info("Message window");
-  const messageWindow = await openMessageInWindow(messages.getNext());
+  const messageWindow = await openMessageInWindow(gMessages.getNext());
   await run_action_button_order_test(
     [
       {

@@ -2,35 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account, rootFolder, subFolders;
-const tabmail = document.getElementById("tabmail");
+"use strict";
 
-const { VirtualFolderHelper } = ChromeUtils.importESModule(
+var { VirtualFolderHelper } = ChromeUtils.importESModule(
   "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
 
+let gAccount, gRootFolder, gSubFolders, gDefaultTabmail;
+
 add_setup(async () => {
-  account = createAccount();
-  rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test1", null);
-  rootFolder.createSubfolder("test2", null);
-  subFolders = {};
-  for (const folder of rootFolder.subFolders) {
-    subFolders[folder.name] = folder;
+  gAccount = createAccount();
+  gRootFolder = gAccount.incomingServer.rootFolder;
+  await createSubfolder(gRootFolder, "test1");
+  await createSubfolder(gRootFolder, "test2");
+  gSubFolders = {};
+  for (const folder of gRootFolder.subFolders) {
+    gSubFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test1, 10);
-  createMessages(subFolders.test2, 50);
+  await createMessages(gSubFolders.test1, 10);
+  await createMessages(gSubFolders.test2, 50);
 
   VirtualFolderHelper.createNewVirtualFolder(
     "virtualFolder",
-    rootFolder,
-    [subFolders.test1, subFolders.test2],
+    gRootFolder,
+    [gSubFolders.test1, gSubFolders.test2],
     "ANY",
     false
   );
 
-  tabmail.currentTabInfo.folder = rootFolder;
-  tabmail.currentAbout3Pane.displayFolder(subFolders.test1.URI);
+  gDefaultTabmail = document.getElementById("tabmail");
+  gDefaultTabmail.currentTabInfo.folder = gRootFolder;
+  gDefaultTabmail.currentAbout3Pane.displayFolder(gSubFolders.test1.URI);
   await ensure_table_view();
 
   // There are a couple of deprecated properties in MV3, which we still want to
@@ -166,7 +168,7 @@ add_task(async function test_update() {
       expected.messagePaneVisible
     );
     Assert.equal(
-      "/" + (tabmail.currentTabInfo.folder.URI || "").split("/").pop(),
+      "/" + (gDefaultTabmail.currentTabInfo.folder.URI || "").split("/").pop(),
       expected.displayedFolder.path,
       "Should display the correct folder"
     );
@@ -181,7 +183,7 @@ add_task(async function test_update() {
     };
 
     const { primarySortType, primarySortOrder } =
-      tabmail.currentAbout3Pane.gViewWrapper;
+      gDefaultTabmail.currentAbout3Pane.gViewWrapper;
 
     Assert.equal(
       primarySortOrder,
@@ -217,7 +219,7 @@ add_task(async function test_update() {
     };
 
     const { showThreaded, showUnthreaded, showGroupedBySort } =
-      tabmail.currentAbout3Pane.gViewWrapper;
+      gDefaultTabmail.currentAbout3Pane.gViewWrapper;
 
     Assert.equal(
       showThreaded,
@@ -240,11 +242,11 @@ add_task(async function test_update() {
   await check3PaneState(true, true);
 
   await extension.startup();
-  extension.sendMessage(account.key);
+  extension.sendMessage(gAccount.key);
   await extension.awaitFinish("mailTabs");
   await extension.unload();
 
-  tabmail.currentTabInfo.folder = rootFolder;
+  gDefaultTabmail.currentTabInfo.folder = gRootFolder;
 });
 
 add_task(async function test_displayedFolderChanged() {
@@ -294,9 +296,9 @@ add_task(async function test_displayedFolderChanged() {
   }
 
   const folderMap = new Map([
-    ["/", rootFolder],
-    ["/test1", subFolders.test1],
-    ["/test2", subFolders.test2],
+    ["/", gRootFolder],
+    ["/test1", gSubFolders.test1],
+    ["/test2", gSubFolders.test2],
   ]);
 
   const extension = ExtensionTestUtils.loadExtension({
@@ -312,16 +314,16 @@ add_task(async function test_displayedFolderChanged() {
   });
 
   extension.onMessage("selectFolder", async newFolderPath => {
-    tabmail.currentTabInfo.folder = folderMap.get(newFolderPath);
+    gDefaultTabmail.currentTabInfo.folder = folderMap.get(newFolderPath);
     await new Promise(resolve => executeSoon(resolve));
   });
 
   await extension.startup();
-  extension.sendMessage(account.key);
+  extension.sendMessage(gAccount.key);
   await extension.awaitFinish("mailTabs");
   await extension.unload();
 
-  tabmail.currentTabInfo.folder = rootFolder;
+  gDefaultTabmail.currentTabInfo.folder = gRootFolder;
 });
 
 add_task(async function test_displayedFolderChangedBehindContentTab() {
@@ -378,9 +380,9 @@ add_task(async function test_displayedFolderChangedBehindContentTab() {
   }
 
   const folderMap = new Map([
-    ["/", rootFolder],
-    ["/test1", subFolders.test1],
-    ["/test2", subFolders.test2],
+    ["/", gRootFolder],
+    ["/test1", gSubFolders.test1],
+    ["/test2", gSubFolders.test2],
   ]);
 
   const extension = ExtensionTestUtils.loadExtension({
@@ -396,16 +398,16 @@ add_task(async function test_displayedFolderChangedBehindContentTab() {
   });
 
   extension.onMessage("selectFolder", async newFolderPath => {
-    tabmail.currentTabInfo.folder = folderMap.get(newFolderPath);
+    gDefaultTabmail.currentTabInfo.folder = folderMap.get(newFolderPath);
     await new Promise(resolve => executeSoon(resolve));
   });
 
   await extension.startup();
-  extension.sendMessage(account.key);
+  extension.sendMessage(gAccount.key);
   await extension.awaitFinish("mailTabs");
   await extension.unload();
 
-  tabmail.currentTabInfo.folder = rootFolder;
+  gDefaultTabmail.currentTabInfo.folder = gRootFolder;
 });
 
 add_task(async function test_selectedMessagesChanged() {
@@ -486,14 +488,14 @@ add_task(async function test_selectedMessagesChanged() {
     },
   });
 
-  tabmail.currentTabInfo.folder = subFolders.test2;
+  gDefaultTabmail.currentTabInfo.folder = gSubFolders.test2;
 
   extension.onMessage("selectMessage", newMessages => {
-    tabmail.currentAbout3Pane.threadTree.selectedIndices = newMessages;
+    gDefaultTabmail.currentAbout3Pane.threadTree.selectedIndices = newMessages;
   });
 
   extension.onMessage("setMessagePaneVisibility", async visible => {
-    tabmail.currentAbout3Pane.paneLayout.messagePaneVisible = visible;
+    gDefaultTabmail.currentAbout3Pane.paneLayout.messagePaneVisible = visible;
     await check3PaneState(true, visible);
     extension.sendMessage();
   });
@@ -502,8 +504,8 @@ add_task(async function test_selectedMessagesChanged() {
   await extension.awaitFinish("mailTabs");
   await extension.unload();
 
-  tabmail.currentTabInfo.folder = rootFolder;
-  tabmail.currentAbout3Pane.paneLayout.messagePaneVisible = true;
+  gDefaultTabmail.currentTabInfo.folder = gRootFolder;
+  gDefaultTabmail.currentAbout3Pane.paneLayout.messagePaneVisible = true;
   await check3PaneState(true, true);
 });
 
@@ -607,7 +609,7 @@ add_task(async function test_background_tab() {
       expected.messagePaneVisible
     );
     Assert.equal(
-      "/" + (tabmail.currentTabInfo.folder.URI || "").split("/").pop(),
+      "/" + (gDefaultTabmail.currentTabInfo.folder.URI || "").split("/").pop(),
       expected.displayedFolder,
       "Should display the correct folder"
     );
@@ -616,21 +618,21 @@ add_task(async function test_background_tab() {
 
   window.openContentTab("about:buildconfig");
   window.openContentTab("about:mozilla");
-  tabmail.openTab("mail3PaneTab", { folderURI: subFolders.test1.URI });
+  gDefaultTabmail.openTab("mail3PaneTab", { folderURI: gSubFolders.test1.URI });
   await BrowserTestUtils.waitForEvent(
-    tabmail.currentTabInfo.chromeBrowser,
+    gDefaultTabmail.currentTabInfo.chromeBrowser,
     "folderURIChanged",
     false,
-    event => event.detail == subFolders.test1.URI
+    event => event.detail == gSubFolders.test1.URI
   );
 
   await extension.startup();
-  extension.sendMessage(account.key);
+  extension.sendMessage(gAccount.key);
   await extension.awaitFinish("mailTabs");
   await extension.unload();
 
-  tabmail.closeOtherTabs(0);
-  tabmail.currentTabInfo.folder = rootFolder;
+  gDefaultTabmail.closeOtherTabs(0);
+  gDefaultTabmail.currentTabInfo.folder = gRootFolder;
 });
 
 add_task(async function test_get_and_query() {
@@ -775,33 +777,33 @@ add_task(async function test_get_and_query() {
   const window2 = await openNewMailWindow();
   for (const win of [window, window2]) {
     const winTabmail = win.document.getElementById("tabmail");
-    winTabmail.currentTabInfo.folder = rootFolder;
+    winTabmail.currentTabInfo.folder = gRootFolder;
     win.openContentTab("about:mozilla");
-    winTabmail.openTab("mail3PaneTab", { folderURI: subFolders.test1.URI });
+    winTabmail.openTab("mail3PaneTab", { folderURI: gSubFolders.test1.URI });
     await BrowserTestUtils.waitForEvent(
       winTabmail.currentTabInfo.chromeBrowser,
       "folderURIChanged",
       false,
-      event => event.detail == subFolders.test1.URI
+      event => event.detail == gSubFolders.test1.URI
     );
-    winTabmail.openTab("mail3PaneTab", { folderURI: subFolders.test2.URI });
+    winTabmail.openTab("mail3PaneTab", { folderURI: gSubFolders.test2.URI });
     await BrowserTestUtils.waitForEvent(
       winTabmail.currentTabInfo.chromeBrowser,
       "folderURIChanged",
       false,
-      event => event.detail == subFolders.test2.URI
+      event => event.detail == gSubFolders.test2.URI
     );
   }
 
   await extension.startup();
-  extension.sendMessage(account.key);
+  extension.sendMessage(gAccount.key);
   await extension.awaitFinish("mailTabs");
   await extension.unload();
 
   await BrowserTestUtils.closeWindow(window2);
 
-  tabmail.closeOtherTabs(0);
-  tabmail.currentTabInfo.folder = rootFolder;
+  gDefaultTabmail.closeOtherTabs(0);
+  gDefaultTabmail.currentTabInfo.folder = gRootFolder;
 });
 
 add_task(async function test_setSelectedMessages() {
@@ -1005,7 +1007,7 @@ add_task(async function test_setSelectedMessages() {
       expected.messagePaneVisible
     );
     Assert.equal(
-      "/" + (tabmail.currentTabInfo.folder.URI || "").split("/").pop(),
+      "/" + (gDefaultTabmail.currentTabInfo.folder.URI || "").split("/").pop(),
       expected.displayedFolder,
       "Should display the correct folder"
     );
@@ -1014,25 +1016,25 @@ add_task(async function test_setSelectedMessages() {
 
   window.openContentTab("about:buildconfig");
   window.openContentTab("about:mozilla");
-  tabmail.openTab("mail3PaneTab", { folderURI: subFolders.test1.URI });
-  tabmail.openTab("mail3PaneTab", {
-    folderURI: rootFolder.URI,
+  gDefaultTabmail.openTab("mail3PaneTab", { folderURI: gSubFolders.test1.URI });
+  gDefaultTabmail.openTab("mail3PaneTab", {
+    folderURI: gRootFolder.URI,
     background: true,
   });
   await BrowserTestUtils.waitForEvent(
-    tabmail.currentTabInfo.chromeBrowser,
+    gDefaultTabmail.currentTabInfo.chromeBrowser,
     "folderURIChanged",
     false,
-    event => event.detail == subFolders.test1.URI
+    event => event.detail == gSubFolders.test1.URI
   );
 
   await extension.startup();
-  extension.sendMessage(account.key);
+  extension.sendMessage(gAccount.key);
   await extension.awaitFinish("mailTabs");
   await extension.unload();
 
-  tabmail.closeOtherTabs(0);
-  tabmail.currentTabInfo.folder = rootFolder;
+  gDefaultTabmail.closeOtherTabs(0);
+  gDefaultTabmail.currentTabInfo.folder = gRootFolder;
 });
 
 add_task(async function test_setSelectedMessages_virtual() {
@@ -1114,9 +1116,9 @@ add_task(async function test_setSelectedMessages_virtual() {
   });
 
   await extension.startup();
-  extension.sendMessage(account.key);
+  extension.sendMessage(gAccount.key);
   await extension.awaitFinish("mailTabs");
   await extension.unload();
 
-  tabmail.currentTabInfo.folder = rootFolder;
+  gDefaultTabmail.currentTabInfo.folder = gRootFolder;
 });

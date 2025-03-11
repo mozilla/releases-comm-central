@@ -1,12 +1,22 @@
-/* -*- Mode: indent-tabs-mode: nil; js-indent-level: 2 -*- */
-/* vim: set sts=2 sw=2 et tw=80: */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 "use strict";
 
-ChromeUtils.defineESModuleGetters(this, {
-  AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
-  ExtensionSettingsStore:
-    "resource://gre/modules/ExtensionSettingsStore.sys.mjs",
-});
+// There is an eslint miss-configuration. It claims these two modules being
+// redeclared, but the modules are not available if not imported. ¯\_(ツ)_/¯
+
+/* eslint-disable mozilla/no-redeclare-with-import-autofix */
+var { AddonManager } = ChromeUtils.importESModule(
+  "resource://gre/modules/AddonManager.sys.mjs"
+);
+/* eslint-disable mozilla/no-redeclare-with-import-autofix */
+var { ExtensionSettingsStore } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionSettingsStore.sys.mjs"
+);
+
+let gUpdatedExtension;
 
 function enableAddon(addon) {
   return new Promise(resolve => {
@@ -40,9 +50,9 @@ add_task(async function test_update_defined_command() {
   registerCleanupFunction(async () => {
     await extension.unload();
 
-    // updatedExtension might not have started up if we didn't make it that far.
-    if (updatedExtension) {
-      await updatedExtension.unload();
+    // gUpdatedExtension might not have started up if we didn't make it that far.
+    if (gUpdatedExtension) {
+      await gUpdatedExtension.unload();
     }
 
     // Check that ESS is cleaned up on uninstall.
@@ -331,7 +341,7 @@ add_task(async function test_update_defined_command() {
   checkNumericKey(extension.id, "9", "alt,shift");
 
   // Check that an update to a shortcut in the manifest is mapped correctly.
-  const updatedExtension = ExtensionTestUtils.loadExtension({
+  gUpdatedExtension = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       version: "1.0",
@@ -346,7 +356,7 @@ add_task(async function test_update_defined_command() {
       },
     },
   });
-  await updatedExtension.startup();
+  await gUpdatedExtension.startup();
 
   await TestUtils.waitForCondition(() => extensionKeyset(extension.id));
   // Shortcut is unchanged since it was previously updated.

@@ -2,16 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account;
+"use strict";
+
+let gAccount;
 
 add_setup(async () => {
-  account = createAccount();
-  addIdentity(account);
+  gAccount = createAccount();
+  addIdentity(gAccount);
 });
 
 // This test uses a command from the menus API to open the popup.
 add_task(async function test_popup_open_with_menu_command() {
-  const composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(gAccount);
   await focusWindow(composeWindow);
 
   for (const area of ["maintoolbar", "formattoolbar"]) {
@@ -62,7 +64,7 @@ add_task(async function test_theme_icons() {
 
   await extension.startup();
 
-  const composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(gAccount);
   await focusWindow(composeWindow);
 
   const uuid = extension.uuid;
@@ -114,7 +116,7 @@ add_task(async function test_theme_icons() {
 });
 
 add_task(async function test_button_order() {
-  const composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(gAccount);
   await focusWindow(composeWindow);
 
   await run_action_button_order_test(
@@ -148,7 +150,7 @@ add_task(async function test_button_order() {
 });
 
 add_task(async function test_upgrade() {
-  const composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(gAccount);
   await focusWindow(composeWindow);
 
   // Add a compose_action, to make sure the currentSet has been initialized.
@@ -219,7 +221,7 @@ add_task(async function test_upgrade() {
 });
 
 add_task(async function test_iconPath() {
-  const composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(gAccount);
   await focusWindow(composeWindow);
 
   // String values for the default_icon manifest entry have been tested in the

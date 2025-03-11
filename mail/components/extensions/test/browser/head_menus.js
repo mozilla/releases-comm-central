@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals synthesizeMouseAtCenterAndRetry, awaitBrowserLoaded, closeMenuPopup, clickItemInMenuPopup, openSubMenuPopup */
-
 "use strict";
 
-const { ExtensionPermissions } = ChromeUtils.importESModule(
+/* globals synthesizeMouseAtCenterAndRetry, awaitBrowserLoaded, closeMenuPopup, clickItemInMenuPopup, openSubMenuPopup */
+
+var { ExtensionPermissions } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionPermissions.sys.mjs"
 );
-
-const { mailTestUtils } = ChromeUtils.importESModule(
+var { mailTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
 

@@ -16,7 +16,7 @@ const OPENPGP_KEY_PATH = PathUtils.join(
   "alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
 );
 
-var gRootFolder, gTestFolder, gDraftsFolder, gDrafts;
+let gRootFolder, gTestFolder, gDraftsFolder, gDrafts;
 
 add_setup(async () => {
   await OpenPGPTestUtils.initOpenPGP();
@@ -33,15 +33,13 @@ add_setup(async () => {
 
   gRootFolder = account.incomingServer.rootFolder;
 
-  gRootFolder.createSubfolder("test", null);
-  gTestFolder = gRootFolder.getChildNamed("test");
-  createMessages(gTestFolder, 4);
+  gTestFolder = await createSubfolder(gRootFolder, "test");
+  await createMessages(gTestFolder, 4);
 
   // TODO: Figure out why naming this folder drafts is problematic.
-  gRootFolder.createSubfolder("something", null);
-  gDraftsFolder = gRootFolder.getChildNamed("something");
+  gDraftsFolder = await createSubfolder(gRootFolder, "something");
   gDraftsFolder.flags = Ci.nsMsgFolderFlags.Drafts;
-  createMessages(gDraftsFolder, 2);
+  await createMessages(gDraftsFolder, 2);
   gDrafts = [...gDraftsFolder.messages];
 
   // Use an undefined identifier for the configured S/MIME certificates.

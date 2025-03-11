@@ -2,8 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const account = createAccount();
-const defaultIdentity = addIdentity(account);
+"use strict";
+
+let gAccount;
+
+add_setup(async () => {
+  gAccount = createAccount();
+  addIdentity(gAccount);
+});
 
 add_task(async function test_dictionaries() {
   const files = {
@@ -168,7 +174,7 @@ add_task(async function test_onActiveDictionariesChanged_MV3_event_pages() {
     await composeWindow.ComposeChangeLanguage(activeDictionaries);
   }
 
-  const composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(gAccount);
   await focusWindow(composeWindow);
 
   await extension.startup();

@@ -2,15 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 requestLongerTimeout(4);
 
 let gRootFolder;
+
 add_setup(async () => {
   const account = createAccount();
   gRootFolder = account.incomingServer.rootFolder;
-  gRootFolder.createSubfolder("testFolder", null);
-  gRootFolder.createSubfolder("otherFolder", null);
-  await createMessages(gRootFolder.getChildNamed("testFolder"), 5);
+  const testFolder = await createSubfolder(gRootFolder, "testFolder");
+  await createSubfolder(gRootFolder, "otherFolder");
+  await createMessages(testFolder, 5);
 });
 
 async function testOpenMessages(mainTestConfig) {

@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { MockRegistrar } = ChromeUtils.importESModule(
+"use strict";
+
+var { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
 /** @implements {nsIExternalProtocolService} */
-const mockExternalProtocolService = {
+const MockExternalProtocolService = {
   _loadedURLs: [],
   externalProtocolHandlerExists() {},
   getApplicationDescription() {},
@@ -26,13 +28,14 @@ const mockExternalProtocolService = {
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };
 
-const mockExternalProtocolServiceCID = MockRegistrar.register(
-  "@mozilla.org/uriloader/external-protocol-service;1",
-  mockExternalProtocolService
-);
-
-registerCleanupFunction(() => {
-  MockRegistrar.unregister(mockExternalProtocolServiceCID);
+add_setup(async () => {
+  const mockExternalProtocolServiceCID = MockRegistrar.register(
+    "@mozilla.org/uriloader/external-protocol-service;1",
+    MockExternalProtocolService
+  );
+  registerCleanupFunction(() => {
+    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+  });
 });
 
 add_task(async function test_openDefaultBrowser() {
@@ -67,7 +70,7 @@ add_task(async function test_openDefaultBrowser() {
   const urls = await extension.awaitMessage("ready");
   for (const [url, expected] of Object.entries(urls)) {
     Assert.equal(
-      mockExternalProtocolService.urlLoaded(url),
+      MockExternalProtocolService.urlLoaded(url),
       expected,
       `Double check result for browser.windows.openDefaultBrowser(${url})`
     );

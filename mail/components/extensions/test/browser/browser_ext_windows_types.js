@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 add_task(async () => {
   const files = {
     "background.js": async () => {
@@ -64,12 +66,12 @@ add_task(async () => {
   const account = createAccount();
   addIdentity(account);
   const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test1", null);
+  await createSubfolder(rootFolder, "test1");
   const subFolders = {};
   for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test1, 1);
+  await createMessages(subFolders.test1, 1);
 
   await extension.startup();
 
@@ -110,12 +112,12 @@ add_task(async function test_tabs_of_second_tabmail() {
   const account = createAccount();
   addIdentity(account);
   const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test1", null);
+  await createSubfolder(rootFolder, "test1");
   const subFolders = {};
   for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test1, 1);
+  await createMessages(subFolders.test1, 1);
 
   await extension.startup();
   await extension.awaitFinish();

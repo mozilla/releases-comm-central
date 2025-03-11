@@ -2,12 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let gAccount, gFolder, gMessage, gHeaderMessageIds, gExpectedInfo;
+"use strict";
 
-var tabmail = document.getElementById("tabmail");
-var about3Pane = tabmail.currentAbout3Pane;
-var messagePane =
-  about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
+let gAccount, gFolder, gMessage, gHeaderMessageIds, gExpectedInfo;
+let gDefaultTabmail, gDefaultAbout3Pane;
 
 /**
  * Check the parameters of a browser.onShown event that was fired.
@@ -120,7 +118,7 @@ function getExtensionDetails(...permissions) {
   };
 }
 
-add_setup(async function () {
+add_setup(async () => {
   gHeaderMessageIds = [
     "<message-id@example.com>",
     "<first-reference@example.com>",
@@ -167,7 +165,9 @@ add_setup(async function () {
         "Test message for message header pane links.\n"
     );
 
-  about3Pane.restoreState({
+  gDefaultTabmail = document.getElementById("tabmail");
+  gDefaultAbout3Pane = gDefaultTabmail.currentAbout3Pane;
+  gDefaultAbout3Pane.restoreState({
     folderPaneVisible: true,
     folderURI: gFolder.URI,
     messagePaneVisible: true,
@@ -253,7 +253,7 @@ async function subtest_message_panes(
   await extension.awaitMessage("menus-created");
   await subtest_headerPane(
     extension,
-    tabmail.currentAboutMessage,
+    gDefaultTabmail.currentAboutMessage,
     expectedContext,
     expectedInfo
   );
@@ -267,12 +267,12 @@ async function subtest_message_panes(
   await extension.awaitMessage("menus-created");
   await subtest_headerPane(
     extension,
-    tabmail.currentAboutMessage,
+    gDefaultTabmail.currentAboutMessage,
     expectedContext,
     expectedInfo
   );
   await extension.unload();
-  tabmail.closeOtherTabs(0);
+  gDefaultTabmail.closeOtherTabs(0);
 
   info("Test the message pane in a separate window.");
 
@@ -292,7 +292,9 @@ async function subtest_message_panes(
 
 add_task(async function test_message_panes() {
   gMessage = [...gFolder.messages][0];
-  about3Pane.threadTree.selectedIndex = 0;
+  gDefaultAbout3Pane.threadTree.selectedIndex = 0;
+  const messagePane =
+    gDefaultAbout3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
   await promiseMessageLoaded(messagePane, gMessage);
 
   // Change this preference back to trigger a rebuild of the header view so

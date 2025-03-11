@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 var { ExtensionSupport } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSupport.sys.mjs"
 );
@@ -26,7 +28,7 @@ function setupServerDaemon(handler) {
       return new SMTP_RFC2821_handler(d);
     };
   }
-  var server = new nsMailServer(handler, new SmtpDaemon());
+  const server = new nsMailServer(handler, new SmtpDaemon());
   return server;
 }
 
@@ -54,12 +56,9 @@ function getSmtpIdentity(senderName, smtpServer) {
   return identity;
 }
 
-var gServer;
-var gLocalRootFolder;
-let gPopAccount;
-let gLocalAccount;
+let gServer, gLocalRootFolder, gPopAccount, gLocalAccount;
 
-add_setup(() => {
+add_setup(async () => {
   gServer = setupServerDaemon();
   gServer.start();
 
@@ -77,9 +76,9 @@ add_setup(() => {
 
   // Test is using the Sent folder and Outbox folder of the local account.
   gLocalRootFolder = gLocalAccount.incomingServer.rootFolder;
-  gLocalRootFolder.createSubfolder("Sent", null);
-  gLocalRootFolder.createSubfolder("Drafts", null);
-  gLocalRootFolder.createSubfolder("Fcc", null);
+  await createSubfolder(gLocalRootFolder, "Sent", null);
+  await createSubfolder(gLocalRootFolder, "Drafts", null);
+  await createSubfolder(gLocalRootFolder, "Fcc", null);
   MailServices.accounts.setSpecialFolders();
 
   requestLongerTimeout(4);

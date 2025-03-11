@@ -2,15 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account;
-let messages;
+"use strict";
+
+let gAccount, gMessages;
 
 add_setup(async () => {
-  account = createAccount();
-  const rootFolder = account.incomingServer.rootFolder;
+  gAccount = createAccount();
+  const rootFolder = gAccount.incomingServer.rootFolder;
   const subFolders = rootFolder.subFolders;
-  createMessages(subFolders[0], 10);
-  messages = subFolders[0].messages;
+  await createMessages(subFolders[0], 10);
+  gMessages = subFolders[0].messages;
 });
 
 // This test clicks on the action button to open the popup.
@@ -38,7 +39,7 @@ add_task(async function test_popup_open_with_click() {
 
   info("Message window");
   {
-    const messageWindow = await openMessageInWindow(messages.getNext());
+    const messageWindow = await openMessageInWindow(gMessages.getNext());
     const testConfig = {
       actionType: "browser_action",
       testType: "open-with-mouse-click",
@@ -229,7 +230,7 @@ add_task(async function test_popup_open_with_openPopup_in_normal_window() {
     extension.sendMessage("popup closed");
   });
 
-  const messageWindow = await openMessageInWindow(messages.getNext());
+  const messageWindow = await openMessageInWindow(gMessages.getNext());
 
   await extension.startup();
   await extension.awaitFinish("finished");
@@ -422,7 +423,7 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
     extension.sendMessage();
   });
 
-  const messageWindow = await openMessageInWindow(messages.getNext());
+  const messageWindow = await openMessageInWindow(gMessages.getNext());
 
   await extension.startup();
   await extension.awaitFinish("finished");

@@ -2,19 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let gAccount, gFolders, gMessage, gExpectedAttachments;
+"use strict";
 
-const { mailTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
-);
+let gAccount, gFolders, gMessage, gExpectedAttachments;
+let gDefaultTabmail, gDefaultAbout3Pane;
 
 const URL_BASE =
   "http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data";
-
-var tabmail = document.getElementById("tabmail");
-var about3Pane = tabmail.currentAbout3Pane;
-var messagePane =
-  about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
 
 /**
  * Check the parameters of a browser.onShown event was fired.
@@ -150,7 +144,7 @@ function getExtensionDetails(...permissions) {
   };
 }
 
-add_setup(async function () {
+add_setup(async () => {
   await Services.search.init();
 
   gAccount = createAccount();
@@ -190,7 +184,10 @@ add_setup(async function () {
     ],
   });
 
-  about3Pane.restoreState({
+  gDefaultTabmail = document.getElementById("tabmail");
+  gDefaultAbout3Pane = gDefaultTabmail.currentAbout3Pane;
+
+  gDefaultAbout3Pane.restoreState({
     folderPaneVisible: true,
     folderURI: gFolders[0].URI,
     messagePaneVisible: true,
@@ -313,7 +310,7 @@ async function subtest_message_panes(
   await extension.awaitMessage("menus-created");
   await subtest_attachments(
     extension,
-    tabmail.currentAboutMessage,
+    gDefaultTabmail.currentAboutMessage,
     expectedContext,
     expectedAttachments
   );
@@ -327,12 +324,12 @@ async function subtest_message_panes(
   await extension.awaitMessage("menus-created");
   await subtest_attachments(
     extension,
-    tabmail.currentAboutMessage,
+    gDefaultTabmail.currentAboutMessage,
     expectedContext,
     expectedAttachments
   );
   await extension.unload();
-  tabmail.closeOtherTabs(0);
+  gDefaultTabmail.closeOtherTabs(0);
 
   info("Test the message pane in a separate window.");
 
@@ -353,7 +350,9 @@ async function subtest_message_panes(
 // Tests using a message with one attachment.
 add_task(async function test_message_panes() {
   gMessage = [...gFolders[0].messages][0];
-  about3Pane.threadTree.selectedIndex = 1;
+  gDefaultAbout3Pane.threadTree.selectedIndex = 1;
+  const messagePane =
+    gDefaultAbout3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
   await promiseMessageLoaded(messagePane, gMessage);
 
   await subtest_message_panes(

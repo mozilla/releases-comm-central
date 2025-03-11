@@ -3,6 +3,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. *
  */
 
+"use strict";
+
 // Load subscript shared with all menu tests.
 Services.scriptloader.loadSubScript(
   new URL("head_menus.js", gTestPath).href,
@@ -145,16 +147,16 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
   await extension.unload();
 };
 
-add_setup(() => {
+add_setup(async () => {
   const account = createAccount();
   const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test0", null);
+  await createSubfolder(rootFolder, "test0");
 
   const subFolders = {};
   for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test0, 5);
+  await createMessages(subFolders.test0, 5);
 
   const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(subFolders.test0.URI);

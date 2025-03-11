@@ -2,16 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-add_setup(() => {
-  const gAccount = createAccount();
-  const rootFolder = gAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test", null);
+"use strict";
+
+add_setup(async () => {
+  const account = createAccount();
+  const rootFolder = account.incomingServer.rootFolder;
+  await createSubfolder(rootFolder, "test");
 
   const subFolders = {};
   for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test, 6);
+  await createMessages(subFolders.test, 6);
 });
 
 // Ensure the UI is properly updated if junk and tags are updated simultaneously.

@@ -2,16 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const gAccount = createAccount();
-const gDefaultIdentity = addIdentity(gAccount);
-const gNonDefaultIdentity = addIdentity(gAccount);
-const gRootFolder = gAccount.incomingServer.rootFolder;
+"use strict";
 
-gRootFolder.createSubfolder("test", null);
-const gTestFolder = gRootFolder.getChildNamed("test");
-createMessages(gTestFolder, 4);
+let gAccount, gDefaultIdentity, gNonDefaultIdentity;
 
 add_setup(async () => {
+  gAccount = createAccount();
+  gDefaultIdentity = addIdentity(gAccount);
+  gNonDefaultIdentity = addIdentity(gAccount);
+
+  const rootFolder = gAccount.incomingServer.rootFolder;
+  const testFolder = await createSubfolder(rootFolder, "test");
+  await createMessages(testFolder, 4);
+
   // Add a custom header to the composer UI.
   Services.prefs.setCharPref("mail.compose.other.header", "X-Expediteur");
   registerCleanupFunction(async () => {

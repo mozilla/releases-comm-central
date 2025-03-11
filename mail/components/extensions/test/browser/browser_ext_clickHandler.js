@@ -2,14 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 requestLongerTimeout(2);
 
-const { MockRegistrar } = ChromeUtils.importESModule(
+var { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
 /** @implements {nsIExternalProtocolService} */
-const mockExternalProtocolService = {
+const MockExternalProtocolService = {
   _loadedURLs: [],
   externalProtocolHandlerExists() {},
   getApplicationDescription() {},
@@ -32,13 +34,15 @@ const mockExternalProtocolService = {
   },
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };
-const mockExternalProtocolServiceCID = MockRegistrar.register(
-  "@mozilla.org/uriloader/external-protocol-service;1",
-  mockExternalProtocolService
-);
 
-registerCleanupFunction(() => {
-  MockRegistrar.unregister(mockExternalProtocolServiceCID);
+add_setup(async () => {
+  const mockExternalProtocolServiceCID = MockRegistrar.register(
+    "@mozilla.org/uriloader/external-protocol-service;1",
+    MockExternalProtocolService
+  );
+  registerCleanupFunction(() => {
+    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+  });
 });
 
 const getCommonFiles = async () => {
@@ -491,7 +495,7 @@ const subtest_clickInBrowser = async (
     );
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      !MockExternalProtocolService.hasAnyUrlLoaded(),
       `Link should not have been opened in external browser.`
     );
     await extension.sendMessage();
@@ -509,7 +513,7 @@ const subtest_clickInBrowser = async (
     );
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      mockExternalProtocolService.urlLoaded(expectedUrl),
+      MockExternalProtocolService.urlLoaded(expectedUrl),
       `Link should have correctly been opened in external browser.`
     );
     await extension.sendMessage();
@@ -521,7 +525,7 @@ const subtest_clickInBrowser = async (
     Assert.equal("#link2", linkId, `Test should click on the correct link.`);
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      !MockExternalProtocolService.hasAnyUrlLoaded(),
       `Link should not have been opened in external browser.`
     );
     await extension.sendMessage();
@@ -533,7 +537,7 @@ const subtest_clickInBrowser = async (
     Assert.equal("#link3", linkId, `Test should click on the correct link.`);
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      !MockExternalProtocolService.hasAnyUrlLoaded(),
       `Link should not have been opened in external browser.`
     );
     await extension.sendMessage();
@@ -545,7 +549,7 @@ const subtest_clickInBrowser = async (
     Assert.equal("#link4", linkId, `Test should click on the correct link.`);
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      !MockExternalProtocolService.hasAnyUrlLoaded(),
       `Link should not have been opened in external browser.`
     );
     await extension.sendMessage();
@@ -557,7 +561,7 @@ const subtest_clickInBrowser = async (
     Assert.equal("#link5", linkId, `Test should click on the correct link.`);
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      !MockExternalProtocolService.hasAnyUrlLoaded(),
       `Link should not have been opened in external browser.`
     );
     await extension.sendMessage();
@@ -579,7 +583,7 @@ const subtest_clickInBrowser = async (
     );
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      mockExternalProtocolService.urlLoaded(expectedUrl),
+      MockExternalProtocolService.urlLoaded(expectedUrl),
       `Link should have correctly been opened in external browser.`
     );
     await extension.sendMessage();
@@ -593,7 +597,7 @@ const subtest_clickInBrowser = async (
     );
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      !MockExternalProtocolService.hasAnyUrlLoaded(),
       `Link should not have been opened in external browser.`
     );
     await extension.sendMessage();
@@ -605,7 +609,7 @@ const subtest_clickInBrowser = async (
     Assert.equal("#linkExt2", linkId, `Test should click on the correct link.`);
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      !MockExternalProtocolService.hasAnyUrlLoaded(),
       `Link should not have been opened in external browser.`
     );
     await extension.sendMessage();
@@ -619,7 +623,7 @@ const subtest_clickInBrowser = async (
     );
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      mockExternalProtocolService.urlLoaded(expectedUrl),
+      MockExternalProtocolService.urlLoaded(expectedUrl),
       `Link should have correctly been opened in external browser.`
     );
     await extension.sendMessage();
@@ -637,7 +641,7 @@ const subtest_clickInBrowser = async (
     );
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      mockExternalProtocolService.urlLoaded(expectedUrl),
+      MockExternalProtocolService.urlLoaded(expectedUrl),
       `Link should have correctly been opened in external browser.`
     );
     await extension.sendMessage();
@@ -647,7 +651,7 @@ const subtest_clickInBrowser = async (
     Assert.equal("#linkExt3", linkId, `Test should click on the correct link.`);
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      !MockExternalProtocolService.hasAnyUrlLoaded(),
       `Link should not have been opened in external browser.`
     );
     await extension.sendMessage();
@@ -665,7 +669,7 @@ const subtest_clickInBrowser = async (
     );
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      mockExternalProtocolService.urlLoaded(expectedUrl),
+      MockExternalProtocolService.urlLoaded(expectedUrl),
       `Link should have correctly been opened in external browser.`
     );
     await extension.sendMessage();
@@ -675,7 +679,7 @@ const subtest_clickInBrowser = async (
     Assert.equal("#linkExt4", linkId, `Test should click on the correct link.`);
     await clickLink(linkId, getBrowser());
     Assert.ok(
-      !mockExternalProtocolService.hasAnyUrlLoaded(),
+      !MockExternalProtocolService.hasAnyUrlLoaded(),
       `Link should not have been opened in external browser.`
     );
     await extension.sendMessage();
@@ -893,7 +897,7 @@ add_task(async function test_windows_strict() {
 add_task(async function test_mail3pane() {
   const account = createAccount();
   const subFolders = account.incomingServer.rootFolder.subFolders;
-  createMessages(subFolders[0], 1);
+  await createMessages(subFolders[0], 1);
 
   const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   Assert.ok(Boolean(about3Pane), "about:3pane should be the current tab");
@@ -987,12 +991,12 @@ add_task(async function test_mail3pane() {
 // This is actually not an extension test, but everything we need is here already
 // and we only want to simulate a click on a link in a message.
 add_task(async function test_message() {
-  const gAccount = createAccount();
-  const gRootFolder = gAccount.incomingServer.rootFolder;
-  gRootFolder.createSubfolder("test0", null);
+  const account = createAccount();
+  const rootFolder = account.incomingServer.rootFolder;
+  await createSubfolder(rootFolder, "test0");
 
   const subFolders = {};
-  for (const folder of gRootFolder.subFolders) {
+  for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
   await createMessageFromFile(
@@ -1001,9 +1005,9 @@ add_task(async function test_message() {
   );
 
   // Select the message which has a link.
-  const gFolder = subFolders.test0;
+  const folder = subFolders.test0;
   const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-  about3Pane.displayFolder(gFolder.URI);
+  about3Pane.displayFolder(folder.URI);
   const messagePane =
     about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
   const loadedPromise = BrowserTestUtils.browserLoaded(messagePane);
@@ -1013,7 +1017,7 @@ add_task(async function test_message() {
   // Click the link.
   await synthesizeMouseAtCenterAndRetry("#link", {}, messagePane);
   Assert.ok(
-    mockExternalProtocolService.urlLoaded(
+    MockExternalProtocolService.urlLoaded(
       "https://www.example.de/messageLink.html"
     ),
     `Link should have correctly been opened in external browser.`

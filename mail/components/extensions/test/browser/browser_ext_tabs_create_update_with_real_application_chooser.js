@@ -2,32 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 // The purpose of this test (using the real application chooser) is to test that
 // the dialog is indeed properly opened.
 
-var gAccount;
-var gMessages;
-var gFolder;
+let gAccount, gMessages, gFolder;
 
-add_setup(() => {
+add_setup(async () => {
   gAccount = createAccount();
   addIdentity(gAccount);
   const rootFolder = gAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test0", null);
+  await createSubfolder(rootFolder, "test0");
 
   const subFolders = {};
   for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test0, 5);
+  await createMessages(subFolders.test0, 5);
 
   gFolder = subFolders.test0;
   gMessages = [...subFolders.test0.messages];
 
-  const gExternalProtocolService = Cc[
+  const ExternalProtocolService = Cc[
     "@mozilla.org/uriloader/external-protocol-service;1"
   ].getService(Ci.nsIExternalProtocolService);
-  const gHandlerService = Cc[
+  const HandlerService = Cc[
     "@mozilla.org/uriloader/handler-service;1"
   ].getService(Ci.nsIHandlerService);
 
@@ -38,14 +38,14 @@ add_setup(() => {
   phonyTelHandler.name = "Phony tel handler";
   phonyTelHandler.uriTemplate = "https://test.mozilla.org/%s";
 
-  const telHandlerInfo = gExternalProtocolService.getProtocolHandlerInfo("tel");
+  const telHandlerInfo = ExternalProtocolService.getProtocolHandlerInfo("tel");
   const originalTelHandlerInfo = {
     alwaysAskBeforeHandling: telHandlerInfo.alwaysAskBeforeHandling,
     preferredApplicationHandler: telHandlerInfo.preferredApplicationHandler,
   };
   telHandlerInfo.alwaysAskBeforeHandling = true;
   telHandlerInfo.possibleApplicationHandlers.appendElement(phonyTelHandler);
-  gHandlerService.store(telHandlerInfo);
+  HandlerService.store(telHandlerInfo);
 
   registerCleanupFunction(() => {
     telHandlerInfo.alwaysAskBeforeHandling =
@@ -65,7 +65,7 @@ add_setup(() => {
         /* ignore non-web-app handlers */
       }
     }
-    gHandlerService.store(telHandlerInfo);
+    HandlerService.store(telHandlerInfo);
   });
 });
 

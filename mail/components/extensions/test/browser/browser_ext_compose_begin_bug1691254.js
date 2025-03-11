@@ -2,25 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 requestLongerTimeout(2);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-const account = createAccount("pop3");
-createAccount("local");
-MailServices.accounts.defaultAccount = account;
+add_setup(async () => {
+  const account = createAccount("pop3");
+  createAccount("local");
+  MailServices.accounts.defaultAccount = account;
 
-const defaultIdentity = addIdentity(account);
-defaultIdentity.composeHtml = true;
-const nonDefaultIdentity = addIdentity(account);
-nonDefaultIdentity.composeHtml = false;
+  const defaultIdentity = addIdentity(account);
+  defaultIdentity.composeHtml = true;
+  const nonDefaultIdentity = addIdentity(account);
+  nonDefaultIdentity.composeHtml = false;
 
-const rootFolder = account.incomingServer.rootFolder;
-rootFolder.createSubfolder("test", null);
-const folder = rootFolder.getChildNamed("test");
-createMessages(folder, 4);
+  const rootFolder = account.incomingServer.rootFolder;
+  const folder = await createSubfolder(rootFolder, "test");
+  await createMessages(folder, 4);
+});
 
 /* Test if line breaks in HTML are ignored (see bug 1691254). */
 add_task(async function testBR() {

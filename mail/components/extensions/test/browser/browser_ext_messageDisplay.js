@@ -2,27 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var gAccount;
-var gMessages;
-var gFolder;
+"use strict";
 
-add_setup(() => {
+let gAccount, gMessages, gFolder;
+
+add_setup(async () => {
   // Use an ascending order because this test relies on message arrays matching.
   Services.prefs.setIntPref("mailnews.default_sort_order", 1);
 
   gAccount = createAccount();
   const rootFolder = gAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test0", null);
-  rootFolder.createSubfolder("test1", null);
-  rootFolder.createSubfolder("test2", null);
+  await createSubfolder(rootFolder, "test0");
+  await createSubfolder(rootFolder, "test1");
+  await createSubfolder(rootFolder, "test2");
 
   const subFolders = {};
   for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
-  createMessages(subFolders.test0, 5);
-  createMessages(subFolders.test1, 5);
-  createMessages(subFolders.test2, 6);
+  await createMessages(subFolders.test0, 5);
+  await createMessages(subFolders.test1, 5);
+  await createMessages(subFolders.test2, 6);
 
   gFolder = subFolders.test0;
   gMessages = [...subFolders.test0.messages];

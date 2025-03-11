@@ -8,16 +8,13 @@ var { cloudFileAccounts } = ChromeUtils.importESModule(
   "resource:///modules/cloudFileAccounts.sys.mjs"
 );
 
-const { ExtensionUtils } = ChromeUtils.importESModule(
+var { ExtensionUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionUtils.sys.mjs"
 );
 
 var { ExtensionSupport } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSupport.sys.mjs"
 );
-
-const gAccount = createAccount();
-addIdentity(gAccount);
 
 function findWindow(subject) {
   const windows = Array.from(Services.wm.getEnumerator("msgcompose"));
@@ -27,7 +24,7 @@ function findWindow(subject) {
   });
 }
 
-var MockCompleteGenericSendMessage = {
+const MockCompleteGenericSendMessage = {
   register() {
     // For every compose window that opens, replace the function which does the
     // actual sending with one that only records when it has been called.
@@ -59,6 +56,13 @@ var MockCompleteGenericSendMessage = {
     ExtensionSupport.unregisterWindowListener("MockCompleteGenericSendMessage");
   },
 };
+
+let gAccount;
+
+add_setup(async () => {
+  gAccount = createAccount();
+  addIdentity(gAccount);
+});
 
 add_task(async function test_file_attachments() {
   const files = {

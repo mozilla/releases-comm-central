@@ -2,22 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account;
-let subFolders;
+"use strict";
+
+let gAccount, gSubFolders;
 
 add_setup(async () => {
-  account = createAccount();
-  const rootFolder = account.incomingServer.rootFolder;
-  subFolders = rootFolder.subFolders;
-  createMessages(subFolders[0], 10);
-  await TestUtils.waitForCondition(
-    () => subFolders[0].messages.hasMoreElements(),
-    "Messages should be added to folder"
-  );
+  gAccount = createAccount();
+  const rootFolder = gAccount.incomingServer.rootFolder;
+  gSubFolders = rootFolder.subFolders;
+  await createMessages(gSubFolders[0], 10);
 });
 
 function getMessage() {
-  const messages = subFolders[0].messages;
+  const messages = gSubFolders[0].messages;
   ok(messages.hasMoreElements(), "Should have messages to iterate to");
   return messages.getNext();
 }

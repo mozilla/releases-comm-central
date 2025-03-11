@@ -1,8 +1,10 @@
-/* -*- Mode: indent-tabs-mode: nil; js-indent-level: 2 -*- */
-/* vim: set sts=2 sw=2 et tw=80: */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 "use strict";
 
-var testCommands = [
+const gTestCommands = [
   // Ctrl Shortcuts
   {
     name: "toggle-ctrl-a",
@@ -197,7 +199,7 @@ add_task(async function test_user_defined_commands() {
   let totalMacOnlyCommands = 0;
   const numberNumericCommands = 4;
 
-  for (const testCommand of testCommands) {
+  for (const testCommand of gTestCommands) {
     const command = {
       suggested_key: {},
     };
@@ -255,7 +257,7 @@ add_task(async function test_user_defined_commands() {
   await extension.awaitMessage("ready");
 
   async function runTest(window, expectedTabType) {
-    for (const testCommand of testCommands) {
+    for (const testCommand of gTestCommands) {
       if (testCommand.skip && testCommand.skip.includes(expectedTabType)) {
         continue;
       }
@@ -285,7 +287,7 @@ add_task(async function test_user_defined_commands() {
   const win2 = await openNewMailWindow();
 
   const totalTestCommands =
-    Object.keys(testCommands).length + numberNumericCommands;
+    Object.keys(gTestCommands).length + numberNumericCommands;
   const expectedCommandsRegistered = isMac
     ? totalTestCommands
     : totalTestCommands - totalMacOnlyCommands;
@@ -361,7 +363,7 @@ add_task(async function test_commands_MV3_event_page() {
   let totalMacOnlyCommands = 0;
   const numberNumericCommands = 4;
 
-  for (const testCommand of testCommands) {
+  for (const testCommand of gTestCommands) {
     const command = {
       suggested_key: {},
     };
@@ -386,10 +388,10 @@ add_task(async function test_commands_MV3_event_page() {
   }
 
   function background() {
-    // Whenever the extension starts or wakes up, the eventCounter is reset and
-    // allows to observe the order of events fired. In case of a wake-up, the
-    // first observed event is the one that woke up the background.
-    let eventCounter = 0;
+    // Whenever the extension starts or wakes up, the backgroundEventCounter is
+    // reset and allows to observe the order of events fired. In case of a wake-up,
+    // the first observed event is the one that woke up the background.
+    let backgroundEventCounter = 0;
 
     browser.test.onMessage.addListener(async message => {
       if (message == "createPopup") {
@@ -403,7 +405,7 @@ add_task(async function test_commands_MV3_event_page() {
 
     browser.commands.onCommand.addListener(async (commandName, activeTab) => {
       browser.test.sendMessage("oncommand event received", {
-        eventCount: ++eventCounter,
+        eventCount: ++backgroundEventCounter,
         commandName,
         activeTab,
       });
@@ -454,12 +456,12 @@ add_task(async function test_commands_MV3_event_page() {
     primed: false,
   });
 
-  let gEventCounter = 0;
+  let eventCounter = 0;
   async function runTest(window, expectedTabType) {
     // The second run will terminate the background script before each keypress,
     // verifying that the background script is waking up correctly.
     for (const terminateBackground of [false, true]) {
-      for (const testCommand of testCommands) {
+      for (const testCommand of gTestCommands) {
         if (testCommand.skip && testCommand.skip.includes(expectedTabType)) {
           continue;
         }
@@ -468,7 +470,7 @@ add_task(async function test_commands_MV3_event_page() {
         }
 
         if (terminateBackground) {
-          gEventCounter = 0;
+          eventCounter = 0;
         }
 
         if (terminateBackground) {
@@ -509,7 +511,7 @@ add_task(async function test_commands_MV3_event_page() {
         );
         is(
           message.eventCount,
-          ++gEventCounter,
+          ++eventCounter,
           `Event counter should be correct`
         );
       }
@@ -520,7 +522,7 @@ add_task(async function test_commands_MV3_event_page() {
   const win2 = await openNewMailWindow();
 
   const totalTestCommands =
-    Object.keys(testCommands).length + numberNumericCommands;
+    Object.keys(gTestCommands).length + numberNumericCommands;
   const expectedCommandsRegistered = isMac
     ? totalTestCommands
     : totalTestCommands - totalMacOnlyCommands;

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 requestLongerTimeout(2);
 
 // Load subscript shared with all spaces tests.
@@ -10,7 +12,7 @@ Services.scriptloader.loadSubScript(
   this
 );
 
-add_setup(() => {
+add_setup(async () => {
   // Reduce animations to prevent intermittent fails due to late theme changes.
   Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
   registerCleanupFunction(() => {
