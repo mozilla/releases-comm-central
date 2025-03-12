@@ -65,6 +65,8 @@ function createAccount(type = "none") {
     account.incomingServer.port = IMAPServer.port;
     account.incomingServer.username = "user";
     account.incomingServer.password = "password";
+    const inbox = account.incomingServer.rootFolder.getChildNamed("INBOX");
+    inbox.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter = "/";
   }
 
   if (type == "nntp") {
