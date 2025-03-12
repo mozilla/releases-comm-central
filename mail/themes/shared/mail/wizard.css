@@ -46,7 +46,3 @@ html|*.wizard-page-box {
 .wizard-button[dlgtype="next"] {
   margin-inline-start: 0 !important;
 }
-
-.wizard-button[dlgtype="back"] {
-  margin-inline-end: 0 !important;
-}
