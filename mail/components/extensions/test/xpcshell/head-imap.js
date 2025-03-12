@@ -7,6 +7,6 @@
 var IS_IMAP = true;
 
 const wrappedCreateAccount = createAccount;
-createAccount = function (type = "imap") {
-  return wrappedCreateAccount(type);
+createAccount = function (type = "imap", options = {}) {
+  return wrappedCreateAccount(type, options);
 };
