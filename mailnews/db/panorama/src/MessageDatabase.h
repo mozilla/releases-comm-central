@@ -6,6 +6,7 @@
 #define MessageDatabase_h__
 
 #include "MailNewsTypes2.h"
+#include "mozilla/RefPtr.h"
 #include "nsIMessageDatabase.h"
 #include "nsTObserverArray.h"
 #include "nsTString.h"
@@ -16,7 +17,7 @@ namespace mailnews {
 class Folder;
 class Message;
 
-class MessageListener {
+class MessageListener : public nsISupports {
  public:
   virtual void OnMessageAdded(Folder* folder, Message* message) = 0;
   virtual void OnMessageRemoved(Folder* folder, Message* message) = 0;
@@ -50,7 +51,7 @@ class MessageDatabase : public nsIMessageDatabase {
   nsresult MarkAllRead(uint64_t aFolderId, nsTArray<nsMsgKey>& aMarkedKeys);
 
  private:
-  nsTObserverArray<MessageListener*> mMessageListeners;
+  nsTObserverArray<RefPtr<MessageListener>> mMessageListeners;
 };
 
 }  // namespace mailnews

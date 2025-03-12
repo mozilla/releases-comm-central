@@ -27,12 +27,12 @@ class Message : public nsIMsgDBHdr {
 
   nsMsgKey mId;
   uint64_t mFolderId;
-  nsCString mMessageId;
+  nsAutoCString mMessageId;
   PRTime mDate;
-  nsCString mSender;
-  nsCString mSubject;
+  nsAutoCString mSender;
+  nsAutoCString mSubject;
   uint64_t mFlags;
-  nsCString mTags;
+  nsAutoCString mTags;
 
  protected:
   virtual ~Message() {};

@@ -7,6 +7,7 @@
 
 #include "Folder.h"
 #include "mozilla/intl/Collator.h"
+#include "mozilla/RefPtr.h"
 
 using mozilla::intl::Collator;
 

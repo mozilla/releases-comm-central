@@ -20,7 +20,7 @@ add_setup(function testMessagesDBWorks() {
     "karlie@example.org", // sender
     "Synergized real-time portal", // subject
     0, // flags
-    "" // tags
+    "$label5" // tags
   );
   Assert.equal(messages.totalCount, 11);
 

@@ -65,12 +65,12 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
                              getter_AddRefs(stmt));
 
   stmt->BindInt64ByName("folderId"_ns, aFolderId);
-  stmt->BindStringByName("messageId"_ns, NS_ConvertUTF8toUTF16(aMessageId));
+  stmt->BindUTF8StringByName("messageId"_ns, aMessageId);
   stmt->BindInt64ByName("date"_ns, aDate);
-  stmt->BindStringByName("sender"_ns, NS_ConvertUTF8toUTF16(aSender));
-  stmt->BindStringByName("subject"_ns, NS_ConvertUTF8toUTF16(aSubject));
+  stmt->BindUTF8StringByName("sender"_ns, aSender);
+  stmt->BindUTF8StringByName("subject"_ns, aSubject);
   stmt->BindInt64ByName("flags"_ns, aFlags);
-  stmt->BindStringByName("tags"_ns, NS_ConvertUTF8toUTF16(aTags));
+  stmt->BindUTF8StringByName("tags"_ns, aTags);
 
   bool hasResult;
   nsresult rv = stmt->ExecuteStep(&hasResult);
@@ -80,21 +80,22 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
     return NS_ERROR_UNEXPECTED;
   }
 
-  Message* message = new Message(this);
+  RefPtr<Message> message = new Message(this);
   message->mId = (nsMsgKey)(stmt->AsInt64(0));
+  message->mFolderId = aFolderId;
   message->mMessageId = aMessageId;
   message->mDate = aDate;
   message->mSender = aSender;
   message->mSubject = aSubject;
-  message->mFolderId = aFolderId;
   message->mFlags = aFlags;
   message->mTags = aTags;
 
   stmt->Reset();
 
-  nsTObserverArray<MessageListener*>::ForwardIterator iter(mMessageListeners);
+  nsTObserverArray<RefPtr<MessageListener>>::ForwardIterator iter(
+      mMessageListeners);
   while (iter.HasMore()) {
-    MessageListener* messageListener = iter.GetNext();
+    RefPtr<MessageListener> messageListener = iter.GetNext();
     messageListener->OnMessageAdded(nullptr, message);
   }
 
@@ -121,7 +122,7 @@ NS_IMETHODIMP MessageDatabase::RemoveMessage(nsMsgKey aKey) {
   }
 
   uint32_t len;
-  Message* message = new Message(this);
+  RefPtr<Message> message = new Message(this);
   message->mId = aKey;
   message->mFolderId = stmt->AsInt64(0);
   message->mMessageId = stmt->AsSharedUTF8String(1, &len);
@@ -133,9 +134,10 @@ NS_IMETHODIMP MessageDatabase::RemoveMessage(nsMsgKey aKey) {
 
   stmt->Reset();
 
-  nsTObserverArray<MessageListener*>::ForwardIterator iter(mMessageListeners);
+  nsTObserverArray<RefPtr<MessageListener>>::ForwardIterator iter(
+      mMessageListeners);
   while (iter.HasMore()) {
-    MessageListener* messageListener = iter.GetNext();
+    RefPtr<MessageListener> messageListener = iter.GetNext();
     messageListener->OnMessageRemoved(nullptr, message);
   }
 
@@ -177,7 +179,8 @@ nsresult MessageDatabase::GetMessage(nsMsgKey aKey, Message** aMessage) {
     return NS_ERROR_UNEXPECTED;
   }
 
-  *aMessage = new Message(this, stmt);
+  RefPtr<Message> message = new Message(this, stmt);
+  message.forget(aMessage);
   stmt->Reset();
 
   return NS_OK;
@@ -185,8 +188,8 @@ nsresult MessageDatabase::GetMessage(nsMsgKey aKey, Message** aMessage) {
 
 nsresult MessageDatabase::GetMessageFlag(nsMsgKey aKey, uint64_t aFlag,
                                          bool* aHasFlag) {
-  Message* message;
-  GetMessage(aKey, &message);
+  RefPtr<Message> message;
+  GetMessage(aKey, getter_AddRefs(message));
   *aHasFlag = message->mFlags & aFlag;
   return NS_OK;
 }

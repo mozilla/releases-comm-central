@@ -8,6 +8,7 @@
 #include "Folder.h"
 #include "Message.h"
 #include "MessageDatabase.h"
+#include "mozilla/RefPtr.h"
 #include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
 #include "nsMsgMessageFlags.h"
@@ -80,7 +81,7 @@ class TaggedMessagesFilter final : public LiveViewFilter {
     mSQLClause.Append(")");
   }
   void PrepareStatement(mozIStorageStatement* aStmt) override {
-    aStmt->BindStringByName(mParamName, NS_ConvertUTF8toUTF16(mTag));
+    aStmt->BindUTF8StringByName(mParamName, mTag);
   }
 
  protected:

@@ -7,6 +7,7 @@
 
 #include "FolderComparator.h"
 #include "mozilla/Maybe.h"
+#include "mozilla/RefPtr.h"
 #include "nsIFolder.h"
 #include "nsTString.h"
 

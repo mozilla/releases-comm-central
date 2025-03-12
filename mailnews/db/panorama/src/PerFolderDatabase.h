@@ -5,12 +5,12 @@
 #ifndef PerFolderDatabase_h__
 #define PerFolderDatabase_h__
 
+#include "FolderDatabase.h"
 #include "mozilla/WeakPtr.h"
 #include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIFolder.h"
-#include "FolderDatabase.h"
 #include "nsIMsgDatabase.h"
 #include "nsMsgEnumerator.h"
 

@@ -7,6 +7,7 @@
 
 #include "FolderDatabase.h"
 #include "MessageDatabase.h"
+#include "mozilla/RefPtr.h"
 #include "mozilla/WeakPtr.h"
 #include "mozIStorageConnection.h"
 #include "mozIStorageStatement.h"

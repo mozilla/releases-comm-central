@@ -5,6 +5,7 @@
 #include "FolderCollector.h"
 
 #include "mozilla/Components.h"
+#include "mozilla/RefPtr.h"
 #include "nsIDatabaseCore.h"
 #include "nsIDirectoryEnumerator.h"
 #include "nsIMsgAccountManager.h"

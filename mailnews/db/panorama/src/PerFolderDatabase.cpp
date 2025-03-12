@@ -8,6 +8,7 @@
 #include "MailNewsTypes.h"
 #include "Message.h"
 #include "MessageDatabase.h"
+#include "mozilla/RefPtr.h"
 #include "nsMsgMessageFlags.h"
 #include "nsServiceManagerUtils.h"
 
@@ -83,8 +84,8 @@ NS_IMETHODIMP PerFolderDatabase::SetLastUseTime(PRTime aLastUseTime) {
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForKey(nsMsgKey aKey,
                                                  nsIMsgDBHdr** aMsgHdr) {
-  Message* message;
-  nsresult rv = mDatabase->GetMessage(aKey, &message);
+  RefPtr<Message> message;
+  nsresult rv = mDatabase->GetMessage(aKey, getter_AddRefs(message));
   if (NS_FAILED(rv) || message->mFolderId != mFolderId) {
     return NS_ERROR_ILLEGAL_VALUE;
   }
@@ -104,8 +105,8 @@ NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForEwsItemID(const nsACString& itemID,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::ContainsKey(nsMsgKey aKey, bool* aContains) {
-  Message* message;
-  nsresult rv = mDatabase->GetMessage(aKey, &message);
+  RefPtr<Message> message;
+  nsresult rv = mDatabase->GetMessage(aKey, getter_AddRefs(message));
   *aContains = NS_SUCCEEDED(rv) && message->mFolderId == mFolderId;
   return NS_OK;
 }
@@ -137,7 +138,6 @@ NS_IMETHODIMP PerFolderDatabase::CopyHdrFromExistingHdr(
     nsIMsgDBHdr** aRetVal) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-
 NS_IMETHODIMP PerFolderDatabase::AddMsgHdr(RawHdr* msg, bool notify,
                                            nsIMsgDBHdr** newHdr) {
   MOZ_ASSERT(newHdr);
@@ -157,7 +157,6 @@ NS_IMETHODIMP PerFolderDatabase::AddMsgHdr(RawHdr* msg, bool notify,
   newMsg.forget(newHdr);
   return rv;
 }
-
 NS_IMETHODIMP PerFolderDatabase::ListAllKeys(nsTArray<nsMsgKey>& aKeys) {
   return mDatabase->ListAllKeys(mFolderId, aKeys);
 }

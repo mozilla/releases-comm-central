@@ -239,7 +239,7 @@ nsresult FolderDatabase::InternalInsertFolder(nsIFolder* aParent,
       getter_AddRefs(stmt));
 
   stmt->BindInt64ByName("parent"_ns, parent ? parent->mId : 0);
-  stmt->BindStringByName("name"_ns, NS_ConvertUTF8toUTF16(aName));
+  stmt->BindUTF8StringByName("name"_ns, aName);
   bool hasResult;
   nsresult rv = stmt->ExecuteStep(&hasResult);
   NS_ENSURE_SUCCESS(rv, rv);
