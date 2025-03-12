@@ -299,12 +299,13 @@ add_task(async function testDeletionWhileScrolling() {
     },
   };
 
-  async function delayThenPress(millis, key) {
+  async function delayThenPressAndWaitForSelect(millis, key) {
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(resolve => setTimeout(resolve, millis));
     if (key) {
+      const eventPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
       EventUtils.synthesizeKey(key, {}, about3Pane);
-      await TestUtils.waitForTick();
+      await eventPromise;
     }
   }
 
@@ -318,11 +319,11 @@ add_task(async function testDeletionWhileScrolling() {
   scrollListener.setScrollExpectation(-1);
 
   // Page up a few times then delete some messages.
-  await delayThenPress(0, "VK_PAGE_UP");
-  await delayThenPress(60, "VK_PAGE_UP");
-  await delayThenPress(60, "VK_PAGE_UP");
-  await delayThenPress(400, "VK_DELETE");
-  await delayThenPress(80, "VK_DELETE");
+  await delayThenPressAndWaitForSelect(0, "VK_PAGE_UP");
+  await delayThenPressAndWaitForSelect(60, "VK_PAGE_UP");
+  await delayThenPressAndWaitForSelect(60, "VK_PAGE_UP");
+  await delayThenPressAndWaitForSelect(400, "VK_DELETE");
+  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
 
   await scrollend;
 
@@ -337,14 +338,14 @@ add_task(async function testDeletionWhileScrolling() {
   scrollend = scrollListener.promiseScrollingStopped();
   scrollListener.setScrollExpectation(1);
 
-  await delayThenPress(60, "VK_PAGE_DOWN");
-  await delayThenPress(60, "VK_PAGE_DOWN");
-  await delayThenPress(60, "VK_PAGE_DOWN");
-  await delayThenPress(300, "VK_DELETE");
-  await delayThenPress(80, "VK_DELETE");
-  await delayThenPress(80, "VK_DELETE");
-  await delayThenPress(80, "VK_DELETE");
-  await delayThenPress(80, "VK_DELETE");
+  await delayThenPressAndWaitForSelect(60, "VK_PAGE_DOWN");
+  await delayThenPressAndWaitForSelect(60, "VK_PAGE_DOWN");
+  await delayThenPressAndWaitForSelect(60, "VK_PAGE_DOWN");
+  await delayThenPressAndWaitForSelect(300, "VK_DELETE");
+  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
+  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
+  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
+  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
 
   await scrollend;
 
@@ -353,17 +354,21 @@ add_task(async function testDeletionWhileScrolling() {
     threadTree.selectedIndex,
     "selected row should be the last visible row"
   );
-
   // Select a message somewhere in the middle then delete it.
   // Shouldn't scroll.
   scrollListener.setNoScrollExpectation();
-  threadTree.selectedIndex -= 10;
-  await delayThenPress(80, "VK_DELETE");
-  await delayThenPress(80, "VK_DELETE");
-  await delayThenPress(80, "VK_DELETE");
-
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, timeout));
+  const targetIndex = threadTree.selectedIndex - 10;
+  const selectEvent = BrowserTestUtils.waitForEvent(
+    threadTree,
+    "select",
+    false,
+    () => threadTree.selectedIndex == targetIndex
+  );
+  threadTree.selectedIndex = targetIndex;
+  await selectEvent;
+  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
+  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
+  await delayThenPressAndWaitForSelect(80, "VK_DELETE");
 
   Assert.less(
     threadTree.getFirstVisibleIndex(),
