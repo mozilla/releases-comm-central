@@ -626,6 +626,10 @@ nsresult nsMsgDBView::FetchDate(nsIMsgDBHdr* aHdr, nsAString& aDateString,
       mozilla::intl::DateTimeFormat::ComponentsBag components{};
       components.weekday =
           mozilla::Some(mozilla::intl::DateTimeFormat::Text::Short);
+      explodedMsgTime.tm_params.tp_gmt_offset -=
+          explodedCurrentTime.tm_params.tp_gmt_offset;
+      explodedMsgTime.tm_params.tp_dst_offset -=
+          explodedCurrentTime.tm_params.tp_dst_offset;
       rv = mozilla::intl::AppDateTimeFormat::Format(
           components, &explodedMsgTime, weekdayString);
       NS_ENSURE_SUCCESS(rv, rv);
