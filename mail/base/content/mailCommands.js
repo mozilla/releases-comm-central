@@ -417,7 +417,7 @@ async function ComposeMessage(
             );
           } else {
             let bestIdentity = null;
-            if (!identity && currentHeaderData.newsgroups) {
+            if (!identity && currentHeaderData?.newsgroups) {
               // This appears to be a standalone newsgroup message opened from
               // a file or 'news:' URI. Try to get the identity of the first
               // NNTP account.
