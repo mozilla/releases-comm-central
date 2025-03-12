@@ -28,19 +28,26 @@ Message::Message(MessageDatabase* aDatabase, mozIStorageStatement* aStmt)
 
 NS_IMETHODIMP Message::SetStringProperty(const char* propertyName,
                                          const nsACString& propertyValue) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return mDatabase->SetMessageProperty(mId, nsCString(propertyName),
+                                       propertyValue);
 }
 NS_IMETHODIMP Message::GetStringProperty(const char* propertyName,
-                                         nsACString& _retval) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+                                         nsACString& propertyValue) {
+  return mDatabase->GetMessageProperty(mId, nsCString(propertyName),
+                                       propertyValue);
 }
 NS_IMETHODIMP Message::GetUint32Property(const char* propertyName,
-                                         uint32_t* _retval) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+                                         uint32_t* propertyValue) {
+  return mDatabase->GetMessageProperty(mId, nsCString(propertyName),
+                                       propertyValue);
 }
 NS_IMETHODIMP Message::SetUint32Property(const char* propertyName,
-                                         uint32_t propertyVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+                                         uint32_t propertyValue) {
+  return mDatabase->SetMessageProperty(mId, nsCString(propertyName),
+                                       propertyValue);
+}
+NS_IMETHODIMP Message::GetProperties(nsTArray<nsCString>& properties) {
+  return mDatabase->GetMessageProperties(mId, properties);
 }
 NS_IMETHODIMP Message::GetIsRead(bool* aIsRead) {
   *aIsRead = mFlags & nsMsgMessageFlags::Read;
@@ -139,10 +146,10 @@ NS_IMETHODIMP Message::SetLineCount(uint32_t aLineCount) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetStoreToken(nsACString& aStoreToken) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return GetStringProperty("storeToken", aStoreToken);
 }
 NS_IMETHODIMP Message::SetStoreToken(const nsACString& aStoreToken) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return SetStringProperty("storeToken", aStoreToken);
 }
 NS_IMETHODIMP Message::GetOfflineMessageSize(uint32_t* aOfflineMessageSize) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -246,9 +253,6 @@ NS_IMETHODIMP Message::SetAccountKey(const nsACString& aAccountKey) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetFolder(nsIMsgFolder** aFolder) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP Message::GetProperties(nsTArray<nsCString>& aProperties) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetUidOnServer(uint32_t* aUidOnServer) {

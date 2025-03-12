@@ -51,7 +51,7 @@ class DatabaseCore : public nsIDatabaseCore,
   friend class MessageDatabase;
   friend class PerFolderDatabase;
 
-  static nsresult GetStatement(const nsCString& aName, const nsCString& aSQL,
+  static nsresult GetStatement(const nsACString& aName, const nsACString& aSQL,
                                mozIStorageStatement** aStmt);
 
  private:

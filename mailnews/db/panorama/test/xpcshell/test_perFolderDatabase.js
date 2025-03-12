@@ -242,6 +242,35 @@ add_task(async function testHeaderMethods() {
   );
 });
 
+add_task(async function testHeaderProperties() {
+  const folderC = MailServices.folderLookup.getFolderForURL(
+    account.incomingServer.rootFolder.URI + "/folderC"
+  );
+
+  const folderDatabase = database.openFolderDB(folderC, false);
+  const header = folderDatabase.getMsgHdrForKey(7);
+
+  Assert.equal(header.getStringProperty("hack"), "");
+  header.setStringProperty("hack", "splat");
+  Assert.equal(header.getStringProperty("hack"), "splat");
+  header.setStringProperty("hack", "");
+  Assert.equal(header.getStringProperty("hack"), "");
+
+  Assert.equal(header.getUint32Property("answer"), 0);
+  header.setUint32Property("answer", 42);
+  Assert.equal(header.getUint32Property("answer"), 42);
+
+  Assert.equal(header.storeToken, "");
+  header.storeToken = "12345678";
+  Assert.equal(header.storeToken, "12345678");
+
+  Assert.deepEqual(header.properties.toSorted(), [
+    "answer",
+    "hack",
+    "storeToken",
+  ]);
+});
+
 add_task(async function testListener() {
   class FolderListener {
     QueryInterface = ChromeUtils.generateQI(["nsIDBChangeListener"]);

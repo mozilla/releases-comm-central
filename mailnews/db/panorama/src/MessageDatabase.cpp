@@ -245,6 +245,109 @@ nsresult MessageDatabase::MarkAllRead(uint64_t aFolderId,
   return NS_OK;
 }
 
+nsresult MessageDatabase::GetMessageProperties(
+    nsMsgKey aKey, nsTArray<nsCString>& aProperties) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "GetMessageProperties"_ns,
+      "SELECT name FROM message_properties WHERE id = :id"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("id"_ns, aKey);
+
+  aProperties.Clear();
+  bool hasResult;
+  uint32_t len;
+  nsAutoCString name;
+  while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    name = stmt->AsSharedUTF8String(0, &len);
+    aProperties.AppendElement(name);
+  }
+  stmt->Reset();
+
+  return NS_OK;
+}
+
+nsresult MessageDatabase::GetMessageProperty(nsMsgKey aKey,
+                                             const nsACString& aName,
+                                             nsACString& aValue) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "GetMessageProperty"_ns,
+      "SELECT value FROM message_properties WHERE id = :id AND name = :name"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("id"_ns, aKey);
+  stmt->BindUTF8StringByName("name"_ns, aName);
+
+  aValue.Truncate();
+  bool hasResult;
+  if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    uint32_t len;
+    aValue = stmt->AsSharedUTF8String(0, &len);
+  }
+  stmt->Reset();
+
+  return rv;
+}
+
+nsresult MessageDatabase::GetMessageProperty(nsMsgKey aKey,
+                                             const nsACString& aName,
+                                             uint32_t* aValue) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "GetMessageProperty"_ns,
+      "SELECT value FROM message_properties WHERE id = :id AND name = :name"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("id"_ns, aKey);
+  stmt->BindUTF8StringByName("name"_ns, aName);
+
+  *aValue = 0;
+  bool hasResult;
+  if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    *aValue = stmt->AsInt64(0);  // Strange cast, can't do much about it.
+  }
+  stmt->Reset();
+
+  return rv;
+}
+
+nsresult MessageDatabase::SetMessageProperty(nsMsgKey aKey,
+                                             const nsACString& aName,
+                                             const nsACString& aValue) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "SetMessageProperty"_ns,
+      "REPLACE INTO message_properties (id, name, value) VALUES (:id, :name, :value)"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("id"_ns, aKey);
+  stmt->BindUTF8StringByName("name"_ns, aName);
+  stmt->BindUTF8StringByName("value"_ns, aValue);
+  return stmt->Execute();
+}
+
+nsresult MessageDatabase::SetMessageProperty(nsMsgKey aKey,
+                                             const nsACString& aName,
+                                             uint32_t aValue) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "SetMessageProperty"_ns,
+      "REPLACE INTO message_properties (id, name, value) VALUES (:id, :name, :value)"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("id"_ns, aKey);
+  stmt->BindUTF8StringByName("name"_ns, aName);
+  stmt->BindInt64ByName("value"_ns, aValue);
+  return stmt->Execute();
+}
+
 NS_IMETHODIMP_(void)
 MessageDatabase::AddMessageListener(MessageListener* aListener) {
   mMessageListeners.AppendElement(aListener);

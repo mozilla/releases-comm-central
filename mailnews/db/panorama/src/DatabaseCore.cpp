@@ -155,6 +155,13 @@ nsresult DatabaseCore::EnsureConnection() {
           tags TEXT \
         );"_ns);
     sConnection->ExecuteSimpleSQL(
+        "CREATE TABLE message_properties( \
+          id INTEGER REFERENCES messages(id), \
+          name TEXT, \
+          value ANY \
+          PRIMARY KEY(id, name) \
+        );"_ns);
+    sConnection->ExecuteSimpleSQL(
         "CREATE INDEX messages_date ON messages(date);"_ns);
   }
 
@@ -171,8 +178,8 @@ nsresult DatabaseCore::EnsureConnection() {
 /**
  * Create and cache an SQL statement.
  */
-nsresult DatabaseCore::GetStatement(const nsCString& aName,
-                                    const nsCString& aSQL,
+nsresult DatabaseCore::GetStatement(const nsACString& aName,
+                                    const nsACString& aSQL,
                                     mozIStorageStatement** aStmt) {
   NS_ENSURE_ARG_POINTER(aStmt);
 

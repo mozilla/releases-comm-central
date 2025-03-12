@@ -8,6 +8,7 @@
 #include "MailNewsTypes2.h"
 #include "mozilla/RefPtr.h"
 #include "nsIMessageDatabase.h"
+#include "nsTHashMap.h"
 #include "nsTObserverArray.h"
 #include "nsTString.h"
 
@@ -49,6 +50,17 @@ class MessageDatabase : public nsIMessageDatabase {
   nsresult SetMessageFlag(nsMsgKey aKey, uint64_t aFlag, bool aSetFlag);
   nsresult SetMessageFlags(uint64_t aId, uint64_t aFlags);
   nsresult MarkAllRead(uint64_t aFolderId, nsTArray<nsMsgKey>& aMarkedKeys);
+
+  nsresult GetMessageProperties(nsMsgKey aKey,
+                                nsTArray<nsCString>& aProperties);
+  nsresult GetMessageProperty(nsMsgKey aKey, const nsACString& aName,
+                              nsACString& aValue);
+  nsresult GetMessageProperty(nsMsgKey aKey, const nsACString& aName,
+                              uint32_t* aValue);
+  nsresult SetMessageProperty(nsMsgKey aKey, const nsACString& aName,
+                              const nsACString& aValue);
+  nsresult SetMessageProperty(nsMsgKey aKey, const nsACString& aName,
+                              uint32_t aValue);
 
  private:
   nsTObserverArray<RefPtr<MessageListener>> mMessageListeners;
