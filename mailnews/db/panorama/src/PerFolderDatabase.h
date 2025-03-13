@@ -27,12 +27,14 @@ class PerFolderDatabase : public nsIMsgDatabase,
                           public SupportsWeakPtr,
                           public MessageListener {
  public:
-  explicit PerFolderDatabase(MessageDatabase* aDatabase, uint64_t aFolderId,
-                             bool isNewsFolder)
-      : mDatabase(aDatabase),
-        mFolderId(aFolderId),
+  explicit PerFolderDatabase(FolderDatabase* folderDatabase,
+                             MessageDatabase* messageDatabase,
+                             uint64_t folderId, bool isNewsFolder)
+      : mFolderDatabase(folderDatabase),
+        mMessageDatabase(messageDatabase),
+        mFolderId(folderId),
         mIsNewsFolder(isNewsFolder) {
-    mDatabase->AddMessageListener(this);
+    mMessageDatabase->AddMessageListener(this);
   }
 
   NS_DECL_ISUPPORTS
@@ -46,7 +48,8 @@ class PerFolderDatabase : public nsIMsgDatabase,
  private:
   virtual ~PerFolderDatabase() {};
 
-  MessageDatabase* mDatabase;
+  FolderDatabase* mFolderDatabase;
+  MessageDatabase* mMessageDatabase;
   uint64_t mFolderId;
   bool mIsNewsFolder;
   nsTArray<nsMsgKey> mNewList;
@@ -55,7 +58,8 @@ class PerFolderDatabase : public nsIMsgDatabase,
 
 class MessageEnumerator : public nsBaseMsgEnumerator {
  public:
-  MessageEnumerator(MessageDatabase* aDatabase, mozIStorageStatement* aStmt);
+  MessageEnumerator(MessageDatabase* messageDatabase,
+                    mozIStorageStatement* aStmt);
 
   // nsIMsgEnumerator support.
   NS_IMETHOD GetNext(nsIMsgDBHdr** aItem) override;
@@ -66,14 +70,15 @@ class MessageEnumerator : public nsBaseMsgEnumerator {
     if (mStmt) mStmt->Finalize();
   }
 
-  MessageDatabase* mDatabase;
+  MessageDatabase* mMessageDatabase;
   nsCOMPtr<mozIStorageStatement> mStmt;
   bool mHasNext = false;
 };
 
 class ThreadEnumerator : public nsBaseMsgThreadEnumerator {
  public:
-  ThreadEnumerator(MessageDatabase* database, mozIStorageStatement* stmt);
+  ThreadEnumerator(MessageDatabase* messageDatabase,
+                   mozIStorageStatement* aStmt);
 
   // nsIMsgEnumerator support.
   NS_IMETHOD GetNext(nsIMsgThread** item) override;
@@ -84,14 +89,14 @@ class ThreadEnumerator : public nsBaseMsgThreadEnumerator {
     if (mStmt) mStmt->Finalize();
   }
 
-  MessageDatabase* mDatabase;
+  MessageDatabase* mMessageDatabase;
   nsCOMPtr<mozIStorageStatement> mStmt;
   bool mHasNext = false;
 };
 
 class FolderInfo : public nsIDBFolderInfo {
  public:
-  explicit FolderInfo(uint64_t aFolderId);
+  explicit FolderInfo(FolderDatabase* folderDatabase, uint64_t folderId);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIDBFOLDERINFO
@@ -99,7 +104,7 @@ class FolderInfo : public nsIDBFolderInfo {
  private:
   virtual ~FolderInfo() {};
 
-  nsCOMPtr<nsIFolderDatabase> mDatabase;
+  FolderDatabase* mFolderDatabase;
   nsCOMPtr<nsIFolder> mFolder;
 };
 

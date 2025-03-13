@@ -135,7 +135,7 @@ nsresult DatabaseCore::EnsureConnection() {
   if (!exists) {
     MOZ_LOG(gPanoramaLog, LogLevel::Warning,
             ("database file does not exist, creating"));
-    sConnection->ExecuteSimpleSQL(
+    rv = sConnection->ExecuteSimpleSQL(
         "CREATE TABLE folders ( \
           id INTEGER PRIMARY KEY, \
           parent INTEGER REFERENCES folders(id), \
@@ -144,8 +144,17 @@ nsresult DatabaseCore::EnsureConnection() {
           flags INTEGER DEFAULT 0, \
           UNIQUE(parent, name) \
         );"_ns);
-    sConnection->ExecuteSimpleSQL(
-        "CREATE TABLE messages( \
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = sConnection->ExecuteSimpleSQL(
+        "CREATE TABLE folder_properties ( \
+          id INTEGER REFERENCES folders(id), \
+          name TEXT, \
+          value ANY, \
+          PRIMARY KEY(id, name) \
+        );"_ns);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = sConnection->ExecuteSimpleSQL(
+        "CREATE TABLE messages ( \
           id INTEGER PRIMARY KEY, \
           folderId INTEGER REFERENCES folders(id), \
           messageId TEXT, \
@@ -155,15 +164,18 @@ nsresult DatabaseCore::EnsureConnection() {
           flags INTEGER, \
           tags TEXT \
         );"_ns);
-    sConnection->ExecuteSimpleSQL(
-        "CREATE TABLE message_properties( \
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = sConnection->ExecuteSimpleSQL(
+        "CREATE TABLE message_properties ( \
           id INTEGER REFERENCES messages(id), \
           name TEXT, \
-          value ANY \
+          value ANY, \
           PRIMARY KEY(id, name) \
         );"_ns);
-    sConnection->ExecuteSimpleSQL(
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = sConnection->ExecuteSimpleSQL(
         "CREATE INDEX messages_date ON messages(date);"_ns);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   RefPtr<TagsMatchFunction> tagsInclude = new TagsMatchFunction(true);
@@ -262,7 +274,7 @@ NS_IMETHODIMP DatabaseCore::OpenFolderDB(nsIMsgFolder* aFolder,
   }
 
   RefPtr<PerFolderDatabase> db =
-      new PerFolderDatabase(mMessageDatabase, folderId,
+      new PerFolderDatabase(mFolderDatabase, mMessageDatabase, folderId,
                             folder->GetFlags() & nsMsgFolderFlags::Newsgroup);
   NS_IF_ADDREF(*_retval = db);
 

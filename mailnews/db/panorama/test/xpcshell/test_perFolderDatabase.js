@@ -189,6 +189,64 @@ add_task(async function testFolderInfo() {
   );
 });
 
+add_task(async function testFolderProperties() {
+  const folderB = MailServices.folderLookup.getFolderForURL(
+    account.incomingServer.rootFolder.URI + "/folderB"
+  );
+
+  const folderDatabase = database.openFolderDB(folderB, false);
+  const folderInfo = folderDatabase.dBFolderInfo;
+
+  Assert.equal(folderInfo.getProperty("wibble"), "");
+  folderInfo.setProperty("wibble", "wobble");
+  Assert.equal(folderInfo.getProperty("wibble"), "wobble");
+  folderInfo.setProperty("wibble", "");
+  Assert.equal(folderInfo.getProperty("wibble"), "");
+
+  Assert.equal(folderInfo.getCharProperty("hack"), "");
+  folderInfo.setCharProperty("hack", "splat");
+  Assert.equal(folderInfo.getCharProperty("hack"), "splat");
+  folderInfo.setCharProperty("hack", "");
+  Assert.equal(folderInfo.getCharProperty("hack"), "");
+
+  Assert.equal(folderInfo.getUint32Property("answer", 3), 3);
+  folderInfo.setUint32Property("answer", 42);
+  Assert.equal(folderInfo.getUint32Property("answer", 3), 42);
+
+  Assert.equal(folderInfo.getInt64Property("days", -1), -1);
+  folderInfo.setInt64Property("days", 365);
+  Assert.equal(folderInfo.getInt64Property("days", -1), 365);
+
+  Assert.equal(folderInfo.getBooleanProperty("yes?", true), true);
+  folderInfo.setBooleanProperty("yes?", false);
+  Assert.equal(folderInfo.getBooleanProperty("yes?", true), false);
+
+  Assert.equal(folderInfo.getBooleanProperty("no!", false), false);
+  folderInfo.setBooleanProperty("no!", true);
+  Assert.equal(folderInfo.getBooleanProperty("no!", false), true);
+
+  // Check the database has a record of the properties.
+  // TODO: Should we remove properties set to an empty string or 0?
+
+  const stmt = database.connection.createStatement(
+    "SELECT id, name, value FROM folder_properties ORDER BY id, name"
+  );
+  const properties = [];
+  while (stmt.executeStep()) {
+    properties.push([stmt.row.id, stmt.row.name, stmt.row.value]);
+  }
+  stmt.finalize();
+
+  Assert.deepEqual(properties, [
+    [3, "answer", 42],
+    [3, "days", 365],
+    [3, "hack", ""],
+    [3, "no!", true],
+    [3, "wibble", ""],
+    [3, "yes?", false],
+  ]);
+});
+
 add_task(async function testHeaderMethods() {
   const folderC = MailServices.folderLookup.getFolderForURL(
     account.incomingServer.rootFolder.URI + "/folderC"
@@ -268,6 +326,24 @@ add_task(async function testHeaderProperties() {
     "answer",
     "hack",
     "storeToken",
+  ]);
+
+  // Check the database has a record of the properties.
+  // TODO: Should we remove properties set to an empty string or 0?
+
+  const stmt = database.connection.createStatement(
+    "SELECT id, name, value FROM message_properties ORDER BY id, name"
+  );
+  const properties = [];
+  while (stmt.executeStep()) {
+    properties.push([stmt.row.id, stmt.row.name, stmt.row.value]);
+  }
+  stmt.finalize();
+
+  Assert.deepEqual(properties, [
+    [7, "answer", 42],
+    [7, "hack", ""],
+    [7, "storeToken", "12345678"],
   ]);
 });
 

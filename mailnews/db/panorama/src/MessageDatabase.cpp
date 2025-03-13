@@ -5,6 +5,7 @@
 #include "MessageDatabase.h"
 
 #include "DatabaseCore.h"
+#include "DatabaseUtils.h"
 #include "Message.h"
 #include "mozilla/Logging.h"
 #include "nsMsgMessageFlags.h"
@@ -280,7 +281,7 @@ nsresult MessageDatabase::GetMessageProperty(nsMsgKey aKey,
   NS_ENSURE_SUCCESS(rv, rv);
 
   stmt->BindInt64ByName("id"_ns, aKey);
-  stmt->BindUTF8StringByName("name"_ns, aName);
+  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(aName));
 
   aValue.Truncate();
   bool hasResult;
@@ -304,7 +305,7 @@ nsresult MessageDatabase::GetMessageProperty(nsMsgKey aKey,
   NS_ENSURE_SUCCESS(rv, rv);
 
   stmt->BindInt64ByName("id"_ns, aKey);
-  stmt->BindUTF8StringByName("name"_ns, aName);
+  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(aName));
 
   *aValue = 0;
   bool hasResult;
@@ -327,7 +328,7 @@ nsresult MessageDatabase::SetMessageProperty(nsMsgKey aKey,
   NS_ENSURE_SUCCESS(rv, rv);
 
   stmt->BindInt64ByName("id"_ns, aKey);
-  stmt->BindUTF8StringByName("name"_ns, aName);
+  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(aName));
   stmt->BindUTF8StringByName("value"_ns, aValue);
   return stmt->Execute();
 }
@@ -343,7 +344,7 @@ nsresult MessageDatabase::SetMessageProperty(nsMsgKey aKey,
   NS_ENSURE_SUCCESS(rv, rv);
 
   stmt->BindInt64ByName("id"_ns, aKey);
-  stmt->BindUTF8StringByName("name"_ns, aName);
+  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(aName));
   stmt->BindInt64ByName("value"_ns, aValue);
   return stmt->Execute();
 }

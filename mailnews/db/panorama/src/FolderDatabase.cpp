@@ -5,6 +5,7 @@
 #include "FolderDatabase.h"
 
 #include "DatabaseCore.h"
+#include "DatabaseUtils.h"
 #include "Folder.h"
 #include "FolderCollector.h"
 #include "FolderComparator.h"
@@ -24,8 +25,7 @@ using mozilla::LogLevel;
 using mozilla::MarkerOptions;
 using mozilla::MarkerTiming;
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 extern LazyLogModule gPanoramaLog;  // Defined by DatabaseCore.
 
@@ -466,5 +466,77 @@ FolderDatabase::UpdateFlags(nsIFolder* aFolder, uint64_t aNewFlags) {
   return rv;
 }
 
-}  // namespace mailnews
-}  // namespace mozilla
+nsresult FolderDatabase::GetFolderProperty(uint64_t id, const nsACString& name,
+                                           nsACString& value) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "GetFolderProperty"_ns,
+      "SELECT value FROM folder_properties WHERE id = :id AND name = :name"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("id"_ns, id);
+  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(name));
+
+  bool hasResult;
+  if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    uint32_t len;
+    value = stmt->AsSharedUTF8String(0, &len);
+  }
+  stmt->Reset();
+
+  return rv;
+}
+
+nsresult FolderDatabase::GetFolderProperty(uint64_t id, const nsACString& name,
+                                           int64_t* value) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "GetFolderProperty"_ns,
+      "SELECT value FROM folder_properties WHERE id = :id AND name = :name"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("id"_ns, id);
+  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(name));
+
+  bool hasResult;
+  if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    *value = stmt->AsInt64(0);
+  }
+  stmt->Reset();
+
+  return rv;
+}
+
+nsresult FolderDatabase::SetFolderProperty(uint64_t id, const nsACString& name,
+                                           const nsACString& value) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "SetFolderProperty"_ns,
+      "REPLACE INTO folder_properties (id, name, value) VALUES (:id, :name, :value)"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("id"_ns, id);
+  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(name));
+  stmt->BindUTF8StringByName("value"_ns, value);
+  return stmt->Execute();
+}
+
+nsresult FolderDatabase::SetFolderProperty(uint64_t id, const nsACString& name,
+                                           int64_t value) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "SetFolderProperty"_ns,
+      "REPLACE INTO folder_properties (id, name, value) VALUES (:id, :name, :value)"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("id"_ns, id);
+  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(name));
+  stmt->BindInt64ByName("value"_ns, value);
+  return stmt->Execute();
+}
+
+}  // namespace mozilla::mailnews

@@ -12,6 +12,13 @@ INSERT INTO folders (id, parent, name) VALUES
   (3, 1, 'folderB'),
   (4, 1, 'folderC');
 
+CREATE TABLE folder_properties(
+  id INTEGER REFERENCES folders(id),
+  name TEXT,
+  value ANY,
+  PRIMARY KEY(id, name)
+) STRICT;
+
 CREATE TABLE messages(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   folderId INTEGER REFERENCES folders(id),

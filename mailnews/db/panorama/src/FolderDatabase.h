@@ -36,6 +36,18 @@ class FolderDatabase : public nsIFolderDatabase {
   void Shutdown();
 
  private:
+  friend class FolderInfo;
+
+  nsresult GetFolderProperty(uint64_t id, const nsACString& name,
+                             nsACString& value);
+  nsresult GetFolderProperty(uint64_t id, const nsACString& name,
+                             int64_t* value);
+  nsresult SetFolderProperty(uint64_t id, const nsACString& name,
+                             const nsACString& value);
+  nsresult SetFolderProperty(uint64_t id, const nsACString& name,
+                             int64_t value);
+
+ private:
   nsTHashMap<uint64_t, RefPtr<Folder>> mFoldersById;
   nsTHashMap<nsCString, RefPtr<Folder>> mFoldersByPath;
   FolderComparator mComparator;
