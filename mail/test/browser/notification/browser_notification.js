@@ -52,8 +52,8 @@ var gMockAlertsService = {
 
   showAlert(alertInfo, alertListener) {
     info(`showAlert: ${alertInfo.name}`);
-    const { imageURL, title, text, textClickable, cookie, name } = alertInfo;
-    this._didNotify = true;
+    const { imageURL, title, text, textClickable, cookie, name, actions } =
+      alertInfo;
     this._imageUrl = imageURL;
     this._title = title;
     this._text = text;
@@ -61,17 +61,24 @@ var gMockAlertsService = {
     this._cookie = cookie;
     this._alertListener = alertListener;
     this._name = name;
+    this._actions = actions;
 
     this._alertListener.observe(null, "alertshow", alert.cookie);
     this._shownDeferred?.resolve();
     this._shownDeferred = null;
     if (this._doClick) {
+      let action = null;
+      if (typeof this._doClick == "string") {
+        action = actions.find(a => a.action == this._doClick);
+        Assert.ok(action, "expected action should be defined");
+      }
       // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-      setTimeout(
-        () =>
-          this._alertListener.observe(null, "alertclickcallback", this._cookie),
-        100
-      );
+      setTimeout(() => {
+        this._alertListener.observe(action, "alertclickcallback", this._cookie);
+        this._didNotify = true;
+      }, 100);
+    } else {
+      this._didNotify = true;
     }
   },
 
@@ -92,6 +99,7 @@ var gMockAlertsService = {
   _cookie: null,
   _alertListener: null,
   _name: null,
+  _actions: null,
 
   _reset() {
     // Tell any listeners that we're through
@@ -702,6 +710,68 @@ add_task(async function test_click_on_notification() {
 
   Services.prefs.clearUserPref("mail.openMessageBehavior");
   about3Pane.paneLayout.messagePaneVisible = true;
+});
+
+/**
+ * Test what happens when clicking on a notification. This depends on whether
+ * the message pane is open, and the value of mail.openMessageBehavior.
+ */
+add_task(async function test_click_on_notification_actions() {
+  setupTest();
+
+  // No enabled actions.
+
+  Services.prefs.setStringPref("mail.biff.alert.enabled_actions", "");
+  gMockAlertsService._doClick = false;
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  await TestUtils.waitForCondition(
+    () => gMockAlertsService._didNotify,
+    "waiting for notification"
+  );
+  Assert.deepEqual(gMockAlertsService._actions, []);
+
+  gMockAlertsService._reset();
+
+  // Mark Read action.
+
+  Services.prefs.setStringPref("mail.biff.alert.enabled_actions", "action1");
+  gMockAlertsService._doClick = "action1";
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  const lastMessage = [...gFolder.messages].at(-1);
+  Assert.ok(!lastMessage.isRead, "message should not be marked as read");
+
+  await TestUtils.waitForCondition(
+    () => gMockAlertsService._didNotify,
+    "waiting for notification"
+  );
+  Assert.deepEqual(
+    gMockAlertsService._actions.map(a => a.action),
+    ["action1"]
+  );
+  await TestUtils.waitForCondition(
+    () => lastMessage.isRead,
+    "waiting for message to be marked as read"
+  );
+
+  gMockAlertsService._reset();
+
+  // Do Nothing action.
+
+  Services.prefs.setStringPref(
+    "mail.biff.alert.enabled_actions",
+    "action2,action1"
+  );
+  gMockAlertsService._doClick = "action2";
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+
+  await TestUtils.waitForCondition(
+    () => gMockAlertsService._didNotify,
+    "waiting for notification"
+  );
+  Assert.deepEqual(
+    gMockAlertsService._actions.map(a => a.action),
+    ["action2", "action1"]
+  );
 });
 
 /**

@@ -4,6 +4,7 @@
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+import { XPCOMUtils } from "resource:///modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -13,7 +14,32 @@ ChromeUtils.defineESModuleGetters(lazy, {
 ChromeUtils.defineLazyGetter(
   lazy,
   "l10n",
-  () => new Localization(["messenger/messenger.ftl"])
+  () => new Localization(["messenger/messenger.ftl"], true)
+);
+
+const availableActions = [
+  { action: "action1", l10n: "mark-as-read-action" },
+  { action: "action2", l10n: "do-nothing-action" },
+];
+XPCOMUtils.defineLazyPreferenceGetter(
+  lazy,
+  "enabledActions",
+  "mail.biff.alert.enabled_actions",
+  "",
+  null,
+  val => {
+    const actions = [];
+    for (const name of val.split(",")) {
+      const action = availableActions.find(a => a.action == name);
+      if (action) {
+        if (!action.title) {
+          action.title = lazy.l10n.formatValueSync(action.l10n);
+        }
+        actions.push(action);
+      }
+    }
+    return actions;
+  }
 );
 
 /**
@@ -83,14 +109,6 @@ export class MailNotificationManager {
 
   observe(subject, topic, data) {
     switch (topic) {
-      case "alertclickcallback": {
-        // Display the associated message when an alert is clicked.
-        const msgHdr = Cc["@mozilla.org/messenger;1"]
-          .getService(Ci.nsIMessenger)
-          .msgHdrFromURI(data);
-        lazy.MailUtils.displayMessageInFolderTab(msgHdr, true);
-        return;
-      }
       case "unread-im-count-changed":
         this._logger.log(
           `Unread chat count changed to ${this._unreadChatCount}`
@@ -205,7 +223,7 @@ export class MailNotificationManager {
         return;
       }
 
-      this._showAlert(firstNewMsgHdr, title, body);
+      this._showAlert(firstNewMsgHdr, title, body, numNewMessages);
       this._saveNotificationTime(folder, newMsgKeys);
     } else {
       this._showCustomizedAlert(folder);
@@ -327,8 +345,9 @@ export class MailNotificationManager {
    * @param {nsIMsgDBHdr} msgHdr - The nsIMsgHdr of the first new messages.
    * @param {string} title - The alert title.
    * @param {string} body - The alert body.
+   * @param {number} numNewMessages - The count of new messages.
    */
-  _showAlert(msgHdr, title, body) {
+  _showAlert(msgHdr, title, body, numNewMessages) {
     const folder = msgHdr.folder;
 
     const alertsService = Cc["@mozilla.org/system-alerts-service;1"].getService(
@@ -347,7 +366,22 @@ export class MailNotificationManager {
       true /* text clickable */,
       cookie
     );
-    alertsService.showAlert(alert, this);
+    if (numNewMessages == 1) {
+      alert.actions = lazy.enabledActions;
+    }
+    alertsService.showAlert(alert, (subject, topic) => {
+      if (topic != "alertclickcallback") {
+        return;
+      }
+      if (subject?.QueryInterface(Ci.nsIAlertAction)) {
+        if (subject.action == "action1") {
+          msgHdr.folder.markMessagesRead([msgHdr], true);
+        }
+        return;
+      }
+      // Display the associated message when an alert is clicked.
+      lazy.MailUtils.displayMessageInFolderTab(msgHdr, true);
+    });
   }
 
   /**
