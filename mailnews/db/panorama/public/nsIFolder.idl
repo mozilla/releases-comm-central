@@ -105,7 +105,7 @@ interface nsIFolder : nsISupports {
   AUTF8String toJSON();
 };
 
-[uuid(5c9472eb-1798-4436-83b5-d41afb31a569)]
+[scriptable, uuid(5c9472eb-1798-4436-83b5-d41afb31a569)]
 interface nsIInitableWithFolder : nsISupports {
   /**
    * Function specifically for initializing an nsIMsgFolder with an nsIfolder.

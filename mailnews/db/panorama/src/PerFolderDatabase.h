@@ -16,6 +16,7 @@
 #include "nsIFolder.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgFolder.h"
+#include "nsIMsgThread.h"
 #include "nsMsgEnumerator.h"
 
 namespace mozilla::mailnews {
@@ -26,8 +27,11 @@ class PerFolderDatabase : public nsIMsgDatabase,
                           public SupportsWeakPtr,
                           public MessageListener {
  public:
-  explicit PerFolderDatabase(MessageDatabase* aDatabase, uint64_t aFolderId)
-      : mDatabase(aDatabase), mFolderId(aFolderId) {
+  explicit PerFolderDatabase(MessageDatabase* aDatabase, uint64_t aFolderId,
+                             bool isNewsFolder)
+      : mDatabase(aDatabase),
+        mFolderId(aFolderId),
+        mIsNewsFolder(isNewsFolder) {
     mDatabase->AddMessageListener(this);
   }
 
@@ -44,6 +48,7 @@ class PerFolderDatabase : public nsIMsgDatabase,
 
   MessageDatabase* mDatabase;
   uint64_t mFolderId;
+  bool mIsNewsFolder;
   nsTArray<nsMsgKey> mNewList;
   nsTObserverArray<RefPtr<nsIDBChangeListener>> mListeners;
 };
@@ -58,6 +63,24 @@ class MessageEnumerator : public nsBaseMsgEnumerator {
 
  private:
   ~MessageEnumerator() {
+    if (mStmt) mStmt->Finalize();
+  }
+
+  MessageDatabase* mDatabase;
+  nsCOMPtr<mozIStorageStatement> mStmt;
+  bool mHasNext = false;
+};
+
+class ThreadEnumerator : public nsBaseMsgThreadEnumerator {
+ public:
+  ThreadEnumerator(MessageDatabase* database, mozIStorageStatement* stmt);
+
+  // nsIMsgEnumerator support.
+  NS_IMETHOD GetNext(nsIMsgThread** item) override;
+  NS_IMETHOD HasMoreElements(bool* hasNext) override;
+
+ private:
+  ~ThreadEnumerator() {
     if (mStmt) mStmt->Finalize();
   }
 

@@ -10,8 +10,10 @@
 #include "MessageDatabase.h"
 #include "mozilla/RefPtr.h"
 #include "nsIDBChangeListener.h"
+#include "nsIMsgDBView.h"
 #include "nsMsgMessageFlags.h"
 #include "nsServiceManagerUtils.h"
+#include "Thread.h"
 
 namespace mozilla::mailnews {
 
@@ -93,8 +95,9 @@ NS_IMETHODIMP PerFolderDatabase::GetDBFolderInfo(
   NS_IF_ADDREF(*aDBFolderInfo = new FolderInfo(mFolderId));
   return NS_OK;
 }
-NS_IMETHODIMP PerFolderDatabase::GetDatabaseSize(int64_t* aDatabaseSize) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP PerFolderDatabase::GetDatabaseSize(int64_t* databaseSize) {
+  *databaseSize = 0;
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetFolder(nsIMsgFolder** aFolder) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -199,8 +202,9 @@ NS_IMETHODIMP PerFolderDatabase::EnumerateMessages(
 
   stmtClone->BindInt64ByName("folderId"_ns, mFolderId);
 
-  MessageEnumerator* enumerator = new MessageEnumerator(mDatabase, stmtClone);
-  NS_IF_ADDREF(*aEnumerator = enumerator);
+  RefPtr<MessageEnumerator> enumerator =
+      new MessageEnumerator(mDatabase, stmtClone);
+  enumerator.forget(aEnumerator);
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::ReverseEnumerateMessages(
@@ -219,13 +223,31 @@ NS_IMETHODIMP PerFolderDatabase::ReverseEnumerateMessages(
 
   stmtClone->BindInt64ByName("folderId"_ns, mFolderId);
 
-  MessageEnumerator* enumerator = new MessageEnumerator(mDatabase, stmtClone);
-  NS_IF_ADDREF(*aEnumerator = enumerator);
+  RefPtr<MessageEnumerator> enumerator =
+      new MessageEnumerator(mDatabase, stmtClone);
+  enumerator.forget(aEnumerator);
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::EnumerateThreads(
-    nsIMsgThreadEnumerator** aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    nsIMsgThreadEnumerator** aEnumerator) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv =
+      DatabaseCore::GetStatement("GetAllMessages"_ns,
+                                 "SELECT "_ns MESSAGE_SQL_FIELDS
+                                 " FROM messages WHERE folderId = :folderId"_ns,
+                                 getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<mozIStorageStatement> stmtClone;
+  rv = stmt->Clone(getter_AddRefs(stmtClone));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmtClone->BindInt64ByName("folderId"_ns, mFolderId);
+
+  RefPtr<ThreadEnumerator> enumerator =
+      new ThreadEnumerator(mDatabase, stmtClone);
+  enumerator.forget(aEnumerator);
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetFilterEnumerator(
     const nsTArray<RefPtr<nsIMsgSearchTerm>>& searchTerms, bool reverse,
@@ -412,8 +434,9 @@ NS_IMETHODIMP PerFolderDatabase::AddToNewList(nsMsgKey aKey) {
   }
   return NS_OK;
 }
-NS_IMETHODIMP PerFolderDatabase::GetSummaryValid(bool* aSummaryValid) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP PerFolderDatabase::GetSummaryValid(bool* summaryValid) {
+  *summaryValid = true;
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::SetSummaryValid(bool aSummaryValid) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -467,16 +490,46 @@ NS_IMETHODIMP PerFolderDatabase::CompareCollationKeys(
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::GetDefaultViewFlags(
-    nsMsgViewFlagsTypeValue* aDefaultViewFlags) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    nsMsgViewFlagsTypeValue* viewFlags) {
+  NS_ENSURE_ARG_POINTER(viewFlags);
+
+  Preferences::GetInt(mIsNewsFolder ? "mailnews.default_news_view_flags"
+                                    : "mailnews.default_view_flags",
+                      (int32_t*)&viewFlags);
+  if (*viewFlags < nsMsgViewFlagsType::kNone ||
+      *viewFlags >
+          (nsMsgViewFlagsType::kThreadedDisplay |
+           nsMsgViewFlagsType::kShowIgnored | nsMsgViewFlagsType::kUnreadOnly |
+           nsMsgViewFlagsType::kExpandAll | nsMsgViewFlagsType::kGroupBySort)) {
+    *viewFlags = nsMsgViewFlagsType::kNone;
+  }
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetDefaultSortType(
-    nsMsgViewSortTypeValue* aDefaultSortType) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    nsMsgViewSortTypeValue* sortType) {
+  NS_ENSURE_ARG_POINTER(sortType);
+
+  Preferences::GetInt(mIsNewsFolder ? "mailnews.default_news_sort_type"
+                                    : "mailnews.default_sort_type",
+                      (int32_t*)&sortType);
+  if (*sortType < nsMsgViewSortType::byDate ||
+      *sortType > nsMsgViewSortType::byCorrespondent ||
+      *sortType == nsMsgViewSortType::byCustom) {
+    *sortType = nsMsgViewSortType::byDate;
+  }
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetDefaultSortOrder(
-    nsMsgViewSortOrderValue* aDefaultSortOrder) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    nsMsgViewSortOrderValue* sortOrder) {
+  NS_ENSURE_ARG_POINTER(sortOrder);
+
+  Preferences::GetInt(mIsNewsFolder ? "mailnews.default_news_sort_order"
+                                    : "mailnews.default_sort_order",
+                      (int32_t*)&sortOrder);
+  if (*sortOrder != nsMsgViewSortOrder::descending) {
+    *sortOrder = nsMsgViewSortOrder::ascending;
+  }
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrCacheSize(
     uint32_t* aMsgHdrCacheSize) {
@@ -521,7 +574,8 @@ NS_IMETHODIMP MessageEnumerator::GetNext(nsIMsgDBHdr** aItem) {
     return NS_ERROR_FAILURE;
   }
 
-  NS_IF_ADDREF(*aItem = new Message(mDatabase, mStmt));
+  RefPtr<Message> message = new Message(mDatabase, mStmt);
+  message.forget(aItem);
   mStmt->ExecuteStep(&mHasNext);
   return NS_OK;
 }
@@ -530,6 +584,34 @@ NS_IMETHODIMP MessageEnumerator::HasMoreElements(bool* aHasNext) {
   NS_ENSURE_ARG_POINTER(aHasNext);
 
   *aHasNext = mHasNext;
+  return NS_OK;
+}
+
+ThreadEnumerator::ThreadEnumerator(MessageDatabase* database,
+                                   mozIStorageStatement* stmt)
+    : mDatabase(database), mStmt(stmt) {
+  mStmt->ExecuteStep(&mHasNext);
+}
+
+NS_IMETHODIMP ThreadEnumerator::GetNext(nsIMsgThread** item) {
+  NS_ENSURE_ARG_POINTER(item);
+  *item = nullptr;
+
+  if (!mHasNext) {
+    return NS_ERROR_FAILURE;
+  }
+
+  RefPtr<Message> message = new Message(mDatabase, mStmt);
+  RefPtr<Thread> thread = new Thread(message);
+  thread.forget(item);
+  mStmt->ExecuteStep(&mHasNext);
+  return NS_OK;
+}
+
+NS_IMETHODIMP ThreadEnumerator::HasMoreElements(bool* hasNext) {
+  NS_ENSURE_ARG_POINTER(hasNext);
+
+  *hasNext = mHasNext;
   return NS_OK;
 }
 
@@ -638,26 +720,30 @@ NS_IMETHODIMP FolderInfo::SetImapUnreadPendingMessages(
     int32_t aImapUnreadPendingMessages) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP FolderInfo::GetViewType(nsMsgViewTypeValue* aViewType) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP FolderInfo::GetViewType(nsMsgViewTypeValue* viewType) {
+  *viewType = nsMsgViewType::eShowAllThreads;
+  return NS_OK;
 }
 NS_IMETHODIMP FolderInfo::SetViewType(nsMsgViewTypeValue aViewType) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP FolderInfo::GetViewFlags(nsMsgViewFlagsTypeValue* aViewFlags) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP FolderInfo::GetViewFlags(nsMsgViewFlagsTypeValue* viewFlags) {
+  *viewFlags = nsMsgViewFlagsType::kThreadedDisplay;
+  return NS_OK;
 }
 NS_IMETHODIMP FolderInfo::SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP FolderInfo::GetSortType(nsMsgViewSortTypeValue* aSortType) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP FolderInfo::GetSortType(nsMsgViewSortTypeValue* sortType) {
+  *sortType = nsMsgViewSortType::byDate;
+  return NS_OK;
 }
 NS_IMETHODIMP FolderInfo::SetSortType(nsMsgViewSortTypeValue aSortType) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP FolderInfo::GetSortOrder(nsMsgViewSortOrderValue* aSortOrder) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP FolderInfo::GetSortOrder(nsMsgViewSortOrderValue* sortOrder) {
+  *sortOrder = nsMsgViewSortOrder::descending;
+  return NS_OK;
 }
 NS_IMETHODIMP FolderInfo::SetSortOrder(nsMsgViewSortOrderValue aSortOrder) {
   return NS_ERROR_NOT_IMPLEMENTED;

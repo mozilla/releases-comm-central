@@ -16,6 +16,7 @@
 #include "nsIClassInfoImpl.h"
 #include "nsIFile.h"
 #include "nsIObserverService.h"
+#include "nsMsgFolderFlags.h"
 #include "PerFolderDatabase.h"
 #include "xpcpublic.h"
 
@@ -261,7 +262,8 @@ NS_IMETHODIMP DatabaseCore::OpenFolderDB(nsIMsgFolder* aFolder,
   }
 
   RefPtr<PerFolderDatabase> db =
-      new PerFolderDatabase(mMessageDatabase, folderId);
+      new PerFolderDatabase(mMessageDatabase, folderId,
+                            folder->GetFlags() & nsMsgFolderFlags::Newsgroup);
   NS_IF_ADDREF(*_retval = db);
 
   mOpenDatabases.InsertOrUpdate(folderId, db);
@@ -289,12 +291,13 @@ NS_IMETHODIMP DatabaseCore::OpenDBFromFile(nsIFile* aFile,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP DatabaseCore::RegisterPendingListener(
-    nsIMsgFolder* aFolder, nsIDBChangeListener* aListener) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    nsIMsgFolder* folder, nsIDBChangeListener* listener) {
+  // TODO: Decide if we really need this still.
+  return NS_OK;
 }
 NS_IMETHODIMP DatabaseCore::UnregisterPendingListener(
-    nsIDBChangeListener* aListener) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    nsIDBChangeListener* listener) {
+  return NS_OK;
 }
 NS_IMETHODIMP DatabaseCore::CachedDBForFolder(nsIMsgFolder* aFolder,
                                               nsIMsgDatabase** _retval) {

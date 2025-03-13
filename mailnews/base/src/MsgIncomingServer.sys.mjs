@@ -525,9 +525,24 @@ export class MsgIncomingServer {
 
   get rootFolder() {
     if (!this._rootFolder) {
-      this._rootFolder = MailServices.folderLookup.getOrCreateFolderForURL(
-        this.serverURI
-      );
+      if (Services.prefs.getBoolPref("mail.panorama.enabled", false)) {
+        const core = Cc["@mozilla.org/mailnews/database-core;1"].getService(
+          Ci.nsIDatabaseCore
+        );
+        const folders = core.folders;
+
+        const root =
+          folders.getFolderByPath(this._key) ?? folders.insertRoot(this._key);
+        this._rootFolder = Cc[
+          "@mozilla.org/mail/folder;1?name=mailbox"
+        ].createInstance(Ci.nsIMsgFolder);
+        this._rootFolder.QueryInterface(Ci.nsIInitableWithFolder);
+        this._rootFolder.initWithFolder(root);
+      } else {
+        this._rootFolder = MailServices.folderLookup.getOrCreateFolderForURL(
+          this.serverURI
+        );
+      }
     }
     return this._rootFolder;
   }

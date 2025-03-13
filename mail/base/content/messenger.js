@@ -270,7 +270,10 @@ var gMailInit = {
     Services.search.init();
 
     PeriodicFilterManager.setupFiltering();
-    msgDBCacheManager.init();
+
+    if (!Services.prefs.getBoolPref("mail.panorama.enabled", false)) {
+      msgDBCacheManager.init();
+    }
 
     this._loadComponentsAtStartup().then(() => {
       this.delayedStartupFinished = true;
