@@ -10,6 +10,12 @@ import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import/no
  */
 class CalendarDialog extends HTMLDialogElement {
   #subviewManager = null;
+  /**
+   * The data for the current dialog
+   *
+   * @type {object}
+   */
+  #data = null;
 
   connectedCallback() {
     if (!this.hasConnected) {
@@ -39,6 +45,8 @@ class CalendarDialog extends HTMLDialogElement {
     }
 
     document.l10n.translateFragment(this);
+
+    this.updateDialogData(this.#data, true);
   }
 
   handleEvent(event) {
@@ -55,6 +63,29 @@ class CalendarDialog extends HTMLDialogElement {
           this.#subviewManager.isDefaultSubviewVisible();
         break;
     }
+  }
+
+  /**
+   * Updates the event data showing in the dialog
+   *
+   * @param {object} data - Event data to be displayed in the dialog.
+   * @param {boolean} init - If this is being callon on component connection.
+   */
+  updateDialogData(data, init) {
+    if (!data) {
+      return;
+    }
+
+    if (!this.hasConnected) {
+      this.#data = data;
+      return;
+    }
+
+    if (!this.#data || data.title !== this.#data.title || init) {
+      this.querySelector(".calendar-dialog-title").textContent = data.title;
+    }
+
+    this.#data = data;
   }
 }
 

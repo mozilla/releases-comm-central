@@ -111,3 +111,29 @@ add_task(async function test_dialogSubviewNavigation() {
     "Other subview should be hidden again"
   );
 });
+
+add_task(async function test_dialogTitle() {
+  dialog.show();
+
+  Assert.equal(
+    dialog.querySelector(".calendar-dialog-title").textContent,
+    "",
+    "The dialog title has no text before data is set"
+  );
+
+  dialog.updateDialogData({ title: "foobar" });
+
+  Assert.equal(
+    dialog.querySelector(".calendar-dialog-title").textContent,
+    "foobar",
+    "The dialog title has correct title after setting data"
+  );
+
+  dialog.updateDialogData({});
+
+  Assert.equal(
+    dialog.querySelector(".calendar-dialog-title").textContent,
+    "",
+    "The dialog title text is cleared"
+  );
+});

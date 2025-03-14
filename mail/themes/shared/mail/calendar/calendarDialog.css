@@ -35,7 +35,12 @@
     inset-inline: -11px;
     height: 6px;
     background: var(--calendar-bar-color, var(--calendar-bar-color-fallback));
- }
+  }
+
+  .calendar-dialog-title {
+      font-size: 1.15rem;
+      font-weight: 500;
+  }
 }
 
 .row-label {

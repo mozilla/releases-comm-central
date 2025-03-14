@@ -11,7 +11,7 @@ export default {
 };
 
 export const calendarDialog = {
-  render({ opened }) {
+  render({ opened, title }) {
     const container = document.createElement("div");
     container.insertAdjacentHTML(
       "beforeend",
@@ -22,6 +22,7 @@ export const calendarDialog = {
         class="button icon-button icon-only button-flat back-button"
         data-l10n-id="calendar-dialog-back-button"
       ></button>
+      <h2 class="calendar-dialog-title"></h2>
       <button class="button icon-button icon-only button-flat close-button"
               data-l10n-id="calendar-dialog-close-button">
     </div>
@@ -38,10 +39,13 @@ export const calendarDialog = {
 `
     );
 
-    container.querySelector("dialog")[opened ? "show" : "close"]();
+    const dialog = container.querySelector("dialog");
+    dialog[opened ? "show" : "close"]();
+    dialog.updateDialogData({ title });
     return container;
   },
   args: {
     opened: true,
+    title: "Event Title",
   },
 };
