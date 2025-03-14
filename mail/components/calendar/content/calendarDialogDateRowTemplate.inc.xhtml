@@ -1,0 +1,23 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template id="calendarDialogDateRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <calendar-dialog-row>
+    <img
+      src=""
+      slot="icon"
+      class="icon-date-time"
+      data-l10n-id="calendar-dialog-date-row-icon"
+    />
+    <div slot="label">
+      <span class="date-label"></span>
+      <img
+        src=""
+        class="icon-recurrence repeats"
+        data-l10n-id="calendar-dialog-date-row-recurring-icon"
+        hidden="hidden"
+      />
+    </div>
+  </calendar-dialog-row>
+</html:template>

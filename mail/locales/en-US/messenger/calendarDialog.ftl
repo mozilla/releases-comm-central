@@ -9,3 +9,9 @@ calendar-dialog-close-button =
 calendar-dialog-back-button =
   .aria-label = Back
   .title = Back
+
+calendar-dialog-date-row-icon =
+  .alt = Date and time
+
+calendar-dialog-date-row-recurring-icon =
+  .alt = Recurring

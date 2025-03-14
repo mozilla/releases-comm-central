@@ -11,6 +11,8 @@ support-files = [
   "files/*"
 ]
 subsuite = "thunderbird"
+
 ["browser_calendarDialog.js"]
+["browser_calendarDialogDateRow.js"]
 ["browser_calendarDialogRow.js"]
 ["browser_calendarDialogSubviewManager.js"]

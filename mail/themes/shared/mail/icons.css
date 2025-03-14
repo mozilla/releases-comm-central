@@ -212,6 +212,8 @@
   --icon-reply-forward-col: url("chrome://messenger/skin/icons/new/compact/reply-forward-col.svg");
   --icon-reply-forward-redirect-col: url("chrome://messenger/skin/icons/new/compact/reply-forward-redirect-col.svg");
   --icon-reply-redirect-col: url("chrome://messenger/skin/icons/new/compact/reply-redirect-col.svg");
+  --icon-date-time-sm: url("chrome://messenger/skin/icons/sm/date-time.svg");
+  --icon-recurrence-sm: url("chrome://messenger/skin/icons/sm/recurrence.svg");
 
   --icon-status-away: url("chrome://messenger/skin/icons/new/status-away.svg");
   --icon-status-away-sm: url("chrome://messenger/skin/icons/new/status-away-sm.svg");
