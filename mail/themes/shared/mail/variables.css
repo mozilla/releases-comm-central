@@ -245,6 +245,14 @@
   --hub-header-margin-block-start: 36px;
   --hub-notification-text-margin-block-start: 9px;
   --hub-footer-margin-block: 18px;
+  --hub-sync-list-title-gap: 12px;
+  --hub-sync-list-title-padding: 12px;
+  --hub-sync-list-details-gap: 2px;
+  --hub-sync-list-option-gap: 5px;
+  --hub-sync-list-option-padding: 6px 12px;
+  --hub-sync-list-icon-size: 32px;
+  --hub-sync-list-calendar-icon: url("chrome://messenger/skin/icons/new/normal/calendar-colored.svg");
+  --hub-sync-list-addressbook-icon: url("chrome://messenger/skin/icons/new/normal/address-book-colored.svg");
 }
 
 :root[uidensity="compact"] {
@@ -260,6 +268,14 @@
   --hub-header-margin-block-start: 18px;
   --hub-notification-text-margin-block-start: 3px;
   --hub-footer-margin-block: 6px;
+  --hub-sync-list-title-gap: 9px;
+  --hub-sync-list-title-padding: 6px 9px;
+  --hub-sync-list-details-gap: 0;
+  --hub-sync-list-option-gap: 3px;
+  --hub-sync-list-option-padding: 3px 9px;
+  --hub-sync-list-icon-size: 24px;
+  --hub-sync-list-calendar-icon: url("chrome://messenger/skin/icons/new/compact/calendar-colored.svg");
+  --hub-sync-list-addressbook-icon: url("chrome://messenger/skin/icons/new/compact/address-book-colored.svg");
 }
 
 :root[uidensity="touch"] {
@@ -272,4 +288,8 @@
   --hub-header-margin-block-start: 39px;
   --hub-notification-text-margin-block-start: 12px;
   --hub-footer-margin-block: 21px;
+  --hub-sync-list-title-gap: 15px;
+  --hub-sync-list-details-gap: 3px;
+  --hub-sync-list-option-gap: 6px;
+  --hub-sync-list-option-padding: 9px 15px;
 }

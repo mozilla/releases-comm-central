@@ -1,0 +1,27 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+  <path fill="url(#a)" d="M6 2C3.793 2 2 3.793 2 6v12c0 2.207 1.793 4 4 4h12c2.207 0 4-1.793 4-4V6c0-2.207-1.793-4-4-4H6Z"/>
+  <path fill="#000" d="M6.5 7C5.683 7 5 7.683 5 8.5S5.683 10 6.5 10 8 9.317 8 8.5 7.317 7 6.5 7Zm11 0c-.817 0-1.5.683-1.5 1.5s.683 1.5 1.5 1.5S19 9.317 19 8.5 18.317 7 17.5 7Z" opacity=".05"/>
+  <path fill="#000" d="M2 7v1h20V7H2ZM5.5 11a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2Zm5 0a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3Zm6 0a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2Zm-11 2a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2Zm5 0a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3Zm6 0a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2Zm-11 2a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2Zm5 0a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3Zm6 0a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2Zm-11 2a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2Zm5 0a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3Zm6 0a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2Z" opacity=".15"/>
+  <path fill="url(#b)" d="M6 2C3.793 2 2 3.793 2 6v1h20V6c0-2.207-1.793-4-4-4H6Z"/>
+  <path fill="#000" d="M6.5 4C5.683 4 5 4.683 5 5.5S5.683 7 6.5 7 8 6.317 8 5.5 7.317 4 6.5 4Zm11 0c-.817 0-1.5.683-1.5 1.5S16.683 7 17.5 7 19 6.317 19 5.5 18.317 4 17.5 4Z" opacity=".15"/>
+  <path fill="url(#c)" d="M6.5 5a.5.5 0 0 0-.5.5v3a.5.5 0 1 0 1 0v-3a.5.5 0 0 0-.5-.5Zm11 0a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 1 0v-3a.5.5 0 0 0-.5-.5Z"/>
+  <path fill="#000" d="M2 17v1c0 2.207 1.793 4 4 4h12c2.207 0 4-1.793 4-4v-1c0 2.207-1.793 4-4 4H6c-2.207 0-4-1.793-4-4Z" opacity=".15"/>
+  <defs>
+    <linearGradient id="a" x1="12" x2="12" y1="7" y2="22" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff"/>
+      <stop offset="1" stop-color="#F9F9FA"/>
+    </linearGradient>
+    <linearGradient id="b" x1="12" x2="12" y1="2" y2="7" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF555F"/>
+      <stop offset="1" stop-color="#D70022"/>
+    </linearGradient>
+    <linearGradient id="c" x1="12" x2="12" y1="5" y2="9" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D7D7DB"/>
+      <stop offset=".5" stop-color="#F9F9FA"/>
+      <stop offset="1" stop-color="#D7D7DB"/>
+    </linearGradient>
+  </defs>
+</svg>

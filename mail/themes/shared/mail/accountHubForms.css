@@ -748,8 +748,8 @@ div:has(legend) {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 12px;
-    padding: 12px;
+    gap: var(--hub-sync-list-title-gap);
+    padding: var(--hub-sync-list-title-padding);
     font-weight: bold;
     background-color: var(--color-neutral-lower);
     border-bottom: 1px solid var(--color-neutral-border);
@@ -758,7 +758,7 @@ div:has(legend) {
     & .sync-details {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: var(--hub-sync-list-details-gap);
       flex-grow: 1;
 
       & .title {
@@ -773,8 +773,16 @@ div:has(legend) {
     }
 
     & .sync-icon {
-      width: 32px;
-      height: 32px;
+      width: var(--hub-sync-list-icon-size);
+      height: var(--hub-sync-list-icon-size);
+
+      &.calendar {
+        content: var(--hub-sync-list-calendar-icon);
+      }
+
+      &.address-book {
+        content: var(--hub-sync-list-addressbook-icon);
+      }
     }
   }
 
@@ -794,8 +802,8 @@ div:has(legend) {
   }
 
   & .sync-option {
-    padding: 6px 12px;
-    gap: 5px;
+    padding: var(--hub-sync-list-option-padding);
+    gap: var(--hub-sync-list-option-gap);
     line-height: normal;
 
     &:nth-child(even) {
