@@ -50,13 +50,13 @@ dialog {
   --hub-close-button-focus-background: var(--color-neutral-subtle);
   --hub-close-button-focus-outline-color: var(--color-neutral-border-intense);
 
-  --success-illustration: url("chrome://messenger/skin/illustrations/accounthub-success.svg");
+  --success-illustration: var(--hub-success-illustration);
   /* TODO: apply dark mode styling */
 }
 
 @media (prefers-color-scheme: dark) {
   :host {
-    --success-illustration: url("chrome://messenger/skin/illustrations/accounthub-success-dark.svg");
+    --success-illustration: var(--hub-success-illustration-dark);
   }
 }
 
@@ -114,7 +114,8 @@ dialog {
   gap: var(--hub-header-body-gap);
 }
 
-.account-hub-form {
+.account-hub-form,
+.account-hub-success-container {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -678,29 +679,26 @@ header {
 
 /* Success page */
 .account-hub-success-container {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  overflow-y: auto;
 
   & .account-hub-success-illustration {
     background-image: var(--success-illustration);
     background-size: cover;
-    width: 243px;
-    height: 167px;
+    width: var(--hub-success-hub-illustration-width);
+    height: var(--hub-success-hub-illustration-height)
   }
 
   & .account-hub-success-links-title {
     font-size: 1.2rem;
     font-weight: bold;
-    margin-block-start: 11px;
+    margin-block-start: var(--hub-success-link-title-margin-block-start);
   }
 
   & .account-hub-link-container {
     display: flex;
     flex-direction: column;
     font-size: 1.1rem;
-    margin-top: 8px;
+    margin-block-start: var(--hub-success-link-container-margin-block-start);
 
     & button {
       text-decoration: underline;

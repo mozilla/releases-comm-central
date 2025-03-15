@@ -253,6 +253,12 @@
   --hub-sync-list-icon-size: 32px;
   --hub-sync-list-calendar-icon: url("chrome://messenger/skin/icons/new/normal/calendar-colored.svg");
   --hub-sync-list-addressbook-icon: url("chrome://messenger/skin/icons/new/normal/address-book-colored.svg");
+  --hub-success-illustration: url("chrome://messenger/skin/illustrations/accounthub-success.svg");
+  --hub-success-illustration-dark: url("chrome://messenger/skin/illustrations/accounthub-success-dark.svg");
+  --hub-success-hub-illustration-width: 243px;
+  --hub-success-hub-illustration-height: 167px;
+  --hub-success-link-title-margin-block-start: 12px;
+  --hub-success-link-container-margin-block-start: 9px;
 }
 
 :root[uidensity="compact"] {
@@ -276,6 +282,12 @@
   --hub-sync-list-icon-size: 24px;
   --hub-sync-list-calendar-icon: url("chrome://messenger/skin/icons/new/compact/calendar-colored.svg");
   --hub-sync-list-addressbook-icon: url("chrome://messenger/skin/icons/new/compact/address-book-colored.svg");
+  --hub-success-illustration: url("chrome://messenger/skin/illustrations/accounthub-success-compact.svg");
+  --hub-success-illustration-dark: url("chrome://messenger/skin/illustrations/accounthub-success-dark-compact.svg");
+  --hub-success-hub-illustration-width: 197px;
+  --hub-success-hub-illustration-height: 130px;
+  --hub-success-link-title-margin-block-start: 6px;
+  --hub-success-link-container-margin-block-start: 6px;
 }
 
 :root[uidensity="touch"] {
@@ -292,4 +304,6 @@
   --hub-sync-list-details-gap: 3px;
   --hub-sync-list-option-gap: 6px;
   --hub-sync-list-option-padding: 9px 15px;
+  --hub-success-link-title-margin-block-start: 15px;
+  --hub-success-link-container-margin-block-start: 12px;
 }
