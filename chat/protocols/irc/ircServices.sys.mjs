@@ -102,7 +102,7 @@ export var ircServices = {
 
     "001": function () {
       // RPL_WELCOME
-      // If SASL authentication failed, attempt IDENTIFY.
+      // If SASL authentication failed, attempt to use the IDENTIFY command.
       ircServices.sendIdentify(this);
 
       // We always want the RFC 2812 handler to handle 001, so return false.
@@ -213,7 +213,8 @@ export var servicesBase = {
       if (this.nickservMessageQueue) {
         if (
           text == "Password accepted - you are now recognized." || // Anope.
-          text.startsWith("You are now identified for \x02")
+          text.startsWith("You are now identified for \x02") ||
+          text.startsWith("You are successfully identified")
         ) {
           // Atheme.
           // Password successfully accepted by NickServ, don't display the
@@ -234,7 +235,9 @@ export var servicesBase = {
       // NickServ wants us to identify.
       if (
         text == "This nick is owned by someone else.  Please choose another." || // Anope.
-        text == "This nickname is registered and protected.  If it is your" || // Anope (SECURE enabled).
+        text.startsWith(
+          "This nickname is registered and protected.  If it is your" // Anope (SECURE enabled) & OFTC.
+        ) ||
         text ==
           "This nickname is registered. Please choose a different nickname, or identify via \x02/msg NickServ identify <password>\x02."
       ) {
@@ -242,7 +245,7 @@ export var servicesBase = {
         this.LOG("Authentication requested by NickServ.");
 
         // Wait one second before showing the message to the user (giving the
-        // the server time to process the log-in).
+        // server time to process the log-in).
         this.nickservMessageQueue = [message];
         this.nickservAuthTimeout = setTimeout(
           function () {
