@@ -245,6 +245,8 @@
   --hub-header-margin-block-start: 36px;
   --hub-notification-text-margin-block-start: 9px;
   --hub-footer-margin-block: 18px;
+  --hub-config-option-padding-inline: 9px;
+  --hub-config-option-padding-block: 6px;
   --hub-sync-list-title-gap: 12px;
   --hub-sync-list-title-padding: 12px;
   --hub-sync-list-details-gap: 2px;
@@ -274,6 +276,8 @@
   --hub-header-margin-block-start: 18px;
   --hub-notification-text-margin-block-start: 3px;
   --hub-footer-margin-block: 6px;
+  --hub-config-option-padding-inline: 6px;
+  --hub-config-option-padding-block: 3px;
   --hub-sync-list-title-gap: 9px;
   --hub-sync-list-title-padding: 6px 9px;
   --hub-sync-list-details-gap: 0;
