@@ -3117,8 +3117,9 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                 // Obtain new UIDs for the trash folder from COPYUID response
                 // code
                 nsCString trashIdString = GetServerStateParser().fCopyUidSet;
-                if (trashIdString.Last() == ']')
+                if (!trashIdString.IsEmpty() && trashIdString.Last() == ']') {
                   trashIdString.Cut(trashIdString.Length() - 1, 1);
+                }
                 if (!trashIdString.IsEmpty()) {
                   // Have new UIDs of message just moved into Trash, mark them
                   // \deleted and expunge these UIDs. But first, since gmail
