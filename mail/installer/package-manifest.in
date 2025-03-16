@@ -66,6 +66,10 @@
 @RESPATH@/updater.ini
 #endif
 
+#if defined(MOZ_UPDATE_AGENT)
+@RESPATH@/locale.ini
+#endif
+
 #ifdef LLVM_SYMBOLIZER
 @BINPATH@/@LLVM_SYMBOLIZER@
 #endif

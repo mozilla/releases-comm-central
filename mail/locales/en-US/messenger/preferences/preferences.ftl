@@ -325,6 +325,10 @@ check-updates-label =
     .label = Check for updates, but let me choose whether to install them
     .accesskey = C
 
+update-application-background-enabled =
+    .label = When { -brand-short-name } is not running
+    .accesskey = W
+
 update-history-button =
     .label = Show Update History
     .accesskey = p

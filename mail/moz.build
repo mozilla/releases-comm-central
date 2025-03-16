@@ -19,6 +19,9 @@ DIRS += [
     "themes",
 ]
 
+if CONFIG["MOZ_UPDATE_AGENT"]:
+    DEFINES["MOZ_UPDATE_AGENT"] = True
+
 if CONFIG["MAKENSISU"]:
     DIRS += ["installer/windows"]
 

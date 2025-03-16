@@ -65,6 +65,18 @@ if (AppConstants.MOZ_UPDATER) {
   ChromeUtils.defineESModuleGetters(lazy, {
     UpdateListener: "resource://gre/modules/UpdateListener.sys.mjs",
   });
+  XPCOMUtils.defineLazyServiceGetters(lazy, {
+    UpdateServiceStub: [
+      "@mozilla.org/updates/update-service-stub;1",
+      "nsIApplicationUpdateServiceStub",
+    ],
+  });
+}
+
+if (AppConstants.MOZ_UPDATE_AGENT) {
+  ChromeUtils.defineESModuleGetters(lazy, {
+    BackgroundUpdate: "resource://gre/modules/BackgroundUpdate.sys.mjs",
+  });
 }
 
 const listeners = {
@@ -903,6 +915,21 @@ MailGlue.prototype = {
           });
         },
       },
+
+      {
+        name: "BackgroundUpdate",
+        condition: AppConstants.MOZ_UPDATE_AGENT,
+        task: async () => {
+          // Never in automation!
+          if (
+            AppConstants.MOZ_UPDATER &&
+            !lazy.UpdateServiceStub.updateDisabledForTesting
+          ) {
+            await lazy.BackgroundUpdate.maybeScheduleBackgroundUpdateTask();
+          }
+        },
+      },
+
       // Do NOT add anything after idle tasks finished.
     ];
 

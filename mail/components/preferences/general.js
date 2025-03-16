@@ -23,6 +23,7 @@ var { AppConstants } = ChromeUtils.importESModule(
 );
 if (AppConstants.MOZ_UPDATER) {
   ChromeUtils.defineESModuleGetters(this, {
+    BackgroundUpdate: "resource://gre/modules/BackgroundUpdate.sys.mjs",
     UpdateListener: "resource://gre/modules/UpdateListener.sys.mjs",
   });
 }
@@ -318,7 +319,6 @@ var gGeneralPane = {
     setTimeout(_delayedPaneLoad, 0, this);
 
     if (AppConstants.MOZ_UPDATER) {
-      this.updateReadPrefs();
       gAppUpdater = new appUpdater(); // eslint-disable-line no-global-assign
       const updateDisabled =
         Services.policies && !Services.policies.isAllowed("appUpdate");
@@ -346,12 +346,19 @@ var gGeneralPane = {
         document.getElementById("autoDesktop").removeAttribute("selected");
         document.getElementById("manualDesktop").removeAttribute("selected");
         // Start reading the correct value from the disk
-        this.updateReadPrefs();
-        setEventListener(
-          "updateRadioGroup",
-          "command",
-          gGeneralPane.updateWritePrefs
-        );
+        this.readUpdateAutoPref();
+        setEventListener("updateRadioGroup", "command", event => {
+          if (event.target.id == "backgroundUpdate") {
+            this.writeBackgroundUpdatePref();
+          } else {
+            this.writeUpdateAutoPref();
+          }
+        });
+        if (this.isBackgroundUpdateUIAvailable()) {
+          document.getElementById("backgroundUpdate").hidden = false;
+          // Start reading the background update pref's value from the disk.
+          this.readBackgroundUpdatePref();
+        }
       }
 
       const defaults = Services.prefs.getDefaultBranch(null);
@@ -1647,31 +1654,31 @@ var gGeneralPane = {
     }
   },
 
+  _minUpdatePrefDisableTime: 1000,
   /**
    * Selects the correct item in the update radio group
    */
-  async updateReadPrefs() {
+  async readUpdateAutoPref() {
     if (
       AppConstants.MOZ_UPDATER &&
       (!Services.policies || Services.policies.isAllowed("appUpdate")) &&
       !gIsPackagedApp
     ) {
       const radiogroup = document.getElementById("updateRadioGroup");
+
       radiogroup.disabled = true;
-      try {
-        const enabled = await UpdateUtils.getAppUpdateAutoEnabled();
-        radiogroup.value = enabled;
-        radiogroup.disabled = false;
-      } catch (error) {
-        console.error(error);
-      }
+      const enabled = await UpdateUtils.getAppUpdateAutoEnabled();
+      radiogroup.value = enabled;
+      radiogroup.disabled = false;
+
+      this.maybeDisableBackgroundUpdateControls();
     }
   },
 
   /**
-   * Writes the value of the update radio group to the disk
+   * Writes the value of the automatic update radio group to the disk
    */
-  async updateWritePrefs() {
+  async writeUpdateAutoPref() {
     if (
       AppConstants.MOZ_UPDATER &&
       (!Services.policies || Services.policies.isAllowed("appUpdate")) &&
@@ -1679,22 +1686,105 @@ var gGeneralPane = {
     ) {
       const radiogroup = document.getElementById("updateRadioGroup");
       const updateAutoValue = radiogroup.value == "true";
+      const _disableTimeOverPromise = new Promise(r =>
+        setTimeout(r, this._minUpdatePrefDisableTime)
+      );
       radiogroup.disabled = true;
       try {
         await UpdateUtils.setAppUpdateAutoEnabled(updateAutoValue);
+        await _disableTimeOverPromise;
         radiogroup.disabled = false;
       } catch (error) {
         console.error(error);
-        await this.updateReadPrefs();
-        await this.reportUpdatePrefWriteError();
+        await Promise.all([
+          this.readUpdateAutoPref(),
+          this.reportUpdatePrefWriteError(),
+        ]);
         return;
       }
+
+      this.maybeDisableBackgroundUpdateControls();
 
       // If the value was changed to false the user should be given the option
       // to discard an update if there is one.
       if (!updateAutoValue) {
         await this.checkUpdateInProgress();
       }
+      // For tests:
+      radiogroup.dispatchEvent(new CustomEvent("ProcessedUpdatePrefChange"));
+    }
+  },
+
+  isBackgroundUpdateUIAvailable() {
+    return (
+      AppConstants.MOZ_UPDATE_AGENT &&
+      // This UI controls a per-installation pref. It won't necessarily work
+      // properly if per-installation prefs aren't supported.
+      UpdateUtils.PER_INSTALLATION_PREFS_SUPPORTED &&
+      (!Services.policies || Services.policies.isAllowed("appUpdate")) &&
+      !gIsPackagedApp &&
+      !UpdateUtils.appUpdateSettingIsLocked("app.update.background.enabled")
+    );
+  },
+
+  maybeDisableBackgroundUpdateControls() {
+    if (this.isBackgroundUpdateUIAvailable()) {
+      const radiogroup = document.getElementById("updateRadioGroup");
+      const updateAutoEnabled = radiogroup.value == "true";
+
+      // This control is only active if auto update is enabled.
+      document.getElementById("backgroundUpdate").disabled = !updateAutoEnabled;
+    }
+  },
+
+  async readBackgroundUpdatePref() {
+    const prefName = "app.update.background.enabled";
+    if (this.isBackgroundUpdateUIAvailable()) {
+      const backgroundCheckbox = document.getElementById("backgroundUpdate");
+
+      // When the page first loads, the checkbox is unchecked until we finish
+      // reading the config file from the disk. But, ideally, we don't want to
+      // give the user the impression that this setting has somehow gotten
+      // turned off and they need to turn it back on. We also don't want the
+      // user interacting with the control, expecting a particular behavior, and
+      // then have the read complete and change the control in an unexpected
+      // way. So we disable the control while we are reading.
+      // The only entry points for this function are page load and user
+      // interaction with the control. By disabling the control to prevent
+      // further user interaction, we prevent the possibility of entering this
+      // function a second time while we are still reading.
+      backgroundCheckbox.disabled = true;
+
+      // If we haven't already done this, it might result in the effective value
+      // of the Background Update pref changing. Thus, we should do it before
+      // we tell the user what value this pref has.
+      await BackgroundUpdate.ensureExperimentToRolloutTransitionPerformed();
+
+      const enabled = await UpdateUtils.readUpdateConfigSetting(prefName);
+      backgroundCheckbox.checked = enabled;
+      this.maybeDisableBackgroundUpdateControls();
+    }
+  },
+
+  async writeBackgroundUpdatePref() {
+    const prefName = "app.update.background.enabled";
+    if (this.isBackgroundUpdateUIAvailable()) {
+      const backgroundCheckbox = document.getElementById("backgroundUpdate");
+      backgroundCheckbox.disabled = true;
+      const backgroundUpdateEnabled = backgroundCheckbox.checked;
+      try {
+        await UpdateUtils.writeUpdateConfigSetting(
+          prefName,
+          backgroundUpdateEnabled
+        );
+      } catch (error) {
+        console.error(error);
+        await this.readBackgroundUpdatePref();
+        await this.reportUpdatePrefWriteError();
+        return;
+      }
+
+      this.maybeDisableBackgroundUpdateControls();
     }
   },
 
