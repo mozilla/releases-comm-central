@@ -68,6 +68,8 @@
 #include "nsEmbedCID.h"
 #include "nsIWritablePropertyBag2.h"
 #ifdef MOZ_PANORAMA
+#  include "nsIDatabaseCore.h"
+#  include "nsIFolderDatabase.h"
 #  include "nsIFolderLookupService.h"
 #endif  // MOZ_PANORAMA
 
@@ -2763,6 +2765,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetServer(nsIMsgIncomingServer** aServer) {
 NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   MOZ_ASSERT(Preferences::GetBool("mail.panorama.enabled", false));
 
+  mDBFolder = folder;
   mIsServer = folder->GetIsServer();
   mIsServerIsValid = true;
   mName = folder->GetName();
@@ -3423,14 +3426,38 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
   } else
     uri += escapedName.get();
 
-  nsCOMPtr<nsIMsgFolder> msgFolder;
-  rv = GetChildWithURI(uri, false /*deep*/, true /*case Insensitive*/,
-                       getter_AddRefs(msgFolder));
-  if (NS_SUCCEEDED(rv) && msgFolder) return NS_MSG_FOLDER_EXISTS;
-
   nsCOMPtr<nsIMsgFolder> folder;
-  rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
+#ifdef MOZ_PANORAMA
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    // TODO: We shouldn't be here at all. But we are thanks to the fact that
+    // various functions call the message store and it calls back.
+    // `name` is a hashed name and it shouldn't be.
+    nsCOMPtr<nsIDatabaseCore> core =
+        mozilla::components::DatabaseCore::Service();
+    nsCOMPtr<nsIFolderDatabase> folders;
+    core->GetFolders(getter_AddRefs(folders));
+
+    nsCOMPtr<nsIFolder> dbFolder;
+    folders->InsertFolder(mDBFolder, name, getter_AddRefs(dbFolder));
+
+    folder = do_CreateInstance("@mozilla.org/mail/folder;1?name=mailbox", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIInitableWithFolder> initable = do_QueryInterface(folder);
+    rv = initable->InitWithFolder(dbFolder);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+#endif  // MOZ_PANORAMA
+    nsCOMPtr<nsIMsgFolder> msgFolder;
+    rv = GetChildWithURI(uri, false /*deep*/, true /*case Insensitive*/,
+                         getter_AddRefs(msgFolder));
+    if (NS_SUCCEEDED(rv) && msgFolder) return NS_MSG_FOLDER_EXISTS;
+
+    rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
+    NS_ENSURE_SUCCESS(rv, rv);
+#ifdef MOZ_PANORAMA
+  }
+#endif  // MOZ_PANORAMA
 
   folder->GetFlags((uint32_t*)&flags);
   flags |= nsMsgFolderFlags::Mail;

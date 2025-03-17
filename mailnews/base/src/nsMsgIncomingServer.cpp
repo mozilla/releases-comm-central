@@ -44,8 +44,8 @@
 #include "nsIArray.h"
 #ifdef MOZ_PANORAMA
 #  include "nsIDatabaseCore.h"
-#  include "nsIFolderDatabase.h"
 #  include "nsIFolder.h"
+#  include "nsIFolderDatabase.h"
 #endif  // MOZ_PANORAMA
 
 #define PORT_NOT_SET -1

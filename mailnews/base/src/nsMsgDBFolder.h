@@ -212,6 +212,9 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
                               nsIMsgFolder* srcFolder,
                               nsTArray<RefPtr<nsIMsgDBHdr>>& messages);
   nsCString mURI;
+#ifdef MOZ_PANORAMA
+  nsCOMPtr<nsIFolder> mDBFolder;
+#endif  // MOZ_PANORAMA
 
   nsCOMPtr<nsIMsgDatabase> mDatabase;
   nsCOMPtr<nsIMsgDatabase> mBackupDatabase;
