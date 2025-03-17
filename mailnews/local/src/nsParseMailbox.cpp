@@ -697,21 +697,16 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
   {
     // We'll need the message id first to recover data from the backup database
     nsAutoCString rawMsgId;
-    /* Take off <> around message ID. */
     if (id) {
-      if (id->length > 0 && id->value[0] == '<') {
-        id->length--;
-        id->value++;
+      // Take off <> around message ID.
+      if (MOZ_LIKELY(id->length > 0 && id->value[0] == '<')) {
+        --id->length;
+        ++id->value;
       }
-
-      NS_WARNING_ASSERTION(id->length > 0,
-                           "id->length failure in FinalizeHeaders().");
-
-      if (id->length > 0 && id->value[id->length - 1] == '>')
-        /* generate a new null-terminated string without the final > */
-        rawMsgId.Assign(id->value, id->length - 1);
-      else
-        rawMsgId.Assign(id->value);
+      if (MOZ_LIKELY(id->length > 0 && id->value[id->length - 1] == '>')) {
+        --id->length;
+      }
+      rawMsgId.Assign(id->value, id->length);
     }
 
     /*
@@ -800,15 +795,13 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
 
       rv = InternSubject(subject);
       if (NS_SUCCEEDED(rv)) {
-        nsAutoCString md5IdBuffer("md5:");
-        HeaderData md5Id;
-        if (!id) {
-          // what to do about this? we used to do a hash of all the headers...
-          nsAutoCString hash;
+        if (rawMsgId.IsEmpty()) {
+          // Generate an MD5 hash of all the headers.
           const char* md5_b64 = "dummy.message.id";
           nsresult rv;
           nsCOMPtr<nsICryptoHash> hasher =
               do_CreateInstance("@mozilla.org/security/hash;1", &rv);
+          nsAutoCString hash;
           if (NS_SUCCEEDED(rv)) {
             if (NS_SUCCEEDED(hasher->Init(nsICryptoHash::MD5)) &&
                 NS_SUCCEEDED(hasher->Update((const uint8_t*)m_headers.begin(),
@@ -817,19 +810,10 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
               md5_b64 = hash.get();
             }
           }
-          md5IdBuffer.Append(md5_b64);
-          md5Id.value = md5IdBuffer.get();
-          md5Id.length = md5IdBuffer.Length();
-          MOZ_ASSERT(strlen(md5Id.value) == md5Id.length,
-                     "Problem with length of md5Id.");
-          id = &md5Id;
+          rawMsgId.Assign("md5:");
+          rawMsgId.Append(md5_b64);
         }
-
-        if (!rawMsgId.IsEmpty()) {
-          m_newMsgHdr->SetMessageId(rawMsgId);
-        } else {
-          m_newMsgHdr->SetMessageId(nsDependentCString(id->value));
-        }
+        m_newMsgHdr->SetMessageId(rawMsgId);
 
         m_mailDB->UpdatePendingAttributes(m_newMsgHdr);
 
