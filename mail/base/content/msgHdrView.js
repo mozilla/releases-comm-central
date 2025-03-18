@@ -636,8 +636,19 @@ var messageProgressListener = {
       if (gViewAllHeaders) {
         // If we currently are in view all header mode, rebuild our header
         // view so we remove most of the header data.
-        hideHeaderView(gExpandedHeaderView);
-        RemoveNewHeaderViews(gExpandedHeaderView);
+        for (const name in gExpandedHeaderView) {
+          // Exclude the first row, which also contains the toolbar buttons, to
+          // prevent the customize panel from closing.
+          if (name == "from") {
+            continue;
+          }
+          const headerEntry = gExpandedHeaderView[name];
+          headerEntry.enclosingRow.hidden = true;
+          if (headerEntry.isNewHeader) {
+            // Remove non-predefined header node from the view.
+            headerEntry.enclosingRow.remove();
+          }
+        }
         gDummyHeaderIdIndex = 0;
         // eslint-disable-next-line no-global-assign
         gExpandedHeaderView = {};
@@ -1144,18 +1155,6 @@ function ClearHeaderView(aHeaderTable) {
 }
 
 /**
- * Make sure that any valid header entry in the table is collapsed.
- *
- * @param {object} aHeaderTable - Table of header entries.
- */
-function hideHeaderView(aHeaderTable) {
-  for (const name in aHeaderTable) {
-    const headerEntry = aHeaderTable[name];
-    headerEntry.enclosingRow.hidden = true;
-  }
-}
-
-/**
  * Make sure that any valid header entry in the table specified is visible.
  *
  * @param {object} aHeaderTable - Table of header entries.
@@ -1320,20 +1319,6 @@ class HeaderView {
     this.enclosingRow = newRowNode;
     this.valid = false;
     this.outputFunction = updateHeaderValue;
-  }
-}
-
-/**
- * Removes all non-predefined header nodes from the view.
- *
- * @param {object} aHeaderTable - Table of header entries.
- */
-function RemoveNewHeaderViews(aHeaderTable) {
-  for (const name in aHeaderTable) {
-    const headerEntry = aHeaderTable[name];
-    if (headerEntry.isNewHeader) {
-      headerEntry.enclosingRow.remove();
-    }
   }
 }
 
@@ -2860,8 +2845,6 @@ const gHeaderCustomize = {
       ? Ci.nsMimeHeaderDisplayTypes.AllHeaders
       : Ci.nsMimeHeaderDisplayTypes.NormalHeaders;
     Services.prefs.setIntPref("mail.show_headers", mode);
-    AdjustHeaderView(mode);
-    ReloadMessage();
   },
 
   /**
