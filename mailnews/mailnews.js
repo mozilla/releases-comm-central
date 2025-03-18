@@ -837,6 +837,9 @@ pref("mail.biff.alert.show_preview", true);
 pref("mail.biff.alert.show_subject", true);
 pref("mail.biff.alert.show_sender",  true);
 pref("mail.biff.alert.preview_length", 40);
+#ifdef NIGHTLY_BUILD
+pref("mail.biff.alert.enabled_actions", "action1,action2");
+#endif
 
 #ifdef XP_MACOSX
 pref("mail.biff.play_sound", false);
