@@ -455,7 +455,8 @@ export var invitation = {
       return null;
     });
 
-    const dateComptor = (a, b) => a.startDate.compare(b.startDate);
+    const dateComptor = (a, b) =>
+      a.startDate && b.startDate ? a.startDate.compare(b.startDate) : 0;
 
     setField("modifiedOccurrences", ev => {
       if (!ev.recurrenceInfo) {

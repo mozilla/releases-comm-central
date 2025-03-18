@@ -56,8 +56,12 @@ CalMimeConverter.prototype = {
     let msgOverlay = "";
 
     if (!Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
-      const dom = cal.invitation.createInvitationOverlay(event, itipItem);
-      msgOverlay = cal.xml.serializeDOM(dom);
+      try {
+        const dom = cal.invitation.createInvitationOverlay(event, itipItem);
+        msgOverlay = cal.xml.serializeDOM(dom);
+      } catch (e) {
+        console.error(`Could not display invitation data: ${data}`, e);
+      }
     }
 
     this.mailChannel.imipItem = itipItem;
