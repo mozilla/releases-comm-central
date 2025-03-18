@@ -5,9 +5,6 @@
  * Test telemetry related to filelink.
  */
 
-const { TelemetryTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TelemetryTestUtils.sys.mjs"
-);
 const { gMockCloudfileManager } = ChromeUtils.importESModule(
   "resource://testing-common/mail/CloudfileHelpers.sys.mjs"
 );

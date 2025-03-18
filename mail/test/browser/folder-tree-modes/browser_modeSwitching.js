@@ -19,9 +19,6 @@ var {
 var { MailTelemetryForTests } = ChromeUtils.importESModule(
   "resource:///modules/MailGlue.sys.mjs"
 );
-var { TelemetryTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TelemetryTestUtils.sys.mjs"
-);
 var { click_menus_in_sequence, click_through_appmenu, close_popup_sequence } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/WindowHelpers.sys.mjs"

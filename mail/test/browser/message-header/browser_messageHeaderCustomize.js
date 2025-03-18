@@ -15,9 +15,6 @@ const aboutMessage = get_about_message();
 var { MailTelemetryForTests } = ChromeUtils.importESModule(
   "resource:///modules/MailGlue.sys.mjs"
 );
-var { TelemetryTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TelemetryTestUtils.sys.mjs"
-);
 
 var gFolder;
 
