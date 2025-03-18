@@ -8,6 +8,8 @@ import { XPCOMUtils } from "resource:///modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  LanguageDetector:
+    "resource://gre/modules/translations/LanguageDetector.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   WinUnreadBadge: "resource:///modules/WinUnreadBadge.sys.mjs",
 });
@@ -329,11 +331,26 @@ export class MailNotificationManager {
         "mail.biff.alert.preview_length",
         40
       );
-      const preview = msgHdr
-        .getStringProperty("preview")
-        .slice(0, previewLength);
+      let preview = msgHdr.getStringProperty("preview");
       if (preview) {
-        alertBody += (alertBody ? "\n" : "") + preview;
+        // Try to detect the language of the preview, but only use it if the
+        // detector is confident of the result. Otherwise use the app language.
+        let { language, confident } =
+          await lazy.LanguageDetector.detectLanguage(preview);
+        if (!confident) {
+          language = undefined;
+        }
+
+        // Break the preview into words and keep all words that start before
+        // the desired length is reached.
+        const segmenter = new Intl.Segmenter(language, { granularity: "word" });
+        for (const segment of segmenter.segment(preview)) {
+          if (segment.index > previewLength && segment.isWordLike) {
+            preview = preview.substring(0, segment.index).trimEnd() + "…";
+            break;
+          }
+        }
+        alertBody += (alertBody ? "\n\n" : "") + preview;
       }
     }
     return alertBody;
