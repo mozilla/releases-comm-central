@@ -71,10 +71,10 @@ nsresult nsCMSSecureMessage::CheckUsageOk(nsIX509Cert* aCert,
 
   mozilla::psm::VerifyUsage usageForPkix;
   switch (aUsage) {
-    case certUsageEmailSigner:
+    case certificateUsageEmailSigner:
       usageForPkix = mozilla::psm::VerifyUsage::EmailSigner;
       break;
-    case certUsageEmailRecipient:
+    case certificateUsageEmailRecipient:
       usageForPkix = mozilla::psm::VerifyUsage::EmailRecipient;
       break;
     default:
