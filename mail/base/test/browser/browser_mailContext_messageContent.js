@@ -381,7 +381,6 @@ async function subtest(aboutMessage, mailContext) {
 }
 
 add_setup(async function () {
-  Services.telemetry.clearScalars();
   const mockExternalProtocolServiceCID = MockRegistrar.register(
     "@mozilla.org/uriloader/external-protocol-service;1",
     mockExternalProtocolService
