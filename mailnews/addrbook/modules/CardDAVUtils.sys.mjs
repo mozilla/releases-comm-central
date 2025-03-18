@@ -324,7 +324,8 @@ export var CardDAVUtils = {
       headers: {
         Depth: 0,
       },
-      body: `<propfind xmlns="DAV:">
+      body: `<?xml version="1.0" encoding="utf-8"?>
+      <propfind xmlns="DAV:">
           <prop>
             <resourcetype/>
             <displayname/>
@@ -367,7 +368,8 @@ export var CardDAVUtils = {
     }
     if (!response || !response.dom) {
       // Auto-discovery using a magic URL.
-      requestParams.body = `<propfind xmlns="DAV:">
+      requestParams.body = `<?xml version="1.0" encoding="utf-8"?>
+      <propfind xmlns="DAV:">
         <prop>
           <current-user-principal/>
         </prop>
@@ -408,7 +410,8 @@ export var CardDAVUtils = {
       // Steps two and three of auto-discovery. If the entered URL did point
       // to an address book, we won't get here.
       url = new URL(userPrincipal.textContent, url);
-      requestParams.body = `<propfind xmlns="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
+      requestParams.body = `<?xml version="1.0" encoding="utf-8"?>
+      <propfind xmlns="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
         <prop>
           <card:addressbook-home-set/>
         </prop>
@@ -420,7 +423,8 @@ export var CardDAVUtils = {
         url
       );
       requestParams.headers.Depth = 1;
-      requestParams.body = `<propfind xmlns="DAV:">
+      requestParams.body = `<?xml version="1.0" encoding="utf-8"?>
+      <propfind xmlns="DAV:">
         <prop>
           <resourcetype/>
           <displayname/>

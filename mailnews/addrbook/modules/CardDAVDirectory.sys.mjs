@@ -274,7 +274,8 @@ export class CardDAVDirectory extends SQLiteDirectory {
     hrefsToFetch = hrefsToFetch.map(
       href => `      <d:href>${xmlEncode(href)}</d:href>`
     );
-    const data = `<card:addressbook-multiget ${NAMESPACE_STRING}>
+    const data = `<?xml version="1.0" encoding="utf-8"?>
+    <card:addressbook-multiget ${NAMESPACE_STRING}>
       <d:prop>
         <d:getetag/>
         <card:address-data/>
