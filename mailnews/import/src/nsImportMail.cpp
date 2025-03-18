@@ -797,6 +797,7 @@ NS_IMETHODIMP GetChildNamedRunnable::Run() {
 
 nsresult ProxyGetChildNamed(nsIMsgFolder* aFolder, const nsACString& aName,
                             nsIMsgFolder** aChild) {
+  NS_ENSURE_ARG_POINTER(aFolder);
   RefPtr<GetChildNamedRunnable> getChildNamed =
       new GetChildNamedRunnable(aFolder, aName, aChild);
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
