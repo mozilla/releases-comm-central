@@ -75,6 +75,46 @@ const testRunner = {
     this.splitter.removeAttribute(this.collapseSizeAttribute);
   },
 
+  /**
+   * Wait for the splitter to resize its target element.
+   *
+   * @param {number} targetSize - Target size for the element resized by the
+   *   splitter.
+   */
+  async waitForSizeTo(targetSize) {
+    info(`Expecting resize to ${targetSize}px...`);
+    const mutationObserver = BrowserTestUtils.waitForMutationCondition(
+      this.splitter.parentNode,
+      {
+        attributes: true,
+        attributeFilter: ["style"],
+      },
+      () => this.getSize(this.resized) == targetSize
+    );
+    await mutationObserver;
+  },
+
+  /**
+   * Wait for the mouse move lock in the splitter to be released, so we can
+   * affect the splitter again. Will time out after a few seconds.
+   *
+   * As opposed to waitForCondition this uses requestAnimationFrame to wait,
+   * since that's what's used to release the mouse move lock.
+   */
+  async waitForMousemoveLock() {
+    const MAX_WAIT = 2000;
+    const waitEnd = Date.now() + MAX_WAIT;
+    if (this.splitter._mouseMoveBlocked) {
+      info("Waiting for mouse move lock to be released...");
+    }
+    while (this.splitter._mouseMoveBlocked && Date.now() < waitEnd) {
+      await new Promise(resolve => win.requestAnimationFrame(resolve));
+    }
+    if (Date.now() > waitEnd) {
+      console.error("Timed out waiting for mouse move lock to be released!");
+    }
+  },
+
   async synthMouse(position, type = "mousemove", otherPosition = 50) {
     let x, y;
     if (!this.resizedIsBefore) {
@@ -98,7 +138,13 @@ const testRunner = {
       await new Promise(resolve => setTimeout(resolve, MOUSE_DELAY));
     }
 
-    await new Promise(resolve => requestAnimationFrame(resolve));
+    if (type == "mousemove") {
+      await this.waitForMousemoveLock();
+    } else {
+      // Use the request animation frame of the tab, since that's also what the
+      // splitter uses.
+      await new Promise(resolve => win.requestAnimationFrame(resolve));
+    }
   },
 };
 
@@ -117,6 +163,12 @@ add_setup(async function () {
   win.addEventListener("splitter-resized", () => resizedEvents++);
   win.addEventListener("splitter-collapsed", () => collapsedEvents++);
   win.addEventListener("splitter-expanded", () => expandedEvents++);
+
+  window.windowUtils.disableNonTestMouseEvents(true);
+
+  registerCleanupFunction(() => {
+    window.windowUtils.disableNonTestMouseEvents(false);
+  });
 });
 
 add_task(async function testHorizontalBefore() {
@@ -128,6 +180,11 @@ add_task(async function testHorizontalBefore() {
   Assert.equal(resized.clientWidth, 200);
   Assert.equal(fill.clientWidth, 300);
   Assert.equal(win.getComputedStyle(splitter).cursor, "ew-resize");
+
+  splitter.scrollIntoView({
+    behavior: "instant",
+    block: "nearest",
+  });
 
   testRunner.outer = outer;
   testRunner.splitter = splitter;
@@ -152,6 +209,11 @@ add_task(async function testHorizontalAfter() {
   Assert.equal(resized.clientWidth, 200);
   Assert.equal(win.getComputedStyle(splitter).cursor, "ew-resize");
 
+  splitter.scrollIntoView({
+    behavior: "instant",
+    block: "nearest",
+  });
+
   testRunner.outer = outer;
   testRunner.splitter = splitter;
   testRunner.resizedIsBefore = false;
@@ -174,6 +236,11 @@ add_task(async function testVerticalBefore() {
   Assert.equal(resized.clientHeight, 200);
   Assert.equal(fill.clientHeight, 300);
   Assert.equal(win.getComputedStyle(splitter).cursor, "ns-resize");
+
+  splitter.scrollIntoView({
+    behavior: "instant",
+    block: "nearest",
+  });
 
   testRunner.outer = outer;
   testRunner.splitter = splitter;
@@ -204,6 +271,11 @@ add_task(async function testVerticalAfter() {
   Assert.equal(fill.clientHeight, 300);
   Assert.equal(resized.clientHeight, 200);
   Assert.equal(win.getComputedStyle(splitter).cursor, "ns-resize");
+
+  splitter.scrollIntoView({
+    behavior: "instant",
+    block: "nearest",
+  });
 
   await subtestDrag();
   await subtestDragSizeBounds();
@@ -240,7 +312,9 @@ async function subtestDrag() {
 
   // Drag in steps to the left-hand/top end.
   for (; position >= 0; position -= 50) {
+    const mutationObserver = testRunner.waitForSizeTo(position);
     await testRunner.synthMouse(position);
+    await mutationObserver;
     testRunner.assertElementSizes(position);
   }
 
@@ -251,7 +325,9 @@ async function subtestDrag() {
 
   // Drag in steps to the right-hand/bottom end.
   for (let pos = 0; pos <= 500; pos += 50) {
+    const mutationObserver = testRunner.waitForSizeTo(pos);
     await testRunner.synthMouse(pos);
+    await mutationObserver;
     testRunner.assertElementSizes(pos);
   }
 
@@ -338,8 +414,10 @@ async function subtestDragSizeBounds() {
         await testRunner.synthMouse(200, "mousedown");
 
         for (const position of positionSet) {
-          await testRunner.synthMouse(position);
           const size = Math.min(Math.max(position, min), max);
+          const mutationObserver = testRunner.waitForSizeTo(size);
+          await testRunner.synthMouse(position);
+          await mutationObserver;
           testRunner.assertElementSizes(size, `Moved forward to ${position}`);
           testRunner.assertSplitterSize(size, `Moved forward to ${position}`);
         }
@@ -353,8 +431,10 @@ async function subtestDragSizeBounds() {
         await testRunner.synthMouse(max, "mousedown");
 
         for (const position of positionSet.reverse()) {
-          await testRunner.synthMouse(position);
           const size = Math.min(Math.max(position, min), max);
+          const mutationObserver = testRunner.waitForSizeTo(size);
+          await testRunner.synthMouse(position);
+          await mutationObserver;
           testRunner.assertElementSizes(size, `Moved backward to ${position}`);
           testRunner.assertSplitterSize(size, `Moved backward to ${position}`);
         }
@@ -389,7 +469,9 @@ async function subtestDragAutoCollapse() {
   // Drag in steps toward the left-hand/top end.
   await testRunner.synthMouse(200, "mousedown");
   for (const position of [180, 160, 140, 120, 100, 80, 78]) {
+    const mutationObserver = testRunner.waitForSizeTo(position);
     await testRunner.synthMouse(position);
+    await mutationObserver;
     testRunner.assertElementSizes(
       position,
       `Should have ${position} size at ${position}`
@@ -399,7 +481,9 @@ async function subtestDragAutoCollapse() {
 
   // For the first 20 pixels inside the minimum size, nothing happens.
   for (const position of [74, 68, 64, 60, 58]) {
+    const mutationObserver = testRunner.waitForSizeTo(78);
     await testRunner.synthMouse(position);
+    await mutationObserver;
     testRunner.assertElementSizes(
       78,
       `Should be at collapse-size at ${position}`
@@ -434,11 +518,18 @@ async function subtestDragAutoCollapse() {
     Assert.ok(splitter.isCollapsed, `Should still be collapsed at ${position}`);
   }
 
+  const expandedEventPromise = BrowserTestUtils.waitForEvent(
+    win,
+    "splitter-expanded"
+  );
   // Then the pane expands. For the first 20 pixels, nothing happens.
   await testRunner.synthMouse(20);
+  await expandedEventPromise;
   Assert.equal(expandedEvents, 1, "expanded event fired");
   for (const position of [40, 60, 78]) {
+    const mutationObserver = testRunner.waitForSizeTo(78);
     await testRunner.synthMouse(position);
+    await mutationObserver;
     testRunner.assertElementSizes(
       78,
       `Should expand to collapse-size at ${position}`
@@ -450,7 +541,9 @@ async function subtestDragAutoCollapse() {
   }
 
   for (const position of [79, 100, 120, 200, 250, 300, 400, 450]) {
+    const mutationObserver = testRunner.waitForSizeTo(position);
     await testRunner.synthMouse(position);
+    await mutationObserver;
     testRunner.assertElementSizes(
       position,
       `Should have ${position} size at ${position}`
@@ -503,7 +596,9 @@ async function subtestDragAutoCollapse() {
     [80, 80],
     [100, 100],
   ]) {
+    const mutationObserver = testRunner.waitForSizeTo(expectedSize);
     await testRunner.synthMouse(position);
+    await mutationObserver;
     testRunner.assertElementSizes(
       expectedSize,
       `Should have ${expectedSize} size at ${position}`
