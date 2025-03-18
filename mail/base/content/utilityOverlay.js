@@ -288,8 +288,11 @@ function openTrustedLinkIn(url, where, params = {}) {
     params.triggeringPrincipal =
       Services.scriptSecurityManager.getSystemPrincipal();
   }
-
-  openLinkIn(url, where, params);
+  if (/^about:/.test(url)) {
+    openContentTab(url);
+  } else {
+    openLinkIn(url, where, params);
+  }
 }
 
 /**
