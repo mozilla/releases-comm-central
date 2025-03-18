@@ -759,6 +759,7 @@ NS_IMETHODIMP GetSubFoldersRunnable::Run() {
 }
 
 nsresult ProxyGetSubFolders(nsIMsgFolder* aFolder) {
+  NS_ENSURE_ARG_POINTER(aFolder);
   RefPtr<GetSubFoldersRunnable> getSubFolders =
       new GetSubFoldersRunnable(aFolder);
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
