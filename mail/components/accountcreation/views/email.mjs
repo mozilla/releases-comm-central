@@ -472,6 +472,7 @@ class AccountHubEmail extends HTMLElement {
           this.#currentSubview.showNotification({
             title: error.title || error.message,
             description: error.text,
+            error,
             type: "error",
           });
         }
@@ -1096,7 +1097,7 @@ class AccountHubEmail extends HTMLElement {
       Glean.mail.successfulEmailAccountSetup[telemetryKey].add(1);
     } catch (error) {
       // If we get no message, then something other than VerifyLogon failed.
-
+      let errorTitle = "account-hub-account-authentication-error";
       // For an Exchange server, some known configurations can
       // be disabled (per user or domain or server).
       // Warn the user if the open protocol we tried didn't work.
@@ -1104,13 +1105,17 @@ class AccountHubEmail extends HTMLElement {
         ["imap", "pop3"].includes(completeConfig.incoming.type) &&
         completeConfig.incomingAlternatives.some(i => i.type == "exchange")
       ) {
-        error.cause.fluentTitleId =
-          "account-setup-exchange-config-unverifiable";
+        errorTitle = "account-setup-exchange-config-unverifiable";
       }
 
       this.#configVerifier.cleanup();
       Glean.mail.failedEmailAccountSetup[telemetryKey].add(1);
-      throw error;
+
+      throw new Error(error.message, {
+        cause: {
+          fluentTitleId: errorTitle,
+        },
+      });
     }
   }
 

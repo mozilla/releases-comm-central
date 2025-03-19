@@ -57,7 +57,7 @@ class AccountHubHeader extends HTMLElement {
    *   to localize for the title.
    * @param {string} options.fluentDescriptionId - A string representing a
    *   fluent id to localize for the description.
-   * @param {string} options.title - A raw string to displayin the description.
+   * @param {string} options.title - A raw string to display in the description.
    * @param {string} options.type - The type of notification (error, success, info,
    *   warning).
    */
@@ -113,6 +113,10 @@ class AccountHubHeader extends HTMLElement {
         descriptionElement.querySelector(".localized-description"),
         fluentDescriptionId || error.cause.fluentDescriptionId
       );
+
+      // If we have a specific fluent ID for the description, return early
+      // so we don't have two descriptions.
+      return;
     }
 
     if (description || (type === "error" && error?.message)) {
@@ -147,6 +151,10 @@ class AccountHubHeader extends HTMLElement {
         titleElement.querySelector(".localized-title"),
         localizedTitle
       );
+
+      // If we have a localized title, return early so we don't have two
+      // titles.
+      return;
     }
 
     if (title) {
