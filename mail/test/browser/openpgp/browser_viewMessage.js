@@ -623,6 +623,37 @@ add_task(async function testOuterSmimeSigInnerPgpEncryptedInsideMixed() {
 });
 
 /**
+ * Test that processing a nested OpenPGP signed message with an outer S/MIME
+ * signature does not result in an endless reload loop, if the content type
+ * parameters are ordered in an unusual way.
+ */
+add_task(async function testUncommonContentType() {
+  const msgc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/dual-signed-uncommon-content-type.eml")
+    )
+  );
+  const aboutMessage = get_about_message(msgc);
+  Assert.ok(
+    getMsgBodyTxt(msgc).includes(
+      "The order of the content type parameters is unusual"
+    ),
+    "message text is in body"
+  );
+  // Note this is an S/MIME signature status, at the time of writing
+  // this test, string "mismatch" is used for status "notok".
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
+    "signed icon with a mismatch status is displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon is not displayed"
+  );
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
+/**
  * Test that we decrypt a nested OpenPGP encrypted+signed message
  * (with outer OpenPGP signature that is ignored).
  */

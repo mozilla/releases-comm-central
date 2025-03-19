@@ -552,9 +552,10 @@ Enigmail.msg = {
       }
 
       const smime =
-        contentType.search(
-          /multipart\/signed; protocol="application\/pkcs7-signature/i
-        ) >= 0;
+        /^multipart\/signed/i.test(contentType) &&
+        /^application\/pkcs7-signature/i.test(
+          EnigmailMime.getProtocol(contentType)
+        );
       if (!smime && (msgSigned || msgEncrypted)) {
         // PGP/MIME messages
         EnigmailCore.init();
