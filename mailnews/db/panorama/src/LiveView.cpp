@@ -315,7 +315,9 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
     JS_DefineElement(aCx, arr, count++, message, JSPROP_ENUMERATE);
   }
 
-  SetArrayLength(aCx, arr, count);
+  if (NS_WARN_IF(!SetArrayLength(aCx, arr, count))) {
+    return NS_ERROR_UNEXPECTED;
+  }
   aMessages.set(ObjectValue(*arr));
 
   mSelectStmt->Reset();
