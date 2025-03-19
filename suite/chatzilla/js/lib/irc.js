@@ -2447,20 +2447,20 @@ CIRCServer.prototype.onBatch = function serv_batch(e) {
 };
 
 /* SASL authentication responses */
+/* Nick locked */
 CIRCServer.prototype.on902 =
-  /* Nick locked */
-  CIRCServer.prototype.on903 =
   /* Auth success */
-  CIRCServer.prototype.on904 =
+  CIRCServer.prototype.on903 =
   /* Auth failed */
-  CIRCServer.prototype.on905 =
+  CIRCServer.prototype.on904 =
   /* Command too long */
-  CIRCServer.prototype.on906 =
+  CIRCServer.prototype.on905 =
   /* Aborted */
-  CIRCServer.prototype.on907 =
+  CIRCServer.prototype.on906 =
   /* Already authenticated */
+  CIRCServer.prototype.on907 =
+  /* Mechanisms */
   CIRCServer.prototype.on908 =
-    /* Mechanisms */
     function cap_on900(e) {
       if (this.pendingCapNegotiation) {
         delete this.pendingCapNegotiation;
@@ -2477,26 +2477,24 @@ CIRCServer.prototype.on902 =
     };
 
 /* STARTTLS responses */
-CIRCServer.prototype.on670 =
-  /* Success */
-  function cap_on670(e) {
-    this.caps.tls = true;
-    e.server.connection.startTLS();
-    e.server.isSecure = true;
-    e.server.isStartTLS = true;
+/* Success */
+CIRCServer.prototype.on670 = function cap_on670(e) {
+  this.caps.tls = true;
+  e.server.connection.startTLS();
+  e.server.isSecure = true;
+  e.server.isStartTLS = true;
 
-    e.destObject = this.parent;
-    e.set = "network";
-  };
+  e.destObject = this.parent;
+  e.set = "network";
+};
 
-CIRCServer.prototype.on691 =
-  /* Failure */
-  function cap_on691(e) {
-    this.caps.tls = false;
+/* Failure */
+CIRCServer.prototype.on691 = function cap_on691(e) {
+  this.caps.tls = false;
 
-    e.destObject = this.parent;
-    e.set = "network";
-  };
+  e.destObject = this.parent;
+  e.set = "network";
+};
 
 /* User away status changed */
 CIRCServer.prototype.onAway = function serv_away(e) {

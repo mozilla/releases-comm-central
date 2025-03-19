@@ -1107,56 +1107,56 @@ CIRCNetwork.prototype.onUnknown = function my_unknown(e) {
 
 CIRCNetwork.prototype.lastWhoCheckChannel = null;
 CIRCNetwork.prototype.lastWhoCheckTime = 0;
+/* Welcome! */
 CIRCNetwork.prototype.on001 =
-  /* Welcome! */
-  CIRCNetwork.prototype.on002 =
   /* your host is */
-  CIRCNetwork.prototype.on003 =
+  CIRCNetwork.prototype.on002 =
   /* server born-on date */
-  CIRCNetwork.prototype.on004 =
+  CIRCNetwork.prototype.on003 =
   /* server id */
-  CIRCNetwork.prototype.on005 =
+  CIRCNetwork.prototype.on004 =
   /* server features */
-  CIRCNetwork.prototype.on250 =
+  CIRCNetwork.prototype.on005 =
   /* highest connection count */
-  CIRCNetwork.prototype.on251 =
+  CIRCNetwork.prototype.on250 =
   /* users */
-  CIRCNetwork.prototype.on252 =
+  CIRCNetwork.prototype.on251 =
   /* opers online (in params[2]) */
-  CIRCNetwork.prototype.on254 =
+  CIRCNetwork.prototype.on252 =
   /* channels found (in params[2]) */
-  CIRCNetwork.prototype.on255 =
+  CIRCNetwork.prototype.on254 =
   /* link info */
-  CIRCNetwork.prototype.on265 =
+  CIRCNetwork.prototype.on255 =
   /* local user details */
-  CIRCNetwork.prototype.on266 =
+  CIRCNetwork.prototype.on265 =
   /* global user details */
-  CIRCNetwork.prototype.on375 =
+  CIRCNetwork.prototype.on266 =
   /* start of MOTD */
-  CIRCNetwork.prototype.on372 =
+  CIRCNetwork.prototype.on375 =
   /* MOTD line */
-  CIRCNetwork.prototype.on376 =
+  CIRCNetwork.prototype.on372 =
   /* end of MOTD */
-  CIRCNetwork.prototype.on422 =
+  CIRCNetwork.prototype.on376 =
   /* no MOTD */
-  CIRCNetwork.prototype.on670 =
+  CIRCNetwork.prototype.on422 =
   /* STARTTLS Success */
-  CIRCNetwork.prototype.on691 =
+  CIRCNetwork.prototype.on670 =
   /* STARTTLS Failure */
-  CIRCNetwork.prototype.on902 =
+  CIRCNetwork.prototype.on691 =
   /* SASL Nick locked */
-  CIRCNetwork.prototype.on903 =
+  CIRCNetwork.prototype.on902 =
   /* SASL Auth success */
-  CIRCNetwork.prototype.on904 =
+  CIRCNetwork.prototype.on903 =
   /* SASL Auth failed */
-  CIRCNetwork.prototype.on905 =
+  CIRCNetwork.prototype.on904 =
   /* SASL Command too long */
-  CIRCNetwork.prototype.on906 =
+  CIRCNetwork.prototype.on905 =
   /* SASL Aborted */
-  CIRCNetwork.prototype.on907 =
+  CIRCNetwork.prototype.on906 =
   /* SASL Already authenticated */
+  CIRCNetwork.prototype.on907 =
+  /* SASL Mechanisms */
   CIRCNetwork.prototype.on908 =
-    /* SASL Mechanisms */
     function my_showtonet(e) {
       var p = 3 in e.params ? e.params[2] + " " : "";
       var str = "";
@@ -1357,193 +1357,188 @@ CIRCNetwork.prototype.on302 = function my_302(e) {
   return true;
 };
 
-CIRCNetwork.prototype.on303 =
-  /* ISON (aka notify) reply */
-  function my_303(e) {
-    function lower(text) {
-      return e.server.toLowerCase(text);
-    }
+/* ISON (aka notify) reply */
+CIRCNetwork.prototype.on303 = function my_303(e) {
+  function lower(text) {
+    return e.server.toLowerCase(text);
+  }
 
-    var onList = new Array();
-    // split() gives an array of one item ("") when splitting "", which we
-    // don't want, so only do the split if there's something to split.
-    if (e.params[2]) {
-      onList = e.server.toLowerCase(e.params[2]).trim().split(/\s+/);
-    }
-    var offList = new Array();
-    var newArrivals = new Array();
-    var newDepartures = new Array();
-    var o = getObjectDetails(client.currentObject);
-    var displayTab;
-    var i;
+  var onList = new Array();
+  // split() gives an array of one item ("") when splitting "", which we
+  // don't want, so only do the split if there's something to split.
+  if (e.params[2]) {
+    onList = e.server.toLowerCase(e.params[2]).trim().split(/\s+/);
+  }
+  var offList = new Array();
+  var newArrivals = new Array();
+  var newDepartures = new Array();
+  var o = getObjectDetails(client.currentObject);
+  var displayTab;
+  var i;
 
-    if ("network" in o && o.network == this && client.currentObject != this) {
-      displayTab = client.currentObject;
-    }
+  if ("network" in o && o.network == this && client.currentObject != this) {
+    displayTab = client.currentObject;
+  }
 
-    for (i = 0; i < this.prefs.notifyList.length; i++) {
-      if (!onList.includes(lower(this.prefs.notifyList[i]))) {
-        /* user is not on */
-        offList.push(lower(this.prefs.notifyList[i]));
+  for (i = 0; i < this.prefs.notifyList.length; i++) {
+    if (!onList.includes(lower(this.prefs.notifyList[i]))) {
+      /* user is not on */
+      offList.push(lower(this.prefs.notifyList[i]));
+    }
+  }
+
+  if ("onList" in this) {
+    for (i in onList) {
+      if (!this.onList.includes(onList[i])) {
+        /* we didn't know this person was on */
+        newArrivals.push(onList[i]);
       }
     }
+  } else {
+    this.onList = newArrivals = onList;
+  }
 
-    if ("onList" in this) {
-      for (i in onList) {
-        if (!this.onList.includes(onList[i])) {
-          /* we didn't know this person was on */
-          newArrivals.push(onList[i]);
-        }
+  if ("offList" in this) {
+    for (i in offList) {
+      if (!this.offList.includes(offList[i])) {
+        /* we didn't know this person was off */
+        newDepartures.push(offList[i]);
       }
-    } else {
-      this.onList = newArrivals = onList;
     }
+  } else {
+    this.offList = newDepartures = offList;
+  }
 
-    if ("offList" in this) {
-      for (i in offList) {
-        if (!this.offList.includes(offList[i])) {
-          /* we didn't know this person was off */
-          newDepartures.push(offList[i]);
-        }
-      }
-    } else {
-      this.offList = newDepartures = offList;
-    }
-
-    if (newArrivals.length > 0) {
-      this.displayHere(
+  if (newArrivals.length > 0) {
+    this.displayHere(
+      arraySpeak(newArrivals, "is", "are") + " online.",
+      "NOTIFY-ON",
+      undefined,
+      undefined,
+      e.tags
+    );
+    if (displayTab) {
+      displayTab.displayHere(
         arraySpeak(newArrivals, "is", "are") + " online.",
         "NOTIFY-ON",
         undefined,
         undefined,
         e.tags
       );
-      if (displayTab) {
-        displayTab.displayHere(
-          arraySpeak(newArrivals, "is", "are") + " online.",
-          "NOTIFY-ON",
-          undefined,
-          undefined,
-          e.tags
-        );
-      }
     }
+  }
 
-    if (newDepartures.length > 0) {
-      this.displayHere(
+  if (newDepartures.length > 0) {
+    this.displayHere(
+      arraySpeak(newDepartures, "is", "are") + " offline.",
+      "NOTIFY-OFF",
+      undefined,
+      undefined,
+      e.tags
+    );
+    if (displayTab) {
+      displayTab.displayHere(
         arraySpeak(newDepartures, "is", "are") + " offline.",
         "NOTIFY-OFF",
         undefined,
         undefined,
         e.tags
       );
-      if (displayTab) {
-        displayTab.displayHere(
-          arraySpeak(newDepartures, "is", "are") + " offline.",
-          "NOTIFY-OFF",
-          undefined,
-          undefined,
-          e.tags
-        );
-      }
     }
+  }
 
-    this.onList = onList;
-    this.offList = offList;
-  };
+  this.onList = onList;
+  this.offList = offList;
+};
 
+/* RPL_MONONLINE  */
 CIRCNetwork.prototype.on730 =
-  /* RPL_MONONLINE  */
-  CIRCNetwork.prototype.on731 =
-    /* RPL_MONOFFLINE */
-    function my_monnotice(e) {
-      var userList = e.params[2].split(",");
-      var nickList = [];
-      var o = getObjectDetails(client.currentObject);
-      var displayTab;
-      var i;
-      var msg;
-
-      if ("network" in o && o.network == this && client.currentObject != this) {
-        displayTab = client.currentObject;
-      }
-
-      for (i = 0; i < userList.length; i++) {
-        var nick = e.server.toLowerCase(userList[i].split("!")[0]);
-
-        // Make sure this nick is in the notify list.
-        if (this.prefs.notifyList.indexOf(nick) < 0) {
-          this.prefs.notifyList.push(nick);
-          this.prefs.notifyList.update();
-        }
-        nickList.push(nick);
-      }
-
-      if (e.code == "730") {
-        // RPL_MONONLINE
-        msg = arraySpeak(nickList, "is", "are") + " online.";
-      } // RPL_MONOFFLINE
-      else {
-        msg = arraySpeak(nickList, "is", "are") + " offline.";
-      }
-      this.displayHere(msg, e.code, undefined, undefined, e.tags);
-      if (displayTab) {
-        displayTab.displayHere(msg, e.code, undefined, undefined, e.tags);
-      }
-    };
-
-CIRCNetwork.prototype.on732 =
-  /* RPL_MONLIST */
-  function my_732(e) {
-    if (!this.pendingNotifyList) {
-      this.pendingNotifyList = [];
-    }
-    var nickList = e.server.toLowerCase(e.params[2]).split(",");
-    this.pendingNotifyList = this.pendingNotifyList.concat(nickList);
-  };
-
-CIRCNetwork.prototype.on733 =
-  /* RPL_ENDOFMONLIST */
-  function my_733(e) {
-    if (this.pendingNotifyList) {
-      this.prefs.notifyList = this.pendingNotifyList;
-      this.prefs.notifyList.update();
-      this.display(getMsg(MSG_NOTIFY_LIST, arraySpeak(this.pendingNotifyList)));
-      delete this.pendingNotifyList;
-      if (e.params[2]) {
-        this.display(e.params[2], e.code, undefined, undefined, e.tags);
-      }
-    } else {
-      this.prefs.notifyList = [];
-      this.prefs.notifyList.update();
-      display(MSG_NO_NOTIFY_LIST, e.code, undefined, undefined, e.tags);
-    }
-  };
-
-CIRCNetwork.prototype.on734 =
-  /* ERR_MONLISTFULL */
-  function my_734(e) {
-    var nickList = e.server.toLowerCase(e.params[3]).split(",");
+  /* RPL_MONOFFLINE */
+  CIRCNetwork.prototype.on731 = function my_monnotice(e) {
+    var userList = e.params[2].split(",");
+    var nickList = [];
+    var o = getObjectDetails(client.currentObject);
+    var displayTab;
     var i;
-    var msgname;
+    var msg;
 
-    for (i = 0; i < nickList.length; i++) {
-      var j = this.prefs.notifyList.indexOf(nickList[i]);
-      if (j >= 0) {
-        this.prefs.notifyList.splice(j, 1);
+    if ("network" in o && o.network == this && client.currentObject != this) {
+      displayTab = client.currentObject;
+    }
+
+    for (i = 0; i < userList.length; i++) {
+      var nick = e.server.toLowerCase(userList[i].split("!")[0]);
+
+      // Make sure this nick is in the notify list.
+      if (this.prefs.notifyList.indexOf(nick) < 0) {
+        this.prefs.notifyList.push(nick);
+        this.prefs.notifyList.update();
       }
-    }
-    this.prefs.notifyList.update();
-
-    if (e.params[4]) {
-      this.display(e.params[4], e.code, undefined, undefined, e.tags);
-    } else {
-      this.display(MSG_NOTIFY_FULL);
+      nickList.push(nick);
     }
 
-    msgname = nickList.length == 1 ? MSG_NOTIFY_DELONE : MSG_NOTIFY_DELSOME;
-    this.display(getMsg(msgname, arraySpeak(nickList)));
+    if (e.code == "730") {
+      // RPL_MONONLINE
+      msg = arraySpeak(nickList, "is", "are") + " online.";
+    } // RPL_MONOFFLINE
+    else {
+      msg = arraySpeak(nickList, "is", "are") + " offline.";
+    }
+    this.displayHere(msg, e.code, undefined, undefined, e.tags);
+    if (displayTab) {
+      displayTab.displayHere(msg, e.code, undefined, undefined, e.tags);
+    }
   };
+
+/* RPL_MONLIST */
+CIRCNetwork.prototype.on732 = function my_732(e) {
+  if (!this.pendingNotifyList) {
+    this.pendingNotifyList = [];
+  }
+  var nickList = e.server.toLowerCase(e.params[2]).split(",");
+  this.pendingNotifyList = this.pendingNotifyList.concat(nickList);
+};
+
+/* RPL_ENDOFMONLIST */
+CIRCNetwork.prototype.on733 = function my_733(e) {
+  if (this.pendingNotifyList) {
+    this.prefs.notifyList = this.pendingNotifyList;
+    this.prefs.notifyList.update();
+    this.display(getMsg(MSG_NOTIFY_LIST, arraySpeak(this.pendingNotifyList)));
+    delete this.pendingNotifyList;
+    if (e.params[2]) {
+      this.display(e.params[2], e.code, undefined, undefined, e.tags);
+    }
+  } else {
+    this.prefs.notifyList = [];
+    this.prefs.notifyList.update();
+    display(MSG_NO_NOTIFY_LIST, e.code, undefined, undefined, e.tags);
+  }
+};
+
+/* ERR_MONLISTFULL */
+CIRCNetwork.prototype.on734 = function my_734(e) {
+  var nickList = e.server.toLowerCase(e.params[3]).split(",");
+  var i;
+  var msgname;
+
+  for (i = 0; i < nickList.length; i++) {
+    var j = this.prefs.notifyList.indexOf(nickList[i]);
+    if (j >= 0) {
+      this.prefs.notifyList.splice(j, 1);
+    }
+  }
+  this.prefs.notifyList.update();
+
+  if (e.params[4]) {
+    this.display(e.params[4], e.code, undefined, undefined, e.tags);
+  } else {
+    this.display(MSG_NOTIFY_FULL);
+  }
+
+  msgname = nickList.length == 1 ? MSG_NOTIFY_DELONE : MSG_NOTIFY_DELSOME;
+  this.display(getMsg(msgname, arraySpeak(nickList)));
+};
 
 /* away off reply */
 CIRCNetwork.prototype.on305 = function my_305(e) {
@@ -1576,30 +1571,29 @@ CIRCNetwork.prototype.on306 = function my_306(e) {
   return true;
 };
 
-CIRCNetwork.prototype.on263 =
-  /* 'try again' */
-  function my_263(e) {
-    /* Urgh, this one's a pain. We need to abort whatever we tried, and start
-     * it again if appropriate.
-     *
-     * Known causes of this message:
-     *   - LIST, with or without a parameter.
-     */
+/* 'try again' */
+CIRCNetwork.prototype.on263 = function my_263(e) {
+  /* Urgh, this one's a pain. We need to abort whatever we tried, and start
+   * it again if appropriate.
+   *
+   * Known causes of this message:
+   *   - LIST, with or without a parameter.
+   */
 
-    if ("_list" in this && !this._list.done && this._list.count == 0) {
-      // We attempted a LIST, and we think it failed. :)
-      this._list.done = true;
-      this._list.error = e.decodeParam(2);
-      // Return early for this one if we're saving it.
-      if ("file" in this._list) {
-        return true;
-      }
+  if ("_list" in this && !this._list.done && this._list.count == 0) {
+    // We attempted a LIST, and we think it failed. :)
+    this._list.done = true;
+    this._list.error = e.decodeParam(2);
+    // Return early for this one if we're saving it.
+    if ("file" in this._list) {
+      return true;
     }
+  }
 
-    e.destMethod = "onUnknown";
-    e.destObject = this;
-    return true;
-  };
+  e.destMethod = "onUnknown";
+  e.destObject = this;
+  return true;
+};
 
 CIRCNetwork.prototype.isRunningList = function my_running_list() {
   /* The list is considered "running" when a cancel is effective. This means
@@ -1736,76 +1730,73 @@ CIRCNetwork.prototype.abortList = function my_abortList() {
   this._list.cancelled = true;
 };
 
-CIRCNetwork.prototype.on321 =
-  /* LIST reply header */
-  function my_321(e) {
+/* LIST reply header */
+CIRCNetwork.prototype.on321 = function my_321(e) {
+  this.listInit();
+
+  if (!("file" in this._list)) {
+    this.displayHere(e.params[2] + " " + e.params[3], "321");
+  }
+};
+
+/* end of LIST reply */
+CIRCNetwork.prototype.on323 = function my_323(e) {
+  if (this._list.endTimeout) {
+    clearTimeout(this._list.endTimeout);
+    delete this._list.endTimeout;
+  }
+  if ("file" in this._list) {
+    this._list.file.close();
+  }
+
+  this._list.done = true;
+  this._list.event323 = e;
+};
+
+/* LIST reply */
+CIRCNetwork.prototype.on322 = function my_listrply(e) {
+  if (!("_list" in this) || !("lastLength" in this._list)) {
     this.listInit();
+  }
 
+  ++this._list.count;
+
+  /* If the list has been cancelled, don't bother adding all this info
+   * anymore. Do increase the count (above), otherwise we never truly notice
+   * the list being finished.
+   */
+  if (this._list.cancelled) {
+    return;
+  }
+
+  var chanName = e.decodeParam(2);
+  var topic = e.decodeParam(4);
+  if (
+    !this._list.regexp ||
+    chanName.match(this._list.regexp) ||
+    topic.match(this._list.regexp)
+  ) {
     if (!("file" in this._list)) {
-      this.displayHere(e.params[2] + " " + e.params[3], "321");
+      this._list.push([chanName, e.params[3], topic, e.tags]);
+    } else {
+      this._list.file.write(
+        fromUnicode(chanName, "UTF-8") +
+          " " +
+          e.params[3] +
+          " " +
+          fromUnicode(topic, "UTF-8") +
+          "\n"
+      );
     }
-  };
+  }
+};
 
-CIRCNetwork.prototype.on323 =
-  /* end of LIST reply */
-  function my_323(e) {
-    if (this._list.endTimeout) {
-      clearTimeout(this._list.endTimeout);
-      delete this._list.endTimeout;
-    }
-    if ("file" in this._list) {
-      this._list.file.close();
-    }
-
-    this._list.done = true;
-    this._list.event323 = e;
-  };
-
-CIRCNetwork.prototype.on322 =
-  /* LIST reply */
-  function my_listrply(e) {
-    if (!("_list" in this) || !("lastLength" in this._list)) {
-      this.listInit();
-    }
-
-    ++this._list.count;
-
-    /* If the list has been cancelled, don't bother adding all this info
-     * anymore. Do increase the count (above), otherwise we never truly notice
-     * the list being finished.
-     */
-    if (this._list.cancelled) {
-      return;
-    }
-
-    var chanName = e.decodeParam(2);
-    var topic = e.decodeParam(4);
-    if (
-      !this._list.regexp ||
-      chanName.match(this._list.regexp) ||
-      topic.match(this._list.regexp)
-    ) {
-      if (!("file" in this._list)) {
-        this._list.push([chanName, e.params[3], topic, e.tags]);
-      } else {
-        this._list.file.write(
-          fromUnicode(chanName, "UTF-8") +
-            " " +
-            e.params[3] +
-            " " +
-            fromUnicode(topic, "UTF-8") +
-            "\n"
-        );
-      }
-    }
-  };
-
+/* ERR_NOSUCHNICK */
 CIRCNetwork.prototype.on401 =
-  /* ERR_NOSUCHNICK */
-  CIRCNetwork.prototype.on402 =
   /* ERR_NOSUCHSERVER */
+  CIRCNetwork.prototype.on402 =
+  /* ERR_NOSUCHCHANNEL */
   CIRCNetwork.prototype.on403 =
-    /* ERR_NOSUCHCHANNEL */
     function my_401(e) {
       var server, channel, user;
 
@@ -2005,36 +1996,35 @@ CIRCNetwork.prototype.on354 = function my_354(e) {
   }
 };
 
-CIRCNetwork.prototype.on301 =
-  /* user away message */
-  function my_301(e) {
-    if (e.user.awayMessage != e.user.lastShownAwayMessage) {
-      var params = [e.user.unicodeName, e.user.awayMessage];
-      e.user.display(
-        getMsg(MSG_WHOIS_AWAY, params),
-        e.code,
-        undefined,
-        undefined,
-        e.tags
-      );
-      e.user.lastShownAwayMessage = e.user.awayMessage;
-    }
-  };
+/* user away message */
+CIRCNetwork.prototype.on301 = function my_301(e) {
+  if (e.user.awayMessage != e.user.lastShownAwayMessage) {
+    var params = [e.user.unicodeName, e.user.awayMessage];
+    e.user.display(
+      getMsg(MSG_WHOIS_AWAY, params),
+      e.code,
+      undefined,
+      undefined,
+      e.tags
+    );
+    e.user.lastShownAwayMessage = e.user.awayMessage;
+  }
+};
 
+/* whois name */
 CIRCNetwork.prototype.on311 =
-  /* whois name */
-  CIRCNetwork.prototype.on319 =
   /* whois channels */
-  CIRCNetwork.prototype.on312 =
+  CIRCNetwork.prototype.on319 =
   /* whois server */
-  CIRCNetwork.prototype.on317 =
+  CIRCNetwork.prototype.on312 =
   /* whois idle time */
-  CIRCNetwork.prototype.on318 =
+  CIRCNetwork.prototype.on317 =
   /* whois end of whois*/
-  CIRCNetwork.prototype.on330 =
+  CIRCNetwork.prototype.on318 =
   /* ircu's 330 numeric ("X is logged in as Y") */
+  CIRCNetwork.prototype.on330 =
+  /* misc whois line */
   CIRCNetwork.prototype.onUnknownWhois =
-    /* misc whois line */
     function my_whoisreply(e) {
       var text = "egads!";
       var nick = e.params[2];
@@ -2118,127 +2108,115 @@ CIRCNetwork.prototype.on311 =
       }
     };
 
-CIRCNetwork.prototype.on341 =
-  /* invite reply */
-  function my_341(e) {
+/* invite reply */
+CIRCNetwork.prototype.on341 = function my_341(e) {
+  this.display(
+    getMsg(MSG_YOU_INVITE, [e.decodeParam(2), e.decodeParam(3)]),
+    "341",
+    undefined,
+    undefined,
+    e.tags
+  );
+};
+
+/* invite message */
+CIRCNetwork.prototype.onInvite = function my_invite(e) {
+  var invitee = e.params[1];
+  if (invitee == e.server.me.unicodeName) {
+    client.munger.getRule(".inline-buttons").enabled = true;
     this.display(
-      getMsg(MSG_YOU_INVITE, [e.decodeParam(2), e.decodeParam(3)]),
-      "341",
+      getMsg(MSG_INVITE_YOU, [
+        e.user.unicodeName,
+        e.user.name,
+        e.user.host,
+        e.channel.unicodeName,
+        e.channel.unicodeName,
+        e.channel.getURL(),
+      ]),
+      "INVITE",
       undefined,
       undefined,
       e.tags
     );
-  };
+    client.munger.getRule(".inline-buttons").enabled = false;
 
-CIRCNetwork.prototype.onInvite =
-  /* invite message */
-  function my_invite(e) {
-    var invitee = e.params[1];
-    if (invitee == e.server.me.unicodeName) {
-      client.munger.getRule(".inline-buttons").enabled = true;
-      this.display(
-        getMsg(MSG_INVITE_YOU, [
-          e.user.unicodeName,
-          e.user.name,
-          e.user.host,
-          e.channel.unicodeName,
-          e.channel.unicodeName,
-          e.channel.getURL(),
-        ]),
-        "INVITE",
-        undefined,
-        undefined,
-        e.tags
-      );
-      client.munger.getRule(".inline-buttons").enabled = false;
-
-      if ("messages" in e.channel) {
-        e.channel.join();
-      }
-    } else {
-      this.display(
-        getMsg(MSG_INVITE_SOMEONE, [
-          e.user.unicodeName,
-          invitee,
-          e.channel.unicodeName,
-        ]),
-        "INVITE",
-        undefined,
-        undefined,
-        e.tags
-      );
+    if ("messages" in e.channel) {
+      e.channel.join();
     }
-  };
+  } else {
+    this.display(
+      getMsg(MSG_INVITE_SOMEONE, [
+        e.user.unicodeName,
+        invitee,
+        e.channel.unicodeName,
+      ]),
+      "INVITE",
+      undefined,
+      undefined,
+      e.tags
+    );
+  }
+};
 
-CIRCNetwork.prototype.on433 =
-  /* nickname in use */
-  function my_433(e) {
-    var nick = toUnicode(e.params[2], this);
+/* nickname in use */
+CIRCNetwork.prototype.on433 = function my_433(e) {
+  var nick = toUnicode(e.params[2], this);
 
-    if ("pendingReclaimCheck" in this) {
-      delete this.pendingReclaimCheck;
-      return;
+  if ("pendingReclaimCheck" in this) {
+    delete this.pendingReclaimCheck;
+    return;
+  }
+
+  if (this.state == NET_CONNECTING) {
+    var nickIndex = this.prefs.nicknameList.indexOf(nick);
+    var newnick = null;
+
+    dd("433: failed with " + nick + " (" + nickIndex + ")");
+
+    var tryList = true;
+
+    if (
+      ("_firstNick" in this && this._firstNick == -1) ||
+      this.prefs.nicknameList.length == 0 ||
+      (nickIndex != -1 && this.prefs.nicknameList.length < 2)
+    ) {
+      tryList = false;
     }
 
-    if (this.state == NET_CONNECTING) {
-      var nickIndex = this.prefs.nicknameList.indexOf(nick);
-      var newnick = null;
+    if (tryList) {
+      nickIndex = (nickIndex + 1) % this.prefs.nicknameList.length;
 
-      dd("433: failed with " + nick + " (" + nickIndex + ")");
-
-      var tryList = true;
-
-      if (
-        ("_firstNick" in this && this._firstNick == -1) ||
-        this.prefs.nicknameList.length == 0 ||
-        (nickIndex != -1 && this.prefs.nicknameList.length < 2)
-      ) {
+      if ("_firstNick" in this && this._firstNick == nickIndex) {
+        // We're back where we started. Give up with this method.
+        this._firstNick = -1;
         tryList = false;
       }
+    }
 
-      if (tryList) {
-        nickIndex = (nickIndex + 1) % this.prefs.nicknameList.length;
+    if (tryList) {
+      newnick = this.prefs.nicknameList[nickIndex];
+      dd("     trying " + newnick + " (" + nickIndex + ")");
 
-        if ("_firstNick" in this && this._firstNick == nickIndex) {
-          // We're back where we started. Give up with this method.
-          this._firstNick = -1;
-          tryList = false;
-        }
+      // Save first index we've tried.
+      if (!("_firstNick" in this)) {
+        this._firstNick = nickIndex;
       }
+    } else if (this.NICK_RETRIES > 0) {
+      newnick = this.INITIAL_NICK + "_";
+      this.NICK_RETRIES--;
+      dd("     trying " + newnick);
+    }
 
-      if (tryList) {
-        newnick = this.prefs.nicknameList[nickIndex];
-        dd("     trying " + newnick + " (" + nickIndex + ")");
-
-        // Save first index we've tried.
-        if (!("_firstNick" in this)) {
-          this._firstNick = nickIndex;
-        }
-      } else if (this.NICK_RETRIES > 0) {
-        newnick = this.INITIAL_NICK + "_";
-        this.NICK_RETRIES--;
-        dd("     trying " + newnick);
-      }
-
-      if (newnick) {
-        this.INITIAL_NICK = newnick;
-        this.display(
-          getMsg(MSG_RETRY_NICK, [nick, newnick]),
-          "433",
-          undefined,
-          undefined,
-          e.tags
-        );
-        this.primServ.changeNick(newnick);
-      } else {
-        this.display(
-          getMsg(MSG_NICK_IN_USE, nick),
-          "433",
-          undefined,
-          undefined,
-          e.tags
-        );
-      }
+    if (newnick) {
+      this.INITIAL_NICK = newnick;
+      this.display(
+        getMsg(MSG_RETRY_NICK, [nick, newnick]),
+        "433",
+        undefined,
+        undefined,
+        e.tags
+      );
+      this.primServ.changeNick(newnick);
     } else {
       this.display(
         getMsg(MSG_NICK_IN_USE, nick),
@@ -2248,7 +2226,16 @@ CIRCNetwork.prototype.on433 =
         e.tags
       );
     }
-  };
+  } else {
+    this.display(
+      getMsg(MSG_NICK_IN_USE, nick),
+      "433",
+      undefined,
+      undefined,
+      e.tags
+    );
+  }
+};
 
 CIRCNetwork.prototype.onStartConnect = function my_sconnect(e) {
   this.busy = true;
@@ -2596,27 +2583,26 @@ CIRCNetwork.prototype.onCTCPReplyPing = function my_replyping(e) {
   );
 };
 
-CIRCNetwork.prototype.on221 = CIRCNetwork.prototype.onUserMode =
-  function my_umode(e) {
-    if ("user" in e && e.user) {
-      e.user.updateHeader();
-      this.display(
-        getMsg(MSG_USER_MODE, [e.user.unicodeName, e.params[2]]),
-        MT_MODE,
-        undefined,
-        undefined,
-        e.tags
-      );
-    } else {
-      this.display(
-        getMsg(MSG_USER_MODE, [e.params[1], e.params[2]]),
-        MT_MODE,
-        undefined,
-        undefined,
-        e.tags
-      );
-    }
-  };
+CIRCNetwork.prototype.on221 = CIRCNetwork.prototype.onUserMode = function (e) {
+  if ("user" in e && e.user) {
+    e.user.updateHeader();
+    this.display(
+      getMsg(MSG_USER_MODE, [e.user.unicodeName, e.params[2]]),
+      MT_MODE,
+      undefined,
+      undefined,
+      e.tags
+    );
+  } else {
+    this.display(
+      getMsg(MSG_USER_MODE, [e.params[1], e.params[2]]),
+      MT_MODE,
+      undefined,
+      undefined,
+      e.tags
+    );
+  }
+};
 
 CIRCNetwork.prototype.onNick = function my_cnick(e) {
   if (!ASSERT(userIsMe(e.user), "network nick event for third party")) {
@@ -3036,94 +3022,90 @@ CIRCChannel.prototype.on366 = function my_366(e) {
   this._updateConferenceMode();
 };
 
+/* user changed topic */
 CIRCChannel.prototype.onTopic =
-  /* user changed topic */
-  CIRCChannel.prototype.on332 =
-    /* TOPIC reply */
-    function my_topic(e) {
-      client.munger.getRule(".mailto").enabled = client.prefs["munger.mailto"];
-      if (e.code == "TOPIC") {
+  /* TOPIC reply */
+  CIRCChannel.prototype.on332 = function my_topic(e) {
+    client.munger.getRule(".mailto").enabled = client.prefs["munger.mailto"];
+    if (e.code == "TOPIC") {
+      this.display(
+        getMsg(MSG_TOPIC_CHANGED, [this.topicBy, this.topic]),
+        "TOPIC",
+        undefined,
+        undefined,
+        e.tags
+      );
+    }
+
+    if (e.code == "332") {
+      if (this.topic) {
         this.display(
-          getMsg(MSG_TOPIC_CHANGED, [this.topicBy, this.topic]),
+          getMsg(MSG_TOPIC, [this.unicodeName, this.topic]),
+          "TOPIC",
+          undefined,
+          undefined,
+          e.tags
+        );
+      } else {
+        this.display(
+          getMsg(MSG_NO_TOPIC, this.unicodeName),
           "TOPIC",
           undefined,
           undefined,
           e.tags
         );
       }
+    }
 
-      if (e.code == "332") {
-        if (this.topic) {
-          this.display(
-            getMsg(MSG_TOPIC, [this.unicodeName, this.topic]),
-            "TOPIC",
-            undefined,
-            undefined,
-            e.tags
-          );
-        } else {
-          this.display(
-            getMsg(MSG_NO_TOPIC, this.unicodeName),
-            "TOPIC",
-            undefined,
-            undefined,
-            e.tags
-          );
-        }
-      }
+    this.updateHeader();
+    updateTitle(this);
+    client.munger.getRule(".mailto").enabled = false;
+  };
 
-      this.updateHeader();
-      updateTitle(this);
-      client.munger.getRule(".mailto").enabled = false;
-    };
+/* Topic setter information */
+CIRCChannel.prototype.on333 = function my_topicinfo(e) {
+  this.display(
+    getMsg(MSG_TOPIC_DATE, [this.unicodeName, this.topicBy, this.topicDate]),
+    "TOPIC",
+    undefined,
+    undefined,
+    e.tags
+  );
+};
 
-CIRCChannel.prototype.on333 =
-  /* Topic setter information */
-  function my_topicinfo(e) {
-    this.display(
-      getMsg(MSG_TOPIC_DATE, [this.unicodeName, this.topicBy, this.topicDate]),
-      "TOPIC",
+/* names reply */
+CIRCChannel.prototype.on353 = function my_topic(e) {
+  if (this.pendingNamesReply) {
+    this.parent.parent.display(
+      e.channel.unicodeName + ": " + e.params[4],
+      "NAMES",
       undefined,
       undefined,
       e.tags
     );
-  };
+  }
+};
 
-CIRCChannel.prototype.on353 =
-  /* names reply */
-  function my_topic(e) {
-    if (this.pendingNamesReply) {
-      this.parent.parent.display(
-        e.channel.unicodeName + ": " + e.params[4],
-        "NAMES",
-        undefined,
-        undefined,
-        e.tags
-      );
-    }
-  };
+/* channel ban stuff */
+CIRCChannel.prototype.on367 = function my_bans(e) {
+  if ("pendingBanList" in this) {
+    return;
+  }
 
-CIRCChannel.prototype.on367 =
-  /* channel ban stuff */
-  function my_bans(e) {
-    if ("pendingBanList" in this) {
-      return;
-    }
+  var msg = getMsg(MSG_BANLIST_ITEM, [
+    e.user.unicodeName,
+    e.ban,
+    this.unicodeName,
+    e.banTime,
+  ]);
+  if (this.iAmHalfOp() || this.iAmOp()) {
+    msg += " " + getMsg(MSG_BANLIST_BUTTON, "mode -b " + e.ban);
+  }
 
-    var msg = getMsg(MSG_BANLIST_ITEM, [
-      e.user.unicodeName,
-      e.ban,
-      this.unicodeName,
-      e.banTime,
-    ]);
-    if (this.iAmHalfOp() || this.iAmOp()) {
-      msg += " " + getMsg(MSG_BANLIST_BUTTON, "mode -b " + e.ban);
-    }
-
-    client.munger.getRule(".inline-buttons").enabled = true;
-    this.display(msg, "BAN", undefined, undefined, e.tags);
-    client.munger.getRule(".inline-buttons").enabled = false;
-  };
+  client.munger.getRule(".inline-buttons").enabled = true;
+  this.display(msg, "BAN", undefined, undefined, e.tags);
+  client.munger.getRule(".inline-buttons").enabled = false;
+};
 
 CIRCChannel.prototype.on368 = function my_endofbans(e) {
   if ("pendingBanList" in this) {
@@ -3139,27 +3121,26 @@ CIRCChannel.prototype.on368 = function my_endofbans(e) {
   );
 };
 
-CIRCChannel.prototype.on348 =
-  /* channel except stuff */
-  function my_excepts(e) {
-    if ("pendingExceptList" in this) {
-      return;
-    }
+/* channel except stuff */
+CIRCChannel.prototype.on348 = function my_excepts(e) {
+  if ("pendingExceptList" in this) {
+    return;
+  }
 
-    var msg = getMsg(MSG_EXCEPTLIST_ITEM, [
-      e.user.unicodeName,
-      e.except,
-      this.unicodeName,
-      e.exceptTime,
-    ]);
-    if (this.iAmHalfOp() || this.iAmOp()) {
-      msg += " " + getMsg(MSG_EXCEPTLIST_BUTTON, "mode -e " + e.except);
-    }
+  var msg = getMsg(MSG_EXCEPTLIST_ITEM, [
+    e.user.unicodeName,
+    e.except,
+    this.unicodeName,
+    e.exceptTime,
+  ]);
+  if (this.iAmHalfOp() || this.iAmOp()) {
+    msg += " " + getMsg(MSG_EXCEPTLIST_BUTTON, "mode -e " + e.except);
+  }
 
-    client.munger.getRule(".inline-buttons").enabled = true;
-    this.display(msg, "EXCEPT", undefined, undefined, e.tags);
-    client.munger.getRule(".inline-buttons").enabled = false;
-  };
+  client.munger.getRule(".inline-buttons").enabled = true;
+  this.display(msg, "EXCEPT", undefined, undefined, e.tags);
+  client.munger.getRule(".inline-buttons").enabled = false;
+};
 
 CIRCChannel.prototype.on349 = function my_endofexcepts(e) {
   if ("pendingExceptList" in this) {

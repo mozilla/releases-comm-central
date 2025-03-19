@@ -433,18 +433,17 @@ CIRCDCCState.prototype.socketConnected = function dccstate_socketConnected() {
 };
 
 // Someone disconnected something.
-CIRCDCCState.prototype.socketDisconnected =
-  function dccstate_socketDisconnected() {
-    if (this.state != DCC_STATE_CONNECTED) {
-      throw "Not CONNECTED!";
-    }
+CIRCDCCState.prototype.socketDisconnected = function () {
+  if (this.state != DCC_STATE_CONNECTED) {
+    throw "Not CONNECTED!";
+  }
 
-    this.state = DCC_STATE_DONE;
+  this.state = DCC_STATE_DONE;
 
-    this.eventPump.addEvent(
-      new CEvent(this.eventType, "disconnect", this.owner, "onDisconnect")
-    );
-  };
+  this.eventPump.addEvent(
+    new CEvent(this.eventType, "disconnect", this.owner, "onDisconnect")
+  );
+};
 
 CIRCDCCState.prototype.sendAbort = function dccstate_sendAbort() {
   if (
@@ -942,17 +941,21 @@ CIRCDCCFileTransfer.prototype.accept = function dfile_accept(localFile) {
 };
 
 // This may be called synchronously or asynchronously by CBSConnection.connect.
-CIRCDCCFileTransfer.prototype.onSocketConnection =
-  function dfile_onsocketconnection(host, port, config, exception) {
-    if (!exception) {
-      this.state.socketConnected();
+CIRCDCCFileTransfer.prototype.onSocketConnection = function (
+  host,
+  port,
+  config,
+  exception
+) {
+  if (!exception) {
+    this.state.socketConnected();
 
-      this.connection.startAsyncRead(this);
-    } else {
-      this.state.failed();
-      this.dispose();
-    }
-  };
+    this.connection.startAsyncRead(this);
+  } else {
+    this.state.failed();
+    this.dispose();
+  }
+};
 
 // Call to make this end decline DCC File from target user.
 CIRCDCCFileTransfer.prototype.decline = function dfile_decline() {
@@ -993,43 +996,40 @@ CIRCDCCFileTransfer.prototype.onGotRequest = function dfile_onGotRequest(e) {
 
 // Event to handle a client connecting to the listening socket.
 // CBSConnection points the event here.
-CIRCDCCFileTransfer.prototype.onSocketAccepted =
-  function dfile_onSocketAccepted(socket, transport) {
-    this.state.getAccept();
+CIRCDCCFileTransfer.prototype.onSocketAccepted = function (socket, transport) {
+  this.state.getAccept();
 
-    this.connection.accept(transport, null);
+  this.connection.accept(transport, null);
 
-    this.state.socketConnected();
+  this.state.socketConnected();
 
-    this.position = 0;
-    this.ackPosition = 0;
-    this.remoteIP = transport.host;
+  this.position = 0;
+  this.ackPosition = 0;
+  this.remoteIP = transport.host;
 
-    this.eventPump.addEvent(
-      new CEvent("dcc-file", "connect", this, "onConnect")
-    );
+  this.eventPump.addEvent(new CEvent("dcc-file", "connect", this, "onConnect"));
 
-    try {
-      this.filestream = Cc["@mozilla.org/binaryinputstream;1"]
-        .createInstance(Ci.nsIBinaryInputStream)
-        .setInputStream(this.localFile.baseInputStream);
-
-      // Start the reading!
-      var d;
-      if (this.parent.sendChunk > this.size) {
-        d = this.filestream.readBytes(this.size);
-      } else {
-        d = this.filestream.readBytes(this.parent.sendChunk);
-      }
-      this.position += d.length;
-      this.connection.sendData(d);
-    } catch (ex) {
-      dd(ex);
-    }
+  try {
+    this.filestream = Cc["@mozilla.org/binaryinputstream;1"]
+      .createInstance(Ci.nsIBinaryInputStream)
+      .setInputStream(this.localFile.baseInputStream);
 
     // Start the reading!
-    this.connection.startAsyncRead(this);
-  };
+    var d;
+    if (this.parent.sendChunk > this.size) {
+      d = this.filestream.readBytes(this.size);
+    } else {
+      d = this.filestream.readBytes(this.parent.sendChunk);
+    }
+    this.position += d.length;
+    this.connection.sendData(d);
+  } catch (ex) {
+    dd(ex);
+  }
+
+  // Start the reading!
+  this.connection.startAsyncRead(this);
+};
 
 CIRCDCCFileTransfer.prototype.onStreamDataAvailable = function dfile_sda(
   request,
@@ -1122,12 +1122,9 @@ CIRCDCCFileTransfer.prototype.sendData = function dfile_say(data) {
 
 CIRCDCCFileTransfer.prototype.size = 0;
 CIRCDCCFileTransfer.prototype.position = 0;
-CIRCDCCFileTransfer.prototype.__defineGetter__(
-  "progress",
-  function dfile_get_progress() {
-    if (this.size > 0) {
-      return Math.floor((100 * this.position) / this.size);
-    }
-    return 0;
+CIRCDCCFileTransfer.prototype.__defineGetter__("progress", function () {
+  if (this.size > 0) {
+    return Math.floor((100 * this.position) / this.size);
   }
-);
+  return 0;
+});

@@ -1290,40 +1290,39 @@ PrefWindow.prototype.onPrefMouseOut = function pwin_onPrefMouseOut(object) {
   clearTimeout(this.tooltipTimer);
 };
 
-PrefWindow.prototype.onTooltipPopupShowing =
-  function pwin_onTooltipPopupShowing(popup) {
-    if (!this.tooltipText) {
-      return false;
-    }
+PrefWindow.prototype.onTooltipPopupShowing = function (popup) {
+  if (!this.tooltipText) {
+    return false;
+  }
 
-    var fChild = popup.firstChild;
-    var diff = popup.boxObject.height - fChild.boxObject.height;
+  var fChild = popup.firstChild;
+  var diff = popup.boxObject.height - fChild.boxObject.height;
 
-    // Setup the labels...
-    var ttt = document.getElementById("czPrefTipTitle");
-    ttt.firstChild.nodeValue = this.tooltipTitle;
-    var ttl = document.getElementById("czPrefTipLabel");
-    ttl.firstChild.nodeValue = this.tooltipText;
+  // Setup the labels...
+  var ttt = document.getElementById("czPrefTipTitle");
+  ttt.firstChild.nodeValue = this.tooltipTitle;
+  var ttl = document.getElementById("czPrefTipLabel");
+  ttl.firstChild.nodeValue = this.tooltipText;
 
-    /* In Gecko 1.9, the popup has done no layout at this point, unlike in
-     * earlier versions. As a result, the box object of all the elements
-     * within it are 0x0. It also means the height of the labels isn't
-     * updated. To deal with this, we avoid calling sizeTo with the box
-     * object (as it's 0) and instead just force the popup height to 0 -
-     * otherwise it will only ever get bigger each time, never smaller.
-     */
-    if (popup.boxObject.width == 0) {
-      this.tooltipBug418798 = true;
-    }
+  /* In Gecko 1.9, the popup has done no layout at this point, unlike in
+   * earlier versions. As a result, the box object of all the elements
+   * within it are 0x0. It also means the height of the labels isn't
+   * updated. To deal with this, we avoid calling sizeTo with the box
+   * object (as it's 0) and instead just force the popup height to 0 -
+   * otherwise it will only ever get bigger each time, never smaller.
+   */
+  if (popup.boxObject.width == 0) {
+    this.tooltipBug418798 = true;
+  }
 
-    if (this.tooltipBug418798) {
-      popup.height = 0;
-    } else {
-      popup.sizeTo(popup.boxObject.width, fChild.boxObject.height + diff);
-    }
+  if (this.tooltipBug418798) {
+    popup.height = 0;
+  } else {
+    popup.sizeTo(popup.boxObject.width, fChild.boxObject.height + diff);
+  }
 
-    return true;
-  };
+  return true;
+};
 
 /** Components' event handlers **/
 
@@ -1374,7 +1373,7 @@ PrefWindow.prototype.onSelectObject = function pwin_onSelectObject() {
 };
 
 // Browse button for file prefs.
-(PrefWindow.prototype.onPrefBrowse = function pwin_onPrefBrowse(button) {
+PrefWindow.prototype.onPrefBrowse = function pwin_onPrefBrowse(button) {
   var type = button.getAttribute("kind");
   var edit = button.previousSibling.lastChild;
 
@@ -1403,53 +1402,52 @@ PrefWindow.prototype.onSelectObject = function pwin_onSelectObject() {
   }
 
   edit.value = type == "file" ? rv.file.path : rv.picker.fileURL.spec;
-}),
-  // Selection changed on listbox.
-  (PrefWindow.prototype.onPrefListSelect = function pwin_onPrefListSelect(
-    object
+};
+
+// Selection changed on listbox.
+PrefWindow.prototype.onPrefListSelect = function pwin_onPrefListSelect(object) {
+  var list = getRelatedItem(object, "list");
+  var buttons = new Object();
+  buttons.up = getRelatedItem(object, "button-up");
+  buttons.down = getRelatedItem(object, "button-down");
+  buttons.add = getRelatedItem(object, "button-add");
+  buttons.edit = getRelatedItem(object, "button-edit");
+  buttons.del = getRelatedItem(object, "button-delete");
+
+  if (
+    "selectedItems" in list &&
+    list.selectedItems &&
+    list.selectedItems.length
   ) {
-    var list = getRelatedItem(object, "list");
-    var buttons = new Object();
-    buttons.up = getRelatedItem(object, "button-up");
-    buttons.down = getRelatedItem(object, "button-down");
-    buttons.add = getRelatedItem(object, "button-add");
-    buttons.edit = getRelatedItem(object, "button-edit");
-    buttons.del = getRelatedItem(object, "button-delete");
+    buttons.edit.removeAttribute("disabled");
+    buttons.del.removeAttribute("disabled");
+  } else {
+    buttons.edit.setAttribute("disabled", "true");
+    buttons.del.setAttribute("disabled", "true");
+  }
 
-    if (
-      "selectedItems" in list &&
-      list.selectedItems &&
-      list.selectedItems.length
-    ) {
-      buttons.edit.removeAttribute("disabled");
-      buttons.del.removeAttribute("disabled");
-    } else {
-      buttons.edit.setAttribute("disabled", "true");
-      buttons.del.setAttribute("disabled", "true");
-    }
+  if (
+    !("selectedItems" in list) ||
+    !list.selectedItems ||
+    list.selectedItems.length == 0 ||
+    list.selectedIndex == 0
+  ) {
+    buttons.up.setAttribute("disabled", "true");
+  } else {
+    buttons.up.removeAttribute("disabled");
+  }
 
-    if (
-      !("selectedItems" in list) ||
-      !list.selectedItems ||
-      list.selectedItems.length == 0 ||
-      list.selectedIndex == 0
-    ) {
-      buttons.up.setAttribute("disabled", "true");
-    } else {
-      buttons.up.removeAttribute("disabled");
-    }
-
-    if (
-      !("selectedItems" in list) ||
-      !list.selectedItems ||
-      list.selectedItems.length == 0 ||
-      list.selectedIndex == list.childNodes.length - 1
-    ) {
-      buttons.down.setAttribute("disabled", "true");
-    } else {
-      buttons.down.removeAttribute("disabled");
-    }
-  });
+  if (
+    !("selectedItems" in list) ||
+    !list.selectedItems ||
+    list.selectedItems.length == 0 ||
+    list.selectedIndex == list.childNodes.length - 1
+  ) {
+    buttons.down.setAttribute("disabled", "true");
+  } else {
+    buttons.down.removeAttribute("disabled");
+  }
+};
 
 // Up button for lists.
 PrefWindow.prototype.onPrefListUp = function pwin_onPrefListUp(object) {

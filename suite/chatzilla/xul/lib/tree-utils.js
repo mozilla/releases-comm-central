@@ -975,10 +975,9 @@ function XTRootRecord(tree, share) {
 /* no cache passed in here, we set it in the XTRootRecord contructor instead. */
 XTRootRecord.prototype = new XULTreeViewRecord(null);
 
-XTRootRecord.prototype.open = XTRootRecord.prototype.close =
-  function torr_notimplemented() {
-    /* don't do this on a root node */
-  };
+XTRootRecord.prototype.open = XTRootRecord.prototype.close = function () {
+  /* don't do this on a root node */
+};
 
 XTRootRecord.prototype.calculateVisualRow = function torr_calcrow() {
   return null;
