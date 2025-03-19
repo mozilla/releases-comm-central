@@ -5897,7 +5897,6 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
                                       nsMsgViewIndex* pResultIndex,
                                       nsMsgViewIndex* pThreadIndex, bool wrap) {
   nsresult rv = NS_OK;
-  nsMsgKey resultThreadKey;
   nsMsgViewIndex curIndex;
   nsMsgViewIndex lastIndex =
       (GetSize() > 0) ? (nsMsgViewIndex)GetSize() - 1 : nsMsgViewIndex_None;
@@ -6006,37 +6005,38 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
       }
       break;
     case nsMsgNavigationType::previousUnreadMessage:
-      if (!IsValidIndex(startIndex)) break;
+      for (curIndex = (startIndex == nsMsgViewIndex_None) ? lastIndex
+                                                          : startIndex - 1;
+           static_cast<int32_t>(curIndex) >= 0; curIndex--) {
+        uint32_t flags = m_flags[curIndex];
+        // Check for collapsed thread with new children.
+        if ((m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) &&
+            flags & MSG_VIEW_FLAG_ISTHREAD &&
+            flags & nsMsgMessageFlags::Elided) {
+          nsCOMPtr<nsIMsgThread> threadHdr;
+          GetThreadContainingIndex(curIndex, getter_AddRefs(threadHdr));
+          NS_ENSURE_SUCCESS(rv, rv);
 
-      rv = FindPrevUnread(m_keys[startIndex], pResultKey, &resultThreadKey);
-      if (NS_SUCCEEDED(rv)) {
-        *pResultIndex = FindViewIndex(*pResultKey);
-        if (*pResultKey != resultThreadKey &&
-            (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)) {
-          threadIndex = GetThreadIndex(*pResultIndex);
-          if (*pResultIndex == nsMsgViewIndex_None) {
-            nsCOMPtr<nsIMsgThread> threadHdr;
-            nsCOMPtr<nsIMsgDBHdr> msgHdr;
-            rv = m_db->GetMsgHdrForKey(*pResultKey, getter_AddRefs(msgHdr));
-            NS_ENSURE_SUCCESS(rv, rv);
-            rv = GetThreadContainingMsgHdr(msgHdr, getter_AddRefs(threadHdr));
-            NS_ENSURE_SUCCESS(rv, rv);
+          NS_ASSERTION(threadHdr, "threadHdr is null");
+          if (!threadHdr) continue;
 
-            NS_ASSERTION(threadHdr, "threadHdr is null");
-            if (threadHdr) break;
-
-            uint32_t numUnreadChildren;
-            threadHdr->GetNumUnreadChildren(&numUnreadChildren);
-            if (numUnreadChildren > 0) {
-              uint32_t numExpanded;
-              ExpandByIndex(threadIndex, &numExpanded);
-            }
-
-            *pResultIndex = FindViewIndex(*pResultKey);
+          uint32_t numUnreadChildren;
+          threadHdr->GetNumUnreadChildren(&numUnreadChildren);
+          if (numUnreadChildren > 0) {
+            uint32_t numExpanded;
+            ExpandByIndex(curIndex, &numExpanded);
+            if (pThreadIndex) *pThreadIndex = curIndex;
+            curIndex += numExpanded + 1;
+            lastIndex += numExpanded;
+            continue;
           }
         }
 
-        if (pThreadIndex) *pThreadIndex = threadIndex;
+        if (!(flags & (nsMsgMessageFlags::Read | MSG_VIEW_FLAG_DUMMY))) {
+          *pResultIndex = curIndex;
+          *pResultKey = m_keys[*pResultIndex];
+          break;
+        }
       }
       break;
     case nsMsgNavigationType::lastUnreadMessage:
@@ -6130,42 +6130,6 @@ nsresult nsMsgDBView::FindFirstNew(nsMsgViewIndex* pResultIndex) {
   }
 
   return NS_OK;
-}
-
-nsresult nsMsgDBView::FindPrevUnread(nsMsgKey startKey, nsMsgKey* pResultKey,
-                                     nsMsgKey* resultThreadId) {
-  nsMsgViewIndex startIndex = FindViewIndex(startKey);
-  nsMsgViewIndex curIndex = startIndex;
-  nsresult rv = NS_MSG_MESSAGE_NOT_FOUND;
-
-  if (startIndex == nsMsgViewIndex_None) return NS_MSG_MESSAGE_NOT_FOUND;
-
-  *pResultKey = nsMsgKey_None;
-  if (resultThreadId) *resultThreadId = nsMsgKey_None;
-
-  for (; (int)curIndex >= 0 && (*pResultKey == nsMsgKey_None); curIndex--) {
-    uint32_t flags = m_flags[curIndex];
-    if (curIndex != startIndex && flags & MSG_VIEW_FLAG_ISTHREAD &&
-        flags & nsMsgMessageFlags::Elided) {
-      NS_ERROR("fix this");
-      // nsMsgKey threadId = m_keys[curIndex];
-      // rv = m_db->GetUnreadKeyInThread(threadId, pResultKey, resultThreadId);
-      if (NS_SUCCEEDED(rv) && (*pResultKey != nsMsgKey_None)) break;
-    }
-
-    if (!(flags & (nsMsgMessageFlags::Read | MSG_VIEW_FLAG_DUMMY)) &&
-        (curIndex != startIndex)) {
-      *pResultKey = m_keys[curIndex];
-      rv = NS_OK;
-      break;
-    }
-  }
-
-  // Found unread message but we don't know the thread.
-  NS_ASSERTION(!(*pResultKey != nsMsgKey_None && resultThreadId &&
-                 *resultThreadId == nsMsgKey_None),
-               "fix this");
-  return rv;
 }
 
 nsresult nsMsgDBView::FindFirstFlagged(nsMsgViewIndex* pResultIndex) {
