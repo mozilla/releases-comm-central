@@ -415,7 +415,7 @@ class ICSDetector {
    * Set up and return a new ICS calendar object.
    *
    * @param {nsIURI} uri - The location of the calendar.
-   * @param {Set} [props] - For CalDav calendars, these are the props parsed
+   * @param {Set} [props] - For CalDAV calendars, these are the props parsed
    *   from the response.
    * @returns {calICalendar} A new calendar.
    */
@@ -423,7 +423,7 @@ class ICSDetector {
     let displayName = props["D:displayname"];
     const color = props["A:calendar-color"];
     if (!displayName) {
-      const lastPath = uri.filePath.split("/").filter(Boolean).pop() || "";
+      const lastPath = decodeURI(uri.filePath).split("/").filter(Boolean).pop() || "";
       const fileName = lastPath.split(".").slice(0, -1).join(".");
       displayName = fileName || lastPath || uri.spec;
     }

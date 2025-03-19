@@ -79,17 +79,12 @@ export var provider = {
       }
     }
 
-    // We cannot use a system principal here since the connection setup will fail if
-    // same-site cookie protection is enabled in TB and server-side.
-    const principal = aExistingChannel
-      ? null
-      : Services.scriptSecurityManager.createContentPrincipal(aUri, originAttributes);
     const channel =
       aExistingChannel ||
       Services.io.newChannelFromURI(
         aUri,
         null,
-        principal,
+        Services.scriptSecurityManager.getSystemPrincipal(),
         null,
         Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
         Ci.nsIContentPolicy.TYPE_OTHER
