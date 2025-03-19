@@ -9,6 +9,12 @@
  *  place in EditorOverride.css, instead of here.
 */
 
+body {
+  /* Work around changes to how whitespace is handled introduced by bug 1951832
+   * to match behavior of other browsers. */
+  white-space: pre-wrap;
+}
+
 a[name] {
   margin-top: 2px;
   margin-inline-start: 2px;
