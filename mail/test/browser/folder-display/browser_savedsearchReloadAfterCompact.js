@@ -73,18 +73,19 @@ add_task(async function test_setup_virtual_folder_and_compact() {
   }
   // Let the event queue clear.
   await new Promise(resolve => setTimeout(resolve));
-  // Check view is still valid
-  get_about_3pane().gDBView.getMsgHdrAt(0);
 
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
+  await TestUtils.waitForCondition(
+    () => get_about_3pane().gDBView.rowCount > 0,
+    "Timeout waiting for view to have rows"
+  );
+  // Check view is still valid
+  Assert.ok(
+    get_about_3pane().gDBView.getMsgHdrAt(0),
+    "view hdr 0 should be ok"
   );
 });
 
-add_task(async function endTest() {
+registerCleanupFunction(async () => {
   // Fixing possible nsIMsgDBHdr.markHasAttachments onEndMsgDownload runs.
   //  Found in chaosmode.
   var thread = Services.tm.currentThread;
