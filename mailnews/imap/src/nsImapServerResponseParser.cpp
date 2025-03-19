@@ -30,6 +30,7 @@ nsImapServerResponseParser::nsImapServerResponseParser(
       fSizeOfMostRecentMessage(0),
       fTotalDownloadSize(0),
       fCurrentCommandTag(nullptr),
+      mLock("nsImapServerResponseParser.mLock"),
       fSelectedMailboxName(nullptr),
       fIMAPstate(kNonAuthenticated),
       fLastChunk(false),
@@ -314,22 +315,26 @@ void nsImapServerResponseParser::PreProcessCommandToken(
     if (!openQuote) {  // ill formed select command
       openQuote = PL_strchr(currentCommand, ' ');
     }
-    PR_Free(fSelectedMailboxName);
-    fSelectedMailboxName = PL_strdup(openQuote + 1);
-    if (fSelectedMailboxName) {
-      // strip the escape chars and the ending quote
-      char* currentChar = fSelectedMailboxName;
-      while (*currentChar) {
-        if (*currentChar == '\\') {
-          PL_strcpy(currentChar, currentChar + 1);
-          currentChar++;  // skip what we are escaping
-        } else if (*currentChar == '\"')
-          *currentChar = 0;  // end quote
-        else
-          currentChar++;
+    {
+      mozilla::MutexAutoLock mon(mLock);
+      PR_Free(fSelectedMailboxName);
+      fSelectedMailboxName = PL_strdup(openQuote + 1);
+      if (fSelectedMailboxName) {
+        // strip the escape chars and the ending quote
+        char* currentChar = fSelectedMailboxName;
+        while (*currentChar) {
+          if (*currentChar == '\\') {
+            PL_strcpy(currentChar, currentChar + 1);
+            currentChar++;  // skip what we are escaping
+          } else if (*currentChar == '\"')
+            *currentChar = 0;  // end quote
+          else
+            currentChar++;
+        }
+      } else {
+        HandleMemoryFailure();
       }
-    } else
-      HandleMemoryFailure();
+    }
 
     // we don't want bogus info for this new box
     // delete fFlagState;  // not our object
@@ -357,6 +362,7 @@ void nsImapServerResponseParser::PreProcessCommandToken(
 }
 
 const char* nsImapServerResponseParser::GetSelectedMailboxName() {
+  mozilla::MutexAutoLock mon(mLock);
   return fSelectedMailboxName;
 }
 
@@ -384,9 +390,11 @@ void nsImapServerResponseParser::ProcessOkCommand(const char* commandToken) {
            !PL_strcasecmp(commandToken, "EXAMINE"))
     fIMAPstate = kFolderSelected;
   else if (!PL_strcasecmp(commandToken, "CLOSE")) {
+    mozilla::MutexAutoLock mon(mLock);
     fIMAPstate = kAuthenticated;
     // we no longer have a selected mailbox.
     PR_FREEIF(fSelectedMailboxName);
+    fSelectedMailboxName = nullptr;
   } else if ((!PL_strcasecmp(commandToken, "LIST")) ||
              (!PL_strcasecmp(commandToken, "LSUB")) ||
              (!PL_strcasecmp(commandToken, "XLIST"))) {
@@ -2102,6 +2110,7 @@ void nsImapServerResponseParser::myrights_data(bool unsolicited) {
     // an unsolicited myrights response won't have the mailbox name in
     // the response, so we use the selected mailbox name.
     if (unsolicited) {
+      mozilla::MutexAutoLock mon(mLock);
       mailboxName = strdup(fSelectedMailboxName);
     } else {
       mailboxName = CreateAstring();
@@ -2475,8 +2484,13 @@ already_AddRefed<nsImapMailboxSpec>
 nsImapServerResponseParser::CreateCurrentMailboxSpec(
     const char* mailboxName /* = nullptr */) {
   RefPtr<nsImapMailboxSpec> returnSpec = new nsImapMailboxSpec;
-  const char* mailboxNameToConvert =
-      (mailboxName) ? mailboxName : fSelectedMailboxName;
+  const char* mailboxNameToConvert;
+  if (mailboxName) {
+     mailboxNameToConvert = mailboxName;
+  } else {
+    mozilla::MutexAutoLock mon(mLock);
+    mailboxNameToConvert = fSelectedMailboxName;
+  }
   if (mailboxNameToConvert) {
     const char* serverKey = fServerConnection.GetImapServerKey();
     nsImapNamespace* ns = nullptr;

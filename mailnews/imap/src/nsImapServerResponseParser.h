@@ -234,6 +234,11 @@ class nsImapServerResponseParser : public nsImapGenericParser {
 
   nsCString fZeroLengthMessageUidString;
 
+  // The lock was introduced to protect parallel access to
+  // fSelectedMailboxName. It hasn't been researched if additional
+  // locking is required for other member variables.
+  // Please update this comment if additional variables are covered.
+  mozilla::Mutex mLock;
   char* fSelectedMailboxName;
 
   nsImapSearchResultSequence* fSearchResults;
