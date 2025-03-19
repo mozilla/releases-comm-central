@@ -498,6 +498,44 @@ add_task(async function testPreviousUnreadMessageInAWindow() {
 });
 
 /**
+ * Tests that no unnecessary scrolling happens in an unthreaded view
+ * (Bug 1941139).
+ */
+add_task(async function testPreviousUnreadMessageScrolling() {
+  const aboutMessage = messageBrowser.contentWindow;
+
+  folderC.markMessagesRead([folderCMessages[404]], false);
+  about3Pane.displayFolder(folderC.URI);
+  about3Pane.sortController.sortUnthreaded();
+
+  threadTree.scrollToIndex(400, true);
+  // Ensure the scrolling from the previous line happens.
+  await new Promise(resolve => requestAnimationFrame(resolve));
+
+  threadTree.selectedIndex = 405;
+  assertSelectedMessage(folderCMessages[405]);
+  await assertDisplayedMessage(aboutMessage, folderCMessages[405]);
+
+  goDoCommand("cmd_previousUnreadMsg");
+  assertSelectedMessage(folderCMessages[404]);
+  await assertDisplayedMessage(aboutMessage, folderCMessages[404]);
+
+  // Wait to prove bad things didn't happen.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
+  Assert.equal(
+    threadTree.getFirstVisibleIndex(),
+    400,
+    "No scrolling should have happened."
+  );
+
+  threadTree.selectedIndex = -1;
+  await assertNoDisplayedMessage(aboutMessage);
+  about3Pane.sortController.sortUnthreaded();
+  folderC.markMessagesRead([folderCMessages[404]], true);
+});
+
+/**
  * Tests the next unread thread command. This command depends on marking the
  * thread as read, despite mailnews.mark_message_read.auto being false in this
  * test. Seems wrong, but it does make this test less complicated!

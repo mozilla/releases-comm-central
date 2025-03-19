@@ -916,9 +916,11 @@ var commandController = {
       window.threadTree.scrollToIndex(resultIndex.value, true);
       window.threadTree.selectedIndex = resultIndex.value;
       // If the thread index has not been determined by viewNavigate(), its
-      // return value will be 0.
+      // return value will be either 0 or nsMsgViewIndex_None.
       const firstIndex =
-        threadIndex.value > 0 ? threadIndex.value : resultIndex.value;
+        threadIndex.value == 0 || threadIndex.value == nsMsgViewIndex_None
+          ? resultIndex.value
+          : threadIndex.value;
       // Scroll the thread to the most reasonable position.
       window.threadTree.scrollExpandedRowIntoView(
         resultIndex.value,
