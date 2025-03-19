@@ -5,18 +5,13 @@
 /* import-globals-from retention.js */
 /* global BigInt */
 
-var { FolderTreeProperties } = ChromeUtils.importESModule(
-  "resource:///modules/FolderTreeProperties.sys.mjs"
-);
-var { Gloda } = ChromeUtils.importESModule(
-  "resource:///modules/gloda/Gloda.sys.mjs"
-);
-var { openLinkExternally } = ChromeUtils.importESModule(
-  "resource:///modules/LinkHelper.sys.mjs"
-);
-var { UIFontSize } = ChromeUtils.importESModule(
-  "resource:///modules/UIFontSize.sys.mjs"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
+  Gloda: "resource:///modules/gloda/Gloda.sys.mjs",
+  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
+  UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
+  MorkParser: "resource:///modules/MorkParser.sys.mjs",
+});
 
 var gMsgFolder;
 var gLockedPref = null;
@@ -396,6 +391,20 @@ function folderPropsOnLoad() {
     document.getElementById("folderPropTabBox").selectedTab =
       document.getElementById(window.arguments[0].tabID);
   }
+
+  // For click on the text about ".msf", output the folder Mork data to the
+  // native console for debugging purposes.
+  // If shift is pressed, use "raw" output, otherwise use prettified
+  // message header data only (there will be also folder meta data in the .msf).
+  document
+    .getElementById("folderRebuildSummaryExplanation")
+    .addEventListener("click", event => {
+      MorkParser.dumpFile(
+        gMsgFolder.summaryFile.path,
+        !event.shiftKey,
+        gMsgFolder.URI
+      );
+    });
 }
 
 /**
