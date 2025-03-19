@@ -90,7 +90,7 @@ function CMunger(textMunger) {
 CMunger.prototype.enabled = true;
 CMunger.prototype.insertPlainText = insertText;
 
-CMunger.prototype.getRule = function mng_getrule(name) {
+CMunger.prototype.getRule = function (name) {
   for (var p in this.entries) {
     if (isinstance(this.entries[p], Object)) {
       if (name in this.entries[p]) {
@@ -101,7 +101,7 @@ CMunger.prototype.getRule = function mng_getrule(name) {
   return null;
 };
 
-CMunger.prototype.addRule = function mng_addrule(
+CMunger.prototype.addRule = function (
   name,
   regex,
   className,
@@ -123,7 +123,7 @@ CMunger.prototype.addRule = function mng_addrule(
   this.entries[priority][name] = entry;
 };
 
-CMunger.prototype.delRule = function mng_delrule(name) {
+CMunger.prototype.delRule = function (name) {
   for (var i in this.entries) {
     if (typeof this.entries[i] == "object") {
       if (name in this.entries[i]) {
@@ -133,7 +133,7 @@ CMunger.prototype.delRule = function mng_delrule(name) {
   }
 };
 
-CMunger.prototype.munge = function mng_munge(text, containerTag, data) {
+CMunger.prototype.munge = function (text, containerTag, data) {
   if (!containerTag) {
     containerTag = document.createElementNS(XHTML_NS, this.tagName);
   }
@@ -158,7 +158,7 @@ CMunger.prototype.munge = function mng_munge(text, containerTag, data) {
   return containerTag;
 };
 
-CMunger.prototype.mungePriority = function mng_mungePriority(
+CMunger.prototype.mungePriority = function (
   priority,
   text,
   containerTag,

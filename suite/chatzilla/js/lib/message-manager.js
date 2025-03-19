@@ -15,7 +15,7 @@ function MessageManager(entities) {
   this.entities = entities || {};
 }
 
-MessageManager.prototype.loadBrands = function mm_loadbrands() {
+MessageManager.prototype.loadBrands = function () {
   let brandPath = "chrome://branding/locale/brand.properties";
   let bundle = Services.strings.createBundle(brandPath);
   this.entities.brandShortName = bundle.GetStringFromName("brandShortName");
@@ -23,10 +23,7 @@ MessageManager.prototype.loadBrands = function mm_loadbrands() {
   this.entities.vendorShortName = bundle.GetStringFromName("vendorShortName");
 };
 
-MessageManager.prototype.addBundle = function mm_addbundle(
-  bundlePath,
-  targetWindow
-) {
+MessageManager.prototype.addBundle = function (bundlePath, targetWindow) {
   let bundle = Services.strings.createBundle(bundlePath);
   this.bundleList.push(bundle);
 
@@ -42,11 +39,7 @@ MessageManager.prototype.addBundle = function mm_addbundle(
   return bundle;
 };
 
-MessageManager.prototype.importBundle = function mm_importbundle(
-  bundle,
-  targetWindow,
-  index
-) {
+MessageManager.prototype.importBundle = function (bundle, targetWindow, index) {
   var me = this;
   function replaceEntities(matched, entity) {
     if (entity in me.entities) {
@@ -95,7 +88,7 @@ MessageManager.prototype.importBundle = function mm_importbundle(
   }
 };
 
-MessageManager.prototype.checkCharset = function mm_checkset(charset) {
+MessageManager.prototype.checkCharset = function (charset) {
   try {
     this.ucConverter.charset = charset;
   } catch (ex) {
@@ -105,7 +98,7 @@ MessageManager.prototype.checkCharset = function mm_checkset(charset) {
   return true;
 };
 
-MessageManager.prototype.toUnicode = function mm_tounicode(msg, charset) {
+MessageManager.prototype.toUnicode = function (msg, charset) {
   if (!charset) {
     return msg;
   }
@@ -121,7 +114,7 @@ MessageManager.prototype.toUnicode = function mm_tounicode(msg, charset) {
   return msg;
 };
 
-MessageManager.prototype.fromUnicode = function mm_fromunicode(msg, charset) {
+MessageManager.prototype.fromUnicode = function (msg, charset) {
   if (!charset) {
     return msg;
   }
@@ -141,7 +134,7 @@ MessageManager.prototype.fromUnicode = function mm_fromunicode(msg, charset) {
   return msg;
 };
 
-MessageManager.prototype.getMsg = function mm_getmsg(msgName, params, deflt) {
+MessageManager.prototype.getMsg = function (msgName, params, deflt) {
   try {
     var bundle;
     var ary = msgName.match(/(\d+):(.+)/);
@@ -156,7 +149,7 @@ MessageManager.prototype.getMsg = function mm_getmsg(msgName, params, deflt) {
   }
 };
 
-MessageManager.prototype.getMsgFrom = function mm_getfrom(
+MessageManager.prototype.getMsgFrom = function (
   bundle,
   msgName,
   params,

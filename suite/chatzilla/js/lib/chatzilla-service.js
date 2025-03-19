@@ -51,7 +51,7 @@ function spawnChatZilla(uri, count) {
     } else {
       // We have a ChatZilla window, but we're still loading.
       hiddenWin.setTimeout(
-        function wrapper(count) {
+        function (count) {
           spawnChatZilla(uri, count + 1);
         },
         250,

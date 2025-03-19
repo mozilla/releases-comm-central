@@ -19,7 +19,7 @@ function IdentServer(parent) {
   this.eventPump = parent.eventPump;
 }
 
-IdentServer.prototype.start = function ident_start() {
+IdentServer.prototype.start = function () {
   if (this.listening) {
     return true;
   }
@@ -36,7 +36,7 @@ IdentServer.prototype.start = function ident_start() {
   return true;
 };
 
-IdentServer.prototype.stop = function ident_stop() {
+IdentServer.prototype.stop = function () {
   if (!this.socket || !this.listening) {
     return;
   }
@@ -46,7 +46,7 @@ IdentServer.prototype.stop = function ident_stop() {
   this.listening = false;
 };
 
-IdentServer.prototype.addNetwork = function ident_add(net, serv) {
+IdentServer.prototype.addNetwork = function (net, serv) {
   var addr,
     dnsRecord = this.dns.resolve(serv.hostname, 0);
 
@@ -72,7 +72,7 @@ IdentServer.prototype.addNetwork = function ident_add(net, serv) {
   return true;
 };
 
-IdentServer.prototype.removeNetwork = function ident_remove(net) {
+IdentServer.prototype.removeNetwork = function (net) {
   var newResponses = [];
 
   for (var i = 0; i < this.responses.length; ++i) {
@@ -88,10 +88,7 @@ IdentServer.prototype.removeNetwork = function ident_remove(net) {
   }
 };
 
-IdentServer.prototype.onSocketAccepted = function ident_gotconn(
-  serv,
-  transport
-) {
+IdentServer.prototype.onSocketAccepted = function (serv, transport) {
   // Using the listening CBSConnection to accept would stop it listening.
   // A new CBSConnection does exactly what we want.
   var connection = new CBSConnection();
@@ -105,7 +102,7 @@ function IdentListener(server, connection) {
   this.connection = connection;
 }
 
-IdentListener.prototype.onStreamDataAvailable = function ident_listener_sda(
+IdentListener.prototype.onStreamDataAvailable = function (
   request,
   inStream,
   sourceOffset,
@@ -121,13 +118,9 @@ IdentListener.prototype.onStreamDataAvailable = function ident_listener_sda(
   this.server.eventPump.routeEvent(ev);
 };
 
-IdentListener.prototype.onStreamClose = function ident_listener_sclose(
-  status
-) {};
+IdentListener.prototype.onStreamClose = function (status) {};
 
-IdentListener.prototype.onDataAvailable = function ident_listener_dataavailable(
-  e
-) {
+IdentListener.prototype.onDataAvailable = function (e) {
   var lines = e.line.split(/\r\n/);
 
   if (this.savedLine) {
@@ -146,7 +139,7 @@ IdentListener.prototype.onDataAvailable = function ident_listener_dataavailable(
   }
 };
 
-IdentListener.prototype.onRawData = function ident_listener_rawdata(e) {
+IdentListener.prototype.onRawData = function (e) {
   var ports = e.line.match(/(\d+) *, *(\d+)/);
   // <port-on-server> , <port-on-client>
   // (where "server" is the ident server)
@@ -163,7 +156,7 @@ IdentListener.prototype.onRawData = function ident_listener_rawdata(e) {
   e.remotePort = ports[2];
 };
 
-IdentListener.prototype.onParsedRequest = function ident_listener_request(e) {
+IdentListener.prototype.onParsedRequest = function (e) {
   function response(str) {
     return e.localPort + " , " + e.remotePort + " : " + str + "\r\n";
   }

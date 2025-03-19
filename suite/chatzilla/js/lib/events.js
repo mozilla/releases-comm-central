@@ -106,16 +106,16 @@ function CEventPump(eventsPerStep) {
    */
 }
 
-CEventPump.prototype.onHook = function ep_hook(e, hooks) {
+CEventPump.prototype.onHook = function (e, hooks) {
   var h;
 
   if (typeof hooks == "undefined") {
     hooks = this.hooks;
   }
 
-  hook_loop: for (h = hooks.length - 1; h >= 0; h--) {
+  for (h = hooks.length - 1; h >= 0; h--) {
     if (!hooks[h].enabled || !matchObject(e, hooks[h].pattern, hooks[h].neg)) {
-      continue hook_loop;
+      continue;
     }
 
     e.hooks.push(hooks[h]);
@@ -164,7 +164,7 @@ CEventPump.prototype.onHook = function ep_hook(e, hooks) {
  *                |getHook|.
  * @param hooks Internal. Do not use.
  */
-CEventPump.prototype.addHook = function ep_addhook(
+CEventPump.prototype.addHook = function (
   pattern,
   f,
   name,
@@ -213,7 +213,7 @@ CEventPump.prototype.addHook = function ep_addhook(
  * @returns If a match is found, an |Object| with properties matching the
  *          arguments to |addHook| is returned. Otherwise, |null| is returned.
  */
-CEventPump.prototype.getHook = function ep_gethook(name, hooks) {
+CEventPump.prototype.getHook = function (name, hooks) {
   if (typeof hooks == "undefined") {
     hooks = this.hooks;
   }
@@ -234,7 +234,7 @@ CEventPump.prototype.getHook = function ep_gethook(name, hooks) {
  * @param hooks Internal. Do not use.
  * @returns |true| if the hook was found and removed, |false| otherwise.
  */
-CEventPump.prototype.removeHookByName = function ep_remhookname(name, hooks) {
+CEventPump.prototype.removeHookByName = function (name, hooks) {
   if (typeof hooks == "undefined") {
     hooks = this.hooks;
   }
@@ -249,7 +249,7 @@ CEventPump.prototype.removeHookByName = function ep_remhookname(name, hooks) {
   return false;
 };
 
-CEventPump.prototype.removeHookByIndex = function ep_remhooki(idx, hooks) {
+CEventPump.prototype.removeHookByIndex = function (idx, hooks) {
   if (typeof hooks == "undefined") {
     hooks = this.hooks;
   }
@@ -257,19 +257,19 @@ CEventPump.prototype.removeHookByIndex = function ep_remhooki(idx, hooks) {
   return hooks.splice(idx, 1);
 };
 
-CEventPump.prototype.addEvent = function ep_addevent(e) {
+CEventPump.prototype.addEvent = function (e) {
   e.queuedAt = new Date();
   this.queue.push(e);
   return true;
 };
 
-CEventPump.prototype.addBulkEvent = function ep_addevent(e) {
+CEventPump.prototype.addBulkEvent = function (e) {
   e.queuedAt = new Date();
   this.bulkQueue.push(e);
   return true;
 };
 
-CEventPump.prototype.routeEvent = function ep_routeevent(e) {
+CEventPump.prototype.routeEvent = function (e) {
   var count = 0;
 
   this.currentEvent = e;
@@ -340,7 +340,7 @@ CEventPump.prototype.routeEvent = function ep_routeevent(e) {
   return true;
 };
 
-CEventPump.prototype.stepEvents = function ep_stepevents() {
+CEventPump.prototype.stepEvents = function () {
   var i = 0;
   var st, en, e;
 

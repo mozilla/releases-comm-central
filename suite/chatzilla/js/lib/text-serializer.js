@@ -59,7 +59,7 @@ function TextSerializer(file) {
  * Note: serialize and deserialize automatically open the file if it is not
  *       open.
  */
-TextSerializer.prototype.open = function ts_open(dir) {
+TextSerializer.prototype.open = function (dir) {
   if (!ASSERT(dir == ">" || dir == "<", "Bad serialization direction!")) {
     return false;
   }
@@ -79,7 +79,7 @@ TextSerializer.prototype.open = function ts_open(dir) {
  *
  * Closes the file stream and ends reading or writing.
  */
-TextSerializer.prototype.close = function ts_close() {
+TextSerializer.prototype.close = function () {
   if (this._open) {
     this._fileStream.close();
     delete this._fileStream;
@@ -94,7 +94,7 @@ TextSerializer.prototype.close = function ts_close() {
  * object deserialized is returned; all sub-properties of the object are
  * deserialized with it.
  */
-TextSerializer.prototype.deserialize = function ts_deserialize() {
+TextSerializer.prototype.deserialize = function () {
   if (!this._open) {
     this.open("<");
   }

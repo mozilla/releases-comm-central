@@ -31,7 +31,7 @@ function TextLogger(path, autoLimit) {
 /**
  * Append data (an array or single item) to the file
  */
-TextLogger.prototype.append = function tl_append(data) {
+TextLogger.prototype.append = function (data) {
   if (!isinstance(data, Array)) {
     data = [data];
   }
@@ -60,7 +60,7 @@ TextLogger.prototype.append = function tl_append(data) {
 /**
  * Limit the data already in the file to the data provided, or the count given.
  */
-TextLogger.prototype.limit = function tl_limit(dataOrCount) {
+TextLogger.prototype.limit = function (dataOrCount) {
   // Find data and count:
   var data = null,
     count = -1;
@@ -93,7 +93,7 @@ TextLogger.prototype.limit = function tl_limit(dataOrCount) {
 /**
  * Reads out the data currently in the file, and returns an array.
  */
-TextLogger.prototype.read = function tl_read() {
+TextLogger.prototype.read = function () {
   var rv = [],
     parsedLines = [],
     buffer = "";

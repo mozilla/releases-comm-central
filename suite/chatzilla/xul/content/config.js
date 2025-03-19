@@ -117,7 +117,7 @@ function PrefNetwork(parent, name, force, show) {
 PrefNetwork.prototype.TYPE = "PrefNetwork";
 
 /* Cleans up the mess. */
-PrefNetwork.prototype.clear = function pnet_clear() {
+PrefNetwork.prototype.clear = function () {
   this.prefs.hasPrefs = false;
   delete this.parent.networks[this.collectionKey];
 };
@@ -178,7 +178,7 @@ function PrefChannel(parent, name, force, show) {
 PrefChannel.prototype.TYPE = "PrefChannel";
 
 /* Cleans up the mess. */
-PrefChannel.prototype.clear = function pchan_clear() {
+PrefChannel.prototype.clear = function () {
   this.prefs.hasPrefs = false;
   delete this.parent.channels[this.collectionKey];
 };
@@ -219,7 +219,7 @@ function PrefUser(parent, name, force, show) {
 PrefUser.prototype.TYPE = "PrefUser";
 
 /* Cleans up the mess. */
-PrefUser.prototype.clear = function puser_clear() {
+PrefUser.prototype.clear = function () {
   this.prefs.hasPrefs = false;
   delete this.parent.users[this.collectionKey];
 };
@@ -232,7 +232,7 @@ function PrefObjectList() {
 }
 
 // Add an object, and init it's private data.
-PrefObjectList.prototype.addObject = function polist_addObject(pObject) {
+PrefObjectList.prototype.addObject = function (pObject) {
   this.objects.push(pObject);
   return (pObject.privateData = new ObjectPrivateData(
     pObject,
@@ -241,19 +241,19 @@ PrefObjectList.prototype.addObject = function polist_addObject(pObject) {
 };
 
 /* Removes an object, without changing the index. */
-PrefObjectList.prototype.deleteObject = function polist_addObject(index) {
+PrefObjectList.prototype.deleteObject = function (index) {
   this.objects[index].privateData.clear();
   this.objects[index].clear();
   this.objects[index] = { privateData: null };
 };
 
 // Get a specific object.
-PrefObjectList.prototype.getObject = function polist_getObject(index) {
+PrefObjectList.prototype.getObject = function (index) {
   return this.objects[index].privateData;
 };
 
 // Gets the private data for an object.
-PrefObjectList.getPrivateData = function polist_getPrivateData(object) {
+PrefObjectList.getPrivateData = function (object) {
   return object.privateData;
 };
 
@@ -303,7 +303,7 @@ function ObjectPrivateData(parent, index) {
 }
 
 // Creates all the XUL elements needed to show this pref object.
-ObjectPrivateData.prototype.loadXUL = function opdata_loadXUL(tabOrder) {
+ObjectPrivateData.prototype.loadXUL = function (tabOrder) {
   var t = this;
 
   /* Function that sorts the preferences by their label, else they look
@@ -397,7 +397,7 @@ ObjectPrivateData.prototype.loadXUL = function opdata_loadXUL(tabOrder) {
 };
 
 // Loads all the prefs.
-ObjectPrivateData.prototype.loadData = function opdata_loadData() {
+ObjectPrivateData.prototype.loadData = function () {
   if (this.dataLoaded) {
     return;
   }
@@ -413,7 +413,7 @@ ObjectPrivateData.prototype.loadData = function opdata_loadData() {
 };
 
 // Clears up all the XUL objects and data.
-ObjectPrivateData.prototype.clear = function opdata_clear() {
+ObjectPrivateData.prototype.clear = function () {
   //dd("Removing prefs for " + this.parent.displayName + " {");
   if (!this.dataLoaded) {
     this.loadData();
@@ -431,7 +431,7 @@ ObjectPrivateData.prototype.clear = function opdata_clear() {
 };
 
 // Resets all the prefs to their original values.
-ObjectPrivateData.prototype.reset = function opdata_reset() {
+ObjectPrivateData.prototype.reset = function () {
   for (var i in this.prefs) {
     if (this.prefs[i].type != "hidden") {
       this.prefs[i].reset();
@@ -440,12 +440,12 @@ ObjectPrivateData.prototype.reset = function opdata_reset() {
 };
 
 // Adds a pref to the internal data structures.
-ObjectPrivateData.prototype.addPref = function opdata_addPref(name) {
+ObjectPrivateData.prototype.addPref = function (name) {
   return (this.prefs[name] = new PrefData(this, name));
 };
 
 // Adds a group to a pref object's data.
-ObjectPrivateData.prototype.addGroup = function opdata_addPref(name) {
+ObjectPrivateData.prototype.addGroup = function (name) {
   // Special group for prefs we don't want shown (nothing sinister here).
   if (name == "hidden") {
     return null;
@@ -504,7 +504,7 @@ function PrefData(parent, name) {
 }
 
 /* Creates all the XUL elements to display this one pref. */
-PrefData.prototype.loadXUL = function pdata_loadXUL() {
+PrefData.prototype.loadXUL = function () {
   if (this.type == "hidden") {
     return;
   }
@@ -692,7 +692,7 @@ PrefData.prototype.loadXUL = function pdata_loadXUL() {
 };
 
 /* Loads the pref's data into the edit component. */
-PrefData.prototype.loadData = function pdata_loadData() {
+PrefData.prototype.loadData = function () {
   /* Note about .value and .setAttribute as used here:
    *
    * XBL doesn't kick in until CSS is calculated on a node, so the code makes
@@ -751,7 +751,7 @@ PrefData.prototype.loadData = function pdata_loadData() {
 };
 
 /* Cleans up the mess. */
-PrefData.prototype.clear = function pdata_clear() {
+PrefData.prototype.clear = function () {
   //dd("Clearing pref " + this.name);
   if ("box" in this && this.box) {
     this.box.remove();
@@ -763,7 +763,7 @@ PrefData.prototype.clear = function pdata_clear() {
 };
 
 /* Resets the pref to it's default. */
-PrefData.prototype.reset = function pdata_reset() {
+PrefData.prototype.reset = function () {
   //try {
   //    this.manager.clearPref(this.name);
   //} catch(ex) {}
@@ -772,7 +772,7 @@ PrefData.prototype.reset = function pdata_reset() {
 };
 
 /* Saves the pref... or would do. */
-PrefData.prototype.save = function pdata_save() {
+PrefData.prototype.save = function () {
   //FIXME//
 };
 
@@ -799,7 +799,7 @@ function PrefMainGroup(parent, name) {
   return this;
 }
 // Adds a sub group to this main group.
-PrefMainGroup.prototype.addGroup = function pmgroup_addGroup(name) {
+PrefMainGroup.prototype.addGroup = function (name) {
   // If the sub group doesn't exist, make it exist.
   if (!(name in this.groups)) {
     this.groups[name] = new PrefSubGroup(this, name);
@@ -887,7 +887,7 @@ function PrefWindow() {
 PrefWindow.prototype.TYPE = "PrefWindow";
 
 /* Updates the tooltip state, either showing or hiding it. */
-PrefWindow.prototype.setTooltipState = function pwin_setTooltipState(visible) {
+PrefWindow.prototype.setTooltipState = function (visible) {
   // Shortcut: if we're already in the right state, don't bother.
   if (this.tooltipShowing == visible) {
     return;
@@ -940,7 +940,7 @@ PrefWindow.prototype.setTooltipState = function pwin_setTooltipState(visible) {
 /** Window event handlers **/
 
 /* Initalises, and loads all the data/utilities and prefs. */
-PrefWindow.prototype.onLoad = function pwin_onLoad() {
+PrefWindow.prototype.onLoad = function () {
   // Get ourselves a base object for the object hierarchy.
   client = new PrefGlobal();
 
@@ -1164,7 +1164,7 @@ PrefWindow.prototype.onLoad = function pwin_onLoad() {
 };
 
 /* Closing the window. Clean up. */
-PrefWindow.prototype.onClose = function pwin_onClose() {
+PrefWindow.prototype.onClose = function () {
   if (this.ownerClient) {
     delete this.ownerClient.configWindow;
   }
@@ -1174,7 +1174,7 @@ PrefWindow.prototype.onClose = function pwin_onClose() {
 };
 
 /* OK button. */
-PrefWindow.prototype.onOK = function pwin_onOK() {
+PrefWindow.prototype.onOK = function () {
   if (this.onApply()) {
     window.close();
   }
@@ -1182,7 +1182,7 @@ PrefWindow.prototype.onOK = function pwin_onOK() {
 };
 
 /* Apply button. */
-PrefWindow.prototype.onApply = function pwin_onApply() {
+PrefWindow.prototype.onApply = function () {
   // If the load failed, better not to try to save.
   if (!this.loaded) {
     return false;
@@ -1251,14 +1251,14 @@ PrefWindow.prototype.onApply = function pwin_onApply() {
 };
 
 /* Cancel button. */
-PrefWindow.prototype.onCancel = function pwin_onCancel() {
+PrefWindow.prototype.onCancel = function () {
   window.close();
   return true;
 };
 
 /** Tooltips' event handlers **/
 
-PrefWindow.prototype.onPrefMouseOver = function pwin_onPrefMouseOver(object) {
+PrefWindow.prototype.onPrefMouseOver = function (object) {
   this.tooltipObject = object;
   this.tooltipTitle = object.getAttribute("tooltiptitle");
   this.tooltipText = object.getAttribute("tooltipcontent");
@@ -1272,7 +1272,7 @@ PrefWindow.prototype.onPrefMouseOver = function pwin_onPrefMouseOver(object) {
   );
 };
 
-PrefWindow.prototype.onPrefMouseMove = function pwin_onPrefMouseMove(object) {
+PrefWindow.prototype.onPrefMouseMove = function (object) {
   // If the tooltip isn't showing, we need to reset the timer.
   if (!this.tooltipShowing) {
     clearTimeout(this.tooltipTimer);
@@ -1285,7 +1285,7 @@ PrefWindow.prototype.onPrefMouseMove = function pwin_onPrefMouseMove(object) {
   }
 };
 
-PrefWindow.prototype.onPrefMouseOut = function pwin_onPrefMouseOut(object) {
+PrefWindow.prototype.onPrefMouseOut = function (object) {
   // Left the pref! Hide tooltip, and clear timer.
   this.setTooltipState(false);
   clearTimeout(this.tooltipTimer);
@@ -1328,7 +1328,7 @@ PrefWindow.prototype.onTooltipPopupShowing = function (popup) {
 /** Components' event handlers **/
 
 // Selected an item in the tree.
-PrefWindow.prototype.onSelectObject = function pwin_onSelectObject() {
+PrefWindow.prototype.onSelectObject = function () {
   var prefTree = document.getElementById("pref-tree-object");
   var rv = {};
   if ("selection" in prefTree.treeBoxObject) {
@@ -1374,7 +1374,7 @@ PrefWindow.prototype.onSelectObject = function pwin_onSelectObject() {
 };
 
 // Browse button for file prefs.
-PrefWindow.prototype.onPrefBrowse = function pwin_onPrefBrowse(button) {
+PrefWindow.prototype.onPrefBrowse = function (button) {
   var type = button.getAttribute("kind");
   var edit = button.previousSibling.lastChild;
 
@@ -1406,7 +1406,7 @@ PrefWindow.prototype.onPrefBrowse = function pwin_onPrefBrowse(button) {
 };
 
 // Selection changed on listbox.
-PrefWindow.prototype.onPrefListSelect = function pwin_onPrefListSelect(object) {
+PrefWindow.prototype.onPrefListSelect = function (object) {
   var list = getRelatedItem(object, "list");
   var buttons = {};
   buttons.up = getRelatedItem(object, "button-up");
@@ -1451,7 +1451,7 @@ PrefWindow.prototype.onPrefListSelect = function pwin_onPrefListSelect(object) {
 };
 
 // Up button for lists.
-PrefWindow.prototype.onPrefListUp = function pwin_onPrefListUp(object) {
+PrefWindow.prototype.onPrefListUp = function (object) {
   var list = getRelatedItem(object, "list");
 
   var selected = list.selectedItems[0];
@@ -1464,7 +1464,7 @@ PrefWindow.prototype.onPrefListUp = function pwin_onPrefListUp(object) {
 };
 
 // Down button for lists.
-PrefWindow.prototype.onPrefListDown = function pwin_onPrefListDown(object) {
+PrefWindow.prototype.onPrefListDown = function (object) {
   var list = getRelatedItem(object, "list");
 
   var selected = list.selectedItems[0];
@@ -1480,7 +1480,7 @@ PrefWindow.prototype.onPrefListDown = function pwin_onPrefListDown(object) {
 };
 
 // Add button for lists.
-PrefWindow.prototype.onPrefListAdd = function pwin_onPrefListAdd(object) {
+PrefWindow.prototype.onPrefListAdd = function (object) {
   var list = getRelatedItem(object, "list");
   var newItem;
 
@@ -1514,7 +1514,7 @@ PrefWindow.prototype.onPrefListAdd = function pwin_onPrefListAdd(object) {
 };
 
 // Edit button for lists.
-PrefWindow.prototype.onPrefListEdit = function pwin_onPrefListEdit(object) {
+PrefWindow.prototype.onPrefListEdit = function (object) {
   var list = getRelatedItem(object, "list");
 
   switch (list.getAttribute("kind")) {
@@ -1535,7 +1535,7 @@ PrefWindow.prototype.onPrefListEdit = function pwin_onPrefListEdit(object) {
 };
 
 // Delete button for lists.
-PrefWindow.prototype.onPrefListDelete = function pwin_onPrefListDelete(object) {
+PrefWindow.prototype.onPrefListDelete = function (object) {
   var list = getRelatedItem(object, "list");
 
   var listItem = list.selectedItems[0];
@@ -1551,7 +1551,7 @@ PrefWindow.prototype.onPrefListDelete = function pwin_onPrefListDelete(object) {
 };
 
 /* Add... button. */
-PrefWindow.prototype.onAddObject = function pwin_onAddObject() {
+PrefWindow.prototype.onAddObject = function () {
   var rv = {};
 
   /* Try to nobble the current selection and pre-fill as needed. */
@@ -1617,7 +1617,7 @@ PrefWindow.prototype.onAddObject = function pwin_onAddObject() {
 };
 
 /* Delete button. */
-PrefWindow.prototype.onDeleteObject = function pwin_onDeleteObject() {
+PrefWindow.prototype.onDeleteObject = function () {
   // Save current node before we re-select.
   var sel = this.currentObject;
 
@@ -1659,7 +1659,7 @@ PrefWindow.prototype.onDeleteObject = function pwin_onDeleteObject() {
 };
 
 /* Reset button. */
-PrefWindow.prototype.onResetObject = function pwin_onResetObject() {
+PrefWindow.prototype.onResetObject = function () {
   // Save current node before we re-select.
   var sel = this.currentObject;
 

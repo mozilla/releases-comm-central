@@ -30,7 +30,7 @@ if (DEBUG) {
   warn = function (msg) {
     dumpln("** WARNING " + msg + " **");
   };
-  TEST = ASSERT = function _assert(expr, msg) {
+  TEST = ASSERT = function (expr, msg) {
     if (!expr) {
       dd("** ASSERTION FAILED: " + msg + " **\n" + getStackTrace() + "\n");
       return false;
@@ -498,7 +498,7 @@ function getFindData(e) {
    * overrides that value. Unless we make .init do something else, of course:
    */
   findData._init = findData.init;
-  findData.init = function init() {
+  findData.init = function () {
     this._init();
     let findService = Cc["@mozilla.org/find/find_service;1"].getService(
       Ci.nsIFindService
@@ -532,7 +532,7 @@ function importFromFrame(method) {
         window.initialized &&
         method in window
       ) {
-        return function import_wrapper_apply() {
+        return function () {
           window[method].apply(this, arguments);
         };
       }
@@ -816,7 +816,7 @@ function isVisible(id) {
   return e.getAttribute("collapsed") != "true";
 }
 
-client.getConnectedNetworks = function getConnectedNetworks() {
+client.getConnectedNetworks = function () {
   var rv = [];
   for (var n in client.networks) {
     if (client.networks[n].isConnected()) {
@@ -2636,7 +2636,7 @@ client.progressListener.QueryInterface = function qi(iid) {
   return this;
 };
 
-client.progressListener.onStateChange = function client_statechange(
+client.progressListener.onStateChange = function (
   webProgress,
   request,
   stateFlags,
@@ -2715,7 +2715,7 @@ client.progressListener.onStateChange = function client_statechange(
   }
 };
 
-client.progressListener.onProgressChange = function client_progresschange(
+client.progressListener.onProgressChange = function (
   webProgress,
   request,
   currentSelf,
@@ -2724,26 +2724,26 @@ client.progressListener.onProgressChange = function client_progresschange(
   selfMax
 ) {};
 
-client.progressListener.onLocationChange = function client_locationchange(
+client.progressListener.onLocationChange = function (
   webProgress,
   request,
   uri
 ) {};
 
-client.progressListener.onStatusChange = function client_statuschange(
+client.progressListener.onStatusChange = function (
   webProgress,
   request,
   status,
   message
 ) {};
 
-client.progressListener.onSecurityChange = function client_securitychange(
+client.progressListener.onSecurityChange = function (
   webProgress,
   request,
   state
 ) {};
 
-client.installPlugin = function cli_installPlugin(name, source) {
+client.installPlugin = function (name, source) {
   function checkPluginInstalled(name, path) {
     var installed = path.exists();
     installed |= name in client.plugins;
@@ -2963,7 +2963,7 @@ client.installPlugin = function cli_installPlugin(name, source) {
   }
 };
 
-client.uninstallPlugin = function cli_uninstallPlugin(plugin) {
+client.uninstallPlugin = function (plugin) {
   if (!disablePlugin(plugin, true)) {
     return;
   }
@@ -3475,7 +3475,7 @@ function updateTimestampFor(view, displayRow, forceOldStamp) {
   }
 }
 
-client.checkURLScheme = function c_checkURLScheme(url) {
+client.checkURLScheme = function (url) {
   if (!("schemes" in client)) {
     var pfx = "@mozilla.org/network/protocol;1?name=";
     var len = pfx.length;
@@ -3490,7 +3490,7 @@ client.checkURLScheme = function c_checkURLScheme(url) {
   return url.toLowerCase() in client.schemes;
 };
 
-client.adoptNode = function cli_adoptnode(node, doc) {
+client.adoptNode = function (node, doc) {
   try {
     doc.adoptNode(node);
   } catch (ex) {
@@ -3508,16 +3508,16 @@ function cli_adoptnode_noop(node, doc) {
   return node;
 }
 
-client.addNetwork = function cli_addnet(name, serverList, temporary) {
+client.addNetwork = function (name, serverList, temporary) {
   let net = new CIRCNetwork(name, serverList, client.eventPump, temporary);
   client.networks[net.collectionKey] = net;
 };
 
-client.getNetwork = function cli_getnet(name) {
+client.getNetwork = function (name) {
   return client.networks[":" + name] || null;
 };
 
-client.removeNetwork = function cli_removenet(name) {
+client.removeNetwork = function (name) {
   let net = client.getNetwork(name);
 
   // Allow network a chance to clean up any mess.
@@ -3528,7 +3528,7 @@ client.removeNetwork = function cli_removenet(name) {
   delete client.networks[net.collectionKey];
 };
 
-client.connectToNetwork = function cli_connect(networkOrName, requireSecurity) {
+client.connectToNetwork = function (networkOrName, requireSecurity) {
   var network;
   var name;
 
@@ -3574,11 +3574,11 @@ client.connectToNetwork = function cli_connect(networkOrName, requireSecurity) {
   return network;
 };
 
-client.getURL = function cli_geturl() {
+client.getURL = function () {
   return "irc://";
 };
 
-client.sayToCurrentTarget = function cli_say(msg, isInteractive) {
+client.sayToCurrentTarget = function (msg, isInteractive) {
   if ("say" in client.currentObject) {
     client.currentObject.dispatch("say", { message: msg }, isInteractive);
     return;
@@ -3716,7 +3716,7 @@ function dccfile_getprefmgr() {
  * *current* view instead of the network view, if the current view is part of
  * the same network.
  */
-CIRCNetwork.prototype.display = function net_display(
+CIRCNetwork.prototype.display = function (
   message,
   msgtype,
   sourceObj,
@@ -3742,7 +3742,7 @@ CIRCNetwork.prototype.display = function net_display(
  * If the channel view already exists (visible or hidden), messages are added
  * to it; otherwise, messages go to the *network* view.
  */
-CIRCChannel.prototype.display = function chan_display(
+CIRCChannel.prototype.display = function (
   message,
   msgtype,
   sourceObj,
@@ -3762,7 +3762,7 @@ CIRCChannel.prototype.display = function chan_display(
  * it; otherwise, it goes to the *current* view if the current view is part of
  * the same network, or the *network* view if not.
  */
-CIRCUser.prototype.display = function usr_display(
+CIRCUser.prototype.display = function (
   message,
   msgtype,
   sourceObj,
@@ -3798,7 +3798,7 @@ CIRCUser.prototype.display = function usr_display(
  * messages are added to it; otherwise, messages go to the *current* view.
  */
 CIRCDCCChat.prototype.display = CIRCDCCFileTransfer.prototype.display =
-  function dcc_display(message, msgtype, sourceObj, destObj) {
+  function (message, msgtype, sourceObj, destObj) {
     if ("messages" in this) {
       this.displayHere(message, msgtype, sourceObj, destObj);
     } else {
@@ -3818,7 +3818,7 @@ CIRCChannel.prototype.feedback =
   CIRCDCCChat.prototype.feedback =
   CIRCDCCFileTransfer.prototype.feedback =
   client.feedback =
-    function this_feedback(e, message, msgtype, sourceObj, destObj) {
+    function (e, message, msgtype, sourceObj, destObj) {
       if ("isInteractive" in e && e.isInteractive) {
         this.displayHere(message, msgtype, sourceObj, destObj);
       }
@@ -3834,7 +3834,7 @@ client.getFontCSS =
   CIRCUser.prototype.getFontCSS =
   CIRCDCCChat.prototype.getFontCSS =
   CIRCDCCFileTransfer.prototype.getFontCSS =
-    function this_getFontCSS(format) {
+    function (format) {
       /* Wow, this is cool. We just put together a CSS-rule string based on the
        * font preferences. *This* is what CSS is all about. :)
        * We also provide a "data: URL" format, to simplify other code.
@@ -3868,7 +3868,7 @@ client.startMsgGroup =
   CIRCUser.prototype.startMsgGroup =
   CIRCDCCChat.prototype.startMsgGroup =
   CIRCDCCFileTransfer.prototype.startMsgGroup =
-    function __startMsgGroup(id, groupMsg, msgtype) {
+    function (id, groupMsg, msgtype) {
       // The given ID may not be unique, so append a timestamp to ensure it is.
       var groupId = id + "-" + Date.now();
 
@@ -3907,7 +3907,7 @@ client.endMsgGroup =
   CIRCUser.prototype.endMsgGroup =
   CIRCDCCChat.prototype.endMsgGroup =
   CIRCDCCFileTransfer.prototype.endMsgGroup =
-    function __endMsgGroup(groupId, message) {
+    function (groupId, message) {
       if (!this.msgGroups) {
         return;
       }
@@ -3930,7 +3930,7 @@ client.display =
   CIRCUser.prototype.displayHere =
   CIRCDCCChat.prototype.displayHere =
   CIRCDCCFileTransfer.prototype.displayHere =
-    function __display(message, msgtype, sourceObj, destObj, tags) {
+    function (message, msgtype, sourceObj, destObj, tags) {
       // We need a message type, assume "INFO".
       if (!msgtype) {
         msgtype = MT_INFO;
@@ -4624,7 +4624,7 @@ function getLogPath(obj) {
   return getURLSpecFromFile(obj.prefs.logFileName);
 }
 
-client.getConnectionCount = function cli_gccount() {
+client.getConnectionCount = function () {
   var count = 0;
 
   for (var n in client.networks) {
@@ -4636,7 +4636,7 @@ client.getConnectionCount = function cli_gccount() {
   return count;
 };
 
-client.quit = function cli_quit(reason) {
+client.quit = function (reason) {
   var net, netReason;
   for (var n in client.networks) {
     net = client.networks[n];
@@ -4648,7 +4648,7 @@ client.quit = function cli_quit(reason) {
   }
 };
 
-client.wantToQuit = function cli_wantToQuit(reason, deliberate) {
+client.wantToQuit = function (reason, deliberate) {
   var close = true;
   if (client.prefs.warnOnClose && !deliberate) {
     const buttons = [MSG_QUIT_ANYWAY, MSG_DONT_QUIT];
@@ -4671,12 +4671,7 @@ client.wantToQuit = function cli_wantToQuit(reason, deliberate) {
   }
 };
 
-client.promptToSaveLogin = function cli_promptToSaveLogin(
-  url,
-  type,
-  username,
-  password
-) {
+client.promptToSaveLogin = function (url, type, username, password) {
   var name = "";
   switch (type) {
     case "nick":
@@ -4728,7 +4723,7 @@ client.promptToSaveLogin = function cli_promptToSaveLogin(
   display(getMsg(MSG_LOGIN_ADDED, name), MT_INFO);
 };
 
-client.tryToGetLogin = function cli_tryToGetLogin(
+client.tryToGetLogin = function (
   url,
   type,
   username,
@@ -4764,13 +4759,7 @@ client.tryToGetLogin = function cli_tryToGetLogin(
  * wordEnd marks the end position.  |cursorPos| marks the position of the caret
  * in the textbox.
  */
-client.performTabMatch = function gettabmatch_usr(
-  line,
-  wordStart,
-  wordEnd,
-  word,
-  cursorPos
-) {
+client.performTabMatch = function (line, wordStart, wordEnd, word, cursorPos) {
   if (wordStart != 0 || line[0] != client.COMMAND_CHAR) {
     return null;
   }
@@ -4787,7 +4776,7 @@ client.performTabMatch = function gettabmatch_usr(
   return matches;
 };
 
-client.openLogFile = function cli_startlog(view, showMessage) {
+client.openLogFile = function (view, showMessage) {
   function getNextLogFileDate() {
     var d = new Date();
     d.setMilliseconds(0);
@@ -4834,7 +4823,7 @@ client.openLogFile = function cli_startlog(view, showMessage) {
   }
 };
 
-client.closeLogFile = function cli_stoplog(view, showMessage) {
+client.closeLogFile = function (view, showMessage) {
   if (showMessage) {
     view.displayHere(getMsg(MSG_LOGFILE_CLOSING, getLogPath(view)));
   }
@@ -4911,7 +4900,7 @@ CIRCChannel.prototype.getLCFunction =
   CIRCUser.prototype.getLCFunction =
   CIRCDCCChat.prototype.getLCFunction =
   CIRCDCCFileTransfer.prototype.getLCFunction =
-    function getlcfn() {
+    function () {
       var details = getObjectDetails(this);
       var lcFn;
 
@@ -4933,14 +4922,7 @@ CIRCChannel.prototype.performTabMatch =
   CIRCUser.prototype.performTabMatch =
   CIRCDCCChat.prototype.performTabMatch =
   CIRCDCCFileTransfer.prototype.performTabMatch =
-    function gettabmatch_other(
-      line,
-      wordStart,
-      wordEnd,
-      word,
-      cursorpos,
-      lcFn
-    ) {
+    function (line, wordStart, wordEnd, word, cursorpos, lcFn) {
       if (wordStart == 0 && line[0] == client.COMMAND_CHAR) {
         return client.performTabMatch(
           line,

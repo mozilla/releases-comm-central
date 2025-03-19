@@ -51,31 +51,26 @@ function CIRCDCC(parent) {
 CIRCDCC.prototype.TYPE = "IRCDCC";
 CIRCDCC.prototype.listenPorts = [];
 
-CIRCDCC.prototype.addUser = function dcc_adduser(user, remoteIP) {
+CIRCDCC.prototype.addUser = function (user, remoteIP) {
   // user     == CIRCUser object.
   // remoteIP == remoteIP as specified in CTCP DCC message.
   return new CIRCDCCUser(this, user, remoteIP);
 };
 
-CIRCDCC.prototype.addChat = function dcc_addchat(user, port) {
+CIRCDCC.prototype.addChat = function (user, port) {
   // user == CIRCDCCUser object.
   // port == port as specified in CTCP DCC message.
   return new CIRCDCCChat(this, user, port);
 };
 
-CIRCDCC.prototype.addFileTransfer = function dcc_addfile(
-  user,
-  port,
-  file,
-  size
-) {
+CIRCDCC.prototype.addFileTransfer = function (user, port, file, size) {
   return new CIRCDCCFileTransfer(this, user, port, file, size);
 };
 
-CIRCDCC.prototype.addHost = function dcc_addhost(host, auth) {
+CIRCDCC.prototype.addHost = function (host, auth) {
   var me = this;
   var listener = {
-    onLookupComplete: function _onLookupComplete(request, record, status) {
+    onLookupComplete(request, record, status) {
       // record == null if it failed. We can't do anything with a failure.
       if (record) {
         while (record.hasMore()) {
@@ -93,7 +88,7 @@ CIRCDCC.prototype.addHost = function dcc_addhost(host, auth) {
   }
 };
 
-CIRCDCC.prototype.addIP = function dcc_addip(ip, auth) {
+CIRCDCC.prototype.addIP = function (ip, auth) {
   if (auth) {
     this.localIPlist.unshift(ip);
   } else {
@@ -105,7 +100,7 @@ CIRCDCC.prototype.addIP = function dcc_addip(ip, auth) {
   }
 };
 
-CIRCDCC.prototype.getMatches = function dcc_getmatches(
+CIRCDCC.prototype.getMatches = function (
   nickname,
   filename,
   types,
@@ -155,7 +150,7 @@ CIRCDCC.prototype.getMatches = function dcc_getmatches(
   return list;
 };
 
-CIRCDCC.prototype.getNextPort = function dcc_getnextport() {
+CIRCDCC.prototype.getNextPort = function () {
   var portList = this.listenPorts;
 
   var newPort = this._lastPort;
@@ -192,7 +187,7 @@ CIRCDCC.prototype.getNextPort = function dcc_getnextport() {
   return this.getNextPort();
 };
 
-CIRCDCC.prototype.getNextID = function dcc_getnextid() {
+CIRCDCC.prototype.getNextID = function () {
   this._lastID++;
   if (this._lastID > DCC_ID_MAX) {
     this._lastID = 0;
@@ -206,7 +201,7 @@ CIRCDCC.prototype.getNextID = function dcc_getnextid() {
   return id;
 };
 
-CIRCDCC.prototype.findByID = function dcc_findbyid(id) {
+CIRCDCC.prototype.findByID = function (id) {
   if (typeof id != "string") {
     return null;
   }
@@ -296,7 +291,7 @@ function CIRCDCCState(parent, owner, eventType) {
 
 CIRCDCCState.prototype.TYPE = "IRCDCCState";
 
-CIRCDCCState.prototype.sendRequest = function dccstate_sendRequest() {
+CIRCDCCState.prototype.sendRequest = function () {
   if (!this.parent.localIP || this.state != DCC_STATE_INIT) {
     throw "Must have a local IP and be in INIT state.";
   }
@@ -318,7 +313,7 @@ CIRCDCCState.prototype.sendRequest = function dccstate_sendRequest() {
   );
 };
 
-CIRCDCCState.prototype.getRequest = function dccstate_getRequest() {
+CIRCDCCState.prototype.getRequest = function () {
   if (this.state != DCC_STATE_INIT) {
     throw "Must be in INIT state.";
   }
@@ -343,7 +338,7 @@ CIRCDCCState.prototype.getRequest = function dccstate_getRequest() {
   );
 };
 
-CIRCDCCState.prototype.sendAccept = function dccstate_sendAccept() {
+CIRCDCCState.prototype.sendAccept = function () {
   if (this.state != DCC_STATE_REQUESTED || this.dir != DCC_DIR_GETTING) {
     throw "Must be in REQUESTED state and direction GET.";
   }
@@ -365,7 +360,7 @@ CIRCDCCState.prototype.sendAccept = function dccstate_sendAccept() {
   );
 };
 
-CIRCDCCState.prototype.getAccept = function dccstate_getAccept() {
+CIRCDCCState.prototype.getAccept = function () {
   if (this.state != DCC_STATE_REQUESTED || this.dir != DCC_DIR_SENDING) {
     throw "Must be in REQUESTED state and direction SEND.";
   }
@@ -381,7 +376,7 @@ CIRCDCCState.prototype.getAccept = function dccstate_getAccept() {
   );
 };
 
-CIRCDCCState.prototype.sendDecline = function dccstate_sendDecline() {
+CIRCDCCState.prototype.sendDecline = function () {
   if (this.state != DCC_STATE_REQUESTED || this.dir != DCC_DIR_GETTING) {
     throw "Must be in REQUESTED state and direction GET.";
   }
@@ -403,7 +398,7 @@ CIRCDCCState.prototype.sendDecline = function dccstate_sendDecline() {
   );
 };
 
-CIRCDCCState.prototype.getDecline = function dccstate_getDecline() {
+CIRCDCCState.prototype.getDecline = function () {
   if (this.state != DCC_STATE_REQUESTED || this.dir != DCC_DIR_SENDING) {
     throw "Must be in REQUESTED state and direction SEND.";
   }
@@ -420,7 +415,7 @@ CIRCDCCState.prototype.getDecline = function dccstate_getDecline() {
 };
 
 // The sockets connected.
-CIRCDCCState.prototype.socketConnected = function dccstate_socketConnected() {
+CIRCDCCState.prototype.socketConnected = function () {
   if (this.state != DCC_STATE_ACCEPTED) {
     throw "Not in ACCEPTED state.";
   }
@@ -445,7 +440,7 @@ CIRCDCCState.prototype.socketDisconnected = function () {
   );
 };
 
-CIRCDCCState.prototype.sendAbort = function dccstate_sendAbort() {
+CIRCDCCState.prototype.sendAbort = function () {
   if (
     this.state != DCC_STATE_REQUESTED &&
     this.state != DCC_STATE_ACCEPTED &&
@@ -461,7 +456,7 @@ CIRCDCCState.prototype.sendAbort = function dccstate_sendAbort() {
   );
 };
 
-CIRCDCCState.prototype.getAbort = function dccstate_getAbort() {
+CIRCDCCState.prototype.getAbort = function () {
   if (
     this.state != DCC_STATE_REQUESTED &&
     this.state != DCC_STATE_ACCEPTED &&
@@ -477,7 +472,7 @@ CIRCDCCState.prototype.getAbort = function dccstate_getAbort() {
   );
 };
 
-CIRCDCCState.prototype.failed = function dccstate_failed() {
+CIRCDCCState.prototype.failed = function () {
   if (
     this.state != DCC_STATE_REQUESTED &&
     this.state != DCC_STATE_ACCEPTED &&
@@ -529,11 +524,11 @@ function CIRCDCCChat(parent, user, port) {
 
 CIRCDCCChat.prototype.TYPE = "IRCDCCChat";
 
-CIRCDCCChat.prototype.getURL = function dchat_geturl() {
+CIRCDCCChat.prototype.getURL = function () {
   return "x-irc-dcc-chat:" + this.id;
 };
 
-CIRCDCCChat.prototype.isActive = function dchat_isactive() {
+CIRCDCCChat.prototype.isActive = function () {
   return (
     this.state.state == DCC_STATE_REQUESTED ||
     this.state.state == DCC_STATE_ACCEPTED ||
@@ -542,7 +537,7 @@ CIRCDCCChat.prototype.isActive = function dchat_isactive() {
 };
 
 // Call to make this end request DCC Chat with targeted user.
-CIRCDCCChat.prototype.request = function dchat_request() {
+CIRCDCCChat.prototype.request = function () {
   this.state.sendRequest();
 
   this.localIP = this.parent.localIP;
@@ -575,7 +570,7 @@ CIRCDCCChat.prototype.request = function dchat_request() {
 };
 
 // Call to make this end accept DCC Chat with target user.
-CIRCDCCChat.prototype.accept = function dchat_accept() {
+CIRCDCCChat.prototype.accept = function () {
   this.state.sendAccept();
 
   this.connection = new CBSConnection();
@@ -585,7 +580,7 @@ CIRCDCCChat.prototype.accept = function dchat_accept() {
 };
 
 // This may be called synchronously or asynchronously by CBSConnection.connect.
-CIRCDCCChat.prototype.onSocketConnection = function dchat_onsocketconnection(
+CIRCDCCChat.prototype.onSocketConnection = function (
   host,
   port,
   config,
@@ -601,7 +596,7 @@ CIRCDCCChat.prototype.onSocketConnection = function dchat_onsocketconnection(
 };
 
 // Call to make this end decline DCC Chat with target user.
-CIRCDCCChat.prototype.decline = function dchat_decline() {
+CIRCDCCChat.prototype.decline = function () {
   this.state.sendDecline();
 
   // Tell the other end, if they care, that we refused.
@@ -611,14 +606,14 @@ CIRCDCCChat.prototype.decline = function dchat_decline() {
 };
 
 // Call to close the connection.
-CIRCDCCChat.prototype.disconnect = function dchat_disconnect() {
+CIRCDCCChat.prototype.disconnect = function () {
   this.connection.disconnect();
 
   return true;
 };
 
 // Aborts the connection.
-CIRCDCCChat.prototype.abort = function dchat_abort() {
+CIRCDCCChat.prototype.abort = function () {
   if (this.state.state == DCC_STATE_CONNECTED) {
     this.disconnect();
     return;
@@ -633,7 +628,7 @@ CIRCDCCChat.prototype.abort = function dchat_abort() {
 
 // Event to handle a request from the target user.
 // CIRCUser points the event here.
-CIRCDCCChat.prototype.onGotRequest = function dchat_onGotRequest(e) {
+CIRCDCCChat.prototype.onGotRequest = function (e) {
   this.state.getRequest();
 
   // Pass over to the base user.
@@ -642,10 +637,7 @@ CIRCDCCChat.prototype.onGotRequest = function dchat_onGotRequest(e) {
 
 // Event to handle a client connecting to the listening socket.
 // CBSConnection points the event here.
-CIRCDCCChat.prototype.onSocketAccepted = function dchat_onSocketAccepted(
-  socket,
-  transport
-) {
+CIRCDCCChat.prototype.onSocketAccepted = function (socket, transport) {
   this.state.getAccept();
 
   this.connection.accept(transport, null);
@@ -658,7 +650,7 @@ CIRCDCCChat.prototype.onSocketAccepted = function dchat_onSocketAccepted(
   this.connection.startAsyncRead(this);
 };
 
-CIRCDCCChat.prototype.onStreamDataAvailable = function dchat_sda(
+CIRCDCCChat.prototype.onStreamDataAvailable = function (
   request,
   inStream,
   sourceOffset,
@@ -669,7 +661,7 @@ CIRCDCCChat.prototype.onStreamDataAvailable = function dchat_sda(
   this.eventPump.routeEvent(ev);
 };
 
-CIRCDCCChat.prototype.onStreamClose = function dchat_sockdiscon(status) {
+CIRCDCCChat.prototype.onStreamClose = function (status) {
   this.state.socketDisconnected();
 
   //var ev = new CEvent("dcc-chat", "disconnect", this, "onDisconnect");
@@ -678,7 +670,7 @@ CIRCDCCChat.prototype.onStreamClose = function dchat_sockdiscon(status) {
   //this.eventPump.addEvent(ev);
 };
 
-CIRCDCCChat.prototype.onDataAvailable = function dchat_dataavailable(e) {
+CIRCDCCChat.prototype.onDataAvailable = function (e) {
   var line = e.line;
 
   var incomplete = line[line.length] != "\n";
@@ -704,7 +696,7 @@ CIRCDCCChat.prototype.onDataAvailable = function dchat_dataavailable(e) {
 };
 
 // Raw data from DCC Chat stream.
-CIRCDCCChat.prototype.onRawData = function dchat_rawdata(e) {
+CIRCDCCChat.prototype.onRawData = function (e) {
   e.code = "PRIVMSG";
   e.line = e.data;
   e.user = this.user;
@@ -715,7 +707,7 @@ CIRCDCCChat.prototype.onRawData = function dchat_rawdata(e) {
   return true;
 };
 
-CIRCDCCChat.prototype.onParsedData = function dchat_onParsedData(e) {
+CIRCDCCChat.prototype.onParsedData = function (e) {
   e.type = e.code.toLowerCase();
   if (!e.code[0]) {
     dd(dumpObjectTree(e));
@@ -753,7 +745,7 @@ CIRCDCCChat.prototype.onParsedData = function dchat_onParsedData(e) {
   return true;
 };
 
-CIRCDCCChat.prototype.onCTCP = function serv_ctcp(e) {
+CIRCDCCChat.prototype.onCTCP = function (e) {
   // The \x0D? is a BIG HACK to make this work with X-Chat.
   var ary = e.line.match(/^\x01([^ ]+) ?(.*)\x01\x0D?$/i);
   if (ary == null) {
@@ -789,7 +781,7 @@ CIRCDCCChat.prototype.onCTCP = function serv_ctcp(e) {
   return true;
 };
 
-CIRCDCCChat.prototype.ctcp = function dchat_ctcp(code, msg) {
+CIRCDCCChat.prototype.ctcp = function (code, msg) {
   msg = msg || "";
 
   this.connection.sendData(
@@ -797,11 +789,11 @@ CIRCDCCChat.prototype.ctcp = function dchat_ctcp(code, msg) {
   );
 };
 
-CIRCDCCChat.prototype.say = function dchat_say(msg) {
+CIRCDCCChat.prototype.say = function (msg) {
   this.connection.sendData(fromUnicode(msg, this) + "\n");
 };
 
-CIRCDCCChat.prototype.act = function dchat_act(msg) {
+CIRCDCCChat.prototype.act = function (msg) {
   this.ctcp("ACTION", msg);
 };
 
@@ -844,11 +836,11 @@ function CIRCDCCFileTransfer(parent, user, port, file, size) {
 
 CIRCDCCFileTransfer.prototype.TYPE = "IRCDCCFileTransfer";
 
-CIRCDCCFileTransfer.prototype.getURL = function dfile_geturl() {
+CIRCDCCFileTransfer.prototype.getURL = function () {
   return "x-irc-dcc-file:" + this.id;
 };
 
-CIRCDCCFileTransfer.prototype.isActive = function dfile_isactive() {
+CIRCDCCFileTransfer.prototype.isActive = function () {
   return (
     this.state.state == DCC_STATE_REQUESTED ||
     this.state.state == DCC_STATE_ACCEPTED ||
@@ -856,7 +848,7 @@ CIRCDCCFileTransfer.prototype.isActive = function dfile_isactive() {
   );
 };
 
-CIRCDCCFileTransfer.prototype.dispose = function dfile_dispose() {
+CIRCDCCFileTransfer.prototype.dispose = function () {
   if (this.connection) {
     // close is for the server socket, disconnect for the client socket.
     this.connection.close();
@@ -873,7 +865,7 @@ CIRCDCCFileTransfer.prototype.dispose = function dfile_dispose() {
 };
 
 // Call to make this end offer DCC File to targeted user.
-CIRCDCCFileTransfer.prototype.request = function dfile_request(localFile) {
+CIRCDCCFileTransfer.prototype.request = function (localFile) {
   this.state.sendRequest();
 
   this.localFile = new LocalFile(localFile, "<");
@@ -923,7 +915,7 @@ CIRCDCCFileTransfer.prototype.request = function dfile_request(localFile) {
 };
 
 // Call to make this end accept DCC File from target user.
-CIRCDCCFileTransfer.prototype.accept = function dfile_accept(localFile) {
+CIRCDCCFileTransfer.prototype.accept = function (localFile) {
   this.state.sendAccept();
 
   this.localFile = new LocalFile(localFile, ">");
@@ -956,7 +948,7 @@ CIRCDCCFileTransfer.prototype.onSocketConnection = function (
 };
 
 // Call to make this end decline DCC File from target user.
-CIRCDCCFileTransfer.prototype.decline = function dfile_decline() {
+CIRCDCCFileTransfer.prototype.decline = function () {
   this.state.sendDecline();
 
   // Tell the other end, if they care, that we refused.
@@ -966,14 +958,14 @@ CIRCDCCFileTransfer.prototype.decline = function dfile_decline() {
 };
 
 // Call to close the connection.
-CIRCDCCFileTransfer.prototype.disconnect = function dfile_disconnect() {
+CIRCDCCFileTransfer.prototype.disconnect = function () {
   this.dispose();
 
   return true;
 };
 
 // Aborts the connection.
-CIRCDCCFileTransfer.prototype.abort = function dfile_abort() {
+CIRCDCCFileTransfer.prototype.abort = function () {
   if (this.state.state == DCC_STATE_CONNECTED) {
     this.disconnect();
     return;
@@ -985,7 +977,7 @@ CIRCDCCFileTransfer.prototype.abort = function dfile_abort() {
 
 // Event to handle a request from the target user.
 // CIRCUser points the event here.
-CIRCDCCFileTransfer.prototype.onGotRequest = function dfile_onGotRequest(e) {
+CIRCDCCFileTransfer.prototype.onGotRequest = function (e) {
   this.state.getRequest();
 
   // Pass over to the base user.
@@ -1027,7 +1019,7 @@ CIRCDCCFileTransfer.prototype.onSocketAccepted = function (socket, transport) {
   this.connection.startAsyncRead(this);
 };
 
-CIRCDCCFileTransfer.prototype.onStreamDataAvailable = function dfile_sda(
+CIRCDCCFileTransfer.prototype.onStreamDataAvailable = function (
   request,
   inStream,
   sourceOffset,
@@ -1038,9 +1030,7 @@ CIRCDCCFileTransfer.prototype.onStreamDataAvailable = function dfile_sda(
   this.eventPump.routeEvent(ev);
 };
 
-CIRCDCCFileTransfer.prototype.onStreamClose = function dfile_sockdiscon(
-  status
-) {
+CIRCDCCFileTransfer.prototype.onStreamClose = function (status) {
   if (this.position != this.size) {
     this.state.failed();
   } else {
@@ -1049,9 +1039,7 @@ CIRCDCCFileTransfer.prototype.onStreamClose = function dfile_sockdiscon(
   this.dispose();
 };
 
-CIRCDCCFileTransfer.prototype.onDataAvailable = function dfile_dataavailable(
-  e
-) {
+CIRCDCCFileTransfer.prototype.onDataAvailable = function (e) {
   e.type = "rawdata";
   e.destMethod = "onRawData";
 
@@ -1112,7 +1100,7 @@ CIRCDCCFileTransfer.prototype.onDataAvailable = function dfile_dataavailable(
   return true;
 };
 
-CIRCDCCFileTransfer.prototype.sendData = function dfile_say(data) {
+CIRCDCCFileTransfer.prototype.sendData = function (data) {
   this.connection.sendData(data);
 };
 

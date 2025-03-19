@@ -54,7 +54,7 @@ function toSOutputStream(stream) {
  */
 function BadCertHandler() {}
 
-BadCertHandler.prototype.getInterface = function badcert_getinterface(aIID) {
+BadCertHandler.prototype.getInterface = function (aIID) {
   return this.QueryInterface(aIID);
 };
 
@@ -67,7 +67,7 @@ BadCertHandler.prototype.QueryInterface = XPCOMUtils.generateQI([
 /* Returning true in the following two callbacks
  * means suppress default the error UI (modal alert).
  */
-BadCertHandler.prototype.notifyCertProblem = function badcert_notifyCertProblem(
+BadCertHandler.prototype.notifyCertProblem = function (
   socketInfo,
   sslStatus,
   targetHost
@@ -89,12 +89,7 @@ function CBSConnection() {
   this.wrappedJSObject = this;
 }
 
-CBSConnection.prototype.connect = function bc_connect(
-  host,
-  port,
-  config,
-  observer
-) {
+CBSConnection.prototype.connect = function (host, port, config, observer) {
   this.host = host.toLowerCase();
   this.port = port;
 
@@ -223,7 +218,7 @@ CBSConnection.prototype.connect = function bc_connect(
   return true;
 };
 
-CBSConnection.prototype.startTLS = function bc_starttls() {
+CBSConnection.prototype.startTLS = function () {
   if (!this.isConnected || !this._transport.securityInfo) {
     return;
   }
@@ -233,7 +228,7 @@ CBSConnection.prototype.startTLS = function bc_starttls() {
   sockControl.StartTLS();
 };
 
-CBSConnection.prototype.listen = function bc_listen(port, observer) {
+CBSConnection.prototype.listen = function (port, observer) {
   this._serverSock = Cc["@mozilla.org/network/server-socket;1"].createInstance(
     Ci.nsIServerSocket
   );
@@ -249,7 +244,7 @@ CBSConnection.prototype.listen = function bc_listen(port, observer) {
   return true;
 };
 
-CBSConnection.prototype.accept = function bc_accept(transport, observer) {
+CBSConnection.prototype.accept = function (transport, observer) {
   this._transport = transport;
   this.host = this._transport.host.toLowerCase();
   this.port = this._transport.port;
@@ -278,13 +273,13 @@ CBSConnection.prototype.accept = function bc_accept(transport, observer) {
   return this.isConnected;
 };
 
-CBSConnection.prototype.close = function bc_close() {
+CBSConnection.prototype.close = function () {
   if ("_serverSock" in this && this._serverSock) {
     this._serverSock.close();
   }
 };
 
-CBSConnection.prototype.disconnect = function bc_disconnect() {
+CBSConnection.prototype.disconnect = function () {
   if ("_inputStream" in this && this._inputStream) {
     this._inputStream.close();
   }
@@ -299,7 +294,7 @@ CBSConnection.prototype.disconnect = function bc_disconnect() {
     */
 };
 
-CBSConnection.prototype.sendData = function bc_senddata(str) {
+CBSConnection.prototype.sendData = function (str) {
   if (!this.isConnected) {
     throw "Not Connected.";
   }
@@ -307,7 +302,7 @@ CBSConnection.prototype.sendData = function bc_senddata(str) {
   this.sendDataNow(str);
 };
 
-CBSConnection.prototype.readData = function bc_readdata(timeout, count) {
+CBSConnection.prototype.readData = function (timeout, count) {
   if (!this.isConnected) {
     throw "Not Connected.";
   }
@@ -334,7 +329,7 @@ CBSConnection.prototype.readData = function bc_readdata(timeout, count) {
   return rv;
 };
 
-CBSConnection.prototype.startAsyncRead = function bc_saread(observer) {
+CBSConnection.prototype.startAsyncRead = function (observer) {
   let pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
     Ci.nsIInputStreamPump
   );
@@ -342,7 +337,7 @@ CBSConnection.prototype.startAsyncRead = function bc_saread(observer) {
   pump.asyncRead(new StreamListener(observer), this);
 };
 
-CBSConnection.prototype.asyncWrite = function bc_awrite(str) {
+CBSConnection.prototype.asyncWrite = function (str) {
   this._streamProvider.pendingData += str;
   if (this._streamProvider.isBlocked) {
     this._write_req.resume();
@@ -350,11 +345,11 @@ CBSConnection.prototype.asyncWrite = function bc_awrite(str) {
   }
 };
 
-CBSConnection.prototype.hasPendingWrite = function bc_haspwrite() {
+CBSConnection.prototype.hasPendingWrite = function () {
   return false; /* data already pushed to necko */
 };
 
-CBSConnection.prototype.sendDataNow = function bc_senddatanow(str) {
+CBSConnection.prototype.sendDataNow = function (str) {
   var rv = false;
 
   try {
@@ -377,7 +372,7 @@ CBSConnection.prototype.sendDataNow = function bc_senddatanow(str) {
  *
  * @returns A value from the |STATE_IS_*| enumeration at the top of this file.
  */
-CBSConnection.prototype.getSecurityState = function bc_getsecuritystate() {
+CBSConnection.prototype.getSecurityState = function () {
   if (!this.isConnected || !this._transport.securityInfo) {
     return STATE_IS_INSECURE;
   }
@@ -404,7 +399,7 @@ CBSConnection.prototype.getSecurityState = function bc_getsecuritystate() {
   }
 };
 
-CBSConnection.prototype.getCertificate = function bc_getcertificate() {
+CBSConnection.prototype.getCertificate = function () {
   if (!this.isConnected || !this._transport.securityInfo) {
     return null;
   }
@@ -422,7 +417,7 @@ CBSConnection.prototype.getCertificate = function bc_getcertificate() {
   return sslStatus.serverCert;
 };
 
-CBSConnection.prototype.asyncWrite = function bc_asyncwrite() {
+CBSConnection.prototype.asyncWrite = function () {
   throw "Not Implemented.";
 };
 
@@ -433,11 +428,11 @@ function StreamProvider(observer) {
 StreamProvider.prototype.pendingData = "";
 StreamProvider.prototype.isBlocked = true;
 
-StreamProvider.prototype.close = function sp_close() {
+StreamProvider.prototype.close = function () {
   this.isClosed = true;
 };
 
-StreamProvider.prototype.onDataWritable = function sp_datawrite(
+StreamProvider.prototype.onDataWritable = function (
   request,
   ctxt,
   ostream,
@@ -459,15 +454,11 @@ StreamProvider.prototype.onDataWritable = function sp_datawrite(
   this.pendingData = this.pendingData.substr(len);
 };
 
-StreamProvider.prototype.onStartRequest = function sp_startreq(request, ctxt) {
+StreamProvider.prototype.onStartRequest = function (request, ctxt) {
   //dd ("StreamProvider::onStartRequest: " + request + ", " + ctxt);
 };
 
-StreamProvider.prototype.onStopRequest = function sp_stopreq(
-  request,
-  ctxt,
-  status
-) {
+StreamProvider.prototype.onStopRequest = function (request, ctxt, status) {
   //dd ("StreamProvider::onStopRequest: " + request + ", " + ctxt + ", " +
   //    status);
   if (this._observer) {
@@ -479,15 +470,11 @@ function StreamListener(observer) {
   this._observer = observer;
 }
 
-StreamListener.prototype.onStartRequest = function sl_startreq(request, ctxt) {
+StreamListener.prototype.onStartRequest = function (request, ctxt) {
   //dd ("StreamListener::onStartRequest: " + request + ", " + ctxt);
 };
 
-StreamListener.prototype.onStopRequest = function sl_stopreq(
-  request,
-  ctxt,
-  status
-) {
+StreamListener.prototype.onStopRequest = function (request, ctxt, status) {
   //dd ("StreamListener::onStopRequest: " + request + ", " + ctxt + ", " +
   //status);
   if (this._observer) {
@@ -495,7 +482,7 @@ StreamListener.prototype.onStopRequest = function sl_stopreq(
   }
 };
 
-StreamListener.prototype.onDataAvailable = function sl_dataavail(
+StreamListener.prototype.onDataAvailable = function (
   request,
   ctxt,
   inStr,
@@ -525,16 +512,10 @@ function SocketListener(connection, observer) {
   this._observer = observer;
 }
 
-SocketListener.prototype.onSocketAccepted = function sl_onSocketAccepted(
-  socket,
-  transport
-) {
+SocketListener.prototype.onSocketAccepted = function (socket, transport) {
   this._observer.onSocketAccepted(socket, transport);
 };
-SocketListener.prototype.onStopListening = function sl_onStopListening(
-  socket,
-  status
-) {
+SocketListener.prototype.onStopListening = function (socket, status) {
   delete this._connection._serverSockListener;
   delete this._connection._serverSock;
 };

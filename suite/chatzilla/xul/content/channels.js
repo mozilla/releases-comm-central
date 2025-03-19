@@ -844,7 +844,7 @@ function ChannelEntry(name, users, topic) {
 
 ChannelEntry.prototype = new XULTreeViewRecord(tree.share);
 
-ChannelEntry.prototype.sortCompare = function chanentry_sortcmp(a, b) {
+ChannelEntry.prototype.sortCompare = function (a, b) {
   var sc = a._share.sortColumn;
   var sd = a._share.sortDirection;
 

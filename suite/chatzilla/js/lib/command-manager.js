@@ -83,7 +83,7 @@ function cr_getusage() {
  * Scans the argument spec, in the format "<a1> <a2> [<o1> <o2>]", into an
  * array of strings.
  */
-CommandRecord.prototype.scanUsage = function cr_scanusage() {
+CommandRecord.prototype.scanUsage = function () {
   var spec = this._usage;
   var currentName = "";
   var inName = false;
@@ -154,7 +154,7 @@ CommandManager.prototype.defaultFlags = 0;
  *               property, |stringBundle|, may be set on the |cmdary| |Array|
  *               to override the |defaultBundle| for all the commands.
  */
-CommandManager.prototype.defineCommands = function cmgr_defcmds(cmdary) {
+CommandManager.prototype.defineCommands = function (cmdary) {
   var len = cmdary.length;
   var commands = {};
   var bundle = "stringBundle" in cmdary ? cmdary.stringBundle : null;
@@ -183,7 +183,7 @@ CommandManager.prototype.defineCommands = function cmgr_defcmds(cmdary) {
  *               accelerator keys and help from. If not specified, the
  *               |defaultBundle| is used.
  */
-CommandManager.prototype.defineCommand = function cmdmgr_defcmd(
+CommandManager.prototype.defineCommand = function (
   name,
   func,
   flags,
@@ -275,10 +275,7 @@ CommandManager.prototype.defineCommand = function cmdmgr_defcmd(
  *                 objects. If not specified, all commands in the
  *                 |CommandManager| are installed.
  */
-CommandManager.prototype.installKeys = function cmgr_instkeys(
-  document,
-  commands
-) {
+CommandManager.prototype.installKeys = function (document, commands) {
   var parentElem = document.getElementById("dynamic-keys");
   if (!parentElem) {
     parentElem = document.createElement("keyset");
@@ -306,10 +303,7 @@ CommandManager.prototype.installKeys = function cmgr_instkeys(
  * @param parentElem An |XULElement| to add the <key> too.
  * @param command    The |CommandRecord| to install.
  */
-CommandManager.prototype.installKey = function cmgr_instkey(
-  parentElem,
-  command
-) {
+CommandManager.prototype.installKey = function (parentElem, command) {
   if (!command.keystr) {
     return;
   }
@@ -357,7 +351,7 @@ CommandManager.prototype.installKey = function cmgr_instkey(
  * @internal
  * @param command The |CommandRecord| to add to the |CommandManager|.
  */
-CommandManager.prototype.addCommand = function cmgr_add(command) {
+CommandManager.prototype.addCommand = function (command) {
   if (objectContains(this.commands, command.name)) {
     /* We've already got a command with this name - invoke the history
      * storage so that we can undo this back to its original state.
@@ -376,7 +370,7 @@ CommandManager.prototype.addCommand = function cmgr_add(command) {
  * @param cmdary An |Array| or |Object| containing |CommandRecord| objects.
  *               Ideally use the value returned from |defineCommands|.
  */
-CommandManager.prototype.removeCommands = function cmgr_removes(cmdary) {
+CommandManager.prototype.removeCommands = function (cmdary) {
   for (var i in cmdary) {
     var command = isinstance(cmdary[i], Array)
       ? { name: cmdary[i][0] }
@@ -391,7 +385,7 @@ CommandManager.prototype.removeCommands = function cmgr_removes(cmdary) {
  * @param command The |CommandRecord| to remove from the |CommandManager|.
  *                Ideally use the value returned from |defineCommand|.
  */
-CommandManager.prototype.removeCommand = function cmgr_remove(command) {
+CommandManager.prototype.removeCommand = function (command) {
   delete this.commands[command.name];
   if (objectContains(this.commandHistory, command.name)) {
     /* There was a previous command with this name - restore the most
@@ -420,12 +414,7 @@ CommandManager.prototype.removeCommand = function cmgr_remove(command) {
  * @param before      A |Boolean| indicating whether the hook wishes to be
  *                    called before or after the command executes.
  */
-CommandManager.prototype.addHook = function cmgr_hook(
-  commandName,
-  func,
-  id,
-  before
-) {
+CommandManager.prototype.addHook = function (commandName, func, id, before) {
   if (
     !ASSERT(
       objectContains(this.commands, commandName),
@@ -461,7 +450,7 @@ CommandManager.prototype.addHook = function cmgr_hook(
  * @param prefix Optional. A |String| prefix to apply to each hook's command
  *               name to compute an |id| for it.
  */
-CommandManager.prototype.addHooks = function cmgr_hooks(hooks, prefix) {
+CommandManager.prototype.addHooks = function (hooks, prefix) {
   if (!prefix) {
     prefix = "";
   }
@@ -482,7 +471,7 @@ CommandManager.prototype.addHooks = function cmgr_hooks(hooks, prefix) {
  * @param hooks An |Object| identical to the one passed to |addHooks|.
  * @param prefix Optional. A |String| identical to the one passed to |addHooks|.
  */
-CommandManager.prototype.removeHooks = function cmgr_remhooks(hooks, prefix) {
+CommandManager.prototype.removeHooks = function (hooks, prefix) {
   if (!prefix) {
     prefix = "";
   }
@@ -507,11 +496,7 @@ CommandManager.prototype.removeHooks = function cmgr_remhooks(hooks, prefix) {
  * @param before      A |Boolean| indicating whether the hook was to be
  *                    called before or after the command executed.
  */
-CommandManager.prototype.removeHook = function cmgr_unhook(
-  commandName,
-  id,
-  before
-) {
+CommandManager.prototype.removeHook = function (commandName, id, before) {
   var command = this.commands[commandName];
 
   if (before) {
@@ -531,7 +516,7 @@ CommandManager.prototype.removeHook = function cmgr_unhook(
  * @param partialName Optional. A |String| prefix to search for.
  * @param flags Optional. Flags to logically AND with commands.
  */
-CommandManager.prototype.list = function cmgr_list(partialName, flags, exact) {
+CommandManager.prototype.list = function (partialName, flags, exact) {
   /* returns array of command objects which look like |partialName|, or
    * all commands if |partialName| is not specified */
   function compare(a, b) {
@@ -576,10 +561,7 @@ CommandManager.prototype.list = function cmgr_list(partialName, flags, exact) {
  * |listNames| operates identically to |list|, except that only command names
  * are returned, not |CommandRecord| objects.
  */
-CommandManager.prototype.listNames = function cmgr_listnames(
-  partialName,
-  flags
-) {
+CommandManager.prototype.listNames = function (partialName, flags) {
   var cmds = this.list(partialName, flags, false);
   var cmdNames = [];
 
@@ -600,7 +582,7 @@ CommandManager.prototype.listNames = function cmgr_listnames(
  * @params e  Event object to be processed.
  */
 // @undocumented
-CommandManager.prototype.parseArguments = function cmgr_parseargs(e) {
+CommandManager.prototype.parseArguments = function (e) {
   var rv = this.parseArgumentsRaw(e);
   //dd("parseArguments '" + e.command.usage + "' " +
   //   (rv ? "passed" : "failed") + "\n" + dumpObjectTree(e));
@@ -656,7 +638,7 @@ CommandManager.prototype.parseArguments = function cmgr_parseargs(e) {
  * commandManager.argTypes["my-integer-name"] = commandManager.argTypes["int"];
  */
 // @undocumented
-CommandManager.prototype.parseArgumentsRaw = function parse_parseargsraw(e) {
+CommandManager.prototype.parseArgumentsRaw = function (e) {
   var argc = e.command.argNames.length;
 
   function initOptionals() {
@@ -743,7 +725,7 @@ CommandManager.prototype.parseArgumentsRaw = function parse_parseargsraw(e) {
  * @param command  Command to test.
  */
 // @undocumented
-CommandManager.prototype.isCommandSatisfied = function cmgr_isok(e, command) {
+CommandManager.prototype.isCommandSatisfied = function (e, command) {
   if (typeof command == "undefined") {
     command = e.command;
   } else if (typeof command == "string") {
@@ -781,7 +763,7 @@ CommandManager.prototype.isCommandSatisfied = function cmgr_isok(e, command) {
  * @param name  property name to use for the parse result.
  */
 // @undocumented
-CommandManager.prototype.parseArgument = function cmgr_parsearg(e, name) {
+CommandManager.prototype.parseArgument = function (e, name) {
   var parseResult;
 
   if (name in this.argTypes) {
@@ -805,10 +787,7 @@ CommandManager.prototype.argTypes = {};
  * function.
  */
 // @undocumented
-CommandManager.prototype.argTypes.__aliasTypes__ = function at_alias(
-  list,
-  type
-) {
+CommandManager.prototype.argTypes.__aliasTypes__ = function (list, type) {
   for (var i in list) {
     this[list[i]] = this[type];
   }
@@ -820,7 +799,7 @@ CommandManager.prototype.argTypes.__aliasTypes__ = function at_alias(
  * Parses an integer, stores result in |e[name]|.
  */
 // @undocumented
-CommandManager.prototype.argTypes.int = function parse_int(e, name) {
+CommandManager.prototype.argTypes.int = function (e, name) {
   var ary = e.unparsedData.match(/(\d+)(?:\s+(.*))?$/);
   if (!ary) {
     return false;
@@ -838,7 +817,7 @@ CommandManager.prototype.argTypes.int = function parse_int(e, name) {
  * Stores result in |e[name]|.
  */
 // @undocumented
-CommandManager.prototype.argTypes.word = function parse_word(e, name) {
+CommandManager.prototype.argTypes.word = function (e, name) {
   var ary = e.unparsedData.match(/(\S+)(?:\s+(.*))?$/);
   if (!ary) {
     return false;
@@ -857,7 +836,7 @@ CommandManager.prototype.argTypes.word = function parse_word(e, name) {
  * Stores result in |e[name]|.
  */
 // @undocumented
-CommandManager.prototype.argTypes.state = function parse_state(e, name) {
+CommandManager.prototype.argTypes.state = function (e, name) {
   var ary = e.unparsedData.match(
     /(true|on|yes|1|false|off|no|0)(?:\s+(.*))?$/i
   );
@@ -883,7 +862,7 @@ CommandManager.prototype.argTypes.state = function parse_state(e, name) {
  * Stores result in |e[name]|.
  */
 // @undocumented
-CommandManager.prototype.argTypes.toggle = function parse_toggle(e, name) {
+CommandManager.prototype.argTypes.toggle = function (e, name) {
   var ary = e.unparsedData.match(
     /(toggle|true|on|yes|1|false|off|no|0)(?:\s+(.*))?$/i
   );
@@ -910,7 +889,7 @@ CommandManager.prototype.argTypes.toggle = function parse_toggle(e, name) {
  * Stores result in |e[name]|.
  */
 // @undocumented
-CommandManager.prototype.argTypes.rest = function parse_rest(e, name) {
+CommandManager.prototype.argTypes.rest = function (e, name) {
   e[name] = e.unparsedData;
   e.unparsedData = "";
   return true;
@@ -926,7 +905,7 @@ CommandManager.prototype.argTypes.rest = function parse_rest(e, name) {
  * Stores result in |e[name]| or |e[lastName + "List"]|.
  */
 // @undocumented
-CommandManager.prototype.argTypes["..."] = function parse_repeat(e, name, cm) {
+CommandManager.prototype.argTypes["..."] = function (e, name, cm) {
   ASSERT(e.currentArgIndex > 0, "<...> can't be the first argument.");
 
   var lastArg = e.command.argNames[e.currentArgIndex - 1];

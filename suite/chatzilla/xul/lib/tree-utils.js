@@ -27,14 +27,14 @@ function BasicOView() {
 /* functions *you* should call to initialize and maintain the tree state */
 
 /* scroll the line specified by |line| to the center of the tree */
-BasicOView.prototype.centerLine = function bov_ctrln(line) {
+BasicOView.prototype.centerLine = function (line) {
   var first = this.tree.getFirstVisibleRow();
   var last = this.tree.getLastVisibleRow();
   this.scrollToRow(line - (last - first + 1) / 2);
 };
 
 /* call this to set the association between column names and data columns */
-BasicOView.prototype.setColumnNames = function bov_setcn(aryNames) {
+BasicOView.prototype.setColumnNames = function (aryNames) {
   this.columnNames = {};
   for (var i = 0; i < aryNames.length; ++i) {
     this.columnNames[aryNames[i]] = i;
@@ -50,7 +50,7 @@ BasicOView.prototype.setColumnNames = function bov_setcn(aryNames) {
  * zero the line will be centered, and if align is greater than 0 the line
  * will be scrolled to the bottom.  0 is the default.
  */
-BasicOView.prototype.scrollTo = function bov_scrollto(line, align) {
+BasicOView.prototype.scrollTo = function (line, align) {
   if (!this.tree) {
     return;
   }
@@ -140,57 +140,47 @@ function bov_setsel(i) {
 
 BasicOView.prototype.rowCount = 0;
 
-BasicOView.prototype.getCellProperties = function bov_cellprops(
-  row,
-  col,
-  properties
-) {
+BasicOView.prototype.getCellProperties = function (row, col, properties) {
   return "";
 };
 
-BasicOView.prototype.getColumnProperties = function bov_colprops(
-  col,
-  properties
-) {
+BasicOView.prototype.getColumnProperties = function (col, properties) {
   return "";
 };
 
-BasicOView.prototype.getRowProperties = function bov_rowprops(
-  index,
-  properties
-) {
+BasicOView.prototype.getRowProperties = function (index, properties) {
   return "";
 };
 
-BasicOView.prototype.isContainer = function bov_isctr(index) {
+BasicOView.prototype.isContainer = function (index) {
   return false;
 };
 
-BasicOView.prototype.isContainerOpen = function bov_isctropen(index) {
+BasicOView.prototype.isContainerOpen = function (index) {
   return false;
 };
 
-BasicOView.prototype.isContainerEmpty = function bov_isctrempt(index) {
+BasicOView.prototype.isContainerEmpty = function (index) {
   return false;
 };
 
-BasicOView.prototype.isSeparator = function bov_isseparator(index) {
+BasicOView.prototype.isSeparator = function (index) {
   return false;
 };
 
-BasicOView.prototype.isSorted = function bov_issorted(index) {
+BasicOView.prototype.isSorted = function (index) {
   return false;
 };
 
-BasicOView.prototype.canDrop = function bov_drop(index, orientation) {
+BasicOView.prototype.canDrop = function (index, orientation) {
   return false;
 };
 
-BasicOView.prototype.drop = function bov_drop(index, orientation) {
+BasicOView.prototype.drop = function (index, orientation) {
   return false;
 };
 
-BasicOView.prototype.getParentIndex = function bov_getpi(index) {
+BasicOView.prototype.getParentIndex = function (index) {
   if (index < 0) {
     return -1;
   }
@@ -198,24 +188,21 @@ BasicOView.prototype.getParentIndex = function bov_getpi(index) {
   return 0;
 };
 
-BasicOView.prototype.hasNextSibling = function bov_hasnxtsib(
-  rowIndex,
-  afterIndex
-) {
+BasicOView.prototype.hasNextSibling = function (rowIndex, afterIndex) {
   return afterIndex < this.rowCount - 1;
 };
 
-BasicOView.prototype.getLevel = function bov_getlvl(index) {
+BasicOView.prototype.getLevel = function (index) {
   return 0;
 };
 
-BasicOView.prototype.getImageSrc = function bov_getimgsrc(row, col) {};
+BasicOView.prototype.getImageSrc = function (row, col) {};
 
-BasicOView.prototype.getProgressMode = function bov_getprgmode(row, col) {};
+BasicOView.prototype.getProgressMode = function (row, col) {};
 
-BasicOView.prototype.getCellValue = function bov_getcellval(row, col) {};
+BasicOView.prototype.getCellValue = function (row, col) {};
 
-BasicOView.prototype.getCellText = function bov_getcelltxt(row, col) {
+BasicOView.prototype.getCellText = function (row, col) {
   if (!this.columnNames) {
     return "";
   }
@@ -238,43 +225,43 @@ BasicOView.prototype.getCellText = function bov_getcelltxt(row, col) {
   return this.data[row][colName];
 };
 
-BasicOView.prototype.setTree = function bov_seto(tree) {
+BasicOView.prototype.setTree = function (tree) {
   this.tree = tree;
 };
 
-BasicOView.prototype.toggleOpenState = function bov_toggleopen(index) {};
+BasicOView.prototype.toggleOpenState = function (index) {};
 
-BasicOView.prototype.cycleHeader = function bov_cyclehdr(col) {};
+BasicOView.prototype.cycleHeader = function (col) {};
 
-BasicOView.prototype.selectionChanged = function bov_selchg() {};
+BasicOView.prototype.selectionChanged = function () {};
 
-BasicOView.prototype.cycleCell = function bov_cyclecell(row, col) {};
+BasicOView.prototype.cycleCell = function (row, col) {};
 
-BasicOView.prototype.isEditable = function bov_isedit(row, col) {
+BasicOView.prototype.isEditable = function (row, col) {
   return false;
 };
 
-BasicOView.prototype.isSelectable = function bov_isselect(row, col) {
+BasicOView.prototype.isSelectable = function (row, col) {
   return false;
 };
 
-BasicOView.prototype.setCellValue = function bov_setct(row, col, value) {};
+BasicOView.prototype.setCellValue = function (row, col, value) {};
 
-BasicOView.prototype.setCellText = function bov_setct(row, col, value) {};
+BasicOView.prototype.setCellText = function (row, col, value) {};
 
-BasicOView.prototype.onRouteFocus = function bov_rfocus(event) {
+BasicOView.prototype.onRouteFocus = function (event) {
   if ("onFocus" in this) {
     this.onFocus(event);
   }
 };
 
-BasicOView.prototype.onRouteBlur = function bov_rblur(event) {
+BasicOView.prototype.onRouteBlur = function (event) {
   if ("onBlur" in this) {
     this.onBlur(event);
   }
 };
 
-BasicOView.prototype.onRouteDblClick = function bov_rdblclick(event) {
+BasicOView.prototype.onRouteDblClick = function (event) {
   if (!("onRowCommand" in this) || event.target.localName != "treechildren") {
     return;
   }
@@ -292,7 +279,7 @@ BasicOView.prototype.onRouteDblClick = function bov_rdblclick(event) {
   this.onRowCommand(rec, event);
 };
 
-BasicOView.prototype.onRouteKeyPress = function bov_rkeypress(event) {
+BasicOView.prototype.onRouteKeyPress = function (event) {
   var rec;
   var rowIndex;
 
@@ -328,11 +315,11 @@ BasicOView.prototype.onRouteKeyPress = function bov_rkeypress(event) {
   }
 };
 
-BasicOView.prototype.performAction = function bov_pact(action) {};
+BasicOView.prototype.performAction = function (action) {};
 
-BasicOView.prototype.performActionOnRow = function bov_pactrow(action) {};
+BasicOView.prototype.performActionOnRow = function (action) {};
 
-BasicOView.prototype.performActionOnCell = function bov_pactcell(action) {};
+BasicOView.prototype.performActionOnCell = function (action) {};
 
 /**
  * A single entry in an |XULTreeView|.
@@ -360,7 +347,7 @@ XULTreeViewRecord.prototype.isContainerOpen = false;
  * walk the parent tree to find our tree container.  return null if there is
  * none
  */
-XULTreeViewRecord.prototype.findContainerTree = function xtvr_gettree() {
+XULTreeViewRecord.prototype.findContainerTree = function () {
   if (!("parentRecord" in this)) {
     return null;
   }
@@ -449,7 +436,7 @@ function xtvr_getLevel() {
  * to change your mind later.  Do not attach a different name to the same colID,
  * and do not rename the colID.  You have been warned.
  */
-XULTreeViewRecord.prototype.setColumnPropertyName = function xtvr_setcol(
+XULTreeViewRecord.prototype.setColumnPropertyName = function (
   colID,
   propertyName
 ) {
@@ -469,17 +456,14 @@ XULTreeViewRecord.prototype.setColumnPropertyName = function xtvr_setcol(
   this.__defineSetter__(propertyName, xtvr_setValueShim);
 };
 
-XULTreeViewRecord.prototype.setColumnPropertyValue = function xtvr_setcolv(
-  colID,
-  value
-) {
+XULTreeViewRecord.prototype.setColumnPropertyValue = function (colID, value) {
   this._colValues[colID] = value;
 };
 
 /*
  * set the default sort column and reSort.
  */
-XULTreeViewRecord.prototype.setSortColumn = function xtvr_setcol(colID, dir) {
+XULTreeViewRecord.prototype.setSortColumn = function (colID, dir) {
   //dd ("setting sort column to " + colID);
   this._share.sortColumn = colID;
   this._share.sortDirection = typeof dir == "undefined" ? 1 : dir;
@@ -491,14 +475,14 @@ XULTreeViewRecord.prototype.setSortColumn = function xtvr_setcol(colID, dir) {
  * sort.  setting this to 0 will *not* recover the natural insertion order,
  * it will only affect newly added items.
  */
-XULTreeViewRecord.prototype.setSortDirection = function xtvr_setdir(dir) {
+XULTreeViewRecord.prototype.setSortDirection = function (dir) {
   this._share.sortDirection = dir;
 };
 
 /*
  * invalidate this row in the tree
  */
-XULTreeViewRecord.prototype.invalidate = function xtvr_invalidate() {
+XULTreeViewRecord.prototype.invalidate = function () {
   var tree = this.findContainerTree();
   if (tree) {
     var row = this.calculateVisualRow();
@@ -511,7 +495,7 @@ XULTreeViewRecord.prototype.invalidate = function xtvr_invalidate() {
 /*
  * invalidate any data in the cache.
  */
-XULTreeViewRecord.prototype.invalidateCache = function xtvr_killcache() {
+XULTreeViewRecord.prototype.invalidateCache = function () {
   this._share.rowCache = {};
   this._share.lastComputedIndex = -1;
   this._share.lastIndexOwner = null;
@@ -549,7 +533,7 @@ function xtvr_sortcmp(a, b) {
  * the local parameter is used internally to control whether or not the
  * sorted rows are invalidated.  don't use it yourself.
  */
-XULTreeViewRecord.prototype.reSort = function xtvr_resort(leafSort) {
+XULTreeViewRecord.prototype.reSort = function (leafSort) {
   if (
     !("childData" in this) ||
     this.childData.length < 1 ||
@@ -594,7 +578,7 @@ XULTreeViewRecord.prototype.reSort = function xtvr_resort(leafSort) {
  * call this to indicate that this node may have children at one point.  make
  * sure to call it before adding your first child.
  */
-XULTreeViewRecord.prototype.reserveChildren = function xtvr_rkids(always) {
+XULTreeViewRecord.prototype.reserveChildren = function (always) {
   if (!("childData" in this)) {
     this.childData = [];
   }
@@ -612,7 +596,7 @@ XULTreeViewRecord.prototype.reserveChildren = function xtvr_rkids(always) {
  * add a child to the end of the child list for this record.  takes care of
  * updating the tree as well.
  */
-XULTreeViewRecord.prototype.appendChild = function xtvr_appchild(child) {
+XULTreeViewRecord.prototype.appendChild = function (child) {
   if (!isinstance(child, XULTreeViewRecord)) {
     throw Cr.NS_ERROR_INVALID_ARG;
   }
@@ -645,7 +629,7 @@ XULTreeViewRecord.prototype.appendChild = function xtvr_appchild(child) {
  * add a list of children to the end of the child list for this record.
  * faster than multiple appendChild() calls.
  */
-XULTreeViewRecord.prototype.appendChildren = function xtvr_appchild(children) {
+XULTreeViewRecord.prototype.appendChildren = function (children) {
   var delta = 0;
   for (var i = 0; i < children.length; ++i) {
     var child = children[i];
@@ -672,7 +656,7 @@ XULTreeViewRecord.prototype.appendChildren = function xtvr_appchild(children) {
  * Removes a single child from this record by index.
  * @param index Index of the child record to remove.
  */
-XULTreeViewRecord.prototype.removeChildAtIndex = function xtvr_remchild(index) {
+XULTreeViewRecord.prototype.removeChildAtIndex = function (index) {
   var len = this.childData.length;
   if (!ASSERT(index >= 0 && index < len, "index out of bounds")) {
     return;
@@ -695,10 +679,7 @@ XULTreeViewRecord.prototype.removeChildAtIndex = function xtvr_remchild(index) {
  * @param index Index of the first child record to remove.
  * @param count Number of child records to remove.
  */
-XULTreeViewRecord.prototype.removeChildrenAtIndex = function xtvr_remchildren(
-  index,
-  count
-) {
+XULTreeViewRecord.prototype.removeChildrenAtIndex = function (index, count) {
   var len = this.childData.length;
   if (!ASSERT(index >= 0 && index < len, "index out of bounds")) {
     return;
@@ -726,7 +707,7 @@ XULTreeViewRecord.prototype.removeChildrenAtIndex = function xtvr_remchildren(
 /*
  * hide this record and all descendants.
  */
-XULTreeViewRecord.prototype.hide = function xtvr_hide() {
+XULTreeViewRecord.prototype.hide = function () {
   if (this.isHidden) {
     return;
   }
@@ -754,7 +735,7 @@ XULTreeViewRecord.prototype.hide = function xtvr_hide() {
 /*
  * unhide this record and all descendants.
  */
-XULTreeViewRecord.prototype.unHide = function xtvr_uhide() {
+XULTreeViewRecord.prototype.unHide = function () {
   if (!this.isHidden) {
     return;
   }
@@ -780,7 +761,7 @@ XULTreeViewRecord.prototype.unHide = function xtvr_uhide() {
  * open this record, exposing it's children.  DONT call this method if the
  * record has no children.
  */
-XULTreeViewRecord.prototype.open = function xtvr_open() {
+XULTreeViewRecord.prototype.open = function () {
   if (this.isContainerOpen) {
     return;
   }
@@ -813,7 +794,7 @@ XULTreeViewRecord.prototype.open = function xtvr_open() {
  * close this record, hiding it's children.  DONT call this method if the record
  * has no children, or if it is already closed.
  */
-XULTreeViewRecord.prototype.close = function xtvr_close() {
+XULTreeViewRecord.prototype.close = function () {
   if (!this.isContainerOpen) {
     return;
   }
@@ -838,7 +819,7 @@ XULTreeViewRecord.prototype.close = function xtvr_close() {
  * called when a node above this one grows or shrinks.  we need to adjust
  * our own visualFootprint to match the change, and pass the message on.
  */
-XULTreeViewRecord.prototype.onVisualFootprintChanged = function xtvr_vpchange(
+XULTreeViewRecord.prototype.onVisualFootprintChanged = function (
   start,
   amount
 ) {
@@ -868,7 +849,7 @@ XULTreeViewRecord.prototype.onVisualFootprintChanged = function xtvr_vpchange(
  *   node21    4
  * node3       5
  */
-XULTreeViewRecord.prototype.calculateVisualRow = function xtvr_calcrow() {
+XULTreeViewRecord.prototype.calculateVisualRow = function () {
   /* if this is the second time in a row that someone asked us, fetch the last
    * result from the cache. */
   if (this._share.lastIndexOwner == this) {
@@ -919,7 +900,7 @@ XULTreeViewRecord.prototype.calculateVisualRow = function xtvr_calcrow() {
  * with a targetRow less than this record's visual row, or greater than this
  * record's visual row + the number of visible children it has.
  */
-XULTreeViewRecord.prototype.locateChildByVisualRow = function xtvr_find(
+XULTreeViewRecord.prototype.locateChildByVisualRow = function (
   targetRow,
   myRow
 ) {
@@ -979,11 +960,11 @@ XTRootRecord.prototype.open = XTRootRecord.prototype.close = function () {
   /* don't do this on a root node */
 };
 
-XTRootRecord.prototype.calculateVisualRow = function torr_calcrow() {
+XTRootRecord.prototype.calculateVisualRow = function () {
   return null;
 };
 
-XTRootRecord.prototype.reSort = function torr_resort() {
+XTRootRecord.prototype.reSort = function () {
   if ("_treeView" in this && this._treeView.frozen) {
     this._treeView.needsReSort = true;
     return;
@@ -1024,7 +1005,7 @@ XTRootRecord.prototype.reSort = function torr_resort() {
   }
 };
 
-XTRootRecord.prototype.locateChildByVisualRow = function torr_find(targetRow) {
+XTRootRecord.prototype.locateChildByVisualRow = function (targetRow) {
   if (targetRow in this._share.rowCache) {
     return this._share.rowCache[targetRow];
   }
@@ -1058,10 +1039,7 @@ XTRootRecord.prototype.locateChildByVisualRow = function torr_find(targetRow) {
   return null;
 };
 
-XTRootRecord.prototype.onVisualFootprintChanged = function torr_vfpchange(
-  start,
-  amount
-) {
+XTRootRecord.prototype.onVisualFootprintChanged = function (start, amount) {
   if (!this._treeView.frozen) {
     this.invalidateCache();
     this.visualFootprint += amount;
@@ -1120,7 +1098,7 @@ function XULTreeView(share) {
  * Freeze/thaws are nestable, the tree will not update until the number of
  * |thaw()| calls matches the number of freeze() calls.
  */
-XULTreeView.prototype.freeze = function xtv_freeze() {
+XULTreeView.prototype.freeze = function () {
   if (++this.frozen == 1) {
     this.changeStart = 0;
     this.changeAmount = 0;
@@ -1130,7 +1108,7 @@ XULTreeView.prototype.freeze = function xtv_freeze() {
 /*
  * Reflect any changes to the tree content since the last freeze.
  */
-XULTreeView.prototype.thaw = function xtv_thaw() {
+XULTreeView.prototype.thaw = function () {
   if (this.frozen == 0) {
     ASSERT(0, "not frozen");
     return;
@@ -1152,11 +1130,7 @@ XULTreeView.prototype.thaw = function xtv_thaw() {
   delete this.changeAmount;
 };
 
-XULTreeView.prototype.saveBranchState = function xtv_savebranch(
-  target,
-  source,
-  recurse
-) {
+XULTreeView.prototype.saveBranchState = function (target, source, recurse) {
   var len = source.length;
   for (var i = 0; i < len; ++i) {
     if (source[i].isContainerOpen) {
@@ -1169,11 +1143,7 @@ XULTreeView.prototype.saveBranchState = function xtv_savebranch(
   }
 };
 
-XULTreeView.prototype.restoreBranchState = function xtv_restorebranch(
-  target,
-  source,
-  recurse
-) {
+XULTreeView.prototype.restoreBranchState = function (target, source, recurse) {
   for (var i in source) {
     if (typeof source[i] == "object") {
       var name = source[i].name;
@@ -1193,7 +1163,7 @@ XULTreeView.prototype.restoreBranchState = function xtv_restorebranch(
 };
 
 /* scroll the line specified by |line| to the center of the tree */
-XULTreeView.prototype.centerLine = function xtv_ctrln(line) {
+XULTreeView.prototype.centerLine = function (line) {
   var first = this.tree.getFirstVisibleRow();
   var last = this.tree.getLastVisibleRow();
   this.scrollToRow(line - (last - first + 1) / 2);
@@ -1214,7 +1184,7 @@ function xtv_getRowCount() {
 }
 
 // @internal
-XULTreeView.prototype.isContainer = function xtv_isctr(index) {
+XULTreeView.prototype.isContainer = function (index) {
   var row = this.childData.locateChildByVisualRow(index);
 
   return Boolean(row && ("alwaysHasChildren" in row || "childData" in row));
@@ -1246,13 +1216,13 @@ function xtv_setsel(i) {
 XULTreeView.prototype.scrollTo = BasicOView.prototype.scrollTo;
 
 // @internal
-XULTreeView.prototype.isContainerOpen = function xtv_isctropen(index) {
+XULTreeView.prototype.isContainerOpen = function (index) {
   var row = this.childData.locateChildByVisualRow(index);
   return row && row.isContainerOpen;
 };
 
 // @internal
-XULTreeView.prototype.toggleOpenState = function xtv_toggleopen(index) {
+XULTreeView.prototype.toggleOpenState = function (index) {
   var row = this.childData.locateChildByVisualRow(index);
   //ASSERT(row, "bogus row");
   if (row) {
@@ -1265,7 +1235,7 @@ XULTreeView.prototype.toggleOpenState = function xtv_toggleopen(index) {
 };
 
 // @internal
-XULTreeView.prototype.isContainerEmpty = function xtv_isctrempt(index) {
+XULTreeView.prototype.isContainerEmpty = function (index) {
   var row = this.childData.locateChildByVisualRow(index);
   if ("alwaysHasChildren" in row) {
     return false;
@@ -1279,12 +1249,12 @@ XULTreeView.prototype.isContainerEmpty = function xtv_isctrempt(index) {
 };
 
 // @internal
-XULTreeView.prototype.isSeparator = function xtv_isseparator(index) {
+XULTreeView.prototype.isSeparator = function (index) {
   return false;
 };
 
 // @internal
-XULTreeView.prototype.getParentIndex = function xtv_getpi(index) {
+XULTreeView.prototype.getParentIndex = function (index) {
   if (index < 0) {
     return -1;
   }
@@ -1297,16 +1267,13 @@ XULTreeView.prototype.getParentIndex = function xtv_getpi(index) {
 };
 
 // @internal
-XULTreeView.prototype.hasNextSibling = function xtv_hasnxtsib(
-  rowIndex,
-  afterIndex
-) {
+XULTreeView.prototype.hasNextSibling = function (rowIndex, afterIndex) {
   var row = this.childData.locateChildByVisualRow(rowIndex);
   return row.childIndex < row.parentRecord.childData.length - 1;
 };
 
 // @internal
-XULTreeView.prototype.getLevel = function xtv_getlvl(index) {
+XULTreeView.prototype.getLevel = function (index) {
   var row = this.childData.locateChildByVisualRow(index);
   if (!row) {
     return 0;
@@ -1316,16 +1283,16 @@ XULTreeView.prototype.getLevel = function xtv_getlvl(index) {
 };
 
 // @internal
-XULTreeView.prototype.getImageSrc = function xtv_getimgsrc(index, col) {};
+XULTreeView.prototype.getImageSrc = function (index, col) {};
 
 // @internal
-XULTreeView.prototype.getProgressMode = function xtv_getprgmode(index, col) {};
+XULTreeView.prototype.getProgressMode = function (index, col) {};
 
 // @internal
-XULTreeView.prototype.getCellValue = function xtv_getcellval(index, col) {};
+XULTreeView.prototype.getCellValue = function (index, col) {};
 
 // @internal
-XULTreeView.prototype.getCellText = function xtv_getcelltxt(index, col) {
+XULTreeView.prototype.getCellText = function (index, col) {
   var row = this.childData.locateChildByVisualRow(index);
   //ASSERT(row, "bogus row " + index);
 
@@ -1345,105 +1312,95 @@ XULTreeView.prototype.getCellText = function xtv_getcelltxt(index, col) {
 };
 
 // @internal
-XULTreeView.prototype.getCellProperties = function xtv_cellprops(
-  row,
-  col,
-  properties
-) {
+XULTreeView.prototype.getCellProperties = function (row, col, properties) {
   return "";
 };
 
 // @internal
-XULTreeView.prototype.getColumnProperties = function xtv_colprops(
-  col,
-  properties
-) {
+XULTreeView.prototype.getColumnProperties = function (col, properties) {
   return "";
 };
 
 // @internal
-XULTreeView.prototype.getRowProperties = function xtv_rowprops(
-  index,
-  properties
-) {
+XULTreeView.prototype.getRowProperties = function (index, properties) {
   return "";
 };
 
 // @internal
-XULTreeView.prototype.isSorted = function xtv_issorted(index) {
+XULTreeView.prototype.isSorted = function (index) {
   return false;
 };
 
 // @internal
-XULTreeView.prototype.canDrop = function xtv_drop(index, orientation) {
+XULTreeView.prototype.canDrop = function (index, orientation) {
   var row = this.childData.locateChildByVisualRow(index);
   //ASSERT(row, "bogus row " + index);
   return row && "canDrop" in row && row.canDrop(orientation);
 };
 
 // @internal
-XULTreeView.prototype.drop = function xtv_drop(index, orientation) {
+XULTreeView.prototype.drop = function (index, orientation) {
   var row = this.childData.locateChildByVisualRow(index);
   //ASSERT(row, "bogus row " + index);
   return row && "drop" in row && row.drop(orientation);
 };
 
 // @internal
-XULTreeView.prototype.setTree = function xtv_seto(tree) {
+XULTreeView.prototype.setTree = function (tree) {
   this.childData.invalidateCache();
   this.tree = tree;
 };
 
 // @internal
-XULTreeView.prototype.cycleHeader = function xtv_cyclehdr(col) {};
+XULTreeView.prototype.cycleHeader = function (col) {};
 
 // @internal
-XULTreeView.prototype.selectionChanged = function xtv_selchg() {};
+XULTreeView.prototype.selectionChanged = function () {};
 
 // @internal
-XULTreeView.prototype.cycleCell = function xtv_cyclecell(row, col) {};
+XULTreeView.prototype.cycleCell = function (row, col) {};
 
 // @internal
-XULTreeView.prototype.isEditable = function xtv_isedit(row, col) {
+XULTreeView.prototype.isEditable = function (row, col) {
   return false;
 };
 
 // @internal
-XULTreeView.prototype.isSelectable = function xtv_isselect(row, col) {
+XULTreeView.prototype.isSelectable = function (row, col) {
   return false;
 };
 
 // @internal
-XULTreeView.prototype.setCellValue = function xtv_setct(row, col, value) {};
+XULTreeView.prototype.setCellValue = function (row, col, value) {};
 
 // @internal
-XULTreeView.prototype.setCellText = function xtv_setct(row, col, value) {};
+XULTreeView.prototype.setCellText = function (row, col, value) {};
 
 // @internal
-XULTreeView.prototype.performAction = function xtv_pact(action) {};
+XULTreeView.prototype.performAction = function (action) {};
 
 // @internal
-XULTreeView.prototype.performActionOnRow = function xtv_pactrow(action) {};
+XULTreeView.prototype.performActionOnRow = function (action) {};
 
 // @internal
-XULTreeView.prototype.performActionOnCell = function xtv_pactcell(action) {};
+XULTreeView.prototype.performActionOnCell = function (action) {};
 
 // @internal
-XULTreeView.prototype.onRouteFocus = function xtv_rfocus(event) {
+XULTreeView.prototype.onRouteFocus = function (event) {
   if ("onFocus" in this) {
     this.onFocus(event);
   }
 };
 
 // @internal
-XULTreeView.prototype.onRouteBlur = function xtv_rblur(event) {
+XULTreeView.prototype.onRouteBlur = function (event) {
   if ("onBlur" in this) {
     this.onBlur(event);
   }
 };
 
 // @internal
-XULTreeView.prototype.onRouteDblClick = function xtv_rdblclick(event) {
+XULTreeView.prototype.onRouteDblClick = function (event) {
   if (!("onRowCommand" in this) || event.target.localName != "treechildren") {
     return;
   }
@@ -1462,7 +1419,7 @@ XULTreeView.prototype.onRouteDblClick = function xtv_rdblclick(event) {
 };
 
 // @internal
-XULTreeView.prototype.onRouteKeyPress = function xtv_rkeypress(event) {
+XULTreeView.prototype.onRouteKeyPress = function (event) {
   var rec;
   var rowIndex;
 

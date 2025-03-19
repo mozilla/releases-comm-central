@@ -50,11 +50,7 @@ futils.lastOpenDir = null;
  * @returns An |Object| with |ok| (Boolean), |file| (|nsIFile|) and
  *          |picker| (|nsIFilePicker|) properties.
  */
-futils.getPicker = function futils_nosepicker(
-  initialPath,
-  typeList,
-  defaultString
-) {
+futils.getPicker = function (initialPath, typeList, defaultString) {
   let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   if (defaultString) {
     picker.defaultString = defaultString;
@@ -265,7 +261,7 @@ function LocalFile(file, mode) {
   }
 }
 
-LocalFile.prototype.write = function fo_write(buf) {
+LocalFile.prototype.write = function (buf) {
   if (!("outputStream" in this)) {
     throw "file not open for writing.";
   }
@@ -276,7 +272,7 @@ LocalFile.prototype.write = function fo_write(buf) {
 // Will return null if there is no more data in the file.
 // Will block until it has some data to return.
 // Will return an empty string if there is data, but it couldn't be read.
-LocalFile.prototype.read = function fo_read(max) {
+LocalFile.prototype.read = function (max) {
   if (!("inputStream" in this)) {
     throw "file not open for reading.";
   }
@@ -293,7 +289,7 @@ LocalFile.prototype.read = function fo_read(max) {
   }
 };
 
-LocalFile.prototype.close = function fo_close() {
+LocalFile.prototype.close = function () {
   if ("outputStream" in this) {
     this.outputStream.close();
   }
@@ -302,6 +298,6 @@ LocalFile.prototype.close = function fo_close() {
   }
 };
 
-LocalFile.prototype.flush = function fo_close() {
+LocalFile.prototype.flush = function () {
   return this.outputStream.flush();
 };

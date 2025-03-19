@@ -415,7 +415,7 @@ CIRCChannel.prototype.dispatch =
   CIRCDCCChat.prototype.dispatch =
   CIRCDCCFileTransfer.prototype.dispatch =
   client.dispatch =
-    function this_dispatch(text, e, isInteractive, flags) {
+    function (text, e, isInteractive, flags) {
       e = getObjectDetails(this, e);
       return dispatch(text, e, isInteractive, flags);
     };

@@ -15,13 +15,13 @@ function MenuManager(commandManager, menuSpecs, contextFunction, commandStr) {
   this.repeatId = 0;
   this.cxStore = {};
 
-  this.onPopupShowing = function mmgr_onshow(event) {
+  this.onPopupShowing = function (event) {
     return menuManager.showPopup(event);
   };
-  this.onPopupHiding = function mmgr_onhide(event) {
+  this.onPopupHiding = function (event) {
     return menuManager.hidePopup(event);
   };
-  this.onMenuCommand = function mmgr_oncmd(event) {
+  this.onMenuCommand = function (event) {
     return menuManager.menuCommand(event);
   };
 
@@ -33,7 +33,7 @@ function MenuManager(commandManager, menuSpecs, contextFunction, commandStr) {
   this.onCallbackPopupHiding = null;
 }
 
-MenuManager.prototype.createContextMenus = function mmgr_initcxs(document) {
+MenuManager.prototype.createContextMenus = function (document) {
   for (var id in this.menuSpecs) {
     if (id.startsWith("context:")) {
       this.createContextMenu(document, id);
@@ -41,7 +41,7 @@ MenuManager.prototype.createContextMenus = function mmgr_initcxs(document) {
   }
 };
 
-MenuManager.prototype.createContextMenu = function mmgr_initcx(document, id) {
+MenuManager.prototype.createContextMenu = function (document, id) {
   if (!document.getElementById(id)) {
     if (!ASSERT(id in this.menuSpecs, "unknown context menu " + id)) {
       return;
@@ -60,7 +60,7 @@ MenuManager.prototype.createContextMenu = function mmgr_initcx(document, id) {
   }
 };
 
-MenuManager.prototype.createMenus = function mmgr_createtb(document, menuid) {
+MenuManager.prototype.createMenus = function (document, menuid) {
   var menu = document.getElementById(menuid);
   for (var id in this.menuSpecs) {
     var domID;
@@ -81,7 +81,7 @@ MenuManager.prototype.createMenus = function mmgr_createtb(document, menuid) {
  *
  * Registers event handlers on a given menu.
  */
-MenuManager.prototype.hookPopup = function mmgr_hookpop(node) {
+MenuManager.prototype.hookPopup = function (node) {
   node.addEventListener("popupshowing", this.onPopupShowing);
   node.addEventListener("popuphiding", this.onPopupHiding);
 };
@@ -96,7 +96,7 @@ MenuManager.prototype.hookPopup = function mmgr_hookpop(node) {
  * In addition "checkedif" and "visibleif" attributes are eval()d and
  * acted upon accordingly.
  */
-MenuManager.prototype.showPopup = function mmgr_showpop(event) {
+MenuManager.prototype.showPopup = function (event) {
   /* returns true if the command context has the properties required to
    * execute the command associated with |menuitem|.
    */
@@ -398,7 +398,7 @@ MenuManager.prototype.showPopup = function mmgr_showpop(event) {
  * managed by the CommandManager.  Clean up this.cxStore, but
  * not this.cx because that messes up nested menus.
  */
-MenuManager.prototype.hidePopup = function mmgr_hidepop(event) {
+MenuManager.prototype.hidePopup = function (event) {
   var popup = event.originalTarget;
   var menuName = popup.getAttribute("menuName");
 
@@ -411,7 +411,7 @@ MenuManager.prototype.hidePopup = function mmgr_hidepop(event) {
   return true;
 };
 
-MenuManager.prototype.menuCommand = function mmgr_menucmd(event) {
+MenuManager.prototype.menuCommand = function (event) {
   /* evals the attribute named |attr| on the node |node|. */
   function evalAttribute(node, attr) {
     var ex;
@@ -468,7 +468,7 @@ MenuManager.prototype.menuCommand = function mmgr_menucmd(event) {
  * @param accesskey   Accesskey to use for the sub-menu.
  * @param attribs     Object containing CSS attributes to set on the element.
  */
-MenuManager.prototype.appendSubMenu = function mmgr_addsmenu(
+MenuManager.prototype.appendSubMenu = function (
   parentNode,
   beforeNode,
   menuName,
@@ -533,7 +533,7 @@ MenuManager.prototype.appendSubMenu = function mmgr_addsmenu(
  *                be stripped.
  * @param attribs Object containing CSS attributes to set on the element.
  */
-MenuManager.prototype.appendPopupMenu = function mmgr_addpmenu(
+MenuManager.prototype.appendPopupMenu = function (
   parentNode,
   beforeNode,
   menuName,
@@ -568,7 +568,7 @@ MenuManager.prototype.appendPopupMenu = function mmgr_addpmenu(
  * @param command A reference to the CommandRecord this menu item will represent.
  * @param attribs Object containing CSS attributes to set on the element.
  */
-MenuManager.prototype.appendMenuItem = function mmgr_addmenu(
+MenuManager.prototype.appendMenuItem = function (
   parentNode,
   beforeNode,
   commandName,
@@ -633,7 +633,7 @@ MenuManager.prototype.appendMenuItem = function mmgr_addmenu(
  * @param beforeNode  DOM Node already contained by parentNode, to insert before
  * @param attribs Object containing CSS attributes to set on the element.
  */
-MenuManager.prototype.appendMenuSeparator = function mmgr_addsep(
+MenuManager.prototype.appendMenuSeparator = function (
   parentNode,
   beforeNode,
   attribs
@@ -657,7 +657,7 @@ MenuManager.prototype.appendMenuSeparator = function mmgr_addsep(
  * @param beforeNode  DOM Node already contained by parentNode, to insert before
  * @param menuSpec    array of menu items
  */
-MenuManager.prototype.createMenu = function mmgr_newmenu(
+MenuManager.prototype.createMenu = function (
   parentNode,
   beforeNode,
   menuName,
@@ -698,7 +698,7 @@ MenuManager.prototype.createMenu = function mmgr_newmenu(
   return subMenu;
 };
 
-MenuManager.prototype.createMenuItems = function mmgr_newitems(
+MenuManager.prototype.createMenuItems = function (
   parentNode,
   beforeNode,
   menuItems

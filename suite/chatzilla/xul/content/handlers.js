@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-window.onresize = function onresize() {
+window.onresize = function () {
   for (var i = 0; i < client.deck.childNodes.length; i++) {
     scrollDown(client.deck.childNodes[i], true);
   }
@@ -924,11 +924,11 @@ client.onFindEnd =
   CIRCUser.prototype.onFindEnd =
   CIRCDCCChat.prototype.onFindEnd =
   CIRCDCCFileTransfer.prototype.onFindEnd =
-    function this_onfindend(e) {
+    function (e) {
       this.scrollToElement("selection", "inview");
     };
 
-CIRCChannel.prototype._updateConferenceMode = function my_updateconfmode() {
+CIRCChannel.prototype._updateConferenceMode = function () {
   const minDiff = client.CONFERENCE_LOW_PASS;
 
   var enabled = this.prefs["conference.enabled"];
@@ -952,39 +952,39 @@ CIRCChannel.prototype._updateConferenceMode = function my_updateconfmode() {
   }
 };
 
-CIRCServer.prototype.CTCPHelpClientinfo = function serv_ccinfohelp() {
+CIRCServer.prototype.CTCPHelpClientinfo = function () {
   return MSG_CTCPHELP_CLIENTINFO;
 };
 
-CIRCServer.prototype.CTCPHelpAction = function serv_ccinfohelp() {
+CIRCServer.prototype.CTCPHelpAction = function () {
   return MSG_CTCPHELP_ACTION;
 };
 
-CIRCServer.prototype.CTCPHelpTime = function serv_ccinfohelp() {
+CIRCServer.prototype.CTCPHelpTime = function () {
   return MSG_CTCPHELP_TIME;
 };
 
-CIRCServer.prototype.CTCPHelpVersion = function serv_ccinfohelp() {
+CIRCServer.prototype.CTCPHelpVersion = function () {
   return MSG_CTCPHELP_VERSION;
 };
 
-CIRCServer.prototype.CTCPHelpSource = function serv_csrchelp() {
+CIRCServer.prototype.CTCPHelpSource = function () {
   return MSG_CTCPHELP_SOURCE;
 };
 
-CIRCServer.prototype.CTCPHelpOs = function serv_oshelp() {
+CIRCServer.prototype.CTCPHelpOs = function () {
   return MSG_CTCPHELP_OS;
 };
 
-CIRCServer.prototype.CTCPHelpHost = function serv_hosthelp() {
+CIRCServer.prototype.CTCPHelpHost = function () {
   return MSG_CTCPHELP_HOST;
 };
 
-CIRCServer.prototype.CTCPHelpPing = function serv_ccinfohelp() {
+CIRCServer.prototype.CTCPHelpPing = function () {
   return MSG_CTCPHELP_PING;
 };
 
-CIRCServer.prototype.CTCPHelpDcc = function serv_ccinfohelp() {
+CIRCServer.prototype.CTCPHelpDcc = function () {
   return MSG_CTCPHELP_DCC;
 };
 
@@ -996,7 +996,7 @@ CIRCServer.prototype.CTCPHelpDcc = function serv_ccinfohelp() {
  * interval between connection attempts to the network (not individual
  * servers) is doubled after each attempt, up to MAX_RECONNECT_MS.
  */
-CIRCNetwork.prototype.getReconnectDelayMs = function my_getReconnectDelayMs() {
+CIRCNetwork.prototype.getReconnectDelayMs = function () {
   var nServers = this.serverList.length;
 
   if (
@@ -1016,16 +1016,16 @@ CIRCNetwork.prototype.getReconnectDelayMs = function my_getReconnectDelayMs() {
   return rv;
 };
 
-CIRCNetwork.prototype.onInit = function net_oninit() {
+CIRCNetwork.prototype.onInit = function () {
   this.logFile = null;
   this.lastServer = null;
 };
 
-CIRCNetwork.prototype.onInfo = function my_netinfo(e) {
+CIRCNetwork.prototype.onInfo = function (e) {
   this.display(e.msg, "INFO", undefined, undefined, e.tags);
 };
 
-CIRCNetwork.prototype.onUnknown = function my_unknown(e) {
+CIRCNetwork.prototype.onUnknown = function (e) {
   if ("pendingWhoisLines" in e.server) {
     /* whois lines always have the nick in param 2 */
     e.user = new CIRCUser(e.server, null, e.params[2]);
@@ -1151,7 +1151,7 @@ CIRCNetwork.prototype.on001 =
   CIRCNetwork.prototype.on907 =
   /* SASL Mechanisms */
   CIRCNetwork.prototype.on908 =
-    function my_showtonet(e) {
+    function (e) {
       var p = 3 in e.params ? e.params[2] + " " : "";
       var str = "";
 
@@ -1303,7 +1303,7 @@ CIRCNetwork.prototype.on001 =
       );
     };
 
-CIRCNetwork.prototype.onUnknownCTCPReply = function my_ctcprunk(e) {
+CIRCNetwork.prototype.onUnknownCTCPReply = function (e) {
   this.display(
     getMsg(MSG_FMT_CTCPREPLY, [
       toUnicode(e.CTCPCode, this),
@@ -1317,20 +1317,20 @@ CIRCNetwork.prototype.onUnknownCTCPReply = function my_ctcprunk(e) {
   );
 };
 
-CIRCNetwork.prototype.onNotice = function my_notice(e) {
+CIRCNetwork.prototype.onNotice = function (e) {
   client.munger.getRule(".mailto").enabled = client.prefs["munger.mailto"];
   this.display(e.decodeParam(2), "NOTICE", this, e.server.me, e.tags);
   client.munger.getRule(".mailto").enabled = false;
 };
 
-CIRCNetwork.prototype.onPrivmsg = function my_privmsg(e) {
+CIRCNetwork.prototype.onPrivmsg = function (e) {
   client.munger.getRule(".mailto").enabled = client.prefs["munger.mailto"];
   this.display(e.decodeParam(2), "PRIVMSG", this, e.server.me, e.tags);
   client.munger.getRule(".mailto").enabled = false;
 };
 
 /* userhost reply */
-CIRCNetwork.prototype.on302 = function my_302(e) {
+CIRCNetwork.prototype.on302 = function (e) {
   if (
     client.prefs["dcc.enabled"] &&
     this.prefs["dcc.useServerIP"] &&
@@ -1352,7 +1352,7 @@ CIRCNetwork.prototype.on302 = function my_302(e) {
 };
 
 /* ISON (aka notify) reply */
-CIRCNetwork.prototype.on303 = function my_303(e) {
+CIRCNetwork.prototype.on303 = function (e) {
   function lower(text) {
     return e.server.toLowerCase(text);
   }
@@ -1448,7 +1448,7 @@ CIRCNetwork.prototype.on303 = function my_303(e) {
 /* RPL_MONONLINE  */
 CIRCNetwork.prototype.on730 =
   /* RPL_MONOFFLINE */
-  CIRCNetwork.prototype.on731 = function my_monnotice(e) {
+  CIRCNetwork.prototype.on731 = function (e) {
     var userList = e.params[2].split(",");
     var nickList = [];
     var o = getObjectDetails(client.currentObject);
@@ -1485,7 +1485,7 @@ CIRCNetwork.prototype.on730 =
   };
 
 /* RPL_MONLIST */
-CIRCNetwork.prototype.on732 = function my_732(e) {
+CIRCNetwork.prototype.on732 = function (e) {
   if (!this.pendingNotifyList) {
     this.pendingNotifyList = [];
   }
@@ -1494,7 +1494,7 @@ CIRCNetwork.prototype.on732 = function my_732(e) {
 };
 
 /* RPL_ENDOFMONLIST */
-CIRCNetwork.prototype.on733 = function my_733(e) {
+CIRCNetwork.prototype.on733 = function (e) {
   if (this.pendingNotifyList) {
     this.prefs.notifyList = this.pendingNotifyList;
     this.prefs.notifyList.update();
@@ -1511,7 +1511,7 @@ CIRCNetwork.prototype.on733 = function my_733(e) {
 };
 
 /* ERR_MONLISTFULL */
-CIRCNetwork.prototype.on734 = function my_734(e) {
+CIRCNetwork.prototype.on734 = function (e) {
   var nickList = e.server.toLowerCase(e.params[3]).split(",");
   var i;
   var msgname;
@@ -1535,14 +1535,14 @@ CIRCNetwork.prototype.on734 = function my_734(e) {
 };
 
 /* away off reply */
-CIRCNetwork.prototype.on305 = function my_305(e) {
+CIRCNetwork.prototype.on305 = function (e) {
   this.display(MSG_AWAY_OFF, e.code, undefined, undefined, e.tags);
 
   return true;
 };
 
 /* away on reply */
-CIRCNetwork.prototype.on306 = function my_306(e) {
+CIRCNetwork.prototype.on306 = function (e) {
   var idleMsgParams = [this.prefs.away, client.prefs.awayIdleTime];
   if (!this.isIdleAway) {
     this.display(
@@ -1566,7 +1566,7 @@ CIRCNetwork.prototype.on306 = function my_306(e) {
 };
 
 /* 'try again' */
-CIRCNetwork.prototype.on263 = function my_263(e) {
+CIRCNetwork.prototype.on263 = function (e) {
   /* Urgh, this one's a pain. We need to abort whatever we tried, and start
    * it again if appropriate.
    *
@@ -1589,7 +1589,7 @@ CIRCNetwork.prototype.on263 = function my_263(e) {
   return true;
 };
 
-CIRCNetwork.prototype.isRunningList = function my_running_list() {
+CIRCNetwork.prototype.isRunningList = function () {
   /* The list is considered "running" when a cancel is effective. This means
    * that even if _list.done is true (finished recieving data), we will still
    * be "running" whilst we have undisplayed items.
@@ -1601,7 +1601,7 @@ CIRCNetwork.prototype.isRunningList = function my_running_list() {
   );
 };
 
-CIRCNetwork.prototype.list = function my_list(word, file) {
+CIRCNetwork.prototype.list = function (word, file) {
   if ("_list" in this && !this._list.done) {
     return false;
   }
@@ -1638,7 +1638,7 @@ CIRCNetwork.prototype.list = function my_list(word, file) {
   return true;
 };
 
-CIRCNetwork.prototype.listInit = function my_list_init() {
+CIRCNetwork.prototype.listInit = function () {
   function checkEndList(network) {
     if (network._list.count == network._list.lastLength) {
       network.on323();
@@ -1720,12 +1720,12 @@ CIRCNetwork.prototype.listInit = function my_list_init() {
   this._list.endTimeout = setTimeout(checkEndList, 5000, this);
 };
 
-CIRCNetwork.prototype.abortList = function my_abortList() {
+CIRCNetwork.prototype.abortList = function () {
   this._list.cancelled = true;
 };
 
 /* LIST reply header */
-CIRCNetwork.prototype.on321 = function my_321(e) {
+CIRCNetwork.prototype.on321 = function (e) {
   this.listInit();
 
   if (!("file" in this._list)) {
@@ -1734,7 +1734,7 @@ CIRCNetwork.prototype.on321 = function my_321(e) {
 };
 
 /* end of LIST reply */
-CIRCNetwork.prototype.on323 = function my_323(e) {
+CIRCNetwork.prototype.on323 = function (e) {
   if (this._list.endTimeout) {
     clearTimeout(this._list.endTimeout);
     delete this._list.endTimeout;
@@ -1748,7 +1748,7 @@ CIRCNetwork.prototype.on323 = function my_323(e) {
 };
 
 /* LIST reply */
-CIRCNetwork.prototype.on322 = function my_listrply(e) {
+CIRCNetwork.prototype.on322 = function (e) {
   if (!("_list" in this) || !("lastLength" in this._list)) {
     this.listInit();
   }
@@ -1791,7 +1791,7 @@ CIRCNetwork.prototype.on401 =
   CIRCNetwork.prototype.on402 =
   /* ERR_NOSUCHCHANNEL */
   CIRCNetwork.prototype.on403 =
-    function my_401(e) {
+    function (e) {
       var server, channel, user;
 
       /* Note that servers generally only send 401 and 402, sharing the former
@@ -1843,7 +1843,7 @@ CIRCNetwork.prototype.on401 =
 
 /* 464; "invalid or missing password", occurs as a reply to both OPER and
  * sometimes initially during user registration. */
-CIRCNetwork.prototype.on464 = function my_464(e) {
+CIRCNetwork.prototype.on464 = function (e) {
   if (this.state == NET_CONNECTING) {
     // If we are in the process of connecting we are needing a login
     // password, subtly different from after user registration.
@@ -1855,7 +1855,7 @@ CIRCNetwork.prototype.on464 = function my_464(e) {
 };
 
 /* end of WHO */
-CIRCNetwork.prototype.on315 = function my_315(e) {
+CIRCNetwork.prototype.on315 = function (e) {
   var matches;
   if ("whoMatches" in this) {
     matches = this.whoMatches;
@@ -1884,7 +1884,7 @@ CIRCNetwork.prototype.on315 = function my_315(e) {
   delete this.whoMatches;
 };
 
-CIRCNetwork.prototype.on352 = function my_352(e) {
+CIRCNetwork.prototype.on352 = function (e) {
   //0-352 1-sender 2-channel 3-ident 4-host
   //5-server 6-nick 7-H/G 8-hops and realname
   if ("pendingWhoReply" in this) {
@@ -1937,7 +1937,7 @@ CIRCNetwork.prototype.on352 = function my_352(e) {
   }
 };
 
-CIRCNetwork.prototype.on354 = function my_354(e) {
+CIRCNetwork.prototype.on354 = function (e) {
   //0-352 1-sender 2-type 3-channel 4-ident 5-host
   //6-server 7-nick 8-H/G 9-hops 10-account 11-realname
   if ("pendingWhoReply" in this) {
@@ -1991,7 +1991,7 @@ CIRCNetwork.prototype.on354 = function my_354(e) {
 };
 
 /* user away message */
-CIRCNetwork.prototype.on301 = function my_301(e) {
+CIRCNetwork.prototype.on301 = function (e) {
   if (e.user.awayMessage != e.user.lastShownAwayMessage) {
     var params = [e.user.unicodeName, e.user.awayMessage];
     e.user.display(
@@ -2019,7 +2019,7 @@ CIRCNetwork.prototype.on311 =
   CIRCNetwork.prototype.on330 =
   /* misc whois line */
   CIRCNetwork.prototype.onUnknownWhois =
-    function my_whoisreply(e) {
+    function (e) {
       var text = "egads!";
       var nick = e.params[2];
       var lowerNick = this.primServ.toLowerCase(nick);
@@ -2103,7 +2103,7 @@ CIRCNetwork.prototype.on311 =
     };
 
 /* invite reply */
-CIRCNetwork.prototype.on341 = function my_341(e) {
+CIRCNetwork.prototype.on341 = function (e) {
   this.display(
     getMsg(MSG_YOU_INVITE, [e.decodeParam(2), e.decodeParam(3)]),
     "341",
@@ -2114,7 +2114,7 @@ CIRCNetwork.prototype.on341 = function my_341(e) {
 };
 
 /* invite message */
-CIRCNetwork.prototype.onInvite = function my_invite(e) {
+CIRCNetwork.prototype.onInvite = function (e) {
   var invitee = e.params[1];
   if (invitee == e.server.me.unicodeName) {
     client.munger.getRule(".inline-buttons").enabled = true;
@@ -2153,7 +2153,7 @@ CIRCNetwork.prototype.onInvite = function my_invite(e) {
 };
 
 /* nickname in use */
-CIRCNetwork.prototype.on433 = function my_433(e) {
+CIRCNetwork.prototype.on433 = function (e) {
   var nick = toUnicode(e.params[2], this);
 
   if ("pendingReclaimCheck" in this) {
@@ -2231,7 +2231,7 @@ CIRCNetwork.prototype.on433 = function my_433(e) {
   }
 };
 
-CIRCNetwork.prototype.onStartConnect = function my_sconnect(e) {
+CIRCNetwork.prototype.onStartConnect = function (e) {
   this.busy = true;
   updateProgress();
   if ("_firstNick" in this) {
@@ -2264,7 +2264,7 @@ CIRCNetwork.prototype.onStartConnect = function my_sconnect(e) {
   this.autoPerformSent = false;
 };
 
-CIRCNetwork.prototype.onError = function my_neterror(e) {
+CIRCNetwork.prototype.onError = function (e) {
   var msg;
   var type = MT_ERROR;
 
@@ -2325,7 +2325,7 @@ CIRCNetwork.prototype.onError = function my_neterror(e) {
   delete this.deleteWhenDone;
 };
 
-CIRCNetwork.prototype.onDisconnect = function my_netdisconnect(e) {
+CIRCNetwork.prototype.onDisconnect = function (e) {
   var msg, msgNetwork;
   var msgType = MT_ERROR;
   var retrying = true;
@@ -2552,7 +2552,7 @@ CIRCNetwork.prototype.onDisconnect = function my_netdisconnect(e) {
   }
 };
 
-CIRCNetwork.prototype.onCTCPReplyPing = function my_replyping(e) {
+CIRCNetwork.prototype.onCTCPReplyPing = function (e) {
   // see bug 326523
   if (e.CTCPData.trim().length != 13) {
     this.display(
@@ -2598,7 +2598,7 @@ CIRCNetwork.prototype.on221 = CIRCNetwork.prototype.onUserMode = function (e) {
   }
 };
 
-CIRCNetwork.prototype.onNick = function my_cnick(e) {
+CIRCNetwork.prototype.onNick = function (e) {
   if (!ASSERT(userIsMe(e.user), "network nick event for third party")) {
     return;
   }
@@ -2626,15 +2626,15 @@ CIRCNetwork.prototype.onNick = function my_cnick(e) {
   updateStalkExpression(this);
 };
 
-CIRCNetwork.prototype.onPing = function my_netping(e) {
+CIRCNetwork.prototype.onPing = function (e) {
   this.updateHeader(this);
 };
 
-CIRCNetwork.prototype.onPong = function my_netpong(e) {
+CIRCNetwork.prototype.onPong = function (e) {
   this.updateHeader(this);
 };
 
-CIRCNetwork.prototype.onWallops = function my_netwallops(e) {
+CIRCNetwork.prototype.onWallops = function (e) {
   client.munger.getRule(".mailto").enabled = client.prefs["munger.mailto"];
   if (e.user) {
     this.display(e.msg, "WALLOPS/WALLOPS", e.user, this, e.tags);
@@ -2645,7 +2645,7 @@ CIRCNetwork.prototype.onWallops = function my_netwallops(e) {
 };
 
 /* unknown command reply */
-CIRCNetwork.prototype.on421 = function my_421(e) {
+CIRCNetwork.prototype.on421 = function (e) {
   this.display(
     getMsg(MSG_IRC_421, e.decodeParam(2)),
     MT_ERROR,
@@ -2657,7 +2657,7 @@ CIRCNetwork.prototype.on421 = function my_421(e) {
 };
 
 /* cap reply */
-CIRCNetwork.prototype.onCap = function my_cap(e) {
+CIRCNetwork.prototype.onCap = function (e) {
   if (e.params[2] == "LS") {
     // Handle the STS upgrade policy if we have one.
     if (e.server.pendingCapNegotiation && e.stsUpgradePort) {
@@ -2731,7 +2731,7 @@ CIRCNetwork.prototype.onCap = function my_cap(e) {
 };
 
 // Notify the user of received CTCP requests.
-CIRCNetwork.prototype.onReceiveCTCP = function my_ccrecv(e) {
+CIRCNetwork.prototype.onReceiveCTCP = function (e) {
   // Do nothing if we receive these.
   if (e.type == "ctcp-action" || e.type == "ctcp-dcc" || e.type == "unk-ctcp") {
     return true;
@@ -2753,14 +2753,14 @@ CIRCNetwork.prototype.onReceiveCTCP = function my_ccrecv(e) {
 };
 
 /* SASL authentication start */
-CIRCNetwork.prototype.onSASLStart = function my_saslstart(e) {
+CIRCNetwork.prototype.onSASLStart = function (e) {
   if (!e.mechs || e.mechs.includes("plain")) {
     e.server.sendData("AUTHENTICATE PLAIN\n");
   }
 };
 
 /* SASL authentication response */
-CIRCNetwork.prototype.onAuthenticate = function my_auth(e) {
+CIRCNetwork.prototype.onAuthenticate = function (e) {
   if (e.params[1] !== "+") {
     return;
   }
@@ -2784,7 +2784,7 @@ CIRCNetwork.prototype.onAuthenticate = function my_auth(e) {
   e.server.sendAuthResponse(auth);
 };
 
-CIRCNetwork.prototype.onNetsplitBatch = function my_netsplit_batch(e) {
+CIRCNetwork.prototype.onNetsplitBatch = function (e) {
   for (var c in this.primServ.channels) {
     if (e.starting) {
       this.startMsgGroup(
@@ -2799,7 +2799,7 @@ CIRCNetwork.prototype.onNetsplitBatch = function my_netsplit_batch(e) {
   }
 };
 
-CIRCNetwork.prototype.onNetjoinBatch = function my_netjoin_batch(e) {
+CIRCNetwork.prototype.onNetjoinBatch = function (e) {
   for (var c in this.primServ.channels) {
     if (e.starting) {
       this.startMsgGroup(
@@ -2814,7 +2814,7 @@ CIRCNetwork.prototype.onNetjoinBatch = function my_netjoin_batch(e) {
   }
 };
 
-CIRCChannel.prototype.onChathistoryBatch = function my_chathistory_batch(e) {
+CIRCChannel.prototype.onChathistoryBatch = function (e) {
   if (e.starting) {
     this.startMsgGroup(
       e.reftag,
@@ -2830,7 +2830,7 @@ CIRCChannel.prototype.onChathistoryBatch = function my_chathistory_batch(e) {
 CIRCNetwork.prototype.onUnknownBatch =
   CIRCChannel.prototype.onUnknownBatch =
   CIRCUser.prototype.onUnknownBatch =
-    function my_unknown_batch(e) {
+    function (e) {
       if (e.starting) {
         this.startMsgGroup(
           e.reftag,
@@ -2844,7 +2844,7 @@ CIRCNetwork.prototype.onUnknownBatch =
     };
 
 /* user away status */
-CIRCNetwork.prototype.onAway = function my_away(e) {
+CIRCNetwork.prototype.onAway = function (e) {
   for (var c in e.server.channels) {
     var chan = e.server.channels[c];
     if (chan.active && e.user.collectionKey in chan.users) {
@@ -2855,11 +2855,11 @@ CIRCNetwork.prototype.onAway = function my_away(e) {
 };
 
 /* user host changed */
-CIRCNetwork.prototype.onChghost = function my_chghost(e) {
+CIRCNetwork.prototype.onChghost = function (e) {
   e.user.updateHeader();
 };
 
-CIRCNetwork.prototype.reclaimName = function my_reclaimname() {
+CIRCNetwork.prototype.reclaimName = function () {
   var network = this;
 
   function callback() {
@@ -2894,7 +2894,7 @@ CIRCNetwork.prototype.reclaimName = function my_reclaimname() {
   return true;
 };
 
-CIRCNetwork.prototype.doAutoPerform = function net_autoperform() {
+CIRCNetwork.prototype.doAutoPerform = function () {
   if ("autoPerformSent" in this && this.autoPerformSent == false) {
     var cmdary = client.prefs["autoperform.network"].concat(
       this.prefs.autoperform
@@ -2914,8 +2914,8 @@ CIRCNetwork.prototype.doAutoPerform = function net_autoperform() {
 CIRCChannel.prototype._join = CIRCChannel.prototype.join;
 CIRCChannel.prototype._part = CIRCChannel.prototype.part;
 
-CIRCChannel.prototype.join = function chan_join(key) {
-  var joinFailedFn = function _joinFailedFn(t) {
+CIRCChannel.prototype.join = function (key) {
+  var joinFailedFn = function (t) {
     delete t.joinTimer;
     t.busy = false;
     updateProgress();
@@ -2928,8 +2928,8 @@ CIRCChannel.prototype.join = function chan_join(key) {
   this._join(key);
 };
 
-CIRCChannel.prototype.part = function chan_part(reason) {
-  var partFailedFn = function _partFailedFn(t) {
+CIRCChannel.prototype.part = function (reason) {
+  var partFailedFn = function (t) {
     delete t.partTimer;
     t.busy = false;
     updateProgress();
@@ -2946,7 +2946,7 @@ client.setActivityMarker =
   CIRCUser.prototype.setActivityMarker =
   CIRCDCCChat.prototype.setActivityMarker =
   CIRCDCCFileTransfer.prototype.setActivityMarker =
-    function view_setactivitymarker(state) {
+    function (state) {
       if (!client.initialized) {
         return;
       }
@@ -2973,16 +2973,17 @@ client.getActivityMarker =
   CIRCUser.prototype.getActivityMarker =
   CIRCDCCChat.prototype.getActivityMarker =
   CIRCDCCFileTransfer.prototype.getActivityMarker =
-    function view_getactivitymarker() {
+    function () {
       return this.messages.querySelector(".chatzilla-line-marker");
     };
-CIRCChannel.prototype.onInit = function chan_oninit() {
+
+CIRCChannel.prototype.onInit = function () {
   this.logFile = null;
   this.pendingNamesReply = false;
   this.importantMessages = 0;
 };
 
-CIRCChannel.prototype.onPrivmsg = function my_cprivmsg(e) {
+CIRCChannel.prototype.onPrivmsg = function (e) {
   var msg = e.decodeParam(2);
   var msgtype = "PRIVMSG";
   if ("msgPrefix" in e) {
@@ -2995,7 +2996,7 @@ CIRCChannel.prototype.onPrivmsg = function my_cprivmsg(e) {
 };
 
 /* end of names */
-CIRCChannel.prototype.on366 = function my_366(e) {
+CIRCChannel.prototype.on366 = function (e) {
   // First clear up old users:
   this._clearUserList();
 
@@ -3019,7 +3020,7 @@ CIRCChannel.prototype.on366 = function my_366(e) {
 /* user changed topic */
 CIRCChannel.prototype.onTopic =
   /* TOPIC reply */
-  CIRCChannel.prototype.on332 = function my_topic(e) {
+  CIRCChannel.prototype.on332 = function (e) {
     client.munger.getRule(".mailto").enabled = client.prefs["munger.mailto"];
     if (e.code == "TOPIC") {
       this.display(
@@ -3057,7 +3058,7 @@ CIRCChannel.prototype.onTopic =
   };
 
 /* Topic setter information */
-CIRCChannel.prototype.on333 = function my_topicinfo(e) {
+CIRCChannel.prototype.on333 = function (e) {
   this.display(
     getMsg(MSG_TOPIC_DATE, [this.unicodeName, this.topicBy, this.topicDate]),
     "TOPIC",
@@ -3068,7 +3069,7 @@ CIRCChannel.prototype.on333 = function my_topicinfo(e) {
 };
 
 /* names reply */
-CIRCChannel.prototype.on353 = function my_topic(e) {
+CIRCChannel.prototype.on353 = function (e) {
   if (this.pendingNamesReply) {
     this.parent.parent.display(
       e.channel.unicodeName + ": " + e.params[4],
@@ -3081,7 +3082,7 @@ CIRCChannel.prototype.on353 = function my_topic(e) {
 };
 
 /* channel ban stuff */
-CIRCChannel.prototype.on367 = function my_bans(e) {
+CIRCChannel.prototype.on367 = function (e) {
   if ("pendingBanList" in this) {
     return;
   }
@@ -3101,7 +3102,7 @@ CIRCChannel.prototype.on367 = function my_bans(e) {
   client.munger.getRule(".inline-buttons").enabled = false;
 };
 
-CIRCChannel.prototype.on368 = function my_endofbans(e) {
+CIRCChannel.prototype.on368 = function (e) {
   if ("pendingBanList" in this) {
     return;
   }
@@ -3116,7 +3117,7 @@ CIRCChannel.prototype.on368 = function my_endofbans(e) {
 };
 
 /* channel except stuff */
-CIRCChannel.prototype.on348 = function my_excepts(e) {
+CIRCChannel.prototype.on348 = function (e) {
   if ("pendingExceptList" in this) {
     return;
   }
@@ -3136,7 +3137,7 @@ CIRCChannel.prototype.on348 = function my_excepts(e) {
   client.munger.getRule(".inline-buttons").enabled = false;
 };
 
-CIRCChannel.prototype.on349 = function my_endofexcepts(e) {
+CIRCChannel.prototype.on349 = function (e) {
   if ("pendingExceptList" in this) {
     return;
   }
@@ -3150,7 +3151,7 @@ CIRCChannel.prototype.on349 = function my_endofexcepts(e) {
   );
 };
 
-CIRCChannel.prototype.on482 = function my_needops(e) {
+CIRCChannel.prototype.on482 = function (e) {
   if ("pendingExceptList" in this) {
     return;
   }
@@ -3164,7 +3165,7 @@ CIRCChannel.prototype.on482 = function my_needops(e) {
   );
 };
 
-CIRCChannel.prototype.onNotice = function my_notice(e) {
+CIRCChannel.prototype.onNotice = function (e) {
   var msgtype = "NOTICE";
   if ("msgPrefix" in e) {
     msgtype += "/" + e.msgPrefix.symbol;
@@ -3175,13 +3176,13 @@ CIRCChannel.prototype.onNotice = function my_notice(e) {
   client.munger.getRule(".mailto").enabled = false;
 };
 
-CIRCChannel.prototype.onCTCPAction = function my_caction(e) {
+CIRCChannel.prototype.onCTCPAction = function (e) {
   client.munger.getRule(".mailto").enabled = client.prefs["munger.mailto"];
   this.display(e.CTCPData, "ACTION", e.user, this, e.tags);
   client.munger.getRule(".mailto").enabled = false;
 };
 
-CIRCChannel.prototype.onUnknownCTCP = function my_unkctcp(e) {
+CIRCChannel.prototype.onUnknownCTCP = function (e) {
   this.display(
     getMsg(MSG_UNKNOWN_CTCP, [e.CTCPCode, e.CTCPData, e.user.unicodeName]),
     "BAD-CTCP",
@@ -3191,7 +3192,7 @@ CIRCChannel.prototype.onUnknownCTCP = function my_unkctcp(e) {
   );
 };
 
-CIRCChannel.prototype.onJoin = function my_cjoin(e) {
+CIRCChannel.prototype.onJoin = function (e) {
   dispatch("create-tab-for-view", { view: e.channel });
 
   if (userIsMe(e.user)) {
@@ -3259,7 +3260,7 @@ CIRCChannel.prototype.onJoin = function my_cjoin(e) {
   this.updateHeader();
 };
 
-CIRCChannel.prototype.onPart = function my_cpart(e) {
+CIRCChannel.prototype.onPart = function (e) {
   this.removeUsers([e.user]);
   this.updateHeader();
 
@@ -3297,7 +3298,7 @@ CIRCChannel.prototype.onPart = function my_cpart(e) {
   }
 };
 
-CIRCChannel.prototype.onKick = function my_ckick(e) {
+CIRCChannel.prototype.onKick = function (e) {
   if (userIsMe(e.lamer)) {
     if (e.user) {
       this.display(
@@ -3365,7 +3366,7 @@ CIRCChannel.prototype.onKick = function my_ckick(e) {
   this.updateHeader();
 };
 
-CIRCChannel.prototype.addUsers = function my_caddUsers(updates) {
+CIRCChannel.prototype.addUsers = function (updates) {
   let updateListBox = client.currentObject == this;
   let entries = updates.map(item => new UserEntry(item));
   for (let entry of entries) {
@@ -3377,7 +3378,7 @@ CIRCChannel.prototype.addUsers = function my_caddUsers(updates) {
   this.updateUserList(updateListBox);
 };
 
-CIRCChannel.prototype.updateUsers = function my_cupdateUsers(updates) {
+CIRCChannel.prototype.updateUsers = function (updates) {
   for (let update of updates) {
     if (update.chanListEntry) {
       let idx = this.userList.indexOf(update.chanListEntry);
@@ -3386,12 +3387,12 @@ CIRCChannel.prototype.updateUsers = function my_cupdateUsers(updates) {
   }
 };
 
-CIRCChannel.prototype.updateUser = function my_cupdateUser(user) {
+CIRCChannel.prototype.updateUser = function (user) {
   this.updateUsers([this.getUser(user)]);
   this.updateUserList(true);
 };
 
-CIRCChannel.prototype.removeFromList = function my_removeFromList(user) {
+CIRCChannel.prototype.removeFromList = function (user) {
   // Remove the user from the list and 'disconnect' the user from their entry:
   var idx = client.list.getIndexOfItem(user.chanListEntry);
   client.list.removeItemAt(idx);
@@ -3404,9 +3405,7 @@ CIRCChannel.prototype.removeFromList = function my_removeFromList(user) {
   delete user.chanListEntry;
 };
 
-CIRCChannel.prototype.updateUserList = function my_updateUserList(
-  updateListBox
-) {
+CIRCChannel.prototype.updateUserList = function (updateListBox) {
   if (client.prefs.sortUsersByMode) {
     this.userList.sort(ule_sortByMode);
   } else {
@@ -3417,7 +3416,7 @@ CIRCChannel.prototype.updateUserList = function my_updateUserList(
   }
 };
 
-CIRCChannel.prototype.onChanMode = function my_cmode(e) {
+CIRCChannel.prototype.onChanMode = function (e) {
   if (e.code == "MODE") {
     var msg = e.decodeParam(1);
     for (var i = 2; i < e.params.length; i++) {
@@ -3457,7 +3456,7 @@ CIRCChannel.prototype.onChanMode = function my_cmode(e) {
   }
 };
 
-CIRCChannel.prototype.onNick = function my_cnick(e) {
+CIRCChannel.prototype.onNick = function (e) {
   if (userIsMe(e.user)) {
     if (getTabForObject(this)) {
       this.displayHere(
@@ -3485,7 +3484,7 @@ CIRCChannel.prototype.onNick = function my_cnick(e) {
   }
 };
 
-CIRCChannel.prototype.onQuit = function my_cquit(e) {
+CIRCChannel.prototype.onQuit = function (e) {
   if (userIsMe(e.user)) {
     /* I dont think this can happen */
     var pms = [e.user.unicodeName, e.server.parent.unicodeName, e.reason];
@@ -3515,7 +3514,7 @@ CIRCChannel.prototype.onQuit = function my_cquit(e) {
   this.updateHeader();
 };
 
-CIRCChannel.prototype.doAutoPerform = function my_cautoperform() {
+CIRCChannel.prototype.doAutoPerform = function () {
   var cmdary = client.prefs["autoperform.channel"].concat(
     this.prefs.autoperform
   );
@@ -3528,7 +3527,7 @@ CIRCChannel.prototype.doAutoPerform = function my_cautoperform() {
   }
 };
 
-CIRCChannel.prototype._clearUserList = function _my_clearuserlist() {
+CIRCChannel.prototype._clearUserList = function () {
   if (client.currentObject == this) {
     while (
       client.list.firstChild &&
@@ -3542,12 +3541,12 @@ CIRCChannel.prototype._clearUserList = function _my_clearuserlist() {
   this.userList = [];
 };
 
-CIRCUser.prototype.onInit = function user_oninit() {
+CIRCUser.prototype.onInit = function () {
   this.logFile = null;
   this.lastShownAwayMessage = "";
 };
 
-CIRCUser.prototype.onPrivmsg = function my_cprivmsg(e) {
+CIRCUser.prototype.onPrivmsg = function (e) {
   var sourceObj = e.user;
   var destObj = e.server.me;
   var displayObj = this;
@@ -3572,7 +3571,7 @@ CIRCUser.prototype.onPrivmsg = function my_cprivmsg(e) {
   client.munger.getRule(".mailto").enabled = false;
 };
 
-CIRCUser.prototype.onNick = function my_unick(e) {
+CIRCUser.prototype.onNick = function (e) {
   if (userIsMe(e.user)) {
     this.parent.parent.updateHeader();
     updateTitle();
@@ -3593,7 +3592,7 @@ CIRCUser.prototype.onNick = function my_unick(e) {
   }
 };
 
-CIRCUser.prototype.onNotice = function my_notice(e) {
+CIRCUser.prototype.onNotice = function (e) {
   var msg = e.decodeParam(2);
   var displayMailto = client.prefs["munger.mailto"];
 
@@ -3625,7 +3624,7 @@ CIRCUser.prototype.onNotice = function my_notice(e) {
   client.munger.getRule(".mailto").enabled = false;
 };
 
-CIRCUser.prototype.onCTCPAction = function my_uaction(e) {
+CIRCUser.prototype.onCTCPAction = function (e) {
   if (!("messages" in this)) {
     var limit = client.prefs.newTabLimit;
     if (limit == 0 || client.viewsArray.length < limit) {
@@ -3638,7 +3637,7 @@ CIRCUser.prototype.onCTCPAction = function my_uaction(e) {
   client.munger.getRule(".mailto").enabled = false;
 };
 
-CIRCUser.prototype.onUnknownCTCP = function my_unkctcp(e) {
+CIRCUser.prototype.onUnknownCTCP = function (e) {
   this.parent.parent.display(
     getMsg(MSG_UNKNOWN_CTCP, [e.CTCPCode, e.CTCPData, e.user.unicodeName]),
     "BAD-CTCP",
@@ -3689,7 +3688,7 @@ function onDCCAutoAcceptTimeout(o, folder) {
   }
 }
 
-CIRCUser.prototype.onDCCChat = function my_dccchat(e) {
+CIRCUser.prototype.onDCCChat = function (e) {
   if (!client.prefs["dcc.enabled"]) {
     return;
   }
@@ -3734,7 +3733,7 @@ CIRCUser.prototype.onDCCChat = function my_dccchat(e) {
   e.destMethod = "onGotRequest";
 };
 
-CIRCUser.prototype.onDCCSend = function my_dccsend(e) {
+CIRCUser.prototype.onDCCSend = function (e) {
   if (!client.prefs["dcc.enabled"]) {
     return;
   }
@@ -3789,7 +3788,7 @@ CIRCUser.prototype.onDCCSend = function my_dccsend(e) {
   e.destMethod = "onGotRequest";
 };
 
-CIRCUser.prototype.onDCCReject = function my_dccreject(e) {
+CIRCUser.prototype.onDCCReject = function (e) {
   if (!client.prefs["dcc.enabled"]) {
   }
 
@@ -3801,7 +3800,7 @@ CIRCUser.prototype.onDCCReject = function my_dccreject(e) {
   //e.destMethod = "onGotReject";
 };
 
-CIRCUser.prototype.doAutoPerform = function my_autoperform() {
+CIRCUser.prototype.doAutoPerform = function () {
   var cmdary = client.prefs["autoperform.user"].concat(this.prefs.autoperform);
   for (var i = 0; i < cmdary.length; ++i) {
     if (cmdary[i][0] == "/") {
@@ -3812,25 +3811,25 @@ CIRCUser.prototype.doAutoPerform = function my_autoperform() {
   }
 };
 
-CIRCDCCChat.prototype.onInit = function my_dccinit(e) {};
+CIRCDCCChat.prototype.onInit = function (e) {};
 
-CIRCDCCChat.prototype._getParams = function my_dccgetparams() {
+CIRCDCCChat.prototype._getParams = function () {
   return [this.unicodeName, this.remoteIP, this.port];
 };
 
-CIRCDCCChat.prototype.onPrivmsg = function my_dccprivmsg(e) {
+CIRCDCCChat.prototype.onPrivmsg = function (e) {
   client.munger.getRule(".mailto").enabled = client.prefs["munger.mailto"];
   this.displayHere(toUnicode(e.line, this), "PRIVMSG", e.user, "ME!");
   client.munger.getRule(".mailto").enabled = false;
 };
 
-CIRCDCCChat.prototype.onCTCPAction = function my_uaction(e) {
+CIRCDCCChat.prototype.onCTCPAction = function (e) {
   client.munger.getRule(".mailto").enabled = client.prefs["munger.mailto"];
   this.displayHere(e.CTCPData, "ACTION", e.user, "ME!");
   client.munger.getRule(".mailto").enabled = false;
 };
 
-CIRCDCCChat.prototype.onUnknownCTCP = function my_unkctcp(e) {
+CIRCDCCChat.prototype.onUnknownCTCP = function (e) {
   this.displayHere(
     getMsg(MSG_UNKNOWN_CTCP, [e.CTCPCode, e.CTCPData, e.user.unicodeName]),
     "BAD-CTCP",
@@ -3839,30 +3838,30 @@ CIRCDCCChat.prototype.onUnknownCTCP = function my_unkctcp(e) {
   );
 };
 
-CIRCDCCChat.prototype.onConnect = function my_dccconnect(e) {
+CIRCDCCChat.prototype.onConnect = function (e) {
   playEventSounds("dccchat", "connect");
   this.displayHere(getMsg(MSG_DCCCHAT_OPENED, this._getParams()), "DCC-CHAT");
 };
 
-CIRCDCCChat.prototype.onAbort = function my_dccabort(e) {
+CIRCDCCChat.prototype.onAbort = function (e) {
   this.display(getMsg(MSG_DCCCHAT_ABORTED, this._getParams()), "DCC-CHAT");
 };
 
-CIRCDCCChat.prototype.onFail = function my_dccfail(e) {
+CIRCDCCChat.prototype.onFail = function (e) {
   this.display(getMsg(MSG_DCCCHAT_FAILED, this._getParams()), "DCC-CHAT");
 };
 
-CIRCDCCChat.prototype.onDisconnect = function my_dccdisconnect(e) {
+CIRCDCCChat.prototype.onDisconnect = function (e) {
   playEventSounds("dccchat", "disconnect");
   this.display(getMsg(MSG_DCCCHAT_CLOSED, this._getParams()), "DCC-CHAT");
 };
 
-CIRCDCCFileTransfer.prototype.onInit = function my_dccfileinit(e) {
+CIRCDCCFileTransfer.prototype.onInit = function (e) {
   this.busy = false;
   updateProgress();
 };
 
-CIRCDCCFileTransfer.prototype._getParams = function my_dccfilegetparams() {
+CIRCDCCFileTransfer.prototype._getParams = function () {
   var dir = MSG_UNKNOWN;
 
   if (this.state.dir == DCC_DIR_GETTING) {
@@ -3876,7 +3875,7 @@ CIRCDCCFileTransfer.prototype._getParams = function my_dccfilegetparams() {
   return [this.filename, dir, this.unicodeName, this.remoteIP, this.port];
 };
 
-CIRCDCCFileTransfer.prototype.onConnect = function my_dccfileconnect(e) {
+CIRCDCCFileTransfer.prototype.onConnect = function (e) {
   this.displayHere(getMsg(MSG_DCCFILE_OPENED, this._getParams()), "DCC-FILE");
   this.busy = true;
   this.speed = 0;
@@ -3886,7 +3885,7 @@ CIRCDCCFileTransfer.prototype.onConnect = function my_dccfileconnect(e) {
   this._lastSpeedTime = new Date();
 };
 
-CIRCDCCFileTransfer.prototype.onProgress = function my_dccfileprogress(e) {
+CIRCDCCFileTransfer.prototype.onProgress = function (e) {
   var now = new Date();
   var pcent = this.progress;
 
@@ -3934,21 +3933,21 @@ CIRCDCCFileTransfer.prototype.onProgress = function my_dccfileprogress(e) {
   }
 };
 
-CIRCDCCFileTransfer.prototype.onAbort = function my_dccfileabort(e) {
+CIRCDCCFileTransfer.prototype.onAbort = function (e) {
   this.busy = false;
   updateProgress();
   updateTitle();
   this.display(getMsg(MSG_DCCFILE_ABORTED, this._getParams()), "DCC-FILE");
 };
 
-CIRCDCCFileTransfer.prototype.onFail = function my_dccfilefail(e) {
+CIRCDCCFileTransfer.prototype.onFail = function (e) {
   this.busy = false;
   updateProgress();
   updateTitle();
   this.display(getMsg(MSG_DCCFILE_FAILED, this._getParams()), "DCC-FILE");
 };
 
-CIRCDCCFileTransfer.prototype.onDisconnect = function my_dccfiledisconnect(e) {
+CIRCDCCFileTransfer.prototype.onDisconnect = function (e) {
   this.busy = false;
   updateProgress();
   this.updateHeader();

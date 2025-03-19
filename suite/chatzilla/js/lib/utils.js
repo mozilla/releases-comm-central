@@ -19,7 +19,7 @@ if (DEBUG) {
   var _dd_timeStack = [];
   var _dd_disableDepth = Number.MAX_VALUE;
   var _dd_currentDepth = 0;
-  dd = function _dd(str) {
+  dd = function (str) {
     if (typeof str != "string") {
       dump(str + "\n");
     } else if (str == "") {
@@ -69,7 +69,7 @@ if (DEBUG) {
   warn = function (msg) {
     dd("** WARNING " + msg + " **");
   };
-  TEST = ASSERT = function _assert(expr, msg) {
+  TEST = ASSERT = function (expr, msg) {
     if (!expr) {
       var m = "** ASSERTION FAILED: " + msg + " **\n" + getStackTrace();
       try {

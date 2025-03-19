@@ -140,7 +140,7 @@ CIRCNetwork.prototype.TYPE = "IRCNetwork";
  *               passing it in here, call the target's |getURL| method.
  * @param flags An |Object| with flags (as properties) to be applied to the URL.
  */
-CIRCNetwork.prototype.getURL = function net_geturl(target, flags) {
+CIRCNetwork.prototype.getURL = function (target, flags) {
   if (this.temporary) {
     return this.serverList[0].getURL(target, flags);
   }
@@ -171,7 +171,7 @@ CIRCNetwork.prototype.getURL = function net_geturl(target, flags) {
   return constructIRCURL(obj);
 };
 
-CIRCNetwork.prototype.getUser = function net_getuser(nick) {
+CIRCNetwork.prototype.getUser = function (nick) {
   if ("primServ" in this && this.primServ) {
     return this.primServ.getUser(nick);
   }
@@ -179,19 +179,14 @@ CIRCNetwork.prototype.getUser = function net_getuser(nick) {
   return null;
 };
 
-CIRCNetwork.prototype.addServer = function net_addsrv(
-  host,
-  port,
-  isSecure,
-  password
-) {
+CIRCNetwork.prototype.addServer = function (host, port, isSecure, password) {
   this.serverList.push(new CIRCServer(this, host, port, isSecure, password));
 };
 
 /**
  * Returns |true| iif a network has a secure server in its list.
  */
-CIRCNetwork.prototype.hasSecureServer = function net_hasSecure() {
+CIRCNetwork.prototype.hasSecureServer = function () {
   for (var i = 0; i < this.serverList.length; i++) {
     if (this.serverList[i].isSecure) {
       return true;
@@ -204,7 +199,7 @@ CIRCNetwork.prototype.hasSecureServer = function net_hasSecure() {
 /**
  * Returns |true| iif a network only has secure servers in its list.
  */
-CIRCNetwork.prototype.hasOnlySecureServers = function net_hasOnlySecure() {
+CIRCNetwork.prototype.hasOnlySecureServers = function () {
   for (var i = 0; i < this.serverList.length; i++) {
     if (!this.serverList[i].isSecure) {
       return false;
@@ -214,7 +209,7 @@ CIRCNetwork.prototype.hasOnlySecureServers = function net_hasOnlySecure() {
   return true;
 };
 
-CIRCNetwork.prototype.clearServerList = function net_clearserverlist() {
+CIRCNetwork.prototype.clearServerList = function () {
   /* Note: we don't have to worry about being connected, since primServ
    * keeps the currently connected server alive if we still need it.
    */
@@ -225,9 +220,7 @@ CIRCNetwork.prototype.clearServerList = function net_clearserverlist() {
 /**
  * Trigger an |onDoConnect| event after a delay.
  */
-CIRCNetwork.prototype.delayedConnect = function net_delayedConnect(
-  eventProperties
-) {
+CIRCNetwork.prototype.delayedConnect = function (eventProperties) {
   function reconnectFn(network, eventProperties) {
     network.immediateConnect(eventProperties);
   }
@@ -259,9 +252,7 @@ CIRCNetwork.prototype.delayedConnect = function net_delayedConnect(
  * Immediately trigger an |onDoConnect| event. Use |delayedConnect| for automatic
  * repeat attempts, instead, to throttle the attempts to a reasonable pace.
  */
-CIRCNetwork.prototype.immediateConnect = function net_immediateConnect(
-  eventProperties
-) {
+CIRCNetwork.prototype.immediateConnect = function (eventProperties) {
   var ev = new CEvent("network", "do-connect", this, "onDoConnect");
 
   if (typeof eventProperties != "undefined") {
@@ -273,7 +264,7 @@ CIRCNetwork.prototype.immediateConnect = function net_immediateConnect(
   this.eventPump.addEvent(ev);
 };
 
-CIRCNetwork.prototype.connect = function net_connect(requireSecurity) {
+CIRCNetwork.prototype.connect = function (requireSecurity) {
   if ("primServ" in this && this.primServ.isConnected) {
     return true;
   }
@@ -303,7 +294,7 @@ CIRCNetwork.prototype.connect = function net_connect(requireSecurity) {
 /**
  * Disconnects the network with a given reason.
  */
-CIRCNetwork.prototype.quit = function net_quit(reason) {
+CIRCNetwork.prototype.quit = function (reason) {
   if (this.isConnected()) {
     this.primServ.logout(reason);
   }
@@ -312,7 +303,7 @@ CIRCNetwork.prototype.quit = function net_quit(reason) {
 /**
  * Cancels the network's connection (whatever its current state).
  */
-CIRCNetwork.prototype.cancel = function net_cancel() {
+CIRCNetwork.prototype.cancel = function () {
   // We're online, pull the plug on the current connection, or...
   if (this.state == NET_ONLINE) {
     this.quit();
@@ -340,7 +331,7 @@ CIRCNetwork.prototype.cancel = function net_cancel() {
   }
 };
 
-CIRCNetwork.prototype.onDoConnect = function net_doconnect(e) {
+CIRCNetwork.prototype.onDoConnect = function (e) {
   const NS_ERROR_OFFLINE = 0x804b0010;
   var c;
 
@@ -479,11 +470,11 @@ CIRCNetwork.prototype.onDoConnect = function net_doconnect(e) {
 /**
  * Returns |true| iff this network has a socket-level connection.
  */
-CIRCNetwork.prototype.isConnected = function net_connected(e) {
+CIRCNetwork.prototype.isConnected = function (e) {
   return "primServ" in this && this.primServ.isConnected;
 };
 
-CIRCNetwork.prototype.ignore = function net_ignore(hostmask) {
+CIRCNetwork.prototype.ignore = function (hostmask) {
   var input = getHostmaskParts(hostmask);
 
   if (input.mask in this.ignoreList) {
@@ -495,7 +486,7 @@ CIRCNetwork.prototype.ignore = function net_ignore(hostmask) {
   return true;
 };
 
-CIRCNetwork.prototype.unignore = function net_ignore(hostmask) {
+CIRCNetwork.prototype.unignore = function (hostmask) {
   var input = getHostmaskParts(hostmask);
 
   if (!(input.mask in this.ignoreList)) {
@@ -633,7 +624,7 @@ CIRCServer.prototype.canonicalChanModes = {
   },
 };
 
-CIRCServer.prototype.toLowerCase = function serv_tolowercase(str) {
+CIRCServer.prototype.toLowerCase = function (str) {
   /* This is an implementation that lower-cases strings according to the
    * prevailing CASEMAPPING setting for the server. Values for this are:
    *
@@ -675,10 +666,7 @@ CIRCServer.prototype.toLowerCase = function serv_tolowercase(str) {
 
 // Iterates through the keys in an object and, if specified, the keys of
 // child objects.
-CIRCServer.prototype.renameProperties = function serv_renameproperties(
-  obj,
-  child
-) {
+CIRCServer.prototype.renameProperties = function (obj, child) {
   for (let key in obj) {
     let item = obj[key];
     item.canonicalName = this.toLowerCase(item.encodedName);
@@ -691,7 +679,7 @@ CIRCServer.prototype.renameProperties = function serv_renameproperties(
 };
 
 // Encodes tag data to send.
-CIRCServer.prototype.encodeTagData = function serv_encodetagdata(obj) {
+CIRCServer.prototype.encodeTagData = function (obj) {
   var dict = {};
   dict[";"] = ":";
   dict[" "] = "s";
@@ -736,7 +724,7 @@ CIRCServer.prototype.encodeTagData = function serv_encodetagdata(obj) {
 };
 
 // Decodes received tag data.
-CIRCServer.prototype.decodeTagData = function serv_decodetagdata(str) {
+CIRCServer.prototype.decodeTagData = function (str) {
   // Remove the leading '@' if we have one.
   if (str[0] == "@") {
     str = str.substring(1);
@@ -787,7 +775,7 @@ CIRCServer.prototype.decodeTagData = function serv_decodetagdata(str) {
 };
 
 // Returns the IRC URL representation of this server.
-CIRCServer.prototype.getURL = function serv_geturl(target, flags) {
+CIRCServer.prototype.getURL = function (target, flags) {
   var scheme = this.isSecure ? "ircs" : "irc";
   var obj = {
     host: this.hostname,
@@ -810,7 +798,7 @@ CIRCServer.prototype.getURL = function serv_geturl(target, flags) {
   return constructIRCURL(obj);
 };
 
-CIRCServer.prototype.getUser = function chan_getuser(nick) {
+CIRCServer.prototype.getUser = function (nick) {
   var tnick = ":" + this.toLowerCase(nick);
 
   if (tnick in this.users) {
@@ -826,7 +814,7 @@ CIRCServer.prototype.getUser = function chan_getuser(nick) {
   return null;
 };
 
-CIRCServer.prototype.getChannel = function chan_getchannel(name) {
+CIRCServer.prototype.getChannel = function (name) {
   var tname = ":" + this.toLowerCase(name);
 
   if (tname in this.channels) {
@@ -842,7 +830,7 @@ CIRCServer.prototype.getChannel = function chan_getchannel(name) {
   return null;
 };
 
-CIRCServer.prototype.connect = function serv_connect() {
+CIRCServer.prototype.connect = function () {
   if (this.connection != null) {
     throw "Server already has a connection pending or established";
   }
@@ -857,7 +845,7 @@ CIRCServer.prototype.connect = function serv_connect() {
 };
 
 // This may be called synchronously or asynchronously by CBSConnection.connect.
-CIRCServer.prototype.onSocketConnection = function serv_onsocketconnection(
+CIRCServer.prototype.onSocketConnection = function (
   host,
   port,
   config,
@@ -893,7 +881,7 @@ CIRCServer.prototype.onSocketConnection = function serv_onsocketconnection(
 /*
  * What to do when the client connects to it's primary server
  */
-CIRCServer.prototype.onConnect = function serv_onconnect(e) {
+CIRCServer.prototype.onConnect = function (e) {
   this.parent.primServ = e.server;
 
   this.sendData("CAP LS 302\n");
@@ -910,7 +898,7 @@ CIRCServer.prototype.onConnect = function serv_onconnect(e) {
   return true;
 };
 
-CIRCServer.prototype.onStreamDataAvailable = function serv_sda(
+CIRCServer.prototype.onStreamDataAvailable = function (
   request,
   inStream,
   sourceOffset,
@@ -927,7 +915,7 @@ CIRCServer.prototype.onStreamDataAvailable = function serv_sda(
   this.parent.eventPump.routeEvent(ev);
 };
 
-CIRCServer.prototype.onStreamClose = function serv_sockdiscon(status) {
+CIRCServer.prototype.onStreamClose = function (status) {
   var ev = new CEvent("server", "disconnect", this, "onDisconnect");
   ev.server = this;
   ev.disconnectStatus = status;
@@ -938,14 +926,14 @@ CIRCServer.prototype.onStreamClose = function serv_sockdiscon(status) {
   this.parent.eventPump.addEvent(ev);
 };
 
-CIRCServer.prototype.flushSendQueue = function serv_flush() {
+CIRCServer.prototype.flushSendQueue = function () {
   this.sendQueue.length = 0;
   dd("sendQueue flushed.");
 
   return true;
 };
 
-CIRCServer.prototype.login = function serv_login(nick, name, desc) {
+CIRCServer.prototype.login = function (nick, name, desc) {
   nick = nick.replace(/ /g, "_");
   name = name.replace(/ /g, "_");
 
@@ -969,7 +957,7 @@ CIRCServer.prototype.login = function serv_login(nick, name, desc) {
   this.sendData("USER " + name + " * * :" + fromUnicode(desc, this) + "\n");
 };
 
-CIRCServer.prototype.logout = function serv_logout(reason) {
+CIRCServer.prototype.logout = function (reason) {
   if (reason == null || typeof reason == "undefined") {
     reason = this.DEFAULT_REASON;
   }
@@ -980,7 +968,7 @@ CIRCServer.prototype.logout = function serv_logout(reason) {
   this.connection.disconnect();
 };
 
-CIRCServer.prototype.sendAuthResponse = function serv_authresponse(resp) {
+CIRCServer.prototype.sendAuthResponse = function (resp) {
   // Encode the response and break into 400-byte parts.
   var resp = btoa(resp);
   var part = null;
@@ -999,12 +987,12 @@ CIRCServer.prototype.sendAuthResponse = function serv_authresponse(resp) {
   }
 };
 
-CIRCServer.prototype.sendAuthAbort = function serv_authabort() {
+CIRCServer.prototype.sendAuthAbort = function () {
   // Abort an in-progress SASL authentication.
   this.sendData("AUTHENTICATE *\n");
 };
 
-CIRCServer.prototype.sendMonitorList = function serv_monitorlist(nicks, isAdd) {
+CIRCServer.prototype.sendMonitorList = function (nicks, isAdd) {
   if (!nicks.length) {
     return;
   }
@@ -1029,22 +1017,22 @@ CIRCServer.prototype.sendMonitorList = function serv_monitorlist(nicks, isAdd) {
   this.sendData(prefix + nicks_string + "\n");
 };
 
-CIRCServer.prototype.addTarget = function serv_addtarget(name) {
+CIRCServer.prototype.addTarget = function (name) {
   if (this.channelTypes.includes(name[0])) {
     return this.addChannel(name);
   }
   return this.addUser(name);
 };
 
-CIRCServer.prototype.addChannel = function serv_addchan(unicodeName, charset) {
+CIRCServer.prototype.addChannel = function (unicodeName, charset) {
   return new CIRCChannel(this, unicodeName, fromUnicode(unicodeName, charset));
 };
 
-CIRCServer.prototype.addUser = function serv_addusr(unicodeName, name, host) {
+CIRCServer.prototype.addUser = function (unicodeName, name, host) {
   return new CIRCUser(this, unicodeName, null, name, host);
 };
 
-CIRCServer.prototype.getChannelsLength = function serv_chanlen() {
+CIRCServer.prototype.getChannelsLength = function () {
   var i = 0;
 
   for (var p in this.channels) {
@@ -1054,7 +1042,7 @@ CIRCServer.prototype.getChannelsLength = function serv_chanlen() {
   return i;
 };
 
-CIRCServer.prototype.getUsersLength = function serv_chanlen() {
+CIRCServer.prototype.getUsersLength = function () {
   var i = 0;
 
   for (var p in this.users) {
@@ -1064,11 +1052,11 @@ CIRCServer.prototype.getUsersLength = function serv_chanlen() {
   return i;
 };
 
-CIRCServer.prototype.sendData = function serv_senddata(msg) {
+CIRCServer.prototype.sendData = function (msg) {
   this.queuedSendData(msg);
 };
 
-CIRCServer.prototype.queuedSendData = function serv_senddata(msg) {
+CIRCServer.prototype.queuedSendData = function (msg) {
   if (this.sendQueue.length == 0) {
     this.parent.eventPump.addEvent(
       new CEvent("server", "senddata", this, "onSendData")
@@ -1078,10 +1066,7 @@ CIRCServer.prototype.queuedSendData = function serv_senddata(msg) {
 };
 
 // Utility method for splitting large lines prior to sending.
-CIRCServer.prototype.splitLinesForSending = function serv_splitlines(
-  line,
-  prettyWrap
-) {
+CIRCServer.prototype.splitLinesForSending = function (line, prettyWrap) {
   let lines = String(line).split("\n");
   let realLines = [];
   for (let i = 0; i < lines.length; i++) {
@@ -1111,12 +1096,7 @@ CIRCServer.prototype.splitLinesForSending = function serv_splitlines(
   return realLines;
 };
 
-CIRCServer.prototype.messageTo = function serv_messto(
-  code,
-  target,
-  msg,
-  ctcpCode
-) {
+CIRCServer.prototype.messageTo = function (code, target, msg, ctcpCode) {
   let lines = this.splitLinesForSending(msg, true);
 
   let i = 0;
@@ -1150,19 +1130,19 @@ CIRCServer.prototype.messageTo = function serv_messto(
   }
 };
 
-CIRCServer.prototype.sayTo = function serv_sayto(target, msg) {
+CIRCServer.prototype.sayTo = function (target, msg) {
   this.messageTo("PRIVMSG", target, msg);
 };
 
-CIRCServer.prototype.noticeTo = function serv_noticeto(target, msg) {
+CIRCServer.prototype.noticeTo = function (target, msg) {
   this.messageTo("NOTICE", target, msg);
 };
 
-CIRCServer.prototype.actTo = function serv_actto(target, msg) {
+CIRCServer.prototype.actTo = function (target, msg) {
   this.messageTo("PRIVMSG", target, msg, "ACTION");
 };
 
-CIRCServer.prototype.ctcpTo = function serv_ctcpto(target, code, msg, method) {
+CIRCServer.prototype.ctcpTo = function (target, code, msg, method) {
   msg = msg || "";
   method = method || "PRIVMSG";
 
@@ -1173,24 +1153,24 @@ CIRCServer.prototype.ctcpTo = function serv_ctcpto(target, code, msg, method) {
   this.messageTo(method, target, msg, code);
 };
 
-CIRCServer.prototype.changeNick = function serv_changenick(newNick) {
+CIRCServer.prototype.changeNick = function (newNick) {
   this.sendData("NICK " + fromUnicode(newNick, this) + "\n");
 };
 
-CIRCServer.prototype.updateLagTimer = function serv_uptimer() {
+CIRCServer.prototype.updateLagTimer = function () {
   this.connection.sendData("PING :LAGTIMER\n");
   this.lastPing = this.lastPingSent = new Date();
 };
 
-CIRCServer.prototype.userhost = function serv_userhost(target) {
+CIRCServer.prototype.userhost = function (target) {
   this.sendData("USERHOST " + fromUnicode(target, this) + "\n");
 };
 
-CIRCServer.prototype.userip = function serv_userip(target) {
+CIRCServer.prototype.userip = function (target) {
   this.sendData("USERIP " + fromUnicode(target, this) + "\n");
 };
 
-CIRCServer.prototype.who = function serv_who(target) {
+CIRCServer.prototype.who = function (target) {
   this.sendData("WHO " + fromUnicode(target, this) + "\n");
 };
 
@@ -1199,11 +1179,11 @@ CIRCServer.prototype.who = function serv_who(target) {
  *
  * @param target        intended user(s).
  */
-CIRCServer.prototype.whois = function serv_whois(target) {
+CIRCServer.prototype.whois = function (target) {
   this.sendData("WHOIS " + fromUnicode(target, this) + "\n");
 };
 
-CIRCServer.prototype.whowas = function serv_whowas(target, limit) {
+CIRCServer.prototype.whowas = function (target, limit) {
   if (typeof limit == "undefined") {
     limit = 1;
   } else if (limit == 0) {
@@ -1213,7 +1193,7 @@ CIRCServer.prototype.whowas = function serv_whowas(target, limit) {
   this.sendData("WHOWAS " + fromUnicode(target, this) + " " + limit + "\n");
 };
 
-CIRCServer.prototype.onDisconnect = function serv_disconnect(e) {
+CIRCServer.prototype.onDisconnect = function (e) {
   function stateChangeFn(network, state) {
     network.state = state;
   }
@@ -1284,7 +1264,7 @@ CIRCServer.prototype.onDisconnect = function serv_disconnect(e) {
   delete this.quitting;
 };
 
-CIRCServer.prototype.onSendData = function serv_onsenddata(e) {
+CIRCServer.prototype.onSendData = function (e) {
   if (!this.isConnected || this.parent.state == NET_CANCELLING) {
     dd("Can't send to disconnected socket");
     this.flushSendQueue();
@@ -1332,7 +1312,7 @@ CIRCServer.prototype.onSendData = function serv_onsenddata(e) {
   return true;
 };
 
-CIRCServer.prototype.onPoll = function serv_poll(e) {
+CIRCServer.prototype.onPoll = function (e) {
   var lines;
   var ex;
   var ev;
@@ -1363,7 +1343,7 @@ CIRCServer.prototype.onPoll = function serv_poll(e) {
   return true;
 };
 
-CIRCServer.prototype.onDataAvailable = function serv_ppline(e) {
+CIRCServer.prototype.onDataAvailable = function (e) {
   var line = e.line;
 
   if (line == "") {
@@ -1417,7 +1397,7 @@ CIRCServer.prototype.onDataAvailable = function serv_ppline(e) {
  * See Section 2.3.1 of RFC 1459 for details on <prefix>, <middle> and
  * <trailing> tokens.
  */
-CIRCServer.prototype.onRawData = function serv_onRawData(e) {
+CIRCServer.prototype.onRawData = function (e) {
   var ary;
   var l = e.data;
 
@@ -1529,7 +1509,7 @@ CIRCServer.prototype.onRawData = function serv_onRawData(e) {
 /*
  * onParsedData forwards to next event, based on |e.code|
  */
-CIRCServer.prototype.onParsedData = function serv_onParsedData(e) {
+CIRCServer.prototype.onParsedData = function (e) {
   e.type = this.toLowerCase(e.code);
   if (!e.code[0]) {
     dd(dumpObjectTree(e));
@@ -1558,7 +1538,7 @@ CIRCServer.prototype.onParsedData = function serv_onParsedData(e) {
 };
 
 /* User changed topic */
-CIRCServer.prototype.onTopic = function serv_topic(e) {
+CIRCServer.prototype.onTopic = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[1]);
   e.channel.topicBy = e.user.unicodeName;
   e.channel.topicDate = new Date();
@@ -1570,7 +1550,7 @@ CIRCServer.prototype.onTopic = function serv_topic(e) {
 };
 
 /* Successful login */
-CIRCServer.prototype.on001 = function serv_001(e) {
+CIRCServer.prototype.on001 = function (e) {
   this.parent.connectAttempt = 0;
   this.parent.connectCandidate = 0;
   //Mark capability negotiation as finished, if we haven't already.
@@ -1645,7 +1625,7 @@ CIRCServer.prototype.on001 = function serv_001(e) {
 };
 
 /* server features */
-CIRCServer.prototype.on005 = function serv_005(e) {
+CIRCServer.prototype.on005 = function (e) {
   var oldCaseMapping = this.supports.casemapping;
   /* Drop params 0 and 1. */
   for (var i = 2; i < e.params.length; i++) {
@@ -1739,7 +1719,7 @@ CIRCServer.prototype.on005 = function serv_005(e) {
 };
 
 /* users */
-CIRCServer.prototype.on251 = function serv_251(e) {
+CIRCServer.prototype.on251 = function (e) {
   // 251 is the first message we get after 005, so it's now safe to do
   // things that might depend upon server features.
 
@@ -1759,14 +1739,14 @@ CIRCServer.prototype.on251 = function serv_251(e) {
 };
 
 /* channels */
-CIRCServer.prototype.on254 = function serv_254(e) {
+CIRCServer.prototype.on254 = function (e) {
   this.channelCount = e.params[2];
   e.destObject = this.parent;
   e.set = "network";
 };
 
 /* user away message */
-CIRCServer.prototype.on301 = function serv_301(e) {
+CIRCServer.prototype.on301 = function (e) {
   e.user = new CIRCUser(this, null, e.params[2]);
   e.user.awayMessage = e.decodeParam(3, e.user);
   e.destObject = this.parent;
@@ -1774,7 +1754,7 @@ CIRCServer.prototype.on301 = function serv_301(e) {
 };
 
 /* whois name */
-CIRCServer.prototype.on311 = function serv_311(e) {
+CIRCServer.prototype.on311 = function (e) {
   e.user = new CIRCUser(this, null, e.params[2], e.params[3], e.params[4]);
   e.user.desc = e.decodeParam(6, e.user);
   e.destObject = this.parent;
@@ -1784,7 +1764,7 @@ CIRCServer.prototype.on311 = function serv_311(e) {
 };
 
 /* whois server */
-CIRCServer.prototype.on312 = function serv_312(e) {
+CIRCServer.prototype.on312 = function (e) {
   e.user = new CIRCUser(this, null, e.params[2]);
   e.user.connectionHost = e.params[3];
 
@@ -1793,7 +1773,7 @@ CIRCServer.prototype.on312 = function serv_312(e) {
 };
 
 /* whois idle time */
-CIRCServer.prototype.on317 = function serv_317(e) {
+CIRCServer.prototype.on317 = function (e) {
   e.user = new CIRCUser(this, null, e.params[2]);
   e.user.idleSeconds = e.params[3];
 
@@ -1802,7 +1782,7 @@ CIRCServer.prototype.on317 = function serv_317(e) {
 };
 
 /* whois channel list */
-CIRCServer.prototype.on319 = function serv_319(e) {
+CIRCServer.prototype.on319 = function (e) {
   e.user = new CIRCUser(this, null, e.params[2]);
 
   e.destObject = this.parent;
@@ -1810,7 +1790,7 @@ CIRCServer.prototype.on319 = function serv_319(e) {
 };
 
 /* end of whois */
-CIRCServer.prototype.on318 = function serv_318(e) {
+CIRCServer.prototype.on318 = function (e) {
   e.user = new CIRCUser(this, null, e.params[2]);
 
   if ("pendingWhoisLines" in this) {
@@ -1822,7 +1802,7 @@ CIRCServer.prototype.on318 = function serv_318(e) {
 };
 
 /* ircu's 330 numeric ("X is logged in as Y") */
-CIRCServer.prototype.on330 = function serv_330(e) {
+CIRCServer.prototype.on330 = function (e) {
   e.user = new CIRCUser(this, null, e.params[2]);
   var account = e.params[3] == "*" ? null : e.params[3];
   this.users[e.user.collectionKey].account = account;
@@ -1832,7 +1812,7 @@ CIRCServer.prototype.on330 = function serv_330(e) {
 };
 
 /* TOPIC reply - no topic set */
-CIRCServer.prototype.on331 = function serv_331(e) {
+CIRCServer.prototype.on331 = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[2]);
   e.channel.topic = "";
   e.destObject = e.channel;
@@ -1842,7 +1822,7 @@ CIRCServer.prototype.on331 = function serv_331(e) {
 };
 
 /* TOPIC reply - topic set */
-CIRCServer.prototype.on332 = function serv_332(e) {
+CIRCServer.prototype.on332 = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[2]);
   e.channel.topic = toUnicode(e.params[3], e.channel);
   e.destObject = e.channel;
@@ -1852,7 +1832,7 @@ CIRCServer.prototype.on332 = function serv_332(e) {
 };
 
 /* topic information */
-CIRCServer.prototype.on333 = function serv_333(e) {
+CIRCServer.prototype.on333 = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[2]);
   e.channel.topicBy = toUnicode(e.params[3], this);
   e.channel.topicDate = new Date(Number(e.params[4]) * 1000);
@@ -1863,7 +1843,7 @@ CIRCServer.prototype.on333 = function serv_333(e) {
 };
 
 /* who reply */
-CIRCServer.prototype.on352 = function serv_352(e) {
+CIRCServer.prototype.on352 = function (e) {
   e.userHasChanges = false;
   if (this.LIGHTWEIGHT_WHO) {
     e.user = new CIRCUser(this, null, e.params[6]);
@@ -1893,7 +1873,7 @@ CIRCServer.prototype.on352 = function serv_352(e) {
 };
 
 /* extended who reply */
-CIRCServer.prototype.on354 = function serv_354(e) {
+CIRCServer.prototype.on354 = function (e) {
   // Discard if the type is not ours.
   if (e.params[2] != this.WHOX_TYPE) {
     return;
@@ -1930,7 +1910,7 @@ CIRCServer.prototype.on354 = function serv_354(e) {
 };
 
 /* end of who */
-CIRCServer.prototype.on315 = function serv_315(e) {
+CIRCServer.prototype.on315 = function (e) {
   e.user = new CIRCUser(this, null, e.params[1]);
   e.destObject = this.parent;
   e.set = "network";
@@ -1939,7 +1919,7 @@ CIRCServer.prototype.on315 = function serv_315(e) {
 };
 
 /* names reply */
-CIRCServer.prototype.on353 = function serv_353(e) {
+CIRCServer.prototype.on353 = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[3]);
   if (e.channel.usersStable) {
     e.channel.users = {};
@@ -1991,7 +1971,7 @@ CIRCServer.prototype.on353 = function serv_353(e) {
 };
 
 /* end of names */
-CIRCServer.prototype.on366 = function serv_366(e) {
+CIRCServer.prototype.on366 = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[2]);
   e.destObject = e.channel;
   e.set = "channel";
@@ -2001,7 +1981,7 @@ CIRCServer.prototype.on366 = function serv_366(e) {
 };
 
 /* channel time stamp? */
-CIRCServer.prototype.on329 = function serv_329(e) {
+CIRCServer.prototype.on329 = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[2]);
   e.destObject = e.channel;
   e.set = "channel";
@@ -2011,7 +1991,7 @@ CIRCServer.prototype.on329 = function serv_329(e) {
 };
 
 /* channel mode reply */
-CIRCServer.prototype.on324 = function serv_324(e) {
+CIRCServer.prototype.on324 = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[2]);
   e.destObject = this;
   e.type = "chanmode";
@@ -2021,7 +2001,7 @@ CIRCServer.prototype.on324 = function serv_324(e) {
 };
 
 /* channel ban entry */
-CIRCServer.prototype.on367 = function serv_367(e) {
+CIRCServer.prototype.on367 = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[2]);
   e.destObject = e.channel;
   e.set = "channel";
@@ -2043,7 +2023,7 @@ CIRCServer.prototype.on367 = function serv_367(e) {
 };
 
 /* channel ban list end */
-CIRCServer.prototype.on368 = function serv_368(e) {
+CIRCServer.prototype.on368 = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[2]);
   e.destObject = e.channel;
   e.set = "channel";
@@ -2062,7 +2042,7 @@ CIRCServer.prototype.on368 = function serv_368(e) {
 };
 
 /* channel except entry */
-CIRCServer.prototype.on348 = function serv_348(e) {
+CIRCServer.prototype.on348 = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[2]);
   e.destObject = e.channel;
   e.set = "channel";
@@ -2082,7 +2062,7 @@ CIRCServer.prototype.on348 = function serv_348(e) {
 };
 
 /* channel except list end */
-CIRCServer.prototype.on349 = function serv_349(e) {
+CIRCServer.prototype.on349 = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[2]);
   e.destObject = e.channel;
   e.set = "channel";
@@ -2097,7 +2077,7 @@ CIRCServer.prototype.on349 = function serv_349(e) {
 };
 
 /* don't have operator perms */
-CIRCServer.prototype.on482 = function serv_482(e) {
+CIRCServer.prototype.on482 = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[2]);
   e.destObject = e.channel;
   e.set = "channel";
@@ -2115,7 +2095,7 @@ CIRCServer.prototype.on482 = function serv_482(e) {
 };
 
 /* userhost reply */
-CIRCServer.prototype.on302 = function serv_302(e) {
+CIRCServer.prototype.on302 = function (e) {
   var list = e.params[2].split(/\s+/);
 
   for (var i = 0; i < list.length; i++) {
@@ -2134,7 +2114,7 @@ CIRCServer.prototype.on302 = function serv_302(e) {
 };
 
 /* CAP response */
-CIRCServer.prototype.onCap = function my_cap(e) {
+CIRCServer.prototype.onCap = function (e) {
   // We expect some sort of identifier.
   if (e.params.length < 2) {
     return;
@@ -2334,7 +2314,7 @@ CIRCServer.prototype.onCap = function my_cap(e) {
 };
 
 /* BATCH start or end */
-CIRCServer.prototype.onBatch = function serv_batch(e) {
+CIRCServer.prototype.onBatch = function (e) {
   // We should at least get a ref tag.
   if (e.params.length < 2) {
     return false;
@@ -2461,7 +2441,7 @@ CIRCServer.prototype.on902 =
   CIRCServer.prototype.on907 =
   /* Mechanisms */
   CIRCServer.prototype.on908 =
-    function cap_on900(e) {
+    function (e) {
       if (this.pendingCapNegotiation) {
         delete this.pendingCapNegotiation;
         this.sendData("CAP END\n");
@@ -2478,7 +2458,7 @@ CIRCServer.prototype.on902 =
 
 /* STARTTLS responses */
 /* Success */
-CIRCServer.prototype.on670 = function cap_on670(e) {
+CIRCServer.prototype.on670 = function (e) {
   this.caps.tls = true;
   e.server.connection.startTLS();
   e.server.isSecure = true;
@@ -2489,7 +2469,7 @@ CIRCServer.prototype.on670 = function cap_on670(e) {
 };
 
 /* Failure */
-CIRCServer.prototype.on691 = function cap_on691(e) {
+CIRCServer.prototype.on691 = function (e) {
   this.caps.tls = false;
 
   e.destObject = this.parent;
@@ -2497,14 +2477,14 @@ CIRCServer.prototype.on691 = function cap_on691(e) {
 };
 
 /* User away status changed */
-CIRCServer.prototype.onAway = function serv_away(e) {
+CIRCServer.prototype.onAway = function (e) {
   e.user.isAway = !!e.params[1];
   e.destObject = this.parent;
   e.set = "network";
 };
 
 /* User host changed */
-CIRCServer.prototype.onChghost = function serv_chghost(e) {
+CIRCServer.prototype.onChghost = function (e) {
   this.users[e.user.collectionKey].name = e.params[1];
   this.users[e.user.collectionKey].host = e.params[2];
   e.destObject = this.parent;
@@ -2512,7 +2492,7 @@ CIRCServer.prototype.onChghost = function serv_chghost(e) {
 };
 
 /* user changed the mode */
-CIRCServer.prototype.onMode = function serv_mode(e) {
+CIRCServer.prototype.onMode = function (e) {
   e.destObject = this;
   /* modes are not allowed in +channels -> no need to test that here.. */
   if (this.channelTypes.includes(e.params[1][0])) {
@@ -2530,7 +2510,7 @@ CIRCServer.prototype.onMode = function serv_mode(e) {
   return true;
 };
 
-CIRCServer.prototype.onUserMode = function serv_usermode(e) {
+CIRCServer.prototype.onUserMode = function (e) {
   e.user = new CIRCUser(this, null, e.params[1]);
   e.user.modestr = e.params[2];
   e.destObject = this.parent;
@@ -2543,7 +2523,7 @@ CIRCServer.prototype.onUserMode = function serv_usermode(e) {
   return true;
 };
 
-CIRCServer.prototype.onChanMode = function serv_chanmode(e) {
+CIRCServer.prototype.onChanMode = function (e) {
   var modifier = "";
   var params_eaten = 0;
   var BASE_PARAM;
@@ -2645,7 +2625,7 @@ CIRCServer.prototype.onChanMode = function serv_chanmode(e) {
   return true;
 };
 
-CIRCServer.prototype.onNick = function serv_nick(e) {
+CIRCServer.prototype.onNick = function (e) {
   var newNick = e.params[1];
   var newKey = ":" + this.toLowerCase(newNick);
   var oldKey = e.user.collectionKey;
@@ -2693,7 +2673,7 @@ CIRCServer.prototype.onNick = function serv_nick(e) {
   return true;
 };
 
-CIRCServer.prototype.onQuit = function serv_quit(e) {
+CIRCServer.prototype.onQuit = function (e) {
   var reason = e.decodeParam(1);
 
   for (var c in e.server.channels) {
@@ -2727,7 +2707,7 @@ CIRCServer.prototype.onQuit = function serv_quit(e) {
   return true;
 };
 
-CIRCServer.prototype.onPart = function serv_part(e) {
+CIRCServer.prototype.onPart = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[1]);
   e.reason = e.params.length > 2 ? e.decodeParam(2, e.channel) : "";
   e.user = new CIRCChanUser(e.channel, e.user.unicodeName);
@@ -2742,7 +2722,7 @@ CIRCServer.prototype.onPart = function serv_part(e) {
   return true;
 };
 
-CIRCServer.prototype.onKick = function serv_kick(e) {
+CIRCServer.prototype.onKick = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[1]);
   e.lamer = new CIRCChanUser(e.channel, null, e.params[2]);
   delete e.channel.users[e.lamer.collectionKey];
@@ -2757,7 +2737,7 @@ CIRCServer.prototype.onKick = function serv_kick(e) {
   return true;
 };
 
-CIRCServer.prototype.onJoin = function serv_join(e) {
+CIRCServer.prototype.onJoin = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[1]);
   // Passing undefined here because CIRCChanUser doesn't like "null"
   e.user = new CIRCChanUser(
@@ -2837,14 +2817,14 @@ CIRCServer.prototype.onJoin = function serv_join(e) {
   return true;
 };
 
-CIRCServer.prototype.onAccount = function serv_acct(e) {
+CIRCServer.prototype.onAccount = function (e) {
   var account = e.params[1] == "*" ? null : e.params[1];
   this.users[e.user.collectionKey].account = account;
 
   return true;
 };
 
-CIRCServer.prototype.onPing = function serv_ping(e) {
+CIRCServer.prototype.onPing = function (e) {
   /* non-queued send, so we can calcualte lag */
   this.connection.sendData("PONG :" + e.params[1] + "\n");
   this.updateLagTimer();
@@ -2854,7 +2834,7 @@ CIRCServer.prototype.onPing = function serv_ping(e) {
   return true;
 };
 
-CIRCServer.prototype.onPong = function serv_pong(e) {
+CIRCServer.prototype.onPong = function (e) {
   if (e.params[2] != "LAGTIMER") {
     return true;
   }
@@ -2871,7 +2851,7 @@ CIRCServer.prototype.onPong = function serv_pong(e) {
   return true;
 };
 
-CIRCServer.prototype.onInvite = function serv_invite(e) {
+CIRCServer.prototype.onInvite = function (e) {
   e.channel = new CIRCChannel(this, null, e.params[2]);
 
   e.destObject = this.parent;
@@ -2881,7 +2861,7 @@ CIRCServer.prototype.onInvite = function serv_invite(e) {
 CIRCServer.prototype.onNotice =
   CIRCServer.prototype.onPrivmsg =
   CIRCServer.prototype.onTagmsg =
-    function serv_notice_privmsg(e) {
+    function (e) {
       var targetName = e.params[1];
 
       if (this.userModes) {
@@ -2955,7 +2935,7 @@ CIRCServer.prototype.onNotice =
       return true;
     };
 
-CIRCServer.prototype.onWallops = function serv_wallops(e) {
+CIRCServer.prototype.onWallops = function (e) {
   if ("user" in e && e.user) {
     e.msg = e.decodeParam(1, e.user);
     e.replyTo = e.user;
@@ -2970,7 +2950,7 @@ CIRCServer.prototype.onWallops = function serv_wallops(e) {
   return true;
 };
 
-CIRCServer.prototype.onCTCPReply = function serv_ctcpr(e) {
+CIRCServer.prototype.onCTCPReply = function (e) {
   var ary = e.params[2].match(/^\x01([^ ]+) ?(.*)\x01$/i);
 
   if (ary == null) {
@@ -3010,7 +2990,7 @@ CIRCServer.prototype.onCTCPReply = function serv_ctcpr(e) {
   return true;
 };
 
-CIRCServer.prototype.onCTCP = function serv_ctcp(e) {
+CIRCServer.prototype.onCTCP = function (e) {
   var ary = e.params[2].match(/^\x01([^ ]+) ?(.*)\x01$/i);
 
   if (ary == null) {
@@ -3061,7 +3041,7 @@ CIRCServer.prototype.onCTCP = function serv_ctcp(e) {
   return true;
 };
 
-CIRCServer.prototype.onCTCPClientinfo = function serv_ccinfo(e) {
+CIRCServer.prototype.onCTCPClientinfo = function (e) {
   var clientinfo = [];
 
   if (e.CTCPData) {
@@ -3112,23 +3092,23 @@ CIRCServer.prototype.onCTCPClientinfo = function serv_ccinfo(e) {
   return true;
 };
 
-CIRCServer.prototype.onCTCPAction = function serv_cact(e) {
+CIRCServer.prototype.onCTCPAction = function (e) {
   e.destObject = e.replyTo;
   e.set = e.replyTo == e.user ? "user" : "channel";
 };
 
-CIRCServer.prototype.onCTCPFinger = function serv_cfinger(e) {
+CIRCServer.prototype.onCTCPFinger = function (e) {
   e.user.ctcp("FINGER", this.parent.INITIAL_DESC, "NOTICE");
   return true;
 };
 
-CIRCServer.prototype.onCTCPTime = function serv_cping(e) {
+CIRCServer.prototype.onCTCPTime = function (e) {
   e.user.ctcp("TIME", new Date(), "NOTICE");
 
   return true;
 };
 
-CIRCServer.prototype.onCTCPVersion = function serv_cver(e) {
+CIRCServer.prototype.onCTCPVersion = function (e) {
   var lines = e.server.VERSION_RPLY.split("\n");
 
   for (var i in lines) {
@@ -3141,25 +3121,25 @@ CIRCServer.prototype.onCTCPVersion = function serv_cver(e) {
   return true;
 };
 
-CIRCServer.prototype.onCTCPSource = function serv_csrc(e) {
+CIRCServer.prototype.onCTCPSource = function (e) {
   e.user.ctcp("SOURCE", this.SOURCE_RPLY, "NOTICE");
 
   return true;
 };
 
-CIRCServer.prototype.onCTCPOs = function serv_os(e) {
+CIRCServer.prototype.onCTCPOs = function (e) {
   e.user.ctcp("OS", this.OS_RPLY, "NOTICE");
 
   return true;
 };
 
-CIRCServer.prototype.onCTCPHost = function serv_host(e) {
+CIRCServer.prototype.onCTCPHost = function (e) {
   e.user.ctcp("HOST", this.HOST_RPLY, "NOTICE");
 
   return true;
 };
 
-CIRCServer.prototype.onCTCPPing = function serv_cping(e) {
+CIRCServer.prototype.onCTCPPing = function (e) {
   /* non-queued send */
   this.connection.sendData(
     "NOTICE " + e.user.encodedName + " :\01PING " + e.CTCPData + "\01\n"
@@ -3170,7 +3150,7 @@ CIRCServer.prototype.onCTCPPing = function serv_cping(e) {
   return true;
 };
 
-CIRCServer.prototype.onCTCPDcc = function serv_dcc(e) {
+CIRCServer.prototype.onCTCPDcc = function (e) {
   var ary = e.CTCPData.match(/([^ ]+)? ?(.*)/);
 
   e.DCCData = ary[2];
@@ -3191,7 +3171,7 @@ CIRCServer.prototype.onCTCPDcc = function serv_dcc(e) {
   return true;
 };
 
-CIRCServer.prototype.onDCCChat = function serv_dccchat(e) {
+CIRCServer.prototype.onDCCChat = function (e) {
   var ary = e.DCCData.match(/(chat) (\d+) (\d+)/i);
 
   if (ary == null) {
@@ -3216,7 +3196,7 @@ CIRCServer.prototype.onDCCChat = function serv_dccchat(e) {
   return true;
 };
 
-CIRCServer.prototype.onDCCSend = function serv_dccsend(e) {
+CIRCServer.prototype.onDCCSend = function (e) {
   var ary = e.DCCData.match(/([^ ]+) (\d+) (\d+) (\d+)/);
 
   /* Just for mIRC: filenames with spaces may be enclosed in double-quotes.
@@ -3300,7 +3280,7 @@ CIRCChannel.prototype.TYPE = "IRCChannel";
 CIRCChannel.prototype.topic = "";
 
 // Returns the IRC URL representation of this channel.
-CIRCChannel.prototype.getURL = function chan_geturl() {
+CIRCChannel.prototype.getURL = function () {
   var target = this.encodedName;
   var flags = this.mode.key ? ["needkey"] : [];
 
@@ -3317,17 +3297,17 @@ CIRCChannel.prototype.getURL = function chan_geturl() {
   return this.parent.parent.getURL(target, flags);
 };
 
-CIRCChannel.prototype.rehome = function chan_rehome(newParent) {
+CIRCChannel.prototype.rehome = function (newParent) {
   delete this.parent.channels[this.collectionKey];
   this.parent = newParent;
   this.parent.channels[this.collectionKey] = this;
 };
 
-CIRCChannel.prototype.addUser = function chan_adduser(unicodeName, modes) {
+CIRCChannel.prototype.addUser = function (unicodeName, modes) {
   return new CIRCChanUser(this, unicodeName, null, modes);
 };
 
-CIRCChannel.prototype.getUser = function chan_getuser(nick) {
+CIRCChannel.prototype.getUser = function (nick) {
   // Try assuming it's an encodedName first.
   let tnick = ":" + this.parent.toLowerCase(nick);
   if (tnick in this.users) {
@@ -3343,7 +3323,7 @@ CIRCChannel.prototype.getUser = function chan_getuser(nick) {
   return null;
 };
 
-CIRCChannel.prototype.removeUser = function chan_removeuser(nick) {
+CIRCChannel.prototype.removeUser = function (nick) {
   // Try assuming it's an encodedName first.
   let key = ":" + this.parent.toLowerCase(nick);
   if (key in this.users) {
@@ -3357,7 +3337,7 @@ CIRCChannel.prototype.removeUser = function chan_removeuser(nick) {
   }
 };
 
-CIRCChannel.prototype.getUsersLength = function chan_userslen(mode) {
+CIRCChannel.prototype.getUsersLength = function (mode) {
   var i = 0;
   var p;
   this.opCount = 0;
@@ -3388,37 +3368,37 @@ CIRCChannel.prototype.getUsersLength = function chan_userslen(mode) {
   return i;
 };
 
-CIRCChannel.prototype.iAmOp = function chan_amop() {
+CIRCChannel.prototype.iAmOp = function () {
   return this.active && this.users[this.parent.me.collectionKey].isOp;
 };
 
-CIRCChannel.prototype.iAmHalfOp = function chan_amhalfop() {
+CIRCChannel.prototype.iAmHalfOp = function () {
   return this.active && this.users[this.parent.me.collectionKey].isHalfOp;
 };
 
-CIRCChannel.prototype.iAmVoice = function chan_amvoice() {
+CIRCChannel.prototype.iAmVoice = function () {
   return this.active && this.users[this.parent.me.collectionKey].isVoice;
 };
 
-CIRCChannel.prototype.setTopic = function chan_topic(str) {
+CIRCChannel.prototype.setTopic = function (str) {
   this.parent.sendData(
     "TOPIC " + this.encodedName + " :" + fromUnicode(str, this) + "\n"
   );
 };
 
-CIRCChannel.prototype.say = function chan_say(msg) {
+CIRCChannel.prototype.say = function (msg) {
   this.parent.sayTo(this.encodedName, fromUnicode(msg, this));
 };
 
-CIRCChannel.prototype.act = function chan_say(msg) {
+CIRCChannel.prototype.act = function (msg) {
   this.parent.actTo(this.encodedName, fromUnicode(msg, this));
 };
 
-CIRCChannel.prototype.notice = function chan_notice(msg) {
+CIRCChannel.prototype.notice = function (msg) {
   this.parent.noticeTo(this.encodedName, fromUnicode(msg, this));
 };
 
-CIRCChannel.prototype.ctcp = function chan_ctcpto(code, msg, type) {
+CIRCChannel.prototype.ctcp = function (code, msg, type) {
   msg = msg || "";
   type = type || "PRIVMSG";
 
@@ -3430,7 +3410,7 @@ CIRCChannel.prototype.ctcp = function chan_ctcpto(code, msg, type) {
   );
 };
 
-CIRCChannel.prototype.join = function chan_join(key) {
+CIRCChannel.prototype.join = function (key) {
   if (!key) {
     key = "";
   }
@@ -3439,7 +3419,7 @@ CIRCChannel.prototype.join = function chan_join(key) {
   return true;
 };
 
-CIRCChannel.prototype.part = function chan_part(reason) {
+CIRCChannel.prototype.part = function (reason) {
   if (!reason) {
     reason = "";
   }
@@ -3455,13 +3435,13 @@ CIRCChannel.prototype.part = function chan_part(reason) {
  *
  * @param nick  the user name to invite.
  */
-CIRCChannel.prototype.invite = function chan_inviteuser(nick) {
+CIRCChannel.prototype.invite = function (nick) {
   var rawNick = fromUnicode(nick, this.parent);
   this.parent.sendData("INVITE " + rawNick + " " + this.encodedName + "\n");
   return true;
 };
 
-CIRCChannel.prototype.findUsers = function chan_findUsers(mask) {
+CIRCChannel.prototype.findUsers = function (mask) {
   var ary = [];
   var unchecked = 0;
   mask = getHostmaskParts(mask);
@@ -3505,7 +3485,7 @@ function CIRCChanMode(parent) {
 CIRCChanMode.prototype.TYPE = "IRCChanMode";
 
 // Returns the complete mode string, as constructed from its component parts.
-CIRCChanMode.prototype.getModeStr = function chan_modestr(f) {
+CIRCChanMode.prototype.getModeStr = function (f) {
   var str = "";
   var modeCparams = "";
 
@@ -3539,7 +3519,7 @@ CIRCChanMode.prototype.getModeStr = function chan_modestr(f) {
 };
 
 // Sends the given mode string to the server with the channel pre-filled.
-CIRCChanMode.prototype.setMode = function chanm_mode(modestr) {
+CIRCChanMode.prototype.setMode = function (modestr) {
   this.parent.parent.sendData(
     "MODE " + this.parent.encodedName + " " + modestr + "\n"
   );
@@ -3548,7 +3528,7 @@ CIRCChanMode.prototype.setMode = function chanm_mode(modestr) {
 };
 
 // Sets (|n| > 0) or clears (|n| <= 0) the user count limit.
-CIRCChanMode.prototype.setLimit = function chanm_limit(n) {
+CIRCChanMode.prototype.setLimit = function (n) {
   if (typeof n == "undefined" || n <= 0) {
     this.parent.parent.sendData("MODE " + this.parent.encodedName + " -l\n");
   } else {
@@ -3561,7 +3541,7 @@ CIRCChanMode.prototype.setLimit = function chanm_limit(n) {
 };
 
 // Locks the channel with a given key.
-CIRCChanMode.prototype.lock = function chanm_lock(k) {
+CIRCChanMode.prototype.lock = function (k) {
   this.parent.parent.sendData(
     "MODE " + this.parent.encodedName + " +k " + k + "\n"
   );
@@ -3569,7 +3549,7 @@ CIRCChanMode.prototype.lock = function chanm_lock(k) {
 };
 
 // Unlocks the channel with a given key.
-CIRCChanMode.prototype.unlock = function chan_unlock(k) {
+CIRCChanMode.prototype.unlock = function (k) {
   this.parent.parent.sendData(
     "MODE " + this.parent.encodedName + " -k " + k + "\n"
   );
@@ -3577,7 +3557,7 @@ CIRCChanMode.prototype.unlock = function chan_unlock(k) {
 };
 
 // Sets or clears the moderation mode.
-CIRCChanMode.prototype.setModerated = function chan_moderate(f) {
+CIRCChanMode.prototype.setModerated = function (f) {
   var modifier = f ? "+" : "-";
 
   this.parent.parent.sendData(
@@ -3587,7 +3567,7 @@ CIRCChanMode.prototype.setModerated = function chan_moderate(f) {
 };
 
 // Sets or clears the allow public messages mode.
-CIRCChanMode.prototype.setPublicMessages = function chan_pmessages(f) {
+CIRCChanMode.prototype.setPublicMessages = function (f) {
   var modifier = f ? "-" : "+";
 
   this.parent.parent.sendData(
@@ -3597,7 +3577,7 @@ CIRCChanMode.prototype.setPublicMessages = function chan_pmessages(f) {
 };
 
 // Sets or clears the public topic mode.
-CIRCChanMode.prototype.setPublicTopic = function chan_ptopic(f) {
+CIRCChanMode.prototype.setPublicTopic = function (f) {
   var modifier = f ? "-" : "+";
 
   this.parent.parent.sendData(
@@ -3607,7 +3587,7 @@ CIRCChanMode.prototype.setPublicTopic = function chan_ptopic(f) {
 };
 
 // Sets or clears the invite-only mode.
-CIRCChanMode.prototype.setInvite = function chan_invite(f) {
+CIRCChanMode.prototype.setInvite = function (f) {
   var modifier = f ? "+" : "-";
 
   this.parent.parent.sendData(
@@ -3617,7 +3597,7 @@ CIRCChanMode.prototype.setInvite = function chan_invite(f) {
 };
 
 // Sets or clears the private channel mode.
-CIRCChanMode.prototype.setPvt = function chan_pvt(f) {
+CIRCChanMode.prototype.setPvt = function (f) {
   var modifier = f ? "+" : "-";
 
   this.parent.parent.sendData(
@@ -3627,7 +3607,7 @@ CIRCChanMode.prototype.setPvt = function chan_pvt(f) {
 };
 
 // Sets or clears the secret channel mode.
-CIRCChanMode.prototype.setSecret = function chan_secret(f) {
+CIRCChanMode.prototype.setSecret = function (f) {
   var modifier = f ? "+" : "-";
 
   this.parent.parent.sendData(
@@ -3685,17 +3665,17 @@ function CIRCUser(parent, unicodeName, encodedName, name, host) {
 CIRCUser.prototype.TYPE = "IRCUser";
 
 // Returns the IRC URL representation of this user.
-CIRCUser.prototype.getURL = function usr_geturl() {
+CIRCUser.prototype.getURL = function () {
   return this.parent.parent.getURL(this.encodedName, ["isnick"]);
 };
 
-CIRCUser.prototype.rehome = function usr_rehome(newParent) {
+CIRCUser.prototype.rehome = function (newParent) {
   delete this.parent.users[this.collectionKey];
   this.parent = newParent;
   this.parent.users[this.collectionKey] = this;
 };
 
-CIRCUser.prototype.changeNick = function usr_changenick(unicodeName) {
+CIRCUser.prototype.changeNick = function (unicodeName) {
   this.unicodeName = unicodeName;
   this.viewName = this.unicodeName;
   this.encodedName = fromUnicode(this.unicodeName, this.parent);
@@ -3703,7 +3683,7 @@ CIRCUser.prototype.changeNick = function usr_changenick(unicodeName) {
   this.collectionKey = ":" + this.canonicalName;
 };
 
-CIRCUser.prototype.getHostMask = function usr_hostmask(pfx) {
+CIRCUser.prototype.getHostMask = function (pfx) {
   pfx = typeof pfx != "undefined" ? pfx : "*!" + this.name + "@*.";
   var idx = this.host.indexOf(".");
   if (idx == -1) {
@@ -3713,7 +3693,7 @@ CIRCUser.prototype.getHostMask = function usr_hostmask(pfx) {
   return pfx + this.host.substr(idx + 1, this.host.length);
 };
 
-CIRCUser.prototype.getBanMask = function usr_banmask() {
+CIRCUser.prototype.getBanMask = function () {
   if (!this.host) {
     return this.unicodeName + "!*@*";
   }
@@ -3721,19 +3701,19 @@ CIRCUser.prototype.getBanMask = function usr_banmask() {
   return "*!*@" + this.host;
 };
 
-CIRCUser.prototype.say = function usr_say(msg) {
+CIRCUser.prototype.say = function (msg) {
   this.parent.sayTo(this.encodedName, fromUnicode(msg, this));
 };
 
-CIRCUser.prototype.notice = function usr_notice(msg) {
+CIRCUser.prototype.notice = function (msg) {
   this.parent.noticeTo(this.encodedName, fromUnicode(msg, this));
 };
 
-CIRCUser.prototype.act = function usr_act(msg) {
+CIRCUser.prototype.act = function (msg) {
   this.parent.actTo(this.encodedName, fromUnicode(msg, this));
 };
 
-CIRCUser.prototype.ctcp = function usr_ctcp(code, msg, type) {
+CIRCUser.prototype.ctcp = function (code, msg, type) {
   msg = msg || "";
   type = type || "PRIVMSG";
 
@@ -3745,7 +3725,7 @@ CIRCUser.prototype.ctcp = function usr_ctcp(code, msg, type) {
   );
 };
 
-CIRCUser.prototype.whois = function usr_whois() {
+CIRCUser.prototype.whois = function () {
   this.parent.whois(this.unicodeName);
 };
 

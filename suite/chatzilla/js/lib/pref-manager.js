@@ -55,14 +55,14 @@ PrefManager.prototype.PREF_SAVE_DELAY = 5000; // 5 seconds.
 PrefManager.prototype.PREF_MAX_DELAY = 15000; // 15 seconds.
 
 //
-PrefManager.prototype.destroy = function pm_destroy() {
+PrefManager.prototype.destroy = function () {
   if (this.valid) {
     this.nsIPrefBranch.removeObserver("", this.observer);
     this.valid = false;
   }
 };
 
-PrefManager.prototype.addObserver = function pm_addobserver(observer) {
+PrefManager.prototype.addObserver = function (observer) {
   if (!("onPrefChanged" in observer)) {
     throw "Bad observer!";
   }
@@ -70,14 +70,14 @@ PrefManager.prototype.addObserver = function pm_addobserver(observer) {
   this.observers.push(observer);
 };
 
-PrefManager.prototype.removeObserver = function pm_removeobserver(observer) {
+PrefManager.prototype.removeObserver = function (observer) {
   let idx = this.observers.indexOf(observer);
   if (idx >= 0) {
     this.observers.splice(idx, 1);
   }
 };
 
-PrefManager.prototype.delayedSave = function pm_delayedsave() {
+PrefManager.prototype.delayedSave = function () {
   // this.prefSaveTimer
   var now = Number(new Date());
 
@@ -103,7 +103,7 @@ PrefManager.prototype.delayedSave = function pm_delayedsave() {
   }
 };
 
-PrefManager.prototype.forceSave = function pm_forcesave() {
+PrefManager.prototype.forceSave = function () {
   this.prefSaveTime = 0;
   this.prefSaveTimer = 0;
   try {
@@ -113,11 +113,7 @@ PrefManager.prototype.forceSave = function pm_forcesave() {
   }
 };
 
-PrefManager.prototype.onPrefChanged = function pm_prefchanged(
-  prefName,
-  realValue,
-  oldValue
-) {
+PrefManager.prototype.onPrefChanged = function (prefName, realValue, oldValue) {
   var r, oldValue;
   // We're only interested in prefs we actually know about.
   if (!(prefName in this.prefRecords) || !(r = this.prefRecords[prefName])) {
@@ -139,7 +135,7 @@ PrefManager.prototype.onPrefChanged = function pm_prefchanged(
   }
 };
 
-PrefManager.prototype.listPrefs = function pm_listprefs(prefix) {
+PrefManager.prototype.listPrefs = function (prefix) {
   var list = [];
   var names = this.prefNames;
   for (var i = 0; i < names.length; ++i) {
@@ -151,11 +147,11 @@ PrefManager.prototype.listPrefs = function pm_listprefs(prefix) {
   return list;
 };
 
-PrefManager.prototype.isKnownPref = function pm_ispref(prefName) {
+PrefManager.prototype.isKnownPref = function (prefName) {
   return prefName in this.prefRecords;
 };
 
-PrefManager.prototype.addPrefs = function pm_addprefs(prefSpecs) {
+PrefManager.prototype.addPrefs = function (prefSpecs) {
   var bundle = "stringBundle" in prefSpecs ? prefSpecs.stringBundle : null;
   for (var i = 0; i < prefSpecs.length; ++i) {
     this.addPref(
@@ -168,7 +164,7 @@ PrefManager.prototype.addPrefs = function pm_addprefs(prefSpecs) {
   }
 };
 
-PrefManager.prototype.updateArrayPref = function pm_arrayupdate(prefName) {
+PrefManager.prototype.updateArrayPref = function (prefName) {
   var record = this.prefRecords[prefName];
   if (!ASSERT(record, "Unknown pref: " + prefName)) {
     return;
@@ -186,7 +182,7 @@ PrefManager.prototype.updateArrayPref = function pm_arrayupdate(prefName) {
   this.delayedSave();
 };
 
-PrefManager.prototype.stringToArray = function pm_s2a(string) {
+PrefManager.prototype.stringToArray = function (string) {
   if (string.search(/\S/) == -1) {
     return [];
   }
@@ -199,7 +195,7 @@ PrefManager.prototype.stringToArray = function pm_s2a(string) {
   return ary;
 };
 
-PrefManager.prototype.arrayToString = function pm_a2s(ary) {
+PrefManager.prototype.arrayToString = function (ary) {
   var escapedAry = [];
   for (let item of ary) {
     escapedAry.push(encodeURIComponent(fromUnicode(item, PREF_CHARSET)));
@@ -208,7 +204,7 @@ PrefManager.prototype.arrayToString = function pm_a2s(ary) {
   return escapedAry.join("; ");
 };
 
-PrefManager.prototype.getPref = function pm_getpref(prefName, reload) {
+PrefManager.prototype.getPref = function (prefName, reload) {
   var prefManager = this;
 
   function updateArrayPref() {
@@ -252,7 +248,7 @@ PrefManager.prototype.getPref = function pm_getpref(prefName, reload) {
   return realValue;
 };
 
-PrefManager.prototype.setPref = function pm_setpref(prefName, value) {
+PrefManager.prototype.setPref = function (prefName, value) {
   var prefManager = this;
 
   function updateArrayPref() {
@@ -303,7 +299,7 @@ PrefManager.prototype.setPref = function pm_setpref(prefName, value) {
   return value;
 };
 
-PrefManager.prototype.clearPref = function pm_reset(prefName) {
+PrefManager.prototype.clearPref = function (prefName) {
   try {
     this.prefBranch.clearUserPref(prefName);
   } catch (ex) {
@@ -315,7 +311,7 @@ PrefManager.prototype.clearPref = function pm_reset(prefName) {
   this.prefRecords[prefName].realValue = null;
 };
 
-PrefManager.prototype.addPref = function pm_addpref(
+PrefManager.prototype.addPref = function (
   prefName,
   defaultValue,
   setter,
