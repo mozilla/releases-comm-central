@@ -2486,7 +2486,7 @@ nsImapServerResponseParser::CreateCurrentMailboxSpec(
   RefPtr<nsImapMailboxSpec> returnSpec = new nsImapMailboxSpec;
   const char* mailboxNameToConvert;
   if (mailboxName) {
-     mailboxNameToConvert = mailboxName;
+    mailboxNameToConvert = mailboxName;
   } else {
     mozilla::MutexAutoLock mon(mLock);
     mailboxNameToConvert = fSelectedMailboxName;
