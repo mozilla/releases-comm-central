@@ -418,6 +418,15 @@ nsresult SyncCopyStream(nsIInputStream* src, nsIOutputStream* dest,
                         uint64_t& bytesCopied,
                         size_t bufSize = FILE_IO_BUFFER_SIZE);
 
+/**
+ * Synchronously write data to the destination stream, returning only when
+ * all the data is written or if an error occurs.
+ * This is a helper function to handle the fact that nsIOutputStream.write()
+ * isn't guaranteed to write out all the data passed in, and that multiple
+ * calls might be required.
+ */
+nsresult SyncWriteAll(nsIOutputStream* dest, const char* data, uint32_t count);
+
 // Used for "@mozilla.org/network/sync-stream-listener;1".
 already_AddRefed<nsIStreamListener> SyncStreamListenerCreate();
 

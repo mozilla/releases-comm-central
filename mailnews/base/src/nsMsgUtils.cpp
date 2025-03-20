@@ -1795,6 +1795,17 @@ nsresult SyncCopyStream(nsIInputStream* src, nsIOutputStream* dest,
   return NS_OK;
 }
 
+nsresult SyncWriteAll(nsIOutputStream* dest, const char* data, uint32_t count) {
+  while (count > 0) {
+    uint32_t n;
+    nsresult rv = dest->Write(data, count, &n);
+    NS_ENSURE_SUCCESS(rv, rv);
+    count -= n;
+    data += n;
+  }
+  return NS_OK;
+}
+
 // Used for "@mozilla.org/network/sync-stream-listener;1".
 already_AddRefed<nsIStreamListener> SyncStreamListenerCreate() {
   MOZ_ASSERT(NS_IsMainThread());

@@ -3259,6 +3259,11 @@ NS_IMETHODIMP
 nsMsgLocalMailFolder::AddMessageBatch(
     const nsTArray<nsCString>& aMessages,
     nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray) {
+#ifdef MOZ_PANORAMA
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    return AddMessageBatch2(aMessages, aHdrArray);
+  }
+#endif
   aHdrArray.ClearAndRetainStorage();
   aHdrArray.SetCapacity(aMessages.Length());
 
@@ -3326,6 +3331,73 @@ nsMsgLocalMailFolder::AddMessageBatch(
   ReleaseSemaphore(static_cast<nsIMsgLocalMailFolder*>(this));
   return rv;
 }
+
+#ifdef MOZ_PANORAMA
+
+// This is currently Panorama-only. We'd like to use this for the legacy
+// DB too, but we can't yet, because it doesn't have the option to apply
+// filters. The AddMessageBatch() filtering is (I think) only used by the RSS
+// feeds, so for now we'll just keep a separate path and unify them once the
+// filtering is sorted out to a point we can use it on Panorama.
+nsresult nsMsgLocalMailFolder::AddMessageBatch2(
+    const nsTArray<nsCString>& rawMessages,
+    nsTArray<RefPtr<nsIMsgDBHdr>>& addedHdrs) {
+  nsresult rv;
+  addedHdrs.ClearAndRetainStorage();
+  addedHdrs.SetCapacity(rawMessages.Length());
+
+  nsCOMPtr<nsIMsgDatabase> db;
+  rv = GetDatabaseWOReparse(getter_AddRefs(db));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Make sure nobody else is trying to fiddle with the folder.
+  rv = AcquireSemaphore(static_cast<nsIMsgLocalMailFolder*>(this));
+  if (rv == NS_MSG_FOLDER_BUSY) {
+    return rv;
+  }
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  auto cleanup = mozilla::MakeScopeExit(
+      [&] { ReleaseSemaphore(static_cast<nsIMsgLocalMailFolder*>(this)); });
+
+  // For each message...
+  for (nsCString const& raw : rawMessages) {
+    // Parse headers and add to the DB.
+    // (We're using the old nsIMsgDatabase instead of going directly to
+    // panorama, as we want to keep working with legacy code for now).
+    RawHdr hdr = ParseMsgHeaders(raw);
+    // TODO: Sanity check here? Are there cases where we'd reject a message?
+
+    nsCOMPtr<nsIMsgDBHdr> dbHdr;
+    rv = db->AddMsgHdr(&hdr, true, getter_AddRefs(dbHdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Write it to the local message store.
+    nsCOMPtr<nsIOutputStream> outStream;
+    nsIMsgDBHdr* temp = dbHdr;
+    rv =
+        msgStore->GetNewMsgOutputStream(this, &temp, getter_AddRefs(outStream));
+    if (NS_FAILED(rv)) {
+      return rv;
+    }
+    rv = SyncWriteAll(outStream, raw.BeginReading(), raw.Length());
+    if (NS_FAILED(rv)) {
+      msgStore->DiscardNewMessage(outStream, dbHdr);
+      return rv;
+    }
+    rv = msgStore->FinishNewMessage(outStream, dbHdr);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    addedHdrs.AppendElement(dbHdr);
+  }
+  return NS_OK;
+}
+
+#endif  // MOZ_PANORAMA
 
 NS_IMETHODIMP
 nsMsgLocalMailFolder::WarnIfLocalFileTooBig(nsIMsgWindow* aWindow,

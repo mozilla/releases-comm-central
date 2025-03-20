@@ -188,6 +188,10 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
  protected:
   virtual ~nsMsgLocalMailFolder();
+#ifdef MOZ_PANORAMA
+  nsresult AddMessageBatch2(const nsTArray<nsCString>& rawMessages,
+                            nsTArray<RefPtr<nsIMsgDBHdr>>& addedHdrs);
+#endif
   nsresult CopyFolderAcrossServer(nsIMsgFolder* srcFolder,
                                   nsIMsgWindow* msgWindow,
                                   nsIMsgCopyServiceListener* listener,
