@@ -11,7 +11,6 @@ defaults/settings/thunderbird/anti-tracking-url-decoration.json
 
 # mail
 chrome/classic/skin/classic/messenger/icons/addon-install-confirm.svg
-chrome/classic/skin/classic/messenger/icons/new-mail-alert.png
 chrome/classic/skin/classic/messenger/icons/connection-insecure.svg
 chrome/classic/skin/classic/messenger/icons/message-encrypted-notok.svg
 chrome/classic/skin/classic/messenger/icons/new/compact/compress.svg

@@ -8,6 +8,7 @@ var nsActWarning = Components.Constructor(
   "init"
 );
 
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const activeAlerts = new Map();
@@ -102,7 +103,10 @@ export var alertHook = {
       );
       alert.init(
         "", // name
-        "chrome://branding/content/icon48.png",
+        // Don't add an icon on macOS, the app icon is already shown.
+        AppConstants.platform == "macosx"
+          ? ""
+          : "chrome://branding/content/icon48.png",
         this.brandShortName,
         message,
         false,
@@ -158,7 +162,10 @@ export var alertHook = {
     );
     alert.init(
       "" /* name */,
-      "chrome://branding/content/icon48.png",
+      // Don't add an icon on macOS, the app icon is already shown.
+      AppConstants.platform == "macosx"
+        ? ""
+        : "chrome://branding/content/icon48.png",
       this.brandShortName,
       await l10n.formatValue(errorString, errorArgs),
       true /* clickable */,

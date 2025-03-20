@@ -377,7 +377,10 @@ export class MailNotificationManager {
     );
     alert.init(
       cookie,
-      "chrome://messenger/skin/icons/new-mail-alert.png",
+      // Don't add an icon on macOS, the app icon is already shown.
+      AppConstants.platform == "macosx"
+        ? ""
+        : "chrome://branding/content/icon48.png",
       title,
       body,
       true /* text clickable */,

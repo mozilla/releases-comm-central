@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 const lazy = {};
@@ -176,7 +177,8 @@ CalAlarmMonitor.prototype = {
     const alertsService = Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
     alert.init(
       item.id, // name
-      "chrome://messenger/skin/icons/new-mail-alert.png",
+      // Don't add an icon on macOS, the app icon is already shown.
+      AppConstants.platform == "macosx" ? "" : "chrome://branding/content/icon48.png",
       item.title,
       item.getProperty("description"),
       true, // clickable
