@@ -852,6 +852,12 @@ pref("mail.biff.play_sound.type", 0);
 // otherwise, this needs to be a file url
 pref("mail.biff.play_sound.url", "");
 pref("mail.biff.show_alert", true);
+
+#ifdef XP_UNIX
+#ifndef XP_MACOSX
+pref("mail.biff.show_tray_icon_always", true);
+#endif
+#endif
 #ifdef XP_WIN
 pref("mail.biff.show_badge", true);
 pref("mail.biff.show_tray_icon", true);

@@ -2,17 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use cstr::cstr;
 use fluent_ffi::{adapt_bundle_for_gecko, FluentBundleRc};
 use ksni::Handle;
 use nserror::{nsresult, NS_OK};
+use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::rc::Rc;
 use system_tray::{SystemTray, TrayItem, XdgIcon};
-use xpcom::{nsIID, xpcom_method, RefPtr};
+use xpcom::interfaces::nsIPrefBranch;
+use xpcom::{get_service, nsIID, xpcom_method, RefPtr};
 
 use crate::{locales, Action};
 
 pub mod system_tray;
+
+/// Retrieves the boolean value associated with the given
+/// pref.
+fn get_bool_pref(name: &CStr) -> Option<bool> {
+    let mut value = false;
+    let prefs_service = get_service::<nsIPrefBranch>(cstr!("@mozilla.org/preferences-service;1"))?;
+    unsafe {
+        prefs_service
+            .GetBoolPref(name.as_ptr(), &mut value)
+            .to_result()
+            .ok()?;
+    }
+    Some(value)
+}
 
 /// Construct a new xpcom object for tray handling on Linux
 ///
@@ -82,7 +99,9 @@ impl LinuxSysTrayHandler {
         let tray = SystemTray::new("Thunderbird", icon, "Thunderbird Daily").with_items(menus);
         let service = ksni::TrayService::new(tray);
         let handle = service.handle();
-        service.spawn_without_dbus_name();
+        if get_bool_pref(cstr!("mail.biff.show_tray_icon_always")).unwrap_or(true) {
+            service.spawn_without_dbus_name();
+        }
         LinuxSysTrayHandler::allocate(InitLinuxSysTrayHandler { handle })
     }
 
