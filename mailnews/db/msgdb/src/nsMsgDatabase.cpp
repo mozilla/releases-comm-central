@@ -2902,8 +2902,6 @@ NS_IMETHODIMP nsMsgDatabase::AddMsgHdr(RawHdr* msg, bool notify,
     NS_ENSURE_SUCCESS(rv, rv);
   }
   if (!msg->replyTo.IsEmpty()) {
-    //  rv = hdr->Set(msg->);
-    //  NS_ENSURE_SUCCESS(rv, rv);
     rv = hdr->SetStringProperty("replyTo", msg->replyTo);
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -2915,9 +2913,13 @@ NS_IMETHODIMP nsMsgDatabase::AddMsgHdr(RawHdr* msg, bool notify,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  // TODO: Sort out type PRTime or uint32_t or what.
-  rv = hdr->SetUint32Property("dateReceived", msg->dateReceived);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (msg->dateReceived != 0) {
+    uint32_t secs;
+    PRTime2Seconds(msg->dateReceived, &secs);
+    rv = hdr->SetUint32Property("dateReceived", secs);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   if (!msg->keywords.IsEmpty()) {
     rv = hdr->SetStringProperty("keywords", msg->keywords);
     NS_ENSURE_SUCCESS(rv, rv);

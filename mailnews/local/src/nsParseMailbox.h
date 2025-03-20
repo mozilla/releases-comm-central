@@ -25,6 +25,11 @@
 
 class nsOutputFileStream;
 class nsIMsgFolder;
+struct RawHdr;
+
+// Parses a raw RFC5288 message header block, using the values to fill out
+// a RawHdr struct ready for loading into our message DB.
+RawHdr ParseMsgHeaders(mozilla::Span<const char> raw);
 
 // Used for the various things that parse RFC822 headers...
 struct HeaderData {

@@ -230,9 +230,9 @@ struct RawHdr {
   nsCString messageId;
   nsCString references; // should be array?
   PRTime date{0};
-  uint32_t dateReceived{0}; // in seconds (TODO: should be PRTime).
+  PRTime dateReceived{0}; // When message was received.
   nsCString subject;
-  nsCString sender;    // aka author
+  nsCString sender;    // AKA nsIMsgDBHdr.author. Usually "From:" header.
   nsCString recipients; // format?    (can be newsgroups)
   nsCString ccList;   // format?
   nsCString bccList;  // format?
