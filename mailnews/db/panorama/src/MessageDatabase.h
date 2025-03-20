@@ -45,6 +45,9 @@ class MessageDatabase : public nsIMessageDatabase {
 
   nsresult ListAllKeys(uint64_t aFolderId, nsTArray<nsMsgKey>& aKeys);
   nsresult GetMessage(nsMsgKey aKey, Message** aMessage);
+  nsresult GetMessageForMessageID(uint64_t aFolderId,
+                                  const nsACString& aMessageId,
+                                  Message** aMessage);
   nsresult GetMessageFlag(nsMsgKey aKey, uint64_t aFlag, bool* aHasFlag);
   nsresult SetMessageFlag(nsMsgKey aKey, uint64_t aFlag, bool aSetFlag);
   nsresult SetMessageFlags(uint64_t aId, uint64_t aFlags);

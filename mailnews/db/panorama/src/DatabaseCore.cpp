@@ -259,7 +259,8 @@ NS_IMETHODIMP DatabaseCore::OpenFolderDB(nsIMsgFolder* aFolder,
                                          bool aLeaveInvalidDB,
                                          nsIMsgDatabase** _retval) {
   nsCOMPtr<nsIFolder> folder;
-  nsresult rv = GetFolderForMsgFolder(aFolder, getter_AddRefs(folder));
+  nsresult rv =
+      mFolderDatabase->GetFolderForMsgFolder(aFolder, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
   if (!folder) {
     return NS_MSG_ERROR_FOLDER_SUMMARY_MISSING;
@@ -279,6 +280,15 @@ NS_IMETHODIMP DatabaseCore::OpenFolderDB(nsIMsgFolder* aFolder,
 
   mOpenDatabases.InsertOrUpdate(folderId, db);
 
+  nsCOMPtr<nsIFile> filePath;
+  rv = aFolder->GetFilePath(getter_AddRefs(filePath));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsString path;
+  rv = filePath->GetPath(path);
+  NS_ENSURE_SUCCESS(rv, rv);
+  mOpenDatabasesByFile.InsertOrUpdate(path, db);
+
   return NS_OK;
 }
 NS_IMETHODIMP DatabaseCore::CreateNewDB(nsIMsgFolder* aFolder,
@@ -288,7 +298,7 @@ NS_IMETHODIMP DatabaseCore::CreateNewDB(nsIMsgFolder* aFolder,
   nsCOMPtr<nsIMsgFolder> msgParent;
   aFolder->GetParent(getter_AddRefs(msgParent));
   nsCOMPtr<nsIFolder> parent;
-  GetFolderForMsgFolder(msgParent, getter_AddRefs(parent));
+  mFolderDatabase->GetFolderForMsgFolder(msgParent, getter_AddRefs(parent));
 
   nsCOMPtr<nsIFolder> unused;
   mFolderDatabase->InsertFolder(parent, name, getter_AddRefs(unused));
@@ -316,7 +326,17 @@ NS_IMETHODIMP DatabaseCore::CachedDBForFolder(nsIMsgFolder* aFolder,
 }
 NS_IMETHODIMP DatabaseCore::CachedDBForFilePath(nsIFile* filePath,
                                                 nsIMsgDatabase** _retval) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsString path;
+  nsresult rv = filePath->GetPath(path);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  WeakPtr<PerFolderDatabase> existingDatabase = mOpenDatabasesByFile.Get(path);
+  if (existingDatabase) {
+    NS_IF_ADDREF(*_retval = existingDatabase);
+    return NS_OK;
+  }
+
+  return NS_ERROR_FAILURE;
 }
 NS_IMETHODIMP DatabaseCore::ForceFolderDBClosed(nsIMsgFolder* aFolder) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -325,45 +345,6 @@ NS_IMETHODIMP DatabaseCore::GetOpenDBs(
     nsTArray<RefPtr<nsIMsgDatabase>>& aOpenDBs) {
   aOpenDBs.Clear();
   return NS_OK;
-}
-
-nsresult DatabaseCore::GetFolderForMsgFolder(nsIMsgFolder* aMsgFolder,
-                                             nsIFolder** aFolder) {
-  NS_ENSURE_ARG(aMsgFolder);
-  NS_ENSURE_ARG_POINTER(aFolder);
-
-  nsresult rv;
-
-  bool isServer;
-  aMsgFolder->GetIsServer(&isServer);
-  if (isServer) {
-    nsCOMPtr<nsIMsgIncomingServer> incomingServer;
-    rv = aMsgFolder->GetServer(getter_AddRefs(incomingServer));
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsAutoCString serverKey;
-    rv = incomingServer->GetKey(serverKey);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = mFolderDatabase->GetFolderByPath(serverKey, aFolder);
-    NS_ENSURE_SUCCESS(rv, rv);
-    return NS_OK;
-  }
-
-  nsCOMPtr<nsIMsgFolder> msgParent;
-  rv = aMsgFolder->GetParent(getter_AddRefs(msgParent));
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIFolder> parent;
-  rv = GetFolderForMsgFolder(msgParent, getter_AddRefs(parent));
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (!parent) {
-    return NS_ERROR_FAILURE;
-  }
-
-  nsAutoCString msgName;
-  rv = aMsgFolder->GetName(msgName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return parent->GetChildNamed(msgName, aFolder);
 }
 
 }  // namespace mozilla::mailnews

@@ -96,7 +96,8 @@ class ThreadEnumerator : public nsBaseMsgThreadEnumerator {
 
 class FolderInfo : public nsIDBFolderInfo {
  public:
-  explicit FolderInfo(FolderDatabase* folderDatabase, uint64_t folderId);
+  explicit FolderInfo(FolderDatabase* folderDatabase,
+                      PerFolderDatabase* perFolderDatabase, uint64_t folderId);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIDBFOLDERINFO
@@ -105,6 +106,7 @@ class FolderInfo : public nsIDBFolderInfo {
   virtual ~FolderInfo() {};
 
   FolderDatabase* mFolderDatabase;
+  PerFolderDatabase* mPerFolderDatabase;
   nsCOMPtr<nsIFolder> mFolder;
 };
 

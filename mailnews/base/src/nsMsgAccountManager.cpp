@@ -1379,6 +1379,11 @@ nsMsgAccountManager::ReactivateAccounts() {
 // and makes sure the folder flags are set there, too
 NS_IMETHODIMP
 nsMsgAccountManager::SetSpecialFolders() {
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    // Skip this for now.
+    return NS_OK;
+  }
+
   nsTArray<RefPtr<nsIMsgIdentity>> identities;
   GetAllIdentities(identities);
 
@@ -2745,6 +2750,11 @@ nsresult nsMsgAccountManager::GetVirtualFoldersFile(nsCOMPtr<nsIFile>& aFile) {
 }
 
 NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    // Skip this for now.
+    return NS_OK;
+  }
+
   nsCOMPtr<nsIFile> file;
   GetVirtualFoldersFile(file);
   if (!file) return NS_ERROR_FAILURE;

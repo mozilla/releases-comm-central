@@ -2793,11 +2793,14 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   for (int i = ancestors.Length() - 2; i >= 0; --i) {
     mPath->Append(NS_ConvertUTF8toUTF16(ancestors[i]->GetName()) + u".sbd"_ns);
   }
-  mPath->Append(NS_ConvertUTF8toUTF16(mName));
+  if (!folder->GetIsServer()) {
+    mPath->Append(NS_ConvertUTF8toUTF16(mName));
+  }
 
   server->GetServerURI(mURI);
   nsCString path = folder->GetPath();
   mURI.Append(Substring(path, path.FindChar('/')));  // HAX.
+  mBaseMessageURI = "mailbox-message:"_ns + Substring(mURI, 8);
   mHaveParsedURI = true;
   mInitializedFromCache = true;
 

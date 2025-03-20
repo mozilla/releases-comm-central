@@ -5,6 +5,7 @@
 #include "nsISupports.idl"
 
 interface nsIFolder;
+interface nsIMsgFolder;
 
 [scriptable, uuid(2842d879-e52f-4812-926c-dfde62b77881)]
 interface nsIFolderDatabase : nsISupports {
@@ -17,6 +18,18 @@ interface nsIFolderDatabase : nsISupports {
    * Get a folder identified by its path.
    */
   nsIFolder getFolderByPath(in AUTF8String path);
+
+  /**
+   * For a given nsIMsgFolder, get the corresponding nsIFolder, or null if it
+   * can't be found.
+   */
+  nsIFolder getFolderForMsgFolder(in nsIMsgFolder msgFolder);
+
+  /**
+   * For a given nsIFolder, get the corresponding nsIMsgFolder, or null if it
+   * can't be found.
+   */
+  nsIMsgFolder getMsgFolderForFolder(in nsIFolder folder);
 
   /**
    * Add and return a new root folder representing a server to the database.

@@ -17,7 +17,7 @@ add_task(function testMessageProperties() {
   const [message] = liveView.selectMessages(1, 2);
   Assert.equal(message.id, 8);
   Assert.equal(message.folderId, 4);
-  Assert.equal(message.messageId, "");
+  Assert.equal(message.messageId, "message8@invalid");
   Assert.equal(message.date.toISOString(), "2023-08-06T06:02:00.000Z");
   Assert.equal(message.sender, "Edgar Stokes <edgar@stokes.invalid>");
   Assert.equal(message.subject, "Balanced static project");

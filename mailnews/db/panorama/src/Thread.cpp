@@ -8,14 +8,16 @@ namespace mozilla::mailnews {
 
 NS_IMPL_ISUPPORTS(Thread, nsIMsgThread)
 
-NS_IMETHODIMP Thread::GetThreadKey(nsMsgKey* aThreadKey) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP Thread::GetThreadKey(nsMsgKey* threadKey) {
+  *threadKey = mMessage->mId;
+  return NS_OK;
 }
-NS_IMETHODIMP Thread::SetThreadKey(nsMsgKey aThreadKey) {
+NS_IMETHODIMP Thread::SetThreadKey(nsMsgKey threadKey) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Thread::GetFlags(uint32_t* aFlags) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  *aFlags = 0;
+  return NS_OK;
 }
 NS_IMETHODIMP Thread::SetFlags(uint32_t aFlags) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -33,10 +35,12 @@ NS_IMETHODIMP Thread::SetNewestMsgDate(uint32_t aNewestMsgDate) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Thread::GetNumChildren(uint32_t* aNumChildren) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  *aNumChildren = 1;
+  return NS_OK;
 }
 NS_IMETHODIMP Thread::GetNumUnreadChildren(uint32_t* aNumUnreadChildren) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  *aNumUnreadChildren = 0;
+  return NS_OK;
 }
 NS_IMETHODIMP Thread::GetNumNewChildren(uint32_t* aNumNewChildren) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -56,7 +60,8 @@ NS_IMETHODIMP Thread::GetChildHdrAt(uint32_t index, nsIMsgDBHdr** _retval) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Thread::GetRootHdr(nsIMsgDBHdr** _retval) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  NS_IF_ADDREF(*_retval = mMessage);
+  return NS_OK;
 }
 NS_IMETHODIMP Thread::RemoveChildAt(uint32_t index) {
   return NS_ERROR_NOT_IMPLEMENTED;

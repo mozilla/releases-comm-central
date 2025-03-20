@@ -92,7 +92,8 @@ NS_IMETHODIMP PerFolderDatabase::ResetHdrCacheSize(uint32_t size) {
 }
 NS_IMETHODIMP PerFolderDatabase::GetDBFolderInfo(
     nsIDBFolderInfo** aDBFolderInfo) {
-  NS_IF_ADDREF(*aDBFolderInfo = new FolderInfo(mFolderDatabase, mFolderId));
+  NS_IF_ADDREF(*aDBFolderInfo =
+                   new FolderInfo(mFolderDatabase, this, mFolderId));
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetDatabaseSize(int64_t* databaseSize) {
@@ -108,19 +109,30 @@ NS_IMETHODIMP PerFolderDatabase::GetLastUseTime(PRTime* aLastUseTime) {
 NS_IMETHODIMP PerFolderDatabase::SetLastUseTime(PRTime aLastUseTime) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForKey(nsMsgKey aKey,
-                                                 nsIMsgDBHdr** aMsgHdr) {
+NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForKey(nsMsgKey key,
+                                                 nsIMsgDBHdr** msgHdr) {
+  NS_ENSURE_ARG_POINTER(msgHdr);
+
   RefPtr<Message> message;
-  nsresult rv = mMessageDatabase->GetMessage(aKey, getter_AddRefs(message));
+  nsresult rv = mMessageDatabase->GetMessage(key, getter_AddRefs(message));
   if (NS_FAILED(rv) || message->mFolderId != mFolderId) {
     return NS_ERROR_ILLEGAL_VALUE;
   }
-  NS_IF_ADDREF(*aMsgHdr = message);
+  NS_IF_ADDREF(*msgHdr = message);
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForMessageID(const char* messageID,
-                                                       nsIMsgDBHdr** aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+                                                       nsIMsgDBHdr** msgHdr) {
+  NS_ENSURE_ARG_POINTER(msgHdr);
+
+  RefPtr<Message> message;
+  nsresult rv = mMessageDatabase->GetMessageForMessageID(
+      mFolderId, nsCString(messageID), getter_AddRefs(message));
+  if (NS_FAILED(rv)) {
+    return NS_ERROR_ILLEGAL_VALUE;
+  }
+  NS_IF_ADDREF(*msgHdr = message);
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForGMMsgID(
     const char* aGmailMessageID, nsIMsgDBHdr** aRetVal) {
@@ -258,8 +270,13 @@ NS_IMETHODIMP PerFolderDatabase::SyncCounts() {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::GetThreadContainingMsgHdr(
-    nsIMsgDBHdr* msgHdr, nsIMsgThread** aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    nsIMsgDBHdr* msgHdr, nsIMsgThread** thread) {
+  NS_ENSURE_ARG(msgHdr);
+  NS_ENSURE_ARG_POINTER(thread);
+
+  Message* message = (Message*)(msgHdr);
+  NS_ADDREF(*thread = new Thread(message));
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::MarkNotNew(nsMsgKey aKey,
                                             nsIDBChangeListener* aInstigator) {
@@ -502,7 +519,7 @@ NS_IMETHODIMP PerFolderDatabase::GetDefaultViewFlags(
 
   Preferences::GetInt(mIsNewsFolder ? "mailnews.default_news_view_flags"
                                     : "mailnews.default_view_flags",
-                      (int32_t*)&viewFlags);
+                      viewFlags);
   if (*viewFlags < nsMsgViewFlagsType::kNone ||
       *viewFlags >
           (nsMsgViewFlagsType::kThreadedDisplay |
@@ -518,7 +535,7 @@ NS_IMETHODIMP PerFolderDatabase::GetDefaultSortType(
 
   Preferences::GetInt(mIsNewsFolder ? "mailnews.default_news_sort_type"
                                     : "mailnews.default_sort_type",
-                      (int32_t*)&sortType);
+                      sortType);
   if (*sortType < nsMsgViewSortType::byDate ||
       *sortType > nsMsgViewSortType::byCorrespondent ||
       *sortType == nsMsgViewSortType::byCustom) {
@@ -532,7 +549,7 @@ NS_IMETHODIMP PerFolderDatabase::GetDefaultSortOrder(
 
   Preferences::GetInt(mIsNewsFolder ? "mailnews.default_news_sort_order"
                                     : "mailnews.default_sort_order",
-                      (int32_t*)&sortOrder);
+                      sortOrder);
   if (*sortOrder != nsMsgViewSortOrder::descending) {
     *sortOrder = nsMsgViewSortOrder::ascending;
   }
@@ -624,8 +641,11 @@ NS_IMETHODIMP ThreadEnumerator::HasMoreElements(bool* hasNext) {
 
 NS_IMPL_ISUPPORTS(FolderInfo, nsIDBFolderInfo)
 
-FolderInfo::FolderInfo(FolderDatabase* folderDatabase, uint64_t folderId) {
+FolderInfo::FolderInfo(FolderDatabase* folderDatabase,
+                       PerFolderDatabase* perFolderDatabase,
+                       uint64_t folderId) {
   mFolderDatabase = folderDatabase;
+  mPerFolderDatabase = perFolderDatabase;
   mFolderDatabase->GetFolderById(folderId, getter_AddRefs(mFolder));
 }
 
@@ -735,25 +755,28 @@ NS_IMETHODIMP FolderInfo::SetViewType(nsMsgViewTypeValue aViewType) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP FolderInfo::GetViewFlags(nsMsgViewFlagsTypeValue* viewFlags) {
-  *viewFlags = nsMsgViewFlagsType::kThreadedDisplay;
-  return NS_OK;
+  nsMsgViewFlagsTypeValue defaultViewFlags;
+  mPerFolderDatabase->GetDefaultViewFlags(&defaultViewFlags);
+  return GetUint32Property("viewFlags", defaultViewFlags, (uint32_t*)viewFlags);
 }
-NS_IMETHODIMP FolderInfo::SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP FolderInfo::SetViewFlags(nsMsgViewFlagsTypeValue viewFlags) {
+  return SetUint32Property("viewFlags", viewFlags);
 }
 NS_IMETHODIMP FolderInfo::GetSortType(nsMsgViewSortTypeValue* sortType) {
-  *sortType = nsMsgViewSortType::byDate;
-  return NS_OK;
+  nsMsgViewSortTypeValue defaultSortType;
+  mPerFolderDatabase->GetDefaultSortType(&defaultSortType);
+  return GetUint32Property("sortType", defaultSortType, (uint32_t*)sortType);
 }
-NS_IMETHODIMP FolderInfo::SetSortType(nsMsgViewSortTypeValue aSortType) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP FolderInfo::SetSortType(nsMsgViewSortTypeValue sortType) {
+  return SetUint32Property("sortType", sortType);
 }
 NS_IMETHODIMP FolderInfo::GetSortOrder(nsMsgViewSortOrderValue* sortOrder) {
-  *sortOrder = nsMsgViewSortOrder::descending;
-  return NS_OK;
+  nsMsgViewSortOrderValue defaultSortOrder;
+  mPerFolderDatabase->GetDefaultSortOrder(&defaultSortOrder);
+  return GetUint32Property("sortOrder", defaultSortOrder, (uint32_t*)sortOrder);
 }
-NS_IMETHODIMP FolderInfo::SetSortOrder(nsMsgViewSortOrderValue aSortOrder) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP FolderInfo::SetSortOrder(nsMsgViewSortOrderValue sortOrder) {
+  return SetUint32Property("sortOrder", sortOrder);
 }
 NS_IMETHODIMP FolderInfo::ChangeExpungedBytes(int32_t aDelta) {
   return NS_ERROR_NOT_IMPLEMENTED;

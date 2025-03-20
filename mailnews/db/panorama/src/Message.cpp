@@ -5,6 +5,11 @@
 #include "Message.h"
 
 #include "MessageDatabase.h"
+#include "mozilla/Components.h"
+#include "nsIDatabaseCore.h"
+#include "nsIFolder.h"
+#include "nsIFolderDatabase.h"
+#include "nsIMsgAccountManager.h"
 #include "nsMsgMessageFlags.h"
 #include "nsString.h"
 #include "prtime.h"
@@ -134,10 +139,10 @@ NS_IMETHODIMP Message::SetThreadParent(nsMsgKey aThreadParent) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetMessageSize(uint32_t* aMessageSize) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return GetUint32Property("messageSize", aMessageSize);
 }
 NS_IMETHODIMP Message::SetMessageSize(uint32_t aMessageSize) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return SetUint32Property("messageSize", aMessageSize);
 }
 NS_IMETHODIMP Message::GetLineCount(uint32_t* aLineCount) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -152,10 +157,10 @@ NS_IMETHODIMP Message::SetStoreToken(const nsACString& aStoreToken) {
   return SetStringProperty("storeToken", aStoreToken);
 }
 NS_IMETHODIMP Message::GetOfflineMessageSize(uint32_t* aOfflineMessageSize) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return GetUint32Property("offlineMessageSize", aOfflineMessageSize);
 }
 NS_IMETHODIMP Message::SetOfflineMessageSize(uint32_t aOfflineMessageSize) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return SetUint32Property("offlineMessageSize", aOfflineMessageSize);
 }
 NS_IMETHODIMP Message::GetDate(PRTime* aDate) {
   *aDate = mDate;
@@ -176,7 +181,9 @@ NS_IMETHODIMP Message::SetMessageId(const nsACString& aMessageId) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetCcList(nsACString& aCcList) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  // TODO: Actually implement. This is only here to fix message display.
+  aCcList.Truncate();
+  return NS_OK;
 }
 NS_IMETHODIMP Message::SetCcList(const nsACString& aCcList) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -202,7 +209,9 @@ NS_IMETHODIMP Message::SetSubject(const nsACString& aSubject) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetRecipients(nsACString& aRecipients) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  // TODO: Actually implement. This is only here to fix message display.
+  aRecipients.Truncate();
+  return NS_OK;
 }
 NS_IMETHODIMP Message::SetRecipients(const nsACString& aRecipients) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -253,7 +262,17 @@ NS_IMETHODIMP Message::SetAccountKey(const nsACString& aAccountKey) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetFolder(nsIMsgFolder** aFolder) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsCOMPtr<nsIDatabaseCore> core =
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
+  nsCOMPtr<nsIFolderDatabase> folderDatabase;
+  nsresult rv = core->GetFolders(getter_AddRefs(folderDatabase));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIFolder> folder;
+  rv = folderDatabase->GetFolderById(mFolderId, getter_AddRefs(folder));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return folderDatabase->GetMsgFolderForFolder(folder, aFolder);
 }
 NS_IMETHODIMP Message::GetUidOnServer(uint32_t* aUidOnServer) {
   return NS_ERROR_NOT_IMPLEMENTED;

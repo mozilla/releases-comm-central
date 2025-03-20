@@ -31,14 +31,35 @@ add_task(async function testFolderMethods() {
   Assert.ok(!folderDatabase.containsKey(5));
 
   // Test getting a message header.
-  let header = folderDatabase.getMsgHdrForKey(4);
+  let header = folderDatabase.getMsgHdrForKey(2);
+  Assert.equal(header.messageKey, 2);
+  Assert.equal(header.folder, folderA);
+  Assert.equal(header.date, new Date("2019-09-14T00:00:00Z").valueOf() * 1000);
+  Assert.equal(header.author, '"Lydia Rau" <lydia@rau.invalid>');
+  Assert.equal(header.subject, "Networked even-keeled forecast");
+  Assert.equal(header.flags, 0);
+
+  Assert.throws(
+    () => folderDatabase.getMsgHdrForKey(5),
+    /NS_ERROR_ILLEGAL_VALUE/,
+    "message from a different folder should not be returned"
+  );
+
+  header = folderDatabase.getMsgHdrForMessageID("message4@invalid");
   Assert.equal(header.messageKey, 4);
+  Assert.equal(header.folder, folderA);
   Assert.equal(header.date, new Date("2019-11-03T12:34:56Z").valueOf() * 1000);
   Assert.equal(header.author, '"Eliseo Bauch" <eliseo@bauch.invalid>');
   Assert.equal(header.subject, "Proactive intermediate collaboration");
   Assert.equal(
     header.flags,
     Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.Marked
+  );
+
+  Assert.throws(
+    () => folderDatabase.getMsgHdrForMessageID("message7@invalid"),
+    /NS_ERROR_ILLEGAL_VALUE/,
+    "message from a different folder should not be returned"
   );
 
   // Test getting and changing message flags.
@@ -130,6 +151,7 @@ add_task(async function testFolderMethods() {
     ]
   );
 
+  // Test marking all messages as read.
   Assert.ok(!folderDatabase.isRead(1));
   Assert.ok(!folderDatabase.isRead(2));
   Assert.ok(folderDatabase.isRead(3));
@@ -140,6 +162,7 @@ add_task(async function testFolderMethods() {
   Assert.ok(folderDatabase.isRead(3));
   Assert.ok(folderDatabase.isRead(4));
 
+  // Test the new messages list.
   Assert.ok(!folderDatabase.hasNew());
   Assert.equal(folderDatabase.firstNew, 0xffffffff); // nsMsgKey_None
   folderDatabase.addToNewList(2);
@@ -258,6 +281,7 @@ add_task(async function testHeaderMethods() {
   Assert.equal(folderC.msgDatabase, folderDatabase);
 
   let header = folderDatabase.getMsgHdrForKey(7);
+  Assert.equal(header.folder, folderC);
   Assert.equal(header.flags, 0);
   Assert.ok(!header.isRead);
   Assert.ok(!header.isFlagged);
@@ -322,9 +346,14 @@ add_task(async function testHeaderProperties() {
   header.storeToken = "12345678";
   Assert.equal(header.storeToken, "12345678");
 
+  Assert.equal(header.messageSize, 0);
+  header.messageSize = 500;
+  Assert.equal(header.messageSize, 500);
+
   Assert.deepEqual(header.properties.toSorted(), [
     "answer",
     "hack",
+    "messageSize",
     "storeToken",
   ]);
 
@@ -343,6 +372,7 @@ add_task(async function testHeaderProperties() {
   Assert.deepEqual(properties, [
     [7, "answer", 42],
     [7, "hack", ""],
+    [7, "messageSize", 500],
     [7, "storeToken", "12345678"],
   ]);
 });

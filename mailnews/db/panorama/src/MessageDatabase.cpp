@@ -161,11 +161,38 @@ nsresult MessageDatabase::ListAllKeys(uint64_t aFolderId,
 
 nsresult MessageDatabase::GetMessage(nsMsgKey aKey, Message** aMessage) {
   nsCOMPtr<mozIStorageStatement> stmt;
-  DatabaseCore::GetStatement("GetMessage"_ns,
+  DatabaseCore::GetStatement("GetMessageByKey"_ns,
                              "SELECT "_ns MESSAGE_SQL_FIELDS
                              " FROM messages WHERE id = :id"_ns,
                              getter_AddRefs(stmt));
   stmt->BindInt64ByName("id"_ns, (uint64_t)aKey);
+
+  bool hasResult;
+  nsresult rv = stmt->ExecuteStep(&hasResult);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!hasResult) {
+    stmt->Reset();
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  RefPtr<Message> message = new Message(this, stmt);
+  message.forget(aMessage);
+  stmt->Reset();
+
+  return NS_OK;
+}
+
+nsresult MessageDatabase::GetMessageForMessageID(uint64_t aFolderId,
+                                                 const nsACString& aMessageId,
+                                                 Message** aMessage) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  DatabaseCore::GetStatement(
+      "GetMessageByMessageId"_ns,
+      "SELECT "_ns MESSAGE_SQL_FIELDS
+      " FROM messages WHERE folderId = :folderId AND messageId = :messageId"_ns,
+      getter_AddRefs(stmt));
+  stmt->BindInt64ByName("folderId"_ns, aFolderId);
+  stmt->BindUTF8StringByName("messageId"_ns, aMessageId);
 
   bool hasResult;
   nsresult rv = stmt->ExecuteStep(&hasResult);

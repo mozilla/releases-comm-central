@@ -177,6 +177,92 @@ NS_IMETHODIMP FolderDatabase::GetFolderByPath(const nsACString& aPath,
   return NS_OK;
 }
 
+NS_IMETHODIMP FolderDatabase::GetFolderForMsgFolder(nsIMsgFolder* aMsgFolder,
+                                                    nsIFolder** aFolder) {
+  NS_ENSURE_ARG(aMsgFolder);
+  NS_ENSURE_ARG_POINTER(aFolder);
+
+  nsresult rv;
+
+  // If we're at the root, get the corresponding nsIFolder from the database.
+  bool isServer;
+  aMsgFolder->GetIsServer(&isServer);
+  if (isServer) {
+    nsCOMPtr<nsIMsgIncomingServer> incomingServer;
+    rv = aMsgFolder->GetServer(getter_AddRefs(incomingServer));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoCString serverKey;
+    rv = incomingServer->GetKey(serverKey);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = GetFolderByPath(serverKey, aFolder);
+    NS_ENSURE_SUCCESS(rv, rv);
+    return NS_OK;
+  }
+
+  // Traverse up the ancestors until we get to the root.
+  nsCOMPtr<nsIMsgFolder> msgParent;
+  rv = aMsgFolder->GetParent(getter_AddRefs(msgParent));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIFolder> parent;
+  rv = GetFolderForMsgFolder(msgParent, getter_AddRefs(parent));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!parent) {
+    return NS_ERROR_FAILURE;
+  }
+
+  // Get the subfolder with the name we're looking for.
+  nsAutoCString msgName;
+  rv = aMsgFolder->GetName(msgName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return parent->GetChildNamed(msgName, aFolder);
+}
+
+NS_IMETHODIMP FolderDatabase::GetMsgFolderForFolder(nsIFolder* aFolder,
+                                                    nsIMsgFolder** aMsgFolder) {
+  NS_ENSURE_ARG(aFolder);
+  NS_ENSURE_ARG_POINTER(aMsgFolder);
+
+  nsresult rv;
+
+  // If we're at the root, get the corresponding nsIMsgFolder from the
+  // account manager.
+  bool isServer;
+  aFolder->GetIsServer(&isServer);
+  if (isServer) {
+    nsCOMPtr<nsIMsgAccountManager> accountManager =
+        components::AccountManager::Service();
+
+    nsCOMPtr<nsIMsgIncomingServer> incomingServer;
+    rv = accountManager->GetIncomingServer(aFolder->GetName(),
+                                           getter_AddRefs(incomingServer));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = incomingServer->GetRootFolder(aMsgFolder);
+    NS_ENSURE_SUCCESS(rv, rv);
+    return NS_OK;
+  }
+
+  // Traverse up the ancestors until we get to the root.
+  nsCOMPtr<nsIFolder> parent;
+  rv = aFolder->GetParent(getter_AddRefs(parent));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgFolder> msgParent;
+  rv = GetMsgFolderForFolder(parent, getter_AddRefs(msgParent));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!msgParent) {
+    return NS_ERROR_FAILURE;
+  }
+
+  // Get the subfolder with the name we're looking for.
+  nsAutoCString msgName;
+  rv = aFolder->GetName(msgName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return msgParent->GetChildNamed(msgName, aMsgFolder);
+}
+
 /**
  * Modification functions.
  */
