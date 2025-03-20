@@ -855,7 +855,11 @@ pref("mail.biff.show_alert", true);
 
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
+#ifdef NIGHTLY_BUILD
 pref("mail.biff.show_tray_icon_always", true);
+#else
+pref("mail.biff.show_tray_icon_always", false);
+#endif
 #endif
 #endif
 #ifdef XP_WIN
