@@ -451,13 +451,14 @@
         </hbox>
       </hbox>
 #endif
-#ifdef XP_MACOSX
-      <description class="bold" data-l10n-id="notification-settings2"/>
-#else
       <hbox align="center">
+#ifdef XP_MACOSX
+        <description class="bold" data-l10n-id="notification-settings2"/>
+#else
         <checkbox id="newMailNotificationAlert"
                   data-l10n-id="animated-alert-label"
                   preference="mail.biff.show_alert"/>
+#endif
         <spacer flex="1"/>
         <hbox>
           <button is="highlightable-button" id="customizeMailAlert"
@@ -473,6 +474,7 @@
                     open-time-label-after.value"/>
         </hbox>
       </hbox>
+#ifndef XP_MACOSX
       <hbox align="center" class="indent">
         <checkbox id="useSystemNotificationAlert"
                   data-l10n-id="biff-use-system-alert"

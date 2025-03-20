@@ -343,14 +343,12 @@ add_task(async function testNewMailAlertDialogs() {
       "cancel"
     );
   }
-  if (AppConstants.platform != "macosx") {
-    await promiseSubDialog(
-      prefsDocument.getElementById("customizeMailAlert"),
-      "chrome://messenger/content/preferences/notifications.xhtml",
-      () => {},
-      "cancel"
-    );
-  }
+  await promiseSubDialog(
+    prefsDocument.getElementById("customizeMailAlert"),
+    "chrome://messenger/content/preferences/notifications.xhtml",
+    () => {},
+    "cancel"
+  );
   await closePrefsTab();
 });
 

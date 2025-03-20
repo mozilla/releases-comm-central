@@ -37,10 +37,8 @@ messenger.jar:
     content/messenger/preferences/findInPage.js
     content/messenger/preferences/fonts.js
     content/messenger/preferences/fonts.xhtml
-#ifndef XP_MACOSX
     content/messenger/preferences/notifications.js
     content/messenger/preferences/notifications.xhtml
-#endif
     content/messenger/preferences/offline.js
     content/messenger/preferences/offline.xhtml
     content/messenger/preferences/cookies.js
