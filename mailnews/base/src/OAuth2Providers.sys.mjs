@@ -252,6 +252,9 @@ export var OAuth2Providers = {
     if (!type) {
       throw new Error("passing a `type` argument is required");
     }
+    if (type.startsWith("owl")) {
+      type = "exchange";
+    }
 
     const details = this._getHostnameDetails(hostname);
     if (!details) {
