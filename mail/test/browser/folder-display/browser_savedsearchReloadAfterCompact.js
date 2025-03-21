@@ -9,6 +9,10 @@
 
 "use strict";
 
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
+
 var {
   be_in_folder,
   create_folder,
@@ -53,31 +57,14 @@ add_task(async function test_setup_virtual_folder_and_compact() {
 
   await be_in_folder(folderVirtual);
   await select_click_row(0);
-  const urlListener = {
-    compactDone: false,
-
-    OnStartRunningUrl() {},
-    OnStopRunningUrl() {
-      this.compactDone = true;
-    },
-  };
   if (otherFolder.msgStore.supportsCompaction) {
-    otherFolder.compactAll(urlListener, null);
-
-    await TestUtils.waitForCondition(
-      () => urlListener.compactDone,
-      "Timeout waiting for compact to complete",
-      10000,
-      100
-    );
+    const listener = new PromiseTestUtils.PromiseUrlListener();
+    otherFolder.compactAll(listener, null);
+    await listener.promise;
   }
   // Let the event queue clear.
   await new Promise(resolve => setTimeout(resolve));
 
-  await TestUtils.waitForCondition(
-    () => get_about_3pane().gDBView.rowCount > 0,
-    "Timeout waiting for view to have rows"
-  );
   // Check view is still valid
   Assert.ok(
     get_about_3pane().gDBView.getMsgHdrAt(0),
