@@ -198,7 +198,8 @@ bitflags = { path = "../../build/rust/bitflags" }
 redox_users = { path = "../../build/rust/redox_users" }
 redox_syscall = { path = "../../build/rust/redox_syscall" }
 hermit-abi = { path = "../../build/rust/hermit-abi" }
-base64 = { path = "../../build/rust/base64" }
+base64_13 = { package = "base64", path = "../../build/rust/base64_13" }
+base64_21 = { package = "base64", path = "../../build/rust/base64" }
 wasi_0_10 = { package = "wasi", path = "../../build/rust/wasi-0.10" }
 wasi_0_11 = { package = "wasi", path = "../../build/rust/wasi" }
 backtrace = { path = "../../build/rust/backtrace" }
