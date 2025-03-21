@@ -276,41 +276,6 @@ add_task(async function testDragMessageSource() {
     sourceMessageIDs[10],
   ]);
 
-  info("Dragging an unselected message with ctrl key already pressed");
-
-  // Since EventUtils.synthesizeDragOver() does not correctly emulate a drag
-  // operation with a modifier key already pressed, we'll call the relevant
-  // parts of this function directly.
-  const srcElement = threadTree.getRowAtIndex(1);
-  EventUtils.synthesizeMouseAtCenter(
-    srcElement,
-    { type: "mousedown", ctrlKey: true },
-    about3Pane
-  );
-  const rect = srcElement.getBoundingClientRect();
-  const x = rect.width / 2;
-  const y = rect.height / 2;
-  EventUtils.synthesizeMouse(
-    srcElement,
-    x,
-    y,
-    { type: "mousemove", ctrlKey: true },
-    about3Pane
-  );
-  EventUtils.synthesizeMouse(
-    srcElement,
-    x + 10,
-    y + 10,
-    { type: "mousemove", ctrlKey: true },
-    about3Pane
-  );
-
-  Assert.equal(
-    threadTree.selectedIndex,
-    5,
-    "The selection should not have changed"
-  );
-
   info("Dragging an unselected message");
 
   movePromise = new PromiseTestUtils.promiseFolderNotification(

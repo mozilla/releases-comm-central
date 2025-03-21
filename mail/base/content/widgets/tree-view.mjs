@@ -315,8 +315,6 @@ export class TreeView extends HTMLElement {
           return;
         }
 
-        this.ensureCorrectFocus();
-
         const index = row.index;
 
         if (event.target.classList.contains("tree-button-thread")) {
@@ -334,6 +332,7 @@ export class TreeView extends HTMLElement {
             const addedRows = this.expandRowAtIndex(index);
             this._selectRange(index, index + addedRows, event[accelKeyName]);
           }
+          this.table.body.focus();
           return;
         }
 
@@ -344,6 +343,7 @@ export class TreeView extends HTMLElement {
             const addedRows = this.expandRowAtIndex(index);
             this.scrollExpandedRowIntoView(index, addedRows);
           }
+          this.table.body.focus();
           return;
         }
 
@@ -355,6 +355,7 @@ export class TreeView extends HTMLElement {
           } else {
             this._toggleSelected(index);
           }
+          this.table.body.focus();
           return;
         }
 
@@ -367,6 +368,7 @@ export class TreeView extends HTMLElement {
               },
             })
           );
+          this.table.body.focus();
           return;
         }
 
@@ -380,6 +382,7 @@ export class TreeView extends HTMLElement {
               },
             })
           );
+          this.table.body.focus();
           return;
         }
 
@@ -393,6 +396,7 @@ export class TreeView extends HTMLElement {
               },
             })
           );
+          this.table.body.focus();
           return;
         }
 
@@ -406,6 +410,7 @@ export class TreeView extends HTMLElement {
               },
             })
           );
+          this.table.body.focus();
           return;
         }
 
@@ -417,6 +422,7 @@ export class TreeView extends HTMLElement {
           this._selectSingle(index);
         }
 
+        this.table.body.focus();
         break;
       }
       case "keydown": {
@@ -1550,7 +1556,7 @@ export class TreeView extends HTMLElement {
     }
     // Make sure the body is focused when the selection is changed as
     // clicking on the "select all" header button steals the focus.
-    this.ensureCorrectFocus();
+    this.focus();
 
     this.onSelectionChanged();
   }
@@ -1708,13 +1714,6 @@ export class TreeView extends HTMLElement {
         this._selectTimeout = null;
       }, delay);
     }
-  }
-
-  /**
-   * Move the focus back to the widget that is in charge of accessibility.
-   */
-  ensureCorrectFocus() {
-    this.table.body.focus();
   }
 }
 customElements.define("tree-view", TreeView);
