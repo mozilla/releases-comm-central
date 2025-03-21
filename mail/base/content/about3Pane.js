@@ -331,116 +331,126 @@ var folderPaneContextMenu = {
       return false;
     }
 
-    if (this._commandStates === null) {
-      let canCompact,
-        isCompactEnabled,
+    if (this._commandStates !== null) {
+      return this._commandStates[command];
+    }
+
+    let canCompact;
+    let isCompactEnabled;
+    let canCreateSubfolders;
+    let canRename;
+    let isServer;
+    let isNNTP;
+    let isJunk;
+    let isVirtual;
+    let isInbox;
+    let isSpecialUse;
+    let canRenameDeleteJunkMail;
+    let isSmartTagsFolder;
+    let deletable;
+    let server;
+    let URI;
+    let flags;
+    let online;
+
+    const multiSelection =
+      folderTree.selection.size > 1 && !this._overrideFolder;
+    if (multiSelection) {
+      canCreateSubfolders = false;
+      canRename = false;
+      isSmartTagsFolder = false;
+      isSpecialUse = true;
+      isInbox = false;
+
+      // Set some variables to TRUE to help during the folder lookup loop.
+      online = true;
+      canCompact = true;
+      isServer = true;
+      deletable = true;
+      isNNTP = true;
+      isVirtual = true;
+      isCompactEnabled = true;
+      isJunk = true;
+      canRenameDeleteJunkMail = true;
+
+      for (const row of folderTree.selection.values()) {
+        const folder = MailServices.folderLookup.getFolderForURL(row.uri);
+
+        online &&= !Services.io.offline && !folder.server.offlineSupportLevel;
+
+        // We only care if a folder doesn't support a specific property, so
+        // let's update a variable only if it's still truthy.
+        canCompact &&= folder.canCompact;
+        isServer &&= folder.isServer;
+        deletable &&= folder.deletable;
+        isNNTP &&= folder.server.type == "nntp";
+        isVirtual &&= folder.flags & Ci.nsMsgFolderFlags.Virtual;
+        isJunk &&= folder.flags & Ci.nsMsgFolderFlags.Junk;
+        canRenameDeleteJunkMail &&= FolderUtils.canRenameDeleteJunkMail(
+          folder.URI
+        );
+        isCompactEnabled &&= folder.isCommandEnabled("cmd_compactFolder");
+
+        // Tiny performance failsafe in case all of the variables are already
+        // falsy we can break the loop early.
+        if (
+          !canCompact &&
+          !isServer &&
+          !deletable &&
+          !isNNTP &&
+          !isVirtual &&
+          !isJunk &&
+          !canRenameDeleteJunkMail &&
+          !isCompactEnabled
+        ) {
+          break;
+        }
+      }
+    } else {
+      ({
+        canCompact,
         canCreateSubfolders,
         canRename,
-        isServer,
-        isNNTP,
-        isJunk,
-        isVirtual,
-        isInbox,
-        isSpecialUse,
-        canRenameDeleteJunkMail,
-        isSmartTagsFolder,
         deletable,
+        flags,
+        isServer,
         server,
         URI,
-        flags;
-
-      const multiSelection =
-        folderTree.selection.size > 1 && !this._overrideFolder;
-      if (multiSelection) {
-        canCreateSubfolders = false;
-        canRename = false;
-        isSmartTagsFolder = false;
-        isSpecialUse = true;
-        isInbox = false;
-
-        // Set some variables to TRUE to help during the folder lookup loop.
-        canCompact = true;
-        isServer = true;
-        deletable = true;
-        isNNTP = true;
-        isVirtual = true;
-        isCompactEnabled = true;
-        isJunk = true;
-        canRenameDeleteJunkMail = true;
-
-        for (const row of folderTree.selection.values()) {
-          const folder = MailServices.folderLookup.getFolderForURL(row.uri);
-
-          // We only care if a folder doesn't support a specific property, so
-          // let's update a variable only if it's still truthy.
-          canCompact &&= folder.canCompact;
-          isServer &&= folder.isServer;
-          deletable &&= folder.deletable;
-          isNNTP &&= folder.server.type == "nntp";
-          isVirtual &&= folder.flags & Ci.nsMsgFolderFlags.Virtual;
-          isJunk &&= folder.flags & Ci.nsMsgFolderFlags.Junk;
-          canRenameDeleteJunkMail &&= FolderUtils.canRenameDeleteJunkMail(
-            folder.URI
-          );
-          isCompactEnabled &&= folder.isCommandEnabled("cmd_compactFolder");
-
-          // Tiny performance failsafe in case all of the variables are already
-          // falsy we can break the loop early.
-          if (
-            !canCompact &&
-            !isServer &&
-            !deletable &&
-            !isNNTP &&
-            !isVirtual &&
-            !isJunk &&
-            !canRenameDeleteJunkMail &&
-            !isCompactEnabled
-          ) {
-            break;
-          }
-        }
-      } else {
-        ({
-          canCompact,
-          canCreateSubfolders,
-          canRename,
-          deletable,
-          flags,
-          isServer,
-          server,
-          URI,
-        } = this.activeFolder);
-        isCompactEnabled =
-          this.activeFolder.isCommandEnabled("cmd_compactFolder");
-        isNNTP = server.type == "nntp";
-        isJunk = flags & Ci.nsMsgFolderFlags.Junk;
-        isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
-        isInbox = flags & Ci.nsMsgFolderFlags.Inbox;
-        isSpecialUse = flags & Ci.nsMsgFolderFlags.SpecialUse;
-        canRenameDeleteJunkMail = FolderUtils.canRenameDeleteJunkMail(URI);
-        isSmartTagsFolder = FolderUtils.isSmartTagsFolder(this.activeFolder);
-      }
-
-      if (isNNTP && !isServer) {
-        // `folderPane.deleteFolder` has a special case for this.
-        deletable = true;
-      }
-
-      this._commandStates = {
-        cmd_newFolder: (!isNNTP && canCreateSubfolders) || isInbox,
-        cmd_deleteFolder: isJunk ? canRenameDeleteJunkMail : deletable,
-        cmd_renameFolder:
-          (!isServer && canRename && !isSpecialUse) ||
-          isVirtual ||
-          (isJunk && canRenameDeleteJunkMail),
-        cmd_compactFolder:
-          !isVirtual && (isServer || canCompact) && isCompactEnabled,
-        cmd_emptyTrash: !isNNTP,
-        cmd_properties: !multiSelection && !isServer && !isSmartTagsFolder,
-        cmd_toggleFavoriteFolder:
-          !multiSelection && !isServer && !isSmartTagsFolder,
-      };
+      } = this.activeFolder);
+      online =
+        !Services.io.offline || !this.activeFolder.server.offlineSupportLevel;
+      isCompactEnabled =
+        this.activeFolder.isCommandEnabled("cmd_compactFolder");
+      isNNTP = server.type == "nntp";
+      isJunk = flags & Ci.nsMsgFolderFlags.Junk;
+      isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
+      isInbox = flags & Ci.nsMsgFolderFlags.Inbox;
+      isSpecialUse = flags & Ci.nsMsgFolderFlags.SpecialUse;
+      canRenameDeleteJunkMail = FolderUtils.canRenameDeleteJunkMail(URI);
+      isSmartTagsFolder = FolderUtils.isSmartTagsFolder(this.activeFolder);
     }
+
+    if (isNNTP && !isServer) {
+      // `folderPane.deleteFolder` has a special case for this.
+      deletable = true;
+    }
+
+    this._commandStates = {
+      cmd_newFolder: online && ((!isNNTP && canCreateSubfolders) || isInbox),
+      cmd_deleteFolder:
+        online && (isJunk ? canRenameDeleteJunkMail : deletable),
+      cmd_renameFolder:
+        online &&
+        ((!isServer && canRename && !isSpecialUse) ||
+          isVirtual ||
+          (isJunk && canRenameDeleteJunkMail)),
+      cmd_compactFolder:
+        !isVirtual && (isServer || canCompact) && isCompactEnabled,
+      cmd_emptyTrash: online && !isNNTP,
+      cmd_properties: !multiSelection && !isServer && !isSmartTagsFolder,
+      cmd_toggleFavoriteFolder:
+        !multiSelection && !isServer && !isSmartTagsFolder,
+    };
     return this._commandStates[command];
   },
 
@@ -641,9 +651,7 @@ var folderPaneContextMenu = {
       }
       this._showMenuItem("folderPaneContext-moveMenu", showMove);
       if (showMove) {
-        const rootURI = MailUtils.getOrCreateFolder(
-          this.activeFolder.rootFolder.URI
-        );
+        const rootURI = MailUtils.getOrCreateFolder(folder.rootFolder.URI);
         movePopup.parentFolder = rootURI;
       }
     } else {
@@ -651,7 +659,8 @@ var folderPaneContextMenu = {
       const okToMoveCopy =
         !isServer &&
         !(flags & Ci.nsMsgFolderFlags.SpecialUse) &&
-        serverType != "nntp";
+        serverType != "nntp" &&
+        (!Services.io.offline || !folder.server.offlineSupportLevel);
       if (okToMoveCopy) {
         // Set the move menu to show all accounts.
         movePopup.parentFolder = null;
@@ -702,8 +711,10 @@ var folderPaneContextMenu = {
     this._showMenuItem("folderPaneContext-openNewWindow", true);
     this._showMenuItem("folderPaneContext-markMailFolderAllRead", true);
 
-    const hasSpecial = [...folderTree.selection.values()].some(row => {
-      const folder = MailServices.folderLookup.getFolderForURL(row.uri);
+    const folders = [...folderTree.selection.values()].map(row =>
+      MailServices.folderLookup.getFolderForURL(row.uri)
+    );
+    const hasSpecial = folders.some(folder => {
       return (
         folder.isServer ||
         folder.isVirtual ||
@@ -717,11 +728,13 @@ var folderPaneContextMenu = {
         folder.server.type == "nntp"
       );
     });
+    const online =
+      !Services.io.offline || folders.every(f => !f.server.offlineSupportLevel);
 
     // Show the move and copy items only if we don't have any special folder in
     // the selection range.
-    this._showMenuItem("folderPaneContext-moveMenu", !hasSpecial);
-    this._showMenuItem("folderPaneContext-copyMenu", !hasSpecial);
+    this._showMenuItem("folderPaneContext-moveMenu", !hasSpecial && online);
+    this._showMenuItem("folderPaneContext-copyMenu", !hasSpecial && online);
 
     this._refreshMenuSeparator();
   },
@@ -2960,29 +2973,27 @@ var folderPane = {
       ? folderTree.selection.values()
       : [draggedRow];
 
-    const folders = [];
-    let hasServer = false;
-    let hasNNTP = false;
-    let hasSimpleFolder = false;
-    for (const row of rows) {
-      const folder = MailServices.folderLookup.getFolderForURL(row.uri);
-      folders.push(folder);
-
-      if (folder.isServer) {
-        hasServer = true;
-        break;
-      }
-
-      if (folder.server.type == "nntp") {
-        hasNNTP = true;
-        continue;
-      }
-
-      hasSimpleFolder = true;
-    }
+    const folders = [...rows].map(row =>
+      MailServices.folderLookup.getFolderForURL(row.uri)
+    );
 
     // We don't allow dragging server rows, or mixing folder types.
-    if (hasServer || (hasNNTP && hasSimpleFolder)) {
+    if (
+      folders.some(
+        f =>
+          f.isServer ||
+          f.server.type == "nntp" ||
+          f.server.type != folders[0].server.type
+      )
+    ) {
+      event.preventDefault();
+      return;
+    }
+    // We don't allow dragging non-local folders while offline.
+    if (
+      Services.io.offline &&
+      folders.some(f => f.server.offlineSupportLevel)
+    ) {
       event.preventDefault();
       return;
     }
@@ -2996,7 +3007,11 @@ var folderPane = {
         index
       );
     }
-    event.dataTransfer.effectAllowed = hasNNTP ? "move" : "copyMove";
+    event.dataTransfer.effectAllowed = folders.some(
+      f => f.server.type == "nntp"
+    )
+      ? "move"
+      : "copyMove";
   },
 
   _onDragOver(event) {

@@ -418,13 +418,24 @@ add_task(async function testNewRenameDelete() {
         const parentInput = doc.getElementById("msgNewFolderPicker");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
-        Assert.equal(doc.activeElement, nameInput);
-        Assert.equal(nameInput.value, "");
-        Assert.equal(parentInput.value, plainFolder.URI);
-        Assert.ok(acceptButton.disabled);
+        Assert.equal(
+          doc.activeElement.id,
+          nameInput.id,
+          "activeElement should be correct"
+        );
+        Assert.equal(nameInput.value, "", "nameInput should start off blank");
+        Assert.equal(
+          parentInput.value,
+          plainFolder.URI,
+          "folder picker URI should start off correctly"
+        );
+        Assert.ok(
+          acceptButton.disabled,
+          "acceptButton should be start off disabled"
+        );
 
         EventUtils.sendString("folderPaneContextNew", win);
-        Assert.ok(!acceptButton.disabled);
+        Assert.ok(!acceptButton.disabled, "acceptButton should get enabled");
 
         EventUtils.synthesizeMouseAtCenter(parentInput, {}, win);
         await BrowserTestUtils.waitForPopupEvent(
