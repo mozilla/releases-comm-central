@@ -337,7 +337,12 @@ add_task(async function testBadAccessToken() {
     );
     delete MockAlertsService._alert;
 
-    Assert.equal(alert.imageURL, "chrome://branding/content/icon48.png");
+    Assert.equal(
+      alert.imageURL,
+      AppConstants.platform == "macosx"
+        ? ""
+        : "chrome://branding/content/icon48.png"
+    );
     Assert.stringContains(
       alert.text,
       "test.test",
