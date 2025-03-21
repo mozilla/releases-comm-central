@@ -1345,6 +1345,11 @@ DBViewWrapper.prototype = {
       return;
     }
 
+    if (!this._underlyingFolders) {
+      // View is closed already.
+      return;
+    }
+
     // indexOf doesn't work for this (reliably)
     for (const [i, underlyingFolder] of this._underlyingFolders.entries()) {
       if (aFolder == underlyingFolder) {
