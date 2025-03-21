@@ -7602,6 +7602,7 @@ nsImapMailCopyState::nsImapMailCopyState()
       m_selectedState(false),
       m_isCrossServerOp(false),
       m_curIndex(0),
+      m_unreadCount(0),
       m_streamCopy(false),
       m_dataBuffer(nullptr),
       m_dataBufferSize(0),
