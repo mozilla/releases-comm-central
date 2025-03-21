@@ -990,7 +990,8 @@ NS_IMPL_ISUPPORTS(MsgDBReporter, nsIMemoryReporter)
 }  // namespace mozilla::mailnews
 
 nsMsgDatabase::nsMsgDatabase()
-    : m_dbFolderInfo(nullptr),
+    : m_lastUseTime(0)
+      m_dbFolderInfo(nullptr),
       m_nextPseudoMsgKey(kFirstPseudoKey),
       m_mdbEnv(nullptr),
       m_mdbStore(nullptr),
@@ -1002,6 +1003,7 @@ nsMsgDatabase::nsMsgDatabase()
       m_hdrRowScopeToken(0),
       m_hdrTableKindToken(0),
       m_threadTableKindToken(0),
+      m_allThreadsTableKindToken(0),
       m_subjectColumnToken(0),
       m_senderColumnToken(0),
       m_messageIdColumnToken(0),
