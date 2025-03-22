@@ -4385,7 +4385,7 @@ function cmdInstallPlugin(e) {
 
   var ctx = {};
   var pluginDownloader = {
-    onStartRequest: function _onStartRequest(request, context) {
+    onStartRequest(request, context) {
       var tempName = "plugin-install.temp";
       if (urlMatches) {
         tempName += urlMatches[2];
@@ -4394,20 +4394,14 @@ function cmdInstallPlugin(e) {
       ctx.outFile = getTempFile(client.prefs.profilePath, tempName);
       ctx.outFileH = new LocalFile(ctx.outFile, ">");
     },
-    onDataAvailable: function _onDataAvailable(
-      request,
-      context,
-      stream,
-      offset,
-      count
-    ) {
+    onDataAvailable(request, context, stream, offset, count) {
       if (!ctx.inputStream) {
         ctx.inputStream = toSInputStream(stream, true);
       }
 
       ctx.outFileH.write(ctx.inputStream.readBytes(count));
     },
-    onStopRequest: function _onStopRequest(request, context, statusCode) {
+    onStopRequest(request, context, statusCode) {
       ctx.outFileH.close();
 
       if (statusCode == 0) {

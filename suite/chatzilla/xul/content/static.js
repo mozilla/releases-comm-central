@@ -1821,10 +1821,10 @@ function updateAlertIcon(aToggle) {
 function initOfflineIcon() {
   client.offlineObserver = {
     _element: document.getElementById("offline-status"),
-    state: function offline_state() {
+    state() {
       return Services.io.offline ? "offline" : "online";
     },
-    observe: function offline_observe(subject, topic, state) {
+    observe(subject, topic, state) {
       if (topic == "offline-requested" && client.getConnectionCount() > 0) {
         var buttonAry = [MSG_REALLY_GO_OFFLINE, MSG_DONT_GO_OFFLINE];
         var rv = confirmEx(MSG_GOING_OFFLINE, buttonAry);
@@ -1837,12 +1837,12 @@ function initOfflineIcon() {
         this.updateOfflineUI();
       }
     },
-    updateOfflineUI: function offline_uiUpdate() {
+    updateOfflineUI() {
       this._element.setAttribute("offline", Services.io.offline);
       var tooltipMsgId = "MSG_OFFLINESTATE_" + this.state().toUpperCase();
       this._element.setAttribute("tooltiptext", window[tooltipMsgId]);
     },
-    toggleOffline: function offline_toggle() {
+    toggleOffline() {
       // Check whether people are OK with us going offline:
       if (!Services.io.offline && !this.canGoOffline()) {
         return;
@@ -1854,7 +1854,7 @@ function initOfflineIcon() {
       // Actually change the offline state.
       Services.io.offline = !Services.io.offline;
     },
-    canGoOffline: function offline_check() {
+    canGoOffline() {
       try {
         var canGoOffline = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
           Ci.nsISupportsPRBool
@@ -1890,7 +1890,7 @@ function uninitOfflineIcon() {
 client.idleObserver = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
 
-  observe: function io_observe(subject, topic, data) {
+  observe(subject, topic, data) {
     if (topic == "idle" && !client.prefs.away) {
       if (!client.prefs.awayIdleMsg) {
         client.prefs.awayIdleMsg = MSG_AWAY_IDLE_DEFAULT;
