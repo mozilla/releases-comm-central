@@ -118,7 +118,7 @@ CommandLineService.prototype = {
 const CommandLineFactory = {
   createInstance(outer, iid) {
     if (outer != null) {
-      throw Cr.NS_ERROR_NO_AGGREGATION;
+      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
     }
 
     return new CommandLineService().QueryInterface(iid);
@@ -158,11 +158,11 @@ ProcessHandler.prototype = {
 const StartupFactory = {
   createInstance(outer, iid) {
     if (outer) {
-      throw Cr.NS_ERROR_NO_AGGREGATION;
+      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
     }
 
     if (!iid.equals(Ci.nsISupports)) {
-      throw Cr.NS_ERROR_NO_INTERFACE;
+      throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
     }
 
     // startup:
@@ -220,7 +220,7 @@ GenericIRCProtocolHandler.prototype = {
 
   newChannel(URI) {
     if (!Services.io.allowPort(URI.port, URI.scheme)) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     return new BogusChannel(URI, this.isSecure);
@@ -262,7 +262,7 @@ BogusChannel.prototype = {
   },
 
   asyncRead(listener, context) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   /* nsIRequest */
@@ -277,22 +277,22 @@ BogusChannel.prototype = {
   },
 
   suspend() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   resume() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 };
 
 const IRCProtocolHandlerFactory = {
   createInstance(outer, iid) {
     if (outer != null) {
-      throw Cr.NS_ERROR_NO_AGGREGATION;
+      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
     }
 
     if (!iid.equals(Ci.nsIProtocolHandler) && !iid.equals(Ci.nsISupports)) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     return new GenericIRCProtocolHandler(false);
@@ -302,11 +302,11 @@ const IRCProtocolHandlerFactory = {
 const IRCSProtocolHandlerFactory = {
   createInstance(outer, iid) {
     if (outer != null) {
-      throw NS_ERROR_NO_AGGREGATION;
+      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
     }
 
     if (!iid.equals(Ci.nsIProtocolHandler) && !iid.equals(Ci.nsISupports)) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     return new GenericIRCProtocolHandler(true);
@@ -327,7 +327,7 @@ function NSGetFactory(cid) {
     rv = rdfDS.GetTarget(resSelf, resDisabled, true);
   } catch (e) {}
   if (rv) {
-    throw Cr.NS_ERROR_NO_INTERFACE;
+    throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
   }
 
   if (cid.equals(CLINE_SERVICE_CID)) {
@@ -346,5 +346,5 @@ function NSGetFactory(cid) {
     return IRCSProtocolHandlerFactory;
   }
 
-  throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
 }

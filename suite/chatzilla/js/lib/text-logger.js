@@ -74,7 +74,10 @@ TextLogger.prototype.limit = function (dataOrCount) {
     count = this.autoLimit;
     data = this.read();
   } else {
-    throw "Can't limit the length of the file without a limit...";
+    throw Components.Exception(
+      "Can't limit the length of the file without a limit...",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   // Write the right data out. Note that we use the back of the array, not

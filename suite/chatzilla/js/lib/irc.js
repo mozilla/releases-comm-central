@@ -832,7 +832,10 @@ CIRCServer.prototype.getChannel = function (name) {
 
 CIRCServer.prototype.connect = function () {
   if (this.connection != null) {
-    throw "Server already has a connection pending or established";
+    throw Components.Exception(
+      "Server already has a connection pending or established",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   var config = { isSecure: this.isSecure };
@@ -3235,7 +3238,10 @@ function CIRCChannel(parent, unicodeName, encodedName) {
   // present.
 
   if (!encodedName && !unicodeName) {
-    throw "Hey! Come on, I need either an encoded or a Unicode name.";
+    throw Components.Exception(
+      "Hey! Come on, I need either an encoded or a Unicode name.",
+      Cr.NS_ERROR_INVALID_ARG
+    );
   }
   if (!encodedName) {
     encodedName = fromUnicode(unicodeName, parent);
@@ -3621,7 +3627,10 @@ function CIRCUser(parent, unicodeName, encodedName, name, host) {
   // present.
 
   if (!encodedName && !unicodeName) {
-    throw "Hey! Come on, I need either an encoded or a Unicode name.";
+    throw Components.Exception(
+      "Hey! Come on, I need either an encoded or a Unicode name.",
+      Cr.NS_ERROR_INVALID_ARG
+    );
   }
   if (!encodedName) {
     encodedName = fromUnicode(unicodeName, parent);
@@ -3745,7 +3754,10 @@ function CIRCChanUser(
   // present.
 
   if (!encodedName && !unicodeName) {
-    throw "Hey! Come on, I need either an encoded or a Unicode name.";
+    throw Components.Exception(
+      "Hey! Come on, I need either an encoded or a Unicode name.",
+      Cr.NS_ERROR_INVALID_ARG
+    );
   } else if (encodedName && !unicodeName) {
     unicodeName = toUnicode(encodedName, parent);
   } else if (!encodedName && unicodeName) {

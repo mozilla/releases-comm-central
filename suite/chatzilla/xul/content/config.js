@@ -1224,7 +1224,10 @@ PrefWindow.prototype.onApply = function () {
           value = l;
           break;
         default:
-          throw "Unknown pref type: " + pref.type + "!";
+          throw Components.Exception(
+            "Unknown pref type: " + pref.type + "!",
+            Cr.NS_ERROR_FAILURE
+          );
       }
       /* Fun stuff. We don't want to save if the user hasn't changed
        * it. This is so that if the default is defered, and changed,

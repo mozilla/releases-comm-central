@@ -2738,7 +2738,7 @@ client.installPlugin = function (name, source) {
 
     if (installed) {
       display(MSG_INSTALL_PLUGIN_ERR_ALREADY_INST, MT_ERROR);
-      throw CZ_PI_ABORT;
+      throw Components.Exception(CZ_PI_ABORT, Cr.NS_ERROR_FAILURE);
     }
   }
 
@@ -2812,7 +2812,7 @@ client.installPlugin = function (name, source) {
         // Do we already have one?
         if (zipPathBase) {
           display(MSG_INSTALL_PLUGIN_ERR_MANY_INITJS, MT_WARN);
-          throw CZ_PI_ABORT;
+          throw Components.Exception(CZ_PI_ABORT, Cr.NS_ERROR_FAILURE);
         }
         zipPathBase = itemName.match(/^(.*\/)init.js$/)[1];
         initPath = itemName;

@@ -598,7 +598,7 @@ XULTreeViewRecord.prototype.reserveChildren = function (always) {
  */
 XULTreeViewRecord.prototype.appendChild = function (child) {
   if (!isinstance(child, XULTreeViewRecord)) {
-    throw Cr.NS_ERROR_INVALID_ARG;
+    throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
   }
 
   child.isHidden = false;

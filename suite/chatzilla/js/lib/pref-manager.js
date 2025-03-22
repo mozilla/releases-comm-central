@@ -64,7 +64,7 @@ PrefManager.prototype.destroy = function () {
 
 PrefManager.prototype.addObserver = function (observer) {
   if (!("onPrefChanged" in observer)) {
-    throw "Bad observer!";
+    throw Components.Exception("Bad observer!", Cr.NS_ERROR_FAILURE);
   }
 
   this.observers.push(observer);

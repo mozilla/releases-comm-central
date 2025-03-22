@@ -83,7 +83,10 @@ function CBSConnection() {
     "@mozilla.org/network/socket-transport-service;1"
   ].getService(Ci.nsISocketTransportService);
   if (!this._sockService) {
-    throw "Couldn't get socket service.";
+    throw Components.Exception(
+      "Couldn't get socket service.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   this.wrappedJSObject = this;
@@ -145,7 +148,10 @@ CBSConnection.prototype.connect = function (host, port, config, observer) {
           },
         });
       } catch (ex) {
-        throw "Unable to find method to resolve proxies";
+        throw Components.Exception(
+          "Unable to find method to resolve proxies",
+          Cr.NS_ERROR_FAILURE
+        );
       }
     } else {
       continueWithProxy(null);
@@ -166,7 +172,7 @@ CBSConnection.prototype.connect = function (host, port, config, observer) {
     "proxy" in config && config.proxy == "http" && proxyInfo;
 
   if (proxyInfo && "type" in proxyInfo && proxyInfo.type == "unknown") {
-    throw JSIRC_ERR_PAC_LOADING;
+    throw Components.Exception(JSIRC_ERR_PAC_LOADING, Cr.NS_ERROR_FAILURE);
   }
 
   /* use new necko interfaces */
@@ -189,7 +195,10 @@ CBSConnection.prototype.connect = function (host, port, config, observer) {
     );
   }
   if (!this._transport) {
-    throw "Error creating transport.";
+    throw Components.Exception(
+      "Error creating transport.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   var openFlags = 0;
@@ -197,13 +206,19 @@ CBSConnection.prototype.connect = function (host, port, config, observer) {
   /* no limit on the output stream buffer */
   this._outputStream = this._transport.openOutputStream(openFlags, 4096, -1);
   if (!this._outputStream) {
-    throw "Error getting output stream.";
+    throw Components.Exception(
+      "Error getting output stream.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
   this._sOutputStream = toSOutputStream(this._outputStream);
 
   this._inputStream = this._transport.openInputStream(openFlags, 0, 0);
   if (!this._inputStream) {
-    throw "Error getting input stream.";
+    throw Components.Exception(
+      "Error getting input stream.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
   this._sInputStream = toSInputStream(this._inputStream);
 
@@ -254,13 +269,19 @@ CBSConnection.prototype.accept = function (transport, observer) {
   /* no limit on the output stream buffer */
   this._outputStream = this._transport.openOutputStream(openFlags, 4096, -1);
   if (!this._outputStream) {
-    throw "Error getting output stream.";
+    throw Components.Exception(
+      "Error getting output stream.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
   this._sOutputStream = toSOutputStream(this._outputStream);
 
   this._inputStream = this._transport.openInputStream(openFlags, 0, 0);
   if (!this._inputStream) {
-    throw "Error getting input stream.";
+    throw Components.Exception(
+      "Error getting input stream.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
   this._sInputStream = toSInputStream(this._inputStream);
 
@@ -296,7 +317,7 @@ CBSConnection.prototype.disconnect = function () {
 
 CBSConnection.prototype.sendData = function (str) {
   if (!this.isConnected) {
-    throw "Not Connected.";
+    throw Components.Exception("Not Connected.", Cr.NS_ERROR_FAILURE);
   }
 
   this.sendDataNow(str);
@@ -304,7 +325,7 @@ CBSConnection.prototype.sendData = function (str) {
 
 CBSConnection.prototype.readData = function (timeout, count) {
   if (!this.isConnected) {
-    throw "Not Connected.";
+    throw Components.Exception("Not Connected.", Cr.NS_ERROR_FAILURE);
   }
 
   var rv;
@@ -323,7 +344,7 @@ CBSConnection.prototype.readData = function (timeout, count) {
   } catch (ex) {
     dd("*** Caught " + ex + " while reading.");
     this.disconnect();
-    throw ex;
+    throw Components.Exception(ex, Cr.NS_ERROR_FAILURE);
   }
 
   return rv;
@@ -358,7 +379,7 @@ CBSConnection.prototype.sendDataNow = function (str) {
   } catch (ex) {
     dd("*** Caught " + ex + " while sending.");
     this.disconnect();
-    throw ex;
+    throw Components.Exception(ex, Cr.NS_ERROR_FAILURE);
   }
 
   return rv;
@@ -418,7 +439,7 @@ CBSConnection.prototype.getCertificate = function () {
 };
 
 CBSConnection.prototype.asyncWrite = function () {
-  throw "Not Implemented.";
+  throw Components.Exception("Not Implemented.", Cr.NS_ERROR_NOT_IMPLEMENTED);
 };
 
 function StreamProvider(observer) {
@@ -442,12 +463,12 @@ StreamProvider.prototype.onDataWritable = function (
   //dd ("StreamProvider.prototype.onDataWritable");
 
   if ("isClosed" in this && this.isClosed) {
-    throw Cr.NS_BASE_STREAM_CLOSED;
+    throw Components.Exception("", Cr.NS_BASE_STREAM_CLOSED);
   }
 
   if (!this.pendingData) {
     this.isBlocked = true;
-    throw Cr.NS_BASE_STREAM_WOULD_BLOCK;
+    throw Components.Exception("", Cr.NS_BASE_STREAM_WOULD_BLOCK);
   }
 
   var len = ostream.write(this.pendingData, this.pendingData.length);

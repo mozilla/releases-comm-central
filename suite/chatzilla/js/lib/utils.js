@@ -318,10 +318,16 @@ function confirmEx(msg, buttons, defaultButton, checkText, checkVal) {
   var buttonText = [null, null, null];
 
   if (!isinstance(buttons, Array)) {
-    throw "buttons parameter must be an Array";
+    throw Components.Exception(
+      "buttons parameter must be an Array",
+      Cr.NS_ERROR_INVALID_ARG
+    );
   }
   if (buttons.length < 1 || buttons.length > 3) {
-    throw "the buttons array must have 1, 2 or 3 elements";
+    throw Components.Exception(
+      "the buttons array must have 1, 2 or 3 elements",
+      Cr.NS_ERROR_INVALID_ARG
+    );
   }
 
   for (var i = 0; i < buttons.length; i++) {
@@ -559,7 +565,7 @@ function strftime(format, time) {
 
   time = time || new Date();
   if (!isinstance(time, Date)) {
-    throw "Expected date object";
+    throw Components.Exception("Expected date object", Cr.NS_ERROR_INVALID_ARG);
   }
 
   var ary;

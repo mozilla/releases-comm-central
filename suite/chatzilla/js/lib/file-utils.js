@@ -217,7 +217,10 @@ function returnFile(file) {
   if (isinstance(file, Ci.nsIFile)) {
     return file;
   }
-  throw "bad type for argument |file|.";
+  throw Components.Exception(
+    "bad type for argument |file|.",
+    Cr.NS_ERROR_INVALID_ARG
+  );
 }
 
 function LocalFile(file, mode) {
@@ -235,7 +238,10 @@ function LocalFile(file, mode) {
         mode = MODE_RDONLY;
         break;
       default:
-        throw "Invalid mode ``" + mode + "''";
+        throw Components.Exception(
+          "Invalid mode ``" + mode + "''",
+          Cr.NS_ERROR_INVALID_ARG
+        );
     }
   }
 
@@ -263,7 +269,10 @@ function LocalFile(file, mode) {
 
 LocalFile.prototype.write = function (buf) {
   if (!("outputStream" in this)) {
-    throw "file not open for writing.";
+    throw Components.Exception(
+      "file not open for writing.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   return this.outputStream.write(buf, buf.length);
@@ -274,7 +283,10 @@ LocalFile.prototype.write = function (buf) {
 // Will return an empty string if there is data, but it couldn't be read.
 LocalFile.prototype.read = function (max) {
   if (!("inputStream" in this)) {
-    throw "file not open for reading.";
+    throw Components.Exception(
+      "file not open for reading.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   if (typeof max == "undefined") {

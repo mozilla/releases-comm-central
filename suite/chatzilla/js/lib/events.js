@@ -313,7 +313,10 @@ CEventPump.prototype.routeEvent = function (e) {
         }
 
         if (count++ > this.MAX_EVENT_DEPTH) {
-          throw "Too many events in chain";
+          throw Components.Exception(
+            "Too many events in chain",
+            Cr.NS_ERROR_FAILURE
+          );
         }
         break;
 

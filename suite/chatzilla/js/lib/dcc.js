@@ -293,7 +293,10 @@ CIRCDCCState.prototype.TYPE = "IRCDCCState";
 
 CIRCDCCState.prototype.sendRequest = function () {
   if (!this.parent.localIP || this.state != DCC_STATE_INIT) {
-    throw "Must have a local IP and be in INIT state.";
+    throw Components.Exception(
+      "Must have a local IP and be in INIT state.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   this.state = DCC_STATE_REQUESTED;
@@ -315,7 +318,7 @@ CIRCDCCState.prototype.sendRequest = function () {
 
 CIRCDCCState.prototype.getRequest = function () {
   if (this.state != DCC_STATE_INIT) {
-    throw "Must be in INIT state.";
+    throw Components.Exception("Must be in INIT state.", Cr.NS_ERROR_FAILURE);
   }
 
   this.state = DCC_STATE_REQUESTED;
@@ -340,7 +343,10 @@ CIRCDCCState.prototype.getRequest = function () {
 
 CIRCDCCState.prototype.sendAccept = function () {
   if (this.state != DCC_STATE_REQUESTED || this.dir != DCC_DIR_GETTING) {
-    throw "Must be in REQUESTED state and direction GET.";
+    throw Components.Exception(
+      "Must be in REQUESTED state and direction GET.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   // Clear out "last" incoming request if that's us.
@@ -362,7 +368,10 @@ CIRCDCCState.prototype.sendAccept = function () {
 
 CIRCDCCState.prototype.getAccept = function () {
   if (this.state != DCC_STATE_REQUESTED || this.dir != DCC_DIR_SENDING) {
-    throw "Must be in REQUESTED state and direction SEND.";
+    throw Components.Exception(
+      "Must be in REQUESTED state and direction SEND.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   clearTimeout(this.requestTimeout);
@@ -378,7 +387,10 @@ CIRCDCCState.prototype.getAccept = function () {
 
 CIRCDCCState.prototype.sendDecline = function () {
   if (this.state != DCC_STATE_REQUESTED || this.dir != DCC_DIR_GETTING) {
-    throw "Must be in REQUESTED state and direction GET.";
+    throw Components.Exception(
+      "Must be in REQUESTED state and direction GET.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   // Clear out "last" incoming request if that's us.
@@ -400,7 +412,10 @@ CIRCDCCState.prototype.sendDecline = function () {
 
 CIRCDCCState.prototype.getDecline = function () {
   if (this.state != DCC_STATE_REQUESTED || this.dir != DCC_DIR_SENDING) {
-    throw "Must be in REQUESTED state and direction SEND.";
+    throw Components.Exception(
+      "Must be in REQUESTED state and direction SEND.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   clearTimeout(this.requestTimeout);
@@ -417,7 +432,7 @@ CIRCDCCState.prototype.getDecline = function () {
 // The sockets connected.
 CIRCDCCState.prototype.socketConnected = function () {
   if (this.state != DCC_STATE_ACCEPTED) {
-    throw "Not in ACCEPTED state.";
+    throw Components.Exception("Not in ACCEPTED state.", Cr.NS_ERROR_FAILURE);
   }
 
   this.state = DCC_STATE_CONNECTED;
@@ -430,7 +445,7 @@ CIRCDCCState.prototype.socketConnected = function () {
 // Someone disconnected something.
 CIRCDCCState.prototype.socketDisconnected = function () {
   if (this.state != DCC_STATE_CONNECTED) {
-    throw "Not CONNECTED!";
+    throw Components.Exception("Not CONNECTED!", Cr.NS_ERROR_FAILURE);
   }
 
   this.state = DCC_STATE_DONE;
@@ -446,7 +461,10 @@ CIRCDCCState.prototype.sendAbort = function () {
     this.state != DCC_STATE_ACCEPTED &&
     this.state != DCC_STATE_CONNECTED
   ) {
-    throw "Can't abort at this point.";
+    throw Components.Exception(
+      "Can't abort at this point.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   this.state = DCC_STATE_ABORTED;
@@ -462,7 +480,10 @@ CIRCDCCState.prototype.getAbort = function () {
     this.state != DCC_STATE_ACCEPTED &&
     this.state != DCC_STATE_CONNECTED
   ) {
-    throw "Can't abort at this point.";
+    throw Components.Exception(
+      "Can't abort at this point.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   this.state = DCC_STATE_ABORTED;
@@ -478,7 +499,10 @@ CIRCDCCState.prototype.failed = function () {
     this.state != DCC_STATE_ACCEPTED &&
     this.state != DCC_STATE_CONNECTED
   ) {
-    throw "Can't fail at this point.";
+    throw Components.Exception(
+      "Can't fail at this point.",
+      Cr.NS_ERROR_FAILURE
+    );
   }
 
   this.state = DCC_STATE_FAILED;
