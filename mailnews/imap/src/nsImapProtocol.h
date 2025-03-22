@@ -377,6 +377,7 @@ class nsImapProtocol : public nsIImapProtocol,
   // It is cleared when we finish processng a url and it is set whenever we call
   // Load on a url
   bool m_urlInProgress;
+  bool IsUrlInProgress();
 
   /** The nsIImapURL that is currently running. */
   nsCOMPtr<nsIImapUrl> m_runningUrl;
@@ -411,19 +412,15 @@ class nsImapProtocol : public nsIImapProtocol,
 
   // ******* Thread support *******
   PRThread* m_thread;
-  mozilla::ReentrantMonitor
-      m_dataAvailableMonitor;  // used to notify the arrival of data from the
-                               // server
-  mozilla::ReentrantMonitor
-      m_urlReadyToRunMonitor;  // used to notify the arrival of a new url to be
-                               // processed
+  // used to notify the arrival of a new url to be processed
+  mozilla::ReentrantMonitor m_urlReadyToRunMonitor;
   mozilla::ReentrantMonitor m_pseudoInterruptMonitor;
   mozilla::ReentrantMonitor m_dataMemberMonitor;
   mozilla::ReentrantMonitor m_threadDeathMonitor;
   mozilla::ReentrantMonitor m_waitForBodyIdsMonitor;
   mozilla::ReentrantMonitor m_fetchBodyListMonitor;
   mozilla::ReentrantMonitor m_passwordReadyMonitor;
-  mozilla::Mutex mLock;
+  mozilla::ReentrantMonitor mMonitor;
   // If we get an async password prompt, this is where the UI thread
   // stores the password, before notifying the imap thread of the password
   // via the m_passwordReadyMonitor.

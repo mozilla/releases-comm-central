@@ -489,7 +489,6 @@ class nsImapProtocolMainLoopRunnable final : public mozilla::Runnable {
 
 nsImapProtocol::nsImapProtocol()
     : nsMsgProtocol(nullptr),
-      m_dataAvailableMonitor("imapDataAvailable"),
       m_urlReadyToRunMonitor("imapUrlReadyToRun"),
       m_pseudoInterruptMonitor("imapPseudoInterrupt"),
       m_dataMemberMonitor("imapDataMember"),
@@ -497,7 +496,7 @@ nsImapProtocol::nsImapProtocol()
       m_waitForBodyIdsMonitor("imapWaitForBodyIds"),
       m_fetchBodyListMonitor("imapFetchBodyList"),
       m_passwordReadyMonitor("imapPasswordReady"),
-      mLock("nsImapProtocol.mLock"),
+      mMonitor("nsImapProtocol.mMonitor"),
       m_parser(*this) {
   m_urlInProgress = false;
   m_idle = false;
@@ -804,8 +803,11 @@ static void SetSecurityCallbacksFromChannel(nsISocketTransport* aTrans,
 nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
   nsresult rv = NS_ERROR_FAILURE;
   NS_ASSERTION(aURL, "null URL passed into Imap Protocol");
+  ReentrantMonitorAutoEnter mon(mMonitor);
+  m_urlInProgress = true;
+  m_imapMailFolderSink = nullptr;
+
   if (aURL) {
-    MutexAutoLock mon(mLock);
     nsCOMPtr<nsIImapUrl> imapURL = do_QueryInterface(aURL, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     m_runningUrl = imapURL;
@@ -1043,7 +1045,7 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning) {
   // clear out the socket's reference to the notification callbacks for this
   // transaction
   {
-    MutexAutoLock mon(mLock);
+    ReentrantMonitorAutoEnter mon(mMonitor);
     if (m_transport) {
       m_transport->SetSecurityCallbacks(nullptr);
       m_transport->SetEventSink(nullptr, nullptr);
@@ -1060,7 +1062,7 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning) {
     {
       // grab a lock so m_mockChannel doesn't get cleared out
       // from under us.
-      MutexAutoLock mon(mLock);
+      ReentrantMonitorAutoEnter mon(mMonitor);
       if (m_mockChannel) {
         // Proxy the release of the channel to the main thread.  This is
         // something that the xpcom proxy system should do for us!
@@ -1076,7 +1078,7 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning) {
   // that the xpcom proxy system should do for us!
   {
     // grab a lock so the m_channelListener doesn't get cleared.
-    MutexAutoLock mon(mLock);
+    ReentrantMonitorAutoEnter mon(mMonitor);
     if (m_channelListener) {
       NS_ReleaseOnMainThread("nsImapProtocol::m_channelListener",
                              m_channelListener.forget());
@@ -1089,7 +1091,7 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning) {
   nsCOMPtr<nsIImapMailFolderSink> saveFolderSink;
 
   {
-    MutexAutoLock mon(mLock);
+    ReentrantMonitorAutoEnter mon(mMonitor);
     if (m_runningUrl) {
       mailnewsurl = do_QueryInterface(m_runningUrl);
       // It is unclear what 'saveFolderSink' is used for, most likely to hold
@@ -1176,7 +1178,7 @@ NS_IMETHODIMP nsImapProtocol::CloseStreams() {
              "CloseStreams() should not be called from an off UI thread");
 
   {
-    MutexAutoLock mon(mLock);
+    ReentrantMonitorAutoEnter mon(mMonitor);
     if (m_transport) {
       // make sure the transport closes (even if someone is still indirectly
       // referencing it).
@@ -1256,7 +1258,7 @@ nsImapProtocol::TellThreadToDie(bool aIsSafeToClose) {
   MOZ_DIAGNOSTIC_ASSERT(
       NS_IsMainThread(),
       "TellThreadToDie(aIsSafeToClose) should only be called from UI thread");
-  MutexAutoLock mon(mLock);
+  ReentrantMonitorAutoEnter mon(mMonitor);
 
   nsCOMPtr<nsIMsgIncomingServer> me_server = do_QueryReferent(m_server);
   if (me_server) {
@@ -1361,6 +1363,12 @@ void nsImapProtocol::TellThreadToDie() {
   if (m_inThreadShouldDie) return;
   m_inThreadShouldDie = true;
 
+  {
+    ReentrantMonitorAutoEnter mon(mMonitor);
+    m_urlInProgress = true;  // let's say it's busy so no one tries to use
+                             // this about to die connection.
+  }
+
   // This routine is called only from the imap protocol thread.
   // The UI thread causes this to be called by calling TellThreadToDie.
   // In that case, m_safeToCloseConnection will be FALSE if it's dropping a
@@ -1370,8 +1378,6 @@ void nsImapProtocol::TellThreadToDie() {
   // some of the methods we call here use Monitors.
   PR_CEnterMonitor(this);
 
-  m_urlInProgress = true;  // let's say it's busy so no one tries to use
-                           // this about to die connection.
   bool urlWritingData = false;
   bool connectionIdle = !m_runningUrl;
 
@@ -1411,10 +1417,6 @@ void nsImapProtocol::TellThreadToDie() {
   {
     ReentrantMonitorAutoEnter mon(m_threadDeathMonitor);
     m_threadShouldDie = true;
-  }
-  {
-    ReentrantMonitorAutoEnter dataMon(m_dataAvailableMonitor);
-    dataMon.Notify();
   }
   ReentrantMonitorAutoEnter urlReadyMon(m_urlReadyToRunMonitor);
   urlReadyMon.NotifyAll();
@@ -1475,6 +1477,11 @@ nsImapProtocol::PseudoInterruptMsgLoad(nsIMsgFolder* aImapFolder,
   }
   PR_CExitMonitor(this);
   return NS_OK;
+}
+
+bool nsImapProtocol::IsUrlInProgress() {
+  ReentrantMonitorAutoEnter mon(mMonitor);
+  return m_urlInProgress;
 }
 
 void nsImapProtocol::ImapThreadMainLoop() {
@@ -1564,7 +1571,7 @@ void nsImapProtocol::ImapThreadMainLoop() {
         // idle and if a URL is not in progress and if the server has IDLE
         // capability. Just set idlePending since want to wait a short time
         // to see if more URLs occurs before actually entering idle.
-        if (!idlePending && m_useIdle && !m_urlInProgress &&
+        if (!idlePending && m_useIdle && !IsUrlInProgress() &&
             GetServerStateParser().GetCapabilityFlag() & kHasIdleCapability &&
             GetServerStateParser().GetIMAPstate() ==
                 nsImapServerResponseParser::kFolderSelected) {
@@ -2356,8 +2363,6 @@ NS_IMETHODIMP nsImapProtocol::LoadImapUrl(nsIURI* aURL,
     // We might be able to fulfill the request locally (e.g. fetching a message
     // which is already stored offline).
     if (TryToRunUrlLocally(aURL, aConsumer)) return NS_OK;
-    m_urlInProgress = true;
-    m_imapMailFolderSink = nullptr;
     rv = SetupWithUrl(aURL, aConsumer);
     m_lastActiveTime = PR_Now();
     if (NS_FAILED(rv)) {
@@ -2481,8 +2486,10 @@ NS_IMETHODIMP nsImapProtocol::IsBusy(bool* aIsConnectionBusy,
     // this connection might not be fully set up yet.
     rv = NS_ERROR_FAILURE;
   } else {
-    if (m_urlInProgress)  // do we have a url? That means we're working on it...
+    if (IsUrlInProgress()) {
+      // do we have a url? That means we're working on it...
       *aIsConnectionBusy = true;
+    }
 
     if (GetServerStateParser().GetIMAPstate() ==
             nsImapServerResponseParser::kFolderSelected &&
@@ -2513,7 +2520,7 @@ NS_IMETHODIMP nsImapProtocol::CanHandleUrl(nsIImapUrl* aImapUrl,
 
   if (DeathSignalReceived()) return NS_ERROR_FAILURE;
 
-  MutexAutoLock mon(mLock);
+  ReentrantMonitorAutoEnter mon(mMonitor);
 
   bool isBusy = false;
   bool isInboxConnection = false;
@@ -4740,7 +4747,7 @@ bool nsImapProtocol::DeathSignalReceived() {
   // ignore mock channel status if we've been pseudo interrupted
   // ### need to make sure we clear pseudo interrupted status appropriately.
   if (!GetPseudoInterrupted()) {
-    MutexAutoLock mon(mLock);
+    ReentrantMonitorAutoEnter mon(mMonitor);
     if (m_mockChannel) {
       nsresult returnValue;
       m_mockChannel->GetStatus(&returnValue);
@@ -7840,7 +7847,9 @@ void nsImapProtocol::Unsubscribe(const char* mailboxName) {
 void nsImapProtocol::Idle() {
   IncrementCommandTagNumber();
 
-  if (m_urlInProgress) return;
+  if (IsUrlInProgress()) {
+    return;
+  }
   nsAutoCString command(GetServerCommandTag());
   command += " IDLE" CRLF;
   nsresult rv = SendData(command.get());
