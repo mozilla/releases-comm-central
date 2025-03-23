@@ -33,7 +33,7 @@ chatzilla.jar:
   content/chatzilla/chatzilla.xul                      (xul/content/chatzilla.xul)
   content/chatzilla/channels.xul                       (xul/content/channels.xul)
   content/chatzilla/channels.js                        (xul/content/channels.js)
-  content/chatzilla/output-window.html                 (xul/content/output-window.html)
+  content/chatzilla/output-window.xhtml                (xul/content/output-window.xhtml)
   content/chatzilla/output-window.js                   (xul/content/output-window.js)
   content/chatzilla/commands.js                        (xul/content/commands.js)
   content/chatzilla/handlers.js                        (xul/content/handlers.js)

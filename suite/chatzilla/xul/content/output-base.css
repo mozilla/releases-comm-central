@@ -125,12 +125,72 @@
  *     your /stalk list, or when someone says your nickname.
  */
 
+[hidden="true"] {
+    display: none;
+}
+
+.header-outer {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+
+.header {
+    background-color: white;
+    color: black;
+    margin: 2px;
+    border: 1px black solid;
+}
+
+.h-table, #net-url, #ch-url, #dcc-chat-title {
+    width: 100%;
+}
+
 #splash-wrapper {
     display: flex;
     height: 100vh;
     justify-content: center;
     align-items: center;
     overflow: hidden;
+}
+
+#splash {
+    font-size: 24pt;
+    font-weight: bold;
+    text-align: center;
+}
+
+#cli-version-container {
+    text-align: center;
+    width: 100%;
+}
+
+#usr-descnodes, #ch-topicnodes {
+    line-height: 110%;
+}
+
+#ch-usercount, #ch-modestr, #net-lag, #dcc-file-progress {
+    white-space: nowrap;
+}
+
+.label {
+    font-weight: bold;
+    text-align: right;
+    vertical-align: top;
+    white-space: nowrap;
+    padding-right: 0.5em;
+}
+
+.value {
+    vertical-align: top;
+    padding-right: 1em;
+}
+
+#usr-title, #usr-descnodes {
+    text-align: center;
 }
 
 /******************************************************************************

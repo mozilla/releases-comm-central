@@ -92,22 +92,6 @@ function stock_initOutputWindow(newClient, newView, newClickHandler) {
   getObjectDetails = mainWindow.getObjectDetails;
   dd = mainWindow.dd;
 
-  // Wheee... localize stuff!
-  //var nodes = document.getElementsByAttribute("localize", "*");
-  var nodes = document.getElementsByTagName("*");
-  for (var i = 0; i < nodes.length; i++) {
-    if (nodes[i].hasAttribute("localize")) {
-      var msg = nodes[i].getAttribute("localize");
-      msg = getMsg("msg." + msg);
-      if (nodes[i].nodeName.toLowerCase() == "input") {
-        nodes[i].value = msg;
-      } else {
-        nodes[i].appendChild(document.createTextNode(msg));
-      }
-    }
-  }
-
-  changeCSS("chrome://chatzilla/content/output-base.css", "cz-css-base");
   changeCSS(view.prefs["motif.current"]);
   updateMotifSettings();
 
@@ -475,7 +459,9 @@ function updateNetwork() {
 }
 
 function updateChannel() {
-  header.topicnodes.firstChild.remove();
+  if (header.topicnodes.firstChild) {
+    header.topicnodes.firstChild.remove();
+  }
 
   if (view.active) {
     var str = view.mode.getModeStr();
@@ -532,7 +518,10 @@ function updateUser() {
 
   setText("title", getMsg(MSG_TITLE_USER, [view.unicodeName, source]));
 
-  header.descnodes.firstChild.remove();
+  if (header.descnodes.firstChild) {
+    header.descnodes.firstChild.remove();
+  }
+
   if (typeof view.desc != "undefined") {
     var data = getObjectDetails(view);
     data.dontLogURLs = true;

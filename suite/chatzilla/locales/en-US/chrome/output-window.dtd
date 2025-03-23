@@ -1,0 +1,17 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!ENTITY output.knownnets.label "Known Networks">
+<!ENTITY output.connnets.label "Connected Networks">
+<!ENTITY output.url.label "URL">
+<!ENTITY output.notconn.label "Not Connected">
+<!ENTITY output.lag.label "Lag">
+<!ENTITY output.mode.label "Mode">
+<!ENTITY output.users.label "Users">
+<!ENTITY output.topic.label "Topic">
+<!ENTITY output.cancel.label "Cancel">
+<!ENTITY output.via.label "Connected via">
+<!ENTITY output.to.label "Connected to">
+<!ENTITY output.file.label "File">
+<!ENTITY output.progress.label "Progress">

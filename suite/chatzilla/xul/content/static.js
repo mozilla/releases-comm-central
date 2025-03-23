@@ -2992,7 +2992,7 @@ function syncOutputFrame(obj, nesting) {
   try {
     if (getContentDocument(iframe) && "webProgress" in iframe) {
       iframe.addProgressListener(client.progressListener, ALL);
-      iframe.loadURI("chrome://chatzilla/content/output-window.html");
+      iframe.loadURI("chrome://chatzilla/content/output-window.xhtml");
     } else {
       setTimeout(tryAgain, 500, nesting + 1);
     }

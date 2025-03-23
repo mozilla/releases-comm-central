@@ -3518,7 +3518,7 @@ function cmdSave(e) {
 
   // Set the document from the current view, and set a usable title
   docToBeSaved = getContentDocument(e.sourceObject.frame);
-  var headElement = docToBeSaved.getElementsByTagName("HEAD")[0];
+  var headElement = docToBeSaved.getElementsByTagName("head")[0];
   var titleElements = docToBeSaved.getElementsByTagName("title");
   // Remove an existing title, there shouldn't be more than one.
   if (titleElements.length > 0) {

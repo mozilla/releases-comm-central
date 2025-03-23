@@ -1,81 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html [ <!ENTITY % htmlDTD PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+%htmlDTD;
+<!ENTITY % outputWindowDTD
+    SYSTEM "chrome://chatzilla/locale/output-window.dtd">
+%outputWindowDTD; ]>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <style type="text/css">
-      [hidden="true"] {
-        display: none;
-      }
-
-      .header-outer {
-        position: fixed;
-        top: 0px;
-        left: 0px;
-        right: 0px;
-        margin: 0px;
-        padding: 0px;
-      }
-
-      .header {
-        background-color: white;
-        color: black;
-        margin: 2px;
-        border: 1px black solid;
-      }
-
-      .h-table,
-      #net-url,
-      #ch-url,
-      #dcc-chat-title {
-        width: 100%;
-      }
-
-      #splash {
-        font-size: 24pt;
-        font-weight: bold;
-        text-align: center;
-      }
-
-      #cli-version-container {
-        text-align: center;
-        width: 100%;
-      }
-
-      #usr-descnodes,
-      #ch-topicnodes {
-        line-height: 110%;
-      }
-
-      #ch-usercount,
-      #ch-modestr,
-      #net-lag,
-      #dcc-file-progress {
-        white-space: nowrap;
-      }
-
-      .label {
-        font-weight: bold;
-        text-align: right;
-        vertical-align: top;
-        white-space: nowrap;
-        padding-right: 0.5em;
-      }
-
-      .value {
-        vertical-align: top;
-        padding-right: 1em;
-      }
-
-      #usr-title,
-      #usr-descnodes {
-        text-align: center;
-      }
-    </style>
-
+    <link
+      rel="stylesheet"
+      href="chrome://chatzilla/content/output-base.css"
+      type="text/css"
+    />
     <script src="chrome://chatzilla/content/output-window.js"></script>
   </head>
 
@@ -85,13 +27,13 @@
         <table class="h-table">
           <tbody>
             <tr>
-              <td class="label" localize="output.knownnets"></td>
+              <td class="label">&output.knownnets.label;</td>
               <td class="value" id="cli-netcount"></td>
               <td class="label" id="cli-version-container">
                 ChatZilla <span id="cli-version">error</span>
               </td>
-              <td class="label" localize="output.connnets"></td>
-              <td class="value" id="cli-connectcount" localize="none"></td>
+              <td class="label">&output.connnets.label;</td>
+              <td class="value" id="cli-connectcount"></td>
             </tr>
           </tbody>
         </table>
@@ -101,7 +43,7 @@
         <table class="h-table">
           <tbody>
             <tr>
-              <td class="label" id="net-url-l" localize="output.url"></td>
+              <td class="label" id="net-url-l">&output.url.label;</td>
               <td class="value crop-right" id="net-url">
                 <a
                   id="net-url-anchor"
@@ -110,14 +52,11 @@
                   >irc://foo/bar</a
                 >
               </td>
-              <td
-                class="value"
-                id="net-status"
-                condition="red"
-                localize="output.notconn"
-              ></td>
-              <td class="label" id="net-lag-l" localize="output.lag"></td>
-              <td class="value" id="net-lag" localize="unknown"></td>
+              <td class="value" id="net-status" condition="red">
+                &output.notconn.label;
+              </td>
+              <td class="label" id="net-lag-l">&output.lag.label;</td>
+              <td class="value" id="net-lag"></td>
             </tr>
           </tbody>
         </table>
@@ -127,7 +66,7 @@
         <table class="h-table">
           <tbody>
             <tr>
-              <td class="label" id="ch-url-l" localize="output.url"></td>
+              <td class="label" id="ch-url-l">&output.url.label;</td>
               <td class="value crop-right" id="ch-url">
                 <a
                   id="ch-url-anchor"
@@ -136,23 +75,15 @@
                   >irc://foo/bar</a
                 >
               </td>
-              <td class="label" id="ch-modestr-l" localize="output.mode"></td>
-              <td class="value" id="ch-modestr" localize="none"></td>
-              <td
-                class="label"
-                id="ch-usercount-l"
-                localize="output.users"
-              ></td>
-              <td class="value" id="ch-usercount" localize="none"></td>
+              <td class="label" id="ch-modestr-l">&output.mode.label;</td>
+              <td class="value" id="ch-modestr"></td>
+              <td class="label" id="ch-usercount-l">&output.users.label;</td>
+              <td class="value" id="ch-usercount"></td>
             </tr>
             <tr onclick="onTopicNodesClick(event);" style="cursor: default">
-              <td
-                class="label"
-                id="ch-topicnodes-l"
-                localize="output.topic"
-              ></td>
+              <td class="label" id="ch-topicnodes-l">&output.topic.label;</td>
               <td class="value" colspan="6">
-                <span id="ch-topicnodes" localize="none"></span>
+                <span id="ch-topicnodes"></span>
                 <input
                   hidden="true"
                   id="ch-topicinput"
@@ -165,7 +96,7 @@
                   hidden="true"
                   id="ch-topiccancel"
                   onclick="setTimeout(cancelTopicEdit, 0, true);"
-                  localize="output.cancel"
+                  value="&output.cancel.label;"
                 />
               </td>
             </tr>
@@ -177,7 +108,7 @@
         <table class="h-table">
           <tbody>
             <tr>
-              <td class="label" localize="output.url"></td>
+              <td class="label">&output.url.label;</td>
               <td class="value crop-right" width="100%">
                 <a
                   id="usr-url-anchor"
@@ -186,14 +117,14 @@
                   >irc://foo/bar</a
                 >
               </td>
-              <td class="label" id="usr-serverstr-l" localize="output.via"></td>
-              <td class="value" id="usr-serverstr" localize="none"></td>
+              <td class="label" id="usr-serverstr-l">&output.via.label;</td>
+              <td class="value" id="usr-serverstr"></td>
             </tr>
             <tr>
-              <td id="usr-title" colspan="4" localize="none"></td>
+              <td id="usr-title" colspan="4"></td>
             </tr>
             <tr>
-              <td id="usr-descnodes" colspan="4" localize="none"></td>
+              <td id="usr-descnodes" colspan="4"></td>
             </tr>
           </tbody>
         </table>
@@ -203,13 +134,9 @@
         <table class="h-table">
           <tbody>
             <tr>
-              <td id="dcc-chat-title" localize="none"></td>
-              <td
-                class="label"
-                id="dcc-chat-remotestr-l"
-                localize="output.to"
-              ></td>
-              <td class="value" id="dcc-chat-remotestr" localize="none"></td>
+              <td id="dcc-chat-title"></td>
+              <td class="label" id="dcc-chat-remotestr-l">&output.to.label;</td>
+              <td class="value" id="dcc-chat-remotestr"></td>
             </tr>
           </tbody>
         </table>
@@ -219,10 +146,10 @@
         <table class="h-table">
           <tbody>
             <tr>
-              <td class="label" localize="output.file"></td>
+              <td class="label">&output.file.label;</td>
               <td class="value crop-right" id="dcc-file-file" width="100%"></td>
-              <td class="label" localize="output.progress"></td>
-              <td class="value" id="dcc-file-progress" localize="unknown"></td>
+              <td class="label">&output.progress.label;</td>
+              <td class="value" id="dcc-file-progress"></td>
             </tr>
             <tr>
               <td colspan="4" class="progress-bg">
