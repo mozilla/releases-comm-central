@@ -125,24 +125,28 @@ add_task(async function test_mail_account_setup() {
     delete_all_existing(window, tabDocument.getElementById("realname"));
   }
   input_value(window, testUser.name);
-  EventUtils.synthesizeKey("VK_TAB", {}, window);
+  EventUtils.synthesizeKey("KEY_Tab", {}, window);
   input_value(window, testUser.email);
-  EventUtils.synthesizeKey("VK_TAB", {}, window);
+  EventUtils.synthesizeKey("KEY_Tab", {}, window);
   input_value(window, testUser.password);
 
   const notificationBox =
     tab.browser.contentWindow.gAccountSetup.notificationBox;
 
-  const notificationPromise = BrowserTestUtils.waitForCondition(
-    () =>
-      notificationBox.getNotificationWithValue("accountSetupSuccess") != null,
-    "Timeout waiting for error notification to be shown"
-  );
+  const notificationPromise =
+    BrowserTestUtils.waitForNotificationInNotificationBox(
+      notificationBox,
+      "accountSetupSuccess"
+    );
 
   const popOption = tabDocument.getElementById("resultsOption-pop3");
-  const protocolPOPSelected = BrowserTestUtils.waitForCondition(
-    () => !popOption.hidden && popOption.classList.contains("selected"),
-    "Timeout waiting for the POP3 option to be visible and selected"
+  const protocolPOPSelected = BrowserTestUtils.waitForMutationCondition(
+    popOption,
+    {
+      attributes: true,
+      attributeFilter: ["hidden", "class"],
+    },
+    () => !popOption.hidden && popOption.classList.contains("selected")
   );
 
   // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
@@ -182,16 +186,12 @@ add_task(async function test_mail_account_setup() {
     tab.browser.contentWindow
   );
 
-  await BrowserTestUtils.waitForCondition(
-    () => !tabDocument.getElementById("manualConfigArea").hidden,
-    "Timeout waiting for the manual edit area to become visible"
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    tabDocument.getElementById("manualConfigArea")
   );
 
   const tabmail = document.getElementById("tabmail");
-  const tabChanged = BrowserTestUtils.waitForCondition(
-    () => tabmail.selectedTab != tab,
-    "Timeout waiting for the currently active tab to change"
-  );
 
   const advancedSetupButton = tabDocument.getElementById("advancedSetupButton");
   advancedSetupButton.scrollIntoView({ block: "start", behavior: "instant" });
@@ -207,7 +207,13 @@ add_task(async function test_mail_account_setup() {
 
   // Wait for the current Account Setup tab to be closed and the Account
   // Settings tab to open before running other sub tests.
-  await tabChanged;
+  if (tabmail.selectedTab == tab) {
+    await BrowserTestUtils.waitForEvent(
+      tabmail.tabContainer,
+      "TabSelect",
+      () => tabmail.selectedTab != tab
+    );
+  }
 
   await subtest_verify_account(tabmail.selectedTab, testUser);
 
@@ -234,7 +240,7 @@ add_task(async function test_mail_account_setup() {
 });
 
 async function subtest_verify_account(tab, user) {
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => tab.browser.contentWindow.currentAccount != null,
     "Timeout waiting for current account to become non-null"
   );
@@ -317,9 +323,9 @@ add_task(async function test_bad_password_uses_old_settings() {
     delete_all_existing(window, tabDocument.getElementById("realname"));
   }
   input_value(window, testUser.name);
-  EventUtils.synthesizeKey("VK_TAB", {}, window);
+  EventUtils.synthesizeKey("KEY_Tab", {}, window);
   input_value(window, testUser.email);
-  EventUtils.synthesizeKey("VK_TAB", {}, window);
+  EventUtils.synthesizeKey("KEY_Tab", {}, window);
   input_value(window, testUser.password);
 
   // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
@@ -330,18 +336,23 @@ add_task(async function test_bad_password_uses_old_settings() {
   );
 
   const createButton = tabDocument.getElementById("createButton");
-  await BrowserTestUtils.waitForCondition(
-    () => !createButton.hidden && !createButton.disabled,
-    "Timeout waiting for create button to become visible and active"
+  await BrowserTestUtils.waitForMutationCondition(
+    createButton,
+    {
+      attributes: true,
+      attributeFilter: ["hidden", "disabled"],
+    },
+    () => !createButton.hidden && !createButton.disabled
   );
 
   const notificationBox =
     tab.browser.contentWindow.gAccountSetup.notificationBox;
 
-  const notificationShowed = BrowserTestUtils.waitForCondition(
-    () => notificationBox.getNotificationWithValue("accountSetupError") != null,
-    "Timeout waiting for error notification to be showed"
-  );
+  const notificationShown =
+    BrowserTestUtils.waitForNotificationInNotificationBox(
+      notificationBox,
+      "accountSetupError"
+    );
 
   createButton.scrollIntoView({ block: "start", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
@@ -350,12 +361,9 @@ add_task(async function test_bad_password_uses_old_settings() {
     tab.browser.contentWindow
   );
 
-  await notificationShowed;
+  await notificationShown;
 
-  await BrowserTestUtils.waitForCondition(
-    () => !createButton.disabled,
-    "Timeout waiting for create button to become active"
-  );
+  await BrowserTestUtils.waitForAttributeRemoval("disabled", createButton);
 
   const manualConfigButton = tabDocument.getElementById("manualConfigButton");
   manualConfigButton.scrollIntoView({ block: "start", behavior: "instant" });
@@ -366,61 +374,51 @@ add_task(async function test_bad_password_uses_old_settings() {
     tab.browser.contentWindow
   );
 
-  await BrowserTestUtils.waitForCondition(
-    () => !tabDocument.getElementById("manualConfigArea").hidden,
-    "Timeout waiting for the manual edit area to become visible"
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    tabDocument.getElementById("manualConfigArea")
   );
 
   const outgoingAuthSelect = tabDocument.getElementById("outgoingAuthMethod");
   // Make sure the select field is inside the viewport.
   outgoingAuthSelect.scrollIntoView({ block: "start", behavior: "instant" });
   outgoingAuthSelect.focus();
-
-  let popupOpened = BrowserTestUtils.waitForEvent(
-    document.getElementById("ContentSelectDropdown"),
-    "popupshown"
-  );
   EventUtils.sendKey("space", tab.browser.contentWindow);
-  await popupOpened;
+  await BrowserTestUtils.waitForPopupEvent(
+    document.getElementById("ContentSelectDropdown"),
+    "shown"
+  );
 
   // The default value should be on "Normal password", which is after
   // "No authentication", so we need to go up. We do this on purpose so we can
   // properly test and track the order of options.
   EventUtils.sendKey("up", tab.browser.contentWindow);
 
-  const userNameDisabled = BrowserTestUtils.waitForCondition(
-    () => tabDocument.getElementById("outgoingUsername").disabled,
-    "Timeout waiting for the outgoing username field to be disabled"
-  );
   EventUtils.sendKey("return", tab.browser.contentWindow);
 
   // Confirm that the outgoing username field is disabled.
-  await userNameDisabled;
+  await BrowserTestUtils.waitForAttribute(
+    "disabled",
+    tabDocument.getElementById("outgoingUsername")
+  );
 
   // Revert the outgoing authentication method to "Normal Password".
   outgoingAuthSelect.focus();
-  popupOpened = BrowserTestUtils.waitForEvent(
-    document.getElementById("ContentSelectDropdown"),
-    "popupshown"
-  );
   // Change the outgoing authentication method to "No Authentication".
   EventUtils.sendKey("space", tab.browser.contentWindow);
-  await popupOpened;
+  await BrowserTestUtils.waitForPopupEvent(
+    document.getElementById("ContentSelectDropdown"),
+    "shown"
+  );
 
   EventUtils.sendKey("down", tab.browser.contentWindow);
 
-  const usernameEnabled = BrowserTestUtils.waitForCondition(
-    () => !tabDocument.getElementById("outgoingUsername").disabled,
-    "Timeout waiting for the outgoing username field to be enabled"
-  );
   EventUtils.sendKey("return", tab.browser.contentWindow);
 
   // Confirm that the outgoing username field is enabled.
-  await usernameEnabled;
-
-  const notificationRemoved = BrowserTestUtils.waitForCondition(
-    () => notificationBox.getNotificationWithValue("accountSetupError") == null,
-    "Timeout waiting for error notification to be removed"
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "disabled",
+    tabDocument.getElementById("outgoingUsername")
   );
 
   createButton.scrollIntoView({ block: "start", behavior: "instant" });
@@ -431,7 +429,15 @@ add_task(async function test_bad_password_uses_old_settings() {
   );
 
   // Triggering again the "createButton" should clear previous notifications.
-  await notificationRemoved;
+  await TestUtils.waitForCondition(
+    () => notificationBox.getNotificationWithValue("accountSetupError") == null,
+    "Timeout waiting for error notification to be removed"
+  );
+  const newNotificationShown =
+    BrowserTestUtils.waitForNotificationInNotificationBox(
+      notificationBox,
+      "accountSetupError"
+    );
 
   // Make sure all the values are the same as in the user object.
   Assert.equal(
@@ -446,10 +452,7 @@ add_task(async function test_bad_password_uses_old_settings() {
   );
 
   // A new error notification should appear.
-  await BrowserTestUtils.waitForCondition(
-    () => notificationBox.getNotificationWithValue("accountSetupError") != null,
-    "Timeout waiting for error notification to be showed"
-  );
+  await newNotificationShown;
 
   Assert.equal(
     Glean.mail.failedEmailAccountSetup["xml-from-db"].testGetValue(),
@@ -577,28 +580,32 @@ add_task(async function test_full_account_setup() {
 
   // The focus should be on the "realname" input by default, so let's fill it.
   input_value(window, imapUser.name);
-  EventUtils.synthesizeKey("VK_TAB", {}, window);
+  EventUtils.synthesizeKey("KEY_Tab", {}, window);
   input_value(window, imapUser.email);
-  EventUtils.synthesizeKey("VK_TAB", {}, window);
+  EventUtils.synthesizeKey("KEY_Tab", {}, window);
   input_value(window, imapUser.password);
 
   const notificationBox =
     tab.browser.contentWindow.gAccountSetup.notificationBox;
 
-  const notificationShowed = BrowserTestUtils.waitForCondition(
-    () =>
-      notificationBox.getNotificationWithValue("accountSetupSuccess") != null,
-    "Timeout waiting for error notification to be showed"
-  );
+  const notificationShowed =
+    BrowserTestUtils.waitForNotificationInNotificationBox(
+      notificationBox,
+      "accountSetupSuccess"
+    );
 
   const imapOption = tabDocument.getElementById("resultsOption-imap");
-  const protocolIMAPSelected = BrowserTestUtils.waitForCondition(
-    () => !imapOption.hidden && imapOption.classList.contains("selected"),
-    "Timeout waiting for the IMAP option to be visible and selected"
+  const protocolIMAPSelected = BrowserTestUtils.waitForMutationCondition(
+    imapOption,
+    {
+      attributes: true,
+      attributeFilter: ["hidden", "class"],
+    },
+    () => !imapOption.hidden && imapOption.classList.contains("selected")
   );
 
   // Since we're focused inside a form, pressing "Enter" should submit it.
-  EventUtils.synthesizeKey("VK_RETURN", {}, window);
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   // Wait for the successful notification to show up.
   await notificationShowed;
@@ -606,23 +613,24 @@ add_task(async function test_full_account_setup() {
   // Confirm the IMAP protocol is visible and selected.
   await protocolIMAPSelected;
 
-  const finalViewShowed = BrowserTestUtils.waitForCondition(
-    () => !tabDocument.getElementById("successView").hidden,
-    "Timeout waiting for the final page to be visible"
+  const successView = tabDocument.getElementById("successView");
+  const finalViewShown = BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    successView
   );
 
-  const insecureDialogShowed = BrowserTestUtils.waitForCondition(
-    () => tabDocument.getElementById("insecureDialog").open,
-    "Timeout waiting for the #insecureDialog to be visible"
+  const insecureDialogShown = BrowserTestUtils.waitForAttribute(
+    "open",
+    tabDocument.getElementById("insecureDialog")
   );
 
   // Press "Enter" again to proceed with the account creation.
   tabDocument.getElementById("createButton").focus();
-  EventUtils.synthesizeKey("VK_RETURN", {}, window);
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   // Since we're using plain authentication in the mock IMAP server, the
   // insecure warning dialog should appear. Let's wait for it.
-  await insecureDialogShowed;
+  await insecureDialogShown;
 
   // Click the acknowledge checkbox and confirm the insecure dialog.
   const acknowledgeCheckbox = tabDocument.getElementById("acknowledgeWarning");
@@ -637,15 +645,11 @@ add_task(async function test_full_account_setup() {
   // Prepare to handle the linked services notification.
   const syncingBox = tab.browser.contentWindow.gAccountSetup.syncingBox;
 
-  const syncingNotificationShowed = BrowserTestUtils.waitForCondition(
-    () => syncingBox.getNotificationWithValue("accountSetupLoading") != null,
-    "Timeout waiting for the syncing notification to be removed"
-  );
-
-  const syncingNotificationRemoved = BrowserTestUtils.waitForCondition(
-    () => !syncingBox.getNotificationWithValue("accountSetupLoading"),
-    "Timeout waiting for the syncing notification to be removed"
-  );
+  const syncingNotificationShown =
+    BrowserTestUtils.waitForNotificationInNotificationBox(
+      syncingBox,
+      "accountSetupLoading"
+    );
 
   const confirmButton = tabDocument.getElementById("insecureConfirmButton");
   confirmButton.scrollIntoView({ block: "start", behavior: "instant" });
@@ -658,7 +662,7 @@ add_task(async function test_full_account_setup() {
   );
 
   // The final page should be visible.
-  await finalViewShowed;
+  await finalViewShown;
 
   const tabmail = document.getElementById("tabmail");
 
@@ -680,10 +684,13 @@ add_task(async function test_full_account_setup() {
   );
 
   // The fetching of connected address books and calendars should start.
-  await syncingNotificationShowed;
+  await syncingNotificationShown;
 
   // Wait for the fetching of address books and calendars to end.
-  await syncingNotificationRemoved;
+  await TestUtils.waitForCondition(
+    () => !syncingBox.getNotificationWithValue("accountSetupLoading"),
+    "Timeout waiting for the syncing notification to be removed"
+  );
 
   // Wait for the linked address book section to be visible.
   const addressBookSection = tabDocument.getElementById("linkedAddressBooks");
@@ -775,16 +782,21 @@ add_task(async function test_full_account_setup() {
     cal.manager.addObserver(observer);
   });
 
-  const calendarDialogShowed = BrowserTestUtils.waitForCondition(
-    () => tabDocument.getElementById("calendarDialog").open,
-    "Timeout waiting for the #calendarDialog to be visible"
+  const calendarDialog = tabDocument.getElementById("calendarDialog");
+  const calendarDialogShown = BrowserTestUtils.waitForMutationCondition(
+    calendarDialog,
+    {
+      attributes: true,
+      attributeFilter: ["open"],
+    },
+    () => calendarDialog.open
   );
   EventUtils.synthesizeMouseAtCenter(
     calendarList.querySelector("li > button.small-button"),
     {},
     tab.browser.contentWindow
   );
-  await calendarDialogShowed;
+  await calendarDialogShown;
   EventUtils.synthesizeMouseAtCenter(
     tabDocument.getElementById("calendarDialogConfirmButton"),
     {},
@@ -813,9 +825,10 @@ add_task(async function test_full_account_setup() {
     "password was saved for linked address book/calendar"
   );
 
-  const tabChanged = BrowserTestUtils.waitForCondition(
-    () => tabmail.selectedTab != tab,
-    "Timeout waiting for the currently active tab to change"
+  const tabChanged = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabSelect",
+    () => tabmail.selectedTab != tab
   );
 
   const finishButton = tabDocument.getElementById("finishButton");
