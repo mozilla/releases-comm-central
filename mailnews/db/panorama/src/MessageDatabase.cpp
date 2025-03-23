@@ -13,8 +13,7 @@
 using mozilla::LazyLogModule;
 using mozilla::LogLevel;
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 extern LazyLogModule gPanoramaLog;  // Defined by DatabaseCore.
 
@@ -359,5 +358,4 @@ MessageDatabase::RemoveMessageListener(MessageListener* aListener) {
   mMessageListeners.RemoveElement(aListener);
 }
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews

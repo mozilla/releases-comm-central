@@ -26,8 +26,7 @@ using JS::Value;
 using mozilla::LazyLogModule;
 using mozilla::LogLevel;
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 uint64_t LiveViewFilter::nextUID = 1;
 
@@ -374,5 +373,4 @@ NS_IMETHODIMP LiveView::ClearListener() {
   return NS_OK;
 }
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews

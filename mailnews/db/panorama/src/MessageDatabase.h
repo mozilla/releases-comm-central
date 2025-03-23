@@ -12,8 +12,7 @@
 #include "nsTObserverArray.h"
 #include "nsTString.h"
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 class Folder;
 class Message;
@@ -66,7 +65,6 @@ class MessageDatabase : public nsIMessageDatabase {
   nsTObserverArray<RefPtr<MessageListener>> mMessageListeners;
 };
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews
 
 #endif  // MessageDatabase_h__

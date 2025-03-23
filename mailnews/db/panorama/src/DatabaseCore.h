@@ -22,8 +22,7 @@
 
 class nsIMsgFolder;
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 class PerFolderDatabase;
 
@@ -72,7 +71,6 @@ class DatabaseCore : public nsIDatabaseCore,
   nsTHashMap<uint64_t, WeakPtr<PerFolderDatabase>> mOpenDatabases;
 };
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews
 
 #endif  // DatabaseCore_h__

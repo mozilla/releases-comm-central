@@ -6,8 +6,7 @@
 
 #include "FolderDatabase.h"
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 NS_IMPL_ISUPPORTS(Folder, nsIFolder)
 
@@ -143,5 +142,4 @@ Folder::ToJSON(nsACString& aJSON) {
   return NS_OK;
 }
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews

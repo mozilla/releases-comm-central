@@ -14,8 +14,7 @@
 
 using mozilla::MozPromise;
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 class Folder;
 class FolderComparator;
@@ -61,7 +60,6 @@ class FolderDatabase : public nsIFolderDatabase {
   void SaveOrdinals(nsTArray<RefPtr<Folder>>& aFolders);
 };
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews
 
 #endif  // FolderDatabase_h__

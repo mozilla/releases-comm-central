@@ -6,11 +6,9 @@
 #include "MailNewsTypes2.idl"
 
 %{C++
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 class MessageListener;
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews
 %}
 [ptr] native MessageListener(mozilla::mailnews::MessageListener);
 

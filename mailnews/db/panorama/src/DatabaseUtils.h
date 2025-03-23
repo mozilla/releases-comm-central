@@ -14,8 +14,7 @@
 
 using mozilla::Preferences;
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 class DatabaseUtils {
  public:
@@ -72,7 +71,6 @@ class AddressFormatFunction final : public mozIStorageFunction,
                                        nsACString& aDisplayName);
 };
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews
 
 #endif  // DatabaseUtils_h__

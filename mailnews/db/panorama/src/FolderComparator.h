@@ -11,8 +11,7 @@
 
 using mozilla::intl::Collator;
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 class Folder;
 
@@ -34,7 +33,6 @@ class FolderComparator {
   static const Collator* GetCollator();
 };
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews
 
 #endif  // FolderComparator_h__

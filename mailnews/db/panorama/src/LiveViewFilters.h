@@ -15,8 +15,7 @@
 #include "nsString.h"
 #include "nsTString.h"
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 class LiveViewFilter {
  public:
@@ -90,7 +89,6 @@ class TaggedMessagesFilter final : public LiveViewFilter {
   bool mWanted;
 };
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews
 
 #endif  // LiveViewFilters_h__

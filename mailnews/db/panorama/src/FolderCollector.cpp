@@ -13,8 +13,7 @@
 #include "nsMsgLocalStoreUtils.h"
 #include "nsServiceManagerUtils.h"
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 /**
  * This is a stub mailbox finder for mbox-based accounts. It should live in
@@ -193,5 +192,4 @@ void FolderCollector::FindChildren(nsIFolder* aParent, nsIFile* aFile) {
   }
 }
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews

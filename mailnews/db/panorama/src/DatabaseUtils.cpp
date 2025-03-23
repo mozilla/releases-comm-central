@@ -17,8 +17,7 @@
 using mozilla::intl::nsTStringToBufferAdapter;
 using mozilla::intl::String;
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 /* static */
 nsCString DatabaseUtils::Normalize(const nsACString& inString) {
@@ -236,5 +235,4 @@ nsresult AddressFormatFunction::GetDisplayNameInAddressBook(
   return rv;
 }
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews

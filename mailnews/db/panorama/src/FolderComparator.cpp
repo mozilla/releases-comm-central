@@ -8,8 +8,7 @@
 
 using mozilla::intl::LocaleService;
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 bool FolderComparator::Equals(const RefPtr<Folder>& aA,
                               const RefPtr<Folder>& aB) const {
@@ -82,5 +81,4 @@ const Collator* FolderComparator::GetCollator() {
   return sCollator;
 }
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews

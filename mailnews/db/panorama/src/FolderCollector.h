@@ -7,8 +7,7 @@
 #include "nsIFolderDatabase.h"
 #include "nsIMsgFolderCache.h"
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 class FolderCollector {
  public:
@@ -24,5 +23,4 @@ class FolderCollector {
   void EnsureFolderCache();
 };
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews

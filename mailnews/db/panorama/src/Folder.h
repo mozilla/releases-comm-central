@@ -11,8 +11,7 @@
 #include "nsIFolder.h"
 #include "nsTString.h"
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 class Folder : public nsIFolder {
  public:
@@ -44,7 +43,6 @@ class Folder : public nsIFolder {
   void _GetDescendants(nsTArray<RefPtr<nsIFolder>>& aDescendants);
 };
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews
 
 #endif  // Folder_h__

@@ -24,8 +24,7 @@ using mozilla::LazyLogModule;
 using mozilla::LogLevel;
 using mozilla::dom::Promise;
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 LazyLogModule gPanoramaLog("panorama");
 
@@ -367,5 +366,4 @@ nsresult DatabaseCore::GetFolderForMsgFolder(nsIMsgFolder* aMsgFolder,
   return parent->GetChildNamed(msgName, aFolder);
 }
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews

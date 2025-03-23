@@ -13,8 +13,7 @@
 #include "nsCOMPtr.h"
 #include "nsILiveView.h"
 
-namespace mozilla {
-namespace mailnews {
+namespace mozilla::mailnews {
 
 class LiveView : public nsILiveView, public MessageListener {
  public:
@@ -62,7 +61,6 @@ class LiveView : public nsILiveView, public MessageListener {
   JSContext* mCx;
 };
 
-}  // namespace mailnews
-}  // namespace mozilla
+}  // namespace mozilla::mailnews
 
 #endif  // LiveView_h__
