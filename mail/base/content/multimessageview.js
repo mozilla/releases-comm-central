@@ -208,6 +208,7 @@ class MultiMessageSummary {
     trashBtn.dataset.imapDeleted = !!areIMAPDeleted;
 
     headerToolbarNavigation.init();
+    headerToolbarNavigation.updateRovingTab();
 
     const summarizer = this._summarizers[aType];
     if (!summarizer) {
@@ -735,13 +736,13 @@ const headerToolbarNavigation = {
    */
   isLoaded: false,
   /**
-   * Get all currently visible buttons of the message header toolbar.
+   * Get all currently clickable buttons of the message header toolbar.
    *
    * @returns {Array} An array of buttons.
    */
   get headerButtons() {
     return this.headerToolbar.querySelectorAll(
-      `toolbarbutton:not([hidden="true"])`
+      `toolbarbutton:not([hidden="true"],[disabled="true"])`
     );
   },
 
@@ -754,12 +755,11 @@ const headerToolbarNavigation = {
     this.headerToolbar.addEventListener("keypress", event => {
       this.triggerMessageHeaderRovingTab(event);
     });
-    this.updateRovingTab();
     this.isLoaded = true;
   },
 
   /**
-   * Update the `tabindex` attribute of the currently visible buttons.
+   * Update the `tabindex` attribute of the currently clickable buttons.
    */
   updateRovingTab() {
     for (const button of this.headerButtons) {

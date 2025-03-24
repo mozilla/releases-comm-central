@@ -303,7 +303,12 @@ add_task(async function enter_msg_hdr_toolbar() {
   // Make sure it loads.
   await assert_selected_and_displayed(window, curMessage);
 
-  const BUTTONS_SELECTOR = `toolbarbutton:not([hidden="true"],[is="toolbarbutton-menu-button"]), toolbaritem[id="hdrSmartReplyButton"]>toolbarbutton:not([hidden="true"])>dropmarker, button:not([hidden])`;
+  // Some buttons may be disabled, for example for feed messages.
+  const archiveButton =
+    aboutMessage.document.getElementById("hdrArchiveButton");
+  archiveButton.disabled = true;
+
+  const BUTTONS_SELECTOR = `toolbarbutton:not([hidden="true"],[disabled="true"],[is="toolbarbutton-menu-button"]), toolbaritem[id="hdrSmartReplyButton"]>toolbarbutton:not([hidden="true"])>dropmarker, button:not([hidden])`;
   const headerToolbar = aboutMessage.document.getElementById(
     "header-view-toolbar"
   );
@@ -417,6 +422,8 @@ add_task(async function enter_msg_hdr_toolbar() {
     "fromRecipient0",
     "The sender is now focused"
   );
+
+  archiveButton.disabled = false;
 }).skip(AppConstants.platform == "macosx");
 
 // Full keyboard navigation on OSX only works if Full Keyboard Access setting is

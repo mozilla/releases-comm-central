@@ -716,6 +716,7 @@ var messageProgressListener = {
 
     gMessageNotificationBar.setDraftEditMessage();
     updateHeaderToolbarButtons();
+    headerToolbarNavigation.updateRovingTab();
 
     for (const listener of gMessageListeners) {
       listener.onEndHeaders();
@@ -1247,6 +1248,9 @@ function updateExpandedView() {
   UpdateReplyButtons();
   updateHeaderToolbarButtons();
   updateComposeButtons();
+  // Run this method only after all the header toolbar buttons have been updated
+  // so we deal with the actual state.
+  headerToolbarNavigation.updateRovingTab();
   displayAttachmentsForExpandedView();
 
   try {
@@ -3520,10 +3524,6 @@ function UpdateReplyButtons() {
       replyToSenderButton.hidden = false;
     }
   }
-
-  // Run this method only after all the header toolbar buttons have been updated
-  // so we deal with the actual state.
-  headerToolbarNavigation.updateRovingTab();
 }
 
 /**
@@ -4484,13 +4484,13 @@ window.addEventListener("secureMsgLoaded", event => {
  */
 var headerToolbarNavigation = {
   /**
-   * Get all currently visible buttons of the message header toolbar.
+   * Get all currently clickable buttons of the message header toolbar.
    *
    * @returns {Array} An array of buttons.
    */
   get headerButtons() {
     return this.headerToolbar.querySelectorAll(
-      `toolbarbutton:not([hidden="true"],[is="toolbarbutton-menu-button"]),toolbaritem[id="hdrSmartReplyButton"]>toolbarbutton:not([hidden="true"])>dropmarker, button:not([hidden])`
+      `toolbarbutton:not([hidden="true"],[disabled="true"],[is="toolbarbutton-menu-button"]),toolbaritem[id="hdrSmartReplyButton"]>toolbarbutton:not([hidden="true"])>dropmarker, button:not([hidden])`
     );
   },
 
@@ -4502,7 +4502,7 @@ var headerToolbarNavigation = {
   },
 
   /**
-   * Update the `tabindex` attribute of the currently visible buttons.
+   * Update the `tabindex` attribute of the currently clickable buttons.
    */
   updateRovingTab() {
     for (const button of this.headerButtons) {
