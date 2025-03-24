@@ -13,6 +13,16 @@ Preferences.addAll([
 
 var gNotificationsDialog = {
   init() {
+    const sysAlert = Services.prefs.getBoolPref(
+      "mail.biff.use_system_alert",
+      true
+    );
+    if (sysAlert) {
+      document.getElementById("totalOpenTimeBefore").disabled = true;
+      document.getElementById("totalOpenTime").disabled = true;
+      document.getElementById("totalOpenTimeEnd").disabled = true;
+    }
+
     const element = document.getElementById("totalOpenTime");
     Preferences.addSyncFromPrefListener(
       element,
