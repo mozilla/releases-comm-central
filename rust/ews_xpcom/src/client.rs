@@ -449,6 +449,12 @@ impl XpComEwsClient {
                         // the database entry and commit.
                         populate_db_message_header_from_message_headers(&header, msg)?;
 
+                        // It's possible the message's content itself has
+                        // changed (e.g. if a draft was updated). In which case,
+                        // the easiest approach is deleting the local copy so
+                        // that the new content is downloaded when needed.
+                        unsafe { callbacks.MaybeDeleteMessageFromStore(&*header) }.to_result()?;
+
                         unsafe { callbacks.CommitChanges() }.to_result()?;
                     }
 

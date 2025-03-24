@@ -185,6 +185,17 @@ interface IEwsMessageCallbacks : nsISupports
   nsIMsgDBHdr getHeaderForItem(in AUTF8String ewsId);
 
   /**
+   * Deletes the locally-stored message content associated with the given
+   * database entry, if any.
+   *
+   * If no content has been stored for this message locally, this is a no-op.
+   *
+   * @param hdr - The database entry associated with the message content to
+   *              remove.
+   */
+  void maybeDeleteMessageFromStore(in nsIMsgDBHdr hdr);
+
+  /**
    * Adds the given detached database entry to the current folder's database.
    *
    * @param hdr - The database entry to add.

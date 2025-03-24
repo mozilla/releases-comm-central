@@ -205,6 +205,31 @@ NS_IMETHODIMP MessageOperationCallbacks::DeleteHeaderFromDB(
   return mFolder->LocalDeleteMessages({existingHeader});
 }
 
+NS_IMETHODIMP MessageOperationCallbacks::MaybeDeleteMessageFromStore(
+    nsIMsgDBHdr* hdr) {
+  NS_ENSURE_ARG_POINTER(hdr);
+
+  uint32_t flags;
+  MOZ_TRY(hdr->GetFlags(&flags));
+
+  if (!(flags & nsMsgMessageFlags::Offline)) {
+    // Bail early if there's nothing to remove.
+    return NS_OK;
+  }
+
+  // Delete the message content from the local store.
+  nsCOMPtr<nsIMsgPluggableStore> store;
+  MOZ_TRY(mFolder->GetMsgStore(getter_AddRefs(store)));
+  MOZ_TRY(store->DeleteMessages({hdr}));
+
+  // Update the flags on the database entry to reflect its content is *not*
+  // stored offline anymore. We don't commit right now, but the expectation is
+  // that the consumer will call `CommitChanges()` once it's done processing the
+  // current change.
+  uint32_t unused;
+  return hdr->AndFlags(~nsMsgMessageFlags::Offline, &unused);
+}
+
 NS_IMETHODIMP MessageOperationCallbacks::UpdateSyncState(
     const nsACString& syncStateToken) {
   return mFolder->SetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
