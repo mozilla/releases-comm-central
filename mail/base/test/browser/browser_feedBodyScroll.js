@@ -77,7 +77,7 @@ add_task(async function test_feedBodyScroll() {
   async function scrollDown(value = 0) {
     const scroll = await SpecialPowers.spawn(browser, [], async () => {
       const { promise, resolve } = Promise.withResolvers();
-      content.addEventListener("scroll", () => resolve(), { once: true });
+      content.addEventListener("scrollend", () => resolve(), { once: true });
       EventUtils.synthesizeKey(" ", {}, content);
       await promise;
 
