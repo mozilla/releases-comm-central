@@ -155,11 +155,27 @@ function promiseLoadSubDialog(aURL) {
  * Subtest to open the account dialog, and returns the dialog for further
  * testing.
  *
- * @returns {Promise<HTMLElement>}
+ * @returns {Promise<HTMLDialogElement>}
  */
 async function subtest_open_account_hub_dialog() {
   await window.openAccountHub();
+  return subtest_wait_for_account_hub_dialog();
+}
 
+/**
+ * Wait for the account hub dialog to be fully opened.
+ *
+ * @returns {Promise<HTMLDialogElement>}
+ */
+async function subtest_wait_for_account_hub_dialog() {
+  await BrowserTestUtils.waitForMutationCondition(
+    document.body,
+    {
+      childList: true,
+      subtree: true,
+    },
+    () => document.querySelector("account-hub-container")
+  );
   const hub = document.querySelector("account-hub-container");
   await BrowserTestUtils.waitForMutationCondition(
     hub,
@@ -173,6 +189,15 @@ async function subtest_open_account_hub_dialog() {
   await BrowserTestUtils.waitForMutationCondition(
     dialog,
     {
+      attributeFilter: ["open"],
+    },
+    () => dialog.open
+  );
+  Assert.ok(dialog.open, "Dialog should be open");
+
+  await BrowserTestUtils.waitForMutationCondition(
+    dialog,
+    {
       childList: true,
     },
     () => !!dialog.querySelector("email-auto-form")
@@ -180,9 +205,12 @@ async function subtest_open_account_hub_dialog() {
 
   const emailForm = dialog.querySelector("email-auto-form");
   Assert.ok(emailForm, "The email element should be available");
-  await TestUtils.waitForCondition(
-    () => BrowserTestUtils.isVisible(emailForm),
-    "The initial email template should be in view"
+  await BrowserTestUtils.waitForMutationCondition(
+    emailForm,
+    {
+      attributeFilter: ["hidden"],
+    },
+    () => BrowserTestUtils.isVisible(emailForm)
   );
 
   return dialog;
@@ -190,7 +218,7 @@ async function subtest_open_account_hub_dialog() {
 /**
  * Subtest to close the account hub dialog.
  *
- * @param {Promise<HTMLElement>} dialog - The account hub dialog.
+ * @param {Promise<HTMLDialogElement>} dialog - The account hub dialog.
  */
 async function subtest_close_account_hub_dialog(dialog) {
   const hub = document.querySelector("account-hub-container");
@@ -205,7 +233,7 @@ async function subtest_close_account_hub_dialog(dialog) {
 /**
  * Subtest fill in the fields of the first step of the account hub email setup.
  *
- * @param {Promise<HTMLElement>} dialog - The account hub dialog.
+ * @param {Promise<HTMLDialogElement>} dialog - The account hub dialog.
  * @param {object?} emailUser - An object containing a dummy user's email data.
  */
 async function subtest_fill_initial_config_fields(dialog, emailUser = null) {

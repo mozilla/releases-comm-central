@@ -258,7 +258,7 @@ add_task(async function test_account_email_config_found() {
   EventUtils.synthesizeKey("KEY_Enter", {});
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(configFoundTemplate),
-    "The email config found template should be in view"
+    "The email config found template should be in view again"
   );
 
   await TestUtils.waitForCondition(
