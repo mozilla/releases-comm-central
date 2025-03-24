@@ -126,7 +126,7 @@ class MessageOperationCallbacks : public IEwsMessageCallbacks {
 
 NS_IMPL_ISUPPORTS(MessageOperationCallbacks, IEwsMessageCallbacks)
 
-NS_IMETHODIMP MessageOperationCallbacks::CommitHeader(nsIMsgDBHdr* hdr) {
+NS_IMETHODIMP MessageOperationCallbacks::SaveNewHeader(nsIMsgDBHdr* hdr) {
   RefPtr<nsIMsgDatabase> db;
   nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -134,30 +134,60 @@ NS_IMETHODIMP MessageOperationCallbacks::CommitHeader(nsIMsgDBHdr* hdr) {
   return db->AddNewHdrToDB(hdr, true);
 }
 
-NS_IMETHODIMP MessageOperationCallbacks::CreateNewHeaderForItem(
-    const nsACString& ewsId, nsIMsgDBHdr** _retval) {
+NS_IMETHODIMP MessageOperationCallbacks::CommitChanges() {
   RefPtr<nsIMsgDatabase> db;
   nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  RefPtr<nsIMsgDBHdr> existingHeader;
-  rv = db->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHeader));
-  NS_ENSURE_SUCCESS(rv, rv);
+  return db->Commit(nsMsgDBCommitType::kLargeCommit);
+}
 
-  if (existingHeader.get() != nullptr) {
-    // If the header already exists, don't create a new one.
-    *_retval = nullptr;
-    return NS_OK;
+NS_IMETHODIMP MessageOperationCallbacks::CreateNewHeaderForItem(
+    const nsACString& ewsId, nsIMsgDBHdr** _retval) {
+  // Check if a header already exists for this EWS ID. `GetHeaderForItem`
+  // returns `NS_ERROR_NOT_AVAILABLE` when no header exists, so we only want to
+  // move forward with creating one in this case.
+  RefPtr<nsIMsgDBHdr> existingHeader;
+  nsresult rv = GetHeaderForItem(ewsId, getter_AddRefs(existingHeader));
+
+  // If we could retrieve a header for this item, error immediately.
+  if (NS_SUCCEEDED(rv)) {
+    return NS_ERROR_ILLEGAL_VALUE;
   }
 
-  RefPtr<nsIMsgDBHdr> newHeader;
-  rv = db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(newHeader));
-  NS_ENSURE_SUCCESS(rv, rv);
+  // We already know that `rv` is a failure at this point, so we just need to
+  // check it's not the one failure we want.
+  if (rv != NS_ERROR_NOT_AVAILABLE) {
+    return rv;
+  }
 
-  rv = newHeader->SetStringProperty(ID_PROPERTY, ewsId);
-  NS_ENSURE_SUCCESS(rv, rv);
+  RefPtr<nsIMsgDatabase> db;
+  MOZ_TRY(mFolder->GetMsgDatabase(getter_AddRefs(db)));
+
+  RefPtr<nsIMsgDBHdr> newHeader;
+  MOZ_TRY(db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(newHeader)));
+
+  MOZ_TRY(newHeader->SetStringProperty(ID_PROPERTY, ewsId));
 
   newHeader.forget(_retval);
+  return NS_OK;
+}
+
+NS_IMETHODIMP MessageOperationCallbacks::GetHeaderForItem(
+    const nsACString& ewsId, nsIMsgDBHdr** _retval) {
+  RefPtr<nsIMsgDatabase> db;
+  MOZ_TRY(mFolder->GetMsgDatabase(getter_AddRefs(db)));
+
+  RefPtr<nsIMsgDBHdr> existingHeader;
+  MOZ_TRY(db->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHeader)));
+
+  // Make sure we managed to get a header from the database.
+  if (!existingHeader) {
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+
+  existingHeader.forget(_retval);
+
   return NS_OK;
 }
 

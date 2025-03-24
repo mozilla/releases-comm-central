@@ -147,18 +147,69 @@ interface IEwsFolderDeleteCallbacks : nsISupports
 {
   /**
    * Called if a folder was successfully deleted on the server.
-  */
+   */
   void onRemoteDeleteFolderSuccessful();
 };
 
+/**
+ * Callbacks used when interacting with an EWS server via an `IEwsClient` in the
+ * context of synchronizing changes to the message list.
+ *
+ * These callbacks allow the `IEwsClient` instance to perform local operation on
+ * the folder that is being synchronized.
+ */
 [scriptable, uuid(dec2ddd5-b5a2-4724-bfc7-e5de31840f76)]
 interface IEwsMessageCallbacks : nsISupports
 {
+  /**
+   * Creates and returns a database entry for the given EWS ID.
+   *
+   * If a database entry with this ID already exists, throws
+   * `NS_ERROR_ILLEGAL_VALUE`.
+   *
+   * @param ewsId - The EWS ID to associate with the database entry upon
+   *                creation.
+   * @returns The newly created database entry.
+   */
   nsIMsgDBHdr createNewHeaderForItem(in AUTF8String ewsId);
   void deleteHeaderFromDB(in AUTF8String ewsId);
-  void commitHeader(in nsIMsgDBHdr hdr);
 
+  /**
+   * Retrieves an existing database entry for the given EWS ID.
+   *
+   * If no database entry exists with this ID, throws `NS_ERROR_NOT_AVAILABLE`.
+   *
+   * @param ewsId - The EWS ID to use when looking up a database entry.
+   * @returns The existing database entry.
+   */
+  nsIMsgDBHdr getHeaderForItem(in AUTF8String ewsId);
+
+  /**
+   * Adds the given detached database entry to the current folder's database.
+   *
+   * @param hdr - The database entry to add.
+   */
+  void saveNewHeader(in nsIMsgDBHdr hdr);
+
+  /**
+   * Commits any change to non-detached database entries in the current folder's
+   * database.
+   */
+  void commitChanges();
+
+  /**
+   * Updates the stored sync state token for the current folder.
+   *
+   * @param syncStateToken - The new token to store.
+   */
   void updateSyncState(in AUTF8String syncStateToken);
+
+  /**
+   * Signals that an error has happened during the current operation.
+   *
+   * @param err - The machine-readable error code.
+   * @param desc - A human-readable description of the error.
+   */
   void onError(in IEwsClient_Error err, in AUTF8String desc);
 };
 

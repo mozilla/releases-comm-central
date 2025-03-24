@@ -1702,6 +1702,7 @@ dependencies = [
  "cstr",
  "ews",
  "fxhash",
+ "itertools",
  "log",
  "mail-builder",
  "mail-parser",

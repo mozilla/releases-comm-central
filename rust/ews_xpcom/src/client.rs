@@ -5,6 +5,7 @@
 mod create_folder;
 
 use std::{
+    cmp::Ordering,
     collections::{HashMap, HashSet, VecDeque},
     env,
 };
@@ -27,6 +28,7 @@ use ews::{
     MimeContent, Operation, PathToElement, RealItem, Recipient, ResponseClass, ResponseCode,
 };
 use fxhash::FxHashMap;
+use itertools::Itertools;
 use mail_parser::MessageParser;
 use moz_http::StatusCode;
 use nserror::nsresult;
@@ -39,9 +41,9 @@ use xpcom::{
     getter_addrefs,
     interfaces::{
         nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsMsgFolderFlagType,
-        nsMsgFolderFlags, nsMsgKey, nsMsgMessageFlags, IEwsClient, IEwsFolderCallbacks,
-        IEwsFolderDeleteCallbacks, IEwsMessageCallbacks, IEwsMessageCreateCallbacks,
-        IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
+        nsMsgFolderFlags, nsMsgKey, IEwsClient, IEwsFolderCallbacks, IEwsFolderDeleteCallbacks,
+        IEwsMessageCallbacks, IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks,
+        IEwsMessageFetchCallbacks,
     },
     RefPtr,
 };
@@ -312,7 +314,39 @@ impl XpComEwsClient {
                 })
                 .collect::<Result<_, _>>()?;
 
-            for change in message.changes.inner {
+            // There is no guarantee the server will correctly batch and order
+            // all the changes in the response, so, just to be safe, we make
+            // sure they're ordered in a sensible way. More specifically, we
+            // want to enforce the following order in the type of changes we
+            // process:
+            //  * message creations (new messages)
+            //  * updates to existing messages
+            //  * message deletions
+            let changes: Vec<_> = message
+                .changes
+                .inner
+                .into_iter()
+                // `sorted_by` is provided by the `Itertools` trait, imported
+                // from the `itertools` crate.
+                .sorted_by(|a, b| match a {
+                    sync_folder_items::Change::Create { .. } => match b {
+                        sync_folder_items::Change::Create { .. } => Ordering::Equal,
+                        _ => Ordering::Less,
+                    },
+                    sync_folder_items::Change::Update { .. }
+                    | sync_folder_items::Change::ReadFlagChange { .. } => match b {
+                        sync_folder_items::Change::Create { .. } => Ordering::Greater,
+                        sync_folder_items::Change::Delete { .. } => Ordering::Less,
+                        _ => Ordering::Equal,
+                    },
+                    sync_folder_items::Change::Delete { .. } => match b {
+                        sync_folder_items::Change::Delete { .. } => Ordering::Equal,
+                        _ => Ordering::Greater,
+                    },
+                })
+                .collect();
+
+            for change in changes {
                 match change {
                     sync_folder_items::Change::Create { item } => {
                         let item_id = match item {
@@ -329,6 +363,8 @@ impl XpComEwsClient {
                             _ => continue,
                         };
 
+                        log::info!("Processing Create change with ID {item_id}");
+
                         let msg = messages_by_id.get(&item_id).ok_or_else(|| {
                             XpComEwsError::Processing {
                                 message: format!("Unable to fetch message with ID {item_id}"),
@@ -344,14 +380,12 @@ impl XpComEwsClient {
                             callbacks.CreateNewHeaderForItem(&*ews_id, hdr)
                         });
 
-                        if let Err(nserror::NS_OK) = result {
-                            // If a header already existed for the given item,
-                            // `CreateNewHeaderForItem()` will return `NULL`.
-                            // `getter_addrefs()` represents this as an error
-                            // with `NS_OK`. We assume here that a previous sync
-                            // encountered an error partway through and skip
-                            // this item.
-                            log::debug!(
+                        if let Err(nserror::NS_ERROR_ILLEGAL_VALUE) = result {
+                            // `NS_ERROR_ILLEGAL_VALUE` means a header already
+                            // exists for this item ID. We assume here that a
+                            // previous sync encountered an error partway
+                            // through and skip this item.
+                            log::warn!(
                                 "Message with ID {item_id} already exists in database, skipping"
                             );
                             continue;
@@ -360,7 +394,7 @@ impl XpComEwsClient {
                         let header = result?;
                         populate_db_message_header_from_message_headers(&header, msg)?;
 
-                        unsafe { callbacks.CommitHeader(&*header) }.to_result()?;
+                        unsafe { callbacks.SaveNewHeader(&*header) }.to_result()?;
                     }
 
                     sync_folder_items::Change::Update { item } => {
@@ -378,17 +412,44 @@ impl XpComEwsClient {
                             _ => continue,
                         };
 
-                        let _msg = messages_by_id.get(&item_id).ok_or_else(|| {
+                        log::info!("Processing Update change with ID {item_id}");
+
+                        let msg = messages_by_id.get(&item_id).ok_or_else(|| {
                             XpComEwsError::Processing {
                                 message: format!("Unable to fetch message with ID {item_id}"),
                             }
                         })?;
 
-                        // TODO: We probably want to ask for a different item
-                        // body for these, since the message itself shouldn't
-                        // change. We just want to know when read state or other
-                        // user-settable properties change. We also need to
-                        // implement those changes.
+                        let ews_id = nsCString::from(&item_id);
+                        let mut result =
+                            getter_addrefs(|p| unsafe { callbacks.GetHeaderForItem(&*ews_id, p) });
+
+                        if let Err(nserror::NS_ERROR_NOT_AVAILABLE) = result {
+                            // Something has gone wrong, probably in a previous
+                            // sync, and we've missed a new item. So let's try
+                            // to gracefully recover from this and add it to the
+                            // database.
+                            log::warn!("Cannot find existing item to update with ID {item_id}, creating it instead");
+
+                            result = getter_addrefs(|hdr| unsafe {
+                                callbacks.CreateNewHeaderForItem(&*ews_id, hdr)
+                            });
+                        }
+
+                        let header = result?;
+
+                        // At some point we might want to restrict what
+                        // properties we want to support updating (e.g. do we
+                        // want to support changing the message ID, considering
+                        // the message might be a draft?). At the time of
+                        // writing, it's still unclear which property should
+                        // *always* be read-only, which ones have their
+                        // readability depend on the context, and which ones can
+                        // always be updated, so we copy the remote state onto
+                        // the database entry and commit.
+                        populate_db_message_header_from_message_headers(&header, msg)?;
+
+                        unsafe { callbacks.CommitChanges() }.to_result()?;
                     }
 
                     sync_folder_items::Change::Delete { item_id } => {
@@ -1415,29 +1476,12 @@ fn populate_db_message_header_from_message_headers(
 
     unsafe { header.SetMessageId(&*internet_message_id) }.to_result()?;
 
-    // Keep track of whether we changed any flags to avoid
-    // making unnecessary XPCOM calls.
-    let mut should_write_flags = false;
-
-    let mut header_flags = 0;
-    unsafe { header.GetFlags(&mut header_flags) }.to_result()?;
+    if let Some(has_attachments) = msg.has_attachments() {
+        unsafe { header.MarkHasAttachments(has_attachments) }.to_result()?;
+    }
 
     if let Some(is_read) = msg.is_read() {
-        if is_read {
-            should_write_flags = true;
-            header_flags |= nsMsgMessageFlags::Read;
-        }
-    }
-
-    if let Some(has_attachments) = msg.has_attachments() {
-        if has_attachments {
-            should_write_flags = true;
-            header_flags |= nsMsgMessageFlags::Attachment;
-        }
-    }
-
-    if should_write_flags {
-        unsafe { header.SetFlags(header_flags) }.to_result()?;
+        unsafe { header.MarkRead(is_read) }.to_result()?;
     }
 
     if let Some(sent) = msg.sent_timestamp_ms() {
