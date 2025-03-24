@@ -615,49 +615,6 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
   return NS_OK;
 }
 
-// Sets onNewLine to true if the file is either empty or ends with an EOL
-// (i.e. is OK for writing a new message into).
-static nsresult CheckStartingOnNewLine(nsIFile* mboxFile, bool& onNewLine) {
-  onNewLine = false;
-
-  // Workaround for Bug 1022704 (bad nsIFile stat-caching on Windows).
-  nsCOMPtr<nsIFile> path;
-  nsresult rv = mboxFile->Clone(getter_AddRefs(path));
-  NS_ENSURE_SUCCESS(rv, rv);
-  int64_t size;
-  rv = path->GetFileSize(&size);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (size == 0) {
-    // Empty file counts as starting a new line.
-    onNewLine = true;
-    return NS_OK;
-  }
-
-  // File isn't empty, so open it up and check the end.
-  nsCOMPtr<nsIInputStream> stream;
-  rv = NS_NewLocalFileInputStream(getter_AddRefs(stream), path);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  auto cleanup = mozilla::MakeScopeExit([&] { stream->Close(); });
-
-  // Read the last byte and make sure it's an LF (covers the CRLF case too).
-  nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(stream, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = seekable->Seek(nsISeekableStream::NS_SEEK_END, -1);
-  NS_ENSURE_SUCCESS(rv, rv);
-  uint32_t n;
-  char buf[1];
-  rv = stream->Read(buf, 1, &n);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (n != 1) {
-    return NS_ERROR_FAILURE;
-  }
-  if (buf[0] == '\n') {
-    onNewLine = true;
-  }
-  return NS_OK;
-}
-
 nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
     nsIMsgFolder* aFolder, nsIMsgDBHdr** aNewMsgHdr, int64_t& filePos,
     nsIOutputStream** aResult) {
@@ -710,11 +667,6 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  // First peek at the mbox to make sure we're at the beginning of a line.
-  bool onNewLine;
-  rv = CheckStartingOnNewLine(mboxFile, onNewLine);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // We want to create a buffered stream.
   // Borrowed the code from MsgNewBufferedFileOutputStream, but
   // note that the permission bit ought to be 0600.
@@ -742,28 +694,6 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
               ("failed opening buffered stream for %s", folderURI.get()));
     }
     NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  if (!onNewLine) {
-    // UHOH! We're not at the beginning of a line!
-    // Should never ever happen. But, well... you know. Power down at the
-    // right time and kaboom.
-    mozilla::glean::mail::mbox_write_errors.Get("missing_eol"_ns).Add(1);
-    MOZ_LOG(gMboxLog, LogLevel::Error,
-            ("mbox file for '%s' had no trailing EOL. Adding one before "
-             "writing message.",
-             folderURI.get()));
-
-    // We can mitigate the problem by writing an EOL so we start the new
-    // message on it's own line. If we don't do this then the new message
-    // will appear appended to the previous message.
-    const char eol[2] = {'\r', '\n'};
-    uint32_t n;
-    rv = stream->Write(eol, 2, &n);
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (n != 2) {
-      return NS_ERROR_FAILURE;
-    }
   }
 
   nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(stream, &rv));
