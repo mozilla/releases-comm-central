@@ -6,10 +6,6 @@
  * Tests that getFolderForMsgFolder and getMsgFolderForFolder work.
  */
 
-const { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 add_task(async function testMsgFolders() {
   do_get_profile();
   await loadExistingDB();

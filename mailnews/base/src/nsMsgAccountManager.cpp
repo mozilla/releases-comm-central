@@ -69,7 +69,8 @@
 #include "UrlListener.h"
 #include "nsIIDNService.h"
 #ifdef MOZ_PANORAMA
-#  include "nsIDatabaseCore.h"
+#  include "nsIComponentRegistrar.h"
+#  include "DatabaseCore.h"
 #endif  // MOZ_PANORAMA
 
 #define PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS "mail.accountmanager.accounts"
@@ -165,9 +166,18 @@ nsresult nsMsgAccountManager::Init() {
   nsresult rv;
 #ifdef MOZ_PANORAMA
   if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    // Replace the database service with the Panorama database.
+    nsCOMPtr<nsIComponentRegistrar> componentRegistrar;
+    rv = NS_GetComponentRegistrar(getter_AddRefs(componentRegistrar));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    componentRegistrar->RegisterFactory(
+        nsID::GenerateUUID(), "", "@mozilla.org/msgDatabase/msgDBService;1",
+        new mozilla::mailnews::DatabaseCoreFactory());
+
     // Start up the database.
     nsCOMPtr<nsIDatabaseCore> unused =
-        do_GetService("@mozilla.org/mailnews/database-core;1", &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 #endif  // MOZ_PANORAMA

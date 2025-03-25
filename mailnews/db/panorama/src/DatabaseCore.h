@@ -68,6 +68,14 @@ class DatabaseCore : public nsIDatabaseCore,
   nsTHashMap<nsString, WeakPtr<PerFolderDatabase>> mOpenDatabasesByFile;
 };
 
+class DatabaseCoreFactory final : public nsIFactory {
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIFACTORY
+
+ private:
+  ~DatabaseCoreFactory() = default;
+};
+
 }  // namespace mozilla::mailnews
 
 #endif  // DatabaseCore_h__

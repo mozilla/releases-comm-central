@@ -38,7 +38,14 @@ MOZ_RUNINIT nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>>
     DatabaseCore::sStatements;
 
 DatabaseCore::DatabaseCore() {
+  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("DatabaseCore constructor"));
   MOZ_ASSERT(!sConnection, "creating a second DatabaseCore");
+
+  // Bump up the refcount so it doesn't get freed too early. This is needed
+  // because of the unusual dynamic component registration done in
+  // `nsMsgAccountManager::Init`.
+  NS_ADDREF_THIS();
+  Startup();
 
   nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
   obs->AddObserver(this, "profile-before-change", false);
@@ -344,6 +351,19 @@ NS_IMETHODIMP DatabaseCore::ForceFolderDBClosed(nsIMsgFolder* aFolder) {
 NS_IMETHODIMP DatabaseCore::GetOpenDBs(
     nsTArray<RefPtr<nsIMsgDatabase>>& aOpenDBs) {
   aOpenDBs.Clear();
+  return NS_OK;
+}
+
+NS_IMPL_ISUPPORTS(DatabaseCoreFactory, nsIFactory)
+
+NS_IMETHODIMP DatabaseCoreFactory::CreateInstance(const nsIID& aIID,
+                                                  void** aResult) {
+  nsresult rv;
+  nsCOMPtr<nsIDatabaseCore> core =
+      do_GetService("@mozilla.org/mailnews/database-core;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  *aResult = (void*)(core);
   return NS_OK;
 }
 

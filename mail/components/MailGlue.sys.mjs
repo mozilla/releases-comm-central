@@ -430,30 +430,6 @@ MailGlue.prototype = {
           "extensions.lastAppVersion",
           "0"
         );
-
-        // Replace the database service with the Panorama database.
-        // This should only happen if MOZ_PANORAMA is true in the build config
-        // (but we can't check that here). Otherwise, if the preference is set
-        // to true, you're gonna have a bad time.
-        if (Services.prefs.getBoolPref("mail.panorama.enabled", false)) {
-          const componentRegistrar = Components.manager.QueryInterface(
-            Ci.nsIComponentRegistrar
-          );
-
-          componentRegistrar.registerFactory(
-            Services.uuid.generateUUID(),
-            "",
-            "@mozilla.org/msgDatabase/msgDBService;1",
-            {
-              createInstance(iid) {
-                return Cc["@mozilla.org/mailnews/database-core;1"].getService(
-                  iid
-                );
-              },
-            }
-          );
-        }
-
         break;
       case "command-line-startup": {
         // Check if this process is the developer toolbox process, and if it

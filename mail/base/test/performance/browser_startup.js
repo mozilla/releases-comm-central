@@ -83,10 +83,7 @@ const startupPhases = {
         // "resource://gre/modules/Preferences.sys.mjs",
         // These can probably be pushed back even further.
       ]),
-      services: new Set([
-        "@mozilla.org/browser/search-service;1",
-        "@mozilla.org/msgDatabase/msgDBService;1",
-      ]),
+      services: new Set(["@mozilla.org/browser/search-service;1"]),
     },
   },
 
@@ -179,6 +176,13 @@ const startupPhases = {
     },
   },
 };
+
+if (!Services.prefs.getBoolPref("mail.panorama.enabled", false)) {
+  // TODO: Reinstate this unconditionally when the new database is registered by default.
+  startupPhases["before first paint"].denylist.services.add(
+    "@mozilla.org/msgDatabase/msgDBService;1"
+  );
+}
 
 add_task(async function () {
   if (

@@ -7,10 +7,6 @@
  * on start-up.
  */
 
-const { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 add_task(async function testFindFolders() {
   do_get_profile();
 
