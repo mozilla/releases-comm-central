@@ -170,6 +170,7 @@ class EmailConfigFound extends AccountHubStep {
     );
     const event = new Event("change", { bubbles: true });
     recommendedTypeLabel.querySelector("input").dispatchEvent(event);
+    recommendedTypeLabel.focus();
   }
 
   /**

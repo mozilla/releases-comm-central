@@ -281,22 +281,48 @@ add_task(async function test_account_email_config_found() {
     "Exchange config option should be hidden"
   );
 
+  const pop3ConfigOption = configFoundTemplate.querySelector("#pop3");
+
   // POP3 should be the recommended configuration.
   Assert.ok(
-    BrowserTestUtils.isVisible(
-      configFoundTemplate.querySelector("#pop3").querySelector(".recommended")
-    ),
+    BrowserTestUtils.isVisible(pop3ConfigOption.querySelector(".recommended")),
     "POP3 should be the recommended config option"
   );
 
   // POP3 should be the selected config.
   Assert.ok(
-    configFoundTemplate.querySelector("#pop3").classList.contains("selected"),
+    pop3ConfigOption.classList.contains("selected"),
     "POP3 should be the selected config option"
+  );
+
+  // POP3 config option should be the active element.
+  Assert.equal(
+    document.querySelector("account-hub-container").shadowRoot.activeElement,
+    pop3ConfigOption.querySelector("input"),
+    "The POP3 input should be the active element"
   );
 
   // The config details should show the POP3 details.
   subtest_config_results(configFoundTemplate, "pop");
+
+  // Pressing enter should move to account hub to the password stage.
+  EventUtils.synthesizeKey("KEY_Enter", {});
+  Assert.ok(
+    BrowserTestUtils.isHidden(configFoundTemplate),
+    "The config found template should be hidden."
+  );
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(dialog.querySelector("email-password-form")),
+    "The email password form should be visible."
+  );
+
+  // Pressing back should go back to the config found step.
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(configFoundTemplate),
+    "The config found template should be in view"
+  );
 
   // Select the IMAP config and check the details match.
   EventUtils.synthesizeMouseAtCenter(
@@ -425,7 +451,8 @@ add_task(async function test_account_enter_password_imap_account() {
   EventUtils.sendString("abc", window);
   await inputEvent;
 
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  // Pressing enter should submit the password form.
+  EventUtils.synthesizeKey("KEY_Enter", {});
 
   const header =
     emailPasswordTemplate.shadowRoot.querySelector("account-hub-header");
