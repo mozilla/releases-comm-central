@@ -4,12 +4,12 @@
 
 "use strict";
 
-var { create_folder } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-);
-
 add_setup(async () => {
-  const folder = await create_folder("AttachmentA");
+  const localAccount = createAccount("local");
+  const folder = await createSubfolder(
+    localAccount.incomingServer.rootFolder,
+    "AttachmentA"
+  );
 
   await createMessageFromFile(
     folder,

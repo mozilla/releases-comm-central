@@ -4,10 +4,10 @@
 
 "use strict";
 
-var { be_in_folder, create_folder, get_about_3pane } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-  );
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+
 var { click_menus_in_sequence } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
@@ -21,22 +21,23 @@ let prefsWindow,
   folderChild2;
 
 add_setup(async () => {
-  folderSource = await create_folder("ViewFlagsSource");
-  folderParent = await create_folder("ViewFlagsParent");
-  folderParent.createSubfolder("Child1", null);
-  folderChild1 = folderParent.getChildNamed("Child1");
-  folderParent.createSubfolder("Child2", null);
-  folderChild2 = folderParent.getChildNamed("Child2");
+  const account = MailServices.accounts.createLocalMailAccount();
+  const rootFolder = account.incomingServer.rootFolder;
+  rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderSource = rootFolder.createLocalSubfolder("ViewFlagsSource");
+  folderParent = rootFolder.createLocalSubfolder("ViewFlagsParent");
+  folderParent.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderChild1 = folderParent.createLocalSubfolder("Child1", null);
+  folderChild2 = folderParent.createLocalSubfolder("Child2", null);
 
   // Access the folder once to let the code store the current default settings.
-  await be_in_folder(folderSource);
+  tabmail = document.getElementById("tabmail");
+  tabmail.currentAbout3Pane.displayFolder(folderSource);
 
   ({ prefsWindow, prefsDocument } = await openNewPrefsTab("paneAppearance"));
-  tabmail = document.getElementById("tabmail");
 
   registerCleanupFunction(() => {
-    folderParent.deleteSelf(null);
-    folderSource.deleteSelf(null);
+    MailServices.accounts.removeAccount(account, false);
     Services.prefs.clearUserPref("mailnews.default_view_flags");
     Services.prefs.clearUserPref("mailnews.default_sort_type");
     Services.prefs.clearUserPref("mailnews.default_sort_order");

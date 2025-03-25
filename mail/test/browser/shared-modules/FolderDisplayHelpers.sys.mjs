@@ -2,6 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+for (let stack = Components.stack; stack; stack = stack.caller) {
+  if (
+    stack.filename.split("/").at(-1).startsWith("browser_") &&
+    !stack.filename.includes("comm/mail/test/browser/")
+  ) {
+    // Importing this file has unintended consequences. It should not be used
+    // outside of mail/test/browser and, ideally, not be used in any new tests.
+    throw new Error(
+      "Do not import FolderDisplayHelpers.sys.mjs outside of mail/test/browser."
+    );
+  }
+}
+
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";

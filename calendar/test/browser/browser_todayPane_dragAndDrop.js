@@ -7,15 +7,7 @@
  */
 const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 const { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
-const {
-  add_message_to_folder,
-  be_in_folder,
-  create_folder,
-  create_message,
-  inboxFolder,
-  select_click_row,
-} = ChromeUtils.importESModule("resource://testing-common/mail/FolderDisplayHelpers.sys.mjs");
-const { SyntheticPartLeaf } = ChromeUtils.importESModule(
+const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
@@ -39,14 +31,21 @@ async function ensureTodayPane() {
  * up the new event dialog.
  */
 add_task(async function testDropMozMessage() {
-  const folder = await create_folder("Mochitest");
+  const account = MailServices.accounts.createLocalMailAccount();
+  const folder = account.incomingServer.rootFolder
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .createLocalSubfolder("Mochitest");
   const subject = "The Grand Event";
   const body = "Parking is available.";
-  await be_in_folder(folder);
-  await add_message_to_folder([folder], create_message({ subject, body: { body } }));
-  await select_click_row(0);
 
   const about3PaneTab = document.getElementById("tabmail").currentTabInfo;
+  const about3Pane = about3PaneTab.chromeBrowser.contentWindow;
+  about3Pane.displayFolder(folder);
+  folder
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .addMessage(new MessageGenerator().makeMessage({ subject, body: { body } }).toMessageString());
+  about3Pane.threadTree.selectedIndex = 0;
+
   const msg = about3PaneTab.message;
   const msgStr = about3PaneTab.folder.getUriForMsg(msg);
   const msgUrl = MailServices.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
@@ -85,9 +84,10 @@ add_task(async function testDropMozMessage() {
     "the message body was used as the event description"
   );
 
-  await BrowserTestUtils.closeWindow(eventWindow);
-  await be_in_folder(inboxFolder);
-  folder.deleteSelf(null);
+  registerCleanupFunction(async function () {
+    await BrowserTestUtils.closeWindow(eventWindow);
+    MailServices.accounts.removeAccount(account, false);
+  });
 });
 
 /**

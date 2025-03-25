@@ -2,19 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from mail3PaneWindowCommands.js */
-/* import-globals-from mailWindowOverlay.js */
-/* import-globals-from messenger.js */
-
-/* globals contentProgress, statusFeedback */ // From mailWindow.js
-
-ChromeUtils.defineESModuleGetters(this, {
-  FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
-  GlodaSyntheticView: "resource:///modules/gloda/GlodaSyntheticView.sys.mjs",
-  MailUtils: "resource:///modules/MailUtils.sys.mjs",
-  MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs",
-});
-
 /**
  * Tabs for displaying mail folders and messages.
  */
