@@ -10,6 +10,6 @@ DIRS += ["locales"]
 JAR_MANIFESTS += ["jar.mn"]
 
 EXTRA_COMPONENTS += [
-    "js/lib/chatzilla-service.js",
-    "js/lib/chatzilla-service.manifest",
+    "lib/chatzilla-service.js",
+    "lib/chatzilla-service.manifest",
 ]

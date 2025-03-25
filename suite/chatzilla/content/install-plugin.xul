@@ -14,9 +14,9 @@
         title="&windowtitle;"
         ondialogaccept="return doOK()"
         ondialogcancel="doCancel()">
-    <script src="install-plugin.js"/>
-    <script src="../lib/js/file-utils.js"/>
-    <script src="../lib/js/utils.js"/>
+    <script src="chrome://chatzilla/content/install-plugin.js"/>
+    <script src="chrome://chatzilla/content/lib/file-utils.js"/>
+    <script src="chrome://chatzilla/content/lib/utils.js"/>
     <grid>
         <columns><column/><column flex="1"/></columns>
         <rows>

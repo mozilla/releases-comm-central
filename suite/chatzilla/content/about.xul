@@ -15,9 +15,9 @@
     onunload="onUnload()"
     title="&window.title;">
 
-  <script src="chrome://chatzilla/content/lib/js/utils.js"/>
-  <script src="chrome://chatzilla/content/about/about.js"/>
-  <script src="chrome://chatzilla/content/lib/js/message-manager.js"/>
+  <script src="chrome://chatzilla/content/lib/utils.js"/>
+  <script src="chrome://chatzilla/content/about.js"/>
+  <script src="chrome://chatzilla/content/lib/message-manager.js"/>
   <script src="chrome://chatzilla/content/static.js"/>
 
   <vbox class="box-padded" flex="1">

@@ -2672,7 +2672,7 @@ function aboutChatZilla() {
   }
 
   window.openDialog(
-    "chrome://chatzilla/content/about/about.xul",
+    "chrome://chatzilla/content/about.xul",
     "",
     "chrome,dialog",
     { client }
@@ -4375,7 +4375,7 @@ function cmdInstallPlugin(e) {
     }
 
     window.openDialog(
-      "chrome://chatzilla/content/install-plugin/install-plugin.xul",
+      "chrome://chatzilla/content/install-plugin.xul",
       "",
       "chrome,dialog",
       client

@@ -34,22 +34,22 @@
      */
     window.baseAlert = window.alert;
   ]]></script>
-  <script src="chrome://chatzilla/content/lib/js/utils.js"/>
-  <script src="chrome://chatzilla/content/lib/js/connection-xpcom.js"/>
-  <script src="chrome://chatzilla/content/lib/js/events.js"/>
-  <script src="chrome://chatzilla/content/lib/js/command-manager.js"/>
-  <script src="chrome://chatzilla/content/lib/js/pref-manager.js"/>
-  <script src="chrome://chatzilla/content/lib/js/message-manager.js"/>
-  <script src="chrome://chatzilla/content/lib/js/menu-manager.js"/>
-  <script src="chrome://chatzilla/content/lib/js/irc.js"/>
-  <script src="chrome://chatzilla/content/lib/js/irc-debug.js"/>
-  <script src="chrome://chatzilla/content/lib/js/file-utils.js"/>
-  <script src="chrome://chatzilla/content/lib/js/dcc.js"/>
-  <script src="chrome://chatzilla/content/lib/js/ident.js"/>
-  <script src="chrome://chatzilla/content/lib/js/json-serializer.js"/>
-  <script src="chrome://chatzilla/content/lib/js/sts.js"/>
-  <script src="chrome://chatzilla/content/lib/js/text-serializer.js"/>
-  <script src="chrome://chatzilla/content/lib/js/text-logger.js"/>
+  <script src="chrome://chatzilla/content/lib/utils.js"/>
+  <script src="chrome://chatzilla/content/lib/connection-xpcom.js"/>
+  <script src="chrome://chatzilla/content/lib/events.js"/>
+  <script src="chrome://chatzilla/content/lib/command-manager.js"/>
+  <script src="chrome://chatzilla/content/lib/pref-manager.js"/>
+  <script src="chrome://chatzilla/content/lib/message-manager.js"/>
+  <script src="chrome://chatzilla/content/lib/menu-manager.js"/>
+  <script src="chrome://chatzilla/content/lib/irc.js"/>
+  <script src="chrome://chatzilla/content/lib/irc-debug.js"/>
+  <script src="chrome://chatzilla/content/lib/file-utils.js"/>
+  <script src="chrome://chatzilla/content/lib/dcc.js"/>
+  <script src="chrome://chatzilla/content/lib/ident.js"/>
+  <script src="chrome://chatzilla/content/lib/json-serializer.js"/>
+  <script src="chrome://chatzilla/content/lib/sts.js"/>
+  <script src="chrome://chatzilla/content/lib/text-serializer.js"/>
+  <script src="chrome://chatzilla/content/lib/text-logger.js"/>
 
   <script src="chrome://chatzilla/content/static.js"/>
   <script src="chrome://chatzilla/content/commands.js"/>
