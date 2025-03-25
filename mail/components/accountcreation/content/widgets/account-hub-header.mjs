@@ -6,16 +6,29 @@ const { AccountCreationUtils } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
 );
 
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+
 const { gAccountSetupLogger } = AccountCreationUtils;
 /**
  * Account Hub Header Template
  * Template ID: #accountHubHeaderTemplate (from accountHubHeaderTemplate.inc.xhtml)
+ *
+ * @fires request-close - Event when close button is clicked to close dialog.
  */
 class AccountHubHeader extends HTMLElement {
   /**
    * @type {?HTMLFormElement}
    */
   #notificationForm;
+
+  /**
+   * The close button for the modal.
+   *
+   * @type {?HTMLElement}
+   */
+  #closeButton;
 
   connectedCallback() {
     if (this.shadowRoot) {
@@ -44,6 +57,11 @@ class AccountHubHeader extends HTMLElement {
     this.#notificationForm = this.shadowRoot.querySelector(
       "#emailFormNotification"
     );
+
+    this.#closeButton = this.shadowRoot.querySelector("#closeButton");
+    this.#closeButton.hidden = !MailServices.accounts.accounts.length;
+    this.#closeButton.addEventListener("click", () => this.#closeAccountHub());
+
     this.clearNotifications();
   }
 
@@ -195,6 +213,18 @@ class AccountHubHeader extends HTMLElement {
 
   showBrandingHeader() {
     this.shadowRoot.querySelector("#brandingHeader").hidden = false;
+  }
+
+  #closeAccountHub() {
+    const closeEvent = new CustomEvent("request-close", {
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(closeEvent);
+  }
+
+  disconnectedCallback() {
+    this.#closeButton.removeEventListener("click", this.#closeAccountHub());
   }
 }
 

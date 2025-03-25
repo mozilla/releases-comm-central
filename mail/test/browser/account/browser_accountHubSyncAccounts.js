@@ -354,5 +354,8 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
 
   IMAPServer.close();
   SMTPServer.close();
-  await subtest_close_account_hub_dialog(dialog);
+  await subtest_close_account_hub_dialog(
+    dialog,
+    dialog.querySelector("email-added-success")
+  );
 });

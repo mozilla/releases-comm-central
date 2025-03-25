@@ -31,7 +31,10 @@ add_task(async function test_open_account_hub_menubar() {
 
   const dialog = await subtest_wait_for_account_hub_dialog();
 
-  await subtest_close_account_hub_dialog(dialog);
+  await subtest_close_account_hub_dialog(
+    dialog,
+    dialog.querySelector("email-auto-form")
+  );
   MailServices.accounts.removeAccount(initialAccount, true);
   menubar.setAttribute("autohide", "true");
 }).skip(!ACCOUNT_HUB_ENABLED || AppConstants.platform === "macosx");
@@ -65,7 +68,10 @@ add_task(async function test_open_account_hub_appmenu() {
   document.getElementById("appmenu_newMailAccountMenuItem").click();
   const dialog = await subtest_wait_for_account_hub_dialog();
 
-  await subtest_close_account_hub_dialog(dialog);
+  await subtest_close_account_hub_dialog(
+    dialog,
+    dialog.querySelector("email-auto-form")
+  );
   MailServices.accounts.removeAccount(initialAccount, true);
   Services.prefs.clearUserPref("ui.prefersReducedMotion");
 }).skip(!ACCOUNT_HUB_ENABLED);
@@ -87,7 +93,10 @@ add_task(async function test_open_account_hub_account_central() {
 
   const dialog = await subtest_wait_for_account_hub_dialog();
 
-  await subtest_close_account_hub_dialog(dialog);
+  await subtest_close_account_hub_dialog(
+    dialog,
+    dialog.querySelector("email-auto-form")
+  );
   MailServices.accounts.removeAccount(initialAccount, true);
 }).skip(!ACCOUNT_HUB_ENABLED);
 
@@ -110,7 +119,10 @@ add_task(async function test_open_account_hub_account_settings() {
 
   const dialog = await subtest_wait_for_account_hub_dialog();
 
-  await subtest_close_account_hub_dialog(dialog);
+  await subtest_close_account_hub_dialog(
+    dialog,
+    dialog.querySelector("email-auto-form")
+  );
   document.getElementById("tabmail").closeTab(accountSettings);
   MailServices.accounts.removeAccount(initialAccount, true);
 }).skip(!ACCOUNT_HUB_ENABLED);

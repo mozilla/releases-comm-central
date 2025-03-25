@@ -219,14 +219,14 @@ async function subtest_wait_for_account_hub_dialog() {
  * Subtest to close the account hub dialog.
  *
  * @param {Promise<HTMLDialogElement>} dialog - The account hub dialog.
+ * @param {HTMLElement} currentStep - Current account hub step HTML template.
  */
-async function subtest_close_account_hub_dialog(dialog) {
-  const hub = document.querySelector("account-hub-container");
+async function subtest_close_account_hub_dialog(dialog, currentStep) {
+  const closeButton = currentStep.shadowRoot
+    .querySelector("account-hub-header")
+    .shadowRoot.querySelector("#closeButton");
   const closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
-  EventUtils.synthesizeMouseAtCenter(
-    hub.shadowRoot.querySelector("#closeButton"),
-    {}
-  );
+  EventUtils.synthesizeMouseAtCenter(closeButton, {});
   await closeEvent;
 }
 

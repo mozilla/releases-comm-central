@@ -57,7 +57,10 @@ add_task(async function test_account_hub_opening() {
 
   closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
   EventUtils.synthesizeMouseAtCenter(
-    hub.shadowRoot.querySelector("#closeButton"),
+    dialog
+      .querySelector("email-auto-form")
+      .shadowRoot.querySelector("account-hub-header")
+      .shadowRoot.querySelector("#closeButton"),
     {}
   );
   await closeEvent;
@@ -231,7 +234,7 @@ add_task(async function test_account_email_step() {
 
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
-  await subtest_close_account_hub_dialog(dialog);
+  await subtest_close_account_hub_dialog(dialog, emailTemplate);
 });
 
 add_task(async function test_account_email_config_found() {
@@ -329,7 +332,7 @@ add_task(async function test_account_email_config_found() {
     "The config found template should be hidden"
   );
 
-  await subtest_close_account_hub_dialog(dialog);
+  await subtest_close_account_hub_dialog(dialog, incomingConfigTemplate);
 });
 
 add_task(async function test_account_enter_password_imap_account() {
@@ -469,5 +472,8 @@ add_task(async function test_account_enter_password_imap_account() {
 
   IMAPServer.close();
   SMTPServer.close();
-  await subtest_close_account_hub_dialog(dialog);
+  await subtest_close_account_hub_dialog(
+    dialog,
+    dialog.querySelector("email-sync-accounts-form")
+  );
 });

@@ -312,7 +312,7 @@ add_task(async function test_account_email_manual_form() {
   Assert.ok(footerForward.disabled, "Continue button should be disabled");
   Assert.ok(!footerCustom.disabled, "Test button should be enabled");
 
-  await subtest_close_account_hub_dialog(dialog);
+  await subtest_close_account_hub_dialog(dialog, outgoingConfigTemplate);
 });
 
 add_task(async function test_invalid_manual_config_flow() {
@@ -524,5 +524,5 @@ add_task(async function test_invalid_manual_config_flow() {
   );
   await outgoingConfigTemplatePromise;
   Assert.ok(footerForward.disabled, "Continue button should be disabled");
-  await subtest_close_account_hub_dialog(dialog);
+  await subtest_close_account_hub_dialog(dialog, outgoingConfigTemplate);
 });

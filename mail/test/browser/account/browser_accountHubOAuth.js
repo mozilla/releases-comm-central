@@ -103,7 +103,10 @@ add_task(async function test_account_oauth_imap_account() {
   oauthSmtp.close();
   OAuth2TestUtils.forgetObjects();
   Services.logins.removeAllLogins();
-  await subtest_close_account_hub_dialog(dialog);
+  await subtest_close_account_hub_dialog(
+    dialog,
+    dialog.querySelector("email-sync-accounts-form")
+  );
 });
 
 add_task(async function test_account_oauth_cancel() {
@@ -163,5 +166,5 @@ add_task(async function test_account_oauth_cancel() {
   oauthSmtp.close();
   OAuth2TestUtils.forgetObjects();
   Services.logins.removeAllLogins();
-  await subtest_close_account_hub_dialog(dialog);
+  await subtest_close_account_hub_dialog(dialog, configFoundTemplate);
 });
