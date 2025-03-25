@@ -3392,6 +3392,9 @@ nsresult nsMsgLocalMailFolder::AddMessageBatch2(
     rv = msgStore->FinishNewMessage(outStream, dbHdr);
     NS_ENSURE_SUCCESS(rv, rv);
 
+    rv = dbHdr->SetMessageSize((uint32_t)raw.Length());
+    NS_ENSURE_SUCCESS(rv, rv);
+
     addedHdrs.AppendElement(dbHdr);
   }
   return NS_OK;
