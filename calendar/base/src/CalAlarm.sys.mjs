@@ -18,10 +18,6 @@ ChromeUtils.defineLazyGetter(
   () => new Localization(["calendar/calendar.ftl", "calendar/calendar-alarms.ftl"], true)
 );
 
-const ALARM_RELATED_ABSOLUTE = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
-const ALARM_RELATED_START = Ci.calIAlarm.ALARM_RELATED_START;
-const ALARM_RELATED_END = Ci.calIAlarm.ALARM_RELATED_END;
-
 /**
  * Constructor for `calIAlarm` objects.
  *
@@ -153,11 +149,11 @@ CalAlarm.prototype = {
   set related(aValue) {
     this.ensureMutable();
     switch (aValue) {
-      case ALARM_RELATED_ABSOLUTE:
+      case Ci.calIAlarm.ALARM_RELATED_ABSOLUTE:
         this.mOffset = null;
         break;
-      case ALARM_RELATED_START:
-      case ALARM_RELATED_END:
+      case Ci.calIAlarm.ALARM_RELATED_START:
+      case Ci.calIAlarm.ALARM_RELATED_END:
         this.mAbsoluteDate = null;
         break;
     }
@@ -202,7 +198,10 @@ CalAlarm.prototype = {
     if (aValue && !(aValue instanceof lazy.CalDuration) && !(aValue instanceof Ci.calIDuration)) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
-    if (this.related != ALARM_RELATED_START && this.related != ALARM_RELATED_END) {
+    if (
+      this.related != Ci.calIAlarm.ALARM_RELATED_START &&
+      this.related != Ci.calIAlarm.ALARM_RELATED_END
+    ) {
       throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
     this.ensureMutable();
@@ -216,7 +215,7 @@ CalAlarm.prototype = {
     if (aValue && !(aValue instanceof lazy.CalDateTime) && !(aValue instanceof Ci.calIDateTime)) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
-    if (this.related != ALARM_RELATED_ABSOLUTE) {
+    if (this.related != Ci.calIAlarm.ALARM_RELATED_ABSOLUTE) {
       throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
     this.ensureMutable();
@@ -261,7 +260,7 @@ CalAlarm.prototype = {
 
   get repeatDate() {
     if (
-      this.related != ALARM_RELATED_ABSOLUTE ||
+      this.related != Ci.calIAlarm.ALARM_RELATED_ABSOLUTE ||
       !this.mAbsoluteDate ||
       !this.mRepeat ||
       !this.mDuration
@@ -388,13 +387,13 @@ CalAlarm.prototype = {
 
     // Set up trigger (REQUIRED)
     const triggerProp = cal.icsService.createIcalProperty("TRIGGER");
-    if (this.related == ALARM_RELATED_ABSOLUTE && this.mAbsoluteDate) {
+    if (this.related == Ci.calIAlarm.ALARM_RELATED_ABSOLUTE && this.mAbsoluteDate) {
       // Set the trigger to a specific datetime
       triggerProp.setParameter("VALUE", "DATE-TIME");
       triggerProp.valueAsDatetime = this.mAbsoluteDate.getInTimezone(cal.dtz.UTC);
-    } else if (this.related != ALARM_RELATED_ABSOLUTE && this.mOffset) {
+    } else if (this.related != Ci.calIAlarm.ALARM_RELATED_ABSOLUTE && this.mOffset) {
       triggerProp.valueAsIcalString = this.mOffset.icalString;
-      if (this.related == ALARM_RELATED_END) {
+      if (this.related == Ci.calIAlarm.ALARM_RELATED_END) {
         // An alarm related to the end of the event.
         triggerProp.setParameter("RELATED", "END");
       }
@@ -512,12 +511,13 @@ CalAlarm.prototype = {
     if (triggerProp) {
       if (triggerProp.getParameter("VALUE") == "DATE-TIME") {
         this.mAbsoluteDate = triggerProp.valueAsDatetime;
-        this.related = ALARM_RELATED_ABSOLUTE;
+        this.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
       } else {
         this.mOffset = cal.createDuration(triggerProp.valueAsIcalString);
 
         const related = triggerProp.getParameter("RELATED");
-        this.related = related == "END" ? ALARM_RELATED_END : ALARM_RELATED_START;
+        this.related =
+          related == "END" ? Ci.calIAlarm.ALARM_RELATED_END : Ci.calIAlarm.ALARM_RELATED_START;
       }
     } else {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
@@ -633,20 +633,20 @@ CalAlarm.prototype = {
       return aPrefix;
     }
 
-    if (this.related == ALARM_RELATED_ABSOLUTE && this.mAbsoluteDate) {
+    if (this.related == Ci.calIAlarm.ALARM_RELATED_ABSOLUTE && this.mAbsoluteDate) {
       // this is an absolute alarm. Use the calendar default timezone and
       // format it.
       const formatDate = this.mAbsoluteDate.getInTimezone(cal.dtz.defaultTimezone);
       return cal.dtz.formatter.formatDateTime(formatDate);
-    } else if (this.related != ALARM_RELATED_ABSOLUTE && this.mOffset) {
+    } else if (this.related != Ci.calIAlarm.ALARM_RELATED_ABSOLUTE && this.mOffset) {
       // Relative alarm length
       let alarmlen = Math.abs(this.mOffset.inSeconds / 60);
       if (alarmlen == 0) {
         // No need to get the other information if the alarm is at the start
         // of the event/task.
-        if (this.related == ALARM_RELATED_START) {
+        if (this.related == Ci.calIAlarm.ALARM_RELATED_START) {
           return lazy.l10n.formatValueSync(alarmString("reminder-title-at-start"));
-        } else if (this.related == ALARM_RELATED_END) {
+        } else if (this.related == Ci.calIAlarm.ALARM_RELATED_END) {
           return lazy.l10n.formatValueSync(alarmString("reminder-title-at-end"));
         }
       }
@@ -667,10 +667,10 @@ CalAlarm.prototype = {
 
       // Origin
       switch (this.related) {
-        case ALARM_RELATED_START:
+        case Ci.calIAlarm.ALARM_RELATED_START:
           originStringName += "-begin";
           break;
-        case ALARM_RELATED_END:
+        case Ci.calIAlarm.ALARM_RELATED_END:
           originStringName += "-end";
           break;
       }
