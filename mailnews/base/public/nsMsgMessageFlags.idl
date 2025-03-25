@@ -80,6 +80,9 @@ interface nsMsgMessageFlags : nsISupports
    * it. They are not returned in MSG_MessageLine.flags, just in mozilla-status,
    * so if you need more non-persistent flags, you could share these bits. But
    * it would be wrong.
+   * NOTE: 2025-03-24 BenC - it seems there was once code to record priority
+   * in the "X-Mozilla-Status:" header, but it looks like this hack isn't
+   * used now, so these 3 bits could be reclaimed.
    */
   const nsMsgMessageFlagType Priorities      = 0x0000E000;
 

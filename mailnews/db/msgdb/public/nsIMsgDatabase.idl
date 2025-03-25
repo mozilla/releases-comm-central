@@ -227,10 +227,11 @@ interface nsIMsgDBService : nsISupports
 // those cases, the data here should be decoded/space-folded/etc.
 struct RawHdr {
   nsMsgKey key{nsMsgKey_None};
-  nsCString messageId;
+  nsCString messageId;  // "Message-Id:" value with surrounding '<' and '>'
+                        // stripped. e.g."1234@local.machine.example"
   nsCString references; // should be array?
-  PRTime date{0};
-  PRTime dateReceived{0}; // When message was received.
+  PRTime date{0};       // From "Date:" header.
+  PRTime dateReceived{0}; // From closest "Recieved:" header, if available.
   nsCString subject;
   nsCString sender;    // AKA nsIMsgDBHdr.author. Usually "From:" header.
   nsCString recipients; // format?    (can be newsgroups)
