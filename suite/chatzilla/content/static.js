@@ -19,8 +19,6 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/PlacesUtils.jsm"
 );
 
-#expand const __cz_version = "__CHATZILLA_VERSION__";
-
 var warn;
 var ASSERT;
 var TEST;
@@ -43,6 +41,7 @@ if (DEBUG) {
 
 var client = {};
 
+#expand client.version = "__CHATZILLA_VERSION__";
 client.TYPE = "IRCClient";
 client.COMMAND_CHAR = "/";
 client.STEP_TIMEOUT = 500;
@@ -176,7 +175,6 @@ function init() {
    * are required by the output window. The compromise is to copy them on
    * to the global object so they can be used.
    */
-  window.__cz_version = __cz_version;
   window.NET_CONNECTING = NET_CONNECTING;
 
   importFromFrame("updateHeader");
@@ -269,11 +267,20 @@ function initStatic() {
 
   setDebugMode(client.prefs.debugMode);
 
-  var version = getVersionInfo();
-  client.userAgent = getMsg(MSG_VERSION_REPLY, [version.cz, version.ua]);
+  client.versionString = getMsg("versionString", [client.version]);
+  let nameVersion = Services.appinfo.name + " " + Services.appinfo.version;
+  let ua = nameVersion + "/" + Services.appinfo.platformBuildID;
+  client.userAgent = getMsg(MSG_VERSION_REPLY, [client.version, ua]);
   CIRCServer.prototype.VERSION_RPLY = client.userAgent;
-  CIRCServer.prototype.HOST_RPLY = version.host;
+  CIRCServer.prototype.HOST_RPLY =
+    Services.appinfo.vendor + " " + nameVersion + ", " + client.platform;
   CIRCServer.prototype.SOURCE_RPLY = MSG_SOURCE_REPLY;
+
+  client.localeAuthors = [];
+  let localeAuthors = getMsg("locale.authors", null, "");
+  if (localeAuthors && !localeAuthors.startsWith("XXX REPLACE")) {
+    client.localeAuthors = localeAuthors.split(/\s*;\s*/);
+  }
 
   client.statusBar = {};
 
@@ -407,21 +414,6 @@ function awayMsgsSave() {
   } catch (ex) {
     display(getMsg(MSG_ERR_AWAY_SAVE, formatException(ex)), MT_ERROR);
   }
-}
-
-function getVersionInfo() {
-  var version = {};
-  version.cz = __cz_version;
-
-  var app = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
-  version.hostName = app.vendor + " " + app.name;
-  version.hostVersion = app.version;
-  version.host =
-    version.hostName + " " + version.hostVersion + ", " + client.platform;
-  version.hostBuildID = app.platformBuildID;
-  version.ua = app.name + " " + app.version + "/" + version.hostBuildID;
-
-  return version;
 }
 
 function initApplicationCompatibility() {

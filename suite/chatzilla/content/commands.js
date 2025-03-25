@@ -2667,15 +2667,21 @@ function cmdAbout(e) {
 }
 
 function aboutChatZilla() {
-  if ("aboutDialog" in client) {
-    return client.aboutDialog.focus();
+  let aboutDialog = Services.wm.getMostRecentWindow("irc:chatzilla:about");
+  if (aboutDialog) {
+    aboutDialog.focus();
+    return;
   }
 
   window.openDialog(
     "chrome://chatzilla/content/about.xul",
     "",
     "chrome,dialog",
-    { client }
+    {
+      authors: client.localeAuthors,
+      ua: client.userAgent,
+      version: client.versionString,
+    }
   );
 }
 

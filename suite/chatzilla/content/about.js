@@ -2,58 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var ownerClient = null;
-
-// To be able to load static.js, we need a few things defined first:
-function CIRCNetwork() {}
-function CIRCServer() {}
-function CIRCChannel() {}
-function CIRCUser() {}
-function CIRCChanUser() {}
-function CIRCDCCUser() {}
-function CIRCDCCChat() {}
-function CIRCDCCFile() {}
-function CIRCDCCFileTransfer() {}
-function CIRCSTS() {}
-
-// Our friend from messages.js:
-function getMsg(msgName, params, deflt) {
-  return client.messageManager.getMsg(msgName, params, deflt);
-}
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function onLoad() {
-  const propsPath = "chrome://chatzilla/locale/chatzilla.properties";
-
-  // Find our owner, if we have one.
-  ownerClient = window.arguments ? window.arguments[0].client : null;
-  if (ownerClient) {
-    ownerClient.aboutDialog = window;
+  let args = window.arguments ? window.arguments[0] : null;
+  if (!args) {
+    return;
   }
 
-  client.entities = {};
-  client.messageManager = new MessageManager(client.entities);
-  client.messageManager.loadBrands();
-  client.defaultBundle = client.messageManager.addBundle(propsPath);
+  document.getElementById("ua-version").setAttribute("ua-value", args.ua);
+  document.getElementById("version").setAttribute("value", args.version);
 
-  var version = getVersionInfo();
-  client.userAgent = getMsg(MSG_VERSION_REPLY, [version.cz, version.ua]);
-
-  var verLabel = document.getElementById("version");
-  var verString = verLabel.getAttribute("format").replace("%S", version.cz);
-  verLabel.setAttribute("value", verString);
-
-  var localizers = document.getElementById("localizers");
-  var localizerNames = getMsg("locale.authors", null, "");
-  if (localizerNames && !localizerNames.startsWith("XXX REPLACE")) {
-    localizerNames = localizerNames.split(/\s*;\s*/);
-
-    for (var i = 0; i < localizerNames.length; i++) {
-      var loc = document.createElement("label");
-      loc.setAttribute("value", localizerNames[i]);
+  let localizers = document.getElementById("localizers");
+  if (args.authors.length > 0) {
+    for (let author of args.authors) {
+      let loc = document.createElement("label");
+      loc.setAttribute("value", author);
       localizers.appendChild(loc);
     }
   } else {
-    var localizersHeader = document.getElementById("localizers-header");
+    let localizersHeader = document.getElementById("localizers-header");
     localizersHeader.style.display = "none";
     localizers.style.display = "none";
   }
@@ -82,13 +50,7 @@ function onLoad() {
   }
 }
 
-function onUnload() {
-  if (ownerClient) {
-    delete ownerClient.aboutDialog;
-  }
-}
-
-function copyVersion() {
+function copyVersion(data) {
   var tr = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
@@ -97,7 +59,7 @@ function copyVersion() {
   );
 
   tr.addDataFlavor("text/unicode");
-  str.data = client.userAgent;
+  str.data = data;
   tr.setTransferData("text/unicode", str, str.data.length * 2);
   Services.clipboard.setData(tr, null, Services.clipboard.kGlobalClipboard);
 }

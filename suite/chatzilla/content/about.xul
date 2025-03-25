@@ -9,16 +9,12 @@
 <?xml-stylesheet href="chrome://chatzilla/skin/about.css" type="text/css"?>
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    windowtype="irc:chatzilla:about"
-    buttons="accept"
-    onload="onLoad()"
-    onunload="onUnload()"
-    title="&window.title;">
+        windowtype="irc:chatzilla:about"
+        buttons="accept"
+        onload="onLoad();"
+        title="&window.title;">
 
-  <script src="chrome://chatzilla/content/lib/utils.js"/>
   <script src="chrome://chatzilla/content/about.js"/>
-  <script src="chrome://chatzilla/content/lib/message-manager.js"/>
-  <script src="chrome://chatzilla/content/static.js"/>
 
   <vbox class="box-padded" flex="1">
     <hbox>
@@ -27,11 +23,14 @@
         <hbox>
           <label class="header large-text" id="name" value="&chatzilla.label;"/>
           <spacer flex="1"/>
-          <label class="header" id="version" value="&version.unknown.label;" format="&version.known.label;"/>
+          <label id="version" class="header"/>
         </hbox>
         <hbox>
           <spacer flex="1"/>
-          <label class="text-link" onclick="copyVersion()" value="&copyversion.label;"/>
+          <label id="ua-version"
+                 class="text-link"
+                 onclick="copyVersion(this.getAttribute('ua-value'));"
+                 value="&copyversion.label;"/>
         </hbox>
       </vbox>
     </hbox>
