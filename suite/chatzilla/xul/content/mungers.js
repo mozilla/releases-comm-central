@@ -9,6 +9,233 @@
  * anything but munging (chat) output.
  */
 
+/* Constructs a new munger entry, using a regexp or lambda match function, and
+ * a class name (to be applied by the munger itself) or lambda replace
+ * function, and the default enabled state and a start priority (used if two
+ * rules match at the same index), as well as a default tag (when the munger
+ * adds it based on the class name) name.
+ *
+ * Regular Expressions for matching should ensure that the first capturing
+ * group is the one that contains the matched text. Non-capturing groups, of
+ * zero-width or otherwise can be used before and after, to ensure the right
+ * things are matched (e.g. to ensure whitespace before something).
+ *
+ * Note that for RegExp matching, the munger will search for the matched text
+ * (from the first capturing group) from the leftmost point of the entire
+ * match. This means that if the text that matched the first group occurs in
+ * any part of the match before the group, the munger will apply to the wrong
+ * bit. This is not usually a problem, but if it is you should use a
+ * lambdaMatch function and be sure to return the new style return value,
+ * which specifically indicates the start.
+ *
+ * The lambda match and lambda replace functions have this signature:
+ *   lambdaMatch(text, containerTag, data, mungerEntry)
+ *   lambdaReplace(text, containerTag, data, mungerEntry)
+ *     - text is the entire text to find a match in/that has matched
+ *     - containerTag is the element containing the text (not useful?)
+ *     - data is a generic object containing properties kept throughout
+ *     - mungerEntry is the CMungerEntry object for the munger itself
+ *
+ *   The lambdaReplace function is expected to do everything needed to put
+ *   |text| into |containerTab| ready for display.
+ *
+ *   The return value for lambda match functions should be either:
+ *     - (old style) just the text that matched
+ *       (the munger will search for this text, and uses the first match)
+ *     - (new style) an object with properties:
+ *       - start (start index, 0 = first character)
+ *       - text  (matched text)
+ *       (note that |text| must start at index |start|)
+ *
+ *   The return value for lambda replace functions are not used.
+ *
+ */
+
+function CMungerEntry(
+  name,
+  regex,
+  className,
+  priority,
+  startPriority,
+  enable,
+  tagName
+) {
+  this.name = name;
+  if (name[0] != ".") {
+    this.description = getMsg("munger." + name, null, null);
+  }
+  this.enabled = typeof enable == "undefined" ? true : enable;
+  this.enabledDefault = this.enabled;
+  this.startPriority = startPriority ? startPriority : 0;
+  this.priority = priority;
+  this.tagName = tagName ? tagName : "html:span";
+
+  if (isinstance(regex, RegExp)) {
+    this.regex = regex;
+  } else {
+    this.lambdaMatch = regex;
+  }
+
+  if (typeof className == "function") {
+    this.lambdaReplace = className;
+  } else {
+    this.className = className;
+  }
+}
+
+function CMunger(textMunger) {
+  this.entries = [];
+  this.tagName = "html:span";
+  this.enabled = true;
+  if (textMunger) {
+    this.insertPlainText = textMunger;
+  }
+}
+
+CMunger.prototype = {
+  insertPlainText(text, containerTag, data) {
+    let textNode = document.createTextNode(text);
+    containerTag.appendChild(textNode);
+  },
+
+  getRule(name) {
+    for (let entry of this.entries) {
+      if (isinstance(entry, Object) && name in entry) {
+        return entry[name];
+      }
+    }
+    return null;
+  },
+
+  addRule(name, regex, className, priority, startPriority, enable) {
+    if (typeof this.entries[priority] != "object") {
+      this.entries[priority] = {};
+    }
+    var entry = new CMungerEntry(
+      name,
+      regex,
+      className,
+      priority,
+      startPriority,
+      enable
+    );
+    this.entries[priority][name] = entry;
+  },
+
+  delRule(name) {
+    for (let entry of this.entries) {
+      if (isinstance(entry, Object) && name in entry) {
+        delete entry[name];
+      }
+    }
+  },
+
+  munge(text, containerTag, data) {
+    if (!containerTag) {
+      containerTag = document.createElementNS(XHTML_NS, this.tagName);
+    }
+
+    // Starting from the top, for each valid priority, check all the rules,
+    // return as soon as something matches.
+    if (this.enabled) {
+      for (let i = this.entries.length - 1; i >= 0; i--) {
+        if (i in this.entries) {
+          if (this.mungePriority(i, text, containerTag, data)) {
+            return containerTag;
+          }
+        }
+      }
+    }
+
+    // If nothing matched, we don't have to do anything,
+    // just insert text (if any).
+    if (text) {
+      this.insertPlainText(text, containerTag, data);
+    }
+    return containerTag;
+  },
+
+  mungePriority(priority, text, containerTag, data) {
+    let matches = {};
+    // Find all the matches in this priority
+    for (let entry in this.entries[priority]) {
+      let munger = this.entries[priority][entry];
+      if (!munger.enabled) {
+        continue;
+      }
+
+      let match;
+      if (typeof munger.lambdaMatch == "function") {
+        let rval = munger.lambdaMatch(text, containerTag, data, munger);
+        if (typeof rval == "string") {
+          match = { start: text.indexOf(rval), text: rval };
+        } else if (typeof rval == "object") {
+          match = rval;
+        }
+      } else {
+        let ary = text.match(munger.regex);
+        if (ary != null && ary[1]) {
+          match = { start: text.indexOf(ary[1]), text: ary[1] };
+        }
+      }
+
+      if (match && match.start >= 0) {
+        match.munger = munger;
+        matches[entry] = match;
+      }
+    }
+
+    // Find the first matching entry...
+    let firstMatch = { start: text.length, munger: null };
+    let firstPriority = 0;
+    for (let entry in matches) {
+      // If it matches before the existing first, or at the same spot but
+      // with a higher start-priority, this is a better match.
+      if (
+        matches[entry].start < firstMatch.start ||
+        (matches[entry].start == firstMatch.start &&
+          this.entries[priority][entry].startPriority > firstPriority)
+      ) {
+        firstMatch = matches[entry];
+        firstPriority = this.entries[priority][entry].startPriority;
+      }
+    }
+
+    // Replace it.
+    if (firstMatch.munger) {
+      let munger = firstMatch.munger;
+      firstMatch.end = firstMatch.start + firstMatch.text.length;
+
+      // Need to deal with the text before the match, if there is any.
+      if (firstMatch.start > 0) {
+        let beforeText = text.slice(0, firstMatch.start);
+        this.munge(beforeText, containerTag, data);
+      }
+
+      if (typeof munger.lambdaReplace == "function") {
+        // The munger rule itself should take care of munging the 'inside'
+        // of the match.
+        munger.lambdaReplace(firstMatch.text, containerTag, data, munger);
+      } else {
+        let tag = document.createElementNS(XHTML_NS, munger.tagName);
+        tag.setAttribute("class", munger.className + calcClass(data));
+
+        // Don't let this rule match again when we recurse.
+        munger.enabled = false;
+        this.munge(firstMatch.text, tag, data);
+        munger.enabled = true;
+
+        containerTag.appendChild(tag);
+      }
+
+      this.munge(text.slice(firstMatch.end), containerTag, data);
+
+      return containerTag;
+    }
+    return null;
+  },
+};
+
 function initMunger() {
   /* linkRE: the general URL linkifier regular expression:
    *
@@ -232,7 +459,7 @@ function insertLink(matchText, containerTag, data, mungerEntry) {
     // "linkText"; then we put the final ) back in
     if (trailing.startsWith(")") && linkText.match(/\([^\)]*$/)) {
       linkText += ")";
-      trailing = trailing.substr(1);
+      trailing = trailing.slice(1);
     }
   } else {
     linkText = matchText;
@@ -741,7 +968,7 @@ function ansiEscapeSGR(text, containerTag, data) {
    * there are no effects listed, it is treated as effect "0" (reset/normal).
    */
 
-  text = text.substr(2, text.length - 3) || "0";
+  text = text.slice(2, text.length - 3) || "0";
 
   const ansiToMircColor = [
     "01",
@@ -915,14 +1142,14 @@ function insertText(text, containerTag, data) {
     // Find the start of the match so we can insert the preceding text.
     var start = text.indexOf(arg[0]);
     if (start > 0) {
-      containerTag.appendChild(document.createTextNode(text.substr(0, start)));
+      containerTag.appendChild(document.createTextNode(text.slice(0, start)));
     }
 
     // Process the long word itself.
     insertHyphenatedWord(arg[1], containerTag, { dontStyleText: true });
 
     // Continue with the rest of the text.
-    text = text.substr(start + arg[0].length);
+    text = text.slice(start + arg[0].length);
   }
 
   // Insert any left-over text on the end.
@@ -951,8 +1178,8 @@ function insertHyphenatedWord(longWord, containerTag, data) {
       let splitPos = right.substring(pos - 5, pos + 5).search(/[^A-Za-z0-9]/);
 
       splitPos = splitPos != -1 ? pos - 4 + splitPos : pos;
-      ary.push(right.substr(0, splitPos));
-      right = right.substr(splitPos);
+      ary.push(right.slice(0, splitPos));
+      right = right.slice(splitPos);
     }
 
     ary.push(right);
