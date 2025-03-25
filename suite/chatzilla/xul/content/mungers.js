@@ -51,15 +51,7 @@
  *
  */
 
-function CMungerEntry(
-  name,
-  regex,
-  className,
-  priority,
-  startPriority,
-  enable,
-  tagName
-) {
+function CMungerEntry(name, regex, className, priority, startPriority, enable) {
   this.name = name;
   if (name[0] != ".") {
     this.description = getMsg("munger." + name, null, null);
@@ -68,7 +60,6 @@ function CMungerEntry(
   this.enabledDefault = this.enabled;
   this.startPriority = startPriority ? startPriority : 0;
   this.priority = priority;
-  this.tagName = tagName ? tagName : "html:span";
 
   if (isinstance(regex, RegExp)) {
     this.regex = regex;
@@ -85,7 +76,6 @@ function CMungerEntry(
 
 function CMunger(textMunger) {
   this.entries = [];
-  this.tagName = "html:span";
   this.enabled = true;
   if (textMunger) {
     this.insertPlainText = textMunger;
@@ -132,7 +122,7 @@ CMunger.prototype = {
 
   munge(text, containerTag, data) {
     if (!containerTag) {
-      containerTag = document.createElementNS(XHTML_NS, this.tagName);
+      containerTag = document.createElementNS(XHTML_NS, "html:span");
     }
 
     // Starting from the top, for each valid priority, check all the rules,
@@ -217,7 +207,7 @@ CMunger.prototype = {
         // of the match.
         munger.lambdaReplace(firstMatch.text, containerTag, data, munger);
       } else {
-        let tag = document.createElementNS(XHTML_NS, munger.tagName);
+        let tag = document.createElementNS(XHTML_NS, "html:span");
         tag.setAttribute("class", munger.className + calcClass(data));
 
         // Don't let this rule match again when we recurse.
