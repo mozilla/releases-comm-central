@@ -23,16 +23,27 @@
   }
 }
 
+[is="calendar-dialog"] {
+  border: 1px solid var(--color-neutral-border);
+  border-radius: 6px;
+  box-shadow: 0 2px 24px rgba(0, 0, 0, .15);
+
+  /* Temp values to make it easier to view. */
+  width: 424px;
+  height: 300px;
+}
+
 .titlebar {
   --calendar-bar-color-fallback: #1373d9;
   --calendar-bar-color: #1373d9;
   position: relative;
 
   &::before {
+    border-radius: 6px 6px 0 0;
     content: '';
     position: absolute;
-    inset-block-start: -11px;
-    inset-inline: -11px;
+    inset-block-start: -12px;
+    inset-inline: -12px;
     height: 6px;
     background: var(--calendar-bar-color, var(--calendar-bar-color-fallback));
   }
