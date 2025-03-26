@@ -1159,6 +1159,7 @@ NS_IMETHODIMP nsMsgDBFolder::ReadFromFolderCacheElem(
 }
 
 nsresult nsMsgDBFolder::GetFolderCacheKey(nsIFile** aFile) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
   nsresult rv;
   bool isServer = false;
   GetIsServer(&isServer);
@@ -1176,6 +1177,10 @@ nsresult nsMsgDBFolder::GetFolderCacheKey(nsIFile** aFile) {
 }
 
 nsresult nsMsgDBFolder::FlushToFolderCache() {
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    return NS_OK;
+  }
+
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
@@ -1920,44 +1925,55 @@ NS_IMETHODIMP
 nsMsgDBFolder::GetStringProperty(const char* propertyName,
                                  nsACString& propertyValue) {
   NS_ENSURE_ARG_POINTER(propertyName);
-  nsCOMPtr<nsIFile> dbPath;
-  nsresult rv = GetFolderCacheKey(getter_AddRefs(dbPath));
-  if (dbPath) {
-    nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
-    rv = GetFolderCacheElemFromFile(dbPath, getter_AddRefs(cacheElement));
-    if (cacheElement)  // try to get from cache
-      rv = cacheElement->GetCachedString(propertyName, propertyValue);
-    if (NS_FAILED(rv))  // if failed, then try to get from db, usually.
-    {
-      if (strcmp(propertyName, MRU_TIME_PROPERTY) == 0 ||
-          strcmp(propertyName, MRM_TIME_PROPERTY) == 0 ||
-          strcmp(propertyName, "LastPurgeTime") == 0) {
-        // Don't open DB for missing time properties.
-        // Missing time properties can happen if the folder was never
-        // accessed, for exaple after an import. They happen if
-        // folderCache.json is removed or becomes invalid after moving
-        // a profile (see bug 1726660).
-        propertyValue.Truncate();
-        return NS_OK;
-      }
-      nsCOMPtr<nsIDBFolderInfo> folderInfo;
-      nsCOMPtr<nsIMsgDatabase> db;
+  nsresult rv;
+  nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
+  if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+    nsCOMPtr<nsIFile> dbPath;
+    rv = GetFolderCacheKey(getter_AddRefs(dbPath));
+    if (dbPath) {
       bool exists;
       rv = dbPath->Exists(&exists);
-      if (NS_FAILED(rv) || !exists) return NS_MSG_ERROR_FOLDER_MISSING;
-      bool weOpenedDB = !mDatabase;
-      rv = GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
-      if (NS_SUCCEEDED(rv))
-        rv = folderInfo->GetCharProperty(propertyName, propertyValue);
-      if (weOpenedDB) CloseDB();
-      if (NS_SUCCEEDED(rv)) {
-        // Now that we have the value, store it in our cache.
-        if (cacheElement) {
-          cacheElement->SetCachedString(propertyName, propertyValue);
+      if (NS_FAILED(rv) || !exists) {
+        return NS_MSG_ERROR_FOLDER_MISSING;
+      }
+
+      rv = GetFolderCacheElemFromFile(dbPath, getter_AddRefs(cacheElement));
+      if (cacheElement) {  // try to get from cache
+        rv = cacheElement->GetCachedString(propertyName, propertyValue);
+        if (NS_SUCCEEDED(rv)) {
+          return rv;
         }
       }
     }
   }
+
+  if (strcmp(propertyName, MRU_TIME_PROPERTY) == 0 ||
+      strcmp(propertyName, MRM_TIME_PROPERTY) == 0 ||
+      strcmp(propertyName, "LastPurgeTime") == 0) {
+    // Don't open DB for missing time properties.
+    // Missing time properties can happen if the folder was never
+    // accessed, for example after an import. They happen if
+    // folderCache.json is removed or becomes invalid after moving
+    // a profile (see bug 1726660).
+    propertyValue.Truncate();
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIDBFolderInfo> folderInfo;
+  nsCOMPtr<nsIMsgDatabase> db;
+  bool weOpenedDB = !mDatabase;
+  rv = GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
+  if (NS_SUCCEEDED(rv)) {
+    rv = folderInfo->GetCharProperty(propertyName, propertyValue);
+    if (NS_SUCCEEDED(rv) && cacheElement) {
+      // Now that we have the value, store it in our cache.
+      cacheElement->SetCachedString(propertyName, propertyValue);
+    }
+  }
+  if (weOpenedDB) {
+    CloseDB();
+  }
+
   return rv;
 }
 
@@ -1965,14 +1981,19 @@ NS_IMETHODIMP
 nsMsgDBFolder::SetStringProperty(const char* propertyName,
                                  const nsACString& propertyValue) {
   NS_ENSURE_ARG_POINTER(propertyName);
-  nsCOMPtr<nsIFile> dbPath;
-  GetFolderCacheKey(getter_AddRefs(dbPath));
-  if (dbPath) {
-    nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
-    GetFolderCacheElemFromFile(dbPath, getter_AddRefs(cacheElement));
-    if (cacheElement)  // try to set in the cache
-      cacheElement->SetCachedString(propertyName, propertyValue);
+
+  if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+    nsCOMPtr<nsIFile> dbPath;
+    GetFolderCacheKey(getter_AddRefs(dbPath));
+    if (dbPath) {
+      nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
+      GetFolderCacheElemFromFile(dbPath, getter_AddRefs(cacheElement));
+      if (cacheElement) {  // try to set in the cache
+        cacheElement->SetCachedString(propertyName, propertyValue);
+      }
+    }
   }
+
   nsCOMPtr<nsIDBFolderInfo> folderInfo;
   nsCOMPtr<nsIMsgDatabase> db;
   nsresult rv =
@@ -3327,18 +3348,21 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage) {
   // and frees memory for the subfolders but NOT for _this_
   // and does not remove _this_ from the parent's list of children.
 
-  nsCOMPtr<nsIFile> dbPath;
-  // first remove the deleted folder from the folder cache;
-  nsresult rv = GetFolderCacheKey(getter_AddRefs(dbPath));
-  if (NS_SUCCEEDED(rv)) {
-    nsCOMPtr<nsIMsgAccountManager> accountMgr =
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-    nsCOMPtr<nsIMsgFolderCache> folderCache;
-    rv = accountMgr->GetFolderCache(getter_AddRefs(folderCache));
-    if (NS_SUCCEEDED(rv) && folderCache) {
-      nsCString persistentPath;
-      rv = dbPath->GetPersistentDescriptor(persistentPath);
-      if (NS_SUCCEEDED(rv)) folderCache->RemoveElement(persistentPath);
+  nsresult rv;
+  if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+    nsCOMPtr<nsIFile> dbPath;
+    // first remove the deleted folder from the folder cache;
+    rv = GetFolderCacheKey(getter_AddRefs(dbPath));
+    if (NS_SUCCEEDED(rv)) {
+      nsCOMPtr<nsIMsgAccountManager> accountMgr =
+          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
+      nsCOMPtr<nsIMsgFolderCache> folderCache;
+      rv = accountMgr->GetFolderCache(getter_AddRefs(folderCache));
+      if (NS_SUCCEEDED(rv) && folderCache) {
+        nsCString persistentPath;
+        rv = dbPath->GetPersistentDescriptor(persistentPath);
+        if (NS_SUCCEEDED(rv)) folderCache->RemoveElement(persistentPath);
+      }
     }
   }
 

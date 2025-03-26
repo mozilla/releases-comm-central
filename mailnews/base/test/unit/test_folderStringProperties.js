@@ -9,33 +9,31 @@
 add_task(function test_string_properties() {
   localAccountUtils.loadLocalMailAccount();
   const root = localAccountUtils.incomingServer.rootMsgFolder;
+  root.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const test = root.createLocalSubfolder("test");
 
-  // Ensure unset properties return an error.
-  Assert.throws(function () {
-    root.getStringProperty("this-property-doesnt-exist");
-  }, /NS_ERROR_.*/);
+  // Unset properties return an empty string.
+  Assert.equal(test.getStringProperty("this-property-doesnt-exist"), "");
 
   // Check basic set/get operation.
-  root.setStringProperty("test-property", "wibble");
-  Assert.equal(root.getStringProperty("test-property"), "wibble");
+  test.setStringProperty("test-property", "wibble");
+  Assert.equal(test.getStringProperty("test-property"), "wibble");
 
   // Keys are case-sensitive.
-  Assert.throws(function () {
-    root.getStringProperty("TEST-PROPERTY");
-  }, /NS_ERROR_.*/);
+  Assert.equal(test.getStringProperty("TEST-PROPERTY"), "");
 
   // Values with non-latin chars?
-  root.setStringProperty("test-property", "日本語");
-  Assert.equal(root.getStringProperty("test-property"), "日本語");
+  test.setStringProperty("test-property", "日本語");
+  Assert.equal(test.getStringProperty("test-property"), "日本語");
 
   // Check that things stay as strings, even if they are values that could
   // be misinterpreted in JSON.
-  root.setStringProperty("test-property", "");
-  Assert.equal(root.getStringProperty("test-property"), "");
+  test.setStringProperty("test-property", "");
+  Assert.equal(test.getStringProperty("test-property"), "");
 
-  root.setStringProperty("test-property", "null");
-  Assert.equal(root.getStringProperty("test-property"), "null");
+  test.setStringProperty("test-property", "null");
+  Assert.equal(test.getStringProperty("test-property"), "null");
 
-  root.setStringProperty("test-property", "0");
-  Assert.equal(root.getStringProperty("test-property"), "0");
+  test.setStringProperty("test-property", "0");
+  Assert.equal(test.getStringProperty("test-property"), "0");
 });
