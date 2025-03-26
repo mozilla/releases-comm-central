@@ -4296,6 +4296,18 @@ var threadPane = {
     Services.obs.addObserver(this, "global-view-flags-changed");
 
     threadTree = document.getElementById("threadTree");
+    if (!threadTree.table) {
+      // It's possible we're here after tree-view is defined but before
+      // connectedCallback has fired on threadTree. Wait for that to happen.
+      await new Promise(resolve => {
+        new MutationObserver((mutations, observer) => {
+          if (threadTree.table) {
+            observer.disconnect();
+            resolve();
+          }
+        }).observe(threadTree, { childList: true });
+      });
+    }
     this.treeTable = threadTree.table;
     this.treeTable.editable = true;
     this.treeTable.isHorizontalScroll = Services.prefs.getBoolPref(
