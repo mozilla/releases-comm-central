@@ -14,25 +14,9 @@ var { openLinkExternally } = ChromeUtils.importESModule("resource:///modules/Lin
  * @param {Event} [event] - The event that caused the URL to open.
  */
 function launchBrowser(url, event) {
-  // Bail out if there is no url set, or an event was passed without left-click
-  if (!url || (event && event.button != 0)) {
-    return;
-  }
-
-  // 0. Prevent people from trying to launch URLs such as javascript:foo();
-  //    by only allowing URLs starting with http or https or mid.
-  // XXX: We likely will want to do this using nsIURLs in the future to
-  //      prevent sneaky nasty escaping issues, but this is fine for now.
-  if (!/^https?:/i.test(url) && !/^mid:/i.test(url)) {
-    console.error(
-      "launchBrowser: Invalid URL provided: " + url + " Only http(s):// and mid:// URLs are valid."
-    );
-    return;
-  }
-
-  if (/^mid:/i.test(url)) {
-    const { MailUtils } = ChromeUtils.importESModule("resource:///modules/MailUtils.sys.mjs");
-    MailUtils.openMessageForMessageId(url.slice(4));
+  // Bail out if there is no URL set, an event was passed without left-click,
+  // or the URL is already being handled by the MailLink actor.
+  if (!url || (event && event.button != 0) || /^(mid|mailto|s?news):/i.test(url)) {
     return;
   }
 
