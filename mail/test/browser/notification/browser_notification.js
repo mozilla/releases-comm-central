@@ -41,17 +41,31 @@ var gMockAlertsService = {
   QueryInterface: ChromeUtils.generateQI(["nsIAlertsService"]),
 
   promiseShown() {
-    this._shownDeferred = Promise.withResolvers();
+    if (this._didNotify) {
+      return Promise.resolve();
+    }
+    if (!this._shownDeferred) {
+      this._shownDeferred = Promise.withResolvers();
+    }
     return this._shownDeferred.promise;
   },
 
   promiseClosed() {
-    this._closedDeferred = Promise.withResolvers();
+    if (!this._closedDeferred) {
+      this._closedDeferred = Promise.withResolvers();
+    }
     return this._closedDeferred.promise;
   },
 
   showAlert(alertInfo, alertListener) {
     info(`showAlert: ${alertInfo.name}`);
+    if (this._didNotify) {
+      Assert.ok(
+        !this._didNotify,
+        "Should not get more than one alert between resets"
+      );
+      throw new Error(`Unexpected alert ${alertInfo.name}`);
+    }
     const { imageURL, title, text, textClickable, cookie, name, actions } =
       alertInfo;
     this._imageUrl = imageURL;
@@ -64,8 +78,6 @@ var gMockAlertsService = {
     this._actions = actions;
 
     this._alertListener.observe(null, "alertshow", alert.cookie);
-    this._shownDeferred?.resolve();
-    this._shownDeferred = null;
     if (this._doClick) {
       let action = null;
       if (typeof this._doClick == "string") {
@@ -73,12 +85,14 @@ var gMockAlertsService = {
         Assert.ok(action, "expected action should be defined");
       }
       // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-      setTimeout(() => {
+      this._timeout = setTimeout(() => {
         this._alertListener.observe(action, "alertclickcallback", this._cookie);
         this._didNotify = true;
+        this._shownDeferred?.resolve();
       }, 100);
     } else {
       this._didNotify = true;
+      this._shownDeferred?.resolve();
     }
   },
 
@@ -87,7 +101,6 @@ var gMockAlertsService = {
     if (name == this._name) {
       this._alertListener.observe(null, "alertfinished", this._cookie);
       this._closedDeferred?.resolve();
-      this._closedDeferred = null;
     }
   },
 
@@ -100,12 +113,20 @@ var gMockAlertsService = {
   _alertListener: null,
   _name: null,
   _actions: null,
+  _timeout: null,
 
   _reset() {
     // Tell any listeners that we're through
     if (this._alertListener) {
       this._alertListener.observe(null, "alertfinished", this._cookie);
     }
+
+    if (this._timeout) {
+      clearTimeout(this._timeout);
+    }
+
+    this._shownDeferred?.reject(new Error("Cleaning up for new scenario"));
+    this._closedDeferred?.reject(new Error("Cleaning up for new scenario"));
 
     this._doClick = false;
     this._didNotify = false;
@@ -116,6 +137,9 @@ var gMockAlertsService = {
     this._cookie = null;
     this._alertListener = null;
     this._name = null;
+    this._timeout = null;
+    this._shownDeferred = null;
+    this._closedDeferred = null;
   },
 };
 
@@ -161,6 +185,31 @@ add_setup(async function () {
   var account = MailServices.accounts.createAccount();
   account.incomingServer = server;
   account.addIdentity(identity2);
+
+  be_in_folder(gFolder);
+
+  registerCleanupFunction(() => {
+    // Clean up accounts and folders we created.
+    const trash = gFolder.rootFolder.getFolderWithFlags(
+      Ci.nsMsgFolderFlags.Trash
+    );
+    be_in_folder(gFolder.rootFolder);
+    gFolder.deleteSelf(null);
+    trash.emptyTrash(null);
+
+    MailServices.accounts.removeAccount(account, false);
+
+    // Reset notification manager state.
+    const notificationManager = Cc[
+      "@mozilla.org/mail/notification-manager;1"
+    ].getService(Ci.mozINewMailListener);
+    notificationManager.wrappedJSObject._folderNewestNotifiedTime.clear();
+    Assert.equal(
+      notificationManager.wrappedJSObject._pendingFolders.size,
+      0,
+      "No pending alerts"
+    );
+  });
 });
 
 registerCleanupFunction(function () {
@@ -230,7 +279,8 @@ async function make_gradually_newer_sets_in_folder(aFolder, aArgs) {
 add_task(async function test_new_mail_received_causes_notification() {
   setupTest();
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
+  Assert.ok(gMockAlertsService._didNotify, "Should have shown a notification");
 });
 
 /**
@@ -267,7 +317,7 @@ add_task(async function test_show_oldest_new_unread_since_last_notification() {
     [gFolder],
     [{ count: 1, body: { body: notifyFirst } }]
   );
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   Assert.ok(
     gMockAlertsService._text.includes(notifyFirst, 1),
     "Should have notified for the first message"
@@ -283,7 +333,7 @@ add_task(async function test_show_oldest_new_unread_since_last_notification() {
     [gFolder],
     [{ count: 1, body: { body: notifySecond } }]
   );
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   Assert.ok(
     gMockAlertsService._text.includes(notifySecond, 1),
     "Should have notified for the second message"
@@ -297,7 +347,11 @@ add_task(async function test_notification_works_across_accounts() {
   setupTest();
   // Cause a notification in the first folder
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
+  Assert.ok(
+    gMockAlertsService._didNotify,
+    "Should have shown notification in first folder"
+  );
 
   gMockAlertsService._reset();
   // We'll set the time for these messages to be slightly further
@@ -308,7 +362,11 @@ add_task(async function test_notification_works_across_accounts() {
     [gFolder2],
     [{ count: 2, age: { minutes: gMsgMinutes + 20 } }]
   );
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
+  Assert.ok(
+    gMockAlertsService._didNotify,
+    "Should have shown notification in second folder"
+  );
 });
 
 /* Test that notification timestamps are independent from account
@@ -320,7 +378,11 @@ add_task(async function test_notification_works_across_accounts() {
 add_task(async function test_notifications_independent_across_accounts() {
   setupTest();
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
+  Assert.ok(
+    gMockAlertsService._didNotify,
+    "Should have shown notification for first account"
+  );
 
   gMockAlertsService._reset();
   // Next, let's make some mail arrive in the second folder, but
@@ -330,7 +392,11 @@ add_task(async function test_notifications_independent_across_accounts() {
     [gFolder2],
     [{ count: 2, age: { minutes: gMsgMinutes + 10 } }]
   );
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
+  Assert.ok(
+    gMockAlertsService._didNotify,
+    "Should have shown notification for second account"
+  );
 });
 
 /**
@@ -340,7 +406,7 @@ add_task(async function test_show_subject() {
   setupTest();
   const subject = "This should be displayed";
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1, subject }]);
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   Assert.ok(
     gMockAlertsService._text.includes(subject),
     "Should have displayed the subject"
@@ -355,7 +421,7 @@ add_task(async function test_hide_subject() {
   Services.prefs.setBoolPref("mail.biff.alert.show_subject", false);
   const subject = "This should not be displayed";
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1, subject }]);
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   Assert.ok(
     !gMockAlertsService._text.includes(subject),
     "Should not have displayed the subject"
@@ -379,7 +445,7 @@ add_task(async function test_show_only_subject() {
     [gFolder],
     [{ count: 1, from: sender, subject, body: { body: messageBody } }]
   );
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   Assert.ok(
     gMockAlertsService._text.includes(subject),
     "Should have displayed the subject"
@@ -404,7 +470,7 @@ add_task(async function test_show_sender() {
     [gFolder],
     [{ count: 1, from: sender }]
   );
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   Assert.ok(
     gMockAlertsService._text.includes(sender[0]),
     "Should have displayed the sender"
@@ -422,7 +488,7 @@ add_task(async function test_hide_sender() {
     [gFolder],
     [{ count: 1, from: sender }]
   );
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   Assert.ok(
     !gMockAlertsService._text.includes(sender[0]),
     "Should not have displayed the sender"
@@ -446,7 +512,7 @@ add_task(async function test_show_only_sender() {
     [gFolder],
     [{ count: 1, from: sender, subject, body: { body: messageBody } }]
   );
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   Assert.ok(
     gMockAlertsService._text.includes(sender[0]),
     "Should have displayed the sender"
@@ -472,7 +538,7 @@ add_task(async function test_show_preview() {
     [gFolder],
     [{ count: 1, body: { body: messageBody } }]
   );
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   Assert.ok(
     gMockAlertsService._text.includes(messageBody),
     "Should have displayed the preview"
@@ -490,7 +556,7 @@ add_task(async function test_hide_preview() {
     [gFolder],
     [{ count: 1, body: { body: messageBody } }]
   );
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   Assert.ok(
     !gMockAlertsService._text.includes(messageBody),
     "Should not have displayed the preview"
@@ -513,7 +579,7 @@ add_task(async function test_show_only_preview() {
     [gFolder],
     [{ count: 1, from: sender, subject, body: { body: messageBody } }]
   );
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   Assert.ok(
     gMockAlertsService._text.includes(messageBody),
     "Should have displayed the preview: " + gMockAlertsService._text
@@ -545,7 +611,7 @@ add_task(async function test_still_notify_with_unchanged_biff() {
 
   for (let i = 0; i < HOW_MUCH_MAIL; i++) {
     await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
-    await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+    await gMockAlertsService.promiseShown();
     gMockAlertsService._reset();
   }
 });
@@ -571,7 +637,10 @@ add_task(async function test_no_notification_for_uninteresting_folders() {
     await make_gradually_newer_sets_in_folder([someFolder], [{ count: 1 }]);
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(resolve => setTimeout(resolve, 100));
-    Assert.ok(!gMockAlertsService._didNotify, "Showed alert notification.");
+    Assert.ok(
+      !gMockAlertsService._didNotify,
+      "Should not show alert notification."
+    );
   }
 
   // However, we want to ensure that Inboxes *always* notify, even
@@ -581,9 +650,15 @@ add_task(async function test_no_notification_for_uninteresting_folders() {
   for (let i = 0; i < uninterestingFlags.length; i++) {
     someFolder.flags |= uninterestingFlags[i];
     await make_gradually_newer_sets_in_folder([someFolder], [{ count: 1 }]);
-    await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+    await gMockAlertsService.promiseShown();
     someFolder.flags = someFolder.flags & ~uninterestingFlags[i];
+    gMockAlertsService._reset();
   }
+
+  await TestUtils.waitForTick();
+
+  be_in_folder(gFolder);
+  someFolder.deleteSelf(null);
 });
 
 /**
@@ -622,12 +697,16 @@ add_task(async function test_click_on_notification() {
 
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   lastMessage = [...gFolder.messages].at(-1);
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   await ensureMessageLoaded(about3PaneAboutMessage);
 
   Assert.equal(tabmail.tabInfo.length, 1, "the existing tab should be used");
-  Assert.equal(about3Pane.gFolder, gFolder);
-  Assert.equal(about3PaneAboutMessage.gMessage, lastMessage);
+  Assert.equal(about3Pane.gFolder, gFolder, "Should be in the local folder");
+  Assert.equal(
+    about3PaneAboutMessage.gMessage,
+    lastMessage,
+    "Last message should be selected"
+  );
 
   gMockAlertsService._reset();
 
@@ -637,7 +716,7 @@ add_task(async function test_click_on_notification() {
 
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   lastMessage = [...gFolder.messages].at(-1);
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   await ensureMessageLoaded(about3PaneAboutMessage);
 
   Assert.equal(tabmail.tabInfo.length, 1, "the existing tab should be used");
@@ -663,7 +742,7 @@ add_task(async function test_click_on_notification() {
 
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   lastMessage = [...gFolder.messages].at(-1);
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   const { target: tabAboutMessage } = await tabPromise;
   await ensureMessageLoaded(tabAboutMessage);
 
@@ -698,7 +777,7 @@ add_task(async function test_click_on_notification() {
 
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   lastMessage = [...gFolder.messages].at(-1);
-  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await gMockAlertsService.promiseShown();
   const win = await winPromise;
   const winAboutMessage = win.messageBrowser.contentWindow;
   await ensureMessageLoaded(winAboutMessage);
@@ -724,10 +803,7 @@ add_task(async function test_click_on_notification_actions() {
   Services.prefs.setStringPref("mail.biff.alert.enabled_actions", "");
   gMockAlertsService._doClick = false;
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
-  await TestUtils.waitForCondition(
-    () => gMockAlertsService._didNotify,
-    "waiting for notification"
-  );
+  await gMockAlertsService.promiseShown();
   Assert.deepEqual(gMockAlertsService._actions, []);
 
   gMockAlertsService._reset();
@@ -740,10 +816,7 @@ add_task(async function test_click_on_notification_actions() {
   const lastMessage = [...gFolder.messages].at(-1);
   Assert.ok(!lastMessage.isRead, "message should not be marked as read");
 
-  await TestUtils.waitForCondition(
-    () => gMockAlertsService._didNotify,
-    "waiting for notification"
-  );
+  await gMockAlertsService.promiseShown();
   Assert.deepEqual(
     gMockAlertsService._actions.map(a => a.action),
     ["action1"]
@@ -764,10 +837,7 @@ add_task(async function test_click_on_notification_actions() {
   gMockAlertsService._doClick = "action2";
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
 
-  await TestUtils.waitForCondition(
-    () => gMockAlertsService._didNotify,
-    "waiting for notification"
-  );
+  await gMockAlertsService.promiseShown();
   Assert.deepEqual(
     gMockAlertsService._actions.map(a => a.action),
     ["action2", "action1"]
@@ -810,4 +880,4 @@ add_task(async function test_revert_to_newmailalert() {
   const win = await alertPromise;
   // The alert closes itself.
   await BrowserTestUtils.domWindowClosed(win);
-}).skip(AppConstants.platform == "macosx"); // newmailalert.xhtml doesn't work on macOS.
+}).skip(AppConstants.platform == "macosx" || Services.env.get("MOZ_HEADLESS")); // newmailalert.xhtml doesn't work on macOS or headless runs.
