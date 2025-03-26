@@ -53,8 +53,13 @@ ChromeUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
   return aTxt => cs.scanTXT(aTxt, cs.kEntities);
 });
 
-// Parses the status from a presence stanza into an object of statusType,
-// statusText and idleSince.
+/**
+ * Parses the status from a presence stanza into an object of statusType,
+ * statusText and idleSince.
+ *
+ * @param {XMLNode} aStanza - The presence stanza to parse.
+ * @returns {{statusType: number, statusText: string, idleSince: number}}
+ */
 function parseStatus(aStanza) {
   let statusType = Ci.imIStatusInfo.STATUS_AVAILABLE;
   let show = aStanza.getElement(["show"]);
@@ -84,14 +89,20 @@ function parseStatus(aStanza) {
     statusType = Ci.imIStatusInfo.STATUS_IDLE;
   }
 
-  let status = aStanza.getElement(["status"]);
-  status = status ? status.innerText : "";
+  const status = aStanza.getElement(["status"]);
+  const statusText = status ? status.innerText : "";
 
-  return { statusType, statusText: status, idleSince };
+  return { statusType, statusText, idleSince };
 }
 
-// Returns a Date object for the delay value (stamp) in aStanza if it exists,
-// otherwise returns undefined.
+/**
+ * Returns a Date object for the delay value (stamp) in aStanza if it exists,
+ * otherwise returns undefined. Returns undefined if the delay is invalid.
+ *
+ * @param {XMLNode} aStanza - The XML stanza to check for a delay.
+ * @returns {Date | undefined}
+ * @private
+ */
 function _getDelay(aStanza) {
   // XEP-0203: Delayed Delivery.
   let date;
@@ -108,8 +119,16 @@ function _getDelay(aStanza) {
   return date;
 }
 
-// Writes aMsg in aConv as an outgoing message with optional date as the
-// message may be sent from another client.
+/**
+ * Writes a message to a conversation as an outgoing message with optional date as the
+ * message may be sent from another client.
+ *
+ * @param {GenericConversationPrototype} aConv - The conversation to write to.
+ * @param {string} aMsg - The message to write.
+ * @param {Date} [aDate] - The time the message was writen. If not provided, it will
+ *   be calculated as now.
+ * @private
+ */
 function _displaySentMsg(aConv, aMsg, aDate) {
   let who;
   if (aConv._account._connection) {
@@ -172,7 +191,11 @@ MUCParticipant.prototype = {
 
   role: 2, // "participant" by default
 
-  // Called when a presence stanza is received for this participant.
+  /**
+   * Called when a presence stanza is received for this participant.
+   *
+   * @param {XMLNode} aStanza - The presence stanza.
+   */
   onPresenceStanza(aStanza) {
     const statusInfo = parseStatus(aStanza);
     this.statusType = statusInfo.statusType;
@@ -301,7 +324,11 @@ export var XMPPMUCConversationPrototype = {
     );
   },
 
-  /* Called by the account when a presence stanza is received for this muc */
+  /**
+   * Called by the account when a presence stanza is received for this MUC.
+   *
+   * @param {XMLNode} aStanza - The presence stanza.
+   */
   onPresenceStanza(aStanza) {
     const from = aStanza.attributes.from;
     const nick = this._account._parseJID(from).resource;
@@ -1361,7 +1388,11 @@ export var XMPPAccountBuddyPrototype = {
     delete this._preferredResource;
     delete this._resources;
   },
-  // Called by the account when a presence stanza is received for this buddy.
+  /**
+   * Called by the account when a presence stanza is received for this buddy.
+   *
+   * @param {XMLNode} aStanza - The presence stanza.
+   */
   onPresenceStanza(aStanza) {
     let preferred = this._preferredResource;
 
@@ -2179,7 +2210,11 @@ export var XMPPAccountPrototype = {
   /* Called whenever a stanza is received */
   onXmppStanza() {},
 
-  /* Called when a iq stanza is received */
+  /**
+   * Called when an iq stanza is received.
+   *
+   * @param {XMLNode} aStanza - The IQ stanza.
+   */
   onIQStanza(aStanza) {
     const type = aStanza.attributes.type;
     if (type == "set") {
@@ -2276,7 +2311,11 @@ export var XMPPAccountPrototype = {
     }
   },
 
-  /* Called when a presence stanza is received */
+  /**
+   * Called when a presence stanza is received.
+   *
+   * @param {XMLNode} aStanza - The presence stanza.
+   */
   onPresenceStanza(aStanza) {
     const from = aStanza.attributes.from;
     this.DEBUG("Received presence stanza for " + from);

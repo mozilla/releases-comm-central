@@ -1105,8 +1105,15 @@ export var GenericConversationPrototype = {
     return new Message(who, text, properties, this);
   },
 
-  writeMessage(aWho, aText, aProperties) {
-    const message = this.createMessage(aWho, aText, aProperties);
+  /**
+   * Write a message to the conversation.
+   *
+   * @param {string} who - Nick of the participant who sent the message.
+   * @param {string} text - Raw message contents.
+   * @param {object} properties - Additional properties of the message.
+   */
+  writeMessage(who, text, properties) {
+    const message = this.createMessage(who, text, properties);
     this.notifyObservers(message, "new-text");
   },
 
