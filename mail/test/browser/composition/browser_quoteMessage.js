@@ -56,9 +56,9 @@ add_task(async function test_quoteMessage() {
   // Select message and click reply.
   await select_click_row(0);
   const cwc = await open_compose_with_reply();
-  let composeBody = get_compose_body(cwc).textContent;
+  let composeBody = get_compose_body(cwc);
   Assert.equal(
-    composeBody.match(/世界/g).length,
+    composeBody.textContent.match(/世界/g).length,
     1,
     "Message should be quoted by replying"
   );
@@ -74,19 +74,16 @@ add_task(async function test_quoteMessage() {
       cwc.document.getElementById("optionsMenuPopup"),
       [{ id: "menu_quoteMessage" }]
     );
-    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-    await new Promise(resolve => setTimeout(resolve, 50));
   } else {
     // Native menubar is used on macOS, didn't find a way to click it.
     cwc.goDoCommand("cmd_quoteMessage");
-    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-    await new Promise(resolve => setTimeout(resolve, 1));
   }
-  composeBody = get_compose_body(cwc).textContent;
-  Assert.equal(
-    composeBody.match(/世界/g).length,
-    2,
-    "Message should be quoted again by Options > Quote Message."
+  composeBody = get_compose_body(cwc);
+  // "Message should get quoted again by Options > Quote Message."
+  await BrowserTestUtils.waitForMutationCondition(
+    composeBody,
+    { children: true },
+    () => composeBody.textContent.match(/世界/g).length
   );
 
   await close_compose_window(cwc);
