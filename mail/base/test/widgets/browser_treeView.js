@@ -22,6 +22,9 @@ const TEST_VARIANTS = ["header", "no-header"];
  *   the test function.
  */
 async function runTestInSandbox(test, filenameFragment, sandboxArgs = []) {
+  // Ensure we have enough space to display the list.
+  window.resizeTo(window.outerWidth, Math.max(window.outerHeight, 1200));
+
   // Create a new tab with our custom content.
   const tab = tabmail.openTab("contentTab", {
     url: `${getRootDirectory(
@@ -30,7 +33,7 @@ async function runTestInSandbox(test, filenameFragment, sandboxArgs = []) {
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);
-  tab.browser.focus();
+  await SimpleTest.promiseFocus(tab.browser);
 
   // Spawn a new JavaScript sandbox for the tab and run the test function inside
   // of it.
@@ -258,21 +261,9 @@ async function subtestKeyboardAndMouse(variant) {
       info(`clicking on row ${index}`);
     }
 
-    const x = list.clientWidth / 2;
-    const y = list.table.header.clientHeight + index * 50 + 25;
-
     selectHandler.reset();
     list.addEventListener("select", selectHandler, { once: true });
-
-    let row = list.ownerDocument.elementFromPoint(x, y);
-    if (!row) {
-      // Happens for some cases with --headless at least.
-      info(`Found no row ${index} at ${x},${y}`);
-      row = list.querySelectorAll(`tr[is="test-row"]`)[index];
-      row.click();
-    } else {
-      EventUtils.synthesizeMouse(list, x, y, modifiers, content);
-    }
+    EventUtils.synthesizeMouseAtCenter(rows[index], modifiers, content);
 
     await TestUtils.waitForCondition(
       () => !!selectHandler.seenEvent == expectEvent,
