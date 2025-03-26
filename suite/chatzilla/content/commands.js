@@ -908,6 +908,14 @@ function getToggle(toggle, currentState) {
   return toggle;
 }
 
+function sendCTCP(e, code) {
+  if (e.nickname) {
+    e.network.dispatch("ctcp", { target: e.nickname, code });
+  } else {
+    e.server.sendData(fromUnicode(code) + "\n", e.sourceObject);
+  }
+}
+
 /******************************************************************************
  * command definitions from here on down.
  */
@@ -2944,7 +2952,7 @@ function cmdOper(e) {
 }
 
 function cmdPing(e) {
-  e.network.dispatch("ctcp", { target: e.nickname, code: "PING" });
+  sendCTCP(e, "PING");
 }
 
 function cmdPref(e) {
@@ -3068,11 +3076,7 @@ function cmdPrint(e) {
 }
 
 function cmdVersion(e) {
-  if (e.nickname) {
-    e.network.dispatch("ctcp", { target: e.nickname, code: "VERSION" });
-  } else {
-    e.server.sendData(fromUnicode("VERSION") + "\n", e.sourceObject);
-  }
+  sendCTCP(e, "VERSION");
 }
 
 function cmdEcho(e) {
@@ -3664,11 +3668,7 @@ function cmdDoCommand(e) {
 }
 
 function cmdTime(e) {
-  if (e.nickname) {
-    e.network.dispatch("ctcp", { target: e.nickname, code: "TIME" });
-  } else {
-    e.server.sendData(fromUnicode("TIME") + "\n", e.sourceObject);
-  }
+  sendCTCP(e, "TIME");
 }
 
 function cmdTimestamps(e) {
