@@ -37,18 +37,27 @@ add_task(async function testUTF8() {
     1
   );
   // Check values.
-  Assert.equal(iframeDocument.getElementById("item-title").value, UTF8STRING);
-  Assert.equal(iframeDocument.getElementById("item-location").value, UTF8STRING);
+  Assert.equal(
+    iframeDocument.getElementById("item-title").value,
+    UTF8STRING,
+    "title should be correct"
+  );
+  Assert.equal(
+    iframeDocument.getElementById("item-location").value,
+    UTF8STRING,
+    "location should be correct"
+  );
   // The trailing spaces confuse innerText, so we'll do this longhand
   const editorEl = iframeDocument.getElementById("item-description");
   const editor = editorEl.getEditor(editorEl.contentWindow);
   const description = editor.outputToString("text/plain", 0);
   // The HTML editor makes the first character a NBSP instead of a space.
-  Assert.equal(description.replaceAll("\xA0", " "), UTF8STRING);
+  Assert.equal(description.replaceAll("\xA0", " "), UTF8STRING, "description should be correct");
   Assert.ok(
     iframeDocument
       .getElementById("item-categories")
-      .querySelector(`menuitem[label="${UTF8STRING}"][checked]`)
+      .querySelector(`menuitem[label="${UTF8STRING}"][checked]`),
+    "item category menuitem should be checked"
   );
 
   // Escape the event window.

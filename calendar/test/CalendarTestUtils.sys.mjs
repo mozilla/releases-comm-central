@@ -899,6 +899,7 @@ export const CalendarTestUtils = {
 
     const dialogWindow = await promise;
     const iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
+    await new Promise(resolve => iframe.contentWindow.setTimeout(resolve));
     return {
       dialogWindow,
       dialogDocument: dialogWindow.document,
