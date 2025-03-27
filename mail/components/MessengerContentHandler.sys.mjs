@@ -12,6 +12,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   FeedUtils: "resource:///modules/FeedUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
+  MorkParser: "resource:///modules/MorkParser.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
 });
 
@@ -666,6 +667,8 @@ export class MessengerContentHandler {
             }
           );
         }
+      } else if (uri.toLowerCase().endsWith(".msf")) {
+        lazy.MorkParser.dumpFile(cmdLine.resolveFile(uri).path);
       } else {
         getOrOpen3PaneWindow().then(win => {
           // This must be a regular filename. Use it to create a new message

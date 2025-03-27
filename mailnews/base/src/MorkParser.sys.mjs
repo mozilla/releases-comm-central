@@ -28,7 +28,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 /**
- * Mork reader. Read an .msf file and transform it to JSON.
+ * MorkParser. Reads Mork formatted Data from a (.msf) file and transforms it
+ * to and object that can then be JSON'd.
  *
  * Example usage:
  *
@@ -201,9 +202,10 @@ export class MorkParser {
       }
 
       // Table {...}.
-      m = /^\s*\{-?[\dA-F]+:[\S\s]*?\{(([\S\s]*?\})([\S\s]*?\}))\s*/gi.exec(
-        body
-      );
+      m =
+        /^\s*\{-?[\dA-F]+:[\S\s]*?\{(([\S\s]*?\})([\S\s]*?\}[^,\\)}]))\s*/gi.exec(
+          body
+        );
       if (m) {
         const captured = m[1];
         body = body.replace(m[0], "");
@@ -246,8 +248,7 @@ export class MorkParser {
 
       // Unknown segment.
       const segment = body.substring(0, 255 < body.length ? 255 : body.length);
-      console.error(section + ": Cannot parse");
-      console.error(segment);
+      console.error(`Cannot parse ${section}: ${segment}`);
       return [{ error: "Cannot parse!", section, segment }];
     }
 

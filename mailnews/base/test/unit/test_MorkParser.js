@@ -24,3 +24,21 @@ add_task(async function testReadMSF() {
     "fe06cac4-18ed-43aa-98a9-ee358e82b368@example.com"
   );
 });
+
+add_task(async function testReadMSFWithJSON() {
+  const path = do_get_file("../../../data/withjson.msf").path;
+  const msfData = await IOUtils.read(path);
+  const msf = MailStringUtils.uint8ArrayToByteString(msfData);
+  const parsed = new MorkParser().parseContent(msf);
+
+  // Do a couple basic checks that parsing seemed ok.
+  Assert.ok(Array.isArray(parsed), "should get array data");
+  Assert.equal(
+    JSON.parse(parsed[0]["columnStates"]).selectCol.visible,
+    false
+  );
+  Assert.equal(
+    parsed[1]["message-id"],
+    "ex.sqlite@example"
+  );
+});
