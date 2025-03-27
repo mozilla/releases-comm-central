@@ -1753,8 +1753,9 @@ int mime_decompose_file_init_fn(MimeClosure stream_closure,
       mdd->curAttachment->m_type.Adopt(
           MimeHeaders_get(headers, HEADER_CONTENT_TYPE, false, true));
     return 0;
-  } else
-    mdd->options->decompose_init_count++;
+  }
+
+  mdd->options->decompose_init_count++;
 
   nAttachments = mdd->attachments.Length();
 
@@ -1879,18 +1880,26 @@ int mime_decompose_file_init_fn(MimeClosure stream_closure,
       newAttachName.Append(fileExtension);
     }
 
-    nsMsgCreateTempFile(newAttachName.get(), getter_AddRefs(tmpFile));
+    nsresult rv =
+        nsMsgCreateTempFile(newAttachName.get(), getter_AddRefs(tmpFile));
+    NS_ENSURE_SUCCESS(rv, -1);
   }
   nsresult rv;
 
   // This needs to be done so the attachment structure has a handle
   // on the temp file for this attachment...
   if (tmpFile) {
+    bool isDirectory;
+    rv = tmpFile->IsDirectory(&isDirectory);
+    if (NS_FAILED(rv) || isDirectory) {
+      return -1;
+    }
     nsAutoCString fileURL;
     rv = NS_GetURLSpecFromFile(tmpFile, fileURL);
-    if (NS_SUCCEEDED(rv))
-      nsMimeNewURI(getter_AddRefs(newAttachment->m_origUrl), fileURL.get(),
-                   nullptr);
+    NS_ENSURE_SUCCESS(rv, -1);
+    rv = nsMimeNewURI(getter_AddRefs(newAttachment->m_origUrl), fileURL.get(),
+                      nullptr);
+    NS_ENSURE_SUCCESS(rv, -1);
   }
 
   if (!tmpFile) return MIME_OUT_OF_MEMORY;

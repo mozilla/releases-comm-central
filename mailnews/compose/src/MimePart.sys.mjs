@@ -260,7 +260,11 @@ export class MimePart {
    */
   async _fetchAttachment() {
     const url = this._bodyAttachment.url;
-    MsgUtils.sendLogger.debug(`Fetching ${url}`);
+    MsgUtils.sendLogger.debug(`Fetching attachment from ${url}`);
+    const uri = Services.io.newURI(url);
+    if (uri instanceof Ci.nsIFileURL && uri.file.isDirectory()) {
+      throw new Error(`Invalid attachment url: ${url}`);
+    }
 
     let content = "";
     if (/^[^:]+-message:/i.test(url)) {
@@ -272,7 +276,7 @@ export class MimePart {
       this._contentType = "message/rfc822";
     } else {
       const channel = Services.io.newChannelFromURI(
-        Services.io.newURI(url),
+        uri,
         null,
         Services.scriptSecurityManager.getSystemPrincipal(),
         null,
