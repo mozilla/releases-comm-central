@@ -3362,16 +3362,23 @@ export var RNP = {
           !k.secretAvailable &&
           actionableAcceptances.includes(acceptance)
         ) {
-          // For each imported public key and associated email address,
-          // update the acceptance to unverified, but only if it's only
-          // currently undecided. In other words, we keep the acceptance
-          // if it's rejected or verified.
+          // For each imported public key, if its current acceptance is
+          // undecided, we update its acceptance for the associated email
+          // addresses to the passed acceptance value.
+          // We also update the acceptance for all the email addresses
+          // associated to a key if both the current acceptance for that key
+          // and the passed acceptance value are unverified.
+          // If the acceptance is rejected or verified, we keep it is as is.
 
           const currentAcceptance =
             await lazy.PgpSqliteDb2.getFingerprintAcceptance(null, k.fpr);
 
-          if (!currentAcceptance || currentAcceptance == "undecided") {
-            // Currently undecided, allowed to change.
+          if (
+            !currentAcceptance ||
+            currentAcceptance == "undecided" ||
+            (currentAcceptance == "unverified" && acceptance == "unverified")
+          ) {
+            // Currently undecided or unverified, allowed to update.
             const allEmails = [];
 
             for (const uid of k.userIds) {

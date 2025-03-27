@@ -214,9 +214,10 @@ export const OpenPGPTestUtils = {
    * @param {nsIWindow} parent - The parent window.
    * @param {nsIFile} file - A valid file containing an OpenPGP key.
    * @param {boolean} [isBinary] - false for ASCII armored files
+   * @param {string} [acceptance=null] - The acceptance to set for the imported key.
    * @returns {Promise<string[]>} - A list of ids for the key(s) imported.
    */
-  async importKey(parent, file, isBinary) {
+  async importKey(parent, file, isBinary, acceptance = null) {
     const data = await IOUtils.read(file.path);
     const txt = lazy.MailStringUtils.uint8ArrayToByteString(data);
     const errorObj = {};
@@ -231,7 +232,8 @@ export const OpenPGPTestUtils = {
       errorObj,
       fingerPrintObj,
       false,
-      []
+      [],
+      acceptance
     );
 
     if (result !== 0) {

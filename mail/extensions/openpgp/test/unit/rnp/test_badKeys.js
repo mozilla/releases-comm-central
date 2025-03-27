@@ -23,6 +23,12 @@ const { EnigmailEncryption } = ChromeUtils.importESModule(
 const { OpenPGPAlias } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/OpenPGPAlias.sys.mjs"
 );
+const { PgpSqliteDb2 } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/sqliteDb.sys.mjs"
+);
+const { MailStringUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailStringUtils.sys.mjs"
+);
 const { OpenPGPTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
 );
@@ -137,4 +143,109 @@ add_task(async function testImportBinaryPubSpace() {
     "653B0BC4ADE0A239",
     "should find correct encryption subkey"
   );
+});
+
+/**
+ * Import a key with the "Accepted (unverified)" option, then import a newer
+ * version of that key that contains a new identity with the "Accepted
+ * (unverified)" option.
+ * After these operations, the new email address should be accepted.
+ */
+add_task(async function testImportUnverifiedWithNewIdentity() {
+  const keyId = "D4ED849BCD779DFC";
+  const newEmail = "<test2@example.com>";
+
+  const idsBefore = await OpenPGPTestUtils.importKey(
+    null,
+    do_get_file(`${KEY_DIR}/D4ED849BCD779DFC-before-new-identity.asc`),
+    false,
+    OpenPGPTestUtils.ACCEPTANCE_UNVERIFIED
+  );
+  Assert.equal(
+    idsBefore[0],
+    `0x${keyId}`,
+    "should be the correct key at initial import"
+  );
+  const foundKeyBefore = await RNP.findKeyByEmail(newEmail, true);
+  Assert.equal(
+    foundKeyBefore,
+    null,
+    "should not find a key for the new identity before the second import"
+  );
+
+  const idsAfter = await OpenPGPTestUtils.importKey(
+    null,
+    do_get_file(`${KEY_DIR}/D4ED849BCD779DFC-after-new-identity.asc`),
+    false,
+    OpenPGPTestUtils.ACCEPTANCE_UNVERIFIED
+  );
+  Assert.equal(
+    idsAfter[0],
+    `0x${keyId}`,
+    "should be the correct key at second import"
+  );
+  const foundKeyAfter = await RNP.findKeyByEmail(newEmail, true);
+  Assert.ok(
+    foundKeyAfter,
+    "should find a key for the new identity after the second import"
+  );
+  const foundKeyId = RNP.getKeyIDFromHandle(foundKeyAfter);
+  Assert.equal(foundKeyId, keyId, "should be the correct key");
+});
+
+/**
+ * After importing a newer version of an existing key non-interactively,
+ * the new email addresses on the key should be undecided.
+ */
+add_task(async function testImportNewEmailNonInteractively() {
+  const keyId = "D4ED849BCD779DFC";
+  const newEmail = "<test2@example.com>";
+  const acceptanceTypes = [
+    OpenPGPTestUtils.ACCEPTANCE_REJECTED,
+    OpenPGPTestUtils.ACCEPTANCE_UNVERIFIED,
+    OpenPGPTestUtils.ACCEPTANCE_VERIFIED,
+  ];
+
+  for (const acceptance of acceptanceTypes) {
+    const idsBefore = await OpenPGPTestUtils.importKey(
+      null,
+      do_get_file(`${KEY_DIR}/D4ED849BCD779DFC-before-new-identity.asc`),
+      false,
+      acceptance
+    );
+    Assert.equal(
+      idsBefore[0],
+      `0x${keyId}`,
+      `should be the correct key at initial import (acceptance: ${acceptance})`
+    );
+
+    const data = await IOUtils.read(
+      do_get_file(`${KEY_DIR}/D4ED849BCD779DFC-after-new-identity.asc`).path
+    );
+    const importResult = await EnigmailKeyRing.importKeyDataSilent(
+      null,
+      MailStringUtils.uint8ArrayToByteString(data),
+      false
+    );
+    Assert.ok(
+      importResult,
+      `second import should succeed (initial acceptance: ${acceptance})`
+    );
+    const foundKeyAfter = await RNP.findKeyByEmail(newEmail, false);
+    Assert.ok(
+      foundKeyAfter,
+      `should find a key for the new identity after the second import (initial acceptance: ${acceptance})`
+    );
+
+    const fingerprint = RNP.getFingerprintFromHandle(foundKeyAfter);
+    const acceptanceObj = {};
+    await PgpSqliteDb2.getAcceptance(fingerprint, newEmail, acceptanceObj);
+    const decided = acceptanceObj.emailDecided;
+    Assert.ok(
+      !decided,
+      `new identity should be undecided after the second import (initial acceptance: ${acceptance})`
+    );
+
+    await RNP.deleteKey(fingerprint, false);
+  }
 });
