@@ -202,6 +202,15 @@ NS_IMETHODIMP MessageOperationCallbacks::DeleteHeaderFromDB(
   rv = db->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHeader));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  if (!existingHeader) {
+    // If we don't have a header for this message ID, it means we have already
+    // deleted it locally. This can happen in legitimate situations, e.g. when
+    // syncing the message list after deleting a message from Thunderbird (in
+    // which case, the server's sync response will include a `Delete` change for
+    // the message we've just deleted).
+    return NS_OK;
+  }
+
   return mFolder->LocalDeleteMessages({existingHeader});
 }
 
