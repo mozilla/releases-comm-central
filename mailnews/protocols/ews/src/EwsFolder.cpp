@@ -244,7 +244,7 @@ NS_IMETHODIMP MessageOperationCallbacks::UpdateReadStatus(
   // Get the header for the message with ewsId and update its read flag in the
   // database.
   RefPtr<nsIMsgDBHdr> existingHeader;
-  rv = GetHeaderForItem(ewsId, getter_AddRefs(existingHeader));
+  nsresult rv = GetHeaderForItem(ewsId, getter_AddRefs(existingHeader));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return existingHeader->MarkRead(is_read);
