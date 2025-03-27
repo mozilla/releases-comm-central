@@ -33,12 +33,6 @@ add_task(async function testReadMSFWithJSON() {
 
   // Do a couple basic checks that parsing seemed ok.
   Assert.ok(Array.isArray(parsed), "should get array data");
-  Assert.equal(
-    JSON.parse(parsed[0]["columnStates"]).selectCol.visible,
-    false
-  );
-  Assert.equal(
-    parsed[1]["message-id"],
-    "ex.sqlite@example"
-  );
+  Assert.equal(JSON.parse(parsed[0].columnStates).selectCol.visible, false);
+  Assert.equal(parsed[1]["message-id"], "ex.sqlite@example");
 });
