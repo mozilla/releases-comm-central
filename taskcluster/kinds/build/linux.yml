@@ -28,6 +28,8 @@ linux64/opt:
     index:
         product: thunderbird
         job-name: linux64-opt
+    attributes:
+        enable-full-crashsymbols: true
     treeherder:
         platform: linux64/opt
         symbol: B
@@ -86,6 +88,8 @@ linux64/debug:
     index:
         product: thunderbird
         job-name: linux64-debug
+    attributes:
+        enable-full-crashsymbols: true
     treeherder:
         platform: linux64/debug
         symbol: B
@@ -323,6 +327,8 @@ linux/opt:
     index:
         product: thunderbird
         job-name: linux32-opt
+    attributes:
+        enable-full-crashsymbols: true
     treeherder:
         platform: linux32/opt
         symbol: B
@@ -381,6 +387,8 @@ linux/debug:
     index:
         product: thunderbird
         job-name: linux32-debug
+    attributes:
+        enable-full-crashsymbols: true
     treeherder:
         platform: linux32/debug
         symbol: B
