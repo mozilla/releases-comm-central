@@ -452,6 +452,16 @@ async function OnLoadMsgHeaderPane() {
   );
 
   gHeaderCustomize.init();
+
+  // Prevent message header view toolbar buttons (except menu popups) and
+  // the star button from retaining focus after being clicked.
+  for (const button of document
+    .getElementById("header-view-toolbar")
+    .querySelectorAll(
+      `.message-header-view-button:not([type="menu"]),button`
+    )) {
+    button.addEventListener("mousedown", event => event.preventDefault());
+  }
 }
 
 function OnUnloadMsgHeaderPane() {

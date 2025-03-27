@@ -89,6 +89,10 @@ add_setup(async function () {
   const msg = create_message();
   await add_message_to_folder([folder], msg);
 
+  // Create an additional message that will be deleted.
+  const msg2 = create_message();
+  await add_message_to_folder([folder], msg2);
+
   // Some of these tests critically depends on the window width, collapse
   // everything that might be in the way.
   document.getElementById("tabmail").currentTabInfo.folderPaneVisible = false;
@@ -425,6 +429,39 @@ add_task(async function enter_msg_hdr_toolbar() {
 
   archiveButton.disabled = false;
 }).skip(AppConstants.platform == "macosx");
+
+/**
+ * Test that various header toolbar buttons don't change focus when being
+ * clicked.
+ */
+add_task(async function test_focus_after_button_click() {
+  // Start on the additional message that will be deleted.
+  const message = await select_click_row(-3);
+
+  // Make sure it loads.
+  await wait_for_message_display_completion(window);
+  await assert_selected_and_displayed(window, message);
+
+  const clickButtonAndCheckFocus = async (id, messageChanges) => {
+    const focusedBefore = aboutMessage.document.activeElement;
+    EventUtils.synthesizeMouseAtCenter(
+      aboutMessage.document.getElementById(id),
+      {},
+      aboutMessage
+    );
+    if (messageChanges) {
+      await wait_for_message_display_completion(window);
+    }
+    Assert.equal(
+      focusedBefore,
+      aboutMessage.document.activeElement,
+      "The focus should not have changed"
+    );
+  };
+
+  await clickButtonAndCheckFocus("hdrTrashButton", true);
+  await clickButtonAndCheckFocus("starMessageButton", false);
+});
 
 // Full keyboard navigation on OSX only works if Full Keyboard Access setting is
 // set to All Control in System Keyboard Preferences. This also works with the
