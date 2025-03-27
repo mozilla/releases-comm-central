@@ -468,11 +468,12 @@ impl XpComEwsClient {
                     }
 
                     sync_folder_items::Change::ReadFlagChange { item_id, is_read } => {
-                        log::error!(
-                            "Attempt Read flag change for message with ID {id}: is_read = {ir} - not yet supported", id=item_id.id, ir=is_read
-                        );
+                        //The message id that has been read
+                        let id = item_id.id;
 
-                        // TODO: Need to actually handle this rather than just logging error.
+                        // Mark the messages as read in the folder's database.
+                        let ews_id = nsCString::from(id);
+                        unsafe { callbacks.UpdateReadStatus(&*ews_id, is_read) }.to_result()?;
                     }
                 }
             }

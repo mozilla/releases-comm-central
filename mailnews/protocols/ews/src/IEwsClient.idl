@@ -216,6 +216,18 @@ interface IEwsMessageCallbacks : nsISupports
   void updateSyncState(in AUTF8String syncStateToken);
 
   /**
+   * Update the read flag for the message with the given EWS ID.
+
+   * When a message is marked as read/unread on the EWS server, the EWS server
+   * will represent this either as an `Update` element or `ReadFlagChange`
+   * element when syncing the message list.
+   *
+   * If a `ReadFlagChange` element is returned, then this method updates the
+   * read/unread status of the existing message in the current folder's database.
+   */
+  void updateReadStatus(in AUTF8String ewsId, in boolean readStatus);
+
+  /**
    * Signals that an error has happened during the current operation.
    *
    * @param err - The machine-readable error code.

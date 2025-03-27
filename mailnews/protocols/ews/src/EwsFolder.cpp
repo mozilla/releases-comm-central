@@ -230,6 +230,17 @@ NS_IMETHODIMP MessageOperationCallbacks::MaybeDeleteMessageFromStore(
   return hdr->AndFlags(~nsMsgMessageFlags::Offline, &unused);
 }
 
+NS_IMETHODIMP MessageOperationCallbacks::UpdateReadStatus(
+    const nsACString& ewsId, bool is_read) {
+  // Get the header for the message with ewsId and update its read flag in the
+  // database.
+  RefPtr<nsIMsgDBHdr> existingHeader;
+  rv = GetHeaderForItem(ewsId, getter_AddRefs(existingHeader));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return existingHeader->MarkRead(is_read);
+}
+
 NS_IMETHODIMP MessageOperationCallbacks::UpdateSyncState(
     const nsACString& syncStateToken) {
   return mFolder->SetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
