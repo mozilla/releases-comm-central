@@ -6109,8 +6109,9 @@ function displayFolder(folder) {
 
 /**
  * Update the thread pane selection if it doesn't already match `msgHdr`.
- * The selected folder will be changed if necessary. If the selection
- * changes, the message pane will also be updated (via a "select" event).
+ * If necessary, the selected folder will be changed and/or the Quick Filter
+ * will be cleared. If the selection changes, the message pane will also be
+ * updated (via a "select" event).
  *
  * @param {nsIMsgDBHdr} msgHdr
  */
@@ -6122,13 +6123,30 @@ function selectMessage(msgHdr) {
     return;
   }
 
-  let index = threadTree.view?.findIndexOfMsgHdr(msgHdr, true);
-  // Change to correct folder if needed. We might not be in a folder, or the
-  // message might not be found in the current folder.
-  if (index === undefined || index === nsMsgViewIndex_None) {
-    threadPane.forgetSavedSelection(msgHdr.folder.URI);
-    displayFolder(msgHdr.folder.URI);
-    index = threadTree.view.findIndexOfMsgHdr(msgHdr, true);
+  let index;
+  const foundIndexOfMsgHdrInView = () => {
+    index = gDBView?.findIndexOfMsgHdr(msgHdr, true);
+    return index != undefined && index != nsMsgViewIndex_None;
+  };
+
+  if (!foundIndexOfMsgHdrInView()) {
+    if (gFolder && gFolder.URI == msgHdr.folder.URI) {
+      // The message might not match the current Quick Filter term.
+      goDoCommand("cmd_resetQuickFilterBar");
+      if (!foundIndexOfMsgHdrInView()) {
+        return;
+      }
+    } else {
+      threadPane.forgetSavedSelection(msgHdr.folder.URI);
+      displayFolder(msgHdr.folder.URI);
+      if (!foundIndexOfMsgHdrInView()) {
+        // Quick Filter might be in sticky mode and still active.
+        goDoCommand("cmd_resetQuickFilterBar");
+        if (!foundIndexOfMsgHdrInView()) {
+          return;
+        }
+      }
+    }
     threadTree.scrollToIndex(index, true);
   }
   threadTree.selectedIndex = index;
