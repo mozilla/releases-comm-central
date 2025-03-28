@@ -52,6 +52,33 @@ Even sub-folders of `comm/docs/` need to be added in these places as well. For
 example, `comm/docs/architecture` has been added in both sections of
 `config.yaml`.
 
+### Linking to other pages
+
+You can use normal markdown links to refer to other pages. The reliable way of
+finding out how to refer to a page is to run the following command from your
+`comm` folder with the docs built. You will have to replace `$OBJDIR` with the
+name of the build output directory for your system.
+```shell
+../mach python --virtualenv tb_docs -m sphinx.ext.intersphinx ../$OBJDIR/comm/docs/html/objects.inv
+
+```
+
+This will give you a list of references you can use in the first column, followed
+by the title and resulting path. These references are all provided as absolute
+paths, so to use them, prepend a `/` to your reference.
+
+For example to link to this page from anywhere we can use the following markdown:
+```md
+[Documentation documentation](/documentation/index)
+```
+This code will result in the following output:
+[Documentation documentation](/documentation/index)
+
+If your reference is not correct, it might be removed (leading to just text
+without link), or you get either a `WARNING: unknown document` or
+`WARNING: 'myst' cross-reference target not found` warning when building the
+documentation.
+
 ## Building the docs
 
 To build the docs locally, run `../mach tb-doc`. It will build the docs and then

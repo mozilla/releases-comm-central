@@ -99,6 +99,7 @@ Single values are `locales`, `versions`, `channels` and `operating systems` - th
 
 If any key is missing or `null` it will not affect the filtering result. Meanwhile an empty array will behave differently for the single values, leading to the profile always matching, while it behaves like `null` for the properties for lists of values.
 
+(displayed-notifications)=
 ##### displayed_notifications
 
 Assert that the IDs listed have been displayed in this profile. The IDs have to still be present as notifications in the full list returned by the server since they were shown. Else the application forgets that it has shown the notification. Notably, those "past" notifications no longer need to have any useful information returned by the server, apart from their ID and they would still need to be valid according to the schema, so they should probably retain their `end_at` date. But things like targeting and texts can be shortened to the minimum allowed value.

@@ -1,6 +1,6 @@
 # ADR Process
 
-The [docs/adr](/docs/adr) folder contains the
+The `/docs/adr` folder contains the
 architecture decision records (ADRs) for our project.
 
 ADRs are short text documents that serve as a historical context for the
@@ -28,8 +28,7 @@ reflected in its corresponding ADR patch.
 
 Here are the guidelines for decision making:
 1. There should be a rough consensus of the people closest to the topic that support the decision.
-2. The relevant [module owner](https://source-docs.thunderbird.net/en/latest/mots/index.html)
-should be included in the decision supporters.
+2. The relevant [module owner](/mots/index) should be included in the decision supporters.
 
 ## Format of an ADR
 
@@ -49,7 +48,7 @@ introduced as a result of the decision.
 ## Creating a new ADR
 
 When creating a new ADR, please follow the provided [ADR template
-file](0000-adr-template.md) and ensure that your document is clear and concise.
+file](/adr/records/0000-adr-template) and ensure that your document is clear and concise.
 
 ## Directory Structure
 
