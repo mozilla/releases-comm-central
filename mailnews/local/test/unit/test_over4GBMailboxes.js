@@ -445,10 +445,13 @@ add_task(async function compactUnder4GiB() {
   // Let's close the database and re-open the folder (hopefully dumping memory caches)
   // and re-reading the values from disk (msg database). That is to test if
   // the values were properly serialized to the database.
+  info("Bug 1952503 tracing: ForceDBClosed()");
   gInbox.ForceDBClosed();
   gInbox.msgDatabase = null;
+  info("Bug 1952503 tracing: getDatabaseWOReparse()");
   gInbox.getDatabaseWOReparse();
 
+  info("Bug 1952503 tracing: checking sizeOnDisk vs folderSize");
   Assert.equal(gInbox.sizeOnDisk, folderSize);
   Assert.equal(gInbox.getTotalMessages(false), totalMsgs);
 
@@ -459,9 +462,11 @@ add_task(async function compactUnder4GiB() {
   for (const header of doomed) {
     sizeToExpunge += header.messageSize;
   }
+  info("Bug 1952503 tracing: start deleting messages");
   const deleteListener = new PromiseTestUtils.PromiseCopyListener();
   gInbox.deleteMessages(doomed, null, true, false, deleteListener, false);
   await deleteListener.promise;
+  info("Bug 1952503 tracing: done deleting messages");
 
   // Bug 894012: size of messages to expunge is now higher than 4GB.
   // Only the small 1MiB message remains.
@@ -470,9 +475,11 @@ add_task(async function compactUnder4GiB() {
 
   // Note: compact() will also add 'X-Mozilla-Status' and 'X-Mozilla-Status2'
   // lines to message(s).
+  info("Bug 1952503 tracing: performing compaction");
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   gInbox.compact(urlListener, null);
   await urlListener.promise;
+  info("Bug 1952503 tracing: compaction completed");
   // Check: message successfully copied.
   Assert.ok(gInbox.msgDatabase.summaryValid);
 
@@ -532,15 +539,7 @@ var FListener = {
   onFolderPropertyChanged() {},
   onFolderIntPropertyChanged(aItem, aProperty, aOld, aNew) {
     if (aItem === gInbox) {
-      info(
-        "Property change on folder Inbox:" +
-          aProperty +
-          "=" +
-          aOld +
-          "->" +
-          aNew +
-          "\n"
-      );
+      info(`Inbox Property change: ${aProperty} ${aOld}=>${aNew}`);
       if (aProperty == "FolderSize") {
         this.folderSize.push(aNew);
       } else if (aProperty == "TotalMessages") {
