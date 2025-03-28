@@ -285,6 +285,16 @@ NS_IMETHODIMP nsDBFolderInfo::SetFolderDate(uint32_t folderDate) {
   return SetUint32PropertyWithToken(m_folderDateColumnToken, folderDate);
 }
 
+NS_IMETHODIMP nsDBFolderInfo::GetUserSortOrder(uint32_t* userSortOrder) {
+  NS_ENSURE_ARG_POINTER(userSortOrder);
+  return GetUint32Property("userSortOrder", nsIMsgFolder::NO_SORT_VALUE,
+                           userSortOrder);
+}
+
+NS_IMETHODIMP nsDBFolderInfo::SetUserSortOrder(uint32_t userSortOrder) {
+  return SetUint32Property("userSortOrder", userSortOrder);
+}
+
 NS_IMETHODIMP nsDBFolderInfo::GetHighWater(nsMsgKey* result) {
   // Sanity check highwater - if it gets too big, other code
   // can fail. Look through last 100 messages to recalculate

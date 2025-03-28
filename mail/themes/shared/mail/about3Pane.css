@@ -522,6 +522,54 @@ body {
   }
 }
 
+:is(.reorder-target-before, .reorder-target-after) > .container > .icon {
+  position: relative;
+
+  &::before,
+  &::after {
+    position: absolute;
+    content: '';
+    display: block;
+    background-color: var(--selected-item-color);
+    pointer-events: none;
+  }
+
+  &::before {
+    width: 6px;
+    height: 6px;
+    border-radius: 9px;
+  }
+
+  &::after {
+    width: 100vw;
+    height: 2px;
+  }
+}
+
+.reorder-target-after > .container > .icon {
+  &::before {
+    inset-inline-start: -6px;
+    inset-block-end: -6px;
+  }
+
+  &::after {
+    inset-inline-start: 0;
+    inset-block-end: -4px;
+  }
+}
+
+.reorder-target-before > .container > .icon {
+  &::before {
+    inset-inline-start: -6px;
+    inset-block-start: -6px;
+  }
+
+  &::after {
+    inset-inline-start: 0;
+    inset-block-start: -4px;
+  }
+}
+
 .folder-count-badge {
   display: none;
   padding: 1px 4px;

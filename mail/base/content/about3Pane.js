@@ -778,8 +778,9 @@ var folderPaneContextMenu = {
    * @param {boolean} isMove
    * @param {nsIMsgFolder} sourceFolder
    * @param {nsIMsgFolder} targetFolder
+   * @param {nsIMsgCopyServiceListener} [listener]
    */
-  transferFolder(isMove, sourceFolder, targetFolder) {
+  transferFolder(isMove, sourceFolder, targetFolder, listener = null) {
     if (!isMove && sourceFolder.server == targetFolder.server) {
       // Don't allow folder copy within the same server; only move allowed.
       // Can't copy folder intra-server, change to move.
@@ -793,7 +794,7 @@ var folderPaneContextMenu = {
         sourceFolder,
         targetFolder,
         isMove,
-        null,
+        listener,
         top.msgWindow
       )
     );
@@ -3052,11 +3053,8 @@ var folderPane = {
       event.dataTransfer.dropEffect =
         systemDropEffect == "copy" ? "copy" : "move";
     } else if (types.includes("text/x-moz-folder")) {
-      // If cannot create subfolders then don't allow drop here.
-      if (!targetFolder.canCreateSubfolders) {
-        return;
-      }
-
+      let allowReorderOnly = !targetFolder.canCreateSubfolders;
+      let moveWithinSameServer = systemDropEffect == "move";
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
         const sourceFolder = event.dataTransfer
           .mozGetDataAt("text/x-moz-folder", i)
@@ -3066,12 +3064,13 @@ var folderPane = {
         if (targetFolder == sourceFolder) {
           return;
         }
-        // Don't copy within same server.
-        if (
-          sourceFolder.server == targetFolder.server &&
-          systemDropEffect == "copy"
-        ) {
-          return;
+        if (sourceFolder.server == targetFolder.server) {
+          // Don't copy within same server.
+          if (systemDropEffect == "copy") {
+            return;
+          }
+        } else {
+          moveWithinSameServer = false;
         }
         // Don't allow immediate child to be dropped onto its parent.
         if (targetFolder == sourceFolder.parent) {
@@ -3095,9 +3094,56 @@ var folderPane = {
           (targetFolder.server.type != "none" ||
             sourceFolder.server == targetFolder.server)
         ) {
+          // Don't allow to drop on different hierarchy.
+          if (sourceFolder.parent != targetFolder.parent) {
+            return;
+          }
+          // If in the same hierarchy, allow only reordering.
+          allowReorderOnly = true;
+        }
+      }
+
+      // Evaluate the ability to reorder folders.
+      // * Let's keep it simple. Don't allow "insert" when dragging multiple
+      //   folders.
+      // * Also, only allow it in "all" mode. Otherwise there is ambiguity.
+      if (
+        moveWithinSameServer &&
+        !targetFolder.isServer &&
+        event.dataTransfer.mozItemCount == 1 &&
+        row.modeName == "all"
+      ) {
+        const targetElement = row.querySelector(".container") ?? row;
+        const targetRect = targetElement.getBoundingClientRect();
+        const center =
+          targetRect.top +
+          targetElement.clientTop +
+          targetElement.clientHeight / 2;
+        const quarterOfHeight = targetElement.clientHeight / 4;
+        if (event.clientY < center - quarterOfHeight) {
+          // Insert before the target.
+          this._clearDropTarget();
+          row.classList.add("reorder-target-before");
+          event.dataTransfer.dropEffect = "move";
+          return;
+        }
+        if (
+          event.clientY > center + quarterOfHeight &&
+          (!row.classList.contains("children") ||
+            row.classList.contains("collapsed"))
+        ) {
+          // Insert after the target.
+          this._clearDropTarget();
+          row.classList.add("reorder-target-after");
+          event.dataTransfer.dropEffect = "move";
           return;
         }
       }
+
+      if (allowReorderOnly) {
+        return;
+      }
+
       event.dataTransfer.dropEffect =
         systemDropEffect == "copy" ? "copy" : "move";
     } else if (types.includes("application/x-moz-file")) {
@@ -3206,6 +3252,12 @@ var folderPane = {
 
   _clearDropTarget() {
     folderTree.querySelector(".drop-target")?.classList.remove("drop-target");
+    folderTree
+      .querySelector(".reorder-target-before")
+      ?.classList.remove("reorder-target-before");
+    folderTree
+      .querySelector(".reorder-target-after")
+      ?.classList.remove("reorder-target-after");
   },
 
   _collapseAutoExpandedRows() {
@@ -3274,31 +3326,116 @@ var folderPane = {
       );
     } else if (types.includes("text/x-moz-folder")) {
       let isMove = event.dataTransfer.dropEffect == "move";
-      for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
+      if (event.dataTransfer.mozItemCount == 1) {
+        // Only one folder was dragged and dropped.
+        // If the dropped Y-coordinate is near the center of the targetFolder,
+        // simply move it into the targetFolder. Otherwise, reorder the dropped
+        // folder above or below the targetFolder.
+
         const sourceFolder = event.dataTransfer
-          .mozGetDataAt("text/x-moz-folder", i)
+          .mozGetDataAt("text/x-moz-folder", 0)
           .QueryInterface(Ci.nsIMsgFolder);
 
-        isMove = folderPaneContextMenu.transferFolder(
-          isMove,
-          sourceFolder,
-          targetFolder
-        );
-      }
-      // Save in prefs the target folder URI and if this was a move or copy.
-      // This is to fill in the next folder or message context menu item
-      // "Move|Copy to <TargetFolderName> Again".
-      Services.prefs.setStringPref(
-        "mail.last_msg_movecopy_target_uri",
-        targetFolder.URI
-      );
-      Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
+        let destinationFolder = targetFolder;
 
-      // FIXME! Bug 1896531.
-      if (event.dataTransfer.mozItemCount > 1) {
+        let isReordering = false;
+        let insertAfter = false;
+        // Only allow moving a folder in "all" mode, otherwise it would be
+        // impossible to reorder folders unambiguously.
+        if (
+          isMove &&
+          targetFolder.parent &&
+          sourceFolder.server == targetFolder.server &&
+          !targetFolder.isServer &&
+          row.modeName == "all"
+        ) {
+          const targetElement = row.querySelector(".container") ?? row;
+          const targetRect = targetElement.getBoundingClientRect();
+          const center =
+            targetRect.top +
+            targetElement.clientTop +
+            targetElement.clientHeight / 2;
+          const quarterOfHeight = targetElement.clientHeight / 4;
+          if (event.clientY < center - quarterOfHeight) {
+            isReordering = true;
+          } else if (
+            event.clientY > center + quarterOfHeight &&
+            (!row.classList.contains("children") ||
+              row.classList.contains("collapsed"))
+          ) {
+            isReordering = true;
+            insertAfter = true;
+          }
+          if (isReordering) {
+            // To insert the sourceFolder before or after the targetFolder,
+            // we have to transfer sourceFolder to the parent of targetFolder
+            // as a sibling of targetFolder. If it is the same as the current
+            // parent, there is no need to perform the transferFolder, so let
+            // destinationFolder be null.
+            destinationFolder =
+              targetFolder.parent != sourceFolder.parent
+                ? targetFolder.parent
+                : null;
+          }
+        }
+
+        if (destinationFolder) {
+          // Move sourceFolder to a different parent.
+
+          // Reset the sort order of sourceFolder before moving it.
+          sourceFolder.userSortOrder = Ci.nsIMsgFolder.NO_SORT_VALUE;
+          // Start the move. This is done in an asynchronous process, so order
+          // them in the listener that will be called when the move is complete.
+          isMove = folderPaneContextMenu.transferFolder(
+            isMove,
+            sourceFolder,
+            destinationFolder,
+            new ReorderFolderListener(
+              sourceFolder,
+              targetFolder,
+              isReordering,
+              insertAfter
+            )
+          );
+
+          // Save in prefs the destination folder URI and if this was a move
+          // or copy.
+          // This is to fill in the next folder or message context menu item
+          // "Move|Copy to <DestinationFolderName> Again".
+          Services.prefs.setStringPref(
+            "mail.last_msg_movecopy_target_uri",
+            destinationFolder.URI
+          );
+        } else if (isReordering) {
+          // Reorder within current siblings.
+          folderPane.insertFolder(sourceFolder, targetFolder, insertAfter);
+        }
+        Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
+      } else {
+        // FIXME! Bug 1896531.
         console.warn(
           "Bug 1896531. Copy and move for multiselection is only partially supported and it might fail."
         );
+
+        for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
+          const sourceFolder = event.dataTransfer
+            .mozGetDataAt("text/x-moz-folder", i)
+            .QueryInterface(Ci.nsIMsgFolder);
+
+          isMove = folderPaneContextMenu.transferFolder(
+            isMove,
+            sourceFolder,
+            targetFolder
+          );
+        }
+        // Save in prefs the target folder URI and if this was a move or copy.
+        // This is to fill in the next folder or message context menu item
+        // "Move|Copy to <TargetFolderName> Again".
+        Services.prefs.setStringPref(
+          "mail.last_msg_movecopy_target_uri",
+          targetFolder.URI
+        );
+        Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
       }
     } else if (types.includes("application/x-moz-file")) {
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
@@ -3996,10 +4133,172 @@ var folderPane = {
     }
   },
 
+  /**
+   * Set folder sort order to rows for the folder.
+   *
+   * @param {nsIMsgFolder} folder
+   * @param {integer} order
+   */
+  setOrderToRowInAllModes(folder, order) {
+    for (const name of this.activeModes) {
+      const row = folderPane.getRowForFolder(folder, name);
+      if (row) {
+        row.folderSortOrder = order;
+      }
+    }
+  },
+
+  /**
+   * Set the sort order for the new folder added to the folder group.
+   *
+   * @param {nsIMsgFolder} parentFolder
+   * @param {nsIMsgFolder} newFolder
+   */
+  setSortOrderOnNewFolder(parentFolder, newFolder) {
+    if (newFolder.userSortOrder != Ci.nsIMsgFolder.NO_SORT_VALUE) {
+      return;
+    }
+    const subFolders = parentFolder?.subFolders ?? [];
+    let maxOrderValue = -1;
+    for (const sibling of subFolders) {
+      if (
+        sibling.userSortOrder != Ci.nsIMsgFolder.NO_SORT_VALUE &&
+        sibling.userSortOrder > maxOrderValue
+      ) {
+        maxOrderValue = sibling.userSortOrder;
+      }
+    }
+    if (maxOrderValue == -1) {
+      // None of the sibling folders have a sort order value (i.e. this group of
+      // folders has never been manually sorted). In this case, the natural
+      // order should still be used.
+      return;
+    }
+    // The group has already been ordered. In this case, insert the new folder
+    // before the first folder that is further ahead of it in the natural order.
+    const subs = [];
+    for (const sf of subFolders) {
+      subs.push({ folder: sf, order: sf.sortOrder });
+    }
+    subs.sort(
+      (a, b) =>
+        a.order - b.order ||
+        FolderPaneUtils.nameCollator.compare(a.name, b.name)
+    );
+    for (let i = 0; i < subs.length; i++) {
+      const sibling = subs[i].folder;
+      if (sibling.flags & Ci.nsMsgFolderFlags.SpecialUse) {
+        // Skip special folders so new folders don't get created before them.
+        continue;
+      }
+      if (
+        FolderPaneUtils.nameCollator.compare(sibling.name, newFolder.name) > 0
+      ) {
+        folderPane.insertFolder(newFolder, sibling, false);
+        return;
+      }
+    }
+    // Place the new folder at the bottom.
+    const newOrder = maxOrderValue + 1;
+    newFolder.userSortOrder = newOrder; // Update DB
+    this.setOrderToRowInAllModes(newFolder, newOrder); // Update row info.
+  },
+
+  /**
+   * Insert a folder before/after the target and reorder siblings.
+   * Note: Valid only in "all" mode.
+   *
+   * @param {nsIMsgFolder} folder
+   * @param {nsIMsgFolder} target
+   * @param {bool} insertAfter
+   */
+  insertFolder(folder, target, insertAfter) {
+    let subFolders;
+    try {
+      subFolders = target.parent.subFolders;
+    } catch (ex) {
+      console.error(
+        `Unable to access the subfolders of ${target.parent.URI}`,
+        ex
+      );
+    }
+
+    // Considering the case of a folder inserted between folders with the same
+    // order value X, the order of the inserted folder must be (X+1), even if
+    // it is inserted before the target. And the order of subsequent folders
+    // must be increased by 2.
+    const targetOrder = target.sortOrder;
+    const folderOrder = targetOrder + 1;
+    for (const sibling of subFolders) {
+      if (sibling == folder) {
+        continue;
+      }
+      if (insertAfter && sibling == target) {
+        continue;
+      }
+      let order = sibling.sortOrder;
+      if (
+        (!insertAfter && sibling == target) ||
+        order > targetOrder ||
+        (order == targetOrder &&
+          FolderPaneUtils.nameCollator.compare(sibling.name, target.name) > 0)
+      ) {
+        order += 2;
+        sibling.userSortOrder = order; // Update DB
+        folderPane.setOrderToRowInAllModes(sibling, order); // Update row info.
+      }
+    }
+    folder.userSortOrder = folderOrder; // Update DB
+    folderPane.setOrderToRowInAllModes(folder, folderOrder); // Update row info.
+
+    // Update folder pane UI.
+    const movedFolderURI = folder.URI;
+    const modeNames = folderPane.activeModes;
+    for (const name of modeNames) {
+      // Find a parent UI element of folder in this mode.
+      // Note that the parent folder on the DB may not be the parent UI element
+      // (as is the case with Gmail). So we find the parent UI element by
+      // querying the CSS selector.
+      const rowToMove = folderPane.getRowForFolder(folder, name);
+      const id = FolderPaneUtils.makeRowID(name, movedFolderURI);
+      const listRow = folderPane._modes[name].containerList.querySelector(
+        `li[is="folder-tree-row"]:has(>ul>li#${CSS.escape(id)})`
+      );
+      if (listRow) {
+        listRow.insertChildInOrder(rowToMove);
+      }
+    }
+  },
+
   get isMultiSelection() {
     return folderTree.selection.size > 1;
   },
 };
+
+/**
+ * Class responsible for the the UI reorder of the folders after the backend
+ * operation has been completed.
+ */
+class ReorderFolderListener {
+  constructor(sourceFolder, targetFolder, isReordering, insertAfter) {
+    this.sourceFolder = sourceFolder;
+    this.targetFolder = targetFolder;
+    this.isReordering = isReordering;
+    this.insertAfter = insertAfter;
+  }
+  onStopCopy() {
+    if (!this.isReordering) {
+      return;
+    }
+
+    // Do reorder within new siblings (all children of new parent).
+    const movedFolder = MailServices.copy.getArrivedFolder(this.sourceFolder);
+    if (!movedFolder) {
+      return;
+    }
+    folderPane.insertFolder(movedFolder, this.targetFolder, this.insertAfter);
+  }
+}
 
 /**
  * Header area of the message list pane.
@@ -6158,6 +6457,7 @@ function selectMessage(msgHdr) {
 var folderListener = {
   QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
   onFolderAdded(parentFolder, childFolder) {
+    folderPane.setSortOrderOnNewFolder(parentFolder, childFolder);
     folderPane.addFolder(parentFolder, childFolder);
     folderPane.updateFolderRowUIElements();
   },

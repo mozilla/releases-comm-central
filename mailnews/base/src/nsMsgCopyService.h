@@ -53,6 +53,7 @@ class nsCopyRequest {
 
   nsCOMPtr<nsISupports> m_srcSupport;  // ui source folder or file spec
   nsCOMPtr<nsIMsgFolder> m_dstFolder;
+  nsCOMPtr<nsIMsgFolder> m_arrFolder;  // folder copied/moved
   nsCOMPtr<nsIMsgWindow> m_msgWindow;
   nsCOMPtr<nsIMsgCopyServiceListener> m_listener;
   nsCOMPtr<nsITransactionManager> m_txnMgr;

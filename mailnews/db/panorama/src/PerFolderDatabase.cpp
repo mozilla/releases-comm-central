@@ -747,6 +747,12 @@ NS_IMETHODIMP FolderInfo::SetImapUnreadPendingMessages(
     int32_t aImapUnreadPendingMessages) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
+NS_IMETHODIMP FolderInfo::GetUserSortOrder(uint32_t* userSortOrder) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP FolderInfo::SetUserSortOrder(uint32_t userSortOrder) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
 NS_IMETHODIMP FolderInfo::GetViewType(nsMsgViewTypeValue* viewType) {
   *viewType = nsMsgViewType::eShowAllThreads;
   return NS_OK;

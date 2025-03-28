@@ -60,6 +60,7 @@ nsresult nsCopyRequest::Init(nsCopyRequestType type, nsISupports* aSupport,
   m_requestType = type;
   m_srcSupport = aSupport;
   m_dstFolder = dstFolder;
+  m_arrFolder = nullptr;
   m_isMoveOrDraftOrTemplate = bVal;
   m_allowUndo = allowUndo;
   m_newMsgFlags = newMsgFlags;
@@ -163,8 +164,11 @@ nsresult nsMsgCopyService::ClearRequest(nsCopyRequest* aRequest, nsresult rv) {
         aRequest->m_txnMgr)
       aRequest->m_txnMgr->EndBatch(false);
 
+    if (aRequest->m_listener) {
+      // Call onStopCopy BEFORE RemoveElement.
+      aRequest->m_listener->OnStopCopy(rv);
+    }
     m_copyRequests.RemoveElement(aRequest);
-    if (aRequest->m_listener) aRequest->m_listener->OnStopCopy(rv);
     delete aRequest;
   }
 
@@ -561,6 +565,7 @@ nsMsgCopyService::NotifyCompletion(nsISupports* aSupport,
       if (sourceIndex >= sourceCount) copyRequest->m_processed = true;
       // if this request is done, or failed, clear it.
       if (copyRequest->m_processed || NS_FAILED(result)) {
+        copyRequest->m_arrFolder = dstFolder;
         ClearRequest(copyRequest, result);
         numOrigRequests--;
       } else
@@ -570,4 +575,19 @@ nsMsgCopyService::NotifyCompletion(nsISupports* aSupport,
   } while (copyRequest);
 
   return DoNextCopy();
+}
+
+NS_IMETHODIMP
+nsMsgCopyService::GetArrivedFolder(nsISupports* aSupport,
+                                   nsIMsgFolder** aArrFolder) {
+  NS_ENSURE_ARG_POINTER(aArrFolder);
+  for (auto copyRequest : m_copyRequests) {
+    if (SameCOMIdentity(copyRequest->m_srcSupport, aSupport) &&
+        copyRequest->m_processed) {
+      NS_IF_ADDREF(*aArrFolder = copyRequest->m_arrFolder);
+      return NS_OK;
+    }
+  }
+  *aArrFolder = nullptr;
+  return NS_OK;
 }
