@@ -9,6 +9,7 @@ use nserror::{nsresult, NS_OK};
 use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::rc::Rc;
+use std::thread;
 use system_tray::{SystemTray, TrayItem, XdgIcon};
 use xpcom::interfaces::nsIPrefBranch;
 use xpcom::{get_service, nsIID, xpcom_method, RefPtr};
@@ -100,7 +101,10 @@ impl LinuxSysTrayHandler {
         let service = ksni::TrayService::new(tray);
         let handle = service.handle();
         if get_bool_pref(cstr!("mail.biff.show_tray_icon_always")).unwrap_or(true) {
-            service.spawn_without_dbus_name();
+            thread::spawn(|| match service.run_without_dbus_name() {
+                Ok(_) => (),
+                Err(e) => log::error!("Spawning system tray FAILED: {e}"),
+            });
         }
         LinuxSysTrayHandler::allocate(InitLinuxSysTrayHandler { handle })
     }
