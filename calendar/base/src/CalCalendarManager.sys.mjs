@@ -456,9 +456,11 @@ CalCalendarManager.prototype = {
     flushPrefs();
   },
 
+  /**
+   * @param {calICalendar} calendar - Calendar to remove.
+   * @param {integer} [mode=0] - Flag combination. See {calICalendarManager}.
+   */
   removeCalendar(calendar, mode = 0) {
-    const cICM = Ci.calICalendarManager;
-
     const removeModes = new Set(
       calendar.getProperty("capabilities.removeModes") || ["unsubscribe"]
     );
@@ -467,9 +469,13 @@ CalCalendarManager.prototype = {
       return;
     }
 
-    if (mode & cICM.REMOVE_NO_UNREGISTER && this.mCache && calendar.id in this.mCache) {
+    if (
+      mode & Ci.calICalendarManager.REMOVE_NO_UNREGISTER &&
+      this.mCache &&
+      calendar.id in this.mCache
+    ) {
       throw new Components.Exception("Can't remove a registered calendar");
-    } else if (!(mode & cICM.REMOVE_NO_UNREGISTER)) {
+    } else if (!(mode & Ci.calICalendarManager.REMOVE_NO_UNREGISTER)) {
       this.unregisterCalendar(calendar);
     }
 
@@ -478,7 +484,7 @@ CalCalendarManager.prototype = {
     this.notifyObservers("onCalendarDeleting", [calendar]);
 
     // For deleting, we also call the deleteCalendar method from the provider.
-    if (removeModes.has("delete") && (mode & cICM.REMOVE_NO_DELETE) == 0) {
+    if (removeModes.has("delete") && (mode & Ci.calICalendarManager.REMOVE_NO_DELETE) == 0) {
       const wrappedCalendar = calendar.QueryInterface(Ci.calICalendarProvider);
       wrappedCalendar.deleteCalendar(calendar, null);
     }
