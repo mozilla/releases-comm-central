@@ -223,6 +223,7 @@ half = { path = "../../build/rust/half" }
 moz_asserts = { path = "../../mozglue/static/rust/moz_asserts" }
 rure = { path = "../../third_party/rust/rure" }
 plist = { path = "../../third_party/rust/plist" }
+unicode-width = { path = "../../build/rust/unicode-width" }
 unicode-bidi = { git = "https://github.com/servo/unicode-bidi", rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c" }
 nss-gk-api = { git = "https://github.com/beurdouche/nss-gk-api", rev = "e48a946811ffd64abc78de3ee284957d8d1c0d63" }
 cssparser = { git = "https://github.com/servo/rust-cssparser", rev = "958a3f098acb92ddacdce18a7ef2c4a87ac3326f" }
