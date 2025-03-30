@@ -843,11 +843,10 @@ calMgrCalendarObserver.prototype = {
     // When possible, change the error number into its name, to
     // make it slightly more readable.
     let errCode = "0x" + aErrNo.toString(16);
-    const calIErrors = Ci.calIErrors;
     // Check if it is worth enumerating all the error codes.
-    if (aErrNo & calIErrors.ERROR_BASE) {
-      for (const err in calIErrors) {
-        if (calIErrors[err] == aErrNo) {
+    if (aErrNo & Ci.calIErrors.ERROR_BASE) {
+      for (const err in Ci.calIErrors) {
+        if (Ci.calIErrors[err] == aErrNo) {
           errCode = err;
         }
       }
@@ -855,13 +854,13 @@ calMgrCalendarObserver.prototype = {
 
     let message;
     switch (aErrNo) {
-      case calIErrors.CAL_UTF8_DECODING_FAILED:
+      case Ci.calIErrors.CAL_UTF8_DECODING_FAILED:
         message = lazy.l10n.formatValueSync("utf8-decode-error");
         break;
-      case calIErrors.ICS_MALFORMEDDATA:
+      case Ci.calIErrors.ICS_MALFORMEDDATA:
         message = lazy.l10n.formatValueSync("ics-malformed-error");
         break;
-      case calIErrors.MODIFICATION_FAILED:
+      case Ci.calIErrors.MODIFICATION_FAILED:
         errMsg = lazy.l10n.formatValueSync("error-writing2", { name: aCalendar.name });
         message = lazy.l10n.formatValueSync("error-writing-details");
         if (aMessage) {
@@ -885,7 +884,7 @@ calMgrCalendarObserver.prototype = {
 
     // Log warnings in error console.
     // Report serious errors in both error console and in prompt window.
-    if (aErrNo == calIErrors.MODIFICATION_FAILED) {
+    if (aErrNo == Ci.calIErrors.MODIFICATION_FAILED) {
       console.error(summary);
       this.announceParamBlock(paramBlock);
     } else {
