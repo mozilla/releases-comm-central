@@ -136,3 +136,115 @@ function loadRequestedUrl() {
   }
   request.loaded(window, browser.webProgress);
 }
+
+/**
+ * @implements {nsIBrowserDOMWindow}
+ */
+window.browserDOMWindow = new (class nsBrowserAccess {
+  QueryInterface = ChromeUtils.generateQI(["nsIBrowserDOMWindow"]);
+
+  _openURIInNewTab(
+    aURI,
+    aReferrerInfo,
+    aIsExternal,
+    aOpenWindowInfo = null,
+    aTriggeringPrincipal = null,
+    aCsp = null,
+    aSkipLoad = false,
+    aMessageManagerGroup = null
+  ) {
+    // This is a popup which must not have more than one tab, so open the new tab
+    // in the most recent mail window.
+    const win = Services.wm.getMostRecentWindow("mail:3pane", true);
+
+    if (!win) {
+      // We couldn't find a suitable window, a new one needs to be opened.
+      return null;
+    }
+
+    const loadInBackground = Services.prefs.getBoolPref(
+      "browser.tabs.loadDivertedInBackground"
+    );
+
+    const tabmail = win.document.getElementById("tabmail");
+    const newTab = tabmail.openTab("contentTab", {
+      background: loadInBackground,
+      csp: aCsp,
+      linkHandler: aMessageManagerGroup,
+      openWindowInfo: aOpenWindowInfo,
+      referrerInfo: aReferrerInfo,
+      skipLoad: aSkipLoad,
+      triggeringPrincipal: aTriggeringPrincipal,
+      url: aURI ? aURI.spec : "about:blank",
+    });
+
+    win.focus();
+
+    return newTab.browser;
+  }
+
+  createContentWindow() {
+    throw Components.Exception("Not implemented", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  }
+
+  createContentWindowInFrame(aURI, aParams, aWhere, aFlags, aName) {
+    // Passing a null-URI to only create the content window,
+    // and pass true for aSkipLoad to prevent loading of
+    // about:blank
+    return this.getContentWindowOrOpenURIInFrame(
+      null,
+      aParams,
+      aWhere,
+      aFlags,
+      aName,
+      true
+    );
+  }
+
+  openURI() {
+    throw Components.Exception("Not implemented", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  }
+
+  openURIInFrame() {
+    throw Components.Exception("Not implemented", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  }
+
+  getContentWindowOrOpenURI() {
+    throw Components.Exception("Not implemented", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  }
+
+  getContentWindowOrOpenURIInFrame(
+    aURI,
+    aParams,
+    aWhere,
+    aFlags,
+    aName,
+    aSkipLoad
+  ) {
+    if (aWhere != Ci.nsIBrowserDOMWindow.OPEN_NEWTAB) {
+      console.error("openURIInFrame can only open in new tabs");
+      return null;
+    }
+
+    const isExternal = !!(aFlags & Ci.nsIBrowserDOMWindow.OPEN_EXTERNAL);
+
+    return this._openURIInNewTab(
+      aURI,
+      aParams.referrerInfo,
+      isExternal,
+      aParams.openWindowInfo,
+      aParams.triggeringPrincipal,
+      aParams.csp,
+      aSkipLoad,
+      aParams.openerBrowser?.getAttribute("messagemanagergroup")
+    );
+  }
+
+  canClose() {
+    return true;
+  }
+
+  get tabCount() {
+    return 1;
+  }
+})();

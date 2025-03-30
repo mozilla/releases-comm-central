@@ -19,7 +19,7 @@ async function openBrowserRequestWindow() {
       null,
       "chrome://messenger/content/browserRequest.xhtml",
       null,
-      "chrome,private,centerscreen,width=980,height=750",
+      "chrome,non-private,centerscreen,width=980,height=750",
       {
         url: "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.html",
         cancelled() {
@@ -33,6 +33,35 @@ async function openBrowserRequestWindow() {
   });
   return { cancelledPromise, requestWindow };
 }
+
+add_task(async function test_linkClick() {
+  const { requestWindow } = await openBrowserRequestWindow();
+
+  const browser = requestWindow.getBrowser();
+  await BrowserTestUtils.browserLoaded(browser);
+  ok(browser, "Got a browser from global getBrowser function");
+
+  const tabmail = document.getElementById("tabmail");
+  const tabPromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabOpen"
+  );
+
+  await SpecialPowers.spawn(browser, [], async () => {
+    const link = content.document.querySelector("a[href]");
+    link.setAttribute("target", "_blank");
+    EventUtils.synthesizeMouseAtCenter(link, {}, content);
+  });
+
+  const {
+    detail: { tabInfo },
+  } = await tabPromise;
+  await BrowserTestUtils.browserLoaded(tabInfo.browser);
+  Assert.equal(tabInfo.browser.currentURI.spec, "https://example.com/");
+
+  tabmail.closeOtherTabs(0);
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, requestWindow);
+});
 
 add_task(async function test_urlBar() {
   const { requestWindow, cancelledPromise } = await openBrowserRequestWindow();
