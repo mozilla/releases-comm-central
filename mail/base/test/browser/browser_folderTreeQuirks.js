@@ -680,6 +680,100 @@ add_task(async function testFolderMove() {
 });
 
 /**
+ * Tests that moving a subfolder that doesn't match the active mode doesn't
+ * affect its parent folder that does match the mode.
+ */
+add_task(async function testFolderMoveSubfolder() {
+  const newParentFolder = rootFolder.createLocalSubfolder("new parent");
+  [...folderB.messages][6].markRead(false);
+  folderB.setFlag(Ci.nsMsgFolderFlags.Favorite);
+
+  // Set up and check initial state.
+
+  folderPane.activeModes = ["all", "unread", "favorite"];
+  folderPane.isCompact = false;
+
+  await checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    folderC,
+    newParentFolder,
+  ]);
+  await checkModeListItems("unread", [rootFolder, folderA, folderB]);
+  await checkModeListItems("favorite", [rootFolder, folderA, folderB]);
+
+  // Move `folderC` from `folderB` to `newParentFolder`.
+
+  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyFolder(
+    folderC,
+    newParentFolder,
+    true,
+    copyListener,
+    window.msgWindow
+  );
+  await copyListener.promise;
+
+  const movedFolderC = newParentFolder.getChildNamed("folderTreeQuirksC");
+
+  await checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    newParentFolder,
+    movedFolderC,
+  ]);
+  await checkModeListItems("unread", [rootFolder, folderA, folderB]);
+  await checkModeListItems("favorite", [rootFolder, folderA, folderB]);
+
+  // Switch to compact mode for the return move.
+
+  folderPane.isCompact = true;
+  await checkModeListItems("unread", [folderB]);
+  await checkModeListItems("favorite", [folderB]);
+
+  // Move `movedFolderB` from `newParentFolder` back to `folderA`.
+
+  copyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyFolder(
+    movedFolderC,
+    folderB,
+    true,
+    copyListener,
+    window.msgWindow
+  );
+  await copyListener.promise;
+
+  await checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    folderC,
+    newParentFolder,
+  ]);
+  await checkModeListItems("unread", [folderB]);
+  await checkModeListItems("favorite", [folderB]);
+
+  // Clean up.
+
+  newParentFolder.deleteSelf(null);
+  rootFolder.emptyTrash(null, null);
+  folderB.markAllMessagesRead(null);
+  folderB.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  folderPane.isCompact = false;
+});
+
+/**
  * Tests that after renaming a folder it is in the right place in the tree,
  * with any subfolders if they should be shown.
  */

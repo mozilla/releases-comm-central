@@ -2295,6 +2295,12 @@ var folderPane = {
     filterFunction,
     childAlreadyGone = false
   ) {
+    // This may be the parent of the folder actually removed. Do not proceed
+    // if it matches the mode.
+    if (childAlreadyGone && filterFunction?.(folder)) {
+      return;
+    }
+
     const folderRow = folderPane.getRowForFolder(folder, modeName);
     if (folderPane._isCompact) {
       folderRow?.remove();
@@ -2312,10 +2318,7 @@ var folderPane = {
 
     // Otherwise, move up the folder tree.
     const parentFolder = folderPane._getNonGmailParent(folder);
-    if (
-      parentFolder &&
-      (typeof filterFunction != "function" || !filterFunction(parentFolder))
-    ) {
+    if (parentFolder && !filterFunction?.(parentFolder)) {
       this._removeFolderAndAncestors(parentFolder, modeName, filterFunction);
     }
 
