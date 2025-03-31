@@ -71,7 +71,6 @@ nsLocalMailCopyState::nsLocalMailCopyState()
       m_isFolder(false),
       m_addXMozillaHeaders(false),
       m_copyingMultipleMessages(false),
-      m_fromLineSeen(false),
       m_allowUndo(false),
       m_writeFailed(false),
       m_notifyFolderLoaded(false) {}

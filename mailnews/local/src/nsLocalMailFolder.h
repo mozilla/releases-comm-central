@@ -67,7 +67,6 @@ struct nsLocalMailCopyState {
   bool m_isFolder;            // isFolder move/copy
   bool m_addXMozillaHeaders;  // Should prepend X-Mozilla-Status et al?
   bool m_copyingMultipleMessages;
-  bool m_fromLineSeen;
   bool m_allowUndo;
   bool m_writeFailed;
   bool m_notifyFolderLoaded;
