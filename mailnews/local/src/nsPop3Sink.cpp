@@ -521,12 +521,15 @@ nsresult nsPop3Sink::WriteLineToMailbox(const nsACString& buffer) {
 
 NS_IMETHODIMP
 nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
-  if (m_buildMessageUri && !m_baseMessageUri.IsEmpty() && m_newMailParser &&
-      m_newMailParser->m_newMsgHdr) {
-    nsMsgKey msgKey;
-    m_newMailParser->m_newMsgHdr->GetMessageKey(&msgKey);
-    m_messageUri.Truncate();
-    nsBuildLocalMessageURI(m_baseMessageUri, msgKey, m_messageUri);
+  if (m_buildMessageUri && !m_baseMessageUri.IsEmpty() && m_newMailParser) {
+    nsCOMPtr<nsIMsgDBHdr> hdr;
+    m_newMailParser->GetNewMsgHdr(getter_AddRefs(hdr));
+    if (hdr) {
+      nsMsgKey msgKey;
+      hdr->GetMessageKey(&msgKey);
+      m_messageUri.Truncate();
+      nsBuildLocalMessageURI(m_baseMessageUri, msgKey, m_messageUri);
+    }
   }
 
   nsresult rv;
@@ -550,7 +553,8 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
   if (m_newMailParser) {
     // PublishMsgHdr clears m_newMsgHdr, so we need a comptr to
     // hold onto it.
-    nsCOMPtr<nsIMsgDBHdr> hdr = m_newMailParser->m_newMsgHdr;
+    nsCOMPtr<nsIMsgDBHdr> hdr;
+    m_newMailParser->GetNewMsgHdr(getter_AddRefs(hdr));
     NS_ASSERTION(hdr, "m_newMailParser->m_newMsgHdr wasn't set");
     if (!hdr) return NS_ERROR_FAILURE;
 
@@ -625,9 +629,10 @@ nsPop3Sink::IncorporateAbort() {
   NS_ENSURE_STATE(m_outFileStream);
   nsresult rv = m_outFileStream->Close();
   NS_ENSURE_SUCCESS(rv, rv);
-  if (m_msgStore && m_newMailParser && m_newMailParser->m_newMsgHdr) {
-    m_msgStore->DiscardNewMessage(m_outFileStream,
-                                  m_newMailParser->m_newMsgHdr);
+  if (m_msgStore && m_newMailParser) {
+    nsCOMPtr<nsIMsgDBHdr> hdr;
+    m_newMailParser->GetNewMsgHdr(getter_AddRefs(hdr));
+    m_msgStore->DiscardNewMessage(m_outFileStream, hdr);
   }
 #ifdef DEBUG
   printf("Incorporate message abort.\n");

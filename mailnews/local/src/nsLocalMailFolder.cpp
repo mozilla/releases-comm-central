@@ -1887,9 +1887,10 @@ nsresult nsMsgLocalMailFolder::WriteStartOfNewMessage() {
     mCopyState->m_parseMsgState->m_envelope_pos =
         mCopyState->m_parseMsgState->m_position;
 
-    if (mCopyState->m_parseMsgState->m_newMsgHdr) {
-      mCopyState->m_parseMsgState->m_newMsgHdr->GetMessageKey(
-          &mCopyState->m_curDstKey);
+    nsCOMPtr<nsIMsgDBHdr> hdr;
+    mCopyState->m_parseMsgState->GetNewMsgHdr(getter_AddRefs(hdr));
+    if (hdr) {
+      hdr->GetMessageKey(&mCopyState->m_curDstKey);
     }
     mCopyState->m_parseMsgState->SetState(
         nsIMsgParseMailMsgState::ParseHeadersState);

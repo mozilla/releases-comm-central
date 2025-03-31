@@ -214,8 +214,8 @@ NS_IMETHODIMP StoreIndexer::OnStopRequest(nsIRequest* req, nsresult status) {
   // This stuff is loosely based on nsMsgMailboxParser::PublishMsgHeader()
 
   // Tell the world about the message header (add to db, and view, if any)
-  nsCOMPtr<nsIMsgDBHdr> hdr = mParser->m_newMsgHdr;
-
+  nsCOMPtr<nsIMsgDBHdr> hdr;
+  mParser->GetNewMsgHdr(getter_AddRefs(hdr));
   if (hdr) {
     // nsParseMailMessageState will parse flags from X-Mozilla-Status[2],
     // if present. So we can check to see if a message has been deleted
@@ -253,7 +253,7 @@ NS_IMETHODIMP StoreIndexer::OnStopRequest(nsIRequest* req, nsresult status) {
   // Clear up our per-message vars.
   mStoreToken.Truncate();
   mCurrentMsgSize = 0;
-  mParser->m_newMsgHdr = nullptr;
+  mParser->SetNewMsgHdr(nullptr);
   mParser = nullptr;
   return NS_OK;
 }
