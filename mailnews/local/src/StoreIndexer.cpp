@@ -177,8 +177,8 @@ NS_IMETHODIMP StoreIndexer::OnDataAvailable(nsIRequest* req,
 
       if (!mIsStupidlyLongLine) {
         MOZ_ASSERT(!incompleteLine);
-        // Ignore result of ParseFolderLine(). Better to just keep going.
-        mParser->ParseFolderLine(line.Elements(), line.Length());
+        // Ignore result of ParseAFolderLine(). Better to just keep going.
+        mParser->ParseAFolderLine(line.Elements(), line.Length());
       } else if (!incompleteLine) {
         // Soaked up entire stupidly-long-line, stop discarding data.
         mIsStupidlyLongLine = false;

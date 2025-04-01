@@ -47,11 +47,6 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
 
   nsParseMailMessageState();
 
-  nsresult ParseFolderLine(const char* line, uint32_t lineLength);
-  nsresult ParseHeaders();
-  nsresult FinalizeHeaders();
-  nsresult InternSubject(HeaderData* header);
-
   // A way to pass in 'out-of-band' envelope sender/timestamp data.
   // Totally optional, but envDate is used to fill in on malformed messages
   // without a "Date:" header.
@@ -68,6 +63,11 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   uint16_t m_body_lines;
 
  protected:
+  nsresult ParseFolderLine(const char* line, uint32_t lineLength);
+  nsresult ParseHeaders();
+  nsresult FinalizeHeaders();
+  nsresult InternSubject(HeaderData* header);
+
   nsMailboxParseState m_state;
   nsCOMPtr<nsIMsgDBHdr> m_newMsgHdr; /* current message header we're building */
   // These two aren't part of the message, but may be provided 'out-of-band',
@@ -120,7 +120,6 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   nsTArray<nsCString> m_customDBHeaders;
   nsTArray<HeaderData> m_customDBHeaderData;
   nsCString m_receivedValue;  // accumulated received header
- protected:
   virtual ~nsParseMailMessageState() {};
 };
 
