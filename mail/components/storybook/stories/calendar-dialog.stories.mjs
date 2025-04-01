@@ -11,7 +11,7 @@ export default {
 };
 
 export const calendarDialog = {
-  render({ opened, title }) {
+  render({ opened, title, eventLocation }) {
     const container = document.createElement("div");
     container.insertAdjacentHTML(
       "beforeend",
@@ -60,6 +60,23 @@ export const calendarDialog = {
             end-date="2021-04-31T06:00:00Z"
             repeats="Repeats once every blue moon"
           ></calendar-dialog-date-row>
+          <calendar-dialog-row id="locationRow">
+            <img
+              slot="icon"
+              class="icon-location"
+              src=""
+              data-l10n-id="calendar-dialog-location-row-icon"
+            />
+            <div slot="label">
+              <a
+                id="locationLink"
+                class="text-link"
+                href=""
+                hidden="hidden"
+              ></a>
+              <span id="locationText" hidden="hidden"></span>
+            </div>
+          </calendar-dialog-row>
         </div>
       </calendar-dialog-subview-manager>
     </div>
@@ -71,11 +88,12 @@ export const calendarDialog = {
 
     const dialog = container.querySelector("dialog");
     dialog[opened ? "show" : "close"]();
-    dialog.updateDialogData({ title });
+    dialog.updateDialogData({ title, eventLocation });
     return container;
   },
   args: {
     opened: true,
     title: "Event Title",
+    eventLocation: "https://www.thunderbird.net/",
   },
 };

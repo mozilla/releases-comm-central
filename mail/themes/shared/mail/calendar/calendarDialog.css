@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 @import url("chrome://messenger/skin/widgets.css");
 @import url("chrome://messenger/skin/icons.css");
 @import url("chrome://messenger/skin/variables.css");
@@ -65,6 +64,14 @@
 
 .icon-recurrence {
   content: var(--icon-recurrence);
+}
+
+.icon-location {
+  content: var(--icon-globe);
+}
+
+.icon-reminder {
+  content: var(--icon-bell);
 }
 
 calendar-dialog-date-row {

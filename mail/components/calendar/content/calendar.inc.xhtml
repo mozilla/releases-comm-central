@@ -22,6 +22,22 @@
     >
       <div id="calendarDialogMainSubview" hidden="hidden">
         <calendar-dialog-date-row></calendar-dialog-date-row>
+        <calendar-dialog-row id="locationRow">
+          <img
+            slot="icon"
+            class="icon-location"
+            src=""
+            data-l10n-id="calendar-dialog-location-row-icon" />
+          <div slot="label">
+            <a
+              id="locationLink"
+              class="text-link"
+              href=""
+              hidden="hidden"
+            ></a>
+            <span id="locationText" hidden="hidden"></span>
+          </div>
+        </calendar-dialog-row>
       </div>
     </calendar-dialog-subview-manager>
   </div>

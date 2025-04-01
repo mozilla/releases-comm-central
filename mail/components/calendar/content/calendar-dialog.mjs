@@ -38,6 +38,7 @@ class CalendarDialog extends HTMLDialogElement {
       );
 
       this.querySelector(".close-button").addEventListener("click", this);
+      this.querySelector("#locationLink").addEventListener("click", this);
       this.#subviewManager.addEventListener("subviewchanged", this);
       this.querySelector(".back-button").addEventListener("click", this);
 
@@ -57,6 +58,11 @@ class CalendarDialog extends HTMLDialogElement {
           this.close();
         } else if (event.target.closest(".back-button")) {
           this.#subviewManager.showDefaultSubview();
+        } else if (event.target.closest("#locationLink")) {
+          event.preventDefault();
+          // TODO: Open the link without breaking storybook.
+          // lazy.openLinkExternally(event.detail.url);
+          break;
         }
         break;
       case "subviewchanged":
@@ -86,7 +92,35 @@ class CalendarDialog extends HTMLDialogElement {
       this.querySelector(".calendar-dialog-title").textContent = data.title;
     }
 
+    if (data.eventLocation) {
+      this.#setLocation(data.eventLocation);
+    }
+
     this.#data = data;
+  }
+
+  /**
+   * Sets the location in the dialog for the calendar event.
+   *
+   * @param {string} eventLocation - The location of the event.
+   */
+  #setLocation(eventLocation) {
+    const parsedURL = URL.parse(eventLocation.trim());
+    const locationLink = this.querySelector("#locationLink");
+    const locationText = this.querySelector("#locationText");
+    locationLink.hidden = !parsedURL;
+    locationText.hidden = parsedURL;
+
+    if (parsedURL) {
+      locationLink.textContent = eventLocation;
+      locationLink.setAttribute("href", eventLocation);
+      locationText.textContent = "";
+      return;
+    }
+
+    locationText.textContent = eventLocation;
+    locationLink.textContent = "";
+    locationLink.setAttribute("href", "");
   }
 }
 

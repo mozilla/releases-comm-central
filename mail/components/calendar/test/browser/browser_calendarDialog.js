@@ -137,3 +137,53 @@ add_task(async function test_dialogTitle() {
     "The dialog title text is cleared"
   );
 });
+
+add_task(async function test_dialogLocation() {
+  dialog.show();
+  const locationLink = dialog.querySelector("#locationLink");
+  const locationText = dialog.querySelector("#locationText");
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(locationLink),
+    "Location link should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(locationText),
+    "Location text should be hidden"
+  );
+
+  dialog.updateDialogData({ eventLocation: "foobar" });
+  Assert.ok(
+    BrowserTestUtils.isHidden(locationLink),
+    "Location link should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(locationText),
+    "Location text should be visible"
+  );
+  Assert.equal(locationText.textContent, "foobar", "Should set location text");
+
+  dialog.updateDialogData({
+    eventLocation: "https://www.thunderbird.net/",
+  });
+  Assert.ok(
+    BrowserTestUtils.isVisible(locationLink),
+    "Location link should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(locationText),
+    "Location text should be hidden"
+  );
+  Assert.equal(
+    locationLink.textContent,
+    "https://www.thunderbird.net/",
+    "Link text should update"
+  );
+  Assert.equal(
+    locationLink.href,
+    "https://www.thunderbird.net/",
+    "Link href should update"
+  );
+
+  Assert.equal(locationText.textContent, "", "Location text should be empty");
+});
