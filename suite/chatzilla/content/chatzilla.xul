@@ -68,7 +68,6 @@
   </stringbundleset>
 
   <!-- parents for the command manager-managed objects -->
-  <keyset id="dynamic-keys"/>
   <popupset id="dynamic-popups"/>
 
   <!-- tooltip thingy -->

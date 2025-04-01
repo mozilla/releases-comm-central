@@ -187,7 +187,6 @@ function init() {
 
   processStartupScripts();
 
-  client.commandManager.installKeys(document);
   createMenus();
 
   client.busy = false;
