@@ -9,6 +9,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   JSONFile: "resource://gre/modules/JSONFile.sys.mjs",
   NotificationFilter: "resource:///modules/NotificationFilter.sys.mjs",
+  NotificationScheduler: "resource:///modules/NotificationScheduler.sys.mjs",
   NotificationUpdater: "resource:///modules/NotificationUpdater.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
   clearTimeout: "resource://gre/modules/Timer.sys.mjs",
@@ -67,6 +68,9 @@ export const InAppNotifications = {
     lazy.NotificationUpdater.onUpdate = updatedNotifications => {
       this.updateNotifications(updatedNotifications);
     };
+
+    lazy.NotificationScheduler.init(this.notificationManager);
+
     const { loadFromCache, hasCache } = await lazy.NotificationUpdater.init();
     if (loadFromCache) {
       if (

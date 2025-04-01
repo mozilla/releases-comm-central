@@ -82,7 +82,7 @@ add_task(function test_notification_shown() {
   );
 });
 
-add_task(function test_notification_interaction() {
+add_task(async function test_notification_interaction() {
   Assert.equal(
     Glean.inappnotifications.interaction.testGetValue(),
     undefined,
@@ -100,7 +100,8 @@ add_task(function test_notification_interaction() {
       URL: "about:blank",
     },
   ]);
-  notificationManager.executeNotificationCTA("test");
+
+  await notificationManager.executeNotificationCTA("test");
 
   const events = Glean.inappnotifications.interaction.testGetValue();
 

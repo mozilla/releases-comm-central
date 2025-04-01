@@ -5,10 +5,10 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
   clearTimeout: "resource://gre/modules/Timer.sys.mjs",
   requestIdleCallback: "resource://gre/modules/Timer.sys.mjs",
+  NotificationOpener: "resource:///modules/NotificationOpener.sys.mjs",
   cancelIdleCallback: "resource://gre/modules/Timer.sys.mjs",
 });
 
@@ -129,7 +129,7 @@ export class NotificationManager extends EventTarget {
           notification_id: notification.id,
         });
       } else if (notification.URL) {
-        this.executeNotificationCTA(notification.id);
+        this.executeNotificationCTA(notification.id, true);
       }
     } else {
       this.dispatchEvent(
@@ -162,8 +162,9 @@ export class NotificationManager extends EventTarget {
    * Called when the user clicks on the call to action of a notification.
    *
    * @param {string} notificationId - ID of the notification.
+   * @param {?boolean} [noUi] - If the notification has a ui or not.
    */
-  executeNotificationCTA(notificationId) {
+  async executeNotificationCTA(notificationId, noUi) {
     if (notificationId !== this.#currentNotification?.id) {
       console.warn(
         `Interaction with notification ${notificationId} that shouldn't be visible`
@@ -176,32 +177,13 @@ export class NotificationManager extends EventTarget {
       })
     );
 
-    const formattedURL = Services.urlFormatter.formatURL(
-      this.#currentNotification.URL
-    );
-    const needsTabmail = this.#currentNotification.type === "donation_tab";
-    const tabmail =
-      needsTabmail &&
-      Services.wm
-        .getMostRecentWindow("mail:3pane")
-        ?.document.getElementById("tabmail");
-
-    // Fall back to opening a browser window if we don't have a tabmail.
-    if (this.#currentNotification.type !== "donation_tab" || !tabmail) {
-      lazy.openLinkExternally(formattedURL);
-    } else {
-      tabmail.openTab("contentTab", {
-        url: formattedURL,
-        background: false,
-        linkHandler: "single-page",
-      });
-      tabmail.ownerGlobal.focus();
-    }
+    await lazy.NotificationOpener.openLink(this.#currentNotification, noUi);
 
     Glean.inappnotifications.interaction.record({
       notification_id: notificationId,
       active_this_session: this.#getActiveNotificationDuration(),
     });
+
     this.#currentNotification = null;
     this.#pickSoon();
   }

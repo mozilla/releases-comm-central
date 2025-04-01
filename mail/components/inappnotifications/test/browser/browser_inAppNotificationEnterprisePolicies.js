@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals reset, showNotification, waitForMinimize NotificationManager,
+ * waitASecond, NotificationScheduler
+ */
 "use strict";
-
-const { InAppNotifications } = ChromeUtils.importESModule(
-  "resource:///modules/InAppNotifications.sys.mjs"
-);
 
 const { EnterprisePolicyTesting } = ChromeUtils.importESModule(
   "resource://testing-common/EnterprisePolicyTesting.sys.mjs"
@@ -20,25 +19,13 @@ const { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
-const { NotificationManager } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationManager.sys.mjs"
-);
-
-/**
- * Wait an amount of time for something to NOT happen.
- *
- * @param {number} time - The amount of time to wait.
- */
-async function waitASecond(time = 1000) {
-  /* eslint-disable-next-line mozilla/no-arbitrary-setTimeout */
-  await new Promise(resolve => setTimeout(resolve, time));
-}
-
 const tabmail = document.getElementById("tabmail");
 let didOpen = false;
 
 add_setup(async function () {
   NotificationManager._PER_TIME_UNIT = 1;
+  NotificationScheduler.observe(null, "active");
+  NotificationScheduler._idleService.disabled = true;
   // PlacesUtils when executing the CTA needs the profile.
   /** @implements {nsIExternalProtocolService} */
   const mockExternalProtocolService = {
@@ -68,25 +55,6 @@ add_setup(async function () {
   });
 });
 
-async function showNotification(type) {
-  await InAppNotifications.updateNotifications([]);
-
-  const notification = {
-    id: `${type}Notification` + Date.now(),
-    title: `${type} notification`,
-    description: `Test description for ${type}`,
-    URL: `https://example.com/${type}`,
-    CTA: "Click me!",
-    severity: 1,
-    type,
-    start_at: new Date(Date.now() - 1000).toISOString(),
-    end_at: new Date(Date.now() + 100000).toISOString(),
-    targeting: {},
-  };
-
-  await InAppNotifications.updateNotifications([notification]);
-}
-
 /**
  * Helper function to inject and verify notifications.
  *
@@ -94,17 +62,16 @@ async function showNotification(type) {
  * @param {boolean} shouldAppear - If the notification should appear or not.
  */
 async function injectAndCheckNotification(type, shouldAppear) {
-  await showNotification(type);
+  await showNotification({
+    title: `${type} notification`,
+    type,
+    wait: shouldAppear,
+  });
 
   if (shouldAppear) {
-    try {
-      await BrowserTestUtils.waitForCondition(
-        () => document.querySelector("in-app-notification"),
-        `Waiting for ${type} notification to appear`,
-        5000
-      );
-    } catch {}
+    await waitForNotification(true);
   } else {
+    await waitASecond();
     Assert.ok(
       !document.querySelector("in-app-notification"),
       "notification does not exist"
@@ -113,7 +80,7 @@ async function injectAndCheckNotification(type, shouldAppear) {
 
   const notificationElement = document.querySelector("in-app-notification");
 
-  if (!notificationElement) {
+  if (!shouldAppear) {
     Assert.ok(!shouldAppear, `${type} notification should not appear.`);
   } else {
     const container = notificationElement.shadowRoot.querySelector(
@@ -272,7 +239,7 @@ add_task(async function test_enterprise_policy_donation_tab() {
   });
   EnterprisePolicyTesting.resetRunOnceState();
 
-  await showNotification("donation_tab");
+  await showNotification({ type: "donation_tab" });
 
   await waitASecond();
 
@@ -296,7 +263,7 @@ add_task(async function test_enterprise_policy_disabled_donation_tab() {
   });
   EnterprisePolicyTesting.resetRunOnceState();
 
-  await showNotification("donation_tab");
+  await showNotification({ type: "donation_tab" });
 
   await waitASecond();
 
@@ -320,7 +287,7 @@ add_task(async function test_enterprise_policy_donation_browser() {
   });
   EnterprisePolicyTesting.resetRunOnceState();
 
-  await showNotification("donation_browser");
+  await showNotification({ type: "donation_browser" });
 
   await waitASecond();
 
@@ -344,7 +311,7 @@ add_task(async function test_enterprise_policy_disabled_donation_browser() {
   });
   EnterprisePolicyTesting.resetRunOnceState();
 
-  await showNotification("donation_browser");
+  await showNotification({ type: "donation_browser" });
 
   await waitASecond();
 

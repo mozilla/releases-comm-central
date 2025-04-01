@@ -14,6 +14,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   InAppNotifications: "resource:///modules/InAppNotifications.sys.mjs",
   NotificationManager: "resource:///modules/NotificationManager.sys.mjs",
+  NotificationScheduler: "resource:///modules/NotificationScheduler.sys.mjs",
 });
 
 /**
@@ -54,13 +55,17 @@ export class InAppNotificationManager extends HTMLElement {
     window.removeEventListener("keydown", this);
   }
 
-  handleEvent(event) {
+  async handleEvent(event) {
     switch (event.type) {
       case "unload":
         this.#removeManagerListeners();
         break;
       case lazy.NotificationManager.NEW_NOTIFICATION_EVENT:
-        this.#showNotification(event.detail);
+        try {
+          await this.#showNotification(event.detail);
+        } catch {
+          // Do nothing, this means the notification was dismissed.
+        }
         break;
       case lazy.NotificationManager.CLEAR_NOTIFICATION_EVENT:
         this.#hideNotification();
@@ -74,7 +79,7 @@ export class InAppNotificationManager extends HTMLElement {
       case "ctaclick":
         if (event.button === 0) {
           this.#focusElement?.focus();
-          lazy.InAppNotifications.notificationManager.executeNotificationCTA(
+          await lazy.InAppNotifications.notificationManager.executeNotificationCTA(
             event.notificationId
           );
         }
@@ -128,11 +133,18 @@ export class InAppNotificationManager extends HTMLElement {
   }
 
   /**
-   * Display a new in-app notification. Replaces the existing notification.
+   * Check if the user is active before displaying a notification. If the user
+   * is not active delay showing the notification until they are. Displaying a
+   * new in-app notification replaces the existing notification.
    *
    * @param {object} notification  - Notification data from the back-end.
    */
-  #showNotification(notification) {
+  async #showNotification(notification) {
+    await lazy.NotificationScheduler.waitForActive({
+      currentWindow: window,
+      id: notification.id,
+    });
+
     const notificationElement = document.createElement("in-app-notification");
 
     notificationElement.setNotificationData(notification);

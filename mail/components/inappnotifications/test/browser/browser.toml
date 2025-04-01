@@ -1,14 +1,19 @@
 [DEFAULT]
 prefs = [
+  "app.donation.eoy.version.viewed=1000",
   "mail.inappnotifications.enabled=true",
   "mail.inappnotifications.url=",
   "mail.provider.suppress_dialog_on_startup=true",
   "mail.rights.override=true",
   "mail.spotlight.firstRunDone=true",
   "mail.winsearch.firstRunDone=true",
+  "mailnews.auto_config.addons_url=about:blank",
+  "mailnews.auto_config.fetchFromExchange.enabled=false",
+  "mailnews.auto_config_url=about:blank",
   "mailnews.start_page.override_url=about:blank",
   "mailnews.start_page.url=about:blank",
 ]
+head = ["head.js"]
 support-files = [
   "files/inAppNotification.xhtml",
   "files/inAppNotificationButton.xhtml",
@@ -24,4 +29,11 @@ subsuite = "thunderbird"
 ["browser_inAppNotificationEnterprisePolicies.js"]
 ["browser_inAppNotificationFocus.js"]
 ["browser_inAppNotificationIntegration.js"]
+["browser_inAppNotificationManager.js"]
 ["browser_inAppNotificationMessengerIntegration.js"]
+["browser_inAppNotificationScheduler.js"]
+["browser_inAppNotificationSchedulerBrowserPosition.js"]
+["browser_inAppNotificationSchedulerMultiWindow.js"]
+["browser_inAppNotificationSchedulerNoUi.js"]
+["browser_inAppNotificationSchedulerPosition.js"]
+["browser_inAppNotificationSchedulerTabPosition.js"]

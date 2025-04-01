@@ -10,6 +10,8 @@ EXTRA_JS_MODULES += [
     "modules/InAppNotifications.sys.mjs",
     "modules/NotificationFilter.sys.mjs",
     "modules/NotificationManager.sys.mjs",
+    "modules/NotificationOpener.sys.mjs",
+    "modules/NotificationScheduler.sys.mjs",
     "modules/NotificationUpdater.sys.mjs",
     "modules/OfflineNotifications.sys.mjs",
 ]
