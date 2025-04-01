@@ -203,6 +203,14 @@
     <command id="cmd_paste"/>
     <command id="cmd_delete"/>
     <command id="cmd_selectAll"/>
+    <command id="cmd_find"
+             oncommand="cmdFind(getDefaultContext());"/>
+    <command id="cmd_findNext"
+             oncommand="cmdFindAgain(getDefaultContext(), false);"/>
+    <command id="cmd_findPrev"
+             oncommand="cmdFindAgain(getDefaultContext(), true);"/>
+    <command id="cmd_toggleTextDir"
+             oncommand="cmdTextDirection();"/>
 
     <!-- Tasks commands, from overlay -->
     <commandset id="tasksCommands"/>
@@ -247,6 +255,11 @@
     <key id="key_paste"/>
     <key id="key_delete"/>
     <key id="key_selectAll"/>
+    <keyset id="findKeys"/>
+    <key id="key_toggleTextDir"
+         modifiers="accel,shift"
+         key="&toggleTextDir.commandkey;"
+         command="cmd_toggleTextDir"/>
 
     <!-- Tasks keys, from overlay -->
     <keyset id="tasksKeys"/>
@@ -341,8 +354,36 @@
         </menupopup>
       </menu>
 
-      <!-- Edit menu placeholder, see menus.js -->
-      <menu id="mainmenu:edit"><menupopup/></menu>
+      <menu id="menu_Edit">
+        <menupopup id="menu_EditPopup">
+          <menuitem id="menu_undo"/>
+          <menuitem id="menu_redo"/>
+          <menuseparator/>
+          <menuitem id="menu_cut"/>
+          <menuitem id="menu_copy"/>
+          <menuitem id="menu_paste"/>
+          <menuitem id="menu_delete"/>
+          <menuseparator/>
+          <menuitem id="menu_selectAll"/>
+          <menuseparator/>
+          <menuitem id="menu_find" label="&findBarCmd.label;"/>
+          <menuitem id="menu_findNext"/>
+          <menuitem id="menu_findPrev"/>
+          <menuseparator/>
+          <menuitem id="toggleTextDir"
+                    label="&toggleTextDir.label;"
+                    accesskey="&toggleTextDir.accesskey;"
+                    key="key_toggleTextDir"
+                    command="cmd_toggleTextDir"/>
+          <menuseparator id="menu_PrefsSeparator"/>
+          <menuitem id="chatzilla_prefs"
+                    label="&chatZillaPrefs.label;"
+                    accesskey="&chatZillaPrefs.accesskey;"
+                    oncommand="cmdChatZillaPrefs();"/>
+          <menuitem id="menu_preferences"
+                    oncommand="goPreferences('navigator_pane')"/>
+        </menupopup>
+      </menu>
 
       <!-- View menu placeholder, see menus.js -->
       <menu id="mainmenu:view"><menupopup/></menu>

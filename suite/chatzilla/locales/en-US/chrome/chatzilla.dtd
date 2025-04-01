@@ -34,6 +34,14 @@
 <!ENTITY custom-away.label "Customize Away Messages…">
 <!ENTITY custom-away.accesskey "A">
 
+<!-- Edit menu -->
+<!ENTITY findBarCmd.label "Find…">
+<!ENTITY toggleTextDir.label "Switch Text Direction">
+<!ENTITY toggleTextDir.accesskey "x">
+<!ENTITY toggleTextDir.commandkey "X">
+<!ENTITY chatZillaPrefs.label "ChatZilla Preferences…">
+<!ENTITY chatZillaPrefs.accesskey "Z">
+
 <!-- Tools menu -->
 <!ENTITY installPlugin.label "Install Plugin…">
 <!ENTITY installPlugin.accesskey "I">

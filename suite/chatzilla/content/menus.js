@@ -90,31 +90,6 @@ function initMenus() {
     ],
   };
 
-  client.menuSpecs["mainmenu:edit"] = {
-    label: MSG_MNU_EDIT,
-    accesskey: getAccessKeyForMenu("MSG_MNU_EDIT"),
-    getContext: getDefaultContext,
-    items: [
-      ["cmd-undo", { enabledif: "getCommandEnabled('cmd_undo')" }],
-      ["cmd-redo", { enabledif: "getCommandEnabled('cmd_redo')" }],
-      ["-"],
-      ["cmd-cut", { enabledif: "getCommandEnabled('cmd_cut')" }],
-      ["cmd-copy", { enabledif: "getCommandEnabled('cmd_copy')" }],
-      ["cmd-paste", { enabledif: "getCommandEnabled('cmd_paste')" }],
-      ["cmd-delete", { enabledif: "getCommandEnabled('cmd_delete')" }],
-      ["-"],
-      ["cmd-selectall", { enabledif: "getCommandEnabled('cmd_selectAll')" }],
-      ["-"],
-      ["find"],
-      ["find-again", { enabledif: "canFindAgainInPage()" }],
-      ["-"],
-      ["toggle-text-dir"],
-      ["-"],
-      ["cmd-prefs"],
-      ["cmd-mozilla-prefs"],
-    ],
-  };
-
   client.menuSpecs["popup:motifs"] = {
     label: MSG_MNU_MOTIFS,
     accesskey: getAccessKeyForMenu("MSG_MNU_MOTIFS"),

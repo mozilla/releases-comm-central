@@ -33,18 +33,12 @@ function initCommands() {
       CMD_NEED_CHAN | CMD_CONSOLE,
       "[<pref-name> [<pref-value>]]",
     ],
-    ["cmd-undo", "cmd-docommand cmd_undo", 0],
-    ["cmd-redo", "cmd-docommand cmd_redo", 0],
-    ["cmd-cut", "cmd-docommand cmd_cut", 0],
     ["cmd-copy", "cmd-docommand cmd_copy", 0],
-    ["cmd-paste", "cmd-docommand cmd_paste", 0],
-    ["cmd-delete", "cmd-docommand cmd_delete", 0],
     ["cmd-selectall", "cmd-docommand cmd_selectAll", 0],
     ["cmd-copy-link-url", "cmd-docommand cmd_copyLink", 0, "<url>"],
-    ["cmd-mozilla-prefs", "cmd-docommand cmd_mozillaPrefs", 0],
-    ["cmd-prefs", "cmd-docommand cmd_chatzillaPrefs", 0],
-    ["cmd-chatzilla-prefs", "cmd-docommand cmd_chatzillaPrefs", 0],
-    ["cmd-chatzilla-opts", "cmd-docommand cmd_chatzillaPrefs", 0],
+    ["cmd-prefs", cmdChatZillaPrefs, 0],
+    ["cmd-chatzilla-prefs", cmdChatZillaPrefs, 0],
+    ["cmd-chatzilla-opts", cmdChatZillaPrefs, 0],
     ["cmd-docommand", cmdDoCommand, 0, "<cmd-name>"],
     ["create-tab-for-view", cmdCreateTabForView, 0, "<view>"],
     ["custom-away", customAway, 0],
@@ -3655,25 +3649,23 @@ function cmdSupports(e) {
   }
 }
 
-function cmdDoCommand(e) {
-  if (e.cmdName == "cmd_mozillaPrefs") {
-    // Open SeaMonkey preferences.
-    goPreferences("navigator_pane");
-  } else if (e.cmdName == "cmd_chatzillaPrefs") {
-    var prefWin = Services.wm.getMostRecentWindow("irc:chatzilla:config");
-    if (!prefWin) {
-      window.openDialog(
-        "chrome://chatzilla/content/config.xul",
-        "",
-        "chrome,resizable,dialog=no",
-        window
-      );
-    } else {
-      prefWin.focus();
-    }
-  } else {
-    goDoCommand(e.cmdName);
+function cmdChatZillaPrefs() {
+  let prefWin = Services.wm.getMostRecentWindow("irc:chatzilla:config");
+  if (prefWin) {
+    prefWin.focus();
+    return;
   }
+
+  window.openDialog(
+    "chrome://chatzilla/content/config.xul",
+    "",
+    "chrome,resizable,dialog=no",
+    window
+  );
+}
+
+function cmdDoCommand(e) {
+  goDoCommand(e.cmdName);
 }
 
 function cmdTime(e) {
@@ -4341,6 +4333,10 @@ function cmdDCCShowFile(e) {
 }
 
 function cmdTextDirection(e) {
+  if (!e) {
+    e = getDefaultContext();
+    e.dir = "toggle";
+  }
   var direction;
   var sourceObject = getContentDocument(e.sourceObject.frame).body;
 
@@ -4500,9 +4496,9 @@ function cmdFind(e) {
   findService.wrapFind = oldWrap;
 }
 
-function cmdFindAgain(e) {
+function cmdFindAgain(e, reverse) {
   if (canFindAgainInPage()) {
-    findAgainInPage(getFindData(e));
+    findAgainInPage(getFindData(e), reverse);
   }
 }
 
