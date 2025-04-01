@@ -17,6 +17,7 @@ thunderbird_prefs = {
     # Do not open start page
     "mailnews.start_page.override_url": "about:blank",
     "mailnews.start_page.url": "about:blank",
+    "mail.inappnotifications.enabled": False,
     # Do not check it is the default client at startup
     "mail.shell.checkDefaultClient": False,
 }

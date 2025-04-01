@@ -42,8 +42,11 @@ export const InAppNotifications = {
   /**
    * Initialization function setting up everything for In-App Notifications.
    * Called by MailGlue if the feature is not disabled by pref.
+   *
+   * @param {boolean} forceOffline - Force offline notifications to be loaded
+   *  for tests, overriding `Cu.isInAutomation`.
    */
-  async init() {
+  async init(forceOffline) {
     if (this._jsonFile) {
       return;
     }
@@ -66,7 +69,10 @@ export const InAppNotifications = {
     };
     const { loadFromCache, hasCache } = await lazy.NotificationUpdater.init();
     if (loadFromCache) {
-      if (!this._jsonFile.data.notifications.length || !hasCache) {
+      if (
+        (!this._jsonFile.data.notifications.length || !hasCache) &&
+        (!Cu.isInAutomation || forceOffline)
+      ) {
         await this.updateNotifications(
           await lazy.OfflineNotifications.getDefaultNotifications()
         );

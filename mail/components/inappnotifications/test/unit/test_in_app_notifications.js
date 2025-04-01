@@ -92,41 +92,6 @@ add_task(function test_initializedData() {
 
 add_task(
   {
-    skip_if: () => bakedNotifications.length === 0,
-  },
-  function test_initWithBuiltinNotifications() {
-    Assert.deepEqual(
-      InAppNotifications._jsonFile.data.notifications,
-      bakedNotifications,
-      "Should initialize to baked notifications if available"
-    );
-    const notifications = InAppNotifications.getNotifications();
-    Assert.lessOrEqual(
-      notifications.length,
-      bakedNotifications.length,
-      "Should at most get as many notifications as are built in"
-    );
-    Assert.equal(
-      typeof InAppNotifications._jsonFile.data.seeds,
-      "object",
-      "Seeds should be an object"
-    );
-    Assert.equal(
-      Object.keys(InAppNotifications._jsonFile.data.seeds).length,
-      bakedNotifications.length,
-      "Should generate a seed for each built in notification"
-    );
-    for (const notification of bakedNotifications) {
-      Assert.ok(
-        Object.hasOwn(InAppNotifications._jsonFile.data.seeds, notification.id),
-        `Should have seed for built in notification ${notification.id}`
-      );
-    }
-  }
-);
-
-add_task(
-  {
     skip_if: () => bakedNotifications.length > 0,
   },
   function test_initializedDataWithoutBuiltinNotifications() {
@@ -151,59 +116,6 @@ add_task(async function test_noReinitialization() {
     currentNotificationManager,
     "Should not initialize a new notification manager"
   );
-});
-
-add_task(async function test_updateNotifications() {
-  const mockData = getMockNotifications();
-  InAppNotifications.updateNotifications(mockData);
-  Assert.deepEqual(
-    InAppNotifications.getNotifications(),
-    mockData,
-    "Should save data to notifications"
-  );
-
-  InAppNotifications.markAsInteractedWith(mockData[0].id);
-  InAppNotifications._getSeed(mockData[0].id);
-
-  Assert.greater(
-    InAppNotifications._jsonFile.data.interactedWith.length,
-    0,
-    "Has interacted notifications"
-  );
-  Assert.greater(
-    Object.keys(InAppNotifications._jsonFile.data.seeds).length,
-    0,
-    "Has seed for notifications"
-  );
-
-  await InAppNotifications.updateNotifications([]);
-  Assert.deepEqual(
-    InAppNotifications.getNotifications(),
-    [],
-    "Should have cleared notifications"
-  );
-  Assert.deepEqual(
-    InAppNotifications._jsonFile.data.interactedWith,
-    [],
-    "Should have cleared interacted with notifications"
-  );
-  if (bakedNotifications.length === 0) {
-    Assert.deepEqual(
-      InAppNotifications._jsonFile.data.seeds,
-      {},
-      "Should have cleared seeds"
-    );
-  } else {
-    Assert.equal(
-      Object.keys(InAppNotifications._jsonFile.data.seeds).length,
-      bakedNotifications.length,
-      "Should only retain seeds of baked notifications"
-    );
-    Assert.ok(
-      !Object.hasOwn(InAppNotifications._jsonFile.data.seeds, mockData[0].id),
-      "Should no longer have seed of mock data notification"
-    );
-  }
 });
 
 add_task(async function test_markAsInteractedWith() {

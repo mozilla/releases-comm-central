@@ -10,6 +10,7 @@ support-files = [
 
 ["test_in_app_notification_event.js"]
 ["test_in_app_notifications.js"]
+["test_in_app_notifications_offline.js"]
 ["test_notification_filter.js"]
 ["test_notification_manager.js"]
 ["test_notification_manager_telemetry.js"]
