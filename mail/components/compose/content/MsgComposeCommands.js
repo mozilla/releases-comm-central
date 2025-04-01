@@ -8152,7 +8152,13 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
         "messageAttachmentSafeName"
       );
     } else if (/^file:|^mailbox:|^imap:|^s?news:/i.test(attachment.name)) {
+      const ext = attachment.name.includes(".")
+        ? attachment.name.split(".").pop()
+        : null;
       attachment.name = getComposeBundle().getString("partAttachmentSafeName");
+      if (ext && !ext.includes(" ")) {
+        attachment.name += `.${ext}`;
+      }
     }
 
     // Create temporary files for message attachments.
