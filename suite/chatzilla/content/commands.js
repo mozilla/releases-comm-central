@@ -114,10 +114,8 @@ function initCommands() {
     ["find", cmdFind, 0, "[<rest>]"],
     ["find-again", cmdFindAgain, 0],
     ["focus-input", cmdFocusInput, 0],
-    ["font-family", cmdFont, CMD_CONSOLE, "[<font>]"],
-    ["font-family-other", cmdFont, 0],
-    ["font-size", cmdFont, CMD_CONSOLE, "[<font-size>]"],
-    ["font-size-other", cmdFont, 0],
+    ["font-family", cmdFontFamily, CMD_CONSOLE, "[<font>]"],
+    ["font-size", cmdFontSize, CMD_CONSOLE, "[<font-size>]"],
     ["goto-startup", cmdGotoStartup, CMD_CONSOLE],
     ["goto-url", cmdGotoURL, 0, "<url> [<anchor>]"],
     ["goto-url-newwin", cmdGotoURL, 0, "<url> [<anchor>]"],
@@ -292,10 +290,12 @@ function initCommands() {
     ["font-family-serif", "font-family serif", 0],
     ["font-family-sans-serif", "font-family sans-serif", 0],
     ["font-family-monospace", "font-family monospace", 0],
+    ["font-family-other", "font-family other", 0],
     ["font-size-default", "font-size default", 0],
     ["font-size-small", "font-size small", 0],
     ["font-size-medium", "font-size medium", 0],
     ["font-size-large", "font-size large", 0],
+    ["font-size-other", "font-size other", 0],
     ["font-size-bigger", "font-size bigger", 0],
     // This next command is not visible; it maps to Ctrl-=, which is what
     // you get when the user tries to do Ctrl-+ (previous command's key).
@@ -1732,6 +1732,17 @@ function cmdRename(e) {
   e.sourceObject.prefs.tabLabel = label;
 }
 
+function togglePref(prefName, item, globalPref) {
+  let state = !item.checked;
+  if (globalPref) {
+    client.prefs[prefName] = state;
+    return;
+  }
+
+  let cx = getDefaultContext();
+  cx.sourceObject.prefs[prefName] = state;
+}
+
 function cmdTogglePref(e) {
   var state = !client.prefs[e.prefName];
   client.prefs[e.prefName] = state;
@@ -1769,9 +1780,13 @@ function cmdToggleGroup(e) {
 }
 
 function cmdToggleUI(e) {
+  toggleUI(e.thing);
+}
+
+function toggleUI(thing) {
   var id;
 
-  switch (e.thing) {
+  switch (thing) {
     case "tabstrip":
       id = "view-tabs";
       break;
@@ -1792,7 +1807,7 @@ function cmdToggleUI(e) {
     default:
       ASSERT(
         0,
-        "Unknown element ``" + e.thing + "'' passed to onToggleVisibility."
+        "Unknown element ``" + thing + "'' passed to onToggleVisibility."
       );
       return;
   }
@@ -1932,29 +1947,38 @@ function cmdMotif(e) {
     msg = MSG_CURRENT_CSS;
   }
 
-  if (e.motif) {
-    if (e.motif == "-") {
-      // delete local motif in favor of default
-      pm.clearPref("motif.current");
-      e.motif = pm.prefs["motif.current"];
-    } else if (e.motif.search(/^(file|https?|ftp):/i) != -1) {
-      // specific css file
-      pm.prefs["motif.current"] = e.motif;
-    } else {
-      // motif alias
-      var prefName = "motif." + e.motif;
-      if (client.prefManager.isKnownPref(prefName)) {
-        e.motif = client.prefManager.prefs[prefName];
-      } else {
-        display(getMsg(MSG_ERR_UNKNOWN_MOTIF, e.motif), MT_ERROR);
-        return;
-      }
-
-      pm.prefs["motif.current"] = e.motif;
-    }
-  }
+  switchMotif(e.motif, pm);
 
   display(getMsg(msg, pm.prefs["motif.current"]));
+}
+
+function switchMotif(motif, pm) {
+  if (!motif) {
+    return;
+  }
+  if (!pm) {
+    pm = client.prefManager;
+  }
+
+  if (motif == "-") {
+    // Delete local motif in favor of default.
+    pm.clearPref("motif.current");
+    motif = pm.prefs["motif.current"];
+  } else if (motif.search(/^(file|https?|ftp):/i) != -1) {
+    // Specific css file.
+    pm.prefs["motif.current"] = motif;
+  } else {
+    // Motif alias.
+    let prefName = "motif." + motif;
+    if (client.prefManager.isKnownPref(prefName)) {
+      motif = client.prefManager.prefs[prefName];
+    } else {
+      display(getMsg(MSG_ERR_UNKNOWN_MOTIF, motif), MT_ERROR);
+      return;
+    }
+
+    pm.prefs["motif.current"] = motif;
+  }
 }
 
 function cmdList(e) {
@@ -2178,17 +2202,25 @@ function cmdGotoStartup(e) {
   openStartupURLs();
 }
 
-function cmdGotoURL(e) {
-  if (/^ircs?:/.test(e.url)) {
-    gotoIRCURL(e.url);
-    return;
+function gotoView(url) {
+  if (/^ircs?:/.test(url)) {
+    gotoIRCURL(url);
+    return true;
   }
 
-  if (/^x-irc-dcc-(chat|file):[0-9a-fA-F]+$/.test(e.url)) {
-    var view = client.dcc.findByID(e.url.substr(15));
+  if (/^x-irc-dcc-(chat|file):[0-9a-fA-F]+$/.test(url)) {
+    var view = client.dcc.findByID(url.substr(15));
     if (view) {
       dispatch("set-current-view", { view });
     }
+    return true;
+  }
+
+  return false;
+}
+
+function cmdGotoURL(e) {
+  if (gotoView(e.url)) {
     return;
   }
 
@@ -3763,94 +3795,89 @@ function cmdIgnore(e) {
   }
 }
 
-function cmdFont(e) {
-  var view = client;
-  var pref, val, pVal;
+function changeFontFamily(val) {
+  if (!val) {
+    return;
+  }
 
-  if (e.command.name == "font-family") {
-    pref = "font.family";
-    val = e.font;
-
-    // Save new value, then display pref value.
-    if (val) {
-      view.prefs[pref] = val;
-    }
-
-    display(getMsg(MSG_FONTS_FAMILY_FMT, view.prefs[pref]));
-  } else if (e.command.name == "font-size") {
-    pref = "font.size";
-    val = e.fontSize;
-
-    // Ok, we've got an input.
-    if (val) {
-      // Get the current value, use user's default if needed.
-      pVal = view.prefs[pref];
-      if (pVal == 0) {
-        pVal = getDefaultFontSize();
-      }
-
-      // Handle user's input...
-      switch (val) {
-        case "default":
-          val = 0;
-          break;
-
-        case "small":
-          val = getDefaultFontSize() - 2;
-          break;
-
-        case "medium":
-          val = getDefaultFontSize();
-          break;
-
-        case "large":
-          val = getDefaultFontSize() + 2;
-          break;
-
-        case "smaller":
-          val = pVal - 2;
-          break;
-
-        case "bigger":
-          val = pVal + 2;
-          break;
-
-        default:
-          if (isNaN(val)) {
-            val = 0;
-          } else {
-            val = Number(val);
-          }
-      }
-      // Save the new value.
-      view.prefs[pref] = val;
-    }
-
-    // Show the user what the pref is set to.
-    if (view.prefs[pref] == 0) {
-      display(MSG_FONTS_SIZE_DEFAULT);
-    } else {
-      display(getMsg(MSG_FONTS_SIZE_FMT, view.prefs[pref]));
-    }
-  } else if (e.command.name == "font-family-other") {
-    val = prompt(MSG_FONTS_FAMILY_PICK, view.prefs["font.family"]);
+  if (val == "other") {
+    val = prompt(MSG_FONTS_FAMILY_PICK, client.prefs["font.family"]);
     if (!val) {
       return;
     }
+  }
 
-    dispatch("font-family", { font: val });
-  } else if (e.command.name == "font-size-other") {
-    pVal = view.prefs["font.size"];
-    if (pVal == 0) {
-      pVal = getDefaultFontSize();
-    }
+  // Save the new value.
+  client.prefs["font.family"] = val;
+}
 
-    val = prompt(MSG_FONTS_SIZE_PICK, pVal);
-    if (!val) {
-      return;
-    }
+function cmdFontFamily(e) {
+  changeFontFamily(e.font);
 
-    dispatch("font-size", { fontSize: val });
+  display(getMsg(MSG_FONTS_FAMILY_FMT, client.prefs["font.family"]));
+}
+
+function changeFontSize(val) {
+  if (!val) {
+    return;
+  }
+
+  let pref = "font.size";
+  let defaultSize = getDefaultFontSize();
+  // Get the current value, use user's default if needed.
+  let pVal = client.prefs[pref] || defaultSize;
+
+  switch (val) {
+    case "default":
+      val = 0;
+      break;
+
+    case "small":
+      val = defaultSize - 2;
+      break;
+
+    case "medium":
+      val = defaultSize;
+      break;
+
+    case "large":
+      val = defaultSize + 2;
+      break;
+
+    case "other":
+      val = prompt(MSG_FONTS_SIZE_PICK, pVal);
+      if (!val) {
+        return;
+      }
+      break;
+
+    case "smaller":
+      val = pVal - 2;
+      break;
+
+    case "bigger":
+      val = pVal + 2;
+      break;
+
+    default:
+      if (isNaN(val)) {
+        val = 0;
+      } else {
+        val = Number(val);
+      }
+  }
+  // Save the new value.
+  client.prefs[pref] = val;
+}
+
+function cmdFontSize(e) {
+  changeFontSize(e.fontSize);
+
+  // Show the user what the pref is set to.
+  if (client.prefs["font.size"] == 0) {
+    display(MSG_FONTS_SIZE_DEFAULT);
+  } else {
+    display(getMsg(MSG_FONTS_SIZE_FMT, client.prefs["font.size"]));
   }
 }
 

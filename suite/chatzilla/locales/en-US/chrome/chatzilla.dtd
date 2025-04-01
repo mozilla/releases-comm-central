@@ -42,6 +42,71 @@
 <!ENTITY chatZillaPrefs.label "ChatZilla Preferences…">
 <!ENTITY chatZillaPrefs.accesskey "Z">
 
+<!-- View menu -->
+<!ENTITY views.label "Views">
+<!ENTITY views.accesskey "V">
+<!ENTITY tabstrip.label "Tab Strip">
+<!ENTITY tabstrip.accesskey "T">
+<!ENTITY tabstrip.commandkey "S">
+<!ENTITY header.label "Header">
+<!ENTITY header.accesskey "H">
+<!ENTITY header.commandkey "H">
+<!ENTITY userlist.label "User List">
+<!ENTITY userlist.accesskey "U">
+<!ENTITY userlist.commandkey "L">
+<!ENTITY statusbar.label "Status Bar">
+<!ENTITY statusbar.accesskey "S">
+<!ENTITY statusbar.commandkey "B">
+<!ENTITY clearView.label "Clear Tab">
+<!ENTITY clearView.accesskey "b">
+<!ENTITY clearView.commandkey "L">
+<!ENTITY hideView.label "Hide Tab">
+<!ENTITY hideView.accesskey "H">
+<!ENTITY popupMotifs.label "Color Scheme">
+<!ENTITY popupMotifs.accesskey "o">
+<!ENTITY motifDark.label "Dark Motif">
+<!ENTITY motifDark.accesskey "k">
+<!ENTITY motifLight.label "Light Motif">
+<!ENTITY motifLight.accesskey "L">
+<!ENTITY popupFontFamily.label "Font Family">
+<!ENTITY popupFontFamily.accesskey "m">
+<!ENTITY fontDefault.label "Default Font">
+<!ENTITY fontDefault.accesskey "D">
+<!ENTITY fontSerif.label "Serif">
+<!ENTITY fontSerif.accesskey "S">
+<!ENTITY fontSansSerif.label "Sans Serif">
+<!ENTITY fontSansSerif.accesskey "a">
+<!ENTITY fontMonospace.label "Monospace">
+<!ENTITY fontMonospace.accesskey "M">
+<!ENTITY fontFamilyOther.label "Other…">
+<!ENTITY fontFamilyOther.accesskey "O">
+<!ENTITY popupFontSize.label "Font Size">
+<!ENTITY popupFontSize.accesskey "F">
+<!ENTITY fontSmaller.label "Make Text Smaller">
+<!ENTITY fontSmaller.accesskey "r">
+<!ENTITY fontSmaller.commandkey "-">
+<!ENTITY fontBigger.label "Make Text Bigger">
+<!ENTITY fontBigger.accesskey "g">
+<!ENTITY fontBigger.commandkey "+">
+<!-- + is above this key on many keyboards -->
+<!ENTITY fontBigger.commandkey2 "=">
+<!ENTITY fontSizeDefault.label "Default Size">
+<!ENTITY fontSizeDefault.accesskey "D">
+<!ENTITY fontSizeSmall.label "Small">
+<!ENTITY fontSizeSmall.accesskey "S">
+<!ENTITY fontSizeMedium.label "Medium">
+<!ENTITY fontSizeMedium.accesskey "M">
+<!ENTITY fontSizeLarge.label "Large">
+<!ENTITY fontSizeLarge.accesskey "L">
+<!ENTITY fontSizeOther.label "Other…">
+<!ENTITY fontSizeOther.accesskey "O">
+<!ENTITY toggleCCM.label "Collapse Consecutive Messages">
+<!ENTITY toggleCCM.accesskey "n">
+<!ENTITY toggleCopy.label "Copy Important Messages">
+<!ENTITY toggleCopy.accesskey "I">
+<!ENTITY showTimestamps.label "Show Timestamps">
+<!ENTITY showTimestamps.accesskey "T">
+
 <!-- Tools menu -->
 <!ENTITY installPlugin.label "Install Plugin…">
 <!ENTITY installPlugin.accesskey "I">

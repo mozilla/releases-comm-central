@@ -5,37 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function initMenus() {
-  function isMotif(name) {
-    return (
-      "client.prefs['motif.current'] == " + "client.prefs['motif." + name + "']"
-    );
-  }
-
-  function isFontFamily(name) {
-    return "cx.sourceObject.prefs['font.family'] == '" + name + "'";
-  }
-
-  function isFontFamilyCustom() {
-    return (
-      "!cx.sourceObject.prefs['font.family']." +
-      "match(/^(default|(sans-)?serif|monospace)$/)"
-    );
-  }
-
-  function isFontSize(size) {
-    return "cx.fontSize == cx.fontSizeDefault + " + size;
-  }
-
-  function isFontSizeCustom() {
-    // It's "custom" if it's set (non-zero/not default), not the default
-    // size (medium) and not +/-2 (small/large).
-    return (
-      "'fontSize' in cx && cx.fontSize != 0 && " +
-      "cx.fontSizeDefault != cx.fontSize && " +
-      "Math.abs((cx.fontSizeDefault - cx.fontSize) / 2) != 1"
-    );
-  }
-
   function onMenuCommand(event, window) {
     var commandName = event.originalTarget.getAttribute("commandname");
     var params = {};
@@ -71,112 +40,6 @@ function initMenus() {
   var DCCActive = "(" + ViewDCC + " and cx.sourceObject.isActive())";
   var NetConnected = "(cx.network and cx.network.isConnected())";
   var NetDisconnected = "(cx.network and !cx.network.isConnected())";
-
-  client.menuSpecs["popup:views"] = {
-    label: MSG_MNU_VIEWS,
-    accesskey: getAccessKeyForMenu("MSG_MNU_VIEWS"),
-    getContext: getViewsContext,
-    items: [
-      [
-        "goto-url",
-        {
-          type: "radio",
-          checkedif: "cx.url == cx.sourceObject.getURL()",
-          repeatfor: "cx.views",
-          repeatgroup: "item.group",
-          repeatmap: "cx.url = item.url; cx.label = item.label",
-        },
-      ],
-    ],
-  };
-
-  client.menuSpecs["popup:motifs"] = {
-    label: MSG_MNU_MOTIFS,
-    accesskey: getAccessKeyForMenu("MSG_MNU_MOTIFS"),
-    items: [
-      ["motif-dark", { type: "checkbox", checkedif: isMotif("dark") }],
-      ["motif-light", { type: "checkbox", checkedif: isMotif("light") }],
-    ],
-  };
-
-  client.menuSpecs["mainmenu:view"] = {
-    label: MSG_MNU_VIEW,
-    accesskey: getAccessKeyForMenu("MSG_MNU_VIEW"),
-    getContext: getDefaultContext,
-    items: [
-      [">popup:views"],
-      ["-"],
-      ["tabstrip", { type: "checkbox", checkedif: "isVisible('view-tabs')" }],
-      [
-        "header",
-        {
-          type: "checkbox",
-          checkedif: "cx.sourceObject.prefs['displayHeader']",
-        },
-      ],
-      [
-        "userlist",
-        { type: "checkbox", checkedif: "isVisible('user-list-box')" },
-      ],
-      ["statusbar", { type: "checkbox", checkedif: "isVisible('status-bar')" }],
-      ["-"],
-      ["clear-view"],
-      ["hide-view", { enabledif: "client.viewsArray.length > 1" }],
-      ["-"],
-      [">popup:motifs"],
-      [">popup:fonts"],
-      ["-"],
-      [
-        "toggle-ccm",
-        { type: "checkbox", checkedif: "client.prefs['collapseMsgs']" },
-      ],
-      [
-        "toggle-copy",
-        { type: "checkbox", checkedif: "client.prefs['copyMessages']" },
-      ],
-      [
-        "toggle-timestamps",
-        { type: "checkbox", checkedif: "cx.sourceObject.prefs['timestamps']" },
-      ],
-    ],
-  };
-
-  client.menuSpecs["popup:fonts"] = {
-    label: MSG_MNU_FONTS,
-    accesskey: getAccessKeyForMenu("MSG_MNU_FONTS"),
-    getContext: getFontContext,
-    items: [
-      ["font-size-bigger", {}],
-      ["font-size-smaller", {}],
-      ["-"],
-      ["font-size-default", { type: "checkbox", checkedif: "!cx.fontSize" }],
-      ["font-size-small", { type: "checkbox", checkedif: isFontSize(-2) }],
-      ["font-size-medium", { type: "checkbox", checkedif: isFontSize(0) }],
-      ["font-size-large", { type: "checkbox", checkedif: isFontSize(+2) }],
-      ["font-size-other", { type: "checkbox", checkedif: isFontSizeCustom() }],
-      ["-"],
-      [
-        "font-family-default",
-        { type: "checkbox", checkedif: isFontFamily("default") },
-      ],
-      [
-        "font-family-serif",
-        { type: "checkbox", checkedif: isFontFamily("serif") },
-      ],
-      [
-        "font-family-sans-serif",
-        { type: "checkbox", checkedif: isFontFamily("sans-serif") },
-      ],
-      [
-        "font-family-monospace",
-        { type: "checkbox", checkedif: isFontFamily("monospace") },
-      ],
-      [
-        "font-family-other",
-        { type: "checkbox", checkedif: isFontFamilyCustom() },
-      ],
-    ],
-  };
 
   // Me is op.
   var isop = "(cx.channel.iAmOp()) && ";
@@ -475,5 +338,98 @@ function initAwayMsgs(menuPopup) {
 
   if (back) {
     backItem.setAttribute("checked", true);
+  }
+}
+
+function initViewMenu() {
+  let cx = getDefaultContext();
+  setAttr("hide-view", "disabled", client.viewsArray.length < 2);
+  setAttr("toggleCCM", "checked", client.prefs.collapseMsgs);
+  setAttr("toggleCopy", "checked", client.prefs.copyMessages);
+  setAttr("showTimestamps", "checked", cx.sourceObject.prefs.timestamps);
+}
+
+function initViewsPopup(menuPopup) {
+  // Remove any existing entries.
+  while (menuPopup.childNodes.length > 0) {
+    menuPopup.removeChild(menuPopup.lastChild);
+  }
+
+  let cx = getViewsContext();
+  let url = cx.sourceObject.getURL();
+  let viewsArray = cx.views;
+  let viewsCount = viewsArray.length;
+  let lastGroup = "";
+
+  // Now rebuild the list.
+  for (let i = 0; i < viewsCount; ++i) {
+    let item = viewsArray[i];
+    if (i > 0 && item.group != lastGroup) {
+      menuPopup.appendChild(document.createElement("menuseparator"));
+    }
+
+    let newMenuItem = document.createElement("menuitem");
+    newMenuItem.setAttribute("label", item.label);
+    newMenuItem.setAttribute("value", item.url);
+    newMenuItem.setAttribute("type", "radio");
+    if (item.url == url) {
+      newMenuItem.setAttribute("checked", true);
+    }
+
+    newMenuItem.setAttribute("oncommand", "gotoView(this.value);");
+    menuPopup.appendChild(newMenuItem);
+
+    lastGroup = item.group;
+  }
+}
+
+function initToolbarsPopup() {
+  function isVisible(id) {
+    let item = document.getElementById(id);
+    return item.getAttribute("collapsed") != "true";
+  }
+  let cx = getDefaultContext();
+  setAttr("showTabstrip", "checked", isVisible("view-tabs"));
+  setAttr("showHeader", "checked", cx.sourceObject.prefs.displayHeader);
+  setAttr("showUserlist", "checked", isVisible("user-list-box"));
+  setAttr("showStatusbar", "checked", isVisible("status-bar"));
+}
+
+function initMotifsPopup() {
+  function isMotif(name) {
+    return client.prefs["motif.current"] == client.prefs["motif." + name];
+  }
+  setAttr("motif-dark", "checked", isMotif("dark"));
+  setAttr("motif-light", "checked", isMotif("light"));
+}
+
+function initFontFamilyPopup() {
+  let cx = getFontContext();
+  let family = cx.sourceObject.prefs["font.family"];
+  setAttr("fontDefault", "checked", family == "default");
+  setAttr("fontSerif", "checked", family == "serif");
+  setAttr("fontSansSerif", "checked", family == "sans-serif");
+  setAttr("fontMonospace", "checked", family == "monospace");
+  let custom = !family.match(/^(default|(sans-)?serif|monospace)$/);
+  setAttr("fontFamilyOther", "checked", custom);
+  if (custom) {
+    setLabel("fontFamilyOther", "", [family]);
+  }
+}
+
+function initFontSizePopup() {
+  let cx = getFontContext();
+  let size = cx.fontSize;
+  let defaultSize = cx.fontSizeDefault;
+  // It's "custom" if it's set (non-zero/not default), not the default
+  // size (medium) and not +/-2 (small/large).
+  let custom = size && size != defaultSize && Math.abs(size - defaultSize) != 2;
+  setAttr("fontSizeDefault", "checked", !size);
+  setAttr("fontSizeSmall", "checked", size == defaultSize - 2);
+  setAttr("fontSizeMedium", "checked", size == defaultSize);
+  setAttr("fontSizeLarge", "checked", size == defaultSize + 2);
+  setAttr("fontSizeOther", "checked", custom);
+  if (custom) {
+    setLabel("fontSizeOther", "", [size]);
   }
 }

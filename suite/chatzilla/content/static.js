@@ -799,16 +799,6 @@ function getStatus() {
 
 client.__defineGetter__("status", getStatus);
 
-function isVisible(id) {
-  var e = document.getElementById(id);
-
-  if (!ASSERT(e, "Bogus id ``" + id + "'' passed to isVisible() **")) {
-    return false;
-  }
-
-  return e.getAttribute("collapsed") != "true";
-}
-
 client.getConnectedNetworks = function () {
   var rv = [];
   for (var n in client.networks) {

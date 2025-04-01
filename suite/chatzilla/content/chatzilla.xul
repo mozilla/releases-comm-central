@@ -212,6 +212,22 @@
     <command id="cmd_toggleTextDir"
              oncommand="cmdTextDirection();"/>
 
+    <!-- View commands -->
+    <command id="cmd_tabstrip"
+             oncommand="toggleUI('tabstrip');"/>
+    <command id="cmd_header"
+             oncommand="toggleUI('header');"/>
+    <command id="cmd_userlist"
+             oncommand="toggleUI('userlist');"/>
+    <command id="cmd_statusbar"
+             oncommand="toggleUI('status');"/>
+    <command id="cmd_clearView"
+             oncommand="cmdClearView(getDefaultContext());"/>
+    <command id="cmd_fontSmaller"
+             oncommand="changeFontSize('smaller');"/>
+    <command id="cmd_fontBigger"
+             oncommand="changeFontSize('bigger');"/>
+
     <!-- Tasks commands, from overlay -->
     <commandset id="tasksCommands"/>
   </commandset>
@@ -260,6 +276,42 @@
          modifiers="accel,shift"
          key="&toggleTextDir.commandkey;"
          command="cmd_toggleTextDir"/>
+
+    <!-- View keys -->
+    <key id="key_tabstrip"
+         modifiers="accel,shift"
+         key="&tabstrip.commandkey;"
+         command="cmd_tabstrip"/>
+    <key id="key_header"
+         modifiers="accel,shift"
+         key="&header.commandkey;"
+         command="cmd_header"/>
+    <key id="key_userlist"
+         modifiers="accel,shift"
+         key="&userlist.commandkey;"
+         command="cmd_userlist"/>
+    <key id="key_statusbar"
+         modifiers="accel,shift"
+         key="&statusbar.commandkey;"
+         command="cmd_statusbar"/>
+    <key id="key_clearView"
+         modifiers="accel"
+         key="&clearView.commandkey;"
+         command="cmd_clearView"/>
+    <key id="key_fontSmaller"
+         modifiers="accel"
+         key="&fontSmaller.commandkey;"
+         command="cmd_fontSmaller"/>
+    <key id="key_fontBigger"
+         modifiers="accel"
+         key="&fontBigger.commandkey;"
+         command="cmd_fontBigger"/>
+    <key modifiers="accel,shift"
+         key="&fontBigger.commandkey;"
+         command="cmd_fontBigger"/>
+    <key modifiers="accel"
+         key="&fontBigger.commandkey2;"
+         command="cmd_fontBigger"/>
 
     <!-- Tasks keys, from overlay -->
     <keyset id="tasksKeys"/>
@@ -385,8 +437,166 @@
         </menupopup>
       </menu>
 
-      <!-- View menu placeholder, see menus.js -->
-      <menu id="mainmenu:view"><menupopup/></menu>
+      <menu id="menu_View">
+        <menupopup id="menu_View_Popup"
+                   onpopupshowing="initViewMenu();">
+          <menu id="menu_Views"
+                label="&views.label;"
+                accesskey="&views.accesskey;">
+            <menupopup id="views_Popup"
+                       onpopupshowing="initViewsPopup(this);"/>
+          </menu>
+          <menuseparator/>
+          <menu id="menu_Toolbars">
+            <menupopup id="popup_toolbars"
+                       onpopupshowing="initToolbarsPopup();">
+              <menuitem id="showTabstrip"
+                        label="&tabstrip.label;"
+                        accesskey="&tabstrip.accesskey;"
+                        key="key_tabstrip"
+                        type="checkbox"
+                        command="cmd_tabstrip"/>
+              <menuitem id="showHeader"
+                        label="&header.label;"
+                        accesskey="&header.accesskey;"
+                        key="key_header"
+                        type="checkbox"
+                        command="cmd_header"/>
+              <menuitem id="showUserlist"
+                        label="&userlist.label;"
+                        accesskey="&userlist.accesskey;"
+                        key="key_userlist"
+                        type="checkbox"
+                        command="cmd_userlist"/>
+              <menuitem id="showStatusbar"
+                        label="&statusbar.label;"
+                        accesskey="&statusbar.accesskey;"
+                        key="key_statusbar"
+                        type="checkbox"
+                        command="cmd_statusbar"/>
+            </menupopup>
+          </menu>
+          <menuseparator/>
+          <menuitem id="clear-view"
+                    label="&clearView.label;"
+                    accesskey="&clearView.accesskey;"
+                    key="key_clearView"
+                    command="cmd_clearView"/>
+          <menuitem id="hide-view"
+                    label="&hideView.label;"
+                    accesskey="&hideView.accesskey;"
+                    oncommand="cmdHideView(getDefaultContext());"/>
+          <menuseparator/>
+          <menu id="menu_Motifs"
+                label="&popupMotifs.label;"
+                accesskey="&popupMotifs.accesskey;">
+            <menupopup id="popup_motifs"
+                       onpopupshowing="initMotifsPopup();">
+              <menuitem id="motif-dark"
+                        label="&motifDark.label;"
+                        accesskey="&motifDark.accesskey;"
+                        type="radio"
+                        oncommand="switchMotif('dark');"/>
+              <menuitem id="motif-light"
+                        label="&motifLight.label;"
+                        accesskey="&motifLight.accesskey;"
+                        type="radio"
+                        oncommand="switchMotif('light');"/>
+            </menupopup>
+          </menu>
+          <menu id="menu_FontFamily"
+                label="&popupFontFamily.label;"
+                accesskey="&popupFontFamily.accesskey;">
+            <menupopup id="popup_font_family"
+                       onpopupshowing="initFontFamilyPopup();">
+              <menuitem id="fontDefault"
+                        label="&fontDefault.label;"
+                        accesskey="&fontDefault.accesskey;"
+                        type="radio"
+                        oncommand="changeFontFamily('default');"/>
+              <menuitem id="fontSerif"
+                        label="&fontSerif.label;"
+                        accesskey="&fontSerif.accesskey;"
+                        type="radio"
+                        oncommand="changeFontFamily('serif');"/>
+              <menuitem id="fontSansSerif"
+                        label="&fontSansSerif.label;"
+                        accesskey="&fontSansSerif.accesskey;"
+                        type="radio"
+                        oncommand="changeFontFamily('sans-serif');"/>
+              <menuitem id="fontMonospace"
+                        label="&fontMonospace.label;"
+                        accesskey="&fontMonospace.accesskey;"
+                        type="radio"
+                        oncommand="changeFontFamily('monospace');"/>
+              <menuitem id="fontFamilyOther"
+                        label="&fontFamilyOther.label;"
+                        accesskey="&fontFamilyOther.accesskey;"
+                        type="radio"
+                        oncommand="changeFontFamily('other');"/>
+            </menupopup>
+          </menu>
+          <menu id="menu_FontSize"
+                label="&popupFontSize.label;"
+                accesskey="&popupFontSize.accesskey;">
+            <menupopup id="popup_font_size"
+                       onpopupshowing="initFontSizePopup();">
+              <menuitem id="fontSmaller"
+                        label="&fontSmaller.label;"
+                        accesskey="&fontSmaller.accesskey;"
+                        key="key_fontSmaller"
+                        command="cmd_fontSmaller"/>
+              <menuitem id="fontBigger"
+                        label="&fontBigger.label;"
+                        accesskey="&fontBigger.accesskey;"
+                        key="key_fontBigger"
+                        command="cmd_fontBigger"/>
+              <menuseparator/>
+              <menuitem id="fontSizeDefault"
+                        label="&fontSizeDefault.label;"
+                        accesskey="&fontSizeDefault.accesskey;"
+                        type="radio"
+                        oncommand="changeFontSize('default');"/>
+              <menuitem id="fontSizeSmall"
+                        label="&fontSizeSmall.label;"
+                        accesskey="&fontSizeSmall.accesskey;"
+                        type="radio"
+                        oncommand="changeFontSize('small');"/>
+              <menuitem id="fontSizeMedium"
+                        label="&fontSizeMedium.label;"
+                        accesskey="&fontSizeMedium.accesskey;"
+                        type="radio"
+                        oncommand="changeFontSize('medium');"/>
+              <menuitem id="fontSizeLarge"
+                        label="&fontSizeLarge.label;"
+                        accesskey="&fontSizeLarge.accesskey;"
+                        type="radio"
+                        oncommand="changeFontSize('large');"/>
+              <menuitem id="fontSizeOther"
+                        label="&fontSizeOther.label;"
+                        accesskey="&fontSizeOther.accesskey;"
+                        type="radio"
+                        oncommand="changeFontSize('other');"/>
+            </menupopup>
+          </menu>
+          <menuseparator/>
+          <menuitem id="toggleCCM"
+                    label="&toggleCCM.label;"
+                    accesskey="&toggleCCM.accesskey;"
+                    type="checkbox"
+                    oncommand="togglePref('collapseMsgs', this, true);"/>
+          <menuitem id="toggleCopy"
+                    label="&toggleCopy.label;"
+                    accesskey="&toggleCopy.accesskey;"
+                    type="checkbox"
+                    oncommand="togglePref('copyMessages', this, true);"/>
+          <menuitem id="showTimestamps"
+                    label="&showTimestamps.label;"
+                    accesskey="&showTimestamps.accesskey;"
+                    type="checkbox"
+                    oncommand="togglePref('timestamps', this, false);"/>
+        </menupopup>
+      </menu>
 
       <!-- Tasks menu -->
       <menu id="tasksMenu">
