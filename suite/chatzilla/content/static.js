@@ -133,6 +133,7 @@ function init() {
   initApplicationCompatibility();
   initMessages();
 
+  client.bundle = document.getElementById("chatzillaBundle");
   client.list = document.getElementById("user-list");
 
   initCommands();

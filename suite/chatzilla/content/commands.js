@@ -2266,6 +2266,21 @@ function cmdCTCP(e) {
   obj.ctcp(e.code, e.params);
 }
 
+function joinChannel(network) {
+  if (client.joinDialog) {
+    client.joinDialog.setNetwork(network);
+    client.joinDialog.focus();
+    return;
+  }
+
+  window.openDialog(
+    "chrome://chatzilla/content/channels.xul",
+    "",
+    "resizable=yes",
+    { client, network, opener: window }
+  );
+}
+
 function cmdJoin(e) {
   /* This check makes sure we only check if the *user* entered anything, and
    * ignore any contextual information, like the channel the command was
@@ -2275,19 +2290,7 @@ function cmdJoin(e) {
     (!e.hasOwnProperty("channelName") || !e.channelName) &&
     !e.channelToJoin
   ) {
-    if (client.joinDialog) {
-      client.joinDialog.setNetwork(e.network);
-      client.joinDialog.focus();
-      return;
-    }
-
-    window.openDialog(
-      "chrome://chatzilla/content/channels.xul",
-      "",
-      "resizable=yes",
-      { client, network: e.network || null, opener: window }
-    );
-    return null;
+    return joinChannel(e.network || null);
   }
 
   var chan;
@@ -2771,6 +2774,11 @@ function customAway(e) {
   }
 }
 
+function toggleAwayMsg(target) {
+  let reason = target.getAttribute("value");
+  setAwayMsg(getDefaultContext(), reason, reason ? "away" : "back");
+}
+
 function setAwayMsg(e, reason, type) {
   function sendToAllNetworks(command, reason) {
     for (var n in client.networks) {
@@ -2890,6 +2898,11 @@ function setAwayMsg(e, reason, type) {
 }
 
 function cmdOpenAtStartup(e) {
+  if (!e) {
+    e = getDefaultContext();
+    e.toggle = "toggle";
+  }
+
   var origURL = e.sourceObject.getURL();
   var url = makeCanonicalIRCURL(origURL);
   var list = client.prefs.initialURLs;
@@ -3064,12 +3077,8 @@ function cmdPref(e) {
 }
 
 function cmdPrint(e) {
-  if (
-    "frame" in e.sourceObject &&
-    e.sourceObject.frame &&
-    getContentWindow(e.sourceObject.frame)
-  ) {
-    getContentWindow(e.sourceObject.frame).print();
+  if ("content" in window && window.content) {
+    window.content.print();
   } else {
     display(MSG_ERR_UNABLE_TO_PRINT);
   }

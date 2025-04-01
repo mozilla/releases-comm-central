@@ -61,19 +61,8 @@ function initMenus() {
   );
   client.menuManager = menuManager;
 
-  // OS values
-  var Win = "(client.platform == 'Windows')";
-  var NotWin = "(client.platform != 'Windows')";
-  var Linux = "(client.platform == 'Linux')";
-  var NotLinux = "(client.platform != 'Linux')";
-  var Mac = "(client.platform == 'Mac')";
-  var NotMac = "(client.platform != 'Mac')";
-
   // IRC specific values
-  var ViewClient = "(cx.TYPE == 'IRCClient')";
-  var ViewNetwork = "(cx.TYPE == 'IRCNetwork')";
   var ViewChannel = "(cx.TYPE == 'IRCChannel')";
-  var ViewUser = "(cx.TYPE == 'IRCUser')";
   var ViewDCC = "(cx.TYPE.startsWith('IRCDCC'))";
 
   // IRC specific combinations
@@ -82,42 +71,6 @@ function initMenus() {
   var DCCActive = "(" + ViewDCC + " and cx.sourceObject.isActive())";
   var NetConnected = "(cx.network and cx.network.isConnected())";
   var NetDisconnected = "(cx.network and !cx.network.isConnected())";
-
-  client.menuSpecs["mainmenu:chatzilla"] = {
-    label: MSG_MNU_CHATZILLA,
-    accesskey: getAccessKeyForMenu("MSG_MNU_CHATZILLA"),
-    getContext: getDefaultContext,
-    items: [
-      ["join"],
-      ["goto-startup"],
-      ["-"],
-      [
-        "toggle-oas",
-        {
-          type: "checkbox",
-          checkedif: "isStartupURL(cx.sourceObject.getURL())",
-        },
-      ],
-      ["-"],
-      ["leave", { visibleif: ChannelActive }],
-      ["rejoin", { visibleif: ChannelInactive }],
-      ["dcc-close", { visibleif: DCCActive }],
-      [
-        "delete-view",
-        { visibleif: "!" + ChannelActive + " and !" + DCCActive },
-      ],
-      ["disconnect", { visibleif: NetConnected }],
-      ["reconnect", { visibleif: NetDisconnected }],
-      ["-"],
-      [">popup:nickname"],
-      ["-"],
-      ["save"],
-      ["print"],
-      ["-", { visibleif: NotMac }],
-      ["exit", { visibleif: Win }],
-      ["quit", { visibleif: NotMac + " and " + NotWin }],
-    ],
-  };
 
   client.menuSpecs["popup:views"] = {
     label: MSG_MNU_VIEWS,
@@ -413,49 +366,6 @@ function initMenus() {
       ["toggle-text-dir"],
     ],
   };
-
-  // Gross hacks to figure out if we're away:
-  var netAway = "cx.network.prefs['away']";
-  var cliAway = "client.prefs['away']";
-  var awayCheckNet = "(cx.network and (" + netAway + " == item.message))";
-  var awayCheckCli = "(!cx.network and (" + cliAway + " == item.message))";
-  var awayChecked = awayCheckNet + " or " + awayCheckCli;
-  var areBack =
-    "(cx.network and !" +
-    netAway +
-    ") or " +
-    "(!cx.network and !" +
-    cliAway +
-    ")";
-
-  client.menuSpecs["mainmenu:nickname"] = {
-    label: client.prefs.nickname,
-    domID: "server-nick",
-    getContext: getDefaultContext,
-    items: [
-      ["nick"],
-      ["-"],
-      ["back", { type: "checkbox", checkedif: areBack }],
-      [
-        "away",
-        {
-          type: "checkbox",
-          checkedif: awayChecked,
-          repeatfor: "client.awayMsgs",
-          repeatmap: "cx.reason = item.message",
-        },
-      ],
-      ["-"],
-      ["custom-away"],
-    ],
-  };
-
-  client.menuSpecs["popup:nickname"] = {
-    label: MSG_STATUS,
-    accesskey: getAccessKeyForMenu("MSG_STATUS"),
-    getContext: getDefaultContext,
-    items: client.menuSpecs["mainmenu:nickname"].items,
-  };
 }
 
 function createMenus() {
@@ -508,4 +418,87 @@ function getAccessKeyForMenu(labelString) {
     rv = window[labelString + "_ACCESSKEY"] || "";
   }
   return rv;
+}
+
+function setLabel(id, strId, ary, key) {
+  let item = document.getElementById(id);
+  let stringId = strId || id;
+  item.label = ary
+    ? client.bundle.getFormattedString(stringId, ary)
+    : client.bundle.getString(stringId);
+  if (key) {
+    item.accessKey = client.bundle.getString(stringId + ".accesskey");
+  }
+}
+
+function setAttr(id, attr, cond) {
+  let item = document.getElementById(id);
+  if (cond) {
+    item.setAttribute(attr, "true");
+  } else {
+    item.removeAttribute(attr);
+  }
+}
+
+function initChatZillaMenu() {
+  let cx = getDefaultContext();
+  setLabel("openAtStartup", "", [cx.viewType], true);
+  setLabel("leaveChannel", "", [cx.channelName], true);
+  setLabel("rejoinChannel", "", [cx.channelName], true);
+  setLabel("dccClose", "", [cx.channelName], true);
+  setLabel("disconnectNet", "", [cx.networkName], true);
+  setLabel("reconnectNet", "", [cx.networkName], true);
+
+  let ViewChannel = cx.TYPE == "IRCChannel";
+  let ChannelActive = ViewChannel && cx.channel.active;
+  let ChannelInactive = ViewChannel && !cx.channel.active;
+  let DCCActive = cx.TYPE.startsWith("IRCDCC") && cx.sourceObject.isActive();
+  let NetConnected = cx.network && cx.network.isConnected();
+  let NetDisconnected = cx.network && !cx.network.isConnected();
+  setAttr("openAtStartup", "checked", isStartupURL(cx.sourceObject.getURL()));
+  setAttr("leaveChannel", "hidden", !ChannelActive);
+  setAttr("rejoinChannel", "hidden", !ChannelInactive);
+  setAttr("dccClose", "hidden", !DCCActive);
+  setAttr("closeCZTab", "hidden", ChannelActive || DCCActive);
+  setAttr("disconnectNet", "hidden", !NetConnected);
+  setAttr("disconnectAll", "hidden", !NetConnected);
+  setAttr("reconnectNet", "hidden", !NetDisconnected);
+  setAttr("reconnectAll", "hidden", !NetDisconnected);
+}
+
+function initAwayMsgs(menuPopup) {
+  let cx = getDefaultContext();
+  let away = cx.network ? cx.network.prefs.away : client.prefs.away;
+
+  let awayArray = client.awayMsgs;
+  let awayCount = awayArray.length;
+
+  // Remove any existing non-static entries.
+  let menuseparator = menuPopup.lastChild.previousSibling;
+  for (let i = menuPopup.childNodes.length; i > 5; --i) {
+    menuseparator.previousSibling.remove();
+  }
+
+  let back = true;
+  let backItem = menuseparator.previousSibling;
+
+  // Now rebuild the list.
+  for (let i = 0; i < awayCount; ++i) {
+    let item = awayArray[i];
+    let newMenuItem = document.createElement("menuitem");
+    let awayMsg = client.bundle.getFormattedString("awayMsg", [item.message]);
+    newMenuItem.setAttribute("label", awayMsg);
+    newMenuItem.setAttribute("value", item.message);
+    newMenuItem.setAttribute("type", "radio");
+    if (item.message == away) {
+      newMenuItem.setAttribute("checked", true);
+      back = false;
+    }
+    newMenuItem.setAttribute("oncommand", "toggleAwayMsg(event.target);");
+    menuPopup.insertBefore(newMenuItem, menuseparator);
+  }
+
+  if (back) {
+    backItem.setAttribute("checked", true);
+  }
 }

@@ -63,6 +63,7 @@
   <html:link rel="icon" href="chrome://chatzilla/skin/images/logo.png" style="display:none"/>
 
   <stringbundleset id="chatzilla-stringbundle">
+    <stringbundle id="chatzillaBundle" src="chrome://chatzilla/locale/chatzilla.properties"/>
     <stringbundle id="findBundle" src="chrome://global/locale/finddialog.properties"/>
   </stringbundleset>
 
@@ -179,6 +180,16 @@
 
   <!-- Commands -->
   <commandset id="chatzilla-commands">
+    <!-- ChatZilla commands -->
+    <command id="cmd_joinChannel" oncommand="joinChannel(null);"/>
+    <command id="cmd_closeCZTab"
+             oncommand="cmdDeleteView(getDefaultContext());"/>
+    <command id="cmd_disconnectAll"
+             oncommand="cmdDisconnectAll(getDefaultContext());"/>
+    <command id="cmd_saveViewAs"
+             oncommand="cmdSave(getDefaultContext());"/>
+    <command id="cmd_print" oncommand="cmdPrint();"/>
+    <command id="cmd_closeWindow" oncommand="cmdQuit({reason: null});"/>
 
     <!-- Edit commands -->
     <commandset id="selectEditMenuItems"/>
@@ -208,6 +219,26 @@
          key="&reloadUI.commandkey;"
          oncommand="cmdReloadUI();"/>
 
+    <!-- ChatZilla keys -->
+    <key id="key_joinChannel"
+        modifiers="accel"
+         key="&joinChannel.commandkey;"
+         command="cmd_joinChannel"/>
+    <key id="key_closeCZTab"
+         modifiers="accel"
+         key="&closeCZTab.commandkey;"
+         command="cmd_closeCZTab"/>
+    <key id="key_disconnectAll"
+         modifiers="accel"
+         key="&disconnectAll.commandkey;"
+         command="cmd_disconnectAll"/>
+    <key id="key_saveViewAs"
+         modifiers="accel"
+         key="&saveViewAs.commandkey;"
+         command="cmd_saveViewAs"/>
+    <key id="key_print"/>
+    <key id="key_closeWindow"/>
+
     <!-- Edit keys -->
     <key id="key_undo"/>
     <key id="key_redo"/>
@@ -227,8 +258,88 @@
              persist="collapsed"
              grippytooltiptext="&Menubar.tooltip;">
 
-      <!-- ChatZilla menu placeholder, see menus.js -->
-      <menu id="mainmenu:chatzilla"><menupopup/></menu>
+      <menu id="menu_ChatZilla"
+            label="&menuChatZilla.label;"
+            accesskey="&menuChatZilla.accesskey;">
+        <menupopup id="menu_FilePopup"
+                   onpopupshowing="initChatZillaMenu();">
+          <menuitem id="joinChannel"
+                    label="&joinChannel.label;"
+                    accesskey="&joinChannel.accesskey;"
+                    key="key_joinChannel"
+                    command="cmd_joinChannel"/>
+          <menuitem id="goto-startup"
+                    label="&openStartupURLs.label;"
+                    accesskey="&openStartupURLs.accesskey;"
+                    oncommand="openStartupURLs();"/>
+          <menuseparator/>
+          <menuitem id="openAtStartup"
+                    type="checkbox"
+                    oncommand="cmdOpenAtStartup();"/>
+          <menuseparator/>
+          <menuitem id="leaveChannel"
+                    oncommand="cmdLeave(getDefaultContext());"/>
+          <menuitem id="rejoinChannel"
+                    oncommand="cmdRejoin(getDefaultContext());"/>
+          <menuitem id="dccClose"
+                    oncommand="cmdDCCClose(getDefaultContext());"/>
+          <menuitem id="closeCZTab"
+                    label="&closeCZTab.label;"
+                    accesskey="&closeCZTab.accesskey;"
+                    key="key_closeCZTab"
+                    command="cmd_closeCZTab"/>
+          <menuitem id="disconnectNet"
+                    oncommand="cmdDisconnect(getDefaultContext());"/>
+          <menuitem id="disconnectAll"
+                    label="&disconnectAll.label;"
+                    accesskey="&disconnectAll.accesskey;"
+                    key="key_disconnectAll"
+                    command="cmd_disconnectAll"/>
+          <menuitem id="reconnectNet"
+                    oncommand="cmdReconnect(getDefaultContext());"/>
+          <menuitem id="reconnectAll"
+                    label="&reconnectAll.label;"
+                    accesskey="&reconnectAll.accesskey;"
+                    oncommand="cmdReconnectAll(getDefaultContext());"/>
+          <menuseparator/>
+          <menu id="statusMenu"
+                label="&statusMenu.label;"
+                accesskey="&statusMenu.accesskey;">
+            <menupopup id="statusMenu-nick-popup"
+                       onpopupshowing="initAwayMsgs(this);">
+              <menuitem id="statusMenu-change"
+                        label="&nick-change.label;"
+                        accesskey="&nick-change.accesskey;"
+                        oncommand="cmdNick(getDefaultContext());"/>
+              <menuseparator id="statusMenu-nick-separator"/>
+              <menuitem id="statusMenu-nick-back"
+                        label="&nick-back.label;"
+                        accesskey="&nick-back.accesskey;"
+                        value=""
+                        type="radio"
+                        oncommand="toggleAwayMsg(event.target);"/>
+              <menuseparator id="statusMenu-away-separator"/>
+              <menuitem id="statusMenu-custom-away"
+                        label="&custom-away.label;"
+                        accesskey="&custom-away.accesskey;"
+                        oncommand="customAway();"/>
+            </menupopup>
+          </menu>
+          <menuseparator/>
+          <menuitem id="saveViewAs"
+                    label="&saveViewAs.label;"
+                    accesskey="&saveViewAs.accesskey;"
+                    key="key_saveViewAs"
+                    command="cmd_saveViewAs"/>
+          <menuitem id="menu_print"/>
+          <menuseparator/>
+          <menuitem id="menu_closeWindow"
+                    label="&closeChatZilla.label;"
+                    accesskey="&closeChatZilla.accesskey;"
+                    key="key_closeWindow"
+                    command="cmd_closeWindow"/>
+        </menupopup>
+      </menu>
 
       <!-- Edit menu placeholder, see menus.js -->
       <menu id="mainmenu:edit"><menupopup/></menu>
@@ -309,7 +420,30 @@
       collapsed="true"/>
 
     <hbox id="input-widgets" align="center">
-      <button id="server-nick" type="menu" label="" tooltiptext="&server-nick.tooltip;"/>
+      <button id="server-nick"
+              label=""
+              tooltiptext="&server-nick.tooltip;"
+              type="menu">
+        <menupopup id="nickMenu-nick-popup"
+                   onpopupshowing="initAwayMsgs(this);">
+          <menuitem id="nickMenu-change"
+                    label="&nick-change.label;"
+                    accesskey="&nick-change.accesskey;"
+                    oncommand="cmdNick(getDefaultContext());"/>
+          <menuseparator id="nickMenu-nick-separator"/>
+          <menuitem id="nickMenu-nick-back"
+                    label="&nick-back.label;"
+                    accesskey="&nick-back.accesskey;"
+                    value=""
+                    type="radio"
+                    oncommand="toggleAwayMsg(event.target);"/>
+          <menuseparator id="nickMenu-away-separator"/>
+          <menuitem id="nickMenu-custom-away"
+                    label="&custom-away.label;"
+                    accesskey="&custom-away.accesskey;"
+                    oncommand="customAway();"/>
+        </menupopup>
+      </button>
       <hbox id="multiline-box" flex="1" collapsed="true">
         <box id="multiline-hug-box" flex="1">
           <textbox id="multiline-input" multiline="true" flex="1" height="100px"

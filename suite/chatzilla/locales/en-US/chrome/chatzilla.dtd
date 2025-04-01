@@ -2,6 +2,39 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<!-- ChatZilla menu -->
+<!ENTITY menuChatZilla.label "ChatZilla">
+<!ENTITY menuChatZilla.accesskey "C">
+<!ENTITY joinChannel.label "Join Channel…">
+<!ENTITY joinChannel.accesskey "J">
+<!ENTITY joinChannel.commandkey "O">
+<!ENTITY openStartupURLs.label "Open Auto-connect">
+<!ENTITY openStartupURLs.accesskey "u">
+<!ENTITY closeCZTab.label "Close Tab">
+<!ENTITY closeCZTab.accesskey "C">
+<!ENTITY closeCZTab.commandkey "W">
+<!ENTITY disconnectAll.label "Disconnect From All Networks">
+<!ENTITY disconnectAll.accesskey "N">
+<!ENTITY disconnectAll.commandkey "D">
+<!ENTITY reconnectAll.label "Reconnect To All Networks">
+<!ENTITY reconnectAll.accesskey "N">
+<!ENTITY statusMenu.label "Status">
+<!ENTITY statusMenu.accesskey "S">
+<!ENTITY saveViewAs.label "Save View As…">
+<!ENTITY saveViewAs.accesskey "A">
+<!ENTITY saveViewAs.commandkey "S">
+<!ENTITY closeChatZilla.label "Close ChatZilla">
+<!ENTITY closeChatZilla.accesskey "Z">
+
+<!-- Status menu / nick button -->
+<!ENTITY nick-change.label "Change Nickname…">
+<!ENTITY nick-change.accesskey "C">
+<!ENTITY nick-back.label "Back">
+<!ENTITY nick-back.accesskey "B">
+<!ENTITY custom-away.label "Customize Away Messages…">
+<!ENTITY custom-away.accesskey "A">
+
+<!-- Tools menu -->
 <!ENTITY installPlugin.label "Install Plugin…">
 <!ENTITY installPlugin.accesskey "I">
 <!ENTITY editNetworks.label "Edit Networks…">
