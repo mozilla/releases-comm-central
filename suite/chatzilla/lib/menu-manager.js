@@ -12,7 +12,6 @@ function MenuManager(commandManager, menuSpecs, contextFunction, commandStr) {
   this.menuSpecs = menuSpecs;
   this.contextFunction = contextFunction;
   this.commandStr = commandStr;
-  this.repeatId = 0;
   this.cxStore = {};
 
   this.onPopupShowing = function (event) {
@@ -106,10 +105,6 @@ MenuManager.prototype.showPopup = function (event) {
       !menuitem.hasAttribute("commandname")
     ) {
       return true;
-    }
-
-    if (menuitem.hasAttribute("repeatfor")) {
-      return false;
     }
 
     if (!("menuManager" in cx)) {
@@ -223,123 +218,6 @@ MenuManager.prototype.showPopup = function (event) {
 
   var menuitem = popup.firstChild;
   do {
-    if (!menuitem.hasAttribute("repeatfor")) {
-      continue;
-    }
-
-    // Remove auto-generated items (located prior to real item).
-    while (
-      menuitem.previousSibling &&
-      menuitem.previousSibling.hasAttribute("repeatgenerated")
-    ) {
-      menuitem.previousSibling.remove();
-    }
-
-    if (!("repeatList" in cx)) {
-      cx.repeatList = {};
-    }
-
-    /* Get the array of new items to add by evaluating "repeatfor" with
-     * "cx" in scope. Usually will return an already-calculated Array
-     * either from "cx" or somewhere in the object model.
-     */
-    var ary = evalAttribute(menuitem, "repeatfor");
-
-    if (typeof ary != "object" || !isinstance(ary, Array)) {
-      ary = [];
-    }
-
-    /* The item itself should only be shown if there's no items in the
-     * array - this base item is always disabled.
-     */
-    if (ary.length > 0) {
-      menuitem.setAttribute("hidden", "true");
-    } else {
-      menuitem.removeAttribute("hidden");
-    }
-
-    // Save the array in the context object.
-    cx.repeatList[menuitem.getAttribute("repeatid")] = ary;
-
-    /* Get the maximum number of items we're allowed to show from |ary| by
-     * evaluating "repeatlimit" with "cx" in scope. This could be a fixed
-     * limit or dynamically calculated (e.g. from prefs).
-     */
-    var limit = evalAttribute(menuitem, "repeatlimit");
-    // Make sure we've got a number at all...
-    if (typeof limit != "number") {
-      limit = ary.length;
-    }
-    // ...and make sure it's no higher than |ary.length|.
-    limit = Math.min(ary.length, limit);
-
-    var cmd = menuitem.getAttribute("commandname");
-    var props = {
-      repeatgenerated: true,
-      repeatindex: -1,
-      repeatid: menuitem.getAttribute("repeatid"),
-      repeatmap: menuitem.getAttribute("repeatmap"),
-    };
-
-    /* Clone non-repeat attributes. All attributes except those starting
-     * with 'repeat', and those matching 'hidden' or 'disabled' are saved
-     * to |props|, which is then supplied to |appendMenuItem| later.
-     */
-    for (var i = 0; i < menuitem.attributes.length; i++) {
-      var name = menuitem.attributes[i].nodeName;
-      if (!name.match(/^(repeat|(hidden|disabled)$)/)) {
-        props[name] = menuitem.getAttribute(name);
-      }
-    }
-
-    var lastGroup = "";
-    for (i = 0; i < limit; i++) {
-      /* Check for groupings. For each item we add, if "repeatgroup" gives
-       * a different value, we insert a separator.
-       */
-      if (menuitem.getAttribute("repeatgroup")) {
-        cx.index = i;
-        ary = cx.repeatList[menuitem.getAttribute("repeatid")];
-        var item = ary[i];
-        /* Apply any updates to "cx" for this item by evaluating
-         * "repeatmap" with "cx" and "item" in scope. This may just
-         * copy some attributes from "item" to "cx" or it may do more.
-         */
-        evalAttribute(menuitem, "repeatmap");
-        /* Get the item's group by evaluating "repeatgroup" with "cx"
-         * and "item" in scope. Usually will return an appropriate
-         * property from "item".
-         */
-        var group = evalAttribute(menuitem, "repeatgroup");
-
-        if (i > 0 && lastGroup != group) {
-          this.appendMenuSeparator(popup, menuitem, props);
-        }
-
-        lastGroup = group;
-      }
-
-      props.repeatindex = i;
-      this.appendMenuItem(popup, menuitem, cmd, props);
-    }
-  } while ((menuitem = menuitem.nextSibling));
-
-  menuitem = popup.firstChild;
-  do {
-    if (
-      menuitem.hasAttribute("repeatgenerated") &&
-      menuitem.hasAttribute("repeatmap")
-    ) {
-      cx.index = menuitem.getAttribute("repeatindex");
-      ary = cx.repeatList[menuitem.getAttribute("repeatid")];
-      var item = ary[cx.index];
-      /* Apply any updates to "cx" for this item by evaluating
-       * "repeatmap" with "cx" and "item" in scope. This may just
-       * copy some attributes from "item" to "cx" or it may do more.
-       */
-      evalAttribute(menuitem, "repeatmap");
-    }
-
     /* should it be visible? */
     if (menuitem.hasAttribute("visibleif")) {
       if (evalIfAttribute(menuitem, "visibleif")) {
@@ -435,25 +313,6 @@ MenuManager.prototype.menuCommand = function (event) {
       );
     }
     return null;
-  }
-
-  var menuitem = event.originalTarget;
-  var cx = this.cx;
-  /* We need to re-run the repeat-map if the user has selected a special
-   * repeat-generated menu item, so that the context object is correct.
-   */
-  if (
-    menuitem.hasAttribute("repeatgenerated") &&
-    menuitem.hasAttribute("repeatmap")
-  ) {
-    cx.index = menuitem.getAttribute("repeatindex");
-    var ary = cx.repeatList[menuitem.getAttribute("repeatid")];
-    var item = ary[cx.index];
-    /* Apply any updates to "cx" for this item by evaluating
-     * "repeatmap" with "cx" and "item" in scope. This may just
-     * copy some attributes from "item" to "cx" or it may do more.
-     */
-    evalAttribute(menuitem, "repeatmap");
   }
 
   eval(this.commandStr);
@@ -611,9 +470,6 @@ MenuManager.prototype.appendMenuItem = function (
   if (typeof attribs == "object" && attribs) {
     for (var p in attribs) {
       menuitem.setAttribute(p, attribs[p]);
-    }
-    if ("repeatfor" in attribs) {
-      menuitem.setAttribute("repeatid", this.repeatId++);
     }
   }
 
