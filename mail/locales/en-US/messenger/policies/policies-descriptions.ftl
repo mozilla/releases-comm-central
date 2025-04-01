@@ -94,6 +94,8 @@ policy-Handlers = Configure default application handlers.
 
 policy-HardwareAcceleration = If false, turn off hardware acceleration.
 
+policy-InAppNotification = Enable or disable notification types.
+
 policy-InstallAddonsPermission = Allow certain websites to install add-ons.
 
 policy-LegacyProfiles = Disable the feature enforcing a separate profile for each installation.

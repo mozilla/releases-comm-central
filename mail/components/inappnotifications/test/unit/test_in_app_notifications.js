@@ -43,6 +43,7 @@ function getMockNotifications() {
       end_at: endDate,
       severity: 1,
       targeting: {},
+      type: "donation",
     },
     {
       id: "bar",
@@ -51,6 +52,7 @@ function getMockNotifications() {
       end_at: endDate,
       severity: 5,
       targeting: {},
+      type: "donation",
     },
   ];
 }
@@ -165,6 +167,7 @@ add_task(async function test_getNotifications_expiry() {
       start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
       targeting: {},
+      type: "donation",
     },
     {
       id: "future bar",
@@ -172,6 +175,7 @@ add_task(async function test_getNotifications_expiry() {
       start_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now + 2 * SAFETY_MARGIN_MS).toISOString(),
       targeting: {},
+      type: "donation",
     },
     {
       id: "past bar",
@@ -179,6 +183,7 @@ add_task(async function test_getNotifications_expiry() {
       start_at: new Date(now - 2 * SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
       targeting: {},
+      type: "donation",
     },
     {
       id: "invalid",
@@ -186,6 +191,7 @@ add_task(async function test_getNotifications_expiry() {
       start_at: "foo",
       end_at: "bar",
       targeting: {},
+      type: "donation",
     },
   ];
   await InAppNotifications.updateNotifications(mockData);
@@ -313,6 +319,7 @@ add_task(async function test_updateNotificationManager() {
       start_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now + 2 * SAFETY_MARGIN_MS).toISOString(),
       targeting: {},
+      type: "donation",
       severity: 1,
     },
     {
@@ -321,6 +328,7 @@ add_task(async function test_updateNotificationManager() {
       start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
       targeting: {},
+      type: "donation",
       severity: 5,
     },
   ];
@@ -357,6 +365,7 @@ add_task(async function test_updateNotifications_filtered() {
       start_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now + 2 * SAFETY_MARGIN_MS).toISOString(),
       targeting: {},
+      type: "donation",
       severity: 1,
     },
     {
@@ -365,6 +374,7 @@ add_task(async function test_updateNotifications_filtered() {
       start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
       targeting: {},
+      type: "donation",
       severity: 5,
     },
   ];
@@ -407,6 +417,7 @@ add_task(async function test_updateNotificationManager_localeChange() {
           },
         ],
       },
+      type: "donation",
       severity: 5,
     },
     {
@@ -421,6 +432,7 @@ add_task(async function test_updateNotificationManager_localeChange() {
           },
         ],
       },
+      type: "donation",
       severity: 5,
     },
   ];
@@ -473,6 +485,7 @@ add_task(async function test_scheduledNotification() {
       start_at: new Date(now + delay).toISOString(),
       end_at: new Date(now + delay + 2 * SAFETY_MARGIN_MS).toISOString(),
       targeting: {},
+      type: "donation",
       severity: 1,
     },
   ];

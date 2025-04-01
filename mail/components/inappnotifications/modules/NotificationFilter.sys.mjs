@@ -14,7 +14,38 @@ XPCOMUtils.defineLazyPreferenceGetter(
   false
 );
 
+const policyPrefrences = Object.entries({
+  _enabled: "",
+  _messageEnabled: "message_",
+  _blogEnabled: "blog_",
+  _donationEnabled: "donation_",
+});
+
+// Disabled because eslint does not see the array notation variable reference.
+/* eslint-disable mozilla/valid-lazy */
+for (const [property, preference] of policyPrefrences) {
+  XPCOMUtils.defineLazyPreferenceGetter(
+    lazy,
+    property,
+    `mail.inappnotifications.${preference}enabled`,
+    true
+  );
+}
+/* eslint-enable mozilla/valid-lazy */
+
 export const NotificationFilter = {
+  /**
+   * Initialize glean with the initial prefrence values for enabled
+   * notifications.
+   */
+  initGlean() {
+    for (const [property, preference] of policyPrefrences) {
+      Glean.inappnotifications.preferences[
+        `mail.inappnotifications.${preference}enabled`
+      ].set(lazy[property]);
+    }
+  },
+
   /**
    * Check if a notification's conditions make it currently suitable for display.
    *
@@ -34,6 +65,16 @@ export const NotificationFilter = {
     if (lazy.bypassFiltering) {
       return true;
     }
+
+    // First, check if this notification is allowed by policy.
+    if (
+      /* eslint-disable-next-line mozilla/valid-lazy */
+      !lazy._enabled ||
+      lazy[`_${notification.type.split("_", 1)[0]}Enabled`] === false
+    ) {
+      return false;
+    }
+
     const now = Date.now();
     const parsedEnd = Date.parse(notification.end_at);
     const parsedStart = Date.parse(notification.start_at);
@@ -145,4 +186,17 @@ export const NotificationFilter = {
     }
     return true;
   },
+
+  /**
+   * Handle updates to preferences to set the value in Glean.
+   *
+   * @param {string} preference - The name of the preference to be updated.
+   * @param {boolean} oldValue - The previous value of the preference.
+   * @param {boolean} newValue - The new value of the preference.
+   */
+  _updatePreference(preference, oldValue, newValue) {
+    Glean.inappnotifications.preferences[preference].set(newValue);
+  },
 };
+
+NotificationFilter.initGlean();

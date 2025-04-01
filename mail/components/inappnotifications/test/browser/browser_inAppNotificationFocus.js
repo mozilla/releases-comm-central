@@ -139,4 +139,6 @@ add_task(async function test_doesNotStoreFocusElementInsideNotification() {
     document.activeElement,
     "the search bar still has focus"
   );
+
+  await InAppNotifications.updateNotifications([]);
 });

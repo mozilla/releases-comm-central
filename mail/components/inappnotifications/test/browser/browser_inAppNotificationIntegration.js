@@ -7,6 +7,13 @@
 const { InAppNotifications } = ChromeUtils.importESModule(
   "resource:///modules/InAppNotifications.sys.mjs"
 );
+const { NotificationManager } = ChromeUtils.importESModule(
+  "resource:///modules/NotificationManager.sys.mjs"
+);
+
+add_setup(function () {
+  NotificationManager._PER_TIME_UNIT = 1;
+});
 
 add_task(async function testInAppNotificationDonationTab() {
   const tabmail = document.getElementById("tabmail");

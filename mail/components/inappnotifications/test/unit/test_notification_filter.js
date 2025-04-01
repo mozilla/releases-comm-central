@@ -38,6 +38,7 @@ add_task(function test_isActiveNotification_emptyTargeting() {
     end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
     start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
     targeting: {},
+    type: "donation_tab",
   };
   Assert.ok(NotificationFilter.isActiveNotification(notification, 0, []));
 });
@@ -51,6 +52,7 @@ add_task(function test_isActiveNotification_timeWindowExpiry() {
       start_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now + 2 * SAFETY_MARGIN_MS).toISOString(),
       targeting: {},
+      type: "donation_tab",
     },
     {
       id: "past bar",
@@ -58,6 +60,7 @@ add_task(function test_isActiveNotification_timeWindowExpiry() {
       start_at: new Date(now - 2 * SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
       targeting: {},
+      type: "donation_tab",
     },
     {
       id: "invalid",
@@ -65,6 +68,7 @@ add_task(function test_isActiveNotification_timeWindowExpiry() {
       start_at: "foo",
       end_at: "bar",
       targeting: {},
+      type: "donation_tab",
     },
     {
       id: "invalid start",
@@ -72,6 +76,7 @@ add_task(function test_isActiveNotification_timeWindowExpiry() {
       start_at: "foo",
       end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
       targeting: {},
+      type: "donation_tab",
     },
     {
       id: "invalid end",
@@ -79,6 +84,7 @@ add_task(function test_isActiveNotification_timeWindowExpiry() {
       start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
       end_at: "bar",
       targeting: {},
+      type: "donation_tab",
     },
   ];
 
@@ -98,6 +104,7 @@ add_task(function test_isActiveNotification_percentChance() {
     targeting: {
       percent_chance: null,
     },
+    type: "donation_tab",
   };
 
   function subtest_seed(transitionAt, reasonChance, middleSeed = 42) {
@@ -138,6 +145,7 @@ add_task(function test_isActiveNotification_exclude() {
     targeting: {
       exclude: null,
     },
+    type: "donation_tab",
   };
 
   Assert.ok(
@@ -179,6 +187,7 @@ add_task(function test_isActiveNotification_include() {
     targeting: {
       include: null,
     },
+    type: "donation_tab",
   };
 
   Assert.ok(
@@ -222,6 +231,7 @@ add_task(function test_isActiveNotification_includedAndExcluded() {
       exclude: [profile],
       include: [profile],
     },
+    type: "donation_tab",
   };
 
   Assert.ok(
@@ -386,6 +396,7 @@ add_task(async function test_isActiveNotification_url() {
         end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
         start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
         targeting: {},
+        type: "donation_tab",
         URL: "https://example.com",
       },
       0,
@@ -400,6 +411,7 @@ add_task(async function test_isActiveNotification_url() {
         end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
         start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
         targeting: {},
+        type: "donation_tab",
         URL: "http://example.com",
       },
       0,
@@ -414,6 +426,7 @@ add_task(async function test_isActiveNotification_url() {
         end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
         start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
         targeting: {},
+        type: "donation_tab",
         URL: "example://test/https://",
       },
       0,
@@ -433,6 +446,7 @@ add_task(async function test_isActiveNotification_url() {
         end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
         start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
         targeting: {},
+        type: "donation_tab",
         URL: "foo~bar[:/baz]",
       },
       0,
@@ -452,6 +466,7 @@ add_task(function test_isActiveNotification_bypassFiltering() {
     targeting: {
       include: [],
     },
+    type: "donation_tab",
   };
 
   Assert.ok(
@@ -497,6 +512,7 @@ add_task(function test_isActiveNotification_idDisplayed() {
     !NotificationFilter.isActiveNotification(
       {
         id: "foo",
+        type: "donation_tab",
       },
       100,
       ["foo"]

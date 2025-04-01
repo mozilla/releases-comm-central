@@ -21,6 +21,7 @@ subsuite = "thunderbird"
 ["browser_inAppNotificationButton.js"]
 ["browser_inAppNotificationCloseButton.js"]
 ["browser_inAppNotificationContainer.js"]
+["browser_inAppNotificationEnterprisePolicies.js"]
 ["browser_inAppNotificationFocus.js"]
-["browser_inAppNotificationMessengerIntegration.js"]
 ["browser_inAppNotificationIntegration.js"]
+["browser_inAppNotificationMessengerIntegration.js"]

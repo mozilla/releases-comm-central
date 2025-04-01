@@ -914,6 +914,32 @@ export var Policies = {
     },
   },
 
+  InAppNotification: {
+    onBeforeUIStartup(manager, param) {
+      if ("DonationEnabled" in param) {
+        setAndLockPref(
+          "mail.inappnotifications.donation_enabled",
+          param.DonationEnabled
+        );
+      }
+      if ("SurveyEnabled" in param) {
+        setAndLockPref(
+          "mail.inappnotifications.blog_enabled", // This is the type/pref for surveys, currently.
+          param.SurveyEnabled
+        );
+      }
+      if ("MessageEnabled" in param) {
+        setAndLockPref(
+          "mail.inappnotifications.message_enabled",
+          param.MessageEnabled
+        );
+      }
+      if ("Disabled" in param) {
+        setAndLockPref("mail.inappnotifications.enabled", !param.Disabled);
+      }
+    },
+  },
+
   InstallAddonsPermission: {
     onBeforeUIStartup(manager, param) {
       if ("Allow" in param) {

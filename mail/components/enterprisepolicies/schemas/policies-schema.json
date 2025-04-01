@@ -427,6 +427,24 @@
       "type": "boolean"
     },
 
+    "InAppNotification": {
+      "type": "object",
+      "properties": {
+        "DonationEnabled": {
+          "type": "boolean"
+        },
+        "SurveyEnabled": {
+          "type": "boolean"
+        },
+        "MessageEnabled": {
+          "type": "boolean"
+        },
+        "Disabled": {
+          "type": "boolean"
+        }
+      }
+    },
+
     "InstallAddonsPermission": {
       "type": "object",
       "properties": {

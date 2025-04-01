@@ -90,11 +90,13 @@ inappnotifications:
         type: quantity
   preferences:
     type: labeled_boolean
-    description: If in app notifications are being shown based on prefrences.
+    description: If in app notifications are being shown based on preferences.
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1933294
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1950887
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1933294
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1950887
     data_sensitivity:
       - technical
     notification_emails:
@@ -103,3 +105,6 @@ inappnotifications:
     labels:
       - mail.inappnotifications.enabled
       - mail.inappnotifications.url
+      - mail.inappnotifications.donation_enabled
+      - mail.inappnotifications.blog_enabled
+      - mail.inappnotifications.message_enabled
