@@ -1393,6 +1393,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsITransaction> undoTxn;
   nsTArray<RefPtr<nsIMsgDBHdr>> dstHdrs;
+  // Store might have a shortcut, but mbox one doesn't.
   rv = msgStore->CopyMessages(isMove, srcHdrs, this, dstHdrs,
                               getter_AddRefs(undoTxn), &storeDidCopy);
   if (storeDidCopy) {

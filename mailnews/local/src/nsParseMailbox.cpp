@@ -502,22 +502,6 @@ NS_IMETHODIMP nsParseMailMessageState::GetAllHeaders(char** pHeaders,
   return NS_OK;
 }
 
-// generate headers as a string, with CRLF between the headers
-NS_IMETHODIMP nsParseMailMessageState::GetHeaders(char** pHeaders) {
-  NS_ENSURE_ARG_POINTER(pHeaders);
-  nsCString crlfHeaders;
-  char* curHeader = m_headers.begin();
-  for (uint32_t headerPos = 0; headerPos < m_headers.length();) {
-    crlfHeaders.Append(curHeader);
-    crlfHeaders.Append(CRLF);
-    int32_t headerLen = strlen(curHeader);
-    curHeader += headerLen + 1;
-    headerPos += headerLen + 1;
-  }
-  *pHeaders = ToNewCString(crlfHeaders);
-  return NS_OK;
-}
-
 /* largely lifted from mimehtml.c, which does similar parsing, sigh...
  */
 nsresult nsParseMailMessageState::ParseHeaders() {
