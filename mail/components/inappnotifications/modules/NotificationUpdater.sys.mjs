@@ -133,11 +133,13 @@ export const NotificationUpdater = {
   },
 
   /**
-   * If we can check the server for updates.
+   * If the user has interacted with the data submission policy. We wait for
+   * this to reduce noise on first run. Once that's happened we're ready to
+   * update from the network and potentially show notifications.
    *
    * @type {boolean}
    */
-  get canUpdate() {
+  get readyToUpdate() {
     const dataSubmissionPolicyAcceptedVersion = Services.prefs.getIntPref(
       "datareporting.policy.dataSubmissionPolicyAcceptedVersion",
       0
@@ -146,9 +148,18 @@ export const NotificationUpdater = {
       "datareporting.policy.currentPolicyVersion",
       1
     );
+    return dataSubmissionPolicyAcceptedVersion >= currentPolicyVersion;
+  },
+
+  /**
+   * If we can check the server for updates.
+   *
+   * @type {boolean}
+   */
+  get canUpdate() {
     return (
       !Services.io.offline &&
-      dataSubmissionPolicyAcceptedVersion >= currentPolicyVersion &&
+      this.readyToUpdate &&
       Services.prefs.getBoolPref("mail.inappnotifications.enabled", false)
     );
   },

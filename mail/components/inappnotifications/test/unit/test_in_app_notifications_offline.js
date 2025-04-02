@@ -66,6 +66,12 @@ add_setup(async () => {
     loadURI() {},
   };
 
+  // Make this the second+ run.
+  Services.prefs.setIntPref(
+    "datareporting.policy.dataSubmissionPolicyAcceptedVersion",
+    Services.prefs.getIntPref("datareporting.policy.currentPolicyVersion", 1)
+  );
+
   const mockExternalProtocolServiceCID = MockRegistrar.register(
     "@mozilla.org/uriloader/external-protocol-service;1",
     mockExternalProtocolService
@@ -82,8 +88,29 @@ add_setup(async () => {
   registerCleanupFunction(() => {
     clearInterval(NotificationUpdater._interval);
     clearTimeout(InAppNotifications._showNotificationTimer);
+    Services.prefs.clearUserPref(
+      "datareporting.policy.dataSubmissionPolicyAcceptedVersion"
+    );
   });
 });
+
+add_task(
+  {
+    skip_if: () => bakedNotifications.length > 0,
+  },
+  function test_initializedDataWithoutBuiltinNotifications() {
+    Assert.deepEqual(
+      InAppNotifications.getNotifications(),
+      [],
+      "Should initialize notifications with an empty array"
+    );
+    Assert.deepEqual(
+      InAppNotifications._jsonFile.data.seeds,
+      {},
+      "Should initialize seeds"
+    );
+  }
+);
 
 add_task(
   {
@@ -115,6 +142,43 @@ add_task(
       Assert.ok(
         Object.hasOwn(InAppNotifications._jsonFile.data.seeds, notification.id),
         `Should have seed for built in notification ${notification.id}`
+      );
+    }
+  }
+);
+
+add_task(
+  {
+    skip_if: () => bakedNotifications.length === 0,
+  },
+  async function test_builtinIdsStay() {
+    for (const notification of bakedNotifications) {
+      await InAppNotifications.markAsInteractedWith(notification.id);
+      InAppNotifications._getSeed(notification.id);
+    }
+
+    await InAppNotifications.updateNotifications([]);
+
+    for (const notification of bakedNotifications) {
+      Assert.ok(
+        InAppNotifications._jsonFile.data.interactedWith.includes(
+          notification.id
+        ),
+        `Should retain interacted with state of built in notification ${notification.id}`
+      );
+      Assert.ok(
+        Object.hasOwn(InAppNotifications._jsonFile.data.seeds, notification.id),
+        `Seed of built in notification ${notification.id} should be persisted`
+      );
+    }
+
+    InAppNotifications._jsonFile.data.interactedWith = [];
+    await InAppNotifications.updateNotifications([]);
+
+    for (const notification of bakedNotifications) {
+      Assert.ok(
+        Object.hasOwn(InAppNotifications._jsonFile.data.seeds, notification.id),
+        `Should still have seed of built in notification ${notification.id}`
       );
     }
   }

@@ -75,7 +75,8 @@ export const InAppNotifications = {
     if (loadFromCache) {
       if (
         (!this._jsonFile.data.notifications.length || !hasCache) &&
-        (!Cu.isInAutomation || forceOffline)
+        (!Cu.isInAutomation || forceOffline) &&
+        lazy.NotificationUpdater.readyToUpdate
       ) {
         await this.updateNotifications(
           await lazy.OfflineNotifications.getDefaultNotifications()

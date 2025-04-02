@@ -25,9 +25,6 @@ const { clearInterval, clearTimeout } = ChromeUtils.importESModule(
 const { NotificationUpdater } = ChromeUtils.importESModule(
   "resource:///modules/NotificationUpdater.sys.mjs"
 );
-const { OfflineNotifications } = ChromeUtils.importESModule(
-  "resource:///modules/OfflineNotifications.sys.mjs"
-);
 
 const SAFETY_MARGIN_MS = 100000;
 
@@ -57,12 +54,9 @@ function getMockNotifications() {
   ];
 }
 
-let bakedNotifications = [];
-
 add_setup(async () => {
   do_get_profile();
   await InAppNotifications.init();
-  bakedNotifications = await OfflineNotifications.getDefaultNotifications();
 
   NotificationManager._PER_TIME_UNIT = 1;
 
@@ -92,23 +86,18 @@ add_task(function test_initializedData() {
   );
 });
 
-add_task(
-  {
-    skip_if: () => bakedNotifications.length > 0,
-  },
-  function test_initializedDataWithoutBuiltinNotifications() {
-    Assert.deepEqual(
-      InAppNotifications.getNotifications(),
-      [],
-      "Should initialize notifications with an empty array"
-    );
-    Assert.deepEqual(
-      InAppNotifications._jsonFile.data.seeds,
-      {},
-      "Should initialize seeds"
-    );
-  }
-);
+add_task(function test_initializedDataWithoutBuiltinNotifications() {
+  Assert.deepEqual(
+    InAppNotifications.getNotifications(),
+    [],
+    "Should initialize notifications with an empty array"
+  );
+  Assert.deepEqual(
+    InAppNotifications._jsonFile.data.seeds,
+    {},
+    "Should initialize seeds"
+  );
+});
 
 add_task(async function test_noReinitialization() {
   const currentNotificationManager = InAppNotifications.notificationManager;
@@ -517,40 +506,3 @@ add_task(async function test_scheduledNotification() {
 
   await InAppNotifications.updateNotifications([]);
 });
-
-add_task(
-  {
-    skip_if: () => bakedNotifications.length === 0,
-  },
-  async function test_builtinIdsStay() {
-    for (const notification of bakedNotifications) {
-      await InAppNotifications.markAsInteractedWith(notification.id);
-      InAppNotifications._getSeed(notification.id);
-    }
-
-    await InAppNotifications.updateNotifications([]);
-
-    for (const notification of bakedNotifications) {
-      Assert.ok(
-        InAppNotifications._jsonFile.data.interactedWith.includes(
-          notification.id
-        ),
-        `Should retain interacted with state of built in notification ${notification.id}`
-      );
-      Assert.ok(
-        Object.hasOwn(InAppNotifications._jsonFile.data.seeds, notification.id),
-        `Seed of built in notification ${notification.id} should be persisted`
-      );
-    }
-
-    InAppNotifications._jsonFile.data.interactedWith = [];
-    await InAppNotifications.updateNotifications([]);
-
-    for (const notification of bakedNotifications) {
-      Assert.ok(
-        Object.hasOwn(InAppNotifications._jsonFile.data.seeds, notification.id),
-        `Should still have seed of built in notification ${notification.id}`
-      );
-    }
-  }
-);
