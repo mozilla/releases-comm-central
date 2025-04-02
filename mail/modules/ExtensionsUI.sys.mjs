@@ -283,12 +283,6 @@ var gXPInstallObserver = {
         install.install();
       }
       installInfo = null;
-
-      Services.telemetry
-        .getHistogramById("SECURITY_UI")
-        .add(
-          Ci.nsISecurityUITelemetry.WARNING_CONFIRM_ADDON_INSTALL_CLICK_THROUGH
-        );
     };
 
     const cancelInstallation = () => {
@@ -365,10 +359,6 @@ var gXPInstallObserver = {
       options
     );
     removeNotificationOnEnd(popup, installInfo.installs);
-
-    Services.telemetry
-      .getHistogramById("SECURITY_UI")
-      .add(Ci.nsISecurityUITelemetry.WARNING_CONFIRM_ADDON_INSTALL);
   },
 
   // IDs of addon install related notifications
@@ -471,10 +461,6 @@ var gXPInstallObserver = {
         options.removeOnDismissal = true;
         options.persistent = false;
 
-        const secHistogram = Services.telemetry.getHistogramById("SECURITY_UI");
-        secHistogram.add(
-          Ci.nsISecurityUITelemetry.WARNING_ADDON_ASKING_PREVENTED
-        );
         const popup = PopupNotifications.show(
           browser,
           aTopic,
@@ -562,11 +548,6 @@ var gXPInstallObserver = {
           learnMore.setAttribute("support-page", article);
         };
 
-        const secHistogram = Services.telemetry.getHistogramById("SECURITY_UI");
-        secHistogram.add(
-          Ci.nsISecurityUITelemetry.WARNING_ADDON_ASKING_PREVENTED
-        );
-
         const [
           installMsg,
           dontAllowMsg,
@@ -580,10 +561,6 @@ var gXPInstallObserver = {
         ]);
 
         const action = buildNotificationAction(installMsg, () => {
-          secHistogram.add(
-            Ci.nsISecurityUITelemetry
-              .WARNING_ADDON_ASKING_PREVENTED_CLICK_THROUGH
-          );
           installInfo.install();
         });
 
