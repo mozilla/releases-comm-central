@@ -991,6 +991,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "crash_helper_client"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "crash_helper_common",
+ "nix 0.29.0",
+ "num-derive",
+ "num-traits",
+ "windows-sys",
+]
+
+[[package]]
+name = "crash_helper_common"
+version = "0.1.0"
+dependencies = [
+ "nix 0.29.0",
+ "num-derive",
+ "num-traits",
+ "thiserror 2.0.9",
+ "windows-sys",
+]
+
+[[package]]
 name = "crc32fast"
 version = "1.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2218,6 +2241,7 @@ dependencies = [
  "cert_storage",
  "chardetng_c",
  "cose-c",
+ "crash_helper_client",
  "crypto_hash",
  "cubeb-coreaudio",
  "cubeb-pulse",
@@ -3851,19 +3875,15 @@ dependencies = [
 [[package]]
 name = "mozannotation_client"
 version = "0.1.0"
-dependencies = [
- "nsstring",
-]
 
 [[package]]
 name = "mozannotation_server"
 version = "0.1.0"
 dependencies = [
- "memoffset 0.8.999",
+ "memoffset 0.9.0",
  "mozannotation_client",
  "process_reader",
- "thin-vec",
- "thiserror 1.999.999",
+ "thiserror 2.0.9",
 ]
 
 [[package]]
@@ -4074,6 +4094,7 @@ dependencies = [
  "nserror",
  "nsstring",
  "qlog",
+ "static_assertions",
  "static_prefs",
  "thin-vec",
  "uuid",
@@ -4113,6 +4134,7 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "libc",
+ "memoffset 0.9.0",
 ]
 
 [[package]]
@@ -4540,7 +4562,7 @@ dependencies = [
  "mach2",
  "memoffset 0.9.0",
  "scroll",
- "thiserror 1.999.999",
+ "thiserror 2.0.9",
  "windows-sys",
 ]
 
