@@ -1,8 +1,8 @@
 [
   {
     "id": "PREBAKED-Spring25",
-    "start_at": "2025-04-01T00:00:00Z",
-    "end_at": "2025-05-01T00:00:00Z",
+    "start_at": "2025-04-01T00:00:00.000Z",
+    "end_at": "2025-06-30T23:59:59.000Z",
     "title": "Prebaked Appeal Spring25",
     "description": "",
     "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-Spring25",
@@ -15,8 +15,8 @@
   },
   {
     "id": "PREBAKED-ESR25",
-    "start_at": "2025-07-01T00:00:00Z",
-    "end_at": "2025-08-01T00:00:00Z",
+    "start_at": "2025-07-01T00:00:00.000Z",
+    "end_at": "2025-11-02T23:59:59.000Z",
     "title": "Prebaked Appeal ESR25",
     "description": "",
     "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-ESR25",
@@ -29,8 +29,8 @@
   },
   {
     "id": "PREBAKED-EoY25-1",
-    "start_at": "2025-11-03T00:00:00Z",
-    "end_at": "2025-11-30T00:00:00Z",
+    "start_at": "2025-11-03T00:00:00.000Z",
+    "end_at": "2025-11-30T23:59:59.000Z",
     "title": "Prebaked Appeal EoY25-1",
     "description": "",
     "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-EoY25-1",
@@ -43,8 +43,8 @@
   },
   {
     "id": "PREBAKED-EoY25-2",
-    "start_at": "2025-12-01T00:00:00Z",
-    "end_at": "2025-12-31T00:00:00Z",
+    "start_at": "2025-12-01T00:00:00.000Z",
+    "end_at": "2026-03-31T23:59:59.000Z",
     "title": "Prebaked Appeal EoY25-2",
     "description": "",
     "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-EoY25-2",
