@@ -1493,7 +1493,6 @@ export var GlodaMsgIndexer = {
           this._indexMessage(msgHdr, aCallbackHandle),
           { what: "indexMessage", msgHdr }
         );
-        GlodaIndexer._indexedMessageCount++;
         this._log.debug("<<<  back from _indexMessage");
       }
     }

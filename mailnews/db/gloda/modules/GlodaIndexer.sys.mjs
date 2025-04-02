@@ -1051,10 +1051,6 @@ export var GlodaIndexer = {
       //     make ourselves less responsive by drawing out the period of time we
       //     are dominating the main thread.
       this._perfIndexStopwatch.start();
-      // For telemetry purposes, we want to know how many messages we've been
-      //  processing during that batch, and how long it took, pauses included.
-      const t0 = Date.now();
-      this._indexedMessageCount = 0;
       batchCount = 0;
       while (batchCount < this._indexTokens) {
         if (
@@ -1219,22 +1215,6 @@ export var GlodaIndexer = {
           ) {
             break;
           }
-        }
-      }
-
-      // All pauses have been taken, how effective were we? Report!
-      // XXX: there's possibly a lot of fluctuation since we go through here
-      // every 5 messages or even less
-      if (this._indexedMessageCount > 0) {
-        const delta = (Date.now() - t0) / 1000; // in seconds
-        const v = Math.round(this._indexedMessageCount / delta);
-        try {
-          const h = Services.telemetry.getHistogramById(
-            "THUNDERBIRD_INDEXING_RATE_MSG_PER_S"
-          );
-          h.add(v);
-        } catch (e) {
-          this._log.warn("Couldn't report telemetry", e, v);
         }
       }
 
