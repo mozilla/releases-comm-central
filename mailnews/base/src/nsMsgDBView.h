@@ -141,9 +141,6 @@ class nsMsgDBView : public nsIMsgDBView,
   RefPtr<mozilla::dom::XULTreeElement> mTree;
   nsCOMPtr<nsIMsgJSTree> mJSTree;
   nsCOMPtr<nsITreeSelection> mTreeSelection;
-  // We cache this to determine when to push command status notifications.
-  uint32_t mNumSelectedRows;
-  bool mSuppressCommandUpdating;
   // Set when we're telling the outline a row is being removed. Used to
   // suppress msg loading during delete/move operations.
   bool mRemovingRow;
@@ -443,9 +440,6 @@ class nsMsgDBView : public nsIMsgDBView,
   bool mSortThreadsByRoot;  // As opposed to by the newest message.
   bool m_sortValid;
   bool m_checkedCustomColumns;
-  bool mSelectionSummarized;
-  // We asked the front end to summarize the selection and it did not.
-  bool mSummarizeFailed;
   uint8_t m_saveRestoreSelectionDepth;
 
   nsCOMPtr<nsIMsgDatabase> m_db;

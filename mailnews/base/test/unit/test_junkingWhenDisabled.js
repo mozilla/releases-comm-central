@@ -41,31 +41,9 @@ var messageInjection = new MessageInjection(
 
 var gLocalInboxFolder = messageInjection.getInboxFolder();
 var gListener;
-var gCommandUpdater;
 
 var gDBView;
 var gTreeView;
-
-var CommandUpdaterWithPromise = function () {
-  this.deferred = Promise.withResolvers();
-};
-CommandUpdaterWithPromise.prototype = {
-  async promiseSelectionSummarized() {
-    await this.deferred.promise;
-    this.deferred = Promise.withResolvers();
-    return this.deferred.promise;
-  },
-
-  updateCommandStatus() {
-    // the back end is smart and is only telling us to update command status
-    // when the # of items in the selection has actually changed.
-  },
-
-  updateNextMessageAfterDelete() {},
-  summarizeSelection() {
-    this.deferred.resolve();
-  },
-};
 
 // Our listener, which captures events and does the real tests.
 function gMFListener() {
@@ -125,8 +103,6 @@ add_setup(async function () {
   // Always start out fully expanded.
   view_flag |= Ci.nsMsgViewFlagsType.kExpandAll;
 
-  gCommandUpdater = new CommandUpdaterWithPromise();
-
   gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, null);
   gDBView.open(
@@ -152,7 +128,6 @@ add_task(async function test_first_junking_create_folder() {
   // Select and junk all messages.
   gDBView.doCommand(Ci.nsMsgViewCommandType.selectAll);
   gDBView.doCommand(Ci.nsMsgViewCommandType.junk);
-  await gCommandUpdater.promiseSelectionSummarized;
   await gListener.promiseFolderAdded;
 });
 
@@ -165,6 +140,5 @@ add_task(async function test_second_junking_move_msgs() {
   // Select and junk all messages.
   gDBView.doCommand(Ci.nsMsgViewCommandType.selectAll);
   gDBView.doCommand(Ci.nsMsgViewCommandType.junk);
-  await gCommandUpdater.promiseSelectionSummarized;
   await gListener.promiseMsgsMoveCopyCompleted;
 });

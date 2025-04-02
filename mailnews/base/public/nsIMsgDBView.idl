@@ -297,12 +297,7 @@ interface nsIMsgDBView : nsISupports
    *  If the "mail.operate_on_msgs_in_collapsed_threads" preference is enabled,
    *  then any collapsed thread roots that are selected will also (conceptually)
    *  have all of the messages in that thread selected and they will be included
-   *  in the returned list. The one exception to this is if the front end fails
-   *  to summarize the selection, and we fall back to just displaying a single
-   *  message. In that case, we won't include the children of the collapsed
-   *  thread. However, the numSelected attribute will count those children,
-   *  because the summarizeSelection code uses that to know that it should
-   *  try to summarize the selection.
+   *  in the returned list.
    *
    * If the user has right-clicked on a message, this will return that message
    *  (and any collapsed children if so enabled) and not the selection prior to
@@ -334,9 +329,6 @@ interface nsIMsgDBView : nsISupports
    * with unread.
    */
   readonly attribute long numMsgsInView;
-
-  // we'll suppress command updating during folder loading
-  attribute boolean suppressCommandUpdating;
 
   /**
    * Suppress change notifications. This is faster than Begin/EndUpdateBatch
@@ -481,28 +473,11 @@ interface nsIMsgDBView : nsISupports
 [scriptable, uuid(ce8f52ee-e742-4b31-8bdd-2b3a8168a117)]
 interface nsIMsgDBViewCommandUpdater : nsISupports
 {
-  /* Eventually we'll flush this out into some kind of rich interface
-  which may take specific selection changed type notifications like
-  no selections, single selection, multi-selection, etc. For starters,
-  we are going to keep it generic. The back end will only push an update
-  command status when the # of selected items changes.
-  */
-
-  void updateCommandStatus();
-
   /**
-  * allows the backend to tell the front end to re-determine
-  * which message we should select after a delete or move
-  */
+   * Allows the backend to tell the front end to re-determine
+   * which message we should select after a delete or move.
+   */
   void updateNextMessageAfterDelete();
-
-  /**
-  * tell the front end that the selection has changed, and may need to be
-  * resummarized.
-  *
-  * @return   true if we did summarize, false otherwise.
-  */
-  boolean summarizeSelection();
 
   /**
    * Tell the front end that the selected message was removed and it should update.

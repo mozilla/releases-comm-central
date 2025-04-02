@@ -84,9 +84,9 @@ function assert_bit_not_set(aWhat, aBit, aWhy) {
 }
 
 var gFakeCommandUpdater = {
-  updateCommandStatus() {},
-  summarizeSelection() {},
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgDBViewCommandUpdater"]),
   updateNextMessageAfterDelete() {},
+  selectedMessageRemoved() {},
 };
 
 /**

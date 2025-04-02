@@ -968,14 +968,10 @@ var dbViewWrapperListener = {
       "nsIMsgDBViewCommandUpdater",
       "nsISupportsWeakReference",
     ]),
-    updateCommandStatus() {},
     updateNextMessageAfterDelete() {
       dbViewWrapperListener._nextViewIndexAfterDelete = gDBView
         ? gDBView.msgToSelectAfterDelete
         : null;
-    },
-    summarizeSelection() {
-      return true;
     },
     selectedMessageRemoved() {
       // Virtual folders end up here while being loaded, when they restore their
