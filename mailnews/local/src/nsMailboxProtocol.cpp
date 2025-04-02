@@ -117,9 +117,6 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
   m_lineStreamBuffer = new nsMsgLineStreamBuffer(OUTPUT_BUFFER_SIZE, true);
 
   mCurrentProgress = 0;
-
-  // do we really need both?
-  m_tempMessageFile = m_tempMsgFile;
   return rv;
 }
 
@@ -347,33 +344,27 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
           case nsIMailboxUrl::ActionInvalid:
             MOZ_ASSERT(false);  // Bad URL.
             break;
-          case nsIMailboxUrl::ActionSaveMessageToDisk:
-            // ohhh, display message already writes a msg to disk (as part of a
-            // hack) so we can piggy back off of that!! We just need to change
-            // m_tempMessageFile to be the name of our save message to disk
-            // file. Since save message to disk urls are run without a docshell
-            // to display the msg into, we won't be trying to display the
-            // message after we write it to disk...
-            {
-              nsCOMPtr<nsIMsgMessageUrl> messageUrl =
-                  do_QueryInterface(m_runningUrl, &rv);
-              if (NS_SUCCEEDED(rv)) {
-                messageUrl->GetMessageFile(getter_AddRefs(m_tempMessageFile));
-                rv = MsgNewBufferedFileOutputStream(
-                    getter_AddRefs(m_msgFileOutputStream), m_tempMessageFile,
-                    -1, 00600);
-                NS_ENSURE_SUCCESS(rv, rv);
+          case nsIMailboxUrl::ActionSaveMessageToDisk: {
+            nsCOMPtr<nsIMsgMessageUrl> messageUrl =
+                do_QueryInterface(m_runningUrl, &rv);
+            NS_ENSURE_SUCCESS(rv, rv);
+            nsCOMPtr<nsIFile> tempMsgFile;
+            messageUrl->GetMessageFile(getter_AddRefs(tempMsgFile));
+            NS_ENSURE_STATE(tempMsgFile);
+            rv = MsgNewBufferedFileOutputStream(
+                getter_AddRefs(m_msgFileOutputStream), tempMsgFile, -1, 00600);
+            NS_ENSURE_SUCCESS(rv, rv);
 
-                bool addDummyEnvelope = false;
-                messageUrl->GetAddDummyEnvelope(&addDummyEnvelope);
-                if (addDummyEnvelope)
-                  SetFlag(MAILBOX_MSG_PARSE_FIRST_LINE);
-                else
-                  ClearFlag(MAILBOX_MSG_PARSE_FIRST_LINE);
-              }
-            }
+            bool addDummyEnvelope = false;
+            messageUrl->GetAddDummyEnvelope(&addDummyEnvelope);
+            if (addDummyEnvelope)
+              SetFlag(MAILBOX_MSG_PARSE_FIRST_LINE);
+            else
+              ClearFlag(MAILBOX_MSG_PARSE_FIRST_LINE);
+
             m_nextState = MAILBOX_READ_MESSAGE;
             break;
+          }
           case nsIMailboxUrl::ActionCopyMessage:
           case nsIMailboxUrl::ActionMoveMessage:
           case nsIMailboxUrl::ActionFetchMessage:

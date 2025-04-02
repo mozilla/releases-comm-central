@@ -1160,13 +1160,16 @@ nsresult GetSummaryFileLocation(nsIFile* fileLocation,
 }
 
 // Gets a special directory and appends the supplied file name onto it.
-nsresult GetSpecialDirectoryWithFileName(const char* specialDirName,
-                                         const char* fileName,
-                                         nsIFile** result) {
+[[nodiscard]] nsresult GetSpecialDirectoryWithFileName(
+    const char* specialDirName, const char* fileName, nsIFile** result) {
   nsresult rv = NS_GetSpecialDirectory(specialDirName, result);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return (*result)->AppendNative(nsDependentCString(fileName));
+  rv = (*result)->AppendNative(nsDependentCString(fileName));
+  if (NS_FAILED(rv)) {
+    NS_RELEASE(*result);
+  }
+  return rv;
 }
 
 // Cleans up temp files with matching names

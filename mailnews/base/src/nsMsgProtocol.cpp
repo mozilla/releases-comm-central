@@ -61,9 +61,6 @@ nsMsgProtocol::nsMsgProtocol(nsIURI* aURL) {
   m_isChannel = false;
   mContentDisposition = nsIChannel::DISPOSITION_INLINE;
 
-  GetSpecialDirectoryWithFileName(NS_OS_TEMP_DIR, "tempMessage.eml",
-                                  getter_AddRefs(m_tempMsgFile));
-
   mSuppressListenerNotifications = false;
   InitFromURI(aURL);
 }

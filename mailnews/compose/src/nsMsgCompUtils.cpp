@@ -86,7 +86,8 @@ nsMsgCompUtils::DetectCharset(const nsACString& aContent,
 // Create a file for the a unique temp file
 // on the local machine. Caller must free memory
 //
-nsresult nsMsgCreateTempFile(const char* tFileName, nsIFile** tFile) {
+[[nodiscard]] nsresult nsMsgCreateTempFile(const char* tFileName,
+                                           nsIFile** tFile) {
   if ((!tFileName) || (!*tFileName)) tFileName = "nsmail.tmp";
 
   nsresult rv =
