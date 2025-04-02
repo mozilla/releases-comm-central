@@ -24,7 +24,7 @@ AbAutoCompleteMyDomain.prototype = {
         this.cachedIdentity = MailServices.accounts.getIdentity(params.idKey);
         this.cachedIdKey = params.idKey;
       }
-      if (this.cachedIdentity.autocompleteToMyDomain) {
+      if (this.cachedIdentity?.autocompleteToMyDomain) {
         address = aString.includes("@")
           ? aString
           : this.cachedIdentity.email.replace(/[^@]*/, aString);
