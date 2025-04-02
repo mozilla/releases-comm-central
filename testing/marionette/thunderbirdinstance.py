@@ -10,7 +10,6 @@ thunderbird_prefs = {
     # Do not show the EULA notification which can interfer with tests
     "browser.EULA.override": True,
     # Do not start first-run items
-    "app.donation.eoy.version.viewed": 1000,
     "mail.provider.suppress_dialog_on_startup": True,
     "mail.spotlight.firstRunDone": True,
     "mail.winsearch.firstRunDone": True,

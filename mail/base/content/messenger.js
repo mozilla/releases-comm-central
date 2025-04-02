@@ -312,12 +312,6 @@ var gMailInit = {
       gSpacesToolbar.onLoad();
     }
 
-    // Show the end of year donation appeal page.
-    if (this.shouldShowEOYDonationAppeal()) {
-      // Add a timeout to prevent opening the browser immediately at startup.
-      setTimeout(this.showEOYDonationAppeal, 2000);
-    }
-
     if (Services.prefs.getBoolPref("mail.inappnotifications.enabled", false)) {
       import("chrome://messenger/content/in-app-notification-manager.mjs")
         .then(() => {
@@ -356,59 +350,6 @@ var gMailInit = {
     document.getElementById("tabmail")._teardown();
 
     OnMailWindowUnload();
-  },
-
-  /**
-   * Check if we can trigger the opening of the donation appeal page.
-   *
-   * @returns {boolean} - True if the donation appeal page should be opened.
-   */
-  shouldShowEOYDonationAppeal() {
-    const currentEOY = Services.prefs.getIntPref("app.donation.eoy.version", 1);
-    const viewedEOY = Services.prefs.getIntPref(
-      "app.donation.eoy.version.viewed",
-      0
-    );
-
-    // True if the user never saw the donation appeal, this is not a new
-    // profile (since users are already prompted to donate after downloading),
-    // and we're not running tests.
-    return (
-      viewedEOY < currentEOY &&
-      !specialTabs.shouldShowPolicyNotification() &&
-      !Cu.isInAutomation
-    );
-  },
-
-  /**
-   * Open the end of year appeal in a new web browser page. We don't open this
-   * in a tab due to the complexity of the donation site, and we don't want to
-   * handle that inside Thunderbird.
-   */
-  showEOYDonationAppeal() {
-    const url = Services.prefs.getStringPref("app.donation.eoy.url");
-    let tabmail = document.getElementById("tabmail");
-
-    if (!tabmail) {
-      tabmail = Services.wm
-        .getMostRecentWindow("mail:3pane")
-        ?.document.getElementById("tabmail");
-    }
-
-    // Fall back to opening a browser window if we don't have a tabmail.
-    if (!tabmail) {
-      openLinkExternally(url, { addToHistory: false });
-    } else {
-      tabmail.openTab("contentTab", {
-        url,
-        background: false,
-        linkHandler: "single-page",
-      });
-      tabmail.ownerGlobal.focus();
-    }
-
-    const currentEOY = Services.prefs.getIntPref("app.donation.eoy.version", 1);
-    Services.prefs.setIntPref("app.donation.eoy.version.viewed", currentEOY);
   },
 };
 
