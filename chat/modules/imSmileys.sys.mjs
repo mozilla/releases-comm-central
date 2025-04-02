@@ -108,16 +108,10 @@ function getRegexp() {
     delete lazy.gTheme.iconsHash[""];
   }
 
-  let emoticonList = [];
-  for (const emoticon in lazy.gTheme.iconsHash) {
-    emoticonList.push(emoticon);
-  }
+  let emoticonList = Object.keys(lazy.gTheme.iconsHash);
 
-  const exp = /[[\]{}()*+?.\\^$|]/g;
-  emoticonList = emoticonList
-    .sort()
-    .reverse()
-    .map(x => x.replace(exp, "\\$&"));
+  // escape all textCodes
+  emoticonList = emoticonList.sort().reverse().map(RegExp.escape);
 
   if (!emoticonList.length) {
     // the theme contains no valid emoticon, make sure we will return
@@ -126,7 +120,13 @@ function getRegexp() {
     return null;
   }
 
-  lazy.gTheme.regExp = new RegExp(emoticonList.join("|"), "g");
+  // combine all textCodes into one regular expression
+  // the negative lookbehind and negative lookahead ensure that the text is not part of a word
+  // this helps prevent incorrect matches
+  lazy.gTheme.regExp = new RegExp(
+    "(?<!\\w)(?:" + emoticonList.join("|") + ")(?!\\w)",
+    "g"
+  );
   return lazy.gTheme.regExp;
 }
 
