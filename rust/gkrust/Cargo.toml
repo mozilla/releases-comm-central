@@ -32,7 +32,6 @@ cascade_bloom_filter = { path = "../../../toolkit/components/cascade_bloom_filte
 cert_storage = { path = "../../../security/manager/ssl/cert_storage" }
 chardetng_c = { version = "0.1.1" }
 cose-c = { version = "0.1.5" }
-crash_helper_client = { path = "../../../toolkit/crashreporter/crash_helper_client", optional = true }
 crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
 cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "2407441a2f67341a0e13b4ba6547555e387c671c", optional = true }
 cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "8678dcab1c287de79c4c184ccc2e065bc62b70e2", optional = true, features = ['pulse-dlopen'] }
