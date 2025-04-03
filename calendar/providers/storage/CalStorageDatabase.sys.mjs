@@ -103,15 +103,11 @@ export class CalStorageDatabase {
    * @returns {CalStorageDatabase}
    */
   static connect(uri, calendarId) {
-    if (uri.schemeIs("file")) {
-      const fileURL = uri.QueryInterface(Ci.nsIFileURL);
-
-      if (!fileURL) {
-        throw new Components.Exception("Invalid file", Cr.NS_ERROR_NOT_IMPLEMENTED);
-      }
+    if (uri.schemeIs("file") && uri instanceof Ci.nsIFileURL) {
       // open the database
-      return new CalStorageDatabase(openConnectionTo(fileURL.file), calendarId);
-    } else if (uri.schemeIs("moz-storage-calendar")) {
+      return new CalStorageDatabase(openConnectionTo(uri.file), calendarId);
+    }
+    if (uri.schemeIs("moz-storage-calendar")) {
       // New style uri, no need for migration here
       const localDB = cal.provider.getCalendarDirectory();
       localDB.append("local.sqlite");
@@ -120,10 +116,9 @@ export class CalStorageDatabase {
         // This can happen with a database upgrade and the "too new schema" situation.
         localDB.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o700);
       }
-
       return new CalStorageDatabase(openConnectionTo(localDB), calendarId);
     }
-    throw new Components.Exception("Invalid Scheme " + uri.spec);
+    throw new Components.Exception(`Invalid uri ${uri.spec} for for calendar ${calendarId}`);
   }
 
   /**
@@ -255,11 +250,17 @@ export class CalStorageDatabase {
               resolve();
               break;
             case Ci.mozIStorageStatementCallback.REASON_CANCELLED:
-              reject(Components.Exception("async statement was cancelled", Cr.NS_ERROR_ABORT));
+              reject(new Components.Exception("async statement was cancelled", Cr.NS_ERROR_ABORT));
               break;
-            default:
-              reject(Components.Exception("error executing async statement", Cr.NS_ERROR_FAILURE));
+            default: {
+              const err = new Components.Exception(
+                "error executing async statement",
+                Cr.NS_ERROR_FAILURE
+              );
+              self.logError(err.message, err);
+              reject(err);
               break;
+            }
           }
         },
       });
