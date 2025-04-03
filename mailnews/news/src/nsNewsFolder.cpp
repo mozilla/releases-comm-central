@@ -1307,11 +1307,6 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelComplete() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::CancelFailed() {
-  NotifyFolderEvent(kDeleteOrMoveMsgFailed);
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgNewsFolder::GetSaveArticleOffline(bool* aBool) {
   NS_ENSURE_ARG(aBool);
   *aBool = m_downloadMessageForOfflineUse;

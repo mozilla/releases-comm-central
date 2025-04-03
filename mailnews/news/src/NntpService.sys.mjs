@@ -184,9 +184,13 @@ export class NntpService {
         ];
         client.send(content.join("\r\n"));
         client.send("\r\n.\r\n");
+      };
 
-        newsFolder.removeMessage(messageKey);
-        newsFolder.cancelComplete();
+      client.onDone = status => {
+        if (Components.isSuccessCode(status)) {
+          newsFolder.removeMessage(messageKey);
+          newsFolder.cancelComplete();
+        }
       };
     });
   }

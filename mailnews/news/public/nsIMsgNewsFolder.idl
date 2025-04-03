@@ -100,7 +100,6 @@ interface nsIMsgNewsFolder : nsISupports {
   void removeMessage(in nsMsgKey key);
   void removeMessages(in Array<nsMsgKey> keys);
   void cancelComplete();
-  void cancelFailed();
 
   ACString getMessageIdForKey(in nsMsgKey key);
 
