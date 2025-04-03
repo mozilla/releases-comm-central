@@ -482,15 +482,19 @@ interface nsIMsgFolder : nsISupports {
    * Attempt to lock folder for use by semHolder (which can be basically anything).
    * Fails with NS_MSG_FOLDER_BUSY if already locked.
    * NOTE: Despite name, there is no threadsafe mechanism being used here.
+   *
+   * @param logText - the name of the calling function, for logging purposes only.
    */
-  void acquireSemaphore(in nsISupports semHolder);
+  void acquireSemaphore(in nsISupports semHolder, in AUTF8String logText);
 
   /**
    * Releases lock held by semHolder.
    * Has no effect if semHolder does not currently hold the lock.
    * NOTE: Despite name, there is no threadsafe mechanism being used here.
+   *
+   * @param logText - the name of the calling function, for logging purposes only.
    */
-  void releaseSemaphore(in nsISupports semHolder);
+  void releaseSemaphore(in nsISupports semHolder, in AUTF8String logText);
 
   /**
    * Returns true if folder is currently locked by semHolder.

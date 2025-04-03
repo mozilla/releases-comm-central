@@ -80,6 +80,7 @@ using namespace mozilla;
 extern LazyLogModule FILTERLOGMODULE;
 extern LazyLogModule DBLog;
 extern LazyLogModule gCompactLog;  // "compact" (Defined in FolderCompactor).
+static LazyLogModule gFolderLockLog("FolderLock");
 
 static PRTime gtimeOfLastPurgeCheck;  // variable to know when to check for
                                       // purge threshold
@@ -1464,7 +1465,8 @@ nsresult nsMsgDBFolder::StartNewOfflineMessage() {
   nsresult rv = GetOfflineStoreOutputStream(
       m_offlineHeader, getter_AddRefs(m_tempMessageStream));
   if (NS_SUCCEEDED(rv) && !hasSemaphore)
-    AcquireSemaphore(static_cast<nsIMsgFolder*>(this));
+    AcquireSemaphore(static_cast<nsIMsgFolder*>(this),
+                     "nsMsgDBFolder::StartNewOfflineMessage"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Write out the X-Mozilla-Status headers...
@@ -1487,8 +1489,10 @@ nsresult nsMsgDBFolder::StartNewOfflineMessage() {
 
 nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
   // Whatever happens, we want to unlock the folder.
-  auto guard = mozilla::MakeScopeExit(
-      [&] { ReleaseSemaphore(static_cast<nsIMsgFolder*>(this)); });
+  auto guard = mozilla::MakeScopeExit([&] {
+    ReleaseSemaphore(static_cast<nsIMsgFolder*>(this),
+                     "nsMsgDBFolder::EndNewOfflineMessage"_ns);
+  });
 
   nsMsgKey messageKey;
 
@@ -4151,18 +4155,37 @@ NS_IMETHODIMP nsMsgDBFolder::GetDeletable(bool* deletable) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::AcquireSemaphore(nsISupports* semHolder) {
+NS_IMETHODIMP nsMsgDBFolder::AcquireSemaphore(nsISupports* semHolder,
+                                              const nsACString& logText) {
   nsresult rv = NS_OK;
-  if (mSemaphoreHolder == NULL)
+  if (mSemaphoreHolder == NULL) {
     mSemaphoreHolder = semHolder;  // Don't AddRef due to ownership issues.
-  else
+    mSemaphoreLogText = logText;
+    MOZ_LOG(gFolderLockLog, LogLevel::Info,
+            ("[%s] %s: %s acquired the semaphore (%p)", mURI.get(), __func__,
+             nsAutoCString(logText).get(), semHolder));
+  } else {
+    MOZ_LOG(gFolderLockLog, LogLevel::Warning,
+            ("[%s] %s: %s tried to acquire the semaphore but it is locked",
+             mURI.get(), __func__, nsAutoCString(logText).get()));
     rv = NS_MSG_FOLDER_BUSY;
+  }
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::ReleaseSemaphore(nsISupports* semHolder) {
-  if (!mSemaphoreHolder || mSemaphoreHolder == semHolder)
+NS_IMETHODIMP nsMsgDBFolder::ReleaseSemaphore(nsISupports* semHolder,
+                                              const nsACString& logText) {
+  if (mSemaphoreHolder == semHolder) {
+    MOZ_LOG(gFolderLockLog, LogLevel::Info,
+            ("[%s] %s: %s released the semaphore (%p)", mURI.get(), __func__,
+             nsAutoCString(logText).get(), semHolder));
     mSemaphoreHolder = NULL;
+    mSemaphoreLogText.Truncate();
+  } else if (mSemaphoreHolder) {
+    MOZ_LOG(gFolderLockLog, LogLevel::Warning,
+            ("[%s] %s: %s tried to release the semaphore but did not hold it",
+             mURI.get(), __func__, nsAutoCString(logText).get()));
+  }
   return NS_OK;
 }
 
@@ -4170,11 +4193,31 @@ NS_IMETHODIMP nsMsgDBFolder::TestSemaphore(nsISupports* semHolder,
                                            bool* result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = (mSemaphoreHolder == semHolder);
+  if (*result) {
+    MOZ_LOG(gFolderLockLog, LogLevel::Info,
+            ("[%s] %s: semaphore IS held by the given object (%p == %p)",
+             mURI.get(), __func__, semHolder, mSemaphoreHolder));
+  } else if (mSemaphoreHolder) {
+    MOZ_LOG(gFolderLockLog, LogLevel::Info,
+            ("[%s] %s: semaphore IS NOT held by the given object (%p != %p)",
+             mURI.get(), __func__, semHolder, mSemaphoreHolder));
+  } else {
+    MOZ_LOG(gFolderLockLog, LogLevel::Info,
+            ("[%s] %s: semaphore is free", mURI.get(), __func__));
+  }
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::GetLocked(bool* isLocked) {
   *isLocked = mSemaphoreHolder != NULL;
+  if (*isLocked) {
+    MOZ_LOG(gFolderLockLog, LogLevel::Info,
+            ("[%s] %s: semaphore is held by %s (%p)", mURI.get(), __func__,
+             mSemaphoreLogText.get(), mSemaphoreHolder));
+  } else {
+    MOZ_LOG(gFolderLockLog, LogLevel::Info,
+            ("[%s] %s: semaphore is free", mURI.get(), __func__));
+  }
   return NS_OK;
 }
 

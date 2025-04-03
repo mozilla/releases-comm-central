@@ -151,7 +151,7 @@ FolderCompactor::~FolderCompactor() {
   // Should have already released folder in OnFinalSummary(), but
   // ReleaseSemaphore() is OK with being called even if we don't hold the
   // lock.
-  mFolder->ReleaseSemaphore(this);
+  mFolder->ReleaseSemaphore(this, "FolderCompactor::~FolderCompactor"_ns);
 }
 
 nsresult FolderCompactor::BeginCompacting(
@@ -171,15 +171,16 @@ nsresult FolderCompactor::BeginCompacting(
   mDBService = do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = mFolder->AcquireSemaphore(this);
+  rv = mFolder->AcquireSemaphore(this, "FolderCompactor::BeginCompacting"_ns);
   if (rv == NS_MSG_FOLDER_BUSY) {
     return rv;  // Semi-expected, don't want a warning message.
   }
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Just in case we exit early...
-  auto guardSemaphore =
-      mozilla::MakeScopeExit([&] { mFolder->ReleaseSemaphore(this); });
+  auto guardSemaphore = mozilla::MakeScopeExit([&] {
+    mFolder->ReleaseSemaphore(this, "FolderCompactor::BeginCompacting"_ns);
+  });
 
   // If it's a local folder and the DB needs to be rebuilt, this will fail.
   // That's OK. We shouldn't be here if the DB isn't ready to go.
@@ -677,7 +678,7 @@ NS_IMETHODIMP FolderCompactor::OnFinalSummary(nsresult status, int64_t oldSize,
   mPaths.TempDir->Remove(false);  // Only if empty.
 
   // Release our lock on the folder.
-  mFolder->ReleaseSemaphore(this);
+  mFolder->ReleaseSemaphore(this, "FolderCompactor::OnFinalSummary"_ns);
 
   if (NS_SUCCEEDED(status)) {
     // Need to set nsIMsgDatabase.summaryValid, but can't access DB via

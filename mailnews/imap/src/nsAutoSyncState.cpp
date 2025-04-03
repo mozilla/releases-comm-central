@@ -501,7 +501,8 @@ NS_IMETHODIMP nsAutoSyncState::OnStopRunningUrl(nsIURI* aUrl,
   } else  // URL not folderstatus but FETCH of message body
   {
     // XXXemre how we recover from this error?
-    rv = ownerFolder->ReleaseSemaphore(ownerFolder);
+    rv = ownerFolder->ReleaseSemaphore(ownerFolder,
+                                       "nsAutoSyncState::OnStopRunningUrl"_ns);
     NS_ASSERTION(NS_SUCCEEDED(rv), "*** Cannot release folder semaphore");
 
     nsCOMPtr<nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(aUrl);
@@ -672,7 +673,8 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
   nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(mOwnerFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = folder->AcquireSemaphore(folder);
+  rv = folder->AcquireSemaphore(
+      folder, "nsAutoSyncState::DownloadMessagesForOffline"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {

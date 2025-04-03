@@ -35,10 +35,10 @@ nsresult StoreIndexer::GoIndex(nsMsgLocalMailFolder* folder,
   // NOTE: the folder semaphore is not a thread-safe mechanism!
   // The folder just sets a member var to track who is currently holding
   // it. It's thoroughly main-thread-only.
-  nsresult rv = folder->AcquireSemaphore(this);
+  nsresult rv = folder->AcquireSemaphore(this, "StoreIndexer::GoIndex"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
-  auto scopeGuard =
-      mozilla::MakeScopeExit([&] { folder->ReleaseSemaphore(this); });
+  auto scopeGuard = mozilla::MakeScopeExit(
+      [&] { folder->ReleaseSemaphore(this, "StoreIndexer::GoIndex"_ns); });
 
   mProgressFn = progressFn;
   mCompletionFn = completionFn;
@@ -93,7 +93,7 @@ nsresult StoreIndexer::GoIndex(nsMsgLocalMailFolder* folder,
 void StoreIndexer::ReleaseFolder() {
   // mFolder is only set if we took a lock on it.
   if (mFolder) {
-    mFolder->ReleaseSemaphore(this);
+    mFolder->ReleaseSemaphore(this, "StoreIndexer::ReleaseFolder"_ns);
     mFolder = nullptr;
   }
   // Release

@@ -266,6 +266,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsISupports* mSemaphoreHolder;  // set when the folder is being written to
                                   // Due to ownership issues, this won't be
                                   // AddRef'd.
+  nsAutoCString mSemaphoreLogText;
 
   nsWeakPtr mServer;
 

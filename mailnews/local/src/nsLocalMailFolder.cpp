@@ -1251,7 +1251,8 @@ nsresult nsMsgLocalMailFolder::InitCopyState(
   GetLocked(&isLocked);
   if (isLocked) return NS_MSG_FOLDER_BUSY;
 
-  AcquireSemaphore(static_cast<nsIMsgLocalMailFolder*>(this));
+  AcquireSemaphore(static_cast<nsIMsgLocalMailFolder*>(this),
+                   "nsMsgLocalMailFolder::InitCopyState"_ns);
 
   mCopyState = new nsLocalMailCopyState();
   NS_ENSURE_TRUE(mCopyState, NS_ERROR_OUT_OF_MEMORY);
@@ -1290,7 +1291,8 @@ nsMsgLocalMailFolder::OnCopyCompleted(nsISupports* srcSupport,
   nsresult rv =
       TestSemaphore(static_cast<nsIMsgLocalMailFolder*>(this), &haveSemaphore);
   if (NS_SUCCEEDED(rv) && haveSemaphore)
-    ReleaseSemaphore(static_cast<nsIMsgLocalMailFolder*>(this));
+    ReleaseSemaphore(static_cast<nsIMsgLocalMailFolder*>(this),
+                     "nsMsgLocalMailFolder::OnCopyCompleted"_ns);
 
   if (mCopyState && !mCopyState->m_newMsgKeywords.IsEmpty() &&
       mCopyState->m_newHdr) {
@@ -3288,7 +3290,8 @@ nsMsgLocalMailFolder::AddMessageBatch(
   GetLocked(&isLocked);
   if (isLocked) return NS_MSG_FOLDER_BUSY;
 
-  AcquireSemaphore(static_cast<nsIMsgLocalMailFolder*>(this));
+  AcquireSemaphore(static_cast<nsIMsgLocalMailFolder*>(this),
+                   "nsMsgLocalMailFolder::AddMessageBatch"_ns);
 
   if (NS_SUCCEEDED(rv)) {
     NS_ENSURE_SUCCESS(rv, rv);
@@ -3329,7 +3332,8 @@ nsMsgLocalMailFolder::AddMessageBatch(
       aHdrArray.AppendElement(newHdr);
     }
   }
-  ReleaseSemaphore(static_cast<nsIMsgLocalMailFolder*>(this));
+  ReleaseSemaphore(static_cast<nsIMsgLocalMailFolder*>(this),
+                   "nsMsgLocalMailFolder::AddMessageBatch"_ns);
   return rv;
 }
 
@@ -3356,14 +3360,17 @@ nsresult nsMsgLocalMailFolder::AddMessageBatch2(
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Make sure nobody else is trying to fiddle with the folder.
-  rv = AcquireSemaphore(static_cast<nsIMsgLocalMailFolder*>(this));
+  rv = AcquireSemaphore(static_cast<nsIMsgLocalMailFolder*>(this),
+                        "nsMsgLocalMailFolder::AddMessageBatch2"_ns);
   if (rv == NS_MSG_FOLDER_BUSY) {
     return rv;
   }
   NS_ENSURE_SUCCESS(rv, rv);
 
-  auto cleanup = mozilla::MakeScopeExit(
-      [&] { ReleaseSemaphore(static_cast<nsIMsgLocalMailFolder*>(this)); });
+  auto cleanup = mozilla::MakeScopeExit([&] {
+    ReleaseSemaphore(static_cast<nsIMsgLocalMailFolder*>(this),
+                     "nsMsgLocalMailFolder::AddMessageBatch2"_ns);
+  });
 
   // For each message...
   for (nsCString const& raw : rawMessages) {

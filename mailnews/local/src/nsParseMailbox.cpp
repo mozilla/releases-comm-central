@@ -1995,7 +1995,9 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
       do_QueryInterface(static_cast<nsIMsgParseMailMsgState*>(this));
 
   // Make sure no one else is writing into this folder
-  if (NS_FAILED(rv = destIFolder->AcquireSemaphore(myISupports))) {
+  if (NS_FAILED(rv = destIFolder->AcquireSemaphore(
+                    myISupports,
+                    "nsParseNewMailState::MoveIncorporatedMessage"_ns))) {
     destIFolder->ThrowAlertMsg("filterFolderDeniedLocked", msgWindow);
     return rv;
   }
@@ -2004,14 +2006,16 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
       m_downloadFolder->GetLocalMsgStream(mailHdr, getter_AddRefs(inputStream));
   if (NS_FAILED(rv)) {
     NS_ERROR("couldn't get source msg input stream in move filter");
-    destIFolder->ReleaseSemaphore(myISupports);
+    destIFolder->ReleaseSemaphore(
+        myISupports, "nsParseNewMailState::MoveIncorporatedMessage"_ns);
     return NS_MSG_FOLDER_UNREADABLE;  // ### dmb
   }
 
   nsCOMPtr<nsIMsgDatabase> destMailDB;
 
   if (!localFolder) {
-    destIFolder->ReleaseSemaphore(myISupports);
+    destIFolder->ReleaseSemaphore(
+        myISupports, "nsParseNewMailState::MoveIncorporatedMessage"_ns);
     return NS_MSG_POP_FILTER_TARGET_ERROR;
   }
 
@@ -2039,7 +2043,8 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   if (NS_FAILED(rv)) {
     if (destMailDB) destMailDB->Close(true);
 
-    destIFolder->ReleaseSemaphore(myISupports);
+    destIFolder->ReleaseSemaphore(
+        myISupports, "nsParseNewMailState::MoveIncorporatedMessage"_ns);
 
     return NS_MSG_ERROR_WRITING_MAIL_FOLDER;
   }
@@ -2073,7 +2078,8 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   if (!m_filterTargetFolders.Contains(destIFolder))
     m_filterTargetFolders.AppendObject(destIFolder);
 
-  destIFolder->ReleaseSemaphore(myISupports);
+  destIFolder->ReleaseSemaphore(
+      myISupports, "nsParseNewMailState::MoveIncorporatedMessage"_ns);
 
   (void)localFolder->RefreshSizeOnDisk();
 

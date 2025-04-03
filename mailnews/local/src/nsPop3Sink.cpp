@@ -166,7 +166,7 @@ nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
   if (!isLocked) {
     MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Debug,
             (POP3LOG("BeginMailDelivery acquiring semaphore")));
-    m_folder->AcquireSemaphore(supports);
+    m_folder->AcquireSemaphore(supports, "nsPop3Sink::BeginMailDelivery"_ns);
   } else {
     MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Debug,
             (POP3LOG("BeginMailDelivery folder locked")));
@@ -269,7 +269,8 @@ nsresult nsPop3Sink::ReleaseFolderLock() {
            haveSemaphore ? "TRUE" : "FALSE"));
 
   if (NS_SUCCEEDED(result) && haveSemaphore)
-    result = m_folder->ReleaseSemaphore(supports);
+    result = m_folder->ReleaseSemaphore(supports,
+                                        "nsPop3Sink::ReleaseFolderLock"_ns);
   return result;
 }
 

@@ -4268,7 +4268,8 @@ NS_IMETHODIMP nsImapMailFolder::DownloadMessagesForOffline(
       do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = AcquireSemaphore(static_cast<nsIMsgFolder*>(this));
+  rv = AcquireSemaphore(static_cast<nsIMsgFolder*>(this),
+                        "nsImapMailFolder::DownloadMessagesForOffline"_ns);
   if (NS_FAILED(rv)) {
     ThrowAlertMsg("operationFailedFolderBusy", window);
     return rv;
@@ -4291,7 +4292,8 @@ NS_IMETHODIMP nsImapMailFolder::DownloadAllForOffline(nsIUrlListener* listener,
     GetDatabase();
     m_downloadingFolderForOfflineUse = true;
 
-    rv = AcquireSemaphore(static_cast<nsIMsgFolder*>(this));
+    rv = AcquireSemaphore(static_cast<nsIMsgFolder*>(this),
+                          "nsImapMailFolder::DownloadAllForOffline"_ns);
     if (NS_FAILED(rv)) {
       m_downloadingFolderForOfflineUse = false;
       ThrowAlertMsg("operationFailedFolderBusy", msgWindow);
@@ -4377,7 +4379,8 @@ void nsImapMailFolder::EndOfflineDownload() {
   if (m_tempMessageStream) {
     m_tempMessageStream->Close();
     m_tempMessageStream = nullptr;
-    ReleaseSemaphore(static_cast<nsIMsgFolder*>(this));
+    ReleaseSemaphore(static_cast<nsIMsgFolder*>(this),
+                     "nsImapMailFolder::EndOfflineDownload"_ns);
     if (mDatabase) mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
   }
   m_offlineHeader = nullptr;
@@ -4956,7 +4959,9 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
     bool hasSemaphore = false;
     // if we have the folder locked, clear it.
     TestSemaphore(static_cast<nsIMsgFolder*>(this), &hasSemaphore);
-    if (hasSemaphore) ReleaseSemaphore(static_cast<nsIMsgFolder*>(this));
+    if (hasSemaphore)
+      ReleaseSemaphore(static_cast<nsIMsgFolder*>(this),
+                       "nsImapMailFolder::OnStopRunningUrl"_ns);
     if (downloadingForOfflineUse) {
       endedOfflineDownload = true;
       EndOfflineDownload();
@@ -4970,7 +4975,8 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
       imapUrl->GetImapAction(&imapAction);
       if (imapAction == nsIImapUrl::nsImapMsgFetch ||
           imapAction == nsIImapUrl::nsImapMsgDownloadForOffline) {
-        ReleaseSemaphore(static_cast<nsIMsgFolder*>(this));
+        ReleaseSemaphore(static_cast<nsIMsgFolder*>(this),
+                         "nsImapMailFolder::OnStopRunningUrl"_ns);
         if (!endedOfflineDownload) EndOfflineDownload();
       }
 
