@@ -321,15 +321,7 @@ export class ConfigVerifier {
           this.server.setStringValue("eas_url", config.incoming.easURL);
         }
 
-        if (
-          this.server.password ||
-          this.server.authMethod == Ci.nsMsgAuthMethod.OAuth2
-        ) {
-          this.verifyLogon();
-        } else {
-          this.cleanup();
-          resolve(config);
-        }
+        this.verifyLogon();
       } catch (e) {
         this._log.info("verifyConfig failed: " + e);
         this.cleanup();
