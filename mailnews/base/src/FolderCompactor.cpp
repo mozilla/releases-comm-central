@@ -655,11 +655,11 @@ NS_IMETHODIMP FolderCompactor::OnFinalSummary(nsresult status, int64_t oldSize,
   if (mTimerId) {
     mozilla::glean::mail::compact_duration.StopAndAccumulate(
         std::move(mTimerId));
+    PROFILER_MARKER_TEXT(
+        "FolderCompactor", OTHER,
+        mozilla::MarkerOptions(mozilla::MarkerTiming::IntervalEnd()),
+        mFolder->URI());
   }
-  PROFILER_MARKER_TEXT(
-      "FolderCompactor", OTHER,
-      mozilla::MarkerOptions(mozilla::MarkerTiming::IntervalEnd()),
-      mFolder->URI());
 
   if (NS_SUCCEEDED(status)) {
     mozilla::glean::mail::compact_space_recovered.Accumulate(oldSize - newSize);

@@ -61,6 +61,7 @@
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/ProfilerMarkers.h"
 #include "mozilla/ScopeExit.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/Utf8.h"
@@ -4164,6 +4165,8 @@ NS_IMETHODIMP nsMsgDBFolder::AcquireSemaphore(nsISupports* semHolder,
     MOZ_LOG(gFolderLockLog, LogLevel::Info,
             ("[%s] %s: %s acquired the semaphore (%p)", mURI.get(), __func__,
              nsAutoCString(logText).get(), semHolder));
+    PROFILER_MARKER_TEXT("Folder Lock Acquired", OTHER,
+                         MarkerOptions(MarkerStack::Capture()), mURI);
   } else {
     MOZ_LOG(gFolderLockLog, LogLevel::Warning,
             ("[%s] %s: %s tried to acquire the semaphore but it is locked",
@@ -4179,6 +4182,8 @@ NS_IMETHODIMP nsMsgDBFolder::ReleaseSemaphore(nsISupports* semHolder,
     MOZ_LOG(gFolderLockLog, LogLevel::Info,
             ("[%s] %s: %s released the semaphore (%p)", mURI.get(), __func__,
              nsAutoCString(logText).get(), semHolder));
+    PROFILER_MARKER_TEXT("Folder Lock Released", OTHER,
+                         MarkerOptions(MarkerStack::Capture()), mURI);
     mSemaphoreHolder = NULL;
     mSemaphoreLogText.Truncate();
   } else if (mSemaphoreHolder) {
@@ -4205,6 +4210,8 @@ NS_IMETHODIMP nsMsgDBFolder::TestSemaphore(nsISupports* semHolder,
     MOZ_LOG(gFolderLockLog, LogLevel::Info,
             ("[%s] %s: semaphore is free", mURI.get(), __func__));
   }
+  PROFILER_MARKER_TEXT("Folder Lock Tested", OTHER,
+                       MarkerOptions(MarkerStack::Capture()), mURI);
   return NS_OK;
 }
 
@@ -4218,6 +4225,8 @@ NS_IMETHODIMP nsMsgDBFolder::GetLocked(bool* isLocked) {
     MOZ_LOG(gFolderLockLog, LogLevel::Info,
             ("[%s] %s: semaphore is free", mURI.get(), __func__));
   }
+  PROFILER_MARKER_TEXT("Folder Lock Tested", OTHER,
+                       MarkerOptions(MarkerStack::Capture()), mURI);
   return NS_OK;
 }
 
