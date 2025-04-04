@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mozilla/Components.h"
+#include "mozilla/ProfilerMarkers.h"
 #include "msgCore.h"
 #include "nsIAppStartup.h"
 #include "nsMsgSearchCore.h"
@@ -206,6 +207,7 @@ nsMsgSearchSession::AddAllScopes(nsMsgSearchScopeValue attrib) {
 }
 
 NS_IMETHODIMP nsMsgSearchSession::Search(nsIMsgWindow* aWindow) {
+  AUTO_PROFILER_LABEL("nsMsgSearchSession::Search", MAILNEWS);
   nsresult rv = Initialize();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -225,6 +227,7 @@ NS_IMETHODIMP nsMsgSearchSession::Search(nsIMsgWindow* aWindow) {
 }
 
 NS_IMETHODIMP nsMsgSearchSession::InterruptSearch() {
+  AUTO_PROFILER_LABEL("nsMsgSearchSession::InterruptSearch", MAILNEWS);
   nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
   if (msgWindow) {
     EnableFolderNotifications(true);

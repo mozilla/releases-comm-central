@@ -796,6 +796,7 @@ nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr,
 
 NS_IMETHODIMP
 nsMsgDBFolder::GetMsgDatabase(nsIMsgDatabase** aMsgDatabase) {
+  AUTO_PROFILER_LABEL("nsMsgDBFolder::GetMsgDatabase", MAILNEWS);
   NS_ENSURE_ARG_POINTER(aMsgDatabase);
   GetDatabase();
   if (!mDatabase) return NS_ERROR_FAILURE;
@@ -806,6 +807,7 @@ nsMsgDBFolder::GetMsgDatabase(nsIMsgDatabase** aMsgDatabase) {
 
 NS_IMETHODIMP
 nsMsgDBFolder::SetMsgDatabase(nsIMsgDatabase* aMsgDatabase) {
+  AUTO_PROFILER_LABEL("nsMsgDBFolder::SetMsgDatabase", MAILNEWS);
   if (mDatabase) {
     // commit here - db might go away when all these refs are released.
     mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
@@ -2676,6 +2678,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetParent(nsIMsgFolder** aParent) {
 
 NS_IMETHODIMP
 nsMsgDBFolder::GetMessages(nsIMsgEnumerator** result) {
+  AUTO_PROFILER_LABEL("nsMsgDBFolder::GetMessages", MAILNEWS);
   NS_ENSURE_ARG_POINTER(result);
   // Make sure mDatabase is set.
   nsresult rv = GetDatabase();
@@ -4572,6 +4575,7 @@ nsresult nsMsgDBFolder::NotifyMessageRemoved(nsIMsgDBHdr* msg) {
 }
 
 NS_IMETHODIMP nsMsgDBFolder::NotifyFolderAdded(nsIMsgFolder* child) {
+  AUTO_PROFILER_LABEL("nsMsgDBFolder::NotifyFolderAdded", MAILNEWS);
   NOTIFY_LISTENERS(OnFolderAdded, (this, child));
 
   // Notify listeners who listen to every folder

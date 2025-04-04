@@ -12,6 +12,7 @@
 #include "nsNetUtil.h"
 #include "MboxScanner.h"
 #include "mozilla/Logging.h"
+#include "mozilla/ProfilerMarkers.h"
 #include "mozilla/ScopeExit.h"
 
 NS_IMPL_ISUPPORTS(MboxScanner, nsIStreamListener)
@@ -121,6 +122,7 @@ NS_IMETHODIMP MboxScanner::OnDataAvailable(nsIRequest* req,
 }
 
 NS_IMETHODIMP MboxScanner::OnStopRequest(nsIRequest* req, nsresult status) {
+  AUTO_PROFILER_LABEL("MboxScanner::OnStopRequest", MAILNEWS);
   if (mMboxStream) {
     nsresult rv = mScanListener->OnStopRequest(req, status);
     if (NS_SUCCEEDED(status) && NS_FAILED(rv)) {

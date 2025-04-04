@@ -37,6 +37,7 @@
 #include "mozilla/dom/DataTransfer.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/ProfilerMarkers.h"
 #include "nsTArray.h"
 #include "mozilla/intl/OSPreferences.h"
 #include "mozilla/intl/LocaleService.h"
@@ -2064,6 +2065,7 @@ NS_IMETHODIMP
 nsMsgDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder,
                   nsMsgViewFlagsTypeValue viewFlags) {
+  AUTO_PROFILER_LABEL("nsMsgDBView::Open", MAILNEWS);
   m_viewFlags = viewFlags;
   m_sortOrder = sortOrder;
   m_sortType = sortType;
@@ -2312,6 +2314,7 @@ nsMsgDBView::GetURIForViewIndex(nsMsgViewIndex index, nsACString& result) {
 NS_IMETHODIMP
 nsMsgDBView::DoCommandWithFolder(nsMsgViewCommandTypeValue command,
                                  nsIMsgFolder* destFolder) {
+  AUTO_PROFILER_LABEL("nsMsgDBView::DoCommandWithFolder", MAILNEWS);
   NS_ENSURE_ARG_POINTER(destFolder);
 
   nsMsgViewIndexArray selection;
@@ -2335,6 +2338,7 @@ nsMsgDBView::DoCommandWithFolder(nsMsgViewCommandTypeValue command,
 
 NS_IMETHODIMP
 nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
+  AUTO_PROFILER_LABEL("nsMsgDBView::DoCommand", MAILNEWS);
   nsMsgViewIndexArray selection;
   GetIndicesForSelection(selection);
 

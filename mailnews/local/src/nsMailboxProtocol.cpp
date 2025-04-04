@@ -15,6 +15,7 @@
 #include "nsICopyMessageListener.h"
 #include "prtime.h"
 #include "mozilla/Logging.h"
+#include "mozilla/ProfilerMarkers.h"
 #include "prerror.h"
 #include "prprf.h"
 #include "nspr.h"
@@ -128,6 +129,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 NS_IMETHODIMP nsMailboxProtocol::OnStartRequest(nsIRequest* request) {
+  AUTO_PROFILER_LABEL("nsMailboxProtocol::OnStartRequest", MAILNEWS);
   return nsMsgProtocol::OnStartRequest(request);
 }
 
@@ -145,6 +147,8 @@ bool nsMailboxProtocol::RunningMultipleMsgUrl() {
 // aURL is going away.
 NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
                                                nsresult aStatus) {
+  AUTO_PROFILER_LABEL("nsMailboxProtocol::OnStopRequest", MAILNEWS);
+
   nsresult rv;
   if (m_nextState == MAILBOX_READ_MESSAGE) {
     DoneReadingMessage();

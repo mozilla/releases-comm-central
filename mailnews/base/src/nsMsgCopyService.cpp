@@ -11,6 +11,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Logging.h"
+#include "mozilla/ProfilerMarkers.h"
 
 static mozilla::LazyLogModule gCopyServiceLog("MsgCopyService");
 
@@ -371,6 +372,7 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
     nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, nsIMsgFolder* dstFolder,
     bool isMove, nsIMsgCopyServiceListener* listener, nsIMsgWindow* window,
     bool allowUndo) {
+  AUTO_PROFILER_LABEL("nsMsgCopyService::CopyMessages", MAILNEWS);
   NS_ENSURE_ARG_POINTER(srcFolder);
   NS_ENSURE_ARG_POINTER(dstFolder);
 
@@ -494,6 +496,7 @@ nsMsgCopyService::CopyFileMessage(nsIFile* file, nsIMsgFolder* dstFolder,
                                   const nsACString& aNewMsgKeywords,
                                   nsIMsgCopyServiceListener* listener,
                                   nsIMsgWindow* window) {
+  AUTO_PROFILER_LABEL("nsMsgCopyService::CopyFileMessage", MAILNEWS);
   nsresult rv = NS_ERROR_NULL_POINTER;
   nsCopyRequest* copyRequest;
   nsCopySource* copySource = nullptr;

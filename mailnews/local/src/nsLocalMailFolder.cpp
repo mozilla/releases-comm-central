@@ -112,6 +112,7 @@ NS_IMPL_ISUPPORTS_INHERITED(nsMsgLocalMailFolder, nsMsgDBFolder,
 
 NS_IMETHODIMP nsMsgLocalMailFolder::CreateLocalSubfolder(
     const nsACString& aFolderName, nsIMsgFolder** aChild) {
+  AUTO_PROFILER_LABEL("nsMsgLocalMailFolder::CreateLocalSubfolder", MAILNEWS);
   NS_ENSURE_ARG_POINTER(aChild);
   nsresult rv = CreateSubfolderInternal(aFolderName, nullptr, aChild);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -511,6 +512,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CreateStorageIfMissing(
 NS_IMETHODIMP
 nsMsgLocalMailFolder::CreateSubfolder(const nsACString& folderName,
                                       nsIMsgWindow* msgWindow) {
+  AUTO_PROFILER_LABEL("nsMsgLocalMailFolder::CreateSubfolder", MAILNEWS);
   nsCOMPtr<nsIMsgFolder> newFolder;
   nsresult rv =
       CreateSubfolderInternal(folderName, msgWindow, getter_AddRefs(newFolder));

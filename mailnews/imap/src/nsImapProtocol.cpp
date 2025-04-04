@@ -9002,11 +9002,15 @@ class ImapOfflineMsgStreamListener : public nsIStreamListener {
 
   NS_IMETHOD OnDataAvailable(nsIRequest* request, nsIInputStream* stream,
                              uint64_t offset, uint32_t count) override {
+    AUTO_PROFILER_LABEL("ImapOfflineMsgStreamListener::OnDataAvailable",
+                        MAILNEWS);
     MOZ_RELEASE_ASSERT(NS_IsMainThread());
     return mListener->OnDataAvailable(mChannel, stream, offset, count);
   }
 
   NS_IMETHOD OnStopRequest(nsIRequest* request, nsresult status) override {
+    AUTO_PROFILER_LABEL("ImapOfflineMsgStreamListener::OnStopRequest",
+                        MAILNEWS);
     MOZ_RELEASE_ASSERT(NS_IsMainThread());
     nsresult rv = mListener->OnStopRequest(mChannel, status);
     mListener = nullptr;

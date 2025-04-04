@@ -667,6 +667,7 @@ nsresult nsMsgAccountManager::createKeyedServer(
 NS_IMETHODIMP
 nsMsgAccountManager::RemoveAccount(nsIMsgAccount* aAccount,
                                    bool aRemoveFiles = false) {
+  AUTO_PROFILER_LABEL("nsMsgAccountManager::RemoveAccount", MAILNEWS);
   NS_ENSURE_ARG_POINTER(aAccount);
   // Hold account in scope while we tidy up potentially-shared identities.
   nsresult rv = LoadAccounts();
@@ -928,6 +929,7 @@ NS_IMETHODIMP nsMsgAccountManager::GetFolderCache(
 
 NS_IMETHODIMP
 nsMsgAccountManager::GetAccounts(nsTArray<RefPtr<nsIMsgAccount>>& accounts) {
+  AUTO_PROFILER_LABEL("nsMsgAccountManager::GetAccounts", MAILNEWS);
   nsresult rv = LoadAccounts();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -950,6 +952,7 @@ nsMsgAccountManager::GetAccounts(nsTArray<RefPtr<nsIMsgAccount>>& accounts) {
 NS_IMETHODIMP
 nsMsgAccountManager::GetAllIdentities(
     nsTArray<RefPtr<nsIMsgIdentity>>& result) {
+  AUTO_PROFILER_LABEL("nsMsgAccountManager::GetAllIdentities", MAILNEWS);
   nsresult rv = LoadAccounts();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -987,6 +990,7 @@ nsMsgAccountManager::GetAllIdentities(
 NS_IMETHODIMP
 nsMsgAccountManager::GetAllServers(
     nsTArray<RefPtr<nsIMsgIncomingServer>>& servers) {
+  AUTO_PROFILER_LABEL("nsMsgAccountManager::GetAllServers", MAILNEWS);
   servers.Clear();
   nsresult rv = LoadAccounts();
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2916,6 +2920,7 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
 }
 
 NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders() {
+  AUTO_PROFILER_LABEL("nsMsgAccountManager::SaveVirtualFolders", MAILNEWS);
   if (!m_virtualFoldersLoaded) return NS_OK;
 
   nsCOMPtr<nsIFile> file;
