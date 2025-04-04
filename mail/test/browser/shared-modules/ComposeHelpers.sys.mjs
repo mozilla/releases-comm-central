@@ -1545,6 +1545,11 @@ export class FormatHelper {
    * textContent and a break element, so do not use "<BR>" within the typed text
    * of the message.
    *
+   * Non-breaking spaces (e.g. `\u00A0`, often used by HTML editors for spacing)
+   * are treated as regular spaces during comparison to avoid false mismatches
+   * due to layout-preserving characters that are visually indistinguishable.
+   * This was introduced after bug 1951832 landed.
+   *
    * @param {(BlockSummary|StyledTextSummary|string)[]} content - The expected
    *   content, ordered the same as in the document structure. BlockSummary
    *   objects represent blocks, and will have their own content.
@@ -1555,6 +1560,8 @@ export class FormatHelper {
    */
   assertMessageBodyContent(content, assertMessage) {
     const cls = this.constructor;
+
+    const normalizeWhitespace = text => text.replace(/\u00A0/g, " ");
 
     function message(messageText, below, index) {
       return `${messageText} (at index ${index} below ${below})`;
@@ -1569,7 +1576,9 @@ export class FormatHelper {
         if (node.text === undefined) {
           return message("Is not a (styled) text region", below, index);
         }
-        if (node.text !== expect.text) {
+        const normalizedNodeText = normalizeWhitespace(node.text);
+        const normalizedExpectText = normalizeWhitespace(expect.text);
+        if (normalizedNodeText !== normalizedExpectText) {
           return message(
             `Different text "${node.text}" vs "${expect.text}"`,
             below,
