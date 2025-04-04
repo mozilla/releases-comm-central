@@ -8,6 +8,10 @@
  * Uses: cardForEmail.mab
  */
 
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+
 function check_correct_card(card) {
   Assert.ok(!!card);
 
@@ -74,6 +78,10 @@ function run_test() {
   card = AB.cardForEmailAddress("FOURTH@SOMETHING.INVALID");
   Assert.equal(card.UID, "f68fbac4-158b-4bdc-95c6-592a5f93cfa1");
   Assert.equal(card.displayName, "A vCard!");
+
+  // Test nsIAbManager.cardForEmailAddress as well.
+  card = MailServices.ab.cardForEmailAddress("fourth@SOMETHING.invalid");
+  Assert.ok(card, "Should find card case-insensitive");
 
   card = AB.cardForEmailAddress("A vCard!");
   Assert.equal(card, null);

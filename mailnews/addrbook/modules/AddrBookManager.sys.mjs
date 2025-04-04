@@ -52,7 +52,7 @@ function updateSortedDirectoryList() {
 function createDirectoryObject(uri, shouldStore = false) {
   const uriParts = URI_REGEXP.exec(uri);
   if (!uriParts) {
-    throw Components.Exception(
+    throw new Components.Exception(
       `Unexpected uri: ${uri}`,
       Cr.NS_ERROR_MALFORMED_URI
     );
@@ -227,14 +227,20 @@ AddrBookManager.prototype = {
 
   /* nsIAbManager */
 
+  /**
+   * @returns {nsIAbDirectory[]}
+   */
   get directories() {
     ensureInitialized();
     return sortedDirectoryList.slice();
   },
+  /**
+   * @param {string} uri
+   */
   getDirectory(uri) {
     if (uri.startsWith("moz-abdirectory://")) {
       throw new Components.Exception(
-        "The root address book no longer exists",
+        `The root address book no longer exists: ${uri}`,
         Cr.NS_ERROR_FAILURE
       );
     }
@@ -324,10 +330,11 @@ AddrBookManager.prototype = {
 
       const existingNames = Array.from(store.values(), dir => dir.dirPrefId);
       let uniqueCount = 0;
-      prefName = `ldap_2.servers.${leafName}`;
-      while (existingNames.includes(prefName)) {
-        prefName = `ldap_2.servers.${leafName}_${++uniqueCount}`;
+      let uniquePrefName = `ldap_2.servers.${leafName}`;
+      while (existingNames.includes(uniquePrefName)) {
+        uniquePrefName = `ldap_2.servers.${leafName}_${++uniqueCount}`;
       }
+      return uniquePrefName;
     }
 
     if (!dirName) {
@@ -352,7 +359,7 @@ AddrBookManager.prototype = {
         file.append("ldap.sqlite");
         file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
 
-        ensureUniquePrefName();
+        prefName = ensureUniquePrefName();
         Services.prefs.setStringPref(`${prefName}.description`, dirName);
         Services.prefs.setStringPref(`${prefName}.filename`, file.leafName);
         Services.prefs.setStringPref(`${prefName}.uri`, uri);
@@ -427,7 +434,7 @@ AddrBookManager.prototype = {
         file.append("abook.sqlite");
         file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
 
-        ensureUniquePrefName();
+        prefName = ensureUniquePrefName();
         Services.prefs.setStringPref(`${prefName}.description`, dirName);
         Services.prefs.setIntPref(`${prefName}.dirType`, type);
         Services.prefs.setStringPref(`${prefName}.filename`, file.leafName);
@@ -481,10 +488,16 @@ AddrBookManager.prototype = {
     updateSortedDirectoryList();
     Services.obs.notifyObservers(dir, "addrbook-directory-created");
   },
+  /**
+   * @param {string} uri
+   */
   deleteAddressBook(uri) {
     const uriParts = URI_REGEXP.exec(uri);
     if (!uriParts) {
-      throw Components.Exception("", Cr.NS_ERROR_MALFORMED_URI);
+      throw new Components.Exception(
+        `Delete address book failed; uri=${uri}`,
+        Cr.NS_ERROR_MALFORMED_URI
+      );
     }
 
     let [, scheme, fileName, tail] = uriParts;
@@ -577,10 +590,16 @@ AddrBookManager.prototype = {
     }
     return false;
   },
+
+  /**
+   * @param {string} emailAddress - Email address to look up.
+   * @returns {?nsIAbCard} the found card, if any.
+   */
   cardForEmailAddress(emailAddress) {
     if (!emailAddress) {
       return null;
     }
+    emailAddress = emailAddress.toLowerCase();
 
     if (!addressCache) {
       addressCache = new Map();
