@@ -202,7 +202,7 @@ class MessageCopyHandler : public nsICopyMessageListener {
   RefPtr<nsIMsgCopyServiceListener> mCopyServiceListener;
 
   // The index into `mHeaders` of the message currently being copied/move.
-  size_t mCurIndex{};
+  size_t mCurIndex;
 
   // A buffer containing the full message content.
   //

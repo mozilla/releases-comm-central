@@ -85,11 +85,13 @@ interface IEwsClient : nsISupports
    *
    * @param folderId - The EWS ID of the folder.
    * @param isDraft - Whether the message being created is an unsent draft.
+   * @param isRead - Whether the message has already been read.
    * @param messageStream - The input stream to read the message from.
    * @param callbacks - Callbacks for indicating operation state and status.
    */
   void createMessage(in AUTF8String folderId,
                      in boolean isDraft,
+                     in boolean isRead,
                      in nsIInputStream messageStream,
                      in IEwsMessageCreateCallbacks callbacks);
 

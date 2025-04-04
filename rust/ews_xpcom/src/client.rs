@@ -1038,6 +1038,7 @@ impl XpComEwsClient {
         self,
         folder_id: String,
         is_draft: bool,
+        is_read: bool,
         content: Vec<u8>,
         callbacks: RefPtr<IEwsMessageCreateCallbacks>,
     ) {
@@ -1045,7 +1046,7 @@ impl XpComEwsClient {
         // Use the return value to determine which status we should use when
         // notifying the end of the request.
         let status = match self
-            .create_message_inner(folder_id, is_draft, content, &callbacks)
+            .create_message_inner(folder_id, is_draft, is_read, content, &callbacks)
             .await
         {
             Ok(_) => nserror::NS_OK,
@@ -1065,6 +1066,7 @@ impl XpComEwsClient {
         &self,
         folder_id: String,
         is_draft: bool,
+        is_read: bool,
         content: Vec<u8>,
         callbacks: &IEwsMessageCreateCallbacks,
     ) -> Result<(), XpComEwsError> {
@@ -1074,6 +1076,7 @@ impl XpComEwsClient {
                 character_set: None,
                 content: BASE64_STANDARD.encode(&content),
             }),
+            is_read: Some(is_read),
             ..Default::default()
         };
 

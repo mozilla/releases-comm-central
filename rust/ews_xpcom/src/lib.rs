@@ -228,11 +228,12 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(create_message => CreateMessage(folder_id: *const nsACString, is_draft: bool, message_stream: *const nsIInputStream, callbacks: *const IEwsMessageCreateCallbacks));
+    xpcom_method!(create_message => CreateMessage(folder_id: *const nsACString, is_draft: bool, is_read: bool, message_stream: *const nsIInputStream, callbacks: *const IEwsMessageCreateCallbacks));
     fn create_message(
         &self,
         folder_id: &nsACString,
         is_draft: bool,
+        is_read: bool,
         message_stream: &nsIInputStream,
         callbacks: &IEwsMessageCreateCallbacks,
     ) -> Result<(), nsresult> {
@@ -247,6 +248,7 @@ impl XpcomEwsBridge {
             client.create_message(
                 folder_id.to_utf8().into(),
                 is_draft,
+                is_read,
                 content,
                 RefPtr::new(callbacks),
             ),

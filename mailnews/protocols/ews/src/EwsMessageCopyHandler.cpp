@@ -449,6 +449,7 @@ nsresult MessageCopyHandler::SetMessageKey(nsMsgKey aKey) {
 
 nsresult MessageCopyHandler::CreateRemoteMessage() {
   nsresult rv;
+  bool isRead = false;
   nsCOMPtr<nsIInputStream> inputStream;
 
   // Get a stream containing the file's content, according to its source.
@@ -462,13 +463,21 @@ nsresult MessageCopyHandler::CreateRemoteMessage() {
     MOZ_TRY(stream->SetByteStringData(mBuffer));
 
     inputStream = stream;
-    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Make sure we apply the correct read flag onto the new message.
+    RefPtr<nsIMsgDBHdr> curHeader = mHeaders[mCurIndex];
+    MOZ_TRY(curHeader->GetIsRead(&isRead));
   } else if (mSrcFile) {
     // If we're copying from a file, open an input stream with the file's
     // content.
     nsCOMPtr<nsIFile> file = mSrcFile.value();
     rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), file);
     NS_ENSURE_SUCCESS(rv, rv);
+
+    // When creating a message from a file, we're saving to either the Sent
+    // folder (in which case we mark the message as read) or to the Draft folder
+    // (in which case we mark the message as unread).
+    isRead = !mIsDraft;
   } else {
     return NS_ERROR_UNEXPECTED;
   }
@@ -482,5 +491,6 @@ nsresult MessageCopyHandler::CreateRemoteMessage() {
   RefPtr<MessageCreateCallbacks> callbacks =
       new MessageCreateCallbacks(mDstFolder, seekable, this);
 
-  return mClient->CreateMessage(mDstFolderId, mIsDraft, inputStream, callbacks);
+  return mClient->CreateMessage(mDstFolderId, mIsDraft, isRead, inputStream,
+                                callbacks);
 }
