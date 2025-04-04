@@ -20,8 +20,8 @@
 class MessageCreateCallbacks;
 
 /**
- * A handler for a single copy/move operation, the source for which can be
- * either a file or a folder.
+ * A handler for a single message copy/move operation, the source for which can
+ * be either a file or a folder.
  *
  * An instance of `MessageCopyHandler` is created for each copy/move operation,
  * but a single copy/move operation can target multiple messages.

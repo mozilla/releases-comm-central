@@ -42,6 +42,9 @@ class EwsFolder : public nsMsgDBFolder {
                             nsIMsgWindow* msgWindow, bool deleteStorage,
                             bool isMove, nsIMsgCopyServiceListener* listener,
                             bool allowUndo) override;
+  NS_IMETHOD CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
+                        nsIMsgWindow* window,
+                        nsIMsgCopyServiceListener* listener) override;
   NS_IMETHOD DeleteSelf(nsIMsgWindow* aWindow) override;
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
                                   nsIMsgDatabase** _retval) override;

@@ -4,9 +4,10 @@
 
 #include "EwsFolder.h"
 
+#include "EwsFolderCopyHandler.h"
+#include "EwsMessageCopyHandler.h"
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
-#include "EwsMessageCopyHandler.h"
 
 #include "ErrorList.h"
 #include "FolderCompactor.h"
@@ -527,12 +528,6 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
   RefPtr<MessageCopyHandler> handler = new MessageCopyHandler(
       srcFolder, this, srcHdrs, isMove, msgWindow, ewsId, client, listener);
 
-  // `isFolder` indicates we're moving/copying the whole folder.
-  if (isFolder) {
-    NS_ERROR("Move/Copy of whole folders is not supported yet");
-    return handler->OnCopyCompleted(NS_ERROR_NOT_IMPLEMENTED);
-  }
-
   // Make sure we're not moving/copying to the root folder for the server, since
   // it cannot hold messages.
   bool isServer;
@@ -553,6 +548,21 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
   }
 
   return rv;
+}
+
+NS_IMETHODIMP EwsFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
+                                    nsIMsgWindow* window,
+                                    nsIMsgCopyServiceListener* listener) {
+  NS_ENSURE_ARG_POINTER(srcFolder);
+
+  // Instantiate a `FolderCopyHandler` for this operation.
+  nsCOMPtr<IEwsClient> client;
+  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
+
+  RefPtr<FolderCopyHandler> handler = new FolderCopyHandler(
+      srcFolder, this, isMoveFolder, window, client, listener);
+
+  return handler->CopyNextFolder();
 }
 
 NS_IMETHODIMP EwsFolder::DeleteMessages(
@@ -705,7 +715,8 @@ NS_IMETHODIMP EwsFolder::CompactAll(nsIUrlListener* aListener,
     for (auto folder : allDescendants) {
       // If folder doesn't currently have a DB, expungedBytes might be out of
       // whack. Also the compact might do a folder reparse first, which could
-      // change the expungedBytes count (via Expunge flag in X-Mozilla-Status).
+      // change the expungedBytes count (via Expunge flag in
+      // X-Mozilla-Status).
       bool hasDB;
       folder->GetDatabaseOpen(&hasDB);
 

@@ -4,6 +4,7 @@
 
 SOURCES += [
     "EwsFolder.cpp",
+    "EwsFolderCopyHandler.cpp",
     "EwsIncomingServer.cpp",
     "EwsMessageChannel.cpp",
     "EwsMessageCopyHandler.cpp",

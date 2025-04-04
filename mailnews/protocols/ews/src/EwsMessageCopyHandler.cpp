@@ -382,8 +382,8 @@ nsresult MessageCopyHandler::OnCopyCompleted(nsresult status) {
   return copyService->NotifyCompletion(srcSupports, mDstFolder, status);
 }
 
-// Private methods on `MessageCopyHandler`, intended to be called by its friend
-// class `MessageCreateCallbacks`.
+// Protected methods on `MessageCopyHandler`, intended to be called by its
+// friend class `MessageCreateCallbacks`.
 
 nsresult MessageCopyHandler::OnCreateFinished(nsresult status) {
   // If we encountered a failure, bail now. Additionally, if we're copying from
