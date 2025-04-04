@@ -13,6 +13,7 @@
 /* Override overflow: hidden in some messages. */
 :root {
   overflow: auto !important;
+  color-scheme: light dark;
 }
 
 mailattachcount {
