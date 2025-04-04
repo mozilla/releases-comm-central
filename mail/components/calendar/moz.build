@@ -10,4 +10,5 @@ JAR_MANIFESTS += ["jar.mn"]
 
 BROWSER_CHROME_MANIFESTS += [
     "test/browser/browser.toml",
+    "test/browser/browser_disabled.toml",
 ]

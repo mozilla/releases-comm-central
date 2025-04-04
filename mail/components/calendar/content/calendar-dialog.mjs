@@ -9,7 +9,7 @@ import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import/no-unassi
  * Dialog for calendar.
  * Template ID: #calendarDialogTemplate
  */
-class CalendarDialog extends HTMLDialogElement {
+export class CalendarDialog extends HTMLDialogElement {
   #subviewManager = null;
   /**
    * The data for the current dialog
@@ -44,6 +44,8 @@ class CalendarDialog extends HTMLDialogElement {
 
       this.querySelector(".back-button").hidden =
         this.#subviewManager.isDefaultSubviewVisible();
+
+      this.setAttribute("is", "calendar-dialog");
     }
 
     document.l10n.translateFragment(this);

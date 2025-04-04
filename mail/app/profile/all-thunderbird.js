@@ -1469,3 +1469,6 @@ pref("mail.accounthub.enabled", false);
 
 // Export to mobile logging level.
 pref("mail.qrexport.loglevel", "Warn");
+
+// New calendar dialog
+pref("calendar.dialogs.new.enabled", false);
