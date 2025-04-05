@@ -64,6 +64,7 @@ input[type="number"] {
 }
 
 input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
+  border: 1px solid var(--toolbar-field-border-color);
   border-radius: var(--in-content-button-border-radius);
   padding-block: initial;
   /* it should be --in-content-button-height but input doesn't include the border */

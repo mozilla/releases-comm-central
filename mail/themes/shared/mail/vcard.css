@@ -37,7 +37,6 @@ vcard-special-date select:not([size], [multiple]) {
   padding-block: 0;
   min-height: initial;
   height: calc(var(--in-content-button-height) - 2px);
-  color: inherit;
   margin-block-end: 3px;
   margin-inline-end: 3px;
   font-weight: normal;
@@ -476,6 +475,12 @@ vcard-adr select {
 
   .add-property-button + & {
     margin-inline-start: 0;
+  }
+
+  @media (forced-colors) {
+    &:not(:hover, :active) {
+      color: inherit;
+    }
   }
 }
 

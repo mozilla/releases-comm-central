@@ -15,7 +15,7 @@
   --in-content-sidebar-width: auto;
   --menu-item-margin: 0 3px;
 
-  @media not (prefers-contrast) {
+  @media not (forced-colors) {
     --in-content-box-info-background: light-dark(var(--layout-background-1), var(--layout-background-2));
     --in-content-box-info-border: light-dark(var(--layout-border-0), transparent);
     --in-content-button-background: light-dark(var(--grey-90-a10), rgba(249, 249, 250, 0.1));
@@ -32,10 +32,11 @@
     --in-content-primary-button-background-active: color-mix(in srgb, AccentColor 70%, black);
     --in-content-primary-button-text-color: AccentColorText;
     --in-content-focus-outline-color: AccentColor;
+    --in-content-accent-color: AccentColor;
     --focus-outline-color: AccentColor;
   }
 
-  @media (prefers-contrast) {
+  @media (forced-colors) {
     --in-content-box-info-background: transparent;
     --in-content-box-info-border: currentColor;
     --in-content-categories-background: transparent;
@@ -45,6 +46,7 @@
     --in-content-primary-button-background-active: SelectedItem;
     --in-content-primary-button-text-color: SelectedItemText;
     --in-content-primary-button-text-color-active: SelectedItemText;
+    --in-content-accent-color: SelectedItem;
   }
 }
 
@@ -66,7 +68,7 @@
     }
   }
 
-  @media not (prefers-contrast) {
+  @media not (forced-colors) {
     & > .category[selected] {
       background-color: var(--in-content-button-background) !important;
       color: unset;
@@ -129,7 +131,7 @@ menupopup {
 }
 
 tab[selected] {
-  color: inherit;
+  color: var(--in-content-button-text-color);
   background-color: var(--in-content-button-background);
   border-bottom-color: var(--in-content-accent-color);
 }

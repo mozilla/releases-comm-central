@@ -57,7 +57,7 @@
     --tree-header-cell-indent: -3px;
   }
 
-  @media not (prefers-contrast) {
+  @media not (forced-colors) {
     --tree-focus-outline: transparent;
     --tree-pane-background: light-dark(var(--color-gray-05), var(--color-black));
     --tree-card-background: var(--layout-background-0);
@@ -124,9 +124,9 @@
     --unread-color: var(--layout-color-0);
   }
 
-  @media (prefers-contrast) {
+  @media (forced-colors) {
     --tree-focus-outline: SelectedItem;
-    --tree-view-bg: Field;
+    --tree-view-bg: Canvas;
     --tree-pane-background: color-mix(in srgb, Canvas 90%, CanvasText);
     --tree-card-background: Canvas;
     --tree-card-border: CanvasText;
@@ -149,7 +149,7 @@
     --indicator-background-selected-unfocused: color-mix(in srgb, Canvas 70%, CanvasText);
     --indicator-border-selected-unfocused: color-mix(in srgb, Canvas 50%, CanvasText);
 
-    --tree-view-color: FieldText;
+    --tree-view-color: CanvasText;
     --tree-view-header-hover-bg: color-mix(in srgb, Field 70%, hsl(0, 0%, 50%));
     --tree-view-header-border-color: ThreeDShadow;
     --listbox-color: currentColor;
@@ -203,7 +203,7 @@
     &:hover {
       background-color: var(--listbox-hover);
 
-      @media (prefers-contrast) {
+      @media (forced-colors) {
         outline: var(--listbox-selected-outline);
         outline-offset: -2px;
       }
@@ -303,7 +303,7 @@
       }
     }
 
-    @media (prefers-contrast) {
+    @media (forced-colors) {
       &.current.selected .card-container {
         color: SelectedItemText;
       }
@@ -333,7 +333,7 @@
     }
   }
 
-  @media (prefers-contrast) {
+  @media (forced-colors) {
     & .card-layout:is(:hover, :focus, :focus-within, :focus-visible, .current) .card-container {
       outline: 2px solid var(--tree-focus-outline);
       outline-offset: -3px;

@@ -513,6 +513,9 @@ pref("general.config.obscure_value", 0); // for MCD .cfg files
 
 pref("browser.display.auto_quality_min_font_size", 0);
 
+// Override the toolkit settings for Mac and Linux to enable HC in content.
+pref("browser.display.document_color_use", 0);
+
 pref("view_source.syntax_highlight", false);
 
 /////////////////////////////////////////////////////////////////

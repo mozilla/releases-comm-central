@@ -53,21 +53,26 @@
     --books-pane-icon-new: var(--icon-add-md);
   }
 
-  @media (prefers-contrast) {
+  @media (forced-colors) {
     background-color: transparent;
     color: currentColor;
 
-    --ab-cards-list-bg: transparent;
+    --ab-pane-background: Canvas;
+    --ab-cards-list-bg: Canvas;
     --ab-icons-color: currentColor;
+    --search-bar-background: Canvas;
+    --search-bar-color: CanvasText;
+    --search-bar-border-color: CanvasText;
+    --search-bar-focus-background: Canvas;
   }
 
-  @media not (prefers-contrast) {
+  @media not (forced-colors) {
     background: var(--layout-background-0);
     color: var(--layout-color-0);
 
     --ab-cards-list-bg: light-dark(var(--color-gray-05), var(--color-black));
     --ab-icons-color: var(--layout-color-0);
-    --ab-pane-background: light-dark(var(--color-gray-10), var(--color-gray-80))
+    --ab-pane-background: light-dark(var(--color-gray-10), var(--color-gray-80));
   }
 }
 
@@ -489,6 +494,11 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
     background-color: var(--layout-background-0);
     color: var(--layout-color-0);
     box-shadow: 0 2px 6px -5px #000;
+
+    @media(forced-colors) {
+      background-color: Canvas;
+      color: CanvasText;
+    }
   }
 
   & :is(menulist, select),
@@ -510,7 +520,6 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
 #detailsFooter {
   grid-area: footer;
   padding: var(--ab-contact-padding);
-  background-color: var(--layout-background-0);
 
   & label {
     margin: 0 4px;
@@ -583,6 +592,10 @@ body:not(.is-editing) #editContactForm {
   background-color: var(--in-content-button-background);
   -moz-context-properties: stroke;
   stroke: color-mix(in srgb, transparent 50%, var(--recipient-avatar-color));
+
+  @media(forced-colors) {
+    --recipient-avatar-color: Canvas;
+  }
 }
 
 #photoButton {
@@ -769,16 +782,26 @@ section#selectedCards {
 }
 
 #detailsDeleteButton {
-  color: var(--vcard-delete-button-color);
-  outline-color: var(--vcard-delete-button-color);
   background-image: var(--icon-trash);
 
-  &:hover {
-    background-color: var(--vcard-delete-button-color);
-    color: var(--color-white);
+  @media not (forced-colors) {
+    color: var(--vcard-delete-button-color);
+    outline-color: var(--vcard-delete-button-color);
 
-    &:active {
-      background-color: var(--red-70);
+    &:hover {
+      background-color: var(--vcard-delete-button-color);
+      color: var(--color-white);
+
+      &:active {
+        background-color: var(--red-70);
+      }
+    }
+  }
+
+  @media (forced-colors) {
+    &:not(:hover, :active) {
+      fill: color-mix(in srgb, var(--vcard-delete-button-color) 20%, transparent);
+      stroke: var(--vcard-delete-button-color);
     }
   }
 
