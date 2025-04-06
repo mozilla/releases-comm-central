@@ -274,14 +274,6 @@ function onMessageViewMouseDown(e) {
   return true;
 }
 
-function onMessageViewContextMenu(e) {
-  var menu = document.getElementById("context:messages");
-  document.popupNode = e.target;
-  menu.openPopupAtScreen(e.screenX, e.screenY, true);
-  e.stopPropagation();
-  e.preventDefault();
-}
-
 function getEventCommand(e) {
   let where = Services.prefs.getIntPref("browser.link.open_newwindow");
   if (
