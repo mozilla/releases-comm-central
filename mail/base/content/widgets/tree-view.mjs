@@ -332,7 +332,7 @@ export class TreeView extends HTMLElement {
             const addedRows = this.expandRowAtIndex(index);
             this._selectRange(index, index + addedRows, event[accelKeyName]);
           }
-          this.table.body.focus();
+          this.ensureCorrectFocus();
           return;
         }
 
@@ -343,7 +343,7 @@ export class TreeView extends HTMLElement {
             const addedRows = this.expandRowAtIndex(index);
             this.scrollExpandedRowIntoView(index, addedRows);
           }
-          this.table.body.focus();
+          this.ensureCorrectFocus();
           return;
         }
 
@@ -355,7 +355,7 @@ export class TreeView extends HTMLElement {
           } else {
             this._toggleSelected(index);
           }
-          this.table.body.focus();
+          this.ensureCorrectFocus();
           return;
         }
 
@@ -368,7 +368,7 @@ export class TreeView extends HTMLElement {
               },
             })
           );
-          this.table.body.focus();
+          this.ensureCorrectFocus();
           return;
         }
 
@@ -382,7 +382,7 @@ export class TreeView extends HTMLElement {
               },
             })
           );
-          this.table.body.focus();
+          this.ensureCorrectFocus();
           return;
         }
 
@@ -396,7 +396,7 @@ export class TreeView extends HTMLElement {
               },
             })
           );
-          this.table.body.focus();
+          this.ensureCorrectFocus();
           return;
         }
 
@@ -410,7 +410,7 @@ export class TreeView extends HTMLElement {
               },
             })
           );
-          this.table.body.focus();
+          this.ensureCorrectFocus();
           return;
         }
 
@@ -422,7 +422,7 @@ export class TreeView extends HTMLElement {
           this._selectSingle(index);
         }
 
-        this.table.body.focus();
+        this.ensureCorrectFocus();
         break;
       }
       case "keydown": {
@@ -1714,6 +1714,13 @@ export class TreeView extends HTMLElement {
         this._selectTimeout = null;
       }, delay);
     }
+  }
+
+  /**
+   * Move the focus back to the widget that is in charge of accessibility.
+   */
+  ensureCorrectFocus() {
+    this.table.body.focus();
   }
 }
 customElements.define("tree-view", TreeView);
