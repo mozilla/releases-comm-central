@@ -58,10 +58,9 @@ BadCertHandler.prototype.getInterface = function (aIID) {
   return this.QueryInterface(aIID);
 };
 
-BadCertHandler.prototype.QueryInterface = XPCOMUtils.generateQI([
+BadCertHandler.prototype.QueryInterface = ChromeUtils.generateQI([
   Ci.nsIBadCertListener2,
   Ci.nsIInterfaceRequestor,
-  Ci.nsISupports,
 ]);
 
 /* Returning true in the following two callbacks

@@ -4,10 +4,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
 ChromeUtils.defineModuleGetter(
   this,
   "AppConstants",
@@ -2602,9 +2598,10 @@ function removeColorCodes(msg) {
 
 client.progressListener = {};
 
-client.progressListener.QueryInterface = function qi(iid) {
-  return this;
-};
+client.progressListener.QueryInterface = ChromeUtils.generateQI([
+  Ci.nsIWebProgressListener,
+  Ci.nsISupportsWeakReference,
+]);
 
 client.progressListener.onStateChange = function (
   webProgress,

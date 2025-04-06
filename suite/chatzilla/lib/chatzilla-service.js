@@ -3,10 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
 const RDFS_CONTRACTID = "@mozilla.org/rdf/rdf-service;1";
 const CLINE_SERVICE_CID = Components.ID(
   "{38a95514-1dd2-11b2-97e7-9da958640f2c}"
@@ -95,7 +91,6 @@ function CommandLineService() {}
 CommandLineService.prototype = {
   classID: CLINE_SERVICE_CID,
 
-  /* nsISupports */
   QueryInterface: ChromeUtils.generateQI([Ci.nsICommandLineHandler]),
 
   /* nsICommandLineHandler */
@@ -130,7 +125,6 @@ function ProcessHandler() {}
 ProcessHandler.prototype = {
   classID: STARTUP_CID,
 
-  /* nsISupports */
   QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
 
   /* nsIObserver */
@@ -187,10 +181,7 @@ function GenericIRCProtocolHandler(isSecure) {
 }
 
 GenericIRCProtocolHandler.prototype = {
-  QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIProtocolHandler,
-    Ci.nsISupports,
-  ]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolHandler]),
 
   protocolFlags:
     Ci.nsIProtocolHandler.URI_NORELATIVE |
@@ -236,7 +227,6 @@ function BogusChannel(URI, isSecure) {
 }
 
 BogusChannel.prototype = {
-  /* nsISupports */
   QueryInterface: ChromeUtils.generateQI([Ci.nsIChannel, Ci.nsIRequest]),
 
   /* nsIChannel */

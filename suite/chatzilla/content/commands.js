@@ -3454,7 +3454,6 @@ function cmdSave(e) {
     QueryInterface: ChromeUtils.generateQI([
       Ci.nsIWebProgressListener,
       Ci.nsISupportsWeakReference,
-      Ci.nsISupports,
     ]),
   };
 
