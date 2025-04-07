@@ -232,11 +232,6 @@ NS_IMETHODIMP nsMsgFilterService::SaveFilterList(nsIMsgFilterList* filterList,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgFilterService::CancelFilterList(
-    nsIMsgFilterList* filterList) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 nsresult nsMsgFilterService::BackUpFilterFile(nsIFile* aFilterFile,
                                               nsIMsgWindow* aMsgWindow) {
   AlertBackingUpFilterFile(aMsgWindow);

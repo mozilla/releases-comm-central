@@ -23,7 +23,6 @@ interface nsIMsgFilterService : nsISupports {
     void SaveFilterList(in nsIMsgFilterList filterList,
                         in nsIFile filterFile);
 
-    void CancelFilterList(in nsIMsgFilterList filterList);
     nsIMsgFilterList getTempFilterList(in nsIMsgFolder aFolder);
     void applyFiltersToFolders(in nsIMsgFilterList aFilterList,
                                in Array<nsIMsgFolder> aFolders,
