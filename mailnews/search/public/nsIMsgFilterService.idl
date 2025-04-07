@@ -18,7 +18,6 @@ interface nsIMsgOperationListener;
 interface nsIMsgFilterService : nsISupports {
 
     nsIMsgFilterList OpenFilterList(in nsIFile filterFile, in nsIMsgFolder rootFolder, in nsIMsgWindow msgWindow);
-    void CloseFilterList(in nsIMsgFilterList filterList);
 
     void SaveFilterList(in nsIMsgFilterList filterList,
                         in nsIFile filterFile);

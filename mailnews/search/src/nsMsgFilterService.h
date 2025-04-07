@@ -23,8 +23,7 @@ class nsMsgFilterService : public nsIMsgFilterService {
   NS_DECL_NSIMSGFILTERSERVICE
   // clients call OpenFilterList to get a handle to a FilterList, of existing
   // nsMsgFilter. These are manipulated by the front end as a result of user
-  // interaction with dialog boxes. To apply the new list call
-  // MSG_CloseFilterList.
+  // interaction with dialog boxes.
 
   nsresult BackUpFilterFile(nsIFile* aFilterFile, nsIMsgWindow* aMsgWindow);
   nsresult AlertBackingUpFilterFile(nsIMsgWindow* aMsgWindow);

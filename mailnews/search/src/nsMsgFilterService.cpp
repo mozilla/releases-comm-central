@@ -196,12 +196,6 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(
   return rv;
 }
 
-NS_IMETHODIMP nsMsgFilterService::CloseFilterList(
-    nsIMsgFilterList* filterList) {
-  // NS_ASSERTION(false,"CloseFilterList doesn't do anything yet");
-  return NS_OK;
-}
-
 /* save without deleting */
 NS_IMETHODIMP nsMsgFilterService::SaveFilterList(nsIMsgFilterList* filterList,
                                                  nsIFile* filterFile) {
