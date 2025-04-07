@@ -250,31 +250,7 @@ function onMessageViewClick(e) {
   var cx = getMessagesContext(null, e.target);
   cx.source = "mouse";
   cx.shiftKey = e.shiftKey;
-  var command = getEventCommand(e);
-  if (!client.commandManager.isCommandSatisfied(cx, command)) {
-    return false;
-  }
-
-  dispatch(command, cx);
-  dispatch("focus-input");
-  e.preventDefault();
-  return true;
-}
-
-function onMessageViewMouseDown(e) {
-  if (typeof startScrolling != "function" || (e.which != 1 && e.which != 2)) {
-    return true;
-  }
-
-  var cx = getMessagesContext(null, e.target);
-  var command = getEventCommand(e);
-  if (!client.commandManager.isCommandSatisfied(cx, command)) {
-    startScrolling(e);
-  }
-  return true;
-}
-
-function getEventCommand(e) {
+  let command = "goto-url";
   let where = Services.prefs.getIntPref("browser.link.open_newwindow");
   if (
     where != 3 &&
@@ -285,12 +261,19 @@ function getEventCommand(e) {
   }
 
   if (where == 2) {
-    return "goto-url-newwin";
+    command = "goto-url-newwin";
+  } else if (where == 3) {
+    command = "goto-url-newtab";
   }
-  if (where == 3) {
-    return "goto-url-newtab";
+
+  if (!client.commandManager.isCommandSatisfied(cx, command)) {
+    return false;
   }
-  return "goto-url";
+
+  dispatch(command, cx);
+  dispatch("focus-input");
+  e.preventDefault();
+  return true;
 }
 
 function onMouseOver(e) {

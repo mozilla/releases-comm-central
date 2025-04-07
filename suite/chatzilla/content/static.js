@@ -3087,7 +3087,6 @@ function getTabForObject(source, create) {
     browser.setAttribute("flex", "1");
     browser.setAttribute("tooltip", "aHTMLTooltip");
     browser.setAttribute("onclick", "return onMessageViewClick(event)");
-    browser.setAttribute("onmousedown", "return onMessageViewMouseDown(event)");
     browser.setAttribute("context", "context:messages");
     browser.setAttribute("ondragover", "contentDNDObserver.onDragOver(event);");
     browser.setAttribute("ondrop", "contentDNDObserver.onDrop(event);");
