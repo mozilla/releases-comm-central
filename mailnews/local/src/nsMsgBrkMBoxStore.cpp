@@ -569,61 +569,47 @@ NS_IMETHODIMP
 nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
                                          nsIMsgDBHdr** aNewMsgHdr,
                                          nsIOutputStream** aResult) {
-  bool quarantining = false;
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  if (prefBranch) {
-    prefBranch->GetBoolPref("mailnews.downloadToTempFile", &quarantining);
+  NS_ENSURE_ARG_POINTER(aFolder);
+  NS_ENSURE_ARG_POINTER(aResult);
+  nsresult rv;
+
+  nsCOMPtr<nsIMsgDatabase> db;
+  aFolder->GetMsgDatabase(getter_AddRefs(db));
+  if (!db && !*aNewMsgHdr) {
+    NS_WARNING("no db, and no message header");
+    // At this point we should really fail... but there's residual reliance
+    // on it continuing. See Bug 1737203
   }
 
-  nsAutoCString folderURI;
-  nsresult rv = aFolder->GetURI(folderURI);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (db && !*aNewMsgHdr) {
+    // Lazy caller wants us to create a new msgHdr for them.
+    // TODO: inout params are bad, so really want to ditch this behaviour!
+    rv = db->CreateNewHdr(nsMsgKey_None, aNewMsgHdr);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
-  nsCOMPtr<nsIOutputStream> rawMboxStream;
+  nsCOMPtr<nsIOutputStream> outStream;
   int64_t filePos = 0;
-  rv = InternalGetNewMsgOutputStream(aFolder, aNewMsgHdr, filePos,
-                                     getter_AddRefs(rawMboxStream));
+  rv = InternalGetNewMsgOutputStream(aFolder, filePos,
+                                     getter_AddRefs(outStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Wrap raw stream in one which will handle "From " separator and escaping
-  // etc...
-  // We want rawMboxStream to be closed when mboxStream is closed.
-  RefPtr<MboxMsgOutputStream> mboxStream =
-      new MboxMsgOutputStream(rawMboxStream, true);
-
-  if (!quarantining) {
-    // Caller will write directly(ish) to mbox.
-    mboxStream.forget(aResult);
-    MOZ_LOG(gMboxLog, LogLevel::Info,
-            ("START MSG   stream=0x%p folder=%s offset=%" PRIi64 "",
-             (void*)(*aResult), folderURI.get(), filePos));
-    return NS_OK;
+  if (*aNewMsgHdr) {
+    nsCString storeToken = nsPrintfCString("%" PRId64, filePos);
+    (*aNewMsgHdr)->SetStoreToken(storeToken);
   }
 
-  // Quarantining is on, so we want to write the new message to a temp file
-  // and let the virus checker have at it before we append it to the mbox.
-  // We'll wrap the mboxStream with an nsQuarantinedOutputStream and return
-  // that.
-
-  RefPtr<nsQuarantinedOutputStream> qStream =
-      new nsQuarantinedOutputStream(mboxStream);
-  qStream.forget(aResult);
-
-  MOZ_LOG(gMboxLog, LogLevel::Info,
-          ("START-Q MSG stream=0x%p folder=%s offset=%" PRIi64 "",
-           (void*)(*aResult), folderURI.get(), filePos));
+  outStream.forget(aResult);
   return NS_OK;
 }
 
 nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
-    nsIMsgFolder* aFolder, nsIMsgDBHdr** aNewMsgHdr, int64_t& filePos,
-    nsIOutputStream** aResult) {
+    nsIMsgFolder* aFolder, int64_t& aFilePos, nsIOutputStream** aResult) {
   NS_ENSURE_ARG_POINTER(aFolder);
-  NS_ENSURE_ARG_POINTER(aNewMsgHdr);
   NS_ENSURE_ARG_POINTER(aResult);
 
   nsresult rv;
-  // First, check the OutstandingStreams set to make sure we're not already
+  // First, check the mOngoingWrites set to make sure we're not already
   // writing to this folder. If so, we'll abort and roll back the previous one
   // before issuing a new stream.
   // NOTE: in theory, we could have multiple writes going if we were using
@@ -632,7 +618,7 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
   nsAutoCString folderURI;
   rv = aFolder->GetURI(folderURI);
   NS_ENSURE_SUCCESS(rv, rv);
-  auto existing = m_OutstandingStreams.lookup(folderURI);
+  auto existing = mOngoingWrites.lookup(folderURI);
   if (existing) {
     // boooo....
     MOZ_LOG(gMboxLog, LogLevel::Error,
@@ -640,19 +626,14 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
     NS_WARNING(
         nsPrintfCString("Already writing to folder '%s'", folderURI.get())
             .get());
-    // Close the old stream - this will roll back everything it's written so
-    // far.
-    existing->value()->Close();
-    m_OutstandingStreams.remove(existing);
+    // Close the old stream - this will roll back everything it wrote.
+    existing->value().stream->Close();
+    mOngoingWrites.remove(existing);
   }
 
   nsCOMPtr<nsIFile> mboxFile;
   rv = aFolder->GetFilePath(getter_AddRefs(mboxFile));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgDatabase> db;
-  aFolder->GetMsgDatabase(getter_AddRefs(db));
-  if (!db && !*aNewMsgHdr) NS_WARNING("no db, and no message header");
-
   MOZ_LOG(gMboxLog, LogLevel::Info,
           ("Opening mbox file '%s' for writing.",
            mboxFile->HumanReadablePath().get()));
@@ -686,34 +667,45 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
     }
     NS_ENSURE_SUCCESS(rv, rv);
 
-    // 2**16 buffer size for good performance in 2024
-    rv = NS_NewBufferedOutputStream(getter_AddRefs(stream), rawStream.forget(),
-                                    65536);
+    // Get offset of the new message (the end of the file).
+    nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(rawStream, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = seekable->Seek(nsISeekableStream::NS_SEEK_END, 0);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = seekable->Tell(&aFilePos);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // 2**16 buffer size for good performance in 2024?
+    nsCOMPtr<nsIOutputStream> bufferedStream;
+    rv = NS_NewBufferedOutputStream(getter_AddRefs(bufferedStream),
+                                    rawStream.forget(), 65536);
     if (NS_FAILED(rv)) {
       MOZ_LOG(gMboxLog, LogLevel::Error,
               ("failed opening buffered stream for %s", folderURI.get()));
     }
     NS_ENSURE_SUCCESS(rv, rv);
+
+    // Wrap to handle mbox "From " separator, escaping etc.
+    RefPtr<MboxMsgOutputStream> mboxStream =
+        new MboxMsgOutputStream(bufferedStream, true);
+
+    if (mozilla::Preferences::GetBool("mailnews.downloadToTempFile", false)) {
+      // If quarantining, add another wrapping stream.
+      stream = new nsQuarantinedOutputStream(mboxStream);
+      MOZ_LOG(gMboxLog, LogLevel::Info,
+              ("START-Q MSG stream=0x%p folder=%s offset=%" PRIi64 "",
+               (void*)(*aResult), aFolder->URI().get(), aFilePos));
+    } else {
+      stream = mboxStream;
+      MOZ_LOG(gMboxLog, LogLevel::Info,
+              ("START MSG stream=0x%p folder=%s offset=%" PRIi64 "",
+               (void*)(*aResult), aFolder->URI().get(), aFilePos));
+    }
   }
 
-  nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(stream, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = seekable->Seek(nsISeekableStream::NS_SEEK_END, 0);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (db && !*aNewMsgHdr) {
-    // Lazy caller wants us to crate a new msgHdr for them.
-    db->CreateNewHdr(nsMsgKey_None, aNewMsgHdr);
-  }
-
-  if (*aNewMsgHdr) {
-    rv = seekable->Tell(&filePos);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCString storeToken = nsPrintfCString("%" PRId64, filePos);
-    (*aNewMsgHdr)->SetStoreToken(storeToken);
-  }
-  // Up and running. Add the folder to the OutstandingStreams set.
-  MOZ_ALWAYS_TRUE(m_OutstandingStreams.putNew(folderURI, stream));
+  // Up and running - add the stream to the set of ongoing writes.
+  MOZ_ALWAYS_TRUE(mOngoingWrites.putNew(aFolder->URI(),
+                                        StreamDetails{aFilePos, stream.get()}));
 
   stream.forget(aResult);
   return NS_OK;
@@ -765,12 +757,12 @@ nsMsgBrkMBoxStore::DiscardNewMessage(nsIOutputStream* aOutputStream,
     }
   }
 
-  // Remove the folder from the OutstandingStreams set.
+  // Remove the folder from set of ongoing writes.
   // The stream object may hang around a bit longer than we'd like,
   // but it'll get cleared out on the next use of GetNewMsgOutputStream()
   // on the same folder.
   if (!folderURI.IsEmpty()) {
-    m_OutstandingStreams.remove(folderURI);
+    mOngoingWrites.remove(folderURI);
   }
   return NS_OK;
 }
@@ -821,12 +813,9 @@ nsMsgBrkMBoxStore::FinishNewMessage(nsIOutputStream* aOutputStream,
              aOutputStream, folderURI.get(), fileSize));
   }
 
-  // Remove from the OutstandingStreams set.
-  // That's OK. The stream object might hang around for a while, but it's
-  // already been committed, and the next GetNewMsgOutputStream() on the
-  // same folder will clear it from m_OutstandingStreams.
+  // It's no longer an ongoing write.
   if (!folderURI.IsEmpty()) {
-    m_OutstandingStreams.remove(folderURI);
+    mOngoingWrites.remove(folderURI);
   }
 
   return NS_OK;
