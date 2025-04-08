@@ -485,8 +485,7 @@ function initMotifsPopup() {
 }
 
 function initFontFamilyPopup() {
-  let cx = getFontContext();
-  let family = cx.sourceObject.prefs["font.family"];
+  let family = client.currentObject.prefs["font.family"];
   setAttr("fontDefault", "checked", family == "default");
   setAttr("fontSerif", "checked", family == "serif");
   setAttr("fontSansSerif", "checked", family == "sans-serif");
@@ -499,9 +498,11 @@ function initFontFamilyPopup() {
 }
 
 function initFontSizePopup() {
-  let cx = getFontContext();
-  let size = cx.fontSize;
-  let defaultSize = cx.fontSizeDefault;
+  let size = client.prefs["font.size"];
+  if (size == 0) {
+    size = null;
+  }
+  let defaultSize = getDefaultFontSize();
   // It's "custom" if it's set (non-zero/not default), not the default
   // size (medium) and not +/-2 (small/large).
   let custom = size && size != defaultSize && Math.abs(size - defaultSize) != 2;

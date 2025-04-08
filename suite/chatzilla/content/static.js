@@ -996,29 +996,6 @@ function getUserlistContext(cx) {
   return cx;
 }
 
-function getFontContext(cx) {
-  if (!cx) {
-    cx = {};
-  }
-  cx.__proto__ = getObjectDetails(client.currentObject);
-  cx.fontSizeDefault = getDefaultFontSize();
-  var view = client;
-
-  if ("prefs" in cx.sourceObject) {
-    cx.fontFamily = view.prefs["font.family"];
-    if (cx.fontFamily.match(/^(default|(sans-)?serif|monospace)$/)) {
-      delete cx.fontFamily;
-    }
-
-    cx.fontSize = view.prefs["font.size"];
-    if (cx.fontSize == 0) {
-      delete cx.fontSize;
-    }
-  }
-
-  return cx;
-}
-
 function msgIsImportant(msg, sourceNick, network) {
   var plainMsg = removeColorCodes(msg);
 
