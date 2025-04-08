@@ -25,7 +25,7 @@ function run_test() {
   Assert.ok(fields instanceof Ci.msgIStructuredHeaders);
   Assert.ok(fields instanceof Ci.msgIWritableStructuredHeaders);
   check_headers(fields.headerNames, []);
-  Assert.ok(!fields.hasRecipients);
+  Assert.ok(!fields.to);
 
   // Try some basic headers
   fields.setHeader("From", [{ name: "", email: "a@test.invalid" }]);
@@ -33,12 +33,12 @@ function run_test() {
   Assert.equal(from.length, 1);
   Assert.equal(from[0].email, "a@test.invalid");
   check_headers(fields.headerNames, ["From"]);
-  Assert.ok(!fields.hasRecipients);
+  Assert.ok(!fields.to);
 
   // Add a To header
   fields.setHeader("To", [{ name: "", email: "b@test.invalid" }]);
   check_headers(fields.headerNames, ["From", "To"]);
-  Assert.ok(fields.hasRecipients);
+  Assert.ok(fields.to);
 
   // Delete a header...
   fields.deleteHeader("from");
