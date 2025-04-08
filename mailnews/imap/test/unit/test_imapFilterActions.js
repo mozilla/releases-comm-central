@@ -9,10 +9,9 @@
  * adapted from test_localToImapFilter.js
  */
 
-var Is = Ci.nsMsgSearchOp.Is;
-var Contains = Ci.nsMsgSearchOp.Contains;
-var Subject = Ci.nsMsgSearchAttrib.Subject;
-var Body = Ci.nsMsgSearchAttrib.Body;
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 // Globals
 var gSubfolder; // a local message folder used as a target for moves and copies
@@ -38,7 +37,9 @@ var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
 
 var gSmtpServerD = setupSmtpServerDaemon();
 
-function setupSmtpServer() {
+add_setup(async function () {
+  setupIMAPPump();
+  //   IMAPPump.server.setDebugLevel(nsMailServer.debugAll);
   gSmtpServerD.start();
   var gSmtpServer = localAccountUtils.create_outgoing_server(
     "smtp",
@@ -51,297 +52,313 @@ function setupSmtpServer() {
   MailServices.accounts.defaultAccount.defaultIdentity.smtpServerKey =
     gSmtpServer.key;
 
+  setupFilters();
+
   registerCleanupFunction(() => {
     gSmtpServerD.stop();
     Services.prefs.clearUserPref("mail.forward_message_mode");
+    if (gInboxListener) {
+      gDbService.unregisterPendingListener(gInboxListener);
+    }
+    gInboxListener = null;
+    MailServices.mailSession.RemoveFolderListener(FolderListener);
+    teardownIMAPPump();
   });
-}
+});
 
-// Definition of tests. The test function name is the filter action
-// being tested, with "Body" appended to tests that use delayed
-// application of filters due to a body search
-var gTestArray = [
-  setupIMAPPump,
-  // optionally set server parameters, here enabling debug messages
-  // function serverParms() {
-  //   IMAPPump.server.setDebugLevel(nsMailServer.debugAll);
-  // },
-  setupSmtpServer,
-  setupFilters,
-  // The initial tests do not result in new messages added.
-  async function MoveToFolder() {
-    gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
-    gAction.targetFolderUri = gSubfolder.URI;
-    gInboxCount = folderCount(IMAPPump.inbox);
-    gSubfolderCount = folderCount(gSubfolder);
-    await setupTest(gFilter, gAction);
+add_task(async function MoveToFolder() {
+  gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
+  gAction.targetFolderUri = gSubfolder.URI;
+  gInboxCount = folderCount(IMAPPump.inbox);
+  gSubfolderCount = folderCount(gSubfolder);
+  await setupTest(gFilter, gAction);
 
-    testCounts(false, 0, 0, 0);
-    Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
-    Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
-  },
-  // do it again, sometimes that causes multiple downloads
-  async function MoveToFolder2() {
-    gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
-    gAction.targetFolderUri = gSubfolder.URI;
-    gInboxCount = folderCount(IMAPPump.inbox);
-    gSubfolderCount = folderCount(gSubfolder);
-    await setupTest(gFilter, gAction);
+  testCounts(false, 0, 0, 0);
+  Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
+  Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
+});
 
-    testCounts(false, 0, 0, 0);
-    Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
-    Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
-  },
-  /**/
-  async function MoveToFolderBody() {
-    gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
-    gAction.targetFolderUri = gSubfolder.URI;
-    gInboxCount = folderCount(IMAPPump.inbox);
-    gSubfolderCount = folderCount(gSubfolder);
-    await setupTest(gBodyFilter, gAction);
+// do it again, sometimes that causes multiple downloads
+add_task(async function MoveToFolder2() {
+  gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
+  gAction.targetFolderUri = gSubfolder.URI;
+  gInboxCount = folderCount(IMAPPump.inbox);
+  gSubfolderCount = folderCount(gSubfolder);
+  await setupTest(gFilter, gAction);
 
-    testCounts(false, 0, 0, 0);
-    Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
-    // no net messages were added to the inbox
-    Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
-  },
-  async function MoveToFolderBody2() {
-    gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
-    gAction.targetFolderUri = gSubfolder.URI;
-    gInboxCount = folderCount(IMAPPump.inbox);
-    gSubfolderCount = folderCount(gSubfolder);
-    await setupTest(gBodyFilter, gAction);
+  testCounts(false, 0, 0, 0);
+  Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
+  Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
+});
 
-    testCounts(false, 0, 0, 0);
-    Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
-    // no net messages were added to the inbox
-    Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
-  },
-  async function MarkRead() {
-    gAction.type = Ci.nsMsgFilterAction.MarkRead;
-    gInboxCount = folderCount(IMAPPump.inbox);
-    await setupTest(gFilter, gAction);
-    testCounts(false, 0, 0, 0);
-    Assert.ok(gHeader.isRead);
-    Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
-  },
-  async function MarkReadBody() {
-    gAction.type = Ci.nsMsgFilterAction.MarkRead;
-    gInboxCount = folderCount(IMAPPump.inbox);
-    await setupTest(gBodyFilter, gAction);
+add_task(async function MoveToFolderBody() {
+  gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
+  gAction.targetFolderUri = gSubfolder.URI;
+  gInboxCount = folderCount(IMAPPump.inbox);
+  gSubfolderCount = folderCount(gSubfolder);
+  await setupTest(gBodyFilter, gAction);
 
-    testCounts(false, 0, 0, 0);
-    Assert.ok(gHeader.isRead);
-    Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
-  },
-  async function KillThread() {
-    gAction.type = Ci.nsMsgFilterAction.KillThread;
-    await setupTest(gFilter, gAction);
+  testCounts(false, 0, 0, 0);
+  Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
+  // no net messages were added to the inbox
+  Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
+});
 
-    testCounts(false, 0, 0, 0);
-    const thread = db().getThreadContainingMsgHdr(gHeader);
-    Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Ignored);
-  },
-  async function KillThreadBody() {
-    gAction.type = Ci.nsMsgFilterAction.KillThread;
-    await setupTest(gBodyFilter, gAction);
+add_task(async function MoveToFolderBody2() {
+  gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
+  gAction.targetFolderUri = gSubfolder.URI;
+  gInboxCount = folderCount(IMAPPump.inbox);
+  gSubfolderCount = folderCount(gSubfolder);
+  await setupTest(gBodyFilter, gAction);
 
-    testCounts(false, 0, 0, 0);
-    const thread = db().getThreadContainingMsgHdr(gHeader);
-    Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Ignored);
-  },
-  async function KillSubthread() {
-    gAction.type = Ci.nsMsgFilterAction.KillSubthread;
-    await setupTest(gFilter, gAction);
+  testCounts(false, 0, 0, 0);
+  Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
+  // no net messages were added to the inbox
+  Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
+});
 
-    testCounts(false, 0, 0, 0);
-    Assert.notEqual(0, gHeader.flags & Ci.nsMsgMessageFlags.Ignored);
-  },
-  async function KillSubthreadBody() {
-    gAction.type = Ci.nsMsgFilterAction.KillSubthread;
-    await setupTest(gBodyFilter, gAction);
+add_task(async function MarkRead() {
+  gAction.type = Ci.nsMsgFilterAction.MarkRead;
+  gInboxCount = folderCount(IMAPPump.inbox);
+  await setupTest(gFilter, gAction);
+  testCounts(false, 0, 0, 0);
+  Assert.ok(gHeader.isRead);
+  Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
+});
 
-    testCounts(false, 0, 0, 0);
-    Assert.notEqual(0, gHeader.flags & Ci.nsMsgMessageFlags.Ignored);
-  },
-  async function DoNothing() {
-    gAction.type = Ci.nsMsgFilterAction.StopExecution;
-    await setupTest(gFilter, gAction);
+add_task(async function MarkReadBody() {
+  gAction.type = Ci.nsMsgFilterAction.MarkRead;
+  gInboxCount = folderCount(IMAPPump.inbox);
+  await setupTest(gBodyFilter, gAction);
 
-    testCounts(true, 1, 1, 1);
-  },
-  async function DoNothingBody() {
-    gAction.type = Ci.nsMsgFilterAction.StopExecution;
-    await setupTest(gFilter, gAction);
+  testCounts(false, 0, 0, 0);
+  Assert.ok(gHeader.isRead);
+  Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
+});
 
-    testCounts(true, 1, 1, 1);
-  },
-  // this tests for marking message as junk
-  async function JunkScore() {
-    gAction.type = Ci.nsMsgFilterAction.JunkScore;
-    gAction.junkScore = 100;
-    await setupTest(gFilter, gAction);
+add_task(async function KillThread() {
+  gAction.type = Ci.nsMsgFilterAction.KillThread;
+  await setupTest(gFilter, gAction);
 
-    // marking as junk resets new but not unread
-    testCounts(false, 1, 0, 0);
-    Assert.equal(gHeader.getStringProperty("junkscore"), "100");
-    Assert.equal(gHeader.getStringProperty("junkscoreorigin"), "filter");
-  },
-  // this tests for marking message as junk
-  async function JunkScoreBody() {
-    gAction.type = Ci.nsMsgFilterAction.JunkScore;
-    gAction.junkScore = 100;
-    await setupTest(gBodyFilter, gAction);
+  testCounts(false, 0, 0, 0);
+  const thread = db().getThreadContainingMsgHdr(gHeader);
+  Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Ignored);
+});
 
-    // marking as junk resets new but not unread
-    testCounts(false, 1, 0, 0);
-    Assert.equal(gHeader.getStringProperty("junkscore"), "100");
-    Assert.equal(gHeader.getStringProperty("junkscoreorigin"), "filter");
-  },
-  // The remaining tests add new messages
-  async function MarkUnread() {
-    gAction.type = Ci.nsMsgFilterAction.MarkUnread;
-    await setupTest(gFilter, gAction);
+add_task(async function KillThreadBody() {
+  gAction.type = Ci.nsMsgFilterAction.KillThread;
+  await setupTest(gBodyFilter, gAction);
 
-    testCounts(true, 1, 1, 1);
-    Assert.ok(!gHeader.isRead);
-  },
-  async function MarkUnreadBody() {
-    gAction.type = Ci.nsMsgFilterAction.MarkUnread;
-    await setupTest(gBodyFilter, gAction);
+  testCounts(false, 0, 0, 0);
+  const thread = db().getThreadContainingMsgHdr(gHeader);
+  Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Ignored);
+});
 
-    testCounts(true, 1, 1, 1);
-    Assert.ok(!gHeader.isRead);
-  },
-  async function WatchThread() {
-    gAction.type = Ci.nsMsgFilterAction.WatchThread;
-    await setupTest(gFilter, gAction);
+add_task(async function KillSubthread() {
+  gAction.type = Ci.nsMsgFilterAction.KillSubthread;
+  await setupTest(gFilter, gAction);
 
-    testCounts(true, 1, 1, 1);
-    const thread = db().getThreadContainingMsgHdr(gHeader);
-    Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Watched);
-  },
-  async function WatchThreadBody() {
-    gAction.type = Ci.nsMsgFilterAction.WatchThread;
-    await setupTest(gBodyFilter, gAction);
+  testCounts(false, 0, 0, 0);
+  Assert.notEqual(0, gHeader.flags & Ci.nsMsgMessageFlags.Ignored);
+});
 
-    testCounts(true, 1, 1, 1);
-    const thread = db().getThreadContainingMsgHdr(gHeader);
-    Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Watched);
-  },
-  async function MarkFlagged() {
-    gAction.type = Ci.nsMsgFilterAction.MarkFlagged;
-    await setupTest(gFilter, gAction);
+add_task(async function KillSubthreadBody() {
+  gAction.type = Ci.nsMsgFilterAction.KillSubthread;
+  await setupTest(gBodyFilter, gAction);
 
-    testCounts(true, 1, 1, 1);
-    Assert.ok(gHeader.isFlagged);
-  },
-  async function MarkFlaggedBody() {
-    gAction.type = Ci.nsMsgFilterAction.MarkFlagged;
-    await setupTest(gBodyFilter, gAction);
+  testCounts(false, 0, 0, 0);
+  Assert.notEqual(0, gHeader.flags & Ci.nsMsgMessageFlags.Ignored);
+});
+add_task(async function DoNothing() {
+  gAction.type = Ci.nsMsgFilterAction.StopExecution;
+  await setupTest(gFilter, gAction);
 
-    testCounts(true, 1, 1, 1);
-    Assert.ok(gHeader.isFlagged);
-  },
-  async function ChangePriority() {
-    gAction.type = Ci.nsMsgFilterAction.ChangePriority;
-    gAction.priority = Ci.nsMsgPriority.highest;
-    await setupTest(gFilter, gAction);
+  testCounts(true, 1, 1, 1);
+});
 
-    testCounts(true, 1, 1, 1);
-    Assert.equal(Ci.nsMsgPriority.highest, gHeader.priority);
-  },
-  async function ChangePriorityBody() {
-    gAction.type = Ci.nsMsgFilterAction.ChangePriority;
-    gAction.priority = Ci.nsMsgPriority.highest;
-    await setupTest(gBodyFilter, gAction);
+add_task(async function DoNothingBody() {
+  gAction.type = Ci.nsMsgFilterAction.StopExecution;
+  await setupTest(gFilter, gAction);
 
-    testCounts(true, 1, 1, 1);
-    Assert.equal(Ci.nsMsgPriority.highest, gHeader.priority);
-  },
-  async function AddTag() {
-    gAction.type = Ci.nsMsgFilterAction.AddTag;
-    gAction.strValue = "TheTag";
-    await setupTest(gFilter, gAction);
+  testCounts(true, 1, 1, 1);
+});
 
-    testCounts(true, 1, 1, 1);
-    Assert.equal(gHeader.getStringProperty("keywords"), "thetag");
-  },
-  async function AddTagBody() {
-    gAction.type = Ci.nsMsgFilterAction.AddTag;
-    gAction.strValue = "TheTag2";
-    await setupTest(gBodyFilter, gAction);
+// this tests for marking message as junk
+add_task(async function JunkScore() {
+  gAction.type = Ci.nsMsgFilterAction.JunkScore;
+  gAction.junkScore = 100;
+  await setupTest(gFilter, gAction);
 
-    testCounts(true, 1, 1, 1);
-    Assert.equal(gHeader.getStringProperty("keywords"), "thetag2");
-  },
-  // this tests for marking message as good
-  async function JunkScoreAsGood() {
-    gAction.type = Ci.nsMsgFilterAction.JunkScore;
-    gAction.junkScore = 0;
-    await setupTest(gFilter, gAction);
+  // marking as junk resets new but not unread
+  testCounts(false, 1, 0, 0);
+  Assert.equal(gHeader.getStringProperty("junkscore"), "100");
+  Assert.equal(gHeader.getStringProperty("junkscoreorigin"), "filter");
+});
 
-    testCounts(true, 1, 1, 1);
-    Assert.equal(gHeader.getStringProperty("junkscore"), "0");
-    Assert.equal(gHeader.getStringProperty("junkscoreorigin"), "filter");
-  },
-  // this tests for marking message as good
-  async function JunkScoreAsGoodBody() {
-    gAction.type = Ci.nsMsgFilterAction.JunkScore;
-    gAction.junkScore = 0;
-    await setupTest(gBodyFilter, gAction);
+// this tests for marking message as junk
 
-    testCounts(true, 1, 1, 1);
-    Assert.equal(gHeader.getStringProperty("junkscore"), "0");
-    Assert.equal(gHeader.getStringProperty("junkscoreorigin"), "filter");
-  },
-  async function CopyToFolder() {
-    gAction.type = Ci.nsMsgFilterAction.CopyToFolder;
-    gAction.targetFolderUri = gSubfolder.URI;
-    gInboxCount = folderCount(IMAPPump.inbox);
-    gSubfolderCount = folderCount(gSubfolder);
-    await setupTest(gFilter, gAction);
+add_task(async function JunkScoreBody() {
+  gAction.type = Ci.nsMsgFilterAction.JunkScore;
+  gAction.junkScore = 100;
+  await setupTest(gBodyFilter, gAction);
 
-    testCounts(true, 1, 1, 1);
-    Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
-    Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
-  },
-  async function CopyToFolderBody() {
-    gAction.type = Ci.nsMsgFilterAction.CopyToFolder;
-    gAction.targetFolderUri = gSubfolder.URI;
-    gInboxCount = folderCount(IMAPPump.inbox);
-    gSubfolderCount = folderCount(gSubfolder);
-    await setupTest(gBodyFilter, gAction);
+  // marking as junk resets new but not unread
+  testCounts(false, 1, 0, 0);
+  Assert.equal(gHeader.getStringProperty("junkscore"), "100");
+  Assert.equal(gHeader.getStringProperty("junkscoreorigin"), "filter");
+});
 
-    testCounts(true, 1, 1, 1);
-    Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
-    Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
-  },
-  async function ForwardInline() {
-    return testForward(2);
-  },
-  async function ForwardAsAttachment() {
-    return testForward(0);
-  },
-  /**/
-  endTest,
-];
+// The remaining tests add new messages
+add_task(async function MarkUnread() {
+  gAction.type = Ci.nsMsgFilterAction.MarkUnread;
+  await setupTest(gFilter, gAction);
 
-function run_test() {
-  // Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
-  gTestArray.forEach(x => add_task(x));
-  run_next_test();
-}
+  testCounts(true, 1, 1, 1);
+  Assert.ok(!gHeader.isRead);
+});
+
+add_task(async function MarkUnreadBody() {
+  gAction.type = Ci.nsMsgFilterAction.MarkUnread;
+  await setupTest(gBodyFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  Assert.ok(!gHeader.isRead);
+});
+
+add_task(async function WatchThread() {
+  gAction.type = Ci.nsMsgFilterAction.WatchThread;
+  await setupTest(gFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  const thread = db().getThreadContainingMsgHdr(gHeader);
+  Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Watched);
+});
+
+add_task(async function WatchThreadBody() {
+  gAction.type = Ci.nsMsgFilterAction.WatchThread;
+  await setupTest(gBodyFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  const thread = db().getThreadContainingMsgHdr(gHeader);
+  Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Watched);
+});
+
+add_task(async function MarkFlagged() {
+  gAction.type = Ci.nsMsgFilterAction.MarkFlagged;
+  await setupTest(gFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  Assert.ok(gHeader.isFlagged);
+});
+
+add_task(async function MarkFlaggedBody() {
+  gAction.type = Ci.nsMsgFilterAction.MarkFlagged;
+  await setupTest(gBodyFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  Assert.ok(gHeader.isFlagged);
+});
+
+add_task(async function ChangePriority() {
+  gAction.type = Ci.nsMsgFilterAction.ChangePriority;
+  gAction.priority = Ci.nsMsgPriority.highest;
+  await setupTest(gFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  Assert.equal(Ci.nsMsgPriority.highest, gHeader.priority);
+});
+
+add_task(async function ChangePriorityBody() {
+  gAction.type = Ci.nsMsgFilterAction.ChangePriority;
+  gAction.priority = Ci.nsMsgPriority.highest;
+  await setupTest(gBodyFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  Assert.equal(Ci.nsMsgPriority.highest, gHeader.priority);
+});
+
+add_task(async function AddTag() {
+  gAction.type = Ci.nsMsgFilterAction.AddTag;
+  gAction.strValue = "TheTag";
+  await setupTest(gFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  Assert.equal(gHeader.getStringProperty("keywords"), "thetag");
+});
+
+add_task(async function AddTagBody() {
+  gAction.type = Ci.nsMsgFilterAction.AddTag;
+  gAction.strValue = "TheTag2";
+  await setupTest(gBodyFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  Assert.equal(gHeader.getStringProperty("keywords"), "thetag2");
+});
+
+// this tests for marking message as good
+
+add_task(async function JunkScoreAsGood() {
+  gAction.type = Ci.nsMsgFilterAction.JunkScore;
+  gAction.junkScore = 0;
+  await setupTest(gFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  Assert.equal(gHeader.getStringProperty("junkscore"), "0");
+  Assert.equal(gHeader.getStringProperty("junkscoreorigin"), "filter");
+});
+
+// this tests for marking message as good
+add_task(async function JunkScoreAsGoodBody() {
+  gAction.type = Ci.nsMsgFilterAction.JunkScore;
+  gAction.junkScore = 0;
+  await setupTest(gBodyFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  Assert.equal(gHeader.getStringProperty("junkscore"), "0");
+  Assert.equal(gHeader.getStringProperty("junkscoreorigin"), "filter");
+});
+
+add_task(async function CopyToFolder() {
+  gAction.type = Ci.nsMsgFilterAction.CopyToFolder;
+  gAction.targetFolderUri = gSubfolder.URI;
+  gInboxCount = folderCount(IMAPPump.inbox);
+  gSubfolderCount = folderCount(gSubfolder);
+  await setupTest(gFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
+  Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
+});
+
+add_task(async function CopyToFolderBody() {
+  gAction.type = Ci.nsMsgFilterAction.CopyToFolder;
+  gAction.targetFolderUri = gSubfolder.URI;
+  gInboxCount = folderCount(IMAPPump.inbox);
+  gSubfolderCount = folderCount(gSubfolder);
+  await setupTest(gBodyFilter, gAction);
+
+  testCounts(true, 1, 1, 1);
+  Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
+  Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
+});
+
+add_task(async function ForwardInline() {
+  await testForward(2);
+});
+
+add_task(async function ForwardAsAttachment() {
+  await testForward(0);
+});
 
 function setupFilters() {
   // Create a non-body filter.
   const filterList = IMAPPump.incomingServer.getFilterList(null);
   gFilter = filterList.createFilter("subject");
   let searchTerm = gFilter.createTerm();
-  searchTerm.attrib = Subject;
-  searchTerm.op = Is;
+  searchTerm.attrib = Ci.nsMsgSearchAttrib.Subject;
+  searchTerm.op = Ci.nsMsgSearchOp.Is;
   var value = searchTerm.value;
-  value.attrib = Subject;
+  value.attrib = Ci.nsMsgSearchAttrib.Subject;
   value.str = gMessageSubject;
   searchTerm.value = value;
   searchTerm.booleanAnd = false;
@@ -352,10 +369,10 @@ function setupFilters() {
   // filters until after body download.
   gBodyFilter = filterList.createFilter("body");
   searchTerm = gBodyFilter.createTerm();
-  searchTerm.attrib = Body;
-  searchTerm.op = Contains;
+  searchTerm.attrib = Ci.nsMsgSearchAttrib.Body;
+  searchTerm.op = Ci.nsMsgSearchOp.Contains;
   value = searchTerm.value;
-  value.attrib = Body;
+  value.attrib = Ci.nsMsgSearchAttrib.Body;
   value.str = gMessageInBody;
   searchTerm.value = value;
   searchTerm.booleanAnd = false;
@@ -414,22 +431,11 @@ async function setupTest(aFilter, aAction) {
   await PromiseTestUtils.promiseDelay(200);
 }
 
-// Cleanup, null out everything, close all cached connections and stop the
-// server
-function endTest() {
-  if (gInboxListener) {
-    gDbService.unregisterPendingListener(gInboxListener);
-  }
-  gInboxListener = null;
-  MailServices.mailSession.RemoveFolderListener(FolderListener);
-  teardownIMAPPump();
-}
-
 /*
  * listener objects
  */
 
-// nsIFolderListener implementation
+/** @implements {nsIFolderListener} */
 var FolderListener = {
   onFolderEvent(aEventFolder, aEvent) {
     dump(
@@ -438,10 +444,12 @@ var FolderListener = {
   },
 };
 
-// nsIDBChangeListener implementation. Counts of calls are kept, but not
-// currently used in the tests. Current role is to provide a reference
-// to the new message header (plus give some examples of using db listeners
-// in javascript).
+/**
+ * Counts of calls are kept, but not currently used in the tests. Current role
+ * is to provide a reference to the new message header.
+ *
+ * @implements {nsIDBChangeListener}
+ */
 function DBListener() {
   this.counts = {};
   const counts = this.counts;
@@ -591,6 +599,12 @@ async function testForward(mode) {
   gAction.type = Ci.nsMsgFilterAction.Forward;
   gAction.strValue = "to@local";
   await setupTest(gFilter, gAction);
+
+  await TestUtils.waitForCondition(
+    () => gSmtpServerD._daemon.post,
+    "waiting for smtp to receive data"
+  );
+
   const msgData = gSmtpServerD._daemon.post;
   Assert.ok(msgData.includes(`Subject: Fwd: ${gMessageSubject}`));
   Assert.ok(msgData.includes(`${gMessageInBody}`));
