@@ -2983,12 +2983,7 @@ var folderPane = {
 
     // We don't allow dragging server rows, or mixing folder types.
     if (
-      folders.some(
-        f =>
-          f.isServer ||
-          f.server.type == "nntp" ||
-          f.server.type != folders[0].server.type
-      )
+      folders.some(f => f.isServer || f.server.type != folders[0].server.type)
     ) {
       event.preventDefault();
       return;
@@ -3471,8 +3466,7 @@ var folderPane = {
           Ci.nsIMsgNewsFolder
         );
         newsRoot.reorderGroup(folder, targetFolder);
-        const mode = row.closest("li[data-mode]").dataset.mode;
-        rows.push(this.getRowForFolder(folder, mode));
+        rows.push(this.getRowForFolder(folder, row.modeName));
       }
       setTimeout(() => {
         folderTree.swapSelection(rows);
