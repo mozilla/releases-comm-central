@@ -9,14 +9,14 @@
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
+export var PromiseTestUtils = {};
+
 /**
  * Url listener that can wrap another listener and trigger a callback.
  *
  * @param [aWrapped] The nsIUrlListener to pass all notifications through to.
  *     This gets called prior to the callback (or async resumption).
  */
-
-export var PromiseTestUtils = {};
 
 PromiseTestUtils.PromiseUrlListener = function (aWrapped) {
   this.wrapped = aWrapped;
@@ -461,6 +461,41 @@ PromiseTestUtils.PromiseMsgOutgoingListener = class {
       this._resolve();
     } else {
       this._reject(exitCode);
+    }
+  }
+
+  get promise() {
+    return this._promise;
+  }
+};
+
+/**
+ * Adaptor to turn nsIMsgOperationListener into a Promise.
+ */
+PromiseTestUtils.PromiseMsgOperationListener = class {
+  QueryInterface = ChromeUtils.generateQI(["nsIMsgOperationListener"]);
+
+  /**
+   * @param {nsIMsgOperationListener} [wrapped] An optional listener
+   *   to pass through to. If used, this is called prior to the resolve
+   *   (or async resumption).
+   */
+  constructor(wrapped) {
+    this.wrapped = wrapped;
+    this._promise = new Promise((resolve, reject) => {
+      this._resolve = resolve;
+      this._reject = reject;
+    });
+  }
+
+  onStopOperation(statusCode) {
+    if (this.wrapped && this.wrapped.onStopOperation) {
+      this.wrapped.onStopOperation(statusCode);
+    }
+    if (statusCode == Cr.NS_OK) {
+      this._resolve();
+    } else {
+      this._reject(statusCode);
     }
   }
 

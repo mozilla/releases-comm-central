@@ -14,9 +14,6 @@ var { MailServices } = ChromeUtils.importESModule(
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
-const { setTimeout } = ChromeUtils.importESModule(
-  "resource://gre/modules/Timer.sys.mjs"
-);
 
 var gFiles = ["../../../data/bugmail1"];
 var gCopyFolder;
@@ -63,20 +60,15 @@ add_task(async function getLocalMessages1() {
 
   // test applying filters to a message header
 
-  const promiseFolderEvent = PromiseTestUtils.promiseFolderEvent(
-    localAccountUtils.inboxFolder,
-    "DeleteOrMoveMsgCompleted"
-  );
+  const filterListener = new PromiseTestUtils.PromiseMsgOperationListener();
   MailServices.filters.applyFilters(
     Ci.nsMsgFilterType.Manual,
     [localAccountUtils.inboxFolder.firstNewMessage],
     localAccountUtils.inboxFolder,
-    null
+    null,
+    filterListener
   );
-  await promiseFolderEvent;
-  // FIXME: this timeout should not be necessary
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await filterListener.promise;
 
   // Copy and Move should each now have 1 message in them.
   Assert.equal(folderCount(gCopyFolder), 1, "gCopyFolder should have one msg");
@@ -94,15 +86,15 @@ add_task(async function getLocalMessages2() {
   // use the alternate call into the filter service
 
   const folders = [localAccountUtils.inboxFolder];
-  const promiseFolderEvent = PromiseTestUtils.promiseFolderEvent(
-    localAccountUtils.inboxFolder,
-    "DeleteOrMoveMsgCompleted"
+
+  const filterListener = new PromiseTestUtils.PromiseMsgOperationListener();
+  MailServices.filters.applyFiltersToFolders(
+    gFilterList,
+    folders,
+    null,
+    filterListener
   );
-  MailServices.filters.applyFiltersToFolders(gFilterList, folders, null);
-  await promiseFolderEvent;
-  // FIXME: this timeout should not be necessary
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await filterListener.promise;
 
   // Copy and Move should each now have 2 message in them.
   Assert.equal(folderCount(gCopyFolder), 2, "gCopyFolder should have 2 msgs");
