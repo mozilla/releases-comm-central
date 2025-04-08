@@ -350,14 +350,95 @@ function initViewMenu() {
 }
 
 function initViewsPopup(menuPopup) {
+  function addView(view) {
+    // We only need the view to have messages, so we accept hidden views.
+    if (!("messages" in view)) {
+      return;
+    }
+
+    let url = view.getURL();
+    if (url in urls) {
+      return;
+    }
+
+    let label = view.viewName;
+    if (!getTabForObject(view)) {
+      label = client.bundle.getFormattedString("viewHidden", [label]);
+    }
+
+    let types = ["IRCClient", "IRCNetwork", "IRCDCCChat", "IRCDCCFileTransfer"];
+    let typesNetwork = ["IRCNetwork", "IRCChannel", "IRCUser"];
+    let group = String(types.indexOf(view.TYPE));
+    if (typesNetwork.includes(view.TYPE)) {
+      group = "1-" + getObjectDetails(view).network.viewName;
+    }
+
+    let sort = group;
+    if (view.TYPE != "IRCNetwork") {
+      sort += "-" + view.viewName;
+    }
+
+    viewsArray.push({ url, label, group, sort });
+    urls[url] = true;
+  }
+
+  function sortViews(a, b) {
+    if (a.sort < b.sort) {
+      return -1;
+    }
+    if (a.sort > b.sort) {
+      return 1;
+    }
+    return 0;
+  }
+
+  let viewsArray = [];
+  let urls = {};
+
+  /* XXX The code here works its way through all the open views *and* any
+   * possibly visible objects in the object model. This is necessary because
+   * occasionally objects get removed from the object model while still
+   * having a view open. See bug 459318 for one such case. Note that we
+   * won't be able to correctly switch to the "lost" view but showing it is
+   * less confusing than not.
+   */
+
+  for (let view of client.viewsArray) {
+    addView(view.source);
+  }
+
+  addView(client);
+  for (let n in client.networks) {
+    addView(client.networks[n]);
+    for (let s in client.networks[n].servers) {
+      let server = client.networks[n].servers[s];
+      for (let c in server.channels) {
+        addView(server.channels[c]);
+      }
+      for (let u in server.users) {
+        addView(server.users[u]);
+      }
+    }
+  }
+
+  for (let u in client.dcc.users) {
+    addView(client.dcc.users[u]);
+  }
+  for (let chat of client.dcc.chats) {
+    addView(chat);
+  }
+  for (let file of client.dcc.files) {
+    addView(file);
+  }
+
+  viewsArray.sort(sortViews);
+
   // Remove any existing entries.
   while (menuPopup.childNodes.length > 0) {
     menuPopup.removeChild(menuPopup.lastChild);
   }
 
-  let cx = getViewsContext();
-  let url = cx.sourceObject.getURL();
-  let viewsArray = cx.views;
+  let url = client.currentObject.getURL();
   let viewsCount = viewsArray.length;
   let lastGroup = "";
 
