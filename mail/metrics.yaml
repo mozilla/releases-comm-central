@@ -211,7 +211,6 @@ mail:
       - mail.enable_autocomplete
       - mail.fixed_width_messages
       - mail.forward_add_extension
-      - mail.mailnews.scroll_to_new_message
       - mail.mdn.report.enabled
       - mail.minimizeToTray
       - mail.operate_on_msgs_in_collapsed_threads
@@ -234,6 +233,7 @@ mail:
       - mailnews.mark_message_read.auto
       - mailnews.mark_message_read.delay
       - mailnews.message_display.disable_remote_image
+      - mailnews.scroll_to_new_message
       - mailnews.sendformat.auto_downgrade
       - mailnews.start_page.enabled
       - messenger.options.getAttentionOnNewMessages
