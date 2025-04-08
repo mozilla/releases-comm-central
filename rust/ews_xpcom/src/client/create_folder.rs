@@ -41,7 +41,7 @@ impl XpComEwsClient {
             folders: vec![Folder::Folder {
                 folder_id: None,
                 parent_folder_id: None,
-                folder_class: None,
+                folder_class: Some("IPF.Note".to_string()),
                 display_name: Some(name),
                 total_count: None,
                 child_folder_count: None,

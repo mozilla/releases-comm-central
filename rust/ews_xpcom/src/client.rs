@@ -812,15 +812,41 @@ impl XpComEwsClient {
                         .into_iter()
                         .next()
                         .and_then(|folder| match &folder {
-                            Folder::Folder { folder_class, .. } => {
-                                // Filter out non-mail folders, which will have
-                                // a class value other than "IPF.Note".
-                                if let Some("IPF.Note") =
-                                    folder_class.as_ref().map(|string| string.as_str())
-                                {
-                                    Some(Ok(folder))
-                                } else {
-                                    None
+                            Folder::Folder {
+                                folder_class,
+                                display_name,
+                                ..
+                            } => {
+                                let folder_class =
+                                    folder_class.as_ref().map(|string| string.as_str());
+
+                                // Filter out non-mail folders. According to EWS
+                                // docs, this should be any folder which class
+                                // start is "IPF.Note", or starts with
+                                // "IPF.Note." (to allow some systems to define
+                                // custom mail-derived classes).
+                                //
+                                // See
+                                // <https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/folders-and-items-in-ews-in-exchange>
+                                match folder_class {
+                                    Some(folder_class) => {
+                                        if folder_class == "IPF.Note"
+                                            || folder_class.starts_with("IPF.Note.")
+                                        {
+                                            Some(Ok(folder))
+                                        } else {
+                                            log::debug!("Skipping folder with unsupported class: {folder_class}");
+                                            None
+                                        }
+                                    }
+                                    None => {
+                                        log::warn!(
+                                            "Skipping folder without a class: {}",
+                                            display_name.clone().unwrap_or("unknown".to_string())
+                                        );
+
+                                        None
+                                    }
                                 }
                             }
 
