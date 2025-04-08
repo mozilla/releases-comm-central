@@ -3588,12 +3588,12 @@ var folderPane = {
     ) {
       // For local mbox, fix classic MacOS line endings.
       try {
-        folder.acquireSemaphore(folder);
+        folder.acquireSemaphore(folder, "folderPane.rebuildFolderSummary");
         await repairMbox(folder.filePath.path);
       } catch (e) {
         console.warn(`Repair mbox FAILED; ${e.message}`);
       } finally {
-        folder.releaseSemaphore(folder);
+        folder.releaseSemaphore(folder, "folderPane.rebuildFolderSummary");
       }
     }
 

@@ -184,8 +184,8 @@ add_task(async function testOfflineBodyCopy() {
   gMovedMsgId = msgHdr.messageId;
 
   // Lock the folder (using any old nsISupports-based object).
-  const locker = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.acquireSemaphore(locker);
+  const locker = MailServices.accounts;
+  IMAPPump.inbox.acquireSemaphore(locker, "test code");
 
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
@@ -199,7 +199,7 @@ add_task(async function testOfflineBodyCopy() {
   );
   await copyListener.promise;
 
-  IMAPPump.inbox.releaseSemaphore(locker);
+  IMAPPump.inbox.releaseSemaphore(locker, "test code");
 
   // Verify that the moved Msg is not offline.
   try {

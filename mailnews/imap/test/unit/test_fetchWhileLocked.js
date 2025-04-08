@@ -32,7 +32,7 @@ add_task(async function () {
 
   // Acquire the semaphore.
 
-  inbox.acquireSemaphore(MailServices.accounts);
+  inbox.acquireSemaphore(MailServices.accounts, "test code");
 
   // Add a message to the server and download it.
 
@@ -94,7 +94,7 @@ add_task(async function () {
 
   // Release the semaphore.
 
-  inbox.releaseSemaphore(MailServices.accounts);
+  inbox.releaseSemaphore(MailServices.accounts, "test code");
 
   // Fetch messages from the server.
 
