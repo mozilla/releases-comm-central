@@ -109,28 +109,6 @@ nsMsgCompUtils::DetectCharset(const nsACString& aContent,
   return NS_OK;
 }
 
-/**
- * Checks if the recipient fields have sane values for message send.
- */
-nsresult mime_sanity_check_fields_recipients(const char* to, const char* cc,
-                                             const char* bcc,
-                                             const char* newsgroups) {
-  if (to)
-    while (IS_SPACE(*to)) to++;
-  if (cc)
-    while (IS_SPACE(*cc)) cc++;
-  if (bcc)
-    while (IS_SPACE(*bcc)) bcc++;
-  if (newsgroups)
-    while (IS_SPACE(*newsgroups)) newsgroups++;
-
-  if ((!to || !*to) && (!cc || !*cc) && (!bcc || !*bcc) &&
-      (!newsgroups || !*newsgroups))
-    return NS_MSG_NO_RECIPIENTS;
-
-  return NS_OK;
-}
-
 static void GenerateGlobalRandomBytes(unsigned char* buf, int32_t len) {
   // Attempt to generate bytes from system entropy-based RNG.
   nsCOMPtr<nsIRandomGenerator> randomGenerator(
