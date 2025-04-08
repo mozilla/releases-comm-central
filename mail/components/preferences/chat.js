@@ -17,7 +17,6 @@ Preferences.addAll([
   { id: "messenger.status.defaultIdleAwayMessage", type: "wstring" },
   { id: "purple.logging.log_chats", type: "bool" },
   { id: "purple.logging.log_ims", type: "bool" },
-  { id: "purple.logging.log_system", type: "bool" },
   { id: "mail.chat.show_desktop_notifications", type: "bool" },
   { id: "mail.chat.notification_info", type: "int" },
   { id: "mail.chat.play_sound", type: "bool" },

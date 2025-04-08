@@ -1378,7 +1378,6 @@ function reportPreferences() {
     "purple.conversations.im.send_typing",
     "purple.logging.log_chats",
     "purple.logging.log_ims",
-    "purple.logging.log_system",
 
     // Unlisted
     "mail.operate_on_msgs_in_collapsed_threads",

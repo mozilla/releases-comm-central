@@ -250,7 +250,6 @@ mail:
       - purple.conversations.im.send_typing
       - purple.logging.log_chats
       - purple.logging.log_ims
-      - purple.logging.log_system
       - searchintegration.enable
       - signon.autologin.proxy
       - widget.gtk.overlay-scrollbars.enabled
