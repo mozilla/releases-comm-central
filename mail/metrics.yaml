@@ -185,7 +185,6 @@ mail:
       - layers.acceleration.disabled
       - layout.css.always_underline_links
       - ldap_2.autoComplete.useDirectory
-      - mail.addressDisplayFormat
       - mail.biff.alert.show_preview
       - mail.biff.alert.show_sender
       - mail.biff.alert.show_subjec
@@ -277,6 +276,7 @@ mail:
       - telemetry-client-dev@thunderbird.net
     expires: never
     labels:
+      - mail.addressDisplayFormat
       - mail.pane_config.dynamic
       - mail.ui.display.dateformat.default
       - mail.ui.display.dateformat.thisweek

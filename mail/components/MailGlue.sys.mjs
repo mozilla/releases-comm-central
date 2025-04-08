@@ -1306,7 +1306,6 @@ function reportPreferences() {
     "mail.mailnews.scroll_to_new_message",
     "mail.prompt_purge_threshold",
     "mail.purge.ask",
-    "mail.addressDisplayFormat",
     "mail.showCondensedAddresses",
     "mail.threadpane.table.horizontal_scroll",
     "mail.dark-reader.enabled",
@@ -1417,6 +1416,7 @@ function reportPreferences() {
 
   const integerPrefs = [
     // Mail UI
+    "mail.addressDisplayFormat",
     "mail.pane_config.dynamic",
     "mail.ui.display.dateformat.default",
     "mail.ui.display.dateformat.thisweek",
