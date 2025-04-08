@@ -47,6 +47,9 @@ add_setup(async function () {
 async function startDrag(element, target) {
   const elementRow = about3Pane.folderPane.getRowForFolder(element);
   const targetRow = about3Pane.folderPane.getRowForFolder(target);
+  const targetRect = targetRow.getBoundingClientRect();
+  const center =
+    targetRect.top + targetRow.clientTop + targetRow.clientHeight / 2;
 
   dragService.startDragSessionForTests(
     about3Pane,
@@ -61,6 +64,17 @@ async function startDrag(element, target) {
     about3Pane
   );
 
+  EventUtils.sendDragEvent(
+    {
+      type: "dragover",
+      clientY: center,
+      dataTransfer,
+      _domDispatchOnly: true,
+    },
+    targetRow,
+    about3Pane
+  );
+
   Assert.equal(
     dataTransfer.effectAllowed,
     "copyMove",
@@ -72,13 +86,16 @@ async function startDrag(element, target) {
 
 async function endDrag(target) {
   const targetRow = about3Pane.folderPane.getRowForFolder(target);
+  const targetRect = targetRow.getBoundingClientRect();
+  const center =
+    targetRect.top + targetRow.clientTop + targetRow.clientHeight / 2;
 
   EventUtils.synthesizeDropAfterDragOver(
     result,
     dataTransfer,
     targetRow,
     about3Pane,
-    { type: "drop" }
+    { type: "drop", clientY: center, _domDispatchOnly: true }
   );
   dragService.getCurrentSession().endDragSession(true);
   await new Promise(resolve => setTimeout(resolve));

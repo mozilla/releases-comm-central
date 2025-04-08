@@ -3113,13 +3113,7 @@ var folderPane = {
         event.dataTransfer.mozItemCount == 1 &&
         row.modeName == "all"
       ) {
-        const targetElement = row.querySelector(".container") ?? row;
-        const targetRect = targetElement.getBoundingClientRect();
-        const center =
-          targetRect.top +
-          targetElement.clientTop +
-          targetElement.clientHeight / 2;
-        const quarterOfHeight = targetElement.clientHeight / 4;
+        const { center, quarterOfHeight } = this._calculateElementHeight(row);
         if (event.clientY < center - quarterOfHeight) {
           // Insert before the target.
           this._clearDropTarget();
@@ -3270,6 +3264,22 @@ var folderPane = {
     }
   },
 
+  /**
+   * Calculate the center point of a row element related to the client height
+   * and returns it alongside a quarter of its height.
+   *
+   * @param {FolderTreeRow} row
+   * @returns {object}
+   */
+  _calculateElementHeight(row) {
+    const targetElement = row.querySelector(".container") ?? row;
+    const targetRect = targetElement.getBoundingClientRect();
+    const center =
+      targetRect.top + targetElement.clientTop + targetElement.clientHeight / 2;
+    const quarterOfHeight = targetElement.clientHeight / 4;
+    return { center, quarterOfHeight };
+  },
+
   _onDrop(event) {
     this._timedExpand();
     this._clearDropTarget();
@@ -3349,13 +3359,7 @@ var folderPane = {
           !targetFolder.isServer &&
           row.modeName == "all"
         ) {
-          const targetElement = row.querySelector(".container") ?? row;
-          const targetRect = targetElement.getBoundingClientRect();
-          const center =
-            targetRect.top +
-            targetElement.clientTop +
-            targetElement.clientHeight / 2;
-          const quarterOfHeight = targetElement.clientHeight / 4;
+          const { center, quarterOfHeight } = this._calculateElementHeight(row);
           if (event.clientY < center - quarterOfHeight) {
             isReordering = true;
           } else if (
@@ -3390,12 +3394,13 @@ var folderPane = {
             isMove,
             sourceFolder,
             destinationFolder,
-            new ReorderFolderListener(
-              sourceFolder,
-              targetFolder,
-              isReordering,
-              insertAfter
-            )
+            isReordering
+              ? new ReorderFolderListener(
+                  sourceFolder,
+                  targetFolder,
+                  insertAfter
+                )
+              : null
           );
 
           // Save in prefs the destination folder URI and if this was a move
@@ -4280,17 +4285,12 @@ var folderPane = {
  * operation has been completed.
  */
 class ReorderFolderListener {
-  constructor(sourceFolder, targetFolder, isReordering, insertAfter) {
+  constructor(sourceFolder, targetFolder, insertAfter) {
     this.sourceFolder = sourceFolder;
     this.targetFolder = targetFolder;
-    this.isReordering = isReordering;
     this.insertAfter = insertAfter;
   }
   onStopCopy() {
-    if (!this.isReordering) {
-      return;
-    }
-
     // Do reorder within new siblings (all children of new parent).
     const movedFolder = MailServices.copy.getArrivedFolder(this.sourceFolder);
     if (!movedFolder) {
