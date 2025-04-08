@@ -1330,7 +1330,6 @@ function reportPreferences() {
     // Connection
     "network.proxy.share_proxy_settings",
     "network.proxy.socks_remote_dns",
-    "pref.advanced.proxies.disable_button.reload",
     "signon.autologin.proxy",
 
     // Offline
@@ -1352,7 +1351,6 @@ function reportPreferences() {
     "mail.spellcheck.inline",
     "mail.warn_on_send_accel_key",
     "msgcompose.default_colors",
-    "pref.ldap.disable_button.edit_directories",
 
     // Send options
     "mailnews.sendformat.auto_downgrade",
@@ -1367,13 +1365,8 @@ function reportPreferences() {
     "mailnews.message_display.disable_remote_image",
     "network.cookie.blockFutureCookies",
     "places.history.enabled",
-    "pref.privacy.disable_button.cookie_exceptions",
-    "pref.privacy.disable_button.view_cookies",
-    "pref.privacy.disable_button.view_passwords",
     "privacy.donottrackheader.enabled",
     "privacy.globalprivacycontrol.enabled",
-    "security.disable_button.openCertManager",
-    "security.disable_button.openDeviceManager",
 
     // Chat
     "messenger.options.getAttentionOnNewMessages",

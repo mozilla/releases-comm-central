@@ -245,11 +245,6 @@ mail:
       - network.proxy.socks_remote_dns
       - offline.autoDetect
       - places.history.enabled
-      - pref.advanced.proxies.disable_button.reload
-      - pref.ldap.disable_button.edit_directories
-      - pref.privacy.disable_button.cookie_exceptions
-      - pref.privacy.disable_button.view_cookies
-      - pref.privacy.disable_button.view_passwords
       - privacy.clearOnShutdown.cache
       - privacy.donottrackheader.enabled
       - purple.conversations.im.send_typing
@@ -257,8 +252,6 @@ mail:
       - purple.logging.log_ims
       - purple.logging.log_system
       - searchintegration.enable
-      - security.disable_button.openCertManager
-      - security.disable_button.openDeviceManager
       - signon.autologin.proxy
       - widget.gtk.overlay-scrollbars.enabled
 
