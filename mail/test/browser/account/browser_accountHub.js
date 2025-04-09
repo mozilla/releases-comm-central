@@ -488,10 +488,16 @@ add_task(async function test_account_enter_password_imap_account() {
       (imapAccount = MailServices.accounts.accounts.find(
         account => account.identities[0]?.email === emailUser.email
       )),
-    "The imap account should be created."
+    "The user account should be created."
   );
 
   Assert.ok(imapAccount, "IMAP account should be created");
+
+  Assert.equal(
+    imapAccount.incomingServer.type,
+    "imap",
+    "The new account created should be an IMAP account"
+  );
 
   await subtest_clear_status_bar();
   MailServices.accounts.removeAccount(imapAccount);
@@ -499,6 +505,7 @@ add_task(async function test_account_enter_password_imap_account() {
 
   IMAPServer.close();
   SMTPServer.close();
+
   await subtest_close_account_hub_dialog(
     dialog,
     dialog.querySelector("email-sync-accounts-form")

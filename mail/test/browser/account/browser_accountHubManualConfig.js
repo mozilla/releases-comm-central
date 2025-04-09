@@ -315,6 +315,64 @@ add_task(async function test_account_email_manual_form() {
   await subtest_close_account_hub_dialog(dialog, outgoingConfigTemplate);
 });
 
+add_task(async function test_pop3_manual_config_flow() {
+  // Fill in email auto form and click continue, waiting for config found
+  // view to be shown.
+  const dialog = await subtest_open_account_hub_dialog();
+
+  const emailUser = {
+    name: "John Doe",
+    email: "john.doe@momo.invalid",
+    password: "abc12345",
+    incomingHost: "mail.momo.invalid",
+    incomingPort: 123,
+    outgoingHost: "mail.momo.invalid",
+    outgoingPort: 465,
+  };
+
+  await subtest_fill_initial_config_fields(dialog, emailUser);
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#pop3")),
+    "The POP3 config option should be visible"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    configFoundTemplate.querySelector("#pop3"),
+    {}
+  );
+
+  // POP3 should be the selected config.
+  Assert.ok(
+    configFoundTemplate.querySelector("#pop3").classList.contains("selected"),
+    "POP3 should be the selected config option"
+  );
+
+  // Edit configuration button should lead to incoming config template.
+  EventUtils.synthesizeMouseAtCenter(
+    configFoundTemplate.querySelector("#editConfiguration"),
+    {}
+  );
+
+  const incomingConfigTemplate = dialog.querySelector(
+    "#emailIncomingConfigSubview"
+  );
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(incomingConfigTemplate),
+    "The incoming config template should be in view"
+  );
+
+  Assert.equal(
+    incomingConfigTemplate.querySelector("#incomingProtocol").value,
+    "2",
+    "The incoming protocol should be POP3"
+  );
+
+  await subtest_close_account_hub_dialog(dialog, incomingConfigTemplate);
+});
+
 add_task(async function test_invalid_manual_config_flow() {
   const dialog = await subtest_open_account_hub_dialog();
 

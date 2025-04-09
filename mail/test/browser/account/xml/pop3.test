@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <clientConfig>
-  <emailProvider id="imap.test">
-    <domain>imap.test</domain>
+  <emailProvider id="pop3.test">
+    <domain>pop3.test</domain>
     <displayName>John Doe</displayName>
     <incomingServer type="imap">
       <hostname>localhost</hostname>
       <port>1993</port>
       <socketType>plain</socketType>
-      <username>john.doe@imap.test</username>
+      <username>john.doe@pop3.test</username>
+      <password>abc12345</password>
+      <authentication>plain</authentication>
+    </incomingServer>
+    <incomingServer type="pop3">
+      <hostname>pop.pop3.test</hostname>
+      <port>110</port>
+      <socketType>plain</socketType>
+      <username>john.doe@pop3.test</username>
       <password>abc12345</password>
       <authentication>plain</authentication>
     </incomingServer>
@@ -15,7 +23,7 @@
       <hostname>localhost</hostname>
       <port>1587</port>
       <socketType>plain</socketType>
-      <username>john.doe@imap.test</username>
+      <username>john.doe@pop3.test</username>
       <password>abc12345</password>
       <authentication>plain</authentication>
       <useGlobalPreferredServer>false</useGlobalPreferredServer>

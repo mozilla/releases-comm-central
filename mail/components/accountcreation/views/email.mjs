@@ -653,14 +653,16 @@ class AccountHubEmail extends HTMLElement {
         this.#emailFooter.toggleForwardDisabled(stateData.edited);
         // TODO: Validate incoming config details.
         break;
-      case "outgoingConfigSubview":
       case "emailConfigFoundSubview":
+      case "outgoingConfigSubview":
+        this.#currentConfig = this.#fillAccountConfig(stateData);
+
         if (this.#currentConfig.isOauthOnly()) {
           //TODO share this with the code path for pw entry...
           this.#startLoading("account-hub-oauth-pending");
           gAccountSetupLogger.debug("Create button clicked.");
           try {
-            await this.#validateAndFinish(this.#currentConfig.copy());
+            await this.#validateAndFinish(this.#currentConfig);
           } finally {
             this.#stopLoading();
           }
@@ -708,16 +710,15 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "emailPasswordSubview":
         this.#startLoading("account-hub-creating-account");
-
-        // Get password and remember from the state and apply it to the config.
-        this.#currentConfig = this.#fillAccountConfig(
-          this.#currentConfig,
-          stateData.password
-        );
-        this.#currentConfig.rememberPassword = stateData.rememberPassword;
-        gAccountSetupLogger.debug("Create button clicked.");
-
         try {
+          // Get password and remember from the state and apply it to the config.
+          this.#currentConfig = this.#fillAccountConfig(
+            this.#currentConfig,
+            stateData.password
+          );
+          this.#currentConfig.rememberPassword = stateData.rememberPassword;
+          gAccountSetupLogger.debug("Create button clicked.");
+
           await this.#validateAndFinish(this.#currentConfig.copy());
         } catch (error) {
           this.#stopLoading();
@@ -1019,13 +1020,14 @@ class AccountHubEmail extends HTMLElement {
       this.#email,
       password
     );
-
     return configData;
   }
 
   /**
    * Called when guessConfig fails and we need to provide manual config a
    * default AccountConfig.
+   *
+   * @returns {AccountConfig} - An AccountConfig object.
    */
   #getEmptyAccountConfig() {
     const config = new lazy.AccountConfig();
@@ -1085,12 +1087,10 @@ class AccountHubEmail extends HTMLElement {
         completeConfig.source != lazy.AccountConfig.kSourceXML
       );
       // The auth might have changed, so we should update the current config.
-      this.#currentConfig.incoming.auth = successfulConfig.incoming.auth;
-      this.#currentConfig.outgoing.auth = successfulConfig.outgoing.auth;
-      this.#currentConfig.incoming.username =
-        successfulConfig.incoming.username;
-      this.#currentConfig.outgoing.username =
-        successfulConfig.outgoing.username;
+      completeConfig.incoming.auth = successfulConfig.incoming.auth;
+      completeConfig.outgoing.auth = successfulConfig.outgoing.auth;
+      completeConfig.incoming.username = successfulConfig.incoming.username;
+      completeConfig.outgoing.username = successfulConfig.outgoing.username;
 
       this.#currentConfig = completeConfig;
       this.#finishEmailAccountAddition(completeConfig);

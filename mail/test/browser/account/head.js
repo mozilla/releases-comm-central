@@ -13,7 +13,7 @@ const { MailServices } = ChromeUtils.importESModule(
 );
 
 const IMAPServer = {
-  open() {
+  open(username = "john.doe@imap.test") {
     const {
       ImapDaemon,
       ImapMessage,
@@ -31,7 +31,7 @@ const IMAPServer = {
       const handler = new IMAP_RFC3501_handler(daemon);
       mixinExtension(handler, IMAP_RFC2195_extension);
 
-      handler.kUsername = "john.doe@imap.test";
+      handler.kUsername = username;
       handler.kPassword = "abc12345";
       handler.kAuthRequired = true;
       handler.kAuthSchemes = ["PLAIN"];
@@ -51,7 +51,7 @@ const IMAPServer = {
 };
 
 const SMTPServer = {
-  open() {
+  open(username = "john.doe@imap.test") {
     const { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.importESModule(
       "resource://testing-common/mailnews/Smtpd.sys.mjs"
     );
@@ -59,7 +59,7 @@ const SMTPServer = {
     this.daemon = new SmtpDaemon();
     this.server = new nsMailServer(daemon => {
       const handler = new SMTP_RFC2821_handler(daemon);
-      handler.kUsername = "john.doe@imap.test";
+      handler.kUsername = username;
       handler.kPassword = "abc12345";
       handler.kAuthRequired = true;
       handler.kAuthSchemes = ["PLAIN"];
