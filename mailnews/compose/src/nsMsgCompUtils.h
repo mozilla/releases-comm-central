@@ -56,10 +56,6 @@ nsresult mime_sanity_check_fields_recipients(const char* to, const char* cc,
                                              const char* bcc,
                                              const char* newsgroups);
 
-nsresult mime_generate_headers(nsIMsgCompFields* fields,
-                               nsMsgDeliverMode deliver_mode,
-                               msgIWritableStructuredHeaders* headers);
-
 char* mime_make_separator(const char* prefix);
 char* mime_gen_content_id(uint32_t aPartNum, const char* aEmailAddress);
 
