@@ -1377,7 +1377,7 @@ MessageGenerator.prototype = {
       bodyPart = new SyntheticPartLeaf(aArgs.body.body, aArgs.body);
     } else {
       // Different messages should have a chance at different bodies.
-      bodyPart = new SyntheticPartLeaf("Hello " + msg.toName + "!");
+      bodyPart = new SyntheticPartLeaf("Hello " + msg.toName + "!\r\n");
     }
 
     // if it has any attachments, create a multipart/mixed to be the body and
