@@ -394,6 +394,7 @@ export class MailNotificationManager {
         return;
       }
       if (subject?.QueryInterface(Ci.nsIAlertAction)) {
+        Glean.mail.notificationUsedActions[subject.action].add(1);
         if (subject.action == "action1") {
           msgHdr.folder.markMessagesRead([msgHdr], true);
         }

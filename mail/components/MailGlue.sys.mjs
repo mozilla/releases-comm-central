@@ -1379,6 +1379,11 @@ function reportPreferences() {
     "purple.logging.log_chats",
     "purple.logging.log_ims",
 
+    // Notifications
+    "mail.biff.alert.show_preview",
+    "mail.biff.alert.show_sender",
+    "mail.biff.alert.show_subject",
+
     // Unlisted
     "mail.operate_on_msgs_in_collapsed_threads",
   ];
@@ -1409,6 +1414,7 @@ function reportPreferences() {
   const integerPrefs = [
     // Mail UI
     "mail.addressDisplayFormat",
+    "mail.biff.alert.preview_length",
     "mail.pane_config.dynamic",
     "mail.ui.display.dateformat.default",
     "mail.ui.display.dateformat.thisweek",
@@ -1421,15 +1427,7 @@ function reportPreferences() {
   }
 
   if (AppConstants.platform !== "macosx") {
-    booleanPrefs.push(
-      "mail.biff.show_alert",
-      "mail.biff.use_system_alert",
-
-      // Notifications
-      "mail.biff.alert.show_preview",
-      "mail.biff.alert.show_sender",
-      "mail.biff.alert.show_subject"
-    );
+    booleanPrefs.push("mail.biff.show_alert", "mail.biff.use_system_alert");
   }
 
   // Compile-time flag-dependent preferences
@@ -1505,6 +1503,12 @@ function reportUIConfiguration() {
       Glean.mail.uiConfigurationMessageHeader[key].set(value);
     }
   }
+
+  const actions = Services.prefs.getStringPref(
+    "mail.biff.alert.enabled_actions",
+    ""
+  );
+  Glean.mail.notificationEnabledActions.set(actions ? actions.split(",") : []);
 }
 
 /**

@@ -187,7 +187,7 @@ mail:
       - ldap_2.autoComplete.useDirectory
       - mail.biff.alert.show_preview
       - mail.biff.alert.show_sender
-      - mail.biff.alert.show_subjec
+      - mail.biff.alert.show_subject
       - mail.biff.play_sound
       - mail.biff.show_alert
       - mail.biff.show_tray_icon
@@ -269,6 +269,7 @@ mail:
     expires: never
     labels:
       - mail.addressDisplayFormat
+      - mail.biff.alert.preview_length
       - mail.pane_config.dynamic
       - mail.ui.display.dateformat.default
       - mail.ui.display.dateformat.thisweek
@@ -573,3 +574,32 @@ mail:
       result:
         description: Success or failure.
         type: string
+
+  notification_enabled_actions:
+    type: string_list
+    description:
+      The enabled actions on the new mail notification, in order.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1955165
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1955165
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+
+  notification_used_actions:
+    type: labeled_counter
+    description: >
+       A count of how many times each new mail notification action is used.
+       Labels identify the actions, as defined in MailNotificationManager.sys.mjs.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1955165
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1955165
+    data_sensitivity:
+      - interaction
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never

@@ -21,6 +21,9 @@ var { MailConsts } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+var { MailTelemetryForTests } = ChromeUtils.importESModule(
+  "resource:///modules/MailGlue.sys.mjs"
+);
 
 // Our global folder variables...
 var gFolder = null;
@@ -238,6 +241,8 @@ function setupTest() {
     gTotalOpenTime = Services.prefs.getIntPref("alerts.totalOpenTime");
     Services.prefs.setIntPref("alerts.totalOpenTime", 3000);
   }
+
+  Services.fog.testResetFOG();
 }
 
 function put_bool_prefs_back() {
@@ -801,6 +806,9 @@ add_task(async function test_click_on_notification_actions() {
   // No enabled actions.
 
   Services.prefs.setStringPref("mail.biff.alert.enabled_actions", "");
+  MailTelemetryForTests.reportUIConfiguration();
+  Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), []);
+
   gMockAlertsService._doClick = false;
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   await gMockAlertsService.promiseShown();
@@ -811,6 +819,11 @@ add_task(async function test_click_on_notification_actions() {
   // Mark Read action.
 
   Services.prefs.setStringPref("mail.biff.alert.enabled_actions", "action1");
+  MailTelemetryForTests.reportUIConfiguration();
+  Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
+    "action1",
+  ]);
+
   gMockAlertsService._doClick = "action1";
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   const lastMessage = [...gFolder.messages].at(-1);
@@ -825,6 +838,8 @@ add_task(async function test_click_on_notification_actions() {
     () => lastMessage.isRead,
     "waiting for message to be marked as read"
   );
+  Assert.equal(Glean.mail.notificationUsedActions.action1.testGetValue(), 1);
+  Assert.equal(Glean.mail.notificationUsedActions.action2.testGetValue(), null);
 
   gMockAlertsService._reset();
 
@@ -834,6 +849,12 @@ add_task(async function test_click_on_notification_actions() {
     "mail.biff.alert.enabled_actions",
     "action2,action1"
   );
+  MailTelemetryForTests.reportUIConfiguration();
+  Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
+    "action2",
+    "action1",
+  ]);
+
   gMockAlertsService._doClick = "action2";
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
 
@@ -842,6 +863,8 @@ add_task(async function test_click_on_notification_actions() {
     gMockAlertsService._actions.map(a => a.action),
     ["action2", "action1"]
   );
+  Assert.equal(Glean.mail.notificationUsedActions.action1.testGetValue(), 1);
+  Assert.equal(Glean.mail.notificationUsedActions.action2.testGetValue(), 1);
 });
 
 /**
