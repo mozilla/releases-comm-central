@@ -3249,6 +3249,7 @@ nsMsgLocalMailFolder::GetUidlFromFolder(nsLocalFolderScanState* aState,
  */
 NS_IMETHODIMP
 nsMsgLocalMailFolder::AddMessage(const char* aMessage, nsIMsgDBHdr** aHdr) {
+  AUTO_PROFILER_LABEL("nsMsgLocalMailFolder::AddMessage", MAILNEWS);
   NS_ENSURE_ARG_POINTER(aHdr);
   AutoTArray<nsCString, 1> aMessages = {nsDependentCString(aMessage)};
   nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
@@ -3262,6 +3263,7 @@ NS_IMETHODIMP
 nsMsgLocalMailFolder::AddMessageBatch(
     const nsTArray<nsCString>& aMessages,
     nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray) {
+  AUTO_PROFILER_LABEL("nsMsgLocalMailFolder::AddMessageBatch", MAILNEWS);
 #ifdef MOZ_PANORAMA
   if (Preferences::GetBool("mail.panorama.enabled", false)) {
     return AddMessageBatch2(aMessages, aHdrArray);

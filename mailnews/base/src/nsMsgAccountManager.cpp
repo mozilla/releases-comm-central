@@ -60,6 +60,7 @@
 #include "nsIMsgFilterList.h"
 #include "nsDirectoryServiceUtils.h"
 #include "mozilla/Components.h"
+#include "mozilla/ProfilerMarkers.h"
 #include "mozilla/Services.h"
 #include "nsIFileStreams.h"
 #include "nsIOutputStream.h"
@@ -159,6 +160,7 @@ static nsCOMPtr<nsIAsyncShutdownClient> GetProfileBeforeChange() {
 }
 
 nsresult nsMsgAccountManager::Init() {
+  AUTO_PROFILER_LABEL("nsMsgAccountManager::Init", MAILNEWS);
   if (!XRE_IsParentProcess()) {
     return NS_ERROR_NOT_AVAILABLE;
   }
@@ -386,6 +388,7 @@ nsMsgAccountManager::GetUniqueServerKey(nsACString& aResult) {
 }
 
 nsresult nsMsgAccountManager::CreateIdentity(nsIMsgIdentity** _retval) {
+  AUTO_PROFILER_LABEL("nsMsgAccountManager::CreateIdentity", MAILNEWS);
   NS_ENSURE_ARG_POINTER(_retval);
   nsresult rv;
   nsAutoCString key;
@@ -442,6 +445,7 @@ nsMsgAccountManager::CreateIncomingServer(const nsACString& username,
                                           const nsACString& hostname,
                                           const nsACString& type,
                                           nsIMsgIncomingServer** _retval) {
+  AUTO_PROFILER_LABEL("nsMsgAccountManager::CreateIncomingServer", MAILNEWS);
   NS_ENSURE_ARG_POINTER(_retval);
 
   // Make sure the hostname is usable when creating a new incoming server.
@@ -1389,6 +1393,7 @@ nsMsgAccountManager::ReactivateAccounts() {
 // and makes sure the folder flags are set there, too
 NS_IMETHODIMP
 nsMsgAccountManager::SetSpecialFolders() {
+  AUTO_PROFILER_LABEL("nsMsgAccountManager::SetSpecialFolders", MAILNEWS);
   if (Preferences::GetBool("mail.panorama.enabled", false)) {
     // Skip this for now.
     return NS_OK;
@@ -2235,6 +2240,7 @@ nsresult nsMsgAccountManager::GetLocalFoldersPrettyName(
 
 NS_IMETHODIMP
 nsMsgAccountManager::CreateLocalMailAccount(nsIMsgAccount** _retval) {
+  AUTO_PROFILER_LABEL("nsMsgAccountManager::CreateLocalMailAccount", MAILNEWS);
   // create the server
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = CreateIncomingServer("nobody"_ns, "Local Folders"_ns, "none"_ns,
@@ -2760,6 +2766,7 @@ nsresult nsMsgAccountManager::GetVirtualFoldersFile(nsCOMPtr<nsIFile>& aFile) {
 }
 
 NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
+  AUTO_PROFILER_LABEL("nsMsgAccountManager::LoadVirtualFolders", MAILNEWS);
   if (Preferences::GetBool("mail.panorama.enabled", false)) {
     // Skip this for now.
     return NS_OK;

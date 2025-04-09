@@ -42,12 +42,12 @@ nsresult FolderDatabase::Startup() {
   MOZ_ASSERT(NS_IsMainThread(), "loadfolders must happen on the main thread");
 
   MOZ_LOG(gPanoramaLog, LogLevel::Info, ("FolderDatabase starting up"));
-  PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", OTHER,
+  PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", MAILNEWS,
                           MarkerOptions(MarkerTiming::IntervalStart()));
 
   InternalLoadFolders();
 
-  PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", OTHER,
+  PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", MAILNEWS,
                           MarkerOptions(MarkerTiming::IntervalEnd()));
   MOZ_LOG(gPanoramaLog, LogLevel::Info, ("FolderDatabase startup complete"));
 

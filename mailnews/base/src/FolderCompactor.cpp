@@ -433,7 +433,7 @@ NS_IMETHODIMP FolderCompactor::OnCompactionBegin() {
   mTimerId = mozilla::glean::mail::compact_duration.Start();
 
   PROFILER_MARKER_TEXT(
-      "FolderCompactor", OTHER,
+      "FolderCompactor", MAILNEWS,
       mozilla::MarkerOptions(mozilla::MarkerTiming::IntervalStart()),
       mFolder->URI());
   return NS_OK;
@@ -656,7 +656,7 @@ NS_IMETHODIMP FolderCompactor::OnFinalSummary(nsresult status, int64_t oldSize,
     mozilla::glean::mail::compact_duration.StopAndAccumulate(
         std::move(mTimerId));
     PROFILER_MARKER_TEXT(
-        "FolderCompactor", OTHER,
+        "FolderCompactor", MAILNEWS,
         mozilla::MarkerOptions(mozilla::MarkerTiming::IntervalEnd()),
         mFolder->URI());
   }
@@ -888,6 +888,7 @@ static bool CanCompactNow(nsIMsgFolder* folder) {
 }
 
 void BatchCompactor::StartNext() {
+  AUTO_PROFILER_LABEL("BatchCompactor::StartNext", MAILNEWS);
   MOZ_ASSERT(mRetryTimer);
 
   while (true) {

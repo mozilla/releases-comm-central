@@ -256,6 +256,7 @@ nsMsgDBFolder::nsMsgDBFolder(void)
       mIsServer(false),
       mBayesJunkClassifying(false),
       mBayesTraitClassifying(false) {
+  AUTO_PROFILER_LABEL("nsMsgDBFolder::nsMsgDBFolder", MAILNEWS);
   if (mInstanceCount++ <= 0) {
     initializeStrings();
 
@@ -4165,7 +4166,7 @@ NS_IMETHODIMP nsMsgDBFolder::AcquireSemaphore(nsISupports* semHolder,
     MOZ_LOG(gFolderLockLog, LogLevel::Info,
             ("[%s] %s: %s acquired the semaphore (%p)", mURI.get(), __func__,
              nsAutoCString(logText).get(), semHolder));
-    PROFILER_MARKER_TEXT("Folder Lock Acquired", OTHER,
+    PROFILER_MARKER_TEXT("Folder Lock Acquired", MAILNEWS,
                          MarkerOptions(MarkerStack::Capture()), mURI);
   } else {
     MOZ_LOG(gFolderLockLog, LogLevel::Warning,
@@ -4182,7 +4183,7 @@ NS_IMETHODIMP nsMsgDBFolder::ReleaseSemaphore(nsISupports* semHolder,
     MOZ_LOG(gFolderLockLog, LogLevel::Info,
             ("[%s] %s: %s released the semaphore (%p)", mURI.get(), __func__,
              nsAutoCString(logText).get(), semHolder));
-    PROFILER_MARKER_TEXT("Folder Lock Released", OTHER,
+    PROFILER_MARKER_TEXT("Folder Lock Released", MAILNEWS,
                          MarkerOptions(MarkerStack::Capture()), mURI);
     mSemaphoreHolder = NULL;
     mSemaphoreLogText.Truncate();
@@ -4210,7 +4211,7 @@ NS_IMETHODIMP nsMsgDBFolder::TestSemaphore(nsISupports* semHolder,
     MOZ_LOG(gFolderLockLog, LogLevel::Info,
             ("[%s] %s: semaphore is free", mURI.get(), __func__));
   }
-  PROFILER_MARKER_TEXT("Folder Lock Tested", OTHER,
+  PROFILER_MARKER_TEXT("Folder Lock Tested", MAILNEWS,
                        MarkerOptions(MarkerStack::Capture()), mURI);
   return NS_OK;
 }
@@ -4225,7 +4226,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetLocked(bool* isLocked) {
     MOZ_LOG(gFolderLockLog, LogLevel::Info,
             ("[%s] %s: semaphore is free", mURI.get(), __func__));
   }
-  PROFILER_MARKER_TEXT("Folder Lock Tested", OTHER,
+  PROFILER_MARKER_TEXT("Folder Lock Tested", MAILNEWS,
                        MarkerOptions(MarkerStack::Capture()), mURI);
   return NS_OK;
 }
