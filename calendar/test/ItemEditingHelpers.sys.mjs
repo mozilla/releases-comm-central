@@ -269,16 +269,14 @@ export async function setData(dialogWindow, iframeWindow, data) {
   // privacy
   if (data.privacy !== undefined) {
     const button = dialogDocument.getElementById("button-privacy");
-    const shownPromise = BrowserTestUtils.waitForEvent(button, "popupshown");
     synthesizeMouseAtCenter(button, {}, dialogWindow);
-    await shownPromise;
-    const hiddenPromise = BrowserTestUtils.waitForEvent(button, "popuphidden");
+    await BrowserTestUtils.waitForPopupEvent(button, "shown");
     synthesizeMouseAtCenter(
       dialogDocument.getElementById(`event-privacy-${data.privacy}-menuitem`),
       {},
       dialogWindow
     );
-    await hiddenPromise;
+    await BrowserTestUtils.waitForPopupEvent(button, "hidden");
     await sleep(iframeWindow);
   }
 
@@ -420,15 +418,15 @@ async function setReminderMenulist(iframeWindow, id) {
   const menulist = iframeDocument.querySelector(".item-alarm");
   const menuitem = iframeDocument.getElementById(`reminder-${id}-menuitem`);
 
-  Assert.ok(menulist, `<menulist id=${menulist.id}> exists`);
-  Assert.ok(menuitem, `<menuitem id=${id}> exists`);
+  Assert.ok(menulist, `menulist id=${menulist.id} should exist`);
+  Assert.ok(menuitem, `menuitem id=${id} should exist`);
 
   menulist.focus();
 
   synthesizeMouseAtCenter(menulist, {}, iframeWindow);
-  await BrowserTestUtils.waitForEvent(menulist, "popupshown");
+  await BrowserTestUtils.waitForPopupEvent(menulist, "shown");
   synthesizeMouseAtCenter(menuitem, {}, iframeWindow);
-  await BrowserTestUtils.waitForEvent(menulist, "popuphidden");
+  await BrowserTestUtils.waitForPopupEvent(menulist, "hidden");
   await sleep(iframeWindow);
 }
 
@@ -444,7 +442,7 @@ async function setCategories(iframeWindow, categories) {
   const menupopup = iframeDocument.getElementById("item-categories-popup");
 
   synthesizeMouseAtCenter(menulist, {}, iframeWindow);
-  await BrowserTestUtils.waitForEvent(menupopup, "popupshown");
+  await BrowserTestUtils.waitForPopupEvent(menupopup, "shown");
 
   // Iterate over categories and check if needed.
   for (const item of menupopup.children) {
@@ -455,9 +453,8 @@ async function setCategories(iframeWindow, categories) {
     }
   }
 
-  const hiddenPromise = BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
   menupopup.hidePopup();
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(menupopup, "hidden");
 }
 
 /**
@@ -470,9 +467,8 @@ async function handleAddingAttachment(dialogWindow, url) {
   const dialogDocument = dialogWindow.document;
   const attachButton = dialogDocument.querySelector("#button-url");
   const menu = dialogDocument.querySelector("#button-attach-menupopup");
-  const menuShowing = BrowserTestUtils.waitForEvent(menu, "popupshown");
   synthesizeMouseAtCenter(attachButton, {}, dialogWindow);
-  await menuShowing;
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
 
   const dialogPromise = BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
     async callback(attachmentWindow) {
@@ -489,6 +485,7 @@ async function handleAddingAttachment(dialogWindow, url) {
   });
   synthesizeMouseAtCenter(dialogDocument.querySelector("#button-attach-url"), {}, dialogWindow);
   await dialogPromise;
+  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
   Assert.report(false, undefined, undefined, "Attachment dialog closed");
   await sleep(dialogWindow);
 }
@@ -565,11 +562,11 @@ async function deleteAttendees(iframeWindow, attendeesString) {
     if (attendeeToDelete) {
       attendeeToDelete.focus();
       synthesizeMouseAtCenter(attendeeToDelete, { type: "contextmenu" }, iframeWindow);
-      await BrowserTestUtils.waitForEvent(menupopup, "popupshown");
+      await BrowserTestUtils.waitForPopupEvent(menupopup, "shown");
       menupopup.activateItem(
         iframeDocument.getElementById("attendee-popup-removeattendee-menuitem")
       );
-      await BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
+      await BrowserTestUtils.waitForPopupEvent(menupopup, "hidden");
     }
   }
   await sleep(iframeWindow);
@@ -601,7 +598,6 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
 
   await TestUtils.waitForCondition(() => !label.disabled, "Tiemzone label should become enabled");
 
-  const shownPromise = BrowserTestUtils.waitForEvent(menupopup, "popupshown");
   const dialogPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
@@ -617,15 +613,13 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
         const timezoneMenulist = timezoneDocument.getElementById("timezone-menulist");
         const timezoneMenuitem = timezoneMenulist.querySelector(`[value="${timezone}"]`);
 
-        const popupshown = BrowserTestUtils.waitForEvent(timezoneMenulist, "popupshown");
         synthesizeMouseAtCenter(timezoneMenulist, {}, timezoneWindow);
-        await popupshown;
+        await BrowserTestUtils.waitForPopupEvent(timezoneMenulist, "shown");
 
         timezoneMenuitem.scrollIntoView({ block: "start", behavior: "instant" });
 
-        const popuphidden = BrowserTestUtils.waitForEvent(timezoneMenulist, "popuphidden");
         synthesizeMouseAtCenter(timezoneMenuitem, {}, timezoneWindow);
-        await popuphidden;
+        await BrowserTestUtils.waitForPopupEvent(timezoneMenulist, "hidden");
 
         synthesizeMouseAtCenter(
           timezoneDocument.querySelector("dialog").getButton("accept"),
@@ -637,10 +631,11 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
   );
 
   synthesizeMouseAtCenter(label, {}, iframeWindow);
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(menupopup, "shown");
 
   synthesizeMouseAtCenter(customMenuitem, {}, iframeWindow);
   await dialogPromise;
+  await BrowserTestUtils.waitForPopupEvent(menupopup, "hidden");
   Assert.report(false, undefined, undefined, "Timezone dialog closed");
 
   await new Promise(resolve => iframeWindow.setTimeout(resolve, 500));
@@ -654,20 +649,18 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
  */
 export async function menulistSelect(menulist, value) {
   const win = menulist.ownerGlobal;
-  Assert.ok(menulist, `<menulist id=${menulist.id}> exists`);
+  Assert.ok(menulist, `menulist id=${menulist.id} should exist`);
   const menuitem = menulist.querySelector(`menupopup > menuitem[value='${value}']`);
-  Assert.ok(menuitem, `<menuitem value=${value}> exists`);
+  Assert.ok(menuitem, `menuitem with value=${value} should exist`);
 
   menulist.focus();
 
-  const shownPromise = BrowserTestUtils.waitForEvent(menulist, "popupshown");
   synthesizeMouseAtCenter(menulist, {}, win);
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(menulist, "shown");
 
-  const hiddenPromise = BrowserTestUtils.waitForEvent(menulist, "popuphidden");
   synthesizeMouseAtCenter(menuitem, {}, win);
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(menulist, "hidden");
 
   await new Promise(resolve => win.setTimeout(resolve));
-  Assert.equal(menulist.value, value);
+  Assert.equal(menulist.value, value, "menulist should get correct value");
 }
