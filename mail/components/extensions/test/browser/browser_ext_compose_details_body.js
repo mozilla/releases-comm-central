@@ -5,6 +5,7 @@
 "use strict";
 
 add_setup(async () => {
+  createAccount("local");
   const account = createAccount("pop3");
   addIdentity(account);
 

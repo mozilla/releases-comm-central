@@ -465,7 +465,6 @@ pref("mailnews.thread_pane_column_unthreads", false);
 pref("mail.identity.default.compose_html", true);
 pref("mail.identity.default.valid", true);
 pref("mail.identity.default.fcc", true);
-pref("mail.identity.default.fcc_folder", "mailbox://nobody@Local%20Folders/Sent");
 pref("mail.identity.default.fcc_reply_follows_parent", false);
 pref("mail.identity.default.autocompleteToMyDomain", false);
 
@@ -482,8 +481,6 @@ pref("mail.identity.default.bcc_self", false);
 pref("mail.identity.default.bcc_others", false);
 pref("mail.identity.default.bcc_list", "");
 
-pref("mail.identity.default.draft_folder", "mailbox://nobody@Local%20Folders/Drafts");
-pref("mail.identity.default.stationery_folder", "mailbox://nobody@Local%20Folders/Templates");
 pref("mail.identity.default.directoryServer", "");
 pref("mail.identity.default.overrideGlobal_Pref", false);
 pref("mail.identity.default.auto_quote", true);

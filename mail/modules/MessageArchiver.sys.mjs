@@ -95,15 +95,13 @@ MessageArchiver.prototype = {
     for (let i = 0; i < aMsgHdrs.length; i++) {
       const msgHdr = aMsgHdrs[i];
 
-      const server = msgHdr.folder.server;
-
       // Convert date to JS date object.
       const msgDate = new Date(msgHdr.date / 1000);
       const msgYear = msgDate.getFullYear().toString();
       const monthFolderName =
         msgYear + "-" + (msgDate.getMonth() + 1).toString().padStart(2, "0");
 
-      let archiveFolderURI;
+      let archiveFolder;
       let archiveGranularity;
       let archiveKeepFolderStructure;
       let archiveRecreateInbox;
@@ -120,7 +118,7 @@ MessageArchiver.prototype = {
           continue;
         }
 
-        archiveFolderURI = server.serverURI + "/Archives";
+        archiveFolder = identity.getOrCreateArchivesFolder();
         archiveGranularity = Services.prefs.getIntPref(
           "mail.identity.default.archive_granularity"
         );
@@ -135,7 +133,7 @@ MessageArchiver.prototype = {
           continue;
         }
 
-        archiveFolderURI = identity.archiveFolder;
+        archiveFolder = identity.getOrCreateArchivesFolder();
         archiveGranularity = identity.archiveGranularity;
         archiveKeepFolderStructure = identity.archiveKeepFolderStructure;
         archiveRecreateInbox = identity.archiveRecreateInbox;
@@ -158,7 +156,7 @@ MessageArchiver.prototype = {
       if (!(copyBatchKey in this._batches)) {
         this._batches[copyBatchKey] = {
           srcFolder: msgHdr.folder,
-          archiveFolderURI,
+          archiveFolder,
           granularity: archiveGranularity,
           keepFolderStructure: archiveKeepFolderStructure,
           recreateInbox: archiveRecreateInbox,
@@ -220,8 +218,7 @@ MessageArchiver.prototype = {
   continueBatch() {
     const batch = this._currentBatch;
     const srcFolder = batch.srcFolder;
-    let archiveFolderURI = batch.archiveFolderURI;
-    const archiveFolder = lazy.MailUtils.getOrCreateFolder(archiveFolderURI);
+    const archiveFolder = batch.archiveFolder;
     let dstFolder = archiveFolder;
 
     const moveArray = [];
@@ -270,26 +267,24 @@ MessageArchiver.prototype = {
     }
 
     if (granularity >= Ci.nsIMsgIdentity.perYearArchiveFolders) {
-      archiveFolderURI += "/" + batch.yearFolderName;
-      dstFolder = lazy.MailUtils.getOrCreateFolder(archiveFolderURI);
-      if (!dstFolder.parent) {
-        dstFolder.createStorageIfMissing(this);
+      if (!dstFolder.containsChildNamed(batch.yearFolderName)) {
+        dstFolder.createSubfolder(batch.yearFolderName, null);
         if (isAsync) {
           // Continues with OnStopRunningUrl.
           return;
         }
       }
+      dstFolder = dstFolder.getChildNamed(batch.yearFolderName);
     }
     if (granularity >= Ci.nsIMsgIdentity.perMonthArchiveFolders) {
-      archiveFolderURI += "/" + batch.monthFolderName;
-      dstFolder = lazy.MailUtils.getOrCreateFolder(archiveFolderURI);
-      if (!dstFolder.parent) {
-        dstFolder.createStorageIfMissing(this);
+      if (!dstFolder.containsChildNamed(batch.monthFolderName)) {
+        dstFolder.createSubfolder(batch.monthFolderName, null);
         if (isAsync) {
           // Continues with OnStopRunningUrl.
           return;
         }
       }
+      dstFolder = dstFolder.getChildNamed(batch.monthFolderName);
     }
 
     // Create the folder structure in Archives.

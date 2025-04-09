@@ -747,15 +747,21 @@ void GetFolderURIFromUserPrefs(nsMsgDeliverMode aMode, nsIMsgIdentity* identity,
 
   if (!identity) return;
 
-  if (aMode == nsIMsgSend::nsMsgSaveAsDraft)  // SaveAsDraft (Drafts)
-    rv = identity->GetDraftFolder(uri);
-  else if (aMode ==
-           nsIMsgSend::nsMsgSaveAsTemplate)  // SaveAsTemplate (Templates)
-    rv = identity->GetStationeryFolder(uri);
-  else {
+  nsCOMPtr<nsIMsgFolder> folder;
+  if (aMode == nsIMsgSend::nsMsgSaveAsDraft) {  // SaveAsDraft (Drafts)
+    rv = identity->GetOrCreateDraftsFolder(getter_AddRefs(folder));
+  } else if (aMode ==
+             nsIMsgSend::nsMsgSaveAsTemplate) {  // SaveAsTemplate (Templates)
+    rv = identity->GetOrCreateTemplatesFolder(getter_AddRefs(folder));
+  } else {
     bool doFcc = false;
     rv = identity->GetDoFcc(&doFcc);
-    if (doFcc) rv = identity->GetFccFolder(uri);
+    if (doFcc) {
+      rv = identity->GetOrCreateFccFolder(getter_AddRefs(folder));
+    }
+  }
+  if (folder) {
+    uri = folder->URI();
   }
   return;
 }

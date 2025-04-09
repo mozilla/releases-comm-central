@@ -200,7 +200,7 @@ async function testDraftInfo() {
   );
   await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
-    FCC: identity.fccFolder,
+    FCC: identity.fccFolderURI,
     "X-Identity-Key": identity.key,
     "X-Mozilla-Draft-Info":
       "internal/draft; " +

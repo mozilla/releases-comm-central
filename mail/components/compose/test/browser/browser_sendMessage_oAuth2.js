@@ -38,7 +38,7 @@ add_setup(async function () {
   identity.fullName = "test";
   identity.email = "test@test.test";
   identity.smtpServerKey = outgoingServer.key;
-  identity.fccFolder = rootFolder.getChildNamed("sendMessage oAuth2").URI;
+  identity.fccFolderURI = rootFolder.getChildNamed("sendMessage oAuth2").URI;
 
   account.addIdentity(identity);
 

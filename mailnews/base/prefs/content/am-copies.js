@@ -17,7 +17,7 @@ var gFccRadioElemChoiceLocked,
   gDraftsRadioElemChoiceLocked,
   gArchivesRadioElemChoiceLocked,
   gTmplRadioElemChoiceLocked;
-var gDefaultPickerMode = "1";
+var gDefaultPickerMode = "0";
 
 var gFccFolderWithDelim,
   gDraftsFolderWithDelim,
@@ -56,7 +56,7 @@ function onInitCopiesAndFolders() {
     gFccRadioElemChoiceLocked,
     "fcc",
     "msgFccAccountPicker",
-    "identity.fccFolder",
+    "identity.fccFolderURI",
     "msgFccFolderPicker"
   );
 
@@ -65,7 +65,7 @@ function onInitCopiesAndFolders() {
     gArchivesRadioElemChoiceLocked,
     "archive",
     "msgArchivesAccountPicker",
-    "identity.archiveFolder",
+    "identity.archivesFolderURI",
     "msgArchivesFolderPicker"
   );
 
@@ -74,7 +74,7 @@ function onInitCopiesAndFolders() {
     gDraftsRadioElemChoiceLocked,
     "draft",
     "msgDraftsAccountPicker",
-    "identity.draftFolder",
+    "identity.draftsFolderURI",
     "msgDraftsFolderPicker"
   );
 
@@ -82,9 +82,9 @@ function onInitCopiesAndFolders() {
     gTmplRadioElemChoice,
     gTmplRadioElemChoiceLocked,
     "tmpl",
-    "msgStationeryAccountPicker",
-    "identity.stationeryFolder",
-    "msgStationeryFolderPicker"
+    "msgTemplatesAccountPicker",
+    "identity.templatesFolderURI",
+    "msgTemplatesFolderPicker"
   );
 
   setupDoCcBccItems("identity.doCc", "identity.doCcList");
@@ -124,7 +124,9 @@ function SetGlobalRadioElemChoices() {
     gDraftsRadioElemChoice = gDefaultPickerMode;
   }
 
-  pickerModeElement = document.getElementById("identity.tmplFolderPickerMode");
+  pickerModeElement = document.getElementById(
+    "identity.templatesFolderPickerMode"
+  );
   gTmplRadioElemChoice = pickerModeElement.getAttribute("value");
   gTmplRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
   if (!gTmplRadioElemChoice) {
@@ -159,13 +161,32 @@ function SetFolderDisplay(
   var rg = selectAccountRadioElem.radioGroup;
   var folderPickedElement = document.getElementById(folderPickedField);
   var uri = folderPickedElement.getAttribute("value");
+
   // Get message folder from the given uri.
-  // There is no need to check for the existence of special folders as
-  // these folders are created on demand at runtime in case of imap accounts.
-  // For POP3 accounts, special folders are created at the account creation time.
-  var msgFolder = MailUtils.getOrCreateFolder(uri);
-  InitFolderDisplay(msgFolder.server.rootFolder, accountPicker);
-  InitFolderDisplay(msgFolder, folderPicker);
+  if (!uri) {
+    // No preference set. Set the account picker to the current account and
+    // reset the picker mode to use the account picker.
+    uri = gAccount.incomingServer.rootMsgFolder.URI;
+    pickerMode = "0";
+  }
+  var msgFolder = MailServices.folderLookup.getFolderForURL(uri);
+  if (!msgFolder) {
+    // We had a URI but it points to a non-existent folder. Set the account
+    // picker to the account of the URI, and reset the picker mode to use the
+    // account picker.
+    try {
+      const rootURI = Services.io.newURI(uri).prePath;
+      msgFolder = MailServices.folderLookup.getFolderForURL(rootURI);
+    } catch {
+      // Perhaps the URI was complete nonsense. Ignore it.
+      msgFolder = MailServices.accounts.localFoldersServer.rootFolder;
+    }
+    pickerMode = "0";
+  }
+  if (msgFolder) {
+    InitFolderDisplay(msgFolder.server.rootFolder, accountPicker);
+    InitFolderDisplay(msgFolder, folderPicker);
+  }
 
   switch (pickerMode) {
     case "0":
@@ -234,7 +255,7 @@ function noteSelectionChange(aGroup, aType, aEvent) {
 
     case "messageTemplates":
       gTmplRadioElemChoice = modeValue;
-      picker = document.getElementById("msgStationery" + aType + "Picker");
+      picker = document.getElementById("msgTemplates" + aType + "Picker");
       break;
   }
 
@@ -267,7 +288,7 @@ function onSaveCopiesAndFolders() {
     gFccFolderWithDelim,
     "msgFccAccountPicker",
     "msgFccFolderPicker",
-    "identity.fccFolder",
+    "identity.fccFolderURI",
     "identity.fccFolderPickerMode"
   );
 
@@ -277,7 +298,7 @@ function onSaveCopiesAndFolders() {
     gArchivesFolderWithDelim,
     "msgArchivesAccountPicker",
     "msgArchivesFolderPicker",
-    "identity.archiveFolder",
+    "identity.archivesFolderURI",
     "identity.archivesFolderPickerMode"
   );
 
@@ -287,7 +308,7 @@ function onSaveCopiesAndFolders() {
     gDraftsFolderWithDelim,
     "msgDraftsAccountPicker",
     "msgDraftsFolderPicker",
-    "identity.draftFolder",
+    "identity.draftsFolderURI",
     "identity.draftsFolderPickerMode"
   );
 
@@ -295,10 +316,10 @@ function onSaveCopiesAndFolders() {
     gTmplRadioElemChoice,
     "messageTemplates",
     gTemplatesFolderWithDelim,
-    "msgStationeryAccountPicker",
-    "msgStationeryFolderPicker",
-    "identity.stationeryFolder",
-    "identity.tmplFolderPickerMode"
+    "msgTemplatesAccountPicker",
+    "msgTemplatesFolderPicker",
+    "identity.templatesFolderURI",
+    "identity.templatesFolderPickerMode"
   );
 }
 
@@ -321,13 +342,13 @@ function SaveFolderSettings(
   ) {
     // Default or revert to default if no folder chosen.
     radioElemChoice = "0";
-    uri = document.getElementById(accountPickerId).folder.URI;
+    uri = document.getElementById(accountPickerId).folder?.URI;
     if (uri) {
       // Create Folder URI.
       uri = uri + folderSuffix;
     }
   } else if (radioElemChoice == "1") {
-    uri = document.getElementById(folderPickerId).folder.URI;
+    uri = document.getElementById(folderPickerId).folder?.URI;
   } else {
     dump("Error saving folder preferences.\n");
     return;
@@ -488,6 +509,9 @@ function SetRadioButtons(selectPickerId) {
  *   archives in
  */
 function updateArchiveHierarchyButton(archiveFolder) {
+  if (!archiveFolder) {
+    return;
+  }
   const isGmailImap =
     archiveFolder.server.type == "imap" &&
     archiveFolder.server.QueryInterface(Ci.nsIImapIncomingServer).isGMailServer;

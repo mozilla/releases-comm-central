@@ -18,6 +18,7 @@ add_setup(async function () {
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messengercompose/messengercompose.xhtml"
   );
+  const localAccount = MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.createAccount();
   const identity = MailServices.accounts.createIdentity();
   identity.email = "mochitest@localhost";
@@ -44,7 +45,8 @@ add_setup(async function () {
   book2.addMailList(list);
 
   registerCleanupFunction(async function () {
-    MailServices.accounts.removeAccount(account, true);
+    MailServices.accounts.removeAccount(account, false);
+    MailServices.accounts.removeAccount(localAccount, false);
     await promiseDirectoryRemoved(book1.URI);
     await promiseDirectoryRemoved(book2.URI);
     Services.xulStore.removeDocument(

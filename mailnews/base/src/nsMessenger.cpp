@@ -857,9 +857,13 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
     // listener with, generally a URL.
     saveListener = new nsSaveMsgListener(tmpFile, this, nullptr);
 
-    if (aIdentity)
-      rv = aIdentity->GetStationeryFolder(saveListener->m_templateUri);
-    if (NS_FAILED(rv)) goto done;
+    if (aIdentity) {
+      nsCOMPtr<nsIMsgFolder> templatesFolder;
+      rv = aIdentity->GetOrCreateTemplatesFolder(
+          getter_AddRefs(templatesFolder));
+      if (NS_FAILED(rv)) goto done;
+      saveListener->m_templateUri = templatesFolder->URI();
+    }
 
     bool needDummyHeader =
         StringBeginsWith(saveListener->m_templateUri, "mailbox://"_ns);

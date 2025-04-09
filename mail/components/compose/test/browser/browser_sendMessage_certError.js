@@ -24,7 +24,7 @@ add_setup(async function () {
   identity = MailServices.accounts.createIdentity();
   identity.fullName = "test";
   identity.email = "test@test.test";
-  identity.fccFolder = rootFolder.getChildNamed("sendMessage certError").URI;
+  identity.fccFolderURI = rootFolder.getChildNamed("sendMessage certError").URI;
 
   account.addIdentity(identity);
 

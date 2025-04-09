@@ -70,11 +70,18 @@ add_task(async function test_folder_flag_changes() {
   // create a smart Archives folder.
   await select_click_row(0);
   await archive_selected_messages();
+  const pop3Account = MailServices.accounts.getAccount("account2");
   const pop3Server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
+  pop3Server.rootFolder.createSubfolder("Archives", null);
+  pop3Server.rootFolder
+    .getChildNamed("Archives")
+    .setFlag(Ci.nsMsgFolderFlags.Archive);
+  pop3Account.defaultIdentity.archivesFolderURI =
+    pop3Server.serverURI + "/Archives";
   const pop3Inbox = await get_special_folder(
     Ci.nsMsgFolderFlags.Inbox,
     false,

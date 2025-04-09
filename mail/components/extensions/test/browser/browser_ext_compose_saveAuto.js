@@ -78,8 +78,8 @@ add_setup(async () => {
 
   // Test is using the Drafts folder of the local account.
   gRootFolder = gLocalAccount.incomingServer.rootFolder;
-  await createSubfolder(gRootFolder, "Sent");
-  await createSubfolder(gRootFolder, "Drafts");
+  identity.fccFolderURI = (await createSubfolder(gRootFolder, "Sent")).URI;
+  identity.draftsFolderURI = (await createSubfolder(gRootFolder, "Drafts")).URI;
   MailServices.accounts.setSpecialFolders();
 
   // Reduce autosave interval to the minimum..
@@ -96,7 +96,7 @@ add_task(async function test_compose_action_status_after_save() {
       const accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
       const localAccount = accounts.find(a => a.type == "none");
-      const draftFolder = localAccount.folders.find(f =>
+      const draftsFolder = localAccount.folders.find(f =>
         f.specialUse.includes("drafts")
       );
 
@@ -115,11 +115,11 @@ add_task(async function test_compose_action_status_after_save() {
         function listener(_tab, info) {
           const [msg] = info.messages;
           browser.test.log(
-            `draftFolder.id: ${draftFolder.id}, folder.id: ${msg.folder.id}`
+            `draftsFolder.id: ${draftsFolder.id}, folder.id: ${msg.folder.id}`
           );
           if (
             info.mode == "autoSave" &&
-            msg.folder.id == draftFolder.id &&
+            msg.folder.id == draftsFolder.id &&
             msg.subject == "Test message"
           ) {
             browser.compose.onAfterSave.removeListener(listener);
@@ -133,7 +133,7 @@ add_task(async function test_compose_action_status_after_save() {
       await browser.tabs.remove(tab.id);
 
       // Remove all saved messages.
-      await window.sendMessage("clearMessagesInFolder", draftFolder.name);
+      await window.sendMessage("clearMessagesInFolder", draftsFolder.name);
 
       browser.test.notifyPass("finished");
     },

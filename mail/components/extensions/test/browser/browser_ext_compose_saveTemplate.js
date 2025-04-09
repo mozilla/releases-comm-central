@@ -76,8 +76,10 @@ add_setup(async () => {
 
   // Test is using the Sent folder and Outbox folder of the local account.
   gLocalRootFolder = gLocalAccount.incomingServer.rootFolder;
-  await createSubfolder(gLocalRootFolder, "Sent");
-  await createSubfolder(gLocalRootFolder, "Templates");
+  identity.fccFolderURI = (await createSubfolder(gLocalRootFolder, "Sent")).URI;
+  identity.templatesFolderURI = (
+    await createSubfolder(gLocalRootFolder, "Templates")
+  ).URI;
   await createSubfolder(gLocalRootFolder, "Fcc");
   MailServices.accounts.setSpecialFolders();
 

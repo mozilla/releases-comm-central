@@ -813,7 +813,7 @@ export var MsgUtils = {
    *
    * @param {nsIMsgIdentity} userIdentity - The user identity.
    * @param {nsMsgDeliverMode} deliverMode - The deliver mode.
-   * @returns {string}
+   * @returns {string} The folder URI.
    */
   getMsgFolderURIFromPrefs(userIdentity, deliverMode) {
     if (
@@ -824,18 +824,21 @@ export var MsgUtils = {
       // check if uri is unescaped, and if so, escape it and reset the pef.
       if (!uri) {
         return "anyfolder://";
-      } else if (uri.includes(" ")) {
+      }
+      if (uri.includes(" ")) {
         uri.replaceAll(" ", "%20");
         Services.prefs.setCharPref("mail.default_sendlater_uri", uri);
       }
       return uri;
-    } else if (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft) {
-      return userIdentity.draftFolder;
-    } else if (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsTemplate) {
-      return userIdentity.stationeryFolder;
+    }
+    if (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft) {
+      return userIdentity.getOrCreateDraftsFolder().URI;
+    }
+    if (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsTemplate) {
+      return userIdentity.getOrCreateTemplatesFolder().URI;
     }
     if (userIdentity.doFcc) {
-      return userIdentity.fccFolder;
+      return userIdentity.getOrCreateFccFolder().URI;
     }
     return "";
   },

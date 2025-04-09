@@ -79,15 +79,16 @@ export function setupIMAPPump(extensions) {
 
   // We need an identity so that updateFolder doesn't fail
   const localAccount = MailServices.accounts.createAccount();
-  const identity = MailServices.accounts.createIdentity();
-  localAccount.addIdentity(identity);
-  localAccount.defaultIdentity = identity;
+  const localIdentity = MailServices.accounts.createIdentity();
+  localAccount.addIdentity(localIdentity);
+  localAccount.defaultIdentity = localIdentity;
   localAccount.incomingServer = localAccountUtils.incomingServer;
 
   // Let's also have another account, using the same identity
   const imapAccount = MailServices.accounts.createAccount();
-  imapAccount.addIdentity(identity);
-  imapAccount.defaultIdentity = identity;
+  const imapIdentity = MailServices.accounts.createIdentity();
+  imapAccount.addIdentity(imapIdentity);
+  imapAccount.defaultIdentity = imapIdentity;
   imapAccount.incomingServer = IMAPPump.incomingServer;
   MailServices.accounts.defaultAccount = imapAccount;
 

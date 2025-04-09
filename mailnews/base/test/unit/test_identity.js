@@ -2,6 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const folderTypes = [
+  [
+    "fccFolderURI",
+    "getOrCreateFccFolder",
+    "Sent",
+    Ci.nsMsgFolderFlags.SentMail,
+  ],
+  [
+    "draftsFolderURI",
+    "getOrCreateDraftsFolder",
+    "Drafts",
+    Ci.nsMsgFolderFlags.Drafts,
+  ],
+  [
+    "archivesFolderURI",
+    "getOrCreateArchivesFolder",
+    "Archives",
+    Ci.nsMsgFolderFlags.Archive,
+  ],
+  [
+    "templatesFolderURI",
+    "getOrCreateTemplatesFolder",
+    "Templates",
+    Ci.nsMsgFolderFlags.Templates,
+  ],
+];
+
 /**
  * Tests the UID attribute of identities.
  */
@@ -66,4 +93,284 @@ add_task(async function testUID() {
     /NS_ERROR_ABORT/,
     "identity C's UID should be unchangeable after it is set"
   );
+});
+
+add_task(function testFoldersPOP3() {
+  const localAccount = MailServices.accounts.createLocalMailAccount();
+  const localRoot = localAccount.incomingServer.rootFolder;
+
+  // Test folders on a POP3 account. Because POP3 is a local account, folders
+  // will be created as subfolders of the account's root folder.
+
+  const pop3Account = MailServices.accounts.createAccount();
+  const pop3Server = MailServices.accounts.createIncomingServer(
+    "mike",
+    "pop3.localhost",
+    "pop3"
+  );
+  const pop3Identity = MailServices.accounts.createIdentity();
+  const pop3Root = pop3Server.rootFolder;
+  pop3Account.incomingServer = pop3Server;
+  pop3Account.addIdentity(pop3Identity);
+
+  for (const [attribute, func, name, flag] of folderTypes) {
+    info(`Testing ${name} folder on POP3 account`);
+
+    Assert.ok(
+      !localRoot.getFolderWithFlags(flag),
+      `local folders should start with no ${name} folder`
+    );
+    Assert.ok(
+      !pop3Root.getFolderWithFlags(flag),
+      `pop3 server should start with no ${name} folder`
+    );
+    Assert.equal(
+      pop3Identity[attribute],
+      null,
+      `${attribute} should return no value`
+    );
+
+    const folder = pop3Identity[func]();
+    Assert.equal(folder.parent?.URI, pop3Root.URI);
+    Assert.equal(folder.name, name);
+    Assert.equal(folder.flags, flag);
+    Assert.equal(folder.URI, `mailbox://mike@pop3.localhost/${name}`);
+    Assert.equal(
+      pop3Identity[attribute],
+      folder.URI,
+      `${attribute} should now return the folder's URI`
+    );
+
+    // Get the folders again, now that it exists and we've stored the URI,
+    // to check getting existing folders works.
+    Assert.ok(
+      !localRoot.getFolderWithFlags(flag),
+      `local folders should still have no ${name} folder`
+    );
+    Assert.ok(
+      pop3Root.getFolderWithFlags(flag),
+      `pop3 server should now have a ${name} folder`
+    );
+    Assert.equal(
+      pop3Identity[func](),
+      folder,
+      `${func} should return the same value as before`
+    );
+  }
+
+  MailServices.accounts.removeAccount(pop3Account, false);
+  MailServices.accounts.removeAccount(localAccount, false);
+});
+
+add_task(function testFoldersIMAP() {
+  const localAccount = MailServices.accounts.createLocalMailAccount();
+  const localRoot = localAccount.incomingServer.rootFolder;
+
+  // Test folders on an IMAP account. Without talking to the server to do
+  // folder discovery, we don't know if there are existing folders, so we
+  // create them on Local Folders.
+
+  const imapAccount = MailServices.accounts.createAccount();
+  const imapServer = MailServices.accounts.createIncomingServer(
+    "oscar",
+    "imap.localhost",
+    "imap"
+  );
+  const imapIdentity = MailServices.accounts.createIdentity();
+  imapAccount.incomingServer = imapServer;
+  imapAccount.addIdentity(imapIdentity);
+  const imapRoot = imapServer.rootFolder;
+
+  for (const [attribute, func, name, flag] of folderTypes) {
+    info(`Testing ${name} folder on IMAP account`);
+
+    Assert.ok(
+      !imapRoot.getFolderWithFlags(flag),
+      `imap server should start with no ${name} folder`
+    );
+    Assert.equal(
+      imapIdentity[attribute],
+      null,
+      `${attribute} should return no value`
+    );
+
+    const folder = imapIdentity[func]();
+    Assert.equal(folder.parent?.URI, localRoot.URI);
+    Assert.equal(folder.name, name);
+    Assert.equal(folder.flags, flag);
+    Assert.equal(folder.URI, `mailbox://nobody@Local%20Folders/${name}`);
+    Assert.equal(
+      imapIdentity[attribute],
+      folder.URI,
+      `${attribute} should now return the folder's URI`
+    );
+
+    // Get the folders again, now that it exists and we've stored the URI,
+    // to check getting existing folders works.
+    Assert.ok(
+      !imapRoot.getFolderWithFlags(flag),
+      `imap server should still have no ${name} folder`
+    );
+    Assert.equal(
+      imapIdentity[func](),
+      folder,
+      `${func} should return the same value as before`
+    );
+  }
+
+  MailServices.accounts.removeAccount(imapAccount, false);
+  MailServices.accounts.removeAccount(localAccount, false);
+});
+
+add_task(function testFoldersPresetCreatesFolders() {
+  const localAccount = MailServices.accounts.createLocalMailAccount();
+  const localRoot = localAccount.incomingServer.rootFolder;
+
+  // Test folders on a POP3 account. Because POP3 is a local account, folders
+  // will be created as subfolders of the account's root folder.
+
+  const pop3Account = MailServices.accounts.createAccount();
+  const pop3Server = MailServices.accounts.createIncomingServer(
+    "papa",
+    "pop3.localhost",
+    "pop3"
+  );
+  const pop3Identity = MailServices.accounts.createIdentity();
+  const pop3Root = pop3Server.rootFolder;
+  pop3Account.incomingServer = pop3Server;
+  pop3Account.addIdentity(pop3Identity);
+
+  pop3Identity.fccFolderURI = "mailbox://nobody@Local%20Folders/Anything";
+  pop3Identity.draftsFolderURI = "mailbox://nobody@Local%20Folders/Anything";
+  pop3Identity.archivesFolderURI = "mailbox://nobody@Local%20Folders/Anything";
+  pop3Identity.templatesFolderURI = "mailbox://nobody@Local%20Folders/Anything";
+
+  for (const [attribute, func, name, flag] of folderTypes) {
+    info(`Testing ${name} folder on POP3 account`);
+
+    Assert.ok(
+      !localRoot.getFolderWithFlags(flag),
+      `local folders should start with no ${name} folder`
+    );
+    Assert.ok(
+      !pop3Root.getFolderWithFlags(flag),
+      `pop3 server should start with no ${name} folder`
+    );
+    Assert.equal(
+      pop3Identity[attribute],
+      "mailbox://nobody@Local%20Folders/Anything",
+      `${attribute} should return the preset value`
+    );
+
+    const folder = pop3Identity[func]();
+    Assert.equal(folder.parent?.URI, localRoot.URI);
+    Assert.equal(folder.name, name);
+    Assert.equal(folder.flags, flag);
+    Assert.equal(folder.URI, `mailbox://nobody@Local%20Folders/${name}`);
+    Assert.equal(
+      pop3Identity[attribute],
+      folder.URI,
+      `${attribute} should now return the folder's URI`
+    );
+
+    // Get the folders again, now that it exists and we've stored the URI,
+    // to check getting existing folders works.
+    Assert.ok(
+      localRoot.getFolderWithFlags(flag),
+      `local folders should now have a ${name} folder`
+    );
+    Assert.ok(
+      !pop3Root.getFolderWithFlags(flag),
+      `pop3 server should still have no ${name} folder`
+    );
+    Assert.equal(
+      pop3Identity[func](),
+      folder,
+      `${func} should return the same value as before`
+    );
+  }
+
+  MailServices.accounts.removeAccount(pop3Account, false);
+  MailServices.accounts.removeAccount(localAccount, false);
+});
+
+add_task(function testFoldersPresetUsesExistingFolders() {
+  const localAccount = MailServices.accounts.createLocalMailAccount();
+  const localRoot = localAccount.incomingServer.rootFolder;
+  localRoot.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const localSubfolder = localRoot.createLocalSubfolder("subfolder");
+  localSubfolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  for (const [, , name, flag] of folderTypes) {
+    localSubfolder.createLocalSubfolder(name).setFlag(flag);
+  }
+
+  // Test folders on a POP3 account. Because POP3 is a local account, folders
+  // will be created as subfolders of the account's root folder.
+
+  const pop3Account = MailServices.accounts.createAccount();
+  const pop3Server = MailServices.accounts.createIncomingServer(
+    "papa",
+    "pop3.localhost",
+    "pop3"
+  );
+  const pop3Identity = MailServices.accounts.createIdentity();
+  const pop3Root = pop3Server.rootFolder;
+  pop3Account.incomingServer = pop3Server;
+  pop3Account.addIdentity(pop3Identity);
+
+  pop3Identity.fccFolderURI = "mailbox://nobody@Local%20Folders/Anything";
+  pop3Identity.draftsFolderURI = "mailbox://nobody@Local%20Folders/Anything";
+  pop3Identity.archivesFolderURI = "mailbox://nobody@Local%20Folders/Anything";
+  pop3Identity.templatesFolderURI = "mailbox://nobody@Local%20Folders/Anything";
+
+  for (const [attribute, func, name, flag] of folderTypes) {
+    info(`Testing ${name} folder on POP3 account`);
+
+    Assert.ok(
+      localRoot.getFolderWithFlags(flag),
+      `local folders should start with a ${name} folder`
+    );
+    Assert.ok(
+      !pop3Root.getFolderWithFlags(flag),
+      `pop3 server should start with no ${name} folder`
+    );
+    Assert.equal(
+      pop3Identity[attribute],
+      "mailbox://nobody@Local%20Folders/Anything",
+      `${attribute} should return the preset value`
+    );
+
+    const folder = pop3Identity[func]();
+    Assert.equal(folder.parent?.URI, localSubfolder.URI);
+    Assert.equal(folder.name, name);
+    Assert.equal(folder.flags, flag | Ci.nsMsgFolderFlags.Mail);
+    Assert.equal(
+      folder.URI,
+      `mailbox://nobody@Local%20Folders/subfolder/${name}`
+    );
+    Assert.equal(
+      pop3Identity[attribute],
+      folder.URI,
+      `${attribute} should now return the folder's URI`
+    );
+
+    // Get the folders again, now that it exists and we've stored the URI,
+    // to check getting existing folders works.
+    Assert.ok(
+      localRoot.getFolderWithFlags(flag),
+      `local folders should now have a ${name} folder`
+    );
+    Assert.ok(
+      !pop3Root.getFolderWithFlags(flag),
+      `pop3 server should still have no ${name} folder`
+    );
+    Assert.equal(
+      pop3Identity[func](),
+      folder,
+      `${func} should return the same value as before`
+    );
+  }
+
+  MailServices.accounts.removeAccount(pop3Account, false);
+  MailServices.accounts.removeAccount(localAccount, false);
 });

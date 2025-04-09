@@ -107,14 +107,14 @@ function initCopiesAndFolder(identity) {
   // if we are editing an existing identity, use it...otherwise copy our values from the default identity
   var copiesAndFoldersIdentity = identity ? identity : gAccount.defaultIdentity;
 
-  document.getElementById("identity.fccFolder").value =
-    copiesAndFoldersIdentity.fccFolder;
-  document.getElementById("identity.draftFolder").value =
-    copiesAndFoldersIdentity.draftFolder;
-  document.getElementById("identity.archiveFolder").value =
-    copiesAndFoldersIdentity.archiveFolder;
-  document.getElementById("identity.stationeryFolder").value =
-    copiesAndFoldersIdentity.stationeryFolder;
+  document.getElementById("identity.fccFolderURI").value =
+    copiesAndFoldersIdentity.fccFolderURI;
+  document.getElementById("identity.draftsFolderURI").value =
+    copiesAndFoldersIdentity.draftsFolderURI;
+  document.getElementById("identity.archivesFolderURI").value =
+    copiesAndFoldersIdentity.archivesFolderURI;
+  document.getElementById("identity.templatesFolderURI").value =
+    copiesAndFoldersIdentity.templatesFolderURI;
 
   document.getElementById("identity.fccFolderPickerMode").value =
     copiesAndFoldersIdentity.fccFolderPickerMode
@@ -128,9 +128,9 @@ function initCopiesAndFolder(identity) {
     copiesAndFoldersIdentity.archivesFolderPickerMode
       ? copiesAndFoldersIdentity.archivesFolderPickerMode
       : 0;
-  document.getElementById("identity.tmplFolderPickerMode").value =
-    copiesAndFoldersIdentity.tmplFolderPickerMode
-      ? copiesAndFoldersIdentity.tmplFolderPickerMode
+  document.getElementById("identity.templatesFolderPickerMode").value =
+    copiesAndFoldersIdentity.templatesFolderPickerMode
+      ? copiesAndFoldersIdentity.templatesFolderPickerMode
       : 0;
 
   document.getElementById("identity.doCc").checked =
@@ -295,13 +295,17 @@ function saveIdentitySettings(identity) {
 function saveCopiesAndFolderSettings(identity) {
   onSaveCopiesAndFolders(); // am-copies.js routine
 
-  identity.fccFolder = document.getElementById("identity.fccFolder").value;
-  identity.draftFolder = document.getElementById("identity.draftFolder").value;
-  identity.archiveFolder = document.getElementById(
-    "identity.archiveFolder"
+  identity.fccFolderURI = document.getElementById(
+    "identity.fccFolderURI"
   ).value;
-  identity.stationeryFolder = document.getElementById(
-    "identity.stationeryFolder"
+  identity.draftsFolderURI = document.getElementById(
+    "identity.draftsFolderURI"
+  ).value;
+  identity.archivesFolderURI = document.getElementById(
+    "identity.archivesFolderURI"
+  ).value;
+  identity.templatesFolderURI = document.getElementById(
+    "identity.templatesFolderURI"
   ).value;
   identity.fccFolderPickerMode = document.getElementById(
     "identity.fccFolderPickerMode"
@@ -312,8 +316,8 @@ function saveCopiesAndFolderSettings(identity) {
   identity.archivesFolderPickerMode = document.getElementById(
     "identity.archivesFolderPickerMode"
   ).value;
-  identity.tmplFolderPickerMode = document.getElementById(
-    "identity.tmplFolderPickerMode"
+  identity.templatesFolderPickerMode = document.getElementById(
+    "identity.templatesFolderPickerMode"
   ).value;
   identity.doCc = document.getElementById("identity.doCc").checked;
   identity.doCcList = document.getElementById("identity.doCcList").value;

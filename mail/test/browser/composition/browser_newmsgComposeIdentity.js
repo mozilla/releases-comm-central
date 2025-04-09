@@ -30,7 +30,6 @@ var { MailServices } = ChromeUtils.importESModule(
 );
 
 var gInbox;
-var gDrafts;
 var account;
 
 var identityKey1;
@@ -80,7 +79,6 @@ add_setup(async function () {
   gInbox = account.incomingServer.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Inbox
   );
-  gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
 
 /**
@@ -248,7 +246,8 @@ add_task(async function test_display_of_identities() {
   await save_compose_message(cwc);
   await close_compose_window(cwc);
 
-  await be_in_folder(gDrafts);
+  const identity3 = MailServices.accounts.getIdentity(identityKey3);
+  await be_in_folder(identity3.getOrCreateDraftsFolder());
   const curMessage = await select_click_row(0);
   Assert.equal(curMessage.author, identity3From);
   // Remove the saved draft.

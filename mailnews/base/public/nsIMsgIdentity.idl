@@ -5,6 +5,7 @@
 
 #include "nsISupports.idl"
 #include "nsIFile.idl"
+#include "nsIMsgFolder.idl"
 
 /**
  * This interface contains all the personal outgoing mail information
@@ -146,43 +147,19 @@ interface nsIMsgIdentity : nsISupports {
   attribute ACString escapedVCard;
 
   attribute boolean doFcc;
-  /// URI for the fcc (Sent) folder
-  attribute AUTF8String fccFolder;
   attribute boolean fccReplyFollowsParent;
-
-  /**
-   * @{
-   * these attributes control whether the special folder pickers for
-   * fcc, drafts,archives, and templates are set to pick between servers
-   * (e.g., Sent on accountName) or to pick any folder on any account.
-   * "0" means choose between servers; "1" means use the full folder picker.
-   */
-  attribute ACString fccFolderPickerMode;
-  attribute ACString draftsFolderPickerMode;
-  attribute ACString archivesFolderPickerMode;
-  attribute ACString tmplFolderPickerMode;
-  /** @} */
-
-  // Don't call bccSelf, bccOthers, and bccList directly, they are
-  // only used for migration and backward compatibility. Use doBcc
-  // and doBccList instead.
-  attribute boolean bccSelf;
-  attribute boolean bccOthers;
-  attribute ACString bccList;
 
   attribute boolean doCc;
   attribute AUTF8String doCcList;
 
   attribute boolean doBcc;
   attribute AUTF8String doBccList;
-  /**
-   * @{
-   * URIs for the special folders (drafts, templates, archive)
-   */
-  attribute AUTF8String draftFolder;
-  attribute AUTF8String archiveFolder;
-  attribute AUTF8String stationeryFolder;
-  /** @} */
+  // Don't call bccSelf, bccOthers, and bccList directly, they are
+  // only used for migration and backward compatibility. Use doBcc
+  // and doBccList instead.
+  attribute boolean bccSelf;
+  attribute boolean bccOthers;
+  attribute ACString bccList;
 
   attribute boolean archiveEnabled;
   /**
@@ -201,6 +178,48 @@ interface nsIMsgIdentity : nsISupports {
   attribute boolean archiveKeepFolderStructure;
   attribute boolean archiveRecreateInbox;
   /** @} */
+
+  /**
+   * Special folders:
+   * These URI attributes just get or set a URI value in the preferences.
+   * Values are initially empty until set (e.g. by IMAP folder discovery),
+   * or the corresponding getOrCreate*Folder function is called.
+   *
+   * The existence of a URI value does not necessarily imply the existence
+   * of a folder for that URI.
+   */
+  attribute AUTF8String fccFolderURI; // A.K.A. Sent Mail
+  attribute AUTF8String draftsFolderURI;
+  attribute AUTF8String archivesFolderURI;
+  attribute AUTF8String templatesFolderURI;
+
+  /**
+   * Get or create folder functions:
+   * If the corresponding URI is set in the preferences, and the folder for
+   * that URI exists, these functions will return that folder.
+   * If not, they will attempt to get a folder in a sensible place:
+   * - If the URI is set but the folder doesn't exist, a folder on the same
+   *   server with the appropriate flag or the appropriate name.
+   * - Or a folder on the servers associated with the identity.
+   * - Or a folder on the Local Folders server.
+   * If no such folder can be found, create one using the first local server
+   * (synchronous folder creation is required) in the same order as above.
+   */
+  nsIMsgFolder getOrCreateFccFolder();
+  nsIMsgFolder getOrCreateDraftsFolder();
+  nsIMsgFolder getOrCreateArchivesFolder();
+  nsIMsgFolder getOrCreateTemplatesFolder();
+
+  /**
+   * These attributes control whether the special folder pickers for
+   * fcc, drafts, archives, and templates are set to pick between servers
+   * (e.g., Sent on accountName) or to pick any folder on any account.
+   * "0" means choose between servers; "1" means use the full folder picker.
+   */
+  attribute ACString fccFolderPickerMode;
+  attribute ACString draftsFolderPickerMode;
+  attribute ACString archivesFolderPickerMode;
+  attribute ACString templatesFolderPickerMode;
 
   attribute boolean showSaveMsgDlg;
   attribute ACString directoryServer;

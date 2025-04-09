@@ -62,7 +62,8 @@ add_task(async function test_archive_options_enabled() {
   // archive folder's server is used to determine the enabled/disabled state
   // of the "archive options" button, *not* the incoming server for that
   // identity.
-  defaultIdentity.archiveFolder = imapServer.rootFolder.URI;
+  defaultIdentity.archivesFolderURI = imapServer.rootFolder.URI;
+  identity.archivesFolderURI = imapServer.rootFolder.URI;
 
   imapServer.isGMailServer = false;
   await open_advanced_settings(async function (tab) {

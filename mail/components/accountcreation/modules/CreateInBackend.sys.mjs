@@ -263,7 +263,6 @@ async function createAccountInBackend(config) {
   }
 
   verifyLocalFoldersAccount(MailServices.accounts);
-  setFolders(identity, inServer);
 
   // save
   MailServices.accounts.saveAccountInfo();
@@ -275,29 +274,6 @@ async function createAccountInBackend(config) {
   return account;
 }
 /* eslint-enable complexity */
-
-function setFolders(identity, server) {
-  // TODO: support for local folders for global inbox (or use smart search
-  // folder instead)
-
-  var baseURI = server.serverURI + "/";
-
-  // Names will be localized in UI, not in folder names on server/disk
-  // TODO allow to override these names in the XML config file,
-  // in case e.g. Google or AOL use different names?
-  // Workaround: Let user fix it :)
-  var fccName = "Sent";
-  var draftName = "Drafts";
-  var templatesName = "Templates";
-
-  identity.draftFolder = baseURI + draftName;
-  identity.stationeryFolder = baseURI + templatesName;
-  identity.fccFolder = baseURI + fccName;
-
-  identity.fccFolderPickerMode = 0;
-  identity.draftsFolderPickerMode = 0;
-  identity.tmplFolderPickerMode = 0;
-}
 
 async function rememberPassword(server, password) {
   let passwordURI;

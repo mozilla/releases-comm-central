@@ -164,8 +164,6 @@ function FinishAccount() {
     // transfer all attributes from the accountdata
     finishAccount(gCurrentAccount, accountData);
 
-    setupCopiesAndFoldersServer(gCurrentAccount, accountData);
-
     if (!gDefaultAccount && gCurrentAccount.incomingServer.canBeDefaultServer) {
       MailServices.accounts.defaultAccount = gCurrentAccount;
     }
@@ -437,115 +435,6 @@ function verifyLocalFoldersAccount() {
   } catch (ex) {
     dump("Error in verifyLocalFoldersAccount" + ex + "\n");
   }
-}
-
-function setupCopiesAndFoldersServer(account, accountData) {
-  try {
-    var server = account.incomingServer;
-
-    if (!account.identities.length) {
-      return false;
-    }
-
-    const identity = account.identities[0];
-    // For this server, do we default the folder prefs to this server, or to the "Local Folders" server
-    // If it's deferred, we use the local folders account.
-    var defaultCopiesAndFoldersPrefsToServer =
-      server.defaultCopiesAndFoldersPrefsToServer;
-
-    var copiesAndFoldersServer = null;
-    if (defaultCopiesAndFoldersPrefsToServer) {
-      copiesAndFoldersServer = server;
-    } else {
-      if (!MailServices.accounts.localFoldersServer) {
-        dump("error!  we should have a local mail server at this point\n");
-        return false;
-      }
-      copiesAndFoldersServer = MailServices.accounts.localFoldersServer;
-    }
-
-    setDefaultCopiesAndFoldersPrefs(
-      identity,
-      copiesAndFoldersServer,
-      accountData
-    );
-  } catch (ex) {
-    // return false (meaning we did not setupCopiesAndFoldersServer)
-    // on any error
-    dump("Error in setupCopiesAndFoldersServer: " + ex + "\n");
-    return false;
-  }
-  return true;
-}
-
-function setDefaultCopiesAndFoldersPrefs(identity, server, accountData) {
-  var rootFolder = server.rootFolder;
-
-  // we need to do this or it is possible that the server's draft,
-  // stationery fcc folder will not be in rdf
-  //
-  // this can happen in a couple cases
-  // 1) the first account we create, creates the local mail.  since
-  // local mail was just created, it obviously hasn't been opened,
-  // or in rdf..
-  // 2) the account we created is of a type where
-  // defaultCopiesAndFoldersPrefsToServer is true
-  // this since we are creating the server, it obviously hasn't been
-  // opened, or in rdf.
-  //
-  // this makes the assumption that the server's draft, stationery fcc folder
-  // are at the top level (ie subfolders of the root folder.)  this works
-  // because we happen to be doing things that way, and if the user changes
-  // that, it will work because to change the folder, it must be in rdf,
-  // coming from the folder cache, in the worst case.
-  var msgFolder = rootFolder.QueryInterface(Ci.nsIMsgFolder);
-
-  /**
-   * When a new account is created, folders 'Sent', 'Drafts'
-   * and 'Templates' are not created then, but created on demand at runtime.
-   * But we do need to present them as possible choices in the Copies and Folders
-   * UI. To do that, folder URIs have to be created and stored in the prefs file.
-   * So, if there is a need to build special folders, append the special folder
-   * names and create right URIs.
-   */
-  var folderDelim = "/";
-
-  /* we use internal names known to everyone like Sent, Templates and Drafts */
-  /* if folder names were already given in isp rdf, we use them,
-     otherwise we use internal names known to everyone like Sent, Templates and Drafts */
-
-  // Note the capital F, D and S!
-  var draftFolder =
-    accountData.identity && accountData.identity.DraftFolder
-      ? accountData.identity.DraftFolder
-      : "Drafts";
-  var stationeryFolder =
-    accountData.identity && accountData.identity.StationeryFolder
-      ? accountData.identity.StationeryFolder
-      : "Templates";
-  var fccFolder =
-    accountData.identity && accountData.identity.FccFolder
-      ? accountData.identity.FccFolder
-      : "Sent";
-
-  identity.draftFolder = msgFolder.server.serverURI + folderDelim + draftFolder;
-  identity.stationeryFolder =
-    msgFolder.server.serverURI + folderDelim + stationeryFolder;
-  identity.fccFolder = msgFolder.server.serverURI + folderDelim + fccFolder;
-
-  // Note the capital F, D and S!
-  identity.fccFolderPickerMode =
-    accountData.identity && accountData.identity.FccFolder
-      ? 1
-      : gDefaultSpecialFolderPickerMode;
-  identity.draftsFolderPickerMode =
-    accountData.identity && accountData.identity.DraftFolder
-      ? 1
-      : gDefaultSpecialFolderPickerMode;
-  identity.tmplFolderPickerMode =
-    accountData.identity && accountData.identity.StationeryFolder
-      ? 1
-      : gDefaultSpecialFolderPickerMode;
 }
 
 function checkForInvalidAccounts() {

@@ -308,7 +308,7 @@ nsresult nsMsgCopy::GetSentFolder(nsIMsgIdentity* userIdentity,
   if (*folder) {
     // If mSavePref is the same as the identity's fcc folder, set the sent flag.
     nsCString identityFccUri;
-    userIdentity->GetFccFolder(identityFccUri);
+    userIdentity->GetFccFolderURI(identityFccUri);  // TODO
     if (identityFccUri.Equals(mSavePref))
       (*folder)->SetFlag(nsMsgFolderFlags::SentMail);
   }

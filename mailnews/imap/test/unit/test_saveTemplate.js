@@ -57,9 +57,9 @@ add_task(async function saveAsTemplate() {
   const identity = MailServices.accounts.getFirstIdentityForServer(
     IMAPPump.incomingServer
   );
-  identity.stationeryFolder =
+  identity.templatesFolderURI =
     IMAPPump.incomingServer.rootFolder.URI + "/Templates";
-  const templates = MailUtils.getOrCreateFolder(identity.stationeryFolder);
+  const templates = MailUtils.getOrCreateFolder(identity.templatesFolderURI);
   // Verify that Templates folder doesn't exist, and then create it.
   Assert.equal(templates.parent, null);
   templates.setFlag(Ci.nsMsgFolderFlags.Templates);

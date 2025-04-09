@@ -67,8 +67,10 @@ add_task(async function saveDraft() {
   msgCompose.initialize(params);
 
   // Set up the identity.
-  const identity = MailServices.accounts.createIdentity();
-  identity.draftFolder = gDraftsFolder.URI;
+  const identity = MailServices.accounts.getFirstIdentityForServer(
+    IMAPPump.incomingServer
+  );
+  identity.draftsFolderURI = gDraftsFolder.URI;
 
   const progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
     Ci.nsIMsgProgress

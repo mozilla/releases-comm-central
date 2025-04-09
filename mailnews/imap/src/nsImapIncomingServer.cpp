@@ -1315,31 +1315,31 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
     rv = accountMgr->GetFirstIdentityForServer(this, getter_AddRefs(identity));
     if (NS_SUCCEEDED(rv) && identity) {
       nsCString folderUri;
-      identity->GetFccFolder(folderUri);
+      identity->GetFccFolderURI(folderUri);
       nsCString existingUri;
 
       if (CheckSpecialFolder(folderUri, nsMsgFolderFlags::SentMail,
                              existingUri)) {
-        identity->SetFccFolder(existingUri);
+        identity->SetFccFolderURI(existingUri);
         identity->SetFccFolderPickerMode("1"_ns);
       }
-      identity->GetDraftFolder(folderUri);
+      identity->GetDraftsFolderURI(folderUri);
       if (CheckSpecialFolder(folderUri, nsMsgFolderFlags::Drafts,
                              existingUri)) {
-        identity->SetDraftFolder(existingUri);
+        identity->SetDraftsFolderURI(existingUri);
         identity->SetDraftsFolderPickerMode("1"_ns);
       }
       bool archiveEnabled;
       identity->GetArchiveEnabled(&archiveEnabled);
       if (archiveEnabled) {
-        identity->GetArchiveFolder(folderUri);
+        identity->GetArchivesFolderURI(folderUri);
         if (CheckSpecialFolder(folderUri, nsMsgFolderFlags::Archive,
                                existingUri)) {
-          identity->SetArchiveFolder(existingUri);
+          identity->SetArchivesFolderURI(existingUri);
           identity->SetArchivesFolderPickerMode("1"_ns);
         }
       }
-      identity->GetStationeryFolder(folderUri);
+      identity->GetTemplatesFolderURI(folderUri);
       if (!folderUri.IsEmpty()) {
         nsCOMPtr<nsIMsgFolder> folder;
         rv = GetOrCreateFolder(folderUri, getter_AddRefs(folder));

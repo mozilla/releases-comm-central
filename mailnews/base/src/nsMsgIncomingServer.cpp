@@ -1792,7 +1792,7 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryReturnReceiptsFilter(
     newFilter->SetEnabled(enable);
   else if (enable) {
     nsCString actionTargetFolderUri;
-    rv = identity->GetFccFolder(actionTargetFolderUri);
+    rv = identity->GetFccFolderURI(actionTargetFolderUri);
     if (!actionTargetFolderUri.IsEmpty()) {
       filterList->CreateFilter(internalReturnReceiptFilterName,
                                getter_AddRefs(newFilter));

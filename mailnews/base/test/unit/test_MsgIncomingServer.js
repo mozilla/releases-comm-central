@@ -82,39 +82,39 @@ add_task(function testMigrateIdentitiesOnChangeUsernameHostname() {
 
   // Create an identity and point folders to incomingServer1.
   let identity1 = MailServices.accounts.createIdentity();
-  identity1.fccFolder = incomingServer1.serverURI + "/Sent";
-  identity1.draftFolder = incomingServer1.serverURI + "/Drafts";
-  identity1.archiveFolder = incomingServer1.serverURI + "/Archives";
-  identity1.stationeryFolder = incomingServer1.serverURI + "/Templates";
+  identity1.fccFolderURI = incomingServer1.serverURI + "/Sent";
+  identity1.draftsFolderURI = incomingServer1.serverURI + "/Drafts";
+  identity1.archivesFolderURI = incomingServer1.serverURI + "/Archives";
+  identity1.templatesFolderURI = incomingServer1.serverURI + "/Templates";
   const account1 = MailServices.accounts.createAccount();
   account1.addIdentity(identity1);
 
   // Create another identity and point folders to both servers.
   const identity2 = MailServices.accounts.createIdentity();
-  identity2.fccFolder = incomingServer1.serverURI + "/Sent";
-  identity2.draftFolder = incomingServer2.serverURI + "/Drafts";
+  identity2.fccFolderURI = incomingServer1.serverURI + "/Sent";
+  identity2.draftsFolderURI = incomingServer2.serverURI + "/Drafts";
   const account2 = MailServices.accounts.createAccount();
   account2.addIdentity(identity2);
 
   // Check folders were correctly set.
-  equal(identity1.fccFolder, "mailbox://mike@pop3.invalid/Sent");
-  equal(identity1.draftFolder, "mailbox://mike@pop3.invalid/Drafts");
-  equal(identity1.archiveFolder, "mailbox://mike@pop3.invalid/Archives");
-  equal(identity1.stationeryFolder, "mailbox://mike@pop3.invalid/Templates");
-  equal(identity2.fccFolder, "mailbox://mike@pop3.invalid/Sent");
-  equal(identity2.draftFolder, "mailbox://oscar@pop3.localhost/Drafts");
+  equal(identity1.fccFolderURI, "mailbox://mike@pop3.invalid/Sent");
+  equal(identity1.draftsFolderURI, "mailbox://mike@pop3.invalid/Drafts");
+  equal(identity1.archivesFolderURI, "mailbox://mike@pop3.invalid/Archives");
+  equal(identity1.templatesFolderURI, "mailbox://mike@pop3.invalid/Templates");
+  equal(identity2.fccFolderURI, "mailbox://mike@pop3.invalid/Sent");
+  equal(identity2.draftsFolderURI, "mailbox://oscar@pop3.localhost/Drafts");
 
   // Change the hostname.
   incomingServer1.hostName = "localhost";
 
   // Check folders were correctly updated.
   identity1 = MailServices.accounts.getIdentity(identity1.key);
-  equal(identity1.fccFolder, "mailbox://mike@localhost/Sent");
-  equal(identity1.draftFolder, "mailbox://mike@localhost/Drafts");
-  equal(identity1.archiveFolder, "mailbox://mike@localhost/Archives");
-  equal(identity1.stationeryFolder, "mailbox://mike@localhost/Templates");
-  equal(identity2.fccFolder, "mailbox://mike@localhost/Sent");
-  equal(identity2.draftFolder, "mailbox://oscar@pop3.localhost/Drafts");
+  equal(identity1.fccFolderURI, "mailbox://mike@localhost/Sent");
+  equal(identity1.draftsFolderURI, "mailbox://mike@localhost/Drafts");
+  equal(identity1.archivesFolderURI, "mailbox://mike@localhost/Archives");
+  equal(identity1.templatesFolderURI, "mailbox://mike@localhost/Templates");
+  equal(identity2.fccFolderURI, "mailbox://mike@localhost/Sent");
+  equal(identity2.draftsFolderURI, "mailbox://oscar@pop3.localhost/Drafts");
 });
 
 /**

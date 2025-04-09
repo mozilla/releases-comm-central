@@ -3,21 +3,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"  // for pre-compiled headers
-#include "nsMsgIdentity.h"
-#include "nsIPrefService.h"
-#include "nsString.h"
-#include "nsMsgFolderFlags.h"
-#include "nsIMsgFolder.h"
-#include "nsIMsgIncomingServer.h"
-#include "nsIMsgAccountManager.h"
-#include "mozilla/mailnews/MimeHeaderParser.h"
-#include "nsIMsgHeaderParser.h"
-#include "prprf.h"
-#include "nsMsgUtils.h"
-#include "nsServiceManagerUtils.h"
-#include "nsIUUIDGenerator.h"
 #include "mozilla/Components.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
+#include "msgCore.h"  // for pre-compiled headers
+#include "nsIMsgAccountManager.h"
+#include "nsIMsgFolder.h"
+#include "nsIMsgHeaderParser.h"
+#include "nsIMsgIncomingServer.h"
+#include "nsIMsgLocalMailFolder.h"
+#include "nsIPrefService.h"
+#include "nsIURIMutator.h"
+#include "nsIUUIDGenerator.h"
+#include "nsMsgFolderFlags.h"
+#include "nsMsgIdentity.h"
+#include "nsMsgUtils.h"
+#include "nsNetCID.h"
+#include "nsServiceManagerUtils.h"
+#include "nsString.h"
+#include "prprf.h"
 
 #define REL_FILE_PREF_SUFFIX "-rel"
 
@@ -207,13 +210,13 @@ NS_IMPL_IDPREF_INT(SignatureDate, "sig_date")
 
 NS_IMPL_IDPREF_BOOL(DoFcc, "fcc")
 
-NS_IMPL_FOLDERPREF_STR(FccFolder, "fcc_folder", "Sent"_ns,
-                       nsMsgFolderFlags::SentMail)
+NS_IMPL_FOLDERPREF_STR(FccFolder, "fcc_folder", nsMsgFolderFlags::SentMail,
+                       "Sent"_ns)
 NS_IMPL_IDPREF_STR(FccFolderPickerMode, "fcc_folder_picker_mode")
 NS_IMPL_IDPREF_BOOL(FccReplyFollowsParent, "fcc_reply_follows_parent")
 NS_IMPL_IDPREF_STR(DraftsFolderPickerMode, "drafts_folder_picker_mode")
 NS_IMPL_IDPREF_STR(ArchivesFolderPickerMode, "archives_folder_picker_mode")
-NS_IMPL_IDPREF_STR(TmplFolderPickerMode, "tmpl_folder_picker_mode")
+NS_IMPL_IDPREF_STR(TemplatesFolderPickerMode, "tmpl_folder_picker_mode")
 
 NS_IMPL_IDPREF_BOOL(BccSelf, "bcc_self")
 NS_IMPL_IDPREF_BOOL(BccOthers, "bcc_other")
@@ -293,12 +296,12 @@ nsMsgIdentity::SetDoBccList(const nsACString& aValue) {
   return SetCharAttribute("doBccList", aValue);
 }
 
-NS_IMPL_FOLDERPREF_STR(DraftFolder, "draft_folder", "Drafts"_ns,
-                       nsMsgFolderFlags::Drafts)
-NS_IMPL_FOLDERPREF_STR(ArchiveFolder, "archive_folder", "Archives"_ns,
-                       nsMsgFolderFlags::Archive)
-NS_IMPL_FOLDERPREF_STR(StationeryFolder, "stationery_folder", "Templates"_ns,
-                       nsMsgFolderFlags::Templates)
+NS_IMPL_FOLDERPREF_STR(DraftsFolder, "draft_folder", nsMsgFolderFlags::Drafts,
+                       "Drafts"_ns)
+NS_IMPL_FOLDERPREF_STR(ArchivesFolder, "archive_folder",
+                       nsMsgFolderFlags::Archive, "Archives"_ns)
+NS_IMPL_FOLDERPREF_STR(TemplatesFolder, "stationery_folder",
+                       nsMsgFolderFlags::Templates, "Templates"_ns)
 
 NS_IMPL_IDPREF_BOOL(ArchiveEnabled, "archive_enabled")
 NS_IMPL_IDPREF_INT(ArchiveGranularity, "archive_granularity")
@@ -312,119 +315,157 @@ NS_IMPL_IDPREF_BOOL(AutocompleteToMyDomain, "autocompleteToMyDomain")
 
 NS_IMPL_IDPREF_BOOL(Valid, "valid")
 
-nsresult nsMsgIdentity::getFolderPref(const char* prefname, nsACString& retval,
-                                      const nsACString& folderName,
-                                      uint32_t folderflag) {
-  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
+bool nsMsgIdentity::checkServerForExistingFolder(nsIMsgFolder* rootFolder,
+                                                 const char* prefName,
+                                                 uint32_t folderFlag,
+                                                 const nsACString& folderName,
+                                                 nsIMsgFolder** retval) {
+  // Look for a folder with the flag we want.
+  nsresult rv = rootFolder->GetFolderWithFlags(folderFlag, retval);
+  if (NS_SUCCEEDED(rv) && *retval) {
+    SetCharAttribute(prefName, (*retval)->URI());
+    return true;
+  }
 
-  nsresult rv = mPrefBranch->GetStringPref(prefname, EmptyCString(), 0, retval);
-  if (NS_SUCCEEDED(rv) && !retval.IsEmpty()) {
-    nsCOMPtr<nsIMsgFolder> folder;
-    rv = GetOrCreateFolder(retval, getter_AddRefs(folder));
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIMsgIncomingServer> server;
-    // Make sure that folder hierarchy is built so that legitimate parent-child
-    // relationship is established.
-    folder->GetServer(getter_AddRefs(server));
-    if (server) {
-      nsCOMPtr<nsIMsgFolder> rootFolder;
-      nsCOMPtr<nsIMsgFolder> deferredToRootFolder;
-      server->GetRootFolder(getter_AddRefs(rootFolder));
-      server->GetRootMsgFolder(getter_AddRefs(deferredToRootFolder));
-      // check if we're using a deferred account - if not, use the uri;
-      // otherwise, fall through to code that will fix this pref.
-      if (rootFolder == deferredToRootFolder) {
-        nsCOMPtr<nsIMsgFolder> msgFolder;
-        rv = server->GetMsgFolderFromURI(folder, retval,
-                                         getter_AddRefs(msgFolder));
-        return NS_SUCCEEDED(rv) ? msgFolder->GetURI(retval) : rv;
+  // Look for a folder with the name we want.
+  rv = rootFolder->GetChildNamed(folderName, retval);
+  if (NS_SUCCEEDED(rv) && *retval) {
+    (*retval)->SetFlag(folderFlag);
+    SetCharAttribute(prefName, (*retval)->URI());
+    return true;
+  }
+  return false;
+}
+
+nsresult nsMsgIdentity::getOrCreateFolder(const char* prefName,
+                                          uint32_t folderFlag,
+                                          const nsACString& folderName,
+                                          nsIMsgFolder** retval) {
+  if (!mPrefBranch) {
+    return NS_ERROR_NOT_INITIALIZED;
+  }
+
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
+      mozilla::components::AccountManager::Service();
+  nsCOMPtr<nsIMsgFolder> rootFolder;
+  nsCOMPtr<nsIMsgLocalMailFolder> localRootFolder;
+
+  // Look for a folder matching the preference value.
+  nsAutoCString prefValue;
+  nsresult rv =
+      mPrefBranch->GetStringPref(prefName, EmptyCString(), 0, prefValue);
+  if (NS_SUCCEEDED(rv) && !prefValue.IsEmpty()) {
+    rv = GetExistingFolder(prefValue, retval);
+    if (NS_SUCCEEDED(rv) && *retval) {
+      // Success! Return the folder.
+      return NS_OK;
+    }
+
+    // Can we get a server that matches the preference?
+    nsCOMPtr<nsIURL> url;
+    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+             .SetSpec(prefValue)
+             .Finalize(url);
+    if (NS_SUCCEEDED(rv)) {
+      nsCOMPtr<nsIMsgIncomingServer> server;
+
+      if (url->SchemeIs("mailbox")) {
+        // Of course that means looking for the same thing several times,
+        // because nothing is simple around here.
+        if (NS_SUCCEEDED(
+                NS_MutateURI(url).SetScheme("none"_ns).Finalize(url))) {
+          accountManager->FindServerByURI(url, getter_AddRefs(server));
+        }
+        if (!server &&
+            NS_SUCCEEDED(
+                NS_MutateURI(url).SetScheme("pop3"_ns).Finalize(url))) {
+          accountManager->FindServerByURI(url, getter_AddRefs(server));
+        }
+        if (!server &&
+            NS_SUCCEEDED(NS_MutateURI(url).SetScheme("rss"_ns).Finalize(url))) {
+          accountManager->FindServerByURI(url, getter_AddRefs(server));
+        }
+      } else {
+        accountManager->FindServerByURI(url, getter_AddRefs(server));
+      }
+
+      if (server) {
+        // Do we have an existing folder on this server?
+        rv = server->GetRootMsgFolder(getter_AddRefs(rootFolder));
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        if (checkServerForExistingFolder(rootFolder, prefName, folderFlag,
+                                         folderName, retval)) {
+          return NS_OK;
+        }
+
+        // Can we create one?
+        localRootFolder = do_QueryInterface(rootFolder);
       }
     }
   }
 
-  // if the server doesn't exist, fall back to the default pref.
-  rv = mDefPrefBranch->GetStringPref(prefname, EmptyCString(), 0, retval);
-  if (NS_SUCCEEDED(rv) && !retval.IsEmpty())
-    return setFolderPref(prefname, retval, folderflag);
-
-  // here I think we need to create a uri for the folder on the
-  // default server for this identity.
-  nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
-  rv = accountManager->GetServersForIdentity(this, servers);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (servers.IsEmpty()) {
-    // if there are no servers for this identity, return generic failure.
-    return NS_ERROR_FAILURE;
-  }
-  nsCOMPtr<nsIMsgIncomingServer> server(servers[0]);
-  bool defaultToServer;
-  server->GetDefaultCopiesAndFoldersPrefsToServer(&defaultToServer);
-  // if we should default to special folders on the server,
-  // use the local folders server
-  if (!defaultToServer) {
-    rv = accountManager->GetLocalFoldersServer(getter_AddRefs(server));
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-  nsCOMPtr<nsIMsgFolder> rootFolder;
-  // this will get the deferred to server's root folder, if "server"
-  // is deferred, e.g., using the pop3 global inbox.
-  rv = server->GetRootMsgFolder(getter_AddRefs(rootFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (rootFolder) {
-    rv = rootFolder->GetURI(retval);
-    NS_ENSURE_SUCCESS(rv, rv);
-    retval.Append('/');
-    retval.Append(folderName);
-    return setFolderPref(prefname, retval, folderflag);
-  }
-  return NS_ERROR_FAILURE;
-}
-
-nsresult nsMsgIdentity::setFolderPref(const char* prefname,
-                                      const nsACString& value,
-                                      uint32_t folderflag) {
-  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
-
-  nsCString oldpref;
-  nsresult rv;
-  nsCOMPtr<nsIMsgFolder> folder;
-
-  if (folderflag == nsMsgFolderFlags::SentMail) {
-    // Clear the temporary return receipt filter so that the new filter
-    // rule can be recreated (by ConfigureTemporaryFilters()).
-    nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+  if (!localRootFolder) {
+    // Look for a server we could create a folder on, starting with the
+    // identity's servers.
     nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
     rv = accountManager->GetServersForIdentity(this, servers);
     NS_ENSURE_SUCCESS(rv, rv);
-    if (!servers.IsEmpty()) {
-      servers[0]->ClearTemporaryReturnReceiptsFilter();
-      // okay to fail; no need to check for return code
+    for (RefPtr<nsIMsgIncomingServer> server : servers) {
+      // Should we store copies on this server?
+      bool defaultToServer;
+      rv = server->GetDefaultCopiesAndFoldersPrefsToServer(&defaultToServer);
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (!defaultToServer) {
+        continue;
+      }
+
+      // Do we have an existing folder on this server?
+      rv = server->GetRootMsgFolder(getter_AddRefs(rootFolder));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      if (checkServerForExistingFolder(rootFolder, prefName, folderFlag,
+                                       folderName, retval)) {
+        return NS_OK;
+      }
+
+      // Can we create one?
+      localRootFolder = do_QueryInterface(rootFolder);
+      if (localRootFolder) {
+        break;
+      }
     }
   }
+  if (!localRootFolder) {
+    // Still nothing? Let's use the Local Folders server.
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    rv = accountManager->GetLocalFoldersServer(getter_AddRefs(server));
+    NS_ENSURE_SUCCESS(rv, rv);
 
-  // get the old folder, and clear the special folder flag on it
-  rv = mPrefBranch->GetStringPref(prefname, EmptyCString(), 0, oldpref);
-  if (NS_SUCCEEDED(rv) && !oldpref.IsEmpty()) {
-    rv = GetOrCreateFolder(oldpref, getter_AddRefs(folder));
-    if (NS_SUCCEEDED(rv)) {
-      rv = folder->ClearFlag(folderflag);
+    // Do we have an existing folder on this server?
+    rv = server->GetRootMsgFolder(getter_AddRefs(rootFolder));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    if (checkServerForExistingFolder(rootFolder, prefName, folderFlag,
+                                     folderName, retval)) {
+      return NS_OK;
     }
+
+    localRootFolder = do_QueryInterface(rootFolder);
+  }
+  if (!localRootFolder) {
+    return NS_ERROR_FAILURE;
   }
 
-  // set the new folder, and set the special folder flags on it
-  rv = SetUnicharAttribute(prefname, NS_ConvertUTF8toUTF16(value));
-  if (NS_SUCCEEDED(rv) && !value.IsEmpty()) {
-    rv = GetOrCreateFolder(value, getter_AddRefs(folder));
-    if (NS_SUCCEEDED(rv)) rv = folder->SetFlag(folderflag);
-  }
-  return rv;
+  // Okay, there's no folder. We're going to have to create one.
+  rv = localRootFolder->CreateLocalSubfolder(folderName, retval);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = (*retval)->SetFlags(folderFlag);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  SetCharAttribute(prefName, (*retval)->URI());
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgIdentity::SetUnicharAttribute(const char* aName,
@@ -563,12 +604,13 @@ nsMsgIdentity::Copy(nsIMsgIdentity* identity) {
   COPY_IDENTITY_STR_VALUE(identity, GetReplyTo, SetReplyTo)
   COPY_IDENTITY_WSTR_VALUE(identity, GetFullName, SetFullName)
   COPY_IDENTITY_WSTR_VALUE(identity, GetOrganization, SetOrganization)
-  COPY_IDENTITY_STR_VALUE(identity, GetDraftFolder, SetDraftFolder)
-  COPY_IDENTITY_STR_VALUE(identity, GetArchiveFolder, SetArchiveFolder)
-  COPY_IDENTITY_STR_VALUE(identity, GetFccFolder, SetFccFolder)
+  COPY_IDENTITY_STR_VALUE(identity, GetDraftsFolderURI, SetDraftsFolderURI)
+  COPY_IDENTITY_STR_VALUE(identity, GetArchivesFolderURI, SetArchivesFolderURI)
+  COPY_IDENTITY_STR_VALUE(identity, GetFccFolderURI, SetFccFolderURI)
   COPY_IDENTITY_BOOL_VALUE(identity, GetFccReplyFollowsParent,
                            SetFccReplyFollowsParent)
-  COPY_IDENTITY_STR_VALUE(identity, GetStationeryFolder, SetStationeryFolder)
+  COPY_IDENTITY_STR_VALUE(identity, GetTemplatesFolderURI,
+                          SetTemplatesFolderURI)
   COPY_IDENTITY_BOOL_VALUE(identity, GetArchiveEnabled, SetArchiveEnabled)
   COPY_IDENTITY_INT_VALUE(identity, GetArchiveGranularity,
                           SetArchiveGranularity)

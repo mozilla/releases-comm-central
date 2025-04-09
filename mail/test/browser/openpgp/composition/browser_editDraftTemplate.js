@@ -89,17 +89,8 @@ add_setup(async function () {
 
   aliceIdentity.setUnicharAttribute("openpgp_key_id", id.split("0x").join(""));
 
-  draftsFolder = await get_special_folder(
-    Ci.nsMsgFolderFlags.Drafts,
-    true,
-    aliceAcct.incomingServer.localFoldersServer
-  );
-
-  templatesFolder = await get_special_folder(
-    Ci.nsMsgFolderFlags.Templates,
-    true,
-    aliceAcct.incomingServer.localFoldersServer
-  );
+  draftsFolder = aliceIdentity.getOrCreateDraftsFolder();
+  templatesFolder = aliceIdentity.getOrCreateTemplatesFolder();
 });
 
 /**
