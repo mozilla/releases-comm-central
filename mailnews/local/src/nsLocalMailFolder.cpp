@@ -48,6 +48,7 @@
 #include "nsReadLine.h"
 #include "nsIURIMutator.h"
 #include "mozilla/Components.h"
+#include "mozilla/ProfilerMarkers.h"
 #include "mozilla/UniquePtr.h"
 #include "StoreIndexer.h"
 #include "nsIPropertyBag2.h"
