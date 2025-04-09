@@ -49,6 +49,18 @@ XPCOMUtils.defineLazyPreferenceGetter(
  * mails if necessary.
  */
 export class MailNotificationManager {
+  static get availableActions() {
+    for (const action of availableActions) {
+      if (!action.title) {
+        action.title = lazy.l10n.formatValueSync(action.l10n);
+      }
+    }
+    return availableActions;
+  }
+  static get enabledActions() {
+    return lazy.enabledActions;
+  }
+
   QueryInterface = ChromeUtils.generateQI([
     "nsIObserver",
     "nsIFolderListener",

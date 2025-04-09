@@ -18,6 +18,8 @@ sender-checkbox =
     .label = Sender
     .accesskey = e
 
+enabled-actions-description = Message actions:
+
 ## Note: open-time-label-before is displayed first, then there's a field where
 ## the user can enter a number, and open-time-label-after is displayed at the end
 ## of the line. The translations of the open-time-label-before and open-time-label-after

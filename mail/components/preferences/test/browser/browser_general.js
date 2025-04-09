@@ -325,6 +325,10 @@ add_task(async function testLanguageAndAppearanceDialogs() {
  */
 add_task(async function testNewMailAlertDialogs() {
   Services.prefs.setBoolPref("mail.biff.show_alert", true);
+  Services.prefs.setStringPref(
+    "mail.biff.alert.enabled_actions",
+    "mark-as-read"
+  );
   const { prefsDocument } = await openNewPrefsTab(
     "paneGeneral",
     "incomingMailCategory"
@@ -340,8 +344,76 @@ add_task(async function testNewMailAlertDialogs() {
   await promiseSubDialog(
     prefsDocument.getElementById("customizeMailAlert"),
     "chrome://messenger/content/preferences/notifications.xhtml",
-    () => {},
-    "cancel"
+    async dialogWindow => {
+      const dialogDocument = dialogWindow.document;
+      const list = dialogDocument.getElementById("enabledActions");
+      Assert.equal(
+        list.childElementCount,
+        2,
+        "actions should be added to the list"
+      );
+      Assert.equal(
+        list.children[0].id,
+        "mark-as-read",
+        "first action should be mark-as-read"
+      );
+      Assert.ok(
+        list.children[0].checked,
+        "mark-as-read should be checked initially"
+      );
+      Assert.equal(
+        list.children[1].id,
+        "delete",
+        "second action should be delete"
+      );
+      Assert.ok(
+        !list.children[1].checked,
+        "delete should not be checked initially"
+      );
+      EventUtils.synthesizeMouseAtCenter(list.children[0], {}, dialogWindow);
+      EventUtils.synthesizeMouseAtCenter(list.children[1], {}, dialogWindow);
+    },
+    "accept"
+  );
+  Assert.equal(
+    Services.prefs.getStringPref("mail.biff.alert.enabled_actions"),
+    "delete",
+    "preference should have been updated"
+  );
+  await promiseSubDialog(
+    prefsDocument.getElementById("customizeMailAlert"),
+    "chrome://messenger/content/preferences/notifications.xhtml",
+    async dialogWindow => {
+      const dialogDocument = dialogWindow.document;
+      const list = dialogDocument.getElementById("enabledActions");
+      Assert.equal(
+        list.childElementCount,
+        2,
+        "actions should be added to the list"
+      );
+      Assert.equal(
+        list.children[0].id,
+        "mark-as-read",
+        "first action should be mark-as-read"
+      );
+      Assert.ok(
+        !list.children[0].checked,
+        "mark-as-read should not be checked initially"
+      );
+      Assert.equal(
+        list.children[1].id,
+        "delete",
+        "second action should be delete"
+      );
+      Assert.ok(list.children[1].checked, "delete should be checked initially");
+      EventUtils.synthesizeMouseAtCenter(list.children[0], {}, dialogWindow);
+    },
+    "accept"
+  );
+  Assert.equal(
+    Services.prefs.getStringPref("mail.biff.alert.enabled_actions"),
+    "mark-as-read,delete",
+    "preference should have been updated"
   );
   await closePrefsTab();
 });
