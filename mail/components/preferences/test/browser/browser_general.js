@@ -312,12 +312,6 @@ add_task(async function testLanguageAndAppearanceDialogs() {
     "cancel"
   );
   await promiseSubDialog(
-    prefsDocument.getElementById("colors"),
-    "chrome://messenger/content/preferences/colors.xhtml",
-    () => {},
-    "cancel"
-  );
-  await promiseSubDialog(
     prefsDocument.getElementById("manageMessengerLanguagesButton"),
     "chrome://messenger/content/preferences/messengerLanguages.xhtml",
     () => {},

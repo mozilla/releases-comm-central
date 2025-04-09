@@ -389,7 +389,11 @@ clear-cache-shutdown-label =
     .label = Clear cache on shutdown
     .accesskey = s
 
-fonts-legend = Fonts & Colors
+always-underline-links =
+    .label = Always underline links
+    .accesskey = k
+
+font-legend = Fonts
 
 default-font-label =
     .value = Default font:
@@ -402,10 +406,6 @@ default-size-label =
 font-options-button =
     .label = Advanced…
     .accesskey = A
-
-color-options-button =
-    .label = Colors…
-    .accesskey = C
 
 display-width-legend = Plain Text Messages
 

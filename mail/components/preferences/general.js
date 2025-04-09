@@ -101,6 +101,7 @@ Preferences.addAll([
   { id: "browser.cache.disk.smart_size.enabled", inverted: true, type: "bool" },
   { id: "privacy.clearOnShutdown.cache", type: "bool" },
   { id: "layers.acceleration.disabled", type: "bool", inverted: true },
+  { id: "layout.css.always_underline_links", type: "bool" },
   { id: "searchintegration.enable", type: "bool" },
   { id: "mail.tabs.drawInTitlebar", type: "bool" },
   { id: "mail.tabs.autoHide", type: "bool" },
@@ -933,16 +934,6 @@ var gGeneralPane = {
    */
   configureFonts() {
     gSubDialog.open("chrome://messenger/content/preferences/fonts.xhtml", {
-      features: "resizable=no",
-    });
-  },
-
-  /**
-   * Displays the colors dialog, where default web page/link/etc. colors can be
-   * configured.
-   */
-  configureColors() {
-    gSubDialog.open("chrome://messenger/content/preferences/colors.xhtml", {
       features: "resizable=no",
     });
   },

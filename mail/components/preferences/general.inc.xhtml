@@ -160,140 +160,123 @@
         </vbox>
         <spacer flex="1"/>
       </hbox>
+      <separator class="thin"/>
+      <hbox align="center">
+        <checkbox id="alwaysUnderlineLinks" data-l10n-id="always-underline-links"
+                  preference="layout.css.always_underline_links"/>
+      </hbox>
     </html:fieldset>
     </html:div>
 
-    <!-- Fonts and Colors -->
+    <!-- Fonts -->
     <html:div data-category="paneGeneral">
     <html:fieldset id="fontsGroup" data-category="paneGeneral">
-      <html:legend data-l10n-id="fonts-legend"></html:legend>
+      <html:legend data-l10n-id="font-legend"></html:legend>
 
-      <hbox id="fontSettings" flex="1">
-        <vbox id="fontRow" flex="1">
-          <hbox align="center">
-            <label data-l10n-id="default-font-label" control="defaultFont"/>
-            <hbox flex="1">
-              <menulist id="defaultFont" flex="1" sizetopopup="pref" crop="center">
-                <menupopup crop="center"/>
-              </menulist>
-            </hbox>
-            <label data-l10n-id="default-size-label" control="defaultFontSize"/>
-            <hbox flex="1">
-              <menulist id="defaultFontSize" flex="1">
-                <menupopup crop="center">
-                  <menuitem value="9" label="9"/>
-                  <menuitem value="10" label="10"/>
-                  <menuitem value="11" label="11"/>
-                  <menuitem value="12" label="12"/>
-                  <menuitem value="13" label="13"/>
-                  <menuitem value="14" label="14"/>
-                  <menuitem value="15" label="15"/>
-                  <menuitem value="16" label="16"/>
-                  <menuitem value="17" label="17"/>
-                  <menuitem value="18" label="18"/>
-                  <menuitem value="20" label="20"/>
-                  <menuitem value="22" label="22"/>
-                  <menuitem value="24" label="24"/>
-                  <menuitem value="26" label="26"/>
-                  <menuitem value="28" label="28"/>
-                  <menuitem value="30" label="30"/>
-                  <menuitem value="32" label="32"/>
-                  <menuitem value="34" label="34"/>
-                  <menuitem value="36" label="36"/>
-                  <menuitem value="40" label="40"/>
-                  <menuitem value="44" label="44"/>
-                  <menuitem value="48" label="48"/>
-                  <menuitem value="56" label="56"/>
-                  <menuitem value="64" label="64"/>
-                  <menuitem value="72" label="72"/>
-                </menupopup>
-              </menulist>
-            </hbox>
-          </hbox>
-        </vbox>
-        <vbox id="colorsRow">
-          <hbox flex="1">
-            <button is="highlightable-button" id="advancedFonts"
-                    data-l10n-id="font-options-button"
-                    oncommand="gGeneralPane.configureFonts();"
-                    flex="1"
-                    search-l10n-ids="
-                      fonts-label-default-unnamed.label,
-                      fonts-dialog-title,
-                      fonts-language-legend.value,
-                      fonts-proportional-label.value,
-                      font-language-group-latin.label,
-                      font-language-group-japanese.label,
-                      font-language-group-trad-chinese.label,
-                      font-language-group-simpl-chinese.label,
-                      font-language-group-trad-chinese-hk.label,
-                      font-language-group-korean.label,
-                      font-language-group-cyrillic.label,
-                      font-language-group-el.label,
-                      font-language-group-other.label,
-                      font-language-group-thai.label,
-                      font-language-group-hebrew.label,
-                      font-language-group-arabic.label,
-                      font-language-group-devanagari.label,
-                      font-language-group-tamil.label,
-                      font-language-group-armenian.label,
-                      font-language-group-bengali.label,
-                      font-language-group-canadian.label,
-                      font-language-group-ethiopic.label,
-                      font-language-group-georgian.label,
-                      font-language-group-gujarati.label,
-                      font-language-group-gurmukhi.label,
-                      font-language-group-khmer.label,
-                      font-language-group-malayalam.label,
-                      font-language-group-math.label,
-                      font-language-group-odia.label,
-                      font-language-group-telugu.label,
-                      font-language-group-kannada.label,
-                      font-language-group-sinhala.label,
-                      font-language-group-tibetan.label,
-                      default-font-serif.label,
-                      default-font-sans-serif.label,
-                      font-size-label.value,
-                      font-size-monospace-label.value,
-                      font-serif-label.value,
-                      font-sans-serif-label.value,
-                      font-monospace-label.value,
-                      font-min-size-label.value,
-                      min-size-none.label,
-                      font-control-legend,
-                      use-document-fonts-checkbox.label,
-                      use-fixed-width-plain-checkbox.label,
-                      text-encoding-legend,
-                      text-encoding-description,
-                      font-outgoing-email-label.value,
-                      font-incoming-email-label.value,
-                      default-font-reply-checkbox.label"/>
-          </hbox>
-          <hbox flex="1">
-            <button is="highlightable-button" id="colors"
-                    data-l10n-id="color-options-button"
-                    oncommand="gGeneralPane.configureColors();"
-                    flex="1"
-                    search-l10n-ids="
-                      colors-dialog-title,
-                      colors-dialog-legend,
-                      text-color-label.value,
-                      background-color-label.value,
-                      use-system-colors.label,
-                      colors-link-legend,
-                      link-color-label.value,
-                      visited-link-color-label.value,
-                      always-underline-links.label,
-                      override-color-label.value,
-                      override-color-always.label,
-                      override-color-auto.label,
-                      override-color-never.label"/>
-          </hbox>
-        </vbox>
+      <hbox id="fontSettings" flex="1" align="center">
+        <label data-l10n-id="default-font-label" control="defaultFont"/>
+        <hbox flex="1">
+          <menulist id="defaultFont" flex="1" sizetopopup="pref" crop="center">
+            <menupopup crop="center"/>
+          </menulist>
+        </hbox>
+        <label data-l10n-id="default-size-label" control="defaultFontSize"/>
+        <hbox flex="1">
+          <menulist id="defaultFontSize" flex="1">
+            <menupopup crop="center">
+              <menuitem value="9" label="9"/>
+              <menuitem value="10" label="10"/>
+              <menuitem value="11" label="11"/>
+              <menuitem value="12" label="12"/>
+              <menuitem value="13" label="13"/>
+              <menuitem value="14" label="14"/>
+              <menuitem value="15" label="15"/>
+              <menuitem value="16" label="16"/>
+              <menuitem value="17" label="17"/>
+              <menuitem value="18" label="18"/>
+              <menuitem value="20" label="20"/>
+              <menuitem value="22" label="22"/>
+              <menuitem value="24" label="24"/>
+              <menuitem value="26" label="26"/>
+              <menuitem value="28" label="28"/>
+              <menuitem value="30" label="30"/>
+              <menuitem value="32" label="32"/>
+              <menuitem value="34" label="34"/>
+              <menuitem value="36" label="36"/>
+              <menuitem value="40" label="40"/>
+              <menuitem value="44" label="44"/>
+              <menuitem value="48" label="48"/>
+              <menuitem value="56" label="56"/>
+              <menuitem value="64" label="64"/>
+              <menuitem value="72" label="72"/>
+            </menupopup>
+          </menulist>
+        </hbox>
+        <hbox>
+          <button is="highlightable-button" id="advancedFonts"
+                  data-l10n-id="font-options-button"
+                  oncommand="gGeneralPane.configureFonts();"
+                  flex="1"
+                  search-l10n-ids="
+                    fonts-label-default-unnamed.label,
+                    fonts-dialog-title,
+                    fonts-language-legend.value,
+                    fonts-proportional-label.value,
+                    font-language-group-latin.label,
+                    font-language-group-japanese.label,
+                    font-language-group-trad-chinese.label,
+                    font-language-group-simpl-chinese.label,
+                    font-language-group-trad-chinese-hk.label,
+                    font-language-group-korean.label,
+                    font-language-group-cyrillic.label,
+                    font-language-group-el.label,
+                    font-language-group-other.label,
+                    font-language-group-thai.label,
+                    font-language-group-hebrew.label,
+                    font-language-group-arabic.label,
+                    font-language-group-devanagari.label,
+                    font-language-group-tamil.label,
+                    font-language-group-armenian.label,
+                    font-language-group-bengali.label,
+                    font-language-group-canadian.label,
+                    font-language-group-ethiopic.label,
+                    font-language-group-georgian.label,
+                    font-language-group-gujarati.label,
+                    font-language-group-gurmukhi.label,
+                    font-language-group-khmer.label,
+                    font-language-group-malayalam.label,
+                    font-language-group-math.label,
+                    font-language-group-odia.label,
+                    font-language-group-telugu.label,
+                    font-language-group-kannada.label,
+                    font-language-group-sinhala.label,
+                    font-language-group-tibetan.label,
+                    default-font-serif.label,
+                    default-font-sans-serif.label,
+                    font-size-label.value,
+                    font-size-monospace-label.value,
+                    font-serif-label.value,
+                    font-sans-serif-label.value,
+                    font-monospace-label.value,
+                    font-min-size-label.value,
+                    min-size-none.label,
+                    font-control-legend,
+                    use-document-fonts-checkbox.label,
+                    use-fixed-width-plain-checkbox.label,
+                    text-encoding-legend,
+                    text-encoding-description,
+                    font-outgoing-email-label.value,
+                    font-incoming-email-label.value,
+                    default-font-reply-checkbox.label"/>
+        </hbox>
       </hbox>
-      <hbox>
+    </html:fieldset>
+    </html:div>
+
+    <!-- Plain Text Messages -->
+    <html:div data-category="paneGeneral">
+    <html:fieldset id="messagesGroup" data-category="paneGeneral">
         <html:legend data-l10n-id="display-width-legend"></html:legend>
-      </hbox>
       <hbox>
         <checkbox id="displayGlyph"
                   preference="mail.display_glyph"

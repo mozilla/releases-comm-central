@@ -444,6 +444,10 @@ treechildren::-moz-tree-cell-text(selected) {
   white-space: nowrap;
 }
 
+.accessory-button {
+  min-width: 150px;
+}
+
 #tagList {
   height: 180px;
 }
