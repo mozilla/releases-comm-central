@@ -8,11 +8,14 @@ var { be_in_folder, create_folder, make_message_sets_in_folders } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
+var { MockRegistrar } = ChromeUtils.importESModule(
+  "resource://testing-common/MockRegistrar.sys.mjs"
+);
 var { promise_new_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
-var { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 var { MailConsts } = ChromeUtils.importESModule(
@@ -39,8 +42,6 @@ var gMsgMinutes = 9000;
 
 // We'll use this mock alerts service to capture notification events
 var gMockAlertsService = {
-  _doClick: false,
-
   QueryInterface: ChromeUtils.generateQI(["nsIAlertsService"]),
 
   promiseShown() {
@@ -58,6 +59,16 @@ var gMockAlertsService = {
       this._closedDeferred = Promise.withResolvers();
     }
     return this._closedDeferred.promise;
+  },
+
+  clickAlert(actionToClick) {
+    let action = null;
+    if (typeof actionToClick == "string") {
+      action = this._actions.find(a => a.action == actionToClick);
+      Assert.ok(action, "expected action should be defined");
+    }
+
+    this._alertListener.observe(action, "alertclickcallback", this._cookie);
   },
 
   showAlert(alertInfo, alertListener) {
@@ -81,22 +92,8 @@ var gMockAlertsService = {
     this._actions = actions;
 
     this._alertListener.observe(null, "alertshow", alert.cookie);
-    if (this._doClick) {
-      let action = null;
-      if (typeof this._doClick == "string") {
-        action = actions.find(a => a.action == this._doClick);
-        Assert.ok(action, "expected action should be defined");
-      }
-      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-      this._timeout = setTimeout(() => {
-        this._alertListener.observe(action, "alertclickcallback", this._cookie);
-        this._didNotify = true;
-        this._shownDeferred?.resolve();
-      }, 100);
-    } else {
-      this._didNotify = true;
-      this._shownDeferred?.resolve();
-    }
+    this._didNotify = true;
+    this._shownDeferred?.resolve();
   },
 
   closeAlert(name) {
@@ -116,7 +113,6 @@ var gMockAlertsService = {
   _alertListener: null,
   _name: null,
   _actions: null,
-  _timeout: null,
 
   _reset() {
     // Tell any listeners that we're through
@@ -124,14 +120,9 @@ var gMockAlertsService = {
       this._alertListener.observe(null, "alertfinished", this._cookie);
     }
 
-    if (this._timeout) {
-      clearTimeout(this._timeout);
-    }
-
     this._shownDeferred?.reject(new Error("Cleaning up for new scenario"));
     this._closedDeferred?.reject(new Error("Cleaning up for new scenario"));
 
-    this._doClick = false;
     this._didNotify = false;
     this._imageUrl = null;
     this._title = null;
@@ -140,7 +131,7 @@ var gMockAlertsService = {
     this._cookie = null;
     this._alertListener = null;
     this._name = null;
-    this._timeout = null;
+    this._actions = null;
     this._shownDeferred = null;
     this._closedDeferred = null;
   },
@@ -698,11 +689,10 @@ add_task(async function test_click_on_notification() {
   // Create a message and click on the notification. This should open the
   // message in the first tab.
 
-  gMockAlertsService._doClick = true;
-
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   lastMessage = [...gFolder.messages].at(-1);
   await gMockAlertsService.promiseShown();
+  gMockAlertsService.clickAlert();
   await ensureMessageLoaded(about3PaneAboutMessage);
 
   Assert.equal(tabmail.tabInfo.length, 1, "the existing tab should be used");
@@ -717,11 +707,10 @@ add_task(async function test_click_on_notification() {
 
   // Open a second message. This should also open in the first tab.
 
-  gMockAlertsService._doClick = true;
-
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   lastMessage = [...gFolder.messages].at(-1);
   await gMockAlertsService.promiseShown();
+  gMockAlertsService.clickAlert();
   await ensureMessageLoaded(about3PaneAboutMessage);
 
   Assert.equal(tabmail.tabInfo.length, 1, "the existing tab should be used");
@@ -743,11 +732,11 @@ add_task(async function test_click_on_notification() {
     tabmail,
     "aboutMessageLoaded"
   );
-  gMockAlertsService._doClick = true;
 
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   lastMessage = [...gFolder.messages].at(-1);
   await gMockAlertsService.promiseShown();
+  gMockAlertsService.clickAlert();
   const { target: tabAboutMessage } = await tabPromise;
   await ensureMessageLoaded(tabAboutMessage);
 
@@ -778,11 +767,11 @@ add_task(async function test_click_on_notification() {
     undefined,
     win => win.location.href == "chrome://messenger/content/messageWindow.xhtml"
   );
-  gMockAlertsService._doClick = true;
 
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   lastMessage = [...gFolder.messages].at(-1);
   await gMockAlertsService.promiseShown();
+  gMockAlertsService.clickAlert();
   const win = await winPromise;
   const winAboutMessage = win.messageBrowser.contentWindow;
   await ensureMessageLoaded(winAboutMessage);
@@ -797,74 +786,101 @@ add_task(async function test_click_on_notification() {
 });
 
 /**
- * Test what happens when clicking on a notification. This depends on whether
- * the message pane is open, and the value of mail.openMessageBehavior.
+ * Test that setting no enabled actions means no actions are shown.
  */
-add_task(async function test_click_on_notification_actions() {
+add_task(async function test_no_actions() {
   setupTest();
-
-  // No enabled actions.
-
   Services.prefs.setStringPref("mail.biff.alert.enabled_actions", "");
   MailTelemetryForTests.reportUIConfiguration();
   Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), []);
 
-  gMockAlertsService._doClick = false;
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   await gMockAlertsService.promiseShown();
   Assert.deepEqual(gMockAlertsService._actions, []);
+});
 
-  gMockAlertsService._reset();
-
-  // Mark Read action.
-
-  Services.prefs.setStringPref("mail.biff.alert.enabled_actions", "action1");
-  MailTelemetryForTests.reportUIConfiguration();
-  Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
-    "action1",
-  ]);
-
-  gMockAlertsService._doClick = "action1";
-  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
-  const lastMessage = [...gFolder.messages].at(-1);
-  Assert.ok(!lastMessage.isRead, "message should not be marked as read");
-
-  await gMockAlertsService.promiseShown();
-  Assert.deepEqual(
-    gMockAlertsService._actions.map(a => a.action),
-    ["action1"]
-  );
-  await TestUtils.waitForCondition(
-    () => lastMessage.isRead,
-    "waiting for message to be marked as read"
-  );
-  Assert.equal(Glean.mail.notificationUsedActions.action1.testGetValue(), 1);
-  Assert.equal(Glean.mail.notificationUsedActions.action2.testGetValue(), null);
-
-  gMockAlertsService._reset();
-
-  // Do Nothing action.
-
+/**
+ * Test the Mark as Read action.
+ */
+add_task(async function test_mark_as_read_action() {
+  setupTest();
   Services.prefs.setStringPref(
     "mail.biff.alert.enabled_actions",
-    "action2,action1"
+    "mark-as-read"
   );
   MailTelemetryForTests.reportUIConfiguration();
   Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
-    "action2",
-    "action1",
+    "mark-as-read",
   ]);
 
-  gMockAlertsService._doClick = "action2";
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  const newMessage = [...gFolder.messages].at(-1);
+  Assert.ok(!newMessage.isRead, "message should not be marked as read");
 
   await gMockAlertsService.promiseShown();
   Assert.deepEqual(
     gMockAlertsService._actions.map(a => a.action),
-    ["action2", "action1"]
+    ["mark-as-read"]
   );
-  Assert.equal(Glean.mail.notificationUsedActions.action1.testGetValue(), 1);
-  Assert.equal(Glean.mail.notificationUsedActions.action2.testGetValue(), 1);
+
+  gMockAlertsService.clickAlert("mark-as-read");
+  await TestUtils.waitForCondition(
+    () => newMessage.isRead,
+    "waiting for message to be marked as read"
+  );
+  Assert.equal(
+    Glean.mail.notificationUsedActions["mark-as-read"].testGetValue(),
+    1
+  );
+  Assert.equal(Glean.mail.notificationUsedActions.delete.testGetValue(), null);
+});
+
+/**
+ * Test the Delete action.
+ */
+add_task(async function test_delete_action() {
+  setupTest();
+  Services.prefs.setStringPref(
+    "mail.biff.alert.enabled_actions",
+    "delete,mark-as-read"
+  );
+  MailTelemetryForTests.reportUIConfiguration();
+  Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
+    "delete",
+    "mark-as-read",
+  ]);
+
+  const trashFolder = gFolder.rootFolder.getFolderWithFlags(
+    Ci.nsMsgFolderFlags.Trash
+  );
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  const newMessageId = [...gFolder.messages].at(-1).messageId;
+  const numMessages = gFolder.getTotalMessages(false);
+  const trashMessages = trashFolder.getTotalMessages(false);
+
+  await gMockAlertsService.promiseShown();
+  Assert.deepEqual(
+    gMockAlertsService._actions.map(a => a.action),
+    ["delete", "mark-as-read"]
+  );
+
+  const deletePromise = PromiseTestUtils.promiseFolderEvent(
+    gFolder,
+    "DeleteOrMoveMsgCompleted"
+  );
+  gMockAlertsService.clickAlert("delete");
+  await deletePromise;
+  Assert.equal(
+    Glean.mail.notificationUsedActions["mark-as-read"].testGetValue(),
+    null
+  );
+  Assert.equal(Glean.mail.notificationUsedActions.delete.testGetValue(), 1);
+
+  Assert.equal(gFolder.getTotalMessages(false), numMessages - 1);
+  Assert.equal(trashFolder.getTotalMessages(false), trashMessages + 1);
+  const deletedMessage = [...trashFolder.messages].at(-1);
+  Assert.equal(deletedMessage.messageId, newMessageId);
+  Assert.ok(deletedMessage.isRead);
 });
 
 /**

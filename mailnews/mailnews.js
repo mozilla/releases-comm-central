@@ -835,7 +835,7 @@ pref("mail.biff.alert.show_subject", true);
 pref("mail.biff.alert.show_sender",  true);
 pref("mail.biff.alert.preview_length", 40);
 #ifdef NIGHTLY_BUILD
-pref("mail.biff.alert.enabled_actions", "action1,action2");
+pref("mail.biff.alert.enabled_actions", "mark-as-read,delete");
 #endif
 
 #ifdef XP_MACOSX
