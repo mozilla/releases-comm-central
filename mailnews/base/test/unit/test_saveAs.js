@@ -143,9 +143,10 @@ async function htmlTest(synthMessage) {
   const loadedFileContent = await saveAndLoad(".html");
   const messageParts = checkedContent(synthMessage);
   for (const msgPart in messageParts) {
+    // Ignore CRs in case of platform EOL differences.
     Assert.stringContains(
-      loadedFileContent,
-      messageParts[msgPart],
+      loadedFileContent.replaceAll(/\r/g, ""),
+      messageParts[msgPart].replaceAll(/\r/g, ""),
       `nsMessenger::saveAs with .html should contain ${msgPart}`
     );
   }
@@ -155,9 +156,10 @@ async function txtTest(synthMessage) {
   const loadedFileContent = await saveAndLoad(".txt");
   const messageParts = checkedContent(synthMessage);
   for (const msgPart in messageParts) {
+    // Ignore CRs in case of platform EOL differences.
     Assert.stringContains(
-      loadedFileContent,
-      messageParts[msgPart],
+      loadedFileContent.replaceAll(/\r/g, ""),
+      messageParts[msgPart].replaceAll(/\r/g, ""),
       `nsMessenger::saveAs with .txt should contain ${msgPart}`
     );
   }
