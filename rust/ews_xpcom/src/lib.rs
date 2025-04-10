@@ -9,14 +9,18 @@ use nserror::{
 };
 use nsstring::nsACString;
 use nsstring::nsCString;
+use std::ptr;
 use std::{cell::OnceCell, ffi::c_void};
 use thin_vec::ThinVec;
 use url::Url;
+use xpcom::get_service;
+use xpcom::getter_addrefs;
+use xpcom::interfaces::nsIIOService;
 use xpcom::{
     interfaces::{
-        nsIInputStream, nsIMsgIncomingServer, IEwsFolderCallbacks, IEwsFolderCreateCallbacks,
-        IEwsFolderDeleteCallbacks, IEwsMessageCallbacks, IEwsMessageCreateCallbacks,
-        IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
+        nsIInputStream, nsIMsgIncomingServer, nsIURI, nsIUrlListener, IEwsFolderCallbacks,
+        IEwsFolderCreateCallbacks, IEwsFolderDeleteCallbacks, IEwsMessageCallbacks,
+        IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
 };
@@ -74,6 +78,38 @@ impl XpcomEwsBridge {
             .map_err(|_| NS_ERROR_ALREADY_INITIALIZED)?;
 
         Ok(())
+    }
+
+    xpcom_method!(check_connectivity => CheckConnectivity(listener: *const nsIUrlListener) -> *const nsIURI);
+    fn check_connectivity(&self, listener: &nsIUrlListener) -> Result<RefPtr<nsIURI>, nsresult> {
+        // Extract the endpoint URL from the existing server details (or error
+        // if these haven't been set yet).
+        let uri = nsCString::from(
+            self.details
+                .get()
+                .ok_or(nserror::NS_ERROR_NOT_INITIALIZED)?
+                .endpoint
+                .to_string(),
+        );
+
+        // Turn the string URI into an `nsIURI`.
+        let io_service = get_service::<nsIIOService>(c"@mozilla.org/network/io-service;1")
+            .ok_or(nserror::NS_ERROR_FAILURE)?;
+
+        let uri =
+            getter_addrefs(|p| unsafe { io_service.NewURI(&*uri, ptr::null(), ptr::null(), p) })?;
+
+        // Get an EWS client and make a request to check connectivity to the EWS
+        // server.
+        let client = self.try_new_client()?;
+
+        moz_task::spawn_local(
+            "check_connectivity",
+            client.check_connectivity(uri.clone(), RefPtr::new(listener)),
+        )
+        .detach();
+
+        Ok(uri)
     }
 
     xpcom_method!(sync_folder_hierarchy => SyncFolderHierarchy(callbacks: *const IEwsFolderCallbacks, sync_state: *const nsACString));

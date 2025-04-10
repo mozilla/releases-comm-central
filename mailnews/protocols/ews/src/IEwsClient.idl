@@ -13,6 +13,8 @@ interface nsIStreamListener;
 interface nsIMsgIncomingServer;
 interface nsIInputStream;
 interface nsIMsgCopyServiceListener;
+interface nsIURI;
+interface nsIUrlListener;
 
 // Forward declarations of callback classes defined later in this file.
 interface IEwsFolderCallbacks;
@@ -52,6 +54,21 @@ interface IEwsClient : nsISupports
     EWS_ERR_AUTHENTICATION_FAILED,
     EWS_ERR_UNEXPECTED,
   };
+
+  /**
+   * Checks that the current client configuration is able to connect and
+   * authenticate against an EWS server.
+   *
+   * EWS does not have a dedicated endpoint that can be queried for this, so
+   * instead we test this by attempting to look up the account's root mail
+   * folder, since it results in a fairly small request and represents the first
+   * operation performed when adding the account to Thunderbird.
+   *
+   * @param callbacks - Callbacks to communicate the success or failure of the
+   *   check.
+   * @returns The client's EWS endpoint's URL.
+   */
+  nsIURI checkConnectivity(in nsIUrlListener listener);
 
   /**
    * Synchronizes the local folder listing with changes made on the remote

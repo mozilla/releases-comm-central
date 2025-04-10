@@ -73,8 +73,14 @@ export class ConfigVerifier {
     }
 
     if (certError) {
-      const mailNewsUrl = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
-      const secInfo = mailNewsUrl.failedSecInfo;
+      // Passing a `null` transport security info isn't ideal, but works as
+      // basic support for protocols that don't use `nsIMsgMailNewsUrl`. See
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=1957462
+      let secInfo = null;
+      if (url instanceof Ci.nsIMsgMailNewsUrl) {
+        secInfo = url.failedSecInfo;
+      }
+
       this.informUserOfCertError(secInfo, url.asciiHostPort);
     } else if (this.alter) {
       // Try other variations.
@@ -172,9 +178,17 @@ export class ConfigVerifier {
    */
   _failed(url) {
     this.cleanup();
-    url = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
-    const code = url.errorCode || "login-error-unknown";
-    let msg = url.errorMessage;
+    let code = "login-error-unknown";
+    let msg = "";
+
+    if (url instanceof Ci.nsIMsgMailNewsUrl) {
+      if (url.errorCode) {
+        code = url.errorCode;
+      }
+
+      msg = url.errorMessage;
+    }
+
     // *Only* for known (!) username/password errors, show our message.
     // But there are 1000 other reasons why it could have failed, e.g.
     // server not reachable, bad auth method, server hiccups, or even
@@ -338,7 +352,10 @@ export class ConfigVerifier {
 
     this.server.password = this.config.incoming.password;
     const uri = this.server.verifyLogon(this, this.msgWindow);
-    // clear msgWindow so url won't prompt for passwords.
-    uri.QueryInterface(Ci.nsIMsgMailNewsUrl).msgWindow = null;
+
+    if (uri instanceof Ci.nsIMsgMailNewsUrl) {
+      // clear msgWindow so url won't prompt for passwords.
+      uri.msgWindow = null;
+    }
   }
 }

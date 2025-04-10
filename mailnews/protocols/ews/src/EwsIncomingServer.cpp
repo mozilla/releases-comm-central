@@ -254,31 +254,16 @@ NS_IMETHODIMP EwsIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
 NS_IMETHODIMP
 EwsIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
                                nsIMsgWindow* aMsgWindow, nsIURI** _retval) {
-  // TODO: Actually verify that logging in works.
+  NS_ENSURE_ARG_POINTER(aUrlListener);
 
-  // At this point, consumers are pretty lax about what expected from this
-  // method. The URI is returned solely so that consumers can make some minor
-  // changes to its in-flight behavior. For EWS, we don't use URLs with side
-  // effects, so that's all useless and we can give back whatever we feel like.
-  nsCString hostname;
-  nsresult rv = GetHostName(hostname);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCString spec;
-  spec.AssignLiteral("ews://");
-  spec.Append(hostname);
-
-  RefPtr<nsIURI> uri;
-  rv = NS_NewURI(getter_AddRefs(uri), spec);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Notify the caller that verification has succeeded. This is the one thing we
-  // actually need to do to fulfill our contract.
-  aUrlListener->OnStopRunningUrl(uri, NS_OK);
-
-  uri.forget(_retval);
-
-  return NS_OK;
+  // Perform a connectivity check via an EWS client. Ideally we should set
+  // `_retval` to something non-null. But we don't have a good value for it, and
+  // the `ConfigVerifier` (which this call very likely originates from) will
+  // only be doing `nsIMsgMailNewsUrl`-related operations to it, which doesn't
+  // apply to us.
+  RefPtr<IEwsClient> client;
+  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
+  return client->CheckConnectivity(aUrlListener, _retval);
 }
 
 /**

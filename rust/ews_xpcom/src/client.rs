@@ -40,10 +40,10 @@ use uuid::Uuid;
 use xpcom::{
     getter_addrefs,
     interfaces::{
-        nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsMsgFolderFlagType,
-        nsMsgFolderFlags, nsMsgKey, IEwsClient, IEwsFolderCallbacks, IEwsFolderDeleteCallbacks,
-        IEwsMessageCallbacks, IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks,
-        IEwsMessageFetchCallbacks,
+        nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsIUrlListener,
+        nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgKey, IEwsClient, IEwsFolderCallbacks,
+        IEwsFolderDeleteCallbacks, IEwsMessageCallbacks, IEwsMessageCreateCallbacks,
+        IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
     },
     RefPtr,
 };
@@ -79,6 +79,68 @@ pub(crate) struct XpComEwsClient {
 }
 
 impl XpComEwsClient {
+    /// Performs a connectivity check to the EWS server.
+    ///
+    /// Because EWS does not have a dedicated endpoint to test connectivity and
+    /// authentication, we try to look up the ID of the account's root mail
+    /// folder, since it produces a fairly small request and represents the
+    /// first operation performed when adding a new account to Thunderbird.
+    pub(crate) async fn check_connectivity(
+        self,
+        uri: RefPtr<nsIURI>,
+        listener: RefPtr<nsIUrlListener>,
+    ) {
+        unsafe { listener.OnStartRunningUrl(uri.coerce()) };
+
+        match self.check_connectivity_inner().await {
+            Ok(_) => unsafe {
+                listener.OnStopRunningUrl(uri.coerce(), nserror::NS_OK);
+            },
+            Err(err) => unsafe {
+                listener.OnStopRunningUrl(uri.coerce(), err.into());
+            },
+        }
+    }
+
+    async fn check_connectivity_inner(self) -> Result<(), XpComEwsError> {
+        // Request the EWS ID of the root folder.
+        let get_root_folder = GetFolder {
+            folder_shape: FolderShape {
+                base_shape: BaseShape::IdOnly,
+            },
+            folder_ids: vec![BaseFolderId::DistinguishedFolderId {
+                id: EWS_ROOT_FOLDER.to_string(),
+                change_key: None,
+            }],
+        };
+
+        let res = self.make_operation_request(get_root_folder).await?;
+
+        let response_message_count = res.response_messages.get_folder_response_message.len();
+        if response_message_count != 1 {
+            return Err(XpComEwsError::Processing {
+                message: format!("expected 1 response message, got {response_message_count}"),
+            });
+        }
+
+        // Get the first (and only) response message so we can inspect it.
+        // Unwrapping is fine here, because we've already made sure there's one
+        // message.
+        let message = res
+            .response_messages
+            .get_folder_response_message
+            .into_iter()
+            .next()
+            .unwrap();
+
+        // Any error fetching the root folder is fatal, since it likely means
+        // all subsequent request will fail, and that we won't manage to sync
+        // the folder list later.
+        validate_get_folder_response_message(&message)?;
+
+        Ok(())
+    }
+
     /// Performs a [`SyncFolderHierarchy`] operation via EWS.
     ///
     /// This will fetch a list of remote changes since the specified sync state,
