@@ -167,6 +167,29 @@ NS_IMETHODIMP MaildirScanner::OnStopRequest(nsIRequest* req, nsresult status) {
   return NS_OK;
 }
 
+// Helper to get one of the special maildir subdirs ("cur" or "tmp", since
+// we don't really use "new'). Creates the directory if it doesn't exist.
+static nsresult EnsureSubDir(nsIMsgFolder* folder, nsAString const& subName,
+                             nsIFile** result) {
+  nsCOMPtr<nsIFile> path;
+  nsresult rv = folder->GetFilePath(getter_AddRefs(path));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  NS_ENSURE_SUCCESS(rv, rv);
+  path->Append(subName);
+
+  bool exists;
+  rv = path->Exists(&exists);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!exists) {
+    rv = path->Create(nsIFile::DIRECTORY_TYPE, 0700);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  path.forget(result);
+  return NS_OK;
+}
+
 nsMsgMaildirStore::nsMsgMaildirStore() {
   // Hostname is part of the traditional maildir file naming.
   // A blank or truncated hostname isn't ideal, but neither is it fatal - it
@@ -699,20 +722,8 @@ nsMsgMaildirStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
   // We're going to save the new message into the maildir 'tmp' folder.
   // When the message is completed, it can be moved to 'cur'.
   nsCOMPtr<nsIFile> newFile;
-  rv = aFolder->GetFilePath(getter_AddRefs(newFile));
+  rv = EnsureSubDir(aFolder, u"tmp"_ns, getter_AddRefs(newFile));
   NS_ENSURE_SUCCESS(rv, rv);
-  newFile->Append(u"tmp"_ns);
-
-  // let's check if the folder exists
-  // XXX TODO: kill this and make sure maildir creation includes cur/tmp
-  bool tmpExists;
-  newFile->Exists(&tmpExists);
-  if (!tmpExists) {
-    MOZ_LOG(MailDirLog, mozilla::LogLevel::Info,
-            ("GetNewMsgOutputStream - tmp subfolder does not exist!!"));
-    rv = newFile->Create(nsIFile::DIRECTORY_TYPE, 0755);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
 
   // Generate a unique name for the file.
   nsAutoCString newName(UniqueName());
@@ -743,17 +754,18 @@ nsMsgMaildirStore::DiscardNewMessage(nsIOutputStream* aOutputStream,
   // File path is stored in message header property "storeToken".
   nsAutoCString fileName;
   aNewHdr->GetStoreToken(fileName);
-  if (fileName.IsEmpty()) return NS_ERROR_FAILURE;
+  if (fileName.IsEmpty()) {
+    return NS_ERROR_ILLEGAL_VALUE;
+  }
 
   nsCOMPtr<nsIFile> path;
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = aNewHdr->GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = folder->GetFilePath(getter_AddRefs(path));
+  // Path to the message download folder.
+  rv = EnsureSubDir(folder, u"tmp"_ns, getter_AddRefs(path));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Path to the message download folder.
-  path->Append(u"tmp"_ns);
   path->Append(NS_ConvertUTF8toUTF16(fileName));
 
   return path->Remove(false);
@@ -771,70 +783,48 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream* aOutputStream,
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = aNewHdr->GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = folder->GetFilePath(getter_AddRefs(folderPath));
-  NS_ENSURE_SUCCESS(rv, rv);
 
   // Filename is stored in "storeToken".
   nsAutoCString newName;
   aNewHdr->GetStoreToken(newName);
   if (newName.IsEmpty()) {
     NS_ERROR("FinishNewMessage - no storeToken in msg hdr!!");
-    return NS_ERROR_FAILURE;
+    return NS_ERROR_ILLEGAL_VALUE;
   }
 
   // Path to the new destination.
-  nsCOMPtr<nsIFile> curPath;
-  rv = folderPath->Clone(getter_AddRefs(curPath));
+  nsCOMPtr<nsIFile> curDir;
+  rv = EnsureSubDir(folder, u"cur"_ns, getter_AddRefs(curDir));
   NS_ENSURE_SUCCESS(rv, rv);
-  curPath->Append(u"cur"_ns);
-
-  // Ensure "cur/" exists.
-  // XXX TODO: kill this and make sure maildir creation includes cur/tmp
-  bool exists;
-  curPath->Exists(&exists);
-  if (!exists) {
-    rv = curPath->Create(nsIFile::DIRECTORY_TYPE, 0755);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
 
   // Path to the downloaded message in "tmp/".
   nsCOMPtr<nsIFile> fromPath;
-  rv = folderPath->Clone(getter_AddRefs(fromPath));
+  rv = EnsureSubDir(folder, u"tmp"_ns, getter_AddRefs(fromPath));
   NS_ENSURE_SUCCESS(rv, rv);
-  fromPath->Append(u"tmp"_ns);
   fromPath->Append(NS_ConvertUTF8toUTF16(newName));
 
-  // Check that the message is still in tmp.
-  // XXX TODO: revisit this. I think it's needed because the
-  // pairing rules for:
-  // GetNewMsgOutputStream(), FinishNewMessage(),
-  // MoveNewlyDownloadedMessage() and DiscardNewMessage()
-  // are not well defined.
-  // If they are sorted out, this code can be removed.
+  // While downloading messages, filter actions can shortcut things and
+  // move messages under us. They definitely should not do it like that
+  // (Bug 1028372), but for now we'll check to see if it's already been
+  // moved into "cur/".
+  bool exists;
   fromPath->Exists(&exists);
   if (!exists) {
-    // Perhaps the message has already moved. See bug 1028372 to fix this.
-    nsCOMPtr<nsIFile> existingPath;
-    rv = curPath->Clone(getter_AddRefs(existingPath));
-    NS_ENSURE_SUCCESS(rv, rv);
-    existingPath->Append(NS_ConvertUTF8toUTF16(newName));
-    existingPath->Exists(&exists);
-    if (exists)  // then there is nothing to do
+    // Not in "tmp/"... is it in "cur/" now?
+    nsCOMPtr<nsIFile> toPath;
+    curDir->Clone(getter_AddRefs(toPath));
+    toPath->Append(NS_ConvertUTF8toUTF16(newName));
+    toPath->Exists(&exists);
+    if (exists) {
+      // OK, it's already been moved to "cur/". We'll just accept that.
       return NS_OK;
-
+    }
     NS_ERROR("FinishNewMessage - oops! file does not exist!");
     return NS_ERROR_FILE_NOT_FOUND;
   }
 
-  nsCOMPtr<nsIFile> toPath;
-  rv = curPath->Clone(getter_AddRefs(toPath));
-  NS_ENSURE_SUCCESS(rv, rv);
-  toPath->Append(NS_ConvertUTF8toUTF16(newName));
-
   // Move into "cur/".
-  nsAutoString leafName;
-  toPath->GetLeafName(leafName);
-  rv = fromPath->MoveTo(curPath, leafName);
+  rv = fromPath->MoveTo(curDir, EmptyString());
   NS_ENSURE_SUCCESS(rv, rv);
   return NS_OK;
 }
