@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Default start page
-pref("mailnews.start_page.url", "https://live.thunderbird.net/%APP%/start?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%");
+pref(
+  "mailnews.start_page.url",
+  "https://live.thunderbird.net/%APP%/start?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%"
+);
 
 // start page override to load after an update
 // pref("mailnews.start_page.override_url", "https://live.thunderbird.net/%APP%/whatsnew?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&oldversion=%OLD_VERSION%");
@@ -45,4 +48,7 @@ pref("app.update.multiSessionInstallLockout.timeoutMs", 0);
 pref("app.vendorURL", "https://www.thunderbird.net/%LOCALE%/");
 
 // In-app notification server endpoint
-pref("mail.inappnotifications.url", "https://notifications-stage.thunderbird.net/%IAN_SCHEMA_VERSION%/notifications.json");
+pref(
+  "mail.inappnotifications.url",
+  "https://notifications.thunderbird.net/%IAN_SCHEMA_VERSION%/notifications.json"
+);
