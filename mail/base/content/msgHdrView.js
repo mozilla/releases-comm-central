@@ -1651,30 +1651,33 @@ function onShowAttachmentItemContextMenu() {
   }
   contextMenu.attachments = selectedAttachments;
 
-  var allSelectedDetached = selectedAttachments.every(function (attachment) {
-    return attachment.isExternalAttachment;
-  });
-  var allSelectedDeleted = selectedAttachments.every(function (attachment) {
-    return !attachment.hasFile;
-  });
-  var canDetachSelected =
-    CanDetachAttachments() && !allSelectedDetached && !allSelectedDeleted;
-  const allSelectedHttp = selectedAttachments.every(function (attachment) {
-    return attachment.isLinkAttachment;
-  });
-  const allSelectedFile = selectedAttachments.every(function (attachment) {
-    return attachment.isFileAttachment;
-  });
-
-  openMenu.disabled = allSelectedDeleted;
-  saveMenu.disabled = allSelectedDeleted;
-  detachMenu.disabled = !canDetachSelected;
-  deleteMenu.disabled = !canDetachSelected;
-  copyUrlMenuSep.hidden = copyUrlMenu.hidden = !(
-    allSelectedHttp || allSelectedFile
+  const allExternalAttachment = selectedAttachments.every(
+    attachment => attachment.isExternalAttachment
   );
-  openFolderMenu.hidden = !allSelectedFile;
-  openFolderMenu.disabled = allSelectedDeleted;
+  const allDeleted = selectedAttachments.every(
+    attachment => !attachment.hasFile
+  );
+  const canDetachSelected =
+    CanDetachAttachments() && !allExternalAttachment && !allDeleted;
+  const allLinkAttachment = selectedAttachments.every(
+    attachment => attachment.isLinkAttachment
+  );
+  const allFileAttachment = selectedAttachments.every(
+    attachment => attachment.isFileAttachment
+  );
+  const allAllowedURL = selectedAttachments.every(
+    attachment => attachment.isAllowedURL
+  );
+
+  openMenu.disabled = allDeleted || !allAllowedURL;
+  saveMenu.disabled = allDeleted || !allAllowedURL;
+  detachMenu.disabled = !canDetachSelected || !allAllowedURL;
+  deleteMenu.disabled = !canDetachSelected || !allAllowedURL;
+  copyUrlMenuSep.hidden = copyUrlMenu.hidden = !(
+    allLinkAttachment || allFileAttachment
+  );
+  openFolderMenu.hidden = !allFileAttachment || !allAllowedURL;
+  openFolderMenu.disabled = allDeleted;
 
   Enigmail.hdrView.onShowAttachmentContextMenu();
 }
@@ -1723,18 +1726,22 @@ function onShowSaveAttachmentMenuMultiple() {
   const detachAllItem = document.getElementById("button-detachAllAttachments");
   const deleteAllItem = document.getElementById("button-deleteAllAttachments");
 
-  const allDetached = currentAttachments.every(function (attachment) {
-    return attachment.isExternalAttachment;
-  });
-  const allDeleted = currentAttachments.every(function (attachment) {
-    return !attachment.hasFile;
-  });
-  const canDetach = CanDetachAttachments() && !allDeleted && !allDetached;
+  const allExternalAttachment = currentAttachments.every(
+    attachment => attachment.isExternalAttachment
+  );
+  const allDeleted = currentAttachments.every(
+    attachment => !attachment.hasFile
+  );
+  const canDetach =
+    CanDetachAttachments() && !allDeleted && !allExternalAttachment;
+  const allAllowedURL = currentAttachments.every(
+    attachment => attachment.isAllowedURL
+  );
 
-  openAllItem.disabled = allDeleted;
-  saveAllItem.disabled = allDeleted;
-  detachAllItem.disabled = !canDetach;
-  deleteAllItem.disabled = !canDetach;
+  openAllItem.disabled = allDeleted || !allAllowedURL;
+  saveAllItem.disabled = allDeleted || !allAllowedURL;
+  detachAllItem.disabled = !canDetach || !allAllowedURL;
+  deleteAllItem.disabled = !canDetach || !allAllowedURL;
 }
 
 /**
@@ -1800,19 +1807,15 @@ var AttachmentListController = {
 
 var AttachmentMenuController = {
   canDetachFiles() {
-    const someNotDetached = currentAttachments.some(function (aAttachment) {
-      return !aAttachment.isExternalAttachment;
-    });
-
     return (
-      CanDetachAttachments() && someNotDetached && this.someFilesAvailable()
+      CanDetachAttachments() &&
+      currentAttachments.some(attachment => !attachment.isExternalAttachment) &&
+      this.someFilesAvailable()
     );
   },
 
   someFilesAvailable() {
-    return currentAttachments.some(function (aAttachment) {
-      return aAttachment.hasFile;
-    });
+    return currentAttachments.some(attachment => attachment.hasFile);
   },
 
   supportsCommand(aCommand) {
@@ -1821,9 +1824,16 @@ var AttachmentMenuController = {
 };
 
 function goUpdateAttachmentCommands() {
-  for (const action of ["open", "save", "detach", "delete"]) {
-    goUpdateCommand(`cmd_${action}AllAttachments`);
-  }
+  // E.g. main menu items.
+  window.top.goUpdateCommand(`cmd_openAllAttachments`);
+  window.top.goUpdateCommand(`cmd_saveAllAttachments`);
+  window.top.goUpdateCommand(`cmd_detachAllAttachments`);
+  window.top.goUpdateCommand(`cmd_deleteAllAttachments`);
+  // E.g. context menu.
+  goUpdateCommand(`cmd_openAllAttachments`);
+  goUpdateCommand(`cmd_saveAllAttachments`);
+  goUpdateCommand(`cmd_detachAllAttachments`);
+  goUpdateCommand(`cmd_deleteAllAttachments`);
 }
 
 async function displayAttachmentsForExpandedView() {
@@ -2016,14 +2026,18 @@ function updateSaveAllAttachmentsButton() {
     return;
   }
 
-  const allDeleted = currentAttachments.every(function (attachment) {
-    return !attachment.hasFile;
-  });
   const single = currentAttachments.length == 1;
+  const allDeleted = currentAttachments.every(
+    attachment => !attachment.hasFile
+  );
+  const allAllowedURL = currentAttachments.every(
+    attachment => attachment.isAllowedURL
+  );
 
   saveAllSingle.hidden = !single;
   saveAllMultiple.hidden = single;
-  saveAllSingle.disabled = saveAllMultiple.disabled = allDeleted;
+  saveAllSingle.disabled = saveAllMultiple.disabled =
+    allDeleted || !allAllowedURL;
 }
 
 /**
@@ -2138,7 +2152,10 @@ function getAttachmentsTotalSizeStr() {
     // Check if this attachment's part ID is a child of the last attachment
     // we counted. If so, skip it, since we already accounted for its size
     // from its parent.
-    if (!lastPartID || attachment.partID.indexOf(lastPartID) != 0) {
+    if (
+      !lastPartID ||
+      (attachment.partID && attachment.partID.indexOf(lastPartID) != 0)
+    ) {
       lastPartID = attachment.partID;
       if (attachment.size != -1) {
         totalSize += Number(attachment.size);

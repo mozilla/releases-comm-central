@@ -12,6 +12,7 @@ var {
   create_body_part,
   create_deleted_attachment,
   create_detached_attachment,
+  create_enclosure_attachment,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/AttachmentHelpers.sys.mjs"
 );
@@ -50,10 +51,6 @@ var vcardAttachment =
   "YmVnaW46dmNhcmQNCmZuOkppbSBCb2INCm46Qm9iO0ppbQ0KZW1haWw7aW50ZXJuZXQ6Zm9v" +
   "QGJhci5jb20NCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K";
 var vcardSize = 90;
-
-var detachedName = "./attachment.txt";
-var missingName = "./nonexistent.txt";
-var deletedName = "deleted.txt";
 
 // create some messages that have various types of attachments
 var messages = [
@@ -173,6 +170,13 @@ var messages = [
     attachmentSizes: [-1, textAttachment.length],
     attachmentTotalSize: { size: 0, exact: true },
   },
+  {
+    name: "unc_attachment",
+    bodyPart: null,
+    attachments: [{ body: textAttachment, filename: "ubik.txt", format: "" }],
+    attachmentSizes: [-1, textAttachment.length],
+    attachmentTotalSize: { size: textAttachment.length, exact: false },
+  },
 ];
 
 add_setup(async function () {
@@ -188,27 +192,33 @@ add_setup(async function () {
   epsilon = "@mozilla.org/windows-registry-key;1" in Cc ? 4 : 2;
 
   // set up our detached/deleted attachments
-  var detachedFile = new FileUtils.File(
-    getTestFilePath(`data/${detachedName}`)
-  );
+  var detachedFile = new FileUtils.File(getTestFilePath(`data/attachment.txt`));
   var detached = create_body_part("Here is a file", [
     create_detached_attachment(detachedFile, "text/plain"),
   ]);
 
-  var missingFile = new FileUtils.File(getTestFilePath(`data/${missingName}`));
+  var missingFile = new FileUtils.File(getTestFilePath(`data/nonexistent.txt`));
   var missing = create_body_part(
     "Here is a file (but you deleted the external file, you silly oaf!)",
     [create_detached_attachment(missingFile, "text/plain")]
   );
 
   var deleted = create_body_part("Here is a file that you deleted", [
-    create_deleted_attachment(deletedName, "text/plain"),
+    create_deleted_attachment("deleted.txt", "text/plain"),
   ]);
 
   var attachedMessage = msgGen.makeMessage({
     body: { body: textAttachment },
     attachments: [{ body: textAttachment, filename: "ubik.txt", format: "" }],
   });
+
+  var uncEnclosure = create_body_part("UNC enclosure", [
+    create_enclosure_attachment(
+      "meow.mp3",
+      "audio/mpeg",
+      "file:///%5c%5cattacker.tld%5cmeow"
+    ),
+  ]);
 
   /* Much like the above comment, libmime counts bytes differently on Windows,
    * where it counts newlines (\r\n) as 2 bytes. Mac and Linux treats them as
@@ -250,6 +260,9 @@ add_setup(async function () {
         ]);
         messages[i].attachmentSizes[0] = attachedMessageLength;
         messages[i].attachmentTotalSize.size += attachedMessageLength;
+        break;
+      case "unc_attachment":
+        messages[i].bodyPart = uncEnclosure;
         break;
     }
 

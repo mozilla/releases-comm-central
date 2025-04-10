@@ -35,10 +35,6 @@ var textAttachment =
   "directed, Ubik speeds relief to head and stomach. Remember: Ubik is " +
   "only seconds away. Avoid prolonged use.";
 
-var detachedName = "./attachment.txt";
-var missingName = "./nonexistent.txt";
-var deletedName = "deleted.txt";
-
 // create some messages that have various types of attachments
 var messages = [
   {
@@ -173,13 +169,24 @@ var messages = [
     ],
     allMenuStates: { open: false, save: false, detach: false, delete_: false },
   },
+  {
+    name: "link_multiple_enclosures_all_links_invalid",
+    bodyPart: null,
+    menuStates: [
+      { open: false, save: false, detach: false, delete_: false },
+      { open: false, save: false, detach: false, delete_: false },
+      { open: false, save: false, detach: false, delete_: false },
+      { open: false, save: false, detach: false, delete_: false },
+      { open: false, save: false, detach: false, delete_: false },
+      { open: false, save: false, detach: false, delete_: false },
+    ],
+    allMenuStates: { open: false, save: false, detach: false, delete_: false },
+  },
 ];
 
 add_setup(async function () {
   // set up our detached/deleted attachments
-  var detachedFile = new FileUtils.File(
-    getTestFilePath(`data/${detachedName}`)
-  );
+  var detachedFile = new FileUtils.File(getTestFilePath(`data/attachment.txt`));
   var detached = create_body_part("Here is a file", [
     create_detached_attachment(detachedFile, "text/plain"),
   ]);
@@ -188,7 +195,7 @@ add_setup(async function () {
     create_detached_attachment(detachedFile, "text/plain"),
   ]);
 
-  var missingFile = new FileUtils.File(getTestFilePath(`data/${missingName}`));
+  var missingFile = new FileUtils.File(getTestFilePath(`data/nonexistent.txt`));
   var missing = create_body_part(
     "Here is a file (but you deleted the external file, you silly oaf!)",
     [create_detached_attachment(missingFile, "text/plain")]
@@ -202,13 +209,13 @@ add_setup(async function () {
   );
 
   var deleted = create_body_part("Here is a file that you deleted", [
-    create_deleted_attachment(deletedName, "text/plain"),
+    create_deleted_attachment("deleted.txt", "text/plain"),
   ]);
   var multiple_deleted = create_body_part(
     "Here are some files that you deleted",
     [
-      create_deleted_attachment(deletedName, "text/plain"),
-      create_deleted_attachment(deletedName, "text/plain"),
+      create_deleted_attachment("deleted.txt", "text/plain"),
+      create_deleted_attachment("deleted.txt", "text/plain"),
     ]
   );
 
@@ -278,6 +285,41 @@ add_setup(async function () {
       ),
     ]
   );
+  var link_multiple_enclosures_all_links_invalid = create_body_part(
+    "Bad file links",
+    [
+      create_enclosure_attachment(
+        "meow1.mp3",
+        "audio/mpeg",
+        "file:///\\1.2.3.4/asd"
+      ),
+      create_enclosure_attachment(
+        "meow2.mp3",
+        "audio/mpeg",
+        "file://///1.2.3.4/asd"
+      ),
+      create_enclosure_attachment(
+        "meow3.mp3",
+        "audio/mpeg",
+        "file:///%5c%5c1.2.3.4/asd"
+      ),
+      create_enclosure_attachment(
+        "meow4.mp3",
+        "audio/mpeg",
+        "file:///%5c%5cattacker.tld%5cmeow"
+      ),
+      create_enclosure_attachment(
+        "meow5.mp3",
+        "audio/mpeg",
+        "chrome://messenger/content/messenger.xhtml"
+      ),
+      create_enclosure_attachment(
+        "meow6.mp3",
+        "audio/mpeg",
+        "smtp://example.com?foobar"
+      ),
+    ]
+  );
 
   folder = await create_folder("AttachmentMenusA");
   for (let i = 0; i < messages.length; i++) {
@@ -318,6 +360,9 @@ add_setup(async function () {
         break;
       case "link_multiple_enclosures_all_invalid":
         messages[i].bodyPart = multiple_enclosures_all_links_invalid;
+        break;
+      case "link_multiple_enclosures_all_links_invalid":
+        messages[i].bodyPart = link_multiple_enclosures_all_links_invalid;
         break;
     }
 
@@ -434,6 +479,7 @@ async function check_toolbar_menu_states_multiple(expected) {
 async function check_menu_states_single(index, expected) {
   const attachmentList = aboutMessage.document.getElementById("attachmentList");
   const node = attachmentList.getItemAtIndex(index);
+  Assert.ok(!!node, `Attachment at index ${index} should exist`);
 
   const contextMenu = aboutMessage.document.getElementById(
     "attachmentItemContext"

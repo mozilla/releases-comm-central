@@ -294,8 +294,17 @@ nsresult GenerateAttachmentData(MimeObject* object, const char* aMessageURL,
       // otherwise fall back to creating an attachment url based on the message
       // URI and the part number.
       urlSpec = mime_external_attachment_url(object);
-      isExternalAttachment = urlSpec ? true : false;
-      if (!urlSpec) urlSpec = mime_set_url_part(aMessageURL, part.get(), true);
+      if (urlSpec) {
+        // Ignore unless the protocol is http or file.
+        isExternalAttachment = !strncmp(urlSpec, "http://", 7) ||
+                               !strncmp(urlSpec, "https://", 8) ||
+                               !strncmp(urlSpec, "file://", 7);
+        if (!isExternalAttachment) {
+          object->content_type = strdup("text/x-moz-deleted");
+        }
+      }
+      if (!isExternalAttachment)
+        urlSpec = mime_set_url_part(aMessageURL, part.get(), true);
     }
   }
 
