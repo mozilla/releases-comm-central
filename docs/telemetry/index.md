@@ -64,6 +64,14 @@ user_pref("datareporting.policy.dataSubmissionEnabled", true);
 
 For logging, see https://firefox-source-docs.mozilla.org/toolkit/components/glean/dev/testing.html#logging
 
+## New metrics files
+
+When adding new metrics files (or ping files), they also have to be manually
+registered to the [probe scraper's `repositories.yaml`](https://github.com/mozilla/probe-scraper/blob/main/repositories.yaml)
+in the `thunderbird_desktop` section. To add a new metrics file, please open a
+PR modifying the `repositories.yaml` file by adding a new list item with the
+new metrics file path.
+
 ## Troubleshooting
 
 ### Sending test pings
