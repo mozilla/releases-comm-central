@@ -26,6 +26,12 @@ class nsMsgMaildirStore final : public nsMsgLocalStoreUtils,
  private:
   ~nsMsgMaildirStore();
 
+  // Return a unique name to use as a filename for a message.
+  // Uses the form outlined in https://cr.yp.to/proto/maildir.html
+  nsCString UniqueName();
+  nsAutoCString mHostname;
+  int mUniqueCount{0};  // Incremented each time UniqueName() is called.
+
  protected:
   nsresult GetDirectoryForFolder(nsIFile* path);
   nsresult CreateDirectoryForFolder(nsIFile* path, bool aIsServer);

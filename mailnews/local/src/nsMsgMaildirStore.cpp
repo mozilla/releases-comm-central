@@ -22,13 +22,12 @@
 #include "nsLocalFile.h"
 #include "nsNetUtil.h"
 #include "nsIMsgDatabase.h"
+#include "nsIMsgHdr.h"
 #include "nsMsgUtils.h"
 #include "nsIDBFolderInfo.h"
-#include "nsParseMailbox.h"
+#include "nsPrintfCString.h"
 #include "nsIMsgLocalMailFolder.h"
-#include "nsIMailboxUrl.h"
-#include "nsIMsgMailNewsUrl.h"
-#include "nsIMsgFilterPlugin.h"
+#include "nsIMsgFilterPlugin.h"  // For nsIJunkMailPlugin::IS_SPAM_SCORE.
 #include "nsLocalUndoTxn.h"
 #include "nsIMessenger.h"
 #include "nsThreadUtils.h"
@@ -168,38 +167,38 @@ NS_IMETHODIMP MaildirScanner::OnStopRequest(nsIRequest* req, nsresult status) {
   return NS_OK;
 }
 
-// Helper function to produce a safe filename from a Message-ID value.
-// We'll percent-encode anything not in this set: [-+.%=@_0-9a-zA-Z]
-// This is an overly-picky set, but should:
-//  - leave most sane Message-IDs unchanged
-//  - be safe on windows (the pickiest case)
-//  - avoid chars that can trip up shell scripts (spaces, semicolons etc)
-// If input contains malicious binary (or multibyte chars) it'll be
-// safely encoded as individual bytes.
-static void percentEncode(nsACString const& in, nsACString& out) {
-  const char* end = in.EndReading();
-  const char* cur;
-  // We know the output will be at least as long as the input.
-  out.SetLength(0);
-  out.SetCapacity(in.Length());
-  for (cur = in.BeginReading(); cur < end; ++cur) {
-    const char c = *cur;
-    bool whitelisted = (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
-                       (c >= 'a' && c <= 'z') || c == '-' || c == '+' ||
-                       c == '.' || c == '%' || c == '=' || c == '@' || c == '_';
-    if (whitelisted) {
-      out.Append(c);
-    } else {
-      out.AppendPrintf("%%%02x", (unsigned char)c);
-    }
+nsMsgMaildirStore::nsMsgMaildirStore() {
+  // Hostname is part of the traditional maildir file naming.
+  // A blank or truncated hostname isn't ideal, but neither is it fatal - it
+  // doesn't add any real uniqueness to our filenames.
+  char hostName[64];
+  if (PR_GetSystemInfo(PR_SI_HOSTNAME, hostName, sizeof hostName) ==
+      PR_SUCCESS) {
+    // NUL-terminator is not guaranteed if truncated.
+    hostName[sizeof hostName - 1] = '\0';
+    mHostname = hostName;
   }
 }
-
-nsMsgMaildirStore::nsMsgMaildirStore() {}
 
 nsMsgMaildirStore::~nsMsgMaildirStore() {}
 
 NS_IMPL_ISUPPORTS(nsMsgMaildirStore, nsIMsgPluggableStore)
+
+nsCString nsMsgMaildirStore::UniqueName() {
+  // Generate a unique filename.
+  // (see https://cr.yp.to/proto/maildir.html )
+  //
+  // The form we'll use is:
+  // "{seconds}.M{microseconds}P{pid}Q{count}.{hostname}"
+  PRTime now = PR_Now();
+  int64_t seconds = now / PR_USEC_PER_SEC;
+  int64_t microsecs = now % PR_USEC_PER_SEC;
+  ++mUniqueCount;
+
+  return nsPrintfCString("%" PRId64 ".M%" PRId64 "P%ldQ%d.%s", seconds,
+                         microsecs, (long)getpid(), mUniqueCount,
+                         mHostname.get());
+}
 
 // Iterates over the folders in the "path" directory, and adds subfolders to
 // parent for each Maildir folder found.
@@ -706,28 +705,29 @@ nsMsgMaildirStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
 
   // let's check if the folder exists
   // XXX TODO: kill this and make sure maildir creation includes cur/tmp
-  bool exists;
-  newFile->Exists(&exists);
-  if (!exists) {
+  bool tmpExists;
+  newFile->Exists(&tmpExists);
+  if (!tmpExists) {
     MOZ_LOG(MailDirLog, mozilla::LogLevel::Info,
             ("GetNewMsgOutputStream - tmp subfolder does not exist!!"));
     rv = newFile->Create(nsIFile::DIRECTORY_TYPE, 0755);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  // Generate the 'tmp' file name based on timestamp.
-  // (We'll use the Message-ID as the basis for the final filename,
-  // but we don't have headers at this point).
-  nsAutoString newName;
-  newName.AppendInt(static_cast<int64_t>(PR_Now()));
-  newFile->Append(newName);
+  // Generate a unique name for the file.
+  nsAutoCString newName(UniqueName());
+  // We need ".eml" for OS search integration (for windows, anyway).
+  newName.AppendLiteral(".eml");
 
-  // CreateUnique, in case we get more than one message per millisecond :-)
-  rv = newFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
-  NS_ENSURE_SUCCESS(rv, rv);
-  newFile->GetLeafName(newName);
-  // save the file name in the message header - otherwise no way to retrieve it
-  (*aNewMsgHdr)->SetStoreToken(NS_ConvertUTF16toUTF8(newName));
+  newFile->Append(NS_ConvertUTF8toUTF16(newName));
+
+  bool fileExists;
+  newFile->Exists(&fileExists);
+  if (fileExists) {
+    return NS_ERROR_FILE_ALREADY_EXISTS;
+  }
+  // Save the file name in the message header - otherwise no way to retrieve it.
+  (*aNewMsgHdr)->SetStoreToken(newName);
 
   return MsgNewBufferedFileOutputStream(aResult, newFile,
                                         PR_WRONLY | PR_CREATE_FILE, 00600);
@@ -740,7 +740,7 @@ nsMsgMaildirStore::DiscardNewMessage(nsIOutputStream* aOutputStream,
   NS_ENSURE_ARG_POINTER(aNewHdr);
 
   aOutputStream->Close();
-  // file path is stored in message header property "storeToken"
+  // File path is stored in message header property "storeToken".
   nsAutoCString fileName;
   aNewHdr->GetStoreToken(fileName);
   if (fileName.IsEmpty()) return NS_ERROR_FAILURE;
@@ -752,7 +752,7 @@ nsMsgMaildirStore::DiscardNewMessage(nsIOutputStream* aOutputStream,
   rv = folder->GetFilePath(getter_AddRefs(path));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // path to the message download folder
+  // Path to the message download folder.
   path->Append(u"tmp"_ns);
   path->Append(NS_ConvertUTF8toUTF16(fileName));
 
@@ -774,22 +774,21 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream* aOutputStream,
   rv = folder->GetFilePath(getter_AddRefs(folderPath));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // tmp filename is stored in "storeToken".
-  // By now we'll have the Message-ID, which we'll base the final filename on.
-  nsAutoCString tmpName;
-  aNewHdr->GetStoreToken(tmpName);
-  if (tmpName.IsEmpty()) {
+  // Filename is stored in "storeToken".
+  nsAutoCString newName;
+  aNewHdr->GetStoreToken(newName);
+  if (newName.IsEmpty()) {
     NS_ERROR("FinishNewMessage - no storeToken in msg hdr!!");
     return NS_ERROR_FAILURE;
   }
 
-  // path to the new destination
+  // Path to the new destination.
   nsCOMPtr<nsIFile> curPath;
   rv = folderPath->Clone(getter_AddRefs(curPath));
   NS_ENSURE_SUCCESS(rv, rv);
   curPath->Append(u"cur"_ns);
 
-  // let's check if the folder exists
+  // Ensure "cur/" exists.
   // XXX TODO: kill this and make sure maildir creation includes cur/tmp
   bool exists;
   curPath->Exists(&exists);
@@ -798,12 +797,12 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream* aOutputStream,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  // path to the downloaded message
+  // Path to the downloaded message in "tmp/".
   nsCOMPtr<nsIFile> fromPath;
   rv = folderPath->Clone(getter_AddRefs(fromPath));
   NS_ENSURE_SUCCESS(rv, rv);
   fromPath->Append(u"tmp"_ns);
-  fromPath->Append(NS_ConvertUTF8toUTF16(tmpName));
+  fromPath->Append(NS_ConvertUTF8toUTF16(newName));
 
   // Check that the message is still in tmp.
   // XXX TODO: revisit this. I think it's needed because the
@@ -818,7 +817,7 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream* aOutputStream,
     nsCOMPtr<nsIFile> existingPath;
     rv = curPath->Clone(getter_AddRefs(existingPath));
     NS_ENSURE_SUCCESS(rv, rv);
-    existingPath->Append(NS_ConvertUTF8toUTF16(tmpName));
+    existingPath->Append(NS_ConvertUTF8toUTF16(newName));
     existingPath->Exists(&exists);
     if (exists)  // then there is nothing to do
       return NS_OK;
@@ -827,56 +826,16 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream* aOutputStream,
     return NS_ERROR_FILE_NOT_FOUND;
   }
 
-  nsCString msgID;
-  aNewHdr->GetMessageId(msgID);
-
-  nsCString baseName;
-  // For missing or suspiciously-short Message-IDs, use a timestamp
-  // instead.
-  // This also avoids some special filenames we can't use in windows (CON,
-  // AUX, NUL, LPT1 etc...). With an extension (eg "LPT4.txt") they're all
-  // below 9 chars.
-  if (msgID.Length() < 9) {
-    baseName.AppendInt(static_cast<int64_t>(PR_Now()));
-  } else {
-    percentEncode(msgID, baseName);
-    // No length limit on Message-Id header, but lets clip our filenames
-    // well below any MAX_PATH limits.
-    if (baseName.Length() > (128 - 4)) {
-      baseName.SetLength(128 - 4);  // (4 for ".eml")
-    }
-  }
-
   nsCOMPtr<nsIFile> toPath;
   rv = curPath->Clone(getter_AddRefs(toPath));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCString toName(baseName);
-  toName.Append(".eml");
-  toPath->Append(NS_ConvertUTF8toUTF16(toName));
+  toPath->Append(NS_ConvertUTF8toUTF16(newName));
 
-  // Using CreateUnique in case we have duplicate Message-Ids
-  rv = toPath->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
-  if (NS_FAILED(rv)) {
-    // NS_ERROR_FILE_TOO_BIG means CreateUnique() bailed out at 10000 attempts.
-    if (rv != NS_ERROR_FILE_TOO_BIG) {
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-    // As a last resort, fall back to using timestamp as filename.
-    toName.SetLength(0);
-    toName.AppendInt(static_cast<int64_t>(PR_Now()));
-    toName.Append(".eml");
-    toPath->SetLeafName(NS_ConvertUTF8toUTF16(toName));
-    rv = toPath->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  // Move into place (using whatever name CreateUnique() settled upon).
+  // Move into "cur/".
   nsAutoString leafName;
   toPath->GetLeafName(leafName);
   rv = fromPath->MoveTo(curPath, leafName);
   NS_ENSURE_SUCCESS(rv, rv);
-  // Update the db to reflect the final filename.
-  aNewHdr->SetStoreToken(NS_ConvertUTF16toUTF8(leafName));
   return NS_OK;
 }
 
