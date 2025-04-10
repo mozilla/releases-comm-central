@@ -1,20 +1,6 @@
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-var { mailTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
-);
-
-var CC = Components.Constructor;
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Ensure the profile directory is set up
 do_get_profile();
-
-var gDEPTH = "../../../../";
-
-registerCleanupFunction(function () {
-  load(gDEPTH + "mailnews/resources/mailShutdown.js");
-});

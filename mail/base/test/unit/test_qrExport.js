@@ -4,11 +4,14 @@
 
 "use strict";
 
-const { QRExport } = ChromeUtils.importESModule(
-  "resource:///modules/QRExport.sys.mjs"
-);
 const { FeedUtils } = ChromeUtils.importESModule(
   "resource:///modules/FeedUtils.sys.mjs"
+);
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+const { QRExport } = ChromeUtils.importESModule(
+  "resource:///modules/QRExport.sys.mjs"
 );
 
 const DATA_URI_REGEXP = /^data:image\/bmp;base64,[a-zA-Z0-9%-.\/]+=*$/;

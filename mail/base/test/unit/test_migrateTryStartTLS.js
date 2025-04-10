@@ -9,6 +9,9 @@
 var { MailMigrator } = ChromeUtils.importESModule(
   "resource:///modules/MailMigrator.sys.mjs"
 );
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
 var { localAccountUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
