@@ -31,6 +31,8 @@ export const InAppNotifications = {
    */
   _jsonFile: null,
 
+  _localeChangeDebounce: null,
+
   /**
    * Notification manager for the front-end to interact with. Immediately
    * initialized, so event listeners can be added before the rest of the module
@@ -164,7 +166,15 @@ export const InAppNotifications = {
     switch (topic) {
       case "intl:app-locales-changed":
         // When locales change, the filtered notifications can change.
-        this._updateNotificationManager();
+        // Debounce updating the filtered notifications, in case we change back
+        // in a short moment.
+        if (this._localeChangeDebounce) {
+          lazy.clearTimeout(this._localeChangeDebounce);
+        }
+        this._localeChangeDebounce = lazy.setTimeout(() => {
+          this._localeChangeDebounce = null;
+          this._updateNotificationManager();
+        }, 5000);
         break;
     }
   },
@@ -211,6 +221,10 @@ export const InAppNotifications = {
    * notification with.
    */
   _updateNotificationManager() {
+    // Wait for the debounce before updating notifications.
+    if (this._localeChangeDebounce) {
+      return;
+    }
     this._scheduleNotification();
     this.notificationManager.updatedNotifications(this.getNotifications());
   },

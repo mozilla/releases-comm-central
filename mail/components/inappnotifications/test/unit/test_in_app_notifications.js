@@ -345,6 +345,35 @@ add_task(async function test_updateNotificationManager() {
   InAppNotifications.notificationManager.updatedNotifications.restore();
 });
 
+add_task(async function test_updateNotificationManager_duringLocaleDebounce() {
+  InAppNotifications._localeChangeDebounce = "foo";
+
+  let hadEvent = false;
+  const eventHandler = () => {
+    hadEvent = true;
+    Assert.ok(false, "Should not get new notification event");
+  };
+
+  InAppNotifications.notificationManager.addEventListener(
+    NotificationManager.NEW_NOTIFICATION_EVENT,
+    eventHandler
+  );
+
+  await InAppNotifications.updateNotifications(getMockNotifications());
+
+  Assert.ok(
+    !InAppNotifications._showNotificationTimer,
+    "Should not have a timer for the next notification"
+  );
+  Assert.ok(!hadEvent, "Should not have seen a new notification event");
+
+  InAppNotifications.notificationManager.removeEventListener(
+    NotificationManager.NEW_NOTIFICATION_EVENT,
+    eventHandler
+  );
+  InAppNotifications._localeChangeDebounce = null;
+});
+
 add_task(async function test_updateNotifications_filtered() {
   const now = Date.now();
   const mockData = [
@@ -445,7 +474,9 @@ add_task(async function test_updateNotificationManager_localeChange() {
 
   const { detail: newNotification } = await BrowserTestUtils.waitForEvent(
     InAppNotifications.notificationManager,
-    NotificationManager.NEW_NOTIFICATION_EVENT
+    NotificationManager.NEW_NOTIFICATION_EVENT,
+    false,
+    event => event.detail.id !== notification.id
   );
 
   Assert.notEqual(
@@ -458,10 +489,21 @@ add_task(async function test_updateNotificationManager_localeChange() {
     "foo weird",
     "Should see en-EU notification"
   );
+  Assert.ok(
+    !InAppNotifications._localeChangeDebounce,
+    "Should not have an active debounce timeout"
+  );
 
   Services.locale.availableLocales = availableLocales;
   Services.locale.requestedLocales = currentLocales;
   await InAppNotifications.updateNotifications([]);
+  // Clear the locale change debounce from restoring the normal conditions
+  // manually to accelerate the tests..
+  if (InAppNotifications._localeChangeDebounce) {
+    clearTimeout(InAppNotifications._localeChangeDebounce);
+    InAppNotifications._localeChangeDebounce = null;
+    InAppNotifications._updateNotificationManager();
+  }
 });
 
 add_task(async function test_scheduledNotification() {
