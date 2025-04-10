@@ -35,16 +35,7 @@ interface nsIMsgWindow : nsISupports {
    */
   readonly attribute nsIDocShell messageWindowDocShell;
 
-  /**
-    Has a running url been stopped? If you care about checking
-    this flag, you need to clear it before you start your operation since
-    there's no convenient place to clear it.
-  */
-  attribute boolean stopped;
-
   attribute mozIDOMWindowProxy domWindow;
-
-  void StopUrls();
 
   /**
     when the msg window is being unloaded from the content window,

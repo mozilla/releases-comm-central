@@ -1018,10 +1018,7 @@ nsMsgFilterService::ApplyFiltersToFolders(
 
   RefPtr<nsMsgFilterAfterTheFact> filterExecutor =
       new nsMsgFilterAfterTheFact(aMsgWindow, aFilterList, aFolders, aCallback);
-  if (filterExecutor)
-    return filterExecutor->AdvanceToNextFolder();
-  else
-    return NS_ERROR_OUT_OF_MEMORY;
+  return filterExecutor->AdvanceToNextFolder();
 }
 
 NS_IMETHODIMP nsMsgFilterService::AddCustomAction(
@@ -1275,10 +1272,7 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(
   RefPtr<nsMsgApplyFiltersToMessages> filterExecutor =
       new nsMsgApplyFiltersToMessages(aMsgWindow, filterList, {aFolder},
                                       aMsgHdrList, aFilterType, aCallback);
-
-  if (filterExecutor) return filterExecutor->AdvanceToNextFolder();
-
-  return NS_ERROR_OUT_OF_MEMORY;
+  return filterExecutor->AdvanceToNextFolder();
 }
 
 /* void OnStartCopy (); */

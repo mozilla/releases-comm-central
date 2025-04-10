@@ -1139,6 +1139,9 @@ function initializeSearchWindowWidgets() {
   top.controllers.insertControllerAt(0, nsSearchResultsController);
 }
 
+/**
+ * Handle click on the gSearchStopButton button (when that's labeled "Stop").
+ */
 function onSearchStop() {
   gFolderDisplay.view.search.session.interruptSearch();
 }

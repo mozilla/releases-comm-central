@@ -30,8 +30,6 @@
 <!ENTITY viewLogButton.accesskey "L">
 <!ENTITY runFilters.label "Run Now">
 <!ENTITY runFilters.accesskey "R">
-<!ENTITY stopFilters.label "Stop">
-<!ENTITY stopFilters.accesskey "S">
 <!ENTITY folderPickerPrefix.label "Run selected filter(s) on:">
 <!ENTITY folderPickerPrefix.accesskey "c">
 <!ENTITY helpButton.label "Help">
