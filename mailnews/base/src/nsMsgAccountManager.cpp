@@ -141,10 +141,10 @@ static nsCOMPtr<nsIAsyncShutdownService> GetShutdownService() {
   return service;
 }
 
-static nsCOMPtr<nsIAsyncShutdownClient> GetAppShutdownConfirmed() {
+static nsCOMPtr<nsIAsyncShutdownClient> GetQuitApplicationGranted() {
   nsCOMPtr<nsIAsyncShutdownClient> barrier;
   nsresult rv =
-      GetShutdownService()->GetAppShutdownConfirmed(getter_AddRefs(barrier));
+      GetShutdownService()->GetQuitApplicationGranted(getter_AddRefs(barrier));
   MOZ_RELEASE_ASSERT(NS_SUCCEEDED(rv));
   MOZ_RELEASE_ASSERT(barrier);
   return barrier;
@@ -195,7 +195,7 @@ nsresult nsMsgAccountManager::Init() {
     observerService->AddObserver(this, "sleep_notification", true);
   }
 
-  GetAppShutdownConfirmed()->AddBlocker(
+  GetQuitApplicationGranted()->AddBlocker(
       this, NS_LITERAL_STRING_FROM_CSTRING(__FILE__), __LINE__,
       u"nsMsgAccountManager cleanup on exit"_ns);
   GetProfileBeforeChange()->AddBlocker(
@@ -1669,7 +1669,7 @@ nsresult nsMsgAccountManager::CleanupOnExit() {
     }
   }
 
-  GetAppShutdownConfirmed()->RemoveBlocker(this);
+  GetQuitApplicationGranted()->RemoveBlocker(this);
 
   // Try to do this early on in the shutdown process before
   // necko shuts itself down.
