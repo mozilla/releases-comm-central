@@ -8830,8 +8830,10 @@ void nsImapMailFolder::PlaybackTimerCallback(nsITimer* aTimer, void* aClosure) {
   RefPtr<nsImapOfflineSync> offlineSync = new nsImapOfflineSync();
   // Execute the offline operations, in pseudoOffline mode.
   offlineSync->Init(request->MsgWindow, nullptr, request->SrcFolder, true);
-  mozilla::DebugOnly<nsresult> rv = offlineSync->ProcessNextOperation();
-  NS_ASSERTION(NS_SUCCEEDED(rv), "pseudo-offline playback is not successful");
+  if (offlineSync) {
+    mozilla::DebugOnly<nsresult> rv = offlineSync->ProcessNextOperation();
+    NS_ASSERTION(NS_SUCCEEDED(rv), "pseudo-offline playback is not successful");
+  }
 
   // release request struct and timer
   request->SrcFolder->m_pendingPlaybackReq = nullptr;

@@ -68,8 +68,6 @@ class nsMsgSearchSession : public nsIMsgSearchSession,
    */
   int32_t m_iListener;
 
-  bool m_searchRunning;
-
   void DestroyTermList();
   void DestroyScopeList();
 

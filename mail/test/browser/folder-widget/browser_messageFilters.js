@@ -283,8 +283,7 @@ add_task(async function test_address_books_appear_in_message_filter_dropdown() {
   await BrowserTestUtils.closeWindow(filterc);
 });
 
-/**
- * Test that if the user has started running a filter, and the
+/* Test that if the user has started running a filter, and the
  * "quit-application-requested" notification is fired, the user
  * is given a dialog asking whether or not to quit.
  *
@@ -294,10 +293,10 @@ add_task(async function test_can_cancel_quit_on_filter_changes() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
-  const filterWin = await create_simple_filter();
+  const filterc = await create_simple_filter();
 
-  const runButton = filterWin.document.getElementById("runFiltersButton");
-  runButton.disabled = true; // simulate running
+  const runButton = filterc.document.getElementById("runFiltersButton");
+  runButton.setAttribute("label", runButton.getAttribute("stoplabel"));
 
   const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
@@ -321,8 +320,7 @@ add_task(async function test_can_cancel_quit_on_filter_changes() {
   gMockPromptService.unregister();
 });
 
-/**
- * Test that if the user has started running a filter, and the
+/* Test that if the user has started running a filter, and the
  * "quit-application-requested" notification is fired, the user
  * is given a dialog asking whether or not to quit.
  *
@@ -332,14 +330,14 @@ add_task(async function test_can_quit_on_filter_changes() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
-  const filterWin = await wait_for_existing_window("mailnews:filterlist");
+  const filterc = await wait_for_existing_window("mailnews:filterlist");
 
   // There should already be 1 filter defined from previous test.
-  const filterCount = filterWin.document.getElementById("filterList").itemCount;
+  const filterCount = filterc.document.getElementById("filterList").itemCount;
   Assert.equal(filterCount, 1, "should have 1 filter from prev test");
 
-  const runButton = filterWin.document.getElementById("runFiltersButton");
-  runButton.disabled = true; // simulate running
+  const runButton = filterc.document.getElementById("runFiltersButton");
+  runButton.setAttribute("label", runButton.getAttribute("stoplabel"));
 
   const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
@@ -363,9 +361,9 @@ add_task(async function test_can_quit_on_filter_changes() {
   gMockPromptService.unregister();
 
   EventUtils.synthesizeMouseAtCenter(
-    filterWin.document.querySelector("#filterList richlistitem"),
+    filterc.document.querySelector("#filterList richlistitem"),
     {},
-    filterWin
+    filterc
   );
 
   const deleteAlertPromise = BrowserTestUtils.promiseAlertDialogOpen(
@@ -377,14 +375,14 @@ add_task(async function test_can_quit_on_filter_changes() {
       },
     }
   );
-  EventUtils.synthesizeKey("KEY_Delete", {}, filterWin);
+  EventUtils.synthesizeKey("KEY_Delete", {}, filterc);
   await deleteAlertPromise;
 
   Assert.equal(
-    filterWin.document.getElementById("filterList").itemCount,
+    filterc.document.getElementById("filterList").itemCount,
     0,
     "Previously created filter should have been deleted."
   );
 
-  await BrowserTestUtils.closeWindow(filterWin);
+  await BrowserTestUtils.closeWindow(filterc);
 });

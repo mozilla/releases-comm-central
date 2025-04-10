@@ -53,7 +53,14 @@ var gStatusFeedback = {
   },
   startMeteors() {
     // change run button to be a stop button
-    gRunFiltersButton.disabled = true;
+    gRunFiltersButton.setAttribute(
+      "label",
+      gRunFiltersButton.getAttribute("stoplabel")
+    );
+    gRunFiltersButton.setAttribute(
+      "accesskey",
+      gRunFiltersButton.getAttribute("stopaccesskey")
+    );
 
     if (!this.progressMeterVisible) {
       document
@@ -66,7 +73,15 @@ var gStatusFeedback = {
   },
   stopMeteors() {
     try {
-      gRunFiltersButton.disabled = false;
+      // change run button to be a stop button
+      gRunFiltersButton.setAttribute(
+        "label",
+        gRunFiltersButton.getAttribute("runlabel")
+      );
+      gRunFiltersButton.setAttribute(
+        "accesskey",
+        gRunFiltersButton.getAttribute("runaccesskey")
+      );
 
       if (this.progressMeterVisible) {
         document.getElementById("statusbar-progresspanel").collapsed = true;
@@ -688,7 +703,10 @@ function onFilterUnload() {
 }
 
 function onFilterClose() {
-  if (gRunFiltersButton.disabled) {
+  if (
+    gRunFiltersButton.getAttribute("label") ==
+    gRunFiltersButton.getAttribute("stoplabel")
+  ) {
     const promptTitle = gFilterBundle.getString("promptTitle");
     const promptMsg = gFilterBundle.getString("promptMsg");
     const stopButtonLabel = gFilterBundle.getString("stopButtonLabel");
@@ -707,16 +725,26 @@ function onFilterClose() {
       { value: 0 }
     );
 
-    if (!result) {
+    if (result) {
+      gFilterListMsgWindow.StopUrls();
+    } else {
       return false;
     }
-    window.getInterface(Ci.nsIWebNavigation).stop(Ci.nsIWebNavigation.STOP_ALL);
   }
 
   return true;
 }
 
 function runSelectedFilters() {
+  // if run button has "stop" label, do stop.
+  if (
+    gRunFiltersButton.getAttribute("label") ==
+    gRunFiltersButton.getAttribute("stoplabel")
+  ) {
+    gFilterListMsgWindow.StopUrls();
+    return;
+  }
+
   const folder =
     gRunFiltersFolder._folder || gRunFiltersFolder.selectedItem._folder;
   if (!folder) {

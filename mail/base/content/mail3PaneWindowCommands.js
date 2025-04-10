@@ -146,7 +146,7 @@ var DefaultController = {
         MsgSubscribe();
         return;
       case "cmd_stop":
-        document.getElementById("tabmail").currentTabInfo.chromeBrowser.stop();
+        msgWindow.StopUrls();
         return;
       case "cmd_viewAllHeader":
         MsgViewAllHeaders();

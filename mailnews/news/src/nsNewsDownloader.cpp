@@ -16,7 +16,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
-#include "nsIAppStartup.h"
 #include "mozilla/Components.h"
 
 // This file contains the news article download state machine.
@@ -56,6 +55,8 @@ nsNewsDownloader::nsNewsDownloader(nsIMsgWindow* window, nsIMsgDatabase* msgDB,
   m_window = window;
   m_lastPercent = -1;
   m_lastProgressTime = 0;
+  // not the perfect place for this, but I think it will work.
+  if (m_window) m_window->SetStopped(false);
 }
 
 nsNewsDownloader::~nsNewsDownloader() {
@@ -71,6 +72,10 @@ NS_IMETHODIMP nsNewsDownloader::OnStartRunningUrl(nsIURI* url) { return NS_OK; }
 
 NS_IMETHODIMP nsNewsDownloader::OnStopRunningUrl(nsIURI* url,
                                                  nsresult exitCode) {
+  bool stopped = false;
+  if (m_window) m_window->GetStopped(&stopped);
+  if (stopped) exitCode = NS_BINDING_ABORTED;
+
   nsresult rv = exitCode;
   if (NS_SUCCEEDED(exitCode) || exitCode == NS_MSG_NEWS_ARTICLE_NOT_FOUND)
     rv = DownloadNext(false);
@@ -196,14 +201,6 @@ NS_IMETHODIMP DownloadNewsArticlesToOfflineStore::OnStartRunningUrl(
 
 NS_IMETHODIMP DownloadNewsArticlesToOfflineStore::OnStopRunningUrl(
     nsIURI* url, nsresult exitCode) {
-  bool isShuttingDown = false;
-  nsCOMPtr<nsIAppStartup> appStartup(
-      mozilla::components::AppStartup::Service());
-  appStartup->GetShuttingDown(&isShuttingDown);
-  if (isShuttingDown) {
-    exitCode = NS_BINDING_ABORTED;
-  }
-
   m_status = exitCode;
   if (m_newsHeader != nullptr) {
     if (m_newsDB) {

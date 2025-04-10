@@ -537,7 +537,7 @@ function HandleAppCommandEvent(evt) {
       goDoCommand("cmd_goForward");
       break;
     case "Stop":
-      document.getElementById("tabmail").currentTabInfo.chromeBrowser.stop();
+      msgWindow.StopUrls();
       break;
     case "Bookmarks":
       toAddressBook();

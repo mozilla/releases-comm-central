@@ -32,7 +32,10 @@
 NS_IMPL_ISUPPORTS(nsMsgWindow, nsIMsgWindow, nsIURIContentListener,
                   nsISupportsWeakReference)
 
-nsMsgWindow::nsMsgWindow() {}
+nsMsgWindow::nsMsgWindow() {
+  mCharsetOverride = false;
+  m_stopped = false;
+}
 
 nsMsgWindow::~nsMsgWindow() { CloseWindow(); }
 
@@ -80,10 +83,7 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell** aDocShell) {
 NS_IMETHODIMP nsMsgWindow::CloseWindow() {
   mStatusFeedback = nullptr;
 
-  nsCOMPtr<nsIWebNavigation> webnav(do_QueryReferent(mRootDocShellWeak));
-  if (webnav) {
-    webnav->Stop(nsIWebNavigation::STOP_NETWORK);
-  }
+  StopUrls();
 
   nsCOMPtr<nsIDocShell> messagePaneDocShell(
       do_QueryReferent(mMessageWindowDocShellWeak));
@@ -195,6 +195,13 @@ NS_IMETHODIMP nsMsgWindow::SetDomWindow(mozIDOMWindowProxy* aWindow) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgWindow::StopUrls() {
+  m_stopped = true;
+  nsCOMPtr<nsIWebNavigation> webnav(do_QueryReferent(mRootDocShellWeak));
+  return webnav ? webnav->Stop(nsIWebNavigation::STOP_NETWORK)
+                : NS_ERROR_FAILURE;
+}
+
 // nsIURIContentListener support
 
 NS_IMETHODIMP nsMsgWindow::DoContent(const nsACString& aContentType,
@@ -282,3 +289,5 @@ NS_IMETHODIMP nsMsgWindow::GetLoadCookie(nsISupports** aLoadCookie) {
 NS_IMETHODIMP nsMsgWindow::SetLoadCookie(nsISupports* aLoadCookie) {
   return NS_OK;
 }
+
+NS_IMPL_GETSET(nsMsgWindow, Stopped, bool, m_stopped)
