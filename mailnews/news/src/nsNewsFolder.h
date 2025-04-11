@@ -112,7 +112,6 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   bool m_downloadMessageForOfflineUse;
 
   nsCString mOptionLines;
-  nsCString mUnsubscribedNewsgroupLines;
   RefPtr<nsMsgKeySet> mReadSet;
 
   nsCOMPtr<nsIFile> mNewsrcFilePath;

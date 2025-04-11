@@ -832,24 +832,9 @@ int32_t nsMsgNewsFolder::HandleNewsrcLine(const char* line,
     rv = AddNewsgroup(Substring(line, s), nsDependentCString(setStr),
                       getter_AddRefs(child));
     if (NS_FAILED(rv)) return -1;
-  } else {
-    rv = RememberUnsubscribedGroup(nsDependentCString(line),
-                                   nsDependentCString(setStr));
-    if (NS_FAILED(rv)) return -1;
   }
 
   return 0;
-}
-
-nsresult nsMsgNewsFolder::RememberUnsubscribedGroup(const nsACString& newsgroup,
-                                                    const nsACString& setStr) {
-  mUnsubscribedNewsgroupLines.Append(newsgroup);
-  mUnsubscribedNewsgroupLines.AppendLiteral("! ");
-  if (!setStr.IsEmpty())
-    mUnsubscribedNewsgroupLines.Append(setStr);
-  else
-    mUnsubscribedNewsgroupLines.Append(MSG_LINEBREAK);
-  return NS_OK;
 }
 
 int32_t nsMsgNewsFolder::RememberLine(const nsACString& line) {
@@ -1201,13 +1186,6 @@ NS_IMETHODIMP nsMsgNewsFolder::SetReadSetFromStr(const nsACString& newsrcLine) {
   nsCOMPtr<nsINewsDatabase> db = do_QueryInterface(mDatabase);
   if (db)  // it's ok not to have a db here.
     db->SetReadSet(mReadSet);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgNewsFolder::GetUnsubscribedNewsgroupLines(
-    nsACString& aUnsubscribedNewsgroupLines) {
-  aUnsubscribedNewsgroupLines = mUnsubscribedNewsgroupLines;
   return NS_OK;
 }
 
