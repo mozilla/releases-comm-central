@@ -120,15 +120,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "arbitrary"
-version = "1.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d5a26814d8dcb93b0e5a0ff3c6d80a8843bafb21b39e8e18a6f05471870e110"
-dependencies = [
- "derive_arbitrary",
-]
-
-[[package]]
 name = "arrayref"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1310,17 +1301,6 @@ checksum = "b42b6fa04a440b495c8b04d0e71b707c585f83cb9cb28cf8cd0d976c315e31b4"
 dependencies = [
  "powerfmt",
  "serde",
-]
-
-[[package]]
-name = "derive_arbitrary"
-version = "1.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67e77553c4162a157adbf834ebae5b415acbecbeafc7a74b0e886657506a7611"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]
@@ -2611,7 +2591,6 @@ version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7db2ff139bba50379da6aa0766b52fdcb62cb5b263009b09ed58ba604e14bbd1"
 dependencies = [
- "arbitrary",
  "cfg-if",
  "crunchy",
  "num-traits",
@@ -3945,7 +3924,7 @@ checksum = "a2983372caf4480544083767bf2d27defafe32af49ab4df3a0b7fc90793a3664"
 [[package]]
 name = "naga"
 version = "24.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=c7c79a0dc9356081a884b5518d1c08ce7a09c7c5#c7c79a0dc9356081a884b5518d1c08ce7a09c7c5"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a0dbe5ebc6fa24422fb84b2e0fea1cc94dee5109#a0dbe5ebc6fa24422fb84b2e0fea1cc94dee5109"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -3953,7 +3932,7 @@ dependencies = [
  "cfg_aliases",
  "codespan-reporting",
  "half 2.5.0",
- "hashbrown 0.14.999",
+ "hashbrown 0.15.2",
  "hexf-parse",
  "indexmap",
  "log",
@@ -6395,7 +6374,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "24.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=c7c79a0dc9356081a884b5518d1c08ce7a09c7c5#c7c79a0dc9356081a884b5518d1c08ce7a09c7c5"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a0dbe5ebc6fa24422fb84b2e0fea1cc94dee5109#a0dbe5ebc6fa24422fb84b2e0fea1cc94dee5109"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -6404,7 +6383,7 @@ dependencies = [
  "bytemuck",
  "cfg_aliases",
  "document-features",
- "hashbrown 0.14.999",
+ "hashbrown 0.15.2",
  "indexmap",
  "log",
  "naga",
@@ -6425,7 +6404,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-apple"
 version = "24.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=c7c79a0dc9356081a884b5518d1c08ce7a09c7c5#c7c79a0dc9356081a884b5518d1c08ce7a09c7c5"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a0dbe5ebc6fa24422fb84b2e0fea1cc94dee5109#a0dbe5ebc6fa24422fb84b2e0fea1cc94dee5109"
 dependencies = [
  "wgpu-hal",
 ]
@@ -6433,7 +6412,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-windows-linux-android"
 version = "24.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=c7c79a0dc9356081a884b5518d1c08ce7a09c7c5#c7c79a0dc9356081a884b5518d1c08ce7a09c7c5"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a0dbe5ebc6fa24422fb84b2e0fea1cc94dee5109#a0dbe5ebc6fa24422fb84b2e0fea1cc94dee5109"
 dependencies = [
  "wgpu-hal",
 ]
@@ -6441,7 +6420,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "24.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=c7c79a0dc9356081a884b5518d1c08ce7a09c7c5#c7c79a0dc9356081a884b5518d1c08ce7a09c7c5"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a0dbe5ebc6fa24422fb84b2e0fea1cc94dee5109#a0dbe5ebc6fa24422fb84b2e0fea1cc94dee5109"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -6455,7 +6434,7 @@ dependencies = [
  "gpu-alloc",
  "gpu-allocator",
  "gpu-descriptor",
- "hashbrown 0.14.999",
+ "hashbrown 0.15.2",
  "libc",
  "libloading",
  "log",
@@ -6477,7 +6456,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "24.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=c7c79a0dc9356081a884b5518d1c08ce7a09c7c5#c7c79a0dc9356081a884b5518d1c08ce7a09c7c5"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a0dbe5ebc6fa24422fb84b2e0fea1cc94dee5109#a0dbe5ebc6fa24422fb84b2e0fea1cc94dee5109"
 dependencies = [
  "bitflags 2.9.0",
  "bytemuck",
