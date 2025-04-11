@@ -3059,23 +3059,17 @@ var folderPane = {
         if (targetFolder == sourceFolder) {
           return;
         }
-        if (sourceFolder.server == targetFolder.server) {
-          // Don't copy within same server.
-          if (systemDropEffect == "copy") {
-            return;
-          }
-        } else {
-          moveWithinSameServer = false;
+        const sameServer = sourceFolder.server == targetFolder.server;
+        // Don't copy within same server.
+        if (sameServer && systemDropEffect == "copy") {
+          return;
         }
         // Don't allow immediate child to be dropped onto its parent.
         if (targetFolder == sourceFolder.parent) {
           return;
         }
         // Don't allow dragging of virtual folders across accounts.
-        if (
-          sourceFolder.getFlag(Ci.nsMsgFolderFlags.Virtual) &&
-          sourceFolder.server != targetFolder.server
-        ) {
+        if (sourceFolder.getFlag(Ci.nsMsgFolderFlags.Virtual) && !sameServer) {
           return;
         }
         // Don't allow parent to be dropped on its ancestors.
@@ -3084,18 +3078,16 @@ var folderPane = {
         }
         // If there is a folder that can't be renamed, don't allow it to be
         // dropped if it is not to "Local Folders" or is to the same account.
-        if (
+        const noRenamePossible =
           !sourceFolder.canRename &&
-          (targetFolder.server.type != "none" ||
-            sourceFolder.server == targetFolder.server)
-        ) {
-          // Don't allow to drop on different hierarchy.
-          if (sourceFolder.parent != targetFolder.parent) {
-            return;
-          }
-          // If in the same hierarchy, allow only reordering.
-          allowReorderOnly = true;
+          (targetFolder.server.type != "none" || sameServer);
+        // Don't allow to drop on different hierarchy.
+        if (noRenamePossible && sourceFolder.parent != targetFolder.parent) {
+          return;
         }
+        // If in the same hierarchy, allow only reordering.
+        allowReorderOnly ||= noRenamePossible;
+        moveWithinSameServer &&= sameServer;
       }
 
       // Evaluate the ability to reorder folders.
@@ -3355,16 +3347,13 @@ var folderPane = {
           row.modeName == "all"
         ) {
           const { center, quarterOfHeight } = this._calculateElementHeight(row);
-          if (event.clientY < center - quarterOfHeight) {
-            isReordering = true;
-          } else if (
+          const upperElementEnd = event.clientY < center - quarterOfHeight;
+          const lowerElementEndWithoutChildren =
             event.clientY > center + quarterOfHeight &&
             (!row.classList.contains("children") ||
-              row.classList.contains("collapsed"))
-          ) {
-            isReordering = true;
-            insertAfter = true;
-          }
+              row.classList.contains("collapsed"));
+          isReordering = upperElementEnd || lowerElementEndWithoutChildren;
+          insertAfter = lowerElementEndWithoutChildren;
           if (isReordering) {
             // To insert the sourceFolder before or after the targetFolder,
             // we have to transfer sourceFolder to the parent of targetFolder
@@ -4158,15 +4147,12 @@ var folderPane = {
       return;
     }
     const subFolders = parentFolder?.subFolders ?? [];
-    let maxOrderValue = -1;
-    for (const sibling of subFolders) {
-      if (
-        sibling.userSortOrder != Ci.nsIMsgFolder.NO_SORT_VALUE &&
-        sibling.userSortOrder > maxOrderValue
-      ) {
-        maxOrderValue = sibling.userSortOrder;
-      }
-    }
+    const maxOrderValue = Math.max(
+      -1,
+      ...subFolders
+        .filter(folder => folder.userSortOrder != Ci.nsIMsgFolder.NO_SORT_VALUE)
+        .map(folder => folder.userSortOrder)
+    );
     if (maxOrderValue == -1) {
       // None of the sibling folders have a sort order value (i.e. this group of
       // folders has never been manually sorted). In this case, the natural
@@ -4175,27 +4161,21 @@ var folderPane = {
     }
     // The group has already been ordered. In this case, insert the new folder
     // before the first folder that is further ahead of it in the natural order.
-    const subs = [];
-    for (const sf of subFolders) {
-      subs.push({ folder: sf, order: sf.sortOrder });
-    }
-    subs.sort(
-      (a, b) =>
-        a.order - b.order ||
-        FolderPaneUtils.nameCollator.compare(a.name, b.name)
-    );
-    for (let i = 0; i < subs.length; i++) {
-      const sibling = subs[i].folder;
-      if (sibling.flags & Ci.nsMsgFolderFlags.SpecialUse) {
-        // Skip special folders so new folders don't get created before them.
-        continue;
-      }
-      if (
-        FolderPaneUtils.nameCollator.compare(sibling.name, newFolder.name) > 0
-      ) {
-        folderPane.insertFolder(newFolder, sibling, false);
-        return;
-      }
+    const sibling = subFolders
+      // Skip special folders so new folders don't get created before them.
+      .filter(folder => folder.flags & Ci.nsMsgFolderFlags.SpecialUse)
+      .sort(
+        (a, b) =>
+          a.sortOder - b.sortOrder ||
+          FolderPaneUtils.nameCollator.compare(a.name, b.name)
+      )
+      .find(
+        folder =>
+          FolderPaneUtils.nameCollator.compare(folder.name, newFolder.name) > 0
+      );
+    if (sibling) {
+      folderPane.insertFolder(newFolder, sibling, false);
+      return;
     }
     // Place the new folder at the bottom.
     const newOrder = maxOrderValue + 1;
@@ -4209,10 +4189,10 @@ var folderPane = {
    *
    * @param {nsIMsgFolder} folder
    * @param {nsIMsgFolder} target
-   * @param {bool} insertAfter
+   * @param {boolean} insertAfter
    */
   insertFolder(folder, target, insertAfter) {
-    let subFolders;
+    let subFolders = [];
     try {
       subFolders = target.parent.subFolders;
     } catch (ex) {
@@ -4228,23 +4208,23 @@ var folderPane = {
     // must be increased by 2.
     const targetOrder = target.sortOrder;
     const folderOrder = targetOrder + 1;
-    for (const sibling of subFolders) {
-      if (sibling == folder) {
-        continue;
-      }
+    // Start at the end, so we can stop once we've reached the insertion point.
+    const folders = subFolders
+      .filter(sf => sf != folder)
+      .sort((a, b) => b.sortOrder - a.sortOrder);
+    for (const sibling of folders) {
+      // If we've reached the target and we're inserting after it, we've done
+      // all the necessary moving.
       if (insertAfter && sibling == target) {
-        continue;
+        break;
       }
-      let order = sibling.sortOrder;
-      if (
-        (!insertAfter && sibling == target) ||
-        order > targetOrder ||
-        (order == targetOrder &&
-          FolderPaneUtils.nameCollator.compare(sibling.name, target.name) > 0)
-      ) {
-        order += 2;
-        sibling.userSortOrder = order; // Update DB
-        folderPane.setOrderToRowInAllModes(sibling, order); // Update row info.
+      const order = sibling.sortOrder + 2;
+      sibling.userSortOrder = order; // Update DB
+      folderPane.setOrderToRowInAllModes(sibling, order); // Update row info.
+      // If we're inserting before the target and we've just updated the target
+      // we can now insert the folder itself.
+      if (!insertAfter && sibling == target) {
+        break;
       }
     }
     folder.userSortOrder = folderOrder; // Update DB
