@@ -11,13 +11,13 @@ export default {
 };
 
 export const calendarDialog = {
-  render({ opened, title, eventLocation }) {
+  render({ opened, title, eventLocation, description }) {
     const container = document.createElement("div");
     container.insertAdjacentHTML(
       "beforeend",
       `
   <template id="calendarDialogRowTemplate">
-    <div class="calendar-dialog-row">
+    <div id="row" class="calendar-dialog-row">
       <slot name="icon"></slot>
       <slot name="label"></slot>
       <slot name="content"></slot>
@@ -77,6 +77,36 @@ export const calendarDialog = {
               <span id="locationText" hidden="hidden"></span>
             </div>
           </calendar-dialog-row>
+          <div id="calendarDescription" class="expanding-row">
+            <calendar-dialog-row expanding="true">
+              <img
+                slot="icon"
+                class="icon-description"
+                src=""
+                data-l10n-id="calendar-dialog-description-row-icon"
+              />
+              <span
+                slot="label"
+                class="row-label"
+                data-l10n-id="calendar-dialog-description-label"
+              ></span>
+              <div
+                id="calendarDescriptionContent"
+                slot="content"
+                class="description-text"
+              ></div>
+            </calendar-dialog-row>
+            <button
+              id="expandDescription"
+              class="button button-flat expand-button icon-button"
+            >
+              <img
+                src=""
+                class="icon-nav-right"
+                data-l10n-id="calendar-dialog-description-expand-icon"
+              />
+            </button>
+          </div>
         </div>
       </calendar-dialog-subview-manager>
     </div>
@@ -88,12 +118,14 @@ export const calendarDialog = {
 
     const dialog = container.querySelector("dialog");
     dialog[opened ? "show" : "close"]();
-    dialog.updateDialogData({ title, eventLocation });
+    dialog.updateDialogData({ title, eventLocation, description });
     return container;
   },
   args: {
     opened: true,
     title: "Event Title",
     eventLocation: "https://www.thunderbird.net/",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum",
   },
 };

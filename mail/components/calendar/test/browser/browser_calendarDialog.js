@@ -187,3 +187,23 @@ add_task(async function test_dialogLocation() {
 
   Assert.equal(locationText.textContent, "", "Location text should be empty");
 });
+
+add_task(async function test_dialogDescription() {
+  dialog.show();
+  const calendarDescription = dialog.querySelector(
+    "#calendarDescriptionContent"
+  );
+
+  Assert.equal(
+    calendarDescription.textContent,
+    "",
+    "Description should be empty"
+  );
+
+  dialog.updateDialogData({ description: "foobar" });
+  Assert.equal(
+    calendarDescription.textContent,
+    "foobar",
+    "Description should update"
+  );
+});

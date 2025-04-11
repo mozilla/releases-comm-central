@@ -18,3 +18,11 @@ calendar-dialog-date-row-recurring-icon =
 
 calendar-dialog-location-row-icon =
   .alt = Location
+
+calendar-dialog-description-row-icon =
+  .alt = Description
+
+calendar-dialog-description-label = Description
+
+calendar-dialog-description-expand-icon =
+  .alt = Show full description

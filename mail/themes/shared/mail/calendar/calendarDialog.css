@@ -9,6 +9,7 @@
   --calendar-dialog-row-padding-inline: 12px;
   --calendar-dialog-row-column-gap: 9px;
   --calendar-dialog-row-content-gap: 3px;
+  --calendar-dialog-row-expand-button-padding-inline-start: 9px;
 
   &[uidensity="compact"] {
     --calendar-dialog-row-padding-inline: 6px;
@@ -47,7 +48,7 @@
     background: var(--calendar-bar-color, var(--calendar-bar-color-fallback));
   }
 
-  .calendar-dialog-title {
+  & .calendar-dialog-title {
       font-size: 1.15rem;
       font-weight: 500;
   }
@@ -74,6 +75,16 @@
   content: var(--icon-bell);
 }
 
+.icon-description {
+  content: var(--icon-file-draft);
+}
+
+.icon-nav-right {
+  content: var(--icon-nav-right);
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+}
+
 calendar-dialog-date-row {
   display: block;
   background: var(--color-neutral-subtle);
@@ -92,4 +103,27 @@ calendar-dialog-date-row {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
   box-shadow: inset 0 4px 6px rgba(255, 255, 255, 0.1),
               0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.description-text {
+  -webkit-line-clamp: 5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.expanding-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+
+  & .expand-button {
+    padding-inline: var(--calendar-dialog-row-expand-button-padding-inline-start) var(--calendar-dialog-row-padding-inline);
+    padding-block: 0;
+    margin: 0;
+    min-width: 0;
+    align-self: stretch;
+    aspect-ratio: 0;
+    border: 0;
+  }
 }

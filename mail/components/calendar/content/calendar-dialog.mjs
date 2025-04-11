@@ -98,6 +98,11 @@ export class CalendarDialog extends HTMLDialogElement {
       this.#setLocation(data.eventLocation);
     }
 
+    if (data.description) {
+      this.querySelector("#calendarDescriptionContent").textContent =
+        data.description;
+    }
+
     this.#data = data;
   }
 

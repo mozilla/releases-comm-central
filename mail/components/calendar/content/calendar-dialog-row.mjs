@@ -8,6 +8,7 @@
  *
  * @tagname calendar-dialog-row
  *
+ * @attribute {boolean} [expanding] - Determines whether content can be expanded.
  * @slot icon - The icon image for the row
  * @slot label - The label for the row.
  * @slot content - Body content for the row.
@@ -29,6 +30,10 @@ export class CalendarDialogRow extends HTMLElement {
     const template = document.getElementById("calendarDialogRowTemplate");
     const clonedNode = template.content.cloneNode(true);
     shadowRoot.append(clonedNode, style);
+
+    this.shadowRoot
+      .querySelector("#row")
+      .classList.toggle("expanding-content", this.getAttribute("expanding"));
   }
 }
 

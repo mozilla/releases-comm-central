@@ -16,7 +16,7 @@ export default {
 
 const RowTemplateDefault = () => html`
   <template id="calendarDialogRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
-    <div class="calendar-dialog-row">
+    <div id="row" class="calendar-dialog-row">
       <slot name="icon"></slot>
       <slot name="label"></slot>
       <slot name="content"></slot>
@@ -80,6 +80,45 @@ const RowTemplateLocationLink = () => html`
   </calendar-dialog-row>
 `;
 
+const RowTemplateDescription = () => html`
+  <template id="calendarDialogRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
+    <div class="calendar-dialog-row">
+      <slot name="icon"></slot>
+      <slot name="label"></slot>
+      <slot name="content"></slot>
+    </div>
+  </template>
+  <calendar-dialog-row>
+    <img
+      slot="icon"
+      class="icon-description"
+      src=""
+      data-l10n-id="calendar-dialog-description-row-icon"
+    />
+    <span class="row-label" slot="label">Description</span>
+    <div
+      id="calendarDescriptionContent"
+      slot="content"
+      class="description-text"
+    >
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut commodo nibh
+      id mattis lacinia. Cras mi nisl, dapibus eu dui a, tempor bibendum felis.
+      Pellentesque ut sollicitudin tortor.
+      <br />
+      <br />
+      Suspendisse arcu lorem, aliquet id ex sit amet, fermentum aliquet mi.
+      Donec sapien dolor, ullamcorper tincidunt imperdiet in, sollicitudin ut
+      leo.
+      <br />
+      <br />
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut commodo nibh
+      id mattis lacinia. Cras mi nisl, dapibus eu dui a, tempor bibendum felis.
+      Pellentesque ut sollicitudin tortor.
+    </div>
+  </calendar-dialog-row>
+`;
+
 export const CalendarDialogRow = RowTemplateDefault.bind({});
 export const CalendarDialogRowLabelOnly = RowTemplateLabelOnly.bind({});
 export const CalendarDialogRowLocationLink = RowTemplateLocationLink.bind({});
+export const CalendarDialgoRowDescription = RowTemplateDescription.bind({});

@@ -7,7 +7,7 @@
   </head>
   <body>
     <template id="calendarDialogRowTemplate">
-      <div class="calendar-dialog-row">
+      <div id="row" class="calendar-dialog-row">
         <slot name="icon"></slot>
         <slot name="label"></slot>
         <slot name="content"></slot>
@@ -46,6 +46,35 @@
                 <span id="locationText" hidden="hidden"></span>
               </div>
             </calendar-dialog-row>
+            <div id="calendarDescription" class="expanding-row">
+              <calendar-dialog-row id="calendarDescriptionRow" expanding="true">
+                <img
+                  slot="icon"
+                  class="icon-description"
+                  src=""
+                  data-l10n-id="calendar-dialog-description-row-icon"
+                />
+                <span
+                  slot="label"
+                  data-l10n-id="calendar-dialog-description-label"
+                ></span>
+                <div
+                  id="calendarDescriptionContent"
+                  slot="content"
+                  class="description-content"
+                ></div>
+              </calendar-dialog-row>
+              <button
+                id="expandDescription"
+                class="button button-flat expand-button icon-button"
+              >
+                <img
+                  src=""
+                  class="icon-nav-right"
+                  data-l10n-id="calendar-dialog-description-expand-icon"
+                />
+              </button>
+            </div>
           </div>
           <div id="calendarDialogOtherSubview" hidden="hidden">Test only subview</div>
         </calendar-dialog-subview-manager>

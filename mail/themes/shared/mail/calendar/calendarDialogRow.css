@@ -8,6 +8,10 @@
   align-items: center;
   gap: var(--calendar-dialog-row-content-gap) var(--calendar-dialog-row-column-gap);
   padding-inline: var(--calendar-dialog-row-padding-inline);
+
+  &.expanding-content {
+    padding-inline-end: 0;
+  }
 }
 
 slot[name="icon"]::slotted(img) {
