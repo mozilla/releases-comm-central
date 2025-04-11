@@ -32,6 +32,8 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgLocalFolderHdrs.h"
 
+#include "mozilla/SpinEventLoopUntil.h"
+
 #define NS_MSGCOMPFIELDS_CID                  \
   {/* e64b0f51-0d7b-4e2f-8c60-3862ee8c174f */ \
    0xe64b0f51,                                \
@@ -292,13 +294,17 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode,
   nsMsgI18NConvertFromUnicode(
       charset ? nsDependentCString(charset) : EmptyCString(), bodyW, bodyA);
 
-  nsCOMPtr<nsIImportService> impService(
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIImportService> importService(
       do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // nsIImportService::CreateRFC822Message creates a runnable and dispatches to
+  // nsIImportService.createRFC822Message creates a runnable and dispatches to
   // the main thread.
-  rv = impService->CreateRFC822Message(
+  rv = importService->CreateRFC822Message(
       m_pIdentity,   // dummy identity
       m_pMsgFields,  // message fields
       msg.BodyIsHtml() ? "text/html" : "text/plain",
@@ -316,10 +322,12 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode,
     IMPORT_LOG1("*** Error, CreateAndSendMessage FAILED: %s\n", name.get());
   } else {
     // Wait for the listener to get done.
-    nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
-    while (!pListen->m_done) {
-      NS_ProcessNextEvent(thread, true);
-    }
+    mozilla::SpinEventLoopUntil(
+        "nsIImportService.createRFC822Message is async"_ns, [=]() {
+          bool shutdownInProgress = false;
+          accountManager->GetShutdownInProgress(&shutdownInProgress);
+          return pListen->m_done || shutdownInProgress;
+        });
   }
 
   if (pListen->m_location) {

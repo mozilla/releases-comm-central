@@ -3,10 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
-
-  The import service.
-
+/**
+ * The import service.
  */
 
 #include "nsISupports.idl"
@@ -21,13 +19,17 @@ interface nsIMsgCompFields;
 interface nsIMsgAttachedFile;
 interface nsIMsgEmbeddedImageData;
 
+%{ C++
+#define NS_IMPORTSERVICE_CONTRACTID "@mozilla.org/import/import-service;1"
+%}
+
 [scriptable, uuid(d0ed4c50-5997-49c9-8a6a-045f0680ed29)]
 interface nsIImportService : nsISupports {
-  nsIImportMailboxDescriptor CreateNewMailboxDescriptor();
-  nsIImportABDescriptor CreateNewABDescriptor();
-  nsIImportGeneric CreateNewGenericMail();
-  nsIImportGeneric CreateNewGenericAddressBooks();
-  void CreateRFC822Message(in nsIMsgIdentity aIdentity,
+  nsIImportMailboxDescriptor createNewMailboxDescriptor();
+  nsIImportABDescriptor createNewABDescriptor();
+  nsIImportGeneric createNewGenericMail();
+  nsIImportGeneric createNewGenericAddressBooks();
+  void createRFC822Message(in nsIMsgIdentity aIdentity,
                            in nsIMsgCompFields aMsgFields,
                            in string aBodytype,
                            in ACString aBody,
@@ -37,12 +39,3 @@ interface nsIImportService : nsISupports {
                            in nsIMsgSendListener aListener);
 
 };
-
-%{ C++
-#define NS_IMPORTSERVICE_CID              \
-{ /* 5df96d60-1726-11d3-a206-00a0cc26da63 */      \
-   0x5df96d60, 0x1726, 0x11d3,                   \
-   {0xa2, 0x06, 0x0, 0xa0, 0xcc, 0x26, 0xda, 0x63}}
-
-#define NS_IMPORTSERVICE_CONTRACTID "@mozilla.org/import/import-service;1"
-%}
