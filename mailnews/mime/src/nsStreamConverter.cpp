@@ -579,17 +579,6 @@ nsresult nsStreamConverter::SetMimeOutputType(nsMimeOutputType aType) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsStreamConverter::GetMimeOutputType(
-    nsMimeOutputType* aOutFormat) {
-  nsresult rv = NS_OK;
-  if (aOutFormat)
-    *aOutFormat = mOutputType;
-  else
-    rv = NS_ERROR_NULL_POINTER;
-
-  return rv;
-}
-
 //
 // This is needed by libmime for MHTML link processing...this is the URI
 // associated with this input stream
