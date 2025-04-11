@@ -93,7 +93,6 @@ interface nsIMsgNewsFolder : nsISupports {
   readonly attribute ACString charset;
 
   readonly attribute AUTF8String newsrcLine;
-  readonly attribute ACString optionLines;
   void SetNewsrcHasChanged(in boolean newsrcHasChanged);
   void updateSummaryFromNNTPInfo(in long oldest, in long youngest, in long total);
   void removeMessage(in nsMsgKey key);

@@ -785,7 +785,7 @@ int32_t nsMsgNewsFolder::HandleNewsrcLine(const char* line,
   if (line[0] == '#' || line[0] == '\r' || line[0] == '\n') return 0;
 
   if ((line[0] == 'o' || line[0] == 'O') && !PL_strncasecmp(line, "options", 7))
-    return RememberLine(nsDependentCString(line));
+    return 0;
 
   const char* s = nullptr;
   const char* setStr = nullptr;
@@ -794,8 +794,9 @@ int32_t nsMsgNewsFolder::HandleNewsrcLine(const char* line,
   for (s = line; s < end; s++)
     if ((*s == ':') || (*s == '!')) break;
 
-  if (*s == 0) /* What is this?? Well, don't just throw it away... */
-    return RememberLine(nsDependentCString(line));
+  if (*s == 0) {
+    return 0;
+  }
 
   bool subscribed = (*s == ':');
   setStr = s + 1;
@@ -835,17 +836,6 @@ int32_t nsMsgNewsFolder::HandleNewsrcLine(const char* line,
   }
 
   return 0;
-}
-
-int32_t nsMsgNewsFolder::RememberLine(const nsACString& line) {
-  mOptionLines = line;
-  mOptionLines.Append(MSG_LINEBREAK);
-  return 0;
-}
-
-nsresult nsMsgNewsFolder::ForgetLine() {
-  mOptionLines.Truncate();
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::GetGroupUsername(nsACString& aGroupUsername) {
@@ -1186,12 +1176,6 @@ NS_IMETHODIMP nsMsgNewsFolder::SetReadSetFromStr(const nsACString& newsrcLine) {
   nsCOMPtr<nsINewsDatabase> db = do_QueryInterface(mDatabase);
   if (db)  // it's ok not to have a db here.
     db->SetReadSet(mReadSet);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgNewsFolder::GetOptionLines(nsACString& optionLines) {
-  optionLines = mOptionLines;
   return NS_OK;
 }
 
