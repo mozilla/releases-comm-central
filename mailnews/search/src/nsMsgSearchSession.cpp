@@ -30,6 +30,7 @@ nsMsgSearchSession::nsMsgSearchSession() {
   m_expressionTree = nullptr;
   m_searchPaused = false;
   m_iListener = -1;
+  m_searchRunning = false;
 }
 
 nsMsgSearchSession::~nsMsgSearchSession() {
@@ -227,7 +228,6 @@ NS_IMETHODIMP nsMsgSearchSession::InterruptSearch() {
   nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
   if (msgWindow) {
     EnableFolderNotifications(true);
-    if (m_idxRunningScope < m_scopeList.Length()) msgWindow->StopUrls();
 
     while (m_idxRunningScope < m_scopeList.Length()) {
       ReleaseFolderDBRef();
@@ -241,6 +241,7 @@ NS_IMETHODIMP nsMsgSearchSession::InterruptSearch() {
     m_backgroundTimer = nullptr;
     NotifyListenersDone(NS_MSG_SEARCH_INTERRUPTED);
   }
+  m_searchRunning = false;
   return NS_OK;
 }
 
@@ -332,6 +333,7 @@ nsresult nsMsgSearchSession::Initialize() {
 
     rv = scopeTerm->InitializeAdapter(m_termList);
   }
+  m_searchRunning = true;
 
   return rv;
 }
@@ -341,8 +343,7 @@ nsresult nsMsgSearchSession::BeginSearching() {
   // unify the scheduling mechanisms. If the first scope is a newsgroup, and
   // it's not Dredd-capable, we build the URL queue. All other searches can be
   // done with one URL
-  nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
-  if (msgWindow) msgWindow->SetStopped(false);
+  m_searchRunning = true;
   return DoNextSearch();
 }
 
@@ -356,18 +357,14 @@ nsresult nsMsgSearchSession::DoNextSearch() {
     }
     NS_ENSURE_STATE(!m_runningUrl.IsEmpty());
     return GetNextUrl();
-  } else {
-    return SearchWOUrls();
   }
+  return SearchWOUrls();
 }
 
 nsresult nsMsgSearchSession::GetNextUrl() {
-  nsCOMPtr<nsIMsgMessageService> msgService;
-
-  bool stopped = false;
-  nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
-  if (msgWindow) msgWindow->GetStopped(&stopped);
-  if (stopped) return NS_OK;
+  if (!m_searchRunning) {
+    return NS_OK;
+  }
 
   nsMsgSearchScopeTerm* currentTerm = GetRunningScope();
   NS_ENSURE_TRUE(currentTerm, NS_ERROR_NULL_POINTER);
@@ -376,9 +373,11 @@ nsresult nsMsgSearchSession::GetNextUrl() {
   if (folder) {
     nsCString folderUri;
     folder->GetURI(folderUri);
+    nsCOMPtr<nsIMsgMessageService> msgService;
     nsresult rv =
         GetMessageServiceFromURI(folderUri, getter_AddRefs(msgService));
 
+    nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
     if (NS_SUCCEEDED(rv) && msgService && currentTerm)
       msgService->Search(this, msgWindow, currentTerm->m_folder, m_runningUrl);
     return rv;
@@ -402,14 +401,9 @@ void nsMsgSearchSession::TimerCallback(nsITimer* aTimer, void* aClosure) {
   }
 
   bool done = false;
-  bool stopped = false;
-
   searchSession->TimeSlice(&done);
-  nsCOMPtr<nsIMsgWindow> msgWindow(
-      do_QueryReferent(searchSession->m_msgWindowWeak));
-  if (msgWindow) msgWindow->GetStopped(&stopped);
 
-  if (done || stopped) {
+  if (done) {
     if (aTimer) aTimer->Cancel();
     searchSession->m_backgroundTimer = nullptr;
     if (searchSession->m_idxRunningScope < searchSession->m_scopeList.Length())
@@ -475,6 +469,7 @@ nsresult nsMsgSearchSession::NotifyListenersDone(nsresult aStatus) {
       listener->OnSearchDone(aStatus);
   }
   m_iListener = -1;
+  m_searchRunning = false;
   return NS_OK;
 }
 

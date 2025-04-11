@@ -592,7 +592,7 @@ var MessageWindowController = {
         ZoomManager.toggleZoom();
         break;
       case "cmd_stop":
-        msgWindow.StopUrls();
+        messageBrowser.stop();
         break;
       case "cmd_chat": {
         const win = Services.wm.getMostRecentWindow("mail:3pane");

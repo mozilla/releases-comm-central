@@ -128,7 +128,6 @@ NS_IMETHODIMP nsMsgProgress::OnStateChange(nsIWebProgress* aWebProgress,
   nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindow));
   if (aStateFlags == nsIWebProgressListener::STATE_STOP && msgWindow &&
       NS_FAILED(aStatus)) {
-    msgWindow->StopUrls();
     msgWindow->SetStatusFeedback(nullptr);
   }
 

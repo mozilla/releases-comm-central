@@ -54,17 +54,6 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
   if (aURL) {
     m_runningUrl = do_QueryInterface(aURL, &rv);
     if (NS_SUCCEEDED(rv) && m_runningUrl) {
-      nsCOMPtr<nsIMsgWindow> window;
-      rv = m_runningUrl->GetMailboxAction(&m_mailboxAction);
-      // clear stopped flag on msg window, because we care.
-      nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
-      if (mailnewsUrl) {
-        mailnewsUrl->GetMsgWindow(getter_AddRefs(window));
-        if (window) window->SetStopped(false);
-      }
-
-      MOZ_ASSERT(m_mailboxAction != nsIMailboxUrl::ActionInvalid);
-
       if (RunningMultipleMsgUrl()) {
         // if we're running multiple msg url, we clear the event sink because
         // the multiple msg urls will handle setting the progress.
@@ -91,6 +80,11 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
             m_runningUrl->SetMessageSize(msgSize);
 
             SetContentLength(msgSize);
+            rv = m_runningUrl->GetMailboxAction(&m_mailboxAction);
+            NS_ENSURE_SUCCESS(rv, rv);
+            nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
+                do_QueryInterface(m_runningUrl);
+            MOZ_ASSERT(m_mailboxAction != nsIMailboxUrl::ActionInvalid);
             mailnewsUrl->SetMaxProgress(msgSize);
 
             rv = msgHdr->GetFolder(getter_AddRefs(folder));
@@ -147,16 +141,8 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
     DoneReadingMessage();
   }
   // I'm not getting cancel status - maybe the load group still has the status.
-  bool stopped = false;
   if (m_runningUrl) {
-    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
-    if (mailnewsUrl) {
-      nsCOMPtr<nsIMsgWindow> window;
-      mailnewsUrl->GetMsgWindow(getter_AddRefs(window));
-      if (window) window->GetStopped(&stopped);
-    }
-
-    if (!stopped && NS_SUCCEEDED(aStatus) &&
+    if (NS_SUCCEEDED(aStatus) &&
         (m_mailboxAction == nsIMailboxUrl::ActionCopyMessage ||
          m_mailboxAction == nsIMailboxUrl::ActionMoveMessage)) {
       uint32_t numMoveCopyMsgs;

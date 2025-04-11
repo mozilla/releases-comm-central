@@ -6,6 +6,7 @@
 #include "msgCore.h"
 #include "netCore.h"
 #include "nsNetUtil.h"
+#include "nsIAppStartup.h"
 #include "nsImapOfflineSync.h"
 #include "nsImapMailFolder.h"
 #include "nsMsgFolderFlags.h"
@@ -19,6 +20,7 @@
 #include "nsImapProtocol.h"
 #include "nsMsgUtils.h"
 #include "nsIAutoSyncManager.h"
+#include "mozilla/Components.h"
 #include "mozilla/Unused.h"
 
 NS_IMPL_ISUPPORTS(nsImapOfflineSync, nsIUrlListener, nsIMsgCopyServiceListener,
@@ -45,9 +47,6 @@ nsImapOfflineSync::Init(nsIMsgWindow* window, nsIUrlListener* listener,
   m_singleFolderToUpdate = singleFolderOnly;
   m_pseudoOffline = isPseudoOffline;
 
-  // not the perfect place for this, but I think it will work.
-  if (m_window) m_window->SetStopped(false);
-
   return NS_OK;
 }
 
@@ -63,21 +62,20 @@ NS_IMETHODIMP
 nsImapOfflineSync::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
   nsresult rv = exitCode;
 
-  // where do we make sure this gets cleared when we start running urls?
-  bool stopped = false;
-  if (m_window) m_window->GetStopped(&stopped);
-
   if (m_curTempFile) {
     m_curTempFile->Remove(false);
     m_curTempFile = nullptr;
   }
-  // NS_BINDING_ABORTED is used for the user pressing stop, which
-  // should cause us to abort the offline process. Other errors
-  // should allow us to continue.
-  if (stopped) {
+
+  bool isShuttingDown = false;
+  nsCOMPtr<nsIAppStartup> appStartup(
+      mozilla::components::AppStartup::Service());
+  appStartup->GetShuttingDown(&isShuttingDown);
+  if (isShuttingDown) {
     if (m_listener) m_listener->OnStopRunningUrl(url, NS_BINDING_ABORTED);
     return NS_OK;
   }
+
   nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(url);
 
   if (imapUrl)
