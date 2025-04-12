@@ -1093,6 +1093,12 @@ class Tab extends TabBase {
   get successorTabId() {
     return -1;
   }
+
+  /** Returns the group id of the tab. */
+  get groupId() {
+    // Thunderbird doesn't support tab groups.
+    return -1;
+  }
 }
 
 class TabmailTab extends Tab {
