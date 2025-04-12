@@ -155,9 +155,10 @@ function manageIdentities() {
 
   function onCloseIdentities() {
     if (args.result) {
-      // Refresh the SMTP list in case the user changed server properties
-      // from the identity dialog.
-      loadSMTPServerList();
+      // Reload, the user may have changed details about the main identity -
+      // which is this page am-main.xhtml.
+      // Or done SMTP server changes/additions.
+      window.location.reload();
     }
   }
 }
