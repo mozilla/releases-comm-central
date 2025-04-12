@@ -618,8 +618,9 @@ function SaveAsTemplate(uri) {
  * @param {string} data - The message data.
  */
 async function msgOpenMessageFromString(data) {
+  // Ensure the filename isn't predictable.
   const path = await IOUtils.createUniqueFile(
-    PathUtils.tempDir,
+    PathUtils.join(PathUtils.tempDir, "pid-" + Services.appinfo.processID),
     "subPart.eml",
     0o600
   );
@@ -627,10 +628,9 @@ async function msgOpenMessageFromString(data) {
   const tempFile = await IOUtils.getFile(path);
 
   // Delete file on exit, because Windows locks the file
-  const extAppLauncher = Cc[
-    "@mozilla.org/uriloader/external-helper-app-service;1"
-  ].getService(Ci.nsPIExternalAppLauncher);
-  extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+  Cc["@mozilla.org/uriloader/external-helper-app-service;1"]
+    .getService(Ci.nsPIExternalAppLauncher)
+    .deleteTemporaryFileOnExit(tempFile);
 
   const url = Services.io
     .getProtocolHandler("file")
@@ -640,6 +640,9 @@ async function msgOpenMessageFromString(data) {
   MailUtils.openEMLFile(window, tempFile, url);
 }
 
+/**
+ * @param {string} message - Message URI.
+ */
 function viewEncryptedPart(message) {
   let url = MailServices.mailSession.ConvertMsgURIToMsgURL(message, msgWindow);
 
