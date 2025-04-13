@@ -1,0 +1,5 @@
+[default]
+head = "head_feeds.js"
+support-files = ["resources/*"]
+
+["test_feedparser.js"]

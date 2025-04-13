@@ -1,0 +1,17 @@
+[default]
+head = "head.js"
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+subsuite = "thunderbird"
+support-files = [
+  "files/icon.svg",
+  "files/management.html",
+]
+
+["browser_repeat_upload.js"]
+support-files = ["files/green_eggs.txt"]

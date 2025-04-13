@@ -1,0 +1,6 @@
+[default]
+head = "head_mdn.js"
+
+["test_askuser.js"]
+
+["test_mdnFlags.js"]

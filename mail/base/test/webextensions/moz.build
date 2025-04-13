@@ -6,7 +6,7 @@ with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "Add-Ons: General")
 
 BROWSER_CHROME_MANIFESTS += [
-    "browser.ini",
+    "browser.toml",
 ]
 
 addons = [

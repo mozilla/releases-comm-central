@@ -23,4 +23,4 @@ TESTING_JS_MODULES.jsmime += [
     "jsmime/test/unit/mock_date.js",
 ]
 
-XPCSHELL_TESTS_MANIFESTS += ["jsmime/test/unit/xpcshell.ini"]
+XPCSHELL_TESTS_MANIFESTS += ["jsmime/test/unit/xpcshell.toml"]

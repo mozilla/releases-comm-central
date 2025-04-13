@@ -235,7 +235,7 @@ async function subtest() {
     await firstNotification;
 
     // Check there's no second entry into AddrBookDirectory.modifyCard.
-    // eslint-disable-next-line no-undef
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(resolve => setTimeout(resolve, 500));
     observer.checkAndClearNotifications({
       "addrbook-contact-created": [],

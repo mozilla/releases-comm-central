@@ -48,7 +48,7 @@ XPCOM_MANIFESTS += [
     "components.conf",
 ]
 
-XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.ini"]
+XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.toml"]
 
 Library("mailcomps")
 FINAL_LIBRARY = "xul"

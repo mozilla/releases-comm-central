@@ -14,5 +14,5 @@ EXTRA_JS_MODULES["services-sync"].engines += [
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [
-    "test/unit/xpcshell.ini",
+    "test/unit/xpcshell.toml",
 ]

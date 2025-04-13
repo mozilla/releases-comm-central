@@ -1,0 +1,30 @@
+[default]
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+subsuite = "thunderbird"
+support-files = ["data/**"]
+
+["browser_collectKeys.js"]
+
+["browser_keyWizard.js"]
+
+["browser_openPGPDrafts.js"]
+
+["browser_inlineOpenPGP.js"]
+
+["browser_perm_decrypt.js"]
+
+["browser_viewMessage.js"]
+
+["browser_viewMessage2.js"]
+
+["browser_viewMessageSecurity.js"]
+
+["browser_viewPartialMessage.js"]
+
+["browser_upload.js"]

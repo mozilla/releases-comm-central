@@ -4,21 +4,21 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 BROWSER_CHROME_MANIFESTS += [
-    "browser/browser.ini",
-    "browser/contextMenu/browser.ini",
-    "browser/eventDialog/browser.ini",
+    "browser/browser.toml",
+    "browser/contextMenu/browser.toml",
+    "browser/eventDialog/browser.toml",
     "browser/i18n/browser_ar_QA.toml",
     "browser/i18n/browser_de_DE.toml",
     "browser/i18n/browser_en_NZ.toml",
     "browser/i18n/browser_en_US.toml",
     "browser/i18n/browser_ja_JP.toml",
-    "browser/invitations/browser.ini",
-    "browser/preferences/browser.ini",
-    "browser/providers/browser.ini",
-    "browser/recurrence/browser.ini",
-    "browser/recurrence/browser_rotated.ini",
-    "browser/timezones/browser.ini",
-    "browser/views/browser.ini",
+    "browser/invitations/browser.toml",
+    "browser/preferences/browser.toml",
+    "browser/providers/browser.toml",
+    "browser/recurrence/browser.toml",
+    "browser/recurrence/browser_rotated.toml",
+    "browser/timezones/browser.toml",
+    "browser/views/browser.toml",
 ]
 
 TESTING_JS_MODULES.calendar += [
@@ -30,6 +30,6 @@ TESTING_JS_MODULES.calendar += [
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [
-    "unit/providers/xpcshell.ini",
-    "unit/xpcshell.ini",
+    "unit/providers/xpcshell.toml",
+    "unit/xpcshell.toml",
 ]

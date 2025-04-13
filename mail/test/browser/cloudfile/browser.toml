@@ -1,0 +1,58 @@
+[default]
+head = "head.js"
+prefs = [
+  "mail.account.account1.server=server1",
+  "mail.account.account2.identities=id1,id2",
+  "mail.account.account2.server=server2",
+  "mail.accountmanager.accounts=account1,account2",
+  "mail.accountmanager.defaultaccount=account2",
+  "mail.accountmanager.localfoldersserver=server1",
+  "mail.identity.id1.fullName=Tinderbox",
+  "mail.identity.id1.htmlSigFormat=false",
+  "mail.identity.id1.smtpServer=smtp1",
+  "mail.identity.id1.useremail=tinderbox@foo.invalid",
+  "mail.identity.id1.valid=true",
+  "mail.identity.id2.fullName=Tinderboxpushlog",
+  "mail.identity.id2.htmlSigFormat=true",
+  "mail.identity.id2.smtpServer=smtp1",
+  "mail.identity.id2.useremail=tinderboxpushlog@foo.invalid",
+  "mail.identity.id2.valid=true",
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.server.server1.type=none",
+  "mail.server.server1.userName=nobody",
+  "mail.server.server2.check_new_mail=false",
+  "mail.server.server2.directory-rel=[ProfD]Mail/tinderbox",
+  "mail.server.server2.download_on_biff=true",
+  "mail.server.server2.hostname=tinderbox123",
+  "mail.server.server2.login_at_startup=false",
+  "mail.server.server2.name=tinderbox@foo.invalid",
+  "mail.server.server2.type=pop3",
+  "mail.server.server2.userName=tinderbox",
+  "mail.server.server2.whiteListAbURI=",
+  "mail.shell.checkDefaultClient=false",
+  "mail.smtp.defaultserver=smtp1",
+  "mail.smtpserver.smtp1.type=smtp",
+  "mail.smtpserver.smtp1.hostname=tinderbox123",
+  "mail.smtpserver.smtp1.username=tinderbox",
+  "mail.smtpservers=smtp1",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+  "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
+]
+subsuite = "thunderbird"
+support-files = [
+  "data/**",
+  "html/**",
+]
+
+["browser_attachmentItem.js"]
+
+["browser_attachmentUrls.js"]
+
+["browser_attachmentErrors.js"]
+
+["browser_notifications.js"]
+
+["browser_filelinkTelemetry.js"]

@@ -71,6 +71,7 @@ add_task(async function saveDraft() {
     progress
   );
   await progressListener.promise;
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
 });
 

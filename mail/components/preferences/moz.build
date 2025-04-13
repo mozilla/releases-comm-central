@@ -21,5 +21,5 @@ if CONFIG["MOZ_UPDATER"]:
     DEFINES["MOZ_UPDATER"] = 1
 
 BROWSER_CHROME_MANIFESTS += [
-    "test/browser/browser.ini",
+    "test/browser/browser.toml",
 ]

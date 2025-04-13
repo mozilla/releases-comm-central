@@ -1,0 +1,6 @@
+[default]
+prefs = ["experimental.mail.ews.enabled=true"]
+
+["test_folder_sync.js"]
+
+["test_syncMessagesForFolder.js"]

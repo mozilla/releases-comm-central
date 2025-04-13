@@ -1,0 +1,24 @@
+[default]
+head = "head.js"
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+  "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
+]
+subsuite = "thunderbird"
+support-files = ["data/**"]
+
+["browser_messageHeader.js"]
+
+["browser_messageHeaderCustomize.js"]
+
+["browser_phishingBar.js"]
+
+["browser_replyIdentity.js"]
+
+["browser_replyToListFromAddressSelection.js"]
+
+["browser_returnReceipt.js"]

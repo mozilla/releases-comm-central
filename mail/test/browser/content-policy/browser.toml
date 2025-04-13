@@ -1,0 +1,25 @@
+[default]
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+  "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
+]
+skip-if = ["debug"]
+subsuite = "thunderbird"
+support-files = ["html/**"]
+
+["browser_composeMailto.js"]
+
+["browser_dnsPrefetch.js"]
+
+["browser_exposedInContentTabs.js"]
+
+["browser_generalContentPolicy.js"]
+skip-if = ["headless"]  # clipboard doesn't work with headless
+
+["browser_jsContentPolicy.js"]
+
+["browser_pluginsPolicy.js"]

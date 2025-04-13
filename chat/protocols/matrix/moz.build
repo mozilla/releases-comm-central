@@ -6,7 +6,7 @@
 with Files("**"):
     BUG_COMPONENT = ("Chat Core", "Matrix")
 
-XPCSHELL_TESTS_MANIFESTS += ["test/xpcshell.ini"]
+XPCSHELL_TESTS_MANIFESTS += ["test/xpcshell.toml"]
 
 DIRS += [
     "lib",

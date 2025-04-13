@@ -1,0 +1,47 @@
+["test_ext_experiments.js"]
+tags = ["addrbook"]
+
+["test_ext_folders.js"] # Partially disabled for NNTP (no support for folder operation
+
+["test_ext_folders_isSearch.js"]
+
+["test_ext_folders_mv3.js"] # Partially disabled for NNTP (no support for folder operations)
+
+["test_ext_folders_mv3_event_pages.js"] # Disabled for NNTP (no support for folder operations)
+
+["test_ext_folders_query_capabilities.js"]
+
+["test_ext_messages.js"] # Disabled for NNTP (no support for Trash folder) and partially disabled for IMAP
+
+["test_ext_messages_attachments.js"] # IMAP disabled (doesn't work with test server)
+support-files = ["messages/**"]
+
+["test_ext_messages_bug_1737532.js"]
+
+["test_ext_messages_bug_1918925.js"]
+
+["test_ext_messages_encrypted.js"]
+
+["test_ext_messages_get.js"] # PGP test disabled for NNTP
+
+["test_ext_messages_getFull_raw.js"]
+support-files = ["messages/**"]
+
+["test_ext_messages_id.js"] # Disabled for NNTP (message move not supported)
+
+["test_ext_messages_import.js"]
+support-files = ["messages/**"]
+
+["test_ext_messages_move_copy_delete.js"] # Disabled for NNTP (no support for Trash folder)
+
+["test_ext_messages_onNewMailReceived.js"]
+
+["test_ext_messages_query_multiple_accounts_folders.js"]
+
+["test_ext_messages_query.js"]
+skip-if = ["ccov"]  # Bug 1827450.
+support-files = ["messages/alternative.eml"]
+
+["test_ext_messages_tags.js"]
+
+["test_ext_messages_update.js"] # Disabled for NNTP (no support for Trash folder)

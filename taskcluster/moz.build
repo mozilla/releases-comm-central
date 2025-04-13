@@ -12,5 +12,5 @@ with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "Build Config")
 
 PYTHON_UNITTEST_MANIFESTS += [
-    "comm_taskgraph/test/python.ini",
+    "comm_taskgraph/test/python.toml",
 ]

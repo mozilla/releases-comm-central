@@ -1,0 +1,70 @@
+[default]
+head = "head_gloda.js"
+support-files = [
+  "base_*.js",
+  "resources/*",
+]
+prefs = ["gloda.loglevel=Debug"]
+
+["test_corrupt_database.js"]
+
+["test_folder_logic.js"]
+
+["test_fts3_tokenizer.js"]
+
+["test_gloda_content_imap_offline.js"]
+
+["test_gloda_content_local.js"]
+
+["test_index_addressbook.js"]
+
+["test_index_bad_messages.js"]
+
+["test_index_compaction.js"]
+tags = ["compact"]
+
+["test_index_junk_imap_offline.js"]
+
+["test_index_junk_imap_online.js"]
+
+["test_index_junk_local.js"]
+
+["test_index_messages_imap_offline.js"]
+
+["test_index_messages_imap_online.js"]
+
+["test_index_messages_imap_online_to_offline.js"]
+
+["test_index_messages_local.js"]
+
+["test_index_sweep_folder.js"]
+
+["test_intl.js"]
+
+["test_migration.js"]
+
+["test_mime_attachments_size.js"]
+
+["test_mime_emitter.js"]
+
+["test_msg_search.js"]
+
+["test_noun_mimetype.js"]
+
+["test_nuke_migration.js"]
+
+["test_nuke_migration_from_future.js"]
+
+["test_query_core.js"]
+
+["test_query_messages_imap_offline.js"]
+
+["test_query_messages_imap_online.js"]
+
+["test_query_messages_imap_online_to_offline.js"]
+
+["test_query_messages_local.js"]
+
+["test_smime_mimemsg_representation.js"]
+
+["test_startup_offline.js"]

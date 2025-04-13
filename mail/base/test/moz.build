@@ -9,17 +9,17 @@ with Files("**"):
 DIRS += ["webextensions"]
 
 BROWSER_CHROME_MANIFESTS += [
-    "browser/browser-detachedWindows.ini",
-    "browser/browser-drawBelowTitlebar.ini",
-    "browser/browser-drawInTitlebar.ini",
-    "browser/browser.ini",
-    "performance/browser.ini",
-    "widgets/browser.ini",
+    "browser/browser-detachedWindows.toml",
+    "browser/browser-drawBelowTitlebar.toml",
+    "browser/browser-drawInTitlebar.toml",
+    "browser/browser.toml",
+    "performance/browser.toml",
+    "widgets/browser.toml",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [
-    "unit/xpcshell.ini",
-    "unit/xpcshell_maildir.ini",
+    "unit/xpcshell.toml",
+    "unit/xpcshell_maildir.toml",
 ]
 
 TESTING_JS_MODULES += [

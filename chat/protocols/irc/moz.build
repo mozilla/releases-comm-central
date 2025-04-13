@@ -6,7 +6,7 @@
 with Files("**"):
     BUG_COMPONENT = ("Chat Core", "IRC")
 
-XPCSHELL_TESTS_MANIFESTS += ["test/xpcshell.ini"]
+XPCSHELL_TESTS_MANIFESTS += ["test/xpcshell.toml"]
 
 EXTRA_JS_MODULES += [
     "irc.sys.mjs",

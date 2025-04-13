@@ -1,0 +1,15 @@
+[default]
+head = "head_bayes.js"
+support-files = ["resources/*"]
+
+["test_bug228675.js"]
+
+["test_customTokenization.js"]
+
+["test_junkAsTraits.js"]
+
+["test_msgCorpus.js"]
+
+["test_traitAliases.js"]
+
+["test_traits.js"]

@@ -1,0 +1,38 @@
+[default]
+prefs = [
+  "ldap_2.servers.osx.description=",
+  "ldap_2.servers.osx.dirType=-1",
+  "ldap_2.servers.osx.uri=",
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+  "chat.otr.enable=false",
+]
+subsuite = "thunderbird"
+head = "head.js"
+
+["browser_browserRequest.js"]
+
+["browser_chatNotifications.js"]
+
+["browser_contextMenu.js"]
+
+["browser_logs.js"]
+
+["browser_messagesMail.js"]
+
+["browser_readMessage.js"]
+
+["browser_removeMessage.js"]
+
+["browser_requestNotifications.js"]
+
+["browser_restoreConversations.js"]
+
+["browser_spacesToolbarChat.js"]
+
+["browser_tooltips.js"]
+
+["browser_updateMessage.js"]

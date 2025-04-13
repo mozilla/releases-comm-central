@@ -1,0 +1,161 @@
+[default]
+head = "head_mailbase.js"
+dupe-manifest = true
+prefs = [
+  "mail.biff.use_new_count_in_badge=false",
+  "mailnews.oauth.loglevel=Debug",
+]
+support-files = [
+  "nodelist_test.xml",
+  "data/*",
+]
+
+["test_accountMgr.js"]
+
+["test_accountMgr2.js"]
+
+["test_accountMgrCustomTypes.js"]
+
+["test_accountMgrMovedLocalFolders.js"]
+
+["test_accountMgrRemoveDefault.js"]
+
+["test_accountMgrUniqueServerKey.js"]
+
+["test_acctRepair.js"]
+
+["test_bccInDatabase.js"]
+
+["test_bug428427.js"]
+
+["test_bug434810.js"]
+
+["test_bug471682.js"]
+
+["test_bug514945.js"]
+
+["test_closedDB.js"]
+
+["test_compactColumnSave.js"]
+tags = ["compact"]
+
+["test_converterDeferredAccount.js"]
+
+["test_copyChaining.js"]
+
+["test_copyToInvalidDB.js"]
+
+["test_detachToFile.js"]
+
+["test_emptyTrash.js"]
+
+["test_fix_deferred_accounts.js"]
+
+["test_folderCompact.js"]
+tags = ["compact"]
+
+["test_folderCompact2.js"]
+tags = ["compact"]
+
+["test_folderLookupService.js"]
+
+["test_folderStringProperties.js"]
+
+["test_formatFileSize.js"]
+
+["test_getMsgTextFromStream.js"]
+
+["test_headerFoldingInDatabase.js"]
+
+["test_hostnameUtils.js"]
+
+["test_identity.js"]
+
+["test_imapPump.js"]
+
+["test_incomingServer.js"]
+
+["test_inheritedFolderProperties.js"]
+
+["test_junkingWhenDisabled.js"]
+
+["test_loadVirtualFolders.js"]
+
+["test_mailServices.js"]
+
+["test_mailstoreConverter.js"]
+
+["test_mimemaltdetach.js"]
+
+["test_MorkParser.js"]
+
+["test_msgHdrProperties.js"]
+
+["test_MsgIncomingServer.js"]
+
+["test_MsgKeySet.js"]
+
+["test_newMailNotification.js"]
+# Not yet working for non-Mac OS
+skip-if = ["os != 'mac'"]
+
+["test_nsIFolderListener.js"]
+
+["test_nsIMsgContentPolicy.js"]
+skip-if = true  # See bug 1446587.
+
+["test_nsIMsgFolder.js"]
+
+["test_nsIMsgFolderCache.js"]
+
+["test_nsIMsgFolderListener.js"]
+
+["test_nsIMsgFolderListenerLocal.js"]
+tags = ["compact"]
+
+["test_nsIMsgTagService.js"]
+
+["test_nsMailDirProvider.js"]
+
+["test_nsMsgDBView.js"]
+
+["test_nsMsgDBView_headerValues.js"]
+
+["test_nsMsgMailSession_Alerts.js"]
+skip-if = true  # See bug 1418063.
+
+["test_nsMsgMailSession_Listeners.js"]
+
+["test_nsMsgTraitService.js"]
+
+["test_oAuth2Module.js"]
+tags = ["oauth"]
+
+["test_oAuth2Providers.js"]
+tags = ["oauth"]
+
+["test_postPluginFilters.js"]
+
+["test_retention.js"]
+
+["test_saveAs.js"]
+
+["test_testsuite_base64.js"]
+
+["test_testsuite_fakeserver_imapd_gmail.js"]
+
+["test_testsuite_fakeserver_imapd_list-extended.js"]
+
+["test_testsuite_fakeserverAuth.js"]
+
+["test_threadMsgCounts.js"]
+
+["test_viewSortByAddresses.js"]
+
+["test_virtualFolders1.js"]
+
+["test_virtualFolders2.js"]
+
+["test_virtualFolders3.js"]
+
+["test_virtualFolders4.js"]

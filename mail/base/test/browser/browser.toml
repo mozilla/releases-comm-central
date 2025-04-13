@@ -1,0 +1,183 @@
+[default]
+head = "head.js"
+prefs = [
+  "mail.biff.show_alert=false",
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spellcheck.inline=false",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+  "mailnews.default_sort_order=1",
+  "mailnews.oauth.loglevel=Debug",
+]
+subsuite = "thunderbird"
+support-files = [
+  "files/**",
+  "head_editMenu.js",
+]
+
+["browser_3paneTelemetry.js"]
+
+["browser_archive.js"]
+
+["browser_browserContext.js"]
+tags = [
+  "contextmenu",
+  "webextensions",
+]
+
+["browser_browserRequestWindow.js"]
+
+["browser_cardsView.js"]
+
+["browser_clickLinks.js"]
+
+["browser_customElements.js"]
+
+["browser_customElementUtils.js"]
+
+["browser_dragDropFolders.js"]
+skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+
+["browser_dragDropMessages.js"]
+skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+
+["browser_dummyRow.js"]
+
+["browser_editMenu.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_editMenu_delete_item.js"]
+skip-if = [
+  "os == 'mac'",
+  "debug",  # Too unreliable.
+]
+
+["browser_editMenu_favorite_folder_item.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_editMenu_properties_item.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_feedBodyDisplay.js"]
+
+["browser_feedBodyScroll.js"]
+
+["browser_fileMenu.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_findbar.js"]
+
+["browser_folderPaneContext.js"]
+tags = ["contextmenu"]
+
+["browser_folderTreeProperties.js"]
+
+["browser_folderTreeQuirks.js"]
+
+["browser_getMessages.js"]
+
+["browser_getMessages_badPassword.js"]
+skip-if = ["os == 'mac' && debug"]  # Fails almost every time. Unsure why.
+
+["browser_getMessages_certError.js"]
+
+["browser_getMessages_connectionError.js"]
+
+["browser_getMessages_deferredAccount.js"]
+
+["browser_getMessages_oAuth2.js"]
+tags = ["oauth"]
+
+["browser_getMessages_offline.js"]
+
+["browser_goMenu.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_groupedBySortPersistence.js"]
+
+["browser_interactionTelemetry.js"]
+
+["browser_mailContext.js"]
+skip-if = ["os == 'mac' && debug"]  # Frequently hangs. Bug 1897093.
+tags = ["contextmenu"]
+
+["browser_mailContext_compose.js"]
+tags = ["contextmenu"]
+
+["browser_mailContext_messageContent.js"]
+skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+tags = ["contextmenu"]
+
+["browser_mailContext_navigation.js"]
+tags = ["contextmenu"]
+
+["browser_mailContext_threadTree.js"]
+tags = ["contextmenu"]
+
+["browser_mailTabsAndWindows.js"]
+
+["browser_markAsRead.js"]
+
+["browser_menubar.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_messageBodyAs.js"]
+
+["browser_messageMenu.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_navigation.js"]
+
+["browser_oAuth2Window.js"]
+tags = ["oauth"]
+
+["browser_paneFocus.js"]
+
+["browser_preferDisplayName.js"]
+
+["browser_quota.js"]
+
+["browser_reloadBadMessage.js"]
+
+["browser_repairFolder.js"]
+
+["browser_searchMessages.js"]
+
+["browser_smartFolderDelete.js"]
+
+["browser_spacesToolbar.js"]
+
+["browser_spacesToolbarCustomize.js"]
+
+["browser_statusFeedback.js"]
+
+["browser_subscribe.js"]
+
+["browser_tabIcon.js"]
+
+["browser_tagsMenusAndKeys.js"]
+skip-if = ["os == 'mac' && debug"]  # Frequently hangs. Bug 1884033.
+
+["browser_tagsMode.js"]
+
+["browser_threadHorizontal.js"]
+
+["browser_threads.js"]
+
+["browser_threadTreeDeleting.js"]
+
+["browser_threadTreeQuirks.js"]
+
+["browser_threadTreeSelection.js"]
+
+["browser_threadTreeSorting.js"]
+
+["browser_toolsMenu.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_viewMenu.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_zoom.js"]

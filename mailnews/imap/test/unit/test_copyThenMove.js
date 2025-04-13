@@ -169,6 +169,7 @@ add_task(async function update1() {
   const listener = new PromiseTestUtils.PromiseUrlListener();
   folder1.updateFolderWithListener(null, listener);
   await listener.promise;
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
 });
 

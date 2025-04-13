@@ -297,6 +297,7 @@ add_task(async function testSetRefreshToken() {
   ]);
   let logins = await Services.logins.getAllLogins();
   const timeBefore = logins[0].timePasswordChanged;
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 50));
 
   // Connect.
@@ -357,6 +358,7 @@ add_task(async function testSetRefreshTokenWithNewScope() {
   ]);
   let logins = await Services.logins.getAllLogins();
   let timeBefore = logins[0].timePasswordChanged;
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 50));
 
   // Connect.
@@ -403,6 +405,7 @@ add_task(async function testSetRefreshTokenWithNewScope() {
     "token last-update time should have been updated"
   );
   timeBefore = logins[0].timePasswordChanged;
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 50));
 
   // Pretend the access token has expired, and connect again.

@@ -1,0 +1,31 @@
+[default]
+head = "head.js"
+dupe-manifest = true
+prefs = [
+  "calendar.item.promptDelete=false",
+  "calendar.test.rotateViews=true",
+  "calendar.timezone.local=UTC",
+  "calendar.timezone.useSystemTimezone=false",
+  "calendar.week.start=0",
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+subsuite = "thunderbird"
+tags = ["recurrence-rotated"]
+
+["browser_annual.js"]
+
+["browser_biweekly.js"]
+
+["browser_daily.js"]
+
+["browser_lastDayOfMonth.js"]
+
+["browser_weeklyN.js"]
+
+["browser_weeklyUntil.js"]
+
+["browser_weeklyWithException.js"]

@@ -1,0 +1,22 @@
+[default]
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+  "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
+  "mailnews.default_sort_order=1",
+]
+subsuite = "thunderbird"
+
+["browser_closing.js"]
+
+["browser_commandController.js"]
+support-files = ["html/commandController.html"]
+
+["browser_customize.js"]
+
+["browser_dragndrop.js"]
+
+["browser_tabSwitch.js"]

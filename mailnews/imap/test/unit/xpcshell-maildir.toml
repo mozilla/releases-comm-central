@@ -1,0 +1,10 @@
+[default]
+head = "head_imap_maildir.js"
+tags = [
+  "maildir",
+  "cpp",
+]
+dupe-manifest = true
+run-sequentially = true
+
+["include:xpcshell-shared.ini"]

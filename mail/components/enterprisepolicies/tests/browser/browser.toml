@@ -1,0 +1,50 @@
+[default]
+head = "head.js"
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+subsuite = "thunderbird"
+support-files = [
+  "policytest_v0.1.xpi",
+  "policytest_v0.2.xpi",
+  "extensionsettings.html",
+]
+
+["browser_policies_setAndLockPref_API.js"]
+
+["browser_policy_app_auto_update.js"]
+skip-if = ["os == 'win' && msix"]  # Updater is disabled in MSIX builds
+
+["browser_policy_app_update.js"]
+skip-if = ["os == 'win' && msix"]  # Updater is disabled in MSIX builds
+
+["browser_policy_background_app_update.js"]
+skip-if = ["os == 'win' && msix"]  # Updater is disabled in MSIX builds
+
+["browser_policy_block_about.js"]
+
+["browser_policy_cookie_settings.js"]
+
+["browser_policy_disable_safemode.js"]
+
+["browser_policy_disable_telemetry.js"]
+
+["browser_policy_downloads.js"]
+
+["browser_policy_extensions.js"]
+
+["browser_policy_extensionsettings.js"]
+https_first_disabled = true
+skip-if = ["os == 'mac' && debug"]  # Bug 1912417.
+
+["browser_policy_extensionsettings2.js"]
+
+["browser_policy_handlers.js"]
+
+["browser_policy_masterpassword.js"]
+
+["browser_policy_passwordmanager.js"]

@@ -6,7 +6,7 @@
 with Files("**"):
     BUG_COMPONENT = ("Chat Core", "XMPP")
 
-XPCSHELL_TESTS_MANIFESTS += ["test/xpcshell.ini"]
+XPCSHELL_TESTS_MANIFESTS += ["test/xpcshell.toml"]
 
 EXTRA_JS_MODULES += [
     "xmpp-authmechs.sys.mjs",

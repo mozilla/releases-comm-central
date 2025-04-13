@@ -1,0 +1,325 @@
+[default]
+head = "head.js"
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spellcheck.inline=false",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.message_display.disable_remote_image=false",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+subsuite = "thunderbird"
+support-files = [
+  "head_menus.js",
+  "head_spaces.js",
+  "test_browserAction.js",
+  "../xpcshell/data/utils.js",
+]
+tags = ["webextensions"]
+
+["browser_ext_addressBooksUI.js"]
+tags = ["addrbook"]
+
+["browser_ext_bug1812530.js"]
+support-files = ["data/content.html"]
+tags = ["contextmenu"]
+
+["browser_ext_browserAction_customized.js"]
+
+["browser_ext_browserAction_not_customized.js"]
+
+["browser_ext_browserAction_popup_click.js"]
+
+["browser_ext_browserAction_popup_click_mv3_event_pages.js"]
+
+["browser_ext_browserAction_popup_focus.js"]
+
+["browser_ext_browserAction_properties.js"]
+
+["browser_ext_clickHandler.js"]
+support-files = [
+  "data/content.html",
+  "data/linktest.html",
+  "messages/messageWithLink.eml",
+]
+
+["browser_ext_cloudFile.js"]
+support-files = [
+  "data/cloudFile1.txt",
+  "data/cloudFile2.txt",
+]
+
+["browser_ext_commands_execute_browser_action.js"]
+
+["browser_ext_commands_execute_compose_action.js"]
+
+["browser_ext_commands_execute_message_display_action.js"]
+
+["browser_ext_commands_getAll.js"]
+
+["browser_ext_commands_onChanged.js"]
+
+["browser_ext_commands_onCommand.js"]
+
+["browser_ext_commands_onCommand_bug1845236.js"]
+
+["browser_ext_commands_openShortcutSettings.js"]
+
+["browser_ext_commands_update.js"]
+
+["browser_ext_compose_attachments.js"]
+
+["browser_ext_compose_begin_attachments.js"]
+
+["browser_ext_compose_begin_body.js"]
+
+["browser_ext_compose_begin_bug1691254.js"]
+
+["browser_ext_compose_begin_forward.js"]
+
+["browser_ext_compose_begin_headers_mv3.js"]
+
+["browser_ext_compose_begin_headers.js"]
+
+["browser_ext_compose_begin_identity.js"]
+
+["browser_ext_compose_begin_new.js"]
+
+["browser_ext_compose_begin_reply.js"]
+
+["browser_ext_compose_details.js"]
+
+["browser_ext_compose_details_body.js"]
+
+["browser_ext_compose_details_headers.js"]
+
+["browser_ext_compose_details_mv3.js"]
+
+["browser_ext_compose_bug1692439.js"]
+
+["browser_ext_compose_bug1804796.js"]
+
+["browser_ext_compose_bug1882725.js"]
+
+["browser_ext_compose_dictionaries.js"]
+
+["browser_ext_compose_onBeforeSend.js"]
+
+["browser_ext_compose_printPreview.js"]
+
+["browser_ext_compose_saveAuto.js"]
+
+["browser_ext_compose_saveDraft.js"]
+
+["browser_ext_compose_saveTemplate.js"]
+
+["browser_ext_compose_sendMessage_mv3.js"]
+
+["browser_ext_compose_sendMessage.js"]
+
+["browser_ext_composeAction.js"]
+
+["browser_ext_composeAction_popup_click.js"]
+
+["browser_ext_composeAction_popup_click_mv3_event_pages.js"]
+
+["browser_ext_composeAction_properties.js"]
+
+["browser_ext_composeScripts.js"]
+
+["browser_ext_composeScripts_mv3.js"]
+
+["browser_ext_content_handler.js"]
+
+["browser_ext_content_handler_with_prompt.js"]
+
+["browser_ext_content_tabs_navigation_menu.js"]
+support-files = ["data/content.html"]
+tags = ["contextmenu"]
+
+["browser_ext_contentScripts.js"]
+
+["browser_ext_contentScripts_mv3.js"]
+
+["browser_ext_mailTabs_context_clicks.js"]
+
+["browser_ext_mailTabs_create.js"]
+
+["browser_ext_mailTabs_folderModes.js"]
+
+["browser_ext_mailTabs_getListedMessages.js"]
+
+["browser_ext_mailTabs_mv3.js"]
+
+["browser_ext_mailTabs.js"]
+
+["browser_ext_menus_context_action.js"]
+support-files = [
+  "data/content.html",
+  "data/content_body.html",
+  "data/tb-logo.png",
+]
+tags = ["contextmenu"]
+
+["browser_ext_menus_context_icons.js"]
+support-files = ["data/content.html"]
+tags = ["contextmenu"]
+
+["browser_ext_menus_context_compose.js"]
+support-files = [
+  "data/content.html",
+  "data/content_body.html",
+  "data/tb-logo.png",
+]
+tags = ["contextmenu"]
+
+["browser_ext_menus_context_content.js"]
+support-files = [
+  "data/content.html",
+  "data/content_body.html",
+  "data/tb-logo.png",
+]
+tags = ["contextmenu"]
+
+["browser_ext_menus_context_folder_pane.js"]
+support-files = [
+  "data/content.html",
+  "data/content_body.html",
+  "data/tb-logo.png",
+]
+tags = ["contextmenu"]
+
+["browser_ext_menus_context_message_panes.js"]
+support-files = [
+  "data/content.html",
+  "data/content_body.html",
+  "data/tb-logo.png",
+]
+tags = ["contextmenu"]
+
+["browser_ext_menus_context_tabs.js"]
+support-files = [
+  "data/content.html",
+  "data/content_body.html",
+  "data/tb-logo.png",
+]
+tags = ["contextmenu"]
+
+["browser_ext_menus_context_tools_main_menu.js"]
+support-files = [
+  "data/content.html",
+  "data/content_body.html",
+  "data/tb-logo.png",
+]
+tags = ["contextmenu"]
+
+["browser_ext_menus_message_header_pane.js"]
+
+["browser_ext_menus_message_one_attachment.js"]
+support-files = [
+  "data/content.html",
+  "data/content_body.html",
+  "data/tb-logo.png",
+]
+
+["browser_ext_menus_message_two_attachments.js"]
+support-files = [
+  "data/content.html",
+  "data/content_body.html",
+  "data/tb-logo.png",
+]
+tags = ["contextmenu"]
+
+["browser_ext_menus_popup_action.js"]
+
+["browser_ext_menus_replace_menu.js"]
+tags = ["contextmenu"]
+
+["browser_ext_menus_replace_menu_context.js"]
+tags = ["contextmenu"]
+
+["browser_ext_message_external.js"]
+support-files = ["messages/attachedMessageSample.eml"]
+
+["browser_ext_messageDisplay.js"]
+
+["browser_ext_messageDisplay_bug1827032.js"]
+
+["browser_ext_messageDisplay_bug1828056.js"]
+
+["browser_ext_messageDisplay_open_file.js"]
+
+["browser_ext_messageDisplay_open_headerMessageId.js"]
+
+["browser_ext_messageDisplay_open_messageId.js"]
+
+["browser_ext_messageDisplayAction.js"]
+
+["browser_ext_messageDisplayAction_popup_click.js"]
+
+["browser_ext_messageDisplayAction_popup_click_mv3_event_pages.js"]
+
+["browser_ext_messageDisplayAction_properties.js"]
+
+["browser_ext_messageDisplayScripts.js"]
+
+["browser_ext_messageDisplayScripts_mv3.js"]
+
+["browser_ext_messages_delete_attachments.js"]
+
+["browser_ext_messages_open_attachment.js"]
+
+["browser_ext_messages_update_ui.js"]
+
+["browser_ext_messages_user_action.js"]
+
+["browser_ext_quickFilter.js"]
+
+["browser_ext_runtime_getContexts.js"]
+
+["browser_ext_sessions.js"]
+
+["browser_ext_spaces.js"]
+
+["browser_ext_spacesToolbar.js"]
+
+["browser_ext_spaces_multiple.js"]
+
+["browser_ext_tabs_content.js"]
+
+["browser_ext_tabs_cookieStoreId.js"]
+
+["browser_ext_tabs_create_update_reload.js"]
+
+["browser_ext_tabs_create_update_with_mocked_application_chooser.js"]
+
+["browser_ext_tabs_create_update_with_real_application_chooser.js"]
+
+["browser_ext_tabs_events.js"]
+
+["browser_ext_tabs_onCreated_bug1817872.js"]
+
+["browser_ext_tabs_move.js"]
+
+["browser_ext_tabs_query.js"]
+
+["browser_ext_theme_experiment_message_browser.js"]
+
+["browser_ext_themes_onUpdated.js"]
+
+["browser_ext_tooltip_in_extension_pages.js"]
+
+["browser_ext_webrtc.js"]
+
+["browser_ext_windows.js"]
+
+["browser_ext_windows_bug1732559_bug1902844.js"]
+
+["browser_ext_windows_create_normal_cookieStoreId.js"]
+
+["browser_ext_windows_create_popup_cookieStoreId.js"]
+
+["browser_ext_windows_events.js"]
+
+["browser_ext_windows_types.js"]

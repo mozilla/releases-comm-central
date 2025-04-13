@@ -8,12 +8,12 @@ with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "General")
 
 BROWSER_CHROME_MANIFESTS += [
-    "browser/browser.ini",
-    "browser/disable_app_update/browser.ini",
-    "browser/disable_developer_tools/browser.ini",
-    "browser/hardware_acceleration/browser.ini",
+    "browser/browser.toml",
+    "browser/disable_app_update/browser.toml",
+    "browser/disable_developer_tools/browser.toml",
+    "browser/hardware_acceleration/browser.toml",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [
-    "xpcshell/xpcshell.ini",
+    "xpcshell/xpcshell.toml",
 ]

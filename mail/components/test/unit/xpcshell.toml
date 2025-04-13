@@ -1,0 +1,4 @@
+[default]
+head = "head_mailcomponents.js"
+
+["test_about_support.js"]

@@ -9,7 +9,7 @@ JS_PREFERENCE_PP_FILES += [
     "mdn.js",
 ]
 
-XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.ini"]
+XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.toml"]
 
 SOURCES += [
     "nsMsgMdnGenerator.cpp",

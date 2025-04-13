@@ -1,0 +1,4 @@
+[default]
+subsuite = "comm_taskgraph"
+
+["test_parameters.py"]

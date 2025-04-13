@@ -1,0 +1,11 @@
+[default]
+
+["test_buttonStyle.js"]
+
+["test_customizableItems.js"]
+
+["test_customizableItemsDetails.js"]
+
+["test_customizationState.js"]
+
+["test_toolbarMigration.js"]

@@ -1,0 +1,63 @@
+[default]
+head = "head.js"
+prefs = [
+  "calendar.debug.log=true",
+  "calendar.item.promptDelete=false",
+  "calendar.timezone.local=UTC",
+  "calendar.timezone.useSystemTimezone=false",
+  "calendar.week.start=0",
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.oauth.loglevel=Debug",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+  "signon.rememberSignons=true",
+]
+subsuite = "thunderbird"
+support-files = ["data/**"]
+
+["browser_basicFunctionality.js"]
+
+["browser_calDAV_discovery.js"]
+
+["browser_calDAV_oAuth.js"]
+tags = ["oauth"]
+
+["browser_calendarList.js"]
+skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+
+["browser_calendarTelemetry.js"]
+
+["browser_calendarUnifinder.js"]
+
+["browser_dragEventItem.js"]
+skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+
+["browser_eventDisplay_dayView.js"]
+
+["browser_eventDisplay_multiWeekView.js"]
+
+["browser_eventDisplay_weekView.js"]
+
+["browser_eventUndoRedo.js"]
+
+["browser_import.js"]
+tags = ["import"]
+
+["browser_localICS.js"]
+
+["browser_taskDelete.js"]
+
+["browser_taskUndoRedo.js"]
+
+["browser_tabs.js"]
+
+["browser_taskDisplay.js"]
+
+["browser_todayPane.js"]
+
+["browser_todayPane_dragAndDrop.js"]
+skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+
+["browser_todayPane_visibility.js"]

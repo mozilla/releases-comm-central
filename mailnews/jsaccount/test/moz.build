@@ -7,7 +7,7 @@ TEST_DIRS += [
     "idl",
 ]
 
-XPCSHELL_TESTS_MANIFESTS += ["unit/xpcshell.ini"]
+XPCSHELL_TESTS_MANIFESTS += ["unit/xpcshell.toml"]
 
 TESTING_JS_MODULES.mailnews += [
     "unit/resources/testJaBaseIncomingServer.sys.mjs",

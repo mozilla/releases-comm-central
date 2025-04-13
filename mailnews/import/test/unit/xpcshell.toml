@@ -1,0 +1,12 @@
+[default]
+head = "head_import.js"
+support-files = ["resources/*"]
+tags = ["import"]
+
+["test_AddrBookFileImporter.js"]
+tags = ["vcard"]
+
+["test_outlook_settings.js"]
+run-if = ["os == 'win'"]
+
+["test_ThunderbirdProfileImporter.js"]

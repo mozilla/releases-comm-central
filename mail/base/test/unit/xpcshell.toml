@@ -1,0 +1,59 @@
+[default]
+head = "head_mailbase.js"
+dupe-manifest = true
+support-files = [
+  "distribution.ini",
+  "resources/*",
+]
+
+["test_accountManagerUtils.js"]
+
+["test_alertHook.js"]
+
+["test_attachmentChecker.js"]
+
+["test_columns.js"]
+
+["test_darkReader.js"]
+
+["test_bug1086527.js"]
+
+["test_devtools_url.js"]
+
+["test_emptyTrash_dbViewWrapper.js"]
+run-sequentially = true  # Avoid bustage.
+
+["test_linkHelper.js"]
+
+["test_migrateTryStartTLS.js"]
+
+["test_pluralForm.js"]
+
+["test_pluralForm_english.js"]
+
+["test_pluralForm_makeGetter.js"]
+
+["test_qrExport.js"]
+
+["test_viewWrapper_imapFolder.js"]
+run-sequentially = true  # Avoid bustage.
+
+["test_viewWrapper_logic.js"]
+
+["test_viewWrapper_realFolder.js"]
+skip-if = ["os == 'mac' && !debug"]
+reason = "osx shippable perma failures"
+
+["test_viewWrapper_virtualFolder.js"]
+
+["test_viewWrapper_virtualFolderCustomTerm.js"]
+run-sequentially = true  # Avoid bustage.
+
+["test_mailGlue_distribution.js"]
+skip-if = ["os == 'win' && msix"]  # MSIX has a distribution.ini and it's unwritable. Tests fail.
+
+["test_treeDataAdapter.js"]
+
+["test_treeSelection.js"]
+
+["include:xpcshell_maildir.ini"]

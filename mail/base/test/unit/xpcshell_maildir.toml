@@ -1,0 +1,6 @@
+[default]
+head = "head_mailbase_maildir.js"
+dupe-manifest = true
+run-sequentially = true
+
+["test_viewWrapper_virtualFolder.js"]
