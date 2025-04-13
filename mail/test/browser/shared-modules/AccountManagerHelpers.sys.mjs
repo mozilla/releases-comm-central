@@ -85,9 +85,10 @@ export async function click_account_tree_row(tab, rowIndex) {
  * Returns the index of the row in account tree corresponding to the wanted
  * account and its settings pane.
  *
- * @param {number} accountKey - The key of the account to return.
+ * @param {string} accountKey - The key of the account to return.
  *                              If 'null', the SMTP pane is returned.
- * @param {number} paneId - The ID of the account settings pane to select.
+ * @param {string} [paneId] - The ID of the account settings pane to select.
+ * @param {TabInfo} tab - The tab of the account manager.
  *
  *
  * @returns {number} The row index of the account and pane. If it was not found return -1.

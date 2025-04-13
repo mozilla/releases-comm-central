@@ -251,7 +251,7 @@ var account = {
     ];
     attributes[Ci.prplIPref.typeString] = attributes[Ci.prplIPref.typeList] = [
       { name: "wsm_persist", value: "true" },
-      { name: "preftype", value: "wstring" },
+      { name: "preftype", value: "string" },
       { name: "genericattr", value: "true" },
     ];
     const haveOptions = accountOptionsHelper.addOptions(
