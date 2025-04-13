@@ -764,8 +764,6 @@ failed-decrypt = Error - decryption failed
 fix-broken-exchange-msg-failed = Unable to repair this message.
 
 # Variables:
-# $attachment (String) - File name of the signature file.
-attachment-no-match-from-signature = Could not match signature file ‘{ $attachment }’ to an attachment
 # Variables:
 # $attachment (String) - File name of the attachment.
 attachment-no-match-to-signature = Could not match attachment ‘{ $attachment }’ to a signature file

@@ -52,70 +52,33 @@ export var EnigmailMsgRead = {
   },
 
   /**
-   * Determine if an attachment is possibly signed
+   * Determine if an we seem to have a signature included along side the
+   * actual attachment.
+   * That is, for an attachment:
+   *  - foo.txt we should have a file foo.txt.sig or foo.txt.asc
+   *  - foo.pgp we should have a file
+   *     A) foo.sig or foo.asc or
+   *     B) foo.pgp.sig or foo.pgp.asc
+   *  - contentType is application/pgp-signature and the name is the same
+   *
+   * @param {AttachmentInfo} attachment - Attachment to check.
+   * @param {AttachmentInfo[]} currentAttachments - The list of attachments in
+   *   the mail.
+   * @returns {?AttachmentInfo} The detached signature attachment, if any.
    */
-  checkSignedAttachment(attachmentObj, index, currentAttachments) {
-    function escapeRegex(string) {
-      return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
-    }
-
-    var attachmentList;
-    if (index !== null) {
-      attachmentList = attachmentObj;
-    } else {
-      attachmentList = currentAttachments;
-      for (let i = 0; i < attachmentList.length; i++) {
-        if (attachmentList[i].url == attachmentObj.url) {
-          index = i;
-          break;
-        }
-      }
-      if (index === null) {
-        return false;
-      }
-    }
-
-    var signed = false;
-    var findFile;
-
-    var attName = this.getAttachmentName(attachmentList[index])
-      .toLowerCase()
-      .replace(/\+/g, "\\+");
-
-    // check if filename is a signature
-    if (
-      this.getAttachmentName(attachmentList[index]).search(/\.(sig|asc)$/i) >
-        0 ||
-      attachmentList[index].contentType.match(/^application\/pgp-signature/i)
-    ) {
-      findFile = new RegExp(escapeRegex(attName.replace(/\.(sig|asc)$/, "")));
-    } else if (attName.search(/\.pgp$/i) > 0) {
-      findFile = new RegExp(
-        escapeRegex(attName.replace(/\.pgp$/, "")) + "(\\.pgp)?\\.(sig|asc)$"
-      );
-    } else {
-      findFile = new RegExp(escapeRegex(attName) + "\\.(sig|asc)$");
-    }
-
-    for (const i in attachmentList) {
-      if (
-        i != index &&
-        this.getAttachmentName(attachmentList[i])
-          .toLowerCase()
-          .search(findFile) === 0
-      ) {
-        signed = true;
-      }
-    }
-
-    return signed;
-  },
-
-  /**
-   * Get the name of an attachment from the attachment object
-   */
-  getAttachmentName(attachment) {
-    return attachment.name;
+  checkSignedAttachment(attachment, currentAttachments) {
+    const baseName = attachment.name.replace(/\.pgp$/, "");
+    const signatureRegex = new RegExp(
+      `^${RegExp.escape(baseName)}(\\.pgp)?\\.(sig|asc)$`,
+      "i"
+    );
+    return currentAttachments.find(
+      a =>
+        a !== attachment &&
+        (signatureRegex.test(a.name) ||
+          (a.contentType == "application/pgp-signature" &&
+            a.name == attachment.name))
+    );
   },
 
   /**

@@ -168,6 +168,8 @@ var currentHeaderData = {};
 
 /**
  * CurrentAttachments is an array of AttachmentInfo objects.
+ *
+ * @type {AttachmentInfo[]}
  */
 var currentAttachments = [];
 

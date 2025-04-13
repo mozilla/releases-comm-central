@@ -534,23 +534,22 @@ MimeVerify.prototype = {
         return;
       }
 
-      const options = { mimeSignatureData: this.mimeSignatureData };
+      let fromAddr;
+      let msgDate;
       if (mimeSvc.mailChannel) {
         const { headerNames, headerValues } = mimeSvc.mailChannel;
-        let gotFromAddr, gotMsgDate;
+
         for (let i = 0; i < headerNames.length; i++) {
-          if (!gotFromAddr && headerNames[i] == "From") {
-            const fromAddr = lazy.EnigmailFuncs.stripEmail(headerValues[i]);
+          if (!fromAddr && headerNames[i] == "From") {
+            fromAddr = lazy.EnigmailFuncs.stripEmail(headerValues[i]);
             // Ignore address if domain contains a comment (in brackets).
-            if (!fromAddr.match(/[a-zA-Z0-9]@.*[\(\)]/)) {
-              options.fromAddr = fromAddr;
+            if (fromAddr.match(/[a-zA-Z0-9]@.*[\(\)]/)) {
+              fromAddr = "";
             }
-            gotFromAddr = true;
-          } else if (!gotMsgDate && headerNames[i] == "Date") {
-            options.msgDate = new Date(headerValues[i]);
-            gotMsgDate = true;
+          } else if (!msgDate && headerNames[i] == "Date") {
+            msgDate = new Date(headerValues[i]);
           }
-          if (gotFromAddr && gotMsgDate) {
+          if (fromAddr && msgDate) {
             break;
           }
         }
@@ -564,7 +563,12 @@ MimeVerify.prototype = {
       }
 
       this.returnStatus = lazy.EnigmailFuncs.sync(
-        lazy.RNP.verifyDetached(this.signedData, options)
+        lazy.RNP.verifyDetached(
+          this.signedData,
+          this.mimeSignatureData,
+          fromAddr,
+          msgDate
+        )
       );
 
       if (!this.returnStatus) {

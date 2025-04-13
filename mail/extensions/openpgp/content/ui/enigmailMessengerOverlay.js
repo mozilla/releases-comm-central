@@ -1183,23 +1183,21 @@ Enigmail.msg = {
       cc: "",
     };
 
-    var index, headerName;
-
     if (!gViewAllHeaders) {
-      for (index = 0; index < headerList.length; index++) {
+      for (let index = 0; index < headerList.length; index++) {
         headerList[index] = "";
       }
     } else {
-      for (index = 0; index < gExpandedHeaderList.length; index++) {
+      for (let index = 0; index < gExpandedHeaderList.length; index++) {
         headerList[gExpandedHeaderList[index].name] = "";
       }
 
-      for (headerName in currentHeaderData) {
+      for (const headerName in currentHeaderData) {
         headerList[headerName] = "";
       }
     }
 
-    for (headerName in headerList) {
+    for (const headerName in headerList) {
       if (currentHeaderData[headerName]) {
         headerList[headerName] = currentHeaderData[headerName].headerValue;
       }
@@ -1213,14 +1211,10 @@ Enigmail.msg = {
     var hasAttachments = currentAttachments && currentAttachments.length;
     var attachmentsEncrypted = true;
 
-    for (index in currentAttachments) {
-      if (!Enigmail.msg.checkEncryptedAttach(currentAttachments[index])) {
+    for (const attachment of currentAttachments) {
+      if (!Enigmail.msg.checkEncryptedAttach(attachment)) {
         if (
-          !EnigmailMsgRead.checkSignedAttachment(
-            currentAttachments,
-            index,
-            currentAttachments
-          )
+          !EnigmailMsgRead.checkSignedAttachment(attachment, currentAttachments)
         ) {
           attachmentsEncrypted = false;
         }
@@ -1507,9 +1501,7 @@ Enigmail.msg = {
   // check if the attachment could be encrypted
   checkEncryptedAttach(attachment) {
     return (
-      EnigmailMsgRead.getAttachmentName(attachment).match(
-        /\.(gpg|pgp|asc)$/i
-      ) ||
+      attachment.name.match(/\.(gpg|pgp|asc)$/i) ||
       (attachment.contentType.match(/^application\/pgp(-.*)?$/i) &&
         attachment.contentType.search(/^application\/pgp-signature/i) < 0)
     );
@@ -1684,112 +1676,39 @@ Enigmail.msg = {
   },
 
   /**
-   * Save the original file plus the signature file to disk and then verify
-   * the signature.
+   * Verify the signature of the given attachment, but utilizing another of
+   * the messages attachments which seems to contain the signature of the
+   * attachment.
+   *
+   * @param {AttachmentInfo} attachment - The attachment to verify.
    */
-  async verifyDetachedSignature(anAttachment) {
-    EnigmailCore.init();
-
-    var origAtt, signatureAtt;
-    var isEncrypted = false;
-
-    if (
-      EnigmailMsgRead.getAttachmentName(anAttachment).search(/\.sig$/i) > 0 ||
-      anAttachment.contentType.search(/^application\/pgp-signature/i) === 0
-    ) {
-      // we have the .sig file; need to know the original file;
-
-      signatureAtt = anAttachment;
-      var origName = EnigmailMsgRead.getAttachmentName(anAttachment).replace(
-        /\.sig$/i,
-        ""
-      );
-
-      for (let i = 0; i < currentAttachments.length; i++) {
-        if (
-          origName == EnigmailMsgRead.getAttachmentName(currentAttachments[i])
-        ) {
-          origAtt = currentAttachments[i];
-          break;
-        }
-      }
-
-      if (!origAtt) {
-        for (let i = 0; i < currentAttachments.length; i++) {
-          if (
-            origName ==
-            EnigmailMsgRead.getAttachmentName(currentAttachments[i]).replace(
-              /\.pgp$/i,
-              ""
-            )
-          ) {
-            isEncrypted = true;
-            origAtt = currentAttachments[i];
-            break;
-          }
-        }
-      }
-    } else {
-      // we have a supposedly original file; need to know the .sig file;
-
-      origAtt = anAttachment;
-      var attachName = EnigmailMsgRead.getAttachmentName(anAttachment);
-      var sigName = attachName + ".sig";
-
-      for (let i = 0; i < currentAttachments.length; i++) {
-        if (
-          sigName == EnigmailMsgRead.getAttachmentName(currentAttachments[i])
-        ) {
-          signatureAtt = currentAttachments[i];
-          break;
-        }
-      }
-
-      if (!signatureAtt && attachName.search(/\.pgp$/i) > 0) {
-        sigName = attachName.replace(/\.pgp$/i, ".sig");
-        for (let i = 0; i < currentAttachments.length; i++) {
-          if (
-            sigName == EnigmailMsgRead.getAttachmentName(currentAttachments[i])
-          ) {
-            isEncrypted = true;
-            signatureAtt = currentAttachments[i];
-            break;
-          }
-        }
-      }
-    }
-
-    if (!signatureAtt) {
+  async verifyDetachedSignature(attachment) {
+    const sigAttachment = EnigmailMsgRead.checkSignedAttachment(
+      attachment,
+      currentAttachments
+    );
+    if (!sigAttachment) {
       Services.prompt.alert(
         window,
         null,
         l10n.formatValueSync("attachment-no-match-to-signature", {
-          attachment: EnigmailMsgRead.getAttachmentName(origAtt),
+          attachment: attachment.name,
         })
       );
       return;
     }
-    if (!origAtt) {
-      Services.prompt.alert(
-        window,
-        null,
-        l10n.formatValueSync("attachment-no-match-from-signature", {
-          attachment: EnigmailMsgRead.getAttachmentName(signatureAtt),
-        })
+    const isEncrypted =
+      /.pgp$/i.test(attachment.name) &&
+      currentAttachments.some(
+        a => a.name == attachment.name.replace(/\.pgp$/i, ".sig")
       );
-      return;
-    }
 
-    // open
-    var outFile1 = Services.dirsvc.get("TmpD", Ci.nsIFile);
-    outFile1.append(EnigmailMsgRead.getAttachmentName(origAtt));
+    const outFile1 = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    outFile1.append(attachment.name);
     outFile1.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 
-    const response = await fetch(origAtt.url);
-    if (!response.ok) {
-      throw new Error(`Bad response for url=${origAtt.url}`);
-    }
-    await IOUtils.writeUTF8(outFile1.path, await response.text());
+    const buffer = await attachment.fetchAttachment();
+    await IOUtils.write(outFile1.path, new Uint8Array(buffer));
 
     if (isEncrypted) {
       // Try to decrypt message if we suspect the message is encrypted.
@@ -1801,7 +1720,7 @@ Enigmail.msg = {
       await EnigmailDecryption.decryptAttachment(
         window,
         outFile1,
-        EnigmailMsgRead.getAttachmentName(origAtt),
+        attachment.name,
         readBinaryFile,
         {},
         {},
@@ -1809,39 +1728,30 @@ Enigmail.msg = {
       );
     }
 
-    var outFile2 = Services.dirsvc.get("TmpD", Ci.nsIFile);
-    outFile2.append(EnigmailMsgRead.getAttachmentName(signatureAtt));
+    const outFile2 = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    outFile2.append(sigAttachment.name);
     outFile2.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 
-    const response2 = await fetch(signatureAtt.url);
-    if (!response2.ok) {
-      throw new Error(`Bad response for url=${signatureAtt.url}`);
-    }
-    await IOUtils.writeUTF8(outFile2.path, await response2.text());
+    const buffer2 = await sigAttachment.fetchAttachment();
+    await IOUtils.write(outFile2.path, new Uint8Array(buffer2));
 
-    const promise = RNP.verifyAttachment(outFile1.path, outFile2.path);
-    promise.then(async function (message) {
+    if (await RNP.verifyAttachment(outFile1.path, outFile2.path)) {
       Services.prompt.alert(
         window,
         null,
         l10n.formatValueSync("signature-verified-ok", {
-          attachment: EnigmailMsgRead.getAttachmentName(origAtt),
-        }) +
-          "\n\n" +
-          message
+          attachment: attachment.name,
+        })
       );
-    });
-    promise.catch(async function (err) {
+    } else {
       Services.prompt.alert(
         window,
         null,
         l10n.formatValueSync("signature-verify-failed", {
-          attachment: EnigmailMsgRead.getAttachmentName(origAtt),
-        }) +
-          "\n\n" +
-          err
+          attachment: attachment.name,
+        })
       );
-    });
+    }
 
     outFile1.remove(false);
     outFile2.remove(false);
@@ -1901,10 +1811,7 @@ Enigmail.msg = {
     var exitStatus = -1;
 
     var outFile;
-    const rawFileName = EnigmailMsgRead.getAttachmentName(attachment).replace(
-      /\.(asc|pgp|gpg)$/i,
-      ""
-    );
+    const rawFileName = attachment.name.replace(/\.(asc|pgp|gpg)$/i, "");
 
     if (actionType == "saveAttachment") {
       const title = l10n.formatValueSync("save-attachment-header");
@@ -1962,7 +1869,7 @@ Enigmail.msg = {
         exitStatus = await EnigmailDecryption.decryptAttachment(
           window,
           outFile,
-          EnigmailMsgRead.getAttachmentName(attachment),
+          attachment.name,
           data,
           exitCodeObj,
           statusFlagsObj,
@@ -2000,7 +1907,7 @@ Enigmail.msg = {
     exitStatus = await EnigmailDecryption.decryptAttachment(
       window,
       outFile,
-      EnigmailMsgRead.getAttachmentName(attachment),
+      attachment.name,
       data,
       exitCodeObj,
       statusFlagsObj,

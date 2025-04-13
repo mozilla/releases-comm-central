@@ -452,11 +452,7 @@ Enigmail.hdrView = {
         decryptOpenMenu.hidden = false;
         decryptSaveMenu.hidden = false;
         if (
-          EnigmailMsgRead.checkSignedAttachment(
-            attachment,
-            null,
-            currentAttachments
-          )
+          EnigmailMsgRead.checkSignedAttachment(attachment, currentAttachments)
         ) {
           verifyMenu.hidden = false;
         } else {
@@ -470,11 +466,7 @@ Enigmail.hdrView = {
           attachment.displayName = "message.pgp";
         }
       } else if (
-        EnigmailMsgRead.checkSignedAttachment(
-          attachment,
-          null,
-          currentAttachments
-        )
+        EnigmailMsgRead.checkSignedAttachment(attachment, currentAttachments)
       ) {
         importMenu.hidden = true;
         decryptOpenMenu.hidden = true;

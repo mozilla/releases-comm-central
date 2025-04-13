@@ -164,10 +164,11 @@ export class AttachmentInfo {
   /**
    * Save this attachment to the given path.
    *
-   * @param {string} path - Path to save to.
-   * @param {boolean} [isTmp=false] - Treat it as a temporary file.
+   * Fetch the attachment.
+   *
+   * @returns {ArrayBuffer} the attachment data.
    */
-  async saveToFile(path, isTmp = false) {
+  async fetchAttachment() {
     let url = this.url;
     if (!this.isAllowedURL) {
       throw new Error(`URL not allowed: ${url}`);
@@ -194,14 +195,30 @@ export class AttachmentInfo {
         }
       );
     });
+    return buffer;
+  }
+
+  /**
+   * @param {string} path - Path to save to.
+   * @param {boolean} [isTmp=false] - Treat it as a temporary file.
+   */
+  async saveToFile(path, isTmp = false) {
+    const buffer = await this.fetchAttachment();
     await IOUtils.write(path, new Uint8Array(buffer));
 
     if (!isTmp) {
+      let url = this.url;
+      if (
+        this.contentType == "message/rfc822" ||
+        /[?&]filename=.*\.eml(&|$)/.test(url)
+      ) {
+        url += url.includes("?") ? "&outputformat=raw" : "?outputformat=raw";
+      }
       // Create a download so that saved files show up under... Saved Files.
       const file = await IOUtils.getFile(path);
       lazy.Downloads.createDownload({
         source: {
-          url: sourceURI.spec,
+          url,
         },
         target: file,
         startTime: new Date(),
