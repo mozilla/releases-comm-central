@@ -15,10 +15,6 @@
 #include "nsNetCID.h"
 #include "nsIURIMutator.h"
 
-#ifdef XP_WIN
-#  include "nsNativeCharsetUtils.h"
-#endif
-
 // it would be really cool to:
 // - cache the last hostname->path match
 // - if no such server exists, behave like an old-style mailbox URL
@@ -119,15 +115,14 @@ nsresult nsLocalURI2Path(const char* rootURI, const char* uriStr,
   rv = server->GetLocalPath(getter_AddRefs(localPath));
   NS_ENSURE_SUCCESS(rv, rv);
 
-#ifdef XP_WIN
-  nsString path = localPath->NativePath();
-  nsCString localNativePath;
-  NS_CopyUnicodeToNative(path, localNativePath);
-#else
-  nsCString localNativePath = localPath->NativePath();
+  nsAutoString localPathStr;
+  rv = localPath->GetPath(localPathStr);
+  NS_ENSURE_SUCCESS(rv, rv);
+  CopyUTF16toUTF8(localPathStr, pathResult);
+#if defined(XP_WIN)
+  pathResult.Insert('/', 0);
+  pathResult.ReplaceChar('\\', '/');
 #endif
-  nsEscapeNativePath(localNativePath);
-  pathResult = localNativePath.get();
   const char* curPos = uriStr + PL_strlen(rootURI);
   if (curPos) {
     // advance past hostname
@@ -200,11 +195,4 @@ nsresult nsCreateLocalBaseMessageURI(const nsACString& baseURI,
   baseMessageURI += tailURI;
 
   return NS_OK;
-}
-
-void nsEscapeNativePath(nsCString& nativePath) {
-#if defined(XP_WIN)
-  nativePath.Insert('/', 0);
-  nativePath.ReplaceChar('\\', '/');
-#endif
 }

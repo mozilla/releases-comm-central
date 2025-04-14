@@ -24,6 +24,4 @@ nsresult nsBuildLocalMessageURI(const nsACString& baseURI, nsMsgKey key,
 nsresult nsCreateLocalBaseMessageURI(const nsACString& baseURI,
                                      nsCString& baseMessageURI);
 
-void nsEscapeNativePath(nsCString& nativePath);
-
 #endif  // NS_LOCALUTILS_H
