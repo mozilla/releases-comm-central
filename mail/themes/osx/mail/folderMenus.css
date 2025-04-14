@@ -9,13 +9,9 @@
 @import url("chrome://messenger/skin/shared/folderMenus.css");
 
 @media (min-resolution: 2dppx) {
-  .folderMenuItem > .menu-iconic-left > .menu-iconic,
+  .folderMenuItem > .menu-icon,
   .folderMenuItem::part(icon) {
     width: 16px;
     height: 16px;
   }
-}
-
-.menulist-menupopup[is="folder-menupopup"] {
-  list-style-image: none;
 }

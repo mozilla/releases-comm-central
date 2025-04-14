@@ -133,8 +133,8 @@ html|span.ac-emphasize-text {
 
 /* the following will get obsolete once porting to new itip icons is complete */
 
-.role-icon > .menu-iconic-left,
-.usertype-icon > .menu-iconic-left {
+.role-icon > .menu-icon,
+.usertype-icon > .menu-icon {
   visibility: inherit;
 }
 

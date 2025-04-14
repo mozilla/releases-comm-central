@@ -358,11 +358,11 @@ button.tab-close-button {
     fill: var(--selected-item-color);
   }
 
-  & > .menu-iconic-left {
+  & > .menu-icon {
     fill: MenuText;
   }
 
-  &[_moz-menuactive="true"] > .menu-iconic-left {
+  &[_moz-menuactive="true"] > .menu-icon {
     fill: -moz-menuhovertext;
   }
 }

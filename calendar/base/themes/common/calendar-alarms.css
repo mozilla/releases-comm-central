@@ -10,7 +10,7 @@
  * Reminder icons (used from the event dialog, reminder dialog, views, ...)
  */
 .reminder-icon,
-.reminder-list-icon .menu-iconic-left,
+.reminder-list-icon .menu-icon,
 .reminder-list-icon::part(icon) {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
@@ -54,7 +54,7 @@
   display: none;
 }
 
-#reminder-actions-menulist > menupopup > menuitem > .menu-iconic-left {
+#reminder-actions-menulist > menupopup > menuitem > .menu-icon {
   display: flex;
 }
 
@@ -77,7 +77,7 @@
   margin-bottom: 20px;
 }
 
-.reminder-icon > .menu-iconic-left > .menu-iconic-icon {
+.reminder-icon > .menu-icon {
   width: auto;
   height: auto;
 }

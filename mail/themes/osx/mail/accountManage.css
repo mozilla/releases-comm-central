@@ -8,6 +8,6 @@ description {
   margin: 4px 4px 8px;
 }
 
-menulist > menupopup .menu-right {
+menulist > menupopup::after {
   margin-inline: 0;
 }

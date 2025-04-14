@@ -63,7 +63,7 @@ button menupopup menuitem {
   padding: 5px 8px;
 }
 
-.menu-right {
+menupopup > menu::after {
   height: 1em;
   margin-inline-end: 3px;
   transform: scale(0.7);

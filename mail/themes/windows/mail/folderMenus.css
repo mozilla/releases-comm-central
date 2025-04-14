@@ -7,11 +7,3 @@
   ======================================================================= */
 
 @import url("chrome://messenger/skin/shared/folderMenus.css");
-
-.folderMenuItem .menu-iconic-left {
-  display: flex;
-}
-
-.menulist-menupopup[is="folder-menupopup"] {
-  list-style-image: none;
-}

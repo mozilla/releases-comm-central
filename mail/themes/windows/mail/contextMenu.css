@@ -38,12 +38,9 @@ menupopup {
       padding-inline-start: 8px;
     }
 
-    & > menuitem:is([type="checkbox"],[type="radio"]):not([checked="true"]) > .menu-iconic-left {
+    & > menuitem:is([type="checkbox"],[type="radio"]):not([checked="true"]) > .menu-icon {
       padding-inline-end: 8px;
-
-      & > .menu-iconic-icon {
-        display: flex;
-      }
+      display: flex;
     }
   }
 

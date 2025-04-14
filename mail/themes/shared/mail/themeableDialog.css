@@ -334,7 +334,7 @@ select:not([size], [multiple]) {
   padding-inline-end: 28px;
 }
 
-.menu-iconic-left {
+.menu-icon {
   -moz-context-properties: fill;
   fill: currentColor;
 
@@ -345,7 +345,7 @@ select:not([size], [multiple]) {
   }
 }
 
-.menu-right {
+menupopup > menu::after {
   appearance: none;
   -moz-context-properties: fill;
   list-style-image: var(--icon-nav-right-sm);

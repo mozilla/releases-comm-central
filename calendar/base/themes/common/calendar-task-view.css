@@ -238,11 +238,12 @@
 #calendar-context-calendar-menupopup > menuitem {
   padding-inline-start: 4px;
 
-  & .menu-iconic-left {
+  & .menu-icon {
+    display: inline;
     margin-inline-end: 3px;
   }
 
-  & .menu-iconic-text {
+  & .menu-text {
     padding-inline-start: 15px;
     background-image: var(--icon-circle-small);
     background-position: left center;
@@ -253,10 +254,6 @@
     &:dir(rtl) {
       background-position-x: right;
     }
-  }
-
-  & .menu-iconic-icon {
-    display: inline;
   }
 }
 

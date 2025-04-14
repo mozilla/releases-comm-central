@@ -6,11 +6,11 @@
 /* Fix the icons in the menulist by undoing things from menu.css */
 menulist > menupopup > .menuitem-iconic {
 
-  & > .menu-iconic-left {
+  & > .menu-icon {
     display: flex !important;
   }
 
-  & > .menu-iconic-text {
+  & > .menu-text {
     margin-inline-start: 2px !important;
   }
 }

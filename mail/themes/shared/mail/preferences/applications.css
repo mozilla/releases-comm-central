@@ -158,7 +158,7 @@
     width: 16px;
   }
 
-  & > menupopup > menuitem > .menu-iconic-left {
+  & > menupopup > menuitem > .menu-icon {
     margin-inline-end: 8px !important;
     /** Make the icons appear.
       * Note: we display the icon box for every item whether or not it has an icon
@@ -214,7 +214,7 @@
 #addCloudFileAccountListItems {
   text-align: start;
 
-  & > menuitem > .menu-iconic-left {
+  & > menuitem > .menu-icon {
     display: flex;
   }
 }

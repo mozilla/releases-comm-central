@@ -173,16 +173,16 @@ menulist > menupopup {
     }
   }
 
-  & .menu-right {
+  & menu::after {
     appearance: none;
-    margin-inline-end: 5px;
+    margin-inline-end: 0;
     -moz-context-properties: fill;
-    list-style-image: url("chrome://global/skin/icons/arrow-left-12.svg");
+    list-style-image: url("chrome://global/skin/icons/arrow-right-12.svg");
     fill: currentColor;
+  }
 
-    &:-moz-locale-dir(ltr) {
-      transform: scaleX(-1);
-    }
+  & menu:-moz-locale-dir(rtl)::after {
+    list-style-image: url("chrome://global/skin/icons/arrow-left-12.svg");
   }
 }
 

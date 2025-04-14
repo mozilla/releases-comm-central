@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#item-calendar > menupopup > menuitem .menu-iconic-left {
+#item-calendar > menupopup > menuitem .menu-icon {
   margin-inline-end: 6px;
 }
 
-#item-categories > menupopup > menuitem .menu-iconic-icon {
+#item-categories > menupopup > menuitem .menu-icon {
   display: inline;
 }
 

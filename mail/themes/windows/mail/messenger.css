@@ -8,8 +8,8 @@
 
 @import url("chrome://messenger/skin/shared/messenger.css");
 
-.folderMenuItem > .menu-iconic-left,
-.menuitem-iconic > .menu-iconic-left {
+.folderMenuItem > .menu-icon,
+.menuitem-iconic > .menu-icon {
   display: flex;
 }
 

@@ -87,8 +87,8 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   align-items: center;
 }
 
-#setStatusTypeMenupopup .menu-iconic-icon,
-#imAccountsStatus .menu-iconic-icon {
+#setStatusTypeMenupopup .menu-icon,
+#imAccountsStatus .menu-icon {
   visibility: visible;
 }
 

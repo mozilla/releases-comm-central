@@ -128,6 +128,12 @@ menupopup {
     padding-block: var(--menu-item-padding);
     border-radius: 3px;
   }
+
+  @media (-moz-windows-mica-popups) {
+    & menupopup {
+      --panel-border-color: var(--in-content-box-border-color);
+    }
+  }
 }
 
 tab[selected] {

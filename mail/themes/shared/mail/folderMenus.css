@@ -6,6 +6,14 @@
   == Icons for menus which represent mail folder.
   ======================================================================= */
 
+.folderMenuItem > .menu-icon {
+  display: flex !important; /* !important needed for macOS */
+}
+
+.menulist-menupopup[is="folder-menupopup"] {
+  list-style-image: none;
+}
+
 /* ::::: Folder icons for menus   ::::: */
 
 /* Folders */
@@ -92,7 +100,7 @@
   }
 
   &::part(icon),
-  & > .menu-iconic-left > .menu-iconic-icon {
+  & > .menu-icon {
     -moz-context-properties: fill, stroke;
     fill: color-mix(in srgb, currentColor 20%, transparent);
     stroke: currentColor;

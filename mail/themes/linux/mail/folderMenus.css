@@ -8,15 +8,7 @@
 
 @import url("chrome://messenger/skin/shared/folderMenus.css");
 
-.folderMenuItem .menu-iconic-left {
-  display: flex;
-}
-
 menulist.folderMenuItem::part(icon) {
   width: 16px;
   height: 16px;
-}
-
-.menulist-menupopup[is="folder-menupopup"] {
-  list-style-image: none;
 }

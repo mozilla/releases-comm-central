@@ -105,7 +105,7 @@ menupopup {
     -moz-context-properties: stroke, fill-opacity;
     content: var(--icon-nav-right-sm);
     stroke: currentColor;
-    float: inline-end;
+    background-image: none;
     margin-inline-start: 10px;
   }
 
@@ -117,18 +117,18 @@ menupopup {
     padding-inline: 8px;
   }
 
-  &.no-accel-menupopup > :is(menu, menuitem) > .menu-accel-container {
+  &.no-accel-menupopup > :is(menu, menuitem) > .menu-accel {
     display: none;
   }
 
   /* NOTE: the menuitem children must be constructed with the menuitem-iconic
    * class so that this rule can hide the icon container. */
-  &.no-icon-menupopup > :is(menu, menuitem) > .menu-iconic-left {
+  &.no-icon-menupopup > :is(menu, menuitem) > .menu-icon {
     display: none;
   }
 
   /* Allways show the extension icons. */
-  &.no-icon-menupopup > :is(menu, menuitem).webextension-rootElement > .menu-iconic-left {
+  &.no-icon-menupopup > :is(menu, menuitem).webextension-rootElement > .menu-icon {
     display: flex;
   }
 }
@@ -172,16 +172,8 @@ menupopup {
   }
 }
 
-menu > .menu-right {
-  display: none;
-}
-
-.menu-iconic-accel {
-  margin-inline-end: 3px;
-}
-
 @media not (prefers-contrast) {
-  menuitem:not([disabled]) > .menu-accel-container > :is(.menu-accel, .menu-iconic-accel) {
+  menuitem:not([disabled]) > .menu-accel {
     color: var(--text-color-deemphasized);
   }
 }
@@ -212,19 +204,15 @@ menu > .menu-right {
       }
     }
 
-    & > .menu-iconic-left {
+    & > .menu-icon {
       appearance: none;
       position: relative;
       flex-direction: column;
-      margin: 0 auto;
       padding: 0;
-
-      & > .menu-iconic-icon {
-        margin: 7px;
-        -moz-context-properties: fill, stroke;
-        fill: color-mix(in srgb, currentColor 20%, transparent);
-        stroke: currentColor;
-      }
+      margin: 7px;
+      -moz-context-properties: fill, stroke;
+      fill: color-mix(in srgb, currentColor 20%, transparent);
+      stroke: currentColor;
 
       &::after {
         content: '';
@@ -237,13 +225,13 @@ menu > .menu-right {
       }
     }
 
-    &[active="true"] > .menu-iconic-left {
+    &[active="true"] > .menu-icon {
       color: var(--selected-item-color);
       --indicator-background: var(--selected-item-color);
     }
 
-    & > .menu-iconic-text,
-    & > .menu-accel-container {
+    & > .menu-text,
+    & > .menu-accel {
       display: none;
     }
   }

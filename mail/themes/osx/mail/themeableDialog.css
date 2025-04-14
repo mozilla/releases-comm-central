@@ -69,7 +69,7 @@ menulist {
   }
 }
 
-.menu-right {
+menupopup > menu::after {
   margin-top: 3px;
 }
 

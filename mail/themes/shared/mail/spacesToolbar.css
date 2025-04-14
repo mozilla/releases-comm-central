@@ -183,11 +183,11 @@
   color: var(--spaces-button-active-text-color);
 }
 
-.spaces-popup-menuitem > .menu-iconic-left {
+.spaces-popup-menuitem > .menu-icon {
   position: relative;
 }
 
-.spaces-popup-menuitem.current > .menu-iconic-left:before {
+.spaces-popup-menuitem.current > .menu-icon:before {
   content: '';
   display: block;
   position: absolute;
@@ -361,7 +361,7 @@ img {
     border-radius: 6px;
   }
 
-  & > .menu-iconic-left::after {
+  & > .menu-icon::after {
     display: block;
     content: "";
     height: 6px;

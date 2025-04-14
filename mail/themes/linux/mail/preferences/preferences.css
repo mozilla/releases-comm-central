@@ -18,6 +18,6 @@ tab + tab {
  * Dialog
  */
 
-#defaultWebSearchPopup > menuitem > .menu-iconic-left {
+#defaultWebSearchPopup > menuitem > .menu-icon {
   margin-inline: 5px !important;
 }

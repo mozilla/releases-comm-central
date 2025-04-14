@@ -20,13 +20,17 @@ menupopup {
     line-height: 0;
   }
 
-  &:is([needsgutter], .webextension-menupopup) > :is(menu, menuitem) > .menu-text {
-    margin-inline-start: 21px;
-  }
+  &[needsgutter] > :is(menu, menuitem, menucaption) {
+    padding-inline-start: 8px;
 
-  & .menu-iconic-icon {
-    width: 16px;
-    margin-inline: 0 5px;
+    &:before {
+      content: var(--icon-check);
+      padding-inline: 0 8px;
+    }
+
+    &:not([image]) > .menu-icon {
+      display: none;
+    }
   }
 
   & > menuseparator {
@@ -37,20 +41,12 @@ menupopup {
     display: none;
   }
 
-  & > menuitem {
-    & > .menu-right {
-      margin-inline-end: -4px;
-      appearance: none;
-    }
+  & > .webextension-rootElement,
+  &.webextension-menupopup > :is(menu, menuitem) {
 
-    &::before,
-    &::after {
-      content: none; /* Reset's macOS' checkmark spacing */
+    & > .menu-icon {
+      display: flex;
     }
-  }
-
-  &[needsgutter] > :is(menu, menuitem, menucaption) {
-    padding-inline-start: 8px;
 
     &::before {
       display: none;
@@ -67,18 +63,17 @@ menupopup {
     }
 
     &.menuitem-iconic::before {
-      display: none;
+      display: none !important;
     }
   }
 }
 
-.menu-right,
-.menu-accel-container {
+.menu::after,
+.menu-accel {
   margin-inline-end: 0;
 }
 
-.menu-accel-container {
-  opacity: 0.5;
+.menu-accel {
 
   menupopup[type="arrow"] & {
     margin-inline-end: 0;
@@ -88,9 +83,4 @@ menupopup {
   menuitem:not([disabled="true"]):focus & {
     opacity: 1;
   }
-}
-
-/* Only show the system checkmark on main window menu */
-#windowPopup > menuitem[checked="true"] {
-  list-style-image: none;
 }

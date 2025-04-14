@@ -57,7 +57,7 @@ window {
 
 /* ::::: List dialogs ::::: */
 
-.menu-iconic-left,
+.menu-icon,
 menulist::part(icon) {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);

@@ -201,7 +201,7 @@ label.label {
 }
 
 #item-calendar::part(icon),
-#item-calendar > menupopup > menuitem .menu-iconic-icon,
+#item-calendar > menupopup > menuitem .menu-icon,
 #item-categories::part(color) {
   width: 10px;
   height: 10px;
@@ -209,11 +209,11 @@ label.label {
   background-color: var(--item-color);
 }
 
-#item-categories > menupopup > menuitem .menu-iconic-left {
+#item-categories > menupopup > menuitem .menu-icon {
   margin-inline-end: 3px;
 }
 
-#item-categories > menupopup > menuitem .menu-iconic-text {
+#item-categories > menupopup > menuitem .menu-text {
   padding-inline-start: 15px;
   background-image: var(--icon-circle-small);
   background-position: left center;
@@ -222,7 +222,7 @@ label.label {
   fill: var(--item-color);
 }
 
-#item-categories > menupopup > menuitem .menu-iconic-text:dir(rtl) {
+#item-categories > menupopup > menuitem .menu-text:dir(rtl) {
   background-position-x: right;
 }
 

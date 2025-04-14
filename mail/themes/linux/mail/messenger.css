@@ -248,14 +248,14 @@ menulist {
  * Override the menulist icon forbidding in menu.css so that we can show
  * check-marks. radio-marks and folder icons. bug 443516
  */
-.menulist-menupopup > menuitem > .menu-iconic-left,
+.menulist-menupopup > menuitem > .menu-icon,
 menulist > menupopup >
   menuitem:is(.menuitem-iconic,[type="radio"],[type="checkbox"]) >
-  .menu-iconic-left,
-.menulist-menupopup > menu > .menu-iconic-left,
+  .menu-icon,
+.menulist-menupopup > menu > .menu-icon,
 menulist > menupopup >
   menu:is(.menuitem-iconic,[type="radio"],[type="checkbox"]) >
-  .menu-iconic-left {
+  .menu-icon {
   display: flex;
 }
 

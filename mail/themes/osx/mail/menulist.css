@@ -17,7 +17,7 @@ menulist[is="menulist-editable"][editable="true"] {
     appearance: none;
   }
 
-  & > menupopup > :is(menuitem,menucaption) > .menu-iconic-left {
+  & > menupopup > :is(menuitem,menucaption) > .menu-icon {
     display: none;
   }
 

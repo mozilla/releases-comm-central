@@ -139,7 +139,7 @@ menulist::part(label-box) {
 }
 
 menulist::part(icon),
-.abMenuItem > .menu-iconic-left > .menu-iconic-icon {
+.abMenuItem > .menu-icon {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
@@ -158,7 +158,7 @@ menulist::part(dropmarker-icon) {
   stroke: currentColor;
 }
 
-.abMenuItem > .menu-iconic-left {
+.abMenuItem > .menu-icon {
   display: block;
 }
 
@@ -388,7 +388,7 @@ tab {
   }
 }
 
-#defaultWebSearchPopup > menuitem > .menu-iconic-left {
+#defaultWebSearchPopup > menuitem > .menu-icon {
   display: flex;
 }
 

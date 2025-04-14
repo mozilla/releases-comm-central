@@ -141,8 +141,8 @@ toolbarbutton.formatting-button {
   background-color: Window;
 }
 
-menu[command="cmd_attachCloud"] .menu-iconic-left,
-menu[command="cmd_convertCloud"] .menu-iconic-left {
+menu[command="cmd_attachCloud"] .menu-icon,
+menu[command="cmd_convertCloud"] .menu-icon {
   /* Ensure that the provider icons are visible even if the Gnome theme says
      menus shouldn't have icons. */
   visibility: visible;
