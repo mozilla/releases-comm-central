@@ -46,6 +46,10 @@ ChromeUtils.defineLazyGetter(this, "gIsPackagedApp", () => {
   return Services.sysinfo.getProperty("isPackagedApp");
 });
 
+ChromeUtils.defineESModuleGetters(this, {
+  SearchIntegration: "resource:///modules/SearchIntegration.sys.mjs",
+});
+
 const TYPE_PDF = "application/pdf";
 
 const PREF_PDFJS_DISABLED = "pdfjs.disabled";
@@ -226,9 +230,6 @@ var gGeneralPane = {
     // Search integration -- check whether we should hide or disable integration
     let hideSearchUI = false;
     let disableSearchUI = false;
-    const { SearchIntegration } = ChromeUtils.importESModule(
-      "resource:///modules/SearchIntegration.sys.mjs"
-    );
     if (SearchIntegration) {
       disableSearchUI = SearchIntegration.osComponentsNotRunning;
     } else {
@@ -240,7 +241,18 @@ var gGeneralPane = {
     } else if (disableSearchUI) {
       const searchCheckbox = document.getElementById("searchIntegration");
       searchCheckbox.checked = false;
-      Preferences.get("searchintegration.enable").disabled = true;
+      Preferences.get("searchintegration.enable").updateControlDisabledState(
+        true
+      );
+    } else {
+      // Mirror value to the actual search integration.
+      Preferences.get("searchintegration.enable").value =
+        SearchIntegration.prefEnabled;
+      Preferences.get("searchintegration.enable").on("change", () => {
+        SearchIntegration.prefEnabled = Preferences.get(
+          "searchintegration.enable"
+        ).value;
+      });
     }
 
     // If the shell service is not working, disable the "Check now" button

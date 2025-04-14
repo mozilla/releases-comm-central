@@ -18,6 +18,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   migrateToolbarForSpace: "resource:///modules/ToolbarMigration.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
+  SearchIntegration: "resource:///modules/SearchIntegration.sys.mjs",
 });
 
 export var MailMigrator = {
@@ -28,7 +29,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 47;
+    const UI_VERSION = 48;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -235,6 +236,15 @@ export var MailMigrator = {
           Services.prefs.setBoolPref("mail.prompt_purge_threshold", old);
           Services.prefs.clearUserPref("mail.prompt_purge_threshhold");
         } catch (ex) {}
+      }
+
+      if (currentUIVersion < 48) {
+        // Reflect the actual state of the search integration in the platform
+        // independent pref.
+        Services.prefs.setBoolPref(
+          "searchintegration.enable",
+          lazy.SearchIntegration?.prefEnabled ?? false
+        );
       }
 
       // Migration tasks that may take a long time are not run immediately, but

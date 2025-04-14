@@ -5,6 +5,9 @@
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+const { SearchIntegration } = ChromeUtils.importESModule(
+  "resource:///modules/SearchIntegration.sys.mjs"
+);
 
 add_task(async () => {
   requestLongerTimeout(2);
@@ -213,20 +216,82 @@ add_task(async () => {
   );
 });
 
-add_task(async () => {
-  // We don't want to wake up the platform search for this test.
-  // if (AppConstants.platform == "macosx") {
-  //   tests.push({
-  //     checkboxID: "searchIntegration",
-  //     pref: "mail.spotlight.enable",
-  //   });
-  // } else if (AppConstants.platform == "win") {
-  //   tests.push({
-  //     checkboxID: "searchIntegration",
-  //     pref: "mail.winsearch.enable",
-  //   });
-  // }
+add_task(async function test_searchIntegrationDisabled() {
+  const { prefsDocument } = await openNewPrefsTab(
+    "paneGeneral",
+    "generalCategory"
+  );
 
+  const checkbox = prefsDocument.getElementById("searchIntegration");
+
+  Assert.ok(checkbox.disabled, "Checkbox should be disabled");
+  Assert.ok(!checkbox.checked, "Checkbox should appear unchecked");
+
+  await closePrefsTab();
+}).skip(!SearchIntegration || !SearchIntegration.osComponentsNotRunning);
+
+add_task(async function test_searchIntegration() {
+  const { prefsDocument, prefsWindow } = await openNewPrefsTab(
+    "paneGeneral",
+    "generalCategory"
+  );
+
+  const checkbox = prefsDocument.getElementById("searchIntegration");
+  checkbox.scrollIntoView({ block: "end", behavior: "instant" });
+
+  Assert.equal(
+    checkbox.checked,
+    SearchIntegration.prefEnabled,
+    "Initial state should match search integration"
+  );
+  const initialState = checkbox.checked;
+
+  EventUtils.synthesizeMouseAtCenter(checkbox, {}, prefsWindow);
+
+  Assert.notEqual(
+    checkbox.checked,
+    initialState,
+    "Checkbox should have toggled value"
+  );
+  Assert.equal(
+    SearchIntegration.prefEnabled,
+    checkbox.checked,
+    "Checkbox state should be mirrored to search integration"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(checkbox, {}, prefsWindow);
+
+  Assert.equal(
+    checkbox.checked,
+    initialState,
+    "Checkbox should have toggled back"
+  );
+  Assert.equal(
+    SearchIntegration.prefEnabled,
+    checkbox.checked,
+    "Checkbox state should again be mirrored to search integration"
+  );
+
+  await closePrefsTab();
+}).skip(!SearchIntegration || SearchIntegration.osComponentsNotRunning);
+
+add_task(async function test_searchIntegrationUnavailable() {
+  const { prefsDocument } = await openNewPrefsTab(
+    "paneGeneral",
+    "generalCategory"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      prefsDocument.getElementById("searchIntegration")
+    ),
+    "Search integration should be hidden"
+  );
+
+  await closePrefsTab();
+}).skip(SearchIntegration);
+
+add_task(async () => {
   await testCheckboxes(
     "paneGeneral",
     "allowSmartSize",
