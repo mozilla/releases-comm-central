@@ -594,7 +594,7 @@ export class AttachmentInfo {
       // Looks like a non-local (remote UNC) file URL. Don't allow that.
       return false;
     }
-    return /^(http?s|file|data|mailbox|imap|s?news|ews):/i.test(this.url);
+    return /^(https?|file|data|mailbox|imap|s?news|ews):/i.test(this.url);
   }
 
   /**
