@@ -786,6 +786,9 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     NS_ENSURE_SUCCESS(rv, rv);
     rv = browsingContext->SetAllowContentRetargetingOnChildren(false);
     NS_ENSURE_SUCCESS(rv, rv);
+
+    // See displayMessage() in aboutMessage.js.
+
     // NOTE! Do not set single sandboxing flags only. Sandboxing -  when used -
     // starts off with all things sandboxed, and individual sandbox keywords
     // will *allow* the specific feature.

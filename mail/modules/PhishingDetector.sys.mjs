@@ -93,13 +93,12 @@ export const PhishingDetector = new (class PhishingDetector {
    * href the user would get taken to.
    * E.g. <a href="http://myevilsite.com">http://mozilla.org</a>
    *
-   * @param {string} aUrl - The url to be analyzed
-   * @param {string} aLinkText - User visible link text associated with aUrl
-   *   in case we are dealing with a link node.
+   * @param {string} aUrl - The url to be analyzed.
+   * @param {string} aLinkText - User visible link text associated with aUrl.
    * @returns {boolean} true if link node contains phishing URL.
    */
   linkTextMismatch(aUrl, aLinkText) {
-    if (!aUrl || !URL.canParse(aUrl)) {
+    if (!aUrl || !aLinkText || !URL.canParse(aUrl)) {
       return false;
     }
 
@@ -161,7 +160,7 @@ export const PhishingDetector = new (class PhishingDetector {
   }
 
   /**
-   * If the current message has been identified as an email scam, prompts the
+   * Checks for link mismatch and if warranted, prompts the
    * user with a warning before allowing the link click to be processed.
    * The warning prompt includes the unobscured host name of the http(s) url the
    * user clicked on.
@@ -169,7 +168,7 @@ export const PhishingDetector = new (class PhishingDetector {
    * @param {DOMWindow} win - The window the message is being displayed within.
    * @param {string} aUrl - The url of the message
    * @param {string} aLinkText - User visible link text associated with the link
-   * @returns {number}
+   * @returns {0|1|2}
    *   0 if the URL implied by aLinkText should be used instead.
    *   1 if the request should be blocked.
    *   2 if aUrl should be allowed to load.

@@ -226,6 +226,12 @@ window.addEventListener("unload", () => {
   gViewWrapper?.close();
 });
 
+/**
+ * Display a message.
+ *
+ * @param {string} uri - The message URI.
+ * @param {?DBViewWrapper} viewWrapper - View wrapper.
+ */
 function displayMessage(uri, viewWrapper) {
   // Clear the state flags, if this window is re-used.
   window.msgLoaded = false;
@@ -333,6 +339,18 @@ function displayMessage(uri, viewWrapper) {
     Window.isInstance(window.tabOrWindow) || window.tabOrWindow?.selected;
   browser.docShell.allowAuth = false;
   browser.docShell.allowDNSPrefetch = false;
+
+  // See nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells().
+  const SANDBOX_ALL_FLAGS = 0xfffff;
+  const SANDBOXED_AUXILIARY_NAVIGATION = 0x2;
+  const SANDBOXED_ORIGIN = 0x10;
+  const SANDBOXED_TOPLEVEL_NAVIGATION_USER_ACTIVATION = 0x20000;
+  let sandboxFlags = SANDBOX_ALL_FLAGS;
+  sandboxFlags &= ~SANDBOXED_AUXILIARY_NAVIGATION;
+  sandboxFlags &= ~SANDBOXED_ORIGIN;
+  sandboxFlags &= ~SANDBOXED_TOPLEVEL_NAVIGATION_USER_ACTIVATION;
+  // Flags - contrary to sandbox csp values - *prevent* a given feature.
+  browser.browsingContext.sandboxFlags = sandboxFlags;
 
   if (browserChanged) {
     browser.docShell

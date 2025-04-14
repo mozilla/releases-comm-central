@@ -67,7 +67,7 @@ function hRefForClickEvent(aEvent) {
   } else if (
     (HTMLInputElement.isInstance(target) ||
       HTMLButtonElement.isInstance(target)) &&
-    target.form?.action
+    /^https?/.test(target.form?.action)
   ) {
     href = target.form.action;
   } else {
