@@ -115,7 +115,7 @@ class EmailConfigFound extends AccountHubStep {
    * Return the current state of the email setup form.
    */
   captureState() {
-    return this.#selectedConfig;
+    return this.#selectedConfig.copy();
   }
 
   /**
@@ -207,21 +207,8 @@ class EmailConfigFound extends AccountHubStep {
       `account-setup-result-${incomingSSL}`
     );
 
-    // Set the selectedConfig to have the selected as incoming if it is
-    // different than the default incoming config, and move the default to
-    // the alternatives.
     this.#selectedConfig = this.#currentConfig.copy();
-
-    if (incoming.type != this.#selectedConfig.incoming?.type) {
-      this.#selectedConfig.incomingAlternatives.unshift(
-        this.#currentConfig.incoming
-      );
-      this.#selectedConfig.incoming = incoming;
-      this.#selectedConfig.incomingAlternatives =
-        this.#currentConfig.incomingAlternatives.filter(
-          alternative => alternative != incoming
-        );
-    }
+    this.#selectedConfig.incoming = incoming;
 
     this.#setContinueState();
 
@@ -234,11 +221,14 @@ class EmailConfigFound extends AccountHubStep {
         "account-hub-result-ews-text"
       );
 
-      if (incoming.type === "exchange") {
-        this.querySelector("#owlExchangeDescription").hidden =
-          this.#addon?.isInstalled;
-        this.querySelector("#editConfiguration").hidden = true;
-      }
+      this.querySelector("#owlExchangeDescription").hidden =
+        (incoming.type === "exchange" && this.#addon?.isInstalled) ||
+        incoming.type === "ews";
+
+      // FIXME: Bug 1899649 is tracking being able to edit an EWS config.
+      this.querySelector("#editConfiguration").hidden =
+        incoming.type === "ews" ||
+        (incoming.type === "exchange" && !this.#addon?.isInstalled);
 
       this.querySelector("#configSelection").classList.add("single");
       return;
@@ -288,6 +278,7 @@ class EmailConfigFound extends AccountHubStep {
       this.#currentConfig.incoming.addonAccountType =
         this.#addon.useType.addonAccountType;
       this.querySelector("#owlExchangeDescription").hidden = true;
+      this.querySelector("#editConfiguration").hidden = false;
       return;
     }
 
