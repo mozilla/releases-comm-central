@@ -44,8 +44,93 @@
 #include "sexp-public.h"
 #include "sexp-error.h"
 
-namespace sexp {
+// We are implementing char traits for octet_t with trhe following restrictions
+//  -- limit visibility so that other traits for unsigned char are still possible
+//  -- create template specializatio in std workspace (use workspace specialization
+//     is not specified and causes issues at least with gcc 4.8
 
+namespace sexp {
+using octet_t = uint8_t;
+} // namespace sexp
+
+namespace std {
+
+template <> struct char_traits<sexp::octet_t> {
+    typedef sexp::octet_t  char_type;
+    typedef int            int_type;
+    typedef std::streampos pos_type;
+    typedef std::streamoff off_type;
+    typedef mbstate_t      state_type;
+
+    static void assign(char_type &__c1, const char_type &__c2) noexcept { __c1 = __c2; }
+
+    static constexpr bool eq(const char_type &__c1, const char_type &__c2) noexcept
+    {
+        return __c1 == __c2;
+    }
+
+    static constexpr bool lt(const char_type &__c1, const char_type &__c2) noexcept
+    {
+        return __c1 < __c2;
+    }
+
+    static int compare(const char_type *__s1, const char_type *__s2, size_t __n)
+    {
+        return memcmp(__s1, __s2, __n);
+    }
+
+    static size_t length(const char_type *__s)
+    {
+        return strlen(reinterpret_cast<const char *>(__s));
+    }
+
+    static const char_type *find(const char_type *__s, size_t __n, const char_type &__a)
+    {
+        return static_cast<const char_type *>(memchr(__s, __a, __n));
+    }
+
+    static char_type *move(char_type *__s1, const char_type *__s2, size_t __n)
+    {
+        return static_cast<char_type *>(memmove(__s1, __s2, __n));
+    }
+
+    static char_type *copy(char_type *__s1, const char_type *__s2, size_t __n)
+    {
+        return static_cast<char_type *>(memcpy(__s1, __s2, __n));
+    }
+
+    static char_type *assign(char_type *__s, size_t __n, char_type __a)
+    {
+        return static_cast<char_type *>(memset(__s, __a, __n));
+    }
+
+    static constexpr char_type to_char_type(const int_type &__c) noexcept
+    {
+        return static_cast<char_type>(__c);
+    }
+
+    // To keep both the byte 0xff and the eof symbol 0xffffffff
+    // from ending up as 0xffffffff.
+    static constexpr int_type to_int_type(const char_type &__c) noexcept
+    {
+        return static_cast<int_type>(static_cast<unsigned char>(__c));
+    }
+
+    static constexpr bool eq_int_type(const int_type &__c1, const int_type &__c2) noexcept
+    {
+        return __c1 == __c2;
+    }
+
+    static constexpr int_type eof() noexcept { return static_cast<int_type>(0xFFFFFFFF); }
+
+    static constexpr int_type not_eof(const int_type &__c) noexcept
+    {
+        return (__c == eof()) ? 0 : __c;
+    }
+};
+} // namespace std
+
+namespace sexp {
 /*
  * SEXP octet_t definitions
  * We maintain some presumable redundancy with ctype
@@ -99,14 +184,14 @@ class sexp_input_stream_t;
  * SEXP simple string
  */
 
-typedef uint8_t octet_t;
+using octet_traits = std::char_traits<octet_t>;
+using octet_string = std::basic_string<octet_t, octet_traits>;
 
-class SEXP_PUBLIC_SYMBOL sexp_simple_string_t : public std::basic_string<octet_t>,
-                                                private sexp_char_defs_t {
+class SEXP_PUBLIC_SYMBOL sexp_simple_string_t : public octet_string, private sexp_char_defs_t {
   public:
     sexp_simple_string_t(void) = default;
-    sexp_simple_string_t(const octet_t *dt) : std::basic_string<octet_t>{dt} {}
-    sexp_simple_string_t(const octet_t *bt, size_t ln) : std::basic_string<octet_t>{bt, ln} {}
+    sexp_simple_string_t(const octet_t *dt) : octet_string{dt} {}
+    sexp_simple_string_t(const octet_t *bt, size_t ln) : octet_string{bt, ln} {}
     sexp_simple_string_t &append(int c)
     {
         (*this) += (octet_t)(c & 0xFF);
