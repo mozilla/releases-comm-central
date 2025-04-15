@@ -345,9 +345,13 @@ nsresult MboxMsgOutputStream::InternalClose() {
     rv = NS_ERROR_UNEXPECTED;
   }
 
+  // Make sure everything is flushed out before we truncate (Bug 1960252).
+  if (NS_SUCCEEDED(rv)) {
+    rv = mInner->Flush();
+  }
+
   if (NS_SUCCEEDED(rv)) {
     // Attempt to truncate the target file back to our start position.
-    nsresult rv;
     rv = mSeekable->Seek(nsISeekableStream::NS_SEEK_SET, mStartPos);
     if (NS_SUCCEEDED(rv)) {
       rv = mSeekable->SetEOF();
@@ -358,8 +362,8 @@ nsresult MboxMsgOutputStream::InternalClose() {
   }
 
   if (mCloseInnerWhenDone) {
-    // Don't want to obscure a previous error
     nsresult rv2 = mInner->Close();
+    // Don't want to obscure a previous error
     if (NS_SUCCEEDED(rv)) {
       rv = rv2;
     }
