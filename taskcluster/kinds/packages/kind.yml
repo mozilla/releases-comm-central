@@ -10,3 +10,4 @@ reference-base-path: taskcluster/kinds
 reference-tasks:
     - "*"
     - "!ub22-arm64*"
+    - "!ub24-arm64*"
