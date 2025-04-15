@@ -4,9 +4,7 @@
 
 // This file tests that imap LISTing folders during discovery when not using
 // subscription doesn't leave db's open.
-// The test runs four times: cpp/mbox, js/mbox, cpp/maildir, js/maildir.
-// Note: imap js code should be fixed so that it passes the same tests in the
-// same way as cpp implementation.
+// The test runs twice: for mbox and for maildir.
 
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
@@ -24,9 +22,8 @@ add_setup(async function () {
   setupIMAPPump();
   IMAPPump.incomingServer.usingSubscription = false;
 
-  // For cpp, vary which folder is subscribed during the test run for mbox or
+  // Vary which folder is subscribed during the test run for mbox or
   // maildir. Shouldn't really matter if subscribed or not but make sure.
-  // eslint-disable-next-line no-lonely-if  -- not an "else if" fan.
   if (IMAPPump.inbox.msgStore.storeType == "mbox") {
     IMAPPump.daemon.createMailbox("folder1", { subscribed: false });
     IMAPPump.daemon.createMailbox("folder1/sub1", { subscribed: true });
@@ -35,7 +32,7 @@ add_setup(async function () {
       subscribed: true,
     });
   } else {
-    // cpp/maildir
+    // maildir
     IMAPPump.daemon.createMailbox("folder1", { subscribed: true });
     IMAPPump.daemon.createMailbox("folder1/sub1", { subscribed: false });
     IMAPPump.daemon.createMailbox("folder1/sub1/sub2", { subscribed: true });

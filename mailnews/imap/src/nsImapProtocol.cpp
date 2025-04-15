@@ -7477,9 +7477,9 @@ void nsImapProtocol::DiscoverMailboxList() {
         // true), otherwise we end up with performance issues or even crashes
         // when connecting to servers that expose the users entire home
         // directory (like UW-IMAP).
+        nsCString pattern;
+        pattern.Append(prefix);
         if (usingSubscription) {
-          nsCString pattern;
-          pattern.Append(prefix);
           pattern.Append('*');
 
           if (GetServerStateParser().GetCapabilityFlag() &
@@ -7496,14 +7496,16 @@ void nsImapProtocol::DiscoverMailboxList() {
             m_standardListMailboxes.Clear();
           }
         } else {
-          // Not using subscriptions. Do no imap lists here. This will keep all
-          // folders "unverified" so that all folders will be checked for new
-          // children in nsImapIncomingServer::DiscoveryDone when
-          // discoverallboxes URL stop is signaled. This must be done instead of
-          // 'list "" *' (list all folders) so that database for each
-          // individually listed or newly discovered folder is properly closed
-          // when discoverchildren URL stop is signaled as required by
-          // test_listClosesDB.js.
+          // Not using subscription. Need to list top level folders here so any
+          // new folders at top level are discovered. Folders at all levels
+          // will be set unverified and will be checked for new children in
+          // nsImapIncomingServer::DiscoveryDone when discoverallboxes URL stop
+          // is signaled. This must be done instead of 'list "" *' so that the
+          // database for each individually listed folder at all levels is
+          // is properly closed when discoverchildren URL stop is signaled.
+          // Testing for database closing is done by test_listClosesDB.js.
+          pattern += "%";
+          List(pattern.get(), true, hasXLIST);
         }
       }
     }

@@ -1365,15 +1365,21 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
     }
   }
 
-  // Need to do this BEFORE trash folder checks and adjustments so if trash
-  // folder is deleted it is no longer present in the trashFolders array. Array
-  // obtained below.
+  // Un-verify ALL subfolders when ignoring subs. Needed to ensure that new
+  // folders are discovered at all levels, including under Inbox. Note: At
+  // account creation, all folders are new.
   bool usingSubscription = true;
   GetUsingSubscription(&usingSubscription);
+  if (!usingSubscription && rootMsgFolder) {
+    ResetFoldersToUnverified(rootMsgFolder);
+  }
 
   nsCOMArray<nsIMsgImapMailFolder> unverifiedFolders;
   GetUnverifiedFolders(unverifiedFolders);
 
+  // Need to do this BEFORE trash folder checks and adjustments so if trash
+  // folder is deleted it is no longer present in the trashFolders array. Array
+  // obtained below.
   int32_t count = unverifiedFolders.Count();
   MOZ_LOG(IMAP_DC, mozilla::LogLevel::Debug,
           ("DiscoveryDone, unverified folder count = %" PRIu32, count));
