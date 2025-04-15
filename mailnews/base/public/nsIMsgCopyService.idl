@@ -108,6 +108,9 @@ interface nsIMsgCopyService : nsISupports {
    * @param aSupport   The originator of CopyMessages or copyFileMessage; it can
    *                   be either a nsIMsgFolder or a nsIFile
    * @param dstFolder  The destination folder which performs the copy operation
+   *                   When copying folders, specifies the folder that was added
+   *                   as a new child of the destination folder as a result of
+   *                   the copy operation.
    * @param result     The result of the copy operation
    */
   void notifyCompletion(in nsISupports aSupport,

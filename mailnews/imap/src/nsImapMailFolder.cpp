@@ -5197,7 +5197,9 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
             nsCOMPtr<nsIMsgFolder> srcFolder =
                 do_QueryInterface(m_copyState->m_srcSupport);
             if (srcFolder) {
-              copyService->NotifyCompletion(m_copyState->m_srcSupport, this,
+              nsIMsgFolder* arrived = m_copyState->m_arrFolder;
+              copyService->NotifyCompletion(m_copyState->m_srcSupport,
+                                            arrived ? arrived : this,
                                             aExitCode);
             }
             m_copyState = nullptr;
@@ -7638,6 +7640,7 @@ nsresult nsImapMailFolder::InitCopyState(
 
   m_copyState->m_isCrossServerOp = acrossServers;
   m_copyState->m_srcSupport = srcSupport;
+  m_copyState->m_arrFolder = nullptr;
 
   m_copyState->m_messages = messages.Clone();
   if (!m_copyState->m_isCrossServerOp) {
@@ -8110,6 +8113,9 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
       msgFolder->MatchOrChangeFilterDestination(
           child, false /*caseInsensitive*/, &changed);
       if (changed) msgFolder->AlertFilterChanged(msgWindow);
+      if (m_copyState) {
+        m_copyState->m_arrFolder = child;
+      }
     }
     unusedDB->SetSummaryValid(true);
     unusedDB->Commit(nsMsgDBCommitType::kLargeCommit);

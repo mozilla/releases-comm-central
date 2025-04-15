@@ -52,6 +52,9 @@ class nsImapMailCopyState : public nsISupports {
                                                    // operation
   nsCOMPtr<nsIFile> m_tmpFile;         // temp file spec for copy operation
   nsCOMPtr<nsIMsgWindow> m_msgWindow;  // msg window for copy operation
+  nsCOMPtr<nsIMsgFolder> m_arrFolder;  // arrived folder (actual folder
+                                       // resulting from moving/copying a
+                                       // folder)
 
   nsCOMPtr<nsIMsgMessageService>
       m_msgService;        // source folder message service; can
