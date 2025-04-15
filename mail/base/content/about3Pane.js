@@ -4137,6 +4137,17 @@ var folderPane = {
   },
 
   /**
+   * Sorting comparator for two folders.
+   *
+   * @param {nsIMsgFolder} folderA
+   * @param {nsIMSgFolder} folderB
+   * @returns {number} Sorting value when comparing the two folders.
+   */
+  _sortFolders: (folderA, folderB) =>
+    folderA.sortOder - folderB.sortOrder ||
+    FolderPaneUtils.nameCollator.compare(folderA.name, folderB.name),
+
+  /**
    * Set the sort order for the new folder added to the folder group.
    *
    * @param {nsIMsgFolder} parentFolder
@@ -4164,11 +4175,7 @@ var folderPane = {
     const sibling = subFolders
       // Skip special folders so new folders don't get created before them.
       .filter(folder => folder.flags & Ci.nsMsgFolderFlags.SpecialUse)
-      .sort(
-        (a, b) =>
-          a.sortOder - b.sortOrder ||
-          FolderPaneUtils.nameCollator.compare(a.name, b.name)
-      )
+      .sort(this._sortFolders)
       .find(
         folder =>
           FolderPaneUtils.nameCollator.compare(folder.name, newFolder.name) > 0
@@ -4211,7 +4218,7 @@ var folderPane = {
     // Start at the end, so we can stop once we've reached the insertion point.
     const folders = subFolders
       .filter(sf => sf != folder)
-      .sort((a, b) => b.sortOrder - a.sortOrder);
+      .sort((a, b) => this._sortFolders(b, a));
     for (const sibling of folders) {
       // If we've reached the target and we're inserting after it, we've done
       // all the necessary moving.
