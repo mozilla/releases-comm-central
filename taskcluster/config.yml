@@ -17,7 +17,6 @@ treeherder:
         'Ub20': 'Packages for Ubuntu 20.04'
         'Ub22': 'Packages for Ubuntu 22.04'
         'Ub24': 'Packages for Ubuntu 24.04'
-        'Ub24a64': 'AArch64 packages for Ubuntu 24.04'
         'I': 'Docker Image Builds'
         'TA': 'Toolchain builds for Android'
         'TL': 'Toolchain builds for Linux 64-bits'
@@ -240,11 +239,6 @@ workers:
             os: linux
             worker-type: '{alias}'
         images-gcp:
-            provisioner: '{trust-domain}-{level}'
-            implementation: docker-worker
-            os: linux
-            worker-type: '{alias}'
-        images-gcp-aarch64:
             provisioner: '{trust-domain}-{level}'
             implementation: docker-worker
             os: linux

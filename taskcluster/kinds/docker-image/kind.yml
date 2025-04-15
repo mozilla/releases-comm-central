@@ -24,7 +24,6 @@ reference-tasks:
     - fetch-more
     - funsize-update-generator
     - image_builder
-    - image_builder_arm64
     - index-task
     - lint
     - push-to-try
@@ -40,14 +39,12 @@ reference-tasks:
     - ubuntu2004-base
     - ubuntu2004-packages
     - ubuntu2004-raw
-    - ubuntu2204-base
-    - ubuntu2204-packages
     - ubuntu2204-raw
-    - ubuntu2404-arm64-raw
-    - ubuntu2404-arm64-packages
+    - ubuntu2204-packages
+    - ubuntu2204-base
     - ubuntu2404-base
-    - ubuntu2404-packages
     - ubuntu2404-raw
+    - ubuntu2404-packages
     - update-verify
 
 transforms:
