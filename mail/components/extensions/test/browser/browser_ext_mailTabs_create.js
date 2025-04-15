@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
+
 let gAccount, gRootFolder, gSubFolders, gDefaultTabmail;
 
 add_setup(async () => {
@@ -21,11 +25,11 @@ add_setup(async () => {
   gDefaultTabmail = document.getElementById("tabmail");
   gDefaultTabmail.currentTabInfo.folder = gRootFolder;
   gDefaultTabmail.currentAbout3Pane.displayFolder(gSubFolders.test1.URI);
-  await ensure_table_view();
+  await ensure_table_view(document);
 
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
   registerCleanupFunction(async () => {
-    await ensure_cards_view();
+    await ensure_cards_view(document);
     Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
   });
   await new Promise(resolve => executeSoon(resolve));

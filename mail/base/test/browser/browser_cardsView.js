@@ -8,6 +8,9 @@ const { MessageGenerator } = ChromeUtils.importESModule(
 const { click_through_appmenu } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
+const { ensure_cards_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
@@ -43,8 +46,9 @@ add_setup(async function () {
 });
 
 add_task(async function testSwitchToCardsView() {
-  Assert.ok(
-    threadTree.getAttribute("rows") == "thread-card",
+  Assert.equal(
+    threadTree.getAttribute("rows"),
+    "thread-card",
     "The tree view should have a card layout"
   );
 
@@ -54,9 +58,10 @@ add_task(async function testSwitchToCardsView() {
     window
   );
 
-  await BrowserTestUtils.waitForCondition(
-    () => threadTree.getAttribute("rows") == "thread-card",
-    "The tree view should not switch to a table layout"
+  Assert.equal(
+    threadTree.getAttribute("rows"),
+    "thread-card",
+    "tree view in cards layout"
   );
 
   displayContext = about3Pane.document.getElementById(
@@ -81,13 +86,15 @@ add_task(async function testSwitchToCardsView() {
     displayContext,
     "popuphidden"
   );
+  const switchedToTable = BrowserTestUtils.waitForAttribute(
+    "rows",
+    threadTree,
+    "thread-row"
+  );
   displayContext.activateItem(
     displayContext.querySelector("#threadPaneTableView")
   );
-  await BrowserTestUtils.waitForCondition(
-    () => threadTree.getAttribute("rows") == "thread-row",
-    "The tree view switched to a table layout"
-  );
+  await switchedToTable;
   EventUtils.synthesizeKey("KEY_Escape", {});
   await hiddenPromise;
 
@@ -97,11 +104,11 @@ add_task(async function testSwitchToCardsView() {
     window
   );
 
-  await BrowserTestUtils.waitForCondition(
-    () => threadTree.getAttribute("rows") == "thread-row",
+  Assert.equal(
+    threadTree.getAttribute("rows"),
+    "thread-row",
     "The tree view should not switch to a card layout"
   );
-
   Assert.equal(
     threadTree.table.body.getAttribute("role"),
     "treegrid",
@@ -129,13 +136,15 @@ add_task(async function testSwitchToCardsView() {
   );
 
   hiddenPromise = BrowserTestUtils.waitForEvent(displayContext, "popuphidden");
+  const switchedToCards = BrowserTestUtils.waitForAttribute(
+    "rows",
+    threadTree,
+    "thread-card"
+  );
   displayContext.activateItem(
     displayContext.querySelector("#threadPaneCardsView")
   );
-  await BrowserTestUtils.waitForCondition(
-    () => threadTree.getAttribute("rows") == "thread-card",
-    "The tree view switched to a card layout"
-  );
+  await switchedToCards;
   EventUtils.synthesizeKey("KEY_Escape", {});
   await hiddenPromise;
   await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
@@ -243,13 +252,15 @@ add_task(async function testTagsInVerticalView() {
     displayContext,
     "popuphidden"
   );
+  const switchedToTable = BrowserTestUtils.waitForAttribute(
+    "rows",
+    threadTree,
+    "thread-row"
+  );
   displayContext.activateItem(
     displayContext.querySelector("#threadPaneTableView")
   );
-  await BrowserTestUtils.waitForCondition(
-    () => threadTree.getAttribute("rows") == "thread-row",
-    "The tree view switched to a table layout"
-  );
+  await switchedToTable;
   EventUtils.synthesizeKey("KEY_Escape", {});
   await hiddenPromise;
 
@@ -259,7 +270,7 @@ add_task(async function testTagsInVerticalView() {
     "tree view in table layout"
   );
 
-  await ensure_cards_view();
+  await ensure_cards_view(document);
   about3Pane.folderTree.focus();
 }).skip(); // TODO: update the test for tags on Bug 1860900.
 

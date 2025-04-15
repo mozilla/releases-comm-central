@@ -4,6 +4,9 @@
 
 "use strict";
 
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 var { VirtualFolderHelper } = ChromeUtils.importESModule(
   "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
@@ -33,7 +36,7 @@ add_setup(async () => {
   gDefaultTabmail = document.getElementById("tabmail");
   gDefaultTabmail.currentTabInfo.folder = gRootFolder;
   gDefaultTabmail.currentAbout3Pane.displayFolder(gSubFolders.test1.URI);
-  await ensure_table_view();
+  await ensure_table_view(document);
 
   // There are a couple of deprecated properties in MV3, which we still want to
   // test in MV2 but also report to the user. By default, tests throw when
@@ -44,7 +47,7 @@ add_setup(async () => {
   );
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
   registerCleanupFunction(async () => {
-    await ensure_cards_view();
+    await ensure_cards_view(document);
     Services.prefs.clearUserPref("extensions.webextensions.warnings-as-errors");
     Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
   });

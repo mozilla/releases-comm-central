@@ -658,7 +658,7 @@ table[is="tree-view-table"] {
       }
     }
 
-    & div:not(.recipient-avatar, .thread-card-icon-info, .thread-card-last-row) {
+    & div:not(.recipient-avatar, .thread-card-icon-info, .thread-card-dynamic-row) {
       overflow: hidden;
       text-overflow: ellipsis;
     }

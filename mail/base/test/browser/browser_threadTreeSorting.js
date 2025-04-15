@@ -5,6 +5,9 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
@@ -40,7 +43,7 @@ add_setup(async function () {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
   registerCleanupFunction(async () => {
-    await ensure_cards_view();
+    await ensure_cards_view(document);
     MailServices.accounts.removeAccount(account, false);
     Services.prefs.setBoolPref("mailnews.scroll_to_new_message", true);
   });
@@ -91,7 +94,7 @@ add_task(async function testColumnHeaderClick() {
 
   // Switch to horizontal layout and table view so we can interact with the
   // table header and sort rows properly.
-  await ensure_table_view();
+  await ensure_table_view(document);
 
   // Check sorting with no message selected.
 

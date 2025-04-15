@@ -5,6 +5,9 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { ensure_cards_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
@@ -34,7 +37,7 @@ add_setup(async function () {
 
   // Use the test folder.
   about3Pane.displayFolder(testFolder.URI);
-  await ensure_cards_view();
+  await ensure_cards_view(document);
 
   // Remove test account on cleanup.
   registerCleanupFunction(() => {
@@ -51,9 +54,13 @@ add_task(async function testMultiMessageZoom() {
   // Threads need to be collapsed, otherwise the multi-message view
   // won't be shown.
   const row = threadTree.getRowAtIndex(0);
-  Assert.ok(
-    row.classList.contains("collapsed"),
-    "The thread row should be collapsed"
+  await BrowserTestUtils.waitForMutationCondition(
+    row,
+    {
+      attributes: true,
+      attributeFilter: ["class"],
+    },
+    () => row.classList.contains("collapsed")
   );
 
   const subjectLine = row.querySelector(

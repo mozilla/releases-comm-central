@@ -56,11 +56,7 @@ async function openExtensionPopup(win, buttonId) {
 registerCleanupFunction(function () {
   registerCleanupFunction(async function () {
     Services.prefs.clearUserPref("mail.pane_config.dynamic");
-    Services.xulStore.removeValue(
-      "chrome://messenger/content/messenger.xhtml",
-      "threadPane",
-      "view"
-    );
+    Services.prefs.clearUserPref("mail.threadpane.listview");
 
     const tabmail = document.getElementById("tabmail");
     if (tabmail.tabInfo.length > 1) {

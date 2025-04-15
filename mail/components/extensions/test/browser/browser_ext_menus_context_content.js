@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
+
 // Load subscript shared with all menu tests.
 Services.scriptloader.loadSubScript(
   new URL("head_menus.js", gTestPath).href,
@@ -31,7 +35,7 @@ add_setup(async () => {
     folderPaneVisible: true,
     folderURI: gAccount.incomingServer.rootFolder.URI,
   });
-  await ensure_table_view();
+  await ensure_table_view(document);
 });
 
 add_task(async function test_content_mv2() {

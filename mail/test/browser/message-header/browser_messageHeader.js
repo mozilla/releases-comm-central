@@ -36,6 +36,9 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 const about3Pane = get_about_3pane();
 const aboutMessage = get_about_message();
@@ -101,10 +104,10 @@ add_setup(async function () {
   // async openings. The panel is lazy-loaded, so it needs to be referenced
   // this way rather than finding it in the DOM.
   aboutMessage.editContactInlineUI.panel.setAttribute("animate", false);
-  await ensure_table_view();
+  await ensure_table_view(document);
 
   registerCleanupFunction(async () => {
-    await ensure_cards_view();
+    await ensure_cards_view(document);
     // Delete created folder.
     folder.deleteSelf(null);
     folderMore.deleteSelf(null);
@@ -135,7 +138,7 @@ function get_last_visible_address(recipientsList) {
 
 add_task(async function test_add_tag_with_really_long_label() {
   await be_in_folder(folder);
-  await ensure_table_view();
+  await ensure_table_view(document);
 
   // Select the first message, which will display it.
   const curMessage = await select_click_row(-1);

@@ -1475,3 +1475,12 @@ pref("mail.qrexport.loglevel", "Warn");
 
 // New calendar dialog
 pref("calendar.dialogs.new.enabled", false);
+
+// Layout and UI settings.
+// List view style for the thread pane:
+// 0 - Cards view.
+// 1 - Table view.
+pref("mail.threadpane.listview", 0);
+
+// Row count for the cards view, currently bound to a range between 2 and 3.
+pref("mail.threadpane.cardsview.rowcount", 3);

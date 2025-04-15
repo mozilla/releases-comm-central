@@ -154,10 +154,6 @@ add_task(async () => {
       pref: "mail.showCondensedAddresses",
     },
     {
-      checkboxID: "tableHorizontalScroll",
-      pref: "mail.threadpane.table.horizontal_scroll",
-    },
-    {
       checkboxID: "darkReader",
       pref: "mail.dark-reader.enabled",
     },

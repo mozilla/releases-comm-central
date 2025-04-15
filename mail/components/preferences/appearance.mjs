@@ -11,9 +11,12 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 Preferences.addAll([
+  { id: "mail.threadpane.listview", type: "int" },
+  { id: "mail.threadpane.cardsview.rowcount", type: "int" },
   { id: "mailnews.default_view_flags", type: "int" },
   { id: "mailnews.default_sort_type", type: "int" },
   { id: "mailnews.default_sort_order", type: "int" },
+  { id: "mail.threadpane.table.horizontal_scroll", type: "bool" },
 ]);
 
 ChromeUtils.defineLazyGetter(lazy, "notification", () => {
@@ -25,6 +28,11 @@ ChromeUtils.defineLazyGetter(lazy, "notification", () => {
 export const appearancePane = {
   init() {
     this.addEventListeners();
+    this.toggleExtraViewOptions();
+    Preferences.get("mail.threadpane.listview").on(
+      "change",
+      this.toggleExtraViewOptions
+    );
   },
 
   /**
@@ -51,6 +59,15 @@ export const appearancePane = {
       .addEventListener("command", event => {
         this.applyViewToFolder(event, true);
       });
+  },
+
+  /**
+   * Toggle the visibility of the extra view options.
+   */
+  toggleExtraViewOptions() {
+    const prefValue = Preferences.get("mail.threadpane.listview").value;
+    document.getElementById("cardsViewOptions").hidden = prefValue === 1;
+    document.getElementById("tableViewOptions").hidden = prefValue === 0;
   },
 
   /**

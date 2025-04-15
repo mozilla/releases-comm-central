@@ -8,6 +8,9 @@ const { MessageGenerator } = ChromeUtils.importESModule(
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
+const { ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
@@ -225,7 +228,7 @@ add_task(async function testDragMessageSource() {
     folderURI: sourceFolder.URI,
     messagePaneVisible: false,
   });
-  ensure_table_view();
+  await ensure_table_view(document);
 
   const sourceMessages = [...sourceFolder.messages];
   const sourceMessageIDs = sourceMessages.map(m => m.messageId);
@@ -360,7 +363,7 @@ add_task(async function testDragMessageDestination() {
     folderURI: sourceFolder.URI,
     messagePaneVisible: false,
   });
-  ensure_table_view();
+  await ensure_table_view(document);
 
   dragService.startDragSessionForTests(
     about3Pane,

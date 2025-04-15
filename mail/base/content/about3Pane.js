@@ -4420,17 +4420,6 @@ var threadPaneHeader = {
   },
 
   /**
-   * Change the display view of the message list pane.
-   *
-   * @param {DOMEvent} event - The click event.
-   */
-  changePaneView(event) {
-    const view = event.target.value;
-    XULStoreUtils.setValue("messenger", "threadPane", "view", view);
-    threadPane.updateThreadView(view);
-  },
-
-  /**
    * Update the quick filter button based on the quick filter bar state.
    */
   onQuickFilterToggle() {
@@ -4571,6 +4560,7 @@ var threadPane = {
     this.setUpTagStyles();
     Services.prefs.addObserver("mailnews.tags.", this);
     Services.prefs.addObserver("mail.threadpane.table.horizontal_scroll", this);
+    Services.prefs.addObserver("mail.threadpane.listview", this);
 
     Services.obs.addObserver(this, "addrbook-displayname-changed");
     Services.obs.addObserver(this, "custom-column-added");
@@ -4602,9 +4592,7 @@ var threadPane = {
       "threadPaneApplyColumnMenu",
       "threadPaneApplyViewMenu",
     ]);
-    threadPane.updateThreadView(
-      XULStoreUtils.getValue("messenger", "threadPane", "view")
-    );
+    threadPane.updateThreadView();
 
     XPCOMUtils.defineLazyPreferenceGetter(
       this,
@@ -4614,6 +4602,15 @@ var threadPane = {
       (name, oldValue, newValue) => (threadTree.dataset.selectDelay = newValue)
     );
     threadTree.dataset.selectDelay = this.selectDelay;
+
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
+      "rowCount",
+      "mail.threadpane.cardsview.rowcount",
+      3,
+      () => this.updateThreadItemSize(),
+      prefVal => Math.min(Math.max(2, prefVal), 3)
+    );
 
     window.addEventListener("uidensitychange", () => {
       this.updateThreadItemSize();
@@ -4705,6 +4702,7 @@ var threadPane = {
       "mail.threadpane.table.horizontal_scroll",
       this
     );
+    Services.prefs.removeObserver("mail.threadpane.listview", this);
     Services.obs.removeObserver(this, "addrbook-displayname-changed");
     Services.obs.removeObserver(this, "custom-column-added");
     Services.obs.removeObserver(this, "custom-column-removed");
@@ -4797,8 +4795,17 @@ var threadPane = {
           if (gFolder) {
             this.treeTable.updateColumns(this.columns);
           }
-        } else if (data.startsWith("mailnews.tags.")) {
+          break;
+        }
+
+        if (data.startsWith("mailnews.tags.")) {
           this.setUpTagStyles();
+          break;
+        }
+
+        if (data == "mail.threadpane.listview") {
+          this.updateThreadView();
+          this.updateThreadItemSize();
         }
         break;
       case "addrbook-displayname-changed":
@@ -5333,8 +5340,8 @@ var threadPane = {
     const rowClass = customElements.get("thread-row");
     const cardClass = customElements.get("thread-card");
     const currentFontSize = UIFontSize.size;
-    const cardRows = 3;
-    const cardRowConstant = Math.round(1.5 * cardRows * currentFontSize); // subject line-height * cardRows * current font-size
+    // subject line-height * this.rowCount * current font-size.
+    const cardRowConstant = Math.round(1.5 * this.rowCount * currentFontSize);
     let rowHeight = Math.ceil(currentFontSize * 1.4);
     let lineGap;
     let densityPaddingConstant;
@@ -5345,24 +5352,24 @@ var threadPane = {
         lineGap = 1;
         densityPaddingConstant = 3; // card padding-block + 2 * row padding-block
         cardRowHeight =
-          cardRowConstant + lineGap * cardRows + densityPaddingConstant;
+          cardRowConstant + lineGap * this.rowCount + densityPaddingConstant;
         break;
       case UIDensity.MODE_TOUCH:
         rowHeight = rowHeight + 13;
         lineGap = 6;
         densityPaddingConstant = 12; // card padding-block + 2 * row padding-block
         cardRowHeight =
-          cardRowConstant + lineGap * cardRows + densityPaddingConstant;
+          cardRowConstant + lineGap * this.rowCount + densityPaddingConstant;
         break;
       default:
         rowHeight = rowHeight + 7;
         lineGap = 3;
         densityPaddingConstant = 7; // card padding-block + 2 * row padding-block
         cardRowHeight =
-          cardRowConstant + lineGap * cardRows + densityPaddingConstant;
+          cardRowConstant + lineGap * this.rowCount + densityPaddingConstant;
         break;
     }
-    cardClass.ROW_HEIGHT = Math.max(cardRowHeight, 50);
+    cardClass.ROW_HEIGHT = Math.max(cardRowHeight, 40);
     rowClass.ROW_HEIGHT = Math.max(rowHeight, 18);
   },
 
@@ -5370,6 +5377,7 @@ var threadPane = {
    * Update thread item size in DOM (thread cards and rows).
    */
   async updateThreadItemSize() {
+    threadTree.classList.toggle("cards-row-compact", this.rowCount === 2);
     await this.densityChange();
     threadTree.reset();
   },
@@ -6228,17 +6236,17 @@ var threadPane = {
   /**
    * Update the display view of the message list. Current supported options are
    * table and cards.
-   *
-   * @param {string} view - The view type.
    */
-  updateThreadView(view) {
-    switch (view) {
-      case "table":
+  updateThreadView() {
+    switch (Services.prefs.getIntPref("mail.threadpane.listview", 0)) {
+      case 1:
+        // Table view.
         threadTree.setAttribute("rows", "thread-row");
         threadTree.headerHidden = false;
         break;
-      case "cards":
+      case 0:
       default:
+        // Cards view.
         threadTree.setAttribute("rows", "thread-card");
         threadTree.headerHidden = true;
         break;
@@ -6648,6 +6656,12 @@ commandController.registerCallback(
   }
 );
 
+commandController.registerCallback("cmd_threadPaneViewCards", () => {
+  Services.prefs.setIntPref("mail.threadpane.listview", 0);
+});
+commandController.registerCallback("cmd_threadPaneViewTable", () => {
+  Services.prefs.setIntPref("mail.threadpane.listview", 1);
+});
 commandController.registerCallback("cmd_viewClassicMailLayout", () =>
   Services.prefs.setIntPref("mail.pane_config.dynamic", 0)
 );

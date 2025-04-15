@@ -5,6 +5,10 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { ensure_cards_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
+
 const TEST_DOCUMENT_URL = "http://mochi.test:8888/";
 let about3Pane;
 
@@ -41,7 +45,7 @@ add_setup(async function () {
   });
 
   // Use the test folder.
-  await ensure_cards_view();
+  await ensure_cards_view(document);
 
   // Remove test account on cleanup.
   registerCleanupFunction(() => {

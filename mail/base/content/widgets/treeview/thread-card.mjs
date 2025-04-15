@@ -124,7 +124,8 @@ class ThreadCard extends TreeViewTableRow {
     }
     this.threadCardTagsInfo.title = tagsTitleFormatter.format(matchedTags);
 
-    // Clears the text span displaying the extra amount of the tags to prevent stale content.
+    // Clears the text span displaying the extra amount of the tags to prevent
+    // stale content.
     const tagCount = matchedTags.length;
     this.tagsMore.hidden = tagCount <= 3;
 
@@ -138,7 +139,7 @@ class ThreadCard extends TreeViewTableRow {
       );
     }
 
-    // Updates the text span displaying the extra amount of the tags
+    // Updates the text span displaying the extra amount of the tags.
     if (tagCount > 3) {
       this.tagsMore.hidden = false;
       this.tagsMore.textContent = tagsMoreFormatter.format(tagCount - 3);

@@ -5,6 +5,9 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { ensure_cards_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 const statusText = document.getElementById("statusText");
 const tabmail = document.getElementById("tabmail");
@@ -30,7 +33,7 @@ add_setup(async function () {
 
   // Use the test folder.
   about3Pane.displayFolder(testFolder.URI);
-  await ensure_cards_view();
+  await ensure_cards_view(document);
 
   // Remove test account on cleanup.
   registerCleanupFunction(() => {

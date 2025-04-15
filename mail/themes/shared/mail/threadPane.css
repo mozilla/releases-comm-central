@@ -14,6 +14,7 @@
   }
 
   &[uidensity="touch"] {
+    --thread-pane-container-gap: 6px;
     --thread-pane-header-padding: 6px;
   }
 
@@ -615,15 +616,11 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
   color: var(--toolbar-color, inherit);
 }
 
-#threadPaneFolderCountContainer {
-  flex-wrap: wrap;
-}
-
 .list-header-bar-container-start,
 .list-header-bar-container-end {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
   overflow: hidden;
   padding: var(--thread-pane-header-padding) 3px;
 }

@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
+
 let gAccount, gMessages, gFolder, gDefaultAbout3Pane;
 
 add_setup(async () => {
@@ -26,7 +30,7 @@ add_setup(async () => {
   gFolder = subFolders.test0;
   gMessages = [...subFolders.test0.messages];
 
-  await ensure_table_view();
+  await ensure_table_view(document);
 
   gDefaultAbout3Pane = document.getElementById("tabmail").currentAbout3Pane;
   gDefaultAbout3Pane.displayFolder(gFolder);

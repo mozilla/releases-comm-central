@@ -279,50 +279,6 @@ class MenuTestHelper {
 }
 
 /**
- * Helper method to switch to a cards view with vertical layout.
- */
-async function ensure_cards_view() {
-  const { threadTree, threadPane } =
-    document.getElementById("tabmail").currentAbout3Pane;
-
-  Services.prefs.setIntPref("mail.pane_config.dynamic", 2);
-  Services.xulStore.setValue(
-    "chrome://messenger/content/messenger.xhtml",
-    "threadPane",
-    "view",
-    "cards"
-  );
-  threadPane.updateThreadView("cards");
-
-  await BrowserTestUtils.waitForCondition(
-    () => threadTree.getAttribute("rows") == "thread-card",
-    "The tree view switched to a cards layout"
-  );
-}
-
-/**
- * Helper method to switch to a table view with classic layout.
- */
-async function ensure_table_view() {
-  const { threadTree, threadPane } =
-    document.getElementById("tabmail").currentAbout3Pane;
-
-  Services.prefs.setIntPref("mail.pane_config.dynamic", 0);
-  Services.xulStore.setValue(
-    "chrome://messenger/content/messenger.xhtml",
-    "threadPane",
-    "view",
-    "table"
-  );
-  threadPane.updateThreadView("table");
-
-  await BrowserTestUtils.waitForCondition(
-    () => threadTree.getAttribute("rows") == "thread-row",
-    "The tree view switched to a table layout"
-  );
-}
-
-/**
  * Opens a .eml file in a standalone message window and waits for it to load.
  *
  * @param {nsIFile} file - The file to open.
@@ -453,11 +409,7 @@ async function promiseServerIdle(server) {
 registerCleanupFunction(function () {
   registerCleanupFunction(async function () {
     Services.prefs.clearUserPref("mail.pane_config.dynamic");
-    Services.xulStore.removeValue(
-      "chrome://messenger/content/messenger.xhtml",
-      "threadPane",
-      "view"
-    );
+    Services.prefs.clearUserPref("mail.threadpane.listview");
 
     const tabmail = document.getElementById("tabmail");
     if (tabmail.tabInfo.length > 1) {
@@ -490,7 +442,6 @@ registerCleanupFunction(function () {
     }
 
     resetSmartMailboxes();
-    ensure_cards_view();
 
     // Some tests that open new windows confuse mochitest, which waits for a
     // focus event on the main window, and the test times out. If we focus a

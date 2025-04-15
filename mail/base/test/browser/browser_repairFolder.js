@@ -15,6 +15,9 @@ const { IMAPServer } = ChromeUtils.importESModule(
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 const { folderPane, folderTree, threadTree } = about3Pane;
@@ -52,13 +55,13 @@ add_setup(async function () {
   imapTestFolder = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   await imapServer.addMessages(imapTestFolder, generator.makeMessages({}));
 
-  await ensure_table_view();
+  await ensure_table_view(document);
 
   registerCleanupFunction(async () => {
     await promiseServerIdle(imapAccount.incomingServer);
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(imapAccount, false);
-    await ensure_cards_view();
+    await ensure_cards_view(document);
     Services.prefs.clearUserPref("ui.prefersReducedMotion");
   });
 });

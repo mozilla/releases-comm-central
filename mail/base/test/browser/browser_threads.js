@@ -5,6 +5,9 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
@@ -42,7 +45,7 @@ add_setup(async function () {
   about3Pane.paneLayout.messagePaneVisible = false;
   goDoCommand("cmd_expandAllThreads");
 
-  await ensure_table_view();
+  await ensure_table_view(document);
 
   // Check the initial state of a sample of messages.
 
@@ -57,7 +60,7 @@ add_setup(async function () {
   checkRowThreadState(20, true);
 
   registerCleanupFunction(async () => {
-    await ensure_cards_view();
+    await ensure_cards_view(document);
     MailServices.accounts.removeAccount(account, false);
     about3Pane.paneLayout.messagePaneVisible = true;
     Services.prefs.clearUserPref("mail.ignore_thread.learn_more_url");

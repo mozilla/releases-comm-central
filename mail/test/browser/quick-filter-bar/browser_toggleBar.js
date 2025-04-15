@@ -29,6 +29,9 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/QuickFilterBarHelpers.sys.mjs"
 );
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 var folder;
 var setUnstarred, setStarred;
@@ -42,7 +45,7 @@ add_setup(async function () {
   setStarred.setStarred(true);
 
   registerCleanupFunction(async () => {
-    await ensure_cards_view();
+    await ensure_cards_view(document);
   });
 });
 
@@ -55,7 +58,7 @@ add_task(async function test_hidden_on_account_central() {
 
 add_task(async function test_visible_by_default() {
   await be_in_folder(folder);
-  await ensure_table_view();
+  await ensure_table_view(document);
   await assert_quick_filter_button_enabled(true);
   assert_quick_filter_bar_visible(true);
   teardownTest();
@@ -106,7 +109,7 @@ add_task(async function test_constraints_disappear_when_collapsed() {
 });
 
 registerCleanupFunction(async () => {
-  await ensure_cards_view();
+  await ensure_cards_view(document);
   await cleanup_qfb_button();
 });
 

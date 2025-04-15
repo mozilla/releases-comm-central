@@ -16,9 +16,56 @@
 
     <html:fieldset>
       <html:legend data-l10n-id="default-message-list-legend"></html:legend>
+      <separator class="thin"/>
+
+      <label control="appearanceViewStyle"
+             data-l10n-id="appearance-view-style"/>
+      <radiogroup id="appearanceViewStyle"
+                  class="indent appearance-options"
+                  preference="mail.threadpane.listview">
+        <radio id="appearanceStyleCards"
+               value="0"
+               data-l10n-id="appearance-radio-cards" />
+        <radio id="appearanceStyleTable"
+               value="1"
+               data-l10n-id="appearance-radio-table" />
+      </radiogroup>
+
+      <separator/>
+
+      <html:div id="cardsViewOptions" hidden="hidden">
+        <html:legend data-l10n-id="cards-view-legend"></html:legend>
+        <separator class="thin"/>
+        <label control="appearanceCardRows" data-l10n-id="appearance-card-rows" />
+
+        <radiogroup id="appearanceCardRows"
+                    class="indent"
+                    preference="mail.threadpane.cardsview.rowcount">
+          <radio id="cardStyle2Rows"
+                 value="2"
+                 data-l10n-id="appearance-card-style-2" />
+          <radio id="cardStyle3Rows"
+                 value="3"
+                 data-l10n-id="appearance-card-style-3" />
+        </radiogroup>
+      </html:div>
+
+      <html:div id="tableViewOptions" hidden="hidden">
+        <html:legend data-l10n-id="table-view-legend"></html:legend>
+        <separator class="thin"/>
+        <hbox>
+          <checkbox id="tableHorizontalScroll"
+                    data-l10n-id="table-layout-horizontal-scroll-label"
+                    preference="mail.threadpane.table.horizontal_scroll"/>
+        </hbox>
+      </html:div>
+    </html:fieldset>
+
+    <html:fieldset>
+      <html:legend data-l10n-id="default-message-list-sorting-legend"></html:legend>
       <description flex="1" data-l10n-id="default-message-list-description"/>
 
-      <separator class="thin"/>
+      <separator/>
 
       <label control="defaultViewFlags" data-l10n-id="default-flag-label" />
       <radiogroup id="defaultViewFlags"
@@ -85,7 +132,7 @@
       </radiogroup>
 
       <html:div class="pane-appearance-sorting-buttons">
-        <html:span data-l10n-id="apply-sort-label"></html:span>
+        <html:span data-l10n-id="apply-thread-sort-label"></html:span>
         <button is="highlightable-button" id="applyAll"
                 data-l10n-id="apply-sort-to-all-button"></button>
         <button is="highlightable-button" id="applyChoose"

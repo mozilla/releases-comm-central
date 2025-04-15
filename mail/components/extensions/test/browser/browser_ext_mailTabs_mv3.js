@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
+
 let gAccount, gRootFolder, gSubFolders, gDefaultTabmail;
 
 add_setup(async () => {
@@ -25,7 +29,7 @@ add_setup(async () => {
 
   gDefaultTabmail = document.getElementById("tabmail");
   gDefaultTabmail.currentTabInfo.folder = gRootFolder;
-  await ensure_table_view();
+  await ensure_table_view(document);
 
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
   registerCleanupFunction(() => {

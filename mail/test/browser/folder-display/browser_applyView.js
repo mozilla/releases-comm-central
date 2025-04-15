@@ -15,6 +15,9 @@ var { be_in_folder, create_folder, get_about_3pane } =
 var { click_menus_in_sequence } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 // These are for the reset/apply to other/apply to other+child tests.
 var folderSource, folderParent, folderChild1;
@@ -28,10 +31,10 @@ add_setup(async function () {
   folderParent.createSubfolder("Child2", null);
 
   await be_in_folder(folderSource);
-  await ensure_table_view();
+  await ensure_table_view(document);
 
   registerCleanupFunction(async () => {
-    await ensure_cards_view();
+    await ensure_cards_view(document);
     folderParent.deleteSelf(null);
     folderSource.deleteSelf(null);
   });

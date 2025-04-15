@@ -309,23 +309,19 @@
                       tabindex="-1">
               </button>
             </div>
-            <div class="thread-card-row">
+            <div class="thread-card-dynamic-row">
+              <span class="sort-header-details"></span>
+              <button type="button"
+                      class="button button-flat button-reset twisty thread-card-button"
+                      aria-hidden="true"
+                      tabindex="-1">
+                <img src="" alt="" class="replies-icon" />
+                <span class="thread-replies"></span>
+                <img src="" alt="" class="twisty-icon" />
+              </button>
               <div class="thread-card-subject-container">
                 <span class="subject"></span>
               </div>
-            </div>
-            <div class="thread-card-row thread-card-last-row">
-              <span class="sort-header-details"></span>
-              <button type="button"
-                      class="button button-flat button-reset twisty"
-                      aria-hidden="true"
-                      tabindex="-1">
-                <div class="thread-indicator-content">
-                  <img src="" alt="" class="replies-icon" />
-                  <span class="thread-replies"></span>
-                  <img src="" alt="" class="twisty-icon" />
-                </div>
-              </button>
               <div class="thread-card-icon-info">
                 <img class="attachment-icon" src="" data-l10n-id="tree-list-view-row-attach" />
                 <div class="thread-card-tags-info">
@@ -637,7 +633,7 @@
               value="table"
               closemenu="none"
               data-l10n-id="thread-pane-header-context-table-view"
-              oncommand="threadPaneHeader.changePaneView(event);"/>
+              oncommand="goDoCommand('cmd_threadPaneViewTable');"/>
     <menuitem id="threadPaneCardsView"
               class="thread-view-option"
               type="radio"
@@ -645,7 +641,7 @@
               value="cards"
               closemenu="none"
               data-l10n-id="thread-pane-header-context-cards-view"
-              oncommand="threadPaneHeader.changePaneView(event);"/>
+              oncommand="goDoCommand('cmd_threadPaneViewCards');"/>
     <menuseparator id="separatorBeforeHideThreadHeaderOption"/>
     <menu id="threadPaneSortMenu"
           accesskey="&sortMenu.accesskey;"

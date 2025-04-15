@@ -60,13 +60,15 @@ add_task(async function testHorizontalScroll() {
     displayContext,
     "popuphidden"
   );
+  const switchedToTable = BrowserTestUtils.waitForAttribute(
+    "rows",
+    threadTree,
+    "thread-row"
+  );
   displayContext.activateItem(
     displayContext.querySelector("#threadPaneTableView")
   );
-  await BrowserTestUtils.waitForCondition(
-    () => threadTree.getAttribute("rows") == "thread-row",
-    "The tree view switched to a table layout"
-  );
+  await switchedToTable;
   EventUtils.synthesizeKey("KEY_Escape", {});
   await hiddenPromise;
 

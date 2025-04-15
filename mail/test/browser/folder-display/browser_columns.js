@@ -33,6 +33,9 @@ var { click_menus_in_sequence } = ChromeUtils.importESModule(
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 var { GlodaSyntheticView } = ChromeUtils.importESModule(
   "resource:///modules/gloda/GlodaSyntheticView.sys.mjs"
@@ -122,9 +125,9 @@ add_setup(async function () {
   folderSource = await create_folder("ColumnsApplySource");
 
   // Switch to table view.
-  await ensure_table_view();
+  await ensure_table_view(document);
   registerCleanupFunction(async () => {
-    await ensure_cards_view();
+    await ensure_cards_view(document);
   });
 
   // Add a message.

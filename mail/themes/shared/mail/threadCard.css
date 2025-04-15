@@ -4,9 +4,8 @@
 
 :root {
   --thread-child-start: 20px;
-  --thread-card-content-block: 3px;
   --thread-card-content-gap: 3px;
-  --thread-indicator-content-padding: 1px 3px;
+  --thread-card-button-padding: 1px 3px;
   --thread-line-height: 100%;
   --read-status-new: var(--icon-sparkle-star-sm);
   --read-status-icon: var(--icon-dot);
@@ -17,9 +16,8 @@
   &[uidensity="compact"] {
     --tree-card-inline: 5px;
     --thread-child-start: 8px;
-    --thread-card-content-block: 1px;
     --thread-card-content-gap: 1px;
-    --thread-indicator-content-padding: 0 3px;
+    --thread-card-button-padding: 0 3px;
     --read-status-new: var(--icon-sparkle-star-xs);
     --read-status-size: 12px;
     --indicator-gap: 2px;
@@ -27,9 +25,8 @@
 
   &[uidensity="touch"] {
     --thread-child-start: 22px;
-    --thread-card-content-block: 6px;
     --thread-card-content-gap: 6px;
-    --thread-indicator-content-padding: 3px;
+    --thread-card-button-padding: 2px 3px;
   }
 
   @media not (prefers-contrast) {
@@ -149,6 +146,7 @@
           fill: var(--color-green-50);
           stroke: var(--color-green-60);
           overflow: visible;
+          line-height: 0;
         }
 
         & .thread-replies {
@@ -296,13 +294,12 @@
             border-color: var(--layout-background-4);
           }
 
-          & .thread-indicator-content {
+          .children &.thread-card-button {
             display: flex;
             align-items: center;
             justify-content: space-around;
             font-size: 0.9rem;
-            position: relative;
-            padding: var(--thread-indicator-content-padding);
+            padding: var(--thread-card-button-padding);
           }
 
           & img {
@@ -341,11 +338,12 @@
         }
 
         & .thread-card-column {
-          display: grid;
+          display: flex;
+          flex-direction: column;
           gap: var(--thread-pane-container-gap);
           box-sizing: border-box;
           position: relative;
-          padding-block: var(--thread-card-content-block);
+          padding-block: var(--thread-pane-container-gap);
         }
 
         & .thread-card-row {
@@ -358,10 +356,20 @@
           line-height: 1.5;
           position: relative;
           isolation: isolate;
+        }
 
-          &:not(.thread-card-last-row) {
-            margin-inline-start: 3px;
-          }
+        & .thread-card-dynamic-row {
+          display: grid;
+          grid-template: "subject subject" max-content
+                         "button info" minmax(auto, 1fr)
+                         / auto 1fr;
+          gap: var(--thread-card-content-gap);
+          align-items: center;
+          padding: 0;
+          margin: 0;
+          line-height: 1.5;
+          position: relative;
+          isolation: isolate;
         }
 
         & .state,
@@ -378,7 +386,17 @@
           stroke: var(--read-status-stroke);
         }
 
+        & .thread-card-button {
+          grid-area: button;
+        }
+
+        & .thread-card-subject-container {
+          grid-area: subject;
+          padding-inline-start: 3px;
+        }
+
         & .thread-card-icon-info {
+          grid-area: info;
           display: flex;
           margin-inline-start: auto;
           align-items: center;
@@ -414,6 +432,7 @@
         & .sender {
           font-weight: 600;
           font-size: 0.95rem;
+          padding-inline-start: 3px;
         }
 
         & .date {
@@ -485,6 +504,30 @@
     }
   }
 
+  /* 2 Rows cards variation */
+  &.cards-row-compact td .card-container {
+    & .thread-card-dynamic-row {
+        grid-template: "button subject info" max-content
+                       / auto 1fr auto;
+    }
+
+    & .thread-card-subject-container {
+      padding-inline-start: 0;
+    }
+
+    & button.twisty::before {
+      inset-inline-start: -2px;
+      inset-block-start: -2px;
+      width: 12px;
+      height: 12px;
+    }
+
+    & .replies-icon,
+    & .thread-replies {
+      display: none;
+    }
+  }
+
   /* Thread Children */
   & .card-layout[data-properties~="thread-children"] {
     & td {
@@ -501,6 +544,7 @@
         -moz-context-properties: fill, stroke;
         fill: var(--tree-pane-background);
         stroke: var(--thread-line-color);
+        line-height: 0;
       }
 
       &::before {
@@ -564,7 +608,6 @@
       & .read-status,
       & .thread-card-column:first-of-type,
       & .thread-card-row:first-of-type,
-      & .thread-card-indicator-content,
       & .thread-card-icon-info {
         display: none;
       }
@@ -574,14 +617,6 @@
         --tree-card-border: var(--tree-pane-background);
       }
 
-      & .thread-card-column {
-        align-content: center;
-      }
-
-      & .thread-card-row:not(.thread-card-last-row) {
-        margin-inline-start: 0;
-      }
-
       & .subject {
         font-size: 1.1rem;
         font-weight: 400;
@@ -589,6 +624,7 @@
       }
 
       & .sort-header-details {
+        grid-area: sort;
         display: inline-block;
         font-weight: 500;
         color: var(--layout-color-2);
@@ -601,6 +637,16 @@
       & .card-container {
         padding-inline-start: var(--tree-card-content-inline);
         grid-template-columns: 1fr;
+
+        & .thread-card-dynamic-row {
+          grid-template: "subject subject" max-content
+                         "sort button" minmax(auto, 1fr)
+                         / 1fr auto;
+        }
+
+        & .thread-card-subject-container {
+          padding-inline-start: 0;
+        }
       }
 
       &:is(:hover, :focus, :focus-within, .current, .selected, .current.selected) {
@@ -615,6 +661,10 @@
         &::before,
         &::after {
           display: none;
+        }
+
+        & .card-container .sender {
+          padding-inline-start: 0;
         }
       }
     }

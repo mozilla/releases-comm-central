@@ -32,6 +32,9 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/QuickFilterBarHelpers.sys.mjs"
 );
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 var folder;
 
@@ -40,13 +43,13 @@ add_setup(async function () {
   // We need a message so we can select it so we can find in message.
   await make_message_sets_in_folders([folder], [{ count: 1 }]);
   await be_in_folder(folder);
-  await ensure_table_view();
+  await ensure_table_view(document);
 
   // Quick filter bar is hidden by default, need to toggle it on.
   await toggle_quick_filter_bar();
 
   registerCleanupFunction(async () => {
-    await ensure_cards_view();
+    await ensure_cards_view(document);
     await cleanup_qfb_button();
     // Quick filter bar is hidden by default, need to toggle it off.
     await toggle_quick_filter_bar();

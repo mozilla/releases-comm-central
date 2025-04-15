@@ -1477,3 +1477,11 @@ qr-code-wizard {
 #defaultFlagGrouped .radio-icon {
   list-style-image: var(--grouped-illustration);
 }
+
+#appearanceStyleTable .radio-icon {
+  list-style-image: var(--table-view-illustration);
+}
+
+#appearanceStyleCards .radio-icon {
+  list-style-image: var(--cards-view-illustration);
+}

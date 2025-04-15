@@ -7,6 +7,9 @@ requestLongerTimeout(2);
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
@@ -48,7 +51,7 @@ add_task(async function testUnthreaded() {
     messagePaneVisible: true,
     folderURI: folderA.URI,
   });
-  await ensure_cards_view();
+  await ensure_cards_view(document);
   goDoCommand("cmd_sort", { target: { value: "unthreaded" } });
 
   await subtest();
@@ -253,7 +256,7 @@ add_task(async function testDeletionWhileScrolling() {
       .map(message => message.toMessageString())
   );
 
-  await ensure_table_view();
+  await ensure_table_view(document);
   about3Pane.restoreState({
     messagePaneVisible: false,
     folderURI: folderI.URI,

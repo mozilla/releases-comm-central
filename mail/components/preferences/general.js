@@ -90,7 +90,6 @@ Preferences.addAll([
   { id: "mailnews.labels.color.5", type: "string" },
   { id: "mail.addressDisplayFormat", type: "int" },
   { id: "mail.showCondensedAddresses", type: "bool" },
-  { id: "mail.threadpane.table.horizontal_scroll", type: "bool" },
   { id: "mail.dark-reader.enabled", type: "bool" },
   { id: "mail.dark-reader.show-toggle", type: "bool" },
   { id: "mailnews.mark_message_read.auto", type: "bool" },

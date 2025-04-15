@@ -8,6 +8,9 @@ const { AddrBookCard } = ChromeUtils.importESModule(
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 let book, emily, felix, testFolder;
 
@@ -30,7 +33,7 @@ add_setup(async function () {
   account.addIdentity(MailServices.accounts.createIdentity());
 
   registerCleanupFunction(async () => {
-    await ensure_cards_view();
+    await ensure_cards_view(document);
     book.deleteCards(book.childCards);
     MailServices.accounts.removeAccount(account, false);
     Services.prefs.clearUserPref("mail.addressDisplayFormat");
@@ -72,7 +75,7 @@ add_task(async function () {
   });
 
   // Switch to classic view and table layout as the test requires this state.
-  await ensure_table_view();
+  await ensure_table_view(document);
 
   // It's important that we don't cause the thread tree to invalidate the row
   // in question, and selecting it would do that, so select it first.

@@ -283,7 +283,9 @@
 
   --icon-account-sync: url("chrome://messenger/skin/icons/account-sync.svg");
 
+  --cards-view-illustration: url("chrome://messenger/skin/illustrations/pictograph-cards-view.svg");
   --grouped-illustration: url("chrome://messenger/skin/illustrations/pictograph-grouped.svg");
+  --table-view-illustration: url("chrome://messenger/skin/illustrations/pictograph-table-view.svg");
   --threaded-illustration: url("chrome://messenger/skin/illustrations/pictograph-threaded.svg");
   --unthreaded-illustration: url("chrome://messenger/skin/illustrations/pictograph-unthreaded.svg");
 }

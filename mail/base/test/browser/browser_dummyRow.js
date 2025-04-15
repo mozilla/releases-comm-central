@@ -13,6 +13,9 @@ const { MessageGenerator } = ChromeUtils.importESModule(
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
+const { ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
@@ -65,11 +68,7 @@ add_setup(async function () {
 add_task(async function test_dummy_row_in_table_view() {
   const folderAMessages = [...folderA.messages];
 
-  about3Pane.threadPane.updateThreadView("table");
-  await BrowserTestUtils.waitForCondition(
-    () => threadTree.getAttribute("rows") == "thread-row",
-    "The tree view switched to a table layout"
-  );
+  await ensure_table_view(document);
   await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
   Assert.equal(
