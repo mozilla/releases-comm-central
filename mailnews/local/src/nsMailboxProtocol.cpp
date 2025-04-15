@@ -53,6 +53,15 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
   nsresult rv = NS_OK;
   if (aURL) {
     m_runningUrl = do_QueryInterface(aURL, &rv);
+    nsCString filePath;
+    rv = aURL->GetFilePath(filePath);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (filePath.Length() >= 2 &&
+        (filePath.CharAt(1) == '/' || filePath.CharAt(1) == '%' ||
+         filePath.CharAt(1) == '\\')) {
+      // Disallow UNC mailbox:// access.
+      return NS_ERROR_UNEXPECTED;
+    }
     if (NS_SUCCEEDED(rv) && m_runningUrl) {
       if (RunningMultipleMsgUrl()) {
         // if we're running multiple msg url, we clear the event sink because
