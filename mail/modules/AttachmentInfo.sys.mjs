@@ -60,9 +60,9 @@ export class AttachmentInfo {
    *   (usually the filename).
    * @param {string} options.uri - The URI for the message containing the
    *   attachment.
-   * @param {boolean} options.isExternalAttachment - True if the attachment has
+   * @param {boolean} [options.isExternalAttachment] - true if the attachment has
    *   been detached to file or is a link attachment.
-   * @param {object} options.message - The message object associated to this
+   * @param {nsIMsgDBHdr} [options.message] - The message object associated to this
    *   attachment.
    * @param {Function} [options.updateAttachmentsDisplayFn] - An optional callback
    *   function that is called to update the attachment display at appropriate
@@ -594,7 +594,14 @@ export class AttachmentInfo {
       // Looks like a non-local (remote UNC) file URL. Don't allow that.
       return false;
     }
-    return /^(https?|file|data|mailbox|imap|s?news|ews):/i.test(this.url);
+
+    if (this.message && this.message.flags & Ci.nsMsgMessageFlags.FeedMsg) {
+      // Feed enclosures allow only http.
+      return /^https?:/i.test(this.url);
+    }
+
+    // Don't allow http for other cases.
+    return /^(file|data|mailbox|imap|s?news|ews):/i.test(this.url);
   }
 
   /**
