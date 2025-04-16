@@ -408,28 +408,15 @@ add_task(async function testNewMailAlertDialogs() {
     async dialogWindow => {
       const dialogDocument = dialogWindow.document;
       const list = dialogDocument.getElementById("enabledActions");
-      Assert.equal(
-        list.childElementCount,
-        2,
-        "actions should be added to the list"
+      Assert.deepEqual(
+        Array.from(list.children, cb => cb.id),
+        ["mark-as-read", "delete", "mark-as-starred"],
+        "actions checkboxes should all be shown and in order"
       );
-      Assert.equal(
-        list.children[0].id,
-        "mark-as-read",
-        "first action should be mark-as-read"
-      );
-      Assert.ok(
-        list.children[0].checked,
-        "mark-as-read should be checked initially"
-      );
-      Assert.equal(
-        list.children[1].id,
-        "delete",
-        "second action should be delete"
-      );
-      Assert.ok(
-        !list.children[1].checked,
-        "delete should not be checked initially"
+      Assert.deepEqual(
+        Array.from(list.children, cb => cb.checked),
+        [true, false, false],
+        "only the mark-as-read checkbox should be checked"
       );
       EventUtils.synthesizeMouseAtCenter(list.children[0], {}, dialogWindow);
       EventUtils.synthesizeMouseAtCenter(list.children[1], {}, dialogWindow);
@@ -447,26 +434,16 @@ add_task(async function testNewMailAlertDialogs() {
     async dialogWindow => {
       const dialogDocument = dialogWindow.document;
       const list = dialogDocument.getElementById("enabledActions");
-      Assert.equal(
-        list.childElementCount,
-        2,
-        "actions should be added to the list"
+      Assert.deepEqual(
+        Array.from(list.children, cb => cb.id),
+        ["mark-as-read", "delete", "mark-as-starred"],
+        "actions checkboxes should all be shown and in order"
       );
-      Assert.equal(
-        list.children[0].id,
-        "mark-as-read",
-        "first action should be mark-as-read"
+      Assert.deepEqual(
+        Array.from(list.children, cb => cb.checked),
+        [false, true, false],
+        "only the delete checkbox should be checked"
       );
-      Assert.ok(
-        !list.children[0].checked,
-        "mark-as-read should not be checked initially"
-      );
-      Assert.equal(
-        list.children[1].id,
-        "delete",
-        "second action should be delete"
-      );
-      Assert.ok(list.children[1].checked, "delete should be checked initially");
       EventUtils.synthesizeMouseAtCenter(list.children[0], {}, dialogWindow);
     },
     "accept"

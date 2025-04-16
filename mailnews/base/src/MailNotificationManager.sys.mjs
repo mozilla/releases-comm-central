@@ -22,6 +22,7 @@ ChromeUtils.defineLazyGetter(
 const availableActions = [
   { action: "mark-as-read", l10n: "mark-as-read-action" },
   { action: "delete", l10n: "delete-action" },
+  { action: "mark-as-starred", l10n: "mark-as-starred-action" },
 ];
 XPCOMUtils.defineLazyPreferenceGetter(
   lazy,
@@ -417,6 +418,9 @@ export class MailNotificationManager {
           case "delete":
             folder.markMessagesRead([msgHdr], true);
             folder.deleteMessages([msgHdr], null, false, false, null, true);
+            break;
+          case "mark-as-starred":
+            folder.markMessagesFlagged([msgHdr], true);
             break;
         }
         return;

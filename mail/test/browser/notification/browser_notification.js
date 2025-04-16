@@ -833,6 +833,10 @@ add_task(async function test_mark_as_read_action() {
     1
   );
   Assert.equal(Glean.mail.notificationUsedActions.delete.testGetValue(), null);
+  Assert.equal(
+    Glean.mail.notificationUsedActions["mark-as-starred"].testGetValue(),
+    null
+  );
 });
 
 /**
@@ -875,12 +879,57 @@ add_task(async function test_delete_action() {
     null
   );
   Assert.equal(Glean.mail.notificationUsedActions.delete.testGetValue(), 1);
+  Assert.equal(
+    Glean.mail.notificationUsedActions["mark-as-starred"].testGetValue(),
+    null
+  );
 
   Assert.equal(gFolder.getTotalMessages(false), numMessages - 1);
   Assert.equal(trashFolder.getTotalMessages(false), trashMessages + 1);
   const deletedMessage = [...trashFolder.messages].at(-1);
   Assert.equal(deletedMessage.messageId, newMessageId);
   Assert.ok(deletedMessage.isRead);
+});
+
+/**
+ * Test the Star action.
+ */
+add_task(async function test_star_action() {
+  setupTest();
+  Services.prefs.setStringPref(
+    "mail.biff.alert.enabled_actions",
+    "delete,mark-as-starred"
+  );
+  MailTelemetryForTests.reportUIConfiguration();
+  Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
+    "delete",
+    "mark-as-starred",
+  ]);
+
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  const newMessage = [...gFolder.messages].at(-1);
+  Assert.ok(!newMessage.isFlagged, "message should not be starred");
+
+  await gMockAlertsService.promiseShown();
+  Assert.deepEqual(
+    gMockAlertsService._actions.map(a => a.action),
+    ["delete", "mark-as-starred"]
+  );
+
+  gMockAlertsService.clickAlert("mark-as-starred");
+  await TestUtils.waitForCondition(
+    () => newMessage.isFlagged,
+    "waiting for message to be starred"
+  );
+  Assert.equal(
+    Glean.mail.notificationUsedActions["mark-as-read"].testGetValue(),
+    null
+  );
+  Assert.equal(Glean.mail.notificationUsedActions.delete.testGetValue(), null);
+  Assert.equal(
+    Glean.mail.notificationUsedActions["mark-as-starred"].testGetValue(),
+    1
+  );
 });
 
 /**
