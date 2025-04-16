@@ -475,11 +475,7 @@ CalAlarmService.prototype = {
         }
 
         this.addTimer(aItem, alarm, timeout);
-      } else if (
-        showMissed &&
-        cal.acl.isCalendarWritable(aItem.calendar) &&
-        cal.acl.userCanModifyItem(aItem)
-      ) {
+      } else if (cal.acl.isCalendarWritable(aItem.calendar) && cal.acl.userCanModifyItem(aItem)) {
         // This alarm is in the past and the calendar is writable, so we
         // could snooze or dismiss alarms. See if it has been previously
         // ack'd.
@@ -488,8 +484,23 @@ CalAlarmService.prototype = {
           // The alarm was previously dismissed or snoozed, no further
           // action required.
           continue;
-        } else {
+        }
+
+        let ongoingEvent = false;
+        const tz = alarmDate.timezone.isFloating ? cal.dtz.floating : cal.dtz.UTC;
+        const itemStart = aItem[cal.dtz.startDateProp(aItem)].getInTimezone(tz);
+        const itemEnd = aItem[cal.dtz.endDateProp(aItem)].getInTimezone(tz);
+        if (itemStart && itemEnd) {
+          // Ensure isDate false so we get hour/minute/second for all-day events.
+          itemStart.isDate = false;
+          itemEnd.isDate = false;
+          ongoingEvent = now.compare(itemStart) >= 0 && now.compare(itemEnd) <= 0;
+        }
+
+        if (showMissed || ongoingEvent) {
           // The alarm was not snoozed or dismissed, fire it now.
+          // Or if the event is ongoing but we haven't fired. Especially important
+          // for all-day events where alarm would have set off at midnight.
           this.alarmFired(aItem, alarm);
         }
       }
@@ -498,10 +509,13 @@ CalAlarmService.prototype = {
     this.addNotificationForItem(aItem);
   },
 
+  /**
+   * @param {calIItemBase} aItem
+   */
   removeAlarmsForItem(aItem) {
     // make sure already fired alarms are purged out of the alarm window:
     this.mObservers.notify("onRemoveAlarmsByItem", [aItem]);
-    // Purge alarms specifically for this item (i.e exception)
+    // Purge alarms specifically for this item (i.e. exception).
     for (const alarm of aItem.getAlarms()) {
       this.removeTimer(aItem, alarm);
     }
