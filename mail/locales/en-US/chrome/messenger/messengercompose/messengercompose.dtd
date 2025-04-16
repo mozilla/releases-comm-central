@@ -229,13 +229,13 @@
 <!ENTITY smiley7Cmd.label "Undecided">
 <!ENTITY smiley8Cmd.label "Surprise">
 <!ENTITY smiley9Cmd.label "Kiss">
-<!ENTITY smiley10Cmd.label "Yell">
 <!ENTITY smiley11Cmd.label "Cool">
 <!ENTITY smiley12Cmd.label "Money-Mouth">
 <!ENTITY smiley13Cmd.label "Foot-in-Mouth">
 <!ENTITY smiley14Cmd.label "Innocent">
 <!ENTITY smiley15Cmd.label "Cry">
 <!ENTITY smiley16Cmd.label "Lips-are-Sealed">
+<!ENTITY smiley17Cmd.label "Angry">
 
 <!-- Message Pane Context Menu -->
 <!ENTITY spellCheckNoSuggestions.label "No Suggestions Found">
