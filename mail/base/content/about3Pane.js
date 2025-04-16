@@ -4144,7 +4144,7 @@ var folderPane = {
    * @returns {number} Sorting value when comparing the two folders.
    */
   _sortFolders: (folderA, folderB) =>
-    folderA.sortOder - folderB.sortOrder ||
+    folderA.sortOrder - folderB.sortOrder ||
     FolderPaneUtils.nameCollator.compare(folderA.name, folderB.name),
 
   /**
