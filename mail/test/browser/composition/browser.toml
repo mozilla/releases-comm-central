@@ -1,7 +1,7 @@
 [default]
 head = "head.js"
 prefs = [
-  "ldap_2.servers.osx.dirType=-3",
+  "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
   "mail.account.account1.server=server1",
   "mail.account.account2.identities=id1,id2",
   "mail.account.account2.server=server2",
@@ -34,15 +34,14 @@ prefs = [
   "mail.server.server2.whiteListAbURI=",
   "mail.shell.checkDefaultClient=false",
   "mail.smtp.defaultserver=smtp1",
-  "mail.smtpserver.smtp1.type=smtp",
   "mail.smtpserver.smtp1.hostname=tinderbox123",
+  "mail.smtpserver.smtp1.type=smtp",
   "mail.smtpserver.smtp1.username=tinderbox",
   "mail.smtpservers=smtp1",
   "mail.spotlight.firstRunDone=true",
   "mail.winsearch.firstRunDone=true",
   "mailnews.start_page.override_url=about:blank",
   "mailnews.start_page.url=about:blank",
-  "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
 ]
 skip-if = ["os == 'linux' && bits == 32 && debug"]  # Perma-fail
 subsuite = "thunderbird"
