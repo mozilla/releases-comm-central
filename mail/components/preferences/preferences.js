@@ -147,18 +147,16 @@ function init() {
   if (Services.prefs.getBoolPref("mail.chat.enabled")) {
     register_module("paneChat", gChatPane);
   } else {
-    // Remove the pane from the DOM so it doesn't get incorrectly included in
-    // the search results.
-    document.getElementById("paneChat").remove();
+    document.getElementById("paneChat").remove(); // Exclude from search.
+    document.getElementById("category-chat").remove(); // Remove tab.
   }
+  if (!calendarDeactivator.isCalendarActivated) {
+    document.getElementById("paneCalendar").remove(); // Exclude from search.
+    document.getElementById("category-calendar").remove(); // Remove tab.
+  }
+
   register_module("paneQrExport", qrExportPane);
 
-  // If no calendar is currently enabled remove it from the DOM so it doesn't
-  // get incorrectly included in the search results.
-  if (!calendarDeactivator.isCalendarActivated) {
-    document.getElementById("paneCalendar").remove();
-    document.getElementById("category-calendar").remove();
-  }
   gSearchResultsPane.init();
 
   const categories = document.getElementById("categories");
