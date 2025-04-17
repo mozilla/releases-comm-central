@@ -35,6 +35,10 @@ add_setup(async function () {
   about3Pane.displayFolder(testFolder.URI);
   await ensure_cards_view(document);
 
+  // Reset any status that might linger from a previous test.
+  window.MsgStatusFeedback.stopMeteors();
+  window.MsgStatusFeedback.startMeteors();
+
   // Remove test account on cleanup.
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);

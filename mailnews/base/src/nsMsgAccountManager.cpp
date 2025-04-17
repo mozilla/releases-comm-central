@@ -543,13 +543,6 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
   // close cached connections and forget session password
   LogoutOfServer(aServer);
 
-  // invalidate the FindServer() cache if we are removing the cached server
-  if (m_lastFindServerResult == aServer)
-    SetLastServerFound(nullptr, EmptyCString(), EmptyCString(), 0,
-                       EmptyCString());
-
-  m_incomingServers.Remove(serverKey);
-
   nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = aServer->GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -563,8 +556,23 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
   nsCOMPtr<nsIFolderListener> mailSession =
       do_GetService("@mozilla.org/messenger/services/session;1");
 
-  for (auto folder : allDescendants) {
+  for (const auto& folder : allDescendants) {
     folder->ForceDBClosed();
+
+    rv = RemoveFolderFromCache(folder);
+    if (NS_FAILED(rv)) {
+      // Some tests don't use on-disk storage for folders, in which case we'll
+      // fail to remove them from the folder cache because we can't resolve
+      // their path. In all other case, this should be considered an error, but
+      // returning an error would fail said tests, so we log the error instead,
+      // which is the next best thing.
+      nsCString name;
+      folder->GetName(name);
+      NS_ERROR(nsPrintfCString("failed to remove folder %s from cache: %s",
+                               name.get(), mozilla::GetStaticErrorName(rv))
+                   .get());
+    }
+
     if (notifier) notifier->NotifyFolderDeleted(folder);
     if (mailSession) {
       nsCOMPtr<nsIMsgFolder> parentFolder;
@@ -572,8 +580,26 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
       mailSession->OnFolderRemoved(parentFolder, folder);
     }
   }
+  MOZ_TRY(RemoveFolderFromCache(rootFolder));
   if (notifier) notifier->NotifyFolderDeleted(rootFolder);
   if (mailSession) mailSession->OnFolderRemoved(nullptr, rootFolder);
+
+  // Update the on-disk copy of the cache, so we don't end up with unneeded
+  // folders if e.g. Thunderbird crashes or gets SIGKILL'd later on.
+  nsCOMPtr<nsIMsgFolderCache> folderCache;
+  MOZ_TRY(GetFolderCache(getter_AddRefs(folderCache)));
+  MOZ_TRY(folderCache->Flush());
+
+  // Invalidate the FindServer() cache entry for this server. We need to do this
+  // after the folders have been removed from the folder cache, because the
+  // folders might end up querying the account manager to get a reference on
+  // their server (to help them compute their path on disk, which we use as
+  // their cache key).
+  if (m_lastFindServerResult == aServer)
+    SetLastServerFound(nullptr, EmptyCString(), EmptyCString(), 0,
+                       EmptyCString());
+
+  m_incomingServers.Remove(serverKey);
 
   NotifyServerUnloaded(aServer);
   if (aRemoveFiles) {
@@ -592,6 +618,32 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
   aServer->ClearAllValues();
   rootFolder->Shutdown(true);
   return rv;
+}
+
+nsresult nsMsgAccountManager::RemoveFolderFromCache(nsIMsgFolder* aFolder) {
+  // Get the file path for the folder. This path is different depending on
+  // whether the folder is the server or not. We can then use it to derive the
+  // cache key for the folder, which is the string-ified absolute path for this
+  // file.
+  bool isServer;
+  MOZ_TRY(aFolder->GetIsServer(&isServer));
+
+  nsCOMPtr<nsIFile> folderPath;
+  if (isServer) {
+    MOZ_TRY(aFolder->GetFilePath(getter_AddRefs(folderPath)));
+  } else {
+    MOZ_TRY(aFolder->GetSummaryFile(getter_AddRefs(folderPath)));
+  }
+
+  // Get the folder file's absolute path, which is its cache key.
+  nsCString folderCacheKey;
+  MOZ_TRY(folderPath->GetPersistentDescriptor(folderCacheKey));
+
+  // Get the folder cache and remove the folder from it.
+  nsCOMPtr<nsIMsgFolderCache> folderCache;
+  MOZ_TRY(GetFolderCache(getter_AddRefs(folderCache)));
+
+  return folderCache->RemoveElement(folderCacheKey);
 }
 
 /**
