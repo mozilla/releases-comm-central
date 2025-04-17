@@ -566,3 +566,4 @@ quota-panel-percent-used = { $percent }% full
 mark-as-read-action = Mark as Read
 delete-action = Delete
 mark-as-starred-action = Mark as Starred
+mark-as-spam-action = Mark as Spam

@@ -23,6 +23,7 @@ const availableActions = [
   { action: "mark-as-read", l10n: "mark-as-read-action" },
   { action: "delete", l10n: "delete-action" },
   { action: "mark-as-starred", l10n: "mark-as-starred-action" },
+  { action: "mark-as-spam", l10n: "mark-as-spam-action" },
 ];
 XPCOMUtils.defineLazyPreferenceGetter(
   lazy,
@@ -404,6 +405,9 @@ export class MailNotificationManager {
       if (!folder.canDeleteMessages) {
         alert.actions = alert.actions.filter(a => a.action != "delete");
       }
+      if (["nntp", "rss"].includes(folder.server.type)) {
+        alert.actions = alert.actions.filter(a => a.action != "mark-as-spam");
+      }
     }
     alertsService.showAlert(alert, (subject, topic) => {
       if (topic != "alertclickcallback") {
@@ -421,6 +425,15 @@ export class MailNotificationManager {
             break;
           case "mark-as-starred":
             folder.markMessagesFlagged([msgHdr], true);
+            break;
+          case "mark-as-spam":
+            folder.setJunkScoreForMessages(
+              [msgHdr],
+              Ci.nsIJunkMailPlugin.IS_SPAM_SCORE,
+              "user",
+              -1
+            );
+            folder.performActionsOnJunkMsgs([msgHdr], true);
             break;
         }
         return;

@@ -933,6 +933,54 @@ add_task(async function test_star_action() {
 });
 
 /**
+ * Test the Mark as Spam action.
+ */
+add_task(async function test_mark_as_spam_action() {
+  setupTest();
+  Services.prefs.setStringPref(
+    "mail.biff.alert.enabled_actions",
+    "mark-as-spam"
+  );
+  MailTelemetryForTests.reportUIConfiguration();
+  Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
+    "mark-as-spam",
+  ]);
+
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  const newMessage = [...gFolder.messages].at(-1);
+  Assert.equal(
+    newMessage.getStringProperty("junkscore"),
+    0,
+    "message should not be marked as spam"
+  );
+
+  await gMockAlertsService.promiseShown();
+  Assert.deepEqual(
+    gMockAlertsService._actions.map(a => a.action),
+    ["mark-as-spam"]
+  );
+
+  gMockAlertsService.clickAlert("mark-as-spam");
+  await TestUtils.waitForCondition(
+    () => newMessage.getStringProperty("junkscore") == 100,
+    "waiting for message to be starred"
+  );
+  Assert.equal(
+    Glean.mail.notificationUsedActions["mark-as-read"].testGetValue(),
+    null
+  );
+  Assert.equal(Glean.mail.notificationUsedActions.delete.testGetValue(), null);
+  Assert.equal(
+    Glean.mail.notificationUsedActions["mark-as-starred"].testGetValue(),
+    null
+  );
+  Assert.equal(
+    Glean.mail.notificationUsedActions["mark-as-spam"].testGetValue(),
+    1
+  );
+});
+
+/**
  * Test what happens when loading a message when there's a notification about
  * it. The notification should be removed.
  */
