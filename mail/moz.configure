@@ -40,7 +40,6 @@ def bundled_fonts(is_windows, is_linux):
 
 
 set_config("MOZ_BUNDLED_FONTS", bundled_fonts)
-add_old_configure_assignment("MOZ_BUNDLED_FONTS", bundled_fonts)
 
 
 @depends(build_environment, "--help")
@@ -50,7 +49,6 @@ def commtopsrcdir(build_env, _):
     return join(topsrcdir, "comm")
 
 
-add_old_configure_assignment("commtopsrcdir", commtopsrcdir)
 set_config("commtopsrcdir", commtopsrcdir)
 
 
