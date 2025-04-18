@@ -55,6 +55,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "android-tzdata"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e999941b234f3131b00bc13c22d06e8c5ff726d1b6318ac7eb276997bbb4fef0"
+
+[[package]]
 name = "android_log-sys"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -719,16 +725,17 @@ dependencies = [
 
 [[package]]
 name = "chrono"
-version = "0.4.19"
+version = "0.4.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "670ad68c9088c2a963aaa298cb369688cf3f9465ce5e2d4ca10e6e0098a1ce73"
+checksum = "1a7964611d71df112cb1730f2ee67324fcf4d0fc6606acbbe9bfe06df124637c"
 dependencies = [
- "libc",
- "num-integer",
+ "android-tzdata",
+ "iana-time-zone",
+ "js-sys",
  "num-traits",
  "serde",
- "time 0.1.45",
- "winapi",
+ "wasm-bindgen",
+ "windows-link",
 ]
 
 [[package]]
@@ -956,6 +963,32 @@ dependencies = [
  "cfg-if",
  "libc",
  "mach2",
+]
+
+[[package]]
+name = "crash_helper_client"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "crash_helper_common",
+ "minidump-writer",
+ "nix 0.29.0",
+ "num-derive",
+ "num-traits",
+ "rust_minidump_writer_linux",
+ "windows-sys",
+]
+
+[[package]]
+name = "crash_helper_common"
+version = "0.1.0"
+dependencies = [
+ "minidump-writer",
+ "nix 0.29.0",
+ "num-derive",
+ "num-traits",
+ "thiserror 2.0.9",
+ "windows-sys",
 ]
 
 [[package]]
@@ -1597,7 +1630,7 @@ dependencies = [
 [[package]]
 name = "error-support"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "error-support-macros",
  "lazy_static",
@@ -1609,7 +1642,7 @@ dependencies = [
 [[package]]
 name = "error-support-macros"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1761,7 +1794,7 @@ dependencies = [
 [[package]]
 name = "firefox-versioning"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "serde_json",
  "thiserror 1.999.999",
@@ -2181,6 +2214,7 @@ dependencies = [
  "cert_storage",
  "chardetng_c",
  "cose-c",
+ "crash_helper_client",
  "crypto_hash",
  "cubeb-coreaudio",
  "cubeb-pulse",
@@ -2678,6 +2712,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "iana-time-zone"
+version = "0.1.63"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0c919e5debc312ad217002b8048a17b7d83f80703865bbfcfebb0458b0b27d8"
+dependencies = [
+ "android_system_properties",
+ "core-foundation-sys",
+ "iana-time-zone-haiku",
+ "js-sys",
+ "log",
+ "wasm-bindgen",
+ "windows-core",
+]
+
+[[package]]
+name = "iana-time-zone-haiku"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f31827a206f56af32e590ba56d5d2d085f558508192593743f16b2306495269f"
+dependencies = [
+ "cc",
+]
+
+[[package]]
 name = "icu_collections"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2885,7 +2943,7 @@ dependencies = [
 [[package]]
 name = "interrupt-support"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "lazy_static",
  "parking_lot",
@@ -3821,19 +3879,15 @@ dependencies = [
 [[package]]
 name = "mozannotation_client"
 version = "0.1.0"
-dependencies = [
- "nsstring",
-]
 
 [[package]]
 name = "mozannotation_server"
 version = "0.1.0"
 dependencies = [
- "memoffset 0.8.999",
+ "memoffset 0.9.0",
  "mozannotation_client",
  "process_reader",
- "thin-vec",
- "thiserror 1.999.999",
+ "thiserror 2.0.9",
 ]
 
 [[package]]
@@ -4090,6 +4144,7 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "libc",
+ "memoffset 0.9.0",
 ]
 
 [[package]]
@@ -4327,7 +4382,7 @@ checksum = "d01a5bd0424d00070b0098dd17ebca6f961a959dead1dbcbbbc1d1cd8d3deeba"
 [[package]]
 name = "payload-support"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "serde",
  "serde_derive",
@@ -4515,7 +4570,7 @@ dependencies = [
  "mach2",
  "memoffset 0.9.0",
  "scroll",
- "thiserror 1.999.999",
+ "thiserror 2.0.9",
  "windows-sys",
 ]
 
@@ -4785,7 +4840,7 @@ checksum = "dbb5fb1acd8a1a18b3dd5be62d25485eb770e05afb408a9627d14d451bae12da"
 [[package]]
 name = "relevancy"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "anyhow",
  "base64 0.21.999",
@@ -4810,7 +4865,7 @@ dependencies = [
 [[package]]
 name = "remote_settings"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "anyhow",
  "camino",
@@ -5140,7 +5195,7 @@ dependencies = [
 [[package]]
 name = "search"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "error-support",
  "firefox-versioning",
@@ -5408,7 +5463,7 @@ dependencies = [
 [[package]]
 name = "sql-support"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "interrupt-support",
  "lazy_static",
@@ -5596,7 +5651,7 @@ checksum = "81cdd64d312baedb58e21336b31bc043b77e01cc99033ce76ef539f78e965ebc"
 [[package]]
 name = "suggest"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "anyhow",
  "chrono",
@@ -5648,7 +5703,7 @@ dependencies = [
 [[package]]
 name = "sync-guid"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "base64 0.21.999",
  "rand",
@@ -5659,7 +5714,7 @@ dependencies = [
 [[package]]
 name = "sync15"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "anyhow",
  "error-support",
@@ -5708,7 +5763,7 @@ dependencies = [
 [[package]]
 name = "tabs"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "anyhow",
  "error-support",
@@ -5948,7 +6003,7 @@ checksum = "497961ef93d974e23eb6f433eb5fe1b7930b659f06d12dec6fc44a8f554c0bba"
 [[package]]
 name = "types"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "rusqlite 0.33.0",
  "serde",
@@ -6198,7 +6253,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "viaduct"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "ffi-support",
  "log",
@@ -6263,7 +6318,7 @@ version = "0.3.100"
 [[package]]
 name = "webext-storage"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=6a007c98292fa72965d36389ce32d7609e399217#6a007c98292fa72965d36389ce32d7609e399217"
+source = "git+https://github.com/mozilla/application-services?rev=e1b42aa3292a71e788bc0f95fb5ab5fbe533996f#e1b42aa3292a71e788bc0f95fb5ab5fbe533996f"
 dependencies = [
  "anyhow",
  "error-support",
@@ -6601,6 +6656,12 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "windows-link"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76840935b766e1b0a05c0066835fb9ec80071d4c09a16f6bd5f7e655e3c14c38"
 
 [[package]]
 name = "windows-result"
