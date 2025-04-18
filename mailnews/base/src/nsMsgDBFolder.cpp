@@ -1461,11 +1461,15 @@ nsresult nsMsgDBFolder::StartNewOfflineMessage() {
     }
   }
 
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+
   m_tempMessageStreamBytesWritten = 0;
   m_bytesAddedToLocalMsg = 0;
   m_numOfflineMsgLines = 0;
-  nsresult rv = GetOfflineStoreOutputStream(
-      m_offlineHeader, getter_AddRefs(m_tempMessageStream));
+  rv = msgStore->GetNewMsgOutputStream2(this,
+                                        getter_AddRefs(m_tempMessageStream));
   if (NS_SUCCEEDED(rv) && !hasSemaphore)
     AcquireSemaphore(static_cast<nsIMsgFolder*>(this),
                      "nsMsgDBFolder::StartNewOfflineMessage"_ns);
@@ -1490,15 +1494,17 @@ nsresult nsMsgDBFolder::StartNewOfflineMessage() {
 }
 
 nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
-  // Whatever happens, we want to unlock the folder.
+  // Whatever happens, we want to unlock the folder, release the output
+  // stream and offlineHeader objects.
   auto guard = mozilla::MakeScopeExit([&] {
     ReleaseSemaphore(static_cast<nsIMsgFolder*>(this),
                      "nsMsgDBFolder::EndNewOfflineMessage"_ns);
+    m_tempMessageStream = nullptr;
+    m_offlineHeader = nullptr;
   });
 
   nsMsgKey messageKey;
 
-  nsresult rv1, rv2;
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1512,107 +1518,25 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
   if (NS_FAILED(status)) {
     mDatabase->MarkOffline(messageKey, false, nullptr);
     if (m_tempMessageStream) {
-      msgStore->DiscardNewMessage(m_tempMessageStream, m_offlineHeader);
+      msgStore->DiscardNewMessage2(this, m_tempMessageStream);
     }
-    m_tempMessageStream = nullptr;
-    m_offlineHeader = nullptr;
     return NS_OK;
   }
 
-  if (m_tempMessageStream) {
-    m_tempMessageStream->Flush();
-  }
-
-  // Some sanity checking.
-  // This will go away once nsIMsgPluggableStore stops serving up seekable
-  // output streams.
-  // If quarantining (mailnews.downloadToTempFile == true) is on we'll already
-  // have a non-seekable stream.
-  nsCOMPtr<nsISeekableStream> seekable;
-  if (m_tempMessageStream) seekable = do_QueryInterface(m_tempMessageStream);
-  if (seekable) {
-    nsCString storeToken;
-    uint64_t messageOffset;
-    uint32_t messageSize;
-    int64_t curStorePos;
-    seekable->Tell(&curStorePos);
-
-    // N.B. This only works if we've set the offline flag for the message,
-    // so be careful about moving the call to MarkOffline above.
-    m_offlineHeader->GetStoreToken(storeToken);
-    messageOffset = storeToken.ToInteger64(&rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    curStorePos -= messageOffset;
-    m_offlineHeader->GetMessageSize(&messageSize);
-    messageSize += m_bytesAddedToLocalMsg;
-    // unix/mac has a one byte line ending, but the imap server returns
-    // crlf terminated lines.
-    if (MSG_LINEBREAK_LEN == 1) messageSize -= m_numOfflineMsgLines;
-
-    // We clear the offline flag on the message if the size
-    // looks wrong. Check if we're off by more than one byte per line.
-    if (messageSize > (uint32_t)curStorePos &&
-        (messageSize - (uint32_t)curStorePos) >
-            (uint32_t)m_numOfflineMsgLines) {
-      mDatabase->MarkOffline(messageKey, false, nullptr);
-      rv1 = rv2 = NS_OK;
-      if (msgStore) {
-        // DiscardNewMessage closes the stream.
-        rv1 = msgStore->DiscardNewMessage(m_tempMessageStream, m_offlineHeader);
-        m_tempMessageStream = nullptr;  // avoid accessing closed stream
-      } else {
-        rv2 = m_tempMessageStream->Close();
-        m_tempMessageStream = nullptr;  // ditto
-      }
-      // XXX We should check for errors of rv1 and rv2.
-      if (NS_FAILED(rv1)) NS_WARNING("DiscardNewMessage returned error");
-      if (NS_FAILED(rv2))
-        NS_WARNING("m_tempMessageStream->Close() returned error");
-#ifdef _DEBUG
-      nsAutoCString message("Offline message too small: messageSize=");
-      message.AppendInt(messageSize);
-      message.AppendLiteral(" curStorePos=");
-      message.AppendInt(curStorePos);
-      message.AppendLiteral(" numOfflineMsgLines=");
-      message.AppendInt(m_numOfflineMsgLines);
-      message.AppendLiteral(" bytesAdded=");
-      message.AppendInt(m_bytesAddedToLocalMsg);
-      NS_ERROR(message.get());
-#endif
-      m_offlineHeader = nullptr;
-      return NS_ERROR_FAILURE;
-    }
-  }  // seekable
-
   // Success! Finalise the message.
+  nsAutoCString storeToken;
+  rv = msgStore->FinishNewMessage2(this, m_tempMessageStream, storeToken);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = m_offlineHeader->SetStoreToken(storeToken);
+  NS_ENSURE_SUCCESS(rv, rv);
   mDatabase->MarkOffline(messageKey, true, nullptr);
-  m_offlineHeader->SetOfflineMessageSize(m_tempMessageStreamBytesWritten);
-  m_offlineHeader->SetLineCount(m_numOfflineMsgLines);
+  rv = m_offlineHeader->SetOfflineMessageSize(m_tempMessageStreamBytesWritten);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = m_offlineHeader->SetLineCount(m_numOfflineMsgLines);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  // (But remember, stream might be buffered and closing/flushing could still
-  // fail!)
-
-  rv1 = rv2 = NS_OK;
-  if (msgStore) {
-    rv1 = msgStore->FinishNewMessage(m_tempMessageStream, m_offlineHeader);
-    m_tempMessageStream = nullptr;
-  }
-
-  // We can not let this happen: I think the code assumes this.
-  // That is the if-expression above is always true.
-  NS_ASSERTION(msgStore, "msgStore is nullptr");
-
-  // Notify users of the errors for now, just use NS_WARNING.
-  if (NS_FAILED(rv1)) NS_WARNING("FinishNewMessage returned error");
-  if (NS_FAILED(rv2)) NS_WARNING("m_tempMessageStream->Close() returned error");
-
-  m_tempMessageStream = nullptr;
-  m_offlineHeader = nullptr;
-
-  if (NS_FAILED(rv1)) return rv1;
-  if (NS_FAILED(rv2)) return rv2;
-
-  return rv;
+  return NS_OK;
 }
 
 class AutoCompactEvent : public mozilla::Runnable {
