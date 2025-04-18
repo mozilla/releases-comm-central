@@ -3273,15 +3273,12 @@ nsMsgLocalMailFolder::AddMessageBatch(
   aHdrArray.ClearAndRetainStorage();
   aHdrArray.SetCapacity(aMessages.Length());
 
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  nsresult rv = GetServer(getter_AddRefs(server));
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  nsCOMPtr<nsIOutputStream> outFileStream;
-  nsCOMPtr<nsIMsgDBHdr> newHdr;
-
-  rv = server->GetMsgStore(getter_AddRefs(msgStore));
+  nsCOMPtr<nsIMsgDatabase> db;
+  rv = GetDatabaseWOReparse(getter_AddRefs(db));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> rootFolder;
@@ -3302,10 +3299,17 @@ nsMsgLocalMailFolder::AddMessageBatch(
       RefPtr<nsParseNewMailState> newMailParser = new nsParseNewMailState;
       NS_ENSURE_TRUE(newMailParser, NS_ERROR_OUT_OF_MEMORY);
       if (!mGettingNewMessages) newMailParser->DisableFilters();
-      rv = msgStore->GetNewMsgOutputStream(this, getter_AddRefs(newHdr),
-                                           getter_AddRefs(outFileStream));
+
+      nsCOMPtr<nsIMsgDBHdr> newHdr;
+      rv = db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(newHdr));
       NS_ENSURE_SUCCESS(rv, rv);
 
+      nsCOMPtr<nsIOutputStream> outStream;
+      rv = msgStore->GetNewMsgOutputStream2(this, getter_AddRefs(outStream));
+      NS_ENSURE_SUCCESS(rv, rv);
+      // Just in case we exit early.
+      auto outGuard = mozilla::MakeScopeExit(
+          [&] { msgStore->DiscardNewMessage2(this, outStream); });
       // Get a msgWindow. Proceed without one, but filter actions to imap
       // folders will silently fail if not signed in and no window for a
       // prompt.
@@ -3315,21 +3319,23 @@ nsMsgLocalMailFolder::AddMessageBatch(
       if (NS_SUCCEEDED(rv))
         mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
 
-      rv = newMailParser->Init(rootFolder, this, msgWindow, newHdr,
-                               outFileStream);
+      rv = newMailParser->Init(rootFolder, this, msgWindow, newHdr, outStream);
       NS_ENSURE_SUCCESS(rv, rv);
       newMailParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
 
-      uint32_t bytesWritten;
       uint32_t messageLen = aMessages[i].Length();
-      outFileStream->Write(aMessages[i].get(), messageLen, &bytesWritten);
+      SyncWriteAll(outStream, aMessages[i].get(), messageLen);
       rv = newMailParser->BufferInput(aMessages[i].get(), messageLen);
       NS_ENSURE_SUCCESS(rv, rv);
       rv = newMailParser->Flush();
       NS_ENSURE_SUCCESS(rv, rv);
 
-      msgStore->FinishNewMessage(outFileStream, newHdr);
-      outFileStream = nullptr;
+      nsAutoCString storeToken;
+      rv = msgStore->FinishNewMessage2(this, outStream, storeToken);
+      NS_ENSURE_SUCCESS(rv, rv);
+      outGuard.release();
+      rv = newHdr->SetStoreToken(storeToken);
+      NS_ENSURE_SUCCESS(rv, rv);
       newMailParser->DoneParsing();
       newMailParser->EndMsgDownload();
       aHdrArray.AppendElement(newHdr);
@@ -3389,20 +3395,18 @@ nsresult nsMsgLocalMailFolder::AddMessageBatch2(
 
     // Write it to the local message store.
     nsCOMPtr<nsIOutputStream> outStream;
-    nsIMsgDBHdr* temp = dbHdr;
-    rv =
-        msgStore->GetNewMsgOutputStream(this, &temp, getter_AddRefs(outStream));
-    if (NS_FAILED(rv)) {
-      return rv;
-    }
+    rv = msgStore->GetNewMsgOutputStream2(this, getter_AddRefs(outStream));
+    NS_ENSURE_SUCCESS(rv, rv);
     rv = SyncWriteAll(outStream, raw.BeginReading(), raw.Length());
     if (NS_FAILED(rv)) {
-      msgStore->DiscardNewMessage(outStream, dbHdr);
+      msgStore->DiscardNewMessage2(this, outStream);
       return rv;
     }
-    rv = msgStore->FinishNewMessage(outStream, dbHdr);
+    nsAutoCString storeToken;
+    rv = msgStore->FinishNewMessage2(this, outStream, storeToken);
     NS_ENSURE_SUCCESS(rv, rv);
-
+    rv = dbHdr->SetStoreToken(storeToken);
+    NS_ENSURE_SUCCESS(rv, rv);
     rv = dbHdr->SetMessageSize((uint32_t)raw.Length());
     NS_ENSURE_SUCCESS(rv, rv);
 
