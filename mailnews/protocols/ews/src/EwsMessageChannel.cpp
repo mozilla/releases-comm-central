@@ -59,6 +59,9 @@ class MessageFetchListener : public IEwsMessageFetchCallbacks {
   // The header for the message to fetch.
   nsCOMPtr<nsIMsgDBHdr> mHdr;
 
+  // The folder the message is going into.
+  nsCOMPtr<nsIMsgFolder> mFolder;
+
   // The message database for the message header, for committing the offline
   // flag and message size once the message content has been downloaded.
   nsCOMPtr<nsIMsgDatabase> mDB;
@@ -88,18 +91,16 @@ NS_IMETHODIMP MessageFetchListener::OnFetchStart() {
 
   // Instantiate the attributes we'll need to write the message and pass it on
   // to the right consumer.
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = mHdr->GetFolder(getter_AddRefs(folder));
+  nsresult rv = mHdr->GetFolder(getter_AddRefs(mFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = folder->GetMsgDatabase(getter_AddRefs(mDB));
+  rv = mFolder->GetMsgDatabase(getter_AddRefs(mDB));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = folder->GetMsgStore(getter_AddRefs(mStore));
+  rv = mFolder->GetMsgStore(getter_AddRefs(mStore));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = folder->GetOfflineStoreOutputStream(mHdr,
-                                           getter_AddRefs(mStoreOutStream));
+  rv = mStore->GetNewMsgOutputStream2(mFolder, getter_AddRefs(mStoreOutStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;
@@ -128,15 +129,20 @@ NS_IMETHODIMP MessageFetchListener::OnFetchStop(nsresult status) {
   NS_ENSURE_ARG_POINTER(mStore);
   NS_ENSURE_ARG_POINTER(mStoreOutStream);
   NS_ENSURE_ARG_POINTER(mDB);
+  NS_ENSURE_ARG_POINTER(mFolder);
 
   nsresult rv;
   if (NS_SUCCEEDED(status)) {
-    rv = mStore->FinishNewMessage(mStoreOutStream, mHdr);
+    nsAutoCString storeToken;
+    rv = mStore->FinishNewMessage2(mFolder, mStoreOutStream, storeToken);
 
     // Here, we don't use `NS_ENSURE_SUCCESS` or `MOZ_TRY` like most places in
     // this file, because we still need `OnDownloadFinished` to be called if any
     // of these calls fail. So instead we just ensure any failure trickles down
     // to it.
+    if (NS_SUCCEEDED(rv)) {
+      rv = mHdr->SetStoreToken(storeToken);
+    }
     if (NS_SUCCEEDED(rv)) {
       // Mark the message as downloaded in the database record and record its
       // size.
@@ -158,11 +164,13 @@ NS_IMETHODIMP MessageFetchListener::OnFetchStop(nsresult status) {
       // Commit the changes to the folder's database.
       rv = mDB->Commit(nsMsgDBCommitType::kLargeCommit);
     }
+    // If anything went wrong, make sure the caller hears about it.
+    status = rv;
   } else {
     // Fetch has failed, discard the new message in the store.
-    rv = mStore->DiscardNewMessage(mStoreOutStream, mHdr);
+    mStore->DiscardNewMessage2(mFolder, mStoreOutStream);
   }
-
+  mStoreOutStream = nullptr;
   return mChannel->OnDownloadFinished(status);
 }
 
