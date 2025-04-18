@@ -119,6 +119,8 @@ interface nsIMsgPluggableStore : nsISupports {
                   in AUTF8String aNewName);
 
   /**
+   * @deprecated in favour of getNewMsgOutputStream2().
+   *
    * Get an output stream for a message in a folder.
    *
    * @param aFolder folder to create a message output stream for.
@@ -142,6 +144,8 @@ interface nsIMsgPluggableStore : nsISupports {
 
 
   /**
+   * @deprecated in favour of discardNewMessage2().
+   *
    * Called when the current message is discarded, e.g., it is moved
    * to an other folder as a filter action, or is deleted because it's
    * a duplicate. This gives the berkeley mailbox store a chance to simply
@@ -158,6 +162,8 @@ interface nsIMsgPluggableStore : nsISupports {
                          in nsIMsgDBHdr aNewHdr);
 
   /**
+   * @deprecated in favour of finishNewMessage2().
+   *
    * Must be called by code that calls getNewMsgOutputStream to finish
    * the process of storing a new message, if the new msg has not been
    * discarded. Could/should this be combined with discardNewMessage?
@@ -171,6 +177,44 @@ interface nsIMsgPluggableStore : nsISupports {
    */
   void finishNewMessage(in nsIOutputStream aOutputStream,
                         in nsIMsgDBHdr aNewHdr);
+
+
+  // NOTE: Yes, these "2"-suffixed ones have stupid names, but they'll be
+  // renamed once the old functions are removed.
+  /**
+   * getNewMsgOutputStream2() returns a new stream for writing raw message
+   * data into the given folder.
+   * NOTE: Each folder can have only one write stream active at a time.
+   * If this function is called on a folder with an outstanding write stream,
+   * the old stream will be closed and rolled back and a new one created.
+   *
+   * The caller then writes the message to the stream as usual, then calls
+   * either finishNewMessage2() or discardNewMessage() when done.
+   *
+   * @param folder - The target nsIMsgFolder.
+   * @returns a stream that a raw message can be written to.
+   */
+  nsIOutputStream getNewMsgOutputStream2(in nsIMsgFolder folder);
+
+  /**
+   * finishNewMessage2() concludes writing of a message, committing to
+   * the store all the data which was written to the stream.
+   *
+   * @param folder - The target nsIMsgFolder.
+   * @param stream - The stream obtained by getNewMsgOutputStream2().
+   * @return a storeToken string which can used to retrieve the message
+   *         data back from the store (via getMsgInputStream2()).
+   */
+  AUTF8String finishNewMessage2(in nsIMsgFolder folder, in nsIOutputStream stream);
+
+  /**
+   * discardNewMessage2() concludes a write by throwing away any message
+   * data that was written to the stream.
+   *
+   * @param folder - The target nsIMsgFolder.
+   * @param stream - The stream obtained by getNewMsgOutputStream2().
+   */
+  void discardNewMessage2(in nsIMsgFolder folder, in nsIOutputStream stream);
 
   /**
    * Called by pop3 message filters when a newly downloaded message is being

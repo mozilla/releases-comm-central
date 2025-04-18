@@ -605,8 +605,8 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
 
 nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
     nsIMsgFolder* aFolder, int64_t& aFilePos, nsIOutputStream** aResult) {
-  NS_ENSURE_ARG_POINTER(aFolder);
-  NS_ENSURE_ARG_POINTER(aResult);
+  MOZ_ASSERT(aFolder);
+  MOZ_ASSERT(aResult);
 
   nsresult rv;
   // First, check the mOngoingWrites set to make sure we're not already
@@ -667,14 +667,6 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
     }
     NS_ENSURE_SUCCESS(rv, rv);
 
-    // Get offset of the new message (the end of the file).
-    nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(rawStream, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = seekable->Seek(nsISeekableStream::NS_SEEK_END, 0);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = seekable->Tell(&aFilePos);
-    NS_ENSURE_SUCCESS(rv, rv);
-
     // 2**16 buffer size for good performance in 2024?
     nsCOMPtr<nsIOutputStream> bufferedStream;
     rv = NS_NewBufferedOutputStream(getter_AddRefs(bufferedStream),
@@ -683,6 +675,15 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
       MOZ_LOG(gMboxLog, LogLevel::Error,
               ("failed opening buffered stream for %s", folderURI.get()));
     }
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Jump to the end of the file (and record position for new message).
+    nsCOMPtr<nsISeekableStream> seekable(
+        do_QueryInterface(bufferedStream, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = seekable->Seek(nsISeekableStream::NS_SEEK_END, 0);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = seekable->Tell(&aFilePos);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Wrap to handle mbox "From " separator, escaping etc.
@@ -694,12 +695,12 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
       stream = new nsQuarantinedOutputStream(mboxStream);
       MOZ_LOG(gMboxLog, LogLevel::Info,
               ("START-Q MSG stream=0x%p folder=%s offset=%" PRIi64 "",
-               (void*)(*aResult), aFolder->URI().get(), aFilePos));
+               stream.get(), aFolder->URI().get(), aFilePos));
     } else {
       stream = mboxStream;
       MOZ_LOG(gMboxLog, LogLevel::Info,
               ("START MSG stream=0x%p folder=%s offset=%" PRIi64 "",
-               (void*)(*aResult), aFolder->URI().get(), aFilePos));
+               stream.get(), aFolder->URI().get(), aFilePos));
     }
   }
 
@@ -749,7 +750,7 @@ nsMsgBrkMBoxStore::DiscardNewMessage(nsIOutputStream* aOutputStream,
         }
       }
       MOZ_LOG(
-          gMboxLog, LogLevel::Info,
+          gMboxLog, LogLevel::Warning,
           ("DISCARD MSG stream=0x%p folder=%s mboxPath='%s' filesize=%" PRId64
            "",
            aOutputStream, folderURI.get(), mboxPath->HumanReadablePath().get(),
@@ -809,7 +810,7 @@ nsMsgBrkMBoxStore::FinishNewMessage(nsIOutputStream* aOutputStream,
       }
     }
     MOZ_LOG(gMboxLog, LogLevel::Info,
-            ("FINISH MSG  stream=0x%p folder=%s filesize=%" PRId64 "",
+            ("FINISH MSG stream=0x%p folder=%s filesize=%" PRId64 "",
              aOutputStream, folderURI.get(), fileSize));
   }
 
@@ -817,6 +818,79 @@ nsMsgBrkMBoxStore::FinishNewMessage(nsIOutputStream* aOutputStream,
   if (!folderURI.IsEmpty()) {
     mOngoingWrites.remove(folderURI);
   }
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgBrkMBoxStore::GetNewMsgOutputStream2(nsIMsgFolder* folder,
+                                          nsIOutputStream** outStream) {
+  NS_ENSURE_ARG(folder);
+  NS_ENSURE_ARG_POINTER(outStream);
+  int64_t filePos = 0;
+  return InternalGetNewMsgOutputStream(folder, filePos, outStream);
+}
+
+NS_IMETHODIMP
+nsMsgBrkMBoxStore::FinishNewMessage2(nsIMsgFolder* folder,
+                                     nsIOutputStream* outStream,
+                                     nsACString& storeToken) {
+  NS_ENSURE_ARG(folder);
+  NS_ENSURE_ARG(outStream);
+
+  auto details = mOngoingWrites.lookup(folder->URI());
+  if (!details) {
+    // We should have a record of the write!
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  // Should be the stream we issued originally!
+  MOZ_ASSERT(outStream == details->value().stream);
+
+  // We are always dealing with nsISafeOutputStream.
+  // It requires an explicit commit, or the data will be discarded.
+  nsCOMPtr<nsISafeOutputStream> safe = do_QueryInterface(outStream);
+  MOZ_ASSERT(safe);
+  // Commit the write.
+  nsresult rv = safe->Finish();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  storeToken = nsPrintfCString("%" PRId64, details->value().filePos);
+
+  // The write is all done.
+  mOngoingWrites.remove(details);
+
+  MOZ_LOG(gMboxLog, LogLevel::Info,
+          ("FINISH MSG stream=0x%p folder=%s storeToken=%s", outStream,
+           folder->URI().get(), nsPromiseFlatCString(storeToken).get()));
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgBrkMBoxStore::DiscardNewMessage2(nsIMsgFolder* folder,
+                                      nsIOutputStream* outStream) {
+  NS_ENSURE_ARG(folder);
+  NS_ENSURE_ARG(outStream);
+
+  auto details = mOngoingWrites.lookup(folder->URI());
+  if (!details) {
+    // We should have a record of the write!
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  MOZ_LOG(gMboxLog, LogLevel::Info,
+          ("DISCARD MSG stream=0x%p folder=%s filePos=%" PRId64 "", outStream,
+           folder->URI().get(), details->value().filePos));
+
+  // Should be the stream we issued originally!
+  MOZ_ASSERT(outStream == details->value().stream);
+
+  // nsISafeOutputStream only writes upon finish(), so no cleanup required.
+  nsresult rv = outStream->Close();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Done with the write now.
+  mOngoingWrites.remove(details);
 
   return NS_OK;
 }

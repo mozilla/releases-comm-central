@@ -5,6 +5,28 @@
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
+const { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
+const { NetUtil } = ChromeUtils.importESModule(
+  "resource://gre/modules/NetUtil.sys.mjs"
+);
+
+// Helper to read a stream until EOF, returning the contents as a string.
+function readAll(inStream) {
+  const sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    Ci.nsIScriptableInputStream
+  );
+  sstream.init(inStream);
+  let data = "";
+  let str = sstream.read(1024 * 16);
+  while (str.length > 0) {
+    data += str;
+    str = sstream.read(1024 * 16);
+  }
+  sstream.close();
+  return data;
+}
 
 /**
  * nsIMsgPluggableStore interface tests
@@ -117,10 +139,207 @@ async function test_asyncScan() {
   }
 }
 
+/**
+ * Test that we can write messages and read them back without loss.
+ */
+async function test_basicReadWrite() {
+  localAccountUtils.loadLocalMailAccount();
+  try {
+    const inbox = localAccountUtils.inboxFolder;
+    const store = inbox.msgStore;
+
+    // Generate some messages.
+    const generator = new MessageGenerator();
+    const msgs = generator
+      .makeMessages({ count: 10 })
+      .map(message => message.toMessageString());
+
+    // Write them.
+    const tokens = [];
+    for (const msg of msgs) {
+      const out = store.getNewMsgOutputStream2(inbox);
+      out.write(msg, msg.length);
+      const storeToken = store.finishNewMessage2(inbox, out);
+      tokens.push(storeToken);
+    }
+
+    // Read them back.
+    for (let i = 0; i < msgs.length; ++i) {
+      const stream = store.getMsgInputStream(inbox, tokens[i], 0);
+      const got = readAll(stream);
+      Assert.equal(msgs[i], got);
+    }
+  } finally {
+    localAccountUtils.clearAll();
+  }
+}
+
+/**
+ * Test that writes can be discarded.
+ */
+async function test_discardWrites() {
+  localAccountUtils.loadLocalMailAccount();
+  try {
+    const inbox = localAccountUtils.inboxFolder;
+    const store = inbox.msgStore;
+
+    // Generate some messages.
+    const generator = new MessageGenerator();
+    const msgs = generator
+      .makeMessages({ count: 2 })
+      .map(message => message.toMessageString());
+
+    // Write every second one.
+    const okTokens = [];
+    const okMsgs = [];
+    for (let i = 0; i < msgs.length; ++i) {
+      const out = store.getNewMsgOutputStream2(inbox);
+      if (i % 2) {
+        // Write the message as normal.
+        out.write(msgs[i], msgs[i].length);
+        okTokens.push(store.finishNewMessage2(inbox, out));
+        okMsgs.push(msgs[i]);
+      } else {
+        // Write half, then bail.
+        out.write(msgs[i], msgs[i].length / 2);
+        store.discardNewMessage2(inbox, out);
+      }
+    }
+
+    // Read back all messages.
+    const listener = new PromiseTestUtils.PromiseStoreScanListener();
+    store.asyncScan(inbox, listener);
+    await listener.promise;
+
+    Assert.equal(
+      listener.messages.length,
+      okMsgs.length,
+      "Expect non-discarded messages"
+    );
+    Assert.deepEqual(
+      listener.messages.toSorted(),
+      okMsgs.toSorted(),
+      "Expect non-discarded messages"
+    );
+    Assert.deepEqual(
+      listener.tokens.toSorted(),
+      okTokens.toSorted(),
+      "Expect tokens from non-discarded messages"
+    );
+  } finally {
+    localAccountUtils.clearAll();
+  }
+}
+
+/**
+ * Test that we can only have one outstanding write per folder.
+ */
+async function test_oneWritePerFolder() {
+  localAccountUtils.loadLocalMailAccount();
+  try {
+    const inbox = localAccountUtils.inboxFolder;
+    const store = inbox.msgStore;
+
+    // Generate some messages.
+    const generator = new MessageGenerator();
+    const msgs = generator
+      .makeMessages({ count: 2 })
+      .map(message => message.toMessageString());
+
+    const out1 = store.getNewMsgOutputStream2(inbox);
+    const out2 = store.getNewMsgOutputStream2(inbox);
+    // out1 should have been closed to allow out2 to proceed.
+    await Assert.throws(
+      () => out1.write(msgs[0], msgs[0].length),
+      /NS_BASE_STREAM_CLOSED/,
+      "out1 should have been closed."
+    );
+    // out2 should be valid.
+    out2.write(msgs[1], msgs[1].length);
+    const token2 = store.finishNewMessage2(inbox, out2);
+
+    // Read back all messages - should be no trace of out1 writing.
+    const listener = new PromiseTestUtils.PromiseStoreScanListener();
+    store.asyncScan(inbox, listener);
+    await listener.promise;
+
+    Assert.equal(
+      listener.messages.length,
+      1,
+      "Store should only contain one message."
+    );
+    Assert.equal(
+      listener.messages[0],
+      msgs[1],
+      "Message should be what was written via out2."
+    );
+    Assert.equal(
+      listener.tokens[0],
+      token2,
+      "Message should have expected storeToken."
+    );
+  } finally {
+    localAccountUtils.clearAll();
+  }
+}
+
+/**
+ * Test that we can have multiple writes going at once, as long as they're
+ * in different folders.
+ */
+async function test_multiFolderWriting() {
+  localAccountUtils.loadLocalMailAccount();
+  try {
+    const inbox = localAccountUtils.inboxFolder;
+    const store = inbox.msgStore;
+
+    const folder1 =
+      localAccountUtils.rootFolder.createLocalSubfolder("folder1");
+    const folder2 =
+      localAccountUtils.rootFolder.createLocalSubfolder("folder2");
+
+    // Generate some messages.
+    const generator = new MessageGenerator();
+    const msgs = generator
+      .makeMessages({ count: 2 })
+      .map(message => message.toMessageString());
+
+    const out1 = store.getNewMsgOutputStream2(folder1);
+    const out2 = store.getNewMsgOutputStream2(folder2);
+    out1.write(msgs[0], msgs[0].length);
+    out2.write(msgs[1], msgs[1].length);
+    store.finishNewMessage2(folder1, out1);
+    store.finishNewMessage2(folder2, out2);
+
+    // Check folder1.
+    const listener1 = new PromiseTestUtils.PromiseStoreScanListener();
+    store.asyncScan(folder1, listener1);
+    await listener1.promise;
+    Assert.deepEqual(
+      listener1.messages,
+      [msgs[0]],
+      "folder1 should contain single message"
+    );
+
+    // Check folder2.
+    const listener2 = new PromiseTestUtils.PromiseStoreScanListener();
+    store.asyncScan(folder2, listener2);
+    await listener2.promise;
+    Assert.deepEqual(
+      listener2.messages,
+      [msgs[1]],
+      "folder2 should contain single message"
+    );
+  } finally {
+    localAccountUtils.clearAll();
+  }
+}
+
 // Return a wrapper which sets the store type before running fn().
 function withStore(store, fn) {
   return async () => {
     Services.prefs.setCharPref("mail.serverDefaultStoreContractID", store);
+    dump(`*** Running ${fn.name} against ${store} ***\n`);
     await fn();
   };
 }
@@ -128,4 +347,8 @@ function withStore(store, fn) {
 for (const store of localAccountUtils.pluggableStores) {
   add_task(withStore(store, test_discoverSubFolders));
   add_task(withStore(store, test_asyncScan));
+  add_task(withStore(store, test_basicReadWrite));
+  add_task(withStore(store, test_discardWrites));
+  add_task(withStore(store, test_oneWritePerFolder));
+  add_task(withStore(store, test_multiFolderWriting));
 }

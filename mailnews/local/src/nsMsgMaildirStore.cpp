@@ -32,6 +32,7 @@
 #include "nsIMessenger.h"
 #include "nsThreadUtils.h"
 #include "mozilla/Logging.h"
+#include "mozilla/ScopeExit.h"
 
 static mozilla::LazyLogModule MailDirLog("MailDirStore");
 
@@ -719,29 +720,14 @@ nsMsgMaildirStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  // We're going to save the new message into the maildir 'tmp' folder.
-  // When the message is completed, it can be moved to 'cur'.
-  nsCOMPtr<nsIFile> newFile;
-  rv = EnsureSubDir(aFolder, u"tmp"_ns, getter_AddRefs(newFile));
+  nsAutoCString storeToken;
+  rv = InternalGetNewMsgOutputStream(aFolder, storeToken, aResult);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Generate a unique name for the file.
-  nsAutoCString newName(UniqueName());
-  // We need ".eml" for OS search integration (for windows, anyway).
-  newName.AppendLiteral(".eml");
+  rv = (*aNewMsgHdr)->SetStoreToken(storeToken);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  newFile->Append(NS_ConvertUTF8toUTF16(newName));
-
-  bool fileExists;
-  newFile->Exists(&fileExists);
-  if (fileExists) {
-    return NS_ERROR_FILE_ALREADY_EXISTS;
-  }
-  // Save the file name in the message header - otherwise no way to retrieve it.
-  (*aNewMsgHdr)->SetStoreToken(newName);
-
-  return MsgNewBufferedFileOutputStream(aResult, newFile,
-                                        PR_WRONLY | PR_CREATE_FILE, 00600);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -750,25 +736,12 @@ nsMsgMaildirStore::DiscardNewMessage(nsIOutputStream* aOutputStream,
   NS_ENSURE_ARG_POINTER(aOutputStream);
   NS_ENSURE_ARG_POINTER(aNewHdr);
 
-  aOutputStream->Close();
-  // File path is stored in message header property "storeToken".
-  nsAutoCString fileName;
-  aNewHdr->GetStoreToken(fileName);
-  if (fileName.IsEmpty()) {
-    return NS_ERROR_ILLEGAL_VALUE;
-  }
-
   nsCOMPtr<nsIFile> path;
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = aNewHdr->GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
-  // Path to the message download folder.
-  rv = EnsureSubDir(folder, u"tmp"_ns, getter_AddRefs(path));
-  NS_ENSURE_SUCCESS(rv, rv);
 
-  path->Append(NS_ConvertUTF8toUTF16(fileName));
-
-  return path->Remove(false);
+  return DiscardNewMessage2(folder, aOutputStream);
 }
 
 NS_IMETHODIMP
@@ -779,53 +752,203 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream* aOutputStream,
 
   aOutputStream->Close();
 
-  nsCOMPtr<nsIFile> folderPath;
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = aNewHdr->GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Filename is stored in "storeToken".
-  nsAutoCString newName;
-  aNewHdr->GetStoreToken(newName);
-  if (newName.IsEmpty()) {
-    NS_ERROR("FinishNewMessage - no storeToken in msg hdr!!");
+  nsAutoCString storeToken;
+  rv = FinishNewMessage2(folder, aOutputStream, storeToken);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Stash the storeToken (actually GetNewMsgOutputStream() will already
+  // have done this, but we'll do it here just for completeness, so that
+  // a GetNewMsgOutputStream2() + FinishNewMessage() pair works).
+  rv = aNewHdr->SetStoreToken(storeToken);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return NS_OK;
+}
+
+nsresult nsMsgMaildirStore::InternalGetNewMsgOutputStream(
+    nsIMsgFolder* folder, nsACString& storeToken, nsIOutputStream** outStream) {
+  nsresult rv;
+  // To set up to write a new message:
+  // 1. Discard any ongoing write already active in the folder.
+  // 2. Generate a unique filename.
+  // 3. Open output stream to write to "tmp/{filename}".
+  // 4. Store the stream and filename in the mOngoingWrites map.
+
+  // Are we already writing to this folder? If so, we'll ditch the existing
+  // write. This behaviour is implicitly expected by the protocol->folder
+  // interface (sigh).
+  auto existing = mOngoingWrites.lookup(folder->URI());
+  if (existing) {
+    // Uhoh.
+    MOZ_LOG(MailDirLog, mozilla::LogLevel::Error,
+            ("Already writing to folder '%s'", folder->URI().get()));
+    NS_WARNING(
+        nsPrintfCString("Already writing to folder '%s'", folder->URI().get())
+            .get());
+
+    // Close stream, delete partly-written file, remove from ongoing set.
+    existing->value().stream->Close();
+    nsCOMPtr<nsIFile> partial;
+    rv = EnsureSubDir(folder, u"tmp"_ns, getter_AddRefs(partial));
+    NS_ENSURE_SUCCESS(rv, rv);
+    partial->Append(NS_ConvertUTF8toUTF16(existing->value().filename));
+    partial->Remove(false);
+    mOngoingWrites.remove(existing);
+  }
+
+  // Time to open a new stream for writing.
+
+  // Generate a unique name for the file.
+  // We need ".eml" for OS search integration (for windows, anyway).
+  nsAutoCString filename(UniqueName());
+  filename.AppendLiteral(".eml");
+
+  // We're going to save the new message into the maildir 'tmp' folder.
+  // When the message is completed, it can be moved to 'cur'.
+  nsCOMPtr<nsIFile> tmpFile;
+  rv = EnsureSubDir(folder, u"tmp"_ns, getter_AddRefs(tmpFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+  tmpFile->Append(NS_ConvertUTF8toUTF16(filename));
+
+  bool fileExists;
+  tmpFile->Exists(&fileExists);
+  if (fileExists) {
+    return NS_ERROR_FILE_ALREADY_EXISTS;
+  }
+
+  nsCOMPtr<nsIOutputStream> stream;
+  rv = MsgNewBufferedFileOutputStream(getter_AddRefs(stream), tmpFile,
+                                      PR_WRONLY | PR_CREATE_FILE, 00600);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Up and running - add the stream to the set of ongoing writes.
+  MOZ_ALWAYS_TRUE(mOngoingWrites.putNew(folder->URI(),
+                                        StreamDetails{filename, stream.get()}));
+
+  // Done! Return stream and filename.
+  storeToken = filename;
+  stream.forget(outStream);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgMaildirStore::GetNewMsgOutputStream2(nsIMsgFolder* folder,
+                                          nsIOutputStream** outStream) {
+  NS_ENSURE_ARG(folder);
+  NS_ENSURE_ARG_POINTER(outStream);
+  nsAutoCString unused;
+  return InternalGetNewMsgOutputStream(folder, unused, outStream);
+}
+
+NS_IMETHODIMP
+nsMsgMaildirStore::FinishNewMessage2(nsIMsgFolder* folder,
+                                     nsIOutputStream* outStream,
+                                     nsACString& storeToken) {
+  // To commit the message we want to:
+  // 1. Close the output stream.
+  // 2. Move the completed file from "tmp/" to "cur/".
+  // 3. Remove the entry in mOngoingWrites.
+  // 4. Return the filename in "cur/" as the storeToken.
+
+  NS_ENSURE_ARG(folder);
+  NS_ENSURE_ARG(outStream);
+
+  auto entry = mOngoingWrites.lookup(folder->URI());
+  if (!entry) {
+    // We should have a record of the write!
     return NS_ERROR_ILLEGAL_VALUE;
   }
 
-  // Path to the new destination.
+  // Take a copy of the entry before we remove it.
+  StreamDetails details = entry->value();
+  mOngoingWrites.remove(entry);
+
+  // Should be the stream we issued originally!
+  MOZ_ASSERT(outStream == details.stream);
+
+  // Path to the new destination dir.
   nsCOMPtr<nsIFile> curDir;
-  rv = EnsureSubDir(folder, u"cur"_ns, getter_AddRefs(curDir));
+  nsresult rv = EnsureSubDir(folder, u"cur"_ns, getter_AddRefs(curDir));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Path to the downloaded message in "tmp/".
-  nsCOMPtr<nsIFile> fromPath;
-  rv = EnsureSubDir(folder, u"tmp"_ns, getter_AddRefs(fromPath));
+  nsCOMPtr<nsIFile> tmpFile;
+  rv = EnsureSubDir(folder, u"tmp"_ns, getter_AddRefs(tmpFile));
   NS_ENSURE_SUCCESS(rv, rv);
-  fromPath->Append(NS_ConvertUTF8toUTF16(newName));
+  tmpFile->Append(NS_ConvertUTF8toUTF16(details.filename));
+
+  // In case we fail before moving the file into place.
+  auto tmpGuard = mozilla::MakeScopeExit([&] { tmpFile->Remove(false); });
+
+  rv = outStream->Close();
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // While downloading messages, filter actions can shortcut things and
   // move messages under us. They definitely should not do it like that
   // (Bug 1028372), but for now we'll check to see if it's already been
   // moved into "cur/".
   bool exists;
-  fromPath->Exists(&exists);
+  tmpFile->Exists(&exists);
   if (!exists) {
+    tmpGuard.release();  // Won't need to delete it!
     // Not in "tmp/"... is it in "cur/" now?
-    nsCOMPtr<nsIFile> toPath;
-    curDir->Clone(getter_AddRefs(toPath));
-    toPath->Append(NS_ConvertUTF8toUTF16(newName));
-    toPath->Exists(&exists);
+    nsCOMPtr<nsIFile> destPath;
+    curDir->Clone(getter_AddRefs(destPath));
+    destPath->Append(NS_ConvertUTF8toUTF16(details.filename));
+    destPath->Exists(&exists);
     if (exists) {
-      // OK, it's already been moved to "cur/". We'll just accept that.
+      // It's already been moved to "cur/". We'll just accept that.
       return NS_OK;
     }
-    NS_ERROR("FinishNewMessage - oops! file does not exist!");
+    NS_ERROR("FinishNewMessage2 - oops! file does not exist!");
     return NS_ERROR_FILE_NOT_FOUND;
   }
 
   // Move into "cur/".
-  rv = fromPath->MoveTo(curDir, EmptyString());
+  rv = tmpFile->MoveTo(curDir, EmptyString());
   NS_ENSURE_SUCCESS(rv, rv);
+
+  tmpGuard.release();
+  storeToken = details.filename;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgMaildirStore::DiscardNewMessage2(nsIMsgFolder* folder,
+                                      nsIOutputStream* outStream) {
+  // To throw away a message we want to:
+  // 1. Close the output stream.
+  // 2. Delete the partial file in "tmp/".
+  // 3. Remove the entry in mOngoingWrites.
+
+  NS_ENSURE_ARG(folder);
+  NS_ENSURE_ARG(outStream);
+
+  auto entry = mOngoingWrites.lookup(folder->URI());
+  if (!entry) {
+    // We should have a record of the write!
+    return NS_ERROR_ILLEGAL_VALUE;
+  }
+
+  // Take a copy of the entry before we remove it.
+  StreamDetails details = entry->value();
+  mOngoingWrites.remove(entry);
+
+  // Should be the stream we issued originally!
+  MOZ_ASSERT(outStream == details.stream);
+
+  outStream->Close();
+
+  nsCOMPtr<nsIFile> tmpFile;
+  nsresult rv = EnsureSubDir(folder, u"tmp"_ns, getter_AddRefs(tmpFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+  tmpFile->Append(NS_ConvertUTF8toUTF16(details.filename));
+
+  tmpFile->Remove(false);
   return NS_OK;
 }
 
