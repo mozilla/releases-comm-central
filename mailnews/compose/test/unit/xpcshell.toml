@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head_compose.js"
 support-files = ["data/*"]
 
@@ -59,13 +59,13 @@ skip-if = ["os == 'mac'"]
 
 ["test_sendMessageFile.js"]
 
-["test_sendMessageLater_dsn_message_id.js"]
-
 ["test_sendMessageLater.js"]
 
 ["test_sendMessageLater2.js"]
 
 ["test_sendMessageLater3.js"]
+
+["test_sendMessageLater_dsn_message_id.js"]
 
 ["test_sendObserver.js"]
 
@@ -95,8 +95,8 @@ skip-if = ["os == 'mac'"]
 
 ["test_splitRecipients.js"]
 
-["test_telemetry_compose.js"]
-
 ["test_staleTemporaryFileCleanup.js"]
+
+["test_telemetry_compose.js"]
 
 ["test_temporaryFilesRemoved.js"]

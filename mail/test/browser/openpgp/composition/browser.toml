@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head.js"
 prefs = [
   "mail.provider.suppress_dialog_on_startup=true",
@@ -10,11 +10,11 @@ prefs = [
 subsuite = "thunderbird"
 support-files = ["../data/**"]
 
+["browser_composeEncrypted.js"]
+
 ["browser_composeSigned.js"]
 
 ["browser_composeSigned2.js"]
-
-["browser_composeEncrypted.js"]
 
 ["browser_composeSwitchIdentity.js"]
 

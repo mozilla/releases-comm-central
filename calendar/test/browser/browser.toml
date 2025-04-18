@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head.js"
 prefs = [
   "calendar.debug.log=true",
@@ -47,13 +47,13 @@ tags = ["import"]
 
 ["browser_localICS.js"]
 
-["browser_taskDelete.js"]
-
-["browser_taskUndoRedo.js"]
-
 ["browser_tabs.js"]
 
+["browser_taskDelete.js"]
+
 ["browser_taskDisplay.js"]
+
+["browser_taskUndoRedo.js"]
 
 ["browser_todayPane.js"]
 

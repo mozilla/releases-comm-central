@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 
 ["test_authmechs.js"]
 
@@ -6,9 +6,9 @@
 
 ["test_parseJidAndNormalization.js"]
 
-["test_saslPrep.js"]
-
 ["test_parseVCard.js"]
+
+["test_saslPrep.js"]
 
 ["test_xmppAccount.js"]
 

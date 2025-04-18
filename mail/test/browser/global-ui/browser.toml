@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 prefs = [
   "mail.provider.suppress_dialog_on_startup=true",
   "mail.spotlight.firstRunDone=true",
@@ -9,6 +9,6 @@ prefs = [
 ]
 subsuite = "thunderbird"
 
-["browser_builtInThemes.js"]
-
 ["browser_UIFontSize.js"]
+
+["browser_builtInThemes.js"]

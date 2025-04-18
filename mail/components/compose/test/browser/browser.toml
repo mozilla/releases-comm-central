@@ -13,7 +13,10 @@ prefs = [
 subsuite = "thunderbird"
 
 ["browser_sendMessage.js"]
+
 ["browser_sendMessage_badPassword.js"]
+
 ["browser_sendMessage_certError.js"]
+
 ["browser_sendMessage_oAuth2.js"]
 tags = "oauth"

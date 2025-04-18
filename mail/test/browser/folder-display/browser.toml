@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head.js"
 prefs = [
   "mail.account.account1.server=server1",
@@ -65,7 +65,7 @@ support-files = ["data/**"]
 ["browser_folderToolbar.js"]
 
 ["browser_invalidDbFolderLoad.js"]
-skip-if = true  # TODO Bug 1854873
+disabled = "TODO Bug 1854873"
 
 ["browser_mailTelemetry.js"]
 
@@ -98,16 +98,16 @@ tags = ["vcard"]
 
 ["browser_recentMenu.js"]
 
-["browser_rightClickMiddleClickFolders.js"]
-
 ["browser_rightClickMessages.js"]
+
+["browser_rightClickMiddleClickFolders.js"]
 
 ["browser_savedsearchReloadAfterCompact.js"]
 
 ["browser_selection.js"]
 
 ["browser_syntheticViews.js"]
-skip-if = true  # TODO
+skip-if = ["true"]  # TODO
 
 ["browser_tabsSimple.js"]
 

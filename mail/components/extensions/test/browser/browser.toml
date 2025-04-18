@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head.js"
 prefs = [
   "mail.provider.suppress_dialog_on_startup=true",
@@ -21,10 +21,6 @@ tags = ["webextensions"]
 ["browser_ext_addressBooksUI.js"]
 tags = ["addrbook"]
 
-["browser_ext_bug1812530.js"]
-support-files = ["data/content.html"]
-tags = ["contextmenu"]
-
 ["browser_ext_browserAction_customized.js"]
 
 ["browser_ext_browserAction_not_customized.js"]
@@ -36,6 +32,10 @@ tags = ["contextmenu"]
 ["browser_ext_browserAction_popup_focus.js"]
 
 ["browser_ext_browserAction_properties.js"]
+
+["browser_ext_bug1812530.js"]
+support-files = ["data/content.html"]
+tags = ["contextmenu"]
 
 ["browser_ext_clickHandler.js"]
 support-files = [
@@ -68,6 +68,18 @@ support-files = [
 
 ["browser_ext_commands_update.js"]
 
+["browser_ext_composeAction.js"]
+
+["browser_ext_composeAction_popup_click.js"]
+
+["browser_ext_composeAction_popup_click_mv3_event_pages.js"]
+
+["browser_ext_composeAction_properties.js"]
+
+["browser_ext_composeScripts.js"]
+
+["browser_ext_composeScripts_mv3.js"]
+
 ["browser_ext_compose_attachments.js"]
 
 ["browser_ext_compose_begin_attachments.js"]
@@ -78,15 +90,21 @@ support-files = [
 
 ["browser_ext_compose_begin_forward.js"]
 
-["browser_ext_compose_begin_headers_mv3.js"]
-
 ["browser_ext_compose_begin_headers.js"]
+
+["browser_ext_compose_begin_headers_mv3.js"]
 
 ["browser_ext_compose_begin_identity.js"]
 
 ["browser_ext_compose_begin_new.js"]
 
 ["browser_ext_compose_begin_reply.js"]
+
+["browser_ext_compose_bug1692439.js"]
+
+["browser_ext_compose_bug1804796.js"]
+
+["browser_ext_compose_bug1882725.js"]
 
 ["browser_ext_compose_details.js"]
 
@@ -95,12 +113,6 @@ support-files = [
 ["browser_ext_compose_details_headers.js"]
 
 ["browser_ext_compose_details_mv3.js"]
-
-["browser_ext_compose_bug1692439.js"]
-
-["browser_ext_compose_bug1804796.js"]
-
-["browser_ext_compose_bug1882725.js"]
 
 ["browser_ext_compose_dictionaries.js"]
 
@@ -114,21 +126,13 @@ support-files = [
 
 ["browser_ext_compose_saveTemplate.js"]
 
-["browser_ext_compose_sendMessage_mv3.js"]
-
 ["browser_ext_compose_sendMessage.js"]
 
-["browser_ext_composeAction.js"]
+["browser_ext_compose_sendMessage_mv3.js"]
 
-["browser_ext_composeAction_popup_click.js"]
+["browser_ext_contentScripts.js"]
 
-["browser_ext_composeAction_popup_click_mv3_event_pages.js"]
-
-["browser_ext_composeAction_properties.js"]
-
-["browser_ext_composeScripts.js"]
-
-["browser_ext_composeScripts_mv3.js"]
+["browser_ext_contentScripts_mv3.js"]
 
 ["browser_ext_content_handler.js"]
 
@@ -138,9 +142,7 @@ support-files = [
 support-files = ["data/content.html"]
 tags = ["contextmenu"]
 
-["browser_ext_contentScripts.js"]
-
-["browser_ext_contentScripts_mv3.js"]
+["browser_ext_mailTabs.js"]
 
 ["browser_ext_mailTabs_context_clicks.js"]
 
@@ -152,18 +154,12 @@ tags = ["contextmenu"]
 
 ["browser_ext_mailTabs_mv3.js"]
 
-["browser_ext_mailTabs.js"]
-
 ["browser_ext_menus_context_action.js"]
 support-files = [
   "data/content.html",
   "data/content_body.html",
   "data/tb-logo.png",
 ]
-tags = ["contextmenu"]
-
-["browser_ext_menus_context_icons.js"]
-support-files = ["data/content.html"]
 tags = ["contextmenu"]
 
 ["browser_ext_menus_context_compose.js"]
@@ -188,6 +184,10 @@ support-files = [
   "data/content_body.html",
   "data/tb-logo.png",
 ]
+tags = ["contextmenu"]
+
+["browser_ext_menus_context_icons.js"]
+support-files = ["data/content.html"]
 tags = ["contextmenu"]
 
 ["browser_ext_menus_context_message_panes.js"]
@@ -239,20 +239,7 @@ tags = ["contextmenu"]
 ["browser_ext_menus_replace_menu_context.js"]
 tags = ["contextmenu"]
 
-["browser_ext_message_external.js"]
-support-files = ["messages/attachedMessageSample.eml"]
-
 ["browser_ext_messageDisplay.js"]
-
-["browser_ext_messageDisplay_bug1827032.js"]
-
-["browser_ext_messageDisplay_bug1828056.js"]
-
-["browser_ext_messageDisplay_open_file.js"]
-
-["browser_ext_messageDisplay_open_headerMessageId.js"]
-
-["browser_ext_messageDisplay_open_messageId.js"]
 
 ["browser_ext_messageDisplayAction.js"]
 
@@ -265,6 +252,19 @@ support-files = ["messages/attachedMessageSample.eml"]
 ["browser_ext_messageDisplayScripts.js"]
 
 ["browser_ext_messageDisplayScripts_mv3.js"]
+
+["browser_ext_messageDisplay_bug1827032.js"]
+
+["browser_ext_messageDisplay_bug1828056.js"]
+
+["browser_ext_messageDisplay_open_file.js"]
+
+["browser_ext_messageDisplay_open_headerMessageId.js"]
+
+["browser_ext_messageDisplay_open_messageId.js"]
+
+["browser_ext_message_external.js"]
+support-files = ["messages/attachedMessageSample.eml"]
 
 ["browser_ext_messages_delete_attachments.js"]
 
@@ -298,9 +298,9 @@ support-files = ["messages/attachedMessageSample.eml"]
 
 ["browser_ext_tabs_events.js"]
 
-["browser_ext_tabs_onCreated_bug1817872.js"]
-
 ["browser_ext_tabs_move.js"]
+
+["browser_ext_tabs_onCreated_bug1817872.js"]
 
 ["browser_ext_tabs_query.js"]
 

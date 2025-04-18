@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 prefs = [
   "mail.account.account2.identities=id1,id2",
   "mail.account.account2.server=server2",
@@ -39,15 +39,15 @@ prefs = [
 subsuite = "thunderbird"
 
 ["browser_displayMessageWithFolderModes.js"]
-skip-if = true  # TODO
+skip-if = ["true"]  # TODO
 
 ["browser_folderNamesInRecentMode.js"]
-skip-if = true  # TODO
+skip-if = ["true"]  # TODO
 
 ["browser_folderPane.js"]
 
 ["browser_folderPaneConsumers.js"]
-skip-if = true  # TODO
+skip-if = ["true"]  # TODO
 # skip-if = ["os == 'mac'"]
 
 ["browser_folderPaneDragDrop.js"]

@@ -22,17 +22,31 @@ support-files = [
 subsuite = "thunderbird"
 
 ["browser_inAppNotification.js"]
+
 ["browser_inAppNotificationButton.js"]
+
 ["browser_inAppNotificationCloseButton.js"]
+
 ["browser_inAppNotificationContainer.js"]
+
 ["browser_inAppNotificationEnterprisePolicies.js"]
+
 ["browser_inAppNotificationFocus.js"]
+
 ["browser_inAppNotificationIntegration.js"]
+
 ["browser_inAppNotificationManager.js"]
+
 ["browser_inAppNotificationMessengerIntegration.js"]
+
 ["browser_inAppNotificationScheduler.js"]
+
 ["browser_inAppNotificationSchedulerBrowserPosition.js"]
+
 ["browser_inAppNotificationSchedulerMultiWindow.js"]
+
 ["browser_inAppNotificationSchedulerNoUi.js"]
+
 ["browser_inAppNotificationSchedulerPosition.js"]
+
 ["browser_inAppNotificationSchedulerTabPosition.js"]

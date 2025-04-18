@@ -1,6 +1,8 @@
-[default]
+[DEFAULT]
 head = "head_server_setup.js"
 support-files = ["postings/*"]
+
+["test_NntpChannel.js"]
 
 ["test_biff.js"]
 
@@ -25,11 +27,8 @@ run-sequentially = true  # Restarts server twice--may work but dangerous
 
 ["test_newsAutocomplete.js"]
 
-["test_NntpChannel.js"]
-
 ["test_nntpContentLength.js"]
-# The server doesn't support returning sizes! (bug 782629)
-skip-if = true
+disabled = "The server doesn't support returning sizes! (bug 782629)"
 
 ["test_nntpGroupPassword.js"]
 

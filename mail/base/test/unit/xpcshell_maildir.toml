@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head_mailbase_maildir.js"
 dupe-manifest = true
 run-sequentially = true

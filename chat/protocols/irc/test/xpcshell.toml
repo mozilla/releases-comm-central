@@ -1,10 +1,10 @@
-[default]
-
-["test_ctcpFormatting.js"]
+[DEFAULT]
 
 ["test_ctcpColoring.js"]
 
 ["test_ctcpDequote.js"]
+
+["test_ctcpFormatting.js"]
 
 ["test_ctcpQuote.js"]
 

@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head.js"
 prefs = [
   "carddav.setup.loglevel=Debug",

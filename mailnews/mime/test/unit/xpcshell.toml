@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head_mime.js"
 support-files = [
   "custom_header.js",

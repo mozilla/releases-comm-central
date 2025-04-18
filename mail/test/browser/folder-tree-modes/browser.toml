@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 prefs = [
   "mail.account.account1.server=server1",
   "mail.account.account2.identities=id1,id2",

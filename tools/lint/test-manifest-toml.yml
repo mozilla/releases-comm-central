@@ -1,0 +1,29 @@
+---
+test-manifest-toml:
+    description: ManifestParser TOML Linter
+    exclude:
+      - 'comm/testing/marionette/unit-tests.toml'
+      - 'comm/third_party/rust/'
+      - '**/.*ruff.toml'
+      - '**/Cargo.toml'
+      - '**/Cross.toml'
+      - '**/Features.toml'
+      - '**/ServoBindings.toml'
+      - '**/askama.toml'
+      - '**/audits.toml'
+      - '**/cbindgen.toml'
+      - '**/clippy.toml'
+      - '**/config-lock.toml'
+      - '**/config.toml'
+      - '**/cram.toml'
+      - '**/empty.toml'
+      - '**/generated-mochitest.toml'
+      - '**/l10n.toml'
+      - '**/labels.toml'
+      - '**/pyproject.toml'
+      - '**/rustfmt.toml'
+      - '**/uniffi.toml'
+    extensions: ['toml']
+    type: external
+    payload: commlint:lint_wrapper
+    wraps: test-manifest-toml:lint

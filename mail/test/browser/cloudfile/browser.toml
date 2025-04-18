@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head.js"
 prefs = [
   "mail.account.account1.server=server1",
@@ -47,12 +47,12 @@ support-files = [
   "html/**",
 ]
 
+["browser_attachmentErrors.js"]
+
 ["browser_attachmentItem.js"]
 
 ["browser_attachmentUrls.js"]
 
-["browser_attachmentErrors.js"]
+["browser_filelinkTelemetry.js"]
 
 ["browser_notifications.js"]
-
-["browser_filelinkTelemetry.js"]

@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 prefs = [
   "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
   "mail.account.account1.server=server1",

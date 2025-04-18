@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head_gloda.js"
 support-files = [
   "base_*.js",

@@ -1,18 +1,18 @@
-[default]
+[DEFAULT]
 support-files = [
   "../../../../../test/browser/openpgp/data/keys/*",
   "../../../../../../mailnews/test/data/*",
   "data/*",
 ]
 
-["test_encryptAndOrSign.js"]
-
-["test_secretKeys.js"]
-
 ["test_alias.js"]
 
 ["test_badKeys.js"]
 
-["test_uid.js"]
+["test_encryptAndOrSign.js"]
+
+["test_secretKeys.js"]
 
 ["test_strip.js"]
+
+["test_uid.js"]

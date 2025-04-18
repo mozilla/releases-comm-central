@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head_mailbase.js"
 dupe-manifest = true
 prefs = [
@@ -9,6 +9,12 @@ support-files = [
   "nodelist_test.xml",
   "data/*",
 ]
+
+["test_MorkParser.js"]
+
+["test_MsgIncomingServer.js"]
+
+["test_MsgKeySet.js"]
 
 ["test_accountMgr.js"]
 
@@ -87,13 +93,7 @@ tags = ["compact"]
 
 ["test_mimemaltdetach.js"]
 
-["test_MorkParser.js"]
-
 ["test_msgHdrProperties.js"]
-
-["test_MsgIncomingServer.js"]
-
-["test_MsgKeySet.js"]
 
 ["test_newMailNotification.js"]
 # Not yet working for non-Mac OS
@@ -102,7 +102,7 @@ skip-if = ["os != 'mac'"]
 ["test_nsIFolderListener.js"]
 
 ["test_nsIMsgContentPolicy.js"]
-skip-if = true  # See bug 1446587.
+disabled = "See bug 1446587."
 
 ["test_nsIMsgFolder.js"]
 
@@ -122,7 +122,7 @@ tags = ["compact"]
 ["test_nsMsgDBView_headerValues.js"]
 
 ["test_nsMsgMailSession_Alerts.js"]
-skip-if = true  # See bug 1418063.
+disabled = "See bug 1418063."
 
 ["test_nsMsgMailSession_Listeners.js"]
 
@@ -142,11 +142,11 @@ tags = ["oauth"]
 
 ["test_testsuite_base64.js"]
 
+["test_testsuite_fakeserverAuth.js"]
+
 ["test_testsuite_fakeserver_imapd_gmail.js"]
 
 ["test_testsuite_fakeserver_imapd_list-extended.js"]
-
-["test_testsuite_fakeserverAuth.js"]
 
 ["test_threadMsgCounts.js"]
 

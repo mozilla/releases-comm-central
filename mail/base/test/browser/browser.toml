@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head.js"
 prefs = [
   "mail.biff.show_alert=false",
@@ -33,9 +33,9 @@ tags = [
 
 ["browser_clickLinks.js"]
 
-["browser_customElements.js"]
-
 ["browser_customElementUtils.js"]
+
+["browser_customElements.js"]
 
 ["browser_dragDropFolders.js"]
 skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
@@ -164,8 +164,6 @@ skip-if = ["os == 'mac' && debug"]  # Frequently hangs. Bug 1884033.
 
 ["browser_threadHorizontal.js"]
 
-["browser_threads.js"]
-
 ["browser_threadTreeDeleting.js"]
 
 ["browser_threadTreeQuirks.js"]
@@ -173,6 +171,8 @@ skip-if = ["os == 'mac' && debug"]  # Frequently hangs. Bug 1884033.
 ["browser_threadTreeSelection.js"]
 
 ["browser_threadTreeSorting.js"]
+
+["browser_threads.js"]
 
 ["browser_toolsMenu.js"]
 skip-if = ["os == 'mac'"]

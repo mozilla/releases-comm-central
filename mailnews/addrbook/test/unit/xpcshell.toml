@@ -1,7 +1,11 @@
-[default]
+[DEFAULT]
 head = "head.js"
 support-files = ["data/*"]
 tags = ["addrbook"]
+
+["test_LDAPMessage.js"]
+
+["test_LDAPSyncQuery.js"]
 
 ["test_abCardProperty.js"]
 
@@ -45,20 +49,16 @@ tags = [
 
 ["test_jsaddrbook.js"]
 
-["test_LDAPMessage.js"]
-
-["test_LDAPSyncQuery.js"]
-
 ["test_ldap1.js"]
 
 ["test_ldap2.js"]
 
 ["test_ldapOffline.js"]
 
-["test_ldapquery.js"]
-
 ["test_ldapReplication.js"]
 skip-if = ["debug"]  # Fails for unknown reasons.
+
+["test_ldapquery.js"]
 
 ["test_mailList1.js"]
 

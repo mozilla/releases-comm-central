@@ -1,13 +1,13 @@
-[default]
+[DEFAULT]
 head = "head_maildb.js"
 
 ["test_enumerator_cleanup.js"]
 
 ["test_filter_enumerator.js"]
 
-["test_maildb.js"]
-
 ["test_mailTelemetry.js"]
+
+["test_maildb.js"]
 
 ["test_propertyEnumerator.js"]
 

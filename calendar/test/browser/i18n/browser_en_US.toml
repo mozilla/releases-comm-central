@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 environment = [
   "LC_ALL=en_US.UTF-8",
   "TZ=America/New_York",

@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head_mailbase.js"
 dupe-manifest = true
 support-files = [
@@ -6,17 +6,19 @@ support-files = [
   "resources/*",
 ]
 
+["include:xpcshell_maildir.ini"]
+
 ["test_accountManagerUtils.js"]
 
 ["test_alertHook.js"]
 
 ["test_attachmentChecker.js"]
 
+["test_bug1086527.js"]
+
 ["test_columns.js"]
 
 ["test_darkReader.js"]
-
-["test_bug1086527.js"]
 
 ["test_devtools_url.js"]
 
@@ -24,6 +26,9 @@ support-files = [
 run-sequentially = true  # Avoid bustage.
 
 ["test_linkHelper.js"]
+
+["test_mailGlue_distribution.js"]
+skip-if = ["os == 'win' && msix"]  # MSIX has a distribution.ini and it's unwritable. Tests fail.
 
 ["test_migrateTryStartTLS.js"]
 
@@ -34,6 +39,10 @@ run-sequentially = true  # Avoid bustage.
 ["test_pluralForm_makeGetter.js"]
 
 ["test_qrExport.js"]
+
+["test_treeDataAdapter.js"]
+
+["test_treeSelection.js"]
 
 ["test_viewWrapper_imapFolder.js"]
 run-sequentially = true  # Avoid bustage.
@@ -48,12 +57,3 @@ reason = "osx shippable perma failures"
 
 ["test_viewWrapper_virtualFolderCustomTerm.js"]
 run-sequentially = true  # Avoid bustage.
-
-["test_mailGlue_distribution.js"]
-skip-if = ["os == 'win' && msix"]  # MSIX has a distribution.ini and it's unwritable. Tests fail.
-
-["test_treeDataAdapter.js"]
-
-["test_treeSelection.js"]
-
-["include:xpcshell_maildir.ini"]

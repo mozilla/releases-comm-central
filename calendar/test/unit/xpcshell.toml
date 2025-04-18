@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head.js"
 prefs = [
   "calendar.timezone.local=UTC",
@@ -9,6 +9,9 @@ prefs = [
 ]
 support-files = ["data/**"]
 tags = ["calendar"]
+
+["test_CalendarFileImporter.js"]
+tags = ["import"]
 
 ["test_alarm.js"]
 
@@ -21,14 +24,6 @@ tags = ["calendar"]
 ["test_attendee.js"]
 
 ["test_auth_utils.js"]
-
-["test_bug1199942.js"]
-
-["test_bug1204255.js"]
-
-["test_bug1209399.js"]
-
-["test_bug1790339.js"]
 
 ["test_bug272411.js"]
 
@@ -52,19 +47,24 @@ tags = ["calendar"]
 
 ["test_bug759324.js"]
 
-["test_caldav_requests.js"]
-tags = ["oauth"]
+["test_bug1199942.js"]
 
-["test_CalendarFileImporter.js"]
-tags = ["import"]
+["test_bug1204255.js"]
+
+["test_bug1209399.js"]
+
+["test_bug1790339.js"]
 
 ["test_calIteratorUtils.js"]
+
+["test_calStorageHelpers.js"]
+
+["test_caldav_requests.js"]
+tags = ["oauth"]
 
 ["test_calmgr.js"]
 
 ["test_calreadablestreamfactory.js"]
-
-["test_calStorageHelpers.js"]
 
 ["test_data_bags.js"]
 

@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 prefs = [
   "mail.provider.suppress_dialog_on_startup=true",
   "mail.spotlight.firstRunDone=true",
@@ -15,12 +15,12 @@ support-files = ["data/**"]
 
 ["browser_attachmentEvents.js"]
 
+["browser_attachmentIcon.js"]
+
 ["browser_attachmentInPlainMsg.js"]
 
 ["browser_attachmentMenus.js"]
 
 ["browser_attachmentSize.js"]
-
-["browser_attachmentIcon.js"]
 
 ["browser_openAttachment.js"]

@@ -1,12 +1,12 @@
-[default]
+[DEFAULT]
 head = "head_xpcshell_glue.js"
 support-files = ["data/**"]
 
 ["test_custom_headers.js"]
 
-["test_header_emitter.js"]
-
 ["test_header.js"]
+
+["test_header_emitter.js"]
 
 ["test_mime_tree.js"]
 

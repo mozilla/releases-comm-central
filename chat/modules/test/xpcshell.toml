@@ -1,14 +1,14 @@
-[default]
+[DEFAULT]
+
+["test_InteractiveBrowser.js"]
+
+["test_NormalizedMap.js"]
 
 ["test_filtering.js"]
 
 ["test_imThemes.js"]
 
-["test_InteractiveBrowser.js"]
-
 ["test_jsProtoHelper.js"]
-
-["test_NormalizedMap.js"]
 
 ["test_otrlib.js"]
 

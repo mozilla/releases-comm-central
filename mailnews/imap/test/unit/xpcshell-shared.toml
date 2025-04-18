@@ -1,3 +1,5 @@
+[DEFAULT]
+
 ["test_autosync_date_constraints.js"]
 
 ["test_bccProperty.js"]

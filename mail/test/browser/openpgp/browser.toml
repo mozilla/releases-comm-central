@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 prefs = [
   "mail.provider.suppress_dialog_on_startup=true",
   "mail.spotlight.firstRunDone=true",
@@ -11,13 +11,15 @@ support-files = ["data/**"]
 
 ["browser_collectKeys.js"]
 
+["browser_inlineOpenPGP.js"]
+
 ["browser_keyWizard.js"]
 
 ["browser_openPGPDrafts.js"]
 
-["browser_inlineOpenPGP.js"]
-
 ["browser_perm_decrypt.js"]
+
+["browser_upload.js"]
 
 ["browser_viewMessage.js"]
 
@@ -26,5 +28,3 @@ support-files = ["data/**"]
 ["browser_viewMessageSecurity.js"]
 
 ["browser_viewPartialMessage.js"]
-
-["browser_upload.js"]

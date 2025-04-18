@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head_CharsetConversionTests.js"
 
 ["test_decode_utf-7.js"]
@@ -8,5 +8,4 @@ head = "head_CharsetConversionTests.js"
 ["test_encode_utf-7.js"]
 
 ["test_encode_utf-7_internal.js"]
-# Disabled per bug 1363281: No scriptable converter for UTF-7 exists any more.
-skip-if = true
+disabled = "Disabled per bug 1363281: No scriptable converter for UTF-7 exists any more."

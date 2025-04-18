@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 dupe-manifest = true
 head = "head.js"
 support-files = ["data/utils.js"]
@@ -15,28 +15,26 @@ tags = [
 
 ["test_ext_accounts_mv3_event_pages.js"]
 
-["test_ext_identities_mv3_event_pages.js"]
-
 ["test_ext_addressBook.js"]
 support-files = ["images/**"]
+tags = ["addrbook"]
+
+["test_ext_addressBook_provider.js"]
+tags = ["addrbook"]
+
+["test_ext_addressBook_provider_mv3.js"]
+tags = ["addrbook"]
+
+["test_ext_addressBook_query_mv3.js"]
+tags = ["addrbook"]
+
+["test_ext_addressBook_quickSearch.js"]
 tags = ["addrbook"]
 
 ["test_ext_addressBook_readonly.js"]
 tags = ["addrbook"]
 
 ["test_ext_addressBook_remote.js"]
-tags = ["addrbook"]
-
-["test_ext_addressBook_provider_mv3.js"]
-tags = ["addrbook"]
-
-["test_ext_addressBook_provider.js"]
-tags = ["addrbook"]
-
-["test_ext_addressBook_quickSearch.js"]
-tags = ["addrbook"]
-
-["test_ext_addressBook_query_mv3.js"]
 tags = ["addrbook"]
 
 ["test_ext_alias.js"]
@@ -47,6 +45,8 @@ prefs = ["dom.security.https_first=false"]
 ["test_ext_folders_isTag.js"]
 
 ["test_ext_folders_isUnified.js"]
+
+["test_ext_identities_mv3_event_pages.js"]
 
 ["test_ext_messages_listInlineTextParts.js"]
 

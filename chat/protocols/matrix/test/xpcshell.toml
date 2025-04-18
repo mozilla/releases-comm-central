@@ -1,11 +1,9 @@
-[default]
+[DEFAULT]
 head = "head.js"
 
 ["test_matrixAccount.js"]
 
 ["test_matrixCommands.js"]
-
-["test_matrixTextForEvent.js"]
 
 ["test_matrixMessage.js"]
 
@@ -14,5 +12,7 @@ head = "head.js"
 ["test_matrixPowerLevels.js"]
 
 ["test_matrixRoom.js"]
+
+["test_matrixTextForEvent.js"]
 
 ["test_roomTypeChange.js"]

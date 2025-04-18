@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 head = "head.js"
 prefs = [
   "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
@@ -83,9 +83,9 @@ reason = "See bug 1413851."
 
 ["browser_emlActions.js"]
 
-["browser_expandLists.js"]
-
 ["browser_encryptedBccRecipients.js"]
+
+["browser_expandLists.js"]
 
 ["browser_focus.js"]
 
@@ -146,14 +146,18 @@ reason = "Cannot open the Format menu"
 
 ["browser_redirect.js"]
 
+["browser_remove_text_styling.js"]
+skip-if = ["os == 'mac'"]
+reason = "Cannot open the Format menu"
+
 ["browser_replyAddresses.js"]
 skip-if = ["debug"]  # Bug 1601591
 
 ["browser_replyCatchAll.js"]
 
-["browser_replyHTML.js"]
-
 ["browser_replyFormatFlowed.js"]
+
+["browser_replyHTML.js"]
 
 ["browser_replyMultipartCharset.js"]
 skip-if = ["debug"]  # Bug 1606542
@@ -161,10 +165,6 @@ skip-if = ["debug"]  # Bug 1606542
 ["browser_replySelection.js"]
 
 ["browser_replySignature.js"]
-
-["browser_remove_text_styling.js"]
-skip-if = ["os == 'mac'"]
-reason = "Cannot open the Format menu"
 
 ["browser_saveChangesOnQuit.js"]
 
@@ -182,10 +182,10 @@ reason = "See bug 1763407"
 
 ["browser_spelling.js"]
 
+["browser_subjectWas.js"]
+
 ["browser_text_styling.js"]
 skip-if = ["os == 'mac'"]
 reason = "Cannot open the Format menu"
-
-["browser_subjectWas.js"]
 
 ["browser_xUnsent.js"]

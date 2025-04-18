@@ -1,4 +1,4 @@
-[default]
+[DEFAULT]
 prefs = [
   "mail.provider.suppress_dialog_on_startup=true",
   "mail.spotlight.firstRunDone=true",
@@ -13,7 +13,7 @@ subsuite = "thunderbird"
 
 ["browser_rightClickToOpenSearchWindow.js"]
 
-["browser_searchWindow.js"]
-
 ["browser_searchFromSyntheticView.js"]
-skip-if = true  # TODO
+skip-if = ["true"]  # TODO
+
+["browser_searchWindow.js"]

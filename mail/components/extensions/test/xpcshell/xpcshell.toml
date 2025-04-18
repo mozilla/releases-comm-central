@@ -1,3 +1,5 @@
+[DEFAULT]
+
 ["test_ext_experiments.js"]
 tags = ["addrbook"]
 
@@ -36,11 +38,11 @@ support-files = ["messages/**"]
 
 ["test_ext_messages_onNewMailReceived.js"]
 
-["test_ext_messages_query_multiple_accounts_folders.js"]
-
 ["test_ext_messages_query.js"]
 skip-if = ["ccov"]  # Bug 1827450.
 support-files = ["messages/alternative.eml"]
+
+["test_ext_messages_query_multiple_accounts_folders.js"]
 
 ["test_ext_messages_tags.js"]
 
