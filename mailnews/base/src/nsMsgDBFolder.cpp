@@ -743,20 +743,6 @@ NS_IMETHODIMP nsMsgDBFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::GetOfflineStoreOutputStream(nsIMsgDBHdr* aHdr,
-                                           nsIOutputStream** aOutputStream) {
-  NS_ENSURE_ARG_POINTER(aOutputStream);
-  NS_ENSURE_ARG_POINTER(aHdr);
-
-  nsCOMPtr<nsIMsgPluggableStore> offlineStore;
-  nsresult rv = GetMsgStore(getter_AddRefs(offlineStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = offlineStore->GetNewMsgOutputStream(this, &aHdr, aOutputStream);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return rv;
-}
-
-NS_IMETHODIMP
 nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr,
                                  nsIInputStream** aInputStream) {
   NS_ENSURE_ARG_POINTER(aMsgHdr);

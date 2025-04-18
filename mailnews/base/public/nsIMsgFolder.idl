@@ -606,14 +606,6 @@ interface nsIMsgFolder : nsISupports {
   void discardOfflineMsg(in nsMsgKey msgKey);
 
   /**
-   * Get an offline store output stream for the passed message header.
-   *
-   * @param aHdr hdr of message to get outputstream for
-   * @returns An output stream to write to.
-   */
-  nsIOutputStream getOfflineStoreOutputStream(in nsIMsgDBHdr aHdr);
-
-  /**
    * !!! DEPRECATED (Bug 1733849) !!!
    * Use getLocalMsgStream() instead.
    *
