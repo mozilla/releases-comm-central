@@ -2168,7 +2168,7 @@ var folderPane = {
   _createFolderRow(modeName, folder, nameStyle) {
     const row = document.createElement("li", { is: "folder-tree-row" });
     row.modeName = modeName;
-    row.setFolder(folder, nameStyle);
+    row.setFolder(folder, nameStyle, this._isCompact);
     return row;
   },
 
@@ -2325,6 +2325,11 @@ var folderPane = {
 
     // Remove the row for this folder.
     folderRow.remove();
+
+    const parentRow = folderPane.getRowForFolder(parentFolder, modeName);
+    if (parentRow?.childList.childElementCount == 0) {
+      folderTree.expandRow(parentRow);
+    }
   },
 
   /**

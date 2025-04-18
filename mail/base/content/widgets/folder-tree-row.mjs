@@ -230,11 +230,17 @@ class FolderTreeRow extends HTMLLIElement {
    * `this.modeName` must be set before calling this function.
    *
    * @param {string} uri
+   * @param {boolean} [excludeSubfolders=false] - If true, any existing
+   *   subfolders will be ignored for the shown unread and total message
+   *   counts.
    */
-  _setURI(uri) {
+  _setURI(uri, excludeSubfolders = false) {
     this.id = lazy.FolderPaneUtils.makeRowID(this.modeName, uri);
     this.uri = uri;
-    if (!lazy.FolderTreeProperties.getIsExpanded(uri, this.modeName)) {
+    if (
+      !excludeSubfolders &&
+      !lazy.FolderTreeProperties.getIsExpanded(uri, this.modeName)
+    ) {
       this.classList.add("collapsed");
     }
     this.setIconColor();
@@ -278,10 +284,13 @@ class FolderTreeRow extends HTMLLIElement {
    * Set some properties based on the folder for this row.
    *
    * @param {nsIMsgFolder} folder
-   * @param {"folder"|"server"|"both"} nameStyle
+   * @param {"folder"|"server"|"both"} [nameStyle="folder"]
+   * @param {boolean} [excludeSubfolders=false] - If true, any existing
+   *   subfolders are ignored for the shown unread and total message counts
+   *   by disregarding any saved collapsed state for that row.
    */
-  setFolder(folder, nameStyle = "folder") {
-    this._setURI(folder.URI);
+  setFolder(folder, nameStyle = "folder", excludeSubfolders = false) {
+    this._setURI(folder.URI, excludeSubfolders);
     this.dataset.serverKey = folder.server.key;
     this.setFolderTypeFromFolder(folder);
     this.setFolderPropertiesFromFolder(folder);
