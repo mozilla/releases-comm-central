@@ -1707,64 +1707,71 @@ nsresult nsImapService::OfflineAppendFromFile(
       NS_ENSURE_SUCCESS(rv, rv);
       rv = destDB->CreateNewHdr(fakeKey, getter_AddRefs(newMsgHdr));
       NS_ENSURE_SUCCESS(rv, rv);
-      rv = aDstFolder->GetOfflineStoreOutputStream(
-          newMsgHdr, getter_AddRefs(outputStream));
+      rv = msgStore->GetNewMsgOutputStream2(aDstFolder,
+                                            getter_AddRefs(outputStream));
+      NS_ENSURE_SUCCESS(rv, rv);
 
-      if (NS_SUCCEEDED(rv) && outputStream) {
-        nsCOMPtr<nsIInputStream> inputStream;
-        nsCOMPtr<nsIMsgParseMailMsgState> msgParser = do_CreateInstance(
-            "@mozilla.org/messenger/messagestateparser;1", &rv);
-        msgParser->SetMailDB(destDB);
+      auto outGuard = mozilla::MakeScopeExit(
+          [&] { msgStore->DiscardNewMessage2(aDstFolder, outputStream); });
 
-        rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
-        if (NS_SUCCEEDED(rv) && inputStream) {
-          // now, copy the temp file to the offline store for the dest folder.
-          RefPtr<nsMsgLineStreamBuffer> inputStreamBuffer =
-              new nsMsgLineStreamBuffer(
-                  FILE_IO_BUFFER_SIZE,
-                  true,    // allocate new lines
-                  false);  // leave CRLFs on the returned string
-          int64_t fileSize;
-          aFile->GetFileSize(&fileSize);
-          uint32_t bytesWritten;
-          rv = NS_OK;
-          // rv = inputStream->Read(inputBuffer, inputBufferSize, &bytesRead);
-          // if (NS_SUCCEEDED(rv) && bytesRead > 0)
-          msgParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
-          msgParser->SetNewMsgHdr(newMsgHdr);
-          // set the new key to fake key so the msg hdr will have that for a key
-          msgParser->SetNewKey(fakeKey);
-          bool needMoreData = false;
-          char* newLine = nullptr;
-          uint32_t numBytesInLine = 0;
-          do {
-            newLine = inputStreamBuffer->ReadNextLine(
-                inputStream, numBytesInLine, needMoreData);
-            if (newLine) {
-              msgParser->ParseAFolderLine(newLine, numBytesInLine);
-              rv = outputStream->Write(newLine, numBytesInLine, &bytesWritten);
-              free(newLine);
-            }
-          } while (newLine);
-          msgParser->FinishHeader();
+      nsCOMPtr<nsIInputStream> inputStream;
+      nsCOMPtr<nsIMsgParseMailMsgState> msgParser =
+          do_CreateInstance("@mozilla.org/messenger/messagestateparser;1", &rv);
+      msgParser->SetMailDB(destDB);
 
-          if (NS_SUCCEEDED(rv)) {
-            uint32_t resultFlags;
-            newMsgHdr->OrFlags(
-                nsMsgMessageFlags::Offline | nsMsgMessageFlags::Read,
-                &resultFlags);
-            newMsgHdr->SetOfflineMessageSize(fileSize);
-            destDB->AddNewHdrToDB(newMsgHdr, true /* notify */);
-            aDstFolder->SetFlag(nsMsgFolderFlags::OfflineEvents);
-            if (msgStore) msgStore->FinishNewMessage(outputStream, newMsgHdr);
-          }
-          // tell the listener we're done.
-          inputStream->Close();
-          inputStream = nullptr;
-          aListener->OnStopRunningUrl(aUrl, NS_OK);
+      rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      // now, copy the temp file to the offline store for the dest folder.
+      RefPtr<nsMsgLineStreamBuffer> inputStreamBuffer =
+          new nsMsgLineStreamBuffer(
+              FILE_IO_BUFFER_SIZE,
+              true,    // allocate new lines
+              false);  // leave CRLFs on the returned string
+      int64_t fileSize;
+      aFile->GetFileSize(&fileSize);
+      rv = NS_OK;
+      // rv = inputStream->Read(inputBuffer, inputBufferSize, &bytesRead);
+      // if (NS_SUCCEEDED(rv) && bytesRead > 0)
+      msgParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
+      msgParser->SetNewMsgHdr(newMsgHdr);
+      // set the new key to fake key so the msg hdr will have that for a key
+      msgParser->SetNewKey(fakeKey);
+      bool needMoreData = false;
+      char* newLine = nullptr;
+      uint32_t numBytesInLine = 0;
+      do {
+        newLine = inputStreamBuffer->ReadNextLine(inputStream, numBytesInLine,
+                                                  needMoreData);
+        if (newLine) {
+          msgParser->ParseAFolderLine(newLine, numBytesInLine);
+          rv = SyncWriteAll(outputStream, newLine, numBytesInLine);
+          free(newLine);
         }
-        outputStream->Close();
+        if (NS_FAILED(rv)) {
+          break;
+        }
+      } while (newLine);
+      msgParser->FinishHeader();
+
+      if (NS_SUCCEEDED(rv)) {
+        uint32_t resultFlags;
+        newMsgHdr->OrFlags(nsMsgMessageFlags::Offline | nsMsgMessageFlags::Read,
+                           &resultFlags);
+        newMsgHdr->SetOfflineMessageSize(fileSize);
+        destDB->AddNewHdrToDB(newMsgHdr, true /* notify */);
+        aDstFolder->SetFlag(nsMsgFolderFlags::OfflineEvents);
+        nsAutoCString storeToken;
+        rv = msgStore->FinishNewMessage2(aDstFolder, outputStream, storeToken);
+        if (NS_SUCCEEDED(rv)) {
+          outGuard.release();
+          newMsgHdr->SetStoreToken(storeToken);
+        }
       }
+      // tell the listener we're done.
+      inputStream->Close();
+      inputStream = nullptr;
+      aListener->OnStopRunningUrl(aUrl, NS_OK);
     }
   }
 
