@@ -1937,15 +1937,22 @@ nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream* fileStream,
   nsCOMPtr<nsIOutputStream> destOutputStream;
   nsresult rv = destFolder->GetMsgStore(getter_AddRefs(store));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = store->GetNewMsgOutputStream(destFolder, &aHdr,
-                                    getter_AddRefs(destOutputStream));
+  rv = store->GetNewMsgOutputStream2(destFolder,
+                                     getter_AddRefs(destOutputStream));
   NS_ENSURE_SUCCESS(rv, rv);
+
+  auto guard = mozilla::MakeScopeExit(
+      [&] { store->DiscardNewMessage2(destFolder, destOutputStream); });
 
   uint64_t bytesCopied;
   rv = SyncCopyStream(fileStream, destOutputStream, bytesCopied);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = store->FinishNewMessage(destOutputStream, aHdr);
+  nsAutoCString storeToken;
+  rv = store->FinishNewMessage2(destFolder, destOutputStream, storeToken);
+  NS_ENSURE_SUCCESS(rv, rv);
+  guard.release();
+  rv = aHdr->SetStoreToken(storeToken);
   NS_ENSURE_SUCCESS(rv, rv);
   return NS_OK;
 }
@@ -2089,15 +2096,18 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
     nsresult rv = mailHdr->GetFolder(getter_AddRefs(folder));
     if (NS_SUCCEEDED(rv)) {
       notifier->NotifyMsgUnincorporatedMoved(folder, newHdr);
+      nsCOMPtr<nsIMsgPluggableStore> store;
+      m_downloadFolder->GetMsgStore(getter_AddRefs(store));
+      if (store) {
+        store->DiscardNewMessage2(folder, m_outputStream);
+      }
+      if (sourceDB) {
+        sourceDB->RemoveHeaderMdbRow(mailHdr);
+      }
     } else {
       NS_WARNING("Can't get folder for message that was moved.");
     }
   }
-
-  nsCOMPtr<nsIMsgPluggableStore> store;
-  rv = m_downloadFolder->GetMsgStore(getter_AddRefs(store));
-  if (store) store->DiscardNewMessage(m_outputStream, mailHdr);
-  if (sourceDB) sourceDB->RemoveHeaderMdbRow(mailHdr);
 
   // update the folder size so we won't reparse.
   UpdateDBFolderInfo(destMailDB);
