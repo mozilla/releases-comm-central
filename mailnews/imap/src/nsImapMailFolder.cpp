@@ -7703,12 +7703,23 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
   NS_ENSURE_SUCCESS(rv, rv);
   fakeHdr->SetUint32Property("pseudoHdr", 1);
 
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+
   // Should we add this to the offline store?
-  nsCOMPtr<nsIOutputStream> offlineStore;
+  nsCOMPtr<nsIOutputStream> offlineStream;
   if (storeOffline) {
-    rv = GetOfflineStoreOutputStream(fakeHdr, getter_AddRefs(offlineStore));
+    rv = msgStore->GetNewMsgOutputStream2(this, getter_AddRefs(offlineStream));
     NS_ENSURE_SUCCESS(rv, rv);
   }
+
+  // Clean up if we exit early.
+  auto outGuard = mozilla::MakeScopeExit([&] {
+    if (offlineStream) {
+      msgStore->DiscardNewMessage2(this, offlineStream);
+    }
+  });
 
   // We set an offline kMoveResult because in any case we want to update this
   // msgHdr with one downloaded from the server, with possible additional
@@ -7739,7 +7750,6 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
         new nsMsgLineStreamBuffer(FILE_IO_BUFFER_SIZE, true, false);
     int64_t fileSize;
     srcFile->GetFileSize(&fileSize);
-    uint32_t bytesWritten;
     rv = NS_OK;
     msgParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
     msgParser->SetNewMsgHdr(fakeHdr);
@@ -7751,8 +7761,9 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
                                                 needMoreData);
       if (newLine) {
         msgParser->ParseAFolderLine(newLine, numBytesInLine);
-        if (offlineStore)
-          rv = offlineStore->Write(newLine, numBytesInLine, &bytesWritten);
+        if (offlineStream) {
+          rv = SyncWriteAll(offlineStream, newLine, numBytesInLine);
+        }
 
         free(newLine);
         NS_ENSURE_SUCCESS(rv, rv);
@@ -7761,21 +7772,25 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
 
     msgParser->FinishHeader();
     uint32_t resultFlags;
-    if (offlineStore)
+    if (offlineStream) {
       fakeHdr->OrFlags(nsMsgMessageFlags::Offline | nsMsgMessageFlags::Read,
                        &resultFlags);
-    else
+      fakeHdr->SetOfflineMessageSize(fileSize);
+    } else {
       fakeHdr->OrFlags(nsMsgMessageFlags::Read, &resultFlags);
-    if (offlineStore) fakeHdr->SetOfflineMessageSize(fileSize);
+    }
     mDatabase->AddNewHdrToDB(fakeHdr, true /* notify */);
 
     // Call FinishNewMessage before setting pending attributes, as in
     //   maildir it copies from tmp to cur and may change the storeToken
     //   to get a unique filename.
-    if (offlineStore) {
-      nsCOMPtr<nsIMsgPluggableStore> msgStore;
-      GetMsgStore(getter_AddRefs(msgStore));
-      if (msgStore) msgStore->FinishNewMessage(offlineStore, fakeHdr);
+    if (offlineStream) {
+      nsAutoCString storeToken;
+      rv = msgStore->FinishNewMessage2(this, offlineStream, storeToken);
+      if (NS_SUCCEEDED(rv)) {
+        fakeHdr->SetStoreToken(storeToken);
+        outGuard.release();
+      }
     }
 
     // We are copying from a file to offline store so set offline flag.
@@ -7788,7 +7803,6 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
     inputStream->Close();
     inputStream = nullptr;
   }
-  if (offlineStore) offlineStore->Close();
   return rv;
 }
 
