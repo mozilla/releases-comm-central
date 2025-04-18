@@ -6552,15 +6552,18 @@ static nsresult CopyStoreMessage(nsIMsgDBHdr* srcHdr, nsIMsgDBHdr* destHdr,
   rv = srcFolder->GetLocalMsgStream(srcHdr, getter_AddRefs(srcStream));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIOutputStream> destStream;
-  rv = destFolder->GetOfflineStoreOutputStream(destHdr,
-                                               getter_AddRefs(destStream));
+  rv =
+      destStore->GetNewMsgOutputStream2(destFolder, getter_AddRefs(destStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = SyncCopyStream(srcStream, destStream, bytesCopied);
   if (NS_SUCCEEDED(rv)) {
-    rv = destStore->FinishNewMessage(destStream, destHdr);
+    nsAutoCString storeToken;
+    rv = destStore->FinishNewMessage2(destFolder, destStream, storeToken);
+    NS_ENSURE_SUCCESS(rv, rv);
+    destHdr->SetStoreToken(storeToken);
   } else {
-    destStore->DiscardNewMessage(destStream, destHdr);
+    destStore->DiscardNewMessage2(destFolder, destStream);
   }
   return rv;
 }
