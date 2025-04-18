@@ -134,21 +134,17 @@ NS_IMETHODIMP MessageCreateCallbacks::OnRemoteCreateSuccessful(
   // remote server.
   MOZ_TRY(mMsgInputStream->Seek(0, nsISeekableStream::NS_SEEK_SET));
 
-  // Create a new `nsIMsgDBHdr` in the database for this message. We could do it
-  // in one go via `nsIMsgPluggableStore::GetNewMsgOutputStream()`, but we'll
-  // want the message database and store to be more decoupled going forwards.
-  nsCOMPtr<nsIMsgDatabase> msgDB;
-  nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(msgDB));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgDBHdr> hdr;
-  rv = msgDB->CreateNewHdr(nsMsgKey_None, getter_AddRefs(hdr));
+  nsCOMPtr<nsIMsgPluggableStore> store;
+  nsresult rv = mFolder->GetMsgStore(getter_AddRefs(store));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Create a new output stream to the folder's message store.
   nsCOMPtr<nsIOutputStream> outStream;
-  rv = mFolder->GetOfflineStoreOutputStream(hdr, getter_AddRefs(outStream));
+  rv = store->GetNewMsgOutputStream2(mFolder, getter_AddRefs(outStream));
   NS_ENSURE_SUCCESS(rv, rv);
+
+  auto outGuard = mozilla::MakeScopeExit(
+      [&] { store->DiscardNewMessage2(mFolder, outStream); });
 
   // Stream the message content to the store.
   nsCOMPtr<nsIInputStream> inputStream =
@@ -159,11 +155,20 @@ NS_IMETHODIMP MessageCreateCallbacks::OnRemoteCreateSuccessful(
   rv = SyncCopyStream(inputStream, outStream, bytesCopied);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgPluggableStore> store;
-  rv = mFolder->GetMsgStore(getter_AddRefs(store));
+  nsAutoCString storeToken;
+  rv = store->FinishNewMessage2(mFolder, outStream, storeToken);
+  NS_ENSURE_SUCCESS(rv, rv);
+  outGuard.release();
+
+  // Create a new `nsIMsgDBHdr` in the database for this message.
+  nsCOMPtr<nsIMsgDatabase> msgDB;
+  rv = mFolder->GetMsgDatabase(getter_AddRefs(msgDB));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgDBHdr> hdr;
+  rv = msgDB->CreateNewHdr(nsMsgKey_None, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = store->FinishNewMessage(outStream, hdr);
+  rv = hdr->SetStoreToken(storeToken);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Update some of the header's metadata, such as the size, the offline flag
