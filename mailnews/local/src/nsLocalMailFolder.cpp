@@ -1956,9 +1956,17 @@ nsresult nsMsgLocalMailFolder::WriteStartOfNewMessage() {
 nsresult nsMsgLocalMailFolder::InitCopyMsgHdrAndFileStream() {
   nsresult rv = GetMsgStore(getter_AddRefs(mCopyState->m_msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = mCopyState->m_msgStore->GetNewMsgOutputStream(
-      this, getter_AddRefs(mCopyState->m_newHdr),
-      getter_AddRefs(mCopyState->m_fileStream));
+
+  // NOTE: you can copy into folders without a database... (sigh).
+  // See also test_copyToInvalidDB.js.
+  if (mCopyState->m_destDB) {
+    rv = mCopyState->m_destDB->CreateNewHdr(
+        nsMsgKey_None, getter_AddRefs(mCopyState->m_newHdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  rv = mCopyState->m_msgStore->GetNewMsgOutputStream2(
+      this, getter_AddRefs(mCopyState->m_fileStream));
   NS_ENSURE_SUCCESS(rv, rv);
   if (mCopyState->m_parseMsgState)
     mCopyState->m_parseMsgState->SetNewMsgHdr(mCopyState->m_newHdr);
@@ -2144,8 +2152,8 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
   if (!aCopySucceeded || mCopyState->m_writeFailed) {
     if (mCopyState->m_fileStream) {
       if (mCopyState->m_curDstKey != nsMsgKey_None) {
-        mCopyState->m_msgStore->DiscardNewMessage(mCopyState->m_fileStream,
-                                                  mCopyState->m_newHdr);
+        mCopyState->m_msgStore->DiscardNewMessage2(this,
+                                                   mCopyState->m_fileStream);
       }
       mCopyState->m_fileStream = nullptr;
     }
@@ -2180,9 +2188,13 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
   // has already been processed by EndMessage so it is not doubly added here.
 
   if (mCopyState->m_fileStream) {
-    rv = mCopyState->m_msgStore->FinishNewMessage(mCopyState->m_fileStream,
-                                                  mCopyState->m_newHdr);
+    nsAutoCString storeToken;
+    rv = mCopyState->m_msgStore->FinishNewMessage2(
+        this, mCopyState->m_fileStream, storeToken);
+    // NOTE: you can copy into folders without a database... (sigh).
+    // See also test_copyToInvalidDB.js.
     if (NS_SUCCEEDED(rv) && mCopyState->m_newHdr) {
+      mCopyState->m_newHdr->SetStoreToken(storeToken);
       mCopyState->m_newHdr->GetMessageKey(&mCopyState->m_curDstKey);
     }
     mCopyState->m_fileStream = nullptr;
@@ -2519,8 +2531,14 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
   // Request addition of X-Mozilla-Status et al.
   mCopyState->m_addXMozillaHeaders = true;
   if (mCopyState->m_fileStream) {
-    rv = mCopyState->m_msgStore->FinishNewMessage(mCopyState->m_fileStream,
-                                                  mCopyState->m_newHdr);
+    nsAutoCString storeToken;
+    rv = mCopyState->m_msgStore->FinishNewMessage2(
+        this, mCopyState->m_fileStream, storeToken);
+    // NOTE: you can copy into folders without a database... (sigh).
+    // See also test_copyToInvalidDB.js.
+    if (NS_SUCCEEDED(rv) && mCopyState->m_newHdr) {
+      mCopyState->m_newHdr->SetStoreToken(storeToken);
+    }
     mCopyState->m_fileStream = nullptr;
   }
 
