@@ -265,6 +265,53 @@ function initFontSizePopup() {
 }
 
 function cZContextMenuShowing(aTarget, aEvent) {
+  function getUserlistContext() {
+    let cx = {};
+    cx.__proto__ = getObjectDetails(client.currentObject);
+    if (!cx.channel) {
+      return cx;
+    }
+
+    cx.nicknameList = [];
+
+    // Loop through the selection.
+    for (let item of client.list.selectedItems) {
+      cx.nicknameList.push(getNicknameForUserlistRow(item));
+    }
+
+    cx.userList = [];
+    cx.canonNickList = [];
+
+    for (let i = 0; i < cx.nicknameList.length; ++i) {
+      let user = cx.channel.getUser(cx.nicknameList[i]);
+      cx.userList.push(user);
+      cx.canonNickList.push(user.canonicalName);
+      if (i == 0) {
+        cx.user = user;
+        cx.nickname = user.unicodeName;
+        cx.canonNick = user.canonicalName;
+      }
+    }
+    cx.userCount = cx.userList.length;
+
+    return cx;
+  }
+
+  function getTabContext() {
+    let cx = {};
+    let element = document.popupNode;
+
+    while (element) {
+      if (element.localName == "tab") {
+        cx.__proto__ = getObjectDetails(element.view);
+        return cx;
+      }
+      element = element.parentNode;
+    }
+
+    return cx;
+  }
+
   // If the popupshowing was for a submenu, we don't need to do anything.
   if (aEvent.target != aTarget) {
     return true;
