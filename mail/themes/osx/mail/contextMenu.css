@@ -33,6 +33,10 @@ menupopup {
     }
   }
 
+  &:not([needsgutter], .no-icon-menupopup) > :is(menu, menuitem, menucaption) > .menu-icon {
+    display: flex;
+  }
+
   & > menuseparator {
     margin-inline: 0;
   }

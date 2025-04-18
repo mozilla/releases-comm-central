@@ -36,3 +36,7 @@
 #calendar-add-task-button > .toolbarbutton-text {
   margin-inline-start: 0;
 }
+
+:is(#task-actions-category-popup, #calendar-context-calendar-menupopup) > menuitem::before {
+  display: none;
+}

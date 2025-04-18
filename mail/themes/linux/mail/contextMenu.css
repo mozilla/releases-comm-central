@@ -4,14 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/contextMenu.css");
 
-menupopup {
-
-  /* Override menu.css rule. */
-  &:not([needsgutter]) > :is(menu, menuitem) > .menu-icon {
-    display: none;
-  }
-
-  & > menuitem:is([type="checkbox"],[type="radio"]) .menu-icon {
-    appearance: none;
-  }
+menupopup > menuitem:is([type="checkbox"],[type="radio"]) .menu-icon {
+  appearance: none;
 }

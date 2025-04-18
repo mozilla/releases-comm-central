@@ -30,6 +30,7 @@ menupopup {
   font: menu;
   font-size: inherit;
   text-align: start;
+  min-width: 12ch;
 
   @media not (-moz-windows-mica-popups) {
     --panel-background: var(--arrowpanel-background);

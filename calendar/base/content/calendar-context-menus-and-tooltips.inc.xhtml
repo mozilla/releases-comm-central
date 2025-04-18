@@ -15,14 +15,17 @@
   <tooltip id="itemTooltip"
           noautohide="true"/>
 
-  <menupopup id="agenda-menupopup">
+  <menupopup id="agenda-menupopup"
+             class="no-icon-menupopup">
     <menuitem label="&calendar.context.modifyorviewitem.label;"
               accesskey="&calendar.context.modifyorviewitem.accesskey;"
               command="agenda_edit_event_command"/>
     <menu id="agenda-context-menu-convert-menu"
+          class="no-icon-menupopup"
           label="&calendar.context.convertmenu.label;"
           accesskey="&calendar.context.convertmenu.accesskey.calendar;">
-      <menupopup id="agenda-context-menu-convert-menupopup">
+      <menupopup id="agenda-context-menu-convert-menupopup"
+                 class="no-icon-menupopup">
         <menuitem id="agenda-context-menu-convert-message-menuitem"
                   label="&calendar.context.convertmenu.message.label;"
                   accesskey="&calendar.context.convertmenu.message.accesskey;"
@@ -55,7 +58,8 @@
               value="ACCEPTED"
               name="agenda-context-attendance"
               scope="this-occurrence">
-          <menupopup id="agenda-context-menu-occurrence-accepted-menupopup">
+          <menupopup id="agenda-context-menu-occurrence-accepted-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="agenda-context-menu-attend-accept-menuitem"
                       scope="this-occurrence"
                       label="&calendar.context.attendance.send.label;"
@@ -76,7 +80,8 @@
               value="TENTATIVE"
               name="agenda-context-attendance"
               scope="this-occurrence">
-          <menupopup id="agenda-context-menu-occurrence-tentative-menupopup">
+          <menupopup id="agenda-context-menu-occurrence-tentative-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="agenda-context-menu-attend-tentative-menuitem"
                       scope="this-occurrence"
                       label="&calendar.context.attendance.send.label;"
@@ -97,7 +102,8 @@
               value="DECLINED"
               name="agenda-context-attendance"
               scope="this-occurrence">
-          <menupopup id="agenda-context-menu-occurrence-tentative-menupopup">
+          <menupopup id="agenda-context-menu-occurrence-tentative-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="agenda-context-menu-attend-declined-menuitem"
                       scope="this-occurrence"
                       label="&calendar.context.attendance.send.label;"
@@ -132,7 +138,8 @@
               value="ACCEPTED"
               name="agenda-context-attendance-all"
               scope="all-occurrences">
-          <menupopup id="agenda-context-menu-alloccurrences-accept-menupopup">
+          <menupopup id="agenda-context-menu-alloccurrences-accept-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="agenda-context-menu-attend-accept-all-menuitem"
                       scope="all-occurrences"
                       label="&calendar.context.attendance.send.label;"
@@ -153,7 +160,8 @@
               value="TENTATIVE"
               name="agenda-context-attendance-all"
               scope="all-occurrences">
-          <menupopup id="agenda-context-menu-alloccurrences-tentative-menupopup">
+          <menupopup id="agenda-context-menu-alloccurrences-tentative-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="agenda-context-menu-attend-tentative-all-menuitem"
                       scope="all-occurrences"
                       label="&calendar.context.attendance.send.label;"
@@ -174,7 +182,8 @@
               value="DECLINED"
               name="agenda-context-attendance-all"
               scope="all-occurrences">
-          <menupopup id="agenda-context-menu-alloccurrences-decline-menupopup">
+          <menupopup id="agenda-context-menu-alloccurrences-decline-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="agenda-context-menu-attend-declined-all-menuitem"
                       scope="all-occurrences"
                       label="&calendar.context.attendance.send.label;"
@@ -204,7 +213,8 @@
   </menupopup>
 
   <!-- CALENDAR LIST CONTEXT MENU -->
-  <menupopup id="list-calendars-context-menu">
+  <menupopup id="list-calendars-context-menu"
+             class="no-icon-menupopup">
     <menuitem id="list-calendars-context-togglevisible"
               class="needs-calendar"
               accesskeyshow="&calendar.context.showcalendar.accesskey;"
@@ -261,6 +271,7 @@
 
   <!-- CALENDAR ITEM CONTEXT MENU -->
   <menupopup id="calendar-item-context-menu"
+             class="no-icon-menupopup"
              onpopupshowing="return setupContextItemType(event, currentView().getSelectedItems());">
     <menuitem id="calendar-item-context-menu-view-menuitem"
               label="&calendar.context.modifyorviewitem.label;"
@@ -300,7 +311,8 @@
     <menu id="calendar-item-context-menu-convert-menu"
           label="&calendar.context.convertmenu.label;"
           accesskey="&calendar.context.convertmenu.accesskey.calendar;">
-      <menupopup id="calendar-item-context-menu-convert-menupopup">
+      <menupopup id="calendar-item-context-menu-convert-menupopup"
+                 class="no-icon-menupopup">
         <menuitem id="calendar-view-context-menu-convert-message-menuitem"
                   label="&calendar.context.convertmenu.message.label;"
                   accesskey="&calendar.context.convertmenu.message.accesskey;"
@@ -339,7 +351,8 @@
               value="ACCEPTED"
               name="calendar-item-context-attendance"
               scope="this-occurrence">
-          <menupopup id="calendar-item-context-menu-occurrence-accepted-menupopup">
+          <menupopup id="calendar-item-context-menu-occurrence-accepted-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="calendar-item-context-menu-attend-accept-menuitem"
                       scope="this-occurrence"
                       label="&calendar.context.attendance.send.label;"
@@ -360,7 +373,8 @@
               value="TENTATIVE"
               name="calendar-item-context-attendance"
               scope="this-occurrence">
-          <menupopup id="calendar-item-context-menu-occurrence-tentative-menupopup">
+          <menupopup id="calendar-item-context-menu-occurrence-tentative-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="calendar-item-context-menu-attend-tentative-menuitem"
                       scope="this-occurrence"
                       label="&calendar.context.attendance.send.label;"
@@ -381,7 +395,8 @@
               value="DECLINED"
               name="calendar-item-context-attendance"
               scope="this-occurrence">
-          <menupopup id="calendar-item-context-menu-occurrence-tentative-menupopup">
+          <menupopup id="calendar-item-context-menu-occurrence-tentative-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="calendar-item-context-menu-attend-declined-menuitem"
                       scope="this-occurrence"
                       label="&calendar.context.attendance.send.label;"
@@ -416,7 +431,8 @@
               value="ACCEPTED"
               name="calendar-item-context-attendance-all"
               scope="all-occurrences">
-          <menupopup id="calendar-item-context-menu-alloccurrences-accept-menupopup">
+          <menupopup id="calendar-item-context-menu-alloccurrences-accept-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="calendar-item-context-menu-attend-accept-all-menuitem"
                       scope="all-occurrences"
                       label="&calendar.context.attendance.send.label;"
@@ -437,7 +453,8 @@
               value="TENTATIVE"
               name="calendar-item-context-attendance-all"
               scope="all-occurrences">
-          <menupopup id="calendar-item-context-menu-alloccurrences-tentative-menupopup">
+          <menupopup id="calendar-item-context-menu-alloccurrences-tentative-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="calendar-item-context-menu-attend-tentative-all-menuitem"
                       scope="all-occurrences"
                       label="&calendar.context.attendance.send.label;"
@@ -458,7 +475,8 @@
               value="DECLINED"
               name="calendar-item-context-attendance-all"
               scope="all-occurrences">
-          <menupopup id="calendar-item-context-menu-alloccurrences-decline-menupopup">
+          <menupopup id="calendar-item-context-menu-alloccurrences-decline-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="calendar-item-context-menu-attend-declined-all-menuitem"
                       scope="all-occurrences"
                       label="&calendar.context.attendance.send.label;"
@@ -488,7 +506,8 @@
   </menupopup>
 
   <!-- CALENDAR VIEW CONTEXT MENU -->
-  <menupopup id="calendar-view-context-menu">
+  <menupopup id="calendar-view-context-menu"
+             class="no-icon-menupopup">
     <menuitem id="calendar-view-context-menu-newevent"
               label="&calendar.context.newevent.label;"
               command="calendar_new_event_context_command"
@@ -526,8 +545,9 @@
 
   <!-- TASK ITEM CONTEXT MENU -->
   <menupopup id="taskitem-context-menu"
-            onpopupshowing="changeContextMenuForTask(event);"
-            onpopuphiding="handleTaskContextMenuStateChange(event);">
+             class="no-icon-menupopup"
+             onpopupshowing="changeContextMenuForTask(event);"
+             onpopuphiding="handleTaskContextMenuStateChange(event);">
     <menuitem id="task-context-menu-modify"
               label="&calendar.context.modifyorviewtask.label;"
               accesskey="&calendar.context.modifyorviewtask.accesskey;"
@@ -583,7 +603,8 @@
           label="&calendar.context.postpone.label;"
           accesskey="&calendar.context.postpone.accesskey;"
           command="calendar_general-postpone_command">
-      <menupopup id="task-context-postpone-menupopup">
+      <menupopup id="task-context-postpone-menupopup"
+                 class="no-icon-menupopup">
         <menuitem id="task-context-postpone-1hour"
                   label="&calendar.context.postpone.1hour.label;"
                   accesskey="&calendar.context.postpone.1hour.accesskey;"
@@ -608,7 +629,8 @@
     <menu id="task-context-menu-convert"
           label="&calendar.context.convertmenu.label;"
           accesskey="&calendar.context.convertmenu.accesskey.calendar;">
-      <menupopup id="task-context-convert-menupopup">
+      <menupopup id="task-context-convert-menupopup"
+                 class="no-icon-menupopup">
         <menuitem id="calendar-context-converttomessage"
                   label="&calendar.context.convertmenu.message.label;"
                   accesskey="&calendar.context.convertmenu.message.accesskey;"
@@ -640,7 +662,8 @@
               value="ACCEPTED"
               name="task-context-attendance"
               scope="this-occurrence">
-          <menupopup id="task-context-menu-occurrence-accepted-menupopup">
+          <menupopup id="task-context-menu-occurrence-accepted-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-accept-menuitem"
                       scope="this-occurrence"
                       label="&calendar.context.attendance.send.label;"
@@ -661,7 +684,8 @@
               value="TENTATIVE"
               name="task-context-attendance"
               scope="this-occurrence">
-          <menupopup id="task-context-menu-occurrence-tentative-menupopup">
+          <menupopup id="task-context-menu-occurrence-tentative-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-tentative-menuitem"
                       scope="this-occurrence"
                       label="&calendar.context.attendance.send.label;"
@@ -682,7 +706,8 @@
               value="DECLINED"
               name="task-context-attendance"
               scope="this-occurrence">
-          <menupopup id="task-context-menu-occurrence-tentative-menupopup">
+          <menupopup id="task-context-menu-occurrence-tentative-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-declined-menuitem"
                       scope="this-occurrence"
                       label="&calendar.context.attendance.send.label;"
@@ -703,7 +728,8 @@
               value="IN-PROGRESS"
               name="task-context-attendance"
               scope="this-occurrence">
-          <menupopup id="task-context-menu-occurrence-inprogress-menupopup">
+          <menupopup id="task-context-menu-occurrence-inprogress-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-inprogress-menuitem"
                       scope="this-occurrence"
                       label="&calendar.context.attendance.send.label;"
@@ -724,7 +750,8 @@
               value="COMPLETED"
               name="task-context-attendance"
               scope="this-occurrence">
-          <menupopup id="task-context-menu-occurrence-completed-menupopup">
+          <menupopup id="task-context-menu-occurrence-completed-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-completed-menuitem"
                       scope="this-occurrence"
                       label="&calendar.context.attendance.send.label;"
@@ -759,7 +786,8 @@
               value="ACCEPTED"
               name="task-context-attendance-all"
               scope="all-occurrences">
-          <menupopup id="task-context-menu-alloccurrences-accept-menupopup">
+          <menupopup id="task-context-menu-alloccurrences-accept-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-accept-all-menuitem"
                       scope="all-occurrences"
                       label="&calendar.context.attendance.send.label;"
@@ -780,7 +808,8 @@
               value="TENTATIVE"
               name="task-context-attendance-all"
               scope="all-occurrences">
-          <menupopup id="task-context-menu-alloccurrences-tentative-menupopup">
+          <menupopup id="task-context-menu-alloccurrences-tentative-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-tentative-all-menuitem"
                       scope="all-occurrences"
                       label="&calendar.context.attendance.send.label;"
@@ -801,7 +830,8 @@
               value="DECLINED"
               name="task-context-attendance-all"
               scope="all-occurrences">
-          <menupopup id="task-context-menu-alloccurrences-decline-menupopup">
+          <menupopup id="task-context-menu-alloccurrences-decline-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-declined-all-menuitem"
                       scope="all-occurrences"
                       label="&calendar.context.attendance.send.label;"
@@ -822,7 +852,8 @@
               value="IN-PROGRESS"
               name="task-context-attendance-all"
               scope="all-occurrences">
-          <menupopup id="task-context-menu-alloccurrences-inprogress-menupopup">
+          <menupopup id="task-context-menu-alloccurrences-inprogress-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-inprogress-all-menuitem"
                       scope="all-occurrences"
                       label="&calendar.context.attendance.send.label;"
@@ -843,7 +874,8 @@
               value="COMPLETED"
               name="task-context-attendance-all"
               scope="all-occurrences">
-          <menupopup id="task-context-menu-alloccurrences-completed-menupopup">
+          <menupopup id="task-context-menu-alloccurrences-completed-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-completed-all-menuitem"
                       scope="all-occurrences"
                       label="&calendar.context.attendance.send.label;"
@@ -929,7 +961,8 @@
   </menupopup>
 
   <!-- TASKVIEW LINK CONTEXT MENU -->
-  <menupopup id="taskview-link-context-menu">
+  <menupopup id="taskview-link-context-menu"
+             class="no-icon-menupopup">
     <menuitem id="taskview-link-context-menu-copy"
               label="&calendar.copylink.label;"
               accesskey="&calendar.copylink.accesskey;"
