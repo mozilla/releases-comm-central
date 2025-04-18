@@ -376,8 +376,8 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
     }
 
     nsCOMPtr<nsIOutputStream> outputStream;
-    rv = msgStore->GetNewMsgOutputStream2(mDstFolder,
-                                          getter_AddRefs(outputStream));
+    rv = msgStore->GetNewMsgOutputStream(mDstFolder,
+                                         getter_AddRefs(outputStream));
     if (NS_FAILED(rv)) {
       IMPORT_LOG1("*** Error getting nsIOutputStream of mailbox: %S\n",
                   (const wchar_t*)mName);
@@ -422,12 +422,12 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
           return NS_OK;  // Sync runnable must return OK.
         }
         nsAutoCString storeToken;
-        msgStore->FinishNewMessage2(mDstFolder, outputStream, storeToken);
+        msgStore->FinishNewMessage(mDstFolder, outputStream, storeToken);
         msgHdr->SetStoreToken(storeToken);
       } else {
         IMPORT_LOG1("*** Error reading message from mailbox: %S\n",
                     (const wchar_t*)mName);
-        msgStore->DiscardNewMessage2(mDstFolder, outputStream);
+        msgStore->DiscardNewMessage(mDstFolder, outputStream);
       }
     }
   }

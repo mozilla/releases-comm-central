@@ -118,42 +118,40 @@ interface nsIMsgPluggableStore : nsISupports {
                   in nsIMsgCopyServiceListener aListener,
                   in AUTF8String aNewName);
 
-  // NOTE: Yes, these "2"-suffixed ones have stupid names, but they'll be
-  // renamed once the old functions are removed.
   /**
-   * getNewMsgOutputStream2() returns a new stream for writing raw message
+   * getNewMsgOutputStream() returns a new stream for writing raw message
    * data into the given folder.
    * NOTE: Each folder can have only one write stream active at a time.
    * If this function is called on a folder with an outstanding write stream,
    * the old stream will be closed and rolled back and a new one created.
    *
    * The caller then writes the message to the stream as usual, then calls
-   * either finishNewMessage2() or discardNewMessage2() when done.
+   * either finishNewMessage() or discardNewMessage() when done.
    *
    * @param folder - The target nsIMsgFolder.
    * @returns a stream that a raw message can be written to.
    */
-  nsIOutputStream getNewMsgOutputStream2(in nsIMsgFolder folder);
+  nsIOutputStream getNewMsgOutputStream(in nsIMsgFolder folder);
 
   /**
-   * finishNewMessage2() concludes writing of a message, committing to
+   * finishNewMessage() concludes writing of a message, committing to
    * the store all the data which was written to the stream.
    *
    * @param folder - The target nsIMsgFolder.
-   * @param stream - The stream obtained by getNewMsgOutputStream2().
+   * @param stream - The stream obtained by getNewMsgOutputStream().
    * @return a storeToken string which can used to retrieve the message
    *         data back from the store (via getMsgInputStream2()).
    */
-  AUTF8String finishNewMessage2(in nsIMsgFolder folder, in nsIOutputStream stream);
+  AUTF8String finishNewMessage(in nsIMsgFolder folder, in nsIOutputStream stream);
 
   /**
-   * discardNewMessage2() concludes a write by throwing away any message
+   * discardNewMessage() concludes a write by throwing away any message
    * data that was written to the stream.
    *
    * @param folder - The target nsIMsgFolder.
-   * @param stream - The stream obtained by getNewMsgOutputStream2().
+   * @param stream - The stream obtained by getNewMsgOutputStream().
    */
-  void discardNewMessage2(in nsIMsgFolder folder, in nsIOutputStream stream);
+  void discardNewMessage(in nsIMsgFolder folder, in nsIOutputStream stream);
 
   /**
    * Called by pop3 message filters when a newly downloaded message is being

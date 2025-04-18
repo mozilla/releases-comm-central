@@ -510,8 +510,8 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor* aMailbox,
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
       rv = db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(msgHdr));
       if (NS_FAILED(rv)) break;
-      rv = msgStore->GetNewMsgOutputStream2(aDstFolder,
-                                            getter_AddRefs(outStream));
+      rv = msgStore->GetNewMsgOutputStream(aDstFolder,
+                                           getter_AddRefs(outStream));
       if (NS_FAILED(rv)) break;
 
       // Add the data to the mbox stream.
@@ -519,10 +519,10 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor* aMailbox,
                                                                  outStream))) {
         mProgress++;
         nsAutoCString storeToken;
-        msgStore->FinishNewMessage2(aDstFolder, outStream, storeToken);
+        msgStore->FinishNewMessage(aDstFolder, outStream, storeToken);
         msgHdr->SetStoreToken(storeToken);
       } else {
-        msgStore->DiscardNewMessage2(aDstFolder, outStream);
+        msgStore->DiscardNewMessage(aDstFolder, outStream);
         break;
       }
     }

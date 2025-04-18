@@ -157,9 +157,9 @@ async function test_basicReadWrite() {
     // Write them.
     const tokens = [];
     for (const msg of msgs) {
-      const out = store.getNewMsgOutputStream2(inbox);
+      const out = store.getNewMsgOutputStream(inbox);
       out.write(msg, msg.length);
-      const storeToken = store.finishNewMessage2(inbox, out);
+      const storeToken = store.finishNewMessage(inbox, out);
       tokens.push(storeToken);
     }
 
@@ -193,16 +193,16 @@ async function test_discardWrites() {
     const okTokens = [];
     const okMsgs = [];
     for (let i = 0; i < msgs.length; ++i) {
-      const out = store.getNewMsgOutputStream2(inbox);
+      const out = store.getNewMsgOutputStream(inbox);
       if (i % 2) {
         // Write the message as normal.
         out.write(msgs[i], msgs[i].length);
-        okTokens.push(store.finishNewMessage2(inbox, out));
+        okTokens.push(store.finishNewMessage(inbox, out));
         okMsgs.push(msgs[i]);
       } else {
         // Write half, then bail.
         out.write(msgs[i], msgs[i].length / 2);
-        store.discardNewMessage2(inbox, out);
+        store.discardNewMessage(inbox, out);
       }
     }
 
@@ -246,8 +246,8 @@ async function test_oneWritePerFolder() {
       .makeMessages({ count: 2 })
       .map(message => message.toMessageString());
 
-    const out1 = store.getNewMsgOutputStream2(inbox);
-    const out2 = store.getNewMsgOutputStream2(inbox);
+    const out1 = store.getNewMsgOutputStream(inbox);
+    const out2 = store.getNewMsgOutputStream(inbox);
     // out1 should have been closed to allow out2 to proceed.
     await Assert.throws(
       () => out1.write(msgs[0], msgs[0].length),
@@ -256,7 +256,7 @@ async function test_oneWritePerFolder() {
     );
     // out2 should be valid.
     out2.write(msgs[1], msgs[1].length);
-    const token2 = store.finishNewMessage2(inbox, out2);
+    const token2 = store.finishNewMessage(inbox, out2);
 
     // Read back all messages - should be no trace of out1 writing.
     const listener = new PromiseTestUtils.PromiseStoreScanListener();
@@ -304,12 +304,12 @@ async function test_multiFolderWriting() {
       .makeMessages({ count: 2 })
       .map(message => message.toMessageString());
 
-    const out1 = store.getNewMsgOutputStream2(folder1);
-    const out2 = store.getNewMsgOutputStream2(folder2);
+    const out1 = store.getNewMsgOutputStream(folder1);
+    const out2 = store.getNewMsgOutputStream(folder2);
     out1.write(msgs[0], msgs[0].length);
     out2.write(msgs[1], msgs[1].length);
-    store.finishNewMessage2(folder1, out1);
-    store.finishNewMessage2(folder2, out2);
+    store.finishNewMessage(folder1, out1);
+    store.finishNewMessage(folder2, out2);
 
     // Check folder1.
     const listener1 = new PromiseTestUtils.PromiseStoreScanListener();

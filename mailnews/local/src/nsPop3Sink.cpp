@@ -315,8 +315,8 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, uint32_t flags) {
 
   rv = m_folder->GetMsgStore(getter_AddRefs(m_msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = m_msgStore->GetNewMsgOutputStream2(m_folder,
-                                          getter_AddRefs(m_outFileStream));
+  rv = m_msgStore->GetNewMsgOutputStream(m_folder,
+                                         getter_AddRefs(m_outFileStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> serverFolder;
@@ -516,7 +516,7 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
     }
 
     nsAutoCString storeToken;
-    rv = m_msgStore->FinishNewMessage2(m_folder, m_outFileStream, storeToken);
+    rv = m_msgStore->FinishNewMessage(m_folder, m_outFileStream, storeToken);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = hdr->SetStoreToken(storeToken);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -576,7 +576,7 @@ nsPop3Sink::IncorporateAbort() {
   if (m_msgStore && m_newMailParser) {
     nsCOMPtr<nsIMsgDBHdr> hdr;
     m_newMailParser->GetNewMsgHdr(getter_AddRefs(hdr));
-    m_msgStore->DiscardNewMessage2(m_folder, m_outFileStream);
+    m_msgStore->DiscardNewMessage(m_folder, m_outFileStream);
   }
   m_outFileStream = nullptr;
 #ifdef DEBUG

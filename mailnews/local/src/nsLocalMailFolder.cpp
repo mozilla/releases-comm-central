@@ -1965,7 +1965,7 @@ nsresult nsMsgLocalMailFolder::InitCopyMsgHdrAndFileStream() {
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  rv = mCopyState->m_msgStore->GetNewMsgOutputStream2(
+  rv = mCopyState->m_msgStore->GetNewMsgOutputStream(
       this, getter_AddRefs(mCopyState->m_fileStream));
   NS_ENSURE_SUCCESS(rv, rv);
   if (mCopyState->m_parseMsgState)
@@ -2152,8 +2152,8 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
   if (!aCopySucceeded || mCopyState->m_writeFailed) {
     if (mCopyState->m_fileStream) {
       if (mCopyState->m_curDstKey != nsMsgKey_None) {
-        mCopyState->m_msgStore->DiscardNewMessage2(this,
-                                                   mCopyState->m_fileStream);
+        mCopyState->m_msgStore->DiscardNewMessage(this,
+                                                  mCopyState->m_fileStream);
       }
       mCopyState->m_fileStream = nullptr;
     }
@@ -2189,7 +2189,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
 
   if (mCopyState->m_fileStream) {
     nsAutoCString storeToken;
-    rv = mCopyState->m_msgStore->FinishNewMessage2(
+    rv = mCopyState->m_msgStore->FinishNewMessage(
         this, mCopyState->m_fileStream, storeToken);
     // NOTE: you can copy into folders without a database... (sigh).
     // See also test_copyToInvalidDB.js.
@@ -2532,7 +2532,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
   mCopyState->m_addXMozillaHeaders = true;
   if (mCopyState->m_fileStream) {
     nsAutoCString storeToken;
-    rv = mCopyState->m_msgStore->FinishNewMessage2(
+    rv = mCopyState->m_msgStore->FinishNewMessage(
         this, mCopyState->m_fileStream, storeToken);
     // NOTE: you can copy into folders without a database... (sigh).
     // See also test_copyToInvalidDB.js.
@@ -3323,11 +3323,11 @@ nsMsgLocalMailFolder::AddMessageBatch(
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsCOMPtr<nsIOutputStream> outStream;
-      rv = msgStore->GetNewMsgOutputStream2(this, getter_AddRefs(outStream));
+      rv = msgStore->GetNewMsgOutputStream(this, getter_AddRefs(outStream));
       NS_ENSURE_SUCCESS(rv, rv);
       // Just in case we exit early.
       auto outGuard = mozilla::MakeScopeExit(
-          [&] { msgStore->DiscardNewMessage2(this, outStream); });
+          [&] { msgStore->DiscardNewMessage(this, outStream); });
       // Get a msgWindow. Proceed without one, but filter actions to imap
       // folders will silently fail if not signed in and no window for a
       // prompt.
@@ -3349,7 +3349,7 @@ nsMsgLocalMailFolder::AddMessageBatch(
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsAutoCString storeToken;
-      rv = msgStore->FinishNewMessage2(this, outStream, storeToken);
+      rv = msgStore->FinishNewMessage(this, outStream, storeToken);
       NS_ENSURE_SUCCESS(rv, rv);
       outGuard.release();
       rv = newHdr->SetStoreToken(storeToken);
@@ -3413,15 +3413,15 @@ nsresult nsMsgLocalMailFolder::AddMessageBatch2(
 
     // Write it to the local message store.
     nsCOMPtr<nsIOutputStream> outStream;
-    rv = msgStore->GetNewMsgOutputStream2(this, getter_AddRefs(outStream));
+    rv = msgStore->GetNewMsgOutputStream(this, getter_AddRefs(outStream));
     NS_ENSURE_SUCCESS(rv, rv);
     rv = SyncWriteAll(outStream, raw.BeginReading(), raw.Length());
     if (NS_FAILED(rv)) {
-      msgStore->DiscardNewMessage2(this, outStream);
+      msgStore->DiscardNewMessage(this, outStream);
       return rv;
     }
     nsAutoCString storeToken;
-    rv = msgStore->FinishNewMessage2(this, outStream, storeToken);
+    rv = msgStore->FinishNewMessage(this, outStream, storeToken);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = dbHdr->SetStoreToken(storeToken);
     NS_ENSURE_SUCCESS(rv, rv);

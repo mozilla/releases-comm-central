@@ -675,8 +675,8 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
 }
 
 NS_IMETHODIMP
-nsMsgBrkMBoxStore::GetNewMsgOutputStream2(nsIMsgFolder* folder,
-                                          nsIOutputStream** outStream) {
+nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* folder,
+                                         nsIOutputStream** outStream) {
   NS_ENSURE_ARG(folder);
   NS_ENSURE_ARG_POINTER(outStream);
   int64_t filePos = 0;
@@ -684,9 +684,9 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream2(nsIMsgFolder* folder,
 }
 
 NS_IMETHODIMP
-nsMsgBrkMBoxStore::FinishNewMessage2(nsIMsgFolder* folder,
-                                     nsIOutputStream* outStream,
-                                     nsACString& storeToken) {
+nsMsgBrkMBoxStore::FinishNewMessage(nsIMsgFolder* folder,
+                                    nsIOutputStream* outStream,
+                                    nsACString& storeToken) {
   NS_ENSURE_ARG(folder);
   NS_ENSURE_ARG(outStream);
 
@@ -719,8 +719,8 @@ nsMsgBrkMBoxStore::FinishNewMessage2(nsIMsgFolder* folder,
 }
 
 NS_IMETHODIMP
-nsMsgBrkMBoxStore::DiscardNewMessage2(nsIMsgFolder* folder,
-                                      nsIOutputStream* outStream) {
+nsMsgBrkMBoxStore::DiscardNewMessage(nsIMsgFolder* folder,
+                                     nsIOutputStream* outStream) {
   NS_ENSURE_ARG(folder);
   NS_ENSURE_ARG(outStream);
 

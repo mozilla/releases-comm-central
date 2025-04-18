@@ -770,8 +770,8 @@ nsresult nsMsgMaildirStore::InternalGetNewMsgOutputStream(
 }
 
 NS_IMETHODIMP
-nsMsgMaildirStore::GetNewMsgOutputStream2(nsIMsgFolder* folder,
-                                          nsIOutputStream** outStream) {
+nsMsgMaildirStore::GetNewMsgOutputStream(nsIMsgFolder* folder,
+                                         nsIOutputStream** outStream) {
   NS_ENSURE_ARG(folder);
   NS_ENSURE_ARG_POINTER(outStream);
   nsAutoCString unused;
@@ -779,9 +779,9 @@ nsMsgMaildirStore::GetNewMsgOutputStream2(nsIMsgFolder* folder,
 }
 
 NS_IMETHODIMP
-nsMsgMaildirStore::FinishNewMessage2(nsIMsgFolder* folder,
-                                     nsIOutputStream* outStream,
-                                     nsACString& storeToken) {
+nsMsgMaildirStore::FinishNewMessage(nsIMsgFolder* folder,
+                                    nsIOutputStream* outStream,
+                                    nsACString& storeToken) {
   // To commit the message we want to:
   // 1. Close the output stream.
   // 2. Move the completed file from "tmp/" to "cur/".
@@ -838,7 +838,7 @@ nsMsgMaildirStore::FinishNewMessage2(nsIMsgFolder* folder,
       // It's already been moved to "cur/". We'll just accept that.
       return NS_OK;
     }
-    NS_ERROR("FinishNewMessage2 - oops! file does not exist!");
+    NS_ERROR("FinishNewMessage - oops! file does not exist!");
     return NS_ERROR_FILE_NOT_FOUND;
   }
 
@@ -852,8 +852,8 @@ nsMsgMaildirStore::FinishNewMessage2(nsIMsgFolder* folder,
 }
 
 NS_IMETHODIMP
-nsMsgMaildirStore::DiscardNewMessage2(nsIMsgFolder* folder,
-                                      nsIOutputStream* outStream) {
+nsMsgMaildirStore::DiscardNewMessage(nsIMsgFolder* folder,
+                                     nsIOutputStream* outStream) {
   // To throw away a message we want to:
   // 1. Close the output stream.
   // 2. Delete the partial file in "tmp/".

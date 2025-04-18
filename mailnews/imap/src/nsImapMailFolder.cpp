@@ -6552,18 +6552,17 @@ static nsresult CopyStoreMessage(nsIMsgDBHdr* srcHdr, nsIMsgDBHdr* destHdr,
   rv = srcFolder->GetLocalMsgStream(srcHdr, getter_AddRefs(srcStream));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIOutputStream> destStream;
-  rv =
-      destStore->GetNewMsgOutputStream2(destFolder, getter_AddRefs(destStream));
+  rv = destStore->GetNewMsgOutputStream(destFolder, getter_AddRefs(destStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = SyncCopyStream(srcStream, destStream, bytesCopied);
   if (NS_SUCCEEDED(rv)) {
     nsAutoCString storeToken;
-    rv = destStore->FinishNewMessage2(destFolder, destStream, storeToken);
+    rv = destStore->FinishNewMessage(destFolder, destStream, storeToken);
     NS_ENSURE_SUCCESS(rv, rv);
     destHdr->SetStoreToken(storeToken);
   } else {
-    destStore->DiscardNewMessage2(destFolder, destStream);
+    destStore->DiscardNewMessage(destFolder, destStream);
   }
   return rv;
 }
@@ -7710,14 +7709,14 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
   // Should we add this to the offline store?
   nsCOMPtr<nsIOutputStream> offlineStream;
   if (storeOffline) {
-    rv = msgStore->GetNewMsgOutputStream2(this, getter_AddRefs(offlineStream));
+    rv = msgStore->GetNewMsgOutputStream(this, getter_AddRefs(offlineStream));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
   // Clean up if we exit early.
   auto outGuard = mozilla::MakeScopeExit([&] {
     if (offlineStream) {
-      msgStore->DiscardNewMessage2(this, offlineStream);
+      msgStore->DiscardNewMessage(this, offlineStream);
     }
   });
 
@@ -7786,7 +7785,7 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
     //   to get a unique filename.
     if (offlineStream) {
       nsAutoCString storeToken;
-      rv = msgStore->FinishNewMessage2(this, offlineStream, storeToken);
+      rv = msgStore->FinishNewMessage(this, offlineStream, storeToken);
       if (NS_SUCCEEDED(rv)) {
         fakeHdr->SetStoreToken(storeToken);
         outGuard.release();

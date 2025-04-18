@@ -1301,8 +1301,8 @@ void nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
               nsresult rv =
                   m_downloadFolder->GetMsgStore(getter_AddRefs(msgStore));
               if (NS_SUCCEEDED(rv)) {
-                rv = msgStore->DiscardNewMessage2(m_downloadFolder,
-                                                  m_outputStream);
+                rv = msgStore->DiscardNewMessage(m_downloadFolder,
+                                                 m_outputStream);
                 if (NS_FAILED(rv))
                   m_rootFolder->ThrowAlertMsg("dupDeleteFolderTruncateFailed",
                                               msgWindow);
@@ -1938,19 +1938,19 @@ nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream* fileStream,
   nsCOMPtr<nsIOutputStream> destOutputStream;
   nsresult rv = destFolder->GetMsgStore(getter_AddRefs(store));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = store->GetNewMsgOutputStream2(destFolder,
-                                     getter_AddRefs(destOutputStream));
+  rv = store->GetNewMsgOutputStream(destFolder,
+                                    getter_AddRefs(destOutputStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
   auto guard = mozilla::MakeScopeExit(
-      [&] { store->DiscardNewMessage2(destFolder, destOutputStream); });
+      [&] { store->DiscardNewMessage(destFolder, destOutputStream); });
 
   uint64_t bytesCopied;
   rv = SyncCopyStream(fileStream, destOutputStream, bytesCopied);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString storeToken;
-  rv = store->FinishNewMessage2(destFolder, destOutputStream, storeToken);
+  rv = store->FinishNewMessage(destFolder, destOutputStream, storeToken);
   NS_ENSURE_SUCCESS(rv, rv);
   guard.release();
   rv = aHdr->SetStoreToken(storeToken);
@@ -2100,7 +2100,7 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
       nsCOMPtr<nsIMsgPluggableStore> store;
       m_downloadFolder->GetMsgStore(getter_AddRefs(store));
       if (store) {
-        store->DiscardNewMessage2(folder, m_outputStream);
+        store->DiscardNewMessage(folder, m_outputStream);
       }
       if (sourceDB) {
         sourceDB->RemoveHeaderMdbRow(mailHdr);

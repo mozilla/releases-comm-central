@@ -140,11 +140,11 @@ NS_IMETHODIMP MessageCreateCallbacks::OnRemoteCreateSuccessful(
 
   // Create a new output stream to the folder's message store.
   nsCOMPtr<nsIOutputStream> outStream;
-  rv = store->GetNewMsgOutputStream2(mFolder, getter_AddRefs(outStream));
+  rv = store->GetNewMsgOutputStream(mFolder, getter_AddRefs(outStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
   auto outGuard = mozilla::MakeScopeExit(
-      [&] { store->DiscardNewMessage2(mFolder, outStream); });
+      [&] { store->DiscardNewMessage(mFolder, outStream); });
 
   // Stream the message content to the store.
   nsCOMPtr<nsIInputStream> inputStream =
@@ -156,7 +156,7 @@ NS_IMETHODIMP MessageCreateCallbacks::OnRemoteCreateSuccessful(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString storeToken;
-  rv = store->FinishNewMessage2(mFolder, outStream, storeToken);
+  rv = store->FinishNewMessage(mFolder, outStream, storeToken);
   NS_ENSURE_SUCCESS(rv, rv);
   outGuard.release();
 

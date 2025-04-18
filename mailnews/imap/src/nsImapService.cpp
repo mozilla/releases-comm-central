@@ -1707,12 +1707,12 @@ nsresult nsImapService::OfflineAppendFromFile(
       NS_ENSURE_SUCCESS(rv, rv);
       rv = destDB->CreateNewHdr(fakeKey, getter_AddRefs(newMsgHdr));
       NS_ENSURE_SUCCESS(rv, rv);
-      rv = msgStore->GetNewMsgOutputStream2(aDstFolder,
-                                            getter_AddRefs(outputStream));
+      rv = msgStore->GetNewMsgOutputStream(aDstFolder,
+                                           getter_AddRefs(outputStream));
       NS_ENSURE_SUCCESS(rv, rv);
 
       auto outGuard = mozilla::MakeScopeExit(
-          [&] { msgStore->DiscardNewMessage2(aDstFolder, outputStream); });
+          [&] { msgStore->DiscardNewMessage(aDstFolder, outputStream); });
 
       nsCOMPtr<nsIInputStream> inputStream;
       nsCOMPtr<nsIMsgParseMailMsgState> msgParser =
@@ -1762,7 +1762,7 @@ nsresult nsImapService::OfflineAppendFromFile(
         destDB->AddNewHdrToDB(newMsgHdr, true /* notify */);
         aDstFolder->SetFlag(nsMsgFolderFlags::OfflineEvents);
         nsAutoCString storeToken;
-        rv = msgStore->FinishNewMessage2(aDstFolder, outputStream, storeToken);
+        rv = msgStore->FinishNewMessage(aDstFolder, outputStream, storeToken);
         if (NS_SUCCEEDED(rv)) {
           outGuard.release();
           newMsgHdr->SetStoreToken(storeToken);

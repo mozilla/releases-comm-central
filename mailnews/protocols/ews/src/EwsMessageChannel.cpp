@@ -100,7 +100,7 @@ NS_IMETHODIMP MessageFetchListener::OnFetchStart() {
   rv = mFolder->GetMsgStore(getter_AddRefs(mStore));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = mStore->GetNewMsgOutputStream2(mFolder, getter_AddRefs(mStoreOutStream));
+  rv = mStore->GetNewMsgOutputStream(mFolder, getter_AddRefs(mStoreOutStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;
@@ -134,7 +134,7 @@ NS_IMETHODIMP MessageFetchListener::OnFetchStop(nsresult status) {
   nsresult rv;
   if (NS_SUCCEEDED(status)) {
     nsAutoCString storeToken;
-    rv = mStore->FinishNewMessage2(mFolder, mStoreOutStream, storeToken);
+    rv = mStore->FinishNewMessage(mFolder, mStoreOutStream, storeToken);
 
     // Here, we don't use `NS_ENSURE_SUCCESS` or `MOZ_TRY` like most places in
     // this file, because we still need `OnDownloadFinished` to be called if any
@@ -168,7 +168,7 @@ NS_IMETHODIMP MessageFetchListener::OnFetchStop(nsresult status) {
     status = rv;
   } else {
     // Fetch has failed, discard the new message in the store.
-    mStore->DiscardNewMessage2(mFolder, mStoreOutStream);
+    mStore->DiscardNewMessage(mFolder, mStoreOutStream);
   }
   mStoreOutStream = nullptr;
   return mChannel->OnDownloadFinished(status);

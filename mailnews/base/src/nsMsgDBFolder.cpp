@@ -1454,8 +1454,8 @@ nsresult nsMsgDBFolder::StartNewOfflineMessage() {
   m_tempMessageStreamBytesWritten = 0;
   m_bytesAddedToLocalMsg = 0;
   m_numOfflineMsgLines = 0;
-  rv = msgStore->GetNewMsgOutputStream2(this,
-                                        getter_AddRefs(m_tempMessageStream));
+  rv = msgStore->GetNewMsgOutputStream(this,
+                                       getter_AddRefs(m_tempMessageStream));
   if (NS_SUCCEEDED(rv) && !hasSemaphore)
     AcquireSemaphore(static_cast<nsIMsgFolder*>(this),
                      "nsMsgDBFolder::StartNewOfflineMessage"_ns);
@@ -1504,14 +1504,14 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
   if (NS_FAILED(status)) {
     mDatabase->MarkOffline(messageKey, false, nullptr);
     if (m_tempMessageStream) {
-      msgStore->DiscardNewMessage2(this, m_tempMessageStream);
+      msgStore->DiscardNewMessage(this, m_tempMessageStream);
     }
     return NS_OK;
   }
 
   // Success! Finalise the message.
   nsAutoCString storeToken;
-  rv = msgStore->FinishNewMessage2(this, m_tempMessageStream, storeToken);
+  rv = msgStore->FinishNewMessage(this, m_tempMessageStream, storeToken);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = m_offlineHeader->SetStoreToken(storeToken);
