@@ -118,67 +118,6 @@ interface nsIMsgPluggableStore : nsISupports {
                   in nsIMsgCopyServiceListener aListener,
                   in AUTF8String aNewName);
 
-  /**
-   * @deprecated in favour of getNewMsgOutputStream2().
-   *
-   * Get an output stream for a message in a folder.
-   *
-   * @param aFolder folder to create a message output stream for.
-   * @param aNewHdr If aNewHdr is set on input, then this is probably for
-   *                offline storage of an existing message. If null, the
-   *                this is a newly downloaded message and the store needs
-   *                to create a new header for the new message. If the db
-   *                is invalid, this can be null. But if the db is valid,
-   *                the store should create a message header with the right
-   *                message key, or whatever other property it needs to set to
-   *                be able to retrieve the message contents later. If the store
-   *                needs to base any of this on the contents of the message,
-   *                it will need remember the message header and hook into
-   *                the output stream somehow to alter the message header.
-   *
-   * @return The output stream to write to. The output stream will be positioned
-   *         for writing (e.g., for berkeley mailbox, it will be at the end).
-   */
-  nsIOutputStream getNewMsgOutputStream(in nsIMsgFolder aFolder,
-                                        inout nsIMsgDBHdr aNewHdr);
-
-
-  /**
-   * @deprecated in favour of discardNewMessage2().
-   *
-   * Called when the current message is discarded, e.g., it is moved
-   * to an other folder as a filter action, or is deleted because it's
-   * a duplicate. This gives the berkeley mailbox store a chance to simply
-   * truncate the Inbox w/o leaving a deleted message in the store.
-   *
-   * discardNewMessage closes aOutputStream always unless the passed stream
-   * is nullptr due to error processing..
-   * (Clarification/Rationale in Bug 1121842, 1122698, 1242030)
-   *
-   * @param aOutputStream stream we were writing the message to be discarded to
-   * @param aNewHdr header of message to discard
-   */
-  void discardNewMessage(in nsIOutputStream aOutputStream,
-                         in nsIMsgDBHdr aNewHdr);
-
-  /**
-   * @deprecated in favour of finishNewMessage2().
-   *
-   * Must be called by code that calls getNewMsgOutputStream to finish
-   * the process of storing a new message, if the new msg has not been
-   * discarded. Could/should this be combined with discardNewMessage?
-   *
-   * finishNewMessage closes aOutputStream always unless the passed stream
-   * is nullptr due to error processing.
-   * (Clarification/Rationale in Bug 1121842, 1122698, 1242030)
-   *
-   * @param aOutputStream stream we were writing the message to.
-   * @param aNewHdr header of message finished.
-   */
-  void finishNewMessage(in nsIOutputStream aOutputStream,
-                        in nsIMsgDBHdr aNewHdr);
-
-
   // NOTE: Yes, these "2"-suffixed ones have stupid names, but they'll be
   // renamed once the old functions are removed.
   /**
@@ -189,7 +128,7 @@ interface nsIMsgPluggableStore : nsISupports {
    * the old stream will be closed and rolled back and a new one created.
    *
    * The caller then writes the message to the stream as usual, then calls
-   * either finishNewMessage2() or discardNewMessage() when done.
+   * either finishNewMessage2() or discardNewMessage2() when done.
    *
    * @param folder - The target nsIMsgFolder.
    * @returns a stream that a raw message can be written to.

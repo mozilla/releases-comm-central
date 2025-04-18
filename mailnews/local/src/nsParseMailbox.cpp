@@ -1301,7 +1301,8 @@ void nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
               nsresult rv =
                   m_downloadFolder->GetMsgStore(getter_AddRefs(msgStore));
               if (NS_SUCCEEDED(rv)) {
-                rv = msgStore->DiscardNewMessage2(m_downloadFolder, m_outputStream);
+                rv = msgStore->DiscardNewMessage2(m_downloadFolder,
+                                                  m_outputStream);
                 if (NS_FAILED(rv))
                   m_rootFolder->ThrowAlertMsg("dupDeleteFolderTruncateFailed",
                                               msgWindow);
