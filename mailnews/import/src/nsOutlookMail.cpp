@@ -17,6 +17,7 @@
 #include "ImportDebug.h"
 #include "nsOutlookMail.h"
 #include "nsIOutputStream.h"
+#include "nsIMsgDatabase.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgFolder.h"
@@ -350,10 +351,22 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
   ULONG totalCount;
   double doneCalc;
 
-  nsCOMPtr<nsIOutputStream> outputStream;
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   nsresult rv = mDstFolder->GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_FAILED(rv)) {
+    IMPORT_LOG1("*** Error getting msgStore for mailbox: %S\n",
+                (const wchar_t*)mName);
+    mResult = rv;
+    return NS_OK;  // Sync runnable must return OK.
+  }
+  nsCOMPtr<nsIMsgDatabase> db;
+  rv = mDstFolder->GetMsgDatabase(getter_AddRefs(db));
+  if (NS_FAILED(rv)) {
+    IMPORT_LOG1("*** Error getting DB for mailbox: %S\n",
+                (const wchar_t*)mName);
+    mResult = rv;
+    return NS_OK;  // Sync runnable must return OK.
+  }
 
   while (!done) {
     if (!contents.GetNext(&cbEid, &lpEid, &oType, &done)) {
@@ -362,9 +375,9 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
       return NS_OK;  // Sync runnable must return OK.
     }
 
-    nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv = msgStore->GetNewMsgOutputStream(mDstFolder, getter_AddRefs(msgHdr),
-                                         getter_AddRefs(outputStream));
+    nsCOMPtr<nsIOutputStream> outputStream;
+    rv = msgStore->GetNewMsgOutputStream2(mDstFolder,
+                                          getter_AddRefs(outputStream));
     if (NS_FAILED(rv)) {
       IMPORT_LOG1("*** Error getting nsIOutputStream of mailbox: %S\n",
                   (const wchar_t*)mName);
@@ -400,13 +413,21 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
       rv = ImportMessage(lpMsg, outputStream, mode);
       if (NS_SUCCEEDED(rv)) {  // No errors & really imported
         (*mMsgCount)++;
-        msgStore->FinishNewMessage(outputStream, msgHdr);
-        outputStream = nullptr;
+        nsCOMPtr<nsIMsgDBHdr> msgHdr;
+        rv = db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(msgHdr));
+        if (NS_FAILED(rv)) {
+          IMPORT_LOG1("*** Error creating DB header for mailbox: %S\n",
+                      (const wchar_t*)mName);
+          mResult = rv;
+          return NS_OK;  // Sync runnable must return OK.
+        }
+        nsAutoCString storeToken;
+        msgStore->FinishNewMessage2(mDstFolder, outputStream, storeToken);
+        msgHdr->SetStoreToken(storeToken);
       } else {
         IMPORT_LOG1("*** Error reading message from mailbox: %S\n",
                     (const wchar_t*)mName);
-        msgStore->DiscardNewMessage(outputStream, msgHdr);
-        outputStream = nullptr;
+        msgStore->DiscardNewMessage2(mDstFolder, outputStream);
       }
     }
   }
