@@ -313,7 +313,7 @@ mapping:
         description: "Debian package for Linux platforms"
         all_locales: true
         from:
-            - release-deb-repackage
+            - repackage
         only_for_platforms:
             - linux-shippable
             - linux64-shippable
