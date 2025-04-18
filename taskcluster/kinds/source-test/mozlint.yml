@@ -250,6 +250,18 @@ trojan-source:
     optimization:
         skip-unless-mozlint: trojan-source.yml
 
+test-manifest:
+    description: lint test manifests
+    treeherder:
+        symbol: misc(tm)
+    run:
+        mach: >
+            commlint -v -l test-manifest-toml -f treeherder
+            -f json:/builds/worker/mozlint.json
+            comm
+    optimization:
+        skip-unless-mozlint: test-manifest-toml.yml
+
 yaml:
     description: yamllint run over the taskcluster configuration
     treeherder:
