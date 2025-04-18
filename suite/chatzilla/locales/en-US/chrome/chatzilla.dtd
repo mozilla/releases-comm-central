@@ -113,6 +113,42 @@
 <!ENTITY editNetworks.label "Edit Networks…">
 <!ENTITY editNetworks.accesskey "E">
 
+<!-- Context menu -->
+<!ENTITY openLink.label "Open Link">
+<!ENTITY openLink.accesskey "k">
+<!ENTITY toggleUsort.label "Sort Users by Mode">
+<!ENTITY toggleUsort.accesskey "S">
+<!ENTITY toggleUmode.label "Show Mode as Symbol">
+<!ENTITY toggleUmode.accesskey "M">
+<!ENTITY opCommands.label "Operator Commands">
+<!ENTITY opCommands.accesskey "O">
+<!ENTITY userOp.label "Operator Status">
+<!ENTITY userOp.accesskey "O">
+<!ENTITY userHop.label "Half-Operator Status">
+<!ENTITY userHop.accesskey "H">
+<!ENTITY userVoice.label "Voice Status">
+<!ENTITY userVoice.accesskey "V">
+<!ENTITY userCommands.label "User Commands">
+<!ENTITY userCommands.accesskey "U">
+<!ENTITY userQuery.label "Open Private Chat">
+<!ENTITY userQuery.accesskey "O">
+<!ENTITY userWhois.label "Who is">
+<!ENTITY userWhois.accesskey "W">
+<!ENTITY userWhowas.label "Who was">
+<!ENTITY userWhowas.accesskey "W">
+<!ENTITY userPing.label "Ping User">
+<!ENTITY userPing.accesskey "U">
+<!ENTITY userTime.label "Get Local Time">
+<!ENTITY userTime.accesskey "L">
+<!ENTITY userVersion.label "Get Version Information">
+<!ENTITY userVersion.accesskey "G">
+<!ENTITY dccChat.label "Direct Chat">
+<!ENTITY dccChat.accesskey "D">
+<!ENTITY dccSend.label "Send File…">
+<!ENTITY dccSend.accesskey "S">
+<!ENTITY tabRename.label "Rename Tab…">
+<!ENTITY tabRename.accesskey "n">
+
 <!ENTITY focusInput.keycode "VK_ESCAPE">
 <!ENTITY reloadUI.commandkey "r">
 

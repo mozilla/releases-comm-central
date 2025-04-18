@@ -33,13 +33,9 @@ function initCommands() {
       CMD_NEED_CHAN | CMD_CONSOLE,
       "[<pref-name> [<pref-value>]]",
     ],
-    ["cmd-copy", "cmd-docommand cmd_copy", 0],
-    ["cmd-selectall", "cmd-docommand cmd_selectAll", 0],
-    ["cmd-copy-link-url", "cmd-docommand cmd_copyLink", 0, "<url>"],
     ["cmd-prefs", cmdChatZillaPrefs, 0],
     ["cmd-chatzilla-prefs", cmdChatZillaPrefs, 0],
     ["cmd-chatzilla-opts", cmdChatZillaPrefs, 0],
-    ["cmd-docommand", cmdDoCommand, 0, "<cmd-name>"],
     ["create-tab-for-view", cmdCreateTabForView, 0, "<view>"],
     ["custom-away", customAway, 0],
     ["op", cmdChanUserMode, CMD_NEED_CHAN | CMD_CONSOLE, "<nickname> [<...>]"],
@@ -268,7 +264,6 @@ function initCommands() {
       "[<pref-name> [<pref-value>]]",
     ],
     ["version", cmdVersion, CMD_NEED_SRV | CMD_CONSOLE, "[<nickname>]"],
-    ["websearch", cmdWebSearch, CMD_CONSOLE, "<selected-text>"],
     ["who", cmdWho, CMD_NEED_SRV | CMD_CONSOLE, "<rest>"],
     ["whois", cmdWhoIs, CMD_NEED_SRV | CMD_CONSOLE, "<nickname> [<...>]"],
     ["whowas", cmdWhoWas, CMD_NEED_SRV | CMD_CONSOLE, "<nickname> [<limit>]"],
@@ -942,9 +937,12 @@ function cmdEnablePlugin(e) {
   e.plugin.enabled = true;
 }
 
-function cmdBanOrExcept(e) {
+function cmdBanOrExcept(e, type) {
   var modestr;
-  switch (e.command.name) {
+  if (!type) {
+    type = e.command.name;
+  }
+  switch (type) {
     case "ban":
       modestr = "+bbbb";
       break;
@@ -962,7 +960,7 @@ function cmdBanOrExcept(e) {
       break;
 
     default:
-      ASSERT(0, "Dispatch from unknown name " + e.command.name);
+      ASSERT(0, "Dispatch from unknown name " + type);
       return;
   }
 
@@ -1045,9 +1043,17 @@ function cmdCancel(e) {
   display(MSG_NOTHING_TO_CANCEL, MT_ERROR);
 }
 
-function cmdChanUserMode(e) {
+function userMode(name, item) {
+  let checked = item.hasAttribute("checked");
+  cmdChanUserMode(gContextMenu.cx, !checked ? "de" + name : name);
+}
+
+function cmdChanUserMode(e, name) {
   var modestr;
-  switch (e.command.name) {
+  if (!name) {
+    name = e.command.name;
+  }
+  switch (name) {
     case "op":
       modestr = "+oooo";
       break;
@@ -1073,7 +1079,7 @@ function cmdChanUserMode(e) {
       break;
 
     default:
-      ASSERT(0, "Dispatch from unknown name " + e.command.name);
+      ASSERT(0, "Dispatch from unknown name " + name);
       return;
   }
 
@@ -2219,7 +2225,7 @@ function gotoView(url) {
   return false;
 }
 
-function cmdGotoURL(e) {
+function cmdGotoURL(e, action) {
   if (gotoView(e.url)) {
     return;
   }
@@ -2248,7 +2254,12 @@ function cmdGotoURL(e) {
 
   var browserWin = Services.wm.getMostRecentWindow("navigator:browser");
   var location = browserWin ? browserWin.gBrowser.currentURI.spec : null;
-  var action = e.command.name;
+  if (action) {
+    // Strip "context-" from the id passed in.
+    action = action.slice(8);
+  } else {
+    action = e.command.name;
+  }
   let where = "current";
 
   // We don't want to replace ChatZilla running in a tab.
@@ -3135,9 +3146,13 @@ function cmdInvite(e) {
   channel.invite(e.nickname);
 }
 
-function cmdKick(e) {
+function cmdKick(e, type) {
+  if (!type) {
+    type = e.command.name;
+  }
+
   if (e.userList) {
-    if (e.command.name == "kick-ban") {
+    if (type == "kick-ban") {
       e.sourceObject.dispatch("ban", {
         userList: e.userList,
         canonNickList: e.canonNickList,
@@ -3168,7 +3183,7 @@ function cmdKick(e) {
     return;
   }
 
-  if (e.command.name == "kick-ban") {
+  if (type == "kick-ban") {
     e.sourceObject.dispatch("ban", { nickname: e.user.encodedName });
   }
 
@@ -3689,10 +3704,6 @@ function cmdChatZillaPrefs() {
     "chrome,resizable,dialog=no",
     window
   );
-}
-
-function cmdDoCommand(e) {
-  goDoCommand(e.cmdName);
 }
 
 function cmdTime(e) {
@@ -4548,15 +4559,4 @@ function cmdURLs(e) {
 
     client.urlLogger = logger;
   }
-}
-
-function cmdWebSearch(e) {
-  let submission = Services.search.currentEngine.getSubmission(e.selectedText);
-  let newTabPref = Services.prefs.getBoolPref(
-    "browser.search.opentabforcontextsearch"
-  );
-  dispatch(newTabPref ? "goto-url-newtab" : "goto-url-newwin", {
-    url: submission.uri.asciiSpec,
-    shiftKey: e.shiftKey,
-  });
 }

@@ -4,13 +4,19 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window SYSTEM "chrome://chatzilla/locale/chatzilla.dtd">
+<!DOCTYPE window [
+<!ENTITY % chatzillaDTD SYSTEM "chrome://chatzilla/locale/chatzilla.dtd">
+%chatzillaDTD;
+<!ENTITY % contentAreaCommandsDTD SYSTEM "chrome://communicator/locale/contentAreaCommands.dtd">
+%contentAreaCommandsDTD;
+]>
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://chatzilla/skin/chatzilla.css" type="text/css"?>
 <?xml-stylesheet href="chrome://chatzilla/content/output-base.css" type="text/css"?>
 
 <?xul-overlay href="chrome://chatzilla/content/helpOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/contentAreaContextOverlay.xul"?>
 
 <window id="chatzilla-window"
   xmlns:html="http://www.w3.org/1999/xhtml"
@@ -21,7 +27,6 @@
   onclose="return onClose();" onmouseover="onMouseOver(event);"
   persist="width height screenX screenY sizemode" windowtype="irc:chatzilla">
 
-  <script src="chrome://global/content/contentAreaUtils.js"/>
   <script src="chrome://communicator/content/findUtils.js"/>
   <script src="chrome://global/content/globalOverlay.js"/>
 
@@ -40,7 +45,6 @@
   <script src="chrome://chatzilla/content/lib/command-manager.js"/>
   <script src="chrome://chatzilla/content/lib/pref-manager.js"/>
   <script src="chrome://chatzilla/content/lib/message-manager.js"/>
-  <script src="chrome://chatzilla/content/lib/menu-manager.js"/>
   <script src="chrome://chatzilla/content/lib/irc.js"/>
   <script src="chrome://chatzilla/content/lib/irc-debug.js"/>
   <script src="chrome://chatzilla/content/lib/file-utils.js"/>
@@ -66,9 +70,6 @@
     <stringbundle id="chatzillaBundle" src="chrome://chatzilla/locale/chatzilla.properties"/>
     <stringbundle id="findBundle" src="chrome://global/locale/finddialog.properties"/>
   </stringbundleset>
-
-  <!-- parents for the command manager-managed objects -->
-  <popupset id="dynamic-popups"/>
 
   <!-- tooltip thingy -->
   <tooltip id="aHTMLTooltip"
@@ -211,6 +212,10 @@
     <command id="cmd_toggleTextDir"
              oncommand="cmdTextDirection();"/>
 
+    <!-- Content area context menu -->
+    <command id="cmd_copyLink"/>
+    <command id="cmd_searchselect"/>
+
     <!-- View commands -->
     <command id="cmd_tabstrip"
              oncommand="toggleUI('tabstrip');"/>
@@ -315,6 +320,153 @@
     <!-- Tasks keys, from overlay -->
     <keyset id="tasksKeys"/>
   </keyset>
+
+  <popupset id="chatZillaContextSet">
+    <menupopup id="chatZillaContextMenu"
+               onpopupshowing="return cZContextMenuShowing(this, event);"
+               onpopuphiding="cZContextMenuHiding(this, event);">
+      <menuitem id="context-goto-url"
+                label="&openLink.label;"
+                accesskey="&openLink.accesskey;"
+                oncommand="cmdGotoURL(gContextMenu.cx, this.id);"/>
+      <menuitem id="context-goto-url-newtab"
+                label="&openLinkCmdInTab.label;"
+                accesskey="&openLinkCmdInTab.accesskey;"
+                oncommand="cmdGotoURL(gContextMenu.cx, this.id);"/>
+      <menuitem id="context-goto-url-newwin"
+                label="&openLinkCmd.label;"
+                accesskey="&openLinkCmd.accesskey;"
+                oncommand="cmdGotoURL(gContextMenu.cx, this.id);"/>
+      <menuitem id="context-copy-link"
+                label="&copyLinkCmd.label;"
+                accesskey="&copyLinkCmd.accesskey;"
+                command="cmd_copyLink"/>
+      <menuitem id="context-toggle-usort"
+                label="&toggleUsort.label;"
+                accesskey="&toggleUsort.accesskey;"
+                type="checkbox"
+                oncommand="togglePref('sortUsersByMode', this, true);"/>
+      <menuitem id="context-toggle-umode"
+                label="&toggleUmode.label;"
+                accesskey="&toggleUmode.accesskey;"
+                type="checkbox"
+                oncommand="togglePref('showModeSymbols', this, true);"/>
+      <menuseparator id="context-toggle-separator"/>
+      <menuitem id="context-copy"/>
+      <menuitem id="context-selectall"/>
+      <menuitem id="context-searchselect"/>
+      <menuseparator id="context-nickname-separator"/>
+      <menuitem id="context-label-user" disabled="true"/>
+      <menu id="context-op-commands"
+            label="&opCommands.label;"
+            accesskey="&opCommands.accesskey;">
+        <menupopup id="opcommands-popup"
+                   onpopupshowing="initOpCommandsPopup(gContextMenu.cx);">
+          <menuitem id="context-user-op"
+                    label="&userOp.label;"
+                    accesskey="&userOp.accesskey;"
+                    type="checkbox"
+                    oncommand="userMode('op', this);"/>
+          <menuitem id="context-user-hop"
+                    label="&userHop.label;"
+                    accesskey="&userHop.accesskey;"
+                    type="checkbox"
+                    oncommand="userMode('hop', this);"/>
+          <menuitem id="context-user-voice"
+                    label="&userVoice.label;"
+                    accesskey="&userVoice.accesskey;"
+                    type="checkbox"
+                    oncommand="userMode('voice', this);"/>
+          <menuseparator id="context-op-separator"/>
+          <menuitem id="context-user-ban"
+                    oncommand="cmdBanOrExcept(gContextMenu.cx), 'ban');"/>
+          <menuitem id="context-user-unban"
+                    oncommand="cmdBanOrExcept(gContextMenu.cx, 'unban');"/>
+          <menuitem id="context-user-kick"
+                    oncommand="cmdKick(gContextMenu.cx, 'kick');"/>
+          <menuitem id="context-user-kick-ban"
+                    oncommand="cmdKick(gContextMenu.cx, 'kick-ban');"/>
+        </menupopup>
+      </menu>
+      <menu id="context-user-commands"
+            label="&userCommands.label;"
+            accesskey="&userCommands.accesskey;">
+        <menupopup id="context-user-commands-popup"
+                   onpopupshowing="initUserCommandsPopup(gContextMenu.cx);">
+          <menuitem id="context-user-query"
+                    label="&userQuery.label;"
+                    accesskey="&userQuery.accesskey;"
+                    oncommand="cmdQuery(gContextMenu.cx);"/>
+          <menuitem id="context-user-whois"
+                    label="&userWhois.label;"
+                    accesskey="&userWhois.accesskey;"
+                    oncommand="cmdWhoIs(gContextMenu.cx);"/>
+          <menuitem id="context-user-whowas"
+                    label="&userWhowas.label;"
+                    accesskey="&userWhowas.accesskey;"
+                    oncommand="cmdWhoWas(gContextMenu.cx);"/>
+          <menuitem id="context-user-ping"
+                    label="&userPing.label;"
+                    accesskey="&userPing.accesskey;"
+                    oncommand="cmdPing(gContextMenu.cx);"/>
+          <menuitem id="context-user-time"
+                    label="&userTime.label;"
+                    accesskey="&userTime.accesskey;"
+                    oncommand="cmdTime(gContextMenu.cx);"/>
+          <menuitem id="context-user-version"
+                    label="&userVersion.label;"
+                    accesskey="&userVersion.accesskey;"
+                    oncommand="cmdVersion(gContextMenu.cx);"/>
+          <menuseparator id="context-dcc-separator"/>
+          <menuitem id="context-dcc-chat"
+                    label="&dccChat.label;"
+                    accesskey="&dccChat.accesskey;"
+                    oncommand="cmdDCCChat(gContextMenu.cx);"/>
+          <menuitem id="context-dcc-send"
+                    label="&dccSend.label;"
+                    accesskey="&dccSend.accesskey;"
+                    oncommand="cmdDCCSend(gContextMenu.cx);"/>
+        </menupopup>
+      </menu>
+      <menuseparator id="context-tab-separator"/>
+      <menuitem id="context-tab-clear"
+                label="&clearView.label;"
+                accesskey="&clearView.accesskey;"
+                command="cmd_clearView"/>
+      <menuitem id="context-tab-hide"
+                label="&hideView.label;"
+                accesskey="&hideView.accesskey;"
+                oncommand="cmdHideView(gContextMenu.cx);"/>
+      <menuitem id="context-toggle-oas"
+                type="checkbox"
+                oncommand="cmdOpenAtStartup();"/>
+      <menuseparator id="channel-separator"/>
+      <menuitem id="context-channel-leave"
+                oncommand="cmdLeave(gContextMenu.cx);"/>
+      <menuitem id="context-channel-rejoin"
+                oncommand="cmdRejoin(gContextMenu.cx);"/>
+      <menuitem id="context-dcc-close"
+                oncommand="cmdDCCClose(gContextMenu.cx);"/>
+      <menuitem id="context-tab-close"
+                label="&closeCZTab.label;"
+                accesskey="&closeCZTab.accesskey;"
+                command="cmd_closeCZTab"/>
+      <menuitem id="context-net-disconnect"
+                oncommand="cmdDisconnect(gContextMenu.cx);"/>
+      <menuitem id="context-net-reconnect"
+                oncommand="cmdReconnect(gContextMenu.cx);"/>
+      <menuseparator id="context-rename-separator"/>
+      <menuitem id="context-tab-rename"
+                label="&tabRename.label;"
+                accesskey="&tabRename.accesskey;"
+                oncommand="cmdRename(gContextMenu.cx);"/>
+      <menuseparator id="context-text-separator"/>
+      <menuitem id="context-toggle-text-dir"
+                label="&toggleTextDir.label;"
+                accesskey="&toggleTextDir.accesskey;"
+                command="cmd_toggleTextDir"/>
+    </menupopup>
+  </popupset>
 
   <!-- Main menu bar -->
   <toolbox id="main-toolbox" class="toolbox-top">
@@ -631,7 +783,7 @@
                    seltype="multiple"
                    ondblclick="onUserDoubleClick(event);"
                    ondragstart="onUserDragStart(event);"
-                   context="context:userlist" aria-live="off"
+                   context="chatZillaContextMenu" aria-live="off"
                    aria-relevant="additions removals text"/>
 
         </vbox> <!-- user-list-box -->

@@ -21,7 +21,6 @@ chatzilla.jar:
   content/chatzilla/lib/irc.js                           (lib/irc.js)
   content/chatzilla/lib/irc-debug.js                     (lib/irc-debug.js)
   content/chatzilla/lib/json-serializer.js               (lib/json-serializer.js)
-  content/chatzilla/lib/menu-manager.js                  (lib/menu-manager.js)
   content/chatzilla/lib/message-manager.js               (lib/message-manager.js)
   content/chatzilla/lib/pref-manager.js                  (lib/pref-manager.js)
   content/chatzilla/lib/sts.js                           (lib/sts.js)

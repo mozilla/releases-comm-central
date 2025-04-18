@@ -136,7 +136,6 @@ function init() {
   initPrefs();
   initMunger();
   initNetworks();
-  initMenus();
   initStatic();
   initHandlers();
 
@@ -182,8 +181,6 @@ function init() {
   importFromFrame("removeUsers");
 
   processStartupScripts();
-
-  createMenus();
 
   client.busy = false;
   updateProgress();
@@ -2957,7 +2954,7 @@ function getTabForObject(source, create) {
     tb.setAttribute("onclick", "onTabClick(event, this.id);");
     // This wouldn't be here if there was a supported CSS property for it.
     tb.setAttribute("crop", "center");
-    tb.setAttribute("context", "context:tab");
+    tb.setAttribute("context", "chatZillaContextMenu");
     tb.setAttribute("class", "tab-bottom view-button");
     tb.setAttribute("id", id);
     tb.setAttribute("state", "normal");
@@ -2972,7 +2969,7 @@ function getTabForObject(source, create) {
     browser.setAttribute("flex", "1");
     browser.setAttribute("tooltip", "aHTMLTooltip");
     browser.setAttribute("onclick", "return onMessageViewClick(event)");
-    browser.setAttribute("context", "context:messages");
+    browser.setAttribute("context", "chatZillaContextMenu");
     browser.setAttribute("ondragover", "contentDNDObserver.onDragOver(event);");
     browser.setAttribute("ondrop", "contentDNDObserver.onDrop(event);");
     browser.source = source;

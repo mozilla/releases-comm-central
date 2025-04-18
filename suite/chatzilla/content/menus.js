@@ -4,259 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-function initMenus() {
-  function onMenuCommand(event, window) {
-    var commandName = event.originalTarget.getAttribute("commandname");
-    var params = {};
-    if ("cx" in client.menuManager && client.menuManager.cx) {
-      params = client.menuManager.cx;
-    }
-    params.sourceWindow = window;
-    params.source = "menu";
-    params.shiftKey = event.shiftKey;
-
-    dispatch(commandName, params, true);
-
-    delete client.menuManager.cx;
-  }
-
-  client.onMenuCommand = onMenuCommand;
-  client.menuSpecs = {};
-  var menuManager = new MenuManager(
-    client.commandManager,
-    client.menuSpecs,
-    getCommandContext,
-    "client.onMenuCommand(event, window);"
-  );
-  client.menuManager = menuManager;
-
-  // IRC specific values
-  var ViewChannel = "(cx.TYPE == 'IRCChannel')";
-  var ViewDCC = "(cx.TYPE.startsWith('IRCDCC'))";
-
-  // IRC specific combinations
-  var ChannelActive = "(" + ViewChannel + " and cx.channel.active)";
-  var ChannelInactive = "(" + ViewChannel + " and !cx.channel.active)";
-  var DCCActive = "(" + ViewDCC + " and cx.sourceObject.isActive())";
-  var NetConnected = "(cx.network and cx.network.isConnected())";
-  var NetDisconnected = "(cx.network and !cx.network.isConnected())";
-
-  // Me is op.
-  var isop = "(cx.channel.iAmOp()) && ";
-  // Me is op or half-op.
-  var isopish = "(cx.channel.iAmOp() || cx.channel.iAmHalfOp()) && ";
-  // Server has half-ops.
-  var shop = "cx.server.supports.prefix.includes('h', 1) && ";
-  // User is Me or Me is op.
-  var isoporme = "((cx.user == cx.server.me) || cx.channel.iAmOp()) && ";
-
-  client.menuSpecs["popup:opcommands"] = {
-    label: MSG_MNU_OPCOMMANDS,
-    accesskey: getAccessKeyForMenu("MSG_MNU_OPCOMMANDS"),
-    items: [
-      ["op", { visibleif: isop + "!cx.user.isOp" }],
-      ["deop", { visibleif: isop + "cx.user.isOp" }],
-      ["hop", { visibleif: isop + "!cx.user.isHalfOp" }],
-      ["dehop", { visibleif: isoporme + "cx.user.isHalfOp" }],
-      ["voice", { visibleif: isopish + "!cx.user.isVoice" }],
-      ["devoice", { visibleif: isopish + "cx.user.isVoice" }],
-      ["-"],
-      [
-        "ban",
-        { enabledif: "(" + isop + "1) || (" + isopish + "!cx.user.isOp)" },
-      ],
-      [
-        "unban",
-        { enabledif: "(" + isop + "1) || (" + isopish + "!cx.user.isOp)" },
-      ],
-      [
-        "kick",
-        { enabledif: "(" + isop + "1) || (" + isopish + "!cx.user.isOp)" },
-      ],
-      [
-        "kick-ban",
-        { enabledif: "(" + isop + "1) || (" + isopish + "!cx.user.isOp)" },
-      ],
-    ],
-  };
-
-  client.menuSpecs["popup:usercommands"] = {
-    label: MSG_MNU_USERCOMMANDS,
-    accesskey: getAccessKeyForMenu("MSG_MNU_USERCOMMANDS"),
-    items: [
-      ["query", { visibleif: "cx.channel && cx.user" }],
-      ["whois", { visibleif: "cx.user" }],
-      ["whowas", { visibleif: "cx.nickname && !cx.user" }],
-      ["ping", { visibleif: "cx.user" }],
-      ["time", { visibleif: "cx.user" }],
-      ["version", { visibleif: "cx.user" }],
-      ["-", { visibleif: "cx.user" }],
-      ["dcc-chat", { visibleif: "cx.user" }],
-      ["dcc-send", { visibleif: "cx.user" }],
-    ],
-  };
-
-  client.menuSpecs["context:userlist"] = {
-    getContext: getUserlistContext,
-    items: [
-      [
-        "toggle-usort",
-        { type: "checkbox", checkedif: "client.prefs['sortUsersByMode']" },
-      ],
-      [
-        "toggle-umode",
-        { type: "checkbox", checkedif: "client.prefs['showModeSymbols']" },
-      ],
-      ["-", { visibleif: "cx.nickname" }],
-      [
-        "label-user",
-        { visibleif: "cx.nickname && (cx.userCount == 1)", header: true },
-      ],
-      [
-        "label-user-multi",
-        { visibleif: "cx.nickname && (cx.userCount != 1)", header: true },
-      ],
-      [
-        ">popup:opcommands",
-        { visibleif: "cx.nickname", enabledif: isopish + "true" },
-      ],
-      [
-        ">popup:usercommands",
-        { visibleif: "cx.nickname", enabledif: "cx.userCount == 1" },
-      ],
-    ],
-  };
-
-  var urlenabled = "has('url')";
-  var urlexternal = "has('url') && cx.url.search(/^ircs?:/i) == -1";
-  var textselected = "getCommandEnabled('cmd_copy')";
-
-  client.menuSpecs["context:messages"] = {
-    getContext: getMessagesContext,
-    items: [
-      ["goto-url", { visibleif: urlenabled }],
-      ["goto-url-newwin", { visibleif: urlexternal }],
-      ["goto-url-newtab", { visibleif: urlexternal }],
-      ["cmd-copy-link-url", { visibleif: urlenabled }],
-      ["cmd-copy", { visibleif: "!" + urlenabled, enabledif: textselected }],
-      ["cmd-selectall", { visibleif: "!" + urlenabled }],
-      ["websearch", { visibleif: textselected }],
-      ["-", { visibleif: "cx.nickname" }],
-      ["label-user", { visibleif: "cx.nickname", header: true }],
-      [
-        ">popup:opcommands",
-        {
-          visibleif: "cx.channel && cx.nickname",
-          enabledif: isopish + "cx.user",
-        },
-      ],
-      [">popup:usercommands", { visibleif: "cx.nickname" }],
-      ["-"],
-      ["clear-view"],
-      ["hide-view", { enabledif: "client.viewsArray.length > 1" }],
-      [
-        "toggle-oas",
-        {
-          type: "checkbox",
-          checkedif: "isStartupURL(cx.sourceObject.getURL())",
-        },
-      ],
-      ["-"],
-      ["leave", { visibleif: ChannelActive }],
-      ["rejoin", { visibleif: ChannelInactive }],
-      ["dcc-close", { visibleif: DCCActive }],
-      [
-        "delete-view",
-        { visibleif: "!" + ChannelActive + " and !" + DCCActive },
-      ],
-      ["disconnect", { visibleif: NetConnected }],
-      ["reconnect", { visibleif: NetDisconnected }],
-      ["-"],
-      ["toggle-text-dir"],
-    ],
-  };
-
-  client.menuSpecs["context:tab"] = {
-    getContext: getTabContext,
-    items: [
-      ["clear-view"],
-      ["hide-view", { enabledif: "client.viewsArray.length > 1" }],
-      [
-        "toggle-oas",
-        {
-          type: "checkbox",
-          checkedif: "isStartupURL(cx.sourceObject.getURL())",
-        },
-      ],
-      ["-"],
-      ["leave", { visibleif: ChannelActive }],
-      ["rejoin", { visibleif: ChannelInactive }],
-      ["dcc-close", { visibleif: DCCActive }],
-      [
-        "delete-view",
-        { visibleif: "!" + ChannelActive + " and !" + DCCActive },
-      ],
-      ["disconnect", { visibleif: NetConnected }],
-      ["reconnect", { visibleif: NetDisconnected }],
-      ["-"],
-      ["rename"],
-      ["-"],
-      ["toggle-text-dir"],
-    ],
-  };
-}
-
-function createMenus() {
-  client.menuManager.createMenus(document, "mainmenu");
-  client.menuManager.createContextMenus(document);
-}
-
-function getCommandContext(id, event) {
-  var cx = { originalEvent: event };
-
-  if (id in client.menuSpecs) {
-    if ("getContext" in client.menuSpecs[id]) {
-      cx = client.menuSpecs[id].getContext(cx);
-    } else if ("cx" in client.menuManager) {
-      //dd ("using existing context");
-      cx = client.menuManager.cx;
-    } else {
-      //no context.
-    }
-  } else {
-    dd("getCommandContext: unknown menu id " + id);
-  }
-
-  if (typeof cx == "object") {
-    if (!("menuManager" in cx)) {
-      cx.menuManager = client.menuManager;
-    }
-    if (!("contextSource" in cx)) {
-      cx.contextSource = id;
-    }
-    if ("dbgContexts" in client && client.dbgContexts) {
-      dd("context '" + id + "'\n" + dumpObjectTree(cx));
-    }
-  }
-
-  return cx;
-}
-
-/**
- * Gets an accesskey for the menu with label string ID labelString.
- * At first, we attempt to extract it from the label string, otherwise
- * we fall back to using a separate string.
- *
- * @param labelString   the id for the locale string corresponding to the label
- * @return              the accesskey for the menu.
- */
-function getAccessKeyForMenu(labelString) {
-  var rv = getAccessKey(window[labelString]);
-  if (!rv) {
-    rv = window[labelString + "_ACCESSKEY"] || "";
-  }
-  return rv;
-}
+var gContextMenu;
 
 function setLabel(id, strId, ary, key) {
   let item = document.getElementById(id);
@@ -514,4 +262,153 @@ function initFontSizePopup() {
   if (custom) {
     setLabel("fontSizeOther", "", [size]);
   }
+}
+
+function cZContextMenuShowing(aTarget, aEvent) {
+  // If the popupshowing was for a submenu, we don't need to do anything.
+  if (aEvent.target != aTarget) {
+    return true;
+  }
+
+  gContextMenu = new nsContextMenu(aTarget, aEvent.shiftKey, aEvent);
+  let eventParent = aEvent.rangeParent;
+  let isList = eventParent && eventParent.id == "user-list";
+  let isTab = eventParent && eventParent.id == "views-tbar-inner";
+  let cx;
+  if (isList) {
+    cx = getUserlistContext();
+  } else if (isTab) {
+    cx = getTabContext();
+  } else {
+    cx = getMessagesContext();
+  }
+  gContextMenu.cx = cx;
+  let urlenabled = gContextMenu.onLink;
+  let urlexternal = urlenabled && !gContextMenu.linkProtocol.startsWith("irc");
+  let isopish = cx.channel && (cx.channel.iAmOp() || cx.channel.iAmHalfOp());
+  let ViewChannel = cx.TYPE == "IRCChannel";
+  let ChannelActive = ViewChannel && cx.channel.active;
+  let ChannelInactive = ViewChannel && !cx.channel.active;
+  let DCCActive = cx.TYPE.startsWith("IRCDCC") && cx.sourceObject.isActive();
+  let NetConnected = cx.network && cx.network.isConnected();
+  let NetDisconnected = cx.network && !cx.network.isConnected();
+  setAttr("context-goto-url", "hidden", !urlenabled);
+  setAttr("context-goto-url-newtab", "hidden", !urlexternal);
+  setAttr("context-goto-url-newwin", "hidden", !urlexternal);
+  setAttr("context-copy-link", "hidden", !urlenabled);
+  setAttr("context-toggle-usort", "hidden", !isList);
+  setAttr("context-toggle-usort", "checked", client.prefs.sortUsersByMode);
+  setAttr("context-toggle-umode", "hidden", !isList);
+  setAttr("context-toggle-umode", "checked", client.prefs.showModeSymbols);
+  setAttr("context-toggle-separator", "hidden", !isList);
+  setAttr("context-copy", "hidden", urlenabled || isTab || isList);
+  setAttr("context-selectall", "hidden", urlenabled || isTab);
+  if (isList || isTab) {
+    setAttr("context-searchselect", "hidden", true);
+  }
+  setAttr("context-nickname-separator", "hidden", !cx.nickname);
+  setAttr("context-label-user", "hidden", !cx.nickname);
+  setAttr("context-label-user", "header", true);
+  setAttr("context-op-commands", "hidden", !cx.channel || !cx.nickname);
+  setAttr("context-op-commands", "disabled", !isopish || !cx.user);
+  setAttr("context-user-commands", "hidden", !cx.nickname);
+  setAttr("context-tab-separator", "hidden", !isTab);
+  setAttr("context-tab-clear", "hidden", !isTab);
+  setAttr("context-tab-hide", "hidden", !isTab);
+  setAttr("context-tab-hide", "disabled", client.viewsArray.length < 2);
+  setAttr("context-toggle-oas", "hidden", !isTab);
+  setAttr(
+    "context-toggle-oas",
+    "checked",
+    isTab && isStartupURL(cx.sourceObject.getURL())
+  );
+  setAttr("context-channel-leave", "hidden", !ChannelActive || !isTab);
+  setAttr("context-channel-rejoin", "hidden", !ChannelInactive || !isTab);
+  setAttr("context-dcc-close", "hidden", !DCCActive || !isTab);
+  setAttr("context-tab-close", "hidden", ChannelActive || DCCActive || !isTab);
+  setAttr("context-net-disconnect", "hidden", !NetConnected || !isTab);
+  setAttr("context-net-reconnect", "hidden", !NetDisconnected || !isTab);
+  setAttr("context-rename-separator", "hidden", !isTab);
+  setAttr("context-tab-rename", "hidden", !isTab);
+  setAttr("context-text-separator", "hidden", !isTab);
+  setAttr("context-toggle-text-dir", "hidden", isList);
+  if (cx.nickname) {
+    let userCount = isList ? cx.userCount : 1;
+    if (userCount > 1) {
+      setLabel("context-label-user", "usersLabel", [userCount]);
+    } else if (userCount == 1) {
+      setLabel("context-label-user", "userLabel", [cx.nickname]);
+    } else {
+      setLabel("context-label-user", "msg.unknown");
+    }
+  }
+  if (isTab && cx.viewType) {
+    setLabel("context-toggle-oas", "openAtStartup", [cx.viewType], true);
+  }
+  if (isTab && cx.channelName) {
+    setLabel("context-channel-leave", "leaveChannel", [cx.channelName], true);
+    setLabel("context-channel-rejoin", "rejoinChannel", [cx.channelName], true);
+  }
+  if (isTab && DCCActive && cx.userName) {
+    setLabel("context-dcc-close", "dccClose", [cx.userName], true);
+  }
+  if (isTab && cx.networkName) {
+    setLabel("context-net-disconnect", "disconnectNet", [cx.networkName], true);
+    setLabel("context-net-reconnect", "reconnectNet", [cx.networkName], true);
+  }
+
+  return gContextMenu.shouldDisplay || isList || isTab;
+}
+
+function cZContextMenuHiding(aTarget, aEvent) {
+  // Don't do anything if it's a submenu's onpopuphiding that's just bubbling
+  // up to the top.
+  if (aEvent.target != aTarget) {
+    return;
+  }
+
+  gContextMenu.hiding();
+  gContextMenu = null;
+}
+
+function initOpCommandsPopup(cx) {
+  // Me is op.
+  let isop = cx.channel.iAmOp();
+  // User is Me or Me is op.
+  let isoporme = cx.user == cx.server.me || isop;
+  // Me is op or half-op.
+  let isopish = isop || cx.channel.iAmHalfOp();
+  setAttr("context-user-op", "hidden", !isop);
+  if (isop) {
+    setAttr("context-user-op", "checked", cx.user.isOp);
+  }
+  setAttr("context-user-hop", "hidden", !isoporme);
+  if (isoporme) {
+    setAttr("context-user-hop", "checked", cx.user.isHalfOp);
+  }
+  setAttr("context-user-voice", "hidden", !isopish);
+  if (isopish) {
+    setAttr("context-user-voice", "checked", cx.user.isVoice);
+  }
+  let kickban = isop || (isopish && !cx.user.isOp);
+  setAttr("context-user-ban", "disabled", !kickban);
+  setAttr("context-user-unban", "disabled", !kickban);
+  setAttr("context-user-kick", "disabled", !kickban);
+  setAttr("context-user-kick-ban", "disabled", !kickban);
+  setLabel("context-user-ban", "userBan", [cx.channelName], true);
+  setLabel("context-user-unban", "userUnban", [cx.channelName], true);
+  setLabel("context-user-kick", "userKick", [cx.channelName], true);
+  setLabel("context-user-kick-ban", "userKickBan", [cx.channelName], true);
+}
+
+function initUserCommandsPopup(cx) {
+  setAttr("context-user-query", "hidden", !cx.channel || !cx.user);
+  setAttr("context-user-whois", "hidden", !cx.user);
+  setAttr("context-user-whowas", "hidden", !cx.nickname || cx.user);
+  setAttr("context-user-ping", "hidden", !cx.user);
+  setAttr("context-user-time", "hidden", !cx.user);
+  setAttr("context-user-version", "hidden", !cx.user);
+  setAttr("context-dcc-separator", "hidden", !cx.user);
+  setAttr("context-dcc-chat", "hidden", !cx.user);
+  setAttr("context-dcc-send", "hidden", !cx.user);
 }
