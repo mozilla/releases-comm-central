@@ -880,16 +880,17 @@ const JsMIMEheaderparser = function () {
     let addrlist = [];
 
     // Build up all of the values
-    let displayName = "",
-      groupName = "",
-      localPart = "",
-      address = "",
-      comment = "";
+    let displayName = "";
+    let groupName = "";
+    let localPart = "";
+    let address = "";
+    let comment = "";
+
     // Indicators of current state
-    let inAngle = false,
-      inComment = false,
-      needsSpace = false,
-      afterAddress = false;
+    let inAngle = false;
+    let inComment = false;
+    let needsSpace = false;
+    let afterAddress = false;
     let preserveSpace = false;
     let commentClosed = false;
 
@@ -967,10 +968,17 @@ const JsMIMEheaderparser = function () {
           results = results.concat(addrlist);
         }
         addrlist = [];
-      } else if (token === "<" && !afterAddress) {
+      } else if (token === "<") {
+        if (afterAddress && !inAngle) {
+          // For multiple bracketed addresses, use the last one as email and
+          // add the "fake" invalid previous one to the displayName.
+          displayName += ` <${address}>`;
+          localPart = address = "";
+          afterAddress = false;
+        }
         if (inAngle) {
           // Interpret the address we were parsing as a name.
-          if (address.length > 0) {
+          if (address) {
             displayName = address;
           }
           localPart = address = "";

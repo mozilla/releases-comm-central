@@ -48,12 +48,13 @@ StringEnumerator.prototype = {
  * If we get XPConnect-wrapped objects for msgIAddressObjects, we will have
  * properties defined for 'group' that throws off jsmime. This function converts
  * the addresses into the form that jsmime expects.
+ *
+ * @param {msgIAddressObjects[]} addrs
+ * @returns {msgIAddressObject}
  */
 function fixXpconnectAddresses(addrs) {
   return addrs.map(addr => {
-    // This is ideally !addr.group, but that causes a JS strict warning, if
-    // group is not in addr, since that's enabled in all chrome code now.
-    if (!("group" in addr) || addr.group === undefined || addr.group === null) {
+    if (!addr.group) {
       return MimeAddressParser.prototype.makeMailboxObject(
         addr.name,
         addr.email
@@ -385,6 +386,19 @@ MimeAddressParser.prototype = {
     return object;
   },
 
+  /**
+   * Return an array of structured mailbox objects for the given display name
+   * string.
+   *
+   * The string is expected to be a comma-separated sequence of strings that
+   * would be produced by msgIAddressObject::toString(). For example, the string
+   * "Bond, James <agent007@mi5.invalid>" would produce one address object,
+   * while the string "webmaster@nowhere.invalid, child@nowhere.invalid" would
+   * produce two address objects.
+   *
+   * @param {string} aDisplay - The display addresses.
+   * @returns {msgIAddressObject[]}
+   */
   makeFromDisplayAddress(aDisplay) {
     if (aDisplay.includes(";") && !/:.*;/.test(aDisplay)) {
       // Using semicolons as mailbox separators in against the standard, but
@@ -439,30 +453,37 @@ MimeAddressParser.prototype = {
   /**
    * Construct a single email address from an |name <local@domain>| token.
    *
-   * @param {string} aInput - a string to be parsed to a mailbox object.
+   * @param {string} input - a string to be parsed to a mailbox object.
    * @returns {msgIAddressObject} the mailbox parsed from the input.
    */
-  _makeSingleAddress(aInput) {
+  _makeSingleAddress(input) {
     // If the whole string is within quotes, unquote it first.
-    aInput = aInput.trim().replace(/^"(.*)"$/, "$1");
+    input = input.trim().replace(/^"(.*)"$/, "$1");
 
-    if (/<.*>/.test(aInput)) {
+    if (/<.*>/.test(input)) {
       // We don't want to look for the address within quotes, so first remove
       // all quoted strings containing angle chars.
-      const cleanedInput = aInput.replace(/".*[<>]+.*"/g, "");
+      const cleanedInput = input.replace(/".*[<>]+.*"/g, "");
 
       // Extract the address from within the quotes.
-      const addrMatch = cleanedInput.match(/<([^><]*)>/);
-
-      const addr = addrMatch ? addrMatch[1] : "";
-      const addrIdx = aInput.indexOf("<" + addr + ">");
-      return this.makeMailboxObject(aInput.slice(0, addrIdx).trim(), addr);
+      const matches = /(<([^><]*)>[^<]*)+/.exec(cleanedInput);
+      const addr = matches ? matches.at(-1) : "";
+      const addrIdx = input.lastIndexOf("<" + addr + ">");
+      return this.makeMailboxObject(input.slice(0, addrIdx).trim(), addr);
     }
-    return this.makeMailboxObject("", aInput);
+    return this.makeMailboxObject("", input);
   },
 
-  extractHeaderAddressMailboxes(aLine) {
-    return this.parseDecodedHeader(aLine)
+  /**
+   * Given a string which contains a list of Header addresses, returns a
+   * comma-separated list of just the `mailbox' portions.
+   *
+   * @param {string} line - The header line to parse.
+   * @returns {string} A comma-separated list of just the mailbox parts
+   *   of the email-addresses.
+   */
+  extractHeaderAddressMailboxes(line) {
+    return this.parseDecodedHeader(line)
       .map(addr => addr.email)
       .join(", ");
   },

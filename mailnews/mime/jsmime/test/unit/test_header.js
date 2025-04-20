@@ -746,33 +746,33 @@ define(function (require) {
           ],
         ],
         [
-          "me (via foo@example.com) <attacker2@example.com>friend2@example.com ",
+          "me (via foo@example.com) <attacker2@example.com> <friend2@example.com> ",
           [
             {
-              name: "me (via foo@example.com)",
-              email: "attacker2@example.com",
+              name: "me (via foo@example.com) <attacker2@example.com>",
+              email: "friend2@example.com",
             },
           ],
         ],
         [
-          "<attacker@example.com> <friend@example.com>,friend2@example.com<attacker2@example.com>",
+          "<friend@example.com> <real@example.com>,friend2@example.com<real2@example.com>",
           [
             {
-              name: "",
-              email: "attacker@example.com",
+              name: "<friend@example.com>",
+              email: "real@example.com",
             },
             {
               name: "friend2@example.com",
-              email: "attacker2@example.com",
+              email: "real2@example.com",
             },
           ],
         ],
         [
-          'My "XX ><<friend2@example.com>" YY <attacker@example.com> <friend@example.com> ("mr ><x")',
+          'My "XX ><<friend2@example.com>" YY <fake@example.com> <real@example.com> ("mr ><x")',
           [
             {
-              name: "My XX ><<friend2@example.com> YY (mr ><x)",
-              email: "attacker@example.com",
+              name: "My XX ><<friend2@example.com> YY <fake@example.com> (mr ><x)",
+              email: "real@example.com",
             },
           ],
         ],
