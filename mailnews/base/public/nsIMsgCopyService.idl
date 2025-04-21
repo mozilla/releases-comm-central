@@ -121,8 +121,8 @@ interface nsIMsgCopyService : nsISupports {
    * Get the actual folder resulting from moving/copying a folder. This can be
    * used in onStopCopy.
    *
-   * @param aSupport   The originator of CopyFolder
+   * @param aSrcFolder The originator of CopyFolder
    * @return           The folder as the result of a move/copy operation
    */
-  nsIMsgFolder getArrivedFolder(in nsISupports aSupport);
+  nsIMsgFolder getArrivedFolder(in nsIMsgFolder aSrcFolder);
 };

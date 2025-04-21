@@ -578,11 +578,11 @@ nsMsgCopyService::NotifyCompletion(nsISupports* aSupport,
 }
 
 NS_IMETHODIMP
-nsMsgCopyService::GetArrivedFolder(nsISupports* aSupport,
+nsMsgCopyService::GetArrivedFolder(nsIMsgFolder* aSrcFolder,
                                    nsIMsgFolder** aArrFolder) {
   NS_ENSURE_ARG_POINTER(aArrFolder);
   for (auto copyRequest : m_copyRequests) {
-    if (SameCOMIdentity(copyRequest->m_srcSupport, aSupport) &&
+    if (SameCOMIdentity(copyRequest->m_srcSupport, aSrcFolder) &&
         copyRequest->m_processed) {
       NS_IF_ADDREF(*aArrFolder = copyRequest->m_arrFolder);
       return NS_OK;
