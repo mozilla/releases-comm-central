@@ -138,11 +138,12 @@
         <button is="highlightable-button" id="applyChoose"
                 class="folder-chooser-popup-button"
                 data-l10n-id="choose-apply-sort-button"></button>
-        <menupopup id="folderPickerMenuPopup">
+        <menupopup id="folderPickerMenuPopup" class="menupopup">
           <menu id="applyViewToFolder"
                 class="apply-view-to-folder-menu"
                 data-l10n-id="apply-current-view-to-folder">
             <menupopup is="folder-menupopup"
+                       class="menupopup"
                        mode="filing"
                        showFileHereLabel="true"
                        position="start_before"></menupopup>
@@ -151,6 +152,7 @@
                 class="apply-view-to-folder-and-children-menu"
                 data-l10n-id="apply-current-view-to-folder-children">
             <menupopup is="folder-menupopup"
+                       class="menupopup"
                        mode="filing"
                        showFileHereLabel="true"
                        showAccountsFileHere="true"
