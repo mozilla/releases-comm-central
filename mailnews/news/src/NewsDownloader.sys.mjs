@@ -7,14 +7,15 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { NntpUtils } from "resource:///modules/NntpUtils.sys.mjs";
 
 /**
- * Download articles in all subscribed newsgroups for offline use.
+ * Download articles in subscribed newsgroups for offline use.
  */
 export class NewsDownloader {
   _logger = NntpUtils.logger;
 
   /**
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
-   * @param {nsIUrlListener} urlListener - Callback for the request.
+   * @param {nsIUrlListener} [urlListener=null] - Optional allback for the
+   *   request.
    */
   constructor(msgWindow, urlListener) {
     this._msgWindow = msgWindow;
@@ -23,12 +24,15 @@ export class NewsDownloader {
     this._bundle = Services.strings.createBundle(
       "chrome://messenger/locale/news.properties"
     );
+    this._messengerBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
+    );
   }
 
   /**
-   * Actually start the download process.
+   * Download matching articles in all newsgroups that are set for offline use.
    */
-  async start() {
+  async downloadAllOfflineNewsgroups() {
     this._logger.debug("Start downloading articles for offline use");
     const servers = MailServices.accounts.allServers.filter(
       x => x.type == "nntp"
@@ -40,15 +44,50 @@ export class NewsDownloader {
         for (const folder of folders) {
           if (folder.flags & Ci.nsMsgFolderFlags.Offline) {
             // Download newsgroups set for offline use in a server one by one.
-            await this._downloadFolder(folder);
+            await this._downloadArticles(folder);
           }
         }
       })
     );
 
-    this._urlListener.OnStopRunningUrl(null, Cr.NS_OK);
+    this._urlListener?.OnStopRunningUrl(null, Cr.NS_OK);
 
     this._logger.debug("Finished downloading articles for offline use");
+    this._msgWindow.statusFeedback.showStatusString("");
+  }
+
+  /**
+   * Download all matching articles in a single newsgroup.
+   *
+   * @param {nsIMsgFolder} folder - The newsgroup folder.
+   */
+  async downloadFolder(folder) {
+    this._logger.debug(
+      "Start downloading articles for offline use in single folder."
+    );
+
+    await this._downloadArticles(folder);
+
+    this._logger.debug(
+      "Finished downloading articles for offline use in single folder."
+    );
+    this._msgWindow.statusFeedback.showStatusString("");
+  }
+
+  /**
+   * Download specific articles in a single newsgroup.
+   *
+   * @param {nsIMsgFolder} folder - The newsgroup folder.
+   * @param {nsMsgKey[]} keys - The keys of the messages to download.
+   */
+  async downloadMessages(folder, keys) {
+    this._logger.debug("Start downloading specific articles for offline use");
+
+    await this._downloadArticles(folder, keys);
+
+    this._logger.debug(
+      "Finished downloading specific articles for offline use"
+    );
     this._msgWindow.statusFeedback.showStatusString("");
   }
 
@@ -56,16 +95,18 @@ export class NewsDownloader {
    * Download articles in a newsgroup one by one.
    *
    * @param {nsIMsgFolder} folder - The newsgroup folder.
+   * @param {nsMsgKey[]} [keys=null] - If set, the keys of the messages to
+   *   download, otherwise all messages matching the download settings for
+   *   the folder are retrieved.
    */
-  async _downloadFolder(folder) {
+  async _downloadArticles(folder, keys = null) {
     this._logger.debug(`Start downloading ${folder.URI}`);
 
     folder.QueryInterface(Ci.nsIMsgNewsFolder).saveArticleOffline = true;
-    const keysToDownload = await this._getKeysToDownload(folder);
 
+    keys ??= [...(await this._getKeysToDownload(folder))];
     let i = 0;
-    const total = keysToDownload.size;
-    for (const key of keysToDownload) {
+    for (const key of keys) {
       await new Promise(resolve => {
         MailServices.nntp.fetchMessage(folder, key, this._msgWindow, null, {
           OnStartRunningUrl() {},
@@ -75,20 +116,27 @@ export class NewsDownloader {
         });
       });
       this._msgWindow.statusFeedback.showStatusString(
-        this._bundle.formatStringFromName("downloadingArticlesForOffline", [
-          ++i,
-          total,
-          folder.prettyName,
+        this._messengerBundle.formatStringFromName("statusMessage", [
+          folder.server.prettyName,
+          this._bundle.formatStringFromName("downloadingArticlesForOffline", [
+            ++i,
+            keys.length,
+            folder.prettyName,
+          ]),
         ])
       );
     }
 
     folder.saveArticleOffline = false;
+    folder.refreshSizeOnDisk();
+
+    this._logger.debug(`Finished downloading ${folder.URI}`);
   }
 
   /**
-   * Use a search session to find articles that match the download settings
-   * and we don't already have.
+   * Use a search session to find messages that match the download settings,
+   * excluding those already available offline or belonging to ignored
+   * (sub-)threads.
    *
    * @param {nsIMsgFolder} folder - The newsgroup folder.
    * @returns {Set<number>}
@@ -132,15 +180,32 @@ export class NewsDownloader {
       null
     );
 
+    if (folder.server.limitOfflineMessageSize && folder.server.maxMessageSize) {
+      termValue.attrib = Ci.nsMsgSearchAttrib.Size;
+      termValue.size = folder.server.maxMessageSize;
+      searchSession.addSearchTerm(
+        Ci.nsMsgSearchAttrib.Size,
+        Ci.nsMsgSearchOp.IsLessThan,
+        termValue,
+        true,
+        null
+      );
+    }
+
     const keysToDownload = new Set();
+    const msgDatabase = folder.msgDatabase;
     await new Promise(resolve => {
       searchSession.registerListener(
         {
           onSearchHit(hdr) {
-            if (!(hdr.flags & Ci.nsMsgMessageFlags.Offline)) {
-              // Only need to download articles we don't already have.
-              keysToDownload.add(hdr.messageKey);
+            if (
+              hdr.flags & Ci.nsMsgMessageFlags.Offline ||
+              hdr.isKilled ||
+              msgDatabase.isIgnored(hdr.messageKey)
+            ) {
+              return;
             }
+            keysToDownload.add(hdr.messageKey);
           },
           onSearchDone: () => {
             resolve();

@@ -37,7 +37,6 @@
 #include "nsNetCID.h"
 #include "nsINntpUrl.h"
 
-#include "nsNewsDownloader.h"
 #include "nsIStringBundle.h"
 #include "nsMsgI18N.h"
 
@@ -1282,54 +1281,34 @@ NS_IMETHODIMP nsMsgNewsFolder::SetSaveArticleOffline(bool aBool) {
 
 NS_IMETHODIMP nsMsgNewsFolder::DownloadAllForOffline(nsIUrlListener* listener,
                                                      nsIMsgWindow* msgWindow) {
-  nsTArray<nsMsgKey> srcKeyArray;
-  SetSaveArticleOffline(true);
   nsresult rv = NS_OK;
 
-  // build up message keys.
-  if (mDatabase) {
-    nsCOMPtr<nsIMsgEnumerator> enumerator;
-    rv = mDatabase->EnumerateMessages(getter_AddRefs(enumerator));
-    if (NS_SUCCEEDED(rv) && enumerator) {
-      bool hasMore;
-      while (NS_SUCCEEDED(rv = enumerator->HasMoreElements(&hasMore)) &&
-             hasMore) {
-        nsCOMPtr<nsIMsgDBHdr> header;
-        rv = enumerator->GetNext(getter_AddRefs(header));
-        if (header && NS_SUCCEEDED(rv)) {
-          bool shouldStoreMsgOffline = false;
-          nsMsgKey msgKey;
-          header->GetMessageKey(&msgKey);
-          MsgFitsDownloadCriteria(msgKey, &shouldStoreMsgOffline);
-          if (shouldStoreMsgOffline) srcKeyArray.AppendElement(msgKey);
-        }
-      }
-    }
+  nsCOMPtr<nsINntpService> nntpService(
+      do_GetService("@mozilla.org/messenger/nntpservice;1", &rv));
+  if (NS_SUCCEEDED(rv) && nntpService) {
+    rv = nntpService->DownloadFolderForOffline(this, msgWindow);
   }
-  RefPtr<DownloadNewsArticlesToOfflineStore> downloadState =
-      new DownloadNewsArticlesToOfflineStore(msgWindow, mDatabase, this);
-  rv = downloadState->DownloadArticles(msgWindow, this, &srcKeyArray);
-  (void)RefreshSizeOnDisk();
+
   return rv;
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::DownloadMessagesForOffline(
-    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, nsIMsgWindow* window) {
-  nsresult rv;
-  SetSaveArticleOffline(
-      true);  // ### TODO need to clear this when we've finished
-  // build up message keys.
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, nsIMsgWindow* msgWindow) {
+  nsresult rv = NS_OK;
+
   nsTArray<nsMsgKey> srcKeyArray(messages.Length());
-  for (nsIMsgDBHdr* hdr : messages) {
+  for (const auto& hdr : messages) {
     nsMsgKey key;
     rv = hdr->GetMessageKey(&key);
     if (NS_SUCCEEDED(rv)) srcKeyArray.AppendElement(key);
   }
-  RefPtr<DownloadNewsArticlesToOfflineStore> downloadState =
-      new DownloadNewsArticlesToOfflineStore(window, mDatabase, this);
 
-  rv = downloadState->DownloadArticles(window, this, &srcKeyArray);
-  (void)RefreshSizeOnDisk();
+  nsCOMPtr<nsINntpService> nntpService(
+      do_GetService("@mozilla.org/messenger/nntpservice;1", &rv));
+  if (NS_SUCCEEDED(rv) && nntpService) {
+    rv = nntpService->DownloadMessagesForOffline(this, srcKeyArray, msgWindow);
+  }
+
   return rv;
 }
 

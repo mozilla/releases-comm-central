@@ -125,4 +125,6 @@ interface nsIMsgNewsFolder : nsISupports {
    * @param aMsgWindow  The standard message window object, for error dialogs.
    */
   void cancelMessage(in nsIMsgDBHdr aMsgHdr, in nsIMsgWindow aMsgWindow);
+
+  void refreshSizeOnDisk();
 };

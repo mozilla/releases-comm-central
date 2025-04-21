@@ -28,6 +28,9 @@ interface nsINntpService : nsISupports {
   nsIURI fetchMessage(in nsIMsgFolder newsFolder, in nsMsgKey key, in nsIMsgWindow aMsgWindow, in nsISupports aConsumer, in nsIUrlListener aUrlListener);
 
   void downloadNewsgroupsForOffline(in nsIMsgWindow aMsgWindow, in nsIUrlListener aListener);
+  void downloadFolderForOffline(in nsIMsgFolder newsFolder, in nsIMsgWindow aMsgWindow);
+  void downloadMessagesForOffline(in nsIMsgFolder newsFolder, in Array<nsMsgKey> keys, in nsIMsgWindow aMsgWindow);
+
   /**
    * can handle news-message:// and news://
    */
