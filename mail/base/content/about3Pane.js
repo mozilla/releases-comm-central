@@ -4815,7 +4815,6 @@ var threadPane = {
         break;
       case "addrbook-displayname-changed":
       case "custom-column-refreshed":
-      case "global-view-flags-changed":
         // addrbook-displayname-changed: This runs when mail.displayname.version
         // preference observer is notified or the number of the
         // mail.displayname.version preference has been updated.
@@ -4823,9 +4822,6 @@ var threadPane = {
         // but now that filling the cells happens asynchronously, that's too
         // complicated, so it's better to invalidate the whole thing. Kept for
         // add-on compatibility.
-        // global-view-flags-changed: Threading and sorting might have changed
-        // for the currently visible folder. Let's invalidate the tree to avoid
-        // showing a stale thread view.
         threadTree.invalidate();
         break;
       case "custom-column-added":
@@ -4833,6 +4829,13 @@ var threadPane = {
         break;
       case "custom-column-removed":
         this.onCustomColumnRemoved(data);
+        break;
+      case "global-view-flags-changed":
+        // Global view flags have changed. Reload the currently selected message
+        // list to avoid showing a stale configuration. We could be smart here
+        // and check if the currently selected folder is part of the modified
+        // folders but forcing a selection is inexpensive and straightforward.
+        folderTree.dispatchEvent(new CustomEvent("select"));
         break;
     }
   },

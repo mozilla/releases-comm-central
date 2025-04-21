@@ -76,7 +76,7 @@ export const appearancePane = {
    *
    * @param {nsIMsgFolder} folder - The message folder.
    */
-  commitViewState(folder) {
+  commitViewState: folder => {
     if (folder.isServer) {
       return;
     }

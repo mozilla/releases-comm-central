@@ -211,13 +211,15 @@ add_task(async function test_default_preferences_flags() {
 add_task(async function test_edit_flags_all_folders() {
   info("Ensure that changing the menulist updates the preferences correctly.");
 
-  const defaultFlagGrouped = prefsDocument.getElementById("defaultFlagGrouped");
-  defaultFlagGrouped.scrollIntoView({ block: "start", behavior: "instant" });
-  EventUtils.synthesizeMouseAtCenter(defaultFlagGrouped, {}, prefsWindow);
+  const defaultFlagUnthreaded = prefsDocument.getElementById(
+    "defaultFlagUnthreaded"
+  );
+  defaultFlagUnthreaded.scrollIntoView({ block: "start", behavior: "instant" });
+  EventUtils.synthesizeMouseAtCenter(defaultFlagUnthreaded, {}, prefsWindow);
 
   Assert.equal(
     Services.prefs.getIntPref("mailnews.default_view_flags"),
-    40,
+    0,
     "The view flags pref should have been updated"
   );
 
@@ -268,6 +270,12 @@ add_task(async function test_edit_flags_all_folders() {
   );
   folderSource.msgDatabase = null;
 
+  Assert.equal(
+    threadTree.table.body.getAttribute("role"),
+    "treegrid",
+    "The currently selected folder should be presented as Tree Grid View"
+  );
+
   info("Apply the new flags to all existing folders");
 
   const applyPromise = TestUtils.topicObserved("global-view-flags-changed");
@@ -281,8 +289,9 @@ add_task(async function test_edit_flags_all_folders() {
 
   for (const folder of [folderSource, folderParent, folderChild1]) {
     const dbInfo = folder.msgDatabase.dBFolderInfo;
-    Assert.ok(
-      !(dbInfo.viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort),
+    Assert.equal(
+      dbInfo.viewFlags,
+      Ci.nsMsgViewFlagsType.kNone,
       `viewFlags should be grouped by sort for ${folder.name}`
     );
     Assert.equal(
@@ -297,6 +306,12 @@ add_task(async function test_edit_flags_all_folders() {
     );
     folder.msgDatabase = null;
   }
+
+  Assert.equal(
+    threadTree.table.body.getAttribute("role"),
+    "listbox",
+    "The currently selected folder should be presented as Listbox"
+  );
 });
 
 add_task(async function test_edit_flags_single_folders() {
