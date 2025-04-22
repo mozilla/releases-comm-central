@@ -198,12 +198,4 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
 
   nsCOMPtr<nsIPrefBranch> m_prefs;
   nsCOMPtr<nsIMsgDBService> m_dbService;
-
-  // account deletion handling
-
-  /**
-   * Removes the given folder from the folder cache, along with all its cached
-   * properties.
-   */
-  nsresult RemoveFolderFromCache(nsIMsgFolder* aFolder);
 };
