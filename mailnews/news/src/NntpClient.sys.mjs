@@ -17,6 +17,7 @@ const AUTH_FAILED = 481;
 const SERVICE_UNAVAILABLE = 502;
 const NOT_SUPPORTED = 503;
 const XPAT_OK = 221;
+const NO_SUCH_NEWSGROUP = 411;
 
 const NNTP_ERROR_MESSAGE = -304;
 
@@ -179,6 +180,11 @@ export class NntpClient {
         return;
       case SERVICE_UNAVAILABLE:
         this._actionError(NNTP_ERROR_MESSAGE, res.statusText);
+        return;
+      case NO_SUCH_NEWSGROUP:
+        this._server.groupNotFound(null, this._currentGroupName);
+        // Close the connection without any further error message.
+        this._actionDone(Cr.NS_ERROR_FAILURE);
         return;
       default:
         if (res.status == AUTH_FAILED) {
@@ -602,10 +608,6 @@ export class NntpClient {
    * @param {NntpResponse} res - GROUP response received from the server.
    */
   _actionGroupResponse = res => {
-    if (res.status == 411) {
-      this._server.groupNotFound(null, this._currentGroupName, true);
-      return;
-    }
     this._firstGroupCommand(res);
   };
 

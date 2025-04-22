@@ -129,8 +129,7 @@ interface nsINntpIncomingServer : nsISupports {
     readonly attribute AUTF8String firstGroupNeedingExtraInfo;
     void setGroupNeedsExtraInfo(in AUTF8String name, in boolean needsExtraInfo);
 
-    void groupNotFound(in nsIMsgWindow window, in AString group,
-                       in boolean opening);
+    void groupNotFound(in nsIMsgWindow window, in AString group);
 
     void setPrettyNameForGroup(in AString name, in AString prettyName);
 };
