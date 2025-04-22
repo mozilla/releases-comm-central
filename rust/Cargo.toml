@@ -225,6 +225,7 @@ half = { path = "../../build/rust/half" }
 rusqlite = { path = "../../build/rust/rusqlite" }
 ron = { path = "../../build/rust/ron" }
 strum = { path = "../../build/rust/strum" }
+itertools = { path = "../../build/rust/itertools" }
 moz_asserts = { path = "../../mozglue/static/rust/moz_asserts" }
 rure = { path = "../../third_party/rust/rure" }
 plist = { path = "../../third_party/rust/plist" }
