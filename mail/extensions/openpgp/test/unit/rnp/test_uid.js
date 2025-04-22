@@ -75,11 +75,11 @@ const tests = [
   },
   {
     input: "First Last () <> <email1@example.com>",
-    email: "",
+    email: "email1@example.com",
   },
   {
     input: "First <Last> (comment) <email1@example.com>",
-    email: "",
+    email: "email1@example.com",
   },
   {
     input: "First Last <email@example.com> (bad comment)",
