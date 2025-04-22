@@ -2157,9 +2157,9 @@ bool CorpusStore::readTokens(FILE* stream, int64_t fileSize, uint32_t aTraitId,
     }
     if (size >= bufferSize) {
       delete[] buffer;
-      while (size >= bufferSize && bufferSize < std::sqrt(UINT32_MAX)) {
+      while (size >= bufferSize) {
+        if (bufferSize > UINT32_MAX / 2) return false;
         bufferSize *= 2;
-        if (bufferSize == 0) return false;
       }
       buffer = new char[bufferSize];
       if (!buffer) return false;
