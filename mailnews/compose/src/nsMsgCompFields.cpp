@@ -85,6 +85,7 @@ nsresult nsMsgCompFields::SetAsciiHeader(MsgHeaderID header,
   // take as an attempt to delete the header.
   const char* headerName = kHeaders[header].mName;
   if (headerName) {
+    NS_ENSURE_STATE(mStructuredHeaders);
     if (!value || !*value) return mStructuredHeaders->DeleteHeader(headerName);
 
     return mStructuredHeaders->SetRawHeader(headerName,
@@ -103,6 +104,10 @@ const char* nsMsgCompFields::GetAsciiHeader(MsgHeaderID header) {
 
   const char* headerName = kHeaders[header].mName;
   if (headerName) {
+    if (!mStructuredHeaders) {
+      NS_WARNING("mStructuredHeaders was null");
+      return "";
+    }
     // We may be out of sync with the structured header object. Retrieve the
     // header value.
     if (kHeaders[header].mStructured) {
