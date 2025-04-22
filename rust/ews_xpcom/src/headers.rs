@@ -4,6 +4,8 @@
 
 use std::iter::IntoIterator;
 
+use mail_parser::HeaderName;
+
 use xpcom::interfaces::{nsMsgPriority, nsMsgPriorityValue};
 
 /// A message from which email headers can be retrieved.
@@ -43,6 +45,10 @@ pub(crate) trait MessageHeaders {
     /// The message's priority/importance. Might be represented by its
     /// `X-Priority` header.
     fn priority(&self) -> Option<nsMsgPriorityValue>;
+
+    /// The messages this message refers to. This is a string which follows the
+    /// format of the `References` header described in RFC822.
+    fn references(&self) -> Option<impl AsRef<str>>;
 }
 
 impl MessageHeaders for &ews::Message {
@@ -131,6 +137,10 @@ impl MessageHeaders for &ews::Message {
             })
         })
     }
+
+    fn references(&self) -> Option<impl AsRef<str>> {
+        self.references.as_ref()
+    }
 }
 
 impl MessageHeaders for mail_parser::Message<'_> {
@@ -209,6 +219,11 @@ impl MessageHeaders for mail_parser::Message<'_> {
                     _ => nsMsgPriority::Default,
                 })
             })
+    }
+
+    fn references(&self) -> Option<impl AsRef<str>> {
+        self.header(HeaderName::References)
+            .and_then(|value| value.as_text())
     }
 }
 

@@ -357,6 +357,7 @@ impl XpComEwsClient {
                         "item:DisplayCc",
                         "item:HasAttachments",
                         "item:Importance",
+                        "message:References",
                     ],
                     false,
                 )
@@ -1619,6 +1620,11 @@ fn populate_db_message_header_from_message_headers(
 
     if let Some(priority) = msg.priority() {
         unsafe { header.SetPriority(priority) }.to_result()?;
+    }
+
+    if let Some(references) = msg.references() {
+        let references = nsCString::from(references.as_ref());
+        unsafe { header.SetReferences(&*references) }.to_result()?;
     }
 
     Ok(())

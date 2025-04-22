@@ -1189,6 +1189,9 @@ pub struct Message {
 
     #[xml_struct(ns_prefix = "t")]
     pub conversation_id: Option<ItemId>,
+
+    #[xml_struct(ns_prefix = "t")]
+    pub references: Option<String>,
 }
 
 /// An extended MAPI property of an Exchange item or folder.
