@@ -1352,6 +1352,7 @@
   Push "sqlite3.dll"
   Push "mozsqlite3.dll"
   Push "xpcom.dll"
+  Push "crashhelper.exe"
   Push "crashreporter.exe"
   Push "pingsender.exe"
   Push "updater.exe"

@@ -479,6 +479,12 @@
 #endif
 #endif
 
+; [ crashhelper ]
+;
+#ifdef MOZ_CRASHREPORTER
+@BINPATH@/crashhelper@BIN_SUFFIX@
+#endif
+
 ; [ Ping Sender ]
 ;
 @BINPATH@/pingsender@BIN_SUFFIX@

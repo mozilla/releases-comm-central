@@ -5,6 +5,9 @@
 #filter substitution
 /*.app/***
 /certutil
+#if defined(MOZ_CRASHREPORTER)
+/crashhelper
+#endif
 /pingsender
 /pk12util
 /rnp-cli
