@@ -30,6 +30,7 @@ class nsMsgBrkMBoxStore final : public nsMsgLocalStoreUtils,
   ~nsMsgBrkMBoxStore();
 
  protected:
+  nsresult InvalidateOngoingWrite(nsIMsgFolder* folder);
   nsresult InternalGetNewMsgOutputStream(nsIMsgFolder* aFolder,
                                          int64_t& filePos,
                                          nsIOutputStream** aResult);
