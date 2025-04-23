@@ -1144,23 +1144,8 @@ PrefWindow.prototype.onLoad = function () {
   // This allows [OK] to actually save, without this it'll just close.
   this.loaded = true;
 
-  // Force the window to be the right size now, not later.
-  window.sizeToContent();
-  // XXX: If we're on mac, make it wider because the default theme's
-  //      tabs are huge:
-  if (client.platform == "Mac") {
-    window.resizeBy(140, 0);
-  }
-
-  // Center window.
-  if ("arguments" in window && 0 in window.arguments) {
-    var ow = window.arguments[0];
-
-    window.moveTo(
-      ow.screenX + Math.max((ow.outerWidth - window.outerWidth) / 2, 0),
-      ow.screenY + Math.max((ow.outerHeight - window.outerHeight) / 2, 0)
-    );
-  }
+  // If we're on mac, make it wider because the default theme's tabs are huge.
+  centerDialog(client.platform == "Mac");
 };
 
 /* Closing the window. Clean up. */

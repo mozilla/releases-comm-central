@@ -2314,7 +2314,7 @@ function joinChannel(network) {
     "chrome://chatzilla/content/channels.xul",
     "",
     "resizable=yes",
-    { client, network, opener: window }
+    { client, network }
   );
 }
 

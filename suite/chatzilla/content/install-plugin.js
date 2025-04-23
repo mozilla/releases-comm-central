@@ -15,13 +15,7 @@ function onLoad() {
   hookEvent("txt-source", "input", sourceChange);
   hookEvent("btn-browse", "command", browseForSource);
 
-  // Center on CZ:
-  var ow = client.mainWindow;
-  window.sizeToContent();
-  window.moveTo(
-    ow.screenX + Math.max((ow.outerWidth - window.outerWidth) / 2, 0),
-    ow.screenY + Math.max((ow.outerHeight - window.outerHeight) / 2, 0)
-  );
+  centerDialog();
 }
 
 function changeAutoName(event) {

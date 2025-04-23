@@ -26,16 +26,7 @@ function onLoad() {
     localizers.style.display = "none";
   }
 
-  if (window.opener) {
-    // Force the window to be the right size now, not later.
-    window.sizeToContent();
-
-    // Position it centered over, but never up or left of parent.
-    var opener = window.opener;
-    var sx = Math.max((opener.outerWidth - window.outerWidth) / 2, 0);
-    var sy = Math.max((opener.outerHeight - window.outerHeight) / 2, 0);
-    window.moveTo(opener.screenX + sx, opener.screenY + sy);
-  }
+  centerDialog();
 
   /* Find and focus the dialog's default button (OK), otherwise the focus
    * lands on the first focusable content - the copy version link. Links in

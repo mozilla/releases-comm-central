@@ -608,6 +608,25 @@ function getURLSpecFromFile(file) {
   return fileHandler.getURLSpecFromFile(file);
 }
 
+function centerDialog(wider) {
+  // Force the window to be the right size now, not later.
+  window.sizeToContent();
+
+  // If wider is set, make dialog wider as the default theme's tabs are huge.
+  if (wider) {
+    window.resizeBy(140, 0);
+  }
+
+  if (!opener) {
+    return;
+  }
+
+  // Position it centered over, but never up or left of parent.
+  let sx = Math.max((opener.outerWidth - window.outerWidth) / 2, 0);
+  let sy = Math.max((opener.outerHeight - window.outerHeight) / 2, 0);
+  window.moveTo(opener.screenX + sx, opener.screenY + sy);
+}
+
 function confirmEx(msg, buttons, defaultButton, checkText, checkVal) {
   /* Note that on versions before Mozilla 0.9, using 3 buttons,
    * the revert or dontsave button, or custom button titles will NOT work.

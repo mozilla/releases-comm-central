@@ -14,6 +14,7 @@
         onload="onLoad();"
         title="&window.title;">
 
+  <script src="chrome://chatzilla/content/lib/utils.js"/>
   <script src="chrome://chatzilla/content/about.js"/>
 
   <vbox class="box-padded" flex="1">
