@@ -182,11 +182,11 @@
     <!-- ChatZilla commands -->
     <command id="cmd_joinChannel" oncommand="joinChannel(null);"/>
     <command id="cmd_closeCZTab"
-             oncommand="cmdDeleteView(getDefaultContext());"/>
+             oncommand="cmdDeleteView(getDefaultContext(event));"/>
     <command id="cmd_disconnectAll"
-             oncommand="cmdDisconnectAll(getDefaultContext());"/>
+             oncommand="cmdDisconnectAll(getDefaultContext(event));"/>
     <command id="cmd_saveViewAs"
-             oncommand="cmdSave(getDefaultContext());"/>
+             oncommand="cmdSave(getDefaultContext(event));"/>
     <command id="cmd_print" oncommand="cmdPrint();"/>
     <command id="cmd_closeWindow" oncommand="cmdQuit({reason: null});"/>
 
@@ -203,11 +203,11 @@
     <command id="cmd_delete"/>
     <command id="cmd_selectAll"/>
     <command id="cmd_find"
-             oncommand="cmdFind(getDefaultContext());"/>
+             oncommand="cmdFind(getDefaultContext(event));"/>
     <command id="cmd_findNext"
-             oncommand="cmdFindAgain(getDefaultContext(), false);"/>
+             oncommand="cmdFindAgain(getDefaultContext(event), false);"/>
     <command id="cmd_findPrev"
-             oncommand="cmdFindAgain(getDefaultContext(), true);"/>
+             oncommand="cmdFindAgain(getDefaultContext(event), true);"/>
     <command id="cmd_toggleTextDir"
              oncommand="cmdTextDirection();"/>
 
@@ -221,7 +221,7 @@
     <command id="cmd_statusbar"
              oncommand="toggleUI('status');"/>
     <command id="cmd_clearView"
-             oncommand="cmdClearView(getDefaultContext());"/>
+             oncommand="cmdClearView(getDefaultContext(event));"/>
     <command id="cmd_fontSmaller"
              oncommand="changeFontSize('smaller');"/>
     <command id="cmd_fontBigger"
@@ -342,29 +342,29 @@
                     oncommand="cmdOpenAtStartup();"/>
           <menuseparator/>
           <menuitem id="leaveChannel"
-                    oncommand="cmdLeave(getDefaultContext());"/>
+                    oncommand="cmdLeave(getDefaultContext(event));"/>
           <menuitem id="rejoinChannel"
-                    oncommand="cmdRejoin(getDefaultContext());"/>
+                    oncommand="cmdRejoin(getDefaultContext(event));"/>
           <menuitem id="dccClose"
-                    oncommand="cmdDCCClose(getDefaultContext());"/>
+                    oncommand="cmdDCCClose(getDefaultContext(event));"/>
           <menuitem id="closeCZTab"
                     label="&closeCZTab.label;"
                     accesskey="&closeCZTab.accesskey;"
                     key="key_closeCZTab"
                     command="cmd_closeCZTab"/>
           <menuitem id="disconnectNet"
-                    oncommand="cmdDisconnect(getDefaultContext());"/>
+                    oncommand="cmdDisconnect(getDefaultContext(event));"/>
           <menuitem id="disconnectAll"
                     label="&disconnectAll.label;"
                     accesskey="&disconnectAll.accesskey;"
                     key="key_disconnectAll"
                     command="cmd_disconnectAll"/>
           <menuitem id="reconnectNet"
-                    oncommand="cmdReconnect(getDefaultContext());"/>
+                    oncommand="cmdReconnect(getDefaultContext(event));"/>
           <menuitem id="reconnectAll"
                     label="&reconnectAll.label;"
                     accesskey="&reconnectAll.accesskey;"
-                    oncommand="cmdReconnectAll(getDefaultContext());"/>
+                    oncommand="cmdReconnectAll(getDefaultContext(event));"/>
           <menuseparator/>
           <menu id="statusMenu"
                 label="&statusMenu.label;"
@@ -374,14 +374,14 @@
               <menuitem id="statusMenu-change"
                         label="&nick-change.label;"
                         accesskey="&nick-change.accesskey;"
-                        oncommand="cmdNick(getDefaultContext());"/>
+                        oncommand="cmdNick(getDefaultContext(event));"/>
               <menuseparator id="statusMenu-nick-separator"/>
               <menuitem id="statusMenu-nick-back"
                         label="&nick-back.label;"
                         accesskey="&nick-back.accesskey;"
                         value=""
                         type="radio"
-                        oncommand="toggleAwayMsg(event.target);"/>
+                        oncommand="toggleAwayMsg(event);"/>
               <menuseparator id="statusMenu-away-separator"/>
               <menuitem id="statusMenu-custom-away"
                         label="&custom-away.label;"
@@ -484,7 +484,7 @@
           <menuitem id="hide-view"
                     label="&hideView.label;"
                     accesskey="&hideView.accesskey;"
-                    oncommand="cmdHideView(getDefaultContext());"/>
+                    oncommand="cmdHideView(getDefaultContext(event));"/>
           <menuseparator/>
           <menu id="menu_Motifs"
                 label="&popupMotifs.label;"
@@ -679,14 +679,14 @@
           <menuitem id="nickMenu-change"
                     label="&nick-change.label;"
                     accesskey="&nick-change.accesskey;"
-                    oncommand="cmdNick(getDefaultContext());"/>
+                    oncommand="cmdNick(getDefaultContext(event));"/>
           <menuseparator id="nickMenu-nick-separator"/>
           <menuitem id="nickMenu-nick-back"
                     label="&nick-back.label;"
                     accesskey="&nick-back.accesskey;"
                     value=""
                     type="radio"
-                    oncommand="toggleAwayMsg(event.target);"/>
+                    oncommand="toggleAwayMsg(event);"/>
           <menuseparator id="nickMenu-away-separator"/>
           <menuitem id="nickMenu-custom-away"
                     label="&custom-away.label;"

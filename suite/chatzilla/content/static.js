@@ -879,9 +879,10 @@ function getDefaultFontSize() {
   return Math.round((pxSize / dpi) * 72);
 }
 
-function getDefaultContext(cx) {
-  if (!cx) {
-    cx = {};
+function getDefaultContext(aEvent) {
+  let cx = {};
+  if (aEvent) {
+    cx.originalEvent = aEvent;
   }
   /* Use __proto__ here and in all other get*Context so that the command can
    * tell the difference between getObjectDetails and actual parameters. See

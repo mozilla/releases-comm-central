@@ -2800,9 +2800,9 @@ function customAway(e) {
   }
 }
 
-function toggleAwayMsg(target) {
-  let reason = target.getAttribute("value");
-  setAwayMsg(getDefaultContext(), reason, reason ? "away" : "back");
+function toggleAwayMsg(aEvent) {
+  let reason = aEvent.target.getAttribute("value");
+  setAwayMsg(getDefaultContext(aEvent), reason, reason ? "away" : "back");
 }
 
 function setAwayMsg(e, reason, type) {

@@ -332,7 +332,7 @@ function initAwayMsgs(menuPopup) {
       newMenuItem.setAttribute("checked", true);
       back = false;
     }
-    newMenuItem.setAttribute("oncommand", "toggleAwayMsg(event.target);");
+    newMenuItem.setAttribute("oncommand", "toggleAwayMsg(event);");
     menuPopup.insertBefore(newMenuItem, menuseparator);
   }
 
