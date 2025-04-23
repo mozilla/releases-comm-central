@@ -13,7 +13,8 @@ table.docutils {
 }
 
 /* Override the default values for multiline text in a table */
-table.docutils td, table.docutils th
+table.docutils td,
+table.docutils th
 {
     font-size: 16px !important;
 }
@@ -32,7 +33,8 @@ span.strikethrough {
     white-space: break-spaces !important;
 }
 
-.wy-table-responsive table td, .wy-table-responsive table th {
+.wy-table-responsive table td,
+.wy-table-responsive table th {
     white-space: normal;
 }
 

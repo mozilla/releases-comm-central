@@ -20,7 +20,8 @@
   display: block grid;
 }
 
-.grid-two-column-fr, .grid-block-two-column-fr {
+.grid-two-column-fr,
+.grid-block-two-column-fr {
   grid-template-columns: auto 1fr;
 }
 

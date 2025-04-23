@@ -6,7 +6,8 @@
   display: inline-grid;
   grid-template-columns: auto auto auto;
 
-  & textbox, menulist {
+  & textbox,
+  & menulist {
     width: 100%;
   }
 

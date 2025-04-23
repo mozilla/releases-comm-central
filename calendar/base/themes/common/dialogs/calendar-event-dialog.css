@@ -377,19 +377,23 @@ label.label {
   fill: currentColor;
 }
 
-#AlignLeftItem, #AlignPopupButton[state="left"] {
+#AlignLeftItem,
+#AlignPopupButton[state="left"] {
   list-style-image: url("chrome://messenger/skin/icons/left-align.svg");
 }
 
-#AlignCenterItem, #AlignPopupButton[state="center"] {
+#AlignCenterItem,
+#AlignPopupButton[state="center"] {
   list-style-image: url("chrome://messenger/skin/icons/center-align.svg");
 }
 
-#AlignRightItem, #AlignPopupButton[state="right"] {
+#AlignRightItem,
+#AlignPopupButton[state="right"] {
   list-style-image: url("chrome://messenger/skin/icons/right-align.svg");
 }
 
-#AlignJustifyItem, #AlignPopupButton[state="justify"] {
+#AlignJustifyItem,
+#AlignPopupButton[state="justify"] {
   list-style-image: url("chrome://messenger/skin/icons/justify.svg");
 }
 

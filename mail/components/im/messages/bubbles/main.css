@@ -85,7 +85,8 @@ p {
   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.interval, #lastMessage {
+.interval,
+#lastMessage {
   text-align: center;
   color: hsl(0, 0%, 60%);
 }

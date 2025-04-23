@@ -222,7 +222,8 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   padding: 4px;
 }
 
-.minimonth-cal-box th, .minimonth-cal-box td {
+.minimonth-cal-box th,
+.minimonth-cal-box td {
   width: 12.5%; /* 100% / 8 columns */
 }
 

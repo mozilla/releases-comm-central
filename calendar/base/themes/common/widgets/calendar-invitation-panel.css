@@ -66,7 +66,8 @@
   display: inline-block;
 }
 
-.calendar-invitation-panel-props th, .calendar-invitation-panel-props td {
+.calendar-invitation-panel-props th,
+.calendar-invitation-panel-props td {
   vertical-align: top;
   padding: 3px 0;
 }
