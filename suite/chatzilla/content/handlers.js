@@ -2845,18 +2845,22 @@ CIRCNetwork.prototype.onUnknownBatch =
 
 /* user away status */
 CIRCNetwork.prototype.onAway = function (e) {
-  for (var c in e.server.channels) {
-    var chan = e.server.channels[c];
-    if (chan.active && e.user.collectionKey in chan.users) {
-      let user = chan.users[e.user.collectionKey];
-      e.server.channels[c].updateUsers([user]);
-    }
-  }
+  this.updateUser(e, e.user);
 };
 
 /* user host changed */
 CIRCNetwork.prototype.onChghost = function (e) {
   e.user.updateHeader();
+};
+
+CIRCNetwork.prototype.updateUser = function (e, user) {
+  for (let c in e.server.channels) {
+    let chan = e.server.channels[c];
+    if (chan.active && user.collectionKey in chan.users) {
+      let chanUser = chan.users[user.collectionKey];
+      chan.updateUsers([chanUser]);
+    }
+  }
 };
 
 CIRCNetwork.prototype.reclaimName = function () {
@@ -3380,7 +3384,7 @@ CIRCChannel.prototype.addUsers = function (updates) {
 
 CIRCChannel.prototype.updateUsers = function (updates) {
   for (let update of updates) {
-    if (update.chanListEntry) {
+    if (update && update.chanListEntry) {
       let idx = this.userList.indexOf(update.chanListEntry);
       this.userList[idx] = updateListItem(update.chanListEntry, update);
     }

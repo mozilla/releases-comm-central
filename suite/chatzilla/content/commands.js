@@ -2858,10 +2858,8 @@ function setAwayMsg(e, reason, type) {
         // user doesn't want to change nicks:
         if (awayNick && normalNick != awayNick) {
           e.server.changeNick(awayNick);
-        } else if (client.currentObject.TYPE == "IRCChannel") {
-          let user = e.server.me.unicodeName;
-          client.currentObject.updateUser(user);
         }
+        e.network.updateUser(e, e.server.me);
         e.server.sendData("AWAY :" + fromUnicode(reason, e.network) + "\n");
       }
       if (awayNick && normalNick != awayNick) {
@@ -2899,10 +2897,8 @@ function setAwayMsg(e, reason, type) {
         var awayNick = e.network.prefs.awayNick;
         if (awayNick && curNick == awayNick) {
           e.server.changeNick(e.network.prefs.nickname);
-        } else if (client.currentObject.TYPE == "IRCChannel") {
-          let user = e.server.me.unicodeName;
-          client.currentObject.updateUser(user);
         }
+        e.network.updateUser(e, e.server.me);
         e.server.sendData("AWAY\n");
       }
       // Go back to old nick, even if not connected:
