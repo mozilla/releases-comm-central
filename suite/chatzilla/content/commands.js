@@ -4414,13 +4414,9 @@ function cmdInputTextDirection(e) {
 
 function cmdInstallPlugin(e) {
   if (!e || !e.url) {
-    if ("installPluginDialog" in client) {
-      return client.installPluginDialog.focus();
-    }
-
-    window.openDialog(
+    toOpenWindowByType(
+      "irc:chatzilla:plugin",
       "chrome://chatzilla/content/install-plugin.xul",
-      "",
       "chrome,dialog",
       client
     );
