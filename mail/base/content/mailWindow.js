@@ -356,13 +356,6 @@ nsMsgStatusFeedback.prototype = {
     }, this);
   },
 
-  // nsIXULBrowserWindow implementation.
-  setJSStatus(status) {
-    if (status.length > 0) {
-      this.showStatusString(status);
-    }
-  },
-
   /*
    * Set the statusbar display for hovered links, from browser.js.
    *
