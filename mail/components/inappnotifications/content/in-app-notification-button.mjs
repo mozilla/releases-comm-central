@@ -7,6 +7,7 @@ import { InAppNotificationEvent } from "./InAppNotificationEvent.mjs";
 /**
  * Main action button for in app notifications.
  *
+ * @tagname in-app-notification-button
  * @fires ctaclick - Event when the button is clicked. The default click event
  *   is suppressed.
  */

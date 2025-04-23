@@ -8,6 +8,7 @@ import { InAppNotificationEvent } from "./InAppNotificationEvent.mjs";
  * Close button for in app notifications.
  * Template ID: #inAppNotificationCloseButtonTemplate
  *
+ * @tagname in-app-notification-close-button
  * @fires notificationclose - Event when the button is clicked. Includes the
  *   id of the notification that was clicked.
  */

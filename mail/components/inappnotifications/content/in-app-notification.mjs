@@ -7,6 +7,8 @@ import "./in-app-notification-container.mjs"; //eslint-disable-line import/no-un
 /**
  * In app notification.
  * Template ID: #inAppNotificationTemplate
+ *
+ * @tagname in-app-notification
  */
 class InAppNotification extends HTMLElement {
   /** @type {InAppNotificationContainer} */

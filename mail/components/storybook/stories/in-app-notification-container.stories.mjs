@@ -12,9 +12,14 @@ export default {
   title: "Widgets/In App Notifications/Container",
   component: "in-app-notification-container",
   tags: ["autodocs"],
+  argTypes: {
+    type: {
+      options: ["donation", "message", "blog", "security"],
+    },
+  },
 };
 
-const template = ({ cta, description, heading, url }) => html`
+const template = ({ cta, description, heading, url, type }) => html`
   <template
     id="inAppNotificationCloseButtonTemplate"
     xmlns="http://www.w3.org/1999/xhtml"
@@ -26,10 +31,7 @@ const template = ({ cta, description, heading, url }) => html`
     id="inAppNotificationContainerTemplate"
     xmlns="http://www.w3.org/1999/xhtml"
   >
-    <div
-      class="in-app-notification-container in-app-notification-donation"
-      tabindex="0"
-    >
+    <div class="in-app-notification-container" tabindex="0">
       <button is="in-app-notification-close-button"></button>
       <img src="" alt="" class="icon" />
       <div class="in-app-notification-content">
@@ -52,6 +54,7 @@ const template = ({ cta, description, heading, url }) => html`
     description="${description}"
     heading="${heading}"
     url="${url}"
+    type="${type}"
   ></in-app-notification-container>
 `;
 
@@ -62,4 +65,5 @@ InAppNotificationContainer.args = {
   description: "Give us your money pretty please!",
   heading: "We really need your money...",
   url: "https://example.com/money",
+  type: "donation",
 };
