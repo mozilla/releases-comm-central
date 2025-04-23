@@ -22,7 +22,6 @@
     title="&window.title;">
 
   <script src="chrome://chatzilla/content/lib/utils.js"/>
-  <script src="chrome://chatzilla/content/lib/file-utils.js"/>
   <script src="chrome://chatzilla/content/lib/pref-manager.js"/>
   <script src="chrome://chatzilla/content/lib/message-manager.js"/>
   <script src="chrome://chatzilla/content/prefs.js"/>

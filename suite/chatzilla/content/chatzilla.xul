@@ -47,7 +47,6 @@
   <script src="chrome://chatzilla/content/lib/message-manager.js"/>
   <script src="chrome://chatzilla/content/lib/irc.js"/>
   <script src="chrome://chatzilla/content/lib/irc-debug.js"/>
-  <script src="chrome://chatzilla/content/lib/file-utils.js"/>
   <script src="chrome://chatzilla/content/lib/dcc.js"/>
   <script src="chrome://chatzilla/content/lib/ident.js"/>
   <script src="chrome://chatzilla/content/lib/json-serializer.js"/>

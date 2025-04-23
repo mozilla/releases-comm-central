@@ -17,7 +17,6 @@ chatzilla.jar:
   content/chatzilla/lib/dcc.js                           (lib/dcc.js)
   content/chatzilla/lib/events.js                        (lib/events.js)
   content/chatzilla/lib/ident.js                         (lib/ident.js)
-  content/chatzilla/lib/file-utils.js                    (lib/file-utils.js)
   content/chatzilla/lib/irc.js                           (lib/irc.js)
   content/chatzilla/lib/irc-debug.js                     (lib/irc-debug.js)
   content/chatzilla/lib/json-serializer.js               (lib/json-serializer.js)

@@ -31,7 +31,6 @@
         persist="screenX screenY width height">
 
   <script src="chrome://chatzilla/content/lib/utils.js"/>
-  <script src="chrome://chatzilla/content/lib/file-utils.js"/>
   <script src="chrome://chatzilla/content/lib/json-serializer.js"/>
   <script src="chrome://chatzilla/content/lib/message-manager.js"/>
   <script src="chrome://chatzilla/content/lib/text-serializer.js"/>
