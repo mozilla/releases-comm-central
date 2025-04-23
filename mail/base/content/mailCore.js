@@ -997,7 +997,7 @@ class FlavorDataProvider {
 
     // Save the attachment.
     const destFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    destFile.initWithPath(destDirectory);
+    destFile.initWithPath(destDirectory.path);
     destFile.append(attachment.name.replace(/(.{74}).*(.{10})$/u, "$1...$2"));
     destFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
     data.value = destFile.QueryInterface(Ci.nsISupports);
