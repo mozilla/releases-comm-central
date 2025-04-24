@@ -15,9 +15,6 @@ var { FeedUtils } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
-var { AppConstants } = ChromeUtils.importESModule(
-  "resource://gre/modules/AppConstants.sys.mjs"
-);
 var { FileUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/FileUtils.sys.mjs"
 );
@@ -26,6 +23,9 @@ var { PluralForm } = ChromeUtils.importESModule(
 );
 var { UIFontSize } = ChromeUtils.importESModule(
   "resource:///modules/UIFontSize.sys.mjs"
+);
+var { FolderUtils } = ChromeUtils.importESModule(
+  "resource:///modules/FolderUtils.sys.mjs"
 );
 
 var FeedSubscriptions = {
@@ -163,7 +163,6 @@ var FeedSubscriptions = {
     },
 
     /* nsITreeView */
-    /* eslint-disable no-multi-spaces */
     tree: null,
 
     mRowCount: 0,
@@ -205,7 +204,6 @@ var FeedSubscriptions = {
     getCellValue() {},
     setCellValue() {},
     setCellText() {},
-    /* eslint-enable no-multi-spaces */
 
     getCellProperties(aRow) {
       const item = this.getItemAtIndex(aRow);
@@ -213,42 +211,20 @@ var FeedSubscriptions = {
         return "";
       }
 
-      if (AppConstants.MOZ_APP_NAME != "thunderbird") {
-        if (!item.folder) {
-          return "serverType-rss";
-        } else if (item.folder.isServer) {
-          return "serverType-rss isServer-true";
-        }
+      const url = item.folder ? null : item.url;
+      const folder = item.folder || item.parentFolder;
 
-        return "livemark";
-      }
-
-      let folder = item.folder;
       let properties = "folderNameCol";
-      const mainWin = FeedSubscriptions.mMainWin;
-      if (!mainWin) {
-        const hasFeeds = FeedUtils.getFeedUrlsInFolder(folder);
-        if (!folder) {
-          properties += " isFeed-true";
-        } else if (hasFeeds) {
-          properties += " isFeedFolder-true";
-        } else if (folder.isServer) {
-          properties += " serverType-rss isServer-true";
-        }
-      } else {
-        const url = folder ? null : item.url;
-        folder = folder || item.parentFolder;
-        properties = mainWin.FolderUtils.getFolderProperties(folder, item.open);
-        properties += mainWin.FeedUtils.getFolderProperties(folder, url);
-        if (
-          this.selection.currentIndex == aRow &&
-          url &&
-          item.options.updates.enabled &&
-          properties.includes("isPaused")
-        ) {
-          item.options.updates.enabled = false;
-          FeedSubscriptions.updateFeedData(item);
-        }
+      properties = FolderUtils.getFolderProperties(folder, item.open);
+      properties += FeedUtils.getFolderProperties(folder, url);
+      if (
+        this.selection.currentIndex == aRow &&
+        url &&
+        item.options.updates.enabled &&
+        properties.includes("isPaused")
+      ) {
+        item.options.updates.enabled = false;
+        FeedSubscriptions.updateFeedData(item);
       }
 
       item.properties = properties;
@@ -2340,6 +2316,10 @@ var FeedSubscriptions = {
       feedWindow.mView.removeItemAtIndex(indexInView, !select);
     },
 
+    /**
+     * @param {nsIMsgFolder} aOrigFolder
+     * @param {nsIMsgFolder} aNewFolder
+     */
     folderRenamed(aOrigFolder, aNewFolder) {
       if (aNewFolder.server.type != "rss" || FeedUtils.isInTrash(aNewFolder)) {
         return;
@@ -2401,6 +2381,11 @@ var FeedSubscriptions = {
       }
     },
 
+    /**
+     * @param {boolean} aMove - true for move, false for copy.
+     * @param {nsIMsgFolder} aSrcFolder
+     * @param {nsIMsgFolder} aDestFolder
+     */
     folderMoveCopyCompleted(aMove, aSrcFolder, aDestFolder) {
       if (aDestFolder.server.type != "rss") {
         return;
@@ -2486,11 +2471,11 @@ var FeedSubscriptions = {
   /**
    * Export feeds as opml file Save As filepicker function.
    *
-   * @param {boolean} aList - If true, exporting as list; if false (default)
-   *                          exporting feeds in folder structure - used for title.
-   * @returns {Promise} nsIFile or null.
+   * @param {boolean} [aList=false] - If true, exporting as list; if false
+   *   exporting feeds in folder structure - used for title.
+   * @returns {Promise<?nsIFile>}
    */
-  opmlPickSaveAsFile(aList) {
+  opmlPickSaveAsFile(aList = false) {
     const accountName = this.mRSSServer.rootFolder.prettyName;
     const fileName = FeedUtils.strings.formatStringFromName(
       "subscribe-OPMLExportDefaultFileName",
@@ -2544,7 +2529,7 @@ var FeedSubscriptions = {
   /**
    * Import feeds opml file Open filepicker function.
    *
-   * @returns {Promise} [{nsIFile} file, {String} fileUrl] or null.
+   * @returns {Promise<?[]>} an array [{nsIFile} file, {String} fileUrl] or null.
    */
   opmlPickOpenFile() {
     const title = FeedUtils.strings.GetStringFromName(
