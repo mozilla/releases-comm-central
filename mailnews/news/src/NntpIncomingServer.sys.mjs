@@ -135,11 +135,15 @@ export class NntpIncomingServer extends MsgIncomingServer {
   }
 
   stopPopulating(msgWindow) {
+    // Calling nsISubscribableServer.setAsSubscribed with a path that does not
+    // exist in the tree will add a new node. This must be done before
+    // nsISubscribableServer.stopPopulating, as only then will the internal row
+    // list be updated accordingly.
+    this.updateSubscribed();
     this._subscribable.stopPopulating(msgWindow);
     if (!this._hostInfoLoaded) {
       this._saveHostInfo();
     }
-    this.updateSubscribed();
   }
 
   addTo(name, addAsSubscribed, subscribale, changeIfExists) {
@@ -177,7 +181,12 @@ export class NntpIncomingServer extends MsgIncomingServer {
 
   setAsSubscribed(path) {
     this._tmpSubscribed.add(path);
-    this._subscribable.setAsSubscribed(path);
+    // Calling nsISubscribableServer.isSubscribable with a path that does not
+    // exist in the tree will add a new node and return false. These paths will
+    // be displayed grayed out.
+    if (this._subscribable.isSubscribable(path)) {
+      this._subscribable.setAsSubscribed(path);
+    }
   }
 
   updateSubscribed() {
