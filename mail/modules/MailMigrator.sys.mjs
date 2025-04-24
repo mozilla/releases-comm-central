@@ -29,7 +29,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 49;
+    const UI_VERSION = 50;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -258,6 +258,12 @@ export var MailMigrator = {
           );
           Services.xulStore.removeValue(docURL, "threadPane", "view");
         }
+      }
+
+      if (currentUIVersion < 50) {
+        // Previous UI let users set this. Non-default value interacts badly
+        // with current dark mode.
+        Services.prefs.clearUserPref("browser.display.document_color_use");
       }
 
       // Migration tasks that may take a long time are not run immediately, but
