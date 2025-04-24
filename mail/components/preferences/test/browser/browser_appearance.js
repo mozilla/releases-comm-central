@@ -292,7 +292,7 @@ add_task(async function test_edit_flags_all_folders() {
     Assert.equal(
       dbInfo.viewFlags,
       Ci.nsMsgViewFlagsType.kNone,
-      `viewFlags should be grouped by sort for ${folder.name}`
+      `viewFlags should be unthreaded for ${folder.name}`
     );
     Assert.equal(
       dbInfo.sortType,
@@ -413,7 +413,7 @@ add_task(async function test_edit_flags_single_folders() {
   for (const folder of [folderParent, folderChild1, folderChild2]) {
     const dbFolderInfo = folder.msgDatabase.dBFolderInfo;
     Assert.ok(
-      !(dbFolderInfo.viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort),
+      dbFolderInfo.viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort,
       `viewFlags should be grouped by sort for ${folder.name}`
     );
     Assert.equal(
