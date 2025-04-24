@@ -112,6 +112,10 @@ textbox.tree-input {
   margin-inline-start: 8px;
 }
 
+.wrap {
+  white-space: wrap;
+}
+
 #siteCol {
   flex: 3 auto;
 }

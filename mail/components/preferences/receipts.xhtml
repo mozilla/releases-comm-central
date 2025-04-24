@@ -31,7 +31,7 @@
   <html:body
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
-    <dialog id="ReturnReceiptsDialog">
+    <dialog id="ReturnReceiptsDialog" style="min-width: 55ch">
       <vbox id="returnReceiptSettings" align="start">
         <checkbox
           id="alwaysRequest"
@@ -76,6 +76,7 @@
             <hbox flex="1">
               <label
                 id="notInToCcLabel"
+                class="wrap"
                 data-l10n-id="receipt-not-to-cc-label"
                 control="notInToCcPref"
               />
@@ -95,6 +96,7 @@
             <hbox flex="1">
               <label
                 id="outsideDomainLabel"
+                class="wrap"
                 data-l10n-id="sender-outside-domain-label"
                 control="outsideDomainPref"
               />
@@ -114,6 +116,7 @@
             <hbox flex="1">
               <label
                 id="otherCasesLabel"
+                class="wrap"
                 data-l10n-id="other-cases-text-label"
                 control="otherCasesPref"
               />
