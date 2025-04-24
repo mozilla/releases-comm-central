@@ -1028,11 +1028,8 @@ export var FeedUtils = {
       dataURL
     );
 
-    return new Promise(resolve => {
-      lazy.PlacesUtils.favicons.getFaviconDataForPage(pageURI, faviconURI => {
-        resolve(faviconURI.spec);
-      });
-    });
+    const favicon = await lazy.PlacesUtils.favicons.getFaviconForPage(pageURI);
+    return favicon?.dataURI.spec;
   },
 
   /**

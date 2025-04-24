@@ -1098,8 +1098,11 @@ export var MailUtils = {
       }
 
       // Try to find the favicon data from DB.
-      const faviconInfo = await this.getFaviconInfo(pageURI);
-      if (faviconInfo?.faviconSize) {
+      const favicon = await lazy.PlacesUtils.favicons.getFaviconForPage(
+        pageURI,
+        96
+      );
+      if (favicon) {
         // As valid favicon data is already stored for the page,
         // we don't have to update.
         return;
@@ -1118,26 +1121,8 @@ export var MailUtils = {
   },
 
   /**
-   * Get favicon info (uri and size) for a uri from Places.
-   *
-   * @param {nsIURI} uri - Page to check for favicon data.
-   * @returns {?Promise} A promise of an object containing the data if found.
-   */
-  getFaviconInfo(uri) {
-    return new Promise(resolve =>
-      lazy.PlacesUtils.favicons.getFaviconDataForPage(
-        uri,
-        // Package up the icon data in an object if we have it; otherwise null
-        (iconUri, faviconLength, favicon, mimeType, faviconSize) =>
-          resolve(iconUri ? { iconUri, faviconSize } : null),
-        96
-      )
-    );
-  },
-
-  /**
    * Get favicon data for given URL from network.
-   * Copied from mozilla-central repo: FaviconFeed.sys.mjs
+   * ~ copied from browser/components/topsites/TopSites.sys.mjs
    *
    * @param {nsIURI} faviconURI - nsIURI for the favicon.
    * @returns {nsIURI} data URL
