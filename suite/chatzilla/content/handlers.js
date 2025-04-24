@@ -3882,16 +3882,19 @@ CIRCDCCFileTransfer.prototype.onProgress = function (e) {
       tab.setAttribute("label", this.viewName + " (" + pcent + "%)");
     }
 
-    var change = this.position - this._lastPosition;
-    var speed = change / ((now - this._lastSpeedTime) / 1000); // B/s
-    this._lastSpeedTime = now;
+    // Some time needs to have elapsed to calculate the speed.
+    if ((now - this._lastSpeedTime) > 10) {
+      let change = this.position - this._lastPosition;
+      let speed = change / ((now - this._lastSpeedTime) / 1000); // B/s
+      this._lastSpeedTime = now;
 
-    /* Use an average of the last speed, and this speed, so we get a little
-     * smoothing to it.
-     */
-    this.speed = (this.speed + speed) / 2;
-    this.updateHeader();
-    this._lastPosition = this.position;
+      /* Use an average of the last speed, and this speed, so we get a little
+       * smoothing to it.
+       */
+      this.speed = (this.speed + speed) / 2;
+      this.updateHeader();
+      this._lastPosition = this.position;
+    }
   }
 
   // If it's also been 10s or more since we last displayed a msg...
