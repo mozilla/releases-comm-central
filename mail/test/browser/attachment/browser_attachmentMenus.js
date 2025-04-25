@@ -348,15 +348,19 @@ add_setup(async function () {
         break;
       case "link_enclosure_valid":
         messages[i].bodyPart = enclosure_valid_url;
+        messages[i].feedMessage = true;
         break;
       case "link_enclosure_invalid":
         messages[i].bodyPart = enclosure_invalid_url;
+        messages[i].feedMessage = true;
         break;
       case "link_multiple_enclosures":
         messages[i].bodyPart = multiple_enclosures;
+        messages[i].feedMessage = true;
         break;
       case "link_multiple_enclosures_one_invalid":
         messages[i].bodyPart = multiple_enclosures_one_link_invalid;
+        messages[i].feedMessage = true;
         break;
       case "link_multiple_enclosures_all_invalid":
         messages[i].bodyPart = multiple_enclosures_all_links_invalid;
@@ -367,6 +371,12 @@ add_setup(async function () {
     }
 
     await add_message_to_folder([folder], create_message(messages[i]));
+    if (messages[i].feedMessage) {
+      // Feeds allow special behaviors. Add flag if we're testing such a case.
+      // In particular, http attachments (enclosures) are allowed.
+      const msg = [...folder.messages].at(-1);
+      msg.orFlags(Ci.nsMsgMessageFlags.FeedMsg);
+    }
   }
 });
 
