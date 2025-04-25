@@ -32,10 +32,7 @@ let notifications;
 
 async function clear() {
   await new Promise(resolve => setTimeout(resolve));
-  clearTimeout(NotificationUpdater._timeout);
-  NotificationUpdater._timeout = null;
-  NotificationUpdater._updateHistory = [];
-  NotificationUpdater._failureCount = 0;
+  NotificationUpdater._clearStateForTests();
 }
 
 const getExpirationTime = NotificationUpdater.getExpirationTime;
@@ -88,7 +85,6 @@ add_setup(async () => {
     NotificationUpdater.onUpdate = null;
 
     await clear();
-    NotificationUpdater._timeout = null;
 
     Services.prefs.clearUserPref(
       "datareporting.policy.dataSubmissionPolicyAcceptedVersion"
@@ -294,7 +290,7 @@ add_task(async function test_fetch_formattedURL() {
 
 add_task(async function test_init() {
   NotificationUpdater.getExpirationTime = () => null;
-  NotificationUpdater._timeout = null;
+  NotificationUpdater._clearStateForTests();
   Services.prefs.setIntPref("mail.inappnotifications.refreshInterval", 100);
   const { resolve, promise } = Promise.withResolvers();
 

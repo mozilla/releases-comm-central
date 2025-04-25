@@ -8,6 +8,7 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
+  clearTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
 ChromeUtils.defineLazyGetter(lazy, "console", () =>
@@ -325,6 +326,20 @@ export const NotificationUpdater = {
 
       this._fetch();
     }, time);
+  },
+
+  /**
+   * Utility for tests that resets the state, including failure counts, history
+   * and pending scheduled updates.
+   */
+  _clearStateForTests() {
+    this._failureCount = 0;
+    this._updateHistory.length = 0;
+    if (!this._timeout) {
+      return;
+    }
+    lazy.clearTimeout(this._timeout);
+    this._timeout = null;
   },
 };
 

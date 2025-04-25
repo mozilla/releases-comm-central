@@ -26,9 +26,7 @@ let serverUrl;
 
 async function clear() {
   await new Promise(resolve => setTimeout(resolve));
-  clearTimeout(NotificationUpdater._timeout);
-  NotificationUpdater._timeout = null;
-  NotificationUpdater._updateHistory = [];
+  NotificationUpdater._clearStateForTests();
 }
 
 add_setup(async () => {
@@ -60,7 +58,6 @@ add_setup(async () => {
     NotificationUpdater.onUpdate = null;
 
     await clear();
-    NotificationUpdater._timeout = null;
 
     Services.prefs.clearUserPref(
       "datareporting.policy.dataSubmissionPolicyAcceptedVersion"

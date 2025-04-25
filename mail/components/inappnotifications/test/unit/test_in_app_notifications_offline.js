@@ -86,7 +86,7 @@ add_setup(async () => {
   NotificationManager._PER_TIME_UNIT = 1;
 
   registerCleanupFunction(() => {
-    clearInterval(NotificationUpdater._interval);
+    NotificationUpdater._clearStateForTests();
     clearTimeout(InAppNotifications._showNotificationTimer);
     Services.prefs.clearUserPref(
       "datareporting.policy.dataSubmissionPolicyAcceptedVersion"
