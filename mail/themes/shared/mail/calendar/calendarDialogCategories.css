@@ -1,0 +1,42 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:host {
+  display: flex;
+  gap: 9px;
+  padding-inline: var(--calendar-dialog-row-padding-inline);
+  font-size: 0.77rem;
+  align-items: center;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+
+.categories-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  gap: 9px;
+  flex: 0 1 auto;
+  overflow: hidden;
+
+  li {
+    display: inline-block;
+    padding: 3px 6px;
+    border-radius: 3px;
+    color: var(--item-text-color, var(--button-primary-text-color, currentColor));
+    background: var(--item-color, var(--button-primary-background-color, transparent));
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
+
+.overflow-label {
+  flex-shrink: 0;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}

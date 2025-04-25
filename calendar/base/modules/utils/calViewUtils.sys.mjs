@@ -466,7 +466,9 @@ view.colorTracker = {
       // and we don't want that.
       color = "transparent";
     }
+    const textColor = view.getContrastingTextColor(color);
     style.setProperty(`--category-${aCategoryName}-color`, color);
+    style.setProperty(`--category-${aCategoryName}-text-color`, textColor);
   },
   _addAllCategoriesToDocument(aDocument) {
     for (const categoryName of this.categoryBranch.getChildList("")) {

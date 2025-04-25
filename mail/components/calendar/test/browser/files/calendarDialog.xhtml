@@ -13,6 +13,10 @@
         <slot name="content"></slot>
       </div>
     </template>
+    <template id="calendarDialogCategoriesTemplate">
+      <ul class="categories-list"></ul>
+      <span class="overflow-label" hidden="hidden"></span>
+    </template>
     <template id="calendarDialogTemplate">
       <div class="titlebar">
         <button
@@ -75,6 +79,7 @@
                 />
               </button>
             </div>
+            <calendar-dialog-categories></calendar-dialog-categories>
           </div>
           <div id="calendarDialogOtherSubview" hidden="hidden">Test only subview</div>
         </calendar-dialog-subview-manager>

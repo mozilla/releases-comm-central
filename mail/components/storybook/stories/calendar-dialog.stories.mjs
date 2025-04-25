@@ -11,7 +11,7 @@ export default {
 };
 
 export const calendarDialog = {
-  render({ opened, title, eventLocation, description }) {
+  render({ opened, title, eventLocation, description, categories }) {
     const container = document.createElement("div");
     container.insertAdjacentHTML(
       "beforeend",
@@ -39,6 +39,10 @@ export const calendarDialog = {
         />
       </div>
     </calendar-dialog-row>
+  </template>
+  <template id="calendarDialogCategoriesTemplate">
+    <ul class="categories-list"></ul>
+    <span class="overflow-label" hidden="hidden"></span>
   </template>
   <template id="calendarDialogTemplate">
     <div class="titlebar">
@@ -107,6 +111,7 @@ export const calendarDialog = {
               />
             </button>
           </div>
+          <calendar-dialog-categories></calendar-dialog-categories>
         </div>
       </calendar-dialog-subview-manager>
     </div>
@@ -118,7 +123,12 @@ export const calendarDialog = {
 
     const dialog = container.querySelector("dialog");
     dialog[opened ? "show" : "close"]();
-    dialog.updateDialogData({ title, eventLocation, description });
+    dialog.updateDialogData({
+      title,
+      eventLocation,
+      description,
+      categories: categories.split(","),
+    });
     return container;
   },
   args: {
@@ -127,5 +137,6 @@ export const calendarDialog = {
     eventLocation: "https://www.thunderbird.net/",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum",
+    categories: "lorem,IPSUM,Dolor,sit,amet",
   },
 };

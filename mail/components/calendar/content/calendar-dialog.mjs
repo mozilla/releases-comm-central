@@ -4,6 +4,7 @@
 
 import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./calendar-dialog-categories.mjs"; // eslint-disable-line import/no-unassigned-import
 
 /**
  * Dialog for calendar.
@@ -101,6 +102,12 @@ export class CalendarDialog extends HTMLDialogElement {
     if (data.description) {
       this.querySelector("#calendarDescriptionContent").textContent =
         data.description;
+    }
+
+    if (Array.isArray(data.categories)) {
+      this.querySelector("calendar-dialog-categories").setCategories(
+        data.categories
+      );
     }
 
     this.#data = data;

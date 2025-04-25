@@ -463,8 +463,9 @@
   skin/classic/messenger/smime/msgCompSecurityInfo.css        (../shared/smime/msgCompSecurityInfo.css)
 
 # Calendar
-  skin/classic/messenger/calendar/calendarDialog.css          (../shared/mail/calendar/calendarDialog.css)
-  skin/classic/messenger/calendar/calendarDialogRow.css       (../shared/mail/calendar/calendarDialogRow.css)
+  skin/classic/messenger/calendar/calendarDialog.css            (../shared/mail/calendar/calendarDialog.css)
+  skin/classic/messenger/calendar/calendarDialogCategories.css  (../shared/mail/calendar/calendarDialogCategories.css)
+  skin/classic/messenger/calendar/calendarDialogRow.css         (../shared/mail/calendar/calendarDialogRow.css)
 
 # Illustrations
   skin/classic/messenger/illustrations/accounts.svg           (../shared/mail/illustrations/accounts.svg)
