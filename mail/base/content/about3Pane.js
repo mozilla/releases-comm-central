@@ -3327,6 +3327,7 @@ var folderPane = {
         true
       );
     } else if (types.includes("text/x-moz-folder")) {
+      const rows = [];
       let isMove = event.dataTransfer.dropEffect == "move";
       if (event.dataTransfer.mozItemCount == 1) {
         // Only one folder was dragged and dropped.
@@ -3402,7 +3403,10 @@ var folderPane = {
           );
         } else if (isReordering) {
           // Reorder within current siblings.
-          folderPane.insertFolder(sourceFolder, targetFolder, insertAfter);
+          this.insertFolder(sourceFolder, targetFolder, insertAfter);
+          if (folderTree.selection.has(folderTree.rows.indexOf(row))) {
+            rows.push(this.getRowForFolder(sourceFolder.URI, row.modeName));
+          }
         }
         Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
       } else {
@@ -3421,6 +3425,7 @@ var folderPane = {
             sourceFolder,
             targetFolder
           );
+          rows.push(this.getRowForFolder(sourceFolder.URI, row.modeName));
         }
         // Save in prefs the target folder URI and if this was a move or copy.
         // This is to fill in the next folder or message context menu item
@@ -3431,6 +3436,7 @@ var folderPane = {
         );
         Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
       }
+      this.swapFolderSelection(rows);
     } else if (types.includes("application/x-moz-file")) {
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
         const extFile = event.dataTransfer
@@ -3462,9 +3468,7 @@ var folderPane = {
         newsRoot.reorderGroup(folder, targetFolder);
         rows.push(this.getRowForFolder(folder, row.modeName));
       }
-      setTimeout(() => {
-        folderTree.swapSelection(rows);
-      });
+      this.swapFolderSelection(rows);
     } else if (
       types.includes("text/x-moz-url-data") ||
       types.includes("text/x-moz-url")
@@ -4231,7 +4235,7 @@ var folderPane = {
         break;
       }
       const order = sibling.sortOrder + 2;
-      sibling.userSortOrder = order; // Update DB
+      sibling.userSortOrder = order; // Update DB.
       folderPane.setOrderToRowInAllModes(sibling, order); // Update row info.
       // If we're inserting before the target and we've just updated the target
       // we can now insert the folder itself.
@@ -4239,7 +4243,7 @@ var folderPane = {
         break;
       }
     }
-    folder.userSortOrder = folderOrder; // Update DB
+    folder.userSortOrder = folderOrder; // Update DB.
     folderPane.setOrderToRowInAllModes(folder, folderOrder); // Update row info.
 
     // Update folder pane UI.
@@ -4264,6 +4268,18 @@ var folderPane = {
   get isMultiSelection() {
     return folderTree.selection.size > 1;
   },
+
+  /**
+   * Wrap the swap selection around a timeout to make sure we run this after any
+   * other operation like folder move.
+   *
+   * @param {HTMLLIElement[]} rows - The array of rows to select.
+   */
+  swapFolderSelection(rows) {
+    setTimeout(() => {
+      folderTree.swapSelection(rows);
+    });
+  },
 };
 
 /**
@@ -4276,6 +4292,7 @@ class ReorderFolderListener {
     this.targetFolder = targetFolder;
     this.insertAfter = insertAfter;
   }
+
   onStopCopy() {
     // Do reorder within new siblings (all children of new parent).
     const movedFolder = MailServices.copy.getArrivedFolder(this.sourceFolder);
@@ -6485,6 +6502,8 @@ var folderListener = {
     // multiple folders selected and it wasn't part of the selection range, to
     // ensure the indices match the rows.
     if (folderTree.selection.size > 1 && notInRange) {
+      // Wrap this in a timeout to ensure we don't get stale values from a
+      // selection that still carries deleted rows.
       setTimeout(() => {
         folderTree.swapSelection([...folderTree.selection.values()]);
       });
