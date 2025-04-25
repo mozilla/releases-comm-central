@@ -109,7 +109,10 @@ class BaseMessageService {
 
   Search(searchSession, msgWindow, msgFolder, searchUri) {
     const slashIndex = searchUri.indexOf("/");
-    const xpatLines = searchUri.slice(slashIndex + 1).split("/");
+    const xpatLines = searchUri
+      .slice(slashIndex + 1)
+      .split("/")
+      .map(decodeURIComponent);
     const server = msgFolder.server.QueryInterface(Ci.nsINntpIncomingServer);
 
     server.wrappedJSObject.withClient(client => {

@@ -12,6 +12,7 @@
 #include "nsIDBFolderInfo.h"
 #include "prprf.h"
 #include "nsIMsgDatabase.h"
+#include "nsMsgUtils.h"
 #include <ctype.h>
 
 // Implementation of search for IMAP mail folders
@@ -127,12 +128,6 @@ char* nsMsgSearchNews::EncodeTerm(nsIMsgSearchTerm* term) {
       return nullptr;
   }
 
-  // ### i18N problem Get the csid from FE, which is the correct csid for term
-  //  int16 wincsid = INTL_GetCharSetID(INTL_DefaultTextWidgetCsidSel);
-
-  // Do INTL_FormatNNTPXPATInRFC1522Format trick for non-ASCII string
-  //  unsigned char *intlNonRFC1522Value = INTL_FormatNNTPXPATInNonRFC1522Format
-  //  (wincsid, (unsigned char*)term->m_value.u.string);
   nsCOMPtr<nsIMsgSearchValue> searchValue;
 
   nsresult rv = term->GetValue(getter_AddRefs(searchValue));
@@ -145,20 +140,11 @@ char* nsMsgSearchNews::EncodeTerm(nsIMsgSearchTerm* term) {
   char16_t* caseInsensitiveValue = EncodeToWildmat(intlNonRFC1522Value.get());
   if (!caseInsensitiveValue) return nullptr;
 
-  // TO DO: Do INTL_FormatNNTPXPATInRFC1522Format trick for non-ASCII string
-  // Unfortunately, we currently do not handle xxx or xxx search in XPAT
-  // Need to add the INTL_FormatNNTPXPATInRFC1522Format call after we can do
-  // that so we should search a string in either RFC1522 format and non-RFC1522
-  // format
-
-  char16_t* escapedValue = EscapeSearchUrl(caseInsensitiveValue);
-  free(caseInsensitiveValue);
-  if (!escapedValue) return nullptr;
-
   nsAutoCString pattern;
 
   if (leadingStar) pattern.Append('*');
-  pattern.Append(NS_ConvertUTF16toUTF8(escapedValue));
+  pattern.Append(NS_ConvertUTF16toUTF8(caseInsensitiveValue));
+  free(caseInsensitiveValue);
   if (trailingStar) pattern.Append('*');
 
   // Combine the XPAT command syntax with the attribute and the pattern to
@@ -167,11 +153,13 @@ char* nsMsgSearchNews::EncodeTerm(nsIMsgSearchTerm* term) {
   int termLength = (sizeof(xpatTemplate) - 1) + strlen(attribEncoding) +
                    pattern.Length() + 1;
   char* termEncoding = new char[termLength];
-  if (termEncoding)
-    PR_snprintf(termEncoding, termLength, xpatTemplate, attribEncoding,
-                pattern.get());
+  PR_snprintf(termEncoding, termLength, xpatTemplate, attribEncoding,
+              pattern.get());
 
-  return termEncoding;
+  nsAutoCString escapedTerm;
+  MsgEscapeString(nsDependentCString(termEncoding), nsINetUtil::ESCAPE_XALPHAS,
+                  escapedTerm);
+  return ToNewCString(escapedTerm);
 }
 
 nsresult nsMsgSearchNews::GetEncoding(char** result) {
