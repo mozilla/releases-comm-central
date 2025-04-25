@@ -45,6 +45,7 @@ tasktype_map:
     repackage-signing: repackage
     repackage-signing-msi: repackage
     repackage-signing-shippable-l10n-msix: signing
+    release-deb-repackage: repackage
 platform_names:
     filename_platform:
         by-platform:

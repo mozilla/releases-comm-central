@@ -46,6 +46,7 @@ tasktype_map:
     repackage-signing-msi: repackage
     repackage-signing-shippable-l10n-msix: signing
     release-sign-and-push-langpacks: scriptworker
+    release-deb-repackage: repackage
 platform_names:
     path_platform:
         by-platform:

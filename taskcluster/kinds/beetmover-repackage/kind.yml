@@ -30,6 +30,7 @@ kind-dependencies:
     - partials-signing
     - repackage-signing-msi
     - repackage-signing-shippable-l10n-msix
+    - release-deb-repackage
     - mar-signing
     - mar-signing-l10n
     - upload-symbols
