@@ -6,18 +6,25 @@ import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import/no
 import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-categories.mjs"; // eslint-disable-line import/no-unassigned-import
 
+const { cal } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calUtils.sys.mjs"
+);
+
 /**
  * Dialog for calendar.
  * Template ID: #calendarDialogTemplate
+ *
+ * @tagname calendar-dialog
+ * @attribute {string} event-id - ID of the event to display.
+ * @attribute {string} calendar-id - ID of the calendar the event to display is
+ *  in.
  */
 export class CalendarDialog extends HTMLDialogElement {
+  static get observedAttributes() {
+    return ["event-id", "calendar-id"];
+  }
+
   #subviewManager = null;
-  /**
-   * The data for the current dialog
-   *
-   * @type {object}
-   */
-  #data = null;
 
   connectedCallback() {
     if (!this.hasConnected) {
@@ -50,8 +57,16 @@ export class CalendarDialog extends HTMLDialogElement {
     }
 
     document.l10n.translateFragment(this);
+    this.#loadCalendarEvent();
+  }
 
-    this.updateDialogData(this.#data, true);
+  attributeChangedCallback(attribute) {
+    switch (attribute) {
+      case "calendar-id":
+      case "event-id":
+        this.#loadCalendarEvent();
+        break;
+    }
   }
 
   handleEvent(event) {
@@ -76,25 +91,87 @@ export class CalendarDialog extends HTMLDialogElement {
   }
 
   /**
-   * Updates the event data showing in the dialog
+   * Helper to set up the calendar event reference for the dialog. When called
+   * with a calIEvent the dialog will update to show the data of that event.
+   *
+   * @param {calIEvent} event
+   * @throws {Error} When passed a calIItemBase that isn't an event.
+   */
+  setCalendarEvent(event) {
+    if (!event.isEvent()) {
+      throw new Error("Can only display events");
+    }
+    this.removeAttribute("calendar-id");
+    this.setAttribute("event-id", event.id);
+    this.setAttribute("calendar-id", event.calendar.id);
+  }
+
+  /**
+   * Load the data from the event given by attributes. The displayed data is
+   * cleared if either of the attributes is unset.
+   */
+  async #loadCalendarEvent() {
+    if (!this.hasConnected) {
+      return;
+    }
+
+    // Let's find the calendar we're displaying an event from.
+    const calendarId = this.getAttribute("calendar-id");
+    if (!calendarId) {
+      // Only clear if event ID is still set.
+      if (this.getAttribute("event-id")) {
+        this.#clearData();
+      }
+      return;
+    }
+    const calendar = cal.manager.getCalendarById(calendarId);
+    if (!calendar) {
+      console.error("No calendar", calendarId);
+      this.close();
+      return;
+    }
+
+    // Let's find the event in the calendar.
+    const eventId = this.getAttribute("event-id");
+    if (!eventId) {
+      // Should clear now, since calendar ID is still set.
+      this.#clearData();
+      return;
+    }
+    const event = await calendar.getItem(eventId);
+    if (!event) {
+      // Only dismiss the dialog if the state hasn't changed while awaiting.
+      if (eventId === this.getAttribute("event-id")) {
+        console.error("Could not find", eventId, "in", calendarId);
+        this.close();
+      }
+      return;
+    }
+    if (!event.isEvent()) {
+      console.error(calendarId, eventId, "is not an event");
+      this.close();
+      return;
+    }
+
+    // We did it, we have an event to display \o/.
+    this.querySelector(".calendar-dialog-title").textContent = event.title;
+  }
+
+  /**
+   * Clear the data displayed in the dialog.
+   */
+  #clearData() {
+    this.querySelector(".calendar-dialog-title").textContent = "";
+  }
+
+  /**
+   * Updates the event data showing in the dialog. Deprecated in favor of
+   * populating data from the calIEvent. Left in place as reference for adding
+   * more loading above.
    *
    * @param {object} data - Event data to be displayed in the dialog.
-   * @param {boolean} init - If this is being callon on component connection.
    */
-  updateDialogData(data, init) {
-    if (!data) {
-      return;
-    }
-
-    if (!this.hasConnected) {
-      this.#data = data;
-      return;
-    }
-
-    if (!this.#data || data.title !== this.#data.title || init) {
-      this.querySelector(".calendar-dialog-title").textContent = data.title;
-    }
-
+  updateDialogData(data) {
     if (data.eventLocation) {
       this.#setLocation(data.eventLocation);
     }
@@ -109,8 +186,6 @@ export class CalendarDialog extends HTMLDialogElement {
         data.categories
       );
     }
-
-    this.#data = data;
   }
 
   /**

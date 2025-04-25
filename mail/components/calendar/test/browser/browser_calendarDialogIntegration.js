@@ -34,7 +34,7 @@ add_task(async function test_calendarDialogOpenAndClose() {
     0,
     "calendar dialog does not exist until opened"
   );
-  createEvent({ calendar });
+  await createEvent({ calendar });
   await openEvent();
 
   dialogs = [...document.querySelectorAll("dialog")].filter(
@@ -55,51 +55,6 @@ add_task(async function test_calendarDialogOpenAndClose() {
   Assert.ok(!dialog.open, "dialog is hidden");
 
   await openEvent();
-
-  dialogs = [...document.querySelectorAll("dialog")].filter(
-    _dialog => _dialog instanceof CalendarDialog
-  );
-  const newDialog = dialogs[0];
-
-  Assert.equal(dialogs.length, 1, "1 calendar dialog exists");
-  Assert.ok(newDialog.open, "dialog is visible");
-  Assert.equal(
-    newDialog,
-    dialog,
-    "New dialog and old dialog are the same element"
-  );
-
-  EventUtils.synthesizeMouseAtCenter(
-    dialog.querySelector(".close-button"),
-    {},
-    window
-  );
-});
-
-add_task(async function test_calendarDialogNewEvent() {
-  let dialogs = [...document.querySelectorAll("dialog")].filter(
-    _dialog => _dialog instanceof CalendarDialog
-  );
-  const dialog = dialogs[0];
-
-  Assert.equal(dialogs.length, 1, "1 calendar dialog exists");
-  Assert.ok(!dialog.open, "dialog is hidden");
-  createEvent({ calendar });
-  await openEvent();
-
-  Assert.ok(dialog.open, "dialog is open");
-
-  EventUtils.synthesizeMouseAtCenter(
-    dialog.querySelector(".close-button"),
-    {},
-    window
-  );
-
-  Assert.ok(!dialog.open, "dialog is hidden");
-
-  createEvent({ calendar, offset: 1 });
-
-  await openEvent(1);
 
   dialogs = [...document.querySelectorAll("dialog")].filter(
     _dialog => _dialog instanceof CalendarDialog

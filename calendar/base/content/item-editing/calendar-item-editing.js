@@ -563,7 +563,16 @@ function openEventDialog(
 
     // the dialog will reset this to auto when it is done loading.
     window.setCursor("wait");
-  } else if (Services.prefs.getBoolPref("calendar.dialogs.new.enabled")) {
+  } else if (
+    Services.prefs.getBoolPref("calendar.dialogs.new.enabled") &&
+    calendarItem.isEvent() &&
+    mode === "view"
+  ) {
+    const showDialog = () => {
+      const dialog = document.getElementById("calendarDialog");
+      dialog.setCalendarEvent(calendarItem);
+      dialog.show();
+    };
     if (!document.getElementById("calendarDialog")) {
       import("chrome://messenger/content/calendar-dialog.mjs").then(() => {
         const dialog = document.createElement("dialog", {
@@ -571,11 +580,10 @@ function openEventDialog(
         });
         dialog.id = "calendarDialog";
         document.querySelector(".calendar-dialog-root").replaceChildren(dialog);
-
-        document.getElementById("calendarDialog").show();
+        showDialog();
       });
     } else {
-      document.getElementById("calendarDialog").show();
+      showDialog();
     }
   } else {
     // the dialog will reset this to auto when it is done loading.

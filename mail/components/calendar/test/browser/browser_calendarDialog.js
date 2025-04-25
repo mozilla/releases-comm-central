@@ -7,6 +7,8 @@
 const tabmail = document.getElementById("tabmail");
 let browser;
 let dialog;
+let calendar;
+let calendarEvent;
 
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
@@ -23,8 +25,12 @@ add_setup(async function () {
   browser = tab.browser;
   dialog = browser.contentWindow.document.querySelector("dialog");
 
+  calendar = createCalendar();
+  calendarEvent = await createEvent({ calendar });
+
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 });
 
@@ -57,6 +63,36 @@ add_task(async function test_dialogOpenAndClose() {
     browser.contentWindow
   );
   Assert.ok(!dialog.open, "Dialog is closed");
+});
+
+add_task(async function test_setCalendarEvent() {
+  Assert.throws(
+    () => {
+      dialog.setCalendarEvent({
+        isEvent() {
+          return false;
+        },
+      });
+    },
+    /Can only display events/,
+    "Only accepts events."
+  );
+
+  dialog.setCalendarEvent(calendarEvent);
+
+  Assert.equal(
+    dialog.getAttribute("calendar-id"),
+    calendar.id,
+    "Should set the calendar-id attribute"
+  );
+  Assert.equal(
+    dialog.getAttribute("event-id"),
+    calendarEvent.id,
+    "Should set the event-id attribute"
+  );
+
+  dialog.removeAttribute("calendar-id");
+  dialog.removeAttribute("event-id");
 });
 
 add_task(async function test_dialogSubviewNavigation() {
@@ -114,28 +150,35 @@ add_task(async function test_dialogSubviewNavigation() {
 
 add_task(async function test_dialogTitle() {
   dialog.show();
+  const title = dialog.querySelector(".calendar-dialog-title");
 
   Assert.equal(
-    dialog.querySelector(".calendar-dialog-title").textContent,
+    title.textContent,
     "",
     "The dialog title has no text before data is set"
   );
 
-  dialog.updateDialogData({ title: "foobar" });
+  dialog.setCalendarEvent(calendarEvent);
+  await BrowserTestUtils.waitForMutationCondition(
+    title,
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => title.textContent == calendarEvent.title
+  );
 
   Assert.equal(
-    dialog.querySelector(".calendar-dialog-title").textContent,
-    "foobar",
+    title.textContent,
+    calendarEvent.title,
     "The dialog title has correct title after setting data"
   );
 
-  dialog.updateDialogData({});
+  dialog.removeAttribute("calendar-id");
+  dialog.removeAttribute("event-id");
 
-  Assert.equal(
-    dialog.querySelector(".calendar-dialog-title").textContent,
-    "",
-    "The dialog title text is cleared"
-  );
+  Assert.equal(title.textContent, "", "The dialog title text is cleared");
 });
 
 add_task(async function test_dialogLocation() {
