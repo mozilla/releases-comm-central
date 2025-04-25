@@ -1938,32 +1938,34 @@ function displayAttachmentsForExpandedViewExternal() {
     "tooltiptextexternalnotfound",
     externalAttachmentNotFound
   );
-  attachmentName.addEventListener("mouseover", () =>
-    top.MsgStatusFeedback.setOverLink(firstAttachment.displayUrl)
-  );
-  attachmentName.addEventListener("mouseout", () =>
-    top.MsgStatusFeedback.setOverLink("")
-  );
-  attachmentName.addEventListener("focus", () =>
-    top.MsgStatusFeedback.setOverLink(firstAttachment.displayUrl)
-  );
-  attachmentName.addEventListener("blur", () =>
-    top.MsgStatusFeedback.setOverLink("")
-  );
+
   attachmentName.classList.remove("text-link");
   attachmentName.classList.remove("notfound");
 
-  if (firstAttachment.isDeleted) {
-    attachmentName.classList.add("notfound");
-  }
-
   if (firstAttachment.isExternalAttachment) {
+    attachmentName.addEventListener("mouseover", () =>
+      top.MsgStatusFeedback.setOverLink(firstAttachment.displayUrl)
+    );
+    attachmentName.addEventListener("mouseout", () =>
+      top.MsgStatusFeedback.setOverLink("")
+    );
+    attachmentName.addEventListener("focus", () =>
+      top.MsgStatusFeedback.setOverLink(firstAttachment.displayUrl)
+    );
+    attachmentName.addEventListener("blur", () =>
+      top.MsgStatusFeedback.setOverLink("")
+    );
+
     attachmentName.classList.add("text-link");
 
     if (!firstAttachment.hasFile) {
       attachmentName.setAttribute("tooltiptext", externalAttachmentNotFound);
       attachmentName.classList.add("notfound");
     }
+  }
+
+  if (firstAttachment.isDeleted) {
+    attachmentName.classList.add("notfound");
   }
 
   // Expanded attachment list.
