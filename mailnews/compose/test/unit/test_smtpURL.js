@@ -15,6 +15,10 @@ var smtpURLs = [
     spec: "smtps://user@localhost/",
     username: "user",
   },
+  {
+    url: "mailto:should.not.crash@example.com?to",
+    spec: "mailto:should.not.crash@example.com?to",
+  },
 ];
 
 function run_test() {
@@ -25,6 +29,8 @@ function run_test() {
     url = Services.io.newURI(smtpURLs[part].url);
 
     Assert.equal(url.spec, smtpURLs[part].spec);
-    Assert.equal(url.username, smtpURLs[part].username);
+    if (smtpURLs[part].username) {
+      Assert.equal(url.username, smtpURLs[part].username);
+    }
   }
 }
