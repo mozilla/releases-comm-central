@@ -314,12 +314,8 @@ impl XpComEwsClient {
                 .iter()
                 .filter_map(|change| {
                     let message = match change {
-                        sync_folder_items::Change::Create {
-                            item: RealItem::Message(message),
-                        } => message,
-                        sync_folder_items::Change::Update {
-                            item: RealItem::Message(message),
-                        } => message,
+                        sync_folder_items::Change::Create { item } => item.inner_message(),
+                        sync_folder_items::Change::Update { item } => item.inner_message(),
 
                         // We don't fetch items for anything other than messages,
                         // since we don't have support for other items, and we don't
@@ -363,17 +359,13 @@ impl XpComEwsClient {
                 )
                 .await?
                 .into_iter()
-                .map(|item| match item {
-                    RealItem::Message(message) => message
+                .map(|item| {
+                    let message = item.into_inner_message();
+                    message
                         .item_id
                         .clone()
                         .ok_or_else(|| XpComEwsError::MissingIdInResponse)
-                        .map(|item_id| (item_id.id.to_owned(), message)),
-
-                    // We should have filtered above for only Message-related
-                    // changes.
-                    #[allow(unreachable_patterns)]
-                    _ => panic!("Encountered unexpected non-Message item in response"),
+                        .map(|item_id| (item_id.id.to_owned(), message))
                 })
                 .collect::<Result<_, _>>()?;
 
@@ -412,23 +404,16 @@ impl XpComEwsClient {
             for change in changes {
                 match change {
                     sync_folder_items::Change::Create { item } => {
-                        let item_id = match item {
-                            RealItem::Message(message) => {
-                                message
-                                    .item_id
-                                    .ok_or_else(|| XpComEwsError::MissingIdInResponse)?
-                                    .id
-                            }
-
-                            // We don't currently handle anything other than
-                            // messages, so skip this change.
-                            #[allow(unreachable_patterns)]
-                            _ => continue,
-                        };
+                        let item_id = &item
+                            .inner_message()
+                            .item_id
+                            .as_ref()
+                            .ok_or_else(|| XpComEwsError::MissingIdInResponse)?
+                            .id;
 
                         log::info!("Processing Create change with ID {item_id}");
 
-                        let msg = messages_by_id.get(&item_id).ok_or_else(|| {
+                        let msg = messages_by_id.get(item_id).ok_or_else(|| {
                             XpComEwsError::Processing {
                                 message: format!("Unable to fetch message with ID {item_id}"),
                             }
@@ -438,7 +423,7 @@ impl XpComEwsClient {
                         // us. We don't create it ourselves so that the database
                         // can fill out any fields it wants beforehand. The
                         // header we get back will have its EWS ID already set.
-                        let ews_id = nsCString::from(&item_id);
+                        let ews_id = nsCString::from(item_id);
                         let result = getter_addrefs(|hdr| unsafe {
                             callbacks.CreateNewHeaderForItem(&*ews_id, hdr)
                         });
@@ -461,29 +446,22 @@ impl XpComEwsClient {
                     }
 
                     sync_folder_items::Change::Update { item } => {
-                        let item_id = match item {
-                            RealItem::Message(message) => {
-                                message
-                                    .item_id
-                                    .ok_or_else(|| XpComEwsError::MissingIdInResponse)?
-                                    .id
-                            }
-
-                            // We don't currently handle anything other than
-                            // messages, so skip this change.
-                            #[allow(unreachable_patterns)]
-                            _ => continue,
-                        };
+                        let item_id = &item
+                            .inner_message()
+                            .item_id
+                            .as_ref()
+                            .ok_or_else(|| XpComEwsError::MissingIdInResponse)?
+                            .id;
 
                         log::info!("Processing Update change with ID {item_id}");
 
-                        let msg = messages_by_id.get(&item_id).ok_or_else(|| {
+                        let msg = messages_by_id.get(item_id).ok_or_else(|| {
                             XpComEwsError::Processing {
                                 message: format!("Unable to fetch message with ID {item_id}"),
                             }
                         })?;
 
-                        let ews_id = nsCString::from(&item_id);
+                        let ews_id = nsCString::from(item_id);
                         let mut result =
                             getter_addrefs(|p| unsafe { callbacks.GetHeaderForItem(&*ews_id, p) });
 
@@ -599,12 +577,11 @@ impl XpComEwsClient {
         // Extract the Internet Message Format content of the message from the
         // response. We've guaranteed above that the iteration will produce
         // at least one element, so unwrapping is okay here.
-        let message = match items.into_iter().next().unwrap() {
-            RealItem::Message(message) => message,
-        };
+        let item = items.into_iter().next().unwrap();
+        let message = item.inner_message();
 
-        let raw_mime = if let Some(raw_mime) = message.mime_content {
-            raw_mime.content
+        let raw_mime = if let Some(raw_mime) = &message.mime_content {
+            &raw_mime.content
         } else {
             return Err(XpComEwsError::Processing {
                 message: format!("item has no content"),
@@ -1855,12 +1832,12 @@ fn create_and_populate_header_from_create_response(
         });
     }
 
-    let message = match items.into_iter().next().unwrap() {
-        RealItem::Message(message) => message,
-    };
+    let item = items.into_iter().next().unwrap();
+    let message = item.inner_message();
 
-    let ews_id = message
+    let ews_id = &message
         .item_id
+        .as_ref()
         .ok_or(XpComEwsError::MissingIdInResponse)?
         .id;
     let ews_id = nsCString::from(ews_id);

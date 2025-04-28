@@ -978,8 +978,37 @@ pub struct Folders {
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/items>
 #[derive(Clone, Debug, Deserialize, XmlSerialize)]
 #[xml_struct(variant_ns_prefix = "t")]
+#[non_exhaustive]
 pub enum RealItem {
     Message(Message),
+    MeetingMessage(Message),
+    MeetingRequest(Message),
+    MeetingResponse(Message),
+    MeetingCancellation(Message),
+}
+
+impl RealItem {
+    /// Return the [`Message`] object contained within this [`RealItem`].
+    pub fn inner_message(&self) -> &Message {
+        match self {
+            RealItem::Message(message)
+            | RealItem::MeetingMessage(message)
+            | RealItem::MeetingRequest(message)
+            | RealItem::MeetingResponse(message)
+            | RealItem::MeetingCancellation(message) => message,
+        }
+    }
+
+    /// Take ownership of the inner [`Message`].
+    pub fn into_inner_message(self) -> Message {
+        match self {
+            RealItem::Message(message)
+            | RealItem::MeetingMessage(message)
+            | RealItem::MeetingRequest(message)
+            | RealItem::MeetingResponse(message)
+            | RealItem::MeetingCancellation(message) => message,
+        }
+    }
 }
 
 /// An item which may appear in an item-based attachment.
