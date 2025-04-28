@@ -2214,7 +2214,7 @@ export var RNP = {
         encrypted_array,
         this.enArmorCDataMessage.bind(this)
       );
-      if (!r2.exitCode && r2.decryptedData) {
+      if (r2 && !r2.exitCode && r2.decryptedData) {
         // TODO: obtain info which key ID was used for decryption
         //       and set result.decryptKey*
         //       It isn't obvious how to do that with GPGME, because
@@ -3784,6 +3784,9 @@ export var RNP = {
         const orgEncrypt = args.encrypt;
         args.encrypt = false;
         signedInner = await lazy.GPGME.sign(plaintext, args, resultStatus);
+        if (!signedInner) {
+          throw new Error("GPGME.sign failed");
+        }
         // Despite our request to produce binary data, GPGME.sign might
         // have produce ASCII armored encoding, e.g. if the user has
         // a configuration file that enables it.
@@ -3796,7 +3799,15 @@ export var RNP = {
         // caller needs the detatched signature, either for MIME
         // mime encoding with separate signature part, or for the nested
         // approach with separate signing and encryption layers.
-        return lazy.GPGME.signDetached(plaintext, args, resultStatus);
+        const signResult = lazy.GPGME.signDetached(
+          plaintext,
+          args,
+          resultStatus
+        );
+        if (!signResult) {
+          throw new Error("GPGME.signDetached failed");
+        }
+        return signResult;
       }
     }
 
