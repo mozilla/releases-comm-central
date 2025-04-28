@@ -55,7 +55,10 @@ add_task(async function testViewSortBySize() {
     Assert.equal(num, 8);
     const sizes = [];
     for (let i = 0; i < num; i++) {
-      const [size] = dbView.cellTextForColumn(i, "sizeCol").split(" ");
+      let [size] = dbView.cellTextForColumn(i, "sizeCol").split(" ");
+      // The numbers in the UI are formatted per local regional settings.
+      // E.g. 10.2 may be 10,2. Convert to dot before proceeding.
+      size = size.replace(",", ".");
       sizes.push(Number(size));
     }
     return sizes.every(
