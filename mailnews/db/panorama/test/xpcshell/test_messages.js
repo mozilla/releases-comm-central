@@ -7,7 +7,7 @@
  */
 
 add_setup(async function () {
-  await installDB("messages.sqlite");
+  await installDBFromFile("db/messages.sql");
 });
 
 add_setup(function testMessagesDBWorks() {

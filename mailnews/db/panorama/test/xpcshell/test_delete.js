@@ -7,7 +7,7 @@
  */
 
 add_setup(async function () {
-  await installDB("move.sqlite");
+  await installDBFromFile("db/move.sql");
 });
 
 add_task(function testDelete() {

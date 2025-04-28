@@ -1,36 +1,8 @@
-CREATE TABLE folders (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  parent INTEGER REFERENCES folders(id),
-  ordinal INTEGER DEFAULT NULL,
-  name TEXT,
-  flags INTEGER DEFAULT 0
-) STRICT;
-
 INSERT INTO folders (id, parent, name) VALUES
   (1, 0, 'server1'),
   (2, 1, 'folderA'),
   (3, 1, 'folderB'),
   (4, 1, 'folderC');
-
-CREATE TABLE folder_properties(
-  id INTEGER REFERENCES folders(id),
-  name TEXT,
-  value ANY,
-  PRIMARY KEY(id, name)
-) STRICT;
-
-CREATE TABLE messages(
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  folderId INTEGER REFERENCES folders(id),
-  messageId TEXT,
-  date INTEGER,
-  sender TEXT,
-  subject TEXT,
-  flags INTEGER,
-  tags TEXT
-) STRICT;
-
-CREATE INDEX messages_date ON messages(date);
 
 INSERT INTO messages (id, folderId, messageId, date, sender, subject, flags, tags) VALUES
   (1, 2, 'message1@invalid', UNIXEPOCH('2019-02-01') * 1000000, '"Tara White" <tara@white.invalid>', 'Fundamental empowering pricing structure', 0, ''),
@@ -43,10 +15,3 @@ INSERT INTO messages (id, folderId, messageId, date, sender, subject, flags, tag
   (8, 4, 'message8@invalid', UNIXEPOCH('2023-08-06T06:02:00Z') * 1000000, '"Edgar Stokes" <edgar@stokes.invalid>', 'Balanced static project', 0, '$label1'),
   (9, 4, 'message9@invalid', UNIXEPOCH('2023-08-14') * 1000000, '"Neal Jast" <neal@jast.invalid>', 'Virtual solution-oriented knowledge user', 0, ''),
   (10, 4, 'message10@invalid', UNIXEPOCH('2023-09-14') * 1000000, '"Christian Murray" <christian@murray.invalid>', 'Distributed mobile access', 5, '');
-
-CREATE TABLE message_properties(
-  id INTEGER REFERENCES messages(id),
-  name TEXT,
-  value ANY,
-  PRIMARY KEY(id, name)
-) STRICT;

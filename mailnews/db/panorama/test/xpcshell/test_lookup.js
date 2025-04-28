@@ -7,7 +7,19 @@
  */
 
 add_setup(async function () {
-  await installDB("lookup.sqlite");
+  // These id values are deliberately out-of-order. It shouldn't matter.
+  await installDB(`
+    INSERT INTO folders (id, parent, name) VALUES
+      (5, 0, 'server1'),
+      (1, 5, 'INBOX'),
+      (3, 5, 'Sent'),
+      (9, 5, 'Junk'),
+      (7, 5, 'Trash'),
+      (4, 0, 'server2'),
+      (6, 4, 'folder'),
+      (2, 6, 'süb1'),
+      (8, 2, 'sub2');
+  `);
 });
 
 add_task(function testLookup() {

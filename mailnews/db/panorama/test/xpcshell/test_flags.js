@@ -12,7 +12,7 @@ const FLAG_FOUR = 0x4;
 const FLAG_EIGHT = 0x8;
 
 add_setup(async function () {
-  await installDB("relations.sqlite");
+  await installDBFromFile("db/relations.sql");
 });
 
 add_task(function testFlags() {

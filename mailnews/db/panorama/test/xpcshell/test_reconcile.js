@@ -9,7 +9,7 @@
  */
 
 add_setup(async function () {
-  await installDB("relations.sqlite");
+  await installDBFromFile("db/relations.sql");
 });
 
 add_task(function testReconcile() {

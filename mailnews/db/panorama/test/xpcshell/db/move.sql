@@ -1,11 +1,3 @@
-CREATE TABLE folders (
-  id INTEGER PRIMARY KEY,
-  parent INTEGER REFERENCES folders(id),
-  ordinal INTEGER DEFAULT NULL,
-  name TEXT,
-  flags INTEGER DEFAULT 0
-);
-
 INSERT INTO folders (id, parent, name) VALUES
   (1, 0, 'grandparent'),
   (2, 1, 'left'),

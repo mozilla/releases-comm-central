@@ -23,7 +23,7 @@ const LiveView = Components.Constructor(
 );
 
 add_setup(async function () {
-  await installDB("messages.sqlite");
+  await installDBFromFile("db/messages.sql");
 });
 
 /**

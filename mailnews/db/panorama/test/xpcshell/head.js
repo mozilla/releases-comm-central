@@ -8,15 +8,72 @@ const { MailServices } = ChromeUtils.importESModule(
 
 let database, folders, messages;
 
-async function installDB(dbName) {
-  const profileDir = do_get_profile();
-  const dbFile = do_get_file(`db/${dbName}`);
-  dbFile.copyTo(profileDir, "panorama.sqlite");
-
-  await loadExistingDB();
+/**
+ * Create and populate a database using data from an external file.
+ *
+ * @param {string} path - Relative path to the external file.
+ */
+async function installDBFromFile(path) {
+  installDB(await IOUtils.readUTF8(do_get_file(path).path));
 }
 
-async function loadExistingDB() {
+/**
+ * Create and populate a database using raw SQL.
+ *
+ * @param {string} [sql]
+ */
+function installDB(sql) {
+  const profileDir = do_get_profile();
+  const dbFile = profileDir.clone();
+  dbFile.append("panorama.sqlite");
+
+  const dbConnection = Services.storage.openDatabase(dbFile);
+  dbConnection.executeSimpleSQL(`
+    CREATE TABLE folders (
+      id INTEGER PRIMARY KEY,
+      parent INTEGER REFERENCES folders(id),
+      ordinal INTEGER DEFAULT NULL,
+      name TEXT,
+      flags INTEGER DEFAULT 0,
+      UNIQUE(parent, name)
+    );
+    CREATE TABLE folder_properties (
+      id INTEGER REFERENCES folders(id),
+      name TEXT,
+      value ANY,
+      PRIMARY KEY(id, name)
+    );
+    CREATE TABLE messages (
+      id INTEGER PRIMARY KEY,
+      folderId INTEGER REFERENCES folders(id),
+      messageId TEXT,
+      date INTEGER,
+      sender TEXT,
+      subject TEXT,
+      flags INTEGER,
+      tags TEXT
+    );
+    CREATE TABLE message_properties (
+      id INTEGER REFERENCES messages(id),
+      name TEXT,
+      value ANY,
+      PRIMARY KEY(id, name)
+    );
+    CREATE INDEX messages_date ON messages(date);
+  `);
+  if (sql) {
+    dbConnection.executeSimpleSQL(sql);
+  }
+  dbConnection.close();
+
+  loadExistingDB();
+}
+
+/**
+ * Ensure the database is ready to use. This starts the account manager, so
+ * any preferences or existing database should be set up before calling this.
+ */
+function loadExistingDB() {
   // Register DatabaseCore as the message DB service with XPCOM.
   MailServices.accounts;
 

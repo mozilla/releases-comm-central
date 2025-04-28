@@ -5,7 +5,7 @@
 let account;
 
 add_setup(async function () {
-  await installDB("messages.sqlite");
+  await installDBFromFile("db/messages.sql");
 
   account = MailServices.accounts.createLocalMailAccount();
   Assert.equal(account.incomingServer.key, "server1");

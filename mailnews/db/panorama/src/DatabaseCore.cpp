@@ -141,6 +141,8 @@ nsresult DatabaseCore::EnsureConnection() {
   if (!exists) {
     MOZ_LOG(gPanoramaLog, LogLevel::Warning,
             ("database file does not exist, creating"));
+    // Please keep mailnews/db/panorama/test/xpcshell/head.js in sync with
+    // changes to the following code.
     rv = sConnection->ExecuteSimpleSQL(
         "CREATE TABLE folders ( \
           id INTEGER PRIMARY KEY, \

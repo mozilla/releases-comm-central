@@ -4,19 +4,10 @@ prefs = [
   "logging.config.modules=panorama:4,mozStorage:4",
   "mail.panorama.enabled=true",
 ]
-generated-files = [
-  "db/lookup.sqlite",
-  "db/messages.sqlite",
-  "db/move.sqlite",
-  "db/relations.sqlite",
-  "db/sort.sqlite",
-]
 support-files = [
-  "db/lookup.sqlite",
-  "db/messages.sqlite",
-  "db/move.sqlite",
-  "db/relations.sqlite",
-  "db/sort.sqlite",
+  "db/messages.sql",
+  "db/move.sql",
+  "db/relations.sql",
 ]
 
 ["test_delete.js"]
