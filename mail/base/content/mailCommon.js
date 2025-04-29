@@ -549,7 +549,7 @@ var commandController = {
         }
         return false;
       case "cmd_viewPageSource":
-        return numSelectedMessages == 1;
+        return numSelectedMessages > 0;
       case "cmd_saveAsTemplate":
         return numSelectedMessages == 1 && !isDummyMessage;
       case "cmd_reply":

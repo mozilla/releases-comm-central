@@ -184,7 +184,7 @@ add_task(async function test3PaneTab() {
     viewMessagesMenu: { disabled: false },
   });
 
-  // Multiselect and test.
+  // Multiselect folders and test.
   EventUtils.synthesizeMouseAtCenter(
     tabmail.currentAbout3Pane.folderPane
       .getRowForFolder(secondFolder)
@@ -242,5 +242,23 @@ add_task(async function test3PaneTab() {
     menu_showFolderPane: { checked: true },
     menu_toggleThreadPaneHeader: { checked: true },
     menu_showMessage: { checked: true },
+  });
+
+  // No messages selected.
+  tabmail.currentAbout3Pane.threadTree.selectedIndices = [];
+  await helper.testItems({
+    pageSourceMenuItem: { disabled: true },
+  });
+
+  // Single message selected.
+  tabmail.currentAbout3Pane.threadTree.selectedIndices = [1];
+  await helper.testItems({
+    pageSourceMenuItem: { disabled: false },
+  });
+
+  // Multiselect messages.
+  tabmail.currentAbout3Pane.threadTree.selectedIndices = [2, 4];
+  await helper.testItems({
+    pageSourceMenuItem: { disabled: false },
   });
 });
