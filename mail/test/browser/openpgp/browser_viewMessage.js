@@ -934,6 +934,10 @@ add_task(async function testOpenEncryptedForRevokedKey() {
 
 /**
  * Test that a git commit isn't confusing signed/encrypted states.
+ * The MIME content type headers claim that we have an encrypted OpenPGP
+ * message, while in fact we have a signed message.
+ * The important part is to test that the message isn't incorrectly shown as
+ * being encrypted.
  */
 add_task(async function testGitCommitSpoof() {
   await OpenPGPTestUtils.importPublicKey(
@@ -956,17 +960,18 @@ add_task(async function testGitCommitSpoof() {
     ),
     "message text#1 should be in body"
   );
-  // This (text#2), the normal text shoudl be visible too.
+  // This (text#2), the normal text should be visible too.
   Assert.ok(
     getMsgBodyTxt(msgc).includes("Hope you find something good elsewhere!"),
     "message text#2 should be in body"
   );
-  // Mistmatch (at least) due to the fact that content had to be modified
-  // for it to mimic a message.
-  Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
-    "should say signed mismatch"
-  );
+  // The signing status is currently "mismatch" though it's debatable
+  // whether that is correct.
+  // See bug https://bugzilla.mozilla.org/show_bug.cgi?id=1953402#c5
+  // Assert.ok(
+  //  OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
+  //  "should say signed mismatch"
+  // );
   Assert.ok(
     OpenPGPTestUtils.hasNoEncryptedIconState(aboutMessage.document),
     "should not be say encrypted"
