@@ -86,7 +86,7 @@ add_task(async function test_DefaultUrlTelemetry() {
     Glean.inappnotifications.preferences[
       "mail.inappnotifications.url"
     ].testGetValue(),
-    "Telemetry should show notifications enabled based on url prefrence"
+    "Telemetry should show notifications enabled based on url preference"
   );
 
   await clear();

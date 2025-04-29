@@ -35,6 +35,6 @@ add_task(async function test_disabledTelemetryProbe() {
     !(await Glean.inappnotifications.preferences[
       "mail.inappnotifications.enabled"
     ].testGetValue()),
-    "Telemetry should show notifications disabled based on enabled prefrence"
+    "Telemetry should show notifications disabled based on enabled preference"
   );
 });

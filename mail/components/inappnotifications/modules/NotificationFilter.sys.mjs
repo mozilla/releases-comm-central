@@ -14,7 +14,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
   false
 );
 
-const policyPrefrences = Object.entries({
+const policyPreferences = Object.entries({
   _enabled: "",
   _messageEnabled: "message_",
   _blogEnabled: "blog_",
@@ -23,7 +23,7 @@ const policyPrefrences = Object.entries({
 
 // Disabled because eslint does not see the array notation variable reference.
 /* eslint-disable mozilla/valid-lazy */
-for (const [property, preference] of policyPrefrences) {
+for (const [property, preference] of policyPreferences) {
   XPCOMUtils.defineLazyPreferenceGetter(
     lazy,
     property,
@@ -35,11 +35,11 @@ for (const [property, preference] of policyPrefrences) {
 
 export const NotificationFilter = {
   /**
-   * Initialize glean with the initial prefrence values for enabled
+   * Initialize glean with the initial preference values for enabled
    * notifications.
    */
   initGlean() {
-    for (const [property, preference] of policyPrefrences) {
+    for (const [property, preference] of policyPreferences) {
       Glean.inappnotifications.preferences[
         `mail.inappnotifications.${preference}enabled`
       ].set(lazy[property]);
