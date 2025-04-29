@@ -190,6 +190,7 @@ add_task(async function test_message_header_toggle() {
 });
 
 async function assert_light_style() {
+  await new Promise(resolve => aboutMessage.requestAnimationFrame(resolve));
   const msgDoc =
     aboutMessage.document.getElementById("messagepane").contentDocument;
 
@@ -216,7 +217,7 @@ async function assert_light_style() {
     "The paragraph should have a white background color"
   );
 
-  /* Check embedded styles */
+  // Check embedded styles.
   const headStyle = aboutMessage.getComputedStyle(
     msgDoc.querySelector("#headStyle")
   );
@@ -294,6 +295,7 @@ async function assert_light_style() {
 }
 
 async function assert_dark_style() {
+  await new Promise(resolve => aboutMessage.requestAnimationFrame(resolve));
   const msgDoc =
     aboutMessage.document.getElementById("messagepane").contentDocument;
 
@@ -316,7 +318,7 @@ async function assert_dark_style() {
     "The paragraph shouldn't have a background color"
   );
 
-  /* Check embedded styles */
+  // Check embedded styles.
   const headStyle = aboutMessage.getComputedStyle(
     msgDoc.querySelector("#headStyle")
   );
