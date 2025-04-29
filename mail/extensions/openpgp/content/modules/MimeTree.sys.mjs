@@ -326,11 +326,11 @@ export class MimeTreeDecrypter {
     if (this.isSMIME(mimeTreePart)) {
       this.decryptSMIME(mimeTreePart);
     } else if (this.isPgpMime(mimeTreePart)) {
-      this.decryptPGPMIME(mimeTreePart);
+      await this.decryptPGPMIME(mimeTreePart);
     } else if (isAttachment(mimeTreePart)) {
-      this.pgpDecryptAttachment(mimeTreePart);
+      await this.pgpDecryptAttachment(mimeTreePart);
     } else {
-      this.decryptINLINE(mimeTreePart);
+      await this.decryptINLINE(mimeTreePart);
     }
 
     for (const i in mimeTreePart.subParts) {
@@ -348,6 +348,8 @@ export class MimeTreeDecrypter {
    * - see:
    *   - https://doesnotexist-openpgp-integration.thunderbird/forum/viewtopic.php?f=4&t=425
    *   - https://sourceforge.net/p/enigmail/forum/support/thread/4add2b69/
+   *
+   * @returns {boolean}
    */
   isBrokenByExchange(mimeTreePart) {
     try {
@@ -388,6 +390,9 @@ export class MimeTreeDecrypter {
     return false;
   }
 
+  /**
+   * @param {MimeTreePart} mimeTreePart
+   */
   decryptSMIME(mimeTreePart) {
     const encrypted = lazy.MailCryptoUtils.binaryStringToTypedArray(
       mimeTreePart.body
@@ -449,6 +454,10 @@ export class MimeTreeDecrypter {
     this.cryptoChanged = true;
   }
 
+  /**
+   * @param {MimeTreePart} mimeTreePart
+   * @returns {boolean}
+   */
   isSMIME(mimeTreePart) {
     if (!mimeTreePart.headers.has("content-type")) {
       return false;
@@ -471,6 +480,10 @@ export class MimeTreeDecrypter {
     );
   }
 
+  /**
+   * @param {MimeTreePart} mimeTreePart
+   * @returns {boolean}
+   */
   hasPgpMimeHeaders(mimeTreePart) {
     try {
       if (mimeTreePart.headers.has("content-type")) {
@@ -489,6 +502,9 @@ export class MimeTreeDecrypter {
     return false;
   }
 
+  /**
+   * @param {MimeTreePart} mimeTreePart
+   */
   async decryptPGPMIME(mimeTreePart) {
     if (!mimeTreePart.subParts[1]) {
       throw new Error(
@@ -513,7 +529,7 @@ export class MimeTreeDecrypter {
     var signatureObj = {};
     signatureObj.value = "";
 
-    const data = lazy.EnigmailDecryption.decryptMessage(
+    const data = await lazy.EnigmailDecryption.decryptMessage(
       null,
       uiFlags,
       mimeTreePart.subParts[1].body,
@@ -647,7 +663,10 @@ export class MimeTreeDecrypter {
     return false;
   }
 
-  pgpDecryptAttachment(mimeTreePart) {
+  /**
+   * @param {MimeTreePart} mimeTreePart
+   */
+  async pgpDecryptAttachment(mimeTreePart) {
     const attachmentHead = mimeTreePart.body.substr(0, 30);
     if (attachmentHead.search(/-----BEGIN PGP \w{5,10} KEY BLOCK-----/) >= 0) {
       // attachment appears to be a PGP key file, skip
@@ -676,7 +695,7 @@ export class MimeTreeDecrypter {
       ? attachmentName.replace(/\.(pgp|asc|gpg)$/, "")
       : "";
 
-    const data = lazy.EnigmailDecryption.decryptMessage(
+    const data = await lazy.EnigmailDecryption.decryptMessage(
       null,
       uiFlags,
       mimeTreePart.body,
@@ -740,6 +759,9 @@ export class MimeTreeDecrypter {
     mimeTreePart.headers._rawHeaders.set("content-type", [ct]);
   }
 
+  /**
+   * @param {MimeTreePart} mimeTreePart
+   */
   isEncryptedINLINE(mimeTreePart) {
     if ("decryptedPgpMime" in mimeTreePart && mimeTreePart.decryptedPgpMime) {
       return false;
@@ -763,6 +785,9 @@ export class MimeTreeDecrypter {
     return false;
   }
 
+  /**
+   * @param {MimeTreePart} mimeTreePart
+   */
   async decryptINLINE(mimeTreePart) {
     if ("decryptedPgpMime" in mimeTreePart && mimeTreePart.decryptedPgpMime) {
       return 0;
@@ -830,7 +855,7 @@ export class MimeTreeDecrypter {
               charset = chset[2].trim();
             }
           }
-          plaintext = lazy.EnigmailDecryption.decryptMessage(
+          plaintext = await lazy.EnigmailDecryption.decryptMessage(
             null,
             uiFlags,
             ciphertext,
@@ -985,6 +1010,9 @@ export class MimeTreeDecrypter {
     return 0;
   }
 
+  /**
+   * @param {MimeTreePart} mimeTreePart
+   */
   fixExchangeMessage(mimeTreePart) {
     const msg = mimeTreeToString(mimeTreePart, true);
     const fixedMsg = lazy.EnigmailFixExchangeMsg.getRepairedMessage(msg);

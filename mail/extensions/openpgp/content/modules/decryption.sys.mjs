@@ -122,10 +122,10 @@ export var EnigmailDecryption = {
    * @param {object} extraDetailsObj
    * @param {JSON} extraDetailsObj.value - JSON string with
    *   with (optional) additional data: encryptedTo, packetDump.
-   * @returns {string} the plaintext. Returns "" if error, or if this was
-   *   called just to verify a signed message.)
+   * @returns {Promise<string>} the plaintext. Returns "" if error, or if this
+   *    was called just to verify a signed message.)
    */
-  decryptMessage(
+  async decryptMessage(
     parent,
     uiFlags,
     cipherText,
@@ -280,7 +280,7 @@ export var EnigmailDecryption = {
       uiFlags,
       msgDate,
     };
-    const result = lazy.EnigmailFuncs.sync(lazy.RNP.decrypt(pgpBlock, options));
+    const result = await lazy.RNP.decrypt(pgpBlock, options);
     if (!result) {
       lazy.log.warn("Decryption message finished with no result.");
       return "";
@@ -479,14 +479,15 @@ export var EnigmailDecryption = {
    *   UI_INTERACTIVE, UI_ALLOW_KEY_IMPORT.
    * @param {string} text - A string containing a PGP block.
    * @param {object} statusObject - An object containing status details.
+   * @returns {?string}
    */
-  inlineInnerVerification(parent, uiFlags, text, statusObject) {
+  async inlineInnerVerification(parent, uiFlags, text, statusObject) {
     if (!text?.startsWith("-----BEGIN PGP SIGNED MESSAGE-----")) {
       return text;
     }
     lazy.log.debug(`Doing inline verification; text=${text}`);
     const status = newStatusObject();
-    const newText = EnigmailDecryption.decryptMessage(
+    const newText = await EnigmailDecryption.decryptMessage(
       parent,
       uiFlags,
       text,
@@ -513,7 +514,7 @@ export var EnigmailDecryption = {
       statusObject.message.value = status.message.value;
       // we don't merge encToDetails
     } else {
-      lazy.log.debug(`Verify inline FAILED.`);
+      lazy.log.debug(`Verify inline FAILED`);
     }
     return text;
   },

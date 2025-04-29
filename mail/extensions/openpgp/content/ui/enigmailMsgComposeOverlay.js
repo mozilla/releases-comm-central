@@ -1808,7 +1808,7 @@ Enigmail.msg = {
 
     var plainText = "";
 
-    plainText = EnigmailDecryption.decryptMessage(
+    plainText = await EnigmailDecryption.decryptMessage(
       window,
       uiFlags,
       cipherText,

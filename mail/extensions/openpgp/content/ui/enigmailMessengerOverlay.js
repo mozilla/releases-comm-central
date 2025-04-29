@@ -1006,7 +1006,7 @@ Enigmail.msg = {
         EnigmailConstants.UI_UNVERIFIED_ENC_OK
       : 0;
 
-    plainText = EnigmailDecryption.decryptMessage(
+    plainText = await EnigmailDecryption.decryptMessage(
       window,
       uiFlags,
       msgText,
