@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { cal } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calUtils.sys.mjs"
+);
+
 /**
  * Calendar Dialog Categories
  *
@@ -44,6 +48,15 @@ export class CalendarDialogCategories extends HTMLElement {
   setCategories(categories) {
     const buildCategoryItem = category => {
       const item = document.createElement("li");
+      const cssSafeId = cal.view.formatStringForCSSRule(category);
+      item.style.setProperty(
+        "--item-color",
+        `var(--category-${cssSafeId}-color)`
+      );
+      item.style.setProperty(
+        "--item-text-color",
+        `var(--category-${cssSafeId}-text-color)`
+      );
       item.textContent = category;
       item.title = category;
       return item;

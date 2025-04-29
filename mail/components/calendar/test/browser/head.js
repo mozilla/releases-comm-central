@@ -52,14 +52,20 @@ function createCalendar({
  * Create an event item in the calendar.
  *
  * @param {object} options - Options to use in creating the event.
- * @param {string} options.name - The name of the event.
- * @param {number} options.offset - The number of days from today to offset the
+ * @param {string} [options.name="Test Event"] - The name of the event.
+ * @param {number} [options.offset=0] - The number of days from today to offset the
  *  event.
  * @param {object} options.calendar - The calendar to create the event on.
+ * @param {string[]} [options.categories=[]] - Categories to assign to the event.
  *
  * @returns {CalEvent} - The created event.
  */
-async function createEvent({ name = "Test Event", offset = 0, calendar } = {}) {
+async function createEvent({
+  name = "Test Event",
+  offset = 0,
+  calendar,
+  categories = [],
+}) {
   const start = cal.dtz.jsDateToDateTime(new Date(todayDate), 0);
   let end = new Date();
   end.setDate(todayDate.getDate() + 1 + offset);
@@ -68,6 +74,7 @@ async function createEvent({ name = "Test Event", offset = 0, calendar } = {}) {
   event.title = name;
   event.startDate = start;
   event.endDate = end;
+  event.setCategories(categories);
   return calendar.addItem(event);
 }
 

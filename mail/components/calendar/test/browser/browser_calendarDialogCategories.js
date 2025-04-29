@@ -36,6 +36,7 @@ add_task(function test_setCategories() {
     );
     for (const [index, category] of categories.entries()) {
       const item = categoriesList.children[index];
+      const cssSafeId = cal.view.formatStringForCSSRule(category);
       Assert.equal(
         item.tagName,
         "li",
@@ -50,6 +51,16 @@ add_task(function test_setCategories() {
         item.title,
         category,
         `Should find expected category tooltip at index ${index}`
+      );
+      Assert.equal(
+        item.style.getPropertyValue("--item-color"),
+        `var(--category-${cssSafeId}-color)`,
+        `Should set category color custom property for ${category}`
+      );
+      Assert.equal(
+        item.style.getPropertyValue("--item-text-color"),
+        `var(--category-${cssSafeId}-text-color)`,
+        `Should set category text color custom property for ${category}`
       );
     }
   }

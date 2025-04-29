@@ -155,6 +155,10 @@ export class CalendarDialog extends HTMLDialogElement {
 
     // We did it, we have an event to display \o/.
     this.querySelector(".calendar-dialog-title").textContent = event.title;
+
+    this.querySelector("calendar-dialog-categories").setCategories(
+      event.getCategories()
+    );
   }
 
   /**
@@ -162,6 +166,7 @@ export class CalendarDialog extends HTMLDialogElement {
    */
   #clearData() {
     this.querySelector(".calendar-dialog-title").textContent = "";
+    this.querySelector("calendar-dialog-categories").setCategories([]);
   }
 
   /**
@@ -179,12 +184,6 @@ export class CalendarDialog extends HTMLDialogElement {
     if (data.description) {
       this.querySelector("#calendarDescriptionContent").textContent =
         data.description;
-    }
-
-    if (Array.isArray(data.categories)) {
-      this.querySelector("calendar-dialog-categories").setCategories(
-        data.categories
-      );
     }
   }
 

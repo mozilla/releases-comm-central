@@ -26,7 +26,7 @@ add_setup(async function () {
   dialog = browser.contentWindow.document.querySelector("dialog");
 
   calendar = createCalendar();
-  calendarEvent = await createEvent({ calendar });
+  calendarEvent = await createEvent({ calendar, categories: ["TEST"] });
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
@@ -248,5 +248,42 @@ add_task(async function test_dialogDescription() {
     calendarDescription.textContent,
     "foobar",
     "Description should update"
+  );
+});
+
+add_task(async function test_dialogCategories() {
+  dialog.show();
+  const categories = dialog.querySelector("calendar-dialog-categories");
+
+  Assert.equal(
+    categories.shadowRoot.querySelectorAll("li").length,
+    0,
+    "The dialog should have no categories"
+  );
+
+  dialog.setCalendarEvent(calendarEvent);
+  await BrowserTestUtils.waitForMutationCondition(
+    categories.shadowRoot.querySelector("ul"),
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => categories.shadowRoot.querySelectorAll("li").length > 0
+  );
+
+  Assert.equal(
+    categories.shadowRoot.querySelectorAll("li").length,
+    1,
+    "The dialog should have a category after setting data"
+  );
+
+  dialog.removeAttribute("calendar-id");
+  dialog.removeAttribute("event-id");
+
+  Assert.equal(
+    categories.shadowRoot.querySelectorAll("li").length,
+    0,
+    "The dialog should have no categories after removing the event association"
   );
 });
