@@ -58,10 +58,9 @@ export class NotificationManager extends EventTarget {
    * or we refresh the information from the server we might show a notifiation
    * earlier.
    *
-   * @private
    * @type {number}
    */
-  static _MAX_MS_BETWEEN_NOTIFICATIONS = 1000 * 60;
+  _MAX_MS_BETWEEN_NOTIFICATIONS = 1000 * 60;
 
   /**
    * The unit of time in MS, for which notifications are limited. This defaults
