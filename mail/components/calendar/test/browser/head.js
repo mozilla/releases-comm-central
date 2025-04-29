@@ -13,6 +13,9 @@ const { cal } = ChromeUtils.importESModule(
 const { CalendarTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
 );
+const { CalRecurrenceInfo } = ChromeUtils.importESModule(
+  "resource:///modules/CalRecurrenceInfo.sys.mjs"
+);
 
 const { dayView } = CalendarTestUtils;
 let count = 0;
@@ -57,6 +60,7 @@ function createCalendar({
  *  event.
  * @param {object} options.calendar - The calendar to create the event on.
  * @param {string[]} [options.categories=[]] - Categories to assign to the event.
+ * @param {boolean} [options.repeats=false] - If the event is repeating.
  *
  * @returns {CalEvent} - The created event.
  */
@@ -65,15 +69,21 @@ async function createEvent({
   offset = 0,
   calendar,
   categories = [],
+  repeats = false,
 }) {
   const start = cal.dtz.jsDateToDateTime(new Date(todayDate), 0);
-  let end = new Date();
+  let end = new Date(todayDate);
   end.setDate(todayDate.getDate() + 1 + offset);
   end = cal.dtz.jsDateToDateTime(end, 0);
   const event = new CalEvent();
   event.title = name;
   event.startDate = start;
   event.endDate = end;
+  if (repeats) {
+    event.recurrenceInfo = new CalRecurrenceInfo(event);
+    const rule = cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=30");
+    event.recurrenceInfo.appendRecurrenceItem(rule);
+  }
   event.setCategories(categories);
   return calendar.addItem(event);
 }

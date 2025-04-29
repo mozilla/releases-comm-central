@@ -65,6 +65,8 @@
 
 .icon-recurrence {
   content: var(--icon-recurrence);
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 .icon-location {

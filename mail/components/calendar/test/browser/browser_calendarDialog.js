@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { recurrenceStringFromItem } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
+);
+
 const tabmail = document.getElementById("tabmail");
 let browser;
 let dialog;
@@ -26,7 +30,11 @@ add_setup(async function () {
   dialog = browser.contentWindow.document.querySelector("dialog");
 
   calendar = createCalendar();
-  calendarEvent = await createEvent({ calendar, categories: ["TEST"] });
+  calendarEvent = await createEvent({
+    calendar,
+    categories: ["TEST"],
+    repeats: true,
+  });
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
@@ -285,5 +293,60 @@ add_task(async function test_dialogCategories() {
     categories.shadowRoot.querySelectorAll("li").length,
     0,
     "The dialog should have no categories after removing the event association"
+  );
+});
+
+add_task(async function test_dialogDate() {
+  dialog.show();
+  const dateRow = dialog.querySelector("calendar-dialog-date-row");
+  const endDate = new Date(todayDate);
+  endDate.setDate(todayDate.getDate() + 1);
+
+  Assert.ok(
+    !dateRow.hasAttribute("repeats"),
+    "The dialog should not indicate a repeating event"
+  );
+
+  dialog.setCalendarEvent(calendarEvent);
+  await BrowserTestUtils.waitForMutationCondition(
+    dateRow,
+    {
+      attributes: true,
+      attributeFilter: ["start-date", "end-date", "repeats"],
+    },
+    () =>
+      dateRow.hasAttribute("start-date") &&
+      dateRow.hasAttribute("end-date") &&
+      dateRow.hasAttribute("repeats")
+  );
+
+  Assert.equal(
+    dateRow.getAttribute("start-date"),
+    todayDate.toISOString(),
+    "The start date should be transferred to the date row"
+  );
+
+  Assert.equal(
+    dateRow.getAttribute("end-date"),
+    endDate.toISOString(),
+    "The end date should be transferred to the date row"
+  );
+
+  Assert.equal(
+    dateRow.getAttribute("repeats"),
+    recurrenceStringFromItem(
+      calendarEvent,
+      "calendar-event-dialog",
+      "ruleTooComplexSummary"
+    ),
+    "The repeat instructions should be transferred to the date row"
+  );
+
+  dialog.removeAttribute("calendar-id");
+  dialog.removeAttribute("event-id");
+
+  Assert.ok(
+    !dateRow.hasAttribute("repeats"),
+    "The dialog should not indicate a repeating event again"
   );
 });

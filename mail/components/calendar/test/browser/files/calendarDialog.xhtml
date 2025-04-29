@@ -17,6 +17,25 @@
       <ul class="categories-list"></ul>
       <span class="overflow-label" hidden="hidden"></span>
     </template>
+    <template id="calendarDialogDateRowTemplate">
+      <calendar-dialog-row>
+        <img
+          src=""
+          slot="icon"
+          class="icon-date-time"
+          data-l10n-id="calendar-dialog-date-row-icon"
+        />
+        <div slot="label">
+          <span class="date-label"></span>
+          <img
+            src=""
+            class="icon-recurrence repeats"
+            data-l10n-id="calendar-dialog-date-row-recurring-icon"
+            hidden="hidden"
+          />
+        </div>
+      </calendar-dialog-row>
+    </template>
     <template id="calendarDialogTemplate">
       <div class="titlebar">
         <button
@@ -33,6 +52,7 @@
           default-subview="calendarDialogMainSubview"
         >
           <div id="calendarDialogMainSubview" hidden="hidden">
+            <calendar-dialog-date-row></calendar-dialog-date-row>
             <calendar-dialog-row id="locationRow">
               <img
                 slot="icon"

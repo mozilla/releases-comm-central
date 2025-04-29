@@ -6,8 +6,14 @@ import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import/no
 import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-categories.mjs"; // eslint-disable-line import/no-unassigned-import
 
+// Eagerly loading modules, since we assume that an event will be displayed soon
+// after this is loaded. Any module in an optional path for displaying an event
+// should be lazy loaded, however.
 const { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
+);
+const { recurrenceStringFromItem } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
 
 /**
@@ -156,6 +162,24 @@ export class CalendarDialog extends HTMLDialogElement {
     // We did it, we have an event to display \o/.
     this.querySelector(".calendar-dialog-title").textContent = event.title;
 
+    const dateRow = this.querySelector("calendar-dialog-date-row");
+    const startDate = cal.dtz.dateTimeToJsDate(event.startDate);
+    dateRow.setAttribute("start-date", startDate.toISOString());
+    const endDate = cal.dtz.dateTimeToJsDate(event.endDate);
+    dateRow.setAttribute("end-date", endDate.toISOString());
+
+    const recurrence = recurrenceStringFromItem(
+      event,
+      "calendar-event-dialog",
+      "ruleTooComplexSummary"
+    );
+    if (recurrence) {
+      dateRow.setAttribute("repeats", recurrence);
+    } else {
+      // Make sure the attribute is unset, since we might be switching event.
+      dateRow.removeAttribute("repeats");
+    }
+
     this.querySelector("calendar-dialog-categories").setCategories(
       event.getCategories()
     );
@@ -166,6 +190,9 @@ export class CalendarDialog extends HTMLDialogElement {
    */
   #clearData() {
     this.querySelector(".calendar-dialog-title").textContent = "";
+    // Only clearing the repeats attribute, the dates are expected to always
+    // have a value.
+    this.querySelector("calendar-dialog-date-row").removeAttribute("repeats");
     this.querySelector("calendar-dialog-categories").setCategories([]);
   }
 
