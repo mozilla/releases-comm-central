@@ -720,57 +720,7 @@ export var EnigmailKeyRing = {
   },
 
   /**
-   * Import key from provided key data (synchronous).
-   *
-   * @param {window} parent
-   * @param {boolean} askToConfirm - If true, display confirmation dialog.
-   * @param {string} keyBlock - Data containing key.
-   * @param {boolean} isBinary - Whether the key is binary.
-   * @param {string}  keyId - Key ID expected to import (no meaning).
-   * @param {object} errorMsgObj - Error object. object.value will contain
-   *   error message from GnuPG
-   * @param {object} [importedKeysObj] - Imported keys object. object.value
-   *    will contain an array of the FPRs imported.
-   * @param {boolean} [minimizeKey=false] - Minimize key for importing.
-   * @param {string[]} [limitedUids] - Restrict importing the key(s) to a given
-   *   set of UIDs.
-   * @param {string} [acceptance] - Acceptance for the keys to import,
-   *   which are new, or still have acceptance "undecided".
-   * @returns {integer} an exit code:
-   *   - code 0:  success
-   *   - code > 0: error
-   *   - code == -1: Cancelled by user
-   */
-  importKey(
-    parent,
-    askToConfirm,
-    keyBlock,
-    isBinary,
-    keyId,
-    errorMsgObj,
-    importedKeysObj,
-    minimizeKey = false,
-    limitedUids = [],
-    acceptance = null
-  ) {
-    return lazy.EnigmailFuncs.sync(
-      this.importKeyAsync(
-        parent,
-        askToConfirm,
-        keyBlock,
-        isBinary,
-        keyId,
-        errorMsgObj,
-        importedKeysObj,
-        minimizeKey,
-        limitedUids,
-        acceptance
-      )
-    );
-  },
-
-  /**
-   * Import public key from provided key data (asynchronous).
+   * Import public key from provided key data.
    *
    * @param {window} parent
    * @param {boolean} askToConfirm - If true, display confirmation dialog.

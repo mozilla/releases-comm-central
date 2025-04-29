@@ -171,7 +171,7 @@ async function EnigmailCommon_importObjectFromFile(what) {
         // import
         const resultKeys = {};
 
-        const importExitCode = EnigmailKeyRing.importKey(
+        const importExitCode = await EnigmailKeyRing.importKeyAsync(
           window,
           false, // interactive, we already asked for confirmation
           keyBlock,

@@ -223,7 +223,7 @@ export const OpenPGPTestUtils = {
     const errorObj = {};
     const fingerPrintObj = {};
 
-    const result = lazy.EnigmailKeyRing.importKey(
+    const result = await lazy.EnigmailKeyRing.importKeyAsync(
       parent,
       false,
       txt,
@@ -238,7 +238,7 @@ export const OpenPGPTestUtils = {
 
     if (result !== 0) {
       console.debug(
-        `EnigmailKeyRing.importKey failed with result "${result}"!`
+        `EnigmailKeyRing.importKeyAsync failed with result "${result}"!`
       );
       return [];
     }

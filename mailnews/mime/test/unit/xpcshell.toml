@@ -45,6 +45,10 @@ support-files = [
 ["test_rfc822_body.js"]
 
 ["test_smime_decrypt.js"]
+tags = [
+  "openpgp",
+  "smime",
+]
 
 ["test_smime_decrypt_allow_sha1.js"]
 run-sequentially = true  # Because it set's a pref that must not be active for other tests.

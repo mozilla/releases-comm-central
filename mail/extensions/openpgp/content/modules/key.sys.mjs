@@ -59,7 +59,7 @@ export var EnigmailKey = {
    * @param {string} keyId - The keyID to import for.
    * @param {string} keyBlockStr - The key block to import from.
    */
-  importRevocationCert(keyId, keyBlockStr) {
+  async importRevocationCert(keyId, keyBlockStr) {
     const key = lazy.EnigmailKeyRing.getKeyById(keyId);
 
     if (key) {
@@ -95,14 +95,14 @@ export var EnigmailKey = {
         // calling a different function for importing revocation
         // signatures, see RNP.importRevImpl
         if (
-          lazy.EnigmailKeyRing.importKey(
+          (await lazy.EnigmailKeyRing.importKeyAsync(
             null,
             false,
             keyBlockStr,
             false,
             keyId,
             errorMsgObj
-          ) > 0
+          )) > 0
         ) {
           Services.prompt.alert(null, null, errorMsgObj.value);
         }
@@ -218,7 +218,7 @@ export var EnigmailKey = {
         if (updateCache) {
           this._keyListCache.set(keyBlockStr, { error: undefined, data: [] });
         }
-        this.importRevocationCert(key.id, blocks.join("\n"));
+        await this.importRevocationCert(key.id, blocks.join("\n"));
         return [];
       }
     }

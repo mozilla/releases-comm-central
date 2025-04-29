@@ -8,12 +8,14 @@ prefs = [
 ]
 subsuite = "thunderbird"
 support-files = ["data/**"]
+tags = ["openpgp"]
 
 ["browser_collectKeys.js"]
 
 ["browser_inlineOpenPGP.js"]
 
 ["browser_keyWizard.js"]
+skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
 
 ["browser_openPGPDrafts.js"]
 

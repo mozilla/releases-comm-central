@@ -252,7 +252,7 @@ const accessHkpInternal = {
       }
 
       xmlReq = new XMLHttpRequest();
-      xmlReq.onload = function () {
+      xmlReq.onload = async function () {
         switch (actionFlag) {
           case lazy.EnigmailConstants.UPLOAD_KEY:
             if (xmlReq.status >= 400) {
@@ -292,7 +292,7 @@ const accessHkpInternal = {
 
               if (actionFlag === lazy.EnigmailConstants.DOWNLOAD_KEY) {
                 const importMinimal = false;
-                const r = lazy.EnigmailKeyRing.importKey(
+                const r = await lazy.EnigmailKeyRing.importKeyAsync(
                   null,
                   false,
                   xmlReq.responseText,
@@ -618,7 +618,7 @@ const accessKeyBase = {
 
       xmlReq = new XMLHttpRequest();
 
-      xmlReq.onload = function () {
+      xmlReq.onload = async function () {
         lazy.log.debug(`... got status=${xmlReq.status}`);
         switch (actionFlag) {
           case lazy.EnigmailConstants.SEARCH_KEY:
@@ -650,7 +650,7 @@ const accessKeyBase = {
                         importedKeysObj = {};
 
                       if (actionFlag === lazy.EnigmailConstants.DOWNLOAD_KEY) {
-                        const r = lazy.EnigmailKeyRing.importKey(
+                        const r = await lazy.EnigmailKeyRing.importKeyAsync(
                           null,
                           false,
                           resp.them[hit].public_keys.primary.bundle,
@@ -1011,7 +1011,7 @@ const accessVksServer = {
 
       xmlReq = new XMLHttpRequest();
 
-      xmlReq.onload = function () {
+      xmlReq.onload = async function () {
         switch (actionFlag) {
           case lazy.EnigmailConstants.UPLOAD_KEY:
           case lazy.EnigmailConstants.GET_CONFIRMATION_LINK:
@@ -1050,7 +1050,7 @@ const accessVksServer = {
               const errorMsgObj = {},
                 importedKeysObj = {};
               if (actionFlag === lazy.EnigmailConstants.DOWNLOAD_KEY) {
-                const r = lazy.EnigmailKeyRing.importKey(
+                const r = await lazy.EnigmailKeyRing.importKeyAsync(
                   null,
                   false,
                   xmlReq.responseText,

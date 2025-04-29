@@ -4,6 +4,7 @@ support-files = [
   "../../../../../../mailnews/test/data/*",
   "data/*",
 ]
+tags = ["openpgp"]
 
 ["test_alias.js"]
 

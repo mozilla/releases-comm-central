@@ -68,6 +68,10 @@ support-files = ["data/**"]
 disabled = "TODO Bug 1854873"
 
 ["browser_mailTelemetry.js"]
+tags = [
+  "openpgp",
+  "smime",
+]
 
 ["browser_mailViews.js"]
 

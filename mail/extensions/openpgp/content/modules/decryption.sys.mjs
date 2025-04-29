@@ -233,7 +233,7 @@ export var EnigmailDecryption = {
 
       // Import public key
       const importedKeysObj = {};
-      exitCodeObj.value = lazy.EnigmailKeyRing.importKey(
+      exitCodeObj.value = await lazy.EnigmailKeyRing.importKeyAsync(
         parent,
         true,
         pgpBlock,
@@ -417,7 +417,7 @@ export var EnigmailDecryption = {
 
       if (innerKeyBlock) {
         var importErrorMsgObj = {};
-        var exitStatus = EnigmailKeyRing.importKey(
+        var exitStatus = await EnigmailKeyRing.importKeyAsync(
           parent,
           true,
           innerKeyBlock,
@@ -589,7 +589,7 @@ export var EnigmailDecryption = {
               outParam
             );
             if (confirmImport) {
-              exitCodeObj.value = lazy.EnigmailKeyRing.importKey(
+              exitCodeObj.value = await lazy.EnigmailKeyRing.importKeyAsync(
                 parent,
                 false,
                 byteData,

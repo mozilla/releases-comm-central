@@ -612,7 +612,7 @@ async function enigmailImportFromClipbrd() {
       outParam
     );
     if (confirmImport) {
-      EnigmailKeyRing.importKey(
+      await EnigmailKeyRing.importKeyAsync(
         window,
         false,
         cBoardContent,
@@ -760,7 +760,7 @@ async function enigmailUploadKey() {
     });
 }
 
-function enigmailImportKeysFromUrl() {
+async function enigmailImportKeysFromUrl() {
   var result = {
     value: "",
   };
@@ -798,7 +798,7 @@ function enigmailImportKeysFromUrl() {
           outParam
         );
         if (confirmImport) {
-          EnigmailKeyRing.importKey(
+          await EnigmailKeyRing.importKeyAsync(
             window,
             false,
             data,
