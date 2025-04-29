@@ -44,7 +44,7 @@ NS_IMETHODIMP FolderSyncListener::Create(const nsACString& id,
                                          const nsACString& parentId,
                                          const nsACString& name,
                                          uint32_t flags) {
-  return mServer->CreateFolderWithDetails(id, parentId, name, flags);
+  return mServer->MaybeCreateFolderWithDetails(id, parentId, name, flags);
 }
 
 NS_IMETHODIMP FolderSyncListener::Update(const nsACString& id,
@@ -88,14 +88,42 @@ EwsIncomingServer::~EwsIncomingServer() {}
 
 /**
  * Creates a new folder with the specified parent, name, and flags.
+ *
+ * If a folder with the specified EWS ID already exists, then succeed without
+ * creating the folder, assuming the folder has already been created locally and
+ * we are processing the corresponding EWS message. If a folder with the same
+ * name, but a different EWS ID exists, then return an error.
  */
-nsresult EwsIncomingServer::CreateFolderWithDetails(const nsACString& id,
-                                                    const nsACString& parentId,
-                                                    const nsACString& name,
-                                                    uint32_t flags) {
+nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
+    const nsACString& id, const nsACString& parentId, const nsACString& name,
+    uint32_t flags) {
+  // Check to see if a folder with the same id already exists.
+  RefPtr<nsIMsgFolder> existingFolder;
+  nsresult rv = FindFolderWithId(id, getter_AddRefs(existingFolder));
+  if (NS_SUCCEEDED(rv)) {
+    // We found the folder with the specified ID, which means it's already been
+    // created locally. This can happen during the normal course of operations,
+    // including the most common case in which the user uses thunderbird to
+    // create a folder and the next sync includes the record of folder creation
+    // from EWS.
+    return NS_OK;
+  }
+
   RefPtr<nsIMsgFolder> parent;
-  nsresult rv = FindFolderWithId(parentId, getter_AddRefs(parent));
+  rv = FindFolderWithId(parentId, getter_AddRefs(parent));
   NS_ENSURE_SUCCESS(rv, rv);
+
+  // Check that the parent doesn't already contain a folder with the requested
+  // name. In the case where we have a folder with a duplicate name, but either
+  // a differing or no EWS ID, we can't sync with the server since the server
+  // believes that a folder with the requested name should map to the requested
+  // EWS ID, so we signal an error.
+  bool containsChildWithRequestedName;
+  rv = parent->ContainsChildNamed(name, &containsChildWithRequestedName);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (containsChildWithRequestedName) {
+    return NS_MSG_CANT_CREATE_FOLDER;
+  }
 
   // In order to persist the folder, we need to create new storage for it with
   // the message store. This will also take care of adding it as a subfolder of

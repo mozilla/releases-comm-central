@@ -29,9 +29,9 @@ class EwsIncomingServer : public nsMsgIncomingServer,
 
   // Locally creates a folder with the given properties. Intended to be called
   // by a friend class such as `FolderSyncListener`.
-  nsresult CreateFolderWithDetails(const nsACString& id,
-                                   const nsACString& parentId,
-                                   const nsACString& name, uint32_t flags);
+  nsresult MaybeCreateFolderWithDetails(const nsACString& id,
+                                        const nsACString& parentId,
+                                        const nsACString& name, uint32_t flags);
 
   // nsIMsgIncomingServer
   NS_IMETHOD GetLocalStoreType(nsACString& aLocalStoreType) override;
