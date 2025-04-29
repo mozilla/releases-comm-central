@@ -185,11 +185,30 @@ interface nsIMsgPluggableStore : nsISupports {
                                    in unsigned long aMaxAllowedSize);
 
   /**
+   *  @deprecated - use deleteStoreMessages() instead.
+   *
    * Delete the passed in messages. These message should all be in the
    * same folder.
    * @param aHdrArray array of nsIMsgDBHdr's.
    */
   void deleteMessages(in Array<nsIMsgDBHdr> aHdrArray);
+
+  /**
+   * Remove messages from the store.
+   *
+   * NOTE: for mbox this means attempting to in-place edit the
+   * X-Mozilla-Status header to set the nsMsgMessageFlags::Expunged
+   * flag. The message will remain in place until the next compaction.
+   * If there is no X-Mozilla-Status, or there is not space to replace
+   * existing value, this routine will return success, even though it
+   * did nothing. That's OK. There's nothing else that can be done
+   * such cases (and remember, the caller will also be recording the
+   * deletion in the database).
+   *
+   * @param folder - The folder containing the messages.
+   * @param storeTokens - The messages to remove.
+   */
+  void deleteStoreMessages(in nsIMsgFolder folder, in Array<AUTF8String> storeTokens);
 
   /**
    * This allows the store to handle a msg move/copy if it wants. This lets
@@ -343,17 +362,35 @@ interface nsIMsgPluggableStore : nsISupports {
   void asyncScan(in nsIMsgFolder folder, in nsIStoreScanListener scanListener);
 
   /**
-   * Attempts to sets/clear flags by on the given messages by editing
-   * the X-Mozilla-Status/X-Mozilla-Status2 headers in-place.
-   * If a message doesn't have the headers already, this will
-   * have no effect.
+   * changeFlags() attempts to stash message flags with messages in the store.
+   * This relies on in-place editing of X-Mozilla-Status and X-Mozilla-Status2
+   * headers. If those headers are not present, this function will do nothing.
+   * There are provided methods to read these values back from the store - you
+   * have to parse the messages headers.
    *
-   * @param aHdrArray array of nsIMsgDBHdr's
-   * @param aFlags flags to set/clear
-   * @param aSet true to set the flag(s), false to clear.
+   * Historical background:
+   * This dates back to when the database was considered a mere throwaway
+   * cache, to save us trawling through the whole mbox file to display a list
+   * of messages. This would hold the "true" flag state (and the database was
+   * just a convenience copy).
+   * We could drop this cumbersome feature entirely, but it's still used for
+   * "repair folder" i.e. rebuilding the database from the store.
+   *
+   * Maildir has a convention where flags and keywords are encoded in the
+   * filename of the stored message. In theory this function could stash
+   * flags like that rather than by editing the message headers.
+   * We'd also have to supply methods to retrieve them.
+   * It's currently a moot point - our maildir implementation doesn't
+   * add such metadata to its filenames.
+   *
+   * @param folder - The folder containing the messages.
+   * @param storeTokens - Array listing the messages to be affected.
+   * @param newFlags - The flag values to install in the messages.
+   *
+   * The `storeTokens` and `newFlags` arrays must be of identical size.
    */
-  void changeFlags(in Array<nsIMsgDBHdr> aHdrArray, in unsigned long aFlags,
-                   in boolean aSet);
+  void changeFlags(in nsIMsgFolder folder, in Array<AUTF8String> storeTokens, in Array<unsigned long> newFlags);
+
   /**
    * Attempts to set/clear keywords on the given messages, by in-place
    * editing of the X-Mozilla-Keys header.

@@ -17,6 +17,7 @@
 #include "nsIDirectoryEnumerator.h"
 #include "nsIInputStream.h"
 #include "nsIInputStreamPump.h"
+#include "nsIRandomAccessStream.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"
 #include "nsLocalFile.h"
@@ -1063,32 +1064,45 @@ nsMsgMaildirStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
 
 NS_IMETHODIMP nsMsgMaildirStore::DeleteMessages(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray) {
+  if (aHdrArray.IsEmpty()) {
+    return NS_OK;  // noop.
+  }
   nsCOMPtr<nsIMsgFolder> folder;
-
-  for (auto msgHdr : aHdrArray) {
-    msgHdr->GetFolder(getter_AddRefs(folder));
-    nsCOMPtr<nsIFile> path;
-    nsresult rv = folder->GetFilePath(getter_AddRefs(path));
+  nsresult rv = aHdrArray[0]->GetFolder(getter_AddRefs(folder));
+  nsTArray<nsCString> storeTokens;
+  for (nsIMsgDBHdr* msg : aHdrArray) {
+    nsAutoCString tok;
+    rv = msg->GetStoreToken(tok);
     NS_ENSURE_SUCCESS(rv, rv);
-    nsAutoCString fileName;
-    msgHdr->GetStoreToken(fileName);
+    storeTokens.AppendElement(tok);
+  }
+  return DeleteStoreMessages(folder, storeTokens);
+}
 
-    if (fileName.IsEmpty()) {
+NS_IMETHODIMP nsMsgMaildirStore::DeleteStoreMessages(
+    nsIMsgFolder* folder, nsTArray<nsCString> const& storeTokens) {
+  NS_ENSURE_ARG(folder);
+
+  for (auto storeToken : storeTokens) {
+    if (storeToken.IsEmpty()) {
       MOZ_LOG(MailDirLog, mozilla::LogLevel::Info,
-              ("DeleteMessages - empty storeToken!!"));
+              ("DeleteStoreMessages - empty storeToken!!"));
       // Perhaps an offline store has not downloaded this particular message.
       continue;
     }
 
+    nsCOMPtr<nsIFile> path;
+    nsresult rv = folder->GetFilePath(getter_AddRefs(path));
+    NS_ENSURE_SUCCESS(rv, rv);
     path->Append(u"cur"_ns);
-    path->Append(NS_ConvertUTF8toUTF16(fileName));
+    path->Append(NS_ConvertUTF8toUTF16(storeToken));
 
     // Let's check if the message exists.
     bool exists;
     path->Exists(&exists);
     if (!exists) {
       MOZ_LOG(MailDirLog, mozilla::LogLevel::Info,
-              ("DeleteMessages - file does not exist !!"));
+              ("DeleteStoreMessages - file does not exist !!"));
       // Perhaps an offline store has not downloaded this particular message.
       continue;
     }
@@ -1260,44 +1274,34 @@ NS_IMETHODIMP nsMsgMaildirStore::AsyncScan(nsIMsgFolder* folder,
 }
 
 NS_IMETHODIMP nsMsgMaildirStore::ChangeFlags(
-    const nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray, uint32_t aFlags,
-    bool aSet) {
-  for (auto msgHdr : aHdrArray) {
-    // get output stream for header
-    nsCOMPtr<nsIOutputStream> outputStream;
-    nsresult rv = GetOutputStream(msgHdr, outputStream);
+    nsIMsgFolder* folder, nsTArray<nsCString> const& storeTokens,
+    nsTArray<uint32_t> const& newFlags) {
+  NS_ENSURE_ARG(folder);
+  NS_ENSURE_ARG(storeTokens.Length() == newFlags.Length());
+
+  for (size_t i = 0; i < storeTokens.Length(); ++i) {
+    // Open a stream to patch the message file.
+    nsCOMPtr<nsIRandomAccessStream> stream;
+    nsresult rv =
+        GetPatchableStream(folder, storeTokens[i], getter_AddRefs(stream));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    // Work out the flags we want to write.
-    uint32_t flags = 0;
-    (void)msgHdr->GetFlags(&flags);
-    if (aSet) {
-      flags |= aFlags;
-    } else {
-      flags &= ~aFlags;
-    }
-
-    // Rewrite X-Mozilla-Status headers.
-    nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(outputStream, &rv));
+    auto details = FindXMozillaStatusHeaders(stream, 0);
+    rv = PatchXMozillaStatusHeaders(stream, 0, details, newFlags[i]);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = RewriteMsgFlags(seekable, flags);
-    if (NS_FAILED(rv)) NS_WARNING("ChangeFlags() failed");
   }
   return NS_OK;
 }
 
 // get output stream from header
-nsresult nsMsgMaildirStore::GetOutputStream(
-    nsIMsgDBHdr* aHdr, nsCOMPtr<nsIOutputStream>& aOutputStream) {
-  // file name is stored in message header property "storeToken"
-  nsAutoCString fileName;
-  aHdr->GetStoreToken(fileName);
-  if (fileName.IsEmpty()) return NS_ERROR_FAILURE;
+nsresult nsMsgMaildirStore::GetPatchableStream(nsIMsgFolder* folder,
+                                               nsACString const& storeToken,
+                                               nsIRandomAccessStream** stream) {
+  if (storeToken.IsEmpty()) {
+    return NS_ERROR_FAILURE;
+  }
 
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = aHdr->GetFolder(getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsresult rv;
   nsCOMPtr<nsIFile> folderPath;
   rv = folder->GetFilePath(getter_AddRefs(folderPath));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1306,15 +1310,19 @@ nsresult nsMsgMaildirStore::GetOutputStream(
   rv = folderPath->Clone(getter_AddRefs(maildirFile));
   NS_ENSURE_SUCCESS(rv, rv);
   maildirFile->Append(u"cur"_ns);
-  maildirFile->Append(NS_ConvertUTF8toUTF16(fileName));
+  // Filename is storeToken.
+  maildirFile->Append(NS_ConvertUTF8toUTF16(storeToken));
 
-  return MsgGetFileStream(maildirFile, getter_AddRefs(aOutputStream));
+  rv = NS_NewLocalFileRandomAccessStream(stream, maildirFile);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMaildirStore::ChangeKeywords(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray, const nsACString& aKeywords,
     bool aAdd) {
   if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
+  nsresult rv;
 
   nsTArray<nsCString> keywordsToAdd;
   nsTArray<nsCString> keywordsToRemove;
@@ -1324,16 +1332,22 @@ NS_IMETHODIMP nsMsgMaildirStore::ChangeKeywords(
     ParseString(aKeywords, ' ', keywordsToRemove);
   }
 
+  nsCOMPtr<nsIMsgFolder> folder;
+  rv = aHdrArray[0]->GetFolder(getter_AddRefs(folder));
+  NS_ENSURE_SUCCESS(rv, rv);
+
   for (auto msgHdr : aHdrArray) {
-    // Open the message file.
-    nsCOMPtr<nsIOutputStream> output;
-    nsresult rv = GetOutputStream(msgHdr, output);
+    nsAutoCString storeToken;
+    rv = msgHdr->GetStoreToken(storeToken);
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(output, &rv));
+
+    // Open the message file.
+    nsCOMPtr<nsIRandomAccessStream> stream;
+    rv = GetPatchableStream(folder, storeToken, getter_AddRefs(stream));
     NS_ENSURE_SUCCESS(rv, rv);
 
     bool notEnoughRoom;
-    rv = ChangeKeywordsHelper(seekable, keywordsToAdd, keywordsToRemove,
+    rv = ChangeKeywordsHelper(stream, keywordsToAdd, keywordsToRemove,
                               notEnoughRoom);
     NS_ENSURE_SUCCESS(rv, rv);
     if (notEnoughRoom) {
@@ -1343,7 +1357,6 @@ NS_IMETHODIMP nsMsgMaildirStore::ChangeKeywords(
       // TODO: For maildir there is no compaction, so this'll have no effect!
       msgHdr->SetUint32Property("growKeywords", 1);
     }
-    output->Close();
   }
   return NS_OK;
 }

@@ -37,11 +37,9 @@ class nsMsgBrkMBoxStore final : public nsMsgLocalStoreUtils,
   nsresult AddSubFolders(nsIMsgFolder* parent, nsCOMPtr<nsIFile>& path,
                          bool deep);
   nsresult CreateDirectoryForFolder(nsIFile* path);
-  nsresult GetOutputStream(nsIMsgDBHdr* aHdr,
-                           nsCOMPtr<nsIOutputStream>& outputStream);
   void GetMailboxModProperties(nsIMsgFolder* aFolder, int64_t* aSize,
                                uint32_t* aDate);
-  void SetDBValid(nsIMsgDBHdr* aHdr);
+  void SetDBValid(nsIMsgFolder* folder);
 
   // We'll track details for ongoing output streams, keyed by folder.
   // Each folder can only have a single ongoing write.

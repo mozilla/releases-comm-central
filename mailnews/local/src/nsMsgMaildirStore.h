@@ -50,8 +50,9 @@ class nsMsgMaildirStore final : public nsMsgLocalStoreUtils,
 
   nsresult CreateMaildir(nsIFile* path);
   nsresult AddSubFolders(nsIMsgFolder* parent, nsIFile* path, bool deep);
-  nsresult GetOutputStream(nsIMsgDBHdr* aHdr,
-                           nsCOMPtr<nsIOutputStream>& aOutputStream);
+  nsresult GetPatchableStream(nsIMsgFolder* folder,
+                              nsACString const& storeToken,
+                              nsIRandomAccessStream** stream);
   nsresult InternalGetNewMsgOutputStream(nsIMsgFolder* folder,
                                          nsACString& storeToken,
                                          nsIOutputStream** outStream);

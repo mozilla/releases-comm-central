@@ -7,15 +7,16 @@
 #include "nsMsgLocalStoreUtils.h"
 #include "nsIFile.h"
 #include "nsIMsgDatabase.h"
+#include "nsIRandomAccessStream.h"
 #include "HeaderReader.h"
 #include "nsMailHeaders.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsMsgMessageFlags.h"
+#include "nsMsgUtils.h"
 #include "nsPrintfCString.h"
 #include "nsReadableUtils.h"
 #include "mozilla/Buffer.h"
 #include "nsIInputStream.h"
-#include "nsIOutputStream.h"
 #include "prprf.h"
 
 #define EXTRA_SAFETY_SPACE 0x400000  // (4MiB)
@@ -104,47 +105,23 @@ static mozilla::Span<char> readBuf(nsIInputStream* readable,
   return mozilla::Span<char>(buf.Elements(), total);
 }
 
-// Write data to outputstream, until complete or error.
-static nsresult writeBuf(nsIOutputStream* writeable, const char* data,
-                         size_t dataSize) {
-  uint32_t written = 0;
-  while (written < dataSize) {
-    uint32_t n;
-    nsresult rv = writeable->Write(data + written, dataSize - written, &n);
-    NS_ENSURE_SUCCESS(rv, rv);
-    written += n;
+// static
+nsMsgLocalStoreUtils::StatusDetails
+nsMsgLocalStoreUtils::FindXMozillaStatusHeaders(nsIRandomAccessStream* stream,
+                                                int64_t msgStart) {
+  StatusDetails details;
+
+  // Seek to start of message.
+  nsresult rv = stream->Seek(nsISeekableStream::NS_SEEK_SET, msgStart);
+  if (NS_FAILED(rv)) {
+    return details;
   }
-  return NS_OK;
-}
-
-/**
- * Attempt to update X-Mozilla-Status and X-Mozilla-Status2 headers with
- * new message flags by rewriting them in place.
- */
-nsresult nsMsgLocalStoreUtils::RewriteMsgFlags(nsISeekableStream* seekable,
-                                               uint32_t msgFlags) {
-  nsresult rv;
-
-  // Some flags are really folder state, not message state.
-  // So we don't want to save them into the message.
-  msgFlags &= ~nsMsgMessageFlags::RuntimeOnly;
-
-  // Remember where we started.
-  int64_t msgStart;
-  rv = seekable->Tell(&msgStart);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // We edit the file in-place, so need to be able to read and write too.
-  nsCOMPtr<nsIInputStream> readable(do_QueryInterface(seekable, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIOutputStream> writable = do_QueryInterface(seekable, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
 
   // Read in the first chunk of the header and search for the X-Mozilla-Status
   // headers. We know that those headers always appear at the beginning, so
   // don't need to look too far in.
   mozilla::Buffer<char> buf(512);
-  mozilla::Span<const char> data = readBuf(readable, buf);
+  mozilla::Span<const char> data = readBuf(stream->InputStream(), buf);
 
   // If there's a "From " line, consume it.
   mozilla::Span<const char> fromLine;
@@ -154,69 +131,88 @@ nsresult nsMsgLocalStoreUtils::RewriteMsgFlags(nsISeekableStream* seekable,
     data = data.From(fromLine.Length());
   }
 
-  HeaderReader::Hdr statusHdr;
-  HeaderReader::Hdr status2Hdr;
+  // Find X-Mozilla-Status and X-Mozilla-Status2
   auto findHeadersFn = [&](auto const& hdr) {
     if (hdr.Name(data).EqualsLiteral(X_MOZILLA_STATUS)) {
-      statusHdr = hdr;
+      // Record location and value.
+      details.statusValOffset = fromLine.Length() + hdr.pos + hdr.rawValOffset;
+      details.statusValSize = hdr.rawValLen;
+      uint32_t lo = hdr.Value(data).ToInteger(&rv, 16);
+      if (NS_SUCCEEDED(rv)) {
+        details.msgFlags |= (lo & 0xFFFF);
+      }
     } else if (hdr.Name(data).EqualsLiteral(X_MOZILLA_STATUS2)) {
-      status2Hdr = hdr;
-    } else {
-      return true;  // Keep looking.
+      // Record location and value.
+      details.status2ValOffset = fromLine.Length() + hdr.pos + hdr.rawValOffset;
+      details.status2ValSize = hdr.rawValLen;
+      uint32_t hi = hdr.Value(data).ToInteger(&rv, 16);
+      if (NS_SUCCEEDED(rv)) {
+        details.msgFlags |= (hi & 0xFFFF0000);
+      }
     }
-    // Keep looking until we find both.
-    return statusHdr.IsEmpty() || status2Hdr.IsEmpty();
+    // Only continue looking if we haven't found them both.
+    return details.statusValOffset < 0 || details.status2ValOffset < 0;
   };
   HeaderReader rdr;
   rdr.Parse(data, findHeadersFn);
 
-  // Update X-Mozilla-Status (holds the lower 16bits worth of flags).
-  if (!statusHdr.IsEmpty()) {
-    uint32_t oldFlags = statusHdr.Value(data).ToInteger(&rv, 16);
-    if (NS_SUCCEEDED(rv)) {
-      // Preserve the Queued flag from existing X-Mozilla-Status header.
-      // (Note: not sure why we do this, but keeping it in for now. - BenC)
-      msgFlags |= oldFlags & nsMsgMessageFlags::Queued;
+  return details;
+}
 
-      if ((msgFlags & 0xFFFF) != oldFlags) {
-        auto out = nsPrintfCString("%4.4x", msgFlags & 0xFFFF);
-        if (out.Length() <= statusHdr.rawValLen) {
-          rv = seekable->Seek(nsISeekableStream::NS_SEEK_SET,
-                              msgStart + fromLine.Length() + statusHdr.pos +
-                                  statusHdr.rawValOffset);
-          NS_ENSURE_SUCCESS(rv, rv);
-          // Should be an exact fit already, but just in case...
-          while (out.Length() < statusHdr.rawValLen) {
-            out.Append(' ');
-          }
-          rv = writeBuf(writable, out.BeginReading(), out.Length());
-          NS_ENSURE_SUCCESS(rv, rv);
+// static
+nsresult nsMsgLocalStoreUtils::PatchXMozillaStatusHeaders(
+    nsIRandomAccessStream* stream, int64_t msgStart,
+    StatusDetails const& details, uint32_t newFlags) {
+  nsresult rv;
+
+  // Some flags are really folder state, not message state.
+  // So we don't want to store them in X-Mozilla-Status headers.
+  newFlags &= ~nsMsgMessageFlags::RuntimeOnly;
+
+  // Preserve the Queued flag from existing X-Mozilla-Status header.
+  // (Note: kept for historical reasons, probably worth revisiting).
+  newFlags |= (details.msgFlags & nsMsgMessageFlags::Queued);
+
+  // IF the lower 16bit flags are to be changed...
+  if ((newFlags & 0xFFFF) != (details.msgFlags & 0xFFFF)) {
+    // ...AND we located an X-Mozilla-Status header...
+    if (details.statusValOffset >= 0) {
+      auto out = nsPrintfCString("%4.4x", newFlags & 0xFFFF);
+      // ...AND it has enough room for the new value:
+      if (out.Length() <= details.statusValSize) {
+        rv = stream->Seek(nsISeekableStream::NS_SEEK_SET,
+                          msgStart + details.statusValOffset);
+        NS_ENSURE_SUCCESS(rv, rv);
+        // Pad out unused space.
+        while (out.Length() < details.statusValSize) {
+          out.Append(' ');  // pad it out.
         }
+        rv = SyncWriteAll(stream->OutputStream(), out.BeginReading(),
+                          out.Length());
+        NS_ENSURE_SUCCESS(rv, rv);
       }
     }
   }
-
-  // Update X-Mozilla-Status2 (holds the upper 16bit flags only(!)).
-  if (!status2Hdr.IsEmpty()) {
-    uint32_t oldFlags = status2Hdr.Value(data).ToInteger(&rv, 16);
-    if (NS_SUCCEEDED(rv)) {
-      if ((msgFlags & 0xFFFF0000) != oldFlags) {
-        auto out = nsPrintfCString("%8.8x", msgFlags & 0xFFFF0000);
-        if (out.Length() <= status2Hdr.rawValLen) {
-          rv = seekable->Seek(nsISeekableStream::NS_SEEK_SET,
-                              msgStart + fromLine.Length() + status2Hdr.pos +
-                                  status2Hdr.rawValOffset);
-          NS_ENSURE_SUCCESS(rv, rv);
-          while (out.Length() < status2Hdr.rawValLen) {
-            out.Append(' ');
-          }
-          rv = writeBuf(writable, out.BeginReading(), out.Length());
-          NS_ENSURE_SUCCESS(rv, rv);
+  // IF the upper 16bit flags are to be changed...
+  if ((newFlags & 0xFFFF0000) != (details.msgFlags & 0xFFFF0000)) {
+    // ...AND we located an X-Mozilla-Status2 header...
+    if (details.status2ValOffset >= 0) {
+      auto out = nsPrintfCString("%8.8x", newFlags & 0xFFFF0000);
+      // ...AND it has enough room for the new value:
+      if (out.Length() <= details.status2ValSize) {
+        rv = stream->Seek(nsISeekableStream::NS_SEEK_SET,
+                          msgStart + details.status2ValOffset);
+        NS_ENSURE_SUCCESS(rv, rv);
+        // Pad out unused space.
+        while (out.Length() < details.status2ValSize) {
+          out.Append(' ');  // pad it out.
         }
+        rv = SyncWriteAll(stream->OutputStream(), out.BeginReading(),
+                          out.Length());
+        NS_ENSURE_SUCCESS(rv, rv);
       }
     }
   }
-
   return NS_OK;
 }
 
@@ -264,9 +260,8 @@ bool nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile* aFile,
 /**
  * Update the value of an X-Mozilla-Keys header in place.
  *
- * @param seekable The stream containing the message, positioned at the
- *                 beginning of the message (must also be readable and
- *                 writable).
+ * @param stream   The stream containing the message, positioned at the
+ *                 beginning of the message.
  * @param keywordsToAdd The list of keywords to add.
  * @param keywordsToRemove The list of keywords to remove.
  * @param notEnoughRoom Upon return, this will be set if the header is missing
@@ -274,27 +269,23 @@ bool nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile* aFile,
  *
  */
 nsresult nsMsgLocalStoreUtils::ChangeKeywordsHelper(
-    nsISeekableStream* seekable, nsTArray<nsCString> const& keywordsToAdd,
+    nsIRandomAccessStream* stream, nsTArray<nsCString> const& keywordsToAdd,
     nsTArray<nsCString> const& keywordsToRemove, bool& notEnoughRoom) {
+  MOZ_ASSERT(stream);
+
   notEnoughRoom = false;
   nsresult rv;
 
   // Remember where we started.
   int64_t msgStart;
-  rv = seekable->Tell(&msgStart);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // We edit the file in-place, so need to be able to read and write too.
-  nsCOMPtr<nsIInputStream> readable(do_QueryInterface(seekable, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIOutputStream> writable = do_QueryInterface(seekable, &rv);
+  rv = stream->Tell(&msgStart);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Read in the first chunk of the header and search for X-Mozilla-Keys.
   // We know that it always appears near the beginning, so don't need to look
   // too far in.
   mozilla::Buffer<char> buf(512);
-  mozilla::Span<const char> data = readBuf(readable, buf);
+  mozilla::Span<const char> data = readBuf(stream->InputStream(), buf);
 
   // If there's a "From " line, consume it.
   mozilla::Span<const char> fromLine;
@@ -360,11 +351,11 @@ nsresult nsMsgLocalStoreUtils::ChangeKeywordsHelper(
     out.Append(' ');
   }
 
-  rv = seekable->Seek(
+  rv = stream->Seek(
       nsISeekableStream::NS_SEEK_SET,
       msgStart + fromLine.Length() + kwHdr.pos + kwHdr.rawValOffset);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = writeBuf(writable, out.BeginReading(), out.Length());
+  rv = SyncWriteAll(stream->OutputStream(), out.BeginReading(), out.Length());
   NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;

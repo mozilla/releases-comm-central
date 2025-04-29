@@ -335,6 +335,123 @@ async function test_multiFolderWriting() {
   }
 }
 
+/**
+ * Test that we can store flags in the store.
+ * (via the X-Mozilla-Status/X-Mozilla-Status2 hack).
+ */
+async function test_changeFlags() {
+  localAccountUtils.loadLocalMailAccount();
+  try {
+    const inbox = localAccountUtils.inboxFolder;
+    const store = inbox.msgStore;
+
+    const generator = new MessageGenerator();
+    let msgs = generator.makeMessages({ count: 10 });
+    msgs.forEach(msg => {
+      msg.headers["X-Mozilla-Status"] = "0000";
+      msg.headers["X-Mozilla-Status2"] = "00000000";
+    });
+    msgs = msgs.map(message => message.toMessageString());
+
+    // Write the messages into the store
+    const tokens = [];
+    for (const msg of msgs) {
+      const out = store.getNewMsgOutputStream(inbox);
+      out.write(msg, msg.length);
+      tokens.push(store.finishNewMessage(inbox, out));
+    }
+
+    const f = Ci.nsMsgMessageFlags;
+    const testCases = [
+      // Change lower 16 bits only:
+      { flags: f.Read, lo: "0001", hi: "00000000" },
+
+      // Change upper 16 bits only:
+      { flags: f.MDNReportSent, lo: "0000", hi: "00800000" },
+
+      // Change both (but X-Mozilla-Status2 never stores low 16 bits!):
+      { flags: f.Read | f.MDNReportSent, lo: "0001", hi: "00800000" },
+
+      // These ones are RuntimeOnly flags and should never appear in the
+      // X-Mozilla-Status headers:
+      { flags: f.Elided, lo: "0000", hi: "00000000" },
+      { flags: f.New, lo: "0000", hi: "00000000" },
+      { flags: f.Offline, lo: "0000", hi: "00000000" },
+
+      // Lots of flags:
+      {
+        flags:
+          f.Read |
+          f.Replied |
+          f.Marked |
+          f.Expunged |
+          f.MDNReportSent |
+          f.IMAPDeleted,
+        lo: "000f",
+        hi: "00a00000",
+      },
+
+      // Lots of flags + RuntimeOnly ones:
+      {
+        flags:
+          f.Elided |
+          f.New |
+          f.Offline |
+          f.Read |
+          f.Replied |
+          f.Marked |
+          f.Expunged |
+          f.MDNReportSent |
+          f.IMAPDeleted,
+        lo: "000f",
+        hi: "00a00000",
+      },
+
+      // No flags (we'll also use this to test that we're back to the
+      // original message data - see below).
+      { flags: 0, lo: "0000", hi: "00000000" },
+    ];
+
+    for (const t of testCases) {
+      // Use the same flag for all messages.
+      const flagArray = Array(msgs.length).fill(t.flags, 0);
+      store.changeFlags(inbox, tokens, flagArray);
+
+      // Read back all messages and check the flags are stored as we expect.
+      const listener = new PromiseTestUtils.PromiseStoreScanListener();
+      store.asyncScan(inbox, listener);
+      await listener.promise;
+
+      for (const msg of listener.messages) {
+        const lo = msg.match(/X-Mozilla-Status:\s*([0-9a-fA-Z]+)/)[1];
+        Assert.equal(
+          lo.toLowerCase(),
+          t.lo.toLowerCase(),
+          "X-Mozilla-Status should have expected value"
+        );
+        const hi = msg.match(/X-Mozilla-Status2:\s*([0-9a-fA-F]+)/)[1];
+        Assert.equal(
+          hi.toLowerCase(),
+          t.hi.toLowerCase(),
+          "X-Mozilla-Status2 should have expected value"
+        );
+      }
+
+      if (t.flags == 0) {
+        // We started off with clear flags, so we should be back where we
+        // started and can check there's been no message corruption.
+        Assert.deepEqual(
+          msgs.toSorted(),
+          listener.messages.toSorted(),
+          "Messages should survive intact."
+        );
+      }
+    }
+  } finally {
+    localAccountUtils.clearAll();
+  }
+}
+
 // Return a wrapper which sets the store type before running fn().
 function withStore(store, fn) {
   return async () => {
@@ -351,4 +468,5 @@ for (const store of localAccountUtils.pluggableStores) {
   add_task(withStore(store, test_discardWrites));
   add_task(withStore(store, test_oneWritePerFolder));
   add_task(withStore(store, test_multiFolderWriting));
+  add_task(withStore(store, test_changeFlags));
 }

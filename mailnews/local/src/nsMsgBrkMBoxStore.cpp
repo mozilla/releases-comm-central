@@ -16,6 +16,7 @@
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIInputStream.h"
 #include "nsIInputStreamPump.h"
+#include "nsIRandomAccessStream.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"
 #include "nsIDirectoryEnumerator.h"
@@ -783,7 +784,47 @@ nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteMessages(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray) {
-  return ChangeFlags(aHdrArray, nsMsgMessageFlags::Expunged, true);
+  if (aHdrArray.IsEmpty()) {
+    return NS_OK;  // noop.
+  }
+  nsCOMPtr<nsIMsgFolder> folder;
+  nsresult rv = aHdrArray[0]->GetFolder(getter_AddRefs(folder));
+  nsTArray<nsCString> storeTokens;
+  for (nsIMsgDBHdr* msg : aHdrArray) {
+    nsAutoCString tok;
+    rv = msg->GetStoreToken(tok);
+    NS_ENSURE_SUCCESS(rv, rv);
+    storeTokens.AppendElement(tok);
+  }
+  return DeleteStoreMessages(folder, storeTokens);
+}
+
+NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteStoreMessages(
+    nsIMsgFolder* folder, nsTArray<nsCString> const& storeTokens) {
+  NS_ENSURE_ARG(folder);
+  if (storeTokens.IsEmpty()) {
+    return NS_OK;  // Early out, don't need to open file.
+  }
+
+  nsCOMPtr<nsIFile> mboxFile;
+  nsresult rv = folder->GetFilePath(getter_AddRefs(mboxFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIRandomAccessStream> stream;
+  rv = NS_NewLocalFileRandomAccessStream(getter_AddRefs(stream), mboxFile);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  for (size_t i = 0; i < storeTokens.Length(); ++i) {
+    // Jump to start of message.
+    uint64_t msgStart = storeTokens[i].ToInteger64(&rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    // Set Expunged in X-Mozilla-Status.
+    auto details = FindXMozillaStatusHeaders(stream, msgStart);
+    uint32_t newFlags = details.msgFlags | nsMsgMessageFlags::Expunged;
+    rv = PatchXMozillaStatusHeaders(stream, msgStart, details, newFlags);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  SetDBValid(folder);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -812,67 +853,43 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::AsyncScan(nsIMsgFolder* folder,
   return scanner->BeginScan(mboxPath, scanListener);
 }
 
-nsresult nsMsgBrkMBoxStore::GetOutputStream(
-    nsIMsgDBHdr* aHdr, nsCOMPtr<nsIOutputStream>& outputStream) {
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = aHdr->GetFolder(getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIFile> mboxFile;
-  rv = folder->GetFilePath(getter_AddRefs(mboxFile));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = MsgGetFileStream(mboxFile, getter_AddRefs(outputStream));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return rv;
-}
-
-void nsMsgBrkMBoxStore::SetDBValid(nsIMsgDBHdr* aHdr) {
-  nsCOMPtr<nsIMsgFolder> folder;
-  aHdr->GetFolder(getter_AddRefs(folder));
-  if (folder) {
-    nsCOMPtr<nsIMsgDatabase> db;
-    folder->GetMsgDatabase(getter_AddRefs(db));
-    if (db) SetSummaryFileValid(folder, db, true);
+void nsMsgBrkMBoxStore::SetDBValid(nsIMsgFolder* folder) {
+  nsCOMPtr<nsIMsgDatabase> db;
+  folder->GetMsgDatabase(getter_AddRefs(db));
+  if (db) {
+    SetSummaryFileValid(folder, db, true);
   }
 }
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(
-    const nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray, uint32_t aFlags,
-    bool aSet) {
-  if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
+    nsIMsgFolder* folder, nsTArray<nsCString> const& storeTokens,
+    nsTArray<uint32_t> const& newFlags) {
+  NS_ENSURE_ARG(folder);
+  NS_ENSURE_ARG(storeTokens.Length() == newFlags.Length());
 
-  nsCOMPtr<nsIOutputStream> outputStream;
-  nsresult rv = GetOutputStream(aHdrArray[0], outputStream);
+  if (storeTokens.IsEmpty()) {
+    return NS_OK;  // Early out, don't need to open file.
+  }
+
+  nsCOMPtr<nsIFile> mboxFile;
+  nsresult rv = folder->GetFilePath(getter_AddRefs(mboxFile));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(outputStream, &rv));
+
+  nsCOMPtr<nsIRandomAccessStream> stream;
+  rv = NS_NewLocalFileRandomAccessStream(getter_AddRefs(stream), mboxFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  for (auto msgHdr : aHdrArray) {
-    // Work out the flags we want to write.
-    uint32_t flags = 0;
-    (void)msgHdr->GetFlags(&flags);
-    if (aSet) {
-      flags |= aFlags;
-    } else {
-      flags &= ~aFlags;
-    }
-
-    // Rewrite flags into X-Mozilla-Status headers.
-    nsAutoCString storeToken;
-    rv = msgHdr->GetStoreToken(storeToken);
+  for (size_t i = 0; i < storeTokens.Length(); ++i) {
+    // Jump to start of message.
+    uint64_t msgStart = storeTokens[i].ToInteger64(&rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    uint64_t msgOffset = storeToken.ToInteger64(&rv);
+    // Replace flags in X-Mozilla-Status and X-Mozilla-Status2.
+    auto details = FindXMozillaStatusHeaders(stream, msgStart);
+    rv = PatchXMozillaStatusHeaders(stream, msgStart, details, newFlags[i]);
     NS_ENSURE_SUCCESS(rv, rv);
-    seekable->Seek(nsISeekableStream::NS_SEEK_SET, msgOffset);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = RewriteMsgFlags(seekable, flags);
-    if (NS_FAILED(rv)) {
-      break;
-    }
   }
-  outputStream->Close();
-  SetDBValid(aHdrArray[0]);
+  SetDBValid(folder);
   return NS_OK;
 }
 
@@ -881,6 +898,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
     bool aAdd) {
   if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
 
+  nsresult rv;
   nsTArray<nsCString> keywordsToAdd;
   nsTArray<nsCString> keywordsToRemove;
   if (aAdd) {
@@ -889,11 +907,16 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
     ParseString(aKeywords, ' ', keywordsToRemove);
   }
 
-  // Get the (possibly-cached) seekable & writable stream for this mbox.
-  nsCOMPtr<nsIOutputStream> output;
-  nsresult rv = GetOutputStream(aHdrArray[0], output);
+  nsCOMPtr<nsIMsgFolder> folder;
+  rv = aHdrArray[0]->GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(output, &rv));
+
+  nsCOMPtr<nsIFile> mboxFile;
+  rv = folder->GetFilePath(getter_AddRefs(mboxFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIRandomAccessStream> stream;
+  rv = NS_NewLocalFileRandomAccessStream(getter_AddRefs(stream), mboxFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (auto msgHdr : aHdrArray) {
@@ -902,11 +925,11 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
     NS_ENSURE_SUCCESS(rv, rv);
     uint64_t msgStart = storeToken.ToInteger64(&rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    seekable->Seek(nsISeekableStream::NS_SEEK_SET, msgStart);
+    stream->Seek(nsISeekableStream::NS_SEEK_SET, msgStart);
     NS_ENSURE_SUCCESS(rv, rv);
 
     bool notEnoughRoom;
-    rv = ChangeKeywordsHelper(seekable, keywordsToAdd, keywordsToRemove,
+    rv = ChangeKeywordsHelper(stream, keywordsToAdd, keywordsToRemove,
                               notEnoughRoom);
 
     NS_ENSURE_SUCCESS(rv, rv);
@@ -918,8 +941,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
     }
   }
 
-  output->Close();
-  SetDBValid(aHdrArray[0]);
+  SetDBValid(folder);
   return NS_OK;
 }
 

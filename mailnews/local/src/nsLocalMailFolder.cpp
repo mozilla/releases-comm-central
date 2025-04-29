@@ -1116,32 +1116,41 @@ nsMsgLocalMailFolder::DeleteMessages(
   return rv;
 }
 
+// Go through the given messages and tell the msgStore about their flags.
+nsresult nsMsgLocalMailFolder::UpdateMsgFlagsInStore(
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& msgs) {
+  nsresult rv;
+  nsTArray<nsCString> tokenArray(msgs.Length());
+  nsTArray<uint32_t> flagsArray(msgs.Length());
+  for (nsIMsgDBHdr* msg : msgs) {
+    uint32_t flags;
+    rv = msg->GetFlags(&flags);
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoCString token;
+    rv = msg->GetStoreToken(token);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (token.IsEmpty()) {
+      continue;
+    }
+    tokenArray.AppendElement(token);
+    flagsArray.AppendElement(flags);
+  }
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+  return msgStore->ChangeFlags(this, tokenArray, flagsArray);
+}
+
 NS_IMETHODIMP
 nsMsgLocalMailFolder::AddMessageDispositionState(
     nsIMsgDBHdr* aMessage, nsMsgDispositionState aDispositionFlag) {
-  nsMsgMessageFlagType msgFlag = 0;
-  switch (aDispositionFlag) {
-    case nsIMsgFolder::nsMsgDispositionState_Replied:
-      msgFlag = nsMsgMessageFlags::Replied;
-      break;
-    case nsIMsgFolder::nsMsgDispositionState_Forwarded:
-      msgFlag = nsMsgMessageFlags::Forwarded;
-      break;
-    case nsIMsgFolder::nsMsgDispositionState_Redirected:
-      msgFlag = nsMsgMessageFlags::Redirected;
-      break;
-    default:
-      return NS_ERROR_UNEXPECTED;
-  }
-
   nsresult rv =
       nsMsgDBFolder::AddMessageDispositionState(aMessage, aDispositionFlag);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  rv = GetMsgStore(getter_AddRefs(msgStore));
+  rv = UpdateMsgFlagsInStore({aMessage});
   NS_ENSURE_SUCCESS(rv, rv);
-  return msgStore->ChangeFlags({aMessage}, msgFlag, true);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -1149,10 +1158,9 @@ nsMsgLocalMailFolder::MarkMessagesRead(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages, bool aMarkRead) {
   nsresult rv = nsMsgDBFolder::MarkMessagesRead(aMessages, aMarkRead);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  rv = GetMsgStore(getter_AddRefs(msgStore));
+  rv = UpdateMsgFlagsInStore(aMessages);
   NS_ENSURE_SUCCESS(rv, rv);
-  return msgStore->ChangeFlags(aMessages, nsMsgMessageFlags::Read, aMarkRead);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -1160,11 +1168,9 @@ nsMsgLocalMailFolder::MarkMessagesFlagged(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages, bool aMarkFlagged) {
   nsresult rv = nsMsgDBFolder::MarkMessagesFlagged(aMessages, aMarkFlagged);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  rv = GetMsgStore(getter_AddRefs(msgStore));
+  rv = UpdateMsgFlagsInStore(aMessages);
   NS_ENSURE_SUCCESS(rv, rv);
-  return msgStore->ChangeFlags(aMessages, nsMsgMessageFlags::Marked,
-                               aMarkFlagged);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -1186,11 +1192,7 @@ nsMsgLocalMailFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
   rv = MsgGetHeadersFromKeys(mDatabase, thoseMarked, messages);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  rv = GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = msgStore->ChangeFlags(messages, nsMsgMessageFlags::Read, true);
+  rv = UpdateMsgFlagsInStore(messages);
   NS_ENSURE_SUCCESS(rv, rv);
 
   mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
@@ -1218,11 +1220,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::MarkThreadRead(nsIMsgThread* thread) {
   rv = MsgGetHeadersFromKeys(mDatabase, thoseMarked, messages);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  rv = GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = msgStore->ChangeFlags(messages, nsMsgMessageFlags::Read, true);
+  rv = UpdateMsgFlagsInStore(messages);
   NS_ENSURE_SUCCESS(rv, rv);
 
   mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);

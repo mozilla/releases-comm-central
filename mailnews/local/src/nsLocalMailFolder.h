@@ -191,6 +191,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   nsresult AddMessageBatch2(const nsTArray<nsCString>& rawMessages,
                             nsTArray<RefPtr<nsIMsgDBHdr>>& addedHdrs);
 #endif
+  nsresult UpdateMsgFlagsInStore(nsTArray<RefPtr<nsIMsgDBHdr>> const& msgs);
   nsresult CopyFolderAcrossServer(nsIMsgFolder* srcFolder,
                                   nsIMsgWindow* msgWindow,
                                   nsIMsgCopyServiceListener* listener,
