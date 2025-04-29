@@ -6,6 +6,18 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 import { NntpUtils } from "resource:///modules/NntpUtils.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/news.ftl"])
+);
+ChromeUtils.defineLazyGetter(lazy, "messengerBundle", () =>
+  Services.strings.createBundle(
+    "chrome://messenger/locale/messenger.properties"
+  )
+);
+
 /**
  * Download articles in subscribed newsgroups for offline use.
  */
@@ -14,19 +26,12 @@ export class NewsDownloader {
 
   /**
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
-   * @param {nsIUrlListener} [urlListener=null] - Optional allback for the
+   * @param {nsIUrlListener} [urlListener=null] - Optional callback for the
    *   request.
    */
   constructor(msgWindow, urlListener) {
     this._msgWindow = msgWindow;
     this._urlListener = urlListener;
-
-    this._bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/news.properties"
-    );
-    this._messengerBundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messenger.properties"
-    );
   }
 
   /**
@@ -102,10 +107,20 @@ export class NewsDownloader {
   async _downloadArticles(folder, keys = null) {
     this._logger.debug(`Start downloading ${folder.URI}`);
 
-    folder.QueryInterface(Ci.nsIMsgNewsFolder).saveArticleOffline = true;
-
     keys ??= [...(await this._getKeysToDownload(folder))];
-    let i = 0;
+    if (!keys.length) {
+      await this._updateStatus(folder, "no-articles-to-download", {
+        newsgroup: folder.prettyName,
+      });
+      return;
+    }
+
+    await this._updateStatus(folder, "downloading-articles-for-offline", {
+      count: keys.length,
+      newsgroup: folder.prettyName,
+    });
+
+    folder.QueryInterface(Ci.nsIMsgNewsFolder).saveArticleOffline = true;
     for (const key of keys) {
       await new Promise(resolve => {
         MailServices.nntp.fetchMessage(folder, key, this._msgWindow, null, {
@@ -115,18 +130,7 @@ export class NewsDownloader {
           },
         });
       });
-      this._msgWindow.statusFeedback.showStatusString(
-        this._messengerBundle.formatStringFromName("statusMessage", [
-          folder.server.prettyName,
-          this._bundle.formatStringFromName("downloadingArticlesForOffline", [
-            ++i,
-            keys.length,
-            folder.prettyName,
-          ]),
-        ])
-      );
     }
-
     folder.saveArticleOffline = false;
     folder.refreshSizeOnDisk();
 
@@ -218,5 +222,21 @@ export class NewsDownloader {
     });
 
     return keysToDownload;
+  }
+
+  /**
+   * Show a status message in the status bar.
+   *
+   * @param {nsIMsgFolder} folder - The newsgroup folder the message is about.
+   * @param {string} statusName - A string name in news.ftl.
+   * @param {object} params - Params to format the string.
+   */
+  async _updateStatus(folder, statusName, params) {
+    this._msgWindow?.statusFeedback?.showStatusString(
+      lazy.messengerBundle.formatStringFromName("statusMessage", [
+        folder.server.prettyName,
+        await lazy.l10n.formatValue(statusName, params),
+      ])
+    );
   }
 }

@@ -74,20 +74,6 @@ export class NntpNewsGroup {
         this._db.highWaterArticleNum
       );
     }
-    if (this._knownKeySet.has(lastPossible)) {
-      const bundle = Services.strings.createBundle(
-        "chrome://messenger/locale/news.properties"
-      );
-      const messengerBundle = Services.strings.createBundle(
-        "chrome://messenger/locale/messenger.properties"
-      );
-      msgWindow?.statusFeedback.showStatusString(
-        messengerBundle.formatStringFromName("statusMessage", [
-          this._server.prettyName,
-          bundle.GetStringFromName("noNewMessages"),
-        ])
-      );
-    }
 
     if (this._getOldMessages || !this._knownKeySet.has(lastPossible)) {
       let [start, end] = this._knownKeySet.getLastMissingRange(
