@@ -61,6 +61,8 @@ function createCalendar({
  * @param {object} options.calendar - The calendar to create the event on.
  * @param {string[]} [options.categories=[]] - Categories to assign to the event.
  * @param {boolean} [options.repeats=false] - If the event is repeating.
+ * @param {string} [options.location] - Location of the event. Only set if not
+ *  falsy.
  *
  * @returns {CalEvent} - The created event.
  */
@@ -70,6 +72,7 @@ async function createEvent({
   calendar,
   categories = [],
   repeats = false,
+  location,
 }) {
   const start = cal.dtz.jsDateToDateTime(new Date(todayDate), 0);
   let end = new Date(todayDate);
@@ -85,6 +88,9 @@ async function createEvent({
     event.recurrenceInfo.appendRecurrenceItem(rule);
   }
   event.setCategories(categories);
+  if (location) {
+    event.setProperty("LOCATION", location);
+  }
   return calendar.addItem(event);
 }
 

@@ -7,12 +7,44 @@
 const { recurrenceStringFromItem } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
+const { MockRegistrar } = ChromeUtils.importESModule(
+  "resource://testing-common/MockRegistrar.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 let browser;
 let dialog;
 let calendar;
 let calendarEvent;
+
+/** @implements {nsIExternalProtocolService} */
+const gMockExternalProtocolService = {
+  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
+  externalProtocolHandlerExists() {},
+  isExposedProtocol() {},
+  loadURI(uri) {
+    Assert.equal(
+      uri.spec,
+      this.expectedURI,
+      "Should only receive load request got test specific URI"
+    );
+    this.didOpen = true;
+    this.deferred?.resolve(uri.spec);
+    this.deferred = null;
+  },
+  expectOpen(uri) {
+    if (this.deferred) {
+      if (this.expectedURI !== uri) {
+        return Promise.reject(new Error("Already waiting for a different URI"));
+      }
+      return this.deferred.promise;
+    }
+    this.didOpen = false;
+    this.expectedURI = uri;
+    this.deferred = Promise.withResolvers();
+    return this.deferred.promise;
+  },
+};
 
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
@@ -36,9 +68,15 @@ add_setup(async function () {
     repeats: true,
   });
 
+  const mockExternalProtocolServiceCID = MockRegistrar.register(
+    "@mozilla.org/uriloader/external-protocol-service;1",
+    gMockExternalProtocolService
+  );
+
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
     CalendarTestUtils.removeCalendar(calendar);
+    MockRegistrar.unregister(mockExternalProtocolServiceCID);
   });
 });
 
@@ -203,7 +241,20 @@ add_task(async function test_dialogLocation() {
     "Location text should be hidden"
   );
 
-  dialog.updateDialogData({ eventLocation: "foobar" });
+  const physicalLocation = await createEvent({
+    location: "foobar",
+    name: "Physical location",
+    calendar,
+  });
+  dialog.setCalendarEvent(physicalLocation);
+  await BrowserTestUtils.waitForMutationCondition(
+    locationText,
+    {
+      attributes: true,
+      attributeFilter: ["hidden"],
+    },
+    () => BrowserTestUtils.isVisible(locationText)
+  );
   Assert.ok(
     BrowserTestUtils.isHidden(locationLink),
     "Location link should be hidden"
@@ -214,9 +265,20 @@ add_task(async function test_dialogLocation() {
   );
   Assert.equal(locationText.textContent, "foobar", "Should set location text");
 
-  dialog.updateDialogData({
-    eventLocation: "https://www.thunderbird.net/",
+  const internetLocation = await createEvent({
+    location: "https://www.thunderbird.net/",
+    name: "Internet location",
+    calendar,
   });
+  dialog.setCalendarEvent(internetLocation);
+  await BrowserTestUtils.waitForMutationCondition(
+    locationLink,
+    {
+      attributes: true,
+      attributeFilter: ["href"],
+    },
+    () => BrowserTestUtils.isVisible(locationLink)
+  );
   Assert.ok(
     BrowserTestUtils.isVisible(locationLink),
     "Location link should be visible"
@@ -236,7 +298,21 @@ add_task(async function test_dialogLocation() {
     "Link href should update"
   );
 
+  const openLink = gMockExternalProtocolService.expectOpen(
+    "https://www.thunderbird.net/"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(locationLink, {}, browser.contentWindow);
+  await openLink;
+
+  dialog.removeAttribute("calendar-id");
+  dialog.removeAttribute("event-id");
+
   Assert.equal(locationText.textContent, "", "Location text should be empty");
+  Assert.ok(
+    BrowserTestUtils.isHidden(locationText),
+    "Location text should be hidden again"
+  );
 });
 
 add_task(async function test_dialogDescription() {

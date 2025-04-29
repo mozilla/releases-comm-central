@@ -16,6 +16,12 @@ const { recurrenceStringFromItem } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
 
+const lazy = {};
+
+ChromeUtils.defineESModuleGetters(lazy, {
+  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
+});
+
 /**
  * Dialog for calendar.
  * Template ID: #calendarDialogTemplate
@@ -84,8 +90,7 @@ export class CalendarDialog extends HTMLDialogElement {
           this.#subviewManager.showDefaultSubview();
         } else if (event.target.closest("#locationLink")) {
           event.preventDefault();
-          // TODO: Open the link without breaking storybook.
-          // lazy.openLinkExternally(event.detail.url);
+          lazy.openLinkExternally(event.target.href);
           break;
         }
         break;
@@ -183,6 +188,8 @@ export class CalendarDialog extends HTMLDialogElement {
     this.querySelector("calendar-dialog-categories").setCategories(
       event.getCategories()
     );
+
+    this.#setLocation(event.getProperty("LOCATION") ?? "");
   }
 
   /**
@@ -194,6 +201,7 @@ export class CalendarDialog extends HTMLDialogElement {
     // have a value.
     this.querySelector("calendar-dialog-date-row").removeAttribute("repeats");
     this.querySelector("calendar-dialog-categories").setCategories([]);
+    this.#setLocation("");
   }
 
   /**
@@ -204,10 +212,6 @@ export class CalendarDialog extends HTMLDialogElement {
    * @param {object} data - Event data to be displayed in the dialog.
    */
   updateDialogData(data) {
-    if (data.eventLocation) {
-      this.#setLocation(data.eventLocation);
-    }
-
     if (data.description) {
       this.querySelector("#calendarDescriptionContent").textContent =
         data.description;
@@ -224,7 +228,7 @@ export class CalendarDialog extends HTMLDialogElement {
     const locationLink = this.querySelector("#locationLink");
     const locationText = this.querySelector("#locationText");
     locationLink.hidden = !parsedURL;
-    locationText.hidden = parsedURL;
+    locationText.hidden = parsedURL || !eventLocation;
 
     if (parsedURL) {
       locationLink.textContent = eventLocation;
