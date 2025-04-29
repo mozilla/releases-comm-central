@@ -80,6 +80,13 @@ add_setup(async function () {
   });
 });
 
+function resetDialog() {
+  dialog.removeAttribute("calendar-id");
+  dialog.removeAttribute("recurrence-id");
+  dialog.removeAttribute("event-id");
+  dialog.close();
+}
+
 add_task(async function test_dialogStructure() {
   dialog.show();
   const titlebar = dialog.querySelectorAll(".titlebar");
@@ -124,7 +131,11 @@ add_task(async function test_setCalendarEvent() {
     "Only accepts events."
   );
 
-  dialog.setCalendarEvent(calendarEvent);
+  const nextOccurrence = calendarEvent.recurrenceInfo.getNextOccurrence(
+    cal.dtz.now()
+  );
+
+  dialog.setCalendarEvent(nextOccurrence);
 
   Assert.equal(
     dialog.getAttribute("calendar-id"),
@@ -136,9 +147,13 @@ add_task(async function test_setCalendarEvent() {
     calendarEvent.id,
     "Should set the event-id attribute"
   );
+  Assert.equal(
+    dialog.getAttribute("recurrence-id"),
+    nextOccurrence.recurrenceId.nativeTime,
+    "Should set the recurrence-id attribute"
+  );
 
-  dialog.removeAttribute("calendar-id");
-  dialog.removeAttribute("event-id");
+  resetDialog();
 });
 
 add_task(async function test_dialogSubviewNavigation() {
@@ -221,10 +236,70 @@ add_task(async function test_dialogTitle() {
     "The dialog title has correct title after setting data"
   );
 
-  dialog.removeAttribute("calendar-id");
-  dialog.removeAttribute("event-id");
+  resetDialog();
 
   Assert.equal(title.textContent, "", "The dialog title text is cleared");
+});
+
+add_task(async function test_dialogTitleOccurrenceException() {
+  const title = dialog.querySelector(".calendar-dialog-title");
+  const start = cal.dtz.jsDateToDateTime(new Date(todayDate), 0);
+  let end = new Date(todayDate);
+  end.setDate(todayDate.getDate() + 1);
+  end = cal.dtz.jsDateToDateTime(end, 0);
+  const event = new CalEvent();
+  event.title = "Recurring with exception";
+  event.startDate = start;
+  event.endDate = end;
+  event.recurrenceInfo = new CalRecurrenceInfo(event);
+  const rule = cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=30");
+  event.recurrenceInfo.appendRecurrenceItem(rule);
+  // Add an exception with a different title.
+  const nextOccurrence = event.recurrenceInfo.getNextOccurrence(cal.dtz.now());
+  nextOccurrence.title = "Exception";
+  event.recurrenceInfo.modifyException(nextOccurrence, true);
+
+  const savedEvent = await calendar.addItem(event);
+
+  dialog.show();
+  dialog.setCalendarEvent(savedEvent);
+  await BrowserTestUtils.waitForMutationCondition(
+    title,
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => title.textContent == savedEvent.title
+  );
+
+  Assert.equal(
+    title.textContent,
+    "Recurring with exception",
+    "Should apply normal title for parent event"
+  );
+
+  const nextSavedOccurrence = savedEvent.recurrenceInfo.getNextOccurrence(
+    cal.dtz.now()
+  );
+  dialog.setCalendarEvent(nextSavedOccurrence);
+  await BrowserTestUtils.waitForMutationCondition(
+    title,
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => title.textContent == nextSavedOccurrence.title
+  );
+
+  Assert.equal(
+    title.textContent,
+    "Exception",
+    "Should apply title specific to exception"
+  );
+
+  resetDialog();
 });
 
 add_task(async function test_dialogLocation() {
@@ -305,8 +380,7 @@ add_task(async function test_dialogLocation() {
   EventUtils.synthesizeMouseAtCenter(locationLink, {}, browser.contentWindow);
   await openLink;
 
-  dialog.removeAttribute("calendar-id");
-  dialog.removeAttribute("event-id");
+  resetDialog();
 
   Assert.equal(locationText.textContent, "", "Location text should be empty");
   Assert.ok(
@@ -362,8 +436,7 @@ add_task(async function test_dialogCategories() {
     "The dialog should have a category after setting data"
   );
 
-  dialog.removeAttribute("calendar-id");
-  dialog.removeAttribute("event-id");
+  resetDialog();
 
   Assert.equal(
     categories.shadowRoot.querySelectorAll("li").length,
@@ -418,8 +491,7 @@ add_task(async function test_dialogDate() {
     "The repeat instructions should be transferred to the date row"
   );
 
-  dialog.removeAttribute("calendar-id");
-  dialog.removeAttribute("event-id");
+  resetDialog();
 
   Assert.ok(
     !dateRow.hasAttribute("repeats"),

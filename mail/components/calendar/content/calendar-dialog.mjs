@@ -30,6 +30,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * @attribute {string} event-id - ID of the event to display.
  * @attribute {string} calendar-id - ID of the calendar the event to display is
  *  in.
+ * @attribute {string} [recurrence-id] - Recurrence ID as the nativeTime
+ *  representation of a CalDateTime. icalString is not appropriately portable.
  */
 export class CalendarDialog extends HTMLDialogElement {
   static get observedAttributes() {
@@ -113,6 +115,9 @@ export class CalendarDialog extends HTMLDialogElement {
       throw new Error("Can only display events");
     }
     this.removeAttribute("calendar-id");
+    if (event.recurrenceId) {
+      this.setAttribute("recurrence-id", event.recurrenceId.nativeTime);
+    }
     this.setAttribute("event-id", event.id);
     this.setAttribute("calendar-id", event.calendar.id);
   }
@@ -149,7 +154,7 @@ export class CalendarDialog extends HTMLDialogElement {
       this.#clearData();
       return;
     }
-    const event = await calendar.getItem(eventId);
+    let event = await calendar.getItem(eventId);
     if (!event) {
       // Only dismiss the dialog if the state hasn't changed while awaiting.
       if (eventId === this.getAttribute("event-id")) {
@@ -162,6 +167,24 @@ export class CalendarDialog extends HTMLDialogElement {
       console.error(calendarId, eventId, "is not an event");
       this.close();
       return;
+    }
+
+    // If we want a specific recurrence, retrieve it.
+    if (this.getAttribute("recurrence-id")) {
+      const recurrenceId = cal.createDateTime();
+      recurrenceId.nativeTime = this.getAttribute("recurrence-id");
+      if (recurrenceId.isValid) {
+        try {
+          event = event.recurrenceInfo.getOccurrenceFor(recurrenceId);
+        } catch {
+          console.warn(
+            "Error retrieving occurrence for",
+            calendarId,
+            eventId,
+            recurrenceId.icalString
+          );
+        }
+      }
     }
 
     // We did it, we have an event to display \o/.
