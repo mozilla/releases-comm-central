@@ -5614,7 +5614,7 @@ var threadPane = {
    * Restore the chevron icon indicating the current sort order.
    */
   restoreSortIndicator() {
-    if (!gDBView) {
+    if (!gViewWrapper?.dbView) {
       return;
     }
     this.updateSortIndicator(gViewWrapper.primarySortColumnId);
