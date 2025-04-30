@@ -109,7 +109,7 @@ Folder::IsAncestorOf(nsIFolder* aOther, bool* aIsAncestor) {
 }
 
 NS_IMETHODIMP
-Folder::ContainsChildNamed(nsTSubstring<char> const& aName, bool* aContains) {
+Folder::ContainsChildNamed(const nsACString& aName, bool* aContains) {
   nsCString normalName = DatabaseUtils::Normalize(aName);
   *aContains = false;
 
@@ -123,7 +123,7 @@ Folder::ContainsChildNamed(nsTSubstring<char> const& aName, bool* aContains) {
 }
 
 NS_IMETHODIMP
-Folder::GetChildNamed(nsTSubstring<char> const& aName, nsIFolder** aChild) {
+Folder::GetChildNamed(const nsACString& aName, nsIFolder** aChild) {
   nsCString normalName = DatabaseUtils::Normalize(aName);
 
   for (auto child : mChildren) {

@@ -22,6 +22,9 @@ class nsRssIncomingServer : public nsMailboxServer,
   NS_DECL_NSILOCALMAILINCOMINGSERVER
   NS_DECL_NSIMSGFOLDERLISTENER
 
+#ifdef MOZ_PANORAMA
+  nsresult CreateRootFolder() override;
+#endif  // MOZ_PANORAMA
   NS_IMETHOD GetOfflineSupportLevel(int32_t* aSupportLevel) override;
   NS_IMETHOD GetSupportsDiskSpace(bool* aSupportsDiskSpace) override;
   NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) override;

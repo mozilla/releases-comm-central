@@ -47,6 +47,8 @@ add_task(async function () {
 async function testFolderDiscovery(server) {
   const rootFolder = server.rootFolder;
   Assert.deepEqual(rootFolder.subFolders.map(f => f.name).toSorted(), [
+    "Trash",
+    "Unsent Messages",
     "test1",
     "test3",
   ]);
@@ -58,6 +60,8 @@ async function testFolderDiscovery(server) {
     ["test2"]
   );
   Assert.deepEqual(rootFolder.descendants.map(f => f.prettyPath).toSorted(), [
+    "Trash",
+    "Unsent Messages",
     "test1",
     "test1/test2",
     "test3",
@@ -77,6 +81,32 @@ async function testFolderDiscovery(server) {
     flags: 0,
   });
   Assert.equal(folders.getFolderById(root.id), root);
+
+  // Special folders were added at start-up.
+
+  const trash = folders.getFolderByPath(`${server.key}/Trash`);
+  Assert.ok(trash);
+  Assert.equal(trash.parent, root);
+  Assert.equal(trash.name, "Trash");
+  checkRow(trash.id, {
+    id: trash.id,
+    parent: root.id,
+    ordinal: null,
+    name: "Trash",
+    flags: Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.Mail,
+  });
+
+  const unsent = folders.getFolderByPath(`${server.key}/Unsent Messages`);
+  Assert.ok(unsent);
+  Assert.equal(unsent.parent, root);
+  Assert.equal(unsent.name, "Unsent Messages");
+  checkRow(unsent.id, {
+    id: unsent.id,
+    parent: root.id,
+    ordinal: null,
+    name: "Unsent Messages",
+    flags: Ci.nsMsgFolderFlags.Queue | Ci.nsMsgFolderFlags.Mail,
+  });
 
   // We added some files. Check they exist.
 
@@ -117,7 +147,7 @@ async function testFolderDiscovery(server) {
     flags: 0,
   });
 
-  Assert.deepEqual(root.children, [test1, test3]);
+  Assert.deepEqual(root.children, [test1, test3, trash, unsent]);
   Assert.deepEqual(test1.children, [test2]);
-  Assert.deepEqual(root.descendants, [test1, test2, test3]);
+  Assert.deepEqual(root.descendants, [test1, test2, test3, trash, unsent]);
 }

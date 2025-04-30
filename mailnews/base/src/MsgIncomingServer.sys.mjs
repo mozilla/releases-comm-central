@@ -538,6 +538,9 @@ export class MsgIncomingServer {
         ].createInstance(Ci.nsIMsgFolder);
         this._rootFolder.QueryInterface(Ci.nsIInitableWithFolder);
         this._rootFolder.initWithFolder(root);
+
+        this.createDefaultMailboxes?.();
+        this.setFlagsOnDefaultMailboxes?.();
       } else {
         this._rootFolder = MailServices.folderLookup.getOrCreateFolderForURL(
           this.serverURI

@@ -89,6 +89,11 @@ interface nsIFolderDatabase : nsISupports {
   void moveFolderTo(in nsIFolder newParent, in nsIFolder child);
 
   /**
+   * Update a folder's name to match `newName`.
+   */
+  void updateName(in nsIFolder folder, in AUTF8String newName);
+
+  /**
    * Update a folder's flags to match `newFlags`.
    */
   void updateFlags(in nsIFolder folder, in unsigned long long newFlags);

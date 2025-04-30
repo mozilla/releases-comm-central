@@ -38,6 +38,10 @@ support-files = [
 
 ["test_relations.js"]
 
+["test_serverFromPrefs.js"]
+
+["test_setFolderName.js"]
+
 ["test_sort.js"]
 
 ["test_sqlFunctions.js"]

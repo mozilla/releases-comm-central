@@ -44,7 +44,8 @@ nsresult FolderDatabase::Startup() {
   PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", MAILNEWS,
                           MarkerOptions(MarkerTiming::IntervalStart()));
 
-  InternalLoadFolders();
+  nsresult rv = InternalLoadFolders();
+  NS_ENSURE_SUCCESS(rv, rv);
 
   PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", MAILNEWS,
                           MarkerOptions(MarkerTiming::IntervalEnd()));
@@ -527,6 +528,37 @@ void FolderDatabase::SaveOrdinals(nsTArray<RefPtr<Folder>>& folders) {
     stmt->Reset();
     ordinal++;
   }
+}
+
+NS_IMETHODIMP
+FolderDatabase::UpdateName(nsIFolder* aFolder, const nsACString& aNewName) {
+  NS_ENSURE_ARG_POINTER(aFolder);
+
+  Folder* folder = (Folder*)(aFolder);
+  nsCString newName = DatabaseUtils::Normalize(aNewName);
+
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "UpdateName"_ns, "UPDATE folders SET name = :name WHERE id = :id"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+  stmt->BindUTF8StringByName("name"_ns, newName);
+  stmt->BindInt64ByName("id"_ns, folder->mId);
+
+  rv = stmt->Execute();
+  stmt->Reset();
+
+  mFoldersByPath.Remove(folder->GetPath());
+  folder->mName = newName;
+  mFoldersByPath.InsertOrUpdate(folder->GetPath(), folder);
+
+  Folder* parent = folder->mParent;
+  if (parent) {
+    parent->mChildren.RemoveElement(folder);
+    parent->mChildren.InsertElementSorted(folder, mComparator);
+  }
+
+  return rv;
 }
 
 NS_IMETHODIMP

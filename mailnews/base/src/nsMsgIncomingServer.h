@@ -64,13 +64,13 @@ class nsMsgIncomingServer : public nsIMsgIncomingServer,
 
   /// Helper routine to create local folder on disk if it doesn't exist
   /// under the account's rootFolder.
-  nsresult CreateLocalFolder(const nsACString& folderName);
+  nsresult CreateLocalFolder(const nsACString& folderName, uint32_t flag);
 
   static nsresult GetDeferredServers(
       nsIMsgIncomingServer* destServer,
       nsTArray<RefPtr<nsIPop3IncomingServer>>& aServers);
 
-  nsresult CreateRootFolder();
+  virtual nsresult CreateRootFolder();
 
   nsresult InternalSetHostName(const nsACString& aHostname,
                                const char* prefName);

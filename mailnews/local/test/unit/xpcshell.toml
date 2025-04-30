@@ -23,6 +23,8 @@ tags = ["compact"]
 
 ["test_localFolder.js"]
 
+["test_localServerFromPrefs.js"]
+
 ["test_mailStoreCompact.js"]
 tags = ["compact"]
 
@@ -97,6 +99,8 @@ requesttimeoutfactor = 2
 ["test_pop3Proxy.js"]
 
 ["test_pop3Pump.js"]
+
+["test_pop3ServerFromPrefs.js"]
 
 ["test_preview.js"]
 

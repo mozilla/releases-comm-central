@@ -295,7 +295,7 @@ nsMsgLocalMailFolder::GetSubFolders(nsTArray<RefPtr<nsIMsgFolder>>& folders) {
         rv = localMailServer->CreateDefaultMailboxes();
         if (NS_FAILED(rv) && rv != NS_MSG_FOLDER_EXISTS) return rv;
 
-        // must happen after CreateSubFolders, or the folders won't exist.
+        // must happen after CreateDefaultMailboxes, or the folders won't exist.
         rv = localMailServer->SetFlagsOnDefaultMailboxes();
         if (NS_FAILED(rv)) return rv;
       }
@@ -3008,27 +3008,16 @@ nsMsgLocalMailFolder::SetFlagsOnDefaultMailboxes(uint32_t flags) {
   return NS_OK;
 }
 
-nsresult nsMsgLocalMailFolder::setSubfolderFlag(const nsACString& aFolderName,
-                                                uint32_t flags) {
-  // FindSubFolder() expects the folder name to be escaped
-  // see bug #192043
-  nsAutoCString escapedFolderName;
-  nsresult rv = NS_MsgEscapeEncodeURLPath(aFolderName, escapedFolderName);
-  NS_ENSURE_SUCCESS(rv, rv);
+void nsMsgLocalMailFolder::setSubfolderFlag(const nsACString& aFolderName,
+                                            uint32_t flags) {
   nsCOMPtr<nsIMsgFolder> msgFolder;
-  rv = FindSubFolder(escapedFolderName, getter_AddRefs(msgFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // we only want to do this if the folder *really* exists,
-  // so check if it has a parent. Otherwise, we'll create the
-  // .msf file when we don't want to.
-  nsCOMPtr<nsIMsgFolder> parent;
-  msgFolder->GetParent(getter_AddRefs(parent));
-  if (!parent) return NS_ERROR_FAILURE;
+  nsresult rv = GetChildNamed(aFolderName, getter_AddRefs(msgFolder));
+  if (NS_FAILED(rv) || !msgFolder) {
+    return;
+  }
 
   rv = msgFolder->SetFlag(flags);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return NS_OK;
+  NS_ENSURE_SUCCESS_VOID(rv);
 }
 
 NS_IMETHODIMP

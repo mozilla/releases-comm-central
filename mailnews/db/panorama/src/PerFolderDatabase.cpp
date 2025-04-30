@@ -899,7 +899,7 @@ NS_IMETHODIMP FolderInfo::GetFolderName(nsACString& aFolderName) {
   return mFolder->GetName(aFolderName);
 }
 NS_IMETHODIMP FolderInfo::SetFolderName(const nsACString& aFolderName) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return mFolderDatabase->UpdateName(mFolder, aFolderName);
 }
 
 }  // namespace mozilla::mailnews

@@ -16,12 +16,29 @@
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
 
+using mozilla::Preferences;
+
 NS_IMPL_ISUPPORTS_INHERITED(nsNoIncomingServer, nsMsgIncomingServer,
                             nsINoIncomingServer, nsILocalMailIncomingServer)
 
 nsNoIncomingServer::nsNoIncomingServer() {}
 
 nsNoIncomingServer::~nsNoIncomingServer() {}
+
+#ifdef MOZ_PANORAMA
+nsresult nsNoIncomingServer::CreateRootFolder() {
+  nsresult rv = nsMsgIncomingServer::CreateRootFolder();
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    rv = CreateDefaultMailboxes();
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = SetFlagsOnDefaultMailboxes();
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  return NS_OK;
+}
+#endif  // MOZ_PANORAMA
 
 NS_IMETHODIMP
 nsNoIncomingServer::GetLocalStoreType(nsACString& type) {
@@ -130,18 +147,18 @@ NS_IMETHODIMP nsNoIncomingServer::CreateDefaultMailboxes() {
   // notice, no Inbox, unless we're deferred to...
   bool isDeferredTo;
   if (NS_SUCCEEDED(GetIsDeferredTo(&isDeferredTo)) && isDeferredTo) {
-    rv = CreateLocalFolder("Inbox"_ns);
+    rv = CreateLocalFolder("Inbox"_ns, nsMsgFolderFlags::Inbox);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  rv = CreateLocalFolder("Trash"_ns);
+  rv = CreateLocalFolder("Trash"_ns, nsMsgFolderFlags::Trash);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // copy the default templates into the Templates folder
   rv = CopyDefaultMessages("Templates"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return CreateLocalFolder("Unsent Messages"_ns);
+  return CreateLocalFolder("Unsent Messages"_ns, nsMsgFolderFlags::Queue);
 }
 
 NS_IMETHODIMP

@@ -2716,6 +2716,7 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   mIsServer = folder->GetIsServer();
   mIsServerIsValid = true;
   mName = folder->GetName();
+  mFlags = folder->GetFlags();
 
   // Set up the filesystem path. This could probably be improved by using the
   // parent folder's path instead of constructing the whole thing.
@@ -2749,7 +2750,9 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
 
   server->GetServerURI(mURI);
   nsCString path = folder->GetPath();
-  mURI.Append(Substring(path, path.FindChar('/')));  // HAX.
+  rv = NS_MsgEscapeEncodeURLPath(path, path);
+  NS_ENSURE_SUCCESS(rv, rv);
+  mURI.Append(Substring(path, path.FindChar('/')));
   mBaseMessageURI = "mailbox-message:"_ns + Substring(mURI, 8);
   mHaveParsedURI = true;
   mInitializedFromCache = true;
@@ -3151,6 +3154,17 @@ NS_IMETHODIMP nsMsgDBFolder::GetName(nsACString& name) {
 NS_IMETHODIMP nsMsgDBFolder::SetName(const nsACString& name) {
   // override the URI-generated name
   if (!mName.Equals(name)) {
+    if (!mIsServer) {
+      nsCOMPtr<nsIMsgDatabase> db;
+      nsCOMPtr<nsIDBFolderInfo> folderInfo;
+      nsresult rv =
+          GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
+      if (NS_SUCCEEDED(rv) && folderInfo) {
+        rv = folderInfo->SetFolderName(name);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
+    }
+
     mName = name;
     // old/new value doesn't matter here
     NotifyPropertyChanged(kName, name, name);

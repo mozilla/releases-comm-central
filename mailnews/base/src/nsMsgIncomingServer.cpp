@@ -47,6 +47,7 @@
 #  include "nsIFolder.h"
 #  include "nsIFolderDatabase.h"
 #endif  // MOZ_PANORAMA
+#include "nsIMsgLocalMailFolder.h"
 
 #define PORT_NOT_SET -1
 
@@ -387,17 +388,21 @@ nsMsgIncomingServer::GetServerURI(nsACString& aResult) {
 }
 
 // helper routine to create local folder on disk, if it doesn't exist.
-nsresult nsMsgIncomingServer::CreateLocalFolder(const nsACString& folderName) {
+nsresult nsMsgIncomingServer::CreateLocalFolder(const nsACString& folderName,
+                                                uint32_t flag) {
   nsCOMPtr<nsIMsgFolder> rootFolder;
   nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgFolder> child;
   rootFolder->GetChildNamed(folderName, getter_AddRefs(child));
   if (child) return NS_OK;
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  rv = GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return msgStore->CreateFolder(rootFolder, folderName, getter_AddRefs(child));
+  rootFolder->GetFolderWithFlags(flag, getter_AddRefs(child));
+  if (child) return NS_OK;
+  nsCOMPtr<nsIMsgLocalMailFolder> localRootFolder =
+      do_QueryInterface(rootFolder);
+  NS_ENSURE_TRUE(localRootFolder, NS_ERROR_FAILURE);
+  return localRootFolder->CreateLocalSubfolder(folderName,
+                                               getter_AddRefs(child));
 }
 
 nsresult nsMsgIncomingServer::CreateRootFolder() {

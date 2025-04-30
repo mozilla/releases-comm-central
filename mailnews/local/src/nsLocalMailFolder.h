@@ -254,7 +254,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   bool m_parsingFolder;
   nsCOMPtr<nsIUrlListener> mReparseListener;
   nsTArray<nsMsgKey> mSpamKeysToMove;
-  nsresult setSubfolderFlag(const nsACString& aFolderName, uint32_t flags);
+  void setSubfolderFlag(const nsACString& aFolderName, uint32_t flags);
 
   // Helper fn used by ParseFolder().
   void FinishUpAfterParseFolder(nsresult status);

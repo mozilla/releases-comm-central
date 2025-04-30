@@ -12,6 +12,8 @@
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
 
+using mozilla::Preferences;
+
 nsrefcnt nsRssIncomingServer::gInstanceCount = 0;
 
 NS_IMPL_ISUPPORTS_INHERITED(nsRssIncomingServer, nsMsgIncomingServer,
@@ -47,6 +49,21 @@ nsRssIncomingServer::~nsRssIncomingServer() {
   }
 }
 
+#ifdef MOZ_PANORAMA
+nsresult nsRssIncomingServer::CreateRootFolder() {
+  nsresult rv = nsMsgIncomingServer::CreateRootFolder();
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    rv = CreateDefaultMailboxes();
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = SetFlagsOnDefaultMailboxes();
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  return NS_OK;
+}
+#endif  // MOZ_PANORAMA
+
 nsresult nsRssIncomingServer::FillInDataSourcePath(
     const nsAString& aDataSourceName, nsIFile** aLocation) {
   nsresult rv;
@@ -72,7 +89,7 @@ NS_IMETHODIMP nsRssIncomingServer::GetFeedItemsPath(nsIFile** aLocation) {
 
 NS_IMETHODIMP nsRssIncomingServer::CreateDefaultMailboxes() {
   // For Feeds, all we have is Trash.
-  return CreateLocalFolder("Trash"_ns);
+  return CreateLocalFolder("Trash"_ns, nsMsgFolderFlags::Trash);
 }
 
 NS_IMETHODIMP nsRssIncomingServer::SetFlagsOnDefaultMailboxes() {

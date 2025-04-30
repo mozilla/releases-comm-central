@@ -23,6 +23,9 @@ class nsNoIncomingServer : public nsMailboxServer,
 
   nsNoIncomingServer();
 
+#ifdef MOZ_PANORAMA
+  nsresult CreateRootFolder() override;
+#endif  // MOZ_PANORAMA
   NS_IMETHOD GetLocalStoreType(nsACString& type) override;
   NS_IMETHOD GetLocalDatabaseType(nsACString& type) override;
   NS_IMETHOD GetCanSearchMessages(bool* canSearchMessages) override;
