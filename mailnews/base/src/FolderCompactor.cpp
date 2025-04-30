@@ -853,7 +853,7 @@ static bool CanCompactNow(nsIMsgFolder* folder) {
     bool hasPseudo;
     if (NS_SUCCEEDED(imapFolder->HasPseudoActivity(&hasPseudo))) {
       if (hasPseudo) {
-        MOZ_LOG(gCompactLog, LogLevel::Debug,
+        MOZ_LOG(gCompactLog, LogLevel::Warning,
                 ("BatchCompactor::CanCompactNow(): HasPseudoStuff"));
         return false;
       }
@@ -869,7 +869,7 @@ static bool CanCompactNow(nsIMsgFolder* folder) {
       rv = opsDb->HasOfflineActivity(&hasOffline);
       if (NS_SUCCEEDED(rv)) {
         if (hasOffline) {
-          MOZ_LOG(gCompactLog, LogLevel::Debug,
+          MOZ_LOG(gCompactLog, LogLevel::Warning,
                   ("BatchCompactor::CanCompactNow(): HasOfflineActivity"));
           // No, we don't want to compact now.
           return false;
@@ -878,7 +878,7 @@ static bool CanCompactNow(nsIMsgFolder* folder) {
         // We can compact folders that don't support offline ops.
         // However, we skip folders that fail to give us the status.
         MOZ_LOG(
-            gCompactLog, LogLevel::Debug,
+            gCompactLog, LogLevel::Warning,
             ("BatchCompactor::CanCompactNow(): Failure querying offline ops"));
         return false;
       }
