@@ -141,6 +141,8 @@ add_task(async function testOffline() {
       `waiting for new ${inbox.server.type} messages to be received`
     );
     inbox.markAllMessagesRead(window.msgWindow);
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 250));
   }
 
   await promiseServerIdle(imapAccount.incomingServer);
