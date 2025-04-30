@@ -28,45 +28,6 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 /**
- * Determines the actions that should be carried out on the messages
- * that are being marked as junk
- *
- * @param {nsIMsgFolder} aFolder - The folder with messages being marked as junk.
- * @returns {object} result an object with two properties.
- * @returns {boolean} result.markRead - Whether the messages should be marked
- *   as read.
- * @returns {?nsIMsgFolder} result.junkTargetFolder - Where the messages should
- *   be moved, or null if they should not be moved.
- */
-function determineActionsForJunkMsgs(aFolder) {
-  var actions = { markRead: false, junkTargetFolder: null };
-  var spamSettings = aFolder.server.spamSettings;
-
-  // note we will do moves/marking as read even if the spam
-  // feature is disabled, since the user has asked to use it
-  // despite the disabling
-
-  actions.markRead = spamSettings.markAsReadOnSpam;
-  actions.junkTargetFolder = null;
-
-  // move only when the corresponding setting is activated
-  // and the currently viewed folder is not the junk folder.
-  if (spamSettings.moveOnSpam && !aFolder.getFlag(Ci.nsMsgFolderFlags.Junk)) {
-    var spamFolderURI = spamSettings.spamFolderURI;
-    if (!spamFolderURI) {
-      // XXX TODO
-      // we should use nsIPromptService to inform the user of the problem,
-      // e.g. when the junk folder was accidentally deleted.
-      dump("determineActionsForJunkMsgs: no spam folder found, not moving.");
-    } else {
-      actions.junkTargetFolder = MailUtils.getOrCreateFolder(spamFolderURI);
-    }
-  }
-
-  return actions;
-}
-
-/**
  * Performs required operations on a list of newly-classified junk messages.
  *
  * @param {nsIMsgFolder} aFolder - The folder with messages being marked as
@@ -75,62 +36,36 @@ function determineActionsForJunkMsgs(aFolder) {
  * @param {nsIMsgDBHdr[]} aGoodMsgHdrs - New good messages.
  */
 async function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
-  return new Promise((resolve, reject) => {
-    if (aFolder instanceof Ci.nsIMsgImapMailFolder) {
-      // need to update IMAP custom flags
-      if (aJunkMsgHdrs.length) {
-        const junkMsgKeys = aJunkMsgHdrs.map(hdr => hdr.messageKey);
-        aFolder.storeCustomKeywords(null, "Junk", "NonJunk", junkMsgKeys);
+  let deferred = Promise.withResolvers();
+  aFolder.performActionsOnJunkMsgs(aJunkMsgHdrs, true, top.msgWindow, {
+    OnStopRunningUrl(url, status) {
+      if (Components.isSuccessCode(status)) {
+        deferred.resolve();
+      } else {
+        deferred.reject(
+          new Error(
+            `performActionsOnJunkMsgs failed with status: ${status.toString(16)}`
+          )
+        );
       }
-
-      if (aGoodMsgHdrs.length) {
-        const goodMsgKeys = aGoodMsgHdrs.map(hdr => hdr.messageKey);
-        aFolder.storeCustomKeywords(null, "NonJunk", "Junk", goodMsgKeys);
-      }
-    }
-    if (!aJunkMsgHdrs.length) {
-      resolve();
-      return;
-    }
-
-    const actionParams = determineActionsForJunkMsgs(aFolder);
-    if (actionParams.markRead) {
-      aFolder.markMessagesRead(aJunkMsgHdrs, true);
-    }
-
-    if (!actionParams.junkTargetFolder) {
-      resolve();
-      return;
-    }
-
-    /** @implements {nsIMsgCopyServiceListener} */
-    const listener = {
-      QueryInterface: ChromeUtils.generateQI(["nsIMsgCopyServiceListener"]),
-      onStartCopy() {},
-      onProgress() {},
-      setMessageKey() {},
-      getMessageId() {
-        return null;
-      },
-      onStopCopy(status) {
-        if (Components.isSuccessCode(status)) {
-          resolve();
-          return;
-        }
-        const uri = actionParams.junkTargetFolder.URI;
-        reject(new Error(`Moving junk to ${uri} failed.`));
-      },
-    };
-    MailServices.copy.copyMessages(
-      aFolder,
-      aJunkMsgHdrs,
-      actionParams.junkTargetFolder,
-      true /* isMove */,
-      listener,
-      top.msgWindow,
-      true /* allow undo */
-    );
+    },
   });
+  await deferred.promise;
+  deferred = Promise.withResolvers();
+  aFolder.performActionsOnJunkMsgs(aGoodMsgHdrs, false, top.msgWindow, {
+    OnStopRunningUrl(url, status) {
+      if (Components.isSuccessCode(status)) {
+        deferred.resolve();
+      } else {
+        deferred.reject(
+          new Error(
+            `performActionsOnJunkMsgs failed with status: ${status.toString(16)}`
+          )
+        );
+      }
+    },
+  });
+  await deferred.promise;
 }
 
 /**

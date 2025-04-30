@@ -83,7 +83,11 @@ tags = ["compact"]
 
 ["test_inheritedFolderProperties.js"]
 
+["test_junkActions.js"]
+tags = ["spam"]
+
 ["test_junkingWhenDisabled.js"]
+tags = ["spam"]
 
 ["test_loadVirtualFolders.js"]
 

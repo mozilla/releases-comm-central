@@ -20,3 +20,30 @@ NS_IMETHODIMP UrlListener::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
   }
   return mStopFn(url, exitCode);
 }
+
+NS_IMPL_ISUPPORTS(CopyServiceListener, nsIMsgCopyServiceListener)
+
+NS_IMETHODIMP CopyServiceListener::OnStartCopy() {
+  if (!mStartFn) {
+    return NS_OK;
+  }
+  return mStartFn();
+}
+
+NS_IMETHODIMP CopyServiceListener::OnProgress(uint32_t progress,
+                                              uint32_t progressMax) {
+  return NS_OK;
+}
+
+NS_IMETHODIMP CopyServiceListener::SetMessageKey(nsMsgKey key) { return NS_OK; }
+
+NS_IMETHODIMP CopyServiceListener::GetMessageId(nsACString& messageId) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP CopyServiceListener::OnStopCopy(nsresult status) {
+  if (!mStopFn) {
+    return NS_OK;
+  }
+  return mStopFn(status);
+}

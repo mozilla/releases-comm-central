@@ -68,6 +68,8 @@
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
 #include "nsIWritablePropertyBag2.h"
+#include "UrlListener.h"
+#include "nsIMsgCopyService.h"
 #ifdef MOZ_PANORAMA
 #  include "nsIDatabaseCore.h"
 #  include "nsIFolderDatabase.h"
@@ -2021,16 +2023,11 @@ nsMsgDBFolder::OnMessageClassified(const nsACString& aMsgURI,
     mClassifiedMsgKeys.AppendElement(msgKey);
     AndProcessingFlags(msgKey, ~nsMsgProcessingFlags::ClassifyJunk);
 
-    nsAutoCString msgJunkScore;
-    msgJunkScore.AppendInt(aClassification == nsIJunkMailPlugin::JUNK
+    SetJunkScoreForMessage(msgHdr,
+                           aClassification == nsIJunkMailPlugin::JUNK
                                ? nsIJunkMailPlugin::IS_SPAM_SCORE
-                               : nsIJunkMailPlugin::IS_HAM_SCORE);
-    mDatabase->SetStringProperty(msgKey, "junkscore", msgJunkScore);
-    mDatabase->SetStringProperty(msgKey, "junkscoreorigin", "plugin"_ns);
-
-    nsAutoCString strPercent;
-    strPercent.AppendInt(aJunkPercent);
-    mDatabase->SetStringProperty(msgKey, "junkpercent", strPercent);
+                               : nsIJunkMailPlugin::IS_HAM_SCORE,
+                           "plugin"_ns, aJunkPercent);
 
     if (aClassification == nsIJunkMailPlugin::JUNK) {
       // IMAP has its own way of marking read.
@@ -2325,10 +2322,8 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow* aMsgWindow, bool* aFiltersRun) {
       spamSettings->CheckWhiteList(msgHdr, &whiteListMessage);
       if (whiteListMessage) {
         // mark this msg as non-junk, because we whitelisted it.
-        nsAutoCString msgJunkScore;
-        msgJunkScore.AppendInt(nsIJunkMailPlugin::IS_HAM_SCORE);
-        database->SetStringProperty(msgKey, "junkscore", msgJunkScore);
-        database->SetStringProperty(msgKey, "junkscoreorigin", "whitelist"_ns);
+        SetJunkScoreForMessage(msgHdr, nsIJunkMailPlugin::IS_HAM_SCORE,
+                               "whitelist"_ns, -1);
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
                 ("Message whitelisted, skipping"));
         break;  // skip this msg since it's in the white list
@@ -4371,28 +4366,228 @@ nsMsgDBFolder::MarkMessagesFlagged(
   return NS_OK;
 }
 
+nsresult nsMsgDBFolder::SetJunkScoreForMessage(
+    nsIMsgDBHdr* message, nsMsgJunkScore junkScore,
+    const nsACString& junkScoreOrigin, int32_t junkPercent) {
+  nsTArray<RefPtr<nsIMsgDBHdr>> hdrArray = {message};
+  return SetJunkScoreForMessages(hdrArray, junkScore, junkScoreOrigin,
+                                 junkPercent);
+}
+
 NS_IMETHODIMP
 nsMsgDBFolder::SetJunkScoreForMessages(
-    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
-    const nsACString& junkScore) {
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& messages, nsMsgJunkScore junkScore,
+    const nsACString& junkScoreOrigin, int32_t junkPercent) {
   GetDatabase();
   if (mDatabase) {
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
         do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    for (auto message : aMessages) {
+    for (auto message : messages) {
       nsMsgKey msgKey;
       (void)message->GetMessageKey(&msgKey);
       nsCString oldJunkscore;
       message->GetStringProperty("junkscore", oldJunkscore);
-      mDatabase->SetStringProperty(msgKey, "junkscore", junkScore);
-      mDatabase->SetStringProperty(msgKey, "junkscoreorigin", "filter"_ns);
+      nsAutoCString junkScoreStr;
+      junkScoreStr.AppendInt(junkScore);
+      mDatabase->SetStringProperty(msgKey, "junkscore", junkScoreStr);
+      mDatabase->SetStringProperty(msgKey, "junkscoreorigin", junkScoreOrigin);
+      if (junkPercent >= 0 && junkPercent <= 100) {
+        nsAutoCString junkPercentStr;
+        junkPercentStr.AppendInt(junkPercent);
+        mDatabase->SetStringProperty(msgKey, "junkpercent", junkPercentStr);
+      }
       if (notifier) {
         notifier->NotifyMsgPropertyChanged(message, "junkscore", oldJunkscore,
-                                           junkScore);
+                                           junkScoreStr);
       }
     }
   }
   return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgDBFolder::PerformActionsOnJunkMsgs(
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& messages, bool msgsAreJunk,
+    nsIMsgWindow* msgWindow, nsIUrlListener* listener) {
+  uint32_t numJunkHdrs = messages.Length();
+  if (!numJunkHdrs) {
+    NS_WARNING("no indices of marked-as-junk messages to act on");
+    if (listener) {
+      listener->OnStopRunningUrl(nullptr, NS_OK);
+    }
+    return NS_OK;
+  }
+
+  bool moveMessages, changeReadState;
+  nsCOMPtr<nsIMsgFolder> targetFolder;
+
+  nsresult rv = DetermineActionsForJunkChange(
+      msgsAreJunk, moveMessages, changeReadState, getter_AddRefs(targetFolder));
+  if (NS_FAILED(rv)) {
+    if (listener) {
+      listener->OnStopRunningUrl(nullptr, rv);
+    }
+    return rv;
+  }
+
+  // Nothing to do, bail out.
+  if (!moveMessages && !changeReadState) {
+    if (listener) {
+      listener->OnStopRunningUrl(nullptr, NS_OK);
+    }
+    return NS_OK;
+  }
+
+  if (changeReadState) {
+    // Notes on marking junk as read:
+    // 1. There are 2 occasions on which junk messages are marked as
+    //    read: after a manual marking (here and in the front end) and after
+    //    automatic classification by the bayesian filter (see code for local
+    //    mail folders and for imap mail folders). The server-specific
+    //    markAsReadOnSpam pref only applies to the latter, the former is
+    //    controlled by "mailnews.ui.junk.manualMarkAsJunkMarksRead".
+    // 2. Even though move/delete on manual mark may be
+    //    turned off, we might still need to mark as read.
+
+    rv = MarkMessagesRead(messages, msgsAreJunk);
+    NS_ASSERTION(NS_SUCCEEDED(rv),
+                 "marking marked-as-junk messages as read failed");
+  }
+
+  if (moveMessages) {
+    CopyServiceListener* copyListener = new CopyServiceListener;
+    copyListener->mStopFn = [listener = nsCOMPtr<nsIUrlListener>(listener)](
+                                nsresult status) -> nsresult {
+      if (listener) {
+        listener->OnStopRunningUrl(nullptr, status);
+      }
+      return NS_OK;
+    };
+
+    if (targetFolder) {
+      // Use the copy service, not CopyMessages, to get proper notifications.
+      nsCOMPtr<nsIMsgCopyService> copyService =
+          mozilla::components::Copy::Service();
+      copyService->CopyMessages(this, messages, targetFolder, true,
+                                copyListener, msgWindow, true);
+    } else if (msgsAreJunk) {
+      DeleteMessages(messages, msgWindow, false, false, copyListener, true);
+    }
+
+    NS_ASSERTION(NS_SUCCEEDED(rv),
+                 "move or deletion of message marked-as-junk/non junk failed");
+  } else {
+    if (listener) {
+      listener->OnStopRunningUrl(nullptr, NS_OK);
+    }
+  }
+
+  return rv;
+}
+
+nsresult nsMsgDBFolder::DetermineActionsForJunkChange(
+    bool msgsAreJunk, bool& moveMessages, bool& changeReadState,
+    nsIMsgFolder** targetFolder) {
+  // There are two possible actions which may be performed
+  // on messages marked as spam: marking as read and moving
+  // somewhere. When a message is marked as non junk,
+  // it may be moved to the inbox, and marked unread.
+  moveMessages = false;
+  changeReadState = false;
+
+  // The 'somewhere', junkTargetFolder, can be a folder,
+  // but if it remains null we'll delete the messages.
+  *targetFolder = nullptr;
+
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Handle the easy case of marking a junk message as good first.
+  // Set the move target folder to the inbox, if any.
+  if (!msgsAreJunk) {
+    if (mFlags & nsMsgFolderFlags::Junk) {
+      changeReadState =
+          Preferences::GetBool("mail.spam.markAsNotJunkMarksUnRead");
+      nsCOMPtr<nsIMsgFolder> rootMsgFolder;
+      rv = server->GetRootMsgFolder(getter_AddRefs(rootMsgFolder));
+      NS_ENSURE_SUCCESS(rv, rv);
+      rootMsgFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox, targetFolder);
+      moveMessages = *targetFolder != nullptr;
+    }
+
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsISpamSettings> spamSettings;
+  rv = server->GetSpamSettings(getter_AddRefs(spamSettings));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // When the user explicitly marks a message as junk, we can mark it as read,
+  // too. This is independent of the "markAsReadOnSpam" pref, which applies
+  // only to automatically-classified messages.
+  // Note that this behaviour should match the one in the front end for marking
+  // as junk via toolbar/context menu.
+  changeReadState =
+      Preferences::GetBool("mailnews.ui.junk.manualMarkAsJunkMarksRead");
+
+  // Now let's determine whether we'll be taking the second action,
+  // the move / deletion (and also determine which of these two).
+  bool manualMark;
+  (void)spamSettings->GetManualMark(&manualMark);
+  if (!manualMark) {
+    return NS_OK;
+  }
+
+  int32_t manualMarkMode;
+  (void)spamSettings->GetManualMarkMode(&manualMarkMode);
+  NS_ASSERTION(manualMarkMode == nsISpamSettings::MANUAL_MARK_MODE_MOVE ||
+                   manualMarkMode == nsISpamSettings::MANUAL_MARK_MODE_DELETE,
+               "bad manual mark mode");
+
+  if (manualMarkMode == nsISpamSettings::MANUAL_MARK_MODE_MOVE) {
+    // If this is a junk folder (not only "the" junk folder for this account)
+    // don't do the move.
+    if (mFlags & nsMsgFolderFlags::Junk) {
+      return NS_OK;
+    }
+
+    nsCString spamFolderURI;
+    rv = spamSettings->GetSpamFolderURI(spamFolderURI);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    NS_ASSERTION(!spamFolderURI.IsEmpty(),
+                 "spam folder URI is empty, can't move");
+    if (!spamFolderURI.IsEmpty()) {
+      rv = FindFolder(spamFolderURI, targetFolder);
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (*targetFolder) {
+        moveMessages = true;
+      } else {
+        // XXX TODO: GetOrCreateJunkFolder will only create a folder with
+        // localized name "Junk" regardless of spamFolderURI. So if someone
+        // sets the junk folder to an existing folder of a different name,
+        // then deletes that folder, this will fail to create the correct
+        // folder.
+        rv = GetOrCreateJunkFolder(spamFolderURI, nullptr /* aListener */);
+        if (NS_SUCCEEDED(rv))
+          rv = GetExistingFolder(spamFolderURI, targetFolder);
+
+        NS_ASSERTION(NS_SUCCEEDED(rv), "GetOrCreateJunkFolder failed");
+      }
+    }
+
+    return NS_OK;
+  }
+
+  // At this point manualMarkMode == nsISpamSettings::MANUAL_MARK_MODE_DELETE).
+
+  // If this is in the trash, let's not delete.
+  if (mFlags & nsMsgFolderFlags::Trash) {
+    return NS_OK;
+  }
+
+  return GetCanDeleteMessages(&moveMessages);
 }
 
 NS_IMETHODIMP

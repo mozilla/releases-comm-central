@@ -768,7 +768,23 @@ interface nsIMsgFolder : nsISupports {
   void copyDataToOutputStreamForAppend(in nsIInputStream aIStream,
                      in long aLength, in nsIOutputStream outputStream);
   void copyDataDone();
-  void setJunkScoreForMessages(in Array<nsIMsgDBHdr> aMessages, in ACString aJunkScore);
+
+  /**
+   * Mark messages as junk or not junk, without performing any further action.
+   */
+  void setJunkScoreForMessages(in Array<nsIMsgDBHdr> messages,
+                               in nsMsgJunkScore junkScore,
+                               in ACString junkScoreOrigin,
+                               in long junkPercent);
+  /**
+   * Perform the appropriate actions for messages that are marked as junk or
+   * not junk. This does not include actually marking the messages.
+   */
+  void performActionsOnJunkMsgs(in Array<nsIMsgDBHdr> messages,
+                                in boolean msgsAreJunk,
+                                [optional] in nsIMsgWindow msgWindow,
+                                [optional] in nsIUrlListener listener);
+
   void applyRetentionSettings();
 
   /**

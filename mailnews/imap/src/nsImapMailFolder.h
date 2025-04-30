@@ -266,8 +266,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
                                  bool markFlagged) override;
   NS_IMETHOD MarkThreadRead(nsIMsgThread* thread) override;
   NS_IMETHOD SetJunkScoreForMessages(
-      const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
-      const nsACString& aJunkScore) override;
+      const nsTArray<RefPtr<nsIMsgDBHdr>>& messages, nsMsgJunkScore junkScore,
+      const nsACString& junkScoreOrigin, int32_t junkPercent) override;
   NS_IMETHOD DeleteSelf(nsIMsgWindow* msgWindow) override;
   NS_IMETHOD ReadFromFolderCacheElem(
       nsIMsgFolderCacheElement* element) override;

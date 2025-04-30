@@ -343,6 +343,14 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   bool mBayesJunkClassifying;
   // Is the current bayes filtering doing trait classification?
   bool mBayesTraitClassifying;
+
+  nsresult SetJunkScoreForMessage(nsIMsgDBHdr* message,
+                                  nsMsgJunkScore junkScore,
+                                  const nsACString& junkScoreOrigin,
+                                  int32_t junkPercent);
+  nsresult DetermineActionsForJunkChange(bool msgsAreJunk, bool& moveMessages,
+                                         bool& changeReadState,
+                                         nsIMsgFolder** targetFolder);
 };
 
 // This class is a kludge to allow nsMsgKeySet to be used with uint32_t keys

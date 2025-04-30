@@ -3505,9 +3505,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
           nsAutoCString junkScoreStr;
           int32_t junkScore;
           filterAction->GetJunkScore(&junkScore);
-          junkScoreStr.AppendInt(junkScore);
-          rv = mDatabase->SetStringProperty(msgKey, "junkscore", junkScoreStr);
-          mDatabase->SetStringProperty(msgKey, "junkscoreorigin", "filter"_ns);
+          SetJunkScoreForMessage(msgHdr, junkScore, "filter"_ns, -1);
 
           // If score is available, set up to store junk status on server.
           if (junkScore == nsIJunkMailPlugin::IS_SPAM_SCORE ||
@@ -8379,18 +8377,18 @@ nsresult nsImapMailFolder::PlaybackCoalescedOperations() {
 
 NS_IMETHODIMP
 nsImapMailFolder::SetJunkScoreForMessages(
-    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
-    const nsACString& aJunkScore) {
-  nsresult rv = nsMsgDBFolder::SetJunkScoreForMessages(aMessages, aJunkScore);
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& messages, nsMsgJunkScore junkScore,
+    const nsACString& junkScoreOrigin, int32_t junkPercent) {
+  nsresult rv = nsMsgDBFolder::SetJunkScoreForMessages(
+      messages, junkScore, junkScoreOrigin, junkPercent);
   if (NS_SUCCEEDED(rv)) {
     nsAutoCString messageIds;
     nsTArray<nsMsgKey> keys;
-    nsresult rv = BuildIdsAndKeyArray(aMessages, messageIds, keys);
+    nsresult rv = BuildIdsAndKeyArray(messages, messageIds, keys);
     NS_ENSURE_SUCCESS(rv, rv);
-    StoreCustomKeywords(
-        nullptr, aJunkScore.EqualsLiteral("0") ? "NonJunk"_ns : "Junk"_ns,
-        aJunkScore.EqualsLiteral("0") ? "Junk"_ns : "NonJunk"_ns, keys,
-        nullptr);
+    StoreCustomKeywords(nullptr, junkScore == 0 ? "NonJunk"_ns : "Junk"_ns,
+                        junkScore == 0 ? "Junk"_ns : "NonJunk"_ns, keys,
+                        nullptr);
     if (mDatabase) mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
   }
   return rv;

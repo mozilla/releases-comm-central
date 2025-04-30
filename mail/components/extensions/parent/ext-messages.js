@@ -1167,10 +1167,13 @@ this.messages = class extends ExtensionAPIPersistent {
               const newJunkScore = newProperties.junk
                 ? Ci.nsIJunkMailPlugin.IS_SPAM_SCORE
                 : Ci.nsIJunkMailPlugin.IS_HAM_SCORE;
-              // FIXME: This sets the junkorigin to "filter", even though we should
-              // set it to "user". Note: The IMAP implementation also sets the keyword
-              // Junk/NoJunk.
-              msgHdr.folder.setJunkScoreForMessages(msgs, newJunkScore);
+              // Note: The IMAP implementation also sets the keyword Junk/NonJunk.
+              msgHdr.folder.setJunkScoreForMessages(
+                msgs,
+                newJunkScore,
+                "user",
+                -1
+              );
             }
           } catch (ex) {
             console.error(ex);

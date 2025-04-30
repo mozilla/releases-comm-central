@@ -829,9 +829,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           nsAutoCString junkScoreStr;
           int32_t junkScore;
           filterAction->GetJunkScore(&junkScore);
-          junkScoreStr.AppendInt(junkScore);
-          rv =
-              curFolder->SetJunkScoreForMessages(m_searchHitHdrs, junkScoreStr);
+          rv = curFolder->SetJunkScoreForMessages(m_searchHitHdrs, junkScore,
+                                                  "filter"_ns, -1);
           BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
         } break;
         case nsMsgFilterAction::Forward: {
