@@ -40,7 +40,6 @@ export var VirtualFolderHelper = {
     aOnlineSearch
   ) {
     const msgFolder = aParentFolder.addSubfolder(aFolderName);
-    msgFolder.prettyName = aFolderName;
     msgFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
 
     const wrappedVirt = new VirtualFolderWrapper(msgFolder);

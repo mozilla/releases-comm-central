@@ -164,7 +164,6 @@ NS_IMPL_ISUPPORTS(nsMsgFolderService, nsIMsgFolderService)
 NS_IMETHODIMP nsMsgFolderService::InitializeFolderStrings() {
   nsMsgDBFolder::initializeStrings();
   nsMsgDBFolder::gInitializeStringsDone = true;
-  nsMsgDBFolder::gIsEnglishApp = -1;
   return NS_OK;
 }
 
@@ -184,10 +183,6 @@ MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedBrandShortName;
 
 nsrefcnt nsMsgDBFolder::mInstanceCount = 0;
 bool nsMsgDBFolder::gInitializeStringsDone = false;
-// This is used in `nonEnglishApp()` to determine localised
-// folders strings.
-// -1: not retrieved yet, 1: English, 0: non-English.
-int nsMsgDBFolder::gIsEnglishApp;
 
 // We define strings for folder properties and events.
 // Properties:
@@ -680,9 +675,11 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
         folderInfo->GetNumMessages(&mNumTotalMessages);
         folderInfo->GetNumUnreadMessages(&mNumUnreadMessages);
         folderInfo->GetExpungedBytes(&mExpungedBytes);
-        nsCString utf8Name;
-        folderInfo->GetFolderName(utf8Name);
-        if (!utf8Name.IsEmpty()) mName.Assign(utf8Name);
+        if (!UsesLocalizedName()) {
+          nsCString utf8Name;
+          folderInfo->GetFolderName(utf8Name);
+          if (!utf8Name.IsEmpty()) mName.Assign(utf8Name);
+        }
 
         // These should be put in IMAP folder only.
         // folderInfo->GetImapTotalPendingMessages(&mNumPendingTotalMessages);
@@ -2111,7 +2108,7 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow* aMsgWindow, bool* aFiltersRun) {
   *aFiltersRun = false;
 
   nsCString folderName;
-  GetPrettyName(folderName);
+  GetLocalizedName(folderName);
 
   bool isLocked;
   GetLocked(&isLocked);
@@ -3040,10 +3037,6 @@ nsMsgDBFolder::GetCanCompact(bool* canCompact) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetPrettyName(nsACString& name) {
-  return GetName(name);
-}
-
 NS_IMETHODIMP nsMsgDBFolder::GetPrettyPath(nsACString& aPath) {
   nsresult rv;
   if (mIsServer) {
@@ -3059,81 +3052,80 @@ NS_IMETHODIMP nsMsgDBFolder::GetPrettyPath(nsACString& aPath) {
     }
   }
   nsCString name;
-  rv = GetPrettyName(name);
+  rv = GetName(name);
   NS_ENSURE_SUCCESS(rv, rv);
   aPath.Append(name);
   return NS_OK;
 }
 
-static bool nonEnglishApp() {
-  if (nsMsgDBFolder::gIsEnglishApp == -1) {
-    nsAutoCString locale;
-    mozilla::intl::LocaleService::GetInstance()->GetAppLocaleAsBCP47(locale);
-    nsMsgDBFolder::gIsEnglishApp =
-        (locale.EqualsLiteral("en") || StringBeginsWith(locale, "en-"_ns)) ? 1
-                                                                           : 0;
+nsString nsMsgDBFolder::GetLocalizedNameInternal() {
+  if (mFlags & nsMsgFolderFlags::Inbox &&
+      mName.LowerCaseEqualsLiteral("inbox")) {
+    return kLocalizedInboxName;
   }
-  return nsMsgDBFolder::gIsEnglishApp ? false : true;
+  if (mFlags & nsMsgFolderFlags::SentMail &&
+      (mName.LowerCaseEqualsLiteral("sent") ||
+       mName.LowerCaseEqualsLiteral("sent mail") ||
+       mName.LowerCaseEqualsLiteral("outbox"))) {
+    return kLocalizedSentName;
+  }
+  if (mFlags & nsMsgFolderFlags::Drafts &&
+      (mName.LowerCaseEqualsLiteral("drafts") ||
+       mName.LowerCaseEqualsLiteral("draft"))) {
+    return kLocalizedDraftsName;
+  }
+  if (mFlags & nsMsgFolderFlags::Templates &&
+      mName.LowerCaseEqualsLiteral("templates")) {
+    return kLocalizedTemplatesName;
+  }
+  if (mFlags & nsMsgFolderFlags::Trash &&
+      (mName.LowerCaseEqualsLiteral("trash") ||
+       mName.LowerCaseEqualsLiteral("bin") ||
+       mName.LowerCaseEqualsLiteral("deleted"))) {
+    return kLocalizedTrashName;
+  }
+  if (mFlags & nsMsgFolderFlags::Queue &&
+      mName.LowerCaseEqualsLiteral("unsent messages")) {
+    return kLocalizedUnsentName;
+  }
+  if (mFlags & nsMsgFolderFlags::Junk &&
+      (mName.LowerCaseEqualsLiteral("junk") ||
+       mName.LowerCaseEqualsLiteral("spam") ||
+       mName.LowerCaseEqualsLiteral("bulk"))) {
+    return kLocalizedJunkName;
+  }
+  if (mFlags & nsMsgFolderFlags::Archive &&
+      (mName.LowerCaseEqualsLiteral("archive") ||
+       mName.LowerCaseEqualsLiteral("archives"))) {
+    return kLocalizedArchivesName;
+  }
+  return u""_ns;
 }
 
-static bool hasTrashName(const nsACString& name) {
-  // Microsoft calls the folder "Deleted". If the application is non-English,
-  // we want to use the localised name instead.
-  return name.LowerCaseEqualsLiteral("trash") ||
-         (name.LowerCaseEqualsLiteral("deleted") && nonEnglishApp());
+bool nsMsgDBFolder::UsesLocalizedName() {
+  return !GetLocalizedNameInternal().IsEmpty();
 }
 
-static bool hasDraftsName(const nsACString& name) {
-  // Some IMAP providers call the folder "Draft". If the application is
-  // non-English, we want to use the localised name instead.
-  return name.LowerCaseEqualsLiteral("drafts") ||
-         (name.LowerCaseEqualsLiteral("draft") && nonEnglishApp());
+NS_IMETHODIMP nsMsgDBFolder::GetLocalizedName(nsAString& name) {
+  name = GetLocalizedNameInternal();
+  if (name.IsEmpty()) {
+    nsAutoCString name8;
+    nsresult rv = GetName(name8);
+    NS_ENSURE_SUCCESS(rv, rv);
+    CopyUTF8toUTF16(name8, name);
+  }
+
+  return NS_OK;
 }
 
-static bool hasSentName(const nsACString& name) {
-  // Some IMAP providers call the folder for sent messages "Outbox". That IMAP
-  // folder is not related to Thunderbird's local folder for queued messages.
-  // If we find such a folder with the 'SentMail' flag, we can safely localize
-  // its name if the application is non-English.
-  return name.LowerCaseEqualsLiteral("sent") ||
-         (name.LowerCaseEqualsLiteral("outbox") && nonEnglishApp());
-}
+nsresult nsMsgDBFolder::GetLocalizedName(nsACString& name) {
+  nsString name16 = GetLocalizedNameInternal();
+  if (name16.IsEmpty()) {
+    return GetName(name);
+  }
 
-NS_IMETHODIMP nsMsgDBFolder::SetPrettyName(const nsACString& name) {
-  nsresult rv;
-  // Keep original name.
-  mOriginalName = name;
-
-  // Set pretty name only if special flag is set and if it the default folder
-  // name
-  if (mFlags & nsMsgFolderFlags::Inbox && name.LowerCaseEqualsLiteral("inbox"))
-    rv = SetName(NS_ConvertUTF16toUTF8(kLocalizedInboxName));
-  else if (mFlags & nsMsgFolderFlags::SentMail && hasSentName(name))
-    rv = SetName(NS_ConvertUTF16toUTF8(kLocalizedSentName));
-  else if (mFlags & nsMsgFolderFlags::Drafts && hasDraftsName(name))
-    rv = SetName(NS_ConvertUTF16toUTF8(kLocalizedDraftsName));
-  else if (mFlags & nsMsgFolderFlags::Templates &&
-           name.LowerCaseEqualsLiteral("templates"))
-    rv = SetName(NS_ConvertUTF16toUTF8(kLocalizedTemplatesName));
-  else if (mFlags & nsMsgFolderFlags::Trash && hasTrashName(name))
-    rv = SetName(NS_ConvertUTF16toUTF8(kLocalizedTrashName));
-  else if (mFlags & nsMsgFolderFlags::Queue &&
-           name.LowerCaseEqualsLiteral("unsent messages"))
-    rv = SetName(NS_ConvertUTF16toUTF8(kLocalizedUnsentName));
-  else if (mFlags & nsMsgFolderFlags::Junk &&
-           name.LowerCaseEqualsLiteral("junk"))
-    rv = SetName(NS_ConvertUTF16toUTF8(kLocalizedJunkName));
-  else if (mFlags & nsMsgFolderFlags::Archive &&
-           name.LowerCaseEqualsLiteral("archives"))
-    rv = SetName(NS_ConvertUTF16toUTF8(kLocalizedArchivesName));
-  else
-    rv = SetName(name);
-  return rv;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::SetPrettyNameFromOriginal(void) {
-  if (mOriginalName.IsEmpty()) return NS_OK;
-  return SetPrettyName(mOriginalName);
+  CopyUTF16toUTF8(name16, name);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::GetName(nsACString& name) {
@@ -3167,8 +3159,8 @@ NS_IMETHODIMP nsMsgDBFolder::SetName(const nsACString& name) {
 }
 
 // For default, just return name
-NS_IMETHODIMP nsMsgDBFolder::GetAbbreviatedName(nsACString& aAbbreviatedName) {
-  return GetName(aAbbreviatedName);
+NS_IMETHODIMP nsMsgDBFolder::GetAbbreviatedName(nsAString& aAbbreviatedName) {
+  return GetLocalizedName(aAbbreviatedName);
 }
 
 NS_IMETHODIMP
@@ -3699,8 +3691,8 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsACString& aNewName,
   if (parentSupport) {
     rv = parentFolder->AddSubfolder(aNewName, getter_AddRefs(newFolder));
     if (newFolder) {
-      newFolder->SetPrettyName(EmptyCString());
-      newFolder->SetPrettyName(aNewName);
+      newFolder->SetName(EmptyCString());
+      newFolder->SetName(aNewName);
       newFolder->SetFlags(mFlags);
       newFolder->SetUserSortOrder(mUserSortOrder);
       bool changed = false;

@@ -560,7 +560,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
     if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE && destDB)
       destDB->SetSummaryValid(true);
   }
-  newMsgFolder->SetPrettyName(folderName);
+  newMsgFolder->SetName(folderName);
   uint32_t flags;
   aSrcFolder->GetFlags(&flags);
   newMsgFolder->SetFlags(flags);
@@ -1086,8 +1086,7 @@ nsresult nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder* parent,
     if (child) {
       nsAutoCString folderName;
       child->GetName(folderName);  // try to get it from cache/db
-      if (folderName.IsEmpty())
-        child->SetPrettyName(NS_ConvertUTF16toUTF8(leafName));
+      if (folderName.IsEmpty()) child->SetName(NS_ConvertUTF16toUTF8(leafName));
       if (deep) {
         nsCOMPtr<nsIFile> path;
         rv = child->GetFilePath(getter_AddRefs(path));

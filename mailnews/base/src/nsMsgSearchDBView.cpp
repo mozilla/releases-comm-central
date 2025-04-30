@@ -168,9 +168,9 @@ nsresult nsMsgSearchDBView::HashHdr(nsIMsgDBHdr* msgHdr, nsString& aHashKey) {
     aHashKey.Truncate();
     nsCOMPtr<nsIMsgFolder> folder;
     msgHdr->GetFolder(getter_AddRefs(folder));
-    nsAutoCString prettyName;
-    folder->GetPrettyName(prettyName);
-    aHashKey.Assign(NS_ConvertUTF8toUTF16(prettyName));
+    nsAutoString localizedName;
+    folder->GetLocalizedName(localizedName);
+    aHashKey.Assign(localizedName);
     return NS_OK;
   }
 

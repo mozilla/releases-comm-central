@@ -649,7 +649,9 @@ export var GlodaMsgIndexer = {
     } catch (ex) {
       this._log.error(
         "Problem entering folder: " +
-          (this._indexingFolder ? this._indexingFolder.prettyName : "unknown") +
+          (this._indexingFolder
+            ? this._indexingFolder.localizedName
+            : "unknown") +
           ", skipping. Error was: " +
           ex.fileName +
           ":" +
@@ -2021,7 +2023,9 @@ export var GlodaMsgIndexer = {
       return false;
     }
 
-    this._log.info("Queue-ing folder for indexing: " + aMsgFolder.prettyName);
+    this._log.info(
+      "Queue-ing folder for indexing: " + aMsgFolder.localizedName
+    );
     const job = new IndexingJob("folder", glodaFolder.id);
     if (aOptions) {
       if ("callback" in aOptions) {
@@ -2474,7 +2478,7 @@ export var GlodaMsgIndexer = {
             } catch (ex) {
               this.indexer._log.warn(
                 "Destination database for " +
-                  aDestFolder.prettyName +
+                  aDestFolder.localizedName +
                   " not ready on IMAP move." +
                   " Gloda corruption possible."
               );
@@ -2707,7 +2711,7 @@ export var GlodaMsgIndexer = {
         const delFunc = function (folder, indexer) {
           if (indexer._datastore._folderKnown(folder)) {
             indexer._log.info(
-              "Processing deletion of folder " + folder.prettyName + "."
+              "Processing deletion of folder " + folder.localizedName + "."
             );
             const glodaFolder = GlodaDatastore._mapFolder(folder);
             indexer._datastore.markMessagesDeletedByFolderID(glodaFolder.id);
@@ -2716,7 +2720,7 @@ export var GlodaMsgIndexer = {
           } else {
             indexer._log.info(
               "Ignoring deletion of folder " +
-                folder.prettyName +
+                folder.localizedName +
                 " because it is unknown to gloda."
             );
           }

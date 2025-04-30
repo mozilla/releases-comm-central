@@ -236,7 +236,7 @@ var folderTracker = new (class extends EventEmitter {
     let dstFolder = null;
     if (targetFolder && targetFolder.hasSubFolders) {
       dstFolder = targetFolder.subFolders.find(
-        f => f.prettyName == srcFolder.prettyName
+        f => f.localizedName == srcFolder.localizedName
       );
     }
 
@@ -280,13 +280,13 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
 
   if (!dstFolder.canCreateSubfolders) {
     throw new ExtensionError(
-      `${functionName} failed, cannot create subfolders in ${dstFolder.prettyName}`
+      `${functionName} failed, cannot create subfolders in ${dstFolder.localizedName}`
     );
   }
 
   if (isMove && !FolderManager.canBeDeleted(srcFolder)) {
     throw new ExtensionError(
-      `${functionName} failed, cannot delete source folder ${srcFolder.prettyName}`
+      `${functionName} failed, cannot delete source folder ${srcFolder.localizedName}`
     );
   }
 
@@ -298,10 +298,10 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
 
   if (
     dstFolder.hasSubFolders &&
-    dstFolder.subFolders.find(f => f.prettyName == srcFolder.prettyName)
+    dstFolder.subFolders.find(f => f.localizedName == srcFolder.localizedName)
   ) {
     throw new ExtensionError(
-      `${functionName} failed, because ${srcFolder.prettyName} already exists in ${dstFolderPath}`
+      `${functionName} failed, because ${srcFolder.localizedName} already exists in ${dstFolderPath}`
     );
   }
 
@@ -322,7 +322,7 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
         // Find the actual folder by its name (which is unique).
         if (_dstFolder && _dstFolder.hasSubFolders) {
           _destination = _dstFolder.subFolders.find(
-            f => f.prettyName == _srcFolder.prettyName
+            f => f.localizedName == _srcFolder.localizedName
           );
         }
       },
@@ -938,7 +938,7 @@ this.folders = class extends ExtensionAPIPersistent {
               }
 
               if (queryInfo.name) {
-                const name = isServer ? "Root" : folder.prettyName;
+                const name = isServer ? "Root" : folder.localizedName;
                 if (nameRegExp) {
                   if (!nameRegExp.test(name)) {
                     continue;
@@ -970,7 +970,7 @@ this.folders = class extends ExtensionAPIPersistent {
             foundFolders = sortFoldersByTime(foundFolders, "MRMTime");
           } else if (queryInfo.sort == "name") {
             foundFolders.sort((a, b) =>
-              a.prettyName.localeCompare(b.prettyName, undefined, {
+              a.localizedName.localeCompare(b.localizedName, undefined, {
                 sensitivity: "base",
               })
             );
@@ -1043,7 +1043,7 @@ this.folders = class extends ExtensionAPIPersistent {
 
           if (
             parentFolder.hasSubFolders &&
-            parentFolder.subFolders.find(f => f.prettyName == childName)
+            parentFolder.subFolders.find(f => f.localizedName == childName)
           ) {
             throw new ExtensionError(
               `folders.create() failed, because ${childName} already exists in ${folderURIToPath(
@@ -1069,13 +1069,13 @@ this.folders = class extends ExtensionAPIPersistent {
           const { folder, accountKey } = getFolder(target);
 
           if (!FolderManager.canBeRenamed(folder)) {
-            const name = folder.isServer ? "Root" : folder.prettyName;
+            const name = folder.isServer ? "Root" : folder.localizedName;
             throw new ExtensionError(
               `folders.rename() failed, the folder ${name} cannot be renamed`
             );
           }
 
-          if (folder.parent.subFolders.find(f => f.prettyName == newName)) {
+          if (folder.parent.subFolders.find(f => f.localizedName == newName)) {
             throw new ExtensionError(
               `folders.rename() failed, because ${newName} already exists in ${folderURIToPath(
                 accountKey,
@@ -1122,7 +1122,7 @@ this.folders = class extends ExtensionAPIPersistent {
           const { folder } = getFolder(target);
 
           if (!FolderManager.canBeDeleted(folder)) {
-            const name = folder.isServer ? "Root" : folder.prettyName;
+            const name = folder.isServer ? "Root" : folder.localizedName;
             throw new ExtensionError(
               `folders.delete() failed, the folder ${name} cannot be deleted`
             );

@@ -151,7 +151,7 @@ export class MessageInjection {
       this._mis.notifyListeners("onRealFolderCreated", [this._mis.inboxFolder]);
 
       // Force an initialization of the Inbox folder database.
-      this._mis.inboxFolder.prettyName;
+      this._mis.inboxFolder.name;
     } else if (this._mis.injectionConfig.mode == "imap") {
       // Disable autosync in favor of our explicitly forcing downloads of all
       //  messages in a folder.  This is being done speculatively because when we

@@ -33,7 +33,7 @@ function onLoad() {
     // selected a child folder
     document
       .getElementById("msgNewFolderPicker")
-      .setAttribute("label", windowArgs.folder.prettyName);
+      .setAttribute("label", windowArgs.folder.localizedName);
   }
 
   // can folders contain both folders and messages?
@@ -64,7 +64,7 @@ function onFolderSelect(event) {
   dialog.folder = event.target._folder;
   document
     .getElementById("msgNewFolderPicker")
-    .setAttribute("label", dialog.folder.prettyName);
+    .setAttribute("label", dialog.folder.localizedName);
 }
 
 function onOK() {

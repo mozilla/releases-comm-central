@@ -466,7 +466,7 @@ export class FolderManager {
 
     const folderObject = {
       id,
-      name: isRoot ? "Root" : folder.prettyName,
+      name: isRoot ? "Root" : folder.localizedName,
       path,
       specialUse: getSpecialUse(folder.flags),
       isFavorite: folder.getFlag(Ci.nsMsgFolderFlags.Favorite),
@@ -514,7 +514,7 @@ export class FolderManager {
       // Use the same order as used by Thunderbird.
       return folder.subFolders.sort((a, b) =>
         a.sortOrder == b.sortOrder
-          ? a.name.localeCompare(b.name)
+          ? a.localizedName.localeCompare(b.localizedName)
           : a.sortOrder - b.sortOrder
       );
     }
@@ -533,7 +533,7 @@ export class FolderManager {
       }
       return subFolders.sort((a, b) =>
         a.sortOrder == b.sortOrder
-          ? a.name.localeCompare(b.name)
+          ? a.localizedName.localeCompare(b.localizedName)
           : a.sortOrder - b.sortOrder
       );
     }
@@ -596,7 +596,7 @@ export class CachedFolder {
     }
 
     this.server = folder.server;
-    this.prettyName = folder.prettyName;
+    this.localizedName = folder.localizedName;
     this.URI = folder.URI;
     this.flags = folder.flags;
     this.isServer = folder.isServer;

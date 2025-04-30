@@ -824,20 +824,10 @@ nsresult GetOrCreateJunkFolder(const nsACString& aURI,
     bool exists = false;
     if (!isAsyncFolder && folderPath) folderPath->Exists(&exists);
     if (!exists) {
-      // Hack to work around a localization bug with the Junk Folder.
-      // Please see Bug #270261 for more information...
-      nsCString localizedJunkName;
-      msgFolder->GetName(localizedJunkName);
-
-      // force the junk folder name to be Junk so it gets created on disk
-      // correctly...
       msgFolder->SetName("Junk"_ns);
       msgFolder->SetFlag(nsMsgFolderFlags::Junk);
       rv = msgFolder->CreateStorageIfMissing(aListener);
       NS_ENSURE_SUCCESS(rv, rv);
-
-      // now restore the localized folder name...
-      msgFolder->SetName(localizedJunkName);
 
       // XXX TODO
       // JUNK MAIL RELATED

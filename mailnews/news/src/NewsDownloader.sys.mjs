@@ -110,14 +110,14 @@ export class NewsDownloader {
     keys ??= [...(await this._getKeysToDownload(folder))];
     if (!keys.length) {
       await this._updateStatus(folder, "no-articles-to-download", {
-        newsgroup: folder.prettyName,
+        newsgroup: folder.localizedName,
       });
       return;
     }
 
     await this._updateStatus(folder, "downloading-articles-for-offline", {
       count: keys.length,
-      newsgroup: folder.prettyName,
+      newsgroup: folder.localizedName,
     });
 
     folder.QueryInterface(Ci.nsIMsgNewsFolder).saveArticleOffline = true;

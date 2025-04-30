@@ -114,7 +114,7 @@ class SmartMailbox {
     // Remove obsolete tag folders.
     const tags = lazy.MailServices.tags.getAllTags();
     const obsoleteFolders = this.#tagsFolder.subFolders.filter(
-      folder => !tags.some(t => t.tag == folder.prettyName)
+      folder => !tags.some(t => t.tag == folder.name)
     );
     for (const folder of obsoleteFolders) {
       folder.deleteSelf(null);
@@ -242,7 +242,7 @@ class SmartMailbox {
     try {
       const folder = this.#tagsFolder.createLocalSubfolder(tag.key);
       folder.flags |= Ci.nsMsgFolderFlags.Virtual;
-      folder.prettyName = tag.tag;
+      folder.name = tag.tag;
       this.#TagFolderURIs.set(tag.key, folder.URI);
 
       const msgDatabase = folder.msgDatabase;

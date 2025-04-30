@@ -68,7 +68,7 @@ export var moveCopyModule = {
       activities.length > 0 &&
       activities[activities.length - 1].id == this.lastMessage.id &&
       this.lastMessage.type == "deleteMail" &&
-      this.lastMessage.folder == folder.prettyName
+      this.lastMessage.folder == folder.localizedName
     ) {
       displayCount += this.lastMessage.count;
       this.activityMgr.removeActivity(this.lastMessage.id);
@@ -81,8 +81,8 @@ export var moveCopyModule = {
     );
     displayText = displayText.replace("#1", displayCount);
     this.lastMessage.count = displayCount;
-    displayText = displayText.replace("#2", folder.prettyName);
-    this.lastMessage.folder = folder.prettyName;
+    displayText = displayText.replace("#2", folder.localizedName);
+    this.lastMessage.folder = folder.localizedName;
 
     const statusText = folder.server.prettyName;
 
@@ -125,8 +125,8 @@ export var moveCopyModule = {
         activities.length > 0 &&
         activities[activities.length - 1].id == this.lastMessage.id &&
         this.lastMessage.type == (aMove ? "moveMail" : "copyMail") &&
-        this.lastMessage.sourceFolder == folder.prettyName &&
-        this.lastMessage.destFolder == aDestFolder.prettyName
+        this.lastMessage.sourceFolder == folder.localizedName &&
+        this.lastMessage.destFolder == aDestFolder.localizedName
       ) {
         displayCount += this.lastMessage.count;
         this.activityMgr.removeActivity(this.lastMessage.id);
@@ -157,10 +157,10 @@ export var moveCopyModule = {
 
       displayText = displayText.replace("#1", displayCount);
       this.lastMessage.count = displayCount;
-      displayText = displayText.replace("#2", folder.prettyName);
-      this.lastMessage.sourceFolder = folder.prettyName;
-      displayText = displayText.replace("#3", aDestFolder.prettyName);
-      this.lastMessage.destFolder = aDestFolder.prettyName;
+      displayText = displayText.replace("#2", folder.localizedName);
+      this.lastMessage.sourceFolder = folder.localizedName;
+      displayText = displayText.replace("#3", aDestFolder.localizedName);
+      this.lastMessage.destFolder = aDestFolder.localizedName;
 
       // create an activity event
       const event = new nsActEvent(
@@ -207,7 +207,7 @@ export var moveCopyModule = {
     } else {
       displayText = this.getString("deletedFolder").replace(
         "#1",
-        aFolder.prettyName
+        aFolder.localizedName
       );
     }
 
@@ -240,8 +240,8 @@ export var moveCopyModule = {
       displayText = this.getString("copiedFolder");
     }
 
-    displayText = displayText.replace("#1", aSrcFolder.prettyName);
-    displayText = displayText.replace("#2", aDestFolder.prettyName);
+    displayText = displayText.replace("#1", aSrcFolder.localizedName);
+    displayText = displayText.replace("#2", aDestFolder.localizedName);
 
     let statusText = "";
     if (aSrcFolder.server != aDestFolder.server) {
@@ -270,9 +270,9 @@ export var moveCopyModule = {
   folderRenamed(aOrigFolder, aNewFolder) {
     this.log.info(
       "in folderRenamed, aOrigFolder = " +
-        aOrigFolder.prettyName +
+        aOrigFolder.localizedName +
         ", aNewFolder = " +
-        aNewFolder.prettyName
+        aNewFolder.localizedName
     );
 
     let displayText;
@@ -282,11 +282,11 @@ export var moveCopyModule = {
     // to the trash or actually renamed the folder.
     if (aNewFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true)) {
       displayText = this.getString("movedFolderToTrash");
-      displayText = displayText.replace("#1", aOrigFolder.prettyName);
+      displayText = displayText.replace("#1", aOrigFolder.localizedName);
     } else {
       displayText = this.getString("renamedFolder");
-      displayText = displayText.replace("#1", aOrigFolder.prettyName);
-      displayText = displayText.replace("#2", aNewFolder.prettyName);
+      displayText = displayText.replace("#1", aOrigFolder.localizedName);
+      displayText = displayText.replace("#2", aNewFolder.localizedName);
     }
 
     // When renaming a folder, a delete event is always fired first
@@ -324,8 +324,8 @@ export var moveCopyModule = {
         activities.length > 0 &&
         activities[activities.length - 1].id == this.lastMessage.id &&
         this.lastMessage.type == "moveMail" &&
-        this.lastMessage.sourceFolder == srcFolder.prettyName &&
-        this.lastMessage.destFolder == destFolder.prettyName
+        this.lastMessage.sourceFolder == srcFolder.localizedName &&
+        this.lastMessage.destFolder == destFolder.localizedName
       ) {
         displayCount += this.lastMessage.count;
         this.activityMgr.removeActivity(this.lastMessage.id);
@@ -349,10 +349,10 @@ export var moveCopyModule = {
 
       displayText = displayText.replace("#1", displayCount);
       this.lastMessage.count = displayCount;
-      displayText = displayText.replace("#2", srcFolder.prettyName);
-      this.lastMessage.sourceFolder = srcFolder.prettyName;
-      displayText = displayText.replace("#3", destFolder.prettyName);
-      this.lastMessage.destFolder = destFolder.prettyName;
+      displayText = displayText.replace("#2", srcFolder.localizedName);
+      this.lastMessage.sourceFolder = srcFolder.localizedName;
+      displayText = displayText.replace("#3", destFolder.localizedName);
+      this.lastMessage.destFolder = destFolder.localizedName;
 
       // create an activity event
       const event = new nsActEvent(

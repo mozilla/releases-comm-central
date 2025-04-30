@@ -66,9 +66,9 @@ export function assert_search_window_folder_displayed(aWin, aFolder) {
     currentFolder,
     aFolder,
     "The search window's selected folder should have been: " +
-      aFolder.prettyName +
+      aFolder.localizedName +
       ", but is actually: " +
-      currentFolder?.prettyName
+      currentFolder?.localizedName
   );
 }
 

@@ -92,7 +92,7 @@ function MsgAddedListener() {
 MsgAddedListener.prototype = {
   msgAdded(aMsg) {
     // Check this is the templates folder.
-    Assert.equal(aMsg.folder.prettyName, "Templates");
+    Assert.equal(aMsg.folder.name, "Templates");
     this._resolve();
   },
 };

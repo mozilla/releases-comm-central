@@ -113,9 +113,9 @@ NewsAutoCompleteSearch.prototype = {
 
     if (this.cachedServer) {
       for (const curr of this.cachedServer.rootFolder.subFolders) {
-        if (curr.prettyName.includes(aSearchString)) {
+        if (curr.name.includes(aSearchString)) {
           result._searchResults.push({
-            value: curr.prettyName,
+            value: curr.localizedName,
             comment: this.cachedServer.prettyName,
           });
         }

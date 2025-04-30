@@ -81,7 +81,7 @@ add_task(async function trigger_bug() {
         onFolderEvent(aEventFolder, aEvent) {
           if (
             aEvent == "FolderLoaded" &&
-            aEventFolder.prettyName == "test.subscribe.simple"
+            aEventFolder.name == "test.subscribe.simple"
           ) {
             aEventFolder.getNewMessages(null, asyncUrlListener);
             return;

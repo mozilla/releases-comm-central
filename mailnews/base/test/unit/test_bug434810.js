@@ -9,15 +9,11 @@ function run_test() {
 
   var rootFolder = localAccountUtils.incomingServer.rootFolder;
 
-  var msgProps = Services.strings.createBundle(
-    "chrome://messenger/locale/messenger.properties"
-  );
-
   var expectedFolders = ["Inbox"]; // Inbox hard-coded in LocalAccountUtils.sys.mjs
 
   // These two MailNews adds by default
-  expectedFolders.push(msgProps.GetStringFromName("outboxFolderName"));
-  expectedFolders.push(msgProps.GetStringFromName("trashFolderName"));
+  expectedFolders.push("Unsent Messages");
+  expectedFolders.push("Trash");
 
   Assert.equal(rootFolder.numSubFolders, expectedFolders.length);
   for (var i = 0; i < expectedFolders.length; ++i) {

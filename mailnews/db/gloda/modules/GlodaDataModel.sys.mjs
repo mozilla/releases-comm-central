@@ -401,7 +401,10 @@ GlodaFolder.prototype = {
       return this._prettyName;
     }
     return (
-      xpcomFolder.prettyName + " (" + xpcomFolder.rootFolder.prettyName + ")"
+      xpcomFolder.localizedName +
+      " (" +
+      xpcomFolder.rootFolder.localizedName +
+      ")"
     );
   },
 

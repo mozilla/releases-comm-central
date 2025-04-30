@@ -51,7 +51,7 @@ add_setup(async function () {
     .getChildNamed("Inbox")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   trashFolder = rootFolder.getChildNamed("Trash");
-  outboxFolder = rootFolder.getChildNamed("Outbox");
+  outboxFolder = rootFolder.getChildNamed("Unsent Messages");
   folderA = rootFolder
     .createLocalSubfolder("folderTreeQuirksA")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
@@ -1264,7 +1264,7 @@ add_task(async function testAccountOrder() {
   );
   const fooRootFolder = foo.incomingServer.rootFolder;
   const fooTrashFolder = fooRootFolder.getChildNamed("Trash");
-  const fooOutboxFolder = fooRootFolder.getChildNamed("Outbox");
+  const fooOutboxFolder = fooRootFolder.getChildNamed("Unsent Messages");
   const fooFolders = [fooRootFolder, fooTrashFolder, fooOutboxFolder];
   const fooExtraFolders = [fooRootFolder, fooOutboxFolder];
 
@@ -1276,7 +1276,7 @@ add_task(async function testAccountOrder() {
   );
   const barRootFolder = bar.incomingServer.rootFolder;
   const barTrashFolder = barRootFolder.getChildNamed("Trash");
-  const barOutboxFolder = barRootFolder.getChildNamed("Outbox");
+  const barOutboxFolder = barRootFolder.getChildNamed("Unsent Messages");
   const barFolders = [barRootFolder, barTrashFolder, barOutboxFolder];
   const barExtraFolders = [barRootFolder, barOutboxFolder];
 

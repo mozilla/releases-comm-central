@@ -171,12 +171,12 @@ autoSyncListenerPromise.prototype = {
 
   onDownloadError(folder) {
     if (folder instanceof Ci.nsIMsgFolder) {
-      dump("OnDownloadError: " + folder.prettyName + "\n");
+      dump("OnDownloadError: " + folder.name + "\n");
     }
   },
 
   onDiscoveryQProcessed(folder) {
-    dump("onDiscoveryQProcessed: " + folder.prettyName + "\n");
+    dump("onDiscoveryQProcessed: " + folder.name + "\n");
     const index = mailTestUtils.non_strict_index_of(
       this._waitingForDiscoveryList,
       folder

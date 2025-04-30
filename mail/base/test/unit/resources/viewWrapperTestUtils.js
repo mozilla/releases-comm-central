@@ -144,10 +144,10 @@ var VWTU_testHelper = {
     dump("-----------------------------------------------------------\n");
     dump("Active things at time of timeout:\n");
     for (const folder of this.active_real_folders) {
-      dump("Real folder: " + folder.prettyName + "\n");
+      dump("Real folder: " + folder.localizedName + "\n");
     }
     for (const virtFolder of this.active_virtual_folders) {
-      dump("Virtual folder: " + virtFolder.prettyName + "\n");
+      dump("Virtual folder: " + virtFolder.localizedName + "\n");
     }
     for (const [i, viewWrapper] of this.active_view_wrappers.entries()) {
       dump("-----------------------------------\n");
@@ -283,7 +283,7 @@ function dump_message_header(aMsgHdr) {
   dump("  Keywords: " + aMsgHdr.getStringProperty("Keywords") + "\n");
   dump(
     "  Folder: " +
-      aMsgHdr.folder.prettyName +
+      aMsgHdr.folder.localizedName +
       "  Key: " +
       aMsgHdr.messageKey +
       "\n"

@@ -17,11 +17,11 @@ var { SmartMailboxUtils } = ChromeUtils.importESModule(
 add_setup(async () => {
   const account1 = createAccount("pop3");
   const rootFolder1 = account1.incomingServer.rootFolder;
-  const inbox1 = rootFolder1.subFolders.find(f => f.prettyName == "Inbox");
+  const inbox1 = rootFolder1.subFolders.find(f => f.localizedName == "Inbox");
 
   const account2 = createAccount("pop3");
   const rootFolder2 = account2.incomingServer.rootFolder;
-  const inbox2 = rootFolder2.subFolders.find(f => f.prettyName == "Inbox");
+  const inbox2 = rootFolder2.subFolders.find(f => f.localizedName == "Inbox");
 
   const smartMailbox = SmartMailboxUtils.getSmartMailbox();
   const smartInboxFolder = smartMailbox.getSmartFolder("Inbox");

@@ -60,7 +60,7 @@ export var pop3DownloadModule = {
       "pop3EventStartDisplayText2",
       [
         aFolder.server.prettyName, // account name
-        aFolder.prettyName,
+        aFolder.localizedName,
       ]
     ); // folder name
     // remember the prev activity for this folder, if any.

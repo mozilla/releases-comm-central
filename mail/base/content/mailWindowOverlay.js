@@ -732,7 +732,7 @@ function initMoveToFolderAgainMenu(aMenuItem) {
   const stringName = isMove ? "moveToFolderAgain" : "copyToFolderAgain";
   aMenuItem.label = bundle.getFormattedString(
     stringName,
-    [destMsgFolder.prettyName],
+    [destMsgFolder.localizedName],
     1
   );
   // This gives us moveToFolderAgainAccessKey and copyToFolderAgainAccessKey.
@@ -1141,7 +1141,7 @@ function ConfirmUnsubscribe(folders) {
     folders.length == 1
       ? bundle.getFormattedString(
           "confirmUnsubscribeText",
-          [folders[0].name],
+          [folders[0].localizedName],
           1
         )
       : bundle.getString("confirmUnsubscribeManyText");

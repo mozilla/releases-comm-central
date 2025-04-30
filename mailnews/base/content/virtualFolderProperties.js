@@ -96,7 +96,7 @@ function onLoad() {
       } catch (ex) {
         document
           .getElementById("msgNewFolderPicker")
-          .setAttribute("label", windowArgs.folder.prettyName);
+          .setAttribute("label", windowArgs.folder.localizedName);
       }
 
       // if the passed in URI is not a server then pre-select it as the folder to search
@@ -228,14 +228,14 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
 
   // set the name of the folder
   const name = gFolderBundle.formatStringFromName("verboseFolderFormat", [
-    aVirtualFolder.prettyName,
+    aVirtualFolder.localizedName,
     aVirtualFolder.server.prettyName,
   ]);
   folderNameField.setAttribute("value", name);
   // update the window title based on the name of the saved search
   document.title = gMessengerBundle.formatStringFromName(
     "editVirtualFolderPropertiesTitle",
-    [aVirtualFolder.prettyName]
+    [aVirtualFolder.localizedName]
   );
 }
 
@@ -380,7 +380,7 @@ function updateFoldersCount() {
       const folder = MailUtils.getOrCreateFolder(folderURI);
       const name = this.gMessengerBundle.formatStringFromName(
         "verboseFolderFormat",
-        [folder.prettyName, folder.server.prettyName]
+        [folder.localizedName, folder.server.prettyName]
       );
       folderNames.push(name);
     }

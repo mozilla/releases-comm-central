@@ -264,8 +264,7 @@ nsresult nsMsgMaildirStore::AddSubFolders(nsIMsgFolder* parent, nsIFile* path,
     if (child) {
       nsAutoCString folderName;
       child->GetName(folderName);  // try to get it from cache/db
-      if (folderName.IsEmpty())
-        child->SetPrettyName(NS_ConvertUTF16toUTF8(leafName));
+      if (folderName.IsEmpty()) child->SetName(NS_ConvertUTF16toUTF8(leafName));
       if (deep) {
         nsCOMPtr<nsIFile> path;
         rv = child->GetFilePath(getter_AddRefs(path));
@@ -675,7 +674,7 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(
   rv = aDstFolder->AddSubfolder(safeFolderName, getter_AddRefs(newMsgFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  newMsgFolder->SetPrettyName(folderName);
+  newMsgFolder->SetName(folderName);
   uint32_t flags;
   aSrcFolder->GetFlags(&flags);
   newMsgFolder->SetFlags(flags);

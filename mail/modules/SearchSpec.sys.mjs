@@ -497,7 +497,7 @@ SearchSpec.prototype = {
     s += this.prettyStringOfSearchTerms(this._userTerms);
     s += "    Scope (Folders):\n";
     for (const folder of this.owner._underlyingFolders) {
-      s += "      " + folder.prettyName + "\n";
+      s += "      " + folder.localizedName + "\n";
     }
     return s;
   },

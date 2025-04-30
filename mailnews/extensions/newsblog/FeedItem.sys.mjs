@@ -161,7 +161,7 @@ FeedItem.prototype = {
         "FeedItem.findStoredResource: folder '" +
           this.feed.folderName +
           "' doesn't exist; creating as child of " +
-          server.rootMsgFolder.prettyName +
+          server.rootMsgFolder.localizedName +
           "\n"
       );
       this.feed.createFolder();

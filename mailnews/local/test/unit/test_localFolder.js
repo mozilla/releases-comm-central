@@ -92,7 +92,10 @@ function test_mailbox(expected, type) {
 }
 
 function run_all_tests() {
-  test_default_mailbox([{ name: "Trash" }, { name: "Outbox" }], "none");
+  test_default_mailbox(
+    [{ name: "Trash" }, { name: "Unsent Messages" }],
+    "none"
+  );
   test_default_mailbox([{ name: "Inbox" }, { name: "Trash" }], "pop3");
 
   // Assuming that the order of the folders returned from the actual folder

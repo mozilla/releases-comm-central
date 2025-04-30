@@ -3714,12 +3714,11 @@ nsresult nsMsgDBView::GetLocationCollationKey(nsIMsgDBHdr* msgHdr,
   rv = folder->GetMsgDatabase(getter_AddRefs(dbToUse));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCString locationString;
-  rv = folder->GetPrettyName(locationString);
+  nsAutoString locationString;
+  rv = folder->GetLocalizedName(locationString);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return dbToUse->CreateCollationKey(NS_ConvertUTF8toUTF16(locationString),
-                                     result);
+  return dbToUse->CreateCollationKey(locationString, result);
 }
 
 nsresult nsMsgDBView::SaveSortInfo(nsMsgViewSortTypeValue sortType,

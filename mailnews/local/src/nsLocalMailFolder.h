@@ -121,10 +121,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD RenameSubFolders(nsIMsgWindow* msgWindow,
                               nsIMsgFolder* oldFolder) override;
 
-  NS_IMETHOD GetPrettyName(nsACString& prettyName)
-      override;  // Override of the base, for top-level mail folder
-  NS_IMETHOD SetPrettyName(const nsACString& aName) override;
-
   NS_IMETHOD GetDeletable(bool* deletable) override;
   NS_IMETHOD GetSizeOnDisk(int64_t* size) override;
 
@@ -164,8 +160,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD WriteToFolderCacheElem(nsIMsgFolderCacheElement* element) override;
   NS_IMETHOD ReadFromFolderCacheElem(
       nsIMsgFolderCacheElement* element) override;
-
-  NS_IMETHOD GetName(nsACString& aName) override;
 
   // Used when headers_only is TRUE
   NS_IMETHOD DownloadMessagesForOffline(

@@ -702,7 +702,7 @@ export class SearchSupport {
 
     folderDeleted(aFolder) {
       this._searchIntegration._log.info(
-        "in folderDeleted, folder name = " + aFolder.prettyName
+        "in folderDeleted, folder name = " + aFolder.localizedName
       );
       const srcFile = this._searchIntegration._getSearchPathForFolder(aFolder);
       srcFile.leafName = srcFile.leafName + ".mozmsgs";
@@ -742,9 +742,9 @@ export class SearchSupport {
     folderRenamed(aOrigFolder, aNewFolder) {
       this._searchIntegration._log.info(
         "in folderRenamed, aOrigFolder = " +
-          aOrigFolder.prettyName +
+          aOrigFolder.localizedName +
           ", aNewFolder = " +
-          aNewFolder.prettyName
+          aNewFolder.localizedName
       );
       const srcFile =
         this._searchIntegration._getSearchPathForFolder(aOrigFolder);

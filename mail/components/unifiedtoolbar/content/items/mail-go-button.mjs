@@ -97,7 +97,7 @@ class MailGoButton extends MailTabButton {
       // virtual folders because 'folder' is the display folder, not the
       // underlying one.
       if (folder != currentWindow.gFolder) {
-        menuText = folder.prettyName + " - ";
+        menuText = folder.localizedName + " - ";
       }
 
       let subject = "";

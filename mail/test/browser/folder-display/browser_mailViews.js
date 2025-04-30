@@ -91,7 +91,7 @@ function subtest_save_mail_view(savc) {
   // - make sure the name is right
   Assert.equal(
     savc.document.getElementById("name").value,
-    baseFolder.prettyName + "-Important"
+    baseFolder.name + "-Important"
   );
 
   const selector = savc.document.querySelector("#searchVal0 menulist");
@@ -106,7 +106,7 @@ function subtest_save_mail_view(savc) {
 
 add_task(async function test_verify_saved_mail_view() {
   // - make sure the folder got created
-  savedFolder = baseFolder.getChildNamed(baseFolder.prettyName + "-Important");
+  savedFolder = baseFolder.getChildNamed(baseFolder.name + "-Important");
   Assert.ok(savedFolder, "MailViewA-Important was not created!");
 
   // - go in the folder and make sure the right messages are displayed

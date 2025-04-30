@@ -27,6 +27,8 @@ tags = ["compact"]
 
 ["test_filterNeedsBody.js"]
 
+["test_folderNamesImap.js"]
+
 ["test_folderOfflineFlags.js"]
 
 ["test_gmailAttributes.js"]

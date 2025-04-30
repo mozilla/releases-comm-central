@@ -686,7 +686,7 @@ function messageHistoryMenu_init(popup) {
     // virtual folders because 'folder' is the display folder, not the
     // underlying one.
     if (folder != messageBrowser.contentWindow.gFolder) {
-      menuText = folder.prettyName + " - ";
+      menuText = folder.localizedName + " - ";
     }
 
     let subject = "";

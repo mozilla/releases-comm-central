@@ -158,7 +158,8 @@ function checkVirtualFolder(tagKey, tagLabel, expectedFolderURIs) {
   );
   Assert.ok(folder);
   const wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
-  Assert.equal(folder.prettyName, tagLabel);
+  Assert.equal(folder.name, tagLabel);
+  Assert.equal(folder.localizedName, tagLabel);
   Assert.equal(wrappedFolder.searchString, `AND (tag,contains,${tagKey})`);
   Assert.equal(wrappedFolder.searchFolderURIs, "*");
 

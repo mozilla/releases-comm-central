@@ -2197,7 +2197,7 @@ export var GlodaDatastore = {
       folderID,
       folderURI,
       dirtyStatus,
-      aFolder.prettyName,
+      aFolder.localizedName,
       indexingPriority
     );
 

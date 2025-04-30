@@ -548,8 +548,6 @@ nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
     // We need to notify explicitly the flag change because it failed when we
     // did AddSubfolder()
     (*aNewFolder)->OnFlagChange(mFlags);
-    // Set pretty name because empty trash will create a new trash folder.
-    (*aNewFolder)->SetPrettyName(folderName);
     NotifyFolderAdded(*aNewFolder);
   }
 
@@ -805,12 +803,12 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsACString& aNewName,
   if (newFolder) {
     // Because we just renamed the db, w/o setting the pretty name in it,
     // we need to force the pretty name to be correct.
-    // SetPrettyName won't write the name to the db if it doesn't think the
+    // SetName won't write the name to the db if it doesn't think the
     // name has changed. This hack forces the pretty name to get set in the db.
     // We could set the new pretty name on the db before renaming the .msf file,
     // but if the rename failed, it would be out of sync.
-    newFolder->SetPrettyName(EmptyCString());
-    newFolder->SetPrettyName(aNewName);
+    newFolder->SetName(EmptyCString());
+    newFolder->SetName(aNewName);
     bool changed = false;
     MatchOrChangeFilterDestination(newFolder, true /*case-insensitive*/,
                                    &changed);
@@ -859,7 +857,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
     nsCOMPtr<nsIMsgFolder> newFolder;
     AddSubfolder(folderName, getter_AddRefs(newFolder));
     if (newFolder) {
-      newFolder->SetPrettyName(folderName);
+      newFolder->SetName(folderName);
       bool changed = false;
       msgFolder->MatchOrChangeFilterDestination(
           newFolder, true /*case-insensitive*/, &changed);
@@ -868,25 +866,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
     }
   }
   return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgLocalMailFolder::GetPrettyName(nsACString& prettyName) {
-  return nsMsgDBFolder::GetPrettyName(prettyName);
-}
-
-NS_IMETHODIMP nsMsgLocalMailFolder::SetPrettyName(const nsACString& aName) {
-  nsresult rv = nsMsgDBFolder::SetPrettyName(aName);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCString folderName;
-  rv = GetStringProperty("folderName", folderName);
-  return NS_FAILED(rv) || !folderName.Equals(mName)
-             ? SetStringProperty("folderName", mName)
-             : rv;
-}
-
-NS_IMETHODIMP nsMsgLocalMailFolder::GetName(nsACString& aName) {
-  ReadDBFolderInfo(false);
-  return nsMsgDBFolder::GetName(aName);
 }
 
 nsresult nsMsgLocalMailFolder::OpenDatabase() {
@@ -950,14 +929,20 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ReadFromFolderCacheElem(
   NS_ENSURE_ARG_POINTER(element);
   nsresult rv = nsMsgDBFolder::ReadFromFolderCacheElem(element);
   NS_ENSURE_SUCCESS(rv, rv);
-  return element->GetCachedString("folderName", mName);
+  if (!UsesLocalizedName()) {
+    return element->GetCachedString("folderName", mName);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::WriteToFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
   NS_ENSURE_ARG_POINTER(element);
   nsMsgDBFolder::WriteToFolderCacheElem(element);
-  return element->SetCachedString("folderName", mName);
+  if (!UsesLocalizedName()) {
+    return element->SetCachedString("folderName", mName);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::GetDeletable(bool* deletable) {
@@ -3043,7 +3028,7 @@ nsresult nsMsgLocalMailFolder::setSubfolderFlag(const nsACString& aFolderName,
 
   rv = msgFolder->SetFlag(flags);
   NS_ENSURE_SUCCESS(rv, rv);
-  return msgFolder->SetPrettyName(aFolderName);
+  return NS_OK;
 }
 
 NS_IMETHODIMP

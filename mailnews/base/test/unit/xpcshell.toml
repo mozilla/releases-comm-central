@@ -65,6 +65,10 @@ tags = ["compact"]
 
 ["test_folderLookupService.js"]
 
+["test_folderNames.js"]
+
+["test_folderNamesExisting.js"]
+
 ["test_folderStringProperties.js"]
 
 ["test_formatFileSize.js"]

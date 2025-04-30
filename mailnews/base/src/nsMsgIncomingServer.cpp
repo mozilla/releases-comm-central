@@ -589,7 +589,7 @@ nsMsgIncomingServer::SetPrettyName(const nsACString& value) {
   SetStringValue("name", value);
   nsCOMPtr<nsIMsgFolder> rootFolder;
   GetRootFolder(getter_AddRefs(rootFolder));
-  if (rootFolder) rootFolder->SetPrettyName(value);
+  if (rootFolder) rootFolder->SetName(value);
   return NS_OK;
 }
 

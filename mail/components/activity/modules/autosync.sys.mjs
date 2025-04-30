@@ -74,7 +74,7 @@ export var autosyncModule = {
       // create an activity process for this folder
       const msg = this.bundle.formatStringFromName(
         "autosyncProcessDisplayText",
-        [folder.prettyName]
+        [folder.localizedName]
       );
       const process = new nsActProcess(msg, this.autoSyncManager);
       // we want to use default auto-sync icon
@@ -176,7 +176,7 @@ export var autosyncModule = {
           "Auto_Sync OnFolderAddedIntoQ [" +
             this._inQFolderList.length +
             "] " +
-            folder.prettyName +
+            folder.localizedName +
             " of " +
             folder.server.prettyName
         );
@@ -226,7 +226,7 @@ export var autosyncModule = {
           "OnFolderRemovedFromQ [" +
             this._inQFolderList.length +
             "] " +
-            folder.prettyName +
+            folder.localizedName +
             " of " +
             folder.server.prettyName +
             "\n"
@@ -301,7 +301,7 @@ export var autosyncModule = {
             "/" +
             totalPending +
             "): " +
-            folder.prettyName +
+            folder.localizedName +
             " of " +
             folder.server.prettyName +
             "\n"
@@ -340,7 +340,7 @@ export var autosyncModule = {
             [
               syncItem.totalDownloaded,
               syncItem.pendingMsgCount,
-              folder.prettyName,
+              folder.localizedName,
               folder.server.prettyName,
             ]
           );
@@ -369,7 +369,7 @@ export var autosyncModule = {
       if (folder instanceof Ci.nsIMsgFolder) {
         this.log.info(
           "OnDownloadCompleted: " +
-            folder.prettyName +
+            folder.localizedName +
             " of " +
             folder.server.prettyName
         );
@@ -392,7 +392,7 @@ export var autosyncModule = {
     if (folder instanceof Ci.nsIMsgFolder) {
       this.log.error(
         "OnDownloadError: " +
-          folder.prettyName +
+          folder.localizedName +
           " of " +
           folder.server.prettyName +
           "\n"
@@ -407,7 +407,7 @@ export var autosyncModule = {
         "/" +
         (leftToProcess + numOfHdrsProcessed) +
         " of " +
-        folder.prettyName +
+        folder.localizedName +
         "\n"
     );
   },
@@ -415,7 +415,7 @@ export var autosyncModule = {
   onAutoSyncInitiated(folder) {
     this.log.info(
       "onAutoSyncInitiated: " +
-        folder.prettyName +
+        folder.localizedName +
         " of " +
         folder.server.prettyName +
         " has been updated.\n"

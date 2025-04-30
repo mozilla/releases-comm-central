@@ -85,7 +85,7 @@ add_setup(async () => {
   const rootFolder = gLocalAccount.incomingServer.rootFolder;
   await createSubfolder(rootFolder, "Sent");
   MailServices.accounts.setSpecialFolders();
-  gOutbox = rootFolder.getChildNamed("Outbox");
+  gOutbox = rootFolder.getChildNamed("Unsent Messages");
 
   Services.obs.addObserver(tracksentMessages, "mail:composeSendSucceeded");
 

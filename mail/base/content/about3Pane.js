@@ -1559,7 +1559,7 @@ var folderPane = {
         }
 
         const row = folderPane.getRowForFolder(folder);
-        folder.prettyName = tag.tag;
+        folder.name = tag.tag;
         if (row) {
           row.name = tag.tag;
           row.icon.style.setProperty("--icon-color", tag.color);
@@ -1627,6 +1627,7 @@ var folderPane = {
     Services.obs.addObserver(this, "search-folders-changed");
     Services.obs.addObserver(this, "folder-properties-changed");
     Services.obs.addObserver(this, "folder-needs-repair");
+    Services.obs.addObserver(this, "folder-strings-changed");
 
     folderTree.addEventListener("auxclick", this);
     folderTree.addEventListener("contextmenu", this);
@@ -1699,6 +1700,7 @@ var folderPane = {
     Services.obs.removeObserver(this, "search-folders-changed");
     Services.obs.removeObserver(this, "folder-properties-changed");
     Services.obs.removeObserver(this, "folder-needs-repair");
+    Services.obs.removeObserver(this, "folder-strings-changed");
   },
 
   handleEvent(event) {
@@ -1778,6 +1780,13 @@ var folderPane = {
         this.rebuildFolderSummary(folder);
         break;
       }
+      case "folder-strings-changed":
+        for (const row of folderTree.querySelectorAll(
+          `li[is="folder-tree-row"]:not([data-server-type])`
+        )) {
+          row.updateFolderNames();
+        }
+        break;
     }
   },
 
@@ -2744,7 +2753,7 @@ var folderPane = {
       document.body.classList.add("account-central");
       accountCentralBrowser.hidden = false;
     } else {
-      document.title = `${gFolder.name} - ${gFolder.server.prettyName}`;
+      document.title = `${gFolder.localizedName} - ${gFolder.server.prettyName}`;
       document.body.classList.remove("account-central");
       accountCentralBrowser.hidden = true;
 
@@ -3535,7 +3544,7 @@ var folderPane = {
       const promiseNewFolder = new Promise(resolve => {
         const listener = {
           folderAdded: addedFolder => {
-            if (addedFolder.name == subfolderName) {
+            if (addedFolder.localizedName == subfolderName) {
               MailServices.mfn.removeListener(listener);
               resolve(addedFolder);
             }
@@ -3662,7 +3671,7 @@ var folderPane = {
         title,
         okCallback: editFolderCallback,
         tabID,
-        name: folder.prettyName,
+        name: folder.localizedName,
         rebuildSummaryCallback: this.rebuildFolderSummary,
       }
     );
@@ -3693,7 +3702,7 @@ var folderPane = {
       {
         preselectedURI: folder.URI,
         okCallback: renameCallback,
-        name: folder.prettyName,
+        name: folder.localizedName,
       }
     );
   },
@@ -3719,7 +3728,7 @@ var folderPane = {
       : folder.deletable;
 
     if (!canDelete) {
-      throw new Error("Can't delete folder: " + folder.name);
+      throw new Error("Can't delete folder: " + folder.localizedName);
     }
 
     if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
@@ -3877,7 +3886,7 @@ var folderPane = {
       return;
     }
 
-    let name = folder.prettyName;
+    let name = folder.localizedName;
     if (aName) {
       name += "-" + aName;
     }
@@ -3940,7 +3949,7 @@ var folderPane = {
       const checkbox = { value: false };
       const title = messengerBundle.formatStringFromName(
         aCommand + "FolderTitle",
-        [aFolder.prettyName]
+        [aFolder.localizedName]
       );
       const msg = messengerBundle.GetStringFromName(aCommand + "FolderMessage");
       const ok =
@@ -4161,7 +4170,10 @@ var folderPane = {
    */
   _sortFolders: (folderA, folderB) =>
     folderA.sortOrder - folderB.sortOrder ||
-    FolderPaneUtils.nameCollator.compare(folderA.name, folderB.name),
+    FolderPaneUtils.nameCollator.compare(
+      folderA.localizedName,
+      folderB.localizedName
+    ),
 
   /**
    * Set the sort order for the new folder added to the folder group.
@@ -4194,7 +4206,10 @@ var folderPane = {
       .sort(this._sortFolders)
       .find(
         folder =>
-          FolderPaneUtils.nameCollator.compare(folder.name, newFolder.name) > 0
+          FolderPaneUtils.nameCollator.compare(
+            folder.localizedName,
+            newFolder.localizedName
+          ) > 0
       );
     if (sibling) {
       folderPane.insertFolder(newFolder, sibling, false);
@@ -4494,7 +4509,7 @@ var threadPaneHeader = {
     }
 
     this.folderName.textContent = gFolder?.abbreviatedName ?? document.title;
-    this.folderName.title = gFolder?.prettyName ?? document.title;
+    this.folderName.title = gFolder?.localizedName ?? document.title;
     this.updateMessageCount(
       gFolder?.getTotalMessages(false) || gDBView?.numMsgsInView || 0
     );
@@ -4596,6 +4611,7 @@ var threadPane = {
     Services.obs.addObserver(this, "custom-column-removed");
     Services.obs.addObserver(this, "custom-column-refreshed");
     Services.obs.addObserver(this, "global-view-flags-changed");
+    Services.obs.addObserver(this, "folder-strings-changed");
 
     threadTree = document.getElementById("threadTree");
     if (!threadTree.table) {
@@ -4737,6 +4753,7 @@ var threadPane = {
     Services.obs.removeObserver(this, "custom-column-removed");
     Services.obs.removeObserver(this, "custom-column-refreshed");
     Services.obs.removeObserver(this, "global-view-flags-changed");
+    Services.obs.removeObserver(this, "folder-strings-changed");
   },
 
   handleEvent(event) {
@@ -4810,6 +4827,7 @@ var threadPane = {
         break;
     }
   },
+
   observe(subject, topic, data) {
     switch (topic) {
       case "nsPref:changed":
@@ -4860,6 +4878,13 @@ var threadPane = {
         // and check if the currently selected folder is part of the modified
         // folders but forcing a selection is inexpensive and straightforward.
         folderTree.dispatchEvent(new CustomEvent("select"));
+        break;
+      case "folder-strings-changed":
+        threadTree.invalidate();
+        threadPaneHeader.onFolderSelected();
+        if (gFolder && !gFolder.isServer) {
+          document.title = `${gFolder.localizedName} - ${gFolder.server.prettyName}`;
+        }
         break;
     }
   },
@@ -5994,7 +6019,7 @@ var threadPane = {
       : "apply-current-columns-to-folder-message";
     const [title, message] = await document.l10n.formatValues([
       "apply-changes-to-folder-title",
-      { id: msgFluentID, args: { name: folder.name } },
+      { id: msgFluentID, args: { name: folder.localizedName } },
     ]);
     if (Services.prompt.confirm(null, title, message)) {
       this._applyColumns(folder, useChildren);
@@ -6097,7 +6122,7 @@ var threadPane = {
       : "apply-current-view-to-folder-message";
     const [title, message] = await document.l10n.formatValues([
       { id: "apply-changes-to-folder-title" },
-      { id: msgFluentID, args: { name: folder.name } },
+      { id: msgFluentID, args: { name: folder.localizedName } },
     ]);
     if (Services.prompt.confirm(null, title, message)) {
       this._applyView(folder, useChildren);

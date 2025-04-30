@@ -492,7 +492,7 @@ NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(nsACString& aSpamFolderURI) {
     return NS_OK;
   }
 
-  // see nsMsgFolder::SetPrettyName() for where the pretty name is set.
+  // see nsMsgFolder::GetLocalizedName() for where the localized name is set.
 
   // Check for an existing junk folder - this will do a case-insensitive
   // search by URI - if we find a junk folder, use its URI.

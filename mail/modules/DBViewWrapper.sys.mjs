@@ -312,7 +312,7 @@ var FolderNotificationHelper = {
 
   folderMoveCopyCompleted(aMove, aSrcFolder, aDestFolder) {
     if (aMove) {
-      const aNewFolder = aDestFolder.getChildNamed(aSrcFolder.prettyName);
+      const aNewFolder = aDestFolder.getChildNamed(aSrcFolder.name);
       this._folderMoveHelper(aSrcFolder, aNewFolder);
     }
   },

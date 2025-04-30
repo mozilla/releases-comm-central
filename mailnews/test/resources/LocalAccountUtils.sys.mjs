@@ -63,7 +63,7 @@ export var localAccountUtils = {
     this.inboxFolder.setFlag(Ci.nsMsgFolderFlags.Mail);
 
     // Force an initialization of the Inbox folder database.
-    this.inboxFolder.prettyName;
+    this.inboxFolder.name;
 
     this._localAccountInitialized = true;
   },

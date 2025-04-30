@@ -174,7 +174,7 @@ export var FeedUtils = {
 
     this.log.debug(
       "FeedUtils.createRssAccount: " +
-        account.incomingServer.rootFolder.prettyName
+        account.incomingServer.rootFolder.localizedName
     );
 
     return account;
@@ -280,7 +280,7 @@ export var FeedUtils = {
             "/" +
             allFolders.length +
             " " +
-            folder.name +
+            folder.localizedName +
             " : " +
             folder.filePath.path
         );
@@ -294,7 +294,7 @@ export var FeedUtils = {
 
         FeedUtils.log.debug(
           "downloadFeed: CONTINUE foldername:urlArray - " +
-            folder.name +
+            folder.localizedName +
             " : " +
             feedUrlArray
         );
@@ -384,7 +384,8 @@ export var FeedUtils = {
               if (done) {
                 // Finished with all feeds in base aFolder and its subfolders.
                 FeedUtils.log.debug(
-                  "downloadFeed: Finished with folder - " + aFolder.name
+                  "downloadFeed: Finished with folder - " +
+                    aFolder.localizedName
                 );
                 folder = null;
                 allFolders = null;
@@ -409,7 +410,7 @@ export var FeedUtils = {
       if (done) {
         // Nothing to do.
         FeedUtils.log.debug(
-          "downloadFeed: Nothing to do in folder - " + aFolder.name
+          "downloadFeed: Nothing to do in folder - " + aFolder.localizedName
         );
         folder = null;
         allFolders = null;
@@ -739,7 +740,7 @@ export var FeedUtils = {
     // Force a reparse.
     FeedUtils.log.debug(
       "checkMsgDb: rebuild msgDatabase for " +
-        aFolder.name +
+        aFolder.localizedName +
         " - " +
         aFolder.filePath.path
     );
@@ -1054,7 +1055,7 @@ export var FeedUtils = {
     );
 
     this.log.debug(
-      `updateSubscriptions(${aFolder.name}, ${aOrigFolder.name}, ${aAction})`
+      `updateSubscriptions(${aFolder.localizedName}, ${aOrigFolder.localizedName}, ${aAction})`
     );
 
     if (aFolder.server.type != "rss" || FeedUtils.isInTrash(aOrigFolder)) {
@@ -1774,11 +1775,11 @@ export var FeedUtils = {
       // Two or more folders deep parts here.
       folderURI += "/" + rawPathParts[i];
       msgFolder = lazy.MailUtils.getExistingFolder(folderURI);
-      pathParts.push(msgFolder.name);
+      pathParts.push(msgFolder.localizedName);
     }
 
     // Leaf folder last.
-    pathParts.push(aFolder.name);
+    pathParts.push(aFolder.localizedName);
     return pathParts.join("/");
   },
 
@@ -1872,8 +1873,8 @@ export var FeedUtils = {
      */
     downloaded(feed, aErrorCode, aDisable) {
       const folderName = feed.folder
-        ? feed.folder.name
-        : feed.server.rootFolder.prettyName;
+        ? feed.folder.localizedName
+        : feed.server.rootFolder.localizedName;
       FeedUtils.log.debug(
         "downloaded: " +
           (this.mSubscribeMode ? "Subscribe " : "Update ") +
@@ -1972,7 +1973,7 @@ export var FeedUtils = {
             // no longer busy.
             feed.folder.msgDatabase = null;
             FeedUtils.log.debug(
-              "downloaded: msgDatabase freed - " + feed.folder.name
+              "downloaded: msgDatabase freed - " + feed.folder.localizedName
             );
           }
         }

@@ -39,5 +39,5 @@ add_task(async function test_rename() {
   const folder = rootFolder.getChildNamed("folder \u00e1");
   Assert.ok(folder.msgDatabase.summaryValid);
   Assert.equal("folder &AOE-", folder.filePath.leafName);
-  Assert.equal("folder \u00e1", folder.prettyName);
+  Assert.equal("folder \u00e1", folder.name);
 });

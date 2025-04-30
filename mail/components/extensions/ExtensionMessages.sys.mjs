@@ -860,7 +860,7 @@ export function getMessagesInFolder(folder) {
   } catch (e) {
     // Some folders fail to retrieve messages, instead of returning an empty array.
     console.warn(
-      `Failed to retrieve content of folder ${folder.prettyName}: ${e}`
+      `Failed to retrieve content of folder ${folder.localizedName}: ${e}`
     );
   }
 

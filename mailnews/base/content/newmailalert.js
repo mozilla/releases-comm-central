@@ -29,7 +29,7 @@ function prefillAlertInfo() {
     .getElementById("bundle_messenger")
     .getString("newMailAlert_message");
   label.value = PluralForm.get(totalNumNewMessages, message)
-    .replace("#1", folder.server.rootFolder.prettyName)
+    .replace("#1", folder.server.rootFolder.localizedName)
     .replace("#2", totalNumNewMessages);
 
   // <folder-summary> handles rendering of new messages.

@@ -66,7 +66,7 @@ export function dump_view_contents(aViewWrapper) {
       s += "dummy: ";
     }
     s += dbView.cellTextForColumn(iViewIndex, "subject");
-    s += " [" + msgHdr.folder.prettyName + "," + msgHdr.messageKey + "]";
+    s += " [" + msgHdr.folder.localizedName + "," + msgHdr.messageKey + "]";
 
     dump(s + "\n");
   }

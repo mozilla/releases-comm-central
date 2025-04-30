@@ -480,7 +480,7 @@ export class MsgIncomingServer {
 
   set prettyName(value) {
     this.setStringValue("name", value);
-    this.rootFolder.prettyName = value;
+    this.rootFolder.name = value;
   }
 
   /**

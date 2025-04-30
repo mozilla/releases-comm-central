@@ -547,7 +547,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
 
   extension.onMessage("setAsDraft", () => {
     const trash = account.incomingServer.rootFolder.subFolders.find(
-      f => f.prettyName == "Trash"
+      f => f.localizedName == "Trash"
     );
     trash.setFlag(Ci.nsMsgFolderFlags.Drafts);
     extension.sendMessage();
@@ -636,7 +636,7 @@ add_task(
 
     extension.onMessage("setAsDraft", () => {
       const trash = account.incomingServer.rootFolder.subFolders.find(
-        f => f.prettyName == "Trash"
+        f => f.localizedName == "Trash"
       );
       trash.setFlag(Ci.nsMsgFolderFlags.Drafts);
       extension.sendMessage();

@@ -41,7 +41,8 @@ add_setup(async () => {
 
   // A local outbox is needed so we can use "send later".
   const localAccount = createAccount("local");
-  gOutbox = localAccount.incomingServer.rootFolder.getChildNamed("outbox");
+  gOutbox =
+    localAccount.incomingServer.rootFolder.getChildNamed("Unsent Messages");
 });
 
 add_task(async function testCancel() {

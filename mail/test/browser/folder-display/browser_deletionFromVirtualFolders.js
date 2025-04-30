@@ -190,7 +190,7 @@ async function _open_first_message() {
 }
 
 add_task(async function test_open_first_message_in_virtual_folder() {
-  folder = baseFolder.getChildNamed(baseFolder.prettyName + "-Important");
+  folder = baseFolder.getChildNamed(baseFolder.name + "-Important");
   Assert.ok(folder, "DeletionFromVirtualFoldersA-Important was not created!");
 
   await _open_first_message();

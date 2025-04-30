@@ -295,10 +295,7 @@ class FolderTreeRow extends HTMLLIElement {
     this.setFolderTypeFromFolder(folder);
     this.setFolderPropertiesFromFolder(folder);
     this._nameStyle = nameStyle;
-    this._serverName = folder.server.prettyName;
-    this._folderName = folder.abbreviatedName;
-    this._fullFolderName = folder.name;
-    this._setName();
+    this.updateFolderNames(folder);
     const isCollapsed = this.classList.contains("collapsed");
     this.unreadCount = folder.getNumUnread(isCollapsed);
     this.totalCount = folder.getTotalMessages(isCollapsed);
@@ -311,6 +308,25 @@ class FolderTreeRow extends HTMLLIElement {
     } else {
       this.setAttribute("draggable", "true");
     }
+  }
+
+  /**
+   * Update the various names for the folder. This will usually be called when
+   * the row is first created, but could also be called to update the UI if
+   * the app locale changes.
+   *
+   * @param {nsIMsgFolder} [folder] - The folder for this row, which can be
+   *   passed in as an optimisation. Otherwise, the folder will be found
+   *   using the folder lookup service and this row's URI.
+   */
+  updateFolderNames(folder) {
+    if (folder === undefined) {
+      folder = lazy.MailServices.folderLookup.getFolderForURL(this.uri);
+    }
+    this._serverName = folder.server.prettyName;
+    this._folderName = folder.abbreviatedName;
+    this._fullFolderName = folder.localizedName;
+    this._setName();
   }
 
   /**

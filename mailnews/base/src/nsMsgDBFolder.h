@@ -124,7 +124,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult GetMsgPreviewTextFromStream(nsIMsgDBHdr* msgHdr,
                                        nsIInputStream* stream);
   nsresult HandleAutoCompactEvent(nsIMsgWindow* aMsgWindow);
-  static int gIsEnglishApp;
 
  protected:
   virtual ~nsMsgDBFolder();
@@ -298,9 +297,12 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   bool mIsServerIsValid;
   bool mIsServer;
   nsCString mName;
-  nsCString mOriginalName;
   nsCOMPtr<nsIFile> mPath;
   nsCString mBaseMessageURI;  // The uri with the message scheme
+
+  nsString GetLocalizedNameInternal();
+  bool UsesLocalizedName();
+  nsresult GetLocalizedName(nsACString& name);  // UTF-8 convenience version
 
   // static stuff for cross-instance objects like atoms
   static nsrefcnt gInstanceCount;

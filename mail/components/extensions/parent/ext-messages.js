@@ -1217,7 +1217,7 @@ this.messages = class extends ExtensionAPIPersistent {
               }
               if (!sourceFolder.canDeleteMessages) {
                 throw new ExtensionError(
-                  `Messages in "${sourceFolder.prettyName}" cannot be deleted`
+                  `Messages in "${sourceFolder.localizedName}" cannot be deleted`
                 );
               }
               promises.push(

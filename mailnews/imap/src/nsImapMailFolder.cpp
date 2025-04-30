@@ -499,7 +499,7 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
       // use the unicode name as the "pretty" name. Set it so it won't be
       // automatically computed from the URI.
       if (!currentFolderNameStr.IsEmpty())
-        child->SetPrettyName(NS_ConvertUTF16toUTF8(currentFolderNameStr));
+        child->SetName(NS_ConvertUTF16toUTF8(currentFolderNameStr));
       child->SetMsgDatabase(nullptr);
     }
   }
@@ -605,14 +605,12 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
   GetInheritedStringProperty("applyIncomingFilters", applyIncomingFilters);
   m_applyIncomingFilters = applyIncomingFilters.EqualsLiteral("true");
 
-  nsCString folderName;
-  GetPrettyName(folderName);
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
           ("(Imap) nsImapMailFolder::UpdateFolderWithListener() on folder '%s'",
-           folderName.get()));
+           mName.get()));
   if (mFlags & nsMsgFolderFlags::Inbox || m_applyIncomingFilters) {
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-            ("(Imap) Preparing filter run on folder '%s'", folderName.get()));
+            ("(Imap) Preparing filter run on folder '%s'", mName.get()));
 
     if (!m_filterList) {
       rv = GetFilterList(aMsgWindow, getter_AddRefs(m_filterList));
@@ -1021,8 +1019,7 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
 
       nsString unicodeName;
       rv = CopyFolderNameToUTF16(folderName, unicodeName);
-      if (NS_SUCCEEDED(rv))
-        child->SetPrettyName(NS_ConvertUTF16toUTF8(unicodeName));
+      if (NS_SUCCEEDED(rv)) child->SetName(NS_ConvertUTF16toUTF8(unicodeName));
 
       // store the online name as the mailbox name in the db folder info
       // I don't think anyone uses the mailbox name, so we'll use it
@@ -1720,10 +1717,6 @@ NS_IMETHODIMP nsImapMailFolder::RenameLocal(const nsACString& newName,
     dirFile->Remove(true);  // moving folders
   }
   return rv;
-}
-
-NS_IMETHODIMP nsImapMailFolder::GetPrettyName(nsACString& prettyName) {
-  return GetName(prettyName);
 }
 
 NS_IMETHODIMP nsImapMailFolder::UpdateSummaryTotals(bool force) {
@@ -6283,10 +6276,8 @@ nsImapMailFolder::PercentProgress(nsIImapProtocol* aProtocol,
             // Use the localized (pretty) name and not the the standard imap
             // name. I.e., don't use INBOX but use the local name, e.g.,
             // "Bandeja de entrada".
-            nsAutoCString prettyName;
-            GetPrettyName(prettyName);
-            AutoTArray<nsString, 3> params = {
-                current, expected, NS_ConvertUTF8toUTF16(prettyName)};
+            AutoTArray<nsString, 3> params = {current, expected,
+                                              NS_ConvertUTF8toUTF16(mName)};
 
             nsCOMPtr<nsIStringBundle> bundle;
             nsresult rv = IMAPGetStringBundle(getter_AddRefs(bundle));
@@ -7361,7 +7352,7 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
       rv = AddSubfolder(safeFolderName, getter_AddRefs(newMsgFolder));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      newMsgFolder->SetPrettyName(folderName);
+      newMsgFolder->SetName(folderName);
 
       uint32_t flags;
       srcFolder->GetFlags(&flags);
@@ -8061,8 +8052,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
     if (!child || NS_FAILED(rv)) return rv;
     nsAutoString unicodeName;
     rv = CopyFolderNameToUTF16(newLeafName, unicodeName);
-    if (NS_SUCCEEDED(rv))
-      child->SetPrettyName(NS_ConvertUTF16toUTF8(unicodeName));
+    if (NS_SUCCEEDED(rv)) child->SetName(NS_ConvertUTF16toUTF8(unicodeName));
     imapFolder = do_QueryInterface(child);
     if (imapFolder) {
       nsAutoCString onlineName(m_onlineFolderName);

@@ -407,7 +407,6 @@ function verify(event) {
       Assert.equal(expected[1].URI, event[1].parent.URI);
 
       // Check: folder name matches
-      Assert.equal(expected[2], event[1].prettyName);
       Assert.equal(expected[2], event[1].name);
 
       // Not a check, but call the passed in callback with the new folder,
@@ -421,7 +420,7 @@ function verify(event) {
       hasExactlyElements(expected[1], event[1]);
 
       // Check: destination folder name matches
-      Assert.equal(expected[2], event[2].prettyName);
+      Assert.equal(expected[2], event[2].name);
       break;
     case MailServices.mfn.folderCompactStart:
     case MailServices.mfn.folderCompactFinish:

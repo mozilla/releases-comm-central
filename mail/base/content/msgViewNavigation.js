@@ -175,7 +175,7 @@ function CrossFolderNavigation(type, navigateFunction) {
       );
     const promptText = messengerBundle.formatStringFromName(
       "advanceNextPrompt",
-      [folder.name]
+      [folder.localizedName]
     );
     if (
       Services.prompt.confirmEx(

@@ -323,7 +323,7 @@ var FeedSubscriptions = {
 
     getCellText(aRow, aColumn) {
       const item = this.getItemAtIndex(aRow);
-      return item && aColumn.id == "folderNameCol" ? item.name : "";
+      return item && aColumn.id == "folderNameCol" ? item.localizedName : "";
     },
 
     getImageSrc(aRow) {
@@ -425,7 +425,7 @@ var FeedSubscriptions = {
         const folderItem = this.getItemAtIndex(aRow);
         FeedUtils.log.debug(
           "drop: folder, url - " +
-            folderItem.folder.name +
+            folderItem.folder.localizedName +
             ", " +
             results.dropUrl
         );
@@ -640,7 +640,7 @@ var FeedSubscriptions = {
     const folderObject = {
       children: [],
       folder: aFolder,
-      name: aFolder.prettyName,
+      name: aFolder.localizedName,
       level: aCurrentLevel,
       url: aFolder.URI,
       quickMode: defaultQuickMode,
@@ -686,7 +686,7 @@ var FeedSubscriptions = {
   folderItemSorter(aArray) {
     return aArray
       .sort(function (a, b) {
-        return a.name.toLowerCase() > b.name.toLowerCase();
+        return a.localizedName.toLowerCase() > b.localizedName.toLowerCase();
       })
       .sort(function (a, b) {
         return a.container < b.container;
@@ -839,11 +839,11 @@ var FeedSubscriptions = {
             FeedUtils.log.debug(
               "selectFolder: delete in cache, " +
                 "parent:children:item:index - " +
-                aItem.name +
+                aItem.localizedName +
                 ":" +
                 aItem.children.length +
                 ":" +
-                aItem.children[i].name +
+                aItem.children[i].localizedName +
                 ":" +
                 i
             );
@@ -851,7 +851,7 @@ var FeedSubscriptions = {
             FeedUtils.log.debug(
               "selectFolder: deleted in cache, " +
                 "parent:children - " +
-                aItem.name +
+                aItem.localizedName +
                 ":" +
                 aItem.children.length
             );
@@ -874,9 +874,9 @@ var FeedSubscriptions = {
             }
             FeedUtils.log.trace(
               "selectFolder: parentName:newFolderName:newFolderItem - " +
-                aItem.name +
+                aItem.localizedName +
                 ":" +
-                newItem.name +
+                newItem.localizedName +
                 ":" +
                 newItem.toSource()
             );
@@ -2215,7 +2215,7 @@ var FeedSubscriptions = {
       const parentFolder = aFolder.isServer ? aFolder : aFolder.parent;
       FeedUtils.log.debug(
         "folderAdded: folder:parent - " +
-          aFolder.name +
+          aFolder.localizedName +
           ":" +
           (parentFolder ? parentFolder.filePath.path : "(null)")
       );
@@ -2287,7 +2287,7 @@ var FeedSubscriptions = {
         return;
       }
 
-      FeedUtils.log.debug("folderDeleted: folder - " + aFolder.name);
+      FeedUtils.log.debug("folderDeleted: folder - " + aFolder.localizedName);
       if (!this.feedWindow) {
         return;
       }
@@ -2326,7 +2326,10 @@ var FeedSubscriptions = {
       }
 
       FeedUtils.log.debug(
-        "folderRenamed: old:new - " + aOrigFolder.name + ":" + aNewFolder.name
+        "folderRenamed: old:new - " +
+          aOrigFolder.localizedName +
+          ":" +
+          aNewFolder.localizedName
       );
       if (!this.feedWindow) {
         return;
@@ -2395,9 +2398,9 @@ var FeedSubscriptions = {
         "folderMoveCopyCompleted: move:src:dest - " +
           aMove +
           ":" +
-          aSrcFolder.name +
+          aSrcFolder.localizedName +
           ":" +
-          aDestFolder.name
+          aDestFolder.localizedName
       );
       if (!this.feedWindow) {
         return;
@@ -2476,7 +2479,7 @@ var FeedSubscriptions = {
    * @returns {Promise<?nsIFile>}
    */
   opmlPickSaveAsFile(aList = false) {
-    const accountName = this.mRSSServer.rootFolder.prettyName;
+    const accountName = this.mRSSServer.rootFolder.localizedName;
     const fileName = FeedUtils.strings.formatStringFromName(
       "subscribe-OPMLExportDefaultFileName",
       [this.brandShortName, accountName]
@@ -2589,7 +2592,7 @@ var FeedSubscriptions = {
       this.generatePPSpace(head, SPACES4);
       const titleText = FeedUtils.strings.formatStringFromName(
         "subscribe-OPMLExportFileDialogTitle",
-        [this.brandShortName, rootFolder.prettyName]
+        [this.brandShortName, rootFolder.localizedName]
       );
       const title = opmlDoc.createElement("title");
       title.appendChild(opmlDoc.createTextNode(titleText));
@@ -2664,12 +2667,12 @@ var FeedSubscriptions = {
       }
 
       FeedUtils.log.debug(
-        "generateOutlineList: CONTINUE folderName - " + folder.name
+        "generateOutlineList: CONTINUE folderName - " + folder.localizedName
       );
 
       if (folder.hasSubFolders) {
         FeedUtils.log.debug(
-          "generateOutlineList: has subfolders - " + folder.name
+          "generateOutlineList: has subfolders - " + folder.localizedName
         );
         // Recurse.
         this.generateOutlineList(folder, parent, indentLevel);
@@ -2680,7 +2683,7 @@ var FeedSubscriptions = {
       for (const feed of feeds) {
         FeedUtils.log.debug(
           "generateOutlineList: folder has FEED url - " +
-            folder.name +
+            folder.localizedName +
             " : " +
             feed.url
         );
@@ -2711,17 +2714,17 @@ var FeedSubscriptions = {
       }
 
       FeedUtils.log.debug(
-        "generateOutlineStruct: CONTINUE folderName - " + folder.name
+        "generateOutlineStruct: CONTINUE folderName - " + folder.localizedName
       );
 
       // Make a folder outline element.
       folderOutline = parent.ownerDocument.createElement("outline");
-      folderOutline.setAttribute("title", folder.prettyName);
+      folderOutline.setAttribute("title", folder.localizedName);
       this.generatePPSpace(parent, indentString(indentLevel + 2));
 
       if (folder.hasSubFolders) {
         FeedUtils.log.debug(
-          "generateOutlineStruct: has subfolders - " + folder.name
+          "generateOutlineStruct: has subfolders - " + folder.localizedName
         );
         // Recurse.
         this.generateOutlineStruct(folder, folderOutline, indentLevel + 2);
@@ -2732,7 +2735,7 @@ var FeedSubscriptions = {
         // Add feed outline elements with xmlUrls.
         FeedUtils.log.debug(
           "generateOutlineStruct: folder has FEED url - " +
-            folder.name +
+            folder.localizedName +
             " : " +
             feed.url
         );

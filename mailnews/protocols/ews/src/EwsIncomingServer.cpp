@@ -147,7 +147,7 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
   rv = newFolder->SetFlags(flags);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = newFolder->SetPrettyName(name);
+  rv = newFolder->SetName(name);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = parent->NotifyFolderAdded(newFolder);

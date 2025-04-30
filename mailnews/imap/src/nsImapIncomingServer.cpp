@@ -1086,7 +1086,7 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
         nsImapUrl::UnescapeSlashes(folderName);
       }
       if (NS_SUCCEEDED(CopyFolderNameToUTF16(folderName, unicodeName)))
-        child->SetPrettyName(NS_ConvertUTF16toUTF8(unicodeName));
+        child->SetName(NS_ConvertUTF16toUTF8(unicodeName));
     }
   }
   if (!found && child)
@@ -1580,11 +1580,6 @@ bool nsImapIncomingServer::CheckSpecialFolder(nsCString& folderUri,
     if (!existingFolder) {
       folder->SetFlag(folderFlag);
     }
-
-    nsCString folderName;
-    folder->GetPrettyName(folderName);
-    // this will set the localized name based on the folder flag.
-    folder->SetPrettyName(folderName);
   }
 
   if (existingFolder) {
@@ -1813,7 +1808,6 @@ NS_IMETHODIMP nsImapIncomingServer::FEAlertFromServer(
 
   imapUrl->GetRequiredImapState(&imapState);
   imapUrl->GetImapAction(&imapAction);
-  nsCString folderName;
 
   NS_ConvertUTF8toUTF16 unicodeMsg(message);
 
@@ -1824,9 +1818,10 @@ NS_IMETHODIMP nsImapIncomingServer::FEAlertFromServer(
   if (imapState == nsIImapUrl::nsImapSelectedState ||
       imapAction == nsIImapUrl::nsImapFolderStatus) {
     aUrl->GetFolder(getter_AddRefs(folder));
-    if (folder) folder->GetPrettyName(folderName);
+    nsAutoString folderName;
+    if (folder) folder->GetLocalizedName(folderName);
     msgName = "imapFolderCommandFailed";
-    formatStrings.AppendElement(NS_ConvertUTF8toUTF16(folderName));
+    formatStrings.AppendElement(folderName);
   } else {
     msgName = "imapServerCommandFailed";
   }

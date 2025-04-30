@@ -48,11 +48,31 @@ interface nsIMsgFolder : nsISupports {
   const nsMsgBiffState nsMsgBiffState_NoMail =  1; // No new mail is waiting.
   const nsMsgBiffState nsMsgBiffState_Unknown = 2; // We dunno whether there is new mail.
 
-  /* folder name properties */
+  /**
+   * Unique identifier for the folder loosely based on the folder's server and
+   * path in the filesystem.
+   */
   readonly attribute AUTF8String URI;
+
+  /**
+   * The folder's name. This is generally equal to .filePath.leafName but a
+   * different name can be set in the database.
+   */
   attribute AUTF8String name;
-  attribute AUTF8String prettyName;
-  readonly attribute AUTF8String abbreviatedName;
+
+  /**
+   * The folder's name as it should be used in user-facing contexts. If the
+   * folder's flags and name meet certain criteria, this string will be
+   * localized into the app's locale.
+   */
+  readonly attribute AString localizedName;
+
+  /**
+   * A (potentially) shortened version of localizedName which can be used
+   * where space is limited.
+   */
+  readonly attribute AString abbreviatedName;
+
   readonly attribute AUTF8String prettyPath;
 
 %{C++
@@ -61,12 +81,6 @@ interface nsIMsgFolder : nsISupports {
    */
   nsCString URI();
 %}
-
-  /**
-   * Set pretty name again from original name,
-   * typically used when locale changes.
-   */
-  void setPrettyNameFromOriginal();
 
   attribute nsIMsgFolder parent;
 

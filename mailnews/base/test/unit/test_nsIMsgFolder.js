@@ -34,7 +34,7 @@ function run_test() {
   var folder1 = root.getChildNamed("folder1");
 
   Assert.notEqual(folder1, folder2);
-  Assert.equal(folder1.prettyName, "folder1");
+  Assert.equal(folder1.name, "folder1");
 
   var folder2 = root.getChildNamed("FOLDER1");
 

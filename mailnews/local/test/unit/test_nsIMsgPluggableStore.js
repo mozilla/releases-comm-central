@@ -77,7 +77,6 @@ function test_discoverSubFolders() {
     `${prefix}/1ad41a64`
   );
   Assert.equal(hashedFolder.name, "test τ");
-  Assert.equal(hashedFolder.prettyName, "test τ");
   Assert.equal(hashedFolder.filePath.leafName, "1ad41a64");
   Assert.equal(hashedFolder.summaryFile.leafName, "1ad41a64.msf");
 
@@ -85,7 +84,6 @@ function test_discoverSubFolders() {
     `${prefix}/test%20%CF%80`
   );
   Assert.equal(unhashedFolder.name, "test π");
-  Assert.equal(unhashedFolder.prettyName, "test π");
   Assert.equal(unhashedFolder.filePath.leafName, "test π");
   Assert.equal(unhashedFolder.summaryFile.leafName, "test π.msf");
 }
@@ -141,8 +139,8 @@ async function test_discoverChildFolders() {
   //
   // Note: we use ' => ' instead of '/' as we're not escaping path
   // components so don't want to portray these strings as proper paths!.
-  // "Outbox" and "Trash" are automatically created.
-  const defaultFolders = ["ROOT", "ROOT => Outbox", "ROOT => Trash"];
+  // "Unsent Messages" and "Trash" are automatically created.
+  const defaultFolders = ["ROOT", "ROOT => Unsent Messages", "ROOT => Trash"];
   const testCases = [
     // No children.
     {

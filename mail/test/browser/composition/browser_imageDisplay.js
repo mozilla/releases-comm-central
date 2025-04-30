@@ -115,7 +115,7 @@ add_task(async function test_cid_image_load() {
     [
       { id: "mailContext-copyMenu" },
       { label: "Local Folders" },
-      { label: gImageFolder.prettyName },
+      { label: gImageFolder.localizedName },
     ]
   );
   await TestUtils.waitForCondition(
