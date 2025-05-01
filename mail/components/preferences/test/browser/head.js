@@ -23,7 +23,7 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
 
   prefsDocument = prefsTabMode.tabs[0].browser.contentDocument;
   const prefsWindow = prefsDocument.ownerGlobal;
-  prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
+  window.resizeTo(screen.availWidth, screen.availHeight);
 
   if (paneID) {
     await new Promise(resolve => prefsWindow.setTimeout(resolve));
@@ -60,7 +60,7 @@ async function openExistingPrefsTab(paneID, scrollPaneTo, otherArgs) {
 
   const prefsDocument = prefsTabMode.tabs[0].browser.contentDocument;
   const prefsWindow = prefsDocument.ownerGlobal;
-  prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
+  window.resizeTo(screen.availWidth, screen.availHeight);
 
   if (paneID && prefsWindow.gLastCategory.category != paneID) {
     openPreferencesTab(paneID, scrollPaneTo, otherArgs);

@@ -55,7 +55,7 @@ add_setup(async () => {
  * @param {integer} index - The index of the menupoup children to select.
  */
 async function changeMenuItem(menu, index) {
-  menu.scrollIntoView({ block: "start", behavior: "instant" });
+  menu.scrollIntoView({ block: "end", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(menu, {}, prefsWindow);
   await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "shown");
   menu.menupopup.activateItem(menu.menupopup.children[index]);
@@ -142,7 +142,7 @@ add_task(async function test_cards_table_switch() {
     "The table horizontal scroll should match the default pref"
   );
 
-  tableHorizontalScroll.scrollIntoView({ block: "start", behavior: "instant" });
+  tableHorizontalScroll.scrollIntoView({ block: "end", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(tableHorizontalScroll, {}, prefsWindow);
 
   await TestUtils.waitForCondition(
@@ -214,7 +214,7 @@ add_task(async function test_edit_flags_all_folders() {
   const defaultFlagUnthreaded = prefsDocument.getElementById(
     "defaultFlagUnthreaded"
   );
-  defaultFlagUnthreaded.scrollIntoView({ block: "start", behavior: "instant" });
+  defaultFlagUnthreaded.scrollIntoView({ block: "end", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(defaultFlagUnthreaded, {}, prefsWindow);
 
   Assert.equal(
@@ -235,20 +235,22 @@ add_task(async function test_edit_flags_all_folders() {
     "defaultSortOrderAscending"
   );
   defaultSortOrderAscending.scrollIntoView({
-    block: "start",
+    block: "end",
     behavior: "instant",
   });
+
+  const sortOrderPrefChanged = TestUtils.waitForPrefChange(
+    "mailnews.default_sort_order",
+    newValue => newValue == 1
+  );
+
   EventUtils.synthesizeMouseAtCenter(
     defaultSortOrderAscending,
     {},
     prefsWindow
   );
 
-  Assert.equal(
-    Services.prefs.getIntPref("mailnews.default_sort_order"),
-    1,
-    "The sort order pref should have been updated"
-  );
+  await sortOrderPrefChanged;
 
   info("Test that a previously accessed folder didn't change its flags");
 
@@ -282,7 +284,7 @@ add_task(async function test_edit_flags_all_folders() {
 
   const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   const applyAll = prefsDocument.getElementById("applyAll");
-  applyAll.scrollIntoView({ block: "start", behavior: "instant" });
+  applyAll.scrollIntoView({ block: "end", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(applyAll, {}, prefsWindow);
   await dialogPromise;
   await applyPromise;
@@ -320,7 +322,7 @@ add_task(async function test_edit_flags_single_folders() {
   const defaultFlagThreaded = prefsDocument.getElementById(
     "defaultFlagThreaded"
   );
-  defaultFlagThreaded.scrollIntoView({ block: "start", behavior: "instant" });
+  defaultFlagThreaded.scrollIntoView({ block: "end", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(defaultFlagThreaded, {}, prefsWindow);
   await changeMenuItem(prefsDocument.getElementById("defaultSortType"), 0);
 
@@ -328,7 +330,7 @@ add_task(async function test_edit_flags_single_folders() {
     "defaultSortOrderDescending"
   );
   defaultSortOrderDescending.scrollIntoView({
-    block: "start",
+    block: "end",
     behavior: "instant",
   });
   EventUtils.synthesizeMouseAtCenter(
@@ -342,7 +344,7 @@ add_task(async function test_edit_flags_single_folders() {
 
   let applyPromise = TestUtils.topicObserved("global-view-flags-changed");
 
-  chooseButton.scrollIntoView({ block: "start", behavior: "instant" });
+  chooseButton.scrollIntoView({ block: "end", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(chooseButton, {}, prefsWindow);
   await BrowserTestUtils.waitForPopupEvent(choosePopup, "shown");
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
@@ -377,7 +379,7 @@ add_task(async function test_edit_flags_single_folders() {
   info("Change flags and apply them to a folder and its children");
 
   const defaultFlagGrouped = prefsDocument.getElementById("defaultFlagGrouped");
-  defaultFlagGrouped.scrollIntoView({ block: "start", behavior: "instant" });
+  defaultFlagGrouped.scrollIntoView({ block: "end", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(defaultFlagGrouped, {}, prefsWindow);
   await changeMenuItem(prefsDocument.getElementById("defaultSortType"), 1);
 
@@ -385,7 +387,7 @@ add_task(async function test_edit_flags_single_folders() {
     "defaultSortOrderAscending"
   );
   defaultSortOrderAscending.scrollIntoView({
-    block: "start",
+    block: "end",
     behavior: "instant",
   });
   EventUtils.synthesizeMouseAtCenter(
@@ -396,7 +398,7 @@ add_task(async function test_edit_flags_single_folders() {
 
   applyPromise = TestUtils.topicObserved("global-view-flags-changed");
 
-  chooseButton.scrollIntoView({ block: "start", behavior: "instant" });
+  chooseButton.scrollIntoView({ block: "end", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(chooseButton, {}, prefsWindow);
   await BrowserTestUtils.waitForPopupEvent(choosePopup, "shown");
   dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
