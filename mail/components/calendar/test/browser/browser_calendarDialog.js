@@ -14,8 +14,8 @@ const { MockRegistrar } = ChromeUtils.importESModule(
 const tabmail = document.getElementById("tabmail");
 let browser;
 let dialog;
-let calendar;
 let calendarEvent;
+let calendar;
 
 /** @implements {nsIExternalProtocolService} */
 const gMockExternalProtocolService = {
@@ -449,7 +449,9 @@ add_task(async function test_dialogDate() {
   dialog.show();
   const dateRow = dialog.querySelector("calendar-dialog-date-row");
   const endDate = new Date(todayDate);
-  endDate.setDate(todayDate.getDate() + 1);
+  endDate.setDate(todayDate.getDate());
+  endDate.setMinutes(59);
+  endDate.setSeconds(59);
 
   Assert.ok(
     !dateRow.hasAttribute("repeats"),

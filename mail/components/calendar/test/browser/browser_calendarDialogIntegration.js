@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * globals createCalendar, createEvent, openEvent, cal, CalendarTestUtils
+ * globals createCalendar, createEvent, openEvent, cal, CalendarTestUtils,
  */
 
 "use strict";
@@ -24,18 +24,25 @@ add_setup(() => {
 });
 
 add_task(async function test_calendarDialogOpenAndClose() {
+  let dialog = document.querySelector('[is="calendar-dialog"]');
+
+  if (dialog) {
+    dialog.remove();
+  }
+
   let dialogs = [...document.querySelectorAll("dialog")].filter(
     _dialog => _dialog instanceof CalendarDialog
   );
-  let dialog = dialogs[0];
+  dialog = dialogs[0];
 
   Assert.equal(
     dialogs.length,
     0,
     "calendar dialog does not exist until opened"
   );
-  await createEvent({ calendar });
-  await openEvent();
+
+  createEvent({ calendar });
+  const eventBox = await openAndShowEvent();
 
   dialogs = [...document.querySelectorAll("dialog")].filter(
     _dialog => _dialog instanceof CalendarDialog
@@ -54,7 +61,7 @@ add_task(async function test_calendarDialogOpenAndClose() {
 
   Assert.ok(!dialog.open, "dialog is hidden");
 
-  await openEvent();
+  await openEvent({ eventBox });
 
   dialogs = [...document.querySelectorAll("dialog")].filter(
     _dialog => _dialog instanceof CalendarDialog
@@ -74,4 +81,6 @@ add_task(async function test_calendarDialogOpenAndClose() {
     {},
     window
   );
+
+  await calendar.deleteItem(eventBox.occurrence);
 });

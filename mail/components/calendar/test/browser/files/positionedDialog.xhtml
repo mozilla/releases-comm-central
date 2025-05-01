@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Dialog</title>
+    <script src="chrome://messenger/content/positioned-dialog.mjs" type="module"></script>
+    <style>
+      body {
+        position: relative;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      #dialog-container {
+        position: absolute;
+        width: 1000px;
+        height: 1000px;
+        background: blue;
+      }
+
+      .dialog-trigger {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+      }
+
+      dialog {
+        position: absolute;
+        padding: 0;
+        border: none;
+        margin: 0;
+        background: #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="dialog-container">
+      <button class="dialog-trigger"></button>
+    </div>
+    <dialog
+      is="positioned-dialog"
+      margin="12"
+      trigger-selector=".dialog-trigger"
+      container-id="dialog-container"
+    ></dialog>
+  </body>
+</html>

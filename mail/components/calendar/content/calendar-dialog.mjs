@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { PositionedDialog } from "./positioned-dialog.mjs";
 import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-categories.mjs"; // eslint-disable-line import/no-unassigned-import
@@ -22,6 +23,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
   openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
 });
 
+export const DEFAULT_DIALOG_MARGIN = 12;
+
 /**
  * Dialog for calendar.
  * Template ID: #calendarDialogTemplate
@@ -33,12 +36,28 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * @attribute {string} [recurrence-id] - Recurrence ID as the nativeTime
  *  representation of a CalDateTime. icalString is not appropriately portable.
  */
-export class CalendarDialog extends HTMLDialogElement {
+
+export class CalendarDialog extends PositionedDialog {
   static get observedAttributes() {
     return ["event-id", "calendar-id"];
   }
 
   #subviewManager = null;
+
+  /**
+   * The margin the dialog should maintain from the trigger and container edges
+   *
+   * @type {number}
+   */
+  margin = DEFAULT_DIALOG_MARGIN;
+
+  /**
+   * Selector for trigger element to position the dialog relative to.
+   *
+   * @type {string}
+   */
+  triggerSelector =
+    "calendar-event-box,calendar-month-day-box-item,.multiday-event-listitem";
 
   connectedCallback() {
     if (!this.hasConnected) {
@@ -47,11 +66,7 @@ export class CalendarDialog extends HTMLDialogElement {
         .getElementById("calendarDialogTemplate")
         .content.cloneNode(true);
 
-      const styles = document.createElement("link");
-      styles.rel = "stylesheet";
-      styles.href = "chrome://messenger/skin/calendar/calendarDialog.css";
-
-      this.append(template, styles);
+      this.append(template);
 
       window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
 
@@ -68,6 +83,8 @@ export class CalendarDialog extends HTMLDialogElement {
         this.#subviewManager.isDefaultSubviewVisible();
 
       this.setAttribute("is", "calendar-dialog");
+
+      this.container = document.getElementById("calendarDisplayBox");
     }
 
     document.l10n.translateFragment(this);

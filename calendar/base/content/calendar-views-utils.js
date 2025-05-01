@@ -50,10 +50,11 @@ var calendarViewController = {
    * View the given occurrence.
    *
    * @param {calIItemBase} occurrence
+   * @param {Event} event - The dblclick event which triggered the view.
    * @see calICalendarViewController
    */
-  viewOccurrence(occurrence) {
-    openEventDialogForViewing(occurrence);
+  viewOccurrence(occurrence, event) {
+    openEventDialogForViewing(occurrence, event);
   },
 
   /**

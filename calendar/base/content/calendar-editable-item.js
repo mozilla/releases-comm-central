@@ -97,7 +97,7 @@
             this.calendarView.controller.modifyOccurrence(item);
             return;
           }
-          this.calendarView.controller.viewOccurrence(item);
+          this.calendarView.controller.viewOccurrence(item, event);
         }
       });
 

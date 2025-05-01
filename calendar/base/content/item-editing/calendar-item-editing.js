@@ -363,12 +363,13 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
  * openEventDialog so invitation responses can be edited.
  *
  * @param {calIItemBase} item - The calendar item to view.
+ * @param {Event} event - The triggering event.
  */
-function openEventDialogForViewing(item) {
+function openEventDialogForViewing(item, event) {
   function onDialogComplete(newItem, calendar, originalItem, listener, extresponse) {
     doTransaction("modify", newItem, calendar, originalItem, listener, extresponse);
   }
-  openEventDialog(item, item.calendar, "view", onDialogComplete);
+  openEventDialog(item, item.calendar, "view", onDialogComplete, undefined, undefined, event);
 }
 
 /**
@@ -439,6 +440,7 @@ function modifyEventWithDialog(aItem, aPromptOccurrence, initialDate = null, aCo
  *   datepickers.
  * @param {?object} counterProposal - An object representing the
  *   counterproposal - see description for modifyEventWithDialog().
+ * @param {Event} event - The triggering event.
  */
 function openEventDialog(
   calendarItem,
@@ -446,7 +448,8 @@ function openEventDialog(
   mode,
   callback,
   initialDate = null,
-  counterProposal
+  counterProposal,
+  event
 ) {
   const dlg = cal.item.findWindow(calendarItem);
   if (dlg) {
@@ -571,7 +574,7 @@ function openEventDialog(
     const showDialog = () => {
       const dialog = document.getElementById("calendarDialog");
       dialog.setCalendarEvent(calendarItem);
-      dialog.show();
+      dialog.show(event);
     };
     if (!document.getElementById("calendarDialog")) {
       import("chrome://messenger/content/calendar-dialog.mjs").then(() => {

@@ -1,9 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-@import url("chrome://messenger/skin/widgets.css");
-@import url("chrome://messenger/skin/icons.css");
-@import url("chrome://messenger/skin/variables.css");
 
 :root {
   --calendar-dialog-row-padding-inline: 12px;
@@ -24,12 +21,12 @@
 }
 
 [is="calendar-dialog"] {
-  border: 1px solid var(--color-neutral-border);
   border-radius: 6px;
+  border: 1px solid var(--color-neutral-border);
   box-shadow: 0 2px 24px rgba(0, 0, 0, .15);
+  margin: 0;
   padding: 0;
   width: 424px;
-  height: 476px;
   z-index: 999;
 }
 

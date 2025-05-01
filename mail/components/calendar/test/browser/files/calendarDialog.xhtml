@@ -4,6 +4,19 @@
     <meta charset="utf-8" />
     <title>Calendar Dialog</title>
     <script src="chrome://messenger/content/calendar-dialog.mjs" type="module"></script>
+    <style>
+      #test-container {
+        position: relative;
+        width: 1000px;
+        height: 1000px;
+      }
+
+      #trigger {
+        width: 100px;
+        height: 100px;
+
+      }
+    </style>
   </head>
   <body>
     <template id="calendarDialogRowTemplate">
@@ -106,7 +119,9 @@
       </div>
       <div class="footer"></div>
     </template>
-
-    <dialog is="calendar-dialog"></dialog>
+    <div id="test-container">
+      <button id="trigger"></button>
+      <dialog is="calendar-dialog"></dialog>
+    </div>
   </body>
 </html>
