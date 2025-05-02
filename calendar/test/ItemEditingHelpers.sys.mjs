@@ -233,13 +233,15 @@ export async function setData(dialogWindow, iframeWindow, data) {
 
             await new Promise(resolve => recurrenceWindow.setTimeout(resolve, 500));
             await data.repeat(recurrenceWindow);
+
+            Assert.report(false, undefined, undefined, "Recurrence dialog will be closed");
+            // Close the recurrence dialog.
+            recurrenceWindow.document.querySelector("dialog").getButton("accept").click();
           },
         }
       );
-      await Promise.all([
-        menulistSelect(iframeDocument.getElementById("item-repeat"), "custom"),
-        repeatWindowPromise,
-      ]);
+      await menulistSelect(iframeDocument.getElementById("item-repeat"), "custom");
+      await repeatWindowPromise;
       Assert.report(false, undefined, undefined, "Recurrence dialog closed");
     } else {
       await menulistSelect(iframeDocument.getElementById("item-repeat"), data.repeat);
@@ -649,14 +651,28 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
  */
 export async function menulistSelect(menulist, value) {
   const win = menulist.ownerGlobal;
+  Assert.report(
+    false,
+    undefined,
+    undefined,
+    `will select value=${value} from menulist with id=${menulist.id}`
+  );
+
+  await TestUtils.waitForCondition(
+    () => Services.focus.activeWindow == win.top,
+    "must get correct active window to select from menulist in"
+  );
+
   Assert.ok(menulist, `menulist id=${menulist.id} should exist`);
   const menuitem = menulist.querySelector(`menupopup > menuitem[value='${value}']`);
   Assert.ok(menuitem, `menuitem with value=${value} should exist`);
 
-  menulist.focus();
+  Assert.ok(!menulist.disabled, `menulist id=${menulist.id} should be enabled`);
 
   synthesizeMouseAtCenter(menulist, {}, win);
   await BrowserTestUtils.waitForPopupEvent(menulist, "shown");
+
+  Assert.report(false, undefined, undefined, `menulist id=${menulist.id} shown`);
 
   synthesizeMouseAtCenter(menuitem, {}, win);
   await BrowserTestUtils.waitForPopupEvent(menulist, "hidden");

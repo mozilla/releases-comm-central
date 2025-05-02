@@ -196,6 +196,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 });
 
 async function setRecurrence(recurrenceWindow) {
+  await SimpleTest.promiseFocus(recurrenceWindow);
   const recurrenceDocument = recurrenceWindow.document;
 
   // weekly
@@ -223,14 +224,10 @@ async function setRecurrence(recurrenceWindow) {
     recurrenceWindow
   );
   Assert.ok(dayPicker.querySelector(`[label="${fri}"]`).checked, "fri checked");
-
-  const button = recurrenceDocument.querySelector("dialog").getButton("accept");
-  button.scrollIntoView({ block: "start", behavior: "instant" });
-  // Close dialog.
-  EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
 }
 
 async function changeRecurrence(recurrenceWindow) {
+  await SimpleTest.promiseFocus(recurrenceWindow);
   const recurrenceDocument = recurrenceWindow.document;
 
   // weekly
@@ -256,9 +253,4 @@ async function changeRecurrence(recurrenceWindow) {
     recurrenceWindow
   );
   Assert.ok(dayPicker.querySelector(`[label="${tue}"]`).checked, "tue checked");
-
-  const button = recurrenceDocument.querySelector("dialog").getButton("accept");
-  button.scrollIntoView({ block: "start", behavior: "instant" });
-  // Close dialog.
-  EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
 }

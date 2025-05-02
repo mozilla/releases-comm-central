@@ -5,7 +5,6 @@
 var { handleDeleteOccurrencePrompt } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/CalendarUtils.sys.mjs"
 );
-
 var { menulistSelect } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/ItemEditingHelpers.sys.mjs"
 );
@@ -92,6 +91,7 @@ add_task(async function testLastDayOfMonthRecurrence() {
 });
 
 async function setRecurrence(recurrenceWindow) {
+  await SimpleTest.promiseFocus(recurrenceWindow);
   const recurrenceDocument = recurrenceWindow.document;
   // monthly
   await menulistSelect(recurrenceDocument.getElementById("period-list"), "2");
@@ -102,11 +102,7 @@ async function setRecurrence(recurrenceWindow) {
     {},
     recurrenceWindow
   );
+  await new Promise(resolve => recurrenceWindow.setTimeout(resolve));
   await menulistSelect(recurrenceDocument.getElementById("monthly-ordinal"), "-1");
   await menulistSelect(recurrenceDocument.getElementById("monthly-weekday"), "-1");
-
-  const button = recurrenceDocument.querySelector("dialog").getButton("accept");
-  button.scrollIntoView({ block: "start", behavior: "instant" });
-  // Close dialog.
-  EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
 }

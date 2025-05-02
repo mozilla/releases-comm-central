@@ -217,7 +217,7 @@ const RecurrencePreview = {
     return selectedMinimonth;
   },
   /**
-   * Returns the next month's first day when given a year and month.
+   * @returns {Date} the next month's first day when given a year and month.
    */
   nextMonthDate(currentYear, currentMonth) {
     // If month is December, select first day of January
@@ -227,7 +227,7 @@ const RecurrencePreview = {
     return new Date(parseInt(currentYear), parseInt(currentMonth) + 1, 1);
   },
   /**
-   * Returns the previous month's first day when given a year and month.
+   * @returns {Date} the previous month's first day when given a year and month.
    */
   previousMonthDate(currentYear, currentMonth) {
     // If month is January, select first day of December.

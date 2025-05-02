@@ -5,18 +5,15 @@
 var { handleDeleteOccurrencePrompt } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/CalendarUtils.sys.mjs"
 );
-
 var { menulistSelect, saveAndCloseItemDialog, setData } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/ItemEditingHelpers.sys.mjs"
 );
-
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-
 var { dayView, weekView, multiweekView, monthView } = CalendarTestUtils;
 
 const HOUR = 8;
 
-/*
+/**
  * This test is intended to verify that events recurring on a weekly basis are
  * correctly created and displayed. The event should recur on multiple days in
  * the week, skip days, and be limited to a certain number of recurrences in
@@ -25,6 +22,7 @@ const HOUR = 8;
  */
 add_task(async function testWeeklyNRecurrence() {
   async function setRecurrence(recurrenceWindow) {
+    await SimpleTest.promiseFocus(recurrenceWindow);
     const recurrenceDocument = recurrenceWindow.document;
 
     // Select weekly recurrence
@@ -162,7 +160,7 @@ add_task(async function testWeeklyNRecurrence() {
   await monthView.waitForNoItemAt(window, 2, 6, 1);
 });
 
-/*
+/**
  * This test is intended to catch instances in which we aren't correctly setting
  * the week start value of recurrences. For example, if the user has set their
  * week to start on Saturday, then creates a recurring event running every other
@@ -184,6 +182,7 @@ add_task(async function testRecurrenceAcrossWeekStart() {
   });
 
   async function setRecurrence(recurrenceWindow) {
+    await SimpleTest.promiseFocus(recurrenceWindow);
     const recurrenceDocument = recurrenceWindow.document;
 
     // Select weekly recurrence
@@ -223,11 +222,6 @@ add_task(async function testRecurrenceAcrossWeekStart() {
       recurrenceWindow
     );
     recurrenceDocument.getElementById("repeat-ntimes-count").value = "6";
-
-    const button = recurrenceDocument.querySelector("dialog").getButton("accept");
-    button.scrollIntoView({ block: "start", behavior: "instant" });
-    // Close dialog
-    EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
   }
 
   const calendar = CalendarTestUtils.createCalendar();

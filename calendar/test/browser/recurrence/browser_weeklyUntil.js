@@ -122,6 +122,7 @@ add_task(async function testWeeklyUntilRecurrence() {
 });
 
 async function setRecurrence(recurrenceWindow) {
+  await SimpleTest.promiseFocus(recurrenceWindow);
   const recurrenceDocument = recurrenceWindow.document;
 
   // weekly
@@ -167,9 +168,4 @@ async function setRecurrence(recurrenceWindow) {
   // Move focus to ensure the date is selected.
   untilInput.focus();
   EventUtils.synthesizeKey("VK_TAB", {}, recurrenceWindow);
-
-  const button = recurrenceDocument.querySelector("dialog").getButton("accept");
-  button.scrollIntoView({ block: "start", behavior: "instant" });
-  // Close dialog.
-  EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
 }
