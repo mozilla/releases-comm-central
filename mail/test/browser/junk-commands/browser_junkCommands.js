@@ -18,34 +18,33 @@ var { delete_mail_marked_as_junk, mark_selected_messages_as_junk } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/JunkHelpers.sys.mjs"
   );
-var { GlodaMsgIndexer } = ChromeUtils.importESModule(
-  "resource:///modules/gloda/IndexMsg.sys.mjs"
-);
-var { GlodaIndexer } = ChromeUtils.importESModule(
-  "resource:///modules/gloda/GlodaIndexer.sys.mjs"
+
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 // One folder's enough
 var folder = null;
-
-async function indexMsgs() {
-  console.info("Triggering Gloda Index");
-  GlodaMsgIndexer.indexingSweepNeeded = true;
-  await TestUtils.waitForCondition(
-    () => !GlodaIndexer.indexing,
-    "waiting for Gloda to finish indexing",
-    2000
-  );
-}
+var folder2 = null;
+var folder3 = null;
 
 add_setup(async function () {
   folder = await create_folder("JunkCommandsA");
+  folder2 = await create_folder("JunkCommandsB");
+  folder2.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folder3 = await create_folder("JunkCommandsC");
+  folder3.QueryInterface(Ci.nsIMsgLocalMailFolder);
   await make_message_sets_in_folders([folder], [{ count: 30 }]);
-  registerCleanupFunction(() => folder.deleteSelf(null));
+  registerCleanupFunction(() => {
+    folder.deleteSelf(null);
+    folder2.deleteSelf(null);
+    folder3.deleteSelf(null);
+    MailServices.junk.resetTrainingData();
+  });
 });
 
 /**
- * Test deleting junk messages with no messages marked as junk.
+ * Test deleting junk messages with no messages marked as spam.
  */
 add_task(async function test_delete_no_junk_messages() {
   const initialNumMessages = folder.getTotalMessages(false);
@@ -61,14 +60,14 @@ add_task(async function test_delete_no_junk_messages() {
 });
 
 /**
- * Test deleting junk messages with some messages marked as junk.
+ * Test deleting junk messages with some messages marked as spam.
  */
 add_task(async function test_delete_junk_messages() {
   const initialNumMessages = folder.getTotalMessages(false);
   await be_in_folder(folder);
   await select_click_row(1);
 
-  // The number of messages to mark as junk and expect to be deleted.
+  // The number of messages to mark as spam and expect to be deleted.
   const NUM_MESSAGES_TO_JUNK = 8;
 
   const selectedMessages = await select_shift_click_row(NUM_MESSAGES_TO_JUNK);
@@ -77,12 +76,8 @@ add_task(async function test_delete_junk_messages() {
     NUM_MESSAGES_TO_JUNK,
     `should have selected correct number of msgs`
   );
-  // Mark these messages as junk
+  // Mark these messages as spam
   mark_selected_messages_as_junk();
-
-  // Index messages after they have been set as junk, to get around the error
-  // "Exception while attempting to mark message with gloda state afterdb commit"
-  await indexMsgs();
 
   // Now delete junk mail
   await delete_mail_marked_as_junk(NUM_MESSAGES_TO_JUNK, folder);
@@ -98,3 +93,145 @@ add_task(async function test_delete_junk_messages() {
     Assert.ok(!db.containsKey(key), `db should not contain ${key}`);
   }
 });
+
+add_task(async function test_run_junk_controls_on_folder() {
+  MailServices.junk.resetTrainingData();
+
+  const messages = {};
+  for (const name of ["ham1", "ham2", "spam1", "spam2", "spam3", "spam4"]) {
+    const path = getTestFilePath(`${name}.eml`);
+    messages[name] = folder2.addMessage(await IOUtils.readUTF8(path));
+  }
+  await be_in_folder(folder2);
+
+  await trainJunkFilter("ham1");
+  await trainJunkFilter("spam1");
+  await trainJunkFilter("spam2");
+
+  for (const [name, header] of Object.entries(messages)) {
+    Assert.equal(
+      header.getStringProperty("junkscore"),
+      "",
+      `message ${name} should have no classification`
+    );
+  }
+
+  const finished = TestUtils.topicObserved("message-classification-complete");
+  goDoCommand("cmd_runJunkControls");
+  await finished;
+  await TestUtils.waitForTick();
+
+  for (const [name, header] of Object.entries(messages)) {
+    if (name.startsWith("spam")) {
+      Assert.equal(
+        header.getStringProperty("junkscore"),
+        "100",
+        `message ${name} should be marked as spam`
+      );
+    } else {
+      Assert.equal(
+        header.getStringProperty("junkscore"),
+        "0",
+        `message ${name} should not be marked as spam`
+      );
+    }
+  }
+});
+
+add_task(async function test_run_junk_controls_on_selection() {
+  MailServices.junk.resetTrainingData();
+
+  const messages = {};
+  for (const name of ["ham1", "ham2", "spam1", "spam2", "spam3", "spam4"]) {
+    const path = getTestFilePath(`${name}.eml`);
+    messages[name] = folder3.addMessage(await IOUtils.readUTF8(path));
+  }
+  await be_in_folder(folder3);
+
+  await trainJunkFilter("ham1");
+  await trainJunkFilter("spam1");
+  await trainJunkFilter("spam2");
+
+  for (const [name, header] of Object.entries(messages)) {
+    Assert.equal(
+      header.getStringProperty("junkscore"),
+      "",
+      `message ${name} should have no classification`
+    );
+  }
+
+  const tabmail = document.getElementById("tabmail");
+  const { gDBView, threadTree } = tabmail.currentAbout3Pane;
+  threadTree.selectedIndices = [
+    gDBView.findIndexOfMsgHdr(messages.ham2, false),
+    gDBView.findIndexOfMsgHdr(messages.spam2, false),
+    gDBView.findIndexOfMsgHdr(messages.spam3, false),
+  ];
+
+  const finished = TestUtils.topicObserved("message-classification-complete");
+  goDoCommand("cmd_recalculateJunkScore");
+  await finished;
+  await TestUtils.waitForTick();
+
+  for (const [name, header] of Object.entries(messages)) {
+    const row = threadTree.getRowAtIndex(
+      gDBView.findIndexOfMsgHdr(header, false)
+    );
+    const spamButton = row.querySelector(".button-spam");
+
+    if (["spam2", "spam3"].includes(name)) {
+      Assert.equal(
+        header.getStringProperty("junkscore"),
+        "100",
+        `message ${name} should be marked as spam`
+      );
+      await BrowserTestUtils.waitForMutationCondition(
+        spamButton,
+        { attributes: true },
+        () => BrowserTestUtils.isVisible(spamButton)
+      );
+      Assert.ok(
+        BrowserTestUtils.isVisible(spamButton),
+        "spam button should be visible"
+      );
+    } else if (name == "ham2") {
+      Assert.equal(
+        header.getStringProperty("junkscore"),
+        "0",
+        `message ${name} should not be marked as spam`
+      );
+      Assert.ok(
+        BrowserTestUtils.isHidden(spamButton),
+        "spam button should be hidden"
+      );
+    } else {
+      Assert.equal(
+        header.getStringProperty("junkscore"),
+        "",
+        `message ${name} should have no classification`
+      );
+      Assert.ok(
+        BrowserTestUtils.isHidden(spamButton),
+        "spam button should be hidden"
+      );
+    }
+  }
+});
+
+async function trainJunkFilter(message) {
+  const path = getTestFilePath(`${message}.eml`);
+  const file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  file.initWithPath(path);
+  let uri = Services.io.newFileURI(file).QueryInterface(Ci.nsIURL);
+  uri = uri.mutate().setQuery("type=application/x-message-display").finalize();
+
+  const deferred = Promise.withResolvers();
+  MailServices.junk.setMessageClassification(
+    uri.spec,
+    null,
+    message.startsWith("ham") ? MailServices.junk.GOOD : MailServices.junk.JUNK,
+    null,
+    { onMessageClassified: deferred.resolve }
+  );
+  return deferred.promise;
+}

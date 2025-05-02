@@ -263,6 +263,8 @@ MessageClassifier.prototype = {
         this.mJunkMsgHdrs,
         this.mGoodMsgHdrs
       );
+      // This notification only exists for tests.
+      Services.obs.notifyObservers(null, "message-classification-complete");
       setTimeout(() => {
         top.window.MsgStatusFeedback.showStatusString("");
       }, 500);

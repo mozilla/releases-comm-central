@@ -3,10 +3,19 @@ prefs = [
   "mail.provider.suppress_dialog_on_startup=true",
   "mail.spotlight.firstRunDone=true",
   "mail.winsearch.firstRunDone=true",
+  "mailnews.database.global.indexer.enabled=false",
   "mailnews.start_page.override_url=about:blank",
   "mailnews.start_page.url=about:blank",
-  "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
 ]
 subsuite = "thunderbird"
+support-files = [
+  "../../../../mailnews/extensions/bayesian-spam-filter/test/unit/resources/ham1.eml",
+  "../../../../mailnews/extensions/bayesian-spam-filter/test/unit/resources/ham2.eml",
+  "../../../../mailnews/extensions/bayesian-spam-filter/test/unit/resources/spam1.eml",
+  "../../../../mailnews/extensions/bayesian-spam-filter/test/unit/resources/spam2.eml",
+  "../../../../mailnews/extensions/bayesian-spam-filter/test/unit/resources/spam3.eml",
+  "../../../../mailnews/extensions/bayesian-spam-filter/test/unit/resources/spam4.eml",
+]
+tags = ["spam"]
 
 ["browser_junkCommands.js"]
