@@ -775,7 +775,7 @@ class BatchCompactor {
   static void RetryTimerCallback(nsITimer* timer, void* closure);
 
   // Delay between attempts.
-  static constexpr uint32_t kRetryDelayMs = 3000;
+  static constexpr uint32_t kRetryDelayMs = 5000;
   // Maximum number of attempts.
   static constexpr int kMaxAttempts = 5;
   // The folders queued for compaction.
@@ -905,7 +905,8 @@ void BatchCompactor::StartNext() {
                 ("BatchCompactor: too many attempts. Bailing out."));
         for (nsIMsgFolder* f : mRetry) {
           mFailed.AppendElement(f);
-          mFailedCodes.AppendElement(NS_ERROR_UNEXPECTED);
+          // Retries are currently always due to pending offline/pseudo ops.
+          mFailedCodes.AppendElement(NS_MSG_ERROR_BLOCKED_COMPACTION);
         }
         mRetry.Clear();
         continue;
@@ -1016,6 +1017,8 @@ void BatchCompactor::StartNext() {
           // scan the mbox, then local folder repair won't be able to either.
           folder->ThrowAlertMsg("compactFolderStorageCorruption", mWindow);
         }
+      } else if (status == NS_MSG_ERROR_BLOCKED_COMPACTION) {
+        // Do nothing and trust the offline/pseudo ops are clear next time.
       } else {
         // Show a catch-all error message.
         folder->ThrowAlertMsg("compactFolderWriteFailed", mWindow);

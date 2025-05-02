@@ -174,6 +174,9 @@ class nsIMsgFolder;
 // Mbox message doesn't start with "From " separator line.
 #define NS_MSG_ERROR_MBOX_MALFORMED NS_MSG_GENERATE_FAILURE(36)
 
+// Folder compaction could not proceed because of pending offline/pseudo ops.
+#define NS_MSG_ERROR_BLOCKED_COMPACTION NS_MSG_GENERATE_FAILURE(37)
+
 /* Error codes for message compose are defined in
    compose\src\nsMsgComposeStringBundle.h. Message compose use the same error
    code space as other mailnews modules. To avoid any conflict, values between
