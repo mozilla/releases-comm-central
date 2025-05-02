@@ -394,7 +394,7 @@ async function setupPositioning() {
   // (~20k/min), the number of tests required for full coverage of possible
   // position, duration, size, scroll position, etc combinations, means we can
   // still hit the test timeout so increasing here for reliability.
-  requestLongerTimeout(6);
+  requestLongerTimeout(8);
   const style = document.createElement("style");
   style.textContent = `[is="calendar-dialog"] { height: 476px; }`;
   document.head.appendChild(style);
