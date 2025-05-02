@@ -269,8 +269,6 @@ toolbarpaletteitem[place="toolbar"] > toolbarspacer {
 
 toolbarbutton[is="toolbarbutton-menu-button"] {
   align-items: stretch;
-  appearance: auto;
-  -moz-default-appearance: dualbutton;
   flex-direction: row !important;
   padding: 0 !important;
 }
@@ -278,8 +276,6 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
 /* .......... dropmarker .......... */
 
 .toolbarbutton-menubutton-dropmarker {
-  appearance: auto;
-  -moz-default-appearance: toolbarbutton-dropdown !important;
   list-style-image: none;
 }
 
