@@ -53,6 +53,9 @@ const scrollPositions = [
 ];
 let count = 0;
 
+todayDate.setFullYear(2025);
+todayDate.setMonth(3);
+todayDate.setDate(6);
 todayDate.setHours(0);
 todayDate.setMinutes(0);
 todayDate.setSeconds(0);
@@ -115,7 +118,7 @@ async function createEvent({
   start.setDate(todayDate.getDate() + offset);
   start.setHours(hour);
   start = cal.dtz.jsDateToDateTime(start, 0);
-  let end = new Date();
+  let end = new Date(todayDate);
   const days = Math.trunc(duration / 24);
   end.setHours(hour + (duration % 24) - 1);
   end.setMinutes(59);
@@ -367,16 +370,15 @@ async function resizeWindow({ x = originalWidth, y = originalHeight }) {
  * @param {object} options.size - The window size object used for the test.
  */
 async function positionTest({ calendar, duration = 1, offset, hour, size }) {
-  const day = offset - todayDate.getDay();
-  await createEvent({ calendar, offset: day, hour, duration });
+  await createEvent({ calendar, offset, hour, duration });
   let eventBox;
 
   for (const position of scrollPositions) {
-    eventBox = await openAndShowEvent({ ...position, offset: day });
+    eventBox = await openAndShowEvent({ ...position, offset });
 
     checkTollerance(
       eventBox,
-      `Duration: ${duration} - Offset: ${day} - Hour: ${hour} - Window ${size.name} - Position ${JSON.stringify(position)}`
+      `Duration: ${duration} - Offset: ${offset} - Hour: ${hour} - Window ${size.name} - Position ${JSON.stringify(position)}`
     );
   }
 
