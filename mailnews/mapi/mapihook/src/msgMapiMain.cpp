@@ -183,7 +183,6 @@ HRESULT nsMAPIConfiguration::GetMAPIErrorFromNSError(nsresult res) {
 
   // if failure return the related MAPI failure code
   switch (res) {
-    case NS_MSG_COULDNT_OPEN_FCC_FOLDER:
     case NS_ERROR_FILE_INVALID_PATH:
       hr = MAPI_E_ATTACHMENT_OPEN_FAILURE;
       break;

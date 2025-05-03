@@ -172,7 +172,7 @@ nsMsgCopy::StartCopyOperation(nsIMsgIdentity* aUserIdentity, nsIFile* aFile,
     // Mark send messages as read.
     isDraft = false;
     msgFlags = nsMsgMessageFlags::Read;
-    if (!dstFolder || NS_FAILED(rv)) return NS_MSG_COULDNT_OPEN_FCC_FOLDER;
+    if (!dstFolder || NS_FAILED(rv)) return NS_ERROR_FAILURE;
   }
 
   nsCOMPtr<nsIMsgWindow> msgWindow;

@@ -34,7 +34,6 @@ export var MsgUtils = {
   /**
    * Error codes defined in nsComposeStrings.h
    */
-  NS_MSG_COULDNT_OPEN_FCC_FOLDER: generateNSError(12506),
   NS_MSG_UNABLE_TO_SEND_LATER: generateNSError(12525),
   NS_ERROR_BUT_DONT_SHOW_ALERT: generateNSError(12527),
 
@@ -812,7 +811,6 @@ export var MsgUtils = {
    */
   getErrorStringName(exitCode) {
     const codeNameMap = {
-      [this.NS_MSG_COULDNT_OPEN_FCC_FOLDER]: "couldntOpenFccFolder",
       [this.NS_MSG_UNABLE_TO_SEND_LATER]: "unableToSendLater",
       [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
       [Cr.NS_ERROR_FILE_NOT_FOUND]: "errorAttachingFile",
