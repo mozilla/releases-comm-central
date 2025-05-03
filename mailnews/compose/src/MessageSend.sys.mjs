@@ -642,7 +642,6 @@ export class MessageSend {
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_GSSAPI,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED,
-          lazy.MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT,
         ].includes(exitCode)
       ) {

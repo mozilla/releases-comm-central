@@ -797,7 +797,7 @@ export class SmtpClient {
             Ci.nsMsgSocketType.alwaysSTARTTLS,
             Ci.nsMsgSocketType.SSL,
           ].includes(this._server.socketType)
-            ? MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL
+            ? "smtpHintAuthEncryptToPlainSsl"
             : "smtpHintAuthEncryptToPlainNoSsl";
         } else if (
           this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext &&
