@@ -547,7 +547,6 @@ export class SmtpClient {
       const errorName = MsgUtils.getErrorStringName(nsError);
       if (
         [
-          MsgUtils.NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED,
           MsgUtils.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2,
           MsgUtils.NS_ERROR_SENDING_FROM_COMMAND,
           MsgUtils.NS_ERROR_SENDING_DATA_COMMAND,
@@ -1214,7 +1213,7 @@ export class SmtpClient {
       }
       if (command.statusCode == 452 || command.statusCode == 451) {
         // @see https://datatracker.ietf.org/doc/html/rfc5321#section-4.5.3.1.10
-        errorCode = MsgUtils.NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED;
+        errorCode = "smtpTooManyRecipients";
       }
       this._onNsError(errorCode, command.data, null, command.statusCode);
       return;
