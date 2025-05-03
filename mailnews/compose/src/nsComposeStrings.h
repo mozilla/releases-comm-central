@@ -13,7 +13,6 @@
 
 #include "msgCore.h"
 
-#define NS_MSG_UNABLE_TO_SEND_LATER                 NS_MSG_GENERATE_FAILURE(12525)
 #define NS_ERROR_BUT_DONT_SHOW_ALERT                NS_MSG_GENERATE_FAILURE(12527)
 
 const char* errorStringNameForErrorCode(nsresult aCode);

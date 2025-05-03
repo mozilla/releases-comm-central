@@ -148,7 +148,7 @@ nsMsgCopy::StartCopyOperation(nsIMsgIdentity* aUserIdentity, nsIFile* aFile,
     // Do not mark outgoing messages as read.
     msgFlags = 0;
     if (!dstFolder || NS_FAILED(rv)) {
-      return NS_MSG_UNABLE_TO_SEND_LATER;
+      return NS_ERROR_FAILURE;
     }
   } else if (aMode == nsIMsgSend::nsMsgSaveAsDraft)  // SaveAsDraft (Drafts)
   {

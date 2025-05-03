@@ -11,8 +11,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
 #  pragma GCC diagnostic ignored "-Wswitch"
 #endif
   switch (aCode) {
-    case NS_MSG_UNABLE_TO_SEND_LATER:
-      return "unableToSendLater";
     case NS_ERROR_BUT_DONT_SHOW_ALERT:
       return "dontShowAlert";
     default:
