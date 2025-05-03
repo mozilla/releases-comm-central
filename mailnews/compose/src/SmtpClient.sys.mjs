@@ -547,7 +547,6 @@ export class SmtpClient {
       const errorName = MsgUtils.getErrorStringName(nsError);
       if (
         [
-          MsgUtils.NS_ERROR_SENDING_FROM_COMMAND,
           MsgUtils.NS_ERROR_SENDING_DATA_COMMAND,
           MsgUtils.NS_ERROR_SENDING_MESSAGE,
         ].includes(nsError)
@@ -1204,17 +1203,17 @@ export class SmtpClient {
    */
   _actionMAIL(command) {
     if (!command.success) {
-      let errorCode = MsgUtils.NS_ERROR_SENDING_FROM_COMMAND; // default code
+      let error = "errorSendingFromCommand"; // default error message
       if (command.statusCode == 552) {
         // Too much mail data indicated by "size" parameter of MAIL FROM.
         // @see https://datatracker.ietf.org/doc/html/rfc5321#section-4.5.3.1.9
-        errorCode = "smtpPermSizeExceeded2";
+        error = "smtpPermSizeExceeded2";
       }
       if (command.statusCode == 452 || command.statusCode == 451) {
         // @see https://datatracker.ietf.org/doc/html/rfc5321#section-4.5.3.1.10
-        errorCode = "smtpTooManyRecipients";
+        error = "smtpTooManyRecipients";
       }
-      this._onNsError(errorCode, command.data, null, command.statusCode);
+      this._onNsError(error, command.data, null, command.statusCode);
       return;
     }
     this.logger.debug(
