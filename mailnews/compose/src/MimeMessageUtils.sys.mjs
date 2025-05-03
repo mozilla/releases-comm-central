@@ -44,7 +44,6 @@ export var MsgUtils = {
 
   NS_MSG_ERROR_ATTACHING_FILE: generateNSError(12570),
 
-  NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT: generateNSError(12596),
   NS_ERROR_SMTP_AUTH_FAILURE: generateNSError(12597),
   NS_ERROR_SMTP_AUTH_GSSAPI: generateNSError(12598),
   NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED: generateNSError(12599),
@@ -838,8 +837,6 @@ export var MsgUtils = {
       [Cr.NS_ERROR_NET_INTERRUPT]: "smtpSendInterrupted",
       [Cr.NS_ERROR_NET_TIMEOUT]: "smtpSendTimeout",
       [Cr.NS_ERROR_NET_RESET]: "smtpSendTimeout",
-      [this.NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT]:
-        "smtpHintAuthPlainToEncrypt",
       [this.NS_ERROR_SMTP_AUTH_FAILURE]: "smtpAuthFailure",
       [this.NS_ERROR_SMTP_AUTH_GSSAPI]: "smtpAuthGssapi",
       [this.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED]: "smtpAuthMechNotSupported",

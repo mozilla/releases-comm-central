@@ -805,7 +805,7 @@ export class SmtpClient {
         ) {
           // Pref has plaintext password, server claims to support encrypted
           // password.
-          err = MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT;
+          err = "smtpHintAuthPlainToEncrypt";
         } else {
           err = MsgUtils.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED;
         }
