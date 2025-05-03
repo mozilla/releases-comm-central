@@ -39,7 +39,6 @@ export var MsgUtils = {
   NS_ERROR_SENDING_FROM_COMMAND: generateNSError(12514),
   NS_ERROR_SENDING_DATA_COMMAND: generateNSError(12516),
   NS_ERROR_SENDING_MESSAGE: generateNSError(12517),
-  NS_ERROR_POST_FAILED: generateNSError(12518),
   NS_MSG_UNABLE_TO_SEND_LATER: generateNSError(12525),
   NS_ERROR_BUT_DONT_SHOW_ALERT: generateNSError(12527),
 
@@ -66,19 +65,6 @@ export var MsgUtils = {
     maxLogLevel: "Warn",
     maxLogLevelPref: "mailnews.smtp.loglevel",
   }),
-
-  /**
-   * NS_IS_MSG_ERROR in msgCore.h.
-   *
-   * @param {nsresult} err - The nsresult value.
-   * @returns {boolean}
-   */
-  isMsgError(err) {
-    return (
-      (((err >> 16) - NS_ERROR_MODULE_BASE_OFFSET) & 0x1fff) ==
-      NS_ERROR_MODULE_MAILNEWS
-    );
-  },
 
   /**
    * Convert html to text to form a multipart/alternative message. The output
@@ -847,7 +833,6 @@ export var MsgUtils = {
       [this.NS_ERROR_SENDING_FROM_COMMAND]: "errorSendingFromCommand",
       [this.NS_ERROR_SENDING_DATA_COMMAND]: "errorSendingDataCommand",
       [this.NS_ERROR_SENDING_MESSAGE]: "errorSendingMessage",
-      [this.NS_ERROR_POST_FAILED]: "postFailed",
       [this.NS_MSG_UNABLE_TO_SEND_LATER]: "unableToSendLater",
       [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
       [this.NS_MSG_ERROR_ATTACHING_FILE]: "errorAttachingFile",

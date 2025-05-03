@@ -736,10 +736,10 @@ export class MessageSend {
     if (isNewsDelivery) {
       if (
         !Components.isSuccessCode(exitCode) &&
-        exitCode != Cr.NS_ERROR_ABORT &&
-        !lazy.MsgUtils.isMsgError(exitCode)
+        exitCode != Cr.NS_ERROR_ABORT
       ) {
-        exitCode = lazy.MsgUtils.NS_ERROR_POST_FAILED;
+        exitCode = Cr.NS_ERROR_FAILURE;
+        errMsg = this._composeBundle.GetStringFromName("postFailed");
       }
       return this._deliveryExitProcessing(
         serverURI,
