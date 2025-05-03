@@ -1110,15 +1110,15 @@ nsresult nsMsgSendLater::DeliverQueuedLine(const char* line, int32_t length) {
 
       nsresult rv = MsgNewBufferedFileOutputStream(getter_AddRefs(mOutFile),
                                                    mTempFile, -1, 00600);
-      if (NS_FAILED(rv)) return NS_MSG_ERROR_WRITING_FILE;
+      NS_ENSURE_SUCCESS(rv, rv);
 
       nsresult status = BuildHeaders();
       if (NS_FAILED(status)) return status;
 
       uint32_t n;
       rv = mOutFile->Write(m_headers, m_headersFP, &n);
-      if (NS_FAILED(rv) || n != (uint32_t)m_headersFP)
-        return NS_MSG_ERROR_WRITING_FILE;
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (n != (uint32_t)m_headersFP) return NS_ERROR_FAILURE;
     } else {
       // Otherwise, this line belongs to a header.  So append it to the
       // header data.
@@ -1142,8 +1142,8 @@ nsresult nsMsgSendLater::DeliverQueuedLine(const char* line, int32_t length) {
     if (mOutFile) {
       uint32_t wrote;
       nsresult rv = mOutFile->Write(line, length, &wrote);
-      if (NS_FAILED(rv) || wrote < (uint32_t)length)
-        return NS_MSG_ERROR_WRITING_FILE;
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (wrote < (uint32_t)length) return NS_ERROR_FAILURE;
     }
   }
 

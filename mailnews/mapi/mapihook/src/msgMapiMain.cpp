@@ -198,7 +198,6 @@ HRESULT nsMAPIConfiguration::GetMAPIErrorFromNSError(nsresult res) {
     case NS_ERROR_FILE_NOT_FOUND:
       hr = MAPI_E_ATTACHMENT_NOT_FOUND;
       break;
-    case NS_MSG_ERROR_WRITING_FILE:
     case NS_MSG_UNABLE_TO_SAVE_DRAFT:
       hr = MAPI_E_ATTACHMENT_WRITE_FAILURE;
       break;
