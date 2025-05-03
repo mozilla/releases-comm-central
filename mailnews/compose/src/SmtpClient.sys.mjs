@@ -547,7 +547,6 @@ export class SmtpClient {
       const errorName = MsgUtils.getErrorStringName(nsError);
       if (
         [
-          MsgUtils.NS_ERROR_SENDING_DATA_COMMAND,
           MsgUtils.NS_ERROR_SENDING_MESSAGE,
         ].includes(nsError)
       ) {
@@ -1301,7 +1300,7 @@ export class SmtpClient {
     // response should be 354 but according to this issue https://github.com/eleith/emailjs/issues/24
     // some servers might use 250 instead
     if (![250, 354].includes(command.statusCode)) {
-      this._onNsError(MsgUtils.NS_ERROR_SENDING_DATA_COMMAND, command.data);
+      this._onNsError("errorSendingDataCommand", command.data);
       return;
     }
 
