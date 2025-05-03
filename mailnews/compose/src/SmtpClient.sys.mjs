@@ -261,7 +261,7 @@ export class SmtpClient {
     this._envelope.responseQueue = [];
 
     if (!this._envelope.rcptQueue.length) {
-      this._onNsError(MsgUtils.NS_MSG_NO_RECIPIENTS);
+      this._onNsError("noRecipients");
       return;
     }
 
@@ -508,12 +508,12 @@ export class SmtpClient {
   /**
    * Error handler. Emits an nsresult value.
    *
-   * @param {nsresult} nsError - A nsresult.
+   * @param {nsresult|string} error - A nsresult. Or error code for l10n.
    * @param {string} errorParam - Param to form the error message.
    * @param {string} [extra] - Some messages take two arguments to format.
    * @param {number} [statusCode] - Only needed when checking need to retry.
    */
-  _onNsError(nsError, errorParam, extra, statusCode) {
+  _onNsError(error, errorParam, extra, statusCode) {
     // First check if handling an error response that might need a retry.
     if ([this._actionMAIL, this._actionRCPT].includes(this._currentAction)) {
       if (statusCode >= 400 && statusCode < 500) {
@@ -534,32 +534,39 @@ export class SmtpClient {
       }
     }
 
-    const errorName = MsgUtils.getErrorStringName(nsError);
-    let errorMessage = "";
-    if (
-      [
-        MsgUtils.NS_ERROR_SMTP_SERVER_ERROR,
-        MsgUtils.NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED,
-        MsgUtils.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2,
-        MsgUtils.NS_ERROR_SENDING_FROM_COMMAND,
-        MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND,
-        MsgUtils.NS_ERROR_SENDING_DATA_COMMAND,
-        MsgUtils.NS_ERROR_SENDING_MESSAGE,
-        MsgUtils.NS_ERROR_ILLEGAL_LOCALPART,
-      ].includes(nsError)
-    ) {
-      const bundle = Services.strings.createBundle(
-        "chrome://messenger/locale/messengercompose/composeMsgs.properties"
-      );
-      if (nsError == MsgUtils.NS_ERROR_ILLEGAL_LOCALPART) {
-        errorMessage = bundle
-          .GetStringFromName(errorName)
-          .replace("%s", errorParam);
-      } else {
-        errorMessage = bundle.formatStringFromName(errorName, [
-          errorParam,
-          extra,
-        ]);
+    const bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messengercompose/composeMsgs.properties"
+    );
+    let nsError;
+    let errorMessage;
+    if (typeof error == "string") {
+      nsError = Cr.NS_ERROR_FAILURE;
+      errorMessage = bundle.formatStringFromName(error, [errorParam, extra]);
+    } else {
+      nsError = error;
+      const errorName = MsgUtils.getErrorStringName(nsError);
+      if (
+        [
+          MsgUtils.NS_ERROR_SMTP_SERVER_ERROR,
+          MsgUtils.NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED,
+          MsgUtils.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2,
+          MsgUtils.NS_ERROR_SENDING_FROM_COMMAND,
+          MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND,
+          MsgUtils.NS_ERROR_SENDING_DATA_COMMAND,
+          MsgUtils.NS_ERROR_SENDING_MESSAGE,
+          MsgUtils.NS_ERROR_ILLEGAL_LOCALPART,
+        ].includes(nsError)
+      ) {
+        if (nsError == MsgUtils.NS_ERROR_ILLEGAL_LOCALPART) {
+          errorMessage = bundle
+            .GetStringFromName(errorName)
+            .replace("%s", errorParam);
+        } else {
+          errorMessage = bundle.formatStringFromName(errorName, [
+            errorParam,
+            extra,
+          ]);
+        }
       }
     }
     this.onerror(nsError, errorMessage);

@@ -183,9 +183,6 @@ HRESULT nsMAPIConfiguration::GetMAPIErrorFromNSError(nsresult res) {
 
   // if failure return the related MAPI failure code
   switch (res) {
-    case NS_MSG_NO_RECIPIENTS:
-      hr = MAPI_E_BAD_RECIPTYPE;
-      break;
     case NS_ERROR_SMTP_AUTH_FAILURE:
     case NS_ERROR_SMTP_AUTH_GSSAPI:
     case NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED:

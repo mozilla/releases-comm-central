@@ -18,7 +18,6 @@ var kToValidACE = "to@xn--vlid-loa.foo.invalid";
 var kToInvalid = "b\u00F8rken.to@invalid.foo.invalid";
 var kToInvalidWithoutDomain = "b\u00F8rken.to";
 var NS_ERROR_ILLEGAL_LOCALPART = 0x80553139;
-var NS_MSG_NO_RECIPIENTS = 0x805530df;
 
 // for alertTestUtils.js
 let resolveAlert;
@@ -77,7 +76,7 @@ MsgSendListener.prototype = {
         Assert.equal(
           aStatus,
           test == kToInvalidWithoutDomain
-            ? NS_MSG_NO_RECIPIENTS
+            ? Ci.NS_ERROR_FAILURE
             : NS_ERROR_ILLEGAL_LOCALPART
         );
         do_check_transaction(server.playTransaction(), ["EHLO test"]);
