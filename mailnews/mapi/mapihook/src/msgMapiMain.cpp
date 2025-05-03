@@ -6,7 +6,6 @@
 #include <mapi.h>
 
 #include "msgCore.h"
-#include "nsComposeStrings.h"
 #include "msgMapiMain.h"
 #include "nsCOMPtr.h"
 

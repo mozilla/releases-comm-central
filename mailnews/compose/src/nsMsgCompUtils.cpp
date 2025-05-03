@@ -21,7 +21,6 @@
 #include "nsMsgUtils.h"
 #include "nsCExternalHandlerService.h"
 #include "nsIMIMEService.h"
-#include "nsComposeStrings.h"
 #include "nsIMsgCompUtils.h"
 #include "nsIMsgMdnGenerator.h"
 #include "nsServiceManagerUtils.h"

@@ -18,7 +18,6 @@
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsIHttpProtocolHandler.h"
 #include "nsIMsgOutgoingServerService.h"  // for actually sending the message...
-#include "nsComposeStrings.h"
 #include "nsIMsgOutgoingServer.h"
 #include "nsIMsgCompUtils.h"
 #include "nsIPrefService.h"
@@ -979,7 +978,7 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnSendStop(nsIURI* aServerURI,
       exitString = "smtpSendTimeout";
       break;
     default:
-      exitString = errorStringNameForErrorCode(aExitCode);
+      exitString = "sendFailed";
       break;
   }
 

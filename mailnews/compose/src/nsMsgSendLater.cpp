@@ -26,7 +26,6 @@
 #include "nsString.h"
 #include "prlog.h"
 #include "prmem.h"
-#include "nsComposeStrings.h"
 #include "nsIObserverService.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgDatabase.h"

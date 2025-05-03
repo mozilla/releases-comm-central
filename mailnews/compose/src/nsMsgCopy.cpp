@@ -26,7 +26,6 @@
 #include "nsThreadUtils.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgProgress.h"
-#include "nsComposeStrings.h"
 #include "prmem.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"

@@ -15,7 +15,6 @@
 #include "nsIPrefBranch.h"
 #include "nsIDocumentEncoder.h"  // for editor output flags
 #include "nsMsgCompUtils.h"
-#include "nsComposeStrings.h"
 #include "nsIMsgSend.h"
 #include "nsMailHeaders.h"
 #include "nsMsgPrompts.h"

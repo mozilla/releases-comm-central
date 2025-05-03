@@ -8,7 +8,6 @@
 #include "nsIMsgCompose.h"
 #include "nsMsgPrompts.h"
 #include "nsError.h"
-#include "nsComposeStrings.h"
 #include "nsIStringBundle.h"
 #include "mozilla/Components.h"
 
@@ -252,8 +251,7 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(mozIDOMWindowProxy* window,
         // Ignore, don't need to repeat ourself.
         break;
       default:
-        const char* errorString = errorStringNameForErrorCode(currError);
-        nsMsgGetMessageByName(errorString, currMessage);
+        nsMsgGetMessageByName("sendFailed", currMessage);
         break;
     }
 #ifdef __GNUC__
