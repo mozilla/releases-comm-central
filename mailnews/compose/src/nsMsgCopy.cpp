@@ -165,7 +165,7 @@ nsMsgCopy::StartCopyOperation(nsIMsgIdentity* aUserIdentity, nsIFile* aFile,
     // Mark saved templates as read.
     isDraft = false;
     msgFlags = nsMsgMessageFlags::Read;
-    if (!dstFolder || NS_FAILED(rv)) return NS_MSG_UNABLE_TO_SAVE_TEMPLATE;
+    if (!dstFolder || NS_FAILED(rv)) return NS_ERROR_FAILURE;
   } else  // SaveInSentFolder (Sent) -  nsMsgDeliverNow or nsMsgSendUnsent
   {
     rv = GetSentFolder(aUserIdentity, getter_AddRefs(dstFolder), &waitForUrl);
