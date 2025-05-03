@@ -639,7 +639,6 @@ export class MessageSend {
           Cr.NS_ERROR_NET_INTERRUPT,
           Cr.NS_ERROR_NET_TIMEOUT,
           Cr.NS_ERROR_NET_RESET,
-          lazy.MsgUtils.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED,
         ].includes(exitCode)
       ) {
         errorMsg = lazy.MsgUtils.formatStringWithSMTPHostName(

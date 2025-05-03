@@ -807,7 +807,7 @@ export class SmtpClient {
           // password.
           err = "smtpHintAuthPlainToEncrypt";
         } else {
-          err = MsgUtils.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED;
+          err = "smtpAuthMechNotSupported";
         }
         this._onNsError(err);
         return;
