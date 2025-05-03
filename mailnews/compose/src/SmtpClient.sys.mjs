@@ -551,7 +551,6 @@ export class SmtpClient {
           MsgUtils.NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED,
           MsgUtils.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2,
           MsgUtils.NS_ERROR_SENDING_FROM_COMMAND,
-          MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND,
           MsgUtils.NS_ERROR_SENDING_DATA_COMMAND,
           MsgUtils.NS_ERROR_SENDING_MESSAGE,
         ].includes(nsError)
@@ -1270,7 +1269,7 @@ export class SmtpClient {
   _actionRCPT(command) {
     if (!command.success) {
       this._onNsError(
-        MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND,
+        "errorSendingRcptCommand",
         command.data,
         this._envelope.curRecipient,
         command.statusCode
