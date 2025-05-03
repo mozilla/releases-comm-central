@@ -263,10 +263,10 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(mozIDOMWindowProxy* window,
 
   if (mDeliveryMode == nsIMsgCompDeliverMode::Now ||
       mDeliveryMode == nsIMsgCompDeliverMode::SendUnsent) {
-    // SMTP is taking care of it's own error message and will return
-    // NS_ERROR_BUT_DONT_SHOW_ALERT as error code. In that case, we must not
+    // SMTP is taking care of its own error message and will return
+    // NS_ERROR_ABORT as error code. In that case, we must not
     // show an alert ourself.
-    if (currError == NS_ERROR_BUT_DONT_SHOW_ALERT) {
+    if (currError == NS_ERROR_ABORT) {
       mAlreadyDisplayReport = true;
       return NS_OK;
     }

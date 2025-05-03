@@ -820,7 +820,7 @@ export class MessageSend {
         [messenger.formatFileSize(file.fileSize)]
       );
       if (!Services.prompt.confirm(this._parentWindow, null, msg)) {
-        this.fail(lazy.MsgUtils.NS_ERROR_BUT_DONT_SHOW_ALERT, msg);
+        this.fail(Cr.NS_ERROR_ABORT);
         throw Components.Exception(
           "Cancelled sending large message",
           Cr.NS_ERROR_FAILURE

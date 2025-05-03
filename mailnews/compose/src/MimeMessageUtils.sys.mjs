@@ -7,35 +7,10 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { MailUtils } from "resource:///modules/MailUtils.sys.mjs";
 import { jsmime } from "resource:///modules/jsmime.sys.mjs";
 
-// Defined in ErrorList.h.
-const NS_ERROR_MODULE_BASE_OFFSET = 69;
-const NS_ERROR_MODULE_MAILNEWS = 16;
-
-/**
- * Generate an NS_ERROR code from a MAILNEWS error code. See NS_ERROR_GENERATE
- * in nsError.h and NS_MSG_GENERATE_FAILURE in nsComposeStrings.h.
- *
- * @param {number} code - The error code in MAILNEWS module.
- * @returns {number}
- */
-function generateNSError(code) {
-  return (
-    ((1 << 31) |
-      ((NS_ERROR_MODULE_MAILNEWS + NS_ERROR_MODULE_BASE_OFFSET) << 16) |
-      code) >>>
-    0
-  );
-}
-
 /**
  * Collection of helper functions for message sending process.
  */
 export var MsgUtils = {
-  /**
-   * Error codes defined in nsComposeStrings.h
-   */
-  NS_ERROR_BUT_DONT_SHOW_ALERT: generateNSError(12527),
-
   sendLogger: console.createInstance({
     prefix: "mailnews.send",
     maxLogLevel: "Warn",
@@ -810,7 +785,6 @@ export var MsgUtils = {
    */
   getErrorStringName(exitCode) {
     const codeNameMap = {
-      [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
       [Cr.NS_ERROR_FILE_NOT_FOUND]: "errorAttachingFile",
       [Cr.NS_ERROR_UNKNOWN_HOST]: "smtpSendFailedUnknownServer",
       [Cr.NS_ERROR_UNKNOWN_PROXY_HOST]: "smtpSendFailedUnknownServer",

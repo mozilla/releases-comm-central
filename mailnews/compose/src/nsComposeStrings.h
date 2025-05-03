@@ -13,8 +13,6 @@
 
 #include "msgCore.h"
 
-#define NS_ERROR_BUT_DONT_SHOW_ALERT                NS_MSG_GENERATE_FAILURE(12527)
-
 const char* errorStringNameForErrorCode(nsresult aCode);
 
 #endif /* _nsComposeStrings_H__ */
