@@ -18,8 +18,6 @@
 #define NS_MSG_UNABLE_TO_SEND_LATER                 NS_MSG_GENERATE_FAILURE(12525)
 #define NS_ERROR_BUT_DONT_SHOW_ALERT                NS_MSG_GENERATE_FAILURE(12527)
 
-#define NS_MSG_ERROR_ATTACHING_FILE                 NS_MSG_GENERATE_FAILURE(12570)
-
 const char* errorStringNameForErrorCode(nsresult aCode);
 
 #endif /* _nsComposeStrings_H__ */

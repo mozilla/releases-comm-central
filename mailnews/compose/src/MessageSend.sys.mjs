@@ -148,7 +148,7 @@ export class MessageSend {
     } catch (e) {
       lazy.MsgUtils.sendLogger.error(e);
       let errorMsg = "";
-      if (e.result == lazy.MsgUtils.NS_MSG_ERROR_ATTACHING_FILE) {
+      if (e.result == Cr.NS_ERROR_FILE_NOT_FOUND) {
         errorMsg = this._composeBundle.formatStringFromName(
           "errorAttachingFile",
           [e.data.name || e.data.url]

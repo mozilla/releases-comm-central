@@ -39,8 +39,6 @@ export var MsgUtils = {
   NS_MSG_UNABLE_TO_SEND_LATER: generateNSError(12525),
   NS_ERROR_BUT_DONT_SHOW_ALERT: generateNSError(12527),
 
-  NS_MSG_ERROR_ATTACHING_FILE: generateNSError(12570),
-
   sendLogger: console.createInstance({
     prefix: "mailnews.send",
     maxLogLevel: "Warn",
@@ -819,7 +817,7 @@ export var MsgUtils = {
       [this.NS_MSG_COULDNT_OPEN_FCC_FOLDER]: "couldntOpenFccFolder",
       [this.NS_MSG_UNABLE_TO_SEND_LATER]: "unableToSendLater",
       [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
-      [this.NS_MSG_ERROR_ATTACHING_FILE]: "errorAttachingFile",
+      [Cr.NS_ERROR_FILE_NOT_FOUND]: "errorAttachingFile",
       [Cr.NS_ERROR_UNKNOWN_HOST]: "smtpSendFailedUnknownServer",
       [Cr.NS_ERROR_UNKNOWN_PROXY_HOST]: "smtpSendFailedUnknownServer",
       [Cr.NS_ERROR_CONNECTION_REFUSED]: "smtpSendRequestRefused",

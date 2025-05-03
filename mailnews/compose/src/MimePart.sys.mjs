@@ -166,7 +166,7 @@ export class MimePart {
         );
         throw Components.Exception(
           "Failed to fetch attachment",
-          MsgUtils.NS_MSG_ERROR_ATTACHING_FILE,
+          Cr.NS_ERROR_FILE_NOT_FOUND,
           e.stack,
           this._bodyAttachment
         );
