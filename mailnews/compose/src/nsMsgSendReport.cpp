@@ -250,7 +250,6 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(mozIDOMWindowProxy* window,
     switch (currError) {
       case NS_BINDING_ABORTED:
       case NS_MSG_UNABLE_TO_SEND_LATER:
-      case NS_MSG_UNABLE_TO_SAVE_DRAFT:
         // Ignore, don't need to repeat ourself.
         break;
       default:

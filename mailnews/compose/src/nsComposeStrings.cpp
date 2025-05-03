@@ -11,8 +11,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
 #  pragma GCC diagnostic ignored "-Wswitch"
 #endif
   switch (aCode) {
-    case NS_MSG_UNABLE_TO_SAVE_DRAFT:
-      return "unableToSaveDraft";
     case NS_MSG_COULDNT_OPEN_FCC_FOLDER:
       return "couldntOpenFccFolder";
     case NS_MSG_UNABLE_TO_SEND_LATER:

@@ -156,7 +156,7 @@ nsMsgCopy::StartCopyOperation(nsIMsgIdentity* aUserIdentity, nsIFile* aFile,
     isDraft = true;
     // Do not mark drafts as read.
     msgFlags = 0;
-    if (!dstFolder || NS_FAILED(rv)) return NS_MSG_UNABLE_TO_SAVE_DRAFT;
+    if (!dstFolder || NS_FAILED(rv)) return NS_ERROR_FAILURE;
   } else if (aMode ==
              nsIMsgSend::nsMsgSaveAsTemplate)  // SaveAsTemplate (Templates)
   {
