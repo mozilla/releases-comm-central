@@ -28,8 +28,7 @@ add_task(async function testAbort() {
   const listener = {
     onSendStart() {},
     onSendStop(serverUri, status) {
-      // Test sending is aborted with NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS.
-      Assert.equal(status, 0x80553126);
+      Assert.equal(status, Cr.NS_ERROR_FAILURE);
       do_test_finished();
     },
   };

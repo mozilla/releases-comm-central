@@ -918,7 +918,7 @@ export class SmtpClient {
       // EHLO is not implemented by the server.
       if (this.options.alwaysSTARTTLS) {
         // If alwaysSTARTTLS is set by the user, EHLO is required to advertise it.
-        this._onNsError(MsgUtils.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS);
+        this._onNsError("startTlsFailed", this._server.hostname);
         return;
       }
 
@@ -955,7 +955,7 @@ export class SmtpClient {
         return;
       }
       // STARTTLS is required but not advertised.
-      this._onNsError(MsgUtils.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS);
+      this._onNsError("startTlsFailed", this._server.hostname);
       return;
     }
 

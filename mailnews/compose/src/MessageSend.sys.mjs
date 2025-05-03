@@ -628,7 +628,9 @@ export class MessageSend {
       let isNSSError = false;
       const errorName = lazy.MsgUtils.getErrorStringName(exitCode);
       let errorMsg;
-      if (
+      if (exitCode == Cr.NS_ERROR_FAILURE) {
+        errorMsg = errMsg;
+      } else if (
         [
           Cr.NS_ERROR_UNKNOWN_HOST,
           Cr.NS_ERROR_UNKNOWN_PROXY_HOST,
@@ -643,7 +645,6 @@ export class MessageSend {
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL,
           lazy.MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT,
-          lazy.MsgUtils.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS,
         ].includes(exitCode)
       ) {
         errorMsg = lazy.MsgUtils.formatStringWithSMTPHostName(
