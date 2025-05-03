@@ -1133,7 +1133,7 @@ export class SmtpClient {
       return;
     }
     if (command.statusCode !== 334) {
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_GSSAPI, command.data);
+      this._onNsError("smtpAuthGssapi", command.data);
       return;
     }
     let token;
