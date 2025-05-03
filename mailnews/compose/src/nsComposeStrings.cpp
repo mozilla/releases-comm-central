@@ -53,8 +53,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "smtpAuthGssapi";
     case NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED:
       return "smtpAuthMechNotSupported";
-    case NS_ERROR_ILLEGAL_LOCALPART:
-      return "errorIllegalLocalPart2";
     default:
       return "sendFailed";
   }

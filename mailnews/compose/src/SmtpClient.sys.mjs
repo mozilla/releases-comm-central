@@ -239,7 +239,7 @@ export class SmtpClient {
         if (firstInvalid != null) {
           if (!lastAt) {
             // Invalid char found in the localpart, throw error until we implement RFC 6532.
-            this._onNsError(MsgUtils.NS_ERROR_ILLEGAL_LOCALPART, recipient);
+            this._onNsError("errorIllegalLocalPart2", recipient);
             return;
           }
           // Invalid char found in the domainpart, convert it to ACE.
@@ -554,19 +554,12 @@ export class SmtpClient {
           MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND,
           MsgUtils.NS_ERROR_SENDING_DATA_COMMAND,
           MsgUtils.NS_ERROR_SENDING_MESSAGE,
-          MsgUtils.NS_ERROR_ILLEGAL_LOCALPART,
         ].includes(nsError)
       ) {
-        if (nsError == MsgUtils.NS_ERROR_ILLEGAL_LOCALPART) {
-          errorMessage = bundle
-            .GetStringFromName(errorName)
-            .replace("%s", errorParam);
-        } else {
-          errorMessage = bundle.formatStringFromName(errorName, [
-            errorParam,
-            extra,
-          ]);
-        }
+        errorMessage = bundle.formatStringFromName(errorName, [
+          errorParam,
+          extra,
+        ]);
       }
     }
     this.onerror(nsError, errorMessage);

@@ -40,8 +40,6 @@
 #define NS_ERROR_SMTP_AUTH_GSSAPI                   NS_MSG_GENERATE_FAILURE(12598)
 #define NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED       NS_MSG_GENERATE_FAILURE(12599)
 
-#define NS_ERROR_ILLEGAL_LOCALPART                  NS_MSG_GENERATE_FAILURE(12601)
-
 const char* errorStringNameForErrorCode(nsresult aCode);
 
 #endif /* _nsComposeStrings_H__ */

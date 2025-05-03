@@ -60,8 +60,6 @@ export var MsgUtils = {
   NS_ERROR_SMTP_AUTH_GSSAPI: generateNSError(12598),
   NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED: generateNSError(12599),
 
-  NS_ERROR_ILLEGAL_LOCALPART: generateNSError(12601),
-
   sendLogger: console.createInstance({
     prefix: "mailnews.send",
     maxLogLevel: "Warn",
@@ -880,7 +878,6 @@ export var MsgUtils = {
       [this.NS_ERROR_SMTP_AUTH_FAILURE]: "smtpAuthFailure",
       [this.NS_ERROR_SMTP_AUTH_GSSAPI]: "smtpAuthGssapi",
       [this.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED]: "smtpAuthMechNotSupported",
-      [this.NS_ERROR_ILLEGAL_LOCALPART]: "errorIllegalLocalPart2",
     };
     return codeNameMap[exitCode] || "sendFailed";
   },
