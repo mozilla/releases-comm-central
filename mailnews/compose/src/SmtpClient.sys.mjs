@@ -508,7 +508,7 @@ export class SmtpClient {
   /**
    * Error handler. Emits an nsresult value.
    *
-   * @param {nsresult|string} error - A nsresult. Or error code for l10n.
+   * @param {string} error - An error code for l10n.
    * @param {string} errorParam - Param to form the error message.
    * @param {string} [extra] - Some messages take two arguments to format.
    * @param {number} [statusCode] - Only needed when checking need to retry.
@@ -537,26 +537,10 @@ export class SmtpClient {
     const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messengercompose/composeMsgs.properties"
     );
-    let nsError;
-    let errorMessage;
-    if (typeof error == "string") {
-      nsError = Cr.NS_ERROR_FAILURE;
-      errorMessage = bundle.formatStringFromName(error, [errorParam, extra]);
-    } else {
-      nsError = error;
-      const errorName = MsgUtils.getErrorStringName(nsError);
-      if (
-        [
-          MsgUtils.NS_ERROR_SENDING_MESSAGE,
-        ].includes(nsError)
-      ) {
-        errorMessage = bundle.formatStringFromName(errorName, [
-          errorParam,
-          extra,
-        ]);
-      }
-    }
-    this.onerror(nsError, errorMessage);
+    this.onerror(
+      Cr.NS_ERROR_FAILURE,
+      bundle.formatStringFromName(error, [errorParam, extra])
+    );
     this.close();
   }
 
@@ -1382,7 +1366,7 @@ export class SmtpClient {
       if (command.success) {
         this.ondone();
       } else {
-        this._onNsError(MsgUtils.NS_ERROR_SENDING_MESSAGE, command.data);
+        this._onNsError("errorSendingMessage", command.data);
       }
     }
 

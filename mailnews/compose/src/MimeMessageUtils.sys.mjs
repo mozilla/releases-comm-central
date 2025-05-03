@@ -36,7 +36,6 @@ export var MsgUtils = {
    */
   NS_MSG_UNABLE_TO_SAVE_DRAFT: generateNSError(12503),
   NS_MSG_COULDNT_OPEN_FCC_FOLDER: generateNSError(12506),
-  NS_ERROR_SENDING_MESSAGE: generateNSError(12517),
   NS_MSG_UNABLE_TO_SEND_LATER: generateNSError(12525),
   NS_ERROR_BUT_DONT_SHOW_ALERT: generateNSError(12527),
 
@@ -818,7 +817,6 @@ export var MsgUtils = {
     const codeNameMap = {
       [this.NS_MSG_UNABLE_TO_SAVE_DRAFT]: "unableToSaveDraft",
       [this.NS_MSG_COULDNT_OPEN_FCC_FOLDER]: "couldntOpenFccFolder",
-      [this.NS_ERROR_SENDING_MESSAGE]: "errorSendingMessage",
       [this.NS_MSG_UNABLE_TO_SEND_LATER]: "unableToSendLater",
       [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
       [this.NS_MSG_ERROR_ATTACHING_FILE]: "errorAttachingFile",
