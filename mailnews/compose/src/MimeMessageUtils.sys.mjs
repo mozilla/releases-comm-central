@@ -44,7 +44,6 @@ export var MsgUtils = {
 
   NS_MSG_ERROR_ATTACHING_FILE: generateNSError(12570),
 
-  NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL: generateNSError(12594),
   NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL: generateNSError(12595),
   NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT: generateNSError(12596),
   NS_ERROR_SMTP_AUTH_FAILURE: generateNSError(12597),
@@ -840,8 +839,6 @@ export var MsgUtils = {
       [Cr.NS_ERROR_NET_INTERRUPT]: "smtpSendInterrupted",
       [Cr.NS_ERROR_NET_TIMEOUT]: "smtpSendTimeout",
       [Cr.NS_ERROR_NET_RESET]: "smtpSendTimeout",
-      [this.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL]:
-        "smtpHintAuthEncryptToPlainNoSsl",
       [this.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL]:
         "smtpHintAuthEncryptToPlainSsl",
       [this.NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT]:

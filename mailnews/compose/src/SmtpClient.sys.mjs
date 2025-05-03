@@ -798,7 +798,7 @@ export class SmtpClient {
             Ci.nsMsgSocketType.SSL,
           ].includes(this._server.socketType)
             ? MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL
-            : MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL;
+            : "smtpHintAuthEncryptToPlainNoSsl";
         } else if (
           this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext &&
           this._supportedAuthMethods.includes("CRAM-MD5")
