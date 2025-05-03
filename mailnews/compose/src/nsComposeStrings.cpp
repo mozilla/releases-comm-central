@@ -27,8 +27,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "dontShowAlert";
     case NS_MSG_ERROR_ATTACHING_FILE:
       return "errorAttachingFile";
-    case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2:
-      return "smtpPermSizeExceeded2";
     case NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL:
       return "smtpHintAuthEncryptToPlainNoSsl";
     case NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL:

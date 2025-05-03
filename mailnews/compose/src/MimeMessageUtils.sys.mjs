@@ -44,8 +44,6 @@ export var MsgUtils = {
 
   NS_MSG_ERROR_ATTACHING_FILE: generateNSError(12570),
 
-  NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2: generateNSError(12588),
-
   NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL: generateNSError(12594),
   NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL: generateNSError(12595),
   NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT: generateNSError(12596),
@@ -835,7 +833,6 @@ export var MsgUtils = {
       [this.NS_MSG_UNABLE_TO_SEND_LATER]: "unableToSendLater",
       [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
       [this.NS_MSG_ERROR_ATTACHING_FILE]: "errorAttachingFile",
-      [this.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2]: "smtpPermSizeExceeded2",
       [Cr.NS_ERROR_UNKNOWN_HOST]: "smtpSendFailedUnknownServer",
       [Cr.NS_ERROR_UNKNOWN_PROXY_HOST]: "smtpSendFailedUnknownServer",
       [Cr.NS_ERROR_CONNECTION_REFUSED]: "smtpSendRequestRefused",
