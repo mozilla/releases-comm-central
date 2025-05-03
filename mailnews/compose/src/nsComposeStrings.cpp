@@ -27,8 +27,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "dontShowAlert";
     case NS_MSG_ERROR_ATTACHING_FILE:
       return "errorAttachingFile";
-    case NS_ERROR_SMTP_AUTH_FAILURE:
-      return "smtpAuthFailure";
     case NS_ERROR_SMTP_AUTH_GSSAPI:
       return "smtpAuthGssapi";
     case NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED:

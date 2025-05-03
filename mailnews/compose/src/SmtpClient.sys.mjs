@@ -819,7 +819,7 @@ export class SmtpClient {
     if (action == 1) {
       // Cancel button pressed.
       this.logger.error(`Authentication failed: ${command.data}`);
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE);
+      this._onNsError("smtpAuthFailure");
       return;
     } else if (action == 2) {
       // 'New password' button pressed. Forget cached password, new password
@@ -1046,7 +1046,7 @@ export class SmtpClient {
    */
   _actionAUTH_LOGIN_USER(command) {
     if (command.statusCode !== 334 || command.data !== "VXNlcm5hbWU6") {
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
+      this._onNsError("smtpAuthFailure", command.data);
       return;
     }
     this.logger.debug("AUTH LOGIN USER");
@@ -1066,7 +1066,7 @@ export class SmtpClient {
       command.statusCode !== 334 ||
       (command.data !== btoa("Password:") && command.data !== btoa("password:"))
     ) {
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
+      this._onNsError("smtpAuthFailure", command.data);
       return;
     }
     this.logger.debug("AUTH LOGIN PASS");
@@ -1095,7 +1095,7 @@ export class SmtpClient {
    */
   async _actionAUTH_CRAM(command) {
     if (command.statusCode !== 334) {
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
+      this._onNsError("smtpAuthFailure", command.data);
       return;
     }
     this._currentAction = this._actionAUTHComplete;
@@ -1161,7 +1161,7 @@ export class SmtpClient {
       return;
     }
     if (command.statusCode !== 334) {
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
+      this._onNsError("smtpAuthFailure", command.data);
       return;
     }
     const token = this._authenticator.getNextNtlmToken(command.data);

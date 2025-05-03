@@ -183,7 +183,6 @@ HRESULT nsMAPIConfiguration::GetMAPIErrorFromNSError(nsresult res) {
 
   // if failure return the related MAPI failure code
   switch (res) {
-    case NS_ERROR_SMTP_AUTH_FAILURE:
     case NS_ERROR_SMTP_AUTH_GSSAPI:
     case NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED:
       hr = MAPI_E_LOGIN_FAILURE;
