@@ -40,7 +40,6 @@ export var MsgUtils = {
   NS_ERROR_SENDING_DATA_COMMAND: generateNSError(12516),
   NS_ERROR_SENDING_MESSAGE: generateNSError(12517),
   NS_ERROR_POST_FAILED: generateNSError(12518),
-  NS_ERROR_SMTP_SERVER_ERROR: generateNSError(12524),
   NS_MSG_UNABLE_TO_SEND_LATER: generateNSError(12525),
   NS_ERROR_BUT_DONT_SHOW_ALERT: generateNSError(12527),
 
@@ -849,7 +848,6 @@ export var MsgUtils = {
       [this.NS_ERROR_SENDING_DATA_COMMAND]: "errorSendingDataCommand",
       [this.NS_ERROR_SENDING_MESSAGE]: "errorSendingMessage",
       [this.NS_ERROR_POST_FAILED]: "postFailed",
-      [this.NS_ERROR_SMTP_SERVER_ERROR]: "smtpServerError",
       [this.NS_MSG_UNABLE_TO_SEND_LATER]: "unableToSendLater",
       [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
       [this.NS_MSG_ERROR_ATTACHING_FILE]: "errorAttachingFile",

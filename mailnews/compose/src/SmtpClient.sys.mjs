@@ -547,7 +547,6 @@ export class SmtpClient {
       const errorName = MsgUtils.getErrorStringName(nsError);
       if (
         [
-          MsgUtils.NS_ERROR_SMTP_SERVER_ERROR,
           MsgUtils.NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED,
           MsgUtils.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2,
           MsgUtils.NS_ERROR_SENDING_FROM_COMMAND,
@@ -872,7 +871,7 @@ export class SmtpClient {
    */
   _actionGreeting(command) {
     if (command.statusCode !== 220) {
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
+      this._onNsError("smtpServerError", command.data);
       return;
     }
 
@@ -892,7 +891,7 @@ export class SmtpClient {
    */
   _actionLHLO(command) {
     if (!command.success) {
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
+      this._onNsError("smtpServerError", command.data);
       return;
     }
 
@@ -923,7 +922,7 @@ export class SmtpClient {
       return;
     } else if (!command.success) {
       // 501 Syntax error or some other error.
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
+      this._onNsError("smtpServerError", command.data);
       return;
     }
 
@@ -983,7 +982,7 @@ export class SmtpClient {
    */
   _actionSTARTTLS(command) {
     if (!command.success) {
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
+      this._onNsError("smtpServerError", command.data);
       return;
     }
 
@@ -1002,7 +1001,7 @@ export class SmtpClient {
    */
   _actionHELO(command) {
     if (!command.success) {
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
+      this._onNsError("smtpServerError", command.data);
       return;
     }
     this._authenticateUser();
@@ -1016,7 +1015,7 @@ export class SmtpClient {
    */
   _actionCLIENTID(command) {
     if (!command.success) {
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
+      this._onNsError("smtpServerError", command.data);
       return;
     }
     this._authenticateUser();
@@ -1197,7 +1196,7 @@ export class SmtpClient {
    * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionIdle(command) {
-    this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
+    this._onNsError("smtpServerError", command.data);
   }
 
   /**

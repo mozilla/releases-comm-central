@@ -23,8 +23,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "errorSendingMessage";
     case NS_ERROR_POST_FAILED:
       return "postFailed";
-    case NS_ERROR_SMTP_SERVER_ERROR:
-      return "smtpServerError";
     case NS_MSG_UNABLE_TO_SEND_LATER:
       return "unableToSendLater";
     case NS_ERROR_BUT_DONT_SHOW_ALERT:
