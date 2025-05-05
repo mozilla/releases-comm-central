@@ -16,7 +16,7 @@ var { be_in_folder, inboxFolder } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
-var { assert_tab_has_title, close_popup } = ChromeUtils.importESModule(
+var { close_popup } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
@@ -29,7 +29,11 @@ add_task(async function test_content_tab_open() {
   await be_in_folder(inboxFolder);
   const tab = await open_content_tab_with_url(whatsUrl);
 
-  assert_tab_has_title(tab, "What's New Content Test");
+  Assert.equal(
+    tab.title,
+    "What's New Content Test",
+    "tab should have correct title"
+  );
   // Check the location of the what's new image, this is via the link element
   // and therefore should be set and not favicon.png.
   // Assert.equal(tab.favIconUrl, url + "whatsnew.png", "Checking tab favicon");
@@ -127,7 +131,11 @@ add_task(async function test_content_tab_default_favicon() {
   const whatsUrl2 = url + "whatsnew1.html";
   const tab = await open_content_tab_with_url(whatsUrl2);
 
-  assert_tab_has_title(tab, "What's New Content Test 1");
+  Assert.equal(
+    tab.title,
+    "What's New Content Test 1",
+    "tab should have correct title"
+  );
   // Check the location of the favicon, this should be the site favicon in this
   // test.
   await TestUtils.waitForCondition(

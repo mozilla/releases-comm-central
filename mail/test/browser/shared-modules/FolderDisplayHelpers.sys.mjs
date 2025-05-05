@@ -566,16 +566,6 @@ export async function assert_tab_titled_from(aTab, aWhat) {
 }
 
 /**
- * Assert that the given tab's title is what is given.
- *
- * @param {TabInfo} aTab - The tab to check.
- * @param {string} aTitle - The title to check.
- */
-export function assert_tab_has_title(aTab, aTitle) {
-  Assert.equal(aTab.title, aTitle);
-}
-
-/**
  * Close a tab.  If no tab is specified, it is assumed you want to close the
  *  current tab.
  */
