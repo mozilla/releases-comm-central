@@ -199,12 +199,15 @@ export class NntpClient {
         }
       // Otherwise fallthrough to default error handling.
       default:
-        if (res.status == AUTH_FAILED) {
-          this._logger.error(
-            `Got an error id=${res.status}, the server said: ${res.statusText}`
-          );
-        } else if (res.status >= 400 && res.status < 500) {
+        if (
+          res.status != AUTH_FAILED &&
+          res.status >= 400 &&
+          res.status < 500
+        ) {
           if (this._messageId || this._articleNumber) {
+            this._logger.error(
+              `Got an error, the server said: ${res.status} ${res.statusText}`
+            );
             let uri = `about:newserror?r=${res.statusText}`;
 
             if (this._messageId) {
@@ -224,8 +227,11 @@ export class NntpClient {
             // Store the uri to display. The registered uriListener will get
             // notified when we stop running the uri, and can act on this data.
             this.runningUri.seeOtherURI = uri;
+            // Do not display an additional alert dialog.
+            this._actionDone(Cr.NS_ERROR_FAILURE);
+          } else {
+            this._actionError(res.status, res.statusText);
           }
-          this._actionError(res.status, res.statusText);
           return;
         }
     }
