@@ -236,7 +236,7 @@ export class NntpNewsGroup {
    */
   processHeadLine(line) {
     const colonIndex = line.indexOf(":");
-    const name = line.slice(0, colonIndex);
+    const name = line.slice(0, colonIndex).toLowerCase();
     const value = line.slice(colonIndex + 1).trim();
     switch (name) {
       case "from":

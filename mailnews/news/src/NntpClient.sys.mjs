@@ -15,9 +15,9 @@ const AUTH_PASSWORD_REQUIRED = 381;
 const AUTH_REQUIRED = 480;
 const AUTH_FAILED = 481;
 const SERVICE_UNAVAILABLE = 502;
-const NOT_SUPPORTED = 503;
-const XPAT_OK = 221;
+const HEADER_FOLLOWS = 221;
 const NO_SUCH_NEWSGROUP = 411;
+const NO_ARTICLE_WITH_THAT_NUMBER = 423;
 
 /**
  * A structure to represent a response received from the server. A response can
@@ -189,6 +189,13 @@ export class NntpClient {
         // Close the connection without any further error message.
         this._actionDone(Cr.NS_ERROR_FAILURE);
         return;
+      case NO_ARTICLE_WITH_THAT_NUMBER:
+        if (this._nextAction == this._actionHeadResponse) {
+          // This appears to be a response from a HEAD request. Do not regard
+          // this as an error, the article will just be skipped.
+          break;
+        }
+      // Otherwise fallthrough to default error handling.
       default:
         if (res.status == AUTH_FAILED) {
           this._logger.error(
@@ -656,6 +663,7 @@ export class NntpClient {
         count: end - start + 1,
         newsgroup: this._newsFolder.prettyName,
       });
+      this._newsGroup.addKnownArticles(start, end);
       this._startArticle = start;
       this._endArticle = end;
       this._nextAction = this._actionXOverResponse;
@@ -676,11 +684,11 @@ export class NntpClient {
   _actionXOverResponse(res) {
     if (res.status == 224) {
       this._nextAction = this._actionReadXOver;
-      this._newsGroup.addKnownArticles(this._startArticle, this._endArticle);
       this._actionReadXOver(res);
     } else {
-      // Somehow XOVER is not supported by the server, fallback to use HEAD to
-      // fetch one by one.
+      this._logger.debug(
+        "XOVER not supported by the server. Falling back to using HEAD."
+      );
       this._actionHead();
     }
   }
@@ -721,17 +729,28 @@ export class NntpClient {
   };
 
   /**
+   * A transient action to consume the status line of XHDR response.
+   *
+   * @param {NntpResponse} res - XHDR response received from the server.
+   */
+  _actionXHdrResponse(res) {
+    if (res.status == HEADER_FOLLOWS) {
+      this._nextAction = this._actionReadXHdr;
+      this._actionReadXHdr(res);
+    } else {
+      this._logger.debug(
+        "XHDR not supported by the server. Falling back to using HEAD."
+      );
+      this._actionHead();
+    }
+  }
+
+  /**
    * Handle XHDR response.
    *
    * @param {NntpResponse} res - XOVER response received from the server.
    */
-  _actionXHdrResponse({ status, data }) {
-    if (status == NOT_SUPPORTED) {
-      // Fallback to HEAD request.
-      this._actionHead();
-      return;
-    }
-
+  _actionReadXHdr({ data }) {
     this._lineReader.read(
       data,
       line => {
@@ -746,15 +765,31 @@ export class NntpClient {
    */
   _actionHead = () => {
     if (this._startArticle <= this._endArticle) {
-      this._nextAction = this._actionReadHead;
+      this._nextAction = this._actionHeadResponse;
       this._sendCommand(`HEAD ${this._startArticle}`);
-      this._newsGroup.initHdr(this._startArticle);
-      this._startArticle++;
     } else {
       this._newsGroup.finishProcessingXOver();
       this._actionDone();
     }
   };
+
+  /**
+   * A transient action to consume the status line of HEAD response.
+   *
+   * @param {NntpResponse} res - HEAD response received from the server.
+   */
+  _actionHeadResponse(res) {
+    if (res.status == HEADER_FOLLOWS) {
+      this._newsGroup.initHdr(this._startArticle);
+      this._startArticle++;
+      this._nextAction = this._actionReadHead;
+      this._actionReadHead(res);
+    } else {
+      // The article is no longer available on the server, just skip it.
+      this._startArticle++;
+      this._actionHead(res);
+    }
+  }
 
   /**
    * Handle HEAD response.
@@ -916,7 +951,7 @@ export class NntpClient {
    * @param {NntpResponse} res - XPAT response received from the server.
    */
   _actionXPatResponse({ status, statusText, data }) {
-    if (status && status != XPAT_OK) {
+    if (status && status != HEADER_FOLLOWS) {
       this._actionError(status, statusText);
       return;
     }
