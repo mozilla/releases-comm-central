@@ -14,7 +14,6 @@
 "use strict";
 
 var {
-  assert_folder_tree_focused,
   assert_message_pane_focused,
   assert_messages_in_view,
   assert_nothing_selected,
@@ -23,6 +22,7 @@ var {
   be_in_folder,
   close_tab,
   create_folder,
+  get_about_3pane,
   focus_folder_tree,
   focus_message_pane,
   focus_thread_tree,
@@ -82,7 +82,7 @@ add_task(async function test_switch_to_tab_folder_a() {
   await switch_tab(tabFolderA);
   assert_messages_in_view(setA);
   await assert_nothing_selected();
-  assert_folder_tree_focused();
+  Assert.equal(get_about_3pane().document.activeElement.id, "folderTree");
 });
 
 /**
@@ -157,7 +157,7 @@ add_task(async function test_tabs_are_still_happy() {
   await assert_selected_and_displayed(messageA);
   // focus restoration uses setTimeout(0) and so we need to give it a chance
   await new Promise(resolve => setTimeout(resolve));
-  assert_folder_tree_focused();
+  Assert.equal(get_about_3pane().document.activeElement.id, "folderTree");
 });
 
 /**
@@ -168,7 +168,7 @@ add_task(async function test_close_message_b() {
   // we should still be on folder A
   assert_messages_in_view(setA);
   await assert_selected_and_displayed(messageA);
-  assert_folder_tree_focused();
+  Assert.equal(get_about_3pane().document.activeElement.id, "folderTree");
 });
 
 /**
@@ -183,7 +183,7 @@ add_task(async function test_close_folder_b() {
   close_tab();
   assert_messages_in_view(setA);
   await assert_selected_and_displayed(messageA);
-  assert_folder_tree_focused();
+  Assert.equal(get_about_3pane().document.activeElement.id, "folderTree");
 
   Assert.report(
     false,

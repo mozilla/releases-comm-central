@@ -2012,13 +2012,6 @@ function _assert_thing_focused(aThing) {
 }
 
 /**
- * Assert that the folder tree is focused.
- */
-export function assert_folder_tree_focused() {
-  Assert.equal(get_about_3pane().document.activeElement.id, "folderTree");
-}
-
-/**
  * Assert that the thread tree is focused.
  */
 export function assert_thread_tree_focused() {
