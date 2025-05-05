@@ -25,7 +25,7 @@ async function runTestInSandbox(test, filenameFragment, sandboxArgs = []) {
   // Ensure we have enough space to display the list.
   window.resizeTo(
     Math.max(window.outerWidth, 1200),
-    Math.max(window.outerHeight, 1100)
+    Math.max(window.outerHeight, 1200)
   );
 
   // Create a new tab with our custom content.
@@ -38,7 +38,7 @@ async function runTestInSandbox(test, filenameFragment, sandboxArgs = []) {
   await BrowserTestUtils.browserLoaded(tab.browser);
   await SimpleTest.promiseFocus(tab.browser);
   await TestUtils.waitForCondition(
-    () => tab.browser.clientWidth >= 1100 && tab.browser.clientHeight >= 900,
+    () => tab.browser.clientWidth >= 1100 && tab.browser.clientHeight >= 800,
     "waiting for browser to be resized"
   );
 
