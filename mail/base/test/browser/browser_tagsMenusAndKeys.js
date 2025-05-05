@@ -586,14 +586,12 @@ async function promisePopupClosed(tagsPopup) {
   if (tagsPopup.state == "open") {
     tagsPopup.hidePopup();
   }
+  await BrowserTestUtils.waitForPopupEvent(tagsPopup, "hidden");
   if (parentPopup) {
     if (parentPopup.state == "open") {
       parentPopup.hidePopup();
     }
-    await BrowserTestUtils.waitForPopupEvent(
-      tagsPopup.parentNode.closest("menupopup"),
-      "hidden"
-    );
+    await BrowserTestUtils.waitForPopupEvent(parentPopup, "hidden");
   }
   await SimpleTest.promiseFocus(tagsPopup.ownerGlobal.top);
   await TestUtils.waitForTick();
@@ -689,8 +687,8 @@ function promiseKeywordsChanged(header) {
       onAnnouncerGoingAway() {},
       onReadChanged() {},
       onJunkScoreChanged() {},
-      onHdrPropertyChanged(hdrToChange) {
-        if (hdrToChange == header) {
+      onHdrPropertyChanged(hdrToChange, property) {
+        if (hdrToChange == header && property == "keywords") {
           gDbService.unregisterPendingListener(this);
           TestUtils.waitForTick().then(resolve);
         }

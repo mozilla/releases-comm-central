@@ -151,6 +151,9 @@ tags = ["oauth"]
 
 ["browser_spacesToolbarCustomize.js"]
 
+["browser_spamMenusAndKeys.js"]
+tags = ["spam"]
+
 ["browser_statusFeedback.js"]
 
 ["browser_subscribe.js"]

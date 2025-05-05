@@ -333,6 +333,13 @@ async function promiseServerIdle(server) {
     );
   }
 
+  await clearStatusBar();
+}
+
+/**
+ * Stop anything active in the status bar and clear the status text.
+ */
+async function clearStatusBar() {
   const status = window.MsgStatusFeedback;
   try {
     await TestUtils.waitForCondition(
@@ -386,6 +393,14 @@ async function promiseServerIdle(server) {
   );
   status._startRequests = 0;
   status._activeProcesses.length = 0;
+
+  if (status._statusIntervalId) {
+    clearInterval(status._statusIntervalId);
+    delete status._statusIntervalId;
+  }
+  status._statusText.value = "";
+  status._statusLastShown = 0;
+  status._statusQueue.length = 0;
 }
 
 // Report and remove any remaining accounts/servers. If we register a cleanup
@@ -428,6 +443,7 @@ registerCleanupFunction(function () {
     }
 
     resetSmartMailboxes();
+    await clearStatusBar();
 
     // Some tests that open new windows confuse mochitest, which waits for a
     // focus event on the main window, and the test times out. If we focus a

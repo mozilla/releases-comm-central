@@ -3753,7 +3753,7 @@ function HandleJunkStatusChanged(msgHdr) {
         (isJunk && !msgHdr.folder.server.spamSettings.manualMark) ||
         (isJunk && msgHdr.folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk))
       ) {
-        ReloadMessage();
+        setTimeout(ReloadMessage);
         return;
       }
     }
