@@ -9,10 +9,13 @@
 
 "use strict";
 
-var { open_message_from_file, get_about_message, smimeUtils_ensureNSS } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-  );
+var { open_message_from_file, get_about_message } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+
+var { SmimeUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/SmimeUtils.sys.mjs"
+);
 
 function getMsgBodyTxt(msgc) {
   const msgPane = get_about_message(msgc).getMessagePaneBrowser();
@@ -20,7 +23,7 @@ function getMsgBodyTxt(msgc) {
 }
 
 add_task(async function test_nested_sigs() {
-  smimeUtils_ensureNSS();
+  SmimeUtils.ensureNSS();
 
   const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/nested-sigs.eml"))

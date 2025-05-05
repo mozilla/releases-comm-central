@@ -37,7 +37,6 @@ import {
   SyntheticMessageSet,
 } from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
 import { MessageInjection } from "resource://testing-common/mailnews/MessageInjection.sys.mjs";
-import { SmimeUtils } from "resource://testing-common/mailnews/SmimeUtils.sys.mjs";
 import { dump_view_state } from "resource://testing-common/mail/ViewHelpers.sys.mjs";
 
 var nsMsgViewIndex_None = 0xffffffff;
@@ -115,18 +114,6 @@ function get_about_3pane_or_about_message(win = mc) {
 
 function get_db_view(win = mc) {
   return get_about_3pane_or_about_message(win).gDBView;
-}
-
-export function smimeUtils_ensureNSS() {
-  SmimeUtils.ensureNSS();
-}
-
-export function smimeUtils_loadPEMCertificate(file, certType, loadKey = false) {
-  SmimeUtils.loadPEMCertificate(file, certType, loadKey);
-}
-
-export function smimeUtils_loadCertificateAndKey(file, pw) {
-  SmimeUtils.loadCertificateAndKey(file, pw);
 }
 
 /*

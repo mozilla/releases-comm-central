@@ -11,7 +11,6 @@ const {
   create_message,
   add_message_to_folder,
   select_click_row,
-  smimeUtils_loadPEMCertificate,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
@@ -30,7 +29,7 @@ const { MailServices } = ChromeUtils.importESModule(
 
 add_setup(async function () {
   SmimeUtils.ensureNSS();
-  smimeUtils_loadPEMCertificate(
+  SmimeUtils.loadPEMCertificate(
     new FileUtils.File(getTestFilePath("../smime/data/TestCA.pem")),
     Ci.nsIX509Cert.CA_CERT
   );

@@ -20,11 +20,11 @@ var {
   open_message_from_file,
   press_delete,
   select_click_row,
-  smimeUtils_ensureNSS,
-  smimeUtils_loadCertificateAndKey,
-  smimeUtils_loadPEMCertificate,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { SmimeUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/SmimeUtils.sys.mjs"
 );
 
 var gDrafts;
@@ -36,12 +36,12 @@ add_setup(async function () {
 });
 
 add_task(async function test_multipart_alternative() {
-  smimeUtils_ensureNSS();
-  smimeUtils_loadPEMCertificate(
+  SmimeUtils.ensureNSS();
+  SmimeUtils.loadPEMCertificate(
     new FileUtils.File(getTestFilePath("data/TestCA.pem")),
     Ci.nsIX509Cert.CA_CERT
   );
-  smimeUtils_loadCertificateAndKey(
+  SmimeUtils.loadCertificateAndKey(
     new FileUtils.File(getTestFilePath("data/Bob.p12"), "nss")
   );
 
