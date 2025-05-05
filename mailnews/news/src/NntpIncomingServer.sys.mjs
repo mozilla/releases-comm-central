@@ -481,12 +481,12 @@ export class NntpIncomingServer extends MsgIncomingServer {
     }
   }
 
-  groupNotFound(msgWindow, groupName) {
+  removeUnavailableGroup(groupName) {
     const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/news.properties"
     );
     const result = Services.prompt.confirm(
-      msgWindow,
+      null,
       null,
       bundle.formatStringFromName("autoUnsubscribeText", [
         groupName,
@@ -496,6 +496,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
     if (result) {
       this.unsubscribe(groupName);
     }
+    return result;
   }
 
   _lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
