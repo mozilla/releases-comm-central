@@ -438,7 +438,7 @@
                 oncommand="cmdHideView(gContextMenu.cx);"/>
       <menuitem id="context-toggle-oas"
                 type="checkbox"
-                oncommand="cmdOpenAtStartup();"/>
+                oncommand="cmdOpenAtStartup(gContextMenu.cx, true);"/>
       <menuseparator id="channel-separator"/>
       <menuitem id="context-channel-leave"
                 oncommand="cmdLeave(gContextMenu.cx);"/>
@@ -490,8 +490,8 @@
           <menuseparator/>
           <menuitem id="openAtStartup"
                     type="checkbox"
-                    oncommand="cmdOpenAtStartup();"/>
-          <menuseparator/>
+                    oncommand="cmdOpenAtStartup(getDefaultContext(event), true);"/>
+          <menuseparator id="openAtStartup-separator"/>
           <menuitem id="leaveChannel"
                     oncommand="cmdLeave(getDefaultContext(event));"/>
           <menuitem id="rejoinChannel"

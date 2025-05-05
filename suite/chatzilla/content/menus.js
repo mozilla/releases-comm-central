@@ -28,7 +28,12 @@ function setAttr(id, attr, cond) {
 
 function initChatZillaMenu() {
   let cx = getDefaultContext();
-  setLabel("openAtStartup", "", [cx.viewType], true);
+  if (cx.viewType) {
+    setLabel("openAtStartup", "", [cx.viewType], true);
+    setAttr("openAtStartup", "checked", isStartupURL(cx.sourceObject.getURL()));
+  }
+  setAttr("openAtStartup", "hidden", !cx.viewType);
+  setAttr("openAtStartup-separator", "hidden", !cx.viewType);
   setLabel("leaveChannel", "", [cx.channelName], true);
   setLabel("rejoinChannel", "", [cx.channelName], true);
   setLabel("dccClose", "", [cx.channelName], true);
@@ -41,7 +46,6 @@ function initChatZillaMenu() {
   let DCCActive = cx.TYPE.startsWith("IRCDCC") && cx.sourceObject.isActive();
   let NetConnected = cx.network && cx.network.isConnected();
   let NetDisconnected = cx.network && !cx.network.isConnected();
-  setAttr("openAtStartup", "checked", isStartupURL(cx.sourceObject.getURL()));
   setAttr("leaveChannel", "hidden", !ChannelActive);
   setAttr("rejoinChannel", "hidden", !ChannelInactive);
   setAttr("dccClose", "hidden", !DCCActive);
@@ -363,12 +367,14 @@ function cZContextMenuShowing(aTarget, aEvent) {
   setAttr("context-tab-clear", "hidden", !isTab);
   setAttr("context-tab-hide", "hidden", !isTab);
   setAttr("context-tab-hide", "disabled", client.viewsArray.length < 2);
-  setAttr("context-toggle-oas", "hidden", !isTab);
-  setAttr(
-    "context-toggle-oas",
-    "checked",
-    isTab && isStartupURL(cx.sourceObject.getURL())
-  );
+  setAttr("context-toggle-oas", "hidden", !isTab || !cx.viewType);
+  if (cx.viewType) {
+    setAttr(
+      "context-toggle-oas",
+      "checked",
+      isTab && isStartupURL(cx.sourceObject.getURL())
+    );
+  }
   setAttr("context-channel-leave", "hidden", !ChannelActive || !isTab);
   setAttr("context-channel-rejoin", "hidden", !ChannelInactive || !isTab);
   setAttr("context-dcc-close", "hidden", !DCCActive || !isTab);

@@ -2930,9 +2930,8 @@ function setAwayMsg(e, reason, type) {
   }
 }
 
-function cmdOpenAtStartup(e) {
-  if (!e) {
-    e = getDefaultContext();
+function cmdOpenAtStartup(e, toggle) {
+  if (toggle) {
     e.toggle = "toggle";
   }
 
