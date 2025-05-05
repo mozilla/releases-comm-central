@@ -1932,44 +1932,6 @@ export function assert_expanded(...aArgs) {
   _assert_elided_helper(false, ...aArgs);
 }
 
-/**
- * Add the widget with the given id to the toolbar if it is not already present.
- *  It gets added to the front if we add it.  Use |remove_from_toolbar| to
- *  remove the widget from the toolbar when you are done.
- *
- * @param {Element} aToolbarElement - The DOM element that is the toolbar,
- *   like you would get from getElementById.
- * @param {string} aElementId  -The id attribute of the toolbaritem item you want added to
- *     the toolbar (not the id of the thing inside the toolbaritem tag!).
- *     We take the id name rather than element itself because if not already
- *     present the element is off floating in DOM limbo.  (The toolbar widget
- *     calls removeChild on the palette.)
- */
-export function add_to_toolbar(aToolbarElement, aElementId) {
-  const currentSet = aToolbarElement.currentSet.split(",");
-  if (!currentSet.includes(aElementId)) {
-    currentSet.unshift(aElementId);
-    aToolbarElement.currentSet = currentSet.join(",");
-  }
-}
-
-/**
- * Remove the widget with the given id from the toolbar if it is present.  Use
- *  |add_to_toolbar| to add the item in the first place.
- *
- * @param {Element} aToolbarElement - The DOM element that is the toolbar,
- *   like you would get from getElementById.
- * @param {string} aElementId - The id attribute of the item you want removed
- *   to the toolbar.
- */
-export function remove_from_toolbar(aToolbarElement, aElementId) {
-  const currentSet = aToolbarElement.currentSet.split(",");
-  if (currentSet.includes(aElementId)) {
-    currentSet.splice(currentSet.indexOf(aElementId), 1);
-    aToolbarElement.currentSet = currentSet.join(",");
-  }
-}
-
 var RECOGNIZED_WINDOWS = ["messagepane", "multimessage"];
 var RECOGNIZED_ELEMENTS = ["folderTree", "threadTree", "attachmentList"];
 
