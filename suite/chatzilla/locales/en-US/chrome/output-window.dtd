@@ -6,7 +6,6 @@
 <!ENTITY output.connnets.label "Connected Networks">
 <!ENTITY output.url.label "URL">
 <!ENTITY output.notconn.label "Not Connected">
-<!ENTITY output.lag.label "Lag">
 <!ENTITY output.mode.label "Mode">
 <!ENTITY output.users.label "Users">
 <!ENTITY output.topic.label "Topic">

@@ -31,7 +31,7 @@ var headers = {
 
   IRCNetwork: {
     prefix: "net-",
-    fields: ["container", "url-anchor", "status", "lag"],
+    fields: ["container", "url-anchor", "status"],
     update: updateNetwork,
   },
 
@@ -435,7 +435,6 @@ function updateNetwork() {
     setText("status", MSG_CONNECTING);
     setAttribute("status", "condition", "yellow");
     removeAttribute("status", "title");
-    setText("lag", MSG_UNKNOWN);
   } else if (view.isConnected()) {
     setText("status", MSG_CONNECTED);
     setAttribute("status", "condition", "green");
@@ -444,17 +443,10 @@ function updateNetwork() {
       "title",
       getMsg(MSG_CONNECT_VIA, view.primServ.unicodeName)
     );
-    var lag = view.primServ.lag;
-    if (lag != -1) {
-      setText("lag", getMsg(MSG_FMT_SECONDS, lag.toFixed(2)));
-    } else {
-      setText("lag", MSG_UNKNOWN);
-    }
   } else {
     setText("status", MSG_DISCONNECTED);
     setAttribute("status", "condition", "red");
     removeAttribute("status", "title");
-    setText("lag", MSG_UNKNOWN);
   }
 }
 

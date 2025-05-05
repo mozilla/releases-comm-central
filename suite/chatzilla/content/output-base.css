@@ -172,7 +172,7 @@
     line-height: 110%;
 }
 
-#ch-usercount, #ch-modestr, #net-lag, #dcc-file-progress {
+#ch-usercount, #ch-modestr, #dcc-file-progress {
     white-space: nowrap;
 }
 

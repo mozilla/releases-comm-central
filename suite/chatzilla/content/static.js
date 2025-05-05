@@ -1603,7 +1603,15 @@ function updateSecurityIcon() {
     default:
       securityButton.setAttribute("level", "none");
   }
-  securityButton.label = o.server.hostname;
+  let ary = [o.server.hostname];
+  let id;
+  if (o.server.lag < 0) {
+    id = "networkLagUnknown";
+  } else {
+    id = "networkLagKnown";
+    ary.push(o.server.lag.toFixed(2));
+  }
+  securityButton.label = client.bundle.getFormattedString(id, ary);
   securityButton.setAttribute("tooltiptext", tooltiptext);
 }
 

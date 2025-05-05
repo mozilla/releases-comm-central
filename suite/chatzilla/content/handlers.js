@@ -2603,10 +2603,12 @@ CIRCNetwork.prototype.onNick = function (e) {
 
 CIRCNetwork.prototype.onPing = function (e) {
   this.updateHeader(this);
+  updateSecurityIcon();
 };
 
 CIRCNetwork.prototype.onPong = function (e) {
   this.updateHeader(this);
+  updateSecurityIcon();
 };
 
 CIRCNetwork.prototype.onWallops = function (e) {
