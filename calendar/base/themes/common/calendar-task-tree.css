@@ -25,42 +25,50 @@ tree > treechildren::-moz-tree-cell-text(selected, focus) {
   color: green !important;
 }
 
-:root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress) {
-  color: var(--color-green-50) !important;
+@media (prefers-color-scheme: dark) {
+  .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress) {
+    color: var(--color-green-50) !important;
+  }
 }
 
 .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
   background-color: green !important;
 }
 
-:root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
-  background-color: var(--color-green-50) !important;
+@media (prefers-color-scheme: dark) {
+  .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
+    background-color: var(--color-green-50) !important;
+  }
 }
 
 .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue) {
   color: var(--color-red-50) !important;
 }
 
-:root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue) {
-  color: var(--color-red-40) !important;
+@media (prefers-color-scheme: dark) {
+  .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue) {
+    color: var(--color-red-40) !important;
+  }
 }
 
 .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
   background-color: var(--color-red-50) !important;
 }
 
-:root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
-  background-color: var(--color-red-40) !important;
+@media (prefers-color-scheme: dark) {
+  .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
+    background-color: var(--color-red-40) !important;
+  }
 }
 
+.calendar-task-tree >
+  treechildren::-moz-tree-image(calendar-task-tree-col-priority, selected, focus),
+.calendar-task-tree >
+  treechildren::-moz-tree-image(calendar-task-tree-col-completed, selected, focus),
 .calendar-task-tree > treechildren::-moz-tree-image(inprogress, selected, focus),
 .calendar-task-tree > treechildren::-moz-tree-image(overdue, selected, focus),
 .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress, selected, focus),
-:root[lwt-tree-brighttext] .calendar-task-tree >
-  treechildren::-moz-tree-cell-text(inprogress, selected, focus),
-.calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus),
-:root[lwt-tree-brighttext] .calendar-task-tree >
-  treechildren::-moz-tree-cell-text(overdue, selected, focus) {
+.calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus) {
   color: var(--selected-item-text-color) !important;
 }
 
@@ -89,9 +97,10 @@ tree > treechildren::-moz-tree-cell-text(selected, focus) {
   stroke: red;
 }
 
-:root[lwt-tree-brighttext] .calendar-task-tree >
-  treechildren::-moz-tree-image(calendar-task-tree-col-priority, highpriority) {
-  stroke: var(--color-red-40);
+@media (prefers-color-scheme: dark) {
+  .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, highpriority) {
+    stroke: var(--color-red-40);
+  }
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, lowpriority) {
@@ -99,9 +108,10 @@ tree > treechildren::-moz-tree-cell-text(selected, focus) {
   stroke: blue;
 }
 
-:root[lwt-tree-brighttext] .calendar-task-tree >
-  treechildren::-moz-tree-image(calendar-task-tree-col-priority, lowpriority) {
-  stroke: var(--color-white);
+@media (prefers-color-scheme: dark) {
+  .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, lowpriority) {
+    stroke: var(--color-white);
+  }
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, selected) {
