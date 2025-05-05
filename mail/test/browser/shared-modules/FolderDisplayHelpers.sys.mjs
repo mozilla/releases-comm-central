@@ -1518,12 +1518,12 @@ var FolderListener = {
  *  triggers us.  It is expected that you won't try and have multiple events
  *  in-flight or will augment us when the time comes to have to deal with that.
  */
-export function plan_to_wait_for_folder_events(...aArgs) {
+function plan_to_wait_for_folder_events(...aArgs) {
   FolderListener.ensureInited();
   FolderListener.planToWaitFor(...aArgs);
 }
 
-export async function wait_for_folder_events() {
+async function wait_for_folder_events() {
   await FolderListener.waitForEvents();
 }
 

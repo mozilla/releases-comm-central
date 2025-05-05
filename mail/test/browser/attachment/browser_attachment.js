@@ -12,6 +12,9 @@ var { close_compose_window, open_compose_with_forward } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/ComposeHelpers.sys.mjs"
   );
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
 var {
   add_message_to_folder,
   assert_attachment_list_focused,
@@ -22,10 +25,8 @@ var {
   create_message,
   get_about_message,
   msgGen,
-  plan_to_wait_for_folder_events,
   select_click_row,
   select_none,
-  wait_for_folder_events,
   wait_for_message_display_completion,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
@@ -737,6 +738,7 @@ add_task(async function test_delete_from_toolbar() {
       { clickCount: 1 },
       aboutMessage
     );
+    await TestUtils.waitForTick();
   }
 
   const firstAttachment =
@@ -749,14 +751,19 @@ add_task(async function test_delete_from_toolbar() {
 
   // Make sure clicking the "Delete" toolbar button with an attachment focused
   // deletes the *message*.
-  plan_to_wait_for_folder_events("DeleteOrMoveMsgCompleted");
+  const completed = PromiseTestUtils.promiseFolderEvent(
+    folder,
+    "DeleteOrMoveMsgCompleted"
+  );
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("hdrTrashButton"),
     { clickCount: 1 },
     aboutMessage
   );
-  await wait_for_folder_events();
-}).skip();
+  await dialogPromise;
+  await completed;
+});
 
 registerCleanupFunction(() => {
   // Remove created folders.

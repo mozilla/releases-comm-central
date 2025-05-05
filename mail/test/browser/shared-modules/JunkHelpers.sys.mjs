@@ -4,13 +4,12 @@
 
 import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
+import { PromiseTestUtils } from "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs";
 
 import {
   mc,
   get_about_3pane,
-  plan_to_wait_for_folder_events,
   wait_for_message_display_completion,
-  wait_for_folder_events,
 } from "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs";
 
 /**
@@ -26,8 +25,9 @@ export function mark_selected_messages_as_junk() {
  * activating the menu option from the Tools menu.
  *
  * @param {integer} aNumDeletesExpected - The number of deletes expected.
+ * @param {nsIMsgFolder} folder - The folder the messages are in.
  */
-export async function delete_mail_marked_as_junk(aNumDeletesExpected) {
+export async function delete_mail_marked_as_junk(aNumDeletesExpected, folder) {
   const about3Pane = get_about_3pane();
 
   // Monkey patch and wrap around the deleteJunkInFolder function, mainly for
@@ -43,17 +43,18 @@ export async function delete_mail_marked_as_junk(aNumDeletesExpected) {
 
     // If something is loading, make sure it finishes loading...
     await wait_for_message_display_completion();
+    let completed;
     if (aNumDeletesExpected != 0) {
-      plan_to_wait_for_folder_events(
-        "DeleteOrMoveMsgCompleted",
-        "DeleteOrMoveMsgFailed"
+      completed = PromiseTestUtils.promiseFolderEvent(
+        folder,
+        "DeleteOrMoveMsgCompleted"
       );
     }
 
     about3Pane.goDoCommand("cmd_deleteJunk");
 
     if (aNumDeletesExpected != 0) {
-      await wait_for_folder_events();
+      await completed;
     }
 
     // If timeout waiting for numMessagesDeleted to turn non-null,

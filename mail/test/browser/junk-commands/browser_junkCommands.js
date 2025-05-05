@@ -51,7 +51,7 @@ add_task(async function test_delete_no_junk_messages() {
   const initialNumMessages = folder.getTotalMessages(false);
   await be_in_folder(folder);
   await select_none();
-  await delete_mail_marked_as_junk(0);
+  await delete_mail_marked_as_junk(0, folder);
   // Check if we still have the same number of messages
   Assert.equal(
     folder.getTotalMessages(false),
@@ -85,7 +85,7 @@ add_task(async function test_delete_junk_messages() {
   await indexMsgs();
 
   // Now delete junk mail
-  await delete_mail_marked_as_junk(NUM_MESSAGES_TO_JUNK);
+  await delete_mail_marked_as_junk(NUM_MESSAGES_TO_JUNK, folder);
   Assert.equal(
     folder.getTotalMessages(false),
     initialNumMessages - NUM_MESSAGES_TO_JUNK,
