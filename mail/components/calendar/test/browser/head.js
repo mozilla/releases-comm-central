@@ -53,9 +53,6 @@ const scrollPositions = [
 ];
 let count = 0;
 
-todayDate.setFullYear(2025);
-todayDate.setMonth(3);
-todayDate.setDate(6);
 todayDate.setHours(0);
 todayDate.setMinutes(0);
 todayDate.setSeconds(0);
@@ -92,39 +89,39 @@ function createCalendar({
  *
  * @param {object} options - Options to use in creating the event.
  * @param {string} [options.name="Test Event"] - The name of the event.
+ * @param {Date} [options.baseDate] - Date the event start should be based on,
+ *   defaults to midnight today.
  * @param {number} [options.offset=0] - The number of days from today to offset the
  *  event.
+ * @param {number} [options.duration=1] - The duration of the event in hours.
  * @param {object} options.calendar - The calendar to create the event on.
  * @param {string[]} [options.categories=[]] - Categories to assign to the event.
  * @param {boolean} [options.repeats=false] - If the event is repeating.
  * @param {string} [options.location] - Location of the event. Only set if not
  *  falsy.
- * @param {number} options.hour - The hour of the day to create the event for.
- * @param {number} options.duration - The duration of the event in hours.
  *
  * @returns {CalEvent} - The created event.
  */
 async function createEvent({
   name = "Test Event",
+  baseDate = todayDate,
   offset = 0,
+  duration = 1,
   calendar,
   categories = [],
   repeats = false,
   location,
-  hour = 0,
-  duration = 1,
 } = {}) {
-  let start = new Date(todayDate);
-  start.setDate(todayDate.getDate() + offset);
-  start.setHours(hour);
+  let start = new Date(baseDate);
+  start.setDate(baseDate.getDate() + offset);
   start = cal.dtz.jsDateToDateTime(start, 0);
-  let end = new Date(todayDate);
+  let end = new Date(baseDate);
   const days = Math.trunc(duration / 24);
-  end.setHours(hour + (duration % 24) - 1);
+  end.setHours(end.getHours() + (duration % 24) - 1);
   end.setMinutes(59);
   end.setSeconds(59);
   end.setMilliseconds(99);
-  end.setDate(todayDate.getDate() + offset + days);
+  end.setDate(baseDate.getDate() + offset + days);
   end = cal.dtz.jsDateToDateTime(end, 0);
   const event = new CalEvent();
   event.title = name;
@@ -171,6 +168,8 @@ async function openEvent({ eventBox }) {
  * Show an event on the calendar scrolling it into view.
  *
  * @param {object} options - Options to use for showing the event.
+ * @param {Date} [options.baseDate] - Base date for the event to be at. Defaults
+ *  to today.
  * @param {number} options.offset - The number of days offset the event is.
  * @param {"start" | "center" | "end"} options.inline - The scroll position in
  *  the inline direction.
@@ -180,11 +179,12 @@ async function openEvent({ eventBox }) {
  * @returns {HTMLElement}
  */
 async function showEvent({
+  baseDate = todayDate,
   offset = 0,
   block = "center",
   inline = "center",
 } = {}) {
-  const targetDate = new Date(todayDate);
+  const targetDate = new Date(baseDate);
   targetDate.setDate(targetDate.getDate() + offset);
   // Since from other tests we may be elsewhere, make sure we start today.
   await CalendarTestUtils.setCalendarView(window, "week");
@@ -221,22 +221,24 @@ async function showEvent({
 /**
  * Show and open the dialog for an event on the calendar.
  *
- * @param {object} options - Options to use for showing the event.
- * @param {number} options.offset - The number of days the event is offset from
+ * @param {object} [options] - Options to use for showing the event.
+ * @param {Date} [options.baseDate] - Base date the event is placed relative to.
+ * @param {number} [options.offset] - The number of days the event is offset from
  *  today.
- * @param {"start" | "center" | "end"} options.inline - The scroll position in
+ * @param {"start" | "center" | "end"} [options.inline] - The scroll position in
  *  the inline direction.
- * @param {"start" | "center" | "end"} options.block - The scroll position in
+ * @param {"start" | "center" | "end"} [options.block] - The scroll position in
  *  the block direction.
  *
  * @returns {HTMLElement}
  */
 async function openAndShowEvent({
+  baseDate = todayDate,
   offset = 0,
   block = "center",
   inline = "center",
 } = {}) {
-  const box = await showEvent({ offset, block, inline });
+  const box = await showEvent({ baseDate, offset, block, inline });
   return openEvent({ eventBox: box, offset });
 }
 
@@ -370,11 +372,20 @@ async function resizeWindow({ x = originalWidth, y = originalHeight }) {
  * @param {object} options.size - The window size object used for the test.
  */
 async function positionTest({ calendar, duration = 1, offset, hour, size }) {
-  await createEvent({ calendar, offset, hour, duration });
+  const fixedDate = new Date(todayDate);
+  fixedDate.setFullYear(2025);
+  fixedDate.setMonth(3);
+  fixedDate.setDate(6);
+  fixedDate.setHours(hour);
+  await createEvent({ calendar, baseDate: fixedDate, offset, duration });
   let eventBox;
 
   for (const position of scrollPositions) {
-    eventBox = await openAndShowEvent({ ...position, offset });
+    eventBox = await openAndShowEvent({
+      ...position,
+      baseDate: fixedDate,
+      offset,
+    });
 
     checkTollerance(
       eventBox,
