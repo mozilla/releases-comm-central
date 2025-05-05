@@ -311,6 +311,11 @@ workers:
                 by-release-level:
                     production: comm-3-tree
                     staging: comm-1-tree
+        t-linux-docker(|-noscratch):
+            provisioner: comm-t
+            implementation: docker-worker
+            os: linux
+            worker-type: '{alias}'
         t-linux(-large|-xlarge|-xlarge-source):
             provisioner: comm-t
             implementation: docker-worker
