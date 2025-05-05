@@ -666,39 +666,6 @@ function _normalize_view_index(aViewIndex) {
 }
 
 /**
- * Generic method to simulate a left click on a row in a <tree> element.
- *
- * @param {XULTreeElement} aTree - The tree element.
- * @param {number} aRowIndex - Index of a row in the tree to click on.
- * @see {mailTestUtils.treeClick()} for another way.
- */
-export async function click_tree_row(aTree, aRowIndex) {
-  if (aRowIndex < 0 || aRowIndex >= aTree.view.rowCount) {
-    throw new Error(
-      "Row " + aRowIndex + " does not exist in the tree " + aTree.id + "!"
-    );
-  }
-
-  const selection = aTree.view.selection;
-  selection.select(aRowIndex);
-  aTree.ensureRowIsVisible(aRowIndex);
-
-  // get cell coordinates
-  const column = aTree.columns[0];
-  const coords = aTree.getCoordsForCellItem(aRowIndex, column, "text");
-
-  await TestUtils.waitForTick();
-  EventUtils.synthesizeMouse(
-    aTree.body,
-    coords.x + 4,
-    coords.y + 4,
-    {},
-    aTree.ownerGlobal
-  );
-  await TestUtils.waitForTick();
-}
-
-/**
  * @param {integer} aViewIndex
  * @returns {HTMLLIElement}
  */

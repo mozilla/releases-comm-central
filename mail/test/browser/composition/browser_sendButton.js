@@ -12,7 +12,7 @@ var { create_contact, create_mailing_list, load_contacts_into_address_book } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/AddressBookHelpers.sys.mjs"
   );
-var { be_in_folder, click_tree_row, FAKE_SERVER_HOSTNAME, get_special_folder } =
+var { be_in_folder, FAKE_SERVER_HOSTNAME, get_special_folder } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
