@@ -18,20 +18,6 @@ function getWindowTypeOrID(win) {
 }
 
 /**
- * Call this if the window you want to get may already be open.  What we
- *  provide above just directly grabbing the window yourself is:
- * - We wait for it to finish loading.
- *
- * @param {string} aWindowType - The window type that will be created. This is
- *   the value of the "windowtype" attribute on the window. The values tend to
- *   look like "app:windowname", for example "mailnews:search".
- * @returns {Window}
- */
-export function wait_for_existing_window(aWindowType) {
-  return Services.wm.getMostRecentWindow(aWindowType);
-}
-
-/**
  * Call this just before you trigger the event that will cause a window to be
  *  displayed.
  *

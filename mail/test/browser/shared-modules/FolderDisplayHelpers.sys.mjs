@@ -21,7 +21,6 @@ import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
 import {
   promise_new_window,
-  wait_for_existing_window,
   wait_for_window_focused,
 } from "resource://testing-common/mail/WindowHelpers.sys.mjs";
 
@@ -53,7 +52,7 @@ export var FAKE_SERVER_HOSTNAME = "tinderbox123";
  *
  * @type {Window}
  */
-export var mc = wait_for_existing_window("mail:3pane");
+export var mc = Services.wm.getMostRecentWindow("mail:3pane");
 
 export function set_mc(value) {
   mc = value;

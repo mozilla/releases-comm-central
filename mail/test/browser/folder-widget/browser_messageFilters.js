@@ -24,7 +24,6 @@ var {
   click_menus_in_sequence,
   promise_modal_dialog,
   promise_new_window,
-  wait_for_existing_window,
   wait_for_window_focused,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
@@ -332,7 +331,7 @@ add_task(async function test_can_quit_on_filter_changes() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
-  const filterWin = await wait_for_existing_window("mailnews:filterlist");
+  const filterWin = Services.wm.getMostRecentWindow("mailnews:filterlist");
 
   // There should already be 1 filter defined from previous test.
   const filterCount = filterWin.document.getElementById("filterList").itemCount;
