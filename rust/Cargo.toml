@@ -16,7 +16,7 @@ members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom', 'gtest', 'sys_tray'
 uniffi = { version = "0.29.1" }
 uniffi_bindgen = { version = "0.29.1" }
 rusqlite = { version = "0.33.0" }
-glean = { version = "=64.1.1" }
+glean = { version = "=64.2.0" }
 
 [target."cfg(windows)".dependencies.scopeguard]
 version = "1"
@@ -243,6 +243,7 @@ icu_segmenter_data = { path = "../../intl/icu_segmenter_data" }
 libudev-sys = { path = "../../dom/webauthn/libudev-sys" }
 midir = { git = "https://github.com/mozilla/midir.git", rev = "85156e360a37d851734118104619f86bd18e94c6" }
 malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
+wr_malloc_size_of = { path = "../../gfx/wr/wr_malloc_size_of" }
 objc = { git = "https://github.com/glandium/rust-objc", rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324" }
 interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "280db3a3a06a8f517151ff0b84b5ce67fcc7afd6" }
 relevancy = { git = "https://github.com/mozilla/application-services", rev = "280db3a3a06a8f517151ff0b84b5ce67fcc7afd6" }
