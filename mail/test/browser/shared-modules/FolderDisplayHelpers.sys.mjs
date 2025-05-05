@@ -2357,29 +2357,6 @@ export function reset_close_message_on_delete() {
   }
 }
 
-/**
- * assert that the multimessage/thread summary view contains
- * the specified number of elements of the specified selector.
- *
- * @param {string} aSelector - The CSS selector to use to select
- * @param {integer} aNumElts - The number of expected elements that have that class
- */
-
-export function assert_summary_contains_N_elts(aSelector, aNumElts) {
-  const htmlframe = mc.document.getElementById("multimessage");
-  const matches = htmlframe.contentDocument.querySelectorAll(aSelector);
-  if (matches.length != aNumElts) {
-    throw new Error(
-      "Expected to find " +
-        aNumElts +
-        " elements with selector '" +
-        aSelector +
-        "', found: " +
-        matches.length
-    );
-  }
-}
-
 export function throw_and_dump_view_state(aMessage, aWin) {
   dump("******** " + aMessage + "\n");
   dump_view_state(get_db_view(aWin));
