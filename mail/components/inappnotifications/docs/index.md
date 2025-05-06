@@ -46,6 +46,26 @@ See also the [displayed_notifications](#displayed-notifications) section for som
 
 The seeds are stored in an object, keyed by notification ID with the value being the seed this profile rolled for that notification.
 
+### Notification Display Behavior
+
+Notifications are delayed until Thunderbird is both active and visible, based on the following four criteria:
+
+* User Activity: The user must have been active within the last 30 seconds, as determined by `Ci.nsIUserIdleService`.
+* Document Visibility: The top level application document must not be hidden, as determined by `document.hidden`.
+* On-Screen Presence: The application window must be sufficiently on-screen. No more than 120px may be obscured or off-screen in any direction.
+* Focus: The current application window must be the actively focused window.
+
+#### Notification Display Rules
+
+* For notification types with a UI (`donation`, `blog`, `message`, `security`):
+  If multiple application windows exist, any window meeting the above criteria will display the notification, until it is dismissed.
+* For notifications of type `donation_tab`:
+  Only the first application window that meets the criteria will display the notification tab. Other windows will not show it once it's been displayed.
+* For notifications of type `donation_browser`:
+  As soon as any application window meets the criteria, the notification will open in the user's default browser. No Thunderbird window will display it.
+
+This behavior ensures maximum visibility for important notifications and, in the case of `donation_browser`, guarantees proper attribution to Thunderbird as the source of the web page.
+
 ## Data format/contents
 
 The schema for the notification data is maintained at https://github.com/thunderbird/thunderbird-notifications/.
