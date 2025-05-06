@@ -19,19 +19,29 @@ namespace mozilla::mailnews {
 
 NS_IMPL_ISUPPORTS(PerFolderDatabase, nsIDBChangeAnnouncer, nsIMsgDatabase)
 
+// MessageListener:
+
 void PerFolderDatabase::OnMessageAdded(Message* message) {
-  if (mListeners.IsEmpty() || message->mFolderId != mFolderId) {
-    return;
+  if (message->mFolderId == mFolderId) {
+    NotifyHdrAddedAll(message, nsMsgKey_None, message->mFlags, nullptr);
   }
-  NotifyHdrAddedAll(message, nsMsgKey_None, message->mFlags, nullptr);
 }
 
 void PerFolderDatabase::OnMessageRemoved(Message* message) {
-  if (mListeners.IsEmpty() || message->mFolderId != mFolderId) {
-    return;
+  if (message->mFolderId == mFolderId) {
+    NotifyHdrDeletedAll(message, nsMsgKey_None, message->mFlags, nullptr);
   }
-  NotifyHdrDeletedAll(message, nsMsgKey_None, message->mFlags, nullptr);
 }
+
+void PerFolderDatabase::OnMessageFlagsChanged(Message* message,
+                                              uint64_t oldFlags,
+                                              uint64_t newFlags) {
+  if (message->mFolderId == mFolderId) {
+    NotifyHdrChangeAll(message, oldFlags, newFlags, nullptr);
+  }
+}
+
+// nsIDBChangeAnnouncer:
 
 NS_IMETHODIMP PerFolderDatabase::AddListener(nsIDBChangeListener* listener) {
   mListeners.AppendElement(listener);
@@ -42,9 +52,12 @@ NS_IMETHODIMP PerFolderDatabase::RemoveListener(nsIDBChangeListener* listener) {
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::NotifyHdrChangeAll(
-    nsIMsgDBHdr* aHdrChanged, uint32_t aOldFlags, uint32_t aNewFlags,
+    nsIMsgDBHdr* hdrChanged, uint32_t oldFlags, uint32_t newFlags,
     nsIDBChangeListener* instigator) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  for (RefPtr<nsIDBChangeListener> listener : mListeners.EndLimitedRange()) {
+    listener->OnHdrFlagsChanged(hdrChanged, oldFlags, newFlags, instigator);
+  }
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::NotifyHdrAddedAll(
     nsIMsgDBHdr* hdrAdded, nsMsgKey parentKey, int32_t flags,
@@ -79,6 +92,8 @@ NS_IMETHODIMP PerFolderDatabase::NotifyAnnouncerGoingAway(void) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
+// nsIMsgDatabase:
+
 NS_IMETHODIMP PerFolderDatabase::Close(bool aForceCommit) { return NS_OK; }
 NS_IMETHODIMP PerFolderDatabase::Commit(nsMsgDBCommit aCommitType) {
   return NS_OK;
@@ -92,8 +107,8 @@ NS_IMETHODIMP PerFolderDatabase::ResetHdrCacheSize(uint32_t size) {
 }
 NS_IMETHODIMP PerFolderDatabase::GetDBFolderInfo(
     nsIDBFolderInfo** aDBFolderInfo) {
-  NS_IF_ADDREF(*aDBFolderInfo =
-                   new FolderInfo(mFolderDatabase, this, mFolderId));
+  NS_IF_ADDREF(*aDBFolderInfo = new FolderInfo(
+                   mFolderDatabase, mMessageDatabase, this, mFolderId));
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetDatabaseSize(int64_t* databaseSize) {
@@ -642,9 +657,11 @@ NS_IMETHODIMP ThreadEnumerator::HasMoreElements(bool* hasNext) {
 NS_IMPL_ISUPPORTS(FolderInfo, nsIDBFolderInfo)
 
 FolderInfo::FolderInfo(FolderDatabase* folderDatabase,
+                       MessageDatabase* messageDatabase,
                        PerFolderDatabase* perFolderDatabase,
                        uint64_t folderId) {
   mFolderDatabase = folderDatabase;
+  mMessageDatabase = messageDatabase;
   mPerFolderDatabase = perFolderDatabase;
   mFolderDatabase->GetFolderById(folderId, getter_AddRefs(mFolder));
 }
@@ -702,13 +719,15 @@ NS_IMETHODIMP FolderInfo::ChangeNumMessages(int32_t aDelta) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP FolderInfo::GetNumUnreadMessages(int32_t* aNumUnreadMessages) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return mMessageDatabase->GetNumUnread(mFolder->GetId(),
+                                        (uint64_t*)aNumUnreadMessages);
 }
 NS_IMETHODIMP FolderInfo::SetNumUnreadMessages(int32_t aNumUnreadMessages) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP FolderInfo::GetNumMessages(int32_t* aNumMessages) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return mMessageDatabase->GetNumMessages(mFolder->GetId(),
+                                          (uint64_t*)aNumMessages);
 }
 NS_IMETHODIMP FolderInfo::SetNumMessages(int32_t aNumMessages) {
   return NS_ERROR_NOT_IMPLEMENTED;

@@ -64,9 +64,6 @@ DatabaseCore::Startup() {
 
   mMessageDatabase = new MessageDatabase();
   mMessageDatabase->Startup();
-  // Add a message listener purely for logging purposes while this code is
-  // under heavy development. TODO: Remove this.
-  mMessageDatabase->AddMessageListener(this);
 
   MOZ_LOG(gPanoramaLog, LogLevel::Info, ("DatabaseCore startup complete"));
   return NS_OK;
@@ -246,22 +243,6 @@ DatabaseCore::GetConnection(mozIStorageConnection** aConnection) {
 
   NS_IF_ADDREF(*aConnection = sConnection);
   return NS_OK;
-}
-
-void DatabaseCore::OnMessageAdded(Message* m) {
-  MOZ_LOG(gPanoramaLog, LogLevel::Debug,
-          ("DatabaseCore::OnMessageAdded: %" PRId32 " %" PRIu64 " %" PRId64
-           " '%s' '%s' %" PRIu64 " '%s'\n",
-           m->mId, m->mFolderId, m->mDate, m->mSender.get(), m->mSubject.get(),
-           m->mFlags, m->mTags.get()));
-}
-
-void DatabaseCore::OnMessageRemoved(Message* m) {
-  MOZ_LOG(gPanoramaLog, LogLevel::Debug,
-          ("DatabaseCore::OnMessageRemoved: %" PRId32 " %" PRIu64 " %" PRId64
-           " '%s' '%s' %" PRIu64 " '%s'\n",
-           m->mId, m->mFolderId, m->mDate, m->mSender.get(), m->mSubject.get(),
-           m->mFlags, m->mTags.get()));
 }
 
 NS_IMETHODIMP DatabaseCore::OpenFolderDB(nsIMsgFolder* aFolder,

@@ -173,6 +173,10 @@ add_task(async function testFolderMethods() {
   Assert.deepEqual(folderDatabase.getNewList(), [3]);
   folderDatabase.markNotNew(2, null);
   Assert.deepEqual(folderDatabase.getNewList(), [3]);
+
+  // Reset unread messages.
+  folderDatabase.markRead(3, false, null);
+  folderDatabase.markRead(4, false, null);
 });
 
 add_task(async function testFolderInfo() {
@@ -206,6 +210,9 @@ add_task(async function testFolderInfo() {
     folderInfo.flags,
     Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Virtual
   );
+
+  Assert.equal(folderInfo.numMessages, 4);
+  Assert.equal(folderInfo.numUnreadMessages, 2);
 });
 
 add_task(async function testFolderProperties() {
@@ -379,9 +386,10 @@ add_task(async function testListener() {
     reset() {
       this._headerAdded = null;
       this._headerRemoved = null;
+      this._headerChanged = null;
     }
-    onHdrFlagsChanged(_hdrChanged, _oldFlags, _newFlags, _instigator) {
-      Assert.ok(false, "unexpected onHdrFlagsChanged event");
+    onHdrFlagsChanged(hdrChanged, oldFlags, newFlags, instigator) {
+      this._headerChanged = [hdrChanged, oldFlags, newFlags, instigator];
     }
     onHdrDeleted(hdrChanged, parentKey, flags, instigator) {
       this._headerRemoved = [hdrChanged, parentKey, flags, instigator];
@@ -432,35 +440,61 @@ add_task(async function testListener() {
   const addedId = addMessage({ folderId: 4 });
   Assert.ok(!listenerB._headerAdded);
   Assert.ok(!listenerB._headerRemoved);
+  Assert.ok(!listenerB._headerChanged);
   Assert.ok(listenerC._headerAdded);
   Assert.ok(!listenerC._headerRemoved);
+  Assert.ok(!listenerC._headerChanged);
 
   const [headerAdded] = listenerC._headerAdded;
   Assert.ok(headerAdded instanceof Ci.nsIMsgDBHdr);
   Assert.equal(headerAdded.messageKey, addedId);
-  // Assert.equal(headerAdded.folder, folderC);
+  Assert.equal(headerAdded.folder, folderC);
   Assert.equal(headerAdded.messageId, "messageId");
   Assert.equal(headerAdded.date, new Date("2025-01-22").valueOf() * 1000);
   Assert.equal(headerAdded.author, "sender");
   Assert.equal(headerAdded.subject, "subject");
   Assert.equal(headerAdded.flags, 0);
-  // Assert.equal(headerAdded.getStringProperty("keywords"), "");
+  Assert.equal(headerAdded.getStringProperty("keywords"), "");
+
+  listenerC.reset();
+  headerAdded.markRead(true);
+  Assert.ok(!listenerB._headerAdded);
+  Assert.ok(!listenerB._headerRemoved);
+  Assert.ok(!listenerB._headerChanged);
+  Assert.ok(!listenerC._headerAdded);
+  Assert.ok(!listenerC._headerRemoved);
+  Assert.ok(listenerC._headerChanged);
+
+  const [headerChanged, oldFlags, newFlags] = listenerC._headerChanged;
+  Assert.ok(headerChanged instanceof Ci.nsIMsgDBHdr);
+  Assert.equal(headerChanged.messageKey, addedId);
+  Assert.equal(headerChanged.folder, folderC);
+  Assert.equal(headerChanged.messageId, "messageId");
+  Assert.equal(headerChanged.date, new Date("2025-01-22").valueOf() * 1000);
+  Assert.equal(headerChanged.author, "sender");
+  Assert.equal(headerChanged.subject, "subject");
+  Assert.equal(headerChanged.flags, Ci.nsMsgMessageFlags.Read);
+  Assert.equal(headerChanged.getStringProperty("keywords"), "");
+  Assert.equal(oldFlags, 0);
+  Assert.equal(newFlags, Ci.nsMsgMessageFlags.Read);
 
   listenerC.reset();
   messages.removeMessage(headerAdded.messageKey);
   Assert.ok(!listenerB._headerAdded);
   Assert.ok(!listenerB._headerRemoved);
+  Assert.ok(!listenerB._headerChanged);
   Assert.ok(!listenerC._headerAdded);
   Assert.ok(listenerC._headerRemoved);
+  Assert.ok(!listenerC._headerChanged);
 
   const [headerRemoved] = listenerC._headerRemoved;
   Assert.ok(headerRemoved instanceof Ci.nsIMsgDBHdr);
   Assert.equal(headerRemoved.messageKey, addedId);
-  // Assert.equal(headerAdded.folder, folderC);
+  Assert.equal(headerAdded.folder, folderC);
   Assert.equal(headerAdded.messageId, "messageId");
   Assert.equal(headerAdded.date, new Date("2025-01-22").valueOf() * 1000);
   Assert.equal(headerAdded.author, "sender");
   Assert.equal(headerAdded.subject, "subject");
-  Assert.equal(headerAdded.flags, 0);
-  // Assert.equal(headerAdded.getStringProperty("keywords"), "");
+  Assert.equal(headerAdded.flags, Ci.nsMsgMessageFlags.Read);
+  Assert.equal(headerAdded.getStringProperty("keywords"), "");
 });

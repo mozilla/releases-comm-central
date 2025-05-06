@@ -345,6 +345,9 @@ void LiveView::OnMessageRemoved(Message* aMessage) {
   mListener->OnMessageRemoved(handle);
 }
 
+void LiveView::OnMessageFlagsChanged(Message* message, uint64_t oldFlags,
+                                     uint64_t newFlags) {}
+
 NS_IMETHODIMP LiveView::SetListener(nsILiveViewListener* aListener,
                                     JSContext* aCx) {
   bool hadListener = mListener;

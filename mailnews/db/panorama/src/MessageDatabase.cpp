@@ -217,36 +217,53 @@ nsresult MessageDatabase::GetMessageFlag(nsMsgKey aKey, uint64_t aFlag,
   return NS_OK;
 }
 
-nsresult MessageDatabase::SetMessageFlag(nsMsgKey aKey, uint64_t aFlag,
-                                         bool aSetFlag) {
-  nsCOMPtr<mozIStorageStatement> stmt;
-  if (aSetFlag) {
-    DatabaseCore::GetStatement(
-        "SetMessageFlag"_ns,
-        "UPDATE messages SET flags = flags | :flag WHERE id = :id"_ns,
-        getter_AddRefs(stmt));
-  } else {
-    DatabaseCore::GetStatement(
-        "MessageClearFlag"_ns,
-        "UPDATE messages SET flags = flags & ~:flag WHERE id = :id"_ns,
-        getter_AddRefs(stmt));
-  }
+nsresult MessageDatabase::SetMessageFlag(nsMsgKey key, uint64_t flag,
+                                         bool setFlag) {
+  RefPtr<Message> message;
+  nsresult rv = GetMessage(key, getter_AddRefs(message));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  stmt->BindInt64ByName("id"_ns, aKey);
-  stmt->BindInt64ByName("flag"_ns, aFlag);
-  return stmt->Execute();
+  nsCOMPtr<mozIStorageStatement> stmt;
+  if (setFlag) {
+    return SetMessageFlagsInternal(message, message->mFlags | flag);
+  } else {
+    return SetMessageFlagsInternal(message, message->mFlags & ~flag);
+  }
 }
 
-nsresult MessageDatabase::SetMessageFlags(uint64_t aId, uint64_t aFlags) {
+nsresult MessageDatabase::SetMessageFlags(nsMsgKey key, uint64_t newFlags) {
+  RefPtr<Message> message;
+  nsresult rv = GetMessage(key, getter_AddRefs(message));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return SetMessageFlagsInternal(message, newFlags);
+}
+
+nsresult MessageDatabase::SetMessageFlagsInternal(Message* message,
+                                                  uint64_t newFlags) {
+  uint64_t oldFlags = message->mFlags;
+  if (newFlags == oldFlags) {
+    return NS_OK;
+  }
+
   nsCOMPtr<mozIStorageStatement> stmt;
   DatabaseCore::GetStatement(
       "SetMessageFlags"_ns,
       "UPDATE messages SET flags = :flags WHERE id = :id"_ns,
       getter_AddRefs(stmt));
 
-  stmt->BindInt64ByName("id"_ns, aId);
-  stmt->BindInt64ByName("flags"_ns, aFlags);
-  return stmt->Execute();
+  stmt->BindInt64ByName("id"_ns, message->mId);
+  stmt->BindInt64ByName("flags"_ns, newFlags);
+  nsresult rv = stmt->Execute();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  message->mFlags = newFlags;
+
+  for (RefPtr<MessageListener> messageListener :
+       mMessageListeners.EndLimitedRange()) {
+    messageListener->OnMessageFlagsChanged(message, oldFlags, newFlags);
+  }
+  return NS_OK;
 }
 
 nsresult MessageDatabase::MarkAllRead(uint64_t aFolderId,
@@ -270,6 +287,48 @@ nsresult MessageDatabase::MarkAllRead(uint64_t aFolderId,
   stmt->Reset();
 
   return NS_OK;
+}
+
+nsresult MessageDatabase::GetNumMessages(uint64_t folderId,
+                                         uint64_t* numMessages) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "GetNumMessages"_ns,
+      "SELECT COUNT(*) AS numMessages FROM messages WHERE folderId = :folderId"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("folderId"_ns, folderId);
+
+  *numMessages = 0;
+  bool hasResult;
+  if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    *numMessages = (uint64_t)stmt->AsInt64(0);
+  }
+  stmt->Reset();
+
+  return rv;
+}
+
+nsresult MessageDatabase::GetNumUnread(uint64_t folderId, uint64_t* numUnread) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "GetNumUnread"_ns,
+      "SELECT COUNT(*) AS numUnread FROM messages WHERE folderId = :folderId AND flags & :flag = 0"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("folderId"_ns, folderId);
+  stmt->BindInt64ByName("flag"_ns, nsMsgMessageFlags::Read);
+
+  *numUnread = 0;
+  bool hasResult;
+  if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    *numUnread = (uint64_t)stmt->AsInt64(0);
+  }
+  stmt->Reset();
+
+  return rv;
 }
 
 nsresult MessageDatabase::GetMessageProperties(
@@ -336,7 +395,7 @@ nsresult MessageDatabase::GetMessageProperty(nsMsgKey aKey,
   *aValue = 0;
   bool hasResult;
   if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
-    *aValue = stmt->AsInt64(0);  // Strange cast, can't do much about it.
+    *aValue = (uint32_t)stmt->AsInt64(0);
   }
   stmt->Reset();
 

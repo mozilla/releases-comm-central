@@ -30,6 +30,8 @@ add_task(async function () {
       .map(message => message.toMessageString())
   );
   const testMessages = [...testFolder.messages];
+  Assert.equal(testFolder.msgDatabase.dBFolderInfo.numUnreadMessages, 5);
+  Assert.equal(testFolder.getNumUnread(false), 5);
 
   // Listen for notifications.
 
@@ -62,6 +64,7 @@ add_task(async function () {
 
   testFolder.msgDatabase = null;
   testFolder.markMessagesRead([testMessages[0], testMessages[4]], true);
+  Assert.equal(testFolder.msgDatabase.dBFolderInfo.numUnreadMessages, 3);
   Assert.equal(
     testFolder.getNumUnread(false),
     3,

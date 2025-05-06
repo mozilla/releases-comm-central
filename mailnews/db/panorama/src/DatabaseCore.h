@@ -26,8 +26,7 @@ class PerFolderDatabase;
 
 class DatabaseCore : public nsIDatabaseCore,
                      public nsIMsgDBService,
-                     public nsIObserver,
-                     public MessageListener {
+                     public nsIObserver {
  public:
   DatabaseCore();
 
@@ -35,10 +34,6 @@ class DatabaseCore : public nsIDatabaseCore,
   NS_DECL_NSIDATABASECORE
   NS_DECL_NSIMSGDBSERVICE
   NS_DECL_NSIOBSERVER
-
-  // MessageListener functions.
-  void OnMessageAdded(Message* message) override;
-  void OnMessageRemoved(Message* message) override;
 
  protected:
   virtual ~DatabaseCore() {};

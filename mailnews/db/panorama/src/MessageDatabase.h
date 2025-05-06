@@ -21,6 +21,8 @@ class MessageListener : public nsISupports {
  public:
   virtual void OnMessageAdded(Message* message) = 0;
   virtual void OnMessageRemoved(Message* message) = 0;
+  virtual void OnMessageFlagsChanged(Message* message, uint64_t oldFlags,
+                                     uint64_t newFlags) = 0;
   virtual ~MessageListener() {};
 };
 
@@ -42,6 +44,7 @@ class MessageDatabase : public nsIMessageDatabase {
  private:
   friend class Message;
   friend class PerFolderDatabase;
+  friend class FolderInfo;
 
   nsresult ListAllKeys(uint64_t aFolderId, nsTArray<nsMsgKey>& aKeys);
   nsresult GetMessage(nsMsgKey aKey, Message** aMessage);
@@ -49,9 +52,11 @@ class MessageDatabase : public nsIMessageDatabase {
                                   const nsACString& aMessageId,
                                   Message** aMessage);
   nsresult GetMessageFlag(nsMsgKey aKey, uint64_t aFlag, bool* aHasFlag);
-  nsresult SetMessageFlag(nsMsgKey aKey, uint64_t aFlag, bool aSetFlag);
-  nsresult SetMessageFlags(uint64_t aId, uint64_t aFlags);
+  nsresult SetMessageFlag(nsMsgKey key, uint64_t flag, bool setFlag);
+  nsresult SetMessageFlags(nsMsgKey key, uint64_t flags);
   nsresult MarkAllRead(uint64_t aFolderId, nsTArray<nsMsgKey>& aMarkedKeys);
+  nsresult GetNumMessages(uint64_t folderId, uint64_t* numMessages);
+  nsresult GetNumUnread(uint64_t folderId, uint64_t* numUnread);
 
   nsresult GetMessageProperties(nsMsgKey aKey,
                                 nsTArray<nsCString>& aProperties);
@@ -66,6 +71,8 @@ class MessageDatabase : public nsIMessageDatabase {
 
  private:
   nsTObserverArray<RefPtr<MessageListener>> mMessageListeners;
+
+  nsresult SetMessageFlagsInternal(Message* message, uint64_t newFlags);
 };
 
 }  // namespace mozilla::mailnews

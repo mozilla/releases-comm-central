@@ -24,6 +24,8 @@ class LiveView : public nsILiveView, public MessageListener {
 
   void OnMessageAdded(Message* message) override;
   void OnMessageRemoved(Message* message) override;
+  void OnMessageFlagsChanged(Message* message, uint64_t oldFlags,
+                             uint64_t newFlags) override;
 
  private:
   virtual ~LiveView() {
