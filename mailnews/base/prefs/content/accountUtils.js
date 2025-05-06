@@ -199,6 +199,7 @@ async function MsgAccountManager(selectPage, server) {
  */
 function openAccountSetup(isInitialSetup = false) {
   const mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+  mail3Pane.focus();
 
   // Only show the Account Hub if this is not the initial setup and there is at
   // least one account set up already.

@@ -96,8 +96,8 @@ class MenuTestHelper {
   /** @type {MenuData} */
   baseData;
 
-  constructor(menuID, baseData) {
-    this.menu = document.getElementById(menuID);
+  constructor(menuID, baseData, doc = document) {
+    this.menu = doc.getElementById(menuID);
     this.baseData = baseData;
   }
 
@@ -105,12 +105,8 @@ class MenuTestHelper {
    * Clicks on the menu and waits for it to open.
    */
   async openMenu() {
-    const shownPromise = BrowserTestUtils.waitForEvent(
-      this.menu.menupopup,
-      "popupshown"
-    );
-    EventUtils.synthesizeMouseAtCenter(this.menu, {});
-    await shownPromise;
+    EventUtils.synthesizeMouseAtCenter(this.menu, {}, this.menu.ownerGlobal);
+    await BrowserTestUtils.waitForPopupEvent(this.menu.menupopup, "shown");
   }
 
   /**
@@ -166,9 +162,7 @@ class MenuTestHelper {
    *   in `data` will be ignored.
    */
   async iterate(popup, data, itemsMustBeInData = false) {
-    if (popup.state != "open") {
-      await BrowserTestUtils.waitForEvent(popup, "popupshown");
-    }
+    await BrowserTestUtils.waitForPopupEvent(popup, "shown");
 
     for (const item of popup.children) {
       if (!item.id || item.localName == "menuseparator") {
@@ -244,12 +238,8 @@ class MenuTestHelper {
     }
 
     if (this.menu.menupopup.state != "closed") {
-      const hiddenPromise = BrowserTestUtils.waitForEvent(
-        this.menu.menupopup,
-        "popuphidden"
-      );
       this.menu.menupopup.hidePopup();
-      await hiddenPromise;
+      await BrowserTestUtils.waitForPopupEvent(this.menu.menupopup, "hidden");
     }
     await new Promise(resolve => setTimeout(resolve));
   }
@@ -264,16 +254,12 @@ class MenuTestHelper {
    */
   async activateItem(menuItemID, data) {
     await this.openMenu();
-    const hiddenPromise = BrowserTestUtils.waitForEvent(
-      this.menu.menupopup,
-      "popuphidden"
-    );
-    const item = document.getElementById(menuItemID);
+    const item = this.menu.ownerDocument.getElementById(menuItemID);
     if (data) {
       this.checkItem(item, data);
     }
     this.menu.menupopup.activateItem(item);
-    await hiddenPromise;
+    await BrowserTestUtils.waitForPopupEvent(this.menu.menupopup, "hidden");
     await new Promise(resolve => setTimeout(resolve));
   }
 }

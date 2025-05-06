@@ -7,6 +7,12 @@
 const { openAccountSettings } = ChromeUtils.importESModule(
   "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
 );
+const { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
+const { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
 const ACCOUNT_HUB_ENABLED = Services.prefs.getBoolPref(
   "mail.accounthub.enabled",
@@ -14,8 +20,6 @@ const ACCOUNT_HUB_ENABLED = Services.prefs.getBoolPref(
 );
 
 add_task(async function test_open_account_hub_menubar() {
-  const initialAccount = MailServices.accounts.createAccount();
-
   const menubar = document.getElementById("toolbar-menubar");
   menubar.setAttribute("autohide", "false");
 
@@ -35,13 +39,11 @@ add_task(async function test_open_account_hub_menubar() {
     dialog,
     dialog.querySelector("email-auto-form")
   );
-  MailServices.accounts.removeAccount(initialAccount, true);
   menubar.setAttribute("autohide", "true");
 }).skip(!ACCOUNT_HUB_ENABLED || AppConstants.platform === "macosx");
 
 add_task(async function test_open_account_hub_appmenu() {
   Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
-  const initialAccount = MailServices.accounts.createAccount();
 
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("button-appmenu"),
@@ -72,13 +74,10 @@ add_task(async function test_open_account_hub_appmenu() {
     dialog,
     dialog.querySelector("email-auto-form")
   );
-  MailServices.accounts.removeAccount(initialAccount, true);
   Services.prefs.clearUserPref("ui.prefersReducedMotion");
 }).skip(!ACCOUNT_HUB_ENABLED);
 
 add_task(async function test_open_account_hub_account_central() {
-  const initialAccount = MailServices.accounts.createAccount();
-
   const tabmail = document.getElementById("tabmail");
   const about3Pane = tabmail.currentAbout3Pane;
   const accountCentral = about3Pane.document.getElementById(
@@ -97,12 +96,9 @@ add_task(async function test_open_account_hub_account_central() {
     dialog,
     dialog.querySelector("email-auto-form")
   );
-  MailServices.accounts.removeAccount(initialAccount, true);
 }).skip(!ACCOUNT_HUB_ENABLED);
 
 add_task(async function test_open_account_hub_account_settings() {
-  const initialAccount = MailServices.accounts.createAccount();
-
   const accountSettings = await openAccountSettings();
   const asWindow = accountSettings.browser.contentWindow;
 
@@ -124,5 +120,69 @@ add_task(async function test_open_account_hub_account_settings() {
     dialog.querySelector("email-auto-form")
   );
   document.getElementById("tabmail").closeTab(accountSettings);
-  MailServices.accounts.removeAccount(initialAccount, true);
 }).skip(!ACCOUNT_HUB_ENABLED);
+
+add_task(async function test_open_account_hub_message_window() {
+  const generator = new MessageGenerator();
+
+  if (MailServices.accounts.accounts.length == 0) {
+    MailServices.accounts.createLocalMailAccount();
+  }
+  const rootFolder =
+    MailServices.accounts.localFoldersServer.rootFolder.QueryInterface(
+      Ci.nsIMsgLocalMailFolder
+    );
+
+  const folder = rootFolder
+    .createLocalSubfolder("account hub menu")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folder.addMessageBatch(
+    generator
+      .makeMessages({ count: 1 })
+      .map(message => message.toMessageString())
+  );
+  const testMessages = [...folder.messages];
+  const messageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    async win =>
+      win.document.documentURI ==
+      "chrome://messenger/content/messageWindow.xhtml"
+  );
+  MailUtils.openMessageInNewWindow(testMessages[0]);
+
+  const messageWindow = await messageWindowPromise;
+  const messageDoc = messageWindow.document;
+  await SimpleTest.promiseFocus(messageWindow);
+
+  const menu = messageDoc.getElementById("menu_File");
+  EventUtils.synthesizeMouseAtCenter(menu, {}, messageWindow);
+  await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "shown");
+
+  const newMenu = messageDoc.getElementById("menu_New");
+  newMenu.openMenu(true);
+  await BrowserTestUtils.waitForPopupEvent(newMenu.menupopup, "shown");
+
+  newMenu.menupopup.activateItem(
+    messageDoc.getElementById("newMailAccountMenuItem")
+  );
+
+  await BrowserTestUtils.waitForPopupEvent(newMenu.menupopup, "hidden");
+  await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "hidden");
+
+  const dialog = await subtest_wait_for_account_hub_dialog();
+  Assert.equal(
+    Services.focus.activeWindow,
+    window,
+    "Should focus main window to open account hub"
+  );
+
+  await subtest_close_account_hub_dialog(
+    dialog,
+    dialog.querySelector("email-auto-form")
+  );
+
+  await BrowserTestUtils.closeWindow(messageWindow);
+  const trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+  folder.deleteSelf(null);
+  trash.emptyTrash(null);
+}).skip(!ACCOUNT_HUB_ENABLED || AppConstants.platform === "macosx");

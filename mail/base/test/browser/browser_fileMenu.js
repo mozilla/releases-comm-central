@@ -5,6 +5,9 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
 /** @type {MenuData} */
 const fileMenuData = {
@@ -12,8 +15,14 @@ const fileMenuData = {
   menu_newNewMsgCmd: {},
   "calendar-new-event-menuitem": { hidden: true },
   "calendar-new-task-menuitem": { hidden: true },
-  menu_newFolder: { hidden: ["mailMessageTab", "contentTab"] },
-  menu_newVirtualFolder: { hidden: ["mailMessageTab", "contentTab"] },
+  menu_newFolder: {
+    hidden: ["mailMessageTab", "contentTab"],
+    disabled: ["mailMessageWindow"],
+  },
+  menu_newVirtualFolder: {
+    hidden: ["mailMessageTab", "contentTab"],
+    disabled: ["mailMessageWindow"],
+  },
   newMailAccountMenuItem: {},
   newIMAccountMenuItem: {},
   newFeedAccountMenuItem: {},
@@ -36,10 +45,16 @@ const fileMenuData = {
   menu_getnextnmsg: { hidden: true },
   menu_sendunsentmsgs: { disabled: true },
   menu_subscribe: { disabled: true },
-  menu_deleteFolder: { disabled: true },
-  menu_renameFolder: { disabled: true },
-  menu_compactFolder: { disabled: ["mailMessageTab", "contentTab"] },
-  menu_emptyTrash: { disabled: ["mailMessageTab", "contentTab"] },
+  menu_deleteFolder: { disabled: true, hidden: ["mailMessageWindow"] },
+  menu_renameFolder: { disabled: true, hidden: ["mailMessageWindow"] },
+  menu_compactFolder: {
+    disabled: ["mailMessageTab", "contentTab"],
+    hidden: ["mailMessageWindow"],
+  },
+  menu_emptyTrash: {
+    disabled: ["mailMessageTab", "contentTab"],
+    hidden: ["mailMessageWindow"],
+  },
   offlineMenuItem: {},
   goOfflineMenuItem: {},
   menu_synchronizeOffline: {},
@@ -49,6 +64,20 @@ const fileMenuData = {
   printMenuItem: { disabled: ["mail3PaneTab"] },
   menu_FileQuitItem: {},
 };
+const nonMainWindowData = Object.fromEntries(
+  Object.entries(fileMenuData).filter(
+    ([id]) =>
+      ![
+        "calendar-new-event-menuitem",
+        "calendar-new-task-menuitem",
+        "calendar-new-calendar-menuitem",
+        "calendar-open-calendar-file-menuitem",
+        "calendar-save-menuitem",
+        "calendar-save-and-close-menuitem",
+        "menu_FileQuitItem",
+      ].includes(id)
+  )
+);
 const helper = new MenuTestHelper("menu_File", fileMenuData);
 
 const tabmail = document.getElementById("tabmail");
@@ -135,4 +164,26 @@ add_task(async function testMessageTab() {
 add_task(async function testContentTab() {
   tabmail.switchToTab(2);
   await helper.testAllItems("contentTab");
+});
+
+add_task(async function testMessageWindow() {
+  const messageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    async win =>
+      win.document.documentURI ==
+      "chrome://messenger/content/messageWindow.xhtml"
+  );
+  MailUtils.openMessageInNewWindow(testMessages[0]);
+
+  const messageWindow = await messageWindowPromise;
+  await SimpleTest.promiseFocus(messageWindow);
+  const windowTestHelper = new MenuTestHelper(
+    "menu_File",
+    nonMainWindowData,
+    messageWindow.document
+  );
+
+  await windowTestHelper.testAllItems("mailMessageWindow");
+
+  await BrowserTestUtils.closeWindow(messageWindow);
 });
