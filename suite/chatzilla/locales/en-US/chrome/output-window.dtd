@@ -2,8 +2,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!ENTITY output.knownnets.label "Known Networks">
-<!ENTITY output.connnets.label "Connected Networks">
 <!ENTITY output.url.label "URL">
 <!ENTITY output.notconn.label "Not Connected">
 <!ENTITY output.mode.label "Mode">

@@ -133,7 +133,6 @@ var gNetworkWindow = {
 
     networksSyncFromList(this.networkList);
     window.close();
-    client.updateHeader();
     client.dispatch("networks");
     return true;
   },

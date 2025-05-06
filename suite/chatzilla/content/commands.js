@@ -1415,6 +1415,7 @@ function cmdNetworks(e) {
 
   wrapper.appendChild(spanb);
   display(wrapper, MT_INFO);
+  updateSecurityIcon();
 }
 
 function cmdEditNetworks(e) {

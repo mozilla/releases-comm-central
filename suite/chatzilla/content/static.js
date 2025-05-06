@@ -1579,6 +1579,11 @@ function updateSecurityIcon() {
   var o = getObjectDetails(client.currentObject);
   let label;
   switch (o.TYPE) {
+    case "IRCClient":
+      let k = Object.keys(client.networks).length;
+      let c = client.getConnectionCount();
+      label = client.bundle.getFormattedString("clientNetworks", [k, c]);
+      break;
     case "IRCNetwork":
       label = o.network.viewName;
       break;
@@ -1826,7 +1831,7 @@ function updateTitle(obj) {
     return;
   }
 
-  var tstring = MSG_TITLE_UNKNOWN;
+  let tstring = "";
   var o = getObjectDetails(client.currentObject);
   var net = o.network ? o.network.unicodeName : "";
   var nick = "";
@@ -1834,11 +1839,9 @@ function updateTitle(obj) {
 
   switch (client.currentObject.TYPE) {
     case "IRCNetwork":
-      var serv = "",
-        port = "";
       if (client.currentObject.isConnected()) {
-        serv = o.server.hostname;
-        port = o.server.port;
+        let serv = o.server.hostname;
+        let port = o.server.port;
         if (o.server.me) {
           nick = o.server.me.unicodeName;
         }
@@ -1850,9 +1853,6 @@ function updateTitle(obj) {
       break;
 
     case "IRCChannel":
-      var chan = "",
-        mode = "",
-        topic = "";
       if ("me" in o.parent) {
         nick = o.parent.me.unicodeName;
         if (o.parent.me.collectionKey in client.currentObject.users) {
@@ -1872,12 +1872,12 @@ function updateTitle(obj) {
       } else {
         nick = MSG_TITLE_NONICK;
       }
-      chan = o.channel.unicodeName;
-      mode = o.channel.mode.getModeStr();
+      let chan = o.channel.unicodeName;
+      let mode = o.channel.mode.getModeStr();
       if (!mode) {
         mode = MSG_TITLE_NO_MODE;
       }
-      topic = o.channel.topic ? o.channel.topic : MSG_TITLE_NO_TOPIC;
+      let topic = o.channel.topic ? o.channel.topic : MSG_TITLE_NO_TOPIC;
       var re = /\x1f|\x02|\x0f|\x16|\x03([0-9]{1,2}(,[0-9]{1,2})?)?/g;
       topic = topic.replace(re, "");
 
@@ -1901,6 +1901,10 @@ function updateTitle(obj) {
 
     case "IRCClient":
       nick = client.prefs.nickname;
+      tstring = getMsg(MSG_TITLE_CLIENT, [
+        client.version,
+        Services.appinfo.name,
+      ]);
       break;
 
     case "IRCDCCChat":
@@ -1919,18 +1923,6 @@ function updateTitle(obj) {
         tstring = getMsg(MSG_TITLE_DCCFILE_GET, data);
       }
       break;
-  }
-
-  if (0 && !client.uiState.tabstrip) {
-    var actl = [];
-    for (var i in client.activityList) {
-      actl.push(
-        client.activityList[i] == "!" ? Number(i) + 1 + "!" : Number(i) + 1
-      );
-    }
-    if (actl.length > 0) {
-      tstring = getMsg(MSG_TITLE_ACTIVITY, [tstring, actl.join(", ")]);
-    }
   }
 
   document.title = tstring;
@@ -3390,8 +3382,8 @@ client.connectToNetwork = function (networkOrName, requireSecurity) {
   network.connect(requireSecurity);
 
   network.updateHeader();
-  client.updateHeader();
   updateTitle();
+  updateSecurityIcon();
 
   return network;
 };

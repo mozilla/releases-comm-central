@@ -163,11 +163,6 @@
     text-align: center;
 }
 
-#cli-version-container {
-    text-align: center;
-    width: 100%;
-}
-
 #usr-descnodes, #ch-topicnodes {
     line-height: 110%;
 }

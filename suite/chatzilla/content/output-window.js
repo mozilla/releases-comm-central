@@ -17,18 +17,6 @@ var getObjectDetails;
 
 var header = null;
 var headers = {
-  IRCClient: {
-    prefix: "cli-",
-    fields: [
-      "container",
-      "netcount",
-      "version-container",
-      "version",
-      "connectcount",
-    ],
-    update: updateClient,
-  },
-
   IRCNetwork: {
     prefix: "net-",
     fields: ["container", "url-anchor", "status"],
@@ -276,7 +264,7 @@ function scrollToElement(element, position) {
     center: window.innerHeight / 2,
     bottom: window.innerHeight,
   };
-  if (!hasAttribute("container", "hidden")) {
+  if (header && !hasAttribute("container", "hidden")) {
     /* Offset height doesn't include the margins, so we get to do that
      * ourselves via getComputedStyle(). We're assuming that will return
      * a px value, which is all but guaranteed.
@@ -412,22 +400,6 @@ function updateHeader() {
   if (header.update) {
     header.update();
   }
-}
-
-function updateClient() {
-  var n = 0,
-    c = 0;
-  for (name in client.networks) {
-    ++n;
-    if (client.networks[name].isConnected()) {
-      ++c;
-    }
-  }
-
-  setAttribute("version-container", "title", client.userAgent);
-  setText("version", client.version);
-  setText("netcount", String(n));
-  setText("connectcount", String(c));
 }
 
 function updateNetwork() {

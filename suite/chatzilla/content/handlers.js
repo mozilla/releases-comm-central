@@ -1163,7 +1163,6 @@ CIRCNetwork.prototype.on001 =
           addURLToHistory(this.getURL());
           updateTitle(this);
           this.updateHeader();
-          client.updateHeader();
           updateSecurityIcon();
           updateStalkExpression(this);
 
