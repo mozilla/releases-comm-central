@@ -20,7 +20,6 @@ var {
   create_folder,
   make_message_sets_in_folders,
   set_mc,
-  set_pane_layout,
   toggle_message_pane,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
@@ -364,7 +363,7 @@ add_task(async function test_message_pane_width_persistence() {
     Services.prefs.getIntPref("mail.pane_config.dynamic"),
     kClassicMailLayout
   );
-  set_pane_layout(kVerticalMailLayout);
+  Services.prefs.setIntPref("mail.pane_config.dynamic", kVerticalMailLayout);
   Assert.equal(
     Services.prefs.getIntPref("mail.pane_config.dynamic"),
     kVerticalMailLayout
@@ -488,7 +487,8 @@ add_task(async function test_message_pane_width_persistence() {
   );
 
   // The layout is reset to classical mail layout.
-  set_pane_layout(kClassicMailLayout);
+  Services.prefs.setIntPref("mail.pane_config.dynamic", kClassicMailLayout);
+
   Assert.equal(
     Services.prefs.getIntPref("mail.pane_config.dynamic"),
     kClassicMailLayout

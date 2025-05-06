@@ -2364,15 +2364,6 @@ export function throw_and_dump_view_state(aMessage, aWin) {
 }
 
 /**
- * Change the current mail pane layout.
- *
- * @param {integer} aLayout - Layout code.
- */
-export function set_pane_layout(aLayout) {
-  Services.prefs.setIntPref("mail.pane_config.dynamic", aLayout);
-}
-
-/**
  * Toggle visibility of the Main menu bar.
  *
  * @param {boolean} aEnabled - Whether the menu should be shown or not.
