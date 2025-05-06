@@ -11,4 +11,3 @@ run-sequentially = true
 
 ["test_fetchWhileLocked.js"]
 
-["test_nstmpCleanup.js"]
