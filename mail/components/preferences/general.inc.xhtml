@@ -435,13 +435,9 @@
       </hbox>
 #endif
       <hbox align="center">
-#ifdef XP_MACOSX
-        <description class="bold" data-l10n-id="notification-settings2"/>
-#else
         <checkbox id="newMailNotificationAlert"
                   data-l10n-id="animated-alert-label"
                   preference="mail.biff.show_alert"/>
-#endif
         <spacer flex="1"/>
         <hbox>
           <button is="highlightable-button" id="customizeMailAlert"

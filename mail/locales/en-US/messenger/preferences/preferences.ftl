@@ -212,8 +212,6 @@ app-icon-options =
     .label = App Icon Options…
     .accesskey = n
 
-notification-settings2 = Alerts and the default sound can be disabled on the Notification pane of System Settings.
-
 animated-alert-label =
     .label = Show an alert
     .accesskey = S
