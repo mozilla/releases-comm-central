@@ -1577,6 +1577,27 @@ function updateProgress() {
 
 function updateSecurityIcon() {
   var o = getObjectDetails(client.currentObject);
+  let label;
+  switch (o.TYPE) {
+    case "IRCNetwork":
+      label = o.network.viewName;
+      break;
+    case "IRCChannel":
+      label = o.channel.viewName;
+      break;
+    case "IRCUser":
+      label = o.user.viewName;
+      break;
+    case "IRCDCCChat":
+      label = o.chat.viewName;
+      break;
+    default:
+      label = "";
+      break;
+  }
+  let viewStatus = window.document.getElementById("view-status");
+  viewStatus.label = label;
+
   var securityButton = window.document.getElementById("security-button");
   securityButton.label = "";
   securityButton.removeAttribute("level");

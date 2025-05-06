@@ -882,6 +882,9 @@
                      mode="undetermined"
                      value="0"/>
     </statusbarpanel>
+    <statusbarpanel id="view-status"
+                    class="statusbarpanel-text"
+                    label=""/>
     <statusbarpanel id="security-button"
                     class="statusbarpanel-iconic-text"
                     dir="reverse"
