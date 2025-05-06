@@ -3334,52 +3334,42 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
                                           nsIMsgFolder** child) {
   NS_ENSURE_ARG_POINTER(child);
 
-  int32_t flags = 0;
-  nsresult rv;
-
-  nsAutoCString uri(mURI);
-  uri.Append('/');
-
-  // URI should use UTF-8
-  // (see RFC2396 Uniform Resource Identifiers (URI): Generic Syntax)
-  nsAutoCString escapedName;
-  rv = NS_MsgEscapeEncodeURLPath(name, escapedName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // Ensure the containing (.sbd) dir exists.
   nsCOMPtr<nsIFile> path;
-  rv = CreateDirectoryForFolder(getter_AddRefs(path));
+  nsresult rv = CreateDirectoryForFolder(getter_AddRefs(path));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // fix for #192780
-  // if this is the root folder
-  // make sure the the special folders
-  // have the right uri.
-  // on disk, host\INBOX should be a folder with the uri
-  // mailbox://user@host/Inbox" as mailbox://user@host/Inbox !=
-  // mailbox://user@host/INBOX
-  nsCOMPtr<nsIMsgFolder> rootFolder;
-  rv = GetRootFolder(getter_AddRefs(rootFolder));
-  if (NS_SUCCEEDED(rv) && rootFolder &&
-      (rootFolder.get() == (nsIMsgFolder*)this)) {
-    if (escapedName.LowerCaseEqualsLiteral("inbox"))
-      uri += "Inbox";
-    else if (escapedName.LowerCaseEqualsLiteral("unsent%20messages"))
-      uri += "Unsent%20Messages";
-    else if (escapedName.LowerCaseEqualsLiteral("drafts"))
-      uri += "Drafts";
-    else if (escapedName.LowerCaseEqualsLiteral("trash"))
-      uri += "Trash";
-    else if (escapedName.LowerCaseEqualsLiteral("sent"))
-      uri += "Sent";
-    else if (escapedName.LowerCaseEqualsLiteral("templates"))
-      uri += "Templates";
-    else if (escapedName.LowerCaseEqualsLiteral("archives"))
-      uri += "Archives";
-    else
-      uri += escapedName.get();
-  } else
-    uri += escapedName.get();
+  // The name we'll actually use for the new folder. Children of the root
+  // folder with special names have the case of the name enforced.
+  nsAutoCString actualName(name);
+
+  // Flags for the new folder.
+  int32_t flags = 0;
+
+  bool isServer;
+  rv = GetIsServer(&isServer);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (isServer) {
+    if (name.LowerCaseEqualsLiteral("inbox")) {
+      actualName = "Inbox";
+      flags |= nsMsgFolderFlags::Inbox;
+      SetBiffState(nsIMsgFolder::nsMsgBiffState_Unknown);
+    } else if (name.LowerCaseEqualsLiteral("unsent messages")) {
+      actualName = "Unsent Messages";
+      flags |= nsMsgFolderFlags::Queue;
+    } else if (name.LowerCaseEqualsLiteral("drafts")) {
+      actualName = "Drafts";
+    } else if (name.LowerCaseEqualsLiteral("trash")) {
+      actualName = "Trash";
+      flags |= nsMsgFolderFlags::Trash;
+    } else if (name.LowerCaseEqualsLiteral("sent")) {
+      actualName = "Sent";
+    } else if (name.LowerCaseEqualsLiteral("templates")) {
+      actualName = "Templates";
+    } else if (name.LowerCaseEqualsLiteral("archives")) {
+      actualName = "Archives";
+    }
+  }
 
   nsCOMPtr<nsIMsgFolder> folder;
 #ifdef MOZ_PANORAMA
@@ -3393,7 +3383,7 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
     core->GetFolders(getter_AddRefs(folders));
 
     nsCOMPtr<nsIFolder> dbFolder;
-    folders->InsertFolder(mDBFolder, name, getter_AddRefs(dbFolder));
+    folders->InsertFolder(mDBFolder, actualName, getter_AddRefs(dbFolder));
 
     folder = do_CreateInstance("@mozilla.org/mail/folder;1?name=mailbox", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -3403,6 +3393,15 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
 #endif  // MOZ_PANORAMA
+    // URI should use UTF-8
+    // (see RFC2396 Uniform Resource Identifiers (URI): Generic Syntax)
+    nsAutoCString escapedName;
+    rv = NS_MsgEscapeEncodeURLPath(actualName, escapedName);
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoCString uri(mURI);
+    uri.Append('/');
+    uri += escapedName.get();
+
     nsCOMPtr<nsIMsgFolder> msgFolder;
     rv = GetChildWithURI(uri, false /*deep*/, true /*case Insensitive*/,
                          getter_AddRefs(msgFolder));
@@ -3413,33 +3412,12 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
 #ifdef MOZ_PANORAMA
   }
 #endif  // MOZ_PANORAMA
+  MOZ_ASSERT(folder, "there must be a folder");
 
-  folder->GetFlags((uint32_t*)&flags);
-  flags |= nsMsgFolderFlags::Mail;
   folder->SetParent(this);
-
-  bool isServer;
-  rv = GetIsServer(&isServer);
-
-  // Only set these if these are top level children.
-  if (NS_SUCCEEDED(rv) && isServer) {
-    if (name.LowerCaseEqualsLiteral("inbox")) {
-      flags |= nsMsgFolderFlags::Inbox;
-      SetBiffState(nsIMsgFolder::nsMsgBiffState_Unknown);
-    } else if (name.LowerCaseEqualsLiteral("trash"))
-      flags |= nsMsgFolderFlags::Trash;
-    else if (name.LowerCaseEqualsLiteral("unsent messages") ||
-             name.LowerCaseEqualsLiteral("outbox"))
-      flags |= nsMsgFolderFlags::Queue;
-  }
-
-  folder->SetFlags(flags);
-
-  if (folder) mSubFolders.AppendObject(folder);
-
+  mSubFolders.AppendObject(folder);
+  folder->SetFlag(flags | nsMsgFolderFlags::Mail);
   folder.forget(child);
-  // at this point we must be ok and we don't want to return failure in case
-  // GetIsServer failed.
   return NS_OK;
 }
 
