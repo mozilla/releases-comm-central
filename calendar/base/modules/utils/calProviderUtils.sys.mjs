@@ -79,12 +79,16 @@ export var provider = {
       }
     }
 
+    // We cannot use a system principal due to the above explanation.
+    const principal = aExistingChannel
+      ? null
+      : Services.scriptSecurityManager.createContentPrincipal(aUri, originAttributes);
     const channel =
       aExistingChannel ||
       Services.io.newChannelFromURI(
         aUri,
         null,
-        Services.scriptSecurityManager.getSystemPrincipal(),
+        principal,
         null,
         Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
         Ci.nsIContentPolicy.TYPE_OTHER
