@@ -61,7 +61,11 @@ async function assertColumns(
   folderSize = null
 ) {
   const checkLabel = (label, content) => {
-    Assert.equal(label.hidden, content == null, `${label} should be visible`);
+    Assert.equal(
+      label.hidden,
+      content == null,
+      content == null ? "label should be visible" : "label should be hidden"
+    );
     if (!content) {
       return;
     }
@@ -69,7 +73,7 @@ async function assertColumns(
     Assert.equal(
       label.textContent,
       content,
-      "${label} should display the correct content"
+      "label should display the correct content"
     );
   };
 
@@ -92,9 +96,8 @@ add_task(function testFolderPaneHeaderDefaultState() {
 });
 
 add_task(async function testHideFolderPaneHeader() {
-  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
 
   const hiddenPromise = BrowserTestUtils.waitForCondition(
     () => folderPaneHeader.hidden,
@@ -123,30 +126,28 @@ add_task(async function testHideFolderPaneHeader() {
   menubar.removeAttribute("inactive");
   await new Promise(resolve => requestAnimationFrame(resolve));
 
-  const viewShownPromise = BrowserTestUtils.waitForEvent(
-    document.getElementById("menu_View_Popup"),
-    "popupshown"
-  );
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("menu_View"),
     {},
     window
   );
-  await viewShownPromise;
+  await BrowserTestUtils.waitForPopupEvent(
+    document.getElementById("menu_View_Popup"),
+    "shown"
+  );
 
   const viewMenuPopup = document.getElementById("menu_View_Popup");
   Assert.ok(viewMenuPopup.querySelector("#menu_FolderViews"));
 
-  const folderViewShownPromise = BrowserTestUtils.waitForEvent(
-    document.getElementById("menu_FolderViewsPopup"),
-    "popupshown"
-  );
   EventUtils.synthesizeMouseAtCenter(
     viewMenuPopup.querySelector("#menu_FolderViews"),
     {},
     window
   );
-  await folderViewShownPromise;
+  await BrowserTestUtils.waitForPopupEvent(
+    document.getElementById("menu_FolderViewsPopup"),
+    "shown"
+  );
 
   const toggleFolderHeader = menubar.querySelector(`[name="paneheader"]`);
   Assert.ok(
@@ -160,19 +161,14 @@ add_task(async function testHideFolderPaneHeader() {
     "The toggle header menu item is checked"
   );
 
-  const folderViewHiddenPromise = BrowserTestUtils.waitForEvent(
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await BrowserTestUtils.waitForPopupEvent(
     document.getElementById("menu_FolderViewsPopup"),
-    "popuphidden"
+    "hidden"
   );
-  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await folderViewHiddenPromise;
 
-  const viewHiddenPromise = BrowserTestUtils.waitForEvent(
-    viewMenuPopup,
-    "popuphidden"
-  );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await viewHiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(viewMenuPopup, "hidden");
 
   await BrowserTestUtils.waitForCondition(
     () => !folderPaneHeader.hidden,
@@ -191,17 +187,14 @@ add_task(async function testTogglePaneHeaderFromAppMenu() {
   );
 
   async function toggleFolderPaneHeader(shouldBeChecked) {
+    info(`Toggling folder pane ${shouldBeChecked ? "on" : "off"}`);
     const appMenu = document.getElementById("appMenu-popup");
-    const menuShownPromise = BrowserTestUtils.waitForEvent(
-      appMenu,
-      "popupshown"
-    );
     EventUtils.synthesizeMouseAtCenter(
       document.getElementById("button-appmenu"),
       {},
       window
     );
-    await menuShownPromise;
+    await BrowserTestUtils.waitForPopupEvent(appMenu, "shown");
 
     const viewShownPromise = BrowserTestUtils.waitForEvent(
       appMenu.querySelector("#appMenu-viewView"),
@@ -234,17 +227,13 @@ add_task(async function testTogglePaneHeaderFromAppMenu() {
 
     EventUtils.synthesizeMouseAtCenter(appMenuButton, {}, window);
 
-    const menuHiddenPromise = BrowserTestUtils.waitForEvent(
-      appMenu,
-      "popuphidden"
-    );
     // Close the appmenu.
     EventUtils.synthesizeMouseAtCenter(
       document.getElementById("button-appmenu"),
       {},
       window
     );
-    await menuHiddenPromise;
+    await BrowserTestUtils.waitForPopupEvent(appMenu, "hidden");
   }
 
   await toggleFolderPaneHeader(true);
@@ -279,12 +268,8 @@ add_task(async function testTogglePaneHeaderButtons() {
     let shouldBeChecked = !toggleButton.hidden;
 
     // Hide the toggle buttons
-    const shownPromise = BrowserTestUtils.waitForEvent(
-      moreContext,
-      "popupshown"
-    );
     EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-    await shownPromise;
+    await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
 
     Assert.equal(
       toggleMenuItem.hasAttribute("checked"),
@@ -315,16 +300,12 @@ add_task(async function testTogglePaneHeaderButtons() {
       "The customization data was saved"
     );
 
-    const menuHiddenPromise = BrowserTestUtils.waitForEvent(
-      moreContext,
-      "popuphidden"
-    );
     EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-    await menuHiddenPromise;
+    await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 
     // display the toggle buttons
     EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-    await shownPromise;
+    await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
 
     shouldBeChecked = !toggleButton.hidden;
 
@@ -352,7 +333,7 @@ add_task(async function testTogglePaneHeaderButtons() {
     );
 
     EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-    await menuHiddenPromise;
+    await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
   }
 });
 
@@ -360,35 +341,36 @@ add_task(async function testTogglePaneHeaderButtons() {
  * Test the default state of the context menu in the about3Pane.
  */
 add_task(async function testInitialActiveModes() {
-  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-  await shownPromise;
-
-  const shownFolderModesSubMenuPromise = BrowserTestUtils.waitForEvent(
-    folderModesContextMenuPopup,
-    "popupshown"
-  );
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
 
   EventUtils.synthesizeMouseAtCenter(folderModesContextMenu, {}, about3Pane);
-  await shownFolderModesSubMenuPromise;
+  await BrowserTestUtils.waitForPopupEvent(
+    folderModesContextMenuPopup,
+    "shown"
+  );
 
   Assert.equal(
     about3Pane.folderPane.activeModes.length,
     1,
-    "Only one active mode"
+    "Should have only one active mode"
   );
   Assert.equal(
     about3Pane.folderPane.activeModes.at(0),
     "all",
-    "The first item is 'all' value"
+    "The first item should be 'all'"
   );
   Assert.ok(
     moreContext
       .querySelector("#folderPaneMoreContextAllFolders")
       .getAttribute("checked"),
-    "'All' toggle is checked"
+    "'All' toggle should be checked"
   );
-  Assert.equal(moreContext.state, "open", "The context menu remains open");
+  Assert.equal(
+    moreContext.state,
+    "open",
+    "The context menu should still be open"
+  );
 });
 
 /**
@@ -489,30 +471,24 @@ add_task(async function testFolderModesDeactivation() {
     }
     checkedModesCount--;
   }
-  Assert.equal(moreContext.state, "open", "The context menu remains open");
-  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+  Assert.equal(moreContext.state, "open", "The context menu should be open");
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await BrowserTestUtils.waitForPopupEvent(
     folderModesContextMenuPopup,
-    "popuphidden"
+    "hidden"
   );
-  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await menuHiddenPromise;
 
-  menuHiddenPromise = BrowserTestUtils.waitForEvent(moreContext, "popuphidden");
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await menuHiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 });
 
 add_task(async function testGetMessageContextMenu() {
-  const shownPromise = BrowserTestUtils.waitForEvent(
-    fetchContext,
-    "popupshown"
-  );
   EventUtils.synthesizeMouseAtCenter(
     fetchButton,
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(fetchContext, "shown");
 
   Assert.equal(
     fetchContext.querySelectorAll("menuitem").length,
@@ -520,12 +496,8 @@ add_task(async function testGetMessageContextMenu() {
     "2 menuitems should be present in the fetch context"
   );
 
-  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
-    fetchContext,
-    "popuphidden"
-  );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await menuHiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(fetchContext, "hidden");
 });
 
 add_task(async function testTotalCountDefaultState() {
@@ -559,9 +531,8 @@ add_task(async function testTotalCountDefaultState() {
 
 add_task(async function testTotalCountVisible() {
   const totalCountBadge = about3Pane.document.querySelector(".total-count");
-  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
 
   // Toggle total count ON.
   const toggleOnPromise = BrowserTestUtils.waitForCondition(
@@ -584,12 +555,8 @@ add_task(async function testTotalCountVisible() {
     "The customization data was saved"
   );
 
-  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
-    moreContext,
-    "popuphidden"
-  );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await menuHiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 
   const row = about3Pane.folderTree.getRowAtIndex(1);
   await assertAriaLabel(row, "Inbox, 9 unread messages, 10 total messages");
@@ -614,9 +581,8 @@ add_task(async function testFolderSizeDefaultState() {
 
 add_task(async function testFolderSizeVisible() {
   const folderSizeBadge = about3Pane.document.querySelector(".folder-size");
-  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
 
   // Toggle folder size ON.
   const toggleOnPromise = BrowserTestUtils.waitForCondition(
@@ -641,12 +607,8 @@ add_task(async function testFolderSizeVisible() {
 
   Assert.ok(!folderSizeBadge.hidden, "The folder sizes are visible");
 
-  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
-    moreContext,
-    "popuphidden"
-  );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await menuHiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 
   const row = about3Pane.folderTree.getRowAtIndex(1);
   await assertAriaLabel(
@@ -658,9 +620,8 @@ add_task(async function testFolderSizeVisible() {
 
 add_task(async function testFolderSizeHidden() {
   const folderSizeBadge = about3Pane.document.querySelector(".folder-size");
-  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
 
   // Toggle folder sizes OFF.
   const toggleOffPromise = BrowserTestUtils.waitForCondition(
@@ -687,19 +648,14 @@ add_task(async function testFolderSizeHidden() {
 
   Assert.ok(folderSizeBadge.hidden, "The folder sizes are hidden");
 
-  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
-    moreContext,
-    "popuphidden"
-  );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await menuHiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 });
 
 add_task(async function testTotalCountHidden() {
   const totalCountBadge = about3Pane.document.querySelector(".total-count");
-  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
 
   // Toggle total count OFF.
   const toggleOffPromise = BrowserTestUtils.waitForCondition(
@@ -723,12 +679,8 @@ add_task(async function testTotalCountHidden() {
     "The customization data was saved"
   );
 
-  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
-    moreContext,
-    "popuphidden"
-  );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await menuHiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 
   const row = about3Pane.folderTree.getRowAtIndex(1);
   await assertAriaLabel(row, "Inbox, 9 unread messages");
@@ -736,9 +688,8 @@ add_task(async function testTotalCountHidden() {
 });
 
 add_task(async function testHideLocalFoldersXULStore() {
-  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
 
   moreContext.activateItem(
     moreContext.querySelector("#folderPaneHeaderToggleLocalFolders")
@@ -749,16 +700,11 @@ add_task(async function testHideLocalFoldersXULStore() {
     "The customization data to hide local folders should be saved"
   );
 
-  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
-    moreContext,
-    "popuphidden"
-  );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await menuHiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 
-  shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
 
   Assert.ok(
     moreContext
@@ -817,12 +763,8 @@ add_task(async function testBadgesPersistentState() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 250));
 
-  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
-    moreContext,
-    "popuphidden"
-  );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await menuHiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 
   // Ensure the badges are still visible.
   Assert.ok(
@@ -886,15 +828,12 @@ add_task(async function testBadgesPersistentState() {
  */
 add_task(async function testAddFolderToFavorites() {
   // Enable "Favorite Folders" mode.
-  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-  await shownPromise;
-  const shownFolderModesSubMenuPromise = BrowserTestUtils.waitForEvent(
-    folderModesContextMenuPopup,
-    "popupshown"
-  );
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
+
   EventUtils.synthesizeMouseAtCenter(folderModesContextMenu, {}, about3Pane);
-  await shownFolderModesSubMenuPromise;
+  await BrowserTestUtils.waitForPopupEvent(folderModesContextMenu, "shown");
+
   const mode = {
     menuID: "#folderPaneMoreContextFavoriteFolders",
     modeID: "favorite",
@@ -905,18 +844,14 @@ add_task(async function testAddFolderToFavorites() {
   );
   moreContext.activateItem(moreContext.querySelector(mode.menuID));
   await checkedPromise;
-  const folderViewHiddenPromise = BrowserTestUtils.waitForEvent(
+
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await BrowserTestUtils.waitForPopupEvent(
     folderModesContextMenuPopup,
-    "popuphidden"
+    "hidden"
   );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await folderViewHiddenPromise;
-  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
-    moreContext,
-    "popuphidden"
-  );
-  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await menuHiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 
   // Set inbox as favorite and let the folder tree update itself.
   inbox.setFlag(Ci.nsMsgFolderFlags.Favorite);
