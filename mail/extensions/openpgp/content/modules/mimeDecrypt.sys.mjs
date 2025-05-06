@@ -143,8 +143,8 @@ MimeDecryptHandler.prototype = {
       // an in addition, remember that future information for "1" should
       // be ignored.
 
-      mimeSvc.mailChannel?.smimeSink.ignoreStatusFrom("1");
-      mimeSvc.mailChannel?.openpgpSink.ignoreStatusFrom("1");
+      mimeSvc.mailChannel?.smimeSink?.ignoreStatusFrom("1");
+      mimeSvc.mailChannel?.openpgpSink?.ignoreStatusFrom("1");
     }
 
     this.uri = mimeSvc.messageURI;
