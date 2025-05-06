@@ -288,6 +288,27 @@ progressmeter[mode="undetermined"] {
     display: none;
 }
 
+#security-button > .statusbarpanel-icon {
+  padding: 9px 1px;
+}
+
+#security-button[level="high"] > .statusbarpanel-icon {
+  background-color: #B4CD32;
+}
+
+#security-button[level="broken"] > .statusbarpanel-icon {
+  background-color: #E83404;
+}
+
+/* make same background-color translucent on lwthemes */
+#security-button[level="high"] > .statusbarpanel-icon:-moz-lwtheme {
+  background-color: rgba(232, 219, 153, .8);
+}
+
+#security-button[level="broken"] > .statusbarpanel-icon:-moz-lwtheme {
+  background-color: rgba(232, 52, 4, .8);
+}
+
 #alert-status[alertstate="off"] {
     list-style-image: url("chrome://chatzilla/skin/images/spbubble-off.png");
 }
