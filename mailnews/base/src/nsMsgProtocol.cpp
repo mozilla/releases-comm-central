@@ -318,6 +318,7 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest* request,
   // Drop notification callbacks to prevent cycles.
   mCallbacks = nullptr;
   mProgressEventSink = nullptr;
+  m_channelListener = nullptr;
   // Call CloseSocket(), in case we got here because the server dropped the
   // connection while reading, and we never get a chance to get back into
   // the protocol state machine via OnDataAvailable.
