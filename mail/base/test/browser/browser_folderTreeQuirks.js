@@ -1604,9 +1604,9 @@ add_task(async function testMultiSelectionDelete() {
  * @param {nsIMsgFolder[]} folders
  */
 async function checkModeListItems(modeName, folders) {
-  // Jump to the end of the event queue so that any code listening for changes
+  // Let things settle so that any code listening for changes
   // can run first.
-  await new Promise(resolve => setTimeout(resolve));
+  await new Promise(resolve => window.requestIdleCallback(resolve));
   for (const folderTreeRow of folderPane._modes[
     modeName
   ].containerList.querySelectorAll("li")) {
