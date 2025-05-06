@@ -1398,6 +1398,10 @@ function UpdateExpandedMessageHeaders() {
     }
 
     if (headerEntry) {
+      if (gCustomComposeHeaders.includes(headerName)) {
+        headerEntry.hidden = !showCustomComposeHeaders;
+      }
+
       if (gViewAllHeaders) {
         headerEntry.hidden = false;
       }
@@ -1414,11 +1418,7 @@ function UpdateExpandedMessageHeaders() {
         // pref show references is deactivated and the currently displayed
         // message isn't a newsgroup posting.
         headerEntry.valid = false;
-      } else if (
-        !headerEntry.hidden &&
-        (showCustomComposeHeaders ||
-          !gCustomComposeHeaders.includes(headerName))
-      ) {
+      } else if (!headerEntry.hidden) {
         // Set the row element visible before populating the field.
         headerEntry.enclosingRow.hidden = false;
         const headerField = currentHeaderData[headerName];
