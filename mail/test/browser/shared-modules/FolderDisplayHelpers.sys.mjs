@@ -2364,34 +2364,6 @@ export function throw_and_dump_view_state(aMessage, aWin) {
 }
 
 /**
- * Copy constants from mailWindowOverlay.js
- */
-
-export var kClassicMailLayout = 0;
-
-export var kWideMailLayout = 1;
-export var kVerticalMailLayout = 2;
-
-/**
- * Assert that the expected mail pane layout is shown.
- *
- * @param {integer} aLayout - Layout code.
- */
-export function assert_pane_layout(aLayout) {
-  const actualPaneLayout = Services.prefs.getIntPref(
-    "mail.pane_config.dynamic"
-  );
-  if (actualPaneLayout != aLayout) {
-    throw new Error(
-      "The mail pane layout should be " +
-        aLayout +
-        ", but is actually " +
-        actualPaneLayout
-    );
-  }
-}
-
-/**
  * Change the current mail pane layout.
  *
  * @param {integer} aLayout - Layout code.

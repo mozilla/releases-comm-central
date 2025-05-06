@@ -16,11 +16,8 @@ var { mailTestUtils } = ChromeUtils.importESModule(
 var {
   assert_message_pane_hidden,
   assert_message_pane_visible,
-  assert_pane_layout,
   be_in_folder,
   create_folder,
-  kClassicMailLayout,
-  kVerticalMailLayout,
   make_message_sets_in_folders,
   set_mc,
   set_pane_layout,
@@ -35,6 +32,10 @@ var { promise_new_window } = ChromeUtils.importESModule(
 var { SessionStoreManager } = ChromeUtils.importESModule(
   "resource:///modules/SessionStoreManager.sys.mjs"
 );
+
+const kClassicMailLayout = 0;
+const kWideMailLayout = 1;
+const kVerticalMailLayout = 2;
 
 var folderA, folderB;
 
@@ -247,7 +248,10 @@ add_task(async function test_restore_single_3pane_persistence_again() {
 add_task(async function test_message_pane_height_persistence() {
   await be_in_folder(folderA);
   assert_message_pane_visible();
-  assert_pane_layout(kClassicMailLayout);
+  Assert.equal(
+    Services.prefs.getIntPref("mail.pane_config.dynamic"),
+    kClassicMailLayout
+  );
 
   // Get the state object. This assumes there is one and only one
   // 3pane window.
@@ -356,9 +360,15 @@ add_task(async function test_message_pane_width_persistence() {
 
   // At the beginning we are in classic layout.  We will switch to
   // vertical layout to test the width, and then back to classic layout.
-  assert_pane_layout(kClassicMailLayout);
+  Assert.equal(
+    Services.prefs.getIntPref("mail.pane_config.dynamic"),
+    kClassicMailLayout
+  );
   set_pane_layout(kVerticalMailLayout);
-  assert_pane_layout(kVerticalMailLayout);
+  Assert.equal(
+    Services.prefs.getIntPref("mail.pane_config.dynamic"),
+    kVerticalMailLayout
+  );
 
   // Get the state object. This assumes there is one and only one
   // 3pane window.
@@ -418,7 +428,10 @@ add_task(async function test_message_pane_width_persistence() {
   set_mc(mc2);
   await be_in_folder(folderA);
   assert_message_pane_visible();
-  assert_pane_layout(kVerticalMailLayout);
+  Assert.equal(
+    Services.prefs.getIntPref("mail.pane_config.dynamic"),
+    kVerticalMailLayout
+  );
 
   actualWidth = document.getElementById("messagepaneboxwrapper").clientWidth;
   Assert.equal(
@@ -459,7 +472,10 @@ add_task(async function test_message_pane_width_persistence() {
   set_mc(mc3);
   await be_in_folder(folderA);
   assert_message_pane_visible();
-  assert_pane_layout(kVerticalMailLayout);
+  Assert.equal(
+    Services.prefs.getIntPref("mail.pane_config.dynamic"),
+    kVerticalMailLayout
+  );
 
   actualWidth = document.getElementById("messagepaneboxwrapper").clientWidth;
   Assert.equal(
@@ -473,7 +489,10 @@ add_task(async function test_message_pane_width_persistence() {
 
   // The layout is reset to classical mail layout.
   set_pane_layout(kClassicMailLayout);
-  assert_pane_layout(kClassicMailLayout);
+  Assert.equal(
+    Services.prefs.getIntPref("mail.pane_config.dynamic"),
+    kClassicMailLayout
+  );
 
   // We don't need the address book window any more.
   const closePromise = BrowserTestUtils.domWindowClosed(amWin);
