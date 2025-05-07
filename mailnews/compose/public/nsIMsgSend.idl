@@ -363,8 +363,4 @@ interface nsIMsgSend : nsISupports
     /// The folder name to which the message will be saved,
     /// used by error reporting.
     attribute AString savedToFolderName;
-
-    /// Should we deliver this message (versus saving as a file)?
-    attribute boolean dontDeliver;
-
 };
