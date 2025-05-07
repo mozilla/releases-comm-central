@@ -2,18 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account;
+/**
+ * Tests the new database's implemention of the old database's interfaces.
+ */
+
+const { ProfileCreator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/ProfileCreator.sys.mjs"
+);
+
+let rootFolder;
 
 add_setup(async function () {
   await installDBFromFile("db/messages.sql");
+  const profile = new ProfileCreator(do_get_profile());
+  const server = profile.addLocalServer();
+  await server.rootFolder.addMailFolder("folderA");
+  await server.rootFolder.addMailFolder("folderB");
+  await server.rootFolder.addMailFolder("folderC");
 
-  account = MailServices.accounts.createLocalMailAccount();
-  Assert.equal(account.incomingServer.key, "server1");
+  MailServices.accounts.accounts;
+  const localServer = MailServices.accounts.localFoldersServer;
+  Assert.equal(localServer.key, "server1");
+  rootFolder = localServer.rootFolder;
 });
 
 add_task(async function testFolderMethods() {
   const folderA = MailServices.folderLookup.getFolderForURL(
-    account.incomingServer.rootFolder.URI + "/folderA"
+    rootFolder.URI + "/folderA"
   );
   Assert.ok(folderA.filePath.path);
 
@@ -181,7 +196,7 @@ add_task(async function testFolderMethods() {
 
 add_task(async function testFolderInfo() {
   const folderA = MailServices.folderLookup.getFolderForURL(
-    account.incomingServer.rootFolder.URI + "/folderA"
+    rootFolder.URI + "/folderA"
   );
   const folderDatabase = database.openFolderDB(folderA, false);
   const folderInfo = folderDatabase.dBFolderInfo;
@@ -219,7 +234,7 @@ add_task(async function testFolderInfo() {
 
 add_task(async function testFolderProperties() {
   const folderB = MailServices.folderLookup.getFolderForURL(
-    account.incomingServer.rootFolder.URI + "/folderB"
+    rootFolder.URI + "/folderB"
   );
 
   const folderDatabase = database.openFolderDB(folderB, false);
@@ -277,7 +292,7 @@ add_task(async function testFolderProperties() {
 
 add_task(async function testHeaderMethods() {
   const folderC = MailServices.folderLookup.getFolderForURL(
-    account.incomingServer.rootFolder.URI + "/folderC"
+    rootFolder.URI + "/folderC"
   );
   Assert.ok(folderC.filePath.path);
 
@@ -331,7 +346,7 @@ add_task(async function testHeaderMethods() {
 
 add_task(async function testHeaderProperties() {
   const folderC = MailServices.folderLookup.getFolderForURL(
-    account.incomingServer.rootFolder.URI + "/folderC"
+    rootFolder.URI + "/folderC"
   );
 
   const folderDatabase = database.openFolderDB(folderC, false);
@@ -427,14 +442,14 @@ add_task(async function testListener() {
 
   const listenerB = new FolderListener();
   const folderB = MailServices.folderLookup.getFolderForURL(
-    account.incomingServer.rootFolder.URI + "/folderB"
+    rootFolder.URI + "/folderB"
   );
   const folderDatabaseB = database.openFolderDB(folderB, false);
   folderDatabaseB.addListener(listenerB);
 
   const listenerC = new FolderListener();
   const folderC = MailServices.folderLookup.getFolderForURL(
-    account.incomingServer.rootFolder.URI + "/folderC"
+    rootFolder.URI + "/folderC"
   );
   const folderDatabaseC = database.openFolderDB(folderC, false);
   folderDatabaseC.addListener(listenerC);

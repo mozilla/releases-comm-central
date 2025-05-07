@@ -2719,6 +2719,9 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   mIsServerIsValid = true;
   mName = folder->GetName();
 
+  // Set up the filesystem path. This could probably be improved by using the
+  // parent folder's path instead of constructing the whole thing.
+
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
@@ -2733,9 +2736,7 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   mServer = do_GetWeakReference(server);
 
   rv = server->GetLocalPath(getter_AddRefs(mPath));
-  if (NS_FAILED(rv)) {
-    return rv;
-  }
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsTArray<RefPtr<nsIFolder>> ancestors;
   folder->GetAncestors(ancestors);
@@ -2745,6 +2746,8 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   if (!folder->GetIsServer()) {
     mPath->Append(NS_ConvertUTF8toUTF16(mName));
   }
+
+  // Set up the URI.
 
   server->GetServerURI(mURI);
   nsCString path = folder->GetPath();
@@ -2756,6 +2759,24 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   nsCOMPtr<nsIFolderLookupService> fls =
       do_GetService("@mozilla.org/mail/folder-lookup;1", &rv);
   fls->Cache(mURI, this);
+
+  // Let's find the subfolders. This is going to fail horribly once servers
+  // are involved, but they're not, yet.
+
+  nsCOMPtr<nsIMsgPluggableStore> store;
+  rv = GetMsgStore(getter_AddRefs(store));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsTArray<nsCString> folderPaths;
+  rv = store->DiscoverChildFolders(this, folderPaths);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIDatabaseCore> core = mozilla::components::DatabaseCore::Service();
+  nsCOMPtr<nsIFolderDatabase> folders;
+  core->GetFolders(getter_AddRefs(folders));
+  folders->Reconcile(folder, folderPaths);
+
+  // Add the subfolders.
 
   nsTArray<RefPtr<nsIFolder>> children;
   folder->GetChildren(children);

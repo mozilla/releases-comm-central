@@ -20,7 +20,6 @@ SOURCES += [
     "DatabaseCore.cpp",
     "DatabaseUtils.cpp",
     "Folder.cpp",
-    "FolderCollector.cpp",
     "FolderComparator.cpp",
     "FolderDatabase.cpp",
     "LiveView.cpp",

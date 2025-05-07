@@ -5,80 +5,94 @@
 /**
  * Tests that folders on the filesystem are detected and added to the database
  * on start-up.
+ *
+ * TODO: Test the same thing, but with an existing database that does/doesn't
+ * match the file system.
  */
 
-add_task(async function testFindFolders() {
-  do_get_profile();
+const { ProfileCreator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/ProfileCreator.sys.mjs"
+);
 
-  const account = MailServices.accounts.createLocalMailAccount();
-  Assert.equal(account.incomingServer.key, "server1");
+add_setup(async function () {
+  const profile = new ProfileCreator(do_get_profile());
 
-  const rootFile = account.incomingServer.localPath;
+  const mboxServer = profile.addLocalServer();
+  const mboxFolder = await mboxServer.rootFolder.addMailFolder("test1");
+  await mboxFolder.addMailFolder("test2");
+  await mboxServer.rootFolder.addMailFolder("test3");
 
-  const test1File = rootFile.clone();
-  test1File.append("test1.sbd");
-  test1File.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755, true);
+  const maildirServer = profile.addServer("nobody", "localhost", "none");
+  maildirServer.isMaildirStore = true;
+  const maildirFolder = await maildirServer.rootFolder.addMailFolder("test1");
+  await maildirFolder.addMailFolder("test2");
+  await maildirServer.rootFolder.addMailFolder("test3");
 
-  const test2File = test1File.clone();
-  test2File.append("test2");
-  test2File.create(Ci.nsIFile.FILE_TYPE, 0o644, true);
+  // Start the account manager.
 
-  const test3File = rootFile.clone();
-  test3File.append("test3.msf");
-  test3File.create(Ci.nsIFile.FILE_TYPE, 0o644, true);
+  MailServices.accounts.accounts;
+  loadExistingDB();
+});
 
-  info(Array.from(rootFile.directoryEntries, e => e.leafName));
+add_task(async function () {
+  await testFolderDiscovery(MailServices.accounts.localFoldersServer);
+});
 
-  await loadExistingDB();
+add_task(async function () {
+  await testFolderDiscovery(
+    MailServices.accounts.findServer("nobody", "localhost", "none")
+  );
+});
 
-  const root = folders.getFolderByPath("server1");
-  Assert.equal(root.id, 1);
+async function testFolderDiscovery(server) {
+  const rootFolder = server.rootFolder;
+  Assert.deepEqual(rootFolder.subFolders.map(f => f.name).toSorted(), [
+    "test1",
+    "test3",
+  ]);
+  Assert.deepEqual(
+    rootFolder
+      .getChildNamed("test1")
+      .subFolders.map(f => f.name)
+      .toSorted(),
+    ["test2"]
+  );
+  Assert.deepEqual(rootFolder.descendants.map(f => f.prettyPath).toSorted(), [
+    "test1",
+    "test1/test2",
+    "test3",
+  ]);
+
+  // Check that the nsIFolder objects exist.
+
+  const root = folders.getFolderByPath(server.key);
+  drawTree(root);
   Assert.equal(root.parent, null);
-  Assert.equal(root.name, "server1");
-  checkRow(1, { id: 1, parent: 0, ordinal: null, name: "server1", flags: 0 });
-  Assert.equal(folders.getFolderById(1), root);
-
-  // `createLocalMailAccount` created two default folders. Check they exist.
-
-  const trash = folders.getFolderByPath("server1/Trash");
-  Assert.ok(trash);
-  Assert.equal(trash.parent, root);
-  Assert.equal(trash.name, "Trash");
-  checkRow(trash.id, {
-    id: trash.id,
-    parent: 1,
+  Assert.equal(root.name, server.key);
+  checkRow(root.id, {
+    id: root.id,
+    parent: 0,
     ordinal: null,
-    name: "Trash",
-    flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Trash,
+    name: server.key,
+    flags: 0,
   });
-
-  const outbox = folders.getFolderByPath("server1/Outbox");
-  Assert.ok(outbox);
-  Assert.equal(outbox.parent, root);
-  Assert.equal(outbox.name, "Outbox");
-  checkRow(outbox.id, {
-    id: outbox.id,
-    parent: 1,
-    ordinal: null,
-    name: "Outbox",
-    flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Queue,
-  });
+  Assert.equal(folders.getFolderById(root.id), root);
 
   // We added some files. Check they exist.
 
-  const test1 = folders.getFolderByPath("server1/test1");
+  const test1 = folders.getFolderByPath(`${server.key}/test1`);
   Assert.ok(test1);
   Assert.equal(test1.parent, root);
   Assert.equal(test1.name, "test1");
   checkRow(test1.id, {
     id: test1.id,
-    parent: 1,
+    parent: root.id,
     ordinal: null,
     name: "test1",
     flags: 0,
   });
 
-  const test2 = folders.getFolderByPath("server1/test1/test2");
+  const test2 = folders.getFolderByPath(`${server.key}/test1/test2`);
   Assert.ok(test2);
   Assert.equal(test2.parent, test1);
   Assert.equal(test2.name, "test2");
@@ -91,18 +105,19 @@ add_task(async function testFindFolders() {
   });
   Assert.deepEqual(test1.children, [test2]);
 
-  const test3 = folders.getFolderByPath("server1/test3");
+  const test3 = folders.getFolderByPath(`${server.key}/test3`);
   Assert.ok(test3);
   Assert.equal(test3.parent, root);
   Assert.equal(test3.name, "test3");
   checkRow(test3.id, {
     id: test3.id,
-    parent: 1,
+    parent: root.id,
     ordinal: null,
     name: "test3",
     flags: 0,
   });
 
-  Assert.deepEqual(root.children, [outbox, test1, test3, trash]);
-  Assert.deepEqual(root.descendants, [outbox, test1, test2, test3, trash]);
-});
+  Assert.deepEqual(root.children, [test1, test3]);
+  Assert.deepEqual(test1.children, [test2]);
+  Assert.deepEqual(root.descendants, [test1, test2, test3]);
+}

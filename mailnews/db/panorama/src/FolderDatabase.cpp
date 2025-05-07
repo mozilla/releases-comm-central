@@ -7,7 +7,6 @@
 #include "DatabaseCore.h"
 #include "DatabaseUtils.h"
 #include "Folder.h"
-#include "FolderCollector.h"
 #include "FolderComparator.h"
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
