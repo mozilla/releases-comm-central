@@ -185,14 +185,9 @@ add_task(async function test_run_junk_controls_on_selection() {
         "100",
         `message ${name} should be marked as spam`
       );
-      await BrowserTestUtils.waitForMutationCondition(
-        spamButton,
-        { attributes: true },
-        () => BrowserTestUtils.isVisible(spamButton)
-      );
-      Assert.ok(
-        BrowserTestUtils.isVisible(spamButton),
-        "spam button should be visible"
+      await TestUtils.waitForCondition(
+        () => BrowserTestUtils.isVisible(spamButton),
+        "waiting for spam button to become visible"
       );
     } else if (name == "ham2") {
       Assert.equal(
