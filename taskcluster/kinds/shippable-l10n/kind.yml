@@ -48,7 +48,7 @@ tasks:
                 default: [ja-JP-mac, en-US]
         run-time:
             by-build-platform:
-                default: 900
+                default: 1200
                 win.*: 1800
         secrets: false
         dependencies:
