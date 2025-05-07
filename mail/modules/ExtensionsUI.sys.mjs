@@ -979,10 +979,10 @@ export var ExtensionsUI = {
         ]);
         const [header, msg] = await PERMISSION_L10N.formatValues([
           {
-            id: "webext-perms-header-with-perms",
+            id: "webext-perms-header2",
             args: { extension: "<>" },
           },
-          "webext-perms-description-experiment",
+          "webext-perms-description-experiment-access",
         ]);
         strings.header = header;
         strings.msgs = [msg];

@@ -51,7 +51,7 @@ async function testExperimentPrompt(filename) {
   await checkNotification(
     panel,
     isDefaultIcon,
-    [["webext-perms-description-experiment"]],
+    [["webext-perms-description-experiment-access"]],
     false,
     true
   );
