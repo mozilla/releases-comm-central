@@ -252,8 +252,6 @@ impl XpComEwsClient {
             sync_state_token = Some(message.sync_state);
         }
 
-        unsafe { callbacks.OnSuccess() }.to_result()?;
-
         Ok(())
     }
 

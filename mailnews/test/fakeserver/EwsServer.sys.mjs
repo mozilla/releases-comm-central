@@ -64,25 +64,6 @@ const SYNC_FOLDER_HIERARCHY_RESPONSE_BASE = `${EWS_SOAP_HEAD}
     </m:SyncFolderHierarchyResponse>
   ${EWS_SOAP_FOOT}`;
 
-// The base for a SyncFolderItems operation request. Before sending, the server
-// will populate `m:Changes`, as well as add and populate a `m:SyncState`
-// element.
-const SYNC_FOLDER_ITEMS_RESPONSE_BASE = `${EWS_SOAP_HEAD}
-    <m:SyncFolderItemsResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                                xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
-      <m:ResponseMessages>
-        <m:SyncFolderItemsResponseMessage ResponseClass="Success">
-          <m:ResponseCode>NoError</m:ResponseCode>
-          <m:IncludesLastItemInRange>true</m:IncludesLastItemInRange>
-            <m:Changes>
-            </m:Changes>
-        </m:SyncFolderItemsResponseMessage>
-      </m:ResponseMessages>
-    </m:SyncFolderItemsResponse>
-${EWS_SOAP_FOOT}`;
-
 /**
  * A remote folder to sync from the EWS server. While initiating a test, an
  * array of folders is given to the EWS server, which will use it to populate
@@ -284,43 +265,11 @@ export class EwsServer {
       resBytes = this.#generateSyncFolderHierarchyResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("GetFolder").length) {
       resBytes = this.#generateGetFolderResponse(reqDoc);
-    } else if (reqDoc.getElementsByTagName("SyncFolderItems").length) {
-      resBytes = this.#generateSyncFolderItemsResponse(reqDoc);
     } else {
       throw new Error("Unexpected EWS operation");
     }
     // Send the response.
     response.bodyOutputStream.write(resBytes, resBytes.length);
-  }
-
-  /**
-   * Generate a response to a SyncFolderItems operation.
-   *
-   * Currently, generated responses will not include any item.
-   *
-   * @see
-   * {@link https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderitems-operation#successful-syncfolderitems-response}
-   * @param {XMLDocument} _reqDoc - The parsed document for the request to
-   * respond to.
-   * @returns {string} A serialized XML document.
-   */
-  #generateSyncFolderItemsResponse(_reqDoc) {
-    const resDoc = this.#parser.parseFromString(
-      SYNC_FOLDER_ITEMS_RESPONSE_BASE,
-      "text/xml"
-    );
-
-    const responseMessageEl = resDoc.getElementsByTagName(
-      "m:SyncFolderItemsResponseMessage"
-    )[0];
-
-    // Append a dummy sync state.
-    // TODO: Make this dynamic.
-    const syncStateEl = resDoc.createElement("m:SyncState");
-    syncStateEl.appendChild(resDoc.createTextNode("H4sIAAA=="));
-    responseMessageEl.appendChild(syncStateEl);
-
-    return this.#serializer.serializeToString(resDoc);
   }
 
   /**

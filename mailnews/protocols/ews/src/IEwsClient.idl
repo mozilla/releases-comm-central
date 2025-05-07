@@ -135,7 +135,6 @@ interface IEwsFolderCallbacks : nsISupports
 
   /** Called after all sync items have been processed. */
   void updateSyncState(in AUTF8String syncStateToken);
-  void onSuccess();
   void onError(in IEwsClient_Error err, in AUTF8String desc);
 };
 

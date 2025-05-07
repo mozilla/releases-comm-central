@@ -384,10 +384,13 @@ NS_IMETHODIMP EwsFolder::GetIncomingServerType(nsACString& aServerType) {
 
 NS_IMETHODIMP EwsFolder::GetNewMessages(nsIMsgWindow* aWindow,
                                         nsIUrlListener* aListener) {
-  // Sync the message list. We don't need to sync the folder tree, because the
-  // only likely consumer of this method is `EwsIncomingServer`, which does this
-  // before asking folders to sync their message lists.
-  return SyncMessages(aWindow);
+  // Delegate folder sync/message fetching to the incoming server. We have no
+  // need for divergent behavior.
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return server->GetNewMessages(this, aWindow, aListener);
 }
 
 NS_IMETHODIMP EwsFolder::GetSubFolders(
@@ -456,13 +459,24 @@ NS_IMETHODIMP EwsFolder::MarkMessagesRead(
 }
 
 NS_IMETHODIMP EwsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
-  // Sync the message list.
-  // TODO: In the future, we might want to sync the folder hierarchy. Since
-  // we already keep the local folder list quite in sync with remote operations,
-  // and we already sync it in a couple of occurrences (when getting new
-  // messages, performing biff, etc.), it's likely fine to leave this as a
-  // future improvement.
-  return SyncMessages(aWindow);
+  nsCOMPtr<IEwsClient> client;
+  nsresult rv = GetEwsClient(getter_AddRefs(client));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCString ewsId;
+  rv = GetEwsId(ewsId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // EWS provides us an opaque value which specifies the last version of
+  // upstream messages we received. Provide that to simplify sync.
+  nsCString syncStateToken;
+  rv = GetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
+  if (NS_FAILED(rv)) {
+    syncStateToken = EmptyCString();
+  }
+
+  auto listener = RefPtr(new MessageOperationCallbacks(this, aWindow));
+  return client->SyncMessagesForFolder(listener, ewsId, syncStateToken);
 }
 
 NS_IMETHODIMP EwsFolder::CopyFileMessage(
@@ -768,25 +782,4 @@ nsresult EwsFolder::GetTrashFolder(nsIMsgFolder** result) {
   trashFolder.forget(result);
 
   return NS_OK;
-}
-
-nsresult EwsFolder::SyncMessages(nsIMsgWindow* window) {
-  // EWS provides us an opaque value which specifies the last version of
-  // upstream messages we received. Provide that to simplify sync.
-  nsCString syncStateToken;
-  nsresult rv = GetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
-  if (NS_FAILED(rv)) {
-    syncStateToken = EmptyCString();
-  }
-
-  // Get the EWS ID of the folder to sync (i.e. the current one).
-  nsCString ewsId;
-  MOZ_TRY(GetEwsId(ewsId));
-
-  // Sync the message list for the current folder.
-  nsCOMPtr<IEwsClient> client;
-  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
-
-  auto listener = RefPtr(new MessageOperationCallbacks(this, window));
-  return client->SyncMessagesForFolder(listener, ewsId, syncStateToken);
 }
