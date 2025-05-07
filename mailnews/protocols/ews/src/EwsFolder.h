@@ -89,6 +89,11 @@ class EwsFolder : public nsMsgDBFolder {
    * Looks up the trash folder for the current account.
    */
   nsresult GetTrashFolder(nsIMsgFolder** result);
+
+  /**
+   * Synchronize the message list for the current folder.
+   */
+  nsresult SyncMessages(nsIMsgWindow* window);
 };
 
 #endif

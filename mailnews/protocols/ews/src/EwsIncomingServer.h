@@ -27,8 +27,10 @@ class EwsIncomingServer : public nsMsgIncomingServer,
  protected:
   virtual ~EwsIncomingServer();
 
-  // Locally creates a folder with the given properties. Intended to be called
-  // by a friend class such as `FolderSyncListener`.
+  /**
+   * Locally creates a folder with the given properties. Intended to be called
+   * by a friend class such as `FolderSyncListener`.
+   */
   nsresult MaybeCreateFolderWithDetails(const nsACString& id,
                                         const nsACString& parentId,
                                         const nsACString& name, uint32_t flags);
@@ -48,7 +50,23 @@ class EwsIncomingServer : public nsMsgIncomingServer,
                          nsIURI** _retval) override;
 
  private:
+  /**
+   * Retrieve the folder associated with the given EWS ID. If no such folder
+   * could be found, `NS_ERROR_FAILURE` is returned.
+   */
   nsresult FindFolderWithId(const nsACString& id, nsIMsgFolder** _retval);
+
+  /**
+   * Synchronize the list of folders for this account, then call the given
+   * callback function.
+   */
+  nsresult SyncFolderList(nsIMsgWindow* aMsgWindow,
+                          std::function<nsresult()> postSyncCallback);
+
+  /**
+   * Synchronize the message list for every folder in the account.
+   */
+  nsresult SyncAllFolders(nsIMsgWindow* aMsgWindow);
 
   RefPtr<msgIOAuth2Module> mOAuth2Module;
 
