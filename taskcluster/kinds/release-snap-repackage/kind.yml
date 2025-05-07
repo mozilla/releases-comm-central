@@ -67,7 +67,7 @@ tasks:
             build_type: debug
         treeherder:
             platform: linux64-shippable/debug
-    
+
     linux64-shippable/opt:
         attributes:
             build_platform: linux64-shippable
