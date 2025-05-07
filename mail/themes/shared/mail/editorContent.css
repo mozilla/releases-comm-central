@@ -9,16 +9,20 @@
  *  place in EditorOverride.css, instead of here.
 */
 
-a[name] {
-  margin-top: 2px;
-  margin-inline-start: 2px;
-  padding-inline-start: 20px;
-  background-image: url(chrome://messenger/content/messengercompose/images/tag-anchor.gif);
-  background-repeat: no-repeat;
-  background-position: top left;
+a {
+  color-scheme: light dark;
 
-  &:dir(rtl) {
-    background-position-x: right;
+  &[name] {
+    margin-top: 2px;
+    margin-inline-start: 2px;
+    padding-inline-start: 20px;
+    background-image: url(chrome://messenger/content/messengercompose/images/tag-anchor.gif);
+    background-repeat: no-repeat;
+    background-position: top left;
+
+    &:dir(rtl) {
+      background-position-x: right;
+    }
   }
 }
 
