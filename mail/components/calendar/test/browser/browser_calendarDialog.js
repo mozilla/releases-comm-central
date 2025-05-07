@@ -59,9 +59,12 @@ add_setup(async function () {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
   browser = tab.browser;
+  cal.view.colorTracker.registerWindow(browser.contentWindow);
   dialog = browser.contentWindow.document.querySelector("dialog");
 
-  calendar = createCalendar();
+  // Setting the color to the rgb value of #ffbbff so we don't have to do the
+  // conversion for the computed color later.
+  calendar = createCalendar({ color: "rgb(255, 187, 255)" });
   calendarEvent = await createEvent({
     calendar,
     categories: ["TEST"],
@@ -498,5 +501,37 @@ add_task(async function test_dialogDate() {
   Assert.ok(
     !dateRow.hasAttribute("repeats"),
     "The dialog should not indicate a repeating event again"
+  );
+});
+
+add_task(async function test_dialogCalendarBarColor() {
+  dialog.show();
+  dialog.setCalendarEvent(calendarEvent);
+
+  await BrowserTestUtils.waitForMutationCondition(
+    dialog,
+    {
+      attributes: true,
+      attributeFilter: ["style"],
+    },
+    () => dialog.style.getPropertyValue("--calendar-bar-color")
+  );
+
+  const computedStyle = window.getComputedStyle(
+    dialog.querySelector(".titlebar"),
+    "::before"
+  );
+
+  Assert.equal(
+    computedStyle.backgroundColor,
+    calendar.getProperty("color"),
+    "Should apply calendar color to top bar"
+  );
+
+  resetDialog();
+
+  Assert.ok(
+    !dialog.style.getPropertyValue("--calendar-bar-color"),
+    "Should not have a bar color set without a loaded event"
   );
 });

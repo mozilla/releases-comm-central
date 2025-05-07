@@ -65,12 +65,14 @@ todayDate.setMilliseconds(0);
  * @param {object} options - Options to create the calendar with.
  * @param {string} options.name [name="Test"] - Name.
  * @param {string} options.type [type="storage"] - Type.
+ * @param {string} [options.color] - Color of the calendar.
  *
  * @returns {calICalendar}
  */
 function createCalendar({
   name = `Test Event - ${count++}`,
   type = "storage",
+  color,
 } = {}) {
   const calendar = cal.manager.createCalendar(
     type,
@@ -80,6 +82,9 @@ function createCalendar({
   calendar.setProperty("calendar-main-default", true);
   // This is done so that calItemBase#isInvitation returns true.
   calendar.setProperty("organizerId", `mailto:organizer@example.com`);
+  if (color) {
+    calendar.setProperty("color", color);
+  }
   cal.manager.registerCalendar(calendar);
   return calendar;
 }

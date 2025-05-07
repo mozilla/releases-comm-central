@@ -16,7 +16,7 @@ const tabmail = document.getElementById("tabmail");
 let calendar;
 
 add_setup(() => {
-  calendar = createCalendar();
+  calendar = createCalendar({ color: "rgb(255, 187, 255)" });
 
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
@@ -41,7 +41,7 @@ add_task(async function test_calendarDialogOpenAndClose() {
     "calendar dialog does not exist until opened"
   );
 
-  createEvent({ calendar });
+  await createEvent({ calendar });
   const eventBox = await openAndShowEvent();
 
   dialogs = [...document.querySelectorAll("dialog")].filter(
@@ -82,5 +82,53 @@ add_task(async function test_calendarDialogOpenAndClose() {
     window
   );
 
+  await calendar.deleteItem(eventBox.occurrence);
+});
+
+add_task(async function test_calendarDialogColors() {
+  const category = "TEST";
+  const formattedCategoryName = cal.view.formatStringForCSSRule(category);
+  Services.prefs.setStringPref(
+    `calendar.category.color.${formattedCategoryName}`,
+    "#0000ff"
+  );
+  const dialog = document.getElementById("calendarDialog");
+
+  await createEvent({ calendar, categories: [category] });
+  const eventBox = await openAndShowEvent();
+
+  await BrowserTestUtils.waitForMutationCondition(
+    dialog,
+    {
+      attributes: true,
+      attributeFilter: ["style"],
+    },
+    () => dialog.style.getPropertyValue("--calendar-bar-color")
+  );
+
+  const calendarBarStyles = window.getComputedStyle(
+    dialog.querySelector(".titlebar"),
+    "::before"
+  );
+  Assert.equal(
+    calendarBarStyles.backgroundColor,
+    calendar.getProperty("color"),
+    "Should apply the calendar color to the top bar"
+  );
+
+  const categoryItemStyles = window.getComputedStyle(
+    dialog
+      .querySelector("calendar-dialog-categories")
+      .shadowRoot.querySelector(".categories-list li")
+  );
+  Assert.equal(
+    categoryItemStyles.backgroundColor,
+    "rgb(0, 0, 255)",
+    "Should apply the category color the the background of the item"
+  );
+
+  Services.prefs.clearUserPref(
+    `calendar.category.color.${formattedCategoryName}`
+  );
   await calendar.deleteItem(eventBox.occurrence);
 });

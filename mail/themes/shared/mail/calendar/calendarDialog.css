@@ -32,7 +32,6 @@
 
 .titlebar {
   --calendar-bar-color-fallback: #1373d9;
-  --calendar-bar-color: #1373d9;
   position: relative;
 
   &::before {

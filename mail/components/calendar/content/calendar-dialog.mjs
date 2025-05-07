@@ -205,6 +205,12 @@ export class CalendarDialog extends PositionedDialog {
     }
 
     // We did it, we have an event to display \o/.
+    const cssSafeCalendarId = cal.view.formatStringForCSSRule(calendar.id);
+    this.style.setProperty(
+      "--calendar-bar-color",
+      `var(--calendar-${cssSafeCalendarId}-backcolor)`
+    );
+
     this.querySelector(".calendar-dialog-title").textContent = event.title;
 
     const dateRow = this.querySelector("calendar-dialog-date-row");
@@ -242,6 +248,7 @@ export class CalendarDialog extends PositionedDialog {
     this.querySelector("calendar-dialog-date-row").removeAttribute("repeats");
     this.querySelector("calendar-dialog-categories").setCategories([]);
     this.#setLocation("");
+    this.style.removeProperty("--calendar-bar-color");
   }
 
   /**
