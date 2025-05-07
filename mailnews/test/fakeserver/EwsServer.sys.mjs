@@ -127,6 +127,13 @@ export class EwsServer {
   folders = [];
 
   /**
+   * The folders flagged to be deleted on this EWS server.
+   *
+   * @type {RemoteFolder[]}
+   */
+  deletedFolders = [];
+
+  /**
    * A mapping from EWS identifier to folder specification.
    *
    * @type {Map<string, RemoteFolder>}
@@ -215,11 +222,7 @@ export class EwsServer {
     this.#distinguishedIdToFolder.clear();
 
     folders.forEach(folder => {
-      this.folders.push(folder);
-      this.#idToFolder.set(folder.id, folder);
-      if (folder.distinguishedId) {
-        this.#distinguishedIdToFolder.set(folder.distinguishedId, folder);
-      }
+      this.appendRemoteFolder(folder);
     });
   }
 
@@ -311,6 +314,14 @@ export class EwsServer {
       changesEl.appendChild(createEl);
     });
 
+    this.deletedFolders.forEach(folder => {
+      const deleteEl = resDoc.createElement("t:Delete");
+      const folderIdEl = resDoc.createElement("t:FolderId");
+      folderIdEl.setAttribute("Id", folder.id);
+      deleteEl.appendChild(folderIdEl);
+      changesEl.appendChild(deleteEl);
+    });
+
     return this.#serializer.serializeToString(resDoc);
   }
 
@@ -400,5 +411,36 @@ export class EwsServer {
 
     // Serialize the response to a string that the consumer can return in a response.
     return this.#serializer.serializeToString(resDoc);
+  }
+
+  /**
+   * Add a new remote folder to the server to include in future responses.
+   *
+   * @param {RemoteFolder} folder
+   */
+  appendRemoteFolder(folder) {
+    this.folders.push(folder);
+    this.#idToFolder.set(folder.id, folder);
+    if (folder.distinguishedId) {
+      this.#distinguishedIdToFolder.set(folder.distinguishedId, folder);
+    }
+  }
+
+  /**
+   * Delete a remote folder given its id.
+   *
+   * @param {string} id
+   */
+  deleteRemoteFolderById(id) {
+    const folderToDelete = this.folders.find(value => value.id == id);
+    if (folderToDelete) {
+      const indexOfDeletedFolder = this.folders.indexOf(folderToDelete);
+      this.folders.splice(indexOfDeletedFolder, 1);
+      this.#idToFolder.delete(folderToDelete.id);
+      if (folderToDelete.distinguishedId) {
+        this.#distinguishedIdToFolder.delete(folderToDelete.distinguishedId);
+      }
+      this.deletedFolders.push(folderToDelete);
+    }
   }
 }

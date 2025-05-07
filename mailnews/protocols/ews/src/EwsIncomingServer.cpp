@@ -57,11 +57,7 @@ NS_IMETHODIMP FolderSyncListener::Update(const nsACString& id,
 }
 
 NS_IMETHODIMP FolderSyncListener::Delete(const nsACString& id) {
-  NS_WARNING(
-      nsPrintfCString("Received delete change for folder with id %s", id.Data())
-          .get());
-
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return mServer->DeleteFolderWithId(id);
 }
 
 NS_IMETHODIMP FolderSyncListener::UpdateSyncState(
@@ -98,7 +94,7 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
     const nsACString& id, const nsACString& parentId, const nsACString& name,
     uint32_t flags) {
   // Check to see if a folder with the same id already exists.
-  RefPtr<nsIMsgFolder> existingFolder;
+  nsCOMPtr<nsIMsgFolder> existingFolder;
   nsresult rv = FindFolderWithId(id, getter_AddRefs(existingFolder));
   if (NS_SUCCEEDED(rv)) {
     // We found the folder with the specified ID, which means it's already been
@@ -109,7 +105,7 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
     return NS_OK;
   }
 
-  RefPtr<nsIMsgFolder> parent;
+  nsCOMPtr<nsIMsgFolder> parent;
   rv = FindFolderWithId(parentId, getter_AddRefs(parent));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -128,11 +124,11 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
   // In order to persist the folder, we need to create new storage for it with
   // the message store. This will also take care of adding it as a subfolder of
   // the parent.
-  RefPtr<nsIMsgPluggableStore> msgStore;
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  RefPtr<nsIMsgFolder> newFolder;
+  nsCOMPtr<nsIMsgFolder> newFolder;
   rv = msgStore->CreateFolder(parent, name, getter_AddRefs(newFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -151,6 +147,31 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
 
   rv = parent->NotifyFolderAdded(newFolder);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  return NS_OK;
+}
+
+/**
+ * Deletes the folder with the given remote EWS id.
+ */
+nsresult EwsIncomingServer::DeleteFolderWithId(const nsACString& id) {
+  nsCOMPtr<nsIMsgFolder> folder;
+  nsresult rv = FindFolderWithId(id, getter_AddRefs(folder));
+  // If we found the folder locally, then delete it. Otherwise, assume it's
+  // already been deleted locally.
+  if (NS_SUCCEEDED(rv)) {
+    // We can't use `DeleteSelf` here because the implementation of `EwsFolder`
+    // (which we know is the concrete implementation of `nsIMsgFolder` we are
+    // using in the EWS case) will trigger a remote delete on the server. Sync
+    // is responding to a remote delete, so we have to get the parent and call
+    // `PropagateDelete` directly.
+    nsCOMPtr<nsIMsgFolder> parentFolder;
+    rv = folder->GetParent(getter_AddRefs(parentFolder));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = parentFolder->PropagateDelete(folder, true);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   return NS_OK;
 }

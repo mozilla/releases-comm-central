@@ -32,6 +32,9 @@ class EwsIncomingServer : public nsMsgIncomingServer,
   nsresult MaybeCreateFolderWithDetails(const nsACString& id,
                                         const nsACString& parentId,
                                         const nsACString& name, uint32_t flags);
+  // Delete the folder with the given id. Intended to be called by a friend
+  // class such as `FolderSyncListener`.
+  nsresult DeleteFolderWithId(const nsACString& id);
 
   // nsIMsgIncomingServer
   NS_IMETHOD GetLocalStoreType(nsACString& aLocalStoreType) override;
