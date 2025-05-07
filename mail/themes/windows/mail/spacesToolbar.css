@@ -4,10 +4,8 @@
 
 @import url("chrome://messenger/skin/shared/spacesToolbar.css");
 
-@media (-moz-windows-accent-color-in-titlebar) {
-  :root[sizemode=normal][customtitlebar] #spacesToolbar {
-    margin-top: 1px;
-  }
+:root[sizemode=normal][customtitlebar] #spacesToolbar {
+  margin-top: 0.5px;
 }
 
 @media (prefers-contrast) {
