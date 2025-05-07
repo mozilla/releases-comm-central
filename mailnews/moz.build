@@ -75,6 +75,7 @@ TESTING_JS_MODULES.mailnews += [
     "test/resources/MessageInjection.sys.mjs",
     "test/resources/NetworkTestUtils.sys.mjs",
     "test/resources/OAuth2TestUtils.sys.mjs",
+    "test/resources/ProfileCreator.sys.mjs",
     "test/resources/PromiseTestUtils.sys.mjs",
     "test/resources/ServerTestUtils.sys.mjs",
     "test/resources/SmimeUtils.sys.mjs",
