@@ -80,7 +80,7 @@ add_task(async function test_get_new_messages() {
   // Populate the mock EWS server with all base folders.
 
   const rootFolder = incomingServer.rootFolder;
-  rootFolder.getNewMessages(null, null);
+  incomingServer.getNewMessages(rootFolder, null, null);
   await waitForFinalCreate(rootFolder);
 
   // Check that all of the subfolders have been created.
@@ -93,6 +93,8 @@ add_task(async function test_get_new_messages() {
     const child = rootFolder.getChildNamed(folder.displayName);
     Assert.ok(!!child, `${folder.displayName} should exist`);
   }
+
+  // TODO: Check that items are also populated.
 });
 
 /**
@@ -105,7 +107,7 @@ add_task(async function test_create_folder() {
   const newFolderName = "created_folder";
 
   const rootFolder = incomingServer.rootFolder;
-  rootFolder.getNewMessages(null, null);
+  incomingServer.getNewMessages(rootFolder, null, null);
   await waitForFinalCreate(rootFolder);
   const childShouldNotExist = rootFolder.getChildNamed(newFolderName);
   Assert.ok(!childShouldNotExist, `${newFolderName} should not exist.`);

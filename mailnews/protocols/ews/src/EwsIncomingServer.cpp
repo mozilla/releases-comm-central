@@ -19,8 +19,11 @@ class FolderSyncListener : public IEwsFolderCallbacks {
   NS_DECL_IEWSFOLDERCALLBACKS
 
   FolderSyncListener(RefPtr<EwsIncomingServer> server,
-                     RefPtr<nsIMsgWindow> window)
-      : mServer(std::move(server)), mWindow(std::move(window)) {}
+                     RefPtr<nsIMsgWindow> window,
+                     std::function<nsresult()> doneCallback)
+      : mServer(std::move(server)),
+        mWindow(std::move(window)),
+        mDoneCallback(std::move(doneCallback)) {}
 
  protected:
   virtual ~FolderSyncListener() = default;
@@ -28,6 +31,8 @@ class FolderSyncListener : public IEwsFolderCallbacks {
  private:
   RefPtr<EwsIncomingServer> mServer;
   RefPtr<nsIMsgWindow> mWindow;
+
+  std::function<nsresult()> mDoneCallback;
 };
 
 NS_IMPL_ISUPPORTS(FolderSyncListener, IEwsFolderCallbacks)
@@ -64,6 +69,8 @@ NS_IMETHODIMP FolderSyncListener::UpdateSyncState(
     const nsACString& syncStateToken) {
   return mServer->SetStringValue(SYNC_STATE_PROPERTY, syncStateToken);
 }
+
+NS_IMETHODIMP FolderSyncListener::OnSuccess() { return mDoneCallback(); }
 
 NS_IMETHODIMP FolderSyncListener::OnError(IEwsClient::Error err,
                                           const nsACString& desc) {
@@ -249,6 +256,51 @@ nsresult EwsIncomingServer::FindFolderWithId(const nsACString& id,
   return failureStatus;
 }
 
+nsresult EwsIncomingServer::SyncFolderList(
+    nsIMsgWindow* aMsgWindow, std::function<nsresult()> postSyncCallback) {
+  // EWS provides us an opaque value which specifies the last version of
+  // upstream folders we received. Provide that to simplify sync.
+  nsCString syncStateToken;
+  nsresult rv = GetStringValue(SYNC_STATE_PROPERTY, syncStateToken);
+  if (NS_FAILED(rv)) {
+    syncStateToken = EmptyCString();
+  }
+
+  // Sync the folder tree for the whole account.
+  RefPtr<IEwsClient> client;
+  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
+  auto listener = RefPtr(new FolderSyncListener(this, RefPtr(aMsgWindow),
+                                                std::move(postSyncCallback)));
+  return client->SyncFolderHierarchy(listener, syncStateToken);
+}
+
+nsresult EwsIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow) {
+  nsCOMPtr<nsIMsgFolder> rootFolder;
+  MOZ_TRY(GetRootFolder(getter_AddRefs(rootFolder)));
+
+  nsTArray<RefPtr<nsIMsgFolder>> msgFolders;
+  MOZ_TRY(rootFolder->GetDescendants(msgFolders));
+
+  // TODO: For now, we sync every folder at once, but obviously that's not an
+  // amazing solution. In the future, we should probably try to maintain some
+  // kind of queue so we can properly batch and sync folders. In the meantime,
+  // though, the EWS client should handle any kind of rate limiting well enough,
+  // so this improvement can come later.
+  for (const auto& folder : msgFolders) {
+    nsresult rv = folder->GetNewMessages(aMsgWindow, nullptr);
+    if (NS_FAILED(rv)) {
+      // If we encounter an error, just log it rather than fail the whole sync.
+      nsCString name;
+      folder->GetName(name);
+      NS_ERROR(nsPrintfCString("failed to get new messages for folder %s: %s",
+                               name.get(), mozilla::GetStaticErrorName(rv))
+                   .get());
+    }
+  }
+
+  return NS_OK;
+}
+
 NS_IMETHODIMP EwsIncomingServer::GetLocalStoreType(
     nsACString& aLocalStoreType) {
   aLocalStoreType.AssignLiteral("ews");
@@ -266,38 +318,48 @@ NS_IMETHODIMP EwsIncomingServer::GetLocalDatabaseType(
 NS_IMETHODIMP EwsIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
                                                 nsIMsgWindow* aMsgWindow,
                                                 nsIUrlListener* aUrlListener) {
-  // Current UX dictates that we ignore the selected folder when getting new
-  // messages.
+  // Explicitly make the parameters to the lambda `nsCOMPtr`s, otherwise the
+  // clang plugin will think we're trying to bypass the ref counting.
+  nsCOMPtr<nsIMsgFolder> folder = aFolder;
+  nsCOMPtr<nsIMsgWindow> window = aMsgWindow;
+  nsCOMPtr<nsIUrlListener> urlListener = aUrlListener;
 
-  RefPtr<IEwsClient> client;
-  nsresult rv = GetEwsClient(getter_AddRefs(client));
-  NS_ENSURE_SUCCESS(rv, rv);
+  // Sync the folder list for the account, then sync the message list for the
+  // specific folder.
+  return SyncFolderList(aMsgWindow,
+                        [self = RefPtr(this), folder, window, urlListener]() {
+                          // Check if we're getting messages for the whole
+                          // folder here. If so, the intent is likely that the
+                          // user wants to synchronize all the folders on the
+                          // account.
+                          bool isServer;
+                          nsresult rv = folder->GetIsServer(&isServer);
+                          NS_ENSURE_SUCCESS(rv, rv);
 
-  // EWS provides us an opaque value which specifies the last version of
-  // upstream folders we received. Provide that to simplify sync.
-  nsCString syncStateToken;
-  rv = GetStringValue(SYNC_STATE_PROPERTY, syncStateToken);
-  if (NS_FAILED(rv)) {
-    syncStateToken = EmptyCString();
-  }
+                          if (isServer) {
+                            return self->SyncAllFolders(window);
+                          }
 
-  auto listener = RefPtr(new FolderSyncListener(this, RefPtr(aMsgWindow)));
-  rv = client->SyncFolderHierarchy(listener, syncStateToken);
-
-  // TODO: Fetch message headers for all folders.
-
-  return rv;
+                          // If this is not the root folder, synchronize its
+                          // message list normally.
+                          return folder->GetNewMessages(window, urlListener);
+                        });
 }
 
-NS_IMETHODIMP
-EwsIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
-  NS_WARNING("PerformBiff");
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP EwsIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
+  nsCOMPtr<nsIMsgWindow> window = aMsgWindow;
+
+  // Sync the folder list for the account. Then sync the message list of each
+  // folder in the tree.
+  return SyncFolderList(aMsgWindow, [self = RefPtr(this), window]() {
+    return self->SyncAllFolders(window);
+  });
 }
 
 NS_IMETHODIMP EwsIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
-  NS_WARNING("PerformExpand");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  // Sync the folder list; we don't want to do antyhing after that so we just
+  // pass a no-op lambda.
+  return SyncFolderList(aMsgWindow, []() { return NS_OK; });
 }
 
 NS_IMETHODIMP
