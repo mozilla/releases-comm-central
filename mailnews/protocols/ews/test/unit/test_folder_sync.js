@@ -139,14 +139,14 @@ add_task(async function test_delete_folder() {
   );
 
   const rootFolder = incomingServer.rootFolder;
-  rootFolder.getNewMessages(null, null);
+  incomingServer.getNewMessages(rootFolder, null, null);
   await waitForFinalCreate(rootFolder);
   const child = rootFolder.getChildNamed(folderToDeleteName);
   Assert.ok(!!child, `${folderToDeleteName} should exist.`);
 
   ewsServer.deleteRemoteFolderById(folderToDeleteName);
   Assert.equal(1, ewsServer.deletedFolders.length);
-  rootFolder.getNewMessages(null, null);
+  incomingServer.getNewMessages(rootFolder, null, null);
   await waitForFinalDelete(rootFolder);
   const deletedChild = rootFolder.getChildNamed(folderToDeleteName);
   Assert.ok(!deletedChild, `${folderToDeleteName} should not exist.`);
