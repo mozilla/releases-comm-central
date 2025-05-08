@@ -80,7 +80,23 @@ async function initKeyWiz() {
 
   // Show the GnuPG radio selection if the pref is enabled.
   if (Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")) {
-    document.getElementById("externalOpenPgp").removeAttribute("hidden");
+    document.getElementById("externalOpenPgp").hidden = false;
+    document
+      .getElementById("externalKey")
+      .addEventListener("input", async event => {
+        let key = event.target.value.replace(/^0x/, "").replaceAll(" ", "");
+        if (key.length == 40) {
+          const v = event.target.value;
+          // If no typing for a sec, convert to key.
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          if (v == event.target.value) {
+            // Got the full fingerprint; use key part.
+            key = key.substring(24);
+            event.target.value = `0x${key}`;
+          }
+        }
+        toggleSaveButton(event);
+      });
   }
 
   // After the dialog is visible, disable the event listeners causing it to
@@ -114,7 +130,7 @@ async function initKeyWiz() {
 
     // Disable the "Continue" button so the user can't accidentally click on it.
     // See bug 1689980.
-    kDialog.getButton("accept").setAttribute("disabled", true);
+    kDialog.getButton("accept").disabled = true;
 
     switchSection(true);
   }
@@ -224,7 +240,7 @@ function wizardContinue(event) {
   }
 
   // Disable the `Continue` button.
-  kDialog.getButton("accept").setAttribute("disabled", true);
+  kDialog.getButton("accept").disabled = true;
 
   kStartSection.addEventListener(
     "transitionend",
@@ -258,6 +274,7 @@ function switchSection(isKeyManager = false) {
 
     case "2":
       wizardExternalKey();
+      document.getElementById("externalKey").focus();
       break;
   }
 
@@ -310,7 +327,7 @@ function backToStart(event) {
   kDialog.getButton("extra1").hidden = true;
 
   // Enable the `Continue` button.
-  kDialog.getButton("accept").removeAttribute("disabled");
+  kDialog.getButton("accept").disabled = false;
 
   kDialog.getButton("accept").label = kButtonLabel;
   kDialog.getButton("accept").classList.remove("primary");
@@ -461,13 +478,17 @@ async function wizardExternalKey() {
   // If the user is already using an external GnuPG key, populate the input,
   // show the warning description, and enable the primary button.
   if (gIdentity.getBoolAttribute("is_gnupg_key_id")) {
-    document.getElementById("externalKey").value =
-      gIdentity.getUnicharAttribute("last_entered_external_gnupg_key_id");
+    const key = gIdentity.getUnicharAttribute(
+      "last_entered_external_gnupg_key_id"
+    );
+    document.getElementById("externalKey").value = key ? `0x${key}` : "";
     document.getElementById("openPgpExternalWarning").collapsed = false;
-    kDialog.getButton("accept").removeAttribute("disabled");
+    kDialog.getButton("accept").disabled = !document
+      .getElementById("externalKey")
+      .checkValidity();
   } else {
     document.getElementById("openPgpExternalWarning").collapsed = true;
-    kDialog.getButton("accept").setAttribute("disabled", true);
+    kDialog.getButton("accept").disabled = true;
   }
 }
 
@@ -493,9 +514,7 @@ function revealSection(id) {
  * @param {Event} event - The DOM event triggered on change.
  */
 function onExpirationChange(event) {
-  document
-    .getElementById("expireInput")
-    .toggleAttribute("disabled", event.target.value != 0);
+  document.getElementById("expireInput").disabled = event.target.value != 0;
   document.getElementById("timeScale").disabled = event.target.value != 0;
 
   validateExpiration();
@@ -535,7 +554,7 @@ async function validateExpiration() {
   // enable the "Generate Key" button.
   if (document.getElementById("openPgpKeygeExpiry").value == 1) {
     document.getElementById("openPgpWarning").collapsed = true;
-    kDialog.getButton("accept").removeAttribute("disabled");
+    kDialog.getButton("accept").disabled = false;
     return;
   }
 
@@ -551,7 +570,7 @@ async function validateExpiration() {
       document.getElementById("openPgpWarningDescription"),
       "openpgp-keygen-long-expiry"
     );
-    kDialog.getButton("accept").setAttribute("disabled", true);
+    kDialog.getButton("accept").disabled = true;
     resizeWindow();
     return;
   }
@@ -563,7 +582,7 @@ async function validateExpiration() {
       document.getElementById("openPgpWarningDescription"),
       "openpgp-keygen-short-expiry"
     );
-    kDialog.getButton("accept").setAttribute("disabled", true);
+    kDialog.getButton("accept").disabled = true;
     resizeWindow();
     return;
   }
@@ -571,7 +590,7 @@ async function validateExpiration() {
   // If the previous conditions are false, hide the warning message and
   // enable the "Generate Key" button since the expiration date is valid.
   document.getElementById("openPgpWarning").collapsed = true;
-  kDialog.getButton("accept").removeAttribute("disabled");
+  kDialog.getButton("accept").disabled = false;
 }
 
 /**
@@ -883,7 +902,7 @@ async function importSecretKey() {
   // keys currently listed.
   if (keyCount) {
     document.getElementById("importKeyIntro").hidden = true;
-    kDialog.getButton("accept").removeAttribute("disabled");
+    kDialog.getButton("accept").disabled = false;
     kDialog.getButton("accept").classList.add("primary");
   }
 
@@ -1128,7 +1147,7 @@ function openPgpImportComplete() {
 /**
  * Opens a prompt asking the user to enter the passphrase for a given key id.
  *
- * @param {object} win - The current window.
+ * @param {window} win - The current window.
  * @param {string} promptString - The ID of the imported key.
  * @param {object} resultFlags - Keep track of the cancelled action.
  *
@@ -1162,9 +1181,7 @@ function passphrasePromptCallback(win, promptString, resultFlags) {
 }
 
 function toggleSaveButton(event) {
-  kDialog
-    .getButton("accept")
-    .toggleAttribute("disabled", !event.target.value.trim());
+  kDialog.getButton("accept").disabled = !event.target.reportValidity();
 }
 
 /**
@@ -1173,9 +1190,12 @@ function toggleSaveButton(event) {
 function openPgpExternalComplete() {
   gIdentity.setBoolAttribute("is_gnupg_key_id", true);
 
-  const externalKey = document.getElementById("externalKey").value;
-  gIdentity.setUnicharAttribute("openpgp_key_id", externalKey);
+  const key = document
+    .getElementById("externalKey")
+    .value.replace(/^0x/, "")
+    .replaceAll(" ", "");
+  gIdentity.setUnicharAttribute("openpgp_key_id", key);
 
-  window.arguments[0].okExternalCallback(externalKey);
+  window.arguments[0].okExternalCallback(key);
   window.close();
 }

@@ -502,8 +502,11 @@
                   id="externalKey"
                   type="text"
                   class="input-inline"
-                  data-l10n-id="openpgp-external-key-input"
-                  oninput="toggleSaveButton(event);"
+                  placeholder="0x0123456789ABCDEF"
+                  required="required"
+                  minlength="16"
+                  maxlength="80"
+                  pattern="(0x)?([0-9a-fA-F]{4} ?){3}[0-9a-fA-F]{4}"
                 />
               </hbox>
             </hbox>
