@@ -20,7 +20,7 @@
 
 class nsIMimeObjectClassAccess : public nsISupports {
  public:
-  NS_DECLARE_STATIC_IID_ACCESSOR(NS_IMIME_OBJECT_CLASS_ACCESS_IID)
+  NS_INLINE_DECL_STATIC_IID(NS_IMIME_OBJECT_CLASS_ACCESS_IID)
 
   // These methods are all implemented by libmime to be used by
   // content type handler plugins for processing stream data.
@@ -42,8 +42,5 @@ class nsIMimeObjectClassAccess : public nsISupports {
   NS_IMETHOD MimeCreate(char* content_type, void* hdrs, void* opts,
                         void** ptr) = 0;
 };
-
-NS_DEFINE_STATIC_IID_ACCESSOR(nsIMimeObjectClassAccess,
-                              NS_IMIME_OBJECT_CLASS_ACCESS_IID)
 
 #endif /* nsIMimeObjectClassAccess_h_ */

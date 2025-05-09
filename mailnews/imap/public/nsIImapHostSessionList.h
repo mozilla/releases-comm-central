@@ -19,7 +19,7 @@ class nsIImapIncomingServer;
 // this is an interface to a linked list of host info's
 class nsIImapHostSessionList : public nsISupports {
  public:
-  NS_DECLARE_STATIC_IID_ACCESSOR(NS_IIMAPHOSTSESSIONLIST_IID)
+  NS_INLINE_DECL_STATIC_IID(NS_IIMAPHOSTSESSIONLIST_IID)
 
   // Host List
   NS_IMETHOD AddHostToList(const char* serverKey,
@@ -118,8 +118,5 @@ class nsIImapHostSessionList : public nsISupports {
   NS_IMETHOD SetNamespaceHierarchyDelimiterFromMailboxForHost(
       const char* serverKey, const char* boxName, char delimiter) = 0;
 };
-
-NS_DEFINE_STATIC_IID_ACCESSOR(nsIImapHostSessionList,
-                              NS_IIMAPHOSTSESSIONLIST_IID)
 
 #endif

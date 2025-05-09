@@ -22,7 +22,7 @@ class EwsIncomingServer : public nsMsgIncomingServer,
 
   EwsIncomingServer();
 
-  NS_DECLARE_STATIC_IID_ACCESSOR(EWS_INCOMING_SERVER_IID)
+  NS_INLINE_DECL_STATIC_IID(EWS_INCOMING_SERVER_IID)
 
  protected:
   virtual ~EwsIncomingServer();
@@ -72,7 +72,5 @@ class EwsIncomingServer : public nsMsgIncomingServer,
 
   friend class FolderSyncListener;
 };
-
-NS_DEFINE_STATIC_IID_ACCESSOR(EwsIncomingServer, EWS_INCOMING_SERVER_IID)
 
 #endif

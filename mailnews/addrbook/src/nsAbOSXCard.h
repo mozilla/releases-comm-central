@@ -15,14 +15,12 @@
 
 class nsIAbOSXCard : public nsISupports {
  public:
-  NS_DECLARE_STATIC_IID_ACCESSOR(NS_IABOSXCARD_IID)
+  NS_INLINE_DECL_STATIC_IID(NS_IABOSXCARD_IID)
 
   virtual nsresult Init(const char* aUri) = 0;
   virtual nsresult Update(bool aNotify) = 0;
   virtual nsresult GetURI(nsACString& aURI) = 0;
 };
-
-NS_DEFINE_STATIC_IID_ACCESSOR(nsIAbOSXCard, NS_IABOSXCARD_IID)
 
 class nsAbOSXCard : public nsAbCardProperty, public nsIAbOSXCard {
  public:

@@ -24,7 +24,7 @@ class nsIAbBooleanExpression;
 
 class nsIAbOSXDirectory : public nsISupports {
  public:
-  NS_DECLARE_STATIC_IID_ACCESSOR(NS_IABOSXDIRECTORY_IID)
+  NS_INLINE_DECL_STATIC_IID(NS_IABOSXDIRECTORY_IID)
 
   virtual nsresult AssertChildNodes() = 0;
   virtual nsresult Update() = 0;
@@ -41,8 +41,6 @@ class nsIAbOSXDirectory : public nsISupports {
   virtual nsresult GetCardByUri(const nsACString& aUri,
                                 nsIAbOSXCard** aResult) = 0;
 };
-
-NS_DEFINE_STATIC_IID_ACCESSOR(nsIAbOSXDirectory, NS_IABOSXDIRECTORY_IID)
 
 class nsAbOSXDirectory final : public nsAbDirProperty,
                                public nsIAbOSXDirectory {
