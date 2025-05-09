@@ -279,7 +279,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
       // If the input is not empty, we should still have the normal behaviour.
       input.value = "z";
       input.selectionStart = 1;
-      input.SelectionEnd = 1;
+      input.selectionEnd = 1;
       await TestUtils.waitForTick();
 
       await BrowserTestUtils.synthesizeKey(key, {}, win.browsingContext);
