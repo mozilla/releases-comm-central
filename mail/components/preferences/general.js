@@ -65,6 +65,7 @@ Preferences.addAll([
   { id: "mail.biff.play_sound", type: "bool" },
   { id: "mail.biff.play_sound.type", type: "int" },
   { id: "mail.biff.play_sound.url", type: "string" },
+  { id: "mail.biff.show_alert", type: "bool" },
   { id: "mail.biff.use_system_alert", type: "bool" },
   { id: "general.autoScroll", type: "bool" },
   { id: "general.smoothScroll", type: "bool" },
@@ -111,9 +112,6 @@ Preferences.addAll([
 ]);
 if (AppConstants.platform == "win") {
   Preferences.add({ id: "mail.minimizeToTray", type: "bool" });
-}
-if (AppConstants.platform != "macosx") {
-  Preferences.add({ id: "mail.biff.show_alert", type: "bool" });
 }
 
 var ICON_URL_APP = "";
@@ -3074,9 +3072,7 @@ Preferences.get("layers.acceleration.disabled").on(
   "change",
   gGeneralPane.updateHardwareAcceleration
 );
-if (AppConstants.platform != "macosx") {
-  Preferences.get("mail.biff.show_alert").on(
-    "change",
-    gGeneralPane.updateShowAlert
-  );
-}
+Preferences.get("mail.biff.show_alert").on(
+  "change",
+  gGeneralPane.updateShowAlert
+);

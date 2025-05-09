@@ -1381,6 +1381,7 @@ function reportPreferences() {
     "mail.biff.alert.show_preview",
     "mail.biff.alert.show_sender",
     "mail.biff.alert.show_subject",
+    "mail.biff.show_alert",
 
     // Unlisted
     "mail.operate_on_msgs_in_collapsed_threads",
@@ -1425,7 +1426,7 @@ function reportPreferences() {
   }
 
   if (AppConstants.platform !== "macosx") {
-    booleanPrefs.push("mail.biff.show_alert", "mail.biff.use_system_alert");
+    booleanPrefs.push("mail.biff.use_system_alert");
   }
 
   // Compile-time flag-dependent preferences

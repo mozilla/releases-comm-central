@@ -70,22 +70,20 @@ add_task(async () => {
 });
 
 add_task(async () => {
-  if (AppConstants.platform != "macosx") {
-    await testCheckboxes(
-      "paneGeneral",
-      "incomingMailCategory",
-      {
-        checkboxID: "newMailNotification",
-        pref: "mail.biff.play_sound",
-        enabledElements: ["#soundType radio"],
-      },
-      {
-        checkboxID: "newMailNotificationAlert",
-        pref: "mail.biff.show_alert",
-        enabledElements: ["#customizeMailAlert"],
-      }
-    );
-  }
+  await testCheckboxes(
+    "paneGeneral",
+    "incomingMailCategory",
+    {
+      checkboxID: "newMailNotification",
+      pref: "mail.biff.play_sound",
+      enabledElements: ["#soundType radio"],
+    },
+    {
+      checkboxID: "newMailNotificationAlert",
+      pref: "mail.biff.show_alert",
+      enabledElements: ["#customizeMailAlert"],
+    }
+  );
 });
 
 add_task(async () => {
