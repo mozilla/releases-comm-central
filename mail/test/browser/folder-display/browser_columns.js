@@ -240,6 +240,7 @@ async function toggleColumn(columnID) {
   // The column picker menupopup doesn't close automatically on purpose.
   EventUtils.synthesizeKey("VK_ESCAPE", {}, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "hidden");
+  await new Promise(about3Pane.requestAnimationFrame);
 }
 
 /**
@@ -615,6 +616,7 @@ async function invoke_column_picker_option(aActions) {
 async function restore_default_columns() {
   const tabmail = document.getElementById("tabmail");
   const about3Pane = tabmail.currentAbout3Pane;
+  await TestUtils.waitForTick();
   const restoreEvent = BrowserTestUtils.waitForEvent(
     about3Pane.document,
     "restore-columns"
