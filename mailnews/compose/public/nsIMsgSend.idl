@@ -74,9 +74,6 @@ interface nsIMsgAttachmentData : nsISupports
   attribute ACString description;
 
   /// mac-specific info
-  attribute ACString xMacType;
-
-  /// mac-specific info
   attribute ACString xMacCreator;
 };
 
@@ -109,7 +106,6 @@ interface nsIMsgAttachedFile : nsISupports
   /// X-Mozilla-Cloud-Part, if any.
   attribute ACString cloudPartInfo;
 
-  attribute ACString xMacType;    // mac-specific info
   attribute ACString xMacCreator; // mac-specific info
   attribute ACString realName;      // The real name of the file.
 };

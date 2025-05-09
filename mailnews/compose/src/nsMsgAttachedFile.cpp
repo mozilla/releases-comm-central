@@ -77,16 +77,6 @@ NS_IMETHODIMP nsMsgAttachedFile::SetCloudPartInfo(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachedFile::GetXMacType(nsACString& aXMacType) {
-  aXMacType = m_xMacType;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgAttachedFile::SetXMacType(const nsACString& aXMacType) {
-  m_xMacType = aXMacType;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgAttachedFile::GetXMacCreator(nsACString& aXMacCreator) {
   aXMacCreator = m_xMacCreator;
   return NS_OK;

@@ -374,8 +374,6 @@ nsresult GenerateAttachmentData(MimeObject* object, const char* aMessageURL,
 
   disp = MimeHeaders_get(object->headers, HEADER_CONTENT_TYPE, false, false);
   if (disp) {
-    tmp->m_xMacType.Adopt(
-        MimeHeaders_get_parameter(disp, PARAM_X_MAC_TYPE, nullptr, nullptr));
     tmp->m_xMacCreator.Adopt(
         MimeHeaders_get_parameter(disp, PARAM_X_MAC_CREATOR, nullptr, nullptr));
 
