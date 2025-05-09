@@ -126,7 +126,6 @@ extern "C" void mime_dump_attachments(nsMsgAttachmentData* attachData) {
     printf("Description       : %s\n", tmp->m_description.get());
     printf("Mac Type          : %s\n", tmp->m_xMacType.get());
     printf("Mac Creator       : %s\n", tmp->m_xMacCreator.get());
-    printf("Size in bytes     : %d\n", tmp->m_size);
     i++;
     tmp++;
   }

@@ -100,16 +100,7 @@ class nsMsgAttachedFile final : public nsIMsgAttachedFile {
   nsCString m_xMacCreator;    // mac-specific info
   nsCString m_realName;       // The real name of the file.
 
-  // Some statistics about the data that was written to the file, so that when
-  // it comes time to compose a MIME message, we can make an informed decision
-  // about what Content-Transfer-Encoding would be best for this attachment.
-  // (If it's encoded already, we ignore this information and ship it as-is.)
   uint32_t m_size;
-  uint32_t m_unprintableCount;
-  uint32_t m_highbitCount;
-  uint32_t m_ctlCount;
-  uint32_t m_nullCount;
-  uint32_t m_maxLineLength;
 };
 
 #undef MOZ_ASSERT_TYPE_OK_FOR_REFCOUNTING

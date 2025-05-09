@@ -112,19 +112,6 @@ interface nsIMsgAttachedFile : nsISupports
   attribute ACString xMacType;    // mac-specific info
   attribute ACString xMacCreator; // mac-specific info
   attribute ACString realName;      // The real name of the file.
-
-  /**
-   * Some statistics about the data that was written to the file, so that when
-   * it comes time to compose a MIME message, we can make an informed decision
-   * about what Content-Transfer-Encoding would be best for this attachment.
-   * (If it's encoded already, we ignore this information and ship it as-is.)
-   */
-  attribute unsigned long size;
-  attribute unsigned long unprintableCount;
-  attribute unsigned long highbitCount;
-  attribute unsigned long ctlCount;
-  attribute unsigned long nullCount;
-  attribute unsigned long maxLineLength;
 };
 
 /**
