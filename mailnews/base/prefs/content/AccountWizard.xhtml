@@ -6,6 +6,8 @@
 <!-- NOTE: This Account Wizard is *only* for Newsgroup accounts. Historically,
    - it was a generic Account Wizard, hence the generic naming. -->
 
+<?csp default-src chrome:; script-src chrome: 'unsafe-inline'; style-src chrome: 'unsafe-inline' ?>
+
 <!DOCTYPE window [
 <!ENTITY % AccountWizardDTD SYSTEM "chrome://messenger/locale/AccountWizard.dtd">
 %AccountWizardDTD;
@@ -39,10 +41,6 @@
       href="chrome://messenger/skin/themeableDialog.css"
     />
     <html:link rel="localization" href="toolkit/global/wizard.ftl"/>
-    <html:meta
-      http-equiv="Content-Security-Policy"
-      content="default-src chrome:; script-src chrome: 'unsafe-inline'; style-src chrome: 'unsafe-inline'"
-    />
   </linkset>
 
   <script src="chrome://messenger/content/globalOverlay.js"/>
