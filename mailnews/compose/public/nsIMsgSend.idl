@@ -285,9 +285,6 @@ interface nsIMsgSend : nsISupports
      */
     nsresult fail(in nsresult aFailureCode, in wstring aErrorMsg);
 
-    /* Disable UI notification (alert message) */
-    void setGUINotificationState(in boolean aEnableFlag);
-
     /* Crypto */
     void BeginCryptoEncapsulation();
 
