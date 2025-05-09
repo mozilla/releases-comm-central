@@ -299,8 +299,6 @@ interface nsIMsgSend : nsISupports
 
     nsIOutputStream getOutputStream();
 
-    attribute nsIRequest runningRequest;
-
     attribute nsresult status;
 
     attribute nsIMsgComposeSecure cryptoclosure;
