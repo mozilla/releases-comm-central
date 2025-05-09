@@ -296,8 +296,4 @@ interface nsIMsgSend : nsISupports
     readonly attribute nsMsgDeliverMode deliveryMode;
 
     nsIMsgProgress getProgress();
-
-    /// The folder name to which the message will be saved,
-    /// used by error reporting.
-    attribute AString savedToFolderName;
 };
