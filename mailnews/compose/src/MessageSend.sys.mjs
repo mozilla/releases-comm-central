@@ -362,13 +362,6 @@ export class MessageSend {
     return exitCode;
   }
 
-  getPartForDomIndex() {
-    throw Components.Exception(
-      "getPartForDomIndex not implemented",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
-    );
-  }
-
   getProgress() {
     return this._sendProgress;
   }
