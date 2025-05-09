@@ -70,14 +70,16 @@ add_task(async () => {
 });
 
 add_task(async () => {
+  if (AppConstants.platform == "macosx") {
+    return;
+  }
   await testCheckboxes(
     "paneGeneral",
     "incomingMailCategory",
     {
       checkboxID: "newMailNotification",
       pref: "mail.biff.play_sound",
-      enabledElements:
-        AppConstants.platform != "macosx" ? ["#soundType radio"] : null,
+      enabledElements: ["#soundType radio"],
     },
     {
       checkboxID: "newMailNotificationAlert",

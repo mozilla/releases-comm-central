@@ -144,19 +144,21 @@ async function testCheckboxes(paneID, scrollPaneTo, ...tests) {
         checkbox.checked,
         checked,
         wantedValue,
-        "Checkbox " + (checked ? "is" : "isn't") + " checked"
+        `Checkbox #${test.checkboxID} should ` +
+          (checked ? "be" : "") +
+          " checked"
       );
       if (typeof wantedValue == "number") {
         is(
           Services.prefs.getIntPref(test.pref, -999),
           wantedValue,
-          `Pref is ${wantedValue}`
+          `Pref ${test.pref} should be ${wantedValue}`
         );
       } else {
         is(
           Services.prefs.getBoolPref(test.pref),
           wantedValue,
-          `Pref is ${wantedValue}`
+          `Pref ${test.pref} should be ${wantedValue}`
         );
       }
 
@@ -276,19 +278,19 @@ async function testRadioButtons(paneID, scrollPaneTo, ...tests) {
           is(
             Services.prefs.getIntPref(pref, -999),
             currentState.prefValue,
-            `Pref is ${currentState.prefValue}`
+            `Pref ${pref} should be ${currentState.prefValue}`
           );
         } else if (typeof initialState.prefValue == "boolean") {
           is(
             Services.prefs.getBoolPref(pref),
             currentState.prefValue,
-            `Pref is ${currentState.prefValue}`
+            `Pref ${pref} should be ${currentState.prefValue}`
           );
         } else {
           is(
             Services.prefs.getCharPref(pref, "FAKE VALUE"),
             currentState.prefValue,
-            `Pref is ${currentState.prefValue}`
+            `Pref ${pref} should be ${currentState.prefValue}`
           );
         }
       };
