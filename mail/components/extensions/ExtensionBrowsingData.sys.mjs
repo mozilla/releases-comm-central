@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// See browser/components/extensions/ExtensionBrowsingData.sys.mjs
+
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "makeRange", () => {
   const { ExtensionParent } = ChromeUtils.importESModule(
@@ -12,7 +14,6 @@ ChromeUtils.defineLazyGetter(lazy, "makeRange", () => {
 });
 
 ChromeUtils.defineESModuleGetters(lazy, {
-  Preferences: "resource://gre/modules/Preferences.sys.mjs",
   // TODO: Sanitizer.sys.mjs doesn't exist for Thunderbird.
   // If we start using BrowsingDataDelegate we need this too.
   Sanitizer: "resource:///modules/Sanitizer.sys.mjs",
@@ -59,7 +60,7 @@ export class BrowsingDataDelegate {
       // The property formData needs a different case than the
       // formdata preference.
       const name = item === "formdata" ? "formData" : item;
-      dataToRemove[name] = lazy.Preferences.get(`${PREF_DOMAIN}${item}`);
+      dataToRemove[name] = Services.prefs.getBoolPref(`${PREF_DOMAIN}${item}`);
       // Firefox doesn't have the same concept of dataRemovalPermitted
       // as Chrome, so it will always be true.
       dataRemovalPermitted[name] = true;

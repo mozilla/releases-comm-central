@@ -27,7 +27,6 @@ var { CalDavSession } = ChromeUtils.importESModule(
   "resource:///modules/caldav/CalDavSession.sys.mjs"
 );
 var { CalDavXmlns } = ChromeUtils.importESModule("resource:///modules/caldav/CalDavUtils.sys.mjs");
-var { Preferences } = ChromeUtils.importESModule("resource://gre/modules/Preferences.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 ChromeUtils.defineESModuleGetters(this, {
@@ -485,8 +484,8 @@ class CalDavServer {
 }
 
 function run_test() {
-  Preferences.set("calendar.debug.log", true);
-  Preferences.set("calendar.debug.log.verbose", true);
+  Services.prefs.setBoolPref("calendar.debug.log", true);
+  Services.prefs.setBoolPref("calendar.debug.log.verbose", true);
   cal.console.maxLogLevel = "debug";
   replaceAlertsService();
 

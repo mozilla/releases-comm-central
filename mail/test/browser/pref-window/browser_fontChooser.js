@@ -22,10 +22,6 @@ var { wait_for_frame_load } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
-var { Preferences } = ChromeUtils.importESModule(
-  "resource://gre/modules/Preferences.sys.mjs"
-);
-
 var gFontEnumerator;
 var gTodayPane;
 
@@ -351,9 +347,9 @@ add_task(async function test_font_name_not_present() {
 });
 
 function teardownTest() {
-  // nsIPrefBranch.resetBranch() is not implemented in M-C, so we can't use
-  // Services.prefs.resetBranch().
-  Preferences.resetBranch("font.name.");
+  for (const pref of Services.prefs.getChildList("font.name.")) {
+    Services.prefs.clearUserPref(pref);
+  }
 }
 
 registerCleanupFunction(function () {
