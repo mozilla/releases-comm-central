@@ -2,17 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-.calendar-dialog-row {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: var(--calendar-dialog-row-content-gap) var(--calendar-dialog-row-column-gap);
-  padding-inline: var(--calendar-dialog-row-padding-inline);
+calendar-dialog-row {
+  &::part(row) {
+    padding-inline: var(--calendar-dialog-row-padding-inline);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: var(--calendar-dialog-row-content-gap) var(--calendar-dialog-row-column-gap);
+  }
 
-  &.expanding-content {
+  &[expanding]::part(row) {
     padding-inline-end: 0;
   }
+
+  &[expanded]::part(row) {
+    padding-block: var(--calendar-dialog-expanded-row-padding-block);
+    row-gap: var(--calendar-dialog-expanded-row-content-gap);
+    overflow: auto;
+  }
 }
+
 
 slot[name="icon"]::slotted(img) {
   height: 16px;
@@ -24,4 +33,12 @@ slot[name="icon"]::slotted(img) {
 
 slot[name="content"]::slotted(*) {
   grid-column: 2;
+}
+
+slot[name="content"]::slotted(.truncated-content) {
+  -webkit-line-clamp: 5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }

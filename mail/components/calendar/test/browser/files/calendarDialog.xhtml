@@ -24,7 +24,7 @@
   </head>
   <body>
     <template id="calendarDialogRowTemplate">
-      <div id="row" class="calendar-dialog-row">
+      <div part="row">
         <slot name="icon"></slot>
         <slot name="label"></slot>
         <slot name="content"></slot>
@@ -51,6 +51,22 @@
             hidden="hidden"
           />
         </div>
+      </calendar-dialog-row>
+    </template>
+    <template id="calendarDialogDescriptionRowTemplate">
+      <calendar-dialog-row>
+        <img
+          slot="icon"
+          class="icon-description"
+          src=""
+          data-l10n-id="calendar-dialog-description-row-icon"
+        />
+        <span
+          slot="label"
+          class="row-label"
+          data-l10n-id="calendar-dialog-description-label"
+        ></span>
+        <div slot="content"></div>
       </calendar-dialog-row>
     </template>
     <template id="calendarDialogTemplate">
@@ -87,24 +103,9 @@
                 <span id="locationText" hidden="hidden"></span>
               </div>
             </calendar-dialog-row>
-            <div id="calendarDescription" class="expanding-row">
-              <calendar-dialog-row id="calendarDescriptionRow" expanding="true">
-                <img
-                  slot="icon"
-                  class="icon-description"
-                  src=""
-                  data-l10n-id="calendar-dialog-description-row-icon"
-                />
-                <span
-                  slot="label"
-                  data-l10n-id="calendar-dialog-description-label"
-                ></span>
-                <div
-                  id="calendarDescriptionContent"
-                  slot="content"
-                  class="description-content"
-                ></div>
-              </calendar-dialog-row>
+            <div id="descriptionRow" class="expanding-row">
+              <calendar-dialog-description-row id="expandingDescription">
+              </calendar-dialog-description-row>
               <button
                 id="expandDescription"
                 class="button button-flat expand-button icon-button"
@@ -119,6 +120,16 @@
             <calendar-dialog-categories></calendar-dialog-categories>
           </div>
           <div id="calendarDialogOtherSubview" hidden="hidden">Test only subview</div>
+          <div
+            id="calendarDescriptionSubview"
+            hidden="hidden"
+          >
+            <calendar-dialog-description-row
+              id="expandedDescription"
+              type="full"
+            >
+            </calendar-dialog-description-row>
+          </div>
         </calendar-dialog-subview-manager>
       </div>
       <div class="footer"></div>

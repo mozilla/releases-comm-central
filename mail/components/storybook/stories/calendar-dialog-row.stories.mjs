@@ -16,7 +16,7 @@ export default {
 
 const RowTemplateDefault = () => html`
   <template id="calendarDialogRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
-    <div id="row" class="calendar-dialog-row">
+    <div part="row">
       <slot name="icon"></slot>
       <slot name="label"></slot>
       <slot name="content"></slot>
@@ -36,7 +36,7 @@ const RowTemplateDefault = () => html`
 
 const RowTemplateLabelOnly = () => html`
   <template id="calendarDialogRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
-    <div class="calendar-dialog-row">
+    <div part="row">
       <slot name="icon"></slot>
       <slot name="label"></slot>
       <slot name="content"></slot>
@@ -55,7 +55,7 @@ const RowTemplateLabelOnly = () => html`
 
 const RowTemplateLocationLink = () => html`
   <template id="calendarDialogRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
-    <div class="calendar-dialog-row">
+    <div part="row">
       <slot name="icon"></slot>
       <slot name="label"></slot>
       <slot name="content"></slot>
@@ -82,7 +82,7 @@ const RowTemplateLocationLink = () => html`
 
 const RowTemplateDescription = () => html`
   <template id="calendarDialogRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
-    <div class="calendar-dialog-row">
+    <div part="row">
       <slot name="icon"></slot>
       <slot name="label"></slot>
       <slot name="content"></slot>
@@ -99,7 +99,7 @@ const RowTemplateDescription = () => html`
     <div
       id="calendarDescriptionContent"
       slot="content"
-      class="description-text"
+      class="truncated-content"
     >
       Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut commodo nibh
       id mattis lacinia. Cras mi nisl, dapibus eu dui a, tempor bibendum felis.
@@ -110,6 +110,10 @@ const RowTemplateDescription = () => html`
       Donec sapien dolor, ullamcorper tincidunt imperdiet in, sollicitudin ut
       leo.
       <br />
+      <br />
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut commodo nibh
+      id mattis lacinia. Cras mi nisl, dapibus eu dui a, tempor bibendum felis.
+      Pellentesque ut sollicitudin tortor.
       <br />
       Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut commodo nibh
       id mattis lacinia. Cras mi nisl, dapibus eu dui a, tempor bibendum felis.

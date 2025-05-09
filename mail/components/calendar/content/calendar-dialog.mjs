@@ -5,6 +5,7 @@
 import { PositionedDialog } from "./positioned-dialog.mjs";
 import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./calendar-dialog-description-row.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-categories.mjs"; // eslint-disable-line import/no-unassigned-import
 
 // Eagerly loading modules, since we assume that an event will be displayed soon
@@ -78,6 +79,7 @@ export class CalendarDialog extends PositionedDialog {
       this.querySelector("#locationLink").addEventListener("click", this);
       this.#subviewManager.addEventListener("subviewchanged", this);
       this.querySelector(".back-button").addEventListener("click", this);
+      this.querySelector("#expandDescription").addEventListener("click", this);
 
       this.querySelector(".back-button").hidden =
         this.#subviewManager.isDefaultSubviewVisible();
@@ -100,17 +102,31 @@ export class CalendarDialog extends PositionedDialog {
     }
   }
 
+  /**
+   * The handlers are matched based on the selector in the key
+   * applying to the target of the click event.
+   *
+   * @type {Record<string,Function>}
+   */
+  #clickHandlers = {
+    ".close-button": () => this.close(),
+    ".back-button": () => this.#subviewManager.showDefaultSubview(),
+    "#locationLink": event => {
+      event.preventDefault();
+      lazy.openLinkExternally(event.target.href);
+    },
+    "#expandDescription": () =>
+      this.#subviewManager.showSubview("calendarDescriptionSubview"),
+  };
+
   handleEvent(event) {
     switch (event.type) {
       case "click":
-        if (event.target.closest(".close-button")) {
-          this.close();
-        } else if (event.target.closest(".back-button")) {
-          this.#subviewManager.showDefaultSubview();
-        } else if (event.target.closest("#locationLink")) {
-          event.preventDefault();
-          lazy.openLinkExternally(event.target.href);
-          break;
+        for (const [selector, handler] of Object.entries(this.#clickHandlers)) {
+          if (event.target.closest(selector)) {
+            handler(event);
+            break;
+          }
         }
         break;
       case "subviewchanged":
@@ -260,8 +276,12 @@ export class CalendarDialog extends PositionedDialog {
    */
   updateDialogData(data) {
     if (data.description) {
-      this.querySelector("#calendarDescriptionContent").textContent =
-        data.description;
+      this.querySelector("#expandingDescription").setDescription(
+        data.description
+      );
+      // this.querySelector("#expandedDescription").setExpandedDescription(
+      //   data.description
+      // );
     }
   }
 

@@ -7,16 +7,22 @@
   --calendar-dialog-row-column-gap: 9px;
   --calendar-dialog-row-content-gap: 3px;
   --calendar-dialog-row-expand-button-padding-inline-start: 9px;
+  --calendar-dialog-expanded-row-content-gap: 6px;
+  --calendar-dialog-expanded-row-padding-block: 12px;
 
   &[uidensity="compact"] {
     --calendar-dialog-row-padding-inline: 6px;
     --calendar-dialog-row-column-gap: 5px;
     --calendar-dialog-row-content-gap: 1px;
+    --calendar-dialog-expanded-row-content-gap: 3px;
+    --calendar-dialog-expanded-row-padding-block: 6px;
   }
 
   &[uidensity="touch"] {
     --calendar-dialog-row-column-gap: 18px;
     --calendar-dialog-row-content-gap: 6px;
+    --calendar-dialog-expanded-row-content-gap: 9px;
+    --calendar-dialog-expanded-row-padding-block: 15px;
   }
 }
 
@@ -101,14 +107,6 @@ calendar-dialog-date-row {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
   box-shadow: inset 0 4px 6px rgba(255, 255, 255, 0.1),
               0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.description-text {
-  -webkit-line-clamp: 5;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  text-overflow: ellipsis;
-  overflow: hidden;
 }
 
 .expanding-row {
