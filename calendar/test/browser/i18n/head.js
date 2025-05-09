@@ -194,27 +194,42 @@ async function subtestPrint(shortDays, monthName, monthRangeText) {
       formWin.PrintEventHandler.printPreviewEl.querySelector("browser").contentDocument;
 
     Assert.equal(previewDoc.getElementById("month-container").childElementCount, 1);
-    Assert.equal(previewDoc.title, monthName);
+    Assert.equal(previewDoc.title, monthName, "title should be correct");
     const month = previewDoc.getElementById("month-container").firstElementChild;
-    Assert.equal(month.rows[0].cells[0].textContent, monthName);
+    Assert.equal(
+      month.rows[0].cells[0].textContent,
+      monthName,
+      "should have monthName at #month-container[0][0]"
+    );
     Assert.deepEqual(
       Array.from(month.rows[1].cells, c => c.textContent),
-      shortDays
+      shortDays,
+      "should show the correct shortDays"
     );
 
     fromMonth.value = 9;
     fromMonth.dispatchEvent(new CustomEvent("change"));
     await TestUtils.waitForCondition(
-      () => previewDoc.getElementById("month-container").childElementCount > 1
+      () => previewDoc.getElementById("month-container").childElementCount == 3,
+      "waiting for #month-container childElementCount to grow"
     );
 
-    Assert.equal(previewDoc.getElementById("month-container").childElementCount, 3);
-    Assert.equal(previewDoc.title, monthRangeText);
+    Assert.equal(
+      previewDoc.getElementById("month-container").childElementCount,
+      3,
+      "#month-container should have 3 children"
+    );
+    Assert.equal(previewDoc.title, monthRangeText, "doc title should be correct");
   } finally {
+    formWin.document
+      .querySelector(`button[is="cancel-button"]`)
+      .scrollIntoView({ block: "start", behavior: "instant" });
     EventUtils.synthesizeMouseAtCenter(
       formWin.document.querySelector(`button[is="cancel-button"]`),
       {},
       formWin
     );
+    await new Promise(resolve => window.setTimeout(resolve));
   }
+  Assert.report(false, undefined, undefined, "finished subtestPrint");
 }
