@@ -76,7 +76,8 @@ add_task(async () => {
     {
       checkboxID: "newMailNotification",
       pref: "mail.biff.play_sound",
-      enabledElements: ["#soundType radio"],
+      enabledElements:
+        AppConstants.platform != "macosx" ? ["#soundType radio"] : null,
     },
     {
       checkboxID: "newMailNotificationAlert",
