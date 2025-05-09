@@ -2,4 +2,4 @@ ${PKG_NAME} (${PKG_VERSION}) UNRELEASED; urgency=medium
 
   * N/A
 
- -- Daniel Darnell <daniel@thunderbird.net>  ${CHANGELOG_DATE}
+ -- Thunderbird Build & Release Team <tb-builds@thunderbird.net>  ${CHANGELOG_DATE}
