@@ -294,7 +294,6 @@ interface nsIMsgSend : nsISupports
     attribute nsMsgKey messageKey;
 
     /* process attachment */
-    void gatherMimeAttachments();
     readonly attribute boolean processAttachmentsSynchronously;
     readonly attribute unsigned long attachmentCount;
     attribute unsigned long pendingAttachmentCount;
