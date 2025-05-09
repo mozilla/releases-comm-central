@@ -27,12 +27,14 @@ use xpcom::{
 
 use authentication::credentials::{AuthenticationProvider, Credentials};
 use client::XpComEwsClient;
+use safe_xpcom::SafeEwsFolderCallbacks;
 
 mod authentication;
 mod cancellable_request;
 mod client;
 mod headers;
 mod outgoing;
+mod safe_xpcom;
 mod xpcom_io;
 
 /// Creates a new instance of the XPCOM/EWS bridge interface [`XpcomEwsBridge`].
@@ -132,7 +134,7 @@ impl XpcomEwsBridge {
         // this scope, so spawn it as a detached `moz_task`.
         moz_task::spawn_local(
             "sync_folder_hierarchy",
-            client.sync_folder_hierarchy(RefPtr::new(callbacks), sync_state),
+            client.sync_folder_hierarchy(SafeEwsFolderCallbacks::new(callbacks), sync_state),
         )
         .detach();
 

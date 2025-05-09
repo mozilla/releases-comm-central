@@ -41,15 +41,17 @@ use xpcom::{
     getter_addrefs,
     interfaces::{
         nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsIUrlListener,
-        nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgKey, IEwsClient, IEwsFolderCallbacks,
-        IEwsFolderDeleteCallbacks, IEwsMessageCallbacks, IEwsMessageCreateCallbacks,
+        nsMsgKey, IEwsFolderDeleteCallbacks, IEwsMessageCallbacks, IEwsMessageCreateCallbacks,
         IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
     },
     RefPtr,
 };
 
-use crate::headers::{Mailbox, MessageHeaders};
 use crate::{authentication::credentials::Credentials, cancellable_request::CancellableRequest};
+use crate::{
+    headers::{Mailbox, MessageHeaders},
+    safe_xpcom::{EwsClientError, SafeEwsFolderCallbacks},
+};
 
 // Flags to use for setting the `PR_MESSAGE_FLAGS` MAPI property.
 //
@@ -151,21 +153,21 @@ impl XpComEwsClient {
     /// [`SyncFolderHierarchy`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderhierarchy-operation
     pub(crate) async fn sync_folder_hierarchy(
         self,
-        callbacks: RefPtr<IEwsFolderCallbacks>,
+        callbacks: SafeEwsFolderCallbacks,
         sync_state_token: Option<String>,
     ) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
         self.sync_folder_hierarchy_inner(&callbacks, sync_state_token)
             .await
-            .unwrap_or_else(process_error_with_cb(move |client_err, desc| unsafe {
-                callbacks.OnError(client_err, &*desc);
+            .unwrap_or_else(process_error_with_cb(move |client_err, desc| {
+                let _ = callbacks.on_error(client_err, &*desc);
             }));
     }
 
     async fn sync_folder_hierarchy_inner(
         self,
-        callbacks: &IEwsFolderCallbacks,
+        callbacks: &SafeEwsFolderCallbacks,
         mut sync_state_token: Option<String>,
     ) -> Result<(), XpComEwsError> {
         // If we have received no sync state, assume that this is the first time
@@ -252,7 +254,7 @@ impl XpComEwsClient {
             sync_state_token = Some(message.sync_state);
         }
 
-        unsafe { callbacks.OnSuccess() }.to_result()?;
+        callbacks.on_success()?;
 
         Ok(())
     }
@@ -267,7 +269,7 @@ impl XpComEwsClient {
         // to handle errors while letting the inner function simply propagate.
         self.sync_messages_for_folder_inner(&callbacks, folder_id, sync_state_token)
             .await
-            .unwrap_or_else(process_error_with_cb(move |client_err, desc| unsafe {
+            .unwrap_or_else(process_error_with_cb_cpp(move |client_err, desc| unsafe {
                 callbacks.OnError(client_err, &*desc);
             }));
     }
@@ -631,7 +633,7 @@ impl XpComEwsClient {
     /// calls and well-known IDs associated with special folders.
     async fn get_well_known_folder_map(
         &self,
-        callbacks: &IEwsFolderCallbacks,
+        callbacks: &SafeEwsFolderCallbacks,
     ) -> Result<FxHashMap<String, &str>, XpComEwsError> {
         const DISTINGUISHED_IDS: &[&str] = &[
             EWS_ROOT_FOLDER,
@@ -687,9 +689,7 @@ impl XpComEwsClient {
         // Any error fetching the root folder is fatal, since we can't correctly
         // set the parents of any folders it contains without knowing its ID.
         let root_folder_id = validate_get_folder_response_message(&message)?;
-        let folder_id = nsCString::from(root_folder_id.id);
-
-        unsafe { callbacks.RecordRootFolder(&*folder_id) }.to_result()?;
+        callbacks.record_root_folder(root_folder_id)?;
 
         // Build the mapping for the remaining folders.
         message_iter
@@ -719,7 +719,7 @@ impl XpComEwsClient {
 
     async fn push_sync_state_to_ui(
         &self,
-        callbacks: &IEwsFolderCallbacks,
+        callbacks: &SafeEwsFolderCallbacks,
         create_ids: Vec<String>,
         update_ids: Vec<String>,
         delete_ids: Vec<String>,
@@ -735,30 +735,12 @@ impl XpComEwsClient {
                         parent_folder_id,
                         display_name,
                         ..
-                    } => {
-                        // We should have already verified that the folder ID is
-                        // present, so it should be okay to unwrap here.
-                        let id = folder_id.unwrap().id;
-                        let display_name = display_name.ok_or(nserror::NS_ERROR_FAILURE)?;
-
-                        let well_known_folder_flag = well_known_map
-                            .as_ref()
-                            .and_then(|map| map.get(&id))
-                            .map(distinguished_id_to_flag)
-                            .unwrap_or_default();
-
-                        let id = nsCString::from(id);
-                        let parent_struct = parent_folder_id.ok_or(nserror::NS_ERROR_FAILURE)?;
-                        let parent_folder_id = nsCString::from(parent_struct.id);
-                        let display_name = nsCString::from(display_name);
-                        let flags = nsMsgFolderFlags::Mail | well_known_folder_flag;
-
-                        unsafe {
-                            callbacks.Create(&*id, &*parent_folder_id, &*display_name, flags)
-                        }
-                        .to_result()?;
-                    }
-
+                    } => callbacks.create(
+                        folder_id,
+                        parent_folder_id,
+                        display_name,
+                        &well_known_map,
+                    )?,
                     _ => return Err(nserror::NS_ERROR_FAILURE.into()),
                 }
             }
@@ -772,30 +754,17 @@ impl XpComEwsClient {
                         folder_id,
                         display_name,
                         ..
-                    } => {
-                        // We should have already verified that the folder ID is
-                        // present, so it should be okay to unwrap here.
-                        let id = folder_id.unwrap().id;
-                        let display_name = display_name.ok_or(nserror::NS_ERROR_FAILURE)?;
-
-                        let id = nsCString::from(id);
-                        let display_name = nsCString::from(display_name);
-
-                        unsafe { callbacks.Update(&*id, &*display_name) }.to_result()?;
-                    }
-
+                    } => callbacks.update(folder_id, display_name)?,
                     _ => return Err(nserror::NS_ERROR_FAILURE.into()),
                 }
             }
         }
 
         for id in delete_ids {
-            let id = nsCString::from(id);
-            unsafe { callbacks.Delete(&*id) }.to_result()?;
+            callbacks.delete(id)?;
         }
 
-        let sync_state = nsCString::from(sync_state);
-        unsafe { callbacks.UpdateSyncState(&*sync_state) }.to_result()?;
+        callbacks.update_sync_state(sync_state)?;
 
         Ok(())
     }
@@ -1333,7 +1302,7 @@ impl XpComEwsClient {
         // to handle errors while letting the inner function simply propagate.
         self.delete_messages_inner(ews_ids, &callbacks)
             .await
-            .unwrap_or_else(process_error_with_cb(move |client_err, desc| unsafe {
+            .unwrap_or_else(process_error_with_cb_cpp(move |client_err, desc| unsafe {
                 callbacks.OnError(client_err, &*desc);
             }));
     }
@@ -1646,22 +1615,6 @@ fn make_header_string_for_mailbox_list<'a>(
     strings.join(", ")
 }
 
-/// Gets the Thunderbird flag corresponding to an EWS distinguished ID.
-fn distinguished_id_to_flag(id: &&str) -> nsMsgFolderFlagType {
-    // The type signature here is a little weird due to being passed directly to
-    // `map()`.
-    match *id {
-        "inbox" => nsMsgFolderFlags::Inbox,
-        "deleteditems" => nsMsgFolderFlags::Trash,
-        "drafts" => nsMsgFolderFlags::Drafts,
-        "outbox" => nsMsgFolderFlags::Queue,
-        "sentitems" => nsMsgFolderFlags::SentMail,
-        "junkemail" => nsMsgFolderFlags::Junk,
-        "archiveinbox" => nsMsgFolderFlags::Archive,
-        _ => Default::default(),
-    }
-}
-
 #[derive(Debug, Error)]
 pub(crate) enum XpComEwsError {
     #[error("an error occurred in an XPCOM call")]
@@ -1701,10 +1654,10 @@ impl From<XpComEwsError> for nsresult {
 }
 
 /// Returns a function for processing an error and providing it to the provided
-/// error-handling callback.
+/// error-handling callback. This version allows only safe Rust types as input.
 fn process_error_with_cb<Cb>(handler: Cb) -> impl FnOnce(XpComEwsError)
 where
-    Cb: FnOnce(u8, nsCString),
+    Cb: FnOnce(EwsClientError, &str),
 {
     |err| {
         let (client_err, desc) = match err {
@@ -1714,7 +1667,7 @@ where
             }) => {
                 // Authentication failed. Let Thunderbird know so we can
                 // handle it appropriately.
-                (IEwsClient::EWS_ERR_AUTHENTICATION_FAILED, nsCString::new())
+                (EwsClientError::AuthenticationFailed, "")
             }
 
             _ => {
@@ -1731,15 +1684,27 @@ where
                     _ => (),
                 }
 
-                (
-                    IEwsClient::EWS_ERR_UNEXPECTED,
-                    nsCString::from("an unexpected error occurred"),
-                )
+                (EwsClientError::Unexpected, "an unexpected error occurred")
             }
         };
 
         handler(client_err, desc);
     }
+}
+
+/// Returns a function for processing an error and providing it to the provided
+/// error-handling callback. This version allows unsafe C++ types as input.
+/// This version is provided for compatibility until other callback interface
+/// implementations are given safe Rust wrappers.
+fn process_error_with_cb_cpp<Cb>(handler: Cb) -> impl FnOnce(XpComEwsError)
+where
+    Cb: FnOnce(u8, nsCString),
+{
+    process_error_with_cb(|error, description| {
+        let error_code = error.into();
+        let desc = nsCString::from(description);
+        handler(error_code, desc);
+    })
 }
 
 /// Look at the response class of a response message, and do nothing, warn or

@@ -7,7 +7,7 @@ use nsstring::nsCString;
 use xpcom::{interfaces::IEwsFolderCreateCallbacks, RefPtr};
 
 use super::{
-    process_error_with_cb, process_response_message_class, validate_response_message_count,
+    process_error_with_cb_cpp, process_response_message_class, validate_response_message_count,
     XpComEwsClient, XpComEwsError,
 };
 
@@ -22,7 +22,7 @@ impl XpComEwsClient {
         // to handle errors while letting the inner function simply propagate.
         self.create_folder_inner(parent_id, name, &callbacks)
             .await
-            .unwrap_or_else(process_error_with_cb(move |client_err, desc| unsafe {
+            .unwrap_or_else(process_error_with_cb_cpp(move |client_err, desc| unsafe {
                 callbacks.OnError(client_err, &*desc);
             }));
     }
