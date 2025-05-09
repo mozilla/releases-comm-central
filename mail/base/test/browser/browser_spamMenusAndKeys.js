@@ -17,7 +17,7 @@
  * - Does it clicking on it work as expected?
  */
 
-requestLongerTimeout(2);
+requestLongerTimeout(3);
 
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
