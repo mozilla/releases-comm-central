@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=${DEB_DISPLAY_NAME}
+Name=${DISPLAY_NAME}
 Comment=Send and receive mail with Thunderbird
 Comment[bg]=Изпращане и получаване на  е-поща с Thunderbird
 Comment[ca]=Envieu i rebeu missatges de correu amb el Thunderbird
@@ -90,7 +90,7 @@ GenericName[uk]=Поштовий клієнт
 GenericName[vi]=Ứng dụng thư
 GenericName[zh-CN]=邮件客户端
 GenericName[zh-TW]=郵件軟體
-Exec=${DEB_PKG_NAME} %u
+Exec=${PKG_NAME} %u
 Terminal=false
 Type=Application
 Icon=org.mozilla.Thunderbird
@@ -147,7 +147,7 @@ Name[uk]=Написати нове повідомлення
 Name[vi]=Viết thư mới
 Name[zh-CN]=撰写新邮件
 Name[zh-TW]=撰寫新訊息
-Exec=${DEB_PKG_NAME} -compose
+Exec=${PKG_NAME} -compose
 
 [Desktop Action OpenAddressBook]
 Name=Open the Address Book
@@ -196,4 +196,4 @@ Name[uk]=Відкрити адресну книгу
 Name[vi]=Mở sổ địa chỉ
 Name[zh-CN]=打开通讯录
 Name[zh-TW]=開啟通訊錄
-Exec=${DEB_PKG_NAME} -addressbook
+Exec=${PKG_NAME} -addressbook
