@@ -142,6 +142,8 @@ support-files = [
 support-files = ["data/content.html"]
 tags = ["contextmenu"]
 
+["browser_ext_extension_check_for_IAN.js"]
+
 ["browser_ext_mailTabs.js"]
 
 ["browser_ext_mailTabs_context_clicks.js"]

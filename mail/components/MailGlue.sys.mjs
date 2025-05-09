@@ -36,6 +36,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
   ChatCore: "resource:///modules/chatHandler.sys.mjs",
   ExtensionSupport: "resource:///modules/ExtensionSupport.sys.mjs",
+  checkInstalledExtensions: "resource:///modules/ExtensionUtilities.sys.mjs",
   InAppNotifications: "resource:///modules/InAppNotifications.sys.mjs",
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
@@ -877,6 +878,20 @@ MailGlue.prototype = {
         name: "initializeFOG",
         task: () => {
           Services.fog.initializeFOG(undefined, "thunderbird.desktop");
+        },
+      },
+      {
+        name: "checkInstalledExtensions",
+        task: async () => {
+          lazy.AddonManager.addAddonListener({
+            onInstalled() {
+              lazy.checkInstalledExtensions();
+            },
+            onUninstalled() {
+              lazy.checkInstalledExtensions();
+            },
+          });
+          await lazy.checkInstalledExtensions();
         },
       },
       {

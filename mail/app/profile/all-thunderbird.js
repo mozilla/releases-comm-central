@@ -203,6 +203,11 @@ pref("extensions.abuseReport.enabled", false);
 // systems for debug purposes as well. See Bug 1905622.
 pref("extensions.openPopupDelayedFullyLoaded.enabled", false);
 
+// Status information used by our IAN system. Default to true, because a false
+// positive is worse then a false negative IAN evaluation.
+pref("extensions.hasExtensionsInstalled", true);
+pref("extensions.hasExperimentsInstalled", true);
+
 // Strict compatibility makes add-ons incompatible by default.
 #ifndef RELEASE_OR_BETA
 pref("extensions.strictCompatibility", false);
