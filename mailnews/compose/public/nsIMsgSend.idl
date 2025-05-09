@@ -264,9 +264,6 @@ interface nsIMsgSend : nsISupports
      */
     nsresult fail(in nsresult aFailureCode, in wstring aErrorMsg);
 
-    /* Crypto */
-    void BeginCryptoEncapsulation();
-
     /* retrieve the last send process report*/
     readonly attribute nsIMsgSendReport sendReport;
 
