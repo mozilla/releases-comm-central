@@ -297,12 +297,6 @@ interface nsIMsgSend : nsISupports
 
     nsIMsgProgress getProgress();
 
-    /// The message body.
-    readonly attribute AString sendBody;
-
-    /// The type of the message body (typically text/plain or text/html).
-    readonly attribute ACString sendBodyType;
-
     /// The identity to use to send the message.
     readonly attribute nsIMsgIdentity identity;
 
