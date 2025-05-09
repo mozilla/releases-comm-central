@@ -237,10 +237,15 @@ add_task(async function test_getSeed() {
     "Seed is constant for a given ID"
   );
 
-  Assert.notEqual(
-    InAppNotifications._getSeed("bar"),
-    seed,
-    "Different ID gives a different seed"
+  // Test multiple seeds to sample more random values and find issues faster.
+  const seeds = new Set([seed]);
+  for (let attempt = 0; attempt < 100 && seeds.size < 10; ++attempt) {
+    seeds.add(InAppNotifications._getSeed(`test${attempt}`));
+  }
+  Assert.greaterOrEqual(
+    seeds.size,
+    2,
+    "Should get different seeds with enough attempts."
   );
 
   Assert.strictEqual(
@@ -255,17 +260,10 @@ add_task(async function test_getSeed() {
     "Seed is stored in JSON storage"
   );
 
-  Assert.ok(Number.isInteger(seed), "Seed is an integer");
-  Assert.greaterOrEqual(seed, 0, "Seed is at least 0");
-  Assert.lessOrEqual(seed, 100, "Seed is at most 100");
-
-  // Test multiple seeds to sample more random values and find issues faster.
-  for (let i = 0; i < 10; ++i) {
-    const testSeed = InAppNotifications._getSeed(`test${i}`);
-
-    Assert.ok(Number.isInteger(testSeed), `Seed ${i} is an integer`);
-    Assert.greaterOrEqual(testSeed, 0, `Seed ${i} is at least 0`);
-    Assert.lessOrEqual(testSeed, 100, `Seed ${i} is at most 100`);
+  for (const testSeed of seeds) {
+    Assert.ok(Number.isInteger(testSeed), `Seed ${testSeed} is an integer`);
+    Assert.greaterOrEqual(testSeed, 0, "Seed is at least 0");
+    Assert.lessOrEqual(testSeed, 100, "Seed is at most 100");
   }
 
   await InAppNotifications.updateNotifications([]);
