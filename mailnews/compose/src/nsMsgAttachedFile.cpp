@@ -77,17 +77,6 @@ NS_IMETHODIMP nsMsgAttachedFile::SetCloudPartInfo(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachedFile::GetXMacCreator(nsACString& aXMacCreator) {
-  aXMacCreator = m_xMacCreator;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgAttachedFile::SetXMacCreator(
-    const nsACString& aXMacCreator) {
-  m_xMacCreator = aXMacCreator;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgAttachedFile::GetRealName(nsACString& aRealName) {
   aRealName = m_realName;
   return NS_OK;

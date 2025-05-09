@@ -72,9 +72,6 @@ interface nsIMsgAttachmentData : nsISupports
    * header. This can be any explanatory text; it's not a file name.
    */
   attribute ACString description;
-
-  /// mac-specific info
-  attribute ACString xMacCreator;
 };
 
 /**
@@ -106,7 +103,6 @@ interface nsIMsgAttachedFile : nsISupports
   /// X-Mozilla-Cloud-Part, if any.
   attribute ACString cloudPartInfo;
 
-  attribute ACString xMacCreator; // mac-specific info
   attribute ACString realName;      // The real name of the file.
 };
 

@@ -124,7 +124,6 @@ extern "C" void mime_dump_attachments(nsMsgAttachmentData* attachData) {
     printf("Real Type         : %s\n", tmp->m_realType.get());
     printf("Real Encoding     : %s\n", tmp->m_realEncoding.get());
     printf("Description       : %s\n", tmp->m_description.get());
-    printf("Mac Creator       : %s\n", tmp->m_xMacCreator.get());
     i++;
     tmp++;
   }
@@ -163,7 +162,6 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams>& pMsgComposeParams,
           attachment->SetUrl(spec);
           attachment->SetTemporary(true);
           attachment->SetContentType(curAttachment->m_realType);
-          attachment->SetMacCreator(curAttachment->m_xMacCreator);
           attachment->SetSize(curAttachment->m_size);
           if (!curAttachment->m_cloudPartInfo.IsEmpty()) {
             nsCString provider;
@@ -505,7 +503,6 @@ static nsMsgAttachmentData* mime_draft_process_attachments(
     tmp->m_realEncoding = tmpFile->m_encoding;
     tmp->m_description = tmpFile->m_description;
     tmp->m_cloudPartInfo = tmpFile->m_cloudPartInfo;
-    tmp->m_xMacCreator = tmpFile->m_xMacCreator;
     tmp->m_size = tmpFile->m_size;
   }
   return attachData;
@@ -1814,8 +1811,6 @@ int mime_decompose_file_init_fn(MimeClosure stream_closure,
     boundary = MimeHeaders_get_parameter(parm_value, "boundary", NULL, NULL);
     if (boundary) tmp_value = PR_smprintf("; boundary=\"%s\"", boundary);
     if (tmp_value) newAttachment->m_type = tmp_value;
-    newAttachment->m_xMacCreator.Adopt(
-        MimeHeaders_get_parameter(parm_value, "x-mac-creator", NULL, NULL));
     PR_FREEIF(parm_value);
     PR_FREEIF(boundary);
     PR_FREEIF(tmp_value);
