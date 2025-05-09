@@ -299,9 +299,6 @@ interface nsIMsgSend : nsISupports
 
     nsIOutputStream getOutputStream();
 
-    /// Access the local copy of the composition fields.
-    readonly attribute nsIMsgCompFields sendCompFields;
-
     /// The message body.
     readonly attribute AString sendBody;
 
