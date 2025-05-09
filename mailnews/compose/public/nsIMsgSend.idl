@@ -297,9 +297,6 @@ interface nsIMsgSend : nsISupports
 
     nsIMsgProgress getProgress();
 
-    /// The identity to use to send the message.
-    readonly attribute nsIMsgIdentity identity;
-
     /// The folder name to which the message will be saved,
     /// used by error reporting.
     attribute AString savedToFolderName;
