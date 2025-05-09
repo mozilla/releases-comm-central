@@ -149,7 +149,10 @@ XPCOMUtils.defineLazyPreferenceGetter(
     const list = section.querySelector(".addon-permissions-list");
 
     const item = document.createElement("li");
-    document.l10n.setAttributes(item, "webext-perms-description-experiment");
+    document.l10n.setAttributes(
+      item,
+      "webext-perms-description-experiment-access"
+    );
     item.classList.add("permission-info", "permission-checked");
     list.appendChild(item);
 
