@@ -22,7 +22,6 @@ FINAL_TARGET_FILES.defaults.settings.thunderbird += [
     "search-config-v2.json",
     "search-config.json",
     "third-party-cookie-blocking-exempt-urls.json",
-    "url-classifier-exceptions.json",
     "url-classifier-skip-urls.json",
     "url-parser-default-unknown-schemes-interventions.json",
 ]
