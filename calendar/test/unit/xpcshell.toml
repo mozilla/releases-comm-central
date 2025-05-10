@@ -78,6 +78,8 @@ tags = ["oauth"]
 
 ["test_duration.js"]
 
+["test_duration_rfc.js"]
+
 ["test_email_utils.js"]
 
 ["test_extract.js"]
