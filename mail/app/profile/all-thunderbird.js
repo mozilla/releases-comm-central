@@ -609,6 +609,10 @@ pref("toolbar.customization.usesheet", true);
 pref("toolbar.customization.usesheet", false);
 #endif
 
+// Comma separated list of allowed hostnames detached attachments can
+// be located at.
+pref("mail.allowed_attachment_hostnames", "");
+
 // Start compositions with (empty) attachment pane showing
 pref("mail.compose.show_attachment_pane", false);
 // Check for missing attachments?

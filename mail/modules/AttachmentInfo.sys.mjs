@@ -591,8 +591,20 @@ export class AttachmentInfo {
     // }
 
     if (/^file:\/\/\/[^A-Za-z]/i.test(this.url)) {
-      // Looks like a non-local (remote UNC) file URL. Don't allow that.
-      return false;
+      // Looks like a non-local (remote UNC) file URL. Don't allow that
+      // unless it's been explicitel allowed for that hostname.
+      const allow = Services.prefs
+        .getStringPref("mail.allowed_attachment_hostnames", "")
+        .split(",")
+        .filter(Boolean)
+        .some(h => new RegExp(`^file:\/+${h}/`, "i").test(this.url));
+      if (!allow) {
+        console.warn(
+          `Attachment blocked for UNC path ${this.url}. To unblock, add the hostname to mail.allowed_attachment_hostnames`
+        );
+        return false;
+      }
+      return true;
     }
 
     if (this.message && this.message.flags & Ci.nsMsgMessageFlags.FeedMsg) {
