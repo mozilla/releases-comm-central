@@ -149,21 +149,28 @@ export var auth = {
      */
 
     /**
-     * Retrieve password information from the login manager
+     * Retrieve password information from the login manager.
      *
-     * @param {string} aPasswordRealm - The realm to retrieve password info for
-     * @param {string} aRequestedUser - The username to look up.
-     * @returns {PasswordInfo} The retrieved password information
+     * @param {nsIChannel} channel - The channel that requires authentication.
+     * @param {nsIAuthInformation} authInfo - Authentication information object.
+     *   If a suitable login exists in the login manager, `authInfo` will be
+     *   filled with the username and password.
+     * @returns {boolean} - If a login was found in the login manager.
      */
-    getPasswordInfo(aPasswordRealm, aRequestedUser) {
+    getPasswordInfo(channel, authInfo) {
+      const prePath = channel.URI.prePath;
+      const realm = authInfo.realm;
+      let username = lazy.cal.auth.containerMap.getUsernameForUserContextId(
+        channel.loadInfo.originAttributes.userContextId
+      );
+
       // Prefill aRequestedUser, so it will be used in the prompter.
-      let username = aRequestedUser;
       let password;
       let found = false;
 
-      const logins = Services.logins.findLogins(aPasswordRealm.prePath, null, aPasswordRealm.realm);
+      const logins = Services.logins.findLogins(prePath, null, realm);
       for (const login of logins) {
-        if (!aRequestedUser || aRequestedUser == login.username) {
+        if (!username || username == login.username) {
           username = login.username;
           password = login.password;
           found = true;
@@ -171,7 +178,7 @@ export var auth = {
         }
       }
       if (found) {
-        const keyStr = aPasswordRealm.prePath + ":" + aPasswordRealm.realm + ":" + aRequestedUser;
+        const keyStr = prePath + ":" + realm + ":" + username;
         const now = new Date();
         // Remove the saved password if it was already returned less
         // than 60 seconds ago. The reason for the timestamp check is that
@@ -183,48 +190,35 @@ export var auth = {
           now.getTime() - this.mReturnedLogins[keyStr].getTime() < 60000
         ) {
           lazy.cal.LOG(
-            "Credentials removed for: user=" +
-              username +
-              ", host=" +
-              aPasswordRealm.prePath +
-              ", realm=" +
-              aPasswordRealm.realm
+            "Credentials removed for: user=" + username + ", host=" + prePath + ", realm=" + realm
           );
 
           delete this.mReturnedLogins[keyStr];
-          auth.passwordManagerRemove(username, aPasswordRealm.prePath, aPasswordRealm.realm);
+          auth.passwordManagerRemove(username, prePath, realm);
           return { found: false, username };
         }
         this.mReturnedLogins[keyStr] = now;
+
+        authInfo.username = username;
+        authInfo.password = password;
       }
-      return { found, username, password };
+      return found;
     }
 
-    // boolean promptAuth(in nsIChannel aChannel,
-    //                    in uint32_t level,
-    //                    in nsIAuthInformation authInfo)
+    /**
+     * @param {nsIChannel} aChannel
+     * @param {integer} aLevel
+     * @param {nsIAuthInformation} aAuthInfo
+     * @returns {boolean}
+     */
     promptAuth(aChannel, aLevel, aAuthInfo) {
-      const hostRealm = {};
-      hostRealm.prePath = aChannel.URI.prePath;
-      hostRealm.realm = aAuthInfo.realm;
-      let port = aChannel.URI.port;
-      if (port == -1) {
-        const handler = Services.io
-          .getProtocolHandler(aChannel.URI.scheme)
-          .QueryInterface(Ci.nsIProtocolHandler);
-        port = handler.defaultPort;
-      }
-      hostRealm.passwordRealm = aChannel.URI.host + ":" + port + " (" + aAuthInfo.realm + ")";
-
-      const requestedUser = lazy.cal.auth.containerMap.getUsernameForUserContextId(
-        aChannel.loadInfo.originAttributes.userContextId
-      );
-      const pwInfo = this.getPasswordInfo(hostRealm, requestedUser);
-      aAuthInfo.username = pwInfo.username;
-      if (pwInfo && pwInfo.found) {
-        aAuthInfo.password = pwInfo.password;
+      if (this.getPasswordInfo(aChannel, aAuthInfo)) {
         return true;
       }
+      return this._promptAuthInternal(aChannel, aLevel, aAuthInfo);
+    }
+
+    _promptAuthInternal(aChannel, aLevel, aAuthInfo) {
       let savePasswordLabel = null;
       if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
         savePasswordLabel = lazy.MsgAuthPrompt.l10n.formatValueSync(
@@ -243,19 +237,28 @@ export var auth = {
         auth.passwordManagerSave(
           aAuthInfo.username,
           aAuthInfo.password,
-          hostRealm.prePath,
+          aChannel.URI.prePath,
           aAuthInfo.realm
         );
       }
       return returnValue;
     }
 
-    // nsICancelable asyncPromptAuth(in nsIChannel aChannel,
-    //                               in nsIAuthPromptCallback aCallback,
-    //                               in nsISupports aContext,
-    //                               in uint32_t level,
-    //                               in nsIAuthInformation authInfo);
+    /**
+     * @param {nsIChannel} aChannel
+     * @param {nsIAuthPromptCallback} aCallback
+     * @param {nsISupports} aContext
+     * @param {integer} aLevel
+     * @param {nsIAuthInformation} aAuthInfo
+     * @returns {nsICancelable} - not actually returned, bug 1965959.
+     */
     asyncPromptAuth(aChannel, aCallback, aContext, aLevel, aAuthInfo) {
+      if (this.getPasswordInfo(aChannel, aAuthInfo)) {
+        // This function must return before the callback is called.
+        Services.tm.dispatchToMainThread(() => aCallback.onAuthAvailable(aContext, aAuthInfo));
+        return;
+      }
+
       const self = this;
       const promptlistener = {
         onPromptStartAsync(callback) {
@@ -263,7 +266,7 @@ export var auth = {
         },
 
         onPromptStart() {
-          const res = self.promptAuth(aChannel, aLevel, aAuthInfo);
+          const res = self._promptAuthInternal(aChannel, aLevel, aAuthInfo);
           if (res) {
             gAuthCache.setAuthInfo(hostKey, aAuthInfo);
             this.onPromptAuthAvailable();

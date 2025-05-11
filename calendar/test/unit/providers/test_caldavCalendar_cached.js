@@ -7,7 +7,7 @@ var { CalDAVServer } = ChromeUtils.importESModule(
 );
 
 add_setup(async function () {
-  CalDAVServer.open();
+  CalDAVServer.open("alice", "alice");
   await CalDAVServer.putItemInternal(
     "5a9fa76c-93f3-4ad8-9f00-9e52aedd2821.ics",
     CalendarTestUtils.dedent`
@@ -21,6 +21,9 @@ add_setup(async function () {
       END:VCALENDAR
       `
   );
+  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(Ci.nsILoginInfo);
+  loginInfo.init(CalDAVServer.origin, null, "test", "alice", "alice", "", "");
+  await Services.logins.addLoginAsync(loginInfo);
 });
 registerCleanupFunction(() => CalDAVServer.close());
 
