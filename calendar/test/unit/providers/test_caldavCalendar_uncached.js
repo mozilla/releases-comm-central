@@ -9,7 +9,7 @@ var { CalDAVServer } = ChromeUtils.importESModule(
 add_setup(async function () {
   CalDAVServer.open("alice", "alice");
   await CalDAVServer.putItemInternal(
-    "5a9fa76c-93f3-4ad8-9f00-9e52aedd2821.ics",
+    "/calendars/alice/test/5a9fa76c-93f3-4ad8-9f00-9e52aedd2821.ics",
     CalendarTestUtils.dedent`
       BEGIN:VCALENDAR
       BEGIN:VEVENT
@@ -30,7 +30,7 @@ registerCleanupFunction(() => CalDAVServer.close());
 add_task(async function () {
   calendarObserver._onAddItemPromise = Promise.withResolvers();
   calendarObserver._onLoadPromise = Promise.withResolvers();
-  const calendar = createCalendar("caldav", CalDAVServer.url, false);
+  const calendar = createCalendar("caldav", `${CalDAVServer.origin}/calendars/alice/test/`, false);
   await calendarObserver._onAddItemPromise.promise;
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");
@@ -62,7 +62,7 @@ add_task(async function testCalendarWithNoPrivSupport() {
   CalDAVServer.privileges = null;
   calendarObserver._onLoadPromise = Promise.withResolvers();
 
-  const calendar = createCalendar("caldav", CalDAVServer.url, false);
+  const calendar = createCalendar("caldav", `${CalDAVServer.origin}/calendars/alice/test/`, false);
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");
 
@@ -77,7 +77,7 @@ add_task(async function testCalendarWithNoPrivSupport() {
  */
 add_task(async function testModifyItemWithNoChanges() {
   const event = new CalEvent();
-  const calendar = createCalendar("caldav", CalDAVServer.url, false);
+  const calendar = createCalendar("caldav", `${CalDAVServer.origin}/calendars/alice/test/`, false);
   event.id = "6f6dd7b6-0fbd-39e4-359a-a74c4c3745bb";
   event.title = "A New Event";
   event.startDate = cal.createDateTime("20200303T205500Z");
@@ -105,7 +105,7 @@ add_task(async function testModifyItemWithNoChanges() {
  * generates a correct HTTP PUT request.
  */
 add_task(async function testPutSpecialCharactersInUID() {
-  const calendar = createCalendar("caldav", CalDAVServer.url, false);
+  const calendar = createCalendar("caldav", `${CalDAVServer.origin}/calendars/alice/test/`, false);
 
   const event = new CalEvent();
   event.id = "this/id@has/weird characters#in-it";

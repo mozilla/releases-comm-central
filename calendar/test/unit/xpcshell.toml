@@ -60,7 +60,7 @@ tags = ["import"]
 ["test_calStorageHelpers.js"]
 
 ["test_caldav_requests.js"]
-tags = ["oauth"]
+tags = ["caldav", "oauth"]
 
 ["test_calmgr.js"]
 
@@ -75,6 +75,8 @@ tags = ["oauth"]
 ["test_datetimeformatter.js"]
 
 ["test_deleted_items.js"]
+
+["test_detection.js"]
 
 ["test_duration.js"]
 
@@ -120,6 +122,9 @@ tags = ["oauth"]
 
 ["test_lenient_parsing.js"]
 
+["test_multiple_usernames.js"]
+tags = ["caldav"]
+
 ["test_providers.js"]
 
 ["test_recur.js"]
@@ -135,6 +140,7 @@ tags = ["oauth"]
 ["test_storage.js"]
 
 ["test_storage_connection.js"]
+tags = ["caldav"]
 
 ["test_storage_get_items.js"]
 

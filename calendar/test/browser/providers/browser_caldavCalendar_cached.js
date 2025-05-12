@@ -17,7 +17,7 @@ add_setup(async function () {
     await Services.logins.addLoginAsync(loginInfo);
   }
   calendarObserver._onLoadPromise = Promise.withResolvers();
-  calendar = createCalendar("caldav", CalDAVServer.url, true);
+  calendar = createCalendar("caldav", `${CalDAVServer.origin}/calendars/bob/test/`, true);
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");
 
@@ -46,18 +46,18 @@ add_task(async function testSyncChanges() {
   await syncChangesTest.setUp();
 
   await CalDAVServer.putItemInternal(
-    "ad0850e5-8020-4599-86a4-86c90af4e2cd.ics",
+    "/calendars/bob/test/ad0850e5-8020-4599-86a4-86c90af4e2cd.ics",
     syncChangesTest.part1Item
   );
   await syncChangesTest.runPart1();
 
   await CalDAVServer.putItemInternal(
-    "ad0850e5-8020-4599-86a4-86c90af4e2cd.ics",
+    "/calendars/bob/test/ad0850e5-8020-4599-86a4-86c90af4e2cd.ics",
     syncChangesTest.part2Item
   );
   await syncChangesTest.runPart2();
 
-  CalDAVServer.deleteItemInternal("ad0850e5-8020-4599-86a4-86c90af4e2cd.ics");
+  CalDAVServer.deleteItemInternal("/calendars/bob/test/ad0850e5-8020-4599-86a4-86c90af4e2cd.ics");
   await syncChangesTest.runPart3();
 
   // Be sure the calendar has finished all requests.

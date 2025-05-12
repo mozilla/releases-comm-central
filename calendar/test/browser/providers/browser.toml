@@ -17,8 +17,10 @@ prefs = [
 subsuite = "thunderbird"
 
 ["browser_caldavCalendar_cached.js"]
+tags = ["caldav"]
 
 ["browser_caldavCalendar_uncached.js"]
+tags = ["caldav"]
 
 ["browser_icsCalendar_cached.js"]
 

@@ -38,6 +38,7 @@ const PROPFIND_RATELIMIT_ERROR = `<?xml version="1.0" encoding="UTF-8"?>
 `;
 
 export var CalDAVServer = {
+  users: new Map(),
   items: new Map(),
   deletedItems: new Map(),
   changeCount: 0,
@@ -54,8 +55,7 @@ export var CalDAVServer = {
     this.server.start(-1);
     this.isOpen = true;
 
-    this.username = username;
-    this.password = password;
+    this.users.set(username, password);
     this.server.registerPathHandler("/ping", this.ping);
 
     this.reset();
@@ -72,11 +72,18 @@ export var CalDAVServer = {
   resetHandlers() {
     this.server.registerPathHandler("/.well-known/caldav", this.wellKnown.bind(this));
     this.server.registerPathHandler("/principals/", this.principals.bind(this));
-    this.server.registerPathHandler("/principals/me/", this.myPrincipal.bind(this));
-    this.server.registerPathHandler("/calendars/me/", this.myCalendars.bind(this));
-
-    this.server.registerPathHandler(this.path, this.directoryHandler.bind(this));
-    this.server.registerPrefixHandler(this.path, this.itemHandler.bind(this));
+    for (const username of this.users.keys()) {
+      this.server.registerPathHandler(`/principals/${username}/`, this.myPrincipal.bind(this));
+      this.server.registerPathHandler(`/calendars/${username}/`, this.myCalendars.bind(this));
+      this.server.registerPathHandler(
+        `/calendars/${username}/test/`,
+        this.directoryHandler.bind(this)
+      );
+      this.server.registerPrefixHandler(
+        `/calendars/${username}/test/`,
+        this.itemHandler.bind(this)
+      );
+    }
   },
 
   close() {
@@ -97,26 +104,14 @@ export var CalDAVServer = {
     return `http://localhost:${this.server.identity.primaryPort}`;
   },
 
-  get path() {
-    return "/calendars/me/test/";
-  },
-
-  get url() {
-    return `${this.origin}${this.path}`;
-  },
-
-  get altPath() {
-    return "/addressbooks/me/default/";
-  },
-
-  get altURL() {
-    return `${this.origin}${this.altPath}`;
+  addUser(username, password) {
+    this.users.set(username, password);
+    this.resetHandlers();
   },
 
   checkAuth(request, response) {
-    if (!this.username || !this.password) {
-      return true;
-    }
+    logger.log(`Checking authorization for ${request.method} ${request.path}`);
+
     if (!request.hasHeader("Authorization")) {
       response.setStatusLine("1.1", 401, "Unauthorized");
       response.setHeader("WWW-Authenticate", `Basic realm="test"`);
@@ -131,12 +126,18 @@ export var CalDAVServer = {
     }
 
     const [username, password] = atob(value.substring(6)).split(":");
-    if (username != this.username || password != this.password) {
+    const pathUsername = request.path.split("/")[2];
+    if (
+      (pathUsername && username != pathUsername) ||
+      !this.users.has(username) ||
+      password != this.users.get(username)
+    ) {
       response.setStatusLine("1.1", 401, "Unauthorized");
       response.setHeader("WWW-Authenticate", `Basic realm="test"`);
       return false;
     }
 
+    request.username = username;
     return true;
   },
 
@@ -163,7 +164,7 @@ export var CalDAVServer = {
 
     const propNames = this._inputProps(input);
     const propValues = {
-      "d:current-user-principal": "<href>/principals/me/</href>",
+      "d:current-user-principal": `<href>/principals/${request.username}/</href>`,
     };
 
     response.setStatusLine("1.1", 207, "Multi-Status");
@@ -191,10 +192,10 @@ export var CalDAVServer = {
     const propNames = this._inputProps(input);
     const propValues = {
       "d:resourcetype": "<principal/>",
-      "c:calendar-home-set": "<d:href>/calendars/me/</d:href>",
-      "c:calendar-user-address-set": `<d:href preferred="1">mailto:me@invalid</d:href>`,
-      "c:schedule-inbox-URL": "<d:href>/calendars/me/inbox/</d:href>",
-      "c:schedule-outbox-URL": "<d:href>/calendars/me/inbox/</d:href>",
+      "c:calendar-home-set": `<d:href>/calendars/${request.username}/</d:href>`,
+      "c:calendar-user-address-set": `<d:href preferred="1">mailto:${request.username}@invalid</d:href>`,
+      "c:schedule-inbox-URL": `<d:href>/calendars/${request.username}/inbox/</d:href>`,
+      "c:schedule-outbox-URL": `<d:href>/calendars/${request.username}/outbox/</d:href>`,
     };
 
     response.setStatusLine("1.1", 207, "Multi-Status");
@@ -202,7 +203,7 @@ export var CalDAVServer = {
     response.write(
       `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
         <response>
-          <href>/principals/me/</href>
+          <href>/principals/${request.username}/</href>
           ${this._outputProps(propNames, propValues)}
         </response>
       </multistatus>`.replace(/>\s+</g, "><")
@@ -238,14 +239,14 @@ export var CalDAVServer = {
     response.write(
       `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
         <response>
-          <href>/addressbooks/me/</href>
+          <href>/calendars/${request.username}/</href>
           ${this._outputProps(propNames, {
             "d:resourcetype": "<collection/>",
             "d:displayname": "#calendars",
           })}
         </response>
         <response>
-          <href>${this.path}</href>
+          <href>/calendars/${request.username}/test/</href>
           ${this._outputProps(propNames, propValues)}
         </response>
       </multistatus>`.replace(/>\s+</g, "><")
@@ -272,22 +273,22 @@ export var CalDAVServer = {
       case "calendar-query":
         Assert.equal(request.method, "REPORT");
         Assert.equal(input.documentElement.namespaceURI, PREFIX_BINDINGS.c);
-        this.calendarQuery(input, response);
+        this.calendarQuery(input, request, response);
         return;
       case "calendar-multiget":
         Assert.equal(request.method, "REPORT");
         Assert.equal(input.documentElement.namespaceURI, PREFIX_BINDINGS.c);
-        this.calendarMultiGet(input, response);
+        this.calendarMultiGet(input, request, response);
         return;
       case "propfind":
         Assert.equal(request.method, "PROPFIND");
         Assert.equal(input.documentElement.namespaceURI, PREFIX_BINDINGS.d);
-        this.propFind(input, request.hasHeader("Depth") ? request.getHeader("Depth") : 0, response);
+        this.propFind(input, request, response);
         return;
       case "sync-collection":
         Assert.equal(request.method, "REPORT");
         Assert.equal(input.documentElement.namespaceURI, PREFIX_BINDINGS.d);
-        this.syncCollection(input, response);
+        this.syncCollection(input, request, response);
         return;
     }
 
@@ -297,27 +298,11 @@ export var CalDAVServer = {
     response.write(`No handler found for <${input.documentElement.localName}>`);
   },
 
-  calendarQuery(input, response) {
+  calendarQuery(input, request, response) {
     const propNames = this._inputProps(input);
     let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
     for (const [href, item] of this.items) {
-      output += this._itemResponse(href, item, propNames);
-    }
-    output += `</multistatus>`;
-
-    response.setStatusLine("1.1", 207, "Multi-Status");
-    response.setHeader("Content-Type", "text/xml");
-    response.write(output.replace(/>\s+</g, "><"));
-    logger.log("S: " + output.replace(/>\s+</g, "><"));
-  },
-
-  async calendarMultiGet(input, response) {
-    const propNames = this._inputProps(input);
-    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
-    for (let href of input.querySelectorAll("href")) {
-      href = href.textContent;
-      const item = this.items.get(href);
-      if (item) {
+      if (href.startsWith(request.path)) {
         output += this._itemResponse(href, item, propNames);
       }
     }
@@ -329,7 +314,27 @@ export var CalDAVServer = {
     logger.log("S: " + output.replace(/>\s+</g, "><"));
   },
 
-  propFind(input, depth, response) {
+  async calendarMultiGet(input, request, response) {
+    const propNames = this._inputProps(input);
+    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
+    for (let href of input.querySelectorAll("href")) {
+      href = href.textContent;
+      if (href.startsWith(request.path)) {
+        const item = this.items.get(href);
+        if (item) {
+          output += this._itemResponse(href, item, propNames);
+        }
+      }
+    }
+    output += `</multistatus>`;
+
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
+    response.write(output.replace(/>\s+</g, "><"));
+    logger.log("S: " + output.replace(/>\s+</g, "><"));
+  },
+
+  propFind(input, request, response) {
     if (this.throwRateLimitErrors) {
       response.setStatusLine("1.1", 403, "Forbidden");
       response.setHeader("Content-Type", "text/xml");
@@ -341,30 +346,33 @@ export var CalDAVServer = {
     const propNames = this._inputProps(input);
     const propValues = {
       "d:resourcetype": "<d:collection/><c:calendar/>",
-      "d:owner": "/principals/me/",
-      "d:current-user-principal": "<href>/principals/me/</href>",
+      "d:owner": `/principals/${request.username}/`,
+      "d:current-user-principal": `<href>/principals/${request.username}/</href>`,
       "d:current-user-privilege-set": this.privileges,
       "d:supported-report-set":
         "<d:supported-report><d:report><c:calendar-multiget/></d:report></d:supported-report>" +
         "<d:supported-report><d:report><sync-collection/></d:report></d:supported-report>",
       "c:supported-calendar-component-set": "",
       "d:getcontenttype": "text/calendar; charset=utf-8",
-      "c:calendar-home-set": `<d:href>/calendars/me/</d:href>`,
-      "c:calendar-user-address-set": `<d:href preferred="1">mailto:me@invalid</d:href>`,
-      "c:schedule-inbox-url": `<d:href>/calendars/me/inbox/</d:href>`,
-      "c:schedule-outbox-url": `<d:href>/calendars/me/outbox/</d:href>`,
+      "c:calendar-home-set": `<d:href>/calendars/${request.username}/</d:href>`,
+      "c:calendar-user-address-set": `<d:href preferred="1">mailto:${request.username}@invalid</d:href>`,
+      "c:schedule-inbox-url": `<d:href>/calendars/${request.username}/inbox/</d:href>`,
+      "c:schedule-outbox-url": `<d:href>/calendars/${request.username}/outbox/</d:href>`,
       "cs:getctag": this.changeCount,
       "d:getetag": this.changeCount,
     };
 
     let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <response>
-        <href>${this.path}</href>
+        <href>/calendars/${request.username}/test/</href>
         ${this._outputProps(propNames, propValues)}
       </response>`;
+    const depth = request.hasHeader("Depth") ? request.getHeader("Depth") : 0;
     if (depth == 1) {
       for (const [href, item] of this.items) {
-        output += this._itemResponse(href, item, propNames);
+        if (href.startsWith(request.path)) {
+          output += this._itemResponse(href, item, propNames);
+        }
       }
     }
     output += `</multistatus>`;
@@ -375,7 +383,7 @@ export var CalDAVServer = {
     logger.log("S: " + output.replace(/>\s+</g, "><"));
   },
 
-  syncCollection(input, response) {
+  syncCollection(input, request, response) {
     if (this.throwRateLimitErrors) {
       response.setStatusLine("1.1", 403, "Forbidden");
       response.setHeader("Content-Type", "text/xml");
@@ -407,12 +415,12 @@ export var CalDAVServer = {
     const propNames = this._inputProps(input);
     const responses = [];
     for (const [href, item] of this.items) {
-      if (item.changed > token) {
+      if (href.startsWith(request.path) && item.changed > token) {
         responses.push(this._itemResponse(href, item, propNames));
       }
     }
     for (const [href, deleted] of this.deletedItems) {
-      if (deleted > token) {
+      if (href.startsWith(request.path) && deleted > token) {
         responses.push(`<response>
           <status>HTTP/1.1 404 Not Found</status>
           <href>${href}</href>
@@ -430,7 +438,7 @@ export var CalDAVServer = {
     if (responses.length > nextPage * pageSize) {
       output += `<response>
           <status>HTTP/1.1 507 Insufficient Storage</status>
-          <href>${this.path}</href>
+          <href>/calendars/${request.username}/test/</href>
         </response>`;
       output += `<sync-token>http://mochi.test/sync/${token}#${nextPage}</sync-token>`;
     } else {
@@ -602,10 +610,6 @@ export var CalDAVServer = {
   },
 
   async putItemInternal(name, ics) {
-    if (!name.startsWith("/")) {
-      name = this.path + name;
-    }
-
     const hash = await crypto.subtle.digest("sha-1", new TextEncoder().encode(ics));
     const etag = Array.from(new Uint8Array(hash), c => c.toString(16).padStart(2, "0")).join("");
     this.items.set(name, { etag, ics, changed: ++this.changeCount });
@@ -618,9 +622,6 @@ export var CalDAVServer = {
   },
 
   deleteItemInternal(name) {
-    if (!name.startsWith("/")) {
-      name = this.path + name;
-    }
     this.items.delete(name);
     this.deletedItems.set(name, ++this.changeCount);
   },

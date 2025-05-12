@@ -5,11 +5,14 @@ prefs = [
   "calendar.timezone.useSystemTimezone=false",
 ]
 
-["test_cal_detection.js"]
+# These tests are in a separate directory because they're all related.
+# Please don't add unrelated tests.
 
 ["test_caldavCalendar_cached.js"]
+tags = ["caldav"]
 
 ["test_caldavCalendar_uncached.js"]
+tags = ["caldav"]
 
 ["test_icsCalendar_cached.js"]
 

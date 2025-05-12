@@ -20,9 +20,10 @@ support-files = ["data/**"]
 ["browser_basicFunctionality.js"]
 
 ["browser_calDAV_discovery.js"]
+tags = ["caldav"]
 
 ["browser_calDAV_oAuth.js"]
-tags = ["oauth"]
+tags = ["caldav", "oauth"]
 
 ["browser_calendarList.js"]
 skip-if = ["headless && os == 'linux'"]  # See bug 1806870.

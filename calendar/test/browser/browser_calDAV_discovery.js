@@ -163,7 +163,7 @@ add_task(async function testWellKnown() {
     password: "alice",
     expectedCalendars: [
       {
-        uri: CalDAVServer.url,
+        uri: `${CalDAVServer.origin}/calendars/alice/test/`,
         name: "CalDAV Test",
         color: "rgb(255, 128, 0)",
       },
@@ -194,10 +194,10 @@ add_task(async function testWellKnown_noResourceType_earlyCalendarHomeSet() {
             <propstat>
               <prop>
                 <current-user-principal xmlns="DAV:">
-                  <href>/principals/me/</href>
+                  <href>/principals/alice/</href>
                 </current-user-principal>
                 <calendar-home-set xmlns="urn:ietf:params:xml:ns:caldav">
-                  <href>/calendars/me/</href>
+                  <href>/calendars/alice/</href>
                 </calendar-home-set>
               </prop>
               <status>HTTP/1.1 200 OK</status>
@@ -213,12 +213,12 @@ add_task(async function testWellKnown_noResourceType_earlyCalendarHomeSet() {
     );
   });
   // This should not be executed. Any empty response will cause the test to fail.
-  CalDAVServer.server.registerPathHandler("/principals/me/", () => {
+  CalDAVServer.server.registerPathHandler("/principals/alice/", () => {
     Assert.report(
       true,
       undefined,
       undefined,
-      "The current-user-principal (/principal/me/) returned by the /principal/ request should have been ignored, if a calendar-home-set was returned as well."
+      "The current-user-principal (/principal/alice/) returned by the /principal/ request should have been ignored, if a calendar-home-set was returned as well."
     );
   });
   await openWizard({
@@ -227,7 +227,7 @@ add_task(async function testWellKnown_noResourceType_earlyCalendarHomeSet() {
     password: "alice",
     expectedCalendars: [
       {
-        uri: CalDAVServer.url,
+        uri: `${CalDAVServer.origin}/calendars/alice/test/`,
         name: "CalDAV Test",
         color: "rgb(255, 128, 0)",
       },
@@ -257,7 +257,7 @@ add_task(async function testWellKnown_noResourceType() {
             <propstat>
               <prop>
                 <current-user-principal xmlns="DAV:">
-                  <href>/principals/me/</href>
+                  <href>/principals/alice/</href>
                 </current-user-principal>
               </prop>
               <status>HTTP/1.1 200 OK</status>
@@ -274,17 +274,17 @@ add_task(async function testWellKnown_noResourceType() {
   });
   // Return a 404 status for the resourcetype property. Return a 200 status for
   // calendar-home-set.
-  CalDAVServer.server.registerPathHandler("/principals/me/", (request, response) => {
+  CalDAVServer.server.registerPathHandler("/principals/alice/", (request, response) => {
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
     response.write(
       `<multistatus xmlns="DAV:">
           <response>
-            <href>/principals/me/</href>
+            <href>/principals/alice/</href>
             <propstat>
               <prop>
                 <calendar-home-set xmlns="urn:ietf:params:xml:ns:caldav">
-                  <href>/calendars/me/</href>
+                  <href>/calendars/alice/</href>
                 </calendar-home-set>
               </prop>
               <status>HTTP/1.1 200 OK</status>
@@ -306,7 +306,7 @@ add_task(async function testWellKnown_noResourceType() {
     password: "alice",
     expectedCalendars: [
       {
-        uri: CalDAVServer.url,
+        uri: `${CalDAVServer.origin}/calendars/alice/test/`,
         name: "CalDAV Test",
         color: "rgb(255, 128, 0)",
       },
@@ -329,7 +329,7 @@ add_task(async function testCalendarWithOnlyReadPriv() {
     password: "alice",
     expectedCalendars: [
       {
-        uri: CalDAVServer.url,
+        uri: `${CalDAVServer.origin}/calendars/alice/test/`,
         name: "CalDAV Test",
         color: "rgb(255, 128, 0)",
         readOnly: true,
@@ -352,7 +352,7 @@ add_task(async function testCalendarWithoutPrivs() {
     password: "alice",
     expectedCalendars: [
       {
-        uri: CalDAVServer.url,
+        uri: `${CalDAVServer.origin}/calendars/alice/test/`,
         name: "CalDAV Test",
         color: "rgb(255, 128, 0)",
         readOnly: true,
@@ -375,7 +375,7 @@ add_task(async function testCalendarWithNoPrivSupport() {
     password: "alice",
     expectedCalendars: [
       {
-        uri: CalDAVServer.url,
+        uri: `${CalDAVServer.origin}/calendars/alice/test/`,
         name: "CalDAV Test",
         color: "rgb(255, 128, 0)",
         readOnly: false,
