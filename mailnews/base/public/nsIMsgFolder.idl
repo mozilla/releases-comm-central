@@ -649,7 +649,14 @@ interface nsIMsgFolder : nsISupports {
   void alertFilterChanged(in nsIMsgWindow msgWindow);
   void throwAlertMsg(in string msgName, in nsIMsgWindow msgWindow);
   AString getStringWithFolderNameFromBundle(in string msgName);
+
+  /**
+   * These should not really be part of the public interface - they are
+   * implementation details used by the compaction code.
+   */
+  void notifyAboutToCompact();
   void notifyCompactCompleted();
+
   /**
    * Calculate ordering of this folder against another.
    */

@@ -1671,8 +1671,6 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
                  okToCompact ? "true" : " false"));
 
         if (okToCompact) {
-          NotifyFolderEvent(kAboutToCompact);
-
           if (localExpungedBytes > 0 || offlineExpungedBytes > 0) {
             for (nsIMsgFolder* f : offlineFolderArray) {
               folderArray.AppendElement(f);
@@ -5067,6 +5065,12 @@ nsresult nsMsgDBFolder::SetWarnFilterChanged(bool aVal) {
   return prefBranch->SetBoolPref(PREF_MAIL_WARN_FILTER_CHANGED, aVal);
 }
 
+NS_IMETHODIMP nsMsgDBFolder::NotifyAboutToCompact() {
+  NotifyFolderEvent(kAboutToCompact);
+  return NS_OK;
+}
+
+// NOTE: local folder overides this to clear some state.
 NS_IMETHODIMP nsMsgDBFolder::NotifyCompactCompleted() {
   NotifyFolderEvent(kCompactCompleted);
   return NS_OK;

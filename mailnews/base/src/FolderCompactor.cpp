@@ -308,6 +308,7 @@ nsresult FolderCompactor::BeginCompacting(
   if (notifier) {
     notifier->NotifyFolderCompactStart(mFolder);
   }
+  mFolder->NotifyAboutToCompact();
 
   guardSemaphore.release();
   return NS_OK;
