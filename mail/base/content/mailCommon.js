@@ -1154,13 +1154,13 @@ var dbViewWrapperListener = {
       if (location.href == "about:3pane") {
         // In a 3-pane tab, clear the message pane and selection.
         window.threadTree.selectedIndex = -1;
-      } else if (parent?.location != "about:3pane") {
+      } else if (window.parent && window.parent.location != "about:3pane") {
         // In a standalone message tab or window, close the tab or window.
-        const tabmail = top.document.getElementById("tabmail");
+        const tabmail = window.parent.document.getElementById("tabmail");
         if (tabmail) {
           tabmail.closeTab(window.tabOrWindow);
         } else {
-          top.close();
+          window.parent.close();
         }
       }
       this._nextViewIndexAfterDelete = null;

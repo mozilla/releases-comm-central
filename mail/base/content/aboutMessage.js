@@ -309,6 +309,9 @@ function displayMessage(uri, viewWrapper) {
     invalidate() {},
     invalidateRange() {},
     rowCountChanged(idx, count) {
+      if (!gDBView.selection) {
+        return;
+      }
       const wasSuppressed = gDBView.selection.selectEventsSuppressed;
       gDBView.selection.selectEventsSuppressed = true;
       gDBView.selection.adjustSelection(idx, count);
