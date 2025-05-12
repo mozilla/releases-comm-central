@@ -35,6 +35,8 @@
 #include "mozilla/Components.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/intl/LocaleService.h"
+#include "mozilla/ProfilerMarkers.h"
+#include "mozilla/ScopeExit.h"
 
 using namespace mozilla::mailnews;
 using namespace mozilla;
@@ -139,6 +141,8 @@ nsMsgDBService::~nsMsgDBService() {
 NS_IMETHODIMP nsMsgDBService::OpenFolderDB(nsIMsgFolder* aFolder,
                                            bool aLeaveInvalidDB,
                                            nsIMsgDatabase** _retval) {
+  AUTO_PROFILER_LABEL("nsMsgDBService::OpenFolderDB", MAILNEWS);
+
   NS_ENSURE_ARG(aFolder);
   nsCOMPtr<nsIMsgIncomingServer> incomingServer;
   nsresult rv = aFolder->GetServer(getter_AddRefs(incomingServer));
@@ -274,6 +278,8 @@ NS_IMETHODIMP nsMsgDBService::OpenDBFromFile(nsIFile* aDBPath,
                                              nsIMsgFolder* aFolder,
                                              bool aCreate, bool aLeaveInvalidDB,
                                              nsIMsgDatabase** pMessageDB) {
+  AUTO_PROFILER_LABEL("nsMsgDBService::OpenDBFromFile", MAILNEWS);
+
   nsresult rv;
   MOZ_ASSERT(aDBPath);
 
@@ -1247,6 +1253,15 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
  * the database object so other database calls can work.
  */
 nsresult nsMsgDatabase::OpenMDB(nsIFile* dbFile, bool create, bool sync) {
+  PROFILER_MARKER_TEXT("nsMsgDatabase::OpenMDB", MAILNEWS,
+                       MarkerOptions(MarkerTiming::IntervalStart()),
+                       dbFile->HumanReadablePath());
+  auto guard = MakeScopeExit([&]() {
+    PROFILER_MARKER_TEXT("nsMsgDatabase::OpenMDB", MAILNEWS,
+                         MarkerOptions(MarkerTiming::IntervalEnd()),
+                         dbFile->HumanReadablePath());
+  });
+
   nsCOMPtr<nsIMdbFactory> mdbFactory;
   nsresult ret = GetMDBFactory(getter_AddRefs(mdbFactory));
   NS_ENSURE_SUCCESS(ret, ret);
@@ -1409,6 +1424,27 @@ NS_IMETHODIMP nsMsgDatabase::GetFolder(nsIMsgFolder** aFolder) {
 }
 
 NS_IMETHODIMP nsMsgDatabase::Commit(nsMsgDBCommit commitType) {
+  AUTO_PROFILER_LABEL("nsMsgDatabase::Commit", MAILNEWS);
+
+  nsAutoCString commitTypeString;
+  if (commitType == nsMsgDBCommitType::kLargeCommit) {
+    commitTypeString = "large"_ns;
+  } else if (commitType == nsMsgDBCommitType::kSessionCommit) {
+    commitTypeString = "session"_ns;
+  } else if (commitType == nsMsgDBCommitType::kCompressCommit) {
+    commitTypeString = "compress"_ns;
+  }
+  nsPrintfCString markerDetail("%s (%s)", m_dbFile->HumanReadablePath().get(),
+                               commitTypeString.get());
+  PROFILER_MARKER_TEXT("nsMsgDatabase::Commit", MAILNEWS,
+                       MarkerOptions(MarkerTiming::IntervalStart()),
+                       markerDetail);
+  auto guard = MakeScopeExit([&]() {
+    PROFILER_MARKER_TEXT("nsMsgDatabase::Commit", MAILNEWS,
+                         MarkerOptions(MarkerTiming::IntervalEnd()),
+                         markerDetail);
+  });
+
   nsresult err = NS_OK;
   nsCOMPtr<nsIMdbThumb> commitThumb;
 
