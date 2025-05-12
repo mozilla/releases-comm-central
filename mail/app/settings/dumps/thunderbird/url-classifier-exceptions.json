@@ -1,0 +1,103 @@
+{
+  "changes": [ ],
+  "metadata": {
+    "attachment": {
+      "enabled": false,
+      "required": false
+    },
+    "bucket": "main",
+    "displayFields": [
+      "bugId",
+      "urlPattern",
+      "classifierFeatures"
+    ],
+    "id": "url-classifier-exceptions",
+    "last_modified": 1746535572288,
+    "schema": {
+      "description": "Represents an entry in the URL classifier exception list",
+      "properties": {
+        "bugId": {
+          "description": "The ID of the bug this exception is added for.",
+          "type": "string"
+        },
+        "classifierFeatures": {
+          "description": "The list of url classifier features to apply this exception to.",
+          "items": {
+            "enum": [
+              "blockedURIs",
+              "cryptomining-annotation",
+              "cryptomining-protection",
+              "emailtracking-protection",
+              "emailtracking-data-collection",
+              "fingerprinting-annotation",
+              "fingerprinting-protection",
+              "malware",
+              "phishing",
+              "socialtracking-annotation",
+              "socialtracking-protection",
+              "tracking-annotation",
+              "tracking-protection"
+            ],
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "filterContentBlockingCategories": {
+          "description": "Optional array of content blocking categories to filter for this exception. If not set the exception applies to all content blocking categories.",
+          "items": {
+            "enum": [
+              "standard",
+              "strict",
+              "custom"
+            ],
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "filter_expression": {
+          "description": "A JEXL to filter records. See https://remote-settings.readthedocs.io/en/latest/target-filters.html#how",
+          "pattern": "^[a-zA-Z0-9-_=!\"'{} .<>|&()+*/[\\]:,\\\\^%]*$",
+          "title": "Filter Expression",
+          "type": "string"
+        },
+        "id": {
+          "description": "The auto-generated id of the exception list entry.",
+          "type": "string"
+        },
+        "isPrivateBrowsingOnly": {
+          "description": "Whether this exception only applies in private browsing mode",
+          "type": "boolean"
+        },
+        "topLevelUrlPattern": {
+          "description": "Optional top-level url pattern to filter for this exception. If not set the exception applies to all top level sites.",
+          "type": "string"
+        },
+        "urlPattern": {
+          "description": "The urlPattern for the url to be loaded. See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns for more info.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "bugId",
+        "urlPattern",
+        "classifierFeatures"
+      ],
+      "title": "URLClassifierExceptionListEntry",
+      "type": "object"
+    },
+    "signature": {
+      "mode": "p384ecdsa",
+      "public_key": "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEPrSgYch2RBrBABCecq5Dna3P+U6nAehCcLv5PyGoS5sZh/us2Q8OBwDvFKl2YKTNUzbIixttRnbMeLToIWyjIxhbGkQKWcT090R04/HNYDMWS2OfU7DK0n0kOhRZAIXp",
+      "ref": "2gmsjzudhish2323x50vhjqar4",
+      "signature": "T8XAr8TNwq0mtAu4ByPE3XGMH4nDWpy0NfLiWDuJCPHAwMY0d2YyqoLzeoKNhRJkDYRLFm0uWar91_o8y5tvDuujwWykKXD1k7uga-WRsRkfhqJqDkbKyLO_hVz7uk8P",
+      "signer_id": "remote-settings_202402",
+      "type": "contentsignaturepki",
+      "x5u": "https://content-signature-2.cdn.mozilla.net/g/chains/202402/remote-settings.content-signature.mozilla.org-2025-06-20-18-40-46.chain"
+    },
+    "sort": "-last_modified"
+  },
+  "data": [],
+  "timestamp": 1747057216535
+}
