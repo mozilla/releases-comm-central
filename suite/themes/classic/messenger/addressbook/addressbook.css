@@ -30,7 +30,7 @@ treechildren::-moz-tree-twisty {
 
 #button-newcard:hover {
   -moz-image-region: rect(60px 59px 89px 30px);
-} 
+}
 
 #button-newcard:hover:active {
   -moz-image-region: rect(60px 89px 89px 60px);
@@ -38,7 +38,7 @@ treechildren::-moz-tree-twisty {
 
 #button-newcard[disabled] {
   -moz-image-region: rect(60px 119px 89px 90px) !important;
-} 
+}
 
 #button-newlist {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbookicons.png");
@@ -47,7 +47,7 @@ treechildren::-moz-tree-twisty {
 
 #button-newlist:hover {
   -moz-image-region: rect(90px 59px 119px 30px);
-} 
+}
 
 #button-newlist:hover:active {
   -moz-image-region: rect(90px 89px 119px 60px);
@@ -55,7 +55,7 @@ treechildren::-moz-tree-twisty {
 
 #button-newlist[disabled] {
   -moz-image-region: rect(90px 119px 119px 90px) !important;
-} 
+}
 
 #button-editcard {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbookicons.png");
@@ -64,7 +64,7 @@ treechildren::-moz-tree-twisty {
 
 #button-editcard:hover {
   -moz-image-region: rect(30px 59px 59px 30px);
-} 
+}
 
 #button-editcard:hover:active {
   -moz-image-region: rect(30px 89px 59px 60px);
@@ -72,7 +72,7 @@ treechildren::-moz-tree-twisty {
 
 #button-editcard[disabled] {
   -moz-image-region: rect(30px 119px 59px 90px) !important;
-} 
+}
 
 #button-newmessage {
   list-style-image: url("chrome://messenger/skin/icons/messengericons.png");
@@ -81,11 +81,11 @@ treechildren::-moz-tree-twisty {
 
 #button-newmessage:hover {
   -moz-image-region: rect(150px 59px 179px 30px);
-} 
+}
 
 #button-newmessage:hover:active {
   -moz-image-region: rect(150px 89px 179px 60px);
-} 
+}
 
 #button-newmessage[disabled] {
   -moz-image-region: rect(150px 119px 179px 90px) !important;
@@ -98,7 +98,7 @@ treechildren::-moz-tree-twisty {
 
 #button-abdelete:hover {
   -moz-image-region: rect(0 59px 29px 30px);
-} 
+}
 
 #button-abdelete:hover:active {
   -moz-image-region: rect(0 89px 29px 60px);
@@ -246,7 +246,7 @@ toolbar[iconsize="small"] > #button-abdelete[disabled] {
 .cardViewColumn {
   margin-inline-end: 10px;
 }
- 
+
 .cardViewGroup {
   margin-top: 8px;
   padding-bottom: 5px;

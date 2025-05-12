@@ -10,7 +10,7 @@
 
 /* ::::: menu/menuitem ::::: */
 
-menu, 
+menu,
 menuitem {
   -moz-box-align: center;
   color: #000000;
@@ -21,8 +21,8 @@ menuitem {
 
 menuitem[default="true"] {
   font-weight: bold;
-}  
-  
+}
+
 menu[disabled="true"],
 menuitem[disabled="true"],
 menu[_moz-menuactive="true"][disabled="true"],
@@ -32,7 +32,7 @@ menuitem[_moz-menuactive="true"][disabled="true"] {
 
 /* ..... internal content .... */
 
-.menu-text, 
+.menu-text,
 .menu-iconic-left,
 .menu-iconic-text {
   margin-top: 0px !important;
@@ -156,14 +156,14 @@ menulist > menupopup > menu {
 menulist > menupopup > menuitem {
   padding-inline-end: 30px;
 }
-    
+
 /* ..... selected state ..... */
 
 menulist > menupopup > menuitem[selected="true"] {
   list-style-image: url("chrome://global/skin/menu/menu-check.png");
   -moz-image-region: auto;
 }
-  
+
 menulist > menupopup > menuitem[_moz-menuactive="true"][selected="true"] {
   list-style-image: url("chrome://global/skin/menu/menu-check-hov.png");
   -moz-image-region: auto;

@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
- 
+
 /* ===== threadPane.css ==============================================
   == Styles for the thread pane in the Messenger 3-pane window.
   ======================================================================= */
@@ -23,7 +23,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 }
 
 /* on a collapsed thread, if the top level message is read, but the thread has
- * unread children, underline the text.  4.x mac did this, very slick 
+ * unread children, underline the text.  4.x mac did this, very slick
  */
 treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
   text-decoration: underline;

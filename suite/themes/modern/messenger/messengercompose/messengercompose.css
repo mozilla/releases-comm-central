@@ -25,15 +25,15 @@
 
 #button-send:hover {
   -moz-image-region: rect(374px 99px 407px 50px);
-} 
+}
 
 #button-send:hover:active {
   -moz-image-region: rect(374px 149px 407px 100px);
-} 
+}
 
 #button-send[disabled="true"] {
   -moz-image-region: rect(374px 199px 407px 150px) !important;
-} 
+}
 
 #button-address {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -42,15 +42,15 @@
 
 #button-address:hover {
   -moz-image-region: rect(306px 99px 339px 50px);
-} 
+}
 
 #button-address:hover:active {
   -moz-image-region: rect(306px 149px 339px 100px);
-} 
+}
 
 #button-address[disabled="true"] {
   -moz-image-region: rect(306px 199px 339px 150px) !important;
-} 
+}
 
 #button-attach {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -59,15 +59,15 @@
 
 #button-attach:hover {
   -moz-image-region: rect(340px 99px 373px 50px);
-} 
+}
 
 #button-attach:hover:active {
   -moz-image-region: rect(340px 149px 373px 100px);
-} 
+}
 
 #button-attach[disabled="true"] {
   -moz-image-region: rect(340px 199px 373px 150px) !important;
-} 
+}
 
 #spellingButton {
   list-style-image: url("chrome://editor/skin/icons/btn1.png");
@@ -93,15 +93,15 @@
 
 #button-save:hover {
   -moz-image-region: rect(238px 99px 271px 50px);
-} 
+}
 
 #button-save:hover:active {
   -moz-image-region: rect(238px 149px 271px 100px);
-} 
+}
 
 #button-save[disabled="true"] {
   -moz-image-region: rect(238px 199px 271px 150px) !important;
-} 
+}
 
 /* To workaround that the mailnews icons are all 33px tall and do not have small versions */
 toolbar[iconsize="small"] > toolbarpaletteitem > #print-button,

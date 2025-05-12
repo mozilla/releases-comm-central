@@ -25,6 +25,5 @@
 <!ENTITY contextSendFrame.label          "Send Frame…">
 <!ENTITY contextSendFrame.accesskey      "d">
 
-<!ENTITY sendLinkCmd.label               "Send Link…"> 
+<!ENTITY sendLinkCmd.label               "Send Link…">
 <!ENTITY sendLinkCmd.accesskey           "d">
-

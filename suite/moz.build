@@ -29,8 +29,8 @@ if CONFIG["MOZ_OVERRIDE_GKRUST"]:
         "../rust",
     ]
 
-if CONFIG['MOZ_IRC']:
-    DIRS += ['chatzilla']
+if CONFIG["MOZ_IRC"]:
+    DIRS += ["chatzilla"]
 
 if CONFIG["MAKENSISU"]:
     DIRS += ["installer/windows"]

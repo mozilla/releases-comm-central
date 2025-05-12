@@ -24,7 +24,7 @@
 }
 
 #PreviewModeButton {
-  list-style-image: url("chrome://editor/skin/icons/editmode-preview.png"); 
+  list-style-image: url("chrome://editor/skin/icons/editmode-preview.png");
 }
 
 #EditModeTabs {

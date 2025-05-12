@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 %ifdef XP_WIN
-.noWin, .mac, .unix { display: none; } 
+.noWin, .mac, .unix { display: none; }
 %else
 %ifdef XP_MACOSX
 .noMac, .win, .unix { display: none; }

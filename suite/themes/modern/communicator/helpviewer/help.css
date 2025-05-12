@@ -25,7 +25,7 @@
 }
 
 #HelpToolbar > toolbarbutton,
-#HelpToolbar > toolbarbutton[type="menu-button"] > .toolbarbutton-menubutton-stack 
+#HelpToolbar > toolbarbutton[type="menu-button"] > .toolbarbutton-menubutton-stack
   > .toolbarbutton-menubutton-button
 {
   -moz-box-orient: vertical;

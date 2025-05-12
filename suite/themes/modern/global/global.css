@@ -28,22 +28,22 @@ toolbarbutton.devtools-toolbarbutton[type="menu-button"] {
 
 /* ::::: root elements ::::: */
 
-window, 
+window,
 page,
 dialog,
 wizard,
-prefwindow { 
+prefwindow {
   background-color: #C7D0D9;
   color: #000000;
   font: message-box;
 }
-  
-[wait-cursor] { 
-  cursor: wait !important; 
+
+[wait-cursor] {
+  cursor: wait !important;
 }
 
-/* deprecated */  
-window.dialog { 
+/* deprecated */
+window.dialog {
   padding: 7px 5px 5px;
 }
 

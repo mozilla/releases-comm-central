@@ -77,7 +77,7 @@ toolbaritem {
 
 /******* toolkit access layer *******/
 /* These rules reintroduce the toolkit bindings overwritten later below */
-toolbox[xpfe="false"] { 
+toolbox[xpfe="false"] {
   -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#toolbox");
 }
 
@@ -159,10 +159,10 @@ prefpane[xpfe="false"] > .content-box {
 
 /******* SeaMonkey XPFE *******/
 /* These bindings reflect SeaMonkey XPFE, modulo new toolkit features. */
-toolbox { 
+toolbox {
   -moz-binding: url("chrome://communicator/content/bindings/toolbar-xpfe.xml#grippytoolbox");
 }
-  
+
 toolbar {
   -moz-binding: url("chrome://communicator/content/bindings/toolbar-xpfe.xml#grippytoolbar");
 }

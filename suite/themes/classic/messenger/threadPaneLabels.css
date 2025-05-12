@@ -524,4 +524,3 @@ treechildren::-moz-tree-cell-text(lc-white, selected, focus) {
 treechildren::-moz-tree-cell-text(lc-black, selected, focus) {
   color: #000000
 }
-

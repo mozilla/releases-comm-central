@@ -4,9 +4,9 @@
 
 /** sidebarOverlay.css [CONTENT]
  *   This file is for style rules essential for correct sidebar operation.
- *   These rules will not change on a skin-by-skin basis. 
- **/ 
- 
+ *   These rules will not change on a skin-by-skin basis.
+ **/
+
 #sidebar-box {
     width: 162px;
     min-height: 10px;
@@ -19,7 +19,7 @@
     min-height: 10px;
 }
 
-.iframe-panel { 
+.iframe-panel {
     min-width: 1px;
     min-height: 1px;
 }
@@ -31,7 +31,7 @@
 }
 
 .browser-sidebar {
-    min-width: 1px;  
+    min-width: 1px;
     min-height: 1px;
 }
 
@@ -61,13 +61,13 @@ sidebarheader[type="splitter"] {
       min-width           : 10px;
     }
 
-  .box-texttab-right-space 
+  .box-texttab-right-space
     {
       min-width           : 1px;
     }
 
 /**
- * prevent the notification in the sidebar from being too wide 
+ * prevent the notification in the sidebar from being too wide
  */
 .sidebar-notificationbox > notification {
   -moz-binding: url(chrome://communicator/content/bindings/notification.xml#sidebar-notification);

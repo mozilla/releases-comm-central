@@ -15,15 +15,15 @@
 
 #button-security:hover {
   -moz-image-region: rect(0px 99px 33px 50px);
-} 
+}
 
 #button-security:hover:active {
   -moz-image-region: rect(0px 149px 33px 100px);
-} 
+}
 
 #button-security[disabled] {
   -moz-image-region: rect(0px 199px 33px 150px) !important;
-} 
+}
 
 
 #msgcomposeWindow #signing-status {

@@ -16,7 +16,7 @@
 <!ENTITY server.label                 "Account:">
 <!ENTITY server.accesskey             "A">
 <!ENTITY subscribedHeader.label       "Subscribe">
-<!-- commenting out until bug 38906 is fixed 
+<!-- commenting out until bug 38906 is fixed
 <!ENTITY messagesHeader.label         "Messages"> -->
 <!ENTITY namefield.label              "Show items that contain:">
 <!ENTITY namefield.accesskey          "O">

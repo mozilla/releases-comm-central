@@ -92,7 +92,7 @@ tab[selected="true"]:hover:active {
   border-top-color: #000000;
   border-bottom-color: transparent;
 }
-   
+
 .tab-bottom[selected="true"] {
   border-top-color: transparent !important;
   border-bottom-color: #000000 !important;
@@ -109,7 +109,7 @@ tab:focus {
   font: message-box;
   font-weight: bold;
 }
-   
+
 /* ::::: tabs-bottom ::::: */
 
 .tabs-bottom {

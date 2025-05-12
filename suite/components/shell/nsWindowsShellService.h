@@ -38,4 +38,3 @@ private:
   nsString mAppLongPath;
   nsString mAppShortPath;
 };
-

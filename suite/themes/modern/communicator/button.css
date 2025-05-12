@@ -28,7 +28,7 @@ toolbar[iconsize="small"] .toolbarbutton-1 {
 }
 
 .toolbarbutton-1,
-.toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-stack 
+.toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-stack
   > .toolbarbutton-menubutton-button,
 .toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-button
 {
@@ -51,7 +51,7 @@ toolbar[iconsize="small"] .toolbarbutton-1 {
 }
 
 .toolbarbutton-1 > .toolbarbutton-icon,
-.toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-stack 
+.toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-stack
   > .toolbarbutton-menubutton-button > .toolbarbutton-icon,
 .toolbarbutton-1[type="menu-button"]
   > .toolbarbutton-menubutton-button > .toolbarbutton-icon {
@@ -108,7 +108,7 @@ toolbar[iconsize=small][mode="icons"] .toolbarbutton-menubutton-dropmarker {
 }
 
 /* ::::: standard toolbar buttons ::::: */
- 
+
 .button-toolbar {
   -moz-user-focus: ignore !important;
   margin: 0px;

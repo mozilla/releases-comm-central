@@ -218,7 +218,7 @@ treechildren::-moz-tree-image(syncCol, isServer-true) {
 }
 
 .folderSummary-subject {
-  font-weight: bold; 
+  font-weight: bold;
 }
 
 .folderSummary-previewText {

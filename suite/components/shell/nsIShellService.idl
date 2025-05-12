@@ -95,4 +95,3 @@ interface nsIShellService : nsISupports
    */
   readonly attribute nsIFile defaultFeedReader;
 };
-

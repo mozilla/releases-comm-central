@@ -77,7 +77,7 @@ treechildren::-moz-tree-cell-text(broken) {
   border-bottom: 1px dotted #C7D0D9;
 }
 
-.feedTitle { 
+.feedTitle {
   font-weight: bold;
 }
 

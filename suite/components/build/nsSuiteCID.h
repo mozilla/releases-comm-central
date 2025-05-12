@@ -8,7 +8,7 @@
 
 #define NS_FEEDSNIFFER_CONTRACTID \
   "@mozilla.org/browser/feeds/sniffer;1"
-  
+
 // {39b688ec-e308-49e5-be6b-28dc7fcd6154}
 #define NS_SHELLSERVICE_CID \
   { 0x39b688ec, 0xe308, 0x49e5, { 0xbe, 0x6b, 0x28, 0xdc, 0x7f, 0xcd, 0x61, 0x54 } }
