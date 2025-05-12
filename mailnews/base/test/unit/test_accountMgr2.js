@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * This tests various methods and attributes on nsIMsgAccountManager.
- */
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-add_task(async function () {
+/**
+ * This tests various methods and attributes on nsIMsgAccountManager.
+ */
+add_task(async function testAccountManager() {
   // Create a couple of test accounts.
   const acc1 = MailServices.accounts.createAccount();
   acc1.incomingServer = MailServices.accounts.createIncomingServer(
@@ -332,4 +332,66 @@ add_task(async function () {
 
   // non-IPv4 hostnames that end in numbers are not valid.
   checkHostnameRescue("invalid.192.168.1.2");
+});
+
+/**
+ * Tests that folders are correctly removed from the folder cache when their
+ * account is removed.
+ */
+add_task(async function testFolderUncachedOnAcctRemoval() {
+  // Only folders that are stored on disk can have entries in the folder cache,
+  // since their cache key is their path on disk.
+  do_get_profile();
+
+  // Get a hold on the server cache, so we can observe whether our actions on
+  // the test account have the expected consequences.
+  const cache = MailServices.accounts.folderCache;
+
+  // Create a test account.
+  const acc = MailServices.accounts.createAccount();
+  acc.incomingServer = MailServices.accounts.createIncomingServer(
+    "alice",
+    "server.test",
+    "none"
+  );
+  const id = MailServices.accounts.createIdentity();
+  id.email = "alice@server.test";
+  acc.addIdentity(id);
+
+  // Retrieve the account's root folder and create a subfolder under it. We do
+  // this because there's a slight difference in how the cache key for a folder
+  // is computed depending on whether it's the account's root folder or not.
+  // More specifically, we get the `nsIFile` which path is used as the cache key
+  // from a different property depending on the case.
+  const rootFolder = acc.incomingServer.rootFolder;
+  rootFolder.createSubfolder("test_subfolder", null);
+
+  const rootFolderPath = rootFolder.filePath.persistentDescriptor;
+  const subfolderPath =
+    rootFolder.getChildNamed("test_subfolder").summaryFile.persistentDescriptor;
+
+  // Make sure both folders have entries in the folder cache. `getCacheElement`
+  // throws `NS_ERROR_NOT_AVAILABLE` when a folder could not be found.
+  cache.getCacheElement(rootFolderPath, false);
+  cache.getCacheElement(subfolderPath, false);
+
+  // Remove the account, which should also trigger the folders' removal from the
+  // cache.
+  MailServices.accounts.removeAccount(acc);
+
+  Assert.throws(
+    () => {
+      cache.getCacheElement(rootFolderPath, false);
+    },
+    /NS_ERROR_NOT_AVAILABLE/,
+    "the root folder should have been removed from the cache"
+  );
+
+  Assert.throws(
+    () => {
+      cache.getCacheElement(subfolderPath, false);
+    },
+    /NS_ERROR_NOT_AVAILABLE/,
+    "the subfolder should have been removed from the cache"
+  );
 });
