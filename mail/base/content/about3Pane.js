@@ -2168,7 +2168,11 @@ var folderPane = {
   _createFolderRow(modeName, folder, nameStyle) {
     const row = document.createElement("li", { is: "folder-tree-row" });
     row.modeName = modeName;
-    row.setFolder(folder, nameStyle, this._isCompact);
+    row.setFolder(
+      folder,
+      nameStyle,
+      this._isCompact && this._modes[modeName].canBeCompact
+    );
     return row;
   },
 
