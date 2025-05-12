@@ -3063,6 +3063,8 @@ nsMsgLocalMailFolder::SetCheckForNewMessagesAfterParsing(
 
 NS_IMETHODIMP
 nsMsgLocalMailFolder::NotifyCompactCompleted() {
+  // NOTE: This stuff maybe should be done in the base implementation?
+  // Or better still, should be separated from notification code.
   mExpungedBytes = 0;
   m_newMsgs.Clear();  // if compacted, m_newMsgs probably aren't valid.
   // if compacted, processing flags probably also aren't valid.
