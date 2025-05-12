@@ -75,6 +75,6 @@ radio[pane]:hover {
 
 radio[pane][selected="true"] {
   background-color: #C1D2EE;
-  color: black;
+  color: black; 
   -moz-appearance: none;
 }

@@ -25,7 +25,7 @@
 
 #button-newcard:hover:active  {
   -moz-image-region: rect(60px 59px 89px 30px);
-}
+} 
 
 #button-newcard[disabled]{
   -moz-image-region: rect(60px 89px 89px 60px) !important;
@@ -38,7 +38,7 @@
 
 #button-newlist:hover:active {
   -moz-image-region: rect(90px 59px 119px 30px);
-}
+} 
 
 #button-newlist[disabled] {
   -moz-image-region: rect(90px 89px 119px 60px) !important;
@@ -51,7 +51,7 @@
 
 #button-editcard:hover:active {
   -moz-image-region: rect(30px 59px 59px 30px);
-}
+} 
 
 #button-editcard[disabled] {
   -moz-image-region: rect(30px 89px 59px 60px) !important;
@@ -64,11 +64,11 @@
 
 #button-newmessage:hover:active {
   -moz-image-region: rect(150px 59px 179px 30px);
-}
+} 
 
 #button-newmessage[disabled]{
   -moz-image-region: rect(150px 89px 179px 60px) !important;
-}
+} 
 
 #button-abdelete {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbookicons.png");
@@ -77,7 +77,7 @@
 
 #button-abdelete:hover:active  {
   -moz-image-region: rect(0 59px 29px 30px);
-}
+} 
 
 #button-abdelete[disabled] {
   -moz-image-region: rect(0 89px 29px 60px) !important;
@@ -245,7 +245,7 @@ toolbar[iconsize="small"] > #button-abdelete[disabled] {
 }
 
 /* CardView styles - used in the Card View Pane */
-
+ 
 #CardViewBox {
   -moz-user-focus: ignore;
   overflow: auto;
@@ -266,7 +266,7 @@ toolbar[iconsize="small"] > #button-abdelete[disabled] {
   min-width: 120px;
   margin: 0px;
 }
-
+ 
 .cardViewColumn {
   margin-inline-end: 10px;
 }

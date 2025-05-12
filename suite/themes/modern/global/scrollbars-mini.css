@@ -20,7 +20,7 @@ scrollbar {
 
 /* ::::: square at the corner of two scrollbars ::::: */
 
-scrollcorner {
+scrollcorner { 
   -moz-binding: url("chrome://global/content/bindings/scrollbar.xml#scrollbar-base");
   cursor: default;
   background-color: #B1BBC5;
@@ -105,3 +105,4 @@ scrollbarbutton[type="decrement"] {
 scrollbar[orient="vertical"] > scrollbarbutton[type="decrement"] {
    background-image: url("chrome://global/skin/scrollbar/mini-btn-up.png")
 }
+

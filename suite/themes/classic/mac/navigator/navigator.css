@@ -197,7 +197,7 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 #restore-button {
   list-style-image: url("chrome://navigator/skin/icons/restore.png");
 }
-
+  
 /* ::::: nav-bar-inner ::::: */
 
 .nav-bar-class {
@@ -413,7 +413,7 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 }
 
 #page-proxy-button {
-  list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg"); 
 }
 
 #page-proxy-favicon {
@@ -892,7 +892,7 @@ toolbar[mode="text"] toolbarbutton.chevron > .toolbarbutton-icon {
   min-width: 27em;
   position: relative;
 }
-
+  
 
 #editBMPanel_folderTree:-moz-focusring,
 #editBMPanel_tagsSelector:-moz-focusring {

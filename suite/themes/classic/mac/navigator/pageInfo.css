@@ -133,7 +133,7 @@ treechildren::-moz-tree-cell-text(broken) {
   border-bottom: 1px dotted #C0C0C0;
 }
 
-.feedTitle {
+.feedTitle { 
   font-weight: bold;
 }
 

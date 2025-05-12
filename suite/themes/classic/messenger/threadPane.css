@@ -23,7 +23,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 }
 
 /* on a collapsed thread, if the top level message is read, but the thread has
- * unread children, underline the text.  4.x mac did this, very slick
+ * unread children, underline the text.  4.x mac did this, very slick 
  */
 treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
   text-decoration: underline;

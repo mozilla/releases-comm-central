@@ -34,7 +34,7 @@ radio {
 radio[focused="true"] {
   border-color: #98A5B2;
 }
-
+  
 /* ..... disabled state ..... */
 
 radio[disabled="true"] > .radio-label-box > .radio-label {
@@ -62,9 +62,9 @@ radio[disabled="true"] > .radio-check {
 radio[selected] > .radio-check {
   list-style-image: url("chrome://global/skin/radio/radio-check.png");
 }
-
+  
 radio[selected]:hover:active > .radio-check {
-  list-style-image: url("chrome://global/skin/radio/radio-act-check.png");
+  list-style-image: url("chrome://global/skin/radio/radio-act-check.png");  
 }
 
 radio[selected][disabled="true"] > .radio-check {

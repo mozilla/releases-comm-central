@@ -135,8 +135,8 @@ toolbar[labelalign="end"] .toolbarbutton-1 > hbox > vbox {
   border-radius: 0;
   min-width: 0;
   background-color: transparent;
-}
-
+}  
+  
 .button-toolbar > .button-box  {
   margin: 0;
   padding: 1px 2px;
@@ -152,9 +152,9 @@ toolbar[labelalign="end"] .toolbarbutton-1 > hbox > vbox {
 .button-toolbar > .button-box > .button-icon[src],
 .button-toolbar > .button-box > .button-text {
   margin-inline-end: 2px;
-}
+}  
 
-.button-toolbar,
+.button-toolbar, 
 .button-toolbar[disabled="true"]:hover,
 .button-toolbar[disabled="true"]:hover:active {
   padding: 1px;
@@ -163,7 +163,7 @@ toolbar[labelalign="end"] .toolbarbutton-1 > hbox > vbox {
   border-bottom-color: ThreeDShadow;
   border-left-color: ThreeDHighlight;
 }
-
+  
 .button-toolbar:hover {
   border-top-color: ThreeDDarkShadow;
   border-right-color: ThreeDDarkShadow;

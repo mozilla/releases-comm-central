@@ -8,6 +8,8 @@ DEFINES["MOZ_APP_MAXVERSION"] = CONFIG["MOZ_APP_MAXVERSION"]
 
 DIRS += ["locales"]
 
-FINAL_TARGET_PP_FILES.extensions["debugQA@mozilla.org"] += ["install.rdf.in"]
+FINAL_TARGET_PP_FILES.extensions["debugQA@mozilla.org"] += [
+    "install.rdf.in"
+]
 
 JAR_MANIFESTS += ["jar.mn"]

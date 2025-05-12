@@ -31,7 +31,7 @@
   /* hovered items: colors from menu.css */
   --fill-color: #424f63;
   --hover-font-color: #FFFFFF;
-
+  
   /* --today-fill-color is var(--mmDayTodayBackground) from lightning,
    see chrome://calendar-common/skin/widgets/minimonth.css */
   --today-fill-color: #dfeaf4;
@@ -386,7 +386,7 @@ button.month-year.active::after {
 }
 .calendar-container .days-view > div.today:hover::before {
   background: var(--fill-color);
-  color: var(--hover-font-color);
+  color: var(--hover-font-color);   
 }
 .spinner-container > .spinner > div:hover::before,
 .calendar-container .days-view > div:hover::before,

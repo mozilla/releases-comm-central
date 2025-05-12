@@ -10,11 +10,11 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-#content-frame {
-  min-width: 10px;
+#content-frame { 
+  min-width: 10px; 
   min-height: 10px;
   height: 400px;
-}
+} 
 
 .source-editor,
 .source-editor:focus {
@@ -23,7 +23,7 @@
   margin-inline-start: 0px;
   margin-inline-end: 5px;
   border: 0px;
-  /* Scroll bars are in content,
+  /* Scroll bars are in content, 
      so we can't use right and bottom padding! */
   padding-top: 5px;
   padding-bottom: 0px;
@@ -82,3 +82,4 @@
   color: -moz-dialogtext;
   background-color: -moz-dialog;
 }
+

@@ -63,7 +63,7 @@ button[disabled="true"] {
   background-color: #B7BFCB !important;
   color: #8C99AB !important;
 }
-
+  
 /* .......... default state .......... */
 
 button[default="true"] {
@@ -100,7 +100,7 @@ button[type="menu-button"] {
   background-color: transparent;
   border: none;
 }
-
+  
 .button-menubutton-dropmarker[open="true"] {
   margin-top: 2px;
   margin-bottom: 0px;

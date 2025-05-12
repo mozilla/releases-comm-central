@@ -26,7 +26,7 @@
 
 #button-newcard:hover {
   -moz-image-region: rect(476px 99px 509px 50px);
-}
+} 
 
 #button-newcard:hover:active {
   -moz-image-region: rect(476px 149px 509px 100px);
@@ -34,7 +34,7 @@
 
 #button-newcard[disabled] {
   -moz-image-region: rect(476px 199px 509px 150px) !important;
-}
+} 
 
 #button-newlist {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -43,7 +43,7 @@
 
 #button-newlist:hover {
   -moz-image-region: rect(510px 99px 543px 50px);
-}
+} 
 
 #button-newlist:hover:active {
   -moz-image-region: rect(510px 149px 543px 100px);
@@ -51,7 +51,7 @@
 
 #button-newlist[disabled] {
   -moz-image-region: rect(510px 199px 543px 150px) !important;
-}
+} 
 
 #button-editcard {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -60,7 +60,7 @@
 
 #button-editcard:hover {
   -moz-image-region: rect(442px 99px 475px 50px);
-}
+} 
 
 #button-editcard:hover:active {
   -moz-image-region: rect(442px 149px 475px 100px);
@@ -68,7 +68,7 @@
 
 #button-editcard[disabled] {
   -moz-image-region: rect(442px 199px 475px 150px) !important;
-}
+} 
 
 #button-newmessage {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -78,15 +78,15 @@
 
 #button-newmessage:hover {
   -moz-image-region: rect(170px 99px 203px 50px);
-}
+} 
 
 #button-newmessage:hover:active {
   -moz-image-region: rect(170px 149px 203px 100px);
-}
+} 
 
 #button-newmessage[disabled] {
   -moz-image-region: rect(170px 199px 203px 150px) !important;
-}
+} 
 
 #button-abdelete {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -95,7 +95,7 @@
 
 #button-abdelete:hover {
   -moz-image-region: rect(408px 99px 441px 50px);
-}
+} 
 
 #button-abdelete:hover:active {
   -moz-image-region: rect(408px 149px 441px 100px);
@@ -103,7 +103,7 @@
 
 #button-abdelete[disabled] {
   -moz-image-region: rect(408px 199px 441px 150px) !important;
-}
+} 
 
 #blankResultsPaneMessage {
   font-style: italic;
@@ -137,7 +137,7 @@
   font-weight: bold;
   color: #000000;
 }
-
+ 
 .cardViewColumn {
   margin-inline-end: 10px;
 }

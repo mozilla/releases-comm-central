@@ -68,11 +68,11 @@ menulist:focus {
 }
 
 /* ..... active state ..... */
-
+  
 menulist[open="true"] {
   color: #FFFFFF;
 }
-
+  
 menulist[open="true"] > .menulist-label-box {
   border-top-color: #313948;
   border-bottom-color: #313948;
@@ -89,7 +89,7 @@ menulist[open="true"] > .menulist-dropmarker {
 menulist[disabled="true"] {
   color: #8C99AB !important;
 }
-
+  
 menulist[disabled="true"] > .menulist-label-box {
   border-top-color: #727D8E !important;
   border-bottom-color: #727D8E !important;
@@ -155,7 +155,7 @@ menulist[focused="true"] {
   margin-inline-start: 0px !important;
   margin-inline-end: 3px !important;
   text-align: end;
-}
+}  
 
 .menulist-compact > .menulist-dropmarker {
   border: none;
@@ -170,7 +170,7 @@ menulist[focused="true"] {
 .menulist-compact:focus {
   border-radius: 0;
 }
-
+      
 .menulist-compact[open="true"] {
   border-top-color: #788797;
   border-right-color: #5D616E;

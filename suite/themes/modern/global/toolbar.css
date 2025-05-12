@@ -13,7 +13,7 @@
 toolbox {
   border-bottom: 1px solid #494F5D;
 }
-
+ 
 /* ::::: toolbar ::::: */
 
 toolbar {
@@ -47,14 +47,14 @@ toolbar[type="menubar"] > .toolbar-box > .toolbar-holder  {
   border-right: 1px solid #86929E;
   border-bottom: 1px solid #B9BFC7;
   border-left: 1px solid #EEF4FC;
-}
+}  
 
 toolbar > toolbaritem > menubar > .toolbar-box > .toolbar-holder {
   border: 0px none;
 }
 
 /* ::::: toolbargrippy ::::: */
-
+ 
 toolbargrippy {
   -moz-box-orient: vertical;
   -moz-box-align: center;
@@ -89,10 +89,10 @@ menubar > .toolbar-box > toolbargrippy {
   border-left: 1px solid #F4FAFF;
   background-color: #DDE3EB;
   list-style-image: url("chrome://global/skin/toolbar/mbgrip-arrow.png");
-}
+} 
 
 /* ::::: collapsed toolbargrippy and tray ::::: */
-
+  
 toolbargrippy[tbgrippy-collapsed="true"] {
   -moz-box-orient: horizontal;
   -moz-box-pack: start;
@@ -120,7 +120,7 @@ toolbargrippy[tbgrippy-collapsed="true"]:hover:active > .toolbargrippy-arrow {
 
 /* ::::: toolbar decorations ::::: */
 
-toolbarseparator {
+toolbarseparator { 
   margin: 0px 0.2em;
   border-right: 1px solid #E2E7EB;
   border-left: 1px solid #95A0AD;

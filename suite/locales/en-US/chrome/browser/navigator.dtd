@@ -4,12 +4,12 @@
 
 <!-- extracted from content/navigator.xul -->
 
-<!-- LOCALIZATION NOTE : FILE This file contains the browser main menu items -->
-<!-- LOCALIZATION NOTE : FILE Do not translate commandkeys -->
+<!-- LOCALIZATION NOTE : FILE This file contains the browser main menu items --> 
+<!-- LOCALIZATION NOTE : FILE Do not translate commandkeys --> 
 
-<!-- LOCALIZATION NOTE (mainWindow.title): DONT_TRANSLATE -->
+<!-- LOCALIZATION NOTE (mainWindow.title): DONT_TRANSLATE --> 
 <!ENTITY mainWindow.title "&brandShortName;">
-<!-- LOCALIZATION NOTE (mainWindow.titlemodifier) : DONT_TRANSLATE -->
+<!-- LOCALIZATION NOTE (mainWindow.titlemodifier) : DONT_TRANSLATE --> 
 <!ENTITY mainWindow.titlemodifier "&brandShortName;">
 <!-- LOCALIZATION NOTE (mainWindow.titlemodifiermenuseparator): DONT_TRANSLATE -->
 <!ENTITY mainWindow.titlemodifiermenuseparator " - ">
@@ -42,7 +42,7 @@
 <!ENTITY editBookmark.cancel.label "Cancel">
 <!ENTITY editBookmark.removeBookmark.accessKey "R">
 
-<!-- Toolbar items -->
+<!-- Toolbar items --> 
 <!ENTITY backButton.label             "Back">
 <!ENTITY backButton.tooltip           "Go back one page">
 <!ENTITY forwardButton.label          "Forward">

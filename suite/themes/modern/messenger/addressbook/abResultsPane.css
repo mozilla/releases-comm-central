@@ -12,3 +12,4 @@ treechildren::-moz-tree-image(GeneratedName) {
 treechildren::-moz-tree-image(GeneratedName, MailList) {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/list.png");
 }
+

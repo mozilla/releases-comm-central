@@ -646,16 +646,16 @@ toolbar[mode="icons"] #search-button > .button-box > .button-text {
 }
 
 #page-proxy-button {
-  list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg");
-}
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item.svg"); 
+} 
 
 #page-proxy-favicon {
   list-style-image: none;
-}
+} 
 
 #page-proxy-button[pageproxystate="invalid"] {
   cursor: default;
-  list-style-image: url("chrome://communicator/skin/places/bookmark-item-dis.png");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item-dis.png"); 
 }
 
 /* ::::: autocomplete ::::: */

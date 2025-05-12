@@ -60,13 +60,13 @@ toolbar[labelalign="end"] .toolbarbutton-1 .toolbarbutton-text {
 }
 
 /* ::::: toolbargrippy ::::: */
-
-.toolbar-primary-grippy {
+ 
+.toolbar-primary-grippy { 
   -moz-binding: url("chrome://communicator/skin/toolbar/toolbarBindings.xml#toolbargrippy-primary");
   border: none;
   background: url("chrome://communicator/skin/toolbar/prtb-grip-mid.png") repeat-y;
   list-style-image: url("chrome://communicator/skin/toolbar/prtb-grip-btm.png");
-}
+} 
 
 .toolbar-primary-grippy > .toolbargrippy-texture {
   width: 13px;

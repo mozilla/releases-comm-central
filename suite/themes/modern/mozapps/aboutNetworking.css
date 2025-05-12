@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://global/skin/plugins.css");
-@import url("chrome://global/skin/button.css");
+@import url("chrome://global/skin/button.css"); 
 
 html {
   height: 100%;
@@ -127,7 +127,7 @@ body {
 .header-name {
   font-size: 1.5rem;
   font-weight: bold;
-}
+} 
 
 .tab {
   padding: 0.5em 0;

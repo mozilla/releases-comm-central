@@ -34,3 +34,4 @@ private:
 };
 
 #endif // nsgnomeshellservice_h____
+

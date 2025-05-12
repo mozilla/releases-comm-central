@@ -44,11 +44,11 @@ checkbox[disabled="true"] > .checkbox-label-box > .checkbox-label {
   height: 13px;
   list-style-image: url("chrome://global/skin/checkbox/cbox.png");
 }
-
+  
 checkbox:hover:active > .checkbox-check {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-act.png");
+  list-style-image: url("chrome://global/skin/checkbox/cbox-act.png");  
 }
-
+  
 .checkbox-check[disabled="true"] {
   list-style-image: url("chrome://global/skin/checkbox/cbox-dis.png") !important
 }
@@ -58,7 +58,7 @@ checkbox:hover:active > .checkbox-check {
 .checkbox-check[checked="true"] {
   list-style-image: url("chrome://global/skin/checkbox/cbox-check.png");
 }
-
+    
 checkbox:hover:active > .checkbox-check[checked="true"] {
   list-style-image: url("chrome://global/skin/checkbox/cbox-act-check.png");
 }
@@ -66,3 +66,4 @@ checkbox:hover:active > .checkbox-check[checked="true"] {
 .checkbox-check[checked="true"][disabled="true"] {
   list-style-image: url("chrome://global/skin/checkbox/cbox-dis-check.png") !important;
 }
+

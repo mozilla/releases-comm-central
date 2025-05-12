@@ -9,7 +9,7 @@ interface nsIArray;
 interface nsIProfileStartup;
 
 [scriptable, uuid(b6adb2b8-5e3b-4fdd-b085-d58998b5c21a)]
-interface nsISuiteProfileMigrator : nsISupports
+interface nsISuiteProfileMigrator : nsISupports 
 {
   /**
    * profile items to migrate. use with migrate().
@@ -32,7 +32,7 @@ interface nsISuiteProfileMigrator : nsISupports
    * Copy user profile information to the current active profile.
    *
    * @param aItems   list of data items to migrate. see above for values.
-   * @param aReplace replace or append current data where applicable.
+   * @param aReplace replace or append current data where applicable. 
    * @param aProfile profile to migrate from, if there is more than one.
    */
   void migrate(in unsigned short aItems, in nsIProfileStartup aStartup,

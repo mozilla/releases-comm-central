@@ -27,15 +27,15 @@
 
 #button-getmsg:hover {
   -moz-image-region: rect(102px 99px 135px 50px);
-}
+} 
 
 #button-getmsg:hover:active {
   -moz-image-region: rect(102px 149px 135px 100px);
-}
+} 
 
 #button-getmsg[disabled] {
   -moz-image-region: rect(102px 199px 135px 150px) !important;
-}
+} 
 
 #button-newmsg {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -44,15 +44,15 @@
 
 #button-newmsg:hover {
   -moz-image-region: rect(170px 99px 203px 50px);
-}
+} 
 
 #button-newmsg:hover:active {
   -moz-image-region: rect(170px 149px 203px 100px);
-}
+} 
 
 #button-newmsg[disabled] {
   -moz-image-region: rect(170px 199px 203px 150px) !important;
-}
+} 
 
 #button-reply {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -61,15 +61,15 @@
 
 #button-reply:hover {
   -moz-image-region: rect(238px 99px 271px 50px);
-}
+} 
 
 #button-reply:hover:active {
   -moz-image-region: rect(238px 149px 271px 100px);
-}
+} 
 
 #button-reply[disabled] {
   -moz-image-region: rect(238px 199px 271px 150px) !important;
-}
+} 
 
 #button-replyall {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -78,15 +78,15 @@
 
 #button-replyall:hover {
   -moz-image-region: rect(272px 99px 305px 50px);
-}
+} 
 
 #button-replyall:hover:active {
   -moz-image-region: rect(272px 149px 305px 100px);
-}
+} 
 
 #button-replyall[disabled] {
   -moz-image-region: rect(272px 199px 305px 150px) !important;
-}
+} 
 
 #button-forward {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -95,15 +95,15 @@
 
 #button-forward:hover {
   -moz-image-region: rect(68px 99px 101px 50px);
-}
+} 
 
 #button-forward:hover:active {
   -moz-image-region: rect(68px 149px 101px 100px);
-}
+} 
 
 #button-forward[disabled] {
   -moz-image-region: rect(68px 199px 101px 150px) !important;
-}
+} 
 
 #button-file {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -112,16 +112,16 @@
 
 #button-file:hover {
   -moz-image-region: rect(34px 99px 67px 50px);
-}
+} 
 
 #button-file:hover:active,
 #button-file[open] {
   -moz-image-region: rect(34px 149px 67px 100px);
-}
+} 
 
 #button-file[disabled] {
   -moz-image-region: rect(34px 199px 67px 150px) !important;
-}
+} 
 
 #button-goback {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -164,15 +164,15 @@
 
 #button-next:hover {
   -moz-image-region: rect(204px 99px 237px 50px);
-}
+} 
 
 #button-next:hover:active {
   -moz-image-region: rect(204px 149px 237px 100px);
-}
+} 
 
 #button-next[disabled] {
   -moz-image-region: rect(204px 199px 237px 150px) !important;
-}
+} 
 
 #button-delete {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -181,7 +181,7 @@
 
 #button-delete:hover {
   -moz-image-region: rect(0 99px 33px 50px);
-}
+} 
 
 #button-delete:hover:active {
   -moz-image-region: rect(0 149px 33px 100px);
@@ -202,15 +202,15 @@ toolbarpaletteitem > #button-delete {
 
 #button-mark:hover {
   -moz-image-region: rect(136px 99px 169px 50px);
-}
+} 
 
 #button-mark:hover:active {
   -moz-image-region: rect(136px 149px 169px 100px);
-}
+} 
 
 #button-mark[disabled] {
   -moz-image-region: rect(136px 199px 169px 150px) !important;
-}
+} 
 
 #button-junk {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
@@ -219,7 +219,7 @@ toolbarpaletteitem > #button-delete {
 
 #button-junk:hover {
   -moz-image-region: rect(544px 99px 577px 50px);
-}
+} 
 
 #button-junk:hover:active {
   -moz-image-region: rect(544px 149px 577px 100px);
@@ -263,7 +263,7 @@ toolbar[iconsize="small"] > #print-button[disabled="true"],
 
 #button-stop:hover {
   -moz-image-region: rect(68px 99px 101px 50px);
-}
+} 
 
 #button-stop:hover:active {
   -moz-image-region: rect(68px 149px 101px 100px);

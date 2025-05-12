@@ -88,14 +88,14 @@
 .browser-sidebar {
   -moz-binding: url("chrome://global/skin/globalBindings.xml#browser-miniscroll") !important;
   border-bottom: 1px solid;
-  border-bottom-color: #96A7B8;
+  border-bottom-color: #96A7B8;  
 }
 
 
 /* ::::: sidebar tabs ::::: */
 
 /* ..... normal tabs ..... */
-
+ 
 .box-texttab {
   -moz-binding: url("chrome://communicator/skin/sidebar/sidebarBindings.xml#sidebar-tab");
   color: #000000;
@@ -146,8 +146,8 @@
   border-bottom-color: #9CADBB;
 }
 
-.box-texttab:hover > .sidebar-tab-right-box > .sidebar-tab-right-top-box
-    > .sidebar-tab-right-img
+.box-texttab:hover > .sidebar-tab-right-box > .sidebar-tab-right-top-box 
+    > .sidebar-tab-right-img 
 {
   list-style-image: url("chrome://communicator/skin/sidebar/sbtab-rit-top-hov.png");
 }
@@ -179,8 +179,8 @@
   background-image: url("chrome://communicator/skin/sidebar/sbtab-mid-act.png");
 }
 
-.box-texttab:hover:active > .sidebar-tab-right-box > .sidebar-tab-right-top-box
-    > .sidebar-tab-right-img
+.box-texttab:hover:active > .sidebar-tab-right-box > .sidebar-tab-right-top-box 
+    > .sidebar-tab-right-img 
 {
   list-style-image: url("chrome://communicator/skin/sidebar/sbtab-rit-top-act.png");
 }
@@ -217,8 +217,8 @@
   background-image: url("chrome://communicator/skin/sidebar/sbtab-mid-sel.png") !important;
 }
 
-.box-texttab[selected] > .sidebar-tab-right-box > .sidebar-tab-right-top-box
-    > .sidebar-tab-right-img
+.box-texttab[selected] > .sidebar-tab-right-box > .sidebar-tab-right-top-box 
+    > .sidebar-tab-right-img 
 {
   list-style-image: url("chrome://communicator/skin/sidebar/sbtab-rit-top-sel.png") !important;
 }
@@ -227,7 +227,7 @@
   background: #CBD5E0 !important;
 }
 
-.box-texttab[selected] > .sidebar-tab-right-box > .sidebar-tab-right-top-box > .sidebar-tab-right-line
+.box-texttab[selected] > .sidebar-tab-right-box > .sidebar-tab-right-top-box > .sidebar-tab-right-line 
 {
   border-bottom-color: #8CA2B3 !important;
 }

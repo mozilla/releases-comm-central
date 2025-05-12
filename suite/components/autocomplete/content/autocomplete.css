@@ -29,7 +29,7 @@
   display: -moz-box;
 }
 
-/* The following rule is here to fix bug 96899 (and now 117952).
+/* The following rule is here to fix bug 96899 (and now 117952).  
    Somehow trees create a situation
    in which a popupset flows itself as if its popup child is directly within it
    instead of the placeholder child that should actually be inside the popupset.
