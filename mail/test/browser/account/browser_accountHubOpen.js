@@ -186,3 +186,68 @@ add_task(async function test_open_account_hub_message_window() {
   folder.deleteSelf(null);
   trash.emptyTrash(null);
 }).skip(!ACCOUNT_HUB_ENABLED || AppConstants.platform === "macosx");
+
+add_task(async function test_open_address_book_account_hub_appmenu() {
+  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
+  Services.prefs.setBoolPref("mail.accounthub.addressbook.enabled", true);
+
+  EventUtils.synthesizeMouseAtCenter(
+    document.getElementById("button-appmenu"),
+    {},
+    window
+  );
+  await BrowserTestUtils.waitForPopupEvent(
+    document.getElementById("appMenu-popup"),
+    "shown"
+  );
+  const multiView = document.getElementById("appMenu-multiView");
+  const newViewPromise = BrowserTestUtils.waitForEvent(
+    multiView,
+    "ViewShowing",
+    false,
+    event => event.target.id === "appMenu-newView"
+  );
+  multiView.showSubView(
+    "appMenu-newView",
+    document.getElementById("appmenu_new")
+  );
+  await newViewPromise;
+
+  document.getElementById("appmenu_newAccountHubAB").click();
+  const dialog = await subtest_wait_for_account_hub_dialog("address-book");
+
+  const closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  await closeEvent;
+
+  Services.prefs.clearUserPref("mail.accounthub.addressbook.enabled");
+  Services.prefs.clearUserPref("ui.prefersReducedMotion");
+});
+
+add_task(async function test_open_account_hub_address_book_tab() {
+  Services.prefs.setBoolPref("mail.accounthub.addressbook.enabled", true);
+  const abWindow = await new Promise(resolve => {
+    window.openTab("addressBookTab", {
+      onLoad(event, browser) {
+        resolve(browser.contentWindow);
+      },
+    });
+  });
+
+  EventUtils.synthesizeMouseAtCenter(
+    abWindow.document.getElementById("booksPaneCreateBook"),
+    {},
+    abWindow
+  );
+
+  const dialog = await subtest_wait_for_account_hub_dialog("address-book");
+
+  const closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  await closeEvent;
+
+  const tabmail = window.document.getElementById("tabmail");
+  tabmail.closeTab(tabmail.currentTab);
+
+  Services.prefs.clearUserPref("mail.accounthub.addressbook.enabled");
+});

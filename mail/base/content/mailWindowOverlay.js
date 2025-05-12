@@ -1836,6 +1836,13 @@ function openNewABDialog(type = "") {
 }
 
 /**
+ * Opens Account Hub Address Book setup dialog.
+ */
+function openAccountHubABDialog() {
+  window.openAccountHub("ADDRESS_BOOK");
+}
+
+/**
  * Verifies we have the attachments in order to populate the menupopup.
  * Resets the popup to be populated.
  *

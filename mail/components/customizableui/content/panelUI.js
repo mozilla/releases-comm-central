@@ -102,12 +102,31 @@ const PanelUI = {
       autoHidePref => autoHidePref && Services.appinfo.OS !== "Darwin"
     );
 
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
+      "openAddressBookAccountHub",
+      "mail.accounthub.addressbook.enabled",
+      false,
+      (pref, previousValue, newValue) => {
+        // If the account hub preference is enabled, hide the address book
+        // option that opens a submenu, and show the option that opens account
+        // hub for address book.
+        document.getElementById("appmenu_newAB").hidden = newValue;
+        document.getElementById("appmenu_newAccountHubAB").hidden = !newValue;
+      }
+    );
+
     if (this.autoHideToolbarInFullScreen) {
       window.addEventListener("fullscreen", this);
     } else {
       window.addEventListener("MozDOMFullscreen:Entered", this);
       window.addEventListener("MozDOMFullscreen:Exited", this);
     }
+
+    document.getElementById("appmenu_newAB").hidden =
+      this.openAddressBookAccountHub;
+    document.getElementById("appmenu_newAccountHubAB").hidden =
+      !this.openAddressBookAccountHub;
 
     window.addEventListener("activate", this);
 

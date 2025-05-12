@@ -87,6 +87,11 @@ window.addEventListener("load", () => {
   document
     .getElementById("booksPaneCreateBook")
     .addEventListener("click", event => {
+      if (Services.prefs.getBoolPref("mail.accounthub.addressbook.enabled")) {
+        window.browsingContext.topChromeWindow.openAccountHub("ADDRESS_BOOK");
+        return;
+      }
+
       document
         .getElementById("booksPaneCreateBookContext")
         .openPopup(event.target, {

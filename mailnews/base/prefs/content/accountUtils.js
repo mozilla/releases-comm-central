@@ -115,6 +115,14 @@ function AddFeedAccount() {
  *   are "JS", "LDAP", and "CARDDAV".
  */
 function addNewAddressBook(type) {
+  if (
+    Services.prefs.getBoolPref("mail.accounthub.addressbook.enabled", false)
+  ) {
+    // TODO: Directly go to correct address book type in account hub.
+    window.browsingContext.topChromeWindow.openAccountHubABDialog();
+    return;
+  }
+
   window.browsingContext.topChromeWindow.toAddressBook([
     `cmd_createAddressBook${type}`,
   ]);

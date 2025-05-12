@@ -222,10 +222,11 @@ class AccountHubControllerClass {
   }
 
   /**
-   * TODO: Show the address book setup view.
+   * Show the address book setup view.
    */
-  #viewAddressBookSetup() {
-    dump("Address Book setup\n");
+  async #viewAddressBookSetup() {
+    await this.#loadScript("address-book");
+    await this.#loadView("account-hub-address-book");
   }
 
   /**

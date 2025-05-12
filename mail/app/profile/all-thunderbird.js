@@ -1467,6 +1467,9 @@ pref("mail.accounthub.enabled", true);
 pref("mail.accounthub.enabled", false);
 #endif
 
+// Enable address book setup via account hub
+pref("mail.accounthub.addressbook.enabled", false);
+
 // Export to mobile logging level.
 pref("mail.qrexport.loglevel", "Warn");
 
