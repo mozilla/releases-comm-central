@@ -180,6 +180,7 @@ nsresult FolderCompactor::BeginCompacting(
   // Just in case we exit early...
   auto guardSemaphore = mozilla::MakeScopeExit([&] {
     mFolder->ReleaseSemaphore(this, "FolderCompactor::BeginCompacting"_ns);
+    mFolder->NotifyCompactCompleted();
   });
 
   // If it's a local folder and the DB needs to be rebuilt, this will fail.
@@ -217,6 +218,8 @@ nsresult FolderCompactor::BeginCompacting(
   // hashmap of them.
   rv = BuildKeepMap(db, mMsgsToKeep);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  mFolder->NotifyAboutToCompact();
 
   // We've read what we need from the DB now. Close it. We'll be working on a
   // copy from now on.
@@ -308,7 +311,6 @@ nsresult FolderCompactor::BeginCompacting(
   if (notifier) {
     notifier->NotifyFolderCompactStart(mFolder);
   }
-  mFolder->NotifyAboutToCompact();
 
   guardSemaphore.release();
   return NS_OK;
