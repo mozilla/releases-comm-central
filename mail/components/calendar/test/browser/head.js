@@ -30,9 +30,9 @@ const LARGE_WINDOW_HEIGHT = window.screen.availHeight - SCREEN_MARGIN;
 const todayDate = new Date();
 const sizes = [
   { x: LARGE_WINDOW_WIDTH, y: LARGE_WINDOW_HEIGHT, name: "large" },
-  { x: LARGE_WINDOW_WIDTH, y: SMALL_WINDOW_HEIGHT, name: "extra wide" },
-  { x: SMALL_WINDOW_WIDTH, y: LARGE_WINDOW_HEIGHT, name: "extra narrow" },
   { x: SMALL_WINDOW_WIDTH, y: SMALL_WINDOW_HEIGHT, name: "small" },
+  { x: SMALL_WINDOW_WIDTH, y: LARGE_WINDOW_HEIGHT, name: "extra narrow" },
+  { x: LARGE_WINDOW_WIDTH, y: SMALL_WINDOW_HEIGHT, name: "extra wide" },
   { y: LARGE_WINDOW_HEIGHT, name: "tall" },
   { x: LARGE_WINDOW_WIDTH, name: "wide" },
   { x: SMALL_WINDOW_WIDTH, name: "narrow" },
@@ -51,6 +51,38 @@ const scrollPositions = [
   { block: "start", inline: "center" },
   { block: "center", inline: "center" },
 ];
+
+const durationTests = [
+  {
+    duration: 3,
+    hours: [0, 11, 21],
+  },
+  {
+    duration: 6,
+    hours: [0, 11, 18],
+  },
+  {
+    duration: 12,
+    hours: [0, 11],
+  },
+  {
+    duration: 24,
+    hours: [0],
+  },
+  {
+    duration: 36,
+    hours: [0, 12, 23],
+  },
+  {
+    duration: 72,
+    hours: [0, 12, 23],
+  },
+  {
+    duration: 144,
+    hours: [0, 12, 23],
+  },
+];
+
 let count = 0;
 
 todayDate.setHours(0);
@@ -410,10 +442,57 @@ async function setupPositioning() {
   // (~20k/min), the number of tests required for full coverage of possible
   // position, duration, size, scroll position, etc combinations, means we can
   // still hit the test timeout so increasing here for reliability.
-  requestLongerTimeout(8);
+  requestLongerTimeout(3);
   const style = document.createElement("style");
   style.textContent = `[is="calendar-dialog"] { height: 476px; }`;
   document.head.appendChild(style);
 
   await CalendarTestUtils.setCalendarView(window, "week");
+}
+
+/**
+ * Test dialog positions with different screen sizes and durations
+ *
+ * @param {object} size - The size of the screen to test
+ */
+async function testDurations(size) {
+  const calendar = createCalendar();
+
+  await resizeWindow(size);
+  for (const offset of [0, 1, 2, 3, 4, 5, 6]) {
+    for (const { duration, hours } of durationTests) {
+      for (const hour of hours) {
+        await positionTest({ calendar, duration, hour, offset, size });
+      }
+    }
+  }
+
+  window.moveTo(0, 0);
+  await resizeWindow(originalWidth, originalHeight);
+
+  CalendarTestUtils.removeCalendar(calendar);
+}
+
+/**
+ * Test dialog positions with different screensizes
+ *
+ * @param {object[]} windowSizes
+ */
+async function runPositioningTest(windowSizes) {
+  const calendar = createCalendar();
+
+  for (const size of windowSizes) {
+    await resizeWindow(size);
+
+    for (const offset of [0, 1, 2, 3, 4, 5, 6]) {
+      for (const hour of [0, 6, 12, 18, 23]) {
+        await positionTest({ calendar, hour, offset, size });
+      }
+    }
+
+    window.moveTo(0, 0);
+    await resizeWindow(originalWidth, originalHeight);
+  }
+
+  CalendarTestUtils.removeCalendar(calendar);
 }
