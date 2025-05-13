@@ -502,15 +502,6 @@ PopupNotifications.prototype = {
       case "keypress":
         this._onIconBoxCommand(aEvent);
         break;
-      case "buttoncommand":
-        this._onButtonEvent(aEvent, "buttoncommand");
-        break;
-      case "secondarybuttoncommand":
-        this._onButtonEvent(aEvent, "secondarybuttoncommand");
-        break;
-      case "learnmoreclick":
-        this._onButtonEvent(aEvent, "learnmoreclick");
-        break;
     }
   },
 
@@ -677,30 +668,19 @@ PopupNotifications.prototype = {
           "buttonhighlight",
           !n.mainAction.disableHighlight
         );
-        popupnotification.addEventListener("buttoncommand", PopupNotifications);
         popupnotification.setAttribute(
           "dropmarkerpopupshown",
           "PopupNotifications._onButtonEvent(event, 'dropmarkerpopupshown');"
-        );
-        popupnotification.addEventListener(
-          "learnmoreclick",
-          PopupNotifications
         );
         popupnotification.setAttribute(
           "menucommand",
           "PopupNotifications._onMenuCommand(event);"
         );
       } else {
-        // Enable the default button to let the user close the popup if the close button is hidden
-        popupnotification.addEventListener("buttoncommand", PopupNotifications);
         popupnotification.setAttribute("buttonhighlight", "true");
         popupnotification.removeAttribute("buttonlabel");
         popupnotification.removeAttribute("buttonaccesskey");
         popupnotification.removeAttribute("dropmarkerpopupshown");
-        popupnotification.removeEventListener(
-          "learnmoreclick",
-          PopupNotifications
-        );
         popupnotification.removeAttribute("menucommand");
       }
 
@@ -755,10 +735,6 @@ PopupNotifications.prototype = {
         popupnotification.setAttribute(
           "secondarybuttonaccesskey",
           secondaryAction.accessKey
-        );
-        popupnotification.addEventListener(
-          "secondarybuttoncommand",
-          PopupNotifications
         );
         popupnotification.removeAttribute("secondarybuttonhidden");
 

@@ -46,7 +46,8 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 ChromeUtils.defineLazyGetter(this, "PopupNotifications", function () {
-  const { PopupNotifications: NotificationPopup } = ChromeUtils.importESModule(
+  // eslint-disable-next-line no-shadow
+  const { PopupNotifications } = ChromeUtils.importESModule(
     "resource:///modules/GlobalPopupNotifications.sys.mjs"
   );
   try {
@@ -56,7 +57,7 @@ ChromeUtils.defineLazyGetter(this, "PopupNotifications", function () {
     // minimized because of the effects of the "noautohide" attribute on Linux.
     // This can be removed once bug 545265 and bug 1320361 are fixed.
     const shouldSuppress = () => window.windowState == window.STATE_MINIMIZED;
-    return new NotificationPopup(
+    return new PopupNotifications(
       document.getElementById("tabmail"),
       document.getElementById("notification-popup"),
       document.getElementById("notification-popup-box"),
