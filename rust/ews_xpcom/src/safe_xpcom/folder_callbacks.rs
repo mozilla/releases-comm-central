@@ -77,17 +77,20 @@ impl SafeEwsFolderCallbacks {
     pub fn update(
         &self,
         folder_id: Option<FolderId>,
+        parent_folder_id: Option<FolderId>,
         display_name: Option<String>,
     ) -> Result<(), XpComEwsError> {
         let id = folder_id.map(|v| v.id).ok_or(nserror::NS_ERROR_FAILURE)?;
+        let parent_id = parent_folder_id.ok_or(nserror::NS_ERROR_FAILURE)?;
         let display_name = display_name.ok_or(nserror::NS_ERROR_FAILURE)?;
 
         let id = nsCString::from(id);
+        let parent_id = nsCString::from(parent_id.id);
         let display_name = nsCString::from(display_name);
 
         // SAFETY: We have converted all of the inputs into the appropriate types
         // to cross the Rust/C++ boundary.
-        unsafe { self.0.Update(&*id, &*display_name) }.to_result()?;
+        unsafe { self.0.Update(&*id, &*parent_id, &*display_name) }.to_result()?;
 
         Ok(())
     }

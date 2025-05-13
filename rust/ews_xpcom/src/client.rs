@@ -752,9 +752,10 @@ impl XpComEwsClient {
                 match folder {
                     Folder::Folder {
                         folder_id,
+                        parent_folder_id,
                         display_name,
                         ..
-                    } => callbacks.update(folder_id, display_name)?,
+                    } => callbacks.update(folder_id, parent_folder_id, display_name)?,
                     _ => return Err(nserror::NS_ERROR_FAILURE.into()),
                 }
             }

@@ -153,6 +153,13 @@ export class EwsServer {
   deletedFolders = [];
 
   /**
+   * The ids of folders that have had updates applied.
+   *
+   * @type {string[]}
+   */
+  updatedFolderIds = [];
+
+  /**
    * A mapping from EWS identifier to folder specification.
    *
    * @type {Map<string, RemoteFolder>}
@@ -373,6 +380,17 @@ export class EwsServer {
       changesEl.appendChild(deleteEl);
     });
 
+    this.updatedFolderIds.forEach(folderId => {
+      const updateEl = resDoc.createElement("t:Update");
+      const folderEl = resDoc.createElement("t:Folder");
+      const folderIdEl = resDoc.createElement("t:FolderId");
+      folderIdEl.setAttribute("Id", folderId);
+
+      folderEl.appendChild(folderIdEl);
+      updateEl.appendChild(folderEl);
+      changesEl.appendChild(updateEl);
+    });
+
     return this.#serializer.serializeToString(resDoc);
   }
 
@@ -492,6 +510,34 @@ export class EwsServer {
         this.#distinguishedIdToFolder.delete(folderToDelete.distinguishedId);
       }
       this.deletedFolders.push(folderToDelete);
+    }
+  }
+
+  /**
+   * Rename a folder given its id and a new name.
+   *
+   * @param {string} id
+   * @param {string} newName
+   */
+  renameFolderById(id, newName) {
+    const folder = this.#idToFolder.get(id);
+    if (folder) {
+      folder.displayName = newName;
+      this.updatedFolderIds.push(id);
+    }
+  }
+
+  /**
+   * Change the parent folder of a folder.
+   *
+   * @param {string} id - The id of the folder to change the parent of.
+   * @param {string} newParentId - The id of the new parent folder.
+   */
+  reparentFolderById(id, newParentId) {
+    const childFolder = this.#idToFolder.get(id);
+    if (!!childFolder && this.#idToFolder.has(newParentId)) {
+      childFolder.parentId = newParentId;
+      this.updatedFolderIds.push(id);
     }
   }
 }

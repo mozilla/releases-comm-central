@@ -38,6 +38,11 @@ class EwsIncomingServer : public nsMsgIncomingServer,
   // class such as `FolderSyncListener`.
   nsresult DeleteFolderWithId(const nsACString& id);
 
+  nsresult UpdateFolderWithDetails(const nsACString& id,
+                                   const nsACString& parentId,
+                                   const nsACString& name,
+                                   nsIMsgWindow* msgWindow);
+
   // nsIMsgIncomingServer
   NS_IMETHOD GetLocalStoreType(nsACString& aLocalStoreType) override;
   NS_IMETHOD GetLocalDatabaseType(nsACString& aLocalDatabaseType) override;
