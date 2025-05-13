@@ -26,6 +26,7 @@ reference-tasks:
     - linux64-grcov
     - linux64-hfsplus
     - linux64-libdmg
+    - linux64-libxml2
     - linux64-llvm-symbolizer
     - linux64-makecab
     - linux64-mar-tools
