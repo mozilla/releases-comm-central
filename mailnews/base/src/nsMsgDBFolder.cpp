@@ -334,6 +334,18 @@ NS_IMETHODIMP nsMsgDBFolder::Shutdown(bool shutdownChildren) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgDBFolder::CloseDatabase() {
+  if (mDatabase) {
+    mDatabase->ForceClosed();
+    mDatabase = nullptr;
+  } else {
+    nsCOMPtr<nsIMsgDBService> mailDBFactory(
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1"));
+    if (mailDBFactory) mailDBFactory->ForceFolderDBClosed(this);
+  }
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgDBFolder::ForceDBClosed() {
   int32_t count = mSubFolders.Count();
   for (int32_t i = 0; i < count; i++) mSubFolders[i]->ForceDBClosed();

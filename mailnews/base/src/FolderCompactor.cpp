@@ -223,7 +223,7 @@ nsresult FolderCompactor::BeginCompacting(
 
   // We've read what we need from the DB now. Close it. We'll be working on a
   // copy from now on.
-  mFolder->ForceDBClosed();
+  mFolder->CloseDatabase();
 
   // Set up temp dir and all the paths and filenames we want to track.
   {

@@ -178,6 +178,12 @@ interface nsIMsgFolder : nsISupports {
   void setEditableFilterList(in nsIMsgFilterList aFilterList);
 
   /**
+   * Force close the mail database associated with this folder,
+   * excluding its subfolders.
+   */
+  void CloseDatabase();
+
+  /**
    * Force close the mail database associated with this folder.
    */
   void ForceDBClosed();
