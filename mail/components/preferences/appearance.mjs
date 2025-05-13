@@ -16,6 +16,8 @@ Preferences.addAll([
   { id: "mailnews.default_view_flags", type: "int" },
   { id: "mailnews.default_sort_type", type: "int" },
   { id: "mailnews.default_sort_order", type: "int" },
+  { id: "mail.tabs.drawInTitlebar", type: "bool" },
+  { id: "mail.tabs.autoHide", type: "bool" },
   { id: "mail.threadpane.table.horizontal_scroll", type: "bool" },
 ]);
 

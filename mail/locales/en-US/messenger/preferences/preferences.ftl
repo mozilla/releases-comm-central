@@ -42,7 +42,7 @@ pane-qr-export-title = Export for Mobile
 category-qr-export =
     .tooltiptext = Export for Mobile
 
-general-language-and-appearance-header = Language & Appearance
+general-language-and-fonts-header = Language & Fonts
 
 general-incoming-mail-header = Incoming Mails
 

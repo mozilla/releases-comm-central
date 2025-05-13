@@ -108,8 +108,6 @@ Preferences.addAll([
   { id: "layers.acceleration.disabled", type: "bool", inverted: true },
   { id: "layout.css.always_underline_links", type: "bool" },
   { id: "searchintegration.enable", type: "bool" },
-  { id: "mail.tabs.drawInTitlebar", type: "bool" },
-  { id: "mail.tabs.autoHide", type: "bool" },
 ]);
 if (AppConstants.platform == "win") {
   Preferences.add({ id: "mail.minimizeToTray", type: "bool" });

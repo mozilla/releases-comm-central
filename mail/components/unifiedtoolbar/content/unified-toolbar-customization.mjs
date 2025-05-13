@@ -138,7 +138,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
 
   #handleSettingsButton = event => {
     event.preventDefault();
-    openPreferencesTab("paneGeneral", "layoutGroup");
+    openPreferencesTab("paneAppearance", "layoutGroup");
     this.toggle(false);
   };
 

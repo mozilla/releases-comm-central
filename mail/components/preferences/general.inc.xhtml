@@ -141,36 +141,83 @@
     </html:div>
 #endif
 
-    <hbox id="languageAndAppearanceCategory"
+    <!-- Scrolling -->
+    <html:div data-category="paneGeneral">
+    <html:fieldset id="scrollingGroup" data-category="paneGeneral">
+      <html:legend data-l10n-id="scrolling-legend"></html:legend>
+      <hbox>
+        <checkbox id="useAutoScroll"
+                  data-l10n-id="autoscroll-label"
+                  preference="general.autoScroll"/>
+        <spacer flex="1"/>
+      </hbox>
+      <hbox>
+        <checkbox id="useSmoothScrolling"
+                  data-l10n-id="smooth-scrolling-label"
+                  preference="general.smoothScroll"/>
+        <spacer flex="1"/>
+      </hbox>
+#ifdef MOZ_WIDGET_GTK
+      <hbox>
+        <checkbox id="useOverlayScrollbars"
+                  data-l10n-id="browsing-gtk-use-non-overlay-scrollbars"
+                  preference="widget.gtk.overlay-scrollbars.enabled"/>
+        <spacer flex="1"/>
+      </hbox>
+#endif
+    </html:fieldset>
+    </html:div>
+
+    <hbox id="languageAndFontsCategory"
           class="subcategory"
           data-category="paneGeneral">
-      <html:h1 data-l10n-id="general-language-and-appearance-header"/>
+      <html:h1 data-l10n-id="general-language-and-fonts-header"/>
     </hbox>
 
-    <!-- Window layout -->
     <html:div data-category="paneGeneral">
-    <html:fieldset id="layoutGroup" data-category="paneGeneral">
-      <html:legend data-l10n-id="window-layout-legend"></html:legend>
-      <hbox>
-        <checkbox id="drawInTitlebar"
-                  data-l10n-id="draw-in-titlebar-label"
-                  preference="mail.tabs.drawInTitlebar"/>
-        <spacer flex="1"/>
-      </hbox>
-      <hbox>
-        <vbox>
-          <checkbox id="autoHideTabbar"
-                    data-l10n-id="auto-hide-tabbar-label"
-                    preference="mail.tabs.autoHide"/>
-          <description data-l10n-id="auto-hide-tabbar-description"
-                       class="tip-caption indent"/>
-        </vbox>
-        <spacer flex="1"/>
-      </hbox>
-      <separator class="thin"/>
-      <hbox align="center">
-        <checkbox id="alwaysUnderlineLinks" data-l10n-id="always-underline-links"
-                  preference="layout.css.always_underline_links"/>
+    <html:fieldset id="messengerLanguagesBox" data-category="paneGeneral" hidden="hidden">
+      <html:legend data-l10n-id="language-selector-legend"></html:legend>
+        <vbox align="start">
+        <description flex="1"
+                     controls="chooseMessengerLanguage"
+                     data-l10n-id="choose-messenger-language-description"/>
+        <hbox>
+          <hbox>
+            <menulist id="primaryMessengerLocale"
+                      oncommand="gGeneralPane.onPrimaryMessengerLanguageMenuChange(event)">
+              <menupopup/>
+            </menulist>
+          </hbox>
+          <hbox>
+            <button is="highlightable-button" id="manageMessengerLanguagesButton"
+                    class="accessory-button"
+                    data-l10n-id="manage-messenger-languages-button"
+                    oncommand="gGeneralPane.showMessengerLanguagesSubDialog({search: false})"
+                    search-l10n-ids="
+                      languages-customize-moveup.label,
+                      languages-customize-movedown.label,
+                      languages-customize-remove.label,
+                      languages-customize-select-language.placeholder,
+                      languages-customize-add.label,
+                      messenger-languages-dialog-title,
+                      messenger-languages-description,
+                      messenger-languages-search,
+                      messenger-languages-searching.label,
+                      messenger-languages-downloading.label,
+                      messenger-languages-select-language.label,
+                      messenger-languages-installed-label,
+                      messenger-languages-available-label,
+                      messenger-languages-error"/>
+          </hbox>
+        </hbox>
+      </vbox>
+      <hbox id="confirmMessengerLanguage"
+            class="message-bar"
+            align="center"
+            hidden="true">
+        <html:img class="message-bar-icon"
+                  src="chrome://global/skin/icons/info.svg" alt="" />
+        <vbox class="message-bar-content-container" align="stretch" flex="1"/>
       </hbox>
     </html:fieldset>
     </html:div>
@@ -280,48 +327,6 @@
     </html:fieldset>
     </html:div>
 
-    <!-- Plain Text Messages -->
-    <html:div data-category="paneGeneral">
-    <html:fieldset id="messagesGroup" data-category="paneGeneral">
-        <html:legend data-l10n-id="display-width-legend"></html:legend>
-      <hbox>
-        <checkbox id="displayGlyph"
-                  preference="mail.display_glyph"
-                  data-l10n-id="convert-emoticons-label"/>
-        <spacer flex="1"/>
-      </hbox>
-
-      <separator class="thin"/>
-
-      <label control="displayText" data-l10n-id="display-text-label"/>
-      <hbox id="displayText" class="indent" align="center" role="group">
-        <label data-l10n-id="style-label" control="mailQuotedStyle"/>
-        <hbox>
-          <menulist id="mailQuotedStyle" preference="mail.quoted_style">
-            <menupopup>
-              <menuitem value="0" data-l10n-id="regular-style-item"/>
-              <menuitem value="1" data-l10n-id="bold-style-item"/>
-              <menuitem value="2" data-l10n-id="italic-style-item"/>
-              <menuitem value="3" data-l10n-id="bold-italic-style-item"/>
-            </menupopup>
-          </menulist>
-        </hbox>
-        <label data-l10n-id="size-label" control="mailQuotedSize"/>
-        <hbox>
-          <menulist id="mailQuotedSize" preference="mail.quoted_size">
-            <menupopup>
-              <menuitem value="0" data-l10n-id="regular-size-item"/>
-              <menuitem value="1" data-l10n-id="bigger-size-item"/>
-              <menuitem value="2" data-l10n-id="smaller-size-item"/>
-            </menupopup>
-          </menulist>
-        </hbox>
-        <label data-l10n-id="quoted-text-color" control="citationmenu"/>
-        <html:input type="color" id="citationmenu" preference="mail.citation_color"/>
-      </hbox>
-    </html:fieldset>
-    </html:div>
-
     <!-- Date and time formatting -->
     <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
@@ -336,81 +341,6 @@
                value="true"/>
                <!-- label and accesskey will be set dynamically -->
       </radiogroup>
-    </html:fieldset>
-    </html:div>
-
-    <html:div data-category="paneGeneral">
-    <html:fieldset id="messengerLanguagesBox" data-category="paneGeneral" hidden="hidden">
-      <html:legend data-l10n-id="language-selector-legend"></html:legend>
-        <vbox align="start">
-        <description flex="1"
-                     controls="chooseMessengerLanguage"
-                     data-l10n-id="choose-messenger-language-description"/>
-        <hbox>
-          <hbox>
-            <menulist id="primaryMessengerLocale"
-                      oncommand="gGeneralPane.onPrimaryMessengerLanguageMenuChange(event)">
-              <menupopup/>
-            </menulist>
-          </hbox>
-          <hbox>
-            <button is="highlightable-button" id="manageMessengerLanguagesButton"
-                    class="accessory-button"
-                    data-l10n-id="manage-messenger-languages-button"
-                    oncommand="gGeneralPane.showMessengerLanguagesSubDialog({search: false})"
-                    search-l10n-ids="
-                      languages-customize-moveup.label,
-                      languages-customize-movedown.label,
-                      languages-customize-remove.label,
-                      languages-customize-select-language.placeholder,
-                      languages-customize-add.label,
-                      messenger-languages-dialog-title,
-                      messenger-languages-description,
-                      messenger-languages-search,
-                      messenger-languages-searching.label,
-                      messenger-languages-downloading.label,
-                      messenger-languages-select-language.label,
-                      messenger-languages-installed-label,
-                      messenger-languages-available-label,
-                      messenger-languages-error"/>
-          </hbox>
-        </hbox>
-      </vbox>
-      <hbox id="confirmMessengerLanguage"
-            class="message-bar"
-            align="center"
-            hidden="true">
-        <html:img class="message-bar-icon"
-                  src="chrome://global/skin/icons/info.svg" alt="" />
-        <vbox class="message-bar-content-container" align="stretch" flex="1"/>
-      </hbox>
-    </html:fieldset>
-    </html:div>
-
-    <!-- Scrolling -->
-    <html:div data-category="paneGeneral">
-    <html:fieldset id="scrollingGroup" data-category="paneGeneral">
-      <html:legend data-l10n-id="scrolling-legend"></html:legend>
-      <hbox>
-        <checkbox id="useAutoScroll"
-                  data-l10n-id="autoscroll-label"
-                  preference="general.autoScroll"/>
-        <spacer flex="1"/>
-      </hbox>
-      <hbox>
-        <checkbox id="useSmoothScrolling"
-                  data-l10n-id="smooth-scrolling-label"
-                  preference="general.smoothScroll"/>
-        <spacer flex="1"/>
-      </hbox>
-#ifdef MOZ_WIDGET_GTK
-      <hbox>
-        <checkbox id="useOverlayScrollbars"
-                  data-l10n-id="browsing-gtk-use-non-overlay-scrollbars"
-                  preference="widget.gtk.overlay-scrollbars.enabled"/>
-        <spacer flex="1"/>
-      </hbox>
-#endif
     </html:fieldset>
     </html:div>
 
@@ -650,6 +580,12 @@
     <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <vbox>
+        <hbox align="center">
+          <checkbox id="alwaysUnderlineLinks"
+                    data-l10n-id="always-underline-links"
+                    preference="layout.css.always_underline_links"/>
+        </hbox>
+
         <hbox>
           <checkbox id="viewAttachmentsInline"
                     data-l10n-id="view-attachments-inline"
@@ -702,6 +638,49 @@
           <checkbox id="closeMsgOnMoveOrDelete"
                     data-l10n-id="close-move-delete"
                     preference="mail.close_message_window.on_delete"/>
+        </hbox>
+      </vbox>
+
+      <separator/>
+
+
+      <!-- Plain Text Messages -->
+      <vbox>
+        <html:legend data-l10n-id="display-width-legend"></html:legend>
+        <hbox>
+          <checkbox id="displayGlyph"
+                    preference="mail.display_glyph"
+                    data-l10n-id="convert-emoticons-label"/>
+          <spacer flex="1"/>
+        </hbox>
+
+        <separator class="thin"/>
+
+        <label control="displayText" data-l10n-id="display-text-label"/>
+        <hbox id="displayText" class="indent" align="center" role="group">
+          <label data-l10n-id="style-label" control="mailQuotedStyle"/>
+          <hbox>
+            <menulist id="mailQuotedStyle" preference="mail.quoted_style">
+              <menupopup>
+                <menuitem value="0" data-l10n-id="regular-style-item"/>
+                <menuitem value="1" data-l10n-id="bold-style-item"/>
+                <menuitem value="2" data-l10n-id="italic-style-item"/>
+                <menuitem value="3" data-l10n-id="bold-italic-style-item"/>
+              </menupopup>
+            </menulist>
+          </hbox>
+          <label data-l10n-id="size-label" control="mailQuotedSize"/>
+          <hbox>
+            <menulist id="mailQuotedSize" preference="mail.quoted_size">
+              <menupopup>
+                <menuitem value="0" data-l10n-id="regular-size-item"/>
+                <menuitem value="1" data-l10n-id="bigger-size-item"/>
+                <menuitem value="2" data-l10n-id="smaller-size-item"/>
+              </menupopup>
+            </menulist>
+          </hbox>
+          <label data-l10n-id="quoted-text-color" control="citationmenu"/>
+          <html:input type="color" id="citationmenu" preference="mail.citation_color"/>
         </hbox>
       </vbox>
 

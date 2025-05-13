@@ -120,6 +120,7 @@ html|legend {
   font-size: 1.1em;
   font-weight: 600;
   line-height: 1.4em;
+  padding: 0;
 }
 
 html|th {

@@ -431,3 +431,23 @@ add_task(async function test_edit_flags_single_folders() {
     folder.msgDatabase = null;
   }
 });
+
+add_task(async function test_layoutCheckboxes() {
+  // Checkbox test wants no open prefs tab.
+  await closePrefsTab();
+
+  await testCheckboxes(
+    "paneAppearance",
+    "layoutGroup",
+    {
+      checkboxID: "drawInTitlebar",
+      pref: "mail.tabs.drawInTitlebar",
+    },
+    {
+      checkboxID: "autoHideTabbar",
+      pref: "mail.tabs.autoHide",
+    }
+  );
+
+  ({ prefsWindow, prefsDocument } = await openNewPrefsTab("paneAppearance"));
+});

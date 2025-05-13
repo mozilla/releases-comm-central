@@ -133,7 +133,7 @@ add_task(async () => {
 });
 
 add_task(async () => {
-  await testCheckboxes("paneGeneral", "fontsGroup", {
+  await testCheckboxes("paneGeneral", "readingAndDisplayCategory", {
     checkboxID: "displayGlyph",
     pref: "mail.display_glyph",
   });
@@ -360,12 +360,12 @@ add_task(async function testSystemIntegrationDialog() {
 });
 
 /**
- * Tests the language and appearance dialogs.
+ * Tests the language and fonts dialogs.
  */
-add_task(async function testLanguageAndAppearanceDialogs() {
+add_task(async function testLanguageAndFontsDialogs() {
   const { prefsDocument } = await openNewPrefsTab(
     "paneGeneral",
-    "languageAndAppearanceCategory"
+    "languageAndFontsCategory"
   );
   await promiseSubDialog(
     prefsDocument.getElementById("advancedFonts"),
@@ -570,6 +570,13 @@ add_task(async function testReceiptsDialog() {
   const { prefsDocument } = await openNewPrefsTab(
     "paneGeneral",
     "readingAndDisplayCategory"
+  );
+  prefsDocument.getElementById("showReturnReceipts").scrollIntoView({
+    behavior: "instant",
+    block: "center",
+  });
+  await new Promise(resolve =>
+    prefsDocument.ownerGlobal.requestAnimationFrame(resolve)
   );
   await promiseSubDialog(
     prefsDocument.getElementById("showReturnReceipts"),
