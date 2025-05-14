@@ -165,6 +165,9 @@ nsresult DatabaseCore::EnsureConnection() {
           messageId TEXT, \
           date INTEGER, \
           sender TEXT, \
+          recipients TEXT, \
+          ccList TEXT, \
+          bccList TEXT, \
           subject TEXT, \
           flags INTEGER, \
           tags TEXT \

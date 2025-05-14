@@ -49,6 +49,9 @@ function installDB(sql) {
       messageId TEXT,
       date INTEGER,
       sender TEXT,
+      recipients TEXT,
+      ccList TEXT,
+      bccList TEXT,
       subject TEXT,
       flags INTEGER,
       tags TEXT
@@ -152,6 +155,9 @@ function checkOrdinals(expected) {
  * @param {string} [message.date="2025-01-22"] - Any string which can be
  *   parsed by the Date constructor.
  * @param {string} [message.sender="sender"]
+ * @param {string} [message.recipients="recipients"]
+ * @param {string} [message.ccList="cc list"]
+ * @param {string} [message.bccList="bcc list"]
  * @param {string} [message.subject="subject"]
  * @param {integer} [message.flags=0]
  * @param {string} [message.tags=""]
@@ -162,6 +168,9 @@ function addMessage({
   messageId = "messageId",
   date = "2025-01-22",
   sender = "sender",
+  recipients = "recipients",
+  ccList = "cc list",
+  bccList = "bcc list",
   subject = "subject",
   flags = 0,
   tags = "",
@@ -171,6 +180,9 @@ function addMessage({
     messageId,
     new Date(date).valueOf() * 1000,
     sender,
+    recipients,
+    ccList,
+    bccList,
     subject,
     flags,
     tags

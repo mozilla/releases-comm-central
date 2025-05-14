@@ -95,9 +95,10 @@ RawHdr ParseMsgHeaders(mozilla::Span<const char> raw) {
 
   // RFC5322 says 0 or 1 occurrences for each of "To:" and "Cc:", but we'll
   // aggregate multiple.
-  AutoTArray<nsCString, 1> toValues;  // Collect "To:" values.
-  AutoTArray<nsCString, 1> ccValues;  // Collect "Cc:" values.
-  nsAutoCString newsgroups;           // "Newsgroups:" value.
+  AutoTArray<nsCString, 1> toValues;   // Collect "To:" values.
+  AutoTArray<nsCString, 1> ccValues;   // Collect "Cc:" values.
+  AutoTArray<nsCString, 1> bccValues;  // Collect "Bcc:" values.
+  nsAutoCString newsgroups;            // "Newsgroups:" value.
   nsAutoCString mozstatus;
   nsAutoCString mozstatus2;
   nsAutoCString status;  // "Status:" value
@@ -105,7 +106,8 @@ RawHdr ParseMsgHeaders(mozilla::Span<const char> raw) {
     auto const& n = hdr.Name(raw);
     // Alphabetical, because why not?
     if (n.LowerCaseEqualsLiteral("bcc")) {
-      out.bccList = hdr.Value(raw);
+      // Collect multiple "Bcc:" values.
+      bccValues.AppendElement(hdr.Value(raw));
     } else if (n.LowerCaseEqualsLiteral("cc")) {
       // Collect multiple "Cc:" values.
       ccValues.AppendElement(hdr.Value(raw));
@@ -206,10 +208,18 @@ RawHdr ParseMsgHeaders(mozilla::Span<const char> raw) {
 
   // Merge multiple "Cc:" values.
   out.ccList = StringJoin(","_ns, ccValues);
+  mimeConverter->DecodeMimeHeaderToUTF8(out.ccList, out.charset.get(), true,
+                                        true, out.ccList);
+  // Merge multiple "Bcc:" values.
+  out.bccList = StringJoin(","_ns, bccValues);
+  mimeConverter->DecodeMimeHeaderToUTF8(out.bccList, out.charset.get(), true,
+                                        true, out.bccList);
 
   // Fill in recipients, with fallbacks.
   if (!toValues.IsEmpty()) {
     out.recipients = StringJoin(","_ns, toValues);
+    mimeConverter->DecodeMimeHeaderToUTF8(out.recipients, out.charset.get(),
+                                          true, true, out.recipients);
   } else if (!out.ccList.IsEmpty()) {
     out.recipients = out.ccList;
   } else if (!newsgroups.IsEmpty()) {

@@ -14,12 +14,11 @@ namespace mozilla::mailnews {
 class MessageDatabase;
 
 #define MESSAGE_SQL_FIELDS \
-  "id, folderId, messageId, date, sender, subject, flags, tags"_ns
+  "id, folderId, messageId, date, sender, recipients, ccList, bccList, subject, flags, tags"_ns
 
 class Message : public nsIMsgDBHdr {
  public:
   Message() = delete;
-  explicit Message(MessageDatabase* aDatabase) : mDatabase(aDatabase) {}
   explicit Message(MessageDatabase* aDatabase, mozIStorageStatement* aStmt);
 
   NS_DECL_ISUPPORTS
@@ -30,6 +29,9 @@ class Message : public nsIMsgDBHdr {
   nsAutoCString mMessageId;
   PRTime mDate;
   nsAutoCString mSender;
+  nsAutoCString mRecipients;
+  nsAutoCString mCcList;
+  nsAutoCString mBccList;
   nsAutoCString mSubject;
   uint64_t mFlags;
   nsAutoCString mTags;

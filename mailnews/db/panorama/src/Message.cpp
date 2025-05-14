@@ -19,16 +19,19 @@ namespace mozilla::mailnews {
 NS_IMPL_ISUPPORTS(Message, nsIMsgDBHdr)
 
 Message::Message(MessageDatabase* aDatabase, mozIStorageStatement* aStmt)
-    : Message(aDatabase) {
+    : mDatabase(aDatabase) {
   uint32_t len;
   mId = aStmt->AsInt64(0);
   mFolderId = aStmt->AsInt64(1);
   mMessageId = aStmt->AsSharedUTF8String(2, &len);
   mDate = aStmt->AsDouble(3);
   mSender = aStmt->AsSharedUTF8String(4, &len);
-  mSubject = aStmt->AsSharedUTF8String(5, &len);
-  mFlags = aStmt->AsInt64(6);
-  mTags = aStmt->AsSharedUTF8String(7, &len);
+  mRecipients = aStmt->AsSharedUTF8String(5, &len);
+  mCcList = aStmt->AsSharedUTF8String(6, &len);
+  mBccList = aStmt->AsSharedUTF8String(7, &len);
+  mSubject = aStmt->AsSharedUTF8String(8, &len);
+  mFlags = aStmt->AsInt64(9);
+  mTags = aStmt->AsSharedUTF8String(10, &len);
 }
 
 NS_IMETHODIMP Message::SetStringProperty(const char* propertyName,
@@ -181,15 +184,15 @@ NS_IMETHODIMP Message::SetMessageId(const nsACString& aMessageId) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetCcList(nsACString& aCcList) {
-  // TODO: Actually implement. This is only here to fix message display.
-  aCcList.Truncate();
+  aCcList.Assign(mCcList);
   return NS_OK;
 }
 NS_IMETHODIMP Message::SetCcList(const nsACString& aCcList) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetBccList(nsACString& aBccList) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  aBccList.Assign(mBccList);
+  return NS_OK;
 }
 NS_IMETHODIMP Message::SetBccList(const nsACString& aBccList) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -209,8 +212,7 @@ NS_IMETHODIMP Message::SetSubject(const nsACString& aSubject) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetRecipients(nsACString& aRecipients) {
-  // TODO: Actually implement. This is only here to fix message display.
-  aRecipients.Truncate();
+  aRecipients.Assign(mRecipients);
   return NS_OK;
 }
 NS_IMETHODIMP Message::SetRecipients(const nsACString& aRecipients) {

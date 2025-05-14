@@ -196,8 +196,8 @@ NS_IMETHODIMP PerFolderDatabase::AddMsgHdr(RawHdr* msg, bool notify,
   MOZ_ASSERT(newHdr);
   nsMsgKey key;
   nsresult rv = mMessageDatabase->AddMessage(
-      mFolderId, msg->messageId, msg->date, msg->sender, msg->subject,
-      msg->flags, msg->keywords, &key);
+      mFolderId, msg->messageId, msg->date, msg->sender, msg->recipients,
+      msg->ccList, msg->bccList, msg->subject, msg->flags, msg->keywords, &key);
   NS_ENSURE_SUCCESS(rv, rv);
   MOZ_ASSERT(key != nsMsgKey_None);
 

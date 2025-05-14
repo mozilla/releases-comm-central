@@ -102,6 +102,23 @@ add_task(function testSender() {
   );
 });
 
+add_task(function testRecipients() {
+  const message = folder.addMessage(
+    generator
+      .makeMessage({
+        to: "=?UTF-8?Q?Chlo=C3=AB's_Caf=C3=A9?= <db@null.invalid>",
+        cc: "Pedro's Pi\xF1ata <db@null.invalid>",
+        clobberHeaders: {
+          Bcc: "=?UTF-8?Q?Hidden_Jalapen=CC=83o_<db@null.invalid>?=",
+        },
+      })
+      .toMessageString()
+  );
+  Assert.equal(message.recipients, "Chloë's Café <db@null.invalid>");
+  Assert.equal(message.ccList, "Pedro's Piñata <db@null.invalid>");
+  Assert.equal(message.bccList, "Hidden Jalapeño <db@null.invalid>");
+});
+
 add_task(function testSubject() {
   function test(subject, expectedSubject, charset) {
     const message = folder.addMessage(

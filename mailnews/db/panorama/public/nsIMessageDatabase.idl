@@ -26,6 +26,9 @@ interface nsIMessageDatabase : nsISupports {
                       in AUTF8String messageId,
                       in PRTime date,
                       in AUTF8String sender,
+                      in AUTF8String recipients,
+                      in AUTF8String ccList,
+                      in AUTF8String bccList,
                       in AUTF8String subject,
                       in unsigned long long flags,
                       in AUTF8String tags);
