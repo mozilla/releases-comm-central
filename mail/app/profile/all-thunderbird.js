@@ -260,6 +260,25 @@ pref("extensions.webextOptionalPermissionPrompts", true);
 // This does not work for S/MIME. See bug 1726442.
 pref("security.osclientcerts.autoload", false);
 
+// Refer to Firefox file browser/app/profile/firefox.js
+// for meaning of the security.sandbox.content prefs.
+#if defined(XP_WIN) && defined(MOZ_SANDBOX)
+  pref("security.sandbox.content.level", 8);
+  pref("security.sandbox.logging.enabled", false);
+#endif
+#if defined(XP_MACOSX) && defined(MOZ_SANDBOX)
+  pref("security.sandbox.content.level", 3);
+  pref("security.sandbox.content.mac.disconnect-windowserver", true);
+  pref("security.sandbox.logging.enabled", false);
+#endif
+#if defined(XP_LINUX) && defined(MOZ_SANDBOX)
+  pref("security.sandbox.content.level", 4);
+  pref("security.sandbox.socket.process.level", 1);
+  pref("security.sandbox.content.write_path_whitelist", "");
+  pref("security.sandbox.content.read_path_whitelist", "");
+  pref("security.sandbox.content.syscall_whitelist", "");
+#endif
+
 // Symmetric (can be overridden by individual extensions) update preferences.
 // e.g.
 //  extensions.{GUID}.update.enabled
