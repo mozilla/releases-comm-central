@@ -2193,6 +2193,9 @@ nsMsgDBView::Close() {
   if (mTree) mTree->RowCountChanged(0, -oldSize);
   if (mJSTree) mJSTree->RowCountChanged(0, -oldSize);
 
+  mTree = nullptr;
+  mJSTree = nullptr;
+
   ClearHdrCache();
   if (m_db) {
     m_db->RemoveListener(this);
