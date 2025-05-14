@@ -40,6 +40,7 @@
 #include "nsURLHelper.h"  // For net_ParseContentType().
 #include "mozilla/Span.h"
 #include "HeaderReader.h"
+#include "nsIMimeConverter.h"
 
 using namespace mozilla;
 
@@ -195,6 +196,13 @@ RawHdr ParseMsgHeaders(mozilla::Span<const char> raw) {
     }
     return true;  // Keep going.
   });
+
+  nsCOMPtr<nsIMimeConverter> mimeConverter;
+  mimeConverter = do_GetService("@mozilla.org/messenger/mimeconverter;1");
+  mimeConverter->DecodeMimeHeaderToUTF8(out.sender, out.charset.get(), true,
+                                        true, out.sender);
+  mimeConverter->DecodeMimeHeaderToUTF8(out.subject, out.charset.get(), true,
+                                        true, out.subject);
 
   // Merge multiple "Cc:" values.
   out.ccList = StringJoin(","_ns, ccValues);

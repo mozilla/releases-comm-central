@@ -26,6 +26,8 @@ support-files = [
 
 ["test_messages.js"]
 
+["test_messageIngestion.js"]
+
 ["test_move.js"]
 
 ["test_msgFolders.js"]

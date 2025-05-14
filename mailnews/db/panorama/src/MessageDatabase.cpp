@@ -53,8 +53,6 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
     uint64_t aFolderId, const nsACString& aMessageId, PRTime aDate,
     const nsACString& aSender, const nsACString& aSubject, uint64_t aFlags,
     const nsACString& aTags, nsMsgKey* aKey) {
-  // TODO: normalise
-
   nsCOMPtr<mozIStorageStatement> stmt;
   DatabaseCore::GetStatement("AddMessage"_ns,
                              "INSERT INTO messages ( \
@@ -65,12 +63,13 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
                              getter_AddRefs(stmt));
 
   stmt->BindInt64ByName("folderId"_ns, aFolderId);
-  stmt->BindUTF8StringByName("messageId"_ns, aMessageId);
+  stmt->BindUTF8StringByName("messageId"_ns,
+                             DatabaseUtils::Normalize(aMessageId));
   stmt->BindInt64ByName("date"_ns, aDate);
-  stmt->BindUTF8StringByName("sender"_ns, aSender);
-  stmt->BindUTF8StringByName("subject"_ns, aSubject);
+  stmt->BindUTF8StringByName("sender"_ns, DatabaseUtils::Normalize(aSender));
+  stmt->BindUTF8StringByName("subject"_ns, DatabaseUtils::Normalize(aSubject));
   stmt->BindInt64ByName("flags"_ns, aFlags);
-  stmt->BindUTF8StringByName("tags"_ns, aTags);
+  stmt->BindUTF8StringByName("tags"_ns, DatabaseUtils::Normalize(aTags));
 
   bool hasResult;
   nsresult rv = stmt->ExecuteStep(&hasResult);
