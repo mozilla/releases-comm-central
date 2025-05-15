@@ -5,10 +5,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 <!DOCTYPE html>
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title data-l10n-id="about-policies-title" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src chrome:; script-src chrome: 'unsafe-inline'; style-src chrome: 'unsafe-inline'"
+    />
     <link
       rel="stylesheet"
       href="chrome://messenger/skin/aboutPolicies.css"
@@ -20,10 +23,7 @@
       rel="localization"
       href="messenger/policies/policies-descriptions.ftl"
     />
-    <script
-      type="application/javascript"
-      src="chrome://messenger/content/policies/aboutPolicies.js"
-    />
+    <script src="chrome://messenger/content/policies/aboutPolicies.js"></script>
   </head>
   <body id="body" onload="init()">
     <div id="categories">
