@@ -661,27 +661,15 @@ export class MessageSend {
             // errMsg is an already localized message, usually combined with the
             // error message from SMTP server.
             errorMsg = errMsg;
-          } else if (errorName != "sendFailed") {
-            // Not the default string. A mailnews error occurred that does not
-            // require the server name to be encoded. Just print the descriptive
-            // string.
-            errorMsg = this._composeBundle.GetStringFromName(errorName);
           } else {
-            errorMsg = this._composeBundle.GetStringFromName(
-              "sendFailedUnexpected"
-            );
-            // nsIStringBundle.formatStringFromName doesn't work with %X.
-            errorMsg.replace("%X", `0x${exitCode.toString(16)}`);
-            errorMsg =
-              "\n" +
-              lazy.MsgUtils.formatStringWithSMTPHostName(
-                this._userIdentity,
-                this._composeBundle,
-                "smtpSendFailedUnknownReason"
-              );
+            // May be the default string "sendFailed". Should be and error that
+            //  does require the server name to be encoded.
+            errorMsg = this._composeBundle.GetStringFromName(errorName);
           }
         }
       }
+      this.notifyListenerOnStopSending(null, exitCode, null, null);
+      this.fail(exitCode, errorMsg);
       if (isNSSError) {
         this.notifyListenerOnTransportSecurityError(
           null,
@@ -690,8 +678,6 @@ export class MessageSend {
           serverURI.asciiHostPort
         );
       }
-      this.notifyListenerOnStopSending(null, exitCode, null, null);
-      this.fail(exitCode, errorMsg);
       return;
     }
 
