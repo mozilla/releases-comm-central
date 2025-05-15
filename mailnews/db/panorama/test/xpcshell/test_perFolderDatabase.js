@@ -212,7 +212,9 @@ add_task(async function testFolderInfo() {
   );
 
   Assert.equal(folderInfo.numMessages, 4);
+  Assert.equal(folderA.getTotalMessages(false), 4);
   Assert.equal(folderInfo.numUnreadMessages, 2);
+  Assert.equal(folderA.getNumUnread(false), 2);
 });
 
 add_task(async function testFolderProperties() {

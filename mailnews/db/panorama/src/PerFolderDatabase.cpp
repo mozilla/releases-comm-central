@@ -719,15 +719,19 @@ NS_IMETHODIMP FolderInfo::ChangeNumMessages(int32_t aDelta) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP FolderInfo::GetNumUnreadMessages(int32_t* aNumUnreadMessages) {
-  return mMessageDatabase->GetNumUnread(mFolder->GetId(),
-                                        (uint64_t*)aNumUnreadMessages);
+  uint64_t out;
+  nsresult rv = mMessageDatabase->GetNumUnread(mFolder->GetId(), &out);
+  *aNumUnreadMessages = (int32_t)out;
+  return rv;
 }
 NS_IMETHODIMP FolderInfo::SetNumUnreadMessages(int32_t aNumUnreadMessages) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP FolderInfo::GetNumMessages(int32_t* aNumMessages) {
-  return mMessageDatabase->GetNumMessages(mFolder->GetId(),
-                                          (uint64_t*)aNumMessages);
+  uint64_t out;
+  nsresult rv = mMessageDatabase->GetNumMessages(mFolder->GetId(), &out);
+  *aNumMessages = (int32_t)out;
+  return rv;
 }
 NS_IMETHODIMP FolderInfo::SetNumMessages(int32_t aNumMessages) {
   return NS_ERROR_NOT_IMPLEMENTED;
