@@ -94,6 +94,9 @@ NS_IMETHODIMP PerFolderDatabase::NotifyAnnouncerGoingAway(void) {
 
 // nsIMsgDatabase:
 
+NS_IMETHODIMP PerFolderDatabase::OpenFromFile(nsIFile* aFolderName) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
 NS_IMETHODIMP PerFolderDatabase::Close(bool aForceCommit) { return NS_OK; }
 NS_IMETHODIMP PerFolderDatabase::Commit(nsMsgDBCommit aCommitType) {
   return NS_OK;

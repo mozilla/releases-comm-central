@@ -5,6 +5,7 @@ prefs = [
   "mail.panorama.enabled=true",
 ]
 support-files = [
+  "data/**",
   "db/messages.sql",
   "db/move.sql",
   "db/relations.sql",
@@ -27,6 +28,8 @@ support-files = [
 ["test_messages.js"]
 
 ["test_messageIngestion.js"]
+
+["test_migration.js"]
 
 ["test_move.js"]
 

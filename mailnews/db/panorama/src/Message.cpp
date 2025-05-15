@@ -36,11 +36,16 @@ Message::Message(MessageDatabase* aDatabase, mozIStorageStatement* aStmt)
 
 NS_IMETHODIMP Message::SetStringProperty(const char* propertyName,
                                          const nsACString& propertyValue) {
+  // TODO: save keywords back to the database
   return mDatabase->SetMessageProperty(mId, nsCString(propertyName),
                                        propertyValue);
 }
 NS_IMETHODIMP Message::GetStringProperty(const char* propertyName,
                                          nsACString& propertyValue) {
+  if (!strcmp(propertyName, "keywords")) {
+    propertyValue.Assign(mTags);
+    return NS_OK;
+  }
   return mDatabase->GetMessageProperty(mId, nsCString(propertyName),
                                        propertyValue);
 }

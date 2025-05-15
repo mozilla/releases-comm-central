@@ -1064,10 +1064,12 @@ nsMsgDatabase::~nsMsgDatabase() {
   MOZ_LOG(DBLog, LogLevel::Info,
           ("closing database    %s", m_dbFile->HumanReadablePath().get()));
 
-  nsCOMPtr<nsIMsgDBService> serv(
-      do_GetService("@mozilla.org/msgDatabase/msgDBService;1"));
-  if (serv) {
-    static_cast<nsMsgDBService*>(serv.get())->RemoveFromCache(this);
+  if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+    nsCOMPtr<nsIMsgDBService> serv(
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1"));
+    if (serv) {
+      static_cast<nsMsgDBService*>(serv.get())->RemoveFromCache(this);
+    }
   }
 
   // if the db folder info refers to the mdb db, we must clear it because
@@ -1122,6 +1124,13 @@ nsresult nsMsgDatabase::Open(nsMsgDBService* aDBService, nsIFile* aFolderName,
   return nsMsgDatabase::OpenInternal(aDBService, aFolderName, aCreate,
                                      aLeaveInvalidDB,
                                      true /* open synchronously */);
+}
+
+NS_IMETHODIMP nsMsgDatabase::OpenFromFile(nsIFile* aFolderName) {
+  // This is here to open the database without using the database service.
+  // It is used only for migrating to the new global database.
+  MOZ_ASSERT(Preferences::GetBool("mail.panorama.enabled", false));
+  return nsMsgDatabase::OpenInternal(nullptr, aFolderName, false, false, true);
 }
 
 nsresult nsMsgDatabase::OpenInternal(nsMsgDBService* aDBService,
@@ -1240,7 +1249,7 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
       summaryFile->Remove(false);  // blow away the db if it's corrupt.
     }
   }
-  if (sync &&
+  if (aDBService && sync &&
       (NS_SUCCEEDED(err) || err == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING)) {
     aDBService->AddToCache(this);
   }

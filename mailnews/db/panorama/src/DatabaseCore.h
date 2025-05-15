@@ -40,11 +40,15 @@ class DatabaseCore : public nsIDatabaseCore,
 
  private:
   friend class FolderDatabase;
+  friend class FolderMigrator;
   friend class MessageDatabase;
   friend class PerFolderDatabase;
 
   static nsresult GetStatement(const nsACString& aName, const nsACString& aSQL,
                                mozIStorageStatement** aStmt);
+  static nsresult CreateSavepoint(const nsACString& name);
+  static nsresult ReleaseSavepoint(const nsACString& name);
+  static nsresult RollbackToSavepoint(const nsACString& name);
 
  private:
   friend class LiveView;

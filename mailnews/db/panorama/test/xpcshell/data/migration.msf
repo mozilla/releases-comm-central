@@ -1,0 +1,62 @@
+// <!-- <mdb:mork:z v="1.4"/> -->
+< <(a=c)> // (f=iso-8859-1)
+  (B8=applyToFlaggedMessages)(B9=daysToKeepBodies)(BA=cleanupBodies)
+  (BB=useServerDefaults)(BC=sortOrder)(BD=dateReceived)(BE=storeToken)
+  (BF=ProtoThreadFlags)(C0=sender_name)(C1=folderName)(C2=customSortCol)
+  (C3=keywords)(C4=imageSize)(C5=junkscore)(C6=account)(C7=gloda-id)
+  (C8=gloda-dirty)(C9=notAPhishMessage)(CA=growKeywords)
+  (80=ns:msg:db:row:scope:msgs:all)(81=subject)(82=sender)(83=message-id)
+  (84=references)(85=recipients)(86=date)(87=size)(88=flags)(89=priority)
+  (8A=label)(8B=numLines)(8C=ccList)(8D=bccList)(8E=msgThreadId)
+  (8F=threadId)(90=threadFlags)(91=threadNewestMsgDate)(92=children)
+  (93=unreadChildren)(94=threadSubject)(95=msgCharSet)
+  (96=ns:msg:db:table:kind:msgs)(97=ns:msg:db:table:kind:thread)
+  (98=ns:msg:db:table:kind:allthreads)
+  (99=ns:msg:db:row:scope:threads:all)(9A=threadParent)(9B=threadRoot)
+  (9C=msgOffset)(9D=offlineMsgSize)(9E=uidOnServer)
+  (9F=ns:msg:db:row:scope:dbfolderinfo:all)
+  (A0=ns:msg:db:table:kind:dbfolderinfo)(A1=numMsgs)(A2=numNewMsgs)
+  (A3=folderSize)(A4=expungedBytes)(A5=folderDate)(A6=highWaterKey)
+  (A7=mailboxName)(A8=UIDValidity)(A9=totPendingMsgs)
+  (AA=unreadPendingMsgs)(AB=expiredMark)(AC=version)(AD=forceReparse)
+  (AE=fixedBadRefThreading)(AF=MRUTime)(B0=daysToKeepHdrs)
+  (B1=numHdrsToKeep)(B2=viewType)(B3=viewFlags)(B4=sortType)(B5=retainBy)
+  (B6=sortColumns)(B7=useServerRetention)>
+<(80=1)(96=fffffffe)(92=395e7958)(81=0)>
+[1:m(^9B=1)(^8F^96)(^91^92)(^90=0)(^92=1)(^93=0)]
+<(8B=2)>[2:m(^9B=2)(^8F=2)(^91=0)(^90=0)(^92=0)(^93=0)]
+<(88=3)(A7=632017b0)>[3:m(^9B=3)(^8F=3)(^91^A7)(^90=0)(^92=1)(^93=1)]
+
+<(8E="Cicero Kutch" <cicero.kutch@invalid>)(8F
+    =Secured value-added orchestration)(90=162378@invalid)(91=)(9A=242)
+  (94=9)(95=ffffffff)(97=0|Cicero Kutch <cicero.kutch@invalid>)(99
+    ==?UTF-8?Q?Rene=CC=81e_Alsom?= <renee.alsom@invalid>)(AF=\$label5)
+  (A4==?UTF-8?Q?"Zo=C3=AB_Yundt"?= <zoe.yundt@invalid>)(A5
+    =Intuitive full-range analyzer)(A6=345692@invalid)(A8=177)(A9=4)
+  (AC=1143)(AB=0|"Zo$C3$AB Yundt" <zoe.yundt@invalid>)>
+{1:^80 {(k^96:c)(s=9)} 
+  [1(^88=1)(^82^8E)(^81^8F)(^83^90)(^84=)(^BD^92)(^86^92)(^89=1)(^87^9A)
+    (^8B=9)(^BE=0)(^9A^95)(^8E^96)(^BF=0)(^C0^97)(^85^99)(^C3^AF)(^C8=1)
+    (^CA=1)]
+  [3(^88=0)(^82^A4)(^81^A5)(^83^A6)(^84=)(^BD^A7)(^86^A7)(^89=1)(^87^A8)
+    (^8B=4)(^BE^AC)(^9A^95)(^8E=3)(^BF=0)(^C0^AB)]}
+{FFFFFFFE:^80 {(k^97:c)(s=9)1:m } 1 }
+{3:^80 {(k^97:c)(s=9)3:m } 3 }
+{FFFFFFFD:^99 {(k^98:c)(s=9)} [FFFFFFFE(^94^8F)]
+  [3(^94^A5)]}
+
+<(AD=1747364552)(83=1e)(84=7d0)(85=12)(8C=5f7)(8D=6826aabe)(89=$122)
+  (AE=669)>
+{1:^9F {(k^A0:c)(s=9)} 
+  [1(^AC=1)(^AD=0)(^AE=1)(^AF^AD)(^A1=2)(^B0=1e)(^B1^84)(^A2=1)(^B2=0)
+    (^B3=1)(^B4=12)(^B5=1)(^A3^8C)(^A5^8D)(^A6=3)(^B6^89)(^B7=1)(^B8=0)
+    (^B9=0)(^BA=0)(^BB=1)(^A4^AE)(^BC=2)]}
+
+@$${C{@
+@$$}C}@
+
+@$${D{@
+@$$}D}@
+
+@$${E{@
+@$$}E}@

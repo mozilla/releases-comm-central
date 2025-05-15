@@ -271,6 +271,12 @@ struct RawHdr {
 
 [scriptable, uuid(b64e66f8-4717-423a-be42-482658fb2199)]
 interface nsIMsgDatabase : nsIDBChangeAnnouncer {
+  /**
+   * Open a database directly, without using the database service. Used only
+   * migrating to the new global database.
+   */
+  void openFromFile(in nsIFile aFolderName);
+
   void close(in boolean aForceCommit);
 
   void commit(in nsMsgDBCommit commitType);

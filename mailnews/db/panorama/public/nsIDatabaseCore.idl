@@ -7,6 +7,7 @@
 interface mozIStorageConnection;
 interface nsIFolderDatabase;
 interface nsIMessageDatabase;
+interface nsIMsgFolder;
 
 [scriptable, builtinclass, uuid(f7aa8063-35b5-4692-829c-a49eff539064)]
 interface nsIDatabaseCore : nsISupports {
@@ -25,6 +26,13 @@ interface nsIDatabaseCore : nsISupports {
    * Access to the messages table on the database.
    */
   [infallible] readonly attribute nsIMessageDatabase messages;
+
+  /**
+   * Migrate a folder's messages from its message summary into the new database.
+   *
+   * Returns a Promise that resolves when migration of the folder is complete.
+   */
+  [implicit_jscontext] Promise migrateFolderDatabase(in nsIMsgFolder srcFolder);
 
   /**
    * Access to the database for testing purposes only. If you are not a test,
