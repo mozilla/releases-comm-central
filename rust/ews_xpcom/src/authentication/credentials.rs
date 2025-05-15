@@ -61,7 +61,7 @@ pub(crate) trait AuthenticationProvider {
     fn username(&self) -> Result<nsCString, nsresult>;
 
     /// Retrieves the password to use if using Basic auth.
-    fn password(&self) -> Result<nsCString, nsresult>;
+    fn password(&self) -> Result<nsString, nsresult>;
 
     /// Creates and initializes an OAuth2 module.
     ///
@@ -72,8 +72,8 @@ pub(crate) trait AuthenticationProvider {
     fn get_credentials(&self) -> Result<Credentials, nsresult> {
         match self.auth_method()? {
             nsMsgAuthMethod::passwordCleartext => Ok(Credentials::Basic {
-                username: self.username()?.to_utf8().into(),
-                password: self.password()?.to_utf8().into(),
+                username: self.username()?.to_string(),
+                password: self.password()?.to_string(),
             }),
             nsMsgAuthMethod::OAuth2 => {
                 // Ensure the OAuth2 module indicated it can support this provider.
@@ -104,15 +104,10 @@ impl AuthenticationProvider for &nsIMsgIncomingServer {
         Ok(username)
     }
 
-    fn password(&self) -> Result<nsCString, nsresult> {
-        let mut buf = nsString::new();
+    fn password(&self) -> Result<nsString, nsresult> {
+        let mut password = nsString::new();
 
-        unsafe { self.GetPassword(&mut *buf) }.to_result()?;
-
-        // nsIMsgIncomingServer::password is an nsAString (and not an
-        // nsACString) because we have a hot crush on inconsistency.
-        let mut password = nsCString::new();
-        password.assign_utf16_to_utf8(buf.as_ref());
+        unsafe { self.GetPassword(&mut *password) }.to_result()?;
 
         Ok(password)
     }

@@ -83,6 +83,20 @@ const SYNC_FOLDER_ITEMS_RESPONSE_BASE = `${EWS_SOAP_HEAD}
     </m:SyncFolderItemsResponse>
 ${EWS_SOAP_FOOT}`;
 
+const CREATE_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
+    <m:CreateItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                          xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+      <m:ResponseMessages>
+        <m:CreateItemResponseMessage ResponseClass="Success">
+          <m:ResponseCode>NoError</m:ResponseCode>
+          <m:Items />
+        </m:CreateItemResponseMessage>
+      </m:ResponseMessages>
+    </m:CreateItemResponse>
+${EWS_SOAP_FOOT}`;
+
 /**
  * A remote folder to sync from the EWS server. While initiating a test, an
  * array of folders is given to the EWS server, which will use it to populate
@@ -188,6 +202,15 @@ export class EwsServer {
    */
   #serializer;
 
+  /**
+   * The value of the `Authorization` value as read from the latest request.
+   *
+   * If no such header was found in the latest request, this is an empty string.
+   *
+   * @type {string}
+   */
+  #lastAuthorizationValue;
+
   constructor() {
     this.#httpServer = new HttpServer();
     this.#httpServer.registerPathHandler(
@@ -236,6 +259,17 @@ export class EwsServer {
   }
 
   /**
+   * The value of the `Authorization` value as read from the latest request.
+   *
+   * If no such header was found in the latest request, this is an empty string.
+   *
+   * @type {string}
+   */
+  get lastAuthorizationValue() {
+    return this.#lastAuthorizationValue;
+  }
+
+  /**
    * Set the exclusive list of folders this server should use to generate
    * responses. If this method is called more than once, the previous list of
    * folders is replaced by the new one.
@@ -279,6 +313,13 @@ export class EwsServer {
    * @throws Throws if no supported EWS operation could be found.
    */
   #requestHandler(request, response) {
+    // Try to read the value of the `Authorization` header.
+    if (request.hasHeader("Authorization")) {
+      this.#lastAuthorizationValue = request.getHeader("Authorization");
+    } else {
+      this.#lastAuthorizationValue = "";
+    }
+
     // Read the request content and parse it as XML.
     const reqBytes = CommonUtils.readBytesFromInputStream(
       request.bodyInputStream
@@ -293,6 +334,8 @@ export class EwsServer {
       resBytes = this.#generateGetFolderResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("SyncFolderItems").length) {
       resBytes = this.#generateSyncFolderItemsResponse(reqDoc);
+    } else if (reqDoc.getElementsByTagName("CreateItem").length) {
+      resBytes = this.#generateCreateItemResponse(reqDoc);
     } else {
       throw new Error("Unexpected EWS operation");
     }
@@ -480,6 +523,21 @@ export class EwsServer {
 
     // Serialize the response to a string that the consumer can return in a response.
     return this.#serializer.serializeToString(resDoc);
+  }
+
+  /**
+   * Generate a response to a SyncFolderItems operation.
+   *
+   * Currently, generated responses will always serve a static success report.
+   *
+   * @see
+   * {@link https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message#successful-createitem-response}
+   * @param {XMLDocument} _reqDoc - The parsed document for the request to
+   * respond to.
+   * @returns {string} A serialized XML document.
+   */
+  #generateCreateItemResponse(_reqDoc) {
+    return CREATE_ITEM_RESPONSE_BASE;
   }
 
   /**

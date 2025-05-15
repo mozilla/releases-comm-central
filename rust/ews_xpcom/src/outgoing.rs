@@ -15,6 +15,7 @@ use nserror::nsresult;
 use nserror::NS_OK;
 use nsstring::{nsACString, nsCString, nsString};
 use url::Url;
+use xpcom::interfaces::{nsILoginInfo, nsILoginManager};
 use xpcom::{create_instance, get_service, getter_addrefs, nsIID};
 use xpcom::{
     interfaces::{
@@ -665,8 +666,57 @@ impl AuthenticationProvider for &EwsOutgoingServer {
         self.string_pref_getter(&self.username, PrefName::Username, FieldType::Required)
     }
 
-    fn password(&self) -> Result<nsCString, nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+    fn password(&self) -> Result<nsString, nsresult> {
+        let ews_url = self.ews_url()?;
+
+        // The URI we use to store logins into the login manager uses the format
+        // "protocol://hostname", so start by building one that matches.
+        let login_uri = match ews_url.host() {
+            Some(host) => nsString::from(format!("ews://{}", host).as_str()),
+            None => {
+                log::error!("cannot get host from invalid EWS URI: {}", ews_url.as_str());
+                return Err(nserror::NS_ERROR_FAILURE);
+            }
+        };
+
+        // Get the login manager so we can look up the password for the account.
+        let login_mgr = get_service::<nsILoginManager>(c"@mozilla.org/login-manager;1")
+            .ok_or(nserror::NS_ERROR_FAILURE)?;
+
+        // Get every logins for the current server. An array of references is
+        // represented over XPCOM as a `ThinVec<Option<RefPtr<_>>>`, with `None`
+        // representing a null pointer.
+        let mut logins: ThinVec<Option<RefPtr<nsILoginInfo>>> = ThinVec::new();
+        unsafe { login_mgr.FindLogins(&*login_uri, &*nsString::new(), &*login_uri, &mut logins) }
+            .to_result()?;
+
+        // Try to identify logins that match the account's username.
+        let server_username = self.username()?;
+        let logins = logins
+            .into_iter()
+            // Filter out empty options.
+            .filter_map(|login| login)
+            // Filter out logins that don't match the correct username.
+            .filter(|login| {
+                let mut username = nsString::new();
+                let status = unsafe { login.GetUsername(&mut *username) };
+                status.succeeded() && username.to_string() == server_username.to_string()
+            })
+            .collect::<Vec<_>>();
+
+        // If we got at least one match, use the first one.
+        if let Some(login) = logins.get(0) {
+            let mut password = nsString::new();
+
+            unsafe { login.GetPassword(&mut *password) }.to_result()?;
+
+            Ok(password)
+        } else {
+            // It looks like `nsMsgIncomingServer`'s implementation is to return
+            // an empty string if it cannot find a matching login, so let's
+            // match this behaviour for consistency.
+            Ok(nsString::new())
+        }
     }
 
     fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult> {
