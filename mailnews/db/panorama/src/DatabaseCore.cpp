@@ -140,6 +140,10 @@ nsresult DatabaseCore::EnsureConnection() {
             ("database file does not exist, creating"));
     // Please keep mailnews/db/panorama/test/xpcshell/head.js in sync with
     // changes to the following code.
+    rv = sConnection->ExecuteSimpleSQL("PRAGMA journal_mode=WAL;"_ns);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = sConnection->ExecuteSimpleSQL("PRAGMA cache_size=-200000;"_ns);
+    NS_ENSURE_SUCCESS(rv, rv);
     rv = sConnection->ExecuteSimpleSQL(
         "CREATE TABLE folders ( \
           id INTEGER PRIMARY KEY, \
@@ -182,7 +186,13 @@ nsresult DatabaseCore::EnsureConnection() {
         );"_ns);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = sConnection->ExecuteSimpleSQL(
+        "CREATE INDEX messages_folderId ON messages(folderId);"_ns);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = sConnection->ExecuteSimpleSQL(
         "CREATE INDEX messages_date ON messages(date);"_ns);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = sConnection->ExecuteSimpleSQL(
+        "CREATE INDEX messages_flags ON messages(flags);"_ns);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 

@@ -29,6 +29,8 @@ function installDB(sql) {
 
   const dbConnection = Services.storage.openDatabase(dbFile);
   dbConnection.executeSimpleSQL(`
+    PRAGMA journal_mode=WAL;
+    PRAGMA cache_size=-200000;
     CREATE TABLE folders (
       id INTEGER PRIMARY KEY,
       parent INTEGER REFERENCES folders(id),
@@ -62,7 +64,9 @@ function installDB(sql) {
       value ANY,
       PRIMARY KEY(id, name)
     );
+    CREATE INDEX messages_folderId ON messages(folderId);
     CREATE INDEX messages_date ON messages(date);
+    CREATE INDEX messages_flags ON messages(flags);
   `);
   if (sql) {
     dbConnection.executeSimpleSQL(sql);

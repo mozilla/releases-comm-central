@@ -3814,6 +3814,16 @@ NS_IMETHODIMP nsMsgDBFolder::GetNumUnread(bool deep, int32_t* numUnread) {
   bool isServer = false;
   nsresult rv = GetIsServer(&isServer);
   NS_ENSURE_SUCCESS(rv, rv);
+#ifdef MOZ_PANORAMA
+  if (!isServer && Preferences::GetBool("mail.panorama.enabled", false)) {
+    nsCOMPtr<nsIMsgDatabase> db;
+    nsCOMPtr<nsIDBFolderInfo> folderInfo;
+    rv = GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
+    if (NS_SUCCEEDED(rv)) {
+      folderInfo->GetNumUnreadMessages(&mNumUnreadMessages);
+    }
+  }
+#endif  // MOZ_PANORAMA
   int32_t total = isServer ? 0 : mNumUnreadMessages + mNumPendingUnreadMessages;
 
   if (deep) {
@@ -3842,6 +3852,16 @@ NS_IMETHODIMP nsMsgDBFolder::GetTotalMessages(bool deep,
   bool isServer = false;
   nsresult rv = GetIsServer(&isServer);
   NS_ENSURE_SUCCESS(rv, rv);
+#ifdef MOZ_PANORAMA
+  if (!isServer && Preferences::GetBool("mail.panorama.enabled", false)) {
+    nsCOMPtr<nsIMsgDatabase> db;
+    nsCOMPtr<nsIDBFolderInfo> folderInfo;
+    rv = GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
+    if (NS_SUCCEEDED(rv)) {
+      folderInfo->GetNumMessages(&mNumTotalMessages);
+    }
+  }
+#endif  // MOZ_PANORAMA
   int32_t total = isServer ? 0 : mNumTotalMessages + mNumPendingTotalMessages;
 
   if (deep) {
