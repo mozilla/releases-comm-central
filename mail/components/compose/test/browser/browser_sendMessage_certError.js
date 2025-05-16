@@ -86,33 +86,37 @@ async function subtest(serverDef, hostname, expectedDialogText, expectedCert) {
 
   const { composeWindow, subject } = await newComposeWindow();
 
-  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
-    undefined,
-    "chrome://pippki/content/exceptionDialog.xhtml",
-    {
-      callback(win) {
-        const location = win.document.getElementById("locationTextBox").value;
-        Assert.equal(
-          location,
-          `${hostname}:465`,
-          "the exception dialog should show the hostname and port of the server"
-        );
-        const text = win.document.getElementById(
-          "statusLongDescription"
-        ).textContent;
-        Assert.stringContains(
-          text,
-          expectedDialogText,
-          "the exception dialog should state the problem"
-        );
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen("accept").then(
+    () =>
+      BrowserTestUtils.promiseAlertDialogOpen(
+        undefined,
+        "chrome://pippki/content/exceptionDialog.xhtml",
+        {
+          callback(win) {
+            const location =
+              win.document.getElementById("locationTextBox").value;
+            Assert.equal(
+              location,
+              `${hostname}:465`,
+              "the exception dialog should show the hostname and port of the server"
+            );
+            const text = win.document.getElementById(
+              "statusLongDescription"
+            ).textContent;
+            Assert.stringContains(
+              text,
+              expectedDialogText,
+              "the exception dialog should state the problem"
+            );
 
-        EventUtils.synthesizeMouseAtCenter(
-          win.document.querySelector("dialog").getButton("extra1"),
-          {},
-          win
-        );
-      },
-    }
+            EventUtils.synthesizeMouseAtCenter(
+              win.document.querySelector("dialog").getButton("extra1"),
+              {},
+              win
+            );
+          },
+        }
+      )
   );
 
   composeWindow.document.getElementById("toAddrInput").focus();
@@ -123,12 +127,6 @@ async function subtest(serverDef, hostname, expectedDialogText, expectedCert) {
   );
 
   await dialogPromise;
-  // FIXME: At this point, an alert appears and tells the user that sending
-  // failed because of the bad certificate, which is true but redundant,
-  // especially if we just added an exception. I think the alert is meant to
-  // happen before the exception dialog but this got broken somewhere.
-  // See bug 1853440.
-  await BrowserTestUtils.promiseAlertDialogOpen("accept");
 
   // Try to solve strange focus issues.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
