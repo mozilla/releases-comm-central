@@ -31,14 +31,17 @@ as they wish, without reference to anyone else.
 
 The Thunderbird Council is the elected governing body for the Thunderbird
 Project, including the code modules that develop the code in Thunderbird
-product\(s\)\. It is the top\-level module of the project, and Peers are
-members of the Council\.
- To read the details about the qualifications and expectations of Council
-members, please see the \[Council Bylaws on GitHub\]\(https://github\.com/thund
-erbird/council\-docs/blob/main/BY\_LAWS\.md\#election\-procedure\)\.
- Below you can find a list of all current council members along with their
-bugzilla\.mozilla\.org \\\(BMO\\\) handle\.
-To contact the council members, please email \<council@thunderbird\.net\>\.
+product\(s\)\.
+It is the top\-level module of the project, and Peers are members of the
+Council\.
+To read the details about the qualifications and expectations of Council
+members,
+please see the Council Bylaws \(https://github\.com/thunderbird/council\-
+docs/blob/main/BY\_LAWS\.md\#election\-procedure\)\.
+Below you can find a list of all current council members along with their
+bugzilla\.mozilla\.org
+\(BMO\) handle\. To contact the council members, please email
+\<council@thunderbird\.net\>\.
 
 ```{list-table}
 ---
@@ -47,14 +50,14 @@ widths: 30 70
 ---
 * - Owner(s)
   -
-    * [Danny Colin (sdk)](https://people.mozilla.org/s?query=sdk)
+    * [Philipp Kewisch (Fallen)](https://people.mozilla.org/s?query=Fallen)
 * - Peer(s)
   -
-    * [John Bieling (TbSync)](https://people.mozilla.org/s?query=TbSync)
     * [Patrick Cloke (clokep)](https://people.mozilla.org/s?query=clokep)
-    * [Philipp Kewisch (Fallen)](https://people.mozilla.org/s?query=Fallen)
     * [Teal Dulcet (tdulcet)](https://people.mozilla.org/s?query=tdulcet)
-    * [Kai Engert (KaiE)](https://people.mozilla.org/s?query=KaiE)
+    * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
+    * [Tim Maks van den Broek (mad_maks)](https://people.mozilla.org/s?query=mad_maks)
+    * [Michele Zelco (micz)](https://people.mozilla.org/s?query=micz)
 * - Includes
   -
     * README.md
