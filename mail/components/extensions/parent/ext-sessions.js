@@ -24,14 +24,29 @@ this.sessions = class extends ExtensionAPI {
     return {
       sessions: {
         setTabValue(tabId, key, value) {
+          if (!context.extension.hasPermission("sessions")) {
+            console.warn(
+              "Following Firefox, Thunderbird will soon require the `sessions` permission in order to use sessions.setTabValue()."
+            );
+          }
           const sessionData = getSessionData(tabId, context.extension);
           sessionData[key] = value;
         },
         getTabValue(tabId, key) {
+          if (!context.extension.hasPermission("sessions")) {
+            console.warn(
+              "Following Firefox, Thunderbird will soon require the `sessions` permission in order to use sessions.getTabValue()."
+            );
+          }
           const sessionData = getSessionData(tabId, context.extension);
           return sessionData[key];
         },
         removeTabValue(tabId, key) {
+          if (!context.extension.hasPermission("sessions")) {
+            console.warn(
+              "Following Firefox, Thunderbird will soon require the `sessions` permission in order to use sessions.removeTabValue()."
+            );
+          }
           const sessionData = getSessionData(tabId, context.extension);
           delete sessionData[key];
         },

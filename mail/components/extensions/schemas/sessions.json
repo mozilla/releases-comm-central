@@ -1,5 +1,19 @@
 [
   {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enum": ["sessions"]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "namespace": "sessions",
     "functions": [
       {

@@ -82,7 +82,7 @@ add_task(async function test_sessions_data() {
           id: "sessions@mochi.test",
         },
       },
-      permissions: ["tabs"],
+      permissions: ["tabs", "sessions"],
     },
   });
 
