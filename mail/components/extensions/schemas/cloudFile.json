@@ -33,7 +33,7 @@
                 "type": "string",
                 "format": "relativeUrl",
                 "preprocess": "localize",
-                "description": "A page for configuring accounts, to be displayed in the preferences UI. **Note:** Within this UI only a limited subset of the WebExtension APIs is available: <var>cloudFile</var>, <var>extension</var>, <var>i18n</var>, <var>runtime</var>, <var>storage</var>, <var>test</var>."
+                "description": "A page for configuring accounts, to be displayed in the preferences UI. **Note:** Within this UI only a limited subset of the WebExtension APIs is available: <var>cloudFile</var>, <var>extension</var>, <var>i18n</var>, <var>runtime</var>, <var>storage</var>. The id of the to be configured cloud file account can be retrieved via <code>new URL(location.href).searchParams.get('accountId');</code>."
               },
               "name": {
                 "type": "string",
