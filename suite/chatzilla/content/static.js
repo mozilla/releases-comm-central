@@ -1603,6 +1603,13 @@ function updateSecurityIcon() {
       break;
     case "IRCDCCChat":
       label = o.chat.viewName;
+      if (o.chat.state.state == 4) {
+        label = client.bundle.getFormattedString("dccChatConnected", [
+          label,
+          o.chat.remoteIP,
+          o.chat.port,
+        ]);
+      }
       url = o.chat.getURL();
       break;
     default:

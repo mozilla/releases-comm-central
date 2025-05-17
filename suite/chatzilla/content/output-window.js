@@ -23,12 +23,6 @@ var headers = {
     update: updateChannel,
   },
 
-  IRCDCCChat: {
-    prefix: "dcc-chat-",
-    fields: ["container", "remotestr", "title"],
-    update: updateDCCChat,
-  },
-
   IRCDCCFileTransfer: {
     prefix: "dcc-file-",
     fields: ["container", "file", "progress", "progressbar"],
@@ -361,16 +355,6 @@ function updateChannel() {
   } else {
     setText("topicnodes", MSG_UNKNOWN);
   }
-}
-
-function updateDCCChat() {
-  if (view.state.state == 4) {
-    setText("remotestr", view.remoteIP + ":" + view.port, true);
-  } else {
-    setText("remotestr", null, true);
-  }
-
-  setText("title", getMsg(MSG_TITLE_DCCCHAT, view.user.unicodeName));
 }
 
 function updateDCCFile() {
