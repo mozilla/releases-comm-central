@@ -6217,17 +6217,6 @@ nsresult nsMsgIMAPFolderACL::CreateACLRightsString(nsAString& aRightsString) {
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetFilePath(nsIFile** aPathName) {
-  // this will return a copy of mPath, which is what we want.
-  // this will also initialize mPath using parseURI if it isn't already done
-  return nsMsgDBFolder::GetFilePath(aPathName);
-}
-
-NS_IMETHODIMP nsImapMailFolder::SetFilePath(nsIFile* aPathName) {
-  return nsMsgDBFolder::SetFilePath(
-      aPathName);  // call base class so mPath will get set
-}
-
 nsresult nsImapMailFolder::DisplayStatusMsg(nsIImapUrl* aImapUrl,
                                             const nsAString& msg) {
   nsCOMPtr<nsIImapMockChannel> mockChannel;

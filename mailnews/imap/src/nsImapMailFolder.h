@@ -293,9 +293,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   NS_IMETHOD GetNewMessages(nsIMsgWindow* aWindow,
                             nsIUrlListener* aListener) override;
 
-  NS_IMETHOD GetFilePath(nsIFile** aPathName) override;
-  NS_IMETHOD SetFilePath(nsIFile* aPath) override;
-
   NS_IMETHOD Shutdown(bool shutdownChildren) override;
 
   NS_IMETHOD DownloadMessagesForOffline(
