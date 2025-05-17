@@ -23,12 +23,6 @@ var headers = {
     update: updateChannel,
   },
 
-  IRCUser: {
-    prefix: "usr-",
-    fields: ["container", "url-anchor", "serverstr", "title", "descnodes"],
-    update: updateUser,
-  },
-
   IRCDCCChat: {
     prefix: "dcc-chat-",
     fields: ["container", "remotestr", "title"],
@@ -366,36 +360,6 @@ function updateChannel() {
     }
   } else {
     setText("topicnodes", MSG_UNKNOWN);
-  }
-}
-
-function updateUser() {
-  var source;
-  if (view.name) {
-    source = "<" + view.name + "@" + view.host + ">";
-  } else {
-    source = MSG_UNKNOWN;
-  }
-
-  if (view.parent.isConnected) {
-    setText("serverstr", view.connectionHost, true);
-  } else {
-    setText("serverstr", null, true);
-  }
-
-  setText("title", getMsg(MSG_TITLE_USER, [view.unicodeName, source]));
-
-  if (header.descnodes.firstChild) {
-    header.descnodes.firstChild.remove();
-  }
-
-  if (typeof view.desc != "undefined") {
-    var data = getObjectDetails(view);
-    data.dontLogURLs = true;
-    var nodes = client.munger.munge(view.desc, null, data);
-    header.descnodes.appendChild(adoptNode(nodes));
-  } else {
-    setText("descnodes", "");
   }
 }
 

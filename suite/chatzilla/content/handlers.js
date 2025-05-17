@@ -2822,7 +2822,7 @@ CIRCNetwork.prototype.onAway = function (e) {
 
 /* user host changed */
 CIRCNetwork.prototype.onChghost = function (e) {
-  e.user.updateHeader();
+  updateSecurityIcon();
 };
 
 CIRCNetwork.prototype.updateUser = function (e, user) {
@@ -3566,7 +3566,7 @@ CIRCUser.prototype.onNick = function (e) {
     );
   }
 
-  this.updateHeader();
+  updateSecurityIcon();
   var tab = getTabForObject(this);
   if (tab) {
     tab.setAttribute("label", this.unicodeName);

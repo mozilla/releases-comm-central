@@ -1033,7 +1033,7 @@ function onUserPrefChanged(user, prefName, newValue, oldValue) {
     return;
   }
 
-  user.updateHeader();
+  updateSecurityIcon();
 
   switch (prefName) {
     case "font.family":

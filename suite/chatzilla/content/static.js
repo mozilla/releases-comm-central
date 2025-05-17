@@ -1596,6 +1596,9 @@ function updateSecurityIcon() {
       break;
     case "IRCUser":
       label = o.user.viewName;
+      if (o.server && o.server.isConnected) {
+        label = client.bundle.getFormattedString("conversationWith", [label]);
+      }
       url = o.user.getURL();
       break;
     case "IRCDCCChat":
