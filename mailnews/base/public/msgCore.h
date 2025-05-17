@@ -157,9 +157,6 @@ class nsIMsgFolder;
 // when local caches are password protect and user isn't auth
 #define NS_MSG_USER_NOT_AUTHENTICATED NS_MSG_GENERATE_FAILURE(30)
 
-#define NS_MSG_ERROR_COPYING_FROM_TMP_DOWNLOAD \
-  NS_MSG_GENERATE_FAILURE(31)  // pop3 downloaded to tmp file, and failed.
-
 // The code tried to stream a message using the aLocalOnly argument, but
 // the message was not cached locally.
 #define NS_MSG_ERROR_MSG_NOT_OFFLINE NS_MSG_GENERATE_FAILURE(32)
