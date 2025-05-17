@@ -81,7 +81,6 @@ function stock_initOutputWindow(newClient, newView, newClickHandler) {
   dd = mainWindow.dd;
 
   changeCSS(view.prefs["motif.current"]);
-  updateMotifSettings();
 
   var output = document.getElementById("output");
   output.appendChild(adoptNode(view.messages));
@@ -288,46 +287,6 @@ function scrollToElement(element, position) {
   }
 
   window.scrollTo(0, pos[position] - cont[position]);
-}
-
-function updateMotifSettings(existingTimeout) {
-  // Try... catch with a repeat to cope with the style sheet not being loaded
-  const TIMEOUT = 100;
-  try {
-    existingTimeout += TIMEOUT;
-    view.motifSettings = getMotifSettings();
-  } catch (ex) {
-    if (existingTimeout >= 30000) {
-      // Stop after trying for 30 seconds
-      return;
-    }
-    if (ex.name == "NS_ERROR_DOM_INVALID_ACCESS_ERR") {
-      //not ready, try again
-      setTimeout(updateMotifSettings, TIMEOUT, existingTimeout);
-    } // something else, panic!
-    else {
-      dd(ex);
-    }
-  }
-}
-
-function getMotifSettings() {
-  var re = new RegExp("czsettings\\.(\\w*)", "i");
-  var rules = document.getElementById("main-css").sheet.cssRules;
-  var rv = {};
-  var ary;
-  // Copy any settings, which are available in the motif using the
-  // "CZSETTINGS" selector. We only store the regexp match after checking
-  // the rule type because selectorText is not defined on other rule types.
-  for (var i = 0; i < rules.length; i++) {
-    if (
-      rules[i].type == CSSRule.STYLE_RULE &&
-      (ary = rules[i].selectorText.match(re)) != null
-    ) {
-      rv[ary[1]] = true;
-    }
-  }
-  return rv;
 }
 
 function adoptNode(node) {

@@ -1214,8 +1214,6 @@ function cmdSync(e) {
       fun = function () {
         view.changeCSS(view.prefs["motif.current"]);
         updateAppMotif(view.prefs["motif.current"]);
-        // Refresh the motif settings.
-        view.updateMotifSettings();
       };
       break;
 

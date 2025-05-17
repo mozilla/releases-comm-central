@@ -177,7 +177,6 @@ function init() {
   importFromFrame("setHeaderState");
   importFromFrame("changeCSS");
   importFromFrame("scrollToElement");
-  importFromFrame("updateMotifSettings");
   importFromFrame("removeUsers");
 
   processStartupScripts();
@@ -4235,30 +4234,27 @@ function addHistory(source, obj, mergeData) {
     let nickColumnCount = nickColumns.length;
 
     let lastRowSpan = 0;
-    let sameNick = false;
-    let samePrefix = false;
-    let sameDest = false;
-    let haveSameType = false;
+    let same = false;
     let isAction = false;
     let collapseActions;
-    let needSameType = false;
     // 1 or messages, check for doubles.
     if (nickColumnCount > 0) {
       var lastRow = nickColumns[nickColumnCount - 1].parentNode;
       // What was the span last time?
       lastRowSpan = Number(nickColumns[0].getAttribute("rowspan"));
       // Are we the same user as last time?
-      sameNick =
+      let sameNick =
         lastRow.getAttribute("msg-user") == inobj.getAttribute("msg-user");
       // Do we have the same prefix as last time?
-      samePrefix =
+      let samePrefix =
         lastRow.getAttribute("msg-prefix") == inobj.getAttribute("msg-prefix");
       // Do we have the same destination as last time?
-      sameDest =
+      let sameDest =
         lastRow.getAttribute("msg-dest") == inobj.getAttribute("msg-dest");
       // Is this message the same type as the last one?
-      haveSameType =
+      let sameType =
         lastRow.getAttribute("msg-type") == inobj.getAttribute("msg-type");
+      same = sameNick && samePrefix && sameDest && sameType;
       // Is either of the messages an action? We may not want to collapse
       // depending on the collapseActions pref
       isAction =
@@ -4266,23 +4262,9 @@ function addHistory(source, obj, mergeData) {
         lastRow.getAttribute("msg-type") == "ACTION";
       // Do we collapse actions?
       collapseActions = source.prefs.collapseActions;
-
-      // Does the motif collapse everything, regardless of type?
-      // NOTE: the collapseActions pref can override this for actions
-      needSameType = !(
-        "motifSettings" in source &&
-        source.motifSettings &&
-        "collapsemore" in source.motifSettings
-      );
     }
 
-    if (
-      sameNick &&
-      samePrefix &&
-      sameDest &&
-      (haveSameType || !needSameType) &&
-      (!isAction || collapseActions)
-    ) {
+    if (same && (!isAction || collapseActions)) {
       obj = inobj;
       if (columnInfo.nested) {
         appendTo =
