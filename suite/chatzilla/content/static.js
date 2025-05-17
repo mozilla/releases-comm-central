@@ -1577,6 +1577,7 @@ function updateProgress() {
 function updateSecurityIcon() {
   var o = getObjectDetails(client.currentObject);
   let label;
+  let url;
   switch (o.TYPE) {
     case "IRCClient":
       let k = Object.keys(client.networks).length;
@@ -1585,15 +1586,19 @@ function updateSecurityIcon() {
       break;
     case "IRCNetwork":
       label = o.network.viewName;
+      url = o.network.getURL();
       break;
     case "IRCChannel":
       label = o.channel.viewName;
+      url = o.channel.getURL();
       break;
     case "IRCUser":
       label = o.user.viewName;
+      url = o.user.getURL();
       break;
     case "IRCDCCChat":
       label = o.chat.viewName;
+      url = o.chat.getURL();
       break;
     default:
       label = "";
@@ -1601,6 +1606,11 @@ function updateSecurityIcon() {
   }
   let viewStatus = window.document.getElementById("view-status");
   viewStatus.label = label;
+  if (url) {
+    viewStatus.setAttribute("href", url);
+  } else {
+    viewStatus.removeAttribute("href");
+  }
 
   var securityButton = window.document.getElementById("security-button");
   securityButton.label = "";
