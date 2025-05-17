@@ -17,12 +17,6 @@ var getObjectDetails;
 
 var header = null;
 var headers = {
-  IRCNetwork: {
-    prefix: "net-",
-    fields: ["container", "url-anchor", "status"],
-    update: updateNetwork,
-  },
-
   IRCChannel: {
     prefix: "ch-",
     fields: [
@@ -358,26 +352,6 @@ function updateHeader() {
 
   if (header.update) {
     header.update();
-  }
-}
-
-function updateNetwork() {
-  if (view.state == mainWindow.NET_CONNECTING) {
-    setText("status", MSG_CONNECTING);
-    setAttribute("status", "condition", "yellow");
-    removeAttribute("status", "title");
-  } else if (view.isConnected()) {
-    setText("status", MSG_CONNECTED);
-    setAttribute("status", "condition", "green");
-    setAttribute(
-      "status",
-      "title",
-      getMsg(MSG_CONNECT_VIA, view.primServ.unicodeName)
-    );
-  } else {
-    setText("status", MSG_DISCONNECTED);
-    setAttribute("status", "condition", "red");
-    removeAttribute("status", "title");
   }
 }
 

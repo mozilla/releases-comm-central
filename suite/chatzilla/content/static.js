@@ -1578,11 +1578,13 @@ function updateSecurityIcon() {
   var o = getObjectDetails(client.currentObject);
   let label;
   let url;
+  let showCondition = !!o.network;
   switch (o.TYPE) {
     case "IRCClient":
       let k = Object.keys(client.networks).length;
       let c = client.getConnectionCount();
       label = client.bundle.getFormattedString("clientNetworks", [k, c]);
+      showCondition = false;
       break;
     case "IRCNetwork":
       label = o.network.viewName;
@@ -1605,6 +1607,26 @@ function updateSecurityIcon() {
       break;
   }
   let viewStatus = window.document.getElementById("view-status");
+  if (showCondition) {
+    let netstatus;
+    let condition;
+    if (o.network.state == NET_CONNECTING) {
+      netstatus = "netConnecting";
+      condition = "yellow";
+    } else if (o.server && o.server.isConnected) {
+      netstatus = "netConnected";
+      condition = "green";
+    } else {
+      netstatus = "netDisconnected";
+      condition = "red";
+    }
+    viewStatus.setAttribute("condition", condition);
+    if (o.TYPE == "IRCNetwork" || condition != "green") {
+      label = client.bundle.getFormattedString(netstatus, [label]);
+    }
+  } else {
+    viewStatus.removeAttribute("condition");
+  }
   viewStatus.label = label;
   if (url) {
     viewStatus.setAttribute("href", url);
@@ -3390,7 +3412,6 @@ client.connectToNetwork = function (networkOrName, requireSecurity) {
 
   network.connect(requireSecurity);
 
-  network.updateHeader();
   updateTitle();
   updateSecurityIcon();
 

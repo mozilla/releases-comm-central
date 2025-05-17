@@ -3,7 +3,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!ENTITY output.url.label "URL">
-<!ENTITY output.notconn.label "Not Connected">
 <!ENTITY output.mode.label "Mode">
 <!ENTITY output.users.label "Users">
 <!ENTITY output.topic.label "Topic">

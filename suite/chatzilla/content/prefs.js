@@ -859,7 +859,7 @@ function onNetworkPrefChanged(network, prefName, newValue, oldValue) {
     return;
   }
 
-  network.updateHeader();
+  updateSecurityIcon();
 
   switch (prefName) {
     case "nickname":

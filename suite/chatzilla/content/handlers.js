@@ -1162,7 +1162,6 @@ CIRCNetwork.prototype.on001 =
           // Welcome to history.
           addURLToHistory(this.getURL());
           updateTitle(this);
-          this.updateHeader();
           updateSecurityIcon();
           updateStalkExpression(this);
 
@@ -2596,17 +2595,14 @@ CIRCNetwork.prototype.onNick = function (e) {
     );
   }
 
-  this.updateHeader();
   updateStalkExpression(this);
 };
 
 CIRCNetwork.prototype.onPing = function (e) {
-  this.updateHeader(this);
   updateSecurityIcon();
 };
 
 CIRCNetwork.prototype.onPong = function (e) {
-  this.updateHeader(this);
   updateSecurityIcon();
 };
 

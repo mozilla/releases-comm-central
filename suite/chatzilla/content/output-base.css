@@ -145,7 +145,7 @@
     border: 1px black solid;
 }
 
-.h-table, #net-url, #ch-url, #dcc-chat-title {
+.h-table, #ch-url, #dcc-chat-title {
     width: 100%;
 }
 

@@ -280,6 +280,18 @@ progressmeter[mode="undetermined"] {
     font-weight: bold;
 }
 
+#view-status[condition="red"] {
+    color: #CC0000;
+}
+
+#view-status[condition="yellow"] {
+    color: #FF7100;
+}
+
+#view-status[condition="green"] {
+    color: green;
+}
+
 #security-button {
     min-width: 20px;
 }
