@@ -140,8 +140,6 @@ class nsIMsgFolder;
 
 #define NS_MSG_INVALID_DBVIEW_INDEX NS_MSG_GENERATE_FAILURE(24)
 
-#define NS_MSG_NEWS_ARTICLE_NOT_FOUND NS_MSG_GENERATE_FAILURE(25)
-
 #define NS_MSG_ERROR_COPY_FOLDER_ABORTED NS_MSG_GENERATE_FAILURE(26)
 // this error means a url was queued but never run because one of the urls
 // it was queued after failed. We send an OnStopRunningUrl with this error code
