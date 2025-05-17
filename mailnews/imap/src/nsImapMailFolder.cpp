@@ -6492,32 +6492,6 @@ nsresult nsImapMailFolder::GetClearedOriginalOp(
   return rv;
 }
 
-nsresult nsImapMailFolder::GetOriginalOp(
-    nsIMsgOfflineImapOperation* op, nsIMsgOfflineImapOperation** originalOp,
-    nsIMsgDatabase** originalDB) {
-  nsCOMPtr<nsIMsgOfflineImapOperation> returnOp;
-  nsCString sourceFolderURI;
-  op->GetSourceFolderURI(sourceFolderURI);
-
-  nsresult rv;
-  nsCOMPtr<nsIMsgFolder> sourceFolder;
-  rv = GetOrCreateFolder(sourceFolderURI, getter_AddRefs(sourceFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIDBFolderInfo> folderInfo;
-  sourceFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), originalDB);
-  if (*originalDB) {
-    nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
-        do_QueryInterface(*originalDB, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsMsgKey originalKey;
-    op->GetMessageKey(&originalKey);
-    rv =
-        opsDb->GetOfflineOpForKey(originalKey, false, getter_AddRefs(returnOp));
-  }
-  returnOp.forget(originalOp);
-  return rv;
-}
-
 // Helper to synchronously copy a message from one msgStore to another.
 static nsresult CopyStoreMessage(nsIMsgDBHdr* srcHdr, nsIMsgDBHdr* destHdr,
                                  uint64_t& bytesCopied) {

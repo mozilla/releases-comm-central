@@ -450,9 +450,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   nsresult GetClearedOriginalOp(nsIMsgOfflineImapOperation* op,
                                 nsIMsgOfflineImapOperation** originalOp,
                                 nsIMsgDatabase** originalDB);
-  nsresult GetOriginalOp(nsIMsgOfflineImapOperation* op,
-                         nsIMsgOfflineImapOperation** originalOp,
-                         nsIMsgDatabase** originalDB);
   MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult CopyMessagesOffline(
       nsIMsgFolder* srcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
       bool isMove, nsIMsgWindow* msgWindow,
