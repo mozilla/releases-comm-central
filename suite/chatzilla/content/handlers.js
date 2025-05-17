@@ -3234,11 +3234,13 @@ CIRCChannel.prototype.onJoin = function (e) {
     this.addUsers([e.user]);
   }
   this.updateHeader();
+  updateSecurityIcon();
 };
 
 CIRCChannel.prototype.onPart = function (e) {
   this.removeUsers([e.user]);
   this.updateHeader();
+  updateSecurityIcon();
 
   if (userIsMe(e.user)) {
     var msg = e.reason ? MSG_YOU_LEFT_REASON : MSG_YOU_LEFT;
@@ -3340,6 +3342,7 @@ CIRCChannel.prototype.onKick = function (e) {
 
   this.removeUsers([e.lamer]);
   this.updateHeader();
+  updateSecurityIcon();
 };
 
 CIRCChannel.prototype.addUsers = function (updates) {
@@ -3427,6 +3430,7 @@ CIRCChannel.prototype.onChanMode = function (e) {
 
   this.updateHeader();
   updateTitle(this);
+  updateSecurityIcon();
   if (client.currentObject == this) {
     this.updateUserList(true);
   }
@@ -3488,6 +3492,7 @@ CIRCChannel.prototype.onQuit = function (e) {
 
   this.removeUsers([e.user]);
   this.updateHeader();
+  updateSecurityIcon();
 };
 
 CIRCChannel.prototype.doAutoPerform = function () {

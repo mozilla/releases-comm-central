@@ -145,7 +145,7 @@
     border: 1px black solid;
 }
 
-.h-table, #ch-url, #dcc-chat-title {
+.h-table, #ch-topicnodes-v, #dcc-chat-title {
     width: 100%;
 }
 
@@ -167,7 +167,7 @@
     line-height: 110%;
 }
 
-#ch-usercount, #ch-modestr, #dcc-file-progress {
+#dcc-file-progress {
     white-space: nowrap;
 }
 

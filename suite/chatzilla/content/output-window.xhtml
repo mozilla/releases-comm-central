@@ -26,24 +26,9 @@
       <div class="header" id="ch-container" hidden="true">
         <table class="h-table">
           <tbody>
-            <tr>
-              <td class="label" id="ch-url-l">&output.url.label;</td>
-              <td class="value crop-right" id="ch-url">
-                <a
-                  id="ch-url-anchor"
-                  class="chatzilla-link"
-                  href="irc://foo/bar"
-                  >irc://foo/bar</a
-                >
-              </td>
-              <td class="label" id="ch-modestr-l">&output.mode.label;</td>
-              <td class="value" id="ch-modestr"></td>
-              <td class="label" id="ch-usercount-l">&output.users.label;</td>
-              <td class="value" id="ch-usercount"></td>
-            </tr>
             <tr onclick="onTopicNodesClick(event);" style="cursor: default">
               <td class="label" id="ch-topicnodes-l">&output.topic.label;</td>
-              <td class="value" colspan="6">
+              <td class="value" id="ch-topicnodes-v">
                 <span id="ch-topicnodes"></span>
                 <input
                   hidden="true"

@@ -1624,6 +1624,15 @@ function updateSecurityIcon() {
     if (o.TYPE == "IRCNetwork" || condition != "green") {
       label = client.bundle.getFormattedString(netstatus, [label]);
     }
+    if (o.TYPE == "IRCChannel" && o.channel.active) {
+      label = client.bundle.getFormattedString("channelUsers", [
+        label,
+        o.channel.getUsersLength(),
+        o.channel.opCount,
+        o.channel.halfopCount,
+        o.channel.voiceCount,
+      ]);
+    }
   } else {
     viewStatus.removeAttribute("condition");
   }

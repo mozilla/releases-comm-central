@@ -3,8 +3,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!ENTITY output.url.label "URL">
-<!ENTITY output.mode.label "Mode">
-<!ENTITY output.users.label "Users">
 <!ENTITY output.topic.label "Topic">
 <!ENTITY output.cancel.label "Cancel">
 <!ENTITY output.via.label "Connected via">

@@ -19,15 +19,7 @@ var header = null;
 var headers = {
   IRCChannel: {
     prefix: "ch-",
-    fields: [
-      "container",
-      "url-anchor",
-      "modestr",
-      "usercount",
-      "topicnodes",
-      "topicinput",
-      "topiccancel",
-    ],
+    fields: ["container", "topicnodes", "topicinput", "topiccancel"],
     update: updateChannel,
   },
 
@@ -361,24 +353,6 @@ function updateChannel() {
   }
 
   if (view.active) {
-    var str = view.mode.getModeStr();
-    if (!str) {
-      str = MSG_NO_MODE;
-    }
-    setText("modestr", str);
-    setAttribute("modestr", "condition", "green");
-
-    setText(
-      "usercount",
-      getMsg(MSG_FMT_USERCOUNT, [
-        view.getUsersLength(),
-        view.opCount,
-        view.halfopCount,
-        view.voiceCount,
-      ])
-    );
-    setAttribute("usercount", "condition", "green");
-
     if (view.topic) {
       var data = getObjectDetails(view);
       data.dontLogURLs = true;
@@ -391,10 +365,6 @@ function updateChannel() {
       setText("topicnodes", MSG_NONE);
     }
   } else {
-    setText("modestr", MSG_UNKNOWN);
-    setAttribute("modestr", "condition", "red");
-    setText("usercount", MSG_UNKNOWN);
-    setAttribute("usercount", "condition", "red");
     setText("topicnodes", MSG_UNKNOWN);
   }
 }
