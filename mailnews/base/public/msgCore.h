@@ -148,9 +148,6 @@ class nsIMsgFolder;
 // so the listeners can know that we didn't run the url.
 #define NS_MSG_ERROR_URL_ABORTED NS_MSG_GENERATE_FAILURE(27)
 
-// when num of custom headers exceeds 50
-#define NS_MSG_CUSTOM_HEADERS_OVERFLOW NS_MSG_GENERATE_FAILURE(28)
-
 // when custom header has invalid characters (as per rfc 2822)
 #define NS_MSG_INVALID_CUSTOM_HEADER NS_MSG_GENERATE_FAILURE(29)
 
