@@ -20,6 +20,7 @@ interface nsIUrlListener;
 interface IEwsFolderCallbacks;
 interface IEwsFolderCreateCallbacks;
 interface IEwsFolderDeleteCallbacks;
+interface IEwsFolderUpdateCallbacks;
 interface IEwsMessageCallbacks;
 interface IEwsMessageCreateCallbacks;
 interface IEwsMessageDeleteCallbacks;
@@ -122,6 +123,15 @@ interface IEwsClient : nsISupports
    * @param folderId - The EWS ID of the folder to delete.
    */
   void deleteFolder(in IEwsFolderDeleteCallbacks callbacks, in AUTF8String folderId);
+
+  /**
+   * Renames a folder on the Exchange server.
+   *
+   * @param callbacks - Callbacks to indicate the success or failure of the
+   *   folder update operation to rename the folder.
+   * @param folderId - The EWS ID of the folder to rename.
+   */
+  void updateFolder(in IEwsFolderUpdateCallbacks callbacks, in AUTF8String folderId, in AUTF8String folderName);
 };
 
 [scriptable, uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
@@ -169,6 +179,15 @@ interface IEwsFolderDeleteCallbacks : nsISupports
    * Called if a folder was successfully deleted on the server.
    */
   void onRemoteDeleteFolderSuccessful();
+};
+
+[scriptable, uuid(27337b4d-a40d-4034-9dc3-52abdd09b64c)]
+interface IEwsFolderUpdateCallbacks : nsISupports
+{
+  /**
+   * Called if a folder was successfully updated on the server.
+   */
+  void onRemoteFolderUpdateSuccessful();
 };
 
 /**

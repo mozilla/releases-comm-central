@@ -131,7 +131,7 @@ pub enum PathToElement {
 // which follows the same structure. However, xml-struct doesn't currently
 // support using a nested structure to define an element's attributes, see
 // https://github.com/thunderbird/xml-struct-rs/issues/9
-#[derive(Clone, Debug, Deserialize, XmlSerialize)]
+#[derive(Clone, Debug, Deserialize, XmlSerialize, Eq, PartialEq)]
 pub struct ExtendedFieldURI {
     /// A well-known identifier for a property set.
     #[xml_struct(attribute)]
@@ -162,7 +162,7 @@ pub struct ExtendedFieldURI {
 /// A well-known MAPI property set identifier.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/extendedfielduri#distinguishedpropertysetid-attribute>
-#[derive(Clone, Copy, Debug, Deserialize, XmlSerialize)]
+#[derive(Clone, Copy, Debug, Deserialize, XmlSerialize, Eq, PartialEq)]
 #[xml_struct(text)]
 pub enum DistinguishedPropertySet {
     Address,
@@ -192,7 +192,7 @@ pub enum MessageDisposition {
 /// The type of the value of a MAPI property.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/extendedfielduri#propertytype-attribute>
-#[derive(Clone, Copy, Debug, Deserialize, XmlSerialize)]
+#[derive(Clone, Copy, Debug, Deserialize, XmlSerialize, Eq, PartialEq)]
 #[xml_struct(text)]
 pub enum PropertyType {
     ApplicationTime,
@@ -242,7 +242,7 @@ pub enum BaseShape {
 }
 
 /// The success/failure status of an operation.
-#[derive(Clone, Copy, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq)]
 pub enum ResponseClass {
     Success,
     Warning,
@@ -253,7 +253,7 @@ pub enum ResponseClass {
 /// any.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/responsecode>
-#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq, Eq)]
 pub enum ResponseCode {
     #[default]
     NoError,
@@ -760,7 +760,7 @@ pub enum BaseFolderId {
 /// The unique identifier of a folder.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/folderid>
-#[derive(Clone, Debug, Deserialize, PartialEq, XmlSerialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, XmlSerialize, Eq)]
 pub struct FolderId {
     #[serde(rename = "@Id")]
     pub id: String,
@@ -814,7 +814,7 @@ pub struct ItemId {
 }
 
 /// The representation of a folder in an EWS operation.
-#[derive(Clone, Debug, Deserialize, XmlSerialize)]
+#[derive(Clone, Debug, Deserialize, XmlSerialize, Eq, PartialEq)]
 #[xml_struct(variant_ns_prefix = "t")]
 pub enum Folder {
     /// A calendar folder in a mailbox.
@@ -966,7 +966,7 @@ pub struct Items {
 /// A collection of information on Exchange folders.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/folders-ex15websvcsotherref>
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 pub struct Folders {
     #[serde(rename = "$value", default)]
     pub inner: Vec<Folder>,
@@ -1227,7 +1227,7 @@ pub struct Message {
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/extendedproperty>
 #[allow(non_snake_case)]
-#[derive(Clone, Debug, Deserialize, XmlSerialize)]
+#[derive(Clone, Debug, Deserialize, XmlSerialize, Eq, PartialEq)]
 pub struct ExtendedProperty {
     #[xml_struct(ns_prefix = "t")]
     pub extended_field_URI: ExtendedFieldURI,

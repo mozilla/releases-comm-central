@@ -3654,7 +3654,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsACString& aNewName,
 
   ForceDBClosed();
 
-  // Save of dir name before appending .msf
+  // Save off dir name before appending .msf
   nsAutoString newNameDirStr(newDiskName);
 
   if (!(mFlags & nsMsgFolderFlags::Virtual))

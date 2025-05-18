@@ -23,6 +23,7 @@
 #include "nsNetUtil.h"
 #include "nsPrintfCString.h"
 #include "nscore.h"
+#include "OfflineStorage.h"
 
 #define kEWSRootURI "ews:/"
 #define kEWSMessageRootURI "ews-message:/"
@@ -285,6 +286,34 @@ NS_IMETHODIMP DeleteFolderCallbacks::OnRemoteDeleteFolderSuccessful() {
   return mFolder->nsMsgDBFolder::DeleteSelf(mWindow);
 }
 
+class FolderUpdateCallbacks : public IEwsFolderUpdateCallbacks {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_IEWSFOLDERUPDATECALLBACKS
+
+  FolderUpdateCallbacks(EwsFolder* folder, nsIMsgWindow* window,
+                        nsAutoCString newName)
+      : mFolder(folder), mWindow(window), mNewName(std::move(newName)) {}
+
+ protected:
+  virtual ~FolderUpdateCallbacks() = default;
+
+ private:
+  RefPtr<EwsFolder> mFolder;
+  RefPtr<nsIMsgWindow> mWindow;
+  nsAutoCString mNewName;
+};
+
+NS_IMPL_ISUPPORTS(FolderUpdateCallbacks, IEwsFolderUpdateCallbacks)
+
+NS_IMETHODIMP FolderUpdateCallbacks::OnRemoteFolderUpdateSuccessful() {
+  // To rename, we need the current parent.
+  nsCOMPtr<nsIMsgFolder> parentFolder;
+  MOZ_TRY(mFolder->GetParent(getter_AddRefs(parentFolder)));
+
+  return LocalRenameOrReparentFolder(mFolder, parentFolder, mNewName, mWindow);
+}
+
 NS_IMPL_ADDREF_INHERITED(EwsFolder, nsMsgDBFolder)
 NS_IMPL_RELEASE_INHERITED(EwsFolder, nsMsgDBFolder)
 NS_IMPL_QUERY_HEAD(EwsFolder)
@@ -463,6 +492,43 @@ NS_IMETHODIMP EwsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
   // messages, performing biff, etc.), it's likely fine to leave this as a
   // future improvement.
   return SyncMessages(aWindow);
+}
+
+NS_IMETHODIMP EwsFolder::Rename(const nsACString& aNewName,
+                                nsIMsgWindow* msgWindow) {
+  nsAutoCString currentName;
+  nsresult rv = GetName(currentName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // If the name hasn't changed, then avoid generating network traffic.
+  if (aNewName.Equals(currentName)) {
+    return NS_OK;
+  }
+
+  bool updatable = false;
+  rv = GetCanRename(&updatable);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!updatable) {
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  nsCOMPtr<IEwsClient> client;
+  rv = GetEwsClient(getter_AddRefs(client));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString folderId;
+  rv = GetEwsId(folderId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString syncStateToken;
+  rv = GetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  RefPtr<FolderUpdateCallbacks> ewsFolderListener =
+      new FolderUpdateCallbacks(this, msgWindow, nsAutoCString{aNewName});
+
+  return client->UpdateFolder(ewsFolderListener, folderId, aNewName);
 }
 
 NS_IMETHODIMP EwsFolder::CopyFileMessage(

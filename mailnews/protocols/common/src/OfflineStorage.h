@@ -109,4 +109,29 @@ nsresult AsyncReadMessageFromStore(nsIMsgDBHdr* message,
                                    bool convertData, nsIChannel* srcChannel,
                                    nsIRequest** readRequest);
 
+/**
+ * A protocol-agnostic helper for locally renaming or reparenting a folder.
+ *
+ * This function recursively moves the folder specified by `sourceFolder` held
+ * in the local data store to the parent specified by `newParentFolder` with the
+ * name specified by `name`. The folder specified by `newParentFolder` may be
+ * the same as `sourceFolder`'s current parent, and the name specified by `name`
+ * may be the same as `sourceFolder`'s current name. If both the parent and the
+ * name are unchanged, then this function will do nothing and return `NS_OK`. If
+ * the operation cannot be completed because a child with the specified name
+ * already exists within the parent, then this function will return
+ * `NS_MSG_FOLDER_EXISTS`. The specified `msgWindow` will be used for
+ * notifications.
+ *
+ * This implementation also moves the database storage, maintaining properties
+ * and metadata associated with the folder through the rename/reparent
+ * operation.
+ *
+ * Returns an `nsresult` to indicate whether or not the operation succeeded.
+ */
+nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
+                                     nsIMsgFolder* newParentFolder,
+                                     const nsACString& name,
+                                     nsIMsgWindow* msgWindow);
+
 #endif

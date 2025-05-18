@@ -19,8 +19,9 @@ use xpcom::interfaces::nsIIOService;
 use xpcom::{
     interfaces::{
         nsIInputStream, nsIMsgIncomingServer, nsIURI, nsIUrlListener, IEwsFolderCallbacks,
-        IEwsFolderCreateCallbacks, IEwsFolderDeleteCallbacks, IEwsMessageCallbacks,
-        IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
+        IEwsFolderCreateCallbacks, IEwsFolderDeleteCallbacks, IEwsFolderUpdateCallbacks,
+        IEwsMessageCallbacks, IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks,
+        IEwsMessageFetchCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
 };
@@ -182,6 +183,30 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "delete_folder",
             client.delete_folder(RefPtr::new(callbacks), folder_id.to_utf8().into_owned()),
+        )
+        .detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(update_folder => UpdateFolder(callbacks: *const IEwsFolderUpdateCallbacks, folder_id: *const nsACString, folder_name: *const nsACString));
+    fn update_folder(
+        &self,
+        callbacks: &IEwsFolderUpdateCallbacks,
+        folder_id: &nsACString,
+        folder_name: &nsACString,
+    ) -> Result<(), nsresult> {
+        let client = self.try_new_client()?;
+
+        // The client operation is async and we want it to survive the end of
+        // this scope, so spawn it as a detached `moz_task`.
+        moz_task::spawn_local(
+            "update_folder",
+            client.update_folder(
+                RefPtr::new(callbacks),
+                folder_id.to_utf8().into_owned(),
+                folder_name.to_utf8().into_owned(),
+            ),
         )
         .detach();
 

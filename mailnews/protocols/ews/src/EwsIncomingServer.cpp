@@ -8,6 +8,7 @@
 #include "nsIMsgWindow.h"
 #include "nsNetUtil.h"
 #include "nsPrintfCString.h"
+#include "OfflineStorage.h"
 #include "plbase64.h"
 
 #define ID_PROPERTY "ewsId"
@@ -155,65 +156,6 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
   return NS_OK;
 }
 
-static nsresult MoveFolderRecurse(nsIMsgFolder* sourceFolder,
-                                  nsIMsgFolder* newParentFolder,
-                                  const nsACString& name,
-                                  nsIMsgWindow* msgWindow,
-                                  nsIMsgPluggableStore* store) {
-  // Do a depth-first traversal of the folder tree to ensure each parent exists
-  // before we copy the contents of its children into it, but don't delete until
-  // we've copied all children (and their descendents). We start by copying the
-  // root folder in the source tree. We don't rely entirely on `CopyFolder`
-  // because it doesn't copy subfolders that don't implement the
-  // `nsIMsgLocalMailFolder` interface.
-  MOZ_TRY(store->CopyFolder(sourceFolder, newParentFolder, false, msgWindow,
-                            nullptr, name));
-
-  nsCOMPtr<nsIMsgFolder> newRootFolder;
-  MOZ_TRY(newParentFolder->GetChildNamed(name, getter_AddRefs(newRootFolder)));
-
-  newParentFolder->NotifyFolderAdded(newRootFolder);
-
-  // Copy all of the subfolders of the root folder of the source hierarchy.
-  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
-  sourceFolder->GetSubFolders(subFolders);
-  for (auto&& subFolder : subFolders) {
-    nsAutoCString subFolderName;
-    MOZ_TRY(subFolder->GetName(subFolderName));
-    nsCOMPtr<nsIMsgFolder> tmpDestSubfolder;
-
-    // `CopyFolder` for the root of this hierarchy does an incomplete job.  In
-    // particular, it copies the folder itself, its data, and its metadata
-    // (which includes information about subfolders), but it is not guaranteed
-    // to copy the content of the subfolders themselves. Therefore, we delete
-    // the subfolder information from the destination hierarchy so we can
-    // explicitly copy all of the required data into the correct location.
-    // Addressing https://bugzilla.mozilla.org/show_bug.cgi?id=1965379 may
-    // change the behavior of `CopyFolder`, in which case this will need to be
-    // updated.
-    MOZ_TRY(newRootFolder->GetChildNamed(subFolderName,
-                                         getter_AddRefs(tmpDestSubfolder)));
-    newRootFolder->PropagateDelete(tmpDestSubfolder, true);
-
-    // Now recurse into the subfolder.
-    MOZ_TRY(MoveFolderRecurse(subFolder, newRootFolder, subFolderName,
-                              msgWindow, store));
-    nsCOMPtr<nsIMsgFolder> newSubFolder;
-    MOZ_TRY(newRootFolder->GetChildNamed(subFolderName,
-                                         getter_AddRefs(newSubFolder)));
-    newRootFolder->NotifyFolderAdded(newSubFolder);
-  }
-
-  // Now that all of the children (and their descendents) are guaranteed to have
-  // been copied, it's safe to delete the original source folder, thus
-  // completing the move operation.
-  nsCOMPtr<nsIMsgFolder> oldParentFolder;
-  MOZ_TRY(sourceFolder->GetParent(getter_AddRefs(oldParentFolder)));
-  MOZ_TRY(oldParentFolder->PropagateDelete(sourceFolder, true));
-
-  return NS_OK;
-}
-
 nsresult EwsIncomingServer::UpdateFolderWithDetails(const nsACString& id,
                                                     const nsACString& parentId,
                                                     const nsACString& name,
@@ -233,44 +175,17 @@ nsresult EwsIncomingServer::UpdateFolderWithDetails(const nsACString& id,
   nsAutoCString currentParentId;
   MOZ_TRY(parentFolder->GetStringProperty(ID_PROPERTY, currentParentId));
 
-  if ((currentParentId != parentId) || (currentName != name)) {
-    // If either the parent or the name of the folder changed, then we have to
-    // initiate a move of the data for the folder, so we rely on the fact that a
-    // move and a rename are the same, except for in the case in which a folder
-    // is solely renamed, it doesn't need to be reparented. However, there is no
-    // performance difference between a rename and a reparent, so we call the
-    // general logic that handles both move and rename here for simplicity.
-    nsCOMPtr<nsIMsgFolder> newParentFolder;
-    rv = FindFolderWithId(parentId, getter_AddRefs(newParentFolder));
-    NS_ENSURE_SUCCESS(rv, rv);
+  // If either the parent or the name of the folder changed, then we have to
+  // initiate a move of the data for the folder, so we rely on the fact that a
+  // move and a rename are the same, except for in the case in which a folder
+  // is solely renamed, it doesn't need to be reparented. However, there is no
+  // performance difference between a rename and a reparent, so we call the
+  // general logic that handles both move and rename here for simplicity.
+  nsCOMPtr<nsIMsgFolder> newParentFolder;
+  rv = FindFolderWithId(parentId, getter_AddRefs(newParentFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    // There will be a conflict if the new parent folder contains a folder
-    // with the requested name.
-    bool potentialNameConflict;
-    MOZ_TRY(newParentFolder->ContainsChildNamed(name, &potentialNameConflict));
-
-    // If we are not moving to a new parent, we need to check that there isn't
-    // already a folder with the requested name. The enclosing conditional
-    // ensures currentName != name in this case.
-    if (currentParentId == parentId && potentialNameConflict) {
-      return NS_MSG_FOLDER_EXISTS;
-    }
-
-    // If we are moving to a new parent, we need to check that there isn't
-    // alredy a folder with the requested name.
-    if ((currentParentId != parentId) && potentialNameConflict) {
-      return NS_MSG_FOLDER_EXISTS;
-    }
-
-    nsCOMPtr<nsIMsgPluggableStore> msgStore;
-    MOZ_TRY(GetMsgStore(getter_AddRefs(msgStore)));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    MOZ_TRY(
-        MoveFolderRecurse(folder, newParentFolder, name, msgWindow, msgStore));
-  }
-
-  return NS_OK;
+  return LocalRenameOrReparentFolder(folder, newParentFolder, name, msgWindow);
 }
 
 /**

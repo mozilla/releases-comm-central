@@ -20,6 +20,7 @@ use ews::{
     soap,
     sync_folder_hierarchy::{self, SyncFolderHierarchy},
     sync_folder_items::{self, SyncFolderItems},
+    update_folder::{FolderChange, FolderChanges, UpdateFolder, Updates as FolderUpdates},
     update_item::{
         ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem, Updates,
     },
@@ -41,8 +42,8 @@ use xpcom::{
     getter_addrefs,
     interfaces::{
         nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsIUrlListener,
-        nsMsgKey, IEwsFolderDeleteCallbacks, IEwsMessageCallbacks, IEwsMessageCreateCallbacks,
-        IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
+        nsMsgKey, IEwsFolderDeleteCallbacks, IEwsFolderUpdateCallbacks, IEwsMessageCallbacks,
+        IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
     },
     RefPtr,
 };
@@ -1419,6 +1420,71 @@ impl XpComEwsClient {
 
         // Delete the folder from the server's database.
         unsafe { callbacks.OnRemoteDeleteFolderSuccessful() }
+            .to_result()
+            .map_err(|err| err.into())
+    }
+
+    pub async fn update_folder(
+        self,
+        callbacks: RefPtr<IEwsFolderUpdateCallbacks>,
+        folder_id: String,
+        folder_name: String,
+    ) {
+        // Call an inner function to perform the operation in order to allow us
+        // to handle errors while letting the inner function simply propagate.
+        if let Err(err) = self
+            .update_folder_inner(&callbacks, folder_id, folder_name)
+            .await
+        {
+            log::error!("an error occurred while attempting to delete the folder: {err:?}");
+        }
+    }
+
+    async fn update_folder_inner(
+        self,
+        callbacks: &IEwsFolderUpdateCallbacks,
+        folder_id: String,
+        folder_name: String,
+    ) -> Result<(), XpComEwsError> {
+        let update_folder = UpdateFolder {
+            folder_changes: FolderChanges {
+                folder_change: FolderChange {
+                    folder_id: BaseFolderId::FolderId {
+                        id: folder_id,
+                        change_key: None,
+                    },
+                    updates: FolderUpdates::SetFolderField {
+                        field_URI: PathToElement::FieldURI {
+                            field_URI: "folder:DisplayName".to_string(),
+                        },
+                        folder: Folder::Folder {
+                            display_name: Some(folder_name),
+                            folder_id: None,
+                            parent_folder_id: None,
+                            folder_class: None,
+                            total_count: None,
+                            child_folder_count: None,
+                            extended_property: None,
+                            unread_count: None,
+                        },
+                    },
+                },
+            },
+        };
+
+        let response = self.make_operation_request(update_folder).await?;
+        let response_messages = response.response_messages.update_folder_response_message;
+        validate_response_message_count(&response_messages, 1)?;
+
+        let response_message = response_messages.into_iter().next().unwrap();
+        process_response_message_class(
+            "UpdateFolder",
+            &response_message.response_class,
+            &response_message.response_code,
+            &response_message.message_text,
+        )?;
+
+        unsafe { callbacks.OnRemoteFolderUpdateSuccessful() }
             .to_result()
             .map_err(|err| err.into())
     }

@@ -17,4 +17,5 @@ pub mod get_folder;
 pub mod get_item;
 pub mod sync_folder_hierarchy;
 pub mod sync_folder_items;
+pub mod update_folder;
 pub mod update_item;
