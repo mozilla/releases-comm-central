@@ -65,8 +65,6 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
       nsIMsgWindow* window) override;
   NS_IMETHOD GetLocalMsgStream(nsIMsgDBHdr* hdr,
                                nsIInputStream** stream) override;
-  NS_IMETHOD Compact(nsIUrlListener* aListener,
-                     nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD DownloadAllForOffline(nsIUrlListener* listener,
                                    nsIMsgWindow* msgWindow) override;
   NS_IMETHOD GetSortOrder(int32_t* order) override;

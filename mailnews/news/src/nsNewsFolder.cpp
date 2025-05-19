@@ -253,8 +253,6 @@ nsMsgNewsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
         if (NS_SUCCEEDED(rv))
           rv = mDatabase->ApplyRetentionSettings(retentionSettings, false);
       }
-      rv = AutoCompact(aWindow);
-      NS_ENSURE_SUCCESS(rv, rv);
       // GetNewMessages has to be the last rv set before we get to the next
       // check, so that we'll have rv set to NS_MSG_ERROR_OFFLINE when offline
       // and send a folder loaded notification to the front end.
@@ -1357,15 +1355,6 @@ NS_IMETHODIMP nsMsgNewsFolder::NotifyFinishedDownloadinghdrs() {
   }
 
   return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgNewsFolder::Compact(nsIUrlListener* aListener,
-                                       nsIMsgWindow* aMsgWindow) {
-  nsresult rv;
-  rv = GetDatabase();
-  if (mDatabase) ApplyRetentionSettings();
-  (void)RefreshSizeOnDisk();
-  return rv;
 }
 
 NS_IMETHODIMP
