@@ -74,6 +74,7 @@ nsImapServerResponseParser::nsImapServerResponseParser(
   fFetchResponseIndex = 0;
   numberOfCharsInThisChunk = 0;
   charsReadSoFar = 0;
+  fServerUnavailable = false;
 }
 
 nsImapServerResponseParser::~nsImapServerResponseParser() {
@@ -1573,13 +1574,18 @@ void nsImapServerResponseParser::resp_text_code() {
     AdvanceToNextToken();
 
   if (ContinueParse()) {
-    if (!PL_strcasecmp(fNextToken, "ALERT]")) {
-      char* alertMsg = fCurrentTokenPlaceHolder;  // advance past ALERT]
+    if (!PL_strcasecmp(fNextToken, "ALERT]") ||
+        !PL_strcasecmp(fNextToken, "UNAVAILABLE]")) {
+      // Treat ALERT and UNAVAILABLE response codes similarly. Show response
+      // code string in pop-up. See RFC 5530 "IMAP Response Codes".
+      char* alertMsg = fCurrentTokenPlaceHolder;  // advance past ALERT/UNAVAIL
       if (alertMsg && *alertMsg &&
           (!fLastAlert || PL_strcmp(fNextToken, fLastAlert))) {
         fServerConnection.AlertUserEvent(alertMsg);
         PR_Free(fLastAlert);
         fLastAlert = PL_strdup(alertMsg);
+        // If UNAVAILABLE, flag this to prevent a possible password prompt
+        fServerUnavailable = (NS_ToUpper(fNextToken[0]) == 'U');
       }
       AdvanceToNextToken();
     } else if (!PL_strcasecmp(fNextToken, "PARSE]")) {

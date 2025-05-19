@@ -8625,6 +8625,12 @@ bool nsImapProtocol::TryToLogon() {
     loginSucceeded = NS_SUCCEEDED(rv);
 
     if (!loginSucceeded) {
+      // If server gave reason for authentication failure as [UNAVAILABLE]
+      // then we skip authentication retries, etc. The user will be notified by
+      // pop-up with the reason, provided by the server, as to why it's
+      // unavailable, e.g., too many connection to the server.
+      if (GetServerStateParser().fServerUnavailable) break;
+
       MOZ_LOG(IMAP, LogLevel::Debug, ("authlogin failed"));
       MarkAuthMethodAsFailed(m_currentAuthMethod);
       rv = ChooseAuthMethod();  // change m_currentAuthMethod to try other one

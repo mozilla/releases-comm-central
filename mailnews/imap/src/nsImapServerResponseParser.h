@@ -128,6 +128,7 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   bool fUtf8AcceptEnabled;
   bool fUseModSeq;  // can use mod seq for currently selected folder
   uint64_t fHighestModSeq;
+  bool fServerUnavailable;  // Server returned response code [UNAVAILABLE].
 
   // Set of new UIDs at a destination folder obtained from UID COPY response
   // when a message or messages are successfully copied or moved from a source
