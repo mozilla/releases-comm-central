@@ -46,7 +46,8 @@ const folderPaneContextData = {
   ],
   "folderPaneContext-copyMenu": ["plain", "rssFeed", "multiselect-plain"],
   "folderPaneContext-compact": [
-    ...servers,
+    "server",
+    "rssRoot",
     ...realFolders,
     "multiselect",
     "multiselect-plain",

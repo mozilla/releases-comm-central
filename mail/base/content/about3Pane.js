@@ -445,7 +445,7 @@ var folderPaneContextMenu = {
           isVirtual ||
           (isJunk && canRenameDeleteJunkMail)),
       cmd_compactFolder:
-        !isVirtual && (isServer || canCompact) && isCompactEnabled,
+        !isVirtual && !isNNTP && (isServer || canCompact) && isCompactEnabled,
       cmd_emptyTrash: online && !isNNTP,
       cmd_properties: !multiSelection && !isServer && !isSmartTagsFolder,
       cmd_toggleFavoriteFolder:
