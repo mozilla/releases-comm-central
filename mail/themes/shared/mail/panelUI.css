@@ -961,11 +961,11 @@ menulist {
   list-style-image: var(--icon-folder);
 }
 
-#appMenu-uiDensity-controls .toolbarbutton-icon {
+#appMenu-uiDensity-controls > .toolbarbutton-icon {
   content: var(--icon-spaces-menu);
 }
 
-#appMenu-fontSize-controls .toolbarbutton-icon {
+#appMenu-fontSize-controls > .toolbarbutton-icon {
   content: var(--icon-font);
 }
 
