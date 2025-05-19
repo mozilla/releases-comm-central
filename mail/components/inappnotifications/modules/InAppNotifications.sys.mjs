@@ -81,7 +81,8 @@ export const InAppNotifications = {
         lazy.NotificationUpdater.readyToUpdate
       ) {
         await this.updateNotifications(
-          await lazy.OfflineNotifications.getDefaultNotifications()
+          await lazy.OfflineNotifications.getDefaultNotifications(),
+          true
         );
         return;
       }
@@ -93,29 +94,32 @@ export const InAppNotifications = {
    * Update the notifications cache.
    *
    * @param {object[]} notifications
+   * @param {boolean} [skipCleanup=false] - Skip cleanup operations on state fields.
    */
-  async updateNotifications(notifications) {
+  async updateNotifications(notifications, skipCleanup = false) {
     this._jsonFile.data.notifications = notifications;
 
-    const notificationIds = new Set(
-      notifications.map(notification => notification.id)
-    );
-    const defaultNotificationIds =
-      await lazy.OfflineNotifications.getDefaultNotificationIds();
-    const allNotificationIds = notificationIds.union(defaultNotificationIds);
-    const interactedWithSet = new Set(this._jsonFile.data.interactedWith);
-    const stillExistingInteractedWith =
-      interactedWithSet.intersection(allNotificationIds);
-    if (stillExistingInteractedWith.size < interactedWithSet.size) {
-      this._jsonFile.data.interactedWith = Array.from(
-        stillExistingInteractedWith
+    if (!skipCleanup) {
+      const notificationIds = new Set(
+        notifications.map(notification => notification.id)
+      );
+      const defaultNotificationIds =
+        await lazy.OfflineNotifications.getDefaultNotificationIds();
+      const allNotificationIds = notificationIds.union(defaultNotificationIds);
+      const interactedWithSet = new Set(this._jsonFile.data.interactedWith);
+      const stillExistingInteractedWith =
+        interactedWithSet.intersection(allNotificationIds);
+      if (stillExistingInteractedWith.size < interactedWithSet.size) {
+        this._jsonFile.data.interactedWith = Array.from(
+          stillExistingInteractedWith
+        );
+      }
+      this._jsonFile.data.seeds = Object.fromEntries(
+        Object.entries(this._jsonFile.data.seeds).filter(([notificationId]) =>
+          allNotificationIds.has(notificationId)
+        )
       );
     }
-    this._jsonFile.data.seeds = Object.fromEntries(
-      Object.entries(this._jsonFile.data.seeds).filter(([notificationId]) =>
-        allNotificationIds.has(notificationId)
-      )
-    );
     this._updateNotificationManager();
 
     this._jsonFile.saveSoon();

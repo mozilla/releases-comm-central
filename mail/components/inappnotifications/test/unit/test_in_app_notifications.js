@@ -546,3 +546,25 @@ add_task(async function test_scheduledNotification() {
 
   await InAppNotifications.updateNotifications([]);
 });
+
+add_task(async function test_updateNotifications_noCleanup() {
+  const mockData = getMockNotifications();
+  await InAppNotifications.updateNotifications(mockData);
+  const notificationId = mockData[0].id;
+  InAppNotifications.markAsInteractedWith(notificationId);
+  const seed = InAppNotifications._getSeed(notificationId);
+
+  await InAppNotifications.updateNotifications([], true);
+
+  Assert.ok(
+    InAppNotifications._jsonFile.data.interactedWith.includes(notificationId),
+    `Should preserve interacted with ${notificationId}`
+  );
+  Assert.equal(
+    InAppNotifications._getSeed(notificationId),
+    seed,
+    `Seed for ${notificationId} should stay the same`
+  );
+
+  await InAppNotifications.updateNotifications([]);
+});
