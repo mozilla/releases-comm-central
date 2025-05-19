@@ -6579,18 +6579,15 @@ nsMsgDBView::GetViewIndexForFirstSelectedMsg(nsMsgViewIndex* aViewIndex) {
   NS_ENSURE_ARG_POINTER(aViewIndex);
   if (!mTreeSelection) {
     *aViewIndex = nsMsgViewIndex_None;
-    return NS_OK;
+    return NS_MSG_INVALID_DBVIEW_INDEX;
   }
 
   int32_t startRange;
   int32_t endRange;
-  nsresult rv = mTreeSelection->GetRangeAt(0, &startRange, &endRange);
-  // Don't assert, it is legal for nothing to be selected.
-  if (NS_FAILED(rv)) return rv;
+  mTreeSelection->GetRangeAt(0, &startRange, &endRange);
 
   // Check that the first index is valid, it may not be if nothing is selected.
-  if (startRange < 0 || uint32_t(startRange) >= GetSize())
-    return NS_ERROR_UNEXPECTED;
+  if (!IsValidIndex((nsMsgViewIndex)startRange)) return NS_MSG_INVALID_DBVIEW_INDEX;
 
   *aViewIndex = startRange;
   return NS_OK;
