@@ -56,7 +56,7 @@ widths: 30 70
     * [Patrick Cloke (clokep)](https://people.mozilla.org/s?query=clokep)
     * [Teal Dulcet (tdulcet)](https://people.mozilla.org/s?query=tdulcet)
     * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
-    * [Tim Maks van den Broek (mad_maks)](https://people.mozilla.org/s?query=mad_maks) <!--- codespell:ignore --->
+    * [Tim Maks van den Broek (mad_maks)](https://people.mozilla.org/s?query=mad_maks)
     * [Michele Zelco (micz)](https://people.mozilla.org/s?query=micz)
 * - Includes
   -
