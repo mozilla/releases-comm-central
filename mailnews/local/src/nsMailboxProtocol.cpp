@@ -5,6 +5,7 @@
 
 #include "msgCore.h"
 
+#include "nsPrintfCString.h"
 #include "nsMailboxProtocol.h"
 #include "nscore.h"
 #include "nsIInputStreamPump.h"
@@ -15,6 +16,7 @@
 #include "nsICopyMessageListener.h"
 #include "prtime.h"
 #include "mozilla/Logging.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "prerror.h"
 #include "prprf.h"
@@ -25,6 +27,7 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgWindow.h"
 #include "nsStreamUtils.h"
+#include "nsIScriptError.h"
 
 using namespace mozilla;
 
@@ -51,17 +54,85 @@ nsMailboxProtocol::~nsMailboxProtocol() {}
 
 nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
   NS_ASSERTION(aURL, "invalid URL passed into MAILBOX Protocol");
+
   nsresult rv = NS_OK;
   if (aURL) {
+    // We want to prevent mailbox URLs using UNC paths to access
+    // access arbitrary remote servers. But we don't want to disallow the
+    // case where a user's profile is on a shared drive on the LAN.
+    //
+    // Note that individual accounts can have their storage pointed
+    // to places outside the profile.
+    //
+    // UNC names are of the form:
+    //   \\host-name\share-name\object-name
+    // We'll disallow access to any host-name which looks like a FQDN,
+    // unless it is listed as an exception in `allowed_unc_hosts`.
+    //
+    // So:
+    //  "\\profileserver\bob\mail\Inbox"   -> OK
+    //  "\\steal-your-stuff.com\bob\mail/Inbox"  -> NO!
+    //            unless "steal-your-stuff.com" is in `mail.allowed_unc_hosts`.
+
     m_runningUrl = do_QueryInterface(aURL, &rv);
     nsCString filePath;
     rv = aURL->GetFilePath(filePath);
     NS_ENSURE_SUCCESS(rv, rv);
-    if (filePath.Length() >= 2 &&
-        (filePath.CharAt(1) == '/' || filePath.CharAt(1) == '%' ||
-         filePath.CharAt(1) == '\\')) {
-      // Disallow UNC mailbox:// access.
-      return NS_ERROR_UNEXPECTED;
+    NS_UnescapeURL(filePath);
+    filePath.ReplaceChar('\\', '/');
+    if (filePath.Length() >= 2 && filePath.CharAt(1) == '/') {
+      // We have an UNC path - file:////
+      // file:// +  path of which first may be / (linux root) - ok.
+      // If second is also / we have an UNC path.
+
+      int32_t dashPos = filePath.FindChar('/', 2);
+      if (dashPos <= 0) {
+        NS_WARNING(nsPrintfCString("Bad mailbox: %s", filePath.get()).get());
+        return NS_ERROR_FILE_UNRECOGNIZED_PATH;
+      }
+
+      nsCOMPtr<nsIFile> profD;
+      rv = NS_GetSpecialDirectory("ProfD", getter_AddRefs(profD));
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIURI> profileFileURI;
+      nsresult rv = NS_NewFileURI(getter_AddRefs(profileFileURI), profD);
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCString profileSpec = profileFileURI->GetSpecOrDefault();
+      profileSpec.Replace(0, 5, "mailbox:"_ns);  // file: -> mailbox:
+      // If under the profile, allow it.
+      if (!StringBeginsWith(aURL->GetSpecOrDefault(), profileSpec)) {
+        // It's not a path under the profile. See if we still can allow it.
+        nsCString uncPath(StringHead(filePath, dashPos));  // -> //example.com
+
+        nsCString uncHosts;
+        Preferences::GetCString("mail.allowed_unc_hosts", uncHosts);
+        nsTArray<nsCString> hosts;
+        ParseString(uncHosts, ',', hosts);
+        bool allowed = false;
+        for (auto host : hosts) {
+          if (StringEndsWith(uncPath, "/"_ns + host)) {
+            allowed = true;
+            break;
+          }
+        }
+
+        if (!allowed) {
+          // Not explicitely allowd.
+          // Then check if FQDN or IPv4/v6 and deny if it is.
+          if (uncPath.FindChar('.') != -1 || uncPath.FindChar(':') != -1) {
+            // Disallow remote UNC mailbox:// access.
+            nsPrintfCString blocked("Blocking UNC mailbox at %s.",
+                                    uncPath.get());
+            NS_WARNING(blocked.get());
+            blocked.Append(
+                " To allow, add the hostname to mail.allowed_unc_hosts."_ns);
+            MsgLogToConsole4(NS_ConvertUTF8toUTF16(blocked),
+                             nsCString(__FILE__), __LINE__,
+                             nsIScriptError::warningFlag);
+            return NS_ERROR_FILE_UNRECOGNIZED_PATH;
+          }
+        }
+      }
     }
     if (NS_SUCCEEDED(rv) && m_runningUrl) {
       if (RunningMultipleMsgUrl()) {

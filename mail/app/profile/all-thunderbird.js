@@ -628,6 +628,9 @@ pref("toolbar.customization.usesheet", true);
 pref("toolbar.customization.usesheet", false);
 #endif
 
+// Comma separated list of allowed hostnames to have the account data at.
+pref("mail.allowed_unc_hosts", "");
+
 // Comma separated list of allowed hostnames detached attachments can
 // be located at.
 pref("mail.allowed_attachment_hostnames", "");
