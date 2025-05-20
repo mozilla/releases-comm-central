@@ -45,10 +45,9 @@ nsCopyRequest::nsCopyRequest()
 }
 
 nsCopyRequest::~nsCopyRequest() {
-  MOZ_COUNT_DTOR(nsCopyRequest);
-
   int32_t j = m_copySourceArray.Length();
   while (j-- > 0) delete m_copySourceArray.ElementAt(j);
+  MOZ_COUNT_DTOR(nsCopyRequest);
 }
 
 nsresult nsCopyRequest::Init(nsCopyRequestType type, nsISupports* aSupport,
