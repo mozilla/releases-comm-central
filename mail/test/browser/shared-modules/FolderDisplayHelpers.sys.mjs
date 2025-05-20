@@ -279,6 +279,8 @@ export async function enter_folder(aFolder) {
 
   // Drain the event queue.
   await TestUtils.waitForTick();
+  // Make sure the window is fully drawn.
+  await new Promise(win.requestAnimationFrame);
 }
 
 /**
