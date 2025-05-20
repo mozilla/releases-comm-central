@@ -2772,9 +2772,8 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   rv = store->DiscoverChildFolders(this, folderPaths);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIDatabaseCore> core = mozilla::components::DatabaseCore::Service();
-  nsCOMPtr<nsIFolderDatabase> folders;
-  core->GetFolders(getter_AddRefs(folders));
+  nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
+  nsCOMPtr<nsIFolderDatabase> folders = database->GetFolders();
   folders->Reconcile(folder, folderPaths);
 
   // Add the subfolders.
@@ -3405,10 +3404,8 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
     // TODO: We shouldn't be here at all. But we are thanks to the fact that
     // various functions call the message store and it calls back.
     // `name` is a hashed name and it shouldn't be.
-    nsCOMPtr<nsIDatabaseCore> core =
-        mozilla::components::DatabaseCore::Service();
-    nsCOMPtr<nsIFolderDatabase> folders;
-    core->GetFolders(getter_AddRefs(folders));
+    nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
+    nsCOMPtr<nsIFolderDatabase> folders = database->GetFolders();
 
     nsCOMPtr<nsIFolder> dbFolder;
     folders->InsertFolder(mDBFolder, actualName, getter_AddRefs(dbFolder));

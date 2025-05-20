@@ -51,7 +51,7 @@
 
 #define PORT_NOT_SET -1
 
-using mozilla::Preferences;
+using namespace mozilla;
 
 nsMsgIncomingServer::nsMsgIncomingServer()
     : m_hasShutDown(false),
@@ -414,10 +414,8 @@ nsresult nsMsgIncomingServer::CreateRootFolder() {
 
 #ifdef MOZ_PANORAMA
   if (Preferences::GetBool("mail.panorama.enabled", false)) {
-    nsCOMPtr<nsIDatabaseCore> core =
-        mozilla::components::DatabaseCore::Service();
-    nsCOMPtr<nsIFolderDatabase> folders;
-    core->GetFolders(getter_AddRefs(folders));
+    nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
+    nsCOMPtr<nsIFolderDatabase> folders = database->GetFolders();
 
     nsCOMPtr<nsIFolder> root;
     rv = folders->GetFolderByPath(m_serverKey, getter_AddRefs(root));

@@ -87,12 +87,8 @@ From C++:
 
 ```c++
 nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-
-nsCOMPtr<nsIFolderDatabase> folders;
-database->GetFolders(getter_AddRefs(folders));
-
-nsCOMPtr<nsIMessageDatabase> messages;
-database->GetMessages(getter_AddRefs(messages));
+nsCOMPtr<nsIFolderDatabase> folders = database->GetFolders();
+nsCOMPtr<nsIMessageDatabase> messages = database->GetMessages();
 ```
 
 If Panorama is enabled, `DatabaseCore` will be started automatically by the initialisation of the

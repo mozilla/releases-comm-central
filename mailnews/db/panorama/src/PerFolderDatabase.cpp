@@ -44,7 +44,7 @@ void PerFolderDatabase::OnMessageFlagsChanged(Message* message,
 // nsIDBChangeAnnouncer:
 
 NS_IMETHODIMP PerFolderDatabase::AddListener(nsIDBChangeListener* listener) {
-  mListeners.AppendElement(listener);
+  mListeners.AppendElementUnlessExists(listener);
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::RemoveListener(nsIDBChangeListener* listener) {

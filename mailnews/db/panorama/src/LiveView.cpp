@@ -355,10 +355,8 @@ NS_IMETHODIMP LiveView::SetListener(nsILiveViewListener* aListener,
   mCx = aCx;
 
   if (!hadListener && aListener) {
-    nsCOMPtr<nsIDatabaseCore> core =
-        do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
-    nsCOMPtr<nsIMessageDatabase> messages;
-    core->GetMessages(getter_AddRefs(messages));
+    nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
+    nsCOMPtr<nsIMessageDatabase> messages = database->GetMessages();
     messages->AddMessageListener(this);
   }
   return NS_OK;
@@ -368,10 +366,8 @@ NS_IMETHODIMP LiveView::ClearListener() {
   mListener = nullptr;
   mCx = nullptr;
 
-  nsCOMPtr<nsIDatabaseCore> core =
-      do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
-  nsCOMPtr<nsIMessageDatabase> messages;
-  core->GetMessages(getter_AddRefs(messages));
+  nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
+  nsCOMPtr<nsIMessageDatabase> messages = database->GetMessages();
   messages->RemoveMessageListener(this);
   return NS_OK;
 }

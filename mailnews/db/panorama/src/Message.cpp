@@ -249,7 +249,9 @@ NS_IMETHODIMP Message::GetRecipientsCollationKey(nsTArray<uint8_t>& _retval) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetCharset(nsACString& aCharset) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  // TODO: actually implement this.
+  aCharset.Truncate();
+  return NS_OK;
 }
 NS_IMETHODIMP Message::SetCharset(const nsACString& aCharset) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -258,20 +260,40 @@ NS_IMETHODIMP Message::GetEffectiveCharset(nsACString& aEffectiveCharset) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetAccountKey(nsACString& aAccountKey) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
+  nsCOMPtr<nsIFolderDatabase> folderDatabase = database->GetFolders();
+
+  nsCOMPtr<nsIFolder> folder;
+  nsresult rv =
+      folderDatabase->GetFolderById(mFolderId, getter_AddRefs(folder));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIFolder> rootFolder = folder->GetRootFolder();
+  nsCString serverKey = rootFolder->GetName();
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
+      components::AccountManager::Service();
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  rv = accountManager->GetIncomingServer(serverKey, getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgAccount> account;
+  rv = accountManager->FindAccountForServer(server, getter_AddRefs(account));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return account->GetKey(aAccountKey);
 }
 NS_IMETHODIMP Message::SetAccountKey(const nsACString& aAccountKey) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetFolder(nsIMsgFolder** aFolder) {
-  nsCOMPtr<nsIDatabaseCore> core =
-      do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
-  nsCOMPtr<nsIFolderDatabase> folderDatabase;
-  nsresult rv = core->GetFolders(getter_AddRefs(folderDatabase));
-  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_ARG_POINTER(aFolder);
+
+  nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
+  nsCOMPtr<nsIFolderDatabase> folderDatabase = database->GetFolders();
 
   nsCOMPtr<nsIFolder> folder;
-  rv = folderDatabase->GetFolderById(mFolderId, getter_AddRefs(folder));
+  nsresult rv =
+      folderDatabase->GetFolderById(mFolderId, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return folderDatabase->GetMsgFolderForFolder(folder, aFolder);

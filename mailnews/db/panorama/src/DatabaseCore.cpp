@@ -316,8 +316,13 @@ NS_IMETHODIMP DatabaseCore::OpenDBFromFile(nsIFile* aFile,
 }
 NS_IMETHODIMP DatabaseCore::RegisterPendingListener(
     nsIMsgFolder* folder, nsIDBChangeListener* listener) {
-  // TODO: Decide if we really need this still.
-  return NS_OK;
+  // This function was meant to wait for a database to open, but let's just
+  // open it. They're not real anyway.
+  nsCOMPtr<nsIMsgDatabase> database;
+  nsresult rv = OpenFolderDB(folder, false, getter_AddRefs(database));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return database->AddListener(listener);
 }
 NS_IMETHODIMP DatabaseCore::UnregisterPendingListener(
     nsIDBChangeListener* listener) {
