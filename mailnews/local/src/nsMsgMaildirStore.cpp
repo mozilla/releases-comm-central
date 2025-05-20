@@ -241,13 +241,11 @@ nsresult nsMsgMaildirStore::AddSubFolders(nsIMsgFolder* parent, nsIFile* path,
     nsCOMPtr<nsIFile> currentFile;
     rv = directoryEnumerator->GetNextFile(getter_AddRefs(currentFile));
     if (NS_SUCCEEDED(rv) && currentFile) {
-      nsAutoString leafName;
-      currentFile->GetLeafName(leafName);
       bool isDirectory = false;
       currentFile->IsDirectory(&isDirectory);
       // Make sure this really is a mail folder dir (i.e., a directory that
       // contains cur and tmp sub-dirs, and not a .sbd or .mozmsgs dir).
-      if (isDirectory && !nsShouldIgnoreFile(leafName, currentFile))
+      if (isDirectory && !nsShouldIgnoreFile(currentFile))
         currentDirEntries.AppendObject(currentFile);
     }
   }
@@ -302,6 +300,65 @@ NS_IMETHODIMP nsMsgMaildirStore::DiscoverSubFolders(nsIMsgFolder* aParentFolder,
   if (directory) rv = AddSubFolders(aParentFolder, path, aDeep);
 
   return (rv == NS_MSG_FOLDER_EXISTS) ? NS_OK : rv;
+}
+
+NS_IMETHODIMP nsMsgMaildirStore::DiscoverChildFolders(
+    nsIMsgFolder* parent, nsTArray<nsCString>& children) {
+  NS_ENSURE_ARG(parent);
+
+  children.ClearAndRetainStorage();
+
+  // Subfolders are in `<parentname>.sbd` dir, if it exists.
+  nsCOMPtr<nsIFile> sbd;
+  {
+    MOZ_TRY(parent->GetFilePath(getter_AddRefs(sbd)));
+    bool isServer;
+    parent->GetIsServer(&isServer);
+    if (!isServer) {
+      nsAutoString name;
+      MOZ_TRY(sbd->GetLeafName(name));
+      name.AppendLiteral(FOLDER_SUFFIX);
+      MOZ_TRY(sbd->SetLeafName(name));
+    }
+    bool exists;
+    MOZ_TRY(sbd->Exists(&exists));
+    if (!exists) {
+      return NS_OK;  // No subfolders.
+    }
+    bool isDir;
+    MOZ_TRY(sbd->IsDirectory(&isDir));
+    if (!isDir) {
+      return NS_OK;  // Confusing, but treat as no subfolders.
+    }
+  }
+
+  // Now look for child folders inside `<parentname>.sbd/`.
+  nsCOMPtr<nsIDirectoryEnumerator> dirEnumerator;
+  MOZ_TRY(sbd->GetDirectoryEntries(getter_AddRefs(dirEnumerator)));
+  while (true) {
+    nsCOMPtr<nsIFile> child;
+    MOZ_TRY(dirEnumerator->GetNextFile(getter_AddRefs(child)));
+    if (!child) {
+      break;  // Finished.
+    }
+
+    bool isDir = false;
+    MOZ_TRY(child->IsDirectory(&isDir));
+    if (!isDir) {
+      continue;  // Not interested in files.
+    }
+    if (nsShouldIgnoreFile(child)) {
+      continue;  // Not interested.
+    }
+
+    // If we get this far, we treat it as a child maildir.
+    nsAutoString dirName;
+    MOZ_TRY(child->GetLeafName(dirName));
+
+    children.AppendElement(DecodeFilename(dirName));
+  }
+
+  return NS_OK;
 }
 
 /**

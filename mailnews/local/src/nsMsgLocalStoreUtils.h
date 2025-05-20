@@ -6,6 +6,8 @@
 #ifndef nsMsgLocalStoreUtils_h__
 #define nsMsgLocalStoreUtils_h__
 
+#include "nsIDirectoryEnumerator.h"
+#include "nsIFile.h"
 #include "nsString.h"
 #include "nsTArray.h"
 
@@ -18,7 +20,7 @@ class nsIRandomAccessStream;
 
 class nsMsgLocalStoreUtils {
  public:
-  static bool nsShouldIgnoreFile(nsAString& name, nsIFile* path);
+  static bool nsShouldIgnoreFile(nsIFile* path);
 
  protected:
   nsMsgLocalStoreUtils();
@@ -75,6 +77,29 @@ class nsMsgLocalStoreUtils {
                                              int64_t msgStart,
                                              StatusDetails const& details,
                                              uint32_t newFlags);
+
+  /**
+   * Escape an arbitrary UTF-8 string for safe use as a filename in a
+   * reversable way, so the string can be recovered.
+   * We'll use percent-encoding.
+   * Use the same filename rules on all platforms.
+   *
+   * Windows file naming rules:
+   * https://learn.microsoft.com/en-us/troubleshoot/windows-client/shell-experience/file-folder-name-whitespace-characters
+   * https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+   *
+   * See also the folders-with-special-characters bug:
+   * https://bugzilla.mozilla.org/show_bug.cgi?id=124287
+   */
+  static nsString EncodeFilename(nsACString const& str);
+
+  /**
+   * Decode a filename encoded by EncodeFilename().
+   * e.g. Windows can't handle a filename of "COM1" so it'll have to be encoded.
+   * We'll use percent encoding, as used for URL components - it's well defined
+   * and reversable. eg: "%43%4F%4D%31" => "COM1"
+   */
+  static nsCString DecodeFilename(nsAString const& filename);
 };
 
 #endif

@@ -69,6 +69,85 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::DiscoverSubFolders(nsIMsgFolder* aParentFolder,
   return AddSubFolders(aParentFolder, path, aDeep);
 }
 
+// Given a directory structure:
+// ...profile/Mail/localfolders/
+//     foo
+//     foo.sbd/
+//        bar
+//        bar.sbd/
+//          wibble
+//        pibble
+//        shouldnt_be_here/
+//          rubbish
+//
+// Calling this function should yield these results:
+//
+// parent     |  Should return
+// -----------+---------------
+// root       | ["foo"]
+// foo        | ["bar", "pibble"]
+// foo/bar    | ["wibble"]
+// foo/pibble | []
+//
+NS_IMETHODIMP nsMsgBrkMBoxStore::DiscoverChildFolders(
+    nsIMsgFolder* parent, nsTArray<nsCString>& children) {
+  NS_ENSURE_ARG(parent);
+
+  children.ClearAndRetainStorage();
+
+  // Subfolders are in `<parentname>.sbd` dir, if it exists.
+  nsCOMPtr<nsIFile> sbd;
+  {
+    MOZ_TRY(parent->GetFilePath(getter_AddRefs(sbd)));
+    bool isServer;
+    parent->GetIsServer(&isServer);
+    if (!isServer) {
+      nsAutoString name;
+      MOZ_TRY(sbd->GetLeafName(name));
+      name.AppendLiteral(FOLDER_SUFFIX);
+      MOZ_TRY(sbd->SetLeafName(name));
+    }
+    bool exists;
+    MOZ_TRY(sbd->Exists(&exists));
+    if (!exists) {
+      return NS_OK;  // No subfolders.
+    }
+    bool isDir;
+    MOZ_TRY(sbd->IsDirectory(&isDir));
+    if (!isDir) {
+      return NS_OK;  // Confusing, but treat as no subfolders.
+    }
+  }
+
+  // Now look for child folders inside `<parentname>.sbd/`.
+  nsCOMPtr<nsIDirectoryEnumerator> dirEnumerator;
+  MOZ_TRY(sbd->GetDirectoryEntries(getter_AddRefs(dirEnumerator)));
+  while (true) {
+    nsCOMPtr<nsIFile> child;
+    MOZ_TRY(dirEnumerator->GetNextFile(getter_AddRefs(child)));
+    if (!child) {
+      break;  // Finished.
+    }
+
+    bool isDir = false;
+    MOZ_TRY(child->IsDirectory(&isDir));
+    if (isDir) {
+      continue;  // Ignore directories.
+    }
+    if (nsShouldIgnoreFile(child)) {
+      continue;  // Not interested.
+    }
+
+    // If we get this far, we treat it as an mbox file.
+    nsAutoString fileName;
+    MOZ_TRY(child->GetLeafName(fileName));
+
+    children.AppendElement(DecodeFilename(fileName));
+  }
+
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder* aParent,
                                               const nsACString& aFolderName,
                                               nsIMsgFolder** aResult) {
@@ -992,12 +1071,12 @@ nsresult nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder* parent,
   for (int32_t i = 0; i < count; ++i) {
     nsCOMPtr<nsIFile> currentFile(currentDirEntries[i]);
 
-    nsAutoString leafName;
-    currentFile->GetLeafName(leafName);
     // here we should handle the case where the current file is a .sbd directory
     // w/o a matching folder file, or a directory w/o the name .sbd
-    if (nsShouldIgnoreFile(leafName, currentFile)) continue;
+    if (nsShouldIgnoreFile(currentFile)) continue;
 
+    nsAutoString leafName;
+    currentFile->GetLeafName(leafName);
     nsCOMPtr<nsIMsgFolder> child;
     rv = parent->AddSubfolder(NS_ConvertUTF16toUTF8(leafName),
                               getter_AddRefs(child));

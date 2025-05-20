@@ -90,8 +90,118 @@ function test_discoverSubFolders() {
   Assert.equal(unhashedFolder.summaryFile.leafName, "test π.msf");
 }
 
-// Load messages into a msgStore and make sure we can read
-// them back correctly using asyncScan().
+/**
+ * Give nsIMsgPluggableStore.discoverChildFolders() a workout
+ */
+async function test_discoverChildFolders() {
+  // Helper to create raw subfolders to discover.
+  async function createTestStoreFolders(rootFolder, dirs) {
+    const storeType = rootFolder.msgStore.storeType;
+    for (const dir of dirs) {
+      const parts = dir.split("/");
+      const p = PathUtils.join(rootFolder.filePath.path, ...parts);
+      if (storeType == "maildir") {
+        await IOUtils.makeDirectory(p);
+        await IOUtils.makeDirectory(PathUtils.join(p, "new"));
+        await IOUtils.makeDirectory(PathUtils.join(p, "cur"));
+      } else if (storeType == "mbox") {
+        await IOUtils.writeUTF8(p, "");
+      } else {
+        throw new Error(`Unexpected storeType: ${storeType}`);
+      }
+    }
+  }
+
+  // Walk down recursively, discovering children and creating nsIMsgFolders as we go.
+  const buildFolderHierarchy = function (folder) {
+    const msgStore = folder.msgStore;
+    const childNames = msgStore.discoverChildFolders(folder);
+    for (const name of childNames) {
+      // NOTE: this actually triggers folder discovery (Bug 1633955).
+      // And that folder discovery will likely screw up the names.
+      // But for non-tricksy names we'll be fine.
+      let child = folder.getChildNamed(name);
+      if (!child) {
+        child = folder.addSubfolder(name);
+      }
+      buildFolderHierarchy(child);
+    }
+  };
+
+  // Read out a nsIMsgFolder Hierarchy.
+  const describeHierarchy = function (folder, desc) {
+    const found = [`${desc}`];
+    for (const child of folder.subFolders) {
+      found.push(...describeHierarchy(child, `${desc} => ${child.name}`));
+    }
+    return found;
+  };
+
+  // Test cases.
+  //
+  // Note: we use ' => ' instead of '/' as we're not escaping path
+  // components so don't want to portray these strings as proper paths!.
+  // "Outbox" and "Trash" are automatically created.
+  const defaultFolders = ["ROOT", "ROOT => Outbox", "ROOT => Trash"];
+  const testCases = [
+    // No children.
+    {
+      dirs: [],
+      expect: defaultFolders,
+    },
+    // Two levels of children.
+    {
+      dirs: ["foo", "foo.sbd/bar", "foo.sbd/bar.sbd/wibble"],
+      expect: [
+        ...defaultFolders,
+        "ROOT => foo",
+        "ROOT => foo => bar",
+        "ROOT => foo => bar => wibble",
+      ],
+    },
+    /*
+     * These should work, but right now these names will screw things
+     * up during DB creation:
+     *
+     *{
+     *  dirs: ["I%2FO stuff", "I%2FO stuff.sbd/wibble", "I%2FO stuff.sbd/n%2Fa"],
+     *  expect: [
+     *    ...defaultFolders,
+     *    "ROOT => I/O stuff",
+     *    "ROOT => I/O stuff => wibble",
+     *    "ROOT => I/O stuff => n/a",
+     *  ],
+     *},
+     */
+    // TODO:
+    // - non-latin names
+    // - forbidden names ("COM1" etc)
+    // - make sure we ignore subdirs without ".sbd" suffix
+    // - make sure we skip special names like "popstate.dat" et al
+  ];
+
+  for (const testCase of testCases) {
+    // New environment.
+    const root = create_temporary_directory();
+    const rootFolder = setup_mailbox("none", root);
+
+    // Create the raw directories, ready to be discovered.
+    await createTestStoreFolders(rootFolder, testCase.dirs);
+
+    // Discover children and create nsIMsgFolders Hierarchy.
+    buildFolderHierarchy(rootFolder);
+
+    // Now read out the nsIMsgFolder hierarchy.
+    const got = describeHierarchy(rootFolder, "ROOT");
+
+    Assert.deepEqual(got.toSorted(), testCase.expect.toSorted());
+  }
+}
+
+/**
+ * Load messages into a msgStore and make sure we can read
+ * them back correctly using asyncScan().
+ */
 async function test_asyncScan() {
   const msg1 =
     "To: bob@invalid\r\n" +
@@ -462,6 +572,7 @@ function withStore(store, fn) {
 }
 
 for (const store of localAccountUtils.pluggableStores) {
+  add_task(withStore(store, test_discoverChildFolders));
   add_task(withStore(store, test_discoverSubFolders));
   add_task(withStore(store, test_asyncScan));
   add_task(withStore(store, test_basicReadWrite));

@@ -12,11 +12,11 @@ interface nsIMsgDBHdr;
 interface nsIMsgWindow;
 interface nsIOutputStream;
 interface nsIInputStream;
-interface nsIUrlListener;
 interface nsIMsgDatabase;
 interface nsITransaction;
 interface nsIStoreScanListener;
 interface nsIStoreCompactListener;
+interface nsIFile;
 
 /**
  * Pluggable message store interface. Each incoming server can have a different
@@ -54,6 +54,18 @@ interface nsIMsgPluggableStore : nsISupports {
    *              not want to do this?
    */
   void discoverSubFolders(in nsIMsgFolder aParentFolder, in boolean aDeep);
+
+  /**
+   * Find child folders which the store thinks exists directly beneath parent.
+   * The children do _not_ need to exist as nsIMsgFolder objects - the whole
+   * purpose of this function is to provide a way to build up the
+   * nsIMsgFolder hierarchy from the store.
+   * It just returns a list of child folder names.
+   *
+   * @param parent - The folder to look in.
+   * @returns the names of any direct children of the parent.
+   */
+  Array<AUTF8String> discoverChildFolders(in nsIMsgFolder parent);
 
   /**
    * Creates storage for a new, empty folder.

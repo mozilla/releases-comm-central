@@ -5,7 +5,6 @@
 
 #include "msgCore.h"  // precompiled header...
 #include "nsMsgLocalStoreUtils.h"
-#include "nsIFile.h"
 #include "nsIMsgDatabase.h"
 #include "nsIRandomAccessStream.h"
 #include "HeaderReader.h"
@@ -30,7 +29,12 @@ nsresult nsMsgLocalStoreUtils::AddDirectorySeparator(nsIFile* path) {
   return path->SetLeafName(leafName);
 }
 
-bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString& name, nsIFile* path) {
+bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsIFile* path) {
+  nsAutoString name;
+  if (NS_FAILED(path->GetLeafName(name))) {
+    return true;
+  }
+
   if (name.IsEmpty()) return true;
 
   char16_t firstChar = name.First();
@@ -359,4 +363,24 @@ nsresult nsMsgLocalStoreUtils::ChangeKeywordsHelper(
   NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;
+}
+
+// static
+nsString nsMsgLocalStoreUtils::EncodeFilename(nsACString const& str) {
+  // TODO: IMPLEMENT THIS!
+  // 1. Decide if it's an acceptable filename.
+  //    - Start by copying code in nsLocalFile::CheckForReservedFileName().
+  //    - add extra check from the microsoft.com links above.
+  // 2. if not ok, percent-encode the offending parts.
+  //    For things like "COM1", have to encode all chars.
+  //    For things like "foo/bar", just '/' needs encoding.
+  return NS_ConvertUTF8toUTF16(str);
+}
+
+// static
+nsCString nsMsgLocalStoreUtils::DecodeFilename(nsAString const& filename) {
+  // TODO: IMPLEMENT THIS!
+  // Just percent-decoding it should be enough:
+  // NS_UnescapeURL(str);
+  return NS_ConvertUTF16toUTF8(filename);
 }

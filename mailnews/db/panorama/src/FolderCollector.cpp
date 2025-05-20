@@ -105,7 +105,7 @@ void FolderCollector::FindChildren(nsIFolder* aParent, nsIFile* aFile) {
 
         childFiles.InsertOrUpdate(NS_ConvertUTF16toUTF8(leafName), fileForSame);
       }
-    } else if (!nsMsgLocalStoreUtils::nsShouldIgnoreFile(leafName, file)) {
+    } else if (!nsMsgLocalStoreUtils::nsShouldIgnoreFile(file)) {
       nsCOMPtr<nsIFile> dirForSame;
       file->Clone(getter_AddRefs(dirForSame));
       nsAutoString dirLeafName(leafName);
