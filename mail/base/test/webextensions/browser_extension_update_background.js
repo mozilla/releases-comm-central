@@ -64,7 +64,12 @@ add_setup(async function () {
 });
 
 // Helper function to test background updates.
-async function backgroundUpdateTest(url, id, checkIconFn) {
+async function backgroundUpdateTest(
+  url,
+  id,
+  checkIconFn,
+  expectedPermissionStrings
+) {
   await SpecialPowers.pushPrefEnv({
     set: [
       // Turn on background updates
@@ -120,12 +125,32 @@ async function backgroundUpdateTest(url, id, checkIconFn) {
 
   // The original extension has 1 promptable permission and the new one
   // has 2 (history and <all_urls>) plus 1 non-promptable permission (cookies).
-  // So we should only see the 1 new promptable permission in the notification.
-  const singlePermissionEl = document.getElementById(
-    "addon-webext-perm-single-entry"
+  // So we should see the permission list with at least one entry.
+  const permissionListEl = document.getElementById("addon-webext-perm-list");
+  ok(!permissionListEl.hidden, "Permission list is not hidden");
+  is(
+    expectedPermissionStrings.length,
+    permissionListEl.children.length,
+    "Permission list has the correct number of entries"
   );
-  ok(!singlePermissionEl.hidden, "Single permission entry is not hidden");
-  ok(singlePermissionEl.textContent, "Single permission entry text is set");
+  for (let i = 0; i < permissionListEl.children.length; i++) {
+    const child = permissionListEl.children[i];
+    is(
+      expectedPermissionStrings[i],
+      child.textContent,
+      "Permission list is correct"
+    );
+  }
+
+  const permissionTitleEl = document.getElementById(
+    "addon-webext-perm-title-required"
+  );
+  ok(!permissionTitleEl.hidden, "Permission list title is not hidden");
+  is(
+    "New required permissions:",
+    permissionTitleEl.textContent,
+    "Permission list title is correct"
+  );
 
   // Cancel the update.
   panel.secondaryButton.click();
@@ -236,7 +261,8 @@ add_task(() =>
   backgroundUpdateTest(
     `${BASE}/addons/browser_webext_update1.xpi`,
     ID,
-    checkDefaultIcon
+    checkDefaultIcon,
+    ["Access your data for all websites"]
   )
 );
 
@@ -252,7 +278,8 @@ add_task(() =>
   backgroundUpdateTest(
     `${BASE}/addons/browser_webext_update_icon1.xpi`,
     ID_ICON,
-    checkNonDefaultIcon
+    checkNonDefaultIcon,
+    ["Access your data for all websites"]
   )
 );
 
@@ -262,6 +289,7 @@ add_task(() =>
   backgroundUpdateTest(
     `${BASE}/addons/browser_webext_experiment_update1.xpi`,
     ID_EXPERIMENT,
-    checkDefaultIcon
+    checkDefaultIcon,
+    ["See your mail accounts, their identities and their folders"]
   )
 );

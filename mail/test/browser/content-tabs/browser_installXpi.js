@@ -125,10 +125,14 @@ add_task(async function test_xpinstall_webext_actually_install() {
     "addon-webext-permissions",
     ".popup-notification-primary-button",
     () => {
-      const permission = gDocument.getElementById(
-        "addon-webext-perm-single-entry"
+      const permissionListEl = gDocument.getElementById(
+        "addon-webext-perm-list"
       );
-      Assert.ok(!permission.hidden);
+      const permissionTitleEl = document.getElementById(
+        "addon-webext-perm-title-required"
+      );
+      Assert.ok(!permissionListEl.hidden);
+      Assert.ok(!permissionTitleEl.hidden);
     }
   );
   await waitForNotification(

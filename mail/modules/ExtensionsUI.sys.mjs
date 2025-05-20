@@ -525,6 +525,7 @@ var gXPInstallObserver = {
           if (topic !== "showing") {
             return;
           }
+          // The "browser" is from messenger.xhtml.
           const doc = browser.ownerDocument;
           const message = doc.getElementById("addon-install-blocked-message");
           // We must remove any prior use of this panel message in this window.
@@ -1165,12 +1166,13 @@ export var ExtensionsUI = {
 
     const promise = new Promise(resolve => {
       function eventCallback(topic) {
-        const doc = this.browser.ownerDocument;
+        // The "browser" is from the tab, but we need the one from the parent
+        // messenger.xhtml.
+        const doc = this.browser.ownerGlobal.top.document;
         if (topic == "showing") {
           const textEl = doc.getElementById("addon-webext-perm-text");
           textEl.textContent = strings.text;
           textEl.hidden = !strings.text;
-
           // By default, multiline strings don't get formatted properly. These
           // are presently only used in site permission add-ons, so we treat it
           // as a special case to avoid unintended effects on other things.
@@ -1195,22 +1197,21 @@ export var ExtensionsUI = {
           while (list.firstChild) {
             list.firstChild.remove();
           }
-          const singleEntryEl = doc.getElementById(
-            "addon-webext-perm-single-entry"
-          );
-          singleEntryEl.textContent = "";
-          singleEntryEl.hidden = true;
           list.hidden = true;
 
-          if (strings.msgs.length === 1) {
-            singleEntryEl.textContent = strings.msgs[0];
-            singleEntryEl.hidden = false;
-          } else if (strings.msgs.length) {
+          const permsTitleEl = doc.getElementById(
+            "addon-webext-perm-title-required"
+          );
+          permsTitleEl.textContent = strings.sectionHeaders.required;
+          permsTitleEl.hidden = true;
+
+          if (strings.msgs.length) {
             for (const msg of strings.msgs) {
               const item = doc.createElementNS(HTML_NS, "li");
               item.textContent = msg;
               list.appendChild(item);
             }
+            permsTitleEl.hidden = false;
             list.hidden = false;
           }
 

@@ -184,10 +184,10 @@ async function checkNotification(
   warning = false
 ) {
   const icon = panel.getAttribute("icon");
-  const ul = document.getElementById("addon-webext-perm-list");
-  const singleDataEl = document.getElementById(
-    "addon-webext-perm-single-entry"
+  const permissionTitleEl = document.getElementById(
+    "addon-webext-perm-title-required"
   );
+  const permissionListEl = document.getElementById("addon-webext-perm-list");
   const experimentWarning = document.getElementById(
     "addon-webext-experiment-warning"
   );
@@ -211,21 +211,24 @@ async function checkNotification(
   );
 
   if (!permissions.length) {
-    ok(ul.hidden, "Permissions list is hidden");
-    ok(singleDataEl.hidden, "Single permission data entry is hidden");
+    ok(permissionListEl.hidden, "Permissions list is hidden");
+    ok(permissionTitleEl.hidden, "Permissions list title is hidden");
     ok(
-      !(ul.childElementCount || singleDataEl.textContent),
+      !permissionListEl.childElementCount,
       "Permission list and single permission element have no entries"
     );
-  } else if (permissions.length === 1) {
-    ok(ul.hidden, "Permissions list is hidden");
-    ok(!ul.childElementCount, "Permission list has no entries");
-    ok(singleDataEl.textContent, "Single permission data label has been set");
   } else {
-    ok(singleDataEl.hidden, "Single permission data entry is hidden");
-    ok(
-      !singleDataEl.textContent,
-      "Single permission data label has not been set"
+    ok(!permissionListEl.hidden, "Permissions list is not hidden");
+    ok(!permissionTitleEl.hidden, "Permissions list title is not hidden");
+    is(
+      permissions.length,
+      permissionListEl.childElementCount,
+      "Permission list has the correct number of entries"
+    );
+    is(
+      "Required permissions:",
+      permissionTitleEl.textContent,
+      "Permissions list title is correct"
     );
   }
 

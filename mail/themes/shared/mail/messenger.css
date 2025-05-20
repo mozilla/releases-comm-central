@@ -711,17 +711,19 @@ img.invisible-on-broken:-moz-broken {
 }
 
 html|*.addon-webext-perm-list {
+  margin-block-start: 0;
   margin-block-end: 0;
-  padding-inline-start: 10px;
+  padding-inline-start: 18px;
 }
 
-.addon-webext-perm-single-entry {
-  margin-top: 11px;
-}
-
-.addon-webext-perm-text,
-.addon-webext-perm-single-entry {
+.addon-webext-perm-text {
   margin-inline-start: 0;
+}
+
+.addon-webext-perm-title-required {
+  margin-top: 11px;
+  margin-inline-start: -1px;
+  font-weight: bold;
 }
 
 .popup-notification-description[popupid="addon-webext-permissions"],
@@ -731,7 +733,8 @@ html|*.addon-webext-perm-list {
 
 .addon-webext-perm-notification-content,
 .addon-installed-notification-content {
-  margin-top: 0;
+  margin-block-start: 0;
+  margin-block-end: var(--space-xsmall);
 }
 
 #addon-webext-experiment-warning {
