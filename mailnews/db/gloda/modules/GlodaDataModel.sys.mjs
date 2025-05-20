@@ -335,6 +335,24 @@ GlodaFolder.prototype = {
     }
   },
   /**
+   * Indicate whether this folder is currently being repaired.  The
+   * |GlodaMsgIndexer| keeps this in-memory-only value up-to-date.
+   *
+   * @returns {boolean} if the folder is currently being repaired.
+   */
+  get rebuildingFolderSummary() {
+    return this._rebuildingFolderSummary;
+  },
+  /**
+   * Set whether this folder is currently being repaired.  This is really only
+   * for the |GlodaMsgIndexer| to set.
+   *
+   * @param {boolean} isRebuilding if the folder is currently being repaired.
+   */
+  set rebuildingFolderSummary(isRebuilding) {
+    this._rebuildingFolderSummary = isRebuilding;
+  },
+  /**
    * Indicate whether this folder is currently being compacted.  The
    *  |GlodaMsgIndexer| keeps this in-memory-only value up-to-date.
    */

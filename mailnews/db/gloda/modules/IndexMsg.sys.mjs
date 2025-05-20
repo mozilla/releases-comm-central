@@ -910,9 +910,21 @@ export var GlodaMsgIndexer = {
    *  actually ready to be indexed.  (The summary may have not existed, may have
    *  been out of date, or otherwise.)
    *
+   * When a folder message summary file has been rebuilt via "Repair Folder",
+   * we trigger a re-indexing of the gloda folder as well.
+   *
    * @param {nsIMsgFolder} aFolder - An nsIMsgFolder, already QI'd.
    */
   _onFolderLoaded(aFolder) {
+    const glodaFolder = GlodaDatastore._mapFolder(aFolder);
+    if (glodaFolder.rebuildingFolderSummary) {
+      glodaFolder.rebuildingFolderSummary = false;
+      glodaFolder._dirtyStatus = glodaFolder.kFolderFilthy;
+      GlodaDatastore.updateFolderDirtyStatus(glodaFolder);
+      GlodaMsgIndexer.indexingSweepNeeded = true;
+      return;
+    }
+
     if (
       this._pendingFolderEntry !== null &&
       aFolder.URI == this._pendingFolderEntry.URI
@@ -1049,11 +1061,12 @@ export var GlodaMsgIndexer = {
       // ignore folders that:
       // - have been deleted out of existence!
       // - are not dirty/have not been compacted
-      // - are actively being compacted
+      // - are actively being compacted or repaired
       if (
         glodaFolder._deleted ||
         (!glodaFolder.dirtyStatus && !glodaFolder.compacted) ||
-        glodaFolder.compacting
+        glodaFolder.compacting ||
+        glodaFolder.rebuildingFolderSummary
       ) {
         continue;
       }
@@ -1560,11 +1573,12 @@ export var GlodaMsgIndexer = {
       const glodaFolder = GlodaDatastore._mapFolderID(glodaFolderId);
 
       // Stay out of folders that:
-      // - are compacting / compacted and not yet processed
+      // - are compacting or being repaired / compacted and not yet processed
       // - got deleted (this would be redundant if we had a stance on id nukage)
       // (these things could have changed since we queued the event)
       if (
         glodaFolder.compacting ||
+        glodaFolder.rebuildingFolderSummary ||
         glodaFolder.compacted ||
         glodaFolder._deleted
       ) {
@@ -1998,8 +2012,12 @@ export var GlodaMsgIndexer = {
       return false;
     }
     const glodaFolder = GlodaDatastore._mapFolder(aMsgFolder);
-    // stay out of compacting/compacted folders
-    if (glodaFolder.compacting || glodaFolder.compacted) {
+    // Stay out of compacting/compacted folders and folders being repaired.
+    if (
+      glodaFolder.compacting ||
+      glodaFolder.compacted ||
+      glodaFolder.rebuildingFolderSummary
+    ) {
       return false;
     }
 
@@ -2836,6 +2854,13 @@ export var GlodaMsgIndexer = {
 
       // (We do not need to mark the folder dirty because if we were indexing
       //  it, it already must have been marked dirty.)
+
+      // Repairing a local folder may change message keys and fix other
+      // problems, so we prepare for a complete re-indexing of the folder.
+      if (!isCompacting) {
+        GlodaDatastore.markMessagesDeletedByFolderID(glodaFolder.id);
+        glodaFolder.rebuildingFolderSummary = true;
+      }
     },
 
     /**
