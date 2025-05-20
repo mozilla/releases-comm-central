@@ -307,7 +307,9 @@ var PendingCommitTracker = {
       //  rare and the number of pending headers is generally going to be
       //  small.
       if (key.indexOf(uri) == 0) {
+        const glodaId = this._indexedMessagesPendingCommitByKey[key];
         delete this._indexedMessagesPendingCommitByKey[key];
+        delete this._indexedMessagesPendingCommitByGlodaId[glodaId];
       }
     }
   },
