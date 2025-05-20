@@ -146,6 +146,15 @@ add_task(function testMoveToSameParent() {
     [c, parent.id, 3],
     [d, parent.id, 4],
   ]);
+
+  folders.resetChildOrder(parent);
+  checkOrdinals([
+    [parent, 1, null],
+    [a, parent.id, null],
+    [b, parent.id, null],
+    [c, parent.id, null],
+    [d, parent.id, null],
+  ]);
 });
 
 /**
@@ -160,6 +169,11 @@ add_task(function testMoveToNewParent() {
   const b = folders.getFolderById(7);
   const c = folders.getFolderById(9);
   const d = folders.getFolderById(10);
+
+  folders.moveFolderWithin(parent, b, a);
+  folders.moveFolderWithin(parent, c, a);
+  folders.moveFolderWithin(parent, d, a);
+  folders.moveFolderWithin(parent, a, b);
 
   drawTree(grandparent);
   checkOrdinals([

@@ -25,12 +25,13 @@ class Folder;
  */
 class FolderComparator {
  public:
-  bool Equals(const RefPtr<Folder>& aA, const RefPtr<Folder>& aB) const;
-  bool LessThan(const RefPtr<Folder>& aA, const RefPtr<Folder>& aB) const;
+  bool Equals(const RefPtr<Folder>& a, const RefPtr<Folder>& b) const;
+  bool LessThan(const RefPtr<Folder>& a, const RefPtr<Folder>& b) const;
 
  private:
   static const Collator* sCollator;
   static const Collator* GetCollator();
+  uint8_t SpecialFlagsOrder(const uint64_t flags) const;
 };
 
 }  // namespace mozilla::mailnews

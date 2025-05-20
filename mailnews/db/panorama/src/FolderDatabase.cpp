@@ -443,8 +443,7 @@ FolderDatabase::MoveFolderWithin(nsIFolder* aParent, nsIFolder* aChild,
   if (!aBefore) {
     parent->mChildren.RemoveElement(child);
     parent->mChildren.AppendElement(child);
-    SaveOrdinals(parent->mChildren);
-    return NS_OK;
+    return SaveOrdinals(parent->mChildren);
   }
 
   Folder* before = (Folder*)(aBefore);
@@ -455,8 +454,50 @@ FolderDatabase::MoveFolderWithin(nsIFolder* aParent, nsIFolder* aChild,
 
   parent->mChildren.RemoveElement(child);
   parent->mChildren.InsertElementAt(parent->mChildren.IndexOf(before), child);
-  SaveOrdinals(parent->mChildren);
+  return SaveOrdinals(parent->mChildren);
+}
 
+nsresult FolderDatabase::SaveOrdinals(nsTArray<RefPtr<Folder>>& folders) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "UpdateOrdinals"_ns,
+      "UPDATE folders SET ordinal = :ordinal WHERE id = :id"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  uint64_t ordinal = 1;
+  for (auto child : folders) {
+    child->mOrdinal.reset();
+    child->mOrdinal.emplace(ordinal);
+    stmt->BindInt64ByName("ordinal"_ns, ordinal);
+    stmt->BindInt64ByName("id"_ns, child->mId);
+    stmt->Execute();
+    stmt->Reset();
+    ordinal++;
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+FolderDatabase::ResetChildOrder(nsIFolder* aParent) {
+  MOZ_ASSERT(aParent);
+  Folder* parent = (Folder*)(aParent);
+
+  for (RefPtr<Folder> child : parent->mChildren) {
+    child->mOrdinal.reset();
+  }
+  parent->mChildren.Sort(mComparator);
+
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "ResetOrdinals"_ns,
+      "UPDATE folders SET ordinal = NULL WHERE parent = :parent"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("parent"_ns, aParent->GetId());
+  stmt->Execute();
+  stmt->Reset();
   return NS_OK;
 }
 
@@ -503,31 +544,13 @@ FolderDatabase::MoveFolderTo(nsIFolder* aNewParent, nsIFolder* aChild) {
   mFoldersByPath.Remove(child->GetPath());
 
   child->mParent->mChildren.RemoveElement(child);
+  child->mOrdinal.reset();
   newParent->mChildren.InsertElementSorted(child, mComparator);
   child->mParent = newParent;
-  child->mOrdinal.reset();
 
   mFoldersByPath.InsertOrUpdate(child->GetPath(), child);
 
   return NS_OK;
-}
-
-void FolderDatabase::SaveOrdinals(nsTArray<RefPtr<Folder>>& folders) {
-  nsCOMPtr<mozIStorageStatement> stmt;
-  nsresult rv = DatabaseCore::GetStatement(
-      "UpdateOrdinals"_ns,
-      "UPDATE folders SET ordinal = :ordinal WHERE id = :id"_ns,
-      getter_AddRefs(stmt));
-  NS_ENSURE_SUCCESS_VOID(rv);
-
-  uint64_t ordinal = 1;
-  for (auto f : folders) {
-    stmt->BindInt64ByName("ordinal"_ns, ordinal);
-    stmt->BindInt64ByName("id"_ns, f->mId);
-    stmt->Execute();
-    stmt->Reset();
-    ordinal++;
-  }
 }
 
 NS_IMETHODIMP

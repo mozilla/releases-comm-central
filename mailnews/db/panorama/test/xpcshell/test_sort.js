@@ -12,24 +12,38 @@
 add_setup(function () {
   // These id values are deliberately out-of-order. It shouldn't matter.
   installDB(`
-    INSERT INTO folders (id, parent, ordinal, name) VALUES
-      (7, 0, null, 'parent1'),
-      (10, 7, null, 'ëcho'),
-      (9, 7, null, 'Foxtrot'),
-      (15, 7, null, 'golf'),
-      (3, 7, null, 'Hotel'),
+    INSERT INTO folders (id, parent, ordinal, name, flags) VALUES
+      (7, 0, null, 'parent1', 0),
+      (10, 7, null, 'ëcho', 0),
+      (9, 7, null, 'Foxtrot', 0),
+      (15, 7, null, 'golf', 0),
+      (3, 7, null, 'Hotel', 0),
 
-      (12, 0, null, 'parent2'),
-      (6, 12, 3, 'kilo'),
-      (2, 12, 1, 'Lima'),
-      (14, 12, 4, 'November'),
-      (8, 12, 2, 'Quebec'),
+      (12, 0, null, 'parent2', 0),
+      (6, 12, 3, 'kilo', 0),
+      (2, 12, 1, 'Lima', 0),
+      (14, 12, 4, 'November', 0),
+      (8, 12, 2, 'Quebec', 0),
 
-      (11, 0, null, 'parent3'),
-      (4, 11, 3, 'sierra'),
-      (13, 11, null, 'Tango'),
-      (1, 11, null, 'Uniform'),
-      (5, 11, 2, 'whisky');
+      (11, 0, null, 'parent3', 0),
+      (4, 11, 3, 'sierra', 0),
+      (13, 11, null, 'Tango', 0),
+      (1, 11, null, 'Uniform', 0),
+      (5, 11, 2, 'whisky', 0),
+
+      (16, 0, null, 'parent4', 0),
+      (21, 16, null, 'X-Ray', 0),
+      (23, 16, null, 'Yankee', 0),
+      (25, 16, null, 'Zulu', 0),
+      (24, 16, null, 'Sent', ${Ci.nsMsgFolderFlags.SentMail}),
+      (26, 16, null, 'Drafts', ${Ci.nsMsgFolderFlags.Drafts}),
+      (18, 16, null, 'Trash', ${Ci.nsMsgFolderFlags.Trash}),
+      (17, 16, null, 'Archives', ${Ci.nsMsgFolderFlags.Archive}),
+      (20, 16, null, 'Inbox', ${Ci.nsMsgFolderFlags.Inbox}),
+      (27, 16, null, 'Templates', ${Ci.nsMsgFolderFlags.Templates}),
+      (28, 16, null, 'Virtual', ${Ci.nsMsgFolderFlags.Virtual}),
+      (19, 16, null, 'Unsent Messages', ${Ci.nsMsgFolderFlags.Queue}),
+      (22, 16, null, 'Junk', ${Ci.nsMsgFolderFlags.Junk});
   `);
 });
 
@@ -70,4 +84,95 @@ add_task(function testMixedOrdinals() {
   const whisky = folders.getFolderById(5);
 
   Assert.deepEqual(parent.children, [whisky, sierra, tango, uniform]);
+});
+
+/**
+ * Tests that folders with special flags are ordered in the natural order.
+ */
+add_task(function testSpecialFolders() {
+  const parent = folders.getFolderById(16);
+  const xray = folders.getFolderById(21);
+  const yankee = folders.getFolderById(23);
+  const zulu = folders.getFolderById(25);
+  const archives = folders.getFolderById(17);
+  const drafts = folders.getFolderById(26);
+  const inbox = folders.getFolderById(20);
+  const junk = folders.getFolderById(22);
+  const sent = folders.getFolderById(24);
+  const templates = folders.getFolderById(27);
+  const trash = folders.getFolderById(18);
+  const unsent = folders.getFolderById(19);
+  const virtual = folders.getFolderById(28);
+
+  Assert.deepEqual(parent.children, [
+    inbox,
+    drafts,
+    templates,
+    sent,
+    archives,
+    junk,
+    trash,
+    virtual,
+    unsent,
+    xray,
+    yankee,
+    zulu,
+  ]);
+
+  // Reorder the folders to check that still works with special folders involved.
+
+  folders.moveFolderWithin(parent, xray, inbox);
+  folders.moveFolderWithin(parent, zulu, xray);
+
+  Assert.deepEqual(parent.children, [
+    zulu,
+    xray,
+    inbox,
+    drafts,
+    templates,
+    sent,
+    archives,
+    junk,
+    trash,
+    virtual,
+    unsent,
+    yankee,
+  ]);
+
+  folders.moveFolderWithin(parent, archives, templates);
+  folders.moveFolderWithin(parent, junk, xray);
+
+  Assert.deepEqual(parent.children, [
+    zulu,
+    junk,
+    xray,
+    inbox,
+    drafts,
+    archives,
+    templates,
+    sent,
+    trash,
+    virtual,
+    unsent,
+    yankee,
+  ]);
+
+  // Reset the order to check it goes back correctly.
+
+  folders.resetChildOrder(parent);
+
+  Assert.deepEqual(parent.children, [
+    inbox,
+    drafts,
+    templates,
+    sent,
+    archives,
+    junk,
+    trash,
+    virtual,
+    unsent,
+    xray,
+    yankee,
+    zulu,
+  ]);
 });

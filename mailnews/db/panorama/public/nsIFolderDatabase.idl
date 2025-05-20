@@ -80,6 +80,13 @@ interface nsIFolderDatabase : nsISupports {
                         [optional] in nsIFolder before);
 
   /**
+   * Reset a folders children into their natural order.
+   *
+   * This function should be called by the UI, nothing else is affected.
+   */
+  void resetChildOrder(in nsIFolder parent);
+
+  /**
    * Move a folder from one parent to another. Folders cannot be moved from
    * one folder to another, or be made descendants of themselves.
    *

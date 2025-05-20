@@ -57,7 +57,7 @@ class FolderDatabase : public nsIFolderDatabase {
                                 nsIFolder** aChild);
   nsresult InternalDeleteFolder(nsIFolder* aFolder);
 
-  void SaveOrdinals(nsTArray<RefPtr<Folder>>& aFolders);
+  nsresult SaveOrdinals(nsTArray<RefPtr<Folder>>& aFolders);
 };
 
 }  // namespace mozilla::mailnews

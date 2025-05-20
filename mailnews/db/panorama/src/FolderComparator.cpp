@@ -5,49 +5,75 @@
 #include "FolderComparator.h"
 
 #include "mozilla/intl/LocaleService.h"
+#include "nsMsgFolderFlags.h"
 
 using mozilla::intl::LocaleService;
 
 namespace mozilla::mailnews {
 
-bool FolderComparator::Equals(const RefPtr<Folder>& aA,
-                              const RefPtr<Folder>& aB) const {
-  if (aA->mOrdinal.isNothing()) {
-    if (aB->mOrdinal.isNothing()) {
+bool FolderComparator::Equals(const RefPtr<Folder>& a,
+                              const RefPtr<Folder>& b) const {
+  if (a->mOrdinal.isNothing()) {
+    if (b->mOrdinal.isNothing()) {
       const Collator* collator = GetCollator();
       return collator->CompareStrings(
-                 PromiseFlatString(NS_ConvertUTF8toUTF16(aA->mName)),
-                 PromiseFlatString(NS_ConvertUTF8toUTF16(aB->mName))) == 0;
+                 PromiseFlatString(NS_ConvertUTF8toUTF16(a->mName)),
+                 PromiseFlatString(NS_ConvertUTF8toUTF16(b->mName))) == 0;
     }
 
     return false;
   }
 
-  if (aB->mOrdinal.isNothing()) {
+  if (b->mOrdinal.isNothing()) {
     return false;
   }
 
-  return aA->mOrdinal == aB->mOrdinal;
+  if (a->mOrdinal != b->mOrdinal) {
+    return false;
+  }
+
+  return SpecialFlagsOrder(a->mFlags) == SpecialFlagsOrder(b->mFlags);
 }
 
-bool FolderComparator::LessThan(const RefPtr<Folder>& aA,
-                                const RefPtr<Folder>& aB) const {
-  if (aA->mOrdinal.isNothing()) {
-    if (aB->mOrdinal.isNothing()) {
-      const Collator* collator = GetCollator();
-      return collator->CompareStrings(
-                 PromiseFlatString(NS_ConvertUTF8toUTF16(aA->mName)),
-                 PromiseFlatString(NS_ConvertUTF8toUTF16(aB->mName))) < 0;
+bool FolderComparator::LessThan(const RefPtr<Folder>& a,
+                                const RefPtr<Folder>& b) const {
+  if (a->mOrdinal.isSome()) {
+    if (b->mOrdinal.isSome()) {
+      return a->mOrdinal < b->mOrdinal;
     }
-
-    return false;
-  }
-
-  if (aB->mOrdinal.isNothing()) {
     return true;
   }
 
-  return aA->mOrdinal < aB->mOrdinal;
+  if (b->mOrdinal.isSome()) {
+    return false;
+  }
+
+  uint8_t aFlagsOrder = SpecialFlagsOrder(a->mFlags);
+  uint8_t bFlagsOrder = SpecialFlagsOrder(b->mFlags);
+  if (aFlagsOrder < bFlagsOrder) {
+    return true;
+  }
+  if (aFlagsOrder > bFlagsOrder) {
+    return false;
+  }
+
+  const Collator* collator = GetCollator();
+  return collator->CompareStrings(
+             PromiseFlatString(NS_ConvertUTF8toUTF16(a->mName)),
+             PromiseFlatString(NS_ConvertUTF8toUTF16(b->mName))) < 0;
+}
+
+uint8_t FolderComparator::SpecialFlagsOrder(const uint64_t flags) const {
+  if (flags & nsMsgFolderFlags::Inbox) return 0;
+  if (flags & nsMsgFolderFlags::Drafts) return 1;
+  if (flags & nsMsgFolderFlags::Templates) return 2;
+  if (flags & nsMsgFolderFlags::SentMail) return 3;
+  if (flags & nsMsgFolderFlags::Archive) return 4;
+  if (flags & nsMsgFolderFlags::Junk) return 5;
+  if (flags & nsMsgFolderFlags::Trash) return 6;
+  if (flags & nsMsgFolderFlags::Virtual) return 7;
+  if (flags & nsMsgFolderFlags::Queue) return 8;
+  return 9;
 }
 
 const Collator* FolderComparator::sCollator;

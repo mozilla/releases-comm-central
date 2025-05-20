@@ -37,10 +37,10 @@ add_task(async function testMsgFolders() {
   const outboxDBFolder = folders.getFolderByPath("server1/Unsent Messages");
   const trashDBFolder = folders.getFolderByPath("server1/Trash");
   Assert.deepEqual(rootDBFolder.children, [
-    alphaDBFolder,
-    bravoDBFolder,
     trashDBFolder,
     outboxDBFolder,
+    alphaDBFolder,
+    bravoDBFolder,
   ]);
 
   Assert.equal(folders.getFolderForMsgFolder(rootMsgFolder), rootDBFolder);
