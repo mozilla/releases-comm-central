@@ -1275,6 +1275,8 @@ export class TreeView extends HTMLElement {
     row.setAttribute("aria-setsize", this._view.rowCount);
     row.style.height = `${this._rowElementClass.ROW_HEIGHT}px`;
     row.index = index;
+    row.id = `${this.id}-row${index}`; // See _fillRow()
+
     if (this._selection?.isSelected(index)) {
       row.selected = true;
     }
