@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Account Hub Address Book Test</title>
+    <script type="module" src="chrome://messenger/content/accountcreation/views/address-book.mjs"></script>
+  </head>
+  <body>
+    <template
+      id="accountHubHeaderTemplate"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+      <header id="accountHubHeader" class="hub-header">
+        <div id="brandingHeader" class="branding-header" hidden="hidden">
+          <img src="chrome://branding/content/logo-gradient.svg" alt="" />
+          <h1>
+            <span
+              class="branding-header-name"
+              data-l10n-id="account-hub-brand">
+            </span>
+            <span
+              class="branding-header-title"
+              data-l10n-id="account-hub-title">
+            </span>
+          </h1>
+          <button
+            id="closeButton"
+            class="button button-flat button-round icon-button icon-only modal-close-button"
+            type="button"
+          >
+            <img class="icon-close-lg" src="" alt="" />
+          </button>
+        </div>
+        <!-- Title Text for Email Setup -->
+        <h1 id="accountHubHeaderTitle"
+            class="sub-view-title">
+          <slot name="title"></slot>
+        </h1>
+        <details id="emailFormNotification" class="notification-bar">
+          <summary id="emailFormNotificationSummary"
+                  class="notification-title-container">
+            <img
+              class="form-icon icon-warning"
+              src=""
+              alt=""
+            />
+            <img
+              class="form-icon icon-success"
+              src=""
+              alt=""
+             />
+            <img
+              class="form-icon icon-info"
+              src=""
+              alt=""
+             />
+            <img
+              class="form-icon icon-danger"
+              src=""
+              alt=""
+             />
+            <p id="emailFormNotificationTitle" class="notification-title">
+              <span class="localized-title"></span>
+              <span class="raw-title"></span>
+            </p>
+            <div id="emailFormNotificationToggle">
+              <span data-l10n-id="account-hub-notification-show-more"></span>
+              <span data-l10n-id="account-hub-notification-show-less"></span>
+            </div>
+          </summary>
+          <p id="emailFormNotificationText" class="notification-text">
+            <span class="localized-description"></span>
+            <span class="raw-description"></span>
+          </p>
+        </details>
+      </header>
+    </template>
+    <template
+      id="accountHubFooterTemplate"
+      class="hub-footer"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+      <!-- Account Hub Footer -->
+      <footer id="accountHubFooter">
+        <menu
+          id="accountHubFooterMenu"
+          class="dialog-menu-container two-columns"
+        >
+          <li id="footerButtonsLeftColumn">
+            <button
+              id="custom"
+              class="button secondary-button footer-button"
+              type="button"
+              disabled="disabled"
+              hidden="hidden"
+            >
+            </button>
+          </li>
+          <li id="footerButtonsRightColumn">
+            <button
+              id="back"
+              type="button"
+              data-l10n-id="account-hub-email-back-button"
+              class="button secondary-button footer-button"
+              hidden="hidden"
+            >
+            </button>
+            <button
+              id="forward"
+              data-l10n-id="account-hub-email-continue-button"
+              class="button primary-button footer-button"
+              disabled="disabled">
+            </button>
+          </li>
+        </menu>
+        <hr/>
+        <ul class="reset-list footer-links">
+          <li>
+            <a
+              href="https://support.mozilla.org/products/thunderbird"
+              data-l10n-id="account-hub-support"
+              onclick="openLinkExternally(this.href);"
+            >
+            </a>
+          </li>
+          <li hidden="hidden">
+            <a
+              id="hubReleaseNotes"
+              href=""
+              data-l10n-id="account-hub-release-notes"
+              onclick="openLinkExternally(this.href)"
+            >
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://www.thunderbird.net/donate/?utm_source=thunderbird_account_hub&amp;utm_medium=referral&amp;utm_content=hub_footer"
+              data-l10n-id="account-hub-donate"
+              onclick="openLinkExternally(this.href);"
+            >
+            </a>
+          </li>
+        </ul>
+      </footer>
+    </template>
+    <template id="accountHubStepTemplate" xmlns="http://www.w3.org/1999/xhtml">
+      <account-hub-header>
+        <span id="title" slot="title">
+        </span>
+        <span id="subheader" slot="subheader">
+        </span>
+      </account-hub-header>
+      <div class="account-hub-grid">
+        <slot name="content"></slot>
+      </div>
+    </template>
+    <template
+      id="accountHubAddressBookAccountSelectTemplate"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+    </template>
+    <template
+      id="accountHubAddressBookLdapAdvancedFormTemplate"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+    </template>
+    <template
+      id="accountHubAddressBookOptionSelectTemplate"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+    </template>
+    <template
+      id="accountHubAddressBookRemoteAccountFormTemplate"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+    </template>
+    <template
+      id="accountHubAddressBookSyncTemplate"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+    </template>
+
+    <template
+      id="accountHubAddressBookLdapAccountFormTemplate"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+    </template>
+    <template
+      id="accountHubAddressBookSetup"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+      <address-book-option-select
+        id="addressBookOptionSelectSubview"
+        hidden="hidden"
+      >
+      </address-book-option-select>
+      <address-book-account-select
+        id="addressBookAccountSelectSubview"
+        hidden="hidden"
+      >
+      </address-book-account-select>
+      <address-book-remote-account-form
+        id="addressBookRemoteAccountFormSubview"
+        hidden="hidden"
+      >
+      </address-book-remote-account-form>
+      <address-book-ldap-account-form
+        id="addressBookLdapAccountFormSubview"
+        hidden="hidden"
+      >
+      </address-book-ldap-account-form>
+      <address-book-ldap-advanced-form
+        id="addressBookLdapAdvancedFormSubview"
+        hidden="hidden"
+      >
+      </address-book-ldap-advanced-form>
+      <address-book-sync id="addressBookSyncSubview" hidden="hidden">
+      </address-book-sync>
+
+      <account-hub-footer id="addressBookFooter" class="hub-footer">
+      </account-hub-footer>
+    </template>
+    <account-hub-address-book></account-hub-address-book>
+  </body>
+</html>

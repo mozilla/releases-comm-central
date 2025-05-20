@@ -334,7 +334,7 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
-   * Initialize the UI of one of the email setup subviews.
+   * Load a template of a subview using the template ID.
    *
    * @param {string} templateId - ID of the template that needs to be loaded.
    */

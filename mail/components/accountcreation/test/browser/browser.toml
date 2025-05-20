@@ -12,6 +12,8 @@ prefs = [
 subsuite = "thunderbird"
 support-files = ["files/**"]
 
+["browser_accountHubAddressBook.js"]
+
 ["browser_accountHubFooter.js"]
 
 ["browser_oAuthGranularScopes.js"]

@@ -6,6 +6,12 @@
   CSS in here, those files are handled lazily in the controller and in the
   various shadowRoots of the views.
 -->
+#include ./accountHubAddressBookAccountSelectTemplate.inc.xhtml
+#include ./accountHubAddressBookLdapAccountFormTemplate.inc.xhtml
+#include ./accountHubAddressBookLdapAdvancedFormTemplate.inc.xhtml
+#include ./accountHubAddressBookOptionSelectTemplate.inc.xhtml
+#include ./accountHubAddressBookRemoteAccountFormTemplate.inc.xhtml
+#include ./accountHubAddressBookSyncTemplate.inc.xhtml
 #include ./accountHubEmailAutoFormTemplate.inc.xhtml
 #include ./accountHubEmailConfigFoundTemplate.inc.xhtml
 #include ./accountHubEmailIncomingFormTemplate.inc.xhtml
@@ -34,10 +40,12 @@
       <h1>
         <span
           class="start-header-brand-name"
-          data-l10n-id="account-hub-brand"></span>
+          data-l10n-id="account-hub-brand"
+        ></span>
         <span
           class="start-header-title"
-          data-l10n-id="account-hub-title"></span>
+          data-l10n-id="account-hub-title"
+        ></span>
       </h1>
     </div>
   </header>
@@ -59,70 +67,78 @@
       <li>
         <a
           id="hubReleaseNotes"
-          data-l10n-id="account-hub-release-notes"></a>
+          data-l10n-id="account-hub-release-notes"
+        ></a>
       </li>
       <li>
         <a
           href="https://support.mozilla.org/products/thunderbird"
           data-l10n-id="account-hub-support"
-          onclick="openLinkExternally(this.href);"></a>
+          onclick="openLinkExternally(this.href);"
+        ></a>
       </li>
       <li>
         <a
           href="https://www.thunderbird.net/donate/?utm_source=thunderbird_account_hub&amp;utm_medium=referral&amp;utm_content=hub_footer"
           data-l10n-id="account-hub-donate"
-          onclick="openLinkExternally(this.href);"></a>
+          onclick="openLinkExternally(this.href);"
+        ></a>
       </li>
     </ul>
   </footer>
 </html:template>
 
 <html:template id="accountHubEmailSetup" xmlns="http://www.w3.org/1999/xhtml">
-
-  <email-auto-form id="emailAutoConfigSubview"
-                   title-id="account-hub-email-setup-header"
-                   class="account-hub-step">
+  <email-auto-form
+    id="emailAutoConfigSubview"
+    title-id="account-hub-email-setup-header"
+    class="account-hub-step"
+  >
   </email-auto-form>
-
-  <email-manual-incoming-form id="emailIncomingConfigSubview"
-                              title-id="account-hub-email-setup-incoming"
-                              class="account-hub-step"
-                              hidden="hidden">
+  <email-manual-incoming-form
+    id="emailIncomingConfigSubview"
+    title-id="account-hub-email-setup-incoming"
+    class="account-hub-step"
+    hidden="hidden"
+  >
   </email-manual-incoming-form>
-
-  <email-manual-outgoing-form id="emailOutgoingConfigSubview"
-                              title-id="account-hub-email-setup-outgoing"
-                              class="account-hub-step"
-                              hidden="hidden">
+  <email-manual-outgoing-form
+    id="emailOutgoingConfigSubview"
+    title-id="account-hub-email-setup-outgoing"
+    class="account-hub-step"
+    hidden="hidden"
+  >
   </email-manual-outgoing-form>
-
-  <email-config-found id="emailConfigFoundSubview"
-                      title-id="account-hub-email-config-found"
-                      class="account-hub-step"
-                      hidden="hidden">
-    <!-- Account Hub Email Config Found Subview -->
-  </email-config-found >
-
-  <email-password-form id="emailPasswordSubview"
-                       title-id="account-hub-email-enter-password"
-                       class="account-hub-step"
-                       hidden="hidden">
-    <!-- Account Hub Email Password Subview -->
+  <email-config-found
+    id="emailConfigFoundSubview"
+    title-id="account-hub-email-config-found"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-config-found>
+  <email-password-form
+    id="emailPasswordSubview"
+    title-id="account-hub-email-enter-password"
+    class="account-hub-step"
+    hidden="hidden"
+  >
   </email-password-form>
-
-  <email-sync-accounts-form id="emailSyncAccountsSubview"
-                            title-id="account-hub-email-sync-accounts"
-                            class="account-hub-step"
-                            hidden="hidden">
-    <!-- Account Hub Email Sync Accounts Subview -->
+  <email-sync-accounts-form
+    id="emailSyncAccountsSubview"
+    title-id="account-hub-email-sync-accounts"
+    class="account-hub-step"
+    hidden="hidden"
+  >
   </email-sync-accounts-form>
-  <email-added-success id="emailAddedSuccessSubview"
-                       class="account-hub-step"
-                       hidden="hidden">
-    <!-- Account Hub Email Success Subview -->
+  <email-added-success
+    id="emailAddedSuccessSubview"
+    class="account-hub-step"
+    hidden="hidden"
+  >
   </email-added-success>
 
-  <account-hub-footer id="emailFooter" class="hub-footer"></account-hub-footer>
+  <account-hub-footer id="emailFooter" class="hub-footer">
+  </account-hub-footer>
 
   <div id="loadingOverlay">
     <div class="loader-outside">
@@ -131,5 +147,32 @@
   </div>
 </html:template>
 
-<html:template id="accountHubAddressBookSetup" xmlns="http://www.w3.org/1999/xhtml">
+<html:template
+  id="accountHubAddressBookSetup"
+  xmlns="http://www.w3.org/1999/xhtml"
+>
+  <address-book-option-select id="addressBookOptionSelectSubview">
+  </address-book-option-select>
+  <address-book-account-select id="addressBookAccountSelectSubview" hidden="hidden">
+  </address-book-account-select>
+  <address-book-remote-account-form
+    id="addressBookRemoteAccountFormSubview"
+    hidden="hidden"
+  >
+  </address-book-remote-account-form>
+  <address-book-ldap-account-form
+    id="addressBookLdapAccountFormSubview"
+    hidden="hidden"
+  >
+  </address-book-ldap-account-form>
+  <address-book-ldap-advanced-form
+    id="addressBookLdapAdvancedFormSubview"
+    hidden="hidden"
+  >
+  </address-book-ldap-advanced-form>
+  <address-book-sync id="addressBookSyncSubview" hidden="hidden">
+  </address-book-sync>
+
+  <account-hub-footer id="addressBookFooter" class="hub-footer">
+  </account-hub-footer>
 </html:template>
