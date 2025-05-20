@@ -48,8 +48,11 @@ var trashFolder, newsgroupFolder;
 var tagArray;
 var gAutoRead;
 
-// Adjust timeout to take care of code coverage runs needing twice as long.
-requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 2 : 1);
+// Adjust timeout to take care of code coverage runs, and mac needing twice
+// as long.
+requestLongerTimeout(
+  AppConstants.MOZ_CODE_COVERAGE || AppConstants.platform == "macosx" ? 2 : 1
+);
 
 add_setup(async function () {
   gAutoRead = Services.prefs.getBoolPref("mailnews.mark_message_read.auto");
