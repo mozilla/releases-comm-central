@@ -6587,7 +6587,8 @@ nsMsgDBView::GetViewIndexForFirstSelectedMsg(nsMsgViewIndex* aViewIndex) {
   mTreeSelection->GetRangeAt(0, &startRange, &endRange);
 
   // Check that the first index is valid, it may not be if nothing is selected.
-  if (!IsValidIndex((nsMsgViewIndex)startRange)) return NS_MSG_INVALID_DBVIEW_INDEX;
+  if (!IsValidIndex((nsMsgViewIndex)startRange))
+    return NS_MSG_INVALID_DBVIEW_INDEX;
 
   *aViewIndex = startRange;
   return NS_OK;
