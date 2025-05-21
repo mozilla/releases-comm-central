@@ -14,9 +14,10 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
 );
-var { configureGlodaIndexing } = ChromeUtils.importESModule(
-  "resource://testing-common/gloda/GlodaTestHelperFunctions.sys.mjs"
-);
+var { configureGlodaIndexing, waitForGlodaDBFlush } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/gloda/GlodaTestHelperFunctions.sys.mjs"
+  );
 var { Gloda } = ChromeUtils.importESModule(
   "resource:///modules/gloda/GlodaPublic.sys.mjs"
 );
@@ -31,6 +32,7 @@ var { MessageInjection } = ChromeUtils.importESModule(
 );
 
 const GLODA_BAD_MESSAGE_ID = 2;
+const GLODA_FIRST_VALID_MESSAGE_ID = 32;
 
 var illegalMessageTemplates = [
   // -- Authors
@@ -38,12 +40,6 @@ var illegalMessageTemplates = [
     name: "no author",
     clobberHeaders: {
       From: "",
-    },
-  },
-  {
-    name: "too many authors (> 1)",
-    clobberHeaders: {
-      From: "Tweedle Dee <dee@example.com>, Tweedle Dum <dum@example.com>",
     },
   },
 ];
@@ -59,8 +55,35 @@ add_setup(function () {
 add_task(async function test_illegal_message_no_author() {
   await illegal_message(illegalMessageTemplates[0]);
 });
-add_task(async function test_illegal_message_too_many_authors() {
-  await illegal_message(illegalMessageTemplates[1]);
+
+/**
+ * Test that a message containing multiple authors does get indexed using only
+ * the first author.
+ */
+add_task(async function test_message_multiple_authors() {
+  const [msgSet] = await messageInjection.makeNewSetsInFolders(
+    [messageInjection.getInboxFolder()],
+    [
+      {
+        count: 1,
+        clobberHeaders: {
+          From: "Tweedle Dee <dee@example.com>, Tweedle Dum <dum@example.com>",
+        },
+      },
+    ]
+  );
+
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
+
+  await waitForGlodaDBFlush();
+  const msgHdr = msgSet.getMsgHdr(0);
+  Assert.greaterOrEqual(
+    msgHdr.getUint32Property("gloda-id"),
+    GLODA_FIRST_VALID_MESSAGE_ID
+  );
+
+  Assert.equal(Gloda.isMessageIndexed(msgHdr), true);
 });
 
 /**

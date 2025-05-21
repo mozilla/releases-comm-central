@@ -508,15 +508,14 @@ export var GlodaFundAttr = {
       )
     );
 
-    if (authorIdentities.length != 1) {
+    if (authorIdentities.length < 1) {
       throw new Gloda.BadItemContentsError(
         "Message with subject '" +
           aMsgHdr.mime2DecodedSubject +
           "' somehow lacks a valid author.  Bailing."
       );
     }
-    const authorIdentity = authorIdentities[0];
-    aGlodaMessage.from = authorIdentity;
+    aGlodaMessage.from = authorIdentities[0];
 
     // -- To, Cc, Bcc
     aGlodaMessage.to = toIdentities;
