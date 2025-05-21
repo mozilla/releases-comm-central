@@ -41,6 +41,7 @@
 #include "mozilla/LoadInfo.h"
 
 using namespace mozilla;
+using mozilla::net::LoadInfo;
 
 // Despite its name, this contains a folder path, for example INBOX/Trash.
 #define PREF_TRASH_FOLDER_PATH "trash_folder_name"
@@ -749,10 +750,11 @@ nsresult nsImapIncomingServer::CreateProtocolInstance(
   rv = protocolInstance->Initialize(hostSession, this);
   NS_ENSURE_SUCCESS(rv, rv);
   // It implements nsIChannel, and all channels require loadInfo.
-  protocolInstance->SetLoadInfo(new mozilla::net::LoadInfo(
-      nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
-      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-      nsIContentPolicy::TYPE_OTHER));
+  nsCOMPtr<nsILoadInfo> loadInfo = MOZ_TRY(
+      LoadInfo::Create(nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
+                       nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+                       nsIContentPolicy::TYPE_OTHER));
+  protocolInstance->SetLoadInfo(loadInfo);
 
   // take the protocol instance and add it to the connectionCache
   m_connectionCache.AppendObject(protocolInstance);

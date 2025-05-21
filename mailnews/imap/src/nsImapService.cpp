@@ -61,6 +61,8 @@
 #include "nsContentUtils.h"
 #include "mozilla/LoadInfo.h"
 
+using mozilla::net::LoadInfo;
+
 #define PREF_MAIL_ROOT_IMAP_REL "mail.root.imap-rel"
 // old - for backward compatibility only
 #define PREF_MAIL_ROOT_IMAP "mail.root.imap"
@@ -469,10 +471,10 @@ nsresult nsImapService::FetchMimePartInternal(nsIImapUrl* aImapUrl,
         if (NS_SUCCEEDED(rv) && mailnewsUrl)
           mailnewsUrl->GetLoadGroup(getter_AddRefs(loadGroup));
 
-        nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
+        nsCOMPtr<nsILoadInfo> loadInfo = MOZ_TRY(LoadInfo::Create(
             nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
             nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-            nsIContentPolicy::TYPE_OTHER);
+            nsIContentPolicy::TYPE_OTHER));
         rv = NewChannel(url, loadInfo, getter_AddRefs(aChannel));
         NS_ENSURE_SUCCESS(rv, rv);
 
@@ -825,10 +827,10 @@ nsresult nsImapService::GetMessageFromUrl(
       if (NS_SUCCEEDED(rv) && mailnewsUrl)
         mailnewsUrl->GetLoadGroup(getter_AddRefs(loadGroup));
 
-      nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
+      nsCOMPtr<nsILoadInfo> loadInfo = MOZ_TRY(LoadInfo::Create(
           nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
           nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-          nsIContentPolicy::TYPE_OTHER);
+          nsIContentPolicy::TYPE_OTHER));
       rv = NewChannel(url, loadInfo, getter_AddRefs(channel));
       NS_ENSURE_SUCCESS(rv, rv);
 
@@ -890,10 +892,10 @@ NS_IMETHODIMP nsImapService::StreamMessage(
     if (NS_SUCCEEDED(rv) && mailnewsUrl)
       mailnewsUrl->GetLoadGroup(getter_AddRefs(aLoadGroup));
 
-    nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
+    nsCOMPtr<nsILoadInfo> loadInfo = MOZ_TRY(LoadInfo::Create(
         nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
         nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-        nsIContentPolicy::TYPE_OTHER);
+        nsIContentPolicy::TYPE_OTHER));
     rv = NewChannel(uri, loadInfo, getter_AddRefs(aChannel));
     NS_ENSURE_SUCCESS(rv, rv);
 

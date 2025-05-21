@@ -27,6 +27,8 @@
 #include "nsContentUtils.h"
 #include "nsMsgFileHdr.h"
 
+using mozilla::net::LoadInfo;
+
 nsMailboxService::nsMailboxService() {}
 
 nsMailboxService::~nsMailboxService() {}
@@ -308,10 +310,11 @@ nsresult nsMailboxService::RunMailboxUrl(nsIURI* aMailboxUrl,
   // create a protocol instance to run the url..
   RefPtr<nsMailboxProtocol> protocol = new nsMailboxProtocol(aMailboxUrl);
   // It implements nsIChannel, and all channels require loadInfo.
-  protocol->SetLoadInfo(new mozilla::net::LoadInfo(
-      nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
-      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-      nsIContentPolicy::TYPE_OTHER));
+  nsCOMPtr<nsILoadInfo> loadInfo = MOZ_TRY(
+      LoadInfo::Create(nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
+                       nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+                       nsIContentPolicy::TYPE_OTHER));
+  protocol->SetLoadInfo(loadInfo);
   nsresult rv = protocol->Initialize(aMailboxUrl);
   NS_ENSURE_SUCCESS(rv, rv);
   return protocol->LoadUrl(aMailboxUrl, aConsumer);
