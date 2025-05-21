@@ -42,6 +42,7 @@ add_setup(async function () {
 
   folderD = await create_folder("JunkCommandsD");
   folderE = await create_folder("JunkCommandsE");
+  folderE.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   virtualFolder = await create_folder("JunkCommandsV");
   virtualFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
@@ -176,6 +177,63 @@ add_task(async function test_run_junk_controls_on_folder() {
       header.getStringProperty("junkscore"),
       "",
       `message ${name} should have no classification`
+    );
+  }
+
+  const finished = TestUtils.topicObserved("message-classification-complete");
+  goDoCommand("cmd_runJunkControls");
+  await finished;
+  await TestUtils.waitForTick();
+
+  for (const [name, header] of Object.entries(messages)) {
+    if (name.startsWith("spam")) {
+      Assert.equal(
+        header.getStringProperty("junkscore"),
+        "100",
+        `message ${name} should be marked as spam`
+      );
+    } else {
+      Assert.equal(
+        header.getStringProperty("junkscore"),
+        "0",
+        `message ${name} should not be marked as spam`
+      );
+    }
+  }
+});
+
+/**
+ * Test running the junk mail controls on a virtual folder.
+ */
+add_task(async function test_run_junk_controls_on_virtual_folder() {
+  MailServices.junk.resetTrainingData();
+
+  const beforeCountD = folderD.getTotalMessages(false);
+  const beforeCountE = folderE.getTotalMessages(false);
+
+  const messages = {};
+  for (const name of ["ham1", "ham2", "spam1", "spam2", "spam3", "spam4"]) {
+    const path = getTestFilePath(`${name}.eml`);
+    messages[name] = folderE.addMessage(await IOUtils.readUTF8(path));
+  }
+
+  await be_in_folder(virtualFolder);
+
+  await trainJunkFilter("ham1");
+  await trainJunkFilter("spam1");
+  await trainJunkFilter("spam2");
+
+  Assert.equal(folderE.getTotalMessages(false), beforeCountE + 6);
+  Assert.equal(
+    virtualFolder.getTotalMessages(false),
+    beforeCountD + beforeCountE + 6
+  );
+
+  for (const [name, header] of Object.entries(messages)) {
+    Assert.equal(
+      header.getStringProperty("junkscore"),
+      "",
+      `message ${name} should not be marked as spam`
     );
   }
 

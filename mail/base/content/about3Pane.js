@@ -7127,10 +7127,7 @@ commandController.registerCallback(
 commandController.registerCallback(
   "cmd_runJunkControls",
   () => filterFolderForJunk(gFolder),
-  () =>
-    commandController._getViewCommandStatus(
-      Ci.nsMsgViewCommandType.runJunkControls
-    )
+  () => gViewWrapper?.dbView?.rowCount > 0
 );
 commandController.registerCallback(
   "cmd_deleteJunk",
