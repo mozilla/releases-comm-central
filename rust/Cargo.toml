@@ -195,6 +195,7 @@ windows = { path = "../../build/rust/windows" }
 oslog = { path = "../../build/rust/oslog" }
 terminal_size = { path = "../../build/rust/terminal_size" }
 bitflags = { path = "../../build/rust/bitflags" }
+r-efi = { path = "../../build/rust/r-efi" }
 redox_users = { path = "../../build/rust/redox_users" }
 redox_syscall = { path = "../../build/rust/redox_syscall" }
 hermit-abi = { path = "../../build/rust/hermit-abi" }
