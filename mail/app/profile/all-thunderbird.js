@@ -263,7 +263,7 @@ pref("security.osclientcerts.autoload", false);
 // Refer to Firefox file browser/app/profile/firefox.js
 // for meaning of the security.sandbox.content prefs.
 #if defined(XP_WIN) && defined(MOZ_SANDBOX)
-  pref("security.sandbox.content.level", 8);
+  pref("security.sandbox.content.level", 7);
   pref("security.sandbox.logging.enabled", false);
 #endif
 #if defined(XP_MACOSX) && defined(MOZ_SANDBOX)
