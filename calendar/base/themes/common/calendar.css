@@ -252,3 +252,21 @@
 #calsidebar_splitter[state="collapsed"]:hover {
   border-inline-start: 4px solid var(--selected-item-color);
 }
+
+@media not (-moz-platform: macos) {
+  #calsidebar_splitter,
+  #today-splitter {
+    min-width: 0;
+    background-color: transparent;
+  }
+
+  #today-splitter {
+    border-inline-end: 1px solid var(--splitter-color);
+    margin-inline-start: -5px;
+    position: relative;
+  }
+
+  :root[lwtheme] #today-splitter.calendar-sidebar-splitter {
+    background-image: none;
+  }
+}

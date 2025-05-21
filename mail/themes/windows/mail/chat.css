@@ -49,10 +49,6 @@
   }
 }
 
-.splitter.conv-chat {
-  border-left: 1px solid rgba(0, 0, 0, 0.25);
-}
-
 #contextPane {
   background-color: Field;
   color: FieldText;
@@ -86,20 +82,6 @@
   margin: 0 1px;
   margin-inline-start: -2px;
   padding: 3px 3px 4px;
-}
-
-#listSplitter,
-#contextSplitter {
-  background-color: transparent;
-  min-width: 0;
-}
-
-#listSplitter {
-  border-inline-end-width: 0;
-}
-
-#contextSplitter {
-  border-inline-start-width: 0;
 }
 
 #nicklist > richlistitem[inactive][selected] > label {

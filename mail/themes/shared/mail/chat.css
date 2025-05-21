@@ -975,3 +975,23 @@ toolbar[mode="text"] #button-chat {
     stroke: currentColor;
   }
 }
+
+@media not (-moz-platform: macos) {
+  .splitter.conv-chat {
+    border-left: 1px solid rgba(0, 0, 0, 0.25);
+  }
+
+  #listSplitter,
+  #contextSplitter {
+    background-color: transparent;
+    min-width: 0;
+  }
+
+  #listSplitter {
+    border-inline-end-width: 0;
+  }
+
+  #contextSplitter {
+    border-inline-start-width: 0;
+  }
+}

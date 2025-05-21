@@ -34,19 +34,3 @@
 #calendar-status-todaypane-button > .toolbarbutton-text {
   margin: 0 0 1px !important;
 }
-
-#calsidebar_splitter,
-#today-splitter {
-  min-width: 0;
-  background-color: transparent;
-}
-
-#today-splitter {
-  border-inline-end: 1px solid var(--splitter-color);
-  margin-inline-start: -5px;
-  position: relative;
-}
-
-:root[lwtheme] #today-splitter.calendar-sidebar-splitter {
-  background-image: none;
-}

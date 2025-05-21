@@ -15,12 +15,6 @@
   margin-inline-end: -5px;
 }
 
-#today-splitter {
-  border-inline-start: 1px solid var(--splitter-color);
-  /* make only the splitter border visible */
-  margin-inline-end: -5px;
-}
-
 /* Calendar list rules */
 #calendar-panel {
   padding-bottom: 5px;
