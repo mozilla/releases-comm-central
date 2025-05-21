@@ -8,10 +8,10 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2025-05-13T12:41:59.108560+00:00'
+updated_at: '2025-05-19T08:37:21.498691+00:00'
 hashes:
-  config: 7577174cdc1955949eadaa56b7af515c15cc8aff
-  export: a5dfe0ae95c9bbc7570c02339649e4f719b75c7c
+  config: ad0afefe9d516d65a5368aaf697726af5d7c8f50
+  export: a53636322d3b9feba414ad72710c890d244b82ce
 export:
   path: ./docs/mots/index.md
   format: md
@@ -116,6 +116,10 @@ people:
     bmo_id: 1537
     name: Dan Mosendale
     nick: dmose
+  - &edicharry
+    bmo_id: 771441
+    name: Eleanor Dicharry
+    nick: edicharry
   - &Fallen
     bmo_id: 253233
     name: Philipp Kewisch
@@ -505,9 +509,10 @@ modules:
         peers:
           - *heather
           - *mkmelin
+          - *edicharry
         meta:
-          # TODO No component for Exchange?
-          components: []
+          components:
+            - 'MailNews Core::Network: Exchange'
           owners_emeritus: [*leftmostcat]
       - name: Feeds
         machine_name: feeds
