@@ -6,7 +6,6 @@
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   BrowserUtils: "resource://gre/modules/BrowserUtils.sys.mjs",
 });
@@ -71,6 +70,17 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
     const pageURI = Services.io.newURI(this.document.location.href);
     const eventURI = Services.io.newURI(eventHRef);
 
+    if (event.target.ownerSVGElement) {
+      if (
+        !lazy.protocolSvc.isExposedProtocol(eventURI.scheme) ||
+        eventURI.schemeIs("http") ||
+        eventURI.schemeIs("https")
+      ) {
+        event.preventDefault();
+        this.sendAsyncMessage("openLinkExternally", eventHRef);
+      }
+      return;
+    }
     try {
       // Avoid using the eTLD service, and this also works for IP addresses.
       if (pageURI.host == eventURI.host) {
@@ -144,6 +154,19 @@ export class RelaxedLinkClickHandlerChild extends JSWindowActorChild {
     const [eventHRef, linkNode] =
       lazy.BrowserUtils.hrefAndLinkNodeForClickEvent(event) || [];
     if (!eventHRef) {
+      return;
+    }
+
+    if (event.target.ownerSVGElement) {
+      const eventURI = Services.io.newURI(eventHRef);
+      if (
+        !lazy.protocolSvc.isExposedProtocol(eventURI.scheme) ||
+        eventURI.schemeIs("http") ||
+        eventURI.schemeIs("https")
+      ) {
+        event.preventDefault();
+        this.sendAsyncMessage("openLinkExternally", eventHRef);
+      }
       return;
     }
 

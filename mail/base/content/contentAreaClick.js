@@ -13,6 +13,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 );
 ChromeUtils.defineESModuleGetters(this, {
   PhishingDetector: "resource:///modules/PhishingDetector.sys.mjs",
+  BrowserUtils: "resource://gre/modules/BrowserUtils.sys.mjs",
 });
 XPCOMUtils.defineLazyPreferenceGetter(
   this,
@@ -36,7 +37,7 @@ var { openLinkExternally } = ChromeUtils.importESModule(
  * If the clicked element was a HTMLInputElement or HTMLButtonElement
  * we return the form action.
  *
- * @returns {[]} a tuple [href, linkText] the url and the text for the link
+ * @returns {string[]} a tuple [href, linkText] the url and the text for the link
  *   being clicked.
  */
 function hRefForClickEvent(aEvent) {
@@ -53,35 +54,18 @@ function hRefForClickEvent(aEvent) {
     return [null, null];
   }
 
-  let href = null;
-  let linkText = null;
   if (
-    HTMLAnchorElement.isInstance(target) ||
-    HTMLAreaElement.isInstance(target) ||
-    HTMLLinkElement.isInstance(target)
-  ) {
-    if (target.hasAttribute("href")) {
-      href = target.href;
-      linkText = gatherTextUnder(target);
-    }
-  } else if (
     (HTMLInputElement.isInstance(target) ||
       HTMLButtonElement.isInstance(target)) &&
     /^https?/.test(target.form?.action)
   ) {
-    href = target.form.action;
-  } else {
-    // We may be nested inside of a link node.
-    let linkNode = aEvent.target;
-    while (linkNode && !HTMLAnchorElement.isInstance(linkNode)) {
-      linkNode = linkNode.parentNode;
-    }
-
-    if (linkNode) {
-      href = linkNode.href;
-      linkText = gatherTextUnder(linkNode);
-    }
+    return [target.form.action, null];
   }
+
+  const [href, linkNode] =
+    BrowserUtils.hrefAndLinkNodeForClickEvent(aEvent) ?? [];
+  const labelNode = linkNode || target || null;
+  const linkText = labelNode && gatherTextUnder(labelNode);
   return [href, linkText];
 }
 

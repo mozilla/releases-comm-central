@@ -28,6 +28,20 @@
     <li><a id="other-subsubdomain" href="http://sub1.test1.example.org/browser/comm/mail/base/test/widgets/files/links.html">This page, but on sub1.test1.example.com</a></li>
   </ul>
 
+  <h2> SVG </h2>
+
+  <svg xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
+    <a xlink:href="https://example.org/browser/comm/mail/base/test/widgets/files/links.html" xlink:show="new" id="svg-new">
+      <text x="0" y="25">svg link 1</text>
+    </a>
+    <a xlink:href="https://example.org/browser/comm/mail/base/test/widgets/files/links.html" target="_blank" id="svg-blank">
+      <text x="0" y="50">svg link 2</text>
+    </a>
+    <a xlink:href="https://example.org/browser/comm/mail/base/test/widgets/files/links.html" id="svg-notarget">
+      <text x="0" y="75">svg link 3</text>
+    </a>
+  </svg>
+
   <h2>Pages on a completely different domain:</h2>
   <ul style="margin-bottom: 100vh;">
     <li><a id="other-domain" href="http://mochi.test:8888/browser/comm/mail/base/test/widgets/files/links.html">This page, but on mochi.test</a></li>

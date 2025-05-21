@@ -11,6 +11,7 @@ export class MailLinkChild extends JSWindowActorChild {
     const location = this.document.location;
     if (
       !href ||
+      !URL.canParse(href) ||
       // Do nothing if not the main button clicked.
       event.button > 0 ||
       // Do nothing if in the compose window.

@@ -28,6 +28,10 @@ const links = new Map([
   ["#other-subdomain", `http://test1.example.org${TEST_PATH}`],
   ["#other-subsubdomain", `http://sub1.test1.example.org${TEST_PATH}`],
   ["#other-domain", `http://mochi.test:8888${TEST_PATH}`],
+
+  ["#svg-new", `https://example.org${TEST_PATH}`],
+  ["#svg-blank", `https://example.org${TEST_PATH}`],
+  ["#svg-notarget", `https://example.org${TEST_PATH}`],
 ]);
 
 /** @implements {nsIWebProgressListener} */
@@ -53,6 +57,7 @@ const webProgressListener = {
       const url = this._browser.currentURI.spec;
       this.cancelPromise();
 
+      info(`${url} loaded internally`);
       deferred.resolve(url);
     } else {
       this.cancelPromise();
@@ -70,6 +75,7 @@ const webProgressListener = {
       const url = this._browser.currentURI.spec;
       this.cancelPromise();
 
+      info(`${url} loaded internally`);
       deferred.resolve(url);
     } else {
       this.cancelPromise();
@@ -129,7 +135,7 @@ const mockExternalProtocolService = {
     if (this._deferred) {
       const deferred = this._deferred;
       this._deferred = null;
-
+      info(`${aURI.spec} loaded externally`);
       deferred.resolve(aURI.spec);
     } else {
       this.cancelPromise();
@@ -213,6 +219,12 @@ async function clickOnLink(
   const webProgressPromise = webProgressListener.promiseEvent(browser);
   const externalProtocolPromise = mockExternalProtocolService.promiseEvent();
 
+  info(`scrolling ${selector} into view`);
+  await SpecialPowers.spawn(browser, [selector], arg => {
+    content.document
+      .querySelector(arg)
+      .scrollIntoView({ block: "start", behavior: "instant" });
+  });
   info(`clicking on ${selector}`);
   await BrowserTestUtils.synthesizeMouseAtCenter(selector, {}, browser);
 
@@ -232,6 +244,7 @@ async function clickOnLink(
   }
 
   if (shouldLoadInternally) {
+    info(`will ensure ${url} loaded internally`);
     Assert.equal(
       await webProgressPromise,
       url,
@@ -239,6 +252,7 @@ async function clickOnLink(
     );
     mockExternalProtocolService.cancelPromise();
   } else {
+    info(`will ensure ${url} loaded externally`);
     Assert.equal(
       await externalProtocolPromise,
       url,
@@ -269,7 +283,11 @@ async function subtest(pagePrePath, group, shouldLoadCB) {
   } else if (group === undefined) {
     expectedGroup = "single-site";
   }
-  Assert.equal(tab.browser.getAttribute("messagemanagergroup"), expectedGroup);
+  Assert.equal(
+    tab.browser.getAttribute("messagemanagergroup"),
+    expectedGroup,
+    "should have the expected messagemanagergroup"
+  );
 
   try {
     for (let [selector, url] of links) {
@@ -293,25 +311,42 @@ add_task(function testNoGroup() {
   return subtest(
     TEST_DOMAIN,
     undefined,
-    selector => selector != "#other-domain"
+    selector => selector != "#other-domain" && !selector.startsWith("#svg-")
   );
 });
 
+/**
+ * Tests the "browsers" message manager group.
+ *
+ * @see {RelaxedLinkClickHandlerChild}
+ */
 add_task(function testBrowsersGroup() {
-  return subtest(TEST_DOMAIN, null, () => true);
+  return subtest(TEST_DOMAIN, null, selector => !selector.startsWith("#svg-"));
 });
 
+/**
+ * Tests the "single-site" message manager group.
+ *
+ * @see {LinkClickHandlerChild}
+ */
 add_task(function testSingleSiteGroup() {
   return subtest(
     TEST_DOMAIN,
     "single-site",
-    selector => selector != "#other-domain"
+    selector => selector != "#other-domain" && !selector.startsWith("#svg-")
   );
 });
 
+/**
+ * Tests the "single-page" message manager group.
+ *
+ * @see {StrictLinkClickHandlerChild}
+ */
 add_task(function testSinglePageGroup() {
-  return subtest(TEST_DOMAIN, "single-page", selector =>
-    selector.startsWith("#this")
+  return subtest(
+    TEST_DOMAIN,
+    "single-page",
+    selector => selector.startsWith("#this") && !selector.startsWith("#svg-")
   );
 });
 
@@ -323,8 +358,13 @@ add_task(function testNoGroupWithIP() {
   );
 });
 
+/**
+ * Tests the "browsers" message manager group.
+ *
+ * @see {RelaxedLinkClickHandlerChild}
+ */
 add_task(function testBrowsersGroupWithIP() {
-  return subtest(TEST_IP, null, () => true);
+  return subtest(TEST_IP, null, selector => !selector.startsWith("#svg-"));
 });
 
 add_task(function testSingleSiteGroupWithIP() {
