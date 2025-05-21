@@ -7135,8 +7135,7 @@ commandController.registerCallback(
 commandController.registerCallback(
   "cmd_deleteJunk",
   () => deleteJunkInFolder(gFolder),
-  () =>
-    commandController._getViewCommandStatus(Ci.nsMsgViewCommandType.deleteJunk)
+  () => gViewWrapper?.dbView?.rowCount > 0 && gFolder?.canDeleteMessages
 );
 
 commandController.registerCallback(

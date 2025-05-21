@@ -15,7 +15,7 @@
  *   top.window.MsgStatusFeedback
  */
 
-/* globals gDBView, gViewWrapper */
+/* globals gDBView, gViewWrapper, VirtualFolderHelper */
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -295,92 +295,32 @@ async function processFolderForJunk(aAll) {
  * Delete junk messages in the current folder. This provides the guarantee that
  * the method will be synchronous if no messages are deleted.
  *
+ * @param {nsIMsgFolder} folder
  * @returns {integer} The number of messages deleted.
  */
-function deleteJunkInFolder() {
+function deleteJunkInFolder(folder) {
   // use direct folder commands if possible so we don't mess with the selection
-  const selectedFolder = gViewWrapper.displayedFolder;
-  if (!selectedFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
-    const junkMsgHdrs = [];
-    for (const msgHdr of gDBView.msgFolder.messages) {
-      const junkScore = msgHdr.getStringProperty("junkscore");
-      if (junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE) {
-        junkMsgHdrs.push(msgHdr);
-      }
+  if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+    const virtualFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
+
+    let count = 0;
+    for (const searchFolder of virtualFolder.searchFolders) {
+      count += deleteJunkInFolder(searchFolder);
     }
 
-    if (junkMsgHdrs.length) {
-      gDBView.msgFolder.deleteMessages(
-        junkMsgHdrs,
-        top.msgWindow,
-        false,
-        false,
-        null,
-        true
-      );
-    }
-    return junkMsgHdrs.length;
+    return count;
   }
 
-  // Folder is virtual, let the view do the work (but we lose selection)
-
-  // need to expand all threads, so we find everything
-  gDBView.doCommand(Ci.nsMsgViewCommandType.expandAll);
-
-  var treeView = gDBView.QueryInterface(Ci.nsITreeView);
-  var count = treeView.rowCount;
-  if (!count) {
-    return 0;
-  }
-
-  var treeSelection = treeView.selection;
-
-  var clearedSelection = false;
-
-  // select the junk messages
-  var messageUri;
-  let numMessagesDeleted = 0;
-  for (let i = 0; i < count; ++i) {
-    try {
-      messageUri = gDBView.getURIForViewIndex(i);
-    } catch (ex) {
-      continue; // blow off errors for dummy rows
-    }
-    const msgHdr =
-      MailServices.messageServiceFromURI(messageUri).messageURIToMsgHdr(
-        messageUri
-      );
+  const junkMsgHdrs = [];
+  for (const msgHdr of folder.messages) {
     const junkScore = msgHdr.getStringProperty("junkscore");
-    var isJunk = junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE;
-    // if the message is junk, select it.
-    if (isJunk) {
-      // only do this once
-      if (!clearedSelection) {
-        // clear the current selection
-        // since we will be deleting all selected messages
-        treeSelection.clearSelection();
-        clearedSelection = true;
-        treeSelection.selectEventsSuppressed = true;
-      }
-      treeSelection.rangedSelect(i, i, true /* augment */);
-      numMessagesDeleted++;
+    if (junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE) {
+      junkMsgHdrs.push(msgHdr);
     }
   }
 
-  // if we didn't clear the selection
-  // there was no junk, so bail.
-  if (!clearedSelection) {
-    return 0;
+  if (junkMsgHdrs.length) {
+    folder.deleteMessages(junkMsgHdrs, top.msgWindow, false, false, null, true);
   }
-
-  treeSelection.selectEventsSuppressed = false;
-  // delete the selected messages
-  //
-  // We'll leave no selection after the delete
-  if ("gNextMessageViewIndexAfterDelete" in window) {
-    window.gNextMessageViewIndexAfterDelete = 0xffffffff; // nsMsgViewIndex_None
-  }
-  gDBView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
-  treeSelection.clearSelection();
-  return numMessagesDeleted;
+  return junkMsgHdrs.length;
 }

@@ -34,8 +34,8 @@ export async function delete_mail_marked_as_junk(aNumDeletesExpected, folder) {
   // the case where deletes aren't expected.
   const realDeleteJunkInFolder = about3Pane.deleteJunkInFolder;
   let numMessagesDeleted = null;
-  const fakeDeleteJunkInFolder = function () {
-    numMessagesDeleted = realDeleteJunkInFolder();
+  const fakeDeleteJunkInFolder = function (...args) {
+    numMessagesDeleted = realDeleteJunkInFolder(...args);
     return numMessagesDeleted;
   };
   try {
