@@ -657,6 +657,12 @@ async function _get_row_at_index(aViewIndex) {
   );
   tree.scrollToIndex(aViewIndex, true);
   await TestUtils.waitForCondition(() => tree.getRowAtIndex(aViewIndex));
+  Assert.report(
+    false,
+    undefined,
+    undefined,
+    `scrolled to row ${aViewIndex}; rowCount=${tree.view.rowCount}`
+  );
   return tree.getRowAtIndex(aViewIndex);
 }
 
@@ -669,6 +675,7 @@ async function _get_row_at_index(aViewIndex) {
  * @returns {msgDBHdr} The message header selected.
  */
 export async function select_click_row(aViewIndex) {
+  Assert.report(false, undefined, undefined, `will select row ${aViewIndex}`);
   aViewIndex = _normalize_view_index(aViewIndex);
 
   const row = await _get_row_at_index(aViewIndex);

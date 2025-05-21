@@ -462,8 +462,22 @@ add_task(async function test_focus_after_button_click() {
     );
   };
 
+  const tree = about3Pane.document.getElementById("threadTree");
+  const rowCount = tree.view.rowCount;
   await clickButtonAndCheckFocus("hdrTrashButton", true);
+  await TestUtils.waitForTick();
+  Assert.equal(
+    tree.view.rowCount,
+    rowCount - 1,
+    "trashing should have removed one msg"
+  );
   await clickButtonAndCheckFocus("starMessageButton", false);
+  await TestUtils.waitForTick();
+  Assert.equal(
+    tree.view.rowCount,
+    rowCount - 1,
+    "starring should not have removed any msg"
+  );
 });
 
 // Full keyboard navigation on OSX only works if Full Keyboard Access setting is
@@ -472,6 +486,13 @@ add_task(async function test_focus_after_button_click() {
 // Accessibility > Keyboard > Full Keyboard Access.
 
 add_task(async function test_more_button_with_many_recipients() {
+  const tree = about3Pane.document.getElementById("threadTree");
+  Assert.greaterOrEqual(
+    tree.view.rowCount,
+    2,
+    "should have the 2 messages we need for the test"
+  );
+
   // Start on the interesting message.
   let curMessage = await select_click_row(-1);
 
