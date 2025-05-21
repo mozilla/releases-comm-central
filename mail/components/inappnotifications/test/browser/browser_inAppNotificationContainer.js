@@ -173,3 +173,23 @@ add_task(async function test_cta_title() {
 
   Assert.equal(element.title, "test 2", "title is updated");
 });
+
+add_task(async function test_formatted_url() {
+  const testUrl = "https://example.com/%NAME%";
+  const element = container.shadowRoot.querySelector("a");
+  const formattedUrl = Services.urlFormatter.formatURL(testUrl);
+
+  Assert.notEqual(
+    formattedUrl,
+    testUrl,
+    "Formatted URL should be different from test value"
+  );
+
+  container.setAttribute("url", testUrl);
+
+  Assert.equal(
+    element.href,
+    formattedUrl,
+    "Should format URL before displaying"
+  );
+});

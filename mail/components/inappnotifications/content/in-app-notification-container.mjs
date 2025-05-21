@@ -68,7 +68,7 @@ class InAppNotificationContainer extends HTMLElement {
         if (newValue) {
           this.shadowRoot.querySelector(
             '[is="in-app-notification-button"]'
-          ).href = newValue;
+          ).href = Services.urlFormatter.formatURL(newValue);
         } else {
           this.shadowRoot
             .querySelector('[is="in-app-notification-button"]')
