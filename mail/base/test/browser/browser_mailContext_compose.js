@@ -6,7 +6,7 @@
  * Tests that composition items on the mail context menu work.
  */
 
-requestLongerTimeout(3);
+requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 5 : 3);
 
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
