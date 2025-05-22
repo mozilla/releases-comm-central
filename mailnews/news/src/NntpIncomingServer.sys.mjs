@@ -481,24 +481,6 @@ export class NntpIncomingServer extends MsgIncomingServer {
     }
   }
 
-  removeUnavailableGroup(groupName) {
-    const bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/news.properties"
-    );
-    const result = Services.prompt.confirm(
-      null,
-      null,
-      bundle.formatStringFromName("autoUnsubscribeText", [
-        groupName,
-        this.hostName,
-      ])
-    );
-    if (result) {
-      this.unsubscribe(groupName);
-    }
-    return result;
-  }
-
   _lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
 
   /**

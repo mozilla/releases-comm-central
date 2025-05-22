@@ -94,13 +94,4 @@ interface nsINntpIncomingServer : nsISupports {
      *       is subscribed to (e.g., by containsNewsgroup)
      */
     nsIMsgNewsFolder findGroup(in AUTF8String name);
-
-    /**
-     * After prompting the user for confirmation, unsubscribe from a newsgroup
-     * that is not available on the server.
-     *
-     * @param group The name of the news folder.
-     * @return true if the group has been removed.
-     */
-    boolean removeUnavailableGroup(in AUTF8String name);
 };

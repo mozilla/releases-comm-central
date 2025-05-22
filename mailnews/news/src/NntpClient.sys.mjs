@@ -185,9 +185,9 @@ export class NntpClient {
         this._actionError(res.status, res.statusText);
         return;
       case NO_SUCH_NEWSGROUP:
-        if (this._server.removeUnavailableGroup(this._newsFolder.name)) {
-          this._newsGroup = null;
-        }
+        this._updateStatus("no-such-newsgroup", {
+          newsgroup: this._newsFolder.prettyName,
+        });
         // Close the connection without any further error message.
         this._actionDone(Cr.NS_ERROR_FAILURE);
         return;
