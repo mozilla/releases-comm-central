@@ -202,7 +202,7 @@ export class EwsServer {
    */
   #serializer;
 
-  /**
+  /*
    * The value of the `Authorization` value as read from the latest request.
    *
    * If no such header was found in the latest request, this is an empty string.
