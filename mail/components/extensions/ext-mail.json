@@ -161,6 +161,12 @@
     "scopes": ["addon_parent"],
     "paths": [["messengerUtilities"]]
   },
+  "oauth_provider": {
+    "url": "chrome://messenger/content/parent/ext-oauth_provider.js",
+    "schema": "chrome://messenger/content/schemas/oauth_provider.json",
+    "manifest": ["oauth_provider"],
+    "scopes": ["addon_parent"]
+  },
   "pkcs11": {
     "url": "chrome://messenger/content/parent/ext-pkcs11.js",
     "schema": "chrome://messenger/content/schemas/pkcs11.json",

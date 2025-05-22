@@ -49,7 +49,9 @@ export function OAuth2(scope, issuerDetails) {
     maxLogLevel: "Warn",
     maxLogLevelPref: "mailnews.oauth.loglevel",
   });
-  this.telemetryData.issuer = issuerDetails.name;
+  if (issuerDetails.builtIn) {
+    this.telemetryData.issuer = issuerDetails.name;
+  }
 }
 
 OAuth2.prototype = {

@@ -147,3 +147,82 @@ add_task(function testMicrosoftHostnameDetails() {
     }
   );
 });
+
+add_task(function testRegisterUnregister() {
+  Assert.throws(
+    () => OAuth2Providers.registerProvider("test.test"),
+    /Issuer test\.test already registered/,
+    "registering an existing provider should fail"
+  );
+  Assert.throws(
+    () =>
+      OAuth2Providers.registerProvider(
+        "oauth.test",
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        ["mochi.test"]
+      ),
+    /Hostname mochi\.test already registered/,
+    "registering an existing hostname should fail"
+  );
+
+  OAuth2Providers.registerProvider(
+    "oauth.test",
+    "my_client_id",
+    "my_secret",
+    "https://oauth.test/auth",
+    "https://oauth.test/token",
+    "https://localhost/",
+    true,
+    ["mail.test"],
+    "my_scope"
+  );
+  Assert.deepEqual(
+    OAuth2Providers.getHostnameDetails("mail.test", "imap"),
+    {
+      issuer: "oauth.test",
+      allScopes: "my_scope",
+      requiredScopes: "my_scope",
+    },
+    "hostname details should be registered"
+  );
+  Assert.deepEqual(
+    OAuth2Providers.getIssuerDetails("oauth.test"),
+    {
+      name: "oauth.test",
+      builtIn: false,
+      clientId: "my_client_id",
+      clientSecret: "my_secret",
+      authorizationEndpoint: "https://oauth.test/auth",
+      tokenEndpoint: "https://oauth.test/token",
+      redirectionEndpoint: "https://localhost/",
+      usePKCE: true,
+    },
+    "issuer details should be registered"
+  );
+
+  Assert.throws(
+    () => OAuth2Providers.unregisterProvider("unknown.test"),
+    /Issuer unknown\.test was not registered/,
+    "unregistering an unknown provider should fail"
+  );
+  Assert.throws(
+    () => OAuth2Providers.unregisterProvider("accounts.google.com"),
+    /Refusing to unregister built-in provider accounts\.google\.com/,
+    "unregistering a built-in provider should fail"
+  );
+
+  OAuth2Providers.unregisterProvider("oauth.test");
+  Assert.ok(
+    !OAuth2Providers.getHostnameDetails("mail.test", "imap"),
+    "hostname details should no longer be registered"
+  );
+  Assert.ok(
+    !OAuth2Providers.getIssuerDetails("oauth.test"),
+    "issuer details should no longer be registered"
+  );
+});

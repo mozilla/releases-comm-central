@@ -1,0 +1,64 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "oauth_provider": {
+            "description": "Describes an OAuth authentication provider for Thunderbird to use when connecting to mail/address book/calendar services. You will need to have a client ID registered with the provider to use this API.",
+            "type": "object",
+            "properties": {
+              "issuer": {
+                "description": "A string to identify this provider in the login manager. This <em>should</em> match the hostname of the authorization endpoint, although that is not required.",
+                "type": "string"
+              },
+              "clientId": {
+                "description": "Identifies the OAuth client to the server.",
+                "type": "string"
+              },
+              "clientSecret": {
+                "description": "Identifies the OAuth client to the server.",
+                "type": "string",
+                "optional": true
+              },
+              "authorizationEndpoint": {
+                "description": "OAuth authorization endpoint address.",
+                "type": "string",
+                "format": "url"
+              },
+              "tokenEndpoint": {
+                "description": "OAuth token endpoint address.",
+                "type": "string",
+                "format": "url"
+              },
+              "redirectionEndpoint": {
+                "description": "OAuth redirection endpoint.",
+                "type": "string",
+                "format": "url"
+              },
+              "usePKCE": {
+                "description": "If the authorization uses PKCE.",
+                "type": "boolean",
+                "optional": true
+              },
+              "hostnames": {
+                "description": "One or more hostnames which use this OAuth provider.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "scopes": {
+                "description": "The scopes to request when using this OAuth provider.",
+                "type": "string"
+              }
+            },
+            "optional": true
+          }
+        }
+      }
+    ]
+  }
+]
