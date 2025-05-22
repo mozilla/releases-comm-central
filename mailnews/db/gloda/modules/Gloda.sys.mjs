@@ -294,7 +294,9 @@ export var Gloda = {
       resultLists.push(resultList);
 
       for (let iAddress = 0; iAddress < parsed.count; iAddress++) {
-        const address = parsed.addresses[iAddress].toLowerCase();
+        const address = parsed.addresses[iAddress].length
+          ? parsed.addresses[iAddress].toLowerCase()
+          : parsed.names[iAddress];
         if (address in addresses) {
           addresses[address].push(resultList);
         } else {

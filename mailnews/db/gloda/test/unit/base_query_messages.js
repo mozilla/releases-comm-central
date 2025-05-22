@@ -9,6 +9,9 @@
  *  the 'peoples' in our world clique, we also have 'outlier' contacts that do
  *  not communicate with the others (but are also spread across folders).
  *
+ * Furthermore, we test that messages with correspondents lacking valid email
+ * addresses can also be successfully queried.
+ *
  * This is broadly intended to test all of our query features and mechanisms
  *  (apart from our specialized search implementation, which is tested by
  *  test_search_messages.js), but is probably not the place to test specific
@@ -86,10 +89,15 @@ var world = {
   outlierAuthor: null,
   outlierFriend: null,
 
+  maillessAuthor: null,
+  maillessFriend: null,
+
   // Messages authored by contacts in the "peoples" group.
   peoplesMessages: [],
   // Messages authored by outlierAuthor and outlierFriend.
   outlierMessages: [],
+  // Messages authored by maillessAuthor and maillessFriend.
+  maillessMessages: [],
 };
 
 /**
@@ -217,6 +225,16 @@ function generateFolderMessages() {
   messages.push(smsg);
   world.outlierMessages.push(smsg);
 
+  smsg = msgGen.makeMessage({
+    clobberHeaders: {
+      From: world.maillessAuthor,
+      To: world.maillessFriend,
+    },
+  });
+  // Do not lump it.
+  messages.push(smsg);
+  world.maillessMessages.push(smsg);
+
   world.folderClumps.push(messages);
 
   return new SyntheticMessageSet(messages);
@@ -247,6 +265,8 @@ async function setup_populate() {
   world.peoples = msgGen.makeNamesAndAddresses(world.NUM_AUTHORS);
   world.outlierAuthor = msgGen.makeNameAndAddress();
   world.outlierFriend = msgGen.makeNameAndAddress();
+  world.maillessAuthor = "mailless.author at example.com (Mailless Author)";
+  world.maillessFriend = "Mailless Friend";
   // Set up the per-conversation values with blanks initially.
   for (let iConvo = 0; iConvo < world.NUM_CONVERSATIONS; iConvo++) {
     world.lastMessagesInConvos.push(null);
@@ -440,6 +460,21 @@ async function test_query_messages_by_identity_outlier() {
   ts_messageIdentityQueries.push(query);
   ts_messageIdentityCollections.push(
     await queryExpect(query, world.outlierMessages)
+  );
+}
+
+/**
+ * Tests gloda.noun.message.attr.involves
+ */
+async function test_query_messages_by_identity_mailless() {
+  const query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
+  query.involves(maillessIdentityCollection.items[0]);
+  // This also tests our ability to have two intersecting constraints! hooray!.
+  query.involves(maillessIdentityCollection.items[1]);
+
+  ts_messageIdentityQueries.push(query);
+  ts_messageIdentityCollections.push(
+    await queryExpect(query, world.maillessMessages)
   );
 }
 
@@ -674,6 +709,19 @@ async function test_query_identities_for_outliers() {
   );
 }
 
+var maillessIdentityQuery;
+var maillessIdentityCollection;
+async function test_query_identities_for_mailless() {
+  maillessIdentityQuery = Gloda.newQuery(GlodaConstants.NOUN_IDENTITY);
+  maillessIdentityQuery.kind("email");
+  const maillessAddrs = [world.maillessAuthor, world.maillessFriend];
+  maillessIdentityQuery.value.apply(maillessIdentityQuery, maillessAddrs);
+  maillessIdentityCollection = await queryExpect(
+    maillessIdentityQuery,
+    maillessAddrs
+  );
+}
+
 function test_query_identities_by_kind_and_value_nonmatches() {
   verify_nonMatches(
     [peoplesIdentityQuery, outlierIdentityQuery],
@@ -703,10 +751,12 @@ var base_query_messages_tests = [
   //  for the other message-related queries.
   test_query_identities_for_peoples,
   test_query_identities_for_outliers,
+  test_query_identities_for_mailless,
   test_query_identities_by_kind_and_value_nonmatches,
   // Back to messages!
   test_query_messages_by_identity_peoples,
   test_query_messages_by_identity_outlier,
+  test_query_messages_by_identity_mailless,
   test_query_messages_by_identity_nonmatches,
   test_query_messages_by_date,
   test_query_messages_by_date_nonmatches,
