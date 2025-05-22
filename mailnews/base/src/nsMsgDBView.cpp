@@ -43,6 +43,7 @@
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 #include "nsIMsgMessageService.h"
+#include "nsTHashMap.h"
 
 using namespace mozilla::mailnews;
 
@@ -3089,216 +3090,29 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
     return NS_OK;
   }
 
-  nsCOMPtr<nsIMsgFolder> srcFolder;
-  mJunkHdrs[0]->GetFolder(getter_AddRefs(srcFolder));
-
-  bool moveMessages, changeReadState;
-  nsCOMPtr<nsIMsgFolder> targetFolder;
-
-  nsresult rv = DetermineActionsForJunkChange(msgsAreJunk, srcFolder,
-                                              moveMessages, changeReadState,
-                                              getter_AddRefs(targetFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Nothing to do, bail out.
-  if (!(moveMessages || changeReadState)) return NS_OK;
-
-  if (changeReadState) {
-    // Notes on marking junk as read:
-    // 1. There are 2 occasions on which junk messages are marked as
-    //    read: after a manual marking (here and in the front end) and after
-    //    automatic classification by the bayesian filter (see code for local
-    //    mail folders and for imap mail folders). The server-specific
-    //    markAsReadOnSpam pref only applies to the latter, the former is
-    //    controlled by "mailnews.ui.junk.manualMarkAsJunkMarksRead".
-    // 2. Even though move/delete on manual mark may be
-    //    turned off, we might still need to mark as read.
-
-    rv = srcFolder->MarkMessagesRead(mJunkHdrs, msgsAreJunk);
-    NoteChange(0, 0, nsMsgViewNotificationCode::none);
-    NS_ASSERTION(NS_SUCCEEDED(rv),
-                 "marking marked-as-junk messages as read failed");
+  if (m_folder) {
+    // All the messages are in the one folder for this view.
+    // Let's just do this.
+    return m_folder->PerformActionsOnJunkMsgs(mJunkHdrs, msgsAreJunk, nullptr,
+                                              nullptr);
   }
 
-  if (moveMessages) {
-    // Check if one of the messages to be junked is actually selected.
-    // If more than one message being junked, one must be selected.
-    // If no tree selection at all, must be in stand-alone message window.
-    bool junkedMsgSelected = numJunkHdrs > 1 || !mTreeSelection;
-    for (nsMsgViewIndex junkIndex = 0;
-         !junkedMsgSelected && junkIndex < numJunkHdrs; junkIndex++) {
-      nsMsgViewIndex hdrIndex = FindHdr(mJunkHdrs[junkIndex]);
-      if (hdrIndex != nsMsgViewIndex_None)
-        mTreeSelection->IsSelected(hdrIndex, &junkedMsgSelected);
-    }
+  nsTHashMap<RefPtr<nsIMsgFolder>, nsTArray<RefPtr<nsIMsgDBHdr>>> folderMap;
 
-    // If a junked msg is selected, tell the FE to call
-    // SetNextMessageAfterDelete() because a delete is coming.
-    if (junkedMsgSelected) {
-      nsCOMPtr<nsIMsgDBViewCommandUpdater> commandUpdater(
-          do_QueryReferent(mCommandUpdater));
-      if (commandUpdater) {
-        rv = commandUpdater->UpdateNextMessageAfterDelete();
-        NS_ENSURE_SUCCESS(rv, rv);
-      }
-    }
-
-    nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
-    if (targetFolder) {
-      nsCOMPtr<nsIMsgCopyService> copyService =
-          do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      rv = copyService->CopyMessages(srcFolder, mJunkHdrs, targetFolder, true,
-                                     nullptr, msgWindow, true);
-    } else if (msgsAreJunk) {
-      if (mDeleteModel == nsMsgImapDeleteModels::IMAPDelete) {
-        // Unfortunately the DeleteMessages in this case is interpreted by
-        // IMAP as a delete toggle. So what we have to do is to assemble a
-        // new delete array, keeping only those that are not deleted.
-        nsTArray<RefPtr<nsIMsgDBHdr>> hdrsToDelete;
-        for (nsIMsgDBHdr* msgHdr : mJunkHdrs) {
-          if (msgHdr) {
-            uint32_t flags;
-            msgHdr->GetFlags(&flags);
-            if (!(flags & nsMsgMessageFlags::IMAPDeleted)) {
-              hdrsToDelete.AppendElement(msgHdr);
-            }
-          }
-        }
-
-        if (!hdrsToDelete.IsEmpty())
-          rv = srcFolder->DeleteMessages(hdrsToDelete, msgWindow, false, false,
-                                         nullptr, true);
-      } else {
-        rv = srcFolder->DeleteMessages(mJunkHdrs, msgWindow, false, false,
-                                       nullptr, true);
-      }
-    } else if (mDeleteModel == nsMsgImapDeleteModels::IMAPDelete) {
-      nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(srcFolder));
-      nsTArray<nsMsgKey> imapUids(numJunkHdrs);
-      for (nsIMsgDBHdr* msgHdr : mJunkHdrs) {
-        nsMsgKey key;
-        msgHdr->GetMessageKey(&key);
-        imapUids.AppendElement(key);
-      }
-
-      imapFolder->StoreImapFlags(kImapMsgDeletedFlag, false, imapUids, nullptr);
-    }
-
-    NoteChange(0, 0, nsMsgViewNotificationCode::none);
-
-    NS_ASSERTION(NS_SUCCEEDED(rv),
-                 "move or deletion of message marked-as-junk/non junk failed");
-  }
-
-  return rv;
-}
-
-nsresult nsMsgDBView::DetermineActionsForJunkChange(
-    bool msgsAreJunk, nsIMsgFolder* srcFolder, bool& moveMessages,
-    bool& changeReadState, nsIMsgFolder** targetFolder) {
-  // There are two possible actions which may be performed
-  // on messages marked as spam: marking as read and moving
-  // somewhere. When a message is marked as non junk,
-  // it may be moved to the inbox, and marked unread.
-  moveMessages = false;
-  changeReadState = false;
-
-  // The 'somewhere', junkTargetFolder, can be a folder,
-  // but if it remains null we'll delete the messages.
-  *targetFolder = nullptr;
-
-  uint32_t folderFlags;
-  srcFolder->GetFlags(&folderFlags);
-
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  nsresult rv = srcFolder->GetServer(getter_AddRefs(server));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIPrefBranch> prefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Handle the easy case of marking a junk message as good first.
-  // Set the move target folder to the inbox, if any.
-  if (!msgsAreJunk) {
-    if (folderFlags & nsMsgFolderFlags::Junk) {
-      prefBranch->GetBoolPref("mail.spam.markAsNotJunkMarksUnRead",
-                              &changeReadState);
-      nsCOMPtr<nsIMsgFolder> rootMsgFolder;
-      rv = server->GetRootMsgFolder(getter_AddRefs(rootMsgFolder));
-      NS_ENSURE_SUCCESS(rv, rv);
-      rootMsgFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox, targetFolder);
-      moveMessages = *targetFolder != nullptr;
-    }
-
-    return NS_OK;
-  }
-
-  nsCOMPtr<nsISpamSettings> spamSettings;
-  rv = server->GetSpamSettings(getter_AddRefs(spamSettings));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // When the user explicitly marks a message as junk, we can mark it as read,
-  // too. This is independent of the "markAsReadOnSpam" pref, which applies
-  // only to automatically-classified messages.
-  // Note that this behaviour should match the one in the front end for marking
-  // as junk via toolbar/context menu.
-  prefBranch->GetBoolPref("mailnews.ui.junk.manualMarkAsJunkMarksRead",
-                          &changeReadState);
-
-  // Now let's determine whether we'll be taking the second action,
-  // the move / deletion (and also determine which of these two).
-  bool manualMark;
-  (void)spamSettings->GetManualMark(&manualMark);
-  if (!manualMark) return NS_OK;
-
-  int32_t manualMarkMode;
-  (void)spamSettings->GetManualMarkMode(&manualMarkMode);
-  NS_ASSERTION(manualMarkMode == nsISpamSettings::MANUAL_MARK_MODE_MOVE ||
-                   manualMarkMode == nsISpamSettings::MANUAL_MARK_MODE_DELETE,
-               "bad manual mark mode");
-
-  if (manualMarkMode == nsISpamSettings::MANUAL_MARK_MODE_MOVE) {
-    // If this is a junk folder (not only "the" junk folder for this account)
-    // don't do the move.
-    if (folderFlags & nsMsgFolderFlags::Junk) return NS_OK;
-
-    nsCString spamFolderURI;
-    rv = spamSettings->GetSpamFolderURI(spamFolderURI);
+  for (RefPtr<nsIMsgDBHdr> message : mJunkHdrs) {
+    nsCOMPtr<nsIMsgFolder> folder;
+    nsresult rv = message->GetFolder(getter_AddRefs(folder));
     NS_ENSURE_SUCCESS(rv, rv);
-
-    NS_ASSERTION(!spamFolderURI.IsEmpty(),
-                 "spam folder URI is empty, can't move");
-    if (!spamFolderURI.IsEmpty()) {
-      rv = FindFolder(spamFolderURI, targetFolder);
-      NS_ENSURE_SUCCESS(rv, rv);
-      if (*targetFolder) {
-        moveMessages = true;
-      } else {
-        // XXX TODO: GetOrCreateJunkFolder will only create a folder with
-        // localized name "Junk" regardless of spamFolderURI. So if someone
-        // sets the junk folder to an existing folder of a different name,
-        // then deletes that folder, this will fail to create the correct
-        // folder.
-        rv = GetOrCreateJunkFolder(spamFolderURI, nullptr /* aListener */);
-        if (NS_SUCCEEDED(rv))
-          rv = GetExistingFolder(spamFolderURI, targetFolder);
-
-        NS_ASSERTION(NS_SUCCEEDED(rv), "GetOrCreateJunkFolder failed");
-      }
-    }
-
-    return NS_OK;
+    nsTArray<RefPtr<nsIMsgDBHdr>>& messages = folderMap.LookupOrInsert(folder);
+    messages.AppendElement(message);
   }
 
-  // At this point manualMarkMode == nsISpamSettings::MANUAL_MARK_MODE_DELETE).
-
-  // If this is in the trash, let's not delete.
-  if (folderFlags & nsMsgFolderFlags::Trash) return NS_OK;
-
-  return srcFolder->GetCanDeleteMessages(&moveMessages);
+  for (auto iter = folderMap.Iter(); !iter.Done(); iter.Next()) {
+    RefPtr<nsIMsgFolder> folder = iter.Key();
+    nsTArray<RefPtr<nsIMsgDBHdr>>& messages = iter.Data();
+    folder->PerformActionsOnJunkMsgs(messages, msgsAreJunk, nullptr, nullptr);
+  }
+  return NS_OK;
 }
 
 // Reversing threads involves reversing the threads but leaving the

@@ -80,9 +80,10 @@
 
 using namespace mozilla;
 
-extern LazyLogModule FILTERLOGMODULE;
+extern LazyLogModule
+    FILTERLOGMODULE;  // "Filters" (defined in nsMsgFilterService.cpp)
 extern LazyLogModule DBLog;
-extern LazyLogModule gCompactLog;  // "compact" (Defined in FolderCompactor).
+extern LazyLogModule gCompactLog;  // "compact" (defined in FolderCompactor.cpp)
 static LazyLogModule gFolderLockLog("FolderLock");
 
 static PRTime gtimeOfLastPurgeCheck;  // variable to know when to check for
@@ -4458,6 +4459,12 @@ nsMsgDBFolder::PerformActionsOnJunkMsgs(
     }
     return rv;
   }
+
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+          ("Determined actions for junk messages. moveMessages: %d, "
+           "changeReadState: %d, targetFolder: %s",
+           moveMessages, changeReadState,
+           targetFolder ? targetFolder->URI().get() : "null"));
 
   // Nothing to do, bail out.
   if (!moveMessages && !changeReadState) {

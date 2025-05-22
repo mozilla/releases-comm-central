@@ -19,3 +19,4 @@ support-files = [
 tags = ["spam"]
 
 ["browser_junkCommands.js"]
+["browser_unjunk.js"]

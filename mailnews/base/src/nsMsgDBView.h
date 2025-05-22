@@ -509,11 +509,6 @@ class nsMsgDBView : public nsIMsgDBView,
   bool ServerSupportsFilterAfterTheFact();
 
   nsresult PerformActionsOnJunkMsgs(bool msgsAreJunk);
-  nsresult DetermineActionsForJunkChange(bool msgsAreJunk,
-                                         nsIMsgFolder* srcFolder,
-                                         bool& moveMessages,
-                                         bool& changeReadState,
-                                         nsIMsgFolder** targetFolder);
 
   class nsMsgViewHdrEnumerator final : public nsBaseMsgEnumerator {
    public:
