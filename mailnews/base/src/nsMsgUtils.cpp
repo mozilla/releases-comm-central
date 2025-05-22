@@ -74,6 +74,7 @@
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
 #include "mozilla/intl/Localization.h"
+#include <limits.h>
 
 /* for logging to Error Console */
 #include "nsIScriptError.h"
@@ -1882,7 +1883,17 @@ nsString EncodeFilename(nsACString const& str) {
 
   nsCString out = PercentEncode(str, [](char c) -> bool {
     static const nsLiteralCString badChars("%<>:\"/\\|?*");
-    return ((c >= 0x00 && c < 0x20) || badChars.Contains(c));
+
+// Some platforms (such as Linux AArch64) interpret `char` as unsigned, and will
+// emit a warning if we try doing a `>= 0` comparison on them. We build with
+// warnings as failures, so such warnings will cause builds to fail.
+#if CHAR_MIN < 0
+    bool in_range = (c >= 0x00 && c < 0x20);
+#else
+    bool in_range = c < 0x20;
+#endif
+
+    return (in_range || badChars.Contains(c));
   });
 
   // Filenames we can't use on windows (even with extensions).
