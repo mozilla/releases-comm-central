@@ -311,7 +311,14 @@ interface nsIMsgDBView : nsISupports
   Array<AUTF8String> getURIsForSelection();
   Array<nsMsgViewIndex> getIndicesForSelection();
 
+  /**
+   * Returns URI of first selected message, or null if none is selected.
+   */
   readonly attribute AUTF8String URIForFirstSelectedMessage;
+
+  /**
+   * Returns first selected message, or null if none is selected.
+   */
   readonly attribute nsIMsgDBHdr hdrForFirstSelectedMessage;
 
   /**

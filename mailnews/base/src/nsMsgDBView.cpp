@@ -2308,7 +2308,8 @@ nsMsgDBView::GetURIForViewIndex(nsMsgViewIndex index, nsACString& result) {
 
   if (index == nsMsgViewIndex_None || index >= m_flags.Length() ||
       m_flags[index] & MSG_VIEW_FLAG_DUMMY) {
-    return NS_MSG_INVALID_DBVIEW_INDEX;
+    result = nullptr;
+    return NS_OK;
   }
 
   return GenerateURIForMsgKey(m_keys[index], folder, result);
@@ -6460,13 +6461,16 @@ nsMsgDBView::GetMsgToSelectAfterDelete(nsMsgViewIndex* msgToSelectAfterDelete) {
   return NS_OK;
 }
 
-// If nothing selected, return an NS_ERROR.
 NS_IMETHODIMP
 nsMsgDBView::GetHdrForFirstSelectedMessage(nsIMsgDBHdr** hdr) {
   NS_ENSURE_ARG_POINTER(hdr);
   nsMsgViewIndex index;
   nsresult rv = GetViewIndexForFirstSelectedMsg(&index);
   NS_ENSURE_SUCCESS(rv, rv);
+  if (index == nsMsgViewIndex_None) {
+    *hdr = nullptr;
+    return NS_OK;
+  }
 
   // Do not return a message header if an expanded grouped header is selected.
   uint32_t flags = m_flags[index];
@@ -6478,14 +6482,15 @@ nsMsgDBView::GetHdrForFirstSelectedMessage(nsIMsgDBHdr** hdr) {
   return GetMsgHdrForViewIndex(index, hdr);
 }
 
-// If nothing selected, return an NS_ERROR.
 NS_IMETHODIMP
 nsMsgDBView::GetURIForFirstSelectedMessage(nsACString& uri) {
-  nsresult rv;
   nsMsgViewIndex viewIndex;
-  rv = GetViewIndexForFirstSelectedMsg(&viewIndex);
-  // Don't assert, it is legal for nothing to be selected.
-  if (NS_FAILED(rv)) return rv;
+  nsresult rv = GetViewIndexForFirstSelectedMsg(&viewIndex);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (viewIndex == nsMsgViewIndex_None) {
+    uri = nullptr;
+    return NS_OK;
+  }
 
   return GetURIForViewIndex(viewIndex, uri);
 }
@@ -6579,7 +6584,7 @@ nsMsgDBView::GetViewIndexForFirstSelectedMsg(nsMsgViewIndex* aViewIndex) {
   NS_ENSURE_ARG_POINTER(aViewIndex);
   if (!mTreeSelection) {
     *aViewIndex = nsMsgViewIndex_None;
-    return NS_MSG_INVALID_DBVIEW_INDEX;
+    return NS_OK;
   }
 
   int32_t startRange;
@@ -6587,8 +6592,10 @@ nsMsgDBView::GetViewIndexForFirstSelectedMsg(nsMsgViewIndex* aViewIndex) {
   mTreeSelection->GetRangeAt(0, &startRange, &endRange);
 
   // Check that the first index is valid, it may not be if nothing is selected.
-  if (!IsValidIndex((nsMsgViewIndex)startRange))
-    return NS_MSG_INVALID_DBVIEW_INDEX;
+  if (!IsValidIndex((nsMsgViewIndex)startRange)) {
+    *aViewIndex = nsMsgViewIndex_None;
+    return NS_OK;
+  }
 
   *aViewIndex = startRange;
   return NS_OK;

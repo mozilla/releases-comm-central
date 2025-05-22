@@ -2090,6 +2090,9 @@ DBViewWrapper.prototype = {
    *   false if the row is a collapsed group or anything else.
    */
   isCollapsedThreadAtIndex(aViewIndex) {
+    if (aViewIndex == nsMsgViewIndex_None) {
+      return false;
+    }
     const flags = this.dbView.getFlagsAt(aViewIndex);
     return (
       flags & Ci.nsMsgMessageFlags.Elided &&
@@ -2106,6 +2109,9 @@ DBViewWrapper.prototype = {
    * @returns {boolean}
    */
   isExpandedGroupedByHeaderAtIndex(aViewIndex) {
+    if (aViewIndex == nsMsgViewIndex_None) {
+      return false;
+    }
     const flags = this.dbView.getFlagsAt(aViewIndex);
     return (
       !(flags & Ci.nsMsgMessageFlags.Elided) &&
