@@ -63,6 +63,7 @@
 #include "nsIInputStream.h"
 #include "nsIChannel.h"
 #include "nsIURIMutator.h"
+#include "nsReadableUtils.h"
 #include "mozilla/Unused.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/Encoding.h"
@@ -1863,4 +1864,71 @@ nsresult GetOrCreateCompactionDir(nsIFile* srcFile, nsIFile** tempDir) {
 
   path.forget(tempDir);
   return NS_OK;
+}
+
+nsString EncodeFilename(nsACString const& str) {
+  // Escape any characters we can't use in filenames.
+  // All the chars we want to escape are 7-bit so we can safely treat the
+  // UTF-8 string as if it were ASCII - all multi-byte sequences will just
+  // pass through untouched.
+  // Also escape '%' to simplify decoding rules.
+  //
+  // Assorted guidelines:
+  // https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
+  // https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+  //
+  // See also the folders-with-special-characters bug:
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=124287
+
+  nsCString out = PercentEncode(str, [](char c) -> bool {
+    static const nsLiteralCString badChars("%<>:\"/\\|?*");
+    return ((c >= 0x00 && c < 0x20) || badChars.Contains(c));
+  });
+
+  // Filenames we can't use on windows (even with extensions).
+  // Don't worry about device names ("CLOCK$" et al) - only a problem on DOS.
+  // See also nsLocalFile::CheckForReservedFileName(), which has a similar
+  // list (but is only included in windows builds).
+  static const nsLiteralCString forbiddenNames[] = {
+      u8"CON"_ns, u8"PRN"_ns, u8"AUX"_ns, u8"NUL"_ns, u8"COM1"_ns, u8"COM2"_ns,
+      u8"COM3"_ns, u8"COM4"_ns, u8"COM5"_ns, u8"COM6"_ns, u8"COM7"_ns,
+      u8"COM8"_ns, u8"COM9"_ns,
+      // COM^1, COM^2, COM^3 (digit superscripts in Latin-1 range):
+      u8"COM\u00B9"_ns, u8"COM\u00B2"_ns, u8"COM\u00B3"_ns, u8"LPT1"_ns,
+      u8"LPT2"_ns, u8"LPT3"_ns, u8"LPT4"_ns, u8"LPT5"_ns, u8"LPT6"_ns,
+      u8"LPT7"_ns, u8"LPT8"_ns, u8"LPT9"_ns,
+      // LPT^1, LPT^2, LPT^3 (digit superscripts in Latin-1 range):
+      u8"LPT\u00B9"_ns, u8"LPT\u00B2"_ns, u8"LPT\u00B3"_ns};
+
+  for (const nsLiteralCString& forbidden : forbiddenNames) {
+    if (StringBeginsWith(out, forbidden,
+                         nsCaseInsensitiveUTF8StringComparator)) {
+      size_t n = forbidden.Length();
+      // Not forbidden if part of a larger string, unless the rest is a
+      // file extension (in which case we'll encode filename but leave the
+      // extension).
+      if (out.Length() == n || out.CharAt(n) == '.') {
+        auto safeName =
+            PercentEncode(forbidden, [](char c) -> bool { return true; });
+        out = safeName + Substring(out, n);
+        break;
+      }
+    }
+  }
+
+  // NOTE:
+  // It might be good to encode a leading/trailing ' ' or '.' char in the
+  // filename.It's not a problem at the filesystem level, but the Windows shell
+  // tends to not like it. See:
+  // https://learn.microsoft.com/en-us/troubleshoot/windows-client/shell-experience/file-folder-name-whitespace-characters
+
+  // Return UTF-16 since most of our file functions work with that.
+  return NS_ConvertUTF8toUTF16(out);
+}
+
+nsCString DecodeFilename(nsAString const& filename) {
+  nsCString out = NS_ConvertUTF16toUTF8(filename);
+  // NS_UnescapeURL() does generic percent-decoding, not just for URLs.
+  NS_UnescapeURL(out);
+  return out;
 }

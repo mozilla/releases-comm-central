@@ -442,4 +442,73 @@ nsresult IsOnSameServer(nsIMsgFolder* folder1, nsIMsgFolder* folder2,
  */
 nsresult GetOrCreateCompactionDir(nsIFile* srcFile, nsIFile** tempDir);
 
+/**
+ * Percent-encodes all characters in a string for which needsEncoding()
+ * returns true.
+ * For example:
+ *
+ *   PercentEncode("foo"_ns, [](char c) -> bool {return c == 'o';})
+ *   => "f%6F%6F"
+ */
+template <typename CheckFn>
+nsCString PercentEncode(nsACString const& in, CheckFn needsEncoding) {
+  static const char hexDigits[] = "0123456789ABCDEF";
+  const char* begin = in.BeginReading();
+  const char* end = in.EndReading();
+  int escCount = std::count_if(begin, end, needsEncoding);
+  nsCString out;
+  out.SetCapacity(in.Length() + (escCount * 2));
+
+  for (auto it = begin; it != end; ++it) {
+    char c = *it;
+    if (needsEncoding(c)) {
+      out.Append('%');
+      out.Append(hexDigits[((uint8_t)c) >> 4]);
+      out.Append(hexDigits[((uint8_t)c) & 0x0f]);
+    } else {
+      out.Append(c);
+    }
+  }
+  return out;
+}
+
+/**
+ * Encode an arbitrary UTF-8 string for safe use as a filename.
+ *
+ * The encoding can be exactly reversed by DecodeFilename().
+ *
+ * Uses the same filename rules on all platforms (people do move profiles
+ * to different machines from time to time).
+ *
+ * The returned string is UTF-16 as most of our file functions use that.
+ *
+ * We'll use percent-encoding to escape anything problematic.
+ * NOTE: this is NOT standard URI/URL encoding - the filesystems we're
+ * interested in handle unicode just fine, so there's only a small
+ * set of characters (e.g. path separators) that we need to escape.
+ * There are also a few special filenames to avoid ("COM1" etc), so we'll
+ * use percent-encoding on those too.
+ *
+ * Examples:
+ *
+ *   EncodeFilename("foo/bar") => u"foo%2Fbar"
+ *   EncodeFilename("COM1"_ns) => u"%43%4F%4D%31"
+ *
+ * See TestMsgUtils.cpp gtests for more examples.
+ *
+ */
+nsString EncodeFilename(nsACString const& str);
+
+/**
+ * Decode a filename encoded by EncodeFilename().
+ * This should always produce exactly what was passed into EncodeFilename().
+ *
+ * NOTE: The reverse is not true! There are multiple ways to percent-encode a
+ * string, so you can not guarantee that DecodeFilename() can be exactly
+ * reversed by calling EncodeFilename(). For example:
+ *   DecodeFilename("u"foo%2Fbar"_ns)  => "foo bar"
+ *   DecodeFilename("u"f%6F%6F bar"_ns)  => "foo bar"
+ */
+nsCString DecodeFilename(nsAString const& filename);
+
 #endif

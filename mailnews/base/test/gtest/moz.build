@@ -13,6 +13,7 @@ UNIFIED_SOURCES += [
     "TestLineReader.cpp",
     "TestMsgMboxRead.cpp",
     "TestMsgMboxWrite.cpp",
+    "TestMsgUtils.cpp",
 ]
 
 # LOCAL_INCLUDES += [
