@@ -623,12 +623,12 @@ export var GlodaFundAttr = {
 
     // for simplicity this is used for both involves and recipients
     const involvesIdentities = {};
-    const involves = aGlodaMessage.involves || [];
-    const recipients = aGlodaMessage.recipients || [];
+    const involves = [];
+    const recipients = [];
 
     // 'me' specialization optimizations
-    const toMe = aGlodaMessage.toMe || [];
-    const fromMe = aGlodaMessage.fromMe || [];
+    const toMe = [];
+    const fromMe = [];
 
     const myIdentities = Gloda.myIdentities; // needless optimization?
     const authorIdentity = aGlodaMessage.from;

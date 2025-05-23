@@ -126,13 +126,25 @@ function reset_spam_filter() {
  */
 
 async function test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
+  // Test that reindexing a message does not duplicate the existing identities
+  // of the gloda message.
+  const verifyIdentities = (_, gmsg) => {
+    Assert.equal(gmsg.involves.length, 2);
+    Assert.equal(gmsg.recipients.length, 1);
+  };
+
   // Mark as junk is deletion.
   // Create a message; it should get indexed.
   const [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1 },
   ]);
   await waitForGlodaIndexer();
-  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([msgSet], {
+      augment: true,
+      verifier: verifyIdentities,
+    })
+  );
   const glodaId = msgSet.glodaMessages[0].id;
   // Mark it as junk.
   msgSet.setJunk(true);
@@ -142,7 +154,12 @@ async function test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
   // Mark as non-junk gets indexed.
   msgSet.setJunk(false);
   await waitForGlodaIndexer();
-  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([msgSet], {
+      augment: true,
+      verifier: verifyIdentities,
+    })
+  );
   // We should have reused the existing gloda message so it should keep the id.
   Assert.equal(glodaId, msgSet.glodaMessages[0].id);
 }
