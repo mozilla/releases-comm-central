@@ -18,6 +18,7 @@
 /* import-globals-from ComposerCommands.js */
 /* import-globals-from editor.js */
 /* import-globals-from editorUtilities.js */
+/* globals Enigmail */ // From enigmailMsgComposeOverlay.js
 
 /**
  * Commands for the message composition window.
@@ -6388,9 +6389,10 @@ async function CompleteGenericSendMessage(msgType) {
 
   let sendError = null;
   try {
+    gAutoSaving = msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft;
+
     // Just before we try to send the message, fire off the
-    // compose-send-message event for listeners, so they can do
-    // any pre-security work before sending.
+    // compose-send-message event for listeners.
     const event = new CustomEvent("compose-send-message", {
       cancelable: true,
       detail: { msgType },
@@ -6403,11 +6405,15 @@ async function CompleteGenericSendMessage(msgType) {
       );
     }
 
-    gAutoSaving = msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft;
-
     // disable the ui if we're not auto-saving
     if (!gAutoSaving) {
       ToggleWindowLock(true);
+
+      if (gSelectedTechnologyIsPGP) {
+        if (!(await Enigmail.msg.onSendOpenPGP(msgType))) {
+          return;
+        }
+      }
     } else {
       // If we're auto saving, mark the body as not changed here, and not
       // when the save is done, because the user might change it between now
@@ -6450,8 +6456,9 @@ async function CompleteGenericSendMessage(msgType) {
     );
   } catch (ex) {
     console.warn("GenericSendMessage FAILED: " + ex);
-    ToggleWindowLock(false);
     sendError = ex;
+  } finally {
+    ToggleWindowLock(false);
   }
 
   if (

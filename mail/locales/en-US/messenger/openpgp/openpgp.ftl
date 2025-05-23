@@ -487,7 +487,6 @@ key-verification = Verify the fingerprint of the key using a secure communicatio
 # Variables:
 # $problem (String) - Error message from key usability check.
 cannot-use-own-key-because = Unable to send the message, because there is a problem with your personal key. { $problem }
-window-locked = Compose window is locked; send cancelled
 
 ## Strings in keyserver.sys.mjs
 

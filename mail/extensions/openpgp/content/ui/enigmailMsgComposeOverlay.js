@@ -97,17 +97,9 @@ Enigmail.msg = {
     gMsgCompose.RegisterStateListener(Enigmail.composeStateListener);
     Enigmail.msg.composeBodyReady = false;
 
-    // Listen to message sending event
-    addEventListener(
-      "compose-send-message",
-      Enigmail.msg.sendMessageListener.bind(Enigmail.msg),
-      true
-    );
-
     await OpenPGPAlias.load().catch(console.error);
 
     Enigmail.msg.composeOpen();
-    //Enigmail.msg.processFinalState();
   },
 
   isSmimeEnabled() {
@@ -401,7 +393,6 @@ Enigmail.msg = {
 
     this.warnUserIfSenderKeyExpired();
 
-    //this.processFinalState();
     if (selectedElement) {
       selectedElement.focus();
     }
@@ -589,8 +580,6 @@ Enigmail.msg = {
     return false;
   },
 
-  processFinalState() {},
-
   /**
    * Check if encryption is possible (have keys for everyone or not).
    *
@@ -638,9 +627,6 @@ Enigmail.msg = {
       await EnigmailKeyRing.getValidKeysForAllRecipients(addresses, detailsObj);
       //this.autoPgpEncryption = (validKeyList !== null);
     }
-
-    // process and signal new resulting state
-    //this.processFinalState();
 
     return detailsObj;
   },
@@ -1176,15 +1162,6 @@ Enigmail.msg = {
       }
     }
 
-    if (gWindowLocked) {
-      Services.prompt.alert(
-        window,
-        null,
-        await document.l10n.formatValue("window-locked")
-      );
-      return false;
-    }
-
     const newSecurityInfo = this.resetDirty();
     this.dirty = 1;
 
@@ -1544,26 +1521,6 @@ Enigmail.msg = {
     gMsgCompose.compFields.deleteHeader(hdr);
   },
 
-  // called just before sending
-  modifyCompFields() {
-    try {
-      if (
-        !Enigmail.msg.isEnigmailEnabledForIdentity() ||
-        !gCurrentIdentity.sendAutocryptHeaders
-      ) {
-        return;
-      }
-      if ((gSendSigned || gSendEncrypted) && !gSelectedTechnologyIsPGP) {
-        // If we're sending an S/MIME message, we don't want to send
-        // the OpenPGP autocrypt header.
-        return;
-      }
-      this.setAutocryptHeader();
-    } catch (ex) {
-      console.error(ex);
-    }
-  },
-
   getCurrentIncomingServer() {
     const currentAccountKey = getCurrentAccountKey();
     const account = MailServices.accounts.getAccount(currentAccountKey);
@@ -1638,19 +1595,26 @@ Enigmail.msg = {
     return gossip;
   },
 
-  setAutocryptHeader() {
-    const senderKeyId = gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
-    if (!senderKeyId) {
-      return;
+  /**
+   * To be called prior to completing send.
+   *
+   * @param {nsIMsgCompDeliverMode} mode
+   * @returns {boolean} true if sending should proceed.
+   */
+  async onSendOpenPGP(mode) {
+    if (
+      !gSelectedTechnologyIsPGP ||
+      !Enigmail.msg.isEnigmailEnabledForIdentity() ||
+      !gCurrentIdentity.sendAutocryptHeaders
+    ) {
+      return true;
     }
 
-    let fromMail = gCurrentIdentity.email;
-    try {
-      fromMail = EnigmailFuncs.stripEmail(gMsgCompose.compFields.from);
-    } catch (ex) {}
-
+    const fromMail =
+      EnigmailFuncs.stripEmail(gMsgCompose.compFields.from) ||
+      gCurrentIdentity.email;
+    const senderKeyId = gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
     let keyData = EnigmailKeyRing.getAutocryptKey("0x" + senderKeyId, fromMail);
-
     if (keyData) {
       keyData =
         " " + keyData.replace(/(.{72})/g, "$1\r\n ").replace(/\r\n $/, "");
@@ -1659,48 +1623,13 @@ Enigmail.msg = {
         "addr=" + fromMail + "; keydata=\r\n" + keyData
       );
     }
-  },
 
-  /**
-   * Handle the 'compose-send-message' event.
-   *
-   * @param {CustomEvent} event - A compose-send-message event.
-   */
-  sendMessageListener(event) {
-    const sendMsgType = event.detail.msgType;
-
-    if (
-      !(
-        this.sendProcess &&
-        sendMsgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft
-      )
-    ) {
-      this.modifyCompFields();
-      if (!gSelectedTechnologyIsPGP) {
-        return;
-      }
-
-      this.sendProcess = true;
-      try {
-        const encryptResult = EnigmailFuncs.sync(
-          this.prepareSendMsg(sendMsgType)
-        );
-        if (!encryptResult) {
-          this.resetUpdatedFields();
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      } catch (ex) {
-        console.error("GenericSendMessage FAILED: " + ex);
-        this.resetUpdatedFields();
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    } else {
-      event.preventDefault();
-      event.stopPropagation();
+    const ok = await this.prepareSendMsg(mode);
+    if (!ok) {
+      this.resetUpdatedFields();
+      return false;
     }
-    this.sendProcess = false;
+    return true;
   },
 
   async decryptQuote(interactive) {
