@@ -10,27 +10,27 @@
 /* globals arguments */
 const [resolve] = arguments;
 
-const tabmail = document.getElementById("tabmail");
-const loadPromises = [];
-
-for (const tab of tabmail.tabInfo) {
-  if (tab.mode.name != "contentTab") {
-    continue;
-  }
-  if (tab.browser.webProgress.isLoadingDocument) {
-    const promise = Promise.withResolvers();
-    loadPromises.push(promise.promise);
-    function listener(event) {
-      if (event.target.location != "about:blank") {
-        tab.browser.removeEventListener("load", listener, { capture: true });
-        promise.resolve();
-      }
-    }
-    tab.browser.addEventListener("load", listener, { capture: true });
-  }
-}
-
 window.requestIdleCallback(() => {
+  const tabmail = document.getElementById("tabmail");
+  const loadPromises = [];
+
+  for (const tab of tabmail.tabInfo) {
+    if (tab.mode.name != "contentTab") {
+      continue;
+    }
+    if (tab.browser.webProgress.isLoadingDocument) {
+      const promise = Promise.withResolvers();
+      loadPromises.push(promise.promise);
+      function listener(event) {
+        if (event.target.location != "about:blank") {
+          tab.browser.removeEventListener("load", listener, { capture: true });
+          promise.resolve();
+        }
+      }
+      tab.browser.addEventListener("load", listener, { capture: true });
+    }
+  }
+
   Promise.all(loadPromises).then(() => {
     resolve(
       tabmail.tabInfo.map(tab => {
