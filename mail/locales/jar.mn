@@ -160,6 +160,7 @@
   locale/@AB_CD@/messenger/activity.dtd                                 (%chrome/messenger/activity.dtd)
   locale/@AB_CD@/messenger/activity.properties                          (%chrome/messenger/activity.properties)
   locale/@AB_CD@/messenger/profileDowngrade.dtd                         (%chrome/overrides/profileDowngrade.dtd)
+  locale/@AB_CD@/messenger/appstrings.properties                        (%chrome/overrides/appstrings.properties)
   locale/@AB_CD@/messenger/newsError.dtd                                (%chrome/messenger/newsError.dtd)
   locale/@AB_CD@/messenger/chat.dtd                                     (%chrome/messenger/chat.dtd)
   locale/@AB_CD@/messenger/chat.properties                              (%chrome/messenger/chat.properties)
@@ -167,7 +168,7 @@
   locale/@AB_CD@/messenger/joinChat.dtd                                 (%chrome/messenger/joinChat.dtd)
   locale/@AB_CD@/messenger/imAccounts.properties                        (%chrome/messenger/imAccounts.properties)
   locale/@AB_CD@/messenger/imAccountWizard.dtd                          (%chrome/messenger/imAccountWizard.dtd)
-  locale/@AB_CD@/messenger/sanitize.dtd									(%chrome/messenger/sanitize.dtd)
+  locale/@AB_CD@/messenger/sanitize.dtd                                 (%chrome/messenger/sanitize.dtd)
 % locale messenger-mapi @AB_CD@ %locale/@AB_CD@/messenger-mapi/
   locale/@AB_CD@/messenger-mapi/mapi.properties                         (%chrome/messenger-mapi/mapi.properties)
 % locale messenger-newsblog @AB_CD@ %locale/@AB_CD@/messenger-newsblog/

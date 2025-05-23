@@ -134,6 +134,7 @@ messenger.jar:
 
 *   content/messenger/buildconfig.html              (content/buildconfig.html)
 % override chrome://global/content/buildconfig.html chrome://messenger/content/buildconfig.html
+% override chrome://global/locale/appstrings.properties chrome://messenger/locale/appstrings.properties
 
 comm.jar:
 % content communicator %content/communicator/
