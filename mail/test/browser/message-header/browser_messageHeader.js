@@ -882,6 +882,9 @@ add_task(async function test_context_menu_list_id() {
     "shown"
   );
 
+  const listIdCopy = aboutMessage.document.getElementById("listIdCopy");
+  Assert.equal(listIdCopy.hidden, false, "copy should show");
+
   const listIdPlaceHolder =
     aboutMessage.document.getElementById("listIdPlaceHolder");
   Assert.equal(listIdPlaceHolder.hidden, false, "list-id should show");
