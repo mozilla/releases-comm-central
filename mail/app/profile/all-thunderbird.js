@@ -1483,11 +1483,7 @@ pref("mail.dark-reader.enabled", true);
 pref("mail.dark-reader.show-toggle", true);
 
 // Enable the new account setup (starting from the second account)
-#ifdef NIGHTLY_BUILD
 pref("mail.accounthub.enabled", true);
-#else
-pref("mail.accounthub.enabled", false);
-#endif
 
 // Enable address book setup via account hub
 pref("mail.accounthub.addressbook.enabled", false);
