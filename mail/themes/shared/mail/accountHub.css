@@ -116,12 +116,19 @@ dialog {
 }
 
 .account-hub-form,
-.account-hub-success-container {
+.account-hub-success-container,
+.account-hub-address-book-form {
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
   justify-content: center;
+}
+
+.account-hub-address-book-form {
+  margin-block: -18px;
+  padding-block: 18px;
+  justify-content: start;
 }
 
 .account-hub-view:not([hidden]) {
@@ -251,9 +258,10 @@ header {
   margin-block: 0;
 
   & .sub-view-title {
-    font-size: 2rem;
+    font-size: 1.7rem;
     font-weight: 400;
     margin-block: var(--hub-header-margin-block-start) 0;
+    color: var(--color-primary-pressed);
   }
 }
 
@@ -370,7 +378,8 @@ header {
   }
 
   &.password-form-body,
-  &.email-form-body {
+  &.email-form-body,
+  &.option-select-body {
     max-width: 400px;
   }
 
@@ -389,6 +398,10 @@ header {
     .stacked & .sync-type-container {
       height: auto;
     }
+  }
+
+  &.option-select-body {
+    gap: var(--hub-address-book-option-select-gap);
   }
 }
 

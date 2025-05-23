@@ -227,3 +227,31 @@ account-hub-addon-error = Add-on installation failed. Please try again or contac
 account-hub-security-warning = <span data-l10n-name="security-warning">Warning: Insecure mail server detected.</span> This server lacks encryption, exposing your password and data. Contact your administrator to secure the connection or proceed at your own risk. <a data-l10n-name="faq-link">See FAQ for more.</a>
 
 account-hub-account-authentication-error = Authentication error.
+
+account-hub-add-address-book = Add an address book
+
+address-book-sync-existing-icon =
+    .alt = Sync an address book from an existing account
+
+address-book-sync-existing = Sync from an existing account
+
+address-book-add-remote-icon =
+    .alt = Add a new remote address book
+
+address-book-add-remote = Add remote Address Book
+
+address-book-add-remote-description = Connect to a remote CardDav Address Book
+
+address-book-add-local-icon =
+    .alt = Create a new local address book
+
+address-book-add-local = New local Address Book
+
+address-book-add-local-description = Create a new local address book on your device
+
+address-book-add-ldap-icon =
+    .alt = Connect to a remote LDAP address book
+
+address-book-add-ldap = New LDAP Address Book
+
+address-book-add-ldap-description = Connect to a remote LDAP address book

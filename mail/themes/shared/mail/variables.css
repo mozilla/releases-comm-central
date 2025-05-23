@@ -260,6 +260,8 @@
   --hub-success-hub-illustration-height: 167px;
   --hub-success-link-title-margin-block-start: 12px;
   --hub-success-link-container-margin-block-start: 9px;
+  --hub-address-book-option-select-gap: 18px;
+  --hub-address-book-option-padding: 15px 21px;
 }
 
 :root[uidensity="compact"] {
@@ -291,6 +293,8 @@
   --hub-success-hub-illustration-height: 130px;
   --hub-success-link-title-margin-block-start: 6px;
   --hub-success-link-container-margin-block-start: 6px;
+  --hub-address-book-option-select-gap: 12px;
+  --hub-address-book-option-padding: 9px 15px;
 }
 
 :root[uidensity="touch"] {
@@ -309,4 +313,6 @@
   --hub-sync-list-option-padding: 9px 15px;
   --hub-success-link-title-margin-block-start: 15px;
   --hub-success-link-container-margin-block-start: 12px;
+  --hub-address-book-option-select-gap: 21px;
+  --hub-address-book-option-padding: 18px 24px;
 }

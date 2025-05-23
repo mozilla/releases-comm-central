@@ -674,6 +674,8 @@
 
   skin/classic/messenger/icons/new/touch/add-circle.svg       (../shared/mail/icons/new/touch/add-circle.svg)
   skin/classic/messenger/icons/new/touch/address-book.svg     (../shared/mail/icons/new/touch/address-book.svg)
+  skin/classic/messenger/icons/new/touch/address-book-new.svg (../shared/mail/icons/new/touch/address-book-new.svg)
+  skin/classic/messenger/icons/new/touch/address-book-remote.svg (../shared/mail/icons/new/touch/address-book-remote.svg)
   skin/classic/messenger/icons/new/touch/calendar.svg         (../shared/mail/icons/new/touch/calendar.svg)
   skin/classic/messenger/icons/new/touch/chat.svg             (../shared/mail/icons/new/touch/chat.svg)
   skin/classic/messenger/icons/new/touch/collapse.svg         (../shared/mail/icons/new/touch/collapse.svg)

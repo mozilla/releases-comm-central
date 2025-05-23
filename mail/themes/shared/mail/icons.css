@@ -102,7 +102,6 @@
   --icon-nav-right: url("chrome://messenger/skin/icons/new/compact/nav-right.svg");
   --icon-nav-up-unread: url("chrome://messenger/skin/icons/new/compact/nav-up-unread.svg");
   --icon-nav-up: url("chrome://messenger/skin/icons/new/compact/nav-up.svg");
-  --icon-new-address-book: url("chrome://messenger/skin/icons/new/compact/new-address-book.svg");
   --icon-new-chat: url("chrome://messenger/skin/icons/new/compact/new-chat.svg");
   --icon-new-contact: url("chrome://messenger/skin/icons/new/compact/new-contact.svg");
   --icon-new-event: url("chrome://messenger/skin/icons/new/compact/new-event.svg");
@@ -172,11 +171,14 @@
 
   /* Large variations, touch, 24px */
   --icon-address-book-lg: url("chrome://messenger/skin/icons/new/touch/address-book.svg");
+  --icon-address-book-new-lg: url("chrome://messenger/skin/icons/new/touch/address-book-new.svg");
+  --icon-address-book-remote-lg: url("chrome://messenger/skin/icons/new/touch/address-book-remote.svg");
   --icon-calendar-lg: url("chrome://messenger/skin/icons/new/touch/calendar.svg");
   --icon-chat-lg: url("chrome://messenger/skin/icons/new/touch/chat.svg");
   --icon-export-lg: url("chrome://messenger/skin/icons/new/touch/export.svg");
   --icon-import-lg: url("chrome://messenger/skin/icons/new/touch/import.svg");
   --icon-mail-lg: url("chrome://messenger/skin/icons/new/touch/mail.svg");
+  --icon-sync-lg: url("chrome://messenger/skin/icons/new/touch/sync.svg");
 
   --icon-calendar-empty: url("chrome://messenger/skin/icons/new/calendar-empty.svg");
   --icon-circle-small: url("chrome://messenger/skin/icons/new/circle-sm.svg");

@@ -655,7 +655,7 @@ div:has(legend) {
     }
 
     & .config-directions {
-      background-color: light-dark(#f0f8ff, #262c40);
+      background-color: var(--color-primary-soft);
       padding-block: 10px;
       border-radius: 6px;
 
@@ -836,4 +836,98 @@ div:has(legend) {
 
 #accountHubFooterMenu {
   background-color: transparent;
+}
+
+/* Address book styles */
+
+button.account-hub-option-button {
+  display: flex;
+  gap: var(--hub-address-book-option-select-gap);
+  align-items: center;
+  padding: var(--hub-address-book-option-padding);
+  margin: 0;
+  border: none;
+  font-weight: normal;
+  background-color: var(--color-neutral-base);
+  width: 100%;
+  box-shadow: 0 12px 10px -10px rgba(0, 79, 155, 0.25),
+    0 0 5px 0 rgba(23, 95, 182, 0.1);
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition: background-color 220ms ease, box-shadow 220ms ease;
+  }
+
+  &:hover:not(disabled),
+  &:hover:active:not(disabled) {
+    background-color: var(--color-primary-soft);
+
+    & .option-icon {
+      background-color: var(--color-primary-pressed);
+    }
+  }
+
+  &:hover:not(disabled) {
+    box-shadow: 0 25px 10px -20px rgba(0, 79, 155, 0.35),
+      0 0 5px 0 rgba(23, 95, 182, 0.2);
+  }
+
+  &:hover:active:not(disabled) {
+    box-shadow: 0 5px 5px -5px rgba(0, 79, 155, 0.35), 0 0 5px 0 rgba(23, 95, 182, 0.2);
+  }
+
+  & .option-icon {
+    padding: 6px;
+    background-color: var(--color-primary-default);
+    box-shadow: 0 3px 4px -2px rgba(25, 81, 143, 0.5),  0 -2px 0 0 rgb(0, 0, 0, 0.25) inset;
+    border-radius: 5px;
+    line-height: 0;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: background-color 220ms ease;
+    }
+
+    & img {
+      height: 24px;
+      width: 24px;
+      -moz-context-properties: fill, stroke;
+      fill: light-dark(color-mix(in srgb, #feffff 20%, transparent), color-mix(in srgb, #1a202c 20%, transparent));
+      stroke: var(--color-neutral-base);
+    }
+
+    & .sync-icon {
+      content: var(--icon-sync-lg);
+    }
+
+    & .remote-address-book-icon {
+      content: var(--icon-address-book-remote-lg);
+    }
+
+    & .local-address-book-icon {
+      content: var(--icon-address-book-new-lg);
+    }
+
+    & .ldap-address-book-icon {
+      content: var(--addons-manager-site-permissions);
+    }
+  }
+
+  & .option-content {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 1px;
+
+    & .option-title {
+      font-size: 1.54rem;
+      color: var(--color-primary-hover);
+      font-weight: 400;
+    }
+
+    & .option-data {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      text-align: start;
+    }
+  }
 }
