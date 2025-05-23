@@ -1802,8 +1802,6 @@ async function exportSecretKey(password, fprArray, file, confirmed = false) {
  * Remove the saved external GnuPG Key.
  */
 async function removeExternalKey() {
-  EnigmailCore.init();
-
   // Interrupt if the external key is currently being used.
   if (
     gIdentity.getUnicharAttribute("last_entered_external_gnupg_key_id") ==

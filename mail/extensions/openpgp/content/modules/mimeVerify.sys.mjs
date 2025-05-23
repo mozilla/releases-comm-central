@@ -10,7 +10,6 @@ import { EnigmailConstants } from "chrome://openpgp/content/modules/constants.sy
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
   EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
@@ -524,7 +523,6 @@ MimeVerify.prototype = {
     }
 
     if (this.protocol === "application/pgp-signature") {
-      lazy.EnigmailCore.init();
       if (!this.mimeSignatureData) {
         this.exitCode = -1;
         this.returnStatus = new lazy.DecryptVerifyResult();

@@ -6,9 +6,6 @@
 
 "use strict";
 
-var { EnigmailCore } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/core.sys.mjs"
-);
 var { RNP } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/RNP.sys.mjs"
 );
@@ -16,8 +13,6 @@ var { RNP } = ChromeUtils.importESModule(
 var l10nCommon = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 async function EnigRevokeKey(keyObj, callbackFunc) {
-  EnigmailCore.init();
-
   if (keyObj.keyTrust == "r") {
     Services.prompt.alert(
       null,

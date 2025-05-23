@@ -9,7 +9,6 @@ import { EnigmailConstants } from "chrome://openpgp/content/modules/constants.sy
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
   EnigmailPersistentCrypto:
@@ -115,7 +114,6 @@ const filterActionEncrypt = {
    */
   async applyAction(hdrs, actionValue, listener) {
     // Ensure KeyRing is loaded.
-    lazy.EnigmailCore.init();
     lazy.EnigmailKeyRing.getAllKeys();
 
     let keyObj = lazy.EnigmailKeyRing.getKeyById(actionValue);
@@ -159,7 +157,6 @@ const filterActionEncrypt = {
 
   validateActionValue(value) {
     // Initialize KeyRing. Ugly as it blocks the GUI but we need it.
-    lazy.EnigmailCore.init();
     lazy.EnigmailKeyRing.getAllKeys();
 
     if (value === "") {

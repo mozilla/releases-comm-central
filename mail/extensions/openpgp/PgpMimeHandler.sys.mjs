@@ -10,7 +10,6 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   MimeDecryptHandler: "chrome://openpgp/content/modules/mimeDecrypt.sys.mjs",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
@@ -106,8 +105,6 @@ export class PgpMimeHandler {
     const proxy = request.QueryInterface(Ci.nsIPgpMimeProxy);
     const ct = proxy.contentType;
     const uri = proxy.messageURI;
-
-    lazy.EnigmailCore.init();
 
     let cth = null;
     if (ct.search(/^multipart\/encrypted/i) === 0) {

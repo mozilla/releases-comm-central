@@ -27,7 +27,6 @@ ChromeUtils.defineESModuleGetters(this, {
   CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.sys.mjs",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.sys.mjs",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
-  EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
   EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.sys.mjs",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.sys.mjs",
@@ -558,7 +557,6 @@ Enigmail.msg = {
         );
       if (!smime && (msgSigned || msgEncrypted)) {
         // PGP/MIME messages
-        EnigmailCore.init();
 
         if (!Enigmail.msg.checkPgpmimeHandler()) {
           return;
@@ -960,8 +958,6 @@ Enigmail.msg = {
     if (!msgText) {
       return;
     }
-
-    EnigmailCore.init();
 
     var plainText;
     var exitCode;

@@ -7,7 +7,6 @@
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
-  EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
@@ -381,8 +380,6 @@ export var EnigmailEncryption = {
       errorMsgObj.value = lazy.l10n.formatValueSync("not-required");
       return 0;
     }
-
-    lazy.EnigmailCore.init();
 
     const logFileObj = {};
 

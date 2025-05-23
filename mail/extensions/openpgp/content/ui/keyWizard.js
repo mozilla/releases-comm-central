@@ -13,9 +13,6 @@ var { AppConstants } = ChromeUtils.importESModule(
 var { OpenPGPMasterpass } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/masterpass.sys.mjs"
 );
-var { EnigmailDialog } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/dialog.sys.mjs"
-);
 var { EnigmailKey } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/key.sys.mjs"
 );
@@ -27,9 +24,6 @@ var { EnigmailWindows } = ChromeUtils.importESModule(
 );
 var { PgpSqliteDb2 } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/sqliteDb.sys.mjs"
-);
-var { EnigmailCore } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/core.sys.mjs"
 );
 var { RNP } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/RNP.sys.mjs"
@@ -618,8 +612,6 @@ async function openPgpKeygenStart() {
   // Reset global variables to be sure.
   gGeneratedKey = null;
   gAllData = "";
-
-  EnigmailCore.init();
 
   // Show wizard overlay before the start of the generation process. This is
   // necessary because the generation happens synchronously and blocks the UI.

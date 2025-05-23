@@ -13,7 +13,6 @@ import { MimeParser } from "resource:///modules/mimeParser.sys.mjs";
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
-  EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
   EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
@@ -123,8 +122,6 @@ MimeDecryptHandler.prototype = {
    * @param {nsIRequest} request
    */
   onStartRequest(request) {
-    lazy.EnigmailCore.init();
-
     this.initOk = true;
     const mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
     this.mimePartNumber = mimeSvc.mimePart;
@@ -434,8 +431,6 @@ MimeDecryptHandler.prototype = {
       if (this.xferEncoding == ENCODING_BASE64) {
         this.outQueue = lazy.EnigmailData.decodeBase64(this.outQueue) + "\n";
       }
-
-      lazy.EnigmailCore.init();
 
       // limit output to 100 times message size to avoid DoS attack
       const maxOutput = this.outQueue.length * 100;

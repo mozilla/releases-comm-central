@@ -12,9 +12,6 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-var { EnigmailCore } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/core.sys.mjs"
-);
 var { EnigmailStreams } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/streams.sys.mjs"
 );
@@ -41,9 +38,6 @@ var { EnigmailKeyRing } = ChromeUtils.importESModule(
 );
 var { EnigmailKey } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/key.sys.mjs"
-);
-var { EnigmailConstants } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/constants.sys.mjs"
 );
 var { EnigmailDialog } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/dialog.sys.mjs"
@@ -82,9 +76,6 @@ var gTimeoutId = null;
 window.addEventListener("load", enigmailKeyManagerLoad);
 
 function enigmailKeyManagerLoad() {
-  // Close the key manager if GnuPG is not available
-  EnigmailCore.init();
-
   gUserList = document.getElementById("pgpKeyList");
   gSearchInput = document.getElementById("filterKey");
   gShowInvalidKeys = document.getElementById("showInvalidKeys");

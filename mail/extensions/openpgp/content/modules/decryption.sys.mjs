@@ -10,7 +10,6 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailArmor: "chrome://openpgp/content/modules/armor.sys.mjs",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
-  EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKey: "chrome://openpgp/content/modules/key.sys.mjs",
@@ -267,8 +266,6 @@ export var EnigmailDecryption = {
         return "";
       }
     }
-
-    lazy.EnigmailCore.init();
 
     // limit output to 100 times message size to avoid DoS attack
     const maxOutput = pgpBlock.length * 100;
