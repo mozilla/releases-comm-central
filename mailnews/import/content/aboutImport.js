@@ -1150,6 +1150,7 @@ class CalendarImporterController extends ImporterController {
       3
     );
     this.showPane("sources");
+    document.getElementById("calendarNextButton").disabled = false;
   }
 
   /**
@@ -1325,6 +1326,7 @@ class CalendarImporterController extends ImporterController {
       elList.append(label);
     }
     document.querySelector("input[name=targetCalendar]").checked = true;
+    document.getElementById("calendarNextButton").disabled = false;
 
     this.showPane("calendars");
   }
