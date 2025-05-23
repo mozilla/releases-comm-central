@@ -82,6 +82,9 @@ add_setup(async function () {
   await add_message_to_folder([folder], msg6);
 
   await be_in_folder(folder);
+  registerCleanupFunction(() => {
+    folder.deleteSelf(null);
+  });
 });
 
 /** Utility to select a message. */

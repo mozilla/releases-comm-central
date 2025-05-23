@@ -11,10 +11,9 @@
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
-var { close_compose_window, open_compose_with_reply_to_list } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/ComposeHelpers.sys.mjs"
-  );
+var { open_compose_with_reply_to_list } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/ComposeHelpers.sys.mjs"
+);
 var { assert_selected_and_displayed, be_in_folder, select_click_row } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
@@ -31,7 +30,6 @@ var { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.importESModule(
 
 var gServer;
 var testFolder = null;
-var replyToListWindow = null;
 
 var identityString1 = "tinderbox_correct_identity@foo.invalid";
 
@@ -59,7 +57,7 @@ function makeBasicSmtpServer(port = 1, hostname = "localhost") {
   return server;
 }
 
-add_setup(function () {
+add_setup(async function () {
   gServer = setupServerDaemon();
   gServer.start();
 
@@ -75,19 +73,20 @@ add_setup(function () {
     "TestLocalFolders",
     "pop3"
   );
-  const localRoot = server.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  testFolder = localRoot.createLocalSubfolder("Test Folder");
 
   const account = MailServices.accounts.createAccount();
   account.incomingServer = server;
   account.addIdentity(identity);
   account.addIdentity(identity2);
 
+  const localRoot = server.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  testFolder = localRoot.createLocalSubfolder("Test Folder");
   addMessageToFolder(testFolder);
   Services.prefs.setBoolPref("mailnews.show_send_progress", false);
 
   registerCleanupFunction(() => {
     gServer.stop();
+    testFolder.deleteSelf(null);
     MailServices.accounts.removeAccount(account, true);
     Services.prefs.clearUserPref("mailnews.show_send_progress");
   });
@@ -134,7 +133,8 @@ add_task(async function test_Reply_To_List_From_Address() {
   const curMessage = await select_click_row(0);
   await assert_selected_and_displayed(window, curMessage);
 
-  replyToListWindow = await open_compose_with_reply_to_list();
+  const replyToListWindow = await open_compose_with_reply_to_list();
+  const closePromise = BrowserTestUtils.domWindowClosed(replyToListWindow);
 
   const identityList = replyToListWindow.document.getElementById("msgIdentity");
 
@@ -160,5 +160,5 @@ add_task(async function test_Reply_To_List_From_Address() {
   Assert.equal(card.displayName, "", "Should not collect list display name");
   book.deleteCards([card]);
 
-  await close_compose_window(replyToListWindow);
+  await closePromise;
 });

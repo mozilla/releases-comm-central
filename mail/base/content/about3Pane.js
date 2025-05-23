@@ -976,7 +976,10 @@ var folderPane = {
 
         const parentRow = folderPane.getRowForFolder(parentFolder, this.name);
         if (!parentRow) {
-          console.error("no parentRow for ", parentFolder.URI, childFolder.URI);
+          // Likely, the folder got created before the account root folder was
+          // associated with any server. Should make sure the server is
+          // assigned to an account before creating folders on the server.
+          throw new Error(`No parentRow for ${parentFolder.URI}`);
         }
         // To auto-expand non-root imap folders, imap URL "discoverchildren" is
         // triggered -- but actually only occurs if server settings configured
