@@ -104,8 +104,7 @@ var gChatPane = {
       chatSoundUrlLocation.label = this.convertURLToLocalFile(
         chatSoundUrlLocation.value
       ).leafName;
-      chatSoundUrlLocation.style.backgroundImage =
-        "url(moz-icon://" + chatSoundUrlLocation.label + "?size=16)";
+      chatSoundUrlLocation.style.backgroundImage = `image-set("moz-icon://${chatSoundUrlLocation.label}?size=16&scale=1" 1x, "moz-icon://${chatSoundUrlLocation.label}?size=16&scale=2" 2x, "moz-icon://${chatSoundUrlLocation.label}?size=16&scale=3" 3x)`;
     }
   },
 
