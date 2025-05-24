@@ -1156,19 +1156,23 @@ export var ExtensionsUI = {
   },
 
   async showPermissionsPrompt(target, strings, icon) {
-    const { browser } = getTabBrowser(target);
+    // The mail3pane could be in a state where target/browser is null, for example
+    // if no message has been selected and the "webbrowser" of the mail3pane is
+    // also not loaded. Since Thunderbird's GlobalPopupNotifications.sys.mjs does
+    // not store notifications per tab/browser, we can use the top mail window to
+    // store pendigNotifications.
+    const browser = target ? getTabBrowser(target).browser : null;
+    const window = browser ? browser.ownerGlobal : getTopWindow();
+    const doc = window.document;
 
     // Wait for any pending prompts to complete before showing the next one.
     let pending;
-    while ((pending = this.pendingNotifications.get(browser))) {
+    while ((pending = this.pendingNotifications.get(window))) {
       await pending;
     }
 
     const promise = new Promise(resolve => {
       function eventCallback(topic) {
-        // The "browser" is from the tab, but we need the one from the parent
-        // messenger.xhtml.
-        const doc = this.browser.ownerGlobal.top.document;
         if (topic == "showing") {
           const textEl = doc.getElementById("addon-webext-perm-text");
           textEl.textContent = strings.text;
@@ -1285,8 +1289,8 @@ export var ExtensionsUI = {
       );
     });
 
-    this.pendingNotifications.set(browser, promise);
-    promise.finally(() => this.pendingNotifications.delete(browser));
+    this.pendingNotifications.set(window, promise);
+    promise.finally(() => this.pendingNotifications.delete(window));
     return promise;
   },
 
