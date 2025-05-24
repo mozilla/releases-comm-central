@@ -664,8 +664,10 @@ class AccountHubEmail extends HTMLElement {
           try {
             await this.#validateAndFinish(this.#currentConfig);
           } finally {
+            this.#configVerifier.cleanup();
             this.#stopLoading();
           }
+
           await this.#initUI("emailSyncAccountsSubview");
           this.#states[this.#currentState].previousStep = currentState;
           try {
@@ -675,7 +677,6 @@ class AccountHubEmail extends HTMLElement {
             syncAccounts.addressBooks = await this.#getAddressBooks("");
             syncAccounts.calendars = await this.#getCalendars("", false);
             this.#currentSubview.setState(syncAccounts);
-            this.#configVerifier.cleanup();
             this.#stopLoading();
 
             const accountsFound =
@@ -686,7 +687,6 @@ class AccountHubEmail extends HTMLElement {
                 : "account-hub-sync-accounts-not-found",
               type: accountsFound ? "success" : "info",
             });
-            break;
           } catch (error) {
             this.#stopLoading();
             this.#currentSubview.showNotification({
@@ -694,8 +694,9 @@ class AccountHubEmail extends HTMLElement {
               type: "error",
               error,
             });
-            break;
           }
+
+          break;
         }
         // Move to the password stage where validateAndFinish is run.
         await this.#initUI(this.#states[this.#currentState].nextStep);
@@ -724,6 +725,8 @@ class AccountHubEmail extends HTMLElement {
         } catch (error) {
           this.#stopLoading();
           throw error;
+        } finally {
+          this.#configVerifier.cleanup();
         }
 
         this.#stopLoading();
@@ -739,7 +742,6 @@ class AccountHubEmail extends HTMLElement {
             stateData.rememberPassword
           );
           this.#currentSubview.setState(syncAccounts);
-          this.#configVerifier.cleanup();
           this.#stopLoading();
 
           const accountsFound =
