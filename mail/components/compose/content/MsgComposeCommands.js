@@ -2215,19 +2215,11 @@ function addAttachCloudMenuItems(aParentMenu) {
       }
       if (!addedFiles.find(f => f.name == upload.name || f.url == upload.url)) {
         const fileItem = document.createXULElement("menuitem");
-        const fileUrl =
-          "list-style-image: image-set('moz-icon://" +
-          upload.name +
-          "?size=16&scale=1' 1x, 'moz-icon://" +
-          upload.name +
-          "?size=16&scale=2' 2x, 'moz-icon://" +
-          upload.name +
-          "?size=16&scale=3' 3x)";
         fileItem.cloudFileUpload = upload;
         fileItem.cloudFileAccount = account;
         fileItem.setAttribute("label", upload.name);
         fileItem.setAttribute("class", "menuitem-iconic");
-        fileItem.setAttribute("style", fileUrl);
+        fileItem.setAttribute("image", "moz-icon://" + upload.name);
         aParentMenu.appendChild(fileItem);
         addedFiles.push({ name: upload.name, url: upload.url });
       }

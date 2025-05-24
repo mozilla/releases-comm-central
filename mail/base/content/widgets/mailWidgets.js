@@ -544,15 +544,10 @@
      *
      * @param {MozRichlistitem} item - The attachment item to set the icon of.
      * @param {string|null} src - The src to set.
-     * @param {boolean} srcset - Is the src a srcset?
      */
-    setAttachmentIconSrc(item, src, srcset) {
+    setAttachmentIconSrc(item, src) {
       const icon = item.querySelector(".attachmentcell-icon");
-      if (!srcset) {
-        icon.setAttribute("src", src);
-      } else {
-        icon.setAttribute("srcset", src);
-      }
+      icon.setAttribute("src", src);
     }
 
     /**
@@ -563,7 +558,6 @@
      */
     refreshAttachmentIcon(item) {
       let src;
-      let srcset = false;
       const attachment = item.attachment;
       const type = attachment.contentType;
       if (type == "text/x-moz-deleted") {
@@ -595,11 +589,10 @@
             iconName = url.fileName;
           }
         }
-        src = `moz-icon://${iconName}?size=16&contentType=${type}&scale=1 1x, moz-icon://${iconName}?size=16&contentType=${type}&scale=2 2x, moz-icon://${iconName}?size=16&contentType=${type}&scale=3 3x`;
-        srcset = true;
+        src = `moz-icon://${iconName}?size=16&contentType=${type}`;
       }
 
-      this.setAttachmentIconSrc(item, src, srcset);
+      this.setAttachmentIconSrc(item, src);
     }
 
     /**

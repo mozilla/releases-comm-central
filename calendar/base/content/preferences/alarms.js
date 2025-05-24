@@ -71,7 +71,7 @@ var gAlarmsPane = {
     } else {
       soundUrl.label = soundUrl.value;
     }
-    soundUrl.style.backgroundImage = `image-set("moz-icon://${soundUrl.label}?size=16&scale=1" 1x, "moz-icon://${soundUrl.label}?size=16&scale=2" 2x, "moz-icon://${soundUrl.label}?size=16&scale=3" 3x)`;
+    soundUrl.style.backgroundImage = "url(moz-icon://" + soundUrl.label + "?size=16)";
     return undefined;
   },
 

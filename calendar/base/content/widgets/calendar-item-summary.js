@@ -744,16 +744,7 @@
               }
             }
           }
-          icon.setAttribute(
-            "srcset",
-            "moz-icon://" +
-              iconSrc +
-              "?size=16&scale=1 1x, moz-icon://" +
-              iconSrc +
-              "?size=16&scale=2 2x, moz-icon://" +
-              iconSrc +
-              "?size=16&scale=3 3x"
-          );
+          icon.setAttribute("src", "moz-icon://" + iconSrc);
 
           this.querySelector(".item-attachment-cell").appendChild(attachment);
           attCounter++;

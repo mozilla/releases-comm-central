@@ -188,14 +188,7 @@ function DownloadItem(aDownload) {
     this._sender = "";
   }
   this._fileName = this._htmlEscape(PathUtils.filename(aDownload.target.path));
-  this._iconUrl =
-    "moz-icon://" +
-    this._fileName +
-    "?size=32&scale=1 1x, moz-icon://" +
-    this._fileName +
-    "?size=32&scale=2 2x, moz-icon://" +
-    this._fileName +
-    "?size=32&scale=3 3x";
+  this._iconUrl = "moz-icon://" + this._fileName + "?size=32";
   this._startDate = this._htmlEscape(
     DownloadUtils.getReadableDates(aDownload.startTime)[0]
   );
@@ -315,7 +308,7 @@ DownloadItem.prototype = {
 
   updateElement(element) {
     const fileTypeIcon = element.querySelector(".fileTypeIcon");
-    fileTypeIcon.setAttribute("srcset", this.iconUrl);
+    fileTypeIcon.setAttribute("src", this.iconUrl);
 
     const size = element.querySelector(".size");
     size.setAttribute("value", this.size);
