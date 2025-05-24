@@ -37,11 +37,6 @@ var gTab;
 var tabDocument;
 var tabWindow;
 
-const EXTERNAL_GNUP_KEY = "123456789ASD";
-
-var gCreatedKeyId;
-var gImportedKeyId;
-
 /**
  * Set up the base account and identity.
  */
@@ -161,7 +156,8 @@ add_task(async function generate_new_key() {
     () => gIdentity.getUnicharAttribute("openpgp_key_id"),
     "Timeout waiting for the newly generated key to be set"
   );
-  gCreatedKeyId = gIdentity.getUnicharAttribute("openpgp_key_id");
+  const createdKeyId = gIdentity.getUnicharAttribute("openpgp_key_id");
+  Assert.ok(createdKeyId, "identity should have key");
 
   // The OpenPGP Key List radiogroup should only have 2 items now (None, and a key).
   Assert.equal(
@@ -176,6 +172,8 @@ add_task(async function generate_new_key() {
     false,
     "The openPgpNone radio option should not be selected"
   );
+
+  await OpenPGPTestUtils.removeKeyById(createdKeyId, true);
 });
 
 /**
@@ -216,7 +214,7 @@ add_task(async function import_secret_key() {
     getRootDirectory(gTestPath) +
       "data/keys/alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
   );
-  gImportedKeyId = "0xf231550c4f47e38e";
+  const importedKeyId = "0xf231550c4f47e38e";
   const fileUrl = ChromeRegistry.convertChromeURL(chromeUrl);
   const file = fileUrl.QueryInterface(Ci.nsIFileURL).file;
 
@@ -268,15 +266,21 @@ add_task(async function import_secret_key() {
   );
 
   const keyListRadio = tabDocument.getElementById("openPgpKeyListRadio");
+  const listItemCount = keyListRadio.itemCount + 1;
 
   // Accept the dialog to close it.
   dialog.acceptDialog();
+
   await BrowserTestUtils.waitForCondition(
-    () => keyListRadio.itemCount == 3,
+    () => keyListRadio.itemCount == listItemCount,
     "Timeout waiting for the #importKeyListSuccess to appear"
   );
 
-  Assert.equal(keyListRadio.itemCount, 3, "The 3 keys are listed");
+  Assert.equal(
+    keyListRadio.itemCount,
+    listItemCount,
+    "should list the expected keys"
+  );
 
   // The previously configured OpenPGP key should still be selected.
   Assert.equal(
@@ -284,6 +288,12 @@ add_task(async function import_secret_key() {
     1,
     "The previously generated secret key is still selected"
   );
+
+  await OpenPGPTestUtils.removeKeyById(importedKeyId, true);
+  // Remove all the previously generated radio options, except the first.
+  while (keyListRadio.lastChild.id != "openPgpOptionNone") {
+    keyListRadio.removeChild(keyListRadio.lastChild);
+  }
 });
 
 /**
@@ -318,18 +328,25 @@ add_task(async function add_external_key() {
   );
 
   doc.getElementById("externalKey").focus();
+
+  const EXTERNAL_GNUP_KEY = "0123456789ABCDEF";
   EventUtils.sendString(EXTERNAL_GNUP_KEY, wizard);
 
   const keyListRadio = tabDocument.getElementById("openPgpKeyListRadio");
+  const listItemCount = keyListRadio.itemCount + 1;
 
   // Accept the dialog to close it.
   dialog.acceptDialog();
   await BrowserTestUtils.waitForCondition(
-    () => keyListRadio.itemCount == 4,
+    () => keyListRadio.itemCount == listItemCount,
     "Waiting for the newly imported key to be listed"
   );
 
-  Assert.equal(keyListRadio.itemCount, 4, "The 4 keys are listed");
+  Assert.equal(
+    keyListRadio.itemCount,
+    listItemCount,
+    "should list the expected keys"
+  );
 
   // The first key should currently be selected.
   Assert.equal(
@@ -344,6 +361,8 @@ add_task(async function add_external_key() {
     EXTERNAL_GNUP_KEY,
     "The external key was properly set for the current identity"
   );
+
+  Services.prefs.clearUserPref("mail.openpgp.allow_external_gnupg");
 });
 
 /**
@@ -361,7 +380,7 @@ add_task(async function check_for_go_back_button() {
       );
     }
   );
-  //Open the key manager from the "OpenPGP Key Manager" button.
+  // Open the key manager from the "OpenPGP Key Manager" button.
   const openPGPKeyManagerButton = tabDocument.getElementById(
     "openOpenPGPKeyManagerButton"
   );
@@ -403,9 +422,6 @@ registerCleanupFunction(async function () {
   tabDocument = null;
   tabWindow = null;
 
-  Services.prefs.clearUserPref("mail.openpgp.allow_external_gnupg");
   MailServices.accounts.removeAccount(gAccount, true);
   gAccount = null;
-  await OpenPGPTestUtils.removeKeyById(gCreatedKeyId, true);
-  await OpenPGPTestUtils.removeKeyById(gImportedKeyId, true);
 });
