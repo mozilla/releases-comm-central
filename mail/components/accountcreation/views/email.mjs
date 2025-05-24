@@ -669,14 +669,14 @@ class AccountHubEmail extends HTMLElement {
           await this.#initUI("emailSyncAccountsSubview");
           this.#states[this.#currentState].previousStep = currentState;
           try {
-            // TODO: Loading notification for fetching address books.
+            this.#startLoading("account-hub-fetching-sync-accounts");
             const syncAccounts = {};
             //TODO fetch address books and calendars in parallel?
             syncAccounts.addressBooks = await this.#getAddressBooks("");
-            // TODO: Loading notification for fetching calendars.
             syncAccounts.calendars = await this.#getCalendars("", false);
             this.#currentSubview.setState(syncAccounts);
             this.#configVerifier.cleanup();
+            this.#stopLoading();
 
             const accountsFound =
               syncAccounts.addressBooks.length || syncAccounts.calendars.length;
@@ -688,6 +688,7 @@ class AccountHubEmail extends HTMLElement {
             });
             break;
           } catch (error) {
+            this.#stopLoading();
             this.#currentSubview.showNotification({
               fluentTitleId: "account-hub-sync-accounts-not-found",
               type: "error",
@@ -728,37 +729,37 @@ class AccountHubEmail extends HTMLElement {
         this.#stopLoading();
         await this.#initUI(this.#states[this.#currentState].nextStep);
         try {
-          // TODO: Loading notification for fetching address books.
+          this.#startLoading("account-hub-fetching-sync-accounts");
           const syncAccounts = {};
           syncAccounts.addressBooks = await this.#getAddressBooks(
             stateData.password
           );
-          // TODO: Loading notification for fetching calendars.
           syncAccounts.calendars = await this.#getCalendars(
             stateData.password,
             stateData.rememberPassword
           );
           this.#currentSubview.setState(syncAccounts);
           this.#configVerifier.cleanup();
+          this.#stopLoading();
+
           const accountsFound =
             syncAccounts.addressBooks.length || syncAccounts.calendars.length;
-
           this.#currentSubview.showNotification({
             fluentTitleId: accountsFound
               ? "account-hub-sync-accounts-found"
               : "account-hub-sync-accounts-not-found",
             type: accountsFound ? "success" : "info",
           });
-          break;
         } catch (error) {
+          this.#stopLoading();
           this.#currentSubview.showNotification({
             fluentTitleId: "account-hub-sync-accounts-not-found",
             type: "error",
             error,
           });
-          break;
         }
 
+        break;
       case "emailSyncAccountsSubview":
         try {
           // Add the selected sync address books and calendars.
