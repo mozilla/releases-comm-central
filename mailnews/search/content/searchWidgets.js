@@ -1397,7 +1397,7 @@
         for (const identity of identities) {
           let enumerator = null;
           const msgFolder = MailUtils.getExistingFolder(
-            identity.stationeryFolder
+            identity.templatesFolderURI
           );
           // If we already processed this folder, do not set enumerator
           // so that we skip this identity.

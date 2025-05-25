@@ -599,7 +599,7 @@ function SaveAsTemplate(uri) {
       hdr,
       Ci.nsIMsgCompType.Template
     );
-    const templates = MailUtils.getOrCreateFolder(identity.stationeryFolder);
+    const templates = MailUtils.getOrCreateFolder(identity.templatesFolderURI);
     if (!templates.parent) {
       templates.setFlag(Ci.nsMsgFolderFlags.Templates);
       const isAsync = templates.server.protocolInfo.foldersCreatedAsync;
