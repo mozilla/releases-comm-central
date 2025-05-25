@@ -250,20 +250,15 @@ function messageIsCSSError(msg) {
 
 let imageURIsToReferencesMap = new Map();
 let customPropsToReferencesMap = new Map();
+const customPropsDefinitionFileMap = new Map();
 
 function neverMatches(mediaList) {
   const perPlatformMediaQueryMap = {
     macosx: ["(-moz-platform: macos)"],
-    win: [
-      "(-moz-platform: windows)",
-      "(-moz-platform: windows-win7)",
-      "(-moz-platform: windows-win8)",
-      "(-moz-platform: windows-win10)",
-    ],
+    win: ["(-moz-platform: windows)"],
     linux: ["(-moz-platform: linux)"],
     android: ["(-moz-platform: android)"],
   };
-
   for (const platform in perPlatformMediaQueryMap) {
     const inThisPlatform = platform === AppConstants.platform;
     for (const media of perPlatformMediaQueryMap[platform]) {
@@ -280,29 +275,29 @@ function neverMatches(mediaList) {
   return false;
 }
 
-function processCSSRules(sheet) {
-  for (const rule of sheet.cssRules) {
+function processCSSRules(container) {
+  for (const rule of container.cssRules) {
     if (rule.media && neverMatches(rule.media)) {
       continue;
     }
-    if (
-      CSSConditionRule.isInstance(rule) ||
-      CSSKeyframesRule.isInstance(rule)
-    ) {
-      processCSSRules(rule);
+    if (rule.styleSheet) {
+      processCSSRules(rule.styleSheet); // @import
       continue;
     }
-    if (!CSSStyleRule.isInstance(rule) && !CSSKeyframeRule.isInstance(rule)) {
-      continue;
+    if (rule.cssRules) {
+      processCSSRules(rule); // @supports, @media, @layer (block), @keyframes, style rules with nested rules.
     }
-
+    if (!rule.style) {
+      continue; // @layer (statement), @font-feature-values, @counter-style
+    }
     // Extract urls from the css text.
-    // Note: CSSRule.cssText always has double quotes around URLs even
+    // Note: CSSRule.style.cssText always has double quotes around URLs even
     //       when the original CSS file didn't.
-    const urls = rule.cssText.match(/url\("[^"]*"\)/g);
+    const cssText = rule.style.cssText;
+    const urls = cssText.match(/url\("[^"]*"\)/g);
     // Extract props by searching all "--" preceded by "var(" or a non-word
     // character.
-    const props = rule.cssText.match(/(var\(|\W)(--[\w\-]+)/g);
+    const props = cssText.match(/(var\(\s*|\W|^)(--[\w\-]+)/g);
     if (!urls && !props) {
       continue;
     }
@@ -329,15 +324,23 @@ function processCSSRules(sheet) {
 
     for (let prop of props || []) {
       if (prop.startsWith("var(")) {
-        prop = prop.substring(4);
+        prop = prop.substring(4).trim();
         const prevValue = customPropsToReferencesMap.get(prop) || 0;
         customPropsToReferencesMap.set(prop, prevValue + 1);
       } else {
         // Remove the extra non-word character captured by the regular
-        // expression.
-        prop = prop.substring(1);
+        // expression if needed.
+        if (prop[0] != "-") {
+          prop = prop.substring(1);
+        }
         if (!customPropsToReferencesMap.has(prop)) {
           customPropsToReferencesMap.set(prop, undefined);
+          if (!customPropsDefinitionFileMap.has(prop)) {
+            customPropsDefinitionFileMap.set(prop, new Set());
+          }
+          customPropsDefinitionFileMap
+            .get(prop)
+            .add(container.href || container.parentStyleSheet.href);
         }
       }
     }
