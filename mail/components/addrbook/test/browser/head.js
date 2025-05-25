@@ -24,6 +24,7 @@ add_setup(async () => {
 // function which will run last.
 registerCleanupFunction(function () {
   registerCleanupFunction(async function () {
+    await TestUtils.waitForTick();
     Assert.equal(
       MailServices.ab.directories.length,
       2,

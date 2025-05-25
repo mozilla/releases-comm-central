@@ -70,6 +70,7 @@ async function doDragToComposeWindow(sourceIndices, expectedPills) {
   const composeWindowPromise = BrowserTestUtils.domWindowOpened();
   MailServices.compose.OpenComposeWindowWithParams(null, params);
   const composeWindow = await composeWindowPromise;
+  const closePromise = BrowserTestUtils.domWindowClosed(composeWindow);
   await BrowserTestUtils.waitForEvent(composeWindow, "load");
   const composeDocument = composeWindow.document;
   const toAddrInput = composeDocument.getElementById("toAddrInput");
@@ -118,6 +119,7 @@ async function doDragToComposeWindow(sourceIndices, expectedPills) {
   const promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   composeWindow.goDoCommand("cmd_close");
   await promptPromise;
+  await closePromise;
 }
 
 function checkCardsInDirectory(directory, expectedCards = [], copiedCard) {
