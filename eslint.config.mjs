@@ -62,13 +62,7 @@ export default [
     name: "import-plugin-settings",
     settings: {
       "import/extensions": [".mjs"],
-      jsdoc: {
-        tagNamePreference: {
-          attr: "attribute",
-          cssprop: "cssproperty",
-          tag: "tagname",
-        },
-      },
+      //TODO port moz-src resolver from mozilla-central
     },
   },
   {
@@ -242,6 +236,15 @@ export default [
     name: "valid-jsdoc-with-custom-element-tags",
     files: wrapPathsWithAllExts(["**"]),
     ...mozilla.configs["flat/valid-jsdoc"],
+    settings: {
+      jsdoc: {
+        tagNamePreference: {
+          attr: "attribute",
+          cssprop: "cssproperty",
+          tag: "tagname",
+        },
+      },
+    },
     rules: {
       ...mozilla.configs["flat/valid-jsdoc"].rules,
       "jsdoc/check-tag-names": [
