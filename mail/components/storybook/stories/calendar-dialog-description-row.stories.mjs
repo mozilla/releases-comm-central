@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import "mail/components/calendar/content/calendar-dialog-description-row.mjs"; //eslint-disable-line import/no-unassigned-import
-import "mail/themes/shared/mail/colors.css"; //eslint-disable-line import/no-unassigned-import
-import "mail/themes/shared/mail/icons.css"; //eslint-disable-line import/no-unassigned-import
-import "mail/themes/shared/mail/calendar/calendarDialog.css"; //eslint-disable-line import/no-unassigned-import
+import "mail/components/calendar/content/calendar-dialog-description-row.mjs";
+import "mail/themes/shared/mail/colors.css";
+import "mail/themes/shared/mail/icons.css";
+import "mail/themes/shared/mail/calendar/calendarDialog.css";
 
 export default {
   title: "Widgets/Calendar/Dialog Description Row",

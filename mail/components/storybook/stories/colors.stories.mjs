@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { html } from "lit";
-import "mail/themes/shared/mail/colors.css"; //eslint-disable-line import/no-unassigned-import
+import "mail/themes/shared/mail/colors.css";
 
 const FORMATTER = new Intl.NumberFormat("en", {
   numberingSystem: "latn",

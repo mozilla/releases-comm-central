@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-/* eslint-env node */
 
 import path from "path";
 import webpack from "webpack";
@@ -25,7 +24,7 @@ export default {
     name: "@storybook/web-components-webpack5",
     options: {},
   },
-  webpackFinal: async (config, { configType }) => {
+  webpackFinal: async (config) => {
     // `configType` has a value of 'DEVELOPMENT' or 'PRODUCTION'
     // You can change the configuration based on that.
     // 'PRODUCTION' is used when building the static version of storybook.

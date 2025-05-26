@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { html } from "lit";
-/* eslint-disable import/no-unassigned-import */
 import "mail/components/calendar/content/calendar-dialog-row.mjs";
 import "mail/themes/shared/mail/calendar/calendarDialog.css";
-/* eslint-enable import/no-unassigned-import */
 
 export default {
   title: "Widgets/Calendar/Dialog Row",

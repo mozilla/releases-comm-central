@@ -13,9 +13,9 @@ import {
   PSEUDO_STRATEGIES,
 } from "./addon-fluent/constants.mjs";
 
-let loadedResources = new Map();
+const loadedResources = new Map();
 let currentStrategy;
-let storybookBundle = new FluentBundle("en-US", {
+const storybookBundle = new FluentBundle("en-US", {
   transform(str) {
     if (currentStrategy in PSEUDO_STRATEGY_TRANSFORMS) {
       return PSEUDO_STRATEGY_TRANSFORMS[currentStrategy](str);
@@ -28,9 +28,9 @@ let storybookBundle = new FluentBundle("en-US", {
 const channel = addons.getChannel();
 channel.on(UPDATE_STRATEGY_EVENT, updatePseudoStrategy);
 channel.on(FLUENT_SET_STRINGS, ftlContents => {
-  let resource = new FluentResource(ftlContents);
-  for (let message of resource.body) {
-    let existingMessage = storybookBundle.getMessage(message.id);
+  const resource = new FluentResource(ftlContents);
+  for (const message of resource.body) {
+    const existingMessage = storybookBundle.getMessage(message.id);
     existingMessage.value = message.value;
     existingMessage.attributes = message.attributes;
   }
@@ -76,42 +76,42 @@ export async function insertFTLIfNeeded(fileName) {
   }
 
   // This should be browser, locales-preview or toolkit.
-  let [root, ...rest] = fileName.split("/");
+  const [root, ...rest] = fileName.split("/");
   let ftlContents;
 
   // TODO(mstriemer): These seem like they could be combined but I don't want
   // to fight with webpack anymore.
   if (root == "toolkit") {
     // eslint-disable-next-line no-unsanitized/method
-    let imported = await import(
+    const imported = await import(
       /* webpackInclude: /.*[\/\\].*\.ftl$/ */
       `comm/../toolkit/locales/en-US/${fileName}`
     );
     ftlContents = imported.default;
   } else if (root == "messenger") {
     // eslint-disable-next-line no-unsanitized/method
-    let imported = await import(
+    const imported = await import(
       /* webpackInclude: /.*[\/\\].*\.ftl$/ */
       `mail/locales/en-US/${fileName}`
     );
     ftlContents = imported.default;
   } else if (root == "branding") {
     // eslint-disable-next-line no-unsanitized/method
-    let imported = await import(
+    const imported = await import(
       /* webpackInclude: /\.ftl$/ */
       `mail/branding/nightly/locales/en-US/${rest}`
     );
     ftlContents = imported.default;
   } else if (root == "calendar") {
     // eslint-disable-next-line no-unsanitized/method
-    let imported = await import(
+    const imported = await import(
       /* webpackInclude: /.*[\/\\].*\.ftl$/ */
       `comm/calendar/locales/en-US/${fileName}`
     );
     ftlContents = imported.default;
   } else if (root == "chat") {
     // eslint-disable-next-line no-unsanitized/method
-    let imported = await import(
+    const imported = await import(
       /* webpackInclude: /.*[\/\\].*\.ftl$/ */
       `comm/chat/locales/en-US/${fileName}`
     );
@@ -128,7 +128,7 @@ export async function insertFTLIfNeeded(fileName) {
 }
 
 export function provideFluent(ftlContents, fileName) {
-  let ftlResource = new FluentResource(ftlContents);
+  const ftlResource = new FluentResource(ftlContents);
   storybookBundle.addResource(ftlResource);
   if (fileName) {
     loadedResources.set(fileName, ftlResource);

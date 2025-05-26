@@ -4,13 +4,11 @@
 
 import { html } from "lit";
 import { action } from "@storybook/addon-actions";
-/* eslint-disable import/no-unassigned-import */
 import "mail/base/content/widgets/search-bar.mjs";
 import "mail/themes/shared/mail/colors.css";
 import "mail/themes/shared/mail/variables.css";
 import "mail/themes/shared/mail/layout.css";
 import "mail/themes/shared/mail/widgets.css";
-/* eslint-enable import/no-unassigned-import */
 
 export default {
   title: "Widgets/Search Bar",

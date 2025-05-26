@@ -33,7 +33,7 @@ window.AppConstants = {
 };
 
 window.ChromeUtils = {
-  importESModule(path) {
+  importESModule(_path) {
     return window.AppConstants;
   },
 };

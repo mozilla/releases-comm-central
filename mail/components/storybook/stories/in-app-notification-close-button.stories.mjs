@@ -4,7 +4,7 @@
 
 import { html } from "lit";
 import { action } from "@storybook/addon-actions";
-import "mail/components/inappnotifications/content/in-app-notification-close-button.mjs"; //eslint-disable-line import/no-unassigned-import
+import "mail/components/inappnotifications/content/in-app-notification-close-button.mjs";
 
 export default {
   title: "Widgets/In App Notifications/Close Button",

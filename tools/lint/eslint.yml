@@ -6,8 +6,8 @@ eslint:
     exclude: []
     extensions: ['mjs', 'js', 'jsm', 'json', 'jsx', 'html', 'sjs', 'xhtml']
     support-files:
-        - 'comm/**/.eslintrc.js'
-        - 'comm/.eslintignore'
+        - 'comm/eslint.config.mjs'
+        - 'comm/eslint-ignores.config.mjs'
         - 'comm/.prettierignore'
         - 'tools/lint/eslint/**'
     type: external

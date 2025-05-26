@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { html } from "lit";
-import "mail/themes/shared/mail/variables.css"; //eslint-disable-line import/no-unassigned-import
-import "mail/themes/shared/mail/widgets.css"; //eslint-disable-line import/no-unassigned-import
-import "mail/themes/shared/mail/icons.css"; //eslint-disable-line import/no-unassigned-import
-import "mail/themes/shared/mail/containers.css"; //eslint-disable-line import/no-unassigned-import
+import "mail/themes/shared/mail/variables.css";
+import "mail/themes/shared/mail/widgets.css";
+import "mail/themes/shared/mail/icons.css";
+import "mail/themes/shared/mail/containers.css";
 
 export default {
   title: "Design System/Containers",

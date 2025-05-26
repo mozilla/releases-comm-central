@@ -4,7 +4,7 @@
 
 import { html } from "lit";
 import { action } from "@storybook/addon-actions";
-import "mail/components/inappnotifications/content/in-app-notification-button.mjs"; //eslint-disable-line import/no-unassigned-import
+import "mail/components/inappnotifications/content/in-app-notification-button.mjs";
 
 export default {
   title: "Widgets/In App Notifications/CTA Button",
