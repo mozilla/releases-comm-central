@@ -160,7 +160,6 @@ function SubscribeOnLoad() {
   gSubscribeTree = document.getElementById("subscribeTree");
   gSubscribeBody = document.getElementById("subscribeTreeBody");
   gSearchTree = document.getElementById("searchTree");
-  gSearchTree = document.getElementById("searchTree");
   gNameField = document.getElementById("namefield");
   gServerContainer = document.getElementById("serverContainer");
   gNameContainer = document.getElementById("nameContainer");
@@ -293,7 +292,7 @@ function SearchOnClick(event) {
   }
 
   // Invalidate the row.
-  InvalidateSearchTreeRow(treeCellInfo.row);
+  gSearchTree.invalidateRow(treeCellInfo.row);
 }
 
 function ReverseStateFromRow(aRow) {
@@ -348,6 +347,9 @@ function SubscribeOnClick(event) {
       ReverseStateFromNode(treeCellInfo.row);
     }
   }
+
+  // Invalidate the row.
+  gSubscribeTree.invalidateRow(treeCellInfo.row);
 }
 
 function Refresh() {
@@ -378,14 +380,6 @@ function ShowNewGroupsList() {
 
   // Force it to talk to the server and get new groups.
   SetUpTree(true, true);
-}
-
-function InvalidateSearchTreeRow(row) {
-  gSearchTree.invalidateRow(row);
-}
-
-function InvalidateSearchTree() {
-  gSearchTree.invalidate();
 }
 
 /**
@@ -440,10 +434,10 @@ function onSearchTreeKeyPress(event) {
     for (let k = start.value; k <= end.value; k++) {
       ReverseStateFromRow(k);
     }
-
-    // Force a repaint.
-    InvalidateSearchTree();
   }
+
+  // Force a repaint.
+  gSearchTree.invalidate();
 }
 
 function onSubscribeTreeKeyPress(event) {
@@ -461,4 +455,7 @@ function onSubscribeTreeKeyPress(event) {
       ReverseStateFromNode(k);
     }
   }
+
+  // Force a repaint.
+  gSubscribeTree.invalidate();
 }
