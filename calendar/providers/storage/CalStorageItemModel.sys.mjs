@@ -20,7 +20,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalTodo: "resource:///modules/CalTodo.sys.mjs",
 });
 
-const cICL = Ci.calIChangeLog;
 const USECS_PER_SECOND = 1000000;
 const DEFAULT_START_TIME = -9223372036854776000;
 
@@ -156,11 +155,11 @@ export class CalStorageItemModel extends CalStorageModelBase {
     let requestedOfflineJournal = null;
 
     if (filters.wantOfflineDeletedItems) {
-      requestedOfflineJournal = cICL.OFFLINE_FLAG_DELETED_RECORD;
+      requestedOfflineJournal = Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD;
     } else if (filters.wantOfflineCreatedItems) {
-      requestedOfflineJournal = cICL.OFFLINE_FLAG_CREATED_RECORD;
+      requestedOfflineJournal = Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD;
     } else if (filters.wantOfflineModifiedItems) {
-      requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+      requestedOfflineJournal = Ci.calIChangeLog.OFFLINE_FLAG_MODIFIED_RECORD;
     }
     const self = this;
     return CalReadableStreamFactory.createBoundedReadableStream(
@@ -205,7 +204,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
               // Return created and modified offline records if requestedOfflineJournal is null alongwith events that have no flag
               if (
                 (requestedOfflineJournal == null &&
-                  cachedJournalFlag != cICL.OFFLINE_FLAG_DELETED_RECORD) ||
+                  cachedJournalFlag != Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD) ||
                 (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
               ) {
                 controller.enqueue(
@@ -247,11 +246,11 @@ export class CalStorageItemModel extends CalStorageModelBase {
     let requestedOfflineJournal = null;
 
     if (filters.wantOfflineCreatedItems) {
-      requestedOfflineJournal = cICL.OFFLINE_FLAG_CREATED_RECORD;
+      requestedOfflineJournal = Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD;
     } else if (filters.wantOfflineDeletedItems) {
-      requestedOfflineJournal = cICL.OFFLINE_FLAG_DELETED_RECORD;
+      requestedOfflineJournal = Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD;
     } else if (filters.wantOfflineModifiedItems) {
-      requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+      requestedOfflineJournal = Ci.calIChangeLog.OFFLINE_FLAG_MODIFIED_RECORD;
     }
 
     const checkCompleted = item =>
@@ -303,8 +302,8 @@ export class CalStorageItemModel extends CalStorageModelBase {
               const cachedJournalFlag = recTodoFlags.get(id);
               if (
                 (requestedOfflineJournal == null &&
-                  (cachedJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD ||
-                    cachedJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
+                  (cachedJournalFlag == Ci.calIChangeLog.OFFLINE_FLAG_MODIFIED_RECORD ||
+                    cachedJournalFlag == Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD ||
                     cachedJournalFlag == null)) ||
                 (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
               ) {
