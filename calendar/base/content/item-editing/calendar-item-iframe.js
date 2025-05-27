@@ -2320,7 +2320,16 @@ function addAttachment(attachment, cloudFileAccount) {
         }
       }
     } else if (attachment.uri.schemeIs("file")) {
-      image.setAttribute("src", "moz-icon://" + attachment.uri.spec);
+      image.setAttribute(
+        "srcset",
+        "moz-icon://" +
+          attachment.uri.spec +
+          "?size=16&scale=1 1x, moz-icon://" +
+          attachment.uri.spec +
+          "?size=16&scale=2 2x, moz-icon://" +
+          attachment.uri.spec +
+          "?size=16&scale=3 3x"
+      );
     } else {
       const leafName = attachment.getParameter("FILENAME");
       const cloudFileIconURL = attachment.getParameter("X-SERVICE-ICONURL");
@@ -2343,7 +2352,16 @@ function addAttachment(attachment, cloudFileAccount) {
             iconSrc = parts[parts.length - 1];
           }
         }
-        image.setAttribute("src", "moz-icon://" + iconSrc);
+        image.setAttribute(
+          "srcset",
+          "moz-icon://" +
+            iconSrc +
+            "?size=32&scale=1 1x, moz-icon://" +
+            iconSrc +
+            "?size=32&scale=2 2x, moz-icon://" +
+            iconSrc +
+            "?size=32&scale=3 3x"
+        );
       }
     }
 

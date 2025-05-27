@@ -55,7 +55,7 @@ var messages = [
         body: textAttachment,
         filename: "ubik.txt",
         format: "",
-        icon: "moz-icon://ubik.txt?size=16&contentType=text/plain",
+        icon: "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=1 1x, moz-icon://ubik.txt?size=16&contentType=text/plain&scale=2 2x, moz-icon://ubik.txt?size=16&contentType=text/plain&scale=3 3x",
       },
     ],
   },
@@ -67,7 +67,7 @@ var messages = [
         contentType: "application/x-ubik",
         filename: "ubik",
         format: "",
-        icon: "moz-icon://ubik?size=16&contentType=application/x-ubik",
+        icon: "moz-icon://ubik?size=16&contentType=application/x-ubik&scale=1 1x, moz-icon://ubik?size=16&contentType=application/x-ubik&scale=2 2x, moz-icon://ubik?size=16&contentType=application/x-ubik&scale=3 3x",
       },
     ],
   },
@@ -80,7 +80,7 @@ var messages = [
         filename: "lines.png",
         encoding: "base64",
         format: "",
-        icon: "moz-icon://lines.png?size=16&contentType=image/png",
+        icon: "moz-icon://lines.png?size=16&contentType=image/png&scale=1 1x, moz-icon://lines.png?size=16&contentType=image/png&scale=2 2x, moz-icon://lines.png?size=16&contentType=image/png&scale=3 3x",
       },
     ],
   },
@@ -89,7 +89,7 @@ var messages = [
     bodyPart: null,
     attachments: [
       {
-        icon: "moz-icon://attachment.txt?size=16&contentType=text/plain",
+        icon: "moz-icon://attachment.txt?size=16&contentType=text/plain&scale=1 1x, moz-icon://attachment.txt?size=16&contentType=text/plain&scale=2 2x, moz-icon://attachment.txt?size=16&contentType=text/plain&scale=3 3x",
       },
     ],
   },
@@ -98,7 +98,7 @@ var messages = [
     bodyPart: null,
     attachments: [
       {
-        icon: "moz-icon://nonexistent.txt?size=16&contentType=text/plain",
+        icon: "moz-icon://nonexistent.txt?size=16&contentType=text/plain&scale=1 1x, moz-icon://nonexistent.txt?size=16&contentType=text/plain&scale=2 2x, moz-icon://nonexistent.txt?size=16&contentType=text/plain&scale=3 3x",
       },
     ],
   },
@@ -108,6 +108,7 @@ var messages = [
     attachments: [
       {
         icon: "chrome://messenger/skin/icons/attachment-deleted.svg",
+        isSrc: true,
       },
     ],
   },
@@ -118,14 +119,14 @@ var messages = [
         body: textAttachment,
         filename: "ubik.txt",
         format: "",
-        icon: "moz-icon://ubik.txt?size=16&contentType=text/plain",
+        icon: "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=1 1x, moz-icon://ubik.txt?size=16&contentType=text/plain&scale=2 2x, moz-icon://ubik.txt?size=16&contentType=text/plain&scale=3 3x",
       },
       {
         body: binaryAttachment,
         contentType: "application/x-ubik",
         filename: "ubik",
         format: "",
-        icon: "moz-icon://ubik?size=16&contentType=application/x-ubik",
+        icon: "moz-icon://ubik?size=16&contentType=application/x-ubik&scale=1 1x, moz-icon://ubik?size=16&contentType=application/x-ubik&scale=2 2x, moz-icon://ubik?size=16&contentType=application/x-ubik&scale=3 3x",
       },
     ],
   },
@@ -137,7 +138,7 @@ var messages = [
         body: textAttachment,
         filename: "ubik.txt",
         format: "",
-        icon: "moz-icon://ubik.txt?size=16&contentType=text/plain",
+        icon: "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=1 1x, moz-icon://ubik.txt?size=16&contentType=text/plain&scale=2 2x, moz-icon://ubik.txt?size=16&contentType=text/plain&scale=3 3x",
       },
       {
         body: vcardAttachment,
@@ -145,7 +146,7 @@ var messages = [
         filename: "ubik.vcf",
         encoding: "base64",
         format: "",
-        icon: "moz-icon://ubik.vcf?size=16&contentType=text/vcard",
+        icon: "moz-icon://ubik.vcf?size=16&contentType=text/vcard&scale=1 1x, moz-icon://ubik.vcf?size=16&contentType=text/vcard&scale=2 2x, moz-icon://ubik.vcf?size=16&contentType=text/vcard&scale=3 3x",
       },
     ],
   },
@@ -193,16 +194,23 @@ add_setup(async function () {
  *
  * @param {integer} index - the attachment's index, starting at 0
  * @param {string} expectedIcon - The URL of the expected icon of the attachment.
+ * @param {boolean} [isSrc=false] - If the icon URL definition is for a src or a srcset attribute.
  */
-function check_attachment_icon(index, expectedIcon) {
+function check_attachment_icon(index, expectedIcon, isSrc = false) {
   const win = get_about_message();
   const list = win.document.getElementById("attachmentList");
   const node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
   Assert.equal(
-    node.querySelector("img.attachmentcell-icon").src,
+    node.querySelector("img.attachmentcell-icon")[isSrc ? "src" : "srcset"],
     expectedIcon,
     `Icon should be correct for attachment #${index}`
+  );
+  Assert.ok(
+    !node
+      .querySelector("img.attachmentcell-icon")
+      .hasAttribute(isSrc ? "srcset" : "src"),
+    `Icon should not have opposite image source attribute for attachment #${index}`
   );
 }
 
@@ -227,7 +235,7 @@ async function help_test_attachment_icon(index) {
   );
 
   for (let i = 0; i < attachments.length; i++) {
-    check_attachment_icon(i, attachments[i].icon);
+    check_attachment_icon(i, attachments[i].icon, attachments[i].isSrc);
   }
 }
 

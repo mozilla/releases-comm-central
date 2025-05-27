@@ -346,7 +346,7 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
     ok(
       item
         .querySelector("img.attachmentcell-icon")
-        .src.startsWith("moz-icon://testFile"),
+        .srcset.startsWith("moz-icon://testFile"),
       "CloudFile icon should be correct."
     );
   }

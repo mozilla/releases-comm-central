@@ -119,8 +119,7 @@ var gDownloadDirSection = {
         .QueryInterface(Ci.nsIFileProtocolHandler)
         .getURLSpecFromDir(downloadDir);
 
-      downloadFolder.style.backgroundImage =
-        "url(moz-icon://" + urlSpec + "?size=16)";
+      downloadFolder.style.backgroundImage = `image-set("moz-icon://${urlSpec}?size=16&scale=1" 1x, "moz-icon://${urlSpec}?size=16&scale=2" 2x, "moz-icon://${urlSpec}?size=16&scale=3" 3x)`;
     }
 
     return undefined;

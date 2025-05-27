@@ -1389,8 +1389,8 @@ async function subtest_converting_filelink_to_normal_removes_url() {
 
     // Check that the cloud icon has been removed.
     Assert.equal(
-      selectedItem.querySelector("img.attachmentcell-icon").src,
-      `moz-icon://${selectedItem.attachment.name}?size=16`,
+      selectedItem.querySelector("img.attachmentcell-icon").srcset,
+      `moz-icon://${selectedItem.attachment.name}?size=16&contentType=&scale=1 1x, moz-icon://${selectedItem.attachment.name}?size=16&contentType=&scale=2 2x, moz-icon://${selectedItem.attachment.name}?size=16&contentType=&scale=3 3x`,
       `CloudIcon should be correctly removed for ${selectedItem.attachment.name}`
     );
   }
