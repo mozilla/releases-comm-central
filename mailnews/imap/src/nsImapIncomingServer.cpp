@@ -37,6 +37,9 @@
 #include "nsComponentManagerUtils.h"
 #include "mozilla/Components.h"
 #include "nsNetUtil.h"
+#include "nsIPrompt.h"
+#include "nsEmbedCID.h"
+#include "nsIPromptService.h"
 #include "mozilla/Utf8.h"
 #include "mozilla/LoadInfo.h"
 
@@ -1642,6 +1645,7 @@ bool nsImapIncomingServer::AllDescendantsAreNoSelect(
   return true;
 }
 
+/** Prompt upon failed login. */
 NS_IMETHODIMP
 nsImapIncomingServer::PromptLoginFailed(nsIMsgWindow* aMsgWindow,
                                         int32_t* aResult) {
@@ -1654,8 +1658,55 @@ nsImapIncomingServer::PromptLoginFailed(nsIMsgWindow* aMsgWindow,
   nsAutoCString accountName;
   GetPrettyName(accountName);
 
-  return MsgPromptLoginFailed(aMsgWindow, hostName, userName, accountName,
-                              aResult);
+  nsCOMPtr<mozIDOMWindowProxy> domWindow;
+  if (aMsgWindow) {
+    aMsgWindow->GetDomWindow(getter_AddRefs(domWindow));
+  }
+
+  nsresult rv;
+  nsCOMPtr<nsIPromptService> dlgService(
+      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIStringBundleService> bundleSvc =
+      mozilla::components::StringBundle::Service();
+  NS_ENSURE_TRUE(bundleSvc, NS_ERROR_UNEXPECTED);
+
+  nsCOMPtr<nsIStringBundle> bundle;
+  rv = bundleSvc->CreateBundle("chrome://messenger/locale/messenger.properties",
+                               getter_AddRefs(bundle));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsString message;
+  AutoTArray<nsString, 2> formatStrings2;
+  CopyUTF8toUTF16(hostName, *formatStrings2.AppendElement());
+  CopyUTF8toUTF16(userName, *formatStrings2.AppendElement());
+  rv = bundle->FormatStringFromName("mailServerLoginFailed2", formatStrings2,
+                                    message);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsString title;
+  AutoTArray<nsString, 1> formatStrings = {NS_ConvertUTF8toUTF16(accountName)};
+  rv = bundle->FormatStringFromName("mailServerLoginFailedTitleWithAccount",
+                                    formatStrings, title);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsString button0;
+  rv = bundle->GetStringFromName("mailServerLoginFailedRetryButton", button0);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsString button2;
+  rv = bundle->GetStringFromName("mailServerLoginFailedEnterNewPasswordButton",
+                                 button2);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  bool dummyValue = false;
+  return dlgService->ConfirmEx(
+      domWindow, title.get(), message.get(),
+      (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_0) +
+          (nsIPrompt::BUTTON_TITLE_CANCEL * nsIPrompt::BUTTON_POS_1) +
+          (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_2),
+      button0.get(), nullptr, button2.get(), nullptr, &dummyValue, aResult);
 }
 
 NS_IMETHODIMP

@@ -237,23 +237,6 @@ int32_t MsgFindCharInSet(const nsString& aString, const char16_t* aChars,
                          uint32_t aOffset = 0);
 
 /**
- * Alerts the user that the login to the server failed. Asks whether the
- * connection should: retry, cancel, or request a new password.
- *
- * @param aMsgWindow The message window associated with this action (cannot
- *                   be null).
- * @param aHostname  The hostname of the server for which the login failed.
- * @param aResult    The button pressed. 0 for retry, 1 for cancel,
- *                   2 for enter a new password.
- * @return           NS_OK for success, NS_ERROR_* if there was a failure in
- *                   creating the dialog.
- */
-nsresult MsgPromptLoginFailed(nsIMsgWindow* aMsgWindow,
-                              const nsACString& aHostname,
-                              const nsACString& aUsername,
-                              const nsACString& aAccountname, int32_t* aResult);
-
-/**
  * Calculate a PRTime value used to determine if a date is XX
  * days ago. This is used by various retention setting algorithms.
  */
