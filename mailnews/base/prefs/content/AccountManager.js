@@ -1936,7 +1936,10 @@ var gAccountTree = {
       .content.firstElementChild.cloneNode(true);
     mainTree.appendChild(treeitem);
     treeitem.id = "smtp";
-    treeitem.querySelector(".name").textContent = getString("prefPanel-smtp");
+    document.l10n.setAttributes(
+      treeitem.querySelector(".name"),
+      "outgoing-server-section-name"
+    );
     treeitem.setAttribute("PageTag", "am-smtp.xhtml");
     treeitem.classList.add("serverType-smtp");
 

@@ -103,6 +103,8 @@ export function get_account_tree_row(accountKey, paneId, tab) {
     row = accountTree.querySelector(`#${accountKey} [PageTag="${paneId}"]`);
   } else if (accountKey) {
     row = accountTree.querySelector(`#${accountKey}`);
+  } else {
+    row = accountTree.querySelector(`#smtp`);
   }
   return accountTree.rows.indexOf(row);
 }

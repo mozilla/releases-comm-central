@@ -34,3 +34,10 @@ edit-vcard-dialog-cancel-button = Cancel
 account-manager-server-default-icon =
     .title = Default account
     .alt = Star icon
+
+outgoing-server-section-name = Outgoing Server
+
+# Used in the Outgoing Server section of the account manager
+outgoing-server-settings-title = Outgoing Server Settings
+outgoing-server-settings-description = When managing your identities you can use a server from this list by selecting it as the Outgoing Server, or you can use the default server from this list by selecting “Use Default Server”.
+outgoing-server-type = Server Type:

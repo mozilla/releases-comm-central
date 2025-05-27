@@ -19,3 +19,5 @@ skip-if = ["debug"]
 subsuite = "thunderbird"
 
 ["browser_accountSetupTab.js"]
+
+["browser_outgoingServer.js"]

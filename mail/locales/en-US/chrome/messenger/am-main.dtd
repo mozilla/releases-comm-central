@@ -38,10 +38,4 @@
 <!ENTITY manageIdentities.label "Manage Identities…">
 <!ENTITY manageIdentities.accesskey "M">
 
-<!-- LOCALIZATION NOTE (smtpName.label) : do not translate "SMTP" in below line -->
-<!ENTITY smtpName.label "Outgoing Server (SMTP):">
-<!ENTITY smtpName.accesskey "u">
 <!ENTITY smtpDefaultServer.label "Use Default Server">
-
-<!ENTITY smtpServerEdit.label "Edit SMTP server…">
-<!ENTITY smtpServerEdit.accesskey "P">

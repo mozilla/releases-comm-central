@@ -10,12 +10,15 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
 >
   <head>
-    <title>&smtpServer.label;</title>
+    <title data-l10n-id="outgoing-server-settings-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline'; style-src chrome: 'unsafe-inline'"
     />
     <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
+
+    <link rel="localization" href="messenger/accountManager.ftl" />
+
     <script
       defer="defer"
       src="chrome://messenger/content/globalOverlay.js"
@@ -38,11 +41,17 @@
     <vbox flex="1" style="overflow: auto"
       ><vbox id="containerBox" flex="1">
         <hbox class="dialogheader">
-          <label class="dialogheader-title" value="&smtpServer.label;" />
+          <label
+            class="dialogheader-title"
+            data-l10n-id="outgoing-server-settings-title"
+          />
         </hbox>
 
         <separator class="thin" />
-        <label control="smtpList">&smtpDescription.label;</label>
+        <label
+          control="smtpList"
+          data-l10n-id="outgoing-server-settings-description"
+        ></label>
         <separator class="thin" />
 
         <hbox flex="1">
@@ -93,6 +102,13 @@
           <html:tr>
             <html:th id="descriptionLabel">&serverDescription.label;</html:th>
             <html:td id="descriptionValue"></html:td>
+          </html:tr>
+          <html:tr>
+            <html:th
+              id="typeLabel"
+              data-l10n-id="outgoing-server-type"
+            ></html:th>
+            <html:td id="typeValue"></html:td>
           </html:tr>
           <html:tr>
             <html:th id="nameLabel">&serverName.label;</html:th>

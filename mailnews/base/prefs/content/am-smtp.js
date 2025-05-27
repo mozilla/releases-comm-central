@@ -43,6 +43,8 @@ var gSmtpServerListWindow = {
 
     this.updateButtons();
     this.updateServerInfoBox(server);
+
+    this.mEditButton.disabled = server.type != "smtp";
   },
 
   onDeleteServer() {
@@ -127,13 +129,24 @@ var gSmtpServerListWindow = {
   updateServerInfoBox(aServer) {
     var noneSelected = this.mBundle.getString("smtpServerList-NotSpecified");
 
-    const smtpServer = aServer.QueryInterface(Ci.nsISmtpServer);
+    let serverType = noneSelected;
+    try {
+      if (aServer.type) {
+        serverType = this.mBundle.getString("serverType-" + aServer.type);
+      }
+    } catch {
+      // Addon-provided server types do not have a description string, then
+      // display the raw server type.
+      serverType = aServer.type;
+    }
 
-    document.getElementById("nameValue").textContent = smtpServer.hostname;
+    document.getElementById("typeValue").textContent = serverType;
+    document.getElementById("nameValue").textContent = aServer.serverURI.host;
     document.getElementById("descriptionValue").textContent =
       aServer.description || noneSelected;
+    // `nsIURI` uses -1 as the port when it's left to the default value.
     document.getElementById("portValue").textContent =
-      smtpServer.port || noneSelected;
+      aServer.serverURI.port > 0 ? aServer.serverURI.port : noneSelected;
     document.getElementById("userNameValue").textContent =
       aServer.username || noneSelected;
     document.getElementById("useSecureConnectionValue").textContent =

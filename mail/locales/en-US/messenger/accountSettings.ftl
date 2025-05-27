@@ -13,3 +13,10 @@ delete-account-button =
 
 default-account-button =
   .label = Set as Default
+
+outgoing-server-name = Outgoing Server:
+    .accesskey = u
+
+outgoing-server-edit =
+    .label = Edit outgoing server…
+    .accesskey = o

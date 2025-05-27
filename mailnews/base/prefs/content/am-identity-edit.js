@@ -554,17 +554,29 @@ function loadSMTPServerList() {
   }
 
   smtpServerList.value = currentValue;
+  smtpServerList.addEventListener("select", maybeEnableEditButton, {
+    capture: true,
+  });
+}
+
+/**
+ * Retrieve the outgoing server that's referred to by the currently selected
+ * option.
+ *
+ * @returns {nsIMsgOutgoingServer}
+ */
+function getSelectedOutgoingServer() {
+  const smtpKey = document.getElementById("identity.smtpServerKey").value;
+  return smtpKey === ""
+    ? MailServices.outgoingServer.defaultServer
+    : MailServices.outgoingServer.getServerByKey(smtpKey);
 }
 
 /**
  * Open dialog for editing properties of currently selected SMTP server.
  */
 function editCurrentSMTP() {
-  const smtpKey = document.getElementById("identity.smtpServerKey").value;
-  const server =
-    smtpKey === ""
-      ? MailServices.outgoingServer.defaultServer
-      : MailServices.outgoingServer.getServerByKey(smtpKey);
+  const server = getSelectedOutgoingServer();
   const args = { server, result: false, addSmtpServer: "" };
 
   parent.gSubDialog.open(
@@ -572,4 +584,14 @@ function editCurrentSMTP() {
     { closingCallback: loadSMTPServerList },
     args
   );
+}
+
+/**
+ * Check if the currently selected outgoing server can be edited, and adjust the
+ * state of the "Edit" button accordingly.
+ */
+function maybeEnableEditButton() {
+  const server = getSelectedOutgoingServer();
+  const editButton = document.getElementById("editSmtp");
+  editButton.disabled = server.type != "smtp";
 }

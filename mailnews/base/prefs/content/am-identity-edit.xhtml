@@ -33,6 +33,9 @@
     rel="stylesheet"
     href="chrome://messenger/skin/openpgp/inlineNotification.css"
   />
+
+  <link rel="localization" href="messenger/accountSettings.ftl" />
+
   <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/preferencesBindings.js"></script>
@@ -193,9 +196,8 @@
 
           <separator class="thin"/>
 
-          <label value="&smtpName.label;"
-                 control="identity.smtpServerKey"
-                 accesskey="&smtpName.accesskey;"/>
+          <label data-l10n-id="outgoing-server-name"
+                 control="identity.smtpServerKey"/>
           <hbox align="center">
             <menulist id="identity.smtpServerKey" flex="1">
               <menupopup id="smtpPopup">
@@ -207,8 +209,7 @@
             </menulist>
 
             <button id="editSmtp"
-                    label="&smtpServerEdit.label;"
-                    accesskey="&smtpServerEdit.accesskey;"
+                    data-l10n-id="outgoing-server-edit"
                     oncommand="editCurrentSMTP();"/>
           </hbox>
 
