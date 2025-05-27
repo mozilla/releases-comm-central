@@ -63,16 +63,6 @@ NS_IMETHODIMP nsMsgGroupThread::SetFlags(uint32_t aFlags) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgGroupThread::SetSubject(const nsACString& aSubject) {
-  NS_ASSERTION(false, "shouldn't call this");
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMsgGroupThread::GetSubject(nsACString& result) {
-  NS_ASSERTION(false, "shouldn't call this");
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP nsMsgGroupThread::GetNumChildren(uint32_t* aNumChildren) {
   NS_ENSURE_ARG_POINTER(aNumChildren);
   *aNumChildren = m_keys.Length();  // - ((m_dummy) ? 1 : 0);

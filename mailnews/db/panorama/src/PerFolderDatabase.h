@@ -79,8 +79,8 @@ class MessageEnumerator : public nsBaseMsgEnumerator {
 
 class ThreadEnumerator : public nsBaseMsgThreadEnumerator {
  public:
-  ThreadEnumerator(MessageDatabase* messageDatabase,
-                   mozIStorageStatement* aStmt);
+  ThreadEnumerator(MessageDatabase* messageDatabase, mozIStorageStatement* stmt,
+                   uint64_t folderId);
 
   // nsIMsgEnumerator support.
   NS_IMETHOD GetNext(nsIMsgThread** item) override;
@@ -93,6 +93,7 @@ class ThreadEnumerator : public nsBaseMsgThreadEnumerator {
 
   MessageDatabase* mMessageDatabase;
   nsCOMPtr<mozIStorageStatement> mStmt;
+  uint64_t mFolderId;
   bool mHasNext = false;
 };
 

@@ -13,8 +13,9 @@ namespace mozilla::mailnews {
 
 class MessageDatabase;
 
-#define MESSAGE_SQL_FIELDS \
-  "id, folderId, messageId, date, sender, recipients, ccList, bccList, subject, flags, tags"_ns
+#define MESSAGE_SQL_FIELDS                                          \
+  "id, folderId, threadId, threadParent, messageId, date, sender, " \
+  "recipients, ccList, bccList, subject, flags, tags"_ns
 
 class Message : public nsIMsgDBHdr {
  public:
@@ -26,6 +27,8 @@ class Message : public nsIMsgDBHdr {
 
   nsMsgKey mId;
   uint64_t mFolderId;
+  uint64_t mThreadId;
+  uint64_t mThreadParent;
   nsAutoCString mMessageId;
   PRTime mDate;
   nsAutoCString mSender;

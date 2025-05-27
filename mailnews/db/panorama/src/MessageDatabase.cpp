@@ -88,6 +88,22 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
   RefPtr<Message> message = new Message(this, stmt);
   stmt->Reset();
 
+  // Update the thread columns on the newly inserted row. We're assuming the
+  // message being added is at the root of a thread, which uses the row's id
+  // value as threadId, so we can't do this in one insert query. At some point
+  // in the future we'll handle messages with a known parent differently and
+  // avoid this second query.
+
+  DatabaseCore::GetStatement(
+      "UpdateThreadInfo"_ns,
+      "UPDATE messages SET threadId = :threadId, threadParent = :threadParent WHERE id = :id"_ns,
+      getter_AddRefs(stmt));
+  stmt->BindInt64ByName("id"_ns, message->mId);
+  stmt->BindInt64ByName("threadId"_ns, message->mId);
+  stmt->BindInt64ByName("threadParent"_ns, 0);
+  rv = stmt->Execute();
+  NS_ENSURE_SUCCESS(rv, rv);
+
   for (RefPtr<MessageListener> messageListener :
        mMessageListeners.EndLimitedRange()) {
     messageListener->OnMessageAdded(message);
@@ -126,19 +142,114 @@ NS_IMETHODIMP MessageDatabase::RemoveMessage(nsMsgKey aKey) {
   return NS_OK;
 }
 
-nsresult MessageDatabase::ListAllKeys(uint64_t aFolderId,
-                                      nsTArray<nsMsgKey>& aKeys) {
-  aKeys.Clear();
+nsresult MessageDatabase::ListAllKeys(uint64_t folderId,
+                                      nsTArray<nsMsgKey>& keys) {
+  keys.Clear();
 
   nsCOMPtr<mozIStorageStatement> stmt;
   DatabaseCore::GetStatement(
       "ListAllKeys"_ns, "SELECT id FROM messages WHERE folderId = :folderId"_ns,
       getter_AddRefs(stmt));
-  stmt->BindInt64ByName("folderId"_ns, aFolderId);
+  stmt->BindInt64ByName("folderId"_ns, folderId);
 
   bool hasResult;
   while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
-    aKeys.AppendElement((nsMsgKey)(stmt->AsInt64(0)));
+    keys.AppendElement((nsMsgKey)(stmt->AsInt64(0)));
+  }
+
+  stmt->Reset();
+  return NS_OK;
+}
+
+nsresult MessageDatabase::ListThreadKeys(uint64_t folderId, uint64_t parent,
+                                         uint64_t threadId,
+                                         nsTArray<nsMsgKey>& keys) {
+  keys.Clear();
+
+  nsCOMPtr<mozIStorageStatement> stmt;
+  DatabaseCore::GetStatement(
+      "ListThreadKeys"_ns,
+      "WITH RECURSIVE parents("
+      "  id, parent, level, folderId"
+      ") AS ("
+      "  VALUES(:parent, 0, 0, :folderId)"
+      "  UNION ALL"
+      "  SELECT"
+      "    m.id, m.threadParent, p.level + 1 AS next_level, m.folderId"
+      "  FROM"
+      "    messages m, parents p ON m.threadParent = p.id"
+      "  WHERE threadId = :threadId"
+      "  ORDER BY next_level DESC, m.id"
+      ")"
+      "SELECT id FROM parents WHERE id > 0 AND folderId = :folderId"_ns,
+      getter_AddRefs(stmt));
+  stmt->BindInt64ByName("folderId"_ns, folderId);
+  stmt->BindInt64ByName("parent"_ns, parent);
+  stmt->BindInt64ByName("threadId"_ns, threadId);
+
+  bool hasResult;
+  while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    keys.AppendElement((nsMsgKey)(stmt->AsInt64(0)));
+  }
+
+  stmt->Reset();
+  return NS_OK;
+}
+
+nsresult MessageDatabase::GetThreadMaxDate(uint64_t folderId, uint64_t threadId,
+                                           uint64_t* maxDate) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  DatabaseCore::GetStatement(
+      "GetThreadMaxDate"_ns,
+      "SELECT MAX(date) AS maxDate FROM messages WHERE folderId = :folderId AND threadId = :threadId"_ns,
+      getter_AddRefs(stmt));
+  stmt->BindInt64ByName("folderId"_ns, folderId);
+  stmt->BindInt64ByName("threadId"_ns, threadId);
+
+  *maxDate = 0;
+  bool hasResult;
+  if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    *maxDate = (uint64_t)stmt->AsInt64(0);
+  }
+  stmt->Reset();
+  return NS_OK;
+}
+
+nsresult MessageDatabase::CountThreadKeys(uint64_t folderId, uint64_t threadId,
+                                          uint64_t* numMessages) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  DatabaseCore::GetStatement(
+      "CountThreadKeys"_ns,
+      "SELECT COUNT(*) AS numMessages FROM messages WHERE folderId = :folderId AND threadId = :threadId"_ns,
+      getter_AddRefs(stmt));
+  stmt->BindInt64ByName("folderId"_ns, folderId);
+  stmt->BindInt64ByName("threadId"_ns, threadId);
+
+  *numMessages = 0;
+  bool hasResult;
+  if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    *numMessages = (uint64_t)stmt->AsInt64(0);
+  }
+  stmt->Reset();
+  return NS_OK;
+}
+
+nsresult MessageDatabase::ListThreadChildKeys(uint64_t folderId,
+                                              uint64_t parent,
+                                              nsTArray<nsMsgKey>& keys) {
+  keys.Clear();
+
+  nsCOMPtr<mozIStorageStatement> stmt;
+  DatabaseCore::GetStatement(
+      "ListThreadChildKeys"_ns,
+      "SELECT id FROM messages WHERE folderId = :folderId AND threadParent = :parent"_ns,
+      getter_AddRefs(stmt));
+  stmt->BindInt64ByName("folderId"_ns, folderId);
+  stmt->BindInt64ByName("parent"_ns, parent);
+
+  bool hasResult;
+  while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    keys.AppendElement((nsMsgKey)(stmt->AsInt64(0)));
   }
 
   stmt->Reset();

@@ -4,12 +4,15 @@
 
 #include "Thread.h"
 
+#include "MessageDatabase.h"
+#include "prtime.h"
+
 namespace mozilla::mailnews {
 
 NS_IMPL_ISUPPORTS(Thread, nsIMsgThread)
 
 NS_IMETHODIMP Thread::GetThreadKey(nsMsgKey* threadKey) {
-  *threadKey = mMessage->mId;
+  *threadKey = mThreadId;
   return NS_OK;
 }
 NS_IMETHODIMP Thread::SetThreadKey(nsMsgKey threadKey) {
@@ -22,20 +25,24 @@ NS_IMETHODIMP Thread::GetFlags(uint32_t* aFlags) {
 NS_IMETHODIMP Thread::SetFlags(uint32_t aFlags) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP Thread::GetSubject(nsACString& aSubject) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP Thread::SetSubject(const nsACString& aSubject) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
 NS_IMETHODIMP Thread::GetNewestMsgDate(uint32_t* aNewestMsgDate) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  if (mMaxDate == 0) {
+    // We didn't get the max date when constructing this Thread. Do it now.
+    nsresult rv =
+        mMessageDatabase->GetThreadMaxDate(mFolderId, mThreadId, &mMaxDate);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  *aNewestMsgDate = mMaxDate / PR_USEC_PER_SEC;
+  return NS_OK;
 }
 NS_IMETHODIMP Thread::SetNewestMsgDate(uint32_t aNewestMsgDate) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Thread::GetNumChildren(uint32_t* aNumChildren) {
-  *aNumChildren = 1;
+  uint64_t count;
+  nsresult rv = mMessageDatabase->CountThreadKeys(mFolderId, mThreadId, &count);
+  NS_ENSURE_SUCCESS(rv, rv);
+  *aNumChildren = count;
   return NS_OK;
 }
 NS_IMETHODIMP Thread::GetNumUnreadChildren(uint32_t* aNumUnreadChildren) {
@@ -51,16 +58,39 @@ NS_IMETHODIMP Thread::AddChild(nsIMsgDBHdr* child, nsIMsgDBHdr* inReplyTo,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Thread::GetChildKeyAt(uint32_t index, nsMsgKey* _retval) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsTArray<nsMsgKey> keys;
+  nsresult rv = GetKeys(keys);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (index >= keys.Length()) {
+    return NS_ERROR_UNEXPECTED;
+  }
+  *_retval = keys[index];
+  return NS_OK;
 }
 NS_IMETHODIMP Thread::GetChild(nsMsgKey msgKey, nsIMsgDBHdr** _retval) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Thread::GetChildHdrAt(uint32_t index, nsIMsgDBHdr** _retval) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsTArray<nsMsgKey> keys;
+  nsresult rv = GetKeys(keys);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (index >= keys.Length()) {
+    return NS_ERROR_UNEXPECTED;
+  }
+  RefPtr<Message> message;
+  rv = mMessageDatabase->GetMessage(keys[index], getter_AddRefs(message));
+  NS_ENSURE_SUCCESS(rv, rv);
+  message.forget(_retval);
+  return NS_OK;
 }
 NS_IMETHODIMP Thread::GetRootHdr(nsIMsgDBHdr** _retval) {
-  NS_IF_ADDREF(*_retval = mMessage);
+  // TODO: I don't like this. It relies on the bogus assumption that the
+  // threadId is the id of the root message.
+  RefPtr<Message> message;
+  nsresult rv =
+      mMessageDatabase->GetMessage(mThreadId, getter_AddRefs(message));
+  NS_ENSURE_SUCCESS(rv, rv);
+  message.forget(_retval);
   return NS_OK;
 }
 NS_IMETHODIMP Thread::RemoveChildAt(uint32_t index) {
@@ -81,7 +111,43 @@ NS_IMETHODIMP Thread::GetFirstUnreadChild(nsIMsgDBHdr** _retval) {
 }
 NS_IMETHODIMP Thread::EnumerateMessages(nsMsgKey parent,
                                         nsIMsgEnumerator** _retval) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsTArray<nsMsgKey> keys;
+  mMessageDatabase->ListThreadChildKeys(mFolderId, parent, keys);
+  NS_IF_ADDREF(*_retval = new ThreadMessageEnumerator(mMessageDatabase, keys));
+  return NS_OK;
+}
+
+nsresult Thread::GetKeys(nsTArray<nsMsgKey>& keys) {
+  if (mKeys.IsEmpty()) {
+    nsresult rv =
+        mMessageDatabase->ListThreadKeys(mFolderId, 0, mThreadId, mKeys);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  keys = mKeys.Clone();
+  return NS_OK;
+}
+
+NS_IMETHODIMP ThreadMessageEnumerator::GetNext(nsIMsgDBHdr** aItem) {
+  NS_ENSURE_ARG_POINTER(aItem);
+  *aItem = nullptr;
+
+  if (mCurrent >= mKeys.Length()) {
+    return NS_ERROR_FAILURE;
+  }
+
+  RefPtr<Message> message;
+  nsresult rv =
+      mMessageDatabase->GetMessage(mKeys[mCurrent++], getter_AddRefs(message));
+  NS_ENSURE_SUCCESS(rv, rv);
+  message.forget(aItem);
+  return NS_OK;
+}
+
+NS_IMETHODIMP ThreadMessageEnumerator::HasMoreElements(bool* aHasNext) {
+  NS_ENSURE_ARG_POINTER(aHasNext);
+
+  *aHasNext = mCurrent < mKeys.Length();
+  return NS_OK;
 }
 
 }  // namespace mozilla::mailnews

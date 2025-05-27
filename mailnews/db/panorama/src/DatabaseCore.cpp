@@ -176,6 +176,8 @@ nsresult DatabaseCore::EnsureConnection() {
         "CREATE TABLE messages ( \
           id INTEGER PRIMARY KEY, \
           folderId INTEGER REFERENCES folders(id), \
+          threadId INTEGER REFERENCES messages(id), \
+          threadParent INTEGER REFERENCES messages(id), \
           messageId TEXT, \
           date INTEGER, \
           sender TEXT, \
@@ -197,6 +199,9 @@ nsresult DatabaseCore::EnsureConnection() {
     NS_ENSURE_SUCCESS(rv, rv);
     rv = sConnection->ExecuteSimpleSQL(
         "CREATE INDEX messages_folderId ON messages(folderId);"_ns);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = sConnection->ExecuteSimpleSQL(
+        "CREATE INDEX messages_threadId ON messages(threadId);"_ns);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = sConnection->ExecuteSimpleSQL(
         "CREATE INDEX messages_date ON messages(date);"_ns);

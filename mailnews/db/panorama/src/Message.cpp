@@ -20,18 +20,21 @@ NS_IMPL_ISUPPORTS(Message, nsIMsgDBHdr)
 
 Message::Message(MessageDatabase* aDatabase, mozIStorageStatement* aStmt)
     : mDatabase(aDatabase) {
+  // The order of these fields is set in MESSAGE_SQL_FIELDS.
   uint32_t len;
   mId = aStmt->AsInt64(0);
   mFolderId = aStmt->AsInt64(1);
-  mMessageId = aStmt->AsSharedUTF8String(2, &len);
-  mDate = aStmt->AsDouble(3);
-  mSender = aStmt->AsSharedUTF8String(4, &len);
-  mRecipients = aStmt->AsSharedUTF8String(5, &len);
-  mCcList = aStmt->AsSharedUTF8String(6, &len);
-  mBccList = aStmt->AsSharedUTF8String(7, &len);
-  mSubject = aStmt->AsSharedUTF8String(8, &len);
-  mFlags = aStmt->AsInt64(9);
-  mTags = aStmt->AsSharedUTF8String(10, &len);
+  mThreadId = aStmt->AsInt64(2);
+  mThreadParent = aStmt->AsInt64(3);
+  mMessageId = aStmt->AsSharedUTF8String(4, &len);
+  mDate = aStmt->AsDouble(5);
+  mSender = aStmt->AsSharedUTF8String(6, &len);
+  mRecipients = aStmt->AsSharedUTF8String(7, &len);
+  mCcList = aStmt->AsSharedUTF8String(8, &len);
+  mBccList = aStmt->AsSharedUTF8String(9, &len);
+  mSubject = aStmt->AsSharedUTF8String(10, &len);
+  mFlags = aStmt->AsInt64(11);
+  mTags = aStmt->AsSharedUTF8String(12, &len);
 }
 
 NS_IMETHODIMP Message::SetStringProperty(const char* propertyName,
@@ -128,7 +131,8 @@ NS_IMETHODIMP Message::AndFlags(uint32_t aFlags, uint32_t* aOutFlags) {
   return mDatabase->SetMessageFlags(mId, mFlags);
 }
 NS_IMETHODIMP Message::GetThreadId(nsMsgKey* aThreadId) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  *aThreadId = mThreadId;
+  return NS_OK;
 }
 NS_IMETHODIMP Message::SetThreadId(nsMsgKey aThreadId) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -141,7 +145,8 @@ NS_IMETHODIMP Message::SetMessageKey(nsMsgKey aMessageKey) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetThreadParent(nsMsgKey* aThreadParent) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  *aThreadParent = mThreadParent;
+  return NS_OK;
 }
 NS_IMETHODIMP Message::SetThreadParent(nsMsgKey aThreadParent) {
   return NS_ERROR_NOT_IMPLEMENTED;

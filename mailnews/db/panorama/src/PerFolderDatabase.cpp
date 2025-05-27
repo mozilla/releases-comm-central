@@ -261,11 +261,10 @@ NS_IMETHODIMP PerFolderDatabase::ReverseEnumerateMessages(
 NS_IMETHODIMP PerFolderDatabase::EnumerateThreads(
     nsIMsgThreadEnumerator** aEnumerator) {
   nsCOMPtr<mozIStorageStatement> stmt;
-  nsresult rv =
-      DatabaseCore::GetStatement("GetAllMessages"_ns,
-                                 "SELECT "_ns MESSAGE_SQL_FIELDS
-                                 " FROM messages WHERE folderId = :folderId"_ns,
-                                 getter_AddRefs(stmt));
+  nsresult rv = DatabaseCore::GetStatement(
+      "GetMessageThreads"_ns,
+      "SELECT threadId, MAX(date) AS maxDate FROM messages WHERE folderId = :folderId GROUP BY threadId"_ns,
+      getter_AddRefs(stmt));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<mozIStorageStatement> stmtClone;
@@ -275,7 +274,7 @@ NS_IMETHODIMP PerFolderDatabase::EnumerateThreads(
   stmtClone->BindInt64ByName("folderId"_ns, mFolderId);
 
   RefPtr<ThreadEnumerator> enumerator =
-      new ThreadEnumerator(mMessageDatabase, stmtClone);
+      new ThreadEnumerator(mMessageDatabase, stmtClone, mFolderId);
   enumerator.forget(aEnumerator);
   return NS_OK;
 }
@@ -293,7 +292,8 @@ NS_IMETHODIMP PerFolderDatabase::GetThreadContainingMsgHdr(
   NS_ENSURE_ARG_POINTER(thread);
 
   Message* message = (Message*)(msgHdr);
-  NS_ADDREF(*thread = new Thread(message));
+  NS_ADDREF(*thread =
+                new Thread(mMessageDatabase, mFolderId, message->mThreadId));
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::MarkNotNew(nsMsgKey aKey,
@@ -630,8 +630,9 @@ NS_IMETHODIMP MessageEnumerator::HasMoreElements(bool* aHasNext) {
 }
 
 ThreadEnumerator::ThreadEnumerator(MessageDatabase* messageDatabase,
-                                   mozIStorageStatement* stmt)
-    : mMessageDatabase(messageDatabase), mStmt(stmt) {
+                                   mozIStorageStatement* stmt,
+                                   uint64_t folderId)
+    : mMessageDatabase(messageDatabase), mStmt(stmt), mFolderId(folderId) {
   mStmt->ExecuteStep(&mHasNext);
 }
 
@@ -643,8 +644,11 @@ NS_IMETHODIMP ThreadEnumerator::GetNext(nsIMsgThread** item) {
     return NS_ERROR_FAILURE;
   }
 
-  RefPtr<Message> message = new Message(mMessageDatabase, mStmt);
-  RefPtr<Thread> thread = new Thread(message);
+  uint64_t threadId = mStmt->AsInt64(0);
+  uint64_t maxDate = mStmt->AsDouble(1);
+
+  RefPtr<Thread> thread =
+      new Thread(mMessageDatabase, mFolderId, threadId, maxDate);
   thread.forget(item);
   mStmt->ExecuteStep(&mHasNext);
   return NS_OK;

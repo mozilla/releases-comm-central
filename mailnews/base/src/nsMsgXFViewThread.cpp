@@ -65,18 +65,6 @@ nsMsgXFViewThread::SetFlags(uint32_t aFlags) {
 }
 
 NS_IMETHODIMP
-nsMsgXFViewThread::SetSubject(const nsACString& aSubject) {
-  NS_ASSERTION(false, "shouldn't call this");
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP
-nsMsgXFViewThread::GetSubject(nsACString& result) {
-  NS_ASSERTION(false, "shouldn't call this");
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP
 nsMsgXFViewThread::GetNumChildren(uint32_t* aNumChildren) {
   NS_ENSURE_ARG_POINTER(aNumChildren);
   *aNumChildren = m_keys.Length();

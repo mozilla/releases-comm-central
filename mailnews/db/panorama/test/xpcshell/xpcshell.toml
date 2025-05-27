@@ -48,3 +48,5 @@ support-files = [
 ["test_sort.js"]
 
 ["test_sqlFunctions.js"]
+
+["test_threads.js"]

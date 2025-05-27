@@ -14,7 +14,7 @@ interface nsIDBChangeAnnouncer;
 interface nsIMsgThread : nsISupports {
   attribute nsMsgKey threadKey;
   attribute unsigned long flags;
-  attribute AUTF8String subject;
+  /** Date of the newest message in seconds since the Unix epoch. */
   attribute unsigned long newestMsgDate;
 
   readonly attribute unsigned long numChildren;
@@ -38,5 +38,6 @@ interface nsIMsgThread : nsISupports {
 
   nsIMsgDBHdr getFirstUnreadChild();
 
+  /** Enumerate only the children of `parent`. */
   nsIMsgEnumerator enumerateMessages(in nsMsgKey parent);
 };

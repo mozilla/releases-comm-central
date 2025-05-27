@@ -148,22 +148,6 @@ NS_IMETHODIMP nsMsgThread::SetFlags(uint32_t flags) {
       m_metaRow, m_mdbDB->m_threadFlagsColumnToken, m_flags);
 }
 
-NS_IMETHODIMP nsMsgThread::SetSubject(const nsACString& aSubject) {
-  return m_mdbDB->CharPtrToRowCellColumn(m_metaRow,
-                                         m_mdbDB->m_threadSubjectColumnToken,
-                                         PromiseFlatCString(aSubject).get());
-}
-
-NS_IMETHODIMP nsMsgThread::GetSubject(nsACString& aSubject) {
-  nsCString subjectStr;
-  nsresult rv = m_mdbDB->RowCellColumnToCharPtr(
-      m_metaRow, m_mdbDB->m_threadSubjectColumnToken,
-      getter_Copies(subjectStr));
-
-  aSubject.Assign(subjectStr);
-  return rv;
-}
-
 NS_IMETHODIMP nsMsgThread::GetNumChildren(uint32_t* result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = m_numChildren;

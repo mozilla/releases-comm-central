@@ -48,6 +48,8 @@ function installDB(sql) {
     CREATE TABLE messages (
       id INTEGER PRIMARY KEY,
       folderId INTEGER REFERENCES folders(id),
+      threadId INTEGER REFERENCES messages(id),
+      threadParent INTEGER REFERENCES messages(id),
       messageId TEXT,
       date INTEGER,
       sender TEXT,
