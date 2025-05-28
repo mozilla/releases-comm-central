@@ -84,13 +84,7 @@ class nsMsgSearchAdapter : public nsIMsgSearchAdapter {
 
  protected:
   virtual ~nsMsgSearchAdapter();
-  typedef enum _msg_TransformType {
-    kOverwrite, /* "John Doe" -> "John*Doe",   simple contains   */
-    kInsert,    /* "John Doe" -> "John* Doe",  name completion   */
-    kSurround   /* "John Doe" -> "John* *Doe", advanced contains */
-  } msg_TransformType;
 
-  char* TransformSpacesToStars(const char*, msg_TransformType transformType);
   nsresult OpenNewsResultInUnknownGroup(nsMsgResultElement*);
 
   static nsresult EncodeImapTerm(nsIMsgSearchTerm*, bool reallyDredd,

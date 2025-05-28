@@ -610,51 +610,6 @@ nsresult nsMsgSearchAdapter::EncodeImap(
   return err;
 }
 
-char* nsMsgSearchAdapter::TransformSpacesToStars(
-    const char* spaceString, msg_TransformType transformType) {
-  char* starString;
-
-  if (transformType == kOverwrite) {
-    if ((starString = strdup(spaceString)) != nullptr) {
-      char* star = starString;
-      while ((star = PL_strchr(star, ' ')) != nullptr) *star = '*';
-    }
-  } else {
-    int i, count;
-
-    for (i = 0, count = 0; spaceString[i];) {
-      if (spaceString[i++] == ' ') {
-        count++;
-        while (spaceString[i] && spaceString[i] == ' ') i++;
-      }
-    }
-
-    if (transformType == kSurround) count *= 2;
-
-    if (count > 0) {
-      if ((starString = (char*)PR_Malloc(i + count + 1)) != nullptr) {
-        int j;
-
-        for (i = 0, j = 0; spaceString[i];) {
-          if (spaceString[i] == ' ') {
-            starString[j++] = '*';
-            starString[j++] = ' ';
-            if (transformType == kSurround) starString[j++] = '*';
-
-            i++;
-            while (spaceString[i] && spaceString[i] == ' ') i++;
-          } else
-            starString[j++] = spaceString[i++];
-        }
-        starString[j] = 0;
-      }
-    } else
-      starString = strdup(spaceString);
-  }
-
-  return starString;
-}
-
 //-----------------------------------------------------------------------------
 //------------------- Validity checking for menu items etc. -------------------
 //-----------------------------------------------------------------------------
