@@ -291,23 +291,6 @@ export var EnigmailFuncs = {
   },
 
   /**
-   * Get the nsIMsgAccount associated with a given nsIMsgIdentity
-   *
-   * @param {?nsIMsgIdentity} identity
-   * @returns {?nsIMsgAccount}
-   */
-  getAccountForIdentity(identity) {
-    for (const ac of MailServices.accounts.accounts) {
-      for (const id of ac.identities) {
-        if (id.key === identity.key) {
-          return ac;
-        }
-      }
-    }
-    return null;
-  },
-
-  /**
    * Get the default identity of the default account.
    *
    * @returns {?nsIMsgIdentity}
