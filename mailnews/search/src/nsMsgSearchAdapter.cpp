@@ -138,17 +138,6 @@ char16_t* nsMsgSearchAdapter::EscapeImapSearchProtocol(
   return imapCommand ? NS_xstrdup(imapCommand) : nullptr;
 }
 
-/*
-   09/21/2000 - taka@netscape.com
-   This method is bogus. Escape must be done against char * not char16_t *
-   should be rewritten later.
-   for now, just duplicate the string.
-*/
-char16_t* nsMsgSearchAdapter::EscapeQuoteImapSearchProtocol(
-    const char16_t* imapCommand) {
-  return imapCommand ? NS_xstrdup(imapCommand) : nullptr;
-}
-
 nsresult nsMsgSearchAdapter::GetSearchCharset(nsAString& dstCharset) {
   nsresult rv;
   bool forceAsciiSearch = false;
