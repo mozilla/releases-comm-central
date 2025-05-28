@@ -62,6 +62,20 @@ using mozilla::Preferences;
 // nsLocal
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * The list of expected local default folders and their flags.
+ */
+constexpr std::array<std::pair<nsLiteralCString, unsigned>, 8> kDefaultFolders{
+    std::make_pair("Inbox"_ns, nsMsgFolderFlags::Inbox),
+    std::make_pair("Sent"_ns, nsMsgFolderFlags::SentMail),
+    std::make_pair("Drafts"_ns, nsMsgFolderFlags::Drafts),
+    std::make_pair("Templates"_ns, nsMsgFolderFlags::Templates),
+    std::make_pair("Trash"_ns, nsMsgFolderFlags::Trash),
+    std::make_pair("Unsent Messages"_ns, nsMsgFolderFlags::Queue),
+    std::make_pair("Junk"_ns, nsMsgFolderFlags::Junk),
+    std::make_pair("Archives"_ns, nsMsgFolderFlags::Archive),
+};
+
 nsLocalMailCopyState::nsLocalMailCopyState()
     : m_flags(0),
       m_lastProgressTime(PR_IntervalToMilliseconds(PR_IntervalNow())),
@@ -2981,43 +2995,20 @@ nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg() {
 
 NS_IMETHODIMP
 nsMsgLocalMailFolder::SetFlagsOnDefaultMailboxes(uint32_t flags) {
-  if (flags & nsMsgFolderFlags::Inbox)
-    setSubfolderFlag("Inbox"_ns, nsMsgFolderFlags::Inbox);
+  for (auto&& [folderName, folderFlag] : kDefaultFolders) {
+    if (flags & folderFlag) {
+      nsCOMPtr<nsIMsgFolder> msgFolder;
+      nsresult rv = GetChildNamed(folderName, getter_AddRefs(msgFolder));
+      NS_ENSURE_SUCCESS(rv, rv);
 
-  if (flags & nsMsgFolderFlags::SentMail)
-    setSubfolderFlag("Sent"_ns, nsMsgFolderFlags::SentMail);
-
-  if (flags & nsMsgFolderFlags::Drafts)
-    setSubfolderFlag("Drafts"_ns, nsMsgFolderFlags::Drafts);
-
-  if (flags & nsMsgFolderFlags::Templates)
-    setSubfolderFlag("Templates"_ns, nsMsgFolderFlags::Templates);
-
-  if (flags & nsMsgFolderFlags::Trash)
-    setSubfolderFlag("Trash"_ns, nsMsgFolderFlags::Trash);
-
-  if (flags & nsMsgFolderFlags::Queue)
-    setSubfolderFlag("Unsent Messages"_ns, nsMsgFolderFlags::Queue);
-
-  if (flags & nsMsgFolderFlags::Junk)
-    setSubfolderFlag("Junk"_ns, nsMsgFolderFlags::Junk);
-
-  if (flags & nsMsgFolderFlags::Archive)
-    setSubfolderFlag("Archives"_ns, nsMsgFolderFlags::Archive);
-
-  return NS_OK;
-}
-
-void nsMsgLocalMailFolder::setSubfolderFlag(const nsACString& aFolderName,
-                                            uint32_t flags) {
-  nsCOMPtr<nsIMsgFolder> msgFolder;
-  nsresult rv = GetChildNamed(aFolderName, getter_AddRefs(msgFolder));
-  if (NS_FAILED(rv) || !msgFolder) {
-    return;
+      // Only set the flag if the folder exists.
+      if (msgFolder) {
+        rv = msgFolder->SetFlag(flags);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
+    }
   }
-
-  rv = msgFolder->SetFlag(flags);
-  NS_ENSURE_SUCCESS_VOID(rv);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
