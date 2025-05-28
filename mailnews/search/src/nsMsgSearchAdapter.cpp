@@ -29,6 +29,7 @@
 
 // This stuff lives in the base class because the IMAP search syntax
 // is used by the Dredd SEARCH command as well as IMAP itself
+// TODO: dredd never used now, rework!
 
 // km - the NOT and HEADER strings are not encoded with a trailing
 //      <space> because they always precede a mnemonic that has a
@@ -53,7 +54,6 @@ const char* nsMsgSearchAdapter::m_kImapSeen = " SEEN ";
 const char* nsMsgSearchAdapter::m_kImapAnswered = " ANSWERED ";
 const char* nsMsgSearchAdapter::m_kImapNotSeen = " UNSEEN ";
 const char* nsMsgSearchAdapter::m_kImapNotAnswered = " UNANSWERED ";
-const char* nsMsgSearchAdapter::m_kImapCharset = " CHARSET ";
 const char* nsMsgSearchAdapter::m_kImapSizeSmaller = " SMALLER ";
 const char* nsMsgSearchAdapter::m_kImapSizeLarger = " LARGER ";
 const char* nsMsgSearchAdapter::m_kImapNew = " NEW ";
@@ -104,17 +104,6 @@ NS_IMETHODIMP nsMsgSearchAdapter::AddResultElement(nsIMsgDBHdr* pHeaders) {
 NS_IMETHODIMP nsMsgSearchAdapter::AddHit(nsMsgKey key) {
   NS_ASSERTION(false, "shouldn't call this base class impl");
   return NS_ERROR_FAILURE;
-}
-
-char* nsMsgSearchAdapter::GetImapCharsetParam(const char16_t* destCharset) {
-  char* result = nullptr;
-
-  // Specify a character set unless we happen to be US-ASCII.
-  if (NS_strcmp(destCharset, u"us-ascii"))
-    result = PR_smprintf("%s%s", nsMsgSearchAdapter::m_kImapCharset,
-                         NS_ConvertUTF16toUTF8(destCharset).get());
-
-  return result;
 }
 
 /*

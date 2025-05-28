@@ -102,7 +102,12 @@ nsresult nsMsgSearchOnlineMail::Encode(
 
   const char16_t* usAsciiCharSet = u"us-ascii";
   // Get the optional CHARSET parameter, in case we need it.
-  char* csname = GetImapCharsetParam(asciiOnly ? usAsciiCharSet : destCharset);
+  nsCString charsetParam;
+  if (!asciiOnly && NS_strcmp(destCharset, u"us-ascii")) {
+    // Specify a character set unless we happen to be US-ASCII.
+    charsetParam.Append(" CHARSET "_ns);
+    charsetParam.Append(NS_ConvertUTF16toUTF8(destCharset));
+  }
 
   // We do not need "srcCharset" since the search term in always unicode.
   // I just pass destCharset for both src and dest charset instead of removing
@@ -113,7 +118,7 @@ nsresult nsMsgSearchOnlineMail::Encode(
                                      asciiOnly ? usAsciiCharSet : destCharset);
   if (NS_SUCCEEDED(err)) {
     pEncoding.AppendLiteral("SEARCH");
-    if (csname) {
+    if (!charsetParam.IsEmpty()) {
       // We have a "CHARSET <name>" string which is typically appended to
       // "SEARCH". But don't append it if server has UTF8=ACCEPT enabled.
       nsCOMPtr<nsIMsgFolder> folder;
@@ -122,11 +127,10 @@ nsresult nsMsgSearchOnlineMail::Encode(
       nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder);
       bool utf8AcceptEnabled = false;
       imapFolder->GetShouldUseUtf8FolderName(&utf8AcceptEnabled);
-      if (!utf8AcceptEnabled) pEncoding.Append(csname);
+      if (!utf8AcceptEnabled) pEncoding.Append(charsetParam);
     }
     pEncoding.Append(imapTerms);
   }
-  PR_FREEIF(csname);
   return err;
 }
 
