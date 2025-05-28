@@ -390,6 +390,9 @@ async function enigmailDeleteKey() {
   gUserList.view.selection.clearSelection();
 }
 
+/**
+ * Use for Send Public Key(s) By Email.
+ */
 async function enigCreateKeyMsg() {
   var keyList = getSelectedKeyIds();
   var tmpFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
@@ -419,8 +422,7 @@ async function enigCreateKeyMsg() {
   }
 
   // create attachment
-  var ioServ = Services.io;
-  var tmpFileURI = ioServ.newFileURI(tmpFile);
+  var tmpFileURI = Services.io.newFileURI(tmpFile);
   var keyAttachment = Cc[
     "@mozilla.org/messengercompose/attachment;1"
   ].createInstance(Ci.nsIMsgAttachment);
@@ -447,7 +449,7 @@ async function enigCreateKeyMsg() {
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   msgCompParam.composeFields = msgCompFields;
-  msgCompParam.identity = EnigmailFuncs.getDefaultIdentity();
+  msgCompParam.identity = MailServices.accounts.defaultAccount?.defaultIdentity;
   msgCompParam.type = Ci.nsIMsgCompType.New;
   msgCompParam.format = Ci.nsIMsgCompFormat.Default;
   msgCompParam.originalMsgURI = "";

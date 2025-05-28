@@ -291,36 +291,6 @@ export var EnigmailFuncs = {
   },
 
   /**
-   * Get the default identity of the default account.
-   *
-   * @returns {?nsIMsgIdentity}
-   */
-  getDefaultIdentity() {
-    try {
-      let ac;
-      if (MailServices.accounts.defaultAccount) {
-        ac = MailServices.accounts.defaultAccount;
-      } else {
-        for (ac of MailServices.accounts.accounts) {
-          if (
-            ac.incomingServer.type === "imap" ||
-            ac.incomingServer.type === "pop3"
-          ) {
-            break;
-          }
-        }
-      }
-
-      if (ac.defaultIdentity) {
-        return ac.defaultIdentity;
-      }
-      return ac.identities[0];
-    } catch (x) {
-      return null;
-    }
-  },
-
-  /**
    * Get a mail URL from a uriSpec.
    *
    * @param {string} uriSpec - URL spec of the desired message.
