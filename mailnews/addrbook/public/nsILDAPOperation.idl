@@ -112,15 +112,6 @@ interface nsILDAPOperation : nsISupports
                   in ACString authModuleType);
 
     /**
-     * Continue a SASL bind operation
-     *
-     * @param token     the next SASL token to send to the server
-     * @param tokenLen  the length of the token to send
-     *
-     */
-    void saslStep(in string token, in unsigned long tokenLen);
-
-    /**
      * Kicks off an asynchronous delete request.  The "ext" stands for
      * "extensions", and is intended to convey that this method will
      * eventually support the extensions described in the
