@@ -106,16 +106,6 @@ NS_IMETHODIMP nsMsgSearchAdapter::AddHit(nsMsgKey key) {
   return NS_ERROR_FAILURE;
 }
 
-/*
-   09/21/2000 - taka@netscape.com
-   This method is bogus. Escape must be done against char * not char16_t *
-   should be rewritten later.
-   for now, just duplicate the string.
-*/
-char16_t* nsMsgSearchAdapter::EscapeSearchUrl(const char16_t* nntpCommand) {
-  return nntpCommand ? NS_xstrdup(nntpCommand) : nullptr;
-}
-
 nsresult nsMsgSearchAdapter::GetSearchCharset(nsAString& dstCharset) {
   nsresult rv;
   bool forceAsciiSearch = false;
