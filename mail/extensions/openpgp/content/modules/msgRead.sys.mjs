@@ -11,7 +11,6 @@
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
-  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
 });
 
 export var EnigmailMsgRead = {
@@ -183,45 +182,6 @@ export var EnigmailMsgRead = {
     }
 
     return text;
-  },
-
-  /**
-   * Match the key to the sender's from address.
-   *
-   * @param {string} keyId - Signing key ID
-   * @param {string} fromAddr - Sender's email address.
-   *
-   * @returns {?Promise<string>} the matching email address
-   */
-  matchUidToSender(keyId, fromAddr) {
-    if (!fromAddr || !keyId) {
-      return null;
-    }
-
-    try {
-      fromAddr = lazy.EnigmailFuncs.stripEmail(fromAddr).toLowerCase();
-    } catch (e) {}
-
-    const keyObj = lazy.EnigmailKeyRing.getKeyById(keyId);
-    if (!keyObj) {
-      return null;
-    }
-
-    const userIdList = keyObj.userIds;
-
-    try {
-      for (let i = 0; i < userIdList.length; i++) {
-        if (
-          fromAddr ==
-          lazy.EnigmailFuncs.stripEmail(userIdList[i].userId).toLowerCase()
-        ) {
-          return lazy.EnigmailFuncs.stripEmail(userIdList[i].userId);
-        }
-      }
-    } catch (e) {
-      // stripEmail can throw
-    }
-    return null;
   },
 
   searchQuotedPgp(node) {
