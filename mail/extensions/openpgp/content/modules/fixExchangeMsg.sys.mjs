@@ -11,6 +11,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
     "chrome://openpgp/content/modules/persistentCrypto.sys.mjs",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.sys.mjs",
   getMimeTree: "chrome://openpgp/content/modules/MimeTree.sys.mjs",
+  MimeParser: "resource:///modules/mimeParser.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
@@ -176,8 +177,10 @@ export var EnigmailFixExchangeMsg = {
           if (endOfCTL) {
             // we got the complete content-type header
             contentTypeLine = contentTypeLine.replace(/[\r\n]/g, "");
-            const h = lazy.EnigmailFuncs.getHeaderData(contentTypeLine);
-            boundary = h.boundary || "";
+            boundary =
+              lazy.MimeParser.extractHeaders(contentTypeLine)
+                .get("content-type")
+                ?.get("boundary") || "";
             break;
           }
         }

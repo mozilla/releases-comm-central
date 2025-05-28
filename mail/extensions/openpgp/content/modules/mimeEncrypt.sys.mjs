@@ -14,6 +14,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   jsmime: "resource:///modules/jsmime.sys.mjs",
+  MimeParser: "resource:///modules/mimeParser.sys.mjs",
 });
 
 const MIME_SIGNED = 1; // only one MIME layer
@@ -514,10 +515,13 @@ PgpMimeEncrypt.prototype = {
             }
           }
         } else if (this.mimeStructure == MIME_SIGNED) {
-          const ct = this.getHeader("content-type", true);
-          const hdr = lazy.EnigmailFuncs.getHeaderData(ct);
-          hdr.boundary = hdr.boundary || "";
-          hdr.boundary = hdr.boundary.replace(/^(['"])(.*)(\1)$/, "$2");
+          const ct = "Content-Type: " + this.getHeader("content-type", true);
+          const hdr = lazy.MimeParser.extractHeaders(ct).get("content-type");
+          // eslint-disable-next-line no-unused-vars
+          const boundary = hdr
+            ?.get("boundary")
+            ?.replace(/^(['"])(.*)(\1)$/, "$2");
+          // FIXME: well, what about it? This ^^^  doesn't do anything...
         }
 
         this.appendToCryptoInput(this.headerData);

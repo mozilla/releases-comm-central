@@ -17,6 +17,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
   RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
   DecryptVerifyResult: "chrome://openpgp/content/modules/RNP.sys.mjs",
+  MimeParser: "resource:///modules/mimeParser.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
@@ -125,27 +126,19 @@ MimeVerify.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
 
   parseContentType() {
-    let contentTypeLine = this.mimeSvc.contentType;
-
-    // Eat up CRLF's.
-    contentTypeLine = contentTypeLine.replace(/[\r\n]/g, "");
-    lazy.log.debug(`Parsed contentTypeLine: ${contentTypeLine}`);
-
-    const protoRx = RegExp(
-      "protocol\\s*=\\s*[\\'\\\"]" + this.protocol + "[\\\"\\']",
-      "i"
-    );
+    const contentTypeLine = `Content-Type: ${this.mimeSvc.contentType}`;
+    const header =
+      lazy.MimeParser.extractHeaders(contentTypeLine).get("content-type");
 
     if (
-      contentTypeLine.search(/multipart\/signed/i) >= 0 &&
-      contentTypeLine.search(protoRx) > 0
+      header.type == "multipart/signed" &&
+      header.get("protocol")?.toLowerCase() == this.protocol
     ) {
       this.foundMsg = true;
-      const hdr = lazy.EnigmailFuncs.getHeaderData(contentTypeLine);
-      hdr.boundary = hdr.boundary || "";
-      hdr.micalg = hdr.micalg || "";
-      lazy.log.debug(`Found signed MIME message; micalg=${hdr.micalg}`);
-      this.boundary = hdr.boundary.replace(/^(['"])(.*)(\1)$/, "$2");
+      const boundary = header?.get("boundary") || "";
+      const micalg = header?.get("micalg") || "";
+      lazy.log.debug(`Found signed MIME message; micalg=${micalg}`);
+      this.boundary = boundary.replace(/^(['"])(.*)(\1)$/, "$2");
     }
   },
 

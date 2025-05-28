@@ -168,40 +168,6 @@ export var EnigmailFuncs = {
   },
 
   /**
-   * Extract the data fields following a header.
-   * e.g. ContentType: xyz; Aa=b; cc=d
-   *
-   * @param {string} data - Data containing a single header.
-   * @returns {object[][]} and array of arrays containing pairs of aa/b and cc/d
-   */
-  getHeaderData(data) {
-    var a = data.split(/\n/);
-    var res = [];
-    for (let i = 0; i < a.length; i++) {
-      if (a[i].length === 0) {
-        break;
-      }
-      const b = a[i].split(/;/);
-
-      // extract "abc = xyz" tuples
-      for (let j = 0; j < b.length; j++) {
-        const m = b[j].match(/^(\s*)([^=\s;]+)(\s*)(=)(\s*)(.*)(\s*)$/);
-        if (m) {
-          // m[2]: identifier / m[6]: data
-          res[m[2].toLowerCase()] = m[6].replace(/\s*$/, "");
-        }
-      }
-      if (i === 0 && !a[i].includes(";")) {
-        break;
-      }
-      if (i > 0 && a[i].search(/^\s/) < 0) {
-        break;
-      }
-    }
-    return res;
-  },
-
-  /**
    * Get the text for the encrypted subject.
    *
    * @returns {string}
