@@ -30,11 +30,25 @@ interface nsIFolderLookupService : nsISupports
   nsIMsgFolder getFolderForURL(in AUTF8String aUrl);
 
   /**
-   * Returns a folder with the given URL.
-   * Will happily create and return an invalid (unparented) folder.
-   * Will return null if aUrl is not a folder url.
-   * NOTE: don't use this for new code! It's here purely to help
-   * transition away from RDF-based folder creation.
+   * Creates and returns a new folder with the given parent folder.
+   *
+   * Implementations of this interface MUST set `parentFolder` to be the parent
+   * of the newly created folder.
+   *
+   * @param parentFolder The parent folder.
+   * @param urlEncodedName The name of the folder to create, URL encoded.
+   */
+  nsIMsgFolder createFolderAndCache(in nsIMsgFolder parentFolder, in AUTF8String urlEncodedName);
+
+  /**
+   * @deprecated (Bug 1679333). Use either `getFolderForURL` or
+   * `createFolderAndCache` to explicitly get an existing folder or create a new
+   * folder instead.
+   *
+   * Returns a folder with the given URL.  Will happily create and return an
+   * invalid (unparented) folder.  Will return null if aUrl is not a folder url.
+   * NOTE: don't use this for new code! It's here purely to help transition away
+   * from RDF-based folder creation.
    *
    * @param aUrl The folder URL
    */

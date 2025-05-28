@@ -44,26 +44,13 @@ FolderLookupService.prototype = {
   },
 
   /**
-   * Fetch the folder corresponding to the given URI, creating it if it does
-   * not exist. If the folder is created, it will be a "dangling" folder,
-   * without a parent and not part of a normal folder hierarchy.
-   * A lot of code relies on this behaviour, but for new code this
-   * call should probably be avoided.
+   * Internal helper to create a new folder given a URL and place it
+   * in the cache. The newly created folder will be dangling and
+   * needs to be parented by a calling function.
    *
-   * @param {string} uri - URI of folder to get.
-   * @returns {nsIMsgFolder}
+   * @param {string} uri - The URI of the folder to create.
    */
-  getOrCreateFolderForURL(uri) {
-    let folder = this._getExisting(uri);
-
-    try {
-      if (folder?.server?.type) {
-        // The folder object exists and it has a server with a type,
-        // indicating that the server hasn't been removed.
-        return folder;
-      }
-    } catch {}
-
+  _createDangling(uri) {
     if (Services.prefs.getBoolPref("mail.panorama.enabled", false)) {
       throw new Error("refusing to create a folder object for " + uri);
     }
@@ -96,7 +83,7 @@ FolderLookupService.prototype = {
       return null;
     }
 
-    folder = factory.createInstance(Ci.nsIMsgFolder);
+    const folder = factory.createInstance(Ci.nsIMsgFolder);
     if (folder) {
       folder.Init(uri);
       // Add the new folder to our map. Store a weak reference instead, so that
@@ -108,6 +95,91 @@ FolderLookupService.prototype = {
     }
 
     return folder;
+  },
+
+  /**
+   * Return a newly created folder as a subfolder of the given parent folder.
+   *
+   * @param {nsIMsgFolder} parentFolder - The parent folder.
+   * @param {string} name - The URL encoded name of the folder to create.
+   *
+   * @returns {nsIMsgFolder} The newly created folder.
+   */
+  createFolderAndCache(parentFolder, name) {
+    if (!parentFolder) {
+      throw new Components.Exception(
+        "invalid parent folder",
+        Cr.NS_ERROR_INVALID_ARG
+      );
+    }
+
+    // Make sure the parent folder is already cached.
+    if (!this._getExisting(parentFolder.URI)) {
+      throw new Components.Exception(
+        "invalid parent folder",
+        Cr.NS_ERROR_INVALID_ARG
+      );
+    }
+
+    // Construct the URI for the new folder given the parent folder's URI.
+    const uri = parentFolder.URI + "/" + name;
+
+    // If we already have a folder in the cache for this URI, then return it.
+    // NOTE: The proper thing to do here is to fail if we're trying to create a
+    // folder that already exists and force management of the cache. However,
+    // the cache currently also has the side effect of enforcing identity
+    // equality by pointer for folders with the same URI, which is relied upon
+    // throughout the codebase. This function is still an improvement over
+    // `getOrCreateFromURL` because it enforces that folders all have a valid
+    // parent folder, so they can't dangle. This also has the side effect of
+    // maintaining any previously existing flags, but again, the code relies on
+    // that maintenance.
+    const folder = this._getExisting(uri) ?? this._createDangling(uri);
+
+    // If there is no folder at this point, that means we failed to create
+    // the dangling folder, return an error.
+    if (!folder) {
+      throw new Components.Exception(
+        "Failed to create folder.",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+
+    // If the existing folder object has a parent, make sure it's the same parent.
+    if (folder.parent && folder.parent != parentFolder) {
+      throw new Components.Exception(
+        `Folder ${name} cached parent is not the same as the provided parent`,
+        Cr.NS_ERROR_INVALID_ARG
+      );
+    }
+
+    // Either the folder existed and had the correct parent or was dangling, or
+    // we created a dangling folder.  Either way, it needs its parent assigned.
+    folder.parent = parentFolder;
+
+    return folder;
+  },
+
+  /**
+   * Fetch the folder corresponding to the given URI, creating it if it does
+   * not exist. If the folder is created, it will be a "dangling" folder,
+   * without a parent and not part of a normal folder hierarchy.
+   * A lot of code relies on this behaviour, but for new code this
+   * call should be avoided.
+   *
+   * @param {string} uri - URI of folder to get.
+   * @returns {nsIMsgFolder}
+   */
+  getOrCreateFolderForURL(uri) {
+    const folder = this._getExisting(uri);
+
+    if (folder?.server?.type) {
+      // The folder object exists and it has a server with a type,
+      // indicating that the server hasn't been removed.
+      return folder;
+    }
+
+    return this._createDangling(uri);
   },
 
   /**
@@ -139,7 +211,7 @@ FolderLookupService.prototype = {
    *
    * @param {string} uri - URI of folder to look up.
    *
-   * @returns {nsIMsgFolder|null} - The folder, if in the index, else null.
+   * @returns {nsIMsgFolder|null} The folder, if in the index, else null.
    */
   _getExisting(uri) {
     let folder = null;
@@ -165,7 +237,7 @@ FolderLookupService.prototype = {
    * an exception if we attempted to create a server that doesn't exist, so we
    * need to guard for that error.
    *
-   * @returns {boolean} - true if folder valid (and parented).
+   * @returns {boolean} true if folder valid (and parented).
    */
   _isValidFolder(folder) {
     try {

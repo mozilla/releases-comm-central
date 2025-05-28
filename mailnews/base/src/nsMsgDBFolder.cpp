@@ -3287,12 +3287,14 @@ NS_IMETHODIMP nsMsgDBFolder::PropagateDelete(nsIMsgFolder* folder,
         mSubFolders.RemoveObjectAt(i);
         NotifyFolderRemoved(child);
         break;
-      } else  // setting parent back if we failed
-        child->SetParent(this);
-    } else
+      }
+      // setting parent back if we failed
+      child->SetParent(this);
+    } else {
       rv = child->PropagateDelete(folder, deleteStorage);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
   }
-
   return rv;
 }
 
@@ -3416,30 +3418,17 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
     nsCOMPtr<nsIInitableWithFolder> initable = do_QueryInterface(folder);
     rv = initable->InitWithFolder(dbFolder);
     NS_ENSURE_SUCCESS(rv, rv);
+
+    folder->SetParent(this);
   } else {
 #endif  // MOZ_PANORAMA
-    // URI should use UTF-8
-    // (see RFC2396 Uniform Resource Identifiers (URI): Generic Syntax)
-    nsAutoCString escapedName;
-    rv = NS_MsgEscapeEncodeURLPath(actualName, escapedName);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsAutoCString uri(mURI);
-    uri.Append('/');
-    uri += escapedName.get();
-
-    nsCOMPtr<nsIMsgFolder> msgFolder;
-    rv = GetChildWithURI(uri, false /*deep*/, true /*case Insensitive*/,
-                         getter_AddRefs(msgFolder));
-    if (NS_SUCCEEDED(rv) && msgFolder) return NS_MSG_FOLDER_EXISTS;
-
-    rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
+    rv = CreateFolderAndCache(this, actualName, getter_AddRefs(folder));
     NS_ENSURE_SUCCESS(rv, rv);
 #ifdef MOZ_PANORAMA
   }
 #endif  // MOZ_PANORAMA
   MOZ_ASSERT(folder, "there must be a folder");
 
-  folder->SetParent(this);
   mSubFolders.AppendObject(folder);
   folder->SetFlag(flags | nsMsgFolderFlags::Mail);
   folder.forget(child);

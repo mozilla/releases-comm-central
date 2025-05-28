@@ -110,12 +110,26 @@ nsresult FindFolder(const nsACString& aFolderURI, nsIMsgFolder** aFolder);
 nsresult GetExistingFolder(const nsACString& aFolderURI,
                            nsIMsgFolder** aFolder);
 
-// Get a folder by Uri, creating it if it doesn't already exist.
-// An error is returned if a folder cannot be found or created.
-// Created folders will be 'dangling' folders (ie not connected to a
-// parent).
+// DEPRECATED (Bug 1679333): Use GetExistingFolder or CreateFolder instead.  Get
+// a folder by Uri, creating it if it doesn't already exist.  An error is
+// returned if a folder cannot be found or created.  Created folders will be
+// 'dangling' folders (ie not connected to a parent).
 nsresult GetOrCreateFolder(const nsACString& aFolderURI,
                            nsIMsgFolder** aFolder);
+
+/// Create a new folder with the given name within the given parent.
+///
+/// This function will create a folder within the given parent folder with the
+/// given name. Folders are identified internally using a URI, so the folder
+/// name must be unique as a URI within the parent. This means that not only
+/// must a folder with the given name not exist within the parent, it must also
+/// be the case that the folder URI (which will include the URL encoded path of
+/// the parent and the URL encoded name of the child) must be unique. If a
+/// unique URI cannot be guaranteed, this function will return
+/// `NS_MSG_FOLDER_EXISTS`.
+nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
+                              const nsACString& folderName,
+                              nsIMsgFolder** folder);
 
 // Escape lines starting with "From ", ">From ", etc. in a buffer.
 nsresult EscapeFromSpaceLine(nsIOutputStream* ouputStream, char* start,

@@ -84,6 +84,6 @@ add_task(function () {
   Assert.deepEqual(
     wrappedSmartFolder.searchFolders,
     [trashFolder],
-    "smart virtual folder should still search the trash folder (only)"
+    `smart virtual folder should still search the trash folder (only), but it is searching ${wrappedSmartFolder.searchFolders.map(f => f.name)}`
   );
 });

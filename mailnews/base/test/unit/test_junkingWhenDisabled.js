@@ -66,7 +66,10 @@ gMFListener.prototype = {
 
   folderAdded(aFolder) {
     // this should be a junk folder
-    Assert.ok(aFolder.getFlag(Ci.nsMsgFolderFlags.Junk));
+    Assert.ok(
+      aFolder.getFlag(Ci.nsMsgFolderFlags.Junk),
+      "Folder should have Junk folder flag."
+    );
     this._resolveFolderAdded();
   },
   get promiseMsgsMoveCopyCompleted() {

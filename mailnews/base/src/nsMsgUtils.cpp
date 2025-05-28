@@ -647,6 +647,41 @@ nsresult GetOrCreateFolder(const nsACString& aFolderURI,
   return *aFolder ? NS_OK : NS_ERROR_FAILURE;
 }
 
+nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
+                              const nsACString& folderName,
+                              nsIMsgFolder** folder) {
+  NS_ENSURE_ARG_POINTER(folder);
+
+  nsresult rv;
+  nsCOMPtr<nsIFolderLookupService> fls(do_GetService(NSIFLS_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // URI should use UTF-8
+  // (see RFC2396 Uniform Resource Identifiers (URI): Generic Syntax)
+  nsAutoCString urlEncodedName;
+  rv = NS_MsgEscapeEncodeURLPath(folderName, urlEncodedName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString potentialUri;
+  rv = parentFolder->GetURI(potentialUri);
+  potentialUri.Append("/");
+  potentialUri += urlEncodedName;
+
+  nsCOMPtr<nsIMsgFolder> existingFolder;
+  rv = parentFolder->GetChildWithURI(potentialUri, false, true,
+                                     getter_AddRefs(existingFolder));
+  if (NS_SUCCEEDED(rv) && existingFolder) {
+    return NS_MSG_FOLDER_EXISTS;
+  }
+
+  *folder = nullptr;
+
+  rv = fls->CreateFolderAndCache(parentFolder, urlEncodedName, folder);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return *folder ? NS_OK : NS_ERROR_FAILURE;
+}
+
 bool IsAFromSpaceLine(char* start, const char* end) {
   bool rv = false;
   while ((start < end) && (*start == '>')) start++;
