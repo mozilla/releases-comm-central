@@ -85,8 +85,6 @@ class nsMsgSearchAdapter : public nsIMsgSearchAdapter {
  protected:
   virtual ~nsMsgSearchAdapter();
 
-  nsresult OpenNewsResultInUnknownGroup(nsMsgResultElement*);
-
   static nsresult EncodeImapTerm(nsIMsgSearchTerm*, bool reallyDredd,
                                  const char16_t* srcCharset,
                                  const char16_t* destCharset, char** ppOutTerm);
