@@ -214,7 +214,7 @@ add_task(async function test_open_address_book_account_hub_appmenu() {
   await newViewPromise;
 
   document.getElementById("appmenu_newAccountHubAB").click();
-  const dialog = await subtest_wait_for_account_hub_dialog("address-book");
+  const dialog = await subtest_wait_for_account_hub_dialog("ADDRESS_BOOK");
 
   const closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
   EventUtils.synthesizeKey("KEY_Escape", {});
@@ -240,7 +240,7 @@ add_task(async function test_open_account_hub_address_book_tab() {
     abWindow
   );
 
-  const dialog = await subtest_wait_for_account_hub_dialog("address-book");
+  const dialog = await subtest_wait_for_account_hub_dialog("ADDRESS_BOOK");
 
   const closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
   EventUtils.synthesizeKey("KEY_Escape", {});

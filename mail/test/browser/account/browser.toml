@@ -58,6 +58,8 @@ support-files = ["xml/**"]
 
 ["browser_accountHub.js"]
 
+["browser_accountHubAb.js"]
+
 ["browser_accountHubConfigSelect.js"]
 
 ["browser_accountHubManualConfig.js"]

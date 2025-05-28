@@ -155,6 +155,34 @@
       </div>
     </template>
     <template
+      id="accountHubAddressBookOptionSelectTemplate"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+      <form
+        id="optionSelectForm"
+        class="account-hub-address-book-form"
+        slot="content"
+      >
+        <div class="hub-body option-select-body">
+          <button id="syncExistingAccounts" class="account-hub-option-button">
+            <div class="option-icon">
+              <img
+                class="sync-icon"
+                data-l10n-id="address-book-sync-existing-icon"
+              />
+            </div>
+            <div class="option-content">
+              <span
+                class="option-title"
+                data-l10n-id="address-book-sync-existing">
+              </span>
+              <span id="syncExistingAccountsData" class="option-data"></span>
+            </div>
+          </button>
+        </div>
+      </form>
+    </template>
+    <template
       id="accountHubAddressBookAccountSelectTemplate"
       xmlns="http://www.w3.org/1999/xhtml"
     >

@@ -29,12 +29,13 @@ add_setup(async function () {
   });
 });
 
-add_task(function test_initialization() {
+add_task(async function test_initialization() {
+  const optionSelectSubview = abView.querySelector(
+    "#addressBookOptionSelectSubview"
+  );
   // The first subview of the address book view should be visible.
   Assert.ok(
-    BrowserTestUtils.isVisible(
-      abView.querySelector("#addressBookOptionSelectSubview")
-    ),
+    BrowserTestUtils.isVisible(optionSelectSubview),
     "The option select subview should be visible"
   );
 
@@ -44,6 +45,22 @@ add_task(function test_initialization() {
     ),
     "The account select subview should be hidden"
   );
+
+  // Making the address book view visible, the init function should run.
+  const spy = sinon.spy(abView, "init");
+  abView.hidden = true;
+
+  // Check that init() isn't called when the view is hidden.
+  Assert.equal(
+    spy.callCount,
+    0,
+    "Address book view should not have called init() once"
+  );
+
+  abView.hidden = false;
+
+  // Check that init has been called when the view is visible.
+  Assert.equal(spy.callCount, 1, "Address book view should have called init()");
 });
 
 add_task(async function test_reset() {
@@ -54,15 +71,14 @@ add_task(async function test_reset() {
   footer.canBack(true);
   footer.canForward(true);
 
-  // Create a test state and add a resetState function to a subview object.
+  // Create a test state and add a resetState stub to a subview object.
   const testState = {
-    subview: { resetState: () => true },
+    subview: { resetState: sinon.stub() },
   };
+  testState.subview.resetState.returns(true);
 
-  // Insert the state into the address book states and add a spy for the
-  // subview resetState function.
+  // Insert the state into the address book state.
   abView.insertTestState("resetState", testState);
-  const spy = sinon.spy(testState.subview, "resetState");
 
   // Call reset on the address book view, making the address book option select
   // subview visible, and reseting the footer buttons (this subview has both
@@ -92,7 +108,7 @@ add_task(async function test_reset() {
 
   // Check if resetState has been called on the test state subview object.
   Assert.equal(
-    spy.callCount,
+    testState.subview.resetState.callCount,
     1,
     "Test state subview should have called resetState"
   );

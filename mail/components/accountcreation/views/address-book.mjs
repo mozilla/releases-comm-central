@@ -5,7 +5,18 @@
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import/no-unassigned-import
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-footer.mjs"; // eslint-disable-line import/no-unassigned-import
 
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  CardDAVUtils: "resource:///modules/CardDAVUtils.sys.mjs",
+  MailServices: "resource:///modules/MailServices.sys.mjs",
+  OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
+});
+
 class AccountHubAddressBook extends HTMLElement {
+  static get observedAttributes() {
+    return ["hidden"];
+  }
+
   /**
    * String of ID of current step in email flow.
    *
@@ -19,6 +30,29 @@ class AccountHubAddressBook extends HTMLElement {
    * @type {HTMLElement}
    */
   #footer;
+
+  /**
+   * @typedef {object} AddressBookAccounts
+   * @property {nsIMsgAccount} account - A user account.
+   * @property {foundBook} edited - An address book linked to the user account.
+   * @property {number} existingAddressBookCount - Already synced address books
+   *  count.
+   */
+
+  /**
+   * @typedef {object} foundBook
+   * @property {URL} url - The address for this address book.
+   * @property {string} name - The name of this address book on the server.
+   * @property {Function} create - A callback to add this address book locally.
+   * @property {boolean} existing - Address book has already been synced.
+   */
+
+  /**
+   * User accounts with address books.
+   *
+   * @type {AddressBookAccounts[]}
+   */
+  #accounts = [];
 
   /**
    * States of the email setup flow, based on the ID's of the steps in the
@@ -81,6 +115,7 @@ class AccountHubAddressBook extends HTMLElement {
     if (this.hasConnected) {
       return;
     }
+
     this.hasConnected = true;
 
     this.classList.add("account-hub-view");
@@ -97,12 +132,26 @@ class AccountHubAddressBook extends HTMLElement {
     this.#footer.addEventListener("back", this);
     this.#footer.addEventListener("forward", this);
     this.addEventListener("submit", this);
-
     this.ready = this.#initUI("optionSelectSubview");
     await this.ready;
+    await this.init();
+  }
 
-    // TODO: Implement setState in the subviews.
-    // this.#currentSubview.setState();
+  attributeChangedCallback(attributeName, oldValue, newValue) {
+    if (attributeName === "hidden" && newValue === null) {
+      // If the template was already loaded and we're going back to it we should
+      // trigger init() to ensure we're not showing stale data.
+      this.init();
+    }
+  }
+
+  /**
+   * Called when address book view is visible, fetches fresh list of accounts
+   * and address books.
+   */
+  async init() {
+    await this.#fetchAccounts();
+    this.#currentSubview.setState(this.#accounts);
   }
 
   /**
@@ -189,6 +238,63 @@ class AccountHubAddressBook extends HTMLElement {
     return import(
       `chrome://messenger/content/accountcreation/content/widgets/${templateId}.mjs`
     );
+  }
+  /**
+   * Fetch existing accounts with their address books, and apply them to
+   * #accounts.
+   */
+  async #fetchAccounts() {
+    const accountData = [];
+    const accounts = lazy.MailServices.accounts.accounts;
+    const existingAddressBookUrls = lazy.MailServices.ab.directories.map(
+      directory => directory.getStringValue("carddav.url", "")
+    );
+
+    for (const account of accounts) {
+      const accountAddressBooks = { account };
+      accountAddressBooks.existingAddressBookCount = 0;
+
+      // If auth method is OAuth, and CardDAV scope wasn't granted, bail out.
+      if (account.incomingServer.authMethod === Ci.nsMsgAuthMethod.OAuth2) {
+        const oAuth2 = new lazy.OAuth2Module();
+        if (
+          !oAuth2.initFromHostname(
+            account.incomingServer.hostName,
+            account.incomingServer.username,
+            "carddav"
+          )
+        ) {
+          continue;
+        }
+      }
+
+      let addressBooks = [];
+      try {
+        const hostname = account.incomingServer.username.split("@")[1];
+        addressBooks = await lazy.CardDAVUtils.detectAddressBooks(
+          account.incomingServer.username,
+          account.incomingServer.password,
+          `https://${hostname}`,
+          false
+        );
+
+        addressBooks = addressBooks.map(addressBook => {
+          if (existingAddressBookUrls.includes(addressBook.url.href)) {
+            accountAddressBooks.existingAddressBookCount++;
+            addressBook.existing = true;
+          }
+          return addressBook;
+        });
+      } catch (error) {
+        // Continue if no address books exist.
+        continue;
+      }
+
+      accountAddressBooks.addressBooks = addressBooks;
+      accountData.push(accountAddressBooks);
+    }
+
+    this.#accounts = accountData;
   }
 
   /**

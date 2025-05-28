@@ -257,3 +257,16 @@ address-book-add-ldap = New LDAP Address Book
 address-book-add-ldap-description = Connect to a remote LDAP address book
 
 account-hub-fetching-sync-accounts = Discovering address books and calendars…
+
+# $addressBooks (Number) - The number of address books that can be synced.
+# $accounts (Number) - The number of accounts.
+account-hub-address-book-sync-option-data =
+  { $addressBooks ->
+    [one] 1 address book
+    *[other] { $addressBooks } address books
+  } from { $accounts ->
+    [one] 1 account available
+    *[other] { $accounts } accounts available
+  }
+
+address-book-sync-existing-description = Retrieving existing accounts…

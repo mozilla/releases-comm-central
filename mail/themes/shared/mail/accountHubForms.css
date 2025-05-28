@@ -857,22 +857,28 @@ button.account-hub-option-button {
     transition: background-color 220ms ease, box-shadow 220ms ease;
   }
 
-  &:hover:not(disabled),
-  &:hover:active:not(disabled) {
-    background-color: var(--color-primary-soft);
+  &:enabled {
+    &:hover,
+    &:hover:active {
+      background-color: var(--color-primary-soft);
 
-    & .option-icon {
-      background-color: var(--color-primary-pressed);
+      & .option-icon {
+        background-color: var(--color-primary-pressed);
+      }
+    }
+
+    &:hover {
+      box-shadow: 0 25px 10px -20px rgba(0, 79, 155, 0.35),
+        0 0 5px 0 rgba(23, 95, 182, 0.2);
+    }
+
+    &:hover:active {
+      box-shadow: 0 5px 5px -5px rgba(0, 79, 155, 0.35), 0 0 5px 0 rgba(23, 95, 182, 0.2);
     }
   }
 
-  &:hover:not(disabled) {
-    box-shadow: 0 25px 10px -20px rgba(0, 79, 155, 0.35),
-      0 0 5px 0 rgba(23, 95, 182, 0.2);
-  }
-
-  &:hover:active:not(disabled) {
-    box-shadow: 0 5px 5px -5px rgba(0, 79, 155, 0.35), 0 0 5px 0 rgba(23, 95, 182, 0.2);
+  &:disabled {
+    background-color: var(--color-neutral-border);
   }
 
   & .option-icon {
@@ -892,6 +898,10 @@ button.account-hub-option-button {
       -moz-context-properties: fill, stroke;
       fill: light-dark(color-mix(in srgb, #feffff 20%, transparent), color-mix(in srgb, #1a202c 20%, transparent));
       stroke: var(--color-neutral-base);
+
+      .fetching & {
+        animation: spinning-animation 1.5s ease infinite;
+      }
     }
 
     & .sync-icon {
@@ -930,4 +940,9 @@ button.account-hub-option-button {
       text-align: start;
     }
   }
+}
+
+@keyframes spinning-animation {
+  0% { transform: rotate(0); }
+  100% { transform: rotate(360deg); }
 }
