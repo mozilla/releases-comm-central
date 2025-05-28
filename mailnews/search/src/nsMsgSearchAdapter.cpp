@@ -403,29 +403,14 @@ nsresult nsMsgSearchAdapter::EncodeImapTerm(nsIMsgSearchTerm* term,
 
       value = ToNewCString(searchTermValue);
       valueWasAllocated = true;
-    } else
-
-        if (IS_STRING_ATTRIBUTE(attrib)) {
-      char16_t*
-          convertedValue;  // = reallyDredd ? MSG_EscapeSearchUrl
-                           // (term->m_value.u.string) :
-                           // msg_EscapeImapSearchProtocol(term->m_value.u.string);
+    } else if (IS_STRING_ATTRIBUTE(attrib)) {
       nsString searchTermValue;
       searchValue->GetStr(searchTermValue);
-      // Ugly switch for Korean mail/news charsets.
-      // We want to do this here because here is where
-      // we know what charset we want to use.
-#ifdef DOING_CHARSET
-      if (reallyDredd)
-        dest_csid = INTL_DefaultNewsCharSetID(dest_csid);
-      else
-        dest_csid = INTL_DefaultMailCharSetID(dest_csid);
-#endif
 
       // do all sorts of crazy escaping
-      convertedValue = reallyDredd
-                           ? EscapeSearchUrl(searchTermValue.get())
-                           : EscapeImapSearchProtocol(searchTermValue.get());
+      char16_t* convertedValue =
+          reallyDredd ? EscapeSearchUrl(searchTermValue.get())
+                      : EscapeImapSearchProtocol(searchTermValue.get());
       useQuotes =
           ((!reallyDredd ||
             (nsDependentString(convertedValue).FindChar(char16_t(' ')) !=
