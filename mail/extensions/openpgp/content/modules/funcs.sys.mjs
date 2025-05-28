@@ -349,33 +349,6 @@ export var EnigmailFuncs = {
   },
 
   /**
-   * Determine the distinct number of non-self recipients of a message.
-   * Only To: and Cc: fields are considered.
-   *
-   * @returns {integer} the number of recipient
-   */
-  getNumberOfRecipients(msgCompField) {
-    const recipients = {},
-      ownEmails = this.getOwnEmailAddresses();
-
-    const allAddr = (
-      this.stripEmail(msgCompField.to) +
-      "," +
-      this.stripEmail(msgCompField.cc)
-    ).toLowerCase();
-    const emails = allAddr.split(/,+/);
-
-    for (let i = 0; i < emails.length; i++) {
-      const r = emails[i];
-      if (r && !(r in ownEmails)) {
-        recipients[r] = 1;
-      }
-    }
-
-    return recipients.length;
-  },
-
-  /**
    * Get a mail URL from a uriSpec.
    *
    * @param {string} uriSpec - URL spec of the desired message.
