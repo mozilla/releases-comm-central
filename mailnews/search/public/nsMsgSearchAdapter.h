@@ -38,19 +38,15 @@ class nsMsgSearchAdapter : public nsIMsgSearchAdapter {
   nsTArray<RefPtr<nsIMsgSearchTerm>>
       m_searchTerms; /* linked list of criteria terms */
 
-  nsString m_defaultCharset = u"UTF-8"_ns;
-
   static nsresult EncodeImap(
       char** ppEncoding, nsTArray<RefPtr<nsIMsgSearchTerm>> const& searchTerms,
-      const char16_t* srcCharset, const char16_t* destCharset,
-      bool reallyDredd = false);
+      const char16_t* srcCharset, const char16_t* destCharset);
 
   static nsresult EncodeImapValue(char* encoding, const char* value,
-                                  bool useQuotes, bool reallyDredd);
+                                  bool useQuotes);
 
   static char* GetImapCharsetParam(const char16_t* destCharset);
   static char16_t* EscapeSearchUrl(const char16_t* nntpCommand);
-  static char16_t* EscapeImapSearchProtocol(const char16_t* imapCommand);
   // This stuff lives in the base class because the IMAP search syntax
   // is used by the Dredd SEARCH command as well as IMAP itself
   static const char* m_kImapBefore;
@@ -83,8 +79,7 @@ class nsMsgSearchAdapter : public nsIMsgSearchAdapter {
  protected:
   virtual ~nsMsgSearchAdapter();
 
-  static nsresult EncodeImapTerm(nsIMsgSearchTerm*, bool reallyDredd,
-                                 const char16_t* srcCharset,
+  static nsresult EncodeImapTerm(nsIMsgSearchTerm*, const char16_t* srcCharset,
                                  const char16_t* destCharset, char** ppOutTerm);
 };
 
