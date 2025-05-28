@@ -272,7 +272,7 @@ pref("security.osclientcerts.autoload", false);
   pref("security.sandbox.logging.enabled", false);
 #endif
 #if defined(XP_LINUX) && defined(MOZ_SANDBOX)
-  pref("security.sandbox.content.level", 4);
+  pref("security.sandbox.content.level", 5);
   pref("security.sandbox.socket.process.level", 1);
   pref("security.sandbox.content.write_path_whitelist", "");
   pref("security.sandbox.content.read_path_whitelist", "");
