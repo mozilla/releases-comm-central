@@ -32,6 +32,7 @@ add_task(async function () {
   // There are three messages in the mbox and summary files, one is deleted.
   Assert.equal(messages.length, 2);
 
+  Assert.equal(messages[0].messageKey, 1);
   Assert.equal(
     messages[0].date,
     new Date("2000-07-01T23:06:00Z").valueOf() * 1000
@@ -43,7 +44,10 @@ add_task(async function () {
   Assert.equal(messages[0].getStringProperty("keywords"), "$label5");
   Assert.equal(messages[0].storeToken, "0");
   Assert.equal(messages[0].messageSize, 0x242);
+  Assert.equal(messages[0].threadId, 1);
+  Assert.equal(messages[0].threadParent, 0);
 
+  Assert.equal(messages[1].messageKey, 2);
   Assert.equal(
     messages[1].date,
     new Date("2022-09-13T05:40:00Z").valueOf() * 1000
@@ -55,4 +59,6 @@ add_task(async function () {
   Assert.equal(messages[1].getStringProperty("keywords"), "");
   Assert.equal(messages[1].storeToken, "1143");
   Assert.equal(messages[1].messageSize, 0x177);
+  Assert.equal(messages[1].threadId, 2);
+  Assert.equal(messages[1].threadParent, 0);
 });

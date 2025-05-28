@@ -298,7 +298,7 @@ DatabaseCore::GetMessages(nsIMessageDatabase** aMessageDatabase) {
 }
 
 /**
- * Folder migration happens in three steps:
+ * Folder migration happens in four steps:
  *
  * 1. The existing summary file is opened and the messages are enumerated,
  *    collecting all of the data we need to copy into the new database. This
@@ -309,7 +309,9 @@ DatabaseCore::GetMessages(nsIMessageDatabase** aMessageDatabase) {
  * 2. The messages are asynchronously inserted into the messages table.
  *    The keys of the inserted messages are collected.
  *
- * 3. Message properties are combined with the message keys and asynchronously
+ * 3. The threadId and threadParent columns of all new messages are updated.
+ *
+ * 4. Message properties are combined with the message keys and asynchronously
  *    inserted into the message_properties table.
  *
  * This object is an nsIRunnable that step 1 can keep pushing to the back of
@@ -327,10 +329,17 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
   nsAutoCString mDestFolderPath;
   nsMainThreadPtrHandle<Promise> mPromiseHolder;
 
+  struct MessageData {
+    nsMsgKey oldMessageKey;
+    nsCString storeToken;
+    uint32_t messageSize;
+    nsMsgKey threadId;
+    nsMsgKey threadParent;
+  };
   nsCOMPtr<nsIMsgEnumerator> mEnumerator;
-  nsTArray<nsCString> mStoreTokens;
-  nsTArray<int64_t> mMessageSizes;
-  nsTArray<int64_t> mMessageKeys;
+  nsTArray<MessageData> mMessageData;
+  nsTArray<int64_t> mNewMessageKeys;
+  nsTHashMap<nsMsgKey, int64_t> mMessageKeyMap;
 
   nsCOMPtr<nsIMimeConverter> mMimeConverter;
 
@@ -366,6 +375,7 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
 
     mMimeConverter = do_GetService("@mozilla.org/messenger/mimeconverter;1");
 
+    // Duplicate statement! Also in MessageDatabase::AddMessage.
     DatabaseCore::GetStatement("AddMessage"_ns,
                                "INSERT INTO messages ( \
                                   folderId, messageId, date, sender, recipients, ccList, bccList, subject, flags, tags \
@@ -406,6 +416,8 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
     while (NS_SUCCEEDED(mEnumerator->HasMoreElements(&hasMore)) && hasMore) {
       nsCOMPtr<nsIMsgDBHdr> message;
       mEnumerator->GetNext(getter_AddRefs(message));
+
+      // Collect what we need to insert into the messages table.
 
       nsAutoCString messageId;
       message->GetMessageId(messageId);
@@ -459,13 +471,25 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
       params->BindInt64ByName("flags"_ns, flags);
       params->BindUTF8StringByName("tags"_ns, DatabaseUtils::Normalize(tags));
 
-      nsAutoCString storeToken;
-      message->GetStoreToken(storeToken);
-      mStoreTokens.AppendElement(storeToken);
+      // Collect what we need to insert into the message_properties table, and
+      // the things we need to update in the messages table once we have the
+      // new keys of the messages.
 
-      uint32_t messageSize;
-      message->GetMessageSize(&messageSize);
-      mMessageSizes.AppendElement((uint64_t)messageSize);
+      MessageData data;
+      message->GetMessageKey(&data.oldMessageKey);
+      message->GetThreadId(&data.threadId);
+      if (data.threadId == 0xfffffffe) {
+        // The first thread was always stored as -2.
+        data.threadId = 1;
+      }
+      message->GetThreadParent(&data.threadParent);
+      if (data.threadParent == 0xffffffff) {
+        // No parent.
+        data.threadParent = 0;
+      }
+      message->GetStoreToken(data.storeToken);
+      message->GetMessageSize(&data.messageSize);
+      mMessageData.AppendElement(data);
 
       mParamsArray->AddParams(params);
 
@@ -510,7 +534,7 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
       // Collect the keys of inserted messages.
       nsCOMPtr<mozIStorageRow> row;
       while (NS_SUCCEEDED(resultSet->GetNextRow(getter_AddRefs(row))) && row) {
-        mMessageKeys.AppendElement(row->AsInt64(0));
+        mNewMessageKeys.AppendElement(row->AsInt64(0));
       }
     }
     return NS_OK;
@@ -521,33 +545,36 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
       return NS_OK;
     }
     if (mCurrentStep == 2) {
-      // Now pair the message keys with the properties collected in step 1,
-      // and insert them into the database.
-      MOZ_ASSERT(mMessageKeys.Length() == mStoreTokens.Length());
-      MOZ_ASSERT(mMessageKeys.Length() == mMessageSizes.Length());
+      mCurrentStep = 3;
+      MOZ_ASSERT(mNewMessageKeys.Length() == mMessageData.Length());
 
+      // Update threading data.
+
+      // Map message keys in the old DB to row IDs in the new DB.
+      for (size_t i = 0; i < mNewMessageKeys.Length(); i++) {
+        mMessageKeyMap.InsertOrUpdate(mMessageData[i].oldMessageKey,
+                                      mNewMessageKeys[i]);
+      }
+
+      // Duplicate statement! Also in MessageDatabase::AddMessage.
       DatabaseCore::GetStatement(
-          "SetMessageProperty"_ns,
-          "REPLACE INTO message_properties (id, name, value) VALUES (:id, :name, :value)"_ns,
+          "UpdateThreadInfo"_ns,
+          "UPDATE messages SET threadId = :threadId, threadParent = :threadParent WHERE id = :id"_ns,
           getter_AddRefs(mStmt));
       mStmt->NewBindingParamsArray(getter_AddRefs(mParamsArray));
 
-      for (size_t i = 0; i < mStoreTokens.Length(); i++) {
-        if (!mStoreTokens[i].IsEmpty()) {
-          nsCOMPtr<mozIStorageBindingParams> params;
-          mParamsArray->NewBindingParams(getter_AddRefs(params));
-          params->BindInt64ByName("id"_ns, mMessageKeys[i]);
-          params->BindUTF8StringByName("name"_ns, "storeToken"_ns);
-          params->BindUTF8StringByName("value"_ns, mStoreTokens[i]);
-          mParamsArray->AddParams(params);
-        }
-
-        if (mMessageSizes[i] != 0) {
-          nsCOMPtr<mozIStorageBindingParams> params;
-          mParamsArray->NewBindingParams(getter_AddRefs(params));
-          params->BindInt64ByName("id"_ns, mMessageKeys[i]);
-          params->BindUTF8StringByName("name"_ns, "messageSize"_ns);
-          params->BindInt64ByName("value"_ns, mMessageSizes[i]);
+      for (size_t i = 0; i < mNewMessageKeys.Length(); i++) {
+        nsCOMPtr<mozIStorageBindingParams> params;
+        mParamsArray->NewBindingParams(getter_AddRefs(params));
+        params->BindInt64ByName("id"_ns, mNewMessageKeys[i]);
+        int64_t newThreadId = 0;
+        int64_t newThreadParent = 0;
+        if (mMessageKeyMap.Get(mMessageData[i].threadId, &newThreadId) &&
+            (mMessageData[i].threadParent == 0 ||
+             mMessageKeyMap.Get(mMessageData[i].threadParent,
+                                &newThreadParent))) {
+          params->BindInt64ByName("threadId"_ns, newThreadId);
+          params->BindInt64ByName("threadParent"_ns, newThreadParent);
           mParamsArray->AddParams(params);
         }
       }
@@ -555,7 +582,46 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
       uint32_t length;
       mParamsArray->GetLength(&length);
       if (length > 0) {
-        mCurrentStep = 3;
+        mStmt->BindParameters(mParamsArray);
+        nsCOMPtr<mozIStoragePendingStatement> unused;
+        mStmt->ExecuteAsync(this, getter_AddRefs(unused));
+        return NS_OK;
+      }
+    }
+    if (mCurrentStep == 3) {
+      mCurrentStep = 4;
+      // Now pair the message keys with the properties collected in step 1,
+      // and insert them into the database.
+
+      DatabaseCore::GetStatement(
+          "SetMessageProperty"_ns,
+          "REPLACE INTO message_properties (id, name, value) VALUES (:id, :name, :value)"_ns,
+          getter_AddRefs(mStmt));
+      mStmt->NewBindingParamsArray(getter_AddRefs(mParamsArray));
+
+      for (size_t i = 0; i < mMessageData.Length(); i++) {
+        if (!mMessageData[i].storeToken.IsEmpty()) {
+          nsCOMPtr<mozIStorageBindingParams> params;
+          mParamsArray->NewBindingParams(getter_AddRefs(params));
+          params->BindInt64ByName("id"_ns, mNewMessageKeys[i]);
+          params->BindUTF8StringByName("name"_ns, "storeToken"_ns);
+          params->BindUTF8StringByName("value"_ns, mMessageData[i].storeToken);
+          mParamsArray->AddParams(params);
+        }
+
+        if (mMessageData[i].messageSize != 0) {
+          nsCOMPtr<mozIStorageBindingParams> params;
+          mParamsArray->NewBindingParams(getter_AddRefs(params));
+          params->BindInt64ByName("id"_ns, mNewMessageKeys[i]);
+          params->BindUTF8StringByName("name"_ns, "messageSize"_ns);
+          params->BindInt64ByName("value"_ns, mMessageData[i].messageSize);
+          mParamsArray->AddParams(params);
+        }
+      }
+
+      uint32_t length;
+      mParamsArray->GetLength(&length);
+      if (length > 0) {
         mStmt->BindParameters(mParamsArray);
         nsCOMPtr<mozIStoragePendingStatement> unused;
         mStmt->ExecuteAsync(this, getter_AddRefs(unused));
@@ -563,7 +629,7 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
       }
     }
 
-    // Step 2 had no properties to insert, or step 3 is complete.
+    // Step 3 had no properties to insert, or step 4 is complete.
     Complete(true);
     return NS_OK;
   }

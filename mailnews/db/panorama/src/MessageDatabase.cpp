@@ -56,6 +56,7 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
     const nsACString& aSubject, uint64_t aFlags, const nsACString& aTags,
     nsMsgKey* aKey) {
   nsCOMPtr<mozIStorageStatement> stmt;
+  // Duplicate statement! Also in FolderMigrator::SetupAndRun.
   DatabaseCore::GetStatement("AddMessage"_ns,
                              "INSERT INTO messages ( \
                                 folderId, messageId, date, sender, recipients, ccList, bccList, subject, flags, tags \
@@ -94,6 +95,7 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
   // in the future we'll handle messages with a known parent differently and
   // avoid this second query.
 
+  // Duplicate statement! Also in FolderMigrator::HandleCompletion.
   DatabaseCore::GetStatement(
       "UpdateThreadInfo"_ns,
       "UPDATE messages SET threadId = :threadId, threadParent = :threadParent WHERE id = :id"_ns,
