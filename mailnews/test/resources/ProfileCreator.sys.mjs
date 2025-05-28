@@ -146,11 +146,26 @@ class ProfileMailFolder {
   /** @type {ProfileServer} */
   server;
   /**
-   * The absolute file system path to this folder in the profile.
+   * The absolute file system path to the directory (.sbd) for this folder in
+   * the profile.
    *
    * @type {string}
    */
   path;
+  /**
+   * The absolute file system path to the mail summary file (.msf) for this
+   * folder in the profile.
+   *
+   * @type {string}
+   */
+  summaryFilePath;
+  /**
+   * The absolute file system path to the mail (mbox file or maildir directory)
+   * for this folder in the profile.
+   *
+   * @type {string}
+   */
+  mailFilePath;
 
   /**
    * @param {ProfileServer} server
