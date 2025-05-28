@@ -321,34 +321,6 @@ export var EnigmailFuncs = {
   },
 
   /**
-   * Get a list of all own email addresses, taken from all identities
-   * and all reply-to addresses
-   *
-   * @returns {object}
-   */
-  getOwnEmailAddresses() {
-    const ownEmails = {};
-
-    // Determine all sorts of own email addresses
-    for (const id of MailServices.accounts.allIdentities) {
-      if (id.email && id.email.length > 0) {
-        ownEmails[id.email.toLowerCase()] = 1;
-      }
-      if (id.replyTo && id.replyTo.length > 0) {
-        try {
-          const replyEmails = this.stripEmail(id.replyTo)
-            .toLowerCase()
-            .split(/,/);
-          for (const j in replyEmails) {
-            ownEmails[replyEmails[j]] = 1;
-          }
-        } catch (ex) {}
-      }
-    }
-    return ownEmails;
-  },
-
-  /**
    * Get a mail URL from a uriSpec.
    *
    * @param {string} uriSpec - URL spec of the desired message.
