@@ -149,29 +149,6 @@ char16_t* nsMsgSearchAdapter::EscapeQuoteImapSearchProtocol(
   return imapCommand ? NS_xstrdup(imapCommand) : nullptr;
 }
 
-char* nsMsgSearchAdapter::UnEscapeSearchUrl(const char* commandSpecificData) {
-  char* result = (char*)PR_Malloc(strlen(commandSpecificData) + 1);
-  if (result) {
-    char* resultPtr = result;
-    while (1) {
-      char ch = *commandSpecificData++;
-      if (!ch) break;
-      if (ch == '\\') {
-        char scratchBuf[3];
-        scratchBuf[0] = (char)*commandSpecificData++;
-        scratchBuf[1] = (char)*commandSpecificData++;
-        scratchBuf[2] = '\0';
-        unsigned int accum = 0;
-        sscanf(scratchBuf, "%X", &accum);
-        *resultPtr++ = (char)accum;
-      } else
-        *resultPtr++ = ch;
-    }
-    *resultPtr = '\0';
-  }
-  return result;
-}
-
 nsresult nsMsgSearchAdapter::GetSearchCharset(nsAString& dstCharset) {
   nsresult rv;
   bool forceAsciiSearch = false;

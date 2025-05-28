@@ -52,7 +52,6 @@ class nsMsgSearchAdapter : public nsIMsgSearchAdapter {
   static char16_t* EscapeSearchUrl(const char16_t* nntpCommand);
   static char16_t* EscapeImapSearchProtocol(const char16_t* imapCommand);
   static char16_t* EscapeQuoteImapSearchProtocol(const char16_t* imapCommand);
-  static char* UnEscapeSearchUrl(const char* commandSpecificData);
   // This stuff lives in the base class because the IMAP search syntax
   // is used by the Dredd SEARCH command as well as IMAP itself
   static const char* m_kImapBefore;
