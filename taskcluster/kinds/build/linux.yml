@@ -326,7 +326,7 @@ linux/opt:
     description: "Linux32 Opt"
     index:
         product: thunderbird
-        job-name: linux32-opt
+        job-name: linux-opt
     attributes:
         enable-full-crashsymbols: true
     treeherder:
@@ -358,7 +358,7 @@ linux-shippable/opt:
     shipping-product: thunderbird
     index:
         product: thunderbird
-        job-name: linux32-opt
+        job-name: linux-opt
         type: shippable
     treeherder:
         platform: linux32-shippable/opt
@@ -386,7 +386,7 @@ linux/debug:
     description: "Linux32 Debug"
     index:
         product: thunderbird
-        job-name: linux32-debug
+        job-name: linux-debug
     attributes:
         enable-full-crashsymbols: true
     treeherder:
