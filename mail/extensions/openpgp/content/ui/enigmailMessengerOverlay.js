@@ -879,12 +879,31 @@ Enigmail.msg = {
     );
   },
 
-  hasInlineQuote(node) {
-    if (node.innerHTML.search(/<blockquote.*-----BEGIN PGP /i) < 0) {
+  /**
+   * @param {Node} mainNode - The node to check.
+   * @returns {boolean} true if an inline quote is found
+   */
+  hasInlineQuote(mainNode) {
+    if (mainNode.innerHTML.search(/<blockquote.*-----BEGIN PGP /i) < 0) {
       return false;
     }
+    const searchQuotedPgp = function (node) {
+      if (
+        node.nodeName.toLowerCase() === "blockquote" &&
+        node.textContent.includes("-----BEGIN PGP ")
+      ) {
+        return true;
+      }
+      if (node.firstChild && searchQuotedPgp(node.firstChild)) {
+        return true;
+      }
 
-    return EnigmailMsgRead.searchQuotedPgp(node);
+      if (node.nextSibling && searchQuotedPgp(node.nextSibling)) {
+        return true;
+      }
+      return false;
+    };
+    return searchQuotedPgp(mainNode);
   },
 
   hasHeadOrTailBesidesInlinePGP(msgText) {

@@ -79,23 +79,4 @@ export var EnigmailMsgRead = {
             a.name == attachment.name))
     );
   },
-
-  searchQuotedPgp(node) {
-    if (
-      node.nodeName.toLowerCase() === "blockquote" &&
-      node.textContent.includes("-----BEGIN PGP ")
-    ) {
-      return true;
-    }
-
-    if (node.firstChild && this.searchQuotedPgp(node.firstChild)) {
-      return true;
-    }
-
-    if (node.nextSibling && this.searchQuotedPgp(node.nextSibling)) {
-      return true;
-    }
-
-    return false;
-  },
 };
