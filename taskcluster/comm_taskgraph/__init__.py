@@ -7,6 +7,8 @@ import os
 import sys
 from importlib import import_module
 
+from mozilla_taskgraph import register as register_mozilla_taskgraph
+
 from gecko_taskgraph import GECKO
 from gecko_taskgraph.optimize.schema import set_optimization_schema  # noqa: F401
 
@@ -47,6 +49,8 @@ def register(graph_config):
 
     logger.info("{} path registered".format(__name__))
     register_parameters()
+
+    register_mozilla_taskgraph(graph_config)
 
     set_optimization_schema(thunderbird_optimizations)
 
