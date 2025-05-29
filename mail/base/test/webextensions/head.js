@@ -325,6 +325,7 @@ async function testInstallMethod(installFn) {
       panel.secondaryButton.click();
       try {
         await installMethodPromise;
+        // eslint-disable-next-line no-unused-vars
       } catch (err) {}
     } else {
       // Look for post-install notification

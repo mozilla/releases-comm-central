@@ -16,6 +16,7 @@ function checkDecode(converter, charset, inText, expectedText) {
 
   try {
     converter.charset = manager.getCharsetAlias(charset);
+    // eslint-disable-next-line no-unused-vars
   } catch (e) {
     converter.charset = "iso-8859-1";
   }
@@ -23,6 +24,7 @@ function checkDecode(converter, charset, inText, expectedText) {
   dump("testing decoding from " + charset + " to Unicode.\n");
   try {
     var outText = converter.ConvertToUnicode(inText) + converter.Finish();
+    // eslint-disable-next-line no-unused-vars
   } catch (e) {
     outText = "\ufffd";
   }
@@ -36,6 +38,7 @@ function checkEncode(converter, charset, inText, expectedText) {
 
   try {
     converter.charset = manager.getCharsetAlias(charset);
+    // eslint-disable-next-line no-unused-vars
   } catch (e) {
     converter.charset = "iso-8859-1";
   }

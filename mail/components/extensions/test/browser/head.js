@@ -269,6 +269,7 @@ function cleanUpAccount(account) {
       info(`Cleaning up leftover ${serverType} server ${serverKey}`);
       MailServices.accounts.removeIncomingServer(server, false);
     }
+    // eslint-disable-next-line no-unused-vars
   } catch (e) {}
 }
 
@@ -774,7 +775,7 @@ async function synthesizeMouseAtCenterAndRetry(selector, event, browser) {
     // react, even though the content page signals to be fully loaded. There is no status signal
     // we could wait for, the loaded page *should* be ready at this point. To mitigate, we wait
     // for the click event and if we do not see it within a certain time, we click again.
-    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+
     const failPromise = new Promise(r =>
       browser.ownerGlobal.setTimeout(r, 500)
     ).then(() => false);
@@ -988,7 +989,7 @@ async function checkContent(browser, expected) {
     if ("backgroundColor" in expected) {
       if (computedStyle.backgroundColor != expected.backgroundColor) {
         // Give it a bit more time if things weren't settled.
-        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+
         await new Promise(resolve => content.setTimeout(resolve, 500));
       }
       Assert.equal(
@@ -1000,7 +1001,7 @@ async function checkContent(browser, expected) {
     if ("color" in expected) {
       if (computedStyle.color != expected.color) {
         // Give it a bit more time if things weren't settled.
-        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+
         await new Promise(resolve => content.setTimeout(resolve, 500));
       }
       Assert.equal(computedStyle.color, expected.color, "color");
@@ -1008,7 +1009,7 @@ async function checkContent(browser, expected) {
     if ("foo" in expected) {
       if (body.getAttribute("foo") != expected.foo) {
         // Give it a bit more time if things weren't settled.
-        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+
         await new Promise(resolve => content.setTimeout(resolve, 500));
       }
       Assert.equal(body.getAttribute("foo"), expected.foo, "foo");
@@ -1021,7 +1022,7 @@ async function checkContent(browser, expected) {
       body = body.querySelector(".moz-text-flowed") ?? body;
       if (body.textContent != expected.textContent) {
         // Give it a bit more time if things weren't settled.
-        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+
         await new Promise(resolve => content.setTimeout(resolve, 500));
       }
       Assert.equal(body.textContent, expected.textContent, "textContent");
@@ -1128,7 +1129,6 @@ async function run_popup_test(configData) {
           </body>
         </html>`,
       "popup.js": async function () {
-        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
         await new Promise(resolve => window.setTimeout(resolve, 1000));
         await browser.runtime.sendMessage("popup opened");
         await new Promise(resolve => window.setTimeout(resolve));
@@ -1312,7 +1312,7 @@ async function run_popup_test(configData) {
         EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, win);
         if (configData.disable_button) {
           // We're testing that nothing happens. Give it time to potentially happen.
-          // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+
           await new Promise(resolve => win.setTimeout(resolve, 500));
           // In case the background was terminated, it should not restart.
           // If it does, we will get an extra "ready" message and fail.

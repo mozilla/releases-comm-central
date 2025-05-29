@@ -349,6 +349,7 @@ async function clearStatusBar() {
         !status._stopTimeoutID,
       "waiting for meteors to stop spinning"
     );
+    // eslint-disable-next-line no-unused-vars
   } catch (ex) {
     // If the meteors don't stop spinning within 5 seconds, something has got
     // confused somewhere and they'll probably keep spinning forever.

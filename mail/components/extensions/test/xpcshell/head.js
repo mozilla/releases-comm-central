@@ -95,6 +95,7 @@ function cleanUpAccount(account) {
       info(`Cleaning up leftover ${serverType} server ${serverKey}`);
       MailServices.accounts.removeIncomingServer(server, false);
     }
+    // eslint-disable-next-line no-unused-vars
   } catch (e) {}
 }
 
