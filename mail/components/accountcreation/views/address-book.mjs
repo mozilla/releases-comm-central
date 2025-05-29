@@ -109,6 +109,14 @@ class AccountHubAddressBook extends HTMLElement {
       subview: {},
       templateId: "address-book-sync",
     },
+    localAddressBookSubview: {
+      id: "addressBookLocalFormSubview",
+      nextStep: true,
+      previousStep: "optionSelectSubview",
+      forwardEnabled: true,
+      subview: {},
+      templateId: "address-book-local-form",
+    },
   };
 
   async connectedCallback() {
@@ -179,13 +187,20 @@ class AccountHubAddressBook extends HTMLElement {
    * @param {Event} event
    */
   async handleEvent(event) {
+    const stateDetails = this.#states[this.#currentState];
     switch (event.type) {
       case "back":
+        await this.#initUI(stateDetails.previousStep);
         break;
       case "submit":
         event.preventDefault();
         if (!event.target.checkValidity()) {
           // Do nothing.
+          break;
+        }
+
+        if (this.#currentState === "optionSelectSubview") {
+          await this.#initUI(event.submitter.value);
           break;
         }
       // Fall through to handle like forward event.
@@ -239,6 +254,7 @@ class AccountHubAddressBook extends HTMLElement {
       `chrome://messenger/content/accountcreation/content/widgets/${templateId}.mjs`
     );
   }
+
   /**
    * Fetch existing accounts with their address books, and apply them to
    * #accounts.

@@ -19,7 +19,6 @@ form {
   --hub-menuitem-color-selected: var(--color-neutral-base);
   --hub-menuitem-background-color-selected: var(--color-primary-default);
   --hub-form-input-line-height: 1em;
-  /* TODO: apply dark mode styling */
 
   grid-row: header / footer;
 

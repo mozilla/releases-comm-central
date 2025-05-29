@@ -69,9 +69,6 @@ add_task(async function test_address_book_option_select_account_with_ab() {
     "imap"
   );
 
-  const abAccountIdentity = MailServices.accounts.createIdentity();
-  abAccountIdentity.email = "john.doe@imap.test";
-  abAccount.addIdentity(abAccountIdentity);
   const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
@@ -114,6 +111,8 @@ add_task(async function test_address_book_option_select_account_with_ab() {
     "The sync accounts option should be enabled"
   );
 
+  subtest_close_account_hub_dialog(dialog, optionSelectTemplate);
+
   Services.logins.removeAllLogins();
   MailServices.accounts.removeAccount(abAccount);
   IMAPServer.close();
@@ -138,4 +137,135 @@ add_task(async function test_address_book_option_select_no_accounts() {
     optionSelectTemplate.querySelector("#syncExistingAccounts").disabled,
     "The sync accounts option should be disabled"
   );
+
+  subtest_close_account_hub_dialog(dialog, optionSelectTemplate);
 });
+
+add_task(async function test_address_book_option_selection() {
+  // Add an account so the sync option is not diabled.
+  IMAPServer.open();
+  const abAccount = MailServices.accounts.createAccount();
+  abAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "john.doe@imap.test",
+    "imap.test",
+    "imap"
+  );
+
+  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
+  loginInfo.init(
+    "https://example.org",
+    null,
+    "https://example.org",
+    "john.doe@imap.test",
+    "abc12345",
+    "",
+    ""
+  );
+  await Services.logins.addLoginAsync(loginInfo);
+
+  // Open the dialog.
+  const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+  const backButton = dialog.querySelector("#addressBookFooter #back");
+
+  const optionSelectTemplate = dialog.querySelector(
+    "address-book-option-select"
+  );
+
+  await BrowserTestUtils.waitForMutationCondition(
+    optionSelectTemplate,
+    { childList: true },
+    () => !!optionSelectTemplate.querySelector("#syncExistingAccounts")
+  );
+
+  await TestUtils.waitForCondition(
+    () =>
+      optionSelectTemplate.l10n.getAttributes(
+        optionSelectTemplate.querySelector("#syncExistingAccountsData")
+      ).id === "account-hub-address-book-sync-option-data",
+    "The option select subview should have applied the address book count"
+  );
+
+  // Click the sync accounts option to show the account option subview.
+  EventUtils.synthesizeMouseAtCenter(
+    optionSelectTemplate.querySelector("#syncExistingAccounts"),
+    {}
+  );
+  await subtest_switchSubviews(
+    optionSelectTemplate,
+    dialog.querySelector("address-book-account-select"),
+    backButton
+  );
+
+  // Click the remote account option to show the remote account form subview.
+  EventUtils.synthesizeMouseAtCenter(
+    optionSelectTemplate.querySelector("#addRemoteAddressBook"),
+    {}
+  );
+  await subtest_switchSubviews(
+    optionSelectTemplate,
+    dialog.querySelector("address-book-remote-account-form"),
+    backButton
+  );
+
+  // Click the local account option to show the local account form subview.
+  EventUtils.synthesizeMouseAtCenter(
+    optionSelectTemplate.querySelector("#newLocalAddressBook"),
+    {}
+  );
+  await subtest_switchSubviews(
+    optionSelectTemplate,
+    dialog.querySelector("address-book-local-form"),
+    backButton
+  );
+
+  // Click the LDAP account option to show the LDAP account form subview.
+  EventUtils.synthesizeMouseAtCenter(
+    optionSelectTemplate.querySelector("#newLdapAddressBook"),
+    {}
+  );
+  await subtest_switchSubviews(
+    optionSelectTemplate,
+    dialog.querySelector("address-book-ldap-account-form"),
+    backButton
+  );
+
+  subtest_close_account_hub_dialog(dialog, optionSelectTemplate);
+  Services.logins.removeAllLogins();
+  MailServices.accounts.removeAccount(abAccount);
+  IMAPServer.close();
+});
+
+/**
+ * Tests visibility of option select template and the selected address book
+ * template, and again when the back button is pressed.
+ *
+ * @param {HTMLElement} optionSelectTemplate - Option select subview.
+ * @param {HTMLElement} newSubview - Selected subview.
+ * @param {HTMLElement} backButton - Dialog footer button.
+ */
+async function subtest_switchSubviews(
+  optionSelectTemplate,
+  newSubview,
+  backButton
+) {
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isHidden(optionSelectTemplate),
+    "The option-select subview should be hidden."
+  );
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(newSubview),
+    `The ${newSubview.tagName} subview should be visible.`
+  );
+  EventUtils.synthesizeMouseAtCenter(backButton, {});
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isHidden(newSubview),
+    `The ${newSubview.tagName} subview should be visible.`
+  );
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(optionSelectTemplate),
+    "The option select subview should be visible."
+  );
+}
