@@ -4,17 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/tabmail.css");
 
-#tabmail-tabs {
-  align-items: stretch;
-  font-size: inherit;
-  padding-inline: 0;
-  margin-bottom: 0;
-
-  :root[customtitlebar]:not([sizemode="fullscreen"]) & {
-    position: unset;
-  }
-}
-
 tabmail > tabbox > tabpanels {
   appearance: none !important;
 }

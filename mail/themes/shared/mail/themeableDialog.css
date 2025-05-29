@@ -483,22 +483,17 @@ tabbox {
 tabs {
   margin-block: 8px 10px;
   margin-inline: 4px;
-  border-bottom: 1px solid var(--box-border-color);
+  border-bottom-color: var(--box-border-color);
 }
 
 tab {
-  appearance: none;
-  margin-top: 0;
-  padding: 6px 10px !important;
-  border-bottom: 2px solid transparent;
-  color: inherit !important;
+  border-bottom-width: 2px;
 
   &:hover {
     background-color: var(--tab-hover-background);
   }
 
   &[visuallyselected="true"] {
-    margin-block: 0;
     background-color: var(--tab-selected-background);
     border-bottom-color: var(--lwt-tab-line-color, var(--tabline-color));
   }

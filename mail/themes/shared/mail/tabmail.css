@@ -16,9 +16,16 @@
   overflow: hidden;
 }
 
-#tabmail-tabs .tabmail-tab:first-child .tab-close-button,
-#tabmail-tabs[closebuttons="activetab"] .tabmail-tab:not([selected="true"]) .tab-close-button {
-  display: none;
+#tabmail-tabs {
+  /* Overriding tabbox.css */
+  border: 0;
+  /* Make sure the drop indicator stays inside the parent boundaries */
+  position: relative;
+
+  & .tabmail-tab:first-child .tab-close-button,
+  &[closebuttons="activetab"] .tabmail-tab:not([selected="true"]) .tab-close-button {
+    display: none;
+  }
 }
 
 .tab-drop-indicator {
