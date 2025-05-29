@@ -12,8 +12,6 @@ var { CalReadableStreamFactory } = ChromeUtils.importESModule(
  *          tearDownInvitationsManager
  */
 
-/* eslint-enable valid-jsdoc */
-
 var gInvitationsManager = null;
 
 /**

@@ -10,8 +10,6 @@
  *          calendarTaskButtonDNDObserver
  */
 
-/* eslint-enable valid-jsdoc */
-
 var calendarViewDNDObserver;
 var calendarMailButtonDNDObserver;
 var calendarCalendarButtonDNDObserver;

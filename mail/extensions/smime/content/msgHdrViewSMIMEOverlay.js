@@ -11,8 +11,6 @@
 // mailCommon.js
 /* globals gEncryptedURIService */
 
-/* eslint-enable valid-jsdoc */
-
 var gMyLastEncryptedURI = null;
 
 var gSMIMEBundle = null;

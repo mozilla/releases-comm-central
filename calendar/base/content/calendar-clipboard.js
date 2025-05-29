@@ -13,8 +13,6 @@ ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/cal
 
 /* exported cutToClipboard, pasteFromClipboard */
 
-/* eslint-enable valid-jsdoc */
-
 /**
  * Test if a writable calendar is selected, and if the clipboard has items that
  * can be pasted into Calendar. The data must be of type "text/calendar" or

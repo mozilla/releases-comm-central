@@ -10,8 +10,6 @@
 
 /* globals MozElements */
 
-/* eslint-enable valid-jsdoc */
-
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 var calendarTabMonitor = {

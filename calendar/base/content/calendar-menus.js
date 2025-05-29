@@ -8,8 +8,6 @@
 /* globals getSelectedTasks, MozElements, MozXULElement,
            setAttributeOnChildrenOrTheirCommands */
 
-/* eslint-enable valid-jsdoc */
-
 "use strict";
 
 // Wrap in a block and use const to define functions to prevent leaking to window scope.

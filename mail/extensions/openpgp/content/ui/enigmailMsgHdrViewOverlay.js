@@ -11,8 +11,6 @@
 // mailCommon.js
 /* globals gEncryptedURIService */
 
-/* eslint-enable valid-jsdoc */
-
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );

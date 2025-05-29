@@ -8,8 +8,6 @@
  * Common Enigmail crypto-related GUI functionality
  */
 
-/* eslint-enable valid-jsdoc */
-
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};

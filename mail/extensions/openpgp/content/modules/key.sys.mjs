@@ -4,8 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-/* eslint-enable valid-jsdoc */
-
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",

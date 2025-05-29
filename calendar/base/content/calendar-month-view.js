@@ -6,8 +6,6 @@
 
 /* import-globals-from calendar-ui-utils.js */
 
-/* eslint-enable valid-jsdoc */
-
 "use strict";
 
 // Wrap in a block to prevent leaking to window scope.

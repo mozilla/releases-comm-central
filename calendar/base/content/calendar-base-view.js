@@ -5,8 +5,6 @@
 /* global cal, calendarNavigationBar, CalendarFilteredViewMixin, calFilterProperties, currentView,
      gCurrentMode, MozElements, MozXULElement, Services, toggleOrientation */
 
-/* eslint-enable valid-jsdoc */
-
 "use strict";
 
 // Wrap in a block to prevent leaking to window scope.

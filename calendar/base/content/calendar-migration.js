@@ -8,7 +8,6 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 var { AppConstants } = ChromeUtils.importESModule("resource://gre/modules/AppConstants.sys.mjs");
 var lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
-/* eslint-enable valid-jsdoc */
 
 /**
  * A data migrator prototype, holding the information for migration

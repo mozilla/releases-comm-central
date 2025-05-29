@@ -4,8 +4,6 @@
 
 "use strict";
 
-/* eslint-enable valid-jsdoc */
-
 /* import-globals-from widgets/mouseoverPreviews.js */
 /* import-globals-from calendar-ui-utils.js */
 
