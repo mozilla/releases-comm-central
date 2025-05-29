@@ -80,6 +80,7 @@ tags = [
 ["browser_messageCommandsArchive.js"]
 
 ["browser_messageCommandsOnMsgstore.js"]
+tags = ["compact"]
 
 ["browser_messagePane.js"]
 
@@ -107,6 +108,7 @@ tags = ["vcard"]
 ["browser_rightClickMiddleClickFolders.js"]
 
 ["browser_savedsearchReloadAfterCompact.js"]
+tags = ["compact"]
 
 ["browser_selection.js"]
 
