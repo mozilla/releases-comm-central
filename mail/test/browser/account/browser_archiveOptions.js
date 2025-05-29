@@ -12,10 +12,12 @@ var { promise_modal_dialog } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
+var defaultAccount;
 var defaultIdentity;
 
 add_setup(function () {
-  defaultIdentity = MailServices.accounts.defaultAccount.defaultIdentity;
+  defaultAccount = MailServices.accounts.defaultAccount;
+  defaultIdentity = defaultAccount.defaultIdentity;
 });
 
 /**
@@ -43,7 +45,6 @@ async function subtest_check_archive_options_enabled(
 }
 
 add_task(async function test_archive_options_enabled() {
-  const defaultAccount = MailServices.accounts.defaultAccount;
   // First, create an IMAP server
   const imapServer = MailServices.accounts
     .createIncomingServer("nobody", "example.com", "imap")
@@ -122,7 +123,6 @@ async function subtest_initial_state(tab, identity) {
 }
 
 add_task(async function test_open_archive_options() {
-  const defaultAccount = MailServices.accounts.defaultAccount;
   await open_advanced_settings(async function (tab) {
     const accountRow = get_account_tree_row(
       defaultAccount.key,
@@ -144,12 +144,8 @@ add_task(async function test_open_archive_options() {
   });
 });
 
-async function subtest_save_state(tab, identity, granularity, kfs, ri) {
-  const iframe =
-    tab.browser.contentWindow.document.getElementById("contentFrame");
-  const button = iframe.contentDocument.getElementById(
-    "archiveHierarchyButton"
-  );
+async function subtest_save_state(contentDocument, granularity, kfs, ri) {
+  const button = contentDocument.getElementById("archiveHierarchyButton");
 
   const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
     undefined,
@@ -179,7 +175,6 @@ add_task(async function test_save_archive_options() {
   defaultIdentity.archiveKeepFolderStructure = false;
   defaultIdentity.archiveRecreateInbox = false;
 
-  const defaultAccount = MailServices.accounts.defaultAccount;
   await open_advanced_settings(async function (tab) {
     const accountRow = get_account_tree_row(
       defaultAccount.key,
@@ -187,13 +182,79 @@ add_task(async function test_save_archive_options() {
       tab
     );
     await click_account_tree_row(tab, accountRow);
-
-    await subtest_save_state(tab, defaultIdentity, 1, true, true);
+    const iframe =
+      tab.browser.contentWindow.document.getElementById("contentFrame");
+    await subtest_save_state(iframe.contentDocument, 1, true, true);
   });
 
   Assert.equal(defaultIdentity.archiveGranularity, 1);
   Assert.equal(defaultIdentity.archiveKeepFolderStructure, true);
   Assert.equal(defaultIdentity.archiveRecreateInbox, true);
+});
+
+/**
+ * Test that changing the archive options for an additional identity works
+ * without affecting the default identity of the account.
+ */
+add_task(async function test_save_archive_options_for_identity() {
+  defaultIdentity.archiveGranularity = 0;
+  defaultIdentity.archiveKeepFolderStructure = false;
+  defaultIdentity.archiveRecreateInbox = true;
+
+  const secondIdentity = MailServices.accounts.createIdentity();
+  secondIdentity.email = "second.id@foo.invalid";
+  defaultAccount.addIdentity(secondIdentity);
+
+  await open_advanced_settings(async function (tab) {
+    const win =
+      tab.browser.contentWindow.document.getElementById(
+        "contentFrame"
+      ).contentWindow;
+
+    // Open the Manage Identities dialog.
+    const manageButton = win.document.getElementById(
+      "identity.manageIdentitiesbutton"
+    );
+    const identitiesDialogLoad = promiseLoadSubDialog(
+      "chrome://messenger/content/am-identities-list.xhtml"
+    );
+    EventUtils.synthesizeMouseAtCenter(manageButton, {}, win);
+    const identitiesDialog = await identitiesDialogLoad;
+
+    // Open the Edit dialog for the second identity.
+    const listItem = [
+      ...identitiesDialog.document.getElementById("identitiesList").children,
+    ].find(e => e.getAttribute("key") == secondIdentity.key);
+    const identityEditDialogLoaded = promiseLoadSubDialog(
+      "chrome://messenger/content/am-identity-edit.xhtml"
+    );
+    EventUtils.synthesizeMouseAtCenter(
+      listItem,
+      { clickCount: 2 },
+      identitiesDialog
+    );
+    const identityEditDialog = await identityEditDialogLoaded;
+
+    // Switch to the Copies & Folders tab.
+    EventUtils.synthesizeMouseAtCenter(
+      identityEditDialog.document.getElementById("identityCopiesFoldersTab"),
+      {},
+      identityEditDialog
+    );
+
+    await subtest_save_state(identityEditDialog.document, 1, true, false);
+
+    identityEditDialog.document.querySelector("dialog").acceptDialog();
+    identitiesDialog.document.querySelector("dialog").acceptDialog();
+  });
+
+  Assert.equal(defaultIdentity.archiveGranularity, 0);
+  Assert.equal(defaultIdentity.archiveKeepFolderStructure, false);
+  Assert.equal(defaultIdentity.archiveRecreateInbox, true);
+
+  Assert.equal(secondIdentity.archiveGranularity, 1);
+  Assert.equal(secondIdentity.archiveKeepFolderStructure, true);
+  Assert.equal(secondIdentity.archiveRecreateInbox, false);
 });
 
 async function subtest_check_archive_enabled(tab, archiveEnabled) {

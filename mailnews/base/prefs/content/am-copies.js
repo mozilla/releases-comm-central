@@ -25,6 +25,7 @@ var gFccFolderWithDelim,
   gTemplatesFolderWithDelim;
 var gAccount;
 var gCurrentServerId;
+var gIdentity;
 
 function onPreInit(account, accountValues) {
   gAccount = account;
@@ -45,10 +46,10 @@ function onPreInit(account, accountValues) {
  */
 function onInit(aPageId, aServerId) {
   gCurrentServerId = aServerId;
-  onInitCopiesAndFolders();
+  onInitCopiesAndFolders(null);
 }
 
-function onInitCopiesAndFolders() {
+function onInitCopiesAndFolders(aIdentity) {
   SetGlobalRadioElemChoices();
 
   SetFolderDisplay(
@@ -93,6 +94,8 @@ function onInitCopiesAndFolders() {
   setupArchiveItems();
 
   SetSpecialFolderNamesWithDelims();
+
+  gIdentity = aIdentity;
 }
 
 // Initialize the picker mode choices (account/folder picker) into global vars
@@ -570,13 +573,10 @@ function setupArchiveItems() {
  * Open a dialog to edit the folder hierarchy used when archiving messages.
  */
 function ChangeArchiveHierarchy() {
-  const identity =
-    parent.gIdentity || parent.getCurrentAccount().defaultIdentity;
-  const arg = { identity };
-
+  const identity = gIdentity || parent.getCurrentAccount().defaultIdentity;
   parent.gSubDialog.open(
     "chrome://messenger/content/am-archiveoptions.xhtml",
     undefined,
-    arg
+    { identity }
   );
 }

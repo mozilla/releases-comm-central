@@ -150,7 +150,7 @@ function initCopiesAndFolder(identity) {
   document.getElementById("identity.archiveEnabled").checked =
     copiesAndFoldersIdentity.archiveEnabled;
 
-  onInitCopiesAndFolders(); // am-copies.js method
+  onInitCopiesAndFolders(identity); // am-copies.js method
 }
 
 function initCompositionAndAddressing(identity) {
