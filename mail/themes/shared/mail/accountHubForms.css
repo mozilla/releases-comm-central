@@ -840,17 +840,22 @@ div:has(legend) {
 /* Address book styles */
 
 button.account-hub-option-button {
-  display: flex;
-  gap: var(--hub-address-book-option-select-gap);
-  align-items: center;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: var(--hub-address-book-option-select-gap);
+  row-gap: 1px;
   padding: var(--hub-address-book-option-padding);
   margin: 0;
   border: none;
-  font-weight: normal;
   background-color: var(--color-neutral-base);
   width: 100%;
   box-shadow: 0 12px 10px -10px rgba(0, 79, 155, 0.25),
     0 0 5px 0 rgba(23, 95, 182, 0.1);
+
+  &.three-column {
+    grid-template-columns: auto 1fr auto;
+  }
 
   @media (prefers-reduced-motion: no-preference) {
     transition: background-color 220ms ease, box-shadow 220ms ease;
@@ -880,64 +885,74 @@ button.account-hub-option-button {
     background-color: var(--color-neutral-border);
   }
 
-  & .option-icon {
-    padding: 6px;
-    background-color: var(--color-primary-default);
-    box-shadow: 0 3px 4px -2px rgba(25, 81, 143, 0.5),  0 -2px 0 0 rgb(0, 0, 0, 0.25) inset;
-    border-radius: 5px;
+  & img {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    -moz-context-properties: fill, stroke;
+    fill: light-dark(color-mix(in srgb, #feffff 20%, transparent), color-mix(in srgb, #1a202c 20%, transparent));
+    stroke: var(--color-neutral-base);
+    align-self: center;
     line-height: 0;
+
+    .fetching & {
+      stroke: var(--color-primary-default);
+      background-color: transparent !important;
+      box-shadow: none !important;
+    }
+
+    &.address-book-option-icon {
+      padding: 6px;
+      background-color: var(--color-primary-default);
+      box-shadow: 0 3px 4px -2px rgba(25, 81, 143, 0.5), 0 -2px 0 0 rgb(0, 0, 0, 0.25) inset;
+      border-radius: 5px;
+    }
 
     @media (prefers-reduced-motion: no-preference) {
       transition: background-color 220ms ease;
-    }
-
-    & img {
-      height: 24px;
-      width: 24px;
-      -moz-context-properties: fill, stroke;
-      fill: light-dark(color-mix(in srgb, #feffff 20%, transparent), color-mix(in srgb, #1a202c 20%, transparent));
-      stroke: var(--color-neutral-base);
 
       .fetching & {
         animation: spinning-animation 1.5s ease infinite;
       }
     }
 
-    & .sync-icon {
+    &.sync-icon {
       content: var(--icon-sync-lg);
     }
 
-    & .remote-address-book-icon {
+    &.remote-address-book-icon {
       content: var(--icon-address-book-remote-lg);
     }
 
-    & .local-address-book-icon {
+    &.local-address-book-icon {
       content: var(--icon-address-book-new-lg);
     }
 
-    & .ldap-address-book-icon {
+    &.ldap-address-book-icon {
       content: var(--addons-manager-site-permissions);
     }
   }
 
-  & .option-content {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    gap: 1px;
+  & .option-title {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 1.54rem;
+    color: var(--color-primary-hover);
+    font-weight: 400;
+    text-align: start;
+  }
 
-    & .option-title {
-      font-size: 1.54rem;
-      color: var(--color-primary-hover);
-      font-weight: 400;
-    }
+  & .option-data {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-align: start;
+  }
 
-    & .option-data {
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--color-text-secondary);
-      text-align: start;
-    }
+  & .account-address-book-count {
+    grid-column: 3;
+    grid-row: 1;
   }
 }
 
