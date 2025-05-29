@@ -1384,19 +1384,12 @@ nsresult nsMsgAccountManager::LoadAccounts() {
             serverPrefBranch->GetCharPref("userName", userName);
             serverPrefBranch->GetCharPref("hostname", hostName);
             serverPrefBranch->GetCharPref("type", type);
-            // Find a server with the same info.
-            nsCOMPtr<nsIMsgAccountManager> accountManager =
-                do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-            if (NS_FAILED(rv)) {
-              continue;
-            }
+
             nsCOMPtr<nsIMsgIncomingServer> server;
-            accountManager->FindServer(userName, hostName, type, 0,
-                                       getter_AddRefs(server));
+            FindServer(userName, hostName, type, 0, getter_AddRefs(server));
             if (server) {
               nsCOMPtr<nsIMsgAccount> replacement;
-              accountManager->FindAccountForServer(server,
-                                                   getter_AddRefs(replacement));
+              FindAccountForServer(server, getter_AddRefs(replacement));
               if (replacement) {
                 nsCString accountKey;
                 replacement->GetKey(accountKey);
@@ -1659,10 +1652,6 @@ nsresult nsMsgAccountManager::CleanupOnExit() {
     if (!isImap || (isImap && (!serverRequiresPasswordForAuthentication ||
                                !passwd.IsEmpty() ||
                                authMethod == nsMsgAuthMethod::OAuth2))) {
-      nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-      if (NS_FAILED(rv)) continue;
-
       if (isImap && cleanupInboxOnExit) {
         // Find the inbox.
         nsTArray<RefPtr<nsIMsgFolder>> subFolders;
@@ -1690,8 +1679,10 @@ nsresult nsMsgAccountManager::CleanupOnExit() {
               };
 
               rv = folder->Compact(cleanupListener, nullptr);
-              if (NS_SUCCEEDED(rv))
-                accountManager->SetFolderDoingCleanupInbox(folder);
+              if (NS_SUCCEEDED(rv)) {
+                m_folderDoingCleanupInbox = folder;
+                m_cleanupInboxInProgress = true;
+              }
               break;
             }
           }
@@ -1716,8 +1707,10 @@ nsresult nsMsgAccountManager::CleanupOnExit() {
         };
 
         rv = root->EmptyTrash(emptyTrashListener);
-        if (isImap && NS_SUCCEEDED(rv))
-          accountManager->SetFolderDoingEmptyTrash(root);
+        if (isImap && NS_SUCCEEDED(rv)) {
+          m_folderDoingEmptyTrash = root;
+          m_emptyTrashInProgress = true;
+        }
       }
 
       if (!isImap) {
@@ -1728,12 +1721,9 @@ nsresult nsMsgAccountManager::CleanupOnExit() {
 
       // Pause until any possible inbox-compaction and trash-emptying
       // are complete (or time out).
-      bool inProgress = false;
       if (cleanupInboxOnExit) {
         int32_t loopCount = 0;  // used to break out after 5 seconds
-        accountManager->GetCleanupInboxInProgress(&inProgress);
-        while (inProgress && loopCount++ < 5000) {
-          accountManager->GetCleanupInboxInProgress(&inProgress);
+        while (m_cleanupInboxInProgress && loopCount++ < 5000) {
           PR_CEnterMonitor(root);
           PR_CWait(root, PR_MicrosecondsToInterval(1000UL));
           PR_CExitMonitor(root);
@@ -1741,10 +1731,8 @@ nsresult nsMsgAccountManager::CleanupOnExit() {
         }
       }
       if (emptyTrashOnExit) {
-        accountManager->GetEmptyTrashInProgress(&inProgress);
         int32_t loopCount = 0;
-        while (inProgress && loopCount++ < 5000) {
-          accountManager->GetEmptyTrashInProgress(&inProgress);
+        while (m_emptyTrashInProgress && loopCount++ < 5000) {
           PR_CEnterMonitor(root);
           PR_CWait(root, PR_MicrosecondsToInterval(1000UL));
           PR_CExitMonitor(root);
@@ -1888,39 +1876,6 @@ nsMsgAccountManager::GetAccount(const nsACString& aKey,
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgAccountManager::FindServerIndex(nsIMsgIncomingServer* server,
-                                     int32_t* result) {
-  NS_ENSURE_ARG_POINTER(server);
-  NS_ENSURE_ARG_POINTER(result);
-
-  nsCString key;
-  nsresult rv = server->GetKey(key);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // do this by account because the account list is in order
-  uint32_t i;
-  for (i = 0; i < m_accounts.Length(); ++i) {
-    nsCOMPtr<nsIMsgIncomingServer> server;
-    rv = m_accounts[i]->GetIncomingServer(getter_AddRefs(server));
-    if (!server || NS_FAILED(rv)) continue;
-
-    nsCString serverKey;
-    rv = server->GetKey(serverKey);
-    if (NS_FAILED(rv)) continue;
-
-    // stop when found,
-    // index will be set to the current index
-    if (serverKey.Equals(key)) break;
-  }
-
-  // Even if the search failed, we can return index.
-  // This means that all servers not in the array return an index higher
-  // than all "registered" servers.
-  *result = i;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgAccountManager::AddIncomingServerListener(
     nsIIncomingServerListener* serverListener) {
   m_incomingServerListeners.AppendObject(serverListener);
@@ -1956,17 +1911,6 @@ NS_IMETHODIMP nsMsgAccountManager::NotifyServerUnloaded(
   for (int32_t i = 0; i < count; i++) {
     nsIIncomingServerListener* listener = m_incomingServerListeners[i];
     listener->OnServerUnloaded(server);
-  }
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgAccountManager::NotifyServerChanged(
-    nsIMsgIncomingServer* server) {
-  int32_t count = m_incomingServerListeners.Count();
-  for (int32_t i = 0; i < count; i++) {
-    nsIIncomingServerListener* listener = m_incomingServerListeners[i];
-    listener->OnServerChanged(server);
   }
 
   return NS_OK;
@@ -2380,34 +2324,6 @@ nsMsgAccountManager::CreateLocalMailAccount(nsIMsgAccount** _retval) {
   if (_retval) {
     account.forget(_retval);
   }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgAccountManager::SetFolderDoingEmptyTrash(nsIMsgFolder* folder) {
-  m_folderDoingEmptyTrash = folder;
-  m_emptyTrashInProgress = true;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgAccountManager::GetEmptyTrashInProgress(bool* bVal) {
-  NS_ENSURE_ARG_POINTER(bVal);
-  *bVal = m_emptyTrashInProgress;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgAccountManager::SetFolderDoingCleanupInbox(nsIMsgFolder* folder) {
-  m_folderDoingCleanupInbox = folder;
-  m_cleanupInboxInProgress = true;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgAccountManager::GetCleanupInboxInProgress(bool* bVal) {
-  NS_ENSURE_ARG_POINTER(bVal);
-  *bVal = m_cleanupInboxInProgress;
   return NS_OK;
 }
 

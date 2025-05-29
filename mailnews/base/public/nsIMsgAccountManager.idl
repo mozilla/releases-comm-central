@@ -131,11 +131,6 @@ interface nsIMsgAccountManager : nsISupports {
   nsIMsgIncomingServer findServerByURI(in nsIURI aURI);
 
   /**
-   * find the index of this server in the (ordered) list of accounts
-   */
-  long findServerIndex(in nsIMsgIncomingServer server);
-
-  /**
    * Finds an account for the given incoming server.
    *
    * @param server  An incoming server to find the account for.
@@ -194,18 +189,11 @@ interface nsIMsgAccountManager : nsISupports {
   void closeCachedConnections();
   void shutdownServers();
 
-  void setFolderDoingEmptyTrash(in nsIMsgFolder folder);
-  boolean getEmptyTrashInProgress();
-
-  void setFolderDoingCleanupInbox(in nsIMsgFolder folder);
-  boolean getCleanupInboxInProgress();
-
   void addIncomingServerListener(in nsIIncomingServerListener serverListener);
   void removeIncomingServerListener(in nsIIncomingServerListener serverListener);
 
   void notifyServerLoaded(in nsIMsgIncomingServer server);
   void notifyServerUnloaded(in nsIMsgIncomingServer server);
-  void notifyServerChanged(in nsIMsgIncomingServer server);
 
   // force account info out to prefs file
   void saveAccountInfo();
