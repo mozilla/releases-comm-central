@@ -361,7 +361,6 @@
 
 #ifdef MOZ_DXCOMPILER
 @BINPATH@/@MOZ_DXC_DLL_NAME@
-@BINPATH@/@MOZ_DXIL_DLL_NAME@
 #endif
 
 ; Background tasks-specific preferences.  These are in the GRE
