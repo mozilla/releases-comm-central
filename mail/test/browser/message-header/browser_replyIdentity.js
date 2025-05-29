@@ -32,7 +32,26 @@ var identity1Email = "carl@example.com";
 var identity2Email = "lenny@springfield.invalid";
 
 add_setup(async function () {
-  addIdentitiesAndFolder();
+  const server = MailServices.accounts.createIncomingServer(
+    "nobody",
+    "ReplyIdentityTesting",
+    "pop3"
+  );
+  const account = MailServices.accounts.createAccount();
+  account.incomingServer = server;
+
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = identity1Email;
+  account.addIdentity(identity);
+
+  const identity2 = MailServices.accounts.createIdentity();
+  identity2.email = identity2Email;
+  account.addIdentity(identity2);
+
+  testFolder = server.rootFolder
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .createLocalSubfolder("Replies");
+
   // Msg #0
   await add_message_to_folder(
     [testFolder],
@@ -111,28 +130,6 @@ add_setup(async function () {
     })
   );
 });
-
-function addIdentitiesAndFolder() {
-  const server = MailServices.accounts.createIncomingServer(
-    "nobody",
-    "ReplyIdentityTesting",
-    "pop3"
-  );
-  testFolder = server.rootFolder
-    .QueryInterface(Ci.nsIMsgLocalMailFolder)
-    .createLocalSubfolder("Replies");
-
-  const identity = MailServices.accounts.createIdentity();
-  identity.email = identity1Email;
-
-  const identity2 = MailServices.accounts.createIdentity();
-  identity2.email = identity2Email;
-
-  const account = MailServices.accounts.createAccount();
-  account.incomingServer = server;
-  account.addIdentity(identity);
-  account.addIdentity(identity2);
-}
 
 function checkReply(replyWin, expectedFromEmail) {
   const identityList = replyWin.document.getElementById("msgIdentity");
