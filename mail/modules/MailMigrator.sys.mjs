@@ -29,7 +29,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 50;
+    const UI_VERSION = 51;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -264,6 +264,25 @@ export var MailMigrator = {
         // Previous UI let users set this. Non-default value interacts badly
         // with current dark mode.
         Services.prefs.clearUserPref("browser.display.document_color_use");
+      }
+
+      if (currentUIVersion < 51) {
+        // Bug 1968963: Re-run migration 48 and 49 becasue they were skipped on
+        // release due to the uplifting of the patch containing migration 50.
+        Services.prefs.setBoolPref(
+          "searchintegration.enable",
+          lazy.SearchIntegration?.prefEnabled ?? false
+        );
+
+        const docURL = "chrome://messenger/content/messenger.xhtml";
+        if (Services.xulStore.hasValue(docURL, "threadPane", "view")) {
+          const view = Services.xulStore.getValue(docURL, "threadPane", "view");
+          Services.prefs.setIntPref(
+            "mail.threadpane.listview",
+            view == "table" ? 1 : 0
+          );
+          Services.xulStore.removeValue(docURL, "threadPane", "view");
+        }
       }
 
       // Migration tasks that may take a long time are not run immediately, but
