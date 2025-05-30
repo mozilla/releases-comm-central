@@ -15,6 +15,7 @@ use nserror::nsresult;
 use nserror::NS_OK;
 use nsstring::{nsACString, nsCString, nsString};
 use url::Url;
+use uuid::Uuid;
 use xpcom::interfaces::{nsILoginInfo, nsILoginManager};
 use xpcom::{create_instance, get_service, getter_addrefs, nsIID};
 use xpcom::{
@@ -378,9 +379,18 @@ impl EwsOutgoingServer {
         let uid = match uid {
             Some(uid) => uid.clone(),
             None => {
-                let uid = self
-                    .read_string_pref(PrefName::Uid)?
-                    .ok_or(nserror::NS_ERROR_NOT_INITIALIZED)?;
+                let uid = match self.read_string_pref(PrefName::Uid)? {
+                    Some(uid) => uid,
+                    None => {
+                        // If no UID has been generated for this server yet,
+                        // generate one and store it to the server's prefs, then
+                        // return it.
+                        let uid = Uuid::new_v4().hyphenated().to_string();
+                        let uid = nsCString::from(uid);
+                        self.store_string_pref(PrefName::Uid, &*uid)?;
+                        uid
+                    }
+                };
 
                 // We don't need to check whether the return value is an error,
                 // since this code only runs if the UID wasn't already set.

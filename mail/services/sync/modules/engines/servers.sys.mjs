@@ -371,7 +371,7 @@ ServerTracker.prototype = {
       server = subject.QueryInterface(Ci.nsIMsgIncomingServer);
       this.engine._store.markDeleted(server.UID);
     } else if (topic == "message-smtpserver-removed") {
-      server = subject.QueryInterface(Ci.nsISmtpServer);
+      server = subject.QueryInterface(Ci.nsIMsgOutgoingServer);
       this.engine._store.markDeleted(server.UID);
     } else {
       const [, group, serverKey] = data.split(".", 3);
