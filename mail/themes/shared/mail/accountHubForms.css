@@ -883,6 +883,20 @@ button.account-hub-option-button {
 
   &:disabled {
     background-color: var(--color-neutral-border);
+
+    & .option-title.account-title,
+    & .option-data.account-data {
+      color: var(--color-text-secondary);
+    }
+
+    & .account-address-book-count {
+      background-color: var(--color-text-secondary);
+    }
+
+    & .mail-lock-icon {
+      stroke: var(--color-text-secondary);
+      fill: color-mix(in srgb, var(--color-text-secondary) 20%, transparent);
+    }
   }
 
   & img {
@@ -930,6 +944,12 @@ button.account-hub-option-button {
     &.ldap-address-book-icon {
       content: var(--addons-manager-site-permissions);
     }
+
+    &.mail-lock-icon {
+      stroke: var(--color-primary-default);
+      fill: color-mix(in srgb, var(--color-primary-default) 20%, transparent);
+      content: var(--icon-mail-lock-lg);
+    }
   }
 
   & .option-title {
@@ -939,6 +959,15 @@ button.account-hub-option-button {
     color: var(--color-primary-hover);
     font-weight: 400;
     text-align: start;
+    text-overflow: ellipsis;
+
+    &.account-title {
+      font-size: 1.15rem;
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   & .option-data {
@@ -948,11 +977,22 @@ button.account-hub-option-button {
     font-weight: 500;
     color: var(--color-text-secondary);
     text-align: start;
+
+    &.account-data {
+      color: var(--color-primary-hover);
+    }
   }
 
   & .account-address-book-count {
     grid-column: 3;
     grid-row: 1;
+    padding-block: 3px;
+    padding-inline: 6px;
+    font-weight: 700;
+    font-size: 1rem;
+    background-color: var(--color-primary-hover);
+    border-radius: 3px;
+    color: var(--color-primary-soft);
   }
 }
 

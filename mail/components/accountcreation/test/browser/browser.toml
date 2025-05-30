@@ -14,6 +14,8 @@ support-files = ["files/**"]
 
 ["browser_accountHubAddressBook.js"]
 
+["browser_accountHubAddressBookAccountSelect.js"]
+
 ["browser_accountHubAddressBookOptionSelect.js"]
 
 ["browser_accountHubFooter.js"]

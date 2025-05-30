@@ -62,26 +62,7 @@ registerCleanupFunction(function () {
 
 add_task(async function test_address_book_option_select_account_with_ab() {
   IMAPServer.open();
-  const abAccount = MailServices.accounts.createAccount();
-  abAccount.incomingServer = MailServices.accounts.createIncomingServer(
-    "john.doe@imap.test",
-    "imap.test",
-    "imap"
-  );
-
-  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-    Ci.nsILoginInfo
-  );
-  loginInfo.init(
-    "https://example.org",
-    null,
-    "https://example.org",
-    "john.doe@imap.test",
-    "abc12345",
-    "",
-    ""
-  );
-  await Services.logins.addLoginAsync(loginInfo);
+  const abAccount = await loginToAddressBookAccount();
 
   // Open the dialog.
   const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
@@ -144,26 +125,7 @@ add_task(async function test_address_book_option_select_no_accounts() {
 add_task(async function test_address_book_option_selection() {
   // Add an account so the sync option is not diabled.
   IMAPServer.open();
-  const abAccount = MailServices.accounts.createAccount();
-  abAccount.incomingServer = MailServices.accounts.createIncomingServer(
-    "john.doe@imap.test",
-    "imap.test",
-    "imap"
-  );
-
-  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-    Ci.nsILoginInfo
-  );
-  loginInfo.init(
-    "https://example.org",
-    null,
-    "https://example.org",
-    "john.doe@imap.test",
-    "abc12345",
-    "",
-    ""
-  );
-  await Services.logins.addLoginAsync(loginInfo);
+  const abAccount = await loginToAddressBookAccount();
 
   // Open the dialog.
   const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
@@ -237,6 +199,89 @@ add_task(async function test_address_book_option_selection() {
   IMAPServer.close();
 });
 
+add_task(async function test_address_book_sync_account() {
+  // Add an account so the sync option is not diabled.
+  IMAPServer.open();
+  const abAccount = await loginToAddressBookAccount();
+
+  // Open the dialog.
+  const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+  const optionSelectTemplate = dialog.querySelector(
+    "address-book-option-select"
+  );
+
+  await BrowserTestUtils.waitForMutationCondition(
+    optionSelectTemplate,
+    { childList: true },
+    () => !!optionSelectTemplate.querySelector("#syncExistingAccounts")
+  );
+  await TestUtils.waitForCondition(
+    () =>
+      optionSelectTemplate.l10n.getAttributes(
+        optionSelectTemplate.querySelector("#syncExistingAccountsData")
+      ).id === "account-hub-address-book-sync-option-data",
+    "The option select subview should have applied the address book count"
+  );
+
+  // Click the sync accounts option to show the account option subview.
+  EventUtils.synthesizeMouseAtCenter(
+    optionSelectTemplate.querySelector("#syncExistingAccounts"),
+    {}
+  );
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isHidden(optionSelectTemplate),
+    "The option-select subview should be hidden."
+  );
+  const accountSelectTemplate = dialog.querySelector(
+    "address-book-account-select"
+  );
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(accountSelectTemplate),
+    `The account-select subview should be visible.`
+  );
+
+  // Test that button values have been updated correctly.
+  const accountButton = accountSelectTemplate.querySelector("button");
+
+  Assert.equal(
+    accountButton.value,
+    "john.doe@imap.test",
+    "Button value should be the account email"
+  );
+  Assert.equal(
+    accountButton.querySelector("span.account-title").textContent,
+    "John Doe",
+    "Button title text should be the account full name"
+  );
+  Assert.equal(
+    accountButton.querySelector("span.account-data").textContent,
+    "john.doe@imap.test",
+    "Button data text should be the account email"
+  );
+
+  const counter = accountButton.querySelector(".account-address-book-count");
+  Assert.equal(
+    accountSelectTemplate.l10n.getAttributes(counter).args.synced,
+    0,
+    "Synced address books count should be 0"
+  );
+  Assert.equal(
+    accountSelectTemplate.l10n.getAttributes(counter).args.available,
+    1,
+    "Available address books count should be 1"
+  );
+  Assert.equal(
+    accountSelectTemplate.l10n.getAttributes(counter).args.total,
+    1,
+    "Total address books count should be 1"
+  );
+
+  subtest_close_account_hub_dialog(dialog, accountSelectTemplate);
+  Services.logins.removeAllLogins();
+  MailServices.accounts.removeAccount(abAccount);
+  IMAPServer.close();
+});
+
 /**
  * Tests visibility of option select template and the selected address book
  * template, and again when the back button is pressed.
@@ -268,4 +313,39 @@ async function subtest_switchSubviews(
     () => BrowserTestUtils.isVisible(optionSelectTemplate),
     "The option select subview should be visible."
   );
+}
+
+/**
+ * Creates and logs in to an account that has an available address book.
+ *
+ * @returns {nsIMsgAccount}
+ */
+async function loginToAddressBookAccount() {
+  const abAccount = MailServices.accounts.createAccount();
+  abAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "john.doe@imap.test",
+    "imap.test",
+    "imap"
+  );
+
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = "john.doe@imap.test";
+  identity.fullName = "John Doe";
+  abAccount.addIdentity(identity);
+
+  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
+  loginInfo.init(
+    "https://example.org",
+    null,
+    "https://example.org",
+    "john.doe@imap.test",
+    "abc12345",
+    "",
+    ""
+  );
+  await Services.logins.addLoginAsync(loginInfo);
+
+  return abAccount;
 }

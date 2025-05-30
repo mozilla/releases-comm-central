@@ -178,6 +178,7 @@
   --icon-export-lg: url("chrome://messenger/skin/icons/new/touch/export.svg");
   --icon-import-lg: url("chrome://messenger/skin/icons/new/touch/import.svg");
   --icon-mail-lg: url("chrome://messenger/skin/icons/new/touch/mail.svg");
+  --icon-mail-lock-lg: url("chrome://messenger/skin/icons/new/touch/mail-lock.svg");
   --icon-sync-lg: url("chrome://messenger/skin/icons/new/touch/sync.svg");
 
   --icon-calendar-empty: url("chrome://messenger/skin/icons/new/calendar-empty.svg");

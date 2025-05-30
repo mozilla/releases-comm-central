@@ -383,6 +383,10 @@ header {
     max-width: 400px;
   }
 
+  &.account-select-body {
+    max-width: 500px;
+  }
+
   &.sync-accounts-form-body {
     & .sync-accounts-container {
       width: 100%;
@@ -400,7 +404,8 @@ header {
     }
   }
 
-  &.option-select-body {
+  &.option-select-body,
+  &.account-select-body {
     gap: var(--hub-address-book-option-select-gap);
   }
 }

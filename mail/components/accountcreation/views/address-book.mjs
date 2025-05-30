@@ -201,6 +201,7 @@ class AccountHubAddressBook extends HTMLElement {
 
         if (this.#currentState === "optionSelectSubview") {
           await this.#initUI(event.submitter.value);
+          this.#currentSubview.setState?.(this.#accounts);
           break;
         }
       // Fall through to handle like forward event.
