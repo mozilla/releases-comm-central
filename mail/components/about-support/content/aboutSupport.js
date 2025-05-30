@@ -1073,7 +1073,10 @@ var snapshotFormatters = {
       if (micStatus.value == permission.PERMISSION_STATE_AUTHORIZED) {
         roundtripAudioLatency();
       }
-    } else {
+    } else if (
+      AppConstants.platform != "win" ||
+      !Services.sysinfo.getProperty("hasWinPackageId", false)
+    ) {
       roundtripAudioLatency();
     }
 
