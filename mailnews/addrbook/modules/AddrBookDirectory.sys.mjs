@@ -30,6 +30,12 @@ export class AddrBookDirectory {
   }
 
   _initialized = false;
+
+  /**
+   * Intializes a directory, pointing to a particular URI.
+   *
+   * @param {string} uri
+   */
   init(uri) {
     if (this._initialized) {
       throw new Components.Exception(
@@ -293,6 +299,13 @@ export class AddrBookDirectory {
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
   }
+
+  /**
+   * Get the cards associated with the directory. This will return the cards
+   * associated with the mailing lists too.
+   *
+   * @returns {nsIAbCard[]}
+   */
   get childCards() {
     const results = Array.from(
       this.lists.values(),
@@ -312,7 +325,24 @@ export class AddrBookDirectory {
     return true;
   }
 
-  search(query, string, listener) {
+  /**
+   * Searches the directory for cards matching query.
+   *
+   * @param {string} query - Query. The query takes the form:
+   *   (BOOL1(FIELD1,OP1,VALUE1)..(FIELDn,OPn,VALUEn)(BOOL2(FIELD1,OP1,VALUE1)...)...)
+   *
+   *   BOOLn   A boolean operator joining subsequent terms delimited by ().
+   *           For possible values see CreateBooleanExpression().
+   *   FIELDn  An addressbook card data field.
+   *   OPn     An operator for the search term.
+   *           For possible values see CreateBooleanConditionString().
+   *   VALUEn  The value to be matched in the FIELDn via the OPn operator.
+   *           The value must be URL encoded by the caller, if it contains any
+   *           special characters including '(' and ')'.
+   * @param {string} searchString
+   * @param {nsIAbDirSearchListener} listener
+   */
+  search(query, searchString, listener) {
     if (!listener) {
       return;
     }
@@ -401,10 +431,11 @@ export class AddrBookDirectory {
       }
       const matches = b => {
         if ("condition" in b) {
-          const { name, condition, value } = b;
+          let { name, condition, value } = b;
           if (name == "IsMailList" && condition == "=") {
             return card.isMailList == (value == "true");
           }
+
           let cardValue = properties.get(name);
           if (!cardValue) {
             return condition == "!ex";
@@ -414,6 +445,22 @@ export class AddrBookDirectory {
           }
 
           cardValue = cardValue.toLowerCase();
+
+          // Normalize phone numbers so 555-123 will match 555.123 etc.
+          if (
+            [
+              "HomePhone",
+              "WorkPhone",
+              "FaxNumber",
+              "PagerNumber",
+              "CellularNumber",
+            ].includes(name)
+          ) {
+            // For phone numbers, 0-9,#* and a-z are valid; keep initial +.
+            value = value.replace(/(?!^\+)[^0-9,#*a-z]/g, "");
+            cardValue = cardValue.replace(/(?!^\+)[^0-9,#*a-z]/g, "");
+          }
+
           switch (condition) {
             case "=":
               return cardValue == value;

@@ -5,6 +5,9 @@
 const { mailTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
+const { VCardPropertyEntry } = ChromeUtils.importESModule(
+  "resource:///modules/VCardUtils.sys.mjs"
+);
 
 const cards = {};
 
@@ -23,6 +26,17 @@ add_setup(async function () {
   for (const name of ["daniel", "jonathan", "nathan"]) {
     cards[name] = personalBook.addCard(createContact(name, "test"));
   }
+
+  // Add "WorkPhone"
+  cards.daniel.vCardProperties.addEntry(
+    new VCardPropertyEntry("tel", { type: "work" }, "text", "+1555987654321")
+  );
+  personalBook.modifyCard(cards.daniel);
+  cards.nathan.vCardProperties.addEntry(
+    new VCardPropertyEntry("tel", { type: "work" }, "text", "555-123-456")
+  );
+  personalBook.modifyCard(cards.nathan);
+
   for (const name of ["danielle", "katherine", "natalie", "susanah"]) {
     cards[name] = historyBook.addCard(createContact(name, "test"));
   }
@@ -35,7 +49,7 @@ add_setup(async function () {
 });
 
 add_task(async function () {
-  // Open the search window.
+  // Open the search addresses window.
 
   const searchWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
     undefined,
@@ -74,6 +88,15 @@ add_task(async function () {
     await BrowserTestUtils.waitForPopupEvent(abMenulist.menupopup, "hidden");
   }
 
+  async function changeSearchAttr(item, value) {
+    EventUtils.synthesizeMouseAtCenter(item, {}, searchWindow);
+    await BrowserTestUtils.waitForPopupEvent(item.menupopup, "shown");
+    item.menupopup.activateItem(
+      item.menupopup.querySelector(`menuitem[value="${value}"]`)
+    );
+    await BrowserTestUtils.waitForPopupEvent(item.menupopup, "hidden");
+  }
+
   function checkSearchResults(expectedCards) {
     Assert.equal(
       resultsTree.view.rowCount,
@@ -89,7 +112,9 @@ add_task(async function () {
     if (expectedCards.length) {
       Assert.equal(
         statusText.value,
-        `${expectedCards.length} matches found`,
+        expectedCards.length == 1
+          ? `1 match found`
+          : `${expectedCards.length} matches found`,
         "status text should show the number of cards"
       );
     } else {
@@ -173,10 +198,27 @@ add_task(async function () {
   EventUtils.synthesizeMouseAtCenter(searchButton, {}, searchWindow);
   checkSearchResults([cards.jonathan, cards.nathan]);
 
-  await changeBook(historyBook.URI);
-  checkSearchResults([cards.jonathan, cards.nathan]);
+  // Check phone number search works.
+  const searchMenuList0 = searchTerm0.querySelector(".search-menulist");
+  await changeSearchAttr(searchMenuList0, 24); // WorkPhone
+
+  input0.select();
+  EventUtils.sendString("+1 555 9876 54321", searchWindow); // +1555987654321
+
   EventUtils.synthesizeMouseAtCenter(searchButton, {}, searchWindow);
-  checkSearchResults([]);
+  checkSearchResults([cards.daniel]);
+
+  input0.select();
+  EventUtils.sendString("555.123.456", searchWindow); // 555-123-456
+  EventUtils.synthesizeMouseAtCenter(searchButton, {}, searchWindow);
+  checkSearchResults([cards.nathan]);
+
+  // Now change check both are in collecetd addresses.
+
+  await changeBook(historyBook.URI);
+  checkSearchResults([cards.nathan]); // previous result still showing
+  EventUtils.synthesizeMouseAtCenter(searchButton, {}, searchWindow);
+  checkSearchResults([]); // No match now.
 
   // Pressing Enter from the criteria input should start a search.
 
