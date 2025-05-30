@@ -86,6 +86,7 @@ export const NotificationScheduler = {
 
     Services.obs.addObserver(this, "xul-window-visible");
     Services.obs.addObserver(this, "document-shown");
+    Services.obs.addObserver(this, "quit-application");
   },
 
   observe(_subject, topic) {
@@ -104,6 +105,10 @@ export const NotificationScheduler = {
       case "document-shown":
       case "xul-window-visible":
         update = true;
+        break;
+      case "quit-application":
+        // Remove the observer so that the idle service can be cleaned up.
+        this._idleService.removeIdleObserver(this, 30);
         break;
       default:
         return;
