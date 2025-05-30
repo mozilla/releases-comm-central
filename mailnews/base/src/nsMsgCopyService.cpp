@@ -40,7 +40,8 @@ nsCopyRequest::nsCopyRequest()
       m_isMoveOrDraftOrTemplate(false),
       m_allowUndo(false),
       m_processed(false),
-      m_newMsgFlags(0) {
+      m_newMsgFlags(0),
+      mPendingRemoval(false) {
   MOZ_COUNT_CTOR(nsCopyRequest);
 }
 
@@ -166,6 +167,7 @@ nsresult nsMsgCopyService::ClearRequest(nsCopyRequest* aRequest, nsresult rv) {
 
     if (aRequest->m_listener) {
       // Call onStopCopy BEFORE RemoveElement.
+      aRequest->mPendingRemoval = true;
       aRequest->m_listener->OnStopCopy(rv);
     }
     m_copyRequests.RemoveElement(aRequest);
@@ -333,7 +335,8 @@ nsCopyRequest* nsMsgCopyService::FindRequest(nsISupports* aSupport,
                                              nsIMsgFolder* dstFolder) {
   nsCopyRequest* matchingRequest = nullptr;
   for (auto copyRequest : m_copyRequests) {
-    if (!SameCOMIdentity(copyRequest->m_srcSupport, aSupport)) {
+    if (copyRequest->mPendingRemoval ||
+        !SameCOMIdentity(copyRequest->m_srcSupport, aSupport)) {
       continue;
     }
     if (SameCOMIdentity(copyRequest->m_dstFolder.get(), dstFolder)) {

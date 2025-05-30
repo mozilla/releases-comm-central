@@ -65,6 +65,7 @@ class nsCopyRequest {
   nsCString m_newMsgKeywords;
   nsCString m_dstFolderName;                  // used for copy folder.
   nsTArray<nsCopySource*> m_copySourceArray;  // array of nsCopySource
+  bool mPendingRemoval;
 };
 
 class nsMsgCopyService : public nsIMsgCopyService {
