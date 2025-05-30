@@ -52,7 +52,6 @@ export var iterate = {
    * @param {?Function} completed - [optional] The function called after the loop completes.
    */
   forEach: (() => {
-    // eslint-disable-next-line require-jsdoc
     function forEach(iterable, body, completed = null) {
       // This should be a const one day, lets keep it a pref for now though until we
       // find a sane value.
