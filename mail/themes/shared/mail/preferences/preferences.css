@@ -174,23 +174,68 @@ menulist::part(dropmarker-icon) {
   min-width: min-content;
 }
 
-.sticky-container {
+#paneDeck {
   width: 100%;
-  position: sticky;
-  background-color: var(--in-content-page-background);
-  top: 0;
-  z-index: 1;
-  padding-inline: 4px;
 }
 
+#policies-container,
 #searchInput {
   /* If these sizes change, update the scroll margin of .subcategory. */
   min-height: var(--in-content-button-height);
   margin: 20px 0 30px;
 }
 
-#paneDeck {
-  width: 100%;
+#policies-container {
+  margin-inline-end: var(--space-large);
+  /* Make sure the container is at least the same height as the searchbox.
+     This is needed in addition to the min-height above to make the info icon
+     the same height as the first line in the policies label.
+     Searchbox's height - line-height - border top and bottom */
+  padding-block: max(0px, calc((32px - 1.8em - 2px) / 2));
+}
+
+.info-box-container {
+  background-color: var(--in-content-box-info-background);
+  padding: 9px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.info-box-container.smaller-font-size {
+  font-size: 85%;
+}
+
+.info-icon-container {
+  display: flex;
+}
+
+.info-icon {
+  content: url("chrome://global/skin/icons/info.svg");
+  width: 16px;
+  height: 16px;
+  margin-inline-end: 6px;
+  align-self: start;
+  margin-top: 0.4em;
+  flex-shrink: 0;
+}
+
+.info-box-container.smaller-font-size .info-icon {
+  margin-top: 0.3em;
+}
+
+.sticky-container {
+  position: sticky;
+  background-color: var(--in-content-page-background);
+  top: 0;
+  z-index: 1;
+  /* The sticky-container should have the capability to cover all spotlight area. */
+  width: calc(100% + 8px);
+  margin-inline: -4px;
+  padding-inline: 4px;
+}
+
+.sticky-inner-container {
+  flex: 1;
 }
 
 .search-tooltip {

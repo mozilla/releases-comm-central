@@ -219,10 +219,20 @@
 
       <vbox id="preferencesContainer" flex="1" align="start">
         <vbox class="paneDeckContainer">
-          <hbox class="sticky-container" pack="end" align="top" flex="1">
-            <search-textbox id="searchInput"
-                            data-l10n-id="search-preferences-input2"
-                            data-l10n-attrs="placeholder, style"/>
+          <hbox class="sticky-container">
+            <hbox class="sticky-inner-container" pack="end" align="start">
+              <hbox id="policies-container" class="info-box-container smaller-font-size" flex="1" hidden="true">
+                <hbox class="info-icon-container">
+                  <html:img class="info-icon" alt="" />
+                </hbox>
+                <hbox align="center" flex="1">
+                  <html:a href="about:policies" target="_blank" data-l10n-id="managed-notice"/>
+                </hbox>
+              </hbox>
+              <search-textbox id="searchInput"
+                              data-l10n-id="search-preferences-input2"
+                              data-l10n-attrs="placeholder, style"/>
+            </hbox>
           </hbox>
           <vbox id="paneDeck">
 #include searchResults.inc.xhtml
