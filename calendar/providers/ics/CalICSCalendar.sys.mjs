@@ -830,22 +830,6 @@ export class CalICSCalendar extends cal.provider.BaseClass {
         }
       }
 
-      function copyToOverwriting(oldFile, newParentDir, newName) {
-        try {
-          const newFile = newParentDir.clone();
-          newFile.append(newName);
-
-          if (newFile.exists()) {
-            newFile.remove(false);
-          }
-          oldFile.copyTo(newParentDir, newName);
-        } catch (e) {
-          cal.ERROR("[calICSCalendar] Backup failed, no copy: " + e);
-          // Error in making a daily/initial backup.
-          // not fatal, so just continue
-        }
-      }
-
       const backupDays = Services.prefs.getIntPref("calendar.backup.days", 1);
       const numBackupFiles = Services.prefs.getIntPref("calendar.backup.filenum", 3);
 
@@ -901,7 +885,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
 
       const backupFile = backupDir.clone();
       backupFile.append(makeName("edit"));
-      backupFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
+      backupFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 
       purgeOldBackups();
 
@@ -917,18 +901,26 @@ export class CalICSCalendar extends cal.provider.BaseClass {
       channel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
       channel.notificationCallbacks = this;
 
+      const url = this.#uri.spec;
       const downloader = Cc["@mozilla.org/network/downloader;1"].createInstance(Ci.nsIDownloader);
+      // @implements {nsIDownloadObserver}
       const listener = {
-        onDownloadComplete(opdownloader, request, ctxt, status, result) {
+        async onDownloadComplete(opdownloader, request, status, result) {
+          if (status == Cr.NS_ERROR_FILE_NOT_FOUND) {
+            // Looks like there was no file to back up; ok.
+            resolve();
+            return;
+          }
           if (!Components.isSuccessCode(status)) {
-            reject();
+            reject(new Error(`Backup ${url} FAILED; status=0x${status.toString(16)}`));
             return;
           }
           if (doInitialBackup) {
-            copyToOverwriting(result, backupDir, makeName("initial"));
+            const newName = makeName("initial");
+            await IOUtils.copy(result.path, PathUtils.join(backupDir.path, newName));
           }
           if (doDailyBackup) {
-            copyToOverwriting(result, backupDir, dailyBackupFileName);
+            await IOUtils.copy(result.path, PathUtils.join(backupDir.path, dailyBackupFileName));
           }
           resolve();
         },
