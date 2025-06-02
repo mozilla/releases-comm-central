@@ -260,9 +260,10 @@ function ValidateData() {
 function onAccept(event) {
   if (ValidateData()) {
     if (href.length > 0) {
-      // Copy attributes to element we are changing or inserting
-      gActiveEditor.cloneAttributes(anchorElement, globalElement);
-
+      if (!(insertNew || replaceExistingLink)) {
+        // Copy attributes to element we are changing or inserting
+        gActiveEditor.cloneAttributes(anchorElement, globalElement);
+      }
       // Coalesce into one undo transaction
       gActiveEditor.beginTransaction();
 
@@ -285,7 +286,15 @@ function onAccept(event) {
         //  so insert a link node as parent of this
         //  (may be text, image, or other inline content)
         try {
+          // For some reason (maybe caused by bug 1803044),
+          // insertLinkAroundSelection doesn't work as expected for anchor
+          // elements containing multiple attributes.
+          gActiveEditor.setAttribute(anchorElement, "href", href);
           gActiveEditor.insertLinkAroundSelection(anchorElement);
+          gActiveEditor.cloneAttributes(
+            gActiveEditor.selection.anchorNode.parentNode,
+            globalElement
+          );
         } catch (e) {
           dump("Exception occurred in InsertElementAtSelection\n");
           return;
