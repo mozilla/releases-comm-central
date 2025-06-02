@@ -365,10 +365,9 @@ calIcalComponent.prototype = {
   get priority() {
     // If there is no value for this integer property, then we must return
     // the designated INVALID_VALUE.
-    const INVALID_VALUE = Ci.calIIcalComponent.INVALID_VALUE;
     const prop = this.innerObject.getFirstProperty("priority");
     const val = prop ? prop.getFirstValue() : null;
-    return val === null ? INVALID_VALUE : val;
+    return val === null ? Ci.calIIcalComponent.INVALID_VALUE : val;
   },
   set priority(val) {
     this.innerObject.updatePropertyWithValue("priority", val);
