@@ -184,6 +184,7 @@ win64/opt:
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            RUST_MIN_STACK: "16777216"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -237,6 +238,7 @@ win64-shippable/opt:
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            RUST_MIN_STACK: "16777216"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -286,6 +288,7 @@ win64/debug:
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            RUST_MIN_STACK: "16777216"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -333,6 +336,7 @@ win64-plain/debug:
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: plain
+            RUST_MIN_STACK: "16777216"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -375,6 +379,7 @@ win64-plain/opt:
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: plain
+            RUST_MIN_STACK: "16777216"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -418,6 +423,7 @@ win64-asan/opt:
         env:
             PERFHERDER_EXTRA_OPTIONS: "opt asan"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            RUST_MIN_STACK: "16777216"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -473,6 +479,7 @@ win64-asan-reporter-shippable/opt:
         env:
             PERFHERDER_EXTRA_OPTIONS: "asan-reporter"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            RUST_MIN_STACK: "16777216"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -533,6 +540,7 @@ win64-ccov/opt:
         env:
             RUSTC_BOOTSTRAP: '1'
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            RUST_MIN_STACK: "16777216"
     run:
         using: mozharness
         comm-checkout: true
@@ -583,6 +591,7 @@ win64-aarch64/debug:
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: aarch64
+            RUST_MIN_STACK: "16777216"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -633,6 +642,7 @@ win64-aarch64/opt:
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: aarch64
+            RUST_MIN_STACK: "16777216"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
