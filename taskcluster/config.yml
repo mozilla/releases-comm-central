@@ -294,15 +294,15 @@ workers:
             provisioner: scriptworker-prov-v1
             implementation: iscript
             os: macosx
-            worker-type: tb-depsigning-mac-v1
+            worker-type: dep-comm-signing-mac14m2
         mac-signing:
             provisioner: scriptworker-prov-v1
             implementation: iscript
             os: macosx
             worker-type:
                 by-release-level:
-                    production: tb-signing-mac-v1
-                    staging: tb-depsigning-mac-v1
+                    production: comm-signing-mac14m2
+                    staging: dep-comm-signing-mac14m2
         tree:
             provisioner: scriptworker-k8s
             implementation: treescript
