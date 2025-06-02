@@ -122,7 +122,7 @@ export class SearchBar extends HTMLElement {
     template.querySelector("slot[name=placeholder]").textContent =
       this.getAttribute("placeholder");
     this.#input.addEventListener("input", this);
-    this.#input.addEventListener("keyup", this);
+    this.#input.addEventListener("keydown", this);
 
     const styles = document.createElement("link");
     styles.setAttribute("rel", "stylesheet");
@@ -167,7 +167,7 @@ export class SearchBar extends HTMLElement {
         this.reset();
         this.focus();
         break;
-      case "keyup":
+      case "keydown":
         if (event.key === "Escape" && this.#input.value) {
           this.reset();
           event.preventDefault();

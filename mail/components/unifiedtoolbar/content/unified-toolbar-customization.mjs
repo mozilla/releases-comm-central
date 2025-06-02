@@ -107,11 +107,13 @@ class UnifiedToolbarCustomization extends HTMLElement {
     switch (event.type) {
       case "keyup":
         this.#handleKeyboard(event);
-        this.#closeByKeyboard(event);
         break;
       case "keypress":
       case "keydown":
         this.#handleKeyboard(event);
+        if (event.type === "keydown") {
+          this.#closeByKeyboard(event);
+        }
         break;
     }
   }

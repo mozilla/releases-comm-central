@@ -512,7 +512,7 @@ add_task(async function test_palette_filter() {
   for (const child of palette.children) {
     Assert.ok(
       BrowserTestUtils.isVisible(child),
-      "Palette child should be visible"
+      `Palette child ${child.label} should be visible`
     );
   }
 });
