@@ -935,8 +935,10 @@ export class MsgIncomingServer {
       this._spamSettings.logStream = null;
       this._spamSettings = null;
     }
-
-    Services.obs.removeObserver(this, "passwordmgr-storage-changed");
+    if (!this._stoppedObserving) {
+      Services.obs.removeObserver(this, "passwordmgr-storage-changed");
+      this._stoppedObserving = true;
+    }
   }
 
   getFilterList(msgWindow) {
