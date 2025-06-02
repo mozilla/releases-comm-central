@@ -87,7 +87,7 @@ const webProgressListener = {
     this._browser = browser;
     browser.webProgress.addProgressListener(
       this,
-      Ci.nsIWebProgress.NOTIFY_STATE_ALL | Ci.nsIWebProgress.NOTIFY_LOCATION
+      Ci.nsIWebProgress.NOTIFY_STATE_WINDOW | Ci.nsIWebProgress.NOTIFY_LOCATION
     );
 
     this._deferred = Promise.withResolvers();

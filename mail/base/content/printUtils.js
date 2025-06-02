@@ -129,7 +129,7 @@ ChromeUtils.defineLazyGetter(this, "PrintUtils", () => {
 
       printBrowser.webProgress.addProgressListener(
         printBrowser.progressListener,
-        Ci.nsIWebProgress.NOTIFY_STATE_ALL
+        Ci.nsIWebProgress.NOTIFY_STATE_WINDOW
       );
       MailE10SUtils.loadURI(printBrowser, url);
     });

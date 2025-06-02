@@ -450,7 +450,7 @@ async function OnLoadMsgHeaderPane() {
 
   getMessagePaneBrowser().addProgressListener(
     messageProgressListener,
-    Ci.nsIWebProgress.NOTIFY_STATE_ALL
+    Ci.nsIWebProgress.NOTIFY_STATE_REQUEST
   );
 
   gHeaderCustomize.init();
@@ -563,8 +563,7 @@ var messageProgressListener = {
       new CustomEvent("MsgLoading", { detail: gMessage, bubbles: true })
     );
 
-    const domWindow = getMessagePaneBrowser().docShell.DOMWindow;
-    domWindow.addEventListener(
+    getMessagePaneBrowser().addEventListener(
       "DOMContentLoaded",
       event => this.onDOMContentLoaded(event),
       { once: true }
