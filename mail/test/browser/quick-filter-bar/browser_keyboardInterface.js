@@ -45,9 +45,6 @@ add_setup(async function () {
   await be_in_folder(folder);
   await ensure_table_view(document);
 
-  // Quick filter bar is hidden by default, need to toggle it on.
-  await toggle_quick_filter_bar();
-
   registerCleanupFunction(async () => {
     await ensure_cards_view(document);
     await cleanup_qfb_button();
@@ -69,7 +66,10 @@ add_setup(async function () {
  * 2) With our focus in our text-box.
  */
 add_task(async function test_escape_rules() {
-  assert_quick_filter_bar_visible(true); // (precondition)
+  assert_quick_filter_bar_visible(false); // (precondition)
+
+  // Quick filter bar is hidden by default, need to toggle it on.
+  await toggle_quick_filter_bar();
 
   // the common logic for each bit...
   async function legwork() {
@@ -82,18 +82,18 @@ add_task(async function test_escape_rules() {
     });
     assert_quick_filter_bar_visible(true);
 
-    // hit escape, should clear addrbook
-    EventUtils.synthesizeKey("VK_ESCAPE", {});
+    info("hit escape, should clear addrbook");
+    EventUtils.synthesizeKey("KEY_Escape", {});
     assert_quick_filter_bar_visible(true);
     assert_constraints_expressed({ unread: true, starred: true });
 
-    // hit escape, should clear both remaining ones
-    EventUtils.synthesizeKey("VK_ESCAPE", {});
+    info("hit escape, should clear both remaining ones");
+    EventUtils.synthesizeKey("KEY_Escape", {});
     assert_quick_filter_bar_visible(true);
     assert_constraints_expressed({});
 
-    // hit escape, bar should disappear
-    EventUtils.synthesizeKey("VK_ESCAPE", {});
+    info("hit escape, bar should disappear");
+    EventUtils.synthesizeKey("KEY_Escape", {});
     assert_quick_filter_bar_visible(false);
 
     // bring the bar back for the next dude
@@ -119,13 +119,13 @@ add_task(async function test_escape_rules() {
   //  and is not falling through to the cmd_popQuickFilterBarStack case so we
   //  end up with a situation where the _lastFilterAttr is the textbox but the
   //  textbox does not actually have any active filter.
-  EventUtils.synthesizeKey("VK_ESCAPE", {});
+  EventUtils.synthesizeKey("KEY_Escape", {});
   assert_quick_filter_bar_visible(true);
   assert_constraints_expressed({});
   assert_filter_text("");
 
   // Next escape should close the box
-  EventUtils.synthesizeKey("VK_ESCAPE", {});
+  EventUtils.synthesizeKey("KEY_Escape", {});
   assert_quick_filter_bar_visible(false);
   teardownTest();
 });

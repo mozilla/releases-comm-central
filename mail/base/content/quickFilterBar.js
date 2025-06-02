@@ -82,7 +82,7 @@ var quickFilterBar = {
         this._resetFilterState();
       }
     });
-    window.addEventListener("keypress", event => {
+    window.addEventListener("keydown", event => {
       if (event.keyCode != KeyEvent.DOM_VK_ESCAPE || !this.filterer.visible) {
         // The filter bar isn't visible, do nothing.
         return;
