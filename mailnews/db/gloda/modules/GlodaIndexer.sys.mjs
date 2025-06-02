@@ -997,7 +997,7 @@ export var GlodaIndexer = {
     },
   },
   _workBatchData: undefined,
-  /* eslint-disable complexity */
+
   /**
    * The workBatch generator handles a single 'batch' of processing, managing
    *  the database transaction and keeping track of "tokens".  It drives the
@@ -1285,7 +1285,6 @@ export var GlodaIndexer = {
 
     yield GlodaConstants.kWorkDone;
   },
-  /* eslint-enable complexity */
 
   /**
    * Maps indexing job type names to a worker definition.

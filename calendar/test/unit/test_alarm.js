@@ -39,7 +39,6 @@ function test_initial_creation() {
 
   let passed;
   try {
-    // eslint-disable-next-line no-unused-expressions
     alarm.icalString;
     passed = false;
   } catch (e) {

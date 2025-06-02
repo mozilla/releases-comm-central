@@ -22,7 +22,7 @@ const policyPreferences = Object.entries({
 });
 
 // Disabled because eslint does not see the array notation variable reference.
-/* eslint-disable mozilla/valid-lazy */
+
 for (const [property, preference] of policyPreferences) {
   XPCOMUtils.defineLazyPreferenceGetter(
     lazy,
@@ -31,7 +31,6 @@ for (const [property, preference] of policyPreferences) {
     true
   );
 }
-/* eslint-enable mozilla/valid-lazy */
 
 export const NotificationFilter = {
   /**

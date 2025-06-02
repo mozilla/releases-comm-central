@@ -299,9 +299,8 @@ function onEnterInSearchBar() {
   if (!gQueryURIFormat) {
     // Get model query from pref. We don't want the query starting with "?"
     // as we have to prefix "?and" to this format.
-    /* eslint-disable no-global-assign */
+
     gQueryURIFormat = getModelQuery("mail.addr_book.quicksearchquery.format");
-    /* eslint-enable no-global-assign */
   }
 
   const searchURI = getSelectedDirectoryURI();

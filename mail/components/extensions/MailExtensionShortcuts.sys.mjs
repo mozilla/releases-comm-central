@@ -61,7 +61,6 @@ export class MailExtensionShortcuts extends ExtensionShortcuts {
     // and it is currently ignored when set to the empty string.
     keyElement.setAttribute("oncommand", "//");
 
-    /* eslint-disable mozilla/balanced-listeners */
     // We remove all references to the key elements when the extension is shutdown,
     // therefore the listeners for these elements will be garbage collected.
     keyElement.addEventListener("command", event => {
@@ -87,7 +86,6 @@ export class MailExtensionShortcuts extends ExtensionShortcuts {
         action.triggerAction(win);
       }
     });
-    /* eslint-enable mozilla/balanced-listeners */
 
     return keyElement;
   }

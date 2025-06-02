@@ -476,8 +476,6 @@ Extractor.prototype = {
                 if (this.isPastDate(date, this.now)) {
                   // find next such date
                   const item = new Date(this.now.getTime());
-                  // @see https://github.com/eslint/eslint/issues/17807
-                  // eslint-disable-next-line no-constant-condition
                   while (true) {
                     item.setDate(item.getDate() + 1);
                     if (item.getMonth() == date.month - 1 && item.getDate() == date.day) {
@@ -527,8 +525,6 @@ Extractor.prototype = {
             if (this.isPastDate(date, this.now)) {
               // find next such date
               const item = new Date(this.now.getTime());
-              // @see https://github.com/eslint/eslint/issues/17807
-              // eslint-disable-next-line no-constant-condition
               while (true) {
                 item.setDate(item.getDate() + 1);
                 if (item.getMonth() == date.month - 1 && item.getDate() == date.day) {
@@ -573,8 +569,6 @@ Extractor.prototype = {
             const item = new Date(this.now.getTime());
             if (this.now.getDate() != day) {
               // find next nth date
-              // @see https://github.com/eslint/eslint/issues/17807
-              // eslint-disable-next-line no-constant-condition
               while (true) {
                 item.setDate(item.getDate() + 1);
                 if (item.getDate() == day) {

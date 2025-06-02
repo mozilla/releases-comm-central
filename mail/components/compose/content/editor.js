@@ -945,7 +945,6 @@ function GetBackgroundElementWithColor() {
   return element;
 }
 
-/* eslint-disable complexity */
 function EditorSelectColor(colorType, mouseEvent) {
   var editor = GetCurrentEditor();
   if (!editor || !gColorObj) {
@@ -1158,7 +1157,6 @@ function EditorSelectColor(colorType, mouseEvent) {
   }
   gContentWindow.focus();
 }
-/* eslint-enable complexity */
 
 function GetParentTable(element) {
   var node = element;

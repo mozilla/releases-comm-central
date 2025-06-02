@@ -135,10 +135,7 @@ async function waitForCondition(condition, msg, interval = 100, maxTries = 50) {
   let conditionPassed = false;
   let tries = 0;
   for (; tries < maxTries && !conditionPassed; tries++) {
-    await new Promise(resolve =>
-      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-      window.setTimeout(resolve, interval)
-    );
+    await new Promise(resolve => window.setTimeout(resolve, interval));
     try {
       conditionPassed = await condition();
     } catch (e) {

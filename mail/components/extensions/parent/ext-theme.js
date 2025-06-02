@@ -6,8 +6,6 @@
 
 /* global windowTracker, EventManager, EventEmitter */
 
-/* eslint-disable complexity */
-
 ChromeUtils.defineESModuleGetters(this, {
   LightweightThemeManager:
     "resource://gre/modules/LightweightThemeManager.sys.mjs",

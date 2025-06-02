@@ -1828,7 +1828,7 @@ CalDavCalendar.prototype = {
     }
 
     // We want a trailing slash, ensure it.
-    const nextNS = aNameSpaceList.pop().replace(/([^\/])$/, "$1/"); // eslint-disable-line no-useless-escape
+    const nextNS = aNameSpaceList.pop().replace(/([^\/])$/, "$1/");
     const requestUri = Services.io.newURI(
       this.calendarUri.prePath + this.ensureEncodedPath(nextNS)
     );
@@ -1857,7 +1857,7 @@ CalDavCalendar.prototype = {
     request.commit().then(
       response => {
         const homeSetMatches = homeSet => {
-          const normalized = homeSet.replace(/([^\/])$/, "$1/"); // eslint-disable-line no-useless-escape
+          const normalized = homeSet.replace(/([^\/])$/, "$1/");
           const chs = this.mCalHomeSet;
           return normalized == chs.path || normalized == chs.spec;
         };

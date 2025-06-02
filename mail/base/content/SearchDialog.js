@@ -237,7 +237,7 @@ FolderDisplayWidget.prototype = {
     //  folder where view creation is synonymous with having all messages.
     this._allMessagesLoaded = false;
 
-    gDBView = this.view.dbView; // eslint-disable-line no-global-assign
+    gDBView = this.view.dbView;
 
     // A change in view may result in changes to sorts, the view menu, etc.
     // Do this before we 'reroot' the dbview.
@@ -261,7 +261,7 @@ FolderDisplayWidget.prototype = {
    *  current selection so we can restore it when the view comes back.
    */
   onDestroyingView() {
-    gDBView = null; // eslint-disable-line no-global-assign
+    gDBView = null;
 
     // if we have no view, no messages could be loaded.
     this._allMessagesLoaded = false;
@@ -1063,7 +1063,7 @@ function searchOnLoad() {
   TagUtils.loadTagsIntoCSS(document);
   initializeSearchWidgets();
   initializeSearchWindowWidgets();
-  // eslint-disable-next-line no-global-assign
+
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   gSearchBundle = Services.strings.createBundle(
@@ -1078,7 +1078,6 @@ function searchOnLoad() {
     gSearchBundle.GetStringFromName("labelForSearchButton.accesskey")
   );
 
-  // eslint-disable-next-line no-global-assign
   gFolderDisplay = new SearchFolderDisplayWidget();
   gFolderDisplay.messenger = messenger;
   gFolderDisplay.msgWindow = msgWindow;
@@ -1125,7 +1124,6 @@ function initializeSearchWindowWidgets() {
   gSearchStopButton = document.getElementById("search-button");
   hideMatchAllItem();
 
-  // eslint-disable-next-line no-global-assign
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
   );
@@ -1543,8 +1541,6 @@ function ThreadPaneOnDragStart(aEvent) {
     let msgFileName = validateFileName(uniqueFileName);
     let msgFileNameLowerCase = msgFileName.toLocaleLowerCase();
 
-    // @see https://github.com/eslint/eslint/issues/17807
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       if (!messages[msgFileNameLowerCase]) {
         messages[msgFileNameLowerCase] = 1;

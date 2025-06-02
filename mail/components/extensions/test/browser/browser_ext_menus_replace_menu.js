@@ -463,7 +463,7 @@ async function run_overrideContext_test_in_popup(testWindow, buttonSelector) {
   // the two link elements in the popup should be set up by now. But that is not always
   // the case. We sometimes see the default context menu and the expected message from
   // the popup script is not received.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+
   await new Promise(resolve => testWindow.setTimeout(resolve, 250));
 
   {

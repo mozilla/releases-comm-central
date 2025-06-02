@@ -732,7 +732,6 @@ function MoveSelection(forward) {
       // Cell spans from a Col above, look for the next cell in column
       newColIndex += gCellData.actualColSpan;
     }
-    // @see https://github.com/eslint/eslint/issues/17807
     // eslint-disable-next-line no-constant-condition
   } while (true);
 
@@ -1116,7 +1115,6 @@ function CloneAttribute(destElement, srcElement, attr) {
   } catch (e) {}
 }
 
-/* eslint-disable complexity */
 function ApplyTableAttributes() {
   var newAlign = gDialog.TableCaptionList.value;
   if (!newAlign) {
@@ -1301,7 +1299,6 @@ function ApplyTableAttributes() {
     gActiveEditor.cloneAttributes(gTableElement, globalTableElement);
   } catch (e) {}
 }
-/* eslint-enable complexity */
 
 function ApplyCellAttributes() {
   const selectedCells = gActiveEditor.getSelectedCells();

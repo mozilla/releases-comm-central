@@ -236,7 +236,7 @@ var smimeSink = {
     }
 
     gSignatureStatusForURI = aMsgNeckoURL;
-    // eslint-disable-next-line no-global-assign
+
     gSignatureStatus = aSignatureStatus;
     gSignerCert = aSignerCert;
 
@@ -330,7 +330,7 @@ var smimeSink = {
     }
 
     gEncryptionStatusForURI = aMsgNeckoURL;
-    // eslint-disable-next-line no-global-assign
+
     gEncryptionStatus = aEncryptionStatus;
     gEncryptionCert = aRecipientCert;
 
@@ -406,9 +406,8 @@ function forgetEncryptedURI() {
 }
 
 function onSMIMEStartHeaders() {
-  // eslint-disable-next-line no-global-assign
   gEncryptionStatus = -1;
-  // eslint-disable-next-line no-global-assign
+
   gSignatureStatus = -1;
 
   gSignatureStatusForURI = null;

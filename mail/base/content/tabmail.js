@@ -754,7 +754,6 @@ ChromeUtils.defineESModuleGetters(this, {
       }
     }
 
-    // eslint-disable-next-line complexity
     openTab(aTabModeName, aArgs = {}) {
       try {
         if (!(aTabModeName in this.tabModes)) {

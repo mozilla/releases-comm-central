@@ -393,8 +393,6 @@ export class CalExtractParser {
 
       let lookahead = null;
       const stack = [];
-      // @see https://github.com/eslint/eslint/issues/17807
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         if (tokens.length) {
           const next = tokens.shift();

@@ -304,9 +304,6 @@ export class RnpPrivateKeyUnlockTracker {
     }
 
     const promptString = await RNP.getPassphrasePrompt(this.#rnpKeyHandle, ffi);
-
-    // @see https://github.com/eslint/eslint/issues/17807
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const userFlags = { canceled: false };
       let pass;

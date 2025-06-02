@@ -185,8 +185,6 @@ function GetComposerCommandTable() {
   return null;
 }
 
-/* eslint-disable complexity */
-
 /**
  * Get the state of the given command and call the pokeStyleUI or pokeMultiStateUI
  * according to the type of the command to reflect the UI changes in the editor.
@@ -256,7 +254,6 @@ function goUpdateCommandState(command) {
     console.error(e);
   }
 }
-/* eslint-enable complexity */
 
 /**
  * Used in the oncommandupdate attribute of the goUpdateComposerMenuItems.
@@ -977,7 +974,6 @@ var gEditorOutputProgressListener = {
   ]),
 };
 
-/* eslint-disable complexity */
 function DumpDebugStatus(aStatus) {
   // see nsError.h and netCore.h and ftpCore.h
 
@@ -1070,7 +1066,6 @@ function DumpDebugStatus(aStatus) {
     dump("***** status is " + aStatus + "\n");
   }
 }
-/* eslint-enable complexity */
 
 const kSupportedTextMimeTypes = [
   "text/plain",
@@ -1094,7 +1089,6 @@ function IsSupportedTextMimeType(aMimeType) {
   return false;
 }
 
-/* eslint-disable complexity */
 // throws an error or returns true if user attempted save; false if user canceled save
 async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
   var editor = GetCurrentEditor();
@@ -1285,7 +1279,6 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
   }
   return success;
 }
-/* eslint-enable complexity */
 
 var nsFindReplaceCommand = {
   isCommandEnabled(aCommand, editorElement) {

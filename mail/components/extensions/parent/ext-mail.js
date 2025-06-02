@@ -446,10 +446,8 @@ class TabTracker extends TabTrackerBase {
     windowTracker.addOpenListener(this._handleWindowOpen);
     windowTracker.addCloseListener(this._handleWindowClose);
 
-    /* eslint-disable mozilla/balanced-listeners */
     this.on("tab-detached", this._handleTabDestroyed);
     this.on("tab-removed", this._handleTabDestroyed);
-    /* eslint-enable mozilla/balanced-listeners */
   }
 
   /**
@@ -1686,7 +1684,6 @@ Object.assign(global, {
 });
 
 extensions.on("startup", (type, extension) => {
-  // eslint-disable-line mozilla/balanced-listeners
   if (extension.hasPermission("accountsRead")) {
     ExtensionCommon.defineLazyGetter(
       extension,

@@ -432,7 +432,7 @@ function InitializeGlobalVariables() {
   gDSNOptionChanged = false;
   gAttachVCardOptionChanged = false;
   gNumUploadingAttachments = 0;
-  // eslint-disable-next-line no-global-assign
+
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
   );
@@ -454,7 +454,7 @@ function ReleaseGlobalVariables() {
   gDisableAttachmentReminder = false;
   _gComposeBundle = null;
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
-  // eslint-disable-next-line no-global-assign
+
   msgWindow = null;
 
   gLastKnownComposeStates = null;
@@ -8651,7 +8651,6 @@ async function RenameSelectedAttachment() {
   }
 }
 
-/* eslint-disable complexity */
 /**
  * Move selected attachment(s) within the attachment list.
  *
@@ -8901,7 +8900,6 @@ function moveSelectedAttachments(aDirection) {
   // handlers, so we must do it now as the position of selected items has changed.
   updateReorderAttachmentsItems();
 }
-/* eslint-enable complexity */
 
 /**
  * Toggle attachment pane view state: show or hide it.
@@ -10679,8 +10677,7 @@ function moveFocusToNeighbouringArea(event) {
     }
     // Focus is within, so we find the neighbouring area to move focus to.
     const end = i;
-    // @see https://github.com/eslint/eslint/issues/17807
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
       // Get the next neighbour.
       // NOTE: The focus will loop around.

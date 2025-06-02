@@ -220,7 +220,6 @@ add_task(async function overrideContext_with_context() {
           },
         ];
 
-        // eslint-disable-next-line mozilla/balanced-listeners
         document.addEventListener("contextmenu", () => {
           browser.menus.overrideContext(testCases.shift());
           browser.test.sendMessage("oncontextmenu_in_dom");

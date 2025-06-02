@@ -115,7 +115,6 @@ var calendarController = {
     return false;
   },
 
-  /* eslint-disable complexity */
   isCommandEnabled(aCommand) {
     switch (aCommand) {
       case "calendar_new_event_command":
@@ -250,7 +249,6 @@ var calendarController = {
     }
     return false;
   },
-  /* eslint-enable complexity */
 
   doCommand(aCommand) {
     switch (aCommand) {

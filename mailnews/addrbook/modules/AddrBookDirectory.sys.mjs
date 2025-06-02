@@ -371,9 +371,6 @@ export class AddrBookDirectory {
     let index = 0;
     const rootQuery = { children: [], op: "or" };
     let currentQuery = rootQuery;
-
-    // @see https://github.com/eslint/eslint/issues/17807
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const match = lispRegexp.exec(query.substring(index));
       if (!match) {

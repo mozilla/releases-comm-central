@@ -599,7 +599,7 @@ async function setFromField(composeWindow, details) {
  *
  * @see mail/components/extensions/schemas/compose.json
  */
-/* eslint-disable complexity */
+
 async function setComposeDetails(composeWindow, details, extension) {
   const activeElement = composeWindow.document.activeElement;
   const composeFields = composeWindow.gMsgCompose.compFields;

@@ -118,7 +118,6 @@ GlodaQueryClass.prototype = {
     );
   },
 
-  /* eslint-disable complexity */
   /**
    * Test whether the given first-class noun instance satisfies this query.
    */
@@ -395,7 +394,6 @@ GlodaQueryClass.prototype = {
     }
     return false;
   },
-  /* eslint-enable complexity */
 
   /**
    * Helper code for noun definitions of queryHelpers that want to build a

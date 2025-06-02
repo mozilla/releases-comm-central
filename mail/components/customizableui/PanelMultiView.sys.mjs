@@ -1464,7 +1464,7 @@ export class PanelView extends AssociatedToNode {
    *
    * @param {KeyEvent} event
    */
-  /* eslint-disable-next-line complexity */
+
   keyNavigation(event) {
     if (!this.active) {
       return;

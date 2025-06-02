@@ -47,7 +47,6 @@ function GetMsgKeyFromURI(uri) {
   return match ? match[1] : null;
 }
 
-/* eslint-disable complexity */
 /**
  * Compose a message.
  *
@@ -453,7 +452,6 @@ async function ComposeMessage(
       }
   }
 }
-/* eslint-enable complexity */
 
 function Subscribe(preselectedMsgFolder) {
   window.openDialog(

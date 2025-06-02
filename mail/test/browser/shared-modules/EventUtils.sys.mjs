@@ -394,7 +394,6 @@ function _getKeyboardEvent(aWindow) {
   return aWindow.KeyboardEvent;
 }
 
-/* eslint-disable complexity */
 function _guessKeyNameFromKeyCode(aKeyCode, aWindow) {
   var WinKeyboardEvent = _getKeyboardEvent(aWindow);
   switch (aKeyCode) {
@@ -540,7 +539,6 @@ function _guessKeyNameFromKeyCode(aKeyCode, aWindow) {
       return "Unidentified";
   }
 }
-/* eslint-enable complexity */
 
 function _createKeyboardEventDictionary(aKey, aKeyEvent, aWindow) {
   var result = { dictionary: null, flags: 0 };
@@ -683,7 +681,6 @@ function _emulateToInactivateModifiers(aTIP, aModifiers, aWindow) {
   }
 }
 
-/* eslint-disable complexity */
 function _computeKeyCodeFromChar(aChar, aWindow) {
   if (aChar.length != 1) {
     return 0;
@@ -761,4 +758,3 @@ function _computeKeyCodeFromChar(aChar, aWindow) {
       return 0;
   }
 }
-/* eslint-enable complexity */

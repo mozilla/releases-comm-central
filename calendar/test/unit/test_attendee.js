@@ -116,7 +116,6 @@ function test_serialize() {
   const a = new CalAttendee();
 
   throws(() => {
-    // eslint-disable-next-line no-unused-expressions
     a.icalProperty;
   }, /Component not initialized/);
 
@@ -159,7 +158,6 @@ function test_properties() {
   const a = new CalAttendee();
 
   throws(() => {
-    // eslint-disable-next-line no-unused-expressions
     a.icalProperty;
   }, /Component not initialized/);
 

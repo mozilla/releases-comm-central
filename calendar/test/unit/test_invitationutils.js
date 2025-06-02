@@ -1391,7 +1391,7 @@ add_task(async function getRfc5322FormattedDate_test() {
 
 add_task(async function parseCounter_test() {
   // We are disabling this rule for a more consistent display of this data
-  /* eslint-disable object-curly-newline */
+
   const data = [
     {
       name: "Basic test to check all currently supported properties",
@@ -1587,7 +1587,6 @@ add_task(async function parseCounter_test() {
       },
     },
   ];
-  /* eslint-enable object-curly-newline */
 
   const getItem = function (aProperties) {
     const item = getIcs(aProperties);

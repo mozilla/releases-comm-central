@@ -441,7 +441,7 @@ const JsMIMEheaderparser = function () {
    * @returns {(Token|string)[]} An array of Token objects (which have a toString
    *   method returning their value) or String objects (representing delimiters).
    */
-  /* eslint-disable complexity */
+
   function getHeaderTokens(value, delimiters, opts) {
     // The array of parsed tokens. This method used to be a generator, but it
     // appears that generators are poorly optimized in current engines, so it was
@@ -643,7 +643,6 @@ const JsMIMEheaderparser = function () {
     }
     return tokenList;
   }
-  /* eslint-enable complexity */
 
   /**
    * Convert a header value into UTF-16 strings by attempting to decode as UTF-8
@@ -1119,7 +1118,7 @@ const JsMIMEheaderparser = function () {
    * @returns {Map<string,string>} A map of parameter names to parameter values.
    *   The property preSemi is set to the token that precedes the first semicolon.
    */
-  /* eslint-disable complexity */
+
   function parseParameterHeader(headerValue, doRFC2047, doRFC2231) {
     // The basic syntax of headerValue is token [; token = token-or-qstring]*
     // Copying more or less liberally from nsMIMEHeaderParamImpl:
@@ -1322,7 +1321,6 @@ const JsMIMEheaderparser = function () {
     values.preSemi = start;
     return values;
   }
-  /* eslint-enable complexity */
 
   /**
    * Convert a RFC 2231-encoded string parameter into a Unicode version of the

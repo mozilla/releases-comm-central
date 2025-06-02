@@ -86,7 +86,7 @@ var gMenuBuilder = {
     }
     const contextDataBase = {
       menu: contextData.menu,
-      // eslint-disable-next-line no-use-before-define
+
       originalViewType: getContextViewType(contextData),
       originalViewUrl: contextData.inFrame
         ? contextData.frameUrl
@@ -473,7 +473,6 @@ var gMenuBuilder = {
       { once: true }
     );
 
-    // eslint-disable-next-line mozilla/balanced-listeners
     element.addEventListener("click", event => {
       if (
         event.target !== event.currentTarget ||

@@ -620,7 +620,7 @@ MailGlue.prototype = {
     ) {
       const buildID = Services.appinfo.appBuildID;
       const today = new Date().getTime();
-      /* eslint-disable no-multi-spaces */
+
       const buildDate = new Date(
         buildID.slice(0, 4), // year
         buildID.slice(4, 6) - 1, // months are zero-based.
@@ -630,7 +630,6 @@ MailGlue.prototype = {
         buildID.slice(12, 14)
       ) // ms
         .getTime();
-      /* eslint-enable no-multi-spaces */
 
       const millisecondsIn24Hours = 86400000;
       const acceptableAge =

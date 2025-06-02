@@ -24,7 +24,7 @@ function onLoad() {
   /** @type {{ calendar: calICalendar, canDisable: boolean}} */
   const args = window.arguments[0];
 
-  gCalendar = args.calendar; // eslint-disable-line no-global-assign
+  gCalendar = args.calendar;
 
   // Some servers provide colors as an 8-character hex string, which the color
   // picker can't handle. Strip the alpha component.

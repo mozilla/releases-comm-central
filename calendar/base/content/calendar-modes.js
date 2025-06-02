@@ -31,7 +31,7 @@ var gCurrentMode = "mail";
  * @param {string} [mode="mail"] - the new mode: 'mail', 'calendar', 'task', etc.
  */
 function changeMode(mode = "mail") {
-  gCurrentMode = mode; // eslint-disable-line no-global-assign
+  gCurrentMode = mode;
 
   document
     .querySelectorAll(

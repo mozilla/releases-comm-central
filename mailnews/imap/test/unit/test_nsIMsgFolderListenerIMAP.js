@@ -319,7 +319,6 @@ function run_test() {
 }
 
 function doTest(test) {
-  // eslint-disable-line no-unused-vars
   if (test <= gTestArray.length) {
     const testFn = gTestArray[test - 1];
 

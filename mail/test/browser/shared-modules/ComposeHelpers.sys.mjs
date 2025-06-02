@@ -1101,8 +1101,6 @@ export class FormatHelper {
    * @returns {Leaf} - The first leaf below the node.
    */
   static firstLeaf(node) {
-    // @see https://github.com/eslint/eslint/issues/17807
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       // Starting the block scope.
       if (this.isBlock(node)) {
@@ -1144,8 +1142,7 @@ export class FormatHelper {
     // Find the next branch of the tree.
     let node = leaf.node;
     let sibling;
-    // @see https://github.com/eslint/eslint/issues/17807
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
       if (node === root) {
         return null;

@@ -459,7 +459,7 @@ CalAlarm.prototype = {
     }
 
     // Set up X-Props. mProperties contains only non-promoted props
-    // eslint-disable-next-line array-bracket-spacing
+
     for (const [propName, propValue] of this.mProperties.entries()) {
       const icalprop = cal.icsService.createIcalProperty(propName);
       icalprop.value = propValue;

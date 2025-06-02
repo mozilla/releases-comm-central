@@ -642,7 +642,6 @@ var messageProgressListener = {
     // pref...
     const showAllHeadersPref = Services.prefs.getIntPref("mail.show_headers");
     if (showAllHeadersPref == 2) {
-      // eslint-disable-next-line no-global-assign
       gViewAllHeaders = true;
     } else {
       if (gViewAllHeaders) {
@@ -662,12 +661,11 @@ var messageProgressListener = {
           }
         }
         gDummyHeaderIdIndex = 0;
-        // eslint-disable-next-line no-global-assign
+
         gExpandedHeaderView = {};
         initializeHeaderViewTables();
       }
 
-      // eslint-disable-next-line no-global-assign
       gViewAllHeaders = false;
     }
 
@@ -1450,9 +1448,8 @@ function UpdateExpandedMessageHeaders() {
 }
 
 function ClearCurrentHeaders() {
-  // eslint-disable-next-line no-global-assign
   currentHeaderData = {};
-  // eslint-disable-next-line no-global-assign
+
   currentAttachments = [];
   currentCharacterSet = "";
 }

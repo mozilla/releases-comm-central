@@ -370,7 +370,6 @@ function readAutoDiscoverResponse(
   }
 }
 
-/* eslint-disable complexity */
 /**
  * @param {object} autoDiscoverXML - The Exchange server AutoDiscover response,
  *  as JXON.
@@ -517,7 +516,6 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
             config.outgoingAlternatives.push(server);
           }
         } else if (!config.incoming.hostname) {
-          // eslint-disable-line no-lonely-if
           config.incoming = server;
         } else {
           config.incomingAlternatives.push(server);
@@ -532,8 +530,6 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
 
   return config;
 }
-
-/* eslint-enable complexity */
 
 /**
  * Ask server which addons can handle this config.

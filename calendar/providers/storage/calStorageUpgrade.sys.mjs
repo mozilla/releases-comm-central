@@ -744,7 +744,7 @@ var upgrade = {};
  * everything else ical can throw at us. I hope.
  * p=vlad
  */
-// eslint-disable-next-line id-length
+
 upgrade.v2 = upgrade.v1 = function (db) {
   LOGdb(db, "Storage: Upgrading to v1/v2");
   const tblData = {
@@ -837,7 +837,7 @@ upgrade.v2 = upgrade.v1 = function (db) {
  * fix, r=shaver, p=vlad
  * p=vlad
  */
-// eslint-disable-next-line id-length
+
 upgrade.v3 = function (db, version) {
   function updateSql(tbl, field) {
     executeSimpleSQL(
@@ -910,7 +910,7 @@ upgrade.v3 = function (db, version) {
  * Bug 293183 - implement exception support for recurrence.
  * r=shaver,p=vlad
  */
-// eslint-disable-next-line id-length
+
 upgrade.v4 = function (db, version) {
   const tbl = upgrade.v3(version < 3 && db, version);
   LOGdb(db, "Storage: Upgrading to v4");
@@ -934,7 +934,7 @@ upgrade.v4 = function (db, version) {
  * rather than as absolute times. Ensure that missed alarms are fired.
  * r=dmose, p=jminta
  */
-// eslint-disable-next-line id-length
+
 upgrade.v5 = function (db, version) {
   const tbl = upgrade.v4(version < 4 && db, version);
   LOGdb(db, "Storage: Upgrading to v5");
@@ -959,7 +959,7 @@ upgrade.v5 = function (db, version) {
  * auto-conversion of strings to numbers (10e4 to 10000)
  * r=ctalbert,jminta p=lilmatt
  */
-// eslint-disable-next-line id-length
+
 upgrade.v6 = function (db, version) {
   const tbl = upgrade.v5(version < 5 && db, version);
   LOGdb(db, "Storage: Upgrading to v6");
@@ -1032,7 +1032,7 @@ upgrade.v6 = function (db, version) {
  * Bug 369010: Migrate all old tzids in storage to new one.
  * r=ctalbert,dmose p=lilmatt
  */
-// eslint-disable-next-line id-length
+
 upgrade.v7 = function (db, version) {
   // No schema changes in v7
   const tbl = upgrade.v6(db, version);
@@ -1044,7 +1044,7 @@ upgrade.v7 = function (db, version) {
  * Bug 410931 - Update internal timezone definitions
  * r=ctalbert, p=dbo,nth10sd,hb
  */
-// eslint-disable-next-line id-length
+
 upgrade.v8 = function (db, version) {
   // No schema changes in v8
   const tbl = upgrade.v7(db, version);
@@ -1056,7 +1056,7 @@ upgrade.v8 = function (db, version) {
  * Bug 363191 - Handle Timezones more efficiently (Timezone Database)
  * r=philipp,ctalbert, p=dbo
  */
-// eslint-disable-next-line id-length
+
 upgrade.v9 = function (db, version) {
   // No schema changes in v9
   const tbl = upgrade.v8(db, version);

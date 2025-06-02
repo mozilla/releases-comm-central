@@ -1544,7 +1544,6 @@
       this.build();
     }
 
-    /* eslint-disable complexity */
     build() {
       const message = this.message;
 

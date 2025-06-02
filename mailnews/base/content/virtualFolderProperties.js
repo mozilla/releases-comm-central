@@ -54,7 +54,7 @@ function onLoad() {
   );
 
   // call this when OK is pressed
-  msgWindow = windowArgs.msgWindow; // eslint-disable-line no-global-assign
+  msgWindow = windowArgs.msgWindow;
 
   initializeSearchWidgets();
 

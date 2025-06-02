@@ -516,7 +516,7 @@ calIcalComponent.prototype = {
   },
 
   _getNextParentVCalendar() {
-    let vcalendar = this; // eslint-disable-line consistent-this
+    let vcalendar = this;
     while (vcalendar && vcalendar.componentType != "VCALENDAR") {
       vcalendar = vcalendar.parent;
     }

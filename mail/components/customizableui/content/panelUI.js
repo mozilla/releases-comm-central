@@ -146,7 +146,7 @@ const PanelUI = {
       const id = v;
       this.__defineGetter__(getKey, function () {
         delete this[getKey];
-        // eslint-disable-next-line consistent-return
+
         return (this[getKey] = document.getElementById(id));
       });
     }

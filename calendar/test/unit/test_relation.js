@@ -43,7 +43,7 @@ function run_test() {
   modifyRelations(event1, [relation1, relation2]);
 
   // test icalproperty
-  // eslint-disable-next-line no-unused-expressions
+
   relation2.icalProperty;
 
   test_icalprop();

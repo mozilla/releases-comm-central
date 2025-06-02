@@ -12,7 +12,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
 
-/* eslint-disable complexity */
 /**
  * Takes an XML snipplet (as JXON) and reads the values into
  * a new AccountConfig object.
@@ -310,7 +309,6 @@ export function readFromXML(clientConfigXML, subSource) {
 
   return d;
 }
-/* eslint-enable complexity */
 
 function readAuthentication(authenticationValues, hostname, type, mapping) {
   let exception;

@@ -281,7 +281,7 @@ export class BasePopup {
       // FIXME: bug 1494029 - this code used to rely on the browser binding
       // accessing browser.contentWindow. This is a stopgap to continue doing
       // that, but we should get rid of it in the long term.
-      browser.contentWindow; // eslint-disable-line no-unused-expressions
+      browser.contentWindow;
     }
 
     // eslint-disable-next-line no-shadow
@@ -320,7 +320,7 @@ export class BasePopup {
       });
     };
 
-    browser.addEventListener("DidChangeBrowserRemoteness", initBrowser); // eslint-disable-line mozilla/balanced-listeners
+    browser.addEventListener("DidChangeBrowserRemoteness", initBrowser);
 
     if (!popupURL) {
       // For remote browsers, we can't do any setup until the frame loader is

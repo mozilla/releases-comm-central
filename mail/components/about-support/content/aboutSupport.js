@@ -481,7 +481,6 @@ var snapshotFormatters = {
     );
   },
 
-  /* eslint-disable complexity */
   async graphics(data) {
     function localizedMsg(msg) {
       if (typeof msg == "object" && msg.key) {
@@ -890,7 +889,6 @@ var snapshotFormatters = {
       addRow("diagnostics", key, [new Text(value)]);
     }
   },
-  /* eslint-enable complexity */
 
   media(data) {
     function insertBasicInfo(key, value) {

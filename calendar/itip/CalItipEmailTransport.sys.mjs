@@ -239,7 +239,6 @@ export class CalItipEmailTransport {
           if (identity.doCc) {
             validRecipients = cal.email.validateRecipientList(identity.doCcList);
             if (validRecipients != "") {
-              // eslint-disable-next-line id-length
               composeFields.cc = validRecipients;
             }
           }

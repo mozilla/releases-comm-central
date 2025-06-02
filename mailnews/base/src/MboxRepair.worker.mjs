@@ -32,7 +32,7 @@ async function mac2unix(inputPath, onProgress) {
   const CR = 0x0d;
   const LF = 0x0a;
   let changed = false;
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     const chunk = await IOUtils.read(inputPath, {
       offset,

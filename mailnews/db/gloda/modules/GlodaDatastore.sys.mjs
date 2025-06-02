@@ -3514,7 +3514,6 @@ export var GlodaDatastore = {
     }
   },
 
-  /* eslint-disable complexity */
   /**
    * Perform a database query given a GlodaQueryClass instance that specifies
    *  a set of constraints relating to the noun type associated with the query.
@@ -3826,7 +3825,6 @@ export var GlodaDatastore = {
       aMasterCollection
     );
   },
-  /* eslint-enable complexity */
 
   _queryFromSQLString(
     aSqlString,
@@ -3877,7 +3875,6 @@ export var GlodaDatastore = {
     return collection;
   },
 
-  /* eslint-disable complexity */
   loadNounItem(aItem, aReferencesByNounID, aInverseReferencesByNounID) {
     const attribIDToDBDefAndParam = this._attributeIDToDBDefAndParam;
 
@@ -4056,7 +4053,6 @@ export var GlodaDatastore = {
     }
     return hasDeps;
   },
-  /* eslint-enable complexity */
 
   loadNounDeferredDeps(aItem, aReferencesByNounID, aInverseReferencesByNounID) {
     if (aItem._deps === undefined) {

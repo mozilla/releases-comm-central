@@ -739,7 +739,7 @@
         let range = doc.createRange();
         let moveToParent = moveTo.parentNode;
         range.selectNode(moveToParent);
-        // eslint-disable-next-line no-unsanitized/method
+
         const documentFragment = LazyModules.getDocumentFragmentFromHTML(
           doc,
           ruler.nextMsgHtml

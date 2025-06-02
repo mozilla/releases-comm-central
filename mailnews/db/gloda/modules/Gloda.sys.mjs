@@ -1861,7 +1861,6 @@ export var Gloda = {
    */
   BadItemContentsError,
 
-  /* eslint-disable complexity */
   /**
    * Populate a gloda representation of an item given the thus-far built
    *  representation, the previous representation, and one or more raw
@@ -2197,7 +2196,6 @@ export var Gloda = {
 
     yield GlodaConstants.kWorkDone;
   },
-  /* eslint-enable complexity */
 
   /**
    * Processes a list of noun instances for their score within a given context.

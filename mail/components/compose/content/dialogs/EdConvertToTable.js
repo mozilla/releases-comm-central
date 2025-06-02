@@ -67,7 +67,6 @@ function SelectCharacter(radioGroupIndex) {
   SetElementEnabledById("CollapseSpaces", gIndex == gSpaceIndex);
 }
 
-/* eslint-disable complexity */
 function onAccept() {
   var sepCharacter = "";
   switch (gIndex) {
@@ -318,4 +317,3 @@ function onAccept() {
 
   SaveWindowLocation();
 }
-/* eslint-enable complexity */

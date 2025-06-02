@@ -22,7 +22,7 @@ async function checkABrowser(browser) {
 
   // Open the popup. Sometimes the click to open the date picker is ignored and
   // the test runs into a timeout. Adding a small delay here helps to prevent that.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+
   await new Promise(r => setTimeout(r, 250));
   info("Preparing to open the date picker.");
   const pickerPromise = BrowserTestUtils.waitForDateTimePickerPanelShown(
@@ -88,7 +88,7 @@ async function checkABrowser(browser) {
   await BrowserTestUtils.waitForPopupEvent(menulist, "hidden");
 
   // Sometimes the next change doesn't happen soon enough.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+
   await new Promise(r => setTimeout(r, 1000));
 
   // Check the value was assigned to the control.

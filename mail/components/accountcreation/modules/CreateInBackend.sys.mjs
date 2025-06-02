@@ -12,7 +12,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
-/* eslint-disable complexity */
 /**
  * Takes an |AccountConfig| JS object and creates that account in the
  * Thunderbird backend (which also writes it to prefs).
@@ -273,7 +272,6 @@ async function createAccountInBackend(config) {
   }
   return account;
 }
-/* eslint-enable complexity */
 
 async function rememberPassword(server, password) {
   let passwordURI;

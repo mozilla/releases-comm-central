@@ -147,7 +147,6 @@ async function openNewWindow({ cover = true } = {}) {
  * @param {number} time - The amount of time to wait.
  */
 async function waitASecond(time = 1000) {
-  /* eslint-disable-next-line mozilla/no-arbitrary-setTimeout */
   await new Promise(resolve => setTimeout(resolve, time));
 }
 
@@ -167,7 +166,6 @@ async function moveWindowTo(x, y) {
   function debounce() {
     clearTimeout(timeout);
 
-    /* eslint-disable-next-line mozilla/no-arbitrary-setTimeout */
     timeout = setTimeout(resolve, 1100);
   }
 

@@ -174,12 +174,12 @@ function onCopyOrDragStart(e) {
 
 function CreateMailWindowGlobals() {
   // Create message window object
-  // eslint-disable-next-line no-global-assign
+
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
   );
   // get the messenger instance
-  // eslint-disable-next-line no-global-assign
+
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
   messenger.setWindow(window, msgWindow);
 
@@ -198,7 +198,6 @@ function CreateMailWindowGlobals() {
 
   window.browserDOMWindow = new nsBrowserAccess();
 
-  // eslint-disable-next-line no-global-assign
   statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance(
     Ci.nsIMsgStatusFeedback
   );

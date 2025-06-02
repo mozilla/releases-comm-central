@@ -60,14 +60,12 @@ export function CalDavNsUnresolver(aNamespace) {
  * @returns {?string} The namespace URI for the prefix
  */
 export function CalDavNsResolver(aPrefix) {
-  /* eslint-disable id-length */
   const namespaces = {
     A: "http://apple.com/ns/ical/",
     D: "DAV:",
     C: "urn:ietf:params:xml:ns:caldav",
     CS: "http://calendarserver.org/ns/",
   };
-  /* eslint-enable id-length */
 
   return namespaces[aPrefix] || null;
 }

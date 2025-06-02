@@ -518,5 +518,5 @@ function _wrapped_do_throw(text, stack) {
 
 function _wrap_xpcshell_functions() {
   _orig_do_throw = do_throw;
-  do_throw = _wrapped_do_throw; // eslint-disable-line no-global-assign
+  do_throw = _wrapped_do_throw;
 }

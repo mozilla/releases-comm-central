@@ -329,7 +329,7 @@ var gGeneralPane = {
     setTimeout(_delayedPaneLoad, 0, this);
 
     if (AppConstants.MOZ_UPDATER) {
-      gAppUpdater = new appUpdater(); // eslint-disable-line no-global-assign
+      gAppUpdater = new appUpdater();
       const updateDisabled =
         Services.policies && !Services.policies.isAllowed("appUpdate");
 
@@ -783,7 +783,7 @@ var gGeneralPane = {
       return;
     }
     // Wait a bit, so the engine iconURI has time to be fetched.
-    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+
     await new Promise(r => setTimeout(r, 500));
 
     // Add new engine to the list, make the added engine the default.
