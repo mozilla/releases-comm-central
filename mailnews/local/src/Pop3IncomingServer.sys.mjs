@@ -132,7 +132,6 @@ export class Pop3IncomingServer extends MsgIncomingServer {
   createDefaultMailboxes() {
     for (const name of ["Inbox", "Trash"]) {
       const folderUri = this.rootFolder.URI + "/" + name;
-      // Check by URI instead of by name, because folder name can be localized.
       if (!this.rootFolder.getChildWithURI(folderUri, false, false)) {
         this.msgStore.createFolder(this.rootFolder, name);
       }
@@ -212,10 +211,9 @@ export class Pop3IncomingServer extends MsgIncomingServer {
     // Check if we are deferred to the local folders, and create INBOX if needed.
     const server = MailServices.accounts.getAccount(accountKey).incomingServer;
     if (server instanceof Ci.nsILocalMailIncomingServer) {
-      // Check by URI instead of by name, because folder name can be localized.
       if (
-        !this.rootFolder.getChildWithURI(
-          `${this.rootFolder.URI}/Inbox`,
+        !server.rootFolder.getChildWithURI(
+          `${server.rootFolder.URI}/Inbox`,
           false,
           false
         )
