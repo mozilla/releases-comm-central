@@ -628,6 +628,11 @@ var FeedSubscriptions = {
     },
   },
 
+  /**
+   * @param {nsIMsgFolder} aFolder - Folder to create the object from.
+   * @param {integer} aCurrentLevel - Level in the tree (steps to root).
+   * @returns {object} an object with relevant parts of folder set.
+   */
   makeFolderObject(aFolder, aCurrentLevel) {
     const defaultQuickMode = aFolder.server.getBoolValue("quickMode");
     const optionsAcct = aFolder.isServer
@@ -641,6 +646,7 @@ var FeedSubscriptions = {
       children: [],
       folder: aFolder,
       name: aFolder.localizedName,
+      localizedName: aFolder.localizedName,
       level: aCurrentLevel,
       url: aFolder.URI,
       quickMode: defaultQuickMode,
@@ -709,12 +715,19 @@ var FeedSubscriptions = {
     return feeds;
   },
 
+  /**
+   * @param {Feed} aFeed - The feed to use.
+   * @param {nsIMsgFolder} aFolder - Folder to create the object from.
+   * @param {integer} aLevel - Level in the tree (steps to root).
+   * @returns {object} an object with relevant parts of folder set.
+   */
   makeFeedObject(aFeed, aFolder, aLevel) {
     // Look inside the data source for the feed properties.
     const feed = {
       children: [],
       parentFolder: aFolder,
       name: aFeed.title || aFeed.description || aFeed.url,
+      localizedName: aFeed.title || aFeed.description || aFeed.url,
       url: aFeed.url,
       quickMode: aFeed.quickMode,
       options: aFeed.options || FeedUtils.optionsTemplate,

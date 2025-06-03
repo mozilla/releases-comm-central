@@ -83,11 +83,16 @@ async function subscribeToFeed(feedURL) {
       async callback(dialogWindow) {
         const dialogDocument = dialogWindow.document;
 
-        const list = dialogDocument.getElementById("rssSubscriptionsList");
+        const tree = dialogDocument.getElementById("rssSubscriptionsList");
         const locationInput = dialogDocument.getElementById("locationValue");
         const addFeedButton = dialogDocument.getElementById("addFeed");
 
-        await BrowserTestUtils.waitForEvent(list, "select");
+        await BrowserTestUtils.waitForEvent(tree, "select");
+        Assert.equal(
+          tree.view.getCellText(0, tree.columns.getFirstColumn()),
+          "Feeds",
+          "should show account name in the subscription list tree"
+        );
 
         EventUtils.synthesizeMouseAtCenter(locationInput, {}, dialogWindow);
         await TestUtils.waitForCondition(() => !addFeedButton.disabled);
