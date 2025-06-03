@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 mod create_folder;
+mod server_version;
 
 use std::{
+    cell::Cell,
     cmp::Ordering,
     collections::{HashMap, HashSet, VecDeque},
     env,
@@ -17,6 +19,7 @@ use ews::{
     delete_item::DeleteItem,
     get_folder::{GetFolder, GetFolderResponseMessage},
     get_item::GetItem,
+    server_version::ExchangeServerVersion,
     soap,
     sync_folder_hierarchy::{self, SyncFolderHierarchy},
     sync_folder_items::{self, SyncFolderItems},
@@ -34,6 +37,7 @@ use mail_parser::MessageParser;
 use moz_http::StatusCode;
 use nserror::nsresult;
 use nsstring::nsCString;
+use server_version::read_server_version;
 use thin_vec::ThinVec;
 use thiserror::Error;
 use url::Url;
@@ -76,12 +80,27 @@ const EWS_ROOT_FOLDER: &str = "msgfolderroot";
 const LOG_NETWORK_PAYLOADS_ENV_VAR: &str = "THUNDERBIRD_LOG_NETWORK_PAYLOADS";
 
 pub(crate) struct XpComEwsClient {
-    pub endpoint: Url,
-    pub credentials: Credentials,
-    pub client: moz_http::Client,
+    endpoint: Url,
+    credentials: Credentials,
+    client: moz_http::Client,
+    server_version: Cell<ExchangeServerVersion>,
 }
 
 impl XpComEwsClient {
+    pub(crate) fn new(
+        endpoint: Url,
+        credentials: Credentials,
+    ) -> Result<XpComEwsClient, XpComEwsError> {
+        let server_version = read_server_version(&endpoint)?;
+
+        Ok(XpComEwsClient {
+            endpoint,
+            credentials,
+            client: moz_http::Client::new(),
+            server_version: Cell::new(server_version),
+        })
+    }
+
     /// Performs a connectivity check to the EWS server.
     ///
     /// Because EWS does not have a dedicated endpoint to test connectivity and
@@ -1498,7 +1517,12 @@ impl XpComEwsClient {
         Op: Operation,
     {
         let op_name = op.name();
-        let envelope = soap::Envelope { body: op };
+        let envelope = soap::Envelope {
+            headers: vec![soap::Header::RequestServerVersion {
+                version: self.server_version.get(),
+            }],
+            body: op,
+        };
         let request_body = envelope.as_xml_document()?;
 
         // Loop in case we need to retry the request after a delay.
@@ -1540,7 +1564,27 @@ impl XpComEwsClient {
                 soap::Envelope::from_xml_document(&response_body);
 
             break match op_result {
-                Ok(envelope) => Ok(envelope.body),
+                Ok(envelope) => {
+                    // If the server responded with a version identifier, store
+                    // it so we can use it later.
+                    match envelope
+                        .headers
+                        .into_iter()
+                        // Filter out headers we don't care about.
+                        .filter_map(|hdr| match hdr {
+                            soap::Header::ServerVersionInfo(server_version_info) => {
+                                Some(server_version_info)
+                            }
+                            _ => None,
+                        })
+                        .next()
+                    {
+                        Some(header) => self.update_server_version(header)?,
+                        None => {}
+                    };
+
+                    Ok(envelope.body)
+                }
                 Err(err) => {
                     // Check first to see if the request has been throttled and
                     // needs to be retried.
@@ -1690,8 +1734,11 @@ pub(crate) enum XpComEwsError {
     #[error("an error occurred during HTTP transport")]
     Http(#[from] moz_http::Error),
 
-    #[error("an error occurred while (de)serializing")]
+    #[error("an error occurred while (de)serializing EWS traffic")]
     Ews(#[from] ews::Error),
+
+    #[error("an error occurred while (de)serializing JSON")]
+    JSON(#[from] serde_json::Error),
 
     #[error("request resulted in error with code {code:?} and message {message:?}")]
     ResponseError {

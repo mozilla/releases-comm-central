@@ -1741,7 +1741,7 @@ dependencies = [
 [[package]]
 name = "ews"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/ews-rs.git?rev=392e4a0672fbc62ae327b715eeb33d66c771c714#392e4a0672fbc62ae327b715eeb33d66c771c714"
+source = "git+https://github.com/thunderbird/ews-rs.git?rev=3975bdddc25e0498a537f1cdedf8789ec1e7eb2f#3975bdddc25e0498a537f1cdedf8789ec1e7eb2f"
 dependencies = [
  "log",
  "quick-xml",
@@ -1769,6 +1769,9 @@ dependencies = [
  "nserror",
  "nsstring",
  "quick-xml",
+ "serde",
+ "serde_json",
+ "serde_path_to_error",
  "thin-vec",
  "thiserror 1.999.999",
  "url",

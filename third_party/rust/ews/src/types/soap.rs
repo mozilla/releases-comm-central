@@ -7,20 +7,54 @@ use quick_xml::{
     Reader, Writer,
 };
 use serde::Deserialize;
+use xml_struct::XmlSerialize;
 
 use crate::{
-    types::sealed, Error, MessageXml, Operation, OperationResponse, ResponseCode, SOAP_NS_URI,
-    TYPES_NS_URI,
+    types::sealed, types::server_version, Error, MessageXml, Operation, OperationResponse,
+    ResponseCode, SOAP_NS_URI, TYPES_NS_URI,
 };
 
 mod de;
 use self::de::DeserializeEnvelope;
+
+use super::server_version::ExchangeServerVersion;
+
+/// An element that can be found in the `soap:Header` section of an request or a
+/// response.
+///
+/// See <https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383497>
+//
+// Currently, request headers are represented as struct variants and response
+// headers are represented as tuple variants. Ideally we should use tuple
+// variants everywhere, but, right now, doing so for request headers would
+// remove their XML attributes due to
+// https://github.com/thunderbird/xml-struct-rs/issues/9
+#[derive(Clone, Debug, Deserialize, XmlSerialize)]
+#[xml_struct(variant_ns_prefix = "t")]
+#[non_exhaustive]
+pub enum Header {
+    /// The schema version targeted by the attached request.
+    ///
+    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/requestserverversion>
+    RequestServerVersion {
+        #[xml_struct(attribute)]
+        #[serde(rename = "@Version")]
+        version: ExchangeServerVersion,
+    },
+
+    /// The version information of the Exchange Server instance that generated
+    /// the attached response.
+    ///
+    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/serverversioninfo>s
+    ServerVersionInfo(server_version::ServerVersionInfo),
+}
 
 /// A SOAP envelope containing the body of an EWS operation or response.
 ///
 /// See <https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383494>
 #[derive(Clone, Debug)]
 pub struct Envelope<B> {
+    pub headers: Vec<Header>,
     pub body: B,
 }
 
@@ -31,6 +65,7 @@ where
     /// Serializes the SOAP envelope as a complete XML document.
     pub fn as_xml_document(&self) -> Result<Vec<u8>, Error> {
         const SOAP_ENVELOPE: &str = "soap:Envelope";
+        const SOAP_HEADER: &str = "soap:Header";
         const SOAP_BODY: &str = "soap:Body";
 
         let mut writer = {
@@ -47,6 +82,11 @@ where
             BytesStart::new(SOAP_ENVELOPE)
                 .with_attributes([("xmlns:soap", SOAP_NS_URI), ("xmlns:t", TYPES_NS_URI)]),
         ))?;
+
+        // Write the SOAP headers.
+        self.headers
+            .serialize_as_element(&mut writer, SOAP_HEADER)?;
+
         writer.write_event(Event::Start(BytesStart::new(SOAP_BODY)))?;
 
         // Write the operation itself.
@@ -89,6 +129,7 @@ where
         let envelope: DeserializeEnvelope<B> = serde_path_to_error::deserialize(de)?;
 
         Ok(Envelope {
+            headers: envelope.header.inner,
             body: envelope.body,
         })
     }

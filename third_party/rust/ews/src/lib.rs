@@ -26,4 +26,7 @@ pub enum Error {
     // relatively low.
     #[error("a fault occurred in the request")]
     RequestFault(Box<soap::Fault>),
+
+    #[error("unknown server version: {0}")]
+    UnknownServerVersion(String),
 }

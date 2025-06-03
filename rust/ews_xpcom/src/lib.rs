@@ -350,10 +350,6 @@ impl XpcomEwsBridge {
             credentials,
         } = self.details.get().ok_or(NS_ERROR_NOT_INITIALIZED)?.clone();
 
-        Ok(XpComEwsClient {
-            endpoint,
-            credentials,
-            client: moz_http::Client {},
-        })
+        Ok(XpComEwsClient::new(endpoint, credentials)?)
     }
 }

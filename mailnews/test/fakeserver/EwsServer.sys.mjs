@@ -151,7 +151,6 @@ export class RemoteFolder {
  * limited capacity.
  */
 export class EwsServer {
-  #httpServer;
   /**
    * The folders registered on this EWS server.
    *
@@ -172,6 +171,22 @@ export class EwsServer {
    * @type {string[]}
    */
   updatedFolderIds = [];
+
+  /**
+   * The version identifier to use in responses.
+   *
+   * `null` means no `Version` attribute in the `ServerVersionInfo` header.
+   *
+   * @type {?string}
+   */
+  version = null;
+
+  /**
+   * The mock HTTP server to use for handling EWS traffic.
+   *
+   * @type {HttpServer}
+   */
+  #httpServer;
 
   /**
    * A mapping from EWS identifier to folder specification.
@@ -211,7 +226,18 @@ export class EwsServer {
    */
   #lastAuthorizationValue;
 
+  /**
+   * The value of the `RequestServerVersion` SOAP header from the latest
+   * request.
+   *
+   * If no such header was found in the latest request, this is `null`
+   *
+   * @type {?string}
+   */
+  #lastRequestedVersion;
+
   constructor() {
+    this.version = null;
     this.#httpServer = new HttpServer();
     this.#httpServer.registerPathHandler(
       "/EWS/Exchange.asmx",
@@ -267,6 +293,18 @@ export class EwsServer {
    */
   get lastAuthorizationValue() {
     return this.#lastAuthorizationValue;
+  }
+
+  /**
+   * The value of the `RequestServerVersion` SOAP header from the latest
+   * request.
+   *
+   * If no such header was found in the latest request, this is `null`.
+   *
+   * @type {?string}
+   */
+  get lastRequestedVersion() {
+    return this.#lastRequestedVersion;
   }
 
   /**
@@ -326,6 +364,15 @@ export class EwsServer {
     );
     const reqDoc = this.#parser.parseFromString(reqBytes, "text/xml");
 
+    // Try to extract the `RequestServerVersion` SOAP header.
+    const requestVersionHeaders = reqDoc.getElementsByTagName(
+      "t:RequestServerVersion"
+    );
+    if (requestVersionHeaders.length > 0) {
+      const versionHeader = requestVersionHeaders[0];
+      this.#lastRequestedVersion = versionHeader.getAttribute("Version");
+    }
+
     // Generate a response based on the operation found in the request.
     let resBytes = "";
     if (reqDoc.getElementsByTagName("SyncFolderHierarchy").length) {
@@ -344,6 +391,22 @@ export class EwsServer {
   }
 
   /**
+   * Set the SOAP header to indicate the Exchange version used by this server.
+   *
+   * @param {XMLDocument} resDoc
+   */
+  #setVersion(resDoc) {
+    if (!this.version) {
+      return;
+    }
+
+    const serverVersionHeader = resDoc.getElementsByTagName(
+      "h:ServerVersionInfo"
+    )[0];
+    serverVersionHeader.setAttribute("Version", this.version);
+  }
+
+  /**
    * Generate a response to a SyncFolderItems operation.
    *
    * Currently, generated responses will not include any item.
@@ -359,6 +422,8 @@ export class EwsServer {
       SYNC_FOLDER_ITEMS_RESPONSE_BASE,
       "text/xml"
     );
+
+    this.#setVersion(resDoc);
 
     const responseMessageEl = resDoc.getElementsByTagName(
       "m:SyncFolderItemsResponseMessage"
@@ -385,6 +450,8 @@ export class EwsServer {
       SYNC_FOLDER_HIERARCHY_RESPONSE_BASE,
       "text/xml"
     );
+
+    this.#setVersion(resDoc);
 
     const responseMessageEl = resDoc.getElementsByTagName(
       "m:SyncFolderHierarchyResponseMessage"
@@ -472,6 +539,9 @@ export class EwsServer {
       GET_FOLDER_RESPONSE_BASE,
       "text/xml"
     );
+
+    this.#setVersion(resDoc);
+
     const resMsgsEl = resDoc.getElementsByTagName("m:ResponseMessages")[0];
 
     // Add each folder to the response document.
@@ -537,7 +607,14 @@ export class EwsServer {
    * @returns {string} A serialized XML document.
    */
   #generateCreateItemResponse(_reqDoc) {
-    return CREATE_ITEM_RESPONSE_BASE;
+    const resDoc = this.#parser.parseFromString(
+      CREATE_ITEM_RESPONSE_BASE,
+      "text/xml"
+    );
+
+    this.#setVersion(resDoc);
+
+    return this.#serializer.serializeToString(resDoc);
   }
 
   /**

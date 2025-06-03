@@ -596,11 +596,7 @@ impl EwsOutgoingServer {
         let credentials = self.get_credentials()?;
 
         // Set up the client to build and send the request.
-        let client = XpComEwsClient {
-            endpoint: url,
-            credentials,
-            client: moz_http::Client::new(),
-        };
+        let client = XpComEwsClient::new(url, credentials)?;
 
         // Send the request asynchronously.
         moz_task::spawn_local(
