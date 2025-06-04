@@ -371,19 +371,24 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
 
   /**
    * Create a new nsIMsgDBHdr, but don't add it to the database.
-   * Must call AddNewHdrToDB to actually add it. The idea is that you create
-   * a new header, fill in its properties, and then call AddNewHdrToDB.
-   * AddNewHdrToDB will (optionally) send notifications to any listeners.
+   * The returned nsIMsgDBHdr is a 'detached' header and must be added to
+   * the database by calling attachHdr().
+   * Legacy code relies on being able to create a new header, fill in
+   * its properties, and _then_ attach it to the database.
+   * For new code, better to use addMsgHdr() which does it in one step.
    *
    * @param aKey msgKey for the new header. If aKey is nsMsgKey_None,
    *             we will auto-assign a new key.
    *
    * NOTE: if there is already a header with the given key in the database,
    * that existing header will be returned, _not_ a new one!
+   * This behaviour is deprecated - use getMsgHdrForKey() instead.
    */
   nsIMsgDBHdr createNewHdr(in nsMsgKey aKey);
 
   /**
+   * @deprecated in favour of attachHdr().
+   *
    * Add newHdr to the database. The key should already be set upon the
    * header.
    * If the database already contains another header with the same key,
@@ -392,6 +397,17 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
    * on the database will have their onHdrAdded callback invoked.
    */
   void addNewHdrToDB(in nsIMsgDBHdr newHdr, in boolean notify);
+
+  /**
+   * This adds a 'detached' nsIMsgDBHdr to the database, and returns a new
+   * nsIMsgHdr which is 'live' in the database.
+   * NOTE: for the legacy (mork) database, there is no distinction between
+   * 'detached' and 'live' nsIMsgHdr objects - the object passed in is simply
+   * attached to the database and returned as the new nsIMsgHdr.
+   * If notify is true, then any registered nsIDBChangeListener objects
+   * on the database will have their onHdrAdded callback invoked.
+   */
+  nsIMsgDBHdr attachHdr(in nsIMsgDBHdr detachedHdr, in boolean notify);
 
   /**
    * Copy existingHdr to create a new one.

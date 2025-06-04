@@ -112,6 +112,15 @@ interface nsIMsgDBHdr : nsISupports
      * NOTE: Added in support of Bug 1806770, but not yet in use.
      */
     attribute unsigned long uidOnServer;
+
+    /**
+     * Returns true if this message has been added to the messages table in
+     * the database (mainly for use during the globaldb transition).
+     * If this returns false, it implies this is a "detached" nsIMsgDBHdr
+     * object, likely still under construction and not yet added to the
+     * database proper.
+     */
+    readonly attribute boolean isLive;
 };
 
 /* *******************************************************************************/
