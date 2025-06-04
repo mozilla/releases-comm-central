@@ -679,7 +679,7 @@ export var EnigmailKeyRing = {
    * Export the secret key after a successful password setup.
    *
    * @param {string} password - The declared password to protect the keys.
-   * @param {Array} fprArray - The array of fingerprint of the selected keys.
+   * @param {string[]} fprArray - The array of fingerprint of the selected keys.
    * @param {object} file - The file where the keys should be saved.
    * @param {boolean} [confirmed=false] - If the password was properly typed
    *   in the prompt.

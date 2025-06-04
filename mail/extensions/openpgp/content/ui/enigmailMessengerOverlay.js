@@ -1307,9 +1307,9 @@ Enigmail.msg = {
     }
   },
 
-  importAttachedSenderKey() {
+  async importAttachedSenderKey() {
     for (const info of Enigmail.msg.attachedSenderEmailKeysIndex) {
-      EnigmailKeyRing.importKeyDataWithConfirmation(
+      await EnigmailKeyRing.importKeyDataWithConfirmation(
         window,
         [info.keyInfo],
         Enigmail.msg.attachedKeys[info.idx],
@@ -1390,7 +1390,7 @@ Enigmail.msg = {
       false
     );
     if (preview && errorMsgObj.value === "") {
-      EnigmailKeyRing.importKeyDataWithConfirmation(
+      await EnigmailKeyRing.importKeyDataWithConfirmation(
         window,
         preview,
         keyData,
@@ -1904,7 +1904,7 @@ Enigmail.msg = {
       }
 
       if (preview && errorMsgObj.value === "") {
-        EnigmailKeyRing.importKeyDataWithConfirmation(
+        await EnigmailKeyRing.importKeyDataWithConfirmation(
           window,
           preview,
           data,
