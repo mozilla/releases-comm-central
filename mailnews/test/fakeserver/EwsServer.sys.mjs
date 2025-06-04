@@ -217,12 +217,14 @@ export class EwsServer {
    */
   #serializer;
 
-  /*
+  /**
    * The value of the `Authorization` value as read from the latest request.
    *
    * If no such header was found in the latest request, this is an empty string.
    *
    * @type {string}
+   * @name EwsServer.lastAuthorizationValue
+   * @private
    */
   #lastAuthorizationValue;
 
@@ -233,6 +235,8 @@ export class EwsServer {
    * If no such header was found in the latest request, this is `null`
    *
    * @type {?string}
+   * @name EwsServer.lastRequestedVersion
+   * @private
    */
   #lastRequestedVersion;
 
