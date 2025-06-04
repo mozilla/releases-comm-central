@@ -2,3 +2,5 @@
 subsuite = "comm_taskgraph"
 
 ["test_parameters.py"]
+
+["test_try_option_syntax.py"]

@@ -6,7 +6,7 @@ import logging
 
 from taskgraph.parameters import extend_parameters_schema
 from taskgraph.util.path import join
-from voluptuous import Required
+from voluptuous import Any, Required
 
 from gecko_taskgraph.files_changed import get_locally_changed_files
 from gecko_taskgraph.parameters import gecko_parameters_schema as comm_parameters_schema
@@ -26,6 +26,7 @@ comm_parameters_schema.update(
         Required("comm_head_repository"): str,
         Required("comm_head_rev"): str,
         Required("comm_src_path"): str,
+        Required("try_options"): Any(None, dict),
     }
 )
 
@@ -42,6 +43,7 @@ def get_defaults(repo_root=None):
         "version": get_version("comm/mail"),
         "comm_src_path": "comm/",
         "files_changed": changed_files,
+        "try_options": None,
     }
 
 

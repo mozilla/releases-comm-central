@@ -2,10 +2,12 @@
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import argparse
 import copy
 import fnmatch
 import logging
 import re
+import shlex
 from collections import defaultdict
 
 from gecko_taskgraph.target_tasks import (
@@ -23,10 +25,6 @@ BUILD_TYPE_ALIASES = {"o": "opt", "d": "debug"}
 BUILD_KINDS = {
     "build",
     "artifact-build",
-    "hazard",
-    "l10n",
-    "valgrind",
-    "spidermonkey",
 }
 
 
@@ -55,52 +53,11 @@ UNITTEST_ALIASES = {
     # with "foobar-7".  Note that a few aliases allowed chunks to be specified
     # without a leading `-`, for example 'mochitest-dt1'. That's no longer
     # supported.
-    "cppunit": alias_prefix("cppunit"),
-    "crashtest": alias_prefix("crashtest"),
-    "crashtest-e10s": alias_prefix("crashtest-e10s"),
-    "e10s": alias_contains("e10s"),
-    "firefox-ui-functional": alias_prefix("firefox-ui-functional"),
-    "gaia-js-integration": alias_contains("gaia-js-integration"),
     "gtest": alias_prefix("gtest"),
-    "jittest": alias_prefix("jittest"),
-    "jittests": alias_prefix("jittest"),
-    "jsreftest": alias_prefix("jsreftest"),
-    "jsreftest-e10s": alias_prefix("jsreftest-e10s"),
     "marionette": alias_prefix("marionette"),
     "mochitest": alias_prefix("mochitest"),
     "mochitests": alias_prefix("mochitest"),
-    "mochitest-e10s": alias_prefix("mochitest-e10s"),
-    "mochitests-e10s": alias_prefix("mochitest-e10s"),
-    "mochitest-debug": alias_prefix("mochitest-debug-"),
-    "mochitest-a11y": alias_contains("mochitest-a11y"),
     "mochitest-bc": alias_prefix("mochitest-browser-chrome"),
-    "mochitest-e10s-bc": alias_prefix("mochitest-browser-chrome-e10s"),
-    "mochitest-browser-chrome": alias_prefix("mochitest-browser-chrome"),
-    "mochitest-e10s-browser-chrome": alias_prefix("mochitest-browser-chrome-e10s"),
-    "mochitest-chrome": alias_contains("mochitest-chrome"),
-    "mochitest-dt": alias_prefix("mochitest-devtools-chrome"),
-    "mochitest-e10s-dt": alias_prefix("mochitest-devtools-chrome-e10s"),
-    "mochitest-gl": alias_prefix("mochitest-webgl"),
-    "mochitest-gl-e10s": alias_prefix("mochitest-webgl-e10s"),
-    "mochitest-gpu": alias_prefix("mochitest-gpu"),
-    "mochitest-gpu-e10s": alias_prefix("mochitest-gpu-e10s"),
-    "mochitest-media": alias_prefix("mochitest-media"),
-    "mochitest-media-e10s": alias_prefix("mochitest-media-e10s"),
-    "mochitest-vg": alias_prefix("mochitest-valgrind"),
-    "reftest": alias_matches(r"^(plain-)?reftest.*$"),
-    "reftest-no-accel": alias_matches(r"^(plain-)?reftest-no-accel.*$"),
-    "reftests": alias_matches(r"^(plain-)?reftest.*$"),
-    "reftests-e10s": alias_matches(r"^(plain-)?reftest-e10s.*$"),
-    "robocop": alias_prefix("robocop"),
-    "web-platform-test": alias_prefix("web-platform-tests"),
-    "web-platform-tests": alias_prefix("web-platform-tests"),
-    "web-platform-tests-e10s": alias_prefix("web-platform-tests-e10s"),
-    "web-platform-tests-crashtests": alias_prefix("web-platform-tests-crashtest"),
-    "web-platform-tests-print-reftest": alias_prefix("web-platform-tests-print-reftest"),
-    "web-platform-tests-reftests": alias_prefix("web-platform-tests-reftest"),
-    "web-platform-tests-reftests-e10s": alias_prefix("web-platform-tests-reftest-e10s"),
-    "web-platform-tests-wdspec": alias_prefix("web-platform-tests-wdspec"),
-    "web-platform-tests-wdspec-e10s": alias_prefix("web-platform-tests-wdspec-e10s"),
     "xpcshell": alias_prefix("xpcshell"),
 }
 
@@ -123,15 +80,108 @@ UNITTEST_PLATFORM_PRETTY_NAMES = {
         "linux1804-64-asan",
     ],
     "x64": ["linux64", "linux64-asan", "linux1804-64", "linux1804-64-asan"],
-    "Android 13.0 Google Pixel 5 32bit": ["android-hw-p5-13.0-arm7"],
-    "Android 13.0 Google Pixel 5 64bit": ["android-hw-p5-13.0-android-aarch64"],
-    "Android 13.0 Google Pixel 6 64bit": ["android-hw-p6-13.0-aarch64"],
-    "Android 14.0 Samsung A55 64bit": ["android-hw-a55-14.0-aarch64"],
-    "Android 14.0 Samsung S24 64bit": ["android-hw-s24-14.0-aarch64"],
     "Windows 10": ["windows10-64"],
 }
 
 TEST_CHUNK_SUFFIX = re.compile("(.*)-([0-9]+)$")
+
+
+def escape_whitespace_in_brackets(input_str):
+    """
+    In tests you may restrict them by platform [] inside of the brackets
+    whitespace may occur this is typically invalid shell syntax so we escape it
+    with backslash sequences    .
+    """
+    result = ""
+    in_brackets = False
+    for char in input_str:
+        if char == "[":
+            in_brackets = True
+            result += char
+            continue
+
+        if char == "]":
+            in_brackets = False
+            result += char
+            continue
+
+        if char == " " and in_brackets:
+            result += r"\ "
+            continue
+
+        result += char
+
+    return result
+
+
+def split_try_msg(message):
+    try:
+        try_idx = message.index("try:")
+    except ValueError:
+        return []
+    message = message[try_idx:].split("\n")[0]
+    # shlex used to ensure we split correctly when giving values to argparse.
+    return shlex.split(escape_whitespace_in_brackets(message))
+
+
+def parse_message(message):
+    parts = split_try_msg(message)
+
+    # Argument parser based on try flag flags
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-b", "--build", dest="build_types")
+    parser.add_argument(
+        "-p", "--platform", nargs="?", dest="platforms", const="all", default="all"
+    )
+    parser.add_argument(
+        "-u", "--unittests", nargs="?", dest="unittests", const="all", default="all"
+    )
+    parser.add_argument(
+        "-i", "--interactive", dest="interactive", action="store_true", default=False
+    )
+    parser.add_argument(
+        "-e", "--all-emails", dest="notifications", action="store_const", const="all"
+    )
+    parser.add_argument(
+        "-f",
+        "--failure-emails",
+        dest="notifications",
+        action="store_const",
+        const="failure",
+    )
+    parser.add_argument("-j", "--job", dest="jobs", action="append")
+    parser.add_argument("--setenv", dest="env", action="append")
+    parser.add_argument("--gecko-profile", dest="profile", action="store_true")
+    parser.add_argument("--tag", dest="tag", action="store", default=None)
+    parser.add_argument("--no-retry", dest="no_retry", action="store_true")
+    parser.add_argument("--include-nightly", dest="include_nightly", action="store_true")
+    parser.add_argument("--artifact", dest="artifact", action="store_true")
+
+    # While we are transitioning from BB to TC, we want to push jobs to tc-worker
+    # machines but not overload machines with every try push. Therefore, we add
+    # this temporary option to be able to push jobs to tc-worker.
+    parser.add_argument(
+        "-w",
+        "--taskcluster-worker",
+        dest="taskcluster_worker",
+        action="store_true",
+        default=False,
+    )
+
+    # In order to run test jobs multiple times
+    parser.add_argument("--rebuild", dest="trigger_tests", type=int, default=1)
+    args, _ = parser.parse_known_args(parts)
+
+    try_options = vars(args)
+    try_task_config = {
+        "use-artifact-builds": try_options.pop("artifact"),
+        "gecko-profile": try_options.pop("profile"),
+        "env": dict(arg.split("=") for arg in try_options.pop("env") or []),
+    }
+    return {
+        "try_options": try_options,
+        "try_task_config": try_task_config,
+    }
 
 
 class TryOptionSyntax:
@@ -148,11 +198,10 @@ class TryOptionSyntax:
         - trigger_tests: the number of times tests should be triggered (--rebuild)
         - interactive: true if --interactive
         - notifications: either None if no notifications or one of 'all' or 'failure'
-        - talos_trigger_tests: the number of time talos tests should be triggered (--rebuild-talos)
         - tag: restrict tests to the specified tag
         - no_retry: do not retry failed jobs
 
-        The unittests and talos lists contain dictionaries of the form:
+        The unittests lists contain dictionaries of the form:
 
         {
             'test': '<suite name>',
@@ -166,13 +215,9 @@ class TryOptionSyntax:
         self.build_types = []
         self.platforms = []
         self.unittests = []
-        self.talos = []
-        self.raptor = []
         self.trigger_tests = 0
         self.interactive = False
         self.notifications = None
-        self.talos_trigger_tests = 0
-        self.raptor_trigger_tests = 0
         self.tag = None
         self.no_retry = False
 
@@ -185,13 +230,9 @@ class TryOptionSyntax:
         self.unittests = self.parse_test_option(
             "unittest_try_name", options["unittests"], full_task_graph
         )
-        self.talos = self.parse_test_option("talos_try_name", options["talos"], full_task_graph)
-        self.raptor = self.parse_test_option("raptor_try_name", options["raptor"], full_task_graph)
         self.trigger_tests = options["trigger_tests"]
         self.interactive = options["interactive"]
         self.notifications = options["notifications"]
-        self.talos_trigger_tests = options["talos_trigger_tests"]
-        self.raptor_trigger_tests = options["raptor_trigger_tests"]
         self.tag = options["tag"]
         self.no_retry = options["no_retry"]
         self.include_nightly = options["include_nightly"]
@@ -276,9 +317,9 @@ class TryOptionSyntax:
     def parse_test_option(self, attr_name, test_arg, full_task_graph):
         """
 
-        Parse a unittest (-u) or talos (-t) option, in the context of a full
-        task graph containing available `unittest_try_name` or `talos_try_name`
-        attributes.  There are three cases:
+        Parse a unittest (-u) option, in the context of a full task graph
+        containing available `unittest_try_name` attributes.
+        There are three cases:
 
             - test_arg is == 'none' (meaning an empty list)
             - test_arg is == 'all' (meaning use the list of jobs for that job type)
@@ -545,11 +586,7 @@ class TryOptionSyntax:
             # "all" means "everything with `try` in run_on_projects"
             return check_run_on_projects()
         if attr("kind") == "test":
-            return (
-                match_test(self.unittests, "unittest_try_name")
-                or match_test(self.talos, "talos_try_name")
-                or match_test(self.raptor, "raptor_try_name")
-            )
+            return match_test(self.unittests, "unittest_try_name")
         if attr("kind") in BUILD_KINDS:
             if attr("build_type") not in self.build_types:
                 return False
@@ -572,14 +609,10 @@ class TryOptionSyntax:
                 "build_types: " + ", ".join(self.build_types),
                 "platforms: " + none_for_all(self.platforms),
                 "unittests: " + none_for_all(self.unittests),
-                "talos: " + none_for_all(self.talos),
-                "raptor" + none_for_all(self.raptor),
                 "jobs: " + none_for_all(self.jobs),
                 "trigger_tests: " + str(self.trigger_tests),
                 "interactive: " + str(self.interactive),
                 "notifications: " + str(self.notifications),
-                "talos_trigger_tests: " + str(self.talos_trigger_tests),
-                "raptor_trigger_tests: " + str(self.raptor_trigger_tests),
                 "tag: " + str(self.tag),
                 "no_retry: " + str(self.no_retry),
             ]
@@ -589,9 +622,6 @@ class TryOptionSyntax:
 def _try_cc_option_syntax(full_task_graph, parameters, graph_config):
     """Generate a list of target tasks based on try syntax in
     parameters['message'] and, for context, the full task graph.
-
-    Based on gecko_taskgraph.target_tasks._try_option_syntax. Removed talos
-    and raptor references and use TryCCOptionSyntax.
     """
     options = TryOptionSyntax(parameters, full_task_graph, graph_config)
     target_tasks_labels = [

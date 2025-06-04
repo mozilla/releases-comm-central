@@ -29,6 +29,7 @@ from gecko_taskgraph.util.taskgraph import (
 
 from . import COMM
 from comm_taskgraph.files_changed import get_changed_files
+from comm_taskgraph.try_option_syntax import parse_message
 from comm_taskgraph.util.suite import is_suite_only_push
 
 logger = logging.getLogger(__name__)
@@ -89,6 +90,7 @@ COMM_DEFAULTS = {
     "app_version": get_app_version(product_dir="comm/mail"),
     "version": get_version("comm/mail"),
     "comm_src_path": "comm/",
+    "try_options": None,
 }
 
 
@@ -226,6 +228,13 @@ def get_decision_parameters(graph_config, parameters):
 
     gen_treeherder_build_links(parameters)
 
+    parameters["message"] = try_syntax_from_message(commit_message)
+    if "try:" in parameters["message"]:
+        parameters["try_mode"] = "try_option_syntax"
+        parameters.update(parse_message(parameters["message"]))
+    else:
+        parameters["try_options"] = None
+
 
 def get_existing_tasks(parameters, graph_config):
     """
@@ -245,3 +254,14 @@ def get_existing_tasks(parameters, graph_config):
 
     _, task_graph = TaskGraph.from_json(get_artifact(decision_task, "public/full-task-graph.json"))
     return find_existing_tasks_from_previous_kinds(task_graph, [decision_task], [])
+
+
+def try_syntax_from_message(message):
+    """
+    Parse the try syntax out of a commit message, returning '' if none is
+    found.
+    """
+    try_idx = message.find("try:")
+    if try_idx == -1:
+        return ""
+    return message[try_idx:].split("\n", 1)[0]
