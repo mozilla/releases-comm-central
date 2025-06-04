@@ -1,6 +1,7 @@
 [
   {
     "namespace": "mailTabs",
+    "description": "The mailTabs API allows to interact with Thunderbird's main mail tab (a.k.a 3-pane tab).",
     "types": [
       {
         "id": "FolderMode",
@@ -162,7 +163,7 @@
           },
           "layout": {
             "type": "string",
-            "description": "Sets the arrangement of the folder pane, message list pane, and message display pane. Note that setting this applies it to all mail tabs.",
+            "description": "Sets the arrangement of the folder pane, message list pane, and message display pane. Setting a layout will be applied to all mail tabs.",
             "optional": true,
             "enum": ["standard", "wide", "vertical"]
           },
@@ -340,7 +341,7 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new mail tab. Standard tab properties can be adjusted via $(ref:tabs.update) after the mail tab has been created. **Note:** A new mail window can be created via $(ref:windows.create).",
+        "description": "Creates a new mail tab. Standard tab properties can be adjusted via $(ref:tabs.update) after the mail tab has been created. A new mail window can be created via $(ref:windows.create).",
         "async": "callback",
         "parameters": [
           {

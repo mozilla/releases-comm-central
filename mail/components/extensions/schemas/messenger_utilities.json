@@ -1,6 +1,7 @@
 [
   {
     "namespace": "messengerUtilities",
+    "description": "The messengerUtilities API provides helpful methods for working with messages and emails.",
     "types": [
       {
         "id": "ParsedMailbox",

@@ -1,0 +1,83 @@
+[
+  {
+    "namespace": "addressBooks.provider",
+    "annotations": [
+      {
+        "text": "Possible use cases include:"
+      },
+      {
+        "list": [
+          "Implementing a custom storage.",
+          "Implementing search-only address books that query a remote server."
+        ]
+      },
+      {
+        "text": "So far, only the API for search-only address books has been implemented."
+      }
+    ],
+    "events": [
+      {
+        "name": "onSearchRequest",
+        "type": "function",
+        "annotations": [
+          {
+            "note": "Ensure all listeners are registered at the top-level and use the synchronous pattern, otherwise the associated address books will be removed on background termination.",
+            "min_manifest_version": 3
+          },
+          {
+            "text": "The event also fires for each registered listener (for each created read-only address book), when users type something into the mail composer's <em>To:</em> field, or into similar fields like the calendar meeting attendees field. Contacts returned by the listener callback will be added to the autocomplete results in the dropdown of that field."
+          },
+          {
+            "text": "Example:"
+          },
+          {
+            "code": "includes/addressBooks/onSearchRequest.js"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "query",
+            "annotations": [
+              {
+                "note": "This parameter may change in future releases of Thunderbird."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "contacts",
+    "functions": [
+      {
+        "name": "create",
+        "parameters": [
+          {
+            "name": "properties",
+            "annotations": [
+              {
+                "max_manifest_version": 2,
+                "note": "Using individual properties is deprecated, use the <var>vCard</var> member instead."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "update",
+        "parameters": [
+          {
+            "name": "properties",
+            "annotations": [
+              {
+                "max_manifest_version": 2,
+                "note": "Using individual properties is deprecated, use the <var>vCard</var> member instead."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

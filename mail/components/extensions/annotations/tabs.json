@@ -1,0 +1,75 @@
+[
+  {
+    "namespace": "tabs",
+    "types": [
+      {
+        "id": "Tab",
+        "properties": {
+          "cookieStoreId": {
+            "annotations": [
+              {
+                "note": "The naming pattern of the built-in cookie stores was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "functions": [
+      {
+        "name": "create",
+        "parameters": [
+          {
+            "name": "createProperties",
+            "properties": {
+              "cookieStoreId": {
+                "annotations": [
+                  {
+                    "note": "The naming pattern of the built-in cookie stores was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+                  },
+                  {
+                    "note": "The <permission>cookies</permission> permission is required to be able to specify this property. Furthermore, the <permission>contextualIdentities</permission> permission should be requested, to enable the contextual identities feature (enabled by default only on Thunderbird Daily)."
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "query",
+        "parameters": [
+          {
+            "name": "queryInfo",
+            "properties": {
+              "cookieStoreId": {
+                "annotations": [
+                  {
+                    "note": "The naming pattern of the built-in cookie stores was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "update",
+        "parameters": [
+          {
+            "name": "updateProperties",
+            "properties": {
+              "url": {
+                "annotations": [
+                  {
+                    "note": "This function will throw an error, if a content page is loaded into a non-content tab (its type must be either <var>content</var> or <var>mail</var>)."
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

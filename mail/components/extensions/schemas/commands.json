@@ -9,130 +9,63 @@
         "id": "KeyName",
         "type": "string",
         "format": "manifestShortcutKey",
-        "description": "Definition of a shortcut, for example <var>Alt+F5</var>. The string must match the shortcut format as defined by the <a href='url-commands-shortcuts'>MDN page of the commands API</a>."
+        "description": "Definition of a shortcut, for example <var>Alt+F5</var>. The string must match the shortcut format as defined by the $(url:commands-shortcuts)[MDN page of the commands API]."
       },
       {
         "$extend": "WebExtensionManifest",
         "properties": {
           "commands": {
             "optional": true,
-            "choices": [
-              {
-                "type": "object",
-                "max_manifest_version": 2,
-                "description": "A <em>dictionary object</em> defining one or more commands as <em>name-value</em> pairs, the <em>name</em> being the name of the command and the <em>value</em> being a $(ref:commands.CommandsShortcut). The <em>name</em> may also be one of the following built-in special shortcuts: \n * <var>_execute_browser_action</var> \n * <var>_execute_compose_action</var> \n * <var>_execute_message_display_action</var>\nExample: <literalinclude>includes/commands/manifest.json<lang>JSON</lang></literalinclude>",
-                "additionalProperties": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "$ref": "UnrecognizedProperty"
-                  },
-                  "properties": {
-                    "suggested_key": {
-                      "type": "object",
-                      "optional": true,
-                      "properties": {
-                        "default": {
-                          "$ref": "KeyName",
-                          "optional": true
-                        },
-                        "mac": {
-                          "$ref": "KeyName",
-                          "optional": true
-                        },
-                        "linux": {
-                          "$ref": "KeyName",
-                          "optional": true
-                        },
-                        "windows": {
-                          "$ref": "KeyName",
-                          "optional": true
-                        },
-                        "chromeos": {
-                          "type": "string",
-                          "optional": true
-                        },
-                        "android": {
-                          "type": "string",
-                          "optional": true
-                        },
-                        "ios": {
-                          "type": "string",
-                          "optional": true
-                        },
-                        "additionalProperties": {
-                          "type": "string",
-                          "deprecated": "Unknown platform name",
-                          "optional": true
-                        }
-                      }
-                    },
-                    "description": {
-                      "type": "string",
-                      "preprocess": "localize",
-                      "optional": true
-                    }
-                  }
-                }
-              },
-              {
-                "type": "object",
-                "min_manifest_version": 3,
-                "description": "A <em>dictionary object</em> defining one or more commands as <em>name-value</em> pairs, the <em>name</em> being the name of the command and the <em>value</em> being a $(ref:commands.CommandsShortcut). The <em>name</em> may also be one of the following built-in special shortcuts: \n * <var>_execute_action</var> \n * <var>_execute_compose_action</var> \n * <var>_execute_message_display_action</var>\nExample: <literalinclude>includes/commands/manifest.json<lang>JSON</lang></literalinclude>",
-                "additionalProperties": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "$ref": "UnrecognizedProperty"
-                  },
-                  "properties": {
-                    "suggested_key": {
-                      "type": "object",
-                      "optional": true,
-                      "properties": {
-                        "default": {
-                          "$ref": "KeyName",
-                          "optional": true
-                        },
-                        "mac": {
-                          "$ref": "KeyName",
-                          "optional": true
-                        },
-                        "linux": {
-                          "$ref": "KeyName",
-                          "optional": true
-                        },
-                        "windows": {
-                          "$ref": "KeyName",
-                          "optional": true
-                        },
-                        "chromeos": {
-                          "type": "string",
-                          "optional": true
-                        },
-                        "android": {
-                          "type": "string",
-                          "optional": true
-                        },
-                        "ios": {
-                          "type": "string",
-                          "optional": true
-                        },
-                        "additionalProperties": {
-                          "type": "string",
-                          "deprecated": "Unknown platform name",
-                          "optional": true
-                        }
-                      }
-                    },
-                    "description": {
-                      "type": "string",
-                      "preprocess": "localize",
-                      "optional": true
-                    }
-                  }
-                }
-              }
-            ]
+            "type": "object",
+            "description": "A <em>dictionary object</em> defining one or more commands as <em>name-value</em> pairs, the <em>name</em> being the name of the command and the <em>value</em> being a $(ref:CommandsShortcut).",
+            "additionalProperties": {
+              "$ref": "CommandsShortcut"
+            }
           }
+        }
+      },
+      {
+        "id": "CommandsShortcut",
+        "type": "object",
+        "properties": {
+          "suggested_key": {
+            "type": "object",
+            "optional": true,
+            "properties": {
+              "default": {
+                "$ref": "KeyName",
+                "description": "Default key combination.",
+                "optional": true
+              },
+              "mac": {
+                "$ref": "KeyName",
+                "description": "Key combination on Mac.",
+                "optional": true
+              },
+              "linux": {
+                "$ref": "KeyName",
+                "description": "Key combination on Linux.",
+                "optional": true
+              },
+              "windows": {
+                "$ref": "KeyName",
+                "description": "Key combination on Windows.",
+                "optional": true
+              }
+            },
+            "additionalProperties": {
+              "type": "string",
+              "deprecated": "Unknown platform name"
+            }
+          },
+          "description": {
+            "type": "string",
+            "preprocess": "localize",
+            "optional": true
+          }
+        },
+        "additionalProperties": {
+          "$ref": "UnrecognizedProperty"
         }
       }
     ]
@@ -154,7 +87,7 @@
           "description": {
             "type": "string",
             "optional": true,
-            "description": "The Extension Command description"
+            "description": "The description of the Extension Command"
           },
           "shortcut": {
             "type": "string",
@@ -167,7 +100,7 @@
     "events": [
       {
         "name": "onCommand",
-        "description": "Fired when a registered command is activated using a keyboard shortcut. This is a user input event handler. For asynchronous listeners some <a href='url-user-input-restrictions'>restrictions</a> apply.",
+        "description": "Fired when a registered command is activated using a keyboard shortcut. This is a user input event handler. For asynchronous listeners some $(url:user-input-restrictions)[restrictions] apply.",
         "type": "function",
         "parameters": [
           {
@@ -275,7 +208,7 @@
                 "type": "string",
                 "format": "manifestShortcutKeyOrEmpty",
                 "optional": true,
-                "description": "An empty string to clear the shortcut, or a string matching the format defined by the <a href='url-commands-shortcuts'>MDN page of the commands API</a>  to set a new shortcut key. If the string does not match this format, the function throws an error."
+                "description": "An empty string to clear the shortcut, or a string matching the format defined by the $(url:commands-shortcuts)[MDN page of the commands API]  to set a new shortcut key. If the string does not match this format, the function throws an error."
               }
             }
           }

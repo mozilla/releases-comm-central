@@ -1,6 +1,7 @@
 [
   {
     "namespace": "spaces",
+    "description": "The spaces API allows to manage built-in and custom spaces, and to add buttons for custom spaces to Thunderbird's spaces toolbar.",
     "types": [
       {
         "id": "SpaceTabProperties",
@@ -15,7 +16,7 @@
           "cookieStoreId": {
             "type": "string",
             "optional": true,
-            "description": "The <a href='url-cookieStore'>CookieStore</a> id used by the tab. Either a custom id created using the <a href='url-contextualIdentity'>contextualIdentities API</a>, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons. The <permission>cookies</permission> permission is required to be able to specify this property. Furthermore, the <permission>contextualIdentities</permission> permission should be requested, to enable the contextual identities feature (enabled by default only on Thunderbird Daily)."
+            "description": "The $(url:cookieStore)[CookieStore] id used by the tab. Either a custom id created using the $(url:contextualIdentity)[contextualIdentities API], or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>."
           },
           "linkHandler": {
             "type": "string",

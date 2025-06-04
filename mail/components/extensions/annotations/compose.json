@@ -1,0 +1,83 @@
+[
+  {
+    "namespace": "compose",
+    "functions": [
+      {
+        "name": "beginNew",
+        "annotations": [
+          {
+            "note": "The compose format can be set by <var>details.isPlainText</var> or by specifying only one of <var>details.body</var> or <var>details.plainTextBody</var>. Otherwise the default compose format of the selected identity is used. If no identity is specified, this function is using the default identity and not the identity of the referenced message."
+          }
+        ]
+      },
+      {
+        "name": "beginReply",
+        "annotations": [
+          {
+            "note": "The compose format can be set by <var>details.isPlainText</var> or by specifying only one of <var>details.body</var> or <var>details.plainTextBody</var>. Otherwise the default compose format of the selected identity is used. If no identity is specified, this function is using the default identity and not the identity of the referenced message."
+          }
+        ]
+      },
+      {
+        "name": "beginForward",
+        "annotations": [
+          {
+            "note": "The compose format can be set by <var>details.isPlainText</var> or by specifying only one of <var>details.body</var> or <var>details.plainTextBody</var>. Otherwise the default compose format of the selected identity is used. If no identity is specified, this function is using the default identity and not the identity of the referenced message."
+          }
+        ]
+      },
+      {
+        "name": "setComposeDetails",
+        "type": "function",
+        "async": true,
+        "annotations": [
+          {
+            "hint": "When updating any of the array properties (<var>customHeaders</var> and most address fields), make sure to first get the current values to not accidentally remove all existing entries when setting the new value."
+          },
+          {
+            "note": "The compose format of an existing compose window cannot be changed."
+          }
+        ]
+      }
+    ],
+    "types": [
+      {
+        "id": "ComposeDetails",
+        "properties": {
+          "attachVCard": {
+            "annotations": [
+              {
+                "note": "If the value has not been modified, selecting a different identity will load the default value of the new identity."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "EncryptionPropertiesOpenPGP",
+        "properties": {
+          "encryptBody": {
+            "annotations": [
+              {
+                "note": "If encryption is enabled, but the $(url:help-cannot-encrypt)[preconditions] for sending an encrypted message are not met, the message cannot be sent."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "EncryptionPropertiesSMIME",
+        "type": "object",
+        "properties": {
+          "encryptBody": {
+            "annotations": [
+              {
+                "note": "If encryption is enabled, but the $(url:help-cannot-encrypt)[preconditions] for sending an encrypted message are not met, the message cannot be sent."
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,39 @@
+[
+  {
+    "namespace": "extensionTypes",
+    "types": [
+      {
+        "id": "ExtensionFileOrCode",
+        "annotations": [
+          {
+            "text": "Specify code, either by pointing to a file or by providing the code directly. Only one of the two is allowed."
+          }
+        ],
+        "choices": [
+          {
+            "properties": {
+              "file": {
+                "annotations": [
+                  {
+                    "text": "A URL relative to the extension's <var>manifest.json</var> file, and pointing to a JavaScript file to register."
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "code": {
+                "annotations": [
+                  {
+                    "text": "A string of JavaScript code to register."
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

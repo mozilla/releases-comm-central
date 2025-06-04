@@ -26,11 +26,21 @@ add_setup(async () => {
 
   Services.prefs.setIntPref("ldap_2.servers.osx.dirType", -1);
 
+  // This test uses the deprecated variation of create() which specifies an id.
+  // However, by default, tests throw when deprecated properties are used, which
+  // can be disabled by setting the following pref to false.
+  Services.prefs.setBoolPref(
+    "extensions.webextensions.warnings-as-errors",
+    false
+  );
+
   registerCleanupFunction(() => {
     // Make sure any open database is given a chance to close.
     Services.startup.advanceShutdownPhase(
       Services.startup.SHUTDOWN_PHASE_APPSHUTDOWNCONFIRMED
     );
+
+    Services.prefs.clearUserPref("extensions.webextensions.warnings-as-errors");
   });
 });
 

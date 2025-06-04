@@ -72,6 +72,9 @@ export default [
   "mail/locales/en-US/all-l10n.js",
   "mail/components/compose/composer.js",
 
+  // Example code snippets used for documentation
+  "mail/components/extensions/annotations/includes/**",
+
   // Ignore the jsdoc config file
   "docs/jsdoc.conf.js",
 

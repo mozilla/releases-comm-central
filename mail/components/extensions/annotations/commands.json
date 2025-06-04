@@ -1,0 +1,49 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "commands": {
+            "annotations": [
+              {
+                "text": "The <em>name</em> may also be one of the following built-in special shortcuts:"
+              },
+              {
+                "max_manifest_version": 2,
+                "list": [
+                  "<var>_execute_browser_action</var>",
+                  "<var>_execute_compose_action</var>",
+                  "<var>_execute_message_display_action</var>"
+                ]
+              },
+              {
+                "min_manifest_version": 3,
+                "list": [
+                  "<var>_execute_action</var>",
+                  "<var>_execute_compose_action</var>",
+                  "<var>_execute_message_display_action</var>"
+                ]
+              },
+              {
+                "text": "Example:"
+              },
+              {
+                "code": "includes/commands/manifest.json"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "namespace": "commands",
+    "annotations": [
+      {
+        "text": "Thunderbird's commands API is largely the same as the $(url:mdn-commands-api)[Firefox commands API]."
+      }
+    ]
+  }
+]

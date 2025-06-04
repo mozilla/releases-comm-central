@@ -1,0 +1,23 @@
+{
+  "name": "Theme Experiment",
+  "description": "Changing the color of the chat icon using a theme_experiment.",
+  "version": "1",
+  "applications": {
+    "gecko": {
+      "id": "theme_experiment@sample.extensions.thunderbird.net",
+      "strict_min_version": "78.0"
+    }
+  },
+  "manifest_version": 2,
+  "theme_experiment": {
+    "stylesheet": "style.css",
+    "colors": {
+      "exp_chat_button": "--chat-button-color"
+    }
+  },
+  "theme": {
+    "colors": {
+      "exp_chat_button": "orange"
+    }
+  }
+}

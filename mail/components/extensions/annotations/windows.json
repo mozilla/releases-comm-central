@@ -1,0 +1,110 @@
+[
+  {
+    "namespace": "windows",
+    "annotations": [
+      {
+        "note": "This API can be used with Thunderbird's main window and popup windows, both of which support web tabs, as well as with other window types like the composer window, which does not. Ensure your code handles each window type appropriately based on its capabilities."
+      }
+    ],
+    "types": [
+      {
+        "id": "WindowType",
+        "enums": {
+          "messageCompose": {
+            "annotations": [
+              {
+                "text": "A non-modal stand-alone message compose window."
+              }
+            ]
+          },
+          "messageDisplay": {
+            "annotations": [
+              {
+                "text": "A non-modal stand-alone message display window, viewing a single message."
+              }
+            ]
+          },
+          "normal": {
+            "annotations": [
+              {
+                "text": "A normal Thunderbird window, a.k.a. 3-pane-window (folder pane, message pane and preview pane)."
+              }
+            ]
+          },
+          "popup": {
+            "annotations": [
+              {
+                "text": "A non-modal stand-alone popup window."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "CreateType",
+        "enums": {
+          "normal": {
+            "annotations": [
+              {
+                "text": "A normal Thunderbird window, a.k.a. 3-pane-window (folder pane, message pane and preview pane)."
+              }
+            ]
+          },
+          "popup": {
+            "annotations": [
+              {
+                "text": "A non-modal stand-alone popup window."
+              }
+            ]
+          },
+          "panel": {
+            "annotations": [
+              {
+                "text": "Not supported, same as <var>popup</var>"
+              }
+            ]
+          },
+          "detached_panel": {
+            "annotations": [
+              {
+                "text": "Not supported, same as <var>popup</var>"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "events": [
+      {
+        "name": "onFocusChanged",
+        "annotations": [
+          {
+            "note": "On some Linux window managers, WINDOW_ID_NONE will always be sent immediately preceding a switch from one window to another."
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "create",
+        "parameters": [
+          {
+            "name": "createData",
+            "properties": {
+              "cookieStoreId": {
+                "annotations": [
+                  {
+                    "note": "The naming pattern of the built-in cookie stores was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+                  },
+                  {
+                    "note": "The <permission>cookies</permission> permission is required to be able to specify this property. Furthermore, the <permission>contextualIdentities</permission> permission should be requested, to enable the contextual identities feature (enabled by default only on Thunderbird Daily)."
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

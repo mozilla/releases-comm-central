@@ -15,6 +15,7 @@
   },
   {
     "namespace": "addressBooks",
+    "description": "The addressBooks API allows to access and manage the user's address books.",
     "permissions": ["addressBooks"],
     "types": [
       {
@@ -257,13 +258,14 @@
   },
   {
     "namespace": "addressBooks.provider",
+    "description": "The address book provider API allows to add address books, which are not stored or cached by Thunderbird itself, but are handled completely by the extension. Address books created by the this API will forward all access requests to the WebExtension.",
     "permissions": ["addressBooks"],
     "events": [
       {
         "name": "onSearchRequest",
         "max_manifest_version": 2,
         "type": "function",
-        "description": "Registering this listener will create a read-only address book, similar to an LDAP address book. When selecting this address book, users will first see no contacts, but they can search for them, which will fire this event. Contacts returned by the listener callback will be displayed as contact cards in the address book. Several listeners can be registered, to create multiple address books.\n\nThe event also fires for each registered listener (for each created read-only address book), when users type something into the mail composer's <em>To:</em> field, or into similar fields like the calendar meeting attendees field. Contacts returned by the listener callback will be added to the autocomplete results in the dropdown of that field.\n\nExample: <literalinclude>includes/addressBooks/onSearchRequest_mv2.js<lang>JavaScript</lang></literalinclude>",
+        "description": "Registering this listener will create a read-only address book, similar to an LDAP address book. When selecting this address book, users will first see no contacts, but they can search for contacts, which will fire this event. Contacts returned by the listener callback will be displayed as contact cards in the address book. Several listeners can be registered, to create multiple address books.",
         "parameters": [
           {
             "name": "node",
@@ -278,7 +280,7 @@
           {
             "name": "query",
             "type": "string",
-            "description": "The boolean query expression corresponding to the search. **Note:** This parameter may change in future releases of Thunderbird.",
+            "description": "The boolean query expression corresponding to the search.",
             "optional": true
           }
         ],
@@ -305,13 +307,27 @@
               }
             }
           }
-        ]
+        ],
+        "returns": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "$ref": "ContactProperties"
+              }
+            },
+            "isCompleteResult": {
+              "type": "boolean"
+            }
+          }
+        }
       },
       {
         "name": "onSearchRequest",
         "min_manifest_version": 3,
         "type": "function",
-        "description": "Registering this listener will create a read-only address book, similar to an LDAP address book. When selecting this address book, users will first see no contacts, but they can search for them, which will fire this event. Contacts returned by the listener callback will be displayed as contact cards in the address book. Several listeners can be registered, to create multiple address books. **Ensure all listeners are at the top-level and use the synchronous pattern, otherwise the associated address books will be removed on background termination.**.\n\nThe event also fires for each registered listener (for each created read-only address book), when users type something into the mail composer's <em>To:</em> field, or into similar fields like the calendar meeting attendees field. Contacts returned by the listener callback will be added to the autocomplete results in the dropdown of that field.\n\nExample: <literalinclude>includes/addressBooks/onSearchRequest_mv3.js<lang>JavaScript</lang></literalinclude>",
+        "description": "Registering this listener will create a read-only address book, similar to an LDAP address book. When selecting this address book, users will first see no contacts, but they can search for contacts, which will fire this event. Contacts returned by the listener callback will be displayed as contact cards in the address book. Several listeners can be registered, to create multiple address books.",
         "parameters": [
           {
             "name": "node",
@@ -326,7 +342,7 @@
           {
             "name": "query",
             "type": "string",
-            "description": "The boolean query expression corresponding to the search. **Note:** This parameter may change in future releases of Thunderbird.",
+            "description": "The boolean query expression corresponding to the search.",
             "optional": true
           }
         ],
@@ -369,6 +385,7 @@
   },
   {
     "namespace": "contacts",
+    "description": "The contacts API allows to access and manage the user's contacts.",
     "max_manifest_version": 2,
     "permissions": ["addressBooks"],
     "types": [
@@ -455,7 +472,7 @@
       {
         "id": "ContactProperties",
         "type": "object",
-        "description": "A set of individual properties for a particular contact, and its vCard string. Further information can be found in $(doc:examples/vcard).",
+        "description": "A set of individual properties for a particular contact, and its vCard string. Further information can be found in $(doc:guides/vcard).",
         "patternProperties": {
           "^\\w+$": {
             "choices": [
@@ -678,13 +695,14 @@
           {
             "name": "id",
             "type": "string",
-            "description": "Assigns the contact an id. If an existing contact has this id, an exception is thrown. **Note:** Deprecated, the card's id should be specified in the vCard string instead.",
+            "description": "Assigns the contact an id. If an existing contact has this id, an exception is thrown.",
+            "deprecated": "The card's id should be specified directly in the vCard string.",
             "optional": true
           },
           {
             "name": "properties",
             "$ref": "ContactProperties",
-            "description": "The properties object for the new contact. If it includes a <var>vCard</var> member, all specified <a href='url-legacy-properties'>legacy properties</a> are ignored and the new contact will be based on the provided vCard string. If a UID is specified in the vCard string, which is already used by another contact, an exception is thrown. **Note:** Using individual properties is deprecated, use the <var>vCard</var> member instead."
+            "description": "The properties object for the new contact. If it includes a <var>vCard</var> member, all specified $(url:legacy-properties)[legacy properties] are ignored and the new contact will be based on the provided vCard string. If a UID is specified in the vCard string, which is already used by another contact, an exception is thrown."
           },
           {
             "type": "function",
@@ -743,7 +761,7 @@
           {
             "name": "properties",
             "$ref": "ContactProperties",
-            "description": "An object with properties to update the specified contact. Individual properties are removed, if they are set to <var>null</var>. If the provided object includes a <var>vCard</var> member, all specified <a href='url-legacy-properties'>legacy properties</a> are ignored and the details of the contact will be replaced by the provided vCard. Changes to the UID will be ignored. **Note:** Using individual properties is deprecated, use the <var>vCard</var> member instead. "
+            "description": "An object with properties to update the specified contact. Individual properties are removed, if they are set to <var>null</var>. If the provided object includes a <var>vCard</var> member, all specified $(url:legacy-properties)[legacy properties] are ignored and the details of the contact will be replaced by the provided vCard. Changes to the UID will be ignored."
           }
         ],
         "description": "Updates a contact."
@@ -842,6 +860,7 @@
   },
   {
     "namespace": "mailingLists",
+    "description": "The mailingLists API allows to access and manage the user's mailing lists.",
     "max_manifest_version": 2,
     "permissions": ["addressBooks"],
     "types": [

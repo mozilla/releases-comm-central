@@ -78,7 +78,7 @@
             "enum": ["action", "action_menu"]
           }
         ],
-        "description": "The different contexts a menu can appear in. Specifying <var>all</var> is equivalent to the combination of all other contexts excluding <var>tab</var> and <var>tools_menu</var>. More information about each context can be found in the <a href='url-ui-elements'>Supported UI Elements</a> article on developer.thunderbird.net."
+        "description": "The different contexts a menu can appear in. Specifying <var>all</var> is equivalent to the combination of all other contexts excluding <var>tab</var> and <var>tools_menu</var>. More information about each context can be found in the $(url:ui-elements)[Supported UI Elements] article on developer.thunderbird.net."
       },
       {
         "id": "ItemType",
@@ -129,31 +129,31 @@
           "linkText": {
             "type": "string",
             "optional": true,
-            "description": "If the element is a link, the text of that link. **Note:** Host permission is required."
+            "description": "If the element is a link, the text of that link."
           },
           "linkUrl": {
             "type": "string",
             "optional": true,
-            "description": "If the element is a link, the URL it points to. **Note:** Host permission is required."
+            "description": "If the element is a link, the URL it points to."
           },
           "srcUrl": {
             "type": "string",
-            "description": "Will be present for elements with a <em>src</em> URL. **Note:** Host permission is required.",
+            "description": "Will be present for elements with a <em>src</em> URL.",
             "optional": true
           },
           "pageUrl": {
             "type": "string",
-            "description": "The URL of the page where the menu item was clicked. This property is not set if the click occurred in a context where there is no current page, such as in a launcher context menu. **Note:** Host permission is required.",
+            "description": "The URL of the page where the menu item was clicked. This property is not set if the click occurred in a context where there is no current page, such as in a launcher context menu.",
             "optional": true
           },
           "frameUrl": {
             "type": "string",
-            "description": "The URL of the frame of the element where the context menu was clicked, if it was in a frame. **Note:** Host permission is required.",
+            "description": "The URL of the frame of the element where the context menu was clicked, if it was in a frame.",
             "optional": true
           },
           "selectionText": {
             "type": "string",
-            "description": "The text for the context selection, if any. **Note:** Host permission is required.",
+            "description": "The text for the context selection, if any.",
             "optional": true
           },
           "targetElementId": {
@@ -413,7 +413,7 @@
             "$ref": "MenuIconPath"
           }
         },
-        "description": "A <em>dictionary object</em> to specify paths for multiple icons in different sizes, so the best matching icon can be used, instead of scaling a standard icon to fit the pixel density of the user's display. Each entry is a <em>name-value</em> pair, with <em>name</em> being a size and <em>value</em> being a $(ref:menus.MenuIconPath). Example: <literalinclude>includes/IconPath.json<lang>JSON</lang></literalinclude>See the <a href='url-choosing-icon-size'>MDN documentation about choosing icon sizes</a> for more information on this. "
+        "description": "A <em>dictionary object</em> to specify paths for multiple icons in different sizes, so the best matching icon can be used, instead of scaling a standard icon to fit the pixel density of the user's display. Each entry is a <em>name-value</em> pair, with <em>name</em> being a size and <em>value</em> being a $(ref:menus.MenuIconPath)."
       },
       {
         "id": "MenuActionCommand",
@@ -444,7 +444,7 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new context menu item. Note that if an error occurs during creation, you may not find out until the creation callback fires (the details will be in <a href='url-runtime-last-error'>runtime.lastError</a>).",
+        "description": "Creates a new context menu item. Note that if an error occurs during creation, you may not find out until the creation callback fires (the details will be in $(url:runtime-last-error)[runtime.lastError]).",
         "returns": {
           "choices": [
             {
@@ -551,7 +551,7 @@
                   "type": "string"
                 },
                 "optional": true,
-                "description": "Lets you restrict the item to apply only to documents whose URL matches one of the given patterns. (This applies to frames as well.) For details on the format of a pattern, see <a href='url-match-patterns'>Match Patterns</a>."
+                "description": "Lets you restrict the item to apply only to documents whose URL matches one of the given patterns. (This applies to frames as well.) For details on the format of a pattern, see $(url:match-patterns)[Match Patterns]."
               },
               "targetUrlPatterns": {
                 "type": "array",
@@ -584,7 +584,7 @@
             "type": "function",
             "name": "callback",
             "optional": true,
-            "description": "Called when the item has been created in the browser. If there were any problems creating the item, details will be available in <a href='url-runtime-last-error'>runtime.lastError</a>.",
+            "description": "Called when the item has been created in the browser. If there were any problems creating the item, details will be available in $(url:runtime-last-error)[runtime.lastError].",
             "parameters": []
           }
         ]
@@ -667,7 +667,7 @@
                   {
                     "name": "tab",
                     "$ref": "tabs.Tab",
-                    "description": "The details of the tab where the click took place. **Note:** this parameter only present for extensions."
+                    "description": "The details of the tab where the click took place."
                   }
                 ]
               },
@@ -681,7 +681,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "**Note:** You cannot change an item to be a child of one of its own descendants."
+                "description": "The hierarchical parent of the element. Updating an element to become a child of its own descendants is not supported."
               },
               "documentUrlPatterns": {
                 "type": "array",
@@ -758,7 +758,7 @@
         "name": "overrideContext",
         "permissions": ["menus.overrideContext"],
         "type": "function",
-        "description": "Show the matching menu items from this extension instead of the default menu. This should be called during a <a href='url-contextmenu-event'>contextmenu</a> event handler, and only applies to the menu that opens after this event.",
+        "description": "Show the matching menu items from this extension instead of the default menu. This should be called during a $(url:contextmenu-event)[contextmenu] event handler, and only applies to the menu that opens after this event.",
         "parameters": [
           {
             "name": "contextOptions",
@@ -798,7 +798,7 @@
       {
         "name": "onClicked",
         "type": "function",
-        "description": "Fired when a context menu item is clicked. This is a user input event handler. For asynchronous listeners some <a href='url-user-input-restrictions'>restrictions</a> apply.",
+        "description": "Fired when a context menu item is clicked. This is a user input event handler. For asynchronous listeners some $(url:user-input-restrictions)[restrictions] apply.",
         "parameters": [
           {
             "name": "info",

@@ -18,6 +18,8 @@ license:
         - comm/mail/base/content/overrides/app-license-name.html
         # Need to verify
         - comm/mail/components/im/messages
+        # License file in directory
+        - comm/mail/components/extensions/annotations/includes
         # Public Domain, but do not match pre-approved strings from Mozilla
         - comm/mailnews/db/mork/morkDeque.cpp
         - comm/mailnews/db/mork/morkDeque.h

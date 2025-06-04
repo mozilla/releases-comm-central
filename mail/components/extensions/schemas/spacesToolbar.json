@@ -1,6 +1,7 @@
 [
   {
     "namespace": "spacesToolbar",
+    "description": "The spacesToolbar API allows to manage built-in and custom spaces, and to add buttons for custom spaces to Thunderbird's spaces toolbar.",
     "max_manifest_version": 2,
     "types": [
       {

@@ -100,7 +100,7 @@
           "cookieStoreId": {
             "type": "string",
             "optional": true,
-            "description": "The <a href='url-cookieStore'>CookieStore</a> id used by the tab. Either a custom id created using the <a href='url-contextualIdentity'>contextualIdentities API</a>, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+            "description": "The $(url:cookieStore)[CookieStore] id used by the tab. Either a custom id created using the $(url:contextualIdentity)[contextualIdentities API], or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>."
           },
           "type": {
             "$ref": "TabType",
@@ -168,12 +168,12 @@
         "id": "UpdatePropertyName",
         "type": "string",
         "enum": ["favIconUrl", "status", "title"],
-        "description": "Event names supported in onUpdated."
+        "description": "Event names supported in $(ref:tabs.onUpdated)."
       },
       {
         "id": "UpdateFilter",
         "type": "object",
-        "description": "An object describing filters to apply to tabs.onUpdated events.",
+        "description": "An object describing filters to apply to $(ref:tabs.onUpdated) events.",
         "properties": {
           "urls": {
             "type": "array",
@@ -258,7 +258,7 @@
       {
         "name": "connect",
         "type": "function",
-        "description": "Connects to the content script(s) in the specified tab. The <a href='url-runtime-on-connect'>runtime.onConnect</a> event is fired in each content script running in the specified tab for the current extension. For more details, see <a href='url-content-scripts'>Content Script Messaging</a>.",
+        "description": "Connects to the content script(s) in the specified tab. The $(url:runtime-on-connect)[runtime.onConnect] event is fired in each content script running in the specified tab for the current extension. For more details, see $(url:content-scripts)[Content Script Messaging].",
         "parameters": [
           {
             "type": "integer",
@@ -292,7 +292,7 @@
       {
         "name": "sendMessage",
         "type": "function",
-        "description": "Sends a single message to the content script(s) in the specified tab, with an optional callback to run when a response is sent back. The <a href='url-runtime-on-message'>runtime.onMessage</a> event is fired in each content script running in the specified tab for the current extension.",
+        "description": "Sends a single message to the content script(s) in the specified tab, with an optional callback to run when a response is sent back. The $(url:runtime-on-message)[runtime.onMessage] event is fired in each content script running in the specified tab for the current extension.",
         "async": "responseCallback",
         "parameters": [
           {
@@ -325,7 +325,7 @@
               {
                 "name": "response",
                 "type": "any",
-                "description": "The JSON response object sent by the handler of the message. If an error occurs while connecting to the specified tab, the callback will be called with no arguments and <a href='url-runtime-last-error'>runtime.lastError</a> will be set to the error message."
+                "description": "The JSON response object sent by the handler of the message. If an error occurs while connecting to the specified tab, the callback will be called with no arguments and $(url:runtime-last-error)[runtime.lastError] will be set to the error message."
               }
             ]
           }
@@ -334,7 +334,7 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new content tab. To create message tabs, use the $(ref:messageDisplay.open). Only supported in <var>normal</var> windows. Same-site links in the loaded page are opened within Thunderbird, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a <a href='url-content-script-click-capture'>content script</a> , capture click events and handle them manually.",
+        "description": "Creates a new content tab. To create message tabs, use the $(ref:messageDisplay.open). Only supported in <var>normal</var> windows. Same-site links in the loaded page are opened within Thunderbird, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a $(url:content-script-click-capture)[content script] , capture click events and handle them manually.",
         "async": "callback",
         "parameters": [
           {
@@ -367,7 +367,7 @@
               "cookieStoreId": {
                 "type": "string",
                 "optional": true,
-                "description": "The <a href='url-cookieStore'>CookieStore</a> id the new tab should use. Either a custom id created using the <a href='url-contextualIdentity'>contextualIdentities API</a>, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons. The <permission>cookies</permission> permission is required to be able to specify this property. Furthermore, the <permission>contextualIdentities</permission> permission should be requested, to enable the contextual identities feature (enabled by default only on Thunderbird Daily)."
+                "description": "The $(url:cookieStore)[CookieStore] id the new tab should use. Either a custom id created using the $(url:contextualIdentity)[contextualIdentities API], or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>."
               },
               "linkHandler": {
                 "type": "string",
@@ -506,7 +506,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Match tabs against one or more <a href='url-match-patterns'>URL Patterns</a>. Note that fragment identifiers are not matched."
+                "description": "Match tabs against one or more $(url:match-patterns)[URL Patterns]. Fragment identifiers are not matched."
               },
               "windowId": {
                 "type": "integer",
@@ -538,7 +538,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "The <a href='url-cookieStore'>CookieStore</a> id(s) used by the tabs. Either custom ids created using the <a href='url-contextualIdentity'>contextualIdentities API</a>, or built-in ones: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+                "description": "The $(url:cookieStore)[CookieStore] id(s) used by the tabs. Either custom ids created using the $(url:contextualIdentity)[contextualIdentities API], or built-in ones: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>."
               }
             }
           },
@@ -579,7 +579,7 @@
               "url": {
                 "type": "string",
                 "optional": true,
-                "description": "A URL of a page to load. If the URL points to a content page (a web page, an extension page or a registered WebExtension protocol handler page), the tab will navigate to the requested page. All other URLs will be opened externally without changing the tab. **Note:** This function will throw an error, if a content page is loaded into a non-content tab (its type must be either <var>content</var> or <var>mail</var>)."
+                "description": "A URL of a page to load. If the URL points to a content page (a web page, an extension page or a registered WebExtension protocol handler page), the tab will navigate to the requested page. All other URLs will be opened externally without changing the tab."
               },
               "active": {
                 "type": "boolean",
@@ -605,7 +605,7 @@
       {
         "name": "move",
         "type": "function",
-        "description": "Moves one or more tabs to a new position within its current window, or to a different window. Note that tabs can only be moved to and from windows of type <var>normal</var>.",
+        "description": "Moves one or more tabs to a new position within its current window, or to a different window. Tabs can only be moved to and from windows of type <var>normal</var>.",
         "async": "callback",
         "parameters": [
           {
@@ -727,7 +727,7 @@
         "name": "executeScript",
         "type": "function",
         "max_manifest_version": 2,
-        "description": "Injects JavaScript code into a page. For details, see the <a href='url-content-scripts'>programmatic injection</a> section of the content scripts doc.",
+        "description": "Injects JavaScript code into a page. For details, see the $(url:content-scripts)[programmatic injection] section of the content scripts doc.",
         "async": "callback",
         "parameters": [
           {
@@ -765,7 +765,7 @@
         "name": "insertCSS",
         "type": "function",
         "max_manifest_version": 2,
-        "description": "Injects CSS into a page. For details, see the <a href='url-content-scripts'>programmatic injection</a> section of the content scripts doc.",
+        "description": "Injects CSS into a page. For details, see the $(url:content-scripts)[programmatic injection] section of the content scripts doc.",
         "async": "callback",
         "parameters": [
           {
@@ -793,7 +793,7 @@
         "name": "removeCSS",
         "type": "function",
         "max_manifest_version": 2,
-        "description": "Removes injected CSS from a page. For details, see the <a href='url-content-scripts'>programmatic injection</a> section of the content scripts doc.",
+        "description": "Removes injected CSS from a page. For details, see the $(url:content-scripts)[programmatic injection] section of the content scripts doc.",
         "async": "callback",
         "parameters": [
           {
@@ -911,7 +911,7 @@
       {
         "name": "onActivated",
         "type": "function",
-        "description": "Fires when the active tab in a window changes. Note that the tab's URL may not be set at the time this event fired, but you can listen to onUpdated events to be notified when a URL is set.",
+        "description": "Fires when the active tab in a window changes. The tab's URL may not be set at the time this event fired, listen to the $(ref:tabs.onUpdated) event instead to be notified when a URL is set.",
         "parameters": [
           {
             "type": "object",

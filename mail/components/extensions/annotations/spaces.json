@@ -1,0 +1,22 @@
+[
+  {
+    "namespace": "spaces",
+    "types": [
+      {
+        "id": "SpaceTabProperties",
+        "properties": {
+          "cookieStoreId": {
+            "annotations": [
+              {
+                "note": "The naming pattern of the built-in cookie stores was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+              },
+              {
+                "note": " The <permission>cookies</permission> permission is required to be able to specify this property. Furthermore, the <permission>contextualIdentities</permission> permission should be requested, to enable the contextual identities feature (enabled by default only on Thunderbird Daily)."
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+]

@@ -13,7 +13,7 @@
             "properties": {
               "browser_style": {
                 "type": "boolean",
-                "description": "Enable browser styles in the <var>management_url</var> page. See the <a href='url-mdn-browser-styles'>MDN documentation on browser styles</a> for more information.",
+                "description": "Enable browser styles in the <var>management_url</var> page. See the $(url:mdn-browser-styles)[MDN documentation on browser styles] for more information.",
                 "optional": true,
                 "default": false
               },
@@ -21,7 +21,7 @@
                 "type": "string",
                 "optional": true,
                 "deprecated": true,
-                "description": "This property is no longer used. The only supported data format for the <var>data</var> argument in $(ref:cloudFile.onFileUpload) is <a href='url-dom-file'>File</a>."
+                "description": "This property is no longer used. The only supported data format for the <var>data</var> argument in $(ref:cloudFile.onFileUpload) is $(url:dom-file)[File]."
               },
               "reuse_uploads": {
                 "description": "If a previously uploaded cloud file attachment is reused at a later time in a different message, Thunderbird may use the already known <var>url</var> and <var>templateInfo</var> values without triggering the registered $(ref:cloudFile.onFileUpload) listener again. Setting this option to <var>false</var> will always trigger the registered listener, providing the already known values through the <var>relatedFileInfo</var> parameter of the $(ref:cloudFile.onFileUpload) event, to let the provider decide how to handle these cases.",
@@ -33,7 +33,7 @@
                 "type": "string",
                 "format": "relativeUrl",
                 "preprocess": "localize",
-                "description": "A page for configuring accounts, to be displayed in the preferences UI. **Note:** Within this UI only a limited subset of the WebExtension APIs is available: <var>cloudFile</var>, <var>extension</var>, <var>i18n</var>, <var>runtime</var>, <var>storage</var>. The id of the to be configured cloud file account can be retrieved via <code>new URL(location.href).searchParams.get('accountId');</code>."
+                "description": "A page for configuring accounts, to be displayed in the preferences UI."
               },
               "name": {
                 "type": "string",
@@ -61,6 +61,7 @@
   },
   {
     "namespace": "cloudFile",
+    "description": "The cloudFile (a.k.a. fileLink) API allows to create a provider to store large attachments in the cloud instead of attaching them directly to the message.",
     "permissions": ["manifest:cloud_file"],
     "allowedContexts": ["content"],
     "events": [
@@ -328,7 +329,7 @@
               },
               "format": {
                 "optional": true,
-                "description": "A format options object as used by <a href='url-date-time-format'>Intl.DateTimeFormat</a>. Defaults to: <literalinclude>includes/cloudFile/defaultDateFormat.js<lang>JavaScript</lang></literalinclude>",
+                "description": "A format options object as used by $(url:date-time-format)[Intl.DateTimeFormat].",
                 "type": "object",
                 "additionalProperties": true
               }

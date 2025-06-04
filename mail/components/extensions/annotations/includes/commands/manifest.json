@@ -1,0 +1,17 @@
+{
+  "commands": {
+    "toggle-feature": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "linux": "Ctrl+Shift+U"
+      },
+      "description": "Send a 'toggle-feature' event"
+    },
+    "_execute_compose_action": {
+      "suggested_key": {
+        "default": "Alt+F5"
+      },
+      "description": "Open the compose action popup"
+    }
+  }
+}

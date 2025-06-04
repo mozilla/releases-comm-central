@@ -1,0 +1,28 @@
+[
+  {
+    "namespace": "scripting.compose",
+    "functions": [
+      {
+        "name": "registerScripts",
+        "annotations": [
+          {
+            "note": "Registered scripts will only be applied to newly opened message compose tabs. To apply the script to already open message compose tabs, manually inject your script by calling $(ref:scripting.executeScript) for each of the open <var>messageCompose</var> tabs."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "scripting.messageDisplay",
+    "functions": [
+      {
+        "name": "registerScripts",
+        "annotations": [
+          {
+            "note": "Registered scripts will only be applied to newly opened messages. To apply the script to already open messages, manually inject your script by calling $(ref:scripting.executeScript) for each of the open <var>messageDisplay</var> tabs."
+          }
+        ]
+      }
+    ]
+  }
+]

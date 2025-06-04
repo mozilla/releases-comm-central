@@ -1,0 +1,13 @@
+[
+  {
+    "namespace": "sessions",
+    "annotations": [
+      {
+        "text": "Thunderbird's sessions API is similar to the $(url:mdn-sessions-api)[Firefox sessions API], but it doesn't support accessing or restoring closed tabs."
+      },
+      {
+        "note": "The Sessions API currently does not require the <permission>sessions</permission> permission, but it will soon. It's recommended to request this permission before it becomes mandatory, to ensure your add-on continues to function properly."
+      }
+    ]
+  }
+]

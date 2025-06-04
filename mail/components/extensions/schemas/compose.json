@@ -15,6 +15,7 @@
   },
   {
     "namespace": "compose",
+    "describtion": "The compose API allows to interact with the message composition window.",
     "types": [
       {
         "id": "ComposeRecipient",
@@ -110,7 +111,7 @@
           "attachVCard": {
             "type": "boolean",
             "optional": true,
-            "description": "Whether or not the vCard of the used identity will be attached to the message during send. **Note:** If the value has not been modified, selecting a different identity will load the default value of the new identity."
+            "description": "Whether or not the vCard of the used identity will be attached to the message during send."
           },
           "attachments": {
             "type": "array",
@@ -352,7 +353,7 @@
           },
           "encryptBody": {
             "type": "boolean",
-            "description": "Whether encryption of the message body using the OpenPGP technology is enabled. **Note:** If encryption is enabled, but the <a href='url-help-cannot-encrypt'>preconditions</a> for sending an encrypted message are not met, the message cannot be sent."
+            "description": "Whether encryption of the message body using the OpenPGP technology is enabled."
           },
           "encryptSubject": {
             "type": "boolean",
@@ -374,7 +375,7 @@
           },
           "encryptBody": {
             "type": "boolean",
-            "description": "Whether encryption of the message body using the S/MIME technology is enabled. **Note:** If encryption is enabled, but the <a href='url-help-cannot-encrypt'>preconditions</a> for sending an encrypted message are not met, the message cannot be sent."
+            "description": "Whether encryption of the message body using the S/MIME technology is enabled."
           },
           "signMessage": {
             "type": "boolean",
@@ -387,7 +388,7 @@
       {
         "name": "onBeforeSend",
         "type": "function",
-        "description": "Fired when a message is about to be sent from the compose window. This is a user input event handler. For asynchronous listeners some <a href='url-user-input-restrictions'>restrictions</a> apply.",
+        "description": "Fired when a message is about to be sent from the compose window. This is a user input event handler. For asynchronous listeners some $(url:user-input-restrictions)[restrictions] apply.",
         "permissions": ["compose"],
         "parameters": [
           {
@@ -574,7 +575,7 @@
       {
         "name": "beginNew",
         "type": "function",
-        "description": "Open a new message compose window.\n\n**Note:** The compose format can be set by <var>details.isPlainText</var> or by specifying only one of <var>details.body</var> or <var>details.plainTextBody</var>. Otherwise the default compose format of the selected identity is used.\n\n**Note:** Specifying <var>details.body</var> and <var>details.plainTextBody</var> without also specifying <var>details.isPlainText</var> threw an exception in Thunderbird up to version 97. Since Thunderbird 98, this combination creates a compose window with the compose format of the selected identity, using the matching <var>details.body</var> or <var>details.plainTextBody</var> value.\n\n**Note:** If no identity is specified, this function is using the default identity and not the identity of the referenced message.",
+        "description": "Open a new message compose window.",
         "async": "callback",
         "parameters": [
           {
@@ -604,7 +605,7 @@
       {
         "name": "beginReply",
         "type": "function",
-        "description": "Open a new message compose window replying to a given message.\n\n**Note:** The compose format can be set by <var>details.isPlainText</var> or by specifying only one of <var>details.body</var> or <var>details.plainTextBody</var>. Otherwise the default compose format of the selected identity is used.\n\n**Note:** Specifying <var>details.body</var> and <var>details.plainTextBody</var> without also specifying <var>details.isPlainText</var> threw an exception in Thunderbird up to version 97. Since Thunderbird 98, this combination creates a compose window with the compose format of the selected identity, using the matching <var>details.body</var> or <var>details.plainTextBody</var> value.\n\n**Note:** If no identity is specified, this function is using the default identity and not the identity of the referenced message.",
+        "description": "Open a new message compose window replying to a given message.",
         "async": "callback",
         "parameters": [
           {
@@ -639,7 +640,7 @@
       {
         "name": "beginForward",
         "type": "function",
-        "description": "Open a new message compose window forwarding a given message.\n\n**Note:** The compose format can be set by <var>details.isPlainText</var> or by specifying only one of <var>details.body</var> or <var>details.plainTextBody</var>. Otherwise the default compose format of the selected identity is used.\n\n**Note:** Specifying <var>details.body</var> and <var>details.plainTextBody</var> without also specifying <var>details.isPlainText</var> threw an exception in Thunderbird up to version 97. Since Thunderbird 98, this combination creates a compose window with the compose format of the selected identity, using the matching <var>details.body</var> or <var>details.plainTextBody</var> value.\n\n**Note:** If no identity is specified, this function is using the default identity and not the identity of the referenced message.",
+        "description": "Open a new message compose window forwarding a given message.",
         "async": "callback",
         "parameters": [
           {
@@ -699,7 +700,7 @@
         "name": "setComposeDetails",
         "type": "function",
         "async": true,
-        "description": "Updates the compose window. The properties of the given $(ref:compose.ComposeDetails) object will be used to overwrite the current values of the specified compose window, so only properties that are to be changed should be included. Modified settings will be treated as user initiated, and turn off further automatic changes on these settings.\n\nWhen updating any of the array properties (<var>customHeaders</var> and most address fields), make sure to first get the current values to not accidentally remove all existing entries when setting the new value.\n\n**Note:** The compose format of an existing compose window cannot be changed. Since Thunderbird 98, setting conflicting values for <var>details.body</var>, <var>details.plainTextBody</var> or <var>details.isPlaintext</var> no longer throws an exception, instead the compose window chooses the matching <var>details.body</var> or <var>details.plainTextBody</var> value and ignores the other.",
+        "description": "Updates the compose window. The properties of the given $(ref:compose.ComposeDetails) object will be used to overwrite the current values of the specified compose window, so only properties that are to be changed should be included. Modified settings will be treated as user initiated, and turn off further automatic changes on these settings.",
         "permissions": ["compose"],
         "parameters": [
           {
@@ -787,7 +788,7 @@
       {
         "name": "getAttachmentFile",
         "type": "function",
-        "description": "Gets the content of a $(ref:compose.ComposeAttachment) as a <a href='url-dom-file'>File</a> object.",
+        "description": "Gets the content of a $(ref:compose.ComposeAttachment) as a $(url:dom-file)[File] object.",
         "async": "callback",
         "parameters": [
           {

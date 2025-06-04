@@ -35,7 +35,7 @@
                 "items": {
                   "$ref": "ThemeIcons"
                 },
-                "description": "Specifies dark and light icons to be used with themes. The <var>light</var> icon is used on dark backgrounds and vice versa. **Note:** The default theme uses the <var>default_icon</var> for light backgrounds (if specified)."
+                "description": "Specifies dark and light icons to be used with themes. The <var>light</var> icon is used on dark backgrounds and vice versa. The default theme uses the <var>default_icon</var> for light backgrounds (if specified)."
               },
               "default_popup": {
                 "type": "string",
@@ -47,7 +47,7 @@
               "browser_style": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Enable browser styles. See the <a href='url-mdn-browser-styles'>MDN documentation on browser styles</a> for more information.",
+                "description": "Enable browser styles. See the $(url:mdn-browser-styles)[MDN documentation on browser styles] for more information.",
                 "default": false
               },
               "default_area": {
@@ -94,12 +94,12 @@
           "type": "any"
         },
         "postprocess": "convertImageDataToURL",
-        "description": "Pixel data for an image. Must be an <a href='url-image-data'>ImageData</a> object (for example, from a <a href='url-canvas-element'>canvas</a> element)."
+        "description": "Pixel data for an image. Must be an $(url:image-data)[ImageData] object (for example, from a $(url:canvas-element)[canvas] element)."
       },
       {
         "id": "ImageDataDictionary",
         "type": "object",
-        "description": "A <em>dictionary object</em> to specify multiple <a href='url-image-data'>ImageData</a> objects in different sizes, so the icon does not have to be scaled for a device with a different pixel density. Each entry is a <em>name-value</em> pair with <em>value</em> being an <a href='url-image-data'>ImageData</a> object, and <em>name</em> its size. Example: <literalinclude>includes/ImageDataDictionary.json<lang>JavaScript</lang></literalinclude>See the <a href='url-mdn-icon-size'>MDN documentation about choosing icon sizes</a> for more information on this.",
+        "description": "A <em>dictionary object</em> to specify multiple $(url:image-data)[ImageData] objects in different sizes, so the icon does not have to be scaled for a device with a different pixel density. Each entry is a <em>name-value</em> pair with <em>value</em> being an $(url:image-data)[ImageData] object, and <em>name</em> its size.",
         "patternProperties": {
           "^[1-9]\\d*$": {
             "$ref": "ImageDataType"
@@ -793,7 +793,7 @@
       {
         "name": "onClicked",
         "type": "function",
-        "description": "Fired when a messageDisplayAction button is clicked. This event will not fire if the messageDisplayAction has a popup. This is a user input event handler. For asynchronous listeners some <a href='url-user-input-restrictions'>restrictions</a> apply.",
+        "description": "Fired when a messageDisplayAction button is clicked. This event will not fire if the messageDisplayAction has a popup. This is a user input event handler. For asynchronous listeners some $(url:user-input-restrictions)[restrictions] apply.",
         "parameters": [
           {
             "name": "tab",

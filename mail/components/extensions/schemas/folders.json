@@ -15,6 +15,7 @@
   },
   {
     "namespace": "folders",
+    "description": "The folders API allows to access and manage the user's message folders.",
     "permissions": ["accountsRead"],
     "types": [
       {
@@ -453,12 +454,12 @@
               "isTag": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the folder is a virtual tag folder, or not. Note: Virtual tag folders are always skipped, unless this property is set to <var>true</var>"
+                "description": "Whether the folder is a virtual tag folder, or not. Virtual tag folders are always skipped, unless this property is set to <var>true</var>"
               },
               "isUnified": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the folder is a unified mailbox folder, or not. Note: Unified mailbox folders are always skipped, unless this property is set to <var>true</var>"
+                "description": "Whether the folder is a unified mailbox folder, or not. Unified mailbox folders are always skipped, unless this property is set to <var>true</var>"
               },
               "isVirtual": {
                 "type": "boolean",

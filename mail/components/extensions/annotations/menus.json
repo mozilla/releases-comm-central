@@ -1,0 +1,260 @@
+[
+  {
+    "namespace": "menus",
+    "annotations": [
+      {
+        "text": "Thunderbird's menus API is similar to the $(url:mdn-menus-api)[Firefox menus API], but has been adapted to better suit Thunderbird's specific needs."
+      }
+    ],
+    "types": [
+      {
+        "id": "ContextType",
+        "enums": {
+          "all": {
+            "annotations": [
+              {
+                "text": "Equivalent to the combination of all other contexts except for <var>tab</var> and <var>tools_menu</var>."
+              }
+            ]
+          },
+          "all_message_attachments": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks the summary of the message attachments of a displayed message with more than one attachment."
+              }
+            ]
+          },
+          "action": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks a browserAction button in a Manifest V3 extension."
+              }
+            ]
+          },
+          "action_menu": {
+            "annotations": [
+              {
+                "text": "Applies when the user opened a browserAction button of type <var>menu</var> in a Manifest V3 extension."
+              }
+            ]
+          },
+          "audio": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks an audio element."
+              }
+            ]
+          },
+          "browser_action": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks a browserAction button."
+              }
+            ]
+          },
+          "browser_action_menu": {
+            "annotations": [
+              {
+                "text": "Applies when the user opened a browserAction button of type <var>menu</var>."
+              }
+            ]
+          },
+          "compose_action_menu": {
+            "annotations": [
+              {
+                "text": "Applies when the user opened a composeAction button of type <var>menu</var>."
+              }
+            ]
+          },
+          "compose_body": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks in the compose editor."
+              }
+            ]
+          },
+          "editable": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks an editable element, like a textarea."
+              }
+            ]
+          },
+          "folder_pane": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks in the folder pane of the main Thunderbird window."
+              }
+            ]
+          },
+          "frame": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks in a nested iframe."
+              }
+            ]
+          },
+          "image": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks an image."
+              }
+            ]
+          },
+          "link": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks on a link."
+              }
+            ]
+          },
+          "message_attachments": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks a single attachment of a displayed message."
+              }
+            ]
+          },
+          "message_display_action_menu": {
+            "annotations": [
+              {
+                "text": "Applies when the user opened a messageDisplayAction button of type <var>menu</var>."
+              }
+            ]
+          },
+          "message_list": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks in the message list (a.k.a. thread pane) of the main Thunderbird window."
+              }
+            ]
+          },
+          "page": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks in the page, but none of the other page contexts apply (for example, the click is not on an image or a nested iframe or a link)."
+              }
+            ]
+          },
+          "password": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks on a password input element."
+              }
+            ]
+          },
+          "selection": {
+            "annotations": [
+              {
+                "text": "Applies when part of the page is selected."
+              }
+            ]
+          },
+          "tab": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks on a tab (specifically, this refers to the tab-strip or other user interface element enabling the user to switch from one tab to another, not to the page itself)."
+              }
+            ]
+          },
+          "video": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks a video element."
+              }
+            ]
+          },
+          "compose_action": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks a composeAction button."
+              }
+            ]
+          },
+          "message_display_action": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks a messageDisplayAction button."
+              }
+            ]
+          },
+          "compose_attachments": {
+            "annotations": [
+              {
+                "text": "Applies when the user context-clicks an attachment in the compose window."
+              }
+            ]
+          },
+          "tools_menu": {
+            "annotations": [
+              {
+                "text": "Applies when the user opens the <var>Tools</var> menu of Thunderbird's main menu."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "OnShowData",
+        "properties": {
+          "linkText": {
+            "annotations": [
+              {
+                "note": "Host permission is required."
+              }
+            ]
+          },
+          "linkUrl": {
+            "annotations": [
+              {
+                "note": "Host permission is required."
+              }
+            ]
+          },
+          "srcUrl": {
+            "annotations": [
+              {
+                "note": "Host permission is required."
+              }
+            ]
+          },
+          "pageUrl": {
+            "annotations": [
+              {
+                "note": "Host permission is required."
+              }
+            ]
+          },
+          "frameUrl": {
+            "annotations": [
+              {
+                "note": "Host permission is required."
+              }
+            ]
+          },
+          "selectionText": {
+            "annotations": [
+              {
+                "note": "Host permission is required."
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "MenuIconDictionary",
+        "annotations": [
+          {
+            "text": "Example:"
+          },
+          {
+            "code": "includes/IconPath.json"
+          },
+          {
+            "text": "See the $(url:mdn-icon-size)[MDN documentation about choosing icon sizes] for more information on this topic."
+          }
+        ]
+      }
+    ]
+  }
+]

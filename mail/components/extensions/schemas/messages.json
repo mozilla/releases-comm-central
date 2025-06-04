@@ -25,6 +25,7 @@
   },
   {
     "namespace": "messages",
+    "description": "The messages API allows to access and manage the user's messages.",
     "permissions": ["messagesRead"],
     "types": [
       {
@@ -148,7 +149,7 @@
       {
         "id": "MessageList",
         "type": "object",
-        "description": "See $(doc:examples/messageLists) for more information.",
+        "description": "See $(doc:guides/messageLists) for more information.",
         "properties": {
           "id": {
             "choices": [
@@ -490,7 +491,7 @@
       {
         "name": "continueList",
         "type": "function",
-        "description": "Returns the next chunk of messages in a list. See $(doc:examples/messageLists) for more information.",
+        "description": "Returns the next chunk of messages in a list. See $(doc:guides/messageLists) for more information.",
         "async": "callback",
         "parameters": [
           {
@@ -564,7 +565,7 @@
               },
               "decodeHeaders": {
                 "type": "boolean",
-                "description": "Whether to decode RFC 2047 encoded headers of message parts. Defaults to <var>true</var>. **Note:** Automatic decoding of headers containing a list of comma separated mailbox strings can have unwanted side effects. Example: <literalinclude>includes/messages/badHeader.js<lang>JavaScript</lang></literalinclude>",
+                "description": "Whether to decode RFC 2047 encoded headers of message parts. Defaults to <var>true</var>.",
                 "optional": true
               },
               "decodeContent": {
@@ -618,13 +619,13 @@
                 "choices": [
                   {
                     "max_manifest_version": 2,
-                    "description": "The message can either be returned as a DOM File or as a <a href='url-binary-string'>binary string</a>. The historic default is to return a binary string (kept for backward compatibility). However, it is now recommended to use the <var>File</var> format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like <a href='url-dom-file-text'>File.text()</a> and <a href='url-dom-file-array-buffer'>File.arrayBuffer()</a>. Working with binary strings is error prone and needs special handling: <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude> (see MDN for <a href='url-input-encoding'>supported input encodings</a>).",
+                    "description": "The message can either be returned as a DOM File or as a $(url:binary-string)[binary string]. The historic default is to return a binary string (kept for backward compatibility). However, it is now recommended to use the <var>File</var> format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like $(url:dom-file-text)[File.text()] and $(url:dom-file-array-buffer)[File.arrayBuffer()].",
                     "type": "string",
                     "enum": ["File", "BinaryString"]
                   },
                   {
                     "min_manifest_version": 3,
-                    "description": "The message can either be returned as a DOM File (default) or as a <a href='url-binary-string'>binary string</a>. It is recommended to use the <var>File</var> format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like <a href='url-dom-file-text'>File.text()</a> and <a href='url-dom-file-array-buffer'>File.arrayBuffer()</a>. Working with binary strings is error prone and needs special handling: <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude> (see MDN for <a href='url-input-encoding'>supported input encodings</a>).",
+                    "description": "The message can either be returned as a DOM File (default) or as a $(url:binary-string)[binary string]. It is recommended to use the <var>File</var> format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like $(url:dom-file-text)[File.text()] and $(url:dom-file-array-buffer)[File.arrayBuffer()].",
                     "type": "string",
                     "enum": ["File", "BinaryString"]
                   }
@@ -683,7 +684,7 @@
       {
         "name": "listInlineTextParts",
         "type": "function",
-        "description": "Lists all inline text parts of a message. These parts are not returned by $(ref:messages.listAttachments) and usually make up the readable content of the message, mostly with content type <var>text/plain</var> or <var>text/html</var>. If a message only includes a part with content type <var>text/html</var>, the method $(ref:messengerUtilities.convertToPlainText) can be used to retreive a plain text version. \n\n**Note:** A message usually contains only one inline text part per subtype, but technically messages can contain multiple inline text parts per subtype.",
+        "description": "Lists all inline text parts of a message. These parts are not returned by $(ref:messages.listAttachments) and usually make up the readable content of the message, mostly with content type <var>text/plain</var> or <var>text/html</var>. If a message only includes a part with content type <var>text/html</var>, the method $(ref:messengerUtilities.convertToPlainText) can be used to retreive a plain text version.",
         "async": "callback",
         "parameters": [
           {
@@ -708,7 +709,7 @@
       {
         "name": "getAttachmentFile",
         "type": "function",
-        "description": "Gets the content of a $(ref:messages.MessageAttachment) as a <a href='url-dom-file'>File</a> object.",
+        "description": "Gets the content of a $(ref:messages.MessageAttachment) as a $(url:dom-file)[File] object.",
         "async": "callback",
         "parameters": [
           {
@@ -883,7 +884,7 @@
               "online": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Query the server directly instead of the local message database. Online queries currently only support querying the `headerMessageId` property. Currently only supported for NNTP accounts."
+                "description": "Query the server directly instead of the local message database. Online queries currently only support querying the <var>headerMessageId</var> property. Currently only supported for NNTP accounts."
               },
               "recipients": {
                 "type": "string",
@@ -1181,12 +1182,12 @@
                   "deletePermanently": {
                     "type": "boolean",
                     "optional": true,
-                    "description": "Whether the message will be deleted permanently, regardless of the account's deletion behavior settings. Use this with care!"
+                    "description": "Whether the message will be deleted permanently, regardless of the account's deletion behavior settings. A permanently deleted message cannot be restored, even if the action is defined as a user action. Use this with care!"
                   },
                   "isUserAction": {
                     "type": "boolean",
                     "optional": true,
-                    "description": "Whether this copy operation should be treated as a user action, for example allowing undo. Note: Deleting messages permanently cannot be undone!"
+                    "description": "Whether this copy operation should be treated as a user action, for example allowing undo."
                   }
                 }
               }
@@ -1397,6 +1398,7 @@
   },
   {
     "namespace": "messages.tags",
+    "description": "The messages.tags API allows to manage the user's message tags.",
     "types": [
       {
         "id": "MessageTag",

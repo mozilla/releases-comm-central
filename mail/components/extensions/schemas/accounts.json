@@ -15,6 +15,7 @@
   },
   {
     "namespace": "accounts",
+    "description": "The accounts API provides access to the user's server accounts.",
     "permissions": ["accountsRead"],
     "types": [
       {

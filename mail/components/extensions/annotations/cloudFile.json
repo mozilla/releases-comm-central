@@ -1,0 +1,47 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "cloud_file": {
+            "properties": {
+              "management_url": {
+                "annotations": [
+                  {
+                    "note": "Within this UI only a limited subset of the WebExtension APIs is available: <var>cloudFile</var>, <var>extension</var>, <var>i18n</var>, <var>runtime</var>, <var>storage</var>. The id of the to be configured cloud file account can be retrieved via <code>new URL(location.href).searchParams.get('accountId');</code>."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "namespace": "cloudFile",
+    "types": [
+      {
+        "id": "CloudFileTemplateInfo",
+        "properties": {
+          "download_expiry_date": {
+            "properties": {
+              "format": {
+                "annotations": [
+                  {
+                    "text": "Defaults to:"
+                  },
+                  {
+                    "code": "includes/cloudFile/defaultDateFormat.json"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+]

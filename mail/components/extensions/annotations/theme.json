@@ -1,0 +1,58 @@
+[
+  {
+    "namespace": "theme",
+    "types": [
+      {
+        "id": "ThemeExperiment",
+        "properties": {
+          "stylesheet": {
+            "annotations": [
+              {
+                "text": "The $(url:theme-experiment)[theme_experiment add-on in our example repository] is using the stylesheet shown below, to add the <var>--chat-button-color</var> CSS variable:"
+              },
+              {
+                "code": "includes/theme/theme_experiment_style.css"
+              },
+              {
+                "text": "The following <em>manifest.json</em> file maps the </var>--chat-button-color</var> CSS variable to the theme color key <var>exp_chat_button</var> and uses it to set a color for the chat button:"
+              },
+              {
+                "code": "includes/theme/theme_experiment_manifest.json"
+              }
+            ]
+          },
+          "images": {
+            "annotations": [
+              {
+                "text": "The following example maps the theme image key <var>theme_toolbar</var> to the CSS variable </var>--toolbar-bgimage</var>:"
+              },
+              {
+                "code": "includes/theme/theme_experiment_image.json"
+              }
+            ]
+          },
+          "colors": {
+            "annotations": [
+              {
+                "text": "The following example maps the theme color key <var>popup_affordance</var> to the CSS variable </var>--arrowpanel-dimmed</var>:"
+              },
+              {
+                "code": "includes/theme/theme_experiment_color.json"
+              }
+            ]
+          },
+          "properties": {
+            "annotations": [
+              {
+                "text": "The following example maps the theme property key <var>toolbar_image_alignment</var> to the CSS variable </var>--toolbar-bgalignment</var>:"
+              },
+              {
+                "code": "includes/theme/theme_experiment_property.json"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+]
