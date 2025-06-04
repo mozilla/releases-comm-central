@@ -1367,13 +1367,7 @@ void nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
     }
     if (!moved) {
       if (m_mailDB) {
-        nsresult rv =
-            m_mailDB->AttachHdr(m_newMsgHdr, true, getter_AddRefs(m_newMsgHdr));
-        if (NS_FAILED(rv)) {
-          NS_WARNING("AttachHdr() Failed");
-          m_newMsgHdr = nullptr;
-          return;
-        }
+        m_mailDB->AddNewHdrToDB(m_newMsgHdr, true);
         nsCOMPtr<nsIMsgFolderNotificationService> notifier(
             do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
         if (notifier) notifier->NotifyMsgAdded(m_newMsgHdr);
