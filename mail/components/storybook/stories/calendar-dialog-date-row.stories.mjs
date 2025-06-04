@@ -22,7 +22,7 @@ const Template = ({
   repeats,
 }) => html`
   <template id="calendarDialogRowTemplate">
-    <div part="row">
+    <div class="row">
       <slot name="icon"></slot>
       <slot name="label"></slot>
       <slot name="content"></slot>

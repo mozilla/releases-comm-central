@@ -212,6 +212,47 @@ add_task(async function test_dialogSubviewNavigation() {
   );
 });
 
+add_task(async function test_setCalendarEventResetsSubview() {
+  dialog.show();
+  const subviewManager = dialog.querySelector(
+    "calendar-dialog-subview-manager"
+  );
+  subviewManager.showSubview("calendarDialogOtherSubview");
+
+  Assert.ok(
+    !subviewManager.isDefaultSubviewVisible(),
+    "Should be showing another subiew"
+  );
+
+  dialog.setCalendarEvent(calendarEvent);
+  await BrowserTestUtils.waitForMutationCondition(
+    dialog,
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => subviewManager.isDefaultSubviewVisible()
+  );
+  Assert.ok(
+    subviewManager.isDefaultSubviewVisible(),
+    "Setting event data should return to default subivew"
+  );
+
+  subviewManager.showSubview("calendarDialogOtherSubview");
+  Assert.ok(
+    !subviewManager.isDefaultSubviewVisible(),
+    "Should be showing another subiew"
+  );
+
+  resetDialog();
+
+  Assert.ok(
+    subviewManager.isDefaultSubviewVisible(),
+    "Clearing event data should return to default subivew"
+  );
+});
+
 add_task(async function test_dialogTitle() {
   dialog.show();
   const title = dialog.querySelector(".calendar-dialog-title");

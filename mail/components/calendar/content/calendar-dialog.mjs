@@ -221,6 +221,8 @@ export class CalendarDialog extends PositionedDialog {
     }
 
     // We did it, we have an event to display \o/.
+    this.#subviewManager.showDefaultSubview();
+
     const cssSafeCalendarId = cal.view.formatStringForCSSRule(calendar.id);
     this.style.setProperty(
       "--calendar-bar-color",
@@ -258,6 +260,7 @@ export class CalendarDialog extends PositionedDialog {
    * Clear the data displayed in the dialog.
    */
   #clearData() {
+    this.#subviewManager.showDefaultSubview();
     this.querySelector(".calendar-dialog-title").textContent = "";
     // Only clearing the repeats attribute, the dates are expected to always
     // have a value.

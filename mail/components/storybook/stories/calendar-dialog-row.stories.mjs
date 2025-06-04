@@ -14,7 +14,7 @@ export default {
 
 const RowTemplateDefault = () => html`
   <template id="calendarDialogRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
-    <div part="row">
+    <div class="row">
       <slot name="icon"></slot>
       <slot name="label"></slot>
       <slot name="content"></slot>
@@ -34,7 +34,7 @@ const RowTemplateDefault = () => html`
 
 const RowTemplateLabelOnly = () => html`
   <template id="calendarDialogRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
-    <div part="row">
+    <div class="row">
       <slot name="icon"></slot>
       <slot name="label"></slot>
       <slot name="content"></slot>
@@ -53,7 +53,7 @@ const RowTemplateLabelOnly = () => html`
 
 const RowTemplateLocationLink = () => html`
   <template id="calendarDialogRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
-    <div part="row">
+    <div class="row">
       <slot name="icon"></slot>
       <slot name="label"></slot>
       <slot name="content"></slot>
@@ -80,7 +80,7 @@ const RowTemplateLocationLink = () => html`
 
 const RowTemplateDescription = () => html`
   <template id="calendarDialogRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
-    <div part="row">
+    <div class="row">
       <slot name="icon"></slot>
       <slot name="label"></slot>
       <slot name="content"></slot>

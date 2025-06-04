@@ -87,6 +87,10 @@
   content: var(--icon-nav-right);
   -moz-context-properties: stroke;
   stroke: currentColor;
+
+  &:dir(rtl) {
+    content: var(--icon-nav-left);
+  }
 }
 
 calendar-dialog-date-row {
@@ -97,6 +101,14 @@ calendar-dialog-date-row {
 
 .button.close-button {
   background-image: var(--icon-close);
+}
+
+.button.back-button {
+  background-image: var(--icon-nav-left);
+
+  &:dir(rtl) {
+    background-image: var(--icon-nav-right);
+  }
 }
 
 .button.join-button {
@@ -121,5 +133,16 @@ calendar-dialog-date-row {
     align-self: stretch;
     aspect-ratio: 0;
     border: 0;
+  }
+}
+
+calendar-dialog-subview-manager {
+  display: block;
+  overflow-y: auto;
+
+  & > *:not([hidden]) {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 }
