@@ -80,12 +80,12 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
     NS_ENSURE_SUCCESS(rv, rv);
     NS_UnescapeURL(filePath);
     filePath.ReplaceChar('\\', '/');
-    if (filePath.Length() >= 2 && filePath.CharAt(1) == '/') {
-      // We have an UNC path - file:////
+    if (filePath.Length() > 3 && filePath.CharAt(1) == '/') {
+      // We have an UNC path - file://///example.com/foobar
       // file:// +  path of which first may be / (linux root) - ok.
       // If second is also / we have an UNC path.
 
-      int32_t dashPos = filePath.FindChar('/', 2);
+      int32_t dashPos = filePath.FindChar('/', 3);
       if (dashPos <= 0) {
         NS_WARNING(nsPrintfCString("Bad mailbox: %s", filePath.get()).get());
         return NS_ERROR_FILE_UNRECOGNIZED_PATH;
@@ -102,7 +102,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
       // If under the profile, allow it.
       if (!StringBeginsWith(aURL->GetSpecOrDefault(), profileSpec)) {
         // It's not a path under the profile. See if we still can allow it.
-        nsCString uncPath(StringHead(filePath, dashPos));  // -> //example.com
+        nsCString uncPath(StringHead(filePath, dashPos));  // -> ///example.com
 
         nsCString uncHosts;
         Preferences::GetCString("mail.allowed_unc_hosts", uncHosts);
