@@ -856,49 +856,46 @@ export var EnigmailKeyRing = {
     isBinary,
     limitedUids = []
   ) {
-    let somethingWasImported = false;
     if (preview.length > 0) {
-      const outParam = {};
-      if (lazy.EnigmailDialog.confirmPubkeyImport(window, preview, outParam)) {
-        let exitStatus;
-        const errorMsgObj = {};
-        try {
-          exitStatus = await EnigmailKeyRing.importKeyAsync(
-            window,
-            false,
-            keyData,
-            isBinary,
-            "",
-            errorMsgObj,
-            null,
-            false,
-            limitedUids,
-            outParam.acceptance
-          );
-        } catch (ex) {
-          lazy.log.warn("Importing key FAILED.", ex);
-        }
+      const acceptance = lazy.EnigmailDialog.confirmPubkeyImport(
+        window,
+        preview
+      );
+      if (!acceptance) {
+        return false;
+      }
+      const errorMsgObj = {};
+      try {
+        const exitStatus = await EnigmailKeyRing.importKeyAsync(
+          window,
+          false,
+          keyData,
+          isBinary,
+          "",
+          errorMsgObj,
+          null,
+          false,
+          limitedUids,
+          acceptance
+        );
 
         if (exitStatus === 0) {
           const keyList = preview.map(a => a.id);
           lazy.EnigmailDialog.keyImportDlg(window, keyList);
-          somethingWasImported = true;
-        } else {
-          lazy.l10n.formatValue("fail-key-import").then(value => {
-            Services.prompt.alert(
-              window,
-              null,
-              value + "\n" + errorMsgObj.value
-            );
-          });
+          return true;
         }
+      } catch (ex) {
+        lazy.log.warn("Importing key FAILED.", ex);
       }
+      lazy.l10n.formatValue("fail-key-import").then(value => {
+        Services.prompt.alert(window, null, value + "\n" + errorMsgObj.value);
+      });
     } else {
       lazy.l10n.formatValue("no-key-found2").then(value => {
         Services.prompt.alert(window, null, value);
       });
     }
-    return somethingWasImported;
+    return false;
   },
 
   async importKeyArrayWithConfirmation(
@@ -909,8 +906,11 @@ export var EnigmailKeyRing = {
   ) {
     let somethingWasImported = false;
     if (keyArray.length > 0) {
-      const outParam = {};
-      if (lazy.EnigmailDialog.confirmPubkeyImport(window, keyArray, outParam)) {
+      const acceptance = lazy.EnigmailDialog.confirmPubkeyImport(
+        window,
+        keyArray
+      );
+      if (acceptance) {
         const importedKeys = [];
         let allErrors = "";
         for (const key of keyArray) {
@@ -927,7 +927,7 @@ export var EnigmailKeyRing = {
               null,
               false,
               limitedUids,
-              outParam.acceptance
+              acceptance
             );
           } catch (ex) {
             lazy.log.warn("Importing key FAILED!", ex);

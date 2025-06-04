@@ -585,10 +585,9 @@ async function enigmailImportFromClipbrd() {
   }
 
   const cBoardContent = await navigator.clipboard.readText();
-  var errorMsgObj = {};
-
   const keyBlock = getKeyBlock(cBoardContent, false);
-  var preview = await EnigmailKey.getKeyListFromKeyBlock(
+  const errorMsgObj = {};
+  const preview = await EnigmailKey.getKeyListFromKeyBlock(
     keyBlock,
     errorMsgObj,
     true,
@@ -597,32 +596,25 @@ async function enigmailImportFromClipbrd() {
   );
   // should we allow importing secret keys?
   if (preview && preview.length > 0) {
-    let confirmImport = false;
-    const outParam = {};
-    confirmImport = EnigmailDialog.confirmPubkeyImport(
-      window,
-      preview,
-      outParam
-    );
-    if (confirmImport) {
-      await EnigmailKeyRing.importKeyAsync(
-        window,
-        false,
-        cBoardContent,
-        false,
-        "",
-        errorMsgObj,
-        null,
-        false,
-        [],
-        outParam.acceptance
-      );
-      var keyList = preview.map(function (a) {
-        return a.id;
-      });
-      EnigmailDialog.keyImportDlg(window, keyList);
-      refreshKeys();
+    const acceptance = EnigmailDialog.confirmPubkeyImport(window, preview);
+    if (!acceptance) {
+      return;
     }
+    await EnigmailKeyRing.importKeyAsync(
+      window,
+      false,
+      cBoardContent,
+      false,
+      "",
+      errorMsgObj,
+      null,
+      false,
+      [],
+      acceptance
+    );
+    const keyList = preview.map(a => a.id);
+    EnigmailDialog.keyImportDlg(window, keyList);
+    refreshKeys();
   } else {
     document.l10n.formatValue("preview-failed").then(value => {
       Services.prompt.alert(window, null, value);
@@ -783,29 +775,24 @@ async function enigmailImportKeysFromUrl() {
       );
       // should we allow importing secret keys?
       if (preview && preview.length > 0) {
-        let confirmImport = false;
-        const outParam = {};
-        confirmImport = EnigmailDialog.confirmPubkeyImport(
-          window,
-          preview,
-          outParam
-        );
-        if (confirmImport) {
-          await EnigmailKeyRing.importKeyAsync(
-            window,
-            false,
-            data,
-            false,
-            "",
-            errorMsgObj,
-            null,
-            false,
-            [],
-            outParam.acceptance
-          );
-          errorMsgObj.preview = preview;
-          resolve(errorMsgObj);
+        const acceptance = EnigmailDialog.confirmPubkeyImport(window, preview);
+        if (!acceptance) {
+          return;
         }
+        await EnigmailKeyRing.importKeyAsync(
+          window,
+          false,
+          data,
+          false,
+          "",
+          errorMsgObj,
+          null,
+          false,
+          [],
+          acceptance
+        );
+        errorMsgObj.preview = preview;
+        resolve(errorMsgObj);
       } else {
         Services.prompt.alert(
           window,
@@ -830,9 +817,7 @@ async function enigmailImportKeysFromUrl() {
   });
 
   p.then(function (errorMsgObj) {
-    var keyList = errorMsgObj.preview.map(function (a) {
-      return a.id;
-    });
+    const keyList = errorMsgObj.preview.map(a => a.id);
     EnigmailDialog.keyImportDlg(window, keyList);
     refreshKeys();
   }).catch(async function (reason) {

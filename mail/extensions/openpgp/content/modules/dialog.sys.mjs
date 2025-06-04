@@ -12,7 +12,7 @@ export var EnigmailDialog = {
    * Displays a dialog with success/failure information after importing keys.
    *
    * @param {window} win - Parent window to display modal dialog; can be null
-   * @param {string} keyList - Imported keyIDs.
+   * @param {string[]} keyList - Imported keyIDs.
    * @returns {integer} the button number pressed. 0-2.
    *  -1: ESC or close window button pressed.
    */
@@ -45,11 +45,9 @@ export var EnigmailDialog = {
    *
    * @param {nsIDOMWindow} parentWindow - Parent window.
    * @param {EnigmailKeyObj[]} keyPreview - Key details. See EnigmailKey.getKeyListFromKeyBlock().
-   * @param {object} outputParams - Out parameters.
-   * @param {string} outputParams.acceptance contains the decision. If confirmed.
-   * @returns {boolean} true if user confirms import
+   * @returns {?string} chosen acceptance. If cancelled: null.
    */
-  confirmPubkeyImport(parentWindow, keyPreview, outputParams) {
+  confirmPubkeyImport(parentWindow, keyPreview) {
     const args = {
       keys: keyPreview,
       confirmed: false,
@@ -63,9 +61,9 @@ export var EnigmailDialog = {
       args
     );
 
-    if (args.confirmed && outputParams) {
-      outputParams.acceptance = args.acceptance;
+    if (!args.confirmed) {
+      return null;
     }
-    return args.confirmed;
+    return args.acceptance;
   },
 };

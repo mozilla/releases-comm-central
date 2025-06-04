@@ -154,49 +154,32 @@ async function EnigmailCommon_importObjectFromFile(what) {
       continue;
     }
 
-    if (preview.length > 0) {
-      let confirmImport = false;
-      let autoAcceptance = null;
-      const outParam = {};
-      confirmImport = EnigmailDialog.confirmPubkeyImport(
-        window,
-        preview,
-        outParam
-      );
-      if (confirmImport) {
-        autoAcceptance = outParam.acceptance;
-      }
-
-      if (confirmImport) {
-        // import
-        const resultKeys = {};
-
-        const importExitCode = await EnigmailKeyRing.importKeyAsync(
-          window,
-          false, // interactive, we already asked for confirmation
-          keyBlock,
-          importBinary,
-          null, // expected keyId, ignored
-          errorMsgObj,
-          resultKeys,
-          false, // minimize
-          [], // filter
-          autoAcceptance
-        );
-
-        if (importExitCode !== 0) {
-          document.l10n.formatValue("import-keys-failed").then(value => {
-            Services.prompt.alert(
-              window,
-              null,
-              value + "\n\n" + errorMsgObj.value
-            );
-          });
-          continue;
-        }
-
-        EnigmailDialog.keyImportDlg(window, resultKeys.value);
-      }
+    const acceptance = EnigmailDialog.confirmPubkeyImport(window, preview);
+    if (!acceptance) {
+      return;
     }
+
+    const resultKeys = {};
+    const importExitCode = await EnigmailKeyRing.importKeyAsync(
+      window,
+      false, // interactive, we already asked for confirmation
+      keyBlock,
+      importBinary,
+      null, // expected keyId, ignored
+      errorMsgObj,
+      resultKeys,
+      false, // minimize
+      [], // filter
+      acceptance
+    );
+
+    if (importExitCode !== 0) {
+      document.l10n.formatValue("import-keys-failed").then(value => {
+        Services.prompt.alert(window, null, value + "\n\n" + errorMsgObj.value);
+      });
+      continue;
+    }
+
+    EnigmailDialog.keyImportDlg(window, resultKeys.value);
   }
 }
