@@ -88,6 +88,7 @@ export class NntpClient {
     this.urlListener = null;
     this._msgWindow = null;
     this._newsFolder = null;
+    this._nextAction = null;
   }
 
   /**
