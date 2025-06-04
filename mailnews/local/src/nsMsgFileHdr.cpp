@@ -422,9 +422,3 @@ NS_IMETHODIMP nsMsgFileHdr::GetFolder(nsIMsgFolder** aFolder) { return NS_OK; }
 NS_IMETHODIMP nsMsgFileHdr::GetProperties(nsTArray<nsCString>& headers) {
   return NS_OK;
 }
-
-NS_IMETHODIMP nsMsgFileHdr::GetIsLive(bool* isLive) {
-  // Not in database, so not live.
-  *isLive = false;
-  return NS_OK;
-}

@@ -152,15 +152,12 @@ NS_IMETHODIMP Message::GetMessageSize(uint32_t* aMessageSize) {
 NS_IMETHODIMP Message::SetMessageSize(uint32_t aMessageSize) {
   return SetUint32Property("messageSize", aMessageSize);
 }
-
 NS_IMETHODIMP Message::GetLineCount(uint32_t* aLineCount) {
-  return GetUint32Property("lineCount", aLineCount);
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
-
 NS_IMETHODIMP Message::SetLineCount(uint32_t aLineCount) {
-  return SetUint32Property("lineCount", aLineCount);
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
-
 NS_IMETHODIMP Message::GetStoreToken(nsACString& aStoreToken) {
   return GetStringProperty("storeToken", aStoreToken);
 }
@@ -311,12 +308,6 @@ NS_IMETHODIMP Message::GetUidOnServer(uint32_t* aUidOnServer) {
 }
 NS_IMETHODIMP Message::SetUidOnServer(uint32_t aUidOnServer) {
   return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP Message::GetIsLive(bool* isLive) {
-  // By definition, Message is always live and in the database.
-  *isLive = true;
-  return NS_OK;
 }
 
 }  // namespace mozilla::mailnews

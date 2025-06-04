@@ -5,7 +5,6 @@
 #include "PerFolderDatabase.h"
 
 #include "DatabaseCore.h"
-#include "DetachedMsgHdr.h"
 #include "MailNewsTypes.h"
 #include "Message.h"
 #include "MessageDatabase.h"
@@ -184,67 +183,17 @@ NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForUID(uint32_t uid,
 }
 NS_IMETHODIMP PerFolderDatabase::CreateNewHdr(nsMsgKey aKey,
                                               nsIMsgDBHdr** aRetVal) {
-  MOZ_ASSERT(aKey == nsMsgKey_None);
-  RefPtr<DetachedMsgHdr> hdr = new DetachedMsgHdr(mFolderId);
-  hdr.forget(aRetVal);
-  return NS_OK;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::AddNewHdrToDB(nsIMsgDBHdr* newHdr,
                                                bool notify) {
-  NS_ERROR("AddNewHdrToDB() not supported");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-
-NS_IMETHODIMP PerFolderDatabase::AttachHdr(nsIMsgDBHdr* detachedHdr,
-                                           bool notify, nsIMsgDBHdr** realHdr) {
-  NS_ENSURE_ARG(detachedHdr);
-
-  bool isLive;
-  nsresult rv = detachedHdr->GetIsLive(&isLive);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (isLive) {
-    NS_ERROR("Live nsIMsgDBHdr passed in to AttachHdr()");
-    return NS_ERROR_INVALID_ARG;
-  }
-
-  // We know the concrete implementation.
-  DetachedMsgHdr* d = static_cast<DetachedMsgHdr*>(detachedHdr);
-  nsCOMPtr<nsIMsgDBHdr> live;
-
-  rv = AddMsgHdr(&d->mRaw, notify, getter_AddRefs(live));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Extra stuff to copy that's not covered by RawHdr.
-  if (d->mMessageSize > 0) {
-    rv = live->SetMessageSize(d->mMessageSize);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  // Hackery for legacy code. Really want to ditch this.
-  // It shouldn't be set on detached headers.
-  if (!d->mStoreToken.IsEmpty()) {
-    rv = live->SetStoreToken(d->mStoreToken);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-  if (d->mOfflineMessageSize > 0) {
-    rv = live->SetOfflineMessageSize(d->mOfflineMessageSize);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-  if (d->mLineCount > 0) {
-    rv = live->SetLineCount(d->mLineCount);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  live.forget(realHdr);
-  return NS_OK;
-}
-
 NS_IMETHODIMP PerFolderDatabase::CopyHdrFromExistingHdr(
     nsMsgKey key, nsIMsgDBHdr* existingHdr, bool addHdrToDB,
     nsIMsgDBHdr** aRetVal) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-
 NS_IMETHODIMP PerFolderDatabase::AddMsgHdr(RawHdr* msg, bool notify,
                                            nsIMsgDBHdr** newHdr) {
   MOZ_ASSERT(newHdr);
@@ -261,7 +210,6 @@ NS_IMETHODIMP PerFolderDatabase::AddMsgHdr(RawHdr* msg, bool notify,
   // anyway, and no data fields).
   RefPtr<Message> newMsg;
   rv = mMessageDatabase->GetMessage(key, getter_AddRefs(newMsg));
-
   newMsg.forget(newHdr);
   return rv;
 }
