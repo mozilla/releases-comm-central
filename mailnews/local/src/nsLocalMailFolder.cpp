@@ -1304,7 +1304,6 @@ nsMsgLocalMailFolder::OnCopyCompleted(nsISupports* srcSupport,
 
   if (mCopyState && !mCopyState->m_newMsgKeywords.IsEmpty() &&
       mCopyState->m_newHdr) {
-    // This is only used by CopyFileMessage().
     AddKeywordsToMessages({&*mCopyState->m_newHdr},
                           mCopyState->m_newMsgKeywords);
   }
@@ -2220,12 +2219,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
           // We need to copy more than just what UpdateNewMsgHdr does. In fact,
           // I think we want to copy almost every property other than
           // storeToken and msgOffset.
-          rv = mCopyState->m_destDB->AttachHdr(mCopyState->m_newHdr, true,
-                                               getter_AddRefs(newHdr));
-          if (NS_FAILED(rv)) {
-            newHdr = nullptr;
-          }
-          mCopyState->m_newHdr = newHdr;
+          mCopyState->m_destDB->AddNewHdrToDB(newHdr, true);
         } else {
           rv = mCopyState->m_destDB->CopyHdrFromExistingHdr(
               mCopyState->m_curDstKey, mCopyState->m_message, true,
@@ -2319,14 +2313,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
           newHdr->SetFlags((newFlags & ~carryOver) |
                            ((mCopyState->m_flags) & carryOver));
         }
-
-        // Add the new header to the database.
-        {
-          nsresult rv = msgDb->AttachHdr(newHdr, true, getter_AddRefs(newHdr));
-          NS_ENSURE_SUCCESS(rv, rv);
-          mCopyState->m_newHdr = newHdr;
-        }
-
+        msgDb->AddNewHdrToDB(newHdr, true);
         if (localUndoTxn) {
           // ** jt - recording the message size for possible undo use; the
           // message size is different for pop3 and imap4 messages
@@ -2589,18 +2576,17 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
       }
       rv = GetDatabaseWOReparse(getter_AddRefs(msgDb));
       if (NS_SUCCEEDED(rv) && msgDb) {
-        rv = msgDb->AttachHdr(newHdr, true, getter_AddRefs(newHdr));
-      }
-      if (NS_SUCCEEDED(rv) && msgDb && localUndoTxn) {
-        // ** jt - recording the message size for possible undo use; the
-        // message size is different for pop3 and imap4 messages
-        uint32_t msgSize;
-        newHdr->GetMessageSize(&msgSize);
-        localUndoTxn->AddDstMsgSize(msgSize);
-      } else {
+        msgDb->AddNewHdrToDB(newHdr, true);
+        if (localUndoTxn) {
+          // ** jt - recording the message size for possible undo use; the
+          // message size is different for pop3 and imap4 messages
+          uint32_t msgSize;
+          newHdr->GetMessageSize(&msgSize);
+          localUndoTxn->AddDstMsgSize(msgSize);
+        }
+      } else
         mCopyState->m_undoMsgTxn = nullptr;  // null out the transaction because
                                              // we can't undo w/o the msg db
-      }
     }
     mCopyState->m_parseMsgState->Clear();
 
