@@ -261,7 +261,7 @@ async function createAccountInBackend(config) {
     MailServices.accounts.defaultAccount = account;
   }
 
-  verifyLocalFoldersAccount(MailServices.accounts);
+  verifyLocalFoldersAccount();
 
   // save
   MailServices.accounts.saveAccountInfo();
@@ -399,13 +399,11 @@ function generateUniqueAccountName(config) {
 /**
  * Check if there already is a "Local Folders". If not, create it.
  * Copied from AccountWizard.js with minor updates.
- *
- * @param {nsIMsgAccountManager} am - MailServices.accounts (FIXME, use directly!)
  */
-function verifyLocalFoldersAccount(am) {
+function verifyLocalFoldersAccount() {
   let localMailServer;
   try {
-    localMailServer = am.localFoldersServer;
+    localMailServer = MailServices.accounts.localFoldersServer;
   } catch (ex) {
     localMailServer = null;
   }
@@ -413,9 +411,9 @@ function verifyLocalFoldersAccount(am) {
   try {
     if (!localMailServer) {
       // creates a copy of the identity you pass in
-      am.createLocalMailAccount();
+      MailServices.accounts.createLocalMailAccount();
       try {
-        localMailServer = am.localFoldersServer;
+        localMailServer = MailServices.accounts.localFoldersServer;
       } catch (ex) {
         lazy.AccountCreationUtils.ddump(
           "Error! we should have found the local mail server " +
