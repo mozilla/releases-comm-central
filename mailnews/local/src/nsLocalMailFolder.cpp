@@ -2331,8 +2331,13 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
                                            // we can't undo w/o the msg db
 
     mCopyState->m_parseMsgState->Clear();
-    if (mCopyState->m_listener)  // CopyFileMessage() only
-      mCopyState->m_listener->SetMessageKey(mCopyState->m_curDstKey);
+    if (mCopyState->m_listener && newHdr) {  // CopyFileMessage() only
+      // Tell the nsIMsgCopyServiceListener about the new key.
+      nsMsgKey newKey;
+      newHdr->GetMessageKey(&newKey);
+      MOZ_ASSERT(newKey != nsMsgKey_None);
+      mCopyState->m_listener->SetMessageKey(newKey);
+    }
   }
 
   if (!multipleCopiesFinished && !mCopyState->m_copyingMultipleMessages) {
@@ -2585,8 +2590,13 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
     }
     mCopyState->m_parseMsgState->Clear();
 
-    if (mCopyState->m_listener)  // CopyFileMessage() only
-      mCopyState->m_listener->SetMessageKey(mCopyState->m_curDstKey);
+    if (mCopyState->m_listener && newHdr) {  // CopyFileMessage() only
+      // Tell the nsIMsgCopyServiceListener about the new key.
+      nsMsgKey newKey;
+      newHdr->GetMessageKey(&newKey);
+      MOZ_ASSERT(newKey != nsMsgKey_None);
+      mCopyState->m_listener->SetMessageKey(newKey);
+    }
   }
 
   return NS_OK;
