@@ -70,7 +70,7 @@ struct nsLocalMailCopyState {
   bool m_allowUndo;
   bool m_writeFailed;
   bool m_notifyFolderLoaded;
-  nsCString m_newMsgKeywords;
+  nsCString m_newMsgKeywords;  // TODO: Remove. CopyFileMessage() only.
   nsCOMPtr<nsIMsgDBHdr> m_newHdr;
 };
 
