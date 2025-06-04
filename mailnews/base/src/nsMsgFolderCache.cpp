@@ -179,6 +179,11 @@ nsMsgFolderCache::nsMsgFolderCache()
       mSaveTimer(NS_NewTimer()) {}
 
 NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile* cacheFile, nsIFile* legacyFile) {
+  // Don't even allow creation under panorama.
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
   mCacheFile = cacheFile;
   // Is there a JSON file to load?
   bool exists;

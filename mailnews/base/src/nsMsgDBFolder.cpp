@@ -617,6 +617,7 @@ void nsMsgDBFolder::UpdateNewMessages() {
 // could cache the account manager and folder cache.
 nsresult nsMsgDBFolder::GetFolderCacheElemFromFile(
     nsIFile* file, nsIMsgFolderCacheElement** cacheElement) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
   nsresult result;
   NS_ENSURE_ARG_POINTER(file);
   NS_ENSURE_ARG_POINTER(cacheElement);
@@ -642,17 +643,20 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
   // we might need while we're here
   nsresult result = NS_OK;
 
-  // If we reload the cache we might get stale info, so don't do it.
-  if (!mInitializedFromCache) {
-    // Path is used as a key into the foldercache.
-    nsCOMPtr<nsIFile> dbPath;
-    result = GetFolderCacheKey(getter_AddRefs(dbPath));
-    if (dbPath) {
-      nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
-      result = GetFolderCacheElemFromFile(dbPath, getter_AddRefs(cacheElement));
-      if (NS_SUCCEEDED(result) && cacheElement) {
-        if (NS_SUCCEEDED(ReadFromFolderCacheElem(cacheElement))) {
-          mInitializedFromCache = true;
+  if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+    // If we reload the cache we might get stale info, so don't do it.
+    if (!mInitializedFromCache) {
+      // Path is used as a key into the foldercache.
+      nsCOMPtr<nsIFile> dbPath;
+      result = GetFolderCacheKey(getter_AddRefs(dbPath));
+      if (dbPath) {
+        nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
+        result =
+            GetFolderCacheElemFromFile(dbPath, getter_AddRefs(cacheElement));
+        if (NS_SUCCEEDED(result) && cacheElement) {
+          if (NS_SUCCEEDED(ReadFromFolderCacheElem(cacheElement))) {
+            mInitializedFromCache = true;
+          }
         }
       }
     }
@@ -1150,6 +1154,10 @@ NS_IMETHODIMP nsMsgDBFolder::GetFlags(uint32_t* _retval) {
 
 NS_IMETHODIMP nsMsgDBFolder::ReadFromFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
   nsresult rv = NS_OK;
 
   element->GetCachedUInt32("flags", &mFlags);
@@ -1183,9 +1191,7 @@ nsresult nsMsgDBFolder::GetFolderCacheKey(nsIFile** aFile) {
 }
 
 nsresult nsMsgDBFolder::FlushToFolderCache() {
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
-    return NS_OK;
-  }
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
@@ -1201,6 +1207,10 @@ nsresult nsMsgDBFolder::FlushToFolderCache() {
 
 NS_IMETHODIMP nsMsgDBFolder::WriteToFolderCache(nsIMsgFolderCache* folderCache,
                                                 bool deep) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
   nsresult rv = NS_OK;
 
   if (folderCache) {
@@ -1229,6 +1239,10 @@ NS_IMETHODIMP nsMsgDBFolder::WriteToFolderCache(nsIMsgFolderCache* folderCache,
 
 NS_IMETHODIMP nsMsgDBFolder::WriteToFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
   nsresult rv = NS_OK;
 
   element->SetCachedUInt32("flags", mFlags);
@@ -3791,7 +3805,9 @@ NS_IMETHODIMP nsMsgDBFolder::UpdateSummaryTotals(bool force) {
       NotifyIntPropertyChanged(kTotalUnreadMessages, oldUnreadMessages,
                                newUnreadMessages);
 
-    FlushToFolderCache();
+    if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+      FlushToFolderCache();
+    }
   }
   return rv;
 }

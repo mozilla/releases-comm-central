@@ -14,7 +14,6 @@
 #include "nsCOMPtr.h"
 #include "nsIFolder.h"
 #include "nsIMsgAccountManager.h"
-#include "nsIMsgFolderCache.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsThreadUtils.h"
 

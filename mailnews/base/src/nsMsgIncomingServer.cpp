@@ -295,6 +295,11 @@ NS_IMPL_GETSET(nsMsgIncomingServer, BiffState, uint32_t, m_biffState)
 
 NS_IMETHODIMP nsMsgIncomingServer::WriteToFolderCache(
     nsIMsgFolderCache* folderCache) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
+
   nsresult rv = NS_OK;
   if (m_rootFolder) {
     rv = m_rootFolder->WriteToFolderCache(folderCache, true /* deep */);

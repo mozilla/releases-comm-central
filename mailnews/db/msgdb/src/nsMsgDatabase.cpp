@@ -1500,38 +1500,39 @@ NS_IMETHODIMP nsMsgDatabase::Commit(nsMsgDBCommit commitType) {
   // commits.
   if (GetEnv()) GetEnv()->ClearErrors();
 
-  nsresult rv;
-  nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  if (NS_SUCCEEDED(rv) && accountManager) {
-    nsCOMPtr<nsIMsgFolderCache> folderCache;
+  if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+    nsresult rv;
+    nsCOMPtr<nsIMsgAccountManager> accountManager =
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
+    if (NS_SUCCEEDED(rv) && accountManager) {
+      nsCOMPtr<nsIMsgFolderCache> folderCache;
 
-    rv = accountManager->GetFolderCache(getter_AddRefs(folderCache));
-    if (NS_SUCCEEDED(rv) && folderCache) {
-      nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
-      nsCString persistentPath;
-      NS_ENSURE_TRUE(m_dbFile, NS_ERROR_NULL_POINTER);
-      rv = m_dbFile->GetPersistentDescriptor(persistentPath);
-      NS_ENSURE_SUCCESS(rv, err);
-      rv = folderCache->GetCacheElement(persistentPath, false,
-                                        getter_AddRefs(cacheElement));
-      if (NS_SUCCEEDED(rv) && cacheElement && m_dbFolderInfo) {
-        int32_t totalMessages, unreadMessages, pendingMessages,
-            pendingUnreadMessages;
+      rv = accountManager->GetFolderCache(getter_AddRefs(folderCache));
+      if (NS_SUCCEEDED(rv) && folderCache) {
+        nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
+        nsCString persistentPath;
+        NS_ENSURE_TRUE(m_dbFile, NS_ERROR_NULL_POINTER);
+        rv = m_dbFile->GetPersistentDescriptor(persistentPath);
+        NS_ENSURE_SUCCESS(rv, err);
+        rv = folderCache->GetCacheElement(persistentPath, false,
+                                          getter_AddRefs(cacheElement));
+        if (NS_SUCCEEDED(rv) && cacheElement && m_dbFolderInfo) {
+          int32_t totalMessages, unreadMessages, pendingMessages,
+              pendingUnreadMessages;
 
-        m_dbFolderInfo->GetNumMessages(&totalMessages);
-        m_dbFolderInfo->GetNumUnreadMessages(&unreadMessages);
-        m_dbFolderInfo->GetImapUnreadPendingMessages(&pendingUnreadMessages);
-        m_dbFolderInfo->GetImapTotalPendingMessages(&pendingMessages);
-        cacheElement->SetCachedInt32("totalMsgs", totalMessages);
-        cacheElement->SetCachedInt32("totalUnreadMsgs", unreadMessages);
-        cacheElement->SetCachedInt32("pendingMsgs", pendingMessages);
-        cacheElement->SetCachedInt32("pendingUnreadMsgs",
-                                     pendingUnreadMessages);
+          m_dbFolderInfo->GetNumMessages(&totalMessages);
+          m_dbFolderInfo->GetNumUnreadMessages(&unreadMessages);
+          m_dbFolderInfo->GetImapUnreadPendingMessages(&pendingUnreadMessages);
+          m_dbFolderInfo->GetImapTotalPendingMessages(&pendingMessages);
+          cacheElement->SetCachedInt32("totalMsgs", totalMessages);
+          cacheElement->SetCachedInt32("totalUnreadMsgs", unreadMessages);
+          cacheElement->SetCachedInt32("pendingMsgs", pendingMessages);
+          cacheElement->SetCachedInt32("pendingUnreadMsgs",
+                                       pendingUnreadMessages);
+        }
       }
     }
   }
-
   return err;
 }
 

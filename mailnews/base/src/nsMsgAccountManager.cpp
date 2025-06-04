@@ -551,37 +551,38 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
   rv = rootFolder->GetDescendants(allDescendants);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Remove every folder on the account from the folder cache.
-  for (const auto& folder : allDescendants) {
-    nsresult cacherv = RemoveFolderFromCache(folder);
+  if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+    // Remove every folder on the account from the folder cache.
+    for (const auto& folder : allDescendants) {
+      nsresult cacherv = RemoveFolderFromCache(folder);
+      if (NS_FAILED(cacherv)) {
+        // Some tests don't use on-disk storage for folders, in which case we'll
+        // fail to remove them from the folder cache because we can't resolve
+        // their path. In all other case, this should be considered an error,
+        // but returning an error would fail said tests, so we log the error
+        // instead, which is the next best thing.
+        nsCString name;
+        folder->GetName(name);
+        NS_WARNING(nsPrintfCString("failed to remove folder %s from cache: %s",
+                                   name.get(),
+                                   mozilla::GetStaticErrorName(cacherv))
+                       .get());
+      }
+    }
+
+    nsresult cacherv = RemoveFolderFromCache(rootFolder);
     if (NS_FAILED(cacherv)) {
-      // Some tests don't use on-disk storage for folders, in which case we'll
-      // fail to remove them from the folder cache because we can't resolve
-      // their path. In all other case, this should be considered an error, but
-      // returning an error would fail said tests, so we log the error instead,
-      // which is the next best thing.
-      nsCString name;
-      folder->GetName(name);
-      NS_WARNING(nsPrintfCString("failed to remove folder %s from cache: %s",
-                                 name.get(),
+      NS_WARNING(nsPrintfCString("failed to remove root folder from cache: %s",
                                  mozilla::GetStaticErrorName(cacherv))
                      .get());
     }
+
+    // Update the on-disk copy of the cache, so we don't end up with unneeded
+    // folders if e.g. Thunderbird crashes or gets SIGKILL'd later on.
+    nsCOMPtr<nsIMsgFolderCache> folderCache;
+    MOZ_TRY(GetFolderCache(getter_AddRefs(folderCache)));
+    MOZ_TRY(folderCache->Flush());
   }
-
-  nsresult cacherv = RemoveFolderFromCache(rootFolder);
-  if (NS_FAILED(cacherv)) {
-    NS_WARNING(nsPrintfCString("failed to remove root folder from cache: %s",
-                               mozilla::GetStaticErrorName(cacherv))
-                   .get());
-  }
-
-  // Update the on-disk copy of the cache, so we don't end up with unneeded
-  // folders if e.g. Thunderbird crashes or gets SIGKILL'd later on.
-  nsCOMPtr<nsIMsgFolderCache> folderCache;
-  MOZ_TRY(GetFolderCache(getter_AddRefs(folderCache)));
-  MOZ_TRY(folderCache->Flush());
-
   // Invalidate the `FindServer()` cache entry for this server. We need to do
   // this after the folders have been removed from the folder cache, because the
   // folders might end up querying the account manager to get a reference on
@@ -637,6 +638,12 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
 }
 
 nsresult nsMsgAccountManager::RemoveFolderFromCache(nsIMsgFolder* aFolder) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    MOZ_ASSERT(!m_msgFolderCache);
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
+
   NS_ENSURE_ARG_POINTER(aFolder);
 
   // Get the file path for the folder. This path is different depending on
@@ -984,6 +991,13 @@ void nsMsgAccountManager::LogoutOfServer(nsIMsgIncomingServer* aServer) {
 NS_IMETHODIMP nsMsgAccountManager::GetFolderCache(
     nsIMsgFolderCache** aFolderCache) {
   NS_ENSURE_ARG_POINTER(aFolderCache);
+
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    MOZ_ASSERT(!m_msgFolderCache);
+    *aFolderCache = nullptr;
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
 
   if (m_msgFolderCache) {
     NS_IF_ADDREF(*aFolderCache = m_msgFolderCache);
@@ -1774,6 +1788,12 @@ nsMsgAccountManager::BlockShutdown(nsIAsyncShutdownClient* aClient) {
 
 NS_IMETHODIMP
 nsMsgAccountManager::WriteToFolderCache(nsIMsgFolderCache* folderCache) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    MOZ_ASSERT(!m_msgFolderCache);
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
+
   for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
     iter.Data()->WriteToFolderCache(folderCache);
   }

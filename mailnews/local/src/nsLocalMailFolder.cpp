@@ -940,6 +940,10 @@ nsMsgLocalMailFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
 
 NS_IMETHODIMP nsMsgLocalMailFolder::ReadFromFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
   NS_ENSURE_ARG_POINTER(element);
   nsresult rv = nsMsgDBFolder::ReadFromFolderCacheElem(element);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -951,6 +955,10 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ReadFromFolderCacheElem(
 
 NS_IMETHODIMP nsMsgLocalMailFolder::WriteToFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
   NS_ENSURE_ARG_POINTER(element);
   nsMsgDBFolder::WriteToFolderCacheElem(element);
   if (!UsesLocalizedName()) {

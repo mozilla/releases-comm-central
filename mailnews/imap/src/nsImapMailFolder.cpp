@@ -451,35 +451,37 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
     currentFolderDBNameStr = currentFolderNameStr;
     nsAutoString utfLeafName = currentFolderNameStr;
 
-    nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
-    rv = GetFolderCacheElemFromFile(dbFile, getter_AddRefs(cacheElement));
-    if (NS_SUCCEEDED(rv) && cacheElement) {
-      nsCString onlineFullUtfName;
+    if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+      nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
+      rv = GetFolderCacheElemFromFile(dbFile, getter_AddRefs(cacheElement));
+      if (NS_SUCCEEDED(rv) && cacheElement) {
+        nsCString onlineFullUtfName;
 
-      uint32_t folderFlags;
-      rv = cacheElement->GetCachedUInt32("flags", &folderFlags);
-      if (NS_SUCCEEDED(rv) &&
-          folderFlags & nsMsgFolderFlags::Virtual)  // ignore virtual folders
-        continue;
-      int32_t hierarchyDelimiter;
-      rv = cacheElement->GetCachedInt32("hierDelim", &hierarchyDelimiter);
-      if (NS_SUCCEEDED(rv) &&
-          hierarchyDelimiter == kOnlineHierarchySeparatorUnknown) {
-        currentFolderPath->Remove(false);
-        continue;  // blow away .msf files for folders with unknown delimiter.
-      }
-      rv = cacheElement->GetCachedString("onlineName", onlineFullUtfName);
-      if (NS_SUCCEEDED(rv) && !onlineFullUtfName.IsEmpty()) {
-        CopyFolderNameToUTF16(onlineFullUtfName, currentFolderNameStr);
-        char delimiter = 0;
-        GetHierarchyDelimiter(&delimiter);
-        int32_t leafPos = currentFolderNameStr.RFindChar(delimiter);
-        if (leafPos > 0) currentFolderNameStr.Cut(0, leafPos + 1);
+        uint32_t folderFlags;
+        rv = cacheElement->GetCachedUInt32("flags", &folderFlags);
+        if (NS_SUCCEEDED(rv) &&
+            folderFlags & nsMsgFolderFlags::Virtual)  // ignore virtual folders
+          continue;
+        int32_t hierarchyDelimiter;
+        rv = cacheElement->GetCachedInt32("hierDelim", &hierarchyDelimiter);
+        if (NS_SUCCEEDED(rv) &&
+            hierarchyDelimiter == kOnlineHierarchySeparatorUnknown) {
+          currentFolderPath->Remove(false);
+          continue;  // blow away .msf files for folders with unknown delimiter.
+        }
+        rv = cacheElement->GetCachedString("onlineName", onlineFullUtfName);
+        if (NS_SUCCEEDED(rv) && !onlineFullUtfName.IsEmpty()) {
+          CopyFolderNameToUTF16(onlineFullUtfName, currentFolderNameStr);
+          char delimiter = 0;
+          GetHierarchyDelimiter(&delimiter);
+          int32_t leafPos = currentFolderNameStr.RFindChar(delimiter);
+          if (leafPos > 0) currentFolderNameStr.Cut(0, leafPos + 1);
 
-        // Take the full online name, and determine the leaf name.
-        CopyUTF8toUTF16(onlineFullUtfName, utfLeafName);
-        leafPos = utfLeafName.RFindChar(delimiter);
-        if (leafPos > 0) utfLeafName.Cut(0, leafPos + 1);
+          // Take the full online name, and determine the leaf name.
+          CopyUTF8toUTF16(onlineFullUtfName, utfLeafName);
+          leafPos = utfLeafName.RFindChar(delimiter);
+          if (leafPos > 0) utfLeafName.Cut(0, leafPos + 1);
+        }
       }
     }
 
@@ -1873,6 +1875,10 @@ NS_IMETHODIMP nsImapMailFolder::MarkThreadRead(nsIMsgThread* thread) {
 
 NS_IMETHODIMP nsImapMailFolder::ReadFromFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
   nsresult rv = nsMsgDBFolder::ReadFromFolderCacheElem(element);
   int32_t hierarchyDelimiter = kOnlineHierarchySeparatorUnknown;
   nsCString onlineName;
@@ -1905,6 +1911,10 @@ NS_IMETHODIMP nsImapMailFolder::ReadFromFolderCacheElem(
 
 NS_IMETHODIMP nsImapMailFolder::WriteToFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
   nsresult rv = nsMsgDBFolder::WriteToFolderCacheElem(element);
   element->SetCachedUInt32("boxFlags", (uint32_t)m_boxFlags);
   element->SetCachedInt32("hierDelim", (int32_t)m_hierarchyDelimiter);
