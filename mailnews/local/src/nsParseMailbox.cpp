@@ -524,21 +524,20 @@ NS_IMETHODIMP nsParseMailMessageState::GetAllHeaders(char** pHeaders,
  */
 nsresult nsParseMailMessageState::ParseHeaders() {
   char* buf = m_headers.begin();
-  uint32_t buf_length = m_headers.length();
+  const uint32_t buf_length = m_headers.length();
   if (buf_length == 0) {
     // No header of an expected type is present. Consider this a successful
     // parse so email still shows on summary and can be accessed and deleted.
     return NS_OK;
   }
-  char* buf_end = buf + buf_length;
+  char* const buf_end = buf + buf_length;
   if (!(buf_length > 1 &&
         (buf[buf_length - 1] == '\r' || buf[buf_length - 1] == '\n'))) {
     NS_WARNING("Header text should always end in a newline");
     return NS_ERROR_UNEXPECTED;
   }
   while (buf < buf_end) {
-    char* colon = PL_strnchr(buf, ':', buf_end - buf);
-    char* value = 0;
+    char* const colon = PL_strnchr(buf, ':', buf_end - buf);
     HeaderData* header = nullptr;
     HeaderData receivedBy;
 
@@ -705,16 +704,15 @@ nsresult nsParseMailMessageState::ParseHeaders() {
     }
 
     if (header) {
-      value = colon + 1;
+      char* value = colon + 1;
       // eliminate trailing blanks after the colon
       while (value < bufWrite && (*value == ' ' || *value == '\t')) value++;
 
-      int32_t len = bufWrite - value;
-      if (len < 0) {
+      if (value > bufWrite || value >= buf_end) {
         header->length = 0;
         header->value = nullptr;
       } else {
-        header->length = len;
+        header->length = bufWrite - value;
         header->value = value;
       }
     }
@@ -842,12 +840,14 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
     if (size == 1) {
       return list[0];
     }
-    for (size_t i = 0; i < size; i++) {
-      const auto& header = list[i];
-      buffer.Append(header.value, header.length);
-      if (i + 1 < size) {
+    for (const auto& header : list) {
+      if (!header.length) {
+        continue;
+      }
+      if (buffer.Length()) {
         buffer.Append(",");
       }
+      buffer.Append(header.value, header.length);
     }
     MOZ_ASSERT(strlen(buffer.get()) == buffer.Length(),
                "Aggregate header should have the correct length.");
