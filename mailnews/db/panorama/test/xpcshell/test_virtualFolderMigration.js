@@ -1,0 +1,124 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/**
+ * Tests migrating virtualFolders.dat into the new database.
+ */
+
+const { ProfileCreator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/ProfileCreator.sys.mjs"
+);
+
+add_setup(async function () {
+  const profile = new ProfileCreator(do_get_profile());
+  const server = await profile.addLocalServer();
+  await server.rootFolder.addMailFolder("foo");
+  await server.rootFolder.addMailFolder("bar");
+  await profile.addFile(
+    "virtualFolders.dat",
+    `version=1
+uri=mailbox://nobody@Local%20Folders/all%20messages
+scope=mailbox://nobody@Local%20Folders/foo|mailbox://nobody@Local%20Folders/bar
+terms=ALL
+searchOnline=false
+uri=mailbox://nobody@Local%20Folders/foo/test
+scope=mailbox://nobody@Local%20Folders/foo
+terms=AND (subject,contains,test)
+searchOnline=false
+uri=mailbox://nobody@smart%20mailboxes/tags/%24label1
+searchFolderFlag=1000
+scope=*
+terms=AND (tag,contains,$label1)
+searchOnline=false
+uri=mailbox://nobody@smart%20mailboxes/Trash
+searchFolderFlag=100
+scope=mailbox://nobody@Local%20Folders/Trash
+terms=ALL
+searchOnline=true
+`
+  );
+
+  loadExistingDB();
+  MailServices.accounts.accounts;
+});
+
+add_task(async function () {
+  const rootFolder = MailServices.accounts.localFoldersServer.rootFolder;
+  Assert.deepEqual(rootFolder.subFolders.map(f => f.name).toSorted(), [
+    "Trash",
+    "Unsent Messages",
+    "all messages",
+    "bar",
+    "foo",
+  ]);
+
+  const allMessages = rootFolder.getChildNamed("all messages");
+  const allMessagesInfo = allMessages.msgDatabase.dBFolderInfo;
+  Assert.equal(
+    allMessages.flags,
+    Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Mail
+  );
+  Assert.equal(
+    allMessagesInfo.getCharProperty("searchFolderUri"),
+    "mailbox://nobody@Local%20Folders/foo|mailbox://nobody@Local%20Folders/bar"
+  );
+  Assert.equal(allMessagesInfo.getCharProperty("searchStr"), "ALL");
+  Assert.ok(!allMessagesInfo.getBooleanProperty("searchOnline", true));
+
+  const test = rootFolder.getChildNamed("foo").getChildNamed("test");
+  const testInfo = test.msgDatabase.dBFolderInfo;
+  Assert.equal(
+    test.flags,
+    Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Mail
+  );
+  Assert.equal(
+    testInfo.getCharProperty("searchFolderUri"),
+    "mailbox://nobody@Local%20Folders/foo"
+  );
+  Assert.equal(
+    testInfo.getCharProperty("searchStr"),
+    "AND (subject,contains,test)"
+  );
+  Assert.ok(!testInfo.getBooleanProperty("searchOnline", true));
+
+  const allMessagesId = folders.getFolderByPath("server1/all messages").id;
+  checkRow(allMessagesId, {
+    id: allMessagesId,
+    parent: folders.getFolderByPath("server1").id,
+    ordinal: null,
+    name: "all messages",
+    flags: Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Mail,
+  });
+
+  const testId = folders.getFolderByPath("server1/foo/test").id;
+  checkRow(testId, {
+    id: testId,
+    parent: folders.getFolderByPath("server1/foo").id,
+    ordinal: null,
+    name: "test",
+    flags: Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Mail,
+  });
+
+  const stmt = database.connection.createStatement(
+    "SELECT id, name, value FROM folder_properties ORDER BY id, name"
+  );
+  const rows = [];
+  while (stmt.executeStep()) {
+    rows.push([stmt.row.id, stmt.row.name, stmt.row.value]);
+  }
+  stmt.finalize();
+
+  Assert.deepEqual(rows, [
+    [
+      allMessagesId,
+      "searchFolderUri",
+      "mailbox://nobody@Local%20Folders/foo|mailbox://nobody@Local%20Folders/bar",
+    ],
+    [allMessagesId, "searchOnline", 0],
+    [allMessagesId, "searchStr", "ALL"],
+    [testId, "searchFolderUri", "mailbox://nobody@Local%20Folders/foo"],
+    [testId, "searchOnline", 0],
+    [testId, "searchStr", "AND (subject,contains,test)"],
+  ]);
+});

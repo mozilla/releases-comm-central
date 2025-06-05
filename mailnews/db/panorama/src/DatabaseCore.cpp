@@ -24,9 +24,13 @@
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsIClassInfoImpl.h"
 #include "nsIFile.h"
+#include "nsIInputStream.h"
+#include "nsILineInputStream.h"
 #include "nsIMimeConverter.h"
 #include "nsIObserverService.h"
 #include "nsMsgFolderFlags.h"
+#include "nsMsgUtils.h"
+#include "nsNetUtil.h"
 #include "PerFolderDatabase.h"
 #include "xpcpublic.h"
 
@@ -43,6 +47,7 @@ NS_IMPL_CLASSINFO(DatabaseCore, nullptr, nsIClassInfo::SINGLETON,
 NS_IMPL_ISUPPORTS_CI(DatabaseCore, nsIDatabaseCore, nsIMsgDBService,
                      nsIObserver)
 
+bool DatabaseCore::sDatabaseIsNew = false;
 MOZ_RUNINIT nsCOMPtr<mozIStorageConnection> DatabaseCore::sConnection;
 MOZ_RUNINIT nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>>
     DatabaseCore::sStatements;
@@ -128,7 +133,6 @@ nsresult DatabaseCore::EnsureConnection() {
                                        getter_AddRefs(databaseFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIFile> file;
   rv = databaseFile->Append(u"panorama.sqlite"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -146,69 +150,10 @@ nsresult DatabaseCore::EnsureConnection() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!exists) {
-    MOZ_LOG(gPanoramaLog, LogLevel::Warning,
-            ("database file does not exist, creating"));
-    // Please keep mailnews/db/panorama/test/xpcshell/head.js in sync with
-    // changes to the following code.
-    rv = sConnection->ExecuteSimpleSQL("PRAGMA journal_mode=WAL;"_ns);
+    rv = CreateNewDatabase();
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = sConnection->ExecuteSimpleSQL("PRAGMA cache_size=-200000;"_ns);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = sConnection->ExecuteSimpleSQL(
-        "CREATE TABLE folders ( \
-          id INTEGER PRIMARY KEY, \
-          parent INTEGER REFERENCES folders(id), \
-          ordinal INTEGER DEFAULT NULL, \
-          name TEXT, \
-          flags INTEGER DEFAULT 0, \
-          UNIQUE(parent, name) \
-        );"_ns);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = sConnection->ExecuteSimpleSQL(
-        "CREATE TABLE folder_properties ( \
-          id INTEGER REFERENCES folders(id), \
-          name TEXT, \
-          value ANY, \
-          PRIMARY KEY(id, name) \
-        );"_ns);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = sConnection->ExecuteSimpleSQL(
-        "CREATE TABLE messages ( \
-          id INTEGER PRIMARY KEY, \
-          folderId INTEGER REFERENCES folders(id), \
-          threadId INTEGER REFERENCES messages(id), \
-          threadParent INTEGER REFERENCES messages(id), \
-          messageId TEXT, \
-          date INTEGER, \
-          sender TEXT, \
-          recipients TEXT, \
-          ccList TEXT, \
-          bccList TEXT, \
-          subject TEXT, \
-          flags INTEGER, \
-          tags TEXT \
-        );"_ns);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = sConnection->ExecuteSimpleSQL(
-        "CREATE TABLE message_properties ( \
-          id INTEGER REFERENCES messages(id), \
-          name TEXT, \
-          value ANY, \
-          PRIMARY KEY(id, name) \
-        );"_ns);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = sConnection->ExecuteSimpleSQL(
-        "CREATE INDEX messages_folderId ON messages(folderId);"_ns);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = sConnection->ExecuteSimpleSQL(
-        "CREATE INDEX messages_threadId ON messages(threadId);"_ns);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = sConnection->ExecuteSimpleSQL(
-        "CREATE INDEX messages_date ON messages(date);"_ns);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = sConnection->ExecuteSimpleSQL(
-        "CREATE INDEX messages_flags ON messages(flags);"_ns);
-    NS_ENSURE_SUCCESS(rv, rv);
+
+    sDatabaseIsNew = true;
   }
 
   RefPtr<TagsMatchFunction> tagsInclude = new TagsMatchFunction(true);
@@ -217,6 +162,204 @@ nsresult DatabaseCore::EnsureConnection() {
   sConnection->CreateFunction("tags_exclude"_ns, 2, tagsExclude);
   RefPtr<AddressFormatFunction> addressFormat = new AddressFormatFunction();
   sConnection->CreateFunction("address_format"_ns, 1, addressFormat);
+
+  return NS_OK;
+}
+
+nsresult DatabaseCore::CreateNewDatabase() {
+  MOZ_LOG(gPanoramaLog, LogLevel::Warning,
+          ("database file does not exist, creating"));
+  // Please keep mailnews/db/panorama/test/xpcshell/head.js in sync with
+  // changes to the following code.
+  nsresult rv = sConnection->ExecuteSimpleSQL("PRAGMA journal_mode=WAL;"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL("PRAGMA cache_size=-200000;"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE TABLE folders ( \
+        id INTEGER PRIMARY KEY, \
+        parent INTEGER REFERENCES folders(id), \
+        ordinal INTEGER DEFAULT NULL, \
+        name TEXT, \
+        flags INTEGER DEFAULT 0, \
+        UNIQUE(parent, name) \
+      );"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE TABLE folder_properties ( \
+        id INTEGER REFERENCES folders(id), \
+        name TEXT, \
+        value ANY, \
+        PRIMARY KEY(id, name) \
+      );"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE TABLE messages ( \
+        id INTEGER PRIMARY KEY, \
+        folderId INTEGER REFERENCES folders(id), \
+        threadId INTEGER REFERENCES messages(id), \
+        threadParent INTEGER REFERENCES messages(id), \
+        messageId TEXT, \
+        date INTEGER, \
+        sender TEXT, \
+        recipients TEXT, \
+        ccList TEXT, \
+        bccList TEXT, \
+        subject TEXT, \
+        flags INTEGER, \
+        tags TEXT \
+      );"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE TABLE message_properties ( \
+        id INTEGER REFERENCES messages(id), \
+        name TEXT, \
+        value ANY, \
+        PRIMARY KEY(id, name) \
+      );"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE INDEX messages_folderId ON messages(folderId);"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE INDEX messages_threadId ON messages(threadId);"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE INDEX messages_date ON messages(date);"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE INDEX messages_flags ON messages(flags);"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP DatabaseCore::MigrateVirtualFolders() {
+  if (!sDatabaseIsNew) {
+    // Only do this if we created the database in this session.
+    return NS_OK;
+  }
+
+  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("Migrating virtual folders"));
+
+  // Read virtualFolders.dat into an array of structs containing the info.
+
+  struct VirtualFolderDef {
+    nsCString uri;
+    nsCString scope;
+    nsCString terms;
+    bool searchOnline;
+  };
+
+  nsTArray<VirtualFolderDef> defs;
+
+  nsCOMPtr<nsIFile> virtualFoldersFile;
+  nsresult rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR,
+                                       getter_AddRefs(virtualFoldersFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = virtualFoldersFile->Append(u"virtualFolders.dat"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  bool exists;
+  rv = virtualFoldersFile->Exists(&exists);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!exists) {
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIInputStream> stream;
+  rv = NS_NewLocalFileInputStream(getter_AddRefs(stream), virtualFoldersFile);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsILineInputStream> lineStream = do_QueryInterface(stream);
+  MOZ_ASSERT(lineStream);
+
+  bool hasMoreLines = true;
+  nsAutoCString buffer;
+  while (hasMoreLines &&
+         NS_SUCCEEDED(lineStream->ReadLine(buffer, &hasMoreLines))) {
+    if (buffer.IsEmpty()) {
+      break;
+    }
+    if (StringBeginsWith(buffer, "version="_ns)) {
+      continue;
+    }
+    if (StringBeginsWith(buffer, "uri="_ns)) {
+      buffer.Cut(0, 4);
+      VirtualFolderDef def;
+      def.uri = buffer;
+      defs.AppendElement(def);
+      continue;
+    }
+    if (StringBeginsWith(buffer, "scope="_ns)) {
+      buffer.Cut(0, 6);
+      defs.LastElement().scope = buffer;
+    } else if (StringBeginsWith(buffer, "terms="_ns)) {
+      buffer.Cut(0, 6);
+      defs.LastElement().terms = buffer;
+    } else if (StringBeginsWith(buffer, "searchOnline="_ns)) {
+      buffer.Cut(0, 13);
+      defs.LastElement().searchOnline = buffer.EqualsLiteral("true");
+    }
+  }
+
+  // Now that we have all of the info, loop over the array and insert the
+  // folders we want to keep.
+
+  for (VirtualFolderDef def : defs) {
+    if (StringBeginsWith(def.uri, "mailbox://nobody@smart%20mailboxes/"_ns)) {
+      // We don't want to copy the unified folders or tags folders.
+      continue;
+    }
+
+    nsCOMPtr<nsIMsgFolder> virtualFolder;
+    // The virtual folder might exist already, which would be weird but it could
+    // happen.
+    GetExistingFolder(def.uri, getter_AddRefs(virtualFolder));
+
+    if (!virtualFolder) {
+      nsCOMPtr<nsIMsgFolder> parent;
+      nsAutoCString name;
+      int32_t lastSlash = def.uri.RFindChar('/');
+
+      // Find the parent folder.
+
+      rv = GetExistingFolder(Substring(def.uri, 0, lastSlash),
+                             getter_AddRefs(parent));
+      if (NS_FAILED(rv)) {
+        MOZ_LOG(
+            gPanoramaLog, LogLevel::Warning,
+            ("parent folder of %s not found, can't create the virtual folder",
+             def.uri.get()));
+        continue;
+      }
+
+      // Create the virtual folder.
+
+      MsgUnescapeString(
+          Substring(def.uri, lastSlash + 1),
+          nsINetUtil::ESCAPE_URL_FILE_BASENAME | nsINetUtil::ESCAPE_URL_FORCED,
+          name);
+      rv = parent->AddSubfolder(name, getter_AddRefs(virtualFolder));
+      if (NS_FAILED(rv)) {
+        MOZ_LOG(gPanoramaLog, LogLevel::Warning,
+                ("failed to create %s", def.uri.get()));
+        continue;
+      }
+    }
+
+    // Add the virtual folder info to the database.
+
+    nsCOMPtr<nsIMsgDatabase> msgDatabase;
+    nsCOMPtr<nsIDBFolderInfo> msgFolderInfo;
+    rv = virtualFolder->GetDBFolderInfoAndDB(getter_AddRefs(msgFolderInfo),
+                                             getter_AddRefs(msgDatabase));
+
+    virtualFolder->SetFlag(nsMsgFolderFlags::Virtual);
+    msgFolderInfo->SetCharProperty("searchFolderUri", def.scope);
+    msgFolderInfo->SetCharProperty("searchStr", def.terms);
+    msgFolderInfo->SetBooleanProperty("searchOnline", def.searchOnline);
+  }
 
   return NS_OK;
 }

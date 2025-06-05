@@ -28,6 +28,13 @@ interface nsIDatabaseCore : nsISupports {
   [infallible] readonly attribute nsIMessageDatabase messages;
 
   /**
+   * Migrate the virtualFolders.dat file into the new database. This can only
+   * happen after the folder hierarchy has been created in the database, and
+   * will do nothing if the database existed before the program started.
+   */
+  void migrateVirtualFolders();
+
+  /**
    * Migrate a folder's messages from its message summary into the new database.
    *
    * Returns a Promise that resolves when migration of the folder is complete.

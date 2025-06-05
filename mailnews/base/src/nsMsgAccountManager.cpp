@@ -1461,6 +1461,17 @@ nsresult nsMsgAccountManager::LoadAccounts() {
       }
     }
   }
+
+  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+    // At this point, we should have all the folders in the database. We can
+    // finally migrate the virtualFolders.dat file, which we'll only do if the
+    // database didn't exist at the start of the program.
+    nsCOMPtr<nsIDatabaseCore> databaseCore =
+        mozilla::components::DatabaseCore::Service();
+    rv = databaseCore->MigrateVirtualFolders();
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   return NS_OK;
 }
 

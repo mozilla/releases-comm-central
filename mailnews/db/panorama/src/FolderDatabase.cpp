@@ -589,6 +589,10 @@ FolderDatabase::UpdateFlags(nsIFolder* aFolder, uint64_t aNewFlags) {
   NS_ENSURE_ARG_POINTER(aFolder);
 
   Folder* folder = (Folder*)(aFolder);
+  if (folder->mFlags == aNewFlags) {
+    return NS_OK;
+  }
+
   nsCOMPtr<mozIStorageStatement> stmt;
   nsresult rv = DatabaseCore::GetStatement(
       "UpdateFlags"_ns, "UPDATE folders SET flags = :flags WHERE id = :id"_ns,

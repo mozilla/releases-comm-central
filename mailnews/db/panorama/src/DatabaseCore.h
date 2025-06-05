@@ -56,9 +56,11 @@ class DatabaseCore : public nsIDatabaseCore,
   static nsCOMPtr<mozIStorageConnection> sConnection;
 
  private:
+  static bool sDatabaseIsNew;  // If the database was created in this session.
   static nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>> sStatements;
 
   static nsresult EnsureConnection();
+  static nsresult CreateNewDatabase();
 
   RefPtr<FolderDatabase> mFolderDatabase;
   RefPtr<MessageDatabase> mMessageDatabase;

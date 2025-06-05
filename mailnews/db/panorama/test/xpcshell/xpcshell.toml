@@ -31,8 +31,6 @@ support-files = [
 
 ["test_messageIngestion.js"]
 
-["test_migration.js"]
-
 ["test_move.js"]
 
 ["test_msgFolders.js"]
@@ -51,4 +49,8 @@ support-files = [
 
 ["test_sqlFunctions.js"]
 
+["test_summaryFileMigration.js"]
+
 ["test_threads.js"]
+
+["test_virtualFolderMigration.js"]
