@@ -726,7 +726,7 @@ nsresult nsParseMailMessageState::ParseHeaders() {
       *last = 0; /* short-circuit const, and null-terminate header. */
     }
 
-    if (header) {
+    if (header && header->value) {
       /* More const short-circuitry... */
       /* strip trailing whitespace */
       while (header->length > 0 && IS_SPACE(header->value[header->length - 1]))
