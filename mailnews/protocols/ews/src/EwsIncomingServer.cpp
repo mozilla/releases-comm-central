@@ -5,6 +5,7 @@
 #include "EwsIncomingServer.h"
 
 #include "IEwsClient.h"
+#include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgWindow.h"
 #include "nsNetUtil.h"
 #include "nsPrintfCString.h"
@@ -149,6 +150,11 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
 
   rv = newFolder->SetName(name);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  // Notify any consumers listening for updates regarding the folder's creation.
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+  if (notifier) notifier->NotifyFolderAdded(newFolder);
 
   rv = parent->NotifyFolderAdded(newFolder);
   NS_ENSURE_SUCCESS(rv, rv);

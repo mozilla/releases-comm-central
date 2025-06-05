@@ -14,6 +14,7 @@
 #include "MailNewsTypes.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgDatabase.h"
+#include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsString.h"
 #include "nsMsgFolderFlags.h"
@@ -64,8 +65,11 @@ NS_IMETHODIMP FolderCreateCallbacks::OnSuccess(const nsACString& id) {
   rv = newFolder->SetStringProperty(ID_PROPERTY, id);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Notify any consumers listening for updates on the parent folder that we've
-  // added the new folder.
+  // Notify any consumers listening for updates regarding the folder's creation.
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+  if (notifier) notifier->NotifyFolderAdded(newFolder);
+
   return mParentFolder->NotifyFolderAdded(newFolder);
 }
 
@@ -133,7 +137,13 @@ NS_IMETHODIMP MessageOperationCallbacks::SaveNewHeader(nsIMsgDBHdr* hdr) {
   nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return db->AddNewHdrToDB(hdr, true);
+  MOZ_TRY(db->AddNewHdrToDB(hdr, true));
+
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+  if (notifier) notifier->NotifyMsgAdded(hdr);
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP MessageOperationCallbacks::CommitChanges() {
@@ -744,7 +754,13 @@ nsresult EwsFolder::LocalDeleteMessages(
   rv = GetMsgDatabase(getter_AddRefs(db));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return db->DeleteMessages(msgKeys, nullptr);
+  MOZ_TRY(db->DeleteMessages(msgKeys, nullptr));
+
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+  if (notifier) notifier->NotifyMsgsDeleted(messages);
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP EwsFolder::CompactAll(nsIUrlListener* aListener,

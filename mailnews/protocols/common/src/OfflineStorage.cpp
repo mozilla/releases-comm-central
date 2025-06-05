@@ -9,6 +9,7 @@
 #include "nsIInputStream.h"
 #include "nsIInputStreamPump.h"
 #include "nsIMsgFolder.h"
+#include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIStreamConverterService.h"
@@ -193,6 +194,26 @@ nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
   rv = sourceFolder->GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return MoveFolderRecurse(sourceFolder, newParentFolder, name, msgWindow,
-                           msgStore);
+  MOZ_TRY(MoveFolderRecurse(sourceFolder, newParentFolder, name, msgWindow,
+                            msgStore));
+
+  // Notify listeners of the operation. If the folder was both renamed and moved
+  // at the same time, we send a notification for each half of that operation.
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+  if (notifier) {
+    nsCOMPtr<nsIMsgFolder> newFolder;
+    MOZ_TRY(newParentFolder->GetChildNamed(name, getter_AddRefs(newFolder)));
+
+    if (!name.Equals(currentName)) {
+      notifier->NotifyFolderRenamed(sourceFolder, newFolder);
+    }
+
+    if (currentParent != newParentFolder) {
+      notifier->NotifyFolderMoveCopyCompleted(true, sourceFolder,
+                                              newParentFolder);
+    }
+  }
+
+  return NS_OK;
 }

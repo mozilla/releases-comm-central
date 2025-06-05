@@ -173,6 +173,11 @@ class MessageCopyHandler : public nsICopyMessageListener {
    */
   nsresult OnCreateFinished(nsresult status);
 
+  /**
+   * Records the new database entry created for the current message.
+   */
+  void RecordNewHdr(nsIMsgDBHdr* newHdr);
+
  private:
   /**
    * Triggers the creation of an item for the current message on the EWS server.
@@ -185,6 +190,10 @@ class MessageCopyHandler : public nsICopyMessageListener {
   bool mIsMove;
   bool mIsDraft;
   RefPtr<nsIMsgWindow> mWindow;
+
+  // The new database entries created for the messages, used for notifying
+  // listeners at the end of the copy/move operation.
+  nsTArray<RefPtr<nsIMsgDBHdr>> mDstHdr;
 
   // The source from which to copy/move. This can either be a folder (when
   // copying/moving messages from one folder to another), or a file (when e.g.

@@ -7,6 +7,7 @@
 #include "CopyMessageStreamListener.h"
 #include "nsIInputStream.h"
 #include "nsIMsgCopyService.h"
+#include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgMessageService.h"
 #include "nsISeekableStream.h"
 #include "nsIStringStream.h"
@@ -213,6 +214,8 @@ NS_IMETHODIMP MessageCreateCallbacks::CommitHeader(nsIMsgDBHdr* hdr) {
   rv = msgDB->Commit(nsMsgDBCommitType::kLargeCommit);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  mCopyHandler->RecordNewHdr(hdr);
+
   return NS_OK;
 }
 
@@ -369,6 +372,15 @@ nsresult MessageCopyHandler::OnCopyCompleted(nsresult status) {
     mCopyServiceListener->OnStopCopy(status);
   }
 
+  if (mSrcFolder) {
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+    if (notifier) {
+      notifier->NotifyMsgsMoveCopyCompleted(mIsMove, mHeaders, mDstFolder,
+                                            mDstHdr);
+    }
+  }
+
   nsresult rv;
   nsCOMPtr<nsIMsgCopyService> copyService =
       do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
@@ -447,6 +459,10 @@ nsresult MessageCopyHandler::SetMessageKey(nsMsgKey aKey) {
   }
 
   return NS_OK;
+}
+
+void MessageCopyHandler::RecordNewHdr(nsIMsgDBHdr* newHdr) {
+  mDstHdr.AppendElement(newHdr);
 }
 
 // Additional private methods on `MessageCopyHandler`, intended for internal
