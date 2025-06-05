@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _NAME_OF_THIS_HEADER_FILE__
-#define _NAME_OF_THIS_HEADER_FILE__
+#ifndef COMM_MAILNEWS_MIME_SRC_NSMIMESTRINGRESOURCES_H_
+#define COMM_MAILNEWS_MIME_SRC_NSMIMESTRINGRESOURCES_H_
 
 /* Note that the negative values are not actually strings: they are error
  * codes masquerading as strings. Do not pass them to MimeGetStringByID()
@@ -37,4 +37,4 @@
 #define MIME_MSG_DEFAULT_ATTACHMENT_NAME 1040
 #define MIME_FORWARDED_MESSAGE_HTML_USER_WROTE 1041
 
-#endif /* _NAME_OF_THIS_HEADER_FILE__ */
+#endif  // COMM_MAILNEWS_MIME_SRC_NSMIMESTRINGRESOURCES_H_

@@ -8,8 +8,8 @@
  *	offered by Microsoft Exchange Information Store
  */
 
-#ifndef	EDKMDB_INCLUDED
-#define	EDKMDB_INCLUDED
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_EDKMDB_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_EDKMDB_H_
 
 /*
  *	WARNING: Many of the property id values contained within this
@@ -2719,4 +2719,4 @@ DECLARE_MAPI_INTERFACE_PTR(IExchangeMessageConversion, LPEXCHANGEMESSAGECONVERSI
 // If you have a property that is for the Exchange provider only, it belongs in
 // this header, but should NOT BE PUT IN THE pidMAPIMin range!
 
-#endif	//EDKMDB_INCLUDED
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_EDKMDB_H_

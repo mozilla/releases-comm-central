@@ -44,8 +44,8 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef	MAPITAGS_H
-#define	MAPITAGS_H
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPITAGS_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPITAGS_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -1032,6 +1032,4 @@
 #define PROP_ID_SECURE_MIN 							0x67F0
 #define PROP_ID_SECURE_MAX 							0x67FF
 
-
-#endif	/* MAPITAGS_H */
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPITAGS_H_

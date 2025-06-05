@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __nsMsgSendReport_h__
-#define __nsMsgSendReport_h__
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGSENDREPORT_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSMSGSENDREPORT_H_
 
 #include "nsIMsgSendReport.h"
 #include "nsString.h"
@@ -42,4 +42,4 @@ class nsMsgSendReport : public nsIMsgSendReport {
   bool mAlreadyDisplayReport;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGSENDREPORT_H_

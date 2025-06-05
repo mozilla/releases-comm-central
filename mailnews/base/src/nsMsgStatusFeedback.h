@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgStatusFeedback_h
-#define _nsMsgStatusFeedback_h
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGSTATUSFEEDBACK_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGSTATUSFEEDBACK_H_
 
 #include "nsIWebProgressListener.h"
 #include "nsCOMPtr.h"
@@ -43,4 +43,4 @@ class nsMsgStatusFeedback : public nsIMsgStatusFeedback,
   nsCOMPtr<nsIStringBundle> mBundle;
 };
 
-#endif  // _nsMsgStatusFeedback_h
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGSTATUSFEEDBACK_H_

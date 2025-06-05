@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef MSG_MAPI_MAIN_H_
-#define MSG_MAPI_MAIN_H_
+#ifndef COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIMAIN_H_
+#define COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIMAIN_H_
 
 #define MAX_NAME_LEN 256
 #define MAX_PW_LEN 256
@@ -77,4 +77,4 @@ class nsMAPISession {
   void* GetMapiListContext() { return m_listContext; }
 };
 
-#endif  // MSG_MAPI_MAIN_H_
+#endif  // COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIMAIN_H_

@@ -6,8 +6,8 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef MAPIDEFS_H
-#define MAPIDEFS_H
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPIDEFS_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPIDEFS_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -2752,5 +2752,4 @@ DECLARE_MAPI_INTERFACE_(IMAPIProviderShutdown, IUnknown)
 
 #pragma warning(pop)
 
-#endif /* MAPIDEFS_H */
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPIDEFS_H_

@@ -6,8 +6,8 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef MAPICODE_H
-#define MAPICODE_H
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPICODE_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPICODE_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -212,5 +212,4 @@
 #define	HR_FAILED(_hr) FAILED((SCODE)(_hr))
 #endif
 
-#endif	/* MAPICODE_H */
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPICODE_H_

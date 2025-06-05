@@ -35,21 +35,24 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+#ifndef COMM_MAILNEWS_DB_MORK_MORKPROBEMAP_H_
+#define COMM_MAILNEWS_DB_MORK_MORKPROBEMAP_H_
+
 // This code is a port to NS Mork from public domain Mithril C++ sources.
 // Note many code comments here come verbatim from cut-and-pasted Mithril.
 // In many places, code is identical; Mithril versions stay public domain.
 // Changes in porting are mainly class type and scalar type name changes.
 
 #ifndef _MORKPROBEMAP_
-#define _MORKPROBEMAP_ 1
+#  define _MORKPROBEMAP_ 1
 
-#ifndef _MORK_
-#  include "mork.h"
-#endif
+#  ifndef _MORK_
+#    include "mork.h"
+#  endif
 
-#ifndef _MORKNODE_
-#  include "morkNode.h"
-#endif
+#  ifndef _MORKNODE_
+#    include "morkNode.h"
+#  endif
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
@@ -67,10 +70,10 @@ class morkMapScratch {  // utility class used by map subclasses
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#define morkDerived_kProbeMap 0x7072 /* ascii 'pr' */
-#define morkProbeMap_kTag 0x70724D50 /* ascii 'prMP' */
+#  define morkDerived_kProbeMap 0x7072 /* ascii 'pr' */
+#  define morkProbeMap_kTag 0x70724D50 /* ascii 'prMP' */
 
-#define morkProbeMap_kLazyClearOnAdd ((mork_u1)'c')
+#  define morkProbeMap_kLazyClearOnAdd ((mork_u1)'c')
 
 class morkProbeMap : public morkNode {
  protected:
@@ -354,8 +357,8 @@ class morkProbeMap : public morkNode {
 /*============================================================================*/
 /* morkProbeMapIter */
 
-#define morkProbeMapIter_kBeforeIx ((mork_i4) - 1) /* before first member */
-#define morkProbeMapIter_kAfterIx ((mork_i4) - 2)  /* after last member */
+#  define morkProbeMapIter_kBeforeIx ((mork_i4) - 1) /* before first member */
+#  define morkProbeMapIter_kAfterIx ((mork_i4) - 2)  /* after last member */
 
 class morkProbeMapIter {
  protected:
@@ -421,3 +424,5 @@ class morkProbeMapIter {
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKPROBEMAP_ */
+
+#endif  // COMM_MAILNEWS_DB_MORK_MORKPROBEMAP_H_

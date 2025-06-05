@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsSubscribableServer_h__
-#define nsSubscribableServer_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSSUBSCRIBABLESERVER_H_
+#define COMM_MAILNEWS_BASE_SRC_NSSUBSCRIBABLESERVER_H_
 
 #include "nsCOMPtr.h"
 #include "nsString.h"
@@ -56,4 +56,4 @@ class nsSubscribableServer : public nsISubscribableServer, public nsITreeView {
   int32_t AddSubtree(SubscribeTreeNode* node, int32_t index);
 };
 
-#endif  // nsSubscribableServer_h__
+#endif  // COMM_MAILNEWS_BASE_SRC_NSSUBSCRIBABLESERVER_H_

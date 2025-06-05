@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMETPFL_H_
-#define _MIMETPFL_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMETPFL_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMETPFL_H_
 
 #include "mimetext.h"
 
@@ -48,4 +48,4 @@ struct MimeInlineTextPlainFlowedExData {
 #define MimeInlineTextPlainFlowedClassInitializer(ITYPE, CSUPER) \
   {MimeInlineTextClassInitializer(ITYPE, CSUPER)}
 
-#endif /* _MIMETPFL_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMETPFL_H_

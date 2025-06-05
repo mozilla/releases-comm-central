@@ -7,8 +7,8 @@
    Interface for representing Local Mail folders.
 */
 
-#ifndef nsMsgLocalMailFolder_h__
-#define nsMsgLocalMailFolder_h__
+#ifndef COMM_MAILNEWS_LOCAL_SRC_NSLOCALMAILFOLDER_H_
+#define COMM_MAILNEWS_LOCAL_SRC_NSLOCALMAILFOLDER_H_
 
 #include "LineReader.h"
 #include "mozilla/Array.h"
@@ -264,4 +264,4 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   bool mDownloadInProgress;
 };
 
-#endif  // nsMsgLocalMailFolder_h__
+#endif  // COMM_MAILNEWS_LOCAL_SRC_NSLOCALMAILFOLDER_H_

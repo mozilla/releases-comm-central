@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsGlodaRankerFunction_h_
-#define _nsGlodaRankerFunction_h_
+#ifndef COMM_MAILNEWS_EXTENSIONS_FTS3_NSGLODARANKERFUNCTION_H_
+#define COMM_MAILNEWS_EXTENSIONS_FTS3_NSGLODARANKERFUNCTION_H_
 
 #include "mozIStorageFunction.h"
 
@@ -22,4 +22,4 @@ class nsGlodaRankerFunction final : public mozIStorageFunction {
   ~nsGlodaRankerFunction();
 };
 
-#endif  // _nsGlodaRankerFunction_h_
+#endif  // COMM_MAILNEWS_EXTENSIONS_FTS3_NSGLODARANKERFUNCTION_H_

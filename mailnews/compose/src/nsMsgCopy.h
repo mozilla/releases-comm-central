@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgCopy_H_
-#define _nsMsgCopy_H_
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOPY_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOPY_H_
 
 #include "nscore.h"
 #include "nsIFile.h"
@@ -103,4 +103,4 @@ nsresult MessageFolderIsLocal(nsIMsgIdentity* userIdentity,
                               nsMsgDeliverMode aFolderType,
                               const char* aSaveURI, bool* aResult);
 
-#endif /* _nsMsgCopy_H_ */
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOPY_H_

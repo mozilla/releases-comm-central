@@ -4,8 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _JaCompose_H_
-#define _JaCompose_H_
+#ifndef COMM_MAILNEWS_JSACCOUNT_SRC_JACOMPOSE_H_
+#define COMM_MAILNEWS_JSACCOUNT_SRC_JACOMPOSE_H_
 
 #include "nsISupports.h"
 #include "DelegateList.h"
@@ -86,4 +86,4 @@ class JaCppComposeDelegator : public JaBaseCppCompose, public msgIOverride {
 }  // namespace mailnews
 }  // namespace mozilla
 
-#endif
+#endif  // COMM_MAILNEWS_JSACCOUNT_SRC_JACOMPOSE_H_

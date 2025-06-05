@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef MessageDatabase_h__
-#define MessageDatabase_h__
+#ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGEDATABASE_H_
+#define COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGEDATABASE_H_
 
 #include "MailNewsTypes2.h"
 #include "mozilla/RefPtr.h"
@@ -77,4 +77,4 @@ class MessageDatabase : public nsIMessageDatabase {
 
 }  // namespace mozilla::mailnews
 
-#endif  // MessageDatabase_h__
+#endif  // COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGEDATABASE_H_

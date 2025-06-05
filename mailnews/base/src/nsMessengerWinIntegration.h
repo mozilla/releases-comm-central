@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __nsMessengerWinIntegration_h
-#define __nsMessengerWinIntegration_h
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMESSENGERWININTEGRATION_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMESSENGERWININTEGRATION_H_
 
 #include "nsCOMPtr.h"
 #include "nsString.h"
@@ -35,4 +35,4 @@ class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {
   nsString mUnreadTooltip;
 };
 
-#endif  // __nsMessengerWinIntegration_h
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMESSENGERWININTEGRATION_H_

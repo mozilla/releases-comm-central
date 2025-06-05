@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgGroupView_H_
-#define _nsMsgGroupView_H_
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGGROUPVIEW_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGGROUPVIEW_H_
 
 #include "nsMsgDBView.h"
 #include "nsInterfaceHashtable.h"
@@ -73,4 +73,4 @@ class nsMsgGroupView : public nsMsgDBView {
   bool m_dayChanged;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGGROUPVIEW_H_

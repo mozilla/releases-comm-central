@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMECMS_H_
-#define _MIMECMS_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMECMS_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMECMS_H_
 
 #include "mimecryp.h"
 
@@ -33,4 +33,4 @@ struct MimeEncryptedCMS {
 #define MimeEncryptedCMSClassInitializer(ITYPE, CSUPER) \
   {MimeEncryptedClassInitializer(ITYPE, CSUPER)}
 
-#endif /* _MIMEPKCS_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMECMS_H_

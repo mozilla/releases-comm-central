@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef MSG_MAPI_IMP_H
-#define MSG_MAPI_IMP_H
+#ifndef COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIIMP_H_
+#define COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIIMP_H_
 
 #include "msgMapi.h"
 #include "nspr.h"
@@ -76,4 +76,4 @@ class CMapiImp : public nsIMapi {
   mozilla::ThreadSafeAutoRefCnt m_cRef;
 };
 
-#endif  // MSG_MAPI_IMP_H
+#endif  // COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIIMP_H_

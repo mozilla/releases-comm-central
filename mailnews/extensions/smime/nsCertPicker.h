@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsCertPicker_h
-#define nsCertPicker_h
+#ifndef COMM_MAILNEWS_EXTENSIONS_SMIME_NSCERTPICKER_H_
+#define COMM_MAILNEWS_EXTENSIONS_SMIME_NSCERTPICKER_H_
 
 #include "nsICertPickDialogs.h"
 #include "nsIUserCertPicker.h"
@@ -25,4 +25,4 @@ class nsCertPicker : public nsICertPickDialogs, public nsIUserCertPicker {
   virtual ~nsCertPicker();
 };
 
-#endif  // nsCertPicker_h
+#endif  // COMM_MAILNEWS_EXTENSIONS_SMIME_NSCERTPICKER_H_

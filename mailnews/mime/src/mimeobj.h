@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMEOBJ_H_
-#define _MIMEOBJ_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMEOBJ_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMEOBJ_H_
 
 #include "mimei.h"  // IWYU pragma: export
 #include "prio.h"
@@ -179,4 +179,4 @@ struct MimeObject {
                          (int32_t*)&(obj)->obuffer_size)                   \
        : 0)
 
-#endif /* _MIMEOBJ_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMEOBJ_H_

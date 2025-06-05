@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgTagService_h__
-#define nsMsgTagService_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGTAGSERVICE_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGTAGSERVICE_H_
 
 #include "nsIMsgTagService.h"
 #include "nsIPrefBranch.h"
@@ -47,4 +47,4 @@ class nsMsgTagService final : public nsIMsgTagService {
   nsTArray<nsCString> m_keys;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGTAGSERVICE_H_

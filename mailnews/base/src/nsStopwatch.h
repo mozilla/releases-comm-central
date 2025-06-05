@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsStopwatch_h_
-#define _nsStopwatch_h_
+#ifndef COMM_MAILNEWS_BASE_SRC_NSSTOPWATCH_H_
+#define COMM_MAILNEWS_BASE_SRC_NSSTOPWATCH_H_
 
 #include "nsIStopwatch.h"
 
@@ -42,4 +42,4 @@ class nsStopwatch : public nsIStopwatch {
   static double GetCPUTime();
 };
 
-#endif  // _nsStopwatch_h_
+#endif  // COMM_MAILNEWS_BASE_SRC_NSSTOPWATCH_H_

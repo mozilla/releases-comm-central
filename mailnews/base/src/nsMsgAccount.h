@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGACCOUNT_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGACCOUNT_H_
+
 #include "nscore.h"
 #include "nsIMsgAccount.h"
 #include "nsIPrefBranch.h"
@@ -32,3 +35,5 @@ class nsMsgAccount : public nsIMsgAccount {
   // Have we tried to get the server yet?
   bool mTriedToGetServer;
 };
+
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGACCOUNT_H_

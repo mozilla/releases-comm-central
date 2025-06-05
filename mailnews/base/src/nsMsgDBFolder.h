@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgDBFolder_h__
-#define nsMsgDBFolder_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGDBFOLDER_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGDBFOLDER_H_
 
 #include "mozilla/Attributes.h"
 #include "msgCore.h"
@@ -377,4 +377,4 @@ class nsMsgKeySetU {
   RefPtr<nsMsgKeySet> hiKeySet;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGDBFOLDER_H_

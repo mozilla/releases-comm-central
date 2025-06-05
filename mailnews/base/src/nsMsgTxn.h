@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgTxn_h__
-#define nsMsgTxn_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGTXN_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGTXN_H_
 
 #include "nsIMsgTxn.h"
 #include "msgCore.h"
@@ -56,4 +56,4 @@ class nsMsgTxn : public nsIMsgTxn {
                                 bool* aResult);
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGTXN_H_

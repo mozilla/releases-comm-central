@@ -9,8 +9,8 @@
 
 *********************************************************************************************************/
 
-#ifndef nsAbCardProperty_h__
-#define nsAbCardProperty_h__
+#ifndef COMM_MAILNEWS_ADDRBOOK_SRC_NSABCARDPROPERTY_H_
+#define COMM_MAILNEWS_ADDRBOOK_SRC_NSABCARDPROPERTY_H_
 
 #include "nsIAbCard.h"
 #include "nsInterfaceHashtable.h"
@@ -38,4 +38,4 @@ class nsAbCardProperty : public nsIAbCard {
   nsCString m_directoryUID;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_ADDRBOOK_SRC_NSABCARDPROPERTY_H_

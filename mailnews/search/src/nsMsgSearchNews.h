@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgSearchNews_h__
-#define _nsMsgSearchNews_h__
+#ifndef COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHNEWS_H_
+#define COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHNEWS_H_
 
 #include "nsMsgSearchAdapter.h"
 #include "nsMsgSearchScopeTerm.h"
@@ -53,4 +53,4 @@ class nsMsgSearchNews : public nsMsgSearchAdapter {
   static const char* m_kUrlPrefix;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHNEWS_H_

@@ -35,8 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef _MORKFILE_
-#define _MORKFILE_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MORKFILE_H_
+#define COMM_MAILNEWS_DB_MORK_MORKFILE_H_
 
 #ifndef _MORK_
 #  include "mork.h"
@@ -357,4 +357,4 @@ class morkStdioFile /*d*/ : public morkFile { /* `` copied from IronDoc `` */
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _MORKFILE_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MORKFILE_H_

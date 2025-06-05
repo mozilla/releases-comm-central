@@ -1,3 +1,5 @@
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MIMEOLE_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MIMEOLE_H_
 
 #pragma warning( disable: 4049 )  /* more than 64k source lines */
 
@@ -9632,6 +9634,4 @@ void                      __RPC_USER  HFONT_UserFree(     __RPC__in unsigned lon
 }
 #endif
 
-#endif
-
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MIMEOLE_H_

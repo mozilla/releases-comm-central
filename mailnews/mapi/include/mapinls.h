@@ -6,8 +6,8 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef _MAPINLS_H_
-#define _MAPINLS_H_
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPINLS_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPINLS_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -193,6 +193,4 @@ BOOL	WINAPI	MNLS_IsBadStringPtrW(LPCWSTR lpsz, UINT ucchMax);
 }
 #endif
 
-#endif /* _MAPINLS_H_ */
-
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPINLS_H_

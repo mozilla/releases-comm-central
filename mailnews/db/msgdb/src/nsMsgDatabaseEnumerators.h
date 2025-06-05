@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgDatabaseEnumerators_H_
-#define _nsMsgDatabaseEnumerators_H_
+#ifndef COMM_MAILNEWS_DB_MSGDB_SRC_NSMSGDATABASEENUMERATORS_H_
+#define COMM_MAILNEWS_DB_MSGDB_SRC_NSMSGDATABASEENUMERATORS_H_
 
 /*
  * This file provides some enumerator classes, private to nsMsgDatabase.
@@ -130,4 +130,4 @@ class nsMsgDBThreadEnumerator : public nsBaseMsgThreadEnumerator {
   nsMsgDBThreadEnumeratorFilter mFilter;
 };
 
-#endif  // _nsMsgDatabaseEnumerators_H_
+#endif  // COMM_MAILNEWS_DB_MSGDB_SRC_NSMSGDATABASEENUMERATORS_H_

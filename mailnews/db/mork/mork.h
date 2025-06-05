@@ -35,8 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef _MORK_
-#define _MORK_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MORK_H_
+#define COMM_MAILNEWS_DB_MORK_MORK_H_
 
 #ifndef _MDB_
 #  include "mdb.h"
@@ -252,4 +252,4 @@ class morkZone;
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _MORK_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MORK_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMailDirProvider_h__
-#define nsMailDirProvider_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMAILDIRPROVIDER_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMAILDIRPROVIDER_H_
 
 #include "nsIDirectoryService.h"
 #include "nsSimpleEnumerator.h"
@@ -38,4 +38,4 @@ class nsMailDirProvider final : public nsIDirectoryServiceProvider2 {
   };
 };
 
-#endif  // nsMailDirProvider_h__
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMAILDIRPROVIDER_H_

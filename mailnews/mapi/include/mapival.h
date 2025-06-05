@@ -7,8 +7,8 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef	_INC_VALIDATE
-#define	_INC_VALIDATE
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPIVAL_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPIVAL_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -1963,6 +1963,4 @@ STDAPI	HrValidateParameters( METHODS eMethod, LPVOID FAR *ppFirstArg );
 }
 #endif
 
-#endif	/* _INC_VALIDATE */
-
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPIVAL_H_

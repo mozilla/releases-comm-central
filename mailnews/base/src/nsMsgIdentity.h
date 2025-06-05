@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgIdentity_h___
-#define nsMsgIdentity_h___
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGIDENTITY_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGIDENTITY_H_
 
 #include "nsIMsgIdentity.h"
 #include "nsIPrefBranch.h"
@@ -86,4 +86,4 @@ class nsMsgIdentity final : public nsIMsgIdentity {
     return getOrCreateFolder(_prefName, _folderFlag, _folderName, retval);    \
   }
 
-#endif /* nsMsgIdentity_h___ */
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGIDENTITY_H_

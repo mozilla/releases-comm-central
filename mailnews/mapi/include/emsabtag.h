@@ -13,8 +13,8 @@
 ** ---------------------------------------------------------------------------
 */
 
-#ifndef _EMSABTAG_H
-#define _EMSABTAG_H
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_EMSABTAG_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_EMSABTAG_H_
 
 /*
 * Flags for ulInterfaceOptions on OpenProperty
@@ -1187,5 +1187,5 @@
 // PR_EMS_AB_HAB_IS_HIERARCHICAL_GROUP Indicates that a group DL represents a department.
 #define PR_EMS_AB_HAB_IS_HIERARCHICAL_GROUP  PROP_TAG( PT_BOOLEAN,      0x8CDD)
 #define PR_EMS_AB_DL_EXTERNAL_MEMBER_COUNT   PROP_TAG( PT_LONG,         0x8CE3)
-#endif	/* W16 requires one more line after endif */
 
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_EMSABTAG_H_

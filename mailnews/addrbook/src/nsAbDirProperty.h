@@ -9,8 +9,8 @@
 
 *********************************************************************************************************/
 
-#ifndef nsAbDirProperty_h__
-#define nsAbDirProperty_h__
+#ifndef COMM_MAILNEWS_ADDRBOOK_SRC_NSABDIRPROPERTY_H_
+#define COMM_MAILNEWS_ADDRBOOK_SRC_NSABDIRPROPERTY_H_
 
 #include "nsIAbDirectory.h" /* include the interface we are going to support */
 #include "nsCOMPtr.h"
@@ -59,4 +59,5 @@ class nsAbDirProperty : public nsIAbDirectory, public nsSupportsWeakReference {
   nsCOMPtr<nsIPrefBranch> m_DirectoryPrefs;
   nsCOMPtr<nsIMutableArray> m_AddressList;
 };
-#endif
+
+#endif  // COMM_MAILNEWS_ADDRBOOK_SRC_NSABDIRPROPERTY_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MsgCompFields_H_
-#define _MsgCompFields_H_
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPFIELDS_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPFIELDS_H_
 
 #include "nsIMsgCompFields.h"
 #include "nsIAbCard.h"
@@ -202,4 +202,4 @@ class nsMsgCompFields : public nsIMsgCompFields {
   nsCOMPtr<msgIWritableStructuredHeaders> mStructuredHeaders;
 };
 
-#endif /* _MsgCompFields_H_ */
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPFIELDS_H_

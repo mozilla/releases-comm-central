@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMETENR_H_
-#define _MIMETENR_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMETENR_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMETENR_H_
 
 #include "mimetric.h"
 
@@ -29,4 +29,4 @@ struct MimeInlineTextEnriched {
 #define MimeInlineTextEnrichedClassInitializer(ITYPE, CSUPER) \
   {MimeInlineTextRichtextClassInitializer(ITYPE, CSUPER)}
 
-#endif /* _MIMETENR_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMETENR_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsCertGen_h
-#define nsCertGen_h
+#ifndef COMM_MAILNEWS_EXTENSIONS_SMIME_NSCERTGEN_H_
+#define COMM_MAILNEWS_EXTENSIONS_SMIME_NSCERTGEN_H_
 
 #include "nsICertGen.h"
 
@@ -22,4 +22,4 @@ class nsCertGen : public nsICertGen {
   virtual ~nsCertGen() {}
 };
 
-#endif  // nsCertGen_h
+#endif  // COMM_MAILNEWS_EXTENSIONS_SMIME_NSCERTGEN_H_

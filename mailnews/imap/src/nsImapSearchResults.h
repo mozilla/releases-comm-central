@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsImapSearchResults_h___
-#define nsImapSearchResults_h___
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPSEARCHRESULTS_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSIMAPSEARCHRESULTS_H_
 
 #include "nsTArray.h"
 
@@ -37,4 +37,4 @@ class nsImapSearchResultIterator {
   char* fPositionInCurrentLine;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPSEARCHRESULTS_H_

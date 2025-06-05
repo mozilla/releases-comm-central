@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsImapProtocol_h___
-#define nsImapProtocol_h___
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPPROTOCOL_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSIMAPPROTOCOL_H_
 
 #include "nsIImapProtocol.h"
 #include "nsIImapUrl.h"
@@ -833,4 +833,4 @@ class nsImapMockChannel : public nsIImapMockChannel,
   uint32_t mContentDisposition;
 };
 
-#endif  // nsImapProtocol_h___
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPPROTOCOL_H_

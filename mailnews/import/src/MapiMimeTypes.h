@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef MapiMimeTypes_h___
-#define MapiMimeTypes_h___
+#ifndef COMM_MAILNEWS_IMPORT_SRC_MAPIMIMETYPES_H_
+#define COMM_MAILNEWS_IMPORT_SRC_MAPIMIMETYPES_H_
 
 #include <windows.h>
 
@@ -24,4 +24,4 @@ class CMimeTypes {
   static uint8_t m_mimeBuffer[kMaxMimeTypeSize];
 };
 
-#endif /* MapiMimeTypes_h__ */
+#endif  // COMM_MAILNEWS_IMPORT_SRC_MAPIMIMETYPES_H_

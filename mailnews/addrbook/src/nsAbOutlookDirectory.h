@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef nsAbOutlookDirectory_h___
-#define nsAbOutlookDirectory_h___
+
+#ifndef COMM_MAILNEWS_ADDRBOOK_SRC_NSABOUTLOOKDIRECTORY_H_
+#define COMM_MAILNEWS_ADDRBOOK_SRC_NSABOUTLOOKDIRECTORY_H_
 
 #include "nsIAbCard.h"
 #include "nsAbDirProperty.h"
@@ -176,4 +177,4 @@ static const char* CardStringProperties[] = {
 static const char* CardIntProperties[] = {
     kBirthYearProperty, kBirthMonthProperty, kBirthDayProperty};
 
-#endif  // nsAbOutlookDirectory_h___
+#endif  // COMM_MAILNEWS_ADDRBOOK_SRC_NSABOUTLOOKDIRECTORY_H_

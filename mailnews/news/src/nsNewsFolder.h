@@ -7,8 +7,8 @@
    Interface for representing News folders.
 */
 
-#ifndef nsMsgNewsFolder_h__
-#define nsMsgNewsFolder_h__
+#ifndef COMM_MAILNEWS_NEWS_SRC_NSNEWSFOLDER_H_
+#define COMM_MAILNEWS_NEWS_SRC_NSNEWSFOLDER_H_
 
 #include "nsMsgDBFolder.h"
 #include "nsIFile.h"
@@ -130,4 +130,4 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   nsCOMPtr<nsIMsgFilterList> mFilterList;
 };
 
-#endif  // nsMsgNewsFolder_h__
+#endif  // COMM_MAILNEWS_NEWS_SRC_NSNEWSFOLDER_H_

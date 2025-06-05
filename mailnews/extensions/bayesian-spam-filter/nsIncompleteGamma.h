@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsIncompleteGamma_h__
-#define nsIncompleteGamma_h__
+#ifndef COMM_MAILNEWS_EXTENSIONS_BAYESIAN_SPAM_FILTER_NSINCOMPLETEGAMMA_H_
+#define COMM_MAILNEWS_EXTENSIONS_BAYESIAN_SPAM_FILTER_NSINCOMPLETEGAMMA_H_
 
 /* An implementation of the incomplete gamma functions for real
    arguments. P is defined as
@@ -236,4 +236,4 @@ static double nsIncompleteGammaP(double a, double x, int* error) {
   return result;
 }
 
-#endif
+#endif  // COMM_MAILNEWS_EXTENSIONS_BAYESIAN_SPAM_FILTER_NSINCOMPLETEGAMMA_H_

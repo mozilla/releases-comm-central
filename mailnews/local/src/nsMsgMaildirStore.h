@@ -7,8 +7,8 @@
    Class for handling Maildir stores.
 */
 
-#ifndef nsMsgMaildirStore_h__
-#define nsMsgMaildirStore_h__
+#ifndef COMM_MAILNEWS_LOCAL_SRC_NSMSGMAILDIRSTORE_H_
+#define COMM_MAILNEWS_LOCAL_SRC_NSMSGMAILDIRSTORE_H_
 
 #include "nsMsgLocalStoreUtils.h"
 #include "nsIOutputStream.h"
@@ -57,4 +57,5 @@ class nsMsgMaildirStore final : public nsMsgLocalStoreUtils,
                                          nsACString& storeToken,
                                          nsIOutputStream** outStream);
 };
-#endif
+
+#endif  // COMM_MAILNEWS_LOCAL_SRC_NSMSGMAILDIRSTORE_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgHdr_H
-#define _nsMsgHdr_H
+#ifndef COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSMSGHDR_H_
+#define COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSMSGHDR_H_
 
 #include "mozilla/MemoryReporting.h"
 #include "nsIMsgHdr.h"
@@ -88,4 +88,4 @@ class nsMsgHdr : public nsIMsgDBHdr {
   uint32_t m_initedValues;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSMSGHDR_H_

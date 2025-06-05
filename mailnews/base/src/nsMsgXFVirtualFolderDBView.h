@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgXFVirtualFolderDBView_H_
-#define _nsMsgXFVirtualFolderDBView_H_
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGXFVIRTUALFOLDERDBVIEW_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGXFVIRTUALFOLDERDBVIEW_H_
 
 #include "nsMsgSearchDBView.h"
 #include "nsIMsgSearchNotify.h"
@@ -64,4 +64,4 @@ class nsMsgXFVirtualFolderDBView : public nsMsgSearchDBView {
   bool m_doingQuickSearch;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGXFVIRTUALFOLDERDBVIEW_H_

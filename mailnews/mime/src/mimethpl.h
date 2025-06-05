@@ -9,8 +9,8 @@
    option, if the sender didn't supply a plaintext alternative (bah!).
  */
 
-#ifndef _MIMETHPL_H_
-#define _MIMETHPL_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMETHPL_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMETHPL_H_
 
 #include "mimetpla.h"
 #include "nsString.h"
@@ -33,4 +33,4 @@ struct MimeInlineTextHTMLAsPlaintext {
 #define MimeInlineTextHTMLAsPlaintextClassInitializer(ITYPE, CSUPER) \
   {MimeInlineTextPlainClassInitializer(ITYPE, CSUPER)}
 
-#endif /* _MIMETHPL_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMETHPL_H_

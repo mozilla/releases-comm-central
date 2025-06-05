@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsAbQueryStringToExpression_h__
-#define nsAbQueryStringToExpression_h__
+#ifndef COMM_MAILNEWS_ADDRBOOK_SRC_NSABQUERYSTRINGTOEXPRESSION_H_
+#define COMM_MAILNEWS_ADDRBOOK_SRC_NSABQUERYSTRINGTOEXPRESSION_H_
 
 #include "nsIAbBooleanExpression.h"
 
@@ -35,4 +35,4 @@ class nsAbQueryStringToExpression {
       nsIAbBooleanConditionString** conditionString);
 };
 
-#endif
+#endif  // COMM_MAILNEWS_ADDRBOOK_SRC_NSABQUERYSTRINGTOEXPRESSION_H_

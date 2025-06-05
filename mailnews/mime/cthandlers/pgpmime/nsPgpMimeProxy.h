@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsPgpmimeDecrypt_h_
-#define _nsPgpmimeDecrypt_h_
+#ifndef COMM_MAILNEWS_MIME_CTHANDLERS_PGPMIME_NSPGPMIMEPROXY_H_
+#define COMM_MAILNEWS_MIME_CTHANDLERS_PGPMIME_NSPGPMIMEPROXY_H_
 
 #include "mimecryp.h"
 #include "mime_closure.h"
@@ -74,4 +74,4 @@ class nsPgpMimeProxy : public nsIPgpMimeProxy,
 #define MimeEncryptedPgpClassInitializer(ITYPE, CSUPER) \
   {MimeEncryptedClassInitializer(ITYPE, CSUPER)}
 
-#endif
+#endif  // COMM_MAILNEWS_MIME_CTHANDLERS_PGPMIME_NSPGPMIMEPROXY_H_

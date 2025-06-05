@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsNewMailnewsURI_h__
-#define nsNewMailnewsURI_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSNEWMAILNEWSURI_H_
+#define COMM_MAILNEWS_BASE_SRC_NSNEWMAILNEWSURI_H_
 
 #include "nsIURI.h"
 
@@ -13,4 +13,5 @@
 nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
                            const char* aCharset /* = nullptr */,
                            nsIURI* aBaseURI /* = nullptr */);
-#endif
+
+#endif  // COMM_MAILNEWS_BASE_SRC_NSNEWMAILNEWSURI_H_

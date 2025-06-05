@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MORKTABLEROWCURSOR_
-#define _MORKTABLEROWCURSOR_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MORKTABLEROWCURSOR_H_
+#define COMM_MAILNEWS_DB_MORK_MORKTABLEROWCURSOR_H_
 
 #ifndef _MORK_
 #  include "mork.h"
@@ -147,4 +147,4 @@ class morkTableRowCursor : public morkCursor,
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _MORKTABLEROWCURSOR_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MORKTABLEROWCURSOR_H_

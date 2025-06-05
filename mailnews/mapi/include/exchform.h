@@ -1,7 +1,3 @@
-#ifndef EXCHFORM_H
-#define EXCHFORM_H
-
-
 /*
  *  E X C H F O R M . H
  *
@@ -11,6 +7,8 @@
  *  Copyright 1986-1999 Microsoft Corporation. All Rights Reserved.
  */
 
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_EXCHFORM_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_EXCHFORM_H_
 
 /*
  *  V e r b s
@@ -70,5 +68,4 @@ DEFINE_EXCHFORMGUID(PS_EXCHFORM, 0x0C);
 #define chOpMapByForm               '1'
 #define chOpMapDisable              '2'
 
-
-#endif // EXCHFORM_H
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_EXCHFORM_H_

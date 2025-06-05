@@ -7,8 +7,8 @@
    Class for handling Berkeley Mailbox stores.
 */
 
-#ifndef nsMsgBrkMboxStore_h__
-#define nsMsgBrkMboxStore_h__
+#ifndef COMM_MAILNEWS_LOCAL_SRC_NSMSGBRKMBOXSTORE_H_
+#define COMM_MAILNEWS_LOCAL_SRC_NSMSGBRKMBOXSTORE_H_
 
 #include "nsMsgLocalStoreUtils.h"
 #include "nsIMsgPluggableStore.h"
@@ -55,4 +55,4 @@ class nsMsgBrkMBoxStore final : public nsMsgLocalStoreUtils,
   mozilla::HashMap<nsCString, StreamDetails> mOngoingWrites;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_LOCAL_SRC_NSMSGBRKMBOXSTORE_H_

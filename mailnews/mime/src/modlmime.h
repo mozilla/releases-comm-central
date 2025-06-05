@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _LIBMIME_H_
-#define _LIBMIME_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MODLMIME_H_
+#define COMM_MAILNEWS_MIME_SRC_MODLMIME_H_
 
 #ifdef XP_UNIX
 #  undef Bool
@@ -388,4 +388,4 @@ class MimeDisplayOptions {
   bool metadata_only;
 };
 
-#endif /* _MODLMIME_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MODLMIME_H_

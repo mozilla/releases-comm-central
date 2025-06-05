@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsCidProtocolHandler_h__
-#define nsCidProtocolHandler_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSCIDPROTOCOLHANDLER_H_
+#define COMM_MAILNEWS_BASE_SRC_NSCIDPROTOCOLHANDLER_H_
 
 #include "nsIProtocolHandler.h"
 
@@ -21,4 +21,4 @@ class nsCidProtocolHandler : public nsIProtocolHandler {
   virtual ~nsCidProtocolHandler();
 };
 
-#endif /* nsCidProtocolHandler_h__ */
+#endif  // COMM_MAILNEWS_BASE_SRC_NSCIDPROTOCOLHANDLER_H_

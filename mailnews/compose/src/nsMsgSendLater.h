@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgSendLater_H_
-#define _nsMsgSendLater_H_
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGSENDLATER_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSMSGSENDLATER_H_
 
 #include "nsCOMArray.h"
 #include "nsIMsgFolder.h"
@@ -140,4 +140,4 @@ class nsMsgSendLater : public nsIMsgSendLater,
   nsCOMPtr<nsIMsgIdentity> mIdentity;
 };
 
-#endif /* _nsMsgSendLater_H_ */
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGSENDLATER_H_

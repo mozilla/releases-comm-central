@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSEPARAMS_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSEPARAMS_H_
+
 #include "nsIMsgComposeParams.h"
 #include "nsString.h"
 #include "nsIMsgHdr.h"
@@ -28,3 +31,5 @@ class nsMsgComposeParams : public nsIMsgComposeParams {
   bool mAutodetectCharset;
   nsCString mHtmlToQuote;
 };
+
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSEPARAMS_H_

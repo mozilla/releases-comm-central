@@ -12,8 +12,8 @@
  * 04/20/2000       IBM Corp.      OS/2 VisualAge build.
  */
 
-#ifndef _MIMEBUF_H_
-#define _MIMEBUF_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMEBUF_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMEBUF_H_
 
 #include <stdint.h>
 
@@ -28,4 +28,4 @@ extern "C" int mime_LineBuffer(const char* net_buffer, int32_t net_buffer_size,
                                                       MimeObject* closure),
                                MimeObject* closure);
 
-#endif /* _MIMEBUF_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMEBUF_H_

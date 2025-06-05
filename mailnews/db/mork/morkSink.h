@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MORKSINK_
-#define _MORKSINK_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MORKSINK_H_
+#define COMM_MAILNEWS_DB_MORK_MORKSINK_H_
 
 #ifndef _MORK_
 #  include "mork.h"
@@ -152,4 +152,4 @@ class morkSpool : public morkSink {  // for buffered i/o to a morkCoil
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _MORKSINK_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MORKSINK_H_

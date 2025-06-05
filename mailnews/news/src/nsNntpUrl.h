@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsNntpUrl_h__
-#define nsNntpUrl_h__
+#ifndef COMM_MAILNEWS_NEWS_SRC_NSNNTPURL_H_
+#define COMM_MAILNEWS_NEWS_SRC_NSNNTPURL_H_
 
 #include "nsINntpUrl.h"
 #include "nsMsgMailNewsUrl.h"
@@ -63,4 +63,4 @@ class nsNntpUrl : public nsINntpUrl,
   nsMsgKey m_key;
 };
 
-#endif  // nsNntpUrl_h__
+#endif  // COMM_MAILNEWS_NEWS_SRC_NSNNTPURL_H_

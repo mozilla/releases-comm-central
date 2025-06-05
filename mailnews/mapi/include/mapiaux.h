@@ -11,9 +11,9 @@
  *    used by the Messaging Applications Programming Interface
  */
 
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPIAUX_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPIAUX_H_
 
-#ifndef MAPIAUXGUID_H
-#ifdef  INITGUID
 #include <mapiguid.h>
 #define MAPIAUXGUID_H
 #endif /* INITGUID */
@@ -232,4 +232,4 @@ DECLARE_MAPI_INTERFACE_(IMsgServiceAdmin2, IUnknown)
 }		/*	extern "C" */
 #endif	
 
-#endif /* MAPIAUX_H */
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPIAUX_H_

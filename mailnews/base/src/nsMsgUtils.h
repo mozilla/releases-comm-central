@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _NSMSGUTILS_H
-#define _NSMSGUTILS_H
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGUTILS_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGUTILS_H_
 
 #include "nsString.h"
 #include "msgCore.h"
@@ -508,4 +508,4 @@ nsString EncodeFilename(nsACString const& str);
  */
 nsCString DecodeFilename(nsAString const& filename);
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGUTILS_H_

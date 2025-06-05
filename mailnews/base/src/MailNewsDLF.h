@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef MailNewsDLF_h__
-#define MailNewsDLF_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_MAILNEWSDLF_H_
+#define COMM_MAILNEWS_BASE_SRC_MAILNEWSDLF_H_
 
 #include "nsIDocumentLoaderFactory.h"
 #include "nsMimeTypes.h"
@@ -34,4 +34,4 @@ class MailNewsDLF : public nsIDocumentLoaderFactory {
   {"Gecko-Content-Viewers", MESSAGE_RFC822, \
    "@mozilla.org/mailnews/document-loader-factory;1"},
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_MAILNEWSDLF_H_

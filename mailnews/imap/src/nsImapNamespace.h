@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsImapNamespace_H_
-#define _nsImapNamespace_H_
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPNAMESPACE_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSIMAPNAMESPACE_H_
 
 #include "nsImapCore.h"
 #include "nsTArray.h"
@@ -84,4 +84,5 @@ class nsImapNamespaceList {
 
   nsTArray<nsImapNamespace*> m_NamespaceList;
 };
-#endif
+
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPNAMESPACE_H_

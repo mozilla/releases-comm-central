@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMEMPAR_H_
-#define _MIMEMPAR_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMEMPAR_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMEMPAR_H_
 
 #include "mimemult.h"
 
@@ -29,4 +29,4 @@ struct MimeMultipartParallel {
 #define MimeMultipartParallelClassInitializer(ITYPE, CSUPER) \
   {MimeMultipartClassInitializer(ITYPE, CSUPER)}
 
-#endif /* _MIMEMPAR_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMEMPAR_H_

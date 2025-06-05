@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMEHDRS_H_
-#define _MIMEHDRS_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMEHDRS_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMEHDRS_H_
 
 #include "modlmime.h"
 
@@ -82,4 +82,5 @@ extern "C" char* MIME_StripContinuations(char* original);
 extern void MimeHeaders_convert_header_value(MimeDisplayOptions* opt,
                                              nsCString& value,
                                              bool convert_charset_only);
-#endif /* _MIMEHDRS_H_ */
+
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMEHDRS_H_

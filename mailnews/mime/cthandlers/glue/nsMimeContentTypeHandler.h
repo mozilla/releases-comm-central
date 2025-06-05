@@ -15,8 +15,9 @@
  *       libmime will then use the XPCOM Component Manager to
  *       locate the appropriate Content Type handler
  */
-#ifndef nsMimeContentTypeHandler_h_
-#define nsMimeContentTypeHandler_h_
+
+#ifndef COMM_MAILNEWS_MIME_CTHANDLERS_GLUE_NSMIMECONTENTTYPEHANDLER_H_
+#define COMM_MAILNEWS_MIME_CTHANDLERS_GLUE_NSMIMECONTENTTYPEHANDLER_H_
 
 #include "nsIMimeContentTypeHandler.h"
 
@@ -42,4 +43,4 @@ class nsMimeContentTypeHandler : public nsIMimeContentTypeHandler {
   MCTHCreateCTHClass realCreateContentTypeHandlerClass;
 };
 
-#endif /* nsMimeContentTypeHandler_h_ */
+#endif  // COMM_MAILNEWS_MIME_CTHANDLERS_GLUE_NSMIMECONTENTTYPEHANDLER_H_

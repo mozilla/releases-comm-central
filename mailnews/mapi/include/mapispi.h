@@ -7,8 +7,9 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef MAPISPI_H
-#define MAPISPI_H
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPISPI_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPISPI_H_
+
 #if _MSC_VER > 1000
 #pragma once
 #endif
@@ -930,5 +931,4 @@ typedef MSGSERVICEENTRY FAR *LPMSGSERVICEENTRY;
 
 #pragma warning(pop)
 
-#endif /* MAPISPI_H */
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPISPI_H_

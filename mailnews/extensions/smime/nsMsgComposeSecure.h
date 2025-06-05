@@ -3,8 +3,9 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef _nsMsgComposeSecure_H_
-#define _nsMsgComposeSecure_H_
+
+#ifndef COMM_MAILNEWS_EXTENSIONS_SMIME_NSMSGCOMPOSESECURE_H_
+#define COMM_MAILNEWS_EXTENSIONS_SMIME_NSMSGCOMPOSESECURE_H_
 
 #include "nsIMsgComposeSecure.h"
 #include "nsCOMPtr.h"
@@ -100,4 +101,4 @@ class nsMsgComposeSecure : public nsIMsgComposeSecure {
                          const char* bundle_string, const char* param);
 };
 
-#endif
+#endif  // COMM_MAILNEWS_EXTENSIONS_SMIME_NSMSGCOMPOSESECURE_H_

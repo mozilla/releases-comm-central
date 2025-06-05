@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef NS_IMAPUTILS_H
-#define NS_IMAPUTILS_H
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPUTILS_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSIMAPUTILS_H_
 
 #include "nsString.h"
 #include "MailNewsTypes2.h"
@@ -74,4 +74,4 @@ class nsImapMailboxSpec : public nsIMailboxSpec {
   virtual ~nsImapMailboxSpec();
 };
 
-#endif  // NS_IMAPUTILS_H
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPUTILS_H_

@@ -4,8 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef MimeHeaderParser_h__
-#define MimeHeaderParser_h__
+#ifndef COMM_MAILNEWS_MIME_PUBLIC_MIMEHEADERPARSER_H_
+#define COMM_MAILNEWS_MIME_PUBLIC_MIMEHEADERPARSER_H_
 
 #include "nsCOMArray.h"
 #include "nsString.h"
@@ -175,4 +175,4 @@ void ExtractName(const nsCOMArray<msgIAddressObject>& aDecodedHeader,
 }  // namespace mailnews
 }  // namespace mozilla
 
-#endif
+#endif  // COMM_MAILNEWS_MIME_PUBLIC_MIMEHEADERPARSER_H_

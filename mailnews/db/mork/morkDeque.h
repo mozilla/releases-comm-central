@@ -25,8 +25,8 @@ which are used interchangeably with the name IronDoc in the sources.)
  * There are no warranties, no guarantees, no promises, and no remedies.
  */
 
-#ifndef _MORKDEQUE_
-#define _MORKDEQUE_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MORKDEQUE_H_
+#define COMM_MAILNEWS_DB_MORK_MORKDEQUE_H_
 
 #ifndef _MORK_
 #  include "mork.h"
@@ -241,4 +241,4 @@ class morkDeque /*d*/ {
   }
 };
 
-#endif /* _MORKDEQUE_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MORKDEQUE_H_

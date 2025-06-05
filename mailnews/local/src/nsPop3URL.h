@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsPop3URL_h__
-#define nsPop3URL_h__
+#ifndef COMM_MAILNEWS_LOCAL_SRC_NSPOP3URL_H_
+#define COMM_MAILNEWS_LOCAL_SRC_NSPOP3URL_H_
 
 #include "nsIPop3URL.h"
 #include "nsMsgMailNewsUrl.h"
@@ -33,4 +33,4 @@ class nsPop3URL : public nsIPop3URL, public nsMsgMailNewsUrl {
                                nsIMsgWindow* aMsgWindow);
 };
 
-#endif  // nsPop3URL_h__
+#endif  // COMM_MAILNEWS_LOCAL_SRC_NSPOP3URL_H_

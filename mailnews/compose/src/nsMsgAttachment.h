@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgAttachment_H_
-#define _nsMsgAttachment_H_
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGATTACHMENT_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSMSGATTACHMENT_H_
 
 #include "nsIMsgAttachment.h"
 #include "nsString.h"
@@ -39,4 +39,4 @@ class nsMsgAttachment : public nsIMsgAttachment {
   int64_t mSize;
 };
 
-#endif /* _nsMsgAttachment_H_ */
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGATTACHMENT_H_

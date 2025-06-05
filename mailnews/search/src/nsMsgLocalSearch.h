@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgLocalSearch_H
-#define _nsMsgLocalSearch_H
+#ifndef COMM_MAILNEWS_SEARCH_SRC_NSMSGLOCALSEARCH_H_
+#define COMM_MAILNEWS_SEARCH_SRC_NSMSGLOCALSEARCH_H_
 
 #include "nsIMsgEnumerator.h"
 #include "nsIUrlListener.h"
@@ -84,4 +84,4 @@ class nsMsgSearchOfflineNews : public nsMsgSearchOfflineMail {
   virtual nsresult OpenSummaryFile() override;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_SEARCH_SRC_NSMSGLOCALSEARCH_H_

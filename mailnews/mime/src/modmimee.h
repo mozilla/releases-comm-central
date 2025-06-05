@@ -8,8 +8,8 @@
   Created: Jamie Zawinski <jwz@netscape.com>, 15-May-96.
 */
 
-#ifndef _MIMEENC_H_
-#define _MIMEENC_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MODMIMEE_H_
+#define COMM_MAILNEWS_MIME_SRC_MODMIMEE_H_
 
 #include "nscore.h"  // for nullptr
 #include "mime_closure.h"
@@ -52,4 +52,4 @@ int MimeDecoderWrite(MimeDecoderData* data, const char* buffer, int32_t size,
  */
 int MimeDecoderDestroy(MimeDecoderData* data, bool abort_p);
 
-#endif /* _MODMIMEE_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MODMIMEE_H_

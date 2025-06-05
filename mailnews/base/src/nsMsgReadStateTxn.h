@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgBaseUndoTxn_h_
-#define nsMsgBaseUndoTxn_h_
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGREADSTATETXN_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGREADSTATETXN_H_
 
 #include "nsMsgTxn.h"
 #include "nsTArray.h"
@@ -39,4 +39,4 @@ class nsMsgReadStateTxn : public nsMsgTxn {
   nsTArray<nsMsgKey> mMarkedMessages;
 };
 
-#endif  // nsMsgBaseUndoTxn_h_
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGREADSTATETXN_H_

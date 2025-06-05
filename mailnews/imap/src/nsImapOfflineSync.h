@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsImapOfflineSync_H_
-#define _nsImapOfflineSync_H_
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPOFFLINESYNC_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSIMAPOFFLINESYNC_H_
 
 #include "nsIMsgDatabase.h"
 #include "nsIUrlListener.h"
@@ -91,4 +91,4 @@ class nsImapOfflineDownloader : public nsImapOfflineSync {
   NS_IMETHOD ProcessNextOperation() override;  // this kicks off download
 };
 
-#endif
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPOFFLINESYNC_H_

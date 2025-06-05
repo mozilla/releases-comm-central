@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMimeHtmlEmitter_h_
-#define _nsMimeHtmlEmitter_h_
+#ifndef COMM_MAILNEWS_MIME_EMITTERS_NSMIMEHTMLEMITTER_H_
+#define COMM_MAILNEWS_MIME_EMITTERS_NSMIMEHTMLEMITTER_H_
 
 #include "prio.h"
 #include "nsMimeBaseEmitter.h"
@@ -47,4 +47,4 @@ class nsMimeHtmlDisplayEmitter : public nsMimeBaseEmitter {
   nsresult BroadcastHeaders(int32_t aHeaderMode);
 };
 
-#endif /* _nsMimeHtmlEmitter_h_ */
+#endif  // COMM_MAILNEWS_MIME_EMITTERS_NSMIMEHTMLEMITTER_H_

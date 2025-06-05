@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __NS_CMS_H__
-#define __NS_CMS_H__
+#ifndef COMM_MAILNEWS_EXTENSIONS_SMIME_NSCMS_H_
+#define COMM_MAILNEWS_EXTENSIONS_SMIME_NSCMS_H_
 
 #include "nsISupports.h"
 #include "nsCOMPtr.h"
@@ -108,4 +108,4 @@ class nsCMSEncoder : public nsICMSEncoder {
   NSSCMSEncoderContext* m_ecx;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_EXTENSIONS_SMIME_NSCMS_H_

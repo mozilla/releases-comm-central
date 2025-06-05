@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsQuarantinedOutputStream_h__
-#define nsQuarantinedOutputStream_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSQUARANTINEDOUTPUTSTREAM_H_
+#define COMM_MAILNEWS_BASE_SRC_NSQUARANTINEDOUTPUTSTREAM_H_
 
 #include "nsIOutputStream.h"
 #include "nsISafeOutputStream.h"
@@ -69,4 +69,4 @@ class nsQuarantinedOutputStream : public nsIOutputStream, nsISafeOutputStream {
   nsresult mError{NS_OK};
 };
 
-#endif  // nsQuarantinedOutputStream_h__
+#endif  // COMM_MAILNEWS_BASE_SRC_NSQUARANTINEDOUTPUTSTREAM_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nstoolkitshellservice_h____
-#define nstoolkitshellservice_h____
+#ifndef COMM_MAIL_COMPONENTS_SHELL_NSTOOLKITSHELLSERVICE_H_
+#define COMM_MAIL_COMPONENTS_SHELL_NSTOOLKITSHELLSERVICE_H_
 
 #include "nsIShellService.h"
 #include "nsIToolkitShellService.h"
@@ -21,4 +21,4 @@ class nsToolkitShellService : public nsIToolkitShellService {
   }
 };
 
-#endif  // nstoolkitshellservice_h____
+#endif  // COMM_MAIL_COMPONENTS_SHELL_NSTOOLKITSHELLSERVICE_H_

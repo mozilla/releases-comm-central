@@ -4,6 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifndef COMM_MAILNEWS_ADDRBOOK_SRC_NSLDAPURL_H_
+#define COMM_MAILNEWS_ADDRBOOK_SRC_NSLDAPURL_H_
+
 #include "nsString.h"
 #include "nsILDAPURL.h"
 #include "nsCOMPtr.h"
@@ -93,3 +96,5 @@ class nsLDAPURL : public nsILDAPURL {
                     // leading _and_ trailing commas (i.e ",attr1,attr2,").
   nsCOMPtr<nsIURI> mBaseURL;
 };
+
+#endif  // COMM_MAILNEWS_ADDRBOOK_SRC_NSLDAPURL_H_

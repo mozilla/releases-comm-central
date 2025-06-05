@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef ImportDebug_h___
-#define ImportDebug_h___
+#ifndef COMM_MAILNEWS_IMPORT_SRC_IMPORTDEBUG_H_
+#define COMM_MAILNEWS_IMPORT_SRC_IMPORTDEBUG_H_
 
 #ifdef NS_DEBUG
 #  define IMPORT_DEBUG 1
@@ -22,4 +22,4 @@ extern mozilla::LazyLogModule
 #define IMPORT_LOG3(a, b, c, d) \
   MOZ_LOG(IMPORTLOGMODULE, mozilla::LogLevel::Debug, (a, b, c, d))
 
-#endif
+#endif  // COMM_MAILNEWS_IMPORT_SRC_IMPORTDEBUG_H_

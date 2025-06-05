@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef NS_NEWSUTILS_H
-#define NS_NEWSUTILS_H
+#ifndef COMM_MAILNEWS_NEWS_SRC_NSNEWSUTILS_H_
+#define COMM_MAILNEWS_NEWS_SRC_NSNEWSUTILS_H_
 
 #include "nsString.h"
 #include "MailNewsTypes2.h"
@@ -27,4 +27,4 @@ extern nsresult nsParseNewsMessageURI(const nsACString& uri, nsCString& group,
 extern nsresult nsCreateNewsBaseMessageURI(const nsACString& baseURI,
                                            nsCString& baseMessageURI);
 
-#endif  // NS_NEWSUTILS_H
+#endif  // COMM_MAILNEWS_NEWS_SRC_NSNEWSUTILS_H_

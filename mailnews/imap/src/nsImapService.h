@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsImapService_h___
-#define nsImapService_h___
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPSERVICE_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSIMAPSERVICE_H_
 
 #include "nsIImapService.h"
 #include "nsIMsgMessageService.h"
@@ -127,4 +127,4 @@ class nsImapService : public nsIImapService,
   nsCOMPtr<nsICacheStorage> mCacheStorage;
 };
 
-#endif /* nsImapService_h___ */
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPSERVICE_H_

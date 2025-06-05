@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsGNOMEShellService_h_
-#define nsGNOMEShellService_h_
+#ifndef COMM_MAIL_COMPONENTS_SHELL_NSGNOMESHELLSERVICE_H_
+#define COMM_MAIL_COMPONENTS_SHELL_NSGNOMESHELLSERVICE_H_
 
 #include "nsIShellService.h"
 #include "nsString.h"
@@ -42,4 +42,4 @@ class nsGNOMEShellService : public nsIShellService,
   bool mAppIsInPath;
 };
 
-#endif
+#endif  // COMM_MAIL_COMPONENTS_SHELL_NSGNOMESHELLSERVICE_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgCompUtils_H_
-#define _nsMsgCompUtils_H_
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPUTILS_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPUTILS_H_
 
 #include "nscore.h"
 #include "mozilla/dom/Document.h"
@@ -90,4 +90,4 @@ void GetSerialiserFlags(bool* flowed, bool* formatted);
 
 PR_END_EXTERN_C
 
-#endif /* _nsMsgCompUtils_H_ */
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPUTILS_H_

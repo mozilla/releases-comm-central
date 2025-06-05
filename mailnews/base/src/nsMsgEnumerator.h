@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgEnumerator_H_
-#define _nsMsgEnumerator_H_
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGENUMERATOR_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGENUMERATOR_H_
 
 #include "nsIMsgEnumerator.h"
 
@@ -42,4 +42,4 @@ class nsBaseMsgThreadEnumerator : public nsIMsgThreadEnumerator {
   virtual ~nsBaseMsgThreadEnumerator() {};
 };
 
-#endif /* _nsMsgEnumerator_H_ */
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGENUMERATOR_H_

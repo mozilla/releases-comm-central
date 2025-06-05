@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsUnicodeToMUTF7_h___
-#define nsUnicodeToMUTF7_h___
+#ifndef COMM_MAILNEWS_INTL_NSUNICODETOMUTF7_H_
+#define COMM_MAILNEWS_INTL_NSUNICODETOMUTF7_H_
 
 #include "nsUnicodeToUTF7.h"
 
@@ -25,4 +25,4 @@ class nsUnicodeToMUTF7 : public nsBasicUTF7Encoder {
   nsUnicodeToMUTF7();
 };
 
-#endif /* nsUnicodeToMUTF7_h___ */
+#endif  // COMM_MAILNEWS_INTL_NSUNICODETOMUTF7_H_

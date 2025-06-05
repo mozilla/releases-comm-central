@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgSearchImap_h__
-#define _nsMsgSearchImap_h__
+#ifndef COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHIMAP_H_
+#define COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHIMAP_H_
 
 #include "nsMsgSearchAdapter.h"
 #include "nsMsgSearchScopeTerm.h"
@@ -33,4 +33,4 @@ class nsMsgSearchOnlineMail : public nsMsgSearchAdapter {
   nsCString m_encoding;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHIMAP_H_

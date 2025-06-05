@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMailboxUrl_h__
-#define nsMailboxUrl_h__
+#ifndef COMM_MAILNEWS_LOCAL_SRC_NSMAILBOXURL_H_
+#define COMM_MAILNEWS_LOCAL_SRC_NSMAILBOXURL_H_
 
 #include "nsIMailboxUrl.h"
 #include "nsMsgMailNewsUrl.h"
@@ -99,4 +99,4 @@ class nsMailboxUrl : public nsIMailboxUrl,
   bool mAutodetectCharset;  // used by nsIMsgI18NUrl...
 };
 
-#endif  // nsMailboxUrl_h__
+#endif  // COMM_MAILNEWS_LOCAL_SRC_NSMAILBOXURL_H_

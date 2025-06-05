@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGCOMPRESSOSTREAM_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGCOMPRESSOSTREAM_H_
+
 #include "nsIOutputStream.h"
 #include "nsCOMPtr.h"
 #include "mozilla/UniquePtr.h"
@@ -23,3 +26,5 @@ class nsMsgCompressOStream final : public nsIOutputStream {
   mozilla::UniquePtr<char[]> m_zbuf;
   z_stream m_zstream;
 };
+
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGCOMPRESSOSTREAM_H_

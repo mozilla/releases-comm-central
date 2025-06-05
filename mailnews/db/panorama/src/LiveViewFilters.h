@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef LiveViewFilters_h__
-#define LiveViewFilters_h__
+#ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_LIVEVIEWFILTERS_H_
+#define COMM_MAILNEWS_DB_PANORAMA_SRC_LIVEVIEWFILTERS_H_
 
 #include "Folder.h"
 #include "Message.h"
@@ -91,4 +91,4 @@ class TaggedMessagesFilter final : public LiveViewFilter {
 
 }  // namespace mozilla::mailnews
 
-#endif  // LiveViewFilters_h__
+#endif  // COMM_MAILNEWS_DB_PANORAMA_SRC_LIVEVIEWFILTERS_H_

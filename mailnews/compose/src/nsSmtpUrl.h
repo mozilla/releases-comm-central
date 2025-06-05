@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsSmtpUrl_h__
-#define nsSmtpUrl_h__
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSSMTPURL_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSSMTPURL_H_
 
 #include "nsISmtpUrl.h"
 #include "nsIURI.h"
@@ -135,4 +135,4 @@ class nsSmtpUrl : public nsISmtpUrl, public nsMsgMailNewsUrl {
   nsCOMPtr<nsIMsgOutgoingServer> m_smtpServer;
 };
 
-#endif  // nsSmtpUrl_h__
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSSMTPURL_H_

@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef __nsUserInfo_h
-#define __nsUserInfo_h
+
+#ifndef COMM_MAILNEWS_BASE_SRC_NSUSERINFO_H_
+#define COMM_MAILNEWS_BASE_SRC_NSUSERINFO_H_
 
 #include "nsIUserInfo.h"
 
@@ -20,4 +21,4 @@ class nsUserInfo : public nsIUserInfo
   virtual ~nsUserInfo();
 };
 
-#endif /* __nsUserInfo_h */
+#endif  // COMM_MAILNEWS_BASE_SRC_NSUSERINFO_H_

@@ -6,8 +6,8 @@
  *  Copyright 1986-1999 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef _IMESSAGE_H_
-#define _IMESSAGE_H_
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_IMESSAGE_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_IMESSAGE_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -194,5 +194,4 @@ STDAPI_(SCODE) MapStorageSCode( SCODE StgSCode );
 }
 #endif
 
-#endif	/* _IMESSAGE_H_ */
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_IMESSAGE_H_

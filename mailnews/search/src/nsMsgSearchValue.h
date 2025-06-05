@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __nsMsgSearchValue_h
-#define __nsMsgSearchValue_h
+#ifndef COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHVALUE_H_
+#define COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHVALUE_H_
 
 #include "nsIMsgSearchValue.h"
 #include "nsMsgSearchCore.h"
@@ -22,4 +22,4 @@ class nsMsgSearchValueImpl : public nsIMsgSearchValue {
   nsMsgSearchValue mValue;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHVALUE_H_

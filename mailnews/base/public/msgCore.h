@@ -6,8 +6,8 @@
 /* Include files we are going to want available to all files....these files
    include NSPR, memory, and string header files among others */
 
-#ifndef msgCore_h__
-#define msgCore_h__
+#ifndef COMM_MAILNEWS_BASE_PUBLIC_MSGCORE_H_
+#define COMM_MAILNEWS_BASE_PUBLIC_MSGCORE_H_
 
 #include "nscore.h"
 #include "nspr.h"
@@ -200,4 +200,4 @@ class nsIMsgFolder;
 /// The number of microseconds in a day. This comes up a lot.
 #define PR_USEC_PER_DAY (PRTime(PR_USEC_PER_SEC) * 60 * 60 * 24)
 
-#endif  // msgCore_h__
+#endif  // COMM_MAILNEWS_BASE_PUBLIC_MSGCORE_H_

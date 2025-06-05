@@ -6,8 +6,9 @@
 /*
  * XP-COM Bridges for C function calls
  */
-#ifndef _MIMECOM_H_
-#define _MIMECOM_H_
+
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMECOM_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMECOM_H_
 
 #include <stdint.h>
 
@@ -34,4 +35,4 @@ extern "C" void* XPCOM_GetmimeEncryptedClass(void);
 
 extern "C" void* XPCOM_Mime_create(char* content_type, void* hdrs, void* opts);
 
-#endif /* _MIMECOM_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMECOM_H_

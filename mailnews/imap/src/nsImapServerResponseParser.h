@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsIMAPServerResponseParser_H_
-#define _nsIMAPServerResponseParser_H_
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPSERVERRESPONSEPARSER_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSIMAPSERVERRESPONSEPARSER_H_
 
 #include "../public/nsIImapHostSessionList.h"
 #include "nsImapSearchResults.h"
@@ -280,4 +280,4 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   nsTArray<nsMsgKey> fCopyResponseKeyArray;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPSERVERRESPONSEPARSER_H_

@@ -11,8 +11,8 @@
  * nsMsgCookiePolicy enforces our cookie policy for mail and RSS messages.
  ******************************************************************************/
 
-#ifndef _nsMsgContentPolicy_H_
-#define _nsMsgContentPolicy_H_
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGCONTENTPOLICY_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGCONTENTPOLICY_H_
 
 #include "nsIContentPolicy.h"
 #include "nsIObserver.h"
@@ -88,4 +88,4 @@ class nsMsgContentPolicy : public nsIContentPolicy,
   nsTArray<nsCString> mCustomExposedProtocols;
 };
 
-#endif  // _nsMsgContentPolicy_H_
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGCONTENTPOLICY_H_

@@ -7,8 +7,8 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef _MAPIUTIL_H_
-#define _MAPIUTIL_H_
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPIUTIL_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPIUTIL_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -890,5 +890,4 @@ typedef FGETCOMPONENTPATH FAR * LPFGETCOMPONENTPATH;
 }
 #endif
 
-#endif /* _MAPIUTIL_H_ */
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPIUTIL_H_

@@ -8,8 +8,9 @@
  * routines for RFC822 headers. This will allow any mail/news module
  * to call on these routines.
  */
-#ifndef nsMailHeaders_h_
-#define nsMailHeaders_h_
+
+#ifndef COMM_MAILNEWS_MIME_PUBLIC_NSMAILHEADERS_H_
+#define COMM_MAILNEWS_MIME_PUBLIC_NSMAILHEADERS_H_
 
 /*
  * These are the defines for standard header field names.
@@ -87,4 +88,5 @@
 #define HEADER_X_MOZILLA_IDENTITY_KEY "X-Identity-Key"
 #define HEADER_X_MOZILLA_ACCOUNT_KEY "X-Account-Key"
 #define HEADER_X_MOZILLA_KEYWORDS "X-Mozilla-Keys"
-#endif /* nsMailHeaders_h_ */
+
+#endif  // COMM_MAILNEWS_MIME_PUBLIC_NSMAILHEADERS_H_

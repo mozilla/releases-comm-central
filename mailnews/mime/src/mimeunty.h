@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMEUNTY_H_
-#define _MIMEUNTY_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMEUNTY_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMEUNTY_H_
 
 #include "mimecont.h"
 
@@ -67,4 +67,4 @@ struct MimeUntypedText {
 #define MimeUntypedTextClassInitializer(ITYPE, CSUPER) \
   {MimeContainerClassInitializer(ITYPE, CSUPER)}
 
-#endif /* _MIMEUNTY_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMEUNTY_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgWindow_h
-#define _nsMsgWindow_h
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGWINDOW_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGWINDOW_H_
 
 #include "nsIAuthPrompt.h"
 #include "nsIMsgWindow.h"
@@ -42,4 +42,4 @@ class nsMsgWindow : public nsIMsgWindow,
   nsWeakPtr mDomWindow;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGWINDOW_H_

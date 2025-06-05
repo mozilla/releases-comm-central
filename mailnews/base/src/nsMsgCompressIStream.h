@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGCOMPRESSISTREAM_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGCOMPRESSISTREAM_H_
+
 #include "nsIAsyncInputStream.h"
 #include "nsIInputStream.h"
 #include "nsCOMPtr.h"
@@ -30,3 +33,5 @@ class nsMsgCompressIStream final : public nsIAsyncInputStream {
   bool m_inflateAgain;
   z_stream m_zstream;
 };
+
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGCOMPRESSISTREAM_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMacShellService_h_
-#define nsMacShellService_h_
+#ifndef COMM_MAIL_COMPONENTS_SHELL_NSMACSHELLSERVICE_H_
+#define COMM_MAIL_COMPONENTS_SHELL_NSMACSHELLSERVICE_H_
 
 #include "nsIShellService.h"
 #include "nsToolkitShellService.h"
@@ -28,4 +28,5 @@ class nsMacShellService : public nsIShellService, public nsToolkitShellService {
   virtual ~nsMacShellService() {};
   bool mCheckedThisSession;
 };
-#endif
+
+#endif  // COMM_MAIL_COMPONENTS_SHELL_NSMACSHELLSERVICE_H_

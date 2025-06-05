@@ -1,3 +1,6 @@
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_ACTMGMT_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_ACTMGMT_H_
+
 //Class Identifiers
 //Use the DEFINE_GUID macro defined in the Platform SDK header file guiddef.h to associate the GUID symbolic name with its value.
 
@@ -63,9 +66,6 @@ DEFINE_GUID(IID_IOlkAccountManager, 0x9240a6cd, 0xaf41, 0x11d2, 0x8c, 0x3b, 0x0,
 //{9240a6d2-af41-11d2-8c3b-00104b2a6676}
 
 DEFINE_GUID(IID_IOlkAccount, 0x9240a6d2, 0xaf41, 0x11d2, 0x8c, 0x3b, 0x0, 0x10, 0x4b, 0x2a, 0x66, 0x76);
-
-#ifndef ACTMGMT_INCLUDED
-#define ACTMGMT_INCLUDED
 
 #define ACCT_INIT_NOSYNCH_MAPI_ACCTS 0x00000001
 
@@ -318,4 +318,5 @@ public:
 };
 
 typedef IOlkAccountManager FAR* LPOLKACCOUNTMANAGER;
-#endif // ACTMGMT_INCLUDED
+
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_ACTMGMT_H_

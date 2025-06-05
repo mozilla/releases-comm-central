@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgFilterService_H_
-#define _nsMsgFilterService_H_
+#ifndef COMM_MAILNEWS_SEARCH_SRC_NSMSGFILTERSERVICE_H_
+#define COMM_MAILNEWS_SEARCH_SRC_NSMSGFILTERSERVICE_H_
 
 #include "nsIMsgFilterService.h"
 #include "nsIFile.h"
@@ -40,4 +40,4 @@ class nsMsgFilterService : public nsIMsgFilterService {
   nsTArray<RefPtr<nsIMsgSearchCustomTerm>> mCustomTerms;
 };
 
-#endif  // _nsMsgFilterService_H_
+#endif  // COMM_MAILNEWS_SEARCH_SRC_NSMSGFILTERSERVICE_H_

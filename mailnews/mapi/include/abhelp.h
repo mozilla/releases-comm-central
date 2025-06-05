@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_ABHELP_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_ABHELP_H_
 
 // system headers
 #include <winsock2.h>
@@ -114,3 +115,5 @@ extern "C" {
 		ULONG *			lpcbeid,
 		LPENTRYID *		lppeid);
 }
+
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_ABHELP_H_

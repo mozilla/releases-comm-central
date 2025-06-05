@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef MSG_MAPI_FACTORY_H
-#define MSG_MAPI_FACTORY_H
+#ifndef COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIFACTORY_H_
+#define COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIFACTORY_H_
 
 #include <windows.h>
 #include <objbase.h>
@@ -32,4 +32,4 @@ class CMapiFactory : public IClassFactory {
   virtual ~CMapiFactory();
 };
 
-#endif  // MSG_MAPI_FACTORY_H
+#endif  // COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIFACTORY_H_

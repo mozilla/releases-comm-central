@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsImportStringBundle_H__
-#define _nsImportStringBundle_H__
+#ifndef COMM_MAILNEWS_IMPORT_SRC_NSIMPORTSTRINGBUNDLE_H_
+#define COMM_MAILNEWS_IMPORT_SRC_NSIMPORTSTRINGBUNDLE_H_
 
 #include "nsString.h"
 
@@ -40,4 +40,4 @@ class nsImportStringBundle {
 #define IMPORT_FIELD_DESC_START 2100
 #define IMPORT_FIELD_DESC_END 2136
 
-#endif /* _nsImportStringBundle_H__ */
+#endif  // COMM_MAILNEWS_IMPORT_SRC_NSIMPORTSTRINGBUNDLE_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef MailNewsTypes_h__
-#define MailNewsTypes_h__
+#ifndef COMM_MAILNEWS_BASE_PUBLIC_MAILNEWSTYPES_H_
+#define COMM_MAILNEWS_BASE_PUBLIC_MAILNEWSTYPES_H_
 
 #include "msgCore.h"
 #include "MailNewsTypes2.h"
@@ -18,4 +18,4 @@ const nsMsgViewIndex nsMsgViewIndex_None = 0xFFFFFFFF;
  */
 const int64_t kSizeUnknown = -1;
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_PUBLIC_MAILNEWSTYPES_H_

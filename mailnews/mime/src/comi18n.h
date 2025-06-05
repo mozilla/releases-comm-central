@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef _COMI18N_LOADED_H_
-#define _COMI18N_LOADED_H_
+
+#ifndef COMM_MAILNEWS_MIME_SRC_COMI18N_H_
+#define COMM_MAILNEWS_MIME_SRC_COMI18N_H_
 
 #include "nsString.h"
 
@@ -35,4 +36,4 @@ nsresult MIME_detect_charset(const char* aBuf, int32_t aLength,
 } /* extern "C" */
 #endif /* __cplusplus */
 
-#endif  // _COMI18N_LOADED_H_
+#endif  // COMM_MAILNEWS_MIME_SRC_COMI18N_H_

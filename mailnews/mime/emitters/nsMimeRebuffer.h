@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef _rebuffer_h_
-#define _rebuffer_h_
+
+#ifndef COMM_MAILNEWS_MIME_EMITTERS_NSMIMEREBUFFER_H_
+#define COMM_MAILNEWS_MIME_EMITTERS_NSMIMEREBUFFER_H_
 
 #include <stdint.h>
 #include "nsString.h"
@@ -26,4 +27,4 @@ class MimeRebuffer {
   nsCString mBuf;
 };
 
-#endif /* _rebuffer_h_ */
+#endif  // COMM_MAILNEWS_MIME_EMITTERS_NSMIMEREBUFFER_H_

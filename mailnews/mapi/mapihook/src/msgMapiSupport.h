@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef MSG_MAPI_SUPPORT_H_
-#define MSG_MAPI_SUPPORT_H_
+#ifndef COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPISUPPORT_H_
+#define COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPISUPPORT_H_
 
 #include "nsIObserver.h"
 #include "nsIMapiSupport.h"
@@ -28,4 +28,4 @@ class nsMapiSupport : public nsIMapiSupport, public nsIObserver {
   CMapiFactory* m_nsMapiFactory;
 };
 
-#endif  // MSG_MAPI_SUPPORT_H_
+#endif  // COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPISUPPORT_H_

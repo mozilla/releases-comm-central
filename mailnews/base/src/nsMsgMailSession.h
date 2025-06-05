@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgMailSession_h___
-#define nsMsgMailSession_h___
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGMAILSESSION_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGMAILSESSION_H_
 
 #include "nsIMsgMailSession.h"
 #include "nsISupports.h"
@@ -106,4 +106,4 @@ class nsMsgShutdownService : public nsIMsgShutdownService,
   bool mReadyToQuit;
 };
 
-#endif /* nsMsgMailSession_h__ */
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGMAILSESSION_H_

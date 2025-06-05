@@ -35,8 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef _MORKSTREAM_
-#define _MORKSTREAM_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MORKSTREAM_H_
+#define COMM_MAILNEWS_DB_MORK_MORKSTREAM_H_
 
 #ifndef _MORK_
 #  include "mork.h"
@@ -255,4 +255,4 @@ class morkStream /*d*/ : public morkFile { /* from Mithril's AgStream class */
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _MORKSTREAM_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MORKSTREAM_H_

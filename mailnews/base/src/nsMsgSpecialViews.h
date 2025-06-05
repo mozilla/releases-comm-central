@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgSpecialViews_H_
-#define _nsMsgSpecialViews_H_
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGSPECIALVIEWS_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGSPECIALVIEWS_H_
 
 #include "nsMsgThreadedDBView.h"
 
@@ -78,4 +78,5 @@ class nsMsgCachelessView : public nsMsgDBView {
 };
 
 #endif /* DOING_CACHELESS_VIEW */
-#endif
+
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGSPECIALVIEWS_H_

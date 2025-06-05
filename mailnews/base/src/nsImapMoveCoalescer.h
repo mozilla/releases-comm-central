@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsImapMoveCoalescer_H
-#define _nsImapMoveCoalescer_H
+#ifndef COMM_MAILNEWS_BASE_SRC_NSIMAPMOVECOALESCER_H_
+#define COMM_MAILNEWS_BASE_SRC_NSIMAPMOVECOALESCER_H_
 
 #include "msgCore.h"
 #include "nsCOMArray.h"
@@ -67,4 +67,4 @@ class nsMoveCoalescerCopyListener final : public nsIMsgCopyServiceListener {
   ~nsMoveCoalescerCopyListener();
 };
 
-#endif  // _nsImapMoveCoalescer_H
+#endif  // COMM_MAILNEWS_BASE_SRC_NSIMAPMOVECOALESCER_H_

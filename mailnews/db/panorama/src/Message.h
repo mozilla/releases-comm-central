@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef Message_h__
-#define Message_h__
+#ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGE_H_
+#define COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGE_H_
 
 #include "mozIStorageStatement.h"
 #include "nsIMsgHdr.h"
@@ -45,4 +45,4 @@ class Message : public nsIMsgDBHdr {
 
 }  // namespace mozilla::mailnews
 
-#endif  // Message_h__
+#endif  // COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGE_H_

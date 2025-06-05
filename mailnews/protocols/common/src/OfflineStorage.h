@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_PROTOCOLS_COMMON_SRC_OFFLINESTORAGE_H_
-#define COMM_PROTOCOLS_COMMON_SRC_OFFLINESTORAGE_H_
+#ifndef COMM_MAILNEWS_PROTOCOLS_COMMON_SRC_OFFLINESTORAGE_H_
+#define COMM_MAILNEWS_PROTOCOLS_COMMON_SRC_OFFLINESTORAGE_H_
 
 #include "nsIChannel.h"
 #include "nsIMsgFolder.h"
@@ -134,4 +134,4 @@ nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
                                      const nsACString& name,
                                      nsIMsgWindow* msgWindow);
 
-#endif
+#endif  // COMM_MAILNEWS_PROTOCOLS_COMMON_SRC_OFFLINESTORAGE_H_

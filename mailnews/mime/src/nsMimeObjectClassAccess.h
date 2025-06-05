@@ -9,8 +9,9 @@
  * internal information about the object class system of libmime. When
  * libmime progresses to a C++ object class, this would probably change.
  */
-#ifndef nsMimeObjectClassAccess_h_
-#define nsMimeObjectClassAccess_h_
+
+#ifndef COMM_MAILNEWS_MIME_SRC_NSMIMEOBJECTCLASSACCESS_H_
+#define COMM_MAILNEWS_MIME_SRC_NSMIMEOBJECTCLASSACCESS_H_
 
 #include "nsISupports.h"
 #include "nsIMimeObjectClassAccess.h"
@@ -46,4 +47,4 @@ class nsMimeObjectClassAccess : public nsIMimeObjectClassAccess {
   virtual ~nsMimeObjectClassAccess();
 };
 
-#endif /* nsMimeObjectClassAccess_h_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_NSMIMEOBJECTCLASSACCESS_H_

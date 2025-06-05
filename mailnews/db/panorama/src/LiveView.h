@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef LiveView_h__
-#define LiveView_h__
+#ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_LIVEVIEW_H_
+#define COMM_MAILNEWS_DB_PANORAMA_SRC_LIVEVIEW_H_
 
 #include "js/Context.h"
 #include "LiveViewFilters.h"
@@ -65,4 +65,4 @@ class LiveView : public nsILiveView, public MessageListener {
 
 }  // namespace mozilla::mailnews
 
-#endif  // LiveView_h__
+#endif  // COMM_MAILNEWS_DB_PANORAMA_SRC_LIVEVIEW_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMEIIMG_H_
-#define _MIMEIIMG_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMEIIMG_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMEIIMG_H_
 
 #include "mimeleaf.h"
 
@@ -32,4 +32,4 @@ struct MimeInlineImage {
 #define MimeInlineImageClassInitializer(ITYPE, CSUPER) \
   {MimeLeafClassInitializer(ITYPE, CSUPER)}
 
-#endif /* _MIMEIIMG_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMEIIMG_H_

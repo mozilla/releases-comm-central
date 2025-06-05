@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef nsMsgXFViewThread_h__
-#define nsMsgXFViewThread_h__
+
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGXFVIEWTHREAD_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGXFVIEWTHREAD_H_
 
 #include "msgCore.h"
 #include "nsCOMArray.h"
@@ -50,4 +51,4 @@ class nsMsgXFViewThread : public nsIMsgThread {
   nsTArray<uint8_t> m_levels;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGXFVIEWTHREAD_H_

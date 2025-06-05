@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef nsPop3Sink_h__
-#define nsPop3Sink_h__
+
+#ifndef COMM_MAILNEWS_LOCAL_SRC_NSPOP3SINK_H_
+#define COMM_MAILNEWS_LOCAL_SRC_NSPOP3SINK_H_
 
 #include "nscore.h"
 #include "nsCOMPtr.h"
@@ -57,4 +58,4 @@ class nsPop3Sink : public nsIPop3Sink {
   nsCString m_accountKey;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_LOCAL_SRC_NSPOP3SINK_H_

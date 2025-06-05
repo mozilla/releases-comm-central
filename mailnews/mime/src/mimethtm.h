@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMETHTM_H_
-#define _MIMETHTM_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMETHTM_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMETHTM_H_
 
 #include "mimetext.h"
 
@@ -31,4 +31,5 @@ struct MimeInlineTextHTML {
 void MimeInlineTextHTML_insert_lang_div(MimeObject* obj, nsCString& message);
 void MimeInlineTextHTML_remove_plaintext_tag(MimeObject* obj,
                                              nsCString& message);
-#endif /* _MIMETHTM_H_ */
+
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMETHTM_H_

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsOutlookStringBundle_H__
-#define _nsOutlookStringBundle_H__
+#ifndef COMM_MAILNEWS_IMPORT_SRC_NSOUTLOOKSTRINGBUNDLE_H_
+#define COMM_MAILNEWS_IMPORT_SRC_NSOUTLOOKSTRINGBUNDLE_H_
 
 #include "nsCOMPtr.h"
 #include "nsString.h"
@@ -33,4 +33,4 @@ class nsOutlookStringBundle {
 #define OUTLOOKIMPORT_ADDRESS_BADSOURCEFILE 2008
 #define OUTLOOKIMPORT_ADDRESS_CONVERTERROR 2009
 
-#endif /* _nsOutlookStringBundle_H__ */
+#endif  // COMM_MAILNEWS_IMPORT_SRC_NSOUTLOOKSTRINGBUNDLE_H_

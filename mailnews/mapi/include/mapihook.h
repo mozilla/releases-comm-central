@@ -6,8 +6,8 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef MAPIHOOK_H
-#define MAPIHOOK_H
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPIHOOK_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPIHOOK_H_
 
 #ifndef MAPIDEFS_H
 #include <mapidefs.h>
@@ -80,4 +80,4 @@ HPPROVIDERINIT HPProviderInit;
 }      /* extern "C"  */
 #endif /* __cplusplus */
 
-#endif /* MAPIHOOK_H  */
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPIHOOK_H_

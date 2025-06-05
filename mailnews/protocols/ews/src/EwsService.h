@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __COMM_MAILNEWS_PROTOCOLS_EWS_SERVICE_H
-#define __COMM_MAILNEWS_PROTOCOLS_EWS_SERVICE_H
+#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSSERVICE_H_
+#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSSERVICE_H_
 
 #include "nsIMsgMessageService.h"
 
@@ -77,4 +77,4 @@ class EwsService : public nsIMsgMessageService,
                            nsIStreamListener* streamListener);
 };
 
-#endif
+#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSSERVICE_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgLocalStoreUtils_h__
-#define nsMsgLocalStoreUtils_h__
+#ifndef COMM_MAILNEWS_LOCAL_SRC_NSMSGLOCALSTOREUTILS_H_
+#define COMM_MAILNEWS_LOCAL_SRC_NSMSGLOCALSTOREUTILS_H_
 
 #include "nsIDirectoryEnumerator.h"
 #include "nsIFile.h"
@@ -79,4 +79,4 @@ class nsMsgLocalStoreUtils {
                                              uint32_t newFlags);
 };
 
-#endif
+#endif  // COMM_MAILNEWS_LOCAL_SRC_NSMSGLOCALSTOREUTILS_H_

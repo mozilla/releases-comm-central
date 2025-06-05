@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMEEOBJ_H_
-#define _MIMEEOBJ_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMEEOBJ_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMEEOBJ_H_
 
 #include "mimeleaf.h"
 
@@ -47,4 +47,4 @@ struct MimeSuppressedCrypto {
 #define MimeSuppressedCryptoClassInitializer(ITYPE, CSUPER) \
   {MimeExternalObjectClassInitializer(ITYPE, CSUPER)}
 
-#endif /* _MIMEEOBJ_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMEEOBJ_H_

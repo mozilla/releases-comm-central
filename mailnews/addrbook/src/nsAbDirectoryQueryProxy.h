@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsAbDirectoryQueryProxy_h__
-#define nsAbDirectoryQueryProxy_h__
+#ifndef COMM_MAILNEWS_ADDRBOOK_SRC_NSABDIRECTORYQUERYPROXY_H_
+#define COMM_MAILNEWS_ADDRBOOK_SRC_NSABDIRECTORYQUERYPROXY_H_
 
 #include "nsIAbDirectoryQueryProxy.h"
 #include "nsCOMPtr.h"
@@ -23,4 +23,4 @@ class nsAbDirectoryQueryProxy : public nsIAbDirectoryQueryProxy {
   nsCOMPtr<nsIAbDirectoryQuery> mDirectoryQuery;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_ADDRBOOK_SRC_NSABDIRECTORYQUERYPROXY_H_

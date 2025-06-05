@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgSearchSession_h___
-#define nsMsgSearchSession_h___
+#ifndef COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHSESSION_H_
+#define COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHSESSION_H_
 
 #include "nscore.h"
 #include "nsMsgSearchBoolExpression.h"
@@ -87,4 +87,4 @@ class nsMsgSearchSession : public nsIMsgSearchSession,
   nsMsgSearchBoolExpression* m_expressionTree;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHSESSION_H_

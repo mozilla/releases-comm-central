@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGFILESTREAM_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGFILESTREAM_H_
+
 #include "nsIInputStream.h"
 #include "nsIOutputStream.h"
 #include "nsISeekableStream.h"
@@ -31,3 +34,5 @@ class nsMsgFileStream final : public nsIInputStream,
   PRFileDesc* mFileDesc;
   bool mSeekedToEnd;
 };
+
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGFILESTREAM_H_

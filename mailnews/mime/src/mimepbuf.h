@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMEPBUF_H_
-#define _MIMEPBUF_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMEPBUF_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMEPBUF_H_
 
 #include "modmimee.h"  // for MimeConverterOutputCallback
 
@@ -59,4 +59,4 @@ extern int MimePartBufferRead(MimePartBufferData* data,
                               MimeConverterOutputCallback read_fn,
                               MimeClosure closure);
 
-#endif /* _MIMEPBUF_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMEPBUF_H_

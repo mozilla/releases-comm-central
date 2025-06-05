@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMELEAF_H_
-#define _MIMELEAF_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMELEAF_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMELEAF_H_
 
 #include "mimeobj.h"
 #include "modmimee.h"
@@ -58,4 +58,4 @@ struct MimeLeaf {
 #define MimeLeafClassInitializer(ITYPE, CSUPER) \
   {MimeObjectClassInitializer(ITYPE, CSUPER)}
 
-#endif /* _MIMELEAF_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMELEAF_H_

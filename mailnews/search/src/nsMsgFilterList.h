@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgFilterList_H_
-#define _nsMsgFilterList_H_
+#ifndef COMM_MAILNEWS_SEARCH_SRC_NSMSGFILTERLIST_H_
+#define COMM_MAILNEWS_SEARCH_SRC_NSMSGFILTERLIST_H_
 
 #include "nscore.h"
 #include "nsIMsgFolder.h"
@@ -71,4 +71,4 @@ class nsMsgFilterList : public nsIMsgFilterList {
   nsCOMPtr<nsIOutputStream> m_logStream;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_SEARCH_SRC_NSMSGFILTERLIST_H_

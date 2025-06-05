@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsIMdbFactoryFactory_h__
-#define nsIMdbFactoryFactory_h__
+#ifndef COMM_MAILNEWS_DB_MORK_NSIMDBFACTORYFACTORY_H_
+#define COMM_MAILNEWS_DB_MORK_NSIMDBFACTORYFACTORY_H_
 
 #include "nsISupports.h"
 #include "nsIFactory.h"
@@ -24,4 +24,4 @@ class nsIMdbFactoryService : public nsISupports {
   NS_IMETHOD GetMdbFactory(nsIMdbFactory** aFactory) = 0;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_DB_MORK_NSIMDBFACTORYFACTORY_H_

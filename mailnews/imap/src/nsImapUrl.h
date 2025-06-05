@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsImapUrl_h___
-#define nsImapUrl_h___
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPURL_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSIMAPURL_H_
 
 #include "nsIImapUrl.h"
 #include "nsCOMPtr.h"
@@ -127,4 +127,4 @@ class nsImapUrl : public nsIImapUrl,
   mozilla::Mutex mLock;
 };
 
-#endif /* nsImapUrl_h___ */
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPURL_H_

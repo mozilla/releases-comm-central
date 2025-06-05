@@ -4,8 +4,8 @@
 
 // This was copied from netwerk/base/LoadContextInfo.h
 
-#ifndef MailnewsLoadContextInfo_h__
-#define MailnewsLoadContextInfo_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_MAILNEWSLOADCONTEXTINFO_H_
+#define COMM_MAILNEWS_BASE_SRC_MAILNEWSLOADCONTEXTINFO_H_
 
 #include "nsILoadContextInfo.h"
 
@@ -29,4 +29,4 @@ class MailnewsLoadContextInfo : public nsILoadContextInfo {
   mozilla::OriginAttributes mOriginAttributes;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_MAILNEWSLOADCONTEXTINFO_H_

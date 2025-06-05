@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef Thread_h__
-#define Thread_h__
+#ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_THREAD_H_
+#define COMM_MAILNEWS_DB_PANORAMA_SRC_THREAD_H_
 
 #include "Message.h"
 #include "mozilla/RefPtr.h"
@@ -26,4 +26,4 @@ class Thread : public nsIMsgThread {
 
 }  // namespace mozilla::mailnews
 
-#endif  // Thread_h__
+#endif  // COMM_MAILNEWS_DB_PANORAMA_SRC_THREAD_H_

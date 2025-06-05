@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __MSGATTACHMENTDATA_H__
-#define __MSGATTACHMENTDATA_H__
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGATTACHMENTDATA_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSMSGATTACHMENTDATA_H_
 
 #include "nsString.h"
 #include "nsIMsgSend.h"
@@ -111,4 +111,5 @@ class nsMsgAttachedFile final : public nsIMsgAttachedFile {
 #else
 #  define MOZ_ASSERT_TYPE_OK_FOR_REFCOUNTING(X)
 #endif
-#endif
+
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGATTACHMENTDATA_H_

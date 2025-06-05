@@ -7,8 +7,8 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef MAPIFORM_H
-#define MAPIFORM_H
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPIFORM_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPIFORM_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -635,6 +635,4 @@ DECLARE_MAPI_INTERFACE_(IMAPIFormFactory, IUnknown)
 
 #pragma warning(pop)
 
-#endif							/* MAPIFORM_H */
-
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPIFORM_H_

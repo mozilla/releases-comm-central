@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef DatabaseUtils_h__
-#define DatabaseUtils_h__
+#ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_DATABASEUTILS_H_
+#define COMM_MAILNEWS_DB_PANORAMA_SRC_DATABASEUTILS_H_
 
 #include "mozilla/Preferences.h"
 #include "mozIStorageFunction.h"
@@ -73,4 +73,4 @@ class AddressFormatFunction final : public mozIStorageFunction,
 
 }  // namespace mozilla::mailnews
 
-#endif  // DatabaseUtils_h__
+#endif  // COMM_MAILNEWS_DB_PANORAMA_SRC_DATABASEUTILS_H_

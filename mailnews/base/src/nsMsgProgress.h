@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgProgress_h_
-#define nsMsgProgress_h_
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGPROGRESS_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGPROGRESS_H_
 
 #include "nsIMsgProgress.h"
 #include "nsCOMArray.h"
@@ -40,4 +40,4 @@ class nsMsgProgress : public nsIMsgProgress,
   nsCOMArray<nsIWebProgressListener> m_listenerList;
 };
 
-#endif  // nsMsgProgress_h_
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGPROGRESS_H_

@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSECONTENTHANDLER_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSECONTENTHANDLER_H_
+
 #include "nsIContentHandler.h"
 #include "nsIMsgIdentity.h"
 
@@ -17,3 +20,5 @@ class nsMsgComposeContentHandler : public nsIContentHandler {
   nsresult GetBestIdentity(nsIInterfaceRequestor* aWindowContext,
                            nsIMsgIdentity** identity);
 };
+
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSECONTENTHANDLER_H_

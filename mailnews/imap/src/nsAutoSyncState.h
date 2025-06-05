@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsAutoSyncState_h__
-#define nsAutoSyncState_h__
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSAUTOSYNCSTATE_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSAUTOSYNCSTATE_H_
 
 #include "MailNewsTypes2.h"
 #include "nsIAutoSyncState.h"
@@ -103,4 +103,4 @@ class nsAutoSyncState final : public nsIAutoSyncState, public nsIUrlListener {
   bool mHaveAStatusResponse;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSAUTOSYNCSTATE_H_

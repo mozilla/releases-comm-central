@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef _nsMimePlainEmitter_h_
-#define _nsMimePlainEmitter_h_
+
+#ifndef COMM_MAILNEWS_MIME_EMITTERS_NSMIMEPLAINEMITTER_H_
+#define COMM_MAILNEWS_MIME_EMITTERS_NSMIMEPLAINEMITTER_H_
 
 #include "prio.h"
 #include "nsMimeBaseEmitter.h"
@@ -22,4 +23,4 @@ class nsMimePlainEmitter : public nsMimeBaseEmitter {
   NS_IMETHOD WriteBody(const nsACString& buf, uint32_t* amountWritten) override;
 };
 
-#endif /* _nsMimePlainEmitter_h_ */
+#endif  // COMM_MAILNEWS_MIME_EMITTERS_NSMIMEPLAINEMITTER_H_

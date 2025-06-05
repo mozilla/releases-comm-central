@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSESERVICE_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSESERVICE_H_
+
 #include "nsIMsgComposeService.h"
 #include "nsCOMPtr.h"
 #include "nsWeakReference.h"
@@ -55,3 +58,5 @@ class nsMsgComposeService : public nsIMsgComposeService,
   nsresult GetOrigWindowSelection(mozilla::dom::Selection* selection,
                                   nsACString& aSelHTML);
 };
+
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSESERVICE_H_

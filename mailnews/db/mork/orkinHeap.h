@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _ORKINHEAP_
-#define _ORKINHEAP_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_ORKINHEAP_H_
+#define COMM_MAILNEWS_DB_MORK_ORKINHEAP_H_
 
 #ifndef _MDB_
 #  include "mdb.h"
@@ -47,4 +47,4 @@ class orkinHeap : public nsIMdbHeap {  //
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _ORKINHEAP_ */
+#endif  // COMM_MAILNEWS_DB_MORK_ORKINHEAP_H_

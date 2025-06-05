@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMEEBOD_H_
-#define _MIMEEBOD_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMEEBOD_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMEEBOD_H_
 
 #include "mimeobj.h"
 
@@ -34,4 +34,4 @@ struct MimeExternalBody {
 #define MimeExternalBodyClassInitializer(ITYPE, CSUPER) \
   {MimeObjectClassInitializer(ITYPE, CSUPER)}
 
-#endif /* _MIMEEBOD_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMEEBOD_H_

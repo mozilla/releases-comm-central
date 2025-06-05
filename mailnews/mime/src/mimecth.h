@@ -10,8 +10,8 @@
  * HTML messages.
  */
 
-#ifndef _MIMECTH_H_
-#define _MIMECTH_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMECTH_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMECTH_H_
 
 #include "mimei.h"
 #include "mimeobj.h"  /*  MimeObject (abstract)              */
@@ -130,4 +130,4 @@ typedef char* (*mime_get_ct_fn_type)(void);
 typedef MimeObjectClass* (*mime_create_class_fn_type)(
     const char*, contentTypeHandlerInitStruct*);
 
-#endif /* _MIMECTH_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMECTH_H_

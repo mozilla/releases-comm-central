@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMEMULT_H_
-#define _MIMEMULT_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMEMULT_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMEMULT_H_
 
 #include "mimecont.h"
 
@@ -98,4 +98,4 @@ extern void MimeMultipart_notify_emitter(MimeObject*);
 #define MimeMultipartClassInitializer(ITYPE, CSUPER) \
   {MimeContainerClassInitializer(ITYPE, CSUPER)}
 
-#endif /* _MIMEMULT_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMEMULT_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsImportABDescriptor_h___
-#define nsImportABDescriptor_h___
+#ifndef COMM_MAILNEWS_IMPORT_SRC_NSIMPORTABDESCRIPTOR_H_
+#define COMM_MAILNEWS_IMPORT_SRC_NSIMPORTABDESCRIPTOR_H_
 
 #include "nscore.h"
 #include "nsString.h"
@@ -96,4 +96,4 @@ class nsImportABDescriptor : public nsIImportABDescriptor {
   bool mImport;             // import it or not?
 };
 
-#endif
+#endif  // COMM_MAILNEWS_IMPORT_SRC_NSIMPORTABDESCRIPTOR_H_

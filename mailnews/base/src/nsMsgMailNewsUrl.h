@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgMailNewsUrl_h___
-#define nsMsgMailNewsUrl_h___
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGMAILNEWSURL_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGMAILNEWSURL_H_
 
 #include "msgCore.h"
 #include "nscore.h"
@@ -135,4 +135,4 @@ class nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
   nsCOMPtr<nsITransportSecurityInfo> mFailedSecInfo;
 };
 
-#endif /* nsMsgMailNewsUrl_h___ */
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGMAILNEWSURL_H_

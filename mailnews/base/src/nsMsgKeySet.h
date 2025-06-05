@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgKeySet_H_
-#define _nsMsgKeySet_H_
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGKEYSET_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGKEYSET_H_
 
 #include "MailNewsTypes2.h"
 #include "nsTArray.h"
@@ -90,4 +90,4 @@ class nsMsgKeySet {
   ~nsMsgKeySet();
 };
 
-#endif /* _nsMsgKeySet_H_ */
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGKEYSET_H_

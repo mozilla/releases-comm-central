@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef Folder_h__
-#define Folder_h__
+#ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_FOLDER_H_
+#define COMM_MAILNEWS_DB_PANORAMA_SRC_FOLDER_H_
 
 #include "FolderComparator.h"
 #include "mozilla/Maybe.h"
@@ -45,4 +45,4 @@ class Folder : public nsIFolder {
 
 }  // namespace mozilla::mailnews
 
-#endif  // Folder_h__
+#endif  // COMM_MAILNEWS_DB_PANORAMA_SRC_FOLDER_H_

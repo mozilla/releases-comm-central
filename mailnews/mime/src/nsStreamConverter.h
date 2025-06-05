@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef nsStreamConverter_h_
-#define nsStreamConverter_h_
+
+#ifndef COMM_MAILNEWS_MIME_SRC_NSSTREAMCONVERTER_H_
+#define COMM_MAILNEWS_MIME_SRC_NSSTREAMCONVERTER_H_
 
 #include "nsIStreamConverter.h"
 #include "nsIMimeStreamConverter.h"
@@ -90,4 +91,4 @@ class nsStreamConverter : public nsIStreamConverter,
                                 // onStartRequest
 };
 
-#endif /* nsStreamConverter_h_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_NSSTREAMCONVERTER_H_

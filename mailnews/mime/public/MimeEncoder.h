@@ -4,8 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef MimeEncoder_h__
-#define MimeEncoder_h__
+#ifndef COMM_MAILNEWS_MIME_PUBLIC_MIMEENCODER_H_
+#define COMM_MAILNEWS_MIME_PUBLIC_MIMEENCODER_H_
 
 #include "nscore.h"
 #include "mime_closure.h"
@@ -44,4 +44,4 @@ class MimeEncoder {
 }  // namespace mailnews
 }  // namespace mozilla
 
-#endif
+#endif  // COMM_MAILNEWS_MIME_PUBLIC_MIMEENCODER_H_

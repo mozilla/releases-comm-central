@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMEI_H_
-#define _MIMEI_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMEI_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMEI_H_
 
 /*
   This module, libmime, implements a general-purpose MIME parser.
@@ -404,4 +404,4 @@ struct MimeDisplayData { /* This struct is what we hang off of
   char* last_parsed_url;
 };
 
-#endif /* _MIMEI_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMEI_H_

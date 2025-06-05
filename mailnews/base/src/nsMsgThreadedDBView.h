@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgThreadedDBView_H_
-#define _nsMsgThreadedDBView_H_
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGTHREADEDDBVIEW_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGTHREADEDDBVIEW_H_
 
 #include "nsMsgGroupView.h"
 
@@ -58,4 +58,4 @@ class nsMsgThreadedDBView : public nsMsgGroupView {
   nsTArray<uint8_t> m_prevLevels;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGTHREADEDDBVIEW_H_

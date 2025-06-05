@@ -35,8 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef _MORKNODE_
-#define _MORKNODE_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MORKNODE_H_
+#define COMM_MAILNEWS_DB_MORK_MORKNODE_H_
 
 #ifndef _MORK_
 #  include "mork.h"
@@ -287,4 +287,4 @@ nsIMdbFile_SlotStrongFile(nsIMdbFile* self, morkEnv* ev, nsIMdbFile** ioSlot);
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _MORKNODE_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MORKNODE_H_

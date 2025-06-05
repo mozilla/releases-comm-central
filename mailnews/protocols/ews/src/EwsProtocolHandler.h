@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __COMM_MAILNEWS_PROTOCOLS_EWS_PROTOCOL_HANDLER_H
-#define __COMM_MAILNEWS_PROTOCOLS_EWS_PROTOCOL_HANDLER_H
+#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSPROTOCOLHANDLER_H_
+#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSPROTOCOLHANDLER_H_
 
 #include "nsIProtocolHandler.h"
 
@@ -18,4 +18,4 @@ class EwsProtocolHandler : public nsIProtocolHandler {
   virtual ~EwsProtocolHandler();
 };
 
-#endif
+#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSPROTOCOLHANDLER_H_

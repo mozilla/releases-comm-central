@@ -35,8 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef _MORKMAP_
-#define _MORKMAP_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MORKMAP_H_
+#define COMM_MAILNEWS_DB_MORK_MORKMAP_H_
 
 #ifndef _MORK_
 #  include "mork.h"
@@ -376,4 +376,4 @@ class morkMapIter {  // iterator for hash table map
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _MORKMAP_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MORKMAP_H_

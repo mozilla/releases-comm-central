@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsSpamSettings_h__
-#define nsSpamSettings_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSSPAMSETTINGS_H_
+#define COMM_MAILNEWS_BASE_SRC_NSSPAMSETTINGS_H_
 
 #include "nsCOMPtr.h"
 #include "nsISpamSettings.h"
@@ -65,4 +65,4 @@ class nsSpamSettings : public nsISpamSettings, public nsIUrlListener {
   nsresult UpdateJunkFolderState();
 };
 
-#endif /* nsSpamSettings_h__ */
+#endif  // COMM_MAILNEWS_BASE_SRC_NSSPAMSETTINGS_H_

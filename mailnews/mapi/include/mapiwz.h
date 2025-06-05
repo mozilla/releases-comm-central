@@ -7,8 +7,8 @@
  *	Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef _MAPIWZ_H
-#define _MAPIWZ_H
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPIWZ_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPIWZ_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -69,5 +69,4 @@ typedef WIZARDENTRY FAR * LPWIZARDENTRY;
 
 #define LAUNCHWIZARDENTRYNAME			"LAUNCHWIZARD"
 
-#endif	/* _MAPIWZ_H */
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPIWZ_H_

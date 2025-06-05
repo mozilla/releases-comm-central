@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef nsCharsetConverterManager_h__
-#define nsCharsetConverterManager_h__
+
+#ifndef COMM_MAILNEWS_INTL_NSCHARSETCONVERTERMANAGER_H_
+#define COMM_MAILNEWS_INTL_NSCHARSETCONVERTERMANAGER_H_
 
 #include "nsICharsetConverterManager.h"
 
@@ -24,4 +25,4 @@ class nsCharsetConverterManager : public nsICharsetConverterManager {
   static bool IsInternal(const nsACString& aCharset);
 };
 
-#endif  // nsCharsetConverterManager_h__
+#endif  // COMM_MAILNEWS_INTL_NSCHARSETCONVERTERMANAGER_H_

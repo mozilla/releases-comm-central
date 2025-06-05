@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsFts3Tokenizer_h__
-#define nsFts3Tokenizer_h__
+#ifndef COMM_MAILNEWS_EXTENSIONS_FTS3_NSFTS3TOKENIZER_H_
+#define COMM_MAILNEWS_EXTENSIONS_FTS3_NSFTS3TOKENIZER_H_
 
 #include "nsCOMPtr.h"
 #include "nsIFts3Tokenizer.h"
@@ -23,4 +23,4 @@ class nsFts3Tokenizer final : public nsIFts3Tokenizer {
   ~nsFts3Tokenizer();
 };
 
-#endif
+#endif  // COMM_MAILNEWS_EXTENSIONS_FTS3_NSFTS3TOKENIZER_H_

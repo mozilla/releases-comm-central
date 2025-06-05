@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsImapUndoTxn_h__
-#define nsImapUndoTxn_h__
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPUNDOTXN_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSIMAPUNDOTXN_H_
 
 #include "nsIMsgFolder.h"
 #include "nsIImapIncomingServer.h"
@@ -82,4 +82,5 @@ class nsImapOfflineTxn : public nsImapMoveCopyMsgTxn {
   bool m_addFlags;
   uint32_t m_flags;
 };
-#endif
+
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPUNDOTXN_H_

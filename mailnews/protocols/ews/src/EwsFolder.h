@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __COMM_MAILNEWS_PROTOCOLS_EWS_FOLDER_H
-#define __COMM_MAILNEWS_PROTOCOLS_EWS_FOLDER_H
+#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_
+#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_
 
 #include "IEwsClient.h"
 #include "nsICopyMessageListener.h"
@@ -98,4 +98,4 @@ class EwsFolder : public nsMsgDBFolder {
   nsresult SyncMessages(nsIMsgWindow* window);
 };
 
-#endif
+#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_

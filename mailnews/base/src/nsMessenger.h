@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __nsMsgAppCore_h
-#define __nsMsgAppCore_h
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMESSENGER_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMESSENGER_H_
 
 #include "nscore.h"
 #include "nsIMessenger.h"
@@ -115,4 +115,4 @@ class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
    0x4955,                                    \
    {0x9a, 0xfe, 0xe3, 0xfe, 0xb6, 0x8a, 0xee, 0x56}}
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMESSENGER_H_

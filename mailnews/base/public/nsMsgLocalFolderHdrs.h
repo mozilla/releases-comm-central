@@ -3,8 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgLocalFolderHdrs_H
-#define _nsMsgLocalFolderHdrs_H
+#ifndef COMM_MAILNEWS_BASE_PUBLIC_NSMSGLOCALFOLDERHDRS_H_
+#define COMM_MAILNEWS_BASE_PUBLIC_NSMSGLOCALFOLDERHDRS_H_
+
 // clang-format off
 
 /* The Netscape-specific header fields that we use for storing our
@@ -44,4 +45,5 @@
 #define X_MOZILLA_KEYWORDS_LEN (sizeof(X_MOZILLA_KEYWORDS) - 1)
 
 // clang-format on
-#endif
+
+#endif  // COMM_MAILNEWS_BASE_PUBLIC_NSMSGLOCALFOLDERHDRS_H_

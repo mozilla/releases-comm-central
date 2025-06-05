@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef UrlListener_h__
-#define UrlListener_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_URLLISTENER_H_
+#define COMM_MAILNEWS_BASE_SRC_URLLISTENER_H_
 
 #include <functional>  // For std::function.
 #include "nsIUrlListener.h"
@@ -87,4 +87,4 @@ class CopyServiceListener : public nsIMsgCopyServiceListener {
   virtual ~CopyServiceListener() {}
 };
 
-#endif  // UrlListener_h__
+#endif  // COMM_MAILNEWS_BASE_SRC_URLLISTENER_H_

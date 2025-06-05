@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __nsMsgResultElement_h
-#define __nsMsgResultElement_h
+#ifndef COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGRESULTELEMENT_H_
+#define COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGRESULTELEMENT_H_
 
 #include "nsCOMPtr.h"
 #include "nsMsgSearchCore.h"
@@ -38,4 +38,4 @@ class nsMsgResultElement {
  protected:
 };
 
-#endif
+#endif  // COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGRESULTELEMENT_H_

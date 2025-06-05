@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsStatusBarBiffManager_h__
-#define nsStatusBarBiffManager_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSSTATUSBARBIFFMANAGER_H_
+#define COMM_MAILNEWS_BASE_SRC_NSSTATUSBARBIFFMANAGER_H_
 
 #include "nsIStatusBarBiffManager.h"
 
@@ -32,4 +32,4 @@ class nsStatusBarBiffManager : public nsIStatusBarBiffManager,
   nsresult PlayBiffSound(const char* aPref);
 };
 
-#endif  // nsStatusBarBiffManager_h__
+#endif  // COMM_MAILNEWS_BASE_SRC_NSSTATUSBARBIFFMANAGER_H_

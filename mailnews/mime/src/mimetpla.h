@@ -7,8 +7,8 @@
    and is also used for all otherwise-unknown text/ subtypes.
  */
 
-#ifndef _MIMETPLA_H_
-#define _MIMETPLA_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMETPLA_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMETPLA_H_
 
 #include "mimetext.h"
 
@@ -36,4 +36,4 @@ struct MimeInlineTextPlain {
 #define MimeInlineTextPlainClassInitializer(ITYPE, CSUPER) \
   {MimeInlineTextClassInitializer(ITYPE, CSUPER)}
 
-#endif /* _MIMETPLA_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMETPLA_H_

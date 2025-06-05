@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsAbOSXDirectory_h___
-#define nsAbOSXDirectory_h___
+#ifndef COMM_MAILNEWS_ADDRBOOK_SRC_NSABOSXDIRECTORY_H_
+#define COMM_MAILNEWS_ADDRBOOK_SRC_NSABOSXDIRECTORY_H_
 
 #include "nsISupports.h"
 #include "nsAbDirProperty.h"
@@ -109,4 +109,4 @@ class nsAbOSXDirectory final : public nsAbDirProperty,
   nsCOMPtr<nsIAbOSXDirectory> mCacheTopLevelOSXAb;
 };
 
-#endif  // nsAbOSXDirectory_h___
+#endif  // COMM_MAILNEWS_ADDRBOOK_SRC_NSABOSXDIRECTORY_H_

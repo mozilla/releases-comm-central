@@ -36,8 +36,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef _MDB_
-#define _MDB_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MDB_H_
+#define COMM_MAILNEWS_DB_MORK_MDB_H_
 
 #include "mozilla/Path.h"
 #include "nscore.h"
@@ -2469,4 +2469,4 @@ class nsIMdbCell
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _MDB_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MDB_H_

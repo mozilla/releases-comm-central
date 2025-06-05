@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef NS_LOCALUTILS_H
-#define NS_LOCALUTILS_H
+#ifndef COMM_MAILNEWS_LOCAL_SRC_NSLOCALUTILS_H_
+#define COMM_MAILNEWS_LOCAL_SRC_NSLOCALUTILS_H_
 
 #include "nsString.h"
 #include "MailNewsTypes2.h"
@@ -24,4 +24,4 @@ nsresult nsBuildLocalMessageURI(const nsACString& baseURI, nsMsgKey key,
 nsresult nsCreateLocalBaseMessageURI(const nsACString& baseURI,
                                      nsCString& baseMessageURI);
 
-#endif  // NS_LOCALUTILS_H
+#endif  // COMM_MAILNEWS_LOCAL_SRC_NSLOCALUTILS_H_

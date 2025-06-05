@@ -15,6 +15,9 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPIGUID_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPIGUID_H_
+
 /*
  *	List of GUIDS allocated by MAPI
  *	
@@ -82,9 +85,7 @@
  *
  */
 
-#ifndef MAPIGUID_H
 #ifdef  INITGUID
-#define MAPIGUID_H
 #if _MSC_VER > 1000
 #pragma once
 #endif
@@ -350,5 +351,4 @@ DEFINE_OLEGUID(IID_IMAPIClientShutdown, 0x00020397, 0, 0);
 DEFINE_OLEGUID(IID_IMAPIProviderShutdown, 0x00020398, 0, 0);
 #endif
 
-#endif	/* MAPIGUID_H */
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPIGUID_H_

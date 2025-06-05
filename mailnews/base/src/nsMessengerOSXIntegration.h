@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __nsMessengerOSXIntegration_h
-#define __nsMessengerOSXIntegration_h
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMESSENGEROSXINTEGRATION_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMESSENGEROSXINTEGRATION_H_
 
 #include "nsIMessengerOSIntegration.h"
 
@@ -21,4 +21,4 @@ class nsMessengerOSXIntegration : public nsIMessengerOSIntegration {
   nsresult RestoreDockIcon();
 };
 
-#endif  // __nsMessengerOSXIntegration_h
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMESSENGEROSXINTEGRATION_H_

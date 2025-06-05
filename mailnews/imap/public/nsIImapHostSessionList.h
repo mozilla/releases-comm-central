@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsIImapHostSessionList_H_
-#define _nsIImapHostSessionList_H_
+#ifndef COMM_MAILNEWS_IMAP_PUBLIC_NSIIMAPHOSTSESSIONLIST_H_
+#define COMM_MAILNEWS_IMAP_PUBLIC_NSIIMAPHOSTSESSIONLIST_H_
 
 #include "nsISupports.h"
 #include "nsImapCore.h"
@@ -119,4 +119,4 @@ class nsIImapHostSessionList : public nsISupports {
       const char* serverKey, const char* boxName, char delimiter) = 0;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_IMAP_PUBLIC_NSIIMAPHOSTSESSIONLIST_H_

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef DatabaseCore_h__
-#define DatabaseCore_h__
+#ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_DATABASECORE_H_
+#define COMM_MAILNEWS_DB_PANORAMA_SRC_DATABASECORE_H_
 
 #include "FolderDatabase.h"
 #include "MessageDatabase.h"
@@ -77,4 +77,4 @@ class DatabaseCoreFactory final : public nsIFactory {
 
 }  // namespace mozilla::mailnews
 
-#endif  // DatabaseCore_h__
+#endif  // COMM_MAILNEWS_DB_PANORAMA_SRC_DATABASECORE_H_

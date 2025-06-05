@@ -12,6 +12,9 @@
  * 04/20/2000       IBM Corp.      OS/2 VisualAge build.
  */
 
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGACCOUNTMANAGER_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGACCOUNTMANAGER_H_
+
 #include "nscore.h"
 #include "nsIMsgAccountManager.h"
 #include "nsCOMPtr.h"
@@ -207,3 +210,5 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
    */
   nsresult RemoveFolderFromCache(nsIMsgFolder* aFolder);
 };
+
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGACCOUNTMANAGER_H_

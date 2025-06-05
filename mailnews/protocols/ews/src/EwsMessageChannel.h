@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __COMM_MAILNEWS_PROTOCOLS_EWS_MESSAGE_CHANNEL_H
-#define __COMM_MAILNEWS_PROTOCOLS_EWS_MESSAGE_CHANNEL_H
+#ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSMESSAGECHANNEL_H_
+#define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSMESSAGECHANNEL_H_
 
 #include "nsHashPropertyBag.h"
 #include "nsIChannel.h"
@@ -121,4 +121,4 @@ class EwsMessageChannel : public nsMailChannel,
   nsresult mStatus;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSMESSAGECHANNEL_H_

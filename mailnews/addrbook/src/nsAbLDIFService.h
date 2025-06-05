@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef __nsAbLDIFService_h
-#define __nsAbLDIFService_h
+
+#ifndef COMM_MAILNEWS_ADDRBOOK_SRC_NSABLDIFSERVICE_H_
+#define COMM_MAILNEWS_ADDRBOOK_SRC_NSABLDIFSERVICE_H_
 
 #include "nsIAbCard.h"
 #include "nsIAbLDIFService.h"
@@ -35,4 +36,4 @@ class nsAbLDIFService : public nsIAbLDIFService {
   int32_t mCRCount;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_ADDRBOOK_SRC_NSABLDIFSERVICE_H_

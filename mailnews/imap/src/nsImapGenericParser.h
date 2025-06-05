@@ -8,8 +8,8 @@ nsImapGenericParser is the base parser class used by the server parser and body
 shell parser
 */
 
-#ifndef nsImapGenericParser_H
-#define nsImapGenericParser_H
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPGENERICPARSER_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSIMAPGENERICPARSER_H_
 
 #include <stdint.h>
 
@@ -73,4 +73,4 @@ class nsImapGenericParser {
   uint32_t fParserState;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPGENERICPARSER_H_

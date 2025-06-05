@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgFileHdr_H
-#define _nsMsgFileHdr_H
+#ifndef COMM_MAILNEWS_LOCAL_SRC_NSMSGFILEHDR_H_
+#define COMM_MAILNEWS_LOCAL_SRC_NSMSGFILEHDR_H_
 
 #include "nsIFile.h"
 #include "nsIMsgHdr.h"
@@ -39,4 +39,4 @@ class nsMsgFileHdr : public nsIMsgDBHdr {
   uint32_t mFlags;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_LOCAL_SRC_NSMSGFILEHDR_H_

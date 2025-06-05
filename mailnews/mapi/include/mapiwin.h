@@ -20,6 +20,9 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPIWIN_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPIWIN_H_
+
 /*
  *	Routines are included in the first section to manage per-instance
  *	global variables for DLLs. They assume that all of the DLL's
@@ -271,6 +274,4 @@ BOOL WINAPI IsBadBoundedStringPtr(const void FAR* lpsz, UINT cchMax);
 }
 #endif
 
-#endif /* __MAPIWIN_H__ */
-
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPIWIN_H_

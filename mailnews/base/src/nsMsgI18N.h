@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgI18N_H_
-#define _nsMsgI18N_H_
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGI18N_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGI18N_H_
 
 #include "nscore.h"
 #include "msgCore.h"
@@ -131,4 +131,4 @@ nsresult CopyFolderNameToUTF16(const nsACString& aSrc, nsAString& aDest);
 nsresult CopyUTF16toMUTF7(const nsAString& aSrc, nsACString& aDest);
 nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest);
 
-#endif /* _nsMsgI18N_H_ */
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGI18N_H_

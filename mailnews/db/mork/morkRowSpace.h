@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MORKROWSPACE_
-#define _MORKROWSPACE_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MORKROWSPACE_H_
+#define COMM_MAILNEWS_DB_MORK_MORKROWSPACE_H_
 
 #ifndef _MORK_
 #  include "mork.h"
@@ -240,4 +240,4 @@ class morkRowSpaceMapIter : public morkMapIter {  // typesafe wrapper class
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _MORKROWSPACE_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MORKROWSPACE_H_

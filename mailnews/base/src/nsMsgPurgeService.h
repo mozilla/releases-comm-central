@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef NSMSGPURGESERVICE_H
-#define NSMSGPURGESERVICE_H
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGPURGESERVICE_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGPURGESERVICE_H_
 
 #include "msgCore.h"
 #include "nsIMsgPurgeService.h"
@@ -46,4 +46,4 @@ class nsMsgPurgeService : public nsIMsgPurgeService, public nsIMsgSearchNotify {
   int32_t mPurgeTimerInterval;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGPURGESERVICE_H_

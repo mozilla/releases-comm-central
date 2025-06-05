@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsCharsetAlias_h___
-#define nsCharsetAlias_h___
+#ifndef COMM_MAILNEWS_INTL_NSCHARSETALIAS_H_
+#define COMM_MAILNEWS_INTL_NSCHARSETALIAS_H_
 
 #include "nscore.h"
 #include "nsString.h"
@@ -24,4 +24,4 @@ class nsCharsetAlias {
                          const nsACString& aCharset2, bool* aResult);
 };
 
-#endif /* nsCharsetAlias_h___ */
+#endif  // COMM_MAILNEWS_INTL_NSCHARSETALIAS_H_

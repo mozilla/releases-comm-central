@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsEmlxHelperUtils_h___
-#define nsEmlxHelperUtils_h___
+#ifndef COMM_MAILNEWS_IMPORT_SRC_NSEMLXHELPERUTILS_H_
+#define COMM_MAILNEWS_IMPORT_SRC_NSEMLXHELPERUTILS_H_
 
 #include "nscore.h"
 
@@ -49,4 +49,4 @@ class nsEmlxHelperUtils {
                                          nsIOutputStream* aOutoutStream);
 };
 
-#endif  // nsEmlxHelperUtils_h___
+#endif  // COMM_MAILNEWS_IMPORT_SRC_NSEMLXHELPERUTILS_H_

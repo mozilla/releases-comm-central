@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgFolderNotificationService_h__
-#define nsMsgFolderNotificationService_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGFOLDERNOTIFICATIONSERVICE_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGFOLDERNOTIFICATIONSERVICE_H_
 
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgFolderListener.h"
@@ -43,4 +43,4 @@ class nsMsgFolderNotificationService final
   nsTObserverArray<MsgFolderListener> mListeners;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGFOLDERNOTIFICATIONSERVICE_H_

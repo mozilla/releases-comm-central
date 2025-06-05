@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgIncomingServer_h__
-#define nsMsgIncomingServer_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGINCOMINGSERVER_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGINCOMINGSERVER_H_
 
 #include "nsIMsgIncomingServer.h"
 #include "nsIPrefBranch.h"
@@ -97,4 +97,4 @@ class nsMsgIncomingServer : public nsIMsgIncomingServer,
   bool mPerformingBiff;
 };
 
-#endif  // nsMsgIncomingServer_h__
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGINCOMINGSERVER_H_

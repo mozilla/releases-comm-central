@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MORKFACTORY_
-#define _MORKFACTORY_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MORKFACTORY_H_
+#define COMM_MAILNEWS_DB_MORK_MORKFACTORY_H_
 
 #ifndef _MORK_
 #  include "mork.h"
@@ -211,4 +211,4 @@ class morkFactory : public morkObject, public nsIMdbFactory {  // nsIMdbObject
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _MORKFACTORY_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MORKFACTORY_H_

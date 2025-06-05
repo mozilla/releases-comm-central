@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef _nsMimeBaseEmitter_h_
-#define _nsMimeBaseEmitter_h_
+
+#ifndef COMM_MAILNEWS_MIME_EMITTERS_NSMIMEBASEEMITTER_H_
+#define COMM_MAILNEWS_MIME_EMITTERS_NSMIMEBASEEMITTER_H_
 
 #include "prio.h"
 #include "nsIMimeEmitter.h"
@@ -137,4 +138,4 @@ class nsMimeBaseEmitter : public nsIMimeEmitter, public nsIInterfaceRequestor {
   char* GetLocalizedDateString(const char* dateString);
 };
 
-#endif /* _nsMimeBaseEmitter_h_ */
+#endif  // COMM_MAILNEWS_MIME_EMITTERS_NSMIMEBASEEMITTER_H_

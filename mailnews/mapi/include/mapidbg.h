@@ -7,8 +7,8 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef __MAPIDBG_H_
-#define __MAPIDBG_H_
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPIDBG_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPIDBG_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -489,5 +489,4 @@ extern SCODE IMSLogon_Logoff_Scodes[];
 
 /* ------------------------------------------------------------------------ */
 
-#endif
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPIDBG_H_

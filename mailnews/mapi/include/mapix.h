@@ -6,8 +6,8 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef MAPIX_H
-#define MAPIX_H
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPIX_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPIX_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -542,5 +542,4 @@ DECLARE_MAPI_INTERFACE_(IMsgServiceAdmin, IUnknown)
 }		/*	extern "C" */
 #endif	
 
-#endif /* MAPIX_H */
-
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPIX_H_

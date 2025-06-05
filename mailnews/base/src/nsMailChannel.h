@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMailChannel_h__
-#define nsMailChannel_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMAILCHANNEL_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMAILCHANNEL_H_
 
 #include "nsIMailChannel.h"
 #include "nsIWritablePropertyBag2.h"
@@ -28,4 +28,4 @@ class nsMailChannel : public nsIMailChannel {
   nsWeakPtr mListener;
 };
 
-#endif /* nsMailChannel_h__ */
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMAILCHANNEL_H_

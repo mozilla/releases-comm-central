@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef nsAbWinHelper_h___
-#define nsAbWinHelper_h___
+
+#ifndef COMM_MAILNEWS_ADDRBOOK_SRC_NSABWINHELPER_H_
+#define COMM_MAILNEWS_ADDRBOOK_SRC_NSABWINHELPER_H_
 
 #include <windows.h>
 #include "../../mapi/include/mapix.h"
@@ -180,4 +181,5 @@ class nsAbWinHelperGuard {
 
 void makeEntryIdFromURI(const char* aScheme, const char* aUri,
                         nsCString& aEntry);
-#endif  // nsAbWinHelper_h___
+
+#endif  // COMM_MAILNEWS_ADDRBOOK_SRC_NSABWINHELPER_H_

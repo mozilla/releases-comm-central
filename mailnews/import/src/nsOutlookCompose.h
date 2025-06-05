@@ -4,8 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsOutlookCompose_h__
-#define nsOutlookCompose_h__
+#ifndef COMM_MAILNEWS_IMPORT_SRC_NSOUTLOOKCOMPOSE_H_
+#define COMM_MAILNEWS_IMPORT_SRC_NSOUTLOOKCOMPOSE_H_
 
 #include "nscore.h"
 #include "nsIFile.h"
@@ -57,4 +57,4 @@ class nsOutlookCompose {
   nsCOMPtr<nsIImportService> m_pImportService;
 };
 
-#endif /* nsOutlookCompose_h__ */
+#endif  // COMM_MAILNEWS_IMPORT_SRC_NSOUTLOOKCOMPOSE_H_

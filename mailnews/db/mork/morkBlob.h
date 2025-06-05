@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MORKBLOB_
-#define _MORKBLOB_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MORKBLOB_H_
+#define COMM_MAILNEWS_DB_MORK_MORKBLOB_H_
 
 #ifndef _MORK_
 #  include "mork.h"
@@ -137,4 +137,4 @@ class morkCoil : public morkText {  // self-managing text blob object
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _MORKBLOB_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MORKBLOB_H_

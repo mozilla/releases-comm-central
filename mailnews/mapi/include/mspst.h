@@ -7,8 +7,8 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef _MSPST_H_
-#define _MSPST_H_
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MSPST_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MSPST_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -96,4 +96,4 @@
                                 0x00, 0xaa, 0x00, 0x37, \
                                 0xd9, 0x6e, 0x00, 0x00 }
 
-#endif  /* _MSPST_H_ */
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MSPST_H_

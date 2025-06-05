@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsOutlookSettings_h___
-#define nsOutlookSettings_h___
+#ifndef COMM_MAILNEWS_IMPORT_SRC_NSOUTLOOKSETTINGS_H_
+#define COMM_MAILNEWS_IMPORT_SRC_NSOUTLOOKSETTINGS_H_
 
 #include "nsIImportSettings.h"
 
@@ -24,4 +24,4 @@ class nsOutlookSettings : public nsIImportSettings {
   virtual ~nsOutlookSettings();
 };
 
-#endif /* nsOutlookSettings_h___ */
+#endif  // COMM_MAILNEWS_IMPORT_SRC_NSOUTLOOKSETTINGS_H_

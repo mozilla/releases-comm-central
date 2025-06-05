@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSEPROGRESSPARAMS_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSEPROGRESSPARAMS_H_
+
 #include "nsIMsgComposeProgressParams.h"
 
 class nsMsgComposeProgressParams : public nsIMsgComposeProgressParams {
@@ -17,3 +20,5 @@ class nsMsgComposeProgressParams : public nsIMsgComposeProgressParams {
   nsString m_subject;
   MSG_DeliverMode m_deliveryMode;
 };
+
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSEPROGRESSPARAMS_H_

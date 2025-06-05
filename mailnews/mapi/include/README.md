@@ -11,6 +11,7 @@ compatibility.
 - MAPI.h was intentionally removed.
 - MAPIx.h has had its #include lines changed to use double quotes rather than
   angled brackets
+- Guards have been added.
 
 
 MIT License

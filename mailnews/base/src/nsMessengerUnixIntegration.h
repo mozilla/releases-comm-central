@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __nsMessengerUnixIntegration_h
-#define __nsMessengerUnixIntegration_h
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMESSENGERUNIXINTEGRATION_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMESSENGERUNIXINTEGRATION_H_
 
 #include "nsIMessengerOSIntegration.h"
 #include "nsID.h"
@@ -15,4 +15,4 @@ MOZ_EXPORT nsresult nsLinuxSysTrayHandlerConstructor(REFNSIID aIID,
                                                      void** aResult);
 }  // extern "C"
 
-#endif  // __nsMessengerUnixIntegration_h
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMESSENGERUNIXINTEGRATION_H_

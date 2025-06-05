@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMailWinSearchHelper_h_
-#define nsMailWinSearchHelper_h_
+#ifndef COMM_MAIL_COMPONENTS_SEARCH_NSMAILWINSEARCHHELPER_H_
+#define COMM_MAIL_COMPONENTS_SEARCH_NSMAILWINSEARCHHELPER_H_
 
 #include "nsIMailWinSearchHelper.h"
 #include "nsIFile.h"
@@ -27,4 +27,4 @@ class nsMailWinSearchHelper : public nsIMailWinSearchHelper {
   nsCOMPtr<nsIFile> mCurProcD;
 };
 
-#endif
+#endif  // COMM_MAIL_COMPONENTS_SEARCH_NSMAILWINSEARCHHELPER_H_

@@ -2,8 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef nsAbOutlookInterface_h___
-#define nsAbOutlookInterface_h___
+
+#ifndef COMM_MAILNEWS_ADDRBOOK_SRC_NSABOUTLOOKINTERFACE_H_
+#define COMM_MAILNEWS_ADDRBOOK_SRC_NSABOUTLOOKINTERFACE_H_
 
 #include "nsIAbOutlookInterface.h"
 
@@ -18,4 +19,4 @@ class nsAbOutlookInterface : public nsIAbOutlookInterface {
   virtual ~nsAbOutlookInterface(void);
 };
 
-#endif  // nsAbOutlookInterface_h___
+#endif  // COMM_MAILNEWS_ADDRBOOK_SRC_NSABOUTLOOKINTERFACE_H_

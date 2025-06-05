@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __IMPORTEMBEDDEDIMAGETDATA_H__
-#define __IMPORTEMBEDDEDIMAGETDATA_H__
+#ifndef COMM_MAILNEWS_IMPORT_SRC_NSIMPORTEMBEDDEDIMAGEDATA_H_
+#define COMM_MAILNEWS_IMPORT_SRC_NSIMPORTEMBEDDEDIMAGEDATA_H_
 
 #include "nsIMsgSend.h"
 #include "nsString.h"
@@ -28,4 +28,4 @@ class nsImportEmbeddedImageData final : public nsIMsgEmbeddedImageData {
   ~nsImportEmbeddedImageData();
 };
 
-#endif
+#endif  // COMM_MAILNEWS_IMPORT_SRC_NSIMPORTEMBEDDEDIMAGEDATA_H_

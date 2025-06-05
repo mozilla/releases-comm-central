@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _NNTPCore_H__
-#define _NNTPCore_H__
+#ifndef COMM_MAILNEWS_NEWS_SRC_NNTPCORE_H_
+#define COMM_MAILNEWS_NEWS_SRC_NNTPCORE_H_
 
 #define NEWS_MSGS_URL "chrome://messenger/locale/news.properties"
 
@@ -162,4 +162,4 @@
 #define MK_MSG_HTML_IMAP_NO_CACHED_BODY 1
 #define MK_MSG_CANT_MOVE_FOLDER 1
 
-#endif /* NNTPCore_H__ */
+#endif  // COMM_MAILNEWS_NEWS_SRC_NNTPCORE_H_

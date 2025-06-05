@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __nsMsgQuote_h__
-#define __nsMsgQuote_h__
+#ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGQUOTE_H_
+#define COMM_MAILNEWS_COMPOSE_SRC_NSMSGQUOTE_H_
 
 #include "nsIMsgQuote.h"
 #include "nsIMimeStreamConverter.h"
@@ -47,4 +47,4 @@ class nsMsgQuote : public nsIMsgQuote, public nsSupportsWeakReference {
   nsCOMPtr<nsIChannel> mQuoteChannel;
 };
 
-#endif /* __nsMsgQuote_h__ */
+#endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGQUOTE_H_

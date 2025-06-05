@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgFolderCache_H
-#define nsMsgFolderCache_H
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGFOLDERCACHE_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGFOLDERCACHE_H_
 
 #include "nsIMsgFolderCache.h"
 #include "nsIFile.h"
@@ -57,4 +57,4 @@ class nsMsgFolderCache : public nsIMsgFolderCache {
   nsCOMPtr<nsITimer> mSaveTimer;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGFOLDERCACHE_H_

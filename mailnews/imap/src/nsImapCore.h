@@ -4,8 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // clang-format off
-#ifndef _nsImapCore_H_
-#define _nsImapCore_H_
+
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPCORE_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSIMAPCORE_H_
 
 #include <stdint.h>
 
@@ -186,5 +187,5 @@ typedef enum {
   kValidateQuota
 } nsImapQuotaAction;
 
-#endif
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPCORE_H_
 // clang-format on

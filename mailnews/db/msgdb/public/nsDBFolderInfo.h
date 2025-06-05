@@ -6,8 +6,9 @@
 /* This class encapsulates the global information about a folder stored in the
    summary file.
 */
-#ifndef _nsDBFolderInfo_H
-#define _nsDBFolderInfo_H
+
+#ifndef COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSDBFOLDERINFO_H_
+#define COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSDBFOLDERINFO_H_
 
 #include "mozilla/MemoryReporting.h"
 #include "nsString.h"
@@ -147,4 +148,4 @@ class nsDBFolderInfo : public nsIDBFolderInfo {
   mdb_token m_versionColumnToken;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSDBFOLDERINFO_H_

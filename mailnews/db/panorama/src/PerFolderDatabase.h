@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef PerFolderDatabase_h__
-#define PerFolderDatabase_h__
+#ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_PERFOLDERDATABASE_H_
+#define COMM_MAILNEWS_DB_PANORAMA_SRC_PERFOLDERDATABASE_H_
 
 #include "FolderDatabase.h"
 #include "MessageDatabase.h"
@@ -116,4 +116,4 @@ class FolderInfo : public nsIDBFolderInfo {
 
 }  // namespace mozilla::mailnews
 
-#endif  // PerFolderDatabase_h__
+#endif  // COMM_MAILNEWS_DB_PANORAMA_SRC_PERFOLDERDATABASE_H_

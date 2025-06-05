@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MORKINTMAP_
-#define _MORKINTMAP_ 1
+#ifndef COMM_MAILNEWS_DB_MORK_MORKINTMAP_H_
+#define COMM_MAILNEWS_DB_MORK_MORKINTMAP_H_
 
 #ifndef _MORK_
 #  include "mork.h"
@@ -141,4 +141,4 @@ class morkPointerMap : public morkMap {  // for mapping tokens to maps
 
 // 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#endif /* _MORKINTMAP_ */
+#endif  // COMM_MAILNEWS_DB_MORK_MORKINTMAP_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsOutlookImport_h___
-#define nsOutlookImport_h___
+#ifndef COMM_MAILNEWS_IMPORT_SRC_NSOUTLOOKIMPORT_H_
+#define COMM_MAILNEWS_IMPORT_SRC_NSOUTLOOKIMPORT_H_
 
 #include "nsIImportModule.h"
 
@@ -33,4 +33,4 @@ class nsOutlookImport : public nsIImportModule {
   virtual ~nsOutlookImport();
 };
 
-#endif /* nsOutlookImport_h___ */
+#endif  // COMM_MAILNEWS_IMPORT_SRC_NSOUTLOOKIMPORT_H_

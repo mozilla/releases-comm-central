@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifndef COMM_MAILNEWS_IMPORT_SRC_NSIMPORTADDRESSBOOKS_H_
+#define COMM_MAILNEWS_IMPORT_SRC_NSIMPORTADDRESSBOOKS_H_
+
 #include "nsCOMPtr.h"
 #include "nsIImportAddressBooks.h"
 #include "nsIImportGeneric.h"
@@ -71,3 +74,5 @@ class AddressThreadData {
   AddressThreadData();
   ~AddressThreadData();
 };
+
+#endif  // COMM_MAILNEWS_IMPORT_SRC_NSIMPORTADDRESSBOOKS_H_

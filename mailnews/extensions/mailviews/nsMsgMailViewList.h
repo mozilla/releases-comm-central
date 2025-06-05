@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMsgMailViewList_H_
-#define _nsMsgMailViewList_H_
+#ifndef COMM_MAILNEWS_EXTENSIONS_MAILVIEWS_NSMSGMAILVIEWLIST_H_
+#define COMM_MAILNEWS_EXTENSIONS_MAILVIEWS_NSMSGMAILVIEWLIST_H_
 
 #include "nscore.h"
 #include "nsIMsgMailViewList.h"
@@ -48,4 +48,4 @@ class nsMsgMailViewList : public nsIMsgMailViewList {
       mFilterList;  // our internal filter list representation
 };
 
-#endif
+#endif  // COMM_MAILNEWS_EXTENSIONS_MAILVIEWS_NSMSGMAILVIEWLIST_H_

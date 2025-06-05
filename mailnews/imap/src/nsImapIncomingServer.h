@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __nsImapIncomingServer_h
-#define __nsImapIncomingServer_h
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSIMAPINCOMINGSERVER_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSIMAPINCOMINGSERVER_H_
 
 #include "msgCore.h"
 #include "nsImapCore.h"
@@ -148,4 +148,4 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
   static nsresult PathFromFolder(nsIMsgFolder* folder, nsACString& shortPath);
 };
 
-#endif
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPINCOMINGSERVER_H_

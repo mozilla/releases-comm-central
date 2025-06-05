@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsMimeXmlEmitter_h_
-#define _nsMimeXmlEmitter_h_
+#ifndef COMM_MAILNEWS_MIME_EMITTERS_NSMIMEXMLEMITTER_H_
+#define COMM_MAILNEWS_MIME_EMITTERS_NSMIMEXMLEMITTER_H_
 
 #include "prio.h"
 #include "nsMimeBaseEmitter.h"
@@ -38,4 +38,4 @@ class nsMimeXmlEmitter : public nsMimeBaseEmitter {
   int32_t mAttachCount;
 };
 
-#endif /* _nsMimeXmlEmitter_h_ */
+#endif  // COMM_MAILNEWS_MIME_EMITTERS_NSMIMEXMLEMITTER_H_

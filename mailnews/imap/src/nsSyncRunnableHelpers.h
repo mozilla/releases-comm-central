@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsSyncRunnableHelpers_h
-#define nsSyncRunnableHelpers_h
+#ifndef COMM_MAILNEWS_IMAP_SRC_NSSYNCRUNNABLEHELPERS_H_
+#define COMM_MAILNEWS_IMAP_SRC_NSSYNCRUNNABLEHELPERS_H_
 
 #include "nsProxyRelease.h"
 
@@ -146,4 +146,4 @@ class OAuth2ThreadHelper final : public msgIOAuth2ModuleListener {
 
 }  // namespace mozilla::mailnews
 
-#endif  // nsSyncRunnableHelpers_h
+#endif  // COMM_MAILNEWS_IMAP_SRC_NSSYNCRUNNABLEHELPERS_H_

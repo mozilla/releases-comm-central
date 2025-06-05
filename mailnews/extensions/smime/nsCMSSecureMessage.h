@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsCMSSecureMessage_h
-#define nsCMSSecureMessage_h
+#ifndef COMM_MAILNEWS_EXTENSIONS_SMIME_NSCMSSECUREMESSAGE_H_
+#define COMM_MAILNEWS_EXTENSIONS_SMIME_NSCMSSECUREMESSAGE_H_
 
 #include "nsICMSSecureMessage.h"
 #include "cert.h"
@@ -32,4 +32,4 @@ class nsCMSSecureMessage : public nsICMSSecureMessage {
                         bool* _retval);
 };
 
-#endif  // nsCMSSecureMessage_h
+#endif  // COMM_MAILNEWS_EXTENSIONS_SMIME_NSCMSSECUREMESSAGE_H_

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef MSG_MAPI_HOOK_H_
-#define MSG_MAPI_HOOK_H_
+#ifndef COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIHOOK_H_
+#define COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIHOOK_H_
 
 #include "prtypes.h"
 
@@ -36,4 +36,4 @@ class nsMapiHook {
   static bool isMapiService;
 };
 
-#endif  // MSG_MAPI_HOOK_H_
+#endif  // COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIHOOK_H_

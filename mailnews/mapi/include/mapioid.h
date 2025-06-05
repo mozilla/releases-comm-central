@@ -6,8 +6,8 @@
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
-#ifndef _MAPIOID_
-#define _MAPIOID_
+#ifndef COMM_MAILNEWS_MAPI_INCLUDE_MAPIOID_H_
+#define COMM_MAILNEWS_MAPI_INCLUDE_MAPIOID_H_
 
 /*
  *  MAPI 1.0 Object Identifiers (OID's)
@@ -103,4 +103,4 @@ DEFINE_OID_1(OID_MIMETAG, OID_TAG, 0x04);
 #define CB_OID_MIMETAG CB_OID_1
 #endif
 
-#endif
+#endif  // COMM_MAILNEWS_MAPI_INCLUDE_MAPIOID_H_

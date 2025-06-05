@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _MIMEMOZ_H_
-#define _MIMEMOZ_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_MIMEMOZ2_H_
+#define COMM_MAILNEWS_MIME_SRC_MIMEMOZ2_H_
 
 #include "nsStreamConverter.h"
 #include "nsIMimeEmitter.h"
@@ -204,4 +204,4 @@ extern "C" nsresult GetMailNewsFont(MimeObject* obj, bool styleFixed,
 }
 #endif /* __cplusplus */
 
-#endif /* _MIMEMOZ_H_ */
+#endif  // COMM_MAILNEWS_MIME_SRC_MIMEMOZ2_H_

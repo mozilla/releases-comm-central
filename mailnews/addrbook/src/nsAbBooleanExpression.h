@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsAbBooleanExpression_h__
-#define nsAbBooleanExpression_h__
+#ifndef COMM_MAILNEWS_ADDRBOOK_SRC_NSABBOOLEANEXPRESSION_H_
+#define COMM_MAILNEWS_ADDRBOOK_SRC_NSABBOOLEANEXPRESSION_H_
 
 #include "nsIAbBooleanExpression.h"
 #include "nsString.h"
@@ -37,4 +37,4 @@ class nsAbBooleanExpression : public nsIAbBooleanExpression {
   nsTArray<RefPtr<nsISupports>> mExpressions;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_ADDRBOOK_SRC_NSABBOOLEANEXPRESSION_H_

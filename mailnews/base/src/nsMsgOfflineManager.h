@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef nsMsgOfflineManager_h__
-#define nsMsgOfflineManager_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGOFFLINEMANAGER_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGOFFLINEMANAGER_H_
 
 #include "nscore.h"
 #include "nsIMsgOfflineManager.h"
@@ -76,4 +76,4 @@ class nsMsgOfflineManager : public nsIMsgOfflineManager,
   nsCOMPtr<nsISupports> mOfflineImapSync;
 };
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGOFFLINEMANAGER_H_
