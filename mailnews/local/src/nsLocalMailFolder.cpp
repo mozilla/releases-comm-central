@@ -3011,7 +3011,7 @@ nsMsgLocalMailFolder::SetFlagsOnDefaultMailboxes(uint32_t flags) {
 
       // Only set the flag if the folder exists.
       if (msgFolder) {
-        rv = msgFolder->SetFlag(flags);
+        rv = msgFolder->SetFlag(folderFlag);
         NS_ENSURE_SUCCESS(rv, rv);
       }
     }
