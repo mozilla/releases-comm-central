@@ -15,6 +15,7 @@
 #include "nsIFolder.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgIncomingServer.h"
+#include "nsMsgFolderFlags.h"
 #include "nsThreadUtils.h"
 
 using mozilla::LazyLogModule;
@@ -408,7 +409,8 @@ NS_IMETHODIMP FolderDatabase::Reconcile(
   nsTArray<nsCString> childNames = aChildNames.Clone();
 
   for (auto child : parent->mChildren.Clone()) {
-    if (!childNames.RemoveElement(child->mName)) {
+    if (!childNames.RemoveElement(child->mName) &&
+        !(child->GetFlags() & nsMsgFolderFlags::Virtual)) {
       DeleteFolder(child);
     }
   }

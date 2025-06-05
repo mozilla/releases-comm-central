@@ -40,4 +40,19 @@ add_task(function testReconcile() {
   });
   checkNoRow(child.id);
   checkNoRow(grandchild.id);
+
+  // Folders with the virtual flag shouldn't be removed.
+
+  folders.updateFlags(inserted, Ci.nsMsgFolderFlags.Virtual);
+  folders.reconcile(parent, ["siblîng"]);
+  drawTree(parent);
+
+  Assert.deepEqual(parent.children, [inserted, sibling]);
+  checkRow(inserted.id, {
+    id: inserted.id,
+    parent: parent.id,
+    ordinal: null,
+    name: "inserted",
+    flags: Ci.nsMsgFolderFlags.Virtual,
+  });
 });

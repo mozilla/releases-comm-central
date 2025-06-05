@@ -1121,13 +1121,16 @@ nsresult nsMsgAccountManager::LoadAccounts() {
   // ignore it.
   if (m_shutdownInProgress || m_haveShutdown) return NS_ERROR_FAILURE;
 
-  nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
+  if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+    // TODO: Reenable this.
+    nsCOMPtr<nsIMsgMailSession> mailSession =
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
 
-  if (NS_SUCCEEDED(rv))
-    mailSession->AddFolderListener(
-        this, nsIFolderListener::added | nsIFolderListener::removed |
-                  nsIFolderListener::intPropertyChanged);
+    if (NS_SUCCEEDED(rv))
+      mailSession->AddFolderListener(
+          this, nsIFolderListener::added | nsIFolderListener::removed |
+                    nsIFolderListener::intPropertyChanged);
+  }
 
   // Ensure biff service has started
   nsCOMPtr<nsIMsgBiffManager> biffService =
@@ -1581,9 +1584,11 @@ nsMsgAccountManager::UnloadAccounts() {
                      EmptyCString());
 
   if (m_accountsLoaded) {
-    nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService("@mozilla.org/messenger/services/session;1");
-    if (mailSession) mailSession->RemoveFolderListener(this);
+    if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+      nsCOMPtr<nsIMsgMailSession> mailSession =
+          do_GetService("@mozilla.org/messenger/services/session;1");
+      if (mailSession) mailSession->RemoveFolderListener(this);
+    }
     m_accountsLoaded = false;
   }
 
@@ -2938,7 +2943,9 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
 
 NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders() {
   AUTO_PROFILER_LABEL("nsMsgAccountManager::SaveVirtualFolders", MAILNEWS);
+
   if (!m_virtualFoldersLoaded) return NS_OK;
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
 
   nsCOMPtr<nsIFile> file;
   GetVirtualFoldersFile(file);
@@ -3058,6 +3065,7 @@ void nsMsgAccountManager::ParseAndVerifyVirtualFolderScope(nsCString& buffer) {
 // This conveniently works to add a single folder as well.
 nsresult nsMsgAccountManager::AddVFListenersForVF(
     nsIMsgFolder* virtualFolder, const nsCString& srchFolderUris) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
   if (srchFolderUris.Equals("*")) {
     return NS_OK;
   }
@@ -3147,6 +3155,7 @@ NS_IMETHODIMP nsMsgAccountManager::GetAllFolders(
 
 NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
                                                  nsIMsgFolder* folder) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
   if (!parent) {
     // This method gets called for folders that aren't connected to anything,
     // such as a junk folder that appears when an IMAP account is created. We
@@ -3312,6 +3321,7 @@ NS_IMETHODIMP nsMsgAccountManager::OnMessageAdded(nsIMsgFolder* parent,
 
 NS_IMETHODIMP nsMsgAccountManager::OnFolderRemoved(nsIMsgFolder* parentFolder,
                                                    nsIMsgFolder* folder) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
   nsresult rv = NS_OK;
   uint32_t folderFlags;
   folder->GetFlags(&folderFlags);
@@ -3412,6 +3422,7 @@ nsMsgAccountManager::OnFolderIntPropertyChanged(nsIMsgFolder* aFolder,
                                                 const nsACString& aProperty,
                                                 int64_t oldValue,
                                                 int64_t newValue) {
+  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
   if (aProperty.Equals(kFolderFlag)) {
     if (newValue & nsMsgFolderFlags::Virtual) {
       // This is a virtual folder, let's get out of here.

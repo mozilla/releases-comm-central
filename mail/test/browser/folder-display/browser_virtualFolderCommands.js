@@ -44,17 +44,19 @@ add_task(async function test_single_folder_select_thread() {
   // Try selecting the thread from the root message.
   await select_click_row(0);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
-  Assert.ok(
-    win.gDBView.selection.count == msgsPerThread,
-    "Didn't select all messages in the thread!"
+  Assert.equal(
+    win.gDBView.selection.count,
+    msgsPerThread,
+    "should have selected all messages in the thread"
   );
 
   // Now try selecting the thread from a non-root message.
   await select_click_row(1);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
-  Assert.ok(
-    win.gDBView.selection.count == msgsPerThread,
-    "Didn't select all messages in the thread!"
+  Assert.equal(
+    win.gDBView.selection.count,
+    msgsPerThread,
+    "should have selected all messages in the thread"
   );
 });
 
@@ -67,16 +69,18 @@ add_task(async function test_cross_folder_select_thread() {
   // Try selecting the thread from the root message.
   await select_click_row(0);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
-  Assert.ok(
-    win.gDBView.selection.count == msgsPerThread,
-    "Didn't select all messages in the thread!"
+  Assert.equal(
+    win.gDBView.selection.count,
+    msgsPerThread,
+    "should have selected all messages in the thread"
   );
 
   // Now try selecting the thread from a non-root message.
   await select_click_row(1);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
-  Assert.ok(
-    win.gDBView.selection.count == msgsPerThread,
-    "Didn't select all messages in the thread!"
+  Assert.equal(
+    win.gDBView.selection.count,
+    msgsPerThread,
+    "should have selected all messages in the thread"
   );
 });

@@ -39,9 +39,11 @@ void nsMsgXFVirtualFolderDBView::RemovePendingDBListeners() {
   nsCOMPtr<nsIMsgDBService> msgDBService =
       do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
 
-  // UnregisterPendingListener will return an error when there are no more
-  // instances of this object registered as pending listeners.
-  while (NS_SUCCEEDED(rv)) rv = msgDBService->UnregisterPendingListener(this);
+  if (!mozilla::Preferences::GetBool("mail.panorama.enabled", false)) {
+    // UnregisterPendingListener will return an error when there are no more
+    // instances of this object registered as pending listeners.
+    while (NS_SUCCEEDED(rv)) rv = msgDBService->UnregisterPendingListener(this);
+  }
 }
 
 NS_IMETHODIMP

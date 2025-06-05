@@ -1,7 +1,9 @@
 [DEFAULT]
+environment = [
+  "MOZ_LOG=mozStorage:4,panorama:4",
+]
 head = "head.js"
 prefs = [
-  "logging.config.modules=panorama:4,mozStorage:4",
   "mail.panorama.enabled=true",
 ]
 support-files = [
