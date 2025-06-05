@@ -602,8 +602,7 @@ files_changed:
   - comm/mail/themes/shared/mail/folderColors.css
   - comm/mail/themes/shared/mail/glodaFacetView.css
   - comm/mail/themes/shared/mail/icons.css
-  - comm/mail/themes/shared/mail/icons/brand/nebula-logo.webp
-  - comm/mail/themes/shared/mail/icons/new/supernova-logo.webp
+  - comm/mail/themes/shared/mail/icons/brand/eclipse-logo.webp
   - comm/mail/themes/shared/mail/icons/sm/folder-compact.svg
   - comm/mail/themes/shared/mail/inContentDialog.css
   - comm/mail/themes/shared/mail/infobar.css
