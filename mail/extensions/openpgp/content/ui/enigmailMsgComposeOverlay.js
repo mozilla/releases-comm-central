@@ -95,13 +95,6 @@ Enigmail.msg = {
     Enigmail.msg.composeOpen();
   },
 
-  isSmimeEnabled() {
-    return (
-      gCurrentIdentity.getUnicharAttribute("signing_cert_name") !== "" ||
-      gCurrentIdentity.getUnicharAttribute("encryption_cert_name") !== ""
-    );
-  },
-
   getOriginalMsgUri() {
     const draftId = gMsgCompose.compFields.draftId;
     let msgUri = null;
@@ -562,13 +555,6 @@ Enigmail.msg = {
    */
   isEnigmailEnabledForIdentity() {
     return !!gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
-  },
-
-  /**
-   * Determine if Autocrypt is enabled for the account
-   */
-  isAutocryptEnabled() {
-    return false;
   },
 
   /**
@@ -1507,13 +1493,6 @@ Enigmail.msg = {
     gMsgCompose.compFields.deleteHeader(hdr);
   },
 
-  getCurrentIncomingServer() {
-    const currentAccountKey = getCurrentAccountKey();
-    const account = MailServices.accounts.getAccount(currentAccountKey);
-
-    return account.incomingServer; /* returns nsIMsgIncomingServer */
-  },
-
   /**
    * Obtain all Autocrypt-Gossip header lines that should be included in
    * the outgoing message, excluding the sender's (from) email address.
@@ -2096,21 +2075,6 @@ Enigmail.msg = {
       return this.editor.outputToString(mimeType, flags);
     }
     return null;
-  },
-
-  async focusChange() {
-    // call original TB function
-    CommandUpdate_MsgCompose();
-
-    var focusedWindow = top.document.commandDispatcher.focusedWindow;
-
-    // we're just setting focus to where it was before
-    if (focusedWindow == Enigmail.msg.lastFocusedWindow) {
-      // skip
-      return;
-    }
-
-    Enigmail.msg.lastFocusedWindow = focusedWindow;
   },
 
   /**
