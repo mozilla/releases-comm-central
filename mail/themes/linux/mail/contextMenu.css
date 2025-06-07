@@ -7,6 +7,7 @@
 menupopup {
   & > menuitem:is([type="checkbox"],[type="radio"]) .menu-icon {
     appearance: none;
+    display: flex;
   }
 
   &.webextension-menupopup > menu:not([icon], .menu-iconic),

@@ -33,7 +33,8 @@ menupopup {
     }
   }
 
-  &:not([needsgutter], .no-icon-menupopup) > :is(menu, menuitem, menucaption) > .menu-icon {
+  &:not([needsgutter], .no-icon-menupopup, .textbox-contextmenu) >
+    :is(menu, menuitem, menucaption) > .menu-icon {
     display: flex;
   }
 

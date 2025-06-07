@@ -24,19 +24,19 @@ menupopup {
     padding-inline-end: 5px;
   }
 
+  menuitem[checked="true"] > .menu-icon {
+    display: flex;
+  }
+
   &.webextension-menupopup > menu:not([icon], .menu-iconic),
   &.webextension-menupopup > menuitem:not([checked="true"], [icon], .menuitem-iconic),
   menubar > menu
-    &:not([needsgutter]) > :is(menu:not(.menu-iconic),menuitem:not(.menuitem-iconic)) {
+    &:not([needsgutter]) > :is(menu:not(.menu-iconic),menuitem:not(.menuitem-iconic, [type="checkbox"], [type="radio"])) {
     padding-inline-start: 32px;
   }
 
   /* Override menu.css rule. */
   &:not([needsgutter], .webextension-menupopup) {
-
-    & > menuitem:not([checked="true"], [icon], .menuitem-iconic) {
-      padding-inline-start: 8px;
-    }
 
     & > menuitem:is([type="checkbox"],[type="radio"]):not([checked="true"]) > .menu-icon {
       padding-inline-end: 8px;
@@ -47,10 +47,6 @@ menupopup {
   & > :is(menu, menuitem):not([needsgutter]) >
     menuitem:not([icon], .menuitem-iconic) {
     padding-inline-start: 1em;
-  }
-
-  & menuitem[checked="true"] {
-    padding-inline-start: 8px;
   }
 
   /* Disabled empty item looks too small otherwise, because it has no icon. */
