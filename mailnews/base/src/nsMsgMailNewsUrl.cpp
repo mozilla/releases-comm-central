@@ -459,8 +459,26 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetSearchSession(
 // Begin nsIURI support
 ////////////////////////////////////////////////////////////////////////////////////
 
+// For '[s]news:' URIs independent of a specific server,
+// nsNntpUrl::SetSpecInternal had to add three slashes to have them parsed
+// correctly by nsStandardURL. This restores the correct format, see also
+// https://datatracker.ietf.org/doc/html/rfc5538#section-4.
+void unmungeNewsURL(nsACString& aSpec) {
+  if (aSpec.Length() < 8) {
+    return;
+  }
+  int32_t colon = aSpec.Find(":");
+  if (Substring(aSpec, colon - 4, 8).EqualsLiteral("news:///")) {
+    aSpec.Cut(colon + 1, 3);
+  }
+}
+
 NS_IMETHODIMP nsMsgMailNewsUrl::GetSpec(nsACString& aSpec) {
-  return m_baseURL->GetSpec(aSpec);
+  nsresult rv = m_baseURL->GetSpec(aSpec);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  unmungeNewsURL(aSpec);
+  return NS_OK;
 }
 
 nsresult nsMsgMailNewsUrl::CreateURL(const nsACString& aSpec, nsIURL** aURL) {
@@ -629,7 +647,11 @@ nsMsgMailNewsUrl::GetSpecIgnoringRef(nsACString& result) {
 
 NS_IMETHODIMP
 nsMsgMailNewsUrl::GetDisplaySpec(nsACString& aUnicodeSpec) {
-  return m_baseURL->GetDisplaySpec(aUnicodeSpec);
+  nsresult rv = m_baseURL->GetDisplaySpec(aUnicodeSpec);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  unmungeNewsURL(aUnicodeSpec);
+  return NS_OK;
 }
 
 NS_IMETHODIMP

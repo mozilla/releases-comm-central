@@ -105,6 +105,8 @@ var tests = [
     newsAction: Ci.nsINntpUrl.ActionGetNewNews,
     group: "rec.games.pinball",
     host: "",
+    spec: "news:rec.games.pinball",
+    displaySpec: "news:rec.games.pinball",
   },
   {
     uri: "news:message-id@some-host.invalid",
@@ -114,6 +116,8 @@ var tests = [
     messageID: "message-id@some-host.invalid",
     group: "",
     key: 0xffffffff,
+    spec: "news:message-id@some-host.invalid",
+    displaySpec: "news:message-id@some-host.invalid",
   },
 
   // news-message://host/group#key
