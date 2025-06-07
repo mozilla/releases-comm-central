@@ -52,6 +52,7 @@
     "functions": [
       {
         "name": "create",
+        "max_manifest_version": 2,
         "parameters": [
           {
             "name": "properties",
@@ -66,6 +67,7 @@
       },
       {
         "name": "update",
+        "max_manifest_version": 2,
         "parameters": [
           {
             "name": "properties",

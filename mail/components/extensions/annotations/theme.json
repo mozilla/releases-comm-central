@@ -1,6 +1,6 @@
 [
   {
-    "namespace": "theme",
+    "namespace": "manifest",
     "types": [
       {
         "id": "ThemeExperiment",

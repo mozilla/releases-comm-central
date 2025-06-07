@@ -30,26 +30,6 @@
         ]
       },
       {
-        "name": "getFull",
-        "parameters": [
-          {
-            "name": "options",
-            "properties": {
-              "decodeHeaders": {
-                "annotations": [
-                  {
-                    "text": "Example:"
-                  },
-                  {
-                    "code": "includes/messages/badHeader.js"
-                  }
-                ]
-              }
-            }
-          }
-        ]
-      },
-      {
         "name": "getRaw",
         "parameters": [
           {

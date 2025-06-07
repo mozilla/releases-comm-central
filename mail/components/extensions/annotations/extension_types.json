@@ -11,6 +11,7 @@
         ],
         "choices": [
           {
+            "type": "object",
             "properties": {
               "file": {
                 "annotations": [
@@ -22,6 +23,7 @@
             }
           },
           {
+            "type": "object",
             "properties": {
               "code": {
                 "annotations": [
