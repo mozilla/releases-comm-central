@@ -8316,16 +8316,18 @@ bool nsImapMailFolder::ShowPreviewText() {
 nsresult nsImapMailFolder::PlaybackCoalescedOperations() {
   if (m_moveCoalescer) {
     nsTArray<nsMsgKey>* junkKeysToClassify = m_moveCoalescer->GetKeyBucket(0);
-    if (junkKeysToClassify && !junkKeysToClassify->IsEmpty())
+    if (junkKeysToClassify && !junkKeysToClassify->IsEmpty()) {
       StoreCustomKeywords(m_moveCoalescer->GetMsgWindow(), "Junk"_ns,
                           EmptyCString(), *junkKeysToClassify, nullptr);
-    junkKeysToClassify->Clear();
+      junkKeysToClassify->Clear();
+    }
     nsTArray<nsMsgKey>* nonJunkKeysToClassify =
         m_moveCoalescer->GetKeyBucket(1);
-    if (nonJunkKeysToClassify && !nonJunkKeysToClassify->IsEmpty())
+    if (nonJunkKeysToClassify && !nonJunkKeysToClassify->IsEmpty()) {
       StoreCustomKeywords(m_moveCoalescer->GetMsgWindow(), "NonJunk"_ns,
                           EmptyCString(), *nonJunkKeysToClassify, nullptr);
-    nonJunkKeysToClassify->Clear();
+      nonJunkKeysToClassify->Clear();
+    }
     return m_moveCoalescer->PlaybackMoves(ShowPreviewText());
   }
   return NS_OK;  // must not be any coalesced operations
