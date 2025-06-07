@@ -110,7 +110,7 @@ class AccountHubAddressBook extends HTMLElement {
       templateId: "address-book-sync",
     },
     localAddressBookSubview: {
-      id: "addressBookLocalFormSubview",
+      id: "addressBookLocalSubview",
       nextStep: true,
       previousStep: "optionSelectSubview",
       forwardEnabled: true,

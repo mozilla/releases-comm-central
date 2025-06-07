@@ -3,6 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <title>Account Hub Address Book Test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css"/>
+    <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
+    <link rel="localization" href="messenger/accountcreation/accountSetup.ftl" />
     <script type="module" src="chrome://messenger/content/accountcreation/views/address-book.mjs"></script>
   </head>
   <body>
@@ -214,6 +218,41 @@
     >
     </template>
     <template
+      id="accountHubAddressBookLocalFormTemplate"
+    >
+      <form id="localAddressBookForm" class="account-hub-address-book-form" slot="content">
+        <div class="hub-body email-form-body">
+          <div class="input-control">
+            <input id="addressBookName"
+              class="input-field animated"
+              aria-invalid="false"
+              aria-errormessage="nameErrorMessage"
+              placeholder=""
+              required="required" />
+            <label for="addressBookName"
+              class="animated"
+              data-l10n-id="account-hub-local-address-book-label"
+              data-l10n-attrs="accesskey">
+            </label>
+            <img id="nameWarning"
+              src=""
+              data-l10n-id="account-setup-email-warning-icon"
+              alt=""
+              class="form-icon icon-danger input-warning" />
+            <img id="nameSuccess"
+              src=""
+              alt=""
+              class="form-icon icon-success input-success" />
+            <span id="nameErrorMessage"
+              class="input-error-message"
+              data-l10n-id="account-hub-local-error-text">
+            </span>
+          </div>
+        </div>
+        <button type="submit" hidden="hidden"></button>
+      </form>
+    </template>
+    <template
       id="accountHubAddressBookSetup"
       xmlns="http://www.w3.org/1999/xhtml"
     >
@@ -242,6 +281,12 @@
         hidden="hidden"
       >
       </address-book-ldap-advanced-form>
+      <address-book-local-form
+        id="addressBookLocalSubview"
+        class="account-hub-step"
+        title-id="account-hub-add-local-address-book"
+      >
+      </address-book-local-form>
       <address-book-sync id="addressBookSyncSubview" hidden="hidden">
       </address-book-sync>
       <address-book-local-form

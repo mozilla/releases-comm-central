@@ -278,3 +278,9 @@ account-hub-select-address-book-account = Select an account with Address books
 # $total (Number) - The total number of address books for this account.
 account-hub-account-address-book-count = { $synced } of { $total }
     .title = { $synced } synced address books, { $available } available
+    
+account-hub-add-local-address-book = Create a Local Address Book
+
+account-hub-local-address-book-label = Address Book Name
+
+account-hub-local-error-text = Please enter an address book name

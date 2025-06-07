@@ -6,4 +6,44 @@
   id="accountHubAddressBookLocalFormTemplate"
   xmlns="http://www.w3.org/1999/xhtml"
 >
+  <form
+    id="localAddressBookForm"
+    class="account-hub-address-book-form"
+    slot="content"
+  >
+    <div class="hub-body email-form-body">
+      <div class="input-control">
+        <input
+          id="addressBookName"
+          class="input-field animated"
+          aria-invalid="false"
+          aria-errormessage="nameErrorMessage"
+          placeholder=""
+          required="required" />
+        <label
+          for="addressBookName"
+          class="animated"
+          data-l10n-id="account-hub-local-address-book-label"
+          data-l10n-attrs="accesskey">
+        </label>
+        <img
+          id="nameWarning"
+          src=""
+          data-l10n-id="account-setup-email-warning-icon"
+          alt=""
+          class="form-icon icon-danger input-warning" />
+        <img
+          id="nameSuccess"
+          src=""
+          alt=""
+          class="form-icon icon-success input-success" />
+        <span
+          id="nameErrorMessage"
+          class="input-error-message"
+          data-l10n-id="account-hub-local-error-text">
+        </span>
+      </div>
+    </div>
+    <button type="submit" hidden="hidden"></button>
+  </form>
 </html:template>
