@@ -2825,52 +2825,6 @@ nsresult nsMsgCompose::QuoteOriginalMessage()  // New template
   return rv;
 }
 
-// CleanUpRecipient will remove un-necessary "<>" when a recipient as an address
-// without name
-void nsMsgCompose::CleanUpRecipients(nsString& recipients) {
-  uint16_t i;
-  bool startANewRecipient = true;
-  bool removeBracket = false;
-  nsAutoString newRecipient;
-  char16_t aChar;
-
-  for (i = 0; i < recipients.Length(); i++) {
-    aChar = recipients[i];
-    switch (aChar) {
-      case '<':
-        if (startANewRecipient)
-          removeBracket = true;
-        else
-          newRecipient += aChar;
-        startANewRecipient = false;
-        break;
-
-      case '>':
-        if (removeBracket)
-          removeBracket = false;
-        else
-          newRecipient += aChar;
-        break;
-
-      case ' ':
-        newRecipient += aChar;
-        break;
-
-      case ',':
-        newRecipient += aChar;
-        startANewRecipient = true;
-        removeBracket = false;
-        break;
-
-      default:
-        newRecipient += aChar;
-        startANewRecipient = false;
-        break;
-    }
-  }
-  recipients = newRecipient;
-}
-
 NS_IMETHODIMP nsMsgCompose::RememberQueuedDisposition() {
   // need to find the msg hdr in the saved folder and then set a property on
   // the header that we then look at when we actually send the message.

@@ -72,7 +72,6 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
  protected:
   nsresult CreateMessage(const nsACString& originalMsgURI, MSG_ComposeType type,
                          nsIMsgCompFields* compFields);
-  void CleanUpRecipients(nsString& recipients);
   nsresult GetABDirAndMailLists(const nsACString& aDirUri,
                                 nsCOMArray<nsIAbDirectory>& aDirArray,
                                 nsTArray<nsMsgMailList>& aMailListArray);
