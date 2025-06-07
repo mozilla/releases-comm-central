@@ -187,7 +187,6 @@ class QuotingOutputStreamListener : public nsIMsgQuotingOutputStreamListener,
   nsCOMPtr<nsIMsgDBHdr> mOrigMsgHdr;
   nsString mCiteReference;
   nsCOMPtr<nsIMimeConverter> mMimeConverter;
-  int32_t mUnicodeBufferCharacterLength;
   bool mQuoteOriginal;
   nsCString mHtmlToQuote;
 };

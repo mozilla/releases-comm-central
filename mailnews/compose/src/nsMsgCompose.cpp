@@ -1988,7 +1988,6 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(
   mHeadersOnly = headersOnly;
   mIdentity = identity;
   mOrigMsgHdr = origMsgHdr;
-  mUnicodeBufferCharacterLength = 0;
   mQuoteOriginal = quoteOriginal;
   mHtmlToQuote = htmlToQuote;
   mQuote = msgQuote;
