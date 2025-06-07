@@ -312,8 +312,8 @@ FetchHTTP.prototype = {
           // In case .statusText throws (it's marked as [Throws] in the webidl),
           // continue with empty errorStr.
         }
-        if (!errorStr) {
-          // If we can't resolve the hostname in DNS etc., .statusText is empty.
+        if (!errorCode) {
+          // If we can't resolve the hostname in DNS etc., .status is zero.
           errorCode = -2;
           errorStr = getStringBundle(
             "chrome://messenger/locale/accountCreationUtil.properties"
