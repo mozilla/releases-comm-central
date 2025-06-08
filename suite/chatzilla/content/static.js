@@ -2262,7 +2262,7 @@ function advanceKeyboardFocus(amount) {
   var outlinedElem;
   if (focusableElems[newIndex] == client.input.inputField) {
     outlinedElem = client.input.parentNode.id;
-  } else if (focusableElems[newIndex] == userList) {
+  } else if (focusableElems[newIndex] == client.list) {
     outlinedElem = "user-list-box";
   } else {
     outlinedElem = "browser-box";

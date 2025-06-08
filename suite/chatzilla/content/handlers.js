@@ -546,7 +546,6 @@ function onWindowKeyPress(e) {
   var code = Number(e.keyCode);
   var w;
   var newOfs;
-  var userList = document.getElementById("user-list");
   var elemFocused = document.commandDispatcher.focusedElement;
 
   const isMac = client.platform == "Mac";
@@ -583,7 +582,7 @@ function onWindowKeyPress(e) {
         !e.altKey &&
         !e.metaKey &&
         !e.shiftKey &&
-        elemFocused != userList
+        elemFocused != client.list
       ) {
         w = client.currentFrame;
         newOfs = w.pageYOffset + w.innerHeight * 0.75 * (2 * code - 67);
