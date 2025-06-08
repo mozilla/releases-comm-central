@@ -61,7 +61,7 @@ nsContextMenu.prototype = {
       return;
 
     this.hasPageMenu = false;
-    if (!aIsShift && this.browser.docShell.allowJavascript &&
+    if (!aIsShift && this.browser && this.browser.docShell.allowJavascript &&
         Services.prefs.getBoolPref("javascript.enabled"))
       this.hasPageMenu = PageMenuParent.buildAndAddToPopup(this.target, aXulMenu);
 
