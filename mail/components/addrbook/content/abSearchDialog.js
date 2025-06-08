@@ -321,6 +321,11 @@ function onSearch() {
           "PagerNumber",
           "CellularNumber",
         ];
+        // Change this to "or" to match any of these attributes.
+        // Can't currently do "and" and "or" searches at the same time but
+        // if you're looking up a number likely it's a full match so
+        // it's less bad to find something compared to finding too much.
+        searchUri = searchUri.replace(/and$/, "or");
         break;
       case Ci.nsMsgSearchAttrib.Organization:
         attrs = ["Company"];

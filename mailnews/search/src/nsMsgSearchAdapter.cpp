@@ -892,10 +892,10 @@ nsresult nsMsgSearchValidityManager::SetUpABTable(
   if (isOrTable) {
     rv = EnableDirectoryAttribute(aTable, nsMsgSearchAttrib::Name);
     NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = EnableDirectoryAttribute(aTable, nsMsgSearchAttrib::PhoneNumber);
-    NS_ENSURE_SUCCESS(rv, rv);
   }
+
+  rv = EnableDirectoryAttribute(aTable, nsMsgSearchAttrib::PhoneNumber);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   rv = EnableDirectoryAttribute(aTable, nsMsgSearchAttrib::DisplayName);
   NS_ENSURE_SUCCESS(rv, rv);
