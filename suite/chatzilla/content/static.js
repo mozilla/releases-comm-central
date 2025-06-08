@@ -1691,6 +1691,18 @@ function updateSecurityIcon() {
   securityButton.setAttribute("tooltiptext", tooltiptext);
 }
 
+function viewContextMenuShowing() {
+  let viewStatus = window.document.getElementById("view-status");
+  return viewStatus.hasAttribute("href");
+}
+
+function viewCopyLink() {
+  let viewStatus = window.document.getElementById("view-status");
+  let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"]
+                    .getService(Ci.nsIClipboardHelper);
+  clipboard.copyString(viewStatus.getAttribute("href"));
+}
+
 function updateLoggingIcon() {
   var state = client.currentObject.prefs.log ? "on" : "off";
   var icon = window.document.getElementById("logging-status");

@@ -321,6 +321,14 @@
   </keyset>
 
   <popupset id="chatZillaContextSet">
+    <menupopup id="viewContextMenu"
+               onpopupshowing="return viewContextMenuShowing();">
+      <menuitem id="view-context-copy-link"
+                label="&copyLinkCmd.label;"
+                accesskey="&copyLinkCmd.accesskey;"
+                oncommand="viewCopyLink();"/>
+    </menupopup>
+
     <menupopup id="chatZillaContextMenu"
                onpopupshowing="return cZContextMenuShowing(this, event);"
                onpopuphiding="cZContextMenuHiding(this, event);">
@@ -884,6 +892,7 @@
     </statusbarpanel>
     <statusbarpanel id="view-status"
                     class="statusbarpanel-text"
+                    contextmenu="viewContextMenu"
                     label=""/>
     <statusbarpanel id="security-button"
                     class="statusbarpanel-iconic-text"
