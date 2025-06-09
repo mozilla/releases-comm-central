@@ -179,7 +179,6 @@ export const ShortcutsManager = {
       id: "space-toggle",
       name: "Toggle the Spaces Toolbar",
       key: null, // Disabled shortcut.
-      code: null,
       modifiers: {
         win: {
           metaKey: false,
@@ -203,6 +202,32 @@ export const ShortcutsManager = {
       context: [],
     },
     /* Characters. */
+    {
+      id: "search-messages",
+      name: "Open the Search Messages dialog",
+      key: "F",
+      modifiers: {
+        win: {
+          metaKey: false,
+          ctrlKey: true,
+          shiftKey: true,
+          altKey: false,
+        },
+        macosx: {
+          metaKey: true,
+          ctrlKey: false,
+          shiftKey: true,
+          altKey: false,
+        },
+        linux: {
+          metaKey: false,
+          ctrlKey: true,
+          shiftKey: true,
+          altKey: false,
+        },
+      },
+      context: [],
+    },
     /* Special characters. */
   ],
 

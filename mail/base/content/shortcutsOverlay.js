@@ -16,7 +16,7 @@
 
   function setupShortcuts() {
     // Set up all dedicated shortcuts.
-    setupSpacesShortcuts();
+    setupShortcutStrings();
 
     // Set up the event listener.
     setupEventListener();
@@ -26,8 +26,8 @@
    * Use the ShortcutManager to set up all keyboard shortcuts for the spaces
    * toolbar buttons.
    */
-  async function setupSpacesShortcuts() {
-    // Set up all shortcut strings for the various spaces buttons.
+  async function setupShortcutStrings() {
+    // Set up all shortcut strings for the various buttons.
     const buttons = {
       "space-toggle": ["collapseButton", "spacesToolbarReveal"],
       "space-mail": ["mailButton"],
@@ -44,6 +44,10 @@
 
       for (const id of ids) {
         const button = document.getElementById(id);
+        if (!button) {
+          continue;
+        }
+
         button.setAttribute("aria-label", button.title);
         document.l10n.setAttributes(button, "button-shortcut-string", {
           title: button.title,
@@ -53,7 +57,7 @@
       }
     }
 
-    // Set up all shortcut strings for the various spaces menuitems.
+    // Set up all shortcut strings for the various menuitems.
     const menuitems = {
       "space-toggle": ["spacesPopupButtonReveal"],
       "space-mail": ["spacesPopupButtonMail"],
@@ -64,6 +68,8 @@
       ],
       "space-tasks": ["spacesPopupButtonTasks", "calMenuSwitchToTask"],
       "space-chat": ["spacesPopupButtonChat", "menu_goChat"],
+      // Tools.
+      "search-messages": ["searchMailCmd", "appmenu_searchCmd"],
     };
     for (const [string, ids] of Object.entries(menuitems)) {
       const shortcut = await ShortcutsManager.getShortcutStrings(string);
@@ -73,13 +79,25 @@
 
       for (const id of ids) {
         const menuitem = document.getElementById(id);
+        if (!menuitem) {
+          continue;
+        }
+
         if (!menuitem.label) {
           await document.l10n.translateElements([menuitem]);
         }
-        document.l10n.setAttributes(menuitem, "menuitem-shortcut-string", {
+        document.l10n.setAttributes(menuitem, "menuitem-shortcut-attributes", {
           label: menuitem.label,
+          accesskey: menuitem.accessKey || "",
           shortcut: shortcut.localizedShortcut,
         });
+
+        // Temporary workaround for toolbarbutton since they're not compatible
+        // with fluent shortcut args. We should update the appmenu and convert
+        // all those toolbar buttons into button + lable like Firefox is doing.
+        if (menuitem.nodeName == "toolbarbutton") {
+          menuitem.setAttribute("shortcut", shortcut.localizedShortcut);
+        }
       }
     }
   }
@@ -116,6 +134,9 @@
           window.gSpacesToolbar.openSpace(tabmail, space);
           break;
         }
+        case "search-messages":
+          window.searchAllMessages();
+          break;
       }
     });
   }

@@ -22,42 +22,35 @@ const { GlodaMsgIndexer } = ChromeUtils.importESModule(
   "resource:///modules/gloda/IndexMsg.sys.mjs"
 );
 
+let folderName, folder, thread, term;
+
+add_setup(async function () {
+  folderName = "Test Folder Name";
+  folder = await create_folder(folderName);
+
+  term = "atermtosearchfor";
+  thread = create_thread(3);
+  for (const msg of thread.synMessages) {
+    msg.bodyPart = new SyntheticPartLeaf(term);
+  }
+
+  await add_message_sets_to_folders([folder], [thread]);
+
+  registerCleanupFunction(async () => {
+    folder.deleteSelf(null);
+
+    const tabmail = document.getElementById("tabmail");
+    tabmail.closeTab(tabmail.currentTabInfo);
+    Services.prefs.clearUserPref("mailnews.default_view_flags");
+  });
+});
+
 /**
  * Tests the SearchDialog displays a folder when opened from a synthetic view.
  * See bug 1664761 and bug 1248522.
  */
 add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
-  // Make sure the whole test runs with an unthreaded view in all folders.
-  Services.prefs.setIntPref("mailnews.default_view_flags", 0);
-
-  const folderName = "Test Folder Name";
-  const folder = await create_folder(folderName);
-  const thread = create_thread(3);
-  const term = "atermtosearchfor";
-
-  registerCleanupFunction(async () => {
-    await be_in_folder(inboxFolder);
-    await delete_messages(thread);
-
-    const trash = folder.rootFolder.getFolderWithFlags(
-      Ci.nsMsgFolderFlags.Trash
-    );
-    folder.deleteSelf(null);
-    trash.emptyTrash(null);
-
-    const tabmail = document.querySelector("tabmail");
-    while (tabmail.tabInfo.length > 1) {
-      tabmail.closeTab(1);
-    }
-    Services.prefs.clearUserPref("mailnews.default_view_flags");
-  });
-
-  for (const msg of thread.synMessages) {
-    msg.bodyPart = new SyntheticPartLeaf(term);
-  }
-
   await be_in_folder(folder);
-  await add_message_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });
@@ -72,13 +65,13 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
     "messages were not indexed in time"
   );
 
-  const searchInput = window.document.querySelector("#searchInput");
-  searchInput.value = term;
-  EventUtils.synthesizeMouseAtCenter(searchInput, {}, window);
+  const searchBar = document.querySelector("global-search-bar");
+  searchBar.overrideSearchTerm(term);
+  searchBar.focus();
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
   const tab = document.querySelector(
-    "tabmail>tabbox>tabpanels>vbox[selected=true]"
+    "tabmail > tabbox > tabpanels > vbox[selected=true]"
   );
 
   const iframe = tab.querySelector("iframe");
@@ -92,7 +85,11 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
     "reachOutAndTouchFrame() did not run in time"
   );
 
-  browser.contentDocument.querySelector(".message-subject").click();
+  EventUtils.synthesizeMouseAtCenter(
+    browser.contentDocument.querySelector(".message-subject"),
+    {},
+    browser.contentDocument
+  );
 
   const dialogPromise = BrowserTestUtils.domWindowOpened(null, async win => {
     await BrowserTestUtils.waitForEvent(win, "load");
@@ -101,12 +98,12 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
       "chrome://messenger/content/SearchDialog.xhtml"
     );
   });
-  document.querySelector("#searchMailCmd").click();
+  window.searchAllMessages();
 
   const dialogWindow = await dialogPromise;
   const selectedFolder =
     dialogWindow.document.querySelector("#searchableFolders").label;
 
-  Assert.ok(selectedFolder.includes(folderName), "a folder is selected");
+  Assert.ok(selectedFolder.includes(folderName), "a folder should be selected");
   dialogWindow.close();
 });
