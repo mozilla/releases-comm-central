@@ -4,6 +4,9 @@
 
 config = {
     "default_actions": ["package-source"],
+    "upload_env": {
+        "UPLOAD_PATH": "/builds/worker/artifacts",
+    },
     "stage_platform": "source",  # Not used, but required by the script
     "app_ini_path": "FAKE",  # Not used, but required by the script
     "env": {
