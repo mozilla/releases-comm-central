@@ -9,6 +9,10 @@
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+var { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
+);
+
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
@@ -48,16 +52,13 @@ add_setup(async function () {
     generator.makeMessages({}).map(message => message.toMessageString())
   );
 
-  virtualFolder = rootFolder
-    .createLocalSubfolder("threadTreeSelectionVirtual")
-    .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  virtualFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  const folderInfo = virtualFolder.msgDatabase.dBFolderInfo;
-  folderInfo.setCharProperty("searchStr", "ALL");
-  folderInfo.setCharProperty(
-    "searchFolderUri",
-    [testFolder1.URI, testFolder2.URI].join("|")
-  );
+  virtualFolder = VirtualFolderHelper.createNewVirtualFolder(
+    "threadTreeSelectionVirtual",
+    rootFolder,
+    [testFolder1, testFolder2],
+    "ALL",
+    false
+  ).virtualFolder;
 
   tabmail.currentAbout3Pane.restoreState({ messagePaneVisible: false });
 

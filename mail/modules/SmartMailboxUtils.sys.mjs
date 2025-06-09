@@ -5,6 +5,7 @@
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   MailServices: "resource:///modules/MailServices.sys.mjs",
+  VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.sys.mjs",
 });
 
 const messengerBundle = Services.strings.createBundle(
@@ -191,19 +192,19 @@ class SmartMailbox {
         }
       }
 
-      const folder = this.#rootFolder.createLocalSubfolder(folderType.name);
-      folder.flags |= Ci.nsMsgFolderFlags.Virtual | folderType.flag;
+      const wrapper = lazy.VirtualFolderHelper.createNewVirtualFolder(
+        folderType.name,
+        this.#rootFolder,
+        searchFolders,
+        "ALL",
+        true
+      );
+      const folder = wrapper.virtualFolder;
+      folder.setFlag(folderType.flag);
 
       const msgDatabase = folder.msgDatabase;
       const folderInfo = msgDatabase.dBFolderInfo;
-
-      folderInfo.setCharProperty("searchStr", "ALL");
-      folderInfo.setCharProperty(
-        "searchFolderUri",
-        searchFolders.map(f => f.URI).join("|")
-      );
       folderInfo.setUint32Property("searchFolderFlag", folderType.flag);
-      folderInfo.setBooleanProperty("searchOnline", true);
       msgDatabase.summaryValid = true;
       msgDatabase.close(true);
 

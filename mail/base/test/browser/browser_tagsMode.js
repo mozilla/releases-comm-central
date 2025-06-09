@@ -58,7 +58,6 @@ add_setup(async function () {
     "Junk",
     "Trash",
     "Queue",
-    "Virtual",
   ]) {
     let folder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags[flag]);
     if (!folder) {
@@ -69,10 +68,13 @@ add_setup(async function () {
   }
   folders.Plain = rootFolder.createLocalSubfolder("tagsModePlain");
 
-  const msgDatabase = folders.Virtual.msgDatabase;
-  const folderInfo = msgDatabase.dBFolderInfo;
-  folderInfo.setCharProperty("searchStr", "ALL");
-  folderInfo.setCharProperty("searchFolderUri", folders.Inbox.URI);
+  folders.Virtual = VirtualFolderHelper.createNewVirtualFolder(
+    "tagsModeVirtual",
+    rootFolder,
+    [folders.Inbox],
+    "ALL",
+    false
+  ).virtualFolder;
 
   registerCleanupFunction(function () {
     MailServices.accounts.removeAccount(account, false);

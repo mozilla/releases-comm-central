@@ -269,7 +269,9 @@ function onOK(event) {
       window.arguments[0].folder
     );
     virtualFolderWrapper.searchTerms = gSearchTermSession.searchTerms;
-    virtualFolderWrapper.searchFolders = gSearchFolderURIs;
+    virtualFolderWrapper.searchFolders = gSearchFolderURIs
+      .split("|")
+      .map(uri => MailServices.folderLookup.getFolderForURL(uri));
     virtualFolderWrapper.onlineSearch = searchOnline;
     virtualFolderWrapper.cleanUpMessageDatabase();
 

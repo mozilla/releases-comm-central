@@ -10,6 +10,9 @@ requestLongerTimeout(
  * Tests that items on the mail context menu are correctly shown in context.
  */
 
+var { cal } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calUtils.sys.mjs"
+);
 var { ConversationOpener } = ChromeUtils.importESModule(
   "resource:///modules/ConversationOpener.sys.mjs"
 );
@@ -34,8 +37,8 @@ var { MailUtils } = ChromeUtils.importESModule(
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
-var { cal } = ChromeUtils.importESModule(
-  "resource:///modules/calendar/calUtils.sys.mjs"
+var { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
 
 const tabmail = document.getElementById("tabmail");
@@ -373,16 +376,13 @@ add_setup(async function () {
   );
   listMessages = [...listFolder.messages];
 
-  virtualFolder = rootFolder
-    .createLocalSubfolder("mailContextVirtual")
-    .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  virtualFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  const folderInfo = virtualFolder.msgDatabase.dBFolderInfo;
-  folderInfo.setCharProperty("searchStr", "ALL");
-  folderInfo.setCharProperty(
-    "searchFolderUri",
-    [draftsFolder.URI, templatesFolder.URI, listFolder.URI].join("|")
-  );
+  virtualFolder = VirtualFolderHelper.createNewVirtualFolder(
+    "mailContextVirtual",
+    rootFolder,
+    [draftsFolder, templatesFolder, listFolder],
+    "ALL",
+    false
+  ).virtualFolder;
 
   tabmail.currentAbout3Pane.restoreState({
     folderURI: testFolder.URI,

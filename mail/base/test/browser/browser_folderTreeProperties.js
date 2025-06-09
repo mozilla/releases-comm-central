@@ -5,6 +5,9 @@
 var { FolderTreeProperties } = ChromeUtils.importESModule(
   "resource:///modules/FolderTreeProperties.sys.mjs"
 );
+var { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
+);
 
 const TRASH_COLOR_HEX = "#52507c";
 const TRASH_COLOR_RGB = "rgb(82, 80, 124)";
@@ -33,12 +36,14 @@ add_setup(async function () {
   trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
   trashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
-  virtualFolder = rootFolder.createLocalSubfolder("folderTreePropsVirtual");
-  virtualFolder.flags |=
-    Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Favorite;
-  const virtualFolderInfo = virtualFolder.msgDatabase.dBFolderInfo;
-  virtualFolderInfo.setCharProperty("searchStr", "ALL");
-  virtualFolderInfo.setCharProperty("searchFolderUri", trashFolder.URI);
+  virtualFolder = VirtualFolderHelper.createNewVirtualFolder(
+    "folderTreePropsVirtual",
+    rootFolder,
+    [trashFolder],
+    "ALL",
+    false
+  ).virtualFolder;
+  virtualFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
   // Test the colours change in all folder modes, not just the current one.
   folderPane.activeModes = ["all", "favorite"];

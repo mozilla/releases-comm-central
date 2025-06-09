@@ -24,7 +24,7 @@ add_task(function () {
     "virtual",
     rootFolder,
     [trashFolder, deletedFolder],
-    "ANY",
+    "ALL",
     false
   );
   const virtualFolder = wrappedVirtualFolder.virtualFolder;
@@ -45,7 +45,7 @@ add_task(function () {
     "smart",
     rootFolder,
     [trashFolder, deletedFolder],
-    "ANY",
+    "ALL",
     false
   );
   const smartFolder = wrappedSmartFolder.virtualFolder;

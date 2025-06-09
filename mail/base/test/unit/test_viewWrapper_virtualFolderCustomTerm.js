@@ -55,9 +55,12 @@ add_task(async function test_virtual_folder_single_load_custom_pred() {
     [{ subject: "foo" }, {}]
   );
 
-  const virtFolder = messageInjection.makeVirtualFolder(folderOne, {
-    custom: "foo",
-  });
+  const virtFolder = messageInjection.makeVirtualFolder(
+    [MailServices.folderLookup.getFolderForURL(folderOne)],
+    {
+      custom: "foo",
+    }
+  );
 
   await view_open(viewWrapper, virtFolder);
 

@@ -145,21 +145,21 @@ add_setup(async function () {
     .getFolderWithFlags(Ci.nsMsgFolderFlags.Trash)
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  virtualFolder = rootFolder
-    .createLocalSubfolder("folderPaneContextVirtual")
-    .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  virtualFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  const folderInfoA = virtualFolder.msgDatabase.dBFolderInfo;
-  folderInfoA.setCharProperty("searchStr", "ALL");
-  folderInfoA.setCharProperty("searchFolderUri", plainFolder.URI);
+  virtualFolder = VirtualFolderHelper.createNewVirtualFolder(
+    "folderPaneContextVirtual",
+    rootFolder,
+    [plainFolder],
+    "ALL",
+    false
+  ).virtualFolder;
 
-  virtualFilteredFolder = rootFolder
-    .createLocalSubfolder("folderPaneContextVirtualFiltered")
-    .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  virtualFilteredFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  const folderInfoB = virtualFilteredFolder.msgDatabase.dBFolderInfo;
-  folderInfoB.setCharProperty("searchStr", "AND (date,is after,31-Dec-1999)");
-  folderInfoB.setCharProperty("searchFolderUri", plainFolder.URI);
+  virtualFilteredFolder = VirtualFolderHelper.createNewVirtualFolder(
+    "folderPaneContextVirtualFiltered",
+    rootFolder,
+    [plainFolder],
+    "AND (date,is after,31-Dec-1999)",
+    false
+  ).virtualFolder;
 
   nntpServer = new NNTPServer();
   nntpServer.addGroup("folder.pane.context.newsgroup");

@@ -27,7 +27,7 @@ add_task(function () {
     "virtual Z",
     rootFolder,
     [],
-    "ANY",
+    "ALL",
     false
   );
   Assert.equal(
@@ -42,7 +42,7 @@ add_task(function () {
     "virtual Y",
     rootFolder,
     [testFolderA],
-    "ANY",
+    "ALL",
     false
   );
   Assert.equal(
@@ -57,7 +57,7 @@ add_task(function () {
     "virtual X",
     rootFolder,
     [testFolderB, testFolderC],
-    "ANY",
+    "ALL",
     false
   );
   Assert.equal(

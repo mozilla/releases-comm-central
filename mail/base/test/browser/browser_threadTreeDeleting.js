@@ -7,6 +7,10 @@ requestLongerTimeout(2);
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
+);
+
 const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
   "resource://testing-common/MailViewHelpers.sys.mjs"
 );
@@ -96,16 +100,16 @@ add_task(async function testSingleVirtual() {
       .map(message => message.toMessageString())
   );
 
-  const virtualFolderC = rootFolder.createLocalSubfolder(
-    "threadTreeDeletingVirtualC"
-  );
-  virtualFolderC.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  const folderInfoC = virtualFolderC.msgDatabase.dBFolderInfo;
-  // Search for something instead of all messages, as the "ALL" search could
-  // detected and the backing folder displayed instead, defeating the point of
-  // this test.
-  folderInfoC.setCharProperty("searchStr", "AND (date,is after,31-Dec-1999)");
-  folderInfoC.setCharProperty("searchFolderUri", folderC.URI);
+  const virtualFolderC = VirtualFolderHelper.createNewVirtualFolder(
+    "threadTreeDeletingVirtualC",
+    rootFolder,
+    [folderC],
+    // Search for something instead of all messages, as the "ALL" search could
+    // detected and the backing folder displayed instead, defeating the point of
+    // this test.
+    "AND (date,is after,31-Dec-1999)",
+    false
+  ).virtualFolder;
 
   sourceMessageIDs = Array.from(folderC.messages, m => m.messageId);
 
@@ -137,16 +141,13 @@ add_task(async function testXFVirtual() {
       .map(message => message.toMessageString())
   );
 
-  const virtualFolderDE = rootFolder.createLocalSubfolder(
-    "threadTreeDeletingVirtualDE"
-  );
-  virtualFolderDE.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  const folderInfoY = virtualFolderDE.msgDatabase.dBFolderInfo;
-  folderInfoY.setCharProperty("searchStr", "AND (date,is after,31-Dec-1999)");
-  folderInfoY.setCharProperty(
-    "searchFolderUri",
-    `${folderD.URI}|${folderE.URI}`
-  );
+  const virtualFolderDE = VirtualFolderHelper.createNewVirtualFolder(
+    "threadTreeDeletingVirtualDE",
+    rootFolder,
+    [folderD, folderE],
+    "AND (date,is after,31-Dec-1999)",
+    false
+  ).virtualFolder;
 
   sourceMessageIDs = [
     ...Array.from(folderD.messages, m => m.messageId),

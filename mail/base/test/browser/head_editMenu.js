@@ -7,6 +7,10 @@
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+var { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
+);
+
 const { IMAPServer } = ChromeUtils.importESModule(
   "resource://testing-common/IMAPServer.sys.mjs"
 );
@@ -75,14 +79,13 @@ add_setup(async function () {
   );
   testMessages = [...testFolder.messages];
 
-  virtualFolder = rootFolder
-    .createLocalSubfolder("edit menu virtual")
-    .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  virtualFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  const msgDatabase = virtualFolder.msgDatabase;
-  const folderInfo = msgDatabase.dBFolderInfo;
-  folderInfo.setCharProperty("searchStr", "ALL");
-  folderInfo.setCharProperty("searchFolderUri", testFolder.URI);
+  virtualFolder = VirtualFolderHelper.createNewVirtualFolder(
+    "edit menu virtual",
+    rootFolder,
+    [testFolder],
+    "ALL",
+    false
+  ).virtualFolder;
 
   nntpServer = new NNTPServer();
   nntpServer.addGroup("edit.menu.newsgroup");
@@ -119,8 +122,4 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(nntpAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
   });
-});
-
-add_task(async function test3PaneTab() {
-  await helper.testAllItems("mail3PaneTab");
 });

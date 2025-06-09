@@ -19,4 +19,6 @@ support-files = [
 tags = ["spam"]
 
 ["browser_junkCommands.js"]
+tags = ["virtualfolders"]
+
 ["browser_unjunk.js"]

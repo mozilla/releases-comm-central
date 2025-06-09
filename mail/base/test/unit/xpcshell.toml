@@ -58,6 +58,8 @@ skip-if = ["os == 'mac' && !debug"]
 reason = "osx shippable perma failures"
 
 ["test_viewWrapper_virtualFolder.js"]
+tags = ["virtualfolders"]
 
 ["test_viewWrapper_virtualFolderCustomTerm.js"]
 run-sequentially = true  # Avoid bustage.
+tags = ["virtualfolders"]

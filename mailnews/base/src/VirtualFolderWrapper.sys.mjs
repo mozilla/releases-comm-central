@@ -8,6 +8,11 @@
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
+const WrapperConstructor = Components.Constructor(
+  "@mozilla.org/mailnews/virtual-folder-wrapper;1",
+  "nsIVirtualFolderWrapper"
+);
+
 export var VirtualFolderHelper = {
   /**
    * Create a new virtual folder (an actual nsIMsgFolder that did not previously
@@ -42,10 +47,20 @@ export var VirtualFolderHelper = {
     const msgFolder = aParentFolder.addSubfolder(aFolderName);
     msgFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
 
-    const wrappedVirt = new VirtualFolderWrapper(msgFolder);
-    wrappedVirt.searchTerms = aSearchTerms;
-    wrappedVirt.searchFolders = aSearchFolders;
-    wrappedVirt.onlineSearch = aOnlineSearch;
+    const wrapped = new WrapperConstructor();
+    wrapped.virtualFolder = msgFolder;
+    if (typeof aSearchTerms == "string") {
+      wrapped.searchString = aSearchTerms;
+    } else {
+      wrapped.searchTerms = aSearchTerms;
+    }
+    if (typeof aSearchFolders == "string") {
+      aSearchFolders = aSearchFolders
+        .split("|")
+        .map(uri => MailServices.folderLookup.getFolderForURL(uri));
+    }
+    wrapped.searchFolders = aSearchFolders;
+    wrapped.onlineSearch = aOnlineSearch;
 
     const msgDatabase = msgFolder.msgDatabase;
     msgDatabase.summaryValid = true;
@@ -54,7 +69,7 @@ export var VirtualFolderHelper = {
     aParentFolder.notifyFolderAdded(msgFolder);
     MailServices.accounts.saveVirtualFolders();
 
-    return wrappedVirt;
+    return wrapped;
   },
 
   /**
@@ -64,7 +79,9 @@ export var VirtualFolderHelper = {
    * @param {nsIMsgFolder} aMsgFolder - The folder to use.
    */
   wrapVirtualFolder(aMsgFolder) {
-    return new VirtualFolderWrapper(aMsgFolder);
+    const wrapped = new WrapperConstructor();
+    wrapped.virtualFolder = aMsgFolder;
+    return wrapped;
   },
 };
 
@@ -106,59 +123,58 @@ export var VirtualFolderHelper = {
  *  setting the database to null (unless you know with confidence someone else
  *  definitely wants the database around and will clean it up.)
  *
- * @param {nsIMsgFolder} aVirtualFolder - Folder to wrap.
+ * @implements {nsIVirtualFolderWrapper}
  */
-function VirtualFolderWrapper(aVirtualFolder) {
-  this.virtualFolder = aVirtualFolder;
-}
-VirtualFolderWrapper.prototype = {
+export class VirtualFolderWrapper {
+  QueryInterface = ChromeUtils.generateQI(["nsIVirtualFolderWrapper"]);
+
   /**
-   * @returns {nsIMsgFolders[]} The list of nsIMsgFolders that this virtual
-   *   folder is a search over.
+   * The virtual folder this wrapper wraps.
+   *
+   * @type {nsIMsgFolder}
+   */
+  virtualFolder;
+
+  /**
+   * The list of nsIMsgFolders that this virtual folder is a search over.
+   *
+   * @type {nsIMsgFolders[]}
    */
   get searchFolders() {
-    return this.dbFolderInfo
+    return this.#dbFolderInfo
       .getCharProperty("searchFolderUri")
       .split("|")
       .sort() // Put folders in URI order so a parent is always before a child.
       .map(uri => MailServices.folderLookup.getOrCreateFolderForURL(uri))
       .filter(Boolean);
-  },
-  /**
-   * Set the search folders that back this virtual folder.
-   *
-   * @param {string|nsIMsgFolder[]} aFolders - Either a "|"-delimited string of
-   *   folder URIs or a list of folders.
-   */
-  set searchFolders(aFolders) {
-    if (typeof aFolders == "string") {
-      this.dbFolderInfo.setCharProperty("searchFolderUri", aFolders);
+  }
+
+  set searchFolders(folders) {
+    if (typeof folders == "string") {
+      this.#dbFolderInfo.setCharProperty("searchFolderUri", folders);
     } else {
-      const uris = aFolders.map(folder => folder.URI);
-      this.dbFolderInfo.setCharProperty("searchFolderUri", uris.join("|"));
+      const uris = folders.map(folder => folder.URI);
+      this.#dbFolderInfo.setCharProperty("searchFolderUri", uris.join("|"));
     }
     Services.obs.notifyObservers(this.virtualFolder, "search-folders-changed");
-  },
+  }
 
   /**
-   * @returns {string} a "|"-delimited string containing the URIs of the folders
-   *   that back this virtual folder.
+   * A "|"-delimited string containing the URIs of the folders that back this
+   * virtual folder.
+   *
+   * @type {string}
    */
   get searchFolderURIs() {
-    return this.dbFolderInfo.getCharProperty("searchFolderUri");
-  },
+    return this.#dbFolderInfo.getCharProperty("searchFolderUri");
+  }
 
   /**
-   * @returns {nsIMsgSearchTerm[]} The list of search terms that define this
-   *   virtual folder.
-   */
-  get searchTerms() {
-    return this.searchTermsSession.searchTerms;
-  },
-  /**
-   * @returns {nsIMsgFilterList} A newly created filter with the search terms
-   *   loaded into it that define this virtual folder. The filter is apparently
-   *   useful as an nsIMsgSearchSession stand-in to some code.
+   * A newly created filter with the search terms loaded into it that define
+   * this virtual folder. The filter is apparently useful as an
+   * `nsIMsgSearchSession` stand-in to some code.
+   *
+   * @type {nsIMsgFilter}
    */
   get searchTermsSession() {
     // Temporary means it doesn't get exposed to the UI and doesn't get saved to
@@ -170,19 +186,20 @@ VirtualFolderWrapper.prototype = {
     const tempFilter = filterList.createFilter("temp");
     filterList.parseCondition(tempFilter, this.searchString);
     return tempFilter;
-  },
+  }
 
   /**
-   * Set the search string for this virtual folder to the stringified version of
-   *  the provided list of nsIMsgSearchTerm search terms.  If you already have
-   *  a strinigified version of the search constraint, just set |searchString|
-   *  directly.
+   * The list of search terms that define this virtual folder.
    *
-   * @param {string[]} aTerms - a list of search terms
+   * @type {nsIMsgSearchTerm[]}
    */
-  set searchTerms(aTerms) {
+  get searchTerms() {
+    return this.searchTermsSession.searchTerms;
+  }
+
+  set searchTerms(terms) {
     let condition = "";
-    for (const term of aTerms) {
+    for (const term of terms) {
       if (condition) {
         condition += " ";
       }
@@ -194,61 +211,56 @@ VirtualFolderWrapper.prototype = {
       condition += term.termAsString + ")";
     }
     this.searchString = condition;
-  },
+  }
 
   /**
-   * @returns {string} the set of search terms that define this virtual folder
-   *   as a string. You may prefer to use |searchTerms| which converts them
-   *   into a list of nsIMsgSearchTerms instead.
+   * The set of search terms that define this virtual folder as a string.
+   * You may prefer to use `searchTerms` which uses `nsIMsgSearchTerm` instead.
+   *
+   * @type {string}
    */
   get searchString() {
-    return this.dbFolderInfo.getCharProperty("searchStr");
-  },
-  /**
-   * Set the search that defines this virtual folder from a string.  If you have
-   *  a list of nsIMsgSearchTerms, you should use |searchTerms| instead.
-   *
-   * @param {string} aSearchString
-   */
-  set searchString(aSearchString) {
-    this.dbFolderInfo.setCharProperty("searchStr", aSearchString);
-  },
+    return this.#dbFolderInfo.getCharProperty("searchStr");
+  }
+
+  set searchString(searchString) {
+    this.#dbFolderInfo.setCharProperty("searchStr", searchString);
+  }
 
   /**
-   * @returns {boolean} whether the virtual folder is configured for online search.
+   * Whether the virtual folder is configured for online search.
+   *
+   * @type {boolean}
    */
   get onlineSearch() {
-    return this.dbFolderInfo.getBooleanProperty("searchOnline", false);
-  },
-  /**
-   * Set whether the virtual folder is configured for online search.
-   *
-   * @param {boolean} aOnlineSearch
-   */
-  set onlineSearch(aOnlineSearch) {
-    this.dbFolderInfo.setBooleanProperty("searchOnline", aOnlineSearch);
-  },
+    return this.#dbFolderInfo.getBooleanProperty("searchOnline", false);
+  }
+
+  set onlineSearch(onlineSearch) {
+    this.#dbFolderInfo.setBooleanProperty("searchOnline", onlineSearch);
+  }
 
   /**
-   * @returns {?nsIDBFolderInfo} The dBFolderInfo associated with the virtual
-   *   folder directly. Maybe null.  Will cause the message database to be
-   *   opened, which may have memory bloat/leak ramifications, so make sure
-   *    the folder's database was already going to be opened anyways or that you
-   *   call |cleanUpMessageDatabase|.
+   * The dBFolderInfo associated with the virtual folder directly. May be null.
+   * Will cause the message database to be opened, which may have memory
+   * bloat/leak ramifications, so make sure the folder's database was already
+   * going to be opened anyways or that you call `cleanUpMessageDatabase`.
+   *
+   * @type {?nsIDBFolderInfo}
    */
-  get dbFolderInfo() {
+  get #dbFolderInfo() {
     const msgDatabase = this.virtualFolder.msgDatabase;
     return msgDatabase && msgDatabase.dBFolderInfo;
-  },
+  }
 
   /**
    * Avoid memory bloat by making the virtual folder forget about its database.
-   *  If the database is actually in use (read: someone is keeping it alive by
-   *  having references to it from places other than the nsIMsgFolder), the
-   *  folder will be able to re-establish the reference for minimal cost.
+   * If the database is actually in use (read: someone is keeping it alive by
+   * having references to it from places other than the `nsIMsgFolder`), the
+   * folder will be able to re-establish the reference for minimal cost.
    */
   cleanUpMessageDatabase() {
     this.virtualFolder.msgDatabase.close(true);
     this.virtualFolder.msgDatabase = null;
-  },
-};
+  }
+}

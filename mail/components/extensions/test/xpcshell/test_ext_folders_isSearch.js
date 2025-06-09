@@ -23,7 +23,7 @@ add_task(async function test_folder_isVirtual() {
     "searchFolder",
     rootFolder,
     [_testFolder1, _testFolder2],
-    "ANY",
+    "ALL",
     false
   );
 

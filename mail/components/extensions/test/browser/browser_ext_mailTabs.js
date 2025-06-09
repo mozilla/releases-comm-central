@@ -29,7 +29,7 @@ add_setup(async () => {
     "virtualFolder",
     gRootFolder,
     [gSubFolders.test1, gSubFolders.test2],
-    "ANY",
+    "ALL",
     false
   );
 

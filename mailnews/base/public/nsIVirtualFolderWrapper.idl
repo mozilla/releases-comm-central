@@ -1,0 +1,64 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface nsIMsgFilter;
+interface nsIMsgFolder;
+interface nsIMsgSearchTerm;
+
+[scriptable, uuid(f79ba146-9e92-45ae-889d-e25b6537cc42)]
+interface nsIVirtualFolderWrapper : nsISupports {
+  /**
+   * The virtual folder this wrapper wraps.
+   */
+  attribute nsIMsgFolder virtualFolder;
+
+  /**
+   * A "|"-delimited string containing the URIs of the folders that back this
+   * virtual folder.
+   *
+   * @deprecated Use `searchFolders`.
+   */
+  readonly attribute AUTF8String searchFolderURIs;
+
+  /**
+   * The list of nsIMsgFolders that this virtual folder is a search over.
+   */
+  attribute Array<nsIMsgFolder> searchFolders;
+
+  /**
+   * The set of search terms that define this virtual folder as a string.
+   * The same as `searchTerms`, but in text form.
+   */
+  attribute AUTF8String searchString;
+
+  /**
+   * A newly created filter with the search terms loaded into it that define
+   * this virtual folder. The filter is apparently useful as an
+   * `nsIMsgSearchSession` stand-in to some code.
+   */
+  readonly attribute nsIMsgFilter searchTermsSession;
+
+  /**
+   * The list of search terms that define this virtual folder. The same as
+   * `searchString`, but in object form.
+   */
+  attribute Array<nsIMsgSearchTerm> searchTerms;
+
+  /**
+   * Whether the virtual folder is configured for online search.
+   */
+  attribute boolean onlineSearch;
+
+  /**
+   * Avoid memory bloat by making the virtual folder forget about its database.
+   * If the database is actually in use (read: someone is keeping it alive by
+   * having references to it from places other than the `nsIMsgFolder`), the
+   * folder will be able to re-establish the reference for minimal cost.
+   *
+   * @deprecated
+   */
+  void cleanUpMessageDatabase();
+};

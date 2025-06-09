@@ -13,6 +13,9 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
@@ -45,26 +48,23 @@ add_setup(async function () {
       .map(message => message.toMessageString())
   );
 
-  virtualFolderA = rootFolder.createLocalSubfolder(
-    "groupedBySortPersistenceSingle"
-  );
-  virtualFolderA.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  const folderInfoA = virtualFolderA.msgDatabase.dBFolderInfo;
-  // To make sure it isn't just the backing real folder that's displayed for
-  // some reason, really search for something.
-  folderInfoA.setCharProperty("searchStr", "AND (date,is after,31-Dec-1999)");
-  folderInfoA.setCharProperty("searchFolderUri", folderA.URI);
+  virtualFolderA = VirtualFolderHelper.createNewVirtualFolder(
+    "groupedBySortPersistenceSingle",
+    rootFolder,
+    [folderA],
+    // To make sure it isn't just the backing real folder that's displayed for
+    // some reason, really search for something.
+    "AND (date,is after,31-Dec-1999)",
+    false
+  ).virtualFolder;
 
-  virtualFolderAB = rootFolder.createLocalSubfolder(
-    "groupedBySortPersistenceMulti"
-  );
-  virtualFolderAB.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  const folderInfoAB = virtualFolderAB.msgDatabase.dBFolderInfo;
-  folderInfoAB.setCharProperty("searchStr", "AND (date,is after,31-Dec-1999)");
-  folderInfoAB.setCharProperty(
-    "searchFolderUri",
-    `${folderA.URI}|${folderB.URI}`
-  );
+  virtualFolderAB = VirtualFolderHelper.createNewVirtualFolder(
+    "groupedBySortPersistenceMulti",
+    rootFolder,
+    [folderA, folderB],
+    "AND (date,is after,31-Dec-1999)",
+    false
+  ).virtualFolder;
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);

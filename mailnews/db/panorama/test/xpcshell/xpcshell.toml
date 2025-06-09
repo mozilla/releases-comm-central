@@ -27,9 +27,9 @@ support-files = [
 
 ["test_lookup.js"]
 
-["test_messages.js"]
-
 ["test_messageIngestion.js"]
+
+["test_messages.js"]
 
 ["test_move.js"]
 

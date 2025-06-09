@@ -6,6 +6,7 @@ tags = ["addrbook"]
 ["test_ext_folders.js"] # Partially disabled for NNTP (no support for folder operation
 
 ["test_ext_folders_isSearch.js"]
+tags = ["virtualfolders"]
 
 ["test_ext_folders_mv3.js"] # Partially disabled for NNTP (no support for folder operations)
 

@@ -9,6 +9,7 @@
 var {
   be_in_folder,
   create_folder,
+  create_virtual_folder,
   make_message_sets_in_folders,
   select_click_row,
   select_control_click_row,
@@ -44,14 +45,11 @@ add_setup(async function () {
   folderE = await create_folder("JunkCommandsE");
   folderE.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  virtualFolder = await create_folder("JunkCommandsV");
-  virtualFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  virtualFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  const folderInfo = virtualFolder.msgDatabase.dBFolderInfo;
-  folderInfo.setCharProperty("searchStr", "ALL");
-  folderInfo.setCharProperty(
-    "searchFolderUri",
-    `${folderD.URI}|${folderE.URI}`
+  virtualFolder = create_virtual_folder(
+    [folderD, folderE],
+    {},
+    undefined,
+    "JunkCommandsV"
   );
 
   await make_message_sets_in_folders([folderA], [{ count: 30 }]);

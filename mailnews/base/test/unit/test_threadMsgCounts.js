@@ -361,11 +361,11 @@ add_task(async function testXFThreadedView() {
 
   info("Create a virtual folder and open a view for it.");
 
-  const virtualFolder = VirtualFolderHelper.createNewVirtualFolder(
+  const virtualFolderWrapper = VirtualFolderHelper.createNewVirtualFolder(
     "vf",
     folder.parent,
     [folder],
-    ["ALL"],
+    "ALL",
     false
   );
 
@@ -379,7 +379,7 @@ add_task(async function testXFThreadedView() {
     folder,
     Ci.nsMsgViewSortType.byDate,
     Ci.nsMsgViewFlagsType.kThreadedDisplay,
-    virtualFolder
+    virtualFolderWrapper
   );
   dbView.searchSession = searchSession;
 
@@ -483,12 +483,12 @@ async function makeMessages(folder, specs) {
   return generatedMessages;
 }
 
-function makeView(viewType, folder, sortType, flags, virtualFolder) {
+function makeView(viewType, folder, sortType, flags, virtualFolderWrapper) {
   const dbviewContractId = `@mozilla.org/messenger/msgdbview;1?type=${viewType}`;
   const dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   dbView.init(null, null, null);
-  if (virtualFolder) {
-    dbView.viewFolder = virtualFolder;
+  if (virtualFolderWrapper) {
+    dbView.viewFolder = virtualFolderWrapper.virtualFolder;
   }
   dbView.open(folder, sortType, Ci.nsMsgViewSortOrder.ascending, flags);
 

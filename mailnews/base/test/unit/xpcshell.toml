@@ -33,6 +33,7 @@ support-files = [
 ["test_bccInDatabase.js"]
 
 ["test_bug428427.js"]
+tags = ["virtualfolders"]
 
 ["test_bug434810.js"]
 
@@ -94,6 +95,7 @@ tags = ["spam"]
 tags = ["spam"]
 
 ["test_loadVirtualFolders.js"]
+tags = ["virtualfolders"]
 
 ["test_mailServices.js"]
 
@@ -157,13 +159,18 @@ tags = ["oauth"]
 ["test_testsuite_fakeserver_imapd_list-extended.js"]
 
 ["test_threadMsgCounts.js"]
+tags = ["virtualfolders"]
 
 ["test_viewSortByAddresses.js"]
 
 ["test_virtualFolders1.js"]
+tags = ["virtualfolders"]
 
 ["test_virtualFolders2.js"]
+tags = ["virtualfolders"]
 
 ["test_virtualFolders3.js"]
+tags = ["virtualfolders"]
 
 ["test_virtualFolders4.js"]
+tags = ["virtualfolders"]

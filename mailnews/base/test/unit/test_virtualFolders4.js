@@ -26,7 +26,7 @@ function subTest() {
     "virtual X",
     rootFolder,
     [testFolderA, testFolderB],
-    "ANY",
+    "ALL",
     false
   );
   Assert.equal(

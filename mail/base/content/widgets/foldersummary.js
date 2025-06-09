@@ -12,6 +12,9 @@
   const { MailServices } = ChromeUtils.importESModule(
     "resource:///modules/MailServices.sys.mjs"
   );
+  const { VirtualFolderHelper } = ChromeUtils.importESModule(
+    "resource:///modules/VirtualFolderWrapper.sys.mjs"
+  );
 
   /**
    * MozFolderSummary displays a listing of NEW mails for the folder in question.
@@ -109,11 +112,8 @@
       }
 
       if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
-        const srchFolderUri =
-          msgDatabase.dBFolderInfo.getCharProperty("searchFolderUri");
-        const folderUris = srchFolderUri.split("|");
-        for (const uri of folderUris) {
-          const realFolder = this.MailUtils.getOrCreateFolder(uri);
+        const wrapper = VirtualFolderHelper.wrapVirtualFolder(folder);
+        for (const realFolder of wrapper.searchFolders) {
           if (!realFolder.isServer) {
             folders.push(realFolder);
           }

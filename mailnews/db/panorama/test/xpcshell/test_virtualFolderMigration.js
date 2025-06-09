@@ -53,34 +53,59 @@ add_task(async function () {
     "foo",
   ]);
 
+  const foo = rootFolder.getChildNamed("foo");
+  const bar = rootFolder.getChildNamed("bar");
+
+  // Check "all messages" is migrated correctly.
+
   const allMessages = rootFolder.getChildNamed("all messages");
   const allMessagesInfo = allMessages.msgDatabase.dBFolderInfo;
   Assert.equal(
     allMessages.flags,
     Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Mail
   );
-  Assert.equal(
-    allMessagesInfo.getCharProperty("searchFolderUri"),
-    "mailbox://nobody@Local%20Folders/foo|mailbox://nobody@Local%20Folders/bar"
-  );
   Assert.equal(allMessagesInfo.getCharProperty("searchStr"), "ALL");
   Assert.ok(!allMessagesInfo.getBooleanProperty("searchOnline", true));
 
-  const test = rootFolder.getChildNamed("foo").getChildNamed("test");
+  const allMessagesWrapper = Cc[
+    "@mozilla.org/mailnews/virtual-folder-wrapper;1"
+  ].createInstance(Ci.nsIVirtualFolderWrapper);
+  allMessagesWrapper.virtualFolder = allMessages;
+  Assert.deepEqual(
+    allMessagesWrapper.searchFolderURIs,
+    "mailbox://nobody@Local%20Folders/foo|mailbox://nobody@Local%20Folders/bar"
+  );
+  Assert.deepEqual(allMessagesWrapper.searchFolders, [bar, foo]);
+  Assert.equal(allMessagesWrapper.searchString, "ALL");
+  Assert.equal(allMessagesWrapper.onlineSearch, false);
+
+  // Check "test" is migrated correctly.
+
+  const test = foo.getChildNamed("test");
   const testInfo = test.msgDatabase.dBFolderInfo;
   Assert.equal(
     test.flags,
     Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Mail
   );
   Assert.equal(
-    testInfo.getCharProperty("searchFolderUri"),
-    "mailbox://nobody@Local%20Folders/foo"
-  );
-  Assert.equal(
     testInfo.getCharProperty("searchStr"),
     "AND (subject,contains,test)"
   );
   Assert.ok(!testInfo.getBooleanProperty("searchOnline", true));
+
+  const testWrapper = Cc[
+    "@mozilla.org/mailnews/virtual-folder-wrapper;1"
+  ].createInstance(Ci.nsIVirtualFolderWrapper);
+  testWrapper.virtualFolder = test;
+  Assert.deepEqual(
+    testWrapper.searchFolderURIs,
+    "mailbox://nobody@Local%20Folders/foo"
+  );
+  Assert.deepEqual(testWrapper.searchFolders, [foo]);
+  Assert.equal(testWrapper.searchString, "AND (subject,contains,test)");
+  Assert.equal(testWrapper.onlineSearch, false);
+
+  // Check the database is populated correctly.
 
   const allMessagesId = folders.getFolderByPath("server1/all messages").id;
   checkRow(allMessagesId, {
