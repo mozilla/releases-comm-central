@@ -16,7 +16,17 @@ var { openLinkExternally } = ChromeUtils.importESModule("resource:///modules/Lin
 function launchBrowser(url, event) {
   // Bail out if there is no URL set, an event was passed without left-click,
   // or the URL is already being handled by the MailLink actor.
-  if (!url || (event && event.button != 0) || /^(mid|mailto|s?news):/i.test(url)) {
+  if (
+    !url ||
+    (event && event.button != 0) ||
+    (event.target.ownerGlobal.browsingContext.isContent && /^(mid|mailto|s?news):/i.test(url))
+  ) {
+    return;
+  }
+
+  if (/^mid:/i.test(url)) {
+    const { MailUtils } = ChromeUtils.importESModule("resource:///modules/MailUtils.sys.mjs");
+    MailUtils.openMessageForMessageId(url.slice(4));
     return;
   }
 
