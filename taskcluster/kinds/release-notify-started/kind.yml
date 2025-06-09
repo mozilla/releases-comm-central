@@ -26,10 +26,8 @@ task-defaults:
             default: []
     prefix-message:
         by-project:
-            comm-release: |
-                **This is a preview release of Thunderbird's monthly releases.**
-
-                Thunderbird monthly releases are not considered stable for general use.
+            comm-(beta|release|esr.*): |
+                "Thunderbird {release_config[version]} for the {config[params][project]} channel"
             default: null
 
 tasks:
