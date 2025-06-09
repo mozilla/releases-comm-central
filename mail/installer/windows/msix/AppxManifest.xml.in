@@ -87,7 +87,7 @@
           </uap3:FileTypeAssociation>
         </uap3:Extension>
         <uap3:Extension Category="windows.protocol">
-          <uap3:Protocol Name="mailto" Parameters="-osint -url &quot;%1&quot;">
+          <uap3:Protocol Name="mailto" Parameters="-osint -compose &quot;%1&quot;">
             <uap:DisplayName>mailto</uap:DisplayName>
             <uap:Logo>Assets\Email44x44.png</uap:Logo>
           </uap3:Protocol>
