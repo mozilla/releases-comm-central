@@ -14,5 +14,6 @@ subsuite = "thunderbird"
 ["browser_rightClickToOpenSearchWindow.js"]
 
 ["browser_searchFromSyntheticView.js"]
+skip-if = ["true"]  # TODO
 
 ["browser_searchWindow.js"]

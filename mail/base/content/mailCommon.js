@@ -429,6 +429,15 @@ var commandController = {
         top.goDoCommand("cmd_nextUnreadMsg");
       }
     },
+    cmd_searchMessages(folder = gFolder) {
+      // We always open a new search dialog for each search command.
+      top.openDialog(
+        "chrome://messenger/content/SearchDialog.xhtml",
+        "_blank",
+        "chrome,resizable,status,centerscreen,dialog=no",
+        { folder }
+      );
+    },
   },
   _isCallbackEnabled: {},
 
@@ -458,6 +467,9 @@ var commandController = {
     switch (command) {
       case "cmd_newMessage":
         return hasIdentities;
+      case "cmd_searchMessages":
+        // TODO: This shouldn't be here, or should return false if there are no accounts.
+        return true;
       case "cmd_space":
       case "cmd_manageTags":
         return true;

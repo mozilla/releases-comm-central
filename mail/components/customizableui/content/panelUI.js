@@ -8,9 +8,6 @@
 /* import-globals-from ../../../base/content/messenger.js */
 /* import-globals-from ../../../extensions/mailviews/content/msgViewPickerOverlay.js */
 
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
 );
@@ -387,9 +384,6 @@ const PanelUI = {
         break;
       case "appMenu-viewMessagesCustomViewsView":
         PanelUI._refreshDynamicView(event, RefreshCustomViewsPopup);
-        break;
-      case "appMenu-toolsView":
-        PanelUI._onToolsMenuShown(event);
         break;
     }
   },

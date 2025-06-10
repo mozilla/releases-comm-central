@@ -46,7 +46,7 @@ add_task(async function () {
     w =>
       w.document.documentURI == "chrome://messenger/content/SearchDialog.xhtml"
   );
-  window.searchAllMessages();
+  goDoCommand("cmd_searchMessages");
   const win = await windowOpenedPromise;
   const doc = win.document;
 
@@ -433,7 +433,7 @@ add_task(async function () {
     w =>
       w.document.documentURI == "chrome://messenger/content/SearchDialog.xhtml"
   );
-  window.searchAllMessages();
+  goDoCommand("cmd_searchMessages");
   const win2 = await window2OpenedPromise;
   const doc2 = win.document;
   await SimpleTest.promiseFocus(win2);

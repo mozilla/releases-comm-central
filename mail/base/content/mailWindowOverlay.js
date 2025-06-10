@@ -240,8 +240,6 @@ function initSearchMessagesMenu() {
     "mailnews.database.global.indexer.enabled"
   );
   document.getElementById("glodaSearchCmd").hidden = !glodaEnabled;
-  document.getElementById("searchMailCmd").disabled =
-    !MailServices.accounts.accounts.length;
 }
 
 function InitGoMessagesMenu() {
@@ -2073,65 +2071,5 @@ function composeEmailTo(linkURL, identity) {
     null,
     Services.io.newURI(linkURL),
     identity
-  );
-}
-
-/**
- * Open the search messages dialog if we have accounts and folders that can be
- * searched.
- *
- * @param {?nsIMsgFolder} folder - The folder that needs to be searched, if
- *   available.
- */
-function searchAllMessages(folder) {
-  // Bail out if we don't have any account available.
-  if (!MailServices.accounts.accounts.length) {
-    return;
-  }
-
-  // No folder was passed, detect the currently selected folder.
-  if (!folder) {
-    let tabmail = document.getElementById("tabmail");
-    if (!tabmail) {
-      // We might be in a standalone window so we don't have direct access to
-      // the tabmail element.
-      const mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
-      // There may not be a "main" window if an .eml file was double-clicked.
-      if (!mainWindow) {
-        // Try to get the rootFolder for the default account if available.
-        // Otherwise the dialog will open with a null folder and the user will
-        // need to select the folder from the initial dropdown.
-        openSearchDialog(
-          MailServices.accounts.defaultAccount?.incomingServer?.rootFolder
-        );
-        return;
-      }
-      tabmail = mainWindow.document.getElementById("tabmail");
-    }
-
-    for (const tab of tabmail.tabInfo) {
-      if (tab.mode.name == "mail3PaneTab") {
-        folder = tab.chromeBrowser.contentWindow.gFolder;
-        break;
-      }
-    }
-  }
-
-  // We always open a new search dialog for each search command.
-  openSearchDialog(folder);
-}
-
-/**
- * Open the search dialog.
- *
- * @param {?nsIMsgFolder} folder - The folder that needs to be searched, if
- *   available.
- */
-function openSearchDialog(folder) {
-  top.openDialog(
-    "chrome://messenger/content/SearchDialog.xhtml",
-    "_blank",
-    "chrome,resizable,status,centerscreen,dialog=no",
-    { folder }
   );
 }
