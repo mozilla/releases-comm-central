@@ -4,8 +4,14 @@
 
 "use strict";
 
-// Double timeout for code coverage runs.
-if (AppConstants.MOZ_CODE_COVERAGE) {
+if (
+  AppConstants.MOZ_CODE_COVERAGE ||
+  AppConstants.ASAN ||
+  AppConstants.DEBUG ||
+  AppConstants.TSAN
+) {
+  requestLongerTimeout(3);
+} else if (AppConstants.platform == "macosx") {
   requestLongerTimeout(2);
 }
 
