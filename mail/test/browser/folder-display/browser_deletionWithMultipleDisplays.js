@@ -44,7 +44,11 @@ var folder,
 
 // Adjust timeout to take care of runs needing more time to run.
 requestLongerTimeout(
-  AppConstants.MOZ_CODE_COVERAGE || AppConstants.DEBUG || AppConstants.ASAN
+  AppConstants.MOZ_CODE_COVERAGE ||
+    AppConstants.DEBUG ||
+    AppConstants.ASAN ||
+    AppConstants.TSAN ||
+    AppConstants.platform == "macosx"
     ? 5
     : 2
 );
