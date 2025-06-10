@@ -683,4 +683,55 @@ nsresult FolderDatabase::SetFolderProperty(uint64_t id, const nsACString& name,
   return stmt->Execute();
 }
 
+nsresult FolderDatabase::GetVirtualFolderFolders(
+    uint64_t virtualFolderId, nsTArray<uint64_t>& searchFolderIds) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "GetVirtualFolderFolders"_ns,
+      "SELECT searchFolderId FROM virtualFolder_folders WHERE virtualFolderId = :virtualFolderId"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("virtualFolderId"_ns, virtualFolderId);
+
+  searchFolderIds.Clear();
+  bool hasResult;
+  while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    uint64_t searchFolderId = stmt->AsInt64(0);
+    searchFolderIds.AppendElement(searchFolderId);
+  }
+  stmt->Reset();
+
+  return NS_OK;
+}
+
+nsresult FolderDatabase::SetVirtualFolderFolders(
+    uint64_t virtualFolderId, nsTArray<uint64_t>& searchFolderIds) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "SetVirtualFolderFolders1"_ns,
+      "DELETE FROM virtualFolder_folders WHERE virtualFolderId = :virtualFolderId"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  stmt->BindInt64ByName("virtualFolderId"_ns, virtualFolderId);
+  rv = stmt->Execute();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = DatabaseCore::GetStatement(
+      "SetVirtualFolderFolders2"_ns,
+      "INSERT INTO virtualFolder_folders (virtualFolderId, searchFolderId) VALUES (:virtualFolderId, :searchFolderId)"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  for (auto searchFolderId : searchFolderIds) {
+    stmt->BindInt64ByName("virtualFolderId"_ns, virtualFolderId);
+    stmt->BindInt64ByName("searchFolderId"_ns, searchFolderId);
+    rv = stmt->Execute();
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  return NS_OK;
+}
+
 }  // namespace mozilla::mailnews

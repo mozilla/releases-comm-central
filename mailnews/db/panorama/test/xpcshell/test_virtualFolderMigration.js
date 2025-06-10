@@ -75,7 +75,7 @@ add_task(async function () {
     allMessagesWrapper.searchFolderURIs,
     "mailbox://nobody@Local%20Folders/foo|mailbox://nobody@Local%20Folders/bar"
   );
-  Assert.deepEqual(allMessagesWrapper.searchFolders, [bar, foo]);
+  Assert.deepEqual(allMessagesWrapper.searchFolders, [foo, bar]);
   Assert.equal(allMessagesWrapper.searchString, "ALL");
   Assert.equal(allMessagesWrapper.onlineSearch, false);
 
@@ -125,25 +125,36 @@ add_task(async function () {
     flags: Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Mail,
   });
 
-  const stmt = database.connection.createStatement(
+  let stmt = database.connection.createStatement(
     "SELECT id, name, value FROM folder_properties ORDER BY id, name"
   );
-  const rows = [];
+  let rows = [];
   while (stmt.executeStep()) {
     rows.push([stmt.row.id, stmt.row.name, stmt.row.value]);
   }
   stmt.finalize();
 
   Assert.deepEqual(rows, [
-    [
-      allMessagesId,
-      "searchFolderUri",
-      "mailbox://nobody@Local%20Folders/foo|mailbox://nobody@Local%20Folders/bar",
-    ],
     [allMessagesId, "searchOnline", 0],
     [allMessagesId, "searchStr", "ALL"],
-    [testId, "searchFolderUri", "mailbox://nobody@Local%20Folders/foo"],
     [testId, "searchOnline", 0],
     [testId, "searchStr", "AND (subject,contains,test)"],
+  ]);
+
+  const fooId = folders.getFolderByPath("server1/foo").id;
+  const barId = folders.getFolderByPath("server1/bar").id;
+  stmt = database.connection.createStatement(
+    "SELECT virtualFolderId, searchFolderId FROM virtualFolder_folders ORDER BY virtualFolderId, searchFolderId"
+  );
+  rows = [];
+  while (stmt.executeStep()) {
+    rows.push([stmt.row.virtualFolderId, stmt.row.searchFolderId]);
+  }
+  stmt.finalize();
+
+  Assert.deepEqual(rows, [
+    [allMessagesId, Math.min(fooId, barId)],
+    [allMessagesId, Math.max(fooId, barId)],
+    [testId, fooId],
   ]);
 });

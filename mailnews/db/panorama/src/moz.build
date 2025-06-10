@@ -15,6 +15,7 @@ EXPORTS += [
     "MessageDatabase.h",
     "PerFolderDatabase.h",
     "Thread.h",
+    "VirtualFolderWrapper.h",
 ]
 
 SOURCES += [
@@ -29,6 +30,7 @@ SOURCES += [
     "MessageDatabase.cpp",
     "PerFolderDatabase.cpp",
     "Thread.cpp",
+    "VirtualFolderWrapper.cpp",
 ]
 
 FINAL_LIBRARY = "mail"

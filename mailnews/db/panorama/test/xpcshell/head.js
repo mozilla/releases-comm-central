@@ -60,15 +60,19 @@ function installDB(sql) {
       flags INTEGER,
       tags TEXT
     );
+    CREATE INDEX messages_folderId ON messages(folderId);
+    CREATE INDEX messages_date ON messages(date);
+    CREATE INDEX messages_flags ON messages(flags);
     CREATE TABLE message_properties (
       id INTEGER REFERENCES messages(id),
       name TEXT,
       value ANY,
       PRIMARY KEY(id, name)
     );
-    CREATE INDEX messages_folderId ON messages(folderId);
-    CREATE INDEX messages_date ON messages(date);
-    CREATE INDEX messages_flags ON messages(flags);
+    CREATE TABLE virtualFolder_folders (
+      virtualFolderId INTEGER REFERENCES folders(id),
+      searchFolderId INTEGER REFERENCES folders(id)
+    );
   `);
   if (sql) {
     dbConnection.executeSimpleSQL(sql);

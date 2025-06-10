@@ -211,14 +211,6 @@ nsresult DatabaseCore::CreateNewDatabase() {
       );"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = sConnection->ExecuteSimpleSQL(
-      "CREATE TABLE message_properties ( \
-        id INTEGER REFERENCES messages(id), \
-        name TEXT, \
-        value ANY, \
-        PRIMARY KEY(id, name) \
-      );"_ns);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = sConnection->ExecuteSimpleSQL(
       "CREATE INDEX messages_folderId ON messages(folderId);"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = sConnection->ExecuteSimpleSQL(
@@ -229,6 +221,20 @@ nsresult DatabaseCore::CreateNewDatabase() {
   NS_ENSURE_SUCCESS(rv, rv);
   rv = sConnection->ExecuteSimpleSQL(
       "CREATE INDEX messages_flags ON messages(flags);"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE TABLE message_properties ( \
+        id INTEGER REFERENCES messages(id), \
+        name TEXT, \
+        value ANY, \
+        PRIMARY KEY(id, name) \
+      );"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE TABLE virtualFolder_folders ( \
+        virtualFolderId INTEGER REFERENCES folders(id), \
+        searchFolderId INTEGER REFERENCES folders(id) \
+      );"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;
@@ -350,15 +356,31 @@ NS_IMETHODIMP DatabaseCore::MigrateVirtualFolders() {
 
     // Add the virtual folder info to the database.
 
-    nsCOMPtr<nsIMsgDatabase> msgDatabase;
-    nsCOMPtr<nsIDBFolderInfo> msgFolderInfo;
-    rv = virtualFolder->GetDBFolderInfoAndDB(getter_AddRefs(msgFolderInfo),
-                                             getter_AddRefs(msgDatabase));
-
     virtualFolder->SetFlag(nsMsgFolderFlags::Virtual);
-    msgFolderInfo->SetCharProperty("searchFolderUri", def.scope);
-    msgFolderInfo->SetCharProperty("searchStr", def.terms);
-    msgFolderInfo->SetBooleanProperty("searchOnline", def.searchOnline);
+
+    nsCOMPtr<nsIFolder> folder;
+    mFolderDatabase->GetFolderForMsgFolder(virtualFolder,
+                                           getter_AddRefs(folder));
+    uint64_t folderId = folder->GetId();
+
+    nsTArray<nsCString> folderUris;
+    ParseString(def.scope, '|', folderUris);
+    nsTArray<uint64_t> folderIds;
+    for (auto folderUri : folderUris) {
+      nsCOMPtr<nsIMsgFolder> msgFolder;
+      if (NS_SUCCEEDED(
+              GetExistingFolder(folderUri, getter_AddRefs(msgFolder)))) {
+        nsCOMPtr<nsIFolder> folder;
+        mFolderDatabase->GetFolderForMsgFolder(msgFolder,
+                                               getter_AddRefs(folder));
+        folderIds.AppendElement(folder->GetId());
+      }
+    }
+
+    mFolderDatabase->SetVirtualFolderFolders(folderId, folderIds);
+    mFolderDatabase->SetFolderProperty(folderId, "searchStr"_ns, def.terms);
+    mFolderDatabase->SetFolderProperty(folderId, "searchOnline"_ns,
+                                       def.searchOnline);
   }
 
   return NS_OK;

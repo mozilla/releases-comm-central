@@ -13,6 +13,7 @@
 #include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
 #include "nsIDatabaseCore.h"
+#include "nsIFactory.h"
 #include "nsIMsgDatabase.h"
 #include "nsIObserver.h"
 #include "nsTHashMap.h"

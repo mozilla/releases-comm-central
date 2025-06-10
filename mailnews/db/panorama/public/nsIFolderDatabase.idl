@@ -7,7 +7,7 @@
 interface nsIFolder;
 interface nsIMsgFolder;
 
-[scriptable, uuid(2842d879-e52f-4812-926c-dfde62b77881)]
+[scriptable, builtinclass, uuid(2842d879-e52f-4812-926c-dfde62b77881)]
 interface nsIFolderDatabase : nsISupports {
   /**
    * Get a folder identified by its database row ID.

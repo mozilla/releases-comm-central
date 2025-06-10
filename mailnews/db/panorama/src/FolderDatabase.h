@@ -35,7 +35,9 @@ class FolderDatabase : public nsIFolderDatabase {
   void Shutdown();
 
  private:
+  friend class DatabaseCore;
   friend class FolderInfo;
+  friend class VirtualFolderWrapper;
 
   nsresult GetFolderProperty(uint64_t id, const nsACString& name,
                              nsACString& value);
@@ -45,6 +47,11 @@ class FolderDatabase : public nsIFolderDatabase {
                              const nsACString& value);
   nsresult SetFolderProperty(uint64_t id, const nsACString& name,
                              int64_t value);
+
+  nsresult GetVirtualFolderFolders(uint64_t virtualFolderId,
+                                   nsTArray<uint64_t>& searchFolderIds);
+  nsresult SetVirtualFolderFolders(uint64_t virtualFolderId,
+                                   nsTArray<uint64_t>& searchFolderIds);
 
  private:
   nsTHashMap<uint64_t, RefPtr<Folder>> mFoldersById;

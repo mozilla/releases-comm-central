@@ -72,6 +72,7 @@
 #ifdef MOZ_PANORAMA
 #  include "nsIComponentRegistrar.h"
 #  include "DatabaseCore.h"
+#  include "VirtualFolderWrapper.h"
 #endif  // MOZ_PANORAMA
 
 #define PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS "mail.accountmanager.accounts"
@@ -181,6 +182,11 @@ nsresult nsMsgAccountManager::Init() {
     nsCOMPtr<nsIDatabaseCore> unused =
         do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
+
+    componentRegistrar->RegisterFactory(
+        nsID::GenerateUUID(), "",
+        "@mozilla.org/mailnews/virtual-folder-wrapper;1",
+        new mozilla::mailnews::VirtualFolderWrapperFactory());
   }
 #endif  // MOZ_PANORAMA
 
