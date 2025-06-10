@@ -205,7 +205,7 @@ class FolderRow {
           this._children.push(new FolderRow(subFolder, this));
         }
       }
-      this._children.sort((a, b) => a._folder.compareSortKeys(b._folder));
+      this._children.sort(FolderUtils.compareFolders);
     }
     return this._children;
   }

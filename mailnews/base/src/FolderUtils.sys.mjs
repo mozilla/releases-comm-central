@@ -14,9 +14,19 @@ const OUTGOING_FOLDER_FLAGS =
 
 const ONE_MONTH_IN_MILLISECONDS = 31 * 24 * 60 * 60 * 1000;
 
+/**
+ * Used for comparing folder names.
+ *
+ * @type {Intl.Collator}
+ */
+const folderNameCollator = new Intl.Collator(undefined, {
+  sensitivity: "base",
+});
+
 export var FolderUtils = {
   allAccountsSorted,
-  folderNameCompare,
+  compareFolders,
+  folderNameCollator,
   getFolderIcon,
   getFolderProperties,
   getMostRecentFolders,
@@ -197,19 +207,20 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
 }
 
 /**
- * A locale dependent comparison function to produce a case-insensitive sort order
- * used to sort folder names.
+ * Comparator function to be used for sorting folders.
  *
- * @param {string} aString1 - First string to compare.
- * @param {string} aString2 - Second string to compare.
- * @returns {interger} A positive number if aString1 > aString2,
- *    negative number if aString1 > aString2, otherwise 0.
+ * @param {nsIMsgFolder} folderA
+ * @param {nsIMsgFolder} folderB
+ * @returns {integer} An integer:
+ *   - A negative value indicates that a should come before b.
+ *   - A positive value indicates that a should come after b.
+ *   - Zero indicates that a and b are considered equal.
  */
-function folderNameCompare(aString1, aString2) {
-  // TODO: improve this as described in bug 992651.
-  return aString1
-    .toLocaleLowerCase()
-    .localeCompare(aString2.toLocaleLowerCase());
+function compareFolders(folderA, folderB) {
+  return (
+    folderA.sortOrder - folderB.sortOrder ||
+    folderNameCollator.compare(folderA.localizedName, folderB.localizedName)
+  );
 }
 
 /**

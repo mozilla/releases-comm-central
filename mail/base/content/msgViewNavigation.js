@@ -12,21 +12,13 @@ ChromeUtils.defineESModuleGetters(this, {
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
 });
 
-function GetSubFoldersInFolderPaneOrder(folder) {
-  function compareFolderSortKey(folder1, folder2) {
-    return folder1.compareSortKeys(folder2);
-  }
-  // sort the subfolders
-  return folder.subFolders.sort(compareFolderSortKey);
-}
-
 function FindNextChildFolder(aParent, aAfter) {
   // Search the child folders of aParent for unread messages
   // but in the case that we are working up from the current folder
   // we need to skip up to and including the current folder
   // we skip the current folder in case a mail view is hiding unread messages
   if (aParent.getNumUnread(true) > 0) {
-    var subFolders = GetSubFoldersInFolderPaneOrder(aParent);
+    var subFolders = aParent.subFolders.sort(FolderUtils.compareFolders);
     var i = 0;
     var folder = null;
 

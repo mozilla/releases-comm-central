@@ -461,11 +461,7 @@
           // to do anything for that case here.
         } else {
           this._maybeAddParentFolderMenuItem(mode);
-
-          // Sort the list of folders. We give first priority to the sortKey
-          // property if it is available, otherwise a case-insensitive
-          // comparison of names.
-          folders = folders.sort((a, b) => a.compareSortKeys(b));
+          folders = folders.sort(lazy.FolderUtils.compareFolders);
         }
 
         this._addFoldersMenuItems(folders, mode, globalInboxFolder);
@@ -603,7 +599,7 @@
 
         // Make sure the entries are sorted alphabetically.
         specialFoldersMap.sort((a, b) =>
-          lazy.FolderUtils.folderNameCompare(a.label, b.label)
+          a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
         );
 
         // Create entries for each of the recent folders.

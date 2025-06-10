@@ -9,16 +9,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 export const FolderPaneUtils = {
   /**
-   * Used for comparing folder names. This matches the collator used in
-   * `nsMsgDBFolder::createCollationKeyGenerator`.
-   *
-   * @type {Intl.Collator}
-   */
-  nameCollator: new Intl.Collator(undefined, {
-    sensitivity: "base",
-  }),
-
-  /**
    * Creates an identifier unique for the given mode name and folder URI.
    *
    * @param {string} modeName

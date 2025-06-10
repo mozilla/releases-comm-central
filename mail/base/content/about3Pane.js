@@ -1308,7 +1308,7 @@ var folderPane = {
           }
         }
 
-        subFolders.sort((a, b) => a.compareSortKeys(b));
+        subFolders.sort(FolderUtils.compareFolders);
 
         for (const folder of subFolders) {
           if (!this._unreadFilter(folder)) {
@@ -2234,7 +2234,9 @@ var folderPane = {
         continue;
       }
 
-      if (FolderPaneUtils.nameCollator.compare(row.name, serverRow.name) > 0) {
+      if (
+        FolderUtils.folderNameCollator.compare(row.name, serverRow.name) > 0
+      ) {
         return list.insertBefore(serverRow, row);
       }
     }
@@ -2380,7 +2382,7 @@ var folderPane = {
       }
     }
 
-    subFolders.sort((a, b) => a.compareSortKeys(b));
+    subFolders.sort(FolderUtils.compareFolders);
 
     for (const folder of subFolders) {
       if (typeof filterFunction == "function" && !filterFunction(folder)) {
@@ -4162,20 +4164,6 @@ var folderPane = {
   },
 
   /**
-   * Sorting comparator for two folders.
-   *
-   * @param {nsIMsgFolder} folderA
-   * @param {nsIMSgFolder} folderB
-   * @returns {number} Sorting value when comparing the two folders.
-   */
-  _sortFolders: (folderA, folderB) =>
-    folderA.sortOrder - folderB.sortOrder ||
-    FolderPaneUtils.nameCollator.compare(
-      folderA.localizedName,
-      folderB.localizedName
-    ),
-
-  /**
    * Set the sort order for the new folder added to the folder group.
    *
    * @param {nsIMsgFolder} parentFolder
@@ -4203,10 +4191,10 @@ var folderPane = {
     const sibling = subFolders
       // Skip special folders so new folders don't get created before them.
       .filter(folder => folder.flags & Ci.nsMsgFolderFlags.SpecialUse)
-      .sort(this._sortFolders)
+      .sort(FolderUtils.compareFolders)
       .find(
         folder =>
-          FolderPaneUtils.nameCollator.compare(
+          FolderUtils.folderNameCollator.compare(
             folder.localizedName,
             newFolder.localizedName
           ) > 0
@@ -4249,7 +4237,7 @@ var folderPane = {
     // Start at the end, so we can stop once we've reached the insertion point.
     const folders = subFolders
       .filter(sf => sf != folder)
-      .sort((a, b) => this._sortFolders(b, a));
+      .sort(FolderUtils.compareFolders);
     for (const sibling of folders) {
       // If we've reached the target and we're inserting after it, we've done
       // all the necessary moving.

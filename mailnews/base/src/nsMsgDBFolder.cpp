@@ -167,9 +167,6 @@ NS_IMETHODIMP nsMsgFolderService::InitializeFolderStrings() {
   return NS_OK;
 }
 
-MOZ_RUNINIT mozilla::UniquePtr<mozilla::intl::Collator>
-    nsMsgDBFolder::gCollationKeyGenerator = nullptr;
-
 MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedInboxName;
 MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedTrashName;
 MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedSentName;
@@ -274,7 +271,6 @@ nsMsgDBFolder::nsMsgDBFolder(void)
       if (appName.Equals("xpcshell")) gInitializeStringsDone = true;
     } while (false);
 
-    createCollationKeyGenerator();
     gtimeOfLastPurgeCheck = 0;
   }
 
@@ -292,9 +288,6 @@ nsMsgDBFolder::~nsMsgDBFolder(void) {
   for (uint32_t i = 0; i < nsMsgProcessingFlags::NumberOfFlags; i++)
     delete mProcessingFlag[i].keys;
 
-  if (--mInstanceCount == 0) {
-    nsMsgDBFolder::gCollationKeyGenerator = nullptr;
-  }
   // shutdown but don't shutdown children.
   Shutdown(false);
 }
@@ -2568,31 +2561,6 @@ nsresult nsMsgDBFolder::initializeStrings() {
                                    getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
   bundle->GetStringFromName("brandShortName", kLocalizedBrandShortName);
-  return NS_OK;
-}
-
-nsresult nsMsgDBFolder::createCollationKeyGenerator() {
-  if (!gCollationKeyGenerator) {
-    auto result = mozilla::intl::LocaleService::TryCreateComponent<Collator>();
-    if (result.isErr()) {
-      NS_WARNING("Could not create mozilla::intl::Collation.");
-      return NS_ERROR_FAILURE;
-    }
-
-    gCollationKeyGenerator = result.unwrap();
-
-    // Sort in a case-insensitive way, where "base" letters are considered
-    // equal, e.g: a = á, a = A, a ≠ b.
-    Collator::Options options{};
-    options.sensitivity = Collator::Sensitivity::Base;
-    auto optResult = gCollationKeyGenerator->SetOptions(options);
-
-    if (optResult.isErr()) {
-      NS_WARNING("Could not configure the mozilla::intl::Collation.");
-      gCollationKeyGenerator = nullptr;
-      return NS_ERROR_FAILURE;
-    }
-  }
   return NS_OK;
 }
 
@@ -5199,42 +5167,6 @@ NS_IMETHODIMP nsMsgDBFolder::GetSortOrder(int32_t* order) {
     *order = static_cast<int32_t>(userSortOrder);
   }
   return NS_OK;
-}
-
-// static Helper function for CompareSortKeys().
-// Builds a collation key for a given folder based on "{sortOrder}{name}"
-nsresult nsMsgDBFolder::BuildFolderSortKey(nsIMsgFolder* aFolder,
-                                           nsTArray<uint8_t>& aKey) {
-  aKey.Clear();
-  int32_t order;
-  nsresult rv = aFolder->GetSortOrder(&order);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsAutoString orderString;
-  orderString.AppendPrintf("%010d", order);
-  nsCString folderName;
-  rv = aFolder->GetName(folderName);
-  NS_ENSURE_SUCCESS(rv, rv);
-  orderString.Append(NS_ConvertUTF8toUTF16(folderName));
-  NS_ENSURE_TRUE(gCollationKeyGenerator, NS_ERROR_NULL_POINTER);
-
-  nsTArrayU8Buffer buffer(aKey);
-
-  auto result = gCollationKeyGenerator->GetSortKey(orderString, buffer);
-  NS_ENSURE_TRUE(result.isOk(), NS_ERROR_FAILURE);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::CompareSortKeys(nsIMsgFolder* aFolder,
-                                             int32_t* compareResult) {
-  nsTArray<uint8_t> sortKey1;
-  nsTArray<uint8_t> sortKey2;
-  nsresult rv = BuildFolderSortKey(this, sortKey1);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = BuildFolderSortKey(aFolder, sortKey2);
-  NS_ENSURE_SUCCESS(rv, rv);
-  *compareResult = gCollationKeyGenerator->CompareSortKeys(sortKey1, sortKey2);
-  return rv;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::FetchMsgPreviewText(

@@ -202,8 +202,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   void ClearProcessingFlags();
 
   nsresult NotifyHdrsNotBeingClassified();
-  static nsresult BuildFolderSortKey(nsIMsgFolder* aFolder,
-                                     nsTArray<uint8_t>& aKey);
+
   /**
    * Produce an array of messages ordered like the input keys.
    */
@@ -308,7 +307,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   static nsrefcnt gInstanceCount;
 
   static nsresult initializeStrings();
-  static nsresult createCollationKeyGenerator();
 
   static nsString kLocalizedInboxName;
   static nsString kLocalizedTrashName;
@@ -321,7 +319,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
 
   static nsString kLocalizedBrandShortName;
 
-  static mozilla::UniquePtr<mozilla::intl::Collator> gCollationKeyGenerator;
   static bool gInitializeStringsDone;
 
   // store of keys that have a processing flag set

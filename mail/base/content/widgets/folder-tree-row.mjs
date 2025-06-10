@@ -479,7 +479,7 @@ class FolderTreeRow extends HTMLLIElement {
       }
       if (
         folderSortOrder == child.folderSortOrder &&
-        lazy.FolderPaneUtils.nameCollator.compare(folderName, child.name) < 0
+        lazy.FolderUtils.folderNameCollator.compare(folderName, child.name) < 0
       ) {
         return this.childList.insertBefore(newChild, child);
       }

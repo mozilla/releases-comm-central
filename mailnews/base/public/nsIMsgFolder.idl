@@ -677,11 +677,6 @@ interface nsIMsgFolder : nsISupports {
   void notifyAboutToCompact();
   void notifyCompactCompleted();
 
-  /**
-   * Calculate ordering of this folder against another.
-   */
-  long compareSortKeys(in nsIMsgFolder msgFolder);
-
   attribute nsIMsgRetentionSettings retentionSettings;
   attribute nsIMsgDownloadSettings downloadSettings;
   boolean callFilterPlugins(in nsIMsgWindow aMsgWindow);
