@@ -137,7 +137,6 @@
     --button-background: #d2d2d3;
     --button-background-hover: #c2c2c3;
     --button-background-active: #b2b2b3;
-    --panel-separator-color: light-dark(hsla(210, 4%, 10%, 0.14), rgba(249, 249, 250, 0.1));
     --search-bar-color: var(--toolbar-field-focus-color);
     --search-bar-background: var(--toolbar-field-background-color);
     --search-bar-border-color: var(--toolbar-field-border-color);
