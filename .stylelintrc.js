@@ -45,7 +45,10 @@ module.exports = {
     "function-no-unknown": [
       true,
       {
-        ignoreFunctions: ["add" /* Used in mathml.css */],
+        ignoreFunctions: [
+          "add" /* Used in mathml.css */,
+          "-moz-symbolic-icon" /* Used for GTK icons */,
+        ],
       },
     ],
     /*

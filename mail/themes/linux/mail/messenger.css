@@ -122,6 +122,7 @@
 
 .titlebar-button {
   appearance: none;
+  color: inherit;
   align-items: center;
   padding: 0;
   padding-inline: calc(env(-moz-gtk-csd-titlebar-button-spacing) / 2);
@@ -158,16 +159,7 @@
   order: env(-moz-gtk-csd-minimize-button-position);
 
   > .toolbarbutton-icon {
-    background-image: light-dark(
-      image-set(
-        url(moz-icon://stock/window-minimize-symbolic?dark=0),
-        url(moz-icon://stock/window-minimize-symbolic?dark=0&scale=2) 2x
-      ),
-      image-set(
-        url(moz-icon://stock/window-minimize-symbolic?dark=1),
-        url(moz-icon://stock/window-minimize-symbolic?dark=1&scale=2) 2x
-      )
-    );
+    background-image: -moz-symbolic-icon(window-minimize-symbolic);
   }
 
   @media not (-moz-gtk-csd-minimize-button) {
@@ -179,16 +171,7 @@
   order: env(-moz-gtk-csd-maximize-button-position);
 
   > .toolbarbutton-icon {
-    background-image: light-dark(
-      image-set(
-        url(moz-icon://stock/window-maximize-symbolic?dark=0),
-        url(moz-icon://stock/window-maximize-symbolic?dark=0&scale=2) 2x
-      ),
-      image-set(
-        url(moz-icon://stock/window-maximize-symbolic?dark=1),
-        url(moz-icon://stock/window-maximize-symbolic?dark=1&scale=2) 2x
-      )
-    );
+    background-image: -moz-symbolic-icon(window-maximize-symbolic);
   }
 }
 
@@ -196,16 +179,7 @@
   order: env(-moz-gtk-csd-maximize-button-position);
 
   > .toolbarbutton-icon {
-    background-image: light-dark(
-      image-set(
-        url(moz-icon://stock/window-restore-symbolic?dark=0),
-        url(moz-icon://stock/window-restore-symbolic?dark=0&scale=2) 2x
-      ),
-      image-set(
-        url(moz-icon://stock/window-restore-symbolic?dark=1),
-        url(moz-icon://stock/window-restore-symbolic?dark=1&scale=2) 2x
-      )
-    );
+    background-image: -moz-symbolic-icon(window-restore-symbolic);
   }
 }
 
@@ -220,16 +194,7 @@
   order: env(-moz-gtk-csd-close-button-position);
 
   > .toolbarbutton-icon {
-    background-image: light-dark(
-      image-set(
-        url(moz-icon://stock/window-close-symbolic?dark=0),
-        url(moz-icon://stock/window-close-symbolic?dark=0&scale=2) 2x
-      ),
-      image-set(
-        url(moz-icon://stock/window-close-symbolic?dark=1),
-        url(moz-icon://stock/window-close-symbolic?dark=1&scale=2) 2x
-      )
-    );
+    background-image: -moz-symbolic-icon(window-close-symbolic);
   }
 
   @media not (-moz-gtk-csd-close-button) {
