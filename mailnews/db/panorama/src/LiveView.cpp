@@ -11,6 +11,7 @@
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/RefPtr.h"
+#include "nsMsgFolderFlags.h"
 #include "nsServiceManagerUtils.h"
 #include "prtime.h"
 
@@ -42,7 +43,11 @@ NS_IMETHODIMP LiveView::InitWithFolder(nsIFolder* aFolder) {
     return NS_ERROR_UNEXPECTED;
   }
 
-  mFolderFilter = new SingleFolderFilter(aFolder);
+  if (aFolder->GetFlags() & nsMsgFolderFlags::Virtual) {
+    mFolderFilter = new VirtualFolderFilter(aFolder);
+  } else {
+    mFolderFilter = new SingleFolderFilter(aFolder);
+  }
   return NS_OK;
 }
 

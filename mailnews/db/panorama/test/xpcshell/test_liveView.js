@@ -2,12 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
+);
+
+const { ProfileCreator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/ProfileCreator.sys.mjs"
+);
+
 const LiveView = Components.Constructor(
   "@mozilla.org/mailnews/live-view;1",
   "nsILiveView"
 );
 
 add_setup(async function () {
+  const profile = new ProfileCreator(do_get_profile());
+  const server = profile.addLocalServer();
+  await server.rootFolder.addMailFolder("folderA");
+  await server.rootFolder.addMailFolder("folderB");
+  await server.rootFolder.addMailFolder("folderC");
   await installDBFromFile("db/messages.sql");
 });
 
@@ -80,6 +93,57 @@ add_task(function testInitWithFolders() {
   );
 
   liveView.initWithFolders([folderA, folderB, folderC]);
+  assertInitFails(liveView);
+
+  Assert.equal(
+    liveView.countMessages(),
+    10,
+    "countMessages should return the total number of messages"
+  );
+  Assert.equal(
+    liveView.countUnreadMessages(),
+    5,
+    "countUnreadMessages should return the number of unread messages"
+  );
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.id),
+    [10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+    "selectMessages with no arguments should return all the messages"
+  );
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(3), m => m.id),
+    [10, 9, 8],
+    "selectMessages with a limit argument should only return some of the messages"
+  );
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(2, 1), m => m.id),
+    [9, 8],
+    "selectMessages with both arguments should only return some of the messages"
+  );
+
+  assertInitFails(liveView);
+});
+
+add_task(function testInitWithVirtualFolder() {
+  const folderA = folders.getFolderByPath("server1/folderA");
+  const folderC = folders.getFolderByPath("server1/folderC");
+
+  MailServices.accounts.accounts;
+  VirtualFolderHelper.createNewVirtualFolder(
+    "virtual",
+    MailServices.accounts.localFoldersServer.rootFolder,
+    [
+      folders.getMsgFolderForFolder(folderA),
+      folders.getMsgFolderForFolder(folderC),
+    ],
+    "ALL",
+    false
+  );
+
+  const virtualFolder = folders.getFolderByPath("server1/virtual");
+
+  const liveView = new LiveView();
+  liveView.initWithFolder(virtualFolder);
   assertInitFails(liveView);
 
   Assert.equal(

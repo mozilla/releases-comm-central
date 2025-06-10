@@ -37,6 +37,7 @@ class FolderDatabase : public nsIFolderDatabase {
  private:
   friend class DatabaseCore;
   friend class FolderInfo;
+  friend class VirtualFolderFilter;
   friend class VirtualFolderWrapper;
 
   nsresult GetFolderProperty(uint64_t id, const nsACString& name,

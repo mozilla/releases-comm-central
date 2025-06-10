@@ -533,7 +533,8 @@ NS_IMETHODIMP PerFolderDatabase::GetSummaryValid(bool* summaryValid) {
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::SetSummaryValid(bool aSummaryValid) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  // Sure. Okay. Whatever.
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::ListAllOfflineMsgs(
     nsTArray<nsMsgKey>& aRetVal) {
