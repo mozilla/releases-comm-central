@@ -107,6 +107,10 @@ NS_IMETHODIMP AddressFormatFunction::OnFunctionCall(
     nsAutoCString header;
     aArguments->GetUTF8String(0, header);
 
+    // TODO: Legacy code only handles the first sender address, and adds "et
+    // al." if there are more. The zero recipients case also has special
+    // handling not yet implemented here.
+
     nsCOMArray<msgIAddressObject> addresses = EncodedHeader(header);
     for (size_t i = 0; i < addresses.Length(); i++) {
       nsAutoString wName;

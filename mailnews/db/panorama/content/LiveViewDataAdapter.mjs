@@ -50,6 +50,7 @@ ChromeUtils.defineLazyGetter(
  * @property {string} messageId - The Message-ID header.
  * @property {Date} date - Value of the Date header.
  * @property {string} sender
+ * @property {string} recipients
  * @property {string} subject
  * @property {integer} flags
  * @property {string} tags - A space-separated list of nsIMsgTag keys.
@@ -105,6 +106,7 @@ const columns = {
   date: Ci.nsILiveView.DATE,
   subject: Ci.nsILiveView.SUBJECT,
   sender: Ci.nsILiveView.SENDER,
+  recipients: Ci.nsILiveView.RECIPIENTS,
   unread: Ci.nsILiveView.READ_FLAG,
   flagged: Ci.nsILiveView.MARKED_FLAG,
 };
@@ -136,6 +138,7 @@ const comparators = {
   date: (a, b) => a.date < b.date,
   subject: getTextComparator("subject"),
   sender: getTextComparator("sender"),
+  recipients: getTextComparator("recipients"),
   // Unread messages come first, but the flag is for read messages.
   unread: (a, b) =>
     (a.flags & Ci.nsMsgMessageFlags.Read) <
