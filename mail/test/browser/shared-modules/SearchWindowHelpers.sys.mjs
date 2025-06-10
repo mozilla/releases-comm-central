@@ -22,7 +22,7 @@ import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
  */
 export async function open_search_window() {
   const searchPromise = promise_new_window("mailnews:search");
-  EventUtils.synthesizeKey("f", { shiftKey: true, accelKey: true }, mc);
+  EventUtils.synthesizeKey("F", { shiftKey: true, accelKey: true }, mc);
   return searchPromise;
 }
 
