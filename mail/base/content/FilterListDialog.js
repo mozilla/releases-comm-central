@@ -1116,7 +1116,7 @@ function onFindFilter() {
 function resetSearchBox(aFilter) {
   const keyword = gSearchBox.value.toLocaleLowerCase();
   if (keyword && (!aFilter || !filterSearchMatch(aFilter, keyword))) {
-    gSearchBox.reset();
+    gSearchBox.inputEl.value = "";
   }
 }
 

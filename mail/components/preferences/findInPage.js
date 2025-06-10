@@ -38,8 +38,7 @@ var gSearchResultsPane = {
     this.searchInput = document.getElementById("searchInput");
     if (!this.searchInput.hidden) {
       this.searchInput.addEventListener("input", this);
-      this.searchInput.addEventListener("command", this);
-      window.addEventListener("DOMContentLoaded", () => {
+      window.addEventListener("load", () => {
         this.searchInput.focus();
       });
       // Initialize other panes in an idle callback.

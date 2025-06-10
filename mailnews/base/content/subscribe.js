@@ -25,7 +25,7 @@ var gSearchView = null;
 var gSearchTree = null;
 var gSubscribeBundle;
 
-window.addEventListener("DOMContentLoaded", SubscribeOnLoad);
+window.addEventListener("load", SubscribeOnLoad);
 window.addEventListener("unload", SubscribeOnUnload);
 
 document.addEventListener("dialogaccept", subscribeOK);
@@ -104,7 +104,7 @@ function SetUpTree(forceToServer, getOnlyNew) {
     SetServerTypeSpecificTextValues();
 
     // Clear out the text field when switching server.
-    gNameField.value = "";
+    gNameField.inputEl.value = "";
 
     // Since there is no text, switch to the Subscription view.
     toggleSubscriptionView(false);
@@ -354,7 +354,7 @@ function SubscribeOnClick(event) {
 
 function Refresh() {
   // Clear out the textfield's entry.
-  gNameField.value = "";
+  gNameField.inputEl.value = "";
 
   var newGroupsTab = document.getElementById("newGroupsTab");
   SetUpTree(true, newGroupsTab.selected);
@@ -362,7 +362,7 @@ function Refresh() {
 
 function ShowCurrentList() {
   // Clear out the textfield's entry on call of Refresh().
-  gNameField.value = "";
+  gNameField.inputEl.value = "";
 
   // Make sure the current list tab is selected.
   document.getElementById("subscribeTabs").selectedIndex = 0;
@@ -373,7 +373,7 @@ function ShowCurrentList() {
 
 function ShowNewGroupsList() {
   // Clear out the textfield's entry.
-  gNameField.value = "";
+  gNameField.inputEl.value = "";
 
   // Make sure the new groups tab is selected.
   document.getElementById("subscribeTabs").selectedIndex = 1;
@@ -396,7 +396,7 @@ function toggleSubscriptionView(toggle) {
 function Search() {
   const searchValue = gNameField.value;
   if (
-    searchValue.length &&
+    searchValue &&
     gSubscribableServer &&
     gSubscribableServer.supportsSubscribeSearch
   ) {

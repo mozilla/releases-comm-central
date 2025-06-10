@@ -19,7 +19,7 @@ html|input[type="color"] {
   min-height: var(--in-content-button-height);
 }
 
-search-textbox {
+html|moz-input-search {
   min-height: var(--in-content-button-height);
 }
 
@@ -44,7 +44,7 @@ menulist,
 html|select,
 html|input:is([type="email"],[type="number"],[type="color"],[type="text"],[type="password"],[type="url"]),
 html|textarea,
-search-textbox {
+html|moz-input-search {
   border-radius: var(--in-content-button-border-radius);
 }
 
@@ -441,7 +441,9 @@ tab {
 /* Applications Pane Styles */
 
 #filter {
+  flex: 1;
   margin-inline: 0;
+  --input-text-max-width: none;
 }
 
 /* XXX This style is for bug 740213 and should be removed once that

@@ -85,7 +85,7 @@ async function prepareCalendarUnifinder() {
   });
 
   const searchBox = document.getElementById("unifinder-search-field");
-  searchBox.addEventListener("command", updateUnifinderFilterText);
+  searchBox.addEventListener("input", updateUnifinderFilterText);
 }
 
 /**
@@ -101,7 +101,7 @@ function finishCalendarUnifinder() {
   viewBox.removeEventListener("itemselect", unifinderItemSelect);
 
   const searchBox = document.getElementById("unifinder-search-field");
-  searchBox.removeEventListener("command", updateUnifinderFilterText);
+  searchBox.removeEventListener("input", updateUnifinderFilterText);
 
   getUnifinderView()?.deactivate();
 }

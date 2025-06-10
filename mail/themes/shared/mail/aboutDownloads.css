@@ -55,6 +55,7 @@ body {
 #searchBox {
   width: 22em;
   margin-inline-end: 0;
+  --input-text-max-width: none;
 }
 
 .fileTypeIcon {

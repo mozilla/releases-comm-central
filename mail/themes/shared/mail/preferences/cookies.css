@@ -16,3 +16,8 @@ td > input {
    min-height: 10em;
    flex: 1 1 0;
 }
+
+#filter {
+  flex: 1;
+  --input-text-max-width: none;
+}

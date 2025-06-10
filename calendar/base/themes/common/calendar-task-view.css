@@ -14,6 +14,11 @@
   --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .3));
 }
 
+#task-text-filter-field {
+  flex: 1;
+  --input-text-max-width: none;
+}
+
 #calendar-task-details-container {
   overflow: hidden;
 }

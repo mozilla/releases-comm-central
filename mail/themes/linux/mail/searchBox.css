@@ -12,13 +12,6 @@
   padding-block: 3px 2px;
 }
 
-.searchBox,
-.themeableSearchBox {
-  padding-block: 3px;
-  padding-inline: 4px 2px;
-  margin: 0 3px;
-}
-
 .autocomplete-richlistitem[type^="gloda-"] {
   padding-inline-start: 10px;
 }

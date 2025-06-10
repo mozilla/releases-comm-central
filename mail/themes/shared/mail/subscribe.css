@@ -18,6 +18,10 @@ dialog {
 #nameColumn2 {
   flex: 10 10;
 }
+#namefield {
+  flex: 1;
+  --input-text-max-width: none;
+}
 
 /* ::::: Subscription Icons  :::::: */
 

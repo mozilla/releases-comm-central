@@ -12,6 +12,11 @@
   --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .3));
 }
 
+#unifinder-search-field {
+  flex: 1;
+  --input-text-max-width: none;
+}
+
 /* only format Unifinder lists */
 #unifinder-search-results-tree > treechildren::-moz-tree-cell-text(highpriority) {
   font-weight: bold;

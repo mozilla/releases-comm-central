@@ -47,8 +47,11 @@ XPCOMUtils.defineLazyPreferenceGetter(
   });
 
   // Fix the "Search on addons.mozilla.org" placeholder text in the searchbox.
-  const textbox = document.querySelector("search-addons > search-textbox");
-  document.l10n.setAttributes(textbox, "atn-addons-heading-search-input");
+  const input = document.querySelector("search-addons > moz-input-search");
+  document.l10n.setAttributes(input, "atn-addons-heading-search-input");
+
+  const button = document.querySelector("search-addons > moz-button");
+  document.l10n.setAttributes(button, "atn-addons-heading-search-button");
 
   // Add our stylesheet.
   const contentStylesheet = document.createElement("link");

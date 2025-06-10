@@ -44,6 +44,7 @@
 
 #searchBox {
   max-width: 30ch;
+  --input-text-max-width: none;
 }
 
 /* ::::: columns :::::: */

@@ -382,7 +382,6 @@ add_task(async function testNNTPSubscribe() {
 
         EventUtils.synthesizeMouseAtCenter(searchField, {}, win);
         EventUtils.sendString("foo", win);
-        EventUtils.synthesizeKey("VK_RETURN", {}, win);
 
         await TestUtils.waitForCondition(
           () => searchTree.view.rowCount == 1,
