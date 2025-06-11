@@ -20,13 +20,15 @@
  * element within a container, based on the following logic.
  *
  * Horizontal:
- * 1. If there is space next to the trigger place the dialog next to it:
+ * 1. If the trigger is not visible center in the container.
+ * 2. If there is space next to the trigger place the dialog next to it:
  *    Place on the side with more space if space is equal favor start.
- * 2. If not possible center the dialog with the trigger.
- * 3. If not possible Center the dialog in the container.
+ * 3. If not possible center the dialog with the trigger.
+ * 4. If not possible Center the dialog in the container.
  *
  * Vertical:
- * 1. If positioning next to the trigger:
+ * 1. If the trigger is not visible center in the container.
+ * 2. If positioning next to the trigger:
  *    Attempt to align the top of the dialog with the top of the trigger.
  *    The dialog should always maintain dialog.margin px space between the
  *    trigger or the container and the dialog edges.
@@ -34,10 +36,10 @@
  *    top.
  *   If the trigger is too close to the bottom, position dialog.margin px from
  *    the bottom.
- * 2. If positioning in a narrow viewport with space above or below for dialog:
+ * 3. If positioning in a narrow viewport with space above or below for dialog:
  *    Position above or below trigger where there is the most room,
  *     if space is equal favoring below.
- * 3. If the viewport is narrow and there is not space above or below:
+ * 4. If the viewport is narrow and there is not space above or below:
  *    Center the dialog in the viewport.
  *
  * @param {object} options
@@ -50,6 +52,7 @@
  * @returns {dialogPosition}
  */
 export function getIdealDialogPosition({ trigger, container, dialog }) {
+  const notVisible = trigger.width === 0 || trigger.height === 0;
   const fullMargin = dialog.margin * 2;
   const fullDialogWidth = dialog.width + fullMargin;
   const fullDialogHeight = dialog.height + fullMargin;
@@ -72,6 +75,15 @@ export function getIdealDialogPosition({ trigger, container, dialog }) {
   const canCenterOnTarget =
     triggerCenter - container.left >= halfDialogAffordance &&
     container.right - triggerCenter >= halfDialogAffordance;
+  const viewportCenter = {
+    x: `${container.left + container.width / 2 - dialog.width / 2}px`,
+    y: `${container.top + container.height / 2 - dialog.height / 2}px`,
+  };
+
+  if (notVisible) {
+    return viewportCenter;
+  }
+
   let y;
   let x;
 
@@ -84,7 +96,7 @@ export function getIdealDialogPosition({ trigger, container, dialog }) {
     x = `${triggerCenter - dialog.width / 2}px`;
   } else {
     // Center in Viewport
-    x = `${container.left + container.width / 2 - dialog.width / 2}px`;
+    x = viewportCenter.x;
   }
 
   if (hasHorizontalSpace) {
@@ -114,7 +126,7 @@ export function getIdealDialogPosition({ trigger, container, dialog }) {
       y = `${trigger.top - dialog.margin - dialog.height}px`;
     }
   } else {
-    y = `${container.top + container.height / 2 - dialog.height / 2}px`;
+    y = viewportCenter.y;
   }
 
   return { x, y };

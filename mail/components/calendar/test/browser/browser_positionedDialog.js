@@ -1139,6 +1139,93 @@ const tests = [
       y: 988,
     },
   },
+  {
+    label: "Trigger is not visible",
+    message: "width = 0 and height = 0",
+    trigger: {
+      height: 0,
+      width: 0,
+      left: 100,
+      top: 100,
+      bottom: 200,
+      right: 200,
+    },
+    container: {
+      height: 1000,
+      width: 1000,
+      left: 0,
+      top: 100,
+      bottom: 1100,
+      right: 1000,
+    },
+    dialog: {
+      width: 100,
+      height: 100,
+      margin: 12,
+    },
+    result: {
+      x: 450,
+      y: 550,
+    },
+  },
+  {
+    label: "Trigger is not visible",
+    message: "width = 0",
+    trigger: {
+      height: 100,
+      width: 0,
+      left: 100,
+      top: 100,
+      bottom: 200,
+      right: 200,
+    },
+    container: {
+      height: 1000,
+      width: 1000,
+      left: 0,
+      top: 0,
+      bottom: 1000,
+      right: 1000,
+    },
+    dialog: {
+      width: 100,
+      height: 100,
+      margin: 12,
+    },
+    result: {
+      x: 450,
+      y: 450,
+    },
+  },
+  {
+    label: "Trigger is not visible",
+    message: "height = 0",
+    trigger: {
+      height: 0,
+      width: 100,
+      left: 100,
+      top: 100,
+      bottom: 200,
+      right: 200,
+    },
+    container: {
+      height: 1000,
+      width: 1000,
+      left: 0,
+      top: 0,
+      bottom: 1000,
+      right: 1000,
+    },
+    dialog: {
+      width: 100,
+      height: 100,
+      margin: 12,
+    },
+    result: {
+      x: 450,
+      y: 450,
+    },
+  },
 ];
 
 add_task(async function test_positionedDialogPosition() {
