@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Account Hub Address Book Test</title>
-    <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/address-book-option-select.mjs"></script>
+    <title>Account Hub Address Book Sync Test</title>
+    <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/address-book-sync.mjs"></script>
   </head>
   <body>
     <template
@@ -87,100 +87,44 @@
       </div>
     </template>
     <template
-      id="accountHubAddressBookOptionSelectTemplate"
+      id="accountHubAddressBookSyncTemplate"
       xmlns="http://www.w3.org/1999/xhtml"
     >
       <form
-        id="optionSelectForm"
+        id="addressBookSyncForm"
         class="account-hub-address-book-form"
         slot="content"
       >
-        <div class="hub-body option-select-body">
-          <button
-            id="syncExistingAccounts"
-            class="account-hub-option-button fetching"
-            name="subview"
-            value="accountSelectSubview"
-            disabled="disabled"
-          >
-            <img
-              class="address-book-option-icon sync-icon"
-              data-l10n-id="address-book-sync-existing-icon"
-            />
-            <span
-              class="option-title"
-              data-l10n-id="address-book-sync-existing">
-            </span>
-            <span
-              id="syncExistingAccountsData"
-              class="option-data"
-              data-l10n-id="address-book-sync-existing-description"
-            >
-            </span>
-          </button>
-          <button
-            id="addRemoteAddressBook"
-            class="account-hub-option-button"
-            name="subview"
-            value="remoteAccountSubview"
-          >
-            <img
-              class="address-book-option-icon remote-address-book-icon"
-              data-l10n-id="address-book-add-remote-icon"
-            />
-            <span
-              class="option-title"
-              data-l10n-id="address-book-add-remote">
-            </span>
-            <span
-              class="option-data"
-              data-l10n-id="address-book-add-remote-description"
-            >
-            </span>
-          </button>
-          <button
-            id="newLocalAddressBook"
-            class="account-hub-option-button"
-            name="subview"
-            value="localAddressBookSubview"
-          >
-            <img
-              class="address-book-option-icon local-address-book-icon"
-              data-l10n-id="address-book-add-local-icon"
-            />
-            <span
-              class="option-title"
-              data-l10n-id="address-book-add-local">
-            </span>
-            <span
-              class="option-data"
-              data-l10n-id="address-book-add-local-description"
-            >
-            </span>
-          </button>
-          <button
-            id="newLdapAddressBook"
-            class="account-hub-option-button"
-            name="subview"
-            value="ldapAccountSubview"
-          >
-            <img
-              class="address-book-option-icon ldap-address-book-icon"
-              data-l10n-id="address-book-add-ldap-icon"
-            />
-            <span
-              class="option-title"
-              data-l10n-id="address-book-add-ldap">
-            </span>
-            <span
-              class="option-data"
-              data-l10n-id="address-book-add-ldap-description"
-            >
-            </span>
-          </button>
+        <div class="hub-body sync-accounts-form-body">
+          <div id="addressBooks" class="sync-type-container">
+            <div class="sync-title">
+              <img src="" alt="" class="sync-icon address-book" />
+              <div class="sync-details">
+                <h1
+                  class="title"
+                  data-l10n-id="account-setup-address-books-button"
+                >
+                </h1>
+                <span id="selectedAddressBooks" class="subtitle"></span>
+                <button
+                  id="selectAllAddressBooks"
+                  type="button"
+                  class="button primary-button button-sm select-all"
+                >
+                </button>
+              </div>
+            </div>
+            <div
+              id="addressBookAccountsContainer"
+              class="sync-input-container"
+              role="region"
+              aria-live="polite">
+            </div>
+          </div>
         </div>
       </form>
     </template>
-    <address-book-option-select></address-book-option-select>
+    <address-book-sync>
+    </address-book-sync>
   </body>
 </html>

@@ -11,6 +11,7 @@ const { sinon } = ChromeUtils.importESModule(
 const tabmail = document.getElementById("tabmail");
 let browser;
 let abView;
+let testAccount;
 
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
@@ -24,7 +25,27 @@ add_setup(async function () {
     "account-hub-address-book"
   );
 
-  registerCleanupFunction(() => {
+  testAccount = {
+    account: { incomingServer: {}, defaultIdentity: {} },
+    addressBooks: [
+      {
+        name: "Book A",
+        existing: false,
+        url: { href: "test@test.com/BookA" },
+      },
+      {
+        name: "Book B",
+        existing: false,
+        url: { href: "test@test.com/BookB" },
+      },
+    ],
+    existingAddressBookCount: 0,
+  };
+  testAccount.account.incomingServer.username = "test@test.com";
+  testAccount.account.defaultIdentity.fullName = "Test User";
+
+  registerCleanupFunction(async () => {
+    await abView.reset();
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   });
 });
@@ -112,4 +133,140 @@ add_task(async function test_reset() {
     1,
     "Test state subview should have called resetState"
   );
+});
+
+add_task(async function test_optionAndAccountSelectFormSubmission() {
+  // Add a test account to the address-book #accounts variable
+  const optionSelectSubview = abView.querySelector(
+    "address-book-option-select"
+  );
+  await TestUtils.waitForCondition(
+    () => abView.hasConnected,
+    "The address book subview should be connected"
+  );
+  abView.insertTestAccount(testAccount);
+
+  // Enable the sync accounts option and select it.
+  const syncAccountsButton = optionSelectSubview.querySelector(
+    "#syncExistingAccounts"
+  );
+  syncAccountsButton.disabled = false;
+  let formSubmissionPromise = BrowserTestUtils.waitForEvent(
+    optionSelectSubview,
+    "submit"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    syncAccountsButton,
+    {},
+    abView.ownerGlobal
+  );
+  await formSubmissionPromise;
+
+  // To spy on the setState function of account select, we need to first load
+  // it by viewing it, and then go back to option select to see if setState is
+  // called when the form is submitted again.
+  const accountSelectSubview = abView.querySelector(
+    "address-book-account-select"
+  );
+  await TestUtils.waitForCondition(
+    () => accountSelectSubview.hasConnected,
+    "The account-select subview should be connected"
+  );
+  let setStateSpy = sinon.spy(accountSelectSubview, "setState");
+  const backButton = abView.querySelector("account-hub-footer #back");
+
+  let subviewHiddenPromise = BrowserTestUtils.waitForAttribute(
+    "hidden",
+    accountSelectSubview
+  );
+  EventUtils.synthesizeMouseAtCenter(backButton, {}, abView.ownerGlobal);
+  await subviewHiddenPromise;
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", optionSelectSubview);
+  Assert.ok(
+    BrowserTestUtils.isHidden(accountSelectSubview),
+    "The account select subview should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(optionSelectSubview),
+    "The option select subview should be visible"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    syncAccountsButton,
+    {},
+    abView.ownerGlobal
+  );
+
+  await TestUtils.waitForCondition(
+    () => accountSelectSubview.querySelector('button[value="test@test.com"]'),
+    "The account-select subview should show an account button"
+  );
+  Assert.equal(
+    setStateSpy.callCount,
+    1,
+    "Account select subview should have called setState"
+  );
+
+  // To spy on the setState function of the syncSubview, we need to first load
+  // it by viewing it, and then go back to account select to see if setState is
+  // called when the form is submitted again.
+  const accountButton = accountSelectSubview.querySelector(
+    'button[value="test@test.com"]'
+  );
+  formSubmissionPromise = BrowserTestUtils.waitForEvent(
+    accountSelectSubview,
+    "submit"
+  );
+  EventUtils.synthesizeMouseAtCenter(accountButton, {}, abView.ownerGlobal);
+  await formSubmissionPromise;
+
+  const syncSubview = abView.querySelector("address-book-sync");
+  await TestUtils.waitForCondition(
+    () => syncSubview.hasConnected,
+    "The sync subview should be connected"
+  );
+  setStateSpy = sinon.spy(syncSubview, "setState");
+
+  subviewHiddenPromise = BrowserTestUtils.waitForAttribute(
+    "hidden",
+    syncSubview
+  );
+  EventUtils.synthesizeMouseAtCenter(backButton, {}, abView.ownerGlobal);
+  await subviewHiddenPromise;
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    accountSelectSubview
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(syncSubview),
+    "The sync subview should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(accountSelectSubview),
+    "The account select subview should be visible"
+  );
+
+  subviewHiddenPromise = BrowserTestUtils.waitForAttribute(
+    "hidden",
+    accountSelectSubview
+  );
+  EventUtils.synthesizeMouseAtCenter(accountButton, {}, abView.ownerGlobal);
+  await subviewHiddenPromise;
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", syncSubview);
+  Assert.ok(
+    BrowserTestUtils.isHidden(accountSelectSubview),
+    "The account select subview should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(syncSubview),
+    "The sync subview should be visible"
+  );
+
+  Assert.equal(
+    setStateSpy.callCount,
+    1,
+    "Address book sync subview should have called setState"
+  );
+
+  abView.removeTestAccount(testAccount);
 });

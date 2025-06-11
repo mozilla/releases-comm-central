@@ -224,25 +224,33 @@ add_task(async function test_address_book_sync_account() {
   );
 
   // Click the sync accounts option to show the account option subview.
+  let subviewHiddenPromise = BrowserTestUtils.waitForAttribute(
+    "hidden",
+    optionSelectTemplate
+  );
   EventUtils.synthesizeMouseAtCenter(
     optionSelectTemplate.querySelector("#syncExistingAccounts"),
     {}
   );
-  await TestUtils.waitForCondition(
-    () => BrowserTestUtils.isHidden(optionSelectTemplate),
-    "The option-select subview should be hidden."
-  );
+  await subviewHiddenPromise;
   const accountSelectTemplate = dialog.querySelector(
     "address-book-account-select"
   );
-  await TestUtils.waitForCondition(
-    () => BrowserTestUtils.isVisible(accountSelectTemplate),
-    `The account-select subview should be visible.`
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    accountSelectTemplate
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(optionSelectTemplate),
+    "The option select subview should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(accountSelectTemplate),
+    "The account select subview should be visible"
   );
 
   // Test that button values have been updated correctly.
   const accountButton = accountSelectTemplate.querySelector("button");
-
   Assert.equal(
     accountButton.value,
     "john.doe@imap.test",
@@ -276,7 +284,36 @@ add_task(async function test_address_book_sync_account() {
     "Total address books count should be 1"
   );
 
-  subtest_close_account_hub_dialog(dialog, accountSelectTemplate);
+  // Click the account button to open the sync address books template.
+  subviewHiddenPromise = BrowserTestUtils.waitForAttribute(
+    "hidden",
+    accountSelectTemplate
+  );
+  EventUtils.synthesizeMouseAtCenter(accountButton, {});
+  await subviewHiddenPromise;
+  const syncAddressBooksTemplate = dialog.querySelector("address-book-sync");
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    syncAddressBooksTemplate
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(accountSelectTemplate),
+    "The option select subview should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(syncAddressBooksTemplate),
+    "The account select subview should be visible"
+  );
+
+  // The address book input should be checked and enabled
+  const addressBookInput = syncAddressBooksTemplate.querySelector("input");
+  Assert.ok(
+    !addressBookInput.disabled,
+    "Address book option should be enabled"
+  );
+  Assert.ok(addressBookInput.checked, "Address book option should be checked");
+
+  subtest_close_account_hub_dialog(dialog, syncAddressBooksTemplate);
   Services.logins.removeAllLogins();
   MailServices.accounts.removeAccount(abAccount);
   IMAPServer.close();

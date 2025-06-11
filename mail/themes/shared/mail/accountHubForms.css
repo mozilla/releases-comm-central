@@ -764,6 +764,8 @@ div:has(legend) {
       & .title {
         color: var(--color-text-base);
         text-transform: capitalize;
+        margin-block: 0;
+        font-size: 1rem;
       }
 
       & .subtitle {

@@ -6,4 +6,37 @@
   id="accountHubAddressBookSyncTemplate"
   xmlns="http://www.w3.org/1999/xhtml"
 >
+  <form
+    id="addressBookSyncForm"
+    class="account-hub-address-book-form"
+    slot="content"
+  >
+    <div class="hub-body sync-accounts-form-body">
+      <div id="addressBooks" class="sync-type-container">
+        <div class="sync-title">
+          <img src="" alt="" class="sync-icon address-book" />
+          <div class="sync-details">
+            <h1
+              class="title"
+              data-l10n-id="account-setup-address-books-button"
+            >
+            </h1>
+            <span id="selectedAddressBooks" class="subtitle"></span>
+            <button
+              id="selectAllAddressBooks"
+              type="button"
+              class="button primary-button button-sm select-all"
+            >
+            </button>
+          </div>
+        </div>
+        <div
+          id="addressBookAccountsContainer"
+          class="sync-input-container"
+          role="region"
+          aria-live="polite">
+        </div>
+      </div>
+    </div>
+  </form>
 </html:template>

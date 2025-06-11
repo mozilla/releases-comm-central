@@ -20,6 +20,8 @@ support-files = ["files/**"]
 
 ["browser_accountHubAddressBookOptionSelect.js"]
 
+["browser_accountHubAddressBookSync.js"]
+
 ["browser_accountHubFooter.js"]
 
 ["browser_oAuthGranularScopes.js"]

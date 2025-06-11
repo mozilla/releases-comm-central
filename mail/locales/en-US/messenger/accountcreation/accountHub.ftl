@@ -284,3 +284,5 @@ account-hub-add-local-address-book = Create a Local Address Book
 account-hub-local-address-book-label = Address Book Name
 
 account-hub-local-error-text = Please enter an address book name
+
+account-hub-sync-address-books = Sync existing address books

@@ -26,14 +26,14 @@ class EmailSyncAccountsForm extends AccountHubStep {
   /**
    * Text for how many address books are selected.
    *
-   * @type {HTMLButtonElement}
+   * @type {HTMLElement}
    */
   #selectedAddressBooks;
 
   /**
    * Text for how many calendars are selected.
    *
-   * @type {HTMLButtonElement}
+   * @type {HTMLElement}
    */
   #selectedCalendars;
 

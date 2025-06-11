@@ -34,7 +34,7 @@ class AccountHubAddressBook extends HTMLElement {
   /**
    * @typedef {object} AddressBookAccounts
    * @property {nsIMsgAccount} account - A user account.
-   * @property {foundBook} edited - An address book linked to the user account.
+   * @property {foundBook} addressBooks - An address book linked to the user account.
    * @property {number} existingAddressBookCount - Already synced address books
    *  count.
    */
@@ -182,6 +182,28 @@ class AccountHubAddressBook extends HTMLElement {
   }
 
   /**
+   * Inject an account in the list of #accounts (for unit testing).
+   *
+   * @param {AddressBookAccounts} account - The test address book account.
+   */
+  insertTestAccount(account) {
+    this.#accounts.push(account);
+  }
+
+  /**
+   * Remove the test account from the list of #accounts (for unit testing).
+   *
+   * @param {AddressBookAccounts} account - The test address book account.
+   */
+  removeTestAccount(account) {
+    this.#accounts = this.#accounts.filter(
+      addressBookAccount =>
+        addressBookAccount.account.incomingServer.username !=
+        account.account.incomingServer.username
+    );
+  }
+
+  /**
    * Handle the events from the subviews.
    *
    * @param {Event} event
@@ -203,6 +225,16 @@ class AccountHubAddressBook extends HTMLElement {
           await this.#initUI(event.submitter.value);
           this.#currentSubview.setState?.(this.#accounts);
           break;
+        }
+
+        if (this.#currentState === "accountSelectSubview") {
+          await this.#initUI("syncAddressBooksSubview");
+          const account = this.#accounts.find(
+            addressBookAccount =>
+              addressBookAccount.account.incomingServer.username ===
+              event.submitter.value
+          );
+          this.#currentSubview.setState(account.addressBooks);
         }
       // Fall through to handle like forward event.
       case "forward":
