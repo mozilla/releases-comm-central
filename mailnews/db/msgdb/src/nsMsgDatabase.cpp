@@ -3139,6 +3139,29 @@ NS_IMETHODIMP nsMsgDatabase::AddNewHdrToDB(nsIMsgDBHdr* newHdr, bool notify) {
   return err;
 }
 
+NS_IMETHODIMP nsMsgDatabase::AttachHdr(nsIMsgDBHdr* detachedHdr, bool notify,
+                                       nsIMsgDBHdr** liveHdr) {
+  // Sanity check.
+  bool isLive;
+  nsresult rv = detachedHdr->GetIsLive(&isLive);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (isLive) {
+    NS_ERROR("Live nsIMsgDBHdr passed in to AttachHdr()");
+    return NS_ERROR_INVALID_ARG;
+  }
+
+  // Attach it to the messages table.
+  rv = AddNewHdrToDB(detachedHdr, notify);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Return the same header that was passed in.
+  // That's OK - once detachedHdr is passed in here, the caller won't be
+  // using it any more, so we can sneakily recycle it.
+  NS_ADDREF(detachedHdr);
+  *liveHdr = detachedHdr;
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgDatabase::CopyHdrFromExistingHdr(nsMsgKey key,
                                                     nsIMsgDBHdr* existingHdr,
                                                     bool addHdrToDB,

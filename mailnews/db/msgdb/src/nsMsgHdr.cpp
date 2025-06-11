@@ -938,3 +938,12 @@ NS_IMETHODIMP nsMsgHdr::GetUidOnServer(uint32_t* result) {
 NS_IMETHODIMP nsMsgHdr::SetUidOnServer(uint32_t uid) {
   return SetUInt32Column(uid, m_mdb->m_uidOnServerColumnToken);
 }
+
+NS_IMETHODIMP nsMsgHdr::GetIsLive(bool* isLive) {
+  // If it's attached to the messages table, it's live.
+  bool found = false;
+  nsresult rv = m_mdb->ContainsKey(m_messageKey, &found);
+  NS_ENSURE_SUCCESS(rv, rv);
+  *isLive = found;
+  return NS_OK;
+}
