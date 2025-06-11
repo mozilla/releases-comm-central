@@ -488,6 +488,7 @@ tr[data-properties~="replied"][data-properties~="forwarded"][data-properties~="r
 }
 
 tr:is(.table-layout, .card-layout) {
+  contain: strict;
 
   &:not(.children) .twisty {
     display: none;

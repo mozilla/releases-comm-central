@@ -133,6 +133,7 @@ body {
   user-select: none;
   display: flex;
   flex-direction: column;
+  contain: strict;
 }
 
 #folderPaneSplitter {
@@ -149,6 +150,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  contain: strict;
 }
 
 #messagePaneSplitter {
@@ -165,6 +167,7 @@ body {
   overflow: auto;
   display: flex;
   flex-direction: column;
+  contain: strict;
 }
 
 #accountCentralBrowser {
@@ -477,6 +480,7 @@ body {
 }
 
 .container {
+  contain: strict;
 
   li.context-menu-target:not(.selected) > &,
   li.context-menu-target:not(.selected) > &:hover {
