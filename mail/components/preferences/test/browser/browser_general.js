@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { MockFilePicker } = ChromeUtils.importESModule(
+  "resource://testing-common/MockFilePicker.sys.mjs"
+);
+var { MockSound } = ChromeUtils.importESModule(
+  "resource://testing-common/MockSound.sys.mjs"
+);
+
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -70,9 +77,6 @@ add_task(async () => {
 });
 
 add_task(async () => {
-  if (AppConstants.platform == "macosx") {
-    return;
-  }
   await testCheckboxes(
     "paneGeneral",
     "incomingMailCategory",
@@ -87,13 +91,9 @@ add_task(async () => {
       enabledElements: ["#customizeMailAlert"],
     }
   );
-});
+}).skip(AppConstants.platform == "macosx");
 
 add_task(async () => {
-  if (AppConstants.platform == "macosx") {
-    return;
-  }
-
   Services.prefs.setBoolPref("mail.biff.play_sound", true);
 
   await testRadioButtons("paneGeneral", "incomingMailCategory", {
@@ -110,6 +110,67 @@ add_task(async () => {
       },
     ],
   });
+}).skip(AppConstants.platform == "macosx");
+
+add_task(async function test_sounds() {
+  // To hear the sound in this test, add `--setpref media.volume_scale=1.0` to
+  // your command. You won't hear the system sound as nsISound is mocked out.
+
+  Services.prefs.setBoolPref("mail.biff.play_sound", true);
+  Services.prefs.setIntPref("mail.biff.play_sound.type", 0);
+  Services.prefs.setStringPref("mail.biff.play_sound.url", "");
+  MockSound.init();
+
+  const { prefsDocument, prefsWindow } = await openNewPrefsTab(
+    "paneGeneral",
+    "incomingMailCategory"
+  );
+  const playSoundButton = prefsDocument.getElementById("playSound");
+  const soundUrlTextbox = prefsDocument.getElementById("soundUrlLocation");
+  const browseButton = prefsDocument.getElementById("browseForSound");
+
+  if (AppConstants.platform != "macosx") {
+    const [systemRadio, customRadio] =
+      prefsDocument.querySelectorAll("#soundType radio");
+    Assert.ok(systemRadio.selected);
+    Assert.ok(!playSoundButton.disabled);
+    EventUtils.synthesizeMouseAtCenter(playSoundButton, {}, prefsWindow);
+    Assert.deepEqual(
+      MockSound.played,
+      [`(event)${Ci.nsISound.EVENT_NEW_MAIL_RECEIVED}`],
+      "should have played the system sound"
+    );
+    MockSound.reset();
+
+    EventUtils.synthesizeMouseAtCenter(customRadio, {}, prefsWindow);
+  }
+  Assert.ok(playSoundButton.disabled);
+  Assert.equal(soundUrlTextbox.value, "");
+
+  const soundFile = new FileUtils.File(getTestFilePath("files/complete.oga"));
+  const soundUrl = Services.io.newFileURI(soundFile).spec;
+  MockFilePicker.init(window);
+  MockFilePicker.setFiles([soundFile]);
+  MockFilePicker.returnValue = MockFilePicker.returnOK;
+  EventUtils.synthesizeMouseAtCenter(browseButton, {}, prefsWindow);
+  await TestUtils.waitForCondition(
+    () => soundUrlTextbox.value,
+    "waiting for sound url to be set"
+  );
+  Assert.equal(soundUrlTextbox.value, soundUrl);
+
+  Assert.equal(Services.prefs.getIntPref("mail.biff.play_sound.type"), 1);
+  const audioPromise = TestUtils.topicObserved("notification-audio-ended");
+  EventUtils.synthesizeMouseAtCenter(playSoundButton, {}, prefsWindow);
+  const [audioElement] = await audioPromise;
+  Assert.equal(MockSound.played.length, 0);
+  Assert.equal(audioElement.src, soundUrl);
+
+  await closePrefsTab();
+
+  MockSound.cleanup();
+  Services.prefs.clearUserPref("mail.biff.play_sound.type");
+  Services.prefs.clearUserPref("mail.biff.play_sound.url");
 });
 
 add_task(async () => {
