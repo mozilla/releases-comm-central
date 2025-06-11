@@ -130,5 +130,31 @@ add_task(async function test_calendarDialogColors() {
   Services.prefs.clearUserPref(
     `calendar.category.color.${formattedCategoryName}`
   );
+
   await calendar.deleteItem(eventBox.occurrence);
+});
+
+add_task(async function test_maxSize() {
+  const style = document.createElement("style");
+  style.textContent = `[is="calendar-dialog"] { height: 2000px; }`;
+  document.head.appendChild(style);
+
+  await createEvent({ calendar });
+  const eventBox = await openAndShowEvent();
+
+  const dialog = document.querySelector(`[is="calendar-dialog"]`);
+
+  const dialogBox = dialog.getBoundingClientRect();
+  const container = document.getElementById("calendarDisplayBox");
+  const containerBox = container.getBoundingClientRect();
+
+  Assert.equal(
+    Math.floor(dialogBox.height),
+    Math.floor(containerBox.height - DEFAULT_DIALOG_MARGIN * 2),
+    "The dialog height is restricted by the container"
+  );
+
+  await calendar.deleteItem(eventBox.occurrence);
+
+  style.remove();
 });

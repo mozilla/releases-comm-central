@@ -33,7 +33,9 @@
   margin: 0;
   padding: 0;
   width: 424px;
+  max-height: calc(100vh - 24px);
   z-index: 999;
+  box-sizing: border-box;
 }
 
 .titlebar {

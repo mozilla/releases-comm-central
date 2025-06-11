@@ -5,7 +5,10 @@
 import { getIdealDialogPosition } from "./dialog-position.mjs";
 
 /**
- * Base class for a dialog positioned relative to a trigger.
+ * Base class for a dialog positioned relative to a trigger and restrained by a
+ * container. The position is determined by the logic in dialog-position.mjs.
+ * The position and height of the dialog are constrained by the container
+ * element.
  *
  * @tagname positioned-dialog
  * @attribute {number} margin - See margin property.
@@ -35,9 +38,17 @@ export class PositionedDialog extends HTMLDialogElement {
   triggerSelector;
 
   /**
-   * Modifies the default `show` method of the dialog absolutely postioned
-   * relative to a trigger element determined using the event.target and
-   * triggerSelector.
+   * Modifies the default `show` method of the dialog to absolutely postion the
+   * dialog relative to a trigger element, restricted by a container element.
+   *
+   * The trigger element is determined by passing the trigger-selector to the
+   * `event.target.closest`.
+   *
+   * Position is determined by `getIdealDialogPosition`
+   *
+   * The container restrains both the position and height of the dialog. The
+   * width is not constrained because in ultra narrow viewports it's best to
+   * overflow things like the today pane.
    *
    * @param {MouseEvent} [event] - The dblClick event that triggered the dialog.
    */
@@ -88,6 +99,9 @@ export class PositionedDialog extends HTMLDialogElement {
     this.style.visibility = "visible";
     this.style.left = position.x;
     this.style.top = position.y;
+
+    // Don't allow the dialog to exceed the height of the container.
+    this.style.maxHeight = `${Math.floor(containerRect.height - this.margin * 2)}px`;
   }
 }
 
