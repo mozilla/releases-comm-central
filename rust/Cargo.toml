@@ -205,7 +205,6 @@ base64_21 = { package = "base64", path = "../../build/rust/base64" }
 wasi_0_10 = { package = "wasi", path = "../../build/rust/wasi-0.10" }
 wasi_0_11 = { package = "wasi", path = "../../build/rust/wasi" }
 backtrace = { path = "../../build/rust/backtrace" }
-bindgen_0_63 = { package = "bindgen", path = "../../build/rust/bindgen-0.63" }
 bindgen = { path = "../../third_party/rust/bindgen" }
 autocfg = { path = "../../third_party/rust/autocfg" }
 goblin = { path = "../../build/rust/goblin" }
