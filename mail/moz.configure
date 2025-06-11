@@ -8,7 +8,20 @@ set_config("MOZ_THUNDERBIRD", True)
 set_define("MOZ_THUNDERBIRD", True)
 
 imply_option("MOZ_APP_NAME", "thunderbird")
-imply_option("MOZ_APP_PROFILE", "thunderbird")
+
+# MOZ_APP_PROFILE: When set, used for application.ini's
+# "Profile" field, which controls profile location.
+if target_is_windows or target_is_osx:
+    imply_option("MOZ_APP_PROFILE", "Thunderbird")
+else:
+    imply_option("MOZ_APP_PROFILE", "thunderbird")
+
+# MOZ_APP_BASENAME: Typically stays consistent for multiple branded
+# versions of a given application (e.g. Daily and Thunderbird both use
+# "Thunderbird"), but may vary for full rebrandings. Used
+# for application.ini's "Name" field, which controls profile location in
+# the absence of a "Profile" field, and various system
+# integration hooks (Unix remoting, Windows MessageWindow name, etc.)
 imply_option("MOZ_APP_BASENAME", "Thunderbird")
 set_config("MOZ_APPUPDATE_HOST", "aus.thunderbird.net")
 
