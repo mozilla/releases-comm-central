@@ -1367,13 +1367,20 @@ void nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
     }
     if (!moved) {
       if (m_mailDB) {
-        m_mailDB->AddNewHdrToDB(m_newMsgHdr, true);
+        nsresult rv;
+        nsCOMPtr<nsIMsgDBHdr> detachedHdr = m_newMsgHdr;
+        nsCOMPtr<nsIMsgDBHdr> liveHdr;
+        m_newMsgHdr = nullptr;
+        rv = m_mailDB->AttachHdr(detachedHdr, true, getter_AddRefs(liveHdr));
+        NS_ENSURE_SUCCESS_VOID(rv);
         nsCOMPtr<nsIMsgFolderNotificationService> notifier(
             do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-        if (notifier) notifier->NotifyMsgAdded(m_newMsgHdr);
-        // mark the header as not yet reported classified
+        if (notifier) {
+          notifier->NotifyMsgAdded(liveHdr);
+        }
+        // Mark the header as not yet reported classified.
         nsMsgKey msgKey;
-        m_newMsgHdr->GetMessageKey(&msgKey);
+        liveHdr->GetMessageKey(&msgKey);
         m_downloadFolder->OrProcessingFlags(
             msgKey, nsMsgProcessingFlags::NotReportedClassified);
       }
