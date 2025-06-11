@@ -382,7 +382,8 @@ function displayMessage(uri, viewWrapper) {
       if (url instanceof Ci.nsIMsgMailNewsUrl && url.seeOtherURI) {
         // Show error page if needed.
         HideMessageHeaderPane();
-        MailE10SUtils.loadURI(getMessagePaneBrowser(), url.seeOtherURI);
+        browser.browsingContext.sandboxFlags = 0;
+        MailE10SUtils.loadURI(browser, url.seeOtherURI);
       }
       if (flags & Ci.nsMsgMessageFlags.New) {
         // Close any notification we might have about this message.
