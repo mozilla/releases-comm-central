@@ -12,6 +12,10 @@ support-files = [
 
 ["test_alertHook.js"]
 
+["test_archive.js"]
+environment = ["MOZ_LOG=IMAP:4"]
+tags = ["archive"]
+
 ["test_attachmentChecker.js"]
 
 ["test_bug1086527.js"]

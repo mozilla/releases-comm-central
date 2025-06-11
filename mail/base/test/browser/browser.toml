@@ -20,6 +20,7 @@ support-files = [
 ["browser_3paneTelemetry.js"]
 
 ["browser_archive.js"]
+tags = ["archive"]
 
 ["browser_browserContext.js"]
 tags = [

@@ -78,8 +78,8 @@ MessageArchiver.canArchive = function (messages, isSingleFolder) {
 let gIsArchiving = false;
 
 /**
- * @implements {nsIUrlListener}
  * @implements {nsIMsgCopyServiceListener}
+ * @implements {nsIMsgFolderListener}
  * @implements {nsIMsgOperationListener}
  */
 MessageArchiver.prototype = {
@@ -268,9 +268,13 @@ MessageArchiver.prototype = {
 
     if (granularity >= Ci.nsIMsgIdentity.perYearArchiveFolders) {
       if (!dstFolder.containsChildNamed(batch.yearFolderName)) {
+        if (isAsync) {
+          this._dstFolderParent = dstFolder;
+          this._dstFolderName = batch.yearFolderName;
+        }
         dstFolder.createSubfolder(batch.yearFolderName, null);
         if (isAsync) {
-          // Continues with OnStopRunningUrl.
+          // Continues with folderAdded.
           return;
         }
       }
@@ -278,9 +282,13 @@ MessageArchiver.prototype = {
     }
     if (granularity >= Ci.nsIMsgIdentity.perMonthArchiveFolders) {
       if (!dstFolder.containsChildNamed(batch.monthFolderName)) {
+        if (isAsync) {
+          this._dstFolderParent = dstFolder;
+          this._dstFolderName = batch.monthFolderName;
+        }
         dstFolder.createSubfolder(batch.monthFolderName, null);
         if (isAsync) {
-          // Continues with OnStopRunningUrl.
+          // Continues with folderAdded.
           return;
         }
       }
@@ -342,19 +350,6 @@ MessageArchiver.prototype = {
     this.processNextBatch(); // next batch
   },
 
-  // @implements {nsIUrlListener}
-  OnStartRunningUrl() {},
-  OnStopRunningUrl(url, exitCode) {
-    // this will always be a create folder url, afaik.
-    if (Components.isSuccessCode(exitCode)) {
-      this.continueBatch();
-    } else {
-      console.error("Archive failed to create folder: " + exitCode);
-      this._batches = null;
-      this.processNextBatch(); // for cleanup and exit
-    }
-  },
-
   // also implements nsIMsgCopyServiceListener, but we only care
   // about the onStopCopy
   // @implements {nsIMsgCopyServiceListener}
@@ -391,8 +386,8 @@ MessageArchiver.prototype = {
   },
 
   QueryInterface: ChromeUtils.generateQI([
-    "nsIUrlListener",
     "nsIMsgCopyServiceListener",
+    "nsIMsgFolderListener",
     "nsIMsgOperationListener",
   ]),
 };

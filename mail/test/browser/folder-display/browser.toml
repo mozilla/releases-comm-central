@@ -47,6 +47,7 @@ support-files = ["data/**"]
 ["browser_applyView.js"]
 
 ["browser_archiveMessages.js"]
+tags = ["archive"]
 
 ["browser_closeWindowOnDelete.js"]
 

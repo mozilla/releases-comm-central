@@ -78,6 +78,7 @@ tags = ["oauth"]
 ["browser_actions.js"]
 
 ["browser_archiveOptions.js"]
+tags = ["archive"]
 
 ["browser_deletion.js"]
 
