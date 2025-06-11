@@ -48,8 +48,8 @@ class ThreadCard extends TreeViewTableRow {
     this.sortHeaderDetails = this.querySelector(".sort-header-details");
   }
 
-  _fillRow() {
-    super._fillRow();
+  fillRow() {
+    super.fillRow();
 
     // XPCOM calls here must be keep to a minimum. Collect all of the
     // required data in one go.

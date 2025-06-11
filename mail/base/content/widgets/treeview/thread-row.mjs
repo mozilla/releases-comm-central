@@ -31,8 +31,8 @@ class ThreadRow extends TreeViewTableRow {
     );
   }
 
-  _fillRow() {
-    super._fillRow();
+  fillRow() {
+    super.fillRow();
 
     const textColumns = [];
     for (const column of window.threadPane.columns) {

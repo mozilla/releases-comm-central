@@ -1228,8 +1228,8 @@ customElements.whenDefined("tree-view-table-row").then(() => {
      * NOTE: This element could be recycled, make sure you set or clear all
      * properties.
      */
-    _fillRow() {
-      super._fillRow();
+    fillRow() {
+      super.fillRow();
 
       const card = this.view.getCardFromRow(this._index);
       this.name.textContent = this.view.getCellText(
@@ -1322,8 +1322,8 @@ customElements.whenDefined("tree-view-table-row").then(() => {
      * NOTE: This element could be recycled, make sure you set or clear all
      * properties.
      */
-    _fillRow() {
-      super._fillRow();
+    fillRow() {
+      super.fillRow();
 
       const card = this.view.getCardFromRow(this._index);
       this.classList.toggle("MailList", card.isMailList);

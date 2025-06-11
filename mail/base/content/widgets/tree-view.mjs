@@ -554,7 +554,7 @@ export class TreeView extends HTMLElement {
         break;
       }
       case "scroll":
-        this._ensureVisibleRowsAreDisplayed();
+        this._ensureVisibleRowsAreDisplayed(true);
         break;
     }
   }
@@ -1050,8 +1050,11 @@ export class TreeView extends HTMLElement {
   /**
    * Display the table rows which should be shown in the visible area and
    * request filling of the tolerance buffer when idle.
+   *
+   * @param {boolean} [fillImmediately=false] - If true, any rows added are
+   *   filled immediately instead of waiting for an animation frame.
    */
-  _ensureVisibleRowsAreDisplayed() {
+  _ensureVisibleRowsAreDisplayed(fillImmediately = false) {
     this.#cancelToleranceFillCallback();
 
     const rowCount = this._view?.rowCount ?? 0;
@@ -1087,7 +1090,7 @@ export class TreeView extends HTMLElement {
       this.table.body.childElementCount == 0 &&
       ranges.visibleRows.first == 0
     ) {
-      this._addRowAtIndex(0);
+      this._addRowAtIndex(0, undefined, fillImmediately);
     }
 
     // Expand the row buffer to include newly-visible rows which weren't already
@@ -1102,7 +1105,7 @@ export class TreeView extends HTMLElement {
       // the existing buffer lies within the range of visible rows and we begin
       // there, or the entire range of visible rows occurs after the end of the
       // buffer and we fill in from the start.
-      this._addRowAtIndex(i);
+      this._addRowAtIndex(i, undefined, fillImmediately);
     }
 
     const latestMissingStartRowIdx = Math.min(
@@ -1115,7 +1118,11 @@ export class TreeView extends HTMLElement {
       // buffer lies within the range of visible rows and we begin there, or the
       // entire range of visible rows occurs before the end of the buffer and we
       // fill in from the end.
-      this._addRowAtIndex(i, this.table.body.firstElementChild);
+      this._addRowAtIndex(
+        i,
+        this.table.body.firstElementChild,
+        fillImmediately
+      );
     }
 
     // Prune the buffer of any rows outside of our desired buffer range.
@@ -1267,15 +1274,22 @@ export class TreeView extends HTMLElement {
    * Creates a new row element and adds it to the DOM.
    *
    * @param {integer} index
+   * @param {HTMLTableRowElement} [before] - If given, the added row will be
+   *   inserted before this row.
+   * @param {boolean} [fillImmediately=false] - The row will be filled
+   *   immediately instead of waiting for an animation frame.
    */
-  _addRowAtIndex(index, before = null) {
+  _addRowAtIndex(index, before = null, fillImmediately = false) {
     const row = document.createElement("tr", { is: this._rowElementName });
     row.setAttribute("is", this._rowElementName);
     this.table.body.insertBefore(row, before);
     row.setAttribute("aria-setsize", this._view.rowCount);
     row.style.height = `${this._rowElementClass.ROW_HEIGHT}px`;
     row.index = index;
-    row.id = `${this.id}-row${index}`; // See _fillRow()
+    row.id = `${this.id}-row${index}`; // See fillRow()
+    if (fillImmediately) {
+      row.fillRow();
+    }
 
     if (this._selection?.isSelected(index)) {
       row.selected = true;
@@ -2764,7 +2778,7 @@ export class TreeViewTableRow extends HTMLTableRowElement {
         // The row may no longer be attached to the tree. Don't waste time
         // filling it in that case.
         if (this.parentNode) {
-          this._fillRow();
+          this.fillRow();
         }
       });
     }
@@ -2774,7 +2788,12 @@ export class TreeViewTableRow extends HTMLTableRowElement {
    * Fill out the row with content based on the current value of `this._index`.
    * Subclasses should override this setter and call back to it.
    */
-  _fillRow() {
+  fillRow() {
+    if (this.#animationFrame) {
+      cancelAnimationFrame(this.#animationFrame);
+      this.#animationFrame = null;
+    }
+
     this.setAttribute(
       "role",
       this.list.table.body.getAttribute("role") === "treegrid"

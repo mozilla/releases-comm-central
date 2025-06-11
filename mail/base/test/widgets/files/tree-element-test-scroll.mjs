@@ -40,8 +40,8 @@ class TestCardRow extends customElements.get("tree-view-table-row") {
     this.d2.classList.add("d2");
   }
 
-  _fillRow() {
-    super._fillRow();
+  fillRow() {
+    super.fillRow();
 
     this.id = this.view.getRowProperties(this._index);
     this.classList.remove("level0", "level1", "level2");

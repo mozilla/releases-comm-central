@@ -28,8 +28,8 @@ class TestCardRow extends customElements.get("tree-view-table-row") {
     this.d3.classList.add("d3");
   }
 
-  _fillRow() {
-    super._fillRow();
+  fillRow() {
+    super.fillRow();
 
     this.d2.textContent = this.view.getCellText(this._index, "GeneratedName");
     this.d3.textContent = this.view.getCellText(this._index, "PrimaryEmail");
@@ -51,8 +51,8 @@ class AlternativeCardRow extends customElements.get("tree-view-table-row") {
     this.cell = this.appendChild(document.createElement("td"));
   }
 
-  _fillRow() {
-    super._fillRow();
+  fillRow() {
+    super.fillRow();
 
     this.cell.textContent = this.view.getCellText(this._index, "GeneratedName");
   }

@@ -417,8 +417,8 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
     }
   }
 
-  _fillRow() {
-    super._fillRow();
+  fillRow() {
+    super.fillRow();
 
     this.dataset.properties = this.view.getRowProperties(this._index);
 
