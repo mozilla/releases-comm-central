@@ -6,9 +6,10 @@ const { AccountCreationUtils } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
 );
 
-const { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
+// TODO: Uncomment when below for close button is uncommented.
+// const { MailServices } = ChromeUtils.importESModule(
+//   "resource:///modules/MailServices.sys.mjs"
+// );
 
 const { gAccountSetupLogger } = AccountCreationUtils;
 /**
@@ -59,7 +60,9 @@ class AccountHubHeader extends HTMLElement {
     );
 
     this.#closeButton = this.shadowRoot.querySelector("#closeButton");
-    this.#closeButton.hidden = !MailServices.accounts.accounts.length;
+    // TODO: Re-enable / re-think how this will work when first time experience
+    // is enabled.
+    // this.#closeButton.hidden = !MailServices.accounts.accounts.length;
     this.#closeButton.addEventListener("click", () => this.#closeAccountHub());
 
     this.clearNotifications();
