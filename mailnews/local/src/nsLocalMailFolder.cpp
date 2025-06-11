@@ -1304,6 +1304,7 @@ nsMsgLocalMailFolder::OnCopyCompleted(nsISupports* srcSupport,
 
   if (mCopyState && !mCopyState->m_newMsgKeywords.IsEmpty() &&
       mCopyState->m_newHdr) {
+    // This is only used by CopyFileMessage().
     AddKeywordsToMessages({&*mCopyState->m_newHdr},
                           mCopyState->m_newMsgKeywords);
   }
@@ -2209,27 +2210,32 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
   // Copy the header to the new database
   if (mCopyState->m_message) {
     //  CopyMessages() goes here, and CopyFileMessages() with metadata to save;
-    nsCOMPtr<nsIMsgDBHdr> newHdr;
     if (!mCopyState->m_parseMsgState) {
       if (mCopyState->m_destDB) {
+        nsCOMPtr<nsIMsgDBHdr> liveHdr;
         if (mCopyState->m_newHdr) {
-          newHdr = mCopyState->m_newHdr;
-          CopyHdrPropertiesWithSkipList(newHdr, mCopyState->m_message,
+          CopyHdrPropertiesWithSkipList(mCopyState->m_newHdr,
+                                        mCopyState->m_message,
                                         "storeToken msgOffset"_ns);
           // We need to copy more than just what UpdateNewMsgHdr does. In fact,
           // I think we want to copy almost every property other than
           // storeToken and msgOffset.
-          mCopyState->m_destDB->AddNewHdrToDB(newHdr, true);
+          rv = mCopyState->m_destDB->AttachHdr(mCopyState->m_newHdr, true,
+                                               getter_AddRefs(liveHdr));
+          if (NS_FAILED(rv)) {
+            liveHdr = nullptr;
+          }
+          mCopyState->m_newHdr = liveHdr;
         } else {
           rv = mCopyState->m_destDB->CopyHdrFromExistingHdr(
               mCopyState->m_curDstKey, mCopyState->m_message, true,
-              getter_AddRefs(newHdr));
+              getter_AddRefs(liveHdr));
         }
         uint32_t newHdrFlags;
-        if (newHdr) {
+        if (liveHdr) {
           // turn off offline flag - it's not valid for local mail folders.
-          newHdr->AndFlags(~nsMsgMessageFlags::Offline, &newHdrFlags);
-          mCopyState->m_destMessages.AppendElement(newHdr);
+          liveHdr->AndFlags(~nsMsgMessageFlags::Offline, &newHdrFlags);
+          mCopyState->m_destMessages.AppendElement(liveHdr);
         }
       }
       // we can do undo with the dest folder db, see bug #198909
@@ -2313,7 +2319,16 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
           newHdr->SetFlags((newFlags & ~carryOver) |
                            ((mCopyState->m_flags) & carryOver));
         }
-        msgDb->AddNewHdrToDB(newHdr, true);
+
+        // Add the new header to the database.
+        {
+          nsCOMPtr<nsIMsgDBHdr> liveHdr;
+          nsresult rv = msgDb->AttachHdr(newHdr, true, getter_AddRefs(liveHdr));
+          NS_ENSURE_SUCCESS(rv, rv);
+          mCopyState->m_newHdr = liveHdr;
+          newHdr = liveHdr;
+        }
+
         if (localUndoTxn) {
           // ** jt - recording the message size for possible undo use; the
           // message size is different for pop3 and imap4 messages
@@ -2557,12 +2572,13 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
   // CopyFileMessage() and CopyMessages() from servers other than mailbox
   if (mCopyState->m_parseMsgState) {
     nsCOMPtr<nsIMsgDatabase> msgDb;
-    nsCOMPtr<nsIMsgDBHdr> newHdr;
+    nsCOMPtr<nsIMsgDBHdr> detachedHdr;
+    nsCOMPtr<nsIMsgDBHdr> liveHdr;
 
     mCopyState->m_parseMsgState->FinishHeader();
 
-    rv = mCopyState->m_parseMsgState->GetNewMsgHdr(getter_AddRefs(newHdr));
-    if (NS_SUCCEEDED(rv) && newHdr) {
+    rv = mCopyState->m_parseMsgState->GetNewMsgHdr(getter_AddRefs(detachedHdr));
+    if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIMsgFolder> srcFolder =
           do_QueryInterface(mCopyState->m_srcSupport, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
@@ -2572,28 +2588,29 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
         nsCOMPtr<nsIMsgDBHdr> srcMsgHdr;
         srcDB->GetMsgHdrForKey(key, getter_AddRefs(srcMsgHdr));
         if (srcMsgHdr)
-          CopyPropertiesToMsgHdr(newHdr, srcMsgHdr, mCopyState->m_isMove);
+          CopyPropertiesToMsgHdr(detachedHdr, srcMsgHdr, mCopyState->m_isMove);
       }
       rv = GetDatabaseWOReparse(getter_AddRefs(msgDb));
       if (NS_SUCCEEDED(rv) && msgDb) {
-        msgDb->AddNewHdrToDB(newHdr, true);
-        if (localUndoTxn) {
-          // ** jt - recording the message size for possible undo use; the
-          // message size is different for pop3 and imap4 messages
-          uint32_t msgSize;
-          newHdr->GetMessageSize(&msgSize);
-          localUndoTxn->AddDstMsgSize(msgSize);
-        }
-      } else
+        rv = msgDb->AttachHdr(detachedHdr, true, getter_AddRefs(liveHdr));
+      }
+      if (NS_SUCCEEDED(rv) && msgDb && localUndoTxn) {
+        // ** jt - recording the message size for possible undo use; the
+        // message size is different for pop3 and imap4 messages
+        uint32_t msgSize;
+        liveHdr->GetMessageSize(&msgSize);
+        localUndoTxn->AddDstMsgSize(msgSize);
+      } else {
         mCopyState->m_undoMsgTxn = nullptr;  // null out the transaction because
                                              // we can't undo w/o the msg db
+      }
     }
     mCopyState->m_parseMsgState->Clear();
 
-    if (mCopyState->m_listener && newHdr) {  // CopyFileMessage() only
+    if (mCopyState->m_listener && liveHdr) {  // CopyFileMessage() only
       // Tell the nsIMsgCopyServiceListener about the new key.
       nsMsgKey newKey;
-      newHdr->GetMessageKey(&newKey);
+      liveHdr->GetMessageKey(&newKey);
       MOZ_ASSERT(newKey != nsMsgKey_None);
       mCopyState->m_listener->SetMessageKey(newKey);
     }
