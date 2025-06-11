@@ -305,6 +305,7 @@ function InitMsgWindow() {
 // the following contains the implementation of our status feedback object
 
 function nsMsgStatusFeedback() {
+  this._urlText = document.getElementById("urlText");
   this._statusText = document.getElementById("statusText");
   this._statusPanel = document.getElementById("statusbar-display");
   this._progressBar = document.getElementById("statusbar-icon");
@@ -328,6 +329,7 @@ function nsMsgStatusFeedback() {
  */
 nsMsgStatusFeedback.prototype = {
   // Document elements.
+  _urlText: null,
   _statusText: null,
   _statusPanel: null,
   _progressBar: null,
@@ -372,8 +374,10 @@ nsMsgStatusFeedback.prototype = {
       );
     }
 
+    this._urlText.collapsed = !url;
+
     if (!document.getElementById("status-bar").hidden) {
-      this._statusText.value = url;
+      this._urlText.value = url;
     } else {
       // Statusbar invisible: Show link in statuspanel instead.
       // TODO: consider porting the Firefox implementation of LinkTargetDisplay.

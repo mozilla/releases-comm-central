@@ -6,6 +6,7 @@
       <hbox class="statusbarpanel">
         <toolbarbutton id="offline-status" oncommand="MailOfflineMgr.toggleOfflineStatus();"/>
       </hbox>
+      <label id="urlText" class="statusbarpanel" value="" flex="2" collapsed="true" crop="end"/>
       <label id="statusText" class="statusbarpanel" value="&statusText.label;" flex="1" crop="end"/>
       <hbox id="statusbar-progresspanel" class="statusbarpanel statusbarpanel-progress" collapsed="true">
         <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>

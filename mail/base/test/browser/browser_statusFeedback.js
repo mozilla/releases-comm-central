@@ -10,9 +10,12 @@ const { ensure_cards_view } = ChromeUtils.importESModule(
 );
 
 const statusText = document.getElementById("statusText");
+const urlText = document.getElementById("urlText");
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
 const { threadTree } = about3Pane;
+
+const LINK = "https://www.example.com/";
 
 add_setup(async function () {
   // Create an account for the test.
@@ -29,7 +32,16 @@ add_setup(async function () {
 
   // Generate a test message.
   const generator = new MessageGenerator();
-  testFolder.addMessage(generator.makeMessage().toMessageString());
+  testFolder.addMessage(
+    generator
+      .makeMessage({
+        body: {
+          body: `<a href="${LINK}">www.example.com</a>`,
+          contentType: "text/html",
+        },
+      })
+      .toMessageString()
+  );
 
   // Use the test folder.
   about3Pane.displayFolder(testFolder.URI);
@@ -71,6 +83,39 @@ add_task(async function testMessageOpen() {
     () => statusText.value == "",
     "status message should eventually reset"
   );
+});
+
+add_task(async function testOverLink() {
+  const link = tabmail.currentAboutMessage
+    .getMessagePaneBrowser()
+    .contentDocument.body.getElementsByTagName("a")[0];
+
+  // Hover the link in the mail.
+  const hovered = BrowserTestUtils.waitForEvent(link, "mouseover");
+  EventUtils.synthesizeMouseAtCenter(
+    link,
+    { type: "mouseover" },
+    link.ownerGlobal
+  );
+  await hovered;
+
+  // Check that the URL part of the status bar is expanded and the link is
+  // shown.
+  Assert.equal(urlText.collapsed, false);
+  Assert.equal(urlText.value, LINK);
+
+  // Hover over anything else.
+  const unhovered = BrowserTestUtils.waitForEvent(threadTree, "mouseover");
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree,
+    { type: "mouseover" },
+    threadTree.ownerGlobal
+  );
+  await unhovered;
+
+  // Check that the URL part is collapsed and its value cleared.
+  Assert.equal(urlText.value, "");
+  Assert.equal(urlText.collapsed, true);
 });
 
 add_task(async function testManyStatuses() {
