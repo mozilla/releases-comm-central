@@ -2011,10 +2011,9 @@ NS_IMETHODIMP nsImapService::CreateFolder(nsIMsgFolder* parent,
       urlSpec.AppendLiteral("/create>");
       urlSpec.Append(hierarchyDelimiter);
       if (!folderName.IsEmpty()) {
-        nsCString canonicalName;
-        nsImapUrl::ConvertToCanonicalFormat(
-            folderName.get(), hierarchyDelimiter, getter_Copies(canonicalName));
-        urlSpec.Append(canonicalName);
+        folderName =
+            nsImapUrl::ConvertToCanonicalFormat(folderName, hierarchyDelimiter);
+        urlSpec.Append(folderName);
         urlSpec.Append(hierarchyDelimiter);
       }
 

@@ -41,14 +41,11 @@ class nsImapUrl : public nsIImapUrl,
   // nsImapUrl
   nsImapUrl();
 
-  static nsresult ConvertToCanonicalFormat(const char* folderName,
-                                           char onlineDelimiter,
-                                           char** resultingCanonicalPath);
+  static nsCString ConvertToCanonicalFormat(nsACString const& folderName,
+                                            char onlineDelimiter);
   static nsresult EscapeSlashes(const char* sourcePath, char** resultPath);
   static nsresult UnescapeSlashes(nsACString& path);
   static nsresult UnescapeSlashes(char* path);
-  static char* ReplaceCharsInCopiedString(const char* stringToCopy,
-                                          char oldChar, char newChar);
 
  protected:
   virtual ~nsImapUrl();

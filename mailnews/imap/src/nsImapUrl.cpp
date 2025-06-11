@@ -677,28 +677,23 @@ NS_IMETHODIMP nsImapUrl::AddOnlineDirectoryIfNecessary(
 NS_IMETHODIMP nsImapUrl::AllocateServerPath(const nsACString& canonicalPath,
                                             char onlineDelimiter,
                                             nsACString& aAllocatedPath) {
-  char* rv = NULL;
   char delimiterToUse = onlineDelimiter;
   if (onlineDelimiter == kOnlineHierarchySeparatorUnknown)
     GetOnlineSubDirSeparator(&delimiterToUse);
   NS_ASSERTION(delimiterToUse != kOnlineHierarchySeparatorUnknown,
                "hierarchy separator unknown");
-  if (!canonicalPath.IsEmpty())
-    rv = ReplaceCharsInCopiedString(PromiseFlatCString(canonicalPath).get(),
-                                    '/', delimiterToUse);
-  else
-    rv = strdup("");
 
-  if (delimiterToUse != '/') UnescapeSlashes(rv);
+  nsCString path(canonicalPath);
+  path.ReplaceChar('/', delimiterToUse);
+
+  if (delimiterToUse != '/') UnescapeSlashes(path);
   char* onlineNameAdded = nullptr;
-  AddOnlineDirectoryIfNecessary(rv, &onlineNameAdded);
+  AddOnlineDirectoryIfNecessary(path.get(), &onlineNameAdded);
   if (onlineNameAdded) {
-    free(rv);
-    rv = onlineNameAdded;
+    aAllocatedPath = nsDependentCString(onlineNameAdded);
+  } else {
+    aAllocatedPath = path;
   }
-
-  aAllocatedPath = nsDependentCString(rv);
-
   return NS_OK;
 }
 
@@ -769,24 +764,16 @@ static void unescapeSlashes(char* path, size_t* newLength) {
   return NS_OK;
 }
 
-/*  static */ nsresult nsImapUrl::ConvertToCanonicalFormat(
-    const char* folderName, char onlineDelimiter,
-    char** resultingCanonicalPath) {
+/*  static */ nsCString nsImapUrl::ConvertToCanonicalFormat(
+    nsACString const& folderName, char onlineDelimiter) {
   // Now, start the conversion to canonical form.
 
-  char* canonicalPath;
+  nsCString canonicalPath(folderName);
   if (onlineDelimiter != '/') {
-    nsCString escapedPath;
-
-    EscapeSlashes(folderName, getter_Copies(escapedPath));
-    canonicalPath =
-        ReplaceCharsInCopiedString(escapedPath.get(), onlineDelimiter, '/');
-  } else {
-    canonicalPath = strdup(folderName);
+    EscapeSlashes(canonicalPath.get(), getter_Copies(canonicalPath));
+    canonicalPath.ReplaceChar(onlineDelimiter, '/');
   }
-  if (canonicalPath) *resultingCanonicalPath = canonicalPath;
-
-  return (canonicalPath) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+  return canonicalPath;
 }
 
 // Converts the real online name on the server to canonical format:
@@ -836,10 +823,8 @@ NS_IMETHODIMP nsImapUrl::AllocateCanonicalPath(const nsACString& serverPath,
     }
   }
 
-  rv = ConvertToCanonicalFormat(currentPath.get(), delimiterToUse,
-                                getter_Copies(allocatedPath));
-
-  return rv;
+  allocatedPath = ConvertToCanonicalFormat(currentPath, delimiterToUse);
+  return NS_OK;
 }
 
 // this method is only called from the imap thread
@@ -1066,23 +1051,6 @@ nsImapUrl::GetOriginalSpec(nsACString& aSpec) {
 NS_IMETHODIMP
 nsImapUrl::SetOriginalSpec(const nsACString& aSpec) {
   return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-char* nsImapUrl::ReplaceCharsInCopiedString(const char* stringToCopy,
-                                            char oldChar, char newChar) {
-  char oldCharString[2];
-  *oldCharString = oldChar;
-  *(oldCharString + 1) = 0;
-
-  char* translatedString = PL_strdup(stringToCopy);
-  char* currentSeparator = PL_strstr(translatedString, oldCharString);
-
-  while (currentSeparator) {
-    *currentSeparator = newChar;
-    currentSeparator = PL_strstr(currentSeparator + 1, oldCharString);
-  }
-
-  return translatedString;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

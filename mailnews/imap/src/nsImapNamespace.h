@@ -76,10 +76,6 @@ class nsImapNamespaceList {
       EIMAPNamespaceType nsType, nsImapNamespace** nsUsed);
 
  protected:
-  static char* AllocateServerFolderName(const char* canonicalFolderName,
-                                        char delimiter);
-  static nsCString AllocateCanonicalFolderName(const char* onlineFolderName,
-                                               char delimiter);
   nsImapNamespaceList();  // use CreatensImapNamespaceList to create one
 
   nsTArray<nsImapNamespace*> m_NamespaceList;
