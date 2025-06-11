@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IMServices } from "resource:///modules/IMServices.sys.mjs";
-
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
-import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
-
-import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { ChatIcons } from "resource:///modules/chatIcons.sys.mjs";
+import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
+import { MailNotificationManager } from "resource:///modules/MailNotificationManager.sys.mjs";
+import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
 
 // Time in seconds: it is the minimum time of inactivity
 // needed to show the bundled notification.
@@ -45,10 +44,14 @@ export var Notifications = {
     // We play the sound if the user is away from TB window or even away from chat tab.
     const win = Services.wm.getMostRecentWindow("mail:3pane");
     if (
-      !Services.focus.activeWindow ||
-      win.document.getElementById("tabmail").currentTabInfo.mode.name != "chat"
+      Services.prefs.getBoolPref("mail.chat.play_sound") &&
+      (!Services.focus.activeWindow ||
+        win.document.getElementById("tabmail").currentTabInfo.mode.name !=
+          "chat")
     ) {
-      Services.obs.notifyObservers(aMessage, "play-chat-notification-sound");
+      MailNotificationManager.playSound(
+        Services.prefs.getBranch("mail.chat.play_sound")
+      );
     }
 
     // If TB window has focus, there's no need to show the notification..
