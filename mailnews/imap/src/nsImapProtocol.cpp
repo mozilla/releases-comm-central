@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsImapProtocol.h"
+
 #include "msgCore.h"  // for pre-compiled headers
 #include "nsMsgUtils.h"
 
@@ -12,7 +14,6 @@
 #include "nsThreadUtils.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsImapCore.h"
-#include "nsImapProtocol.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "../public/nsIImapHostSessionList.h"
 #include "nsImapMailFolder.h"
@@ -55,8 +56,6 @@
 #include "nsIStreamListener.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsIImapIncomingServer.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsImapUtils.h"
 #include "nsIStreamConverterService.h"
@@ -68,6 +67,7 @@
 #include "nsMsgCompressIStream.h"
 #include "nsMsgCompressOStream.h"
 #include "mozilla/Logging.h"
+#include "mozilla/Preferences.h"
 #include "nsIPrincipal.h"
 #include "nsContentSecurityManager.h"
 
@@ -315,36 +315,30 @@ const int32_t kAppBufSize = 100;
 static char gAppName[kAppBufSize];
 static char gAppVersion[kAppBufSize];
 
-nsresult nsImapProtocol::GlobalInitialization(nsIPrefBranch* aPrefBranch) {
+nsresult nsImapProtocol::GlobalInitialization() {
   gInitialized = true;
 
-  aPrefBranch->GetIntPref("mail.imap.chunk_fast",
-                          &gTooFastTime);  // secs we read too little too fast
-  aPrefBranch->GetIntPref("mail.imap.chunk_ideal",
-                          &gIdealTime);  // secs we read enough in good time
-  aPrefBranch->GetIntPref(
-      "mail.imap.chunk_add",
-      &gChunkAddSize);  // buffer size to add when wasting time
-  aPrefBranch->GetIntPref("mail.imap.chunk_size", &gChunkSize);
-  aPrefBranch->GetIntPref("mail.imap.min_chunk_size_threshold",
-                          &gChunkThreshold);
-  aPrefBranch->GetBoolPref("mail.imap.hide_other_users",
-                           &gHideOtherUsersFromList);
-  aPrefBranch->GetBoolPref("mail.imap.hide_unused_namespaces",
-                           &gHideUnusedNamespaces);
-  aPrefBranch->GetIntPref("mail.imap.noop_check_count",
-                          &gPromoteNoopToCheckCount);
-  aPrefBranch->GetBoolPref("mail.imap.use_envelope_cmd", &gUseEnvelopeCmd);
-  aPrefBranch->GetBoolPref("mail.imap.use_literal_plus", &gUseLiteralPlus);
-  aPrefBranch->GetBoolPref("mail.imap.expunge_after_delete",
-                           &gExpungeAfterDelete);
-  aPrefBranch->GetBoolPref("mail.imap.use_disk_cache2", &gUseDiskCache2);
-  aPrefBranch->GetBoolPref("mail.imap.check_deleted_before_expunge",
-                           &gCheckDeletedBeforeExpunge);
-  aPrefBranch->GetIntPref("mail.imap.expunge_option", &gExpungeOption);
-  aPrefBranch->GetIntPref("mail.imap.expunge_threshold_number",
-                          &gExpungeThreshold);
-  aPrefBranch->GetIntPref("mailnews.tcptimeout", &gResponseTimeout);
+  Preferences::GetInt("mail.imap.chunk_fast",
+                      &gTooFastTime);  // secs we read too little too fast
+  Preferences::GetInt("mail.imap.chunk_ideal",
+                      &gIdealTime);  // secs we read enough in good time
+  Preferences::GetInt("mail.imap.chunk_add",
+                      &gChunkAddSize);  // buffer size to add when wasting time
+  Preferences::GetInt("mail.imap.chunk_size", &gChunkSize);
+  Preferences::GetInt("mail.imap.min_chunk_size_threshold", &gChunkThreshold);
+  Preferences::GetBool("mail.imap.hide_other_users", &gHideOtherUsersFromList);
+  Preferences::GetBool("mail.imap.hide_unused_namespaces",
+                       &gHideUnusedNamespaces);
+  Preferences::GetInt("mail.imap.noop_check_count", &gPromoteNoopToCheckCount);
+  Preferences::GetBool("mail.imap.use_envelope_cmd", &gUseEnvelopeCmd);
+  Preferences::GetBool("mail.imap.use_literal_plus", &gUseLiteralPlus);
+  Preferences::GetBool("mail.imap.expunge_after_delete", &gExpungeAfterDelete);
+  Preferences::GetBool("mail.imap.use_disk_cache2", &gUseDiskCache2);
+  Preferences::GetBool("mail.imap.check_deleted_before_expunge",
+                       &gCheckDeletedBeforeExpunge);
+  Preferences::GetInt("mail.imap.expunge_option", &gExpungeOption);
+  Preferences::GetInt("mail.imap.expunge_threshold_number", &gExpungeThreshold);
+  Preferences::GetInt("mailnews.tcptimeout", &gResponseTimeout);
   gAppendTimeout = gResponseTimeout / 5;
 
   gTCPKeepalive.enabled.store(false, std::memory_order_relaxed);
@@ -516,53 +510,42 @@ nsImapProtocol::nsImapProtocol()
   m_fetchingWholeMessage = false;
   m_allowUTF8Accept = false;
 
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  NS_ASSERTION(prefBranch, "FAILED to create the preference service");
-
   // read in the accept languages preference
-  if (prefBranch) {
-    if (!gInitialized) GlobalInitialization(prefBranch);
+  if (!gInitialized) GlobalInitialization();
 
-    nsCOMPtr<nsIPrefLocalizedString> prefString;
-    prefBranch->GetComplexValue("intl.accept_languages",
-                                NS_GET_IID(nsIPrefLocalizedString),
-                                getter_AddRefs(prefString));
-    if (prefString) prefString->ToString(getter_Copies(mAcceptLanguages));
+  nsCOMPtr<nsIPrefLocalizedString> prefString;
+  Preferences::GetComplex("intl.accept_languages",
+                          NS_GET_IID(nsIPrefLocalizedString),
+                          getter_AddRefs(prefString));
+  if (prefString) prefString->ToString(getter_Copies(mAcceptLanguages));
 
-    nsCString customDBHeaders;
-    prefBranch->GetCharPref("mailnews.customDBHeaders", customDBHeaders);
+  nsCString customDBHeaders;
+  Preferences::GetCString("mailnews.customDBHeaders", customDBHeaders);
 
-    ParseString(customDBHeaders, ' ', mCustomDBHeaders);
-    prefBranch->GetBoolPref("mailnews.display.prefer_plaintext",
-                            &m_preferPlainText);
+  ParseString(customDBHeaders, ' ', mCustomDBHeaders);
+  Preferences::GetBool("mailnews.display.prefer_plaintext", &m_preferPlainText);
 
-    nsAutoCString customHeaders;
-    prefBranch->GetCharPref("mailnews.customHeaders", customHeaders);
-    customHeaders.StripWhitespace();
-    ParseString(customHeaders, ':', mCustomHeaders);
+  nsAutoCString customHeaders;
+  Preferences::GetCString("mailnews.customHeaders", customHeaders);
+  customHeaders.StripWhitespace();
+  ParseString(customHeaders, ':', mCustomHeaders);
 
-    nsresult rv;
-    bool bVal = false;
-    rv = prefBranch->GetBoolPref("mail.imap.tcp_keepalive.enabled", &bVal);
-    if (NS_SUCCEEDED(rv))
-      gTCPKeepalive.enabled.store(bVal, std::memory_order_relaxed);
+  bool bVal = Preferences::GetBool("mail.imap.tcp_keepalive.enabled");
+  gTCPKeepalive.enabled.store(bVal, std::memory_order_relaxed);
 
-    if (bVal) {
-      int32_t val;
-      // TCP keepalive idle time, don't mistake with IMAP IDLE.
-      rv = prefBranch->GetIntPref("mail.imap.tcp_keepalive.idle_time", &val);
-      if (NS_SUCCEEDED(rv) && val >= 0)
-        gTCPKeepalive.idleTimeS.store(
-            std::min<int32_t>(std::max(val, 1), net::kMaxTCPKeepIdle),
-            std::memory_order_relaxed);
+  if (bVal) {
+    // TCP keepalive idle time, don't mistake with IMAP IDLE.
+    int32_t val = Preferences::GetInt("mail.imap.tcp_keepalive.idle_time");
+    if (val >= 0)
+      gTCPKeepalive.idleTimeS.store(
+          std::min<int32_t>(std::max(val, 1), net::kMaxTCPKeepIdle),
+          std::memory_order_relaxed);
 
-      rv = prefBranch->GetIntPref("mail.imap.tcp_keepalive.retry_interval",
-                                  &val);
-      if (NS_SUCCEEDED(rv) && val >= 0)
-        gTCPKeepalive.retryIntervalS.store(
-            std::min<int32_t>(std::max(val, 1), net::kMaxTCPKeepIntvl),
-            std::memory_order_relaxed);
-    }
+    val = Preferences::GetInt("mail.imap.tcp_keepalive.retry_interval");
+    if (val >= 0)
+      gTCPKeepalive.retryIntervalS.store(
+          std::min<int32_t>(std::max(val, 1), net::kMaxTCPKeepIntvl),
+          std::memory_order_relaxed);
   }
 
   // ***** Thread support *****
@@ -918,17 +901,12 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
                          m_trashFolderPath);
     }
 
-    nsCOMPtr<nsIPrefBranch> prefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID));
-    if (prefBranch) {
-      bool preferPlainText;
-      prefBranch->GetBoolPref("mailnews.display.prefer_plaintext",
-                              &preferPlainText);
-      // If the pref has changed since the last time we ran a url,
-      // clear the shell cache for this host. (bodyshell no longer exists.)
-      if (preferPlainText != m_preferPlainText) {
-        m_preferPlainText = preferPlainText;
-      }
+    bool preferPlainText =
+        Preferences::GetBool("mailnews.display.prefer_plaintext");
+    // If the pref has changed since the last time we ran a url,
+    // clear the shell cache for this host. (bodyshell no longer exists.)
+    if (preferPlainText != m_preferPlainText) {
+      m_preferPlainText = preferPlainText;
     }
     // If enabled, retrieve the clientid so that we can use it later.
     bool clientidEnabled = false;
@@ -1211,14 +1189,9 @@ NS_IMETHODIMP nsImapProtocol::CloseStreams() {
   // take this opportunity of being on the UI thread to
   // persist chunk prefs if they've changed
   if (gChunkSizeDirty) {
-    nsCOMPtr<nsIPrefBranch> prefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID));
-    if (prefBranch) {
-      prefBranch->SetIntPref("mail.imap.chunk_size", gChunkSize);
-      prefBranch->SetIntPref("mail.imap.min_chunk_size_threshold",
-                             gChunkThreshold);
-      gChunkSizeDirty = false;
-    }
+    Preferences::SetInt("mail.imap.chunk_size", gChunkSize);
+    Preferences::SetInt("mail.imap.min_chunk_size_threshold", gChunkThreshold);
+    gChunkSizeDirty = false;
   }
   return NS_OK;
 }

@@ -9,8 +9,6 @@
 #include "nsUnicharUtils.h"
 #include "nsMsgDBFolder.h"
 #include "nsMsgFolderFlags.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
 #include "nsNetUtil.h"
 #include "nsIMsgFolderCache.h"
 #include "nsIMsgFolderCacheElement.h"
@@ -76,9 +74,9 @@
 #  include "nsIFolderLookupService.h"
 #endif  // MOZ_PANORAMA
 
-#define oneHour 3600000000U
-
 using namespace mozilla;
+
+#define oneHour 3600000000U
 
 extern LazyLogModule
     FILTERLOGMODULE;  // "Filters" (defined in nsMsgFilterService.cpp)
@@ -1084,8 +1082,7 @@ NS_IMETHODIMP nsMsgDBFolder::HasMsgOffline(nsMsgKey msgKey, bool* result) {
 }
 
 NS_IMETHODIMP nsMsgDBFolder::DiscardOfflineMsg(nsMsgKey msgKey) {
-  if (!mozilla::Preferences::GetBool(PREF_MAIL_DISCARD_OFFLINE_ON_FAILURE,
-                                     true)) {
+  if (!Preferences::GetBool(PREF_MAIL_DISCARD_OFFLINE_ON_FAILURE, true)) {
     return NS_OK;
   }
 
@@ -1636,13 +1633,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
 
       if (totalExpungedBytes > ((int64_t)purgeThreshold * 1024)) {
         bool okToCompact = false;
-        nsCOMPtr<nsIPrefService> pref =
-            do_GetService(NS_PREFSERVICE_CONTRACTID);
-        nsCOMPtr<nsIPrefBranch> branch;
-        pref->GetBranch("", getter_AddRefs(branch));
-
-        bool askBeforePurge;
-        branch->GetBoolPref(PREF_MAIL_PURGE_ASK, &askBeforePurge);
+        bool askBeforePurge = Preferences::GetBool(PREF_MAIL_PURGE_ASK);
         if (askBeforePurge && aWindow) {
           nsCOMPtr<nsIStringBundle> bundle;
           rv = GetBaseStringBundle(getter_AddRefs(bundle));
@@ -1677,7 +1668,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
           if (buttonPressed == 0) {
             okToCompact = true;
             if (neverAsk)  // [X] Remove deletions automatically and do not ask
-              branch->SetBoolPref(PREF_MAIL_PURGE_ASK, false);
+              Preferences::SetBool(PREF_MAIL_PURGE_ASK, false);
           }
         } else {
           okToCompact = aWindow || !askBeforePurge;
@@ -1747,30 +1738,14 @@ nsresult nsMsgDBFolder::AutoCompact(nsIMsgWindow* aWindow) {
 
 nsresult nsMsgDBFolder::GetPromptPurgeThreshold(bool* aPrompt) {
   NS_ENSURE_ARG(aPrompt);
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv) && prefBranch) {
-    rv = prefBranch->GetBoolPref(PREF_MAIL_PROMPT_PURGE_THRESHOLD, aPrompt);
-    if (NS_FAILED(rv)) {
-      *aPrompt = false;
-      rv = NS_OK;
-    }
-  }
-  return rv;
+  return Preferences::GetBool(PREF_MAIL_PROMPT_PURGE_THRESHOLD, aPrompt);
 }
 
 nsresult nsMsgDBFolder::GetPurgeThreshold(int32_t* aThreshold) {
   NS_ENSURE_ARG(aThreshold);
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv) && prefBranch) {
-    int32_t thresholdMB = 500;
-    prefBranch->GetIntPref(PREF_MAIL_PURGE_THRESHOLD_MB, &thresholdMB);
-    *aThreshold = thresholdMB * 1024;
-  }
-  return rv;
+  int32_t thresholdMB = Preferences::GetInt(PREF_MAIL_PURGE_THRESHOLD_MB, 500);
+  *aThreshold = thresholdMB * 1024;
+  return NS_OK;
 }
 
 NS_IMETHODIMP  // called on the folder that is renamed or about to be deleted
@@ -5062,21 +5037,11 @@ NS_IMETHODIMP nsMsgDBFolder::AlertFilterChanged(nsIMsgWindow* msgWindow) {
 
 nsresult nsMsgDBFolder::GetWarnFilterChanged(bool* aVal) {
   NS_ENSURE_ARG(aVal);
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = prefBranch->GetBoolPref(PREF_MAIL_WARN_FILTER_CHANGED, aVal);
-  if (NS_FAILED(rv)) *aVal = false;
-  return NS_OK;
+  return Preferences::GetBool(PREF_MAIL_WARN_FILTER_CHANGED, aVal);
 }
 
 nsresult nsMsgDBFolder::SetWarnFilterChanged(bool aVal) {
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return prefBranch->SetBoolPref(PREF_MAIL_WARN_FILTER_CHANGED, aVal);
+  return Preferences::SetBool(PREF_MAIL_WARN_FILTER_CHANGED, aVal);
 }
 
 NS_IMETHODIMP nsMsgDBFolder::NotifyAboutToCompact() {

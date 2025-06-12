@@ -18,8 +18,6 @@
 #include "nsImapCore.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgLocalMailFolder.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsIMsgSearchSession.h"
 #include "nsIMsgCopyService.h"
@@ -47,6 +45,7 @@
 #include "mozilla/StaticPrefs_mail.h"
 #include "mozilla/StaticPrefs_mailnews.h"
 
+using mozilla::Preferences;
 using namespace mozilla::mailnews;
 
 MOZ_RUNINIT nsString nsMsgDBView::kHighestPriorityString;
@@ -290,7 +289,7 @@ static nsString NoSpoofingSender(const nsString& name,
 static nsString GetSenderFullAddress(const nsString& name,
                                      const nsACString& emailAddress) {
   int32_t addressDisplayFormat =
-      mozilla::Preferences::GetInt("mail.addressDisplayFormat", 0);
+      Preferences::GetInt("mail.addressDisplayFormat", 0);
 
   nsString fullAddress;
   if (addressDisplayFormat == 0) {
@@ -2138,12 +2137,9 @@ nsMsgDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
 
     GetImapDeleteModel(nullptr);
 
-    nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-    if (prefs) {
-      prefs->GetBoolPref("mailnews.sort_threads_by_root", &mSortThreadsByRoot);
-      if (mIsNews)
-        prefs->GetBoolPref("news.show_size_in_lines", &mShowSizeInLines);
-    }
+    Preferences::GetBool("mailnews.sort_threads_by_root", &mSortThreadsByRoot);
+    if (mIsNews)
+      Preferences::GetBool("news.show_size_in_lines", &mShowSizeInLines);
   }
 
   nsTArray<RefPtr<nsIMsgIdentity>> identities;
@@ -2573,15 +2569,7 @@ bool nsMsgDBView::OperateOnMsgsInCollapsedThreads() {
     if (!selTree) return false;
   }
 
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIPrefBranch> prefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, false);
-
-  bool includeCollapsedMsgs = false;
-  prefBranch->GetBoolPref("mail.operate_on_msgs_in_collapsed_threads",
-                          &includeCollapsedMsgs);
-  return includeCollapsedMsgs;
+  return Preferences::GetBool("mail.operate_on_msgs_in_collapsed_threads");
 }
 
 nsresult nsMsgDBView::GetHeadersFromSelection(
@@ -6241,12 +6229,7 @@ nsMsgDBView::GetMsgToSelectAfterDelete(nsMsgViewIndex* msgToSelectAfterDelete) {
   bool deleteMatchesSort = false;
   if (m_sortOrder == nsMsgViewSortOrder::descending &&
       *msgToSelectAfterDelete) {
-    nsresult rv;
-    nsCOMPtr<nsIPrefBranch> prefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    prefBranch->GetBoolPref("mail.delete_matches_sort_order",
-                            &deleteMatchesSort);
+    Preferences::GetBool("mail.delete_matches_sort_order", &deleteMatchesSort);
   }
 
   if (mDeleteModel == nsMsgImapDeleteModels::IMAPDelete) {
@@ -6607,12 +6590,11 @@ nsMsgDBView::FindIndexOfMsgHdr(nsIMsgDBHdr* aMsgHdr, bool aExpand,
   return NS_OK;
 }
 
-static void getDateFormatPref(nsIPrefBranch* _prefBranch,
-                              const char* _prefLocalName,
+static void getDateFormatPref(const char* _prefLocalName,
                               nsDateFormatSelectorComm& _format) {
   // Read.
   int32_t nFormatSetting(0);
-  nsresult result = _prefBranch->GetIntPref(_prefLocalName, &nFormatSetting);
+  nsresult result = Preferences::GetInt(_prefLocalName, &nFormatSetting);
   if (NS_SUCCEEDED(result)) {
     // Translate.
     nsDateFormatSelectorComm res;
@@ -6625,22 +6607,13 @@ static void getDateFormatPref(nsIPrefBranch* _prefBranch,
   }
 }
 
-nsresult nsMsgDBView::InitDisplayFormats() {
+void nsMsgDBView::InitDisplayFormats() {
   m_dateFormatsInitialized = true;
 
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIPrefService> prefs =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIPrefBranch> dateFormatPrefs;
-  rv = prefs->GetBranch("mail.ui.display.dateformat.",
-                        getter_AddRefs(dateFormatPrefs));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  getDateFormatPref(dateFormatPrefs, "default", m_dateFormatDefault);
-  getDateFormatPref(dateFormatPrefs, "thisweek", m_dateFormatThisWeek);
-  getDateFormatPref(dateFormatPrefs, "today", m_dateFormatToday);
-  return rv;
+  getDateFormatPref("mail.ui.display.dateformat.default", m_dateFormatDefault);
+  getDateFormatPref("mail.ui.display.dateformat.thisweek",
+                    m_dateFormatThisWeek);
+  getDateFormatPref("mail.ui.display.dateformat.today", m_dateFormatToday);
 }
 
 void nsMsgDBView::SetMRUTimeForFolder(nsIMsgFolder* folder) {

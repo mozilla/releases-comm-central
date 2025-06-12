@@ -5,6 +5,9 @@
 #ifndef COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIHOOK_H_
 #define COMM_MAILNEWS_MAPI_MAPIHOOK_SRC_MSGMAPIHOOK_H_
 
+#include "msgMapi.h"
+#include "nsIMsgCompFields.h"
+#include "nsString.h"
 #include "prtypes.h"
 
 class nsMapiHook {

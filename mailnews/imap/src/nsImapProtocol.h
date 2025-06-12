@@ -637,7 +637,7 @@ class nsImapProtocol : public nsIImapProtocol,
                              const char* newParentMailboxName);
   bool RetryUrl();
 
-  nsresult GlobalInitialization(nsIPrefBranch* aPrefBranch);
+  nsresult GlobalInitialization();
   nsresult Configure(int32_t TooFastTime, int32_t IdealTime,
                      int32_t ChunkAddSize, int32_t ChunkSize,
                      int32_t ChunkThreshold, bool FetchByChunks);

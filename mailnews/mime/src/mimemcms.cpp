@@ -20,6 +20,9 @@
 #include "plstr.h"
 #include "nsComponentManagerUtils.h"
 #include "nsIMailChannel.h"
+#include "mozilla/Preferences.h"
+
+using mozilla::Preferences;
 
 #define MIME_SUPERCLASS mimeMultipartSignedClass
 MimeDefClass(MimeMultipartSignedCMS, MimeMultipartSignedCMSClass,
@@ -209,7 +212,7 @@ static MimeClosure MimeMultCMS_init(MimeObject* obj) {
                        0); /* #### bogus message?  out of memory? */
   }
 
-  bool allowSha1 = mozilla::Preferences::GetBool(
+  bool allowSha1 = Preferences::GetBool(
       "mail.smime.accept_insecure_sha1_message_signatures", false);
 
   if (allowSha1 && (!PL_strcasecmp(micalg, PARAM_MICALG_SHA1) ||

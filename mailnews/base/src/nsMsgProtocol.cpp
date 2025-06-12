@@ -3,10 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsMsgProtocol.h"
+
 #include "msgCore.h"
 #include "nsString.h"
 #include "nsMemory.h"
-#include "nsMsgProtocol.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgMailSession.h"
 #include "nsIStreamTransportService.h"
@@ -29,8 +30,6 @@
 #include "nsIStringBundle.h"
 #include "nsIProxyInfo.h"
 #include "nsThreadUtils.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsMsgUtils.h"
 #include "nsILineInputStream.h"
@@ -40,6 +39,7 @@
 #include "nsICancelable.h"
 #include "nsMimeTypes.h"
 #include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "mozilla/SlicedInputStream.h"
 #include "nsContentSecurityManager.h"
@@ -97,14 +97,7 @@ nsresult nsMsgProtocol::GetQoSBits(uint8_t* aQoSBits) {
   prefName.Append(protocol);
   prefName.AppendLiteral(".qos");
 
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  int32_t val;
-  rv = prefBranch->GetIntPref(prefName.get(), &val);
-  NS_ENSURE_SUCCESS(rv, rv);
+  int32_t val = Preferences::GetInt(prefName.get());
   *aQoSBits = (uint8_t)std::clamp(val, 0, 0xff);
   return NS_OK;
 }

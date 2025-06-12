@@ -3,10 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsCOMPtr.h"
 #include "nsMsgCompUtils.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
+
+#include "nsCOMPtr.h"
 #include "nsStringFwd.h"
 #include "prmem.h"
 #include "nsIStringBundle.h"
@@ -30,6 +29,7 @@
 #include "mozilla/dom/Element.h"
 #include "mozilla/EncodingDetector.h"
 #include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/Unused.h"
 #include "mozilla/ContentIterator.h"
@@ -39,6 +39,8 @@
 #include "nsIMutableArray.h"
 #include "nsIRandomGenerator.h"
 #include "nsID.h"
+
+using mozilla::Preferences;
 
 void msg_generate_message_id(nsIMsgIdentity* identity,
                              const nsACString& customHost,
@@ -706,17 +708,14 @@ void GetFolderURIFromUserPrefs(nsMsgDeliverMode aMode, nsIMsgIdentity* identity,
   // QueueForLater (Outbox)
   if (aMode == nsIMsgSend::nsMsgQueueForLater ||
       aMode == nsIMsgSend::nsMsgDeliverBackground) {
-    nsCOMPtr<nsIPrefBranch> prefs(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    if (NS_FAILED(rv)) return;
-    rv = prefs->GetCharPref("mail.default_sendlater_uri", uri);
+    rv = Preferences::GetCString("mail.default_sendlater_uri", uri);
     if (NS_FAILED(rv) || uri.IsEmpty())
       uri.AssignLiteral(ANY_SERVER);
     else {
       // check if uri is unescaped, and if so, escape it and reset the pef.
       if (uri.FindChar(' ') != kNotFound) {
         uri.ReplaceSubstring(" ", "%20");
-        prefs->SetCharPref("mail.default_sendlater_uri", uri);
+        Preferences::SetCString("mail.default_sendlater_uri", uri);
       }
     }
     return;
@@ -754,11 +753,7 @@ void GetSerialiserFlags(bool* flowed, bool* formatted) {
   *formatted = true;
 
   // Set format=flowed as in RFC 2646 according to the preference.
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (NS_SUCCEEDED(rv)) {
-    prefs->GetBoolPref("mailnews.send_plaintext_flowed", flowed);
-  }
+  Preferences::GetBool("mailnews.send_plaintext_flowed", flowed);
 }
 
 already_AddRefed<nsIArray> GetEmbeddedObjects(

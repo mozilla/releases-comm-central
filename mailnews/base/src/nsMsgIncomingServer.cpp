@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgIncomingServer.h"
+
 #include "nscore.h"
 #include "plstr.h"
 #include "prmem.h"
@@ -36,6 +37,7 @@
 #include "nsIMsgSearchTerm.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/Services.h"
 #include "nsIMsgFilter.h"
 #include "nsIObserverService.h"
@@ -49,9 +51,9 @@
 #endif  // MOZ_PANORAMA
 #include "nsIMsgLocalMailFolder.h"
 
-#define PORT_NOT_SET -1
-
 using namespace mozilla;
+
+#define PORT_NOT_SET -1
 
 nsMsgIncomingServer::nsMsgIncomingServer()
     : m_hasShutDown(false),
@@ -186,8 +188,7 @@ nsMsgIncomingServer::SetKey(const nsACString& serverKey) {
 
   // in order to actually make use of the key, we need the prefs
   nsresult rv;
-  nsCOMPtr<nsIPrefService> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIPrefService> prefs = Preferences::GetService();
 
   nsAutoCString branchName;
   branchName.AssignLiteral("mail.server.");
@@ -1783,10 +1784,8 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryReturnReceiptsFilter(
   identity->GetBoolAttribute("use_custom_prefs", &useCustomPrefs);
   if (useCustomPrefs)
     rv = GetIntValue("incorporate_return_receipt", &incorp);
-  else {
-    nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-    if (prefs) prefs->GetIntPref("mail.incorporate.return_receipt", &incorp);
-  }
+  else
+    Preferences::GetInt("mail.incorporate.return_receipt", &incorp);
 
   bool enable = (incorp == nsIMsgMdnGenerator::eIncorporateSent);
 

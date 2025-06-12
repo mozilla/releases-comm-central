@@ -22,7 +22,9 @@
 #include "nsProxyRelease.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsIMailChannel.h"
+#include "mozilla/Preferences.h"
 
+using mozilla::Preferences;
 using namespace mozilla::mailnews;
 
 // The name "mime encrypted" is misleading, because this code is used
@@ -678,8 +680,8 @@ void MimeCMSRequestAsyncSignatureVerification(
           aMimeNestingLevel, aMsgNeckoURL, aOriginMimePartNumber);
 
   long verifyFlags = 0;
-  if (mozilla::Preferences::GetBool(
-          "mail.smime.accept_insecure_sha1_message_signatures", false)) {
+  if (Preferences::GetBool("mail.smime.accept_insecure_sha1_message_signatures",
+                           false)) {
     verifyFlags |= nsICMSVerifyFlags::VERIFY_ALLOW_WEAK_SHA1;
   }
 

@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "mimemoz2.h"
+
 #include "mimehdrs.h"
 #include "mimeleaf.h"
 #include "mimetext.h"
@@ -18,9 +20,6 @@
 #include "prmem.h"
 #include "plstr.h"
 #include "prmem.h"
-#include "mimemoz2.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsIStringBundle.h"
 #include "nsString.h"
 #include "nsMimeStringResources.h"
@@ -43,7 +42,11 @@
 #include "nsIParserUtils.h"
 // </for>
 #include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/Unused.h"
+
+using mozilla::Preferences;
+using mozilla::PrefValueKind;
 
 void ValidateRealName(nsMsgAttachmentData* aAttach, MimeHeaders* aHdrs);
 
@@ -1022,14 +1025,8 @@ static char* mime_image_make_image_html(MimeClosure image_closure) {
   const char* unscaledPrefix =
       "<DIV CLASS=\"moz-attached-image-container\"><IMG "
       "CLASS=\"moz-attached-image\" SRC=\"";
-  nsCOMPtr<nsIPrefBranch> prefBranch;
-  nsCOMPtr<nsIPrefService> prefSvc(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  bool resize = true;
-
-  if (prefSvc) prefSvc->GetBranch("", getter_AddRefs(prefBranch));
-  if (prefBranch)
-    prefBranch->GetBoolPref("mail.enable_automatic_image_resizing",
-                            &resize);  // ignore return value
+  bool resize =
+      Preferences::GetBool("mail.enable_automatic_image_resizing", true);
   prefix = resize ? scaledPrefix : unscaledPrefix;
 #else
   prefix = scaledPrefix;
@@ -1151,13 +1148,6 @@ bool MimeObjectIsMessageBody(MimeObject* looking_for) {
 //
 // New Stream Converter Interface
 //
-
-// Get the connection to prefs service manager
-nsIPrefBranch* GetPrefBranch(MimeDisplayOptions* opt) {
-  if (!opt) return nullptr;
-
-  return opt->m_prefBranch;
-}
 
 // Get the text converter...
 mozITXTToHTMLConv* GetTextConverter(MimeDisplayOptions* opt) {
@@ -1302,17 +1292,9 @@ extern "C" void* mime_bridge_create_display_stream(
   //  memset(msd->options, 0, sizeof(*msd->options));
   msd->options->format_out = format_out;  // output format
 
-  msd->options->m_prefBranch = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) {
-    PR_Free(msd->options);
-    delete msd;
-    return nullptr;
-  }
-
   // Need the text converter...
   rv = CallCreateInstance(MOZ_TXTTOHTMLCONV_CONTRACTID, &(msd->options->conv));
   if (NS_FAILED(rv)) {
-    msd->options->m_prefBranch = nullptr;
     PR_Free(msd->options);
     delete msd;
     return nullptr;
@@ -1371,32 +1353,28 @@ extern "C" void* mime_bridge_create_display_stream(
   MIME_VariableWidthPlaintext = true;
   msd->options->force_user_charset = false;
 
-  if (msd->options->m_prefBranch) {
-    msd->options->m_prefBranch->GetBoolPref("mail.wrap_long_lines",
-                                            &MIME_WrapLongLines);
-    msd->options->m_prefBranch->GetBoolPref("mail.fixed_width_messages",
-                                            &MIME_VariableWidthPlaintext);
-    //
-    // Charset overrides takes place here
-    //
-    // We have a bool pref (mail.force_user_charset) to deal with attachments.
-    // 1) If true - libmime does NO conversion and just passes it through to
-    //    raptor
-    // 2) If false, then we try to use the charset of the part and if not
-    //    available, the charset of the root message
-    //
-    msd->options->m_prefBranch->GetBoolPref(
-        "mail.force_user_charset", &(msd->options->force_user_charset));
-    msd->options->m_prefBranch->GetBoolPref(
-        "mail.inline_attachments", &(msd->options->show_attachment_inline_p));
-    msd->options->m_prefBranch->GetBoolPref(
-        "mail.inline_attachments.text",
-        &(msd->options->show_attachment_inline_text));
-    msd->options->m_prefBranch->GetBoolPref(
-        "mail.reply_quote_inline", &(msd->options->quote_attachment_inline_p));
-    msd->options->m_prefBranch->GetIntPref("mailnews.display.html_as",
-                                           &(msd->options->html_as_p));
-  }
+  Preferences::GetBool("mail.wrap_long_lines", &MIME_WrapLongLines);
+  Preferences::GetBool("mail.fixed_width_messages",
+                       &MIME_VariableWidthPlaintext);
+  //
+  // Charset overrides takes place here
+  //
+  // We have a bool pref (mail.force_user_charset) to deal with attachments.
+  // 1) If true - libmime does NO conversion and just passes it through to
+  //    raptor
+  // 2) If false, then we try to use the charset of the part and if not
+  //    available, the charset of the root message
+  //
+  Preferences::GetBool("mail.force_user_charset",
+                       &(msd->options->force_user_charset));
+  Preferences::GetBool("mail.inline_attachments",
+                       &(msd->options->show_attachment_inline_p));
+  Preferences::GetBool("mail.inline_attachments.text",
+                       &(msd->options->show_attachment_inline_text));
+  Preferences::GetBool("mail.reply_quote_inline",
+                       &(msd->options->quote_attachment_inline_p));
+  Preferences::GetInt("mailnews.display.html_as", &(msd->options->html_as_p));
+
   /* This pref is written down in with the
      opposite sense of what we like to use... */
   MIME_VariableWidthPlaintext = !MIME_VariableWidthPlaintext;
@@ -1817,59 +1795,48 @@ nsresult GetMailNewsFont(MimeObject* obj, bool styleFixed,
                          nsCString& fontLang) {
   nsresult rv = NS_OK;
 
-  nsIPrefBranch* prefBranch = GetPrefBranch(obj->options);
-  if (prefBranch) {
-    MimeInlineText* text = (MimeInlineText*)obj;
-    nsAutoCString charset;
+  MimeInlineText* text = (MimeInlineText*)obj;
+  nsAutoCString charset;
 
-    // get a charset
-    if (!text->initializeCharset)
-      ((MimeInlineTextClass*)&mimeInlineTextClass)->initialize_charset(obj);
+  // get a charset
+  if (!text->initializeCharset)
+    ((MimeInlineTextClass*)&mimeInlineTextClass)->initialize_charset(obj);
 
-    if (!text->charset || !(*text->charset))
-      charset.AssignLiteral("us-ascii");
-    else
-      charset.Assign(text->charset);
+  if (!text->charset || !(*text->charset))
+    charset.AssignLiteral("us-ascii");
+  else
+    charset.Assign(text->charset);
 
-    nsCOMPtr<nsICharsetConverterManager> charSetConverterManager2;
-    nsAutoCString prefStr;
+  nsCOMPtr<nsICharsetConverterManager> charSetConverterManager2;
+  nsAutoCString prefStr;
 
-    ToLowerCase(charset);
+  ToLowerCase(charset);
 
-    charSetConverterManager2 =
-        do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
-    if (NS_FAILED(rv)) return rv;
+  charSetConverterManager2 =
+      do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
+  if (NS_FAILED(rv)) return rv;
 
-    // get a language, e.g. x-western, ja
-    rv = charSetConverterManager2->GetCharsetLangGroup(charset.get(), fontLang);
-    if (NS_FAILED(rv)) return rv;
+  // get a language, e.g. x-western, ja
+  rv = charSetConverterManager2->GetCharsetLangGroup(charset.get(), fontLang);
+  if (NS_FAILED(rv)) return rv;
 
-    // get a font size from pref
-    prefStr.Assign(!styleFixed ? "font.size.variable."
-                               : "font.size.monospace.");
-    prefStr.Append(fontLang);
-    rv = prefBranch->GetIntPref(prefStr.get(), fontPixelSize);
-    if (NS_FAILED(rv)) return rv;
+  // get a font size from pref
+  prefStr.Assign(!styleFixed ? "font.size.variable." : "font.size.monospace.");
+  prefStr.Append(fontLang);
+  Preferences::GetInt(prefStr.get(), fontPixelSize);
+  if (NS_FAILED(rv)) return rv;
 
-    nsCOMPtr<nsIPrefBranch> prefDefBranch;
-    nsCOMPtr<nsIPrefService> prefSvc(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    if (prefSvc)
-      rv = prefSvc->GetDefaultBranch("", getter_AddRefs(prefDefBranch));
+  // get original font size
+  int32_t originalSize;
+  rv = Preferences::GetRootBranch(PrefValueKind::Default)
+           ->GetIntPref(prefStr.get(), &originalSize);
+  if (NS_FAILED(rv)) return rv;
 
-    if (!prefDefBranch) return rv;
-
-    // get original font size
-    int32_t originalSize;
-    rv = prefDefBranch->GetIntPref(prefStr.get(), &originalSize);
-    if (NS_FAILED(rv)) return rv;
-
-    // calculate percentage
-    *fontSizePercentage =
-        originalSize
-            ? (int32_t)((float)*fontPixelSize / (float)originalSize * 100)
-            : 0;
-  }
+  // calculate percentage
+  *fontSizePercentage =
+      originalSize
+          ? (int32_t)((float)*fontPixelSize / (float)originalSize * 100)
+          : 0;
 
   return NS_OK;
 }
@@ -1897,17 +1864,11 @@ nsresult HTMLSanitize(const nsString& inString, nsString& outString) {
   uint32_t flags = nsIParserUtils::SanitizerCidEmbedsOnly |
                    nsIParserUtils::SanitizerDropForms;
 
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-
-  bool dropPresentational = true;
-  bool dropMedia = false;
-  prefs->GetBoolPref(
-      "mailnews.display.html_sanitizer.drop_non_css_presentation",
-      &dropPresentational);
-  prefs->GetBoolPref("mailnews.display.html_sanitizer.drop_media", &dropMedia);
-  if (dropPresentational)
+  if (Preferences::GetBool(
+          "mailnews.display.html_sanitizer.drop_non_css_presentation", true))
     flags |= nsIParserUtils::SanitizerDropNonCSSPresentation;
-  if (dropMedia) flags |= nsIParserUtils::SanitizerDropMedia;
+  if (Preferences::GetBool("mailnews.display.html_sanitizer.drop_media"))
+    flags |= nsIParserUtils::SanitizerDropMedia;
 
   nsCOMPtr<nsIParserUtils> utils = do_GetService(NS_PARSERUTILS_CONTRACTID);
   return utils->Sanitize(inString, flags, outString);

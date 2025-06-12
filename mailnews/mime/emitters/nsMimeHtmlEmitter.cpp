@@ -3,14 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsCOMPtr.h"
-#include <stdio.h>
 #include "nsMimeHtmlEmitter.h"
+
+#include <stdio.h>
+
+#include "nsCOMPtr.h"
 #include "plstr.h"
 #include "nsMailHeaders.h"
 #include "nscore.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsIMimeStreamConverter.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsMimeTypes.h"
@@ -23,6 +23,9 @@
 #include "mozilla/Components.h"
 #include "nsIMailChannel.h"
 #include "mozilla/ProfilerMarkers.h"
+#include "mozilla/Preferences.h"
+
+using mozilla::Preferences;
 
 #define VIEW_ALL_HEADERS 2
 
@@ -84,40 +87,36 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
   nsTArray<nsCString> otherHeadersArray;
   bool checkOtherHeaders = false;
 
-  nsCOMPtr<nsIPrefBranch> pPrefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (pPrefBranch) {
-    pPrefBranch->GetCharPref("mailnews.headers.extraExpandedHeaders",
-                             extraExpandedHeaders);
-    if (!extraExpandedHeaders.IsEmpty()) {
-      ToLowerCase(extraExpandedHeaders);
-      ParseString(extraExpandedHeaders, ' ', extraExpandedHeadersArray);
-      checkExtraHeaders = true;
+  Preferences::GetCString("mailnews.headers.extraExpandedHeaders",
+                          extraExpandedHeaders);
+  if (!extraExpandedHeaders.IsEmpty()) {
+    ToLowerCase(extraExpandedHeaders);
+    ParseString(extraExpandedHeaders, ' ', extraExpandedHeadersArray);
+    checkExtraHeaders = true;
+  }
+
+  Preferences::GetCString("mailnews.headers.extraAddonHeaders",
+                          extraAddonHeaders);
+  if (!extraAddonHeaders.IsEmpty()) {
+    // Push all headers if extraAddonHeaders is "*".
+    if (extraAddonHeaders.EqualsLiteral("*")) {
+      pushAllHeaders = true;
+    } else {
+      ToLowerCase(extraAddonHeaders);
+      ParseString(extraAddonHeaders, ' ', extraAddonHeadersArray);
+      checkAddonHeaders = true;
+    }
+  }
+
+  Preferences::GetCString("mail.compose.other.header", otherHeaders);
+  if (!otherHeaders.IsEmpty()) {
+    ToLowerCase(otherHeaders);
+    ParseString(otherHeaders, ',', otherHeadersArray);
+    for (uint32_t i = 0; i < otherHeadersArray.Length(); i++) {
+      otherHeadersArray[i].Trim(" ");
     }
 
-    pPrefBranch->GetCharPref("mailnews.headers.extraAddonHeaders",
-                             extraAddonHeaders);
-    if (!extraAddonHeaders.IsEmpty()) {
-      // Push all headers if extraAddonHeaders is "*".
-      if (extraAddonHeaders.EqualsLiteral("*")) {
-        pushAllHeaders = true;
-      } else {
-        ToLowerCase(extraAddonHeaders);
-        ParseString(extraAddonHeaders, ' ', extraAddonHeadersArray);
-        checkAddonHeaders = true;
-      }
-    }
-
-    pPrefBranch->GetCharPref("mail.compose.other.header", otherHeaders);
-    if (!otherHeaders.IsEmpty()) {
-      ToLowerCase(otherHeaders);
-      ParseString(otherHeaders, ',', otherHeadersArray);
-      for (uint32_t i = 0; i < otherHeadersArray.Length(); i++) {
-        otherHeadersArray[i].Trim(" ");
-      }
-
-      checkOtherHeaders = true;
-    }
+    checkOtherHeaders = true;
   }
 
   for (size_t i = 0; i < mHeaderArray->Length(); i++) {
@@ -219,15 +218,7 @@ NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(
     return NS_OK;
   }
 
-  nsresult rv;
-  int32_t viewMode = 0;
-  nsCOMPtr<nsIPrefBranch> pPrefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (NS_SUCCEEDED(rv) && pPrefBranch) {
-    pPrefBranch->GetIntPref("mail.show_headers", &viewMode);
-  }
-
-  return BroadcastHeaders(viewMode);
+  return BroadcastHeaders(Preferences::GetInt("mail.show_headers"));
 }
 
 nsresult nsMimeHtmlDisplayEmitter::EndHeader(const nsACString& name) {
@@ -322,10 +313,7 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
 nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
     const nsACString& name, const char* contentType, const char* url) {
   mSkipAttachment = false;
-  bool p7mExternal = false;
-
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  if (prefs) prefs->GetBoolPref("mailnews.p7m_external", &p7mExternal);
+  bool p7mExternal = Preferences::GetBool("mailnews.p7m_external");
 
   if ((contentType) &&
       ((!p7mExternal && !strcmp(contentType, APPLICATION_XPKCS7_MIME)) ||

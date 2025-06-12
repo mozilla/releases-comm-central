@@ -4,6 +4,7 @@
 
 #include "OfflineStorage.h"
 
+#include "mozilla/Preferences.h"
 #include "msgCore.h"
 #include "nsIChannel.h"
 #include "nsIInputStream.h"
@@ -20,6 +21,8 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
+
+using mozilla::Preferences;
 
 NS_IMPL_ISUPPORTS(OfflineMessageReadListener, nsIStreamListener)
 
@@ -402,20 +405,15 @@ nsresult LocalCopyHeaders(nsIMsgDBHdr* sourceHeader,
                           nsIMsgDBHdr* destinationHeader,
                           const nsTArray<nsCString>& excludeProperties,
                           bool isMove) {
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // These preferences exist so that extensions can control which properties
   // are preserved in the database when a message is moved or copied. All
   // properties are preserved except those listed in these preferences.
   nsCString dontPreserve;
   if (isMove) {
-    prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnMove",
+    Preferences::GetCString("mailnews.database.summary.dontPreserveOnMove",
                             dontPreserve);
   } else {
-    prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnCopy",
+    Preferences::GetCString("mailnews.database.summary.dontPreserveOnCopy",
                             dontPreserve);
   }
 

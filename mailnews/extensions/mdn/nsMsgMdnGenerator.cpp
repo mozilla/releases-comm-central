@@ -20,19 +20,19 @@
 #include "nsIMsgOutgoingServerService.h"  // for actually sending the message...
 #include "nsIMsgOutgoingServer.h"
 #include "nsIMsgCompUtils.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsIStringBundle.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 #include "nsIMsgDatabase.h"
 #include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Unused.h"
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
 
+using mozilla::Preferences;
 using namespace mozilla::mailnews;
 
 #define MDN_NOT_IN_TO_CC ((int)0x0001)
@@ -565,20 +565,10 @@ nsresult nsMsgMdnGenerator::CreateSecondPart() {
   nsCOMPtr<nsIHttpProtocolHandler> pHTTPHandler =
       do_GetService(NS_NETWORK_PROTOCOL_CONTRACTID_PREFIX "http", &rv);
   if (NS_SUCCEEDED(rv) && pHTTPHandler) {
-    bool sendUserAgent = false;
-    nsCOMPtr<nsIPrefBranch> prefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    if (NS_SUCCEEDED(rv) && prefBranch) {
-      prefBranch->GetBoolPref("mailnews.headers.sendUserAgent", &sendUserAgent);
-    }
+    bool sendUserAgent = Preferences::GetBool("mailnews.headers.sendUserAgent");
 
     if (sendUserAgent) {
-      bool useMinimalUserAgent = false;
-      if (prefBranch) {
-        prefBranch->GetBoolPref("mailnews.headers.useMinimalUserAgent",
-                                &useMinimalUserAgent);
-      }
-      if (useMinimalUserAgent) {
+      if (Preferences::GetBool("mailnews.headers.useMinimalUserAgent")) {
         nsCOMPtr<nsIStringBundleService> bundleService =
             mozilla::components::StringBundle::Service();
         if (bundleService) {
@@ -866,21 +856,11 @@ nsresult nsMsgMdnGenerator::InitAndProcess(bool* needToAskUser) {
         m_server->GetIntValue("mdn_outside_domain", &m_outsideDomainOp);
         m_server->GetIntValue("mdn_other", &m_otherOp);
       } else {
-        bool bVal = false;
-
-        nsCOMPtr<nsIPrefBranch> prefBranch(
-            do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-        if (NS_FAILED(rv)) return rv;
-
-        if (prefBranch) {
-          prefBranch->GetBoolPref("mail.mdn.report.enabled", &bVal);
-          m_mdnEnabled = bVal;
-          prefBranch->GetIntPref("mail.mdn.report.not_in_to_cc",
-                                 &m_notInToCcOp);
-          prefBranch->GetIntPref("mail.mdn.report.outside_domain",
-                                 &m_outsideDomainOp);
-          prefBranch->GetIntPref("mail.mdn.report.other", &m_otherOp);
-        }
+        Preferences::GetBool("mail.mdn.report.enabled", &m_mdnEnabled);
+        Preferences::GetInt("mail.mdn.report.not_in_to_cc", &m_notInToCcOp);
+        Preferences::GetInt("mail.mdn.report.outside_domain",
+                            &m_outsideDomainOp);
+        Preferences::GetInt("mail.mdn.report.other", &m_otherOp);
       }
     }
   }

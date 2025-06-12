@@ -3,8 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsMsgIdentity.h"
+
 #include "mozilla/Components.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/Preferences.h"
 #include "msgCore.h"  // for pre-compiled headers
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgFolder.h"
@@ -15,12 +18,13 @@
 #include "nsIURIMutator.h"
 #include "nsIUUIDGenerator.h"
 #include "nsMsgFolderFlags.h"
-#include "nsMsgIdentity.h"
 #include "nsMsgUtils.h"
 #include "nsNetCID.h"
 #include "nsServiceManagerUtils.h"
 #include "nsString.h"
 #include "prprf.h"
+
+using mozilla::Preferences;
 
 #define REL_FILE_PREF_SUFFIX "-rel"
 
@@ -41,8 +45,7 @@ NS_IMETHODIMP
 nsMsgIdentity::SetKey(const nsACString& identityKey) {
   mKey = identityKey;
   nsresult rv;
-  nsCOMPtr<nsIPrefService> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) return rv;
+  nsCOMPtr<nsIPrefService> prefs = Preferences::GetService();
 
   nsAutoCString branchName;
   branchName.AssignLiteral("mail.identity.");
@@ -653,9 +656,7 @@ nsMsgIdentity::GetRequestReturnReceipt(bool* aVal) {
   if (useCustomPrefs)
     return GetBoolAttribute("request_return_receipt_on", aVal);
 
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return prefs->GetBoolPref("mail.receipt.request_return_receipt_on", aVal);
+  return Preferences::GetBool("mail.receipt.request_return_receipt_on", aVal);
 }
 
 NS_IMETHODIMP
@@ -668,9 +669,7 @@ nsMsgIdentity::GetReceiptHeaderType(int32_t* aType) {
   if (useCustomPrefs)
     return GetIntAttribute("request_receipt_header_type", aType);
 
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return prefs->GetIntPref("mail.receipt.request_header_type", aType);
+  return Preferences::GetInt("mail.receipt.request_header_type", aType);
 }
 
 NS_IMETHODIMP
@@ -682,7 +681,5 @@ nsMsgIdentity::GetRequestDSN(bool* aVal) {
   NS_ENSURE_SUCCESS(rv, rv);
   if (useCustomPrefs) return GetBoolAttribute("dsn_always_request_on", aVal);
 
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return prefs->GetBoolPref("mail.dsn.always_request_on", aVal);
+  return Preferences::GetBool("mail.dsn.always_request_on", aVal);
 }

@@ -3,17 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
+#include "nsLocalMailFolder.h"
+
 #include "nsISeekableStream.h"
 #include "prlog.h"
-
 #include "CopyMessageStreamListener.h"
 #include "FolderCompactor.h"
 #include "HeaderReader.h"
 #include "LineReader.h"
 #include "msgCore.h"  // precompiled header...
-#include "nsLocalMailFolder.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
@@ -48,6 +46,7 @@
 #include "nsReadLine.h"
 #include "nsIURIMutator.h"
 #include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "mozilla/UniquePtr.h"
 #include "StoreIndexer.h"
@@ -729,19 +728,12 @@ nsresult nsMsgLocalMailFolder::ConfirmFolderDeletion(nsIMsgWindow* aMsgWindow,
   nsCOMPtr<nsIDocShell> docShell;
   aMsgWindow->GetRootDocShell(getter_AddRefs(docShell));
   if (docShell) {
-    bool confirmDeletion = true;
-    nsresult rv;
-    nsCOMPtr<nsIPrefBranch> pPrefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    pPrefBranch->GetBoolPref("mailnews.confirm.moveFoldersToTrash",
-                             &confirmDeletion);
-    if (confirmDeletion) {
+    if (Preferences::GetBool("mailnews.confirm.moveFoldersToTrash", true)) {
       nsCOMPtr<nsIStringBundleService> bundleService =
           mozilla::components::StringBundle::Service();
       NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
       nsCOMPtr<nsIStringBundle> bundle;
-      rv = bundleService->CreateBundle(
+      nsresult rv = bundleService->CreateBundle(
           "chrome://messenger/locale/localMsgs.properties",
           getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS(rv, rv);
@@ -2100,21 +2092,16 @@ bool nsMsgLocalMailFolder::CopyLine(mozilla::Span<const char> line) {
 void nsMsgLocalMailFolder::CopyPropertiesToMsgHdr(nsIMsgDBHdr* destHdr,
                                                   nsIMsgDBHdr* srcHdr,
                                                   bool aIsMove) {
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS_VOID(rv);
-
   nsCString dontPreserve;
 
   // These preferences exist so that extensions can control which properties
   // are preserved in the database when a message is moved or copied. All
   // properties are preserved except those listed in these preferences
   if (aIsMove)
-    prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnMove",
+    Preferences::GetCString("mailnews.database.summary.dontPreserveOnMove",
                             dontPreserve);
   else
-    prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnCopy",
+    Preferences::GetCString("mailnews.database.summary.dontPreserveOnCopy",
                             dontPreserve);
 
   CopyHdrPropertiesWithSkipList(destHdr, srcHdr, dontPreserve);
@@ -2441,13 +2428,9 @@ static bool gDeleteFromServerOnMove;
 
 bool nsMsgLocalMailFolder::GetDeleteFromServerOnMove() {
   if (!gGotGlobalPrefs) {
-    nsCOMPtr<nsIPrefBranch> pPrefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID));
-    if (pPrefBranch) {
-      pPrefBranch->GetBoolPref("mail.pop3.deleteFromServerOnMove",
-                               &gDeleteFromServerOnMove);
-      gGotGlobalPrefs = true;
-    }
+    gDeleteFromServerOnMove =
+        Preferences::GetBool("mail.pop3.deleteFromServerOnMove");
+    gGotGlobalPrefs = true;
   }
   return gDeleteFromServerOnMove;
 }

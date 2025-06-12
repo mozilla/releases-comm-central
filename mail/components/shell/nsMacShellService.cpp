@@ -4,10 +4,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMacShellService.h"
+
 #include "nsCOMPtr.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsServiceManagerUtils.h"
+#include "mozilla/Preferences.h"
+
+using mozilla::Preferences;
 
 // These Launch Services functions are deprecated. We're using them since
 // they're the only way to set the default opener for URLs
@@ -76,14 +78,12 @@ nsMacShellService::GetShouldCheckDefaultClient(bool* aResult) {
     return NS_OK;
   }
 
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  return prefs->GetBoolPref("mail.shell.checkDefaultClient", aResult);
+  return Preferences::GetBool("mail.shell.checkDefaultClient", aResult);
 }
 
 NS_IMETHODIMP
 nsMacShellService::SetShouldCheckDefaultClient(bool aShouldCheck) {
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  return prefs->SetBoolPref("mail.shell.checkDefaultClient", aShouldCheck);
+  return Preferences::SetBool("mail.shell.checkDefaultClient", aShouldCheck);
 }
 
 bool nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme) {

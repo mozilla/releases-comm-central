@@ -3,14 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsNewsFolder.h"
+
 #include "nsIDBFolderInfo.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
 #include "prlog.h"
 
 #include "msgCore.h"  // precompiled header...
 #include "nsIMsgMailNewsUrl.h"
-#include "nsNewsFolder.h"
 #include "nsMsgFolderFlags.h"
 #include "MailNewsTypes.h"
 #include "prprf.h"
@@ -43,8 +42,11 @@
 #include "nsILoginInfo.h"
 #include "nsILoginManager.h"
 #include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
 #include "nsIInputStream.h"
 #include "nsIURIMutator.h"
+
+using mozilla::Preferences;
 
 #define kNewsSortOffset 9000
 
@@ -234,17 +236,11 @@ nsresult nsMsgNewsFolder::GetDatabase() {
 NS_IMETHODIMP
 nsMsgNewsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
   // Get news.get_messages_on_select pref
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  bool getMessagesOnSelect = true;
-  prefBranch->GetBoolPref("news.get_messages_on_select", &getMessagesOnSelect);
 
   // Only if news.get_messages_on_select is true do we get new messages
   // automatically
-  if (getMessagesOnSelect) {
-    rv = GetDatabase();  // want this cached...
+  if (Preferences::GetBool("news.get_messages_on_select", true)) {
+    nsresult rv = GetDatabase();  // want this cached...
     if (NS_SUCCEEDED(rv)) {
       if (mDatabase) {
         nsCOMPtr<nsIMsgRetentionSettings> retentionSettings;

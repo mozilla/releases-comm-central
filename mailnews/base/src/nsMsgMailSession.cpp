@@ -3,8 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"  // for pre-compiled headers
 #include "nsMsgMailSession.h"
+
+#include "msgCore.h"  // for pre-compiled headers
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgAccountManager.h"
@@ -29,9 +30,12 @@
 #include "mozilla/Services.h"
 #include "mozilla/dom/Element.h"
 #include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
 #include "nsFocusManager.h"
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
+
+using mozilla::Preferences;
 
 NS_IMPL_ISUPPORTS(nsMsgMailSession, nsIMsgMailSession, nsIFolderListener)
 
@@ -187,9 +191,7 @@ nsMsgMailSession::AlertUser(const nsAString& aMessage,
   }
 
   // Are alerts disabled by preference?
-  nsCOMPtr<nsIPrefBranch> prefService =
-      do_GetService(NS_PREFSERVICE_CONTRACTID);
-  prefService->GetBoolPref("mail.suppressAlertsForTests", &listenersNotified);
+  Preferences::GetBool("mail.suppressAlertsForTests", &listenersNotified);
 
   // If the listeners notified the user, then we don't need to. Also exit if
   // aUrl is null because we won't have a nsIMsgWindow in that case.

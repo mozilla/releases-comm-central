@@ -5,6 +5,8 @@
 
 // this file implements the nsMsgDatabase interface using the MDB Interface.
 
+#include "nsMsgDatabase.h"
+
 #include "MailNewsTypes.h"
 #include "nscore.h"
 #include "msgCore.h"
@@ -27,14 +29,13 @@
 #include "nsPrintfCString.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsMsgDatabaseEnumerators.h"
 #include "nsIMemoryReporter.h"
 #include "nsIWeakReferenceUtils.h"
 #include "mozilla/Components.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/intl/LocaleService.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "mozilla/ScopeExit.h"
 
@@ -470,9 +471,9 @@ static bool gCorrectThreading = false;
 
 void nsMsgDatabase::GetGlobalPrefs() {
   if (!gGotGlobalPrefs) {
-    GetBoolPref("mail.thread_without_re", &gThreadWithoutRe);
-    GetBoolPref("mail.strict_threading", &gStrictThreading);
-    GetBoolPref("mail.correct_threading", &gCorrectThreading);
+    Preferences::GetBool("mail.thread_without_re", &gThreadWithoutRe);
+    Preferences::GetBool("mail.strict_threading", &gStrictThreading);
+    Preferences::GetBool("mail.correct_threading", &gCorrectThreading);
     gGotGlobalPrefs = true;
   }
 }
@@ -4430,30 +4431,6 @@ nsresult nsMsgDatabase::AddNewThread(nsMsgHdr* msgHdr) {
   return err;
 }
 
-nsresult nsMsgDatabase::GetBoolPref(const char* prefName, bool* result) {
-  bool prefValue = false;
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> pPrefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (pPrefBranch) {
-    rv = pPrefBranch->GetBoolPref(prefName, &prefValue);
-    *result = prefValue;
-  }
-  return rv;
-}
-
-nsresult nsMsgDatabase::GetIntPref(const char* prefName, int32_t* result) {
-  int32_t prefValue = 0;
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> pPrefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (pPrefBranch) {
-    rv = pPrefBranch->GetIntPref(prefName, &prefValue);
-    *result = prefValue;
-  }
-  return rv;
-}
-
 NS_IMETHODIMP nsMsgDatabase::SetAttributeOnPendingHdr(nsIMsgDBHdr* pendingHdr,
                                                       const char* property,
                                                       const char* propertyVal) {
@@ -5098,7 +5075,7 @@ NS_IMETHODIMP nsMsgDownloadSettings::SetAgeLimitOfMsgsToDownload(
 NS_IMETHODIMP nsMsgDatabase::GetDefaultViewFlags(
     nsMsgViewFlagsTypeValue* aDefaultViewFlags) {
   NS_ENSURE_ARG_POINTER(aDefaultViewFlags);
-  GetIntPref("mailnews.default_view_flags", aDefaultViewFlags);
+  Preferences::GetInt("mailnews.default_view_flags", aDefaultViewFlags);
   if (*aDefaultViewFlags < nsMsgViewFlagsType::kNone ||
       *aDefaultViewFlags >
           (nsMsgViewFlagsType::kThreadedDisplay |
@@ -5112,7 +5089,7 @@ NS_IMETHODIMP nsMsgDatabase::GetDefaultViewFlags(
 NS_IMETHODIMP nsMsgDatabase::GetDefaultSortType(
     nsMsgViewSortTypeValue* aDefaultSortType) {
   NS_ENSURE_ARG_POINTER(aDefaultSortType);
-  GetIntPref("mailnews.default_sort_type", aDefaultSortType);
+  Preferences::GetInt("mailnews.default_sort_type", aDefaultSortType);
   if (*aDefaultSortType < nsMsgViewSortType::byDate ||
       *aDefaultSortType > nsMsgViewSortType::byCorrespondent ||
       *aDefaultSortType == nsMsgViewSortType::byCustom) {
@@ -5124,7 +5101,7 @@ NS_IMETHODIMP nsMsgDatabase::GetDefaultSortType(
 NS_IMETHODIMP nsMsgDatabase::GetDefaultSortOrder(
     nsMsgViewSortOrderValue* aDefaultSortOrder) {
   NS_ENSURE_ARG_POINTER(aDefaultSortOrder);
-  GetIntPref("mailnews.default_sort_order", aDefaultSortOrder);
+  Preferences::GetInt("mailnews.default_sort_order", aDefaultSortOrder);
   if (*aDefaultSortOrder != nsMsgViewSortOrder::descending) {
     *aDefaultSortOrder = nsMsgViewSortOrder::ascending;
   }

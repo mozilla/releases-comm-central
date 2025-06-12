@@ -4,16 +4,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mimetpfl.h"
+
 #include "nsMailHeaders.h"
 #include "prmem.h"
 #include "plstr.h"
 #include "mozITXTToHTMLConv.h"
 #include "nsString.h"
 #include "nsMimeStringResources.h"
-#include "nsIPrefBranch.h"
 #include "mimemoz2.h"
 #include "prprf.h"
 #include "nsMsgI18N.h"
+#include "mozilla/Preferences.h"
+
+using mozilla::Preferences;
 
 static const uint32_t kSpacesForATab = 4;  // Must be at least 1.
 
@@ -113,17 +116,11 @@ static int MimeInlineTextPlainFlowed_parse_begin(MimeObject* obj) {
   text->mCitationColor.Truncate();  // mail.citation_color
   text->mStripSig = true;           // mail.strip_sig_on_reply
 
-  nsIPrefBranch* prefBranch = GetPrefBranch(obj->options);
-  if (prefBranch) {
-    prefBranch->GetIntPref("mail.quoted_size", &(text->mQuotedSizeSetting));
-    prefBranch->GetIntPref("mail.quoted_style", &(text->mQuotedStyleSetting));
-    prefBranch->GetCharPref("mail.citation_color", text->mCitationColor);
-    prefBranch->GetBoolPref("mail.strip_sig_on_reply", &(text->mStripSig));
-    mozilla::DebugOnly<nsresult> rv = prefBranch->GetBoolPref(
-        "mail.fixed_width_messages", &(exdata->fixedwidthfont));
-    NS_ASSERTION(NS_SUCCEEDED(rv), "failed to get pref");
-    // Check at least the success of one
-  }
+  Preferences::GetInt("mail.quoted_size", &(text->mQuotedSizeSetting));
+  Preferences::GetInt("mail.quoted_style", &(text->mQuotedStyleSetting));
+  Preferences::GetCString("mail.citation_color", text->mCitationColor);
+  Preferences::GetBool("mail.strip_sig_on_reply", &(text->mStripSig));
+  Preferences::GetBool("mail.fixed_width_messages", &(exdata->fixedwidthfont));
 
   // Get font
   // only used for viewing (!plainHTML)

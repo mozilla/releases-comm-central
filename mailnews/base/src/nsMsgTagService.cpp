@@ -4,11 +4,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgTagService.h"
-#include "nsIPrefService.h"
+
+#include "mozilla/Preferences.h"
 #include "nsMsgI18N.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
+
+using mozilla::Preferences;
 
 #define STRLEN(s) (sizeof(s) - 1)
 
@@ -88,10 +91,8 @@ NS_IMPL_ISUPPORTS(nsMsgTagService, nsIMsgTagService)
 
 nsMsgTagService::nsMsgTagService() {
   m_tagPrefBranch = nullptr;
-  nsCOMPtr<nsIPrefService> prefService(
-      do_GetService(NS_PREFSERVICE_CONTRACTID));
-  if (prefService)
-    prefService->GetBranch("mailnews.tags.", getter_AddRefs(m_tagPrefBranch));
+  Preferences::GetService()->GetBranch("mailnews.tags.",
+                                       getter_AddRefs(m_tagPrefBranch));
   SetupLabelTags();
   RefreshKeyCache();
 }
@@ -400,23 +401,22 @@ nsresult nsMsgTagService::SetupLabelTags() {
   if (NS_SUCCEEDED(rv) && prefVersion > 1) {
     return rv;
   }
-  nsCOMPtr<nsIPrefBranch> prefRoot(do_GetService(NS_PREFSERVICE_CONTRACTID));
   nsCOMPtr<nsIPrefLocalizedString> pls;
   nsString ucsval;
   nsAutoCString labelKey("$label1");
   for (int32_t i = 0; i < 5;) {
     prefString.AssignLiteral("mailnews.labels.description.");
     prefString.AppendInt(i + 1);
-    rv = prefRoot->GetComplexValue(prefString.get(),
-                                   NS_GET_IID(nsIPrefLocalizedString),
-                                   getter_AddRefs(pls));
+    rv = Preferences::GetComplex(prefString.get(),
+                                 NS_GET_IID(nsIPrefLocalizedString),
+                                 getter_AddRefs(pls));
     NS_ENSURE_SUCCESS(rv, rv);
     pls->ToString(getter_Copies(ucsval));
 
     prefString.AssignLiteral("mailnews.labels.color.");
     prefString.AppendInt(i + 1);
     nsCString csval;
-    rv = prefRoot->GetCharPref(prefString.get(), csval);
+    rv = Preferences::GetCString(prefString.get(), csval);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = AddTagForKey(labelKey, ucsval, csval, EmptyCString());

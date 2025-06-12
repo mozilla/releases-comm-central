@@ -6,10 +6,11 @@
 #ifndef COMM_MAILNEWS_BASE_SRC_NSMESSENGERWININTEGRATION_H_
 #define COMM_MAILNEWS_BASE_SRC_NSMESSENGERWININTEGRATION_H_
 
+#include "WinDef.h"
+
 #include "nsCOMPtr.h"
 #include "nsString.h"
 #include "nsIMessengerWindowsIntegration.h"
-#include "nsIPrefBranch.h"
 
 class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {
  public:
@@ -29,7 +30,6 @@ class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {
   nsresult SetTooltip();
   nsresult UpdateTrayIcon();
 
-  nsCOMPtr<nsIPrefBranch> mPrefBranch;
   bool mTrayIconShown = false;
   nsString mBrandShortName;
   nsString mUnreadTooltip;

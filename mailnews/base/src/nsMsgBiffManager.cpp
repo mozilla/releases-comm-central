@@ -8,13 +8,14 @@
 #include "nsCOMArray.h"
 #include "mozilla/Logging.h"
 #include "nspr.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
+#include "mozilla/Preferences.h"
 #include "nsIObserverService.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "nsITimer.h"
 #include "mozilla/Services.h"
+
+using mozilla::Preferences;
 
 #define PREF_BIFF_JITTER "mail.biff.add_interval_jitter"
 
@@ -210,22 +211,18 @@ nsresult nsMsgBiffManager::SetNextBiffTime(nsBiffEntry& biffEntry,
   biffEntry.nextBiffTime = currentTime + chosenTimeInterval;
 
   // Check if we should jitter.
-  nsCOMPtr<nsIPrefBranch> prefs = do_GetService(NS_PREFSERVICE_CONTRACTID);
-  if (prefs) {
-    bool shouldUseBiffJitter = false;
-    prefs->GetBoolPref(PREF_BIFF_JITTER, &shouldUseBiffJitter);
-    if (shouldUseBiffJitter) {
-      // Calculate a jitter of +/-5% on chosenTimeInterval
-      // - minimum 1 second (to avoid a modulo with 0)
-      // - maximum 30 seconds (to avoid problems when biffInterval is very
-      // large)
-      int64_t jitter = (int64_t)(0.05 * (int64_t)chosenTimeInterval);
-      jitter =
-          std::max<int64_t>(1000000LL, std::min<int64_t>(jitter, 30000000LL));
-      jitter = ((rand() % 2) ? 1 : -1) * (rand() % jitter);
+  bool shouldUseBiffJitter = Preferences::GetBool(PREF_BIFF_JITTER);
+  if (shouldUseBiffJitter) {
+    // Calculate a jitter of +/-5% on chosenTimeInterval
+    // - minimum 1 second (to avoid a modulo with 0)
+    // - maximum 30 seconds (to avoid problems when biffInterval is very
+    // large)
+    int64_t jitter = (int64_t)(0.05 * (int64_t)chosenTimeInterval);
+    jitter =
+        std::max<int64_t>(1000000LL, std::min<int64_t>(jitter, 30000000LL));
+    jitter = ((rand() % 2) ? 1 : -1) * (rand() % jitter);
 
-      biffEntry.nextBiffTime += jitter;
-    }
+    biffEntry.nextBiffTime += jitter;
   }
 
   return NS_OK;

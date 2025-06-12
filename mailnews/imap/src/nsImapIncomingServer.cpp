@@ -3,11 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"
+#include "nsImapIncomingServer.h"
 
+#include "msgCore.h"
 #include "netCore.h"
 #include "../public/nsIImapHostSessionList.h"
-#include "nsImapIncomingServer.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgIdentity.h"
 #include "nsIImapUrl.h"
@@ -15,8 +15,6 @@
 #include "nsThreadUtils.h"
 #include "nsImapProtocol.h"
 #include "nsCOMPtr.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
 #include "nsMsgFolderFlags.h"
 #include "prmem.h"
 #include "plstr.h"
@@ -2531,15 +2529,9 @@ nsImapIncomingServer::GetSupportsDiskSpace(bool* aSupportsDiskSpace) {
       CreateHostSpecificPrefName("default_supports_diskspace", prefName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv))
-    rv = prefBranch->GetBoolPref(prefName.get(), aSupportsDiskSpace);
+  *aSupportsDiskSpace = true;
+  Preferences::GetBool(prefName.get(), aSupportsDiskSpace);
 
-  // Couldn't get the default value with the hostname.
-  // Fall back on IMAP default value
-  if (NS_FAILED(rv))  // set default value
-    *aSupportsDiskSpace = true;
   return NS_OK;
 }
 
@@ -2596,15 +2588,9 @@ nsImapIncomingServer::GetOfflineSupportLevel(int32_t* aSupportLevel) {
   rv = CreateHostSpecificPrefName("default_offline_support_level", prefName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv))
-    rv = prefBranch->GetIntPref(prefName.get(), aSupportLevel);
+  *aSupportLevel =
+      Preferences::GetInt(prefName.get(), OFFLINE_SUPPORT_LEVEL_REGULAR);
 
-  // Couldn't get the pref value with the hostname.
-  // Fall back on IMAP default value
-  if (NS_FAILED(rv))  // set default value
-    *aSupportLevel = OFFLINE_SUPPORT_LEVEL_REGULAR;
   return NS_OK;
 }
 
@@ -2738,10 +2724,7 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
     // eventually, the gGotStatusPref should go away, once we work out the kinks
     // from using STATUS.
     if (!gGotStatusPref) {
-      nsCOMPtr<nsIPrefBranch> prefBranch =
-          do_GetService(NS_PREFSERVICE_CONTRACTID);
-      if (prefBranch)
-        prefBranch->GetBoolPref("mail.imap.use_status_for_biff", &gUseStatus);
+      Preferences::GetBool("mail.imap.use_status_for_biff", &gUseStatus);
       gGotStatusPref = true;
     }
     if (gUseStatus && !isOpen) {
@@ -2776,12 +2759,7 @@ NS_IMETHODIMP
 nsImapIncomingServer::GetShowAttachmentsInline(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = true;  // true per default
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  prefBranch->GetBoolPref("mail.inline_attachments", aResult);
+  Preferences::GetBool("mail.inline_attachments", aResult);
   return NS_OK;  // In case this pref is not set we need to return NS_OK.
 }
 

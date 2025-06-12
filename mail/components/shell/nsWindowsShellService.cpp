@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsWindowsShellService.h"
-#include "nsIPrefService.h"
+
 #include "windows.h"
 #include "shellapi.h"
 #include "nsIFile.h"
@@ -13,6 +13,9 @@
 #include "nsServiceManagerUtils.h"
 #include "nsIProperties.h"
 #include "nsString.h"
+#include "mozilla/Preferences.h"
+
+using mozilla::Preferences;
 
 #ifdef _WIN32_WINNT
 #  undef _WIN32_WINNT
@@ -244,14 +247,12 @@ nsWindowsShellService::GetShouldCheckDefaultClient(bool* aResult) {
     return NS_OK;
   }
 
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  return prefs->GetBoolPref("mail.shell.checkDefaultClient", aResult);
+  return Preferences::GetBool("mail.shell.checkDefaultClient", aResult);
 }
 
 NS_IMETHODIMP
 nsWindowsShellService::SetShouldCheckDefaultClient(bool aShouldCheck) {
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  return prefs->SetBoolPref("mail.shell.checkDefaultClient", aShouldCheck);
+  return Preferences::SetBool("mail.shell.checkDefaultClient", aShouldCheck);
 }
 
 /* helper routine. Iterate over the passed in settings object. */

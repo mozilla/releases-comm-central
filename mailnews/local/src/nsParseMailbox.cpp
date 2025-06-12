@@ -28,8 +28,6 @@
 #include "nsMsgSearchCore.h"
 #include "nsMailHeaders.h"
 #include "nsIMsgMailSession.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
 #include "nsIMsgComposeService.h"
 #include "nsIMsgCopyService.h"
 #include "nsICryptoHash.h"
@@ -41,6 +39,7 @@
 #include "mozilla/Span.h"
 #include "HeaderReader.h"
 #include "nsIMimeConverter.h"
+#include "mozilla/Preferences.h"
 
 using namespace mozilla;
 
@@ -358,11 +357,7 @@ nsParseMailMessageState::nsParseMailMessageState() {
   // a mail message with the X-Spam-Score header, we'll set the
   // "x-spam-score" property of nsMsgHdr to the value of the header.
   nsCString customDBHeaders;  // not shown in search UI
-  nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  if (!pPrefBranch) {
-    return;
-  }
-  pPrefBranch->GetCharPref("mailnews.customDBHeaders", customDBHeaders);
+  Preferences::GetCString("mailnews.customDBHeaders", customDBHeaders);
   ToLowerCase(customDBHeaders);
   if (customDBHeaders.Find("content-base") == -1)
     customDBHeaders.InsertLiteral("content-base ", 0);
@@ -371,7 +366,7 @@ nsParseMailMessageState::nsParseMailMessageState() {
   // now add customHeaders
   nsCString customHeadersString;  // shown in search UI
   nsTArray<nsCString> customHeadersArray;
-  pPrefBranch->GetCharPref("mailnews.customHeaders", customHeadersString);
+  Preferences::GetCString("mailnews.customHeaders", customHeadersString);
   ToLowerCase(customHeadersString);
   customHeadersString.StripWhitespace();
   ParseString(customHeadersString, ':', customHeadersArray);

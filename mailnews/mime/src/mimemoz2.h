@@ -25,8 +25,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "nsIPrefBranch.h"
-
 typedef struct _nsMIMESession nsMIMESession;
 
 /* stream functions */
@@ -174,9 +172,6 @@ extern "C" nsresult mimeEmitterUpdateCharacterSet(MimeDisplayOptions* opt,
 extern "C" nsresult MimeGetAttachmentList(MimeObject* tobj,
                                           const char* aMessageURL,
                                           nsMsgAttachmentData** data);
-
-/* To Get the connection to prefs service manager */
-extern "C" nsIPrefBranch* GetPrefBranch(MimeDisplayOptions* opt);
 
 // Get the text converter...
 mozITXTToHTMLConv* GetTextConverter(MimeDisplayOptions* opt);

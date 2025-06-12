@@ -19,7 +19,6 @@
 #include "nsIMsgAccountManager.h"
 #include "nsCOMPtr.h"
 #include "nsIMsgOutgoingServer.h"
-#include "nsIPrefBranch.h"
 #include "nsIMsgFolderCache.h"
 #include "nsIMsgFolder.h"
 #include "nsIObserver.h"
@@ -199,7 +198,6 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
 
   nsresult SetSendLaterUriPref(nsIMsgIncomingServer* server);
 
-  nsCOMPtr<nsIPrefBranch> m_prefs;
   nsCOMPtr<nsIMsgDBService> m_dbService;
 
   // account deletion handling

@@ -8,8 +8,6 @@
 #include "nsMimeBaseEmitter.h"
 #include "nsMailHeaders.h"
 #include "nscore.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "prmem.h"
 #include "nsEmitterUtils.h"
 #include "nsMimeStringResources.h"
@@ -25,6 +23,9 @@
 #include "nsTextFormatter.h"
 #include "mozilla/Components.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
+#include "mozilla/Preferences.h"
+
+using mozilla::Preferences;
 
 static mozilla::LazyLogModule gMimeEmitterLogModule("MIME");
 
@@ -73,9 +74,7 @@ nsMimeBaseEmitter::nsMimeBaseEmitter() {
   mUnicodeConverter = do_GetService("@mozilla.org/messenger/mimeconverter;1");
 
   // Do prefs last since we can live without this if it fails...
-  nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  if (pPrefBranch)
-    pPrefBranch->GetIntPref("mail.show_headers", &mHeaderDisplayType);
+  mHeaderDisplayType = Preferences::GetInt("mail.show_headers");
 }
 
 nsMimeBaseEmitter::~nsMimeBaseEmitter(void) {
@@ -578,17 +577,8 @@ nsresult nsMimeBaseEmitter::GenerateDateString(const char* dateString,
    * See if the user wants to have the date displayed in the senders
    * timezone (including the timezone offset).
    */
-  bool displaySenderTimezone = false;
-
-  nsCOMPtr<nsIPrefService> prefs =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIPrefBranch> dateFormatPrefs;
-  rv = prefs->GetBranch("mailnews.display.", getter_AddRefs(dateFormatPrefs));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  dateFormatPrefs->GetBoolPref("date_senders_timezone", &displaySenderTimezone);
+  bool displaySenderTimezone =
+      Preferences::GetBool("mailnews.display.date_senders_timezone");
 
   PRExplodedTime explodedMsgTime;
 
@@ -661,14 +651,7 @@ nsresult nsMimeBaseEmitter::GenerateDateString(const char* dateString,
 char* nsMimeBaseEmitter::GetLocalizedDateString(const char* dateString) {
   char* i18nValue = nullptr;
 
-  bool displayOriginalDate = false;
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
-
-  if (prefBranch)
-    prefBranch->GetBoolPref("mailnews.display.date_senders_timezone",
-                            &displayOriginalDate);
-
-  if (!displayOriginalDate) {
+  if (!Preferences::GetBool("mailnews.display.date_senders_timezone")) {
     nsAutoCString convertedDateString;
     nsresult rv = GenerateDateString(dateString, convertedDateString, true);
     if (NS_SUCCEEDED(rv))

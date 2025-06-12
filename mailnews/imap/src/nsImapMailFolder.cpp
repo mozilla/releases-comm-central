@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsImapMailFolder.h"
+
 #include "msgCore.h"
 #include "CopyMessageStreamListener.h"
 #include "nsIAutoSyncManager.h"
 #include "nsIStringStream.h"
 #include "prmem.h"
-#include "nsImapMailFolder.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIImapService.h"
 #include "nsIFile.h"
@@ -25,8 +26,6 @@
 #include "nsImapStringBundle.h"
 #include "nsIMsgFolderCacheElement.h"
 #include "nsTextFormatter.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
 #include "nsMsgI18N.h"
 #include "nsIMsgFilter.h"
 #include "nsIMsgFilterService.h"
@@ -66,11 +65,14 @@
 #include "nsIMsgThread.h"
 #include "nsMsgLineBuffer.h"
 #include "mozilla/Logging.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/ScopeExit.h"
 #include "nsReadableUtils.h"
 #include "UrlListener.h"
 #include "nsIObserverService.h"
 #include "nsIPropertyBag2.h"
+
+using mozilla::Preferences;
 
 #define NS_PARSEMAILMSGSTATE_CID              \
   {/* 2B79AC51-1459-11d3-8097-006008128C4E */ \
@@ -2287,11 +2289,8 @@ nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
       if (!serverSupportsDualUseFolders) canHaveSubFoldersOfTrash = false;
     }
     if (!canHaveSubFoldersOfTrash) deleteNoTrash = true;
-    nsCOMPtr<nsIPrefBranch> prefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    prefBranch->GetBoolPref("mailnews.confirm.moveFoldersToTrash",
-                            &confirmDeletion);
+    confirmDeletion =
+        Preferences::GetBool("mailnews.confirm.moveFoldersToTrash");
   }
 
   // If we are deleting folder immediately, ask user for confirmation.
@@ -2373,14 +2372,8 @@ bool nsImapMailFolder::ShouldCheckAllFolders(
     nsIImapIncomingServer* imapServer) {
   // Check legacy global preference to see if we should check all folders for
   // new messages, or just the inbox and marked ones.
-  bool checkAllFolders = false;
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, false);
-  // This pref might not exist, which is OK.
-  (void)prefBranch->GetBoolPref("mail.check_all_imap_folders_for_new",
-                                &checkAllFolders);
+  bool checkAllFolders =
+      Preferences::GetBool("mail.check_all_imap_folders_for_new");
 
   if (checkAllFolders) return true;
 
@@ -2965,11 +2958,7 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
   // if this is not the Inbox folder.
   if (mFlags & nsMsgFolderFlags::Inbox || m_applyIncomingFilters) {
     // Use highwater to determine whether to filter?
-    bool filterOnHighwater = false;
-    nsCOMPtr<nsIPrefBranch> prefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID));
-    if (prefBranch)
-      prefBranch->GetBoolPref("mail.imap.filter_on_new", &filterOnHighwater);
+    bool filterOnHighwater = Preferences::GetBool("mail.imap.filter_on_new");
 
     uint32_t msgFlags;
     newMsgHdr->GetFlags(&msgFlags);
@@ -4111,13 +4100,7 @@ NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(
     return NS_OK;
   }
 
-  int32_t hdrChunkSize = 200;
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (prefBranch)
-    prefBranch->GetIntPref("mail.imap.hdr_chunk_size", &hdrChunkSize);
+  int32_t hdrChunkSize = Preferences::GetInt("mail.imap.hdr_chunk_size", 200);
 
   int32_t numKeysToFetch = m_keysToFetch.Length();
   int32_t startIndex = 0;
@@ -5036,20 +5019,15 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                 // flag
                 srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
                 // is there a way to see that we think we have new msgs?
-                nsCOMPtr<nsIPrefBranch> prefBranch(
-                    do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-                if (NS_SUCCEEDED(rv)) {
-                  bool showPreviewText;
-                  prefBranch->GetBoolPref("mail.biff.alert.show_preview",
-                                          &showPreviewText);
-                  // if we're showing preview text, update ourselves if we got a
-                  // new unread message copied so that we can download the new
-                  // headers and have a chance to preview the msg bodies.
-                  if (showPreviewText && m_copyState->m_unreadCount > 0 &&
-                      !(mFlags &
-                        (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Junk))) {
-                    UpdateFolder(msgWindow);
-                  }
+                bool showPreviewText =
+                    Preferences::GetBool("mail.biff.alert.show_preview");
+                // if we're showing preview text, update ourselves if we got a
+                // new unread message copied so that we can download the new
+                // headers and have a chance to preview the msg bodies.
+                if (showPreviewText && m_copyState->m_unreadCount > 0 &&
+                    !(mFlags &
+                      (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Junk))) {
+                  UpdateFolder(msgWindow);
                 }
               } else {
                 srcFolder->EnableNotifications(allMessageCountNotifications,
@@ -6856,21 +6834,16 @@ void nsImapMailFolder::SetPendingAttributes(
   uint32_t supportedUserFlags;
   GetSupportedUserFlags(&supportedUserFlags);
 
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS_VOID(rv);
-
   nsCString dontPreserve;
 
   // These preferences exist so that extensions can control which properties
   // are preserved in the database when a message is moved or copied. All
   // properties are preserved except those listed in these preferences
   if (aIsMove)
-    prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnMove",
+    Preferences::GetCString("mailnews.database.summary.dontPreserveOnMove",
                             dontPreserve);
   else
-    prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnCopy",
+    Preferences::GetCString("mailnews.database.summary.dontPreserveOnCopy",
                             dontPreserve);
 
   // We'll add spaces at beginning and end so we can search for space-name-space
@@ -8306,11 +8279,7 @@ NS_IMETHODIMP nsImapMailFolder::NotifyIfNewMail() {
 }
 
 bool nsImapMailFolder::ShowPreviewText() {
-  bool showPreviewText = false;
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  if (prefBranch)
-    prefBranch->GetBoolPref("mail.biff.alert.show_preview", &showPreviewText);
-  return showPreviewText;
+  return Preferences::GetBool("mail.biff.alert.show_preview");
 }
 
 nsresult nsImapMailFolder::PlaybackCoalescedOperations() {
@@ -8620,12 +8589,8 @@ NS_IMETHODIMP nsImapMailFolder::GetCustomIdentity(nsIMsgIdentity** aIdentity) {
   NS_ENSURE_ARG_POINTER(aIdentity);
   if (mFlags & nsMsgFolderFlags::ImapOtherUser) {
     nsresult rv;
-    bool delegateOtherUsersFolders = false;
-    nsCOMPtr<nsIPrefBranch> prefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    prefBranch->GetBoolPref("mail.imap.delegateOtherUsersFolders",
-                            &delegateOtherUsersFolders);
+    bool delegateOtherUsersFolders =
+        Preferences::GetBool("mail.imap.delegateOtherUsersFolders");
     // if we're automatically delegating other user's folders, we need to
     // cons up an e-mail address for the other user. We do that by
     // taking the other user's name and the current user's domain name,

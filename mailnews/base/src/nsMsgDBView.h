@@ -497,7 +497,7 @@ class nsMsgDBView : public nsIMsgDBView,
   void EnsureCustomColumnsValid();
 
  protected:
-  static nsresult InitDisplayFormats();
+  static void InitDisplayFormats();
 
  private:
   static bool m_dateFormatsInitialized;

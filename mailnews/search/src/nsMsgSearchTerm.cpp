@@ -22,8 +22,6 @@
 #include "nsMsgSearchValue.h"
 #include "nsMsgI18N.h"
 #include "nsIMimeConverter.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
 #include "nsIMsgFilterPlugin.h"
 #include "nsUnicharUtils.h"
 #include "nsIAbCard.h"
@@ -35,8 +33,10 @@
 #include "nsIMsgPluggableStore.h"
 #include "nsIAbManager.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/Utf8.h"
 
+using mozilla::Preferences;
 using namespace mozilla::mailnews;
 
 //---------------------------------------------------------------------------
@@ -118,7 +118,6 @@ nsresult NS_MsgGetAttributeFromString(const char* string,
   }
 
   if (!found) {
-    nsresult rv;
     bool goodHdr;
     IsRFC822HeaderFieldName(string, &goodHdr);
     if (!goodHdr) return NS_MSG_INVALID_CUSTOM_HEADER;
@@ -126,16 +125,8 @@ nsresult NS_MsgGetAttributeFromString(const char* string,
     // until 99.
     *attrib = nsMsgSearchAttrib::OtherHeader + 1;
 
-    nsCOMPtr<nsIPrefService> prefService =
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIPrefBranch> prefBranch;
-    rv = prefService->GetBranch(nullptr, getter_AddRefs(prefBranch));
-    NS_ENSURE_SUCCESS(rv, rv);
-
     nsCString headers;
-    prefBranch->GetCharPref(MAILNEWS_CUSTOM_HEADERS, headers);
+    Preferences::GetCString(MAILNEWS_CUSTOM_HEADERS, headers);
 
     if (!headers.IsEmpty()) {
       nsAutoCString hdrStr(headers);

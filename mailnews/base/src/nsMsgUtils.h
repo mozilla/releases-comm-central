@@ -147,13 +147,12 @@ nsresult NS_SetPersistentFile(const char* relPrefName, const char* absPrefName,
 
 nsresult IsRFC822HeaderFieldName(const char* aHdr, bool* aResult);
 
-nsresult NS_GetLocalizedUnicharPreferenceWithDefault(
-    nsIPrefBranch* prefBranch,  // can be null, if so uses the root branch
-    const char* prefName, const nsAString& defValue, nsAString& prefValue);
+nsresult NS_GetLocalizedUnicharPreferenceWithDefault(const char* prefName,
+                                                     const nsAString& defValue,
+                                                     nsAString& prefValue);
 
-nsresult NS_GetLocalizedUnicharPreference(
-    nsIPrefBranch* prefBranch,  // can be null, if so uses the root branch
-    const char* prefName, nsAString& prefValue);
+nsresult NS_GetLocalizedUnicharPreference(const char* prefName,
+                                          nsAString& prefValue);
 
 mozilla::Maybe<nsLiteralCString> StatusCodeToL10nId(nsresult aStatus);
 nsresult FormatStatusMessage(nsresult aStatus, const nsAString& aHost,

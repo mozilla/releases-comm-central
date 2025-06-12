@@ -4,9 +4,12 @@
 
 #define MAPI_STARTUP_ARG "/MAPIStartUp"
 
+#include "msgMapiHook.h"
+
 #include <mapidefs.h>
 #include <mapi.h>
 #include <direct.h>
+
 #include "nsCOMPtr.h"
 #include "nsISupports.h"
 #include "nsIPromptService.h"
@@ -14,13 +17,9 @@
 #include "mozIDOMWindow.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIStringBundle.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
-#include "nsString.h"
 #include "nsUnicharUtils.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsIMsgAttachment.h"
-#include "nsIMsgCompFields.h"
 #include "nsIMsgComposeParams.h"
 #include "nsIMsgCompose.h"
 #include "nsIMsgSend.h"
@@ -28,8 +27,6 @@
 #include "nsDirectoryServiceDefs.h"
 #include "nsDirectoryServiceUtils.h"
 #include "nsLocalFile.h"
-#include "msgMapi.h"
-#include "msgMapiHook.h"
 #include "msgMapiSupport.h"
 #include "msgMapiMain.h"
 #include "nsThreadUtils.h"
@@ -42,7 +39,9 @@
 #include "mozilla/ErrorNames.h"
 #include "mozilla/Logging.h"
 #include "mozilla/SpinEventLoopUntil.h"
+#include "mozilla/Preferences.h"
 
+using mozilla::Preferences;
 using namespace mozilla::dom;
 
 extern mozilla::LazyLogModule MAPI;  // defined in msgMapiImp.cpp
@@ -195,16 +194,10 @@ bool nsMapiHook::VerifyUserName(const nsCString& aUsername, nsCString& aIdKey) {
 }
 
 bool nsMapiHook::IsBlindSendAllowed() {
-  bool enabled = false;
-  bool warn = true;
-  nsCOMPtr<nsIPrefBranch> prefBranch = do_GetService(NS_PREFSERVICE_CONTRACTID);
-  if (prefBranch) {
-    prefBranch->GetBoolPref(PREF_MAPI_WARN_PRIOR_TO_BLIND_SEND, &warn);
-    prefBranch->GetBoolPref(PREF_MAPI_BLIND_SEND_ENABLED, &enabled);
-  }
-  if (!enabled) return false;
+  if (!Preferences::GetBool(PREF_MAPI_BLIND_SEND_ENABLED)) return false;
 
-  if (!warn) return true;  // Everything is okay.
+  if (!Preferences::GetBool(PREF_MAPI_WARN_PRIOR_TO_BLIND_SEND, true))
+    return true;  // Everything is okay.
 
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
@@ -235,8 +228,8 @@ bool nsMapiHook::IsBlindSendAllowed() {
                            dontShowAgainMessage.get(), &continueToWarn,
                            &okayToContinue);
 
-  if (!continueToWarn && okayToContinue && prefBranch)
-    prefBranch->SetBoolPref(PREF_MAPI_WARN_PRIOR_TO_BLIND_SEND, false);
+  if (!continueToWarn && okayToContinue)
+    Preferences::SetBool(PREF_MAPI_WARN_PRIOR_TO_BLIND_SEND, false);
 
   return okayToContinue;
 }

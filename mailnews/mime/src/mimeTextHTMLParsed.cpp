@@ -33,6 +33,8 @@
 #include "mozilla/ErrorResult.h"
 #include "mimethtm.h"
 
+using mozilla::Preferences;
+
 #define MIME_SUPERCLASS mimeInlineTextHTMLClass
 MimeDefClass(MimeInlineTextHTMLParsed, MimeInlineTextHTMLParsedClass,
              mimeInlineTextHTMLParsedClass, &MIME_SUPERCLASS);
@@ -111,8 +113,8 @@ static int MimeInlineTextHTMLParsed_parse_eof(MimeObject* obj, bool abort_p) {
   rv = encoder->EncodeToString(parsed);
   NS_ENSURE_SUCCESS(rv, -1);
 
-  bool stripConditionalCSS = mozilla::Preferences::GetBool(
-      "mail.html_sanitize.drop_conditional_css", true);
+  bool stripConditionalCSS =
+      Preferences::GetBool("mail.html_sanitize.drop_conditional_css", true);
 
   nsCString resultCStr;
   if (stripConditionalCSS) {

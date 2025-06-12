@@ -18,8 +18,6 @@
 #include "nsIMIMEHeaderParam.h"
 #include "nsNetCID.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsIStringEnumerator.h"
 #include "nsIObserverService.h"
 #include "nsIChannel.h"
@@ -47,8 +45,11 @@ using mozilla::intl::UnicodeProperties;
 #include "nsIMsgTraitService.h"
 #include "mozilla/Services.h"
 #include "mozilla/Attributes.h"
+#include "mozilla/Preferences.h"
 #include <cstdlib>  // for std::abs(int/long)
 #include <cmath>    // for std::abs(float/double)
+
+using mozilla::Preferences;
 
 static mozilla::LazyLogModule BayesianFilterLogModule("BayesianFilter");
 
@@ -206,23 +207,13 @@ Tokenizer::Tokenizer()
       mCustomHeaderTokenization(false),
       mMaxLengthForToken(kMaxLengthForToken),
       mIframeToDiv(false) {
-  nsresult rv;
-  nsCOMPtr<nsIPrefService> prefs =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS_VOID(rv);
-
-  nsCOMPtr<nsIPrefBranch> prefBranch;
-  rv = prefs->GetBranch("mailnews.bayesian_spam_filter.",
-                        getter_AddRefs(prefBranch));
-  NS_ENSURE_SUCCESS_VOID(rv);  // no branch defined, just use defaults
-
   /*
    * RSS feeds store their summary as alternate content of an iframe. But due
    * to bug 365953, this is not seen by the serializer. As a workaround, allow
    * the tokenizer to replace the iframe with div for tokenization.
    */
-  rv = prefBranch->GetBoolPref("iframe_to_div", &mIframeToDiv);
-  if (NS_FAILED(rv)) mIframeToDiv = false;
+  mIframeToDiv =
+      Preferences::GetBool("mailnews.bayesian_spam_filter.iframe_to_div");
 
   /*
    * the list of delimiters used to tokenize the message and body
@@ -235,13 +226,15 @@ Tokenizer::Tokenizer()
    * will be ignored.
    */
 
-  prefBranch->GetCharPref("body_delimiters", mBodyDelimiters);
+  Preferences::GetCString("mailnews.bayesian_spam_filter.body_delimiters",
+                          mBodyDelimiters);
   if (!mBodyDelimiters.IsEmpty())
     UnescapeCString(mBodyDelimiters);
   else  // prefBranch empties the result when it fails :(
     mBodyDelimiters.Assign(kBayesianFilterTokenDelimiters);
 
-  prefBranch->GetCharPref("header_delimiters", mHeaderDelimiters);
+  Preferences::GetCString("mailnews.bayesian_spam_filter.header_delimiters",
+                          mHeaderDelimiters);
   if (!mHeaderDelimiters.IsEmpty())
     UnescapeCString(mHeaderDelimiters);
   else
@@ -280,33 +273,31 @@ Tokenizer::Tokenizer()
   nsTArray<nsCString> headers;
 
   // get customized maximum token length
-  int32_t maxLengthForToken;
-  rv = prefBranch->GetIntPref("maxlengthfortoken", &maxLengthForToken);
-  mMaxLengthForToken =
-      NS_SUCCEEDED(rv) ? uint32_t(maxLengthForToken) : kMaxLengthForToken;
+  mMaxLengthForToken = Preferences::GetUint(
+      "mailnews.bayesian_spam_filter.maxlengthfortoken", kMaxLengthForToken);
 
-  rv = prefs->GetBranch("mailnews.bayesian_spam_filter.tokenizeheader.",
-                        getter_AddRefs(prefBranch));
-  if (NS_SUCCEEDED(rv)) rv = prefBranch->GetChildList("", headers);
+  nsCOMPtr<nsIPrefService> prefs = Preferences::GetService();
+  nsCOMPtr<nsIPrefBranch> prefBranch;
+  prefs->GetBranch("mailnews.bayesian_spam_filter.tokenizeheader.",
+                   getter_AddRefs(prefBranch));
+  prefBranch->GetChildList("", headers);
 
-  if (NS_SUCCEEDED(rv)) {
-    mCustomHeaderTokenization = true;
-    for (auto& header : headers) {
-      nsCString value;
-      prefBranch->GetCharPref(header.get(), value);
-      if (value.EqualsLiteral("false")) {
-        mDisabledHeaders.AppendElement(header);
-        continue;
-      }
-      mEnabledHeaders.AppendElement(header);
-      if (value.EqualsLiteral("standard"))
-        value.SetIsVoid(true);  // Void means use default delimiter
-      else if (value.EqualsLiteral("full"))
-        value.Truncate();  // Empty means add full header
-      else
-        UnescapeCString(value);
-      mEnabledHeadersDelimiters.AppendElement(value);
+  mCustomHeaderTokenization = true;
+  for (auto& header : headers) {
+    nsCString value;
+    prefBranch->GetCharPref(header.get(), value);
+    if (value.EqualsLiteral("false")) {
+      mDisabledHeaders.AppendElement(header);
+      continue;
     }
+    mEnabledHeaders.AppendElement(header);
+    if (value.EqualsLiteral("standard"))
+      value.SetIsVoid(true);  // Void means use default delimiter
+    else if (value.EqualsLiteral("full"))
+      value.Truncate();  // Empty means add full header
+    else
+      UnescapeCString(value);
+    mEnabledHeadersDelimiters.AppendElement(value);
   }
 }
 
@@ -1118,13 +1109,8 @@ NS_IMPL_ISUPPORTS(nsBayesianFilter, nsIMsgFilterPlugin, nsIJunkMailPlugin,
                   nsIMsgCorpus, nsISupportsWeakReference, nsIObserver)
 
 nsBayesianFilter::nsBayesianFilter() : mTrainingDataDirty(false) {
-  int32_t junkThreshold = 0;
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> pPrefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (pPrefBranch)
-    pPrefBranch->GetIntPref("mail.adaptivefilters.junk_threshold",
-                            &junkThreshold);
+  int32_t junkThreshold =
+      Preferences::GetInt("mail.adaptivefilters.junk_threshold");
 
   mJunkProbabilityThreshold = (static_cast<double>(junkThreshold)) / 100.0;
   if (mJunkProbabilityThreshold == 0 || mJunkProbabilityThreshold >= 1)
@@ -1137,25 +1123,15 @@ nsBayesianFilter::nsBayesianFilter() : mTrainingDataDirty(false) {
 
   // get parameters for training data flushing, from the prefs
 
-  nsCOMPtr<nsIPrefBranch> prefBranch;
-
-  nsCOMPtr<nsIPrefService> prefs =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ASSERTION(NS_SUCCEEDED(rv), "failed accessing preferences service");
-  rv = prefs->GetBranch(nullptr, getter_AddRefs(prefBranch));
-  NS_ASSERTION(NS_SUCCEEDED(rv), "failed getting preferences branch");
-
-  rv = prefBranch->GetIntPref(
-      "mailnews.bayesian_spam_filter.flush.minimum_interval",
-      &mMinFlushInterval);
+  mMinFlushInterval = Preferences::GetInt(
+      "mailnews.bayesian_spam_filter.flush.minimum_interval");
   // it is not a good idea to allow a minimum interval of under 1 second
-  if (NS_FAILED(rv) || (mMinFlushInterval <= 1000))
+  if (mMinFlushInterval <= 1000)
     mMinFlushInterval = DEFAULT_MIN_INTERVAL_BETWEEN_WRITES;
 
-  rv = prefBranch->GetIntPref("mailnews.bayesian_spam_filter.junk_maxtokens",
-                              &mMaximumTokenCount);
-  if (NS_FAILED(rv))
-    mMaximumTokenCount = 0;  // which means do not limit token counts
+  mMaximumTokenCount = Preferences::GetInt(
+      "mailnews.bayesian_spam_filter.junk_maxtokens");  // 0 means do not limit
+                                                        // token counts.
   MOZ_LOG(BayesianFilterLogModule, LogLevel::Warning,
           ("maximum junk tokens: %d", mMaximumTokenCount));
 

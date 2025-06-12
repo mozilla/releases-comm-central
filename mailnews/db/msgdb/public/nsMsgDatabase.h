@@ -158,7 +158,8 @@ class nsMsgDatabase : public nsIMsgOfflineOpsDatabase {
                                               mdb_token colToken,
                                               nsTArray<uint8_t>& result);
 
-  virtual nsresult GetEffectiveCharset(nsIMdbRow* row, nsACString& resultCharset);
+  virtual nsresult GetEffectiveCharset(nsIMdbRow* row,
+                                       nsACString& resultCharset);
 
   // these methods take the property name as a string, not a token.
   // they should be used when the properties aren't accessed a lot
@@ -222,8 +223,6 @@ class nsMsgDatabase : public nsIMsgOfflineOpsDatabase {
   virtual ~nsMsgDatabase();
 
   // prefs stuff - in future, we might want to cache the prefs interface
-  nsresult GetBoolPref(const char* prefName, bool* result);
-  nsresult GetIntPref(const char* prefName, int32_t* result);
   virtual void GetGlobalPrefs();
   // retrieval methods
   nsIMsgThread* GetThreadForReference(nsCString& msgID, nsIMsgDBHdr** pMsgHdr);

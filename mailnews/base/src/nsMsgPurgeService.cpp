@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgPurgeService.h"
+
+#include "mozilla/Preferences.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgUtils.h"
 #include "nsMsgSearchCore.h"
@@ -12,14 +14,14 @@
 #include "nsIMsgSearchTerm.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgFilterPlugin.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
 #include "mozilla/Logging.h"
 #include "nsMsgFolderFlags.h"
 #include "nsITimer.h"
 #include <stdlib.h>
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
+
+using mozilla::Preferences;
 
 static mozilla::LazyLogModule MsgPurgeLogModule("MsgPurge");
 
@@ -46,22 +48,13 @@ nsMsgPurgeService::~nsMsgPurgeService() {
 }
 
 NS_IMETHODIMP nsMsgPurgeService::Init() {
-  nsresult rv;
-
   // these prefs are here to help QA test this feature
-  nsCOMPtr<nsIPrefBranch> prefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (NS_SUCCEEDED(rv)) {
-    int32_t min_delay;
-    rv = prefBranch->GetIntPref("mail.purge.min_delay", &min_delay);
-    if (NS_SUCCEEDED(rv) && min_delay) mMinDelayBetweenPurges = min_delay;
+  int32_t min_delay = Preferences::GetInt("mail.purge.min_delay");
+  if (min_delay) mMinDelayBetweenPurges = min_delay;
 
-    int32_t purge_timer_interval;
-    rv = prefBranch->GetIntPref("mail.purge.timer_interval",
-                                &purge_timer_interval);
-    if (NS_SUCCEEDED(rv) && purge_timer_interval)
-      mPurgeTimerInterval = purge_timer_interval;
-  }
+  int32_t purge_timer_interval =
+      Preferences::GetInt("mail.purge.timer_interval");
+  if (purge_timer_interval) mPurgeTimerInterval = purge_timer_interval;
 
   MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,
           ("mail.purge.min_delay=%d minutes", mMinDelayBetweenPurges));

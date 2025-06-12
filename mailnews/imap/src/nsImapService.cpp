@@ -3,11 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"  // precompiled header...
 #include "nsImapService.h"
+
+#include "msgCore.h"  // precompiled header...
 #include "nsImapCore.h"
 #include "netCore.h"
-
 #include "nsImapUrl.h"
 #include "nsCOMPtr.h"
 #include "nsIMsgFolder.h"
@@ -22,8 +22,6 @@
 #include "nsImapNamespace.h"
 #include "nsIDocShell.h"
 #include "nsIProgressEventSink.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
 #include "nsILoadGroup.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgFolderFlags.h"
@@ -60,7 +58,9 @@
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 #include "mozilla/LoadInfo.h"
+#include "mozilla/Preferences.h"
 
+using mozilla::Preferences;
 using mozilla::net::LoadInfo;
 
 #define PREF_MAIL_ROOT_IMAP_REL "mail.root.imap-rel"
@@ -357,25 +357,19 @@ NS_IMETHODIMP nsImapService::LoadMessage(const nsACString& aMessageURI,
 
       if (hasMsgOffline) msgurl->SetMsgIsInLocalCache(true);
 
-      nsCOMPtr<nsIPrefBranch> prefBranch(
-          do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
       // Should the message fetch force a peek or a traditional fetch?
       // Force peek if there is a delay in marking read (or no auto-marking at
       // all). This is because a FETCH (BODY[]) will implicitly set the \Seen
       // flag on the msg, but a FETCH (BODY.PEEK[]) won't.
       bool forcePeek = false;
-      if (NS_SUCCEEDED(rv) && prefBranch) {
-        nsAutoCString uriStr(aMessageURI);
-        int32_t dontMarkAsReadPos = uriStr.Find("&markRead=false");
-        bool markReadAuto = true;
-        prefBranch->GetBoolPref("mailnews.mark_message_read.auto",
-                                &markReadAuto);
-        bool markReadDelay = false;
-        prefBranch->GetBoolPref("mailnews.mark_message_read.delay",
-                                &markReadDelay);
-        forcePeek = (!markReadAuto || markReadDelay ||
-                     (dontMarkAsReadPos != kNotFound));
-      }
+      nsAutoCString uriStr(aMessageURI);
+      int32_t dontMarkAsReadPos = uriStr.Find("&markRead=false");
+      bool markReadAuto =
+          Preferences::GetBool("mailnews.mark_message_read.auto");
+      bool markReadDelay =
+          Preferences::GetBool("mailnews.mark_message_read.delay");
+      forcePeek =
+          (!markReadAuto || markReadDelay || (dontMarkAsReadPos != kNotFound));
 
       if (!forcePeek && aDisplayConsumer) {
         // If we're loading a message in an inactive docShell, don't let it
@@ -2952,7 +2946,7 @@ NS_IMETHODIMP nsImapService::GetCacheStorage(nsICacheStorage** result) {
     // Determine if disk cache or memory cache is in use.
     // Note: This is mozilla system cache, not offline storage (mbox, maildir)
     // which is also sometimes referred to as cache at places in the code.
-    if (mozilla::Preferences::GetBool("mail.imap.use_disk_cache2", true))
+    if (Preferences::GetBool("mail.imap.use_disk_cache2", true))
       rv = cacheStorageService->DiskCacheStorage(lci,
                                                  getter_AddRefs(mCacheStorage));
     else

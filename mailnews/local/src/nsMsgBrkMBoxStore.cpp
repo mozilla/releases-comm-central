@@ -25,7 +25,6 @@
 #include "nsIMsgDatabase.h"
 #include "nsMsgUtils.h"
 #include "nsIDBFolderInfo.h"
-#include "nsIPrefBranch.h"
 #include "nsPrintfCString.h"
 #include "nsQuarantinedOutputStream.h"
 #include "MboxMsgInputStream.h"
@@ -39,8 +38,10 @@
 #include <cstdlib>  // for std::abs(int/long)
 #include <cmath>    // for std::abs(float/double)
 
-mozilla::LazyLogModule gMboxLog("mbox");
 using mozilla::LogLevel;
+using mozilla::Preferences;
+
+mozilla::LazyLogModule gMboxLog("mbox");
 
 /****************************************************************************
  * nsMsgBrkMBoxStore implementation.
@@ -260,7 +261,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::HasSpaceAvailable(nsIMsgFolder* aFolder,
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool allow4GBfolders =
-      mozilla::Preferences::GetBool("mailnews.allowMboxOver4GB", true);
+      Preferences::GetBool("mailnews.allowMboxOver4GB", true);
 
   if (!allow4GBfolders) {
     // Allow the mbox to only reach 0xFFC00000 = 4 GiB - 4 MiB.
@@ -320,13 +321,8 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::IsSummaryFileValid(nsIMsgFolder* aFolder,
       return NS_OK;
     }
     if (!gGotGlobalPrefs) {
-      nsCOMPtr<nsIPrefBranch> pPrefBranch(
-          do_GetService(NS_PREFSERVICE_CONTRACTID));
-      if (pPrefBranch) {
-        rv = pPrefBranch->GetIntPref("mail.db_timestamp_leeway",
-                                     &gTimeStampLeeway);
-        gGotGlobalPrefs = true;
-      }
+      Preferences::GetInt("mail.db_timestamp_leeway", &gTimeStampLeeway);
+      gGotGlobalPrefs = true;
     }
     // if those values are ok, check time stamp
     if (gTimeStampLeeway == 0)
@@ -733,7 +729,7 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* folder,
     RefPtr<MboxMsgOutputStream> mboxStream =
         new MboxMsgOutputStream(bufferedStream, true);
 
-    if (mozilla::Preferences::GetBool("mailnews.downloadToTempFile", false)) {
+    if (Preferences::GetBool("mailnews.downloadToTempFile", false)) {
       // If quarantining, add another wrapping stream.
       stream = new nsQuarantinedOutputStream(mboxStream);
       MOZ_LOG(gMboxLog, LogLevel::Info,

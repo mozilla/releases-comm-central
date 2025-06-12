@@ -11,8 +11,6 @@
 #include "nsIMsgMessageService.h"
 #include "nsISelectionController.h"
 #include "nsMsgI18N.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsIDocumentEncoder.h"  // for editor output flags
 #include "nsMsgCompUtils.h"
 #include "nsIMsgSend.h"
@@ -88,34 +86,28 @@ static nsresult GetReplyHeaderInfo(int32_t* reply_header_type,
                                    nsString& reply_header_originalmessage) {
   nsresult rv;
   *reply_header_type = 0;
-  nsCOMPtr<nsIPrefBranch> prefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
 
   // If fetching any of the preferences fails,
   // we return early with header_type = 0 meaning "no header".
   rv = NS_GetLocalizedUnicharPreference(
-      prefBranch, "mailnews.reply_header_authorwrotesingle",
-      reply_header_authorwrote);
+      "mailnews.reply_header_authorwrotesingle", reply_header_authorwrote);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = NS_GetLocalizedUnicharPreference(
-      prefBranch, "mailnews.reply_header_ondateauthorwrote",
+      "mailnews.reply_header_ondateauthorwrote",
       reply_header_ondateauthorwrote);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = NS_GetLocalizedUnicharPreference(
-      prefBranch, "mailnews.reply_header_authorwroteondate",
+      "mailnews.reply_header_authorwroteondate",
       reply_header_authorwroteondate);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = NS_GetLocalizedUnicharPreference(prefBranch,
-                                        "mailnews.reply_header_originalmessage",
+  rv = NS_GetLocalizedUnicharPreference("mailnews.reply_header_originalmessage",
                                         reply_header_originalmessage);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return prefBranch->GetIntPref("mailnews.reply_header_type",
-                                reply_header_type);
+  return Preferences::GetInt("mailnews.reply_header_type", reply_header_type);
 }
 
 static void TranslateLineEnding(nsString& data) {
@@ -156,10 +148,7 @@ nsMsgCompose::nsMsgCompose() {
 
   // For TagConvertible
   // Read and cache pref
-  mConvertStructs = false;
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  if (prefBranch)
-    prefBranch->GetBoolPref("converter.html2txt.structs", &mConvertStructs);
+  mConvertStructs = Preferences::GetBool("converter.html2txt.structs");
 
   m_composeHTML = false;
 
@@ -495,7 +484,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
   // a full paragraph instead of just a line break since we switched
   // the default paragraph separator to "p".
   bool paragraphMode =
-      mozilla::Preferences::GetBool("mail.compose.default_to_paragraph", false);
+      Preferences::GetBool("mail.compose.default_to_paragraph", false);
 
   if (aQuoted) {
     if (!aPrefix.IsEmpty()) {
@@ -578,8 +567,8 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
       }
       remove_plaintext_tag(aBuf);
 
-      bool stripConditionalCSS = mozilla::Preferences::GetBool(
-          "mail.html_sanitize.drop_conditional_css", true);
+      bool stripConditionalCSS =
+          Preferences::GetBool("mail.html_sanitize.drop_conditional_css", true);
 
       if (stripConditionalCSS) {
         nsString newBody;
@@ -1190,24 +1179,18 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
       nsAutoString msgSubject;
       m_compFields->GetSubject(msgSubject);
 
-      bool showProgress = false;
-      nsCOMPtr<nsIPrefBranch> prefBranch(
-          do_GetService(NS_PREFSERVICE_CONTRACTID));
-      if (prefBranch) {
-        prefBranch->GetBoolPref("mailnews.show_send_progress", &showProgress);
-        if (showProgress) {
-          nsCOMPtr<nsIMsgComposeProgressParams> params = do_CreateInstance(
-              "@mozilla.org/messengercompose/composeprogressparameters;1", &rv);
-          if (NS_FAILED(rv) || !params) return NS_ERROR_FAILURE;
+      if (Preferences::GetBool("mailnews.show_send_progress")) {
+        nsCOMPtr<nsIMsgComposeProgressParams> params = do_CreateInstance(
+            "@mozilla.org/messengercompose/composeprogressparameters;1", &rv);
+        if (NS_FAILED(rv) || !params) return NS_ERROR_FAILURE;
 
-          params->SetSubject(msgSubject.get());
-          params->SetDeliveryMode(deliverMode);
+        params->SetSubject(msgSubject.get());
+        params->SetDeliveryMode(deliverMode);
 
-          mProgress->OpenProgressDialog(
-              m_window, aMsgWindow,
-              "chrome://messenger/content/messengercompose/sendProgress.xhtml",
-              false, params);
-        }
+        mProgress->OpenProgressDialog(
+            m_window, aMsgWindow,
+            "chrome://messenger/content/messengercompose/sendProgress.xhtml",
+            false, params);
       }
     }
 
@@ -1485,12 +1468,7 @@ NS_IMETHODIMP nsMsgCompose::GetComposeHTML(bool* aComposeHTML) {
 }
 
 nsresult nsMsgCompose::GetWrapLength(int32_t* aWrapLength) {
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) return rv;
-
-  return prefBranch->GetIntPref("mailnews.wraplength", aWrapLength);
+  return Preferences::GetInt("mailnews.wraplength", aWrapLength);
 }
 
 nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
@@ -1620,9 +1598,6 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
   // the message.
   if (mOriginalMsgURI.IsEmpty()) mOriginalMsgURI = msgUri;
 
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // "Forward inline" and "Reply with template" processing.
   // Note the early return at the end of the block.
   if (type == nsIMsgCompType::ForwardInline ||
@@ -1661,9 +1636,8 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
       if (type == nsIMsgCompType::ForwardInline) {
         nsString subject;
         msgHdr->GetMime2DecodedSubject(subject);
-        nsCString fwdPrefix;
-        prefs->GetCharPrefWithDefault("mail.forward_subject_prefix", "Fwd"_ns,
-                                      1, fwdPrefix);
+        nsCString fwdPrefix = "Fwd"_ns;
+        Preferences::GetCString("mail.forward_subject_prefix", fwdPrefix);
         nsString unicodeFwdPrefix;
         CopyUTF8toUTF16(fwdPrefix, unicodeFwdPrefix);
         unicodeFwdPrefix.AppendLiteral(": ");
@@ -1833,9 +1807,9 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
           nsCOMPtr<nsIMsgAttachment> attachment = do_CreateInstance(
               "@mozilla.org/messengercompose/attachment;1", &rv);
           if (NS_SUCCEEDED(rv) && attachment) {
-            bool addExtension = true;
+            bool addExtension =
+                Preferences::GetBool("mail.forward_add_extension", true);
             nsString sanitizedSubj;
-            prefs->GetBoolPref("mail.forward_add_extension", &addExtension);
 
             // copy subject string to sanitizedSubj, use default if empty
             if (subject.IsEmpty()) {
@@ -1869,9 +1843,8 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
           }
 
           if (isFirstPass) {
-            nsCString fwdPrefix;
-            prefs->GetCharPrefWithDefault("mail.forward_subject_prefix",
-                                          "Fwd"_ns, 1, fwdPrefix);
+            nsCString fwdPrefix = "Fwd"_ns;
+            Preferences::GetCString("mail.forward_subject_prefix", fwdPrefix);
             nsString unicodeFwdPrefix;
             CopyUTF8toUTF16(fwdPrefix, unicodeFwdPrefix);
             unicodeFwdPrefix.AppendLiteral(": ");
@@ -2148,7 +2121,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
   if (!mCiteReference.IsEmpty()) compose->SetCiteReference(mCiteReference);
 
   bool overrideReplyTo =
-      mozilla::Preferences::GetBool("mail.override_list_reply_to", true);
+      Preferences::GetBool("mail.override_list_reply_to", true);
 
   if (mHeaders &&
       (type == nsIMsgCompType::Reply || type == nsIMsgCompType::ReplyAll ||
@@ -2248,12 +2221,8 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
       nsTArray<nsCString> ccEmailAddresses;
       ExtractEmails(EncodedHeaderW(cc), UTF16ArrayAdapter<>(ccEmailAddresses));
 
-      nsCOMPtr<nsIPrefBranch> prefs(
-          do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-      NS_ENSURE_SUCCESS(rv, rv);
-      bool replyToSelfCheckAll = false;
-      prefs->GetBoolPref("mailnews.reply_to_self_check_all_ident",
-                         &replyToSelfCheckAll);
+      bool replyToSelfCheckAll =
+          Preferences::GetBool("mailnews.reply_to_self_check_all_ident");
 
       nsCOMPtr<nsIMsgAccountManager> accountManager =
           do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
@@ -2573,13 +2542,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
     //
     // If we're using format flowed, we need to pass it so the encoder
     // can add a space at the end.
-    nsCOMPtr<nsIPrefBranch> pPrefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID));
-    bool flowed = false;
-    if (pPrefBranch) {
-      pPrefBranch->GetBoolPref("mailnews.send_plaintext_flowed", &flowed);
-    }
-
+    bool flowed = Preferences::GetBool("mailnews.send_plaintext_flowed");
     rv = ConvertToPlainText(flowed,
                             true,    // formatted
                             false);  // allow line breaks
@@ -3900,7 +3863,7 @@ nsresult nsMsgCompose::ProcessSignature(nsIMsgIdentity* identity, bool aQuoted,
   if (!preopen) return NS_ERROR_OUT_OF_MEMORY;
 
   bool paragraphMode =
-      mozilla::Preferences::GetBool("mail.compose.default_to_paragraph", false);
+      Preferences::GetBool("mail.compose.default_to_paragraph", false);
 
   if (imageSig) {
     // We have an image signature. If we're using the in HTML composer, we

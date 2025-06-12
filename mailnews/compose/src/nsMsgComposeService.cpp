@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgComposeService.h"
+
 #include "nsIMsgMessageService.h"
 #include "nsIMsgSend.h"
 #include "nsIMsgIdentity.h"
@@ -41,6 +42,7 @@
 #include "nsFrameLoader.h"
 #include "nsSmtpUrl.h"
 #include "mozilla/NullPrincipal.h"
+#include "mozilla/Preferences.h"
 
 #include "nsICommandLine.h"
 #include "nsMsgUtils.h"
@@ -172,14 +174,7 @@ nsMsgComposeService::DetermineComposeHTML(nsIMsgIdentity* aIdentity,
       } else {
         // default identity not found.  Use the mail.html_compose pref to
         // determine message compose type (HTML or PlainText).
-        nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-        if (prefs) {
-          nsresult rv;
-          bool useHTMLCompose;
-          rv = prefs->GetBoolPref(MAIL_ROOT_PREF "html_compose",
-                                  &useHTMLCompose);
-          if (NS_SUCCEEDED(rv)) *aComposeHTML = useHTMLCompose;
-        }
+        *aComposeHTML = Preferences::GetBool(MAIL_ROOT_PREF "html_compose");
       }
       break;
   }
@@ -190,27 +185,19 @@ nsMsgComposeService::DetermineComposeHTML(nsIMsgIdentity* aIdentity,
 MOZ_CAN_RUN_SCRIPT_FOR_DEFINITION nsresult
 nsMsgComposeService::GetOrigWindowSelection(mozilla::dom::Selection* selection,
                                             nsACString& aSelHTML) {
-  nsresult rv;
-
   // Good hygiene
   aSelHTML.Truncate();
 
   // Get the pref to see if we even should do reply quoting selection
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool replyQuotingSelection;
-  rv = prefs->GetBoolPref(PREF_MAILNEWS_REPLY_QUOTING_SELECTION,
-                          &replyQuotingSelection);
-  NS_ENSURE_SUCCESS(rv, rv);
+  bool replyQuotingSelection =
+      Preferences::GetBool(PREF_MAILNEWS_REPLY_QUOTING_SELECTION);
   if (!replyQuotingSelection) return NS_ERROR_ABORT;
 
-  bool requireMultipleWords = true;
+  bool requireMultipleWords = Preferences::GetBool(
+      PREF_MAILNEWS_REPLY_QUOTING_SELECTION_MULTI_WORD, true);
   nsAutoCString charsOnlyIf;
-  prefs->GetBoolPref(PREF_MAILNEWS_REPLY_QUOTING_SELECTION_MULTI_WORD,
-                     &requireMultipleWords);
-  prefs->GetCharPref(PREF_MAILNEWS_REPLY_QUOTING_SELECTION_ONLY_IF,
-                     charsOnlyIf);
+  Preferences::GetCString(PREF_MAILNEWS_REPLY_QUOTING_SELECTION_ONLY_IF,
+                          charsOnlyIf);
   if (requireMultipleWords || !charsOnlyIf.IsEmpty()) {
     nsAutoString selPlain;
     selection->Stringify(selPlain);
@@ -220,22 +207,20 @@ nsMsgComposeService::GetOrigWindowSelection(mozilla::dom::Selection* selection,
     if (requireMultipleWords) {
       if (selPlain.IsEmpty()) return NS_ERROR_ABORT;
 
-      if (NS_SUCCEEDED(rv)) {
-        const uint32_t length = selPlain.Length();
-        const char16_t* unicodeStr = selPlain.get();
-        int32_t endWordPos =
-            mozilla::intl::LineBreaker::Next(unicodeStr, length, 0);
+      const uint32_t length = selPlain.Length();
+      const char16_t* unicodeStr = selPlain.get();
+      int32_t endWordPos =
+          mozilla::intl::LineBreaker::Next(unicodeStr, length, 0);
 
-        // If there's not even one word, then there's not multiple words
-        if (endWordPos == NS_LINEBREAKER_NEED_MORE_TEXT) return NS_ERROR_ABORT;
+      // If there's not even one word, then there's not multiple words
+      if (endWordPos == NS_LINEBREAKER_NEED_MORE_TEXT) return NS_ERROR_ABORT;
 
-        // If after the first word is only space, then there's not multiple
-        // words
-        const char16_t* end;
-        for (end = unicodeStr + endWordPos; mozilla::intl::NS_IsSpace(*end);
-             end++);
-        if (!*end) return NS_ERROR_ABORT;
-      }
+      // If after the first word is only space, then there's not multiple
+      // words
+      const char16_t* end;
+      for (end = unicodeStr + endWordPos; mozilla::intl::NS_IsSpace(*end);
+           end++);
+      if (!*end) return NS_ERROR_ABORT;
     }
 
     if (!charsOnlyIf.IsEmpty()) {
@@ -271,7 +256,7 @@ nsMsgComposeService::GetOrigWindowSelection(mozilla::dom::Selection* selection,
 
   aSelHTML.Assign(html);
 
-  return rv;
+  return NS_OK;
 }
 
 nsresult nsMsgComposeService::GetTo3PaneWindow() {
@@ -859,11 +844,7 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
 
   nsresult rv;
   if (aForwardType == nsIMsgComposeService::kForwardAsDefault) {
-    int32_t forwardPref = 0;
-    nsCOMPtr<nsIPrefBranch> prefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    prefBranch->GetIntPref("mail.forward_message_mode", &forwardPref);
+    int32_t forwardPref = Preferences::GetInt("mail.forward_message_mode");
     // 0=default as attachment 2=forward as inline with attachments,
     // (obsolete 4.x value)1=forward as quoted (mapped to 2 in mozilla)
     aForwardType = forwardPref == 0 ? nsIMsgComposeService::kForwardAsAttachment
@@ -949,10 +930,7 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
 
 nsresult nsMsgComposeService::AddGlobalHtmlDomains() {
   nsresult rv;
-  nsCOMPtr<nsIPrefService> prefs =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsIPrefService> prefs = Preferences::GetService();
   nsCOMPtr<nsIPrefBranch> prefBranch;
   rv = prefs->GetBranch(MAILNEWS_ROOT_PREF, getter_AddRefs(prefBranch));
   NS_ENSURE_SUCCESS(rv, rv);

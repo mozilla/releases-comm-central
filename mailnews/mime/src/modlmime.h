@@ -12,7 +12,6 @@
 
 #include "nsString.h"
 #include "nsIMimeStreamConverter.h"
-#include "nsIPrefBranch.h"
 #include "mozITXTToHTMLConv.h"
 #include "nsCOMPtr.h"
 #include "modmimee.h"  // for MimeConverterOutputCallback
@@ -130,9 +129,8 @@ class MimeDisplayOptions {
  public:
   MimeDisplayOptions();
   virtual ~MimeDisplayOptions();
-  mozITXTToHTMLConv* conv;              // For text conversion...
-  nsCOMPtr<nsIPrefBranch> m_prefBranch; /* prefBranch-service */
-  nsMimeOutputType format_out;          // The format out type
+  mozITXTToHTMLConv* conv;      // For text conversion...
+  nsMimeOutputType format_out;  // The format out type
 
   const char* url; /* Base URL for the document.  This string should
             be freed by the caller, after the parser

@@ -13,6 +13,7 @@
 #include "nsDirectoryServiceDefs.h"
 #include "mozilla/Path.h"
 #include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/dom/LoadURIOptionsBinding.h"
 
 // necko
@@ -60,8 +61,6 @@
 
 // Save As
 #include "nsIStringBundle.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsCExternalHandlerService.h"
 #include "nsIExternalProtocolService.h"
 #include "nsIMIMEService.h"
@@ -1478,45 +1477,35 @@ nsSaveAllAttachmentsState::~nsSaveAllAttachmentsState() {
 }
 
 nsresult nsMessenger::GetLastSaveDirectory(nsIFile** aLastSaveDir) {
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // this can fail, and it will, on the first time we call it, as there is no
   // default for this pref.
   nsCOMPtr<nsIFile> localFile;
-  rv = prefBranch->GetComplexValue(MESSENGER_SAVE_DIR_PREF_NAME,
-                                   NS_GET_IID(nsIFile),
-                                   getter_AddRefs(localFile));
+  nsresult rv =
+      Preferences::GetComplex(MESSENGER_SAVE_DIR_PREF_NAME, NS_GET_IID(nsIFile),
+                              getter_AddRefs(localFile));
   if (NS_SUCCEEDED(rv)) localFile.forget(aLastSaveDir);
   return rv;
 }
 
 nsresult nsMessenger::SetLastSaveDirectory(nsIFile* aLocalFile) {
   NS_ENSURE_ARG_POINTER(aLocalFile);
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // if the file is a directory, just use it for the last dir chosen
   // otherwise, use the parent of the file as the last dir chosen.
   // IsDirectory() will return error on saving a file, as the
   // file doesn't exist yet.
   bool isDirectory;
-  rv = aLocalFile->IsDirectory(&isDirectory);
+  nsresult rv = aLocalFile->IsDirectory(&isDirectory);
   if (NS_SUCCEEDED(rv) && isDirectory) {
-    rv = prefBranch->SetComplexValue(MESSENGER_SAVE_DIR_PREF_NAME,
-                                     NS_GET_IID(nsIFile), aLocalFile);
+    rv = Preferences::SetComplex(MESSENGER_SAVE_DIR_PREF_NAME,
+                                 NS_GET_IID(nsIFile), aLocalFile);
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
     nsCOMPtr<nsIFile> parent;
     rv = aLocalFile->GetParent(getter_AddRefs(parent));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = prefBranch->SetComplexValue(MESSENGER_SAVE_DIR_PREF_NAME,
-                                     NS_GET_IID(nsIFile), parent);
+    rv = Preferences::SetComplex(MESSENGER_SAVE_DIR_PREF_NAME,
+                                 NS_GET_IID(nsIFile), parent);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   return NS_OK;

@@ -4,11 +4,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "gtest/gtest.h"
+#include "mozilla/Preferences.h"
 #include "nsCOMPtr.h"
 #include "nsMsgUtils.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsString.h"
+
+using mozilla::Preferences;
 
 #define STRING_SIZE 255
 struct testInfo {
@@ -42,15 +43,10 @@ int testStripRe(const char* encodedInput, char* expectedOutput,
 // int main(int argc, char** argv)
 TEST(TestMsgStripRE, TestMsgStripREMain)
 {
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  EXPECT_TRUE(NS_SUCCEEDED(rv));
-
   // set localizedRe pref, value "SV,ÆØÅ",
   // \xC3\x86, \xC3\x98 and \xC3\x85 are the UTF-8 encodings of Æ, Ø and Å.
-  rv = prefBranch->SetStringPref("mailnews.localizedRe",
-                                 "SV,\xC3\x86\xC3\x98\xC3\x85"_ns);
+  nsresult rv = Preferences::SetCString("mailnews.localizedRe",
+                                        "SV,\xC3\x86\xC3\x98\xC3\x85"_ns);
   EXPECT_TRUE(NS_SUCCEEDED(rv));
 
   // run our tests

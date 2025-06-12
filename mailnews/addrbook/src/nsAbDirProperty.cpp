@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsAbDirProperty.h"
+
 #include "nsIAbCard.h"
 #include "nsIPrefService.h"
 #include "nsIPrefLocalizedString.h"
@@ -14,11 +15,11 @@
 #include "nsArrayUtils.h"
 #include "nsIUUIDGenerator.h"
 #include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/Services.h"
 #include "nsIObserverService.h"
 #include "mozilla/dom/Promise.h"
 
-using mozilla::ErrorResult;
 using mozilla::dom::Promise;
 using namespace mozilla;
 
@@ -416,12 +417,7 @@ NS_IMETHODIMP nsAbDirProperty::UseForAutocomplete(
   NS_ENSURE_ARG_POINTER(aResult);
 
   // Is local autocomplete enabled?
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = prefBranch->GetBoolPref("mail.enable_autocomplete", aResult);
+  nsresult rv = Preferences::GetBool("mail.enable_autocomplete", aResult);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // If autocomplete is generally enabled, check if it has been disabled
@@ -441,10 +437,7 @@ NS_IMETHODIMP nsAbDirProperty::GetDirPrefId(nsACString& aDirPrefId) {
 nsresult nsAbDirProperty::InitDirectoryPrefs() {
   if (m_DirPrefId.IsEmpty()) return NS_ERROR_NOT_INITIALIZED;
 
-  nsresult rv;
-  nsCOMPtr<nsIPrefService> prefService(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIPrefService> prefService = Preferences::GetService();
 
   nsCString realPrefId(m_DirPrefId);
   realPrefId.Append('.');

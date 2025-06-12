@@ -3,14 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsMsgSearchAdapter.h"
+
 #include "msgCore.h"
 #include "nsTextFormatter.h"
 #include "nsMsgSearchCore.h"
-#include "nsMsgSearchAdapter.h"
 #include "nsMsgSearchScopeTerm.h"
 #include "nsMsgI18N.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsMsgSearchTerm.h"
 #include "nsMsgSearchBoolExpression.h"
@@ -25,7 +24,10 @@
 #include "nsMemory.h"
 #include "nsMsgMessageFlags.h"
 #include "mozilla/Attributes.h"
+#include "mozilla/Preferences.h"
 #include "nsIMsgNewsFolder.h"
+
+using mozilla::Preferences;
 
 // This stuff lives in the base class because the IMAP search syntax
 // is used by the Dredd SEARCH command as well as IMAP itself
@@ -108,13 +110,6 @@ NS_IMETHODIMP nsMsgSearchAdapter::AddHit(nsMsgKey key) {
 
 nsresult nsMsgSearchAdapter::GetSearchCharset(nsAString& dstCharset) {
   nsresult rv;
-  bool forceAsciiSearch = false;
-
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (NS_SUCCEEDED(rv)) {
-    prefs->GetBoolPref("mailnews.force_ascii_search", &forceAsciiSearch);
-  }
-
   dstCharset.Assign(u"UTF-8"_ns);
 
   if (m_scope) {
@@ -131,7 +126,7 @@ nsresult nsMsgSearchAdapter::GetSearchCharset(nsAString& dstCharset) {
     }
   }
 
-  if (forceAsciiSearch) {
+  if (Preferences::GetBool("mailnews.force_ascii_search")) {
     // Special cases to use in order to force US-ASCII searching with Latin1
     // or MacRoman text. Eurgh. This only has to happen because IMAP
     // and Dredd servers currently (4/23/97) only support US-ASCII.
@@ -605,12 +600,11 @@ NS_IMETHODIMP nsMsgSearchValidityManager::GetTable(
     int whichTable, nsIMsgSearchValidityTable** ppOutTable) {
   NS_ENSURE_ARG_POINTER(ppOutTable);
 
-  nsresult rv;
+  nsresult rv = NS_OK;
   *ppOutTable = nullptr;
 
-  nsCOMPtr<nsIPrefBranch> pref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   nsCString customHeaders;
-  if (NS_SUCCEEDED(rv)) pref->GetCharPref(PREF_CUSTOM_HEADERS, customHeaders);
+  Preferences::GetCString(PREF_CUSTOM_HEADERS, customHeaders);
 
   switch (whichTable) {
     case nsMsgSearchScope::offlineMail:

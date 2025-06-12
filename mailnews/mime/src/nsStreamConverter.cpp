@@ -15,8 +15,6 @@
 #include "nsMimeTypes.h"
 #include "nsString.h"
 #include "nsIPipe.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsNetUtil.h"
 #include "nsIMsgQuote.h"
 #include "nsNetUtil.h"
@@ -25,6 +23,9 @@
 #include "nsINntpUrl.h"
 #include "nsICategoryManager.h"
 #include "nsMsgUtils.h"
+#include "mozilla/Preferences.h"
+
+using mozilla::Preferences;
 
 #define PREF_MAIL_DISPLAY_GLYPH "mail.display_glyph"
 #define PREF_MAIL_DISPLAY_STRUCT "mail.display_struct"
@@ -515,20 +516,11 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
   }
 
   uint32_t whattodo = mozITXTToHTMLConv::kURLs;
-  bool enable_emoticons = true;
-  bool enable_structs = true;
-
-  nsCOMPtr<nsIPrefBranch> pPrefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (pPrefBranch) {
-    rv = pPrefBranch->GetBoolPref(PREF_MAIL_DISPLAY_GLYPH, &enable_emoticons);
-    if (NS_FAILED(rv) || enable_emoticons) {
-      whattodo = whattodo | mozITXTToHTMLConv::kGlyphSubstitution;
-    }
-    rv = pPrefBranch->GetBoolPref(PREF_MAIL_DISPLAY_STRUCT, &enable_structs);
-    if (NS_FAILED(rv) || enable_structs) {
-      whattodo = whattodo | mozITXTToHTMLConv::kStructPhrase;
-    }
+  if (Preferences::GetBool(PREF_MAIL_DISPLAY_GLYPH, true)) {
+    whattodo = whattodo | mozITXTToHTMLConv::kGlyphSubstitution;
+  }
+  if (Preferences::GetBool(PREF_MAIL_DISPLAY_STRUCT, true)) {
+    whattodo = whattodo | mozITXTToHTMLConv::kStructPhrase;
   }
 
   if (mOutputType == nsMimeOutput::nsMimeMessageSource)

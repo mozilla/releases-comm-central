@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgSendLater.h"
+
 #include "nsCOMPtr.h"
 #include "nsComponentManagerUtils.h"
 #include "nsDebug.h"
@@ -12,8 +13,6 @@
 #include "nsMsgCompFields.h"
 #include "nsMsgCopy.h"
 #include "nsIMsgSend.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsIMsgMessageService.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgCompUtils.h"
@@ -35,6 +34,9 @@
 #include "nsMsgMessageFlags.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/Services.h"
+#include "mozilla/Preferences.h"
+
+using mozilla::Preferences;
 
 // Consts for checking and sending mail in milliseconds
 
@@ -93,20 +95,15 @@ nsMsgSendLater::~nsMsgSendLater() {
 }
 
 nsresult nsMsgSendLater::Init() {
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefs = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool sendInBackground;
-  rv = prefs->GetBoolPref("mailnews.sendInBackground", &sendInBackground);
   // If we're not sending in the background, don't do anything else
-  if (NS_FAILED(rv) || !sendInBackground) return NS_OK;
+  if (!Preferences::GetBool("mailnews.sendInBackground")) return NS_OK;
 
   // We need to know when we're shutting down.
   nsCOMPtr<nsIObserverService> observerService =
       mozilla::services::GetObserverService();
   NS_ENSURE_TRUE(observerService, NS_ERROR_UNEXPECTED);
 
+  nsresult rv;
   rv = observerService->AddObserver(this, "xpcom-shutdown", false);
   NS_ENSURE_SUCCESS(rv, rv);
 

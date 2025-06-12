@@ -4,8 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsAbOutlookDirectory.h"
-#include "nsAbWinHelper.h"
 
+#include "nsAbWinHelper.h"
 #include "nsString.h"
 #include "nsIAbDirectoryQuery.h"
 #include "nsIAbBooleanExpression.h"
@@ -16,14 +16,15 @@
 #include "nsComponentManagerUtils.h"
 #include "mozilla/ErrorNames.h"
 #include "mozilla/Logging.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
+#include "mozilla/Preferences.h"
 #include "nsArrayUtils.h"
 #include "nsMsgUtils.h"
 #include "nsQueryObject.h"
 #include "mozilla/Services.h"
 #include "nsIObserverService.h"
 #include "mozilla/JSONStringWriteFuncs.h"
+
+using mozilla::Preferences;
 
 #define PRINT_TO_CONSOLE 0
 #if PRINT_TO_CONSOLE
@@ -1107,17 +1108,10 @@ nsresult nsAbOutlookDirectory::ModifyCardInternal(nsIAbCard* aModifiedCard,
   // name, and when all fails, on the email address.
   aModifiedCard->GetDisplayName(properties[index_DisplayName]);
   if (properties[index_DisplayName].IsEmpty()) {
-    nsresult rv;
-    nsCOMPtr<nsIPrefBranch> prefBranch =
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+    int32_t format = Preferences::GetInt(PREF_MAIL_ADDR_BOOK_LASTNAMEFIRST);
 
-    int32_t format;
-    rv = prefBranch->GetIntPref(PREF_MAIL_ADDR_BOOK_LASTNAMEFIRST, &format);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = aModifiedCard->GenerateName(format, nullptr,
-                                     properties[index_DisplayName]);
+    nsresult rv = aModifiedCard->GenerateName(format, nullptr,
+                                              properties[index_DisplayName]);
     NS_ENSURE_SUCCESS(rv, rv);
 
     if (properties[index_DisplayName].IsEmpty()) {

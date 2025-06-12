@@ -4,20 +4,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsGNOMEShellService.h"
+
+#include <glib.h>
+#include <limits.h>
+#include <stdlib.h>
+
 #include "nsIGIOService.h"
 #include "nsCOMPtr.h"
 #include "prenv.h"
 #include "nsIFile.h"
 #include "nsIStringBundle.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsDirectoryServiceUtils.h"
 #include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
 
-#include <glib.h>
-#include <limits.h>
-#include <stdlib.h>
+using mozilla::Preferences;
 
 static const char* const sMailProtocols[] = {"mailto", "mid"};
 
@@ -162,14 +164,12 @@ nsGNOMEShellService::GetShouldCheckDefaultClient(bool* aResult) {
     return NS_OK;
   }
 
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  return prefs->GetBoolPref("mail.shell.checkDefaultClient", aResult);
+  return Preferences::GetBool("mail.shell.checkDefaultClient", aResult);
 }
 
 NS_IMETHODIMP
 nsGNOMEShellService::SetShouldCheckDefaultClient(bool aShouldCheck) {
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  return prefs->SetBoolPref("mail.shell.checkDefaultClient", aShouldCheck);
+  return Preferences::SetBool("mail.shell.checkDefaultClient", aShouldCheck);
 }
 
 bool nsGNOMEShellService::KeyMatchesAppName(const char* aKeyValue) const {

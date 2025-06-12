@@ -4,14 +4,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mimetpla.h"
+
 #include "prmem.h"
 #include "plstr.h"
 #include "mozITXTToHTMLConv.h"
 #include "nsString.h"
 #include "mimemoz2.h"
-#include "nsIPrefBranch.h"
 #include "prprf.h"
 #include "nsMsgI18N.h"
+#include "mozilla/Preferences.h"
+
+using mozilla::Preferences;
 
 #define MIME_SUPERCLASS mimeInlineTextClass
 MimeDefClass(MimeInlineTextPlain, MimeInlineTextPlainClass,
@@ -105,15 +108,12 @@ static int MimeInlineTextPlain_parse_begin(MimeObject* obj) {
     text->mStripSig = true;           // mail.strip_sig_on_reply
     bool graphicalQuote = true;       // mail.quoted_graphical
 
-    nsIPrefBranch* prefBranch = GetPrefBranch(obj->options);
-    if (prefBranch) {
-      prefBranch->GetIntPref("mail.quoted_size", &(text->mQuotedSizeSetting));
-      prefBranch->GetIntPref("mail.quoted_style", &(text->mQuotedStyleSetting));
-      prefBranch->GetCharPref("mail.citation_color", text->mCitationColor);
-      prefBranch->GetBoolPref("mail.strip_sig_on_reply", &(text->mStripSig));
-      prefBranch->GetBoolPref("mail.quoted_graphical", &graphicalQuote);
-      prefBranch->GetBoolPref("mail.quoteasblock", &(text->mBlockquoting));
-    }
+    Preferences::GetInt("mail.quoted_size", &(text->mQuotedSizeSetting));
+    Preferences::GetInt("mail.quoted_style", &(text->mQuotedStyleSetting));
+    Preferences::GetCString("mail.citation_color", text->mCitationColor);
+    Preferences::GetBool("mail.strip_sig_on_reply", &(text->mStripSig));
+    Preferences::GetBool("mail.quoted_graphical", &graphicalQuote);
+    Preferences::GetBool("mail.quoteasblock", &(text->mBlockquoting));
 
     if (!rawPlainText) {
       // Get font

@@ -3,16 +3,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsNewsDatabase.h"
+
 #include "MailNewsTypes.h"
+#include "mozilla/Preferences.h"
 #include "msgCore.h"
 #include "nsIMsgDBView.h"
 #include "nsIMsgThread.h"
-#include "nsNewsDatabase.h"
 #include "nsMsgKeySet.h"
 #include "nsMsgMessageFlags.h"
 #include "nsCOMPtr.h"
 #include "prlog.h"
 #include "nsIMsgNewsFolder.h"
+
+using mozilla::Preferences;
 
 nsNewsDatabase::nsNewsDatabase() { m_readSet = nullptr; }
 
@@ -266,7 +270,7 @@ NS_IMETHODIMP
 nsNewsDatabase::GetDefaultViewFlags(
     nsMsgViewFlagsTypeValue* aDefaultViewFlags) {
   NS_ENSURE_ARG_POINTER(aDefaultViewFlags);
-  GetIntPref("mailnews.default_news_view_flags", aDefaultViewFlags);
+  Preferences::GetInt("mailnews.default_news_view_flags", aDefaultViewFlags);
   if (*aDefaultViewFlags < nsMsgViewFlagsType::kNone ||
       *aDefaultViewFlags >
           (nsMsgViewFlagsType::kThreadedDisplay |
@@ -279,7 +283,7 @@ nsNewsDatabase::GetDefaultViewFlags(
 NS_IMETHODIMP
 nsNewsDatabase::GetDefaultSortType(nsMsgViewSortTypeValue* aDefaultSortType) {
   NS_ENSURE_ARG_POINTER(aDefaultSortType);
-  GetIntPref("mailnews.default_news_sort_type", aDefaultSortType);
+  Preferences::GetInt("mailnews.default_news_sort_type", aDefaultSortType);
   if (*aDefaultSortType < nsMsgViewSortType::byDate ||
       *aDefaultSortType > nsMsgViewSortType::byAccount)
     *aDefaultSortType = nsMsgViewSortType::byThread;
@@ -290,7 +294,7 @@ NS_IMETHODIMP
 nsNewsDatabase::GetDefaultSortOrder(
     nsMsgViewSortOrderValue* aDefaultSortOrder) {
   NS_ENSURE_ARG_POINTER(aDefaultSortOrder);
-  GetIntPref("mailnews.default_news_sort_order", aDefaultSortOrder);
+  Preferences::GetInt("mailnews.default_news_sort_order", aDefaultSortOrder);
   if (*aDefaultSortOrder != nsMsgViewSortOrder::descending)
     *aDefaultSortOrder = nsMsgViewSortOrder::ascending;
   return NS_OK;

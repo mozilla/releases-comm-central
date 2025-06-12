@@ -22,7 +22,6 @@
 #include "nsNetCID.h"
 #include "nsIIOService.h"
 #include "nsIMimeConverter.h"
-#include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsIRelativeFilePref.h"
@@ -79,6 +78,8 @@
 /* for logging to Error Console */
 #include "nsIScriptError.h"
 #include "nsIConsoleService.h"
+
+using mozilla::Preferences;
 
 // Log an error string to the error console
 // (adapted from nsContentUtils::LogSimpleConsoleError).
@@ -460,7 +461,7 @@ bool NS_MsgStripRE(const nsCString& subject, nsCString& modifiedSubject) {
   // Get localizedRe pref.
   nsresult rv;
   nsString utf16LocalizedRe;
-  NS_GetLocalizedUnicharPreferenceWithDefault(nullptr, "mailnews.localizedRe",
+  NS_GetLocalizedUnicharPreferenceWithDefault("mailnews.localizedRe",
                                               EmptyString(), utf16LocalizedRe);
   NS_ConvertUTF16toUTF8 localizedRe(utf16LocalizedRe);
 
@@ -1035,14 +1036,8 @@ nsresult NS_GetPersistentFile(const char* relPrefName, const char* absPrefName,
   NS_ENSURE_ARG(absPrefName);
   gotRelPref = false;
 
-  nsCOMPtr<nsIPrefBranch> mainBranch;
   if (!prefBranch) {
-    nsCOMPtr<nsIPrefService> prefService(
-        do_GetService(NS_PREFSERVICE_CONTRACTID));
-    if (!prefService) return NS_ERROR_FAILURE;
-    prefService->GetBranch(nullptr, getter_AddRefs(mainBranch));
-    if (!mainBranch) return NS_ERROR_FAILURE;
-    prefBranch = mainBranch;
+    prefBranch = Preferences::GetRootBranch();
   }
 
   nsCOMPtr<nsIFile> localFile;
@@ -1088,14 +1083,8 @@ nsresult NS_SetPersistentFile(const char* relPrefName, const char* absPrefName,
   NS_ENSURE_ARG(absPrefName);
   NS_ENSURE_ARG(aFile);
 
-  nsCOMPtr<nsIPrefBranch> mainBranch;
   if (!prefBranch) {
-    nsCOMPtr<nsIPrefService> prefService(
-        do_GetService(NS_PREFSERVICE_CONTRACTID));
-    if (!prefService) return NS_ERROR_FAILURE;
-    prefService->GetBranch(nullptr, getter_AddRefs(mainBranch));
-    if (!mainBranch) return NS_ERROR_FAILURE;
-    prefBranch = mainBranch;
+    prefBranch = Preferences::GetRootBranch();
   }
 
   // Write the absolute for backwards compatibilty's sake.
@@ -1117,19 +1106,13 @@ nsresult NS_SetPersistentFile(const char* relPrefName, const char* absPrefName,
   return rv;
 }
 
-nsresult NS_GetLocalizedUnicharPreferenceWithDefault(
-    nsIPrefBranch* prefBranch,  // can be null, if so uses the root branch
-    const char* prefName, const nsAString& defValue, nsAString& prefValue) {
+nsresult NS_GetLocalizedUnicharPreferenceWithDefault(const char* prefName,
+                                                     const nsAString& defValue,
+                                                     nsAString& prefValue) {
   NS_ENSURE_ARG(prefName);
 
-  nsCOMPtr<nsIPrefBranch> pbr;
-  if (!prefBranch) {
-    pbr = do_GetService(NS_PREFSERVICE_CONTRACTID);
-    prefBranch = pbr;
-  }
-
   nsCOMPtr<nsIPrefLocalizedString> str;
-  nsresult rv = prefBranch->GetComplexValue(
+  nsresult rv = Preferences::GetComplex(
       prefName, NS_GET_IID(nsIPrefLocalizedString), getter_AddRefs(str));
   if (NS_SUCCEEDED(rv)) {
     nsString tmpValue;
@@ -1140,19 +1123,12 @@ nsresult NS_GetLocalizedUnicharPreferenceWithDefault(
   return NS_OK;
 }
 
-nsresult NS_GetLocalizedUnicharPreference(
-    nsIPrefBranch* prefBranch,  // can be null, if so uses the root branch
-    const char* prefName, nsAString& prefValue) {
+nsresult NS_GetLocalizedUnicharPreference(const char* prefName,
+                                          nsAString& prefValue) {
   NS_ENSURE_ARG_POINTER(prefName);
 
-  nsCOMPtr<nsIPrefBranch> pbr;
-  if (!prefBranch) {
-    pbr = do_GetService(NS_PREFSERVICE_CONTRACTID);
-    prefBranch = pbr;
-  }
-
   nsCOMPtr<nsIPrefLocalizedString> str;
-  nsresult rv = prefBranch->GetComplexValue(
+  nsresult rv = Preferences::GetComplex(
       prefName, NS_GET_IID(nsIPrefLocalizedString), getter_AddRefs(str));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1624,17 +1600,12 @@ nsresult ConvertBufToPlainText(nsString& aConBuf, bool formatFlowed,
                                bool formatOutput, bool disallowBreaks) {
   if (aConBuf.IsEmpty()) return NS_OK;
 
-  int32_t wrapWidth = 72;
-  nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
-
-  if (pPrefBranch) {
-    pPrefBranch->GetIntPref("mailnews.wraplength", &wrapWidth);
-    // Let sanity reign!
-    if (wrapWidth == 0 || wrapWidth > 990)
-      wrapWidth = 990;
-    else if (wrapWidth < 10)
-      wrapWidth = 10;
-  }
+  int32_t wrapWidth = Preferences::GetInt("mailnews.wraplength", 72);
+  // Let sanity reign!
+  if (wrapWidth == 0 || wrapWidth > 990)
+    wrapWidth = 990;
+  else if (wrapWidth < 10)
+    wrapWidth = 10;
 
   uint32_t converterFlags = nsIDocumentEncoder::OutputPersistNBSP;
   if (formatFlowed) converterFlags |= nsIDocumentEncoder::OutputFormatFlowed;

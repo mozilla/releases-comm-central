@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsPgpMimeProxy.h"
+
 #include "mimecth.h"
 #include "nsMailHeaders.h"
 #include "nspr.h"
@@ -11,10 +12,9 @@
 #include "nsPrintfCString.h"
 #include "nsString.h"
 #include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
 #include "nsIRequest.h"
 #include "nsIStringBundle.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
 #include "nsIURI.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
@@ -25,6 +25,8 @@
 #include "plstr.h"
 #include "nsIPgpMimeProxy.h"
 #include "nsComponentManagerUtils.h"
+
+using mozilla::Preferences;
 
 /**
  * Overall description
@@ -88,9 +90,6 @@ static void PgpMimeGetNeedsAddonString(nsCString& aResult) {
   nsCOMPtr<nsIStringBundle> stringBundle;
   nsresult rv = stringBundleService->CreateBundle(PGPMIME_PROPERTIES_URL,
                                                   getter_AddRefs(stringBundle));
-  if (NS_FAILED(rv)) return;
-
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   if (NS_FAILED(rv)) return;
 
   nsString result;

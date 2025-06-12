@@ -70,12 +70,12 @@
 #include "nsMimeStringResources.h"
 #include "nsMimeTypes.h"
 #include "nsMsgUtils.h"
-#include "nsIPrefBranch.h"
 #include "imgLoader.h"
 
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgHdr.h"
 #include "nsIMailChannel.h"
+#include "mozilla/Preferences.h"
 
 using namespace mozilla;
 
@@ -356,7 +356,6 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
   contentTypeHandlerInitStruct ctHandlerInfo;
 
   // Read some prefs
-  nsIPrefBranch* prefBranch = GetPrefBranch(opts);
   int32_t html_as = 0;                      // def. see below
   int32_t types_of_classes_to_disallow = 0; /* Let only a few libmime classes
       process incoming data. This protects from bugs (e.g. buffer overflows)
@@ -374,15 +373,14 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
       */
   if (opts && opts->format_out != nsMimeOutput::nsMimeMessageFilterSniffer &&
       opts->format_out != nsMimeOutput::nsMimeMessageDecrypt &&
-      opts->format_out != nsMimeOutput::nsMimeMessageAttach)
-    if (prefBranch) {
-      prefBranch->GetIntPref("mailnews.display.html_as", &html_as);
-      prefBranch->GetIntPref("mailnews.display.disallow_mime_handlers",
-                             &types_of_classes_to_disallow);
-      if (types_of_classes_to_disallow > 0 && html_as == 0)
-        // We have non-sensical prefs. Do some fixup.
-        html_as = 1;
-    }
+      opts->format_out != nsMimeOutput::nsMimeMessageAttach) {
+    Preferences::GetInt("mailnews.display.html_as", &html_as);
+    Preferences::GetInt("mailnews.display.disallow_mime_handlers",
+                        &types_of_classes_to_disallow);
+    if (types_of_classes_to_disallow > 0 && html_as == 0)
+      // We have non-sensical prefs. Do some fixup.
+      html_as = 1;
+  }
 
   // First, check to see if the message has been marked as JUNK. If it has,
   // then force the message to be rendered as simple, unless this has been
@@ -395,8 +393,7 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
   // observer listening to this pref change and updating internal state
   // accordingly. But none of the other prefs in this file seem to be doing
   // that...=(
-  if (prefBranch)
-    prefBranch->GetBoolPref("mail.spam.display.sanitize", &sanitizeJunkMail);
+  Preferences::GetBool("mail.spam.display.sanitize", &sanitizeJunkMail);
 
   if (sanitizeJunkMail &&
       !(opts && opts->format_out == nsMimeOutput::nsMimeMessageFilterSniffer)) {
@@ -515,13 +512,8 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
             opts->format_out != nsMimeOutput::nsMimeMessageFilterSniffer &&
             opts->format_out != nsMimeOutput::nsMimeMessageAttach &&
             opts->format_out != nsMimeOutput::nsMimeMessageRaw) {
-          bool disable_format_flowed = false;
-          if (prefBranch)
-            prefBranch->GetBoolPref(
-                "mailnews.display.disable_format_flowed_support",
-                &disable_format_flowed);
-
-          if (!disable_format_flowed) {
+          if (!Preferences::GetBool(
+                  "mailnews.display.disable_format_flowed_support")) {
             // Check for format=flowed, damn, it is already stripped away from
             // the contenttype!
             // Look in headers instead even though it's expensive and clumsy
@@ -711,10 +703,7 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
           char* name = (hdrs ? MimeHeaders_get_name(hdrs, opts) : nullptr);
           if (name) {
             char* suf = PL_strrchr(name, '.');
-            bool p7mExternal = false;
-
-            if (prefBranch)
-              prefBranch->GetBoolPref("mailnews.p7m_external", &p7mExternal);
+            bool p7mExternal = Preferences::GetBool("mailnews.p7m_external");
             if (suf &&
                 ((!PL_strcasecmp(suf, ".p7m") && p7mExternal) ||
                  !PL_strcasecmp(suf, ".p7c") || !PL_strcasecmp(suf, ".p7z")))
