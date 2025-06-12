@@ -7,7 +7,7 @@ const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
-function test_db_open() {
+add_task(function test_db_open() {
   localAccountUtils.loadLocalMailAccount();
 
   const dbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
@@ -29,9 +29,8 @@ function test_db_open() {
   db.close(true);
   db.forceClosed();
   db = null;
-
   localAccountUtils.clearAll();
-}
+});
 
 /**
  * A workout for the various functions supporting UID queries.
@@ -39,7 +38,7 @@ function test_db_open() {
  * is no IMAP involvement, so we can just test them using a local
  * folder, which is much simpler.
  */
-function test_uid_functions() {
+add_task(function test_uid_functions() {
   // Set up an account with some messages in inbox.
   localAccountUtils.loadLocalMailAccount();
   const inbox = localAccountUtils.inboxFolder;
@@ -162,7 +161,70 @@ function test_uid_functions() {
 
   // Clean up.
   localAccountUtils.clearAll();
-}
+});
 
-add_task(test_db_open);
-add_task(test_uid_functions);
+/*
+ * Check that nsIMsgDatabase.deleteMessages() does what it says.
+ */
+add_task(function test_deletion() {
+  const nsMsgKey_None = 0xffffffff; // Arrrrg!
+  localAccountUtils.loadLocalMailAccount();
+  try {
+    const inbox = localAccountUtils.inboxFolder;
+    const db = inbox.msgDatabase;
+
+    Assert.equal(db.listAllKeys().length, 0, "db should start out empty");
+
+    // Add a bunch of msgHdrs to the db.
+    const keep = []; // Ones we'll keep.
+    const doomed = []; // Ones we'll delete.
+    {
+      const generator = new MessageGenerator();
+      for (let uniq = 0; uniq < 30; ++uniq) {
+        const hdr = db.createNewHdr(nsMsgKey_None);
+        hdr.messageId = generator.makeMessageId(uniq);
+        hdr.author = generator.makeMailAddress(uniq * 2);
+        hdr.recipients = generator.makeMailAddress(uniq * 2 + 1);
+        hdr.subject = generator.makeSubject(uniq);
+        hdr.date = generator.makeDate(uniq);
+        const live = db.attachHdr(hdr, false);
+        if (uniq % 3 == 0) {
+          doomed.push(live.messageKey);
+        } else {
+          keep.push(live.messageKey);
+        }
+      }
+    }
+
+    // Make sure they were all added.
+    Assert.deepEqual(
+      db.listAllKeys().toSorted(),
+      [...keep, ...doomed].toSorted(),
+      "db should have all messages"
+    );
+
+    // Delete a selection and check they're gone.
+    db.deleteMessages(doomed, null);
+    Assert.deepEqual(
+      db.listAllKeys().toSorted(),
+      keep.toSorted(),
+      "deleted messsages should be gone from db"
+    );
+
+    // NOTE: The legacy db deleteMessages() doesn't actually seem to prevent
+    // deleted messages from being retreived by getMsgHdrForKey().
+    // Bug 1971647.
+    // This fails on legacy db (but is fine when run on Panorama db):
+    /*
+    for (const gone of doomed) {
+      Assert.throws(
+        () => db.getMsgHdrForKey(gone),
+        /NS_ERROR_ILLEGAL_VALUE/,
+        "deleted message should be inaccessible"
+      );
+    }
+    */
+  } finally {
+    localAccountUtils.clearAll();
+  }
+});
