@@ -2011,66 +2011,33 @@ Enigmail.msg = {
   },
 
   /**
-   * Display a notification to the user at the bottom of the window
-   *
-   * @param {integer} priority - Priority of the message [1 = high (error) ... 3 = low (info)]
-   * @param {string} msgText - Text to be displayed in notification bar
-   * @param {string} messageId - Unique message type identification
-   * @param {string} detailsText - optional text to be displayed by clicking
-   *   on "Details" button. If null or "", then the Detail button will not
-   *   be displayed.
-   */
-  async notifyUser(priority, msgText, messageId, detailsText) {
-    let prio;
-
-    switch (priority) {
-      case 1:
-        prio = gComposeNotification.PRIORITY_CRITICAL_MEDIUM;
-        break;
-      case 3:
-        prio = gComposeNotification.PRIORITY_INFO_MEDIUM;
-        break;
-      default:
-        prio = gComposeNotification.PRIORITY_WARNING_MEDIUM;
-    }
-
-    const buttonArr = [];
-
-    if (detailsText && detailsText.length > 0) {
-      const [accessKey, label] = await document.l10n.formatValues([
-        { id: "msg-compose-details-button-access-key" },
-        { id: "msg-compose-details-button-label" },
-      ]);
-
-      buttonArr.push({
-        accessKey,
-        label,
-        callback() {
-          Services.prompt.alert(window, null, detailsText);
-        },
-      });
-    }
-    await gComposeNotification.appendNotification(
-      messageId,
-      {
-        label: msgText,
-        priority: prio,
-      },
-      buttonArr
-    );
-  },
-
-  /**
    * Display a warning message if we are replying to or forwarding
    * a partially decrypted inline-PGP email
    */
   async displayPartialEncryptedWarning() {
-    const [msgLong, msgShort] = await document.l10n.formatValues([
-      { id: "msg-compose-partially-encrypted-inlinePGP" },
-      { id: "msg-compose-partially-encrypted-short" },
-    ]);
-
-    this.notifyUser(1, msgShort, "notifyPartialDecrypt", msgLong);
+    const [msgText, accessKey, label, detailsText] =
+      await document.l10n.formatValues([
+        { id: "msg-compose-partially-encrypted-short" },
+        { id: "msg-compose-details-button-access-key" },
+        { id: "msg-compose-details-button-label" },
+        { id: "msg-compose-partially-encrypted-inlinePGP" },
+      ]);
+    await gComposeNotification.appendNotification(
+      "notifyPartialDecrypt",
+      {
+        label: msgText,
+        priority: gComposeNotification.PRIORITY_CRITICAL_MEDIUM,
+      },
+      [
+        {
+          accessKey,
+          label,
+          callback() {
+            Services.prompt.alert(window, null, detailsText);
+          },
+        },
+      ]
+    );
   },
 
   editorSelectAll() {
