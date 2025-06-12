@@ -25,6 +25,7 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgUtils.h"  // For ParseUint64Str(), MSGS_URL.
 #include "nsString.h"
+#include "nsPrintfCString.h"
 #include "nsThreadUtils.h"  // For NS_NewRunnableFunction().
 #include "nsTStringHasher.h"  // IWYU pragma: keep, for mozilla::DefaultHasher<nsCString>
 #include "mozilla/Components.h"

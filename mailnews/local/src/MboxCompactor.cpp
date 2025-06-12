@@ -10,6 +10,7 @@
 #include "nsMsgLocalFolderHdrs.h"  // For X_MOZILLA_KEYWORDS_BLANK_LEN.
 #include "nsMsgMessageFlags.h"
 #include "nsMailHeaders.h"
+#include "nsPrintfCString.h"
 #include "HeaderReader.h"
 #include "MboxCompactor.h"
 #include "MboxMsgOutputStream.h"
