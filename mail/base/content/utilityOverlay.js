@@ -360,7 +360,7 @@ function openLinkIn(url, where, openParams) {
   const win = Services.ww.openWindow(
     window,
     AppConstants.BROWSER_CHROME_URL,
-    null,
+    "_blank",
     "chrome,dialog=no,all",
     args
   );
