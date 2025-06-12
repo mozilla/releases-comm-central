@@ -981,6 +981,44 @@ add_task(async function test_mark_as_spam_action() {
 });
 
 /**
+ * Test the Archive action.
+ */
+add_task(async function test_archive_action() {
+  setupTest();
+  Services.prefs.setStringPref("mail.biff.alert.enabled_actions", "archive");
+  MailTelemetryForTests.reportUIConfiguration();
+  Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
+    "archive",
+  ]);
+
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  const newMessageId = [...gFolder.messages].at(-1).messageId;
+  const numMessages = gFolder.getTotalMessages(false);
+
+  await gMockAlertsService.promiseShown();
+  Assert.deepEqual(
+    gMockAlertsService._actions.map(a => a.action),
+    ["archive"]
+  );
+
+  const archivePromise = PromiseTestUtils.promiseFolderEvent(
+    gFolder,
+    "DeleteOrMoveMsgCompleted"
+  );
+  gMockAlertsService.clickAlert("archive");
+  await archivePromise;
+  Assert.equal(Glean.mail.notificationUsedActions.archive.testGetValue(), 1);
+
+  const archiveFolder = gFolder.rootFolder.getFolderWithFlags(
+    Ci.nsMsgFolderFlags.Archive
+  );
+  Assert.equal(gFolder.getTotalMessages(false), numMessages - 1);
+  Assert.equal(archiveFolder.getTotalMessages(true), 1);
+  const archivedMessage = [...archiveFolder.subFolders[0].messages].at(-1);
+  Assert.equal(archivedMessage.messageId, newMessageId);
+});
+
+/**
  * Test what happens when loading a message when there's a notification about
  * it. The notification should be removed.
  */

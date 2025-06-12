@@ -11,6 +11,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   LanguageDetector:
     "resource://gre/modules/translations/LanguageDetector.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
   WinUnreadBadge: "resource:///modules/WinUnreadBadge.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(
@@ -20,11 +21,65 @@ ChromeUtils.defineLazyGetter(
 );
 
 const availableActions = [
-  { action: "mark-as-read", l10n: "mark-as-read-action" },
-  { action: "delete", l10n: "delete-action" },
-  { action: "mark-as-starred", l10n: "mark-as-starred-action" },
-  { action: "mark-as-spam", l10n: "mark-as-spam-action" },
+  {
+    action: "mark-as-read",
+    l10nId: "mark-as-read-action",
+    isValidFor(_message) {
+      return true;
+    },
+    runAction(message) {
+      message.folder.markMessagesRead([message], true);
+    },
+  },
+  {
+    action: "delete",
+    l10nId: "delete-action",
+    isValidFor(message) {
+      return message.folder.canDeleteMessages;
+    },
+    runAction(message) {
+      message.folder.markMessagesRead([message], true);
+      message.folder.deleteMessages([message], null, false, false, null, true);
+    },
+  },
+  {
+    action: "mark-as-starred",
+    l10nId: "mark-as-starred-action",
+    isValidFor(_message) {
+      return true;
+    },
+    runAction(message) {
+      message.folder.markMessagesFlagged([message], true);
+    },
+  },
+  {
+    action: "mark-as-spam",
+    l10nId: "mark-as-spam-action",
+    isValidFor(message) {
+      return !["nntp", "rss"].includes(message.folder.server.type);
+    },
+    runAction(message) {
+      message.folder.setJunkScoreForMessages(
+        [message],
+        Ci.nsIJunkMailPlugin.IS_SPAM_SCORE,
+        "user",
+        -1
+      );
+      message.folder.performActionsOnJunkMsgs([message], true);
+    },
+  },
+  {
+    action: "archive",
+    l10nId: "archive-action",
+    isValidFor(message) {
+      return lazy.MessageArchiver.canArchive([message], true);
+    },
+    runAction(message) {
+      new lazy.MessageArchiver().archiveMessages([message]);
+    },
+  },
 ];
+
 XPCOMUtils.defineLazyPreferenceGetter(
   lazy,
   "enabledActions",
@@ -37,7 +92,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
       const action = availableActions.find(a => a.action == name);
       if (action) {
         if (!action.title) {
-          action.title = lazy.l10n.formatValueSync(action.l10n);
+          action.title = lazy.l10n.formatValueSync(action.l10nId);
         }
         actions.push(action);
       }
@@ -54,7 +109,7 @@ export class MailNotificationManager {
   static get availableActions() {
     for (const action of availableActions) {
       if (!action.title) {
-        action.title = lazy.l10n.formatValueSync(action.l10n);
+        action.title = lazy.l10n.formatValueSync(action.l10nId);
       }
     }
     return availableActions;
@@ -401,13 +456,9 @@ export class MailNotificationManager {
       cookie
     );
     if (numNewMessages == 1) {
-      alert.actions = lazy.enabledActions;
-      if (!folder.canDeleteMessages) {
-        alert.actions = alert.actions.filter(a => a.action != "delete");
-      }
-      if (["nntp", "rss"].includes(folder.server.type)) {
-        alert.actions = alert.actions.filter(a => a.action != "mark-as-spam");
-      }
+      alert.actions = lazy.enabledActions.filter(action =>
+        action.isValidFor(msgHdr)
+      );
     }
     alertsService.showAlert(alert, (subject, topic) => {
       if (topic != "alertclickcallback") {
@@ -415,27 +466,9 @@ export class MailNotificationManager {
       }
       if (subject?.QueryInterface(Ci.nsIAlertAction)) {
         Glean.mail.notificationUsedActions[subject.action].add(1);
-        switch (subject.action) {
-          case "mark-as-read":
-            folder.markMessagesRead([msgHdr], true);
-            break;
-          case "delete":
-            folder.markMessagesRead([msgHdr], true);
-            folder.deleteMessages([msgHdr], null, false, false, null, true);
-            break;
-          case "mark-as-starred":
-            folder.markMessagesFlagged([msgHdr], true);
-            break;
-          case "mark-as-spam":
-            folder.setJunkScoreForMessages(
-              [msgHdr],
-              Ci.nsIJunkMailPlugin.IS_SPAM_SCORE,
-              "user",
-              -1
-            );
-            folder.performActionsOnJunkMsgs([msgHdr], true);
-            break;
-        }
+        availableActions
+          .find(a => a.action == subject.action)
+          .runAction(msgHdr);
         return;
       }
       // Display the associated message when an alert is clicked.

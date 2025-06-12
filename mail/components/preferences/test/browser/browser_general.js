@@ -411,12 +411,18 @@ add_task(async function testNewMailAlertDialogs() {
       const list = dialogDocument.getElementById("enabledActions");
       Assert.deepEqual(
         Array.from(list.children, cb => cb.id),
-        ["mark-as-read", "delete", "mark-as-starred", "mark-as-spam"],
+        [
+          "mark-as-read",
+          "delete",
+          "mark-as-starred",
+          "mark-as-spam",
+          "archive",
+        ],
         "actions checkboxes should all be shown and in order"
       );
       Assert.deepEqual(
         Array.from(list.children, cb => cb.checked),
-        [true, false, false, false],
+        [true, false, false, false, false],
         "only the mark-as-read checkbox should be checked"
       );
       EventUtils.synthesizeMouseAtCenter(list.children[0], {}, dialogWindow);
@@ -438,12 +444,18 @@ add_task(async function testNewMailAlertDialogs() {
       const list = dialogDocument.getElementById("enabledActions");
       Assert.deepEqual(
         Array.from(list.children, cb => cb.id),
-        ["mark-as-read", "delete", "mark-as-starred", "mark-as-spam"],
+        [
+          "mark-as-read",
+          "delete",
+          "mark-as-starred",
+          "mark-as-spam",
+          "archive",
+        ],
         "actions checkboxes should all be shown and in order"
       );
       Assert.deepEqual(
         Array.from(list.children, cb => cb.checked),
-        [false, true, false, true],
+        [false, true, false, true, false],
         "the delete and mark-as-spam checkboxes should be checked"
       );
       EventUtils.synthesizeMouseAtCenter(list.children[0], {}, dialogWindow);
