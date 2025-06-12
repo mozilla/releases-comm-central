@@ -65,7 +65,6 @@ kvstore = { path = "../../../toolkit/components/kvstore" }
 l10nregistry = { path = "../../../intl/l10n/rust/l10nregistry-rs" }
 l10nregistry-ffi = { path = "../../../intl/l10n/rust/l10nregistry-ffi" }
 libz-rs-sys = { version = "0.4.1", features = ['custom-prefix'], optional = true }
-lmdb-rkv-sys = { version = "0.11", features = ['mdb_idl_logn_9'] }
 localization-ffi = { path = "../../../intl/l10n/rust/localization-ffi" }
 log = { version = "0.4", features = ['release_max_level_info'] }
 mapped_hyph = { git = "https://github.com/jfkthame/mapped_hyph.git", rev = "eff105f6ad7ec9b79816cfc1985a28e5340ad14b" }
