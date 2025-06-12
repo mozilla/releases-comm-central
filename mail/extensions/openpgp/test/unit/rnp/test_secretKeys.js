@@ -59,34 +59,18 @@ add_task(async function testSecretKeys() {
     "EnigmailKeyRing.getKeyById should return an object with a secret key"
   );
 
-  const fpr = keyObj.fpr;
-
   Assert.ok(
     keyObj.iSimpleOneSubkeySameExpiry(),
     "check iSimpleOneSubkeySameExpiry should succeed"
   );
 
-  const allFingerprints = [fpr, keyObj.subKeys[0].fpr];
+  const later = new Date();
+  later.setDate(later.getDate() + 100);
+  const expiryChanged = await RNP.changeKeyExpiration(keyObj, null, later);
+  Assert.ok(expiryChanged, "RNP.changeKeyExpiration should succeed");
 
-  const keyTrackers = [];
-  for (const fp of allFingerprints) {
-    const tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(fp);
-    await tracker.unlock();
-    keyTrackers.push(tracker);
-  }
-
-  const expiryChanged = await RNP.changeExpirationDate(
-    allFingerprints,
-    100 * 24 * 60 * 60
-  );
-  Assert.ok(expiryChanged, "changeExpirationDate should return success");
-
-  for (const t of keyTrackers) {
-    t.release();
-  }
-
+  const fpr = keyObj.fpr;
   const backupPassword = "new-password-1234";
-
   const backupKeyBlock = await RNP.backupSecretKeys([fpr], backupPassword);
 
   const expectedString = "END PGP PRIVATE KEY BLOCK";

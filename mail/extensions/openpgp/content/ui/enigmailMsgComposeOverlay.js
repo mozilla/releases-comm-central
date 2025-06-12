@@ -377,8 +377,6 @@ Enigmail.msg = {
       UpdateAttachmentBucket(bucketList.hasChildNodes());
     }
 
-    this.warnUserIfSenderKeyExpired();
-
     if (selectedElement) {
       selectedElement.focus();
     }
@@ -1944,17 +1942,6 @@ Enigmail.msg = {
     return 0;
   },
 
-  isSenderKeyExpired() {
-    const senderKeyId = this.getSenderUserId();
-
-    if (senderKeyId) {
-      const key = EnigmailKeyRing.getKeyById(senderKeyId);
-      return key?.expiryTime && Math.round(Date.now() / 1000) > key.expiryTime;
-    }
-
-    return false;
-  },
-
   removeNotificationIfPresent(name) {
     const notif = gComposeNotification.getNotificationWithValue(name);
     if (notif) {
@@ -1962,12 +1949,43 @@ Enigmail.msg = {
     }
   },
 
-  async warnUserThatSenderKeyExpired() {
-    const label = {
-      "l10n-id": "openpgp-selection-status-error",
-      "l10n-args": { key: this.getSenderUserId() },
-    };
-
+  /**
+   * When applicable, warns the user about their key expiring soon, or already
+   * expired.
+   */
+  async warnUserOfSenderKeyExpiration() {
+    this.removeNotificationIfPresent("openpgpSenderKeyExpiry");
+    const senderKeyId = this.getSenderUserId();
+    const key = EnigmailKeyRing.getKeyById(senderKeyId);
+    if (!key?.expiryTime) {
+      // No key, or doesn't expire.
+      return;
+    }
+    let label;
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+    const expiresInDays = Math.floor(
+      (key.expiryTime - nowInSeconds) / (24 * 60 * 60)
+    );
+    if (expiresInDays > 31) {
+      return;
+    }
+    if (nowInSeconds > key.expiryTime) {
+      // Key already expired
+      label = {
+        "l10n-id": "openpgp-selection-status-error",
+        "l10n-args": { key: this.getSenderUserId() },
+      };
+    } else {
+      // Will expire within the next 31 days.
+      const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+      label = {
+        "l10n-id": "openpgp-selection-status-expiring-soon",
+        "l10n-args": {
+          key: this.getSenderUserId(),
+          when: rtf.format(expiresInDays, "day"),
+        },
+      };
+    }
     const buttons = [
       {
         "l10n-id": "settings-context-open-account-settings-item2",
@@ -1983,22 +2001,13 @@ Enigmail.msg = {
     ];
 
     await gComposeNotification.appendNotification(
-      "openpgpSenderKeyExpired",
+      "openpgpSenderKeyExpiry",
       {
         label,
         priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
       },
       buttons
     );
-  },
-
-  warnUserIfSenderKeyExpired() {
-    if (!this.isSenderKeyExpired()) {
-      this.removeNotificationIfPresent("openpgpSenderKeyExpired");
-      return;
-    }
-
-    this.warnUserThatSenderKeyExpired();
   },
 
   /**

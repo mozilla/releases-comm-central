@@ -5057,13 +5057,80 @@ export var RNP = {
     return this.deArmorTypedArray(array);
   },
 
-  // Will change the expiration date of all given keys to newExpiry.
-  // fingerprintArray is an array, containing fingerprints, both
-  // primary key fingerprints and subkey fingerprints are allowed.
-  // The function assumes that all involved keys have already been
-  // unlocked. We shouldn't rely on password callbacks for unlocking,
-  // as it would be confusing if only some keys are changed.
-  async changeExpirationDate(fingerprintArray, newExpiry) {
+  /**
+   * Change the key expiration date.
+   *
+   * @param {KeyObj} primaryKey - Primary key.
+   * @param {?KeyObj} subKey - Key to change if not the primary key (simpleMode false)
+   * @param {?Date} date - The expiration date. null for "does not expire".
+   * @param {boolean} [simpleMode=true] - Set to false to edit expiration of
+   *   a parcular subkey only.
+   * @returns {boolean} true if the key expiration was changed.
+   */
+  async changeKeyExpiration(primaryKey, subKey, date, simpleMode = true) {
+    const keyToEdit = simpleMode ? primaryKey : subKey;
+
+    // We must always unlock the primary key, that's the one that will
+    // be used to sign/allow the change.
+    let fingerprintsToUnlock;
+    let fingerprintsToEdit;
+
+    if (simpleMode) {
+      fingerprintsToUnlock = [primaryKey.fpr, primaryKey.subKeys[0].fpr];
+      fingerprintsToEdit = [primaryKey.fpr, primaryKey.subKeys[0].fpr];
+    } else {
+      // When not editing the primary key, also unlock the subkey to edit.
+      fingerprintsToUnlock = [primaryKey.fpr];
+      if (keyToEdit.fpr != primaryKey.fpr) {
+        fingerprintsToUnlock.push(keyToEdit.fpr);
+      }
+      fingerprintsToEdit = [keyToEdit.fpr];
+    }
+
+    // Key Expiration Time - this is the number of seconds after the key
+    // creation time that the key expires.
+    const expirationTime = date
+      ? Math.ceil(date.getTime() / 1000) - keyToEdit.keyCreated
+      : 0;
+
+    const pwCache = {
+      passwords: [],
+    };
+    const keyTrackers = [];
+    try {
+      for (const fp of fingerprintsToUnlock) {
+        const tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(fp);
+        tracker.setAllowPromptingUserForPassword(true);
+        tracker.setAllowAutoUnlockWithCachedPasswords(true);
+        tracker.setPasswordCache(pwCache);
+        await tracker.unlock();
+        keyTrackers.push(tracker);
+        if (!tracker.isUnlocked()) {
+          // Unlock failed.
+          return false;
+        }
+      }
+      await RNP._changeExpirationDate(fingerprintsToEdit, expirationTime);
+    } finally {
+      for (const t of keyTrackers) {
+        t.release();
+      }
+    }
+    return true;
+  },
+
+  /**
+   * Will change the expiration date of all given keys to newExpiry.
+   * fingerprintArray is an array, containing fingerprints, both
+   * primary key fingerprints and subkey fingerprints are allowed.
+   * The function assumes that all involved keys have already been
+   * unlocked. We shouldn't rely on password callbacks for unlocking,
+   * as it would be confusing if only some keys are changed.
+   *
+   * @param {string[]} fingerprintArray - Fingerprints.
+   * @param {integer} newExpiry - New expiration time in seconds (since key creation).
+   */
+  async _changeExpirationDate(fingerprintArray, newExpiry) {
     for (const fingerprint of fingerprintArray) {
       const handle = this.getKeyHandleByKeyIdOrFingerprint(
         RNPLib.ffi,

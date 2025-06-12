@@ -286,6 +286,24 @@ export const OpenPGPTestUtils = {
     }
     lazy.EnigmailKeyRing.clearCache();
   },
+
+  /**
+   * @param {string} keyId - The key to change expiration time for.
+   * @param {integer} daysFromNow - Days from now to expire. 0 = no expiry
+   */
+  async changeKeyExpire(keyId, daysFromNow) {
+    const key = lazy.EnigmailKeyRing.getKeyById(keyId);
+    let expirationTime = 0;
+    if (daysFromNow) {
+      const later = new Date();
+      later.setDate(later.getDate() + daysFromNow);
+      expirationTime = Math.ceil(later / 1000) - key.keyCreated;
+    }
+    const date = expirationTime
+      ? new Date((key.keyCreated + expirationTime) * 1000)
+      : null;
+    await lazy.RNP.changeKeyExpiration(key, null, date, true);
+  },
 };
 
 /**

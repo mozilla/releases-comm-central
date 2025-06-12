@@ -27,8 +27,7 @@ const { MailServices } = ChromeUtils.importESModule(
 
 var gAccount;
 var gIdentity;
-var gExpiredKeyId;
-var gNotExpiredKeyId;
+var gKeyId;
 
 add_setup(async () => {
   gAccount = MailServices.accounts.createAccount();
@@ -44,7 +43,8 @@ add_setup(async () => {
   MailServices.accounts.defaultAccount = gAccount;
   MailServices.accounts.defaultAccount.defaultIdentity = gIdentity;
 
-  [gExpiredKeyId] = await OpenPGPTestUtils.importPrivateKey(
+  // Expired...
+  [gKeyId] = await OpenPGPTestUtils.importPrivateKey(
     window,
     new FileUtils.File(
       getTestFilePath(
@@ -52,19 +52,9 @@ add_setup(async () => {
       )
     )
   );
-  [gNotExpiredKeyId] = await OpenPGPTestUtils.importPrivateKey(
-    window,
-    new FileUtils.File(
-      getTestFilePath(
-        "../data/keys/alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
-      )
-    )
-  );
-  // FIXME: ^^^ should use a non-expiring key matching EDDIE!
 
   registerCleanupFunction(async () => {
-    await OpenPGPTestUtils.removeKeyById(gExpiredKeyId, true);
-    await OpenPGPTestUtils.removeKeyById(gNotExpiredKeyId, true);
+    await OpenPGPTestUtils.removeKeyById(gKeyId, true);
     MailServices.accounts.removeIncomingServer(gAccount.incomingServer, true);
     MailServices.accounts.removeAccount(gAccount, true);
   });
@@ -75,22 +65,19 @@ add_task(async function testExpiredKeyShowsNotificationBar() {
     .getMostRecentWindow("mail:3pane")
     .document.getElementById("tabmail")
     .currentAbout3Pane.displayFolder(gAccount.incomingServer.rootFolder);
-  info(`Using key ${gExpiredKeyId}`);
-  gIdentity.setUnicharAttribute(
-    "openpgp_key_id",
-    gExpiredKeyId.replace(/^0x/, "")
-  );
+  info(`Using key ${gKeyId}`);
+  gIdentity.setUnicharAttribute("openpgp_key_id", gKeyId.replace(/^0x/, ""));
   const cwc = await open_compose_new_mail();
 
   await wait_for_notification_to_show(
     cwc,
     "compose-notification-bottom",
-    "openpgpSenderKeyExpired"
+    "openpgpSenderKeyExpiry"
   );
   const notification = get_notification(
     cwc,
     "compose-notification-bottom",
-    "openpgpSenderKeyExpired"
+    "openpgpSenderKeyExpiry"
   );
 
   Assert.ok(notification !== null, "notification should be visible");
@@ -109,16 +96,58 @@ add_task(async function testExpiredKeyShowsNotificationBar() {
   cwc.close();
 });
 
+add_task(async function testKeyWithSoonExpiryShowsNotification() {
+  Services.wm
+    .getMostRecentWindow("mail:3pane")
+    .document.getElementById("tabmail")
+    .currentAbout3Pane.displayFolder(gAccount.incomingServer.rootFolder);
+  info(`Using key ${gKeyId}`);
+
+  // Change the key to expire in 10 days.
+  await OpenPGPTestUtils.changeKeyExpire(gKeyId, 10);
+
+  gIdentity.setUnicharAttribute("openpgp_key_id", gKeyId.replace(/^0x/, ""));
+  const cwc = await open_compose_new_mail();
+
+  await wait_for_notification_to_show(
+    cwc,
+    "compose-notification-bottom",
+    "openpgpSenderKeyExpiry"
+  );
+  const notification = get_notification(
+    cwc,
+    "compose-notification-bottom",
+    "openpgpSenderKeyExpiry"
+  );
+
+  Assert.ok(notification !== null, "notification should be visible");
+  Assert.stringContains(
+    notification.messageText.textContent,
+    "Your current configuration uses the key 0x15E9357D2C2395C0, which will expire in 10 days.",
+    "correct notification message should be displayed"
+  );
+
+  const buttons = notification._buttons;
+  Assert.equal(
+    buttons[0].buttonInfo["l10n-id"],
+    "settings-context-open-account-settings-item2",
+    "button0 should be the button to open account settings"
+  );
+
+  cwc.close();
+});
+
 add_task(async function testKeyWithoutExpiryDoesNotShowNotification() {
   Services.wm
     .getMostRecentWindow("mail:3pane")
     .document.getElementById("tabmail")
     .currentAbout3Pane.displayFolder(gAccount.incomingServer.rootFolder);
-  info(`Using key ${gNotExpiredKeyId}`);
-  gIdentity.setUnicharAttribute(
-    "openpgp_key_id",
-    gNotExpiredKeyId.replace(/^0x/, "")
-  );
+  info(`Using key ${gKeyId}`);
+
+  // Set to non-expiring key.
+  await OpenPGPTestUtils.changeKeyExpire(gKeyId, 0);
+
+  gIdentity.setUnicharAttribute("openpgp_key_id", gKeyId.replace(/^0x/, ""));
   const cwc = await open_compose_new_mail();
 
   // Give it some time to potentially start showing.
@@ -127,7 +156,7 @@ add_task(async function testKeyWithoutExpiryDoesNotShowNotification() {
   const notification = get_notification(
     cwc,
     "compose-notification-bottom",
-    "openpgpSenderKeyExpired"
+    "openpgpSenderKeyExpiry"
   );
 
   Assert.ok(

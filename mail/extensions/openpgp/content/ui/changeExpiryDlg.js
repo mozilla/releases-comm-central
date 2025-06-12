@@ -5,10 +5,7 @@
 var { EnigmailKeyRing } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/keyRing.sys.mjs"
 );
-var { EnigmailKey } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/key.sys.mjs"
-);
-var { RNP, RnpPrivateKeyUnlockTracker } = ChromeUtils.importESModule(
+var { RNP } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/RNP.sys.mjs"
 );
 
@@ -183,56 +180,10 @@ async function onAccept() {
     // Keep.
     return true;
   }
-  // Key Expiration Time - this is the number of seconds after the key creation
-  // time that the key expires.
-  const keyExpirationTime = expirySecs
-    ? expirySecs - gKeyObjToEdit.keyCreated
-    : 0;
-
-  const pwCache = {
-    passwords: [],
-  };
-
-  // We must always unlock the primary key, that's the one that will
-  // be used to sign/allow the change.
-  const gFingerprintsToUnlock = [gKeyObj.fpr];
-  let gFingerprintsToEdit = [];
-
-  if (gSimpleMode) {
-    gFingerprintsToUnlock.push(gKeyObj.subKeys[0].fpr);
-    gFingerprintsToEdit = [gKeyObj.fpr, gKeyObj.subKeys[0].fpr];
-  } else {
-    // When not editing the primary key, also unlock the subkey.
-    if (gKeyObjToEdit.fpr != gKeyObj.fpr) {
-      gFingerprintsToUnlock.push(gKeyObjToEdit.fpr);
-    }
-    gFingerprintsToEdit = [gKeyObjToEdit.fpr];
-  }
-
-  let unlockFailed = false;
-  const keyTrackers = [];
-  for (const fp of gFingerprintsToUnlock) {
-    const tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(fp);
-    tracker.setAllowPromptingUserForPassword(true);
-    tracker.setAllowAutoUnlockWithCachedPasswords(true);
-    tracker.setPasswordCache(pwCache);
-    await tracker.unlock();
-    keyTrackers.push(tracker);
-    if (!tracker.isUnlocked()) {
-      unlockFailed = true;
-      break;
-    }
-  }
-
-  let rv = false;
-  if (!unlockFailed) {
-    rv = RNP.changeExpirationDate(gFingerprintsToEdit, keyExpirationTime);
-  }
-
-  for (const t of keyTrackers) {
-    t.release();
-  }
-  return rv;
+  const date = expirySecs
+    ? new Date((gKeyObjToEdit.keyCreated + expirySecs) * 1000)
+    : null;
+  return RNP.changeKeyExpiration(gKeyObj, gKeyObjToEdit, date, gSimpleMode);
 }
 
 document.addEventListener("dialogaccept", async function (event) {

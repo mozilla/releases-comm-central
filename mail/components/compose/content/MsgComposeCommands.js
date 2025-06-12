@@ -5377,6 +5377,7 @@ async function adjustEncryptAfterIdentityChange(prevIdentity) {
     }
 
     await checkEncryptionState();
+    await Enigmail.msg.warnUserOfSenderKeyExpiration();
     return;
   }
 
@@ -5414,6 +5415,7 @@ async function adjustEncryptAfterIdentityChange(prevIdentity) {
   }
 
   await checkEncryptionState();
+  await Enigmail.msg.warnUserOfSenderKeyExpiration();
 }
 
 async function ComposeLoad() {

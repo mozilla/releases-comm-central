@@ -400,6 +400,10 @@ openpgp-description-has-keys = { $count ->
 openpgp-selection-status-have-key = Your current configuration uses key ID <b>{ $key }</b>
 
 #   $key (String) - the currently selected OpenPGP key
+#   $when (String) - the relative date when the OpenPGP key will expire e.g. "in 20 days"
+openpgp-selection-status-expiring-soon = Your current configuration uses the key <b>{ $key }</b>, which will expire { $when }. To keep the key valid, please consider extending the key expiry date now.
+
+#   $key (String) - the currently selected OpenPGP key
 openpgp-selection-status-error = Your current configuration uses the key <b>{ $key }</b>, which has expired.
 
 openpgp-add-key-button =
