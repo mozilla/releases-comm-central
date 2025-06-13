@@ -874,7 +874,7 @@ nsContextMenu.prototype = {
     }
     // We can never spell check something which is not content editable
     var editable = aNode.isContentEditable;
-    if (!editable && aNode.ownerDocument) {
+    if (!editable && aNode.ownerDocument && aNode.ownerDocument.designMode) {
       editable = aNode.ownerDocument.designMode == "on";
     }
     if (!editable) {
