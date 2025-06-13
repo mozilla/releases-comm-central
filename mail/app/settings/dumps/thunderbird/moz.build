@@ -15,6 +15,7 @@ FINAL_TARGET_FILES.defaults.settings.thunderbird += [
     "hijack-blocklists.json",
     "moz-essential-domain-fallbacks.json",
     "password-recipes.json",
+    "password-rules.json",
     "remote-permissions.json",
     "search-config-icons.json",
     "search-config-overrides-v2.json",
