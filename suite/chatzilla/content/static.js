@@ -4944,17 +4944,6 @@ var alertClickerObserver = {
       }
     }
   },
-
-  // Gecko 1.7.* rulez
-  onAlertClickCallback(data) {
-    var tb = document.getElementById(data);
-    if (tb && tb.view) {
-      tb.view.dispatch("set-current-view", { view: tb.view });
-      window.focus();
-    }
-  },
-
-  onAlertFinished(data) {},
 };
 
 // Show the alert for a particular event on a type of object.
