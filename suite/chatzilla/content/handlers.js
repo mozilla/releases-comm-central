@@ -839,7 +839,8 @@ function onUserDoubleClick(event) {
     event.altKey ||
     event.ctrlKey ||
     event.metaKey ||
-    event.shiftKey
+    event.shiftKey ||
+    event.target.localName != "listitem"
   ) {
     return;
   }
