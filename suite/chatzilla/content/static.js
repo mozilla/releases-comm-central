@@ -177,7 +177,6 @@ function init() {
   importFromFrame("setHeaderState");
   importFromFrame("changeCSS");
   importFromFrame("scrollToElement");
-  importFromFrame("removeUsers");
 
   processStartupScripts();
 

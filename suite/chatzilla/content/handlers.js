@@ -3238,7 +3238,6 @@ CIRCChannel.prototype.onJoin = function (e) {
 };
 
 CIRCChannel.prototype.onPart = function (e) {
-  this.removeUsers([e.user]);
   this.updateHeader();
   updateSecurityIcon();
 
@@ -3340,7 +3339,6 @@ CIRCChannel.prototype.onKick = function (e) {
     this.removeFromList(e.lamer);
   }
 
-  this.removeUsers([e.lamer]);
   this.updateHeader();
   updateSecurityIcon();
 };
@@ -3490,7 +3488,6 @@ CIRCChannel.prototype.onQuit = function (e) {
     this.removeFromList(e.user);
   }
 
-  this.removeUsers([e.user]);
   this.updateHeader();
   updateSecurityIcon();
 };
