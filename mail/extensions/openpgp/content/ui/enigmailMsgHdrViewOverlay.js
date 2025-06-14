@@ -400,16 +400,6 @@ Enigmail.hdrView = {
     Enigmail.msg.handleAttachmentEvent();
   },
 
-  dispKeyDetails() {
-    if (!Enigmail.msg.securityInfo) {
-      return;
-    }
-
-    const key = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
-
-    EnigmailWindows.openKeyDetails(window, key.keyId, false);
-  },
-
   forgetEncryptedMsgKey() {
     if (Enigmail.hdrView.lastEncryptedUri) {
       gEncryptedURIService.forgetEncrypted(Enigmail.hdrView.lastEncryptedUri);
@@ -560,13 +550,6 @@ Enigmail.hdrView = {
 
     // This even works if the flags haven't changed. Causes repaint in all thread trees.
     hdr.folder?.msgDatabase.notifyHdrChangeAll(hdr, oldFlags, hdr.flags, {});
-  },
-
-  updateHdrBox(header, value) {
-    const e = document.getElementById("expanded" + header + "Box");
-    if (e) {
-      e.headerValue = value;
-    }
   },
 };
 
