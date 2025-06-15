@@ -231,24 +231,6 @@ Enigmail.msg = {
     return EnigmailMsgRead.getUrlFromUriSpec(uriSpec);
   },
 
-  setMainMenuLabel() {
-    const o = ["menu_Enigmail", "appmenu-Enigmail"];
-
-    const m0 = document.getElementById(o[0]);
-    const m1 = document.getElementById(o[1]);
-
-    m1.setAttribute("enigmaillabel", m0.getAttribute("enigmaillabel"));
-
-    for (const menuId of o) {
-      const menu = document.getElementById(menuId);
-
-      if (menu) {
-        const lbl = menu.getAttribute("enigmaillabel");
-        menu.setAttribute("label", lbl);
-      }
-    }
-  },
-
   /**
    * Check that handler for multipart/signed is set to Enigmail.
    * if handler is different, change it and reload message.
@@ -1476,43 +1458,6 @@ Enigmail.msg = {
     this.removeNotification("brokenExchangeProgress");
   },
 
-  /**
-   * Hide attachments containing OpenPGP keys.
-   */
-  hidePgpKeys() {
-    const keys = [];
-    for (let i = 0; i < currentAttachments.length; i++) {
-      if (
-        currentAttachments[i].contentType.search(/^application\/pgp-keys/i) ===
-        0
-      ) {
-        keys.push(i);
-      }
-    }
-
-    if (keys.length > 0) {
-      const attachmentList = document.getElementById("attachmentList");
-
-      for (let i = keys.length; i > 0; i--) {
-        currentAttachments.splice(keys[i - 1], 1);
-      }
-
-      if (attachmentList) {
-        // delete all keys from attachment list
-        while (attachmentList.firstChild) {
-          attachmentList.firstChild.remove();
-        }
-
-        // build new attachment list
-
-        const orig = gBuildAttachmentsForCurrentMsg;
-        gBuildAttachmentsForCurrentMsg = false;
-        displayAttachmentsForExpandedView();
-        gBuildAttachmentsForCurrentMsg = orig;
-      }
-    }
-  },
-
   // check if the attachment could be encrypted
   checkEncryptedAttach(attachment) {
     return (
@@ -2021,43 +1966,6 @@ Enigmail.msg = {
         this.handleAttachment("openAttachment", attachment);
         event.stopPropagation();
       }
-    }
-  },
-
-  /**
-   * Decrypted and copy/move all selected messages in a target folder.
-   *
-   * @param {nsIMsgFolder} destFolder - Destination folder.
-   * @param {boolean} move - true for move, false for copy.
-   */
-  async decryptToFolder(destFolder, move) {
-    const msgHdrs = gDBView.getSelectedMsgHdrs();
-    if (!msgHdrs || msgHdrs.length === 0) {
-      return;
-    }
-
-    const total = msgHdrs.length;
-    let failures = 0;
-    for (const msgHdr of msgHdrs) {
-      await EnigmailPersistentCrypto.cryptMessage(
-        msgHdr,
-        destFolder.URI,
-        move,
-        false
-      ).catch(() => {
-        failures++;
-      });
-    }
-
-    if (failures) {
-      const info = await document.l10n.formatValue(
-        "decrypt-and-copy-failures-multiple",
-        {
-          failures,
-          total,
-        }
-      );
-      Services.prompt.alert(null, document.title, info);
     }
   },
 
