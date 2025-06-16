@@ -30,7 +30,7 @@ GENERATED_FILES += [
     "charsetalias.properties.h",
 ]
 charsetalias = GENERATED_FILES["charsetalias.properties.h"]
-charsetalias.script = "/intl/locale/props2arrays.py"
+charsetalias.script = "props2arrays.py"
 charsetalias.inputs = ["charsetalias.properties"]
 
 FINAL_LIBRARY = "mail"
