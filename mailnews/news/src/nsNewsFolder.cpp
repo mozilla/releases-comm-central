@@ -9,7 +9,6 @@
 #include "prlog.h"
 
 #include "msgCore.h"  // precompiled header...
-#include "nntpCore.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsNewsFolder.h"
 #include "nsMsgFolderFlags.h"
@@ -952,7 +951,8 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow* aMsgWindow,
 
   nsresult rv;
   nsCOMPtr<nsIStringBundle> bundle;
-  rv = bundleService->CreateBundle(NEWS_MSGS_URL, getter_AddRefs(bundle));
+  rv = bundleService->CreateBundle("chrome://messenger/locale/news.properties",
+                                   getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString signonUrl;
