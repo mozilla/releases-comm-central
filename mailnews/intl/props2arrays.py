@@ -20,8 +20,6 @@ def main(header, propFile):
     header.write("// Please edit the corresponding .properties file instead.\n")
 
     entries = [
-        '{ "%s", "%s", %d }' % (key, mappings[key], len(mappings[key]))
-        for key in sorted(keys)
+        '{ "%s", "%s", %d }' % (key, mappings[key], len(mappings[key])) for key in sorted(keys)
     ]
     header.write(",\n".join(entries) + "\n")
-
