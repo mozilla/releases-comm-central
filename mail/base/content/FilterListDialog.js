@@ -676,7 +676,7 @@ function viewLog() {
   window.openDialog(
     "chrome://messenger/content/viewLog.xhtml",
     "FilterLog",
-    "chrome,modal,titlebar,resizable,centerscreen",
+    "chrome,dependent,titlebar,resizable,centerscreen",
     args
   );
 }
