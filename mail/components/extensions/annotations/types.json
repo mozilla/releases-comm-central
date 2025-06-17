@@ -1,0 +1,10 @@
+[
+  {
+    "namespace": "types",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

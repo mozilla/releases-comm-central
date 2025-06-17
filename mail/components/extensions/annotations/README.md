@@ -13,9 +13,18 @@ properties:
 - `hint` - hint string
 - `note` - note string
 - `warning` - warning string
+- `version_added` - a boolean value indicating wether the specified API or property
+is supported by Thunderbird, overriding automatically generated compat data from
+the schema files (schemas read from mail/ default to `true`, schemas read from
+browser/ and toolkit/ default to `false`), can also be an string with a version
+number to override the automatically calculated first supporting version
 
 Annotation objects may also include `min_manifest_version` and `max_manifest_version`
 properties to specify for which manifest version the annotated information is valid.
+
+Annotation `note` objects can include a boolean `bcd` property, to indicate that
+the provided annotation should be added to the browser_compat_data [3] repository
+(as `__compat.support.thunderbird.notes`).
 
 The annotation files can also provide `enums` objects with `annotations` arrays
 for the supported enum values.
@@ -28,6 +37,7 @@ or WebExtension linters.
 
 [1] : https://github.com/thunderbird/webext-schemas-generator
 [2] : https://github.com/thunderbird/webext-schemas
+[3] : https://github.com/mdn/browser-compat-data/tree/main/webextensions
 
 Example:
 

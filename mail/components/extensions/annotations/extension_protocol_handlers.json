@@ -1,0 +1,19 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "protocol_handlers": {
+            "annotations": [
+              {
+                "version_added": true
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+]

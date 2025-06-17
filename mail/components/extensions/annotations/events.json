@@ -1,0 +1,10 @@
+[
+  {
+    "namespace": "events",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

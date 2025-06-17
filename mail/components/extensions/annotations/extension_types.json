@@ -1,6 +1,11 @@
 [
   {
     "namespace": "extensionTypes",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ],
     "types": [
       {
         "id": "ExtensionFileOrCode",

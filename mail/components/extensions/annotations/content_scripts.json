@@ -1,0 +1,10 @@
+[
+  {
+    "namespace": "contentScripts",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

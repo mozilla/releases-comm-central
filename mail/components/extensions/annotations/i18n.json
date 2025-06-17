@@ -1,0 +1,34 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "default_locale": {
+            "annotations": [
+              {
+                "version_added": true
+              }
+            ]
+          },
+          "l10n_resources": {
+            "annotations": [
+              {
+                "version_added": true
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "namespace": "i18n",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

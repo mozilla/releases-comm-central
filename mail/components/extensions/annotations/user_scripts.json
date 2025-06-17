@@ -1,0 +1,44 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalOnlyPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "userScripts": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "user_scripts": {
+            "annotations": [
+              {
+                "version_added": true
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "namespace": "userScripts",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

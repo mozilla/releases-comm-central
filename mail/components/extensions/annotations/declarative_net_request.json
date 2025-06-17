@@ -1,0 +1,78 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "Permission",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "declarativeNetRequest": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "declarativeNetRequestFeedback": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "$extend": "PermissionNoPrompt",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "declarativeNetRequestWithHostAccess": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "declarative_net_request": {
+            "annotations": [
+              {
+                "version_added": true
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "namespace": "declarativeNetRequest",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

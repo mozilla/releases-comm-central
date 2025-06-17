@@ -1,0 +1,56 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "privacy": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "privacy",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  },
+  {
+    "namespace": "privacy.network",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  },
+  {
+    "namespace": "privacy.services",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  },
+  {
+    "namespace": "privacy.websites",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

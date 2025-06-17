@@ -1,0 +1,32 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "browsingData": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "browsingData",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

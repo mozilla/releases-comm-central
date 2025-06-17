@@ -1,0 +1,32 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "pkcs11": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "pkcs11",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

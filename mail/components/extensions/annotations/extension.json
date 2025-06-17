@@ -1,0 +1,10 @@
+[
+  {
+    "namespace": "extension",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

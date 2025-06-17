@@ -1,0 +1,60 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermissionNoPrompt",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "webRequest": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              },
+              "webRequestAuthProvider": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              },
+              "webRequestBlocking": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              },
+              "webRequestFilterResponse": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              },
+              "webRequestFilterResponse.serviceWorkerScript": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "webRequest",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

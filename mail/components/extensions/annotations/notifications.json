@@ -1,0 +1,10 @@
+[
+  {
+    "namespace": "notifications",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

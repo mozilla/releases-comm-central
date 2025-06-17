@@ -1,0 +1,10 @@
+[
+  {
+    "namespace": "storage",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

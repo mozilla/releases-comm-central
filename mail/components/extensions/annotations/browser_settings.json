@@ -1,0 +1,98 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "browserSettings": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "browserSettings",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ],
+    "properties": {
+      "closeTabsByDoubleClick": {
+        "annotations": [
+          {
+            "version_added": false
+          }
+        ]
+      },
+      "homepageOverride": {
+        "annotations": [
+          {
+            "version_added": false
+          }
+        ]
+      },
+      "newTabPageOverride": {
+        "annotations": [
+          {
+            "version_added": false
+          }
+        ]
+      },
+      "newTabPosition": {
+        "annotations": [
+          {
+            "version_added": false
+          }
+        ]
+      },
+      "openBookmarksInNewTabs": {
+        "annotations": [
+          {
+            "version_added": false
+          }
+        ]
+      },
+      "openSearchResultsInNewTabs": {
+        "annotations": [
+          {
+            "version_added": false
+          }
+        ]
+      },
+      "openUrlbarResultsInNewTabs": {
+        "annotations": [
+          {
+            "version_added": false
+          }
+        ]
+      },
+      "zoomSiteSpecific": {
+        "annotations": [
+          {
+            "version_added": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "namespace": "browserSettings.colorManagement",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

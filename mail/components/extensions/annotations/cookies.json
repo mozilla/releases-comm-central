@@ -1,0 +1,32 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermissionNoPrompt",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "cookies": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "cookies",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

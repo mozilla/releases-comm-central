@@ -1,0 +1,10 @@
+[
+  {
+    "namespace": "permissions",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

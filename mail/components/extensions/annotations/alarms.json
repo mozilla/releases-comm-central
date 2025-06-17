@@ -1,0 +1,10 @@
+[
+  {
+    "namespace": "alarms",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

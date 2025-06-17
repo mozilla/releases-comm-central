@@ -1,0 +1,10 @@
+[
+  {
+    "namespace": "clipboard",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

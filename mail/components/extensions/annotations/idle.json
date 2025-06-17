@@ -1,0 +1,10 @@
+[
+  {
+    "namespace": "idle",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

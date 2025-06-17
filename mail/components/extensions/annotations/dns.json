@@ -1,0 +1,32 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "PermissionNoPrompt",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "dns": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "dns",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

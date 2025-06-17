@@ -1,0 +1,32 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermissionNoPrompt",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "scripting": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "scripting",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

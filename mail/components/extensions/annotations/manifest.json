@@ -1,6 +1,11 @@
 [
   {
     "namespace": "manifest",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ],
     "types": [
       {
         "id": "ExtensionURL",

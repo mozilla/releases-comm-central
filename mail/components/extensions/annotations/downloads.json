@@ -1,0 +1,39 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "downloads": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              },
+              "downloads.open": {
+                "annotations": [
+                  {
+                    "version_added": true
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "downloads",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]

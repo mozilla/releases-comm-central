@@ -1,0 +1,41 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "Permission",
+        "choices": [
+          {
+            "type": "string",
+            "pattern": "^experiments(\\.\\w+)+$",
+            "annotations": [
+              {
+                "version_added": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "experiment_apis": {
+            "annotations": [
+              {
+                "version_added": true
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "namespace": "experiments",
+    "annotations": [
+      {
+        "version_added": true
+      }
+    ]
+  }
+]
