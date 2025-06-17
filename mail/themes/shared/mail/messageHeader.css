@@ -529,14 +529,19 @@ button.email-action-button {
 
 .crypto-label {
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .crypto-button {
-  display: inline-block;
   margin-block: 0;
   margin-inline-end: 3px;
   fill: currentColor;
   background-color: transparent;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  flex-direction: row;
+  gap: 3px;
 
   &[hidden] {
     display: none;
