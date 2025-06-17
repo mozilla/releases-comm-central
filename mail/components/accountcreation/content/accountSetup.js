@@ -339,6 +339,7 @@ var gAccountSetup = {
         document.getElementById("manualConfigArea").hidden = true;
         document.getElementById("manualConfigButton").hidden = true;
         document.getElementById("stopButton").hidden = true;
+        document.getElementById("usernameRow").hidden = true;
 
         reTestButton.hidden = true;
         autoconfigDesc.hidden = true;
@@ -351,6 +352,7 @@ var gAccountSetup = {
         document.getElementById("manualConfigArea").hidden = true;
         document.getElementById("manualConfigButton").hidden = true;
         document.getElementById("stopButton").hidden = false;
+        document.getElementById("usernameRow").hidden = true;
 
         reTestButton.hidden = true;
         autoconfigDesc.hidden = true;
@@ -681,6 +683,10 @@ var gAccountSetup = {
         // Autodiscover also produced nothing, we make a best effort to guess a
         // valid configuration.
         if (!autodiscoverCall.succeeded) {
+          if (autodiscoverCall.e instanceof ExchangeUsernameException) {
+            this._showExchangeUsername();
+            return;
+          }
           const initialConfig = new AccountConfig();
           this._prefillConfig(initialConfig);
           // `_guessConfig()` will call `foundConfig()` for us if it succeeds.
@@ -773,18 +779,7 @@ var gAccountSetup = {
             errorCallback(e);
           } else if (allErrors && allErrors.some(err => err.code == 401)) {
             // Auth failed.
-            // Ask user for username.
-            this.onStartOver();
-            this.stopLoadingState(); // clears status message
-            document.getElementById("usernameRow").hidden = false;
-
-            this.showErrorNotification(
-              !this._exchangeUsername
-                ? "account-setup-credentials-incomplete"
-                : "account-setup-credentials-wrong"
-            );
-            document.getElementById("manualConfigButton").hidden = false;
-            errorCallback(new CancelledException());
+            errorCallback(new ExchangeUsernameException());
           } else {
             errorCallback(e);
           }
@@ -830,6 +825,19 @@ var gAccountSetup = {
         throw new Error(`Unexpected source: ${config.source}`);
       }
     }
+  },
+
+  _showExchangeUsername() {
+    this.onStartOver();
+    this.stopLoadingState(); // clears status message
+    document.getElementById("usernameRow").hidden = false;
+
+    this.showErrorNotification(
+      !this._exchangeUsername
+        ? "account-setup-credentials-incomplete"
+        : "account-setup-credentials-wrong"
+    );
+    document.getElementById("manualConfigButton").hidden = false;
   },
 
   /**
@@ -2942,6 +2950,8 @@ function serverMatches(a, b) {
     a.auth == b.auth
   );
 }
+
+class ExchangeUsernameException extends Exception {}
 
 /**
  * Warning dialog, warning user about lack of, or inappropriate, encryption.
