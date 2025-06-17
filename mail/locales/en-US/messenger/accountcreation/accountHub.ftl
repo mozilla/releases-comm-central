@@ -286,3 +286,19 @@ account-hub-local-address-book-label = Address Book Name
 account-hub-local-error-text = Please enter an address book name
 
 account-hub-sync-address-books = Sync existing address books
+
+account-hub-new-remote-address-book = New remote Address Book
+
+account-hub-username-label = Username
+
+account-hub-username-warning-icon = Username is required
+
+account-hub-address-book-username-error-text = Please enter a username
+
+account-hub-server-label = URL/Hostname
+
+account-hub-server-tip = Thunderbird will try to automatically detect your hostname
+
+account-hub-server-warning-icon = Invalid URL
+
+account-hub-server-error-text = Please enter a valid URL

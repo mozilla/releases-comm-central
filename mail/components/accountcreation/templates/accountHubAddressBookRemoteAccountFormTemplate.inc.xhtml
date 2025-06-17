@@ -6,4 +6,84 @@
   id="accountHubAddressBookRemoteAccountFormTemplate"
   xmlns="http://www.w3.org/1999/xhtml"
 >
+  <form
+    id="accountHubRemoteAddressBookForm"
+    class="account-hub-address-book-form"
+    slot="content"
+  >
+    <div class="hub-body remote-ab-form-body">
+      <div class="input-control">
+        <input
+          id="username"
+          type="text"
+          class="input-field animated"
+          placeholder=""
+          required="required"
+          aria-invalid="false"
+          aria-errormessage="usernameErrorMessage"
+        />
+        <label
+          for="username"
+          class="animated"
+          data-l10n-id="account-hub-username-label"
+          data-l10n-attrs="accesskey"
+        ></label>
+        <img
+          src=""
+          data-l10n-id="account-hub-username-warning-icon"
+          alt=""
+          class="form-icon icon-danger input-warning"
+        />
+        <img
+          src=""
+          alt=""
+          class="form-icon icon-success input-success"
+        />
+        <span
+          id="usernameErrorMessage"
+          class="input-error-message"
+          data-l10n-id="account-hub-address-book-username-error-text"
+        ></span>
+      </div>
+      <small
+        id="canDetectHostname"
+        class="account-hub-form-small-comment"
+        data-l10n-id="account-hub-server-tip"
+      ></small>
+      <div class="input-control">
+        <input
+          id="davServer"
+          type="url"
+          class="input-field animated"
+          placeholder=""
+          required="required"
+          aria-invalid="false"
+          aria-errormessage="davServerErrorMessage"
+        />
+        <label
+          for="davServer"
+          class="animated"
+          data-l10n-id="account-hub-server-label"
+          data-l10n-attrs="accesskey"
+        ></label>
+        <img
+          src=""
+          data-l10n-id="account-hub-server-warning-icon"
+          alt=""
+          class="form-icon icon-danger input-warning"
+        />
+        <img
+          src=""
+          alt=""
+          class="form-icon icon-success input-success"
+        />
+        <span
+          id="davServerErrorMessage"
+          class="input-error-message"
+          data-l10n-id="account-hub-server-error-text"
+        ></span>
+      </div>
+    </div>
+    <button type="submit" hidden="hidden"></button>
+  </form>
 </html:template>

@@ -261,6 +261,7 @@
   --hub-success-link-container-margin-block-start: 9px;
   --hub-address-book-option-select-gap: 18px;
   --hub-address-book-option-padding: 15px 21px;
+  --hub-address-book-remote-form-gap: 3px;
 }
 
 :root[uidensity="compact"] {
@@ -294,6 +295,7 @@
   --hub-success-link-container-margin-block-start: 6px;
   --hub-address-book-option-select-gap: 12px;
   --hub-address-book-option-padding: 9px 15px;
+  --hub-address-book-remote-form-gap: 3px;
 }
 
 :root[uidensity="touch"] {
@@ -314,4 +316,5 @@
   --hub-success-link-container-margin-block-start: 12px;
   --hub-address-book-option-select-gap: 21px;
   --hub-address-book-option-padding: 18px 24px;
+  --hub-address-book-remote-form-gap: 6px;
 }

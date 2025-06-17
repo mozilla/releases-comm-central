@@ -854,6 +854,8 @@ button.account-hub-option-button {
   width: 100%;
   box-shadow: 0 12px 10px -10px rgba(0, 79, 155, 0.25),
     0 0 5px 0 rgba(23, 95, 182, 0.1);
+  overflow: hidden;
+  flex-shrink: 0;
 
   &.three-column {
     grid-template-columns: auto 1fr auto;

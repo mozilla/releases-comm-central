@@ -140,6 +140,7 @@ class AccountHubAddressBook extends HTMLElement {
     this.#footer.addEventListener("back", this);
     this.#footer.addEventListener("forward", this);
     this.addEventListener("submit", this);
+    this.addEventListener("config-updated", this);
     this.ready = this.#initUI("optionSelectSubview");
     await this.ready;
     await this.init();
@@ -238,6 +239,9 @@ class AccountHubAddressBook extends HTMLElement {
         }
       // Fall through to handle like forward event.
       case "forward":
+        break;
+      case "config-updated":
+        this.#footer.toggleForwardDisabled(!event.detail.completed);
         break;
       default:
         break;

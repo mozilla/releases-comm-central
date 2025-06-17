@@ -92,7 +92,7 @@ add_task(async function test_address_book_option_select_account_with_ab() {
     "The sync accounts option should be enabled"
   );
 
-  subtest_close_account_hub_dialog(dialog, optionSelectTemplate);
+  await subtest_close_account_hub_dialog(dialog, optionSelectTemplate);
 
   Services.logins.removeAllLogins();
   MailServices.accounts.removeAccount(abAccount);
@@ -119,7 +119,7 @@ add_task(async function test_address_book_option_select_no_accounts() {
     "The sync accounts option should be disabled"
   );
 
-  subtest_close_account_hub_dialog(dialog, optionSelectTemplate);
+  await subtest_close_account_hub_dialog(dialog, optionSelectTemplate);
 });
 
 add_task(async function test_address_book_option_selection() {
@@ -150,50 +150,41 @@ add_task(async function test_address_book_option_selection() {
   );
 
   // Click the sync accounts option to show the account option subview.
-  EventUtils.synthesizeMouseAtCenter(
-    optionSelectTemplate.querySelector("#syncExistingAccounts"),
-    {}
-  );
   await subtest_switchSubviews(
     optionSelectTemplate,
+    "#syncExistingAccounts",
     dialog.querySelector("address-book-account-select"),
     backButton
   );
 
   // Click the remote account option to show the remote account form subview.
-  EventUtils.synthesizeMouseAtCenter(
-    optionSelectTemplate.querySelector("#addRemoteAddressBook"),
-    {}
-  );
   await subtest_switchSubviews(
     optionSelectTemplate,
+    "#addRemoteAddressBook",
     dialog.querySelector("address-book-remote-account-form"),
     backButton
   );
 
   // Click the local account option to show the local account form subview.
-  EventUtils.synthesizeMouseAtCenter(
-    optionSelectTemplate.querySelector("#newLocalAddressBook"),
-    {}
-  );
   await subtest_switchSubviews(
     optionSelectTemplate,
+    "#newLocalAddressBook",
     dialog.querySelector("address-book-local-form"),
     backButton
   );
 
   // Click the LDAP account option to show the LDAP account form subview.
-  EventUtils.synthesizeMouseAtCenter(
-    optionSelectTemplate.querySelector("#newLdapAddressBook"),
-    {}
-  );
   await subtest_switchSubviews(
     optionSelectTemplate,
+    "#newLdapAddressBook",
     dialog.querySelector("address-book-ldap-account-form"),
     backButton
   );
 
-  subtest_close_account_hub_dialog(dialog, optionSelectTemplate);
+  optionSelectTemplate.querySelector("#syncExistingAccounts").scrollIntoView({
+    behavior: "instant",
+  });
+  await subtest_close_account_hub_dialog(dialog, optionSelectTemplate);
   Services.logins.removeAllLogins();
   MailServices.accounts.removeAccount(abAccount);
   IMAPServer.close();
@@ -313,10 +304,72 @@ add_task(async function test_address_book_sync_account() {
   );
   Assert.ok(addressBookInput.checked, "Address book option should be checked");
 
-  subtest_close_account_hub_dialog(dialog, syncAddressBooksTemplate);
+  await subtest_close_account_hub_dialog(dialog, syncAddressBooksTemplate);
   Services.logins.removeAllLogins();
   MailServices.accounts.removeAccount(abAccount);
   IMAPServer.close();
+});
+
+add_task(async function test_address_book_remote_account() {
+  const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+  const remoteAccountFormSubview = dialog.querySelector(
+    "#addressBookRemoteAccountFormSubview"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector("address-book-option-select #addRemoteAddressBook"),
+    {},
+    window
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    remoteAccountFormSubview
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(remoteAccountFormSubview),
+    "Remote account form subview should be visible"
+  );
+
+  EventUtils.sendString("testeroni");
+  EventUtils.synthesizeKey("KEY_Tab", {}, window);
+  EventUtils.sendString("https://example.com");
+
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "disabled",
+    dialog.querySelector("#addressBookFooter #forward")
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector("#addressBookFooter #back"),
+    {},
+    window
+  );
+  await BrowserTestUtils.waitForMutationCondition(
+    remoteAccountFormSubview,
+    {
+      attributes: true,
+      attributeFilter: ["hidden"],
+    },
+    () => BrowserTestUtils.isHidden(remoteAccountFormSubview)
+  );
+
+  await dialog.querySelector("account-hub-address-book").reset();
+
+  Assert.equal(
+    remoteAccountFormSubview.querySelector("#username").value,
+    "",
+    "Should clear username"
+  );
+  Assert.equal(
+    remoteAccountFormSubview.querySelector("#davServer").value,
+    "",
+    "Should clear server"
+  );
+
+  await subtest_close_account_hub_dialog(
+    dialog,
+    dialog.querySelector("#addressBookOptionSelectSubview")
+  );
 });
 
 /**
@@ -324,14 +377,24 @@ add_task(async function test_address_book_sync_account() {
  * template, and again when the back button is pressed.
  *
  * @param {HTMLElement} optionSelectTemplate - Option select subview.
+ * @param {string} buttonSelector - Selector forthe button to click to show the
+ *  subview.
  * @param {HTMLElement} newSubview - Selected subview.
  * @param {HTMLElement} backButton - Dialog footer button.
  */
 async function subtest_switchSubviews(
   optionSelectTemplate,
+  buttonSelector,
   newSubview,
   backButton
 ) {
+  const button = optionSelectTemplate.querySelector(buttonSelector);
+  button.scrollIntoView({
+    block: "nearest",
+    behavior: "instant",
+  });
+  await TestUtils.waitForTick();
+  EventUtils.synthesizeMouseAtCenter(button, {});
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isHidden(optionSelectTemplate),
     "The option-select subview should be hidden."

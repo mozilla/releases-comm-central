@@ -269,4 +269,45 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   );
 
   abView.removeTestAccount(testAccount);
+  abView.reset();
+});
+
+add_task(async function test_configUpdatedEvent() {
+  await TestUtils.waitForCondition(
+    () => abView.hasConnected,
+    "The address book subview should be connected"
+  );
+  const viewSubmit = BrowserTestUtils.waitForEvent(abView, "submit");
+  EventUtils.synthesizeMouseAtCenter(
+    abView.querySelector("#addRemoteAddressBook"),
+    {},
+    abView.ownerGlobal
+  );
+  await viewSubmit;
+
+  const forwardButton = abView.querySelector("#forward");
+
+  const incompleteEvent = new CustomEvent("config-updated", {
+    bubbles: true,
+    detail: { completed: false },
+  });
+  abView.dispatchEvent(incompleteEvent);
+
+  Assert.ok(
+    forwardButton.disabled,
+    "Forward should be disabled with incomplete config"
+  );
+
+  const completeEvent = new CustomEvent("config-updated", {
+    bubbles: true,
+    detail: { completed: true },
+  });
+  abView.dispatchEvent(completeEvent);
+
+  Assert.ok(
+    !forwardButton.disabled,
+    "Should enable forward button with complete config"
+  );
+
+  abView.reset();
 });
