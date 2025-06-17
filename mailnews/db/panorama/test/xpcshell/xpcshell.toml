@@ -25,6 +25,8 @@ support-files = [
 
 ["test_liveViewDataAdapter.js"]
 
+["test_liveViewSQL.js"]
+
 ["test_lookup.js"]
 
 ["test_messageIngestion.js"]

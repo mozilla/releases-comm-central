@@ -271,7 +271,7 @@ add_task(async function testFolderProperties() {
   // Check the database has a record of the properties.
   // TODO: Should we remove properties set to an empty string or 0?
 
-  const stmt = database.connection.createStatement(
+  const stmt = database.connectionForTests.createStatement(
     "SELECT id, name, value FROM folder_properties ORDER BY id, name"
   );
   const properties = [];
@@ -380,7 +380,7 @@ add_task(async function testHeaderProperties() {
   // Check the database has a record of the properties.
   // TODO: Should we remove properties set to an empty string or 0?
 
-  const stmt = database.connection.createStatement(
+  const stmt = database.connectionForTests.createStatement(
     "SELECT id, name, value FROM message_properties ORDER BY id, name"
   );
   const properties = [];

@@ -8,16 +8,31 @@
 #include "nsIVirtualFolderWrapper.h"
 
 #include "FolderDatabase.h"
+#include "mozilla/Components.h"
 #include "nsCOMPtr.h"
+#include "nsIDatabaseCore.h"
 #include "nsIFactory.h"
+#include "nsIFolderDatabase.h"
 #include "nsIMsgFolder.h"
 
 namespace mozilla::mailnews {
 
 class VirtualFolderWrapper : public nsIVirtualFolderWrapper {
  public:
+  VirtualFolderWrapper() {}
+  explicit VirtualFolderWrapper(nsIFolder* folder) {
+    nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
+    nsCOMPtr<nsIFolderDatabase> folders = database->GetFolders();
+    mFolderDatabase = static_cast<FolderDatabase*>(folders.get());
+
+    folders->GetMsgFolderForFolder(folder, getter_AddRefs(mMsgFolder));
+    mVirtualFolderId = folder->GetId();
+  }
+
   NS_DECL_ISUPPORTS
   NS_DECL_NSIVIRTUALFOLDERWRAPPER
+
+  nsTArray<uint64_t> GetSearchFolderIds();
 
  protected:
   virtual ~VirtualFolderWrapper() {};

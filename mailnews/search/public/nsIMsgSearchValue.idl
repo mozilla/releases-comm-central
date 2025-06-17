@@ -15,6 +15,7 @@ interface nsIMsgSearchValue : nsISupports {
     // accessing these will throw an exception if the above
     // attribute does not match the type!
     attribute AString str;
+    readonly attribute AUTF8String utf8Str;
     attribute nsMsgPriorityValue priority;
     attribute PRTime date;
      // see nsMsgMessageFlags.idl and nsMsgFolderFlags.idl

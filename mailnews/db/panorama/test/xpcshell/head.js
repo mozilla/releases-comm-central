@@ -114,7 +114,7 @@ function drawTree(root, level = 0) {
 }
 
 function checkRow(id, expected) {
-  const stmt = database.connection.createStatement(
+  const stmt = database.connectionForTests.createStatement(
     "SELECT id, parent, ordinal, name, flags FROM folders WHERE id = :id"
   );
   stmt.params.id = id;
@@ -129,7 +129,7 @@ function checkRow(id, expected) {
 }
 
 function checkNoRow(id) {
-  const stmt = database.connection.createStatement(
+  const stmt = database.connectionForTests.createStatement(
     "SELECT id, parent, ordinal, name, flags FROM folders WHERE id = :id"
   );
   stmt.params.id = id;
@@ -139,7 +139,7 @@ function checkNoRow(id) {
 }
 
 function checkOrdinals(expected) {
-  const stmt = database.connection.createStatement(
+  const stmt = database.connectionForTests.createStatement(
     "SELECT parent, ordinal FROM folders WHERE id=:id"
   );
   for (const [folder, parent, ordinal] of expected) {

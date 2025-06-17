@@ -62,6 +62,13 @@ nsMsgSearchValueImpl::SetStr(const nsAString& aValue) {
 }
 
 NS_IMETHODIMP
+nsMsgSearchValueImpl::GetUtf8Str(nsACString& aResult) {
+  NS_ENSURE_TRUE(IS_STRING_ATTRIBUTE(mValue.attribute), NS_ERROR_ILLEGAL_VALUE);
+  aResult = mValue.utf8String;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsMsgSearchValueImpl::ToString(nsAString& aResult) {
   aResult.AssignLiteral("[nsIMsgSearchValue: ");
   if (IS_STRING_ATTRIBUTE(mValue.attribute)) {

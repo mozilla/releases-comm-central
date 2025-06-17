@@ -6,6 +6,7 @@
 
 interface nsIFolder;
 interface nsILiveViewListener;
+interface nsIVariant;
 
 [scriptable, builtinclass, uuid(f13755f5-9a54-4503-9531-1f5bcb2f84c7)]
 interface nsILiveView : nsISupports {
@@ -66,6 +67,18 @@ interface nsILiveView : nsISupports {
    * Clean up this live view's listener, if it exists.
    */
   void clearListener();
+
+  /**
+   * Access to the database query clause for testing purposes only. If you are
+   * not a test, you'll get NS_ERROR_NOT_AVAILABLE instead.
+   */
+  readonly attribute AUTF8String sqlClauseForTests;
+
+  /**
+   * Access to the database query parameters for testing purposes only. If you
+   * are not a test, you'll get NS_ERROR_NOT_AVAILABLE instead.
+   */
+  readonly attribute Array<nsIVariant> sqlParamsForTests;
 };
 
 [scriptable, uuid(94bc7a80-60af-4ffc-b7a6-6a799b66f9b6)]

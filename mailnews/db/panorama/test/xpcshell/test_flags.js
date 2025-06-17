@@ -59,7 +59,7 @@ add_task(function testFlags() {
 });
 
 function checkFlags(expected) {
-  const stmt = database.connection.createStatement(
+  const stmt = database.connectionForTests.createStatement(
     "SELECT flags FROM folders WHERE id=:id"
   );
   stmt.params.id = 1;

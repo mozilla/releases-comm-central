@@ -53,7 +53,7 @@ add_task(function testDelete() {
     "deleteFolder should not allow the deletion of a root folder"
   );
 
-  const stmt = database.connection.createStatement(
+  const stmt = database.connectionForTests.createStatement(
     "SELECT id FROM folders ORDER BY id"
   );
   const remaining = [];

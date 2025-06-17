@@ -14,6 +14,7 @@
 #include "nsMsgFolderFlags.h"
 #include "nsServiceManagerUtils.h"
 #include "prtime.h"
+#include "xpcpublic.h"
 
 using JS::MutableHandle;
 using JS::NewArrayObject;
@@ -28,8 +29,6 @@ using mozilla::LazyLogModule;
 using mozilla::LogLevel;
 
 namespace mozilla::mailnews {
-
-uint64_t LiveViewFilter::nextUID = 1;
 
 LazyLogModule gLiveViewLog("panorama");
 
@@ -128,7 +127,8 @@ NS_IMETHODIMP LiveView::SetSortDescending(bool aSortDescending) {
 nsCString LiveView::GetSQLClause() {
   if (mClause.IsEmpty()) {
     if (mFolderFilter) {
-      mClause.Append(mFolderFilter->GetSQLClause());
+      mClause.Append(mFolderFilter->mSQLClause);
+      mParams.AppendElements(mFolderFilter->mSQLParams);
     }
     if (mClause.IsEmpty()) {
       mClause.Assign("1");
@@ -137,12 +137,31 @@ nsCString LiveView::GetSQLClause() {
   return mClause;
 }
 
+NS_IMETHODIMP LiveView::GetSqlClauseForTests(nsACString& sqlClauseForTests) {
+  if (!xpc::IsInAutomation()) {
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+
+  sqlClauseForTests = GetSQLClause();
+  return NS_OK;
+}
+
+NS_IMETHODIMP LiveView::GetSqlParamsForTests(
+    nsTArray<RefPtr<nsIVariant>>& sqlParamsForTests) {
+  if (!xpc::IsInAutomation()) {
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+
+  sqlParamsForTests = mParams.Clone();
+  return NS_OK;
+}
+
 /**
  * Fill the parameters in an SQL query from the current filters.
  */
-void LiveView::PrepareStatement(mozIStorageStatement* aStatement) {
-  if (mFolderFilter) {
-    mFolderFilter->PrepareStatement(aStatement);
+void LiveView::PrepareStatement(mozIStorageStatement* statement) {
+  for (size_t i = 0; i < mParams.Length(); i++) {
+    statement->BindByIndex(i, mParams[i]);
   }
 }
 
@@ -161,7 +180,9 @@ NS_IMETHODIMP LiveView::CountMessages(uint64_t* aCount) {
     nsAutoCString sql("SELECT COUNT(*) AS count FROM messages WHERE ");
     sql.Append(GetSQLClause());
     MOZ_LOG(gLiveViewLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
-    DatabaseCore::sConnection->CreateStatement(sql, getter_AddRefs(mCountStmt));
+    nsresult rv = DatabaseCore::sConnection->CreateStatement(
+        sql, getter_AddRefs(mCountStmt));
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   PrepareStatement(mCountStmt);
@@ -179,8 +200,9 @@ NS_IMETHODIMP LiveView::CountUnreadMessages(uint64_t* aCount) {
     sql.Append(" AND ~flags & ");
     sql.AppendInt(nsMsgMessageFlags::Read);
     MOZ_LOG(gLiveViewLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
-    DatabaseCore::sConnection->CreateStatement(
+    nsresult rv = DatabaseCore::sConnection->CreateStatement(
         sql, getter_AddRefs(mCountUnreadStmt));
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   PrepareStatement(mCountUnreadStmt);
@@ -288,8 +310,9 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
     sql.Append(mSortDescending ? " DESC" : " ASC");
     sql.Append(" LIMIT :limit OFFSET :offset");
     MOZ_LOG(gLiveViewLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
-    DatabaseCore::sConnection->CreateStatement(sql,
-                                               getter_AddRefs(mSelectStmt));
+    nsresult rv = DatabaseCore::sConnection->CreateStatement(
+        sql, getter_AddRefs(mSelectStmt));
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   PrepareStatement(mSelectStmt);

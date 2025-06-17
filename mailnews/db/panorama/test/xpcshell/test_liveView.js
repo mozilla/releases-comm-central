@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Tests live views are initialised correctly and find the right messages.
+ */
+
 const { VirtualFolderHelper } = ChromeUtils.importESModule(
   "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
@@ -129,50 +133,74 @@ add_task(function testInitWithVirtualFolder() {
   const folderC = folders.getFolderByPath("server1/folderC");
 
   MailServices.accounts.accounts;
-  VirtualFolderHelper.createNewVirtualFolder(
+  const wrapper = VirtualFolderHelper.createNewVirtualFolder(
     "virtual",
     MailServices.accounts.localFoldersServer.rootFolder,
     [
       folders.getMsgFolderForFolder(folderA),
       folders.getMsgFolderForFolder(folderC),
     ],
-    "ALL",
+    "AND (subject,contains,ing)",
     false
   );
 
   const virtualFolder = folders.getFolderByPath("server1/virtual");
 
-  const liveView = new LiveView();
+  let liveView = new LiveView();
   liveView.initWithFolder(virtualFolder);
   assertInitFails(liveView);
 
   Assert.equal(
     liveView.countMessages(),
-    10,
+    2,
     "countMessages should return the total number of messages"
   );
   Assert.equal(
     liveView.countUnreadMessages(),
-    5,
+    1,
     "countUnreadMessages should return the number of unread messages"
   );
   Assert.deepEqual(
     Array.from(liveView.selectMessages(), m => m.id),
-    [10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+    [6, 1],
     "selectMessages with no arguments should return all the messages"
-  );
-  Assert.deepEqual(
-    Array.from(liveView.selectMessages(3), m => m.id),
-    [10, 9, 8],
-    "selectMessages with a limit argument should only return some of the messages"
-  );
-  Assert.deepEqual(
-    Array.from(liveView.selectMessages(2, 1), m => m.id),
-    [9, 8],
-    "selectMessages with both arguments should only return some of the messages"
   );
 
   assertInitFails(liveView);
+
+  wrapper.searchString = "AND (date,is before,10-May-2023)";
+  // TODO: We shouldn't need this. Updating the wrapper should cause the live
+  // view to refresh itself.
+  liveView = new LiveView();
+  liveView.initWithFolder(virtualFolder);
+
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.id),
+    [5, 4, 3, 2, 1],
+    "selectMessages with no arguments should return all the messages"
+  );
+
+  wrapper.searchString =
+    "AND (date,is after,1-Jan-2020) AND (date,is before,10-May-2023)";
+  liveView = new LiveView();
+  liveView.initWithFolder(virtualFolder);
+
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.id),
+    [5],
+    "selectMessages with no arguments should return all the messages"
+  );
+
+  wrapper.searchString =
+    "AND (date,is before,01-Jan-2020) OR (date,is after,10-May-2023)";
+  liveView = new LiveView();
+  liveView.initWithFolder(virtualFolder);
+
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.id),
+    [10, 9, 8, 7, 6, 4, 3, 2, 1],
+    "selectMessages with no arguments should return all the messages"
+  );
 });
 
 add_task(function testInitWithTag() {
@@ -195,6 +223,9 @@ add_task(function testInitWithTag() {
     [8, 3, 2],
     "selectMessages with no arguments should return all the messages"
   );
+
+  Assert.equal(liveView.sqlClauseForTests, "TAGS_INCLUDE(tags, ?)");
+  Assert.deepEqual(liveView.sqlParamsForTests, "$label1");
 
   assertInitFails(liveView);
 });

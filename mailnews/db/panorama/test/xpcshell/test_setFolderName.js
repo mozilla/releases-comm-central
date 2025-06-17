@@ -25,7 +25,7 @@ add_task(async function () {
     ["server1"]
   );
 
-  let stmt = database.connection.createStatement(
+  let stmt = database.connectionForTests.createStatement(
     "SELECT id, name FROM folders ORDER BY id"
   );
   let dbFolders = [];
@@ -68,7 +68,7 @@ add_task(async function () {
     "folder should not still be available at a new URL"
   );
 
-  stmt = database.connection.createStatement(
+  stmt = database.connectionForTests.createStatement(
     "SELECT id, name FROM folders ORDER BY id"
   );
   dbFolders = [];
@@ -87,7 +87,7 @@ add_task(async function () {
     [6, "Unsent Messages"],
   ]);
 
-  stmt = database.connection.createStatement(
+  stmt = database.connectionForTests.createStatement(
     "SELECT id, name, value FROM folder_properties ORDER BY id, name"
   );
   const properties = [];

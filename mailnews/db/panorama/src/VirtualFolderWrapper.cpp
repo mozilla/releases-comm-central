@@ -54,6 +54,12 @@ NS_IMETHODIMP VirtualFolderWrapper::GetSearchFolderURIs(
   return NS_OK;
 }
 
+nsTArray<uint64_t> VirtualFolderWrapper::GetSearchFolderIds() {
+  nsTArray<uint64_t> searchFolderIds;
+  mFolderDatabase->GetVirtualFolderFolders(mVirtualFolderId, searchFolderIds);
+  return searchFolderIds;
+}
+
 NS_IMETHODIMP VirtualFolderWrapper::GetSearchFolders(
     nsTArray<RefPtr<nsIMsgFolder>>& searchFolders) {
   searchFolders.Clear();

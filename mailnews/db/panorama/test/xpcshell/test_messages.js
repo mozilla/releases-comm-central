@@ -58,7 +58,9 @@ add_task(function () {
 
   // Check that we saved everything in the database.
 
-  let stmt = database.connection.createStatement("SELECT * FROM messages");
+  let stmt = database.connectionForTests.createStatement(
+    "SELECT * FROM messages"
+  );
   stmt.executeStep();
   Assert.equal(stmt.row.id, 1); // This is the first message added.
   Assert.equal(stmt.row.folderId, folderId);
@@ -75,7 +77,7 @@ add_task(function () {
   Assert.equal(stmt.row.tags, "foo bar"); // "keywords"
   stmt.finalize();
 
-  stmt = database.connection.createStatement(
+  stmt = database.connectionForTests.createStatement(
     "SELECT * FROM message_properties"
   );
   stmt.executeStep();

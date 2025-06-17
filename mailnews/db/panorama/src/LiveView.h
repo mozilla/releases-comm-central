@@ -12,6 +12,7 @@
 #include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
 #include "nsILiveView.h"
+#include "nsIVariant.h"
 
 namespace mozilla::mailnews {
 
@@ -41,6 +42,7 @@ class LiveView : public nsILiveView, public MessageListener {
   bool Matches(Message& aMessage);
 
   nsAutoCString mClause;
+  nsTArray<RefPtr<nsIVariant>> mParams;
   LiveViewFilter* mFolderFilter = nullptr;
 
   nsILiveView::SortColumn mSortColumn;

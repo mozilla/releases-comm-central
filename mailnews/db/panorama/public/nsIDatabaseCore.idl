@@ -45,5 +45,5 @@ interface nsIDatabaseCore : nsISupports {
    * Access to the database for testing purposes only. If you are not a test,
    * you'll get NS_ERROR_NOT_AVAILABLE instead.
    */
-  readonly attribute mozIStorageConnection connection;
+  readonly attribute mozIStorageConnection connectionForTests;
 };

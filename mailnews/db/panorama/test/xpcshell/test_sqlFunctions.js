@@ -8,7 +8,7 @@ add_setup(async function () {
 });
 
 add_task(function testTagsInclude() {
-  const stmt = database.connection.createStatement(
+  const stmt = database.connectionForTests.createStatement(
     "SELECT TAGS_INCLUDE('foo bar baz', :tag) AS result"
   );
 
@@ -34,7 +34,7 @@ add_task(function testTagsInclude() {
 });
 
 add_task(function testTagsExclude() {
-  const stmt = database.connection.createStatement(
+  const stmt = database.connectionForTests.createStatement(
     "SELECT TAGS_EXCLUDE('foo bar baz', :tag) AS result"
   );
 
@@ -65,7 +65,7 @@ add_task(function testAddressFormat() {
   contact.primaryEmail = "contact@test.invalid";
   contact = MailServices.ab.directories[0].addCard(contact);
 
-  const stmt = database.connection.createStatement(
+  const stmt = database.connectionForTests.createStatement(
     "SELECT ADDRESS_FORMAT(:header) AS result"
   );
 

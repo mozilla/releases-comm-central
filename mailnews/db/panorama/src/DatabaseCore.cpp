@@ -838,7 +838,7 @@ DatabaseCore::MigrateFolderDatabase(nsIMsgFolder* srcFolder, JSContext* aCx,
 }
 
 NS_IMETHODIMP
-DatabaseCore::GetConnection(mozIStorageConnection** aConnection) {
+DatabaseCore::GetConnectionForTests(mozIStorageConnection** aConnection) {
   if (!xpc::IsInAutomation()) {
     return NS_ERROR_NOT_AVAILABLE;
   }

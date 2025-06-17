@@ -26,6 +26,7 @@ SOURCES += [
     "FolderComparator.cpp",
     "FolderDatabase.cpp",
     "LiveView.cpp",
+    "LiveViewFilters.cpp",
     "Message.cpp",
     "MessageDatabase.cpp",
     "PerFolderDatabase.cpp",

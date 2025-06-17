@@ -125,7 +125,7 @@ add_task(async function () {
     flags: Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Mail,
   });
 
-  let stmt = database.connection.createStatement(
+  let stmt = database.connectionForTests.createStatement(
     "SELECT id, name, value FROM folder_properties ORDER BY id, name"
   );
   let rows = [];
@@ -143,7 +143,7 @@ add_task(async function () {
 
   const fooId = folders.getFolderByPath("server1/foo").id;
   const barId = folders.getFolderByPath("server1/bar").id;
-  stmt = database.connection.createStatement(
+  stmt = database.connectionForTests.createStatement(
     "SELECT virtualFolderId, searchFolderId FROM virtualFolder_folders ORDER BY virtualFolderId, searchFolderId"
   );
   rows = [];

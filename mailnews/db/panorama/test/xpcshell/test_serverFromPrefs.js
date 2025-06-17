@@ -79,7 +79,7 @@ add_task(async function () {
     ["Trash", "Unsent Messages"]
   );
 
-  const stmt = database.connection.createStatement(
+  const stmt = database.connectionForTests.createStatement(
     "SELECT name, flags FROM folders ORDER BY name"
   );
   const dbFolders = {};
