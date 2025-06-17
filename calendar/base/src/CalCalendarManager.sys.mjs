@@ -344,7 +344,7 @@ CalCalendarManager.prototype = {
     // If the calendar is already registered, bail out
     cal.ASSERT(
       !calendar.id || !(calendar.id in this.mCache),
-      "[CalCalendarManager::registerCalendar] calendar already registered!",
+      `[CalCalendarManager::registerCalendar] calendar ${calendar.name} - ${calendar.id} - already registered!`,
       true
     );
 

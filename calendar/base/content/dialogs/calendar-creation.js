@@ -807,8 +807,13 @@ function prepareNetworkCalendar(calendar) {
  * close.
  */
 function createNetworkCalendars() {
+  const registeredCalendars = cal.manager.getCalendars();
   for (const listItem of document.getElementById("network-calendar-list").children) {
     if (listItem.querySelector(".calendar-selected").checked) {
+      if (registeredCalendars.some(c => c.id == listItem.calendar.id)) {
+        // Already registered.
+        continue;
+      }
       cal.manager.registerCalendar(listItem.calendar);
     }
   }

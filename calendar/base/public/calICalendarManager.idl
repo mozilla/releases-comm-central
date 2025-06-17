@@ -34,10 +34,10 @@ interface calICalendarManager : nsISupports
    * implement calICalendar, and can optionally implement a number of other related interfaces.
    * Please see the documentation for calICalendar for more details.
    *
-   * @param {string} aType              The calendar type string, see calICalendar::type.
-   * @param {Object} aImplementation    The class that implements calICalendar.
+   * @param {string} type - The calendar type string, see calICalendar::type.
+   * @param {function} implementation - The class that implements calICalendar.
    */
-  void registerCalendarProvider(in AUTF8String aType, in jsval aImplementation);
+  void registerCalendarProvider(in AUTF8String type, in jsval implementation);
 
   /**
    * Unregister a calendar provider by type. Already registered calendars will be replaced by a
