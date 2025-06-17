@@ -42,8 +42,6 @@ class nsImapNamespaceList {
 
   static nsImapNamespaceList* CreatensImapNamespaceList();
 
-  nsresult InitFromString(const char* nameSpaceString,
-                          EIMAPNamespaceType nstype);
   nsresult OutputToString(nsCString& OutputString);
   int UnserializeNamespaces(const char* str, char** prefixes, int len);
   nsresult SerializeNamespaces(char** prefixes, int len,

@@ -63,30 +63,6 @@ int nsImapNamespaceList::GetNumberOfNamespaces() {
   return m_NamespaceList.Length();
 }
 
-nsresult nsImapNamespaceList::InitFromString(const char* nameSpaceString,
-                                             EIMAPNamespaceType nstype) {
-  nsresult rv = NS_OK;
-  if (nameSpaceString) {
-    int numNamespaces = UnserializeNamespaces(nameSpaceString, nullptr, 0);
-    char** prefixes = (char**)PR_CALLOC(numNamespaces * sizeof(char*));
-    if (prefixes) {
-      int len = UnserializeNamespaces(nameSpaceString, prefixes, numNamespaces);
-      for (int i = 0; i < len; i++) {
-        char* thisns = prefixes[i];
-        char delimiter = '/';  // a guess
-        if (PL_strlen(thisns) >= 1) delimiter = thisns[PL_strlen(thisns) - 1];
-        nsImapNamespace* ns =
-            new nsImapNamespace(nstype, thisns, delimiter, true);
-        if (ns) AddNewNamespace(ns);
-        PR_FREEIF(thisns);
-      }
-      PR_Free(prefixes);
-    }
-  }
-
-  return rv;
-}
-
 nsresult nsImapNamespaceList::OutputToString(nsCString& string) {
   nsresult rv = NS_OK;
   return rv;
