@@ -543,7 +543,6 @@ var messageProgressListener = {
     if (previousBodyElement) {
       previousBodyElement.innerHTML = "";
     }
-    ClearAttachmentList();
     gMessageNotificationBar.clearMsgNotifications();
 
     request.listener = this;
@@ -669,10 +668,8 @@ var messageProgressListener = {
     }
 
     document.title = "";
-    ClearCurrentHeaders();
     gBuiltExpandedView = false;
     gBuildAttachmentsForCurrentMsg = false;
-    ClearAttachmentList();
     gMessageNotificationBar.clearMsgNotifications();
 
     // Reset the blocked hosts so we can populate it again for this message.
@@ -1446,11 +1443,20 @@ function UpdateExpandedMessageHeaders() {
   updateExpandedView();
 }
 
+/**
+ * Clear global header data in anticipation of a new message to be displayed.
+ */
 function ClearCurrentHeaders() {
   currentHeaderData = {};
 
   currentAttachments = [];
   currentCharacterSet = "";
+
+  // Get rid of earlier event handlers on #attachmentName.
+  const attachmentName = document.getElementById("attachmentName");
+  attachmentName.replaceWith(attachmentName.cloneNode(true));
+
+  document.getElementById("attachmentList").replaceChildren();
 }
 
 function ShowMessageHeaderPane() {
@@ -2444,16 +2450,6 @@ async function saveLinkAttachmentsToFile(aAttachmentInfoArray) {
       undefined, // aCacheKey,
       undefined // aIsContentWindowPrivate
     );
-  }
-}
-
-function ClearAttachmentList() {
-  // clear selection
-  var list = document.getElementById("attachmentList");
-  list.clearSelection();
-
-  while (list.hasChildNodes()) {
-    list.lastChild.remove();
   }
 }
 
