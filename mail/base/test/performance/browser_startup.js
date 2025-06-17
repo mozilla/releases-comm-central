@@ -56,10 +56,6 @@ const startupPhases = {
         "resource:///modules/MailNotificationService.sys.mjs",
         "resource:///modules/MsgIncomingServer.sys.mjs",
       ]),
-      services: new Set([
-        "@mozilla.org/mail/notification-manager;1",
-        "@mozilla.org/newMailNotificationService;1",
-      ]),
     },
   },
 

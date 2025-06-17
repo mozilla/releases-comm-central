@@ -5,8 +5,6 @@
 
 XPIDL_SOURCES += [
     "MailNewsTypes2.idl",
-    "mozINewMailListener.idl",
-    "mozINewMailNotificationService.idl",
     "msgIOAuth2Module.idl",
     "nsICopyMessageListener.idl",
     "nsIFolderListener.idl",

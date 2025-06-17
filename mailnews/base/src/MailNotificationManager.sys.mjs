@@ -10,6 +10,8 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   LanguageDetector:
     "resource://gre/modules/translations/LanguageDetector.sys.mjs",
+  MailNotificationService:
+    "resource:///modules/MailNotificationService.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
   WinUnreadBadge: "resource:///modules/WinUnreadBadge.sys.mjs",
@@ -104,11 +106,13 @@ XPCOMUtils.defineLazyPreferenceGetter(
 );
 
 /**
- * A module that listens to folder change events, and show notifications for new
- * mails if necessary.
+ * A module that listens to folder change events, and shows a notification
+ * and/or plays a sound if necessary.
  */
-export class MailNotificationManager {
-  static get availableActions() {
+export const MailNotificationManager = new (class {
+  QueryInterface = ChromeUtils.generateQI(["nsIObserver", "nsIFolderListener"]);
+
+  get availableActions() {
     for (const action of availableActions) {
       if (!action.title) {
         action.title = lazy.l10n.formatValueSync(action.l10nId);
@@ -116,17 +120,11 @@ export class MailNotificationManager {
     }
     return availableActions;
   }
-  static get enabledActions() {
+  get enabledActions() {
     return lazy.enabledActions;
   }
 
-  QueryInterface = ChromeUtils.generateQI([
-    "nsIObserver",
-    "nsIFolderListener",
-    "mozINewMailListener",
-  ]);
-
-  constructor() {
+  init() {
     this._unreadChatCount = 0;
     this._unreadMailCount = 0;
     // @type {Map<string, number>} - A map of folder URIs and the date of the
@@ -154,9 +152,7 @@ export class MailNotificationManager {
 
     if (["macosx", "win"].includes(AppConstants.platform)) {
       // We don't have indicator for unread count on Linux yet.
-      Cc["@mozilla.org/newMailNotificationService;1"]
-        .getService(Ci.mozINewMailNotificationService)
-        .addListener(this, Ci.mozINewMailNotificationService.count);
+      lazy.MailNotificationService.addListener(this);
 
       Services.obs.addObserver(this, "unread-im-count-changed");
       Services.obs.addObserver(this, "profile-before-change");
@@ -243,7 +239,7 @@ export class MailNotificationManager {
   onFolderEvent() {}
 
   /**
-   * @see mozINewMailNotificationService
+   * @see MailNotificationService
    */
   onCountChanged(count) {
     this._logger.log(`Unread mail count changed to ${count}`);
@@ -307,7 +303,7 @@ export class MailNotificationManager {
    * @param {nsIPrefBranch} prefBranch - The relevant preferences for the
    *   sound to be played (i.e. `mail.*.play_sound`).
    */
-  static playSound(prefBranch) {
+  playSound(prefBranch) {
     // Play the system sound.
     if (prefBranch.getIntPref(".type") == 0) {
       Cc["@mozilla.org/sound;1"]
@@ -680,4 +676,4 @@ export class MailNotificationManager {
       Services.wm.getMostRecentWindow("mail:3pane")?.getAttention();
     }
   }
-}
+})();

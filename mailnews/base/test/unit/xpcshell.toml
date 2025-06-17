@@ -106,8 +106,6 @@ tags = ["virtualfolders"]
 ["test_msgHdrProperties.js"]
 
 ["test_newMailNotification.js"]
-# Not yet working for non-Mac OS
-skip-if = ["os != 'mac'"]
 
 ["test_nsIFolderListener.js"]
 

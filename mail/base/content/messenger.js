@@ -39,6 +39,8 @@ ChromeUtils.defineESModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.sys.mjs",
   Color: "resource://gre/modules/Color.sys.mjs",
   MailConsts: "resource:///modules/MailConsts.sys.mjs",
+  MailNotificationManager:
+    "resource:///modules/MailNotificationManager.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.sys.mjs",
   SessionStoreManager: "resource:///modules/SessionStoreManager.sys.mjs",
@@ -436,11 +438,7 @@ async function loadPostAccountWizard() {
 
   // Init the mozINewMailListener service (MailNotificationManager) before
   // any new mails are fetched.
-  // MailNotificationManager triggers mozINewMailNotificationService
-  // init as well.
-  Cc["@mozilla.org/mail/notification-manager;1"].getService(
-    Ci.mozINewMailListener
-  );
+  MailNotificationManager.init();
 
   // Restore the previous folder selection before shutdown, or select the first
   // inbox folder of a newly created account.

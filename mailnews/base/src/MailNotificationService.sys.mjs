@@ -11,22 +11,20 @@
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 /**
- * NewMailNotificationService.
+ * Keeps track of the number of unread or new messages for display on the
+ * taskbar/dock icon badge.
  *
- * @implements {mozINewMailNotificationService}
+ * @deprecated This code will be folded into MailNotificationManager eventually.
+ *
  * @implements {nsIFolderListener}
  * @implements {nsIObserver}
  */
-export class NewMailNotificationService {
-  QueryInterface = ChromeUtils.generateQI([
-    "nsIObserver",
-    "nsIFolderListener",
-    "mozINewMailNotificationService",
-  ]);
+export const MailNotificationService = new (class {
+  QueryInterface = ChromeUtils.generateQI(["nsIObserver", "nsIFolderListener"]);
 
   #unreadCount = 0;
   #newCount = 0;
-  #listeners = [];
+  #listeners = new Set();
   #log = null;
 
   constructor() {
@@ -107,27 +105,27 @@ export class NewMailNotificationService {
    * Filter out special folders and then ask for observers to see if
    * we should monitor unread messages in this folder.
    *
-   * @param {nsIMsgFolder} aFolder - The folder we're asking about.
+   * @param {nsIMsgFolder} folder - The folder we're asking about.
    */
-  confirmShouldCount(aFolder) {
+  confirmShouldCount(folder) {
     const shouldCount = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
       Ci.nsISupportsPRBool
     );
     shouldCount.data = true;
 
     // If it's not a mail folder we don't count it by default
-    if (!(aFolder.flags & Ci.nsMsgFolderFlags.Mail)) {
+    if (!(folder.flags & Ci.nsMsgFolderFlags.Mail)) {
       shouldCount.data = false;
-    } else if (aFolder.server?.type == "rss") {
+    } else if (folder.server?.type == "rss") {
       // For whatever reason, RSS folders have the 'Mail' flag.
       shouldCount.data = false;
     } else if (
-      aFolder.flags & Ci.nsMsgFolderFlags.SpecialUse &&
-      !(aFolder.flags & Ci.nsMsgFolderFlags.Inbox)
+      folder.flags & Ci.nsMsgFolderFlags.SpecialUse &&
+      !(folder.flags & Ci.nsMsgFolderFlags.Inbox)
     ) {
       // It's a special folder *other than the inbox*, don't count it by default.
       shouldCount.data = false;
-    } else if (aFolder.flags & Ci.nsMsgFolderFlags.Virtual) {
+    } else if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
       shouldCount.data = false;
     } else {
       // If we're only counting inboxes and it's not an inbox...
@@ -135,16 +133,16 @@ export class NewMailNotificationService {
         "mail.notification.count.inbox_only",
         true
       );
-      if (onlyCountInboxes && !(aFolder.flags & Ci.nsMsgFolderFlags.Inbox)) {
+      if (onlyCountInboxes && !(folder.flags & Ci.nsMsgFolderFlags.Inbox)) {
         shouldCount.data = false;
       }
     }
 
-    this.#log.debug(`${aFolder.URI}: shouldCount=${shouldCount.data}`);
+    this.#log.debug(`${folder.URI}: shouldCount=${shouldCount.data}`);
     Services.obs.notifyObservers(
       shouldCount,
       "before-count-unread-for-folder",
-      aFolder.URI
+      folder.URI
     );
     return shouldCount.data;
   }
@@ -199,11 +197,7 @@ export class NewMailNotificationService {
         this.#newCount += newCount;
         this.#log.debug(`${folder.URI}: new mail count ${this.#newCount}`);
         if (this.useNewCountInBadge) {
-          this._notifyListeners(
-            Ci.mozINewMailNotificationService.count,
-            "onCountChanged",
-            this.#newCount
-          );
+          this._notifyListeners(this.#newCount);
         }
       }
     } else if (newValue == Ci.nsIMsgFolder.nsMsgBiffState_NoMail) {
@@ -211,11 +205,7 @@ export class NewMailNotificationService {
       this.#newCount = 0;
       this.#log.debug(`${folder.URI}: no new mail`);
       if (this.useNewCountInBadge) {
-        this._notifyListeners(
-          Ci.mozINewMailNotificationService.count,
-          "onCountChanged",
-          this.#newCount
-        );
+        this._notifyListeners(this.#newCount);
       }
     }
   }
@@ -231,11 +221,7 @@ export class NewMailNotificationService {
     this.#newCount += newValue - oldValue;
     this.#log.debug(`#newMailReceived ${folder.URI} - ${this.#newCount} new`);
     if (this.useNewCountInBadge) {
-      this._notifyListeners(
-        Ci.mozINewMailNotificationService.count,
-        "onCountChanged",
-        this.#newCount
-      );
+      this._notifyListeners(this.#newCount);
     }
   }
 
@@ -254,11 +240,7 @@ export class NewMailNotificationService {
 
     this.#unreadCount += newValue - oldValue;
     if (!this.useNewCountInBadge) {
-      this._notifyListeners(
-        Ci.mozINewMailNotificationService.count,
-        "onCountChanged",
-        this.#unreadCount
-      );
+      this._notifyListeners(this.#unreadCount);
     }
   }
 
@@ -305,8 +287,6 @@ export class NewMailNotificationService {
     }
   }
 
-  // Implement mozINewMailNotificationService
-
   get messageCount() {
     if (this.useNewCountInBadge) {
       return this.#newCount;
@@ -314,52 +294,53 @@ export class NewMailNotificationService {
     return this.#unreadCount;
   }
 
-  addListener(aListener, flags) {
-    for (let i = 0; i < this.#listeners.length; i++) {
-      const l = this.#listeners[i];
-      if (l.obj === aListener) {
-        l.flags = flags;
-        return;
-      }
+  /**
+   * @typedef {object} NewMailListener
+   * @property {Function} onCountChanged - Called when the number of
+   *   interesting messages has changed. The number of messages is passed
+   *   as an argument.
+   */
+
+  /**
+   * Register a listener to receive callbacks when the count or list of
+   * notification-worthy messages changes.
+   *
+   * @param {NewMailListener} listener
+   */
+  addListener(listener) {
+    if (this.#listeners.has(listener)) {
+      return;
     }
 
     // Ensure that first-time listeners get an accurate mail count.
-    if (flags & Ci.mozINewMailNotificationService.count) {
-      const count = this.useNewCountInBadge
-        ? this.#newCount
-        : this.#unreadCount;
-      aListener.onCountChanged(count);
-    }
+    const count = this.useNewCountInBadge ? this.#newCount : this.#unreadCount;
+    listener.onCountChanged(count);
 
     // If we get here, the listener wasn't already in the list
-    this.#listeners.push({ obj: aListener, flags });
+    this.#listeners.add(listener);
   }
 
-  removeListener(aListener) {
-    for (let i = 0; i < this.#listeners.length; i++) {
-      const l = this.#listeners[i];
-      if (l.obj === aListener) {
-        this.#listeners.splice(i, 1);
-        return;
-      }
-    }
+  /**
+   * Remove a listener from the service.
+   *
+   * @param {NewMailListener} listener - The listener to remove.
+   */
+  removeListener(listener) {
+    this.#listeners.delete(listener);
   }
 
-  listenersForFlag(flag) {
-    const list = [];
-    for (let i = 0; i < this.#listeners.length; i++) {
-      const l = this.#listeners[i];
-      if (l.flags & flag) {
-        list.push(l.obj);
-      }
-    }
-    return list;
+  /**
+   * Get existing listeners.
+   *
+   * @returns {NewMailListener[]}
+   */
+  get listeners() {
+    return Array.from(this.#listeners);
   }
 
-  _notifyListeners(flag, func, value) {
-    const list = this.listenersForFlag(flag);
-    for (let i = 0; i < list.length; i++) {
-      list[i][func](value);
+  _notifyListeners(value) {
+    for (const listener of this.listeners) {
+      listener.onCountChanged(value);
     }
   }
-}
+})();

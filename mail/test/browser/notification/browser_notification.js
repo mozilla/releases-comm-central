@@ -24,6 +24,9 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 var { MailConsts } = ChromeUtils.importESModule(
   "resource:///modules/MailConsts.sys.mjs"
 );
+var { MailNotificationManager } = ChromeUtils.importESModule(
+  "resource:///modules/MailNotificationManager.sys.mjs"
+);
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -98,12 +101,9 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(account, false);
 
     // Reset notification manager state.
-    const notificationManager = Cc[
-      "@mozilla.org/mail/notification-manager;1"
-    ].getService(Ci.mozINewMailListener);
-    notificationManager.wrappedJSObject._folderNewestNotifiedTime.clear();
+    MailNotificationManager._folderNewestNotifiedTime.clear();
     Assert.equal(
-      notificationManager.wrappedJSObject._pendingFolders.size,
+      MailNotificationManager._pendingFolders.size,
       0,
       "No pending alerts"
     );
