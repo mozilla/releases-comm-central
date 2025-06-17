@@ -4,6 +4,9 @@
 
 use thiserror::Error;
 
+#[cfg(test)]
+mod test_utils;
+
 mod types;
 
 pub use types::*;

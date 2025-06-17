@@ -10,7 +10,7 @@
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 
-#define ID_PROPERTY "ewsId"
+constexpr auto kEwsIdProperty = "ewsId";
 
 ///////////////////////////////////////////////////////////////////////////////
 // Definition of `FolderCreateCopyCallbacks`, which implements
@@ -54,7 +54,7 @@ NS_IMETHODIMP FolderCreateCopyCallbacks::OnSuccess(const nsACString& id) {
   MOZ_TRY(msgStore->CreateFolder(mParentFolder, mFolderName,
                                  getter_AddRefs(newFolder)));
 
-  MOZ_TRY(newFolder->SetStringProperty(ID_PROPERTY, id));
+  MOZ_TRY(newFolder->SetStringProperty(kEwsIdProperty, id));
 
   // Notify any consumers listening for updates on the parent folder that we've
   // added the new folder.
@@ -154,7 +154,7 @@ nsresult FolderCopyHandler::CopyNextFolder() {
   // We expect all destination folders to be valid EWS folders, and so to have
   // an EWS ID set.
   nsCString parentId;
-  MOZ_TRY(parent.value()->GetStringProperty(ID_PROPERTY, parentId));
+  MOZ_TRY(parent.value()->GetStringProperty(kEwsIdProperty, parentId));
 
   // Start creating the new folder, both on the server and then locally.
   RefPtr<FolderCreateCopyCallbacks> listener =

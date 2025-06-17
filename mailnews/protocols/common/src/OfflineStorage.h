@@ -134,4 +134,90 @@ nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
                                      const nsACString& name,
                                      nsIMsgWindow* msgWindow);
 
+/**
+ * A protocol-agnostic helper for locally deleting messages within a folder.
+ *
+ * This function will delete the messages identified by their headers in the
+ * `messageHeaders` parameter. The messages are assumed to be located in the
+ * given `folder`. If the message includes content that has been downloaded
+ * locally, that content will be deleted as well.
+ *
+ * @returns an `nsresult` to indicate whether or not the operation succeeded.
+ */
+nsresult LocalDeleteMessages(
+    nsIMsgFolder* folder, const nsTArray<RefPtr<nsIMsgDBHdr>>& messageHeaders);
+
+/**
+ * A protocol-agnostic helper for locally copying messages between folders.
+ *
+ * This function copies the messages identified by `sourceHeaders` from the
+ * given `sourceFolder` into the given `destinationFolder`. The newly created
+ * headers are returned in `newHeaders`. The ordering of the returned headers
+ * is guaranteed to be stable with respect to the ordering of the source
+ * headers. In addition, if a message in the collection of messages to be
+ * copied includes content that has been downloaded locally, that content will
+ * be copied into the destination as well.
+ *
+ * @returns an `nsresult to indicate whether or not the operation succeeded.
+ */
+nsresult LocalCopyMessages(nsIMsgFolder* sourceFolder,
+                           nsIMsgFolder* destinationFolder,
+                           const nsTArray<RefPtr<nsIMsgDBHdr>>& sourceHeaders,
+                           nsTArray<RefPtr<nsIMsgDBHdr>>& newHeaders);
+
+/**
+ * A protocol-agnostic helper for creating a header in the local database.
+ *
+ * This function creates a new message header in the given `destinationFolder`.
+ * The resulting header is returned in `newHeader`.
+ *
+ * @returns an `nsresult to indicate whether or not the operation succeeded.
+ */
+nsresult LocalCreateHeader(nsIMsgFolder* destinationFolder,
+                           nsIMsgDBHdr** newHeader);
+
+/**
+ * A protocol-agnostic helper for copying offline message content.
+ *
+ * This function copies the downloaded content for a message accessed by the
+ * given `inputStream` to the given `destinationFolder`. Once complete, it sets
+ * the required properties and flags on `messageHeader` to indicate the
+ * existence and size of the downloaded content.
+ *
+ * @returns an `nsresult to indicate whether or not the operation succeeded.
+ */
+nsresult LocalCopyOfflineMessageContent(nsIMsgFolder* destinationFolder,
+                                        nsIInputStream* msgInputStream,
+                                        nsIMsgDBHdr* messageHeader);
+
+/**
+ * A protocol-agnostic helper for making a complete copy of a message locally.
+ *
+ * This function takes the message content within the given `msgInputStream`
+ * and copies it to the given `destinationFolder`. In addition, this function
+ * creates a header for the newly copied message in the message database
+ * for the given folder.
+ *
+ * @returns an `nsresult to indicate whether or not the operation succeeded.
+ */
+nsresult LocalCopyMessage(nsIMsgFolder* destinationFolder,
+                          nsIInputStream* msgInputStream,
+                          nsIMsgDBHdr** newHeader);
+
+/**
+ * A protocol-agnostic helper for copying headers from one message to another.
+ *
+ * This function copies the header data stored in `sourceHeader` to
+ * `destinationHeader`.  The `excludeProperties` parameter is a list of property
+ * names to exclude from the copy operation. The `isMove` parameter is used to
+ * check preferences for which properties should be maintained on a move versus
+ * a copy operation to determine additional properties to exclude.
+ *
+ * @returns an `nsresult to indicate whether or not the operation succeeded.
+ */
+nsresult LocalCopyHeaders(nsIMsgDBHdr* sourceHeader,
+                          nsIMsgDBHdr* destinationHeader,
+                          const nsTArray<nsCString>& excludeProperties,
+                          bool isMove);
+
 #endif  // COMM_MAILNEWS_PROTOCOLS_COMMON_SRC_OFFLINESTORAGE_H_

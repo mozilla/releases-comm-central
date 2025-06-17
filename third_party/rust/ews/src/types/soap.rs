@@ -479,7 +479,7 @@ mod tests {
 
         // This XML is contrived, with a custom structure defined in order to
         // test the generic behavior of the interface.
-        let xml = r#"<?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><foo:Foo><text>testing content</text><other_field/></foo:Foo></s:Body></s:Envelope>"#;
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header></s:Header><s:Body><foo:Foo><text>testing content</text><other_field/></foo:Foo></s:Body></s:Envelope>"#;
 
         let actual: Envelope<SomeStruct> =
             Envelope::from_xml_document(xml.as_bytes()).expect("deserialization should succeed");

@@ -120,11 +120,10 @@ pub struct UpdateFolderResponseMessage {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test_utils::assert_deserialized_content;
+    use crate::test_utils::assert_serialized_content;
     use crate::BaseFolderId;
-    use crate::Error;
     use crate::FolderId;
-    use quick_xml::de::Deserializer;
-    use quick_xml::Writer;
 
     #[test]
     fn serialize_update_request() {
@@ -154,24 +153,9 @@ mod tests {
             },
         };
 
-        // Serialize into XML.
-        let mut writer = {
-            let inner: Vec<u8> = Default::default();
-            Writer::new(inner)
-        };
-        update_folder
-            .serialize_as_element(&mut writer, "UpdateFolder")
-            .unwrap();
-
-        // Read the contents of the `Writer`'s buffer.
-        let buf = writer.into_inner();
-        let actual = std::str::from_utf8(buf.as_slice())
-            .map_err(|e| Error::UnexpectedResponse(e.to_string().into_bytes()))
-            .unwrap();
-
         let expected = r#"<UpdateFolder xmlns="http://schemas.microsoft.com/exchange/services/2006/messages"><FolderChanges><t:FolderChange><t:FolderId Id="AScA" ChangeKey="GO3u/"/><t:Updates><t:SetFolderField><t:FieldURI FieldURI="folder:DisplayName"/><t:Folder><t:DisplayName>NewFolderName</t:DisplayName></t:Folder></t:SetFolderField></t:Updates></t:FolderChange></FolderChanges></UpdateFolder>"#;
 
-        assert_eq!(actual, expected);
+        assert_serialized_content(&update_folder, "UpdateFolder", expected);
     }
 
     #[test]
@@ -190,10 +174,6 @@ mod tests {
                     </m:UpdateFolderResponseMessage>
                 </m:ResponseMessages>
             </UpdateFolderResponse>"#;
-
-        let mut deserializer = Deserializer::from_reader(content.as_bytes());
-        let response: UpdateFolderResponse =
-            serde_path_to_error::deserialize(&mut deserializer).unwrap();
 
         let expected = UpdateFolderResponse {
             response_messages: ResponseMessages {
@@ -220,6 +200,6 @@ mod tests {
             },
         };
 
-        assert_eq!(response, expected);
+        assert_deserialized_content(content, expected);
     }
 }

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 mod create_folder;
+mod move_item;
 mod server_version;
 
 use std::{
@@ -14,7 +15,7 @@ use std::{
 
 use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{
-    create_item::{CreateItem, CreateItemResponseMessage},
+    create_item::CreateItem,
     delete_folder::DeleteFolder,
     delete_item::DeleteItem,
     get_folder::{GetFolder, GetFolderResponseMessage},
@@ -28,8 +29,9 @@ use ews::{
         ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem, Updates,
     },
     ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, DeleteType, ExtendedFieldURI,
-    ExtendedProperty, Folder, FolderId, FolderShape, ItemShape, Message, MessageDisposition,
-    MimeContent, Operation, PathToElement, RealItem, Recipient, ResponseClass, ResponseCode,
+    ExtendedProperty, Folder, FolderId, FolderShape, ItemResponseMessage, ItemShape, Message,
+    MessageDisposition, MimeContent, Operation, PathToElement, RealItem, Recipient, ResponseClass,
+    ResponseCode,
 };
 use fxhash::FxHashMap;
 use itertools::Itertools;
@@ -1193,7 +1195,7 @@ impl XpComEwsClient {
     async fn make_create_item_request(
         &self,
         create_item: CreateItem,
-    ) -> Result<CreateItemResponseMessage, XpComEwsError> {
+    ) -> Result<ItemResponseMessage, XpComEwsError> {
         let response = self.make_operation_request(create_item).await?;
 
         // We have only sent one message, therefore the response should only
@@ -1897,10 +1899,10 @@ fn validate_get_folder_response_message(
     }
 }
 
-/// Uses the provided `CreateItemResponseMessage` to create, populate and commit
+/// Uses the provided `ItemResponseMessage` to create, populate and commit
 /// an `nsIMsgDBHdr` for a newly created message.
 fn create_and_populate_header_from_create_response(
-    response_message: CreateItemResponseMessage,
+    response_message: ItemResponseMessage,
     content: &[u8],
     callbacks: &IEwsMessageCreateCallbacks,
 ) -> Result<RefPtr<nsIMsgDBHdr>, XpComEwsError> {

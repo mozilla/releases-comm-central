@@ -6,8 +6,8 @@ use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
 use crate::{
-    types::sealed::EnvelopeBodyContents, BaseFolderId, Items, MessageDisposition, Operation,
-    OperationResponse, RealItem, ResponseClass, ResponseCode, MESSAGES_NS_URI,
+    types::sealed::EnvelopeBodyContents, BaseFolderId, ItemResponseMessage, MessageDisposition,
+    Operation, OperationResponse, RealItem, MESSAGES_NS_URI,
 };
 
 /// A request to create (and optionally send) one or more Exchange items.
@@ -52,7 +52,7 @@ impl EnvelopeBodyContents for CreateItem {
 /// A response to a [`CreateItem`] request.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitemresponse>
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub struct CreateItemResponse {
     pub response_messages: ResponseMessages,
@@ -66,23 +66,45 @@ impl EnvelopeBodyContents for CreateItemResponse {
     }
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
-    pub create_item_response_message: Vec<CreateItemResponseMessage>,
+    pub create_item_response_message: Vec<ItemResponseMessage>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct CreateItemResponseMessage {
-    /// The status of the corresponding request, i.e. whether it succeeded or
-    /// resulted in an error.
-    #[serde(rename = "@ResponseClass")]
-    pub response_class: ResponseClass,
+#[cfg(test)]
+mod test {
+    use crate::{
+        test_utils::assert_deserialized_content, types::common::ItemResponseMessage, Items,
+        ResponseCode,
+    };
 
-    pub response_code: Option<ResponseCode>,
+    use super::CreateItemResponse;
 
-    pub message_text: Option<String>,
+    #[test]
+    fn test_deserialize_create_item_response() {
+        let content = r#"<CreateItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                        xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"
+                        xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
+                    <m:ResponseMessages>
+                        <m:CreateItemResponseMessage ResponseClass="Success">
+                        <m:ResponseCode>NoError</m:ResponseCode>
+                        <m:Items />
+                        </m:CreateItemResponseMessage>
+                    </m:ResponseMessages>
+                    </CreateItemResponse>"#;
 
-    pub items: Items,
+        let expected = CreateItemResponse {
+            response_messages: super::ResponseMessages {
+                create_item_response_message: vec![ItemResponseMessage {
+                    response_class: crate::ResponseClass::Success,
+                    response_code: Some(ResponseCode::NoError),
+                    message_text: None,
+                    items: Items { inner: vec![] },
+                }],
+            },
+        };
+
+        assert_deserialized_content(content, expected);
+    }
 }

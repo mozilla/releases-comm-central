@@ -21,8 +21,6 @@
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 
-#define ID_PROPERTY "ewsId"
-
 NS_IMPL_ISUPPORTS(EwsService, nsIMsgMessageService,
                   nsIMsgMessageFetchPartService)
 

@@ -8,13 +8,17 @@
 #include "nsIChannel.h"
 #include "nsIInputStream.h"
 #include "nsIInputStreamPump.h"
+#include "nsIMsgDatabase.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgPluggableStore.h"
+#include "nsISeekableStream.h"
 #include "nsIStreamConverterService.h"
 #include "nsIStreamListener.h"
 #include "nsMimeTypes.h"
+#include "nsMsgMessageFlags.h"
+#include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 
 NS_IMPL_ISUPPORTS(OfflineMessageReadListener, nsIStreamListener)
@@ -214,6 +218,256 @@ nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
                                               newParentFolder);
     }
   }
+
+  return NS_OK;
+}
+
+nsresult LocalDeleteMessages(
+    nsIMsgFolder* folder, const nsTArray<RefPtr<nsIMsgDBHdr>>& messageHeaders) {
+  nsresult rv;
+
+  nsTArray<RefPtr<nsIMsgDBHdr>> offlineMessages;
+  nsTArray<nsMsgKey> msgKeys;
+
+  // Collect keys for messages which need deletion from our message listing.
+  // We also collect a list of messages for which we have a full local copy
+  // which needs deletion.
+  for (auto&& message : messageHeaders) {
+    nsMsgKey msgKey;
+    rv = message->GetMessageKey(&msgKey);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    msgKeys.AppendElement(msgKey);
+
+    bool hasOffline;
+    rv = folder->HasMsgOffline(msgKey, &hasOffline);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    if (hasOffline) {
+      offlineMessages.AppendElement(message);
+    }
+  }
+
+  // Delete any locally-stored message from the store.
+  if (offlineMessages.Length()) {
+    nsCOMPtr<nsIMsgPluggableStore> store;
+    rv = folder->GetMsgStore(getter_AddRefs(store));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = store->DeleteMessages(offlineMessages);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // Delete the message headers from the database. If a key in the array is
+  // unknown to the database, it's simply ignored.
+  nsCOMPtr<nsIMsgDatabase> db;
+  rv = folder->GetMsgDatabase(getter_AddRefs(db));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  MOZ_TRY(db->DeleteMessages(msgKeys, nullptr));
+
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+  if (notifier) notifier->NotifyMsgsDeleted(messageHeaders);
+
+  return NS_OK;
+}
+
+nsresult LocalCopyMessages(nsIMsgFolder* sourceFolder,
+                           nsIMsgFolder* destinationFolder,
+                           const nsTArray<RefPtr<nsIMsgDBHdr>>& sourceHeaders,
+                           nsTArray<RefPtr<nsIMsgDBHdr>>& newHeaders) {
+  nsCOMPtr<nsIMsgPluggableStore> store;
+  nsresult rv = sourceFolder->GetMsgStore(getter_AddRefs(store));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgDatabase> database;
+  rv = destinationFolder->GetMsgDatabase(getter_AddRefs(database));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  for (auto&& header : sourceHeaders) {
+    RefPtr<nsIMsgDBHdr> newHeader;
+    rv = LocalCreateHeader(destinationFolder, getter_AddRefs(newHeader));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoCString storeToken;
+    rv = header->GetStoreToken(storeToken);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Copy offline message content if we have it.
+    if (!storeToken.IsEmpty()) {
+      uint32_t messageSize;
+      rv = header->GetOfflineMessageSize(&messageSize);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      nsCOMPtr<nsIInputStream> inputStream;
+      rv = store->GetMsgInputStream(sourceFolder, storeToken, messageSize,
+                                    getter_AddRefs(inputStream));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      rv = LocalCopyOfflineMessageContent(destinationFolder, inputStream,
+                                          newHeader);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+
+    rv = LocalCopyHeaders(header, newHeader, {}, false);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = database->AddNewHdrToDB(newHeader, true);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = database->Commit(nsMsgDBCommitType::kLargeCommit);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    newHeaders.AppendElement(newHeader);
+  }
+
+  return NS_OK;
+}
+
+nsresult LocalCreateHeader(nsIMsgFolder* destinationFolder,
+                           nsIMsgDBHdr** newHeader) {
+  // Create a new `nsIMsgDBHdr` in the database for this message.
+  nsCOMPtr<nsIMsgDatabase> msgDB;
+  nsresult rv = destinationFolder->GetMsgDatabase(getter_AddRefs(msgDB));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgDBHdr> hdr;
+  rv = msgDB->CreateNewHdr(nsMsgKey_None, getter_AddRefs(hdr));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  hdr.forget(newHeader);
+
+  return NS_OK;
+}
+
+nsresult LocalCopyOfflineMessageContent(nsIMsgFolder* destinationFolder,
+                                        nsIInputStream* msgInputStream,
+                                        nsIMsgDBHdr* messageHeader) {
+  nsCOMPtr<nsIMsgPluggableStore> store;
+  nsresult rv = destinationFolder->GetMsgStore(getter_AddRefs(store));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Create a new output stream to the folder's message store.
+  nsCOMPtr<nsIOutputStream> outStream;
+  rv = store->GetNewMsgOutputStream(destinationFolder,
+                                    getter_AddRefs(outStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  auto outGuard = mozilla::MakeScopeExit(
+      [&] { store->DiscardNewMessage(destinationFolder, outStream); });
+
+  uint64_t bytesCopied;
+  rv = SyncCopyStream(msgInputStream, outStream, bytesCopied);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString storeToken;
+  rv = store->FinishNewMessage(destinationFolder, outStream, storeToken);
+  NS_ENSURE_SUCCESS(rv, rv);
+  outGuard.release();
+
+  rv = messageHeader->SetStoreToken(storeToken);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Update some of the header's metadata, such as the size, the offline flag
+  // and the EWS ID.
+  rv = messageHeader->SetMessageSize(bytesCopied);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = messageHeader->SetOfflineMessageSize(bytesCopied);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  uint32_t unused;
+  rv = messageHeader->OrFlags(nsMsgMessageFlags::Offline, &unused);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return NS_OK;
+}
+
+nsresult LocalCopyMessage(nsIMsgFolder* destinationFolder,
+                          nsIInputStream* msgInputStream,
+                          nsIMsgDBHdr** newHeader) {
+  nsCOMPtr<nsIMsgDBHdr> hdr;
+  nsresult rv = LocalCreateHeader(destinationFolder, getter_AddRefs(hdr));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = LocalCopyOfflineMessageContent(destinationFolder, msgInputStream, hdr);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Return the newly-created header so that the consumer can update it with
+  // metadata from the message headers before adding it to the message database.
+  hdr.forget(newHeader);
+
+  return NS_OK;
+}
+
+nsresult LocalCopyHeaders(nsIMsgDBHdr* sourceHeader,
+                          nsIMsgDBHdr* destinationHeader,
+                          const nsTArray<nsCString>& excludeProperties,
+                          bool isMove) {
+  nsresult rv;
+  nsCOMPtr<nsIPrefBranch> prefBranch(
+      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // These preferences exist so that extensions can control which properties
+  // are preserved in the database when a message is moved or copied. All
+  // properties are preserved except those listed in these preferences.
+  nsCString dontPreserve;
+  if (isMove) {
+    prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnMove",
+                            dontPreserve);
+  } else {
+    prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnCopy",
+                            dontPreserve);
+  }
+
+  // We'll add spaces at beginning and end so we can search for
+  // space-name-space, in order to avoid accidental partial matches.
+  nsCString dontPreserveEx(" "_ns);
+  dontPreserveEx.Append(dontPreserve);
+  dontPreserveEx.Append(' ');
+
+  // Never preserve the store properties, since message stores are per-folder
+  // currently.
+  dontPreserveEx.Append(" storeToken msgOffset ");
+
+  for (auto&& excludeProperty : excludeProperties) {
+    dontPreserveEx.Append(' ');
+    dontPreserveEx.Append(excludeProperty);
+    dontPreserveEx.Append(' ');
+  }
+
+  nsTArray<nsCString> properties;
+  MOZ_TRY(sourceHeader->GetProperties(properties));
+
+  for (const auto& property : properties) {
+    nsAutoCString propertyEx(" "_ns);
+    propertyEx.Append(property);
+    propertyEx.Append(' ');
+    if (dontPreserveEx.Find(propertyEx) != kNotFound) {
+      continue;
+    }
+
+    nsCString propertyValue;
+    MOZ_TRY(sourceHeader->GetStringProperty(property.get(), propertyValue));
+    MOZ_TRY(
+        destinationHeader->SetStringProperty(property.get(), propertyValue));
+  }
+
+  uint32_t oldFlags, newFlags;
+  MOZ_TRY(sourceHeader->GetFlags(&oldFlags));
+  MOZ_TRY(destinationHeader->GetFlags(&newFlags));
+
+  // Regardless of whether flags have been copied to the new header, we want to
+  // ensure the values for some of them are carried over from the old one.
+  uint32_t carryOver = nsMsgMessageFlags::New | nsMsgMessageFlags::Read |
+                       nsMsgMessageFlags::HasRe;
+
+  // The first half of this OR operation represents the values of the flags that
+  // are *not* part of `carryOver`, which `parseMsgState` has identified and we
+  // want to preserve. The second half represents the values of the flags
+  // defined by `carryOver` in the original message, which we want to, well,
+  // carry over onto the new header (and overwrite any value the parser has
+  // found for them).
+  destinationHeader->SetFlags((newFlags & ~carryOver) | (oldFlags & carryOver));
 
   return NS_OK;
 }

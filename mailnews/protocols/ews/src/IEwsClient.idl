@@ -22,6 +22,7 @@ interface IEwsFolderCreateCallbacks;
 interface IEwsFolderDeleteCallbacks;
 interface IEwsFolderUpdateCallbacks;
 interface IEwsMessageCallbacks;
+interface IEwsItemMoveCallbacks;
 interface IEwsMessageCreateCallbacks;
 interface IEwsMessageDeleteCallbacks;
 interface IEwsMessageFetchCallbacks;
@@ -132,6 +133,15 @@ interface IEwsClient : nsISupports
    * @param folderId - The EWS ID of the folder to rename.
    */
   void updateFolder(in IEwsFolderUpdateCallbacks callbacks, in AUTF8String folderId, in AUTF8String folderName);
+
+  /**
+   * Moves items on the Exchange server.
+   *
+   * @param callbacks - Callbacks to indicate the success of failure of the move operation.
+   * @param destinationFolderId - The EWS ID of the destination folder.
+   * @param itemIds - A list of the EWS IDs of the items to be moved.
+   */
+  void moveItems(in IEwsItemMoveCallbacks callbacks, in AUTF8String destinationFolderId, in Array<AUTF8String> itemIds);
 };
 
 [scriptable, uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
@@ -316,6 +326,29 @@ interface IEwsMessageCreateCallbacks : nsISupports
    * Writes the provided message entry to the database.
    */
   void commitHeader(in nsIMsgDBHdr hdr);
+};
+
+[scriptable, uuid(98d7d1a9-d099-4b58-b4f7-6b476c6e4b90)]
+interface IEwsItemMoveCallbacks : nsISupports
+{
+  /**
+   * Signal that a remove move operation was successful.
+   *
+   * The `syncRequired` parameter indicates whether a full folder sync for the
+   * move destination is required. If `syncRequired` is false, then `newIds`
+   * will contain a list of the newly created EWS IDs in the destination folder
+   * that need to be created and downloaded. The order of `newIds` will
+   * correspond to the order of the EWS IDs provided to `IEwsClient::moveItems`.
+   */
+  void onRemoteMoveSuccessful(in boolean syncRequired, in Array<AUTF8String> newIds);
+
+  /**
+   * Signal that an error occurred during a remove move operation.
+   *
+   * The type of error will be contained in the `err` parameter, and a
+   * description will be provided in the `description` parameter.
+   */
+  void onError(in IEwsClient_Error err, in AUTF8String description);
 };
 
 [scriptable, uuid(2bd557ee-a1ce-4563-aaf3-653914256452)]

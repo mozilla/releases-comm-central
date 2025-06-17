@@ -20,8 +20,8 @@ use xpcom::{
     interfaces::{
         nsIInputStream, nsIMsgIncomingServer, nsIURI, nsIUrlListener, IEwsFolderCallbacks,
         IEwsFolderCreateCallbacks, IEwsFolderDeleteCallbacks, IEwsFolderUpdateCallbacks,
-        IEwsMessageCallbacks, IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks,
-        IEwsMessageFetchCallbacks,
+        IEwsItemMoveCallbacks, IEwsMessageCallbacks, IEwsMessageCreateCallbacks,
+        IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
 };
@@ -313,6 +313,28 @@ impl XpcomEwsBridge {
                 is_draft,
                 is_read,
                 content,
+                RefPtr::new(callbacks),
+            ),
+        )
+        .detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(move_items => MoveItems(callbacks: *const IEwsItemMoveCallbacks, destination_folder_id: *const nsACString, item_ids: *const ThinVec<nsCString>));
+    fn move_items(
+        &self,
+        callbacks: &IEwsItemMoveCallbacks,
+        destination_folder_id: &nsACString,
+        item_ids: &ThinVec<nsCString>,
+    ) -> Result<(), nsresult> {
+        let client = self.try_new_client()?;
+
+        moz_task::spawn_local(
+            "move_items",
+            client.move_item(
+                destination_folder_id.to_string(),
+                item_ids.iter().map(|id| id.to_string()).collect(),
                 RefPtr::new(callbacks),
             ),
         )

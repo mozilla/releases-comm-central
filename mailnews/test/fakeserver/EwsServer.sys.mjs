@@ -117,6 +117,30 @@ const CREATE_FOLDER_RESPONSE_BASE = `${EWS_SOAP_HEAD}
     </m:CreateFolderResponse>
 ${EWS_SOAP_FOOT}`;
 
+const MOVE_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
+    <m:MoveItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                        xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+      <m:ResponseMessages>
+      </m:ResponseMessages>
+    </m:MoveItemResponse>
+${EWS_SOAP_FOOT}`;
+
+const GET_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
+  <GetItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+    <m:ResponseMessages>
+      <m:GetItemResponseMessage ResponseClass="Success">
+        <m:ResponseCode>NoError</m:ResponseCode>
+        <m:Items>
+        </m:Items>
+      </m:GetItemResponseMessage>
+    </m:ResponseMessages>
+  </GetItemResponse>
+  ${EWS_SOAP_FOOT}`;
 /**
  * A remote folder to sync from the EWS server. While initiating a test, an
  * array of folders is given to the EWS server, which will use it to populate
@@ -163,6 +187,31 @@ export class RemoteFolder {
     this.parentId = parentId;
     this.displayName = displayName || folderId;
     this.distinguishedId = distinguishedFolderId;
+  }
+}
+
+/**
+ * Information about an item (Message, Meeting, etc.)
+ */
+export class ItemInfo {
+  /**
+   * @type {string}
+   */
+  parentId;
+
+  /**
+   * @type {boolean}
+   */
+  itemSynced;
+
+  /**
+   * Construct a new item within the given parent.
+   *
+   * @param {string} parentId
+   */
+  constructor(parentId) {
+    this.parentId = parentId;
+    this.itemSynced = false;
   }
 }
 
@@ -224,6 +273,13 @@ export class EwsServer {
   #distinguishedIdToFolder = new Map();
 
   /**
+   * A mapping from EWS item id to its containing folder id.
+   *
+   * @type {Map<string, ItemInfo>}
+   */
+  #itemIdToItemInfo = new Map();
+
+  /**
    * The parser to use for parsing XML documents.
    *
    * @type {DOMParser}
@@ -260,8 +316,13 @@ export class EwsServer {
    */
   #lastRequestedVersion;
 
-  constructor() {
-    this.version = null;
+  /**
+   * The version to report in requests.
+   *
+   * @param {string?} version
+   */
+  constructor(version) {
+    this.version = version;
     this.#httpServer = new HttpServer();
     this.#httpServer.registerPathHandler(
       "/EWS/Exchange.asmx",
@@ -409,6 +470,10 @@ export class EwsServer {
       resBytes = this.#generateCreateItemResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("CreateFolder").length) {
       resBytes = this.#generateCreateFolderResponse(reqDoc);
+    } else if (reqDoc.getElementsByTagName("MoveItem").length) {
+      resBytes = this.#generateMoveItemResponse(reqDoc);
+    } else if (reqDoc.getElementsByTagName("GetItem")) {
+      resBytes = this.#generateGetItemResponse(reqDoc);
     } else {
       throw new Error("Unexpected EWS operation");
     }
@@ -493,17 +558,22 @@ export class EwsServer {
    *
    * @see
    * {@link https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderitems-operation#successful-syncfolderitems-response}
-   * @param {XMLDocument} _reqDoc - The parsed document for the request to
+   * @param {XMLDocument} reqDoc - The parsed document for the request to
    * respond to.
    * @returns {string} A serialized XML document.
    */
-  #generateSyncFolderItemsResponse(_reqDoc) {
+  #generateSyncFolderItemsResponse(reqDoc) {
     const resDoc = this.#parser.parseFromString(
       SYNC_FOLDER_ITEMS_RESPONSE_BASE,
       "text/xml"
     );
 
     this.#setVersion(resDoc);
+
+    const syncFolderId = reqDoc
+      .getElementsByTagName("SyncFolderId")[0]
+      .getElementsByTagName("t:FolderId")[0]
+      .getAttribute("Id");
 
     const responseMessageEl = resDoc.getElementsByTagName(
       "m:SyncFolderItemsResponseMessage"
@@ -514,6 +584,25 @@ export class EwsServer {
     const syncStateEl = resDoc.createElement("m:SyncState");
     syncStateEl.appendChild(resDoc.createTextNode("H4sIAAA=="));
     responseMessageEl.appendChild(syncStateEl);
+
+    const changesEl = resDoc.getElementsByTagName("m:Changes")[0];
+    this.#itemIdToItemInfo.forEach((info, itemId) => {
+      if (info.parentId === syncFolderId && !info.itemSynced) {
+        const createEl = resDoc.createElement("t:Create");
+        const messageEl = resDoc.createElement("t:Message");
+        const itemIdEl = resDoc.createElement("t:ItemId");
+        itemIdEl.setAttribute("Id", itemId);
+        const parentFolderIdEl = resDoc.createElement("t:ParentFolderId");
+        parentFolderIdEl.setAttribute("Id", info.parentId);
+
+        messageEl.appendChild(itemIdEl);
+        messageEl.appendChild(parentFolderIdEl);
+        createEl.appendChild(messageEl);
+        changesEl.appendChild(createEl);
+
+        info.itemSynced = true;
+      }
+    });
 
     return this.#serializer.serializeToString(resDoc);
   }
@@ -698,6 +787,111 @@ export class EwsServer {
   }
 
   /**
+   * Generate a response to a MoveItem operation.
+   *
+   * @param {XMLDocument} reqDoc
+   */
+  #generateMoveItemResponse(reqDoc) {
+    /**
+     * @type {Element}
+     */
+    const destinationFolderId = reqDoc
+      .getElementsByTagName("ToFolderId")[0]
+      .getElementsByTagName("t:FolderId")[0]
+      .getAttribute("Id");
+
+    const itemIds = [
+      ...reqDoc
+        .getElementsByTagName("ItemIds")[0]
+        .getElementsByTagName("t:ItemId"),
+    ].map(e => e.getAttribute("Id"));
+
+    itemIds.forEach(id => {
+      this.addItemToFolder(id, destinationFolderId);
+    });
+
+    const resDoc = this.#parser.parseFromString(
+      MOVE_ITEM_RESPONSE_BASE,
+      "text/xml"
+    );
+
+    this.#setVersion(resDoc);
+
+    const responseMessagesEl =
+      resDoc.getElementsByTagName("m:ResponseMessages")[0];
+
+    // Response Message XML Structure:
+    //    <m:MoveItemResponseMessage ResponseClass="Success">
+    //      <m:ResponseCode>NoError</m:ResponseCode>
+    //      <m:Items>
+    //        <t:Message>
+    //          <t:ItemId Id="asdf"/>
+    //        </t:Message
+    //      </m:Items>
+    //    </m:MoveItemResponseMessage>
+
+    itemIds.forEach(id => {
+      const responseMessageEl = resDoc.createElement(
+        "m:MoveItemResponseMessage"
+      );
+      responseMessageEl.setAttribute("ResponseClass", "Success");
+
+      const responseCodeEl = resDoc.createElement("m:ResponseCode");
+      responseCodeEl.textContent = "NoError";
+      responseMessageEl.appendChild(responseCodeEl);
+
+      const itemsEl = resDoc.createElement("m:Items");
+      const messageEl = resDoc.createElement("t:Message");
+      const itemIdEl = resDoc.createElement("t:ItemId");
+      itemIdEl.setAttribute("Id", id);
+      messageEl.appendChild(itemIdEl);
+      itemsEl.appendChild(messageEl);
+      responseMessageEl.appendChild(itemsEl);
+
+      responseMessagesEl.appendChild(responseMessageEl);
+    });
+
+    return this.#serializer.serializeToString(resDoc);
+  }
+
+  /**
+   * Return a response to a `GetItem` request.
+   *
+   * @param {XMLDocument} reqDoc
+   */
+  #generateGetItemResponse(reqDoc) {
+    const resDoc = this.#parser.parseFromString(
+      GET_ITEM_RESPONSE_BASE,
+      "text/xml"
+    );
+
+    this.#setVersion(resDoc);
+
+    // Assume we are asking for only one item.
+    const reqItemIds = [...reqDoc.getElementsByTagName("t:ItemId")].map(id =>
+      id.getAttribute("Id")
+    );
+
+    const itemsEl = resDoc.getElementsByTagName("m:Items")[0];
+    reqItemIds.forEach(reqItemId => {
+      const messageEl = resDoc.createElement("t:Message");
+      const itemIdEl = resDoc.createElement("t:ItemId");
+      itemIdEl.setAttribute("Id", reqItemId);
+      const parentFolderIdEl = resDoc.createElement("t:ParentFolderId");
+      parentFolderIdEl.setAttribute(
+        "Id",
+        this.#itemIdToItemInfo.get(reqItemId).parentId
+      );
+
+      messageEl.appendChild(itemIdEl);
+      messageEl.appendChild(parentFolderIdEl);
+      itemsEl.appendChild(messageEl);
+    });
+
+    return this.#serializer.serializeToString(resDoc);
+  }
+
+  /**
    * Add a new remote folder to the server to include in future responses.
    *
    * @param {RemoteFolder} folder
@@ -754,5 +948,24 @@ export class EwsServer {
       childFolder.parentId = newParentId;
       this.updatedFolderIds.push(id);
     }
+  }
+
+  /**
+   * Add an item to a folder.
+   *
+   * @param {string} itemId
+   * @param {string} folderId
+   */
+  addItemToFolder(itemId, folderId) {
+    this.#itemIdToItemInfo.set(itemId, new ItemInfo(folderId));
+  }
+
+  /**
+   * Get the id of the folder containing the item with the given id.
+   *
+   * @param {string} itemId
+   */
+  getContainingFolderId(itemId) {
+    return this.#itemIdToItemInfo.get(itemId).parentId;
   }
 }

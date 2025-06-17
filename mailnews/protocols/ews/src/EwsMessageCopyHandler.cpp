@@ -13,8 +13,9 @@
 #include "nsIStringStream.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
+#include "OfflineStorage.h"
 
-#define ID_PROPERTY "ewsId"
+constexpr auto kEwsIdProperty = "ewsId";
 
 ///////////////////////////////////////////////////////////////////////////////
 // Definition of `MessageCreateCallbacks`, which implements
@@ -37,9 +38,6 @@ class MessageCreateCallbacks : public IEwsMessageCreateCallbacks {
   virtual ~MessageCreateCallbacks() = default;
 
  private:
-  nsresult CopyHdrProperties(nsIMsgDBHdr* srcHdr, nsIMsgDBHdr* dstHdr,
-                             bool isMove);
-
   // The folder in which the message should be created.
   RefPtr<EwsFolder> mFolder;
 
@@ -53,138 +51,22 @@ class MessageCreateCallbacks : public IEwsMessageCreateCallbacks {
 
 NS_IMPL_ISUPPORTS(MessageCreateCallbacks, IEwsMessageCreateCallbacks)
 
-nsresult MessageCreateCallbacks::CopyHdrProperties(nsIMsgDBHdr* srcHdr,
-                                                   nsIMsgDBHdr* dstHdr,
-                                                   bool isMove) {
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // These preferences exist so that extensions can control which properties
-  // are preserved in the database when a message is moved or copied. All
-  // properties are preserved except those listed in these preferences.
-  nsCString dontPreserve;
-  if (isMove) {
-    prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnMove",
-                            dontPreserve);
-  } else {
-    prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnCopy",
-                            dontPreserve);
-  }
-
-  // We'll add spaces at beginning and end so we can search for
-  // space-name-space, in order to avoid accidental partial matches.
-  nsCString dontPreserveEx(" "_ns);
-  dontPreserveEx.Append(dontPreserve);
-  dontPreserveEx.Append(' ');
-
-  // Never preserve the store properties, since message stores are per-folder
-  // currently.
-  dontPreserveEx.Append(" storeToken msgOffset ");
-
-  // The "source" message might be coming from another EWS server, either
-  // directly or indirectly (e.g. we don't currently strip the EWS ID when
-  // copying to a non-EWS folder). We've created a new item for the destination
-  // message with its own ID, and we don't want to overwrite it with the old
-  // one.
-  dontPreserveEx.Append(' ');
-  dontPreserveEx.Append(ID_PROPERTY);
-  dontPreserveEx.Append(' ');
-
-  nsTArray<nsCString> properties;
-  MOZ_TRY(srcHdr->GetProperties(properties));
-
-  for (const auto& property : properties) {
-    nsAutoCString propertyEx(" "_ns);
-    propertyEx.Append(property);
-    propertyEx.Append(' ');
-    if (dontPreserveEx.Find(propertyEx) != kNotFound) {
-      continue;
-    }
-
-    nsCString propertyValue;
-    MOZ_TRY(srcHdr->GetStringProperty(property.get(), propertyValue));
-    MOZ_TRY(dstHdr->SetStringProperty(property.get(), propertyValue));
-  }
-
-  uint32_t oldFlags, newFlags;
-  MOZ_TRY(srcHdr->GetFlags(&oldFlags));
-  MOZ_TRY(dstHdr->GetFlags(&newFlags));
-
-  // Regardless of whether flags have been copied to the new header, we want to
-  // ensure the values for some of them are carried over from the old one.
-  uint32_t carryOver = nsMsgMessageFlags::New | nsMsgMessageFlags::Read |
-                       nsMsgMessageFlags::HasRe;
-
-  // The first half of this OR operation represents the values of the flags that
-  // are *not* part of `carryOver`, which `parseMsgState` has identified and we
-  // want to preserve. The second half represents the values of the flags
-  // defined by `carryOver` in the original message, which we want to, well,
-  // carry over onto the new header (and overwrite any value the parser has
-  // found for them).
-  dstHdr->SetFlags((newFlags & ~carryOver) | (oldFlags & carryOver));
-
-  return NS_OK;
-}
-
 NS_IMETHODIMP MessageCreateCallbacks::OnRemoteCreateSuccessful(
     const nsACString& ewsId, nsIMsgDBHdr** newHdr) {
+  nsresult rv;
   // Rewind the message stream to the start, because at this point the stream
   // has already been read in its entirety in order to create the message on the
   // remote server.
   MOZ_TRY(mMsgInputStream->Seek(0, nsISeekableStream::NS_SEEK_SET));
 
-  nsCOMPtr<nsIMsgPluggableStore> store;
-  nsresult rv = mFolder->GetMsgStore(getter_AddRefs(store));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Create a new output stream to the folder's message store.
-  nsCOMPtr<nsIOutputStream> outStream;
-  rv = store->GetNewMsgOutputStream(mFolder, getter_AddRefs(outStream));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  auto outGuard = mozilla::MakeScopeExit(
-      [&] { store->DiscardNewMessage(mFolder, outStream); });
-
-  // Stream the message content to the store.
-  nsCOMPtr<nsIInputStream> inputStream =
-      do_QueryInterface(mMsgInputStream, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  uint64_t bytesCopied;
-  rv = SyncCopyStream(inputStream, outStream, bytesCopied);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsAutoCString storeToken;
-  rv = store->FinishNewMessage(mFolder, outStream, storeToken);
-  NS_ENSURE_SUCCESS(rv, rv);
-  outGuard.release();
-
-  // Create a new `nsIMsgDBHdr` in the database for this message.
-  nsCOMPtr<nsIMsgDatabase> msgDB;
-  rv = mFolder->GetMsgDatabase(getter_AddRefs(msgDB));
-  NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgDBHdr> hdr;
-  rv = msgDB->CreateNewHdr(nsMsgKey_None, getter_AddRefs(hdr));
+  nsCOMPtr<nsIInputStream> inputStream{do_QueryInterface(mMsgInputStream, &rv)};
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = hdr->SetStoreToken(storeToken);
+  rv = LocalCopyMessage(mFolder, inputStream, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Update some of the header's metadata, such as the size, the offline flag
-  // and the EWS ID.
-  rv = hdr->SetMessageSize(bytesCopied);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = hdr->SetOfflineMessageSize(bytesCopied);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  uint32_t unused;
-  rv = hdr->OrFlags(nsMsgMessageFlags::Offline, &unused);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = hdr->SetStringProperty(ID_PROPERTY, ewsId);
+  rv = hdr->SetStringProperty(kEwsIdProperty, ewsId);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Return the newly-created header so that the consumer can update it with
@@ -195,17 +77,21 @@ NS_IMETHODIMP MessageCreateCallbacks::OnRemoteCreateSuccessful(
 }
 
 NS_IMETHODIMP MessageCreateCallbacks::CommitHeader(nsIMsgDBHdr* hdr) {
+  nsresult rv = NS_OK;
   if (auto currHdr = mCopyHandler->GetCurrentMessageHeader()) {
     // If there's a source message header (which is always the case when copying
     // from another folder, but never when copying from a file), then copy some
     // of its properties onto the new one.
     bool isMove = mCopyHandler->GetIsMove();
     nsCOMPtr<nsIMsgDBHdr> srcHdr = currHdr.value();
-    MOZ_TRY(CopyHdrProperties(srcHdr, hdr, isMove));
+    nsTArray<nsCString> excludedProperties;
+    excludedProperties.AppendElement(kEwsIdProperty);
+    rv = LocalCopyHeaders(srcHdr, hdr, excludedProperties, isMove);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   nsCOMPtr<nsIMsgDatabase> msgDB;
-  nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(msgDB));
+  rv = mFolder->GetMsgDatabase(getter_AddRefs(msgDB));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = msgDB->AddNewHdrToDB(hdr, true);

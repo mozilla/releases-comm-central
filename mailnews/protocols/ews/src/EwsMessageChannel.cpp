@@ -25,7 +25,7 @@
 #include "nsNetUtil.h"
 #include "OfflineStorage.h"
 
-#define ID_PROPERTY "ewsId"
+constexpr auto kEwsIdProperty = "ewsId";
 
 /**
  * A listener for a message download, which writes the message's content into
@@ -464,7 +464,7 @@ NS_IMETHODIMP EwsMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
 
   // Retrieve the EWS ID of the message we want to download.
   nsCString ewsId;
-  rv = mHdr->GetStringProperty(ID_PROPERTY, ewsId);
+  rv = mHdr->GetStringProperty(kEwsIdProperty, ewsId);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Look up the incoming server for this message, from which we can get an EWS
