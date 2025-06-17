@@ -355,7 +355,9 @@ NS_IMETHODIMP nsImapHostSessionList::SetNamespaceFromPrefForHost(
           nsImapNamespace* ns =
               new nsImapNamespace(nstype, thisns, delimiter, true);
           if (ns) host->fNamespaceList->AddNewNamespace(ns);
-          PR_FREEIF(thisns);
+        }
+        for (int i = 0; i < numNamespaces; i++) {
+          PR_FREEIF(prefixes[i]);
         }
         PR_Free(prefixes);
       }
