@@ -1,0 +1,7 @@
+{
+  "MAILNEWS": {
+    "description": "Error codes for comm/mail",
+    "code": 16,
+    "members": {}
+  }
+}
