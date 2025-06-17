@@ -1738,7 +1738,7 @@ function cmdRename(e) {
 }
 
 function togglePref(prefName, item, globalPref) {
-  let state = !item.checked;
+  let state = item.hasAttribute("checked");
   if (globalPref) {
     client.prefs[prefName] = state;
     return;
