@@ -63,11 +63,6 @@ int nsImapNamespaceList::GetNumberOfNamespaces() {
   return m_NamespaceList.Length();
 }
 
-nsresult nsImapNamespaceList::OutputToString(nsCString& string) {
-  nsresult rv = NS_OK;
-  return rv;
-}
-
 int nsImapNamespaceList::GetNumberOfNamespaces(EIMAPNamespaceType type) {
   int nodeIndex = 0, count = 0;
   for (nodeIndex = m_NamespaceList.Length() - 1; nodeIndex >= 0; nodeIndex--) {
