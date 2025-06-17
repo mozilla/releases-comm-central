@@ -16,7 +16,6 @@ XPIDL_SOURCES += [
     "nsIMailChannel.idl",
     "nsIMapiRegistry.idl",
     "nsIMessenger.idl",
-    "nsIMessengerMigrator.idl",
     "nsIMessengerOSIntegration.idl",
     "nsIMessengerWindowService.idl",
     "nsIMsgAccount.idl",
