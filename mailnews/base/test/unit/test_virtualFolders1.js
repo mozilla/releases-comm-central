@@ -32,10 +32,19 @@ add_task(function () {
   );
   Assert.equal(
     wrappedFolderZ.virtualFolder,
-    rootFolder.getChildNamed("virtual Z")
+    rootFolder.getChildNamed("virtual Z"),
+    "wrapped folder Z should be virtual Z"
   );
-  Assert.equal(wrappedFolderZ.searchFolderURIs, "");
-  Assert.deepEqual(wrappedFolderZ.searchFolders, []);
+  Assert.equal(
+    wrappedFolderZ.searchFolderURIs,
+    "",
+    "wrappedFolderZ search folder URIs should be empty"
+  );
+  Assert.deepEqual(
+    wrappedFolderZ.searchFolders,
+    [],
+    "wrappedFolderZ search folders should be empty"
+  );
 
   // Create a virtual folder with one search folder.
   const wrappedFolderY = VirtualFolderHelper.createNewVirtualFolder(

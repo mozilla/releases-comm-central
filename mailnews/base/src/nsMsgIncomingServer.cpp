@@ -438,6 +438,8 @@ nsresult nsMsgIncomingServer::CreateRootFolder() {
     nsCOMPtr<nsIInitableWithFolder> initable = do_QueryInterface(m_rootFolder);
     rv = initable->InitWithFolder(root);
     NS_ENSURE_SUCCESS(rv, rv);
+
+    return NS_OK;
   }
 #endif  // MOZ_PANORAMA
   return GetOrCreateFolder(serverUri, getter_AddRefs(m_rootFolder));

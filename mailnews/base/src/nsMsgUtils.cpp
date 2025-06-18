@@ -652,31 +652,38 @@ nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
                               nsIMsgFolder** folder) {
   NS_ENSURE_ARG_POINTER(folder);
 
+  *folder = nullptr;
+
   nsresult rv;
   nsCOMPtr<nsIFolderLookupService> fls(do_GetService(NSIFLS_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // URI should use UTF-8
-  // (see RFC2396 Uniform Resource Identifiers (URI): Generic Syntax)
-  nsAutoCString urlEncodedName;
-  rv = NS_MsgEscapeEncodeURLPath(folderName, urlEncodedName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsAutoCString potentialUri;
-  rv = parentFolder->GetURI(potentialUri);
-  potentialUri.Append("/");
-  potentialUri += urlEncodedName;
-
   nsCOMPtr<nsIMsgFolder> existingFolder;
-  rv = parentFolder->GetChildWithURI(potentialUri, false, true,
-                                     getter_AddRefs(existingFolder));
-  if (NS_SUCCEEDED(rv) && existingFolder) {
+  rv = parentFolder->GetChildNamed(folderName, getter_AddRefs(existingFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!existingFolder) {
+    // Check whether there's a child folder with the same URI. This will happen
+    // if the URI representation of the name is in any way different from the
+    // desired name, including hashed names that are used to represent the
+    // folder name on the filesystem. Once we git rid of the URI, we can get rid
+    // of this branch, but as long as we allow the two concepts we have to check
+    // both representations for a conflict. This workaround can be removed once
+    // Bug 1969363 is addressed.
+    nsAutoCString urlEncodedName;
+    NS_MsgEscapeEncodeURLPath(folderName, urlEncodedName);
+    nsAutoCString candidateUri{parentFolder->URI()};
+    candidateUri.Append("/");
+    candidateUri.Append(urlEncodedName);
+    rv = parentFolder->GetChildWithURI(candidateUri, false, true,
+                                       getter_AddRefs(existingFolder));
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  if (existingFolder) {
     return NS_MSG_FOLDER_EXISTS;
   }
 
-  *folder = nullptr;
-
-  rv = fls->CreateFolderAndCache(parentFolder, urlEncodedName, folder);
+  rv = fls->CreateFolderAndCache(parentFolder, folderName, folder);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return *folder ? NS_OK : NS_ERROR_FAILURE;

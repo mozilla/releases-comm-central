@@ -366,14 +366,15 @@ nsImapIncomingServer::SetDeleteModel(int32_t ivalue) {
       NS_ENSURE_SUCCESS(rv, rv);
       nsCString trashURI;
       trashFolder->GetURI(trashURI);
+      nsCOMPtr<nsIMsgFolder> trashMsgFolder;
       rv = GetMsgFolderFromURI(trashFolder, trashURI,
-                               getter_AddRefs(trashFolder));
-      if (NS_SUCCEEDED(rv) && trashFolder) {
+                               getter_AddRefs(trashMsgFolder));
+      if (NS_SUCCEEDED(rv) && trashMsgFolder) {
         // If the trash folder is used, set the flag, otherwise clear it.
         if (ivalue == nsMsgImapDeleteModels::MoveToTrash) {
-          trashFolder->SetFlag(nsMsgFolderFlags::Trash);
+          trashMsgFolder->SetFlag(nsMsgFolderFlags::Trash);
         } else {
-          trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
+          trashMsgFolder->ClearFlag(nsMsgFolderFlags::Trash);
         }
       }
     }
@@ -2920,8 +2921,9 @@ nsImapIncomingServer::GetMsgFolderFromURI(nsIMsgFolder* aFolderResource,
       rv = GetOrCreateFolder(folderUriWithNamespace, getter_AddRefs(folder));
       NS_ENSURE_SUCCESS(rv, rv);
       msgFolder = folder;
-    } else
+    } else {
       msgFolder = aFolderResource;
+    }
   }
 
   msgFolder.forget(aFolder);

@@ -144,8 +144,16 @@ export class VirtualFolderWrapper {
     return this.#dbFolderInfo
       .getCharProperty("searchFolderUri")
       .split("|")
+      .map(s => s.trim())
+      .filter(Boolean)
       .sort() // Put folders in URI order so a parent is always before a child.
-      .map(uri => MailServices.folderLookup.getOrCreateFolderForURL(uri))
+      .map(uri => {
+        try {
+          return MailServices.folderLookup.getOrCreateFolderForURL(uri);
+        } catch {
+          return null;
+        }
+      })
       .filter(Boolean);
   }
 

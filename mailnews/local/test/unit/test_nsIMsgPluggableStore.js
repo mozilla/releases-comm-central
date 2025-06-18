@@ -65,13 +65,17 @@ function test_discoverSubFolders() {
   rootFolder.msgStore.discoverSubFolders(rootFolder, true);
 
   const prefix = rootFolder.URI;
-  Assert.deepEqual(Array.from(rootFolder.descendants, f => f.URI).toSorted(), [
-    `${prefix}/1ad41a64`,
-    `${prefix}/Trash`, // Created automagically.
-    `${prefix}/Unsent%20Messages`, // Created automagically.
-    `${prefix}/file`,
-    `${prefix}/test%20%CF%80`,
-  ]);
+  Assert.deepEqual(
+    Array.from(rootFolder.descendants, f => f.URI).toSorted(),
+    [
+      `${prefix}/1ad41a64`,
+      `${prefix}/Trash`, // Created automagically.
+      `${prefix}/Unsent%20Messages`, // Created automagically.
+      `${prefix}/file`,
+      `${prefix}/test%20%CF%80`,
+    ],
+    "Root folder hierarchy should match expected value."
+  );
 
   const hashedFolder = MailServices.folderLookup.getFolderForURL(
     `${prefix}/1ad41a64`

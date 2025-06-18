@@ -39,6 +39,14 @@ add_setup(async function () {
   imapAccount.incomingServer.deleteModel = Ci.nsMsgImapDeleteModels.IMAPDelete;
   imapRootFolder = imapAccount.incomingServer.rootFolder;
 
+  // For this test to work, we need to ensure the disk storage is allocated for
+  // the nested folder `Subfoo`.  Note: This is caused by issues with unknown
+  // folder creation order due to the fact that this test uses solely dangling
+  // folders. Once more dangling folders have been eliminated, we shouldn't need
+  // to do this step.
+  const foo = imapRootFolder.addSubfolder("Foo");
+  foo.addSubfolder("Subfoo");
+
   nntpServer = new NNTPServer();
   nntpServer.addGroup("subscribe.bar");
   nntpServer.addGroup("subscribe.baz");

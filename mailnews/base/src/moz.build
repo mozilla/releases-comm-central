@@ -6,6 +6,7 @@
 EXPORTS += [
     "CopyMessageStreamListener.h",
     "FolderCompactor.h",
+    "FolderLookupService.h",
     "HeaderReader.h",
     "LineReader.h",
     "MboxMsgInputStream.h",
@@ -36,6 +37,7 @@ EXPORTS += [
 SOURCES += [
     "CopyMessageStreamListener.cpp",
     "FolderCompactor.cpp",
+    "FolderLookupService.cpp",
     "MailNewsDLF.cpp",
     "MailnewsLoadContextInfo.cpp",
     "MboxMsgInputStream.cpp",
@@ -113,7 +115,6 @@ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
 EXTRA_JS_MODULES += [
     "ABQueryUtils.sys.mjs",
     "converterWorker.js",
-    "FolderLookupService.sys.mjs",
     "FolderUtils.sys.mjs",
     "hostnameUtils.sys.mjs",
     "JXON.sys.mjs",
