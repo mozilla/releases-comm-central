@@ -96,6 +96,10 @@ form {
     background-color: var(--hub-input-bg-color);
     font-weight: 200;
 
+    &[type="password"] {
+      padding-inline-end: 9px;
+    }
+
     &::placeholder {
       font-weight: 200;
       color: var(--color-text-secondary);
@@ -423,46 +427,6 @@ div:has(legend) {
     background-color: var(--color-primary-soft);
     color: var(--color-primary-pressed);
     border-color: var(--color-primary-default);
-  }
-}
-
-#password {
-  &:placeholder-shown ~ .form-toggle-button {
-    display: none;
-  }
-
-  & ~ .form-toggle-button {
-    cursor: pointer;
-    appearance: none;
-    background: transparent;
-    border: none;
-    padding: 0 4px;
-    margin-inline: -30px 6px;
-    min-width: auto;
-    min-height: auto;
-    margin-block: 0;
-    line-height: 0;
-
-    &:hover,
-    &:active {
-      background-color: transparent !important;
-    }
-  }
-
-  & ~ .form-toggle-button .form-icon {
-    -moz-context-properties: fill, stroke;
-    fill: color-mix(in srgb, currentColor 20%, transparent);
-    stroke: currentColor;
-    pointer-events: none;
-    margin-inline: 0;
-  }
-
-  &[type="password"] ~ .form-toggle-button .form-icon {
-    content: var(--icon-hidden);
-  }
-
-  &[type="text"] ~ .form-toggle-button .form-icon {
-    content: var(--icon-eye);
   }
 }
 

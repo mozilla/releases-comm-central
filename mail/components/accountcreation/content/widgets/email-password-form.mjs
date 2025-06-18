@@ -38,13 +38,6 @@ class EmailPasswordForm extends AccountHubStep {
    */
   #rememberPassword;
 
-  /**
-   * The show/hide password toggle.
-   *
-   * @type {HTMLButtonElement}
-   */
-  #passwordToggleButton;
-
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -60,7 +53,6 @@ class EmailPasswordForm extends AccountHubStep {
 
     this.#password = this.querySelector("#password");
     this.#rememberPassword = this.querySelector("#rememberPassword");
-    this.#passwordToggleButton = this.querySelector("#passwordToggleButton");
 
     this.#password.focus();
 
@@ -68,7 +60,6 @@ class EmailPasswordForm extends AccountHubStep {
     this.#setRememberPasswordInput(this.rememberSignons);
 
     this.#password.addEventListener("input", this);
-    this.#passwordToggleButton.addEventListener("click", this);
   }
 
   handleEvent(event) {
@@ -80,20 +71,6 @@ class EmailPasswordForm extends AccountHubStep {
             detail: { completed: this.#password.checkValidity() },
           })
         );
-        break;
-      case "click":
-        {
-          const isNotPressed =
-            event.target.getAttribute("aria-pressed") === "false";
-          this.#password.type = isNotPressed ? "text" : "password";
-          this.#passwordToggleButton.setAttribute("aria-pressed", isNotPressed);
-          document.l10n.setAttributes(
-            this.#passwordToggleButton,
-            isNotPressed
-              ? "account-setup-password-toggle-hide"
-              : "account-setup-password-toggle-show"
-          );
-        }
         break;
       default:
         break;

@@ -11,6 +11,8 @@
 % override chrome://global/skin/in-content/common.css chrome://messenger/skin/common.css
 % override chrome://global/content/elements/infobar.css chrome://messenger/skin/infobar.css
 % override chrome://browser/skin/developer.svg chrome://messenger/skin/icons/developer.svg
+% override chrome://global/skin/icons/eye.svg chrome://messenger/skin/icons/new/compact/pw-hidden.svg
+% override chrome://global/skin/icons/eye-slash.svg chrome://messenger/skin/icons/new/compact/pw-shown.svg
 
 # Devtools overrides
 % override chrome://devtools/skin/images/aboutdebugging-firefox-nightly.svg chrome://branding/content/about-logo.svg
@@ -594,6 +596,8 @@
   skin/classic/messenger/icons/new/compact/pin.svg            (../shared/mail/icons/new/compact/pin.svg)
   skin/classic/messenger/icons/new/compact/print.svg          (../shared/mail/icons/new/compact/print.svg)
   skin/classic/messenger/icons/new/compact/priority.svg       (../shared/mail/icons/new/compact/priority.svg)
+  skin/classic/messenger/icons/new/compact/pw-hidden.svg      (../shared/mail/icons/new/compact/pw-hidden.svg)
+  skin/classic/messenger/icons/new/compact/pw-shown.svg       (../shared/mail/icons/new/compact/pw-shown.svg)
   skin/classic/messenger/icons/new/compact/low-priority.svg   (../shared/mail/icons/new/compact/low-priority.svg)
   skin/classic/messenger/icons/new/compact/question.svg       (../shared/mail/icons/new/compact/question.svg)
   skin/classic/messenger/icons/new/compact/quit.svg           (../shared/mail/icons/new/compact/quit.svg)

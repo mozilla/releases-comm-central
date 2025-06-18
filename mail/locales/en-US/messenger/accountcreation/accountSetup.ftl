@@ -50,12 +50,6 @@ account-setup-password-label = Password
     .accesskey = P
     .title = Optional, will only be used to validate the username
 
-account-setup-password-toggle-show =
-    .title = Show password in clear text
-
-account-setup-password-toggle-hide =
-    .title = Hide password
-
 account-setup-remember-password = Remember password
     .accesskey = m
 

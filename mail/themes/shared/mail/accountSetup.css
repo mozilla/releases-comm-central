@@ -119,6 +119,10 @@ header {
     padding-inline-end: 33px;
     min-height: var(--in-content-button-height);
     border-radius: var(--in-content-button-border-radius);
+
+    &[type="password"] {
+      padding-inline-end: 10px;
+    }
   }
 }
 
@@ -831,9 +835,4 @@ button.existing {
       padding-inline-start: 11px;
     }
   }
-}
-
-/* Hide built-in password visibility toggle. See bug 1913889. */
-.input-field[type="password"] {
-  appearance: textfield !important;
 }

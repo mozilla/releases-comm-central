@@ -502,37 +502,10 @@ async function remember_password_test(aPrefValue) {
   const tab = await openAccountSetup();
   const tabDocument = tab.browser.contentWindow.document;
   const password = tabDocument.getElementById("password");
-  const passwordToggle = tabDocument.getElementById("passwordToggleButton");
-
-  // The password field is empty, so confirm that the toggle button is hidden.
-  Assert.ok(passwordToggle.hidden);
 
   // Type something in the password field.
   password.focus();
   input_value(window, "testing");
-
-  // The password toggle button should be visible now.
-  Assert.ok(!passwordToggle.hidden);
-
-  // Click on the password toggle button.
-  EventUtils.synthesizeMouseAtCenter(
-    passwordToggle,
-    {},
-    tab.browser.contentWindow
-  );
-
-  // The password field should have being turned into clear text.
-  Assert.equal(password.type, "text");
-
-  // Click on the password toggle button again.
-  EventUtils.synthesizeMouseAtCenter(
-    passwordToggle,
-    {},
-    tab.browser.contentWindow
-  );
-
-  // The password field should have being turned back into a password type.
-  Assert.equal(password.type, "password");
 
   const rememberPassword = tabDocument.getElementById("rememberPassword");
   Assert.ok(rememberPassword.disabled != aPrefValue);
