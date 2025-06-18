@@ -125,7 +125,8 @@ async function promiseMessageLoaded(browser, msgHdr) {
   );
 
   if (
-    browser.webProgress?.isLoadingDocument ||
+    !browser.webProgress ||
+    browser.webProgress.isLoadingDocument ||
     !browser.currentURI?.equals(messageURI)
   ) {
     await BrowserTestUtils.browserLoaded(

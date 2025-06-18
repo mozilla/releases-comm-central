@@ -17,14 +17,11 @@ add_task(async function testGlobalSearchInputGainsFocus() {
   Assert.equal(tabmail.tabInfo.length, 2);
   Assert.equal(tabmail.currentTabInfo, tabmail.tabInfo[1]);
 
-  await TestUtils.waitForCondition(() => {
-    const browser = tabmail.currentTabInfo.browser;
-    return (
-      browser &&
-      !browser.webProgress?.isLoadingDocument &&
-      browser.currentURI?.spec != "about:blank"
-    );
-  });
+  await TestUtils.waitForCondition(
+    () =>
+      tabmail.currentTabInfo.browser?.currentURI?.spec ==
+      "chrome://messenger/content/glodaFacetView.xhtml"
+  );
 
   const activeElement = document.activeElement;
   info(`<${activeElement.localName}>`);

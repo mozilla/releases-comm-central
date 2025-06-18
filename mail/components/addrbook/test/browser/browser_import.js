@@ -47,7 +47,8 @@ async function startImport() {
     detail: { tabInfo },
   } = await tabOpenPromise;
   if (
-    tabInfo.browser.docShell?.isLoadingDocument ||
+    !tabInfo.browser.webProgress ||
+    tabInfo.browser.webProgress.isLoadingDocument ||
     !tabInfo.browser.currentURI?.spec.startsWith("about:import")
   ) {
     await BrowserTestUtils.browserLoaded(tabInfo.browser);

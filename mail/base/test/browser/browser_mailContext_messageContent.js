@@ -176,7 +176,10 @@ async function subtest(aboutMessage, mailContext) {
   const {
     detail: { tabInfo },
   } = await tabOpenPromise;
-  if (tabInfo.browser.webProgress?.isLoadingDocument) {
+  if (
+    !tabInfo.browser.webProgress ||
+    tabInfo.browser.webProgress.isLoadingDocument
+  ) {
     await BrowserTestUtils.browserLoaded(tabInfo.browser);
   }
   Assert.equal(

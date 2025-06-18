@@ -77,8 +77,9 @@ add_task(async function test_open_single_message_in_tab() {
 
   const tab = document.getElementById("tabmail").currentTabInfo;
   if (
-    tab.chromeBrowser.docShell.isLoadingDocument ||
-    tab.chromeBrowser.currentURI.spec != "about:message"
+    !tab.chromeBrowser.webProgress ||
+    tab.chromeBrowser.webProgress.isLoadingDocument ||
+    tab.chromeBrowser.currentURI?.spec != "about:message"
   ) {
     await BrowserTestUtils.browserLoaded(tab.chromeBrowser);
   }

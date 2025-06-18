@@ -658,7 +658,7 @@ add_task(async function testPropertiesSettingsFilters() {
     "tab should open in the foreground"
   );
   Assert.equal(tabInfo.mode.name, "contentTab", "tab should be a content tab");
-  if (browser.docShell.isLoadingDocument) {
+  if (!browser.webProgress || browser.webProgress.isLoadingDocument) {
     await BrowserTestUtils.browserLoaded(browser);
   }
   Assert.equal(

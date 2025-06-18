@@ -1009,17 +1009,14 @@ async function assertDisplayedMessage(aboutMessage, expected) {
   const messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
   const mailboxURL = expected.folder.getUriForMsg(expected);
   const messageURI = mailboxService.getUrlForUri(mailboxURL);
-
-  if (
-    messagePaneBrowser.webProgess?.isLoadingDocument ||
-    !messagePaneBrowser.currentURI.equals(messageURI)
-  ) {
+  if (messagePaneBrowser.currentURI.spec != messageURI.spec) {
     await BrowserTestUtils.browserLoaded(
       messagePaneBrowser,
       undefined,
       messageURI.spec
     );
   }
+
   Assert.equal(
     aboutMessage.gMessage.messageId,
     expected.messageId,
@@ -1047,10 +1044,7 @@ async function assertDisplayedThread(firstMessage) {
 
 async function assertNoDisplayedMessage(aboutMessage) {
   const messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
-  if (
-    messagePaneBrowser.webProgess?.isLoadingDocument ||
-    messagePaneBrowser.currentURI.spec != "about:blank"
-  ) {
+  if (messagePaneBrowser.currentURI.spec != "about:blank") {
     await BrowserTestUtils.browserLoaded(
       messagePaneBrowser,
       undefined,

@@ -18,7 +18,7 @@ window.requestIdleCallback(() => {
     if (tab.mode.name != "contentTab") {
       continue;
     }
-    if (tab.browser.webProgress.isLoadingDocument) {
+    if (!tab.browser.webProgress || tab.browser.webProgress.isLoadingDocument) {
       const promise = Promise.withResolvers();
       loadPromises.push(promise.promise);
       function listener(event) {

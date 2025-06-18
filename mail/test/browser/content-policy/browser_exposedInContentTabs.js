@@ -129,7 +129,7 @@ async function checkContentTab(msgURL) {
   const newTab = await open_content_tab_with_url(dataurl);
 
   Assert.notEqual(newTab.browser.currentURI.spec, "about:blank");
-  Assert.equal(newTab.browser.webProgress.isLoadingDocument, false);
+  Assert.strictEqual(newTab.browser.webProgress?.isLoadingDocument, false);
   Assert.equal(
     newTab.browser.browsingContext.children[0].currentWindowGlobal,
     null,

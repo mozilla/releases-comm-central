@@ -673,7 +673,8 @@ add_task(async function test_click_on_notification() {
   async function ensureMessageLoaded(aboutMessage) {
     const messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
     if (
-      messagePaneBrowser.webProgess?.isLoadingDocument ||
+      !messagePaneBrowser.webProgess ||
+      messagePaneBrowser.webProgess.isLoadingDocument ||
       messagePaneBrowser.currentURI.spec == "about:blank" ||
       aboutMessage.gMessage != lastMessage
     ) {

@@ -64,7 +64,8 @@ export const OAuth2TestUtils = {
     );
     const oAuthBrowser = oAuthWindow.getBrowser();
     if (
-      oAuthBrowser.webProgress?.isLoadingDocument ||
+      !oAuthBrowser.webProgress ||
+      oAuthBrowser.webProgress.isLoadingDocument ||
       oAuthBrowser.currentURI.spec == "about:blank"
     ) {
       await BrowserTestUtils.browserLoaded(oAuthBrowser);
