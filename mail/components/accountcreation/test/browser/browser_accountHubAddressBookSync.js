@@ -37,7 +37,6 @@ add_setup(async function () {
     },
   ];
   registerCleanupFunction(() => {
-    abSyncSubview.resetState();
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   });
 });
@@ -93,6 +92,8 @@ add_task(function test_setState() {
     !addressBookInputs[2].disabled,
     "The address book input should be enabled"
   );
+
+  abSyncSubview.resetState();
 });
 
 add_task(function test_resetState() {
@@ -139,6 +140,7 @@ add_task(async function test_captureState() {
     addressBookAvailable.length - 1,
     "The address book captured should be the enabled address books"
   );
+  abSyncSubview.resetState();
 });
 
 add_task(function test_observeAddressBookCounter() {
@@ -180,6 +182,7 @@ add_task(function test_observeAddressBookCounter() {
     "account-hub-select-all",
     "The toggle button should show the select-all string"
   );
+  abSyncSubview.resetState();
 });
 
 add_task(async function test_inputChangeAndToggleAll() {
@@ -193,7 +196,7 @@ add_task(async function test_inputChangeAndToggleAll() {
     () => abSyncSubview.querySelectorAll("#addressBooks input").length === 3
   );
 
-  const addressBookInput = abSyncSubview.querySelector("input");
+  const addressBookInput = abSyncSubview.querySelector("#addressBooks input");
   const checkEvent = BrowserTestUtils.waitForEvent(
     addressBookInput,
     "change",
@@ -246,4 +249,6 @@ add_task(async function test_inputChangeAndToggleAll() {
     addressBooks.length,
     "Address books count should update"
   );
+
+  abSyncSubview.resetState();
 });
