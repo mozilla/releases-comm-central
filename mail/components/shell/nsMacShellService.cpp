@@ -9,16 +9,18 @@
 #include "nsIPrefBranch.h"
 #include "nsServiceManagerUtils.h"
 
-// These Launch Services functions are undocumented. We're using them since
+// These Launch Services functions are deprecated. We're using them since
 // they're the only way to set the default opener for URLs
 extern "C" {
-// Returns the CFURL for application currently set as the default opener for
-// the given URL scheme. appURL must be released by the caller.
-extern OSStatus _LSCopyDefaultSchemeHandlerURL(CFStringRef scheme,
-                                               CFURLRef* appURL);
-extern OSStatus _LSSetDefaultSchemeHandlerURL(CFStringRef scheme,
-                                              CFURLRef appURL);
-extern OSStatus _LSSaveAndRefresh(void);
+// Functions provided by LaunchServices/LaunchServices.h on MacOS, but including
+// that doesn't work here.
+// See
+// https://developer.apple.com/documentation/coreservices/1447760-lssetdefaulthandlerforurlscheme?language=objc
+extern OSStatus LSSetDefaultHandlerForURLScheme(CFStringRef inURLScheme,
+                                                CFStringRef inHandlerBundleID);
+// See
+// https://developer.apple.com/documentation/coreservices/1441725-lscopydefaulthandlerforurlscheme?language=objc
+extern CFStringRef LSCopyDefaultHandlerForURLScheme(CFStringRef inURLScheme);
 }
 
 NS_IMPL_ISUPPORTS(nsMacShellService, nsIShellService, nsIToolkitShellService)
@@ -92,7 +94,6 @@ bool nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme) {
   // Launch Service might return the URL of another thunderbird bundle as the
   // default handler for that protocol), we are comparing the identifiers of the
   // bundles rather than their URLs.
-
   CFStringRef tbirdID = ::CFBundleGetIdentifier(CFBundleGetMainBundle());
   if (!tbirdID) {
     // CFBundleGetIdentifier is expected to return NULL only if the specified
@@ -104,34 +105,14 @@ bool nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme) {
   ::CFRetain(tbirdID);
 
   // Get the default handler URL of the given protocol
-  CFURLRef defaultHandlerURL;
-  OSStatus err = ::_LSCopyDefaultSchemeHandlerURL(aScheme, &defaultHandlerURL);
+  CFStringRef defaultHandlerID = LSCopyDefaultHandlerForURLScheme(aScheme);
 
-  if (err == noErr) {
-    // Get a reference to the bundle (based on its URL)
-    CFBundleRef defaultHandlerBundle =
-        ::CFBundleCreate(NULL, defaultHandlerURL);
-    if (defaultHandlerBundle) {
-      CFStringRef defaultHandlerID =
-          ::CFBundleGetIdentifier(defaultHandlerBundle);
-      if (defaultHandlerID) {
-        ::CFRetain(defaultHandlerID);
-        // and compare it to our bundle identifier
-        isDefault = ::CFStringCompare(tbirdID, defaultHandlerID, 0) ==
-                    kCFCompareEqualTo;
-        ::CFRelease(defaultHandlerID);
-      } else {
-        // If the bundle doesn't have an identifier in its info property list,
-        // it's not our bundle.
-        isDefault = false;
-      }
-
-      ::CFRelease(defaultHandlerBundle);
-    }
-
-    ::CFRelease(defaultHandlerURL);
+  if (defaultHandlerID) {
+    isDefault =
+        CFStringCompare(tbirdID, defaultHandlerID, 0) == kCFCompareEqualTo;
+    ::CFRelease(defaultHandlerID);
   } else {
-    // If |_LSCopyDefaultSchemeHandlerURL| failed, there's no default
+    // If LSCopyDefaultHandlerForURLScheme failed, there's no default
     // handler for the given protocol
     isDefault = false;
   }
@@ -142,11 +123,15 @@ bool nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme) {
 
 nsresult nsMacShellService::setAsDefaultHandlerForProtocol(
     CFStringRef aScheme) {
-  CFURLRef tbirdURL = ::CFBundleCopyBundleURL(CFBundleGetMainBundle());
+  CFStringRef tbirdID = ::CFBundleGetIdentifier(::CFBundleGetMainBundle());
+  ::CFRetain(tbirdID);
 
-  ::_LSSetDefaultSchemeHandlerURL(aScheme, tbirdURL);
-  ::_LSSaveAndRefresh();
-  ::CFRelease(tbirdURL);
+  OSStatus status = LSSetDefaultHandlerForURLScheme(aScheme, tbirdID);
+  if (status != 0) {
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  ::CFRelease(tbirdID);
 
   return NS_OK;
 }
