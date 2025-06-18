@@ -4237,7 +4237,8 @@ var folderPane = {
     // Start at the end, so we can stop once we've reached the insertion point.
     const folders = subFolders
       .filter(sf => sf != folder)
-      .sort(FolderUtils.compareFolders);
+      .sort(FolderUtils.compareFolders)
+      .reverse();
     for (const sibling of folders) {
       // If we've reached the target and we're inserting after it, we've done
       // all the necessary moving.
