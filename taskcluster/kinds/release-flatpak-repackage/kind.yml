@@ -17,7 +17,7 @@ kind-dependencies:
 task-defaults:
     description: Generates flatpak by repackaging the existing .tar.xz
     run-on-projects: []  # to make sure this never runs as part of CI
-    run-on-releases: [beta, release, esr128]
+    run-on-releases: [beta, release, esr140]
     shipping-phase: promote
     scopes: []
     package-locales-file: comm/mail/locales/onchange-locales

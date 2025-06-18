@@ -56,7 +56,7 @@ task-defaults:
             by-release-type:
                 beta: "79.0b2"
                 release(-rc)?: "129.0"
-                esr128: "128.0esr"
+                esr140: "140.0esr"
                 default: "default"
 
 tasks:
