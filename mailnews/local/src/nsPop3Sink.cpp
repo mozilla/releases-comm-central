@@ -142,8 +142,8 @@ nsresult nsPop3Sink::DiscardStalePartialMessages(nsIPop3Protocol* protocol) {
   return NS_OK;
 }
 
-nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
-                                       nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP nsPop3Sink::BeginMailDelivery(bool uidlDownload,
+                                            nsIMsgWindow* aMsgWindow) {
   nsresult rv;
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_popServer);
   if (!server) return NS_ERROR_UNEXPECTED;
@@ -186,7 +186,7 @@ nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
   return NS_OK;
 }
 
-nsresult nsPop3Sink::EndMailDelivery(nsIPop3Protocol* protocol) {
+NS_IMETHODIMP nsPop3Sink::EndMailDelivery(nsIPop3Protocol* protocol) {
   if (!m_uidlDownload) {
     DiscardStalePartialMessages(protocol);
   }
@@ -273,7 +273,7 @@ nsresult nsPop3Sink::ReleaseFolderLock() {
   return result;
 }
 
-nsresult nsPop3Sink::AbortMailDelivery(nsIPop3Protocol* protocol) {
+NS_IMETHODIMP nsPop3Sink::AbortMailDelivery(nsIPop3Protocol* protocol) {
   // ### PS TODO - discard any new message?
 
   if (m_outFileStream) {
@@ -300,8 +300,8 @@ nsresult nsPop3Sink::AbortMailDelivery(nsIPop3Protocol* protocol) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsPop3Sink::IncorporateBegin(const char* uidlString, uint32_t flags) {
+NS_IMETHODIMP nsPop3Sink::IncorporateBegin(const char* uidlString,
+                                           uint32_t flags) {
 #ifdef DEBUG
   printf("Incorporate message begin:\n");
   if (uidlString) printf("uidl string: %s\n", uidlString);
@@ -460,8 +460,8 @@ nsresult nsPop3Sink::WriteLineToMailbox(const nsACString& buffer) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
+NS_IMETHODIMP nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow,
+                                              int32_t aSize) {
   if (m_buildMessageUri && !m_baseMessageUri.IsEmpty() && m_newMailParser) {
     nsCOMPtr<nsIMsgDBHdr> hdr;
     m_newMailParser->GetNewMsgHdr(getter_AddRefs(hdr));
@@ -487,6 +487,7 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
+  NS_ENSURE_STATE(m_outFileStream);
   // We need to flush the output stream in case mail filters move/copy the new
   // message. This relies on all the data being flushed (i.e., written to disk).
   rv = m_outFileStream->Flush();
@@ -571,8 +572,7 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsPop3Sink::IncorporateAbort() {
+NS_IMETHODIMP nsPop3Sink::IncorporateAbort() {
   if (m_msgStore && m_newMailParser) {
     nsCOMPtr<nsIMsgDBHdr> hdr;
     m_newMailParser->GetNewMsgHdr(getter_AddRefs(hdr));
@@ -585,9 +585,9 @@ nsPop3Sink::IncorporateAbort() {
   return NS_OK;
 }
 
-nsresult nsPop3Sink::SetBiffStateAndUpdateFE(uint32_t aBiffState,
-                                             int32_t numNewMessages,
-                                             bool notify) {
+NS_IMETHODIMP nsPop3Sink::SetBiffStateAndUpdateFE(uint32_t aBiffState,
+                                                  int32_t numNewMessages,
+                                                  bool notify) {
   m_biffState = aBiffState;
   if (m_newMailParser) numNewMessages -= m_newMailParser->m_numNotNewMessages;
 
@@ -602,53 +602,45 @@ nsresult nsPop3Sink::SetBiffStateAndUpdateFE(uint32_t aBiffState,
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsPop3Sink::GetBuildMessageUri(bool* bVal) {
+NS_IMETHODIMP nsPop3Sink::GetBuildMessageUri(bool* bVal) {
   NS_ENSURE_ARG_POINTER(bVal);
   *bVal = m_buildMessageUri;
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsPop3Sink::SetBuildMessageUri(bool bVal) {
+NS_IMETHODIMP nsPop3Sink::SetBuildMessageUri(bool bVal) {
   m_buildMessageUri = bVal;
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsPop3Sink::GetMessageUri(nsACString& messageUri) {
+NS_IMETHODIMP nsPop3Sink::GetMessageUri(nsACString& messageUri) {
   NS_ENSURE_TRUE(!m_messageUri.IsEmpty(), NS_ERROR_FAILURE);
   messageUri = m_messageUri;
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsPop3Sink::SetMessageUri(const nsACString& messageUri) {
+NS_IMETHODIMP nsPop3Sink::SetMessageUri(const nsACString& messageUri) {
   m_messageUri = messageUri;
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsPop3Sink::GetBaseMessageUri(nsACString& baseMessageUri) {
+NS_IMETHODIMP nsPop3Sink::GetBaseMessageUri(nsACString& baseMessageUri) {
   NS_ENSURE_TRUE(!m_baseMessageUri.IsEmpty(), NS_ERROR_FAILURE);
   baseMessageUri = m_baseMessageUri;
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsPop3Sink::SetBaseMessageUri(const nsACString& baseMessageUri) {
+NS_IMETHODIMP nsPop3Sink::SetBaseMessageUri(const nsACString& baseMessageUri) {
   m_baseMessageUri = baseMessageUri;
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsPop3Sink::GetOrigMessageUri(nsACString& aOrigMessageUri) {
+NS_IMETHODIMP nsPop3Sink::GetOrigMessageUri(nsACString& aOrigMessageUri) {
   aOrigMessageUri.Assign(m_origMessageUri);
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsPop3Sink::SetOrigMessageUri(const nsACString& aOrigMessageUri) {
+NS_IMETHODIMP nsPop3Sink::SetOrigMessageUri(const nsACString& aOrigMessageUri) {
   m_origMessageUri.Assign(aOrigMessageUri);
   return NS_OK;
 }

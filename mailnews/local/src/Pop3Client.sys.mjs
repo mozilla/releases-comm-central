@@ -1456,6 +1456,7 @@ export class Pop3Client {
           );
         } catch (e) {
           this._actionError("pop3MessageWriteError");
+          this._sink.incorporateAbort();
           return;
         }
       } else {
@@ -1488,6 +1489,7 @@ export class Pop3Client {
           );
         } catch (e) {
           this._actionError("pop3MessageWriteError");
+          this._sink.incorporateAbort();
           return;
         }
 
@@ -1539,6 +1541,7 @@ export class Pop3Client {
         this._sink.incorporateBegin(this._currentMessage.uidl, 0);
       } catch (e) {
         this._actionError("pop3MessageWriteError");
+        this._sink.incorporateAbort();
         return;
       }
     }
@@ -1550,6 +1553,7 @@ export class Pop3Client {
           this._sink.incorporateWrite(line, line.length);
         } catch (e) {
           this._actionError("pop3MessageWriteError");
+          this._sink.incorporateAbort();
           throw e; // Stop reading.
         }
         this._sendNoopIfInactive();
@@ -1564,6 +1568,7 @@ export class Pop3Client {
           );
         } catch (e) {
           this._actionError("pop3MessageWriteError");
+          this._sink.incorporateAbort();
           return;
         }
         if (this._server.leaveMessagesOnServer) {
