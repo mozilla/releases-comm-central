@@ -13,8 +13,8 @@ var { alertHook } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
-var { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
+var { MockAlertsService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockAlertsService.sys.mjs"
 );
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
@@ -28,52 +28,53 @@ const TEST_WAITTIME = 1000;
 var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
   Ci.nsIMsgWindow
 );
-var mockAlertsService;
 var cid;
 var mailnewsURL;
 
 add_setup(function () {
-  // First register the mock alerts service.
-  mockAlertsService = new MockAlertsService();
-  cid = MockRegistrar.register(
-    "@mozilla.org/alerts-service;1",
-    mockAlertsService
-  );
+  MockAlertsService.init();
   // A random URL.
   const uri = Services.io.newURI("news://localhost:80/1@regular.invalid");
   mailnewsURL = uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
+
+  registerCleanupFunction(function () {
+    MockAlertsService.cleanup();
+  });
 });
 
 add_task(async function test_not_shown_to_user_no_url_no_window() {
+  const alertPromise = MockAlertsService.promiseShown();
   // Just text, no url or window => expect no error shown to user
   MailServices.mailSession.alertUser("test error");
   await Promise.race([
     PromiseTestUtils.promiseDelay(TEST_WAITTIME).then(() => {
       Assert.ok(true, "Alert is not shown with no window or no url present");
     }),
-    mockAlertsService.promise.then(() => {
+    alertPromise.then(() => {
       throw new Error(
         "Alert is shown to the user although neither window nor url is present"
       );
     }),
   ]);
+  MockAlertsService.reset();
 });
 
 add_task(async function test_shown_to_user() {
   // Reset promise state.
-  mockAlertsService.deferPromise();
+  const alertPromise = MockAlertsService.promiseShown();
   // Set a window for the URL.
   mailnewsURL.msgWindow = gMsgWindow;
 
   // Text, url and window => expect error shown to user
   MailServices.mailSession.alertUser("test error 2", mailnewsURL);
-  const alertShown = await mockAlertsService.promise;
-  Assert.ok(alertShown);
+  await alertPromise;
+  Assert.ok(MockAlertsService.alert);
+  MockAlertsService.reset();
 });
 
 add_task(async function test_not_shown_to_user_no_window() {
   // Reset promise state.
-  mockAlertsService.deferPromise();
+  const alertPromise = MockAlertsService.promiseShown();
   // No window for the URL.
   mailnewsURL.msgWindow = null;
 
@@ -83,34 +84,11 @@ add_task(async function test_not_shown_to_user_no_window() {
     PromiseTestUtils.promiseDelay(TEST_WAITTIME).then(() => {
       Assert.ok(true, "Alert is not shown with no window but a url present");
     }),
-    mockAlertsService.promise.then(() => {
+    alertPromise.then(() => {
       throw new Error(
         "Alert is shown to the user although no window in the mailnewsURL present"
       );
     }),
   ]);
+  MockAlertsService.reset();
 });
-
-add_task(function endTest() {
-  MockRegistrar.unregister(cid);
-});
-
-class MockAlertsService {
-  QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
-
-  constructor() {
-    this._deferredPromise = Promise.withResolvers();
-  }
-
-  showAlert() {
-    this._deferredPromise.resolve(true);
-  }
-
-  deferPromise() {
-    this._deferredPromise = Promise.withResolvers();
-  }
-
-  get promise() {
-    return this._deferredPromise.promise;
-  }
-}

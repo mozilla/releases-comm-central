@@ -64,21 +64,6 @@ var MockConflictPrompt = {
   },
 };
 
-class MockAlertsService {
-  QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
-  showAlert() {}
-}
-
-function replaceAlertsService() {
-  const originalAlertsServiceCID = MockRegistrar.register(
-    "@mozilla.org/alerts-service;1",
-    MockAlertsService
-  );
-  registerCleanupFunction(() => {
-    MockRegistrar.unregister(originalAlertsServiceCID);
-  });
-}
-
 var gMockCalendar = {
   name: "xpcshell",
   makeUri(insert, base) {
@@ -487,7 +472,6 @@ function run_test() {
   Services.prefs.setBoolPref("calendar.debug.log", true);
   Services.prefs.setBoolPref("calendar.debug.log.verbose", true);
   cal.console.maxLogLevel = "debug";
-  replaceAlertsService();
 
   // TODO: make do_calendar_startup to work with this test and replace the startup code here
   do_get_profile();

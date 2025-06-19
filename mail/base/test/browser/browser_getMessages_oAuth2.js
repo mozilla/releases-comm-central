@@ -10,6 +10,9 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { MockAlertsService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockAlertsService.sys.mjs"
+);
 const { OAuth2Module } = ChromeUtils.importESModule(
   "resource:///modules/OAuth2Module.sys.mjs"
 );
@@ -18,11 +21,6 @@ const { OAuth2TestUtils } = ChromeUtils.importESModule(
 );
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
-);
-
-Services.scriptloader.loadSubScript(
-  "chrome://mochikit/content/tests/SimpleTest/MockObjects.js",
-  this
 );
 
 const generator = new MessageGenerator();
@@ -83,11 +81,7 @@ add_setup(async function () {
 
   oAuth2Server = await OAuth2TestUtils.startServer();
 
-  const alertsService = new MockObjectRegisterer(
-    "@mozilla.org/alerts-service;1",
-    MockAlertsService
-  );
-  alertsService.register();
+  MockAlertsService.init();
 
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(localAccount, false);
@@ -98,8 +92,8 @@ add_setup(async function () {
     Services.prefs.clearUserPref("mailnews.oauth.loglevel");
     Services.prefs.clearUserPref("signon.rememberSignons");
 
-    Assert.ok(!MockAlertsService._alert, "no unexpected alerts were shown");
-    alertsService.unregister();
+    Assert.ok(!MockAlertsService.alert, "no unexpected alerts were shown");
+    MockAlertsService.cleanup();
   });
 });
 
@@ -316,7 +310,7 @@ add_task(async function testBadAccessToken() {
 
   for (const inbox of allInboxes) {
     Assert.ok(
-      !MockAlertsService._alert,
+      !MockAlertsService.alert,
       "no alerts were shown before this test"
     );
 
@@ -332,10 +326,10 @@ add_task(async function testBadAccessToken() {
 
     await fetchMessages(inbox);
     const alert = await TestUtils.waitForCondition(
-      () => MockAlertsService._alert,
+      () => MockAlertsService.alert,
       "waiting for connection alert to show"
     );
-    delete MockAlertsService._alert;
+    delete MockAlertsService.alert;
 
     Assert.equal(
       alert.imageURL,
@@ -411,28 +405,3 @@ add_task(async function testBadRefreshToken() {
     Services.logins.removeAllLogins();
   }
 });
-
-class MockAlertsService {
-  QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
-
-  static _alert;
-
-  showPersistentNotification(persistentData, alert) {
-    info(`showPersistentNotification: ${alert.text}`);
-    Assert.ok(false, "unexpected call to showPersistentNotification");
-  }
-
-  showAlert(alert) {
-    info(`showAlert: ${alert.text}`);
-    MockAlertsService._alert = alert;
-  }
-
-  showAlertNotification(imageUrl, title, text) {
-    info(`showAlertNotification: ${text}`);
-    Assert.ok(false, "unexpected call to showAlertNotification");
-  }
-
-  closeAlert() {
-    Assert.ok(false, "unexpected call to closeAlert");
-  }
-}

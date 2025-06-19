@@ -6,6 +6,10 @@
  * Tests that duplicate notifications about the same message do not appear.
  */
 
+const { MockAlertsService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockAlertsService.sys.mjs"
+);
+
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -14,11 +18,6 @@ const { MessageGenerator } = ChromeUtils.importESModule(
 );
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
-);
-
-Services.scriptloader.loadSubScript(
-  "chrome://mochikit/content/tests/SimpleTest/MockObjects.js",
-  this
 );
 
 add_task(async function () {
@@ -86,11 +85,7 @@ add_task(async function () {
   );
   createFilter("spammer@test.invalid", trash);
 
-  const alertsService = new MockObjectRegisterer(
-    "@mozilla.org/system-alerts-service;1",
-    MockAlertsService
-  );
-  alertsService.register();
+  MockAlertsService.init();
 
   const generator = new MessageGenerator();
 
@@ -102,7 +97,7 @@ add_task(async function () {
 
     MailServices.accounts.removeAccount(localAccount, false);
     MailServices.accounts.removeAccount(account, false);
-    alertsService.unregister();
+    MockAlertsService.cleanup();
   });
 
   await server.addMessages(
@@ -121,7 +116,7 @@ add_task(async function () {
     1,
     "trash should have one new message"
   );
-  Assert.ok(!MockAlertsService._alert, "there should be no notification");
+  Assert.ok(!MockAlertsService.alert, "there should be no notification");
 
   for (const colour of ["red", "green", "blue", "green", "red"]) {
     await server.addMessages(
@@ -135,7 +130,7 @@ add_task(async function () {
     window.GetFolderMessages();
 
     const alert = await TestUtils.waitForCondition(
-      () => MockAlertsService._alert,
+      () => MockAlertsService.alert,
       `waiting for a notification about folder ${colour}Filter`
     );
     Assert.stringContains(
@@ -149,9 +144,8 @@ add_task(async function () {
       `notification should be about folder ${colour}Filter`
     );
 
-    MockAlertsService._listener.observe(null, "alertfinished", alert.cookie);
-    delete MockAlertsService._alert;
-    delete MockAlertsService._listener;
+    MockAlertsService.listener.observe(null, "alertfinished", alert.cookie);
+    MockAlertsService.reset();
   }
 
   await server.addMessages(
@@ -175,37 +169,5 @@ add_task(async function () {
     2,
     "trash should have two unread messages"
   );
-  Assert.ok(!MockAlertsService._alert, "there should be no notification");
+  Assert.ok(!MockAlertsService.alert, "there should be no notification");
 });
-
-/** @implements {nsIAlertsService} */
-class MockAlertsService {
-  QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
-
-  static _alert;
-  static _listener;
-
-  showPersistentNotification(persistentData, alert) {
-    info(`showPersistentNotification: ${alert.text}`);
-    Assert.ok(false, "unexpected call to showPersistentNotification");
-  }
-
-  showAlert(alert, listener) {
-    info(`showAlert: ${alert.text}`);
-    Assert.ok(
-      !MockAlertsService._alert,
-      "showAlert should not be called while an alert is showing"
-    );
-    MockAlertsService._alert = alert;
-    MockAlertsService._listener = listener;
-  }
-
-  showAlertNotification(imageUrl, title, text) {
-    info(`showAlertNotification: ${text}`);
-    Assert.ok(false, "unexpected call to showAlertNotification");
-  }
-
-  closeAlert() {
-    Assert.ok(false, "unexpected call to closeAlert");
-  }
-}
