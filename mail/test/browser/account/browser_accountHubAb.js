@@ -304,7 +304,33 @@ add_task(async function test_address_book_sync_account() {
   );
   Assert.ok(addressBookInput.checked, "Address book option should be checked");
 
-  await subtest_close_account_hub_dialog(dialog, syncAddressBooksTemplate);
+  // Click forward to add the address book and automatically close the dialog.
+  const addressBookDirectoryPromise = TestUtils.topicObserved(
+    "addrbook-directory-synced"
+  );
+  const dialogClosePromise = BrowserTestUtils.waitForEvent(dialog, "close");
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector("#addressBookFooter #forward"),
+    {}
+  );
+
+  // Check existance of address book and calendar.
+  const [addressBookDirectory] = await addressBookDirectoryPromise;
+  Assert.equal(addressBookDirectory.dirName, "You found me!");
+  Assert.equal(
+    addressBookDirectory.dirType,
+    Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
+  );
+  Assert.equal(
+    addressBookDirectory.getStringValue("carddav.url", ""),
+    "https://example.org/browser/comm/mail/components/addrbook/test/browser/data/addressbook.sjs"
+  );
+
+  // Remove the address book.
+  MailServices.ab.deleteAddressBook(addressBookDirectory.URI);
+
+  // The dialog should automatically close after clicking next
+  await dialogClosePromise;
   Services.logins.removeAllLogins();
   MailServices.accounts.removeAccount(abAccount);
   IMAPServer.close();

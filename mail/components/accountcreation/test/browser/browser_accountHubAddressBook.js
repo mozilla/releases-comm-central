@@ -45,7 +45,6 @@ add_setup(async function () {
   testAccount.account.defaultIdentity.fullName = "Test User";
 
   registerCleanupFunction(async () => {
-    await abView.reset();
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   });
 });
@@ -136,42 +135,15 @@ add_task(async function test_reset() {
 });
 
 add_task(async function test_optionAndAccountSelectFormSubmission() {
-  // Add a test account to the address-book #accounts variable
+  abView.insertTestAccount(testAccount);
   const optionSelectSubview = abView.querySelector(
     "address-book-option-select"
   );
-  await TestUtils.waitForCondition(
-    () => abView.hasConnected,
-    "The address book subview should be connected"
-  );
-  abView.insertTestAccount(testAccount);
-
-  // Enable the sync accounts option and select it.
-  const syncAccountsButton = optionSelectSubview.querySelector(
-    "#syncExistingAccounts"
-  );
-  syncAccountsButton.disabled = false;
-  let formSubmissionPromise = BrowserTestUtils.waitForEvent(
-    optionSelectSubview,
-    "submit"
-  );
-  EventUtils.synthesizeMouseAtCenter(
-    syncAccountsButton,
-    {},
-    abView.ownerGlobal
-  );
-  await formSubmissionPromise;
 
   // To spy on the setState function of account select, we need to first load
   // it by viewing it, and then go back to option select to see if setState is
   // called when the form is submitted again.
-  const accountSelectSubview = abView.querySelector(
-    "address-book-account-select"
-  );
-  await TestUtils.waitForCondition(
-    () => accountSelectSubview.hasConnected,
-    "The account-select subview should be connected"
-  );
+  const accountSelectSubview = await subtest_viewAccountOptions();
   let setStateSpy = sinon.spy(accountSelectSubview, "setState");
   const backButton = abView.querySelector("account-hub-footer #back");
 
@@ -192,11 +164,10 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   );
 
   EventUtils.synthesizeMouseAtCenter(
-    syncAccountsButton,
+    optionSelectSubview.querySelector("#syncExistingAccounts"),
     {},
     abView.ownerGlobal
   );
-
   await TestUtils.waitForCondition(
     () => accountSelectSubview.querySelector('button[value="test@test.com"]'),
     "The account-select subview should show an account button"
@@ -210,21 +181,7 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   // To spy on the setState function of the syncSubview, we need to first load
   // it by viewing it, and then go back to account select to see if setState is
   // called when the form is submitted again.
-  const accountButton = accountSelectSubview.querySelector(
-    'button[value="test@test.com"]'
-  );
-  formSubmissionPromise = BrowserTestUtils.waitForEvent(
-    accountSelectSubview,
-    "submit"
-  );
-  EventUtils.synthesizeMouseAtCenter(accountButton, {}, abView.ownerGlobal);
-  await formSubmissionPromise;
-
-  const syncSubview = abView.querySelector("address-book-sync");
-  await TestUtils.waitForCondition(
-    () => syncSubview.hasConnected,
-    "The sync subview should be connected"
-  );
+  const syncSubview = await subtest_viewSyncAddressBooks(accountSelectSubview);
   setStateSpy = sinon.spy(syncSubview, "setState");
 
   subviewHiddenPromise = BrowserTestUtils.waitForAttribute(
@@ -249,6 +206,9 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   subviewHiddenPromise = BrowserTestUtils.waitForAttribute(
     "hidden",
     accountSelectSubview
+  );
+  const accountButton = accountSelectSubview.querySelector(
+    'button[value="test@test.com"]'
   );
   EventUtils.synthesizeMouseAtCenter(accountButton, {}, abView.ownerGlobal);
   await subviewHiddenPromise;
@@ -309,5 +269,176 @@ add_task(async function test_configUpdatedEvent() {
     "Should enable forward button with complete config"
   );
 
-  abView.reset();
+  await abView.reset();
 });
+
+add_task(async function test_syncAllAddressBooks() {
+  setTestAccountWithAddressBookStubs();
+  const accountSelectSubview = await subtest_viewAccountOptions();
+  await subtest_viewSyncAddressBooks(accountSelectSubview);
+  await subtest_clickContinue();
+
+  // Check if create() was called for each address book.
+  Assert.equal(
+    testAccount.addressBooks[0].create.callCount,
+    1,
+    "First address book should have called create"
+  );
+  Assert.equal(
+    testAccount.addressBooks[1].create.callCount,
+    1,
+    "Second address booko should have called create"
+  );
+
+  abView.removeTestAccount(testAccount);
+  await abView.reset();
+});
+
+add_task(async function test_syncOneAddressBook() {
+  setTestAccountWithAddressBookStubs();
+  const accountSelectSubview = await subtest_viewAccountOptions();
+  const syncSubview = await subtest_viewSyncAddressBooks(accountSelectSubview);
+
+  // Uncheck the first address book.
+  EventUtils.synthesizeMouseAtCenter(
+    syncSubview.querySelector("input"),
+    {},
+    abView.ownerGlobal
+  );
+  await subtest_clickContinue();
+
+  // Check if create() was called for the second address book.
+  Assert.equal(
+    testAccount.addressBooks[0].create.callCount,
+    0,
+    "First address book should have called create"
+  );
+  Assert.equal(
+    testAccount.addressBooks[1].create.callCount,
+    1,
+    "Second address booko should have called create"
+  );
+
+  abView.removeTestAccount(testAccount);
+  await abView.reset();
+});
+
+add_task(async function test_syncNoAddressBooks() {
+  setTestAccountWithAddressBookStubs();
+  const accountSelectSubview = await subtest_viewAccountOptions();
+  const syncSubview = await subtest_viewSyncAddressBooks(accountSelectSubview);
+
+  // Uncheck the first address book.
+  EventUtils.synthesizeMouseAtCenter(
+    syncSubview.querySelector("#selectAllAddressBooks"),
+    {},
+    abView.ownerGlobal
+  );
+  await subtest_clickContinue();
+
+  // Check if create() wasn't called for either address book.
+  Assert.equal(
+    testAccount.addressBooks[0].create.callCount,
+    0,
+    "First address book should have called create"
+  );
+  Assert.equal(
+    testAccount.addressBooks[1].create.callCount,
+    0,
+    "Second address booko should have called create"
+  );
+
+  abView.removeTestAccount(testAccount);
+  await abView.reset();
+});
+
+/**
+ * Subtest to view the account select books subview.
+ *
+ * @returns {HTMLElement}
+ */
+async function subtest_viewAccountOptions() {
+  // Add a test account to the address-book #accounts variable
+  const optionSelectSubview = abView.querySelector(
+    "address-book-option-select"
+  );
+
+  // Enable the sync accounts option and select it.
+  const syncAccountsButton = optionSelectSubview.querySelector(
+    "#syncExistingAccounts"
+  );
+  syncAccountsButton.disabled = false;
+  const formSubmissionPromise = BrowserTestUtils.waitForEvent(
+    optionSelectSubview,
+    "submit"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    syncAccountsButton,
+    {},
+    abView.ownerGlobal
+  );
+  await formSubmissionPromise;
+
+  const accountSelectSubview = abView.querySelector(
+    "address-book-account-select"
+  );
+  await TestUtils.waitForCondition(
+    () => accountSelectSubview.hasConnected,
+    "The account-select subview should be connected"
+  );
+
+  return accountSelectSubview;
+}
+
+/**
+ * Subtest to view the sync address books subview from the account select
+ * subview.
+ *
+ * @param {HTMLElement} accountSelectSubview - The account select step.
+ * @returns {HTMLElement}
+ */
+async function subtest_viewSyncAddressBooks(accountSelectSubview) {
+  const accountButton = accountSelectSubview.querySelector(
+    'button[value="test@test.com"]'
+  );
+  const formSubmissionPromise = BrowserTestUtils.waitForEvent(
+    accountSelectSubview,
+    "submit"
+  );
+  EventUtils.synthesizeMouseAtCenter(accountButton, {}, abView.ownerGlobal);
+  await formSubmissionPromise;
+
+  const syncSubview = abView.querySelector("address-book-sync");
+  await TestUtils.waitForCondition(
+    () => syncSubview.hasConnected,
+    "The sync subview should be connected"
+  );
+
+  return syncSubview;
+}
+
+/**
+ * Adds function stubs to the create property of each address book in the test
+ * account.
+ */
+function setTestAccountWithAddressBookStubs() {
+  testAccount.addressBooks[0].create = sinon.stub();
+  testAccount.addressBooks[1].create = sinon.stub();
+  testAccount.addressBooks[0].create.returns(true);
+  testAccount.addressBooks[1].create.returns(true);
+  abView.insertTestAccount(testAccount);
+}
+
+/**
+ * Subtest to click the continue button in the account hub footer.
+ */
+async function subtest_clickContinue() {
+  const forwardButton = abView.querySelector("account-hub-footer #forward");
+
+  const formSubmissionPromise = BrowserTestUtils.waitForEvent(
+    abView.querySelector("account-hub-footer"),
+    "forward"
+  );
+  EventUtils.synthesizeMouseAtCenter(forwardButton, {}, abView.ownerGlobal);
+  await formSubmissionPromise;
+}

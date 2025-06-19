@@ -236,9 +236,14 @@ class AccountHubAddressBook extends HTMLElement {
               event.submitter.value
           );
           this.#currentSubview.setState(account.addressBooks);
+          break;
         }
       // Fall through to handle like forward event.
       case "forward":
+        await this.#handleForwardAction(
+          this.#currentState,
+          this.#currentSubview.captureState?.()
+        );
         break;
       case "config-updated":
         this.#footer.toggleForwardDisabled(!event.detail.completed);
@@ -290,6 +295,35 @@ class AccountHubAddressBook extends HTMLElement {
     return import(
       `chrome://messenger/content/accountcreation/content/widgets/${templateId}.mjs`
     );
+  }
+
+  /**
+   * Calls the appropriate method for the current state when the forward
+   * button is pressed.
+   *
+   * @param {string} currentState - The current state of the address book flow.
+   * @param {object} stateData - The current state data of the address book
+   *  flow.
+   */
+  #handleForwardAction(currentState, stateData) {
+    switch (currentState) {
+      case "syncAddressBooksSubview":
+        // The state data returned from this subview is a list of available
+        // address books that have a create function.
+        for (const addressBook of stateData) {
+          addressBook.create();
+        }
+
+        // Close account hub dialog.
+        this.dispatchEvent(
+          new CustomEvent("request-close", {
+            bubbles: true,
+          })
+        );
+        break;
+      default:
+        break;
+    }
   }
 
   /**
