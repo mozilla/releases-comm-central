@@ -62,14 +62,6 @@ Enigmail.msg = {
   //sendMode: null, // the current default for sending a message (0, SIGN, ENCRYPT, or SIGN|ENCRYPT)
   //sendModeDirty: false, // send mode or final send options changed?
 
-  // processed strings to signal final encrypt/sign/pgpmime state:
-  statusEncryptedStr: "???",
-  statusSignedStr: "???",
-  //statusPGPMimeStr: "???",
-  //statusSMimeStr: "???",
-  //statusInlinePGPStr: "???",
-  statusAttachOwnKey: "???",
-
   sendProcess: false,
   composeBodyReady: false,
   modifiedAttach: null,
