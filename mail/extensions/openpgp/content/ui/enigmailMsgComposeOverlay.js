@@ -662,7 +662,7 @@ Enigmail.msg = {
       draftStatus += gSendEncrypted && gEncryptSubject ? "1" : "0";
     }
 
-    this.setAdditionalHeader("X-Enigmail-Draft-Status", draftStatus);
+    gMsgCompose.compFields.setHeader("x-enigmail-draft-status", draftStatus);
   },
 
   getSenderUserId() {
@@ -1078,7 +1078,7 @@ Enigmail.msg = {
       throw new Error("No recipients specified!");
     }
 
-    this.unsetAdditionalHeader("x-enigmail-draft-status");
+    gMsgCompose.compFields.deleteHeader("x-enigmail-draft-status");
 
     const senderKeyId = gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
 
@@ -1467,20 +1467,6 @@ Enigmail.msg = {
   },
 
   /**
-   * Set non-standard message Header.
-   *
-   * @param {string} hdr - Header type (e.g. X-Enigmail-Version)
-   * @param {string} val - Header data (e.g. 1.2.3.4)
-   */
-  setAdditionalHeader(hdr, val) {
-    gMsgCompose.compFields.setHeader(hdr, val);
-  },
-
-  unsetAdditionalHeader(hdr) {
-    gMsgCompose.compFields.deleteHeader(hdr);
-  },
-
-  /**
    * Obtain all Autocrypt-Gossip header lines that should be included in
    * the outgoing message, excluding the sender's (from) email address.
    * If there is just one recipient (ignoring the from address),
@@ -1570,7 +1556,7 @@ Enigmail.msg = {
     if (keyData) {
       keyData =
         " " + keyData.replace(/(.{72})/g, "$1\r\n ").replace(/\r\n $/, "");
-      this.setAdditionalHeader(
+      gMsgCompose.compFields.setHeader(
         "Autocrypt",
         "addr=" + fromMail + "; keydata=\r\n" + keyData
       );
