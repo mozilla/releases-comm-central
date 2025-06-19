@@ -4,12 +4,13 @@
 
 "use strict";
 
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
-);
 const { HttpServer } = ChromeUtils.importESModule(
   "resource://testing-common/httpd.sys.mjs"
 );
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
+
 const { NotificationUpdater } = ChromeUtils.importESModule(
   "resource:///modules/NotificationUpdater.sys.mjs"
 );
@@ -90,44 +91,12 @@ const notifications = [
   },
 ];
 
-/** @implements {nsIExternalProtocolService} */
-const gMockExternalProtocolService = {
-  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-  externalProtocolHandlerExists() {},
-  isExposedProtocol() {},
-  loadURI(uri) {
-    Assert.equal(
-      uri.spec,
-      this.expectedURI,
-      "Should only receive load request got test specific URI"
-    );
-    this.didOpen = true;
-    this.deferred?.resolve(uri.spec);
-    this.deferred = null;
-  },
-  expectOpen(uri) {
-    if (this.deferred) {
-      if (this.expectedURI !== uri) {
-        return Promise.reject(new Error("Already waiting for a different URI"));
-      }
-      return this.deferred.promise;
-    }
-    this.didOpen = false;
-    this.expectedURI = uri;
-    this.deferred = Promise.withResolvers();
-    return this.deferred.promise;
-  },
-};
-
 add_setup(async () => {
   NotificationScheduler._idleService.disabled = true;
   NotificationScheduler.observe(null, "active");
   NotificationManager._PER_TIME_UNIT = 1;
 
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    gMockExternalProtocolService
-  );
+  MockExternalProtocolService.init();
 
   Services.prefs.setIntPref(
     "datareporting.policy.dataSubmissionPolicyAcceptedVersion",
@@ -162,7 +131,7 @@ add_setup(async () => {
     Services.prefs.setStringPref("mail.inappnotifications.url", "");
     await reset();
     await new Promise(resolve => server.stop(resolve));
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
     await PlacesUtils.history.clear();
   });
 });
@@ -208,12 +177,10 @@ add_task(async function test_notificationEndToEnd() {
   const formattedURLNotification = Services.urlFormatter.formatURL(
     notifications[0].URL
   );
-  const waitForLinkOpen = gMockExternalProtocolService.expectOpen(
-    formattedURLNotification
-  );
+  const waitForLinkOpen = MockExternalProtocolService.promiseLoad();
 
   EventUtils.synthesizeMouseAtCenter(ctaButton, {}, window);
-  await waitForLinkOpen;
+  Assert.equal(await waitForLinkOpen, formattedURLNotification);
 
   info("Wait for next notification: tab");
 
@@ -236,7 +203,7 @@ add_task(async function test_notificationEndToEnd() {
   const formattedURLBrowser = Services.urlFormatter.formatURL(
     notifications[2].URL
   );
-  const mockOpen = gMockExternalProtocolService.expectOpen(formattedURLBrowser);
+  const mockOpen = MockExternalProtocolService.promiseLoad();
 
   const formattedURLTab = Services.urlFormatter.formatURL(notifications[1].URL);
   const tabBrowser = tabmail.getBrowserForSelectedTab();
@@ -257,7 +224,7 @@ add_task(async function test_notificationEndToEnd() {
   info("Wait for next notification: browser");
 
   // The mock service asserts that we open the expected URL.
-  await mockOpen;
+  Assert.equal(await mockOpen, formattedURLBrowser);
 
   await waitForNotification(false);
 });

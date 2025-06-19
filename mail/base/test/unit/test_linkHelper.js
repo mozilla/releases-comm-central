@@ -4,12 +4,12 @@
 
 "use strict";
 
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
+
 const { openLinkExternally, openWebSearch, openUILink } =
   ChromeUtils.importESModule("resource:///modules/LinkHelper.sys.mjs");
-// mailShutdown.js also wants MockRegistrar and gets loaded into this scope.
-var { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
-);
 const { PlacesUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/PlacesUtils.sys.mjs"
 );
@@ -17,20 +17,9 @@ const { PlacesTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/PlacesTestUtils.sys.mjs"
 );
 
-const uriListener = {
-  running: false,
-  resolver: null,
-  async *stream() {
-    while (this.running) {
-      this.resolver = Promise.withResolvers();
-      yield await this.resolver.promise;
-    }
-  },
-};
-
 async function checkURI(uri, expectedSpec) {
   Assert.equal(
-    uri.spec,
+    uri,
     expectedSpec,
     "URL should be sent to external protocol service"
   );
@@ -44,61 +33,36 @@ async function checkURI(uri, expectedSpec) {
 
 add_setup(async function () {
   do_get_profile();
-  /** @implements {nsIExternalProtocolService} */
-  const mockExternalProtocolService = {
-    QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-    externalProtocolHandlerExists() {},
-    isExposedProtocol() {},
-    loadURI(uri) {
-      uriListener.resolver.resolve(uri);
-    },
-  };
 
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
-  uriListener.running = true;
+  MockExternalProtocolService.init();
   registerCleanupFunction(async () => {
-    uriListener.running = false;
-    uriListener.resolver?.resolve("done");
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
     await PlacesUtils.history.clear();
   });
 });
 
 add_task(async function test_openLinkExternally() {
-  const stream = uriListener.stream();
-  const urlPromise = stream.next();
+  let loadPromise = MockExternalProtocolService.promiseLoad();
   openLinkExternally("https://example.com/");
-  const { value: url } = await urlPromise;
-  await checkURI(url, "https://example.com/");
+  await checkURI(await loadPromise, "https://example.com/");
 
-  const uriPromise = stream.next();
+  loadPromise = MockExternalProtocolService.promiseLoad();
   openLinkExternally(Services.io.newURI("https://example.com/uri"));
-  const { value: uri } = await uriPromise;
-  await checkURI(uri, "https://example.com/uri");
+  await checkURI(await loadPromise, "https://example.com/uri");
 
   await PlacesUtils.history.clear();
-  stream.return();
 });
 
 add_task(async function test_openWebSearch() {
-  const stream = uriListener.stream();
-  const urlPromise = stream.next();
-
+  const loadPromise = MockExternalProtocolService.promiseLoad();
   await openWebSearch("test");
-  const { value: url } = await urlPromise;
-  await checkURI(url, "https://www.google.com/search?q=test");
+  await checkURI(await loadPromise, "https://www.google.com/search?q=test");
 
   await PlacesUtils.history.clear();
-  stream.return();
 });
 
 add_task(async function test_openUILink() {
-  const stream = uriListener.stream();
-  const urlPromise = stream.next();
-
+  const loadPromise = MockExternalProtocolService.promiseLoad();
   openUILink("https://example.com/?button=2", { button: 2 });
 
   const uri = Services.io.newURI("https://example.com/?button=2");
@@ -109,10 +73,7 @@ add_task(async function test_openUILink() {
   Assert.equal(visitCount, 0, "Should record no visits for the URL");
 
   openUILink("https://example.com/?button=0", { button: 0 });
-
-  const { value: url } = await urlPromise;
-  await checkURI(url, "https://example.com/?button=0");
+  await checkURI(await loadPromise, "https://example.com/?button=0");
 
   await PlacesUtils.history.clear();
-  stream.return();
 });

@@ -6,18 +6,15 @@
  * Test that clicking links in the message browser works.
  */
 
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
 
 const tabmail = document.getElementById("tabmail");
 let testMessage;
 
 add_setup(async function () {
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
+  MockExternalProtocolService.init();
 
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
@@ -41,7 +38,7 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
   });
 });
 
@@ -62,53 +59,18 @@ add_task(async function click_elements() {
   const button_elements = messageBody.getElementsByTagName("button");
 
   const click_element = async element => {
-    const openedLinkPromise = mockExternalProtocolService.promiseEvent();
-    element.click();
+    const openedLinkPromise = MockExternalProtocolService.promiseLoad();
+    EventUtils.synthesizeMouseAtCenter(element, {}, element.ownerGlobal);
     Assert.equal(
       await openedLinkPromise,
       "https://www.example.com/",
       "should have tried to open the browser"
     );
+    MockExternalProtocolService.reset();
   };
 
-  click_element(a_elements[0]);
-  click_element(button_elements[0]);
-  click_element(button_elements[1]);
-  click_element(button_elements[2]);
+  await click_element(a_elements[0]);
+  await click_element(button_elements[0]);
+  await click_element(button_elements[1]);
+  await click_element(button_elements[2]);
 });
-
-/** @implements {nsIExternalProtocolService} */
-const mockExternalProtocolService = {
-  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-
-  _deferred: null,
-
-  externalProtocolHandlerExists() {
-    return true;
-  },
-
-  isExposedProtocol() {
-    return true;
-  },
-
-  loadURI(aURI) {
-    if (this._deferred) {
-      const deferred = this._deferred;
-      this._deferred = null;
-
-      deferred.resolve(aURI.spec);
-    } else {
-      this.cancelPromise();
-      Assert.ok(false, "unexpected call to external protocol service");
-    }
-  },
-
-  promiseEvent() {
-    this._deferred = Promise.withResolvers();
-    return this._deferred.promise;
-  },
-
-  cancelPromise() {
-    this._deferred = null;
-  },
-};

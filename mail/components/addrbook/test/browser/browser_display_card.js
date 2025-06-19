@@ -4,11 +4,12 @@
 
 requestLongerTimeout(2);
 
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
+
 var { CalendarTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
-);
-var { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
 var { VCardUtils } = ChromeUtils.importESModule(
@@ -17,29 +18,6 @@ var { VCardUtils } = ChromeUtils.importESModule(
 var { AddrBookCard } = ChromeUtils.importESModule(
   "resource:///modules/AddrBookCard.sys.mjs"
 );
-
-/** @implements {nsIExternalProtocolService} */
-const mockExternalProtocolService = {
-  _loadedURLs: [],
-  externalProtocolHandlerExists() {},
-  getApplicationDescription() {},
-  getProtocolHandlerInfo() {},
-  getProtocolHandlerInfoFromOS() {},
-  isExposedProtocol(scheme) {
-    // Match current network.protocol-handler.expose.<scheme> prefs.
-    return /^(about|blob|chrome|data|file|https?|imap|javascript|mailto|mid|moz-extension|s?news|nntp|pop)$/.test(
-      scheme
-    );
-  },
-  loadURI(aURI) {
-    this._loadedURLs.push(aURI.spec);
-  },
-  setProtocolHandlerDefaults() {},
-  urlLoaded(aURL) {
-    return this._loadedURLs.includes(aURL);
-  },
-  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-};
 
 add_setup(async function () {
   // Card 0.
@@ -97,16 +75,13 @@ add_setup(async function () {
 
   const calendar = CalendarTestUtils.createCalendar();
 
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
+  MockExternalProtocolService.init();
 
   registerCleanupFunction(async () => {
     personalBook.deleteCards(personalBook.childCards);
     MailServices.accounts.removeAccount(account, true);
     CalendarTestUtils.removeCalendar(calendar);
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
   });
 });
 
@@ -321,14 +296,14 @@ add_task(async function testDisplay() {
   items[0].children[1]
     .querySelector("a")
     .scrollIntoView({ block: "start", behavior: "instant" });
+
   EventUtils.synthesizeMouseAtCenter(
     items[0].children[1].querySelector("a"),
     {},
     abWindow
   );
-  await TestUtils.waitForCondition(
-    () => mockExternalProtocolService.urlLoaded("https://www.thunderbird.net/"),
-    "attempted to load website in a browser"
+  MockExternalProtocolService.assertHasLoadedURL(
+    "https://www.thunderbird.net/"
   );
 
   // Instant messaging section
@@ -360,10 +335,7 @@ add_task(async function testDisplay() {
     {},
     abWindow
   );
-  await TestUtils.waitForCondition(
-    () => mockExternalProtocolService.urlLoaded("xmpp:cowboy@example.org"),
-    "waited for xmpp to load"
-  );
+  MockExternalProtocolService.assertHasLoadedURL("xmpp:cowboy@example.org");
 
   // Other sections.
   Assert.ok(BrowserTestUtils.isVisible(otherInfoSection));
@@ -903,15 +875,14 @@ add_task(async function testGoogleEscaping() {
   items[0].children[1]
     .querySelector("a")
     .scrollIntoView({ block: "start", behavior: "instant" });
+
   EventUtils.synthesizeMouseAtCenter(
     items[0].children[1].querySelector("a"),
     {},
     abWindow
   );
-  await TestUtils.waitForCondition(
-    () =>
-      mockExternalProtocolService.urlLoaded("https://host/url:url;url,url/url"),
-    "attempted to load website in a browser"
+  MockExternalProtocolService.assertHasLoadedURL(
+    "https://host/url:url;url,url/url"
   );
 
   // Instant messaging section.

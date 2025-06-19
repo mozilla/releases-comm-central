@@ -5,33 +5,15 @@
 
 "use strict";
 
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
+
 // Load subscript shared with all menu tests.
 Services.scriptloader.loadSubScript(
   new URL("head_menus.js", gTestPath).href,
   this
 );
-
-var { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
-);
-
-/** @implements {nsIExternalProtocolService} */
-const MockExternalProtocolService = {
-  _loadedURLs: [],
-  externalProtocolHandlerExists() {},
-  getApplicationDescription() {},
-  getProtocolHandlerInfo() {},
-  getProtocolHandlerInfoFromOS() {},
-  isExposedProtocol() {},
-  loadURI(uri) {
-    this._loadedURLs.push(uri.spec);
-  },
-  setProtocolHandlerDefaults() {},
-  urlLoaded(url) {
-    return this._loadedURLs.includes(url);
-  },
-  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-};
 
 add_setup(async () => {
   const account = createAccount();
@@ -50,12 +32,9 @@ add_setup(async () => {
     about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser()
   );
 
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    MockExternalProtocolService
-  );
+  MockExternalProtocolService.init();
   registerCleanupFunction(() => {
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
   });
 });
 
@@ -92,10 +71,7 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
       `Test should open the correct page.`
     );
     await contextClick(elementSelector, getBrowser());
-    Assert.ok(
-      MockExternalProtocolService.urlLoaded(url),
-      `Page should have correctly been opened in external browser.`
-    );
+    MockExternalProtocolService.assertHasLoadedURL(url);
     await extension.sendMessage();
   }
 

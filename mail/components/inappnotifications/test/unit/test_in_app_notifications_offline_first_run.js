@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
+
 const { InAppNotifications } = ChromeUtils.importESModule(
   "resource:///modules/InAppNotifications.sys.mjs"
 );
@@ -15,9 +19,6 @@ const { clearInterval, clearTimeout } = ChromeUtils.importESModule(
 );
 const { NotificationUpdater } = ChromeUtils.importESModule(
   "resource:///modules/NotificationUpdater.sys.mjs"
-);
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
 );
 const { PlacesUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/PlacesUtils.sys.mjs"
@@ -53,22 +54,8 @@ function getMockNotifications() {
 
 add_setup(async () => {
   do_get_profile();
-  /** @implements {nsIExternalProtocolService} */
-  const mockExternalProtocolService = {
-    QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-    externalProtocolHandlerExists() {},
-    isExposedProtocol() {},
-    loadURI() {
-      Assert.ok(
-        false,
-        "Should not try to load an URI with the external protocol service"
-      );
-    },
-  };
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
+
+  MockExternalProtocolService.init();
 
   await InAppNotifications.init(true);
 
@@ -80,7 +67,7 @@ add_setup(async () => {
     Services.prefs.clearUserPref(
       "datareporting.policy.dataSubmissionPolicyAcceptedVersion"
     );
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.reset();
     await PlacesUtils.history.clear();
   });
 });

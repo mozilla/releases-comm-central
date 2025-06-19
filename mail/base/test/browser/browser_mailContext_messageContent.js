@@ -6,8 +6,8 @@
  * Tests that message content items on the mail context menu work.
  */
 
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
 
 const tabmail = document.getElementById("tabmail");
@@ -106,7 +106,7 @@ async function subtest(aboutMessage, mailContext) {
     true
   );
 
-  const openedLinkPromise = mockExternalProtocolService.promiseEvent();
+  const openedLinkPromise = MockExternalProtocolService.promiseLoad();
   await openAndActivate("a", "mailContext-openLinkInBrowser");
   Assert.equal(
     await openedLinkPromise,
@@ -147,7 +147,7 @@ async function subtest(aboutMessage, mailContext) {
   picker.file.remove(false);
   SpecialPowers.MockFilePicker.cleanup();
 
-  const phishingLinkPromise = mockExternalProtocolService.promiseEvent();
+  const phishingLinkPromise = MockExternalProtocolService.promiseLoad();
   await openAndActivate("a", "mailContext-reportPhishingURL");
   Assert.equal(
     await phishingLinkPromise,
@@ -334,7 +334,7 @@ async function subtest(aboutMessage, mailContext) {
     );
   }
 
-  let openedSearchPromise = mockExternalProtocolService.promiseEvent();
+  let openedSearchPromise = MockExternalProtocolService.promiseLoad();
   await openAndActivate("p", "mailContext-searchTheWeb");
   Assert.equal(
     await openedSearchPromise,
@@ -373,7 +373,7 @@ async function subtest(aboutMessage, mailContext) {
   mailContext.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(mailContext, "hidden");
 
-  openedSearchPromise = mockExternalProtocolService.promiseEvent();
+  openedSearchPromise = MockExternalProtocolService.promiseLoad();
   await openAndActivate("p", "mailContext-searchTheWeb");
   Assert.equal(
     await openedSearchPromise,
@@ -384,10 +384,7 @@ async function subtest(aboutMessage, mailContext) {
 }
 
 add_setup(async function () {
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
+  MockExternalProtocolService.init();
   Services.prefs.setStringPref(
     "browser.safebrowsing.reportPhishURL",
     "https://phish.invalid/?a=b"
@@ -415,7 +412,7 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
     Services.prefs.clearUserPref("browser.safebrowsing.reportPhishURL");
 
     const googleValue = Glean.mail.websearchUsage.google.testGetValue();
@@ -482,42 +479,6 @@ add_task(async function testMessageWindow() {
 
   await BrowserTestUtils.closeWindow(win);
 });
-
-/** @implements {nsIExternalProtocolService} */
-const mockExternalProtocolService = {
-  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-
-  _deferred: null,
-
-  externalProtocolHandlerExists() {
-    return true;
-  },
-
-  isExposedProtocol() {
-    return true;
-  },
-
-  loadURI(aURI) {
-    if (this._deferred) {
-      const deferred = this._deferred;
-      this._deferred = null;
-
-      deferred.resolve(aURI.spec);
-    } else {
-      this.cancelPromise();
-      Assert.ok(false, "unexpected call to external protocol service");
-    }
-  },
-
-  promiseEvent() {
-    this._deferred = Promise.withResolvers();
-    return this._deferred.promise;
-  },
-
-  cancelPromise() {
-    this._deferred = null;
-  },
-};
 
 function getClipboardText() {
   return new Promise(resolve => {

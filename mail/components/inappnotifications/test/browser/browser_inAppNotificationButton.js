@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
 
 const tabmail = document.getElementById("tabmail");
@@ -28,24 +28,11 @@ add_setup(async function () {
     `[is="in-app-notification-button"]`
   );
 
-  /** @implements {nsIExternalProtocolService} */
-  const mockExternalProtocolService = {
-    QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-    externalProtocolHandlerExists() {},
-    isExposedProtocol() {},
-    loadURI() {
-      loadedUri = true;
-    },
-  };
-
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
+  MockExternalProtocolService.init();
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
   });
 });
 

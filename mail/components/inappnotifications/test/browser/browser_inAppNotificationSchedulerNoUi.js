@@ -8,43 +8,25 @@
  */
 
 "use strict";
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
+
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
 
-let didOpen = false;
 const expectedURI = "https://example.com/notificationTarget";
-let { promise, resolve } = Promise.withResolvers();
 
 add_setup(async function () {
   NotificationScheduler._idleService.disabled = true;
   NotificationManager._PER_TIME_UNIT = 1;
   NotificationScheduler.observe(null, "active");
   // PlacesUtils when executing the CTA needs the profile.
-  /** @implements {nsIExternalProtocolService} */
-  const mockExternalProtocolService = {
-    QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-    externalProtocolHandlerExists() {},
-    isExposedProtocol() {},
-    loadURI(uri) {
-      didOpen = true;
-      resolve();
-      Assert.equal(
-        uri.spec,
-        expectedURI,
-        "Should only receive load request got test specific URI"
-      );
-    },
-  };
 
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
+  MockExternalProtocolService.init();
+
   registerCleanupFunction(async () => {
     NotificationScheduler._idleService.disabled = false;
     await reset();
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
     await PlacesUtils.history.clear();
   });
 });
@@ -195,20 +177,16 @@ add_task(async function test_dontShowUntilUserActiveFromIdleDailyTab() {
 });
 
 add_task(async function test_browser() {
-  ({ promise, resolve } = Promise.withResolvers());
+  const promise = MockExternalProtocolService.promiseLoad();
   await showNotification({ type: "donation_browser" });
 
   await promise;
-
-  Assert.ok(didOpen, "browser was opened");
-
-  didOpen = false;
 
   await reset();
 });
 
 add_task(async function test_showWhenResizedToFitBrowserLinux() {
-  ({ promise, resolve } = Promise.withResolvers());
+  const promise = MockExternalProtocolService.promiseLoad();
   await moveWindowTo(0, 0);
 
   await moveWindowTo(window.screen.width - window.outerWidth + 150, 0);
@@ -217,15 +195,11 @@ add_task(async function test_showWhenResizedToFitBrowserLinux() {
 
   await promise;
 
-  Assert.ok(didOpen, "browser was opened");
-
-  didOpen = false;
-
   await resetWindow();
 }).skip(AppConstants.platform !== "linux");
 
 add_task(async function test_showWhenResizedToFitBrowser() {
-  ({ promise, resolve } = Promise.withResolvers());
+  const promise = MockExternalProtocolService.promiseLoad();
   await moveWindowTo(0, 0);
 
   await moveWindowTo(window.screen.width - window.outerWidth + 150, 0);
@@ -234,57 +208,57 @@ add_task(async function test_showWhenResizedToFitBrowser() {
 
   await waitASecond();
 
-  Assert.ok(!didOpen, "browser was not opened");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    0,
+    "browser was not opened"
+  );
 
   window.resizeBy(-150, 0);
 
   await promise;
 
-  Assert.ok(didOpen, "browser was opened");
-
   await resetWindow();
-
-  didOpen = false;
 }).skip(AppConstants.platform === "linux");
 
 add_task(async function test_dontShowUntilUserActiveFromIdleBrowser() {
-  ({ promise, resolve } = Promise.withResolvers());
+  const promise = MockExternalProtocolService.promiseLoad();
   NotificationScheduler.observe(null, "idle");
 
   await showNotification({ type: "donation_browser" });
 
   await waitASecond();
 
-  Assert.ok(!didOpen, "browser was not opened");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    0,
+    "browser was not opened"
+  );
 
   NotificationScheduler.observe(null, "active");
 
   await promise;
 
-  Assert.ok(didOpen, "browser was opened");
-
   await reset();
-
-  didOpen = false;
 });
 
 add_task(async function test_dontShowUntilUserActiveFromIdleDailyBrowser() {
-  ({ promise, resolve } = Promise.withResolvers());
+  const promise = MockExternalProtocolService.promiseLoad();
   NotificationScheduler.observe(null, "idle-daily");
 
   await showNotification({ type: "donation_browser" });
 
   await waitASecond();
 
-  Assert.ok(!didOpen, "browser was not opened");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    0,
+    "browser was not opened"
+  );
 
   NotificationScheduler.observe(null, "active");
 
   await promise;
 
-  Assert.ok(didOpen, "browser was opened");
-
   await reset();
-
-  didOpen = false;
 });

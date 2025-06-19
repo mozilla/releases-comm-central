@@ -10,47 +10,29 @@
 const { EnterprisePolicyTesting } = ChromeUtils.importESModule(
   "resource://testing-common/EnterprisePolicyTesting.sys.mjs"
 );
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
 
 const { NotificationFilter } = ChromeUtils.importESModule(
   "resource:///modules/NotificationFilter.sys.mjs"
 );
 
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
-);
-
 const tabmail = document.getElementById("tabmail");
-let didOpen = false;
 
 add_setup(async function () {
   NotificationManager._PER_TIME_UNIT = 1;
   NotificationScheduler.observe(null, "active");
   NotificationScheduler._idleService.disabled = true;
   // PlacesUtils when executing the CTA needs the profile.
-  /** @implements {nsIExternalProtocolService} */
-  const mockExternalProtocolService = {
-    QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-    externalProtocolHandlerExists() {},
-    isExposedProtocol() {},
-    loadURI(uri) {
-      didOpen = true;
-      Assert.equal(
-        uri.spec,
-        "https://example.com/donation_browser",
-        "Should only receive load request got test specific URI"
-      );
-    },
-  };
 
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
+  MockExternalProtocolService.init();
+
   registerCleanupFunction(async () => {
     await InAppNotifications.updateNotifications([]);
     await EnterprisePolicyTesting.setupPolicyEngineWithJson({ policies: {} });
     EnterprisePolicyTesting.resetRunOnceState();
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
     await PlacesUtils.history.clear();
   });
 });
@@ -291,7 +273,11 @@ add_task(async function test_enterprise_policy_donation_browser() {
 
   await waitASecond();
 
-  Assert.ok(!didOpen, "browser was not opened");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    0,
+    "browser was not opened"
+  );
 
   await EnterprisePolicyTesting.setupPolicyEngineWithJson({
     policies: {
@@ -315,7 +301,11 @@ add_task(async function test_enterprise_policy_disabled_donation_browser() {
 
   await waitASecond();
 
-  Assert.ok(!didOpen, "browser was not opened");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    0,
+    "browser was not opened"
+  );
 
   await EnterprisePolicyTesting.setupPolicyEngineWithJson({
     policies: { InAppNotification: { Disabled: false } },

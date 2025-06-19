@@ -4,30 +4,30 @@
 
 "use strict";
 
+const { BrowserTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/BrowserTestUtils.sys.mjs"
+);
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
+
 const { NotificationOpener } = ChromeUtils.importESModule(
   "resource:///modules/NotificationOpener.sys.mjs"
 );
 const { NotificationScheduler } = ChromeUtils.importESModule(
   "resource:///modules/NotificationScheduler.sys.mjs"
 );
-const { BrowserTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/BrowserTestUtils.sys.mjs"
-);
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
-);
 const { clearTimeout, setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
-);
-const { TestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TestUtils.sys.mjs"
 );
 const { PlacesUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/PlacesUtils.sys.mjs"
 );
 
 const expectedURI = "about:blank";
-let didOpen = false;
 
 const SAFETY_MARGIN_MS = 100000;
 
@@ -51,37 +51,25 @@ function getMockNotification(type = "donation_browser") {
 add_setup(async function () {
   // PlacesUtils when executing the CTA needs the profile.
   do_get_profile();
-  /** @implements {nsIExternalProtocolService} */
-  const mockExternalProtocolService = {
-    QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-    externalProtocolHandlerExists() {},
-    isExposedProtocol() {},
-    loadURI(uri) {
-      didOpen = true;
-      Assert.equal(
-        uri.spec,
-        expectedURI,
-        "Should only receive load request for expected URI"
-      );
-    },
-  };
 
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
+  MockExternalProtocolService.init();
+
   registerCleanupFunction(async () => {
     await PlacesUtils.history.clear();
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
   });
 });
 
 add_task(async function test_opensBrowserWaitFalse() {
   await NotificationOpener.openLink(getMockNotification(), false);
 
-  Assert.ok(didOpen, "Link was opened in browser");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    1,
+    "Link was opened in browser"
+  );
 
-  didOpen = false;
+  MockExternalProtocolService.reset();
 });
 
 add_task(async function test_opensBrowserWaitTrue() {
@@ -96,25 +84,33 @@ add_task(async function test_opensBrowserWaitTrue() {
 
   NotificationOpener.openLink(getMockNotification(), true);
 
-  Assert.ok(!didOpen, "Link was not opened");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    0,
+    "Link was not opened"
+  );
   Assert.ok(called, "Waiting for active user");
 
   resolve();
 
   await TestUtils.waitForTick();
 
-  Assert.ok(didOpen, "Link was opened");
+  Assert.equal(MockExternalProtocolService.urls.length, 1, "Link was opened");
 
   NotificationScheduler.waitForActive = waitForActive;
-  didOpen = false;
+  MockExternalProtocolService.reset();
 });
 
 add_task(async function test_opensDonationWaitFalse() {
   await NotificationOpener.openLink(getMockNotification("donation"), false);
 
-  Assert.ok(didOpen, "Link was opened in browser");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    1,
+    "Link was opened in browser"
+  );
 
-  didOpen = false;
+  MockExternalProtocolService.reset();
 });
 
 add_task(async function test_opensDonationWaitTrue() {
@@ -129,25 +125,33 @@ add_task(async function test_opensDonationWaitTrue() {
 
   NotificationOpener.openLink(getMockNotification("donation"), true);
 
-  Assert.ok(!didOpen, "Link was not opened");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    0,
+    "Link was not opened"
+  );
   Assert.ok(called, "promise is awaited");
 
   resolve();
 
   await TestUtils.waitForTick();
 
-  Assert.ok(didOpen, "Link was opened");
+  Assert.equal(MockExternalProtocolService.urls.length, 1, "Link was opened");
 
   NotificationScheduler.waitForActive = waitForActive;
-  didOpen = false;
+  MockExternalProtocolService.reset();
 });
 
 add_task(async function test_opensBlogWaitFalse() {
   await NotificationOpener.openLink(getMockNotification("blog"), false);
 
-  Assert.ok(didOpen, "Link was opened in browser");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    1,
+    "Link was opened in browser"
+  );
 
-  didOpen = false;
+  MockExternalProtocolService.reset();
 });
 
 add_task(async function test_opensBlogWaitTrue() {
@@ -162,14 +166,19 @@ add_task(async function test_opensBlogWaitTrue() {
 
   NotificationOpener.openLink(getMockNotification("blog"), true);
 
-  Assert.ok(!didOpen, "Link was not opened");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    0,
+    "Link was not opened"
+  );
   Assert.ok(called, "promise is awaited");
 
   resolve();
 
   await TestUtils.waitForTick();
 
-  Assert.ok(didOpen, "Link was opened");
+  Assert.equal(MockExternalProtocolService.urls.length, 1, "Link was opened");
+  MockExternalProtocolService.reset();
 
   NotificationScheduler.waitForActive = waitForActive;
 });
@@ -177,9 +186,13 @@ add_task(async function test_opensBlogWaitTrue() {
 add_task(async function test_opensMessageWaitFalse() {
   await NotificationOpener.openLink(getMockNotification("message"), false);
 
-  Assert.ok(didOpen, "Link was opened in browser");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    1,
+    "Link was opened in browser"
+  );
 
-  didOpen = false;
+  MockExternalProtocolService.reset();
 });
 
 add_task(async function test_opensMessageWaitTrue() {
@@ -194,25 +207,33 @@ add_task(async function test_opensMessageWaitTrue() {
 
   NotificationOpener.openLink(getMockNotification("message"), true);
 
-  Assert.ok(!didOpen, "Link was not opened");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    0,
+    "Link was not opened"
+  );
   Assert.ok(called, "promise is awaited");
 
   resolve();
 
   await TestUtils.waitForTick();
 
-  Assert.ok(didOpen, "Link was opened");
+  Assert.equal(MockExternalProtocolService.urls.length, 1, "Link was opened");
 
   NotificationScheduler.waitForActive = waitForActive;
-  didOpen = false;
+  MockExternalProtocolService.reset();
 });
 
 add_task(async function test_opensTabWaitFalse() {
   await NotificationOpener.openLink(getMockNotification("donation_tab"), false);
 
-  Assert.ok(didOpen, "Link was opened in browser");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    1,
+    "Link was opened in browser"
+  );
 
-  didOpen = false;
+  MockExternalProtocolService.reset();
 });
 
 add_task(async function test_opensTabWaitTrue() {
@@ -227,16 +248,20 @@ add_task(async function test_opensTabWaitTrue() {
 
   NotificationOpener.openLink(getMockNotification("donation_tab"), true);
 
-  Assert.ok(!didOpen, "Link was not opened");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    0,
+    "Link was not opened"
+  );
   Assert.ok(called, "promise is awaited");
 
   resolve();
 
   await TestUtils.waitForTick();
 
-  Assert.ok(didOpen, "Link was opened");
+  Assert.equal(MockExternalProtocolService.urls.length, 1, "Link was opened");
 
   NotificationScheduler.waitForActive = waitForActive;
 
-  didOpen = false;
+  MockExternalProtocolService.reset();
 });

@@ -4,14 +4,15 @@
 
 "use strict";
 
-const { NotificationManager } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationManager.sys.mjs"
-);
 const { BrowserTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/BrowserTestUtils.sys.mjs"
 );
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
+
+const { NotificationManager } = ChromeUtils.importESModule(
+  "resource:///modules/NotificationManager.sys.mjs"
 );
 const { PlacesUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/PlacesUtils.sys.mjs"
@@ -44,33 +45,15 @@ function getMockNotifications(count = 2) {
   return notificationArray;
 }
 
-let didOpen = false;
 let expectedURI = "about:blank";
 
 add_setup(async function () {
   // PlacesUtils when executing the CTA needs the profile.
   do_get_profile();
-  /** @implements {nsIExternalProtocolService} */
-  const mockExternalProtocolService = {
-    QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-    externalProtocolHandlerExists() {},
-    isExposedProtocol() {},
-    loadURI(uri) {
-      didOpen = true;
-      Assert.equal(
-        uri.spec,
-        expectedURI,
-        "Should only receive about blank load request"
-      );
-    },
-  };
 
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
+  MockExternalProtocolService.init();
   registerCleanupFunction(async () => {
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
     await PlacesUtils.history.clear();
   });
 });
@@ -257,7 +240,6 @@ add_task(async function test_updatedNotifications_stillUpToDate() {
 });
 
 add_task(async function test_executeNotificationCTA() {
-  didOpen = false;
   const notificationManager = new NotificationManager();
   notificationManager.updatedNotifications(getMockNotifications());
   const { detail: notification } = await BrowserTestUtils.waitForEvent(
@@ -281,7 +263,12 @@ add_task(async function test_executeNotificationCTA() {
     notification.id,
     "Should have interacted with the notification"
   );
-  Assert.ok(didOpen, "Should open URL externally");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    1,
+    "Should open URL externally"
+  );
+  MockExternalProtocolService.reset();
   await clearNotificationEvent;
   await BrowserTestUtils.waitForEvent(
     notificationManager,
@@ -389,7 +376,6 @@ add_task(async function test_newNotificationReemit_handleEvent() {
 });
 
 add_task(async function test_executeNotificationCTA_formatURL() {
-  didOpen = false;
   const notificationManager = new NotificationManager();
   const mockNotifications = getMockNotifications();
   const url = "https://example.com/%LOCALE%/file.json";
@@ -417,7 +403,12 @@ add_task(async function test_executeNotificationCTA_formatURL() {
     notification.id,
     "Should have interacted with the notification"
   );
-  Assert.ok(didOpen, "Should open URL externally");
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    1,
+    "Should open URL externally"
+  );
+  MockExternalProtocolService.reset();
   await clearNotificationEvent;
   await BrowserTestUtils.waitForEvent(
     notificationManager,

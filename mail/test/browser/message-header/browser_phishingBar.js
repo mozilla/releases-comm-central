@@ -6,7 +6,13 @@
  * Test that phishing notifications behave properly.
  */
 
+/* eslint-disable @microsoft/sdl/no-insecure-url */
+
 "use strict";
+
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
 
 var {
   add_message_to_folder,
@@ -33,44 +39,16 @@ var { click_menus_in_sequence, promise_new_window } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/WindowHelpers.sys.mjs"
   );
-var { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
-);
 
 var folder;
 var kBoxId = "mail-notification-top";
 var kNotificationValue = "maybeScam";
 
-/**
- * gMockExtProtocolSvc allows us to capture (most if not all) attempts to
- * open links in the default browser.
- */
-var gMockExtProtocolSvc = {
-  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-
-  _loadedURLs: [],
-  externalProtocolHandlerExists() {},
-  getApplicationDescription() {},
-  getProtocolHandlerInfo() {},
-  getProtocolHandlerInfoFromOS() {},
-  isExposedProtocol() {},
-  loadURI(aURI) {
-    this._loadedURLs.push(aURI.spec);
-  },
-  setProtocolHandlerDefaults() {},
-  urlLoaded(aURL) {
-    return this._loadedURLs.includes(aURL);
-  },
-};
-
 add_setup(async function () {
-  gMockExtProtocolSvc._classID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    gMockExtProtocolSvc
-  );
+  MockExternalProtocolService.init();
 
   folder = await create_folder("PhishingBarA");
-  // msg #0
+  // msg #-1
   await add_message_to_folder(
     [folder],
     create_message({
@@ -80,9 +58,9 @@ add_setup(async function () {
       },
     })
   );
-  // msg #1
+  // msg #-2
   await add_message_to_folder([folder], create_message());
-  // msg #2
+  // msg #-3
   await add_message_to_folder(
     [folder],
     create_message({
@@ -92,7 +70,7 @@ add_setup(async function () {
       },
     })
   );
-  // msg #3
+  // msg #-4
   await add_message_to_folder(
     [folder],
     create_message({
@@ -102,7 +80,7 @@ add_setup(async function () {
       },
     })
   );
-  // msg #4
+  // msg #-5
   await add_message_to_folder(
     [folder],
     create_message({
@@ -112,7 +90,7 @@ add_setup(async function () {
       },
     })
   );
-  // msg #5
+  // msg #-6
   await add_message_to_folder(
     [folder],
     create_message({
@@ -122,7 +100,7 @@ add_setup(async function () {
       },
     })
   );
-  // msg #6
+  // msg #-7
   await add_message_to_folder(
     [folder],
     create_message({
@@ -132,7 +110,7 @@ add_setup(async function () {
       },
     })
   );
-  // msg #7
+  // msg #-8
   await add_message_to_folder(
     [folder],
     create_message({
@@ -145,7 +123,7 @@ add_setup(async function () {
 });
 
 registerCleanupFunction(() => {
-  MockRegistrar.unregister(gMockExtProtocolSvc._classID);
+  MockExternalProtocolService.cleanup();
 });
 
 /**
@@ -270,6 +248,7 @@ add_task(async function test_no_phishing_warning_for_ip_sameish_text() {
     kNotificationValue,
     false
   ); // not shown
+  MockExternalProtocolService.assertHasLoadedURL("http://130.128.4.1/");
 });
 
 /**
@@ -288,6 +267,9 @@ add_task(async function test_no_phishing_warning_for_subdomain() {
     kNotificationValue,
     false
   ); // not shown
+  MockExternalProtocolService.assertHasLoadedURL(
+    "http://subdomain.google.com/"
+  );
 
   await select_click_row(-5);
   click_link_if_available();
@@ -297,6 +279,9 @@ add_task(async function test_no_phishing_warning_for_subdomain() {
     kNotificationValue,
     false
   ); // not shown
+  MockExternalProtocolService.assertHasLoadedURL(
+    "http://subdomain.google.com/"
+  );
 });
 
 /**
@@ -323,6 +308,7 @@ add_task(async function test_phishing_warning_for_non_local_IP() {
   click_link_if_available();
   await new Promise(resolve => setTimeout(resolve));
   // A modal would be shown if not working correctly.
+  MockExternalProtocolService.assertHasLoadedURL("http://216.58.211.228/bla");
 });
 
 /**

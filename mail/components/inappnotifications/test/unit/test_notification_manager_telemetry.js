@@ -4,17 +4,18 @@
 
 "use strict";
 
+const { BrowserTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/BrowserTestUtils.sys.mjs"
+);
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
+
 const { NotificationManager } = ChromeUtils.importESModule(
   "resource:///modules/NotificationManager.sys.mjs"
 );
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
-);
 const { PlacesUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/PlacesUtils.sys.mjs"
-);
-const { BrowserTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/BrowserTestUtils.sys.mjs"
 );
 const { setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
@@ -27,26 +28,10 @@ add_setup(function test_setup() {
   // FOG needs to be initialized in order for data to flow.
   Services.fog.initializeFOG();
 
-  /** @implements {nsIExternalProtocolService} */
-  const mockExternalProtocolService = {
-    QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-    externalProtocolHandlerExists() {},
-    isExposedProtocol() {},
-    loadURI(uri) {
-      Assert.equal(
-        uri.spec,
-        "about:blank",
-        "Should only receive about:blank load request"
-      );
-    },
-  };
+  MockExternalProtocolService.init();
 
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
   registerCleanupFunction(async () => {
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
     await PlacesUtils.history.clear();
   });
 });
@@ -102,6 +87,8 @@ add_task(async function test_notification_interaction() {
   ]);
 
   await notificationManager.executeNotificationCTA("test");
+  Assert.equal(MockExternalProtocolService.urls.length, 1);
+  MockExternalProtocolService.reset();
 
   const events = Glean.inappnotifications.interaction.testGetValue();
 

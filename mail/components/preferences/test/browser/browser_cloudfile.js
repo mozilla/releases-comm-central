@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
+
 const { cloudFileAccounts } = ChromeUtils.importESModule(
   "resource:///modules/cloudFileAccounts.sys.mjs"
-);
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
 function ManagementScript() {
@@ -175,35 +176,14 @@ const mockPromptService = {
   },
   QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
 };
-/** @implements {nsIExternalProtocolService} */
-const mockExternalProtocolService = {
-  _loadedURLs: [],
-  externalProtocolHandlerExists() {},
-  getApplicationDescription() {},
-  getProtocolHandlerInfo() {},
-  getProtocolHandlerInfoFromOS() {},
-  isExposedProtocol() {},
-  loadURI(aURI) {
-    this._loadedURLs.push(aURI.spec);
-  },
-  setProtocolHandlerDefaults() {},
-  urlLoaded(aURL) {
-    return this._loadedURLs.includes(aURL);
-  },
-  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-};
 
 const originalPromptService = Services.prompt;
 Services.prompt = mockPromptService;
 
-const mockExternalProtocolServiceCID = MockRegistrar.register(
-  "@mozilla.org/uriloader/external-protocol-service;1",
-  mockExternalProtocolService
-);
-
+MockExternalProtocolService.init();
 registerCleanupFunction(() => {
   Services.prompt = originalPromptService;
-  MockRegistrar.unregister(mockExternalProtocolServiceCID);
+  MockExternalProtocolService.cleanup();
 });
 
 add_task(async function addRemoveAccounts() {
@@ -349,10 +329,7 @@ add_task(async function addRemoveAccounts() {
   // It might take a moment to get to the external protocol service.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
-  ok(
-    mockExternalProtocolService.urlLoaded("https://www.example.com/"),
-    "Link click sent to external protocol service."
-  );
+  MockExternalProtocolService.assertHasLoadedURL("https://www.example.com/");
   is(tabmail.tabInfo.length, tabCount, "No new tab opened");
 
   // Rename the account.

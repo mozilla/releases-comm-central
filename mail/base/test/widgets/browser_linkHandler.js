@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* eslint-disable @microsoft/sdl/no-insecure-url */
-
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
+
+/* eslint-disable @microsoft/sdl/no-insecure-url */
 
 const TEST_DOMAIN = "http://example.org";
 const TEST_IP = "http://127.0.0.1:8888";
@@ -101,81 +101,17 @@ const webProgressListener = {
   },
 };
 
-/** @implements {nsIExternalProtocolService} */
-const mockExternalProtocolService = {
-  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
+add_setup(function () {
+  // This test deliberately loads content from http:// URLs. For some reason
+  // upgrading the icon URL to https:// causes it to attempt loading from an
+  // external server and this makes the test crash.
+  Services.prefs.setBoolPref(
+    "security.mixed_content.upgrade_display_content",
+    false
+  );
 
-  _deferred: null,
-
-  externalProtocolHandlerExists() {
-    return false;
-  },
-
-  isExposedProtocol() {
-    return true;
-  },
-
-  getProtocolHandlerInfo() {
-    throw Components.Exception(
-      "getProtocolHandlerInfo not implemented",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
-    );
-  },
-
-  getProtocolHandlerInfoFromOS() {
-    throw Components.Exception(
-      "getProtocolHandlerInfoFromOS not implemented",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
-    );
-  },
-
-  setProtocolHandlerDefaults() {},
-
-  loadURI(aURI) {
-    if (this._deferred) {
-      const deferred = this._deferred;
-      this._deferred = null;
-      info(`${aURI.spec} loaded externally`);
-      deferred.resolve(aURI.spec);
-    } else {
-      this.cancelPromise();
-      Assert.ok(false, "unexpected call to external protocol service");
-    }
-  },
-
-  getApplicationDescription() {
-    throw Components.Exception(
-      "getApplicationDescription not implemented",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
-    );
-  },
-
-  isCurrentAppOSDefaultForProtocol() {
-    return true;
-  },
-
-  promiseEvent() {
-    this._deferred = Promise.withResolvers();
-    return this._deferred.promise;
-  },
-
-  cancelPromise() {
-    this._deferred = null;
-  },
-};
-
-const mockExternalProtocolServiceCID = MockRegistrar.register(
-  "@mozilla.org/uriloader/external-protocol-service;1",
-  mockExternalProtocolService
-);
-
-// This test deliberately loads content from http:// URLs. For some reason
-// upgrading the icon URL to https:// causes it to attempt loading from an
-// external server and this makes the test crash.
-Services.prefs.setBoolPref(
-  "security.mixed_content.upgrade_display_content",
-  false
-);
+  MockExternalProtocolService.init();
+});
 
 registerCleanupFunction(() => {
   const tabmail = document.getElementById("tabmail");
@@ -185,7 +121,7 @@ registerCleanupFunction(() => {
     tabmail.closeTab(tabmail.tabInfo[1]);
   }
 
-  MockRegistrar.unregister(mockExternalProtocolServiceCID);
+  MockExternalProtocolService.cleanup();
 
   Services.prefs.clearUserPref(
     "security.mixed_content.upgrade_display_content"
@@ -217,7 +153,7 @@ async function clickOnLink(
   );
 
   const webProgressPromise = webProgressListener.promiseEvent(browser);
-  const externalProtocolPromise = mockExternalProtocolService.promiseEvent();
+  const externalProtocolPromise = MockExternalProtocolService.promiseLoad();
 
   info(`scrolling ${selector} into view`);
   await SpecialPowers.spawn(browser, [selector], arg => {
@@ -250,7 +186,6 @@ async function clickOnLink(
       url,
       `${url} should load internally`
     );
-    mockExternalProtocolService.cancelPromise();
   } else {
     info(`will ensure ${url} loaded externally`);
     Assert.equal(
@@ -267,6 +202,8 @@ async function clickOnLink(
     await promise;
     Assert.equal(browser.currentURI?.spec, pageURL, "should have gone back");
   }
+
+  MockExternalProtocolService.reset();
 }
 
 async function subtest(pagePrePath, group, shouldLoadCB) {

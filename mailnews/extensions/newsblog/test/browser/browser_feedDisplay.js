@@ -2,30 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
+var { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
 var { mailTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
-var { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
-);
 
-/** @implements {nsIExternalProtocolService} */
-const mockExternalProtocolService = {
-  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-  _loadedURLs: [],
-  loadURI(uri) {
-    this._loadedURLs.push(uri.spec);
-  },
-  isExposedProtocol() {
-    return true;
-  },
-  urlLoaded(url) {
-    return this._loadedURLs.includes(url);
-  },
-};
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
@@ -146,13 +132,9 @@ async function unsubscribeCurrentRow() {
 }
 
 add_setup(async () => {
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
-
+  MockExternalProtocolService.init();
   registerCleanupFunction(() => {
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
 
     // Some tests that open new windows don't return focus to the main window
     // in a way that satisfies mochitest, and the test times out.
@@ -221,10 +203,9 @@ add_task(async function testRSS() {
   );
 
   await BrowserTestUtils.synthesizeMouseAtCenter("a", {}, messagePane);
-  Assert.deepEqual(mockExternalProtocolService._loadedURLs, [
-    "https://example.org/link/from/description",
-  ]);
-  mockExternalProtocolService._loadedURLs.length = 0;
+  MockExternalProtocolService.assertHasLoadedURL(
+    "https://example.org/link/from/description"
+  );
 
   // Web mode.
 
@@ -250,10 +231,9 @@ add_task(async function testRSS() {
     Assert.equal(style.display, "none");
   });
   await BrowserTestUtils.synthesizeMouseAtCenter("a", {}, messagePane);
-  Assert.deepEqual(mockExternalProtocolService._loadedURLs, [
-    "https://example.org/link/from/article",
-  ]);
-  mockExternalProtocolService._loadedURLs.length = 0;
+  MockExternalProtocolService.assertHasLoadedURL(
+    "https://example.org/link/from/article"
+  );
 
   // Clean up.
 

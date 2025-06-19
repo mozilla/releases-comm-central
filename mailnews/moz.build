@@ -74,6 +74,7 @@ TESTING_JS_MODULES.mailnews += [
     "test/resources/MessageGenerator.sys.mjs",
     "test/resources/MessageInjection.sys.mjs",
     "test/resources/MockAlertsService.sys.mjs",
+    "test/resources/MockExternalProtocolService.sys.mjs",
     "test/resources/NetworkTestUtils.sys.mjs",
     "test/resources/OAuth2TestUtils.sys.mjs",
     "test/resources/ProfileCreator.sys.mjs",

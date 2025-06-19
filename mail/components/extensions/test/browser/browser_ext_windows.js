@@ -4,37 +4,14 @@
 
 "use strict";
 
-var { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
 
-/** @implements {nsIExternalProtocolService} */
-const MockExternalProtocolService = {
-  _loadedURLs: [],
-  externalProtocolHandlerExists() {},
-  getApplicationDescription() {},
-  getProtocolHandlerInfo() {},
-  getProtocolHandlerInfoFromOS() {},
-  isExposedProtocol() {},
-  loadURI(uri) {
-    this._loadedURLs.push(uri.spec);
-  },
-  setProtocolHandlerDefaults() {},
-  urlLoaded(url) {
-    const found = this._loadedURLs.includes(url);
-    this._loadedURLs = this._loadedURLs.filter(e => e != url);
-    return found;
-  },
-  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-};
-
 add_setup(async () => {
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    MockExternalProtocolService
-  );
+  MockExternalProtocolService.init();
   registerCleanupFunction(() => {
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
   });
 });
 
@@ -70,11 +47,12 @@ add_task(async function test_openDefaultBrowser() {
   const urls = await extension.awaitMessage("ready");
   for (const [url, expected] of Object.entries(urls)) {
     Assert.equal(
-      MockExternalProtocolService.urlLoaded(url),
+      MockExternalProtocolService.urls.filter(u => u == url).length,
       expected,
       `Double check result for browser.windows.openDefaultBrowser(${url})`
     );
   }
+  MockExternalProtocolService.reset();
 
   await extension.unload();
 });

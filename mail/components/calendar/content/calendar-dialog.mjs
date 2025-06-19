@@ -18,12 +18,6 @@ const { recurrenceStringFromItem } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
 
-const lazy = {};
-
-ChromeUtils.defineESModuleGetters(lazy, {
-  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
-});
-
 export const DEFAULT_DIALOG_MARGIN = 12;
 
 /**
@@ -111,10 +105,6 @@ export class CalendarDialog extends PositionedDialog {
   #clickHandlers = {
     ".close-button": () => this.close(),
     ".back-button": () => this.#subviewManager.showDefaultSubview(),
-    "#locationLink": event => {
-      event.preventDefault();
-      lazy.openLinkExternally(event.target.href);
-    },
     "#expandDescription": () =>
       this.#subviewManager.showSubview("calendarDescriptionSubview"),
   };

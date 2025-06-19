@@ -13,8 +13,8 @@
  * ping tests.
  */
 
-var { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
 
 const UPDATE_PROVIDED_PAGE = "https://default.example.com/";
@@ -29,31 +29,15 @@ const DEFAULT_NEW_BUILD_ID = "20080811053725";
 
 const gOrigAppInfo = Services.appinfo;
 
-let uriResolver = Promise.withResolvers();
-
 add_setup(() => {
   const origMstone = Services.prefs.getCharPref(PREF_MSTONE);
-  /** @implements {nsIExternalProtocolService} */
-  const mockExternalProtocolService = {
-    QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-    externalProtocolHandlerExists() {},
-    isExposedProtocol() {},
-    loadURI(uri) {
-      uriResolver.resolve(uri);
-    },
-  };
 
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
+  MockExternalProtocolService.init();
 
   registerCleanupFunction(async () => {
     Services.appinfo = gOrigAppInfo;
     Services.prefs.setCharPref(PREF_MSTONE, origMstone);
-
-    uriResolver?.resolve("done");
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    MockExternalProtocolService.cleanup();
     await PlacesUtils.history.clear();
   });
 });
@@ -88,8 +72,6 @@ async function WnpTest({
   installedAppVersion,
   expectedPostUpdatePage,
 }) {
-  uriResolver = Promise.withResolvers();
-
   if (origAppVersion) {
     logTestInfo(`Setting original appVersion to ${origAppVersion}`);
     Services.prefs.setCharPref(PREF_MSTONE, origAppVersion);
@@ -157,17 +139,13 @@ async function WnpTest({
   await window.specialTabs.showWhatsNewPage();
 
   if (expectedPostUpdatePage !== NO_POST_UPDATE_PAGE) {
-    const postUpdatePage = await uriResolver.promise;
-    is(
-      postUpdatePage.spec,
-      expectedPostUpdatePage,
-      "Post Update Page should be correct"
-    );
+    MockExternalProtocolService.assertHasLoadedURL(expectedPostUpdatePage);
   } else {
-    uriResolver.resolve("no wnp");
-    const result = await uriResolver.promise;
-    info(result.spec);
-    is(result, "no wnp", "Should not have opened any page.");
+    is(
+      MockExternalProtocolService.urls.length,
+      0,
+      "Should not have opened any page."
+    );
   }
 }
 
