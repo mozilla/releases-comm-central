@@ -73,7 +73,6 @@ Enigmail.msg = {
   sendProcess: false,
   composeBodyReady: false,
   modifiedAttach: null,
-  lastFocusedWindow: null,
   draftSubjectEncrypted: false,
   attachOwnKeyObj: {
     attachedObj: null,
