@@ -59,8 +59,6 @@ Enigmail.msg = {
   processed: null, // contains information for undo of inline signed/encrypt
   timeoutId: null, // TODO: once set, it's never reset
   sendPgpMime: true,
-  //sendMode: null, // the current default for sending a message (0, SIGN, ENCRYPT, or SIGN|ENCRYPT)
-  //sendModeDirty: false, // send mode or final send options changed?
 
   sendProcess: false,
   composeBodyReady: false,
