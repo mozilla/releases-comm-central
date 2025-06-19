@@ -664,7 +664,7 @@ class AccountHubEmail extends HTMLElement {
           try {
             await this.#validateAndFinish(this.#currentConfig);
           } finally {
-            this.#configVerifier.cleanup();
+            this.#configVerifier?.cleanup();
             this.#stopLoading();
           }
 
@@ -1302,7 +1302,7 @@ class AccountHubEmail extends HTMLElement {
       error => {
         // We reject here, but this will silently fail as we don't need to
         // show the user if we were unable to find add-ons for the conifg.
-        gAccountSetupLogger.warn(`getExchangeAddons failed: ${error}`);
+        gAccountSetupLogger.error(`getExchangeAddons failed:`, error);
         reject(error);
       }
     );

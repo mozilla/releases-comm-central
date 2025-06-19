@@ -90,9 +90,10 @@ class AccountHubHeader extends HTMLElement {
     title,
     type,
   }) {
-    if (type === "error") {
-      gAccountSetupLogger.debug(
-        `Status error: ${error?.cause?.title}. ${error?.cause?.text}`
+    if (type == "error") {
+      gAccountSetupLogger.error(
+        `Account setup error: ${error?.cause?.title || error?.message}. ${error?.cause?.text}`,
+        error
       );
     }
 
