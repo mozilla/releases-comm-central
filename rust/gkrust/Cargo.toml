@@ -103,6 +103,8 @@ unic-langid-ffi = { path = "../../../intl/locale/rust/unic-langid-ffi" }
 unicode-bidi = { version = "0.3.15" }
 unicode-bidi-ffi = { path = "../../../intl/bidi/rust/unicode-bidi-ffi" }
 url = { version = "2.5.0" }
+urlpattern = { version = "0.3.0" }
+urlpattern_glue = { path = "../../../netwerk/base/urlpattern_glue" }
 webrender_bindings = { path = "../../../gfx/webrender_bindings" }
 wgpu_bindings = { path = "../../../gfx/wgpu_bindings" }
 wpf-gpu-raster = { git = "https://github.com/FirefoxGraphics/wpf-gpu-raster", rev = "99979da091fd58fba8477e7fcdf5ec0727102916" }
