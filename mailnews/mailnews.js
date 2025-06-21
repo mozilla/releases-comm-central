@@ -538,6 +538,9 @@ pref("mail.smtpserver.default.max_cached_connections", 1);
 // connection limit.
 pref("mail.smtpserver.default.max_messages_per_connection", 10);
 
+// Delay in milliseconds for sending smtp QUIT after each message.
+pref("mail.smtpserver.default.quit_delay_ms", 5000);
+
 pref("mail.smtpservers", "");
 pref("mail.accountmanager.accounts", "");
 
