@@ -16,6 +16,8 @@ var gPreviousReplaceWord = "";
 var gFirstTime = true;
 var gDictCount = 0;
 
+var prevFocusedElement = null;
+
 window.addEventListener("load", Startup);
 document.addEventListener("keydown", event => {
   if (event.key == "Enter") {
@@ -24,12 +26,20 @@ document.addEventListener("keydown", event => {
 });
 document.addEventListener("dialogcancel", CancelSpellCheck);
 
+const onOpenerUnload = () => {
+  window.close();
+};
+
 function Startup() {
   var editor = GetCurrentEditor();
   if (!editor) {
     window.close();
     return;
   }
+
+  window.opener.addEventListener("unload", onOpenerUnload);
+  prevFocusedElement = window.opener.ownerGlobal.document.activeElement;
+  window.opener.document.documentElement.setAttribute("inert", "true");
 
   // Get the spellChecker shell
   gSpellChecker = Cu.createSpellChecker();
@@ -483,6 +493,9 @@ function ExitSpellChecker() {
       gSpellChecker = null;
     }
   }
+  window.opener.document.documentElement.removeAttribute("inert");
+  prevFocusedElement?.focus();
+  window.opener.removeEventListener("unload", onOpenerUnload);
 }
 
 function CancelSpellCheck() {
