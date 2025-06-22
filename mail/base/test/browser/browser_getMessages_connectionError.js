@@ -9,11 +9,13 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
-const { MockAlertsService } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MockAlertsService.sys.mjs"
-);
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
+);
+
+Services.scriptloader.loadSubScript(
+  "chrome://mochikit/content/tests/SimpleTest/MockObjects.js",
+  this
 );
 
 const generator = new MessageGenerator();
@@ -83,14 +85,18 @@ add_setup(async function () {
 
   about3Pane.displayFolder(localRootFolder);
 
-  MockAlertsService.init();
+  const alertsService = new MockObjectRegisterer(
+    "@mozilla.org/alerts-service;1",
+    MockAlertsService
+  );
+  alertsService.register();
 
   registerCleanupFunction(async function () {
     MailServices.accounts.removeAccount(localAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(pop3Account, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
-    MockAlertsService.cleanup();
+    alertsService.unregister();
   });
 });
 
@@ -119,7 +125,7 @@ add_task(async function testConnectionRefused() {
     await BrowserTestUtils.waitForPopupEvent(getMessagesContext, "hidden");
 
     const alert = await TestUtils.waitForCondition(
-      () => MockAlertsService.alert,
+      () => MockAlertsService._alert,
       "waiting for connection alert to show"
     );
 
@@ -146,11 +152,42 @@ add_task(async function testConnectionRefused() {
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    MockAlertsService.listener.observe(null, "alertfinished", alert.cookie);
-    MockAlertsService.reset();
+    MockAlertsService._listener.observe(null, "alertfinished", alert.cookie);
+    delete MockAlertsService._alert;
+    delete MockAlertsService._listener;
   }
 
   await promiseServerIdle(imapAccount.incomingServer);
   await promiseServerIdle(pop3Account.incomingServer);
   await promiseServerIdle(nntpAccount.incomingServer);
 });
+
+class MockAlertsService {
+  QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
+
+  static _alert;
+
+  showPersistentNotification(persistentData, alert) {
+    info(`showPersistentNotification: ${alert.text}`);
+    Assert.ok(false, "unexpected call to showPersistentNotification");
+  }
+
+  showAlert(alert, listener) {
+    info(`showAlert: ${alert.text}`);
+    Assert.ok(
+      !MockAlertsService._alert,
+      "showAlert should not be called while an alert is showing"
+    );
+    MockAlertsService._alert = alert;
+    MockAlertsService._listener = listener;
+  }
+
+  showAlertNotification(imageUrl, title, text) {
+    info(`showAlertNotification: ${text}`);
+    Assert.ok(false, "unexpected call to showAlertNotification");
+  }
+
+  closeAlert() {
+    Assert.ok(false, "unexpected call to closeAlert");
+  }
+}

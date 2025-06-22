@@ -17,13 +17,15 @@ requestLongerTimeout(2);
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
-const { MockAlertsService } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MockAlertsService.sys.mjs"
-);
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
 const { createServers, getCertificate, serverDefs } = ServerTestUtils;
+
+Services.scriptloader.loadSubScript(
+  "chrome://mochikit/content/tests/SimpleTest/MockObjects.js",
+  this
+);
 
 const certOverrideService = Cc[
   "@mozilla.org/security/certoverride;1"
@@ -44,12 +46,16 @@ add_setup(async function () {
   localAccount = MailServices.accounts.createLocalMailAccount();
   localRootFolder = localAccount.incomingServer.rootFolder;
 
-  MockAlertsService.init();
+  const alertsService = new MockObjectRegisterer(
+    "@mozilla.org/alerts-service;1",
+    MockAlertsService
+  );
+  alertsService.register();
 
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(localAccount, false);
     certOverrideService.clearAllOverrides();
-    MockAlertsService.cleanup();
+    alertsService.unregister();
   });
 });
 
@@ -194,7 +200,7 @@ async function subsubtest(
   await testCallback();
 
   const alert = await TestUtils.waitForCondition(
-    () => MockAlertsService.alert,
+    () => MockAlertsService._alert,
     "waiting for connection alert to show"
   );
 
@@ -239,9 +245,10 @@ async function subsubtest(
     });
   }
 
-  MockAlertsService.listener.observe(null, "alertclickcallback", alert.cookie);
-  MockAlertsService.listener.observe(null, "alertfinished", alert.cookie);
-  MockAlertsService.reset();
+  MockAlertsService._listener.observe(null, "alertclickcallback", alert.cookie);
+  MockAlertsService._listener.observe(null, "alertfinished", alert.cookie);
+  delete MockAlertsService._alert;
+  delete MockAlertsService._listener;
 
   await dialogPromise;
   await SimpleTest.promiseFocus(window);
@@ -277,4 +284,34 @@ async function subsubtest(
   await promiseServerIdle(inbox.server);
   inbox.server.closeCachedConnections();
   certOverrideService.clearAllOverrides();
+}
+
+class MockAlertsService {
+  QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
+
+  static _alert;
+
+  showPersistentNotification(persistentData, alert) {
+    info(`showPersistentNotification: ${alert.text}`);
+    Assert.ok(false, "unexpected call to showPersistentNotification");
+  }
+
+  showAlert(alert, listener) {
+    info(`showAlert: ${alert.text}`);
+    Assert.ok(
+      !MockAlertsService._alert,
+      "showAlert should not be called while an alert is showing"
+    );
+    MockAlertsService._alert = alert;
+    MockAlertsService._listener = listener;
+  }
+
+  showAlertNotification(imageUrl, title, text) {
+    info(`showAlertNotification: ${text}`);
+    Assert.ok(false, "unexpected call to showAlertNotification");
+  }
+
+  closeAlert() {
+    Assert.ok(false, "unexpected call to closeAlert");
+  }
 }

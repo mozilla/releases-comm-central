@@ -6,20 +6,35 @@
 
 /* import-globals-from ../../content/chat-messenger.js */
 
-const { MockAlertsService } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MockAlertsService.sys.mjs"
+const { MockRegistrar } = ChromeUtils.importESModule(
+  "resource://testing-common/MockRegistrar.sys.mjs"
 );
-
 const { ChatIcons } = ChromeUtils.importESModule(
   "resource:///modules/chatIcons.sys.mjs"
 );
 
+let originalAlertsServiceCID;
+let alertShown;
+const reset = () => {
+  alertShown = false;
+};
+
 add_setup(async () => {
-  MockAlertsService.init();
+  reset();
+  class MockAlertsService {
+    QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
+    showAlert() {
+      alertShown = true;
+    }
+  }
+  originalAlertsServiceCID = MockRegistrar.register(
+    "@mozilla.org/alerts-service;1",
+    new MockAlertsService()
+  );
 });
 
 registerCleanupFunction(() => {
-  MockAlertsService.cleanup();
+  MockRegistrar.unregister(originalAlertsServiceCID);
 });
 
 add_task(async function testNotificationsDisabled() {
@@ -40,10 +55,10 @@ add_task(async function testNotificationsDisabled() {
   );
 
   await TestUtils.waitForTick();
-  ok(!MockAlertsService.alert, "No alert shown when they are disabled");
+  ok(!alertShown, "No alert shown when they are disabled");
 
   Services.prefs.setBoolPref("mail.chat.show_desktop_notifications", true);
-  MockAlertsService.reset();
+  reset();
 
   const soundPlayed = TestUtils.topicObserved("play-chat-notification-sound");
   Services.obs.notifyObservers(
@@ -60,9 +75,9 @@ add_task(async function testNotificationsDisabled() {
     "new-directed-incoming-message"
   );
   await soundPlayed;
-  ok(!MockAlertsService.alert, "No alert shown with main window focused");
+  ok(!alertShown, "No alert shown with main window focused");
 
-  MockAlertsService.reset();
+  reset();
 
   await openChatTab();
 
@@ -80,10 +95,7 @@ add_task(async function testNotificationsDisabled() {
     "new-directed-incoming-message"
   );
   await TestUtils.waitForTick();
-  ok(
-    !MockAlertsService.alert,
-    "No alert shown, no sound with chat tab focused"
-  );
+  ok(!alertShown, "No alert shown, no sound with chat tab focused");
 
   await closeChatTab();
 });
