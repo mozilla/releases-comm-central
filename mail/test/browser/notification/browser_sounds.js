@@ -17,6 +17,11 @@ const { MockSound } = ChromeUtils.importESModule(
   "resource://testing-common/MockSound.sys.mjs"
 );
 
+Services.scriptloader.loadSubScript(
+  "chrome://mochikit/content/tests/SimpleTest/MockObjects.js",
+  this
+);
+
 const { MailNotificationManager } = ChromeUtils.importESModule(
   "resource:///modules/MailNotificationManager.sys.mjs"
 );
@@ -113,6 +118,40 @@ add_task(async function testNoSoundOnBiff() {
   await make_gradually_newer_sets_in_folder([testFolder], [{ count: 1 }]);
   await promise;
 });
+
+/**
+ * Test the sound when new mail is received and Windows is in "do not disturb"
+ * mode. No sound should be played.
+ */
+add_task(async function testNoSoundOnBiffWithDND() {
+  class MockOSIntegration {
+    QueryInterface = ChromeUtils.generateQI(["nsIMessengerOSIntegration"]);
+
+    updateUnreadCount() {}
+    onExit() {}
+    hideWindow() {}
+    showWindow() {}
+    get isInDoNotDisturbMode() {
+      return true;
+    }
+  }
+
+  const osIntegration = new MockObjectRegisterer(
+    "@mozilla.org/messenger/osintegration;1",
+    MockOSIntegration
+  );
+  osIntegration.register();
+
+  Services.prefs.setBoolPref("mail.biff.play_sound", true);
+  Services.prefs.setIntPref("mail.biff.play_sound.type", 0);
+  Services.prefs.setStringPref("mail.biff.play_sound.url", complete);
+
+  const promise = promiseNothingPlayed();
+  await make_gradually_newer_sets_in_folder([testFolder], [{ count: 1 }]);
+  await promise;
+
+  osIntegration.unregister();
+}).skip(AppConstants.platform != "win");
 
 /**
  * Test the system sound when new mail is received.

@@ -265,6 +265,15 @@ export class MailNotificationManager {
    *   event, can be a root folder or a real folder.
    */
   async _notifyNewMail(changedFolder) {
+    if (
+      "nsIMessengerWindowsIntegration" in Ci &&
+      this._osIntegration?.QueryInterface(Ci.nsIMessengerWindowsIntegration)
+        ?.isInDoNotDisturbMode
+    ) {
+      this._logger.debug("Windows is in do-not-disturb mode");
+      return;
+    }
+
     const folder = this._getFirstRealFolderWithNewMail(changedFolder);
     if (!folder) {
       return;
