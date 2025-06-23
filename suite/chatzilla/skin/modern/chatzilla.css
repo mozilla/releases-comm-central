@@ -1,0 +1,345 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url(chrome://communicator/skin/);
+
+window {
+    width: 640px;
+    height: 480px;
+}
+
+#menu-view-none {
+    display: none;
+}
+
+#header-url:hover {
+    text-decoration: underline;
+}
+
+#outer-box {
+    margin: 5px;
+}
+
+.toolbarbutton-menu-dropmarker {
+    margin-left: 0.5em;
+}
+
+#input-widget,
+#input-widget-multiline {
+    border: thin silver inset;
+}
+
+#button-multiline-expand {
+    list-style-image:url("chrome://chatzilla/skin/images/multiline-expand.png");
+}
+
+#button-multiline-contract {
+    list-style-image:url("chrome://chatzilla/skin/images/multiline-contract.png");
+}
+
+#button-input {
+    list-style-image:url("chrome://chatzilla/skin/images/input-send.png");
+}
+
+.highlight-menu-item:hover {
+    color: white !important;
+    background: darkslategrey !important;
+}
+
+#user-list {
+    margin: 0;
+}
+
+#view-tabs {
+    overflow: hidden;
+}
+
+#views-tbar-spacer {
+    -moz-box-flex: 10000;
+}
+
+#tabs-drop-indicator-bar {
+    position: relative;
+    margin-top: -3px;
+    -moz-margin-start: -5px;
+    height: 3px;
+}
+
+#tabs-drop-indicator {
+    position: relative;
+    margin-right: -11px;
+    margin-bottom: -8px;
+    width: 11px;
+    height: 11px;
+    background: url(images/drop-indicator-bottom.png) 50% 50% no-repeat;
+}
+
+.view-button {
+    /* Box model is 5px 5px 5px 6px in aggregate. Extra pixel on the left is for the separator. */
+    -moz-appearance: none;
+    margin: 5px 0;
+    border: none;
+    border-left: 1px solid ButtonShadow;
+    padding: 0 5px;
+    background: Button;
+    color: ButtonText;
+    font: message-box;
+    text-shadow: none;
+    text-align: center;
+    max-width: 30ex;
+    -moz-box-flex: 1;
+    -moz-box-orient: vertical;
+    -moz-box-align: stretch;
+}
+
+.view-button:first-child {
+    border-left-color: transparent;
+}
+
+.view-button::before {
+    content: " ";
+    display: -moz-box;
+    margin: -5px -5px 0 -5px;
+    height: 4px;
+}
+
+.view-button[state="superfluous"]::before {
+    background-color: darkblue;
+}
+
+.view-button[state="activity"]::before {
+    background-color: darkgreen;
+}
+
+.view-button[state="attention"]::before {
+    background-color: red;
+}
+
+.view-button:hover,
+.view-button[state="current"] {
+    margin: 0 0 0 1px;
+    border-left: none;
+    border-radius: 0 0 6px 6px;
+    padding: 5px;
+    background: Window;
+    color: WindowText;
+}
+
+.view-button[state="current"] + .view-button,
+.view-button:hover + .view-button:not([state="current"]) {
+    border-left-color: transparent;
+}
+
+.view-button[state="current"] {
+    position: relative; /* So it visually appears above the tabs either side. */
+    border: 2px solid ButtonShadow;
+    border-top: none;
+    padding: 5px 3px 3px 3px;
+}
+
+treecol {
+    border: none;
+}
+
+/* ::::: Trees ::::: */
+
+treechildren::-moz-tree-row {
+  min-height: 18px;
+}
+
+/* The userlist can be in one of two state.  In "symbol", the user's
+ * channel mode is shown as a @ or + image, while in "graphic" mode, the
+ * image is one of the LED images.
+ */
+
+.listcell-icon {
+  margin-inline-end: 1px;
+}
+
+.listcell-label {
+  padding-bottom: 0;
+  padding-inline-start: 1px;
+}
+
+/* no mode */
+listitem {
+    list-style-image: url(chrome://chatzilla/skin/images/no-symbol.png);
+}
+
+#user-list[mode="graphic"] listitem {
+    list-style-image: url(chrome://chatzilla/skin/images/no-graphic.png);
+}
+
+/* voice */
+listitem[voice="true"] {
+    list-style-image: url(chrome://chatzilla/skin/images/voice-symbol.png);
+}
+
+#user-list[mode="graphic"] listitem[voice="true"] {
+    list-style-image: url(chrome://chatzilla/skin/images/voice-graphic.png);
+}
+
+/* half-chanop */
+listitem[halfop="true"] {
+    list-style-image: url(chrome://chatzilla/skin/images/halfop-symbol.png);
+}
+
+#user-list[mode="graphic"] listitem[halfop="true"] {
+    list-style-image: url(chrome://chatzilla/skin/images/halfop-graphic.png);
+}
+
+/* chanop */
+listitem[op="true"] {
+    list-style-image: url(chrome://chatzilla/skin/images/op-symbol.png);
+}
+
+#user-list[mode="graphic"] listitem[op="true"] {
+    list-style-image: url(chrome://chatzilla/skin/images/op-graphic.png);
+}
+
+/* admin */
+listitem[admin="true"] {
+    list-style-image: url(chrome://chatzilla/skin/images/admin-symbol.png);
+}
+
+#user-list[mode="graphic"] listitem[admin="true"] {
+    list-style-image: url(chrome://chatzilla/skin/images/admin-graphic.png);
+}
+
+/* founder */
+listitem[founder="true"] {
+    list-style-image: url(chrome://chatzilla/skin/images/founder-symbol.png);
+}
+
+#user-list[mode="graphic"] listitem[founder="true"] {
+    list-style-image: url(chrome://chatzilla/skin/images/founder-graphic.png);
+}
+
+/* away */
+listitem[away="true"] {
+    color: GrayText;
+    font-style: italic;
+}
+
+menuitem[header="true"] {
+    text-align: center;
+}
+
+.colorGrid
+{
+    width: 24px;
+    height: 16px;
+    border: 1px solid black;
+    -moz-box-align: center;
+    -moz-box-pack: center;
+}
+
+#colorTooltip
+{
+    padding: 0px;
+    -moz-box-align: center;
+    -moz-box-pack: center;
+}
+
+/* Feel the hacks. */
+progressmeter[mode="undetermined"] {
+    -moz-appearance: none;
+}
+
+[dir="ltr"] {
+    direction: ltr;
+}
+
+[dir="rtl"] {
+    direction: rtl;
+}
+
+#input-splitter {
+    margin: 4px 0 0 0;
+}
+
+#input-widgets {
+    margin: 4px 0;
+}
+
+#server-nick, #button-multiline-expand, #button-input, #button-multiline-contract {
+    margin: 0;
+}
+
+#input, #multiline-input {
+    margin: 0 4px;
+}
+
+/* Hack; Stop the status-bar from distorting without a security icon */
+#status-text {
+    min-height: 17px;
+    color: darkblue;
+}
+
+#status-text[notice="true"] {
+    font-weight: bold;
+}
+
+#view-status[condition="red"] {
+    color: darkred;
+}
+
+#view-status[condition="yellow"] {
+    color: #cc5200;
+}
+
+#view-status[condition="green"] {
+    color: darkgreen;
+}
+
+#security-button {
+    min-width: 20px;
+}
+
+#security-button:not([level="none"]):not([level="high"]):not([level="broken"]) {
+    display: none;
+}
+
+#security-button > .statusbarpanel-icon {
+  padding: 1px;
+}
+
+#security-button[level="high"] > .statusbarpanel-icon {
+  background-color: #B4CD32;
+}
+
+#security-button[level="broken"] > .statusbarpanel-icon {
+  background-color: #E83404;
+}
+
+/* make same background-color translucent on lwthemes */
+#security-button[level="high"] > .statusbarpanel-icon:-moz-lwtheme {
+  background-color: rgba(232, 219, 153, .8);
+}
+
+#security-button[level="broken"] > .statusbarpanel-icon:-moz-lwtheme {
+  background-color: rgba(232, 52, 4, .8);
+}
+
+#alert-status[alertstate="off"] {
+    list-style-image: url("chrome://chatzilla/skin/images/spbubble-off.png");
+}
+
+#alert-status[alertstate="on"] {
+    list-style-image: url("chrome://chatzilla/skin/images/spbubble-on.png");
+}
+
+#logging-status[loggingstate="off"] {
+    list-style-image: url("chrome://chatzilla/skin/images/logging-off.png");
+}
+
+#logging-status[loggingstate="on"] {
+    list-style-image: url("chrome://chatzilla/skin/images/logging-on.png");
+}
+
+/* Focus styling for a11y reasons */
+#user-list-box[focusobvious="true"], #browser-box[focusobvious="true"],
+#multiline-hug-box[focusobvious="true"], #singleline-hug-box[focusobvious="true"] {
+    outline: 2px solid highlight;
+}

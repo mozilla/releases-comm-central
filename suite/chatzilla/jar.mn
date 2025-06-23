@@ -4,6 +4,7 @@
 
 chatzilla.jar:
 % content chatzilla %content/chatzilla/
+% skin chatzilla classic/1.0 %skin/classic/chatzilla/
 % skin chatzilla modern/1.0 %skin/modern/chatzilla/
 % overlay chrome://navigator/content/navigator.xul chrome://chatzilla/content/browserOverlay.xul
 % overlay chrome://communicator/content/tasksOverlay.xul chrome://chatzilla/content/chatzillaOverlay.xul
@@ -62,10 +63,44 @@ chatzilla.jar:
 * content/chatzilla/static.js                            (content/static.js)
   content/chatzilla/pref-irc-toolkit.xul                 (content/pref-irc-toolkit.xul)
   content/chatzilla/prefsOverlay.xul                     (content/prefsOverlay.xul)
+
+  skin/classic/chatzilla/about.css                        (skin/about.css)
+  skin/classic/chatzilla/browserOverlay.css               (skin/browserOverlay.css)
+  skin/classic/chatzilla/channels.css                     (skin/channels.css)
+  skin/classic/chatzilla/chatzilla.css                    (skin/classic/chatzilla.css)
+  skin/classic/chatzilla/chatzillaOverlay.css             (skin/chatzillaOverlay.css)
+  skin/classic/chatzilla/install-plugin.css               (skin/install-plugin.css)
+  skin/classic/chatzilla/networks-edit.css                (skin/networks-edit.css)
+  skin/classic/chatzilla/output-dark.css                  (skin/output-dark.css)
+  skin/classic/chatzilla/output-default.css               (skin/output-default.css)
+  skin/classic/chatzilla/output-light.css                 (skin/output-light.css)
+  skin/classic/chatzilla/images/logo.png                  (skin/images/logo.png)
+  skin/classic/chatzilla/images/admin-graphic.png         (skin/images/admin-graphic.png)
+  skin/classic/chatzilla/images/admin-symbol.png          (skin/images/admin-symbol.png)
+  skin/classic/chatzilla/images/chatzilla-16.png          (skin/images/chatzilla-16.png)
+  skin/classic/chatzilla/images/drop-indicator-bottom.png (skin/images/drop-indicator-bottom.png)
+  skin/classic/chatzilla/images/founder-graphic.png       (skin/images/founder-graphic.png)
+  skin/classic/chatzilla/images/founder-symbol.png        (skin/images/founder-symbol.png)
+  skin/classic/chatzilla/images/halfop-graphic.png        (skin/images/halfop-graphic.png)
+  skin/classic/chatzilla/images/halfop-symbol.png         (skin/images/halfop-symbol.png)
+  skin/classic/chatzilla/images/input-send.png            (skin/images/input-send.png)
+  skin/classic/chatzilla/images/logging-off.png           (skin/images/logging-off.png)
+  skin/classic/chatzilla/images/logging-on.png            (skin/images/logging-on.png)
+  skin/classic/chatzilla/images/multiline-contract.png    (skin/images/multiline-contract.png)
+  skin/classic/chatzilla/images/multiline-expand.png      (skin/images/multiline-expand.png)
+  skin/classic/chatzilla/images/no-graphic.png            (skin/images/no-graphic.png)
+  skin/classic/chatzilla/images/no-symbol.png             (skin/images/no-symbol.png)
+  skin/classic/chatzilla/images/op-graphic.png            (skin/images/op-graphic.png)
+  skin/classic/chatzilla/images/op-symbol.png             (skin/images/op-symbol.png)
+  skin/classic/chatzilla/images/spbubble-off.png          (skin/images/spbubble-off.png)
+  skin/classic/chatzilla/images/spbubble-on.png           (skin/images/spbubble-on.png)
+  skin/classic/chatzilla/images/voice-graphic.png         (skin/images/voice-graphic.png)
+  skin/classic/chatzilla/images/voice-symbol.png          (skin/images/voice-symbol.png)
+
   skin/modern/chatzilla/about.css                        (skin/about.css)
   skin/modern/chatzilla/browserOverlay.css               (skin/browserOverlay.css)
   skin/modern/chatzilla/channels.css                     (skin/channels.css)
-  skin/modern/chatzilla/chatzilla.css                    (skin/chatzilla.css)
+  skin/modern/chatzilla/chatzilla.css                    (skin/modern/chatzilla.css)
   skin/modern/chatzilla/chatzillaOverlay.css             (skin/chatzillaOverlay.css)
   skin/modern/chatzilla/install-plugin.css               (skin/install-plugin.css)
   skin/modern/chatzilla/networks-edit.css                (skin/networks-edit.css)
