@@ -1,4 +1,5 @@
 [DEFAULT]
+head = "head.js"
 prefs = [
   "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
   "mail.notification.loglevel=Debug",

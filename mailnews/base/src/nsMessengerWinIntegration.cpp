@@ -196,7 +196,8 @@ LRESULT CALLBACK nsMessengerWinIntegration::IconWindowProc(HWND msgWindow,
   return ::DefWindowProc(msgWindow, msg, wp, lp);
 }
 
-nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
+NS_IMETHODIMP
+nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
   NS_ENSURE_ARG(aWindow);
   aWindow->SetVisibility(false);
   sHiddenWindows.AppendElement(aWindow);
@@ -224,6 +225,51 @@ nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
 NS_IMETHODIMP
 nsMessengerWinIntegration::ShowWindow(mozIDOMWindowProxy* aWindow) {
   activateWindow(aWindow);
+  return NS_OK;
+}
+
+typedef LONG NTSTATUS;
+
+typedef struct _WNF_STATE_NAME {
+  ULONG Data[2];
+} WNF_STATE_NAME, *PWNF_STATE_NAME;
+
+typedef struct _WNF_TYPE_ID {
+  GUID TypeId;
+} WNF_TYPE_ID, *PWNF_TYPE_ID;
+
+typedef ULONG WNF_CHANGE_STAMP, *PWNF_CHANGE_STAMP;
+
+extern "C" NTSTATUS NTAPI NtQueryWnfStateData(
+    _In_ PWNF_STATE_NAME StateName, _In_opt_ PWNF_TYPE_ID TypeId,
+    _In_opt_ const VOID* ExplicitScope, _Out_ PWNF_CHANGE_STAMP ChangeStamp,
+    _Out_writes_bytes_to_opt_(*BufferSize, *BufferSize) PVOID Buffer,
+    _Inout_ PULONG BufferSize);
+
+NS_IMETHODIMP
+nsMessengerWinIntegration::GetIsInDoNotDisturbMode(bool* inDNDMode) {
+  NS_ENSURE_ARG_POINTER(inDNDMode);
+  *inDNDMode = false;
+
+  WNF_STATE_NAME WNF_SHEL_QUIETHOURS_ACTIVE_PROFILE_CHANGED{0xA3BF1C75,
+                                                            0xD83063E};
+
+  WNF_CHANGE_STAMP unused_change_stamp{};
+  DWORD buffer = 0;
+  ULONG buffer_size = sizeof(buffer);
+
+  if (SUCCEEDED(::NtQueryWnfStateData(
+          &WNF_SHEL_QUIETHOURS_ACTIVE_PROFILE_CHANGED, nullptr, nullptr,
+          &unused_change_stamp, &buffer, &buffer_size))) {
+    switch (buffer) {
+      case 0:  // Off
+        break;
+      case 1:  // On (Priority only)
+      case 2:  // On (Alarms only)
+        *inDNDMode = true;
+        break;
+    }
+  }
   return NS_OK;
 }
 

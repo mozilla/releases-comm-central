@@ -115,6 +115,24 @@ add_task(async function testNoSoundOnBiff() {
 });
 
 /**
+ * Test the sound when new mail is received and Windows is in "do not disturb"
+ * mode. No sound should be played.
+ */
+add_task(async function testNoSoundOnBiffWithDND() {
+  MockOSIntegration._inDoNotDisturbMode = true;
+
+  Services.prefs.setBoolPref("mail.biff.play_sound", true);
+  Services.prefs.setIntPref("mail.biff.play_sound.type", 0);
+  Services.prefs.setStringPref("mail.biff.play_sound.url", complete);
+
+  const promise = promiseNothingPlayed();
+  await make_gradually_newer_sets_in_folder([testFolder], [{ count: 1 }]);
+  await promise;
+
+  MockOSIntegration._inDoNotDisturbMode = false;
+}).skip(AppConstants.platform != "win");
+
+/**
  * Test the system sound when new mail is received.
  */
 add_task(async function testSystemSoundOnBiff() {

@@ -150,14 +150,7 @@ export class MailNotificationManager {
 
     // Ensure that OS integration is defined before we attempt to initialize the
     // system tray icon.
-    try {
-      this._osIntegration = Cc[
-        "@mozilla.org/messenger/osintegration;1"
-      ].getService(Ci.nsIMessengerOSIntegration);
-    } catch (e) {
-      // We don't have OS integration on all platforms, i.e. 32-bit Linux.
-      this._osIntegration = null;
-    }
+    this._osIntegration;
 
     if (["macosx", "win"].includes(AppConstants.platform)) {
       // We don't have indicator for unread count on Linux yet.
@@ -258,6 +251,17 @@ export class MailNotificationManager {
     this._updateUnreadCount();
   }
 
+  get _osIntegration() {
+    try {
+      return Cc["@mozilla.org/messenger/osintegration;1"].getService(
+        Ci.nsIMessengerOSIntegration
+      );
+    } catch (e) {
+      // We don't have OS integration on all platforms, i.e. 32-bit Linux.
+      return null;
+    }
+  }
+
   /**
    * Show an alert according to the changed folder and/or play a sound.
    *
@@ -278,6 +282,16 @@ export class MailNotificationManager {
 
     if (Services.prefs.getBoolPref("mail.biff.show_alert")) {
       this._fillAlertInfo(folder, newMsgKeys, numNewMessages);
+    }
+
+    // If the OS is in Do Not Disturb mode, don't play a sound.
+    if (
+      "nsIMessengerWindowsIntegration" in Ci &&
+      this._osIntegration?.QueryInterface(Ci.nsIMessengerWindowsIntegration)
+        ?.isInDoNotDisturbMode
+    ) {
+      this._logger.debug("Windows is in do-not-disturb mode");
+      return;
     }
 
     const prefBranch = Services.prefs.getBranch(
