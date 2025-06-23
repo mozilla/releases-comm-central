@@ -38,6 +38,7 @@
 #include "mozilla/Preferences.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "mozilla/ScopeExit.h"
+#include "mozilla/StaticPrefs_mail.h"
 
 using namespace mozilla::mailnews;
 using namespace mozilla;
@@ -1065,7 +1066,7 @@ nsMsgDatabase::~nsMsgDatabase() {
   MOZ_LOG(DBLog, LogLevel::Info,
           ("closing database    %s", m_dbFile->HumanReadablePath().get()));
 
-  if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (!StaticPrefs::mail_panorama_enabled_AtStartup()) {
     nsCOMPtr<nsIMsgDBService> serv(
         do_GetService("@mozilla.org/msgDatabase/msgDBService;1"));
     if (serv) {
@@ -1130,7 +1131,7 @@ nsresult nsMsgDatabase::Open(nsMsgDBService* aDBService, nsIFile* aFolderName,
 NS_IMETHODIMP nsMsgDatabase::OpenFromFile(nsIFile* aFolderName) {
   // This is here to open the database without using the database service.
   // It is used only for migrating to the new global database.
-  MOZ_ASSERT(Preferences::GetBool("mail.panorama.enabled", false));
+  MOZ_ASSERT(StaticPrefs::mail_panorama_enabled_AtStartup());
   return nsMsgDatabase::OpenInternal(nullptr, aFolderName, false, false, true);
 }
 
@@ -1501,7 +1502,7 @@ NS_IMETHODIMP nsMsgDatabase::Commit(nsMsgDBCommit commitType) {
   // commits.
   if (GetEnv()) GetEnv()->ClearErrors();
 
-  if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (!StaticPrefs::mail_panorama_enabled_AtStartup()) {
     nsresult rv;
     nsCOMPtr<nsIMsgAccountManager> accountManager =
         do_GetService("@mozilla.org/messenger/account-manager;1", &rv);

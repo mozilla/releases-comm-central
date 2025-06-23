@@ -64,6 +64,7 @@
 #include "mozilla/Preferences.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "mozilla/Services.h"
+#include "mozilla/StaticPrefs_mail.h"
 #include "nsIFileStreams.h"
 #include "nsIOutputStream.h"
 #include "nsISafeOutputStream.h"
@@ -170,7 +171,7 @@ nsresult nsMsgAccountManager::Init() {
 
   nsresult rv;
 #ifdef MOZ_PANORAMA
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     // Replace the database service with the Panorama database.
     nsCOMPtr<nsIComponentRegistrar> componentRegistrar;
     rv = NS_GetComponentRegistrar(getter_AddRefs(componentRegistrar));
@@ -542,7 +543,7 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
   rv = rootFolder->GetDescendants(allDescendants);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     // Remove every folder on the account from the folder cache.
     for (const auto& folder : allDescendants) {
       nsresult cacherv = RemoveFolderFromCache(folder);
@@ -629,8 +630,8 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
 }
 
 nsresult nsMsgAccountManager::RemoveFolderFromCache(nsIMsgFolder* aFolder) {
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  MOZ_ASSERT(!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup());
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     MOZ_ASSERT(!m_msgFolderCache);
     return NS_ERROR_NOT_IMPLEMENTED;
   }
@@ -984,8 +985,8 @@ NS_IMETHODIMP nsMsgAccountManager::GetFolderCache(
     nsIMsgFolderCache** aFolderCache) {
   NS_ENSURE_ARG_POINTER(aFolderCache);
 
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  MOZ_ASSERT(!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup());
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     MOZ_ASSERT(!m_msgFolderCache);
     *aFolderCache = nullptr;
     return NS_ERROR_NOT_IMPLEMENTED;
@@ -1113,7 +1114,7 @@ nsresult nsMsgAccountManager::LoadAccounts() {
   // ignore it.
   if (m_shutdownInProgress || m_haveShutdown) return NS_ERROR_FAILURE;
 
-  if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     // TODO: Reenable this.
     nsCOMPtr<nsIMsgMailSession> mailSession =
         do_GetService("@mozilla.org/messenger/services/session;1", &rv);
@@ -1441,7 +1442,7 @@ nsresult nsMsgAccountManager::LoadAccounts() {
   }
 
 #ifdef MOZ_PANORAMA
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     // At this point, we should have all the folders in the database. We can
     // finally migrate the virtualFolders.dat file, which we'll only do if the
     // database didn't exist at the start of the program.
@@ -1480,7 +1481,7 @@ nsMsgAccountManager::ReactivateAccounts() {
 NS_IMETHODIMP
 nsMsgAccountManager::SetSpecialFolders() {
   AUTO_PROFILER_LABEL("nsMsgAccountManager::SetSpecialFolders", MAILNEWS);
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     // Skip this for now.
     return NS_OK;
   }
@@ -1575,7 +1576,7 @@ nsMsgAccountManager::UnloadAccounts() {
                      EmptyCString());
 
   if (m_accountsLoaded) {
-    if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+    if (!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
       nsCOMPtr<nsIMsgMailSession> mailSession =
           do_GetService("@mozilla.org/messenger/services/session;1");
       if (mailSession) mailSession->RemoveFolderListener(this);
@@ -1782,8 +1783,8 @@ nsMsgAccountManager::BlockShutdown(nsIAsyncShutdownClient* aClient) {
 
 NS_IMETHODIMP
 nsMsgAccountManager::WriteToFolderCache(nsIMsgFolderCache* folderCache) {
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  MOZ_ASSERT(!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup());
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     MOZ_ASSERT(!m_msgFolderCache);
     return NS_ERROR_NOT_IMPLEMENTED;
   }
@@ -2781,7 +2782,7 @@ nsresult nsMsgAccountManager::GetVirtualFoldersFile(nsCOMPtr<nsIFile>& aFile) {
 
 NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
   AUTO_PROFILER_LABEL("nsMsgAccountManager::LoadVirtualFolders", MAILNEWS);
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     // Skip this for now.
     return NS_OK;
   }
@@ -2933,7 +2934,7 @@ NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders() {
   AUTO_PROFILER_LABEL("nsMsgAccountManager::SaveVirtualFolders", MAILNEWS);
 
   if (!m_virtualFoldersLoaded) return NS_OK;
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  MOZ_ASSERT(!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup());
 
   nsCOMPtr<nsIFile> file;
   GetVirtualFoldersFile(file);
@@ -3053,7 +3054,7 @@ void nsMsgAccountManager::ParseAndVerifyVirtualFolderScope(nsCString& buffer) {
 // This conveniently works to add a single folder as well.
 nsresult nsMsgAccountManager::AddVFListenersForVF(
     nsIMsgFolder* virtualFolder, const nsCString& srchFolderUris) {
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  MOZ_ASSERT(!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup());
   if (srchFolderUris.Equals("*")) {
     return NS_OK;
   }
@@ -3143,7 +3144,7 @@ NS_IMETHODIMP nsMsgAccountManager::GetAllFolders(
 
 NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
                                                  nsIMsgFolder* folder) {
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  MOZ_ASSERT(!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup());
   if (!parent) {
     // This method gets called for folders that aren't connected to anything,
     // such as a junk folder that appears when an IMAP account is created. We
@@ -3309,7 +3310,7 @@ NS_IMETHODIMP nsMsgAccountManager::OnMessageAdded(nsIMsgFolder* parent,
 
 NS_IMETHODIMP nsMsgAccountManager::OnFolderRemoved(nsIMsgFolder* parentFolder,
                                                    nsIMsgFolder* folder) {
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  MOZ_ASSERT(!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup());
   nsresult rv = NS_OK;
   uint32_t folderFlags;
   folder->GetFlags(&folderFlags);
@@ -3410,7 +3411,7 @@ nsMsgAccountManager::OnFolderIntPropertyChanged(nsIMsgFolder* aFolder,
                                                 const nsACString& aProperty,
                                                 int64_t oldValue,
                                                 int64_t newValue) {
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
+  MOZ_ASSERT(!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup());
   if (aProperty.Equals(kFolderFlag)) {
     if (newValue & nsMsgFolderFlags::Virtual) {
       // This is a virtual folder, let's get out of here.

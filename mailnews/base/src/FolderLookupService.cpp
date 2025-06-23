@@ -2,13 +2,16 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include "FolderLookupService.h"
+
+#include <regex>
+
 #include "mozilla/Preferences.h"
+#include "mozilla/StaticPrefs_mail.h"
 #include "msgCore.h"
 #include "nsINetUtil.h"
 #include "nsNetCID.h"
-
-#include <regex>
 
 /**
  * Internal helper function to test if a folder is dangling or parented.
@@ -181,9 +184,7 @@ NS_IMETHODIMP FolderLookupService::GetOrCreateFolderForURL(
 NS_IMETHODIMP FolderLookupService::Cache(const nsACString& url,
                                          nsIMsgFolder* folder) {
   NS_ENSURE_ARG(folder);
-  bool panoramaEnabled =
-      mozilla::Preferences::GetBool("mail.panorama.enabled", false);
-  if (!panoramaEnabled) {
+  if (!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     NS_ERROR(
         "nsIFolderLookupService::Cache must not be used when Panorama is not "
         "enabled.");
@@ -216,9 +217,7 @@ nsresult FolderLookupService::CreateDangling(const nsACString& url,
 
   *folder = nullptr;
 
-  bool panoramaEnabled =
-      mozilla::Preferences::GetBool("mail.panorama.enabled", false);
-  if (panoramaEnabled) {
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     nsAutoCString errorMessage{
         "Panorama is enabled. Refusing to create a folder object for url "};
     errorMessage.Append(url);

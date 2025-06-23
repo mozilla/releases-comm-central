@@ -3,16 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsRssIncomingServer.h"
+
+#include "mozilla/StaticPrefs_mail.h"
 #include "nsMsgFolderFlags.h"
 #include "nsINewsBlogFeedDownloader.h"
 #include "nsIFile.h"
 #include "nsIMsgFolderNotificationService.h"
-
 #include "nsIMsgLocalMailFolder.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
-
-using mozilla::Preferences;
 
 nsrefcnt nsRssIncomingServer::gInstanceCount = 0;
 
@@ -53,7 +52,7 @@ nsRssIncomingServer::~nsRssIncomingServer() {
 nsresult nsRssIncomingServer::CreateRootFolder() {
   nsresult rv = nsMsgIncomingServer::CreateRootFolder();
   NS_ENSURE_SUCCESS(rv, rv);
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     rv = CreateDefaultMailboxes();
     NS_ENSURE_SUCCESS(rv, rv);
 

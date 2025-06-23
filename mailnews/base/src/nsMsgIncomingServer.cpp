@@ -39,6 +39,7 @@
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/Services.h"
+#include "mozilla/StaticPrefs_mail.h"
 #include "nsIMsgFilter.h"
 #include "nsIObserverService.h"
 #include "mozilla/Unused.h"
@@ -296,8 +297,8 @@ NS_IMPL_GETSET(nsMsgIncomingServer, BiffState, uint32_t, m_biffState)
 
 NS_IMETHODIMP nsMsgIncomingServer::WriteToFolderCache(
     nsIMsgFolderCache* folderCache) {
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  MOZ_ASSERT(!StaticPrefs::mail_panorama_enabled_AtStartup());
+  if (StaticPrefs::mail_panorama_enabled_AtStartup()) {
     return NS_ERROR_NOT_IMPLEMENTED;
   }
 
@@ -419,7 +420,7 @@ nsresult nsMsgIncomingServer::CreateRootFolder() {
   NS_ENSURE_SUCCESS(rv, rv);
 
 #ifdef MOZ_PANORAMA
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (StaticPrefs::mail_panorama_enabled_AtStartup()) {
     nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
     nsCOMPtr<nsIFolderDatabase> folders = database->GetFolderDB();
 

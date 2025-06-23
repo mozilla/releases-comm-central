@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"
 #include "nsMsgFolderCache.h"
+
+#include "mozilla/StaticPrefs_mail.h"
+#include "msgCore.h"
 #include "nsIMsgFolderCacheElement.h"
 #include "nsNetUtil.h"
 #include "nsStreamUtils.h"
@@ -180,8 +182,8 @@ nsMsgFolderCache::nsMsgFolderCache()
 
 NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile* cacheFile, nsIFile* legacyFile) {
   // Don't even allow creation under panorama.
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  MOZ_ASSERT(!StaticPrefs::mail_panorama_enabled_AtStartup());
+  if (StaticPrefs::mail_panorama_enabled_AtStartup()) {
     return NS_ERROR_NOT_IMPLEMENTED;
   }
   mCacheFile = cacheFile;

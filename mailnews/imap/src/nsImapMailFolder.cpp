@@ -67,12 +67,16 @@
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ScopeExit.h"
+#include "mozilla/StaticPrefs_mail.h"
 #include "nsReadableUtils.h"
 #include "UrlListener.h"
 #include "nsIObserverService.h"
 #include "nsIPropertyBag2.h"
 
+using mozilla::LazyLogModule;
+using mozilla::LogLevel;
 using mozilla::Preferences;
+using namespace mozilla::StaticPrefs;
 
 #define NS_PARSEMAILMSGSTATE_CID              \
   {/* 2B79AC51-1459-11d3-8097-006008128C4E */ \
@@ -87,8 +91,6 @@ static NS_DEFINE_CID(kParseMailMsgStateCID, NS_PARSEMAILMSGSTATE_CID);
 static NS_DEFINE_CID(kCImapHostSessionList, NS_IIMAPHOSTSESSIONLIST_CID);
 
 #define MAILNEWS_CUSTOM_HEADERS "mailnews.customHeaders"
-
-using namespace mozilla;
 
 extern LazyLogModule gAutoSyncLog;  // defined in nsAutoSyncManager.cpp
 extern LazyLogModule IMAP;          // defined in nsImapProtocol.cpp
@@ -453,7 +455,7 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
     currentFolderDBNameStr = currentFolderNameStr;
     nsAutoString utfLeafName = currentFolderNameStr;
 
-    if (!Preferences::GetBool("mail.panorama.enabled", false)) {
+    if (!mail_panorama_enabled_AtStartup()) {
       nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
       rv = GetFolderCacheElemFromFile(dbFile, getter_AddRefs(cacheElement));
       if (NS_SUCCEEDED(rv) && cacheElement) {
@@ -1877,8 +1879,8 @@ NS_IMETHODIMP nsImapMailFolder::MarkThreadRead(nsIMsgThread* thread) {
 
 NS_IMETHODIMP nsImapMailFolder::ReadFromFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  MOZ_ASSERT(!mail_panorama_enabled_AtStartup());
+  if (mail_panorama_enabled_AtStartup()) {
     return NS_ERROR_NOT_IMPLEMENTED;
   }
   nsresult rv = nsMsgDBFolder::ReadFromFolderCacheElem(element);
@@ -1913,8 +1915,8 @@ NS_IMETHODIMP nsImapMailFolder::ReadFromFolderCacheElem(
 
 NS_IMETHODIMP nsImapMailFolder::WriteToFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  MOZ_ASSERT(!mail_panorama_enabled_AtStartup());
+  if (mail_panorama_enabled_AtStartup()) {
     return NS_ERROR_NOT_IMPLEMENTED;
   }
   nsresult rv = nsMsgDBFolder::WriteToFolderCacheElem(element);

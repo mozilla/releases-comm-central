@@ -3,20 +3,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"  // pre-compiled headers
+#include "nsNoIncomingServer.h"
 
+#include "mozilla/StaticPrefs_mail.h"
+#include "msgCore.h"  // pre-compiled headers
 #include "prmem.h"
 #include "plstr.h"
 #include "prprf.h"
-#include "nsNoIncomingServer.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgMailSession.h"
 #include "nsIPop3IncomingServer.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
-
-using mozilla::Preferences;
 
 NS_IMPL_ISUPPORTS_INHERITED(nsNoIncomingServer, nsMsgIncomingServer,
                             nsINoIncomingServer, nsILocalMailIncomingServer)
@@ -29,7 +28,7 @@ nsNoIncomingServer::~nsNoIncomingServer() {}
 nsresult nsNoIncomingServer::CreateRootFolder() {
   nsresult rv = nsMsgIncomingServer::CreateRootFolder();
   NS_ENSURE_SUCCESS(rv, rv);
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     rv = CreateDefaultMailboxes();
     NS_ENSURE_SUCCESS(rv, rv);
 

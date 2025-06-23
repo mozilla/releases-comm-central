@@ -48,6 +48,7 @@
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ProfilerMarkers.h"
+#include "mozilla/StaticPrefs_mail.h"
 #include "mozilla/UniquePtr.h"
 #include "StoreIndexer.h"
 #include "nsIPropertyBag2.h"
@@ -56,6 +57,7 @@
 #include <functional>
 
 using mozilla::Preferences;
+using namespace mozilla::StaticPrefs;
 
 //////////////////////////////////////////////////////////////////////////////
 // nsLocal
@@ -270,7 +272,7 @@ nsMsgLocalMailFolder::GetMsgDatabase(nsIMsgDatabase** aMsgDatabase) {
 
 NS_IMETHODIMP
 nsMsgLocalMailFolder::GetSubFolders(nsTArray<RefPtr<nsIMsgFolder>>& folders) {
-  if (!mInitialized && !Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (!mInitialized && !mail_panorama_enabled_AtStartup()) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     nsresult rv = GetServer(getter_AddRefs(server));
     NS_ENSURE_SUCCESS(rv, NS_MSG_INVALID_OR_MISSING_SERVER);
@@ -932,8 +934,8 @@ nsMsgLocalMailFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
 
 NS_IMETHODIMP nsMsgLocalMailFolder::ReadFromFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  MOZ_ASSERT(!mail_panorama_enabled_AtStartup());
+  if (mail_panorama_enabled_AtStartup()) {
     return NS_ERROR_NOT_IMPLEMENTED;
   }
   NS_ENSURE_ARG_POINTER(element);
@@ -947,8 +949,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ReadFromFolderCacheElem(
 
 NS_IMETHODIMP nsMsgLocalMailFolder::WriteToFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
-  MOZ_ASSERT(!Preferences::GetBool("mail.panorama.enabled", false));
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  MOZ_ASSERT(!mail_panorama_enabled_AtStartup());
+  if (mail_panorama_enabled_AtStartup()) {
     return NS_ERROR_NOT_IMPLEMENTED;
   }
   NS_ENSURE_ARG_POINTER(element);
@@ -3269,7 +3271,7 @@ nsMsgLocalMailFolder::AddMessageBatch(
     nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray) {
   AUTO_PROFILER_LABEL("nsMsgLocalMailFolder::AddMessageBatch", MAILNEWS);
 #ifdef MOZ_PANORAMA
-  if (Preferences::GetBool("mail.panorama.enabled", false)) {
+  if (mail_panorama_enabled_AtStartup()) {
     return AddMessageBatch2(aMessages, aHdrArray);
   }
 #endif  // MOZ_PANORAMA

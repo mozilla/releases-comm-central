@@ -31,6 +31,13 @@
   value: 0
   mirror: always
 
+# Is Panorama enabled? This should not be set to true unless you are working
+# on the project.
+- name: mail.panorama.enabled
+  type: bool
+  value: false
+  mirror: once
+
 # Whether the colors from tags should be applied only to the message(s)
 # actually tagged, or also to any collapsed threads which contain tagged
 # messages.
