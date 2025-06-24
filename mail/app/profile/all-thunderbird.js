@@ -906,8 +906,8 @@ pref("privacy.webrtc.globalMuteToggles", false);
 // instead of space in the file name.
 pref("mail.save_msg_filename_underscores_for_space", false);
 
-// See bug 1572568 for details. Disallow eval() with system principal.
-pref("security.allow_eval_with_system_principal", false);
+// Necessary until we move off the Matrix JS SDK.
+pref("security.allow_eval_in_parent_process", true);
 
 // Enable FIDO U2F
 pref("security.webauth.u2f", true);
