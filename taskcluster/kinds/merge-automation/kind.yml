@@ -24,120 +24,123 @@ tasks:
         scopes: []
         worker:
             implementation: scriptworker-lando
-            tags: []
-            bump: false
+            # lando-repo is the _destination_ repository; not the one
+            # the task runs on. For this reason it is keyed on behavior
+            # instead of project.
+            lando-repo:
+                by-behavior:
+                    main-to-beta: comm-beta
+                    early-to-late-beta: comm-beta
+                    beta-to-release: comm-release
+                    release-to-esr: comm-esr140
+                    bump-main: comm-central
+                    bump-esr140: comm-esr140
+            
             dontbuild: false
             ignore-closed-tree: true
-            push: false
             actions:
                 by-behavior:
                     # This list of behaviours should be kept in sync with
                     # the enum in the merge_automation action.
-                    bump-central:
-                        fetch-version-from: "mail/config/version.txt"
-                        version-files:
-                            - filename: "mail/config/version.txt"
-                              version-bump: "major"
-                              new-suffix: 'a1'
-                            - filename: "mail/config/version_display.txt"
-                              version-bump: "major"
-                              new-suffix: 'a1'
-                        replacements:
-                            - - suite/config/version.txt
-                              - '{old_suite_version}'
-                              - '{new_suite_version}'
-                            - - suite/config/version_display.txt
-                              - '{old_suite_version}'
-                              - '{new_suite_version}'
-                        merge-old-head: false
-                        end-tag: 'NIGHTLY_{major_version}_END'
-                        to-repo: 'https://hg.mozilla.org/comm-central'
-                        to-branch: 'comm'
+                    bump-main:
+                        - main-bump:
+                              fetch-version-from: "mail/config/version.txt"
+                              version-files:
+                                  - filename: "mail/config/version.txt"
+                                    version-bump: "major"
+                                    new-suffix: 'a1'
+                                  - filename: "mail/config/version_display.txt"
+                                    version-bump: "major"
+                                    new-suffix: 'a1'
+                              replacements:
+                                  - - suite/config/version.txt
+                                    - '{old_suite_version}'
+                                    - '{new_suite_version}'
+                                  - - suite/config/version_display.txt
+                                    - '{old_suite_version}'
+                                    - '{new_suite_version}'
+                              merge-old-head: false
+                              end-tag: 'NIGHTLY_{major_version}_END'
+                              to-repo: 'https://hg.mozilla.org/comm-central'
+                              to-branch: 'comm'
                     bump-esr140:
-                        fetch-version-from: "mail/config/version.txt"
-                        version-files:
-                            - filename: "mail/config/version.txt"
-                              version-bump: "minor"
-                            - filename: "mail/config/version_display.txt"
-                              version-bump: "minor"
-                        replacements: []
-                        merge-old-head: false
-                        to-repo: 'https://hg.mozilla.org/releases/comm-esr140'
-                        to-branch: 'comm-esr140'
+                        - esr-bump:
+                              fetch-version-from: "mail/config/version.txt"
+                              version-files:
+                                  - filename: "mail/config/version.txt"
+                                    version-bump: "minor"
+                                  - filename: "mail/config/version_display.txt"
+                                    version-bump: "minor"
+                              replacements: []
+                              merge-old-head: false
+                              to-repo: 'https://hg.mozilla.org/releases/comm-esr140'
+                              to-branch: 'comm-esr140'
+                    early-to-late-beta:
+                        - early-to-late-beta
                     main-to-beta:
-                        - name: Thunderbird l10n changesets
-                          path: mail/locales/l10n-changesets.json
-                          version-path: mail/config/version.txt
-                          l10n-repo-url: "https://github.com/thunderbird/thunderbird-l10n"
-                          l10n-repo-target-branch: main
-                          ignore-config:
-                              ja:
-                                  - macosx64
-                              ja-JP-mac:
-                                  - linux
-                                  - linux64
-                                  - win32
-                                  - win64
-                          platform-configs: [{
-                              "platforms": [
-                                  "linux",
-                                  "linux64",
-                                  "macosx64",
-                                  "win32",
-                                  "win64",
-                              ],
-                              "path": "mail/locales/shipped-locales",
-                          }]
-                          l10n-bump-info:
-                              - name: Thunderbird l10n changesets
-                                path: mail/locales/l10n-changesets.json
-                                version-path: mail/config/version.txt
-                                l10n-repo-url: "https://github.com/thunderbird/thunderbird-l10n"
-                                l10n-repo-target-branch: main
-                                ignore-config:
-                                    ja:
-                                        - macosx64
-                                    ja-JP-mac:
-                                        - linux
-                                        - linux64
-                                        - win32
-                                        - win64
-                                platform-configs: [{
-                                    "platforms": [
-                                        "linux",
-                                        "linux64",
-                                        "macosx64",
-                                        "win32",
-                                        "win64",
-                                    ],
-                                    "path": "mail/locales/shipped-locales",
-                                }]
+                        - uplift:
+                              fetch-version-from: "mail/config/version.txt"
+                              version-files:
+                                  - filename: "mail/config/version.txt"
+                                    new-suffix: ''
+                                  - filename: "mail/config/version_display.txt"
+                                    new-suffix: 'b1'
+                              replacements: []
+                              base-tag: 'BETA_{major_version}_BASE'
+                              end-tag: 'BETA_{major_version}_END'
+                              from-branch: 'comm-central'
+                              to-branch: 'comm-beta'
+                              l10n-bump-info:
+                                  - name: Thunderbird l10n changesets
+                                    path: mail/locales/l10n-changesets.json
+                                    l10n-repo-url: "https://github.com/thunderbird/thunderbird-l10n"
+                                    l10n-repo-target-branch: main
+                                    ignore-config:
+                                        ja:
+                                            - macosx64
+                                        ja-JP-mac:
+                                            - linux
+                                            - linux64
+                                            - win32
+                                            - win64
+                                    platform-configs: [{
+                                        "platforms": [
+                                            "linux",
+                                            "linux64",
+                                            "macosx64",
+                                            "win32",
+                                            "win64",
+                                        ],
+                                        "path": "mail/locales/shipped-locales",
+                                    }]
                     beta-to-release:
-                        fetch-version-from: "mail/config/version.txt"
-                        version-files:
-                            - filename: "mail/config/version_display.txt"
-                              new-suffix: ''
-                        replacements:  # .gecko_rev.yml handled via transform function
-                            - - suite/config/version_display.txt
-                              - b1
-                              - ''
-                        merge-old-head: true
-                        base-tag: 'RELEASE_{major_version}_BASE'
-                        end-tag: 'RELEASE_{major_version}_END'
-                        from-repo: 'https://hg.mozilla.org/releases/comm-beta'
-                        from-branch: 'comm-beta'
-                        to-repo: 'https://hg.mozilla.org/releases/comm-release'
-                        to-branch: 'comm-release'
+                        - uplift:
+                              fetch-version-from: "mail/config/version.txt"
+                              version-files:
+                                  - filename: "mail/config/version_display.txt"
+                                    new-suffix: ''
+                              replacements:  # .gecko_rev.yml handled via transform function
+                                  - - suite/config/version_display.txt
+                                    - b1
+                                    - ''
+                              merge-old-head: true
+                              base-tag: 'RELEASE_{major_version}_BASE'
+                              end-tag: 'RELEASE_{major_version}_END'
+                              from-repo: 'https://hg.mozilla.org/releases/comm-beta'
+                              from-branch: 'comm-beta'
+                              to-repo: 'https://hg.mozilla.org/releases/comm-release'
+                              to-branch: 'comm-release'
                     release-to-esr:
-                        fetch-version-from: "mail/config/version.txt"
-                        version-files:
-                            - filename: "mail/config/version_display.txt"
-                              new-suffix: 'esr'
-                        replacements: []
-                        merge-old-head: false
-                        end-tag: "ESR_{major_version}_BASE"
-                        to-repo: 'https://hg.mozilla.org/releases/comm-esr140'
-                        to-branch: 'comm-esr140'
+                        - uplift:
+                              fetch-version-from: "mail/config/version.txt"
+                              version-files:
+                                  - filename: "mail/config/version_display.txt"
+                                    new-suffix: 'esr'
+                              replacements: []
+                              merge-old-head: false
+                              end-tag: "ESR_{major_version}_BASE"
+                              to-repo: 'https://hg.mozilla.org/releases/comm-esr140'
+                              to-branch: 'comm-esr140'
             gecko-rev:
                 by-behavior:
                     central-to-beta:

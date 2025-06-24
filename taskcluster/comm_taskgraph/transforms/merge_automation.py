@@ -153,8 +153,13 @@ def pin_gecko_rev_yml(config, tasks):
                 "behavior": behavior,
             },
         )
-
-        merge_config = task["worker"]["merge-info"]
+        
+        worker = task["worker"]
+        assert len(worker["actions"][0].keys()) == 1
+        
+        action_name = list(worker["actions"][0].keys())[0]
+        merge_config = task["worker"]["actions"][0][action_name]
+        
         if gecko_rev := task["worker"].pop("gecko-rev", None):
             source_repo = merge_config[gecko_rev["source"]]
             gecko_head_repo = MOZ_HG_URL.format(repo=gecko_rev["upstream"])
