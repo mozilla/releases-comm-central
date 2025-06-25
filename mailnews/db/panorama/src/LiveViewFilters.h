@@ -13,8 +13,6 @@
 #include "mozilla/storage/Variant.h"
 #include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
-#include "nsIDatabaseCore.h"
-#include "nsIFolderDatabase.h"
 #include "nsIVariant.h"
 #include "nsMsgMessageFlags.h"
 #include "nsString.h"

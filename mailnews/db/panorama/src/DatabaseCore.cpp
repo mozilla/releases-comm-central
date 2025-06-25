@@ -363,28 +363,25 @@ NS_IMETHODIMP DatabaseCore::MigrateVirtualFolders() {
 
     virtualFolder->SetFlag(nsMsgFolderFlags::Virtual);
 
-    nsCOMPtr<nsIFolder> folder;
-    mFolderDatabase->GetFolderForMsgFolder(virtualFolder,
-                                           getter_AddRefs(folder));
-    uint64_t folderId = folder->GetId();
-
     nsTArray<nsCString> folderUris;
     ParseString(def.scope, '|', folderUris);
-    nsTArray<uint64_t> folderIds;
+    nsTArray<uint64_t> searchFolderIds;
     for (auto folderUri : folderUris) {
-      nsCOMPtr<nsIMsgFolder> msgFolder;
+      nsCOMPtr<nsIMsgFolder> searchFolder;
       if (NS_SUCCEEDED(
-              GetExistingFolder(folderUri, getter_AddRefs(msgFolder)))) {
-        nsCOMPtr<nsIFolder> folder;
-        mFolderDatabase->GetFolderForMsgFolder(msgFolder,
-                                               getter_AddRefs(folder));
-        folderIds.AppendElement(folder->GetId());
+              GetExistingFolder(folderUri, getter_AddRefs(searchFolder)))) {
+        uint64_t searchFolderId;
+        searchFolder->GetId(&searchFolderId);
+        searchFolderIds.AppendElement(searchFolderId);
       }
     }
 
-    mFolderDatabase->SetVirtualFolderFolders(folderId, folderIds);
-    mFolderDatabase->SetFolderProperty(folderId, "searchStr"_ns, def.terms);
-    mFolderDatabase->SetFolderProperty(folderId, "searchOnline"_ns,
+    uint64_t virtualFolderId;
+    virtualFolder->GetId(&virtualFolderId);
+    mFolderDatabase->SetVirtualFolderFolders(virtualFolderId, searchFolderIds);
+    mFolderDatabase->SetFolderProperty(virtualFolderId, "searchStr"_ns,
+                                       def.terms);
+    mFolderDatabase->SetFolderProperty(virtualFolderId, "searchOnline"_ns,
                                        def.searchOnline);
   }
 
@@ -518,25 +515,28 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
   nsCOMPtr<mozIStorageBindingParamsArray> mParamsArray;
   uint32_t mCurrentStep = 0;
 
-  nsresult SetupAndRun(nsIFile* summaryFile, nsIFolder* destFolder,
-                       RefPtr<Promise> promise) {
-    mDestFolderId = destFolder->GetId();
-    mDestFolderPath = destFolder->GetPath();
+  nsresult SetupAndRun(nsIMsgFolder* srcFolder, RefPtr<Promise> promise) {
+    srcFolder->GetId(&mDestFolderId);
+    srcFolder->GetPath(mDestFolderPath);
     mPromiseHolder = new nsMainThreadPtrHolder<Promise>(__func__, promise);
 
     MOZ_LOG(gPanoramaLog, LogLevel::Info,
             ("migrating %s to the new database", mDestFolderPath.get()));
-    PROFILER_MARKER_TEXT("Folder Migration", MAILNEWS,
-                         MarkerOptions(MarkerTiming::IntervalStart()),
-                         mDestFolderPath);
+
+    nsCOMPtr<nsIFile> summaryFile;
+    nsresult rv = srcFolder->GetSummaryFile(getter_AddRefs(summaryFile));
+    NS_ENSURE_SUCCESS(rv, rv);
 
     mDB = do_CreateInstance("@mozilla.org/nsMsgDatabase/msgDB-mailbox");
-    nsresult rv = mDB->OpenFromFile(summaryFile);
+    rv = mDB->OpenFromFile(summaryFile);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = mDB->EnumerateMessages(getter_AddRefs(mEnumerator));
     NS_ENSURE_SUCCESS(rv, rv);
 
+    PROFILER_MARKER_TEXT("Folder Migration", MAILNEWS,
+                         MarkerOptions(MarkerTiming::IntervalStart()),
+                         mDestFolderPath);
     bool hasMore;
     if (NS_FAILED(mEnumerator->HasMoreElements(&hasMore)) || !hasMore) {
       Complete(true);
@@ -817,20 +817,11 @@ DatabaseCore::MigrateFolderDatabase(nsIMsgFolder* srcFolder, JSContext* aCx,
                                     Promise** aPromise) {
   AUTO_PROFILER_LABEL("DatabaseCore::MigrateFolderDatabase", MAILNEWS);
 
-  nsCOMPtr<nsIFolder> destFolder;
-  nsresult rv = mFolderDatabase->GetFolderForMsgFolder(
-      srcFolder, getter_AddRefs(destFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   ErrorResult err;
   RefPtr<Promise> promise = Promise::Create(xpc::CurrentNativeGlobal(aCx), err);
 
-  nsCOMPtr<nsIFile> summaryFile;
-  rv = srcFolder->GetSummaryFile(getter_AddRefs(summaryFile));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   FolderMigrator* migrator = new FolderMigrator();
-  rv = migrator->SetupAndRun(summaryFile, destFolder, promise);
+  nsresult rv = migrator->SetupAndRun(srcFolder, promise);
   NS_ENSURE_SUCCESS(rv, rv);
 
   promise.forget(aPromise);
@@ -855,30 +846,24 @@ DatabaseCore::GetConnectionForTests(mozIStorageConnection** aConnection) {
 NS_IMETHODIMP DatabaseCore::OpenFolderDB(nsIMsgFolder* aFolder,
                                          bool aLeaveInvalidDB,
                                          nsIMsgDatabase** _retval) {
-  nsCOMPtr<nsIFolder> folder;
-  nsresult rv =
-      mFolderDatabase->GetFolderForMsgFolder(aFolder, getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (!folder) {
-    return NS_MSG_ERROR_FOLDER_SUMMARY_MISSING;
-  }
-
-  uint64_t folderId = folder->GetId();
+  uint64_t folderId;
+  aFolder->GetId(&folderId);
   WeakPtr<PerFolderDatabase> existingDatabase = mOpenDatabases.Get(folderId);
   if (existingDatabase) {
     NS_IF_ADDREF(*_retval = existingDatabase);
     return NS_OK;
   }
 
-  RefPtr<PerFolderDatabase> db =
-      new PerFolderDatabase(mFolderDatabase, mMessageDatabase, folderId,
-                            folder->GetFlags() & nsMsgFolderFlags::Newsgroup);
+  bool isNewsgroup;
+  aFolder->GetFlag(nsMsgFolderFlags::Newsgroup, &isNewsgroup);
+  RefPtr<PerFolderDatabase> db = new PerFolderDatabase(
+      mFolderDatabase, mMessageDatabase, folderId, isNewsgroup);
   NS_IF_ADDREF(*_retval = db);
 
   mOpenDatabases.InsertOrUpdate(folderId, db);
 
   nsCOMPtr<nsIFile> filePath;
-  rv = aFolder->GetFilePath(getter_AddRefs(filePath));
+  nsresult rv = aFolder->GetFilePath(getter_AddRefs(filePath));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString path;

@@ -29,11 +29,7 @@ NS_IMETHODIMP VirtualFolderWrapper::SetVirtualFolder(nsIMsgFolder* msgFolder) {
   mFolderDatabase = static_cast<FolderDatabase*>(folders.get());
 
   mMsgFolder = msgFolder;
-
-  nsCOMPtr<nsIFolder> folder;
-  mFolderDatabase->GetFolderForMsgFolder(msgFolder, getter_AddRefs(folder));
-  NS_ENSURE_TRUE(folder, NS_ERROR_FAILURE);
-  mVirtualFolderId = folder->GetId();
+  msgFolder->GetId(&mVirtualFolderId);
   return NS_OK;
 }
 
@@ -85,9 +81,9 @@ NS_IMETHODIMP VirtualFolderWrapper::SetSearchFolders(
   nsTArray<uint64_t> searchFolderIds;
 
   for (auto msgFolder : searchFolders) {
-    nsCOMPtr<nsIFolder> folder;
-    mFolderDatabase->GetFolderForMsgFolder(msgFolder, getter_AddRefs(folder));
-    searchFolderIds.AppendElement(folder->GetId());
+    uint64_t searchFolderId;
+    msgFolder->GetId(&searchFolderId);
+    searchFolderIds.AppendElement(searchFolderId);
   }
 
   return mFolderDatabase->SetVirtualFolderFolders(mVirtualFolderId,

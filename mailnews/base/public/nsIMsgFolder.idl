@@ -49,6 +49,24 @@ interface nsIMsgFolder : nsISupports {
   const nsMsgBiffState nsMsgBiffState_Unknown = 2; // We dunno whether there is new mail.
 
   /**
+   * Panorama folder ID. Not to be used if mail.panorama.enabled is false.
+   */
+  readonly attribute unsigned long long id;
+
+  /**
+   * Panorama folder path. Not to be used if mail.panorama.enabled is false.
+   */
+  readonly attribute AUTF8String path;
+%{C++
+  inline nsCString GetPath() {
+    nsAutoCString path;
+    mozilla::DebugOnly<nsresult> rv = GetPath(path);
+    MOZ_ASSERT(NS_SUCCEEDED(rv));
+    return path;
+  }
+%}
+
+  /**
    * Unique identifier for the folder loosely based on the folder's server and
    * path in the filesystem.
    */

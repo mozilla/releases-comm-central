@@ -2841,7 +2841,7 @@ export var GlodaMsgIndexer = {
 
       // Purge any explicit indexing of said folder.
       GlodaIndexer.purgeJobsUsingFilter(function (aJob) {
-        return aJob.jobType == "folder" && aJob.id == folder.id;
+        return aJob.jobType == "folder" && aJob.id == glodaFolder.id;
       });
 
       // Abort the active job if it's in the folder (this covers both

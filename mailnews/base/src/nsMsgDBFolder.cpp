@@ -317,6 +317,9 @@ NS_IMETHODIMP nsMsgDBFolder::Shutdown(bool shutdownChildren) {
     mHaveParsedURI = false;
     mName.Truncate();
     mSubFolders.Clear();
+#ifdef MOZ_PANORAMA
+    mDBFolder = nullptr;
+#endif  // MOZ_PANORAMA
   }
   return NS_OK;
 }
@@ -2751,6 +2754,26 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   }
 
   return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgDBFolder::GetId(uint64_t* id) {
+  MOZ_ASSERT(Preferences::GetBool("mail.panorama.enabled", false));
+  *id = mDBFolder->GetId();
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgDBFolder::GetPath(nsACString& path) {
+  MOZ_ASSERT(Preferences::GetBool("mail.panorama.enabled", false));
+  path = mDBFolder->GetPath();
+  return NS_OK;
+}
+#else
+NS_IMETHODIMP nsMsgDBFolder::GetId(uint64_t* id) {
+  MOZ_ASSERT(false, "panorama-only code");
+}
+
+NS_IMETHODIMP nsMsgDBFolder::GetPath(nsACString& path) {
+  MOZ_ASSERT(false, "panorama-only code");
 }
 #endif  // MOZ_PANORAMA
 
