@@ -392,7 +392,7 @@ NS_IMETHODIMP LiveView::SetListener(nsILiveViewListener* aListener,
   mCx = aCx;
 
   if (!hadListener && aListener) {
-    mMessageDatabase->AddMessageListener(this);
+    MessageDB().AddMessageListener(this);
   }
   return NS_OK;
 }
@@ -401,7 +401,7 @@ NS_IMETHODIMP LiveView::ClearListener() {
   mListener = nullptr;
   mCx = nullptr;
 
-  mMessageDatabase->RemoveMessageListener(this);
+  MessageDB().RemoveMessageListener(this);
   return NS_OK;
 }
 

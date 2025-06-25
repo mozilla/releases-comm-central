@@ -28,10 +28,7 @@ class PerFolderDatabase : public nsIMsgDatabase,
  public:
   explicit PerFolderDatabase(uint64_t folderId, bool isNewsFolder)
       : mFolderId(folderId), mIsNewsFolder(isNewsFolder) {
-    RefPtr<DatabaseCore> database = DatabaseCore::GetInstanceForService();
-    mFolderDatabase = database->mFolderDatabase;
-    mMessageDatabase = database->mMessageDatabase;
-    mMessageDatabase->AddMessageListener(this);
+    MessageDB().AddMessageListener(this);
   }
 
   NS_DECL_ISUPPORTS
@@ -47,8 +44,10 @@ class PerFolderDatabase : public nsIMsgDatabase,
  private:
   virtual ~PerFolderDatabase() {};
 
-  RefPtr<FolderDatabase> mFolderDatabase;
-  RefPtr<MessageDatabase> mMessageDatabase;
+  MessageDatabase& MessageDB() const {
+    return *DatabaseCore::sInstance->mMessageDatabase;
+  }
+
   uint64_t mFolderId;
   bool mIsNewsFolder;
   nsTArray<nsMsgKey> mNewList;
@@ -100,9 +99,13 @@ class FolderInfo : public nsIDBFolderInfo {
  private:
   virtual ~FolderInfo() {};
 
-  RefPtr<FolderDatabase> mFolderDatabase;
-  RefPtr<MessageDatabase> mMessageDatabase;
-  PerFolderDatabase* mPerFolderDatabase;
+  FolderDatabase& FolderDB() const {
+    return *DatabaseCore::sInstance->mFolderDatabase;
+  }
+  MessageDatabase& MessageDB() const {
+    return *DatabaseCore::sInstance->mMessageDatabase;
+  }
+  RefPtr<PerFolderDatabase> mPerFolderDatabase;
   nsCOMPtr<nsIFolder> mFolder;
 };
 

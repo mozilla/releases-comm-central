@@ -17,10 +17,7 @@ namespace mozilla::mailnews {
 class Thread : public nsIMsgThread {
  public:
   explicit Thread(uint64_t folderId, uint64_t threadId, uint64_t maxDate)
-      : mFolderId(folderId), mThreadId(threadId), mMaxDate(maxDate) {
-    RefPtr<DatabaseCore> database = DatabaseCore::GetInstanceForService();
-    mMessageDatabase = database->mMessageDatabase;
-  }
+      : mFolderId(folderId), mThreadId(threadId), mMaxDate(maxDate) {}
   explicit Thread(uint64_t folderId, uint64_t threadId)
       : Thread(folderId, threadId, 0) {}
 
@@ -30,7 +27,10 @@ class Thread : public nsIMsgThread {
  private:
   virtual ~Thread() {};
 
-  RefPtr<MessageDatabase> mMessageDatabase;
+  MessageDatabase& MessageDB() const {
+    return *DatabaseCore::sInstance->mMessageDatabase;
+  }
+
   uint64_t mFolderId;
   uint64_t mThreadId;
   uint64_t mMaxDate;
@@ -42,10 +42,7 @@ class Thread : public nsIMsgThread {
 class ThreadMessageEnumerator : public nsBaseMsgEnumerator {
  public:
   explicit ThreadMessageEnumerator(nsTArray<nsMsgKey>& keys)
-      : mKeys(keys.Clone()) {
-    RefPtr<DatabaseCore> database = DatabaseCore::GetInstanceForService();
-    mMessageDatabase = database->mMessageDatabase;
-  }
+      : mKeys(keys.Clone()) {}
 
   // nsIMsgEnumerator support.
   NS_IMETHOD GetNext(nsIMsgDBHdr** aItem) override;
@@ -54,7 +51,10 @@ class ThreadMessageEnumerator : public nsBaseMsgEnumerator {
  private:
   ~ThreadMessageEnumerator() {}
 
-  RefPtr<MessageDatabase> mMessageDatabase;
+  MessageDatabase& MessageDB() const {
+    return *DatabaseCore::sInstance->mMessageDatabase;
+  }
+
   nsTArray<nsMsgKey> mKeys;
   uint64_t mCurrent{0};
 };

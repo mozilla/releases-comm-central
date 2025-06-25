@@ -45,6 +45,7 @@ class DatabaseCore : public nsIDatabaseCore,
   friend class FolderDatabase;
   friend class FolderInfo;
   friend class FolderMigrator;
+  friend class LiveView;
   friend class Message;
   friend class MessageDatabase;
   friend class PerFolderDatabase;
@@ -52,24 +53,19 @@ class DatabaseCore : public nsIDatabaseCore,
   friend class ThreadMessageEnumerator;
   friend class VirtualFolderWrapper;
 
+  static StaticRefPtr<DatabaseCore> sInstance;
+  static bool sDatabaseIsNew;  // If the database was created in this session.
+  static nsCOMPtr<mozIStorageConnection> sConnection;
+  static nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>> sStatements;
+
+  static nsresult EnsureConnection();
+  static nsresult CreateNewDatabase();
+
   static nsresult GetStatement(const nsACString& aName, const nsACString& aSQL,
                                mozIStorageStatement** aStmt);
   static nsresult CreateSavepoint(const nsACString& name);
   static nsresult ReleaseSavepoint(const nsACString& name);
   static nsresult RollbackToSavepoint(const nsACString& name);
-
- private:
-  friend class LiveView;
-
-  static nsCOMPtr<mozIStorageConnection> sConnection;
-
- private:
-  static StaticRefPtr<DatabaseCore> sInstance;
-  static bool sDatabaseIsNew;  // If the database was created in this session.
-  static nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>> sStatements;
-
-  static nsresult EnsureConnection();
-  static nsresult CreateNewDatabase();
 
   RefPtr<FolderDatabase> mFolderDatabase;
   RefPtr<MessageDatabase> mMessageDatabase;

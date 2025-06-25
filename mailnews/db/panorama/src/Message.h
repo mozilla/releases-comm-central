@@ -5,6 +5,7 @@
 #ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGE_H_
 #define COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGE_H_
 
+#include "DatabaseCore.h"
 #include "FolderDatabase.h"
 #include "MessageDatabase.h"
 #include "mozIStorageStatement.h"
@@ -43,8 +44,12 @@ class Message : public nsIMsgDBHdr {
   virtual ~Message() {};
 
  private:
-  RefPtr<FolderDatabase> mFolderDatabase;
-  RefPtr<MessageDatabase> mMessageDatabase;
+  FolderDatabase& FolderDB() const {
+    return *DatabaseCore::sInstance->mFolderDatabase;
+  }
+  MessageDatabase& MessageDB() const {
+    return *DatabaseCore::sInstance->mMessageDatabase;
+  }
 };
 
 }  // namespace mozilla::mailnews

@@ -20,10 +20,7 @@ class VirtualFolderWrapper : public nsIVirtualFolderWrapper {
  public:
   VirtualFolderWrapper() {}
   explicit VirtualFolderWrapper(nsIFolder* folder) {
-    RefPtr<DatabaseCore> database = DatabaseCore::GetInstanceForService();
-    mFolderDatabase = database->mFolderDatabase;
-
-    mFolderDatabase->GetMsgFolderForFolder(folder, getter_AddRefs(mMsgFolder));
+    FolderDB().GetMsgFolderForFolder(folder, getter_AddRefs(mMsgFolder));
     mVirtualFolderId = folder->GetId();
   }
 
@@ -35,7 +32,10 @@ class VirtualFolderWrapper : public nsIVirtualFolderWrapper {
  protected:
   virtual ~VirtualFolderWrapper() {};
 
-  RefPtr<FolderDatabase> mFolderDatabase;
+  FolderDatabase& FolderDB() const {
+    return *DatabaseCore::sInstance->mFolderDatabase;
+  }
+
   nsCOMPtr<nsIMsgFolder> mMsgFolder;
   uint64_t mVirtualFolderId;
 };

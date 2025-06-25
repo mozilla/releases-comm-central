@@ -181,8 +181,11 @@ nsresult nsMsgAccountManager::Init() {
         new mozilla::mailnews::DatabaseCoreFactory());
 
     // Start up the database.
-    nsCOMPtr<nsIDatabaseCore> unused =
+    nsCOMPtr<nsIDatabaseCore> databaseCore =
         do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    databaseCore->Startup();
     NS_ENSURE_SUCCESS(rv, rv);
 
     componentRegistrar->RegisterFactory(

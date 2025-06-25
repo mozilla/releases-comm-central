@@ -62,17 +62,12 @@ already_AddRefed<DatabaseCore> DatabaseCore::GetInstanceForService() {
 }
 
 DatabaseCore::DatabaseCore() {
-  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("DatabaseCore constructor"));
   MOZ_ASSERT(!sConnection, "creating a second DatabaseCore");
 
   // Bump up the refcount so it doesn't get freed too early. This is needed
   // because of the unusual dynamic component registration done in
   // `nsMsgAccountManager::Init`.
   NS_ADDREF_THIS();
-  Startup();
-
-  nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
-  obs->AddObserver(this, "profile-before-change", false);
 }
 
 NS_IMETHODIMP
@@ -93,6 +88,9 @@ DatabaseCore::Startup() {
 
   mMessageDatabase = new MessageDatabase();
   mMessageDatabase->Startup();
+
+  nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+  obs->AddObserver(this, "profile-before-change", false);
 
   MOZ_LOG(gPanoramaLog, LogLevel::Info, ("DatabaseCore startup complete"));
   return NS_OK;
@@ -464,14 +462,14 @@ nsresult DatabaseCore::RollbackToSavepoint(const nsACString& name) {
 }
 
 NS_IMETHODIMP
-DatabaseCore::GetFolderDB(nsIFolderDatabase** aFolderDatabase) {
-  NS_IF_ADDREF(*aFolderDatabase = mFolderDatabase);
+DatabaseCore::GetFolderDB(nsIFolderDatabase** folderDatabase) {
+  NS_IF_ADDREF(*folderDatabase = mFolderDatabase);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-DatabaseCore::GetMessageDB(nsIMessageDatabase** aMessageDatabase) {
-  NS_IF_ADDREF(*aMessageDatabase = mMessageDatabase);
+DatabaseCore::GetMessageDB(nsIMessageDatabase** messageDatabase) {
+  NS_IF_ADDREF(*messageDatabase = mMessageDatabase);
   return NS_OK;
 }
 
