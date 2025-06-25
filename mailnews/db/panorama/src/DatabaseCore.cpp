@@ -506,6 +506,7 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
     nsMsgKey threadId;
     nsMsgKey threadParent;
   };
+  nsCOMPtr<nsIMsgDatabase> mDB;
   nsCOMPtr<nsIMsgEnumerator> mEnumerator;
   nsTArray<MessageData> mMessageData;
   nsTArray<int64_t> mNewMessageKeys;
@@ -529,12 +530,11 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
                          MarkerOptions(MarkerTiming::IntervalStart()),
                          mDestFolderPath);
 
-    nsCOMPtr<nsIMsgDatabase> db =
-        do_CreateInstance("@mozilla.org/nsMsgDatabase/msgDB-mailbox");
-    nsresult rv = db->OpenFromFile(summaryFile);
+    mDB = do_CreateInstance("@mozilla.org/nsMsgDatabase/msgDB-mailbox");
+    nsresult rv = mDB->OpenFromFile(summaryFile);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = db->EnumerateMessages(getter_AddRefs(mEnumerator));
+    rv = mDB->EnumerateMessages(getter_AddRefs(mEnumerator));
     NS_ENSURE_SUCCESS(rv, rv);
 
     bool hasMore;
@@ -672,6 +672,9 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
       // Push the remaining work to the end of the event loop.
       NS_DispatchToMainThread(this);
     } else {
+      mDB->ClearCachedHdrs();
+      mDB->Close(false);
+
       uint32_t length;
       mParamsArray->GetLength(&length);
       if (length > 0) {
