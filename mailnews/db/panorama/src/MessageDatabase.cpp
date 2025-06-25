@@ -86,7 +86,7 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
     return NS_ERROR_UNEXPECTED;
   }
 
-  RefPtr<Message> message = new Message(this, stmt);
+  RefPtr<Message> message = new Message(stmt);
   stmt->Reset();
 
   // Update the thread columns on the newly inserted row. We're assuming the
@@ -142,7 +142,7 @@ NS_IMETHODIMP MessageDatabase::RemoveMessage(nsMsgKey aKey) {
     return NS_ERROR_UNEXPECTED;
   }
 
-  RefPtr<Message> message = new Message(this, stmt);
+  RefPtr<Message> message = new Message(stmt);
   stmt->Reset();
 
   for (RefPtr<MessageListener> messageListener :
@@ -283,7 +283,7 @@ nsresult MessageDatabase::GetMessage(nsMsgKey aKey, Message** aMessage) {
     return NS_ERROR_UNEXPECTED;
   }
 
-  RefPtr<Message> message = new Message(this, stmt);
+  RefPtr<Message> message = new Message(stmt);
   message.forget(aMessage);
   stmt->Reset();
 
@@ -310,7 +310,7 @@ nsresult MessageDatabase::GetMessageForMessageID(uint64_t aFolderId,
     return NS_ERROR_UNEXPECTED;
   }
 
-  RefPtr<Message> message = new Message(this, stmt);
+  RefPtr<Message> message = new Message(stmt);
   message.forget(aMessage);
   stmt->Reset();
 

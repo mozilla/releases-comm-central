@@ -4,11 +4,9 @@
 
 #include "PerFolderDatabase.h"
 
-#include "DatabaseCore.h"
 #include "DetachedMsgHdr.h"
 #include "MailNewsTypes.h"
 #include "Message.h"
-#include "MessageDatabase.h"
 #include "mozilla/RefPtr.h"
 #include "nsIDBChangeListener.h"
 #include "nsIMsgDBView.h"
@@ -111,8 +109,7 @@ NS_IMETHODIMP PerFolderDatabase::ResetHdrCacheSize(uint32_t size) {
 }
 NS_IMETHODIMP PerFolderDatabase::GetDBFolderInfo(
     nsIDBFolderInfo** aDBFolderInfo) {
-  NS_IF_ADDREF(*aDBFolderInfo = new FolderInfo(
-                   mFolderDatabase, mMessageDatabase, this, mFolderId));
+  NS_IF_ADDREF(*aDBFolderInfo = new FolderInfo(this, mFolderId));
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetDatabaseSize(int64_t* databaseSize) {
@@ -284,8 +281,7 @@ NS_IMETHODIMP PerFolderDatabase::EnumerateMessages(
 
   stmtClone->BindInt64ByName("folderId"_ns, mFolderId);
 
-  RefPtr<MessageEnumerator> enumerator =
-      new MessageEnumerator(mMessageDatabase, stmtClone);
+  RefPtr<MessageEnumerator> enumerator = new MessageEnumerator(stmtClone);
   enumerator.forget(aEnumerator);
   return NS_OK;
 }
@@ -305,8 +301,7 @@ NS_IMETHODIMP PerFolderDatabase::ReverseEnumerateMessages(
 
   stmtClone->BindInt64ByName("folderId"_ns, mFolderId);
 
-  RefPtr<MessageEnumerator> enumerator =
-      new MessageEnumerator(mMessageDatabase, stmtClone);
+  RefPtr<MessageEnumerator> enumerator = new MessageEnumerator(stmtClone);
   enumerator.forget(aEnumerator);
   return NS_OK;
 }
@@ -326,7 +321,7 @@ NS_IMETHODIMP PerFolderDatabase::EnumerateThreads(
   stmtClone->BindInt64ByName("folderId"_ns, mFolderId);
 
   RefPtr<ThreadEnumerator> enumerator =
-      new ThreadEnumerator(mMessageDatabase, stmtClone, mFolderId);
+      new ThreadEnumerator(stmtClone, mFolderId);
   enumerator.forget(aEnumerator);
   return NS_OK;
 }
@@ -344,8 +339,7 @@ NS_IMETHODIMP PerFolderDatabase::GetThreadContainingMsgHdr(
   NS_ENSURE_ARG_POINTER(thread);
 
   Message* message = (Message*)(msgHdr);
-  NS_ADDREF(*thread =
-                new Thread(mMessageDatabase, mFolderId, message->mThreadId));
+  NS_ADDREF(*thread = new Thread(mFolderId, message->mThreadId));
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::MarkNotNew(nsMsgKey aKey,
@@ -672,9 +666,8 @@ NS_IMETHODIMP PerFolderDatabase::HdrIsInCache(
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-MessageEnumerator::MessageEnumerator(MessageDatabase* aDatabase,
-                                     mozIStorageStatement* aStmt)
-    : mMessageDatabase(aDatabase), mStmt(aStmt) {
+MessageEnumerator::MessageEnumerator(mozIStorageStatement* aStmt)
+    : mStmt(aStmt) {
   mStmt->ExecuteStep(&mHasNext);
 }
 
@@ -686,7 +679,7 @@ NS_IMETHODIMP MessageEnumerator::GetNext(nsIMsgDBHdr** aItem) {
     return NS_ERROR_FAILURE;
   }
 
-  RefPtr<Message> message = new Message(mMessageDatabase, mStmt);
+  RefPtr<Message> message = new Message(mStmt);
   message.forget(aItem);
   mStmt->ExecuteStep(&mHasNext);
   return NS_OK;
@@ -699,10 +692,9 @@ NS_IMETHODIMP MessageEnumerator::HasMoreElements(bool* aHasNext) {
   return NS_OK;
 }
 
-ThreadEnumerator::ThreadEnumerator(MessageDatabase* messageDatabase,
-                                   mozIStorageStatement* stmt,
+ThreadEnumerator::ThreadEnumerator(mozIStorageStatement* stmt,
                                    uint64_t folderId)
-    : mMessageDatabase(messageDatabase), mStmt(stmt), mFolderId(folderId) {
+    : mStmt(stmt), mFolderId(folderId) {
   mStmt->ExecuteStep(&mHasNext);
 }
 
@@ -717,8 +709,7 @@ NS_IMETHODIMP ThreadEnumerator::GetNext(nsIMsgThread** item) {
   uint64_t threadId = mStmt->AsInt64(0);
   uint64_t maxDate = mStmt->AsDouble(1);
 
-  RefPtr<Thread> thread =
-      new Thread(mMessageDatabase, mFolderId, threadId, maxDate);
+  RefPtr<Thread> thread = new Thread(mFolderId, threadId, maxDate);
   thread.forget(item);
   mStmt->ExecuteStep(&mHasNext);
   return NS_OK;
@@ -733,12 +724,11 @@ NS_IMETHODIMP ThreadEnumerator::HasMoreElements(bool* hasNext) {
 
 NS_IMPL_ISUPPORTS(FolderInfo, nsIDBFolderInfo)
 
-FolderInfo::FolderInfo(FolderDatabase* folderDatabase,
-                       MessageDatabase* messageDatabase,
-                       PerFolderDatabase* perFolderDatabase,
+FolderInfo::FolderInfo(PerFolderDatabase* perFolderDatabase,
                        uint64_t folderId) {
-  mFolderDatabase = folderDatabase;
-  mMessageDatabase = messageDatabase;
+  RefPtr<DatabaseCore> database = DatabaseCore::GetInstanceForService();
+  mFolderDatabase = database->mFolderDatabase;
+  mMessageDatabase = database->mMessageDatabase;
   mPerFolderDatabase = perFolderDatabase;
   mFolderDatabase->GetFolderById(folderId, getter_AddRefs(mFolder));
 }

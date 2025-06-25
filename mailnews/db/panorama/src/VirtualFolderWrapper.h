@@ -7,12 +7,11 @@
 
 #include "nsIVirtualFolderWrapper.h"
 
+#include "DatabaseCore.h"
 #include "FolderDatabase.h"
 #include "mozilla/Components.h"
 #include "nsCOMPtr.h"
-#include "nsIDatabaseCore.h"
 #include "nsIFactory.h"
-#include "nsIFolderDatabase.h"
 #include "nsIMsgFolder.h"
 
 namespace mozilla::mailnews {
@@ -21,11 +20,10 @@ class VirtualFolderWrapper : public nsIVirtualFolderWrapper {
  public:
   VirtualFolderWrapper() {}
   explicit VirtualFolderWrapper(nsIFolder* folder) {
-    nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-    nsCOMPtr<nsIFolderDatabase> folders = database->GetFolders();
-    mFolderDatabase = static_cast<FolderDatabase*>(folders.get());
+    RefPtr<DatabaseCore> database = DatabaseCore::GetInstanceForService();
+    mFolderDatabase = database->mFolderDatabase;
 
-    folders->GetMsgFolderForFolder(folder, getter_AddRefs(mMsgFolder));
+    mFolderDatabase->GetMsgFolderForFolder(folder, getter_AddRefs(mMsgFolder));
     mVirtualFolderId = folder->GetId();
   }
 
@@ -37,7 +35,7 @@ class VirtualFolderWrapper : public nsIVirtualFolderWrapper {
  protected:
   virtual ~VirtualFolderWrapper() {};
 
-  FolderDatabase* mFolderDatabase;
+  RefPtr<FolderDatabase> mFolderDatabase;
   nsCOMPtr<nsIMsgFolder> mMsgFolder;
   uint64_t mVirtualFolderId;
 };

@@ -47,10 +47,19 @@ NS_IMPL_CLASSINFO(DatabaseCore, nullptr, nsIClassInfo::SINGLETON,
 NS_IMPL_ISUPPORTS_CI(DatabaseCore, nsIDatabaseCore, nsIMsgDBService,
                      nsIObserver)
 
+StaticRefPtr<DatabaseCore> DatabaseCore::sInstance;
 bool DatabaseCore::sDatabaseIsNew = false;
 MOZ_RUNINIT nsCOMPtr<mozIStorageConnection> DatabaseCore::sConnection;
 MOZ_RUNINIT nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>>
     DatabaseCore::sStatements;
+
+/* static */
+already_AddRefed<DatabaseCore> DatabaseCore::GetInstanceForService() {
+  if (!sInstance) {
+    sInstance = new DatabaseCore();
+  }
+  return do_AddRef(sInstance);
+}
 
 DatabaseCore::DatabaseCore() {
   MOZ_LOG(gPanoramaLog, LogLevel::Info, ("DatabaseCore constructor"));
@@ -116,6 +125,8 @@ DatabaseCore::Observe(nsISupports* aSubject, const char* aTopic,
 
   nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
   obs->RemoveObserver(this, "profile-before-change");
+
+  sInstance = nullptr;
 
   MOZ_LOG(gPanoramaLog, LogLevel::Info, ("DatabaseCore shutdown complete"));
 
@@ -856,8 +867,7 @@ NS_IMETHODIMP DatabaseCore::OpenFolderDB(nsIMsgFolder* aFolder,
 
   bool isNewsgroup;
   aFolder->GetFlag(nsMsgFolderFlags::Newsgroup, &isNewsgroup);
-  RefPtr<PerFolderDatabase> db = new PerFolderDatabase(
-      mFolderDatabase, mMessageDatabase, folderId, isNewsgroup);
+  RefPtr<PerFolderDatabase> db = new PerFolderDatabase(folderId, isNewsgroup);
   NS_IF_ADDREF(*_retval = db);
 
   mOpenDatabases.InsertOrUpdate(folderId, db);

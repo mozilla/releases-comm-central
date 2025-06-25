@@ -5,13 +5,13 @@
 #ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGE_H_
 #define COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGE_H_
 
+#include "FolderDatabase.h"
+#include "MessageDatabase.h"
 #include "mozIStorageStatement.h"
 #include "nsIMsgHdr.h"
 #include "nsTString.h"
 
 namespace mozilla::mailnews {
-
-class MessageDatabase;
 
 #define MESSAGE_SQL_FIELDS                                          \
   "id, folderId, threadId, threadParent, messageId, date, sender, " \
@@ -20,7 +20,7 @@ class MessageDatabase;
 class Message : public nsIMsgDBHdr {
  public:
   Message() = delete;
-  explicit Message(MessageDatabase* aDatabase, mozIStorageStatement* aStmt);
+  explicit Message(mozIStorageStatement* aStmt);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGDBHDR
@@ -43,7 +43,8 @@ class Message : public nsIMsgDBHdr {
   virtual ~Message() {};
 
  private:
-  MessageDatabase* mDatabase;
+  RefPtr<FolderDatabase> mFolderDatabase;
+  RefPtr<MessageDatabase> mMessageDatabase;
 };
 
 }  // namespace mozilla::mailnews

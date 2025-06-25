@@ -5,7 +5,6 @@
 #include "VirtualFolderWrapper.h"
 
 #include "mozilla/Components.h"
-#include "nsIDatabaseCore.h"
 #include "nsIFolder.h"
 #include "nsIMsgFilter.h"
 #include "nsIMsgFilterList.h"
@@ -24,9 +23,8 @@ NS_IMETHODIMP VirtualFolderWrapper::GetVirtualFolder(nsIMsgFolder** msgFolder) {
 }
 
 NS_IMETHODIMP VirtualFolderWrapper::SetVirtualFolder(nsIMsgFolder* msgFolder) {
-  nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-  nsCOMPtr<nsIFolderDatabase> folders = database->GetFolders();
-  mFolderDatabase = static_cast<FolderDatabase*>(folders.get());
+  RefPtr<DatabaseCore> database = DatabaseCore::GetInstanceForService();
+  mFolderDatabase = database->mFolderDatabase;
 
   mMsgFolder = msgFolder;
   msgFolder->GetId(&mVirtualFolderId);

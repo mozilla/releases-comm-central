@@ -4,6 +4,7 @@
 
 #include "DetachedMsgHdr.h"
 
+#include "mozilla/Components.h"
 #include "nsIDatabaseCore.h"
 #include "nsIFolder.h"
 #include "nsIFolderDatabase.h"
@@ -365,8 +366,7 @@ NS_IMETHODIMP DetachedMsgHdr::SetAccountKey(const nsACString& accountKey) {
 }
 
 NS_IMETHODIMP DetachedMsgHdr::GetFolder(nsIMsgFolder** folder) {
-  nsCOMPtr<nsIDatabaseCore> core =
-      do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
+  nsCOMPtr<nsIDatabaseCore> core = components::DatabaseCore::Service();
   nsCOMPtr<nsIFolderDatabase> folderDatabase;
   nsresult rv = core->GetFolders(getter_AddRefs(folderDatabase));
   NS_ENSURE_SUCCESS(rv, rv);

@@ -4,11 +4,9 @@
 
 #include "Message.h"
 
-#include "MessageDatabase.h"
+#include "DatabaseCore.h"
 #include "mozilla/Components.h"
-#include "nsIDatabaseCore.h"
 #include "nsIFolder.h"
-#include "nsIFolderDatabase.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgMessageFlags.h"
 #include "nsString.h"
@@ -18,8 +16,11 @@ namespace mozilla::mailnews {
 
 NS_IMPL_ISUPPORTS(Message, nsIMsgDBHdr)
 
-Message::Message(MessageDatabase* aDatabase, mozIStorageStatement* aStmt)
-    : mDatabase(aDatabase) {
+Message::Message(mozIStorageStatement* aStmt) {
+  RefPtr<DatabaseCore> database = DatabaseCore::GetInstanceForService();
+  mFolderDatabase = database->mFolderDatabase;
+  mMessageDatabase = database->mMessageDatabase;
+
   // The order of these fields is set in MESSAGE_SQL_FIELDS.
   uint32_t len;
   mId = aStmt->AsInt64(0);
@@ -41,38 +42,38 @@ NS_IMETHODIMP Message::SetStringProperty(const char* propertyName,
                                          const nsACString& propertyValue) {
   if (nsDependentCString(propertyName).EqualsLiteral("keywords")) {
     mTags = propertyName;
-    return mDatabase->SetMessageTags(mId, propertyValue);
+    return mMessageDatabase->SetMessageTags(mId, propertyValue);
   }
-  return mDatabase->SetMessageProperty(mId, nsDependentCString(propertyName),
-                                       propertyValue);
+  return mMessageDatabase->SetMessageProperty(
+      mId, nsDependentCString(propertyName), propertyValue);
 }
 
 NS_IMETHODIMP Message::GetStringProperty(const char* propertyName,
                                          nsACString& propertyValue) {
   if (nsDependentCString(propertyName).EqualsLiteral("keywords")) {
     if (mTags.IsEmpty()) {
-      nsresult rv = mDatabase->GetMessageTags(mId, mTags);
+      nsresult rv = mMessageDatabase->GetMessageTags(mId, mTags);
       NS_ENSURE_SUCCESS(rv, rv);
     }
     propertyValue.Assign(mTags);
     return NS_OK;
   }
-  return mDatabase->GetMessageProperty(mId, nsCString(propertyName),
-                                       propertyValue);
+  return mMessageDatabase->GetMessageProperty(mId, nsCString(propertyName),
+                                              propertyValue);
 }
 
 NS_IMETHODIMP Message::GetUint32Property(const char* propertyName,
                                          uint32_t* propertyValue) {
-  return mDatabase->GetMessageProperty(mId, nsCString(propertyName),
-                                       propertyValue);
+  return mMessageDatabase->GetMessageProperty(mId, nsCString(propertyName),
+                                              propertyValue);
 }
 NS_IMETHODIMP Message::SetUint32Property(const char* propertyName,
                                          uint32_t propertyValue) {
-  return mDatabase->SetMessageProperty(mId, nsCString(propertyName),
-                                       propertyValue);
+  return mMessageDatabase->SetMessageProperty(mId, nsCString(propertyName),
+                                              propertyValue);
 }
 NS_IMETHODIMP Message::GetProperties(nsTArray<nsCString>& properties) {
-  return mDatabase->GetMessageProperties(mId, properties);
+  return mMessageDatabase->GetMessageProperties(mId, properties);
 }
 NS_IMETHODIMP Message::GetIsRead(bool* aIsRead) {
   *aIsRead = mFlags & nsMsgMessageFlags::Read;
@@ -92,7 +93,7 @@ NS_IMETHODIMP Message::MarkRead(bool aRead) {
   } else {
     mFlags &= ~nsMsgMessageFlags::Read;
   }
-  return mDatabase->SetMessageFlag(mId, nsMsgMessageFlags::Read, aRead);
+  return mMessageDatabase->SetMessageFlag(mId, nsMsgMessageFlags::Read, aRead);
 }
 NS_IMETHODIMP Message::MarkFlagged(bool aFlagged) {
   if (aFlagged) {
@@ -100,7 +101,8 @@ NS_IMETHODIMP Message::MarkFlagged(bool aFlagged) {
   } else {
     mFlags &= ~nsMsgMessageFlags::Marked;
   }
-  return mDatabase->SetMessageFlag(mId, nsMsgMessageFlags::Marked, aFlagged);
+  return mMessageDatabase->SetMessageFlag(mId, nsMsgMessageFlags::Marked,
+                                          aFlagged);
 }
 NS_IMETHODIMP Message::MarkHasAttachments(bool aHasAttachments) {
   if (aHasAttachments) {
@@ -108,8 +110,8 @@ NS_IMETHODIMP Message::MarkHasAttachments(bool aHasAttachments) {
   } else {
     mFlags &= ~nsMsgMessageFlags::Attachment;
   }
-  return mDatabase->SetMessageFlag(mId, nsMsgMessageFlags::Attachment,
-                                   aHasAttachments);
+  return mMessageDatabase->SetMessageFlag(mId, nsMsgMessageFlags::Attachment,
+                                          aHasAttachments);
 }
 NS_IMETHODIMP Message::GetPriority(nsMsgPriorityValue* aPriority) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -123,21 +125,21 @@ NS_IMETHODIMP Message::GetFlags(uint32_t* aFlags) {
 }
 NS_IMETHODIMP Message::SetFlags(uint32_t aFlags) {
   mFlags = aFlags;
-  return mDatabase->SetMessageFlags(mId, aFlags);
+  return mMessageDatabase->SetMessageFlags(mId, aFlags);
 }
 NS_IMETHODIMP Message::OrFlags(uint32_t aFlags, uint32_t* aOutFlags) {
   // Just because you *can*, doesn't mean you *should*.
   // mFlags might be out of date.
   mFlags |= aFlags;
   *aOutFlags = mFlags;
-  return mDatabase->SetMessageFlags(mId, mFlags);
+  return mMessageDatabase->SetMessageFlags(mId, mFlags);
 }
 NS_IMETHODIMP Message::AndFlags(uint32_t aFlags, uint32_t* aOutFlags) {
   // Just because you *can*, doesn't mean you *should*.
   // mFlags might be out of date.
   mFlags &= aFlags;
   *aOutFlags = mFlags;
-  return mDatabase->SetMessageFlags(mId, mFlags);
+  return mMessageDatabase->SetMessageFlags(mId, mFlags);
 }
 NS_IMETHODIMP Message::GetThreadId(nsMsgKey* aThreadId) {
   *aThreadId = mThreadId;
@@ -282,12 +284,9 @@ NS_IMETHODIMP Message::GetEffectiveCharset(nsACString& aEffectiveCharset) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP Message::GetAccountKey(nsACString& aAccountKey) {
-  nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-  nsCOMPtr<nsIFolderDatabase> folderDatabase = database->GetFolders();
-
   nsCOMPtr<nsIFolder> folder;
   nsresult rv =
-      folderDatabase->GetFolderById(mFolderId, getter_AddRefs(folder));
+      mFolderDatabase->GetFolderById(mFolderId, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIFolder> rootFolder = folder->GetRootFolder();
@@ -310,15 +309,12 @@ NS_IMETHODIMP Message::SetAccountKey(const nsACString& aAccountKey) {
 NS_IMETHODIMP Message::GetFolder(nsIMsgFolder** aFolder) {
   NS_ENSURE_ARG_POINTER(aFolder);
 
-  nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-  nsCOMPtr<nsIFolderDatabase> folderDatabase = database->GetFolders();
-
   nsCOMPtr<nsIFolder> folder;
   nsresult rv =
-      folderDatabase->GetFolderById(mFolderId, getter_AddRefs(folder));
+      mFolderDatabase->GetFolderById(mFolderId, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return folderDatabase->GetMsgFolderForFolder(folder, aFolder);
+  return mFolderDatabase->GetMsgFolderForFolder(folder, aFolder);
 }
 NS_IMETHODIMP Message::GetUidOnServer(uint32_t* aUidOnServer) {
   return NS_ERROR_NOT_IMPLEMENTED;

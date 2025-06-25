@@ -4,7 +4,6 @@
 
 #include "Thread.h"
 
-#include "MessageDatabase.h"
 #include "prtime.h"
 
 namespace mozilla::mailnews {
@@ -113,7 +112,7 @@ NS_IMETHODIMP Thread::EnumerateMessages(nsMsgKey parent,
                                         nsIMsgEnumerator** _retval) {
   nsTArray<nsMsgKey> keys;
   mMessageDatabase->ListThreadChildKeys(mFolderId, parent, keys);
-  NS_IF_ADDREF(*_retval = new ThreadMessageEnumerator(mMessageDatabase, keys));
+  NS_IF_ADDREF(*_retval = new ThreadMessageEnumerator(keys));
   return NS_OK;
 }
 

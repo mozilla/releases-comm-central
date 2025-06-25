@@ -18,7 +18,10 @@ namespace mozilla::mailnews {
 
 class LiveView : public nsILiveView, public MessageListener {
  public:
-  LiveView() : mSortColumn(LiveView::SortColumn::DATE), mSortDescending(true) {}
+  LiveView() : mSortColumn(LiveView::SortColumn::DATE), mSortDescending(true) {
+    RefPtr<DatabaseCore> database = DatabaseCore::GetInstanceForService();
+    mMessageDatabase = database->mMessageDatabase;
+  }
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSILIVEVIEW
@@ -36,6 +39,8 @@ class LiveView : public nsILiveView, public MessageListener {
     if (mCountUnreadStmt) mCountUnreadStmt->Finalize();
     if (mSelectStmt) mSelectStmt->Finalize();
   }
+
+  RefPtr<MessageDatabase> mMessageDatabase;
 
   nsCString GetSQLClause();
   void PrepareStatement(mozIStorageStatement* aStatement);

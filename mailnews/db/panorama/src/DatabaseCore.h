@@ -36,14 +36,21 @@ class DatabaseCore : public nsIDatabaseCore,
   NS_DECL_NSIMSGDBSERVICE
   NS_DECL_NSIOBSERVER
 
+  static already_AddRefed<DatabaseCore> GetInstanceForService();
+
  protected:
   virtual ~DatabaseCore() {};
 
  private:
   friend class FolderDatabase;
+  friend class FolderInfo;
   friend class FolderMigrator;
+  friend class Message;
   friend class MessageDatabase;
   friend class PerFolderDatabase;
+  friend class Thread;
+  friend class ThreadMessageEnumerator;
+  friend class VirtualFolderWrapper;
 
   static nsresult GetStatement(const nsACString& aName, const nsACString& aSQL,
                                mozIStorageStatement** aStmt);
@@ -57,6 +64,7 @@ class DatabaseCore : public nsIDatabaseCore,
   static nsCOMPtr<mozIStorageConnection> sConnection;
 
  private:
+  static StaticRefPtr<DatabaseCore> sInstance;
   static bool sDatabaseIsNew;  // If the database was created in this session.
   static nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>> sStatements;
 

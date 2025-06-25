@@ -392,9 +392,7 @@ NS_IMETHODIMP LiveView::SetListener(nsILiveViewListener* aListener,
   mCx = aCx;
 
   if (!hadListener && aListener) {
-    nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-    nsCOMPtr<nsIMessageDatabase> messages = database->GetMessages();
-    messages->AddMessageListener(this);
+    mMessageDatabase->AddMessageListener(this);
   }
   return NS_OK;
 }
@@ -403,9 +401,7 @@ NS_IMETHODIMP LiveView::ClearListener() {
   mListener = nullptr;
   mCx = nullptr;
 
-  nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-  nsCOMPtr<nsIMessageDatabase> messages = database->GetMessages();
-  messages->RemoveMessageListener(this);
+  mMessageDatabase->RemoveMessageListener(this);
   return NS_OK;
 }
 
