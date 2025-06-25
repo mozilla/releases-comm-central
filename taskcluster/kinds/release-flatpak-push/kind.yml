@@ -16,7 +16,7 @@ kind-dependencies:
 task-defaults:
     description: Pushes Flatpaks onto Flathub
     run-on-projects: []  # to make sure this never runs as part of CI
-    run-on-releases: [beta, esr140]
+    run-on-releases: [beta, esr128]
     shipping-phase: ship
     treeherder:
         platform: linux64/opt
@@ -31,7 +31,7 @@ task-defaults:
         channel:
             by-release-type:
                 beta: beta
-                esr140: stable
+                esr128: stable
                 default: mock
 
 tasks:

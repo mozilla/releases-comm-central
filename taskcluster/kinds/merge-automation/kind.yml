@@ -136,8 +136,8 @@ tasks:
                         replacements: []
                         merge-old-head: false
                         end-tag: "ESR_{major_version}_BASE"
-                        to-repo: 'https://hg.mozilla.org/releases/comm-esr140'
-                        to-branch: 'comm-esr140'
+                        to-repo: 'https://hg.mozilla.org/releases/comm-esr128'
+                        to-branch: 'comm-esr128'
             gecko-rev:
                 by-behavior:
                     central-to-beta:
@@ -152,7 +152,7 @@ tasks:
                         base: 'FIREFOX_RELEASE_{major_version}_BASE'
                     release-to-esr:
                         source: to-repo
-                        upstream: mozilla-esr140
+                        upstream: mozilla-esr128
                         tag: 'FIREFOX_{major_version}_0esr_BUILD\d'
                         base: 'FIREFOX_ESR_{major_version}_BASE'
                     bump-esr140:

@@ -46,7 +46,7 @@ tasks:
                     thunderbird-latest: installer
                     thunderbird-msi-latest-ssl: msi
                     thunderbird-msix-latest-ssl: msix
-                esr140:
+                esr128:
                     # when there is one ESR branch both sets of aliases work
                     thunderbird-esr-latest-ssl: installer-ssl
                     thunderbird-esr-latest: installer
