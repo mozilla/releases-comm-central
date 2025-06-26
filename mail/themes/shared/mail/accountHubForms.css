@@ -41,12 +41,18 @@ form {
     }
   }
 
-  input[type="checkbox"]:checked:enabled {
+  input[type="checkbox"]:checked {
+    -moz-context-properties: fill;
+    content: url("chrome://messenger/skin/overrides/check.svg");
     background-color: var(--color-primary-default);
     border-color: var(--color-primary-hover);
-    -moz-context-properties: fill;
     fill: var(--color-neutral-base);
-    content: url("chrome://messenger/skin/overrides/check.svg");
+
+    &:disabled {
+      background-color: var(--color-neutral-border);
+      border-color: var(--color-neutral-border);
+      fill: var(--color-text-muted);
+    }
   }
 
   .checkbox-label {
@@ -781,6 +787,14 @@ div:has(legend) {
       text-overflow: ellipsis;
       color: var(--color-text-base);
       font-weight: 400;
+    }
+
+    &:has(input:disabled) {
+      pointer-events: none;
+
+      & span {
+        color: var(--color-text-muted);
+      }
     }
   }
 }
