@@ -13,6 +13,4 @@ interface nsIMessengerWindowsIntegration : nsIMessengerOSIntegration {
   void hideWindow(in nsIBaseWindow aWindow);
 
   void showWindow(in mozIDOMWindowProxy aWindow);
-
-  readonly attribute boolean isInDoNotDisturbMode;
 };
