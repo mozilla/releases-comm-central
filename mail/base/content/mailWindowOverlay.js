@@ -154,8 +154,8 @@ function file_init() {
 const deleteMenuItemCommandHandler = event =>
   goDoCommand(
     event.shiftKey && event.target.dataset.imapDeleted == "false"
-      ? "cmd_shiftDelete"
-      : "cmd_delete"
+      ? "cmd_shiftDeleteMessage"
+      : "cmd_deleteMessage"
   );
 
 /**
@@ -186,12 +186,12 @@ function InitEditMessagesMenu() {
   const numSelected = dbView?.numSelected;
 
   const deleteMenuItem = document.getElementById("menu_delete");
-  deleteMenuItem.setAttribute("command", "cmd_delete");
   if (deleteController?.wrappedJSObject && folderTreeActive) {
     const value = folderIsNewsgroup
       ? "menu-edit-unsubscribe-newsgroup"
       : "menu-edit-delete-folder";
     document.l10n.setAttributes(deleteMenuItem, value);
+    deleteMenuItem.setAttribute("command", "cmd_deleteFolder");
   } else if (deleteController?.wrappedJSObject && numSelected) {
     const areIMAPDeleted = dbView
       ?.getSelectedMsgHdrs()
@@ -209,6 +209,7 @@ function InitEditMessagesMenu() {
     deleteMenuItem.disabled = false;
   } else {
     document.l10n.setAttributes(deleteMenuItem, "text-action-delete");
+    deleteMenuItem.setAttribute("command", "cmd_delete");
   }
 
   // Initialize the Favorite Folder checkbox in the Edit menu.

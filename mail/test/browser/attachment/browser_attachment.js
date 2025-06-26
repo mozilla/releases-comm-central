@@ -24,6 +24,7 @@ var {
   create_folder,
   create_message,
   get_about_message,
+  get_about_3pane,
   msgGen,
   select_click_row,
   select_none,
@@ -751,18 +752,24 @@ add_task(async function test_delete_from_toolbar() {
 
   // Make sure clicking the "Delete" toolbar button with an attachment focused
   // deletes the *message*.
+  const tree = get_about_3pane().threadTree;
+  const rowCountBefore = tree.view.rowCount;
+  // Note: Removing an attachment also triggers this notification.
   const completed = PromiseTestUtils.promiseFolderEvent(
     folder,
     "DeleteOrMoveMsgCompleted"
   );
-  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("hdrTrashButton"),
     { clickCount: 1 },
     aboutMessage
   );
-  await dialogPromise;
   await completed;
+  Assert.equal(
+    tree.view.rowCount,
+    rowCountBefore - 1,
+    "Row count of view should be one less than before."
+  );
 });
 
 registerCleanupFunction(() => {

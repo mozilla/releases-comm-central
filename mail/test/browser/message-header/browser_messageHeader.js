@@ -446,7 +446,7 @@ add_task(async function test_focus_after_button_click() {
   await assert_selected_and_displayed(window, message);
 
   const clickButtonAndCheckFocus = async (id, messageChanges) => {
-    const focusedBefore = aboutMessage.document.activeElement;
+    const focusedBefore = Services.focus.focusedElement;
     EventUtils.synthesizeMouseAtCenter(
       aboutMessage.document.getElementById(id),
       {},
@@ -457,7 +457,7 @@ add_task(async function test_focus_after_button_click() {
     }
     Assert.equal(
       focusedBefore,
-      aboutMessage.document.activeElement,
+      Services.focus.focusedElement,
       "The focus should not have changed"
     );
   };
