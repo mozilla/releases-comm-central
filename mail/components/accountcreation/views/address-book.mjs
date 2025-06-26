@@ -117,6 +117,14 @@ class AccountHubAddressBook extends HTMLElement {
       subview: {},
       templateId: "address-book-local-form",
     },
+    remotePasswordSubview: {
+      id: "addressBookPasswordSubview",
+      nextStep: "syncAddressBooksSubview",
+      previousStep: "remoteAccountSubview",
+      forwardEnabled: true,
+      subview: {},
+      templateId: "email-password-form",
+    },
   };
 
   async connectedCallback() {
@@ -312,7 +320,8 @@ class AccountHubAddressBook extends HTMLElement {
    * @param {object} stateData - The current state data of the address book
    *  flow.
    */
-  #handleForwardAction(currentState, stateData) {
+
+  async #handleForwardAction(currentState, stateData) {
     switch (currentState) {
       case "localAddressBookSubview": {
         try {
@@ -349,6 +358,21 @@ class AccountHubAddressBook extends HTMLElement {
             bubbles: true,
           })
         );
+        break;
+      case "remoteAccountSubview":
+        // TODO: Determine whether account needs OAuth, and if it doesn't show
+        // remotePassword Subview.
+        await this.#initUI(this.#states[this.currentState].nextStep);
+        this.#currentSubview.setState();
+        break;
+      case "remotePasswordSubview":
+        // TODO: Add remote address book account address book fetch logic to
+        // grab address books.
+
+        // Go to sync address books subview.
+        // TODO: replace empty array with fetched address books.
+        await this.#initUI("syncAddressBooksSubview");
+        this.#currentSubview.setState([]);
         break;
       default:
         break;

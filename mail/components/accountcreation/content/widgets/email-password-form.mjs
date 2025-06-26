@@ -9,6 +9,14 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 /**
+ * @typedef {object} UsernamePassword
+ * @property {string} password - Password used with an existing username to
+ *  login.
+ * @property {boolean} rememberPassword - Remember the password when fetching
+ *  account information.
+ */
+
+/**
  * Account Hub Email Password Form Template
  * Template ID: #accountHubEmailPasswordFormTemplate (from accountHubEmailPasswordFormTemplate.inc.xhtml)
  */
@@ -82,10 +90,13 @@ class EmailPasswordForm extends AccountHubStep {
    */
   setState() {
     this.querySelector("#passwordForm").reset();
+    this.querySelector("#password").focus();
   }
 
   /**
    * Return the current state of the email setup form.
+   *
+   * @returns {UsernamePassword}
    */
   captureState() {
     return {
