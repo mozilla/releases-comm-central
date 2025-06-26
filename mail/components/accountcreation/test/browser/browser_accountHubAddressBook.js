@@ -390,7 +390,7 @@ add_task(async function test_localAddressBookForwardEventAndCreation() {
     { once: true }
   );
 
-  const click = new MouseEvent("click", {
+  const click = new PointerEvent("click", {
     view: window,
     bubbles: true,
     cancelable: true,
