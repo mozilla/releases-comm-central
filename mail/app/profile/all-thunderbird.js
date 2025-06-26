@@ -1502,3 +1502,6 @@ pref("mail.threadpane.listview", 0);
 
 // Row count for the cards view, currently bound to a range between 2 and 3.
 pref("mail.threadpane.cardsview.rowcount", 3);
+
+// Whether the OS Authentication is enabled or not.
+pref("signon.management.page.os-auth.locked.enabled", false);

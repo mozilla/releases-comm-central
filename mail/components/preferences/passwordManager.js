@@ -744,9 +744,7 @@ async function masterPasswordLogin(noPasswordCallback) {
   );
   const token = tokendb.getInternalKeyToken();
 
-  const isOSAuthEnabled = LoginHelper.getOSAuthEnabled(
-    LoginHelper.OS_AUTH_FOR_PASSWORDS_PREF
-  );
+  const isOSAuthEnabled = LoginHelper.getOSAuthEnabled();
 
   // If there is no primary password, still give the user a chance to opt-out of displaying passwords
   if (token.checkPassword("")) {

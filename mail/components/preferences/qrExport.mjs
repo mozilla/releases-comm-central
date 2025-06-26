@@ -314,9 +314,7 @@ export const qrExportPane = {
     );
     const token = tokendb.getInternalKeyToken();
 
-    const isOSAuthEnabled = lazy.LoginHelper.getOSAuthEnabled(
-      lazy.LoginHelper.OS_AUTH_FOR_PASSWORDS_PREF
-    );
+    const isOSAuthEnabled = lazy.LoginHelper.getOSAuthEnabled();
 
     // If there is no primary password, still give the user a chance to opt-out of displaying passwords
     if (token.checkPassword("")) {

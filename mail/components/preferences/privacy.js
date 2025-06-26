@@ -372,10 +372,7 @@ var gPrivacyPane = {
    */
   async changeMasterPassword() {
     // OS reauthenticate functionality is not available on Linux yet (bug 1527745)
-    if (
-      !LoginHelper.isPrimaryPasswordSet() &&
-      LoginHelper.getOSAuthEnabled(LoginHelper.OS_AUTH_FOR_PASSWORDS_PREF)
-    ) {
+    if (!LoginHelper.isPrimaryPasswordSet() && LoginHelper.getOSAuthEnabled()) {
       const messageId =
         "primary-password-os-auth-dialog-message-" + AppConstants.platform;
       const [messageText, captionText] = await document.l10n.formatMessages([
@@ -426,10 +423,7 @@ var gPrivacyPane = {
     }
 
     // If osReauthCheckbox is checked enable osauth.
-    LoginHelper.setOSAuthEnabled(
-      LoginHelper.OS_AUTH_FOR_PASSWORDS_PREF,
-      osReauthCheckbox.checked
-    );
+    LoginHelper.setOSAuthEnabled(osReauthCheckbox.checked);
   },
 
   _initOSAuthentication() {
@@ -439,10 +433,7 @@ var gPrivacyPane = {
       return;
     }
 
-    osReauthCheckbox.setAttribute(
-      "checked",
-      LoginHelper.getOSAuthEnabled(LoginHelper.OS_AUTH_FOR_PASSWORDS_PREF)
-    );
+    osReauthCheckbox.setAttribute("checked", LoginHelper.getOSAuthEnabled());
 
     setEventListener(
       "osReauthCheckbox",
