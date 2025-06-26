@@ -255,6 +255,36 @@
           }
         ]
       }
+    ],
+    "functions": [
+      {
+        "name": "create",
+        "type": "function",
+        "parameters": [
+          {
+            "type": "object",
+            "name": "createProperties",
+            "properties": {
+              "command": {
+                "choices": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "menus.MenuActionCommand",
+                    "annotations": [
+                      {
+                        "version_added": "66",
+                        "description": "This is an enum which was added in Thunderbird 124 to explicitly spell out built-in commands, but as they are just strings they have been supported since Thunderbird 66."
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
     ]
   }
 ]

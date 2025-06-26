@@ -180,13 +180,13 @@
             "name": "tabProperties",
             "choices": [
               {
-                "$ref": "spaces.SpaceTabProperties"
+                "type": "string"
               },
               {
-                "type": "string"
+                "$ref": "spaces.SpaceTabProperties"
               }
             ],
-            "description": "The properties for the new tab being opened, when the associated button in the spaces toolbar is clicked. Either a <em>string</em> specifiying the default URL, or a $(ref:spaces.SpaceTabProperties) object. The URL may point to a WebExtension page or a web page."
+            "description": "The properties for the new tab being opened, when the associated button in the spaces toolbar is clicked. Either a <em>string</em> specifying the default URL, or a $(ref:spaces.SpaceTabProperties) object. The URL may point to a WebExtension page or a web page."
           },
           {
             "name": "buttonProperties",
@@ -337,7 +337,7 @@
                 "$ref": "spaces.SpaceButtonProperties"
               }
             ],
-            "description": "The properties for the new tab being opened, when the associated button in the spaces toolbar is clicked. Either a <em>string</em> specifiying the default URL, or a $(ref:spaces.SpaceTabProperties) object. The URL may point to a WebExtension page or a web page."
+            "description": "The properties for the new tab being opened, when the associated button in the spaces toolbar is clicked. Either a <em>string</em> specifying the default URL, or a $(ref:spaces.SpaceTabProperties) object. The URL may point to a WebExtension page or a web page."
           },
           {
             "name": "buttonProperties",

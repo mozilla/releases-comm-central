@@ -468,11 +468,11 @@
             "name": "folder",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.list() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
@@ -1016,11 +1016,11 @@
             "name": "destination",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.move() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ],
             "description": "The folder to move the messages to."
@@ -1094,11 +1094,11 @@
             "name": "destination",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.copy() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ],
             "description": "The folder to copy the messages to."
@@ -1213,11 +1213,11 @@
             "name": "destination",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.import() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ],
             "description": "The folder to import the messages into."

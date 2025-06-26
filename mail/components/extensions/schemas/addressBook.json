@@ -369,7 +369,21 @@
               }
             }
           }
-        ]
+        ],
+        "returns": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "$ref": "ContactProperties"
+              }
+            },
+            "isCompleteResult": {
+              "type": "boolean"
+            }
+          }
+        }
       }
     ]
   },

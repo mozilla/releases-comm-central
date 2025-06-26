@@ -650,15 +650,15 @@
             "name": "destination",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.create() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               },
               {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.create() requires to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object.",
                 "$ref": "accounts.MailAccount"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
@@ -690,11 +690,11 @@
             "name": "folder",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.rename() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
@@ -754,11 +754,11 @@
             "name": "source",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.move() requires to specify a MailFolderId for its source parameter, instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
@@ -766,15 +766,15 @@
             "name": "destination",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.move() requires to specify a MailFolderId for its destination parameter, instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               },
               {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.move() requires to specify the MailFolderId of the account's rootFolder for its destination parameter, instead of a full MailAccount object.",
                 "$ref": "accounts.MailAccount"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
@@ -830,11 +830,11 @@
             "name": "source",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.copy() requires to specify a MailFolderId for its source parameter, instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
@@ -842,15 +842,15 @@
             "name": "destination",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.copy() requires to specify a MailFolderId for its destination parameter, instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               },
               {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.copy() requires to specify the MailFolderId of the account's rootFolder for its destination parameter, instead of a full MailAccount object.",
                 "$ref": "accounts.MailAccount"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
@@ -906,11 +906,11 @@
             "name": "folder",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.delete() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           }
@@ -942,11 +942,11 @@
             "name": "folder",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.update() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
@@ -1001,11 +1001,11 @@
             "name": "folder",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getFolderInfo() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
@@ -1055,11 +1055,11 @@
             "name": "folder",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getFolderCapabilities() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
@@ -1109,11 +1109,11 @@
             "name": "folder",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getParentFolders() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
@@ -1216,15 +1216,15 @@
             "name": "folder",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getSubFolders() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               },
               {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getSubFolders() requires to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object.",
                 "$ref": "accounts.MailAccount"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
@@ -1324,11 +1324,11 @@
             "name": "folder",
             "choices": [
               {
-                "$ref": "folders.MailFolderId"
-              },
-              {
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.markAsRead() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "folders.MailFolderId"
               }
             ]
           },
