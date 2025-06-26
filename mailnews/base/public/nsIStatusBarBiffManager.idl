@@ -1,0 +1,13 @@
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsIMsgFolder.idl"
+#include "nsIFolderListener.idl"
+
+[scriptable, uuid(20b81f2b-ea81-4baa-b378-c5e6d3dc94e5)]
+interface nsIStatusBarBiffManager : nsIFolderListener {
+  // see  nsIMsgFolder for definition and constants
+  readonly attribute nsMsgBiffState biffState;
+};

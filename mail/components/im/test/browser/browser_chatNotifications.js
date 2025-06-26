@@ -9,9 +9,6 @@
 const { MockAlertsService } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockAlertsService.sys.mjs"
 );
-const { MockSound } = ChromeUtils.importESModule(
-  "resource://testing-common/MockSound.sys.mjs"
-);
 
 const { ChatIcons } = ChromeUtils.importESModule(
   "resource:///modules/chatIcons.sys.mjs"
@@ -19,12 +16,10 @@ const { ChatIcons } = ChromeUtils.importESModule(
 
 add_setup(async () => {
   MockAlertsService.init();
-  MockSound.init();
 });
 
 registerCleanupFunction(() => {
   MockAlertsService.cleanup();
-  MockSound.cleanup();
 });
 
 add_task(async function testNotificationsDisabled() {
@@ -46,16 +41,11 @@ add_task(async function testNotificationsDisabled() {
 
   await TestUtils.waitForTick();
   ok(!MockAlertsService.alert, "No alert shown when they are disabled");
-  is(
-    MockSound.played.length,
-    0,
-    "No sound should be played when alerts are disabled"
-  );
 
   Services.prefs.setBoolPref("mail.chat.show_desktop_notifications", true);
   MockAlertsService.reset();
-  MockSound.reset();
 
+  const soundPlayed = TestUtils.topicObserved("play-chat-notification-sound");
   Services.obs.notifyObservers(
     {
       who: "notifier",
@@ -69,15 +59,10 @@ add_task(async function testNotificationsDisabled() {
     },
     "new-directed-incoming-message"
   );
+  await soundPlayed;
   ok(!MockAlertsService.alert, "No alert shown with main window focused");
-  Assert.deepEqual(
-    MockSound.played,
-    [`(event)${Ci.nsISound.EVENT_NEW_MAIL_RECEIVED}`],
-    "should have played the system sound"
-  );
 
   MockAlertsService.reset();
-  MockSound.reset();
 
   await openChatTab();
 
@@ -98,11 +83,6 @@ add_task(async function testNotificationsDisabled() {
   ok(
     !MockAlertsService.alert,
     "No alert shown, no sound with chat tab focused"
-  );
-  is(
-    MockSound.played.length,
-    0,
-    "No sound should be played with the chat tab focused"
   );
 
   await closeChatTab();

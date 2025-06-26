@@ -90,6 +90,7 @@ SOURCES += [
     "nsNewMailnewsURI.cpp",
     "nsQuarantinedOutputStream.cpp",
     "nsSpamSettings.cpp",
+    "nsStatusBarBiffManager.cpp",
     "nsStopwatch.cpp",
     "nsSubscribableServer.cpp",
     "UrlListener.cpp",

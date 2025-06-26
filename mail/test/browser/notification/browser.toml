@@ -1,7 +1,6 @@
 [DEFAULT]
 prefs = [
   "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
-  "mail.notification.loglevel=Debug",
   "mail.provider.suppress_dialog_on_startup=true",
   "mail.spotlight.firstRunDone=true",
   "mail.winsearch.firstRunDone=true",
@@ -14,9 +13,3 @@ subsuite = "thunderbird"
 ["browser_filtered.js"]
 
 ["browser_notification.js"]
-
-["browser_sounds.js"]
-support-files = [
-  "bell.oga",
-  "complete.oga",
-]

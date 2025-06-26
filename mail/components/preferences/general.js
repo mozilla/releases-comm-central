@@ -47,8 +47,6 @@ ChromeUtils.defineLazyGetter(this, "gIsPackagedApp", () => {
 });
 
 ChromeUtils.defineESModuleGetters(this, {
-  MailNotificationManager:
-    "resource:///modules/MailNotificationManager.sys.mjs",
   SearchIntegration: "resource:///modules/SearchIntegration.sys.mjs",
 });
 
@@ -562,9 +560,22 @@ var gGeneralPane = {
   },
 
   previewSound() {
-    MailNotificationManager.playSound(
-      Services.prefs.getBranch("mail.biff.play_sound")
-    );
+    const sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
+    // soundType radio-group isn't used for macOS so it is not in the XUL file
+    // for the platform.
+    const soundLocation =
+      AppConstants.platform == "macosx" ||
+      document.getElementById("soundType").value == 1
+        ? document.getElementById("soundUrlLocation").value
+        : "";
+
+    if (!soundLocation.includes("file://")) {
+      // User has not set any custom sound file to be played
+      sound.playEventSound(Ci.nsISound.EVENT_NEW_MAIL_RECEIVED);
+    } else {
+      // User has set a custom audio file to be played along the alert.
+      sound.play(Services.io.newURI(soundLocation));
+    }
   },
 
   browseForSoundFile() {

@@ -109,9 +109,24 @@ var gChatPane = {
   },
 
   previewSound() {
-    MailNotificationManager.playSound(
-      Services.prefs.getBranch("mail.chat.play_sound")
-    );
+    const sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
+
+    const soundLocation =
+      document.getElementById("chatSoundType").value == 1
+        ? document.getElementById("chatSoundUrlLocation").value
+        : "";
+
+    // This should be in sync with the code in nsStatusBarBiffManager::PlayBiffSound.
+    if (!soundLocation.startsWith("file://")) {
+      if (Services.appinfo.OS == "Darwin") {
+        // OS X
+        sound.beep();
+      } else {
+        sound.playEventSound(Ci.nsISound.EVENT_NEW_MAIL_RECEIVED);
+      }
+    } else {
+      sound.play(Services.io.newURI(soundLocation));
+    }
   },
 
   browseForSoundFile() {

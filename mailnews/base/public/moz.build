@@ -54,6 +54,7 @@ XPIDL_SOURCES += [
     "nsIMsgUserFeedbackListener.idl",
     "nsIMsgWindow.idl",
     "nsISpamSettings.idl",
+    "nsIStatusBarBiffManager.idl",
     "nsIStopwatch.idl",
     "nsISubscribableServer.idl",
     "nsIUrlListener.idl",
