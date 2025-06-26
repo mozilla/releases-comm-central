@@ -240,10 +240,17 @@ class AccountHubAddressBook extends HTMLElement {
         }
       // Fall through to handle like forward event.
       case "forward":
-        await this.#handleForwardAction(
-          this.#currentState,
-          this.#currentSubview.captureState?.()
-        );
+        try {
+          const stateData = this.#currentSubview.captureState?.();
+          await this.#handleForwardAction(this.#currentState, stateData);
+        } catch (error) {
+          this.#currentSubview.showNotification({
+            title: error.title || error.message,
+            description: error.text,
+            error,
+            type: "error",
+          });
+        }
         break;
       case "config-updated":
         this.#footer.toggleForwardDisabled(!event.detail.completed);
@@ -307,6 +314,28 @@ class AccountHubAddressBook extends HTMLElement {
    */
   #handleForwardAction(currentState, stateData) {
     switch (currentState) {
+      case "localAddressBookSubview": {
+        try {
+          lazy.MailServices.ab.newAddressBook(
+            stateData.name,
+            "",
+            Ci.nsIAbManager.JS_DIRECTORY_TYPE
+          );
+
+          this.dispatchEvent(
+            new CustomEvent("request-close", {
+              bubbles: true,
+            })
+          );
+          this.reset();
+        } catch (error) {
+          throw new Error("Local address book creation failed", {
+            cause: error,
+          });
+        }
+
+        break;
+      }
       case "syncAddressBooksSubview":
         // The state data returned from this subview is a list of available
         // address books that have a create function.

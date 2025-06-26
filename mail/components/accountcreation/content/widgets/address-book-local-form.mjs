@@ -5,6 +5,13 @@
 import { AccountHubStep } from "./account-hub-step.mjs";
 
 /**
+ * An internal collection of data for the form.
+ *
+ * @typedef {object} LocalAddressBookConfig
+ * @property {string} name - The address book name.
+ */
+
+/**
  * Account Hub Address Book Local Account Form Template
  * Template ID: #accountHubAddressBookLocalFormTemplate
  * (from accountHubAddressBookLocalFormTemplate.inc.xhtml)
@@ -24,6 +31,24 @@ class AddressBookLocalForm extends AccountHubStep {
     this.appendChild(template);
 
     this.showBrandingHeader();
+  }
+
+  /**
+   * Return the current state of the local address book form.
+   *
+   * @returns {LocalAddressBookConfig}
+   */
+  captureState() {
+    return {
+      name: this.querySelector("#addressBookName").value,
+    };
+  }
+
+  /**
+   * Resets the local address book form.
+   */
+  resetState() {
+    this.querySelector("#localAddressBookForm").reset();
   }
 }
 

@@ -8,6 +8,10 @@ const { sinon } = ChromeUtils.importESModule(
   "resource://testing-common/Sinon.sys.mjs"
 );
 
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+
 const tabmail = document.getElementById("tabmail");
 let browser;
 let abView;
@@ -229,7 +233,7 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   );
 
   abView.removeTestAccount(testAccount);
-  abView.reset();
+  await abView.reset();
 });
 
 add_task(async function test_configUpdatedEvent() {
@@ -349,6 +353,58 @@ add_task(async function test_syncNoAddressBooks() {
   );
 
   abView.removeTestAccount(testAccount);
+  await abView.reset();
+});
+
+add_task(async function test_localAddressBookForwardEventAndCreation() {
+  const optionSelect = await TestUtils.waitForCondition(
+    () => abView.querySelector("address-book-option-select"),
+    `Address book option select should connected`
+  );
+
+  const button = optionSelect.querySelector("#newLocalAddressBook");
+
+  EventUtils.synthesizeMouseAtCenter(button, {}, abView.ownerGlobal);
+
+  let localForm;
+
+  await TestUtils.waitForCondition(async () => {
+    localForm = abView.querySelector("address-book-local-form form");
+    return localForm?.getBoundingClientRect().width;
+  }, `New local address book subview should be visible`);
+
+  const input = localForm.querySelector("input");
+
+  EventUtils.synthesizeMouseAtCenter(input, {}, abView.ownerGlobal);
+
+  EventUtils.sendString("test");
+
+  const { promise, resolve } = Promise.withResolvers();
+
+  abView.querySelector("#addressBookFooter").addEventListener(
+    "forward",
+    () => {
+      Assert.ok(true, "Forward event emmited");
+      resolve();
+    },
+    { once: true }
+  );
+
+  const click = new MouseEvent("click", {
+    view: window,
+    bubbles: true,
+    cancelable: true,
+  });
+
+  EventUtils.sendMouseEvent(click, abView.querySelector("#forward"), window);
+
+  await promise;
+
+  Assert.ok(
+    MailServices.ab.directoryNameExists("test"),
+    "Address book should exist"
+  );
+
   await abView.reset();
 });
 

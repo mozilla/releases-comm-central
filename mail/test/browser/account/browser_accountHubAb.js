@@ -398,6 +398,55 @@ add_task(async function test_address_book_remote_account() {
   );
 });
 
+add_task(async function test_localAddressBookCreation() {
+  const accountHub = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+  let optionSelect;
+
+  await TestUtils.waitForCondition(() => {
+    optionSelect = accountHub.querySelector("address-book-option-select");
+    return optionSelect?.hasConnected;
+  }, "Address book option select should be connected");
+
+  const localAddressBookButton = optionSelect.querySelector(
+    "#newLocalAddressBook"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(localAddressBookButton, {});
+
+  const localForm = accountHub.querySelector("address-book-local-form form");
+  await TestUtils.waitForCondition(() => {
+    return localForm.getBoundingClientRect().width;
+  }, "New local address book subview should be visible");
+
+  const input = localForm.querySelector("input");
+  EventUtils.synthesizeMouseAtCenter(input, {});
+  input.focus();
+
+  EventUtils.sendString("test");
+
+  const addressBookDirectoryPromise = TestUtils.topicObserved(
+    "addrbook-directory-created"
+  );
+
+  const closeEvent = BrowserTestUtils.waitForEvent(accountHub, "close");
+
+  EventUtils.synthesizeMouseAtCenter(
+    accountHub.querySelector("#addressBookFooter #forward"),
+    {}
+  );
+
+  // Check existence of address book.
+  const [addressBookDirectory] = await addressBookDirectoryPromise;
+  Assert.equal(
+    addressBookDirectory.dirName,
+    "test",
+    "Address book should be created"
+  );
+  MailServices.ab.deleteAddressBook(addressBookDirectory.URI);
+
+  await closeEvent;
+});
+
 /**
  * Tests visibility of option select template and the selected address book
  * template, and again when the back button is pressed.

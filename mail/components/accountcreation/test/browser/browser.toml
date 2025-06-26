@@ -9,6 +9,7 @@ prefs = [
   "mailnews.pop3.loglevel=Debug",
   "mailnews.start_page.override_url=about:blank",
   "mailnews.start_page.url=about:blank",
+  "mail.accounthub.addressbook.enabled=true",
 ]
 subsuite = "thunderbird"
 support-files = ["files/**"]

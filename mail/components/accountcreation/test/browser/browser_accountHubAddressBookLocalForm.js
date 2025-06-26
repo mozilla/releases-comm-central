@@ -83,3 +83,30 @@ add_task(async function test_localNameIcons() {
     "The error message should be visible"
   );
 });
+
+add_task(async function test_captureState() {
+  const input = subView.querySelector("#addressBookName");
+  input.focus();
+
+  EventUtils.sendString("test");
+
+  let state = subView.captureState();
+
+  Assert.deepEqual(
+    state,
+    { name: "test" },
+    "captureState should reflect current data"
+  );
+
+  input.select();
+
+  EventUtils.sendKey("back_space", input.ownerGlobal);
+
+  state = subView.captureState();
+
+  Assert.deepEqual(
+    state,
+    { name: "" },
+    "captureState should reflect current data"
+  );
+});
