@@ -220,6 +220,8 @@ async function openFolderProperties(row) {
         dialogWindow
       );
       await windowClosedPromise;
+      // Wait for removing 'inert' attribute taking effect.
+      await new Promise(resolve => requestAnimationFrame(resolve));
     },
     async cancel() {
       const windowClosedPromise =
@@ -230,6 +232,8 @@ async function openFolderProperties(row) {
         dialogWindow
       );
       await windowClosedPromise;
+      // Wait for removing 'inert' attribute taking effect.
+      await new Promise(resolve => requestAnimationFrame(resolve));
     },
   };
 }

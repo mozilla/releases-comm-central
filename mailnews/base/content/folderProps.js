@@ -19,6 +19,9 @@ var gLockedPref = null;
 var gDefaultColor = "";
 
 window.addEventListener("load", folderPropsOnLoad);
+// This ensures that the opening about3Pane is unfreezed as soon as this dialog
+// is closed.
+window.addEventListener("unload", window.arguments[0].unloadCallback);
 document.addEventListener("dialogaccept", folderPropsOKButton);
 document.addEventListener("dialogcancel", folderCancelButton);
 

@@ -614,6 +614,8 @@ add_task(async function testPropertiesSettingsFilters() {
   );
   await rightClickAndActivate(plainFolder, "folderPaneContext-properties");
   await folderPropsPromise;
+  // Wait for removing 'inert' attribute taking effect.
+  await new Promise(resolve => requestAnimationFrame(resolve));
 
   const virtualPropsPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,

@@ -3656,16 +3656,35 @@ var folderPane = {
     }
     const title = messengerBundle.GetStringFromName("folderProperties");
 
+    // If the main window has been closed by the user, make sure that the
+    // folder properties dialog is removed as well,
+    let folderPropertiesDialog = null;
+    const onMainWindowUnload = () => {
+      folderPropertiesDialog.close();
+    };
+    window.addEventListener("unload", onMainWindowUnload);
+
+    // Save the focus and freeze the about3Pane.
+    const prevFocusedElement = document.activeElement;
+    document.documentElement.setAttribute("inert", "true");
+
     function editFolderCallback(newName, oldName) {
       if (newName != oldName) {
         folder.rename(newName, top.msgWindow);
       }
     }
 
-    window.openDialog(
+    function unloadDialogCallback() {
+      // Unfreeze about3Pane and restore focus.
+      document.documentElement.removeAttribute("inert");
+      prevFocusedElement?.focus();
+      window.removeEventListener("unload", onMainWindowUnload);
+    }
+
+    folderPropertiesDialog = window.openDialog(
       "chrome://messenger/content/folderProps.xhtml",
       "",
-      "chrome,modal,centerscreen",
+      "chrome,dependent,centerscreen",
       {
         folder,
         serverType: folder.server.type,
@@ -3675,6 +3694,7 @@ var folderPane = {
         tabID,
         name: folder.localizedName,
         rebuildSummaryCallback: this.rebuildFolderSummary,
+        unloadCallback: unloadDialogCallback,
       }
     );
   },
