@@ -7,6 +7,7 @@ loader: taskgraph.loader.transform:loader
 transforms:
     - gecko_taskgraph.transforms.release:run_on_releases
     - gecko_taskgraph.transforms.release_deps:transforms
+    - comm_taskgraph.transforms.release_flatpak_repackage:transforms
     - comm_taskgraph.transforms.packaging_l10n:transforms
     - gecko_taskgraph.transforms.task:transforms
 
