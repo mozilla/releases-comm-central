@@ -168,7 +168,7 @@ class AccountHubAddressBook extends HTMLElement {
    */
   async init() {
     await this.#fetchAccounts();
-    this.#currentSubview.setState(this.#accounts);
+    this.#states.optionSelectSubview.subview.setState(this.#accounts);
   }
 
   /**
