@@ -116,17 +116,26 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
 }
 
 NS_IMETHODIMP MessageDatabase::RemoveMessage(nsMsgKey aKey) {
+  MOZ_ASSERT(aKey != nsMsgKey_None);
+
   nsCOMPtr<mozIStorageStatement> stmt;
-  DatabaseCore::GetStatement("RemoveMessage"_ns,
-                             "DELETE FROM messages \
-                              WHERE id = :id \
-                              RETURNING "_ns MESSAGE_SQL_FIELDS,
+  DatabaseCore::GetStatement("RemoveMessage_properties"_ns,
+                             "DELETE FROM message_properties WHERE id = :id"_ns,
                              getter_AddRefs(stmt));
+  stmt->BindInt64ByName("id"_ns, (int64_t)aKey);
+  nsresult rv = stmt->Execute();
+  NS_ENSURE_SUCCESS(rv, rv);
+  stmt = nullptr;
+
+  DatabaseCore::GetStatement(
+      "RemoveMessage"_ns,
+      "DELETE FROM messages WHERE id = :id RETURNING "_ns MESSAGE_SQL_FIELDS,
+      getter_AddRefs(stmt));
 
   stmt->BindInt64ByName("id"_ns, aKey);
 
   bool hasResult;
-  nsresult rv = stmt->ExecuteStep(&hasResult);
+  rv = stmt->ExecuteStep(&hasResult);
   NS_ENSURE_SUCCESS(rv, rv);
   if (!hasResult) {
     stmt->Reset();

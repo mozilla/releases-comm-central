@@ -449,20 +449,37 @@ NS_IMETHODIMP PerFolderDatabase::IsMDNSent(nsMsgKey aKey, bool* aMDNSent) {
 NS_IMETHODIMP PerFolderDatabase::MarkAllRead(nsTArray<nsMsgKey>& aMarkedKeys) {
   return mMessageDatabase->MarkAllRead(mFolderId, aMarkedKeys);
 }
+
 NS_IMETHODIMP PerFolderDatabase::DeleteMessages(
     const nsTArray<nsMsgKey>& nsMsgKeys, nsIDBChangeListener* instigator) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  // NOTE: `instigator` ignored. There _will_ be a OnMessageRemoved()
+  // callback (because we're a MessageListener), but that will send a null
+  // instigator.
+  for (nsMsgKey key : nsMsgKeys) {
+    nsresult rv = mMessageDatabase->RemoveMessage(key);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  return NS_OK;
 }
+
 NS_IMETHODIMP PerFolderDatabase::DeleteMessage(nsMsgKey aKey,
                                                nsIDBChangeListener* instigator,
                                                bool commit) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  // TODO: `instigator` and `commit` ignored.
+  return DeleteMessages({aKey}, instigator);
 }
+
 NS_IMETHODIMP PerFolderDatabase::DeleteHeader(nsIMsgDBHdr* msgHdr,
                                               nsIDBChangeListener* instigator,
                                               bool commit, bool notify) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsMsgKey key;
+  nsresult rv = msgHdr->GetMessageKey(&key);
+  NS_ENSURE_SUCCESS(rv, rv);
+  // TODO: `instigator`, `commit` and `notify` ignored.
+  return DeleteMessages({key}, instigator);
 }
+
 NS_IMETHODIMP PerFolderDatabase::RemoveHeaderMdbRow(nsIMsgDBHdr* msgHdr) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
