@@ -1025,7 +1025,7 @@ export class MessageSend {
       this._msgCopy.startCopyOperation(
         this._userIdentity,
         this._copyFile,
-        this._deliverMode,
+        deliverMode,
         this,
         this._folderUri,
         this._msgToReplace
@@ -1046,7 +1046,14 @@ export class MessageSend {
    */
   _doFcc2() {
     // Handle fcc2 only once.
-    if (!this._fcc2Handled && this._compFields.fcc2) {
+    if (
+      !this._fcc2Handled &&
+      this._compFields.fcc2 &&
+      [
+        Ci.nsIMsgSend.nsMsgDeliverNow,
+        Ci.nsIMsgSend.nsMsgQueueForLater,
+      ].includes(this._deliverMode)
+    ) {
       lazy.MsgUtils.sendLogger.debug("Processing fcc2");
       this._fcc2Handled = true;
       this._mimeDoFcc(

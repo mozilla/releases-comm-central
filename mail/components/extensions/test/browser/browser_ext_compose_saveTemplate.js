@@ -333,7 +333,7 @@ add_task(async function test_saveAsTemplate_with_additional_fcc() {
     mode: { mode: "template" },
     expected: {
       mode: "template",
-      fcc: ["Templates", "Fcc"],
+      fcc: ["Templates"],
     },
   });
 });

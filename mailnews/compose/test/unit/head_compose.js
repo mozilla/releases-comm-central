@@ -180,7 +180,8 @@ function richCreateMessage(
   fields,
   attachments = [],
   identity = null,
-  account = null
+  account = null,
+  deliverMode = Ci.nsIMsgSend.nsMsgSaveAsDraft
 ) {
   const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
@@ -218,7 +219,7 @@ function richCreateMessage(
   });
   progress.registerListener(progressListener);
   msgCompose.sendMsg(
-    Ci.nsIMsgSend.nsMsgSaveAsDraft,
+    deliverMode,
     identity,
     account ? account.key : "",
     null,

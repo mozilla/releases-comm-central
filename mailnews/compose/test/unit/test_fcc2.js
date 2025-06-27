@@ -6,15 +6,23 @@
  * Test that when fcc2 field is set, the mail is copied to the fcc2 folder.
  */
 
-var { MailUtils } = ChromeUtils.importESModule(
+const { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
 
+let gServer;
 let fcc2Folder;
 
 add_setup(async function () {
   localAccountUtils.loadLocalMailAccount();
+  gServer = setupServerDaemon();
+  gServer.start();
   fcc2Folder = localAccountUtils.rootFolder.createLocalSubfolder("fcc2");
+
+  registerCleanupFunction(() => {
+    gServer.stop();
+    fcc2Folder.deleteSelf(null);
+  });
 });
 
 /**
@@ -22,28 +30,34 @@ add_setup(async function () {
  * folder.
  */
 add_task(async function testFcc2() {
-  const CompFields = CC(
-    "@mozilla.org/messengercompose/composefields;1",
-    Ci.nsIMsgCompFields
-  );
-  const fields = new CompFields();
-  fields.to = "Nobody <nobody@tinderbox.invalid>";
-  fields.subject = "Test fcc2";
-  fields.fcc2 = fcc2Folder.URI;
+  gServer.resetTest();
   const identity = getSmtpIdentity(
     "from@tinderbox.invalid",
-    getBasicSmtpServer()
+    getBasicSmtpServer(gServer.port)
   );
-  await richCreateMessage(fields, [], identity);
 
-  // Check the message shows up correctly in the fcc2 folder.
-  const msgData = mailTestUtils.loadMessageToString(
-    fcc2Folder,
-    mailTestUtils.firstMsgHdr(fcc2Folder)
+  const fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  fields.to = "Nobody <nobody@tinderbox.invalid>";
+  fields.fcc2 = fcc2Folder.URI;
+
+  let msgHdrN = 0;
+  const subTest = async (subject, deliverMode) => {
+    fields.subject = subject;
+    await richCreateMessage(fields, [], identity, null, deliverMode);
+
+    // Check the message shows up correctly in the fcc2 folder.
+    const msgData = mailTestUtils.loadMessageToString(
+      fcc2Folder,
+      mailTestUtils.getMsgHdrN(fcc2Folder, msgHdrN++)
+    );
+    Assert.ok(msgData.includes(`Subject: ${subject}`));
+  };
+
+  await subTest("Test fcc2 - deliver now", Ci.nsIMsgSend.nsMsgDeliverNow);
+  await subTest(
+    "Test fcc2 - queue for later",
+    Ci.nsIMsgSend.nsMsgQueueForLater
   );
-  Assert.ok(msgData.includes("Subject: Test fcc2"));
-});
-
-add_task(async function cleanup() {
-  fcc2Folder.deleteSelf(null);
 });

@@ -295,7 +295,7 @@ add_task(async function test_default_with_additional_fcc() {
     mode: null,
     expected: {
       mode: "draft",
-      fcc: ["Drafts", "Fcc"],
+      fcc: ["Drafts"],
     },
   });
 });
@@ -317,7 +317,7 @@ add_task(async function test_saveAsDraft_with_additional_fcc() {
     mode: { mode: "draft" },
     expected: {
       mode: "draft",
-      fcc: ["Drafts", "Fcc"],
+      fcc: ["Drafts"],
     },
   });
 });
