@@ -1468,6 +1468,7 @@ nsresult nsMsgAccountManager::LoadAccounts() {
     }
   }
 
+#ifdef MOZ_PANORAMA
   if (Preferences::GetBool("mail.panorama.enabled", false)) {
     // At this point, we should have all the folders in the database. We can
     // finally migrate the virtualFolders.dat file, which we'll only do if the
@@ -1477,6 +1478,7 @@ nsresult nsMsgAccountManager::LoadAccounts() {
     rv = databaseCore->MigrateVirtualFolders();
     NS_ENSURE_SUCCESS(rv, rv);
   }
+#endif  // MOZ_PANORAMA
 
   return NS_OK;
 }

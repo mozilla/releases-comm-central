@@ -31,7 +31,7 @@
 #include "mozilla/intl/Collator.h"
 #ifdef MOZ_PANORAMA
 #  include "nsIFolder.h"
-#endif
+#endif  // MOZ_PANORAMA
 
 // We declare strings for folder properties and events.
 // Properties:

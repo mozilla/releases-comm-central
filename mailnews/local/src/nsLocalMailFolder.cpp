@@ -3289,7 +3289,7 @@ nsMsgLocalMailFolder::AddMessageBatch(
   if (Preferences::GetBool("mail.panorama.enabled", false)) {
     return AddMessageBatch2(aMessages, aHdrArray);
   }
-#endif
+#endif  // MOZ_PANORAMA
   aHdrArray.ClearAndRetainStorage();
   aHdrArray.SetCapacity(aMessages.Length());
 
