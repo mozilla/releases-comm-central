@@ -201,6 +201,7 @@ NS_IMETHODIMP StoreIndexer::OnDataAvailable(nsIRequest* req,
 // nsIStoreScanListener.onStopRequest()
 // Called at end of each message.
 NS_IMETHODIMP StoreIndexer::OnStopRequest(nsIRequest* req, nsresult status) {
+  nsresult rv;
   // If there's an unfinished line left in the buffer, include it in the
   // msgSize, but no point feeding it through the parser.
   mCurrentMsgSize += mUnused;
@@ -238,13 +239,18 @@ NS_IMETHODIMP StoreIndexer::OnStopRequest(nsIRequest* req, nsresult status) {
 
     // Add hdr but don't notify - shouldn't be requiring notifications
     // during summary file rebuilding.
-    mParser->m_mailDB->AddNewHdrToDB(hdr, false);
+    {
+      nsCOMPtr<nsIMsgDBHdr> liveHdr;
+      rv = mParser->m_mailDB->AttachHdr(hdr, false, getter_AddRefs(liveHdr));
+      if (NS_FAILED(rv)) {
+        NS_WARNING("AttachHdr() failed in StoreIndexer");
+      }
+    }
   } else {
     // The parser chose not to include the message.
     // Likely, it was expunged/deleted.
     nsCOMPtr<nsIDBFolderInfo> folderInfo;
-    nsresult rv =
-        mParser->m_mailDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
+    rv = mParser->m_mailDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
     if (NS_SUCCEEDED(rv) && folderInfo) {
       folderInfo->ChangeExpungedBytes(mCurrentMsgSize);
     }
