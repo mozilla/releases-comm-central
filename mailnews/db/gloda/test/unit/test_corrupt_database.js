@@ -78,7 +78,7 @@ add_task(function test_corrupt_databases_get_reported_and_blown_away() {
   // And finally, we'll make sure that the datastoreID is a string with length
   // greater than 0.
   Assert.equal(typeof Gloda.datastoreID, "string");
-  Assert.ok(Gloda.datastoreID.length > 0);
+  Assert.greater(Gloda.datastoreID.length, 0);
 
   if (!GlodaDatastore.asyncConnection) {
     do_throw("No database connection suggests no database!");

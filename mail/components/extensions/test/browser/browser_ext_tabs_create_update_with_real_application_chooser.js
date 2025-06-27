@@ -406,9 +406,9 @@ add_task(async function testUpdateTabs_with_application_chooser() {
       null,
       async win => {
         await BrowserTestUtils.waitForEvent(win, "load");
-        Assert.ok(
-          win.document.documentURI ==
-            "chrome://mozapps/content/handling/appChooser.xhtml",
+        Assert.equal(
+          win.document.documentURI,
+          "chrome://mozapps/content/handling/appChooser.xhtml",
           "application chooser dialog opened"
         );
         return true;

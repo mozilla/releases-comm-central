@@ -285,7 +285,7 @@ async function test_message_attachments(info) {
         dump(
           "*** Size is " + attachmentSize + " (expecting " + info.size + ")\n"
         );
-        Assert.ok(Math.abs(attachmentSize - info.size) <= EPSILON);
+        Assert.lessOrEqual(Math.abs(attachmentSize - info.size), EPSILON);
         break;
       }
     },

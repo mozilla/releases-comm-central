@@ -77,8 +77,9 @@ async function subtest_create_virtual_folder(vfc) {
 function subtest_check_virtual_folder_list(listc) {
   const tree = listc.document.getElementById("folderPickerTree");
   // We should see the folders from the 2 base local accounts here.
-  Assert.ok(
-    tree.view.rowCount > 0,
+  Assert.greater(
+    tree.view.rowCount,
+    0,
     "Folder tree was empty in virtual folder selection!"
   );
   listc.document.documentElement.querySelector("dialog").cancelDialog();
@@ -128,8 +129,9 @@ async function subtest_offline_sync(osc) {
 function subtest_check_offline_folder_list(listc) {
   const tree = listc.document.getElementById("synchronizeTree");
   // We should see the newsgroups from the NNTP server here.
-  Assert.ok(
-    tree.view.rowCount > 0,
+  Assert.greater(
+    tree.view.rowCount,
+    0,
     "Folder tree was empty in offline sync selection!"
   );
   listc.document.documentElement.querySelector("dialog").cancelDialog();

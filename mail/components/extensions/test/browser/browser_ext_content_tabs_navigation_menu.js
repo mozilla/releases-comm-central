@@ -57,16 +57,17 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
       switch (value) {
         case "disabled":
         case "enabled":
-          Assert.ok(
-            menu.querySelector(key).hasAttribute("disabled") ==
-              (value == "disabled"),
+          Assert.equal(
+            menu.querySelector(key).hasAttribute("disabled"),
+            value == "disabled",
             `[${description}] ${key} menu item should have the correct disabled state`
           );
           break;
         case "hidden":
         case "shown":
-          Assert.ok(
-            menu.querySelector(key).hidden == (value == "hidden"),
+          Assert.equal(
+            menu.querySelector(key).hidden,
+            value == "hidden",
             `[${description}] ${key} menu item should have the correct hidden state`
           );
           break;

@@ -199,8 +199,9 @@ add_task(async function test_single_3pane_periodic_session_persistence() {
 
   // get the state object for the one and only one 3pane window
   const windowState = loadedState.windows[0];
-  Assert.ok(
-    JSON.stringify(windowState) == JSON.stringify(state),
+  Assert.equal(
+    JSON.stringify(windowState),
+    JSON.stringify(state),
     "saved state and loaded state should be equal"
   );
 });
@@ -527,8 +528,9 @@ add_task(async function test_multiple_3pane_periodic_session_persistence() {
   );
 
   for (let i = 0; i < state.length; ++i) {
-    Assert.ok(
-      JSON.stringify(loadedState.windows[i]) == JSON.stringify(state[i]),
+    Assert.equal(
+      JSON.stringify(loadedState.windows[i]),
+      JSON.stringify(state[i]),
       "saved state and loaded state should be equal"
     );
   }
@@ -604,8 +606,9 @@ add_task(async function test_clean_shutdown_session_persistence_simple() {
 
   // get the state object for the one and only one 3pane window
   const windowState = loadedState.windows[0];
-  Assert.ok(
-    JSON.stringify(windowState) == JSON.stringify(lastWindowState),
+  Assert.equal(
+    JSON.stringify(windowState),
+    JSON.stringify(lastWindowState),
     "saved state and loaded state should be equal"
   );
 
@@ -655,7 +658,7 @@ function _move_splitter(aSplitter, aDiffX, aDiffY) {
  * @param {string} aMessage - The message to give off if we're outside of tolerance.
  */
 function assert_equals_fuzzy(aLeft, aRight, aTolerance, aMessage) {
-  Assert.ok(Math.abs(aLeft - aRight) <= aTolerance, aMessage);
+  Assert.lessOrEqual(Math.abs(aLeft - aRight), aTolerance, aMessage);
 }
 
 // XXX todo

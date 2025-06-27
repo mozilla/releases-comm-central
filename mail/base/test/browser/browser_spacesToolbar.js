@@ -869,8 +869,9 @@ add_task(async function testSpacesToolbarMenubar() {
   await toolbarsShownPromise;
 
   const menuButton = document.getElementById("viewToolbarsPopupSpacesToolbar");
-  Assert.ok(
-    menuButton.getAttribute("checked") != "true",
+  Assert.notEqual(
+    menuButton.getAttribute("checked"),
+    "true",
     "The menu item is not checked"
   );
 
@@ -881,8 +882,9 @@ add_task(async function testSpacesToolbarMenubar() {
   EventUtils.synthesizeMouseAtCenter(menuButton, {}, window);
   await viewHiddenPromise;
 
-  Assert.ok(
-    menuButton.getAttribute("checked") == "true",
+  Assert.equal(
+    menuButton.getAttribute("checked"),
+    "true",
     "The menu item is checked"
   );
 }).skip(AppConstants.platform == "macosx"); // Can't click menu bar on Mac.

@@ -719,15 +719,17 @@ add_task(async function test_getInvitedAttendee() {
   );
 
   // No calendar configured but one provided.
-  Assert.ok(
-    cal.itip.getInvitedAttendee(event, calendar) == invitedAttendee,
+  Assert.equal(
+    cal.itip.getInvitedAttendee(event, calendar),
+    invitedAttendee,
     "returns the result from the provided calendar when item has none configured"
   );
 
   // Calendar configured, none provided.
   event.calendar = calendar;
-  Assert.ok(
-    cal.itip.getInvitedAttendee(event) == invitedAttendee,
+  Assert.equal(
+    cal.itip.getInvitedAttendee(event),
+    invitedAttendee,
     "returns the result of the item's calendar when calendar not provided"
   );
 
@@ -798,8 +800,9 @@ add_task(function test_getImipTransport() {
     },
   };
 
-  Assert.ok(
-    cal.itip.getImipTransport(event) == calendarTransport,
+  Assert.equal(
+    cal.itip.getImipTransport(event),
+    calendarTransport,
     "returns the calendar's transport when no X-MOZ-INVITED-ATTENDEE property"
   );
 
@@ -819,13 +822,15 @@ add_task(function test_getImipTransport() {
   const customTransport = cal.itip.getImipTransport(event);
   Assert.ok(customTransport);
 
-  Assert.ok(
-    customTransport.mDefaultAccount == account2,
+  Assert.equal(
+    customTransport.mDefaultAccount,
+    account2,
     "returns a transport using an account for the X-MOZ-INVITED-ATTENDEE identity when set"
   );
 
-  Assert.ok(
-    customTransport.mDefaultIdentity == identity2,
+  Assert.equal(
+    customTransport.mDefaultIdentity,
+    identity2,
     "returns a transport using the identity of the X-MOZ-INVITED-ATTENDEE property when set"
   );
 });

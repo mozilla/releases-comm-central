@@ -159,7 +159,7 @@ add_task(async function crossStreaming() {
    * before and after streaming.
    */
   const msg2 = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-  Assert.ok(msg2 !== null);
+  Assert.notStrictEqual(msg2, null);
   const msgURI = fooFolder.getUriForMsg(msg2);
   const msgServ = MailServices.messageServiceFromURI(msgURI);
   // pass true for aLocalOnly since message should be in offline store of Inbox.

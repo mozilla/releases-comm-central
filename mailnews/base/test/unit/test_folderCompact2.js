@@ -89,7 +89,7 @@ async function checkMbox(folder, expectedMsgs) {
     dump(`=======mbox=========\n${esc(mbox)}\n============\n`);
     dump(`=======expected=====\n${esc(expected)}\n============\n`);
   }
-  Assert.ok(mbox == expected, "mbox should contain expected data");
+  Assert.equal(mbox, expected, "mbox should contain expected data");
 }
 
 // Some chunks from which we'll construct test messages.

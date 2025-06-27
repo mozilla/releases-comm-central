@@ -118,7 +118,7 @@ add_task(async function test_update1_copyFilter() {
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   folder1.updateFolderWithListener(null, listener);
   await listener.promise;
-  Assert.ok(folder1 !== null);
+  Assert.notStrictEqual(folder1, null);
   Assert.equal(
     folderCount(folder1),
     2,
@@ -133,7 +133,7 @@ add_task(async function test_update2_moveFilter() {
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   folder2.updateFolderWithListener(null, listener);
   await listener.promise;
-  Assert.ok(folder2 !== null);
+  Assert.notStrictEqual(folder2, null);
   Assert.equal(
     folderCount(folder2),
     2,

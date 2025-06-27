@@ -1234,8 +1234,9 @@ add_task(async function test_show_all_header_mode() {
     EventUtils.synthesizeMouseAtCenter(viewAllHeaders, {}, window);
     await modeChanged;
 
-    Assert.ok(
-      viewAllHeaders.checked == show,
+    Assert.equal(
+      viewAllHeaders.checked,
+      show,
       "The view all headers checkbox was updated to the correct state"
     );
 

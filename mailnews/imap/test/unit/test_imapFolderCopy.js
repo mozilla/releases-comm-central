@@ -81,9 +81,9 @@ add_task(function verifyFolders() {
   const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
   const folder2 = IMAPPump.inbox.getChildNamed("empty 2");
   const folder3 = IMAPPump.inbox.getChildNamed("empty 3");
-  Assert.ok(folder1 !== null);
-  Assert.ok(folder2 !== null);
-  Assert.ok(folder3 !== null);
+  Assert.notStrictEqual(folder1, null);
+  Assert.notStrictEqual(folder2, null);
+  Assert.notStrictEqual(folder3, null);
 });
 
 add_task(async function moveImapFolder1() {
@@ -106,9 +106,9 @@ add_task(function verifyImapFolders() {
   const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
   const folder2 = folder1.getChildNamed("empty 2");
   const folder3 = folder1.getChildNamed("empty 3");
-  Assert.ok(folder1 !== null);
-  Assert.ok(folder2 !== null);
-  Assert.ok(folder3 !== null);
+  Assert.notStrictEqual(folder1, null);
+  Assert.notStrictEqual(folder2, null);
+  Assert.notStrictEqual(folder3, null);
 });
 
 add_task(async function testImapFolderCopyFailure() {

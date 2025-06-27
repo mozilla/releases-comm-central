@@ -248,12 +248,14 @@ add_task(function test_renderQR() {
     DATA_URI_REGEXP.test(loremQR),
     "Result should be a data URI for an BMP"
   );
-  Assert.ok(
-    QRExport.renderQR("foo bar") != loremQR,
+  Assert.notEqual(
+    QRExport.renderQR("foo bar"),
+    loremQR,
     "Result should vary by input"
   );
-  Assert.ok(
-    QRExport.renderQR("lorem ipsum") == loremQR,
+  Assert.equal(
+    QRExport.renderQR("lorem ipsum"),
+    loremQR,
     "Should return consistent result"
   );
 });
@@ -316,8 +318,9 @@ add_task(async function test_getQRCode_multipleChunks() {
   const qrCodeSnapshot = await IOUtils.readUTF8(
     do_get_file("resources/qrdata.txt").path
   );
-  Assert.ok(
-    JSON.stringify(qrCodes) === qrCodeSnapshot,
+  Assert.strictEqual(
+    JSON.stringify(qrCodes),
+    qrCodeSnapshot,
     "Snapshot should match generated QR codes"
   );
 
@@ -390,8 +393,9 @@ add_task(async function test_encodesMultiByteCharactersToQR() {
   const qrCodeSnapshot = await IOUtils.readUTF8(
     do_get_file("resources/qrdata_utfbytes.txt").path
   );
-  Assert.ok(
-    qrData === qrCodeSnapshot,
+  Assert.strictEqual(
+    qrData,
+    qrCodeSnapshot,
     "Snapshot should match generated QR data"
   );
 });

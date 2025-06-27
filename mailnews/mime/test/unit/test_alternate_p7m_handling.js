@@ -41,7 +41,7 @@ add_task(async function test_mime_p7m_external_foo_pref() {
 
   await new Promise(resolve => {
     MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
-      Assert.ok(aMimeMsg.allUserAttachments.length == 1);
+      Assert.equal(aMimeMsg.allUserAttachments.length, 1);
       resolve();
     });
   });
@@ -51,7 +51,7 @@ add_task(async function test_mime_p7m_external_all_external_pref() {
 
   await new Promise(resolve => {
     MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
-      Assert.ok(aMimeMsg.allUserAttachments.length == 1);
+      Assert.equal(aMimeMsg.allUserAttachments.length, 1);
       resolve();
     });
   });

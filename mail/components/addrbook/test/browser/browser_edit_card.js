@@ -487,7 +487,7 @@ async function activateTypeSelect(typeField, optionValue) {
   const index = Array.from(typeField.children).findIndex(
     child => child.value === optionValue
   );
-  Assert.ok(index >= 0, "Type in select field found");
+  Assert.greaterOrEqual(index, 0, "Type in select field found");
 
   // No change event is fired if the same option is activated.
   if (index === typeField.selectedIndex) {
@@ -1811,8 +1811,9 @@ async function checkDefaultEmailChoice(
     const checked = Array.from(emailFields).filter(
       emailField => emailField.checkboxEl.checked
     );
-    Assert.ok(
-      checked.length <= 1,
+    Assert.lessOrEqual(
+      checked.length,
+      1,
       "At maximum one email is ticked for the default email."
     );
   }

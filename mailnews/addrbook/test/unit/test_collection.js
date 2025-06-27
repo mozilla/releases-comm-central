@@ -231,7 +231,7 @@ var collectChecker = {
     try {
       var card = this.AB.cardForEmailAddress(aDetails.primaryEmail);
 
-      Assert.ok(card != null);
+      Assert.notEqual(card, null);
 
       if ("secondEmail" in aDetails) {
         Assert.equal(card.emailAddresses[1], aDetails.secondEmail);
@@ -294,7 +294,7 @@ function run_test() {
     addEmailChecks[0].emailHeader
   );
 
-  Assert.ok(card == null);
+  Assert.equal(card, null);
 
   // Test - Try and collect various emails and formats.
 

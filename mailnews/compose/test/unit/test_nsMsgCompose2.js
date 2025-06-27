@@ -78,7 +78,7 @@ function run_test() {
   ].createInstance(Ci.nsIMsgComposeParams);
   gMsgCompose.initialize(params);
 
-  Assert.ok(gMsgCompose != null);
+  Assert.notEqual(gMsgCompose, null);
 
   // Test - Add a listener
 

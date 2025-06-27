@@ -328,7 +328,7 @@ add_task(async function testEventReminderDisplay() {
   row = doc.querySelector(".reminder-row");
 
   Assert.ok(!row.hidden, "reminder row is displayed");
-  Assert.ok(row.querySelector("menulist") != null, "reminder dropdown is available");
+  Assert.notEqual(row.querySelector("menulist"), null, "reminder dropdown is available");
   EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
 
   // Delete directly, as using the UI causes a prompt to appear.

@@ -64,21 +64,28 @@ async function check_image_size(aImage, aSrcStart) {
     "Image " + id + " is missing a required attribute"
   );
 
-  Assert.ok(
-    aImage.height > 0,
+  Assert.greater(
+    aImage.height,
+    0,
     "Image " + id + " is missing a required attribute"
   );
-  Assert.ok(
-    aImage.width > 0,
+  Assert.greater(
+    aImage.width,
+    0,
     "Image " + id + " is missing a required attribute"
   );
 
   // If the image couldn't be loaded, the naturalWidth and Height are zero.
-  Assert.ok(
-    aImage.naturalHeight > 0,
+  Assert.greater(
+    aImage.naturalHeight,
+    0,
     "Loaded image " + id + " is of zero size"
   );
-  Assert.ok(aImage.naturalWidth > 0, "Loaded image " + id + " is of zero size");
+  Assert.greater(
+    aImage.naturalWidth,
+    0,
+    "Loaded image " + id + " is of zero size"
+  );
 }
 
 /**

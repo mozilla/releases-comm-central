@@ -43,11 +43,16 @@ add_task(async function testMMS() {
   Assert.equal(footer.length, 1, "should have one footer.gif");
 
   for (var img of imgs) {
-    Assert.ok(
-      img.naturalHeight > 0,
+    Assert.greater(
+      img.naturalHeight,
+      0,
       `img should have naturalHeight: ${img.src}`
     );
-    Assert.ok(img.naturalWidth > 0, `img should have naturalWidth: ${img.src}`);
+    Assert.greater(
+      img.naturalWidth,
+      0,
+      `img should have naturalWidth: ${img.src}`
+    );
   }
 
   Assert.ok(

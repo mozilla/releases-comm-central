@@ -58,8 +58,9 @@ add_task(async function test_initializeQRCodes_withPassword() {
   wizard.initializeQRCodes(accountKeys, true);
   const expectedQRCodes = QRExport.getQRCodes(accountKeys, true);
 
-  Assert.ok(
-    wizard.querySelector("img").src == expectedQRCodes[0],
+  Assert.equal(
+    wizard.querySelector("img").src,
+    expectedQRCodes[0],
     "Should display expected QR code with passwords"
   );
   const stepLabel = wizard.querySelector("figcaption");
@@ -82,8 +83,9 @@ add_task(async function test_initializeQRCodes_withoutPassword() {
   wizard.initializeQRCodes(accountKeys, false);
   const expectedQRCodes = QRExport.getQRCodes(accountKeys, false);
 
-  Assert.ok(
-    wizard.querySelector("img").src == expectedQRCodes[0],
+  Assert.equal(
+    wizard.querySelector("img").src,
+    expectedQRCodes[0],
     "Should display expected QR code without passwords"
   );
 });
@@ -94,8 +96,9 @@ add_task(async function test_next() {
 
   Assert.ok(wizard.next(), "Should successfully advance");
 
-  Assert.ok(
-    wizard.querySelector("img").src == expectedQRCodes[1],
+  Assert.equal(
+    wizard.querySelector("img").src,
+    expectedQRCodes[1],
     "Should advance to second QR code"
   );
   const stepLabel = wizard.querySelector("figcaption");
@@ -123,8 +126,9 @@ add_task(async function test_back() {
 
   Assert.ok(wizard.back(), "Should successfully go back");
 
-  Assert.ok(
-    wizard.querySelector("img").src == expectedQRCodes[0],
+  Assert.equal(
+    wizard.querySelector("img").src,
+    expectedQRCodes[0],
     "Should return to first QR code"
   );
   const stepLabel = wizard.querySelector("figcaption");

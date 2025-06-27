@@ -24,7 +24,7 @@ function GenericImportHelper(aModuleType, aContractID, aFile) {
     .createInstance(Ci.nsIImportModule)
     .GetImportInterface(aModuleType)
     .QueryInterface(this.interfaceType);
-  Assert.ok(this.mInterface !== null);
+  Assert.notStrictEqual(this.mInterface, null);
 
   this.mFile = aFile; // checked in the beginImport method
 }

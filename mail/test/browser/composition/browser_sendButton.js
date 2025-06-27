@@ -243,7 +243,7 @@ add_task(async function test_send_enabled_prefilled_address_from_identity() {
   Assert.equal(identityPicker.selectedIndex, 0);
 
   // Switch to the second identity that has no CC. Send should be disabled.
-  Assert.ok(account.identities.length >= 2);
+  Assert.greaterOrEqual(account.identities.length, 2);
   const identityWithoutCC = account.identities[1];
   Assert.ok(!identityWithoutCC.doCc);
   await chooseIdentity(cwc, identityWithoutCC.key);

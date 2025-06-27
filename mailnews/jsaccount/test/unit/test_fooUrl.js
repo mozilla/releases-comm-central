@@ -28,12 +28,12 @@ var tests = [
       // the following will crash. The underlying nsMsgMailNewsUrl
       // has no m_baseURL yet and hence GetSpec() triggered by the
       // Assert.uk(urlQI) will crash. So use this instead:
-      Assert.ok(urlQI != null);
+      Assert.notEqual(urlQI, null);
     }
     for (const iface of extraInterfaces) {
       const fooUrl = url.getInterface(iface);
       Assert.ok(fooUrl instanceof iface);
-      Assert.ok(fooUrl.QueryInterface(iface) != null);
+      Assert.notEqual(fooUrl.QueryInterface(iface), null);
     }
   },
   function test_msgIOverride() {

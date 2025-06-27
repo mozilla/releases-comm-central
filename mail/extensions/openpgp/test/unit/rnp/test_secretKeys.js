@@ -109,7 +109,7 @@ add_task(async function testSecretKeys() {
     backupKeyBlock
   );
 
-  Assert.ok(importResult.exitCode != 0, "import should have failed");
+  Assert.notEqual(importResult.exitCode, 0, "import should have failed");
 
   const getGoodPassword = function () {
     return backupPassword;
@@ -122,7 +122,7 @@ add_task(async function testSecretKeys() {
     backupKeyBlock
   );
 
-  Assert.ok(importResult.exitCode == 0, "import result code should be 0");
+  Assert.equal(importResult.exitCode, 0, "import result code should be 0");
 
   keyObj = EnigmailKeyRing.getKeyById(newKeyId);
 
@@ -255,7 +255,7 @@ add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
     secBlock
   );
 
-  Assert.ok(importResult.exitCode == 0);
+  Assert.equal(importResult.exitCode, 0);
 
   const pubBlock = await IOUtils.readUTF8(
     do_get_file(
@@ -269,7 +269,7 @@ add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
     null // acceptance
   );
 
-  Assert.ok(importResult.exitCode == 0);
+  Assert.equal(importResult.exitCode, 0);
 
   const primaryKey = await RNP.findKeyByEmail(
     "<secret-for-preferred-sign-subkey-is-missing@example.com>",
@@ -360,7 +360,7 @@ add_task(async function testNoSecretForExistingPublicSubkey() {
     null // acceptance
   );
 
-  Assert.ok(importResult.exitCode == 0);
+  Assert.equal(importResult.exitCode, 0);
 
   const secBlock = await IOUtils.readUTF8(
     do_get_file(`${keyDir}/two-enc-subkeys-one-deleted.sec.asc`).path
@@ -378,7 +378,7 @@ add_task(async function testNoSecretForExistingPublicSubkey() {
     secBlock
   );
 
-  Assert.ok(importResult.exitCode == 0);
+  Assert.equal(importResult.exitCode, 0);
 });
 
 // Test that old ECC secret keys, which were created using older RNP
@@ -401,7 +401,7 @@ add_task(async function testImportAndBackupUntweakedECCKey() {
     untweakedSecKey
   );
 
-  Assert.ok(importResult.exitCode == 0);
+  Assert.equal(importResult.exitCode, 0);
   const fpr = "492965A6F56DAD2423B3506E849F29B0020707F7";
 
   const backupPassword = "new-password-1234";

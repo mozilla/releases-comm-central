@@ -80,7 +80,7 @@ add_task(async function testExpiredKeyShowsNotificationBar() {
     "openpgpSenderKeyExpiry"
   );
 
-  Assert.ok(notification !== null, "notification should be visible");
+  Assert.notStrictEqual(notification, null, "notification should be visible");
   Assert.equal(
     notification.messageText.textContent,
     "Your current configuration uses the key 0x15E9357D2C2395C0, which has expired.",
@@ -120,7 +120,7 @@ add_task(async function testKeyWithSoonExpiryShowsNotification() {
     "openpgpSenderKeyExpiry"
   );
 
-  Assert.ok(notification !== null, "notification should be visible");
+  Assert.notStrictEqual(notification, null, "notification should be visible");
   Assert.stringContains(
     notification.messageText.textContent,
     "Your current configuration uses the key 0x15E9357D2C2395C0, which will expire in 10 days.",
@@ -159,8 +159,9 @@ add_task(async function testKeyWithoutExpiryDoesNotShowNotification() {
     "openpgpSenderKeyExpiry"
   );
 
-  Assert.ok(
-    notification === null,
+  Assert.strictEqual(
+    notification,
+    null,
     "the expiry warning should not be visible if the key is not expired"
   );
   cwc.close();

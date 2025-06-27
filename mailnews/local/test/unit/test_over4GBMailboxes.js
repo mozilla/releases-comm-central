@@ -140,8 +140,8 @@ add_task(async function downloadUnder4GiB() {
 
   // Download a file that still fits into the limit.
   const bigFile = do_get_file("../../../data/mime-torture");
-  Assert.ok(bigFile.fileSize >= 1024 * 1024);
-  Assert.ok(bigFile.fileSize <= 1024 * 1024 * 2);
+  Assert.greaterOrEqual(bigFile.fileSize, 1024 * 1024);
+  Assert.lessOrEqual(bigFile.fileSize, 1024 * 1024 * 2);
 
   gPOP3Pump.files = ["../../../data/mime-torture"];
   let pop3Resolve;
@@ -160,8 +160,8 @@ add_task(async function downloadUnder4GiB() {
  */
 add_task(async function downloadOver4GiB_fail() {
   const localInboxSize = gInboxFile.clone().fileSize;
-  Assert.ok(localInboxSize >= kNearLimit);
-  Assert.ok(localInboxSize < kSizeLimit);
+  Assert.greaterOrEqual(localInboxSize, kNearLimit);
+  Assert.less(localInboxSize, kSizeLimit);
   Assert.equal(gInbox.sizeOnDisk, localInboxSize);
   Assert.ok(gInbox.msgDatabase.summaryValid);
   // The big file is between 1 and 2 MiB. Append it 16 times to attempt to cross the 4GiB limit.
@@ -243,7 +243,7 @@ add_task(async function downloadOver4GiB_success_check() {
       localInboxSize +
       "\n"
   );
-  Assert.ok(localInboxSize > kSizeLimit);
+  Assert.greater(localInboxSize, kSizeLimit);
   Assert.ok(gInbox.msgDatabase.summaryValid);
 
   // Bug 789679
@@ -254,7 +254,7 @@ add_task(async function downloadOver4GiB_success_check() {
   // Check if the onFolderIntPropertyChanged folder listener hook can return
   // values above 2^32 for properties where it is relevant.
   Assert.equal(FListener.sizeHistory(0), gInbox.sizeOnDisk);
-  Assert.ok(FListener.sizeHistory(1) < FListener.sizeHistory(0));
+  Assert.less(FListener.sizeHistory(1), FListener.sizeHistory(0));
   Assert.equal(
     FListener.msgsHistory(0),
     FListener.msgsHistory(16) + gExpectedNewMessages
@@ -401,7 +401,7 @@ add_task(async function copyIntoOver4GiB_success_check2() {
  */
 add_task(async function compactOver4GiB() {
   gInboxSize = gInboxFile.clone().fileSize;
-  Assert.ok(gInboxSize > kSizeLimit);
+  Assert.greater(gInboxSize, kSizeLimit);
   Assert.equal(gInbox.expungedBytes, 0);
   // Delete the last small message at folder end.
   const doomed = [...gInbox.messages].slice(-1);
@@ -427,9 +427,9 @@ add_task(async function compactOver4GiB() {
   // Check that folder size is still above max limit ...
   const localInboxSize = gInbox.filePath.clone().fileSize;
   info("Local inbox size (after compact 1) = " + localInboxSize);
-  Assert.ok(localInboxSize > kSizeLimit);
+  Assert.greater(localInboxSize, kSizeLimit);
   // ... but it got smaller by removing 1 message.
-  Assert.ok(gInboxSize > localInboxSize);
+  Assert.greater(gInboxSize, localInboxSize);
   Assert.equal(gInbox.sizeOnDisk, localInboxSize);
 });
 
@@ -439,7 +439,7 @@ add_task(async function compactOver4GiB() {
  */
 add_task(async function compactUnder4GiB() {
   // The folder is still above 4GB.
-  Assert.ok(gInboxFile.clone().fileSize > kSizeLimit);
+  Assert.greater(gInboxFile.clone().fileSize, kSizeLimit);
   const folderSize = gInbox.sizeOnDisk;
   const totalMsgs = gInbox.getTotalMessages(false);
   // Let's close the database and re-open the folder (hopefully dumping memory caches)
@@ -471,7 +471,7 @@ add_task(async function compactUnder4GiB() {
   // Bug 894012: size of messages to expunge is now higher than 4GB.
   // Only the small 1MiB message remains.
   Assert.equal(gInbox.expungedBytes, sizeToExpunge);
-  Assert.ok(sizeToExpunge > kSizeLimit);
+  Assert.greater(sizeToExpunge, kSizeLimit);
 
   // Note: compact() will also add 'X-Mozilla-Status' and 'X-Mozilla-Status2'
   // lines to message(s).
@@ -487,7 +487,7 @@ add_task(async function compactUnder4GiB() {
   const localInboxSize = gInbox.filePath.clone().fileSize;
   info("Local inbox size (after compact 2) = " + localInboxSize);
   Assert.equal(gInbox.sizeOnDisk, localInboxSize);
-  Assert.ok(localInboxSize < kSparseBlockSize + 1000);
+  Assert.less(localInboxSize, kSparseBlockSize + 1000);
   // ... i.e., that we just have one message.
   Assert.equal(gInbox.getTotalMessages(false), 1);
   Assert.equal(FListener.sizeHistory(0), gInbox.sizeOnDisk);

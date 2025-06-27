@@ -891,20 +891,24 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   Assert.equal(childImages.length, 2, "Should have two images in the doc.");
 
   // Check both images.
-  Assert.ok(
-    childImages[0].naturalHeight > 0,
+  Assert.greater(
+    childImages[0].naturalHeight,
+    0,
     "Loading of image #0 should not be blocked (and have height)"
   );
-  Assert.ok(
-    childImages[0].naturalWidth > 0,
+  Assert.greater(
+    childImages[0].naturalWidth,
+    0,
     "Loading of image #0 should not be blocked (and have width)"
   );
-  Assert.ok(
-    childImages[1].naturalHeight > 0,
+  Assert.greater(
+    childImages[1].naturalHeight,
+    0,
     "Loading of image #1 should not be blocked (and have height)"
   );
-  Assert.ok(
-    childImages[1].naturalWidth > 0,
+  Assert.greater(
+    childImages[1].naturalWidth,
+    0,
     "Loading of image #1 should not be blocked (and have width)"
   );
 

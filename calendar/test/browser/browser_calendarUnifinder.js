@@ -77,8 +77,9 @@ add_task(async function testOpenEvent() {
 
     const dialogWindow = await dialogWindowPromise;
     const docUri = dialogWindow.document.documentURI;
-    Assert.ok(
-      docUri === "chrome://calendar/content/calendar-summary-dialog.xhtml",
+    Assert.strictEqual(
+      docUri,
+      "chrome://calendar/content/calendar-summary-dialog.xhtml",
       "event summary dialog should have opened"
     );
 

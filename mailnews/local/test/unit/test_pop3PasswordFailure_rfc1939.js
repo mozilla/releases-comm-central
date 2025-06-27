@@ -156,7 +156,7 @@ add_task(function endTest() {
 function alertPS(parent, aDialogText, aText) {
   // The first few attempts may prompt about the password problem, the last
   // attempt shouldn't.
-  Assert.ok(attempt < 4);
+  Assert.less(attempt, 4);
 
   // Log the fact we've got an alert, but we don't need to test anything here.
   info("Alert Title: " + aDialogText + "\nAlert Text: " + aText);

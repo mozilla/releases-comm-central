@@ -163,8 +163,8 @@ function find_private_element(aTab) {
   const elem = aTab.browser.contentDocument.querySelector(
     "#accounts-table td.data-private~td.data-private"
   );
-  Assert.ok(elem != null);
-  Assert.ok(elem.textContent.length > 0);
+  Assert.notEqual(elem, null);
+  Assert.greater(elem.textContent.length, 0);
   Assert.equal(get_content_tab_element_display(aTab, elem), "none");
   return elem;
 }
@@ -208,8 +208,9 @@ add_task(async function test_display_about_support() {
   ]; // some tables may be empty
   for (const table of tables) {
     if (!emptyTables.includes(table.id)) {
-      Assert.ok(
-        table.querySelectorAll("tr").length > 0,
+      Assert.greater(
+        table.querySelectorAll("tr").length,
+        0,
         "Troubleshooting table '" + table.id + "' is empty!"
       );
     }
@@ -221,13 +222,15 @@ add_task(async function test_display_about_support() {
     "prefs-user-js-section"
   );
   Assert.ok(userjsElem.hasChildNodes);
-  Assert.ok(
+  Assert.equal(
     tab.browser.contentDocument.defaultView.getComputedStyle(userjsElem)
-      .display == "block"
+      .display,
+    "block"
   );
-  Assert.ok(
+  Assert.equal(
     tab.browser.contentDocument.defaultView.getComputedStyle(userjsElem)
-      .visibility == "visible"
+      .visibility,
+    "visible"
   );
 
   close_tab(tab);

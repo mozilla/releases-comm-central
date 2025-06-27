@@ -80,8 +80,9 @@ add_task(async function testHorizontalScroll() {
     "The tree table and the parent container should have the same width"
   );
 
-  Assert.ok(
-    about3Pane.document.getElementById("dateCol").dataset.resizable == "false",
+  Assert.equal(
+    about3Pane.document.getElementById("dateCol").dataset.resizable,
+    "false",
     "The last column shouldn't be resizable"
   );
   Assert.ok(
@@ -113,8 +114,9 @@ add_task(async function testHorizontalScroll() {
     "The tree table should grow past its parent width"
   );
 
-  Assert.ok(
-    about3Pane.document.getElementById("dateCol").dataset.resizable == "true",
+  Assert.equal(
+    about3Pane.document.getElementById("dateCol").dataset.resizable,
+    "true",
     "The last column should be resizable"
   );
   Assert.ok(

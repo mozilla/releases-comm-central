@@ -39,9 +39,9 @@ add_task(function check() {
   const gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
     Ci.nsIMsgDBService
   );
-  Assert.ok(gDbService.cachedDBForFolder(IMAPPump.inbox) !== null);
-  Assert.ok(gDbService.cachedDBForFolder(gFolder1) === null);
-  Assert.ok(gDbService.cachedDBForFolder(gFolder2) === null);
+  Assert.notStrictEqual(gDbService.cachedDBForFolder(IMAPPump.inbox), null);
+  Assert.strictEqual(gDbService.cachedDBForFolder(gFolder1), null);
+  Assert.strictEqual(gDbService.cachedDBForFolder(gFolder2), null);
 });
 
 add_task(function endTest() {

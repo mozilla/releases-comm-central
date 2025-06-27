@@ -78,7 +78,7 @@ function checkOfflineStore(prevOfflineStoreSize) {
   }
   // check that the offline store shrunk by at least 100 bytes.
   // (exact calculation might be fragile).
-  Assert.ok(prevOfflineStoreSize > IMAPPump.inbox.filePath.fileSize + 100);
+  Assert.greater(prevOfflineStoreSize, IMAPPump.inbox.filePath.fileSize + 100);
 }
 
 add_setup(function () {

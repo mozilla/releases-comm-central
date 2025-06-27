@@ -887,7 +887,7 @@ add_task(async function testMultipleListeners() {
   await messagesInOutbox(1);
 
   const outboxMessages = [...gOutbox.messages];
-  Assert.ok(outboxMessages.length > 0);
+  Assert.greater(outboxMessages.length, 0);
   const sentMessage = outboxMessages.shift();
   Assert.equal(
     sentMessage.subject,
@@ -900,7 +900,7 @@ add_task(async function testMultipleListeners() {
     "recipient was changed"
   );
 
-  Assert.ok(outboxMessages.length == 0);
+  Assert.equal(outboxMessages.length, 0);
 
   await new Promise(resolve => {
     gOutbox.deleteMessages(

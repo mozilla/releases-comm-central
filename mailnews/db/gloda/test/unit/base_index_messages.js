@@ -616,7 +616,7 @@ function verify_attributes_fundamental(smsg, gmsg) {
         Assert.equal(attInfos[k], expectedInfos[i][k]);
       }
       // Because it's unreliable and depends on the platform.
-      Assert.ok(Math.abs(attInfos.size - expectedSize) <= 2);
+      Assert.lessOrEqual(Math.abs(attInfos.size - expectedSize), 2);
       // Check that the attachment URLs are correct.
       const channel = NetUtil.newChannel({
         uri: attInfos.url,

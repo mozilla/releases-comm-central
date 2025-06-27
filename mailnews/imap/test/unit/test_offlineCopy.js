@@ -203,7 +203,7 @@ var tests = [
   function moveMessagesToSubfolder() {
     const db = IMAPPump.inbox.msgDatabase;
     const messages = [...db.enumerateMessages()];
-    Assert.ok(messages.length > 0);
+    Assert.greater(messages.length, 0);
     // this is sync, I believe?
     MailServices.copy.copyMessages(
       IMAPPump.inbox,
@@ -216,7 +216,7 @@ var tests = [
     );
 
     // the inbox should now be empty
-    Assert.ok([...db.enumerateMessages()].length == 0);
+    Assert.equal([...db.enumerateMessages()].length, 0);
 
     // maildir should also delete the files.
     if (IMAPPump.inbox.msgStore.storeType == "maildir") {

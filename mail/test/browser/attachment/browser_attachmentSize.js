@@ -283,8 +283,9 @@ function check_attachment_size(index, expectedSize) {
 
   // First, let's check that the attachment size is correct
   const size = node.attachment.size;
-  Assert.ok(
-    Math.abs(size - expectedSize) <= epsilon,
+  Assert.lessOrEqual(
+    Math.abs(size - expectedSize),
+    epsilon,
     `Attachment "${node.attachment.name}" size should be within ${epsilon} ` +
       `of ${expectedSize} (actual: ${size})`
   );
@@ -354,8 +355,9 @@ function check_total_attachment_size(count, expectedSize, exact) {
     }
   }
 
-  Assert.ok(
-    Math.abs(size - expectedSize) <= epsilon * count,
+  Assert.lessOrEqual(
+    Math.abs(size - expectedSize),
+    epsilon * count,
     `Total attachments size should be within ${epsilon * count} ` +
       `of ${expectedSize} (actual: ${size})`
   );

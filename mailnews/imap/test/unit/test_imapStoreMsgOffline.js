@@ -219,7 +219,10 @@ add_task(async function firstStreamFinished() {
   await listener.promise;
 });
 add_task(function checkOfflineStoreSize() {
-  Assert.ok(IMAPPump.inbox.filePath.fileSize <= gImapInboxOfflineStoreSize);
+  Assert.lessOrEqual(
+    IMAPPump.inbox.filePath.fileSize,
+    gImapInboxOfflineStoreSize
+  );
 });
 
 add_task(function endTest() {

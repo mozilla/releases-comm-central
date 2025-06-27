@@ -89,14 +89,15 @@ add_task(async function test_open_draft_again() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
 
-  Assert.ok(
-    Services.ww.activeWindow == cwc,
+  Assert.equal(
+    Services.ww.activeWindow,
+    cwc,
     "the original draft composition window should have got focus (again)"
   );
 
   const cwins2 = [...Services.wm.getEnumerator("msgcompose")].length;
 
-  Assert.ok(cwins2 > 0, "No compose window open!");
+  Assert.greater(cwins2, 0, "No compose window open!");
   Assert.equal(cwins, cwins2, "The number of compose windows changed!");
 
   // Type something and save, then check that we only have one draft.

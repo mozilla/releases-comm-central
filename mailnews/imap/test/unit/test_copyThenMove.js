@@ -186,9 +186,9 @@ add_task(function verifyFolders() {
   const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
   Assert.equal(folderCount(folder1), 2);
   const folder2 = IMAPPump.inbox.getChildNamed("empty 2");
-  Assert.ok(folder2 !== null);
+  Assert.notStrictEqual(folder2, null);
   // folder 1 and 2 should each now have two messages in them.
-  Assert.ok(folder1 !== null);
+  Assert.notStrictEqual(folder1, null);
   Assert.equal(folderCount(folder2), 2);
   // The local inbox folder should now be empty, since the second
   // operation was a move.

@@ -25,7 +25,7 @@ function run_test() {
 
   // Test - Check to see there is only one element in the server list
   smtpServers = outgoingServerService.servers;
-  Assert.ok(smtpServers.length == 1);
+  Assert.equal(smtpServers.length, 1);
 
   // Test - Find the server in different ways
   Assert.equal(
@@ -47,7 +47,7 @@ function run_test() {
   outgoingServerService.deleteServer(smtpServer);
 
   smtpServers = outgoingServerService.servers;
-  Assert.ok(smtpServers.length == 0);
+  Assert.equal(smtpServers.length, 0);
 
   // Test - add multiple servers
 
@@ -125,5 +125,5 @@ function run_test() {
   }
 
   smtpServers = outgoingServerService.servers;
-  Assert.ok(smtpServers.length == 0);
+  Assert.equal(smtpServers.length, 0);
 }

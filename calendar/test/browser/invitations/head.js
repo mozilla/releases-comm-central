@@ -791,14 +791,14 @@ async function doExceptionOnlyTest(conf) {
   const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 5, 1)).item;
 
   // Exceptions are still created as recurring events.
-  Assert.ok(event != event.parentItem, "event created is a recurring event");
+  Assert.notEqual(event, event.parentItem, "event created is a recurring event");
   const occurrences = event.parentItem.recurrenceInfo.getOccurrences(
     cal.createDateTime("10000101"),
     cal.createDateTime("30000101"),
     Infinity
   );
   Assert.equal(occurrences.length, 1, "parent item only has one occurrence");
-  Assert.ok(occurrences[0] == event, "occurrence is the event exception");
+  Assert.equal(occurrences[0], event, "occurrence is the event exception");
 
   info("Verifying relevant properties of the event");
   compareProperties(event, {

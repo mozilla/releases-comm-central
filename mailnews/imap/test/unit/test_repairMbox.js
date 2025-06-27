@@ -46,8 +46,9 @@ add_task(async function testRepairOkMbox() {
   await repairMbox(gRepairPath);
 
   const dataAfter = await IOUtils.read(gRepairPath);
-  Assert.ok(
-    JSON.stringify(data) == JSON.stringify(dataAfter),
+  Assert.equal(
+    JSON.stringify(data),
+    JSON.stringify(dataAfter),
     "data should not be changed"
   );
   await IOUtils.remove(gRepairPath);
@@ -63,7 +64,7 @@ add_task(async function testStraddledCR() {
   const data = await IOUtils.read(gRepairPath);
   Assert.equal(data.length, testData.length, "data length should not change");
   // The CR was last in file. Would get converted.
-  Assert.ok(data.at(-1) === 0x0a, "should have converted last CR to LF");
+  Assert.strictEqual(data.at(-1), 0x0a, "should have converted last CR to LF");
 
   const idx = testData.length;
   await IOUtils.write(gRepairPath, testData);
@@ -72,8 +73,8 @@ add_task(async function testStraddledCR() {
   // We now have a LF first in the next chunk.
   await repairMbox(gRepairPath);
   const data2 = await IOUtils.read(gRepairPath);
-  Assert.ok(data2.at(idx - 1) === 0x0d, "should keep straddled CR");
-  Assert.ok(data2.at(-1) === 0x0a, "should have converted last CR to LF");
+  Assert.strictEqual(data2.at(idx - 1), 0x0d, "should keep straddled CR");
+  Assert.strictEqual(data2.at(-1), 0x0a, "should have converted last CR to LF");
 
   await IOUtils.remove(gRepairPath);
 });

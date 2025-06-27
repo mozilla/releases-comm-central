@@ -32,14 +32,14 @@ function run_test() {
 
   // Test - Check that a null string succeeds and does not
   // return a card (bug 404264)
-  Assert.ok(AB.cardForEmailAddress(null) == null);
+  Assert.equal(AB.cardForEmailAddress(null), null);
 
   // Test - Check that an empty string succeeds and does not
   // return a card (bug 404264)
-  Assert.ok(AB.cardForEmailAddress("") == null);
+  Assert.equal(AB.cardForEmailAddress(""), null);
 
   // Test - Check that we don't match an email that doesn't exist
-  Assert.ok(AB.cardForEmailAddress("nocard@this.email.invalid") == null);
+  Assert.equal(AB.cardForEmailAddress("nocard@this.email.invalid"), null);
 
   // Test - Check that we match this email and some of the fields
   // of the card are correct.

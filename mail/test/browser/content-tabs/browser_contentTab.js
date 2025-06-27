@@ -100,7 +100,11 @@ add_task(async function test_spellcheck_in_content_tabs() {
   );
   await BrowserTestUtils.waitForPopupEvent(browserContext, "shown");
   let suggestions = document.getElementsByClassName("spell-suggestion");
-  Assert.ok(suggestions.length > 0, "What, is zombocom a registered word now?");
+  Assert.greater(
+    suggestions.length,
+    0,
+    "What, is zombocom a registered word now?"
+  );
   const addToDict = document.getElementById(
     "browserContext-spell-add-to-dictionary"
   );
@@ -123,7 +127,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
   );
   await BrowserTestUtils.waitForPopupEvent(browserContext, "shown");
   suggestions = document.getElementsByClassName("spell-suggestion");
-  Assert.ok(suggestions.length == 0, "But I just taught you this word!");
+  Assert.equal(suggestions.length, 0, "But I just taught you this word!");
   await close_popup(window, browserContext);
 });
 

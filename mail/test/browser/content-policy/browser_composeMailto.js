@@ -113,12 +113,14 @@ add_task(async function test_checkInsertImage() {
   await TestUtils.waitForCondition(() => childImages[0].complete);
 
   // Should be the only image, so just check the first.
-  Assert.ok(
-    childImages[0].naturalHeight > 0,
+  Assert.greater(
+    childImages[0].naturalHeight,
+    0,
     "Loading of image (naturalHeight) in a compose window should work"
   );
-  Assert.ok(
-    childImages[0].naturalWidth > 0,
+  Assert.greater(
+    childImages[0].naturalWidth,
+    0,
     "Loading of image (naturalWidth) in a compose window should work"
   );
 });

@@ -734,7 +734,7 @@ add_task(async function test_add_photo_carddav3() {
 
   // Check the card we sent.
   let photoProp = card1.vCardProperties.getFirstEntry("photo");
-  Assert.ok(card1.vCardProperties.designSet === ICAL.design.vcard3);
+  Assert.strictEqual(card1.vCardProperties.designSet, ICAL.design.vcard3);
   Assert.ok(photoProp);
   Assert.equal(photoProp.params.encoding, "B");
   Assert.equal(photoProp.type, "binary");
@@ -744,7 +744,7 @@ add_task(async function test_add_photo_carddav3() {
   // the photo will be removed and this will fail.
   const [card2] = await updatedPromise;
   photoProp = card2.vCardProperties.getFirstEntry("photo");
-  Assert.ok(card2.vCardProperties.designSet === ICAL.design.vcard3);
+  Assert.strictEqual(card2.vCardProperties.designSet, ICAL.design.vcard3);
   Assert.ok(photoProp);
   Assert.equal(photoProp.params.encoding, "B");
   Assert.equal(photoProp.type, "binary");
@@ -824,7 +824,7 @@ add_task(async function test_add_photo_carddav4() {
 
   // Check the card we sent.
   let photoProp = card1.vCardProperties.getFirstEntry("photo");
-  Assert.ok(card1.vCardProperties.designSet === ICAL.design.vcard);
+  Assert.strictEqual(card1.vCardProperties.designSet, ICAL.design.vcard);
   Assert.ok(photoProp);
   Assert.equal(photoProp.params.encoding, undefined);
   Assert.equal(photoProp.type, "uri");
@@ -833,7 +833,7 @@ add_task(async function test_add_photo_carddav4() {
   // Check the card we received from the server.
   const [card2] = await updatedPromise;
   photoProp = card2.vCardProperties.getFirstEntry("photo");
-  Assert.ok(card2.vCardProperties.designSet === ICAL.design.vcard);
+  Assert.strictEqual(card2.vCardProperties.designSet, ICAL.design.vcard);
   Assert.ok(photoProp);
   Assert.equal(photoProp.params.encoding, undefined);
   Assert.equal(photoProp.type, "uri");

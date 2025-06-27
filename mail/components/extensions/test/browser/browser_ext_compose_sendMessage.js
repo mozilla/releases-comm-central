@@ -523,7 +523,7 @@ add_task(async function test_sendLater() {
   extension.onMessage("checkMessagesInOutbox", async expected => {
     // Check if the sendLater request did put the message in the outbox.
     const outboxMessages = [...gOutbox.messages];
-    Assert.ok(outboxMessages.length == 1);
+    Assert.equal(outboxMessages.length, 1);
     const sentMessage = outboxMessages.shift();
     Assert.equal(sentMessage.subject, expected.subject, "subject is correct");
     Assert.equal(sentMessage.recipients, expected.to, "recipient is correct");

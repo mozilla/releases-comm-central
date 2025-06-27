@@ -60,7 +60,7 @@ gMFListener.prototype = {
     // I tried to test this by counting messages in the folder, didn't work.
     //  Maybe all updates are not completed yet. Anyway I do it by just
     //  making sure there is something in the destination array.
-    Assert.ok(aDestMsgs.length > 0);
+    Assert.greater(aDestMsgs.length, 0);
     this._resolveMsgsMoveCopyCompleted();
   },
 

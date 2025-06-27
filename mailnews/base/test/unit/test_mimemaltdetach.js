@@ -102,7 +102,7 @@ add_task(async function testDetach() {
   const checkFile = do_get_profile().clone();
   checkFile.append("head_update.txt");
   Assert.ok(checkFile.exists());
-  Assert.ok(checkFile.fileSize > 0);
+  Assert.greater(checkFile.fileSize, 0);
 
   // The message should now have a detached attachment. Read the message,
   //  and search for "AttachmentDetached" which is added on detachment.

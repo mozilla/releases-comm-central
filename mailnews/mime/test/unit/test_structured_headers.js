@@ -88,7 +88,7 @@ add_task(async function check_raw() {
   Assert.equal(headers.getRawHeader("Content-Description"), "A description!");
 
   Assert.ok(!headers.hasHeader("Subject"));
-  Assert.ok(headers.getUnstructuredHeader("Subject") === null);
+  Assert.strictEqual(headers.getUnstructuredHeader("Subject"), null);
   headers.setRawHeader("Subject", "=?UTF-8?B?56eB44Gv5Lu25ZCN5Y2I5YmN?=");
   Assert.equal(
     headers.getHeader("Subject"),

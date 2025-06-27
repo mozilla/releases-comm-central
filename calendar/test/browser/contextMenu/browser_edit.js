@@ -60,8 +60,9 @@ add_task(async function testEditEditableItem() {
     await BrowserTestUtils.waitForEvent(win, "load");
 
     const doc = win.document;
-    Assert.ok(
-      doc.documentURI == "chrome://calendar/content/calendar-event-dialog.xhtml",
+    Assert.equal(
+      doc.documentURI,
+      "chrome://calendar/content/calendar-event-dialog.xhtml",
       "editing event dialog opened"
     );
 
@@ -69,8 +70,9 @@ add_task(async function testEditEditableItem() {
     await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");
 
     const iframeDoc = iframe.contentDocument;
-    Assert.ok(
-      (iframeDoc.querySelector("#item-title").value = title),
+    Assert.strictEqual(
+      iframeDoc.querySelector("#item-title").value,
+      title,
       'context menu "Edit" item opens the editing dialog'
     );
     doc.querySelector("dialog").acceptDialog();

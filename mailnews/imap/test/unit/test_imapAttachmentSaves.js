@@ -111,7 +111,7 @@ add_task(async function startDetach() {
 
   // Get the message header - detached copy has UID 2.
   const msgHdr2 = IMAPPump.inbox.GetMessageHeader(2);
-  Assert.ok(msgHdr2 !== null);
+  Assert.notStrictEqual(msgHdr2, null);
   const messageContent = await getContentFromMessage(msgHdr2);
   Assert.ok(messageContent.includes("AttachmentDetached"));
 });

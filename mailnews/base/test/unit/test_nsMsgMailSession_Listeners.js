@@ -105,7 +105,7 @@ function NotifyMailSession() {
 }
 
 function run_test() {
-  Assert.ok(MailServices.mailSession != null);
+  Assert.notEqual(MailServices.mailSession, null);
 
   // Test - Add a listener
 

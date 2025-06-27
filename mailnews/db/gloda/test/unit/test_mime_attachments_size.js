@@ -369,13 +369,13 @@ function check_attachments(aMimeMsg, epsilon, checkTotalSize) {
    * in it, Unix or Windows, the count won't get past the bounds.
    */
 
-  Assert.ok(aMimeMsg.allUserAttachments.length > 0);
+  Assert.greater(aMimeMsg.allUserAttachments.length, 0);
 
   let totalSize = htmlText.length;
 
   for (const att of aMimeMsg.allUserAttachments) {
     dump("*** Attachment now is " + att.name + " " + att.size + "\n");
-    Assert.ok(Math.abs(att.size - originalTextByteCount) <= epsilon);
+    Assert.lessOrEqual(Math.abs(att.size - originalTextByteCount), epsilon);
     totalSize += att.size;
   }
 
@@ -384,7 +384,7 @@ function check_attachments(aMimeMsg, epsilon, checkTotalSize) {
     dump(
       "*** Total size comparison: " + totalSize + " vs " + aMimeMsg.size + "\n"
     );
-    Assert.ok(Math.abs(aMimeMsg.size - totalSize) <= epsilon);
+    Assert.lessOrEqual(Math.abs(aMimeMsg.size - totalSize), epsilon);
   }
 }
 
@@ -414,7 +414,7 @@ function check_bogus_parts(aMimeMsg, { epsilon, checkSize }) {
     // That's the total length that's to be returned by the MimeMessage abstraction.
     const totalSize = htmlText.length + partSize;
     dump(totalSize + " vs " + aMimeMsg.size + "\n");
-    Assert.ok(Math.abs(aMimeMsg.size - totalSize) <= epsilon);
+    Assert.lessOrEqual(Math.abs(aMimeMsg.size - totalSize), epsilon);
   }
 }
 

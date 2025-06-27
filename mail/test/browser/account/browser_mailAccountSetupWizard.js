@@ -508,7 +508,7 @@ async function remember_password_test(aPrefValue) {
   input_value(window, "testing");
 
   const rememberPassword = tabDocument.getElementById("rememberPassword");
-  Assert.ok(rememberPassword.disabled != aPrefValue);
+  Assert.notEqual(rememberPassword.disabled, aPrefValue);
   Assert.equal(rememberPassword.checked, aPrefValue);
 
   // Empty the password field.

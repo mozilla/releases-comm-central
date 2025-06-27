@@ -25,7 +25,7 @@ function compare_objects(real, expected) {
     b = uneval(expected);
   // Very long strings don't get printed out fully (unless they're wrong)
   if ((a.length > 100 || b.length > 100) && a == b) {
-    Assert.ok(a == b);
+    Assert.equal(a, b);
   } else {
     Assert.equal(a, b);
   }

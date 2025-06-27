@@ -33,7 +33,7 @@ function check_content(aWindow, aExpected, aDontWantToSee) {
     );
   } else {
     const ind = messageContent.indexOf(aExpected);
-    Assert.ok(ind >= 0, "Didn't find expected content");
+    Assert.greaterOrEqual(ind, 0, "Didn't find expected content");
     if (ind >= 0) {
       Assert.ok(
         !messageContent.substr(ind + aExpected.length).includes(aExpected),

@@ -90,8 +90,9 @@ add_task(async function test_forward_inline() {
   // forwarded message header
   const fMsgHdr = await select_click_row(0);
 
-  Assert.ok(
-    fMsgHdr.numReferences > 0,
+  Assert.greater(
+    fMsgHdr.numReferences,
+    0,
     "No References Header in forwarded msg."
   );
   Assert.equal(
@@ -132,12 +133,14 @@ add_task(async function test_forward_as_attachments() {
   // forwarded message header
   const fMsgHdr = await select_click_row(0);
 
-  Assert.ok(
-    fMsgHdr.numReferences > 0,
+  Assert.greater(
+    fMsgHdr.numReferences,
+    0,
     "No References Header in forwarded msg."
   );
-  Assert.ok(
-    fMsgHdr.numReferences > 1,
+  Assert.greater(
+    fMsgHdr.numReferences,
+    1,
     "Only one References Header in forwarded msg."
   );
   Assert.equal(

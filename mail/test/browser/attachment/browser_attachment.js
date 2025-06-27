@@ -264,9 +264,9 @@ add_task(async function test_long_attachment_name() {
   const messagepaneBox = aboutMessage.document.getElementById("messagepanebox");
   const attachmentBar = aboutMessage.document.getElementById("attachmentBar");
 
-  Assert.ok(
-    messagepaneBox.getBoundingClientRect().width >=
-      attachmentBar.getBoundingClientRect().width,
+  Assert.greaterOrEqual(
+    messagepaneBox.getBoundingClientRect().width,
+    attachmentBar.getBoundingClientRect().width,
     "Attachment bar has expanded off the edge of the window!"
   );
 });

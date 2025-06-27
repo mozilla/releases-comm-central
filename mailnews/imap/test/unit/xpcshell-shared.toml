@@ -35,6 +35,8 @@ tags = ["compact"]
 
 ["test_gmailOfflineMsgStore.js"]
 
+["test_ignoreSubscription.js"]
+
 ["test_imapAttachmentSaves.js"]
 
 ["test_imapAutoSync.js"]
@@ -97,8 +99,6 @@ skip-if = ["os == 'mac'"]
 ["test_lsub.js"]
 
 ["test_mailboxes.js"]
-
-["test_ignoreSubscription.js"]
 
 ["test_nsIMsgFolderListenerIMAP.js"]
 

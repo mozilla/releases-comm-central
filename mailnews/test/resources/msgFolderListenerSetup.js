@@ -313,7 +313,7 @@ function hasExactlyElements(array, elements) {
 // Verifies an event
 function verify(event) {
   // Check: make sure we actually have an item to process
-  Assert.ok(gExpectedEvents.length >= 1);
+  Assert.greaterOrEqual(gExpectedEvents.length, 1);
   var expected = gExpectedEvents.shift();
 
   // Check: events match.

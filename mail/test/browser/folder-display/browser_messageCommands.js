@@ -103,8 +103,9 @@ function check_read_status(messages, read) {
   }
 
   for (let i = 0; i < messages.length; i++) {
-    Assert.ok(
-      messages[i].isRead == read,
+    Assert.equal(
+      messages[i].isRead,
+      read,
       "Message marked as " +
         read_str(messages[i].isRead) +
         ", expected " +
@@ -134,15 +135,17 @@ async function check_read_menuitems(index, canMarkRead, canMarkUnread) {
     "#mailContext-markUnread"
   ).disabled;
 
-  Assert.ok(
-    readEnabled == canMarkRead,
+  Assert.equal(
+    readEnabled,
+    canMarkRead,
     "Mark read menu item " +
       (canMarkRead ? "dis" : "en") +
       "abled when it shouldn't be!"
   );
 
-  Assert.ok(
-    unreadEnabled == canMarkUnread,
+  Assert.equal(
+    unreadEnabled,
+    canMarkUnread,
     "Mark unread menu item " +
       (canMarkUnread ? "dis" : "en") +
       "abled when it shouldn't be!"

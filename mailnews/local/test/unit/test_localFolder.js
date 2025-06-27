@@ -31,7 +31,7 @@ function check_sub_folders(expected, actual) {
       }
     }
     // If index goes out of bounds, probably we didn't find the name.
-    Assert.ok(index < expected.length);
+    Assert.less(index, expected.length);
 
     const pluggableStore = actualFolder.msgStore;
     pluggableStore.discoverSubFolders(actualFolder, true);

@@ -213,8 +213,9 @@ async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
       `Footer "${footer.innerHTML}" should start with "Learn more about "`
     );
   } else {
-    Assert.ok(
-      footer.innerHTML == "",
+    Assert.equal(
+      footer.innerHTML,
+      "",
       `Footer should be empty if no serviceUrl is specified.`
     );
   }
@@ -262,8 +263,9 @@ async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
 
       for (const [fieldName, id] of Object.entries(expected)) {
         const element = urls[i].querySelector(id);
-        Assert.ok(
-          !!element == !!aUploads[i][fieldName],
+        Assert.equal(
+          !!element,
+          !!aUploads[i][fieldName],
           `The ${fieldName} should have been correctly added.`
         );
         if (aUploads[i][fieldName]) {

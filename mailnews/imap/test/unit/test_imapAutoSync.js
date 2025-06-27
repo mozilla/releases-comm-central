@@ -76,7 +76,7 @@ add_task(async function test_moveMessageToTargetFolder() {
   const observer = gAutoSyncManager.QueryInterface(Ci.nsIObserver);
   observer.observe(null, "mail:appIdle", "back");
   const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  Assert.ok(msgHdr !== null);
+  Assert.notStrictEqual(msgHdr, null);
 
   const listener = new PromiseTestUtils.PromiseCopyListener();
   // Now move this message to the target folder.

@@ -67,8 +67,9 @@ add_task(async function testGetDisplayedMessage() {
     return window.getComputedStyle(dateLabel).getPropertyValue("border-color");
   };
 
-  Assert.ok(
-    getDateLabelColor() != "rgb(255, 0, 0)",
+  Assert.notEqual(
+    getDateLabelColor(),
+    "rgb(255, 0, 0)",
     "Color should no have been modified yet"
   );
 

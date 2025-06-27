@@ -602,8 +602,8 @@ add_task(async function test_part12_not_an_attachment() {
 
   MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
     try {
-      Assert.ok(aMimeMsg.allUserAttachments.length == 0);
-      Assert.ok(aMimeMsg.allAttachments.length == 0);
+      Assert.equal(aMimeMsg.allUserAttachments.length, 0);
+      Assert.equal(aMimeMsg.allAttachments.length, 0);
     } catch (e) {
       do_throw(e);
     }

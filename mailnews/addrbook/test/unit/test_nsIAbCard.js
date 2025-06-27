@@ -24,7 +24,7 @@ function run_test() {
     }
   }
 
-  Assert.ok(fullCard != null);
+  Assert.notEqual(fullCard, null);
 
   // Test - VCard.
 

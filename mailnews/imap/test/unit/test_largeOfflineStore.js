@@ -117,7 +117,7 @@ add_task({ skip_if: () => !storageOk }, async function check_result() {
       offlineStoreSize +
       " Msg hdr offsets should be close to it.\n"
   );
-  Assert.ok(offlineStoreSize > gOfflineStoreSize);
+  Assert.greater(offlineStoreSize, gOfflineStoreSize);
 
   // Verify that the message headers have the offline flag set.
   for (const header of IMAPPump.inbox.msgDatabase.enumerateMessages()) {

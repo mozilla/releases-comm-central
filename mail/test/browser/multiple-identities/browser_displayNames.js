@@ -98,8 +98,9 @@ function ensure_single_identity() {
   if (localAccount.identities.length > 1) {
     localAccount.removeIdentity(secondIdentity);
   }
-  Assert.ok(
-    MailServices.accounts.allIdentities.length == 1,
+  Assert.equal(
+    MailServices.accounts.allIdentities.length,
+    1,
     "Expected 1 identity, but got " +
       MailServices.accounts.allIdentities.length +
       " identities"
@@ -110,8 +111,9 @@ function ensure_multiple_identities() {
   if (localAccount.identities.length == 1) {
     localAccount.addIdentity(secondIdentity);
   }
-  Assert.ok(
-    MailServices.accounts.allIdentities.length > 1,
+  Assert.greater(
+    MailServices.accounts.allIdentities.length,
+    1,
     "Expected multiple identities, but got only one identity"
   );
 }

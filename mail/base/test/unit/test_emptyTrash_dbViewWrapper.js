@@ -32,7 +32,7 @@ add_task(async function test_empty_trash() {
   await messageInjection.emptyTrash();
   verify_empty_view(viewWrapper);
 
-  Assert.ok(viewWrapper.displayedFolder !== null);
+  Assert.notStrictEqual(viewWrapper.displayedFolder, null);
 
   const [msgSet] = await messageInjection.makeNewSetsInFolders(
     [trashHandle],

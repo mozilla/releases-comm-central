@@ -74,7 +74,7 @@ var gTestArray = [
       );
     } catch (ex) {
       await promiseUrlListener.promise;
-      Assert.ok(ex.result == Cr.NS_ERROR_NOT_INITIALIZED);
+      Assert.equal(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
       return;
     }
 

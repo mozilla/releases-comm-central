@@ -122,13 +122,15 @@ async function yearly_archive(srcFolder, expectedSubfolderName = "") {
   const firstArchiveFolder = MailUtils.getOrCreateFolder(firstArchiveUri);
   const lastArchiveFolder = MailUtils.getOrCreateFolder(lastArchiveUri);
   await be_in_folder(firstArchiveFolder);
-  Assert.ok(
-    win.gDBView.getMsgHdrAt(0).messageId == firstMsgHdrMsgId,
+  Assert.equal(
+    win.gDBView.getMsgHdrAt(0).messageId,
+    firstMsgHdrMsgId,
     `Message should have been archived to ${firstArchiveUri}`
   );
   await be_in_folder(lastArchiveFolder);
-  Assert.ok(
-    win.gDBView.getMsgHdrAt(0).messageId == lastMsgHdrMsgId,
+  Assert.equal(
+    win.gDBView.getMsgHdrAt(0).messageId,
+    lastMsgHdrMsgId,
     `Message should have been archived to ${lastArchiveUri}`
   );
   await empty_folder(firstArchiveFolder);
@@ -182,13 +184,15 @@ async function monthly_archive(srcFolder, expectedSubfolderName = "") {
   const firstArchiveFolder = MailUtils.getOrCreateFolder(firstArchiveUri);
   const lastArchiveFolder = MailUtils.getOrCreateFolder(lastArchiveUri);
   await be_in_folder(firstArchiveFolder);
-  Assert.ok(
-    win.gDBView.getMsgHdrAt(0).messageId == firstMsgHdrMsgId,
+  Assert.equal(
+    win.gDBView.getMsgHdrAt(0).messageId,
+    firstMsgHdrMsgId,
     `Message should have been archived to ${firstArchiveUri}`
   );
   await be_in_folder(lastArchiveFolder);
-  Assert.ok(
-    win.gDBView.getMsgHdrAt(0).messageId == lastMsgHdrMsgId,
+  Assert.equal(
+    win.gDBView.getMsgHdrAt(0).messageId,
+    lastMsgHdrMsgId,
     `Message should have been archived to ${lastArchiveUri}`
   );
   await empty_folder(firstArchiveFolder);

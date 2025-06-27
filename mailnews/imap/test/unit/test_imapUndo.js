@@ -145,7 +145,7 @@ add_task(async function goBackToInbox() {
 
 add_task(function verifyFolders() {
   const msgRestored = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-  Assert.ok(msgRestored !== null);
+  Assert.notStrictEqual(msgRestored, null);
   Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 4);
 });
 
