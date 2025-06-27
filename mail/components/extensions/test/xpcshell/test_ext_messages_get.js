@@ -32,7 +32,7 @@ add_setup(async () => {
  * implementations, we don't compare exactly with a reference message.
  */
 add_task(async function test_plain_mv2() {
-  const _account = createAccount();
+  const _account = await createAccount();
   const _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
     "test1"
@@ -188,7 +188,7 @@ add_task(async function test_plain_mv2() {
 });
 
 add_task(async function test_plain_mv3() {
-  const _account = createAccount();
+  const _account = await createAccount();
   const _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
     "test1"
@@ -355,7 +355,7 @@ add_task(async function test_plain_mv3() {
  * Sizes are not checked for.
  */
 add_task(async function test_encoding() {
-  const _account = createAccount();
+  const _account = await createAccount();
   const _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
     "test1"
@@ -992,7 +992,7 @@ add_task(
     skip_if: () => IS_NNTP,
   },
   async function test_openpgp() {
-    const _account = createAccount();
+    const _account = await createAccount();
     const _identity = addIdentity(_account);
     const _folder = await createSubfolder(
       _account.incomingServer.rootFolder,
@@ -1237,7 +1237,7 @@ add_task(
 );
 
 add_task(async function test_attached_message_with_missing_headers() {
-  const _account = createAccount();
+  const _account = await createAccount();
   const _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
     "test1"
@@ -1318,7 +1318,7 @@ add_task(async function test_attached_message_with_missing_headers() {
 });
 
 add_task(async function test_get_deleted_messages() {
-  const _account = createAccount();
+  const _account = await createAccount();
   const _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
     "test1"

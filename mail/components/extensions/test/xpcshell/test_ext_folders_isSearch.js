@@ -12,7 +12,7 @@ var { VirtualFolderHelper } = ChromeUtils.importESModule(
 );
 
 add_task(async function test_folder_isVirtual() {
-  const account = createAccount();
+  const account = await createAccount();
   const rootFolder = account.incomingServer.rootFolder;
   const _testFolder1 = await createSubfolder(rootFolder, "testFolder1");
   const _testFolder2 = await createSubfolder(rootFolder, "testFolder2");

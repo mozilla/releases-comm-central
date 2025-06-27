@@ -83,7 +83,7 @@ add_setup(async () => {
 add_task(async function test_onNewMailReceived_default() {
   await AddonTestUtils.promiseStartupManager();
 
-  const account = createAccount();
+  const account = await createAccount();
   const inbox = await createSubfolder(
     account.incomingServer.rootFolder,
     "test1"
@@ -193,7 +193,7 @@ add_task(async function test_onNewMailReceived_default() {
 });
 
 add_task(async function test_onNewMailReceived_custom() {
-  const account = createAccount();
+  const account = await createAccount();
   const inbox = await createSubfolder(
     account.incomingServer.rootFolder,
     "test1"

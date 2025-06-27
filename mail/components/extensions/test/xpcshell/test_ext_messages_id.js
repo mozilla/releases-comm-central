@@ -15,7 +15,7 @@ add_task(
     skip_if: () => IS_NNTP,
   },
   async function setup() {
-    const account = createAccount();
+    const account = await createAccount();
     const rootFolder = account.incomingServer.rootFolder;
     gSubFolders = {
       test1: await createSubfolder(rootFolder, "test1"),

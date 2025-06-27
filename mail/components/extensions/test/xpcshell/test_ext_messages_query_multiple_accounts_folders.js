@@ -9,8 +9,8 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
 );
 
 add_task(async function test_query() {
-  const account1 = createAccount();
-  const account2 = createAccount("none");
+  const account1 = await createAccount();
+  const account2 = await createAccount("none");
 
   const subFolders = {
     test1: await createSubfolder(account1.incomingServer.rootFolder, "test1"),

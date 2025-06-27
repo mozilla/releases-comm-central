@@ -12,7 +12,7 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
 );
 
 add_setup(async () => {
-  const _account = createAccount();
+  const _account = await createAccount();
   const _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
     "test1"

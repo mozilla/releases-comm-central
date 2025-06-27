@@ -18,7 +18,7 @@ add_setup(async () => {
 });
 
 add_task(async function test_managers() {
-  const account = createAccount();
+  const account = await createAccount();
   const folder = await createSubfolder(
     account.incomingServer.rootFolder,
     "test1"

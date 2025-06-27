@@ -37,7 +37,7 @@ add_task(
   async function test_folders_MV3_event_pages() {
     await AddonTestUtils.promiseStartupManager();
 
-    const account = createAccount();
+    const account = await createAccount();
     const rootFolder = account.incomingServer.rootFolder;
     addIdentity(account, "id1@invalid");
 

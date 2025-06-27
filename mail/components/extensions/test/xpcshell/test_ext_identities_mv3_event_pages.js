@@ -19,7 +19,7 @@ add_setup(async () => {
 add_task(async function test_identities_MV3_event_pages() {
   await AddonTestUtils.promiseStartupManager();
 
-  const account1 = createAccount();
+  const account1 = await createAccount();
   addIdentity(account1, "id1@invalid");
 
   const files = {

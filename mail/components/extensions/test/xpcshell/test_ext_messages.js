@@ -18,7 +18,7 @@ add_setup(
     skip_if: () => IS_NNTP,
   },
   async function setup() {
-    account = createAccount();
+    account = await createAccount();
     rootFolder = account.incomingServer.rootFolder;
     subFolders = {
       test3: await createSubfolder(rootFolder, "test3"),
@@ -239,7 +239,7 @@ add_task(
     skip_if: () => IS_IMAP || IS_NNTP,
   },
   async function test_archive() {
-    const account2 = createAccount();
+    const account2 = await createAccount();
     addIdentity(account2);
     const inbox2 = await createSubfolder(
       account2.incomingServer.rootFolder,

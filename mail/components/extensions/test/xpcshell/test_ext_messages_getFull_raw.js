@@ -15,7 +15,7 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
  * Test requesting raw headers and content.
  */
 add_task(async function test_encoding() {
-  const _account = createAccount();
+  const _account = await createAccount();
   const _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
     "test1"

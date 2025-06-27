@@ -18,7 +18,7 @@ add_setup(async () => {
 });
 
 add_task(async function test_query() {
-  const account = createAccount();
+  const account = await createAccount();
 
   const textAttachment = {
     body: "textAttachment",

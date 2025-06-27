@@ -113,7 +113,7 @@ add_task(async function test_accounts_MV3_event_pages() {
     // Verify the primed persistent listeners.
     checkPersistentListeners({ primed: true });
 
-    const account = createAccount(details.type);
+    const account = await createAccount(details.type);
     details.account = account;
 
     {

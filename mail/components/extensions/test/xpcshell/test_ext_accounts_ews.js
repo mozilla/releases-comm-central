@@ -148,9 +148,7 @@ add_task(async function test_folders() {
     },
   });
 
-  // Note: The createAccount() function returns a Promise for EWS but not for the
-  // other account types. This is fine as long as we run a separate set of tests
-  // for EWS, but we must change all existing tests to expect a Promise here soon.
+  // Create an account.
   const account = await createAccount();
 
   // Create a folder.

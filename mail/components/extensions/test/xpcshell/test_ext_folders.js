@@ -322,7 +322,7 @@ add_task(
       },
     });
 
-    const account = createAccount();
+    const account = await createAccount();
     // Not all folders appear immediately on IMAP. Creating a new one causes them to appear.
     await createSubfolder(account.incomingServer.rootFolder, "unused");
 
@@ -365,7 +365,7 @@ add_task(
       },
     });
 
-    const account = createAccount();
+    const account = await createAccount();
     // Not all folders appear immediately on IMAP. Creating a new one causes them to appear.
     await createSubfolder(account.incomingServer.rootFolder, "unused");
 
@@ -694,7 +694,7 @@ add_task(
       },
     });
 
-    const account = createAccount();
+    const account = await createAccount();
 
     // Create a test folder with multiple levels of subFolders.
     const nestedRoot = await createSubfolder(
@@ -786,7 +786,7 @@ add_task(
       },
     });
 
-    const account = createAccount();
+    const account = await createAccount();
     // Not all folders appear immediately on IMAP. Creating a new one causes them to appear.
     await createSubfolder(account.incomingServer.rootFolder, "unused");
 
@@ -888,7 +888,7 @@ add_task(async function test_deny_folders_operations() {
     },
   });
 
-  const account = createAccount();
+  const account = await createAccount();
   await extension.startup();
   extension.sendMessage(account.key);
   await extension.awaitFinish("finished");

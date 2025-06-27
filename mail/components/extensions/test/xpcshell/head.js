@@ -52,7 +52,7 @@ function formatVCard(strings, ...values) {
   return outLines.join("");
 }
 
-function createAccount(type = "none", options = {}) {
+async function createAccount(type = "none", options = {}) {
   if (type == "local") {
     const localAccount = MailServices.accounts.createLocalMailAccount();
     info(`Created LOCAL account ${localAccount.toString()}`);
@@ -110,7 +110,7 @@ function createAccount(type = "none", options = {}) {
     // Wait for the folders list to finish being synchronised.
     // TODO: This code is copied from [1], think about using a shared module.
     // [1] https://searchfox.org/comm-central/source/mailnews/protocols/ews/test/unit/test_folder_sync.js#54-63
-    return TestUtils.waitForCondition(() => {
+    await TestUtils.waitForCondition(() => {
       // Folders are created in the order we give them to the EWS server in.
       // Therefore if the last one in the array has been created, we can safely
       // assume all of the folders have been correctly synchronised.
@@ -118,10 +118,10 @@ function createAccount(type = "none", options = {}) {
       return !!account.incomingServer.rootFolder.getChildNamed(
         lastFolder.displayName
       );
-    }, "waiting for subfolders to populate").then(() => {
-      info(`Created EWS account ${account.toString()}`);
-      return account;
-    });
+    }, "waiting for subfolders to populate");
+
+    info(`Created EWS account ${account.toString()}`);
+    return account;
   }
 
   throw new Error(`Unsupported account type: ${type}`);

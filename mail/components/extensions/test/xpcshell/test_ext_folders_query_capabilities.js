@@ -730,10 +730,10 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
 
   const startTime = new Date();
   const startTimeSeconds = Math.floor(startTime.getTime() / 1000);
-  const account = createAccount();
+  const account = await createAccount();
 
   // Add a second account to test query working across multiple accounts.
-  const localAccount = createAccount("local");
+  const localAccount = await createAccount("local");
   // Create a test folder with multiple levels of subFolders.
   const nestedRoot = await createSubfolder(
     localAccount.incomingServer.rootFolder,

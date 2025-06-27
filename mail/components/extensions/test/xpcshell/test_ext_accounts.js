@@ -286,11 +286,11 @@ add_task(async function test_accounts() {
   });
 
   await extension.startup();
-  const account1 = createAccount();
+  const account1 = await createAccount();
   extension.sendMessage(account1.key, account1.incomingServer.prettyName);
 
   await extension.awaitMessage("create account 2");
-  const account2 = createAccount("imap");
+  const account2 = await createAccount("imap");
   MailServices.accounts.defaultAccount = account2;
   extension.sendMessage(account2.key, account2.incomingServer.prettyName);
 
@@ -319,8 +319,8 @@ add_task(async function test_accounts() {
 });
 
 add_task(async function test_identities() {
-  const account1 = createAccount();
-  const account2 = createAccount("imap");
+  const account1 = await createAccount();
+  const account2 = await createAccount("imap");
   const identity1 = addIdentity(account1, "id1@invalid");
   const identity2 = addIdentity(account1, "id2@invalid");
   const identity3 = addIdentity(account1, "id3@invalid");
@@ -1085,7 +1085,7 @@ add_task(async function test_identities() {
 });
 
 add_task(async function test_identities_without_write_permissions() {
-  const account = createAccount();
+  const account = await createAccount();
   const identity0 = addIdentity(account, "id1@invalid");
 
   equal(account.defaultIdentity.key, identity0.key);
@@ -1130,7 +1130,7 @@ add_task(async function test_identities_without_write_permissions() {
 });
 
 add_task(async function test_accounts_events() {
-  const account1 = createAccount();
+  const account1 = await createAccount();
   addIdentity(account1, "id2@invalid");
 
   const files = {
@@ -1367,8 +1367,8 @@ add_task(async function test_accounts_events() {
     },
   });
 
-  extension.onMessage("createAccount", details => {
-    const account = createAccount(details.type);
+  extension.onMessage("createAccount", async details => {
+    const account = await createAccount(details.type);
     addIdentity(account, details.identity);
     extension.sendMessage(account.key);
   });

@@ -306,7 +306,7 @@ add_task(
       },
     });
 
-    const account = createAccount();
+    const account = await createAccount();
     // Not all folders appear immediately on IMAP. Creating a new one causes them to appear.
     await createSubfolder(account.incomingServer.rootFolder, "unused");
 
@@ -511,7 +511,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
 
   const startTime = new Date();
   const startTimeSeconds = Math.floor(startTime.getTime() / 1000);
-  const account = createAccount();
+  const account = await createAccount();
   // Not all folders appear immediately on IMAP. Creating a new one causes them
   // to appear.
   const InfoTestFolder = await createSubfolder(
@@ -630,7 +630,7 @@ add_task(
       },
     });
 
-    const account = createAccount();
+    const account = await createAccount();
     // Not all folders appear immediately on IMAP. Creating a new one causes them to appear.
     await createSubfolder(account.incomingServer.rootFolder, "unused");
 
@@ -853,7 +853,7 @@ add_task(
       },
     });
 
-    const account = createAccount();
+    const account = await createAccount();
     // Not all folders appear immediately on IMAP. Creating a new one causes them to appear.
     await createSubfolder(account.incomingServer.rootFolder, "unused");
 

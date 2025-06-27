@@ -93,7 +93,7 @@ add_task(
   async function test_update() {
     await AddonTestUtils.promiseStartupManager();
 
-    const account = createAccount();
+    const account = await createAccount();
     const rootFolder = account.incomingServer.rootFolder;
     const testFolder0 = await createSubfolder(rootFolder, "test0");
     await createMessages(testFolder0, 1);

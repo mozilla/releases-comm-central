@@ -22,7 +22,7 @@ add_setup(async () => {
 });
 
 add_task(async function test_import() {
-  const _account = createAccount();
+  const _account = await createAccount();
   await createSubfolder(_account.incomingServer.rootFolder, "test1-offline");
   await createSubfolder(_account.incomingServer.rootFolder, "test2-offline");
   await createSubfolder(_account.incomingServer.rootFolder, "test3-offline");

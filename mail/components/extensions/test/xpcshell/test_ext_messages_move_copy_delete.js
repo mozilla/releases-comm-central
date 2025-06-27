@@ -101,7 +101,7 @@ add_task(
   async function test_move_copy_delete() {
     await AddonTestUtils.promiseStartupManager();
 
-    const account = createAccount();
+    const account = await createAccount();
     const rootFolder = account.incomingServer.rootFolder;
     const subFolders = {
       test1: await createSubfolder(rootFolder, "test1"),
@@ -710,8 +710,8 @@ add_task(
   async function test_move_copy_delete_accross_accounts() {
     await AddonTestUtils.promiseStartupManager();
 
-    const imapAccount = createAccount("imap");
-    const pop3Account = createAccount("pop3");
+    const imapAccount = await createAccount("imap");
+    const pop3Account = await createAccount("pop3");
 
     const popRootFolder = pop3Account.incomingServer.rootFolder;
     const nativePopTestFolder = await createSubfolder(popRootFolder, "popTest");

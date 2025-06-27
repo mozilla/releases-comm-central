@@ -31,7 +31,7 @@ add_setup(async () => {
   // Prepare OpenPGP messages.
   await OpenPGPTestUtils.initOpenPGP();
 
-  const _account = createAccount();
+  const _account = await createAccount();
   const _identity = addIdentity(_account);
   const [id] = await OpenPGPTestUtils.importPrivateKey(
     null,

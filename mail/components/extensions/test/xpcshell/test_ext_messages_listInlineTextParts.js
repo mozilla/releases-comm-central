@@ -25,7 +25,7 @@ const OPENPGP_KEY_PATH = PathUtils.join(
 add_setup(async () => {
   await OpenPGPTestUtils.initOpenPGP();
 
-  const _account = createAccount();
+  const _account = await createAccount();
   const _identity = addIdentity(_account);
   const _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
