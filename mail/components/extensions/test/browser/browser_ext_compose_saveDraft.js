@@ -110,9 +110,9 @@ async function runTest(testConfig) {
       for (let i = 0; i < 5; i++) {
         allDetails.push({
           to: [`test${i}@test.invalid`],
-          subject: `Test${i} save as ${config.expected.mode}`,
+          subject: `Test${i} save as ${config.config.mode}`,
           additionalFccFolder:
-            config.expected.fcc.length > 1 ? fccFolder : undefined,
+            config.config.fcc.length > 1 ? fccFolder : undefined,
         });
       }
 
@@ -282,6 +282,10 @@ async function runTest(testConfig) {
 add_task(async function test_default() {
   await runTest({
     mode: null,
+    config: {
+      mode: "draft",
+      fcc: ["Drafts"],
+    },
     expected: {
       mode: "draft",
       fcc: ["Drafts"],
@@ -293,6 +297,11 @@ add_task(async function test_default() {
 add_task(async function test_default_with_additional_fcc() {
   await runTest({
     mode: null,
+    config: {
+      mode: "draft",
+      fcc: ["Drafts", "Fcc"],
+    },
+    // Since Bug 279366 the additional fcc folder is ignored while saving drafts.
     expected: {
       mode: "draft",
       fcc: ["Drafts"],
@@ -304,6 +313,10 @@ add_task(async function test_default_with_additional_fcc() {
 add_task(async function test_saveAsDraft() {
   await runTest({
     mode: { mode: "draft" },
+    config: {
+      mode: "draft",
+      fcc: ["Drafts"],
+    },
     expected: {
       mode: "draft",
       fcc: ["Drafts"],
@@ -315,6 +328,11 @@ add_task(async function test_saveAsDraft() {
 add_task(async function test_saveAsDraft_with_additional_fcc() {
   await runTest({
     mode: { mode: "draft" },
+    config: {
+      mode: "draft",
+      fcc: ["Drafts", "Fcc"],
+    },
+    // Since Bug 279366 the additional fcc folder is ignored while saving drafts.
     expected: {
       mode: "draft",
       fcc: ["Drafts"],

@@ -148,9 +148,9 @@ async function runTest(mainConfig) {
       for (let i = 0; i < 5; i++) {
         allDetails.push({
           to: [`test${i}@test.invalid`],
-          subject: `Test${i} save as ${config.expected.mode}`,
+          subject: `Test${i} save as ${config.config.mode}`,
           additionalFccFolder:
-            config.expected.fcc.length > 1 ? fccFolder : undefined,
+            config.config.fcc.length > 1 ? fccFolder : undefined,
         });
       }
 
@@ -320,6 +320,10 @@ async function runTest(mainConfig) {
 add_task(async function test_saveAsTemplate() {
   await runTest({
     mode: { mode: "template" },
+    config: {
+      mode: "template",
+      fcc: ["Templates"],
+    },
     expected: {
       mode: "template",
       fcc: ["Templates"],
@@ -331,6 +335,11 @@ add_task(async function test_saveAsTemplate() {
 add_task(async function test_saveAsTemplate_with_additional_fcc() {
   await runTest({
     mode: { mode: "template" },
+    config: {
+      mode: "template",
+      fcc: ["Templates", "Fcc"],
+    },
+    // Since Bug 279366 the additional fcc folder is ignored while saving templates.
     expected: {
       mode: "template",
       fcc: ["Templates"],

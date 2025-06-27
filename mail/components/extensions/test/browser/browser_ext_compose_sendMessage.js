@@ -84,6 +84,10 @@ add_setup(async () => {
   // Test is using the Sent folder and Outbox folder of the local account.
   const rootFolder = gLocalAccount.incomingServer.rootFolder;
   await createSubfolder(rootFolder, "Sent");
+
+  // Test using an additional fcc folder.
+  await createSubfolder(rootFolder, "FCC");
+
   MailServices.accounts.setSpecialFolders();
   gOutbox = rootFolder.getChildNamed("Unsent Messages");
 
@@ -151,7 +155,7 @@ add_task(async function test_fail() {
 
       await window.sendMessage("checkWindow", details);
 
-      const [qtab] = await browser.tabs.query({ windowId: createdWindow.id });
+      const [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
       browser.compose.onBeforeSend.addListener(() => {
         return { cancel: true };
@@ -159,14 +163,14 @@ add_task(async function test_fail() {
 
       // Add onAfterSend listener
       const collectedEventsMap = new Map();
-      function onAfterSendListener(tab, info) {
-        collectedEventsMap.set(tab.id, info);
+      function onAfterSendListener(sendingTab, info) {
+        collectedEventsMap.set(sendingTab.id, info);
       }
       browser.compose.onAfterSend.addListener(onAfterSendListener);
 
       // Send now. It should fail due to the aborting onBeforeSend listener.
       await browser.test.assertRejects(
-        browser.compose.sendMessage(qtab.id),
+        browser.compose.sendMessage(tab.id),
         /Send aborted by an onBeforeSend event/,
         "browser.compose.sendMessage() should reject, if the message could not be send."
       );
@@ -180,7 +184,7 @@ add_task(async function test_fail() {
       );
       browser.test.assertEq(
         "Send aborted by an onBeforeSend event",
-        collectedEventsMap.get(qtab.id).error,
+        collectedEventsMap.get(tab.id).error,
         "Should have received the correct error"
       );
 
@@ -215,12 +219,20 @@ add_task(async function test_fail() {
   await extension.unload();
 });
 
-add_task(async function test_send() {
+add_task(async function test_send_with_additional_fcc_and_onAfterSend() {
   const files = {
     "background.js": async () => {
+      const [fccFolder] = await browser.folders.query({ name: "FCC" });
+      browser.test.assertEq(
+        "FCC",
+        fccFolder.name,
+        "Folder should be found and have the correct name"
+      );
+
       const details = {
         to: ["send@test.invalid"],
         subject: "Test send",
+        additionalFccFolder: fccFolder,
       };
 
       // Open a compose window with a message.
@@ -231,18 +243,18 @@ add_task(async function test_send() {
 
       await window.sendMessage("checkWindow", details);
 
-      const [qtab] = await browser.tabs.query({ windowId: createdWindow.id });
+      const [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
       // Add onAfterSend listener
       const collectedEventsMap = new Map();
-      function onAfterSendListener(tab, info) {
-        collectedEventsMap.set(tab.id, info);
+      function onAfterSendListener(sendingTab, info) {
+        collectedEventsMap.set(sendingTab.id, info);
       }
       browser.compose.onAfterSend.addListener(onAfterSendListener);
 
       // Send now.
       const removedWindowPromise = window.waitForEvent("windows.onRemoved");
-      const rv = await browser.compose.sendMessage(qtab.id);
+      const rv = await browser.compose.sendMessage(tab.id);
       const [sentMessages] = await window.sendMessage("getSentMessages");
 
       browser.test.assertEq(
@@ -260,11 +272,6 @@ add_task(async function test_send() {
         rv.headerMessageId,
         "The headerMessageId of last message sent should be correct."
       );
-      browser.test.assertEq(
-        sentMessages[0],
-        rv.messages[0].headerMessageId,
-        "The headerMessageId in the copy of last message sent should be correct."
-      );
 
       // Window should have closed after send.
       await removedWindowPromise;
@@ -277,25 +284,53 @@ add_task(async function test_send() {
         "Should have received the correct number of onAfterSend events"
       );
       browser.test.assertTrue(
-        collectedEventsMap.has(qtab.id),
+        collectedEventsMap.has(tab.id),
         "The received event should belong to the correct tab."
       );
       browser.test.assertEq(
         "sendNow",
-        collectedEventsMap.get(qtab.id).mode,
+        collectedEventsMap.get(tab.id).mode,
         "The received event should have the correct mode."
       );
       browser.test.assertEq(
-        rv.headerMessageId,
-        collectedEventsMap.get(qtab.id).headerMessageId,
+        sentMessages[0],
+        collectedEventsMap.get(tab.id).headerMessageId,
         "The received event should have the correct headerMessageId."
       );
-      browser.test.assertEq(
-        rv.headerMessageId,
-        collectedEventsMap.get(qtab.id).messages[0].headerMessageId,
-        "The message in the received event should have the correct headerMessageId."
-      );
 
+      const EXPECTED_FOLDERS = ["Sent", "FCC"];
+      browser.test.assertEq(
+        EXPECTED_FOLDERS.length,
+        collectedEventsMap.get(tab.id).messages.length,
+        "[onAfterSend] number of send messages should be correct."
+      );
+      browser.test.assertEq(
+        EXPECTED_FOLDERS.length,
+        rv.messages.length,
+        "[messageSend()] number of send messages should be correct."
+      );
+      for (let i = 0; i < EXPECTED_FOLDERS.length; i++) {
+        browser.test.assertEq(
+          sentMessages[0],
+          collectedEventsMap.get(tab.id).messages[i].headerMessageId,
+          `[onAfterSend] message #${i + 1} should have the correct headerMessageId.`
+        );
+        browser.test.assertEq(
+          EXPECTED_FOLDERS[i],
+          collectedEventsMap.get(tab.id).messages[i].folder.name,
+          `[onAfterSend] message #${i + 1} should be stored in the correct folder.`
+        );
+        browser.test.assertEq(
+          sentMessages[0],
+          rv.messages[i].headerMessageId,
+          `[messageSend()] message #${i + 1} should have the correct headerMessageId.`
+        );
+        browser.test.assertEq(
+          EXPECTED_FOLDERS[i],
+          rv.messages[i].folder.name,
+          `[messageSend()] message #${i + 1} should be stored in the correct folder.`
+        );
+      }
       browser.test.notifyPass("finished");
     },
     "utils.js": await getUtilsJS(),
@@ -304,7 +339,7 @@ add_task(async function test_send() {
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose", "compose.send", "messagesRead"],
+      permissions: ["compose", "compose.send", "messagesRead", "accountsRead"],
     },
   });
 
@@ -342,7 +377,9 @@ add_task(async function test_sendDefault() {
 
       // Send via default mode, which should be sendNow.
       const removedWindowPromise = window.waitForEvent("windows.onRemoved");
-      const rv = await browser.compose.sendMessage(tab.id, { mode: "default" });
+      const rv = await browser.compose.sendMessage(tab.id, {
+        mode: "default",
+      });
       const [sentMessages] = await window.sendMessage("getSentMessages");
 
       browser.test.assertEq(
@@ -360,14 +397,28 @@ add_task(async function test_sendDefault() {
         rv.headerMessageId,
         "The headerMessageId of last message sent should be correct."
       );
-      browser.test.assertEq(
-        sentMessages[1],
-        rv.messages[0].headerMessageId,
-        "The headerMessageId in the copy of last message sent should be correct."
-      );
 
       // Window should have closed after send.
       await removedWindowPromise;
+
+      const EXPECTED_FOLDERS = ["Sent"];
+      browser.test.assertEq(
+        EXPECTED_FOLDERS.length,
+        rv.messages.length,
+        "[messageSend()] number of send messages should be correct."
+      );
+      for (let i = 0; i < EXPECTED_FOLDERS.length; i++) {
+        browser.test.assertEq(
+          sentMessages[1],
+          rv.messages[i].headerMessageId,
+          `[messageSend()] message #${i + 1} should have the correct headerMessageId.`
+        );
+        browser.test.assertEq(
+          EXPECTED_FOLDERS[i],
+          rv.messages[i].folder.name,
+          `[messageSend()] message #${i + 1} should be stored in the correct folder.`
+        );
+      }
 
       browser.test.notifyPass("finished");
     },
@@ -377,7 +428,7 @@ add_task(async function test_sendDefault() {
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose", "compose.send", "messagesRead"],
+      permissions: ["compose", "compose.send", "messagesRead", "accountsRead"],
     },
   });
 
@@ -434,14 +485,28 @@ add_task(async function test_sendNow() {
         rv.headerMessageId,
         "The headerMessageId of last message sent should be correct."
       );
-      browser.test.assertEq(
-        sentMessages[2],
-        rv.messages[0].headerMessageId,
-        "The headerMessageId in the copy of last message sent should be correct."
-      );
 
       // Window should have closed after send.
       await removedWindowPromise;
+
+      const EXPECTED_FOLDERS = ["Sent"];
+      browser.test.assertEq(
+        EXPECTED_FOLDERS.length,
+        rv.messages.length,
+        "[messageSend()] number of send messages should be correct."
+      );
+      for (let i = 0; i < EXPECTED_FOLDERS.length; i++) {
+        browser.test.assertEq(
+          sentMessages[2],
+          rv.messages[i].headerMessageId,
+          `[messageSend()] message #${i + 1} should have the correct headerMessageId.`
+        );
+        browser.test.assertEq(
+          EXPECTED_FOLDERS[i],
+          rv.messages[i].folder.name,
+          `[messageSend()] message #${i + 1} should be stored in the correct folder.`
+        );
+      }
 
       browser.test.notifyPass("finished");
     },
@@ -451,7 +516,7 @@ add_task(async function test_sendNow() {
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose", "compose.send", "messagesRead"],
+      permissions: ["compose", "compose.send", "messagesRead", "accountsRead"],
     },
   });
 
@@ -469,12 +534,20 @@ add_task(async function test_sendNow() {
   await extension.unload();
 });
 
-add_task(async function test_sendLater() {
+add_task(async function test_sendLater_with_additional_fcc_and_onAfterSend() {
   const files = {
     "background.js": async () => {
+      const [fccFolder] = await browser.folders.query({ name: "FCC" });
+      browser.test.assertEq(
+        "FCC",
+        fccFolder.name,
+        "Folder should be found and have the correct name"
+      );
+
       const details = {
         to: ["sendLater@test.invalid"],
         subject: "Test sendLater",
+        additionalFccFolder: fccFolder,
       };
 
       const createdWindowPromise = window.waitForEvent("windows.onCreated");
@@ -486,8 +559,14 @@ add_task(async function test_sendLater() {
 
       const [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
-      // Send Later.
+      // Add onAfterSend listener
+      const collectedEventsMap = new Map();
+      function onAfterSendListener(sendingTab, info) {
+        collectedEventsMap.set(sendingTab.id, info);
+      }
+      browser.compose.onAfterSend.addListener(onAfterSendListener);
 
+      // Send Later.
       const rv = await browser.compose.sendMessage(tab.id, {
         mode: "sendLater",
       });
@@ -501,11 +580,57 @@ add_task(async function test_sendLater() {
         rv.mode,
         "The mode of the last message operation should be correct."
       );
+
+      // Check onAfterSend listener
+      browser.compose.onAfterSend.removeListener(onAfterSendListener);
       browser.test.assertEq(
-        outboxMessage,
-        rv.messages[0].headerMessageId,
-        "The headerMessageId in the copy of last message sent should be correct."
+        1,
+        collectedEventsMap.size,
+        "Should have received the correct number of onAfterSend events"
       );
+      browser.test.assertTrue(
+        collectedEventsMap.has(tab.id),
+        "The received event should belong to the correct tab."
+      );
+      browser.test.assertEq(
+        "sendLater",
+        collectedEventsMap.get(tab.id).mode,
+        "The received event should have the correct mode."
+      );
+
+      const EXPECTED_FOLDERS = ["Outbox", "FCC"];
+      browser.test.assertEq(
+        EXPECTED_FOLDERS.length,
+        collectedEventsMap.get(tab.id).messages.length,
+        "[onAfterSend] number of send messages should be correct."
+      );
+      browser.test.assertEq(
+        EXPECTED_FOLDERS.length,
+        rv.messages.length,
+        "[messageSend()] number of send messages should be correct."
+      );
+      for (let i = 0; i < EXPECTED_FOLDERS.length; i++) {
+        browser.test.assertEq(
+          outboxMessage,
+          collectedEventsMap.get(tab.id).messages[i].headerMessageId,
+          `[onAfterSend] message #${i + 1} should have the correct headerMessageId.`
+        );
+        browser.test.assertEq(
+          EXPECTED_FOLDERS[i],
+          collectedEventsMap.get(tab.id).messages[i].folder.name,
+          `[onAfterSend] message #${i + 1} should be stored in the correct folder.`
+        );
+        browser.test.assertEq(
+          outboxMessage,
+          rv.messages[i].headerMessageId,
+          `[messageSend()] message #${i + 1} should have the correct headerMessageId.`
+        );
+        browser.test.assertEq(
+          EXPECTED_FOLDERS[i],
+          rv.messages[i].folder.name,
+          `[messageSend()] message #${i + 1} should be stored in the correct folder.`
+        );
+      }
 
       await window.sendMessage("clearMessagesInOutbox");
       browser.test.notifyPass("finished");

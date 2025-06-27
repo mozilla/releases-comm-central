@@ -486,7 +486,7 @@
                 "items": {
                   "$ref": "messages.MessageHeader"
                 },
-                "description": "The saved message(s). The number of saved messages depends on the applied file carbon copy configuration (fcc)."
+                "description": "An array with exactly one element, the saved message."
               }
             }
           }
@@ -987,7 +987,7 @@
                     "items": {
                       "$ref": "messages.MessageHeader"
                     },
-                    "description": "The saved message(s). The number of saved messages depends on the applied file carbon copy configuration (fcc)."
+                    "description": "An array with exactly one element, the saved message."
                   }
                 }
               }
