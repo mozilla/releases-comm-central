@@ -466,6 +466,8 @@ nsresult MessageDatabase::GetMessageProperties(
 nsresult MessageDatabase::GetMessageProperty(nsMsgKey aKey,
                                              const nsACString& aName,
                                              nsACString& aValue) {
+  MOZ_ASSERT(!aName.EqualsLiteral("keywords"));  // Use GetMessageTags().
+
   nsCOMPtr<mozIStorageStatement> stmt;
   nsresult rv = DatabaseCore::GetStatement(
       "GetMessageProperty"_ns,
@@ -513,6 +515,8 @@ nsresult MessageDatabase::GetMessageProperty(nsMsgKey aKey,
 nsresult MessageDatabase::SetMessageProperty(nsMsgKey aKey,
                                              const nsACString& aName,
                                              const nsACString& aValue) {
+  MOZ_ASSERT(!aName.EqualsLiteral("keywords"));  // Use SetMessageTags().
+
   nsCOMPtr<mozIStorageStatement> stmt;
   nsresult rv = DatabaseCore::GetStatement(
       "SetMessageProperty"_ns,
@@ -540,6 +544,37 @@ nsresult MessageDatabase::SetMessageProperty(nsMsgKey aKey,
   stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(aName));
   stmt->BindInt64ByName("value"_ns, aValue);
   return stmt->Execute();
+}
+
+nsresult MessageDatabase::GetMessageTags(nsMsgKey aKey, nsACString& aValue) {
+  RefPtr<Message> message;
+  MOZ_TRY(GetMessage(aKey, getter_AddRefs(message)));
+  aValue.Assign(message->mTags);
+  return NS_OK;
+}
+
+nsresult MessageDatabase::SetMessageTags(nsMsgKey aKey,
+                                         nsACString const& aValue) {
+  RefPtr<Message> message;
+  MOZ_TRY(GetMessage(aKey, getter_AddRefs(message)));
+
+  if (aValue == message->mTags) {
+    return NS_OK;
+  }
+
+  nsCOMPtr<mozIStorageStatement> stmt;
+  DatabaseCore::GetStatement(
+      "SetMessageTags"_ns, "UPDATE messages SET tags = :tags WHERE id = :id"_ns,
+      getter_AddRefs(stmt));
+
+  stmt->BindInt64ByName("id"_ns, message->mId);
+  stmt->BindUTF8StringByName("tags"_ns, aValue);
+  nsresult rv = stmt->Execute();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  message->mTags = aValue;
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP_(void)

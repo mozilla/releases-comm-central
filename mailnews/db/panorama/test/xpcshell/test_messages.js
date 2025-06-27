@@ -52,6 +52,10 @@ add_task(function () {
   Assert.equal(addedMessage.flags, 0);
   Assert.equal(addedMessage.getStringProperty("keywords"), "");
 
+  // Special case for tags/keywords: set via nsIMsgDBHdr.SetStringProperty(),
+  // but actually stored in the 'tags' column in 'messages'.
+  addedMessage.setStringProperty("keywords", "foo bar");
+
   // Check that we saved everything in the database.
 
   let stmt = database.connection.createStatement("SELECT * FROM messages");
@@ -68,7 +72,7 @@ add_task(function () {
   Assert.equal(stmt.row.bccList, addedMessage.bccList);
   Assert.equal(stmt.row.subject, addedMessage.subject);
   Assert.equal(stmt.row.flags, addedMessage.flags);
-  stmt.reset();
+  Assert.equal(stmt.row.tags, "foo bar"); // "keywords"
   stmt.finalize();
 
   stmt = database.connection.createStatement(
@@ -78,6 +82,11 @@ add_task(function () {
   Assert.equal(stmt.row.id, 1); // This is the first message added.
   Assert.equal(stmt.row.name, "storeToken");
   Assert.equal(stmt.row.value, "0");
-  stmt.reset();
+  Assert.equal(stmt.executeStep(), true);
+  Assert.equal(stmt.row.id, 1);
+  Assert.equal(stmt.row.name, "messageSize");
+  Assert.equal(stmt.row.value, 303);
+  Assert.equal(stmt.executeStep(), false); // no "keywords".
+
   stmt.finalize();
 });

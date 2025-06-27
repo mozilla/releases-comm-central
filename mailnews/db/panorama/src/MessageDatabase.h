@@ -79,6 +79,9 @@ class MessageDatabase : public nsIMessageDatabase {
   nsresult SetMessageProperty(nsMsgKey aKey, const nsACString& aName,
                               uint32_t aValue);
 
+  nsresult GetMessageTags(nsMsgKey aKey, nsACString& aValue);
+  nsresult SetMessageTags(nsMsgKey aKey, nsACString const& aValue);
+
  private:
   nsTObserverArray<RefPtr<MessageListener>> mMessageListeners;
 
