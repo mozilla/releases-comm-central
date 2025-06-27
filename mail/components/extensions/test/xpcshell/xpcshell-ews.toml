@@ -1,10 +1,10 @@
 [DEFAULT]
 dupe-manifest = true
-head = "head.js head-imap.js"
+head = "head.js head-ews.js"
 support-files = ["data/utils.js"]
 tags = [
-  "imap",
+  "ews",
   "webextensions",
 ]
 
-["include:xpcshell.toml"]
+["test_ext_accounts_ews.js"]

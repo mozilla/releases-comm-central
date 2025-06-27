@@ -7,7 +7,7 @@ tags = [
   "webextensions",
 ]
 
-["include:xpcshell.ini"]
+["include:xpcshell.toml"]
 
 ["test_ext_accounts.js"]
 

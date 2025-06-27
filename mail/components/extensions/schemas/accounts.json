@@ -82,12 +82,12 @@
           {
             "max_manifest_version": 2,
             "type": "string",
-            "enum": ["imap", "nntp", "none", "pop3", "rss"]
+            "enum": ["ews", "imap", "nntp", "none", "pop3", "rss"]
           },
           {
             "min_manifest_version": 3,
             "type": "string",
-            "enum": ["imap", "local", "nntp", "pop3", "rss"]
+            "enum": ["ews", "imap", "local", "nntp", "pop3", "rss"]
           }
         ]
       },

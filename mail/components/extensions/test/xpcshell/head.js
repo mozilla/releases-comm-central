@@ -22,6 +22,9 @@ var { nsMailServer } = ChromeUtils.importESModule(
 var { PromiseTestUtils: MailPromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 // Persistent Listener test functionality
 var { assertPersistentListeners } = ExtensionTestUtils.testAssertions;
@@ -30,6 +33,7 @@ ExtensionTestUtils.init(this);
 
 var IS_IMAP = false;
 var IS_NNTP = false;
+var IS_EWS = false;
 
 function formatVCard(strings, ...values) {
   const arr = [];
@@ -49,36 +53,78 @@ function formatVCard(strings, ...values) {
 }
 
 function createAccount(type = "none", options = {}) {
-  let account;
-
   if (type == "local") {
-    account = MailServices.accounts.createLocalMailAccount();
-  } else {
-    account = MailServices.accounts.createAccount();
-    account.incomingServer = MailServices.accounts.createIncomingServer(
-      `${account.key}user`,
-      "localhost",
-      type
-    );
+    const localAccount = MailServices.accounts.createLocalMailAccount();
+    info(`Created LOCAL account ${localAccount.toString()}`);
+    return localAccount;
+  }
+
+  const account = MailServices.accounts.createAccount();
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    `${account.key}user`,
+    "localhost",
+    type
+  );
+
+  if (["pop3", "none"].includes(type)) {
+    info(`Created account ${account.toString()}`);
+    return account;
   }
 
   if (type == "imap") {
-    const server = new IMAPServer(options);
-    server.open();
-    account.incomingServer.port = server.port;
+    const imapServer = new IMAPServer(options);
+    imapServer.open();
+    account.incomingServer.port = imapServer.port;
     account.incomingServer.username = "user";
     account.incomingServer.password = "password";
     const inbox = account.incomingServer.rootFolder.getChildNamed("INBOX");
     inbox.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter = "/";
-    gIMAPServers.set(account.incomingServer.key, server);
+    gIMAPServers.set(account.incomingServer.key, imapServer);
+    info(`Created IMAP account ${account.toString()}`);
+    return account;
   }
 
   if (type == "nntp") {
     NNTPServer.open();
     account.incomingServer.port = NNTPServer.port;
+    info(`Created NNTP account ${account.toString()}`);
+    return account;
   }
-  info(`Created account ${account.toString()}`);
-  return account;
+
+  if (type == "ews") {
+    const ewsServer = new EWSServer();
+    ewsServer.open();
+    account.incomingServer.port = ewsServer.port;
+    account.incomingServer.username = "user";
+    account.incomingServer.password = "password";
+    account.incomingServer.setStringValue(
+      "ews_url",
+      `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
+    );
+    account.incomingServer.getNewMessages(
+      account.incomingServer.rootFolder,
+      null,
+      null
+    );
+
+    // Wait for the folders list to finish being synchronised.
+    // TODO: This code is copied from [1], think about using a shared module.
+    // [1] https://searchfox.org/comm-central/source/mailnews/protocols/ews/test/unit/test_folder_sync.js#54-63
+    return TestUtils.waitForCondition(() => {
+      // Folders are created in the order we give them to the EWS server in.
+      // Therefore if the last one in the array has been created, we can safely
+      // assume all of the folders have been correctly synchronised.
+      const lastFolder = ewsServer.server.folders.at(-1);
+      return !!account.incomingServer.rootFolder.getChildNamed(
+        lastFolder.displayName
+      );
+    }, "waiting for subfolders to populate").then(() => {
+      info(`Created EWS account ${account.toString()}`);
+      return account;
+    });
+  }
+
+  throw new Error(`Unsupported account type: ${type}`);
 }
 
 function cleanUpAccount(account) {
@@ -87,6 +133,11 @@ function cleanUpAccount(account) {
   info(
     `Cleaning up ${serverType} account ${account.key} and server ${serverKey}`
   );
+
+  if (account.incomingServer.type == "ews") {
+    account.incomingServer.closeCachedConnections();
+  }
+
   MailServices.accounts.removeAccount(account, true);
 
   try {
@@ -307,3 +358,28 @@ var NNTPServer = {
     });
   },
 };
+
+class EWSServer {
+  constructor() {}
+
+  open() {
+    const { EwsServer } = ChromeUtils.importESModule(
+      "resource://testing-common/mailnews/EwsServer.sys.mjs"
+    );
+    this.server = new EwsServer();
+    this.server.start();
+    registerCleanupFunction(() => this.close());
+  }
+
+  close() {
+    this.server.stop();
+  }
+
+  get port() {
+    return this.server.port;
+  }
+
+  addMessages(_folder, _messages) {
+    // TODO.
+  }
+}

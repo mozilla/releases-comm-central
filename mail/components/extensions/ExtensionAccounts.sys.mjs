@@ -17,7 +17,7 @@ var { ExtensionError } = ExtensionUtils;
  */
 export function getMailAccounts() {
   return MailServices.accounts.accounts.filter(
-    account => !["im", "ews"].includes(account.incomingServer.type)
+    account => !["im"].includes(account.incomingServer.type)
   );
 }
 
@@ -42,8 +42,8 @@ export class AccountManager {
     const type = server.type;
 
     // Skip chat accounts which are currently not accessible through the accounts
-    // API. Also skip the preliminary Exchange accounts.
-    if (["im", "ews"].includes(type)) {
+    // API.
+    if (["im"].includes(type)) {
       return null;
     }
 
@@ -51,7 +51,7 @@ export class AccountManager {
       return this.extension.manifestVersion < 3 ? "none" : "local";
     }
 
-    if (["imap", "pop3", "nntp", "rss"].includes(type)) {
+    if (["imap", "pop3", "nntp", "rss", "ews"].includes(type)) {
       return type;
     }
 

@@ -7,6 +7,6 @@ tags = [
   "webextensions",
 ]
 
-["include:xpcshell.ini"]
+["include:xpcshell.toml"]
 
 ["test_ext_messages_query_online.js"]
