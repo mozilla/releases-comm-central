@@ -471,3 +471,20 @@ nsresult LocalCopyHeaders(nsIMsgDBHdr* sourceHeader,
 
   return NS_OK;
 }
+
+nsresult FoldersOnSameServer(nsIMsgFolder* folder1, nsIMsgFolder* folder2,
+                             bool* isSameServer) {
+  NS_ENSURE_ARG_POINTER(isSameServer);
+
+  nsCOMPtr<nsIMsgIncomingServer> server1;
+  nsresult rv = folder1->GetServer(getter_AddRefs(server1));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgIncomingServer> server2;
+  rv = folder2->GetServer(getter_AddRefs(server2));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  *isSameServer = server1 == server2;
+
+  return NS_OK;
+}

@@ -127,6 +127,16 @@ const MOVE_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
     </m:MoveItemResponse>
 ${EWS_SOAP_FOOT}`;
 
+const MOVE_FOLDER_RESPONSE_BASE = `${EWS_SOAP_HEAD}
+    <m:MoveFolderResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                        xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+      <m:ResponseMessages>
+      </m:ResponseMessages>
+    </m:MoveFolderResponse>
+${EWS_SOAP_FOOT}`;
+
 const GET_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
   <GetItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -472,6 +482,8 @@ export class EwsServer {
       resBytes = this.#generateCreateFolderResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("MoveItem").length) {
       resBytes = this.#generateMoveItemResponse(reqDoc);
+    } else if (reqDoc.getElementsByTagName("MoveFolder").length) {
+      resBytes = this.#generateMoveFolderResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("GetItem")) {
       resBytes = this.#generateGetItemResponse(reqDoc);
     } else {
@@ -792,64 +804,50 @@ export class EwsServer {
    * @param {XMLDocument} reqDoc
    */
   #generateMoveItemResponse(reqDoc) {
-    /**
-     * @type {Element}
-     */
-    const destinationFolderId = reqDoc
-      .getElementsByTagName("ToFolderId")[0]
-      .getElementsByTagName("t:FolderId")[0]
-      .getAttribute("Id");
-
-    const itemIds = [
-      ...reqDoc
-        .getElementsByTagName("ItemIds")[0]
-        .getElementsByTagName("t:ItemId"),
-    ].map(e => e.getAttribute("Id"));
-
-    itemIds.forEach(id => {
-      this.addItemToFolder(id, destinationFolderId);
-    });
-
-    const resDoc = this.#parser.parseFromString(
-      MOVE_ITEM_RESPONSE_BASE,
-      "text/xml"
+    const [destinationFolderId, itemIds] = extractMoveObjects(
+      reqDoc,
+      "ItemIds",
+      "t:ItemId"
     );
 
-    this.#setVersion(resDoc);
-
-    const responseMessagesEl =
-      resDoc.getElementsByTagName("m:ResponseMessages")[0];
-
-    // Response Message XML Structure:
-    //    <m:MoveItemResponseMessage ResponseClass="Success">
-    //      <m:ResponseCode>NoError</m:ResponseCode>
-    //      <m:Items>
-    //        <t:Message>
-    //          <t:ItemId Id="asdf"/>
-    //        </t:Message
-    //      </m:Items>
-    //    </m:MoveItemResponseMessage>
-
     itemIds.forEach(id => {
-      const responseMessageEl = resDoc.createElement(
-        "m:MoveItemResponseMessage"
-      );
-      responseMessageEl.setAttribute("ResponseClass", "Success");
-
-      const responseCodeEl = resDoc.createElement("m:ResponseCode");
-      responseCodeEl.textContent = "NoError";
-      responseMessageEl.appendChild(responseCodeEl);
-
-      const itemsEl = resDoc.createElement("m:Items");
-      const messageEl = resDoc.createElement("t:Message");
-      const itemIdEl = resDoc.createElement("t:ItemId");
-      itemIdEl.setAttribute("Id", id);
-      messageEl.appendChild(itemIdEl);
-      itemsEl.appendChild(messageEl);
-      responseMessageEl.appendChild(itemsEl);
-
-      responseMessagesEl.appendChild(responseMessageEl);
+      this.addNewItemOrMoveItemToFolder(id, destinationFolderId);
     });
+
+    const resDoc = this.#buildGenericMoveResponse(
+      MOVE_ITEM_RESPONSE_BASE,
+      "m:MoveItemResponseMessage",
+      "m:Items",
+      "t:Message",
+      "t:ItemId",
+      itemIds
+    );
+
+    return this.#serializer.serializeToString(resDoc);
+  }
+
+  /**
+   * Return a response to a `MoveFolder` request.
+   *
+   * @param {XMLDocument} reqDoc
+   */
+  #generateMoveFolderResponse(reqDoc) {
+    const [destinationFolderId, folderIds] = extractMoveObjects(
+      reqDoc,
+      "FolderIds",
+      "t:FolderId"
+    );
+
+    folderIds.forEach(id => this.reparentFolderById(id, destinationFolderId));
+
+    const resDoc = this.#buildGenericMoveResponse(
+      MOVE_FOLDER_RESPONSE_BASE,
+      "m:MoveFolderResponseMessage",
+      "m:Folders",
+      "t:Folder",
+      "t:FolderId",
+      folderIds
+    );
 
     return this.#serializer.serializeToString(resDoc);
   }
@@ -951,12 +949,17 @@ export class EwsServer {
   }
 
   /**
-   * Add an item to a folder.
+   * Add a new item to a folder or move an existing item to a new folder.
+   *
+   * If the given  `itemId` is already on the server, then it is moved
+   * from its current location to the newly specified `folderId`. If the
+   * given `itemId` does not yet exist on the server, it is added to the
+   * specified `folderId`.
    *
    * @param {string} itemId
    * @param {string} folderId
    */
-  addItemToFolder(itemId, folderId) {
+  addNewItemOrMoveItemToFolder(itemId, folderId) {
     this.#itemIdToItemInfo.set(itemId, new ItemInfo(folderId));
   }
 
@@ -968,4 +971,90 @@ export class EwsServer {
   getContainingFolderId(itemId) {
     return this.#itemIdToItemInfo.get(itemId).parentId;
   }
+
+  /**
+   * Construct a response for the EWS Move[Item,Folder] operations.
+   *
+   * @param {string} responseBase The response document base XML.
+   * @param {string} responseMessageElementName The name of the top level response message element.
+   * @param {string} collectionElementName The name of the element containing the collection of response objects.
+   * @param {string} objectElementName The name of the element containing individual response objects.
+   * @param {string} idElementName The name of the element containing response object ids.
+   * @param {[string]} ids The EWS IDs to place in the document.
+   * @returns {XMLDocument} The response document for the request.
+   */
+  #buildGenericMoveResponse(
+    responseBase,
+    responseMessageElementName,
+    collectionElementName,
+    objectElementName,
+    idElementName,
+    ids
+  ) {
+    const resDoc = this.#parser.parseFromString(responseBase, "text/xml");
+
+    this.#setVersion(resDoc);
+
+    const responseMessagesEl =
+      resDoc.getElementsByTagName("m:ResponseMessages")[0];
+
+    // Response Message XML Structure:
+    //    <[responseMessageElementName] ResponseClass="Success">
+    //      <m:ResponseCode>NoError</m:ResponseCode>
+    //      <[collectionElementName]>
+    //        <[objectElementName]>
+    //          <[idElementName] Id="asdf"/>
+    //        </[objectElementName]>
+    //      </[collectionElementName]>
+    //    </[responseMessageElementName]>
+
+    ids.forEach(id => {
+      const responseMessageEl = resDoc.createElement(
+        responseMessageElementName
+      );
+      responseMessageEl.setAttribute("ResponseClass", "Success");
+
+      const responseCodeEl = resDoc.createElement("m:ResponseCode");
+      responseCodeEl.textContent = "NoError";
+      responseMessageEl.appendChild(responseCodeEl);
+
+      const itemsEl = resDoc.createElement(collectionElementName);
+      const messageEl = resDoc.createElement(objectElementName);
+      const itemIdEl = resDoc.createElement(idElementName);
+      itemIdEl.setAttribute("Id", id);
+      messageEl.appendChild(itemIdEl);
+      itemsEl.appendChild(messageEl);
+      responseMessageEl.appendChild(itemsEl);
+
+      responseMessagesEl.appendChild(responseMessageEl);
+    });
+
+    return resDoc;
+  }
+}
+
+/**
+ * Extract the ids for objects (items or folders) to move from a request.
+ *
+ * @param {XMLDocument} reqDoc The XML request document.
+ * @param {string} collectionElementName The name of the XML element that contains the id collection.
+ * @param {string} objectElementName The name of the XML element that contains each individual object.
+ *
+ * @returns {[string, [string]]} a pair containing the destination folder id in
+ *                               the first element and the list of object IDs to
+ *                               move in the second element.
+ */
+function extractMoveObjects(reqDoc, collectionElementName, objectElementName) {
+  const destinationFolderId = reqDoc
+    .getElementsByTagName("ToFolderId")[0]
+    .getElementsByTagName("t:FolderId")[0]
+    .getAttribute("Id");
+
+  const objectIds = [
+    ...reqDoc
+      .getElementsByTagName(collectionElementName)[0]
+      .getElementsByTagName(objectElementName),
+  ].map(e => e.getAttribute("Id"));
+
+  return [destinationFolderId, objectIds];
 }

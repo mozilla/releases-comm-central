@@ -20,6 +20,7 @@ interface nsIUrlListener;
 interface IEwsFolderCallbacks;
 interface IEwsFolderCreateCallbacks;
 interface IEwsFolderDeleteCallbacks;
+interface IEwsFolderMoveCallbacks;
 interface IEwsFolderUpdateCallbacks;
 interface IEwsMessageCallbacks;
 interface IEwsItemMoveCallbacks;
@@ -142,6 +143,15 @@ interface IEwsClient : nsISupports
    * @param itemIds - A list of the EWS IDs of the items to be moved.
    */
   void moveItems(in IEwsItemMoveCallbacks callbacks, in AUTF8String destinationFolderId, in Array<AUTF8String> itemIds);
+
+  /**
+   * Moves folders on the Exchange server.
+   *
+   * @param callbacks - Callbacks to indicate the success of failure of the move operation.
+   * @param destinationFolderId - The EWS ID of the destination folder.
+   * @param itemIds - A list of the EWS IDs of the folders to be moved.
+   */
+  void moveFolders(in IEwsFolderMoveCallbacks callbacks, in AUTF8String destinationFolderId, in Array<AUTF8String> folderIds);
 };
 
 [scriptable, uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
@@ -332,7 +342,7 @@ interface IEwsMessageCreateCallbacks : nsISupports
 interface IEwsItemMoveCallbacks : nsISupports
 {
   /**
-   * Signal that a remove move operation was successful.
+   * Signal that a remote item move operation was successful.
    *
    * The `syncRequired` parameter indicates whether a full folder sync for the
    * move destination is required. If `syncRequired` is false, then `newIds`
@@ -343,7 +353,29 @@ interface IEwsItemMoveCallbacks : nsISupports
   void onRemoteMoveSuccessful(in boolean syncRequired, in Array<AUTF8String> newIds);
 
   /**
-   * Signal that an error occurred during a remove move operation.
+   * Signal that an error occurred during a remote move operation.
+   *
+   * The type of error will be contained in the `err` parameter, and a
+   * description will be provided in the `description` parameter.
+   */
+  void onError(in IEwsClient_Error err, in AUTF8String description);
+};
+
+[scriptable, uuid(2e2beca1-5ea6-4c8d-8805-aeedc011dbb4)]
+interface IEwsFolderMoveCallbacks : nsISupports
+{
+  /**
+   * Signal that a remote folder move operation was successful.
+   *
+   * The `newIds` parameter will contain the list of the new EWS IDs for the
+   * moved folders and will be specified in the same order as the input IDs to
+   * `IEwsClient::moveFolders`.
+   */
+  void onRemoteMoveSuccessful(in Array<AUTF8String> newIds);
+
+
+  /**
+   * Signal that an error occurred during a remote move operation.
    *
    * The type of error will be contained in the `err` parameter, and a
    * description will be provided in the `description` parameter.

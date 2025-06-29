@@ -220,4 +220,16 @@ nsresult LocalCopyHeaders(nsIMsgDBHdr* sourceHeader,
                           const nsTArray<nsCString>& excludeProperties,
                           bool isMove);
 
+/**
+ * Determine whether or not two folders are on the same server.
+ *
+ * This function queries the servers for `folder1` and `folder2` and returns a
+ * value in `isSameServer` to indicate whether or not the underlying server for
+ * those folders is the same server.
+ *
+ * @returns an `nsresult` to indicate whether or not the operation succeeded.
+ */
+nsresult FoldersOnSameServer(nsIMsgFolder* folder1, nsIMsgFolder* folder2,
+                             bool* isSameServer);
+
 #endif  // COMM_MAILNEWS_PROTOCOLS_COMMON_SRC_OFFLINESTORAGE_H_

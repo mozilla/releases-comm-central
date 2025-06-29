@@ -74,8 +74,8 @@ add_task(async function test_move_item() {
   const folder2 = rootFolder.getChildNamed(folder2Name);
   Assert.ok(!!folder2, `${folder2Name} should exist.`);
 
-  ewsServer.addItemToFolder("a", folder1Name);
-  ewsServer.addItemToFolder("b", folder1Name);
+  ewsServer.addNewItemOrMoveItemToFolder("a", folder1Name);
+  ewsServer.addNewItemOrMoveItemToFolder("b", folder1Name);
 
   incomingServer.getNewMessages(folder1, null, null);
 
@@ -124,5 +124,58 @@ add_task(async function test_move_item() {
     folder2.getTotalMessages(false),
     2,
     `${folder2Name} should have 2 messages`
+  );
+});
+
+add_task(async function test_move_folder() {
+  const parent1Name = "parent1";
+  const parent2Name = "parent2";
+  const childName = "child";
+
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(parent1Name, "root", parent1Name, parent1Name)
+  );
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(parent2Name, "root", parent2Name, parent2Name)
+  );
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(childName, parent1Name, childName, childName)
+  );
+
+  const rootFolder = incomingServer.rootFolder;
+  incomingServer.getNewMessages(rootFolder, null, null);
+
+  await TestUtils.waitForCondition(
+    () => !!rootFolder.getChildNamed(parent2Name),
+    "Waiting for parent folders to exist"
+  );
+
+  const parent1 = rootFolder.getChildNamed(parent1Name);
+  Assert.ok(!!parent1, `${parent1Name} should exist.`);
+  const parent2 = rootFolder.getChildNamed(parent2Name);
+  Assert.ok(!!parent2, `${parent2Name} should exist.`);
+
+  await TestUtils.waitForCondition(
+    () => !!parent1.getChildNamed(childName),
+    "Waiting for child folder to exist."
+  );
+
+  const child = parent1.getChildNamed(childName);
+  Assert.ok(!!child, `${childName} should exist in ${parent1Name}`);
+
+  parent2.copyFolder(child, true, null, null);
+
+  await TestUtils.waitForCondition(
+    () => !!parent2.getChildNamed(childName),
+    `Waiting for ${childName} to exist in ${parent2Name}`
+  );
+
+  Assert.ok(
+    !parent1.getChildNamed(childName),
+    `${childName} should not exist in ${parent1Name}`
+  );
+  Assert.ok(
+    !!parent2.getChildNamed(childName),
+    `${childName} should exist in ${parent2Name}`
   );
 });

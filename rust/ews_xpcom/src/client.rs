@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 mod create_folder;
-mod move_item;
+mod move_operations;
 mod server_version;
 
 use std::{
