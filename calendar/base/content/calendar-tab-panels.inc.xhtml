@@ -181,7 +181,7 @@
             </box>
             <box align="center" flex="1">
               <label control="unifinder-search-field" value="&calendar.search.options.searchfor;"/>
-              <html:moz-input-search id="unifinder-search-field" class="themeableSearchBox" />
+              <html:input type="search" id="unifinder-search-field" class="themeableSearchBox" />
             </box>
             <toolbarbutton id="unifinder-closer"
                            class="unifinder-closebutton close-icon"
@@ -369,13 +369,14 @@
             </hbox>
           </box>
           <box align="center" flex="1">
-            <html:moz-input-search id="task-text-filter-field"
-                            class="themeableSearchBox"
-                            placeholder=""
-                            emptytextbase="&calendar.task.text-filter.textbox.emptytext.base1;"
-                            keyLabelNonMac="&calendar.task.text-filter.textbox.emptytext.keylabel.nonmac;"
-                            keyLabelMac="&calendar.task.text-filter.textbox.emptytext.keylabel.mac;"
-                            oninput="taskViewUpdate();"/>
+            <html:input type="search"
+                        id="task-text-filter-field"
+                        class="themeableSearchBox"
+                        placeholder=""
+                        emptytextbase="&calendar.task.text-filter.textbox.emptytext.base1;"
+                        keyLabelNonMac="&calendar.task.text-filter.textbox.emptytext.keylabel.nonmac;"
+                        keyLabelMac="&calendar.task.text-filter.textbox.emptytext.keylabel.mac;"
+                        oninput="taskViewUpdate();"/>
           </box>
         </hbox>
         <vbox flex="1">

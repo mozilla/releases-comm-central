@@ -4,13 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/searchBox.css");
 
-.search-icon {
-  margin-inline-start: 8px;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: 0.8;
-}
-
 .searchBox,
 .themeableSearchBox {
   margin-block: 3px 2px;

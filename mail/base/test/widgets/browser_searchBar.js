@@ -271,7 +271,6 @@ add_task(async function test_placeholderFallback() {
 add_task(async function test_reset() {
   const input = searchBar.shadowRoot.querySelector("input");
   const placeholder = searchBar.shadowRoot.querySelector("div");
-  const clearButton = searchBar.shadowRoot.querySelector("#clear-button");
   input.value = "Lorem ipsum";
 
   const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
@@ -281,7 +280,6 @@ add_task(async function test_reset() {
   is(input.value, "", "Input empty after reset");
   await waitForRender();
   ok(BrowserTestUtils.isVisible(placeholder), "Placeholder visible");
-  ok(BrowserTestUtils.isHidden(clearButton), "Clear button hidden");
 
   // Test resetting with no value. Nothing should happen.
 
@@ -295,7 +293,6 @@ add_task(async function test_reset() {
   searchBar.removeEventListener("autocomplete", failListener);
 
   ok(BrowserTestUtils.isVisible(placeholder), "Placeholder visible");
-  ok(BrowserTestUtils.isHidden(clearButton), "Clear button hidden");
 });
 
 add_task(async function test_disabled() {
@@ -328,57 +325,6 @@ add_task(async function test_clearWithEscape() {
 
   is(event.detail, "", "Autocomplete event with empty value");
   is(input.value, "", "Input was cleared");
-});
-
-add_task(async function test_clearButtonVisibility() {
-  const button = searchBar.shadowRoot.querySelector("#clear-button");
-
-  ok(BrowserTestUtils.isHidden(button), "Clear Button is hidden initially");
-
-  searchBar.focus();
-  const event = await typeAndWaitForAutocomplete("T");
-  is(event.detail, "T", "Autocomplete for T");
-  ok(
-    BrowserTestUtils.isVisible(button),
-    "Clear Button is visible after text is entered"
-  );
-
-  const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
-  await BrowserTestUtils.synthesizeKey("KEY_Escape", {}, browser);
-  await eventPromise;
-  ok(
-    BrowserTestUtils.isHidden(button),
-    "Clear Button is hidden after input is cleared"
-  );
-});
-
-add_task(async function test_clearButton() {
-  const input = searchBar.shadowRoot.querySelector("input");
-  const button = searchBar.shadowRoot.querySelector("#clear-button");
-  searchBar.focus();
-
-  const event = await typeAndWaitForAutocomplete("T");
-  is(event.detail, "T", "Autocomplete for T");
-  ok(
-    BrowserTestUtils.isVisible(button),
-    "Clear Button is visible after text is entered"
-  );
-  await waitForRender();
-
-  await EventUtils.synthesizeMouseAtCenter(button, {}, browser.contentWindow);
-  await waitForRender();
-
-  is(input.value, "", "Input was cleared");
-  ok(
-    BrowserTestUtils.isHidden(button),
-    "Clear Button is hidden after text is cleared"
-  );
-  is(
-    browser.contentWindow.document.activeElement,
-    searchBar,
-    "Search bar is focused after input has been reset"
-  );
-  is(searchBar.shadowRoot.activeElement, input, "Should focus input");
 });
 
 add_task(async function test_overrideSearchTerm_noFocus() {
