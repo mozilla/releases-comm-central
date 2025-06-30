@@ -72,13 +72,15 @@ class AccountHubHeader extends HTMLElement {
    * Show an error notification in-case something went wrong.
    *
    * @param {object} options - An options object for displaying notification.
-   * @param {string} options.description - A raw string to show in the title.
-   * @param {Error} options.error - An error object.
-   * @param {string} options.fluentTitleId - A string representing a fluent id
+   * @param {string} [options.description] - A raw string to show in the title.
+   * @param {Error} [options.error] - An error object.
+   * @param {string} [options.fluentTitleId] - A string representing a fluent id
    *   to localize for the title.
-   * @param {string} options.fluentDescriptionId - A string representing a
+   * @param {object} [options.fluentTitleArguments] - Arguments for the title
+   *   fluent string.
+   * @param {string} [options.fluentDescriptionId] - A string representing a
    *   fluent id to localize for the description.
-   * @param {string} options.title - A raw string to display in the description.
+   * @param {string} [options.title] - A raw string to display in the description.
    * @param {string} options.type - The type of notification (error, success, info,
    *   warning).
    */
@@ -86,6 +88,7 @@ class AccountHubHeader extends HTMLElement {
     description,
     error,
     fluentTitleId,
+    fluentTitleArguments,
     fluentDescriptionId,
     title,
     type,
@@ -106,7 +109,12 @@ class AccountHubHeader extends HTMLElement {
     // We don't ever want to have a description but not a title. This can
     // happen if all we get is an error with no cause.
     if (fluentTitleId || error?.cause?.fluentTitleId || title) {
-      this.#setNotificationTitle({ fluentTitleId, title, error });
+      this.#setNotificationTitle({
+        fluentTitleId,
+        title,
+        error,
+        fluentTitleArguments,
+      });
     } else if (description || fluentDescriptionId || error?.message) {
       this.#setNotificationTitle({
         fluentTitleId: fluentDescriptionId || error.cause.fluentDescriptionId,
@@ -157,13 +165,20 @@ class AccountHubHeader extends HTMLElement {
    * Set the title of the notification
    *
    * @param {object} options
-   * @param {string} options.title - The the raw text title of notification
+   * @param {string} [options.title] - The the raw text title of notification
    *   to be shown
-   * @param {string} options.fluentTitleId - The fluent id to of a string to
+   * @param {string} [options.fluentTitleId] - The fluent id to of a string to
    *   show for the title
-   * @param {Error} options.error - error object to check for title
+   * @param {Error} [options.error] - error object to check for title
+   * @param {object} [options.fluentTitleArguments] - Arguments for the title
+   *   fluent string.
    */
-  #setNotificationTitle({ title, fluentTitleId, error }) {
+  #setNotificationTitle({
+    title,
+    fluentTitleId,
+    error,
+    fluentTitleArguments = {},
+  }) {
     const titleElement = this.shadowRoot.querySelector(
       "#emailFormNotificationTitle"
     );
@@ -171,7 +186,8 @@ class AccountHubHeader extends HTMLElement {
     if (localizedTitle) {
       document.l10n.setAttributes(
         titleElement.querySelector(".localized-title"),
-        localizedTitle
+        localizedTitle,
+        fluentTitleArguments
       );
 
       // If we have a localized title, return early so we don't have two
