@@ -20,6 +20,10 @@ window.addEventListener("load", () => {
 var DownloadsView = {
   init() {
     window.controllers.insertControllerAt(0, this);
+
+    const searchBox = document.getElementById("searchBox");
+    searchBox.addEventListener("input", () => this.searchDownloads());
+
     this.listElement = document.getElementById("msgDownloadsRichListBox");
 
     this.items = new Map();
@@ -132,9 +136,6 @@ var DownloadsView = {
   isCommandEnabled(aCommand) {
     switch (aCommand) {
       case "msgDownloadsCmd_clearDownloads":
-      case "msgDownloadsCmd_searchDownloads":
-        // We could disable these if there are no downloads in the list, but
-        // updating the commands when new items become available is tricky.
         return true;
     }
 
@@ -150,9 +151,6 @@ var DownloadsView = {
     switch (aCommand) {
       case "msgDownloadsCmd_clearDownloads":
         this.clearDownloads();
-        return;
-      case "msgDownloadsCmd_searchDownloads":
-        this.searchDownloads();
         return;
     }
 
@@ -172,10 +170,7 @@ var DownloadsView = {
     DownloadItem.prototype.commands.forEach(goUpdateCommand);
   },
 
-  commands: [
-    "msgDownloadsCmd_clearDownloads",
-    "msgDownloadsCmd_searchDownloads",
-  ],
+  commands: ["msgDownloadsCmd_clearDownloads"],
 };
 
 function DownloadItem(aDownload) {

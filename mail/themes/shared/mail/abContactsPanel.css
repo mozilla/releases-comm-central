@@ -62,10 +62,6 @@
 #peopleSearchInput {
   margin: 0 3px;
 
-  & [slot="clear-button"] {
-    content: var(--icon-clear);
-  }
-
   & [slot="search-button"] {
     content: var(--icon-search);
   }

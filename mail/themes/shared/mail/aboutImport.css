@@ -205,10 +205,6 @@ dd {
     height: 32px;
   }
 
-  & [slot="clear-button"] {
-    content: var(--icon-clear);
-  }
-
   & [slot="search-button"] {
     content: var(--icon-search);
   }

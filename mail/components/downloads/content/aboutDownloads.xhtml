@@ -22,6 +22,7 @@
   <meta name="color-scheme" content="light dark" />
   <link rel="stylesheet" href="chrome://global/skin/global.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
   <link rel="stylesheet" href="chrome://global/skin/in-content/common.css" />
   <link
     rel="stylesheet"
@@ -42,8 +43,6 @@
              oncommand="goDoCommand('msgDownloadsCmd_remove')"/>
     <command id="msgDownloadsCmd_clearDownloads"
              oncommand="goDoCommand('msgDownloadsCmd_clearDownloads')"/>
-    <command id="msgDownloadsCmd_searchDownloads"
-             oncommand="goDoCommand('msgDownloadsCmd_searchDownloads')"/>
   </commandset>
 
   <keyset id="downloadKeys">
@@ -60,10 +59,10 @@
             tooltiptext="&cmd.clearList.tooltip;"/>
 
     <spacer flex="1"/>
-    <html:moz-input-search id="searchBox"
-                    class="themeableSearchBox"
-                    command="msgDownloadsCmd_searchDownloads"
-                    placeholder="&cmd.searchDownloads.label;"/>
+    <html:input type="search"
+                id="searchBox"
+                class="themeableSearchBox"
+                placeholder="&cmd.searchDownloads.label;"/>
   </hbox>
 
   <hbox id="downloadBottomBox" flex="1">

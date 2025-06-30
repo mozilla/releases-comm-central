@@ -104,7 +104,7 @@ function SetUpTree(forceToServer, getOnlyNew) {
     SetServerTypeSpecificTextValues();
 
     // Clear out the text field when switching server.
-    gNameField.inputEl.value = "";
+    gNameField.value = "";
 
     // Since there is no text, switch to the Subscription view.
     toggleSubscriptionView(false);
@@ -354,7 +354,7 @@ function SubscribeOnClick(event) {
 
 function Refresh() {
   // Clear out the textfield's entry.
-  gNameField.inputEl.value = "";
+  gNameField.value = "";
 
   var newGroupsTab = document.getElementById("newGroupsTab");
   SetUpTree(true, newGroupsTab.selected);
@@ -362,7 +362,7 @@ function Refresh() {
 
 function ShowCurrentList() {
   // Clear out the textfield's entry on call of Refresh().
-  gNameField.inputEl.value = "";
+  gNameField.value = "";
 
   // Make sure the current list tab is selected.
   document.getElementById("subscribeTabs").selectedIndex = 0;
@@ -373,7 +373,7 @@ function ShowCurrentList() {
 
 function ShowNewGroupsList() {
   // Clear out the textfield's entry.
-  gNameField.inputEl.value = "";
+  gNameField.value = "";
 
   // Make sure the new groups tab is selected.
   document.getElementById("subscribeTabs").selectedIndex = 1;
