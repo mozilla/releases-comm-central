@@ -20,8 +20,6 @@
 #include "mozIDOMWindow.h"
 #include "nsTArray.h"
 
-class nsSaveAllAttachmentsState;
-
 class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
   using PathString = mozilla::PathString;
 
@@ -33,23 +31,7 @@ class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
 
   nsresult Alert(const char* stringName);
 
-  nsresult SaveAttachment(nsIFile* file, const nsACString& unescapedUrl,
-                          const nsACString& messageUri,
-                          const nsACString& contentType,
-                          nsSaveAllAttachmentsState* saveState,
-                          nsIUrlListener* aListener);
   nsresult PromptIfFileExists(nsIFile* file);
-
-  nsresult SaveAllAttachments(const nsTArray<nsCString>& contentTypeArray,
-                              const nsTArray<nsCString>& urlArray,
-                              const nsTArray<nsCString>& displayNameArray,
-                              const nsTArray<nsCString>& messageUriArray,
-                              bool detaching,
-                              nsIUrlListener* aListener = nullptr);
-  nsresult SaveOneAttachment(const nsACString& aContentType,
-                             const nsACString& aURL,
-                             const nsACString& aDisplayName,
-                             const nsACString& aMessageUri, bool detaching);
 
  protected:
   virtual ~nsMessenger();
@@ -99,12 +81,5 @@ class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
 
   nsCOMPtr<nsISupports> mSearchContext;
 };
-
-#define NS_MESSENGER_CID                      \
-  {/* f436a174-e2c0-4955-9afe-e3feb68aee56 */ \
-   0xf436a174,                                \
-   0xe2c0,                                    \
-   0x4955,                                    \
-   {0x9a, 0xfe, 0xe3, 0xfe, 0xb6, 0x8a, 0xee, 0x56}}
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMESSENGER_H_

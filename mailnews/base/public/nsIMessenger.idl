@@ -64,11 +64,6 @@ interface nsIMessenger : nsISupports {
     void saveMessages(in Array<AString> filenameArray,
                       in Array<AUTF8String> messageUriArray);
 
-    void saveAllAttachments(in Array<AUTF8String> contentTypeArray,
-                            in Array<AUTF8String> urlArray,
-                            in Array<AUTF8String> displayNameArray,
-                            in Array<AUTF8String> messageUriArray);
-
     nsIMsgDBHdr msgHdrFromURI(in AUTF8String aUri);
 
     AString formatFileSize(in unsigned long long aPos, [optional] in boolean aUseKB);

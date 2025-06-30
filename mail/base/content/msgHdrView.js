@@ -2253,7 +2253,7 @@ function OpenAttachmentFromBar(event) {
 /**
  * Handle all the attachments in this message (save them, open them, etc).
  *
- * @param {"open"|"save"|"saveAs"|"detach"|"delete"} action
+ * @param {"open"|"save"|"saveAs"|"detach"|"delete"|"copyUrl"|"openFolder"} action
  */
 function HandleAllAttachments(action) {
   HandleMultipleAttachments(currentAttachments, action);
@@ -2263,7 +2263,7 @@ function HandleAllAttachments(action) {
  * Try to handle all the attachments in this message (save them, open them,
  * etc). If the action fails for whatever reason, catch the error and report it.
  *
- * @param {"open"|"save"|"saveAs"|"detach"|"delete"} action
+ * @param {"open"|"save"|"saveAs"|"detach"|"delete"|"copyUrl"|"openFolder"} action
  */
 function TryHandleAllAttachments(action) {
   try {
@@ -2280,20 +2280,19 @@ function TryHandleAllAttachments(action) {
  * @param {"open"|"save"|"saveAs"|"detach"|"delete"} action
  */
 function HandleSelectedAttachments(action) {
-  const attachmentList = document.getElementById("attachmentList");
-  const selectedAttachments = [];
-  for (const item of attachmentList.selectedItems) {
-    selectedAttachments.push(item.attachment);
-  }
-
-  HandleMultipleAttachments(selectedAttachments, action);
+  HandleMultipleAttachments(
+    [...document.getElementById("attachmentList").selectedItems].map(
+      item => item.attachment
+    ),
+    action
+  );
 }
 
 /**
  * Perform an action on multiple attachments (e.g. open or save)
  *
  * @param {AttachmentInfo[]} attachments - AttachmentInfo objects to work with.
- * @param {"open"|"save"|"saveAs"|"detach"|"delete"} action - Action to take.
+ * @param {"open"|"save"|"saveAs"|"detach"|"delete"|"copyUrl"|"openFolder"} action - Action to take.
  */
 function HandleMultipleAttachments(attachments, action) {
   // Feed message link attachments save handling.
@@ -2305,39 +2304,9 @@ function HandleMultipleAttachments(attachments, action) {
     return;
   }
 
-  // convert our attachment data into some c++ friendly structs
-  var attachmentContentTypeArray = [];
-  var attachmentUrlArray = [];
-  var attachmentDisplayUrlArray = [];
-  var attachmentDisplayNameArray = [];
-  var attachmentMessageUriArray = [];
-
-  // populate these arrays..
-  var actionIndex = 0;
-  for (const attachment of attachments) {
-    // Exclude attachment which are 1) deleted, or 2) detached with missing
-    // external files, unless copying urls.
-    if (!attachment.hasFile && action != "copyUrl") {
-      continue;
-    }
-
-    attachmentContentTypeArray[actionIndex] = attachment.contentType;
-    attachmentUrlArray[actionIndex] = attachment.url;
-    attachmentDisplayUrlArray[actionIndex] = attachment.displayUrl;
-    attachmentDisplayNameArray[actionIndex] = encodeURI(attachment.name);
-    attachmentMessageUriArray[actionIndex] = attachment.uri;
-    ++actionIndex;
-  }
-
-  // The list has been built. Now call our action code...
   switch (action) {
     case "save":
-      top.messenger.saveAllAttachments(
-        attachmentContentTypeArray,
-        attachmentUrlArray,
-        attachmentDisplayNameArray,
-        attachmentMessageUriArray
-      );
+      AttachmentInfo.saveAttachments(attachments, top.browsingContext);
       return;
     case "detach":
       // "detach" on a multiple selection of attachments is so far not really
@@ -2346,14 +2315,19 @@ function HandleMultipleAttachments(attachments, action) {
       if (attachments.length == 1) {
         attachments[0].detachFromMessage(top.browsingContext);
       } else {
-        AttachmentInfo.detachAttachments(msgHdr, attachments, null, top.browsingContext);
+        AttachmentInfo.detachAttachments(
+          gMessage,
+          attachments,
+          null,
+          top.browsingContext
+        );
       }
       return;
     case "delete":
       if (attachments.length == 1) {
         attachments[0].deleteFromMessage();
       } else {
-        AttachmentInfo.deleteAttachments(msgHdr, attachments, false);
+        AttachmentInfo.deleteAttachments(gMessage, attachments, false);
       }
       return;
     case "open": {
@@ -2393,7 +2367,9 @@ function HandleMultipleAttachments(attachments, action) {
     case "copyUrl":
       // Copy external http url(s) to clipboard. The menuitem is hidden unless
       // all selected attachment urls are http.
-      navigator.clipboard.writeText(attachmentDisplayUrlArray.join("\n"));
+      navigator.clipboard.writeText(
+        attachments.map(a => encodeURI(a.name)).join("\n")
+      );
       return;
     case "openFolder":
       for (const attachment of attachments) {

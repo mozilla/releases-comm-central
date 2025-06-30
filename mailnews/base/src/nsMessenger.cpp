@@ -88,29 +88,6 @@
 using namespace mozilla;
 using namespace mozilla::dom;
 
-static void ConvertAndSanitizeFileName(const nsACString& displayName,
-                                       nsString& aResult) {
-  nsCString unescapedName;
-
-  /* we need to convert the UTF-8 fileName to platform specific character set.
-     The display name is in UTF-8 because it has been escaped from JS
-  */
-  MsgUnescapeString(displayName, 0, unescapedName);
-  CopyUTF8toUTF16(unescapedName, aResult);
-
-  // replace platform specific path separator and illegale characters to avoid
-  // any confusion
-  aResult.ReplaceChar(u"" FILE_PATH_SEPARATOR FILE_ILLEGAL_CHARACTERS, u'-');
-}
-
-// ***************************************************
-// jefft - this is a rather obscured class serves for Save Message As File,
-// Save Message As Template, and Save Attachment to a file
-// It's used to save out a single item. If multiple items are to be saved,
-// a nsSaveAllAttachmentsState should be set, which holds a list of items.
-//
-class nsSaveAllAttachmentsState;
-
 class nsSaveMsgListener : public nsIUrlListener,
                           public nsIMsgCopyServiceListener,
                           public nsIStreamListener,
@@ -135,7 +112,6 @@ class nsSaveMsgListener : public nsIUrlListener,
   nsCOMPtr<nsIChannel> m_channel;
   nsCString m_templateUri;
   RefPtr<nsMessenger> m_messenger;
-  nsSaveAllAttachmentsState* m_saveAllAttachmentsState;
 
   // rhp: For character set handling
   bool m_doCharsetConversion;
@@ -158,40 +134,6 @@ class nsSaveMsgListener : public nsIUrlListener,
 
  private:
   virtual ~nsSaveMsgListener();
-};
-
-// This helper class holds a list of attachments to be saved and (optionally)
-// detached. It's used by nsSaveMsgListener (which only sticks around for a
-// single item, then passes the nsSaveAllAttachmentsState along to the next
-// SaveAttachment() call).
-class nsSaveAllAttachmentsState {
-  using PathChar = mozilla::filesystem::Path::value_type;
-
- public:
-  nsSaveAllAttachmentsState(const nsTArray<nsCString>& contentTypeArray,
-                            const nsTArray<nsCString>& urlArray,
-                            const nsTArray<nsCString>& displayNameArray,
-                            const nsTArray<nsCString>& messageUriArray,
-                            const PathChar* directoryName,
-                            bool detachingAttachments,
-                            nsIUrlListener* overallListener);
-  virtual ~nsSaveAllAttachmentsState();
-
-  uint32_t m_count;
-  uint32_t m_curIndex;
-  PathChar* m_directoryName;
-  nsTArray<nsCString> m_contentTypeArray;
-  nsTArray<nsCString> m_urlArray;
-  nsTArray<nsCString> m_displayNameArray;
-  nsTArray<nsCString> m_messageUriArray;
-  bool m_detachingAttachments;
-  // The listener to invoke when all the items have been saved.
-  nsCOMPtr<nsIUrlListener> m_overallListener;
-  // if detaching, do without warning? Will create unique files instead of
-  // prompting if duplicate files exist.
-  bool m_withoutWarning;
-  // if detaching first, remember where we saved to.
-  nsTArray<nsCString> m_savedFiles;
 };
 
 //
@@ -342,193 +284,6 @@ nsresult nsMessenger::PromptIfFileExists(nsIFile* file) {
 
   // reset the file to point to the new path
   return file->InitWithFile(localFile);
-}
-
-// Internal helper for Saving attachments.
-// It handles a single attachment, but multiple attachments can be saved
-// by passing in an nsSaveAllAttachmentsState. In this case, SaveAttachment()
-// will be called for each attachment, and the saveState keeps track of which
-// one we're up to.
-//
-// aListener is invoked to cover this single attachment save.
-// If a saveState is used, it can also contain a nsIUrlListener which
-// will be invoked when _all_ the saves are complete.
-//
-// SaveAttachment() takes ownership of the saveState passed in.
-// If SaveAttachment() fails, then
-// saveState->m_overallListener->OnStopRunningUrl()
-// will be invoked and saveState itself will be deleted.
-//
-// Even though SaveAttachment() takes ownership of saveState,
-// nsSaveMsgListener is responsible for finally deleting it when the
-// last save operation successfully completes.
-//
-// Yes, this is convoluted. Bug 1788159 covers simplifying all this stuff.
-nsresult nsMessenger::SaveAttachment(nsIFile* aFile, const nsACString& aURL,
-                                     const nsACString& aMessageUri,
-                                     const nsACString& aContentType,
-                                     nsSaveAllAttachmentsState* saveState,
-                                     nsIUrlListener* aListener) {
-  nsCOMPtr<nsIMsgMessageService> messageService;
-  nsCOMPtr<nsIMsgMessageFetchPartService> fetchService;
-  nsAutoCString urlString;
-  nsAutoCString fullMessageUri(aMessageUri);
-
-  nsresult rv = NS_OK;
-
-  // This instance will be held onto by the listeners, and will be released once
-  // the transfer has been completed.
-  RefPtr<nsSaveMsgListener> saveListener(
-      new nsSaveMsgListener(aFile, this, aListener));
-
-  saveListener->m_contentType = aContentType;
-  if (saveState) {
-    if (saveState->m_overallListener && saveState->m_curIndex == 0) {
-      // This is the first item, so tell the caller we're starting.
-      saveState->m_overallListener->OnStartRunningUrl(nullptr);
-    }
-    saveListener->m_saveAllAttachmentsState = saveState;
-    // Record the resultant file:// URL for each saved attachment as we go
-    // along. It'll be used later if we want to also detach them from the email.
-    // Placeholder text will be inserted into the email to replace the
-    // removed attachment pointing at it's final resting place.
-    nsCOMPtr<nsIURI> outputURI;
-    rv = NS_NewFileURI(getter_AddRefs(outputURI), aFile);
-    if (NS_SUCCEEDED(rv)) {
-      nsAutoCString fileUriSpec;
-      rv = outputURI->GetSpec(fileUriSpec);
-      if NS_SUCCEEDED (rv) {
-        saveState->m_savedFiles.AppendElement(fileUriSpec);
-      }
-    }
-  }
-
-  nsCOMPtr<nsIURI> URL;
-  if (NS_SUCCEEDED(rv)) {
-    urlString = aURL;
-    // strip out ?type=application/x-message-display because it confuses libmime
-
-    int32_t typeIndex = urlString.Find("?type=application/x-message-display");
-    if (typeIndex != kNotFound) {
-      urlString.Cut(typeIndex,
-                    sizeof("?type=application/x-message-display") - 1);
-      // we also need to replace the next '&' with '?'
-      int32_t firstPartIndex = urlString.FindChar('&');
-      if (firstPartIndex != kNotFound) urlString.SetCharAt('?', firstPartIndex);
-    }
-
-    urlString.ReplaceSubstring("/;section", "?section");
-    rv = NS_NewURI(getter_AddRefs(URL), urlString);
-  }
-
-  if (NS_SUCCEEDED(rv)) {
-    rv = GetMessageServiceFromURI(aMessageUri, getter_AddRefs(messageService));
-    if (NS_SUCCEEDED(rv)) {
-      RefPtr<nsIStreamListener> streamListener = saveListener;
-
-      fetchService = do_QueryInterface(messageService);
-      nsCOMPtr<nsIURI> dummyNull;
-      if (fetchService) {
-        // If the message service has a fetch part service then we know we can
-        // fetch mime parts...
-        int32_t partPos = urlString.FindChar('?');
-        if (partPos == kNotFound) return NS_ERROR_FAILURE;
-        fullMessageUri.Append(Substring(urlString, partPos));
-        rv = fetchService->FetchMimePart(URL, fullMessageUri, streamListener,
-                                         mMsgWindow, saveListener,
-                                         getter_AddRefs(dummyNull));
-      } else {
-        rv = messageService->StreamMessage(fullMessageUri, streamListener,
-                                           mMsgWindow, nullptr, false, ""_ns,
-                                           false, getter_AddRefs(dummyNull));
-      }
-    }  // if we got a message service
-  }  // if we created a url
-
-  if (NS_FAILED(rv)) {
-    if (saveState) {
-      // If we had a listener, make sure it sees the failure!
-      if (saveState->m_overallListener) {
-        saveState->m_overallListener->OnStopRunningUrl(nullptr, rv);
-      }
-      // Ugh. Ownership is all over the place here!
-      // Usually nsSaveMsgListener is responsible for cleaning up
-      // nsSaveAllAttachmentsState... but we're not getting
-      // that far, so have to clean it up here!
-      delete saveState;
-      saveListener->m_saveAllAttachmentsState = nullptr;
-    }
-    Alert("saveAttachmentFailed");
-  }
-  return rv;
-}
-
-NS_IMETHODIMP
-nsMessenger::SaveAllAttachments(const nsTArray<nsCString>& contentTypeArray,
-                                const nsTArray<nsCString>& urlArray,
-                                const nsTArray<nsCString>& displayNameArray,
-                                const nsTArray<nsCString>& messageUriArray) {
-  uint32_t len = contentTypeArray.Length();
-  NS_ENSURE_TRUE(urlArray.Length() == len, NS_ERROR_INVALID_ARG);
-  NS_ENSURE_TRUE(displayNameArray.Length() == len, NS_ERROR_INVALID_ARG);
-  NS_ENSURE_TRUE(messageUriArray.Length() == len, NS_ERROR_INVALID_ARG);
-  if (len == 0) {
-    return NS_OK;
-  }
-  return SaveAllAttachments(contentTypeArray, urlArray, displayNameArray,
-                            messageUriArray, false);
-}
-
-nsresult nsMessenger::SaveAllAttachments(
-    const nsTArray<nsCString>& contentTypeArray,
-    const nsTArray<nsCString>& urlArray,
-    const nsTArray<nsCString>& displayNameArray,
-    const nsTArray<nsCString>& messageUriArray, bool detaching,
-    nsIUrlListener* aListener) {
-  nsresult rv = NS_ERROR_OUT_OF_MEMORY;
-  nsCOMPtr<nsIFilePicker> filePicker =
-      do_CreateInstance("@mozilla.org/filepicker;1", &rv);
-  nsCOMPtr<nsIFile> localFile;
-  nsCOMPtr<nsIFile> lastSaveDir;
-  nsIFilePicker::ResultCode dialogResult;
-  nsString saveAttachmentStr;
-
-  NS_ENSURE_SUCCESS(rv, rv);
-  GetString(u"SaveAllAttachments"_ns, saveAttachmentStr);
-  nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(mWindow);
-  filePicker->Init(win->GetBrowsingContext(), saveAttachmentStr,
-                   nsIFilePicker::modeGetFolder);
-
-  rv = GetLastSaveDirectory(getter_AddRefs(lastSaveDir));
-  if (NS_SUCCEEDED(rv) && lastSaveDir)
-    filePicker->SetDisplayDirectory(lastSaveDir);
-
-  rv = ShowPicker(filePicker, &dialogResult);
-  if (NS_FAILED(rv) || dialogResult == nsIFilePicker::returnCancel) return rv;
-
-  rv = filePicker->GetFile(getter_AddRefs(localFile));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = SetLastSaveDirectory(localFile);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  PathString dirName = localFile->NativePath();
-
-  nsString unescapedName;
-  ConvertAndSanitizeFileName(displayNameArray[0], unescapedName);
-  rv = localFile->Append(unescapedName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = PromptIfFileExists(localFile);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsSaveAllAttachmentsState* saveState = new nsSaveAllAttachmentsState(
-      contentTypeArray, urlArray, displayNameArray, messageUriArray,
-      dirName.get(), detaching, nullptr);
-  // SaveAttachment takes ownership of saveState.
-  rv = SaveAttachment(localFile, urlArray[0], messageUriArray[0],
-                      contentTypeArray[0], saveState, aListener);
-  return rv;
 }
 
 enum MESSENGER_SAVEAS_FILE_TYPE {
@@ -1084,7 +839,6 @@ nsSaveMsgListener::nsSaveMsgListener(nsIFile* aFile, nsMessenger* aMessenger,
 
   // rhp: for charset handling
   m_doCharsetConversion = false;
-  m_saveAllAttachmentsState = nullptr;
   mProgress = 0;
   mMaxProgress = -1;
   mCanceled = false;
@@ -1220,8 +974,6 @@ nsresult nsSaveMsgListener::InitializeDownload(nsIRequest* aRequest) {
     //  is an environment (typically filters) where we don't want
     //  interruption.
     bool allowProgress = true;
-    if (m_saveAllAttachmentsState)
-      allowProgress = !m_saveAllAttachmentsState->m_withoutWarning;
     if (allowProgress) {
       nsCOMPtr<nsITransfer> tr = do_CreateInstance(NS_TRANSFER_CONTRACTID, &rv);
       if (tr && m_file) {
@@ -1285,71 +1037,6 @@ nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsresult status) {
   if (m_outputStream) {
     m_outputStream->Close();
     m_outputStream = nullptr;
-  }
-
-  // Are there more attachments to deal with?
-  nsSaveAllAttachmentsState* state = m_saveAllAttachmentsState;
-  if (state) {
-    state->m_curIndex++;
-    if (!mCanceled && state->m_curIndex < state->m_count) {
-      // Yes, start on the next attachment.
-      uint32_t i = state->m_curIndex;
-      nsString unescapedName;
-      nsCOMPtr<nsIFile> localFile;
-      rv =
-          NS_NewPathStringLocalFile(DependentPathString(state->m_directoryName),
-                                    getter_AddRefs(localFile));
-      if (NS_FAILED(rv)) goto done;
-      if (localFile->NativePath().IsEmpty()) {
-        rv = NS_ERROR_FAILURE;
-        goto done;
-      }
-
-      ConvertAndSanitizeFileName(state->m_displayNameArray[i], unescapedName);
-      rv = localFile->Append(unescapedName);
-      if (NS_FAILED(rv)) goto done;
-
-      // When we are running with no warnings (typically filters and other
-      // automatic uses), then don't prompt for duplicates, but create a unique
-      // file instead.
-      if (!state->m_withoutWarning) {
-        rv = m_messenger->PromptIfFileExists(localFile);
-        if (NS_FAILED(rv)) goto done;
-      } else {
-        rv = localFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE,
-                                     ATTACHMENT_PERMISSION);
-        if (NS_FAILED(rv)) goto done;
-      }
-      // Start the next attachment saving.
-      // NOTE: null listener passed in on subsequent saves! The original
-      // listener will already have been invoked.
-      // See Bug 1789565
-      rv = m_messenger->SaveAttachment(
-          localFile, state->m_urlArray[i], state->m_messageUriArray[i],
-          state->m_contentTypeArray[i], state, nullptr);
-      if (NS_FAILED(rv)) {
-        // If SaveAttachment() fails, state will have been deleted, and
-        // m_overallListener->OnStopRunningUrl() will have been called.
-        state = nullptr;
-        m_saveAllAttachmentsState = nullptr;
-      }
-    done:
-      if (NS_FAILED(rv) && state) {
-        if (state->m_overallListener) {
-          state->m_overallListener->OnStopRunningUrl(nullptr, rv);
-        }
-        delete state;
-        m_saveAllAttachmentsState = nullptr;
-      }
-    } else {
-      // All attachments have been saved.
-      if (state->m_overallListener) {
-        state->m_overallListener->OnStopRunningUrl(
-            nullptr, mCanceled ? NS_ERROR_FAILURE : NS_OK);
-      }
-      delete m_saveAllAttachmentsState;
-      m_saveAllAttachmentsState = nullptr;
-    }
   }
 
   if (mTransfer) {
@@ -1442,29 +1129,6 @@ void nsMessenger::GetString(const nsString& aStringName, nsString& aValue) {
   if (NS_FAILED(rv) || aValue.IsEmpty()) aValue = aStringName;
   return;
 }
-
-nsSaveAllAttachmentsState::nsSaveAllAttachmentsState(
-    const nsTArray<nsCString>& contentTypeArray,
-    const nsTArray<nsCString>& urlArray,
-    const nsTArray<nsCString>& displayNameArray,
-    const nsTArray<nsCString>& messageUriArray, const PathChar* dirName,
-    bool detachingAttachments, nsIUrlListener* overallListener)
-    : m_contentTypeArray(contentTypeArray.Clone()),
-      m_urlArray(urlArray.Clone()),
-      m_displayNameArray(displayNameArray.Clone()),
-      m_messageUriArray(messageUriArray.Clone()),
-      m_detachingAttachments(detachingAttachments),
-      m_overallListener(overallListener),
-      m_withoutWarning(false) {
-  m_count = contentTypeArray.Length();
-  m_curIndex = 0;
-  m_directoryName = NS_xstrdup(dirName);
-}
-
-nsSaveAllAttachmentsState::~nsSaveAllAttachmentsState() {
-  free(m_directoryName);
-}
-
 nsresult nsMessenger::GetLastSaveDirectory(nsIFile** aLastSaveDir) {
   // this can fail, and it will, on the first time we call it, as there is no
   // default for this pref.
