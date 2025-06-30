@@ -59,52 +59,56 @@
  * (in X11) or the compositor (in Wayland) does draw the shadow corners
  * already.
  */
-:root[customtitlebar] {
-  background-color: transparent;
-
-  &:not([lwtheme]) #navigation-toolbox {
-    background-color: ActiveCaption;
-    color: CaptionText;
-
-    &:-moz-window-inactive {
-      background-color: InactiveCaption;
-      color: InactiveCaptionText;
-    }
-  }
-
-  /* Make #tabs-toolbar transparent as we style underlying #navigation-toolbox
-   * with -moz-window-titlebar (Gtk+ theme). */
-  #tabs-toolbar,
-  #toolbar-menubar {
-    appearance: none;
-    color: inherit;
+@media (-moz-gtk-csd-transparency-available) {
+  :root[customtitlebar] {
     background-color: transparent;
-  }
 
-  #mail-menubar {
-    color: inherit;
-  }
-}
+    &[sizemode="normal"]:not([gtktiledwindow="true"]) {
+      /* This takes care of drawing our window decorations on X11 */
+      -moz-default-appearance: -moz-window-decorations;
+      appearance: auto;
 
-:root[customtitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) {
-  /* This takes care of drawing our window decorations on X11 */
-  -moz-default-appearance: -moz-window-decorations;
-  appearance: auto;
+      #navigation-toolbox,
+      ::backdrop {
+        border-top-left-radius: env(-moz-gtk-csd-titlebar-radius);
+        border-top-right-radius: env(-moz-gtk-csd-titlebar-radius);
+      }
 
-  #navigation-toolbox,
-  ::backdrop {
-    border-top-left-radius: env(-moz-gtk-csd-titlebar-radius);
-    border-top-right-radius: env(-moz-gtk-csd-titlebar-radius);
-  }
+      /* stylelint-disable-next-line media-query-no-invalid */
+      @media -moz-pref("widget.gtk.rounded-bottom-corners.enabled") {
+        body {
+          border-bottom-left-radius: env(-moz-gtk-csd-titlebar-radius);
+          border-bottom-right-radius: env(-moz-gtk-csd-titlebar-radius);
+        }
+      }
+    }
 
-  /* stylelint-disable-next-line media-query-no-invalid */
-  @media -moz-pref("widget.gtk.rounded-bottom-corners.enabled") {
-    body {
-      border-bottom-left-radius: env(-moz-gtk-csd-titlebar-radius);
-      border-bottom-right-radius: env(-moz-gtk-csd-titlebar-radius);
+    &:not([lwtheme]) #navigation-toolbox {
+      background-color: ActiveCaption;
+      color: CaptionText;
+
+      &:-moz-window-inactive {
+        background-color: InactiveCaption;
+        color: InactiveCaptionText;
+      }
+    }
+
+    /* Make #tabs-toolbar transparent as we style underlying #navigation-toolbox
+     * with -moz-window-titlebar (Gtk+ theme). */
+    #tabs-toolbar,
+    #toolbar-menubar {
+      appearance: none;
+      color: inherit;
+      background-color: transparent;
+    }
+
+    #mail-menubar {
+      color: inherit;
     }
   }
 }
+
+
 
 .titlebar-buttonbox-container {
   margin-inline-end: 3px;
