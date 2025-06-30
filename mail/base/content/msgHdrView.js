@@ -2344,7 +2344,7 @@ function HandleMultipleAttachments(attachments, action) {
       // supported. As a workaround, resort to normal detach-"all". See also
       // the comment on 'detaching a multiple selection of attachments' below.
       if (attachments.length == 1) {
-        attachments[0].detach(top.messenger, true);
+        attachments[0].detachFromMessage(top.browsingContext);
       } else {
         top.messenger.detachAllAttachments(
           attachmentContentTypeArray,
@@ -2356,13 +2356,17 @@ function HandleMultipleAttachments(attachments, action) {
       }
       return;
     case "delete":
-      top.messenger.detachAllAttachments(
-        attachmentContentTypeArray,
-        attachmentUrlArray,
-        attachmentDisplayNameArray,
-        attachmentMessageUriArray,
-        false // don't save
-      );
+      if (attachments.length == 1) {
+        attachments[0].deleteFromMessage();
+      } else {
+        top.messenger.detachAllAttachments(
+          attachmentContentTypeArray,
+          attachmentUrlArray,
+          attachmentDisplayNameArray,
+          attachmentMessageUriArray,
+          false // don't save
+        );
+      }
       return;
     case "open": {
       // XXX hack alert. If we sit in tight loop and open multiple
@@ -2374,7 +2378,7 @@ function HandleMultipleAttachments(attachments, action) {
       // doing the first helper app dialog right away, then waiting a bit
       // before we launch the rest.
       const actionFunction = function (aAttachment) {
-        aAttachment.open(getMessagePaneBrowser().browsingContext);
+        aAttachment.open(top.browsingContext);
       };
 
       for (let i = 0; i < attachments.length; i++) {

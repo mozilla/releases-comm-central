@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
 
@@ -11,6 +12,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   Downloads: "resource://gre/modules/Downloads.sys.mjs",
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
   GlodaUtils: "resource:///modules/gloda/GlodaUtils.sys.mjs",
+  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
 });
@@ -80,6 +82,9 @@ export class AttachmentInfo {
     this.message = message;
     this.contentType = contentType;
     this.name = name;
+    if (/-message:\/\//.test(url)) {
+      throw new Error(`Not a neckoURL: ${url}`);
+    }
     this.url = url;
     this.uri = uri;
     this.isExternalAttachment = isExternalAttachment;
@@ -111,22 +116,23 @@ export class AttachmentInfo {
    * Save this attachment to a file.
    *
    * @param {BrowsingContext} browsingContext - The browsing context to use.
+   * @param {string} [fpDialogTitle] - File picker dialog title, to override
+   *   the default "save attachment" title.
+   * @returns {?string} the path of the saved attachment. null if not saved.
    */
-  async save(browsingContext) {
+  async save(browsingContext, fpDialogTitle) {
     if (!this.hasFile) {
-      return;
+      return null;
     }
-
-    const empty = await this.isEmpty();
-    if (empty) {
-      return;
+    if (await this.isEmpty()) {
+      return null;
     }
 
     const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messenger.properties"
     );
-    const title = bundle.GetStringFromName("SaveAttachment");
 
+    const title = fpDialogTitle || bundle.GetStringFromName("SaveAttachment");
     const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
     fp.init(browsingContext, title, Ci.nsIFilePicker.modeSave);
     fp.defaultString = this.name.replaceAll(/[/:*?\"<>|]/g, "_");
@@ -150,7 +156,7 @@ export class AttachmentInfo {
 
     const result = await new Promise(resolve => fp.open(resolve));
     if (result == Ci.nsIFilePicker.returnCancel) {
-      return;
+      return null;
     }
 
     Services.prefs.setComplexValue(
@@ -158,12 +164,81 @@ export class AttachmentInfo {
       Ci.nsIFile,
       fp.file.parent
     );
-    await this.saveToFile(fp.file.path);
+    try {
+      await this.saveToFile(fp.file.path);
+    } catch (e) {
+      console.warn(`Saving ${this.name} to ${fp.file.path} FAILED.`, e);
+      Services.prompt.alert(
+        null,
+        title,
+        bundle.GetStringFromName("saveAttachmentFailed")
+      );
+      return this.save(browsingContext, fpDialogTitle);
+    }
+    return fp.file.path;
   }
 
   /**
-   * Save this attachment to the given path.
+   * Save attachments to a file.
    *
+   * @param {AttachmentInfo[]} attachments - The attachments to save.
+   * @param {BrowsingContext} browsingContext - The browsing context to use.
+   * @param {string} [fpDialogTitle] - File picker dialog title, to override
+   *   the default "save attachment" title.
+   * @returns {?string} the dir path of the saved attachments. null if not saved.
+   */
+  static async saveAttachments(attachments, browsingContext, fpDialogTitle) {
+    for (const attachment of attachments) {
+      if (!attachment.hasFile) {
+        return null;
+      }
+      if (await attachment.isEmpty()) {
+        return null;
+      }
+    }
+
+    const bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
+    );
+
+    const title =
+      fpDialogTitle || bundle.GetStringFromName("SaveAllAttachments");
+    const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+    fp.init(browsingContext, title, Ci.nsIFilePicker.modeGetFolder);
+    try {
+      const lastSaveDir = Services.prefs.getComplexValue(
+        "messenger.save.dir",
+        Ci.nsIFile
+      );
+      fp.displayDirectory = lastSaveDir;
+    } catch (e) {} // Pref may not be set, yet.
+
+    const result = await new Promise(resolve => fp.open(resolve));
+    if (result == Ci.nsIFilePicker.returnCancel) {
+      return null;
+    }
+
+    Services.prefs.setComplexValue("messenger.save.dir", Ci.nsIFile, fp.file);
+
+    try {
+      for (const attachment of attachments) {
+        await attachment.saveToFile(
+          PathUtils.join(fp.file.path, attachment.name)
+        );
+      }
+    } catch (e) {
+      console.warn(`Saving attachments to ${fp.file.path} FAILED.`, e);
+      Services.prompt.alert(
+        null,
+        title,
+        bundle.GetStringFromName("saveAttachmentFailed")
+      );
+      return null;
+    }
+    return fp.file.path;
+  }
+
+  /**
    * Fetch the attachment.
    *
    * @returns {ArrayBuffer} the attachment data.
@@ -216,7 +291,7 @@ export class AttachmentInfo {
       }
       // Create a download so that saved files show up under... Saved Files.
       const file = await IOUtils.getFile(path);
-      lazy.Downloads.createDownload({
+      await lazy.Downloads.createDownload({
         source: {
           url,
         },
@@ -497,21 +572,385 @@ export class AttachmentInfo {
   }
 
   /**
-   * Detach this attachment from the message.
-   *
-   * @param {nsIMessenger} messenger
-   *   The messenger object associated with the window.
-   * @param {boolean} aSaveFirst - true if the attachment should be saved
-   *                               before detaching, false otherwise.
+   * Delete this attachment from the message. Deleting removes the attachment
+   * from the message, leavning only a placeholder noting that the message used
+   * to contain an attachment.
    */
-  detach(messenger, aSaveFirst) {
-    messenger.detachAttachment(
-      this.contentType,
-      this.url,
-      encodeURIComponent(this.name),
-      this.uri,
-      aSaveFirst
+  async deleteFromMessage() {
+    return AttachmentInfo.deleteAttachments(this.message, [this], false);
+  }
+
+  /**
+   * Delete attachments from the message. Deleting removes an attachment
+   * from the message, leavning only a placeholder noting that the message used
+   * to contain an attachment.
+   *
+   * @param {nsIMsgDBHdr} msgHdr - The message holding the attachments.
+   * @param {AttachmentInfo[]} attachments - Attachments to detach.
+   * @param {boolean} [silent=true] - If true, ask for confirmation to proceed.
+   */
+  static async deleteAttachments(msgHdr, attachments, silent = true) {
+    if (attachments.some(a => a.contentType == "text/x-moz-deleted")) {
+      throw new Error(`An attachment was already deleted.`);
+    }
+    if (!silent) {
+      // Confirm to proceed.
+      const message = Services.strings
+        .createBundle("chrome://messenger/locale/messenger.properties")
+        .formatStringFromName(
+          "deleteAttachments",
+          attachments.map(a => a.name)
+        );
+      if (!Services.prompt.confirm(null, null, message)) {
+        return;
+      }
+    }
+    const attachmentsMap = new Map(attachments.map(a => [a.url, null]));
+    await AttachmentInfo.#modifyMessage(msgHdr, attachmentsMap, "DELETE");
+  }
+
+  /**
+   * Detach this attachment from the message. Detaching removes the attachment
+   * from the message, but leaves a link to file system location where the
+   * attachment can be found.
+   *
+   * @param {BrowsingContext} browsingContext - The browsing context to use.
+   */
+  async detachFromMessage(browsingContext) {
+    if (this.contentType == "text/x-moz-deleted") {
+      throw new Error(`${this.name} was already deleted.`);
+    }
+    const bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
     );
+
+    // Ask where to save.
+    const fpDialogTitle = bundle.GetStringFromName("DetachAttachment");
+    const path = await this.save(browsingContext, fpDialogTitle);
+    if (!path) {
+      return;
+    }
+    // Confirm to proceed.
+    const message = bundle.formatStringFromName("detachAttachments", [
+      this.name,
+    ]);
+    if (!Services.prompt.confirm(browsingContext.window, null, message)) {
+      return;
+    }
+    await AttachmentInfo.#modifyMessage(
+      this.message,
+      new Map([[this.url, path]]),
+      "DETACH"
+    );
+  }
+
+  /**
+   * Detach attachments from the message. Detaching removes an attachment
+   * from the message, but leaves a link to file system location where the
+   * attachment can be found.
+   *
+   * @param {nsIMsgDBHdr} msgHdr - The message holding the attachments.
+   * @param {AttachmentInfo[]} attachments - Attachments to detach.
+   * @param {string} [detachDir] - Base directory to use for detach.
+   * @param {BrowsingContext} [browsingContext] - The browsing context to use.
+   *   Must be set if detachDir is not set.
+   */
+  static async detachAttachments(
+    msgHdr,
+    attachments,
+    detachDir = null,
+    browsingContext = null
+  ) {
+    if (attachments.some(a => a.contentType == "text/x-moz-deleted")) {
+      throw new Error(`An attachment was already deleted.`);
+    }
+    const silent = !!detachDir;
+    if (!silent) {
+      // Non-silent mode. No dir provided - need to ask for dir where to save.
+      const fpDialogTitle = Services.strings
+        .createBundle("chrome://messenger/locale/messenger.properties")
+        .GetStringFromName("DetachAllAttachments");
+      detachDir = await AttachmentInfo.saveAttachments(
+        attachments,
+        browsingContext,
+        fpDialogTitle
+      );
+      if (!detachDir) {
+        return;
+      }
+    }
+    const attachmentsMap = new Map(
+      attachments.map(a => [a.url, PathUtils.join(detachDir, a.name)])
+    );
+    for (const attachment of attachments) {
+      await attachment.saveToFile(attachmentsMap.get(attachment.url));
+    }
+
+    if (!silent) {
+      // Non-silent mode. Confirm before delete.
+      const message = Services.strings
+        .createBundle("chrome://messenger/locale/messenger.properties")
+        .formatStringFromName(
+          "detachAttachments",
+          attachments.map(a => a.name)
+        );
+      if (!Services.prompt.confirm(null, null, message)) {
+        return;
+      }
+    }
+    await AttachmentInfo.#modifyMessage(msgHdr, attachmentsMap, "DETACH");
+  }
+
+  /**
+   * Modify the the provided message by deleting/detaching attachments.
+   * This is a high level back-end call. Callers need to have set up all the
+   *  needed information beforehand.
+   *
+   * @param {nsIMsgDBHdr} msgHdr - The message holding the attachments.
+   * @param {Map<string,string>} attachmentsMap - Map of attachmentURL to
+   *   full path were each attachment has been stored.
+   *   For deletion, paths will be null.
+   * @param {"DELETE"|"DETACH"} operation - Delete or detach.
+   */
+  static async #modifyMessage(msgHdr, attachmentsMap, operation) {
+    const data = await AttachmentInfo.stripAttachments(
+      msgHdr,
+      attachmentsMap,
+      operation
+    );
+    if (!data) {
+      return;
+    }
+
+    await AttachmentInfo.#copyMessageToOriginalFolder(data, msgHdr);
+    await AttachmentInfo.#deleteOriginal(msgHdr);
+    await AttachmentInfo.#updateFolder(msgHdr.folder);
+  }
+
+  /**
+   * Strip attachment(s) from a message. This function performs the low level
+   * stripping by streaming the message through libmime, with appropriate
+   * filter parameters set.
+   * The resulting output is a the MIME data of the modified message.
+   *
+   * @param {nsIMsgDBHdr} msgHdr - The message holding the attachments.
+   * @param {Map<string,string>} attachmentsMap - Map of attachmentURL to
+   *   path were the attachment has been stored.
+   *   For deletion, path will be undefined.
+   * @param {"DELETE"|"DETACH"} operation - Delete or detach.
+   * @returns {string} returns the data of the modified message.
+   */
+  static async stripAttachments(msgHdr, attachmentsMap, operation) {
+    if (!msgHdr.folder.canDeleteMessages) {
+      throw new Error(
+        `${operation} FAILED. Cannot delete messages in ${msgHdr.folder.URI}`
+      );
+    }
+    if (!msgHdr.folder.canFileMessages) {
+      throw new Error(
+        `${operation} FAILED. Cannot file messages in ${msgHdr.folder.URI}`
+      );
+    }
+
+    // We'll remove any subparts which will be removed automatically by the
+    // removal of the parent.
+    //
+    // E.g. the attachment list processing (showing only part ids)
+    // before: 1.11, 1.3, 1.2, 1.2.1.3, 1.4.1.2
+    // after:  1.2, 1.3, 1.4.1.2, 1.11
+    const topLevelUrls = new Set(
+      Array.from(attachmentsMap.entries())
+        .map(([url, value]) => ({
+          url,
+          value,
+          part: new URL(url).searchParams.get("part"),
+        }))
+        .filter(entry => entry.part)
+        .filter(
+          (entry, _, arr) =>
+            !arr.some(
+              other =>
+                other !== entry && entry.part.startsWith(other.part + ".")
+            )
+        )
+        .map(entry => entry.url)
+    );
+
+    for (const url of attachmentsMap.keys()) {
+      if (!topLevelUrls.has(url)) {
+        attachmentsMap.delete(url);
+      }
+    }
+
+    const { promise, resolve, reject } = Promise.withResolvers();
+    /** @implements {nsIStreamListener} */
+    const streamListener = {
+      _data: [],
+      _stream: null,
+      QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
+      onDataAvailable(_request, inputStream, _offset, count) {
+        if (!this._stream) {
+          this._stream = Cc[
+            "@mozilla.org/scriptableinputstream;1"
+          ].createInstance(Ci.nsIScriptableInputStream);
+          this._stream.init(inputStream);
+        }
+        this._data.push(this._stream.read(count));
+      },
+      onStartRequest() {},
+      onStopRequest(_request, statusCode) {
+        if (!Components.isSuccessCode(statusCode)) {
+          reject(
+            new Error(`${operation} - strip FAILED: ${statusCode.toString(16)}`)
+          );
+          return;
+        }
+        resolve(this._data.join(""));
+      },
+    };
+
+    const params = new URLSearchParams();
+    for (const url of attachmentsMap.keys()) {
+      params.append("del", new URL(url).searchParams.get("part"));
+      if (operation == "DETACH") {
+        const path = attachmentsMap.get(url);
+        params.append("detachTo", PathUtils.toFileURI(path));
+      }
+    }
+
+    const msgURI = msgHdr.folder.getUriForMsg(msgHdr);
+    MailServices.messageServiceFromURI(msgURI).streamMessage(
+      msgURI,
+      streamListener,
+      null, // aMsgWindow
+      null, // aUrlListener
+      true, // aConvertData
+      "attach&" + params.toString(), // aAdditionalHeader
+      false // aLocalOnly
+    );
+    return promise;
+  }
+
+  /**
+   * Make a copy of the modified message in its original folder.
+   *
+   * @param {string} data - The modified message data.
+   * @param {nsIMsgDBHdr} msgHdr - The message to replace.
+   */
+  static async #copyMessageToOriginalFolder(data, msgHdr) {
+    const msgFilePath = await IOUtils.createUniqueFile(
+      PathUtils.tempDir,
+      "tmp-msg.eml",
+      0o600
+    );
+    await IOUtils.write(
+      msgFilePath,
+      lazy.MailStringUtils.byteStringToUint8Array(data)
+    );
+    const msgFile = await IOUtils.getFile(msgFilePath);
+
+    const { promise, resolve, reject } = Promise.withResolvers();
+    /** @implements {nsIMsgCopyServiceListener} */
+    const copyServiceListener = {
+      onStartCopy() {},
+      onProgress() {},
+      setMessageKey(key) {
+        Services.obs.notifyObservers(
+          null,
+          "attachment-delete-msgkey-changed",
+          JSON.stringify({
+            oldMessageKey: msgHdr.messageKey,
+            newMessageKey: key,
+            folderURI: msgHdr.folder.URI,
+          })
+        );
+      },
+      getMessageId() {
+        return null;
+      },
+      onStopCopy(statusCode) {
+        if (!Components.isSuccessCode(statusCode)) {
+          reject(new Error(`Copy FAILED: ${statusCode.toString(16)}`));
+          return;
+        }
+        resolve();
+      },
+    };
+
+    MailServices.copy.copyFileMessage(
+      msgFile,
+      msgHdr.folder,
+      msgHdr,
+      false,
+      msgHdr.flags,
+      msgHdr.getStringProperty("keywords"),
+      copyServiceListener,
+      null
+    );
+    await promise;
+    await IOUtils.remove(msgFilePath); // Cleanup.
+  }
+
+  /**
+   * Delete original message (for message that got modified.)
+   *
+   * @param {nsIMsgDBHdr} msgHdr - The message to delete.
+   */
+  static async #deleteOriginal(msgHdr) {
+    const { promise, resolve, reject } = Promise.withResolvers();
+    /** @implements {nsIMsgCopyServiceListener} */
+    const copyServiceListener = {
+      onStartCopy() {},
+      onProgress() {},
+      setMessageKey() {},
+      getMessageId() {
+        return null;
+      },
+      onStopCopy(statusCode) {
+        if (!Components.isSuccessCode(statusCode)) {
+          reject(
+            new Error(`Delete original FAILED: ${statusCode.toString(16)}`)
+          );
+          return;
+        }
+        resolve();
+      },
+    };
+    msgHdr.setUint32Property("attachmentDetached", 1);
+    msgHdr.folder.deleteMessages(
+      [msgHdr],
+      null,
+      true,
+      false,
+      copyServiceListener,
+      false
+    );
+    await promise;
+  }
+
+  /**
+   * Update the imap folder for recent changes.
+   *
+   * @param {nsIMsgFolder} folder - Folder to update.
+   */
+  static async #updateFolder(folder) {
+    if (!(folder instanceof Ci.nsIMsgImapMailFolder)) {
+      return;
+    }
+    const { promise, resolve, reject } = Promise.withResolvers();
+    /**  @implements {nsIUrlListener} */
+    const urlListener = {
+      OnStartRunningUrl() {},
+      OnStopRunningUrl(url, statusCode) {
+        if (!Components.isSuccessCode(statusCode)) {
+          reject(new Error(`Update folder FAILED: ${statusCode}`));
+          return;
+        }
+        resolve();
+      },
+    };
+    folder.updateFolderWithListener(null, urlListener);
+    await promise;
   }
 
   /**

@@ -89,13 +89,6 @@ interface nsIMessenger : nsISupports {
                                     in Array<AUTF8String> aMessageUriArray,
                                     in nsIUrlListener aListener);
 
-    void detachAttachment(in AUTF8String contentType,
-                          in AUTF8String url,
-                          in AUTF8String displayName,
-                          in AUTF8String messageUri,
-                          in boolean saveFirst,
-                          [optional] in boolean withoutWarning);
-
     // The nsIUrlListener will notify once the entire operation is over, including
     // updating the IMAP server and reloading the modified messages. It is not
     // limited to the file operation caused by the optional saveFirst.
@@ -103,7 +96,7 @@ interface nsIMessenger : nsISupports {
                               in Array<AUTF8String> urlArray,
                               in Array<AUTF8String> displayNameArray,
                               in Array<AUTF8String> messageUriArray,
-                              in boolean saveFirst,
+                              in boolean saveFirst, // if true this means detach
                               [optional] in boolean withoutWarning,
                               [optional] in nsIUrlListener aListener);
 

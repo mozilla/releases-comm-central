@@ -23,6 +23,7 @@
 #include "nsNetUtil.h"
 #include "nsIFileURL.h"
 #include "nsIMIMEInfo.h"
+#include "nsEscape.h"
 
 /* for access to docshell */
 #include "nsPIDOMWindow.h"
@@ -524,88 +525,6 @@ nsresult nsMessenger::SaveAttachment(nsIFile* aFile, const nsACString& aURL,
     Alert("saveAttachmentFailed");
   }
   return rv;
-}
-
-nsresult nsMessenger::SaveOneAttachment(const nsACString& aContentType,
-                                        const nsACString& aURL,
-                                        const nsACString& aDisplayName,
-                                        const nsACString& aMessageUri,
-                                        bool detaching) {
-  nsresult rv = NS_ERROR_OUT_OF_MEMORY;
-  nsCOMPtr<nsIFilePicker> filePicker =
-      do_CreateInstance("@mozilla.org/filepicker;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsIFilePicker::ResultCode dialogResult;
-  nsCOMPtr<nsIFile> localFile;
-  nsCOMPtr<nsIFile> lastSaveDir;
-  nsCString filePath;
-  nsString saveAttachmentStr;
-  nsString defaultDisplayString;
-  ConvertAndSanitizeFileName(aDisplayName, defaultDisplayString);
-
-  if (detaching) {
-    GetString(u"DetachAttachment"_ns, saveAttachmentStr);
-  } else {
-    GetString(u"SaveAttachment"_ns, saveAttachmentStr);
-  }
-  nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(mWindow);
-  filePicker->Init(win->GetBrowsingContext(), saveAttachmentStr,
-                   nsIFilePicker::modeSave);
-  filePicker->SetDefaultString(defaultDisplayString);
-
-  // Check if the attachment file name has an extension (which must not
-  // contain spaces) and set it as the default extension for the attachment.
-  int32_t extensionIndex = defaultDisplayString.RFindChar('.');
-  if (extensionIndex > 0 &&
-      defaultDisplayString.FindChar(' ', extensionIndex) == kNotFound) {
-    nsString extension;
-    extension = Substring(defaultDisplayString, extensionIndex + 1);
-    filePicker->SetDefaultExtension(extension);
-    if (!mStringBundle) {
-      rv = InitStringBundle();
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-
-    nsString filterName;
-    AutoTArray<nsString, 1> extensionParam = {extension};
-    rv = mStringBundle->FormatStringFromName("saveAsType", extensionParam,
-                                             filterName);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    extension.InsertLiteral(u"*.", 0);
-    filePicker->AppendFilter(filterName, extension);
-  }
-
-  filePicker->AppendFilters(nsIFilePicker::filterAll);
-
-  rv = GetLastSaveDirectory(getter_AddRefs(lastSaveDir));
-  if (NS_SUCCEEDED(rv) && lastSaveDir)
-    filePicker->SetDisplayDirectory(lastSaveDir);
-
-  rv = ShowPicker(filePicker, &dialogResult);
-  if (NS_FAILED(rv) || dialogResult == nsIFilePicker::returnCancel) return rv;
-
-  rv = filePicker->GetFile(getter_AddRefs(localFile));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  SetLastSaveDirectory(localFile);
-
-  PathString dirName = localFile->NativePath();
-
-  AutoTArray<nsCString, 1> contentTypeArray = {
-      PromiseFlatCString(aContentType)};
-  AutoTArray<nsCString, 1> urlArray = {PromiseFlatCString(aURL)};
-  AutoTArray<nsCString, 1> displayNameArray = {
-      PromiseFlatCString(aDisplayName)};
-  AutoTArray<nsCString, 1> messageUriArray = {PromiseFlatCString(aMessageUri)};
-  nsSaveAllAttachmentsState* saveState = new nsSaveAllAttachmentsState(
-      contentTypeArray, urlArray, displayNameArray, messageUriArray,
-      dirName.get(), detaching, nullptr);
-
-  // SaveAttachment takes ownership of saveState.
-  return SaveAttachment(localFile, aURL, aMessageUri, aContentType, saveState,
-                        nullptr);
 }
 
 NS_IMETHODIMP
@@ -2196,27 +2115,23 @@ nsresult AttachmentDeleter::InternalStartProcessing(nsMessenger* aMessenger,
   // location of the saved attachment.
   const char* partId;
   const char* nextField;
-  nsAutoCString sHeader("attach&del=");
-  nsAutoCString detachToHeader("&detachTo=");
+  nsAutoCString sHeader("attach");
+  nsAutoCString detachToHeader;
   for (uint32_t u = 0; u < mAttach->mAttachmentArray.Length(); ++u) {
-    if (u > 0) {
-      sHeader.Append(',');
-      if (detaching) detachToHeader.Append(',');
-    }
+    nsAutoCString delParam("&del=");
+    nsAutoCString detachToParam("&detachTo=");
+
     partId = GetAttachmentPartId(mAttach->mAttachmentArray[u].mUrl.get());
     if (partId) {
       nextField = PL_strchr(partId, '&');
-      sHeader.Append(partId, nextField ? nextField - partId : -1);
+      delParam.Append(partId, nextField ? nextField - partId : -1);
+      sHeader.Append(delParam);
     }
     if (detaching) {
-      // The URI can contain commas, so percent-encode those first.
-      nsAutoCString uri(mDetachedFileUris[u]);
-      int ind = uri.FindChar(',');
-      while (ind != kNotFound) {
-        uri.Replace(ind, 1, "%2C");
-        ind = uri.FindChar(',');
-      }
-      detachToHeader.Append(uri);
+      nsAutoCString uri;
+      NS_EscapeURL(mDetachedFileUris[u], esc_AlwaysCopy | esc_Minimal, uri);
+      detachToParam.Append(uri);
+      detachToHeader.Append(detachToParam);
     }
   }
 
@@ -2242,25 +2157,6 @@ nsresult AttachmentDeleter::InternalStartProcessing(nsMessenger* aMessenger,
 }
 
 // ------------------------------------
-
-NS_IMETHODIMP
-nsMessenger::DetachAttachment(const nsACString& aContentType,
-                              const nsACString& aURL,
-                              const nsACString& aDisplayName,
-                              const nsACString& aMessageUri, bool aSaveFirst,
-                              bool withoutWarning = false) {
-  if (aSaveFirst)
-    return SaveOneAttachment(aContentType, aURL, aDisplayName, aMessageUri,
-                             true);
-  AutoTArray<nsCString, 1> contentTypeArray = {
-      PromiseFlatCString(aContentType)};
-  AutoTArray<nsCString, 1> urlArray = {PromiseFlatCString(aURL)};
-  AutoTArray<nsCString, 1> displayNameArray = {
-      PromiseFlatCString(aDisplayName)};
-  AutoTArray<nsCString, 1> messageUriArray = {PromiseFlatCString(aMessageUri)};
-  return DetachAttachments(contentTypeArray, urlArray, displayNameArray,
-                           messageUriArray, nullptr, nullptr, withoutWarning);
-}
 
 NS_IMETHODIMP
 nsMessenger::DetachAllAttachments(const nsTArray<nsCString>& aContentTypeArray,

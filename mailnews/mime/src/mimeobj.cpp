@@ -22,6 +22,11 @@
 #include "prlog.h"
 #include "nsMimeTypes.h"
 #include "nsMimeStringResources.h"
+#include "nsReadableUtils.h"
+#include "nsStringEnumerator.h"
+#include "nsNetUtil.h"
+#include "nsIURI.h"
+#include "nsEscape.h"
 
 MimeDefClass(MimeObject, MimeObjectClass, mimeObjectClass, NULL);
 
@@ -138,6 +143,27 @@ static void MimeObject_finalize(MimeObject* obj) {
   }
 }
 
+// Extracts all values of a given parameter name from the query string.
+static nsTArray<nsCString> ExtractParams(const nsACString& query,
+                                         const nsACString& paramName) {
+  nsTArray<nsCString> parts;
+  ParseString(query, '&', parts);
+
+  nsTArray<nsCString> values;
+  for (const auto& part : parts) {
+    int32_t equals = part.FindChar('=');
+    if (equals > 0) {
+      nsAutoCString name, value;
+      name.Assign(Substring(part, 0, equals));
+      value.Assign(Substring(part, equals + 1));
+      if (name.Equals(paramName)) {
+        values.AppendElement(value);
+      }
+    }
+  }
+  return values;
+}
+
 static int MimeObject_parse_begin(MimeObject* obj) {
   NS_ASSERTION(!obj->closed_p, "object shouldn't be already closed");
 
@@ -152,19 +178,18 @@ static int MimeObject_parse_begin(MimeObject* obj) {
     if (!obj->options->state) return MIME_OUT_OF_MEMORY;
     obj->options->state->root = obj;
     obj->options->state->separator_suppressed_p = true; /* no first sep */
-    const char* delParts = PL_strcasestr(obj->options->url, "&del=");
-    const char* detachLocations =
-        PL_strcasestr(obj->options->url, "&detachTo=");
-    if (delParts) {
-      const char* delEnd = PL_strcasestr(delParts + 1, "&");
-      if (!delEnd) delEnd = delParts + strlen(delParts);
-      ParseString(Substring(delParts + 5, delEnd), ',',
-                  obj->options->state->partsToStrip);
-    }
-    if (detachLocations) {
-      detachLocations += 10;  // advance past "&detachTo="
-      ParseString(nsDependentCString(detachLocations), ',',
-                  obj->options->state->detachToFiles);
+    if (PL_strcasestr(obj->options->url, "&del=")) {
+      nsCOMPtr<nsIURI> uri;
+      nsresult rv =
+          NS_NewURI(getter_AddRefs(uri), nsDependentCString(obj->options->url));
+      NS_ENSURE_SUCCESS(rv, -1);
+
+      nsAutoCString query;
+      uri->GetQuery(query);
+      NS_UnescapeURL(query);
+
+      obj->options->state->partsToStrip = ExtractParams(query, "del"_ns);
+      obj->options->state->detachToFiles = ExtractParams(query, "detachTo"_ns);
     }
   }
 

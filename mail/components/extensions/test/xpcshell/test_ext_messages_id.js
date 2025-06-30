@@ -7,6 +7,9 @@
 var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
+var { AttachmentInfo } = ChromeUtils.importESModule(
+  "resource:///modules/AttachmentInfo.sys.mjs"
+);
 
 let gSubFolders;
 
@@ -284,29 +287,19 @@ add_task(
       },
     });
 
-    const observer = {
-      observe(aSubject, aTopic) {
-        if (aTopic == "attachment-delete-msgkey-changed") {
-          extension.sendMessage();
-        }
-      },
-    };
-    Services.obs.addObserver(observer, "attachment-delete-msgkey-changed");
-
-    extension.onMessage("removeAttachment", () => {
+    extension.onMessage("removeAttachment", async () => {
       const msgHdr = gSubFolders.attachment.messages.getNext();
       const msgUri = msgHdr.folder.getUriForMsg(msgHdr);
-      const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-        Ci.nsIMessenger
-      );
-      messenger.detachAttachment(
-        "text/plain",
-        `${msgUri}?part=1.2&filename=test.txt`,
-        "test.txt",
-        msgUri,
-        false /* do not save */,
-        true /* do not ask */
-      );
+      const neckoURL = MailServices.neckoURLForMessageURI(msgUri);
+      const attachment = new AttachmentInfo({
+        contentType: "text/plain",
+        url: `${neckoURL}&part=1.2&filename=test.txt`,
+        name: "test.txt",
+        uri: msgUri,
+        message: msgHdr,
+      });
+      await AttachmentInfo.deleteAttachments(msgHdr, [attachment], true);
+      extension.sendMessage();
     });
 
     await extension.startup();

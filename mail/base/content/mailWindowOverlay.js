@@ -1983,7 +1983,7 @@ function addAttachmentToPopup(
   menuitem = document.createXULElement("menuitem");
   menuitem.attachment = attachment;
   menuitem.addEventListener("command", () =>
-    attachment.detach(messenger, true)
+    attachment.detachFromMessage(aboutMessage.browsingContext)
   );
   menuitem.setAttribute("label", getString("detachLabel"));
   menuitem.setAttribute("accesskey", getString("detachLabelAccesskey"));
@@ -1994,7 +1994,7 @@ function addAttachmentToPopup(
   menuitem = document.createXULElement("menuitem");
   menuitem.attachment = attachment;
   menuitem.addEventListener("command", () =>
-    attachment.detach(messenger, false)
+    attachment.deleteFromMessage(aboutMessage.browsingContext)
   );
   menuitem.setAttribute("label", getString("deleteLabel"));
   menuitem.setAttribute("accesskey", getString("deleteLabelAccesskey"));

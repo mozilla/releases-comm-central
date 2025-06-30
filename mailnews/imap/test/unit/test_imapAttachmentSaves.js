@@ -12,10 +12,11 @@ var { MessageGenerator } = ChromeUtils.importESModule(
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
-
-// javascript mime emitter functions
 var { MsgHdrToMimeMessage } = ChromeUtils.importESModule(
   "resource:///modules/gloda/MimeMessage.sys.mjs"
+);
+var { AttachmentInfo } = ChromeUtils.importESModule(
+  "resource:///modules/AttachmentInfo.sys.mjs"
 );
 
 var kAttachFileName = "bob.txt";
@@ -80,36 +81,29 @@ add_task(async function startMime() {
 // detach any found attachments
 add_task(async function startDetach() {
   const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  const msgURI = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
+  const attachment = new AttachmentInfo(gCallbackObject.attachments[0]);
+  const profileDir = do_get_profile();
 
-  const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-  const attachment = gCallbackObject.attachments[0];
-
-  const listener = new PromiseTestUtils.PromiseUrlListener();
-  messenger.detachAttachmentsWOPrompts(
-    do_get_profile(),
-    [attachment.contentType],
-    [attachment.url],
-    [attachment.name],
-    [msgURI],
-    listener
-  );
-  await listener.promise;
+  await AttachmentInfo.detachAttachments(msgHdr, [attachment], profileDir.path);
 
   // Now test that the detachment was successful.
+  const checkFile = do_get_profile().clone();
+  checkFile.append(kAttachFileName);
 
   // Check that the file attached to the message now exists in the profile
   // directory.
-  const checkFile = do_get_profile().clone();
-  checkFile.append(kAttachFileName);
   Assert.ok(checkFile.exists());
 
   // The message should now have a detached attachment. Read the message,
   //  and search for "AttachmentDetached" which is added on detachment.
 
-  // Get the message header - detached copy has UID 2.
+  // Get the message header - detached copy has UID 2. The original should be
+  // gone.
+  Assert.equal(
+    [...IMAPPump.inbox.messages].length,
+    1,
+    "should have just one message"
+  );
   const msgHdr2 = IMAPPump.inbox.GetMessageHeader(2);
   Assert.notStrictEqual(msgHdr2, null);
   const messageContent = await getContentFromMessage(msgHdr2);
