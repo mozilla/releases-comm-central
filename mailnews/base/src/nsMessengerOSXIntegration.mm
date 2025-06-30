@@ -63,3 +63,10 @@ nsMessengerOSXIntegration::OnExit() {
   RestoreDockIcon();
   return NS_OK;
 }
+
+NS_IMETHODIMP
+nsMessengerOSXIntegration::GetIsInDoNotDisturbMode(bool* inDNDMode) {
+  // TODO: Implement this.
+  *inDNDMode = false;
+  return NS_OK;
+}

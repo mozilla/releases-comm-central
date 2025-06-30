@@ -130,7 +130,7 @@ add_task(async function testNoSoundOnBiffWithDND() {
   await promise;
 
   MockOSIntegration._inDoNotDisturbMode = false;
-}).skip(AppConstants.platform != "win");
+});
 
 /**
  * Test the system sound when new mail is received.

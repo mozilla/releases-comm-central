@@ -26,18 +26,16 @@ class MockOSIntegration {
 }
 
 add_setup(function () {
-  if (AppConstants.platform == "win") {
-    // We must mock out the OS integration on Windows for all of these tests,
-    // because the CI runs tests in Do Not Disturb mode, and we don't display
-    // notifications in Do Not Disturb mode.
-    const osIntegration = new MockObjectRegisterer(
-      "@mozilla.org/messenger/osintegration;1",
-      MockOSIntegration
-    );
-    osIntegration.register();
+  // We must mock out the OS integration for all of these tests, because (at
+  // least on Windows) the CI runs tests in Do Not Disturb mode, and we don't
+  // display notifications in Do Not Disturb mode.
+  const osIntegration = new MockObjectRegisterer(
+    "@mozilla.org/messenger/osintegration;1",
+    MockOSIntegration
+  );
+  osIntegration.register();
 
-    registerCleanupFunction(function () {
-      osIntegration.unregister();
-    });
-  }
+  registerCleanupFunction(function () {
+    osIntegration.unregister();
+  });
 });

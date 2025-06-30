@@ -23,4 +23,13 @@ interface nsIMessengerOSIntegration : nsISupports {
    * Use this to do necessary clean up on exit, e.g. reset the badge/tray icon.
    */
   void onExit();
+
+  /**
+   * Is the OS in Do Not Disturb mode?
+   * - Windows: true for Priority Only and Alarms Only modes.
+   * - Mac: not yet implemented.
+   * - Linux: true if `org.freedesktop.Notifications.Inhibited` is true or
+   *   `org.gnome.desktop.notifications.show-banners` is false.
+   */
+  readonly attribute boolean isInDoNotDisturbMode;
 };

@@ -285,12 +285,8 @@ export class MailNotificationManager {
     }
 
     // If the OS is in Do Not Disturb mode, don't play a sound.
-    if (
-      "nsIMessengerWindowsIntegration" in Ci &&
-      this._osIntegration?.QueryInterface(Ci.nsIMessengerWindowsIntegration)
-        ?.isInDoNotDisturbMode
-    ) {
-      this._logger.debug("Windows is in do-not-disturb mode");
+    if (this._osIntegration?.isInDoNotDisturbMode) {
+      this._logger.debug("The operating system is in do-not-disturb mode");
       return;
     }
 
