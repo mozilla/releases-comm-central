@@ -4,6 +4,10 @@
 
 "use strict";
 
+// eslint-disable-next-line mozilla/no-redeclare-with-import-autofix
+const { LoginHelper } = ChromeUtils.importESModule(
+  "resource://gre/modules/LoginHelper.sys.mjs"
+);
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -712,7 +716,9 @@ add_task(async function test_osAuthRefused() {
     "Should remain at start"
   );
 }).skip(
-  !OSKeyStoreTestUtils.canTestOSKeyStoreLogin() || !OSKeyStore.canReauth()
+  !OSKeyStoreTestUtils.canTestOSKeyStoreLogin() ||
+    !LoginHelper.getOSAuthEnabled() ||
+    !OSKeyStore.canReauth()
 );
 
 /**
@@ -722,7 +728,11 @@ add_task(async function test_osAuthRefused() {
  * @param {"accept"|"cancel"} action - Action to take in the password prompt.
  */
 async function expectPasswordPrompt(primaryPassword, action) {
-  if (OSKeyStore.canReauth() && !primaryPassword) {
+  if (
+    LoginHelper.getOSAuthEnabled() &&
+    OSKeyStore.canReauth() &&
+    !primaryPassword
+  ) {
     return OSKeyStoreTestUtils.waitForOSKeyStoreLogin(action === "accept");
   }
   // Not showing a confirmation prompt unless we are asking for a primary

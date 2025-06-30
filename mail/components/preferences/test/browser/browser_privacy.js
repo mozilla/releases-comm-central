@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// eslint-disable-next-line mozilla/no-redeclare-with-import-autofix
+const { LoginHelper } = ChromeUtils.importESModule(
+  "resource://gre/modules/LoginHelper.sys.mjs"
+);
 const { OSKeyStore } = ChromeUtils.importESModule(
   "resource://gre/modules/OSKeyStore.sys.mjs"
 );
@@ -644,7 +648,9 @@ async function subtestPasswordManager(prefsDocument, primaryPassword = "") {
         }
 
         const cancelPromise =
-          OSKeyStore.canReauth() && !primaryPassword
+          LoginHelper.getOSAuthEnabled() &&
+          OSKeyStore.canReauth() &&
+          !primaryPassword
             ? OSKeyStoreTestUtils.waitForOSKeyStoreLogin(false)
             : promiseAlertDialog("cancel");
         EventUtils.synthesizeMouseAtCenter(
@@ -669,7 +675,9 @@ async function subtestPasswordManager(prefsDocument, primaryPassword = "") {
         );
 
         const acceptPromise =
-          OSKeyStore.canReauth() && !primaryPassword
+          LoginHelper.getOSAuthEnabled() &&
+          OSKeyStore.canReauth() &&
+          !primaryPassword
             ? OSKeyStoreTestUtils.waitForOSKeyStoreLogin(true)
             : promiseAlertDialog("accept");
         EventUtils.synthesizeMouseAtCenter(
@@ -818,7 +826,7 @@ add_task(async function testPrimaryPassword() {
   // Set the primary password, then check it is used in the password manager.
 
   const passwordCheckbox = prefsDocument.getElementById("useMasterPassword");
-  if (OSKeyStore.canReauth()) {
+  if (LoginHelper.getOSAuthEnabled() && OSKeyStore.canReauth()) {
     // There's an OS prompt when setting the password for the first time.
     OSKeyStoreTestUtils.waitForOSKeyStoreLogin(true);
   }
