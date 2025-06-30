@@ -551,20 +551,15 @@ export class SmtpServer {
     messageId,
     listener
   ) {
-    // Flag that a send is progress. Precludes sending QUIT during the transfer.
-    this.sendIsActive = true;
     const client = await this._getNextClient();
     client.onFree = () => {
+      // Done for now using this SmtpClient instance. Remove client from the
+      // "busy" list and add it back to the "free" list. If a send is awaiting
+      // a client above, that send can now begin.
       this._busyConnections = this._busyConnections.filter(c => c != client);
-      // Check if the connection should be terminated by doing smtp QUIT
-      if (!client.reuseConnection) {
-        client.quit();
-      } else {
-        // Keep using this connection
-        this._freeConnections.push(client);
-        // Resolve the first waiting in queue.
-        this._connectionWaitingQueue.shift()?.();
-      }
+      this._freeConnections.push(client);
+      // Resolve the first waiting in queue.
+      this._connectionWaitingQueue.shift()?.();
     };
 
     if (password) {
