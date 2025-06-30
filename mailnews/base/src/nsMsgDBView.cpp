@@ -44,6 +44,8 @@
 #include "mozilla/intl/AppDateTimeFormat.h"
 #include "nsIMsgMessageService.h"
 #include "nsTHashMap.h"
+#include "mozilla/StaticPrefs_mail.h"
+#include "mozilla/StaticPrefs_mailnews.h"
 
 using namespace mozilla::mailnews;
 
@@ -331,10 +333,8 @@ static void GetCachedName(const nsCString& unparsedString,
 static void UpdateCachedName(nsIMsgDBHdr* aHdr, const char* header_field,
                              const nsAString& newName) {
   nsCString newCachedName;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  int32_t currentDisplayNameVersion = 0;
-
-  prefs->GetIntPref("mail.displayname.version", &currentDisplayNameVersion);
+  int32_t currentDisplayNameVersion =
+      mozilla::StaticPrefs::mail_displayname_version();
 
   // Save version number.
   newCachedName.AppendInt(currentDisplayNameVersion);
@@ -348,12 +348,10 @@ static void UpdateCachedName(nsIMsgDBHdr* aHdr, const char* header_field,
 
 nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aSenderString) {
   nsCString unparsedAuthor;
-  int32_t currentDisplayNameVersion = 0;
-  bool showCondensedAddresses = false;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-
-  prefs->GetIntPref("mail.displayname.version", &currentDisplayNameVersion);
-  prefs->GetBoolPref("mail.showCondensedAddresses", &showCondensedAddresses);
+  int32_t currentDisplayNameVersion =
+      mozilla::StaticPrefs::mail_displayname_version();
+  bool showCondensedAddresses =
+      mozilla::StaticPrefs::mail_showCondensedAddresses();
 
   aHdr->GetStringProperty("sender_name", unparsedAuthor);
 
@@ -439,12 +437,10 @@ nsresult nsMsgDBView::FetchAccount(nsIMsgDBHdr* aHdr, nsAString& aAccount) {
 nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr* aHdr,
                                       nsAString& aRecipientsString) {
   nsCString recipients;
-  int32_t currentDisplayNameVersion = 0;
-  bool showCondensedAddresses = false;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-
-  prefs->GetIntPref("mail.displayname.version", &currentDisplayNameVersion);
-  prefs->GetBoolPref("mail.showCondensedAddresses", &showCondensedAddresses);
+  int32_t currentDisplayNameVersion =
+      mozilla::StaticPrefs::mail_displayname_version();
+  bool showCondensedAddresses =
+      mozilla::StaticPrefs::mail_showCondensedAddresses();
 
   aHdr->GetStringProperty("recipient_names", recipients);
 
@@ -754,10 +750,8 @@ nsresult nsMsgDBView::FetchRowKeywords(nsMsgViewIndex aRow, nsIMsgDBHdr* aHdr,
   nsresult rv = FetchKeywords(aHdr, keywordString);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool cascadeKeywordsUp = true;
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  prefs->GetBoolPref("mailnews.display_reply_tag_colors_for_collapsed_threads",
-                     &cascadeKeywordsUp);
+  bool cascadeKeywordsUp = mozilla::StaticPrefs::
+      mailnews_display_reply_tag_colors_for_collapsed_threads();
 
   if ((m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) &&
       cascadeKeywordsUp) {

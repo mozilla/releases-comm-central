@@ -29,7 +29,7 @@ add_task(async function () {
     return card.displayName || card.primaryEmail;
   }
 
-  Assert.equal(getPrefValue(), -999, "pref has no initial value");
+  Assert.equal(getPrefValue(), 0, "pref has an initial value of 0");
   Assert.equal(getDisplayNameInAddressBook(), null, "card doesn't exist yet");
 
   const dirPrefId = MailServices.ab.newAddressBook(

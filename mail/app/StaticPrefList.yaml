@@ -1,0 +1,31 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+# This file defines static prefs, i.e. those that are defined at startup and
+# used entirely or mostly from C++ and/or Rust code.
+#
+# See modules/libpref/init/StaticPrefList.yaml for much more information
+# about this file.
+
+# This gets incremented every time the display name of a contact changes, or a
+# contact is added or removed, so we know that cached display name data may be
+# out of date and needs refreshing.
+- name: mail.displayname.version
+  type: int32_t
+  value: 0
+  mirror: always
+
+# Show the friendly display name for people I know.
+- name: mail.showCondensedAddresses
+  type: bool
+  value: true
+  mirror: always
+
+# Whether the colors from tags should be applied only to the message(s)
+# actually tagged, or also to any collapsed threads which contain tagged
+# messages.
+- name: mailnews.display_reply_tag_colors_for_collapsed_threads
+  type: bool
+  value: true
+  mirror: always
