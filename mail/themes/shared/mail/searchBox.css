@@ -2,32 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-input[type="search"] {
+.gloda-search {
+  padding-inline-start: 21px !important;
   flex: 1;
-  margin-inline: 4px;
-  padding-inline-start: 22px !important;
-  background-image: var(--icon-search);
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-  background-position: 4px center;
-  background-repeat: no-repeat;
-
-  &:-moz-locale-dir(rtl) {
-    background-position: calc(100% - 4px);
-  }
 }
 
-input::-moz-search-clear-button {
-  width: 22px;
-  height: 22px;
-  margin-block: auto;
-  padding: 0;
-  background-image: var(--icon-clear);
-  background-size: 16px;
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
+.search-icon {
+  margin-inline-end: -21px;
+  height: 16px;
+  width: 16px;
+  z-index: 2;
+
+  &:-moz-locale-dir(rtl) {
+    transform: scaleX(-1);
+  }
 }
 
 .searchBox,

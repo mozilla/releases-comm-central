@@ -17,6 +17,10 @@
   font-style: normal !important;
 }
 
+.search-icon {
+  margin-inline-start: 8px;
+}
+
 .remote-gloda-search-container {
   padding-block: 1px;
 }

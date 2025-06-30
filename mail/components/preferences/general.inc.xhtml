@@ -463,12 +463,11 @@
 
     <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
-      <html:input type="search"
-                  id="filter"
-                  data-l10n-id="search-handler-table"
-                  data-l10n-attrs="placeholder"
-                  aria-controls="handlersTable"
-                  oninput="gGeneralPane._rebuildView();"/>
+      <html:moz-input-search id="filter"
+                      data-l10n-id="search-handler-table"
+                      data-l10n-attrs="placeholder"
+                      aria-controls="handlersTable"
+                      oninput="gGeneralPane._rebuildView();"/>
       <separator class="thin"/>
       <html:div id="handlersView"
                 preference="pref.downloads.disable_button.edit_actions"

@@ -56,11 +56,10 @@
                  showAccountsFileHere="true"
                  oncommand="setFilterFolder(event.target._folder);"/>
     </menulist>
-    <html:input type="search"
-                id="searchBox"
-                class="themeableSearchBox"
-                oninput="rebuildFilterList();"
-                placeholder="&searchBox.emptyText;"/>
+    <html:moz-input-search id="searchBox"
+                    class="themeableSearchBox"
+                    oninput="rebuildFilterList();"
+                    placeholder="&searchBox.emptyText;"/>
   </hbox>
   <separator class="thin"/>
   <hbox id="filterListGrid" flex="1">

@@ -15,6 +15,7 @@
  *
  * @slot placeholder - Content displayed as placeholder. When not provided, the
  *   value of the label attribute is shown as placeholder.
+ * @slot clear-button - Content displayed on the clear button.
  * @slot search-button - Content displayed on the search button.
  *
  * @fires CustomEvent#search - Event when a search should be executed. detail
@@ -38,6 +39,13 @@ export class SearchBar extends HTMLElement {
    * @type {?HTMLInputElement}
    */
   #input = null;
+
+  /**
+   * Reference to the clear button in the form.
+   *
+   * @type {?HTMLButtonElement}
+   */
+  #clearButton = null;
 
   /**
    * Reference to the search button in the form.
@@ -77,6 +85,7 @@ export class SearchBar extends HTMLElement {
   };
 
   #onInput = () => {
+    this.#clearButton.hidden = !this.#input.value;
     clearTimeout(this.#inputTimeout);
     this.#inputTimeout = setTimeout(this.#fireAutocomplete, 250);
   };
@@ -101,6 +110,7 @@ export class SearchBar extends HTMLElement {
       .content.cloneNode(true);
     this.#input = template.querySelector("input");
     this.#searchButton = template.querySelector("#search-button");
+    this.#clearButton = template.querySelector("#clear-button");
 
     template.querySelector("form").addEventListener("submit", this, {
       passive: false,
@@ -178,6 +188,11 @@ export class SearchBar extends HTMLElement {
    * Reset the search bar to its empty state.
    */
   reset() {
+    this.#clearButton.hidden = true;
+    if (this.#input.value == "") {
+      return;
+    }
+
     this.#input.value = "";
     clearTimeout(this.#inputTimeout);
     this.#inputTimeout = undefined;

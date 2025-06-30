@@ -4,6 +4,10 @@
 
 @import url("chrome://messenger/skin/shared/searchBox.css");
 
+.search-icon {
+  margin-inline-start: 7px;
+}
+
 .remote-gloda-search-container {
   padding-block: 3px 2px;
 }
