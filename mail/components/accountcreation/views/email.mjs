@@ -539,6 +539,7 @@ class AccountHubEmail extends HTMLElement {
         } catch (error) {
           this.#currentSubview.showNotification({
             fluentTitleId: "account-hub-addon-error",
+            error,
             type: "error",
           });
         }
@@ -837,7 +838,7 @@ class AccountHubEmail extends HTMLElement {
             this.#initUI(this.#states[this.#currentState].previousStep);
             this.#currentSubview.showNotification({
               fluentTitleId: "account-hub-find-account-settings-failed",
-              type: "error",
+              type: "warning",
             });
           }
         } catch (error) {

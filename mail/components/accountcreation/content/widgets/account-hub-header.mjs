@@ -73,7 +73,7 @@ class AccountHubHeader extends HTMLElement {
    *
    * @param {object} options - An options object for displaying notification.
    * @param {string} [options.description] - A raw string to show in the title.
-   * @param {Error} [options.error] - An error object.
+   * @param {Error} [options.error] - An error object. Must be set if type is "error".
    * @param {string} [options.fluentTitleId] - A string representing a fluent id
    *   to localize for the title.
    * @param {object} [options.fluentTitleArguments] - Arguments for the title
@@ -81,8 +81,7 @@ class AccountHubHeader extends HTMLElement {
    * @param {string} [options.fluentDescriptionId] - A string representing a
    *   fluent id to localize for the description.
    * @param {string} [options.title] - A raw string to display in the description.
-   * @param {string} options.type - The type of notification (error, success, info,
-   *   warning).
+   * @param {"error"|"warning"|"info"|"success"} options.type - The type of notification.
    */
   showNotification({
     description,
@@ -144,15 +143,14 @@ class AccountHubHeader extends HTMLElement {
         fluentDescriptionId || error.cause.fluentDescriptionId
       );
 
-      // If we have a specific fluent ID for the description, return early
+      // If we have a specific Fluent id for the description, return early
       // so we don't have two descriptions.
       return;
     }
 
-    if (description || (type === "error" && error?.message)) {
-      let descriptionText = `${description || ""}`;
-
-      if (type === "error" && error.message) {
+    if (description || (type == "error" && error?.message)) {
+      let descriptionText = description || "";
+      if (type == "error" && error?.message) {
         descriptionText += `${descriptionText ? " - " : ""}${error.message}`;
       }
 
