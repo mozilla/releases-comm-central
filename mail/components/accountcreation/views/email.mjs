@@ -17,13 +17,13 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
-  CardDAVUtils: "resource:///modules/CardDAVUtils.sys.mjs",
+  RemoteAddressBookUtils:
+    "resource:///modules/accountcreation/RemoteAddressBookUtils.sys.mjs",
   CreateInBackend:
     "resource:///modules/accountcreation/CreateInBackend.sys.mjs",
   ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.sys.mjs",
   FindConfig: "resource:///modules/accountcreation/FindConfig.sys.mjs",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
-  MailServices: "resource:///modules/MailServices.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
   getAddonsList:
@@ -1167,30 +1167,18 @@ class AccountHubEmail extends HTMLElement {
 
     const hostname = this.#email.split("@")[1];
     try {
-      addressBooks = await lazy.CardDAVUtils.detectAddressBooks(
-        this.#email,
-        password,
-        `https://${hostname}`,
-        false
-      );
+      addressBooks =
+        await lazy.RemoteAddressBookUtils.getAddressBooksForAccount(
+          this.#email,
+          password,
+          `https://${hostname}`
+        );
     } catch (error) {
       gAccountSetupLogger.debug(
         `Found no address books for ${this.#email} on ${hostname}.`,
         error
       );
-      return addressBooks;
     }
-
-    const existingAddressBookUrls = lazy.MailServices.ab.directories.map(d =>
-      d.getStringValue("carddav.url", "")
-    );
-
-    addressBooks = addressBooks.map(addressBook => {
-      addressBook.existing = existingAddressBookUrls.includes(
-        addressBook.url.href
-      );
-      return addressBook;
-    });
 
     return addressBooks;
   }

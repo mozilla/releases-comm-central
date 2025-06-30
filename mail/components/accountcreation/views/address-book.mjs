@@ -7,9 +7,9 @@ import "chrome://messenger/content/accountcreation/content/widgets/account-hub-f
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  CardDAVUtils: "resource:///modules/CardDAVUtils.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
-  OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
+  RemoteAddressBookUtils:
+    "resource:///modules/accountcreation/RemoteAddressBookUtils.sys.mjs",
 });
 
 class AccountHubAddressBook extends HTMLElement {
@@ -320,7 +320,6 @@ class AccountHubAddressBook extends HTMLElement {
    * @param {object} stateData - The current state data of the address book
    *  flow.
    */
-
   async #handleForwardAction(currentState, stateData) {
     switch (currentState) {
       case "localAddressBookSubview": {
@@ -384,57 +383,8 @@ class AccountHubAddressBook extends HTMLElement {
    * #accounts.
    */
   async #fetchAccounts() {
-    const accountData = [];
-    const accounts = lazy.MailServices.accounts.accounts;
-    const existingAddressBookUrls = lazy.MailServices.ab.directories.map(
-      directory => directory.getStringValue("carddav.url", "")
-    );
-
-    for (const account of accounts) {
-      const accountAddressBooks = { account };
-      accountAddressBooks.existingAddressBookCount = 0;
-
-      // If auth method is OAuth, and CardDAV scope wasn't granted, bail out.
-      if (account.incomingServer.authMethod === Ci.nsMsgAuthMethod.OAuth2) {
-        const oAuth2 = new lazy.OAuth2Module();
-        if (
-          !oAuth2.initFromHostname(
-            account.incomingServer.hostName,
-            account.incomingServer.username,
-            "carddav"
-          )
-        ) {
-          continue;
-        }
-      }
-
-      let addressBooks = [];
-      try {
-        const hostname = account.incomingServer.username.split("@")[1];
-        addressBooks = await lazy.CardDAVUtils.detectAddressBooks(
-          account.incomingServer.username,
-          account.incomingServer.password,
-          `https://${hostname}`,
-          false
-        );
-
-        addressBooks = addressBooks.map(addressBook => {
-          if (existingAddressBookUrls.includes(addressBook.url.href)) {
-            accountAddressBooks.existingAddressBookCount++;
-            addressBook.existing = true;
-          }
-          return addressBook;
-        });
-      } catch (error) {
-        // Continue if no address books exist.
-        continue;
-      }
-
-      accountAddressBooks.addressBooks = addressBooks;
-      accountData.push(accountAddressBooks);
-    }
-
-    this.#accounts = accountData;
+    this.#accounts =
+      await lazy.RemoteAddressBookUtils.getAddressBooksForExistingAccounts();
   }
 
   /**

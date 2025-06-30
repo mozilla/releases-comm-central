@@ -16,3 +16,6 @@ skip-if = ["os == 'win' && msix"]  # MSIX cannot write to application directory
 tags = ["oauth"]
 
 ["test_guessConfig.js"]
+
+["test_remoteAddressBookUtils.js"]
+tags = ["addrbook", "carddav"]
