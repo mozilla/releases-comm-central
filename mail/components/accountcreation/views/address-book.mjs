@@ -93,14 +93,6 @@ class AccountHubAddressBook extends HTMLElement {
       subview: {},
       templateId: "address-book-ldap-account-form",
     },
-    ldapAdvancedSubview: {
-      id: "addressBookLdapAdvancedFormSubview",
-      nextStep: true,
-      previousStep: "ldapAccountSubview",
-      forwardEnabled: false,
-      subview: {},
-      templateId: "address-book-ldap-advanced-form",
-    },
     syncAddressBooksSubview: {
       id: "addressBookSyncSubview",
       nextStep: true,

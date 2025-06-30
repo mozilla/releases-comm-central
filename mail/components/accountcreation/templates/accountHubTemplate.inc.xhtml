@@ -8,7 +8,6 @@
 -->
 #include ./accountHubAddressBookAccountSelectTemplate.inc.xhtml
 #include ./accountHubAddressBookLdapAccountFormTemplate.inc.xhtml
-#include ./accountHubAddressBookLdapAdvancedFormTemplate.inc.xhtml
 #include ./accountHubAddressBookLocalFormTemplate.inc.xhtml
 #include ./accountHubAddressBookOptionSelectTemplate.inc.xhtml
 #include ./accountHubAddressBookRemoteAccountFormTemplate.inc.xhtml
@@ -173,14 +172,11 @@
   </address-book-remote-account-form>
   <address-book-ldap-account-form
     id="addressBookLdapAccountFormSubview"
+    class="account-hub-step"
+    title-id="account-hub-ldap-form"
     hidden="hidden"
   >
   </address-book-ldap-account-form>
-  <address-book-ldap-advanced-form
-    id="addressBookLdapAdvancedFormSubview"
-    hidden="hidden"
-  >
-  </address-book-ldap-advanced-form>
   <address-book-sync
     id="addressBookSyncSubview"
     class="account-hub-step"

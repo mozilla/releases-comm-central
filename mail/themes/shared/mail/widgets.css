@@ -475,6 +475,11 @@
   padding: 0;
 }
 
+.toggle-group {
+  display: flex;
+  align-items: center;
+}
+
 .toggle-checkbox {
   appearance: none;
   box-sizing: border-box;

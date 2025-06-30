@@ -377,6 +377,41 @@ header {
     }
   }
 
+  &.hub-form-grid {
+    gap: 18px;
+    --hub-width: 530px;
+    display: grid;
+    grid-template: repeat(3, auto 1fr) / repeat(4, 1fr);
+
+    & .input-cell {
+      display: grid;
+      grid-template-rows: subgrid;
+      grid-row: span 2;
+      gap: 3px;
+
+      &:not(.narrow) {
+        grid-column: span 2;
+      }
+
+      & input[type="text"] {
+        width: 100%;
+      }
+
+      & .toggle-group {
+        grid-row: 2;
+      }
+
+      &:has(.toggle-group) {
+        grid-column: span 3;
+      }
+    }
+
+    & .align-self-end {
+      grid-column: 1 / 5;
+      justify-self: end;
+    }
+  }
+
   &.password-form-body,
   &.email-form-body,
   &.option-select-body,

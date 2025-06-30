@@ -14,7 +14,6 @@ messenger.jar:
   content/messenger/accountcreation/views/start.mjs                                       (views/start.mjs)
   content/messenger/accountcreation/content/widgets/address-book-account-select.mjs       (content/widgets/address-book-account-select.mjs)
   content/messenger/accountcreation/content/widgets/address-book-ldap-account-form.mjs    (content/widgets/address-book-ldap-account-form.mjs)
-  content/messenger/accountcreation/content/widgets/address-book-ldap-advanced-form.mjs   (content/widgets/address-book-ldap-advanced-form.mjs)
   content/messenger/accountcreation/content/widgets/address-book-local-form.mjs           (content/widgets/address-book-local-form.mjs)
   content/messenger/accountcreation/content/widgets/address-book-option-select.mjs        (content/widgets/address-book-option-select.mjs)
   content/messenger/accountcreation/content/widgets/address-book-remote-account-form.mjs  (content/widgets/address-book-remote-account-form.mjs)

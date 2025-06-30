@@ -304,3 +304,17 @@ account-hub-server-warning-icon = Invalid URL
 account-hub-server-error-text = Please enter a valid URL
 
 account-hub-address-book-enter-password = Enter your CardDav account password
+
+account-hub-address-book-name-label = Name
+
+account-hub-address-book-name-error-text = Please enter a name
+
+account-hub-address-book-base-dn = Base DN
+
+account-hub-address-book-bind-dn = Bind DN
+
+account-hub-ldap-form = Connect to an LDAP directory
+
+account-hub-advanced-configuration-button = Advanced Configuration
+
+account-hub-ldap-ssl-toggle-label = Use secure connection (SSL)
