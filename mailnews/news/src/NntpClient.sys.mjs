@@ -187,7 +187,7 @@ export class NntpClient {
         return;
       case NO_SUCH_NEWSGROUP:
         this._updateStatus("no-such-newsgroup", {
-          newsgroup: this._newsFolder.prettyName,
+          newsgroup: this._newsFolder.localizedName,
         });
         // Close the connection without any further error message.
         this._actionDone(Cr.NS_ERROR_FAILURE);
