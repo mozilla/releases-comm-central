@@ -39,13 +39,7 @@ class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
                           nsSaveAllAttachmentsState* saveState,
                           nsIUrlListener* aListener);
   nsresult PromptIfFileExists(nsIFile* file);
-  nsresult DetachAttachments(const nsTArray<nsCString>& aContentTypeArray,
-                             const nsTArray<nsCString>& aUrlArray,
-                             const nsTArray<nsCString>& aDisplayNameArray,
-                             const nsTArray<nsCString>& aMessageUriArray,
-                             nsTArray<nsCString>* saveFileUris,
-                             nsIUrlListener* aListener,
-                             bool withoutWarning = false);
+
   nsresult SaveAllAttachments(const nsTArray<nsCString>& contentTypeArray,
                               const nsTArray<nsCString>& urlArray,
                               const nsTArray<nsCString>& displayNameArray,
@@ -62,8 +56,6 @@ class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
 
   void GetString(const nsString& aStringName, nsString& stringValue);
   nsresult InitStringBundle();
-  nsresult PromptIfDeleteAttachments(
-      bool saveFirst, const nsTArray<nsCString>& displayNameArray);
 
  private:
   nsresult GetLastSaveDirectory(nsIFile** aLastSaveAsDir);

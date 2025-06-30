@@ -2346,26 +2346,14 @@ function HandleMultipleAttachments(attachments, action) {
       if (attachments.length == 1) {
         attachments[0].detachFromMessage(top.browsingContext);
       } else {
-        top.messenger.detachAllAttachments(
-          attachmentContentTypeArray,
-          attachmentUrlArray,
-          attachmentDisplayNameArray,
-          attachmentMessageUriArray,
-          true // save
-        );
+        AttachmentInfo.detachAttachments(msgHdr, attachments, null, top.browsingContext);
       }
       return;
     case "delete":
       if (attachments.length == 1) {
         attachments[0].deleteFromMessage();
       } else {
-        top.messenger.detachAllAttachments(
-          attachmentContentTypeArray,
-          attachmentUrlArray,
-          attachmentDisplayNameArray,
-          attachmentMessageUriArray,
-          false // don't save
-        );
+        AttachmentInfo.deleteAttachments(msgHdr, attachments, false);
       }
       return;
     case "open": {

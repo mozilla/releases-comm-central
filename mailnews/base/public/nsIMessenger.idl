@@ -69,17 +69,6 @@ interface nsIMessenger : nsISupports {
                             in Array<AUTF8String> displayNameArray,
                             in Array<AUTF8String> messageUriArray);
 
-    // The nsIUrlListener will notify once the entire operation is over, including
-    // updating the IMAP server and reloading the modified messages. It is not
-    // limited to the file operation caused by the optional saveFirst.
-    void detachAllAttachments(in Array<AUTF8String> contentTypeArray,
-                              in Array<AUTF8String> urlArray,
-                              in Array<AUTF8String> displayNameArray,
-                              in Array<AUTF8String> messageUriArray,
-                              in boolean saveFirst, // if true this means detach
-                              [optional] in boolean withoutWarning,
-                              [optional] in nsIUrlListener aListener);
-
     nsIMsgDBHdr msgHdrFromURI(in AUTF8String aUri);
 
     AString formatFileSize(in unsigned long long aPos, [optional] in boolean aUseKB);

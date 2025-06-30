@@ -1077,26 +1077,7 @@ this.messages = class extends ExtensionAPIPersistent {
             attachmentInfos.push(attachmentInfo);
           }
 
-          await new Promise(resolve => {
-            const listener = {
-              OnStartRunningUrl() {},
-              OnStopRunningUrl() {
-                resolve();
-              },
-            };
-            const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-              Ci.nsIMessenger
-            );
-            messenger.detachAllAttachments(
-              attachmentInfos.map(attachmentInfo => attachmentInfo.contentType),
-              attachmentInfos.map(attachmentInfo => attachmentInfo.url),
-              attachmentInfos.map(attachmentInfo => attachmentInfo.name),
-              attachmentInfos.map(attachmentInfo => attachmentInfo.uri),
-              false, // aSaveFirst
-              true, // withoutWarning
-              listener
-            );
-          });
+          await AttachmentInfo.deleteAttachments(msgHdr, attachmentInfos);
         },
         async query(queryInfo) {
           const messageQuery = new MessageQuery(
