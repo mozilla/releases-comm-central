@@ -158,7 +158,7 @@ class nsMsgDatabase : public nsIMsgOfflineOpsDatabase {
                                               mdb_token colToken,
                                               nsTArray<uint8_t>& result);
 
-  nsresult GetEffectiveCharset(nsIMdbRow* row, nsACString& resultCharset);
+  virtual nsresult GetEffectiveCharset(nsIMdbRow* row, nsACString& resultCharset);
 
   // these methods take the property name as a string, not a token.
   // they should be used when the properties aren't accessed a lot

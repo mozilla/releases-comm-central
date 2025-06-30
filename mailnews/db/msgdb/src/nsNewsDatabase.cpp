@@ -12,6 +12,7 @@
 #include "nsMsgMessageFlags.h"
 #include "nsCOMPtr.h"
 #include "prlog.h"
+#include "nsIMsgNewsFolder.h"
 
 nsNewsDatabase::nsNewsDatabase() { m_readSet = nullptr; }
 
@@ -293,4 +294,23 @@ nsNewsDatabase::GetDefaultSortOrder(
   if (*aDefaultSortOrder != nsMsgViewSortOrder::descending)
     *aDefaultSortOrder = nsMsgViewSortOrder::ascending;
   return NS_OK;
+}
+
+nsresult nsNewsDatabase::GetEffectiveCharset(nsIMdbRow* row,
+                                             nsACString& resultCharset) {
+  resultCharset.Truncate();
+  nsresult rv = RowCellColumnToCharPtr(row, m_messageCharSetColumnToken,
+                                       getter_Copies(resultCharset));
+  if (NS_FAILED(rv) || resultCharset.IsEmpty() ||
+      resultCharset.EqualsLiteral("us-ascii")) {
+    if (mCachedCharset.IsEmpty()) {
+      mCachedCharset.AssignLiteral("UTF-8");
+      nsCOMPtr<nsIMsgNewsFolder> newsfolder(do_QueryInterface(m_folder));
+      if (newsfolder) {
+        newsfolder->GetCharset(mCachedCharset);
+      }
+    }
+    resultCharset.Assign(mCachedCharset);
+  }
+  return rv;
 }

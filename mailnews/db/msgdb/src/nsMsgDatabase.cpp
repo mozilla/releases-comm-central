@@ -11,7 +11,6 @@
 #include "nsIFile.h"
 #include "nsMailDatabase.h"
 #include "nsDBFolderInfo.h"
-#include "nsIMsgNewsFolder.h"
 #include "nsMsgThread.h"
 #include "nsIMsgSearchTerm.h"
 #include "nsIMdbFactoryFactory.h"
@@ -3244,10 +3243,6 @@ nsresult nsMsgDatabase::GetEffectiveCharset(nsIMdbRow* row,
   if (NS_FAILED(rv) || resultCharset.IsEmpty() ||
       resultCharset.EqualsLiteral("us-ascii")) {
     resultCharset.AssignLiteral("UTF-8");
-    nsCOMPtr<nsIMsgNewsFolder> newsfolder(do_QueryInterface(m_folder));
-    if (newsfolder) {
-      newsfolder->GetCharset(resultCharset);
-    }
   }
   return rv;
 }

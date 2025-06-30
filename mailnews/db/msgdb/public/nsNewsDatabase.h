@@ -48,10 +48,15 @@ class nsNewsDatabase : public nsMsgDatabase, public nsINewsDatabase {
   NS_IMETHOD GetDefaultSortOrder(
       nsMsgViewSortOrderValue* aDefaultSortOrder) override;
 
+  virtual nsresult GetEffectiveCharset(nsIMdbRow* row,
+                                       nsACString& resultCharset) override;
+
  protected:
   virtual ~nsNewsDatabase();
   // this is owned by the nsNewsFolder, which lives longer than the db.
   nsMsgKeySet* m_readSet;
+
+  nsCString mCachedCharset;
 };
 
 #endif  // COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSNEWSDATABASE_H_
