@@ -229,3 +229,29 @@ add_task(async function test_emailWithoutDomainDoesntProvideHost() {
 
   subview.resetState();
 });
+
+add_task(async function test_captureStateURLFieldPreferred() {
+  subview.setState();
+
+  const updated = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated",
+    false,
+    server.value === "https://unrelated.invalid"
+  );
+  EventUtils.sendString("test@example.com", subview.ownerGlobal);
+  EventUtils.synthesizeKey("KEY_Tab", {}, subview.onwerGlobal);
+  EventUtils.sendString("https://unrelated.invalid", subview.ownerGlobal);
+  await updated;
+
+  Assert.deepEqual(
+    subview.captureState(),
+    {
+      username: "test@example.com",
+      server: "https://unrelated.invalid",
+    },
+    "Should prefer server field contents over domain guessed from username"
+  );
+
+  subview.resetState();
+});

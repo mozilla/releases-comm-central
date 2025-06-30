@@ -114,7 +114,7 @@ class AddressBookRemoteAccountForm extends AccountHubStep {
 
     this.#currentData = {
       username,
-      server: domain || this.#davServer.value,
+      server: this.#davServer.value || domain || "",
     };
 
     this.dispatchEvent(
