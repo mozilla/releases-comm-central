@@ -3,13 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Tests nsIMessenger's detachAttachmentsWOPrompts
+ * Tests detach to file.
  */
 
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
-
+var { AttachmentInfo } = ChromeUtils.importESModule(
+  "resource:///modules/AttachmentInfo.sys.mjs"
+);
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -74,42 +76,33 @@ add_task(async function startMime() {
 });
 
 // detach any found attachments
-add_task(async function startDetach() {
-  const msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
-  const msgURI = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
+add_task(async function detachAttachments() {
+  let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
+  const attachment = new AttachmentInfo(gCallbackObject.attachments[0]);
+  const profileDir = do_get_profile();
+  await AttachmentInfo.detachAttachments(msgHdr, [attachment], profileDir.path);
 
-  const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-  const attachment = gCallbackObject.attachments[0];
-  const listener = new PromiseTestUtils.PromiseUrlListener();
+  // test that the detachment was successful
 
-  messenger.detachAttachmentsWOPrompts(
-    do_get_profile(),
-    [attachment.contentType],
-    [attachment.url],
-    [attachment.name],
-    [msgURI],
-    listener
-  );
-  await listener.promise;
-});
-
-/**
- * Test that the detachment was successful.
- */
-add_task(async function testDetach() {
   // The message contained a file "check.pdf" which should
   //  now exist in the profile directory.
-  const checkFile = do_get_profile().clone();
-  checkFile.append("check.pdf");
-  Assert.ok(checkFile.exists());
+  const checkFile = profileDir.clone();
+  checkFile.append(attachment.name);
+
+  Assert.ok(checkFile.exists(), `${checkFile.path} should exist`);
+  const fileInfo = await IOUtils.stat(checkFile.path);
+  Assert.equal(fileInfo.type, "regular", `The file type should be correct`);
+  Assert.greater(
+    fileInfo.size,
+    0,
+    `The file ${checkFile.path} should have size`
+  );
 
   // The message should now have a detached attachment. Read the message,
   //  and search for "AttachmentDetached" which is added on detachment.
 
   // Get the message header
-  const msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
+  msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
   const messageContent = await getContentFromMessage(msgHdr);
   Assert.ok(messageContent.includes("AttachmentDetached"));

@@ -69,26 +69,6 @@ interface nsIMessenger : nsISupports {
                             in Array<AUTF8String> displayNameArray,
                             in Array<AUTF8String> messageUriArray);
 
-    /**
-     * For a single message and attachments, save these attachments to a file, and
-     *  remove from the message. No warning windows will appear, so this is
-     *  suitable for use in test and filtering.
-     *
-     * @param aDestFolder       Folder to save files in
-     * @param aContentTypeArray Content types of the attachments
-     * @param aUrlArray         Urls for the attachments
-     * @param aDisplayNameArray Files names to save attachments to. Unique
-     *                           names will be created if needed.
-     * @param aMessageUriArray  Uri for the source message
-     * @param aListener         Listener to inform of start and stop of detach
-     */
-    void detachAttachmentsWOPrompts(in nsIFile aDestFolder,
-                                    in Array<AUTF8String> aContentTypeArray,
-                                    in Array<AUTF8String> aUrlArray,
-                                    in Array<AUTF8String> aDisplayNameArray,
-                                    in Array<AUTF8String> aMessageUriArray,
-                                    in nsIUrlListener aListener);
-
     // The nsIUrlListener will notify once the entire operation is over, including
     // updating the IMAP server and reloading the modified messages. It is not
     // limited to the file operation caused by the optional saveFirst.

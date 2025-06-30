@@ -345,69 +345,6 @@ nsresult nsMessenger::PromptIfFileExists(nsIFile* file) {
   return file->InitWithFile(localFile);
 }
 
-NS_IMETHODIMP
-nsMessenger::DetachAttachmentsWOPrompts(
-    nsIFile* aDestFolder, const nsTArray<nsCString>& aContentTypeArray,
-    const nsTArray<nsCString>& aUrlArray,
-    const nsTArray<nsCString>& aDisplayNameArray,
-    const nsTArray<nsCString>& aMessageUriArray, nsIUrlListener* aListener) {
-  NS_ENSURE_ARG_POINTER(aDestFolder);
-  MOZ_ASSERT(aContentTypeArray.Length() == aUrlArray.Length() &&
-             aUrlArray.Length() == aDisplayNameArray.Length() &&
-             aDisplayNameArray.Length() == aMessageUriArray.Length());
-
-  if (!aContentTypeArray.Length()) return NS_OK;
-  nsCOMPtr<nsIFile> attachmentDestination;
-  nsresult rv = aDestFolder->Clone(getter_AddRefs(attachmentDestination));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  PathString path = attachmentDestination->NativePath();
-
-  nsAutoString unescapedFileName;
-  ConvertAndSanitizeFileName(aDisplayNameArray[0], unescapedFileName);
-  rv = attachmentDestination->Append(unescapedFileName);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = attachmentDestination->CreateUnique(nsIFile::NORMAL_FILE_TYPE,
-                                           ATTACHMENT_PERMISSION);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Set up to detach the attachments once they've been saved out.
-  // NOTE: nsSaveAllAttachmentsState has a detach option, but I'd like to
-  // phase it out, so we set up a listener to call DetachAttachments()
-  // instead.
-  UrlListener* listener = new UrlListener;
-  nsSaveAllAttachmentsState* saveState = new nsSaveAllAttachmentsState(
-      aContentTypeArray, aUrlArray, aDisplayNameArray, aMessageUriArray,
-      path.get(),
-      false,  // detach = false
-      listener);
-
-  // Note: saveState is kept in existence by SaveAttachment() until after
-  // the last item is saved.
-  listener->mStopFn = [saveState, self = RefPtr<nsMessenger>(this),
-                       originalListener = nsCOMPtr<nsIUrlListener>(aListener)](
-                          nsIURI* url, nsresult status) -> nsresult {
-    if (NS_SUCCEEDED(status)) {
-      status = self->DetachAttachments(
-          saveState->m_contentTypeArray, saveState->m_urlArray,
-          saveState->m_displayNameArray, saveState->m_messageUriArray,
-          &saveState->m_savedFiles, originalListener,
-          saveState->m_withoutWarning);
-    }
-    if (NS_FAILED(status) && originalListener) {
-      return originalListener->OnStopRunningUrl(nullptr, status);
-    }
-    return NS_OK;
-  };
-
-  // This method is used in filters, where we don't want to warn
-  saveState->m_withoutWarning = true;
-
-  rv = SaveAttachment(attachmentDestination, aUrlArray[0], aMessageUriArray[0],
-                      aContentTypeArray[0], saveState, nullptr);
-  return rv;
-}
-
 // Internal helper for Saving attachments.
 // It handles a single attachment, but multiple attachments can be saved
 // by passing in an nsSaveAllAttachmentsState. In this case, SaveAttachment()
