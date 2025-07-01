@@ -1197,7 +1197,7 @@ function cmdSync(e) {
         if (view.prefs.displayHeader) {
           view.setHeaderState(false);
         }
-        view.changeCSS(view.getFontCSS("data"), "cz-fonts");
+        changeCSS(window, view.getFontCSS("data"), "cz-fonts");
         if (view.prefs.displayHeader) {
           view.setHeaderState(true);
         }
@@ -1212,7 +1212,7 @@ function cmdSync(e) {
 
     case "sync-motif":
       fun = function () {
-        view.changeCSS(view.prefs["motif.current"]);
+        changeCSS(window, view.prefs["motif.current"]);
         updateAppMotif(view.prefs["motif.current"]);
       };
       break;

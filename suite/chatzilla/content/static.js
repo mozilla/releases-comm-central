@@ -175,7 +175,6 @@ function init() {
 
   importFromFrame("updateHeader");
   importFromFrame("setHeaderState");
-  importFromFrame("changeCSS");
   importFromFrame("scrollToElement");
 
   processStartupScripts();
@@ -2508,6 +2507,33 @@ function removeColorCodes(msg) {
   return msg;
 }
 
+function changeCSS(cwin, url, id) {
+  if (!cwin) {
+    return;
+  }
+
+  if (!id) {
+    id = "main-css";
+  }
+
+  let doc = cwin.document;
+  let node = doc.getElementById(id);
+
+  if (!node) {
+    node = doc.createElement("link");
+    node.setAttribute("id", id);
+    node.setAttribute("rel", "stylesheet");
+    node.setAttribute("type", "text/css");
+    let head = doc.getElementsByTagName("head")[0];
+    head.appendChild(node);
+  } else if (node.getAttribute("href") == url) {
+    return;
+  }
+
+  node.setAttribute("href", url);
+  cwin.scrollTo(0, doc.body.clientHeight);
+}
+
 client.progressListener = {};
 
 client.progressListener.QueryInterface = ChromeUtils.generateQI([
@@ -2563,7 +2589,7 @@ client.progressListener.onStateChange = function (
       if (cwin && "initOutputWindow" in cwin) {
         if (!("initialized" in cwin && cwin.initialized)) {
           let view = frame.source;
-          cwin.changeCSS(view.prefs["motif.current"]);
+          changeCSS(cwin, view.prefs["motif.current"]);
           let doc = cwin.document;
           let name = "unicodeName" in view ? view.unicodeName : view.name;
           let splash = doc.getElementById("splash");
@@ -2571,7 +2597,7 @@ client.progressListener.onStateChange = function (
           let output = doc.getElementById("output");
           output.appendChild(client.adoptNode(view.messages, doc));
           cwin.initOutputWindow(client, view, onMessageViewClick);
-          cwin.changeCSS(view.getFontCSS("data"), "cz-fonts");
+          changeCSS(cwin, view.getFontCSS("data"), "cz-fonts");
           scrollDown(frame, true);
         }
       }

@@ -146,28 +146,6 @@ function cacheNodes(pfx, ary, nodes) {
   return nodes;
 }
 
-function changeCSS(url, id) {
-  if (!id) {
-    id = "main-css";
-  }
-
-  var node = document.getElementById(id);
-
-  if (!node) {
-    node = document.createElement("link");
-    node.setAttribute("id", id);
-    node.setAttribute("rel", "stylesheet");
-    node.setAttribute("type", "text/css");
-    var head = document.getElementsByTagName("head")[0];
-    head.appendChild(node);
-  } else if (node.getAttribute("href") == url) {
-    return;
-  }
-
-  node.setAttribute("href", url);
-  window.scrollTo(0, window.document.body.clientHeight);
-}
-
 function scrollToElement(element, position) {
   /* The following values can be used for element:
    *   selection       - current selected text.
