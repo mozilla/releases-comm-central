@@ -2561,12 +2561,18 @@ client.progressListener.onStateChange = function (
     } else {
       var cwin = getContentWindow(frame);
       if (cwin && "initOutputWindow" in cwin) {
-        if (!("_called_initOutputWindow" in cwin)) {
-          cwin._called_initOutputWindow = true;
-          cwin.initOutputWindow(client, frame.source, onMessageViewClick);
-          cwin.changeCSS(frame.source.getFontCSS("data"), "cz-fonts");
+        if (!("initialized" in cwin && cwin.initialized)) {
+          let view = frame.source;
+          cwin.changeCSS(view.prefs["motif.current"]);
+          let doc = cwin.document;
+          let name = "unicodeName" in view ? view.unicodeName : view.name;
+          let splash = doc.getElementById("splash");
+          splash.appendChild(doc.createTextNode(name));
+          let output = doc.getElementById("output");
+          output.appendChild(client.adoptNode(view.messages, doc));
+          cwin.initOutputWindow(client, view, onMessageViewClick);
+          cwin.changeCSS(view.getFontCSS("data"), "cz-fonts");
           scrollDown(frame, true);
-          //dd("initOutputWindow(" + frame.source.getURL() + ")");
         }
       }
       // XXX: For about:blank it won't find initOutputWindow. Cope.
@@ -2586,9 +2592,8 @@ client.progressListener.onStateChange = function (
     frame = getFrameForDOMWindow(webProgress.DOMWindow);
     if (frame) {
       var cwin = getContentWindow(frame);
-      if (cwin && "_called_initOutputWindow" in cwin) {
+      if (cwin && "initialized" in cwin && cwin.initialized) {
         scrollDown(frame, false);
-        //dd("scrollDown(" + frame.source.getURL() + ")");
       }
     }
   }

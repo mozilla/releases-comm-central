@@ -30,14 +30,13 @@ var headers = {
   },
 };
 
-var initOutputWindow = stock_initOutputWindow;
-
-function stock_initOutputWindow(newClient, newView, newClickHandler) {
+var initOutputWindow = function (newClient, newView, newClickHandler) {
   function initHeader() {
     /* it's better if we wait a half a second before poking at these
      * dom nodes. */
-    setHeaderState(view.prefs.displayHeader);
-    updateHeader();
+    if (view.TYPE in headers) {
+      setHeaderState(view.prefs.displayHeader);
+    }
     var div = document.getElementById("messages-outer");
     div.removeAttribute("hidden");
     window.scrollTo(0, window.document.body.clientHeight);
@@ -54,11 +53,6 @@ function stock_initOutputWindow(newClient, newView, newClickHandler) {
   getObjectDetails = mainWindow.getObjectDetails;
   dd = mainWindow.dd;
 
-  changeCSS(view.prefs["motif.current"]);
-
-  var output = document.getElementById("output");
-  output.appendChild(adoptNode(view.messages));
-
   if (view.TYPE in headers) {
     header = cacheNodes(headers[view.TYPE].prefix, headers[view.TYPE].fields);
     // Turn off accessibility announcements: they're useless as all these
@@ -69,14 +63,6 @@ function stock_initOutputWindow(newClient, newView, newClickHandler) {
     header.container.setAttribute("aria-live", "off");
     header.update = headers[view.TYPE].update;
   }
-
-  var name;
-  if ("unicodeName" in view) {
-    name = view.unicodeName;
-  } else {
-    name = view.name;
-  }
-  updateSplash(name);
 
   setTimeout(initHeader, 500);
 
@@ -267,18 +253,13 @@ function adoptNode(node) {
   return client.adoptNode(node, document);
 }
 
-function setText(field, text, checkCondition) {
+function setText(field, text) {
   if (!header[field].firstChild) {
     header[field].appendChild(document.createTextNode(""));
   }
 
   if (typeof text != "string") {
     text = MSG_UNKNOWN;
-    if (checkCondition) {
-      setAttribute(field, "condition", "red");
-    }
-  } else if (checkCondition) {
-    setAttribute(field, "condition", "green");
   }
 
   header[field].firstChild.data = text;
@@ -319,13 +300,7 @@ function updateHeader() {
   }
 
   for (var id in header) {
-    var value;
-
-    if (id == "url-anchor") {
-      value = view.getURL();
-      setAttribute("url-anchor", "href", value);
-      setText("url-anchor", value);
-    } else if (id in view) {
+    if (id in view) {
       setText(id, view[id]);
     }
   }
@@ -372,9 +347,4 @@ function updateDCCFile() {
   );
 
   setAttribute("progressbar", "width", pcent + "%");
-}
-
-function updateSplash(content) {
-  var splash = document.getElementById("splash");
-  splash.appendChild(document.createTextNode(content));
 }
