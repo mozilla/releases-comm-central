@@ -244,6 +244,10 @@ class AccountHubHeader extends HTMLElement {
   disconnectedCallback() {
     this.#closeButton.removeEventListener("click", this.#closeAccountHub());
   }
+
+  showSubheader() {
+    this.shadowRoot.querySelector("#accountHubHeaderSubheader").hidden = false;
+  }
 }
 
 customElements.define("account-hub-header", AccountHubHeader);

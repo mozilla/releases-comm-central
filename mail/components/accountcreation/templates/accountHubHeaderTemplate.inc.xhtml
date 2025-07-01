@@ -19,8 +19,13 @@
     <!-- Title Text for Email Setup -->
     <h1 id="accountHubHeaderTitle"
         class="sub-view-title">
-      <slot name="title"></slot>
+        <slot name="title"></slot>
     </h1>
+    <h2 id="accountHubHeaderSubheader"
+        class="sub-view-sub-header"
+        hidden="hidden">
+        <slot name="subheader"></slot>
+    </h2>
     <details id="emailFormNotification" class="notification-bar">
       <summary id="emailFormNotificationSummary"
                class="notification-title-container">

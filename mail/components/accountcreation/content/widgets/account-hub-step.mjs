@@ -8,12 +8,13 @@ import "chrome://messenger/content/accountcreation/content/widgets/account-hub-h
  * Account Hub Step Template
  * Template ID: #accountHubStepTemplate (from accountHubStepTemplate.inc.xhtml)
  *
- * @slot header - Content displayed as the header.
- * @slot subheader - Content displayed as the subheader
  * @slot content - Body content for the step.
  * @attribute {string} title-id - ID of the string to use as title for the step.
  * @attribute {string} subheader-id - ID of the string to use as sub title for
  *  the step.
+ * @attribute {string} subheader-text - String to display as the subheader.
+ *  Can only specify either this or subheader-id, if both are present the
+ *  id will take precedence.
  */
 export class AccountHubStep extends HTMLElement {
   /** @type {DOMLocalization} */
@@ -69,6 +70,16 @@ export class AccountHubStep extends HTMLElement {
         this.shadowRoot.querySelector("#subheader"),
         this.getAttribute("subheader-id")
       );
+
+      this.#header.showSubheader();
+      return;
+    }
+
+    if (this.hasAttribute("subheader-text")) {
+      this.shadowRoot.querySelector("#subheader").textContent =
+        this.getAttribute("subheader-text");
+
+      this.#header.showSubheader();
     }
   }
 

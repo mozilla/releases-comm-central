@@ -263,6 +263,13 @@ header {
     margin-block: var(--hub-header-margin-block-start) 0;
     color: var(--color-primary-pressed);
   }
+
+  & .sub-view-sub-header {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-block: var(--hub-subheader-margin-block-start) 0;
+    color: var(--color-primary-pressed);
+  }
 }
 
 .branding-header {
