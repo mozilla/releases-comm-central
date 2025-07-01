@@ -7,6 +7,7 @@
 #include "nsObjCExceptions.h"
 #include "nsString.h"
 #include "mozilla/ErrorResult.h"
+#include "prtime.h"
 
 #include <Carbon/Carbon.h>
 #import <Cocoa/Cocoa.h>
@@ -66,7 +67,45 @@ nsMessengerOSXIntegration::OnExit() {
 
 NS_IMETHODIMP
 nsMessengerOSXIntegration::GetIsInDoNotDisturbMode(bool* inDNDMode) {
-  // TODO: Implement this.
-  *inDNDMode = false;
+  // $ defaults -currentHost read com.apple.notificationcenterui
+
+  CFStringRef DO_NOT_DISTURB = CFStringCreateWithCString(
+      kCFAllocatorDefault, "doNotDisturb", kCFStringEncodingUTF8);
+  CFStringRef DND_START = CFStringCreateWithCString(
+      kCFAllocatorDefault, "dndStart", kCFStringEncodingUTF8);
+  CFStringRef DND_END = CFStringCreateWithCString(kCFAllocatorDefault, "dndEnd",
+                                                  kCFStringEncodingUTF8);
+  CFStringRef APP_ID = CFStringCreateWithCString(
+      kCFAllocatorDefault, "com.apple.notificationcenterui",
+      kCFStringEncodingUTF8);
+
+  Boolean keyExists;
+  *inDNDMode =
+      CFPreferencesGetAppBooleanValue(DO_NOT_DISTURB, APP_ID, &keyExists);
+  if (*inDNDMode) {
+    // Do Not Disturb is explicitly enabled.
+    return NS_OK;
+  }
+
+  uint32_t dndStart =
+      CFPreferencesGetAppIntegerValue(DND_START, APP_ID, &keyExists);
+  uint32_t dndEnd =
+      CFPreferencesGetAppIntegerValue(DND_END, APP_ID, &keyExists);
+  if (dndStart == dndEnd) {
+    // The values match or they didn't exist. `keyExists` is not reliable, but
+    // the values will both be 0 if Do Not Disturb is not scheduled.
+    return NS_OK;
+  }
+
+  PRExplodedTime now;
+  PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &now);
+  uint32_t nowMinute = now.tm_hour * 60 + now.tm_min;
+
+  if (dndStart < dndEnd) {
+    *inDNDMode = nowMinute >= dndStart && nowMinute < dndEnd;
+  } else {
+    *inDNDMode = nowMinute < dndEnd || nowMinute >= dndStart;
+  }
+
   return NS_OK;
 }
