@@ -2513,11 +2513,11 @@ function cmdMarker(e) {
   }
 
   var view = e.sourceObject;
-  if (!("setActivityMarker" in e.sourceObject)) {
+  if (!("setActivityMarker" in view)) {
     return;
   }
 
-  var marker = e.sourceObject.getActivityMarker();
+  let marker = view.getActivityMarker();
   if (e.command.name == "marker" && marker == null) {
     // Marker is not currently set but user wants to scroll to it,
     // so we just call set like normal.
@@ -2526,14 +2526,14 @@ function cmdMarker(e) {
 
   switch (e.command.name) {
     case "marker" /* Scroll to the marker. */:
-      e.sourceObject.scrollToElement("marker", "center");
+      scrollToElement(view, marker, "center");
       break;
     case "marker-set" /* Set (or reset) the marker. */:
-      e.sourceObject.setActivityMarker(true);
-      e.sourceObject.scrollToElement("marker", "center");
+      marker = view.setActivityMarker(true);
+      scrollToElement(view, marker, "center");
       break;
     case "marker-clear" /* Clear the marker. */:
-      e.sourceObject.setActivityMarker(false);
+      view.setActivityMarker(false);
       break;
     default:
       view.display(MSG_ERR_UNKNOWN_COMMAND, e.command.name);
@@ -3748,7 +3748,7 @@ function cmdJumpToAnchor(e) {
   }
 
   dispatch("set-current-view", { view: e.channel });
-  e.channel.scrollToElement(row, "center");
+  scrollToElement(e.channel, row, "center");
 }
 
 function cmdIdentify(e) {

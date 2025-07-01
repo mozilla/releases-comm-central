@@ -175,7 +175,6 @@ function init() {
 
   importFromFrame("updateHeader");
   importFromFrame("setHeaderState");
-  importFromFrame("scrollToElement");
 
   processStartupScripts();
 
@@ -2532,6 +2531,77 @@ function changeCSS(cwin, url, id) {
 
   node.setAttribute("href", url);
   cwin.scrollTo(0, doc.body.clientHeight);
+}
+
+function scrollToElement(view, element, position) {
+  /* The following values can be used for element:
+   *   selection       - current selected text.
+   *   [any DOM node]  - anything :)
+   *
+   * The following values can be used for position:
+   *   top             - scroll so it is at the top.
+   *   center          - scroll so it is in the middle.
+   *   bottom          - scroll so it is at the bottom.
+   *   inview          - scroll so it is in view.
+   */
+  let cwin = getContentWindow(view.frame);
+
+  if (element == "selection") {
+    let sel = cwin.getSelection();
+    if (sel) {
+      element = sel.anchorNode;
+    } else {
+      element = null;
+    }
+  }
+
+  if (!element) {
+    return;
+  }
+
+  // Calculate element's position in document.
+  let pos = { top: 0, center: 0, bottom: 0 };
+  // Find first parent with offset data.
+  while (element && !("offsetParent" in element)) {
+    element = element.parentNode;
+  }
+
+  let elt = element;
+  // Calculate total offset data.
+  while (elt) {
+    pos.top += 0 + elt.offsetTop;
+    elt = elt.offsetParent;
+  }
+  pos.center = pos.top + element.offsetHeight / 2;
+  pos.bottom = pos.top + element.offsetHeight;
+
+  // Store the positions to align the element with.
+  let cont = { top: 0, center: cwin.innerHeight / 2, bottom: cwin.innerHeight };
+
+  if (cwin.header && !cwin.header.container.hasAttribute("hidden")) {
+    /* Offset height doesn't include the margins, so we get to do that
+     * ourselves via getComputedStyle(). We're assuming that will return
+     * a px value, which is all but guaranteed.
+     */
+    let headerHeight = cwin.header.container.offsetHeight;
+    let css = getComputedStyle(cwin.header.container, null);
+    headerHeight += parseInt(css.marginTop) + parseInt(css.marginBottom);
+    cont.top += headerHeight;
+    cont.center += headerHeight / 2;
+  }
+
+  // Pick between 'top' and 'bottom' for 'inview' position.
+  if (position == "inview") {
+    if (pos.top - cwin.scrollY < cont.top) {
+      position = "top";
+    } else if (pos.bottom - cwin.scrollY > cont.bottom) {
+      position = "bottom";
+    } else {
+      return;
+    }
+  }
+
+  cwin.scrollTo(0, pos[position] - cont[position]);
 }
 
 client.progressListener = {};

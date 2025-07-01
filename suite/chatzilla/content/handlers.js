@@ -900,7 +900,7 @@ client.onFindEnd =
   CIRCDCCChat.prototype.onFindEnd =
   CIRCDCCFileTransfer.prototype.onFindEnd =
     function (e) {
-      this.scrollToElement("selection", "inview");
+      scrollToElement(this, "selection", "inview");
     };
 
 CIRCChannel.prototype._updateConferenceMode = function () {
@@ -2924,7 +2924,7 @@ client.setActivityMarker =
   CIRCDCCFileTransfer.prototype.setActivityMarker =
     function (state) {
       if (!client.initialized) {
-        return;
+        return null;
       }
 
       // Always clear the activity marker first.
@@ -2936,11 +2936,12 @@ client.setActivityMarker =
       if (state) {
         // Mark the last row.
         var target = this.messages.firstChild.lastChild;
-        if (!target) {
-          return;
+        if (target) {
+          target.classList.add("chatzilla-line-marker");
+          return target;
         }
-        target.classList.add("chatzilla-line-marker");
       }
+      return null;
     };
 
 client.getActivityMarker =
