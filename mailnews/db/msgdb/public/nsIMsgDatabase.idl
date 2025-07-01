@@ -306,8 +306,11 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
    */
   attribute PRTime lastUseTime;
 
-  // get a message header for the given key. Caller must release()!
-
+  /**
+   * Returns a nsIMsgDBHdr for the corresponding key.
+   * If the requested message is not in the database, this will throw
+   * NS_ERROR_ILLEGAL_VALUE.
+   */
   nsIMsgDBHdr getMsgHdrForKey(in nsMsgKey key);
   nsIMsgDBHdr getMsgHdrForMessageID(in string messageID);
 
@@ -551,6 +554,10 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   void setUint32PropertyByHdr(in nsIMsgDBHdr aMsgHdr,
                               in string aProperty, in unsigned long aValue);
 
+  /**
+   * Returns the key of the first new message.
+   * If there are no new messages this will be nsMsgKey_None.
+   */
   readonly attribute nsMsgKey firstNew;
 
   attribute nsIMsgRetentionSettings msgRetentionSettings;

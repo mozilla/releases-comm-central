@@ -370,8 +370,9 @@ interface nsIMsgFolder : nsISupports {
   readonly attribute boolean hasFolderOrSubfolderNewMessages;
 
   /**
-   * return the first new message in the folder
-   *
+   * Return the first new message in the folder.
+   * If there are no new messages, accessing this will throw an
+   * error.
    */
   readonly attribute nsIMsgDBHdr firstNewMessage;
 
