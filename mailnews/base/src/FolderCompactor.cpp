@@ -592,6 +592,12 @@ NS_IMETHODIMP FolderCompactor::OnCompactionComplete(nsresult status) {
   mDB->ForceClosed();
   mDB = nullptr;
 
+  // While we were compacting, something else might have opened the database
+  // (Bug 1959858, Bug 1965686).
+  // That'll mean the file is locked (under Windows), and we won't be able
+  // to install the compacted one! So we'll attempt another force close here:
+  mDBService->ForceFolderDBClosed(mFolder);
+
   // If we succeeded thus far, it's time to replace the old DB file with our
   // shiny new one. File renames are the most atomic tool we've got, so we'll
   // use them to make sure even if there's a crash or power-loss, things should
