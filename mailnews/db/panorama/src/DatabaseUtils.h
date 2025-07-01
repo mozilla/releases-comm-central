@@ -6,6 +6,7 @@
 #define COMM_MAILNEWS_DB_PANORAMA_SRC_DATABASEUTILS_H_
 
 #include "mozilla/Preferences.h"
+#include "mozilla/StaticPrefs_mail.h"
 #include "mozIStorageFunction.h"
 #include "nsCOMPtr.h"
 #include "nsIAbManager.h"
@@ -43,9 +44,8 @@ class AddressFormatFunction final : public mozIStorageFunction,
  public:
   AddressFormatFunction() {
     // All of this will be unnecessary once we have static preferences.
-    mShowCondensedAddresses =
-        Preferences::GetBool("mail.showCondensedAddresses", true);
-    mAddressDisplayFormat = Preferences::GetInt("mail.addressDisplayFormat", 0);
+    mShowCondensedAddresses = StaticPrefs::mail_showCondensedAddresses();
+    mAddressDisplayFormat = StaticPrefs::mail_addressDisplayFormat();
 
     Preferences::AddStrongObserver(this, "mail.showCondensedAddresses");
     Preferences::AddStrongObserver(this, "mail.addressDisplayFormat");

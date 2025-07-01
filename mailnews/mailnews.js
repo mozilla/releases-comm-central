@@ -236,8 +236,6 @@ pref("mail.addr_book.mapit_url.5.name", "chrome://messenger-region/locale/region
 pref("mail.addr_book.mapit_url.5.format", "chrome://messenger-region/locale/region.properties");
 pref("mailnews.start_page.url", "chrome://messenger-region/locale/region.properties");
 pref("mail.accountwizard.deferstorage", false);
-// 0: name + email | 1: email only | 2: name only.
-pref("mail.addressDisplayFormat", 0);
 // |false|: Show both name and address, even for people in my addressbook.
 pref("mail.showCondensedAddresses", false);
 #endif
@@ -928,11 +926,6 @@ pref("mailnews.labels.color.3", "#009900");
 pref("mailnews.labels.color.4", "#3333FF");
 // default: purple
 pref("mailnews.labels.color.5", "#993399");
-
-// Whether the colors from tags should be applied only to the message(s)
-// actually tagged, or also to any collapsed threads which contain tagged
-// messages.
-pref("mailnews.display_reply_tag_colors_for_collapsed_threads", true);
 
 //default null headers
 //example "X-Warn: XReply", list of hdrs separated by ": "

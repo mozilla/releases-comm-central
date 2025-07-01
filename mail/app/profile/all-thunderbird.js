@@ -371,8 +371,6 @@ pref("mail.ui-rdf.version", 0);
 /////////////////////////////////////////////////////////////////
 // Overrides of the core mailnews.js and composer.js prefs
 /////////////////////////////////////////////////////////////////
-pref("mail.showCondensedAddresses", true); // show the friendly display name for people I know
-
 pref("mailnews.attachments.display.start_expanded", false);
 // hidden pref for changing how we present attachments in the message pane
 pref("mail.pane_config.dynamic", 2);

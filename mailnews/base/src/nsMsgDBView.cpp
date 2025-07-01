@@ -289,7 +289,7 @@ static nsString NoSpoofingSender(const nsString& name,
 static nsString GetSenderFullAddress(const nsString& name,
                                      const nsACString& emailAddress) {
   int32_t addressDisplayFormat =
-      Preferences::GetInt("mail.addressDisplayFormat", 0);
+      mozilla::StaticPrefs::mail_addressDisplayFormat();
 
   nsString fullAddress;
   if (addressDisplayFormat == 0) {

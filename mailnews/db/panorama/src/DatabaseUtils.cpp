@@ -15,7 +15,6 @@
 #include "nsString.h"
 
 using mozilla::intl::nsTStringToBufferAdapter;
-using mozilla::intl::String;
 
 namespace mozilla::mailnews {
 
@@ -24,9 +23,9 @@ nsCString DatabaseUtils::Normalize(const nsACString& inString) {
   nsAutoString inStringW = NS_ConvertUTF8toUTF16(inString);
   nsAutoString outStringW;
   nsTStringToBufferAdapter buffer(outStringW);
-  auto alreadyNormalized =
-      String::Normalize(String::NormalizationForm::NFC, inStringW, buffer);
-  if (alreadyNormalized.unwrap() == String::AlreadyNormalized::Yes) {
+  auto alreadyNormalized = intl::String::Normalize(
+      intl::String::NormalizationForm::NFC, inStringW, buffer);
+  if (alreadyNormalized.unwrap() == intl::String::AlreadyNormalized::Yes) {
     return nsCString(inString);
   }
   return NS_ConvertUTF16toUTF8(buffer.data());
@@ -164,10 +163,9 @@ NS_IMETHODIMP
 AddressFormatFunction::Observe(nsISupports* aSubject, const char* aTopic,
                                const char16_t* aData) {
   if (!NS_strcmp(aData, u"mail.showCondensedAddresses")) {
-    mShowCondensedAddresses =
-        Preferences::GetBool("mail.showCondensedAddresses", true);
+    mShowCondensedAddresses = StaticPrefs::mail_showCondensedAddresses();
   } else if (!NS_strcmp(aData, u"mail.addressDisplayFormat")) {
-    mAddressDisplayFormat = Preferences::GetInt("mail.addressDisplayFormat", 0);
+    mAddressDisplayFormat = StaticPrefs::mail_addressDisplayFormat();
   }
   return NS_OK;
 }

@@ -22,6 +22,15 @@
   value: true
   mirror: always
 
+# What to display if `showCondensedAddresses` is false.
+# - 0: name + email
+# - 1: email only
+# - 2: name only
+- name: mail.addressDisplayFormat
+  type: int32_t
+  value: 0
+  mirror: always
+
 # Whether the colors from tags should be applied only to the message(s)
 # actually tagged, or also to any collapsed threads which contain tagged
 # messages.
