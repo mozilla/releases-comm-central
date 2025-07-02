@@ -638,6 +638,8 @@ var folderPaneContextMenu = {
 
     this._showMenuItem("folderPaneContext-manageTags", isSmartTagsFolder);
 
+    this._showMenuItem("folderPaneContext-resetSort", isServer);
+
     // If source folder is virtual, allow only "move" within its own server.
     // Don't show "copy" and "again" and don't show "recent" and "favorite".
     // Also, check if this is a top-level smart folder, e.g., virtual "Inbox"
@@ -705,6 +707,7 @@ var folderPaneContextMenu = {
     this._showMenuItem("folderPaneContext-settings", false);
     this._showMenuItem("folderPaneContext-filters", false);
     this._showMenuItem("folderPaneContext-manageTags", false);
+    this._showMenuItem("folderPaneContext-resetSort", false);
 
     // Show only the standard commands that don't require special conditions.
     this._showMenuItem("folderPaneContext-openNewTab", true);
@@ -901,6 +904,9 @@ var folderPaneContextMenu = {
         break;
       case "folderPaneContext-manageTags":
         goDoCommand("cmd_manageTags");
+        break;
+      case "folderPaneContext-resetSort":
+        folderPane.clearUserSortOrder(folder);
         break;
       default: {
         // Handle folder context menu items move to, copy to.
@@ -1286,27 +1292,7 @@ var folderPane = {
       },
 
       _recurseSubFolders(parentFolder) {
-        let subFolders;
-        try {
-          subFolders = parentFolder.subFolders;
-        } catch (ex) {
-          console.error(
-            new Error(
-              `Unable to access the subfolders of ${parentFolder.URI}`,
-              { cause: ex }
-            )
-          );
-        }
-        if (!subFolders?.length) {
-          return;
-        }
-
-        for (let i = 0; i < subFolders.length; i++) {
-          const folder = subFolders[i];
-          if (folderPane._isGmailFolder(folder)) {
-            subFolders.splice(i, 1, ...folder.subFolders);
-          }
-        }
+        const subFolders = folderPane._getSubFolders(parentFolder);
 
         subFolders.sort(FolderUtils.compareFolders);
 
@@ -2361,26 +2347,7 @@ var folderPane = {
    *   only some subfolders to the row.
    */
   _addSubFolders(parentFolder, parentRow, modeName, filterFunction) {
-    let subFolders;
-    try {
-      subFolders = parentFolder.subFolders;
-    } catch (ex) {
-      console.error(
-        new Error(`Unable to access the subfolders of ${parentFolder.URI}`, {
-          cause: ex,
-        })
-      );
-    }
-    if (!subFolders?.length) {
-      return;
-    }
-
-    for (let i = 0; i < subFolders.length; i++) {
-      const folder = subFolders[i];
-      if (this._isGmailFolder(folder)) {
-        subFolders.splice(i, 1, ...folder.subFolders);
-      }
-    }
+    const subFolders = this._getSubFolders(parentFolder);
 
     subFolders.sort(FolderUtils.compareFolders);
 
@@ -4169,6 +4136,69 @@ var folderPane = {
   },
 
   /**
+   * Find all first level subfolders of a parent folder and skip the Gmail ghost
+   * folder.
+   *
+   * @param {nsIMsgFolder} parentFolder
+   * @returns {nsIMsgFolder[]} - Array of found folders.
+   */
+  _getSubFolders(parentFolder) {
+    let subFolders;
+    try {
+      subFolders = parentFolder.subFolders;
+    } catch (ex) {
+      console.error(
+        new Error(`Unable to access the subfolders of ${parentFolder.URI}`, {
+          cause: ex,
+        })
+      );
+    }
+    if (!subFolders?.length) {
+      return [];
+    }
+
+    for (let i = 0; i < subFolders.length; i++) {
+      const folder = subFolders[i];
+      if (this._isGmailFolder(folder)) {
+        subFolders.splice(i, 1, ...folder.subFolders);
+      }
+    }
+
+    return subFolders;
+  },
+
+  /**
+   * Clear any previously applied custom sort order to all the child folders of
+   * a parent.
+   *
+   * @param {nsIMsgFolder} parentFolder
+   */
+  clearUserSortOrder(parentFolder) {
+    const folders = [];
+    for (const folder of this._getSubFolders(parentFolder)) {
+      if (folder.userSortOrder == Ci.nsIMsgFolder.NO_SORT_VALUE) {
+        continue;
+      }
+
+      folder.userSortOrder = Ci.nsIMsgFolder.NO_SORT_VALUE;
+      folders.push(folder);
+
+      if (folder.hasSubFolders) {
+        this.clearUserSortOrder(folder);
+      }
+    }
+
+    for (const changedFolder of folders) {
+      this.setOrderToRowInAllModes(changedFolder, changedFolder.sortOrder);
+      this.refreshFolderPaneUI(changedFolder);
+    }
+
+    window.dispatchEvent(
+      new CustomEvent("folder-sort-order-restored", { bubbles: true })
+    );
+  },
+
+  /**
    * Set folder sort order to rows for the folder.
    *
    * @param {nsIMsgFolder} folder
@@ -4277,10 +4307,19 @@ var folderPane = {
     folder.userSortOrder = folderOrder; // Update DB.
     folderPane.setOrderToRowInAllModes(folder, folderOrder); // Update row info.
 
+    this.refreshFolderPaneUI(folder);
+  },
+
+  /**
+   * Refresh the folder pane UI to ensure that the recently moved folders are
+   * properly sorted.
+   *
+   * @param {nsIMsgFolder} folder
+   */
+  refreshFolderPaneUI(folder) {
     // Update folder pane UI.
     const movedFolderURI = folder.URI;
-    const modeNames = folderPane.activeModes;
-    for (const name of modeNames) {
+    for (const name of this.activeModes) {
       // Find a parent UI element of folder in this mode.
       // Note that the parent folder on the DB may not be the parent UI element
       // (as is the case with Gmail). So we find the parent UI element by

@@ -52,7 +52,7 @@ add_setup(async function () {
   });
 });
 
-async function dargAndDropFolder(element, target, below = false) {
+async function dragAndDropFolder(element, target, below = false) {
   const elementRow = about3Pane.folderPane.getRowForFolder(element);
   const targetRow = about3Pane.folderPane.getRowForFolder(target);
   const targetRect = targetRow.getBoundingClientRect();
@@ -133,7 +133,7 @@ add_task(async function test_sort_single_folder() {
   Assert.equal(folderTree.selectedIndex, 3);
 
   // Test dragging folderB above folderA.
-  await dargAndDropFolder(folderB, folderA);
+  await dragAndDropFolder(folderB, folderA);
 
   Assert.deepEqual(
     Array.from(
@@ -156,7 +156,7 @@ add_task(async function test_sort_single_folder() {
   );
 
   // Test dragging folderC below folderB.
-  await dargAndDropFolder(folderC, folderB, true);
+  await dragAndDropFolder(folderC, folderB, true);
 
   Assert.deepEqual(
     Array.from(
@@ -179,7 +179,7 @@ add_task(async function test_sort_single_folder() {
   );
 
   // Test dragging folderB below folderD and making it a child of folderD.
-  await dargAndDropFolder(folderB, folderD, true);
+  await dragAndDropFolder(folderB, folderD, true);
 
   // folderB should now be a child of folderD.
   folderB = folderD.getChildNamed("folderB");
@@ -202,5 +202,66 @@ add_task(async function test_sort_single_folder() {
       folderD_3,
     ].map(folder => folder.URI),
     "Dragging folderB below and into folderD should make it a child of folderD."
+  );
+
+  // Test dragging folderB above folderC and making it a child of rootFolder.
+  await dragAndDropFolder(folderB, folderC);
+
+  // folderB should now be a child of rootFolder.
+  folderB = rootFolder.getChildNamed("folderB");
+
+  Assert.deepEqual(
+    Array.from(
+      folderTree.querySelectorAll("[role=group] li"),
+      folderTreeRow => folderTreeRow.uri
+    ),
+    [
+      rootFolder,
+      trashFolder,
+      outboxFolder,
+      folderB,
+      folderC,
+      folderA,
+      folderD,
+      folderD_1,
+      folderD_2,
+      folderD_3,
+    ].map(folder => folder.URI),
+    "Dragging folderB above folderC should make it a child of rootFolder."
+  );
+});
+
+add_task(async function test_reset_folder_sorting() {
+  const contextMenu = about3Pane.document.getElementById("folderPaneContext");
+  EventUtils.synthesizeMouseAtCenter(
+    about3Pane.folderPane.getRowForFolder(rootFolder).querySelector(".name"),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await BrowserTestUtils.waitForPopupEvent(contextMenu, "shown");
+
+  contextMenu.activateItem(
+    about3Pane.document.getElementById("folderPaneContext-resetSort")
+  );
+  await BrowserTestUtils.waitForEvent(about3Pane, "folder-sort-order-restored");
+
+  Assert.deepEqual(
+    Array.from(
+      folderTree.querySelectorAll("[role=group] li"),
+      folderTreeRow => folderTreeRow.uri
+    ),
+    [
+      rootFolder,
+      trashFolder,
+      outboxFolder,
+      folderA,
+      folderB,
+      folderC,
+      folderD,
+      folderD_1,
+      folderD_2,
+      folderD_3,
+    ].map(folder => folder.URI),
+    "Initial folder tree order should have been restored."
   );
 });

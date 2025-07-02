@@ -77,6 +77,7 @@ const folderPaneContextData = {
   "folderPaneContext-settings": [...servers],
   "folderPaneContext-filters": [...servers],
   "folderPaneContext-manageTags": ["tags"],
+  "folderPaneContext-resetSort": [...servers],
 };
 
 let nntpServer;
