@@ -22,7 +22,7 @@
         <toolbarbutton class="panel-banner-item"
                        oncommand="PanelUI._onBannerItemSelected(event)"
                        hidden="true"/>
-#ifdef NIGHTLY_BUILD
+#ifdef MOZ_SERVICES_SYNC
         <toolbarbutton id="appmenu_signin"
                        data-l10n-id="appmenu-signin-panel"
                        class="subviewbutton subviewbutton-iconic"
@@ -50,7 +50,7 @@
           </hbox>
         </toolbarbutton>
         <toolbarseparator id="syncSeparator" hidden="true"/>
-#endif
+#endif  // MOZ_SERVICES_SYNC
         <toolbarbutton id="appmenu_new"
                        data-l10n-id="appmenu-new-account-panel"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
@@ -144,7 +144,7 @@
                        command="cmd_quitApplication"/>
       </vbox>
     </panelview>
-#ifdef NIGHTLY_BUILD
+#ifdef MOZ_SERVICES_SYNC
     <!-- Sync -->
     <panelview id="appMenu-syncView"
                data-l10n-id="appmenu-sync-panel-title"
@@ -187,7 +187,7 @@
                        oncommand="gSync.disconnect({ confirm: true });"/>
       </vbox>
     </panelview>
-#endif
+#endif  // MOZ_SERVICES_SYNC
     <!-- New -->
     <panelview id="appMenu-newView"
                data-l10n-id="appmenu-new-account-panel-title"

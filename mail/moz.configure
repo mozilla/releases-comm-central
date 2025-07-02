@@ -32,10 +32,13 @@ imply_option("--enable-unverified-updates", False, when=target_is_windows & ~hav
 
 @depends(milestone)
 def enable_sync(milestone):
-    return milestone.is_nightly
+    # Sync is disabled, even in Daily, until we get working servers again.
+    # return milestone.is_nightly
+    return False
 
 
 imply_option("MOZ_SERVICES_SYNC", True, when=enable_sync)
+set_define("MOZ_SERVICES_SYNC", True, when=enable_sync)
 
 # Add Thunderbird-specific error definitions.
 imply_option("MOZ_EXTRA_ERROR_DEFINITIONS", "../../comm/mail/errors.json")

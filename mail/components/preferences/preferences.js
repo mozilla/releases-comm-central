@@ -140,7 +140,7 @@ function init() {
   register_module("paneCompose", gComposePane);
   register_module("panePrivacy", gPrivacyPane);
   register_module("paneCalendar", gCalendarPane);
-  if (AppConstants.NIGHTLY_BUILD) {
+  if (AppConstants.MOZ_SERVICES_SYNC) {
     register_module("paneSync", gSyncPane);
   }
   register_module("paneSearchResults", gSearchResultsPane);

@@ -28,7 +28,7 @@ if CONFIG["MAKENSISU"]:
 if CONFIG["MOZ_BUNDLED_FONTS"]:
     DIRS += ["/browser/fonts"]
 
-if CONFIG["NIGHTLY_BUILD"]:
+if CONFIG["MOZ_SERVICES_SYNC"]:
     DIRS += ["services/sync"]
 
 if CONFIG["MOZ_THUNDERBIRD_RUST"]:

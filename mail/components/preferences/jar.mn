@@ -12,7 +12,7 @@ messenger.jar:
 *   content/messenger/preferences/dockoptions.xhtml
 #endif
     content/messenger/preferences/chat.js
-#ifdef NIGHTLY_BUILD
+#ifdef MOZ_SERVICES_SYNC
     content/messenger/preferences/sync.js
 #endif
     content/messenger/preferences/appearance.mjs
@@ -45,7 +45,7 @@ messenger.jar:
     content/messenger/preferences/passwordManager.xhtml
     content/messenger/preferences/permissions.js
     content/messenger/preferences/permissions.xhtml
-#ifdef NIGHTLY_BUILD
+#ifdef MOZ_SERVICES_SYNC
     content/messenger/preferences/syncDialog.js
     content/messenger/preferences/syncDialog.xhtml
 #endif

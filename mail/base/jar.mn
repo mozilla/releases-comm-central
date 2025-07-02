@@ -80,7 +80,7 @@ messenger.jar:
     content/messenger/shortcutsOverlay.js           (content/shortcutsOverlay.js)
     content/messenger/spacesToolbar.js              (content/spacesToolbar.js)
     content/messenger/specialTabs.js                (content/specialTabs.js)
-#ifdef NIGHTLY_BUILD
+#ifdef MOZ_SERVICES_SYNC
     content/messenger/sync.js                       (content/sync.js)
 #endif
     content/messenger/systemIntegrationDialog.js    (content/systemIntegrationDialog.js)

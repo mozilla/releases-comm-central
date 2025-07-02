@@ -1404,7 +1404,7 @@ pref("print.print_headerright", "");
 // Enable Masonry Layout for AddressBook.
 pref("layout.css.grid-template-masonry-value.enabled", true);
 
-#ifdef NIGHTLY_BUILD
+#ifdef MOZ_SERVICES_SYNC
 // If set to false, FxAccounts and Sync will be unavailable.
 // A restart is mandatory after flipping that preference.
 pref("identity.fxaccounts.enabled", true);
@@ -1428,10 +1428,6 @@ pref("identity.fxaccounts.remote.oauth.uri", "https://oauth.stage.mozaws.net/v1"
 // Token server used by the FxA Sync identity.
 pref("identity.sync.tokenserver.uri", "https://token.stage.mozaws.net/1.0/sync/1.5");
 
-// Adds Firefox/10x.0 to the User-Agent string, because we need it.
-// TODO: Fix this.
-pref("general.useragent.compatMode.firefox", true);
-
 // Enable the sync engines we want, and disable the ones we don't want.
 pref("services.sync.engine.addons", false);
 pref("services.sync.engine.addressbooks", true);
@@ -1441,7 +1437,7 @@ pref("services.sync.engine.creditcards", false);
 pref("services.sync.engine.identities", true);
 pref("services.sync.engine.prefs", false);
 pref("services.sync.engine.servers", true);
-#endif
+#endif  // MOZ_SERVICES_SYNC
 
 // Unified toolbar
 

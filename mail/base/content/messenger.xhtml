@@ -123,7 +123,7 @@
   <link rel="localization" href="messenger/inAppNotifications.ftl" />
   <link rel="localization" href="messenger/unifiedToolbar.ftl" />
   <link rel="localization" href="messenger/unifiedToolbarItems.ftl" />
-#ifdef NIGHTLY_BUILD
+#ifdef MOZ_SERVICES_SYNC
   <link rel="localization" href="messenger/syncAccounts.ftl" />
 #endif
 
@@ -170,7 +170,7 @@
   <script defer="defer" src="chrome://messenger/content/tabmail.js"></script>
   <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>
   <script defer="defer" src="chrome://messenger/content/customizable-toolbar.js"></script>
-#ifdef NIGHTLY_BUILD
+#ifdef MOZ_SERVICES_SYNC
   <script defer="defer" src="chrome://messenger/content/sync.js"></script>
 #endif
   <!-- panelUI.js is for the appmenus. -->

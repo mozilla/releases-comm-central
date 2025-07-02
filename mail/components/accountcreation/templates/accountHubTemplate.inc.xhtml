@@ -52,14 +52,14 @@
 
   <div class="hub-body">
     <div class="hub-body-grid"></div>
-#ifdef NIGHTLY_BUILD
+#ifdef MOZ_SERVICES_SYNC
     <button
       id="hubSyncButton"
       data-l10n-id="account-hub-sync-button"
       class="button button-flat"
       type="button"
       hidden="hidden"></button>
-#endif
+#endif  // MOZ_SERVICES_SYNC
   </div>
 
   <footer class="hub-footer">

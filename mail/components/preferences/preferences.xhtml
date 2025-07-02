@@ -68,15 +68,15 @@
   <link rel="localization" href="messenger/preferences/passwordManager.ftl" />
   <link rel="localization" href="security/certificates/certManager.ftl" />
   <link rel="localization" href="security/certificates/deviceManager.ftl" />
-#ifdef NIGHTLY_BUILD
+#ifdef MOZ_SERVICES_SYNC
   <link rel="localization" href="messenger/preferences/sync-dialog.ftl" />
   <link rel="localization" href="messenger/syncAccounts.ftl" />
-#endif
+#endif  // MOZ_SERVICES_SYNC
 
   <script defer="defer" src="chrome://global/content/preferencesBindings.js"></script>
 #ifdef MOZ_UPDATER
   <script defer="defer" src="chrome://messenger/content/aboutDialog-appUpdater.js"></script>
-#endif
+#endif  // MOZ_UPDATER
   <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
@@ -169,7 +169,7 @@
                       alt="" />
             <label class="category-name" flex="1" data-l10n-id="pane-calendar-title"/>
           </richlistitem>
-#ifdef NIGHTLY_BUILD
+#ifdef MOZ_SERVICES_SYNC
           <richlistitem id="category-sync"
                         class="category"
                         value="paneSync"
@@ -180,7 +180,7 @@
                       alt="" />
             <label class="category-name" flex="1" data-l10n-id="pane-sync-title"/>
           </richlistitem>
-#endif
+#endif  // MOZ_SERVICES_SYNC
           <richlistitem id="category-qrexport"
                         class="category"
                         value="paneQrExport"
@@ -243,9 +243,9 @@
 #include privacy.inc.xhtml
 #include chat.inc.xhtml
 #include ../../../calendar/base/content/preferences/calendar-preferences.inc.xhtml
-#ifdef NIGHTLY_BUILD
+#ifdef MOZ_SERVICES_SYNC
 #include sync.inc.xhtml
-#endif
+#endif  // MOZ_SERVICES_SYNC
 #include qrExport.inc.xhtml
           </vbox>
         </vbox>
@@ -287,7 +287,7 @@
 #ifdef XP_WIN
                  consumeoutsideclicks="false"
                  ignorekeys="shortcuts"
-#endif
+#endif  // XP_WIN
       />
     </menulist>
     <panel is="autocomplete-richlistbox-popup" id="PopupAutoComplete"
