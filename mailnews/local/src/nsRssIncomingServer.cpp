@@ -4,6 +4,7 @@
 
 #include "nsRssIncomingServer.h"
 
+#include "mozilla/Components.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "nsMsgFolderFlags.h"
 #include "nsINewsBlogFeedDownloader.h"
@@ -23,15 +24,13 @@ nsRssIncomingServer::nsRssIncomingServer() {
   m_canHaveFilters = true;
 
   if (gInstanceCount == 0) {
-    nsresult rv;
     nsCOMPtr<nsIMsgFolderNotificationService> notifyService =
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1", &rv);
-    if (NS_SUCCEEDED(rv))
-      notifyService->AddListener(
-          this, nsIMsgFolderNotificationService::folderAdded |
-                    nsIMsgFolderNotificationService::folderDeleted |
-                    nsIMsgFolderNotificationService::folderMoveCopyCompleted |
-                    nsIMsgFolderNotificationService::folderRenamed);
+        mozilla::components::FolderNotification::Service();
+    notifyService->AddListener(
+        this, nsIMsgFolderNotificationService::folderAdded |
+                  nsIMsgFolderNotificationService::folderDeleted |
+                  nsIMsgFolderNotificationService::folderMoveCopyCompleted |
+                  nsIMsgFolderNotificationService::folderRenamed);
   }
 
   gInstanceCount++;
@@ -41,10 +40,11 @@ nsRssIncomingServer::~nsRssIncomingServer() {
   gInstanceCount--;
 
   if (gInstanceCount == 0) {
-    nsresult rv;
     nsCOMPtr<nsIMsgFolderNotificationService> notifyService =
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1", &rv);
-    if (NS_SUCCEEDED(rv)) notifyService->RemoveListener(this);
+        mozilla::components::FolderNotification::Service();
+    // We might be here during XPCOM shutdown garbage collection, so the
+    // notification service may no longer exist.
+    if (notifyService) notifyService->RemoveListener(this);
   }
 }
 

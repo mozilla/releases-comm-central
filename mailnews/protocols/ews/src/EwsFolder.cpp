@@ -25,6 +25,7 @@
 #include "nsPrintfCString.h"
 #include "nscore.h"
 #include "OfflineStorage.h"
+#include "mozilla/Components.h"
 
 #define kEWSRootURI "ews:/"
 #define kEWSMessageRootURI "ews-message:/"
@@ -126,9 +127,9 @@ NS_IMETHODIMP FolderCreateCallbacks::OnSuccess(const nsACString& id) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Notify any consumers listening for updates regarding the folder's creation.
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) notifier->NotifyFolderAdded(newFolder);
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  notifier->NotifyFolderAdded(newFolder);
 
   return mParentFolder->NotifyFolderAdded(newFolder);
 }
@@ -199,9 +200,9 @@ NS_IMETHODIMP MessageOperationCallbacks::SaveNewHeader(nsIMsgDBHdr* hdr) {
 
   MOZ_TRY(db->AddNewHdrToDB(hdr, true));
 
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) notifier->NotifyMsgAdded(hdr);
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  notifier->NotifyMsgAdded(hdr);
 
   return NS_OK;
 }
@@ -443,12 +444,10 @@ NS_IMETHODIMP ItemCopyMoveCallbacks::OnRemoteCopyMoveSuccessful(
       newHeaders[i]->SetStringProperty(kEwsIdProperty, newIds[i]);
     }
 
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    if (notifier) {
-      notifier->NotifyMsgsMoveCopyCompleted(true, mOriginalMessages,
-                                            mDestinationFolder, newHeaders);
-    }
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    notifier->NotifyMsgsMoveCopyCompleted(true, mOriginalMessages,
+                                          mDestinationFolder, newHeaders);
   }
 
   // If requested, delete the original items from the source folder.

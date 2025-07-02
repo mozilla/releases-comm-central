@@ -39,6 +39,7 @@
 #include "mozilla/Span.h"
 #include "HeaderReader.h"
 #include "nsIMimeConverter.h"
+#include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 
 using namespace mozilla;
@@ -1367,11 +1368,10 @@ void nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
         m_newMsgHdr = nullptr;
         rv = m_mailDB->AttachHdr(detachedHdr, true, getter_AddRefs(liveHdr));
         NS_ENSURE_SUCCESS_VOID(rv);
-        nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-            do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-        if (notifier) {
-          notifier->NotifyMsgAdded(liveHdr);
-        }
+        nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+            mozilla::components::FolderNotification::Service();
+        notifier->NotifyMsgAdded(liveHdr);
+
         // Mark the header as not yet reported classified.
         nsMsgKey msgKey;
         liveHdr->GetMessageKey(&msgKey);
@@ -2093,9 +2093,9 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
       movedMsgIsNew = true;
     }
   }
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) notifier->NotifyMsgAdded(newHdr);
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  notifier->NotifyMsgAdded(newHdr);
   // mark the header as not yet reported classified
   destIFolder->OrProcessingFlags(msgKey,
                                  nsMsgProcessingFlags::NotReportedClassified);

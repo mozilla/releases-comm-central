@@ -32,6 +32,7 @@
 #include "nsLocalUndoTxn.h"
 #include "nsIMessenger.h"
 #include "nsThreadUtils.h"
+#include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/ScopeExit.h"
 
@@ -1057,7 +1058,7 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr* aHdr,
   }
 
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+      mozilla::components::FolderNotification::Service());
   if (notifier) notifier->NotifyMsgAdded(newHdr);
 
   if (movedMsgIsNew) {
@@ -1284,12 +1285,10 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove,
       msgTxn->AddDstKey(dstKey);
     }
   }
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) {
-    notifier->NotifyMsgsMoveCopyCompleted(aIsMove, aHdrArray, aDstFolder,
-                                          aDstHdrs);
-  }
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  notifier->NotifyMsgsMoveCopyCompleted(aIsMove, aHdrArray, aDstFolder,
+                                        aDstHdrs);
 
   // For now, we only support local dest folders, and for those we are done and
   // can delete the messages. Perhaps this should be moved into the folder

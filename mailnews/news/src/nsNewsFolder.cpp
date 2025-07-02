@@ -327,9 +327,9 @@ NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(const nsACString& newsgroupName,
     NS_ENSURE_SUCCESS(rv, rv);
 
     NotifyFolderAdded(child);
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    if (notifier) notifier->NotifyFolderAdded(child);
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    notifier->NotifyFolderAdded(child);
   }
   return rv;
 }
@@ -594,9 +594,9 @@ nsMsgNewsFolder::DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHdrs,
   NS_ENSURE_ARG_POINTER(aMsgWindow);
 
   if (!isMove) {
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    if (notifier) notifier->NotifyMsgsDeleted(msgHdrs);
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    notifier->NotifyMsgsDeleted(msgHdrs);
   }
 
   rv = GetDatabase();
@@ -1160,14 +1160,13 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessage(nsMsgKey key) {
                     rv);  // if GetDatabase succeeds, mDatabase will be non-null
 
   // Notify listeners of a delete for a single message
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) {
-    nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-    NS_ENSURE_SUCCESS(rv, rv);
-    notifier->NotifyMsgsDeleted({msgHdr.get()});
-  }
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  nsCOMPtr<nsIMsgDBHdr> msgHdr;
+  rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
+  NS_ENSURE_SUCCESS(rv, rv);
+  notifier->NotifyMsgsDeleted({msgHdr.get()});
+
   return mDatabase->DeleteMessage(key, nullptr, false);
 }
 
@@ -1178,15 +1177,12 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessages(
                     rv);  // if GetDatabase succeeds, mDatabase will be non-null
 
   // Notify listeners of a multiple message delete
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-
-  if (notifier) {
-    nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrs;
-    rv = MsgGetHeadersFromKeys(mDatabase, aMsgKeys, msgHdrs);
-    NS_ENSURE_SUCCESS(rv, rv);
-    notifier->NotifyMsgsDeleted(msgHdrs);
-  }
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrs;
+  rv = MsgGetHeadersFromKeys(mDatabase, aMsgKeys, msgHdrs);
+  NS_ENSURE_SUCCESS(rv, rv);
+  notifier->NotifyMsgsDeleted(msgHdrs);
 
   return mDatabase->DeleteMessages(aMsgKeys, nullptr);
 }

@@ -2796,11 +2796,9 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
     // Provide junk-related batch notifications.
     if (command == nsMsgViewCommandType::junk ||
         command == nsMsgViewCommandType::unjunk) {
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-      if (notifier) {
-        notifier->NotifyMsgsJunkStatusChanged(messages);
-      }
+      nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+          mozilla::components::FolderNotification::Service();
+      notifier->NotifyMsgsJunkStatusChanged(messages);
     }
   }
 
@@ -3021,12 +3019,10 @@ nsresult nsMsgDBView::SetMsgHdrJunkStatus(nsIJunkMailPlugin* aJunkPlugin,
   db->SetStringProperty(msgKey, "junkscore", msgJunkScore);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) {
-    notifier->NotifyMsgPropertyChanged(aMsgHdr, "junkscore", junkScoreStr,
-                                       msgJunkScore);
-  }
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  notifier->NotifyMsgPropertyChanged(aMsgHdr, "junkscore", junkScoreStr,
+                                     msgJunkScore);
   return rv;
 }
 

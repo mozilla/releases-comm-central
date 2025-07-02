@@ -14,6 +14,7 @@
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 #include "OfflineStorage.h"
+#include "mozilla/Components.h"
 
 constexpr auto kEwsIdProperty = "ewsId";
 
@@ -259,12 +260,10 @@ nsresult MessageCopyHandler::OnCopyCompleted(nsresult status) {
   }
 
   if (mSrcFolder) {
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    if (notifier) {
-      notifier->NotifyMsgsMoveCopyCompleted(mIsMove, mHeaders, mDstFolder,
-                                            mDstHdr);
-    }
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    notifier->NotifyMsgsMoveCopyCompleted(mIsMove, mHeaders, mDstFolder,
+                                          mDstHdr);
   }
 
   nsresult rv;

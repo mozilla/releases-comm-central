@@ -593,21 +593,21 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
 
   // Notify any observer about the deletion of every folder in the account.
   nsCOMPtr<nsIMsgFolderNotificationService> notifier =
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1");
+      mozilla::components::FolderNotification::Service();
   nsCOMPtr<nsIFolderListener> mailSession =
       do_GetService("@mozilla.org/messenger/services/session;1");
 
   for (const auto& folder : allDescendants) {
     folder->ForceDBClosed();
 
-    if (notifier) notifier->NotifyFolderDeleted(folder);
+    notifier->NotifyFolderDeleted(folder);
     if (mailSession) {
       nsCOMPtr<nsIMsgFolder> parentFolder;
       folder->GetParent(getter_AddRefs(parentFolder));
       mailSession->OnFolderRemoved(parentFolder, folder);
     }
   }
-  if (notifier) notifier->NotifyFolderDeleted(rootFolder);
+  notifier->NotifyFolderDeleted(rootFolder);
   if (mailSession) mailSession->OnFolderRemoved(nullptr, rootFolder);
 
   NotifyServerUnloaded(aServer);

@@ -10,6 +10,7 @@
 #include "nsIMsgFolderNotificationService.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
+#include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/ProfilerMarkers.h"
 
@@ -149,14 +150,12 @@ nsresult nsMsgCopyService::ClearRequest(nsCopyRequest* aRequest, nsresult rv) {
       // For message copy/move operations, the folder code handles the
       // notification (to take one example).
       // This suggests lack of clarity of responsibility.
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-      if (notifier) {
-        for (nsCopySource* copySource : aRequest->m_copySourceArray) {
-          notifier->NotifyFolderMoveCopyCompleted(
-              aRequest->m_isMoveOrDraftOrTemplate, copySource->m_msgFolder,
-              aRequest->m_dstFolder);
-        }
+      nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+          mozilla::components::FolderNotification::Service();
+      for (nsCopySource* copySource : aRequest->m_copySourceArray) {
+        notifier->NotifyFolderMoveCopyCompleted(
+            aRequest->m_isMoveOrDraftOrTemplate, copySource->m_msgFolder,
+            aRequest->m_dstFolder);
       }
     }
 

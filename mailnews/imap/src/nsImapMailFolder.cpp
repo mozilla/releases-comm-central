@@ -1045,9 +1045,9 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
     if (NS_SUCCEEDED(rv) && child) {
       NotifyFolderAdded(child);
       child->NotifyFolderEvent(kFolderCreateCompleted);
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-      if (notifier) notifier->NotifyFolderAdded(child);
+      nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+          mozilla::components::FolderNotification::Service();
+      notifier->NotifyFolderAdded(child);
     } else {
       NotifyFolderEvent(kFolderCreateFailed);
     }
@@ -1568,9 +1568,9 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIUrlListener* aListener) {
     trashFolder->SetSizeOnDisk(0);
 
     // The trash folder has effectively been deleted.
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    if (notifier) notifier->NotifyFolderDeleted(trashFolder);
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    notifier->NotifyFolderDeleted(trashFolder);
 
     return NS_OK;
   }
@@ -2202,9 +2202,9 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
                               false);  //"remove it immediately" model
           // Notify if this is an actual delete.
           if (!isMove) {
-            nsCOMPtr<nsIMsgFolderNotificationService> notifier(do_GetService(
-                "@mozilla.org/messenger/msgnotificationservice;1"));
-            if (notifier) notifier->NotifyMsgsDeleted(msgHeaders);
+            nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+                mozilla::components::FolderNotification::Service();
+            notifier->NotifyMsgsDeleted(msgHeaders);
           }
           DeleteStoreMessages(msgHeaders);
           database->DeleteMessages(srcKeyArray, nullptr);
@@ -2651,9 +2651,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     // Notify nsIMsgFolderListeners of a mass delete, but only if we actually
     // have headers
     if (!hdrsToDelete.IsEmpty()) {
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-      if (notifier) notifier->NotifyMsgsDeleted(hdrsToDelete);
+      nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+          mozilla::components::FolderNotification::Service();
+      notifier->NotifyMsgsDeleted(hdrsToDelete);
     }
     DeleteStoreMessages(hdrsToDelete);
     EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false);
@@ -3043,8 +3043,8 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
   }
   // here we need to tweak flags from uid state..
   if (mDatabase && (!m_msgMovedByFilter || ShowDeletedMessages())) {
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
     // Check if this header corresponds to a pseudo header
     // we have from doing a pseudo-offline move and then downloading
     // the real header from the server. In that case, we notify
@@ -3054,12 +3054,12 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
     newMsgHdr->GetMessageId(newMessageId);
     nsMsgKey pseudoKey =
         m_pseudoHdrs.MaybeGet(newMessageId).valueOr(nsMsgKey_None);
-    if (notifier && pseudoKey != nsMsgKey_None) {
+    if (pseudoKey != nsMsgKey_None) {
       notifier->NotifyMsgKeyChanged(pseudoKey, newMsgHdr);
       m_pseudoHdrs.Remove(newMessageId);
     }
     mDatabase->AddNewHdrToDB(newMsgHdr, true);
-    if (notifier) notifier->NotifyMsgAdded(newMsgHdr);
+    notifier->NotifyMsgAdded(newMsgHdr);
     // mark the header as not yet reported classified
     OrProcessingFlags(m_curMsgUid, nsMsgProcessingFlags::NotReportedClassified);
   }
@@ -4956,9 +4956,9 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
       // Notify move, copy or delete (online operations)
       // Not sure whether nsImapDeleteMsg is even used, deletes in all three
       // models use nsImapAddMsgFlags.
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-      if (notifier && m_copyState) {
+      nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+          mozilla::components::FolderNotification::Service();
+      if (m_copyState) {
         if (imapAction == nsIImapUrl::nsImapOnlineMove) {
           notifier->NotifyMsgsMoveCopyCompleted(true, m_copyState->m_messages,
                                                 this, {});
@@ -6327,9 +6327,9 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded,
                            mailCopyState->m_isMove);
   } else {
     // Notify of move/copy completion in case we have some source headers
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    if (notifier && !mailCopyState->m_messages.IsEmpty()) {
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    if (!mailCopyState->m_messages.IsEmpty()) {
       notifier->NotifyMsgsMoveCopyCompleted(
           mailCopyState->m_isMove, mailCopyState->m_messages, this, {});
     }
@@ -6773,12 +6773,10 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
   }
 
   if (!msgHdrsCopied.IsEmpty()) {
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    if (notifier) {
-      notifier->NotifyMsgsMoveCopyCompleted(isMove, msgHdrsCopied, this,
-                                            destMsgHdrs);
-    }
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    notifier->NotifyMsgsMoveCopyCompleted(isMove, msgHdrsCopied, this,
+                                          destMsgHdrs);
   }
 
   // NOTE (Bug 1787963):
@@ -7720,9 +7718,9 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
     SetPendingAttributes({&*fakeHdr}, false, true);
 
     // Gloda needs this notification to index the fake message.
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    if (notifier) notifier->NotifyMsgsClassified({&*fakeHdr}, false, false);
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    notifier->NotifyMsgsClassified({&*fakeHdr}, false, false);
     inputStream->Close();
     inputStream = nullptr;
   }
@@ -8066,9 +8064,9 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
     // Reset online status now that the folder is renamed.
     nsCOMPtr<nsIMsgImapMailFolder> oldImapFolder = do_QueryInterface(msgFolder);
     if (oldImapFolder) oldImapFolder->SetVerifiedAsOnlineFolder(false);
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    if (notifier) notifier->NotifyFolderRenamed(msgFolder, child);
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    notifier->NotifyFolderRenamed(msgFolder, child);
 
     // Do not propagate the deletion until after we have (synchronously)
     // notified all listeners about the rename.  This allows them to access

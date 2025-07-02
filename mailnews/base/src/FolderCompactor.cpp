@@ -309,11 +309,9 @@ nsresult FolderCompactor::BeginCompacting(
   // OnCompactionBegin() is called, but test_nsIMsgFolderListenerLocal.js
   // relies on this being called _before_ we return...
   // See Bug 1887592.
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) {
-    notifier->NotifyFolderCompactStart(mFolder);
-  }
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  notifier->NotifyFolderCompactStart(mFolder);
 
   guardSemaphore.release();
   guardNotification.release();
@@ -709,11 +707,9 @@ NS_IMETHODIMP FolderCompactor::OnFinalSummary(nsresult status, int64_t oldSize,
   mCompletionFn(status, oldSize - newSize);
 
   // Notify that compaction of the folder is completed.
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) {
-    notifier->NotifyFolderCompactFinish(mFolder);
-  }
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  notifier->NotifyFolderCompactFinish(mFolder);
   mFolder->NotifyCompactCompleted();
 
   return NS_OK;  // This is ignored.

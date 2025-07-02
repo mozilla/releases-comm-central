@@ -4,6 +4,7 @@
 
 #include "OfflineStorage.h"
 
+#include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 #include "msgCore.h"
 #include "nsIChannel.h"
@@ -205,20 +206,18 @@ nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
 
   // Notify listeners of the operation. If the folder was both renamed and moved
   // at the same time, we send a notification for each half of that operation.
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) {
-    nsCOMPtr<nsIMsgFolder> newFolder;
-    MOZ_TRY(newParentFolder->GetChildNamed(name, getter_AddRefs(newFolder)));
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  nsCOMPtr<nsIMsgFolder> newFolder;
+  MOZ_TRY(newParentFolder->GetChildNamed(name, getter_AddRefs(newFolder)));
 
-    if (!name.Equals(currentName)) {
-      notifier->NotifyFolderRenamed(sourceFolder, newFolder);
-    }
+  if (!name.Equals(currentName)) {
+    notifier->NotifyFolderRenamed(sourceFolder, newFolder);
+  }
 
-    if (currentParent != newParentFolder) {
-      notifier->NotifyFolderMoveCopyCompleted(true, sourceFolder,
-                                              newParentFolder);
-    }
+  if (currentParent != newParentFolder) {
+    notifier->NotifyFolderMoveCopyCompleted(true, sourceFolder,
+                                            newParentFolder);
   }
 
   return NS_OK;
@@ -268,9 +267,9 @@ nsresult LocalDeleteMessages(
 
   MOZ_TRY(db->DeleteMessages(msgKeys, nullptr));
 
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) notifier->NotifyMsgsDeleted(messageHeaders);
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  notifier->NotifyMsgsDeleted(messageHeaders);
 
   return NS_OK;
 }

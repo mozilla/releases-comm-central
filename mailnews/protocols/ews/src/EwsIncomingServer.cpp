@@ -11,6 +11,7 @@
 #include "nsPrintfCString.h"
 #include "OfflineStorage.h"
 #include "plbase64.h"
+#include "mozilla/Components.h"
 
 #define SYNC_STATE_PROPERTY "ewsSyncStateToken"
 
@@ -155,9 +156,9 @@ nsresult EwsIncomingServer::MaybeCreateFolderWithDetails(
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Notify any consumers listening for updates regarding the folder's creation.
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) notifier->NotifyFolderAdded(newFolder);
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  notifier->NotifyFolderAdded(newFolder);
 
   rv = parent->NotifyFolderAdded(newFolder);
   NS_ENSURE_SUCCESS(rv, rv);

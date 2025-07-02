@@ -132,9 +132,9 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CreateLocalSubfolder(
   nsresult rv = CreateSubfolderInternal(aFolderName, nullptr, aChild);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) notifier->NotifyFolderAdded(*aChild);
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  notifier->NotifyFolderAdded(*aChild);
 
   return NS_OK;
 }
@@ -533,9 +533,9 @@ nsMsgLocalMailFolder::CreateSubfolder(const nsACString& folderName,
       CreateSubfolderInternal(folderName, msgWindow, getter_AddRefs(newFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-  if (notifier) notifier->NotifyFolderAdded(newFolder);
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  notifier->NotifyFolderAdded(newFolder);
 
   return NS_OK;
 }
@@ -839,9 +839,9 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsACString& aNewName,
     SetFilePath(nullptr);
     newFolder->NotifyFolderEvent(kRenameCompleted);
 
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    if (notifier) notifier->NotifyFolderRenamed(this, newFolder);
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    notifier->NotifyFolderRenamed(this, newFolder);
   }
   return rv;
 }
@@ -1045,15 +1045,13 @@ nsMsgLocalMailFolder::DeleteMessages(
 
   // notify on delete from trash and shift-delete
   if (!isMove && (deleteStorage || isTrashFolder)) {
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    if (notifier) {
-      if (listener) {
-        listener->OnStartCopy();
-        listener->OnStopCopy(NS_OK);
-      }
-      notifier->NotifyMsgsDeleted(msgHeaders);
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    if (listener) {
+      listener->OnStartCopy();
+      listener->OnStopCopy(NS_OK);
     }
+    notifier->NotifyMsgsDeleted(msgHeaders);
   }
 
   if (!deleteStorage && !isTrashFolder) {
@@ -2361,13 +2359,11 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
     if (multipleCopiesFinished && numHdrs && !mCopyState->m_isFolder) {
       // we need to send this notification before we delete the source messages,
       // because deleting the source messages clears out the src msg db hdr.
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-      if (notifier) {
-        notifier->NotifyMsgsMoveCopyCompleted(mCopyState->m_isMove,
-                                              mCopyState->m_messages, this,
-                                              mCopyState->m_destMessages);
-      }
+      nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+          mozilla::components::FolderNotification::Service();
+      notifier->NotifyMsgsMoveCopyCompleted(mCopyState->m_isMove,
+                                            mCopyState->m_messages, this,
+                                            mCopyState->m_destMessages);
     }
 
     // Now allow folder or nested folders move of their msgs from Local Folders.
@@ -2410,16 +2406,14 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
     // involves this, yet doesn't have the newHdr initialized, so don't send any
     // notifications in that case.
     if (!numHdrs && newHdr) {
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-      if (notifier) {
-        notifier->NotifyMsgAdded(newHdr);
-        // We do not appear to trigger classification in this case, so let's
-        // paper over the abyss by just sending the classification notification.
-        notifier->NotifyMsgsClassified({&*newHdr}, false, false);
-        // (We do not add the NotReportedClassified processing flag since we
-        // just reported it!)
-      }
+      nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+          mozilla::components::FolderNotification::Service();
+      notifier->NotifyMsgAdded(newHdr);
+      // We do not appear to trigger classification in this case, so let's
+      // paper over the abyss by just sending the classification notification.
+      notifier->NotifyMsgsClassified({&*newHdr}, false, false);
+      // (We do not add the NotReportedClassified processing flag since we
+      // just reported it!)
     }
   }
   return rv;

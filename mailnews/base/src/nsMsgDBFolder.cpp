@@ -1970,9 +1970,8 @@ nsMsgDBFolder::OnMessageClassified(const nsACString& aMsgURI,
     rv = MsgGetHeadersFromKeys(mDatabase, mClassifiedMsgKeys, hdrs);
     NS_ENSURE_SUCCESS(rv, rv);
     if (!hdrs.IsEmpty()) {
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier(do_GetService(
-          "@mozilla.org/messenger/msgnotificationservice;1", &rv));
-      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+          mozilla::components::FolderNotification::Service();
       notifier->NotifyMsgsClassified(hdrs, mBayesJunkClassifying,
                                      mBayesTraitClassifying);
     }
@@ -2426,12 +2425,11 @@ nsresult nsMsgDBFolder::NotifyHdrsNotBeingClassified() {
       // we clear the set by deleting and recreating it.
       delete mProcessingFlag[5].keys;
       mProcessingFlag[5].keys = nsMsgKeySetU::Create();
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-      if (notifier)
-        notifier->NotifyMsgsClassified(msgHdrsNotBeingClassified,
-                                       // no classification is being performed
-                                       false, false);
+      nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+          mozilla::components::FolderNotification::Service();
+      notifier->NotifyMsgsClassified(msgHdrsNotBeingClassified,
+                                     // no classification is being performed
+                                     false, false);
     }
   }
   return NS_OK;
@@ -3309,9 +3307,9 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage) {
     // All delete commands use deleteStorage = true, and local moves use false.
     // IMAP moves use true, leaving this here in the hope that bug 439108
     // works out.
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-    if (notifier) notifier->NotifyFolderDeleted(this);
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    notifier->NotifyFolderDeleted(this);
     rv = DeleteStorage();
   }
   return rv;
@@ -4367,8 +4365,8 @@ nsMsgDBFolder::SetJunkScoreForMessages(
     const nsACString& junkScoreOrigin, int32_t junkPercent) {
   GetDatabase();
   if (mDatabase) {
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
     for (auto message : messages) {
       nsMsgKey msgKey;
       (void)message->GetMessageKey(&msgKey);
@@ -4383,10 +4381,8 @@ nsMsgDBFolder::SetJunkScoreForMessages(
         junkPercentStr.AppendInt(junkPercent);
         mDatabase->SetStringProperty(msgKey, "junkpercent", junkPercentStr);
       }
-      if (notifier) {
-        notifier->NotifyMsgPropertyChanged(message, "junkscore", oldJunkscore,
-                                           junkScoreStr);
-      }
+      notifier->NotifyMsgPropertyChanged(message, "junkscore", oldJunkscore,
+                                         junkScoreStr);
     }
   }
   return NS_OK;
@@ -5507,12 +5503,10 @@ NS_IMETHODIMP nsMsgDBFolder::AddKeywordsToMessages(
       if (addCount) {
         NotifyPropertyFlagChanged(message, kKeywords, 0, addCount);
 
-        nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-            do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-        if (notifier) {
-          notifier->NotifyMsgPropertyChanged(message, "keywords", oldKeywords,
-                                             keywords);
-        }
+        nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+            mozilla::components::FolderNotification::Service();
+        notifier->NotifyMsgPropertyChanged(message, "keywords", oldKeywords,
+                                           keywords);
       }
     }
   }
@@ -5557,12 +5551,10 @@ NS_IMETHODIMP nsMsgDBFolder::RemoveKeywordsFromMessages(
       if (removeCount) {
         mDatabase->SetStringPropertyByHdr(message, "keywords", keywords);
         NotifyPropertyFlagChanged(message, kKeywords, removeCount, 0);
-        nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-            do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-        if (notifier) {
-          notifier->NotifyMsgPropertyChanged(message, "keywords", oldKeywords,
-                                             keywords);
-        }
+        nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+            mozilla::components::FolderNotification::Service();
+        notifier->NotifyMsgPropertyChanged(message, "keywords", oldKeywords,
+                                           keywords);
       }
     }
   }
