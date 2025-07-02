@@ -351,7 +351,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
   }
 
   get maximumConnectionsNumber() {
-    let maxConnections = this.getIntValue("max_cached_connections", 0);
+    let maxConnections = this.getIntValue("max_cached_connections");
     if (maxConnections > 0) {
       return maxConnections;
     }
@@ -364,6 +364,20 @@ export class NntpIncomingServer extends MsgIncomingServer {
 
   set maximumConnectionsNumber(value) {
     this.setIntValue("max_cached_connections", value);
+  }
+
+  get connectionTimeout() {
+    let timeout = this.getIntValue("connection_timeout");
+    if (timeout > 0 || timeout == -1) {
+      return timeout;
+    }
+    timeout = 170;
+    this.connectionTimeout = timeout;
+    return timeout;
+  }
+
+  set connectionTimeout(value) {
+    this.setIntValue("connection_timeout", value);
   }
 
   get newsrcRootPath() {

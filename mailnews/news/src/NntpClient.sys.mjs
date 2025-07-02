@@ -150,6 +150,13 @@ export class NntpClient {
    */
   _onOpen = () => {
     this._logger.debug("Connected");
+    const timeout = this._server.connectionTimeout;
+    if (timeout > 0) {
+      this._socket.transport.setTimeout(
+        Ci.nsISocketTransport.TIMEOUT_READ_WRITE,
+        timeout
+      );
+    }
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
     this._inReadingMode = false;
@@ -251,6 +258,14 @@ export class NntpClient {
    * @param {TCPSocketErrorEvent} event - The error event.
    */
   _onError = event => {
+    if (event.errorCode == Cr.NS_ERROR_NET_TIMEOUT && !this.runningUri) {
+      // This should be the scheduled timeout, just close the connection
+      // without indicating any error.
+      this._logger.debug("Expected timeout.");
+      this.quit();
+      return;
+    }
+
     this._logger.error(event, event.name, event.message, event.errorCode);
     let errorName;
     let uri;

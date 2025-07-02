@@ -57,6 +57,19 @@ interface nsINntpIncomingServer : nsISupports {
     attribute long maximumConnectionsNumber;
 
     /**
+     * The duration of inactivity (in seconds) until a connection to the server
+     * is closed.
+     *
+     * This preference (internally connection_timeout) controls how long an
+     * inactive connection to the server is held open. The default value of 170
+     * corresponds to RFC 3977. Use -1 to disable.
+
+     * @see https://datatracker.ietf.org/doc/html/rfc3977#section-3.1 (last
+     * paragraph)
+     */
+    attribute long connectionTimeout;
+
+    /**
      * Enqueues a URI to be run when we have a free connection.
      *
      * If there is one already free, it will be immediately started.
