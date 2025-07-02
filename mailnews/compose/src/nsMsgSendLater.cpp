@@ -32,6 +32,7 @@
 #include "nsIOutputStream.h"
 #include "nsIMsgWindow.h"
 #include "nsMsgMessageFlags.h"
+#include "mozilla/Components.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/Services.h"
 #include "mozilla/Preferences.h"
@@ -654,9 +655,7 @@ nsMsgSendLater::HasUnsentMessages(nsIMsgIdentity* aIdentity, bool* aResult) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsTArray<RefPtr<nsIMsgAccount>> accounts;
   rv = accountManager->GetAccounts(accounts);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1291,8 +1290,7 @@ nsresult nsMsgSendLater::GetIdentityFromKey(const char* aKey,
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::AccountManager::Service();
 
   if (aKey) {
     nsTArray<RefPtr<nsIMsgIdentity>> identities;

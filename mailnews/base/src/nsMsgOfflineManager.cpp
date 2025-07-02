@@ -156,8 +156,7 @@ nsresult nsMsgOfflineManager::SendUnsentMessages() {
   nsCOMPtr<nsIMsgSendLater> pMsgSendLater(do_GetService(kMsgSendLaterCID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::AccountManager::Service();
   // now we have to iterate over the identities, finding the *unique* unsent
   // messages folder for each one, determine if they have unsent messages, and
   // if so, add them to the list of identities to send unsent messages from.

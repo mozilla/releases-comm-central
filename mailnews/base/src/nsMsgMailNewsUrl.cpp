@@ -282,9 +282,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(
     rv = NS_MutateURI(url).SetScheme(scheme).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::AccountManager::Service();
     nsCOMPtr<nsIMsgIncomingServer> server;
     rv = accountManager->FindServerByURI(url, aIncomingServer);
     if (!*aIncomingServer && scheme.EqualsLiteral("imap")) {

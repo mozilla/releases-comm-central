@@ -15,6 +15,7 @@
 #include "nsIMsgAccountManager.h"
 #include "nsLocalMailFolder.h"
 #include "nsPop3Sink.h"
+#include "mozilla/Components.h"
 
 #define NS_POP3URL_CID \
   {0xea1b0a11, 0xe6f4, 0x11d2, {0x80, 0x70, 0x0, 0x60, 0x8, 0x12, 0x8c, 0x4e}}
@@ -125,13 +126,11 @@ nsresult nsPop3URL::NewURI(const nsACString& aSpec, nsIURI* aBaseURI,
     if (msgHdr) localFolder->GetUidlFromFolder(&folderScanState, msgHdr);
     if (!folderScanState.m_accountKey.IsEmpty()) {
       nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-      if (accountManager) {
-        nsCOMPtr<nsIMsgAccount> account;
-        accountManager->GetAccount(folderScanState.m_accountKey,
-                                   getter_AddRefs(account));
-        if (account) account->GetIncomingServer(getter_AddRefs(server));
-      }
+          mozilla::components::AccountManager::Service();
+      nsCOMPtr<nsIMsgAccount> account;
+      accountManager->GetAccount(folderScanState.m_accountKey,
+                                 getter_AddRefs(account));
+      if (account) account->GetIncomingServer(getter_AddRefs(server));
     }
   }
 

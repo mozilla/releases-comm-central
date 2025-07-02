@@ -15,6 +15,7 @@
 #include "nsIMsgAccount.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIObserverService.h"
+#include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/Services.h"
 #include "nsServiceManagerUtils.h"
@@ -81,9 +82,7 @@ nsresult nsMsgAccount::createIncomingServer() {
 
   // get the server from the account manager
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = accountManager->GetIncomingServer(serverKey, getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -140,8 +139,8 @@ nsMsgAccount::SetIncomingServer(nsIMsgIncomingServer* aIncomingServer) {
     notifier->NotifyFolderAdded(rootFolder);
 
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-    if (NS_SUCCEEDED(rv)) accountManager->NotifyServerLoaded(aIncomingServer);
+        mozilla::components::AccountManager::Service();
+    accountManager->NotifyServerLoaded(aIncomingServer);
 
     // Force built-in folders to be created and discovered. Then, notify
     // listeners about them.
@@ -187,8 +186,7 @@ nsresult nsMsgAccount::createIdentities() {
   }
   // get the server from the account manager
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::AccountManager::Service();
 
   char* newStr = identityKey.BeginWriting();
   char* token = NS_strtok(",", &newStr);

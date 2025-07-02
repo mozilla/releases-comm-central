@@ -2225,9 +2225,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
           Preferences::GetBool("mailnews.reply_to_self_check_all_ident");
 
       nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-
+          mozilla::components::AccountManager::Service();
       nsTArray<RefPtr<nsIMsgIdentity>> identities;
       nsCString accountKey;
       mOrigMsgHdr->GetAccountKey(accountKey);

@@ -317,10 +317,8 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
 
   // collect lists of identity users if needed
   if (mInhibitWhiteListingIdentityDomain || mInhibitWhiteListingIdentityUser) {
-    nsCOMPtr<nsIMsgAccountManager> accountManager(
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-
+    nsCOMPtr<nsIMsgAccountManager> accountManager =
+        mozilla::components::AccountManager::Service();
     nsCOMPtr<nsIMsgAccount> account;
     rv = accountManager->FindAccountForServer(aServer, getter_AddRefs(account));
     NS_ENSURE_SUCCESS(rv, rv);

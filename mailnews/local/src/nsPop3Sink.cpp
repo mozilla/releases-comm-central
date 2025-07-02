@@ -28,6 +28,7 @@
 #include "nsISupportsPrimitives.h"
 #include "nsIObserverService.h"
 #include "nsIPop3Service.h"
+#include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Services.h"
 
@@ -144,16 +145,14 @@ nsresult nsPop3Sink::DiscardStalePartialMessages(nsIPop3Protocol* protocol) {
 
 NS_IMETHODIMP nsPop3Sink::BeginMailDelivery(bool uidlDownload,
                                             nsIMsgWindow* aMsgWindow) {
-  nsresult rv;
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_popServer);
   if (!server) return NS_ERROR_UNEXPECTED;
 
   m_window = aMsgWindow;
 
   nsCOMPtr<nsIMsgAccountManager> acctMgr =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgAccount> account;
-  NS_ENSURE_SUCCESS(rv, rv);
   acctMgr->FindAccountForServer(server, getter_AddRefs(account));
   if (account) account->GetKey(m_accountKey);
 
@@ -179,6 +178,7 @@ NS_IMETHODIMP nsPop3Sink::BeginMailDelivery(bool uidlDownload,
 #ifdef DEBUG
   printf("Begin mail message delivery.\n");
 #endif
+  nsresult rv;
   nsCOMPtr<nsIPop3Service> pop3Service(
       do_GetService("@mozilla.org/messenger/popservice;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);

@@ -24,6 +24,7 @@
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 #include "OfflineStorage.h"
+#include "mozilla/Components.h"
 
 constexpr auto kEwsIdProperty = "ewsId";
 
@@ -470,8 +471,7 @@ NS_IMETHODIMP EwsMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   // Look up the incoming server for this message, from which we can get an EWS
   // client.
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::AccountManager::Service();
 
   // `FindServerByURI()` expects that the URI passed in has a scheme matching
   // the value returned by an incoming server's `GetType()` method. In our case,

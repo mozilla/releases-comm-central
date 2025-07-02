@@ -618,11 +618,9 @@ static void ImportMailThread(void* stuff) {
 
   // Now save the new acct info to pref file.
   nsCOMPtr<nsIMsgAccountManager> accMgr =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  if (NS_SUCCEEDED(rv) && accMgr) {
-    rv = accMgr->SaveAccountInfo();
-    NS_ASSERTION(NS_SUCCEEDED(rv), "Can't save account info to pref file");
-  }
+      mozilla::components::AccountManager::Service();
+  rv = accMgr->SaveAccountInfo();
+  NS_ASSERTION(NS_SUCCEEDED(rv), "Can't save account info to pref file");
 
   nsImportGenericMail::SetLogs(success, error, pData->successLog,
                                pData->errorLog);
@@ -667,12 +665,7 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder** ppFolder) {
     return false;
   }
   nsCOMPtr<nsIMsgAccountManager> accMgr =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  if (NS_FAILED(rv)) {
-    IMPORT_LOG0("*** Failed to create account manager!\n");
-    return false;
-  }
-
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = accMgr->GetLocalFoldersServer(getter_AddRefs(server));
   // if Local Folders does not exist already, create it

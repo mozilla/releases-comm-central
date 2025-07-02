@@ -168,9 +168,8 @@ bool nsMapiHook::VerifyUserName(const nsCString& aUsername, nsCString& aIdKey) {
 
   if (aUsername.IsEmpty()) return false;
 
-  nsCOMPtr<nsIMsgAccountManager> accountManager(
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv));
-  if (NS_FAILED(rv)) return false;
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
+      mozilla::components::AccountManager::Service();
   nsTArray<RefPtr<nsIMsgIdentity>> identities;
   rv = accountManager->GetAllIdentities(identities);
   if (NS_FAILED(rv)) return false;
@@ -253,9 +252,7 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
 
   // get the MsgIdentity for the above key using AccountManager
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1");
-  if (NS_FAILED(rv) || (!accountManager)) return rv;
-
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgIdentity> pMsgId;
   rv = accountManager->GetIdentity(MsgIdKey, getter_AddRefs(pMsgId));
   if (NS_FAILED(rv)) return rv;

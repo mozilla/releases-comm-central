@@ -12,6 +12,7 @@
 #include "nsCOMPtr.h"
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
+#include "mozilla/Components.h"
 #include "mozilla/dom/Document.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
@@ -76,8 +77,7 @@ nsresult nsMsgComposeContentHandler::GetBestIdentity(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::AccountManager::Service();
 
   rv = accountManager->GetFirstIdentityForServer(server, aIdentity);
   NS_ENSURE_SUCCESS(rv, rv);

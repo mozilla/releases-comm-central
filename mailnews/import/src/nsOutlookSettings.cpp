@@ -24,6 +24,7 @@
 #include <windows.h>
 #include "nsIWindowsRegKey.h"
 #include "nsNativeCharsetUtils.h"
+#include "mozilla/Components.h"
 
 class OutlookSettings {
  public:
@@ -176,12 +177,7 @@ bool OutlookSettings::DoImport(nsIMsgAccount** aAccount) {
   }
 
   nsCOMPtr<nsIMsgAccountManager> accMgr =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  if (NS_FAILED(rv)) {
-    IMPORT_LOG0("*** Failed to create a account manager!\n");
-    return false;
-  }
-
+      mozilla::components::AccountManager::Service();
   nsAutoString defMailName;
   rv = GetDefaultMailAccountName(defMailName);
 

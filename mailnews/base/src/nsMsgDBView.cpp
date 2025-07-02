@@ -403,12 +403,11 @@ nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aSenderString) {
 nsresult nsMsgDBView::FetchAccount(nsIMsgDBHdr* aHdr, nsAString& aAccount) {
   nsCString accountKey;
   nsresult rv = aHdr->GetAccountKey(accountKey);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // Cache the account manager?
-  nsCOMPtr<nsIMsgAccountManager> accountManager(
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv));
-
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgAccount> account;
   nsCOMPtr<nsIMsgIncomingServer> server;
   if (!accountKey.IsEmpty())
@@ -2066,9 +2065,8 @@ nsMsgDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
+      mozilla::components::AccountManager::Service();
 
-  NS_ENSURE_SUCCESS(rv, rv);
   bool userNeedsToAuthenticate = false;
   // If we're PasswordProtectLocalCache, then we need to find out if the
   // server is authenticated.

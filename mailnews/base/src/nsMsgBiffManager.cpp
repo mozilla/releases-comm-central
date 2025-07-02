@@ -13,6 +13,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "nsITimer.h"
+#include "mozilla/Components.h"
 #include "mozilla/Services.h"
 
 using mozilla::Preferences;
@@ -52,11 +53,10 @@ NS_IMETHODIMP nsMsgBiffManager::Init() {
   if (mInited) return NS_OK;
 
   mInited = true;
-  nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  if (NS_SUCCEEDED(rv)) accountManager->AddIncomingServerListener(this);
+      mozilla::components::AccountManager::Service();
+  accountManager->AddIncomingServerListener(this);
 
   // in turbo mode on profile change we don't need to do anything below this
   if (mHaveShutdown) {
@@ -79,10 +79,11 @@ NS_IMETHODIMP nsMsgBiffManager::Shutdown() {
     mBiffTimer = nullptr;
   }
 
-  nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  if (NS_SUCCEEDED(rv)) accountManager->RemoveIncomingServerListener(this);
+      mozilla::components::AccountManager::Service();
+  // We might be here during XPCOM shutdown garbage collection, so the account
+  // manager may no longer exist.
+  if (accountManager) accountManager->RemoveIncomingServerListener(this);
 
   mHaveShutdown = true;
   mInited = false;

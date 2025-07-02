@@ -789,8 +789,8 @@ nsresult nsMsgMdnGenerator::WriteString(const char* str) {
 nsresult nsMsgMdnGenerator::InitAndProcess(bool* needToAskUser) {
   nsresult rv = m_folder->GetServer(getter_AddRefs(m_server));
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  if (accountManager && m_server) {
+      mozilla::components::AccountManager::Service();
+  if (m_server) {
     if (!m_identity) {
       // check if this is a message delivered to the global inbox,
       // in which case we find the originating account's identity.

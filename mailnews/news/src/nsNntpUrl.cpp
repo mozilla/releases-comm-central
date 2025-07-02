@@ -18,6 +18,7 @@
 #include "nsIMsgMessageService.h"
 #include "nsIMsgAccountManager.h"
 #include "nsServiceManagerUtils.h"
+#include "mozilla/Components.h"
 
 nsNntpUrl::nsNntpUrl() {
   m_newsAction = nsINntpUrl::ActionUnknown;
@@ -358,7 +359,6 @@ NS_IMETHODIMP
 nsNntpUrl::GetServer(nsIMsgIncomingServer** aServer) {
   NS_ENSURE_ARG_POINTER(aServer);
 
-  nsresult rv;
   nsAutoCString scheme, user, host;
 
   GetScheme(scheme);
@@ -372,8 +372,7 @@ nsNntpUrl::GetServer(nsIMsgIncomingServer** aServer) {
   }
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::AccountManager::Service();
 
   *aServer = nullptr;
   accountManager->FindServer(user, host, "nntp"_ns, 0, aServer);

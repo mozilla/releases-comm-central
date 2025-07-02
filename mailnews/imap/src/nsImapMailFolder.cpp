@@ -64,6 +64,7 @@
 #include "nsIMsgStatusFeedback.h"
 #include "nsIMsgThread.h"
 #include "nsMsgLineBuffer.h"
+#include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ScopeExit.h"
@@ -8594,8 +8595,7 @@ NS_IMETHODIMP nsImapMailFolder::GetCustomIdentity(nsIMsgIdentity** aIdentity) {
       nsCOMPtr<nsIMsgIncomingServer> server = do_QueryReferent(mServer, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
       nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
+          mozilla::components::AccountManager::Service();
       nsCOMPtr<nsIMsgIdentity> ourIdentity;
       nsCOMPtr<nsIMsgIdentity> retIdentity;
       nsCOMPtr<nsIMsgAccount> account;

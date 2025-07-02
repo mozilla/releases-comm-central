@@ -1770,9 +1770,7 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryReturnReceiptsFilter(
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgIdentity> identity;
   rv = accountMgr->GetFirstIdentityForServer(this, getter_AddRefs(identity));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1934,11 +1932,8 @@ nsMsgIncomingServer::GetSpamFilterPlugin(nsIMsgFilterPlugin** aFilterPlugin) {
 nsresult nsMsgIncomingServer::GetDeferredServers(
     nsIMsgIncomingServer* destServer,
     nsTArray<RefPtr<nsIPop3IncomingServer>>& aServers) {
-  nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgAccount> thisAccount;
   accountManager->FindAccountForServer(destServer, getter_AddRefs(thisAccount));
   if (thisAccount) {
@@ -1956,29 +1951,27 @@ nsresult nsMsgIncomingServer::GetDeferredServers(
       }
     }
   }
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgIncomingServer::GetIsDeferredTo(bool* aIsDeferredTo) {
   NS_ENSURE_ARG_POINTER(aIsDeferredTo);
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1");
-  if (accountManager) {
-    nsCOMPtr<nsIMsgAccount> thisAccount;
-    accountManager->FindAccountForServer(this, getter_AddRefs(thisAccount));
-    if (thisAccount) {
-      nsCString accountKey;
-      thisAccount->GetKey(accountKey);
-      nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
-      accountManager->GetAllServers(allServers);
-      for (auto server : allServers) {
-        if (server) {
-          nsCString deferredToAccount;
-          server->GetStringValue("deferred_to_account", deferredToAccount);
-          if (deferredToAccount.Equals(accountKey)) {
-            *aIsDeferredTo = true;
-            return NS_OK;
-          }
+      mozilla::components::AccountManager::Service();
+  nsCOMPtr<nsIMsgAccount> thisAccount;
+  accountManager->FindAccountForServer(this, getter_AddRefs(thisAccount));
+  if (thisAccount) {
+    nsCString accountKey;
+    thisAccount->GetKey(accountKey);
+    nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
+    accountManager->GetAllServers(allServers);
+    for (auto server : allServers) {
+      if (server) {
+        nsCString deferredToAccount;
+        server->GetStringValue("deferred_to_account", deferredToAccount);
+        if (deferredToAccount.Equals(accountKey)) {
+          *aIsDeferredTo = true;
+          return NS_OK;
         }
       }
     }

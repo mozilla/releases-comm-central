@@ -235,9 +235,7 @@ nsresult nsMailboxUrl::GetMsgHdrForKey(nsMsgKey msgKey, nsIMsgDBHdr** msgHdr) {
     // nsIMsgFolder, we need to look it up, otherwise
     // nsMsgDatabase::GetMsgHdrForKey won't work.
     nsCOMPtr<nsIMsgAccountManager> accountMgr =
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::AccountManager::Service();
     nsTArray<RefPtr<nsIMsgFolder>> allFolders;
     rv = accountMgr->GetAllFolders(allFolders);
     NS_ENSURE_SUCCESS(rv, rv);

@@ -32,6 +32,7 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgLocalFolderHdrs.h"
 
+#include "mozilla/Components.h"
 #include "mozilla/SpinEventLoopUntil.h"
 
 #define NS_MSGCOMPFIELDS_CID                  \
@@ -197,11 +198,9 @@ MOZ_RUNINIT nsCOMPtr<nsIMsgIdentity> nsOutlookCompose::m_pIdentity = nullptr;
 nsresult nsOutlookCompose::CreateIdentity(void) {
   if (m_pIdentity) return NS_OK;
 
-  nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accMgr =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = accMgr->CreateIdentity(getter_AddRefs(m_pIdentity));
+      mozilla::components::AccountManager::Service();
+  nsresult rv = accMgr->CreateIdentity(getter_AddRefs(m_pIdentity));
   nsString name;
   name.AssignLiteral("Import Identity");
   if (m_pIdentity) {
@@ -295,9 +294,7 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode,
       charset ? nsDependentCString(charset) : EmptyCString(), bodyW, bodyA);
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIImportService> importService(
       do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);

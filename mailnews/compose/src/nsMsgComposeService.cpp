@@ -41,6 +41,7 @@
 #include "mozilla/dom/Element.h"
 #include "nsFrameLoader.h"
 #include "nsSmtpUrl.h"
+#include "mozilla/Components.h"
 #include "mozilla/NullPrincipal.h"
 #include "mozilla/Preferences.h"
 
@@ -537,9 +538,7 @@ nsMsgComposeService::GetDefaultIdentity(nsIMsgIdentity** _retval) {
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgAccount> defaultAccount;
   rv = accountManager->GetDefaultAccount(getter_AddRefs(defaultAccount));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -734,9 +733,7 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
   nsresult rv;
   const nsPromiseFlatCString& templateUriFlat = PromiseFlatCString(templateUri);
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgAccount> account;
   rv = accountManager->FindAccountForServer(aServer, getter_AddRefs(account));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -862,9 +859,7 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
 
   // get the MsgIdentity for the above key using AccountManager
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgAccount> account;
   nsCOMPtr<nsIMsgIdentity> identity;
 

@@ -14,6 +14,7 @@
 #include "nsMsgUtils.h"
 #include "nsNetCID.h"
 #include "nsIURIMutator.h"
+#include "mozilla/Components.h"
 
 // it would be really cool to:
 // - cache the last hostname->path match
@@ -29,11 +30,8 @@ static nsresult nsGetMailboxServer(const char* uriStr,
            .Finalize(url);
   if (NS_FAILED(rv)) return rv;
 
-  // retrieve the AccountManager
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  if (NS_FAILED(rv)) return rv;
-
+      mozilla::components::AccountManager::Service();
   // find all local mail "no servers" matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> none_server;
   rv = NS_MutateURI(url).SetScheme("none"_ns).Finalize(url);

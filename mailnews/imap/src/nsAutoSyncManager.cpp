@@ -17,6 +17,7 @@
 #include "nsIIOService.h"
 #include "nsITimer.h"
 #include "nsServiceManagerUtils.h"
+#include "mozilla/Components.h"
 #include "mozilla/Services.h"
 #include "mozilla/Logging.h"
 
@@ -716,9 +717,7 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
   MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("enter %s", __func__));
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsTArray<RefPtr<nsIMsgAccount>> accounts;
   rv = accountManager->GetAccounts(accounts);
   NS_ENSURE_SUCCESS(rv, rv);

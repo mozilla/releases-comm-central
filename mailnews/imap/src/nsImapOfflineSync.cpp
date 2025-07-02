@@ -119,11 +119,7 @@ bool nsImapOfflineSync::AdvanceToNextServer() {
     NS_ASSERTION(!m_currentServer, "this shouldn't be set");
     m_currentServer = nullptr;
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-    NS_ASSERTION(accountManager && NS_SUCCEEDED(rv),
-                 "couldn't get account mgr");
-    if (!accountManager || NS_FAILED(rv)) return false;
-
+        mozilla::components::AccountManager::Service();
     rv = accountManager->GetAllServers(m_allServers);
     NS_ENSURE_SUCCESS(rv, false);
   }

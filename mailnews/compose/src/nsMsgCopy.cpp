@@ -30,6 +30,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "nsIURIMutator.h"
+#include "mozilla/Components.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 // This is the listener class for the copy operation. We have to create this
@@ -218,8 +219,7 @@ nsresult nsMsgCopy::DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
     if (aIsDraft) {
       nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(dstFolder);
       nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-      if (NS_FAILED(rv)) return rv;
+          mozilla::components::AccountManager::Service();
       bool shutdownInProgress = false;
       rv = accountManager->GetShutdownInProgress(&shutdownInProgress);
 
@@ -383,11 +383,8 @@ nsresult LocateMessageFolder(nsIMsgIdentity* userIdentity,
   } else {
     if (!userIdentity) return NS_ERROR_INVALID_ARG;
 
-    // get the account manager
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::AccountManager::Service();
     // If any folder will do, go look for one.
     nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
     rv = accountManager->GetServersForIdentity(userIdentity, servers);

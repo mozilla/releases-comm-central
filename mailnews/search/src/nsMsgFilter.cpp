@@ -633,8 +633,7 @@ nsresult nsMsgFilter::ConvertMoveOrCopyToFolderValue(
         localMailRoot = rootFolder;
       else {
         nsCOMPtr<nsIMsgAccountManager> accountManager =
-            do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
+            mozilla::components::AccountManager::Service();
         nsCOMPtr<nsIMsgIncomingServer> server;
         rv = accountManager->GetLocalFoldersServer(getter_AddRefs(server));
         if (NS_SUCCEEDED(rv) && server)

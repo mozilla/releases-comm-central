@@ -613,23 +613,19 @@ void nsMsgDBFolder::UpdateNewMessages() {
 nsresult nsMsgDBFolder::GetFolderCacheElemFromFile(
     nsIFile* file, nsIMsgFolderCacheElement** cacheElement) {
   MOZ_ASSERT(!StaticPrefs::mail_panorama_enabled_AtStartup());
-  nsresult result;
   NS_ENSURE_ARG_POINTER(file);
   NS_ENSURE_ARG_POINTER(cacheElement);
   nsCOMPtr<nsIMsgFolderCache> folderCache;
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &result);
-  if (NS_SUCCEEDED(result)) {
-    result = accountMgr->GetFolderCache(getter_AddRefs(folderCache));
-    if (NS_SUCCEEDED(result) && folderCache) {
-      nsCString persistentPath;
-      result = file->GetPersistentDescriptor(persistentPath);
-      NS_ENSURE_SUCCESS(result, result);
-      result =
-          folderCache->GetCacheElement(persistentPath, false, cacheElement);
-    }
+      mozilla::components::AccountManager::Service();
+  nsresult rv = accountMgr->GetFolderCache(getter_AddRefs(folderCache));
+  if (NS_SUCCEEDED(rv) && folderCache) {
+    nsCString persistentPath;
+    rv = file->GetPersistentDescriptor(persistentPath);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = folderCache->GetCacheElement(persistentPath, false, cacheElement);
   }
-  return result;
+  return rv;
 }
 
 nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
@@ -1187,15 +1183,12 @@ nsresult nsMsgDBFolder::GetFolderCacheKey(nsIFile** aFile) {
 nsresult nsMsgDBFolder::FlushToFolderCache() {
   MOZ_ASSERT(!StaticPrefs::mail_panorama_enabled_AtStartup());
 
-  nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  if (NS_SUCCEEDED(rv) && accountManager) {
-    nsCOMPtr<nsIMsgFolderCache> folderCache;
-    rv = accountManager->GetFolderCache(getter_AddRefs(folderCache));
-    if (NS_SUCCEEDED(rv) && folderCache)
-      rv = WriteToFolderCache(folderCache, false);
-  }
+      mozilla::components::AccountManager::Service();
+  nsCOMPtr<nsIMsgFolderCache> folderCache;
+  nsresult rv = accountManager->GetFolderCache(getter_AddRefs(folderCache));
+  if (NS_SUCCEEDED(rv) && folderCache)
+    rv = WriteToFolderCache(folderCache, false);
   return rv;
 }
 
@@ -1565,130 +1558,125 @@ class AutoCompactEvent : public mozilla::Runnable {
 };
 
 nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgAccountManager> accountMgr =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-
   MOZ_LOG(gCompactLog, LogLevel::Debug, ("Performing AutoCompactEvent check"));
-  if (NS_SUCCEEDED(rv)) {
-    nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
-    rv = accountMgr->GetAllServers(allServers);
-    NS_ENSURE_SUCCESS(rv, rv);
-    uint32_t numServers = allServers.Length();
-    if (numServers > 0) {
-      nsTArray<RefPtr<nsIMsgFolder>> folderArray;
-      nsTArray<RefPtr<nsIMsgFolder>> offlineFolderArray;
-      int64_t totalExpungedBytes = 0;
-      int64_t offlineExpungedBytes = 0;
-      int64_t localExpungedBytes = 0;
-      uint32_t serverIndex = 0;
-      do {
-        nsCOMPtr<nsIMsgIncomingServer> server(allServers[serverIndex]);
-        nsCOMPtr<nsIMsgPluggableStore> msgStore;
-        rv = server->GetMsgStore(getter_AddRefs(msgStore));
+
+  nsCOMPtr<nsIMsgAccountManager> accountMgr =
+      mozilla::components::AccountManager::Service();
+  nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
+  nsresult rv = accountMgr->GetAllServers(allServers);
+  NS_ENSURE_SUCCESS(rv, rv);
+  uint32_t numServers = allServers.Length();
+  if (numServers > 0) {
+    nsTArray<RefPtr<nsIMsgFolder>> folderArray;
+    nsTArray<RefPtr<nsIMsgFolder>> offlineFolderArray;
+    int64_t totalExpungedBytes = 0;
+    int64_t offlineExpungedBytes = 0;
+    int64_t localExpungedBytes = 0;
+    uint32_t serverIndex = 0;
+    do {
+      nsCOMPtr<nsIMsgIncomingServer> server(allServers[serverIndex]);
+      nsCOMPtr<nsIMsgPluggableStore> msgStore;
+      rv = server->GetMsgStore(getter_AddRefs(msgStore));
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (!msgStore) continue;
+      bool supportsCompaction;
+      msgStore->GetSupportsCompaction(&supportsCompaction);
+      if (!supportsCompaction) continue;
+      nsCOMPtr<nsIMsgFolder> rootFolder;
+      rv = server->GetRootFolder(getter_AddRefs(rootFolder));
+      if (NS_SUCCEEDED(rv) && rootFolder) {
+        int32_t offlineSupportLevel;
+        rv = server->GetOfflineSupportLevel(&offlineSupportLevel);
         NS_ENSURE_SUCCESS(rv, rv);
-        if (!msgStore) continue;
-        bool supportsCompaction;
-        msgStore->GetSupportsCompaction(&supportsCompaction);
-        if (!supportsCompaction) continue;
-        nsCOMPtr<nsIMsgFolder> rootFolder;
-        rv = server->GetRootFolder(getter_AddRefs(rootFolder));
-        if (NS_SUCCEEDED(rv) && rootFolder) {
-          int32_t offlineSupportLevel;
-          rv = server->GetOfflineSupportLevel(&offlineSupportLevel);
-          NS_ENSURE_SUCCESS(rv, rv);
-          nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
-          rootFolder->GetDescendants(allDescendants);
-          int64_t expungedBytes = 0;
-          if (offlineSupportLevel > 0) {
-            uint32_t flags;
-            for (auto folder : allDescendants) {
-              expungedBytes = 0;
-              folder->GetFlags(&flags);
-              if (flags & nsMsgFolderFlags::Offline)
-                folder->GetExpungedBytes(&expungedBytes);
-              if (expungedBytes > 0) {
-                offlineFolderArray.AppendElement(folder);
-                offlineExpungedBytes += expungedBytes;
-              }
-            }
-          } else  // pop or local
-          {
-            for (auto folder : allDescendants) {
-              expungedBytes = 0;
+        nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
+        rootFolder->GetDescendants(allDescendants);
+        int64_t expungedBytes = 0;
+        if (offlineSupportLevel > 0) {
+          uint32_t flags;
+          for (auto folder : allDescendants) {
+            expungedBytes = 0;
+            folder->GetFlags(&flags);
+            if (flags & nsMsgFolderFlags::Offline)
               folder->GetExpungedBytes(&expungedBytes);
-              if (expungedBytes > 0) {
-                folderArray.AppendElement(folder);
-                localExpungedBytes += expungedBytes;
-              }
+            if (expungedBytes > 0) {
+              offlineFolderArray.AppendElement(folder);
+              offlineExpungedBytes += expungedBytes;
+            }
+          }
+        } else  // pop or local
+        {
+          for (auto folder : allDescendants) {
+            expungedBytes = 0;
+            folder->GetExpungedBytes(&expungedBytes);
+            if (expungedBytes > 0) {
+              folderArray.AppendElement(folder);
+              localExpungedBytes += expungedBytes;
             }
           }
         }
-      } while (++serverIndex < numServers);
-      totalExpungedBytes = localExpungedBytes + offlineExpungedBytes;
-      int32_t purgeThreshold;
-      rv = GetPurgeThreshold(&purgeThreshold);
-      NS_ENSURE_SUCCESS(rv, rv);
+      }
+    } while (++serverIndex < numServers);
+    totalExpungedBytes = localExpungedBytes + offlineExpungedBytes;
+    int32_t purgeThreshold;
+    rv = GetPurgeThreshold(&purgeThreshold);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    MOZ_LOG(gCompactLog, LogLevel::Info,
+            ("AutoCompactEvent check: totalExpungedBytes=%" PRIi64
+             ", purgeThreshold=%" PRIi64 "",
+             totalExpungedBytes, ((int64_t)purgeThreshold * 1024)));
+
+    if (totalExpungedBytes > ((int64_t)purgeThreshold * 1024)) {
+      bool okToCompact = false;
+      bool askBeforePurge = Preferences::GetBool(PREF_MAIL_PURGE_ASK);
+      if (askBeforePurge && aWindow) {
+        nsCOMPtr<nsIStringBundle> bundle;
+        rv = GetBaseStringBundle(getter_AddRefs(bundle));
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        nsAutoString compactSize;
+        FormatFileSize(totalExpungedBytes, true, compactSize);
+
+        bool neverAsk = false;  // "Do not ask..." - unchecked by default.
+        int32_t buttonPressed = 0;
+
+        nsCOMPtr<nsIWindowWatcher> ww(
+            do_GetService(NS_WINDOWWATCHER_CONTRACTID));
+        nsCOMPtr<nsIWritablePropertyBag2> props(
+            do_CreateInstance("@mozilla.org/hash-property-bag;1"));
+        props->SetPropertyAsAString(u"compactSize"_ns, compactSize);
+        nsCOMPtr<mozIDOMWindowProxy> migrateWizard;
+        rv = ww->OpenWindow(
+            nullptr, "chrome://messenger/content/compactFoldersDialog.xhtml"_ns,
+            "_blank"_ns, "chrome,dialog,modal,centerscreen"_ns, props,
+            getter_AddRefs(migrateWizard));
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        rv = props->GetPropertyAsBool(u"checked"_ns, &neverAsk);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        rv = props->GetPropertyAsInt32(u"buttonNumClicked"_ns, &buttonPressed);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        if (buttonPressed == 0) {
+          okToCompact = true;
+          if (neverAsk)  // [X] Remove deletions automatically and do not ask
+            Preferences::SetBool(PREF_MAIL_PURGE_ASK, false);
+        }
+      } else {
+        okToCompact = aWindow || !askBeforePurge;
+      }
 
       MOZ_LOG(gCompactLog, LogLevel::Info,
-              ("AutoCompactEvent check: totalExpungedBytes=%" PRIi64
-               ", purgeThreshold=%" PRIi64 "",
-               totalExpungedBytes, ((int64_t)purgeThreshold * 1024)));
+              ("AutoCompactEvent check: okToCompact=%s",
+               okToCompact ? "true" : " false"));
 
-      if (totalExpungedBytes > ((int64_t)purgeThreshold * 1024)) {
-        bool okToCompact = false;
-        bool askBeforePurge = Preferences::GetBool(PREF_MAIL_PURGE_ASK);
-        if (askBeforePurge && aWindow) {
-          nsCOMPtr<nsIStringBundle> bundle;
-          rv = GetBaseStringBundle(getter_AddRefs(bundle));
-          NS_ENSURE_SUCCESS(rv, rv);
-
-          nsAutoString compactSize;
-          FormatFileSize(totalExpungedBytes, true, compactSize);
-
-          bool neverAsk = false;  // "Do not ask..." - unchecked by default.
-          int32_t buttonPressed = 0;
-
-          nsCOMPtr<nsIWindowWatcher> ww(
-              do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-          nsCOMPtr<nsIWritablePropertyBag2> props(
-              do_CreateInstance("@mozilla.org/hash-property-bag;1"));
-          props->SetPropertyAsAString(u"compactSize"_ns, compactSize);
-          nsCOMPtr<mozIDOMWindowProxy> migrateWizard;
-          rv = ww->OpenWindow(
-              nullptr,
-              "chrome://messenger/content/compactFoldersDialog.xhtml"_ns,
-              "_blank"_ns, "chrome,dialog,modal,centerscreen"_ns, props,
-              getter_AddRefs(migrateWizard));
-          NS_ENSURE_SUCCESS(rv, rv);
-
-          rv = props->GetPropertyAsBool(u"checked"_ns, &neverAsk);
-          NS_ENSURE_SUCCESS(rv, rv);
-
-          rv =
-              props->GetPropertyAsInt32(u"buttonNumClicked"_ns, &buttonPressed);
-          NS_ENSURE_SUCCESS(rv, rv);
-
-          if (buttonPressed == 0) {
-            okToCompact = true;
-            if (neverAsk)  // [X] Remove deletions automatically and do not ask
-              Preferences::SetBool(PREF_MAIL_PURGE_ASK, false);
+      if (okToCompact) {
+        if (localExpungedBytes > 0 || offlineExpungedBytes > 0) {
+          for (nsIMsgFolder* f : offlineFolderArray) {
+            folderArray.AppendElement(f);
           }
-        } else {
-          okToCompact = aWindow || !askBeforePurge;
-        }
-
-        MOZ_LOG(gCompactLog, LogLevel::Info,
-                ("AutoCompactEvent check: okToCompact=%s",
-                 okToCompact ? "true" : " false"));
-
-        if (okToCompact) {
-          if (localExpungedBytes > 0 || offlineExpungedBytes > 0) {
-            for (nsIMsgFolder* f : offlineFolderArray) {
-              folderArray.AppendElement(f);
-            }
-            rv = AsyncCompactFolders(folderArray, nullptr, aWindow);
-          }
+          rv = AsyncCompactFolders(folderArray, nullptr, aWindow);
         }
       }
     }
@@ -1771,9 +1759,7 @@ nsMsgDBFolder::MatchOrChangeFilterDestination(nsIMsgFolder* newFolder,
 
   nsCOMPtr<nsIMsgFilterList> filterList;
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
   rv = accountMgr->GetAllServers(allServers);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2456,8 +2442,7 @@ nsresult nsMsgDBFolder::NotifyHdrsNotBeingClassified() {
 bool nsMsgDBFolder::PromptForMasterPasswordIfNecessary() {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, false);
+      mozilla::components::AccountManager::Service();
 
   bool userNeedsToAuthenticate = false;
   // if we're PasswordProtectLocalCache, then we need to find out if the server
@@ -2684,9 +2669,7 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsCOMPtr<nsIFolder> root = folder->GetRootFolder();
   rv = accountManager->GetIncomingServer(root->GetName(),
@@ -2823,8 +2806,7 @@ nsresult nsMsgDBFolder::parseURI(bool needServer) {
     // no parent. do the extra work of asking
     if (!server && needServer) {
       nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
+          mozilla::components::AccountManager::Service();
 
       nsCString serverType;
       GetIncomingServerType(serverType);
@@ -3293,7 +3275,7 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage) {
     rv = GetFolderCacheKey(getter_AddRefs(dbPath));
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIMsgAccountManager> accountMgr =
-          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
+          mozilla::components::AccountManager::Service();
       nsCOMPtr<nsIMsgFolderCache> folderCache;
       rv = accountMgr->GetFolderCache(getter_AddRefs(folderCache));
       if (NS_SUCCEEDED(rv) && folderCache) {

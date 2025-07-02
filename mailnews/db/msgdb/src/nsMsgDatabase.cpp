@@ -1505,10 +1505,9 @@ NS_IMETHODIMP nsMsgDatabase::Commit(nsMsgDBCommit commitType) {
   if (!StaticPrefs::mail_panorama_enabled_AtStartup()) {
     nsresult rv;
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-    if (NS_SUCCEEDED(rv) && accountManager) {
-      nsCOMPtr<nsIMsgFolderCache> folderCache;
-
+        mozilla::components::AccountManager::Service(&rv);
+    nsCOMPtr<nsIMsgFolderCache> folderCache;
+    if (NS_SUCCEEDED(rv)) {
       rv = accountManager->GetFolderCache(getter_AddRefs(folderCache));
       if (NS_SUCCEEDED(rv) && folderCache) {
         nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;

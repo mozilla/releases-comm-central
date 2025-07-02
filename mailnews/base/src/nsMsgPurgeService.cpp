@@ -14,6 +14,7 @@
 #include "nsIMsgSearchTerm.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgFilterPlugin.h"
+#include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "nsMsgFolderFlags.h"
 #include "nsITimer.h"
@@ -116,8 +117,7 @@ nsresult nsMsgPurgeService::PerformPurge() {
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::AccountManager::Service();
   bool keepApplyingRetentionSettings = true;
 
   nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;

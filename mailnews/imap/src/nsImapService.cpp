@@ -57,6 +57,7 @@
 #include "../../base/src/MailnewsLoadContextInfo.h"
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
+#include "mozilla/Components.h"
 #include "mozilla/LoadInfo.h"
 #include "mozilla/Preferences.h"
 
@@ -2143,9 +2144,7 @@ nsresult nsImapService::GetServerFromUrl(nsIImapUrl* aImapUrl,
   }
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   rv = accountManager->FindServerByURI(mailnewsUrl, aServer);
 
   // look for server with any user name, in case we're trying to subscribe

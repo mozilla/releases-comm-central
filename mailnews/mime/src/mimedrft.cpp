@@ -45,6 +45,7 @@
 #include "nsIMIMEService.h"
 #include "nsIMsgAccountManager.h"
 #include "modmimee.h"  // for MimeConverterOutputCallback
+#include "mozilla/Components.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
@@ -1314,16 +1315,14 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
     if (identityKey && *identityKey) {
       nsresult rv = NS_OK;
       nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-      if (NS_SUCCEEDED(rv) && accountManager) {
-        nsCOMPtr<nsIMsgIdentity> overrulingIdentity;
-        rv = accountManager->GetIdentity(nsDependentCString(identityKey),
-                                         getter_AddRefs(overrulingIdentity));
+          mozilla::components::AccountManager::Service();
+      nsCOMPtr<nsIMsgIdentity> overrulingIdentity;
+      rv = accountManager->GetIdentity(nsDependentCString(identityKey),
+                                       getter_AddRefs(overrulingIdentity));
 
-        if (NS_SUCCEEDED(rv) && overrulingIdentity) {
-          mdd->identity = overrulingIdentity;
-          fields->SetCreatorIdentityKey(identityKey);
-        }
+      if (NS_SUCCEEDED(rv) && overrulingIdentity) {
+        mdd->identity = overrulingIdentity;
+        fields->SetCreatorIdentityKey(identityKey);
       }
     }
 

@@ -154,9 +154,7 @@ nsImapIncomingServer::GetConstructedPrettyName(nsACString& retval) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgIdentity> identity;
   rv =
       accountManager->GetFirstIdentityForServer(this, getter_AddRefs(identity));
@@ -1312,9 +1310,7 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
     // flag set appropriately.
 
     nsCOMPtr<nsIMsgAccountManager> accountMgr =
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::AccountManager::Service();
     nsCOMPtr<nsIMsgIdentity> identity;
     rv = accountMgr->GetFirstIdentityForServer(this, getter_AddRefs(identity));
     if (NS_SUCCEEDED(rv) && identity) {
@@ -2125,11 +2121,8 @@ NS_IMETHODIMP nsImapIncomingServer::SetUserAuthenticated(
     bool aUserAuthenticated) {
   m_userAuthenticated = aUserAuthenticated;
   if (aUserAuthenticated) {
-    nsresult rv;
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::AccountManager::Service();
     accountManager->SetUserNeedsToAuthenticate(false);
   }
   return NS_OK;

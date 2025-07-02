@@ -30,6 +30,7 @@
 #include "nsNetCID.h"
 #include "nsMsgMessageFlags.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/Components.h"
 #include "mozilla/ErrorNames.h"
 #include "mozilla/Logging.h"
 
@@ -119,9 +120,7 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LPSTR aLogin,
     // get default account
     nsresult rv;
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-    NS_ENSURE_SUCCESS(rv, MAPI_E_LOGIN_FAILURE);
-
+        mozilla::components::AccountManager::Service();
     nsCOMPtr<nsIMsgAccount> account;
     rv = accountManager->GetDefaultAccount(getter_AddRefs(account));
     NS_ENSURE_SUCCESS(rv, MAPI_E_LOGIN_FAILURE);
@@ -266,9 +265,7 @@ nsresult CMapiImp::GetDefaultInbox(nsIMsgFolder** inboxFolder) {
   // get default account
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgAccount> account;
   rv = accountManager->GetDefaultAccount(getter_AddRefs(account));
   NS_ENSURE_SUCCESS(rv, rv);

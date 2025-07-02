@@ -2705,8 +2705,7 @@ nsMsgLocalMailFolder::MarkMsgsOnPop3Server(
   NS_ENSURE_SUCCESS(rv, NS_MSG_INVALID_OR_MISSING_SERVER);
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::AccountManager::Service();
 
   // I wonder if we should run through the pop3 accounts and see if any of them
   // have leave on server set. If not, we could short-circuit some of this.
@@ -2885,9 +2884,7 @@ nsMsgLocalMailFolder::GetIncomingServerType(nsACString& aServerType) {
     if (NS_FAILED(rv)) return rv;
 
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-    if (NS_FAILED(rv)) return rv;
-
+        mozilla::components::AccountManager::Service();
     nsCOMPtr<nsIMsgIncomingServer> server;
     // try "none" first
     rv = NS_MutateURI(url).SetScheme("none"_ns).Finalize(url);
