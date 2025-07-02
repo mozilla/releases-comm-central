@@ -31,11 +31,11 @@ add_task(async function testMsgFolders() {
     [trashMsgFolder, outboxMsgFolder, alphaMsgFolder, bravoMsgFolder]
   );
 
-  const rootDBFolder = folders.getFolderByPath("server1");
-  const alphaDBFolder = folders.getFolderByPath("server1/alpha");
-  const bravoDBFolder = folders.getFolderByPath("server1/bravo");
-  const outboxDBFolder = folders.getFolderByPath("server1/Unsent Messages");
-  const trashDBFolder = folders.getFolderByPath("server1/Trash");
+  const rootDBFolder = folderDB.getFolderByPath("server1");
+  const alphaDBFolder = folderDB.getFolderByPath("server1/alpha");
+  const bravoDBFolder = folderDB.getFolderByPath("server1/bravo");
+  const outboxDBFolder = folderDB.getFolderByPath("server1/Unsent Messages");
+  const trashDBFolder = folderDB.getFolderByPath("server1/Trash");
   Assert.deepEqual(rootDBFolder.children, [
     trashDBFolder,
     outboxDBFolder,
@@ -43,15 +43,15 @@ add_task(async function testMsgFolders() {
     bravoDBFolder,
   ]);
 
-  Assert.equal(folders.getFolderForMsgFolder(rootMsgFolder), rootDBFolder);
-  Assert.equal(folders.getFolderForMsgFolder(alphaMsgFolder), alphaDBFolder);
-  Assert.equal(folders.getFolderForMsgFolder(bravoMsgFolder), bravoDBFolder);
-  Assert.equal(folders.getFolderForMsgFolder(outboxMsgFolder), outboxDBFolder);
-  Assert.equal(folders.getFolderForMsgFolder(trashMsgFolder), trashDBFolder);
+  Assert.equal(folderDB.getFolderForMsgFolder(rootMsgFolder), rootDBFolder);
+  Assert.equal(folderDB.getFolderForMsgFolder(alphaMsgFolder), alphaDBFolder);
+  Assert.equal(folderDB.getFolderForMsgFolder(bravoMsgFolder), bravoDBFolder);
+  Assert.equal(folderDB.getFolderForMsgFolder(outboxMsgFolder), outboxDBFolder);
+  Assert.equal(folderDB.getFolderForMsgFolder(trashMsgFolder), trashDBFolder);
 
-  Assert.equal(folders.getMsgFolderForFolder(rootDBFolder), rootMsgFolder);
-  Assert.equal(folders.getMsgFolderForFolder(alphaDBFolder), alphaMsgFolder);
-  Assert.equal(folders.getMsgFolderForFolder(bravoDBFolder), bravoMsgFolder);
-  Assert.equal(folders.getMsgFolderForFolder(outboxDBFolder), outboxMsgFolder);
-  Assert.equal(folders.getMsgFolderForFolder(trashDBFolder), trashMsgFolder);
+  Assert.equal(folderDB.getMsgFolderForFolder(rootDBFolder), rootMsgFolder);
+  Assert.equal(folderDB.getMsgFolderForFolder(alphaDBFolder), alphaMsgFolder);
+  Assert.equal(folderDB.getMsgFolderForFolder(bravoDBFolder), bravoMsgFolder);
+  Assert.equal(folderDB.getMsgFolderForFolder(outboxDBFolder), outboxMsgFolder);
+  Assert.equal(folderDB.getMsgFolderForFolder(trashDBFolder), trashMsgFolder);
 });

@@ -13,18 +13,18 @@ add_setup(async function () {
 });
 
 add_task(function testReconcile() {
-  const grandparent = folders.getFolderById(3);
-  const parent = folders.getFolderById(6);
-  const child = folders.getFolderById(4);
-  const grandchild = folders.getFolderById(1);
-  const sibling = folders.getFolderById(2);
+  const grandparent = folderDB.getFolderById(3);
+  const parent = folderDB.getFolderById(6);
+  const child = folderDB.getFolderById(4);
+  const grandchild = folderDB.getFolderById(1);
+  const sibling = folderDB.getFolderById(2);
 
   drawTree(parent);
 
-  folders.reconcile(parent, ["siblîng", "inserted"]);
+  folderDB.reconcile(parent, ["siblîng", "inserted"]);
   drawTree(parent);
 
-  const inserted = folders.getFolderByPath("grandparent/parent/inserted");
+  const inserted = folderDB.getFolderByPath("grandparent/parent/inserted");
   Assert.ok(inserted);
   Assert.equal(inserted.rootFolder, grandparent);
   Assert.equal(inserted.parent, parent);
@@ -43,8 +43,8 @@ add_task(function testReconcile() {
 
   // Folders with the virtual flag shouldn't be removed.
 
-  folders.updateFlags(inserted, Ci.nsMsgFolderFlags.Virtual);
-  folders.reconcile(parent, ["siblîng"]);
+  folderDB.updateFlags(inserted, Ci.nsMsgFolderFlags.Virtual);
+  folderDB.reconcile(parent, ["siblîng"]);
   drawTree(parent);
 
   Assert.deepEqual(parent.children, [inserted, sibling]);

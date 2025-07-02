@@ -6,7 +6,7 @@ const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-let database, folders, messages;
+let database, folderDB, messageDB;
 
 /**
  * Create and populate a database using data from an external file.
@@ -93,13 +93,13 @@ function loadExistingDB() {
   database = Cc["@mozilla.org/mailnews/database-core;1"].getService(
     Ci.nsIDatabaseCore
   );
-  folders = database.folders;
-  messages = database.messages;
+  folderDB = database.folderDB;
+  messageDB = database.messageDB;
 }
 
 registerCleanupFunction(function () {
-  folders = null;
-  messages = null;
+  folderDB = null;
+  messageDB = null;
   database = null;
 
   // Make sure destructors run, to finalize statements even if the test fails.
@@ -185,7 +185,7 @@ function addMessage({
   flags = 0,
   tags = "",
 }) {
-  return messages.addMessage(
+  return messageDB.addMessage(
     folderId,
     messageId,
     new Date(date).valueOf() * 1000,

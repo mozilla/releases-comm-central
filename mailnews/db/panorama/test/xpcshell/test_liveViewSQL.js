@@ -37,7 +37,7 @@ add_task(function testVirtualFolder() {
     false
   );
 
-  const virtualFolder = folders.getFolderByPath("server1/virtual");
+  const virtualFolder = folderDB.getFolderByPath("server1/virtual");
   const folderSubclause = `folderId IN (SELECT searchFolderId FROM virtualFolder_folders WHERE virtualFolderId = ${virtualFolder.id})`;
 
   for (const [searchString, expectedClause, expectedParams] of [

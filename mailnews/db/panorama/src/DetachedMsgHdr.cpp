@@ -368,7 +368,7 @@ NS_IMETHODIMP DetachedMsgHdr::SetAccountKey(const nsACString& accountKey) {
 NS_IMETHODIMP DetachedMsgHdr::GetFolder(nsIMsgFolder** folder) {
   nsCOMPtr<nsIDatabaseCore> core = components::DatabaseCore::Service();
   nsCOMPtr<nsIFolderDatabase> folderDatabase;
-  nsresult rv = core->GetFolders(getter_AddRefs(folderDatabase));
+  nsresult rv = core->GetFolderDB(getter_AddRefs(folderDatabase));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIFolder> dbFolder;

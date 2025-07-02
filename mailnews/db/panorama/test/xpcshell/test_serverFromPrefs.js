@@ -72,10 +72,10 @@ add_task(async function () {
     "mailbox://nobody@Local%20Folders/Unsent%20Messages"
   );
 
-  Assert.ok(folders.getFolderById(1));
-  Assert.ok(folders.getFolderByPath("server1"));
+  Assert.ok(folderDB.getFolderById(1));
+  Assert.ok(folderDB.getFolderByPath("server1"));
   Assert.deepEqual(
-    folders.getFolderByPath("server1").children.map(c => c.name),
+    folderDB.getFolderByPath("server1").children.map(c => c.name),
     ["Trash", "Unsent Messages"]
   );
 

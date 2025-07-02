@@ -79,16 +79,16 @@ From JS:
 
 ```js
 const database = Cc["@mozilla.org/mailnews/database-core;1"].getService(Ci.nsIDatabaseCore);
-const folders = database.folders;
-const messages = database.messages;
+const folders = database.folderDB;
+const messages = database.messageDB;
 ```
 
 From C++:
 
 ```c++
 nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-nsCOMPtr<nsIFolderDatabase> folders = database->GetFolders();
-nsCOMPtr<nsIMessageDatabase> messages = database->GetMessages();
+nsCOMPtr<nsIFolderDatabase> folders = database->GetFolderDB();
+nsCOMPtr<nsIMessageDatabase> messages = database->GetMessageDB();
 ```
 
 If Panorama is enabled, `DatabaseCore` will be started automatically by the initialisation of the

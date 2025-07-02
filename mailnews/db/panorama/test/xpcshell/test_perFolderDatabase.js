@@ -496,7 +496,7 @@ add_task(async function testListener() {
   Assert.equal(newFlags, Ci.nsMsgMessageFlags.Read);
 
   listenerC.reset();
-  messages.removeMessage(headerAdded.messageKey);
+  messageDB.removeMessage(headerAdded.messageKey);
   Assert.ok(!listenerB._headerAdded);
   Assert.ok(!listenerB._headerRemoved);
   Assert.ok(!listenerB._headerChanged);

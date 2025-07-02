@@ -107,19 +107,19 @@ add_task(async function () {
 
   // Check the database is populated correctly.
 
-  const allMessagesId = folders.getFolderByPath("server1/all messages").id;
+  const allMessagesId = folderDB.getFolderByPath("server1/all messages").id;
   checkRow(allMessagesId, {
     id: allMessagesId,
-    parent: folders.getFolderByPath("server1").id,
+    parent: folderDB.getFolderByPath("server1").id,
     ordinal: null,
     name: "all messages",
     flags: Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Mail,
   });
 
-  const testId = folders.getFolderByPath("server1/foo/test").id;
+  const testId = folderDB.getFolderByPath("server1/foo/test").id;
   checkRow(testId, {
     id: testId,
-    parent: folders.getFolderByPath("server1/foo").id,
+    parent: folderDB.getFolderByPath("server1/foo").id,
     ordinal: null,
     name: "test",
     flags: Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Mail,
@@ -141,8 +141,8 @@ add_task(async function () {
     [testId, "searchStr", "AND (subject,contains,test)"],
   ]);
 
-  const fooId = folders.getFolderByPath("server1/foo").id;
-  const barId = folders.getFolderByPath("server1/bar").id;
+  const fooId = folderDB.getFolderByPath("server1/foo").id;
+  const barId = folderDB.getFolderByPath("server1/bar").id;
   stmt = database.connectionForTests.createStatement(
     "SELECT virtualFolderId, searchFolderId FROM virtualFolder_folders ORDER BY virtualFolderId, searchFolderId"
   );

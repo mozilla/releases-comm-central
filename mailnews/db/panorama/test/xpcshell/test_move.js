@@ -16,12 +16,12 @@ add_setup(async function () {
  * Tests rearranging the folders without moving them to a new parent.
  */
 add_task(function testMoveToSameParent() {
-  const grandparent = folders.getFolderById(1);
-  const parent = folders.getFolderById(3);
-  const a = folders.getFolderById(4);
-  const b = folders.getFolderById(7);
-  const c = folders.getFolderById(9);
-  const d = folders.getFolderById(10);
+  const grandparent = folderDB.getFolderById(1);
+  const parent = folderDB.getFolderById(3);
+  const a = folderDB.getFolderById(4);
+  const b = folderDB.getFolderById(7);
+  const c = folderDB.getFolderById(9);
+  const d = folderDB.getFolderById(10);
 
   drawTree(parent);
 
@@ -36,23 +36,23 @@ add_task(function testMoveToSameParent() {
   ]);
 
   Assert.throws(
-    () => folders.moveFolderWithin(grandparent, a),
+    () => folderDB.moveFolderWithin(grandparent, a),
     /NS_ERROR_UNEXPECTED/,
     "moving a folder within a different folder should be prevented"
   );
   Assert.throws(
-    () => folders.moveFolderWithin(parent, a, a),
+    () => folderDB.moveFolderWithin(parent, a, a),
     /NS_ERROR_UNEXPECTED/,
     "moving a folder ahead of itself should be prevented"
   );
   Assert.throws(
-    () => folders.moveFolderWithin(parent, a, parent),
+    () => folderDB.moveFolderWithin(parent, a, parent),
     /NS_ERROR_UNEXPECTED/,
     "moving a folder ahead of a folder with a different parent should be prevented"
   );
 
   // Start -> Middle.
-  folders.moveFolderWithin(parent, a, c);
+  folderDB.moveFolderWithin(parent, a, c);
   Assert.equal(a.parent, parent);
   Assert.deepEqual(parent.children, [b, a, c, d]);
   checkOrdinals([
@@ -64,7 +64,7 @@ add_task(function testMoveToSameParent() {
   ]);
 
   // Middle -> Middle.
-  folders.moveFolderWithin(parent, a, d);
+  folderDB.moveFolderWithin(parent, a, d);
   Assert.equal(a.parent, parent);
   Assert.deepEqual(parent.children, [b, c, a, d]);
   checkOrdinals([
@@ -76,7 +76,7 @@ add_task(function testMoveToSameParent() {
   ]);
 
   // Middle -> End.
-  folders.moveFolderWithin(parent, a);
+  folderDB.moveFolderWithin(parent, a);
   Assert.equal(a.parent, parent);
   Assert.deepEqual(parent.children, [b, c, d, a]);
   checkOrdinals([
@@ -88,7 +88,7 @@ add_task(function testMoveToSameParent() {
   ]);
 
   // Start <- End.
-  folders.moveFolderWithin(parent, a, b);
+  folderDB.moveFolderWithin(parent, a, b);
   Assert.equal(a.parent, parent);
   Assert.deepEqual(parent.children, [a, b, c, d]);
   checkOrdinals([
@@ -100,7 +100,7 @@ add_task(function testMoveToSameParent() {
   ]);
 
   // Start -> End.
-  folders.moveFolderWithin(parent, a);
+  folderDB.moveFolderWithin(parent, a);
   Assert.equal(a.parent, parent);
   Assert.deepEqual(parent.children, [b, c, d, a]);
   checkOrdinals([
@@ -112,7 +112,7 @@ add_task(function testMoveToSameParent() {
   ]);
 
   // Middle <- End.
-  folders.moveFolderWithin(parent, a, d);
+  folderDB.moveFolderWithin(parent, a, d);
   Assert.equal(a.parent, parent);
   Assert.deepEqual(parent.children, [b, c, a, d]);
   checkOrdinals([
@@ -124,7 +124,7 @@ add_task(function testMoveToSameParent() {
   ]);
 
   // Middle <- Middle.
-  folders.moveFolderWithin(parent, a, c);
+  folderDB.moveFolderWithin(parent, a, c);
   Assert.equal(a.parent, parent);
   Assert.deepEqual(parent.children, [b, a, c, d]);
   checkOrdinals([
@@ -136,7 +136,7 @@ add_task(function testMoveToSameParent() {
   ]);
 
   // Start <- Middle.
-  folders.moveFolderWithin(parent, a, b);
+  folderDB.moveFolderWithin(parent, a, b);
   Assert.equal(a.parent, parent);
   Assert.deepEqual(parent.children, [a, b, c, d]);
   checkOrdinals([
@@ -147,7 +147,7 @@ add_task(function testMoveToSameParent() {
     [d, parent.id, 4],
   ]);
 
-  folders.resetChildOrder(parent);
+  folderDB.resetChildOrder(parent);
   checkOrdinals([
     [parent, 1, null],
     [a, parent.id, null],
@@ -161,19 +161,19 @@ add_task(function testMoveToSameParent() {
  * Tests moving folders to a new parent.
  */
 add_task(function testMoveToNewParent() {
-  const grandparent = folders.getFolderById(1);
-  const left = folders.getFolderById(2);
-  const parent = folders.getFolderById(3);
-  const right = folders.getFolderById(14);
-  const a = folders.getFolderById(4);
-  const b = folders.getFolderById(7);
-  const c = folders.getFolderById(9);
-  const d = folders.getFolderById(10);
+  const grandparent = folderDB.getFolderById(1);
+  const left = folderDB.getFolderById(2);
+  const parent = folderDB.getFolderById(3);
+  const right = folderDB.getFolderById(14);
+  const a = folderDB.getFolderById(4);
+  const b = folderDB.getFolderById(7);
+  const c = folderDB.getFolderById(9);
+  const d = folderDB.getFolderById(10);
 
-  folders.moveFolderWithin(parent, b, a);
-  folders.moveFolderWithin(parent, c, a);
-  folders.moveFolderWithin(parent, d, a);
-  folders.moveFolderWithin(parent, a, b);
+  folderDB.moveFolderWithin(parent, b, a);
+  folderDB.moveFolderWithin(parent, c, a);
+  folderDB.moveFolderWithin(parent, d, a);
+  folderDB.moveFolderWithin(parent, a, b);
 
   drawTree(grandparent);
   checkOrdinals([
@@ -186,18 +186,18 @@ add_task(function testMoveToNewParent() {
   ]);
 
   Assert.throws(
-    () => folders.moveFolderTo(parent, parent),
+    () => folderDB.moveFolderTo(parent, parent),
     /NS_ERROR_UNEXPECTED/,
     "inserted a child as a child of itself should be prevented"
   );
   Assert.throws(
-    () => folders.moveFolderTo(a, parent),
+    () => folderDB.moveFolderTo(a, parent),
     /NS_ERROR_UNEXPECTED/,
     "inserted a child as a descendant of itself should be prevented"
   );
 
   // Append A to new parent on left.
-  folders.moveFolderTo(left, a);
+  folderDB.moveFolderTo(left, a);
   drawTree(grandparent);
   Assert.equal(a.parent, left);
   Assert.deepEqual(left.children, [a]);
@@ -214,7 +214,7 @@ add_task(function testMoveToNewParent() {
   ]);
 
   // Append D to new parent on right.
-  folders.moveFolderTo(right, d);
+  folderDB.moveFolderTo(right, d);
   drawTree(grandparent);
   Assert.equal(d.parent, right);
   Assert.deepEqual(parent.children, [b, c]);
@@ -228,7 +228,7 @@ add_task(function testMoveToNewParent() {
   ]);
 
   // Append C to new parent on left.
-  folders.moveFolderTo(left, c);
+  folderDB.moveFolderTo(left, c);
   drawTree(grandparent);
   Assert.equal(c.parent, left);
   Assert.deepEqual(left.children, [a, c]);
@@ -243,7 +243,7 @@ add_task(function testMoveToNewParent() {
 
   // Append B to new parent on right. B and D have no ordinals (even if they
   // existed before, moving nullified them) and B is ahead of D alphabetically.
-  folders.moveFolderTo(right, b);
+  folderDB.moveFolderTo(right, b);
   drawTree(grandparent);
   Assert.equal(b.parent, right);
   Assert.deepEqual(parent.children, []);
@@ -259,10 +259,10 @@ add_task(function testMoveToNewParent() {
   // so now we'll do several moves at once.
 
   // Move to become siblings of the current parent.
-  folders.moveFolderTo(grandparent, a);
-  folders.moveFolderTo(grandparent, b);
-  folders.moveFolderTo(grandparent, c);
-  folders.moveFolderTo(grandparent, d);
+  folderDB.moveFolderTo(grandparent, a);
+  folderDB.moveFolderTo(grandparent, b);
+  folderDB.moveFolderTo(grandparent, c);
+  folderDB.moveFolderTo(grandparent, d);
   drawTree(grandparent);
   Assert.equal(a.parent, grandparent);
   Assert.equal(b.parent, grandparent);
@@ -285,10 +285,10 @@ add_task(function testMoveToNewParent() {
   ]);
 
   // Move back to original positions.
-  folders.moveFolderTo(parent, b);
-  folders.moveFolderTo(parent, a);
-  folders.moveFolderTo(parent, d);
-  folders.moveFolderTo(parent, c);
+  folderDB.moveFolderTo(parent, b);
+  folderDB.moveFolderTo(parent, a);
+  folderDB.moveFolderTo(parent, d);
+  folderDB.moveFolderTo(parent, c);
   drawTree(grandparent);
   Assert.equal(a.parent, parent);
   Assert.equal(b.parent, parent);
@@ -312,53 +312,53 @@ add_task(function testMoveToNewParent() {
  * Tests moving folders between trees. This should not be allowed.
  */
 add_task(function testMoveToNewRoot() {
-  const grandparent = folders.getFolderById(1);
-  const parent = folders.getFolderById(3);
-  const otherRoot = folders.getFolderById(15);
-  const otherChild = folders.getFolderById(16);
+  const grandparent = folderDB.getFolderById(1);
+  const parent = folderDB.getFolderById(3);
+  const otherRoot = folderDB.getFolderById(15);
+  const otherChild = folderDB.getFolderById(16);
 
   Assert.throws(
-    () => folders.moveFolderTo(grandparent, otherRoot),
+    () => folderDB.moveFolderTo(grandparent, otherRoot),
     /NS_ERROR_UNEXPECTED/,
     "folder should be prevented from moving to another tree"
   );
   Assert.throws(
-    () => folders.moveFolderTo(parent, otherRoot),
+    () => folderDB.moveFolderTo(parent, otherRoot),
     /NS_ERROR_UNEXPECTED/,
     "folder should be prevented from moving to another tree"
   );
   Assert.throws(
-    () => folders.moveFolderTo(grandparent, otherChild),
+    () => folderDB.moveFolderTo(grandparent, otherChild),
     /NS_ERROR_UNEXPECTED/,
     "folder should be prevented from moving to another tree"
   );
   Assert.throws(
-    () => folders.moveFolderTo(parent, otherChild),
+    () => folderDB.moveFolderTo(parent, otherChild),
     /NS_ERROR_UNEXPECTED/,
     "folder should be prevented from moving to another tree"
   );
   Assert.throws(
-    () => folders.moveFolderTo(otherRoot, grandparent),
+    () => folderDB.moveFolderTo(otherRoot, grandparent),
     /NS_ERROR_UNEXPECTED/,
     "folder should be prevented from moving to another tree"
   );
   Assert.throws(
-    () => folders.moveFolderTo(otherChild, grandparent),
+    () => folderDB.moveFolderTo(otherChild, grandparent),
     /NS_ERROR_UNEXPECTED/,
     "folder should be prevented from moving to another tree"
   );
   Assert.throws(
-    () => folders.moveFolderTo(otherRoot, parent),
+    () => folderDB.moveFolderTo(otherRoot, parent),
     /NS_ERROR_UNEXPECTED/,
     "folder should be prevented from moving to another tree"
   );
   Assert.throws(
-    () => folders.moveFolderTo(otherChild, parent),
+    () => folderDB.moveFolderTo(otherChild, parent),
     /NS_ERROR_UNEXPECTED/,
     "folder should be prevented from moving to another tree"
   );
   Assert.throws(
-    () => folders.moveFolderTo(grandparent, otherRoot),
+    () => folderDB.moveFolderTo(grandparent, otherRoot),
     /NS_ERROR_UNEXPECTED/,
     "root folders should be prevented from moving"
   );

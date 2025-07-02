@@ -11,11 +11,11 @@ add_setup(async function () {
 });
 
 add_task(function testRelations() {
-  const grandparent = folders.getFolderById(3);
-  const parent = folders.getFolderById(6);
-  const child = folders.getFolderById(4);
-  const grandchild = folders.getFolderById(1);
-  const sibling = folders.getFolderById(2);
+  const grandparent = folderDB.getFolderById(3);
+  const parent = folderDB.getFolderById(6);
+  const child = folderDB.getFolderById(4);
+  const grandchild = folderDB.getFolderById(1);
+  const sibling = folderDB.getFolderById(2);
 
   drawTree(grandparent);
 
@@ -111,9 +111,9 @@ add_task(function testRelations() {
 });
 
 add_task(function testOtherRoot() {
-  const grandparent = folders.getFolderById(3);
-  const otherRoot = folders.getFolderById(5);
-  const otherChild = folders.getFolderById(7);
+  const grandparent = folderDB.getFolderById(3);
+  const otherRoot = folderDB.getFolderById(5);
+  const otherChild = folderDB.getFolderById(7);
 
   drawTree(otherRoot);
 
@@ -138,9 +138,9 @@ add_task(function testOtherRoot() {
 });
 
 add_task(function testChildFunctions() {
-  const parent = folders.getFolderById(6);
-  const child = folders.getFolderById(4);
-  const sibling = folders.getFolderById(2);
+  const parent = folderDB.getFolderById(6);
+  const child = folderDB.getFolderById(4);
+  const sibling = folderDB.getFolderById(2);
 
   Assert.ok(parent.containsChildNamed("child"));
   Assert.equal(parent.getChildNamed("child"), child);

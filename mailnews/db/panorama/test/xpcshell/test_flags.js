@@ -16,45 +16,45 @@ add_setup(async function () {
 });
 
 add_task(function testFlags() {
-  const folder = folders.getFolderById(1);
+  const folder = folderDB.getFolderById(1);
 
   Assert.equal(folder.flags, 0);
   checkFlags(0);
 
   for (const flag of [FLAG_ONE, FLAG_TWO, FLAG_FOUR, FLAG_EIGHT]) {
-    folders.updateFlags(folder, folder.flags | flag);
+    folderDB.updateFlags(folder, folder.flags | flag);
     Assert.equal(folder.flags, flag);
     checkFlags(flag);
 
-    folders.updateFlags(folder, folder.flags ^ flag);
+    folderDB.updateFlags(folder, folder.flags ^ flag);
     Assert.equal(folder.flags, 0);
     checkFlags(0);
 
-    folders.updateFlags(folder, folder.flags ^ flag);
+    folderDB.updateFlags(folder, folder.flags ^ flag);
     Assert.equal(folder.flags, flag);
     checkFlags(flag);
 
-    folders.updateFlags(folder, folder.flags & ~flag);
+    folderDB.updateFlags(folder, folder.flags & ~flag);
     Assert.equal(folder.flags, 0);
     checkFlags(0);
   }
 
-  folders.updateFlags(folder, folder.flags | FLAG_ONE);
+  folderDB.updateFlags(folder, folder.flags | FLAG_ONE);
   Assert.equal(folder.flags, FLAG_ONE);
-  folders.updateFlags(folder, folder.flags ^ FLAG_TWO);
+  folderDB.updateFlags(folder, folder.flags ^ FLAG_TWO);
   Assert.equal(folder.flags, FLAG_ONE | FLAG_TWO);
-  folders.updateFlags(folder, folder.flags | FLAG_FOUR);
+  folderDB.updateFlags(folder, folder.flags | FLAG_FOUR);
   Assert.equal(folder.flags, FLAG_ONE | FLAG_TWO | FLAG_FOUR);
-  folders.updateFlags(folder, folder.flags ^ FLAG_EIGHT);
+  folderDB.updateFlags(folder, folder.flags ^ FLAG_EIGHT);
   Assert.equal(folder.flags, FLAG_ONE | FLAG_TWO | FLAG_FOUR | FLAG_EIGHT);
 
-  folders.updateFlags(folder, folder.flags ^ FLAG_ONE);
+  folderDB.updateFlags(folder, folder.flags ^ FLAG_ONE);
   Assert.equal(folder.flags, FLAG_TWO | FLAG_FOUR | FLAG_EIGHT);
-  folders.updateFlags(folder, folder.flags & ~FLAG_TWO);
+  folderDB.updateFlags(folder, folder.flags & ~FLAG_TWO);
   Assert.equal(folder.flags, FLAG_FOUR | FLAG_EIGHT);
-  folders.updateFlags(folder, folder.flags ^ FLAG_FOUR);
+  folderDB.updateFlags(folder, folder.flags ^ FLAG_FOUR);
   Assert.equal(folder.flags, FLAG_EIGHT);
-  folders.updateFlags(folder, folder.flags & ~FLAG_EIGHT);
+  folderDB.updateFlags(folder, folder.flags & ~FLAG_EIGHT);
   Assert.equal(folder.flags, 0);
 });
 

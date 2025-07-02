@@ -69,7 +69,7 @@ async function testFolderDiscovery(server) {
 
   // Check that the nsIFolder objects exist.
 
-  const root = folders.getFolderByPath(server.key);
+  const root = folderDB.getFolderByPath(server.key);
   drawTree(root);
   Assert.equal(root.parent, null);
   Assert.equal(root.name, server.key);
@@ -80,11 +80,11 @@ async function testFolderDiscovery(server) {
     name: server.key,
     flags: 0,
   });
-  Assert.equal(folders.getFolderById(root.id), root);
+  Assert.equal(folderDB.getFolderById(root.id), root);
 
   // Special folders were added at start-up.
 
-  const trash = folders.getFolderByPath(`${server.key}/Trash`);
+  const trash = folderDB.getFolderByPath(`${server.key}/Trash`);
   Assert.ok(trash);
   Assert.equal(trash.parent, root);
   Assert.equal(trash.name, "Trash");
@@ -96,7 +96,7 @@ async function testFolderDiscovery(server) {
     flags: Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.Mail,
   });
 
-  const unsent = folders.getFolderByPath(`${server.key}/Unsent Messages`);
+  const unsent = folderDB.getFolderByPath(`${server.key}/Unsent Messages`);
   Assert.ok(unsent);
   Assert.equal(unsent.parent, root);
   Assert.equal(unsent.name, "Unsent Messages");
@@ -110,7 +110,7 @@ async function testFolderDiscovery(server) {
 
   // We added some files. Check they exist.
 
-  const test1 = folders.getFolderByPath(`${server.key}/test1`);
+  const test1 = folderDB.getFolderByPath(`${server.key}/test1`);
   Assert.ok(test1);
   Assert.equal(test1.parent, root);
   Assert.equal(test1.name, "test1");
@@ -122,7 +122,7 @@ async function testFolderDiscovery(server) {
     flags: 0,
   });
 
-  const test2 = folders.getFolderByPath(`${server.key}/test1/test2`);
+  const test2 = folderDB.getFolderByPath(`${server.key}/test1/test2`);
   Assert.ok(test2);
   Assert.equal(test2.parent, test1);
   Assert.equal(test2.name, "test2");
@@ -135,7 +135,7 @@ async function testFolderDiscovery(server) {
   });
   Assert.deepEqual(test1.children, [test2]);
 
-  const test3 = folders.getFolderByPath(`${server.key}/test3`);
+  const test3 = folderDB.getFolderByPath(`${server.key}/test3`);
   Assert.ok(test3);
   Assert.equal(test3.parent, root);
   Assert.equal(test3.name, "test3");

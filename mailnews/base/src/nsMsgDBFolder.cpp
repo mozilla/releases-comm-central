@@ -2733,7 +2733,7 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-  nsCOMPtr<nsIFolderDatabase> folders = database->GetFolders();
+  nsCOMPtr<nsIFolderDatabase> folders = database->GetFolderDB();
   folders->Reconcile(folder, folderPaths);
 
   // Add the subfolders.
@@ -3387,7 +3387,7 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
     // various functions call the message store and it calls back.
     // `name` is a hashed name and it shouldn't be.
     nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-    nsCOMPtr<nsIFolderDatabase> folders = database->GetFolders();
+    nsCOMPtr<nsIFolderDatabase> folders = database->GetFolderDB();
 
     nsCOMPtr<nsIFolder> dbFolder;
     folders->InsertFolder(mDBFolder, actualName, getter_AddRefs(dbFolder));

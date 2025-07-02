@@ -28,7 +28,7 @@ add_task(function () {
     cc: generator.makeNamesAndAddresses(1),
   });
   const addedMessage = folder.addMessage(generatedMessage.toMessageString());
-  const folderId = folders.getFolderForMsgFolder(folder).id;
+  const folderId = folderDB.getFolderForMsgFolder(folder).id;
 
   // Check the added message's properties match the input properties.
 

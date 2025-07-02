@@ -43,7 +43,7 @@ add_task(function testMessageProperties() {
 });
 
 add_task(function testInitWithFolder() {
-  const folderA = folders.getFolderByPath("server1/folderA");
+  const folderA = folderDB.getFolderByPath("server1/folderA");
 
   const liveView = new LiveView();
   Assert.throws(
@@ -85,9 +85,9 @@ add_task(function testInitWithFolder() {
 });
 
 add_task(function testInitWithFolders() {
-  const folderA = folders.getFolderByPath("server1/folderA");
-  const folderB = folders.getFolderByPath("server1/folderB");
-  const folderC = folders.getFolderByPath("server1/folderC");
+  const folderA = folderDB.getFolderByPath("server1/folderA");
+  const folderB = folderDB.getFolderByPath("server1/folderB");
+  const folderC = folderDB.getFolderByPath("server1/folderC");
 
   const liveView = new LiveView();
   Assert.throws(
@@ -129,22 +129,22 @@ add_task(function testInitWithFolders() {
 });
 
 add_task(function testInitWithVirtualFolder() {
-  const folderA = folders.getFolderByPath("server1/folderA");
-  const folderC = folders.getFolderByPath("server1/folderC");
+  const folderA = folderDB.getFolderByPath("server1/folderA");
+  const folderC = folderDB.getFolderByPath("server1/folderC");
 
   MailServices.accounts.accounts;
   const wrapper = VirtualFolderHelper.createNewVirtualFolder(
     "virtual",
     MailServices.accounts.localFoldersServer.rootFolder,
     [
-      folders.getMsgFolderForFolder(folderA),
-      folders.getMsgFolderForFolder(folderC),
+      folderDB.getMsgFolderForFolder(folderA),
+      folderDB.getMsgFolderForFolder(folderC),
     ],
     "AND (subject,contains,ing)",
     false
   );
 
-  const virtualFolder = folders.getFolderByPath("server1/virtual");
+  const virtualFolder = folderDB.getFolderByPath("server1/virtual");
 
   let liveView = new LiveView();
   liveView.initWithFolder(virtualFolder);
@@ -427,7 +427,7 @@ add_task(function testListener() {
   Assert.equal(listener._addedMessage.flags, 0);
   Assert.equal(listener._addedMessage.tags, "$label4");
 
-  messages.removeMessage(earlierId);
+  messageDB.removeMessage(earlierId);
   Assert.equal(listener._removedMessage.id, earlierId);
   Assert.equal(listener._removedMessage.folderId, 2);
   Assert.equal(listener._removedMessage.messageId, "earlier-message");
@@ -443,12 +443,12 @@ add_task(function testListener() {
   liveView.clearListener(listener);
   // If the listener was not cleared these calls would cause failures.
   const laterId = addMessage({ folderId: 3, messageId: "later-message" });
-  messages.removeMessage(addedId);
-  messages.removeMessage(laterId);
+  messageDB.removeMessage(addedId);
+  messageDB.removeMessage(laterId);
 });
 
 function assertInitFails(liveView) {
-  const folderA = folders.getFolderByPath("server1/folderA");
+  const folderA = folderDB.getFolderByPath("server1/folderA");
 
   Assert.throws(
     () => liveView.initWithFolder(folderA),

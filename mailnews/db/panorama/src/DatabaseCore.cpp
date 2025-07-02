@@ -464,13 +464,13 @@ nsresult DatabaseCore::RollbackToSavepoint(const nsACString& name) {
 }
 
 NS_IMETHODIMP
-DatabaseCore::GetFolders(nsIFolderDatabase** aFolderDatabase) {
+DatabaseCore::GetFolderDB(nsIFolderDatabase** aFolderDatabase) {
   NS_IF_ADDREF(*aFolderDatabase = mFolderDatabase);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-DatabaseCore::GetMessages(nsIMessageDatabase** aMessageDatabase) {
+DatabaseCore::GetMessageDB(nsIMessageDatabase** aMessageDatabase) {
   NS_IF_ADDREF(*aMessageDatabase = mMessageDatabase);
   return NS_OK;
 }

@@ -222,7 +222,7 @@ function subtestAddRemove1(
     Assert.equal(tree._index, 12);
     Assert.equal(tree._delta, 1);
 
-    messages.removeMessage(addedBefore);
+    messageDB.removeMessage(addedBefore);
     Assert.deepEqual(listStorage(adapter), [
       ...idsInOrder.slice(0, 3),
       ...new Array(5),
@@ -232,7 +232,7 @@ function subtestAddRemove1(
     Assert.equal(tree._index, 0);
     Assert.equal(tree._delta, -1);
 
-    messages.removeMessage(addedBetween);
+    messageDB.removeMessage(addedBetween);
     Assert.deepEqual(listStorage(adapter), [
       ...idsInOrder.slice(0, 3),
       ...new Array(4),
@@ -242,7 +242,7 @@ function subtestAddRemove1(
     Assert.equal(tree._index, 7);
     Assert.equal(tree._delta, -1);
 
-    messages.removeMessage(addedAfter);
+    messageDB.removeMessage(addedAfter);
     Assert.deepEqual(listStorage(adapter), [
       ...idsInOrder.slice(0, 3),
       ...new Array(4),
@@ -301,7 +301,7 @@ function subtestAddRemove2(
     Assert.equal(tree._index, 11);
     Assert.equal(tree._delta, 1);
 
-    messages.removeMessage(addedBefore);
+    messageDB.removeMessage(addedBefore);
     Assert.deepEqual(listStorage(adapter), [
       ...new Array(3),
       ...idsInOrder.slice(3, 8),
@@ -310,7 +310,7 @@ function subtestAddRemove2(
     Assert.equal(tree._index, 3);
     Assert.equal(tree._delta, -1);
 
-    messages.removeMessage(addedAfter);
+    messageDB.removeMessage(addedAfter);
     Assert.deepEqual(listStorage(adapter), [
       ...new Array(3),
       ...idsInOrder.slice(3, 8),
@@ -399,15 +399,15 @@ function subtestAddRemove3(
     Assert.equal(tree._index, 9);
     Assert.equal(tree._delta, 1);
 
-    messages.removeMessage(addedSecondGroup1);
+    messageDB.removeMessage(addedSecondGroup1);
     Assert.equal(tree._index, 10);
     Assert.equal(tree._delta, -1);
 
-    messages.removeMessage(addedSecondGroup2);
+    messageDB.removeMessage(addedSecondGroup2);
     Assert.equal(tree._index, 9);
     Assert.equal(tree._delta, -1);
 
-    messages.removeMessage(addedFirstGroup);
+    messageDB.removeMessage(addedFirstGroup);
     Assert.equal(tree._index, 2);
     Assert.equal(tree._delta, -1);
   } finally {

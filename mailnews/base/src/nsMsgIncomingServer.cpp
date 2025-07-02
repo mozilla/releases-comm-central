@@ -421,7 +421,7 @@ nsresult nsMsgIncomingServer::CreateRootFolder() {
 #ifdef MOZ_PANORAMA
   if (Preferences::GetBool("mail.panorama.enabled", false)) {
     nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-    nsCOMPtr<nsIFolderDatabase> folders = database->GetFolders();
+    nsCOMPtr<nsIFolderDatabase> folders = database->GetFolderDB();
 
     nsCOMPtr<nsIFolder> root;
     rv = folders->GetFolderByPath(m_serverKey, getter_AddRefs(root));

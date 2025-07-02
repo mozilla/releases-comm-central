@@ -12,7 +12,7 @@ add_setup(async function () {
 
 add_task(function testInsertRoot() {
   // Use a unicode key, because we can.
-  const serverX = folders.insertRoot("serv\u011BrX");
+  const serverX = folderDB.insertRoot("serv\u011BrX");
   Assert.ok(serverX, "insertRoot should return a folder");
   Assert.equal(serverX.parent, null, "new folder should be a root folder");
   Assert.equal(
@@ -27,7 +27,7 @@ add_task(function testInsertRoot() {
   );
 
   Assert.equal(
-    folders.getFolderByPath("serv\u011BrX"),
+    folderDB.getFolderByPath("serv\u011BrX"),
     serverX,
     "should be able to fetch the new folder by path"
   );
@@ -41,7 +41,7 @@ add_task(function testInsertRoot() {
   });
 
   // Again, with a different unicode representation of the same key.
-  const serverXAgain = folders.insertRoot("serve\u030CrX");
+  const serverXAgain = folderDB.insertRoot("serve\u030CrX");
   Assert.equal(
     serverXAgain,
     serverX,
@@ -50,15 +50,15 @@ add_task(function testInsertRoot() {
 });
 
 add_task(function testInsertFolder() {
-  const grandparent = folders.getFolderById(3);
-  const parent = folders.getFolderById(6);
-  const child = folders.getFolderById(4);
-  const sibling = folders.getFolderById(2);
+  const grandparent = folderDB.getFolderById(3);
+  const parent = folderDB.getFolderById(6);
+  const child = folderDB.getFolderById(4);
+  const sibling = folderDB.getFolderById(2);
 
   drawTree(parent);
 
   // Use a unicode name, because we can.
-  const inserted = folders.insertFolder(parent, "insert\u0113d");
+  const inserted = folderDB.insertFolder(parent, "insert\u0113d");
   drawTree(parent);
   Assert.ok(inserted, "insertFolder should return a folder");
   Assert.equal(
@@ -68,7 +68,7 @@ add_task(function testInsertFolder() {
   );
 
   Assert.equal(
-    folders.getFolderByPath("grandparent/parent/insert\u0113d"),
+    folderDB.getFolderByPath("grandparent/parent/insert\u0113d"),
     inserted,
     "should be able to fetch the new folder by path"
   );
@@ -97,7 +97,7 @@ add_task(function testInsertFolder() {
   });
 
   // Again, with a different unicode representation of the same name.
-  const existing = folders.insertFolder(parent, "inserte\u0304d");
+  const existing = folderDB.insertFolder(parent, "inserte\u0304d");
   drawTree(parent);
   Assert.equal(
     existing,
@@ -111,7 +111,7 @@ add_task(function testInsertFolder() {
   );
 
   Assert.throws(
-    () => folders.insertFolder(null, "oops"),
+    () => folderDB.insertFolder(null, "oops"),
     /NS_ERROR_ILLEGAL_VALUE/,
     "insertFolder should require a parent folder"
   );
