@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"
 #include "nsMsgThreadedDBView.h"
+
+#include "mozilla/ProfilerMarkers.h"
+#include "msgCore.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgThread.h"
 #include "nsIDBFolderInfo.h"
@@ -28,6 +30,7 @@ NS_IMETHODIMP
 nsMsgThreadedDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                           nsMsgViewSortOrderValue sortOrder,
                           nsMsgViewFlagsTypeValue viewFlags) {
+  AUTO_PROFILER_LABEL("nsMsgThreadedDBView::Open", MAILNEWS);
   nsresult rv = nsMsgDBView::Open(folder, sortType, sortOrder, viewFlags);
   NS_ENSURE_SUCCESS(rv, rv);
 

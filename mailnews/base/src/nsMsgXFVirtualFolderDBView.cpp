@@ -5,6 +5,7 @@
 
 #include "nsMsgXFVirtualFolderDBView.h"
 
+#include "mozilla/ProfilerMarkers.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "msgCore.h"
 #include "nsIMsgHdr.h"
@@ -32,6 +33,7 @@ nsMsgXFVirtualFolderDBView::Open(nsIMsgFolder* folder,
                                  nsMsgViewSortTypeValue sortType,
                                  nsMsgViewSortOrderValue sortOrder,
                                  nsMsgViewFlagsTypeValue viewFlags) {
+  AUTO_PROFILER_LABEL("nsMsgXFVirtualFolderDBView::Open", MAILNEWS);
   m_viewFolder = folder;
   return nsMsgSearchDBView::Open(folder, sortType, sortOrder, viewFlags);
 }

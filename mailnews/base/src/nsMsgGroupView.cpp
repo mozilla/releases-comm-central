@@ -3,9 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsMsgGroupView.h"
+
+#include "mozilla/ProfilerMarkers.h"
 #include "msgCore.h"
 #include "nsMsgUtils.h"
-#include "nsMsgGroupView.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgThread.h"
 #include "nsIDBFolderInfo.h"
@@ -30,6 +32,7 @@ NS_IMETHODIMP
 nsMsgGroupView::Open(nsIMsgFolder* aFolder, nsMsgViewSortTypeValue aSortType,
                      nsMsgViewSortOrderValue aSortOrder,
                      nsMsgViewFlagsTypeValue aViewFlags) {
+  AUTO_PROFILER_LABEL("nsMsgGroupView::Open", MAILNEWS);
   nsresult rv = nsMsgDBView::Open(aFolder, aSortType, aSortOrder, aViewFlags);
   NS_ENSURE_SUCCESS(rv, rv);
 

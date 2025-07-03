@@ -6,6 +6,7 @@
 #include "nsMsgSearchDBView.h"
 
 #include "mozilla/Preferences.h"
+#include "mozilla/ProfilerMarkers.h"
 #include "msgCore.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgThread.h"
@@ -41,6 +42,7 @@ NS_IMETHODIMP
 nsMsgSearchDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                         nsMsgViewSortOrderValue sortOrder,
                         nsMsgViewFlagsTypeValue viewFlags) {
+  AUTO_PROFILER_LABEL("nsMsgSearchDBView::Open", MAILNEWS);
   // DBViewWrapper.sys.mjs likes to create search views with a sort order
   // of byNone, in order to have the order be the order the search results
   // are returned. But this doesn't work with threaded view, so make the

@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"
 #include "nsMsgQuickSearchDBView.h"
+
+#include "mozilla/ProfilerMarkers.h"
+#include "msgCore.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgImapMailFolder.h"
@@ -28,6 +30,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::Open(nsIMsgFolder* folder,
                                            nsMsgViewSortTypeValue sortType,
                                            nsMsgViewSortOrderValue sortOrder,
                                            nsMsgViewFlagsTypeValue viewFlags) {
+  AUTO_PROFILER_LABEL("nsMsgQuickSearchDBView::Open", MAILNEWS);
   nsresult rv = nsMsgDBView::Open(folder, sortType, sortOrder, viewFlags);
   NS_ENSURE_SUCCESS(rv, rv);
 
