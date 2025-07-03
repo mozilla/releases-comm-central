@@ -16,7 +16,7 @@ use nserror::NS_OK;
 use nsstring::{nsACString, nsCString, nsString};
 use url::Url;
 use uuid::Uuid;
-use xpcom::interfaces::{nsILoginInfo, nsILoginManager};
+use xpcom::interfaces::{nsILoginInfo, nsILoginManager, nsIMsgOutgoingServer};
 use xpcom::{create_instance, get_service, getter_addrefs, nsIID};
 use xpcom::{
     interfaces::{
@@ -595,8 +595,12 @@ impl EwsOutgoingServer {
         let url = self.ews_url()?;
         let credentials = self.get_credentials()?;
 
+        let outgoing_server = self
+            .query_interface::<nsIMsgOutgoingServer>()
+            .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
+
         // Set up the client to build and send the request.
-        let client = XpComEwsClient::new(url, credentials)?;
+        let client = XpComEwsClient::new(url, outgoing_server, credentials)?;
 
         // Send the request asynchronously.
         moz_task::spawn_local(

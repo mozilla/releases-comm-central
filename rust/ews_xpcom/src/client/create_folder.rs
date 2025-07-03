@@ -3,15 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{create_folder::CreateFolder, BaseFolderId, Folder};
+
+use mailnews_ui_glue::UserInteractiveServer;
+
 use nsstring::nsCString;
-use xpcom::{interfaces::IEwsFolderCreateCallbacks, RefPtr};
+use xpcom::interfaces::IEwsFolderCreateCallbacks;
+use xpcom::{RefCounted, RefPtr};
 
 use super::{
     process_error_with_cb_cpp, process_response_message_class, validate_response_message_count,
     XpComEwsClient, XpComEwsError,
 };
 
-impl XpComEwsClient {
+impl<ServerT> XpComEwsClient<ServerT>
+where
+    ServerT: UserInteractiveServer + RefCounted,
+{
     pub(crate) async fn create_folder(
         self,
         parent_id: String,

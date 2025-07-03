@@ -44,6 +44,7 @@ class EwsIncomingServer : public nsMsgIncomingServer,
                                    nsIMsgWindow* msgWindow);
 
   // nsIMsgIncomingServer
+  NS_IMETHOD GetPassword(nsAString& password) override;
   NS_IMETHOD GetLocalStoreType(nsACString& aLocalStoreType) override;
   NS_IMETHOD GetLocalDatabaseType(nsACString& aLocalDatabaseType) override;
 

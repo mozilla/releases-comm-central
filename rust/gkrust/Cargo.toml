@@ -17,6 +17,7 @@ harness = false
 mozilla-central-workspace-hack = { version = "0.1", features = ['gkrust'], optional = true }
 gkrust-shared = { version = "0.1.0", path = "../../../toolkit/library/rust/shared" }
 ews_xpcom = { version = "0.1.0", path = "../ews_xpcom" }
+mailnews_ui_glue = { version = "0.1.0", path = "../mailnews_ui_glue" }
 sys_tray = { version = "0.1.0", path = "../sys_tray" }
 aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "a821fa621c2def48e90c82774b4c6563b5a8ea4a" }
 abridged_certs = { path = "../../../security/manager/ssl/abridged_certs" }

@@ -74,7 +74,9 @@ NS_IMETHODIMP FolderSyncListener::OnSuccess() { return mDoneCallback(); }
 
 NS_IMETHODIMP FolderSyncListener::OnError(IEwsClient::Error err,
                                           const nsACString& desc) {
-  NS_ERROR("Error occurred while syncing EWS folders");
+  NS_ERROR(nsPrintfCString("Error occurred while syncing EWS folders: %s",
+                           PromiseFlatCString(desc).get())
+               .get());
 
   return NS_OK;
 }
@@ -336,6 +338,22 @@ nsresult EwsIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow) {
   }
 
   return NS_OK;
+}
+
+NS_IMETHODIMP EwsIncomingServer::GetPassword(nsAString& password) {
+  nsMsgAuthMethodValue authMethod;
+  MOZ_TRY(GetAuthMethod(&authMethod));
+
+  // `nsMsgIncomingServer` doesn't read the password at startup, so we want to
+  // ensure we have read its value from the logins manager at least once. If it
+  // changes, `GetPasswordWithUI` (implemented in `nsMsgIncomingServer` too)
+  // takes care of updating `m_password`.
+  if (m_password.IsEmpty() &&
+      authMethod == nsMsgAuthMethod::passwordCleartext) {
+    MOZ_TRY(GetPasswordWithoutUI());
+  }
+
+  return nsMsgIncomingServer::GetPassword(password);
 }
 
 NS_IMETHODIMP EwsIncomingServer::GetLocalStoreType(

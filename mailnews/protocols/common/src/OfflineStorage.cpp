@@ -14,7 +14,6 @@
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgPluggableStore.h"
-#include "nsISeekableStream.h"
 #include "nsIStreamConverterService.h"
 #include "nsIStreamListener.h"
 #include "nsMimeTypes.h"

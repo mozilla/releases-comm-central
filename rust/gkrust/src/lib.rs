@@ -7,3 +7,4 @@ extern crate gkrust_shared;
 extern crate sys_tray;
 
 extern crate ews_xpcom;
+extern crate mailnews_ui_glue;

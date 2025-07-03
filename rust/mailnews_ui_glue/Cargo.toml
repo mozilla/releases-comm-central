@@ -1,0 +1,10 @@
+[package]
+name = "mailnews_ui_glue"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+xpcom = { path = "../../../xpcom/rust/xpcom" }
+nsstring = { path = "../../../xpcom/rust/nsstring" }
+nserror = { path = "../../../xpcom/rust/nserror" }
+thin-vec = { version = "0.2.12", features = ["gecko-ffi"] }

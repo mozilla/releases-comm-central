@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::Operation;
+use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::{nsACString, nsCString};
 use thin_vec::ThinVec;
 use xpcom::{RefCounted, RefPtr};
@@ -51,14 +52,15 @@ pub(super) trait MoveCallbacks<OperationDataT> {
 /// response object to the collection of EWS IDs for the moved objects. The
 /// `callbacks` parameter provides the asynchronous mechanism for signaling
 /// success or failure.
-pub(super) async fn move_generic<OperationDataT, CallbacksT>(
-    client: XpComEwsClient,
+pub(super) async fn move_generic<ServerT, OperationDataT, CallbacksT>(
+    client: XpComEwsClient<ServerT>,
     destination_folder_id: String,
     ids: Vec<String>,
-    operation_builder: fn(&XpComEwsClient, String, Vec<String>) -> OperationDataT,
+    operation_builder: fn(&XpComEwsClient<ServerT>, String, Vec<String>) -> OperationDataT,
     response_to_ids: fn(OperationDataT::Response) -> ThinVec<nsCString>,
     callbacks: RefPtr<CallbacksT>,
 ) where
+    ServerT: UserInteractiveServer + RefCounted,
     OperationDataT: Operation + Clone,
     CallbacksT: MoveCallbacks<OperationDataT> + RefCounted,
 {
@@ -76,17 +78,18 @@ pub(super) async fn move_generic<OperationDataT, CallbacksT>(
     }));
 }
 
-async fn move_generic_inner<OperationDataT, CallbacksT>(
-    client: &XpComEwsClient,
+async fn move_generic_inner<ServerT, OperationDataT, CallbacksT>(
+    client: &XpComEwsClient<ServerT>,
     destination_folder_id: String,
     ids: Vec<String>,
-    operation_builder: fn(&XpComEwsClient, String, Vec<String>) -> OperationDataT,
+    operation_builder: fn(&XpComEwsClient<ServerT>, String, Vec<String>) -> OperationDataT,
     response_to_ids: fn(OperationDataT::Response) -> ThinVec<nsCString>,
     callbacks: &CallbacksT,
 ) -> Result<(), XpComEwsError>
 where
+    ServerT: UserInteractiveServer + RefCounted,
     OperationDataT: Operation + Clone,
-    CallbacksT: MoveCallbacks<OperationDataT>,
+    CallbacksT: MoveCallbacks<OperationDataT> + RefCounted,
 {
     let operation_data = operation_builder(client, destination_folder_id, ids);
 

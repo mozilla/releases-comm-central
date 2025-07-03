@@ -10,7 +10,7 @@ use url::Url;
 
 use ews::server_version::{ExchangeServerVersion, ServerVersionInfo};
 use xpcom::interfaces::{nsIPrefBranch, nsIPrefService};
-use xpcom::{get_service, RefPtr, XpCom};
+use xpcom::{get_service, RefCounted, RefPtr, XpCom};
 
 use super::{XpComEwsClient, XpComEwsError};
 
@@ -122,7 +122,10 @@ pub(super) fn read_server_version(endpoint: &Url) -> Result<ExchangeServerVersio
     Ok(version)
 }
 
-impl XpComEwsClient {
+impl<ServerT> XpComEwsClient<ServerT>
+where
+    ServerT: RefCounted,
+{
     /// Updates the server version associated with the client's current endpoint
     /// in the relevant pref.
     pub(super) fn update_server_version(

@@ -1759,6 +1759,7 @@ dependencies = [
  "log",
  "mail-builder",
  "mail-parser",
+ "mailnews_ui_glue",
  "moz_http",
  "moz_task",
  "nserror",
@@ -2331,6 +2332,7 @@ dependencies = [
  "libz-rs-sys",
  "localization-ffi",
  "log",
+ "mailnews_ui_glue",
  "mapped_hyph",
  "mdns_service",
  "midir_impl",
@@ -3487,6 +3489,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93c3b9e5d8b17faf573330bbc43b37d6e918c0a3bf8a88e7d0a220ebc84af9fc"
 dependencies = [
  "encoding_rs",
+]
+
+[[package]]
+name = "mailnews_ui_glue"
+version = "0.1.0"
+dependencies = [
+ "nserror",
+ "nsstring",
+ "thin-vec",
+ "xpcom",
 ]
 
 [[package]]

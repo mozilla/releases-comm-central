@@ -11,6 +11,7 @@ fxhash = "0.2.1"
 itertools = "0.10.5"
 log = "0.4.21"
 mail-parser = "0.9.3"
+mailnews_ui_glue = { version = "0.1.0", path = "../mailnews_ui_glue" }
 moz_http = { version = "0.1.0", path = "../moz_http" }
 moz_task = { version = "0.1.0", path = "../../../xpcom/rust/moz_task" }
 nserror = { version = "0.1.0", path = "../../../xpcom/rust/nserror" }

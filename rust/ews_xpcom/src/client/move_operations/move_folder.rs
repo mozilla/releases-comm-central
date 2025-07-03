@@ -4,16 +4,20 @@
 
 use ews::move_folder::{MoveFolder, MoveFolderResponse};
 use ews::{BaseFolderId, Folder};
+use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::nsCString;
 use thin_vec::ThinVec;
 use xpcom::interfaces::IEwsFolderMoveCallbacks;
-use xpcom::RefPtr;
+use xpcom::{RefCounted, RefPtr};
 
 use crate::client::{XpComEwsClient, XpComEwsError};
 
 use super::move_generic::{move_generic, MoveCallbacks};
 
-impl XpComEwsClient {
+impl<ServerT> XpComEwsClient<ServerT>
+where
+    ServerT: UserInteractiveServer + RefCounted,
+{
     pub(crate) async fn move_folder(
         self,
         destination_folder_id: String,
@@ -32,11 +36,14 @@ impl XpComEwsClient {
     }
 }
 
-fn construct_request(
-    _client: &XpComEwsClient,
+fn construct_request<ServerT>(
+    _client: &XpComEwsClient<ServerT>,
     destination_folder_id: String,
     folder_ids: Vec<String>,
-) -> MoveFolder {
+) -> MoveFolder
+where
+    ServerT: RefCounted,
+{
     MoveFolder {
         to_folder_id: BaseFolderId::FolderId {
             id: destination_folder_id,

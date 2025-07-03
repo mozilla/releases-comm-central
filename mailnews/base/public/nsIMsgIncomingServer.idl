@@ -114,12 +114,15 @@ interface nsIMsgIncomingServer : nsISupports {
 
   /**
    * Attempts to get the password first from the password manager, if that
-   * fails it will attempt to get it from the user if aMsgWindow is supplied.
+   * fails it will attempt to get it from the user.
    *
-   * @param aPromptString  The text of the prompt if the user is prompted for
-   *                       password.
-   * @param aPromptTitle   The title of the prompt if the user is prompted.
-   * @return               The obtained password. Could be an empty password.
+   * Native (C++/Rust) consumers may use the method's return value as input to
+   * prefill the password prompt with.
+   *
+   * @param aPromptString The text of the prompt if the user is prompted for
+   *                      password.
+   * @param aPromptTitle  The title of the prompt if the user is prompted.
+   * @return              The obtained password. Could be an empty password.
    *
    * @exception NS_ERROR_FAILURE  The password could not be obtained.
    *

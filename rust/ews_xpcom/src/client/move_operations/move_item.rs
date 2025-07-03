@@ -7,15 +7,20 @@ use ews::{
     server_version::ExchangeServerVersion,
     BaseItemId,
 };
+use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::nsCString;
 use thin_vec::ThinVec;
-use xpcom::{interfaces::IEwsItemMoveCallbacks, RefPtr};
+use xpcom::interfaces::IEwsItemMoveCallbacks;
+use xpcom::{RefCounted, RefPtr};
 
 use crate::client::{XpComEwsClient, XpComEwsError};
 
 use super::move_generic::{move_generic, MoveCallbacks};
 
-impl XpComEwsClient {
+impl<ServerT> XpComEwsClient<ServerT>
+where
+    ServerT: UserInteractiveServer + RefCounted,
+{
     pub(crate) async fn move_item(
         self,
         destination_folder_id: String,
@@ -34,11 +39,14 @@ impl XpComEwsClient {
     }
 }
 
-fn construct_request(
-    client: &XpComEwsClient,
+fn construct_request<ServerT>(
+    client: &XpComEwsClient<ServerT>,
     destination_folder_id: String,
     item_ids: Vec<String>,
-) -> MoveItem {
+) -> MoveItem
+where
+    ServerT: RefCounted,
+{
     let server_version = client.server_version.get();
 
     // `ReturnNewItemIds` was introduced in Exchange Server 2010 SP1.

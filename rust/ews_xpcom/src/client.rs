@@ -36,7 +36,8 @@ use ews::{
 use fxhash::FxHashMap;
 use itertools::Itertools;
 use mail_parser::MessageParser;
-use moz_http::StatusCode;
+use mailnews_ui_glue::{handle_auth_failure, AuthErrorOutcome, UserInteractiveServer};
+use moz_http::{Response, StatusCode};
 use nserror::nsresult;
 use nsstring::nsCString;
 use server_version::read_server_version;
@@ -51,7 +52,7 @@ use xpcom::{
         nsMsgKey, IEwsFolderDeleteCallbacks, IEwsFolderUpdateCallbacks, IEwsMessageCallbacks,
         IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
     },
-    RefPtr,
+    RefCounted, RefPtr,
 };
 
 use crate::{authentication::credentials::Credentials, cancellable_request::CancellableRequest};
@@ -81,22 +82,28 @@ const EWS_ROOT_FOLDER: &str = "msgfolderroot";
 // specific value.
 const LOG_NETWORK_PAYLOADS_ENV_VAR: &str = "THUNDERBIRD_LOG_NETWORK_PAYLOADS";
 
-pub(crate) struct XpComEwsClient {
+pub(crate) struct XpComEwsClient<ServerT: RefCounted + 'static> {
     endpoint: Url,
+    server: RefPtr<ServerT>,
     credentials: Credentials,
     client: moz_http::Client,
     server_version: Cell<ExchangeServerVersion>,
 }
 
-impl XpComEwsClient {
+impl<ServerT> XpComEwsClient<ServerT>
+where
+    ServerT: UserInteractiveServer + RefCounted + 'static,
+{
     pub(crate) fn new(
         endpoint: Url,
+        server: RefPtr<ServerT>,
         credentials: Credentials,
-    ) -> Result<XpComEwsClient, XpComEwsError> {
+    ) -> Result<XpComEwsClient<ServerT>, XpComEwsError> {
         let server_version = read_server_version(&endpoint)?;
 
         Ok(XpComEwsClient {
             endpoint,
+            server,
             credentials,
             client: moz_http::Client::new(),
             server_version: Cell::new(server_version),
@@ -496,7 +503,9 @@ impl XpComEwsClient {
                             // sync, and we've missed a new item. So let's try
                             // to gracefully recover from this and add it to the
                             // database.
-                            log::warn!("Cannot find existing item to update with ID {item_id}, creating it instead");
+                            log::warn!(
+                                "Cannot find existing item to update with ID {item_id}, creating it instead"
+                            );
 
                             result = getter_addrefs(|hdr| unsafe {
                                 callbacks.CreateNewHeaderForItem(&*ews_id, hdr)
@@ -1529,41 +1538,29 @@ impl XpComEwsClient {
 
         // Loop in case we need to retry the request after a delay.
         loop {
-            // Fetch the Authorization header value for each request in case of
-            // token expiration between requests.
-            let auth_header_value = self.credentials.to_auth_header_value().await?;
-            // Generate random id for logging purposes.
-            let request_id = Uuid::new_v4();
-            log::info!("Making operation request {request_id}: {op_name}");
+            let response = match self
+                .send_authenticated_request(&request_body, op_name)
+                .await
+            {
+                Ok(response) => response,
+                Err(err) => {
+                    if matches!(err, XpComEwsError::Authentication) {
+                        let outcome = handle_auth_failure(self.server.clone())?;
 
-            if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
-                // Also log the request body if requested.
-                log::info!("C: {}", String::from_utf8_lossy(&request_body));
-            }
-
-            let response = self
-                .client
-                .post(&self.endpoint)?
-                .header("Authorization", &auth_header_value)
-                .body(request_body.as_slice(), "application/xml")
-                .send()
-                .await?;
-
-            let response_body = response.body();
-            let response_status = response.status()?;
-            log::info!(
-                "Response received for request {request_id} (status {response_status}): {op_name}"
-            );
-
-            if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
-                // Also log the response body if requested.
-                log::info!("S: {}", String::from_utf8_lossy(&response_body));
-            }
+                        match outcome {
+                            AuthErrorOutcome::RETRY => continue,
+                            AuthErrorOutcome::ABORT => return Err(err),
+                        }
+                    } else {
+                        return Err(err);
+                    }
+                }
+            };
 
             // Don't immediately propagate in case the error represents a
             // throttled request, which we can address with retry.
             let op_result: Result<soap::Envelope<Op::Response>, _> =
-                soap::Envelope::from_xml_document(&response_body);
+                soap::Envelope::from_xml_document(response.body());
 
             break match op_result {
                 Ok(envelope) => {
@@ -1600,7 +1597,7 @@ impl XpComEwsClient {
                         continue;
                     }
 
-                    log::error!("Request FAILED: {err}");
+                    log::error!("Request FAILED with status {}: {err}", response.status()?);
                     if matches!(err, ews::Error::Deserialize(_)) {
                         // If deserialization failed, the most likely cause is
                         // that our request failed and the response body was not
@@ -1610,9 +1607,68 @@ impl XpComEwsClient {
                         response.error_from_status()?;
                     }
 
+                    // If the response's HTTP status doesn't represent an error,
+                    // derive one from the `ews` error.
                     Err(err.into())
                 }
             };
+        }
+    }
+
+    /// Send an authenticated EWS operation request with the given body.
+    async fn send_authenticated_request(
+        &self,
+        request_body: &[u8],
+        op_name: &str,
+    ) -> Result<Response, XpComEwsError> {
+        // Fetch the Authorization header value for each request in case of
+        // token expiration between requests.
+        let auth_header_value = match self.credentials.to_auth_header_value().await {
+            Ok(value) => value,
+            // The OAuth2 module will return `NS_ERROR_ABORT` if it's failed
+            // to get credentials even after prompting the user again. We
+            // want to catch this so we can properly process it as an
+            // authentication error.
+            Err(err) if err == nserror::NS_ERROR_ABORT => {
+                return Err(XpComEwsError::Authentication);
+            }
+            Err(err) => return Err(err.into()),
+        };
+
+        // Generate random id for logging purposes.
+        let request_id = Uuid::new_v4();
+        log::info!("Making operation request {request_id}: {op_name}");
+
+        if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
+            // Also log the request body if requested.
+            log::info!("C: {}", String::from_utf8_lossy(&request_body));
+        }
+
+        let response = self
+            .client
+            .post(&self.endpoint)?
+            .header("Authorization", &auth_header_value)
+            .body(request_body, "application/xml")
+            .send()
+            .await?;
+
+        let response_body = response.body();
+        let response_status = response.status()?;
+        log::info!(
+            "Response received for request {request_id} (status {response_status}): {op_name}"
+        );
+
+        if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
+            // Also log the response body if requested.
+            log::info!("S: {}", String::from_utf8_lossy(&response_body));
+        }
+
+        // Catch authentication errors quickly so we can react to them
+        // appropriately.
+        if response_status.0 == 401 {
+            Err(XpComEwsError::Authentication)
+        } else {
+            Ok(response)
         }
     }
 }
@@ -1754,8 +1810,13 @@ pub(crate) enum XpComEwsError {
     #[error("missing item or folder ID in response from Exchange")]
     MissingIdInResponse,
 
-    #[error("response contained an unexpected number of response messages: expected {expected}, got {actual}")]
+    #[error(
+        "response contained an unexpected number of response messages: expected {expected}, got {actual}"
+    )]
     UnexpectedResponseMessageCount { expected: usize, actual: usize },
+
+    #[error("failed to authenticate")]
+    Authentication,
 }
 
 impl From<XpComEwsError> for nsresult {
@@ -1783,6 +1844,7 @@ where
             }) => {
                 // Authentication failed. Let Thunderbird know so we can
                 // handle it appropriately.
+                log::error!("an authentication error occurred: {err:?}");
                 (EwsClientError::AuthenticationFailed, "")
             }
 
