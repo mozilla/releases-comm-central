@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsAutoSyncState.h"
+
 #include "nsImapMailFolder.h"
 #include "nsIImapService.h"
 #include "nsIMsgMailNewsUrl.h"
@@ -11,6 +12,7 @@
 #include "nsIAutoSyncManager.h"
 #include "nsIAutoSyncMsgStrategy.h"
 #include "nsServiceManagerUtils.h"
+#include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 
 using namespace mozilla;
@@ -659,9 +661,7 @@ NS_IMETHODIMP nsAutoSyncState::IsDownloadQEmpty(bool* aResult) {
 NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
     nsTArray<RefPtr<nsIMsgDBHdr>> const& messages) {
   nsresult rv;
-  nsCOMPtr<nsIImapService> imapService =
-      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
 
   nsAutoCString messageIds;
   nsTArray<nsMsgKey> msgKeys;

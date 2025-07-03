@@ -9376,10 +9376,7 @@ nsImapMockChannel::OnCacheEntryCheck(nsICacheEntry* entry, uint32_t* aResult) {
 nsresult nsImapMockChannel::OpenCacheEntry() {
   nsresult rv;
   nsCOMPtr<nsICacheStorage> cache2Storage;
-
-  nsCOMPtr<nsIImapService> imapService =
-      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
 
   // Obtain the cache storage object used by all channels in this session.
   // This will return disk cache (default) or memory cache as determined by

@@ -3,9 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsImapUndoTxn.h"
+
+#include "mozilla/Components.h"
 #include "msgCore.h"  // for precompiled headers
 #include "nsIMsgHdr.h"
-#include "nsImapUndoTxn.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsImapCore.h"
 #include "nsImapMailFolder.h"
@@ -77,9 +79,7 @@ NS_IMPL_ISUPPORTS_INHERITED(nsImapMoveCopyMsgTxn, nsMsgTxn, nsIUrlListener)
 NS_IMETHODIMP
 nsImapMoveCopyMsgTxn::UndoTransaction(void) {
   nsresult rv;
-  nsCOMPtr<nsIImapService> imapService =
-      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
 
   bool finishInOnStopRunningUrl = false;
 
@@ -156,9 +156,7 @@ nsImapMoveCopyMsgTxn::UndoTransaction(void) {
 NS_IMETHODIMP
 nsImapMoveCopyMsgTxn::RedoTransaction(void) {
   nsresult rv;
-  nsCOMPtr<nsIImapService> imapService =
-      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
 
   if (m_isMove || !m_dstFolder) {
     if (m_srcIsLocal) {
@@ -330,9 +328,7 @@ NS_IMETHODIMP nsImapMoveCopyMsgTxn::OnStopRunningUrl(nsIURI* aUrl,
   nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(aUrl);
   if (imapUrl) {
     nsresult rv;
-    nsCOMPtr<nsIImapService> imapService =
-        do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
     nsImapAction imapAction;
     imapUrl->GetImapAction(&imapAction);
     nsCOMPtr<nsIMsgFolder> dstFolder = do_QueryReferent(m_dstFolder, &rv);

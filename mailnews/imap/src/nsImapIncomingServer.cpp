@@ -845,9 +845,7 @@ nsImapIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
 
   if (!rootMsgFolder) return NS_ERROR_FAILURE;
 
-  nsCOMPtr<nsIImapService> imapService =
-      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
   rv = imapService->DiscoverAllFolders(rootMsgFolder, this, aMsgWindow);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -867,9 +865,7 @@ nsImapIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
                                   nsIMsgWindow* aMsgWindow, nsIURI** aURL) {
   nsresult rv;
 
-  nsCOMPtr<nsIImapService> imapService =
-      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   nsCOMPtr<nsIMsgFolder> rootFolder;
   // this will create the resource if it doesn't exist, but it shouldn't
   // do anything on disk.
@@ -2178,14 +2174,9 @@ nsImapIncomingServer::StartPopulatingWithUri(nsIMsgWindow* aMsgWindow,
   rv = GetServerURI(serverUri);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIImapService> imapService =
-      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  /*
-      if uri = imap://user@host/foo/bar, the serverUri is imap://user@host
-      to get path from uri, skip over imap://user@host + 1 (for the /)
-  */
+  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
+  // If uri = imap://user@host/foo/bar, the serverUri is imap://user@host
+  // to get path from uri, skip over imap://user@host + 1 (for the /).
   return imapService->GetListOfFoldersWithPath(
       this, aMsgWindow, Substring(uri, serverUri.Length() + 1));
 }
@@ -2209,9 +2200,7 @@ nsImapIncomingServer::StartPopulating(nsIMsgWindow* aMsgWindow,
   rv = SetShowFullName(false);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIImapService> imapService =
-      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   return imapService->GetListOfFoldersOnServer(this, aMsgWindow);
 }
 
@@ -2360,10 +2349,7 @@ NS_IMETHODIMP
 nsImapIncomingServer::SubscribeToFolder(const nsACString& aName, bool subscribe,
                                         nsIURI** aUri) {
   nsresult rv;
-  nsCOMPtr<nsIImapService> imapService =
-      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   nsCOMPtr<nsIMsgFolder> rootMsgFolder;
   rv = GetRootFolder(getter_AddRefs(rootMsgFolder));
   NS_ENSURE_SUCCESS(rv, rv);

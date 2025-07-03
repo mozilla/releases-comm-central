@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"
 #include "nsImapMoveCoalescer.h"
+
+#include "mozilla/Components.h"
+#include "msgCore.h"
 #include "nsIImapService.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgFolder.h"  // TO include biffState enum. Change to bool later...
@@ -176,8 +178,7 @@ NS_IMETHODIMP nsMoveCoalescerCopyListener::OnStopCopy(nsresult aStatus) {
       m_destFolder->GetFlags(&folderFlags);
       if (!(folderFlags & (nsMsgFolderFlags::Junk | nsMsgFolderFlags::Trash))) {
         nsCOMPtr<nsIImapService> imapService =
-            do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
+            mozilla::components::Imap::Service();
         nsCOMPtr<nsIURI> url;
         rv = imapService->SelectFolder(m_destFolder, m_coalescer, nullptr,
                                        getter_AddRefs(url));
