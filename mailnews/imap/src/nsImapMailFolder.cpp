@@ -2203,8 +2203,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
 
     rv = QueryInterface(NS_GET_IID(nsIMsgFolder), getter_AddRefs(srcFolder));
     nsCOMPtr<nsIMsgCopyService> copyService =
-        do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+        mozilla::components::Copy::Service();
     rv = copyService->CopyMessages(srcFolder, msgHeaders, trashFolder, true,
                                    listener, msgWindow, allowUndo);
   }
@@ -7168,8 +7167,7 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           }
 
           nsCOMPtr<nsIMsgCopyService> copyService =
-              do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-          NS_ENSURE_SUCCESS(rv, rv);
+              mozilla::components::Copy::Service();
           rv = copyService->CopyMessages(m_curSrcFolder, msgArray, newMsgFolder,
                                          m_isMoveMessages, this, m_msgWindow,
                                          false /* allowUndo */);
@@ -7671,10 +7669,8 @@ nsresult nsImapMailFolder::OnCopyCompleted(nsISupports* srcSupport,
       (void)CopyFileToOfflineStore(srcFile, m_copyState->m_appendUID);
   }
   m_copyState = nullptr;
-  nsresult result;
   nsCOMPtr<nsIMsgCopyService> copyService =
-      do_GetService("@mozilla.org/messenger/messagecopyservice;1", &result);
-  NS_ENSURE_SUCCESS(result, result);
+      mozilla::components::Copy::Service();
   return copyService->NotifyCompletion(srcSupport, this, rv);
 }
 

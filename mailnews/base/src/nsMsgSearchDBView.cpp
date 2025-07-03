@@ -5,6 +5,7 @@
 
 #include "nsMsgSearchDBView.h"
 
+#include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "msgCore.h"
@@ -1061,17 +1062,15 @@ nsresult nsMsgSearchDBView::ProcessNextFolder(nsIMsgWindow* window) {
                  "The source folder and the destination folder are the same");
     if (curFolder != mDestFolder) {
       nsCOMPtr<nsIMsgCopyService> copyService =
-          do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-      if (NS_SUCCEEDED(rv)) {
-        if (mCommand == nsMsgViewCommandType::moveMessages)
-          rv = copyService->CopyMessages(curFolder, msgs, mDestFolder,
-                                         true /* isMove */, this, window,
-                                         true /*allowUndo*/);
-        else if (mCommand == nsMsgViewCommandType::copyMessages)
-          rv = copyService->CopyMessages(curFolder, msgs, mDestFolder,
-                                         false /* isMove */, this, window,
-                                         true /*allowUndo*/);
-      }
+          mozilla::components::Copy::Service();
+      if (mCommand == nsMsgViewCommandType::moveMessages)
+        rv = copyService->CopyMessages(curFolder, msgs, mDestFolder,
+                                       true /* isMove */, this, window,
+                                       true /*allowUndo*/);
+      else if (mCommand == nsMsgViewCommandType::copyMessages)
+        rv = copyService->CopyMessages(curFolder, msgs, mDestFolder,
+                                       false /* isMove */, this, window,
+                                       true /*allowUndo*/);
     }
   }
 

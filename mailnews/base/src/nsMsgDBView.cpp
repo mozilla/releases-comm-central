@@ -2623,9 +2623,7 @@ nsresult nsMsgDBView::CopyMessages(nsIMsgWindow* window,
   }
 
   nsCOMPtr<nsIMsgCopyService> copyService =
-      do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::Copy::Service();
   return copyService->CopyMessages(m_folder /* source folder */, hdrs,
                                    destFolder, isMove, nullptr /* listener */,
                                    window, true /* allow Undo */);

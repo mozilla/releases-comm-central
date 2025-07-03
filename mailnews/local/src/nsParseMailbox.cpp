@@ -1624,12 +1624,10 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
               break;
             }
 
-            copyService = do_GetService(
-                "@mozilla.org/messenger/messagecopyservice;1", &rv);
-            if (NS_SUCCEEDED(rv))
-              rv = copyService->CopyMessages(m_downloadFolder, {&*msgHdr},
-                                             dstFolder, false, nullptr,
-                                             msgWindow, false);
+            copyService = mozilla::components::Copy::Service();
+            rv = copyService->CopyMessages(m_downloadFolder, {&*msgHdr},
+                                           dstFolder, false, nullptr, msgWindow,
+                                           false);
 
             if (NS_FAILED(rv)) {
               // XXX: Invoke MSG_LOG_TO_CONSOLE once bug 1135265 lands.

@@ -746,8 +746,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
                                   "messages, disabling the filter");
           }
           nsCOMPtr<nsIMsgCopyService> copyService =
-              do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-          BREAK_ACTION_IF_FAILURE(rv, "Could not get copy service");
+              mozilla::components::Copy::Service();
 
           if (actionType == nsMsgFilterAction::MoveToFolder) {
             m_stopFiltering.AppendElements(m_searchHits);

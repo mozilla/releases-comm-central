@@ -231,9 +231,7 @@ nsresult nsMsgCopy::DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
       }
     }
     nsCOMPtr<nsIMsgCopyService> copyService =
-        do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::Copy::Service();
     rv = copyService->CopyFileMessage(aDiskFile, dstFolder, aMsgToReplace,
                                       aIsDraft, aMsgFlags, EmptyCString(),
                                       copyListener, msgWindow);

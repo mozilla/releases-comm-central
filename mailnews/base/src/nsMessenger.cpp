@@ -874,17 +874,15 @@ nsSaveMsgListener::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
     rv = GetOrCreateFolder(m_templateUri, getter_AddRefs(templateFolder));
     if (NS_FAILED(rv)) goto done;
     nsCOMPtr<nsIMsgCopyService> copyService =
-        do_GetService("@mozilla.org/messenger/messagecopyservice;1");
-    if (copyService) {
-      nsCOMPtr<nsIFile> clone;
-      m_file->Clone(getter_AddRefs(clone));
-      rv = copyService->CopyFileMessage(clone, templateFolder, nullptr, true,
-                                        nsMsgMessageFlags::Read, EmptyCString(),
-                                        this, nullptr);
-      // Clear this so we don't end up in a loop if OnStopRunningUrl gets
-      // called again.
-      m_templateUri.Truncate();
-    }
+        mozilla::components::Copy::Service();
+    nsCOMPtr<nsIFile> clone;
+    m_file->Clone(getter_AddRefs(clone));
+    rv = copyService->CopyFileMessage(clone, templateFolder, nullptr, true,
+                                      nsMsgMessageFlags::Read, EmptyCString(),
+                                      this, nullptr);
+    // Clear this so we don't end up in a loop if OnStopRunningUrl gets
+    // called again.
+    m_templateUri.Truncate();
   } else if (m_outputStream && mRequestHasStopped) {
     m_outputStream->Close();
     m_outputStream = nullptr;

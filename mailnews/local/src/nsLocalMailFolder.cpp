@@ -710,9 +710,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
   nsCOMPtr<nsIMsgFolder> trashFolder;
   rv = GetTrashFolder(getter_AddRefs(trashFolder));
   if (NS_SUCCEEDED(rv)) {
-    nsCOMPtr<nsIMsgCopyService> copyService(
-        do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIMsgCopyService> copyService =
+        mozilla::components::Copy::Service();
     rv = copyService->CopyFolder(this, trashFolder, true, nullptr, msgWindow);
   }
   return rv;
@@ -1057,8 +1056,7 @@ nsMsgLocalMailFolder::DeleteMessages(
     rv = GetTrashFolder(getter_AddRefs(trashFolder));
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIMsgCopyService> copyService =
-          do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
+          mozilla::components::Copy::Service();
       // When the copy completes, DeleteMessages() will be called again to
       // perform the actual delete.
       return copyService->CopyMessages(this, msgHeaders, trashFolder, true,
@@ -1305,8 +1303,7 @@ nsMsgLocalMailFolder::OnCopyCompleted(nsISupports* srcSupport,
   delete mCopyState;
   mCopyState = nullptr;
   nsCOMPtr<nsIMsgCopyService> copyService =
-      do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::Copy::Service();
   return copyService->NotifyCompletion(
       srcSupport, this, moveCopySucceeded ? NS_OK : NS_ERROR_FAILURE);
 }
@@ -3155,9 +3152,7 @@ nsMsgLocalMailFolder::OnMessageClassified(const nsACString& aMsgURI,
 
       if (folder) {
         nsCOMPtr<nsIMsgCopyService> copySvc =
-            do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
-
+            mozilla::components::Copy::Service();
         rv = copySvc->CopyMessages(
             this, messages, folder, true,
             /*nsIMsgCopyServiceListener* listener*/ nullptr, nullptr,

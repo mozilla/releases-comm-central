@@ -266,11 +266,8 @@ nsresult MessageCopyHandler::OnCopyCompleted(nsresult status) {
                                           mDstHdr);
   }
 
-  nsresult rv;
   nsCOMPtr<nsIMsgCopyService> copyService =
-      do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::Copy::Service();
   nsCOMPtr<nsISupports> srcSupports;
   if (mSrcFile) {
     srcSupports = do_QueryInterface(mSrcFile.value());

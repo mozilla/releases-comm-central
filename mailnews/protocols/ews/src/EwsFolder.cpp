@@ -57,10 +57,8 @@ static nsresult GetEwsIdsForMessageHeaders(
 static nsresult NotifyMessageCopyServiceComplete(
     nsIMsgFolder* sourceFolder, nsIMsgFolder* destinationFolder,
     nsresult status) {
-  nsresult rv;
   nsCOMPtr<nsIMsgCopyService> copyService =
-      do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::Copy::Service();
   return copyService->NotifyCompletion(sourceFolder, destinationFolder, status);
 }
 
@@ -922,9 +920,7 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
   MOZ_TRY(GetTrashFolder(getter_AddRefs(trashFolder)));
 
   nsCOMPtr<nsIMsgCopyService> copyService =
-      do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::Copy::Service();
   // When the copy completes, DeleteMessages() will be called again (with
   // `isMove` and `deleteStorage` set to `true`) to perform the actual delete.
   return copyService->CopyMessages(this, msgHeaders, trashFolder, true,

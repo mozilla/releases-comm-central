@@ -99,19 +99,16 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(
     m_sourceFolder->SetNumNewMessages(oldNewMessageCount);
 
     keysToAdd.Clear();
-    nsCOMPtr<nsIMsgCopyService> copySvc =
-        do_GetService("@mozilla.org/messenger/messagecopyservice;1");
-    if (copySvc) {
-      nsCOMPtr<nsIMsgCopyServiceListener> listener;
-      if (m_doNewMailNotification) {
-        nsMoveCoalescerCopyListener* copyListener =
-            new nsMoveCoalescerCopyListener(this, destFolder);
-        if (copyListener) listener = copyListener;
-      }
-      rv = copySvc->CopyMessages(m_sourceFolder, messages, destFolder, true,
-                                 listener, m_msgWindow, false /*allowUndo*/);
-      if (NS_SUCCEEDED(rv)) m_outstandingMoves++;
+    nsCOMPtr<nsIMsgCopyService> copySvc = mozilla::components::Copy::Service();
+    nsCOMPtr<nsIMsgCopyServiceListener> listener;
+    if (m_doNewMailNotification) {
+      nsMoveCoalescerCopyListener* copyListener =
+          new nsMoveCoalescerCopyListener(this, destFolder);
+      if (copyListener) listener = copyListener;
     }
+    rv = copySvc->CopyMessages(m_sourceFolder, messages, destFolder, true,
+                               listener, m_msgWindow, false /*allowUndo*/);
+    if (NS_SUCCEEDED(rv)) m_outstandingMoves++;
   }
   return rv;
 }
