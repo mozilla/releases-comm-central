@@ -10,7 +10,6 @@
 #include "MessageDatabase.h"
 #include "mozilla/RefPtr.h"
 #include "mozilla/WeakPtr.h"
-#include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
 #include "nsIDBChangeListener.h"
 #include "nsIDBFolderInfo.h"
@@ -19,6 +18,9 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgThread.h"
 #include "nsMsgEnumerator.h"
+
+class mozIStorageStatement;
+class nsIDBChangeListener;
 
 namespace mozilla::mailnews {
 
@@ -63,9 +65,7 @@ class MessageEnumerator : public nsBaseMsgEnumerator {
   NS_IMETHOD HasMoreElements(bool* aResult) override;
 
  private:
-  ~MessageEnumerator() {
-    if (mStmt) mStmt->Finalize();
-  }
+  ~MessageEnumerator();
 
   nsCOMPtr<mozIStorageStatement> mStmt;
   bool mHasNext = false;
@@ -80,9 +80,7 @@ class ThreadEnumerator : public nsBaseMsgThreadEnumerator {
   NS_IMETHOD HasMoreElements(bool* hasNext) override;
 
  private:
-  ~ThreadEnumerator() {
-    if (mStmt) mStmt->Finalize();
-  }
+  ~ThreadEnumerator();
 
   nsCOMPtr<mozIStorageStatement> mStmt;
   uint64_t mFolderId;

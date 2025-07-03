@@ -10,7 +10,9 @@
 #include "Message.h"
 #include "MessageDatabase.h"
 #include "mozilla/RefPtr.h"
-#include "nsIDBChangeListener.h"
+#include "mozilla/StaticPrefs_mail.h"
+#include "mozIStorageStatement.h"
+#include "nsIFolder.h"
 #include "nsIMsgDBView.h"
 #include "nsMsgMessageFlags.h"
 #include "nsServiceManagerUtils.h"
@@ -731,6 +733,12 @@ MessageEnumerator::MessageEnumerator(mozIStorageStatement* aStmt)
   mStmt->ExecuteStep(&mHasNext);
 }
 
+MessageEnumerator::~MessageEnumerator() {
+  if (mStmt) {
+    mStmt->Finalize();
+  }
+}
+
 NS_IMETHODIMP MessageEnumerator::GetNext(nsIMsgDBHdr** aItem) {
   NS_ENSURE_ARG_POINTER(aItem);
   *aItem = nullptr;
@@ -757,6 +765,12 @@ ThreadEnumerator::ThreadEnumerator(mozIStorageStatement* stmt,
                                    uint64_t folderId)
     : mStmt(stmt), mFolderId(folderId) {
   mStmt->ExecuteStep(&mHasNext);
+}
+
+ThreadEnumerator::~ThreadEnumerator() {
+  if (mStmt) {
+    mStmt->Finalize();
+  }
 }
 
 NS_IMETHODIMP ThreadEnumerator::GetNext(nsIMsgThread** item) {

@@ -11,6 +11,7 @@
 #include "mozilla/Logging.h"
 #include "mozilla/ResultExtensions.h"
 #include "mozilla/Try.h"
+#include "mozIStorageStatement.h"
 #include "nsMsgMessageFlags.h"
 
 using mozilla::LazyLogModule;

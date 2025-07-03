@@ -5,13 +5,14 @@
 #ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_FOLDER_H_
 #define COMM_MAILNEWS_DB_PANORAMA_SRC_FOLDER_H_
 
-#include "FolderComparator.h"
 #include "mozilla/Maybe.h"
 #include "mozilla/RefPtr.h"
 #include "nsIFolder.h"
 #include "nsTString.h"
 
 namespace mozilla::mailnews {
+
+class FolderComparator;
 
 class Folder : public nsIFolder {
  public:

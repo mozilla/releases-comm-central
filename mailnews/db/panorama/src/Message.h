@@ -6,13 +6,10 @@
 #define COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGE_H_
 
 #include "DatabaseCore.h"
-#include "mozIStorageStatement.h"
 #include "nsIMsgHdr.h"
 #include "nsTString.h"
 
 namespace mozilla::mailnews {
-
-class MessageDatabase;
 
 class Message : public nsIMsgDBHdr {
  public:

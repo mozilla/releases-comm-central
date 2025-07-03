@@ -4,6 +4,7 @@
 
 #include "Folder.h"
 
+#include "DatabaseUtils.h"
 #include "FolderDatabase.h"
 
 namespace mozilla::mailnews {

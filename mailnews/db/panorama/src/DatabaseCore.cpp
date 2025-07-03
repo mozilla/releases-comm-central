@@ -4,6 +4,7 @@
 
 #include "DatabaseCore.h"
 
+#include "DatabaseUtils.h"
 #include "FolderDatabase.h"
 #include "Message.h"
 #include "MessageDatabase.h"
@@ -14,11 +15,13 @@
 #include "mozilla/ScopeExit.h"
 #include "mozIStorageBindingParams.h"
 #include "mozIStorageBindingParamsArray.h"
+#include "mozIStorageConnection.h"
 #include "mozIStorageError.h"
 #include "mozIStoragePendingStatement.h"
 #include "mozIStorageResultSet.h"
 #include "mozIStorageRow.h"
 #include "mozIStorageService.h"
+#include "mozIStorageStatement.h"
 #include "mozIStorageStatementCallback.h"
 #include "msgCore.h"
 #include "nsAppDirectoryServiceDefs.h"

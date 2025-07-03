@@ -8,9 +8,8 @@
 #include "FolderDatabase.h"
 #include "MessageDatabase.h"
 #include "mozilla/RefPtr.h"
+#include "mozilla/StaticPtr.h"
 #include "mozilla/WeakPtr.h"
-#include "mozIStorageConnection.h"
-#include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
 #include "nsIDatabaseCore.h"
 #include "nsIFactory.h"
@@ -20,6 +19,9 @@
 
 #define DATABASE_CORE_CID \
   {0xbb308d0b, 0xbb99, 0x4699, {0x89, 0xde, 0x42, 0x82, 0x65, 0x2d, 0x0e, 0x16}}
+
+class mozIStorageConnection;
+class mozIStorageStatement;
 
 namespace mozilla::mailnews {
 

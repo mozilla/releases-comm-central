@@ -5,7 +5,6 @@
 #ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_FOLDERDATABASE_H_
 #define COMM_MAILNEWS_DB_PANORAMA_SRC_FOLDERDATABASE_H_
 
-#include "DatabaseUtils.h"
 #include "FolderComparator.h"
 #include "mozilla/MozPromise.h"
 #include "mozilla/RefPtr.h"
@@ -17,7 +16,6 @@ using mozilla::MozPromise;
 namespace mozilla::mailnews {
 
 class Folder;
-class FolderComparator;
 
 class FolderDatabase : public nsIFolderDatabase {
  public:

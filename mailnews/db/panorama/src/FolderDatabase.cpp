@@ -11,6 +11,7 @@
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/ProfilerMarkers.h"
+#include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
 #include "nsIFolder.h"
 #include "nsIMsgAccountManager.h"
