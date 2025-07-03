@@ -255,10 +255,26 @@ JSObject* LiveView::CreateJSMessage(uint64_t id, uint64_t folderId,
  * Create an object of JS primitives representing a message.
  */
 JSObject* LiveView::CreateJSMessage(Message* aMessage, JSContext* cx) {
-  return CreateJSMessage(
-      aMessage->mId, aMessage->mFolderId, aMessage->mMessageId.get(),
-      aMessage->mDate, aMessage->mSender.get(), aMessage->mRecipients.get(),
-      aMessage->mSubject.get(), aMessage->mFlags, aMessage->mTags.get(), cx);
+  // Yes. This is a bit clunky for now.
+  nsAutoCString messageId;
+  PRTime date;
+  nsAutoCString sender;
+  nsAutoCString recipients;
+  nsAutoCString subject;
+  uint32_t flags;
+  nsAutoCString tags;
+
+  aMessage->GetMessageId(messageId);
+  aMessage->GetDate(&date);
+  aMessage->GetAuthor(sender);
+  aMessage->GetRecipients(recipients);
+  aMessage->GetSubject(subject);
+  aMessage->GetFlags(&flags);
+  aMessage->GetStringProperty("keywords", tags);
+
+  return CreateJSMessage(aMessage->Key(), aMessage->FolderId(), messageId.get(),
+                         date, sender.get(), recipients.get(), subject.get(),
+                         flags, tags.get(), cx);
 }
 
 NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
@@ -371,7 +387,7 @@ void LiveView::OnMessageAdded(Message* aMessage) {
   mListener->OnMessageAdded(handle);
 }
 
-void LiveView::OnMessageRemoved(Message* aMessage) {
+void LiveView::OnMessageRemoved(Message* aMessage, uint32_t oldFlags) {
   if (!mListener || !mCx || !Matches(*aMessage)) {
     return;
   }
@@ -382,8 +398,8 @@ void LiveView::OnMessageRemoved(Message* aMessage) {
   mListener->OnMessageRemoved(handle);
 }
 
-void LiveView::OnMessageFlagsChanged(Message* message, uint64_t oldFlags,
-                                     uint64_t newFlags) {}
+void LiveView::OnMessageFlagsChanged(Message* message, uint32_t oldFlags,
+                                     uint32_t newFlags) {}
 
 NS_IMETHODIMP LiveView::SetListener(nsILiveViewListener* aListener,
                                     JSContext* aCx) {

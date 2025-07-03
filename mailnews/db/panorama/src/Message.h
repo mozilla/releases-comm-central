@@ -6,44 +6,31 @@
 #define COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGE_H_
 
 #include "DatabaseCore.h"
-#include "FolderDatabase.h"
-#include "MessageDatabase.h"
 #include "mozIStorageStatement.h"
 #include "nsIMsgHdr.h"
 #include "nsTString.h"
 
 namespace mozilla::mailnews {
 
-#define MESSAGE_SQL_FIELDS                                          \
-  "id, folderId, threadId, threadParent, messageId, date, sender, " \
-  "recipients, ccList, bccList, subject, flags, tags"_ns
+class MessageDatabase;
 
 class Message : public nsIMsgDBHdr {
  public:
   Message() = delete;
-  explicit Message(mozIStorageStatement* aStmt);
+  explicit Message(nsMsgKey key) : mKey(key) {};
+
+  nsMsgKey Key() { return mKey; }
+  // Currently needed for LiveView. Returns 0 upon error.
+  uint64_t FolderId();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGDBHDR
-
-  nsMsgKey mId;
-  uint64_t mFolderId;
-  uint64_t mThreadId;
-  uint64_t mThreadParent;
-  nsAutoCString mMessageId;
-  PRTime mDate;
-  nsAutoCString mSender;
-  nsAutoCString mRecipients;
-  nsAutoCString mCcList;
-  nsAutoCString mBccList;
-  nsAutoCString mSubject;
-  uint64_t mFlags;
-  nsAutoCString mTags;
-
  protected:
   virtual ~Message() {};
 
  private:
+  nsMsgKey mKey;
+
   FolderDatabase& FolderDB() const {
     return *DatabaseCore::sInstance->mFolderDatabase;
   }

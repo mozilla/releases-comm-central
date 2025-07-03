@@ -45,7 +45,7 @@ class SingleFolderFilter final : public LiveViewFilter {
     mSQLClause.AppendInt(mFolderId);
   }
 
-  bool Matches(Message& aMessage) { return aMessage.mFolderId == mFolderId; }
+  bool Matches(Message& aMessage) { return aMessage.FolderId() == mFolderId; }
 
  protected:
   uint64_t mFolderId;
@@ -66,7 +66,7 @@ class MultiFolderFilter final : public LiveViewFilter {
   }
 
   bool Matches(Message& aMessage) {
-    return mFolderIds.Contains(aMessage.mFolderId);
+    return mFolderIds.Contains(aMessage.FolderId());
   }
 
  protected:
@@ -86,7 +86,7 @@ class VirtualFolderFilter final : public LiveViewFilter {
   bool Matches(Message& message) {
     // TODO: This is incomplete. We haven't matched the message against the
     // search terms.
-    return mSearchFolderIds.Contains(message.mFolderId);
+    return mSearchFolderIds.Contains(message.FolderId());
   }
 
  protected:

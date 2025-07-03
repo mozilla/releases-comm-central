@@ -4,9 +4,11 @@
 
 #include "PerFolderDatabase.h"
 
+#include "DatabaseCore.h"
 #include "DetachedMsgHdr.h"
 #include "MailNewsTypes.h"
 #include "Message.h"
+#include "MessageDatabase.h"
 #include "mozilla/RefPtr.h"
 #include "nsIDBChangeListener.h"
 #include "nsIMsgDBView.h"
@@ -21,21 +23,33 @@ NS_IMPL_ISUPPORTS(PerFolderDatabase, nsIDBChangeAnnouncer, nsIMsgDatabase)
 // MessageListener:
 
 void PerFolderDatabase::OnMessageAdded(Message* message) {
-  if (message->mFolderId == mFolderId) {
-    NotifyHdrAddedAll(message, nsMsgKey_None, message->mFlags, nullptr);
+  uint64_t msgFolderId;
+  nsresult rv = MessageDB().GetMessageFolderId(message->Key(), msgFolderId);
+  NS_ENSURE_SUCCESS_VOID(rv);
+  if (msgFolderId == mFolderId) {
+    uint32_t flags;
+    rv = message->GetFlags(&flags);
+    NS_ENSURE_SUCCESS_VOID(rv);
+    NotifyHdrAddedAll(message, nsMsgKey_None, flags, nullptr);
   }
 }
 
-void PerFolderDatabase::OnMessageRemoved(Message* message) {
-  if (message->mFolderId == mFolderId) {
-    NotifyHdrDeletedAll(message, nsMsgKey_None, message->mFlags, nullptr);
+void PerFolderDatabase::OnMessageRemoved(Message* message, uint32_t oldFlags) {
+  uint64_t msgFolderId;
+  nsresult rv = MessageDB().GetMessageFolderId(message->Key(), msgFolderId);
+  NS_ENSURE_SUCCESS_VOID(rv);
+  if (msgFolderId == mFolderId) {
+    NotifyHdrDeletedAll(message, nsMsgKey_None, oldFlags, nullptr);
   }
 }
 
 void PerFolderDatabase::OnMessageFlagsChanged(Message* message,
-                                              uint64_t oldFlags,
-                                              uint64_t newFlags) {
-  if (message->mFolderId == mFolderId) {
+                                              uint32_t oldFlags,
+                                              uint32_t newFlags) {
+  uint64_t msgFolderId;
+  nsresult rv = MessageDB().GetMessageFolderId(message->Key(), msgFolderId);
+  NS_ENSURE_SUCCESS_VOID(rv);
+  if (msgFolderId == mFolderId) {
     NotifyHdrChangeAll(message, oldFlags, newFlags, nullptr);
   }
 }
@@ -43,16 +57,19 @@ void PerFolderDatabase::OnMessageFlagsChanged(Message* message,
 // nsIDBChangeAnnouncer:
 
 NS_IMETHODIMP PerFolderDatabase::AddListener(nsIDBChangeListener* listener) {
+  NS_ENSURE_ARG(listener);
   mListeners.AppendElementUnlessExists(listener);
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::RemoveListener(nsIDBChangeListener* listener) {
+  NS_ENSURE_ARG(listener);
   mListeners.RemoveElement(listener);
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::NotifyHdrChangeAll(
     nsIMsgDBHdr* hdrChanged, uint32_t oldFlags, uint32_t newFlags,
     nsIDBChangeListener* instigator) {
+  NS_ENSURE_ARG(hdrChanged);
   for (RefPtr<nsIDBChangeListener> listener : mListeners.EndLimitedRange()) {
     listener->OnHdrFlagsChanged(hdrChanged, oldFlags, newFlags, instigator);
   }
@@ -61,6 +78,7 @@ NS_IMETHODIMP PerFolderDatabase::NotifyHdrChangeAll(
 NS_IMETHODIMP PerFolderDatabase::NotifyHdrAddedAll(
     nsIMsgDBHdr* hdrAdded, nsMsgKey parentKey, int32_t flags,
     nsIDBChangeListener* instigator) {
+  NS_ENSURE_ARG(hdrAdded);
   for (RefPtr<nsIDBChangeListener> listener : mListeners.EndLimitedRange()) {
     listener->OnHdrAdded(hdrAdded, parentKey, flags, instigator);
   }
@@ -69,6 +87,7 @@ NS_IMETHODIMP PerFolderDatabase::NotifyHdrAddedAll(
 NS_IMETHODIMP PerFolderDatabase::NotifyHdrDeletedAll(
     nsIMsgDBHdr* hdrDeleted, nsMsgKey parentKey, int32_t flags,
     nsIDBChangeListener* instigator) {
+  NS_ENSURE_ARG(hdrDeleted);
   for (RefPtr<nsIDBChangeListener> listener : mListeners.EndLimitedRange()) {
     listener->OnHdrDeleted(hdrDeleted, parentKey, flags, instigator);
   }
@@ -109,10 +128,12 @@ NS_IMETHODIMP PerFolderDatabase::ResetHdrCacheSize(uint32_t size) {
 }
 NS_IMETHODIMP PerFolderDatabase::GetDBFolderInfo(
     nsIDBFolderInfo** aDBFolderInfo) {
+  NS_ENSURE_ARG_POINTER(aDBFolderInfo);
   NS_IF_ADDREF(*aDBFolderInfo = new FolderInfo(this, mFolderId));
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetDatabaseSize(int64_t* databaseSize) {
+  NS_ENSURE_ARG_POINTER(databaseSize);
   *databaseSize = 0;
   return NS_OK;
 }
@@ -130,10 +151,17 @@ NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForKey(nsMsgKey key,
   NS_ENSURE_ARG_POINTER(msgHdr);
 
   RefPtr<Message> message;
-  nsresult rv = MessageDB().GetMessage(key, getter_AddRefs(message));
-  if (NS_FAILED(rv) || message->mFolderId != mFolderId) {
-    return NS_ERROR_ILLEGAL_VALUE;
+  MOZ_TRY(MessageDB().GetMessage(key, getter_AddRefs(message)));
+  {
+    // Sanity check.
+    uint64_t msgFolderId;
+    MOZ_TRY(MessageDB().GetMessageFolderId(key, msgFolderId));
+    if (msgFolderId != mFolderId) {
+      NS_WARNING("GetMsgHdrForKey() returned message not in folder");
+      return NS_ERROR_ILLEGAL_VALUE;
+    }
   }
+
   NS_IF_ADDREF(*msgHdr = message);
   return NS_OK;
 }
@@ -152,18 +180,35 @@ NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForMessageID(const char* messageID,
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForGMMsgID(
     const char* aGmailMessageID, nsIMsgDBHdr** aRetVal) {
+  NS_ENSURE_ARG_POINTER(aRetVal);
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForEwsItemID(const nsACString& itemID,
                                                        nsIMsgDBHdr** aRetVal) {
+  NS_ENSURE_ARG_POINTER(aRetVal);
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP PerFolderDatabase::ContainsKey(nsMsgKey aKey, bool* aContains) {
-  RefPtr<Message> message;
-  nsresult rv = MessageDB().GetMessage(aKey, getter_AddRefs(message));
-  *aContains = NS_SUCCEEDED(rv) && message->mFolderId == mFolderId;
+
+NS_IMETHODIMP PerFolderDatabase::ContainsKey(nsMsgKey key, bool* contains) {
+  NS_ENSURE_ARG_POINTER(contains);
+  *contains = false;
+
+  nsresult rv = MessageDB().MessageExists(key, *contains);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!*contains) {
+    return NS_OK;
+  }
+
+  // Sanity check.
+  uint64_t msgFolderId;
+  rv = MessageDB().GetMessageFolderId(key, msgFolderId);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (msgFolderId != mFolderId) {
+    *contains = false;
+  }
   return NS_OK;
 }
+
 NS_IMETHODIMP PerFolderDatabase::GetMsgKeysForUIDs(
     const nsTArray<uint32_t>& uids, nsTArray<nsMsgKey>& aRetVal) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -173,14 +218,17 @@ NS_IMETHODIMP PerFolderDatabase::GetMsgUIDsForKeys(
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::ContainsUID(uint32_t uid, bool* aRetVal) {
+  NS_ENSURE_ARG_POINTER(aRetVal);
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForUID(uint32_t uid,
                                                  nsIMsgDBHdr** aRetVal) {
+  NS_ENSURE_ARG_POINTER(aRetVal);
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::CreateNewHdr(nsMsgKey aKey,
                                               nsIMsgDBHdr** aRetVal) {
+  NS_ENSURE_ARG_POINTER(aRetVal);
   MOZ_ASSERT(aKey == nsMsgKey_None);
   RefPtr<DetachedMsgHdr> hdr = new DetachedMsgHdr(mFolderId);
   hdr.forget(aRetVal);
@@ -195,6 +243,7 @@ NS_IMETHODIMP PerFolderDatabase::AddNewHdrToDB(nsIMsgDBHdr* newHdr,
 NS_IMETHODIMP PerFolderDatabase::AttachHdr(nsIMsgDBHdr* detachedHdr,
                                            bool notify, nsIMsgDBHdr** realHdr) {
   NS_ENSURE_ARG(detachedHdr);
+  NS_ENSURE_ARG_POINTER(realHdr);
 
   bool isLive;
   nsresult rv = detachedHdr->GetIsLive(&isLive);
@@ -244,7 +293,8 @@ NS_IMETHODIMP PerFolderDatabase::CopyHdrFromExistingHdr(
 
 NS_IMETHODIMP PerFolderDatabase::AddMsgHdr(RawHdr* msg, bool notify,
                                            nsIMsgDBHdr** newHdr) {
-  MOZ_ASSERT(newHdr);
+  NS_ENSURE_ARG(msg);
+  NS_ENSURE_ARG_POINTER(newHdr);
   nsMsgKey key;
   nsresult rv = MessageDB().AddMessage(
       mFolderId, msg->messageId, msg->date, msg->sender, msg->recipients,
@@ -267,6 +317,7 @@ NS_IMETHODIMP PerFolderDatabase::ListAllKeys(nsTArray<nsMsgKey>& aKeys) {
 }
 NS_IMETHODIMP PerFolderDatabase::EnumerateMessages(
     nsIMsgEnumerator** aEnumerator) {
+  NS_ENSURE_ARG_POINTER(aEnumerator);
   nsCOMPtr<mozIStorageStatement> stmt;
   nsresult rv =
       DatabaseCore::GetStatement("GetAllMessages"_ns,
@@ -287,6 +338,7 @@ NS_IMETHODIMP PerFolderDatabase::EnumerateMessages(
 }
 NS_IMETHODIMP PerFolderDatabase::ReverseEnumerateMessages(
     nsIMsgEnumerator** aEnumerator) {
+  NS_ENSURE_ARG_POINTER(aEnumerator);
   nsCOMPtr<mozIStorageStatement> stmt;
   nsresult rv = DatabaseCore::GetStatement(
       "GetAllMessagesReverse"_ns,
@@ -307,6 +359,7 @@ NS_IMETHODIMP PerFolderDatabase::ReverseEnumerateMessages(
 }
 NS_IMETHODIMP PerFolderDatabase::EnumerateThreads(
     nsIMsgThreadEnumerator** aEnumerator) {
+  NS_ENSURE_ARG_POINTER(aEnumerator);
   nsCOMPtr<mozIStorageStatement> stmt;
   nsresult rv = DatabaseCore::GetStatement(
       "GetMessageThreads"_ns,
@@ -338,8 +391,15 @@ NS_IMETHODIMP PerFolderDatabase::GetThreadContainingMsgHdr(
   NS_ENSURE_ARG(msgHdr);
   NS_ENSURE_ARG_POINTER(thread);
 
-  Message* message = (Message*)(msgHdr);
-  NS_ADDREF(*thread = new Thread(mFolderId, message->mThreadId));
+  nsMsgKey key;
+  nsresult rv = msgHdr->GetMessageKey(&key);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsMsgKey threadId;
+  rv = MessageDB().GetMessageThreadId(key, threadId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  NS_ADDREF(*thread = new Thread(mFolderId, threadId));
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::MarkNotNew(nsMsgKey aKey,
@@ -413,25 +473,27 @@ NS_IMETHODIMP PerFolderDatabase::MarkKilled(nsMsgKey aKey, bool aIgnored,
   return MessageDB().SetMessageFlag(aKey, nsMsgMessageFlags::Ignored, aIgnored);
 }
 NS_IMETHODIMP PerFolderDatabase::IsRead(nsMsgKey aKey, bool* aRead) {
-  return MessageDB().GetMessageFlag(aKey, nsMsgMessageFlags::Read, aRead);
+  return MessageDB().GetMessageFlag(aKey, nsMsgMessageFlags::Read, *aRead);
 }
 NS_IMETHODIMP PerFolderDatabase::IsIgnored(nsMsgKey aKey, bool* aIgnored) {
-  return MessageDB().GetMessageFlag(aKey, nsMsgMessageFlags::Ignored, aIgnored);
+  return MessageDB().GetMessageFlag(aKey, nsMsgMessageFlags::Ignored,
+                                    *aIgnored);
 }
 NS_IMETHODIMP PerFolderDatabase::IsWatched(nsMsgKey aKey, bool* aWatched) {
-  return MessageDB().GetMessageFlag(aKey, nsMsgMessageFlags::Watched, aWatched);
+  return MessageDB().GetMessageFlag(aKey, nsMsgMessageFlags::Watched,
+                                    *aWatched);
 }
 NS_IMETHODIMP PerFolderDatabase::IsMarked(nsMsgKey aKey, bool* aMarked) {
-  return MessageDB().GetMessageFlag(aKey, nsMsgMessageFlags::Marked, aMarked);
+  return MessageDB().GetMessageFlag(aKey, nsMsgMessageFlags::Marked, *aMarked);
 }
 NS_IMETHODIMP PerFolderDatabase::HasAttachments(nsMsgKey aKey,
                                                 bool* aAttachments) {
   return MessageDB().GetMessageFlag(aKey, nsMsgMessageFlags::Attachment,
-                                    aAttachments);
+                                    *aAttachments);
 }
 NS_IMETHODIMP PerFolderDatabase::IsMDNSent(nsMsgKey aKey, bool* aMDNSent) {
   return MessageDB().GetMessageFlag(aKey, nsMsgMessageFlags::MDNReportSent,
-                                    aMDNSent);
+                                    *aMDNSent);
 }
 NS_IMETHODIMP PerFolderDatabase::MarkAllRead(nsTArray<nsMsgKey>& aMarkedKeys) {
   return MessageDB().MarkAllRead(mFolderId, aMarkedKeys);
@@ -481,13 +543,16 @@ NS_IMETHODIMP PerFolderDatabase::SetStringProperty(
 NS_IMETHODIMP PerFolderDatabase::SetStringPropertyByHdr(
     nsIMsgDBHdr* msgHdr, const char* propertyName,
     const nsACString& propertyValue) {
+  NS_ENSURE_ARG(msgHdr);
   return msgHdr->SetStringProperty(propertyName, propertyValue);
 }
 NS_IMETHODIMP PerFolderDatabase::SetUint32PropertyByHdr(
     nsIMsgDBHdr* msgHdr, const char* propertyName, uint32_t propertyValue) {
+  NS_ENSURE_ARG(msgHdr);
   return msgHdr->SetUint32Property(propertyName, propertyValue);
 }
 NS_IMETHODIMP PerFolderDatabase::GetFirstNew(nsMsgKey* aFirstNew) {
+  NS_ENSURE_ARG_POINTER(aFirstNew);
   if (mNewList.IsEmpty()) {
     *aFirstNew = nsMsgKey_None;
   } else {
@@ -516,6 +581,7 @@ NS_IMETHODIMP PerFolderDatabase::SetMsgDownloadSettings(
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::HasNew(bool* aHasNew) {
+  NS_ENSURE_ARG_POINTER(aHasNew);
   *aHasNew = !mNewList.IsEmpty();
   return NS_OK;
 }
@@ -533,6 +599,7 @@ NS_IMETHODIMP PerFolderDatabase::AddToNewList(nsMsgKey aKey) {
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetSummaryValid(bool* summaryValid) {
+  NS_ENSURE_ARG_POINTER(summaryValid);
   *summaryValid = true;
   return NS_OK;
 }
@@ -672,7 +739,8 @@ NS_IMETHODIMP MessageEnumerator::GetNext(nsIMsgDBHdr** aItem) {
     return NS_ERROR_FAILURE;
   }
 
-  RefPtr<Message> message = new Message(mStmt);
+  nsMsgKey key = (nsMsgKey)mStmt->AsInt64(0);
+  RefPtr<Message> message = new Message(key);
   message.forget(aItem);
   mStmt->ExecuteStep(&mHasNext);
   return NS_OK;
@@ -724,6 +792,7 @@ FolderInfo::FolderInfo(PerFolderDatabase* perFolderDatabase,
 }
 
 NS_IMETHODIMP FolderInfo::GetFlags(int32_t* aFlags) {
+  NS_ENSURE_ARG_POINTER(aFlags);
   *aFlags = mFolder->GetFlags();
   return NS_OK;
 }
@@ -731,11 +800,13 @@ NS_IMETHODIMP FolderInfo::SetFlags(int32_t aFlags) {
   return FolderDB().UpdateFlags(mFolder, aFlags);
 }
 NS_IMETHODIMP FolderInfo::OrFlags(int32_t aFlags, int32_t* aOutFlags) {
+  NS_ENSURE_ARG_POINTER(aOutFlags);
   nsresult rv = FolderDB().UpdateFlags(mFolder, mFolder->GetFlags() | aFlags);
   *aOutFlags = mFolder->GetFlags();
   return rv;
 }
 NS_IMETHODIMP FolderInfo::AndFlags(int32_t aFlags, int32_t* aOutFlags) {
+  NS_ENSURE_ARG_POINTER(aOutFlags);
   nsresult rv = FolderDB().UpdateFlags(mFolder, mFolder->GetFlags() & aFlags);
   *aOutFlags = mFolder->GetFlags();
   return rv;
@@ -774,6 +845,7 @@ NS_IMETHODIMP FolderInfo::ChangeNumMessages(int32_t aDelta) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP FolderInfo::GetNumUnreadMessages(int32_t* aNumUnreadMessages) {
+  NS_ENSURE_ARG_POINTER(aNumUnreadMessages);
   uint64_t out;
   nsresult rv = MessageDB().GetNumUnread(mFolder->GetId(), &out);
   *aNumUnreadMessages = (int32_t)out;
@@ -783,6 +855,7 @@ NS_IMETHODIMP FolderInfo::SetNumUnreadMessages(int32_t aNumUnreadMessages) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP FolderInfo::GetNumMessages(int32_t* aNumMessages) {
+  NS_ENSURE_ARG_POINTER(aNumMessages);
   uint64_t out;
   nsresult rv = MessageDB().GetNumMessages(mFolder->GetId(), &out);
   *aNumMessages = (int32_t)out;
@@ -839,6 +912,7 @@ NS_IMETHODIMP FolderInfo::SetViewType(nsMsgViewTypeValue aViewType) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP FolderInfo::GetViewFlags(nsMsgViewFlagsTypeValue* viewFlags) {
+  NS_ENSURE_ARG_POINTER(viewFlags);
   nsMsgViewFlagsTypeValue defaultViewFlags;
   mPerFolderDatabase->GetDefaultViewFlags(&defaultViewFlags);
   return GetUint32Property("viewFlags", defaultViewFlags, (uint32_t*)viewFlags);
@@ -847,6 +921,7 @@ NS_IMETHODIMP FolderInfo::SetViewFlags(nsMsgViewFlagsTypeValue viewFlags) {
   return SetUint32Property("viewFlags", viewFlags);
 }
 NS_IMETHODIMP FolderInfo::GetSortType(nsMsgViewSortTypeValue* sortType) {
+  NS_ENSURE_ARG_POINTER(sortType);
   nsMsgViewSortTypeValue defaultSortType;
   mPerFolderDatabase->GetDefaultSortType(&defaultSortType);
   return GetUint32Property("sortType", defaultSortType, (uint32_t*)sortType);
@@ -855,6 +930,7 @@ NS_IMETHODIMP FolderInfo::SetSortType(nsMsgViewSortTypeValue sortType) {
   return SetUint32Property("sortType", sortType);
 }
 NS_IMETHODIMP FolderInfo::GetSortOrder(nsMsgViewSortOrderValue* sortOrder) {
+  NS_ENSURE_ARG_POINTER(sortOrder);
   nsMsgViewSortOrderValue defaultSortOrder;
   mPerFolderDatabase->GetDefaultSortOrder(&defaultSortOrder);
   return GetUint32Property("sortOrder", defaultSortOrder, (uint32_t*)sortOrder);
@@ -878,6 +954,7 @@ NS_IMETHODIMP FolderInfo::SetCharProperty(const char* propertyName,
 NS_IMETHODIMP FolderInfo::GetUint32Property(const char* propertyName,
                                             uint32_t defaultValue,
                                             uint32_t* propertyValue) {
+  NS_ENSURE_ARG_POINTER(propertyValue);
   *propertyValue = defaultValue;
   return FolderDB().GetFolderProperty(mFolder->GetId(), nsCString(propertyName),
                                       (int64_t*)propertyValue);
@@ -890,6 +967,7 @@ NS_IMETHODIMP FolderInfo::SetUint32Property(const char* propertyName,
 NS_IMETHODIMP FolderInfo::GetInt64Property(const char* propertyName,
                                            int64_t defaultValue,
                                            int64_t* propertyValue) {
+  NS_ENSURE_ARG_POINTER(propertyValue);
   *propertyValue = defaultValue;
   return FolderDB().GetFolderProperty(mFolder->GetId(), nsCString(propertyName),
                                       propertyValue);
