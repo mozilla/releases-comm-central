@@ -311,6 +311,13 @@ NS_IMETHODIMP PerFolderDatabase::AddMsgHdr(RawHdr* msg, bool notify,
   RefPtr<Message> newMsg;
   rv = MessageDB().GetMessage(key, getter_AddRefs(newMsg));
 
+  // We'll consider any unread message to be New.
+  if (!(msg->flags & nsMsgMessageFlags::Read)) {
+    // TODO: there are some cases (threading?) where we don't want to add the
+    // message to the new list...
+    AddToNewList(key);
+  }
+
   newMsg.forget(newHdr);
   return rv;
 }
@@ -588,7 +595,8 @@ NS_IMETHODIMP PerFolderDatabase::HasNew(bool* aHasNew) {
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::SortNewKeysIfNeeded() {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  mNewList.Sort();
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::ClearNewList(bool aNotify) {
   mNewList.Clear();
