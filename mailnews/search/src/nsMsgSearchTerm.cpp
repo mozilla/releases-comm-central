@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsMsgSearchTerm.h"
+
 #include "msgCore.h"
 #include "prmem.h"
 #include "nsMsgSearchCore.h"
@@ -11,7 +13,6 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
-#include "nsMsgSearchTerm.h"
 #include "nsMsgSearchScopeTerm.h"
 #include "nsMsgBodyHandler.h"
 #include "nsMsgResultElement.h"
@@ -32,6 +33,7 @@
 #include "nsIMsgFilterService.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIAbManager.h"
+#include "mozilla/Components.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/Utf8.h"
@@ -857,9 +859,7 @@ nsresult nsMsgSearchTerm::InitializeAddressBook() {
   }
   if (!mDirectory) {
     nsCOMPtr<nsIAbManager> abManager =
-        do_GetService("@mozilla.org/abmanager;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::AbManager::Service();
     rv =
         abManager->GetDirectory(m_value.utf8String, getter_AddRefs(mDirectory));
     NS_ENSURE_SUCCESS(rv, rv);

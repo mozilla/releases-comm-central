@@ -4,6 +4,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsAbOSXDirectory.h"
+
+#include <AddressBook/AddressBook.h>
+
+#include "mozilla/Components.h"
 #include "nsAbOSXCard.h"
 #include "nsAbOSXUtils.h"
 #include "nsAbQueryStringToExpression.h"
@@ -19,8 +23,6 @@
 #include "nsComponentManagerUtils.h"
 #include "nsISimpleEnumerator.h"
 
-#include <AddressBook/AddressBook.h>
-
 #define kABDeletedRecords \
   (kABDeletedRecords ? kABDeletedRecords : @"ABDeletedRecords")
 #define kABUpdatedRecords \
@@ -35,10 +37,7 @@ static nsresult GetOrCreateGroup(NSString* aUid, nsIAbDirectory** aResult) {
   AppendToCString(aUid, uri);
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService("@mozilla.org/abmanager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsIAbManager> abManager = mozilla::components::AbManager::Service();
   nsCOMPtr<nsIAbDirectory> directory;
   rv = abManager->GetDirectory(uri, getter_AddRefs(directory));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -115,9 +114,7 @@ static nsresult Sync(NSString* aUid) {
     nsresult rv;
 
     nsCOMPtr<nsIAbManager> abManager =
-        do_GetService("@mozilla.org/abmanager;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::AbManager::Service();
     nsCOMPtr<nsIAbDirectory> directory;
     rv = abManager->GetDirectory(
         nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
@@ -152,9 +149,7 @@ static nsresult Sync(NSString* aUid) {
 
   if (inserted) {
     nsCOMPtr<nsIAbManager> abManager =
-        do_GetService("@mozilla.org/abmanager;1", &rv);
-    NS_ENSURE_SUCCESS_VOID(rv);
-
+        mozilla::components::AbManager::Service();
     nsCOMPtr<nsIAbDirectory> directory;
     rv = abManager->GetDirectory(
         nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
@@ -199,9 +194,7 @@ static nsresult Sync(NSString* aUid) {
   NSArray* deleted = [changes objectForKey:kABDeletedRecords];
   if (deleted) {
     nsCOMPtr<nsIAbManager> abManager =
-        do_GetService("@mozilla.org/abmanager;1", &rv);
-    NS_ENSURE_SUCCESS_VOID(rv);
-
+        mozilla::components::AbManager::Service();
     nsCOMPtr<nsIAbDirectory> directory;
     rv = abManager->GetDirectory(
         nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
@@ -311,10 +304,7 @@ nsAbOSXDirectory::Init(const char* aUri) {
 
   unsigned int nbCards = [cards count];
   nsCOMPtr<nsIAbCard> card;
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService("@mozilla.org/abmanager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsIAbManager> abManager = mozilla::components::AbManager::Service();
   nsCOMPtr<nsIAbOSXDirectory> rootOSXDirectory;
   if (!isRootOSXDirectory) {
     rv = GetRootOSXDirectory(getter_AddRefs(rootOSXDirectory));
@@ -397,9 +387,7 @@ nsresult nsAbOSXDirectory::GetRootOSXDirectory(nsIAbOSXDirectory** aResult) {
     // Attempt to get card from the toplevel directories
     nsresult rv;
     nsCOMPtr<nsIAbManager> abManager =
-        do_GetService("@mozilla.org/abmanager;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::AbManager::Service();
     nsCOMPtr<nsIAbDirectory> directory;
     rv = abManager->GetDirectory(
         nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
@@ -420,9 +408,7 @@ nsresult nsAbOSXDirectory::Update() {
   NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService("@mozilla.org/abmanager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIAbManager> abManager = mozilla::components::AbManager::Service();
 
   ABAddressBook* addressBook = [ABAddressBook sharedAddressBook];
   // Due to the horrible way the address book code works wrt mailing lists
@@ -549,9 +535,7 @@ nsresult nsAbOSXDirectory::AssertChildNodes() {
   }
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService("@mozilla.org/abmanager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIAbManager> abManager = mozilla::components::AbManager::Service();
 
   NSArray* groups = [[ABAddressBook sharedAddressBook] groups];
 
@@ -901,9 +885,7 @@ nsresult nsAbOSXDirectory::DeleteUid(const nsACString& aUid) {
   if (!m_AddressList) return NS_ERROR_NULL_POINTER;
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService("@mozilla.org/abmanager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIAbManager> abManager = mozilla::components::AbManager::Service();
 
   // At this stage we don't know if aUid represents a card or group. The OS X
   // interfaces don't give us chance to find out, so we have to go through

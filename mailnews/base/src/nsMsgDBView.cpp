@@ -224,18 +224,13 @@ nsresult nsMsgDBView::AppendKeywordProperties(const nsACString& keywords,
 
 static nsresult GetDisplayNameInAddressBook(const nsACString& emailAddress,
                                             nsAString& displayName) {
-  nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager(
-      do_GetService("@mozilla.org/abmanager;1", &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsIAbManager> abManager = mozilla::components::AbManager::Service();
   nsCOMPtr<nsIAbCard> cardForAddress;
   abManager->CardForEmailAddress(emailAddress, getter_AddRefs(cardForAddress));
   if (cardForAddress) {
-    rv = cardForAddress->GetDisplayName(displayName);
+    return cardForAddress->GetDisplayName(displayName);
   }
-
-  return rv;
+  return NS_OK;
 }
 
 /**
@@ -465,16 +460,9 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr* aHdr,
   ExtractAllAddresses(EncodedHeader(unparsedRecipients, headerCharset.get()),
                       names, UTF16ArrayAdapter<>(emails));
 
-  uint32_t numAddresses = names.Length();
-
-  nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager(
-      do_GetService("@mozilla.org/abmanager;1", &rv));
-
-  NS_ENSURE_SUCCESS(rv, NS_OK);
-
   // Go through each email address in the recipients and compute its
   // display name.
+  uint32_t numAddresses = names.Length();
   for (uint32_t i = 0; i < numAddresses; i++) {
     nsString recipient;
     nsCString& curAddress = emails[i];

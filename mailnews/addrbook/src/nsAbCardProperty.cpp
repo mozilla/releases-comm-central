@@ -271,10 +271,7 @@ NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString& aUID) {
     return NS_OK;
   }
 
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService("@mozilla.org/abmanager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsIAbManager> abManager = mozilla::components::AbManager::Service();
   nsCOMPtr<nsIAbDirectory> directory = nullptr;
   rv =
       abManager->GetDirectoryFromUID(m_directoryUID, getter_AddRefs(directory));

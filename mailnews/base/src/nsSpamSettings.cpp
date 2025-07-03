@@ -281,10 +281,8 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
 
   mWhiteListDirArray.Clear();
   if (!mWhiteListAbURI.IsEmpty()) {
-    nsCOMPtr<nsIAbManager> abManager(
-        do_GetService("@mozilla.org/abmanager;1", &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-
+    nsCOMPtr<nsIAbManager> abManager =
+        mozilla::components::AbManager::Service();
     nsTArray<nsCString> whiteListArray;
     ParseString(mWhiteListAbURI, ' ', whiteListArray);
 

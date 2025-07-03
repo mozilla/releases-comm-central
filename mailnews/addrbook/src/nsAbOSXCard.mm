@@ -4,18 +4,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsAbOSXCard.h"
-#include "nsAbOSXDirectory.h"
-#include "nsAbOSXUtils.h"
-#include "nsIAbManager.h"
-#include "nsObjCExceptions.h"
-#include "nsServiceManagerUtils.h"
 
 #include <AddressBook/AddressBook.h>
+
+#include "mozilla/Components.h"
+#include "nsAbOSXDirectory.h"
+#include "nsAbOSXUtils.h"
+#include "nsObjCExceptions.h"
+#include "nsServiceManagerUtils.h"
 
 NS_IMPL_ISUPPORTS_INHERITED(nsAbOSXCard, nsAbCardProperty, nsIAbOSXCard)
 
 #ifdef DEBUG
-static ABPropertyType GetPropertType(ABRecord* aCard, NSString* aProperty) {
+static ABPropertyType GetPropertyType(ABRecord* aCard, NSString* aProperty) {
   ABPropertyType propertyType = kABErrorInProperty;
   if ([aCard isKindOfClass:[ABPerson class]])
     propertyType = [ABPerson typeOfProperty:aProperty];
@@ -26,8 +27,7 @@ static ABPropertyType GetPropertType(ABRecord* aCard, NSString* aProperty) {
 #endif
 
 static void SetStringProperty(nsAbOSXCard* aCard, const nsString& aValue,
-                              const char* aMemberName, bool aNotify,
-                              nsIAbManager* aAbManager) {
+                              const char* aMemberName, bool aNotify) {
   nsString oldValue;
   nsresult rv = aCard->GetPropertyAsAString(aMemberName, oldValue);
   if (NS_FAILED(rv)) oldValue.Truncate();
@@ -40,29 +40,28 @@ static void SetStringProperty(nsAbOSXCard* aCard, const nsString& aValue,
 }
 
 static void SetStringProperty(nsAbOSXCard* aCard, NSString* aValue,
-                              const char* aMemberName, bool aNotify,
-                              nsIAbManager* aAbManager) {
+                              const char* aMemberName, bool aNotify) {
   nsAutoString value;
   if (aValue) AppendToString(aValue, value);
 
-  SetStringProperty(aCard, value, aMemberName, aNotify, aAbManager);
+  SetStringProperty(aCard, value, aMemberName, aNotify);
 }
 
 static void MapStringProperty(nsAbOSXCard* aCard, ABRecord* aOSXCard,
                               NSString* aProperty, const char* aMemberName,
-                              bool aNotify, nsIAbManager* aAbManager) {
+                              bool aNotify) {
   NS_ASSERTION(aProperty, "This is bad! You asked for an unresolved symbol.");
-  NS_ASSERTION(GetPropertType(aOSXCard, aProperty) == kABStringProperty,
+  NS_ASSERTION(GetPropertyType(aOSXCard, aProperty) == kABStringProperty,
                "Wrong type!");
 
   SetStringProperty(aCard, [aOSXCard valueForProperty:aProperty], aMemberName,
-                    aNotify, aAbManager);
+                    aNotify);
 }
 
 static ABMutableMultiValue* GetMultiValue(ABRecord* aCard,
                                           NSString* aProperty) {
   NS_ASSERTION(aProperty, "This is bad! You asked for an unresolved symbol.");
-  NS_ASSERTION(GetPropertType(aCard, aProperty) & kABMultiValueMask,
+  NS_ASSERTION(GetPropertyType(aCard, aProperty) & kABMultiValueMask,
                "Wrong type!");
 
   return [aCard valueForProperty:aProperty];
@@ -70,25 +69,23 @@ static ABMutableMultiValue* GetMultiValue(ABRecord* aCard,
 
 static void MapDate(nsAbOSXCard* aCard, NSDate* aDate,
                     const char* aYearPropName, const char* aMonthPropName,
-                    const char* aDayPropName, bool aNotify,
-                    nsIAbManager* aAbManager) {
+                    const char* aDayPropName, bool aNotify) {
   // XXX Should we pass a format and timezone?
   NSCalendarDate* date = [aDate dateWithCalendarFormat:nil timeZone:nil];
 
   nsAutoString value;
   value.AppendInt(static_cast<int32_t>([date yearOfCommonEra]));
-  SetStringProperty(aCard, value, aYearPropName, aNotify, aAbManager);
+  SetStringProperty(aCard, value, aYearPropName, aNotify);
   value.Truncate();
   value.AppendInt(static_cast<int32_t>([date monthOfYear]));
-  SetStringProperty(aCard, value, aMonthPropName, aNotify, aAbManager);
+  SetStringProperty(aCard, value, aMonthPropName, aNotify);
   value.Truncate();
   value.AppendInt(static_cast<int32_t>([date dayOfMonth]));
-  SetStringProperty(aCard, value, aDayPropName, aNotify, aAbManager);
+  SetStringProperty(aCard, value, aDayPropName, aNotify);
 }
 
 static bool MapMultiValue(nsAbOSXCard* aCard, ABRecord* aOSXCard,
-                          const nsAbOSXPropertyMap& aMap, bool aNotify,
-                          nsIAbManager* aAbManager) {
+                          const nsAbOSXPropertyMap& aMap, bool aNotify) {
   ABMultiValue* value = GetMultiValue(aOSXCard, aMap.mOSXProperty);
   if (value) {
     unsigned int j;
@@ -99,16 +96,14 @@ static bool MapMultiValue(nsAbOSXCard* aCard, ABRecord* aOSXCard,
             (aMap.mOSXKey) ? [[value valueAtIndex:j] objectForKey:aMap.mOSXKey]
                            : [value valueAtIndex:j];
 
-        SetStringProperty(aCard, stringValue, aMap.mPropertyName, aNotify,
-                          aAbManager);
+        SetStringProperty(aCard, stringValue, aMap.mPropertyName, aNotify);
 
         return true;
       }
     }
   }
   // String wasn't found, set value of card to empty if it was set previously
-  SetStringProperty(aCard, EmptyString(), aMap.mPropertyName, aNotify,
-                    aAbManager);
+  SetStringProperty(aCard, EmptyString(), aMap.mPropertyName, aNotify);
 
   return false;
 }
@@ -194,21 +189,12 @@ nsresult nsAbOSXCard::Update(bool aNotify) {
       [addressBook recordForUniqueId:[NSString stringWithUTF8String:uid]];
   NS_ENSURE_TRUE(card, NS_ERROR_FAILURE);
 
-  nsCOMPtr<nsIAbManager> abManager;
-  nsresult rv;
-  if (aNotify) {
-    abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
   if ([card isKindOfClass:[ABGroup class]]) {
     m_IsMailList = true;
     m_MailListURI.AssignLiteral(NS_ABOSXDIRECTORY_URI_PREFIX);
     m_MailListURI.Append(uid);
-    MapStringProperty(this, card, kABGroupNameProperty, "DisplayName", aNotify,
-                      abManager);
-    MapStringProperty(this, card, kABGroupNameProperty, "LastName", aNotify,
-                      abManager);
+    MapStringProperty(this, card, kABGroupNameProperty, "DisplayName", aNotify);
+    MapStringProperty(this, card, kABGroupNameProperty, "LastName", aNotify);
 
     return NS_OK;
   }
@@ -221,7 +207,7 @@ nsresult nsAbOSXCard::Update(bool aNotify) {
     if (!propertyMap.mOSXProperty) continue;
 
     if (propertyMap.mOSXLabel) {
-      if (MapMultiValue(this, card, propertyMap, aNotify, abManager) &&
+      if (MapMultiValue(this, card, propertyMap, aNotify) &&
           propertyMap.mOSXProperty == kABAddressProperty) {
         if (propertyMap.mOSXLabel == kABAddressHomeLabel)
           foundHome = true;
@@ -230,22 +216,22 @@ nsresult nsAbOSXCard::Update(bool aNotify) {
       }
     } else {
       MapStringProperty(this, card, propertyMap.mOSXProperty,
-                        propertyMap.mPropertyName, aNotify, abManager);
+                        propertyMap.mPropertyName, aNotify);
     }
   }
 
   int flags = 0;
   if (kABPersonFlags) flags = [[card valueForProperty:kABPersonFlags] intValue];
 
-#define SET_STRING(_value, _name, _notify, _session) \
-  SetStringProperty(this, _value, #_name, _notify, _session)
+#define SET_STRING(_value, _name, _notify) \
+  SetStringProperty(this, _value, #_name, _notify)
 
   // If kABShowAsCompany is set we use the company name as display name.
   if (kABPersonFlags && (flags & kABShowAsCompany)) {
     nsString company;
     nsresult rv = GetPropertyAsAString(kCompanyProperty, company);
     if (NS_FAILED(rv)) company.Truncate();
-    SET_STRING(company, DisplayName, aNotify, abManager);
+    SET_STRING(company, DisplayName, aNotify);
   } else {
     // Use the order used in the OS X address book to set DisplayName.
     int order = kABPersonFlags && (flags & kABNameOrderingMask);
@@ -277,7 +263,7 @@ nsresult nsAbOSXCard::Update(bool aNotify) {
 
       displayName.Append(tempName);
     }
-    SET_STRING(displayName, DisplayName, aNotify, abManager);
+    SET_STRING(displayName, DisplayName, aNotify);
   }
 
   ABMultiValue* value = GetMultiValue(card, kABEmailProperty);
@@ -286,15 +272,13 @@ nsresult nsAbOSXCard::Update(bool aNotify) {
     if (count > 0) {
       unsigned int j = [value indexForIdentifier:[value primaryIdentifier]];
 
-      if (j < count)
-        SET_STRING([value valueAtIndex:j], PrimaryEmail, aNotify, abManager);
+      if (j < count) SET_STRING([value valueAtIndex:j], PrimaryEmail, aNotify);
 
       // If j is 0 (first in the list) we want the second in the list
       // (index 1), if j is anything else we want the first in the list
       // (index 0).
       j = (j == 0);
-      if (j < count)
-        SET_STRING([value valueAtIndex:j], SecondEmail, aNotify, abManager);
+      if (j < count) SET_STRING([value valueAtIndex:j], SecondEmail, aNotify);
     }
   }
 
@@ -311,15 +295,15 @@ nsresult nsAbOSXCard::Update(bool aNotify) {
         NSDictionary* address = [value valueAtIndex:j];
         if (address) {
           SET_STRING([address objectForKey:kABAddressStreetKey], HomeAddress,
-                     aNotify, abManager);
+                     aNotify);
           SET_STRING([address objectForKey:kABAddressCityKey], HomeCity,
-                     aNotify, abManager);
+                     aNotify);
           SET_STRING([address objectForKey:kABAddressStateKey], HomeState,
-                     aNotify, abManager);
+                     aNotify);
           SET_STRING([address objectForKey:kABAddressZIPKey], HomeZipCode,
-                     aNotify, abManager);
+                     aNotify);
           SET_STRING([address objectForKey:kABAddressCountryKey], HomeCountry,
-                     aNotify, abManager);
+                     aNotify);
         }
       }
     }
@@ -335,7 +319,7 @@ nsresult nsAbOSXCard::Update(bool aNotify) {
       // NSDictionary.
       if ([imValue isKindOfClass:[NSString class]]) {
         if (i == [value indexForIdentifier:[value primaryIdentifier]]) {
-          SET_STRING(imValue, _AimScreenName, aNotify, abManager);
+          SET_STRING(imValue, _AimScreenName, aNotify);
         }
       } else if ([imValue isKindOfClass:[NSDictionary class]]) {
         NSString* instantMessageService =
@@ -343,17 +327,16 @@ nsresult nsAbOSXCard::Update(bool aNotify) {
         const char* fieldName =
             InstantMessengerFieldName(instantMessageService);
         NSString* userName = [imValue objectForKey:@"InstantMessageUsername"];
-        SetStringProperty(this, userName, fieldName, aNotify, abManager);
+        SetStringProperty(this, userName, fieldName, aNotify);
       }
     }
   }
 
-#define MAP_DATE(_date, _name, _notify, _session)                            \
-  MapDate(this, _date, #_name "Year", #_name "Month", #_name "Day", _notify, \
-          _session)
+#define MAP_DATE(_date, _name, _notify) \
+  MapDate(this, _date, #_name "Year", #_name "Month", #_name "Day", _notify)
 
   NSDate* date = [card valueForProperty:kABBirthdayProperty];
-  if (date) MAP_DATE(date, Birth, aNotify, abManager);
+  if (date) MAP_DATE(date, Birth, aNotify);
 
   if (kABOtherDatesProperty) {
     value = GetMultiValue(card, kABOtherDatesProperty);
@@ -363,8 +346,7 @@ nsresult nsAbOSXCard::Update(bool aNotify) {
         if ([[value labelAtIndex:j] isEqualToString:kABAnniversaryLabel]) {
           date = [value valueAtIndex:j];
           if (date) {
-            MAP_DATE(date, Anniversary, aNotify, abManager);
-
+            MAP_DATE(date, Anniversary, aNotify);
             break;
           }
         }

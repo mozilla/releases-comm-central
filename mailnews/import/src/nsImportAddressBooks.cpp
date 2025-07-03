@@ -5,6 +5,7 @@
 
 #include "nsImportAddressBooks.h"
 
+#include "mozilla/Components.h"
 #include "plstr.h"
 #include "nsIImportService.h"
 #include "nsISupportsPrimitives.h"
@@ -180,9 +181,7 @@ void nsImportGenericAddressBooks::SetLogs(nsString& success, nsString& error,
 already_AddRefed<nsIAbDirectory> GetAddressBookFromUri(const char* pUri) {
   if (!pUri) return nullptr;
 
-  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1");
-  if (!abManager) return nullptr;
-
+  nsCOMPtr<nsIAbManager> abManager = mozilla::components::AbManager::Service();
   nsCOMPtr<nsIAbDirectory> directory;
   abManager->GetDirectory(nsDependentCString(pUri), getter_AddRefs(directory));
   if (!directory) return nullptr;
@@ -201,16 +200,13 @@ already_AddRefed<nsIAbDirectory> GetAddressBook(nsString name, bool makeNew) {
 
   nsresult rv;
   nsCOMPtr<nsIAbDirectory> directory;
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService("@mozilla.org/abmanager;1", &rv);
+  nsCOMPtr<nsIAbManager> abManager = mozilla::components::AbManager::Service();
+  nsAutoCString dirPrefId;
+  rv = abManager->NewAddressBook(name, EmptyCString(),
+                                 nsIAbManager::JS_DIRECTORY_TYPE,
+                                 EmptyCString(), dirPrefId);
   if (NS_SUCCEEDED(rv)) {
-    nsAutoCString dirPrefId;
-    rv = abManager->NewAddressBook(name, EmptyCString(),
-                                   nsIAbManager::JS_DIRECTORY_TYPE,
-                                   EmptyCString(), dirPrefId);
-    if (NS_SUCCEEDED(rv)) {
-      rv = abManager->GetDirectoryFromId(dirPrefId, getter_AddRefs(directory));
-    }
+    rv = abManager->GetDirectoryFromId(dirPrefId, getter_AddRefs(directory));
   }
 
   return directory.forget();

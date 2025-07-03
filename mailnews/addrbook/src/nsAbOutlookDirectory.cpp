@@ -14,6 +14,7 @@
 #include "nsEnumeratorUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
+#include "mozilla/Components.h"
 #include "mozilla/ErrorNames.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
@@ -426,9 +427,8 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddCard(nsIAbCard* aCard,
       return NS_ERROR_FAILURE;
     }
     // The UID of the card is the top directory's UID.
-    nsCOMPtr<nsIAbManager> abManager(
-        do_GetService("@mozilla.org/abmanager;1", &retCode));
-    NS_ENSURE_SUCCESS(retCode, retCode);
+    nsCOMPtr<nsIAbManager> abManager =
+        mozilla::components::AbManager::Service();
     retCode = abManager->GetDirectory(dirURI, getter_AddRefs(topDir));
     NS_ENSURE_SUCCESS(retCode, retCode);
     topDir->GetUID(ourUID);
@@ -602,9 +602,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::EditMailListToDatabase(
   nsAutoCString topEntryString;
   int32_t slashPos = uri.RFindChar('/');
   uri.SetLength(slashPos);
-  nsCOMPtr<nsIAbManager> abManager(
-      do_GetService("@mozilla.org/abmanager;1", &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIAbManager> abManager = mozilla::components::AbManager::Service();
   nsCOMPtr<nsIAbDirectory> parent;
   rv = abManager->GetDirectory(uri, getter_AddRefs(parent));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -848,9 +846,8 @@ nsresult nsAbOutlookDirectory::GetCards(nsIMutableArray* aCards,
     // Look up the parent directory (top-level directory) in the
     // AddrBookManager. That relies on the fact that the top-level
     // directory is already in its map before being initialised.
-    nsCOMPtr<nsIAbManager> abManager(
-        do_GetService("@mozilla.org/abmanager;1", &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIAbManager> abManager =
+        mozilla::components::AbManager::Service();
     nsAutoCString dirURI(kOutlookDirectoryScheme);
     dirURI.Append(mParentEntryId);
     nsCOMPtr<nsIAbDirectory> owningDir;
@@ -899,10 +896,6 @@ nsresult nsAbOutlookDirectory::GetNodes(nsIMutableArray* aNodes) {
   }
 
   nsresult rv = NS_OK;
-
-  nsCOMPtr<nsIAbManager> abManager(
-      do_GetService("@mozilla.org/abmanager;1", &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString topEntryString;
   mDirEntry->ToString(topEntryString);

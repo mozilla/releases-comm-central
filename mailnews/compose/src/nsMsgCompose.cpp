@@ -4173,10 +4173,7 @@ nsresult nsMsgCompose::GetABDirAndMailLists(
   static bool collectedAddressbookFound = false;
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService("@mozilla.org/abmanager;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsIAbManager> abManager = mozilla::components::AbManager::Service();
   if (aDirUri.Equals(kAllDirectoryRoot)) {
     nsTArray<RefPtr<nsIAbDirectory>> directories;
     rv = abManager->GetDirectories(directories);

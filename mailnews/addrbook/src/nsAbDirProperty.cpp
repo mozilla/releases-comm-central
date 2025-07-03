@@ -102,16 +102,11 @@ NS_IMETHODIMP nsAbDirProperty::SetDirName(const nsAString& aDirName) {
   rv = SetLocalizedStringValue("description", NS_ConvertUTF16toUTF8(aDirName));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService("@mozilla.org/abmanager;1", &rv);
-
-  if (NS_SUCCEEDED(rv)) {
-    nsCOMPtr<nsIObserverService> observerService =
-        mozilla::services::GetObserverService();
-    // We inherit from nsIAbDirectory, so this static cast should be safe.
-    observerService->NotifyObservers(static_cast<nsIAbDirectory*>(this),
-                                     "addrbook-directory-updated", u"DirName");
-  }
+  nsCOMPtr<nsIObserverService> observerService =
+      mozilla::services::GetObserverService();
+  // We inherit from nsIAbDirectory, so this static cast should be safe.
+  observerService->NotifyObservers(static_cast<nsIAbDirectory*>(this),
+                                   "addrbook-directory-updated", u"DirName");
 
   return NS_OK;
 }
