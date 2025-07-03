@@ -8,6 +8,15 @@
 
 "use strict";
 
+if (
+  AppConstants.MOZ_CODE_COVERAGE ||
+  AppConstants.ASAN ||
+  AppConstants.DEBUG ||
+  AppConstants.TSAN
+) {
+  requestLongerTimeout(2);
+}
+
 var {
   assert_number_of_tabs_open,
   be_in_folder,
