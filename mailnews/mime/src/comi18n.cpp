@@ -4,8 +4,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "comi18n.h"
+
 #include "nsServiceManagerUtils.h"
 #include "nsIMimeConverter.h"
+#include "mozilla/Components.h"
 #include "mozilla/Encoding.h"
 #include "mozilla/EncodingDetector.h"
 
@@ -18,13 +20,8 @@ extern "C" {
 void MIME_DecodeMimeHeader(const char* header, const char* default_charset,
                            bool override_charset, bool eatContinuations,
                            nsACString& result) {
-  nsresult rv;
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
-  if (NS_FAILED(rv)) {
-    result.Truncate();
-    return;
-  }
+      mozilla::components::MimeConverter::Service();
   mimeConverter->DecodeMimeHeaderToUTF8(nsDependentCString(header),
                                         default_charset, override_charset,
                                         eatContinuations, result);

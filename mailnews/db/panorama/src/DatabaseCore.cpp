@@ -8,6 +8,7 @@
 #include "FolderDatabase.h"
 #include "Message.h"
 #include "MessageDatabase.h"
+#include "mozilla/Components.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/Logging.h"
 #include "mozilla/ProfilerMarkers.h"
@@ -555,7 +556,7 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
       return NS_OK;
     }
 
-    mMimeConverter = do_GetService("@mozilla.org/messenger/mimeconverter;1");
+    mMimeConverter = mozilla::components::MimeConverter::Service();
 
     // Duplicate statement! Also in MessageDatabase::AddMessage.
     DatabaseCore::GetStatement("AddMessage"_ns,

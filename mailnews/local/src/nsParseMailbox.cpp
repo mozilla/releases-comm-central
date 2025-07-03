@@ -199,7 +199,7 @@ RawHdr ParseMsgHeaders(mozilla::Span<const char> raw) {
   });
 
   nsCOMPtr<nsIMimeConverter> mimeConverter;
-  mimeConverter = do_GetService("@mozilla.org/messenger/mimeconverter;1");
+  mimeConverter = mozilla::components::MimeConverter::Service();
   mimeConverter->DecodeMimeHeaderToUTF8(out.sender, out.charset.get(), true,
                                         true, out.sender);
   mimeConverter->DecodeMimeHeaderToUTF8(out.subject, out.charset.get(), true,

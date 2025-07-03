@@ -71,7 +71,7 @@ nsMimeBaseEmitter::nsMimeBaseEmitter() {
   //  mBody = "";
 
   // This is needed for conversion of I18N Strings...
-  mUnicodeConverter = do_GetService("@mozilla.org/messenger/mimeconverter;1");
+  mUnicodeConverter = mozilla::components::MimeConverter::Service();
 
   // Do prefs last since we can live without this if it fails...
   mHeaderDisplayType = Preferences::GetInt("mail.show_headers");

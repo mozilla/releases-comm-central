@@ -3,12 +3,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsMsgI18N.h"
+
+#include <stdlib.h>
+#include <tuple>
+
 #include "nsICharsetConverterManager.h"
+#include "mozilla/Components.h"
 #include "mozilla/Utf8.h"
 #include "nsIPrefService.h"
 #include "nsIMimeConverter.h"
 #include "nsMsgUtils.h"
-#include "nsMsgI18N.h"
 #include "nsILineInputStream.h"
 #include "nsString.h"
 #include "prmem.h"
@@ -21,9 +26,6 @@
 #include "../../intl/nsUTF7ToUnicode.h"
 #include "../../intl/nsMUTF7ToUnicode.h"
 #include "../../intl/nsUnicodeToMUTF7.h"
-
-#include <stdlib.h>
-#include <tuple>
 
 //
 // International functions necessary for composition
@@ -170,16 +172,13 @@ nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest) {
 char* nsMsgI18NEncodeMimePartIIStr(const char* header, bool structured,
                                    const char* charset, int32_t fieldnamelen) {
   nsAutoCString encodedString;
-  nsresult res;
   nsCOMPtr<nsIMimeConverter> converter =
-      do_GetService("@mozilla.org/messenger/mimeconverter;1", &res);
-  if (NS_SUCCEEDED(res) && nullptr != converter) {
-    res = converter->EncodeMimePartIIStr_UTF8(
-        nsDependentCString(header), structured, fieldnamelen,
-        nsIMimeConverter::MIME_ENCODED_WORD_SIZE, encodedString);
-  }
+      mozilla::components::MimeConverter::Service();
+  nsresult rv = converter->EncodeMimePartIIStr_UTF8(
+      nsDependentCString(header), structured, fieldnamelen,
+      nsIMimeConverter::MIME_ENCODED_WORD_SIZE, encodedString);
 
-  return NS_SUCCEEDED(res) ? PL_strdup(encodedString.get()) : nullptr;
+  return NS_SUCCEEDED(rv) ? PL_strdup(encodedString.get()) : nullptr;
 }
 
 // Return True if a charset is stateful (e.g. JIS).

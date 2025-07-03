@@ -500,8 +500,7 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign,
   NS_ConvertUTF16toUTF8 enc_content_desc_utf8(mime_smime_enc_content_desc);
 
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::MimeConverter::Service();
   nsCString encodedContentDescription;
   mimeConverter->EncodeMimePartIIStr_UTF8(
       enc_content_desc_utf8, false, sizeof("Content-Description: "),

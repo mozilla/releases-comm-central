@@ -904,14 +904,12 @@ nsresult nsMsgSearchTerm::MatchRfc2047String(const nsACString& rfc2047string,
                                              bool* pResult) {
   NS_ENSURE_ARG_POINTER(pResult);
 
-  nsresult rv;
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::MimeConverter::Service();
   nsAutoString stringToMatch;
-  rv = mimeConverter->DecodeMimeHeader(PromiseFlatCString(rfc2047string).get(),
-                                       charset, charsetOverride, false,
-                                       stringToMatch);
+  nsresult rv = mimeConverter->DecodeMimeHeader(
+      PromiseFlatCString(rfc2047string).get(), charset, charsetOverride, false,
+      stringToMatch);
   NS_ENSURE_SUCCESS(rv, rv);
   if (m_operator == nsMsgSearchOp::IsInAB ||
       m_operator == nsMsgSearchOp::IsntInAB)

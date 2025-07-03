@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsCOMPtr.h"
 #include "nsMsgFileHdr.h"
+
+#include <algorithm>
+
+#include "nsCOMPtr.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgMessageFlags.h"
 #include "nsMsgUtils.h"
@@ -15,7 +18,7 @@
 #include "prio.h"
 #include "prtime.h"
 #include "mozilla/Buffer.h"
-#include <algorithm>
+#include "mozilla/Components.h"
 
 static inline uint32_t PRTimeToSeconds(PRTime aTimeUsec) {
   return uint32_t(aTimeUsec / PR_USEC_PER_SEC);
@@ -94,7 +97,7 @@ nsresult nsMsgFileHdr::ReadFile() {
   rdr.Parse(buffer, cb);
 
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService("@mozilla.org/messenger/mimeconverter;1");
+      mozilla::components::MimeConverter::Service();
   mimeConverter->DecodeMimeHeader(mSubject.get(), "UTF-8", false, true,
                                   mDecodedSubject);
   mimeConverter->DecodeMimeHeader(mAuthor.get(), "UTF-8", false, true,
@@ -320,7 +323,7 @@ NS_IMETHODIMP nsMsgFileHdr::SetSubject(const nsACString& aSubject) {
   mSubject = aSubject;
   bool strippedRE = NS_MsgStripRE(mSubject, mSubject);
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService("@mozilla.org/messenger/mimeconverter;1");
+      mozilla::components::MimeConverter::Service();
   mimeConverter->DecodeMimeHeader(mSubject.get(), "UTF-8", false, true,
                                   mDecodedSubject);
   if (strippedRE) {

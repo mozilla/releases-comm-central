@@ -288,12 +288,9 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
 
   nsCString decodedName(name);
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
-
-  if (NS_SUCCEEDED(rv)) {
-    mimeConverter->DecodeMimeHeaderToUTF8(name, nullptr, false, true,
-                                          decodedName);
-  }
+      mozilla::components::MimeConverter::Service();
+  mimeConverter->DecodeMimeHeaderToUTF8(name, nullptr, false, true,
+                                        decodedName);
 
   nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(mChannel);
   if (mailChannel) {

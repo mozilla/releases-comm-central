@@ -2147,9 +2147,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
 
       bool needToRemoveDup = false;
       if (!mMimeConverter) {
-        mMimeConverter =
-            do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
+        mMimeConverter = mozilla::components::MimeConverter::Service();
       }
       nsCString charset("UTF-8");
 

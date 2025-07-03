@@ -3231,7 +3231,7 @@ nsresult nsMsgDatabase::RowCellColumnToConstCharPtr(nsIMdbRow* hdrRow,
 nsIMimeConverter* nsMsgDatabase::GetMimeConverter() {
   if (!m_mimeConverter) {
     // apply mime decode
-    m_mimeConverter = do_GetService("@mozilla.org/messenger/mimeconverter;1");
+    m_mimeConverter = mozilla::components::MimeConverter::Service();
   }
   return m_mimeConverter;
 }

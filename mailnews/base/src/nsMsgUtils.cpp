@@ -459,7 +459,6 @@ bool NS_MsgStripRE(const nsCString& subject, nsCString& modifiedSubject) {
   bool result = false;
 
   // Get localizedRe pref.
-  nsresult rv;
   nsString utf16LocalizedRe;
   NS_GetLocalizedUnicharPreferenceWithDefault("mailnews.localizedRe",
                                               EmptyString(), utf16LocalizedRe);
@@ -478,11 +477,9 @@ bool NS_MsgStripRE(const nsCString& subject, nsCString& modifiedSubject) {
   // We cannot strip "Re:" for RFC2047-encoded subject without modifying the
   // original.
   if (subject.Find("=?") != kNotFound) {
-    mimeConverter =
-        do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
-    if (NS_SUCCEEDED(rv))
-      rv = mimeConverter->DecodeMimeHeaderToUTF8(subject, nullptr, false, true,
-                                                 decodedString);
+    mimeConverter = mozilla::components::MimeConverter::Service();
+    mimeConverter->DecodeMimeHeaderToUTF8(subject, nullptr, false, true,
+                                          decodedString);
   }
 
   const char *s, *s_end;

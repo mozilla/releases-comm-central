@@ -3,13 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsSmtpUrl.h"
+
 #include "nsIURI.h"
 #include "nsNetCID.h"
-#include "nsSmtpUrl.h"
 #include "nsString.h"
 #include "nsMsgUtils.h"
 #include "nsIMimeConverter.h"
 #include "nsServiceManagerUtils.h"
+#include "mozilla/Components.h"
 #include "mozilla/Encoding.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -170,11 +172,9 @@ nsresult nsMailtoUrl::ParseMailtoUrl(char* searchPart) {
     }  // while we still have part of the url to parse...
   }  // if rest && *rest
 
-  nsresult rv;
   // Get a global converter
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::MimeConverter::Service();
 
   // Now unescape everything, and mime-decode the things that can be encoded.
   UnescapeAndConvert(mimeConverter, escapedToPart, m_toPart);
