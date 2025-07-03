@@ -147,7 +147,6 @@ class nsMsgDBView : public nsIMsgDBView,
   bool mCommandsNeedDisablingBecauseOfSelection;
   bool mSuppressChangeNotification;
 
-  virtual const char* GetViewName(void) { return "MsgDBView"; }
   nsresult FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aAuthorString);
   nsresult FetchRecipients(nsIMsgDBHdr* aHdr, nsAString& aRecipientsString);
   nsresult FetchSubject(nsIMsgDBHdr* aMsgHdr, uint32_t aFlags,

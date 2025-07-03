@@ -21,7 +21,6 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGSEARCHNOTIFY
 
-  virtual const char* GetViewName(void) override { return "QuickSearchView"; }
   NS_IMETHOD Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder,
                   nsMsgViewFlagsTypeValue viewFlags) override;

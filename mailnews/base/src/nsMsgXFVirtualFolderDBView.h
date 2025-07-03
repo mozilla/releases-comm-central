@@ -20,9 +20,6 @@ class nsMsgXFVirtualFolderDBView : public nsMsgSearchDBView {
   // we override all the methods, currently. Might change...
   NS_DECL_NSIMSGSEARCHNOTIFY
 
-  virtual const char* GetViewName(void) override {
-    return "XFVirtualFolderView";
-  }
   NS_IMETHOD Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder,
                   nsMsgViewFlagsTypeValue viewFlags) override;

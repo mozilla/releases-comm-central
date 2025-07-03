@@ -29,7 +29,6 @@ class nsMsgSearchDBView : public nsMsgGroupView,
 
   NS_IMETHOD SetSearchSession(nsIMsgSearchSession* aSearchSession) override;
 
-  virtual const char* GetViewName(void) override { return "SearchView"; }
   NS_IMETHOD Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder,
                   nsMsgViewFlagsTypeValue viewFlags) override;
