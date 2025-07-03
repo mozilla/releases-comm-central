@@ -184,7 +184,7 @@ class HeaderReader {
 template <typename HeaderFn>
 mozilla::Span<const char> HeaderReader::Parse(mozilla::Span<const char> data,
                                               HeaderFn hdrCallback) {
-  // If were're resuming, skip what we've already scanned.
+  // If we're resuming, skip what we've already scanned.
   auto remaining = mozilla::Span<const char>(data.cbegin() + mPos, data.cend());
   if (mFinished) {
     return remaining;
@@ -286,7 +286,7 @@ bool HeaderReader::HandleLine(mozilla::Span<const char> line,
   }
   auto val = colon + 1;
   if (*val == ' ' || *val == '\t') {
-    // Skip single leading whitespace.
+    // Skip single leading whitespace (WSP).
     ++val;
   }
 

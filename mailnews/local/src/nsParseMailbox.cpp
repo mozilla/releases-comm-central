@@ -81,9 +81,6 @@ static nsCString RemoveAngleBrackets(nsACString const& s) {
 //
 // Does not generate missing Message-Id (nsParseMailMessageState uses an
 // md5sum of the header block).
-//
-// Does not strip surrounding '<' and '>' from Message-Id.
-//
 RawHdr ParseMsgHeaders(mozilla::Span<const char> raw) {
   // NOTE: old code aggregates multiple To: and Cc: header occurrences.
   // Turns them into comma-separated lists.
@@ -144,7 +141,9 @@ RawHdr ParseMsgHeaders(mozilla::Span<const char> raw) {
         out.references = hdr.Value(raw);
       }
     } else if (n.LowerCaseEqualsLiteral("message-id")) {
-      out.messageId = RemoveAngleBrackets(hdr.Value(raw));
+      nsAutoCString value(hdr.Value(raw));
+      value.Trim(" \t");  // Trim WSP
+      out.messageId = RemoveAngleBrackets(value);
     } else if (n.LowerCaseEqualsLiteral("newsgroups")) {
       // We _might_ need this for recipients (see below).
       newsgroups = hdr.Value(raw);
