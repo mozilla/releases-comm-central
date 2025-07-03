@@ -483,6 +483,188 @@
       </form>
     </template>
     <template
+      id="accountHubAddressBookLdapAccountFormTemplate"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+      <form
+        id="ldapAccountForm"
+        class="account-hub-address-book-form"
+        slot="content"
+      >
+        <div class="hub-body ldap-form-body">
+          <div class="form-row split-row">
+            <label
+              for="name"
+              class="option-label"
+              data-l10n-id="account-hub-address-book-name-label"
+            >
+            </label>
+            <div class="input-control">
+              <input
+                id="name"
+                type="text"
+                required="required"
+                class="input-field"
+                aria-invalid="false"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-danger input-warning"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-success input-success"
+              />
+              <span
+                id="nameErrorMessage"
+                class="input-error-message"
+                data-l10n-id="account-hub-address-book-name-error-text"
+              >
+              </span>
+            </div>
+
+            <label
+              for="hostname"
+              class="option-label"
+              data-l10n-id="account-hub-result-hostname-label"
+            >
+            </label>
+            <div class="input-control">
+              <input
+                id="hostname"
+                type="text"
+                required="required"
+                class="input-field"
+                aria-invalid="false"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-danger input-warning"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-success input-success"
+              />
+              <span
+                id="hostnameErrorMessage"
+                class="input-error-message"
+                data-l10n-id="account-hub-hostname-error-text"
+              >
+              </span>
+            </div>
+          </div>
+          <div class="form-row">
+            <label
+              for="port"
+              class="option-label"
+              data-l10n-id="account-hub-port-label"
+            >
+            </label>
+            <div class="input-control">
+              <input
+                id="port"
+                type="number"
+                min="1"
+                max="65535"
+                required="required"
+                class="input-field number-input"
+                aria-invalid="false"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-danger input-warning"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-success input-success"
+              />
+              <span
+                id="portErrorMessage"
+                class="input-error-message"
+                data-l10n-id="account-hub-port-error-text"
+              >
+              </span>
+            </div>
+            <div class="toggle-group">
+              <input
+                id="enableSSL"
+                type="checkbox"
+                class="toggle-checkbox"
+              />
+              <label
+                for="enableSSL"
+                class="toggle-label"
+                data-l10n-id="account-hub-ldap-ssl-toggle-label"
+              >
+              </label>
+            </div>
+          </div>
+          <div class="form-row split-row">
+            <label
+              for="baseDN"
+              class="option-label"
+              data-l10n-id="account-hub-address-book-base-dn"
+            >
+            </label>
+            <div class="input-control">
+              <input
+                id="baseDN"
+                type="text"
+                class="input-field"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-danger input-warning"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-success input-success"
+              />
+            </div>
+            <label
+              for="bindDN"
+              class="option-label"
+              data-l10n-id="account-hub-address-book-bind-dn"
+            >
+            </label>
+            <div class="input-control">
+              <input
+                id="bindDN"
+                type="text"
+                class="input-field"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-danger input-warning"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-success input-success"
+              />
+            </div>
+          </div>
+          <button
+            id="advancedConfigurationLdap"
+            class="button link-button link-button-sm align-self-end"
+            type="button"
+            data-l10n-id="account-hub-advanced-configuration-button"
+          >
+          </button>
+        </div>
+        <button type="submit" hidden="hidden"></button>
+      </form>
+    </template>
+    <template
       id="accountHubAddressBookSetup"
       xmlns="http://www.w3.org/1999/xhtml"
     >
@@ -507,6 +689,8 @@
       </address-book-remote-account-form>
       <address-book-ldap-account-form
         id="addressBookLdapAccountFormSubview"
+        class="account-hub-step"
+        title-id="account-hub-ldap-form"
         hidden="hidden"
       >
       </address-book-ldap-account-form>

@@ -69,12 +69,12 @@ class AddressBookLdapAccountForm extends AccountHubStep {
       .getElementById("accountHubAddressBookLdapAccountFormTemplate")
       .content.cloneNode(true);
     this.appendChild(template);
-    this.querySelector("#ldapAccountForm").reset();
 
     this.#name = this.querySelector("#name");
     this.#hostname = this.querySelector("#hostname");
     this.#port = this.querySelector("#port");
 
+    this.resetState();
     this.showBrandingHeader();
     this.#setupEventListeners();
   }
@@ -100,7 +100,32 @@ class AddressBookLdapAccountForm extends AccountHubStep {
    * Sets the state for the LDAP form.
    */
   setState() {
+    this.resetState();
+    this.#name.focus();
+  }
+
+  /**
+   * Resets the LDAP creation form.
+   */
+  resetState() {
     this.querySelector("#ldapAccountForm").reset();
+    this.#stateData = {
+      name: "",
+      hostname: "",
+      port: 389, // Default LDAP port.
+      ssl: false,
+      baseDn: "",
+      bindDn: "",
+    };
+
+    this.dispatchEvent(
+      new CustomEvent("config-updated", {
+        bubbles: true,
+        detail: {
+          completed: false,
+        },
+      })
+    );
   }
 
   #formUpdated() {

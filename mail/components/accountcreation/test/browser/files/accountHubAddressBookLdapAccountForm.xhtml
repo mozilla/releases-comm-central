@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Account Hub Address Book LDAP Test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css" />
+    <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
+    <link rel="localization" href="messenger/accountcreation/accountSetup.ftl" />
+    <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/address-book-ldap-account-form.mjs"></script>
+  </head>
+  <body>
+    <template
+      id="accountHubHeaderTemplate"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+      <header id="accountHubHeader" class="hub-header">
+        <div id="brandingHeader" class="branding-header" hidden="hidden">
+          <img src="chrome://branding/content/logo-gradient.svg" alt="" />
+          <h1>
+            <span
+              class="branding-header-name"
+              data-l10n-id="account-hub-brand">
+            </span>
+            <span
+              class="branding-header-title"
+              data-l10n-id="account-hub-title">
+            </span>
+          </h1>
+          <button
+            id="closeButton"
+            class="button button-flat button-round icon-button icon-only modal-close-button"
+            type="button"
+          >
+            <img class="icon-close-lg" src="" alt="" />
+          </button>
+        </div>
+        <!-- Title Text for Email Setup -->
+        <h1 id="accountHubHeaderTitle"
+            class="sub-view-title">
+          <slot name="title"></slot>
+        </h1>
+        <details id="emailFormNotification" class="notification-bar">
+          <summary id="emailFormNotificationSummary"
+                  class="notification-title-container">
+            <img
+              class="form-icon icon-warning"
+              src=""
+              alt=""
+            />
+            <img
+              class="form-icon icon-success"
+              src=""
+              alt=""
+             />
+            <img
+              class="form-icon icon-info"
+              src=""
+              alt=""
+             />
+            <img
+              class="form-icon icon-danger"
+              src=""
+              alt=""
+             />
+            <p id="emailFormNotificationTitle" class="notification-title">
+              <span class="localized-title"></span>
+              <span class="raw-title"></span>
+            </p>
+            <div id="emailFormNotificationToggle">
+              <span data-l10n-id="account-hub-notification-show-more"></span>
+              <span data-l10n-id="account-hub-notification-show-less"></span>
+            </div>
+          </summary>
+          <p id="emailFormNotificationText" class="notification-text">
+            <span class="localized-description"></span>
+            <span class="raw-description"></span>
+          </p>
+        </details>
+      </header>
+    </template>
+    <template id="accountHubStepTemplate" xmlns="http://www.w3.org/1999/xhtml">
+      <account-hub-header>
+        <span id="title" slot="title">
+        </span>
+        <span id="subheader" slot="subheader">
+        </span>
+      </account-hub-header>
+      <div class="account-hub-grid">
+        <slot name="content"></slot>
+      </div>
+    </template>
+    <template
+      id="accountHubAddressBookLdapAccountFormTemplate"
+      xmlns="http://www.w3.org/1999/xhtml"
+    >
+      <form
+        id="ldapAccountForm"
+        class="account-hub-address-book-form"
+        slot="content"
+      >
+        <div class="hub-body ldap-form-body hub-form-grid">
+          <div class="input-cell">
+            <label
+              for="name"
+              class="option-label"
+              data-l10n-id="account-hub-address-book-name-label"
+            >
+            </label>
+            <div class="input-control">
+              <input
+                id="name"
+                type="text"
+                required="required"
+                class="input-field"
+                aria-invalid="false"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-danger input-warning"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-success input-success"
+              />
+              <span
+                id="nameErrorMessage"
+                class="input-error-message"
+                data-l10n-id="account-hub-address-book-name-error-text"
+              >
+              </span>
+            </div>
+          </div>
+          <div class="input-cell">
+            <label
+              for="hostname"
+              class="option-label"
+              data-l10n-id="account-hub-result-hostname-label"
+            >
+            </label>
+            <div class="input-control">
+              <input
+                id="hostname"
+                type="text"
+                required="required"
+                class="input-field"
+                aria-invalid="false"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-danger input-warning"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-success input-success"
+              />
+              <span
+                id="hostnameErrorMessage"
+                class="input-error-message"
+                data-l10n-id="account-hub-hostname-error-text"
+              >
+              </span>
+            </div>
+          </div>
+          <div class="input-cell narrow">
+            <label
+              for="port"
+              class="option-label"
+              data-l10n-id="account-hub-port-label"
+            >
+            </label>
+            <div class="input-control">
+              <input
+                id="port"
+                type="number"
+                min="1"
+                max="65535"
+                required="required"
+                class="input-field number-input"
+                aria-invalid="false"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-danger input-warning"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-success input-success"
+              />
+              <span
+                id="portErrorMessage"
+                class="input-error-message"
+                data-l10n-id="account-hub-port-error-text"
+              >
+              </span>
+            </div>
+          </div>
+          <div class="input-cell">
+            <div class="toggle-group">
+              <input
+                id="enableSSL"
+                type="checkbox"
+                class="toggle-checkbox"
+              />
+              <label
+                for="enableSSL"
+                class="toggle-label"
+                data-l10n-id="account-hub-ldap-ssl-toggle-label"
+              >
+              </label>
+            </div>
+          </div>
+          <div class="input-cell">
+            <label
+              for="baseDN"
+              class="option-label"
+              data-l10n-id="account-hub-address-book-base-dn"
+            >
+            </label>
+            <div class="input-control">
+              <input
+                id="baseDN"
+                type="text"
+                class="input-field"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-danger input-warning"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-success input-success"
+              />
+            </div>
+          </div>
+          <div class="input-cell">
+            <label
+              for="bindDN"
+              class="option-label"
+              data-l10n-id="account-hub-address-book-bind-dn"
+            >
+            </label>
+            <div class="input-control">
+              <input
+                id="bindDN"
+                type="text"
+                class="input-field"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-danger input-warning"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-success input-success"
+              />
+            </div>
+          </div>
+          <button
+            id="advancedConfigurationLdap"
+            class="button link-button link-button-sm align-self-end"
+            type="button"
+            data-l10n-id="account-hub-advanced-configuration-button"
+          >
+          </button>
+        </div>
+        <button type="submit" hidden="hidden"></button>
+      </form>
+    </template>
+    <address-book-ldap-account-form>
+    </address-book-ldap-account-form>
+  </body>
+</html>
