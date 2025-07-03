@@ -24,6 +24,7 @@
 #include "nsINntpUrl.h"
 #include "nsILoadInfo.h"
 #include "nsSandboxFlags.h"
+#include "mozilla/Components.h"
 #include "mozilla/dom/WindowGlobalParent.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/SyncRunnable.h"
@@ -721,10 +722,8 @@ nsMsgContentPolicy::GetMsgComposeForBrowsingContext(
   nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(rootItem, &rv));
   NS_ENSURE_SUCCESS(rv, nullptr);
 
-  nsCOMPtr<nsIMsgComposeService> composeService(
-      do_GetService("@mozilla.org/messengercompose;1", &rv));
-  NS_ENSURE_SUCCESS(rv, nullptr);
-
+  nsCOMPtr<nsIMsgComposeService> composeService =
+      mozilla::components::Compose::Service();
   nsCOMPtr<nsIMsgCompose> msgCompose;
   // Don't bother checking rv, as GetMsgComposeForDocShell returns
   // NS_ERROR_FAILURE for not found.

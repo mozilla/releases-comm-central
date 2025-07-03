@@ -883,9 +883,7 @@ nsresult nsMapiHook::ShowComposerWindow(unsigned long aSession,
 
   /** get the nsIMsgComposeService object to open the compose window **/
   nsCOMPtr<nsIMsgComposeService> compService =
-      do_GetService("@mozilla.org/messengercompose;1");
-  if (NS_FAILED(rv) || (!compService)) return rv;
-
+      mozilla::components::Compose::Service();
   rv = compService->OpenComposeWindowWithParams(nullptr, pMsgComposeParams);
   if (NS_FAILED(rv)) return rv;
 

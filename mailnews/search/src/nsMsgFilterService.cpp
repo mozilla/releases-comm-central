@@ -837,8 +837,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           filterAction->GetStrValue(forwardTo);
           BREAK_ACTION_IF_FALSE(!forwardTo.IsEmpty(), "blank forwardTo URI");
           nsCOMPtr<nsIMsgComposeService> compService =
-              do_GetService("@mozilla.org/messengercompose;1", &rv);
-          BREAK_ACTION_IF_FAILURE(rv, "Could not get compose service");
+              mozilla::components::Compose::Service();
 
           for (auto msgHdr : m_searchHitHdrs) {
             rv = compService->ForwardMessage(
@@ -858,8 +857,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           BREAK_ACTION_IF_FAILURE(rv, "Could not get server");
 
           nsCOMPtr<nsIMsgComposeService> compService =
-              do_GetService("@mozilla.org/messengercompose;1", &rv);
-          BREAK_ACTION_IF_FAILURE(rv, "Could not get compose service");
+              mozilla::components::Compose::Service();
           for (auto msgHdr : m_searchHitHdrs) {
             rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri,
                                                 m_msgWindow, server);

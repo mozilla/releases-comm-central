@@ -1828,8 +1828,7 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
       NS_ENSURE_SUCCESS(rv, rv);
       {
         nsCOMPtr<nsIMsgComposeService> compService =
-            do_GetService("@mozilla.org/messengercompose;1", &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
+            mozilla::components::Compose::Service();
         rv = compService->ForwardMessage(
             forwardStr, m_msgToForwardOrReply, msgWindow, server,
             nsIMsgComposeService::kForwardAsDefault);
@@ -1856,23 +1855,21 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
       rv = m_rootFolder->GetServer(getter_AddRefs(server));
       if (server) {
         nsCOMPtr<nsIMsgComposeService> compService =
-            do_GetService("@mozilla.org/messengercompose;1");
-        if (compService) {
-          rv = compService->ReplyWithTemplate(
-              m_msgToForwardOrReply, m_replyTemplateUri[i], msgWindow, server);
-          if (NS_FAILED(rv)) {
-            NS_WARNING("ReplyWithTemplate failed");
-            MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
-                    ("(Local) Replying failed"));
-            if (rv == NS_ERROR_ABORT) {
-              (void)m_filter->LogRuleHitFail(
-                  m_ruleAction, m_msgToForwardOrReply, rv,
-                  "filterFailureSendingReplyAborted"_ns);
-            } else {
-              (void)m_filter->LogRuleHitFail(
-                  m_ruleAction, m_msgToForwardOrReply, rv,
-                  "filterFailureSendingReplyError"_ns);
-            }
+            mozilla::components::Compose::Service();
+        rv = compService->ReplyWithTemplate(
+            m_msgToForwardOrReply, m_replyTemplateUri[i], msgWindow, server);
+        if (NS_FAILED(rv)) {
+          NS_WARNING("ReplyWithTemplate failed");
+          MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+                  ("(Local) Replying failed"));
+          if (rv == NS_ERROR_ABORT) {
+            (void)m_filter->LogRuleHitFail(
+                m_ruleAction, m_msgToForwardOrReply, rv,
+                "filterFailureSendingReplyAborted"_ns);
+          } else {
+            (void)m_filter->LogRuleHitFail(m_ruleAction, m_msgToForwardOrReply,
+                                           rv,
+                                           "filterFailureSendingReplyError"_ns);
           }
         }
       }

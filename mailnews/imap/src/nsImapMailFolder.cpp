@@ -3502,8 +3502,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
           if (NS_FAILED(rv)) break;
           if (!forwardTo.IsEmpty()) {
             nsCOMPtr<nsIMsgComposeService> compService =
-                do_GetService("@mozilla.org/messengercompose;1", &rv);
-            if (NS_FAILED(rv)) break;
+                mozilla::components::Compose::Service();
             rv = compService->ForwardMessage(
                 NS_ConvertUTF8toUTF16(forwardTo), msgHdr, msgWindow, server,
                 nsIMsgComposeService::kForwardAsDefault);
@@ -3518,21 +3517,19 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
           if (NS_FAILED(rv)) break;
           if (!replyTemplateUri.IsEmpty()) {
             nsCOMPtr<nsIMsgComposeService> compService =
-                do_GetService("@mozilla.org/messengercompose;1", &rv);
-            if (NS_SUCCEEDED(rv) && compService) {
-              rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri,
-                                                  msgWindow, server);
-              if (NS_FAILED(rv)) {
-                NS_WARNING("ReplyWithTemplate failed");
-                if (rv == NS_ERROR_ABORT) {
-                  (void)filter->LogRuleHitFail(
-                      filterAction, msgHdr, rv,
-                      "filterFailureSendingReplyAborted"_ns);
-                } else {
-                  (void)filter->LogRuleHitFail(
-                      filterAction, msgHdr, rv,
-                      "filterFailureSendingReplyError"_ns);
-                }
+                mozilla::components::Compose::Service();
+            rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri,
+                                                msgWindow, server);
+            if (NS_FAILED(rv)) {
+              NS_WARNING("ReplyWithTemplate failed");
+              if (rv == NS_ERROR_ABORT) {
+                (void)filter->LogRuleHitFail(
+                    filterAction, msgHdr, rv,
+                    "filterFailureSendingReplyAborted"_ns);
+              } else {
+                (void)filter->LogRuleHitFail(
+                    filterAction, msgHdr, rv,
+                    "filterFailureSendingReplyError"_ns);
               }
             }
           }

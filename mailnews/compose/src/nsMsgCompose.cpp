@@ -838,9 +838,7 @@ nsMsgCompose::Initialize(nsIMsgComposeParams* aParams,
   aParams->GetComposeFields(getter_AddRefs(composeFields));
 
   nsCOMPtr<nsIMsgComposeService> composeService =
-      do_GetService("@mozilla.org/messengercompose;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::Compose::Service();
   rv = composeService->DetermineComposeHTML(m_identity, format, &m_composeHTML);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1340,8 +1338,7 @@ NS_IMETHODIMP nsMsgCompose::CloseWindow(void) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgComposeService> composeService =
-      do_GetService("@mozilla.org/messengercompose;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::Compose::Service();
 
   // unregister the compose object with the compose service
   rv = composeService->UnregisterComposeDocShell(mDocShell);
