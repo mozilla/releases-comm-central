@@ -2317,9 +2317,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
     // nsAutoSyncManager, etc). In this case, try to retrieve the top-most
     // message window to update its status feedback.
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::MailSession::Service();
     nsCOMPtr<nsIMsgWindow> msgWindow;
     rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
     if (NS_SUCCEEDED(rv) && msgWindow) {
@@ -2460,9 +2458,8 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
             nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
                 do_QueryInterface(subscribeURI);
             if (mailnewsUrl) {
-              nsCOMPtr<nsIMsgMailSession> mailSession = do_GetService(
-                  "@mozilla.org/messenger/services/session;1", &rv);
-              NS_ENSURE_SUCCESS(rv, rv);
+              nsCOMPtr<nsIMsgMailSession> mailSession =
+                  mozilla::components::MailSession::Service();
               nsCOMPtr<nsIMsgWindow> msgWindow;
               rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
               if (NS_SUCCEEDED(rv) && msgWindow) {
@@ -2489,8 +2486,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
           nsPrintfCString("No folder for imap url: %s", spec.get()).get());
 
       nsCOMPtr<nsIMsgMailSession> mailSession =
-          do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
+          mozilla::components::MailSession::Service();
       nsCOMPtr<nsIMsgWindow> msgWindow;
       rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
       if (NS_SUCCEEDED(rv) && msgWindow) {

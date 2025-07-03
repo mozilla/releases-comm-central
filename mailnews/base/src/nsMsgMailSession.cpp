@@ -434,9 +434,7 @@ nsresult nsMsgShutdownService::ProcessNextTask() {
     SetStatusText(taskName);
 
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService("@mozilla.org/messenger/services/session;1");
-    NS_ENSURE_TRUE(mailSession, NS_ERROR_FAILURE);
-
+        mozilla::components::MailSession::Service();
     nsCOMPtr<nsIMsgWindow> topMsgWindow;
     mailSession->GetTopmostMsgWindow(getter_AddRefs(topMsgWindow));
 
@@ -539,9 +537,7 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports* aSubject,
     NS_ENSURE_TRUE(mMsgProgress, NS_ERROR_FAILURE);
 
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService("@mozilla.org/messenger/services/session;1");
-    NS_ENSURE_TRUE(mailSession, NS_ERROR_FAILURE);
-
+        mozilla::components::MailSession::Service();
     nsCOMPtr<nsIMsgWindow> topMsgWindow;
     mailSession->GetTopmostMsgWindow(getter_AddRefs(topMsgWindow));
 

@@ -211,8 +211,7 @@ nsresult nsMsgMailViewList::LoadMailViews() {
   file->Exists(&exists);
   if (!exists) {
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+        mozilla::components::MailSession::Service();
     nsCOMPtr<nsIFile> defaultMessagesFile;
     nsCOMPtr<nsIFile> profileDir;
     rv = mailSession->GetDataFilesDir("messenger",

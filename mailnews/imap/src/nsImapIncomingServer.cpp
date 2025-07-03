@@ -1724,10 +1724,8 @@ nsImapIncomingServer::FEAlert(const nsAString& aAlertString,
 
 nsresult nsImapIncomingServer::AlertUser(const nsAString& aString,
                                          nsIMsgMailNewsUrl* aUrl) {
-  nsresult rv;
   nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::MailSession::Service();
 
   // If there's a message window on the URI, then we should alert the user.
   // Otherwise (i.e. if the getter for `msgWindow` raised
@@ -1735,7 +1733,7 @@ nsresult nsImapIncomingServer::AlertUser(const nsAString& aString,
   // the mail session to only call the listeners but not alert.
   bool silent = false;
   nsCOMPtr<nsIMsgWindow> dummy;
-  rv = aUrl->GetMsgWindow(getter_AddRefs(dummy));
+  nsresult rv = aUrl->GetMsgWindow(getter_AddRefs(dummy));
   if (rv == NS_ERROR_NULL_POINTER) {
     silent = true;
   } else {
@@ -1846,7 +1844,7 @@ NS_IMETHODIMP nsImapIncomingServer::FEAlertFromServer(
 NS_IMETHODIMP nsImapIncomingServer::FEAlertCertError(
     nsITransportSecurityInfo* securityInfo, nsIMsgMailNewsUrl* url) {
   nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService("@mozilla.org/messenger/services/session;1");
+      mozilla::components::MailSession::Service();
   mailSession->AlertCertError(securityInfo, url);
   return NS_OK;
 }

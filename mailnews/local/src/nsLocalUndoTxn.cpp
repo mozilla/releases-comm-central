@@ -131,9 +131,7 @@ nsLocalMoveCopyMsgTxn::UndoTransaction() {
     NS_ADDREF(mUndoFolderListener);
 
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::MailSession::Service();
     rv = mailSession->AddFolderListener(mUndoFolderListener,
                                         nsIFolderListener::event);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -150,9 +148,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
 
   if (mUndoFolderListener) {
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::MailSession::Service();
     rv = mailSession->RemoveFolderListener(mUndoFolderListener);
     NS_ENSURE_SUCCESS(rv, rv);
 

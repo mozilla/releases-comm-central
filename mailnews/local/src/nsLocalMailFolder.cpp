@@ -243,21 +243,18 @@ void nsMsgLocalMailFolder::FinishUpAfterParseFolder(nsresult status) {
   // then kick off GetNewMessages().
   // Shouldn't have to deal with this here. See Bug 1848476.
   if (NS_SUCCEEDED(status) && mFlags & nsMsgFolderFlags::Inbox) {
-    nsresult rv;
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-    if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsIMsgWindow> msgWindow;
-      mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-      if (msgWindow && mDatabase && mCheckForNewMessagesAfterParsing) {
-        mCheckForNewMessagesAfterParsing = false;
-        // TODO: maybe simplify this.
-        // - if parsing succeeded, then db should always be valid, right?
-        bool valid = false;
-        mDatabase->GetSummaryValid(&valid);
-        if (valid) {
-          GetNewMessages(msgWindow, nullptr);
-        }
+        mozilla::components::MailSession::Service();
+    nsCOMPtr<nsIMsgWindow> msgWindow;
+    mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
+    if (msgWindow && mDatabase && mCheckForNewMessagesAfterParsing) {
+      mCheckForNewMessagesAfterParsing = false;
+      // TODO: maybe simplify this.
+      // - if parsing succeeded, then db should always be valid, right?
+      bool valid = false;
+      mDatabase->GetSummaryValid(&valid);
+      if (valid) {
+        GetNewMessages(msgWindow, nullptr);
       }
     }
   }
@@ -2973,9 +2970,8 @@ nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg() {
       if (!msgWindow) {
         // Probably a folder move or copy with no undo txn. use top-most window.
         nsCOMPtr<nsIMsgMailSession> mailSession =
-            do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-        if (NS_SUCCEEDED(rv))
-          mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
+            mozilla::components::MailSession::Service();
+        mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
         if (!msgWindow) return NS_OK;  // not a fatal error but no stat display
       }
       msgWindow->GetStatusFeedback(
@@ -3311,9 +3307,8 @@ nsMsgLocalMailFolder::AddMessageBatch(
       // prompt.
       nsCOMPtr<nsIMsgWindow> msgWindow;
       nsCOMPtr<nsIMsgMailSession> mailSession =
-          do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-      if (NS_SUCCEEDED(rv))
-        mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
+          mozilla::components::MailSession::Service();
+      mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
 
       rv = newMailParser->Init(rootFolder, this, msgWindow, newHdr, outStream);
       NS_ENSURE_SUCCESS(rv, rv);

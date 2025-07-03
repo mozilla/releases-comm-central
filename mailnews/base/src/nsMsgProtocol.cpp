@@ -269,23 +269,21 @@ void nsMsgProtocol::ShowAlertMessage(nsIMsgMailNewsUrl* aMsgUrl,
   }
 
   nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService("@mozilla.org/messenger/services/session;1");
-  if (mailSession) {
-    // If there's a message window on the URI, then we should alert the user.
-    // Otherwise (i.e. if the getter for `msgWindow` raised
-    // `NS_ERROR_NULL_POINTER`), this is a background operation and we should
-    // tell the mail session to only call the listeners but not alert.
-    bool silent = false;
-    nsCOMPtr<nsIMsgWindow> msgWindow;
-    nsresult rv = aMsgUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-    if (rv == NS_ERROR_NULL_POINTER) {
-      silent = true;
-    } else {
-      NS_ENSURE_SUCCESS_VOID(rv);
-    }
-
-    mailSession->AlertUser(errorMsg, aMsgUrl, silent);
+      mozilla::components::MailSession::Service();
+  // If there's a message window on the URI, then we should alert the user.
+  // Otherwise (i.e. if the getter for `msgWindow` raised
+  // `NS_ERROR_NULL_POINTER`), this is a background operation and we should
+  // tell the mail session to only call the listeners but not alert.
+  bool silent = false;
+  nsCOMPtr<nsIMsgWindow> msgWindow;
+  nsresult rv = aMsgUrl->GetMsgWindow(getter_AddRefs(msgWindow));
+  if (rv == NS_ERROR_NULL_POINTER) {
+    silent = true;
+  } else {
+    NS_ENSURE_SUCCESS_VOID(rv);
   }
+
+  mailSession->AlertUser(errorMsg, aMsgUrl, silent);
 }
 
 // stop binding is a "notification" informing us that the stream associated with

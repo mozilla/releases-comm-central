@@ -130,8 +130,7 @@ nsMsgAccount::SetIncomingServer(nsIMsgIncomingServer* aIncomingServer) {
     rv = aIncomingServer->GetRootFolder(getter_AddRefs(rootFolder));
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIFolderListener> mailSession =
-        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+        mozilla::components::MailSession::Service();
     mailSession->OnFolderAdded(nullptr, rootFolder);
     nsCOMPtr<nsIMsgFolderNotificationService> notifier =
         mozilla::components::FolderNotification::Service();

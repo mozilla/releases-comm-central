@@ -595,20 +595,18 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
   nsCOMPtr<nsIMsgFolderNotificationService> notifier =
       mozilla::components::FolderNotification::Service();
   nsCOMPtr<nsIFolderListener> mailSession =
-      do_GetService("@mozilla.org/messenger/services/session;1");
+      mozilla::components::MailSession::Service();
 
   for (const auto& folder : allDescendants) {
     folder->ForceDBClosed();
 
     notifier->NotifyFolderDeleted(folder);
-    if (mailSession) {
-      nsCOMPtr<nsIMsgFolder> parentFolder;
-      folder->GetParent(getter_AddRefs(parentFolder));
-      mailSession->OnFolderRemoved(parentFolder, folder);
-    }
+    nsCOMPtr<nsIMsgFolder> parentFolder;
+    folder->GetParent(getter_AddRefs(parentFolder));
+    mailSession->OnFolderRemoved(parentFolder, folder);
   }
   notifier->NotifyFolderDeleted(rootFolder);
-  if (mailSession) mailSession->OnFolderRemoved(nullptr, rootFolder);
+  mailSession->OnFolderRemoved(nullptr, rootFolder);
 
   NotifyServerUnloaded(aServer);
   if (aRemoveFiles) {
@@ -1117,12 +1115,10 @@ nsresult nsMsgAccountManager::LoadAccounts() {
   if (!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     // TODO: Reenable this.
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-
-    if (NS_SUCCEEDED(rv))
-      mailSession->AddFolderListener(
-          this, nsIFolderListener::added | nsIFolderListener::removed |
-                    nsIFolderListener::intPropertyChanged);
+        mozilla::components::MailSession::Service();
+    mailSession->AddFolderListener(
+        this, nsIFolderListener::added | nsIFolderListener::removed |
+                  nsIFolderListener::intPropertyChanged);
   }
 
   // Ensure biff service has started
@@ -1578,8 +1574,8 @@ nsMsgAccountManager::UnloadAccounts() {
   if (m_accountsLoaded) {
     if (!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
       nsCOMPtr<nsIMsgMailSession> mailSession =
-          do_GetService("@mozilla.org/messenger/services/session;1");
-      if (mailSession) mailSession->RemoveFolderListener(this);
+          mozilla::components::MailSession::Service();
+      mailSession->RemoveFolderListener(this);
     }
     m_accountsLoaded = false;
   }

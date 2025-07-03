@@ -147,12 +147,6 @@ NS_IMPL_ISUPPORTS(nsMessenger, nsIMessenger, nsISupportsWeakReference)
 
 NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy* aWin,
                                      nsIMsgWindow* aMsgWindow) {
-  nsresult rv;
-
-  nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   if (aWin) {
     aMsgWindow->GetTransactionManager(getter_AddRefs(mTxnMgr));
     mMsgWindow = aMsgWindow;

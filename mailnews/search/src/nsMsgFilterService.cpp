@@ -177,8 +177,7 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(
       NS_ENSURE_SUCCESS(rv, rv);
       return OpenFilterList(aFilterFile, rootFolder, aMsgWindow,
                             resultFilterList);
-    }
-    else if (rv == NS_MSG_INVALID_CUSTOM_HEADER && aMsgWindow)
+    } else if (rv == NS_MSG_INVALID_CUSTOM_HEADER && aMsgWindow)
       ThrowAlertMsg("invalidCustomHeader", aMsgWindow);
   }
 
@@ -281,10 +280,9 @@ nsresult nsMsgFilterService::ThrowAlertMsg(const char* aMsgName,
   nsresult rv = GetStringFromBundle(aMsgName, alertString);
   nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
   if (!msgWindow) {
-    nsCOMPtr<nsIMsgMailSession> mailSession(
-        do_GetService("@mozilla.org/messenger/services/session;1", &rv));
-    if (NS_SUCCEEDED(rv))
-      rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
+    nsCOMPtr<nsIMsgMailSession> mailSession =
+        mozilla::components::MailSession::Service();
+    rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
   }
 
   if (NS_SUCCEEDED(rv) && !alertString.IsEmpty() && msgWindow) {

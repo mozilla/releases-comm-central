@@ -4861,14 +4861,11 @@ nsImapMailFolder::OnStartRunningUrl(nsIURI* aUrl) {
 // to handle all the different operations, using a big switch statement.
 NS_IMETHODIMP
 nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
-  nsresult rv;
+  nsresult rv = NS_OK;
   bool endedOfflineDownload = false;
   nsImapAction imapAction = nsIImapUrl::nsImapTest;
   m_urlRunning = false;
   m_updatingFolder = false;
-  nsCOMPtr<nsIMsgMailSession> session =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
   if (aUrl) {
     nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(aUrl, &rv);
     NS_ENSURE_SUCCESS(rv, rv);

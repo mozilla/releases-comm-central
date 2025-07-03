@@ -5,6 +5,7 @@
 
 #include "nsNoIncomingServer.h"
 
+#include "mozilla/Components.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "msgCore.h"  // pre-compiled headers
 #include "prmem.h"
@@ -79,8 +80,7 @@ NS_IMETHODIMP nsNoIncomingServer::CopyDefaultMessages(
     const nsACString& folderNameOnDisk) {
   nsresult rv;
   nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::MailSession::Service();
 
   // Get defaults directory for messenger files. MailSession service appends
   // 'messenger' to the the app defaults folder and returns it. Locale will be

@@ -4672,10 +4672,8 @@ nsMsgDBFolder::NotifyPropertyChanged(const nsACString& aProperty,
                    (this, aProperty, aOldValue, aNewValue));
 
   // Notify listeners who listen to every folder
-  nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::MailSession::Service();
   return folderListenerManager->OnFolderPropertyChanged(this, aProperty,
                                                         aOldValue, aNewValue);
 }
@@ -4692,10 +4690,8 @@ nsMsgDBFolder::NotifyIntPropertyChanged(const nsACString& aProperty,
                    (this, aProperty, aOldValue, aNewValue));
 
   // Notify listeners who listen to every folder
-  nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::MailSession::Service();
   return folderListenerManager->OnFolderIntPropertyChanged(
       this, aProperty, aOldValue, aNewValue);
 }
@@ -4707,10 +4703,8 @@ nsMsgDBFolder::NotifyBoolPropertyChanged(const nsACString& aProperty,
                    (this, aProperty, aOldValue, aNewValue));
 
   // Notify listeners who listen to every folder
-  nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::MailSession::Service();
   return folderListenerManager->OnFolderBoolPropertyChanged(
       this, aProperty, aOldValue, aNewValue);
 }
@@ -4724,38 +4718,28 @@ nsMsgDBFolder::NotifyPropertyFlagChanged(nsIMsgDBHdr* aItem,
                    (aItem, aProperty, aOldValue, aNewValue));
 
   // Notify listeners who listen to every folder
-  nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::MailSession::Service();
   return folderListenerManager->OnFolderPropertyFlagChanged(
       aItem, aProperty, aOldValue, aNewValue);
 }
 
 NS_IMETHODIMP nsMsgDBFolder::NotifyMessageAdded(nsIMsgDBHdr* msg) {
-  // Notify our directly-registered listeners.
   NOTIFY_LISTENERS(OnMessageAdded, (this, msg));
+
   // Notify listeners who listen to every folder
-  nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = folderListenerManager->OnMessageAdded(this, msg);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return NS_OK;
+      mozilla::components::MailSession::Service();
+  return folderListenerManager->OnMessageAdded(this, msg);
 }
 
 nsresult nsMsgDBFolder::NotifyMessageRemoved(nsIMsgDBHdr* msg) {
-  // Notify our directly-registered listeners.
   NOTIFY_LISTENERS(OnMessageRemoved, (this, msg));
+
   // Notify listeners who listen to every folder
-  nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = folderListenerManager->OnMessageRemoved(this, msg);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return NS_OK;
+      mozilla::components::MailSession::Service();
+  return folderListenerManager->OnMessageRemoved(this, msg);
 }
 
 NS_IMETHODIMP nsMsgDBFolder::NotifyFolderAdded(nsIMsgFolder* child) {
@@ -4763,10 +4747,8 @@ NS_IMETHODIMP nsMsgDBFolder::NotifyFolderAdded(nsIMsgFolder* child) {
   NOTIFY_LISTENERS(OnFolderAdded, (this, child));
 
   // Notify listeners who listen to every folder
-  nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::MailSession::Service();
   return folderListenerManager->OnFolderAdded(this, child);
 }
 
@@ -4774,10 +4756,8 @@ nsresult nsMsgDBFolder::NotifyFolderRemoved(nsIMsgFolder* child) {
   NOTIFY_LISTENERS(OnFolderRemoved, (this, child));
 
   // Notify listeners who listen to every folder
-  nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::MailSession::Service();
   return folderListenerManager->OnFolderRemoved(this, child);
 }
 
@@ -4785,10 +4765,8 @@ nsresult nsMsgDBFolder::NotifyFolderEvent(const nsACString& aEvent) {
   NOTIFY_LISTENERS(OnFolderEvent, (this, aEvent));
 
   // Notify listeners who listen to every folder
-  nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+      mozilla::components::MailSession::Service();
   return folderListenerManager->OnFolderEvent(this, aEvent);
 }
 
