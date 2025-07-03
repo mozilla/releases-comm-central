@@ -237,6 +237,9 @@ NS_IMETHODIMP MboxCompactor::OnDataAvailable(nsIRequest* req,
 
 // nsIStoreScanListener callback called at end of each message.
 NS_IMETHODIMP MboxCompactor::OnStopRequest(nsIRequest* req, nsresult status) {
+  MOZ_LOG(gCompactLog, NS_SUCCEEDED(status) ? LogLevel::Debug : LogLevel::Error,
+          ("MboxCompactor - OnStopRequest(status=0x%x)", (uint32_t)status));
+
   auto cleanup = mozilla::MakeScopeExit([&] {
     if (mMsgOut) {
       mMsgOut->Close();
@@ -270,6 +273,9 @@ NS_IMETHODIMP MboxCompactor::OnStopRequest(nsIRequest* req, nsresult status) {
 NS_IMETHODIMP MboxCompactor::OnStopScan(nsresult status) {
   nsresult rv = mDestStream->Close();
   mDestStream = nullptr;
+
+  MOZ_LOG(gCompactLog, NS_SUCCEEDED(status) ? LogLevel::Debug : LogLevel::Error,
+          ("MboxCompactor - OnStopScan(status=0x%x)", (uint32_t)status));
 
   if (NS_SUCCEEDED(rv)) {
     rv = status;

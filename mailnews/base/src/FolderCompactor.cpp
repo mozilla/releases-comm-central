@@ -571,7 +571,7 @@ NS_IMETHODIMP FolderCompactor::OnMessageRetained(nsACString const& oldToken,
 // lower-level (mbox) compaction will be reverted no matter what error code
 // we return from this function.
 NS_IMETHODIMP FolderCompactor::OnCompactionComplete(nsresult status) {
-  MOZ_LOG(gCompactLog, LogLevel::Info,
+  MOZ_LOG(gCompactLog, NS_SUCCEEDED(status) ? LogLevel::Info : LogLevel::Error,
           ("OnCompactionComplete(status=0x%" PRIx32 ")", (uint32_t)status));
   nsresult rv = status;
   if (NS_SUCCEEDED(rv)) {
@@ -658,7 +658,7 @@ NS_IMETHODIMP FolderCompactor::OnCompactionComplete(nsresult status) {
 // Any error code returned from here is ignored.
 NS_IMETHODIMP FolderCompactor::OnFinalSummary(nsresult status, int64_t oldSize,
                                               int64_t newSize) {
-  MOZ_LOG(gCompactLog, LogLevel::Info,
+  MOZ_LOG(gCompactLog, NS_SUCCEEDED(status) ? LogLevel::Info : LogLevel::Error,
           ("OnFinalSummary(status=0x%" PRIx32 " oldSize=%" PRId64
            " newSize=%" PRId64 ")",
            (uint32_t)status, oldSize, newSize));
