@@ -11,6 +11,7 @@
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/RefPtr.h"
+#include "mozStorageHelper.h"
 #include "nsMsgFolderFlags.h"
 #include "nsServiceManagerUtils.h"
 #include "prtime.h"
@@ -184,12 +185,13 @@ NS_IMETHODIMP LiveView::CountMessages(uint64_t* aCount) {
         sql, getter_AddRefs(mCountStmt));
     NS_ENSURE_SUCCESS(rv, rv);
   }
+  mozStorageStatementScoper scoper(mCountStmt);
 
   PrepareStatement(mCountStmt);
   bool hasResult;
-  mCountStmt->ExecuteStep(&hasResult);
+  nsresult rv = mCountStmt->ExecuteStep(&hasResult);
+  NS_ENSURE_SUCCESS(rv, rv);
   *aCount = mCountStmt->AsInt64(0);
-  mCountStmt->Reset();
   return NS_OK;
 }
 
@@ -204,12 +206,13 @@ NS_IMETHODIMP LiveView::CountUnreadMessages(uint64_t* aCount) {
         sql, getter_AddRefs(mCountUnreadStmt));
     NS_ENSURE_SUCCESS(rv, rv);
   }
+  mozStorageStatementScoper scoper(mCountUnreadStmt);
 
   PrepareStatement(mCountUnreadStmt);
   bool hasResult;
-  mCountUnreadStmt->ExecuteStep(&hasResult);
+  nsresult rv = mCountUnreadStmt->ExecuteStep(&hasResult);
+  NS_ENSURE_SUCCESS(rv, rv);
   *aCount = mCountUnreadStmt->AsInt64(0);
-  mCountUnreadStmt->Reset();
   return NS_OK;
 }
 
@@ -330,6 +333,7 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
         sql, getter_AddRefs(mSelectStmt));
     NS_ENSURE_SUCCESS(rv, rv);
   }
+  mozStorageStatementScoper scoper(mSelectStmt);
 
   PrepareStatement(mSelectStmt);
   mSelectStmt->BindInt64ByName("limit"_ns, aLimit ? aLimit : -1);
@@ -372,7 +376,6 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
   }
   aMessages.set(ObjectValue(*arr));
 
-  mSelectStmt->Reset();
   return NS_OK;
 }
 

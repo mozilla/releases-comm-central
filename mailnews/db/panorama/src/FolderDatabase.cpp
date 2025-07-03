@@ -12,6 +12,7 @@
 #include "mozilla/Logging.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "mozIStorageStatement.h"
+#include "mozStorageHelper.h"
 #include "nsCOMPtr.h"
 #include "nsIFolder.h"
 #include "nsIMsgAccountManager.h"
@@ -79,6 +80,7 @@ nsresult FolderDatabase::InternalLoadFolders() {
       "SELECT id, parent, ordinal, name, flags FROM parents LIMIT -1 OFFSET 1"_ns,
       getter_AddRefs(stmt));
   NS_ENSURE_SUCCESS(rv, rv);
+  mozStorageStatementScoper scoper(stmt);
 
   bool hasResult;
   uint64_t id;
@@ -123,7 +125,6 @@ nsresult FolderDatabase::InternalLoadFolders() {
     // Could probably optimise this.
     mFoldersByPath.InsertOrUpdate(current->GetPath(), current);
   }
-  stmt->Reset();
 
   return NS_OK;
 }
@@ -319,24 +320,24 @@ nsresult FolderDatabase::InternalInsertFolder(nsIFolder* aParent,
   Folder* parent = (Folder*)(aParent);
 
   nsCOMPtr<mozIStorageStatement> stmt;
-  DatabaseCore::GetStatement(
+  nsresult rv = DatabaseCore::GetStatement(
       "InsertFolder"_ns,
       "INSERT INTO folders (parent, name) VALUES (:parent, :name) RETURNING id, flags"_ns,
       getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+  mozStorageStatementScoper scoper(stmt);
 
   stmt->BindInt64ByName("parent"_ns, parent ? parent->mId : 0);
   stmt->BindUTF8StringByName("name"_ns, aName);
   bool hasResult;
-  nsresult rv = stmt->ExecuteStep(&hasResult);
+  rv = stmt->ExecuteStep(&hasResult);
   NS_ENSURE_SUCCESS(rv, rv);
   if (!hasResult) {
-    stmt->Reset();
     return NS_ERROR_UNEXPECTED;
   }
 
   uint64_t id = stmt->AsInt64(0);
   uint64_t flags = stmt->AsInt64(1);
-  stmt->Reset();
 
   RefPtr<Folder> child = new Folder(id, nsCString(aName), flags);
   child->mParent = parent;
@@ -495,10 +496,10 @@ FolderDatabase::ResetChildOrder(nsIFolder* aParent) {
       "UPDATE folders SET ordinal = NULL WHERE parent = :parent"_ns,
       getter_AddRefs(stmt));
   NS_ENSURE_SUCCESS(rv, rv);
+  mozStorageStatementScoper scoper(stmt);
 
   stmt->BindInt64ByName("parent"_ns, aParent->GetId());
   stmt->Execute();
-  stmt->Reset();
   return NS_OK;
 }
 
@@ -533,14 +534,15 @@ FolderDatabase::MoveFolderTo(nsIFolder* aNewParent, nsIFolder* aChild) {
   }
 
   nsCOMPtr<mozIStorageStatement> stmt;
-  DatabaseCore::GetStatement(
+  nsresult rv = DatabaseCore::GetStatement(
       "Reparent"_ns,
       "UPDATE folders SET parent = :parent, ordinal = NULL WHERE id = :id"_ns,
       getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+  mozStorageStatementScoper scoper(stmt);
   stmt->BindInt64ByName("parent"_ns, newParent->mId);
   stmt->BindInt64ByName("id"_ns, child->mId);
   stmt->Execute();
-  stmt->Reset();
 
   mFoldersByPath.Remove(child->GetPath());
 
@@ -566,11 +568,12 @@ FolderDatabase::UpdateName(nsIFolder* aFolder, const nsACString& aNewName) {
       "UpdateName"_ns, "UPDATE folders SET name = :name WHERE id = :id"_ns,
       getter_AddRefs(stmt));
   NS_ENSURE_SUCCESS(rv, rv);
+  mozStorageStatementScoper scoper(stmt);
   stmt->BindUTF8StringByName("name"_ns, newName);
   stmt->BindInt64ByName("id"_ns, folder->mId);
 
   rv = stmt->Execute();
-  stmt->Reset();
+  NS_ENSURE_SUCCESS(rv, rv);
 
   mFoldersByPath.Remove(folder->GetPath());
   folder->mName = newName;
@@ -599,16 +602,14 @@ FolderDatabase::UpdateFlags(nsIFolder* aFolder, uint64_t aNewFlags) {
       "UpdateFlags"_ns, "UPDATE folders SET flags = :flags WHERE id = :id"_ns,
       getter_AddRefs(stmt));
   NS_ENSURE_SUCCESS(rv, rv);
+  mozStorageStatementScoper scoper(stmt);
   stmt->BindInt64ByName("flags"_ns, aNewFlags);
   stmt->BindInt64ByName("id"_ns, folder->mId);
 
   rv = stmt->Execute();
-  if (NS_SUCCEEDED(rv)) {
-    folder->mFlags = aNewFlags;
-  }
-
-  stmt->Reset();
-  return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
+  folder->mFlags = aNewFlags;
+  return NS_OK;
 }
 
 nsresult FolderDatabase::GetFolderProperty(uint64_t id, const nsACString& name,
@@ -619,6 +620,7 @@ nsresult FolderDatabase::GetFolderProperty(uint64_t id, const nsACString& name,
       "SELECT value FROM folder_properties WHERE id = :id AND name = :name"_ns,
       getter_AddRefs(stmt));
   NS_ENSURE_SUCCESS(rv, rv);
+  mozStorageStatementScoper scoper(stmt);
 
   stmt->BindInt64ByName("id"_ns, id);
   stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(name));
@@ -628,7 +630,6 @@ nsresult FolderDatabase::GetFolderProperty(uint64_t id, const nsACString& name,
     uint32_t len;
     value = stmt->AsSharedUTF8String(0, &len);
   }
-  stmt->Reset();
 
   return rv;
 }
@@ -641,6 +642,7 @@ nsresult FolderDatabase::GetFolderProperty(uint64_t id, const nsACString& name,
       "SELECT value FROM folder_properties WHERE id = :id AND name = :name"_ns,
       getter_AddRefs(stmt));
   NS_ENSURE_SUCCESS(rv, rv);
+  mozStorageStatementScoper scoper(stmt);
 
   stmt->BindInt64ByName("id"_ns, id);
   stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(name));
@@ -649,7 +651,6 @@ nsresult FolderDatabase::GetFolderProperty(uint64_t id, const nsACString& name,
   if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
     *value = stmt->AsInt64(0);
   }
-  stmt->Reset();
 
   return rv;
 }
@@ -692,6 +693,7 @@ nsresult FolderDatabase::GetVirtualFolderFolders(
       "SELECT searchFolderId FROM virtualFolder_folders WHERE virtualFolderId = :virtualFolderId"_ns,
       getter_AddRefs(stmt));
   NS_ENSURE_SUCCESS(rv, rv);
+  mozStorageStatementScoper scoper(stmt);
 
   stmt->BindInt64ByName("virtualFolderId"_ns, virtualFolderId);
 
@@ -701,7 +703,6 @@ nsresult FolderDatabase::GetVirtualFolderFolders(
     uint64_t searchFolderId = stmt->AsInt64(0);
     searchFolderIds.AppendElement(searchFolderId);
   }
-  stmt->Reset();
 
   return NS_OK;
 }
