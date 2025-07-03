@@ -659,7 +659,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
 
     if (mFlags & nsMsgFolderFlags::Offline) {
       nsCOMPtr<nsIMsgFilterService> filterService =
-          do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
+          mozilla::components::Filter::Service();
       uint32_t filterCount = 0;
       m_filterList->GetFilterCount(&filterCount);
       for (uint32_t index = 0; index < filterCount && !m_filterListRequiresBody;

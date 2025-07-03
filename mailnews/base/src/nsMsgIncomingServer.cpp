@@ -1069,9 +1069,7 @@ nsMsgIncomingServer::GetFilterList(nsIMsgWindow* aMsgWindow,
       }
     }
     nsCOMPtr<nsIMsgFilterService> filterService =
-        do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::Filter::Service();
     rv = filterService->OpenFilterList(mFilterFile, msgFolder, aMsgWindow,
                                        getter_AddRefs(mFilterList));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -1675,7 +1673,7 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryServerSpamFilters(
   if (!file) return NS_OK;
 
   nsCOMPtr<nsIMsgFilterService> filterService =
-      do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
+      mozilla::components::Filter::Service();
   nsCOMPtr<nsIMsgFilterList> serverFilterList;
 
   rv = filterService->OpenFilterList(file, NULL, NULL,

@@ -1954,14 +1954,13 @@ nsMsgDBFolder::OnMessageClassified(const nsACString& aMsgURI,
     if (!mPostBayesMessagesToFilter.IsEmpty()) {
       // Apply post-bayes filtering.
       nsCOMPtr<nsIMsgFilterService> filterService(
-          do_GetService("@mozilla.org/messenger/services/filters;1", &rv));
-      if (NS_SUCCEEDED(rv))
-        // We use a null nsIMsgWindow because we don't want some sort of ui
-        // appearing in the middle of automatic filtering (plus I really don't
-        // want to propagate that value.)
-        rv = filterService->ApplyFilters(nsMsgFilterType::PostPlugin,
-                                         mPostBayesMessagesToFilter, this,
-                                         nullptr, nullptr);
+          mozilla::components::Filter::Service());
+      // We use a null nsIMsgWindow because we don't want some sort of ui
+      // appearing in the middle of automatic filtering (plus I really don't
+      // want to propagate that value.)
+      rv = filterService->ApplyFilters(nsMsgFilterType::PostPlugin,
+                                       mPostBayesMessagesToFilter, this,
+                                       nullptr, nullptr);
       mPostBayesMessagesToFilter.Clear();
     }
 

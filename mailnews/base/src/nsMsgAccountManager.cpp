@@ -2434,7 +2434,7 @@ nsresult VirtualFolderChangeListener::Init() {
     nsCString searchTermString;
     dbFolderInfo->GetCharProperty("searchStr", searchTermString);
     nsCOMPtr<nsIMsgFilterService> filterService =
-        do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
+        mozilla::components::Filter::Service();
     nsCOMPtr<nsIMsgFilterList> filterList;
     rv = filterService->GetTempFilterList(m_virtualFolder,
                                           getter_AddRefs(filterList));

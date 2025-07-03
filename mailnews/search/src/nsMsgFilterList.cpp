@@ -288,7 +288,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
   msgHdr->GetMessageKey(&msgKey);
   nsCString typeName;
   nsCOMPtr<nsIMsgFilterService> filterService =
-      do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
+      mozilla::components::Filter::Service();
   filterService->FilterTypeName(filterType, typeName);
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
           ("(Auto) Filter run initiated, trigger=%s (%i)", typeName.get(),
@@ -399,11 +399,8 @@ nsMsgFilterList::GetDefaultFile(nsIFile** aResult) {
 
 NS_IMETHODIMP
 nsMsgFilterList::SaveToDefaultFile() {
-  nsresult rv;
   nsCOMPtr<nsIMsgFilterService> filterService =
-      do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::Filter::Service();
   return filterService->SaveFilterList(this, m_defaultFile);
 }
 

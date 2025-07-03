@@ -120,13 +120,10 @@ NS_IMETHODIMP nsMsgRuleAction::GetCustomAction(
   NS_ENSURE_ARG_POINTER(aCustomAction);
   if (!m_customAction) {
     if (m_customId.IsEmpty()) return NS_ERROR_NOT_INITIALIZED;
-    nsresult rv;
     nsCOMPtr<nsIMsgFilterService> filterService =
-        do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = filterService->GetCustomAction(m_customId,
-                                        getter_AddRefs(m_customAction));
+        mozilla::components::Filter::Service();
+    nsresult rv = filterService->GetCustomAction(
+        m_customId, getter_AddRefs(m_customAction));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 

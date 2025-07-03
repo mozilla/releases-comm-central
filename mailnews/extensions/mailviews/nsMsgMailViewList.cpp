@@ -232,7 +232,7 @@ nsresult nsMsgMailViewList::LoadMailViews() {
   // a data structure we wish to give to our consumers.
 
   nsCOMPtr<nsIMsgFilterService> filterService =
-      do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
+      mozilla::components::Filter::Service();
   nsCOMPtr<nsIMsgFilterList> mfilterList;
 
   rv = filterService->OpenFilterList(file, nullptr, nullptr,

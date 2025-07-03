@@ -1369,9 +1369,7 @@ nsMsgNewsFolder::GetFilterList(nsIMsgWindow* aMsgWindow,
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIMsgFilterService> filterService =
-        do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::Filter::Service();
     rv = filterService->OpenFilterList(filterFile, this, aMsgWindow,
                                        getter_AddRefs(mFilterList));
     NS_ENSURE_SUCCESS(rv, rv);

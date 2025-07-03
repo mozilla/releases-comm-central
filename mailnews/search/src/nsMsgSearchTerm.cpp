@@ -1459,13 +1459,11 @@ nsresult nsMsgSearchTerm::MatchPriority(nsMsgPriorityValue priorityToMatch,
 NS_IMETHODIMP nsMsgSearchTerm::MatchCustom(nsIMsgDBHdr* aHdr, bool* pResult) {
   NS_ENSURE_ARG_POINTER(pResult);
 
-  nsresult rv;
   nsCOMPtr<nsIMsgFilterService> filterService =
-      do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::Filter::Service();
   nsCOMPtr<nsIMsgSearchCustomTerm> customTerm;
-  rv = filterService->GetCustomTerm(m_customId, getter_AddRefs(customTerm));
+  nsresult rv =
+      filterService->GetCustomTerm(m_customId, getter_AddRefs(customTerm));
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (customTerm)
