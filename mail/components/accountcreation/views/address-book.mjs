@@ -316,18 +316,21 @@ class AccountHubAddressBook extends HTMLElement {
     switch (currentState) {
       case "localAddressBookSubview": {
         try {
-          lazy.MailServices.ab.newAddressBook(
+          const dirPrefId = lazy.MailServices.ab.newAddressBook(
             stateData.name,
             "",
             Ci.nsIAbManager.JS_DIRECTORY_TYPE
           );
+
+          const directory = lazy.MailServices.ab.getDirectoryFromId(dirPrefId);
 
           this.dispatchEvent(
             new CustomEvent("request-close", {
               bubbles: true,
             })
           );
-          this.reset();
+          await window.toAddressBook(["cmd_displayAddressBook", directory.UID]);
+          await this.reset();
         } catch (error) {
           throw new Error("Local address book creation failed", {
             cause: error,

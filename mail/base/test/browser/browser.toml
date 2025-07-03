@@ -19,6 +19,8 @@ support-files = [
 
 ["browser_3paneTelemetry.js"]
 
+["browser_addressBook.js"]
+
 ["browser_archive.js"]
 tags = ["archive"]
 

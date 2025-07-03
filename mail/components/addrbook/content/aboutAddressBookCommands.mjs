@@ -111,3 +111,7 @@ commandController.registerCallback(
 commandController.registerCallback("cmd_importContacts", function () {
   importBook();
 });
+
+commandController.registerCallback("cmd_displayAddressBook", function (UID) {
+  displayAddressBook(UID);
+});

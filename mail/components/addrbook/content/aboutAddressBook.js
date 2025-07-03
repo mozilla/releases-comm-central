@@ -296,6 +296,23 @@ function createBook(type = Ci.nsIAbManager.JS_DIRECTORY_TYPE) {
 }
 
 /**
+ * Display the addressbook for a given UID
+ *
+ * @param {string} UID - The UID for the address book.
+ */
+async function displayAddressBook(UID) {
+  booksList.selectedIndex = booksList.getIndexForUID(UID);
+  if (booksList.selectedIndex == 0) {
+    // Index 0 was selected before we started listening.
+    booksList.dispatchEvent(new CustomEvent("select"));
+  }
+
+  cardsPane.searchInput.focus();
+
+  window.dispatchEvent(new CustomEvent("about-addressbook-ready"));
+}
+
+/**
  * Show UI to create a new contact in the current address book.
  */
 function createContact() {

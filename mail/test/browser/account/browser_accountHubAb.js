@@ -430,11 +430,18 @@ add_task(async function test_localAddressBookCreation() {
 
   const closeEvent = BrowserTestUtils.waitForEvent(accountHub, "close");
 
+  const tabmail = document.getElementById("tabmail");
+
   EventUtils.synthesizeMouseAtCenter(
     accountHub.querySelector("#addressBookFooter #forward"),
     {}
   );
 
+  const readyEvent = BrowserTestUtils.waitForEvent(
+    tabmail.currentTabInfo.browser,
+    "about-addressbook-ready",
+    true
+  );
   // Check existence of address book.
   const [addressBookDirectory] = await addressBookDirectoryPromise;
   Assert.equal(
@@ -442,9 +449,37 @@ add_task(async function test_localAddressBookCreation() {
     "test",
     "Address book should be created"
   );
-  MailServices.ab.deleteAddressBook(addressBookDirectory.URI);
 
   await closeEvent;
+  const booksList = await BrowserTestUtils.waitForCondition(() => {
+    return tabmail.currentTabInfo.browser.contentWindow.document.getElementById(
+      "books"
+    );
+  });
+
+  await readyEvent;
+
+  Assert.equal(
+    tabmail.currentTabInfo.mode.type,
+    "addressBookTab",
+    "Should have navigated to address book"
+  );
+
+  const index = booksList.getIndexForUID(addressBookDirectory.UID);
+  Assert.equal(
+    booksList.selectedIndex,
+    index,
+    "Correct address book should be selected"
+  );
+  Assert.equal(
+    tabmail.currentTabInfo.browser.contentDocument.activeElement.id,
+    "searchInput",
+    "Search input should have focus"
+  );
+
+  tabmail.closeOtherTabs(0);
+
+  MailServices.ab.deleteAddressBook(addressBookDirectory.URI);
 });
 
 /**
