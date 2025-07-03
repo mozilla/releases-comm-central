@@ -45,7 +45,7 @@ async function test_datelessMsgs() {
     Assert.notEqual(
       msg.date,
       0,
-      "Expect message without 'Date:' header to use date from msgStore."
+      "Expect message without 'Date:' header to use fallback timestamp."
     );
   }
 

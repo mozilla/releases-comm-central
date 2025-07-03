@@ -3392,6 +3392,11 @@ nsresult nsMsgLocalMailFolder::AddMessageBatch2(
     // (We're using the old nsIMsgDatabase instead of going directly to
     // panorama, as we want to keep working with legacy code for now).
     RawHdr hdr = ParseMsgHeaders(raw);
+    // Malformed message might have a missing "Date:" header.
+    // Policy here is to fall back to current time.
+    if (hdr.date == 0) {
+      hdr.date = PR_Now();
+    }
     // TODO: Sanity check here? Are there cases where we'd reject a message?
 
     nsCOMPtr<nsIMsgDBHdr> dbHdr;
