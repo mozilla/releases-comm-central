@@ -129,3 +129,8 @@ for icon in ("messengerWindow", "newmail", "writeMessage", "addressbook"):
         CONFIG["MOZ_BRANDING_DIRECTORY"],
         icon,
     )
+
+if CONFIG["MOZ_ASAN"] or CONFIG["MOZ_DEBUG"]:
+    WINCONSOLE = True
+else:
+    WINCONSOLE = False

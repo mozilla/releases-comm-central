@@ -11,14 +11,6 @@ MOZ_BUILDID = $(shell $(PYTHON3) $(topsrcdir)/config/printconfigsetting.py $(DIS
 
 # Build a binary bootstrapping with XRE_main
 
-ifndef MOZ_WINCONSOLE
-ifdef MOZ_DEBUG
-MOZ_WINCONSOLE = 1
-else
-MOZ_WINCONSOLE = 0
-endif
-endif
-
 include $(topsrcdir)/config/config.mk
 
 # If we are trying to show an error dialog about the lack of SSE2 support,
