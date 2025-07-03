@@ -19,8 +19,8 @@
 interface nsIFile;
 interface nsIMsgWindow;
 interface nsIMsgUserFeedbackListener;
-interface nsIMsgMailNewsUrl;
 interface nsITransportSecurityInfo;
+interface nsIURI;
 
 [scriptable, uuid(577ead34-553e-4cd6-b484-76ff6662082d)]
 interface nsIMsgMailSession : nsISupports {
@@ -61,24 +61,29 @@ interface nsIMsgMailSession : nsISupports {
   /**
    * Call to alert the listeners of the message. If there are no listeners,
    * or the listeners do not handle the alert, then this function will present
-   * the user with a modal dialog if aMsgWindow isn't null.
+   * the user with a modal dialog if `aSilent` isn't true.
    *
    * @param aMessage    The localized message string to alert.
-   * @param aUrl        Optional mailnews url which is relevant to the operation
-   *                    which caused the alert to be generated.
+   * @param aUri        The URI relevant to the operation which caused the alert
+   *                    to be generated.
+   * @param aSilent     If true, this method will notify listener (so they can
+   *                    e.g. store the alert in the activity manager) but will
+   *                    not result in a visible alert to the user. This can be
+   *                    needed for background operations where we don't want to
+   *                    notify the user in the same way as "normal" operations.
    */
-  void alertUser(in AString aMessage, [optional] in nsIMsgMailNewsUrl aUrl);
+  void alertUser(in AString aMessage, in nsIURI aUri, in boolean aSilent);
 
   /**
    * Call to inform the listeners of a certificate error. The listener should
    * alert the user about the error and (if appropriate) allow the user to add
    * a certificate override.
    *
-   * @param securityInfo - The security information about the operation.
-   * @param url - Mailnews url which is relevant to the operation.
+   * @param securityInfo  The security information about the operation.
+   * @param uri           The URI relevant to the operation.
    */
   void alertCertError(in nsITransportSecurityInfo securityInfo,
-                      in nsIMsgMailNewsUrl url);
+                      in nsIURI uri);
 
   readonly attribute nsIMsgWindow topmostMsgWindow;
   void AddMsgWindow(in nsIMsgWindow msgWindow);

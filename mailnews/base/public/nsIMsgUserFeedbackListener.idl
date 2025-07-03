@@ -5,8 +5,9 @@
 
 #include "nsISupports.idl"
 
-interface nsIMsgMailNewsUrl;
+interface nsIMsgWindow;
 interface nsITransportSecurityInfo;
+interface nsIURI;
 
 /**
  * Implement this interface to subscribe to errors and warnings passed out via
@@ -18,14 +19,17 @@ interface nsIMsgUserFeedbackListener : nsISupports {
    * Called when an alert from a protocol level implementation is generated.
    *
    * @param aMessage    The localized message string to alert.
-   * @param aUrl        Optional mailnews url which is relevant to the operation
-   *                    which caused the alert to be generated.
-   * @return            True if you serviced the alert and it does not need
+   * @param aUri        The URI relevant to the operation which caused the alert
+   *                    to be generated.
+   * @param aSilent     If true, this method will notify listeners (so they can
+   *                    e.g. store the alert in the activity manager) but will
+   *                    not result in a visible alert to the user. This can be
+   *                    needed for background operations where we don't want to
+   *                    notify the user in the same way as "normal" operations.
+   * @return            True if the alert was serviced and it does not need
    *                    to be prompted to the user separately.
-   *                    Note: The caller won't prompt if msgWindow in aUrl is
-   *                    null, regardless of the value returned.
    */
-  boolean onAlert(in AString aMessage, [optional] in nsIMsgMailNewsUrl aUrl);
+  boolean onAlert(in AString aMessage, in nsIURI aUri, in boolean aSilent);
 
   /**
    * Call to inform the listeners of a certificate error. The listener should
@@ -33,8 +37,8 @@ interface nsIMsgUserFeedbackListener : nsISupports {
    * a certificate override.
    *
    * @param securityInfo - The security information about the operation.
-   * @param url - Mailnews url which is relevant to the operation.
+   * @param uri - URI which is relevant to the operation.
    */
   void onCertError(in nsITransportSecurityInfo securityInfo,
-                   in nsIMsgMailNewsUrl url);
+                   in nsIURI url);
 };

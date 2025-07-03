@@ -1737,7 +1737,20 @@ nsresult nsImapIncomingServer::AlertUser(const nsAString& aString,
       do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return mailSession->AlertUser(aString, aUrl);
+  // If there's a message window on the URI, then we should alert the user.
+  // Otherwise (i.e. if the getter for `msgWindow` raised
+  // `NS_ERROR_NULL_POINTER`), this is a background operation and we should tell
+  // the mail session to only call the listeners but not alert.
+  bool silent = false;
+  nsCOMPtr<nsIMsgWindow> dummy;
+  rv = aUrl->GetMsgWindow(getter_AddRefs(dummy));
+  if (rv == NS_ERROR_NULL_POINTER) {
+    silent = true;
+  } else {
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  return mailSession->AlertUser(aString, aUrl, silent);
 }
 
 NS_IMETHODIMP

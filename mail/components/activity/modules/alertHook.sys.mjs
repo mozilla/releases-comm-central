@@ -52,21 +52,21 @@ export var alertHook = {
 
   // nsIMsgUserFeedbackListener
 
-  onAlert(message, url) {
+  onAlert(message, url, silent) {
     const cookie = `${url.hostPort} alert`;
     if (activeAlerts.has(cookie)) {
       return true;
     }
-
-    activeAlerts.set(cookie, { url });
 
     // Create a new warning.
     const warning = new nsActWarning(message, this.activityMgr, "");
 
     warning.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_STANDALONE;
     try {
-      warning.contextDisplayText = url.server.prettyName;
-      warning.contextObj = url.server;
+      const server = MailServices.accounts.findServerByURI(url);
+
+      warning.contextDisplayText = server.prettyName;
+      warning.contextObj = server;
       warning.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
       warning.contextType = "incomingServer";
     } catch (ex) {
@@ -79,23 +79,13 @@ export var alertHook = {
       return true;
     }
 
-    // If we have a message window in the url, then show a warning prompt,
-    // just like the modal code used to. Otherwise, don't.
-    try {
-      if (!url || !url.msgWindow) {
-        return true;
-      }
-    } catch (ex) {
-      // nsIMsgMailNewsUrl.msgWindow will throw on a null pointer, so that's
-      // what we're handling here.
-      if (
-        ex instanceof Ci.nsIException &&
-        ex.result == Cr.NS_ERROR_INVALID_POINTER
-      ) {
-        return true;
-      }
-      throw ex;
+    // If the alert should be silent (e.g. it was a generated as a result of
+    // background activity like autosync, biff, etc.), we shouldn't notify.
+    if (silent) {
+      return true;
     }
+
+    activeAlerts.set(cookie, { url });
 
     try {
       const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(

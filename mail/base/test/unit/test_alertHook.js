@@ -34,26 +34,25 @@ var mailnewsURL;
 add_setup(function () {
   MockAlertsService.init();
   // A random URL.
-  const uri = Services.io.newURI("news://localhost:80/1@regular.invalid");
+  MailServices.accounts.createIncomingServer("", "localhost", "nntp");
+  const uri = Services.io.newURI("news://localhost/1@regular.invalid");
   mailnewsURL = uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
 
-  registerCleanupFunction(function () {
+  registerCleanupFunction(() => {
     MockAlertsService.cleanup();
   });
 });
 
-add_task(async function test_not_shown_to_user_no_url_no_window() {
+add_task(async function test_not_shown_to_user_silent() {
   const alertPromise = MockAlertsService.promiseShown();
-  // Just text, no url or window => expect no error shown to user
-  MailServices.mailSession.alertUser("test error");
+  // Just text, silent = true => expect no error shown to user
+  MailServices.mailSession.alertUser("test error", mailnewsURL, true);
   await Promise.race([
     PromiseTestUtils.promiseDelay(TEST_WAITTIME).then(() => {
-      Assert.ok(true, "Alert is not shown with no window or no url present");
+      Assert.ok(true, "Alert is not shown when it should be silent");
     }),
     alertPromise.then(() => {
-      throw new Error(
-        "Alert is shown to the user although neither window nor url is present"
-      );
+      throw new Error("Alert is shown to the user when it should be silent");
     }),
   ]);
   MockAlertsService.reset();
@@ -62,33 +61,10 @@ add_task(async function test_not_shown_to_user_no_url_no_window() {
 add_task(async function test_shown_to_user() {
   // Reset promise state.
   const alertPromise = MockAlertsService.promiseShown();
-  // Set a window for the URL.
-  mailnewsURL.msgWindow = gMsgWindow;
 
-  // Text, url and window => expect error shown to user
-  MailServices.mailSession.alertUser("test error 2", mailnewsURL);
+  // Text, silent = false => expect error shown to user
+  MailServices.mailSession.alertUser("test error 2", mailnewsURL, false);
   await alertPromise;
   Assert.ok(MockAlertsService.alert);
-  MockAlertsService.reset();
-});
-
-add_task(async function test_not_shown_to_user_no_window() {
-  // Reset promise state.
-  const alertPromise = MockAlertsService.promiseShown();
-  // No window for the URL.
-  mailnewsURL.msgWindow = null;
-
-  // Text, url and no window => export no error shown to user
-  MailServices.mailSession.alertUser("test error 3", mailnewsURL);
-  await Promise.race([
-    PromiseTestUtils.promiseDelay(TEST_WAITTIME).then(() => {
-      Assert.ok(true, "Alert is not shown with no window but a url present");
-    }),
-    alertPromise.then(() => {
-      throw new Error(
-        "Alert is shown to the user although no window in the mailnewsURL present"
-      );
-    }),
-  ]);
   MockAlertsService.reset();
 });
