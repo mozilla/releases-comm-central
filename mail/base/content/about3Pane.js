@@ -4239,8 +4239,8 @@ var folderPane = {
     // The group has already been ordered. In this case, insert the new folder
     // before the first folder that is further ahead of it in the natural order.
     const sibling = subFolders
-      // Skip special folders so new folders don't get created before them.
-      .filter(folder => folder.flags & Ci.nsMsgFolderFlags.SpecialUse)
+      // Exclude special folders so new folders don't get created before them.
+      .filter(folder => !(folder.flags & Ci.nsMsgFolderFlags.SpecialUse))
       .sort(FolderUtils.compareFolders)
       .find(
         folder =>

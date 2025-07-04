@@ -229,6 +229,30 @@ add_task(async function test_sort_single_folder() {
     ].map(folder => folder.URI),
     "Dragging folderB above folderC should make it a child of rootFolder."
   );
+
+  const booFolder = rootFolder.createLocalSubfolder("Boo");
+  Assert.deepEqual(
+    Array.from(
+      folderTree.querySelectorAll("[role=group] li"),
+      folderTreeRow => folderTreeRow.uri
+    ),
+    [
+      rootFolder,
+      trashFolder,
+      outboxFolder,
+      booFolder,
+      folderB,
+      folderC,
+      folderA,
+      folderD,
+      folderD_1,
+      folderD_2,
+      folderD_3,
+    ].map(folder => folder.URI),
+    "New folder Boo should be added alphabetically after special folders"
+  );
+  booFolder.deleteSelf(null); // Moves Boo to Trash.
+  trashFolder.getChildNamed("Boo").deleteSelf(null);
 });
 
 add_task(async function test_reset_folder_sorting() {
