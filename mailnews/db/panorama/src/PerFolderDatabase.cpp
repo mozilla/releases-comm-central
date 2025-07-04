@@ -10,7 +10,7 @@
 #include "Message.h"
 #include "MessageDatabase.h"
 #include "mozilla/RefPtr.h"
-#include "mozilla/StaticPrefs_mail.h"
+#include "mozilla/Preferences.h"
 #include "mozIStorageStatement.h"
 #include "nsIFolder.h"
 #include "nsIMsgDBView.h"
