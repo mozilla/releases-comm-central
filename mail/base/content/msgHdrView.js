@@ -3073,9 +3073,7 @@ const gMessageHeader = {
         }
         menu.setAttribute(
           "value",
-          encodeURI(
-            value.replace(/\s*<([^>]+)>.*/, "$1").replace(/[<>\s]/g, "")
-          )
+          value.replace(/\s*<([^>]+)>.*/, "$1").replace(/[<>\s]/g, "")
         );
       }
     }

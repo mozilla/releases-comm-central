@@ -855,7 +855,7 @@ add_task(async function test_context_menu_list_id() {
       "List-ID": "Cats <gocats.example.test>",
       "List-Help": "<https://example.test/lists/gocats/help>",
       "List-Unsubscribe":
-        "<https://example.test/lists/gocats/unssubscribe>, <mailto:gocats+unsubscribe@example.test?subject=x-tx-unsubscribe:2:thunderbird:fb10d204-8f3f-11eb-aa0e-32e0282d11b0:76d38cd0-e766-11e8-8e55-99e8122d11b0:Mc33789033c0aab1c5028308e:1:RAHZjXgrMOtgzIOraQB0jR5Cg58VHiMb2gSuzCZBy_s>",
+        "<https://example.test/lists/gocats/unssubscribe>, <mailto:gocats+unsubscribe@example.test?subject=test%20x-tx-unsubscribe:2:thunderbird:fb10d204-8f3f-11eb-aa0e-32e0282d11b0:76d38cd0-e766-11e8-8e55-99e8122d11b0:Mc33789033c0aab1c5028308e:1:RAHZjXgrMOtgzIOraQB0jR5Cg58VHiMb2gSuzCZBy_s>",
       "List-Subscribe": "<https://example.test/lists/gocats/subscribe>",
       "List-Post": "<https://example.test/lists/gocats/post>",
       "List-Owner":
@@ -912,7 +912,7 @@ add_task(async function test_context_menu_list_id() {
   );
   Assert.equal(
     listIdListUnsubscribe.value,
-    "mailto:gocats+unsubscribe@example.test?subject=x-tx-unsubscribe:2:thunderbird:fb10d204-8f3f-11eb-aa0e-32e0282d11b0:76d38cd0-e766-11e8-8e55-99e8122d11b0:Mc33789033c0aab1c5028308e:1:RAHZjXgrMOtgzIOraQB0jR5Cg58VHiMb2gSuzCZBy_s",
+    "mailto:gocats+unsubscribe@example.test?subject=test%20x-tx-unsubscribe:2:thunderbird:fb10d204-8f3f-11eb-aa0e-32e0282d11b0:76d38cd0-e766-11e8-8e55-99e8122d11b0:Mc33789033c0aab1c5028308e:1:RAHZjXgrMOtgzIOraQB0jR5Cg58VHiMb2gSuzCZBy_s",
     "list-unsubscribe ctx value should be correct"
   );
 
