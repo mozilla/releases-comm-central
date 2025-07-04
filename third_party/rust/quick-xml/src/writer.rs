@@ -1,18 +1,17 @@
 //! Contains high-level interface for an events-based XML emitter.
 
-use std::io::Write;
-use std::result::Result as StdResult;
+use std::borrow::Cow;
+use std::io::{self, Write};
 
 use crate::encoding::UTF8_BOM;
-use crate::errors::{Error, Result};
-use crate::events::{attributes::Attribute, BytesCData, BytesStart, BytesText, Event};
+use crate::events::{attributes::Attribute, BytesCData, BytesPI, BytesStart, BytesText, Event};
 
 #[cfg(feature = "async-tokio")]
 mod async_tokio;
 
 /// XML writer. Writes XML [`Event`]s to a [`std::io::Write`] or [`tokio::io::AsyncWrite`] implementor.
 #[cfg(feature = "serialize")]
-use {crate::de::DeError, serde::Serialize};
+use {crate::se::SeError, serde::Serialize};
 
 /// XML writer. Writes XML [`Event`]s to a [`std::io::Write`] implementor.
 ///
@@ -27,7 +26,6 @@ use {crate::de::DeError, serde::Serialize};
 ///
 /// let xml = r#"<this_tag k1="v1" k2="v2"><child>text</child></this_tag>"#;
 /// let mut reader = Reader::from_str(xml);
-/// reader.trim_text(true);
 /// let mut writer = Writer::new(Cursor::new(Vec::new()));
 /// loop {
 ///     match reader.read_event() {
@@ -51,8 +49,8 @@ use {crate::de::DeError, serde::Serialize};
 ///         },
 ///         Ok(Event::Eof) => break,
 ///         // we can either move or borrow the event to write, depending on your use-case
-///         Ok(e) => assert!(writer.write_event(e).is_ok()),
-///         Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
+///         Ok(e) => assert!(writer.write_event(e.borrow()).is_ok()),
+///         Err(e) => panic!("Error at position {}: {:?}", reader.error_position(), e),
 ///     }
 /// }
 ///
@@ -69,7 +67,7 @@ pub struct Writer<W> {
 
 impl<W> Writer<W> {
     /// Creates a `Writer` from a generic writer.
-    pub fn new(inner: W) -> Writer<W> {
+    pub const fn new(inner: W) -> Writer<W> {
         Writer {
             writer: inner,
             indent: None,
@@ -95,7 +93,7 @@ impl<W> Writer<W> {
     }
 
     /// Get a reference to the underlying writer.
-    pub fn get_ref(&self) -> &W {
+    pub const fn get_ref(&self) -> &W {
         &self.writer
     }
 
@@ -129,7 +127,7 @@ impl<W> Writer<W> {
     /// // writes <tag><fruit quantity="0">apple</fruit><fruit quantity="1">orange</fruit></tag>
     /// writer.create_element("tag")
     ///     // We need to provide error type, because it is not named somewhere explicitly
-    ///     .write_inner_content::<_, Error>(|writer| {
+    ///     .write_inner_content(|writer| {
     ///         let fruits = ["apple", "orange"];
     ///         for (quant, item) in fruits.iter().enumerate() {
     ///             writer
@@ -143,13 +141,15 @@ impl<W> Writer<W> {
     /// # }
     /// ```
     #[must_use]
-    pub fn create_element<'a, N>(&'a mut self, name: &'a N) -> ElementWriter<W>
+    pub fn create_element<'a, N>(&'a mut self, name: N) -> ElementWriter<'a, W>
     where
-        N: 'a + AsRef<str> + ?Sized,
+        N: Into<Cow<'a, str>>,
     {
         ElementWriter {
             writer: self,
-            start_tag: BytesStart::new(name.as_ref()),
+            start_tag: BytesStart::new(name),
+            state: AttributeIndent::NoneAttributesWritten,
+            spaces: Vec::new(),
         }
     }
 }
@@ -185,42 +185,42 @@ impl<W: Write> Writer<W> {
     /// # }
     /// ```
     /// [Byte-Order-Mark]: https://unicode.org/faq/utf_bom.html#BOM
-    pub fn write_bom(&mut self) -> Result<()> {
+    pub fn write_bom(&mut self) -> io::Result<()> {
         self.write(UTF8_BOM)
     }
 
     /// Writes the given event to the underlying writer.
-    pub fn write_event<'a, E: AsRef<Event<'a>>>(&mut self, event: E) -> Result<()> {
+    pub fn write_event<'a, E: Into<Event<'a>>>(&mut self, event: E) -> io::Result<()> {
         let mut next_should_line_break = true;
-        let result = match *event.as_ref() {
-            Event::Start(ref e) => {
-                let result = self.write_wrapped(b"<", e, b">");
+        let result = match event.into() {
+            Event::Start(e) => {
+                let result = self.write_wrapped(b"<", &e, b">");
                 if let Some(i) = self.indent.as_mut() {
                     i.grow();
                 }
                 result
             }
-            Event::End(ref e) => {
+            Event::End(e) => {
                 if let Some(i) = self.indent.as_mut() {
                     i.shrink();
                 }
-                self.write_wrapped(b"</", e, b">")
+                self.write_wrapped(b"</", &e, b">")
             }
-            Event::Empty(ref e) => self.write_wrapped(b"<", e, b"/>"),
-            Event::Text(ref e) => {
+            Event::Empty(e) => self.write_wrapped(b"<", &e, b"/>"),
+            Event::Text(e) => {
                 next_should_line_break = false;
-                self.write(e)
+                self.write(&e)
             }
-            Event::Comment(ref e) => self.write_wrapped(b"<!--", e, b"-->"),
-            Event::CData(ref e) => {
+            Event::Comment(e) => self.write_wrapped(b"<!--", &e, b"-->"),
+            Event::CData(e) => {
                 next_should_line_break = false;
                 self.write(b"<![CDATA[")?;
-                self.write(e)?;
+                self.write(&e)?;
                 self.write(b"]]>")
             }
-            Event::Decl(ref e) => self.write_wrapped(b"<?", e, b"?>"),
-            Event::PI(ref e) => self.write_wrapped(b"<?", e, b"?>"),
-            Event::DocType(ref e) => self.write_wrapped(b"<!DOCTYPE ", e, b">"),
+            Event::Decl(e) => self.write_wrapped(b"<?", &e, b"?>"),
+            Event::PI(e) => self.write_wrapped(b"<?", &e, b"?>"),
+            Event::DocType(e) => self.write_wrapped(b"<!DOCTYPE ", &e, b">"),
             Event::Eof => Ok(()),
         };
         if let Some(i) = self.indent.as_mut() {
@@ -231,12 +231,12 @@ impl<W: Write> Writer<W> {
 
     /// Writes bytes
     #[inline]
-    pub(crate) fn write(&mut self, value: &[u8]) -> Result<()> {
+    pub(crate) fn write(&mut self, value: &[u8]) -> io::Result<()> {
         self.writer.write_all(value).map_err(Into::into)
     }
 
     #[inline]
-    fn write_wrapped(&mut self, before: &[u8], value: &[u8], after: &[u8]) -> Result<()> {
+    fn write_wrapped(&mut self, before: &[u8], value: &[u8], after: &[u8]) -> io::Result<()> {
         if let Some(ref i) = self.indent {
             if i.should_line_break {
                 self.writer.write_all(b"\n")?;
@@ -260,7 +260,7 @@ impl<W: Write> Writer<W> {
     /// [`Text`]: Event::Text
     /// [`Start`]: Event::Start
     /// [`new_with_indent`]: Self::new_with_indent
-    pub fn write_indent(&mut self) -> Result<()> {
+    pub fn write_indent(&mut self) -> io::Result<()> {
         if let Some(ref i) = self.indent {
             self.writer.write_all(b"\n")?;
             self.writer.write_all(i.current())?;
@@ -278,8 +278,8 @@ impl<W: Write> Writer<W> {
     /// # use serde::Serialize;
     /// # use quick_xml::events::{BytesStart, Event};
     /// # use quick_xml::writer::Writer;
-    /// # use quick_xml::DeError;
-    /// # fn main() -> Result<(), DeError> {
+    /// # use quick_xml::se::SeError;
+    /// # fn main() -> Result<(), SeError> {
     /// #[derive(Debug, PartialEq, Serialize)]
     /// struct MyData {
     ///     question: String,
@@ -318,7 +318,7 @@ impl<W: Write> Writer<W> {
         &mut self,
         tag_name: &str,
         content: &T,
-    ) -> std::result::Result<(), DeError> {
+    ) -> Result<(), SeError> {
         use crate::se::{Indent, Serializer};
 
         self.write_indent()?;
@@ -335,11 +335,48 @@ impl<W: Write> Writer<W> {
     }
 }
 
+/// Track indent inside elements state
+///
+/// ```mermaid
+/// stateDiagram-v2
+///     [*] --> NoneAttributesWritten
+///     NoneAttributesWritten --> Spaces : .with_attribute()
+///     NoneAttributesWritten --> WriteConfigured : .new_line()
+///
+///     Spaces --> Spaces : .with_attribute()
+///     Spaces --> WriteSpaces : .new_line()
+///
+///     WriteSpaces --> Spaces : .with_attribute()
+///     WriteSpaces --> WriteSpaces : .new_line()
+///
+///     Configured --> Configured : .with_attribute()
+///     Configured --> WriteConfigured : .new_line()
+///
+///     WriteConfigured --> Configured : .with_attribute()
+///     WriteConfigured --> WriteConfigured : .new_line()
+/// ```
+#[derive(Debug)]
+enum AttributeIndent {
+    /// Initial state. `ElementWriter` was just created and no attributes written yet
+    NoneAttributesWritten,
+    /// Write specified count of spaces to indent before writing attribute in `with_attribute()`
+    WriteSpaces(usize),
+    /// Keep space indent that should be used if `new_line()` would be called
+    Spaces(usize),
+    /// Write specified count of indent characters before writing attribute in `with_attribute()`
+    WriteConfigured(usize),
+    /// Keep indent that should be used if `new_line()` would be called
+    Configured(usize),
+}
+
 /// A struct to write an element. Contains methods to add attributes and inner
 /// elements to the element
 pub struct ElementWriter<'a, W> {
     writer: &'a mut Writer<W>,
     start_tag: BytesStart<'a>,
+    state: AttributeIndent,
+    /// Contains spaces used to write space indents of attributes
+    spaces: Vec<u8>,
 }
 
 impl<'a, W> ElementWriter<'a, W> {
@@ -348,7 +385,7 @@ impl<'a, W> ElementWriter<'a, W> {
     where
         I: Into<Attribute<'b>>,
     {
-        self.start_tag.push_attribute(attr);
+        self.write_attr(attr.into());
         self
     }
 
@@ -360,14 +397,138 @@ impl<'a, W> ElementWriter<'a, W> {
         I: IntoIterator,
         I::Item: Into<Attribute<'b>>,
     {
-        self.start_tag.extend_attributes(attributes);
+        let mut iter = attributes.into_iter();
+        if let Some(attr) = iter.next() {
+            self.write_attr(attr.into());
+            self.start_tag.extend_attributes(iter);
+        }
         self
+    }
+
+    /// Push a new line inside an element between attributes. Note, that this
+    /// method does nothing if [`Writer`] was created without indentation support.
+    ///
+    /// # Examples
+    ///
+    /// The following code
+    ///
+    /// ```
+    /// # use quick_xml::writer::Writer;
+    /// let mut buffer = Vec::new();
+    /// let mut writer = Writer::new_with_indent(&mut buffer, b' ', 2);
+    /// writer
+    ///   .create_element("element")
+    ///     //.new_line() (1)
+    ///     .with_attribute(("first", "1"))
+    ///     .with_attribute(("second", "2"))
+    ///     .new_line()
+    ///     .with_attributes([
+    ///         ("third", "3"),
+    ///         ("fourth", "4"),
+    ///     ])
+    ///     //.new_line() (2)
+    ///     .write_empty();
+    /// ```
+    /// will produce the following XMLs:
+    /// ```xml
+    /// <!-- result of the code above. Spaces always is used -->
+    /// <element first="1" second="2"
+    ///          third="3" fourth="4"/>
+    ///
+    /// <!-- if uncomment only (1) - indent depends on indentation
+    ///      settings - 2 spaces here -->
+    /// <element
+    ///   first="1" second="2"
+    ///   third="3" fourth="4"/>
+    ///
+    /// <!-- if uncomment only (2). Spaces always is used  -->
+    /// <element first="1" second="2"
+    ///          third="3" fourth="4"
+    /// />
+    /// ```
+    pub fn new_line(mut self) -> Self {
+        if let Some(i) = self.writer.indent.as_mut() {
+            match self.state {
+                // .new_line() called just after .create_element().
+                // Use element indent to additionally indent attributes
+                AttributeIndent::NoneAttributesWritten => {
+                    self.state = AttributeIndent::WriteConfigured(i.indent_size)
+                }
+
+                AttributeIndent::WriteSpaces(_) => {}
+                // .new_line() called when .with_attribute() was called at least once.
+                // The spaces should be used to indent
+                // Plan saved indent
+                AttributeIndent::Spaces(indent) => {
+                    self.state = AttributeIndent::WriteSpaces(indent)
+                }
+
+                AttributeIndent::WriteConfigured(_) => {}
+                // .new_line() called when .with_attribute() was called at least once.
+                // The configured indent characters should be used to indent
+                // Plan saved indent
+                AttributeIndent::Configured(indent) => {
+                    self.state = AttributeIndent::WriteConfigured(indent)
+                }
+            }
+            self.start_tag.push_newline();
+        };
+        self
+    }
+
+    /// Writes attribute and maintain indentation state
+    fn write_attr<'b>(&mut self, attr: Attribute<'b>) {
+        if let Some(i) = self.writer.indent.as_mut() {
+            // Save the indent that we should use next time when .new_line() be called
+            self.state = match self.state {
+                // Neither .new_line() or .with_attribute() yet called
+                // If newline inside attributes will be requested, we should indent them
+                // by the length of tag name and +1 for `<` and +1 for one space
+                AttributeIndent::NoneAttributesWritten => {
+                    self.start_tag.push_attribute(attr);
+                    AttributeIndent::Spaces(self.start_tag.name().as_ref().len() + 2)
+                }
+
+                // Indent was requested by previous call to .new_line(), write it
+                // New line was already written
+                AttributeIndent::WriteSpaces(indent) => {
+                    if self.spaces.len() < indent {
+                        self.spaces.resize(indent, b' ');
+                    }
+                    self.start_tag.push_indent(&self.spaces[..indent]);
+                    self.start_tag.push_attr(attr.into());
+                    AttributeIndent::Spaces(indent)
+                }
+                // .new_line() was not called, but .with_attribute() was.
+                // use the previously calculated indent
+                AttributeIndent::Spaces(indent) => {
+                    self.start_tag.push_attribute(attr);
+                    AttributeIndent::Spaces(indent)
+                }
+
+                // Indent was requested by previous call to .new_line(), write it
+                // New line was already written
+                AttributeIndent::WriteConfigured(indent) => {
+                    self.start_tag.push_indent(i.additional(indent));
+                    self.start_tag.push_attr(attr.into());
+                    AttributeIndent::Configured(indent)
+                }
+                // .new_line() was not called, but .with_attribute() was.
+                // use the previously calculated indent
+                AttributeIndent::Configured(indent) => {
+                    self.start_tag.push_attribute(attr);
+                    AttributeIndent::Configured(indent)
+                }
+            };
+        } else {
+            self.start_tag.push_attribute(attr);
+        }
     }
 }
 
 impl<'a, W: Write> ElementWriter<'a, W> {
     /// Write some text inside the current element.
-    pub fn write_text_content(self, text: BytesText) -> Result<&'a mut Writer<W>> {
+    pub fn write_text_content(self, text: BytesText) -> io::Result<&'a mut Writer<W>> {
         self.writer
             .write_event(Event::Start(self.start_tag.borrow()))?;
         self.writer.write_event(Event::Text(text))?;
@@ -377,7 +538,7 @@ impl<'a, W: Write> ElementWriter<'a, W> {
     }
 
     /// Write a CData event `<![CDATA[...]]>` inside the current element.
-    pub fn write_cdata_content(self, text: BytesCData) -> Result<&'a mut Writer<W>> {
+    pub fn write_cdata_content(self, text: BytesCData) -> io::Result<&'a mut Writer<W>> {
         self.writer
             .write_event(Event::Start(self.start_tag.borrow()))?;
         self.writer.write_event(Event::CData(text))?;
@@ -387,26 +548,25 @@ impl<'a, W: Write> ElementWriter<'a, W> {
     }
 
     /// Write a processing instruction `<?...?>` inside the current element.
-    pub fn write_pi_content(self, text: BytesText) -> Result<&'a mut Writer<W>> {
+    pub fn write_pi_content(self, pi: BytesPI) -> io::Result<&'a mut Writer<W>> {
         self.writer
             .write_event(Event::Start(self.start_tag.borrow()))?;
-        self.writer.write_event(Event::PI(text))?;
+        self.writer.write_event(Event::PI(pi))?;
         self.writer
             .write_event(Event::End(self.start_tag.to_end()))?;
         Ok(self.writer)
     }
 
     /// Write an empty (self-closing) tag.
-    pub fn write_empty(self) -> Result<&'a mut Writer<W>> {
+    pub fn write_empty(self) -> io::Result<&'a mut Writer<W>> {
         self.writer.write_event(Event::Empty(self.start_tag))?;
         Ok(self.writer)
     }
 
     /// Create a new scope for writing XML inside the current element.
-    pub fn write_inner_content<F, E>(self, closure: F) -> StdResult<&'a mut Writer<W>, E>
+    pub fn write_inner_content<F>(self, closure: F) -> io::Result<&'a mut Writer<W>>
     where
-        F: FnOnce(&mut Writer<W>) -> StdResult<(), E>,
-        E: From<Error>,
+        F: FnOnce(&mut Writer<W>) -> io::Result<()>,
     {
         self.writer
             .write_event(Event::Start(self.start_tag.borrow()))?;
@@ -417,7 +577,7 @@ impl<'a, W: Write> ElementWriter<'a, W> {
     }
 }
 #[cfg(feature = "serialize")]
-struct ToFmtWrite<T>(pub T);
+pub(crate) struct ToFmtWrite<T>(pub T);
 
 #[cfg(feature = "serialize")]
 impl<T> std::fmt::Write for ToFmtWrite<T>
@@ -458,10 +618,7 @@ impl Indentation {
     /// Increase indentation by one level
     pub fn grow(&mut self) {
         self.current_indent_len += self.indent_size;
-        if self.current_indent_len > self.indents.len() {
-            self.indents
-                .resize(self.current_indent_len, self.indent_char);
-        }
+        self.ensure(self.current_indent_len);
     }
 
     /// Decrease indentation by one level. Do nothing, if level already zero
@@ -473,312 +630,17 @@ impl Indentation {
     pub fn current(&self) -> &[u8] {
         &self.indents[..self.current_indent_len]
     }
-}
 
-#[cfg(test)]
-mod indentation {
-    use super::*;
-    use crate::events::*;
-    use pretty_assertions::assert_eq;
-
-    #[test]
-    fn self_closed() {
-        let mut buffer = Vec::new();
-        let mut writer = Writer::new_with_indent(&mut buffer, b' ', 4);
-
-        let tag = BytesStart::new("self-closed")
-            .with_attributes(vec![("attr1", "value1"), ("attr2", "value2")].into_iter());
-        writer
-            .write_event(Event::Empty(tag))
-            .expect("write tag failed");
-
-        assert_eq!(
-            std::str::from_utf8(&buffer).unwrap(),
-            r#"<self-closed attr1="value1" attr2="value2"/>"#
-        );
+    /// Returns indent with current indent plus additional indent
+    pub fn additional(&mut self, additional_indent: usize) -> &[u8] {
+        let new_len = self.current_indent_len + additional_indent;
+        self.ensure(new_len);
+        &self.indents[..new_len]
     }
 
-    #[test]
-    fn empty_paired() {
-        let mut buffer = Vec::new();
-        let mut writer = Writer::new_with_indent(&mut buffer, b' ', 4);
-
-        let start = BytesStart::new("paired")
-            .with_attributes(vec![("attr1", "value1"), ("attr2", "value2")].into_iter());
-        let end = start.to_end();
-        writer
-            .write_event(Event::Start(start.clone()))
-            .expect("write start tag failed");
-        writer
-            .write_event(Event::End(end))
-            .expect("write end tag failed");
-
-        assert_eq!(
-            std::str::from_utf8(&buffer).unwrap(),
-            r#"<paired attr1="value1" attr2="value2">
-</paired>"#
-        );
-    }
-
-    #[test]
-    fn paired_with_inner() {
-        let mut buffer = Vec::new();
-        let mut writer = Writer::new_with_indent(&mut buffer, b' ', 4);
-
-        let start = BytesStart::new("paired")
-            .with_attributes(vec![("attr1", "value1"), ("attr2", "value2")].into_iter());
-        let end = start.to_end();
-        let inner = BytesStart::new("inner");
-
-        writer
-            .write_event(Event::Start(start.clone()))
-            .expect("write start tag failed");
-        writer
-            .write_event(Event::Empty(inner))
-            .expect("write inner tag failed");
-        writer
-            .write_event(Event::End(end))
-            .expect("write end tag failed");
-
-        assert_eq!(
-            std::str::from_utf8(&buffer).unwrap(),
-            r#"<paired attr1="value1" attr2="value2">
-    <inner/>
-</paired>"#
-        );
-    }
-
-    #[test]
-    fn paired_with_text() {
-        let mut buffer = Vec::new();
-        let mut writer = Writer::new_with_indent(&mut buffer, b' ', 4);
-
-        let start = BytesStart::new("paired")
-            .with_attributes(vec![("attr1", "value1"), ("attr2", "value2")].into_iter());
-        let end = start.to_end();
-        let text = BytesText::new("text");
-
-        writer
-            .write_event(Event::Start(start.clone()))
-            .expect("write start tag failed");
-        writer
-            .write_event(Event::Text(text))
-            .expect("write text failed");
-        writer
-            .write_event(Event::End(end))
-            .expect("write end tag failed");
-
-        assert_eq!(
-            std::str::from_utf8(&buffer).unwrap(),
-            r#"<paired attr1="value1" attr2="value2">text</paired>"#
-        );
-    }
-
-    #[test]
-    fn mixed_content() {
-        let mut buffer = Vec::new();
-        let mut writer = Writer::new_with_indent(&mut buffer, b' ', 4);
-
-        let start = BytesStart::new("paired")
-            .with_attributes(vec![("attr1", "value1"), ("attr2", "value2")].into_iter());
-        let end = start.to_end();
-        let text = BytesText::new("text");
-        let inner = BytesStart::new("inner");
-
-        writer
-            .write_event(Event::Start(start.clone()))
-            .expect("write start tag failed");
-        writer
-            .write_event(Event::Text(text))
-            .expect("write text failed");
-        writer
-            .write_event(Event::Empty(inner))
-            .expect("write inner tag failed");
-        writer
-            .write_event(Event::End(end))
-            .expect("write end tag failed");
-
-        assert_eq!(
-            std::str::from_utf8(&buffer).unwrap(),
-            r#"<paired attr1="value1" attr2="value2">text<inner/>
-</paired>"#
-        );
-    }
-
-    #[test]
-    fn nested() {
-        let mut buffer = Vec::new();
-        let mut writer = Writer::new_with_indent(&mut buffer, b' ', 4);
-
-        let start = BytesStart::new("paired")
-            .with_attributes(vec![("attr1", "value1"), ("attr2", "value2")].into_iter());
-        let end = start.to_end();
-        let inner = BytesStart::new("inner");
-
-        writer
-            .write_event(Event::Start(start.clone()))
-            .expect("write start 1 tag failed");
-        writer
-            .write_event(Event::Start(start.clone()))
-            .expect("write start 2 tag failed");
-        writer
-            .write_event(Event::Empty(inner))
-            .expect("write inner tag failed");
-        writer
-            .write_event(Event::End(end.clone()))
-            .expect("write end tag 2 failed");
-        writer
-            .write_event(Event::End(end))
-            .expect("write end tag 1 failed");
-
-        assert_eq!(
-            std::str::from_utf8(&buffer).unwrap(),
-            r#"<paired attr1="value1" attr2="value2">
-    <paired attr1="value1" attr2="value2">
-        <inner/>
-    </paired>
-</paired>"#
-        );
-    }
-
-    #[cfg(feature = "serialize")]
-    #[test]
-    fn serializable() {
-        #[derive(Serialize)]
-        struct Foo {
-            #[serde(rename = "@attribute")]
-            attribute: &'static str,
-
-            element: Bar,
-            list: Vec<&'static str>,
-
-            #[serde(rename = "$text")]
-            text: &'static str,
-
-            val: String,
+    fn ensure(&mut self, new_len: usize) {
+        if self.indents.len() < new_len {
+            self.indents.resize(new_len, self.indent_char);
         }
-
-        #[derive(Serialize)]
-        struct Bar {
-            baz: usize,
-            bat: usize,
-        }
-
-        let mut buffer = Vec::new();
-        let mut writer = Writer::new_with_indent(&mut buffer, b' ', 4);
-
-        let content = Foo {
-            attribute: "attribute",
-            element: Bar { baz: 42, bat: 43 },
-            list: vec!["first element", "second element"],
-            text: "text",
-            val: "foo".to_owned(),
-        };
-
-        let start = BytesStart::new("paired")
-            .with_attributes(vec![("attr1", "value1"), ("attr2", "value2")].into_iter());
-        let end = start.to_end();
-
-        writer
-            .write_event(Event::Start(start.clone()))
-            .expect("write start tag failed");
-        writer
-            .write_serializable("foo_element", &content)
-            .expect("write serializable inner contents failed");
-        writer
-            .write_event(Event::End(end))
-            .expect("write end tag failed");
-
-        assert_eq!(
-            std::str::from_utf8(&buffer).unwrap(),
-            r#"<paired attr1="value1" attr2="value2">
-    <foo_element attribute="attribute">
-        <element>
-            <baz>42</baz>
-            <bat>43</bat>
-        </element>
-        <list>first element</list>
-        <list>second element</list>
-        text
-        <val>foo</val>
-    </foo_element>
-</paired>"#
-        );
-    }
-
-    #[test]
-    fn element_writer_empty() {
-        let mut buffer = Vec::new();
-        let mut writer = Writer::new_with_indent(&mut buffer, b' ', 4);
-
-        writer
-            .create_element("empty")
-            .with_attribute(("attr1", "value1"))
-            .with_attribute(("attr2", "value2"))
-            .write_empty()
-            .expect("failure");
-
-        assert_eq!(
-            std::str::from_utf8(&buffer).unwrap(),
-            r#"<empty attr1="value1" attr2="value2"/>"#
-        );
-    }
-
-    #[test]
-    fn element_writer_text() {
-        let mut buffer = Vec::new();
-        let mut writer = Writer::new_with_indent(&mut buffer, b' ', 4);
-
-        writer
-            .create_element("paired")
-            .with_attribute(("attr1", "value1"))
-            .with_attribute(("attr2", "value2"))
-            .write_text_content(BytesText::new("text"))
-            .expect("failure");
-
-        assert_eq!(
-            std::str::from_utf8(&buffer).unwrap(),
-            r#"<paired attr1="value1" attr2="value2">text</paired>"#
-        );
-    }
-
-    #[test]
-    fn element_writer_nested() {
-        let mut buffer = Vec::new();
-        let mut writer = Writer::new_with_indent(&mut buffer, b' ', 4);
-
-        writer
-            .create_element("outer")
-            .with_attribute(("attr1", "value1"))
-            .with_attribute(("attr2", "value2"))
-            .write_inner_content::<_, Error>(|writer| {
-                let fruits = ["apple", "orange", "banana"];
-                for (quant, item) in fruits.iter().enumerate() {
-                    writer
-                        .create_element("fruit")
-                        .with_attribute(("quantity", quant.to_string().as_str()))
-                        .write_text_content(BytesText::new(item))?;
-                }
-                writer
-                    .create_element("inner")
-                    .write_inner_content(|writer| {
-                        writer.create_element("empty").write_empty().map(|_| ())
-                    })?;
-
-                Ok(())
-            })
-            .expect("failure");
-
-        assert_eq!(
-            std::str::from_utf8(&buffer).unwrap(),
-            r#"<outer attr1="value1" attr2="value2">
-    <fruit quantity="0">apple</fruit>
-    <fruit quantity="1">orange</fruit>
-    <fruit quantity="2">banana</fruit>
-    <inner>
-        <empty/>
-    </inner>
-</outer>"#
-        );
     }
 }

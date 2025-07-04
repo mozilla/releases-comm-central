@@ -49,19 +49,17 @@
 #![recursion_limit = "1024"]
 // Enable feature requirements in the docs from 1.57
 // See https://stackoverflow.com/questions/61417452
-#![cfg_attr(docs_rs, feature(doc_auto_cfg))]
+// docs.rs defines `docsrs` when building documentation
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
 #[cfg(feature = "serialize")]
 pub mod de;
 pub mod encoding;
-mod errors;
-mod escapei;
-pub mod escape {
-    //! Manage xml character escapes
-    pub use crate::escapei::{escape, partial_escape, unescape, unescape_with, EscapeError};
-}
+pub mod errors;
+pub mod escape;
 pub mod events;
 pub mod name;
+pub mod parser;
 pub mod reader;
 #[cfg(feature = "serialize")]
 pub mod se;
@@ -75,7 +73,7 @@ pub mod writer;
 // reexports
 pub use crate::encoding::Decoder;
 #[cfg(feature = "serialize")]
-pub use crate::errors::serialize::DeError;
+pub use crate::errors::serialize::{DeError, SeError};
 pub use crate::errors::{Error, Result};
 pub use crate::reader::{NsReader, Reader};
 pub use crate::writer::{ElementWriter, Writer};

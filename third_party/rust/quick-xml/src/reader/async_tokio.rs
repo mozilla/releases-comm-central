@@ -2,15 +2,18 @@
 //! as underlying byte stream. This reader fully implements async/await so reading
 //! can use non-blocking I/O.
 
-use tokio::io::{self, AsyncBufRead, AsyncBufReadExt};
+use std::pin::Pin;
+use std::task::{Context, Poll};
 
+use tokio::io::{self, AsyncBufRead, AsyncBufReadExt, AsyncRead, ReadBuf};
+
+use crate::errors::{Error, Result, SyntaxError};
 use crate::events::Event;
 use crate::name::{QName, ResolveResult};
+use crate::parser::{ElementParser, Parser, PiParser};
 use crate::reader::buffered_reader::impl_buffered_source;
-use crate::reader::{
-    is_whitespace, BangType, NsReader, ParseState, ReadElementState, Reader, Span,
-};
-use crate::{Error, Result};
+use crate::reader::{BangType, BinaryStream, NsReader, ParseState, ReadTextResult, Reader, Span};
+use crate::utils::is_whitespace;
 
 /// A struct for read XML asynchronously from an [`AsyncBufRead`].
 ///
@@ -20,6 +23,47 @@ struct TokioAdapter<'a, R>(&'a mut R);
 
 impl<'a, R: AsyncBufRead + Unpin> TokioAdapter<'a, R> {
     impl_buffered_source!('b, 0, async, await);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+impl<'r, R> AsyncRead for BinaryStream<'r, R>
+where
+    R: AsyncRead + Unpin,
+{
+    fn poll_read(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &mut ReadBuf<'_>,
+    ) -> Poll<io::Result<()>> {
+        let start = buf.remaining();
+        let this = self.get_mut();
+        let poll = Pin::new(&mut *this.inner).poll_read(cx, buf);
+
+        // If something was read, update offset
+        if let Poll::Ready(Ok(_)) = poll {
+            let amt = start - buf.remaining();
+            *this.offset += amt as u64;
+        }
+        poll
+    }
+}
+
+impl<'r, R> AsyncBufRead for BinaryStream<'r, R>
+where
+    R: AsyncBufRead + Unpin,
+{
+    #[inline]
+    fn poll_fill_buf(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<&[u8]>> {
+        Pin::new(&mut *self.get_mut().inner).poll_fill_buf(cx)
+    }
+
+    #[inline]
+    fn consume(self: Pin<&mut Self>, amt: usize) {
+        let this = self.get_mut();
+        this.inner.consume(amt);
+        *this.offset += amt as u64;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,14 +86,14 @@ impl<R: AsyncBufRead + Unpin> Reader<R> {
     ///
     /// // This explicitly uses `from_reader("...".as_bytes())` to use a buffered
     /// // reader instead of relying on the zero-copy optimizations for reading
-    /// // from byte slices, which is provides the sync interface anyway.
+    /// // from byte slices, which provides the sync interface anyway.
     /// let mut reader = Reader::from_reader(r#"
     ///     <tag1 att1 = "test">
     ///        <tag2><!--Test comment-->Test</tag2>
     ///        <tag2>Test 2</tag2>
     ///     </tag1>
     /// "#.as_bytes());
-    /// reader.trim_text(true);
+    /// reader.config_mut().trim_text(true);
     ///
     /// let mut count = 0;
     /// let mut buf = Vec::new();
@@ -58,7 +102,7 @@ impl<R: AsyncBufRead + Unpin> Reader<R> {
     ///     match reader.read_event_into_async(&mut buf).await {
     ///         Ok(Event::Start(_)) => count += 1,
     ///         Ok(Event::Text(e)) => txt.push(e.unescape().unwrap().into_owned()),
-    ///         Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
+    ///         Err(e) => panic!("Error at position {}: {:?}", reader.error_position(), e),
     ///         Ok(Event::Eof) => break,
     ///         _ => (),
     ///     }
@@ -75,9 +119,9 @@ impl<R: AsyncBufRead + Unpin> Reader<R> {
         mut buf: &'b mut Vec<u8>,
     ) -> Result<Event<'b>> {
         read_event_impl!(
-            self, buf,
+            self,
+            buf,
             TokioAdapter(&mut self.reader),
-            read_until_open_async,
             read_until_close_async,
             await
         )
@@ -111,7 +155,7 @@ impl<R: AsyncBufRead + Unpin> Reader<R> {
     ///         </inner>
     ///     </outer>
     /// "#.as_bytes());
-    /// reader.trim_text(true);
+    /// reader.config_mut().trim_text(true);
     /// let mut buf = Vec::new();
     ///
     /// let start = BytesStart::new("outer");
@@ -138,18 +182,16 @@ impl<R: AsyncBufRead + Unpin> Reader<R> {
         end: QName<'n>,
         buf: &mut Vec<u8>,
     ) -> Result<Span> {
-        Ok(read_to_end!(self, end, buf, read_event_into_async, { buf.clear(); }, await))
-    }
-
-    /// Read until '<' is found, moves reader to an `OpenedTag` state and returns a `Text` event.
-    ///
-    /// Returns inner `Ok` if the loop should be broken and an event returned.
-    /// Returns inner `Err` with the same `buf` because Rust borrowck stumbles upon this case in particular.
-    async fn read_until_open_async<'b>(
-        &mut self,
-        buf: &'b mut Vec<u8>,
-    ) -> Result<std::result::Result<Event<'b>, &'b mut Vec<u8>>> {
-        read_until_open!(self, buf, TokioAdapter(&mut self.reader), read_event_into_async, await)
+        Ok(read_to_end!(
+            self,
+            end,
+            buf,
+            read_event_into_async,
+            {
+                buf.clear();
+            },
+            await
+        ))
     }
 
     /// Private function to read until `>` is found. This function expects that
@@ -186,7 +228,7 @@ impl<R: AsyncBufRead + Unpin> NsReader<R> {
     ///        <y:tag2>Test 2</y:tag2>
     ///     </x:tag1>
     /// "#.as_bytes());
-    /// reader.trim_text(true);
+    /// reader.config_mut().trim_text(true);
     ///
     /// let mut count = 0;
     /// let mut buf = Vec::new();
@@ -257,7 +299,7 @@ impl<R: AsyncBufRead + Unpin> NsReader<R> {
     ///         </inner>
     ///     </outer>
     /// "#.as_bytes());
-    /// reader.trim_text(true);
+    /// reader.config_mut().trim_text(true);
     /// let mut buf = Vec::new();
     ///
     /// let ns = Namespace(b"namespace 1");
@@ -292,7 +334,7 @@ impl<R: AsyncBufRead + Unpin> NsReader<R> {
         buf: &mut Vec<u8>,
     ) -> Result<Span> {
         // According to the https://www.w3.org/TR/xml11/#dt-etag, end name should
-        // match literally the start name. See `Reader::check_end_names` documentation
+        // match literally the start name. See `Config::check_end_names` documentation
         self.reader.read_to_end_into_async(end, buf).await
     }
 
@@ -321,7 +363,7 @@ impl<R: AsyncBufRead + Unpin> NsReader<R> {
     ///        <y:tag2>Test 2</y:tag2>
     ///     </x:tag1>
     /// "#.as_bytes());
-    /// reader.trim_text(true);
+    /// reader.config_mut().trim_text(true);
     ///
     /// let mut count = 0;
     /// let mut buf = Vec::new();
@@ -370,7 +412,7 @@ impl<R: AsyncBufRead + Unpin> NsReader<R> {
 #[cfg(test)]
 mod test {
     use super::TokioAdapter;
-    use crate::reader::test::{check, small_buffers};
+    use crate::reader::test::check;
 
     check!(
         #[tokio::test]
@@ -378,13 +420,8 @@ mod test {
         read_until_close_async,
         TokioAdapter,
         &mut Vec::new(),
-        async, await
-    );
-
-    small_buffers!(
-        #[tokio::test]
-        read_event_into_async: tokio::io::BufReader<_>,
-        async, await
+        async,
+        await
     );
 
     #[test]

@@ -4,7 +4,7 @@
 [![Crate](https://img.shields.io/crates/v/quick-xml.svg)](https://crates.io/crates/quick-xml)
 [![docs.rs](https://docs.rs/quick-xml/badge.svg)](https://docs.rs/quick-xml)
 [![codecov](https://img.shields.io/codecov/c/github/tafia/quick-xml)](https://codecov.io/gh/tafia/quick-xml)
-[![MSRV](https://img.shields.io/badge/rustc-1.52.0+-ab6000.svg)](https://blog.rust-lang.org/2021/05/06/Rust-1.52.0.html)
+[![MSRV](https://img.shields.io/badge/rustc-1.56.0+-ab6000.svg)](https://blog.rust-lang.org/2021/10/21/Rust-1.56.0.html)
 
 High performance xml pull reader/writer.
 
@@ -28,7 +28,7 @@ let xml = r#"<tag1 att1 = "test">
                 <tag2>Test 2</tag2>
              </tag1>"#;
 let mut reader = Reader::from_str(xml);
-reader.trim_text(true);
+reader.config_mut().trim_text(true);
 
 let mut count = 0;
 let mut txt = Vec::new();
@@ -40,7 +40,7 @@ loop {
     // when the input is a &str or a &[u8], we don't actually need to use another
     // buffer, we could directly call `reader.read_event()`
     match reader.read_event_into(&mut buf) {
-        Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
+        Err(e) => panic!("Error at position {}: {:?}", reader.error_position(), e),
         // exits the loop when reaching end of file
         Ok(Event::Eof) => break,
 
@@ -73,7 +73,7 @@ use std::io::Cursor;
 
 let xml = r#"<this_tag k1="v1" k2="v2"><child>text</child></this_tag>"#;
 let mut reader = Reader::from_str(xml);
-reader.trim_text(true);
+reader.config_mut().trim_text(true);
 let mut writer = Writer::new(Cursor::new(Vec::new()));
 loop {
     match reader.read_event() {
@@ -98,7 +98,7 @@ loop {
         Ok(Event::Eof) => break,
         // we can either move or borrow the event to write, depending on your use-case
         Ok(e) => assert!(writer.write_event(e).is_ok()),
-        Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
+        Err(e) => panic!("Error at position {}: {:?}", reader.error_position(), e),
     }
 }
 

@@ -13,12 +13,18 @@
 edition = "2021"
 rust-version = "1.56"
 name = "quick-xml"
-version = "0.31.0"
+version = "0.37.5"
+build = false
 include = [
     "src/*",
     "LICENSE-MIT.md",
     "README.md",
 ]
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "High performance xml reader and writer"
 documentation = "https://docs.rs/quick-xml"
 readme = "README.md"
@@ -40,73 +46,20 @@ repository = "https://github.com/tafia/quick-xml"
 
 [package.metadata.docs.rs]
 all-features = true
-rustdoc-args = [
-    "--cfg",
-    "docs_rs",
-]
+
+[features]
+async-tokio = ["tokio"]
+default = []
+encoding = ["encoding_rs"]
+escape-html = []
+overlapped-lists = []
+serde-types = ["serde/derive"]
+serialize = ["serde"]
 
 [lib]
+name = "quick_xml"
+path = "src/lib.rs"
 bench = false
-
-[[example]]
-name = "read_nodes_serde"
-path = "examples/read_nodes_serde.rs"
-required-features = ["serialize"]
-
-[[test]]
-name = "encodings"
-path = "tests/encodings.rs"
-required-features = ["encoding"]
-
-[[test]]
-name = "serde_roundtrip"
-path = "tests/serde_roundtrip.rs"
-required-features = ["serialize"]
-
-[[test]]
-name = "serde-de"
-path = "tests/serde-de.rs"
-required-features = ["serialize"]
-
-[[test]]
-name = "serde-de-enum"
-path = "tests/serde-de-enum.rs"
-required-features = ["serialize"]
-
-[[test]]
-name = "serde-de-seq"
-path = "tests/serde-de-seq.rs"
-required-features = ["serialize"]
-
-[[test]]
-name = "serde-se"
-path = "tests/serde-se.rs"
-required-features = ["serialize"]
-
-[[test]]
-name = "serde-migrated"
-path = "tests/serde-migrated.rs"
-required-features = ["serialize"]
-
-[[test]]
-name = "serde-issues"
-path = "tests/serde-issues.rs"
-required-features = ["serialize"]
-
-[[test]]
-name = "async-tokio"
-path = "tests/async-tokio.rs"
-required-features = ["async-tokio"]
-
-[[bench]]
-name = "microbenches"
-path = "benches/microbenches.rs"
-harness = false
-
-[[bench]]
-name = "macrobenches"
-path = "benches/macrobenches.rs"
-harness = false
 
 [dependencies.arbitrary]
 version = "1"
@@ -125,7 +78,7 @@ optional = true
 version = "2.1"
 
 [dependencies.serde]
-version = ">=1.0.100"
+version = ">=1.0.139"
 optional = true
 
 [dependencies.tokio]
@@ -147,7 +100,7 @@ version = "1"
 version = "0.7"
 
 [dev-dependencies.serde_derive]
-version = "1.0.79"
+version = "1.0.206"
 
 [dev-dependencies.tokio]
 version = "1.21"
@@ -159,12 +112,3 @@ default-features = false
 
 [dev-dependencies.tokio-test]
 version = "0.4"
-
-[features]
-async-tokio = ["tokio"]
-default = []
-encoding = ["encoding_rs"]
-escape-html = []
-overlapped-lists = []
-serde-types = ["serde/derive"]
-serialize = ["serde"]

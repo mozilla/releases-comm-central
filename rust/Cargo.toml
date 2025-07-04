@@ -13,6 +13,8 @@ gkrust-gtest = ["gkrust"]
 
 
 
+
+
 [workspace]
 members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom', 'gtest', 'sys_tray', 'mailnews_ui_glue']
 
@@ -204,7 +206,6 @@ r-efi = { path = "../../build/rust/r-efi" }
 redox_users = { path = "../../build/rust/redox_users" }
 redox_syscall = { path = "../../build/rust/redox_syscall" }
 hermit-abi = { path = "../../build/rust/hermit-abi" }
-base64_13 = { package = "base64", path = "../../build/rust/base64_13" }
 base64_21 = { package = "base64", path = "../../build/rust/base64" }
 wasi_0_10 = { package = "wasi", path = "../../build/rust/wasi-0.10" }
 wasi_0_11 = { package = "wasi", path = "../../build/rust/wasi" }
@@ -229,7 +230,6 @@ rusqlite = { path = "../../build/rust/rusqlite" }
 itertools = { path = "../../build/rust/itertools" }
 moz_asserts = { path = "../../mozglue/static/rust/moz_asserts" }
 rure = { path = "../../third_party/rust/rure" }
-plist = { path = "../../third_party/rust/plist" }
 unicode-width = { path = "../../build/rust/unicode-width" }
 unicode-bidi = { git = "https://github.com/servo/unicode-bidi", rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c" }
 nss-gk-api = { git = "https://github.com/beurdouche/nss-gk-api", rev = "e48a946811ffd64abc78de3ee284957d8d1c0d63" }

@@ -3,6 +3,7 @@
 use std::convert::Infallible;
 use std::error::Error;
 
+use crate::escape::resolve_predefined_entity;
 use crate::events::BytesText;
 
 /// Used to resolve unknown entities while parsing
@@ -80,25 +81,35 @@ pub trait EntityResolver {
     /// Called when an entity needs to be resolved.
     ///
     /// `None` is returned if a suitable value can not be found.
-    /// In that case an [`EscapeError::UnrecognizedSymbol`] will be returned by
+    /// In that case an [`EscapeError::UnrecognizedEntity`] will be returned by
     /// a deserializer.
     ///
-    /// [`EscapeError::UnrecognizedSymbol`]: crate::escape::EscapeError::UnrecognizedSymbol
+    /// [`EscapeError::UnrecognizedEntity`]: crate::escape::EscapeError::UnrecognizedEntity
     fn resolve(&self, entity: &str) -> Option<&str>;
 }
 
-/// An `EntityResolver` that does nothing and always returns `None`.
+/// An [`EntityResolver`] that resolves only predefined entities:
+///
+/// | Entity | Resolution
+/// |--------|------------
+/// |`&lt;`  | `<`
+/// |`&gt;`  | `>`
+/// |`&amp;` | `&`
+/// |`&apos;`| `'`
+/// |`&quot;`| `"`
 #[derive(Default, Copy, Clone)]
-pub struct NoEntityResolver;
+pub struct PredefinedEntityResolver;
 
-impl EntityResolver for NoEntityResolver {
+impl EntityResolver for PredefinedEntityResolver {
     type Error = Infallible;
 
+    #[inline]
     fn capture(&mut self, _doctype: BytesText) -> Result<(), Self::Error> {
         Ok(())
     }
 
-    fn resolve(&self, _entity: &str) -> Option<&str> {
-        None
+    #[inline]
+    fn resolve(&self, entity: &str) -> Option<&str> {
+        resolve_predefined_entity(entity)
     }
 }

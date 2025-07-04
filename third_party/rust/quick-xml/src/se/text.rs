@@ -1,8 +1,8 @@
 //! Contains serializer for a special `&text` field
 
 use crate::de::TEXT_KEY;
-use crate::errors::serialize::DeError;
 use crate::se::simple_type::{SimpleSeq, SimpleTypeSerializer};
+use crate::se::SeError;
 use serde::ser::{Impossible, Serialize, Serializer};
 use serde::serde_if_integer128;
 use std::fmt::Write;
@@ -23,16 +23,16 @@ macro_rules! write_primitive {
 /// This serializer a very similar to [`SimpleTypeSerializer`], but different
 /// from it in how it processes unit enum variants. Unlike [`SimpleTypeSerializer`]
 /// this serializer does not write anything for the unit variant.
-pub struct TextSerializer<'i, W: Write>(pub SimpleTypeSerializer<'i, W>);
+pub struct TextSerializer<W: Write>(pub SimpleTypeSerializer<W>);
 
-impl<'i, W: Write> Serializer for TextSerializer<'i, W> {
+impl<W: Write> Serializer for TextSerializer<W> {
     type Ok = W;
-    type Error = DeError;
+    type Error = SeError;
 
-    type SerializeSeq = SimpleSeq<'i, W>;
-    type SerializeTuple = SimpleSeq<'i, W>;
-    type SerializeTupleStruct = SimpleSeq<'i, W>;
-    type SerializeTupleVariant = SimpleSeq<'i, W>;
+    type SerializeSeq = SimpleSeq<W>;
+    type SerializeTuple = SimpleSeq<W>;
+    type SerializeTupleStruct = SimpleSeq<W>;
+    type SerializeTupleVariant = SimpleSeq<W>;
     type SerializeMap = Impossible<Self::Ok, Self::Error>;
     type SerializeStruct = Impossible<Self::Ok, Self::Error>;
     type SerializeStructVariant = Impossible<Self::Ok, Self::Error>;
@@ -110,7 +110,7 @@ impl<'i, W: Write> Serializer for TextSerializer<'i, W> {
         variant: &'static str,
         _value: &T,
     ) -> Result<Self::Ok, Self::Error> {
-        Err(DeError::Unsupported(
+        Err(SeError::Unsupported(
             format!(
                 "cannot serialize enum newtype variant `{}::{}` as text content value",
                 name, variant
@@ -146,7 +146,7 @@ impl<'i, W: Write> Serializer for TextSerializer<'i, W> {
         variant: &'static str,
         _len: usize,
     ) -> Result<Self::SerializeTupleVariant, Self::Error> {
-        Err(DeError::Unsupported(
+        Err(SeError::Unsupported(
             format!(
                 "cannot serialize enum tuple variant `{}::{}` as text content value",
                 name, variant
@@ -157,7 +157,7 @@ impl<'i, W: Write> Serializer for TextSerializer<'i, W> {
 
     #[inline]
     fn serialize_map(self, _len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
-        Err(DeError::Unsupported(
+        Err(SeError::Unsupported(
             "cannot serialize map as text content value".into(),
         ))
     }
@@ -168,7 +168,7 @@ impl<'i, W: Write> Serializer for TextSerializer<'i, W> {
         name: &'static str,
         _len: usize,
     ) -> Result<Self::SerializeStruct, Self::Error> {
-        Err(DeError::Unsupported(
+        Err(SeError::Unsupported(
             format!("cannot serialize struct `{}` as text content value", name).into(),
         ))
     }
@@ -181,7 +181,7 @@ impl<'i, W: Write> Serializer for TextSerializer<'i, W> {
         variant: &'static str,
         _len: usize,
     ) -> Result<Self::SerializeStructVariant, Self::Error> {
-        Err(DeError::Unsupported(
+        Err(SeError::Unsupported(
             format!(
                 "cannot serialize enum struct variant `{}::{}` as text content value",
                 name, variant

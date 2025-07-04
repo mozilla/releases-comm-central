@@ -46,7 +46,7 @@ dom = { path = "../../../dom/base/rust" }
 dom_fragmentdirectives = { path = "../../../dom/base/fragmentdirectives" }
 encoding_glue = { path = "../../../intl/encoding_glue" }
 etagere = { version = "0.2.13", features = ['ffi'] }
-fluent = { version = "0.16.0", features = ['fluent-pseudo'] }
+fluent = { version = "0.17.0", features = ['fluent-pseudo'] }
 fluent-fallback = { version = "0.7.0" }
 fluent-ffi = { path = "../../../intl/l10n/rust/fluent-ffi" }
 fluent-langneg = { version = "0.13", features = ['cldr'] }

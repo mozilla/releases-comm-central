@@ -3,33 +3,47 @@
 //! [simple types]: https://www.w3schools.com/xml/el_simpletype.asp
 //! [as defined]: https://www.w3.org/TR/xmlschema11-1/#Simple_Type_Definition
 
-use crate::de::{deserialize_bool, str2bool, Text};
+use crate::de::Text;
 use crate::encoding::Decoder;
 use crate::errors::serialize::DeError;
 use crate::escape::unescape;
 use crate::utils::CowRef;
 use memchr::memchr;
-use serde::de::{DeserializeSeed, Deserializer, EnumAccess, SeqAccess, VariantAccess, Visitor};
-use serde::{self, serde_if_integer128};
+use serde::de::value::UnitDeserializer;
+use serde::de::{
+    DeserializeSeed, Deserializer, EnumAccess, IntoDeserializer, SeqAccess, VariantAccess, Visitor,
+};
+use serde::serde_if_integer128;
 use std::borrow::Cow;
 use std::ops::Range;
 
 macro_rules! deserialize_num {
-    ($method:ident, $visit:ident) => {
+    ($method:ident => $visit:ident) => {
+        #[inline]
         fn $method<V>(self, visitor: V) -> Result<V::Value, Self::Error>
         where
             V: Visitor<'de>,
         {
-            visitor.$visit(self.content.as_str().parse()?)
+            let text: &str = self.content.as_ref();
+            match text.parse() {
+                Ok(number) => visitor.$visit(number),
+                Err(_) => self.content.deserialize_str(visitor),
+            }
         }
     };
-    ($method:ident => $visit:ident) => {
+}
+
+macro_rules! deserialize_primitive {
+    ($method:ident) => {
         fn $method<V>(self, visitor: V) -> Result<V::Value, Self::Error>
         where
             V: Visitor<'de>,
         {
-            let string = self.decode()?;
-            visitor.$visit(string.as_str().parse()?)
+            let de = AtomicDeserializer {
+                content: self.decode()?,
+                escaped: self.escaped,
+            };
+            de.$method(visitor)
         }
     };
 }
@@ -40,15 +54,17 @@ macro_rules! unsupported {
         $(
             ($($type:ty),*)
         )?
-        => $message:literal
     ) => {
         #[inline]
         fn $deserialize<V: Visitor<'de>>(
             self,
             $($(_: $type,)*)?
-            _visitor: V
+            visitor: V
         ) -> Result<V::Value, Self::Error> {
-            Err(DeError::Unsupported($message.into()))
+            // Deserializer methods are only hints, if deserializer could not satisfy
+            // request, it should return the data that it has. It is responsibility
+            // of a Visitor to return an error if it does not understand the data
+            self.deserialize_str(visitor)
         }
     };
 }
@@ -81,47 +97,6 @@ impl<'de, 'a> Content<'de, 'a> {
             Content::Owned(s, offset) => s.split_at(*offset).1,
         }
     }
-
-    /// Supply to the visitor a borrowed string, a string slice, or an owned
-    /// string depending on the kind of input. Unlike [`Self::deserialize_item`],
-    /// the whole [`Self::Owned`] string will be passed to the visitor.
-    ///
-    /// Calls
-    /// - `visitor.visit_borrowed_str` if data borrowed from the input
-    /// - `visitor.visit_str` if data borrowed from another source
-    /// - `visitor.visit_string` if data owned by this type
-    #[inline]
-    fn deserialize_all<V>(self, visitor: V) -> Result<V::Value, DeError>
-    where
-        V: Visitor<'de>,
-    {
-        match self {
-            Content::Input(s) => visitor.visit_borrowed_str(s),
-            Content::Slice(s) => visitor.visit_str(s),
-            Content::Owned(s, _) => visitor.visit_string(s),
-        }
-    }
-
-    /// Supply to the visitor a borrowed string, a string slice, or an owned
-    /// string depending on the kind of input. Unlike [`Self::deserialize_all`],
-    /// only part of [`Self::Owned`] string will be passed to the visitor.
-    ///
-    /// Calls
-    /// - `visitor.visit_borrowed_str` if data borrowed from the input
-    /// - `visitor.visit_str` if data borrowed from another source
-    /// - `visitor.visit_string` if data owned by this type
-    #[inline]
-    fn deserialize_item<V>(self, visitor: V) -> Result<V::Value, DeError>
-    where
-        V: Visitor<'de>,
-    {
-        match self {
-            Content::Input(s) => visitor.visit_borrowed_str(s),
-            Content::Slice(s) => visitor.visit_str(s),
-            Content::Owned(s, 0) => visitor.visit_string(s),
-            Content::Owned(s, offset) => visitor.visit_str(s.split_at(offset).1),
-        }
-    }
 }
 
 /// A deserializer that handles ordinary [simple type definition][item] with
@@ -138,7 +113,8 @@ impl<'de, 'a> Content<'de, 'a> {
 ///
 /// Identifiers represented as strings and deserialized accordingly.
 ///
-/// Deserialization of all other types returns [`Unsupported`][DeError::Unsupported] error.
+/// Deserialization of all other types will provide a string and in most cases
+/// the deserialization will fail because visitor does not expect that.
 ///
 /// The `Owned` variant of the content acts as a storage for data, allocated by
 /// an external deserializer that pass it via [`ListIter`].
@@ -147,7 +123,7 @@ impl<'de, 'a> Content<'de, 'a> {
 /// [simple type]: https://www.w3.org/TR/xmlschema11-1/#Simple_Type_Definition
 struct AtomicDeserializer<'de, 'a> {
     /// Content of the attribute value, text content or CDATA content
-    content: Content<'de, 'a>,
+    content: CowRef<'de, 'a, str>,
     /// If `true`, `content` in an escaped form and should be unescaped before use
     escaped: bool,
 }
@@ -165,36 +141,31 @@ impl<'de, 'a> Deserializer<'de> for AtomicDeserializer<'de, 'a> {
 
     /// According to the <https://www.w3.org/TR/xmlschema11-2/#boolean>,
     /// valid boolean representations are only `"true"`, `"false"`, `"1"`,
-    /// and `"0"`. But this method also handles following:
-    ///
-    /// |`bool` |XML content
-    /// |-------|-------------------------------------------------------------
-    /// |`true` |`"True"`,  `"TRUE"`,  `"t"`, `"Yes"`, `"YES"`, `"yes"`, `"y"`
-    /// |`false`|`"False"`, `"FALSE"`, `"f"`, `"No"`,  `"NO"`,  `"no"`,  `"n"`
+    /// and `"0"`.
     fn deserialize_bool<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        str2bool(self.content.as_str(), visitor)
+        self.content.deserialize_bool(visitor)
     }
 
-    deserialize_num!(deserialize_i8, visit_i8);
-    deserialize_num!(deserialize_i16, visit_i16);
-    deserialize_num!(deserialize_i32, visit_i32);
-    deserialize_num!(deserialize_i64, visit_i64);
+    deserialize_num!(deserialize_i8  => visit_i8);
+    deserialize_num!(deserialize_i16 => visit_i16);
+    deserialize_num!(deserialize_i32 => visit_i32);
+    deserialize_num!(deserialize_i64 => visit_i64);
 
-    deserialize_num!(deserialize_u8, visit_u8);
-    deserialize_num!(deserialize_u16, visit_u16);
-    deserialize_num!(deserialize_u32, visit_u32);
-    deserialize_num!(deserialize_u64, visit_u64);
+    deserialize_num!(deserialize_u8  => visit_u8);
+    deserialize_num!(deserialize_u16 => visit_u16);
+    deserialize_num!(deserialize_u32 => visit_u32);
+    deserialize_num!(deserialize_u64 => visit_u64);
 
     serde_if_integer128! {
-        deserialize_num!(deserialize_i128, visit_i128);
-        deserialize_num!(deserialize_u128, visit_u128);
+        deserialize_num!(deserialize_i128 => visit_i128);
+        deserialize_num!(deserialize_u128 => visit_u128);
     }
 
-    deserialize_num!(deserialize_f32, visit_f32);
-    deserialize_num!(deserialize_f64, visit_f64);
+    deserialize_num!(deserialize_f32 => visit_f32);
+    deserialize_num!(deserialize_f64 => visit_f64);
 
     /// Forwards deserialization to the [`Self::deserialize_str`]
     fn deserialize_char<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -219,12 +190,12 @@ impl<'de, 'a> Deserializer<'de> for AtomicDeserializer<'de, 'a> {
         V: Visitor<'de>,
     {
         if self.escaped {
-            match unescape(self.content.as_str())? {
-                Cow::Borrowed(_) => self.content.deserialize_item(visitor),
+            match unescape(self.content.as_ref())? {
+                Cow::Borrowed(_) => self.content.deserialize_str(visitor),
                 Cow::Owned(s) => visitor.visit_string(s),
             }
         } else {
-            self.content.deserialize_item(visitor)
+            self.content.deserialize_str(visitor)
         }
     }
 
@@ -241,7 +212,8 @@ impl<'de, 'a> Deserializer<'de> for AtomicDeserializer<'de, 'a> {
     where
         V: Visitor<'de>,
     {
-        if self.content.as_str().is_empty() {
+        let text: &str = self.content.as_ref();
+        if text.is_empty() {
             visitor.visit_none()
         } else {
             visitor.visit_some(self)
@@ -305,71 +277,68 @@ impl<'de, 'a> Deserializer<'de> for AtomicDeserializer<'de, 'a> {
         visitor.visit_unit()
     }
 
-    unsupported!(deserialize_bytes        => "byte arrays are not supported as `xs:list` items");
-    unsupported!(deserialize_byte_buf     => "byte arrays are not supported as `xs:list` items");
-    unsupported!(deserialize_seq          => "sequences are not supported as `xs:list` items");
-    unsupported!(deserialize_tuple(usize) => "tuples are not supported as `xs:list` items");
-    unsupported!(deserialize_tuple_struct(&'static str, usize) => "tuples are not supported as `xs:list` items");
-    unsupported!(deserialize_map          => "maps are not supported as `xs:list` items");
-    unsupported!(deserialize_struct(&'static str, &'static [&'static str]) => "structures are not supported as `xs:list` items");
+    unsupported!(deserialize_bytes);
+    unsupported!(deserialize_byte_buf);
+    unsupported!(deserialize_seq);
+    unsupported!(deserialize_tuple(usize));
+    unsupported!(deserialize_tuple_struct(&'static str, usize));
+    unsupported!(deserialize_map);
+    unsupported!(deserialize_struct(&'static str, &'static [&'static str]));
 }
 
 impl<'de, 'a> EnumAccess<'de> for AtomicDeserializer<'de, 'a> {
     type Error = DeError;
-    type Variant = AtomicUnitOnly;
+    type Variant = UnitOnly;
 
     fn variant_seed<V>(self, seed: V) -> Result<(V::Value, Self::Variant), DeError>
     where
         V: DeserializeSeed<'de>,
     {
         let name = seed.deserialize(self)?;
-        Ok((name, AtomicUnitOnly))
+        Ok((name, UnitOnly))
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Deserializer of variant data, that supports only unit variants.
-/// Attempt to deserialize newtype, tuple or struct variant will return a
-/// [`DeError::Unsupported`] error.
-pub struct AtomicUnitOnly;
-impl<'de> VariantAccess<'de> for AtomicUnitOnly {
+/// Attempt to deserialize newtype will provide [`UnitDeserializer`].
+/// Attempt to deserialize tuple or struct variant will result to call of
+/// [`Visitor::visit_unit`].
+pub struct UnitOnly;
+impl<'de> VariantAccess<'de> for UnitOnly {
     type Error = DeError;
 
     #[inline]
-    fn unit_variant(self) -> Result<(), DeError> {
+    fn unit_variant(self) -> Result<(), Self::Error> {
         Ok(())
     }
 
-    fn newtype_variant_seed<T>(self, _seed: T) -> Result<T::Value, DeError>
+    fn newtype_variant_seed<T>(self, seed: T) -> Result<T::Value, Self::Error>
     where
         T: DeserializeSeed<'de>,
     {
-        Err(DeError::Unsupported(
-            "enum newtype variants are not supported as `xs:list` items".into(),
-        ))
+        seed.deserialize(UnitDeserializer::<Self::Error>::new())
     }
 
-    fn tuple_variant<V>(self, _len: usize, _visitor: V) -> Result<V::Value, DeError>
+    #[inline]
+    fn tuple_variant<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        Err(DeError::Unsupported(
-            "enum tuple variants are not supported as `xs:list` items".into(),
-        ))
+        visitor.visit_unit()
     }
 
+    #[inline]
     fn struct_variant<V>(
         self,
         _fields: &'static [&'static str],
-        _visitor: V,
-    ) -> Result<V::Value, DeError>
+        visitor: V,
+    ) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        Err(DeError::Unsupported(
-            "enum struct variants are not supported as `xs:list` items".into(),
-        ))
+        visitor.visit_unit()
     }
 }
 
@@ -401,10 +370,24 @@ impl<'de, 'a> SeqAccess<'de> for ListIter<'de, 'a> {
                 }
                 return match memchr(DELIMITER, string.as_bytes()) {
                     // No delimiters in the `content`, deserialize it as a whole atomic
-                    None => seed.deserialize(AtomicDeserializer {
-                        content,
-                        escaped: self.escaped,
-                    }),
+                    None => match content {
+                        Content::Input(s) => seed.deserialize(AtomicDeserializer {
+                            content: CowRef::Input(s),
+                            escaped: self.escaped,
+                        }),
+                        Content::Slice(s) => seed.deserialize(AtomicDeserializer {
+                            content: CowRef::Slice(s),
+                            escaped: self.escaped,
+                        }),
+                        Content::Owned(s, 0) => seed.deserialize(AtomicDeserializer {
+                            content: CowRef::Owned(s),
+                            escaped: self.escaped,
+                        }),
+                        Content::Owned(s, offset) => seed.deserialize(AtomicDeserializer {
+                            content: CowRef::Slice(s.split_at(offset).1),
+                            escaped: self.escaped,
+                        }),
+                    },
                     // `content` started with a space, skip them all
                     Some(0) => {
                         // Skip all spaces
@@ -431,7 +414,7 @@ impl<'de, 'a> SeqAccess<'de> for ListIter<'de, 'a> {
                             self.content = Some(Content::Input(rest));
 
                             seed.deserialize(AtomicDeserializer {
-                                content: Content::Input(item),
+                                content: CowRef::Input(item),
                                 escaped: self.escaped,
                             })
                         }
@@ -440,7 +423,7 @@ impl<'de, 'a> SeqAccess<'de> for ListIter<'de, 'a> {
                             self.content = Some(Content::Slice(rest));
 
                             seed.deserialize(AtomicDeserializer {
-                                content: Content::Slice(item),
+                                content: CowRef::Slice(item),
                                 escaped: self.escaped,
                             })
                         }
@@ -449,7 +432,7 @@ impl<'de, 'a> SeqAccess<'de> for ListIter<'de, 'a> {
                         Content::Owned(s, skip) => {
                             let item = s.split_at(skip + end).0;
                             let result = seed.deserialize(AtomicDeserializer {
-                                content: Content::Slice(item),
+                                content: CowRef::Slice(item),
                                 escaped: self.escaped,
                             });
 
@@ -482,26 +465,37 @@ impl<'de, 'a> SeqAccess<'de> for ListIter<'de, 'a> {
 /// - mixed text / CDATA content (`<...>text<![CDATA[cdata]]></...>`)
 ///
 /// This deserializer processes items as following:
-/// - numbers are parsed from a text content using [`FromStr`];
+/// - numbers are parsed from a text content using [`FromStr`]; in case of error
+///   [`Visitor::visit_borrowed_str`], [`Visitor::visit_str`], or [`Visitor::visit_string`]
+///   is called; it is responsibility of the type to return an error if it does
+///   not able to process passed data;
 /// - booleans converted from the text according to the XML [specification]:
 ///   - `"true"` and `"1"` converted to `true`;
 ///   - `"false"` and `"0"` converted to `false`;
+///   - everything else calls [`Visitor::visit_borrowed_str`], [`Visitor::visit_str`],
+///     or [`Visitor::visit_string`]; it is responsibility of the type to return
+///     an error if it does not able to process passed data;
 /// - strings returned as is;
 /// - characters also returned as strings. If string contain more than one character
 ///   or empty, it is responsibility of a type to return an error;
 /// - `Option` always deserialized as `Some` using the same deserializer.
 ///   If attribute or text content is missed, then the deserializer even wouldn't
 ///   be used, so if it is used, then the value should be;
-/// - units (`()`) and unit structs always deserialized successfully;
+/// - units (`()`) and unit structs always deserialized successfully, the content is ignored;
 /// - newtype structs forwards deserialization to the inner type using the same
 ///   deserializer;
 /// - sequences, tuples and tuple structs are deserialized as `xs:list`s. Only
 ///   sequences of primitive types is possible to deserialize this way and they
 ///   should be delimited by a space (` `, `\t`, `\r`, or `\n`);
-/// - structs and maps returns [`DeError::Unsupported`];
+/// - structs and maps delegates to [`Self::deserialize_str`] which calls
+///   [`Visitor::visit_borrowed_str`] or [`Visitor::visit_string`]; it is responsibility
+///   of the type to return an error if it does not able to process passed data;
 /// - enums:
-///   - unit variants: just return `()`;
-///   - all other variants returns [`DeError::Unsupported`];
+///   - the variant name is deserialized using the same deserializer;
+///   - the content is deserialized using the deserializer that always returns unit (`()`):
+///     - unit variants: just return `()`;
+///     - newtype variants: deserialize from [`UnitDeserializer`];
+///     - tuple and struct variants: call [`Visitor::visit_unit`];
 /// - identifiers are deserialized as strings.
 ///
 /// [simple types]: https://www.w3.org/TR/xmlschema11-1/#Simple_Type_Definition
@@ -519,7 +513,9 @@ pub struct SimpleTypeDeserializer<'de, 'a> {
 }
 
 impl<'de, 'a> SimpleTypeDeserializer<'de, 'a> {
-    /// Creates a deserializer from a value, that possible borrowed from input
+    /// Creates a deserializer from a value, that possible borrowed from input.
+    ///
+    /// It is assumed that `text` does not have entities.
     pub fn from_text(text: Cow<'de, str>) -> Self {
         let content = match text {
             Cow::Borrowed(slice) => CowRef::Input(slice.as_bytes()),
@@ -527,14 +523,20 @@ impl<'de, 'a> SimpleTypeDeserializer<'de, 'a> {
         };
         Self::new(content, false, Decoder::utf8())
     }
-    /// Creates a deserializer from a value, that possible borrowed from input
+    /// Creates a deserializer from an XML text node, that possible borrowed from input.
+    ///
+    /// It is assumed that `text` does not have entities.
+    ///
+    /// This constructor used internally to deserialize from text nodes.
     pub fn from_text_content(value: Text<'de>) -> Self {
         Self::from_text(value.text)
     }
 
-    /// Creates a deserializer from a part of value at specified range
+    /// Creates a deserializer from a part of value at specified range.
+    ///
+    /// This constructor used internally to deserialize from attribute values.
     #[allow(clippy::ptr_arg)]
-    pub fn from_part(
+    pub(crate) fn from_part(
         value: &'a Cow<'de, [u8]>,
         range: Range<usize>,
         escaped: bool,
@@ -549,7 +551,7 @@ impl<'de, 'a> SimpleTypeDeserializer<'de, 'a> {
 
     /// Constructor for tests
     #[inline]
-    fn new(content: CowRef<'de, 'a, [u8]>, escaped: bool, decoder: Decoder) -> Self {
+    const fn new(content: CowRef<'de, 'a, [u8]>, escaped: bool, decoder: Decoder) -> Self {
         Self {
             content,
             escaped,
@@ -560,19 +562,19 @@ impl<'de, 'a> SimpleTypeDeserializer<'de, 'a> {
     /// Decodes raw bytes using the encoding specified.
     /// The method will borrow if has the UTF-8 compatible representation.
     #[inline]
-    fn decode<'b>(&'b self) -> Result<Content<'de, 'b>, DeError> {
+    fn decode<'b>(&'b self) -> Result<CowRef<'de, 'b, str>, DeError> {
         Ok(match self.content {
             CowRef::Input(content) => match self.decoder.decode(content)? {
-                Cow::Borrowed(content) => Content::Input(content),
-                Cow::Owned(content) => Content::Owned(content, 0),
+                Cow::Borrowed(content) => CowRef::Input(content),
+                Cow::Owned(content) => CowRef::Owned(content),
             },
             CowRef::Slice(content) => match self.decoder.decode(content)? {
-                Cow::Borrowed(content) => Content::Slice(content),
-                Cow::Owned(content) => Content::Owned(content, 0),
+                Cow::Borrowed(content) => CowRef::Slice(content),
+                Cow::Owned(content) => CowRef::Owned(content),
             },
             CowRef::Owned(ref content) => match self.decoder.decode(content)? {
-                Cow::Borrowed(content) => Content::Slice(content),
-                Cow::Owned(content) => Content::Owned(content, 0),
+                Cow::Borrowed(content) => CowRef::Slice(content),
+                Cow::Owned(content) => CowRef::Owned(content),
             },
         })
     }
@@ -589,32 +591,30 @@ impl<'de, 'a> Deserializer<'de> for SimpleTypeDeserializer<'de, 'a> {
         self.deserialize_str(visitor)
     }
 
-    fn deserialize_bool<V>(self, visitor: V) -> Result<V::Value, Self::Error>
-    where
-        V: Visitor<'de>,
-    {
-        deserialize_bool(&self.content, self.decoder, visitor)
-    }
+    deserialize_primitive!(deserialize_bool);
 
-    deserialize_num!(deserialize_i8  => visit_i8);
-    deserialize_num!(deserialize_i16 => visit_i16);
-    deserialize_num!(deserialize_i32 => visit_i32);
-    deserialize_num!(deserialize_i64 => visit_i64);
+    deserialize_primitive!(deserialize_i8);
+    deserialize_primitive!(deserialize_i16);
+    deserialize_primitive!(deserialize_i32);
+    deserialize_primitive!(deserialize_i64);
 
-    deserialize_num!(deserialize_u8  => visit_u8);
-    deserialize_num!(deserialize_u16 => visit_u16);
-    deserialize_num!(deserialize_u32 => visit_u32);
-    deserialize_num!(deserialize_u64 => visit_u64);
+    deserialize_primitive!(deserialize_u8);
+    deserialize_primitive!(deserialize_u16);
+    deserialize_primitive!(deserialize_u32);
+    deserialize_primitive!(deserialize_u64);
 
     serde_if_integer128! {
-        deserialize_num!(deserialize_i128 => visit_i128);
-        deserialize_num!(deserialize_u128 => visit_u128);
+        deserialize_primitive!(deserialize_i128);
+        deserialize_primitive!(deserialize_u128);
     }
 
-    deserialize_num!(deserialize_f32 => visit_f32);
-    deserialize_num!(deserialize_f64 => visit_f64);
+    deserialize_primitive!(deserialize_f32);
+    deserialize_primitive!(deserialize_f64);
+
+    deserialize_primitive!(deserialize_str);
 
     /// Forwards deserialization to the [`Self::deserialize_str`]
+    #[inline]
     fn deserialize_char<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
@@ -622,22 +622,8 @@ impl<'de, 'a> Deserializer<'de> for SimpleTypeDeserializer<'de, 'a> {
         self.deserialize_str(visitor)
     }
 
-    fn deserialize_str<V>(self, visitor: V) -> Result<V::Value, Self::Error>
-    where
-        V: Visitor<'de>,
-    {
-        let content = self.decode()?;
-        if self.escaped {
-            match unescape(content.as_str())? {
-                Cow::Borrowed(_) => content.deserialize_all(visitor),
-                Cow::Owned(s) => visitor.visit_string(s),
-            }
-        } else {
-            content.deserialize_all(visitor)
-        }
-    }
-
     /// Forwards deserialization to the [`Self::deserialize_str`]
+    #[inline]
     fn deserialize_string<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
@@ -645,17 +631,17 @@ impl<'de, 'a> Deserializer<'de> for SimpleTypeDeserializer<'de, 'a> {
         self.deserialize_str(visitor)
     }
 
-    /// Returns [`DeError::Unsupported`]
-    fn deserialize_bytes<V>(self, _visitor: V) -> Result<V::Value, Self::Error>
+    /// Forwards deserialization to the [`Self::deserialize_str`]
+    #[inline]
+    fn deserialize_bytes<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        Err(DeError::Unsupported(
-            "binary data content is not supported by XML format".into(),
-        ))
+        self.deserialize_str(visitor)
     }
 
-    /// Forwards deserialization to the [`Self::deserialize_bytes`]
+    /// Forwards deserialization to the [`Self::deserialize_str`]
+    #[inline]
     fn deserialize_byte_buf<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
@@ -670,6 +656,7 @@ impl<'de, 'a> Deserializer<'de> for SimpleTypeDeserializer<'de, 'a> {
         visitor.visit_some(self)
     }
 
+    #[inline]
     fn deserialize_unit<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
@@ -678,6 +665,7 @@ impl<'de, 'a> Deserializer<'de> for SimpleTypeDeserializer<'de, 'a> {
     }
 
     /// Forwards deserialization to the [`Self::deserialize_unit`]
+    #[inline]
     fn deserialize_unit_struct<V>(
         self,
         _name: &'static str,
@@ -704,13 +692,19 @@ impl<'de, 'a> Deserializer<'de> for SimpleTypeDeserializer<'de, 'a> {
     where
         V: Visitor<'de>,
     {
+        let content = match self.decode()? {
+            CowRef::Input(s) => Content::Input(s),
+            CowRef::Slice(s) => Content::Slice(s),
+            CowRef::Owned(s) => Content::Owned(s, 0),
+        };
         visitor.visit_seq(ListIter {
-            content: Some(self.decode()?),
+            content: Some(content),
             escaped: self.escaped,
         })
     }
 
     /// Representation of tuples the same as [sequences][Self::deserialize_seq].
+    #[inline]
     fn deserialize_tuple<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
@@ -719,6 +713,7 @@ impl<'de, 'a> Deserializer<'de> for SimpleTypeDeserializer<'de, 'a> {
     }
 
     /// Representation of named tuples the same as [unnamed tuples][Self::deserialize_tuple].
+    #[inline]
     fn deserialize_tuple_struct<V>(
         self,
         _name: &'static str,
@@ -731,9 +726,8 @@ impl<'de, 'a> Deserializer<'de> for SimpleTypeDeserializer<'de, 'a> {
         self.deserialize_tuple(len, visitor)
     }
 
-    unsupported!(deserialize_map => "maps are not supported for XSD `simpleType`s");
-    unsupported!(deserialize_struct(&'static str, &'static [&'static str])
-                 => "structures are not supported for XSD `simpleType`s");
+    unsupported!(deserialize_map);
+    unsupported!(deserialize_struct(&'static str, &'static [&'static str]));
 
     fn deserialize_enum<V>(
         self,
@@ -748,6 +742,7 @@ impl<'de, 'a> Deserializer<'de> for SimpleTypeDeserializer<'de, 'a> {
     }
 
     /// Forwards deserialization to the [`Self::deserialize_str`]
+    #[inline]
     fn deserialize_identifier<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
@@ -755,6 +750,7 @@ impl<'de, 'a> Deserializer<'de> for SimpleTypeDeserializer<'de, 'a> {
         self.deserialize_str(visitor)
     }
 
+    #[inline]
     fn deserialize_ignored_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
@@ -765,60 +761,23 @@ impl<'de, 'a> Deserializer<'de> for SimpleTypeDeserializer<'de, 'a> {
 
 impl<'de, 'a> EnumAccess<'de> for SimpleTypeDeserializer<'de, 'a> {
     type Error = DeError;
-    type Variant = SimpleTypeUnitOnly;
+    type Variant = UnitOnly;
 
     fn variant_seed<V>(self, seed: V) -> Result<(V::Value, Self::Variant), DeError>
     where
         V: DeserializeSeed<'de>,
     {
         let name = seed.deserialize(self)?;
-        Ok((name, SimpleTypeUnitOnly))
+        Ok((name, UnitOnly))
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/// Deserializer of variant data, that supports only unit variants.
-/// Attempt to deserialize newtype, tuple or struct variant will return a
-/// [`DeError::Unsupported`] error.
-pub struct SimpleTypeUnitOnly;
-impl<'de> VariantAccess<'de> for SimpleTypeUnitOnly {
-    type Error = DeError;
+impl<'de, 'a> IntoDeserializer<'de, DeError> for SimpleTypeDeserializer<'de, 'a> {
+    type Deserializer = Self;
 
     #[inline]
-    fn unit_variant(self) -> Result<(), DeError> {
-        Ok(())
-    }
-
-    fn newtype_variant_seed<T>(self, _seed: T) -> Result<T::Value, DeError>
-    where
-        T: DeserializeSeed<'de>,
-    {
-        Err(DeError::Unsupported(
-            "enum newtype variants are not supported for XSD `simpleType`s".into(),
-        ))
-    }
-
-    fn tuple_variant<V>(self, _len: usize, _visitor: V) -> Result<V::Value, DeError>
-    where
-        V: Visitor<'de>,
-    {
-        Err(DeError::Unsupported(
-            "enum tuple variants are not supported for XSD `simpleType`s".into(),
-        ))
-    }
-
-    fn struct_variant<V>(
-        self,
-        _fields: &'static [&'static str],
-        _visitor: V,
-    ) -> Result<V::Value, DeError>
-    where
-        V: Visitor<'de>,
-    {
-        Err(DeError::Unsupported(
-            "enum struct variants are not supported for XSD `simpleType`s".into(),
-        ))
+    fn into_deserializer(self) -> Self {
+        self
     }
 }
 
@@ -828,7 +787,7 @@ impl<'de> VariantAccess<'de> for SimpleTypeUnitOnly {
 mod tests {
     use super::*;
     use crate::se::simple_type::{QuoteTarget, SimpleTypeSerializer};
-    use crate::se::{Indent, QuoteLevel};
+    use crate::se::QuoteLevel;
     use crate::utils::{ByteBuf, Bytes};
     use serde::de::IgnoredAny;
     use serde::{Deserialize, Serialize};
@@ -865,7 +824,6 @@ mod tests {
                         writer: String::new(),
                         target: QuoteTarget::Text,
                         level: QuoteLevel::Full,
-                        indent: Indent::None,
                     })
                     .unwrap(),
                     xml
@@ -886,7 +844,7 @@ mod tests {
                 match err {
                     DeError::$kind(e) => assert_eq!(e, $reason),
                     _ => panic!(
-                        "Expected `{}({})`, found `{:?}`",
+                        "Expected `Err({}({}))`, but got `{:?}`",
                         stringify!($kind),
                         $reason,
                         err
@@ -942,6 +900,7 @@ mod tests {
         use super::*;
         use crate::se::simple_type::AtomicSerializer;
         use pretty_assertions::assert_eq;
+        use std::ops::Deref;
 
         /// Checks that given `$input` successfully deserializing into given `$result`
         macro_rules! deserialized_to_only {
@@ -949,7 +908,7 @@ mod tests {
                 #[test]
                 fn $name() {
                     let de = AtomicDeserializer {
-                        content: Content::Input($input),
+                        content: CowRef::Input($input),
                         escaped: true,
                     };
                     let data: $type = Deserialize::deserialize(de).unwrap();
@@ -966,7 +925,7 @@ mod tests {
                 #[test]
                 fn $name() {
                     let de = AtomicDeserializer {
-                        content: Content::Input($input),
+                        content: CowRef::Input($input),
                         escaped: true,
                     };
                     let data: $type = Deserialize::deserialize(de).unwrap();
@@ -980,7 +939,7 @@ mod tests {
                             writer: &mut buffer,
                             target: QuoteTarget::Text,
                             level: QuoteLevel::Full,
-                            indent: Some(Indent::None),
+                            write_delimiter: false,
                         })
                         .unwrap();
                     assert_eq!(buffer, $input);
@@ -996,7 +955,7 @@ mod tests {
                 #[test]
                 fn $name() {
                     let de = AtomicDeserializer {
-                        content: Content::Input($input),
+                        content: CowRef::Input($input),
                         escaped: true,
                     };
                     let err = <$type as Deserialize>::deserialize(de).unwrap_err();
@@ -1004,7 +963,7 @@ mod tests {
                     match err {
                         DeError::$kind(e) => assert_eq!(e, $reason),
                         _ => panic!(
-                            "Expected `{}({})`, found `{:?}`",
+                            "Expected `Err({}({}))`, but got `{:?}`",
                             stringify!($kind),
                             $reason,
                             err
@@ -1046,9 +1005,9 @@ mod tests {
                 => Custom("invalid type: string \"escaped string\", expected a borrowed string"));
 
         err!(byte_buf: ByteBuf = "&lt;escaped&#32;string"
-                => Unsupported("byte arrays are not supported as `xs:list` items"));
+                => Custom("invalid type: string \"<escaped string\", expected byte data"));
         err!(borrowed_bytes: Bytes = "non-escaped string"
-                => Unsupported("byte arrays are not supported as `xs:list` items"));
+                => Custom("invalid type: string \"non-escaped string\", expected borrowed bytes"));
 
         deserialized_to!(option_none: Option<&str> = "" => None);
         deserialized_to!(option_some: Option<&str> = "non-escaped-string" => Some("non-escaped-string"));
@@ -1063,24 +1022,24 @@ mod tests {
                 => BorrowedNewtype("non-escaped string"));
 
         err!(seq: Vec<()> = "non-escaped string"
-                => Unsupported("sequences are not supported as `xs:list` items"));
+                => Custom("invalid type: string \"non-escaped string\", expected a sequence"));
         err!(tuple: ((), ()) = "non-escaped string"
-                => Unsupported("tuples are not supported as `xs:list` items"));
+                => Custom("invalid type: string \"non-escaped string\", expected a tuple of size 2"));
         err!(tuple_struct: Tuple = "non-escaped string"
-                => Unsupported("tuples are not supported as `xs:list` items"));
+                => Custom("invalid type: string \"non-escaped string\", expected tuple struct Tuple"));
 
         err!(map: HashMap<(), ()> = "non-escaped string"
-                => Unsupported("maps are not supported as `xs:list` items"));
+                => Custom("invalid type: string \"non-escaped string\", expected a map"));
         err!(struct_: Struct = "non-escaped string"
-                => Unsupported("structures are not supported as `xs:list` items"));
+                => Custom("invalid type: string \"non-escaped string\", expected struct Struct"));
 
         deserialized_to!(enum_unit: Enum = "Unit" => Enum::Unit);
         err!(enum_newtype: Enum = "Newtype"
-                => Unsupported("enum newtype variants are not supported as `xs:list` items"));
+                => Custom("invalid type: unit value, expected a string"));
         err!(enum_tuple: Enum = "Tuple"
-                => Unsupported("enum tuple variants are not supported as `xs:list` items"));
+                => Custom("invalid type: unit value, expected tuple variant Enum::Tuple"));
         err!(enum_struct: Enum = "Struct"
-                => Unsupported("enum struct variants are not supported as `xs:list` items"));
+                => Custom("invalid type: unit value, expected struct variant Enum::Struct"));
         err!(enum_other: Enum = "any data"
                 => Custom("unknown variant `any data`, expected one of `Unit`, `Newtype`, `Tuple`, `Struct`"));
 
@@ -1092,13 +1051,13 @@ mod tests {
         #[cfg(feature = "encoding")]
         fn owned_data() {
             let de = AtomicDeserializer {
-                content: Content::Owned("string slice".into(), 7),
+                content: CowRef::Owned("string slice".into()),
                 escaped: true,
             };
-            assert_eq!(de.content.as_str(), "slice");
+            assert_eq!(de.content.deref(), "string slice");
 
             let data: String = Deserialize::deserialize(de).unwrap();
-            assert_eq!(data, "slice");
+            assert_eq!(data, "string slice");
         }
 
         /// Checks that deserialization from a content borrowed from some
@@ -1106,10 +1065,10 @@ mod tests {
         #[test]
         fn borrowed_from_deserializer() {
             let de = AtomicDeserializer {
-                content: Content::Slice("string slice"),
+                content: CowRef::Slice("string slice"),
                 escaped: true,
             };
-            assert_eq!(de.content.as_str(), "string slice");
+            assert_eq!(de.content.deref(), "string slice");
 
             let data: String = Deserialize::deserialize(de).unwrap();
             assert_eq!(data, "string slice");
@@ -1240,11 +1199,11 @@ mod tests {
 
         simple!(utf8, string: String = "&lt;escaped string" => "<escaped string");
         err!(utf8, byte_buf: ByteBuf = "&lt;escaped&#32;string"
-             => Unsupported("binary data content is not supported by XML format"));
+             => Custom("invalid type: string \"<escaped string\", expected byte data"));
 
         simple!(utf8, borrowed_str: &str = "non-escaped string" => "non-escaped string");
         err!(utf8, borrowed_bytes: Bytes = "&lt;escaped&#32;string"
-             => Unsupported("binary data content is not supported by XML format"));
+             => Custom("invalid type: string \"<escaped string\", expected borrowed bytes"));
 
         simple!(utf8, option_none: Option<&str> = "" => Some(""));
         simple!(utf8, option_some: Option<&str> = "non-escaped string" => Some("non-escaped string"));
@@ -1262,17 +1221,17 @@ mod tests {
             => BorrowedNewtype("non-escaped string"));
 
         err!(utf8, map: HashMap<(), ()> = "any data"
-             => Unsupported("maps are not supported for XSD `simpleType`s"));
+             => Custom("invalid type: string \"any data\", expected a map"));
         err!(utf8, struct_: Struct = "any data"
-             => Unsupported("structures are not supported for XSD `simpleType`s"));
+             => Custom("invalid type: string \"any data\", expected struct Struct"));
 
         simple!(utf8, enum_unit: Enum = "Unit" => Enum::Unit);
         err!(utf8, enum_newtype: Enum = "Newtype"
-             => Unsupported("enum newtype variants are not supported for XSD `simpleType`s"));
+             => Custom("invalid type: unit value, expected a string"));
         err!(utf8, enum_tuple: Enum = "Tuple"
-             => Unsupported("enum tuple variants are not supported for XSD `simpleType`s"));
+             => Custom("invalid type: unit value, expected tuple variant Enum::Tuple"));
         err!(utf8, enum_struct: Enum = "Struct"
-             => Unsupported("enum struct variants are not supported for XSD `simpleType`s"));
+             => Custom("invalid type: unit value, expected struct variant Enum::Struct"));
         err!(utf8, enum_other: Enum = "any data"
              => Custom("unknown variant `any data`, expected one of `Unit`, `Newtype`, `Tuple`, `Struct`"));
 
@@ -1301,7 +1260,7 @@ mod tests {
 
         macro_rules! unsupported {
             ($name:ident: $type:ty = $xml:literal => $err:literal) => {
-                err!(utf16, $name: $type = to_utf16($xml) => Unsupported($err));
+                err!(utf16, $name: $type = to_utf16($xml) => Custom($err));
             };
         }
 
@@ -1330,7 +1289,7 @@ mod tests {
 
         utf16!(string: String = "&lt;escaped&#32;string" => "<escaped string");
         unsupported!(borrowed_bytes: Bytes = "&lt;escaped&#32;string"
-                     => "binary data content is not supported by XML format");
+                    => "invalid type: string \"<escaped string\", expected borrowed bytes");
 
         utf16!(option_none: Option<()> = "" => Some(()));
         utf16!(option_some: Option<()> = "any data" => Some(()));
@@ -1341,23 +1300,23 @@ mod tests {
         utf16!(newtype_owned: Newtype = "&lt;escaped&#32;string" => Newtype("<escaped string".into()));
 
         // UTF-16 data never borrow because data was decoded not in-place
-        err!(utf16, newtype_borrowed: BorrowedNewtype = to_utf16("non-escaped string")
-             => Custom("invalid type: string \"non-escaped string\", expected a borrowed string"));
+        unsupported!(newtype_borrowed: BorrowedNewtype = "non-escaped string"
+                    => "invalid type: string \"non-escaped string\", expected a borrowed string");
 
         unsupported!(map: HashMap<(), ()> = "any data"
-                     => "maps are not supported for XSD `simpleType`s");
+                    => "invalid type: string \"any data\", expected a map");
         unsupported!(struct_: Struct = "any data"
-                     => "structures are not supported for XSD `simpleType`s");
+                    => "invalid type: string \"any data\", expected struct Struct");
 
         utf16!(enum_unit: Enum = "Unit" => Enum::Unit);
         unsupported!(enum_newtype: Enum = "Newtype"
-                     => "enum newtype variants are not supported for XSD `simpleType`s");
+                    => "invalid type: unit value, expected a string");
         unsupported!(enum_tuple: Enum = "Tuple"
-                     => "enum tuple variants are not supported for XSD `simpleType`s");
+                    => "invalid type: unit value, expected tuple variant Enum::Tuple");
         unsupported!(enum_struct: Enum = "Struct"
-                     => "enum struct variants are not supported for XSD `simpleType`s");
-        err!(utf16, enum_other: Enum = to_utf16("any data")
-             => Custom("unknown variant `any data`, expected one of `Unit`, `Newtype`, `Tuple`, `Struct`"));
+                    => "invalid type: unit value, expected struct variant Enum::Struct");
+        unsupported!(enum_other: Enum = "any data"
+                    => "unknown variant `any data`, expected one of `Unit`, `Newtype`, `Tuple`, `Struct`");
 
         utf16!(identifier: Id = "Field" => Id::Field);
         utf16!(ignored_any: Any = "any data" => Any(IgnoredAny));

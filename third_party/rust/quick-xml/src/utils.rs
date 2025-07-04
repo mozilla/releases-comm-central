@@ -1,6 +1,13 @@
 use std::borrow::{Borrow, Cow};
 use std::fmt::{self, Debug, Formatter};
+use std::io;
 use std::ops::Deref;
+
+#[cfg(feature = "async-tokio")]
+use std::{
+    pin::Pin,
+    task::{Context, Poll},
+};
 
 #[cfg(feature = "serialize")]
 use serde::de::{Deserialize, Deserializer, Error, Visitor};
@@ -81,6 +88,48 @@ where
             Self::Input(borrowed) => Debug::fmt(borrowed, f),
             Self::Slice(borrowed) => Debug::fmt(borrowed, f),
             Self::Owned(ref owned) => Debug::fmt(owned, f),
+        }
+    }
+}
+
+impl<'i, 's> CowRef<'i, 's, str> {
+    /// Supply to the visitor a borrowed string, a string slice, or an owned
+    /// string depending on the kind of input. Unlike [`Self::deserialize_all`],
+    /// only part of [`Self::Owned`] string will be passed to the visitor.
+    ///
+    /// Calls
+    /// - `visitor.visit_borrowed_str` if data borrowed from the input
+    /// - `visitor.visit_str` if data borrowed from another source
+    /// - `visitor.visit_string` if data owned by this type
+    #[cfg(feature = "serialize")]
+    pub fn deserialize_str<V, E>(self, visitor: V) -> Result<V::Value, E>
+    where
+        V: Visitor<'i>,
+        E: Error,
+    {
+        match self {
+            Self::Input(s) => visitor.visit_borrowed_str(s),
+            Self::Slice(s) => visitor.visit_str(s),
+            Self::Owned(s) => visitor.visit_string(s),
+        }
+    }
+
+    /// Calls [`Visitor::visit_bool`] with `true` or `false` if text contains
+    /// [valid] boolean representation, otherwise calls [`Self::deserialize_str`].
+    ///
+    /// The valid boolean representations are only `"true"`, `"false"`, `"1"`, and `"0"`.
+    ///
+    /// [valid]: https://www.w3.org/TR/xmlschema11-2/#boolean
+    #[cfg(feature = "serialize")]
+    pub fn deserialize_bool<V, E>(self, visitor: V) -> Result<V::Value, E>
+    where
+        V: Visitor<'i>,
+        E: Error,
+    {
+        match self.as_ref() {
+            "1" | "true" => visitor.visit_bool(true),
+            "0" | "false" => visitor.visit_bool(false),
+            _ => self.deserialize_str(visitor),
         }
     }
 }
@@ -197,6 +246,136 @@ impl<'de> Serialize for Bytes<'de> {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// A simple producer of infinite stream of bytes, useful in tests.
+///
+/// Will repeat `chunk` field indefinitely.
+pub struct Fountain<'a> {
+    /// That piece of data repeated infinitely...
+    pub chunk: &'a [u8],
+    /// Part of `chunk` that was consumed by BufRead impl
+    pub consumed: usize,
+    /// The overall count of read bytes
+    pub overall_read: u64,
+}
+
+impl<'a> io::Read for Fountain<'a> {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        let available = &self.chunk[self.consumed..];
+        let len = buf.len().min(available.len());
+        let (portion, _) = available.split_at(len);
+
+        buf.copy_from_slice(portion);
+        Ok(len)
+    }
+}
+
+impl<'a> io::BufRead for Fountain<'a> {
+    #[inline]
+    fn fill_buf(&mut self) -> io::Result<&[u8]> {
+        Ok(&self.chunk[self.consumed..])
+    }
+
+    fn consume(&mut self, amt: usize) {
+        self.consumed += amt;
+        if self.consumed == self.chunk.len() {
+            self.consumed = 0;
+        }
+        self.overall_read += amt as u64;
+    }
+}
+
+#[cfg(feature = "async-tokio")]
+impl<'a> tokio::io::AsyncRead for Fountain<'a> {
+    fn poll_read(
+        self: Pin<&mut Self>,
+        _cx: &mut Context<'_>,
+        buf: &mut tokio::io::ReadBuf<'_>,
+    ) -> Poll<io::Result<()>> {
+        let available = &self.chunk[self.consumed..];
+        let len = buf.remaining().min(available.len());
+        let (portion, _) = available.split_at(len);
+
+        buf.put_slice(portion);
+        Poll::Ready(Ok(()))
+    }
+}
+
+#[cfg(feature = "async-tokio")]
+impl<'a> tokio::io::AsyncBufRead for Fountain<'a> {
+    #[inline]
+    fn poll_fill_buf(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<&[u8]>> {
+        Poll::Ready(io::BufRead::fill_buf(self.get_mut()))
+    }
+
+    #[inline]
+    fn consume(self: Pin<&mut Self>, amt: usize) {
+        io::BufRead::consume(self.get_mut(), amt);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// A function to check whether the byte is a whitespace (blank, new line, carriage return or tab).
+#[inline]
+pub const fn is_whitespace(b: u8) -> bool {
+    matches!(b, b' ' | b'\r' | b'\n' | b'\t')
+}
+
+/// Calculates name from an element-like content. Name is the first word in `content`,
+/// where word boundaries is XML whitespace characters.
+///
+/// 'Whitespace' refers to the definition used by [`is_whitespace`].
+#[inline]
+pub const fn name_len(mut bytes: &[u8]) -> usize {
+    // Note: A pattern matching based approach (instead of indexing) allows
+    // making the function const.
+    let mut len = 0;
+    while let [first, rest @ ..] = bytes {
+        if is_whitespace(*first) {
+            break;
+        }
+        len += 1;
+        bytes = rest;
+    }
+    len
+}
+
+/// Returns a byte slice with leading XML whitespace bytes removed.
+///
+/// 'Whitespace' refers to the definition used by [`is_whitespace`].
+#[inline]
+pub const fn trim_xml_start(mut bytes: &[u8]) -> &[u8] {
+    // Note: A pattern matching based approach (instead of indexing) allows
+    // making the function const.
+    while let [first, rest @ ..] = bytes {
+        if is_whitespace(*first) {
+            bytes = rest;
+        } else {
+            break;
+        }
+    }
+    bytes
+}
+
+/// Returns a byte slice with trailing XML whitespace bytes removed.
+///
+/// 'Whitespace' refers to the definition used by [`is_whitespace`].
+#[inline]
+pub const fn trim_xml_end(mut bytes: &[u8]) -> &[u8] {
+    // Note: A pattern matching based approach (instead of indexing) allows
+    // making the function const.
+    while let [rest @ .., last] = bytes {
+        if is_whitespace(*last) {
+            bytes = rest;
+        } else {
+            break;
+        }
+    }
+    bytes
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -226,5 +405,40 @@ mod tests {
             67, 108, 97, 115, 115, 32, 73, 82, 73, 61, 34, 35, 66, 34,
         ]);
         assert_eq!(format!("{:?}", bytes), r##""Class IRI=\"#B\"""##);
+    }
+
+    #[test]
+    fn name_len() {
+        assert_eq!(super::name_len(b""), 0);
+        assert_eq!(super::name_len(b" abc"), 0);
+        assert_eq!(super::name_len(b" \t\r\n"), 0);
+
+        assert_eq!(super::name_len(b"abc"), 3);
+        assert_eq!(super::name_len(b"abc "), 3);
+
+        assert_eq!(super::name_len(b"a bc"), 1);
+        assert_eq!(super::name_len(b"ab\tc"), 2);
+        assert_eq!(super::name_len(b"ab\rc"), 2);
+        assert_eq!(super::name_len(b"ab\nc"), 2);
+    }
+
+    #[test]
+    fn trim_xml_start() {
+        assert_eq!(Bytes(super::trim_xml_start(b"")), Bytes(b""));
+        assert_eq!(Bytes(super::trim_xml_start(b"abc")), Bytes(b"abc"));
+        assert_eq!(
+            Bytes(super::trim_xml_start(b"\r\n\t ab \t\r\nc \t\r\n")),
+            Bytes(b"ab \t\r\nc \t\r\n")
+        );
+    }
+
+    #[test]
+    fn trim_xml_end() {
+        assert_eq!(Bytes(super::trim_xml_end(b"")), Bytes(b""));
+        assert_eq!(Bytes(super::trim_xml_end(b"abc")), Bytes(b"abc"));
+        assert_eq!(
+            Bytes(super::trim_xml_end(b"\r\n\t ab \t\r\nc \t\r\n")),
+            Bytes(b"\r\n\t ab \t\r\nc")
+        );
     }
 }

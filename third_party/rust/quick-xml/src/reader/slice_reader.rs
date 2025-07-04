@@ -3,6 +3,7 @@
 //! intermediate buffer as the byte slice itself can be used to borrow from.
 
 use std::borrow::Cow;
+use std::io;
 
 #[cfg(feature = "encoding")]
 use crate::reader::EncodingRef;
@@ -12,9 +13,9 @@ use encoding_rs::{Encoding, UTF_8};
 use crate::errors::{Error, Result};
 use crate::events::Event;
 use crate::name::QName;
-use crate::reader::{is_whitespace, BangType, ReadElementState, Reader, Span, XmlSource};
-
-use memchr;
+use crate::parser::Parser;
+use crate::reader::{BangType, ReadTextResult, Reader, Span, XmlSource};
+use crate::utils::is_whitespace;
 
 /// This is an implementation for reading from a `&[u8]` as underlying byte stream.
 /// This implementation supports not using an intermediate buffer as the byte slice
@@ -54,7 +55,7 @@ impl<'a> Reader<&'a [u8]> {
     ///        <tag2>Test 2</tag2>
     ///     </tag1>
     /// "#);
-    /// reader.trim_text(true);
+    /// reader.config_mut().trim_text(true);
     ///
     /// let mut count = 0;
     /// let mut txt = Vec::new();
@@ -84,7 +85,7 @@ impl<'a> Reader<&'a [u8]> {
     /// Manages nested cases where parent and child elements have the _literally_
     /// same name.
     ///
-    /// If corresponding [`End`] event will not be found, the [`Error::UnexpectedEof`]
+    /// If a corresponding [`End`] event is not found, an error of type [`Error::IllFormed`]
     /// will be returned. In particularly, that error will be returned if you call
     /// this method without consuming the corresponding [`Start`] event first.
     ///
@@ -131,7 +132,7 @@ impl<'a> Reader<&'a [u8]> {
     ///         </inner>
     ///     </outer>
     /// "#);
-    /// reader.trim_text(true);
+    /// reader.config_mut().trim_text(true);
     ///
     /// let start = BytesStart::new("outer");
     /// let end   = start.to_end().into_owned();
@@ -151,8 +152,8 @@ impl<'a> Reader<&'a [u8]> {
     /// [`Start`]: Event::Start
     /// [`End`]: Event::End
     /// [`BytesStart::to_end()`]: crate::events::BytesStart::to_end
-    /// [`expand_empty_elements`]: Self::expand_empty_elements
-    /// [`check_end_names`]: Self::check_end_names
+    /// [`expand_empty_elements`]: crate::reader::Config::expand_empty_elements
+    /// [`check_end_names`]: crate::reader::Config::check_end_names
     /// [the specification]: https://www.w3.org/TR/xml11/#dt-etag
     pub fn read_to_end(&mut self, end: QName) -> Result<Span> {
         Ok(read_to_end!(self, end, (), read_event_impl, {}))
@@ -195,7 +196,7 @@ impl<'a> Reader<&'a [u8]> {
     ///         <p>For example, elements not needed to be &quot;closed&quot;
     ///     </html>
     /// ");
-    /// reader.trim_text(true);
+    /// reader.config_mut().trim_text(true);
     ///
     /// let start = BytesStart::new("html");
     /// let end   = start.to_end().into_owned();
@@ -203,7 +204,7 @@ impl<'a> Reader<&'a [u8]> {
     /// // First, we read a start event...
     /// assert_eq!(reader.read_event().unwrap(), Event::Start(start));
     /// // ...and disable checking of end names because we expect HTML further...
-    /// reader.check_end_names(false);
+    /// reader.config_mut().check_end_names = false;
     ///
     /// // ...then, we could read text content until close tag.
     /// // This call will correctly handle nested <html> elements.
@@ -216,7 +217,7 @@ impl<'a> Reader<&'a [u8]> {
     /// assert!(matches!(text, Cow::Borrowed(_)));
     ///
     /// // Now we can enable checks again
-    /// reader.check_end_names(true);
+    /// reader.config_mut().check_end_names = true;
     ///
     /// // At the end we should get an Eof event, because we ate the whole XML
     /// assert_eq!(reader.read_event().unwrap(), Event::Eof);
@@ -229,7 +230,10 @@ impl<'a> Reader<&'a [u8]> {
         let buffer = self.reader;
         let span = self.read_to_end(end)?;
 
-        self.decoder().decode(&buffer[0..span.len()])
+        let len = span.end - span.start;
+        // SAFETY: `span` can only contain indexes up to usize::MAX because it
+        // was created from offsets from a single &[u8] slice
+        Ok(self.decoder().decode(&buffer[0..len as usize])?)
     }
 }
 
@@ -239,7 +243,8 @@ impl<'a> Reader<&'a [u8]> {
 /// that will be borrowed by events. This implementation provides a zero-copy deserialization
 impl<'a> XmlSource<'a, ()> for &'a [u8] {
     #[cfg(not(feature = "encoding"))]
-    fn remove_utf8_bom(&mut self) -> Result<()> {
+    #[inline]
+    fn remove_utf8_bom(&mut self) -> io::Result<()> {
         if self.starts_with(crate::encoding::UTF8_BOM) {
             *self = &self[crate::encoding::UTF8_BOM.len()..];
         }
@@ -247,7 +252,8 @@ impl<'a> XmlSource<'a, ()> for &'a [u8] {
     }
 
     #[cfg(feature = "encoding")]
-    fn detect_encoding(&mut self) -> Result<Option<&'static Encoding>> {
+    #[inline]
+    fn detect_encoding(&mut self) -> io::Result<Option<&'static Encoding>> {
         if let Some((enc, bom_len)) = crate::encoding::detect_encoding(self) {
             *self = &self[bom_len..];
             return Ok(Some(enc));
@@ -255,97 +261,77 @@ impl<'a> XmlSource<'a, ()> for &'a [u8] {
         Ok(None)
     }
 
-    fn read_bytes_until(
-        &mut self,
-        byte: u8,
-        _buf: (),
-        position: &mut usize,
-    ) -> Result<Option<&'a [u8]>> {
-        // search byte must be within the ascii range
-        debug_assert!(byte.is_ascii());
-        if self.is_empty() {
-            return Ok(None);
+    #[inline]
+    fn read_text(&mut self, _buf: (), position: &mut u64) -> ReadTextResult<'a, ()> {
+        match memchr::memchr(b'<', self) {
+            Some(0) => {
+                *position += 1;
+                *self = &self[1..];
+                ReadTextResult::Markup(())
+            }
+            Some(i) => {
+                *position += i as u64 + 1;
+                let bytes = &self[..i];
+                *self = &self[i + 1..];
+                ReadTextResult::UpToMarkup(bytes)
+            }
+            None => {
+                *position += self.len() as u64;
+                let bytes = &self[..];
+                *self = &[];
+                ReadTextResult::UpToEof(bytes)
+            }
         }
-
-        Ok(Some(if let Some(i) = memchr::memchr(byte, self) {
-            *position += i + 1;
-            let bytes = &self[..i];
-            *self = &self[i + 1..];
-            bytes
-        } else {
-            *position += self.len();
-            let bytes = &self[..];
-            *self = &[];
-            bytes
-        }))
     }
 
-    fn read_bang_element(
-        &mut self,
-        _buf: (),
-        position: &mut usize,
-    ) -> Result<Option<(BangType, &'a [u8])>> {
+    #[inline]
+    fn read_with<P>(&mut self, mut parser: P, _buf: (), position: &mut u64) -> Result<&'a [u8]>
+    where
+        P: Parser,
+    {
+        if let Some(i) = parser.feed(self) {
+            // +1 for `>` which we do not include
+            *position += i as u64 + 1;
+            let bytes = &self[..i];
+            *self = &self[i + 1..];
+            return Ok(bytes);
+        }
+
+        *position += self.len() as u64;
+        Err(Error::Syntax(P::eof_error()))
+    }
+
+    #[inline]
+    fn read_bang_element(&mut self, _buf: (), position: &mut u64) -> Result<(BangType, &'a [u8])> {
         // Peeked one bang ('!') before being called, so it's guaranteed to
         // start with it.
         debug_assert_eq!(self[0], b'!');
 
-        let bang_type = BangType::new(self[1..].first().copied())?;
+        let mut bang_type = BangType::new(self[1..].first().copied())?;
 
         if let Some((bytes, i)) = bang_type.parse(&[], self) {
-            *position += i;
+            *position += i as u64;
             *self = &self[i..];
-            return Ok(Some((bang_type, bytes)));
+            return Ok((bang_type, bytes));
         }
 
-        // Note: Do not update position, so the error points to
-        // somewhere sane rather than at the EOF
-        Err(bang_type.to_err())
+        *position += self.len() as u64;
+        Err(bang_type.to_err().into())
     }
 
-    fn read_element(&mut self, _buf: (), position: &mut usize) -> Result<Option<&'a [u8]>> {
-        if self.is_empty() {
-            return Ok(None);
-        }
-
-        let mut state = ReadElementState::Elem;
-
-        if let Some((bytes, i)) = state.change(self) {
-            // Position now just after the `>` symbol
-            *position += i;
-            *self = &self[i..];
-            return Ok(Some(bytes));
-        }
-
-        // Note: Do not update position, so the error points to a sane place
-        // rather than at the EOF.
-        Err(Error::UnexpectedEof("Element".to_string()))
-
-        // FIXME: Figure out why the other one works without UnexpectedEof
-    }
-
-    fn skip_whitespace(&mut self, position: &mut usize) -> Result<()> {
+    #[inline]
+    fn skip_whitespace(&mut self, position: &mut u64) -> io::Result<()> {
         let whitespaces = self
             .iter()
             .position(|b| !is_whitespace(*b))
             .unwrap_or(self.len());
-        *position += whitespaces;
+        *position += whitespaces as u64;
         *self = &self[whitespaces..];
         Ok(())
     }
 
-    fn skip_one(&mut self, byte: u8, position: &mut usize) -> Result<bool> {
-        // search byte must be within the ascii range
-        debug_assert!(byte.is_ascii());
-        if self.first() == Some(&byte) {
-            *self = &self[1..];
-            *position += 1;
-            Ok(true)
-        } else {
-            Ok(false)
-        }
-    }
-
-    fn peek_one(&mut self) -> Result<Option<u8>> {
+    #[inline]
+    fn peek_one(&mut self) -> io::Result<Option<u8>> {
         Ok(self.first().copied())
     }
 }
@@ -367,25 +353,4 @@ mod test {
         identity,
         ()
     );
-
-    #[cfg(feature = "encoding")]
-    mod encoding {
-        use crate::events::Event;
-        use crate::reader::Reader;
-        use encoding_rs::UTF_8;
-        use pretty_assertions::assert_eq;
-
-        /// Checks that XML declaration cannot change the encoding from UTF-8 if
-        /// a `Reader` was created using `from_str` method
-        #[test]
-        fn str_always_has_utf8() {
-            let mut reader = Reader::from_str("<?xml encoding='UTF-16'?>");
-
-            assert_eq!(reader.decoder().encoding(), UTF_8);
-            reader.read_event().unwrap();
-            assert_eq!(reader.decoder().encoding(), UTF_8);
-
-            assert_eq!(reader.read_event().unwrap(), Event::Eof);
-        }
-    }
 }

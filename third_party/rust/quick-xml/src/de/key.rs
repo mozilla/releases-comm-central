@@ -1,9 +1,9 @@
-use crate::de::str2bool;
+use crate::de::simple_type::UnitOnly;
 use crate::encoding::Decoder;
 use crate::errors::serialize::DeError;
 use crate::name::QName;
 use crate::utils::CowRef;
-use serde::de::{DeserializeSeed, Deserializer, EnumAccess, VariantAccess, Visitor};
+use serde::de::{DeserializeSeed, Deserializer, EnumAccess, Visitor};
 use serde::{forward_to_deserialize_any, serde_if_integer128};
 use std::borrow::Cow;
 
@@ -13,7 +13,10 @@ macro_rules! deserialize_num {
         where
             V: Visitor<'de>,
         {
-            visitor.$visit(self.name.parse()?)
+            match self.name.parse() {
+                Ok(number) => visitor.$visit(number),
+                Err(_) => self.name.deserialize_str(visitor),
+            }
         }
     };
 }
@@ -75,17 +78,25 @@ pub struct QNameDeserializer<'i, 'd> {
 
 impl<'i, 'd> QNameDeserializer<'i, 'd> {
     /// Creates deserializer from name of an attribute
-    pub fn from_attr(name: QName<'d>, decoder: Decoder) -> Result<Self, DeError> {
+    pub fn from_attr(
+        name: QName<'d>,
+        decoder: Decoder,
+        key_buf: &'d mut String,
+    ) -> Result<Self, DeError> {
+        key_buf.clear();
+        key_buf.push('@');
+
         // https://github.com/tafia/quick-xml/issues/537
         // Namespace bindings (xmlns:xxx) map to `@xmlns:xxx` instead of `@xxx`
-        let field = if name.as_namespace_binding().is_some() {
-            decoder.decode(name.into_inner())?
+        if name.as_namespace_binding().is_some() {
+            decoder.decode_into(name.into_inner(), key_buf)?;
         } else {
-            decode_name(name, decoder)?
+            let local = name.local_name();
+            decoder.decode_into(local.into_inner(), key_buf)?;
         };
 
         Ok(Self {
-            name: CowRef::Owned(format!("@{field}")),
+            name: CowRef::Slice(key_buf),
         })
     }
 
@@ -125,17 +136,12 @@ impl<'de, 'd> Deserializer<'de> for QNameDeserializer<'de, 'd> {
 
     /// According to the <https://www.w3.org/TR/xmlschema11-2/#boolean>,
     /// valid boolean representations are only `"true"`, `"false"`, `"1"`,
-    /// and `"0"`. But this method also handles following:
-    ///
-    /// |`bool` |XML content
-    /// |-------|-------------------------------------------------------------
-    /// |`true` |`"True"`,  `"TRUE"`,  `"t"`, `"Yes"`, `"YES"`, `"yes"`, `"y"`
-    /// |`false`|`"False"`, `"FALSE"`, `"f"`, `"No"`,  `"NO"`,  `"no"`,  `"n"`
+    /// and `"0"`.
     fn deserialize_bool<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        str2bool(self.name.as_ref(), visitor)
+        self.name.deserialize_bool(visitor)
     }
 
     deserialize_num!(deserialize_i8, visit_i8);
@@ -240,60 +246,14 @@ impl<'de, 'd> Deserializer<'de> for QNameDeserializer<'de, 'd> {
 
 impl<'de, 'd> EnumAccess<'de> for QNameDeserializer<'de, 'd> {
     type Error = DeError;
-    type Variant = QNameUnitOnly;
+    type Variant = UnitOnly;
 
     fn variant_seed<V>(self, seed: V) -> Result<(V::Value, Self::Variant), Self::Error>
     where
         V: DeserializeSeed<'de>,
     {
         let name = seed.deserialize(self)?;
-        Ok((name, QNameUnitOnly))
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/// Deserializer of variant data, that supports only unit variants.
-/// Attempt to deserialize newtype, tuple or struct variant will return a
-/// [`DeError::Unsupported`] error.
-pub struct QNameUnitOnly;
-impl<'de> VariantAccess<'de> for QNameUnitOnly {
-    type Error = DeError;
-
-    #[inline]
-    fn unit_variant(self) -> Result<(), DeError> {
-        Ok(())
-    }
-
-    fn newtype_variant_seed<T>(self, _seed: T) -> Result<T::Value, DeError>
-    where
-        T: DeserializeSeed<'de>,
-    {
-        Err(DeError::Unsupported(
-            "enum newtype variants are not supported as an XML names".into(),
-        ))
-    }
-
-    fn tuple_variant<V>(self, _len: usize, _visitor: V) -> Result<V::Value, DeError>
-    where
-        V: Visitor<'de>,
-    {
-        Err(DeError::Unsupported(
-            "enum tuple variants are not supported as an XML names".into(),
-        ))
-    }
-
-    fn struct_variant<V>(
-        self,
-        _fields: &'static [&'static str],
-        _visitor: V,
-    ) -> Result<V::Value, DeError>
-    where
-        V: Visitor<'de>,
-    {
-        Err(DeError::Unsupported(
-            "enum struct variants are not supported as an XML names".into(),
-        ))
+        Ok((name, UnitOnly))
     }
 }
 
@@ -405,7 +365,7 @@ mod tests {
                 match err {
                     DeError::$kind(e) => assert_eq!(e, $reason),
                     _ => panic!(
-                        "Expected `{}({})`, found `{:?}`",
+                        "Expected `Err({}({}))`, but got `{:?}`",
                         stringify!($kind),
                         $reason,
                         err
@@ -473,11 +433,11 @@ mod tests {
     deserialized_to!(enum_unit: Enum = "Unit" => Enum::Unit);
     deserialized_to!(enum_unit_for_attr: Enum = "@Attr" => Enum::Attr);
     err!(enum_newtype: Enum = "Newtype"
-        => Unsupported("enum newtype variants are not supported as an XML names"));
+        => Custom("invalid type: unit value, expected a string"));
     err!(enum_tuple: Enum = "Tuple"
-        => Unsupported("enum tuple variants are not supported as an XML names"));
+        => Custom("invalid type: unit value, expected tuple variant Enum::Tuple"));
     err!(enum_struct: Enum = "Struct"
-        => Unsupported("enum struct variants are not supported as an XML names"));
+        => Custom("invalid type: unit value, expected struct variant Enum::Struct"));
 
     // Field identifiers cannot be serialized, and IgnoredAny represented _something_
     // which is not concrete

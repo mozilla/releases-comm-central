@@ -39,7 +39,7 @@ macro_rules! write_primitive {
 
         fn serialize_bytes(self, _value: &[u8]) -> Result<Self::Ok, Self::Error> {
             //TODO: customization point - allow user to decide how to encode bytes
-            Err(DeError::Unsupported(
+            Err(Self::Error::Unsupported(
                 "`serialize_bytes` not supported yet".into(),
             ))
         }
@@ -82,14 +82,18 @@ mod text;
 use self::content::ContentSerializer;
 use self::element::{ElementSerializer, Map, Struct, Tuple};
 use crate::de::TEXT_KEY;
-use crate::errors::serialize::DeError;
-use crate::writer::Indentation;
+use crate::writer::{Indentation, ToFmtWrite};
 use serde::ser::{self, Serialize};
 use serde::serde_if_integer128;
 use std::fmt::Write;
 use std::str::from_utf8;
 
+pub use self::simple_type::SimpleTypeSerializer;
+pub use crate::errors::serialize::SeError;
+
 /// Serialize struct into a `Write`r.
+///
+/// Returns the classification of the last written type.
 ///
 /// # Examples
 ///
@@ -124,12 +128,60 @@ use std::str::from_utf8;
 ///     </Root>"
 /// );
 /// ```
-pub fn to_writer<W, T>(mut writer: W, value: &T) -> Result<(), DeError>
+pub fn to_writer<W, T>(mut writer: W, value: &T) -> Result<WriteResult, SeError>
 where
     W: Write,
     T: ?Sized + Serialize,
 {
     value.serialize(Serializer::new(&mut writer))
+}
+
+/// Serialize struct into a `io::Write`r restricted to utf-8 encoding.
+///
+/// Returns the classification of the last written type.
+///
+/// # Examples
+///
+/// ```
+/// # use quick_xml::se::to_utf8_io_writer;
+/// # use serde::Serialize;
+/// # use pretty_assertions::assert_eq;
+/// # use std::io::BufWriter;
+/// # use std::str;
+/// #[derive(Serialize)]
+/// struct Root<'a> {
+///     #[serde(rename = "@attribute")]
+///     attribute: &'a str,
+///     element: &'a str,
+///     #[serde(rename = "$text")]
+///     text: &'a str,
+/// }
+///
+/// let data = Root {
+///     attribute: "attribute content",
+///     element: "element content",
+///     text: "text content",
+/// };
+///
+/// let mut buffer = Vec::new();
+/// to_utf8_io_writer(&mut BufWriter::new(&mut buffer), &data).unwrap();
+///
+/// assert_eq!(
+///     str::from_utf8(&buffer).unwrap(),
+///     // The root tag name is automatically deduced from the struct name
+///     // This will not work for other types or struct with #[serde(flatten)] fields
+///     "<Root attribute=\"attribute content\">\
+///         <element>element content</element>\
+///         text content\
+///     </Root>"
+/// );
+/// ```
+pub fn to_utf8_io_writer<W, T>(writer: W, value: &T) -> Result<WriteResult, SeError>
+where
+    W: std::io::Write,
+    T: ?Sized + Serialize,
+{
+    value.serialize(Serializer::new(&mut ToFmtWrite(writer)))
 }
 
 /// Serialize struct into a `String`.
@@ -165,7 +217,7 @@ where
 ///     </Root>"
 /// );
 /// ```
-pub fn to_string<T>(value: &T) -> Result<String, DeError>
+pub fn to_string<T>(value: &T) -> Result<String, SeError>
 where
     T: ?Sized + Serialize,
 {
@@ -176,6 +228,8 @@ where
 
 /// Serialize struct into a `Write`r using specified root tag name.
 /// `root_tag` should be valid [XML name], otherwise error is returned.
+///
+/// Returns the classification of the last written type.
 ///
 /// # Examples
 ///
@@ -210,7 +264,11 @@ where
 /// ```
 ///
 /// [XML name]: https://www.w3.org/TR/xml11/#NT-Name
-pub fn to_writer_with_root<W, T>(mut writer: W, root_tag: &str, value: &T) -> Result<(), DeError>
+pub fn to_writer_with_root<W, T>(
+    mut writer: W,
+    root_tag: &str,
+    value: &T,
+) -> Result<WriteResult, SeError>
 where
     W: Write,
     T: ?Sized + Serialize,
@@ -252,7 +310,7 @@ where
 /// ```
 ///
 /// [XML name]: https://www.w3.org/TR/xml11/#NT-Name
-pub fn to_string_with_root<T>(root_tag: &str, value: &T) -> Result<String, DeError>
+pub fn to_string_with_root<T>(root_tag: &str, value: &T) -> Result<String, SeError>
 where
     T: ?Sized + Serialize,
 {
@@ -307,6 +365,40 @@ pub enum QuoteLevel {
     /// `<`      | `&lt;`
     /// `&`      | `&amp;`
     Minimal,
+}
+
+/// Classification of the type written by the serializer.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WriteResult {
+    /// Text with insignificant spaces was written, for example a number. Adding indent to the
+    /// serialized data does not change meaning of the data.
+    Text,
+    /// The XML tag was written. Adding indent to the serialized data does not change meaning of the data.
+    Element,
+    /// Nothing was written (i. e. serialized type not represented in XML a all). Adding indent to the
+    /// serialized data does not change meaning of the data. This is returned for units, unit structs
+    /// and unit variants.
+    Nothing,
+    /// Text with significant spaces was written, for example a string. Adding indent to the
+    /// serialized data may change meaning of the data.
+    SensitiveText,
+    /// `None` was serialized and nothing was written. `None` does not represented in XML,
+    /// but adding indent after it may change meaning of the data.
+    SensitiveNothing,
+}
+
+impl WriteResult {
+    /// Returns `true` if indent should be written after the object (if configured) and `false` otherwise.
+    #[inline]
+    pub fn allow_indent(&self) -> bool {
+        matches!(self, Self::Element | Self::Nothing)
+    }
+
+    /// Returns `true` if self is `Text` or `SensitiveText`.
+    #[inline]
+    pub fn is_text(&self) -> bool {
+        matches!(self, Self::Text | Self::SensitiveText)
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -372,15 +464,15 @@ impl<'n> XmlName<'n> {
     /// Checks correctness of the XML name according to [XML 1.1 specification]
     ///
     /// [XML 1.1 specification]: https://www.w3.org/TR/xml11/#NT-Name
-    pub fn try_from(name: &'n str) -> Result<XmlName<'n>, DeError> {
+    pub fn try_from(name: &'n str) -> Result<XmlName<'n>, SeError> {
         //TODO: Customization point: allow user to decide if he want to reject or encode the name
         match name.chars().next() {
-            Some(ch) if !is_xml11_name_start_char(ch) => Err(DeError::Unsupported(
+            Some(ch) if !is_xml11_name_start_char(ch) => Err(SeError::Unsupported(
                 format!("character `{ch}` is not allowed at the start of an XML name `{name}`")
                     .into(),
             )),
             _ => match name.matches(|ch| !is_xml11_name_char(ch)).next() {
-                Some(s) => Err(DeError::Unsupported(
+                Some(s) => Err(SeError::Unsupported(
                     format!("character `{s}` is not allowed in an XML name `{name}`").into(),
                 )),
                 None => Ok(XmlName(name)),
@@ -426,7 +518,7 @@ impl<'i> Indent<'i> {
         }
     }
 
-    pub fn write_indent<W: std::fmt::Write>(&mut self, mut writer: W) -> Result<(), DeError> {
+    pub fn write_indent<W: std::fmt::Write>(&mut self, mut writer: W) -> Result<(), SeError> {
         match self {
             Self::None => {}
             Self::Owned(i) => {
@@ -444,7 +536,9 @@ impl<'i> Indent<'i> {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// A Serializer
+/// A Serializer.
+///
+/// Returns the classification of the last written type.
 pub struct Serializer<'w, 'r, W: Write> {
     ser: ContentSerializer<'w, 'r, W>,
     /// Name of the root tag. If not specified, deduced from the structure name
@@ -461,9 +555,10 @@ impl<'w, 'r, W: Write> Serializer<'w, 'r, W> {
         Self {
             ser: ContentSerializer {
                 writer,
-                level: QuoteLevel::Full,
+                level: QuoteLevel::Partial,
                 indent: Indent::None,
                 write_indent: false,
+                allow_primitive: true,
                 expand_empty_elements: false,
             },
             root_tag: None,
@@ -522,13 +617,14 @@ impl<'w, 'r, W: Write> Serializer<'w, 'r, W> {
     /// ```
     ///
     /// [XML name]: https://www.w3.org/TR/xml11/#NT-Name
-    pub fn with_root(writer: &'w mut W, root_tag: Option<&'r str>) -> Result<Self, DeError> {
+    pub fn with_root(writer: &'w mut W, root_tag: Option<&'r str>) -> Result<Self, SeError> {
         Ok(Self {
             ser: ContentSerializer {
                 writer,
-                level: QuoteLevel::Full,
+                level: QuoteLevel::Partial,
                 indent: Indent::None,
                 write_indent: false,
+                allow_primitive: true,
                 expand_empty_elements: false,
             },
             root_tag: root_tag.map(|tag| XmlName::try_from(tag)).transpose()?,
@@ -574,6 +670,14 @@ impl<'w, 'r, W: Write> Serializer<'w, 'r, W> {
         self
     }
 
+    /// Set the level of quoting used when writing texts
+    ///
+    /// Default: [`QuoteLevel::Minimal`]
+    pub fn set_quote_level(&mut self, level: QuoteLevel) -> &mut Self {
+        self.ser.level = level;
+        self
+    }
+
     /// Set the indent object for a serializer
     pub(crate) fn set_indent(&mut self, indent: Indent<'r>) -> &mut Self {
         self.ser.indent = indent;
@@ -582,11 +686,11 @@ impl<'w, 'r, W: Write> Serializer<'w, 'r, W> {
 
     /// Creates actual serializer or returns an error if root tag is not defined.
     /// In that case `err` contains the name of type that cannot be serialized.
-    fn ser(self, err: &str) -> Result<ElementSerializer<'w, 'r, W>, DeError> {
+    fn ser(self, err: &str) -> Result<ElementSerializer<'w, 'r, W>, SeError> {
         if let Some(key) = self.root_tag {
             Ok(ElementSerializer { ser: self.ser, key })
         } else {
-            Err(DeError::Unsupported(
+            Err(SeError::Unsupported(
                 format!("cannot serialize {} without defined root tag", err).into(),
             ))
         }
@@ -595,7 +699,7 @@ impl<'w, 'r, W: Write> Serializer<'w, 'r, W> {
     /// Creates actual serializer using root tag or a specified `key` if root tag
     /// is not defined. Returns an error if root tag is not defined and a `key`
     /// does not conform [XML rules](XmlName::try_from) for names.
-    fn ser_name(self, key: &'static str) -> Result<ElementSerializer<'w, 'r, W>, DeError> {
+    fn ser_name(self, key: &'static str) -> Result<ElementSerializer<'w, 'r, W>, SeError> {
         Ok(ElementSerializer {
             ser: self.ser,
             key: match self.root_tag {
@@ -607,8 +711,8 @@ impl<'w, 'r, W: Write> Serializer<'w, 'r, W> {
 }
 
 impl<'w, 'r, W: Write> ser::Serializer for Serializer<'w, 'r, W> {
-    type Ok = ();
-    type Error = DeError;
+    type Ok = WriteResult;
+    type Error = SeError;
 
     type SerializeSeq = ElementSerializer<'w, 'r, W>;
     type SerializeTuple = ElementSerializer<'w, 'r, W>;
@@ -642,19 +746,23 @@ impl<'w, 'r, W: Write> ser::Serializer for Serializer<'w, 'r, W> {
     forward!(serialize_str(&str));
     forward!(serialize_bytes(&[u8]));
 
-    fn serialize_none(self) -> Result<Self::Ok, DeError> {
-        Ok(())
+    fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
+        // Do not write indent after `Option` field with `None` value, because
+        // this can be `Option<String>`. Unfortunately, we do not known what the
+        // type the option contains, so have no chance to adapt our behavior to it.
+        // The safe variant is not to write indent
+        Ok(WriteResult::SensitiveNothing)
     }
 
-    fn serialize_some<T: ?Sized + Serialize>(self, value: &T) -> Result<Self::Ok, DeError> {
+    fn serialize_some<T: ?Sized + Serialize>(self, value: &T) -> Result<Self::Ok, Self::Error> {
         value.serialize(self)
     }
 
-    fn serialize_unit(self) -> Result<Self::Ok, DeError> {
+    fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
         self.ser("`()`")?.serialize_unit()
     }
 
-    fn serialize_unit_struct(self, name: &'static str) -> Result<Self::Ok, DeError> {
+    fn serialize_unit_struct(self, name: &'static str) -> Result<Self::Ok, Self::Error> {
         self.ser_name(name)?.serialize_unit_struct(name)
     }
 
@@ -663,10 +771,10 @@ impl<'w, 'r, W: Write> ser::Serializer for Serializer<'w, 'r, W> {
         name: &'static str,
         _variant_index: u32,
         variant: &'static str,
-    ) -> Result<Self::Ok, DeError> {
+    ) -> Result<Self::Ok, Self::Error> {
         if variant == TEXT_KEY {
             // We should write some text but we don't known what text to write
-            Err(DeError::Unsupported(
+            Err(SeError::Unsupported(
                 format!(
                     "cannot serialize enum unit variant `{}::$text` as text content value",
                     name
@@ -683,7 +791,7 @@ impl<'w, 'r, W: Write> ser::Serializer for Serializer<'w, 'r, W> {
         self,
         name: &'static str,
         value: &T,
-    ) -> Result<Self::Ok, DeError> {
+    ) -> Result<Self::Ok, Self::Error> {
         self.ser_name(name)?.serialize_newtype_struct(name, value)
     }
 
@@ -693,10 +801,12 @@ impl<'w, 'r, W: Write> ser::Serializer for Serializer<'w, 'r, W> {
         _variant_index: u32,
         variant: &'static str,
         value: &T,
-    ) -> Result<Self::Ok, DeError> {
+    ) -> Result<Self::Ok, Self::Error> {
         if variant == TEXT_KEY {
-            value.serialize(self.ser.into_simple_type_serializer())?;
-            Ok(())
+            value.serialize(self.ser.into_simple_type_serializer()?)?;
+            // Do not write indent after `$text` variant because it may be interpreted as
+            // part of content when deserialize
+            Ok(WriteResult::SensitiveText)
         } else {
             let ser = ElementSerializer {
                 ser: self.ser,
@@ -706,11 +816,11 @@ impl<'w, 'r, W: Write> ser::Serializer for Serializer<'w, 'r, W> {
         }
     }
 
-    fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, DeError> {
+    fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
         self.ser("sequence")?.serialize_seq(len)
     }
 
-    fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, DeError> {
+    fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
         self.ser("unnamed tuple")?.serialize_tuple(len)
     }
 
@@ -718,7 +828,7 @@ impl<'w, 'r, W: Write> ser::Serializer for Serializer<'w, 'r, W> {
         self,
         name: &'static str,
         len: usize,
-    ) -> Result<Self::SerializeTupleStruct, DeError> {
+    ) -> Result<Self::SerializeTupleStruct, Self::Error> {
         self.ser_name(name)?.serialize_tuple_struct(name, len)
     }
 
@@ -728,10 +838,10 @@ impl<'w, 'r, W: Write> ser::Serializer for Serializer<'w, 'r, W> {
         _variant_index: u32,
         variant: &'static str,
         len: usize,
-    ) -> Result<Self::SerializeTupleVariant, DeError> {
+    ) -> Result<Self::SerializeTupleVariant, Self::Error> {
         if variant == TEXT_KEY {
             self.ser
-                .into_simple_type_serializer()
+                .into_simple_type_serializer()?
                 .serialize_tuple_struct(name, len)
                 .map(Tuple::Text)
         } else {
@@ -743,7 +853,7 @@ impl<'w, 'r, W: Write> ser::Serializer for Serializer<'w, 'r, W> {
         }
     }
 
-    fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, DeError> {
+    fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
         self.ser("map")?.serialize_map(len)
     }
 
@@ -751,7 +861,7 @@ impl<'w, 'r, W: Write> ser::Serializer for Serializer<'w, 'r, W> {
         self,
         name: &'static str,
         len: usize,
-    ) -> Result<Self::SerializeStruct, DeError> {
+    ) -> Result<Self::SerializeStruct, Self::Error> {
         self.ser_name(name)?.serialize_struct(name, len)
     }
 
@@ -761,9 +871,9 @@ impl<'w, 'r, W: Write> ser::Serializer for Serializer<'w, 'r, W> {
         _variant_index: u32,
         variant: &'static str,
         len: usize,
-    ) -> Result<Self::SerializeStructVariant, DeError> {
+    ) -> Result<Self::SerializeStructVariant, Self::Error> {
         if variant == TEXT_KEY {
-            Err(DeError::Unsupported(
+            Err(SeError::Unsupported(
                 format!(
                     "cannot serialize enum struct variant `{}::$text` as text content value",
                     name
@@ -777,5 +887,101 @@ impl<'w, 'r, W: Write> ser::Serializer for Serializer<'w, 'r, W> {
             };
             ser.serialize_struct(name, len)
         }
+    }
+}
+
+#[cfg(test)]
+mod quote_level {
+    use super::*;
+    use pretty_assertions::assert_eq;
+    use serde::Serialize;
+
+    #[derive(Debug, PartialEq, Serialize)]
+    struct Element(&'static str);
+
+    #[derive(Debug, PartialEq, Serialize)]
+    struct Example {
+        #[serde(rename = "@attribute")]
+        attribute: &'static str,
+        element: Element,
+    }
+
+    #[test]
+    fn default_() {
+        let example = Example {
+            attribute: "special chars: &, <, >, \", '",
+            element: Element("special chars: &, <, >, \", '"),
+        };
+
+        let mut buffer = String::new();
+        let ser = Serializer::new(&mut buffer);
+
+        example.serialize(ser).unwrap();
+        assert_eq!(
+            buffer,
+            "<Example attribute=\"special chars: &amp;, &lt;, &gt;, &quot;, '\">\
+                <element>special chars: &amp;, &lt;, &gt;, \", '</element>\
+            </Example>"
+        );
+    }
+
+    #[test]
+    fn minimal() {
+        let example = Example {
+            attribute: "special chars: &, <, >, \", '",
+            element: Element("special chars: &, <, >, \", '"),
+        };
+
+        let mut buffer = String::new();
+        let mut ser = Serializer::new(&mut buffer);
+        ser.set_quote_level(QuoteLevel::Minimal);
+
+        example.serialize(ser).unwrap();
+        assert_eq!(
+            buffer,
+            "<Example attribute=\"special chars: &amp;, &lt;, >, &quot;, '\">\
+                <element>special chars: &amp;, &lt;, >, \", '</element>\
+            </Example>"
+        );
+    }
+
+    #[test]
+    fn partial() {
+        let example = Example {
+            attribute: "special chars: &, <, >, \", '",
+            element: Element("special chars: &, <, >, \", '"),
+        };
+
+        let mut buffer = String::new();
+        let mut ser = Serializer::new(&mut buffer);
+        ser.set_quote_level(QuoteLevel::Partial);
+
+        example.serialize(ser).unwrap();
+        assert_eq!(
+            buffer,
+            "<Example attribute=\"special chars: &amp;, &lt;, &gt;, &quot;, '\">\
+                <element>special chars: &amp;, &lt;, &gt;, \", '</element>\
+            </Example>"
+        );
+    }
+
+    #[test]
+    fn full() {
+        let example = Example {
+            attribute: "special chars: &, <, >, \", '",
+            element: Element("special chars: &, <, >, \", '"),
+        };
+
+        let mut buffer = String::new();
+        let mut ser = Serializer::new(&mut buffer);
+        ser.set_quote_level(QuoteLevel::Full);
+
+        example.serialize(ser).unwrap();
+        assert_eq!(
+            buffer,
+            "<Example attribute=\"special chars: &amp;, &lt;, &gt;, &quot;, &apos;\">\
+                <element>special chars: &amp;, &lt;, &gt;, &quot;, &apos;</element>\
+            </Example>"
+        );
     }
 }

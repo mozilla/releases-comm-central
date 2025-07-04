@@ -4,42 +4,42 @@ use std::result::Result as StdResult;
 use tokio::io::{AsyncWrite, AsyncWriteExt};
 
 use crate::errors::{Error, Result};
-use crate::events::{BytesCData, BytesText, Event};
+use crate::events::{BytesCData, BytesPI, BytesText, Event};
 use crate::{ElementWriter, Writer};
 
 impl<W: AsyncWrite + Unpin> Writer<W> {
     /// Writes the given event to the underlying writer. Async version of [`Writer::write_event`].
-    pub async fn write_event_async<'a, E: AsRef<Event<'a>>>(&mut self, event: E) -> Result<()> {
+    pub async fn write_event_async<'a, E: Into<Event<'a>>>(&mut self, event: E) -> Result<()> {
         let mut next_should_line_break = true;
-        let result = match *event.as_ref() {
-            Event::Start(ref e) => {
-                let result = self.write_wrapped_async(b"<", e, b">").await;
+        let result = match event.into() {
+            Event::Start(e) => {
+                let result = self.write_wrapped_async(b"<", &e, b">").await;
                 if let Some(i) = self.indent.as_mut() {
                     i.grow();
                 }
                 result
             }
-            Event::End(ref e) => {
+            Event::End(e) => {
                 if let Some(i) = self.indent.as_mut() {
                     i.shrink();
                 }
-                self.write_wrapped_async(b"</", e, b">").await
+                self.write_wrapped_async(b"</", &e, b">").await
             }
-            Event::Empty(ref e) => self.write_wrapped_async(b"<", e, b"/>").await,
-            Event::Text(ref e) => {
+            Event::Empty(e) => self.write_wrapped_async(b"<", &e, b"/>").await,
+            Event::Text(e) => {
                 next_should_line_break = false;
-                self.write_async(e).await
+                self.write_async(&e).await
             }
-            Event::Comment(ref e) => self.write_wrapped_async(b"<!--", e, b"-->").await,
-            Event::CData(ref e) => {
+            Event::Comment(e) => self.write_wrapped_async(b"<!--", &e, b"-->").await,
+            Event::CData(e) => {
                 next_should_line_break = false;
                 self.write_async(b"<![CDATA[").await?;
-                self.write_async(e).await?;
+                self.write_async(&e).await?;
                 self.write_async(b"]]>").await
             }
-            Event::Decl(ref e) => self.write_wrapped_async(b"<?", e, b"?>").await,
-            Event::PI(ref e) => self.write_wrapped_async(b"<?", e, b"?>").await,
-            Event::DocType(ref e) => self.write_wrapped_async(b"<!DOCTYPE ", e, b">").await,
+            Event::Decl(e) => self.write_wrapped_async(b"<?", &e, b"?>").await,
+            Event::PI(e) => self.write_wrapped_async(b"<?", &e, b"?>").await,
+            Event::DocType(e) => self.write_wrapped_async(b"<!DOCTYPE ", &e, b">").await,
             Event::Eof => Ok(()),
         };
         if let Some(i) = self.indent.as_mut() {
@@ -173,7 +173,7 @@ impl<'a, W: AsyncWrite + Unpin> ElementWriter<'a, W> {
     ///
     /// ```
     /// # use quick_xml::writer::Writer;
-    /// # use quick_xml::events::BytesText;
+    /// # use quick_xml::events::BytesPI;
     /// # use tokio::io::AsyncWriteExt;
     /// # #[tokio::main(flavor = "current_thread")] async fn main() {
     /// let mut buffer = Vec::new();
@@ -184,9 +184,7 @@ impl<'a, W: AsyncWrite + Unpin> ElementWriter<'a, W> {
     ///     .create_element("paired")
     ///     .with_attribute(("attr1", "value1"))
     ///     .with_attribute(("attr2", "value2"))
-    ///     // NOTE: We cannot use BytesText::new here, because it escapes strings,
-    ///     // but processing instruction content should not be escaped
-    ///     .write_pi_content_async(BytesText::from_escaped(r#"xml-stylesheet href="style.css""#))
+    ///     .write_pi_content_async(BytesPI::new(r#"xml-stylesheet href="style.css""#))
     ///     .await
     ///     .expect("cannot write content");
     ///
@@ -199,7 +197,7 @@ impl<'a, W: AsyncWrite + Unpin> ElementWriter<'a, W> {
     /// </paired>"#
     /// );
     /// # }
-    pub async fn write_pi_content_async(self, text: BytesText<'_>) -> Result<&'a mut Writer<W>> {
+    pub async fn write_pi_content_async(self, text: BytesPI<'_>) -> Result<&'a mut Writer<W>> {
         self.writer
             .write_event_async(Event::Start(self.start_tag.borrow()))
             .await?;
@@ -363,7 +361,7 @@ mod tests {
 
     test!(
         pi,
-        Event::PI(BytesText::new("this is a processing instruction")),
+        Event::PI(BytesPI::new("this is a processing instruction")),
         r#"<?this is a processing instruction?>"#
     );
 

@@ -2,11 +2,13 @@
 //!
 //! Provides an iterator over attributes key/value pairs
 
+use crate::encoding::Decoder;
 use crate::errors::Result as XmlResult;
-use crate::escape::{escape, unescape_with};
-use crate::name::QName;
-use crate::reader::{is_whitespace, Reader};
-use crate::utils::{write_byte_string, write_cow_string, Bytes};
+use crate::escape::{escape, resolve_predefined_entity, unescape_with};
+use crate::name::{LocalName, Namespace, QName};
+use crate::reader::NsReader;
+use crate::utils::{is_whitespace, Bytes};
+
 use std::fmt::{self, Debug, Display, Formatter};
 use std::iter::FusedIterator;
 use std::{borrow::Cow, ops::Range};
@@ -44,7 +46,7 @@ impl<'a> Attribute<'a> {
     /// [`encoding`]: ../../index.html#encoding
     #[cfg(any(doc, not(feature = "encoding")))]
     pub fn unescape_value(&self) -> XmlResult<Cow<'a, str>> {
-        self.unescape_value_with(|_| None)
+        self.unescape_value_with(resolve_predefined_entity)
     }
 
     /// Decodes using UTF-8 then unescapes the value, using custom entities.
@@ -62,46 +64,32 @@ impl<'a> Attribute<'a> {
     ///
     /// [`encoding`]: ../../index.html#encoding
     #[cfg(any(doc, not(feature = "encoding")))]
+    #[inline]
     pub fn unescape_value_with<'entity>(
         &self,
         resolve_entity: impl FnMut(&str) -> Option<&'entity str>,
     ) -> XmlResult<Cow<'a, str>> {
-        // from_utf8 should never fail because content is always UTF-8 encoded
-        let decoded = match &self.value {
-            Cow::Borrowed(bytes) => Cow::Borrowed(std::str::from_utf8(bytes)?),
-            // Convert to owned, because otherwise Cow will be bound with wrong lifetime
-            Cow::Owned(bytes) => Cow::Owned(std::str::from_utf8(bytes)?.to_string()),
-        };
-
-        match unescape_with(&decoded, resolve_entity)? {
-            // Because result is borrowed, no replacements was done and we can use original string
-            Cow::Borrowed(_) => Ok(decoded),
-            Cow::Owned(s) => Ok(s.into()),
-        }
+        self.decode_and_unescape_value_with(Decoder::utf8(), resolve_entity)
     }
 
     /// Decodes then unescapes the value.
     ///
     /// This will allocate if the value contains any escape sequences or in
     /// non-UTF-8 encoding.
-    pub fn decode_and_unescape_value<B>(&self, reader: &Reader<B>) -> XmlResult<Cow<'a, str>> {
-        self.decode_and_unescape_value_with(reader, |_| None)
+    pub fn decode_and_unescape_value(&self, decoder: Decoder) -> XmlResult<Cow<'a, str>> {
+        self.decode_and_unescape_value_with(decoder, resolve_predefined_entity)
     }
 
     /// Decodes then unescapes the value with custom entities.
     ///
     /// This will allocate if the value contains any escape sequences or in
     /// non-UTF-8 encoding.
-    pub fn decode_and_unescape_value_with<'entity, B>(
+    pub fn decode_and_unescape_value_with<'entity>(
         &self,
-        reader: &Reader<B>,
+        decoder: Decoder,
         resolve_entity: impl FnMut(&str) -> Option<&'entity str>,
     ) -> XmlResult<Cow<'a, str>> {
-        let decoded = match &self.value {
-            Cow::Borrowed(bytes) => reader.decoder().decode(bytes)?,
-            // Convert to owned, because otherwise Cow will be bound with wrong lifetime
-            Cow::Owned(bytes) => reader.decoder().decode(bytes)?.into_owned().into(),
-        };
+        let decoded = decoder.decode_cow(&self.value)?;
 
         match unescape_with(&decoded, resolve_entity)? {
             // Because result is borrowed, no replacements was done and we can use original string
@@ -109,15 +97,50 @@ impl<'a> Attribute<'a> {
             Cow::Owned(s) => Ok(s.into()),
         }
     }
+
+    /// If attribute value [represents] valid boolean values, returns `Some`, otherwise returns `None`.
+    ///
+    /// The valid boolean representations are only `"true"`, `"false"`, `"1"`, and `"0"`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use pretty_assertions::assert_eq;
+    /// use quick_xml::events::attributes::Attribute;
+    ///
+    /// let attr = Attribute::from(("attr", "false"));
+    /// assert_eq!(attr.as_bool(), Some(false));
+    ///
+    /// let attr = Attribute::from(("attr", "0"));
+    /// assert_eq!(attr.as_bool(), Some(false));
+    ///
+    /// let attr = Attribute::from(("attr", "true"));
+    /// assert_eq!(attr.as_bool(), Some(true));
+    ///
+    /// let attr = Attribute::from(("attr", "1"));
+    /// assert_eq!(attr.as_bool(), Some(true));
+    ///
+    /// let attr = Attribute::from(("attr", "bot bool"));
+    /// assert_eq!(attr.as_bool(), None);
+    /// ```
+    ///
+    /// [represents]: https://www.w3.org/TR/xmlschema11-2/#boolean
+    #[inline]
+    pub fn as_bool(&self) -> Option<bool> {
+        match self.value.as_ref() {
+            b"1" | b"true" => Some(true),
+            b"0" | b"false" => Some(false),
+            _ => None,
+        }
+    }
 }
 
 impl<'a> Debug for Attribute<'a> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "Attribute {{ key: ")?;
-        write_byte_string(f, self.key.as_ref())?;
-        write!(f, ", value: ")?;
-        write_cow_string(f, &self.value)?;
-        write!(f, " }}")
+        f.debug_struct("Attribute")
+            .field("key", &Bytes(self.key.as_ref()))
+            .field("value", &Bytes(&self.value))
+            .finish()
     }
 }
 
@@ -166,6 +189,31 @@ impl<'a> From<(&'a str, &'a str)> for Attribute<'a> {
     }
 }
 
+impl<'a> From<(&'a str, Cow<'a, str>)> for Attribute<'a> {
+    /// Creates new attribute from text representation.
+    /// Key is stored as-is, but the value will be escaped.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use std::borrow::Cow;
+    /// use pretty_assertions::assert_eq;
+    /// use quick_xml::events::attributes::Attribute;
+    ///
+    /// let features = Attribute::from(("features", Cow::Borrowed("Bells & whistles")));
+    /// assert_eq!(features.value, "Bells &amp; whistles".as_bytes());
+    /// ```
+    fn from(val: (&'a str, Cow<'a, str>)) -> Attribute<'a> {
+        Attribute {
+            key: QName(val.0.as_bytes()),
+            value: match escape(val.1) {
+                Cow::Borrowed(s) => Cow::Borrowed(s.as_bytes()),
+                Cow::Owned(s) => Cow::Owned(s.into_bytes()),
+            },
+        }
+    }
+}
+
 impl<'a> From<Attr<&'a [u8]>> for Attribute<'a> {
     #[inline]
     fn from(attr: Attr<&'a [u8]>) -> Self {
@@ -184,7 +232,7 @@ impl<'a> From<Attr<&'a [u8]>> for Attribute<'a> {
 /// The duplicate check can be turned off by calling [`with_checks(false)`].
 ///
 /// [`with_checks(false)`]: Self::with_checks
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Attributes<'a> {
     /// Slice of `BytesStart` corresponding to attributes
     bytes: &'a [u8],
@@ -195,7 +243,7 @@ pub struct Attributes<'a> {
 impl<'a> Attributes<'a> {
     /// Internal constructor, used by `BytesStart`. Supplies data in reader's encoding
     #[inline]
-    pub(crate) fn wrap(buf: &'a [u8], pos: usize, html: bool) -> Self {
+    pub(crate) const fn wrap(buf: &'a [u8], pos: usize, html: bool) -> Self {
         Self {
             bytes: buf,
             state: IterState::new(pos, html),
@@ -203,12 +251,12 @@ impl<'a> Attributes<'a> {
     }
 
     /// Creates a new attribute iterator from a buffer.
-    pub fn new(buf: &'a str, pos: usize) -> Self {
+    pub const fn new(buf: &'a str, pos: usize) -> Self {
         Self::wrap(buf.as_bytes(), pos, false)
     }
 
     /// Creates a new attribute iterator from a buffer, allowing HTML attribute syntax.
-    pub fn html(buf: &'a str, pos: usize) -> Self {
+    pub const fn html(buf: &'a str, pos: usize) -> Self {
         Self::wrap(buf.as_bytes(), pos, true)
     }
 
@@ -221,6 +269,90 @@ impl<'a> Attributes<'a> {
     pub fn with_checks(&mut self, val: bool) -> &mut Attributes<'a> {
         self.state.check_duplicates = val;
         self
+    }
+
+    /// Checks if the current tag has a [`xsi:nil`] attribute. This method ignores any errors in
+    /// attributes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use pretty_assertions::assert_eq;
+    /// use quick_xml::events::Event;
+    /// use quick_xml::name::QName;
+    /// use quick_xml::reader::NsReader;
+    ///
+    /// let mut reader = NsReader::from_str("
+    ///     <root xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+    ///         <true xsi:nil='true'/>
+    ///         <false xsi:nil='false'/>
+    ///         <none/>
+    ///         <non-xsi xsi:nil='true' xmlns:xsi='namespace'/>
+    ///         <unbound-nil nil='true' xmlns='http://www.w3.org/2001/XMLSchema-instance'/>
+    ///         <another-xmlns f:nil='true' xmlns:f='http://www.w3.org/2001/XMLSchema-instance'/>
+    ///     </root>
+    /// ");
+    /// reader.config_mut().trim_text(true);
+    ///
+    /// macro_rules! check {
+    ///     ($reader:expr, $name:literal, $value:literal) => {
+    ///         let event = match $reader.read_event().unwrap() {
+    ///             Event::Empty(e) => e,
+    ///             e => panic!("Unexpected event {:?}", e),
+    ///         };
+    ///         assert_eq!(
+    ///             (event.name(), event.attributes().has_nil(&$reader)),
+    ///             (QName($name.as_bytes()), $value),
+    ///         );
+    ///     };
+    /// }
+    ///
+    /// let root = match reader.read_event().unwrap() {
+    ///     Event::Start(e) => e,
+    ///     e => panic!("Unexpected event {:?}", e),
+    /// };
+    /// assert_eq!(root.attributes().has_nil(&reader), false);
+    ///
+    /// // definitely true
+    /// check!(reader, "true",          true);
+    /// // definitely false
+    /// check!(reader, "false",         false);
+    /// // absence of the attribute means that attribute is not set
+    /// check!(reader, "none",          false);
+    /// // attribute not bound to the correct namespace
+    /// check!(reader, "non-xsi",       false);
+    /// // attributes without prefix not bound to any namespace
+    /// check!(reader, "unbound-nil",   false);
+    /// // prefix can be any while it is bound to the correct namespace
+    /// check!(reader, "another-xmlns", true);
+    /// ```
+    ///
+    /// [`xsi:nil`]: https://www.w3.org/TR/xmlschema-1/#xsi_nil
+    pub fn has_nil<R>(&mut self, reader: &NsReader<R>) -> bool {
+        use crate::name::ResolveResult::*;
+
+        self.any(|attr| {
+            if let Ok(attr) = attr {
+                match reader.resolve_attribute(attr.key) {
+                    (
+                        Bound(Namespace(b"http://www.w3.org/2001/XMLSchema-instance")),
+                        LocalName(b"nil"),
+                    ) => attr.as_bool().unwrap_or_default(),
+                    _ => false,
+                }
+            } else {
+                false
+            }
+        })
+    }
+}
+
+impl<'a> Debug for Attributes<'a> {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        f.debug_struct("Attributes")
+            .field("bytes", &Bytes(&self.bytes))
+            .field("state", &self.state)
+            .finish()
     }
 }
 
@@ -416,7 +548,7 @@ impl<T> Attr<T> {
 impl<'a> Attr<&'a [u8]> {
     /// Returns the key value
     #[inline]
-    pub fn key(&self) -> QName<'a> {
+    pub const fn key(&self) -> QName<'a> {
         QName(match self {
             Attr::DoubleQ(key, _) => key,
             Attr::SingleQ(key, _) => key,
@@ -429,7 +561,7 @@ impl<'a> Attr<&'a [u8]> {
     ///
     /// [HTML specification]: https://www.w3.org/TR/2012/WD-html-markup-20120329/syntax.html#syntax-attr-empty
     #[inline]
-    pub fn value(&self) -> &'a [u8] {
+    pub const fn value(&self) -> &'a [u8] {
         match self {
             Attr::DoubleQ(_, value) => value,
             Attr::SingleQ(_, value) => value,
@@ -518,7 +650,7 @@ pub(crate) struct IterState {
 }
 
 impl IterState {
-    pub fn new(offset: usize, html: bool) -> Self {
+    pub const fn new(offset: usize, html: bool) -> Self {
         Self {
             state: State::Next(offset),
             html,
