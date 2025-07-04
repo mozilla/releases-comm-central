@@ -834,12 +834,6 @@ NS_IMETHODIMP FolderInfo::GetHighWater(nsMsgKey* aHighWater) {
 NS_IMETHODIMP FolderInfo::SetHighWater(nsMsgKey aHighWater) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP FolderInfo::GetExpiredMark(nsMsgKey* aExpiredMark) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP FolderInfo::SetExpiredMark(nsMsgKey aExpiredMark) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
 NS_IMETHODIMP FolderInfo::GetFolderSize(int64_t* aFolderSize) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

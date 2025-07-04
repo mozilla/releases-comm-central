@@ -33,7 +33,6 @@ static const char* kTotalPendingMessagesColumnName = "totPendingMsgs";
 static const char* kUnreadPendingMessagesColumnName = "unreadPendingMsgs";
 static const char* kMailboxNameColumnName = "mailboxName";
 static const char* kKnownArtsSetColumnName = "knownArts";
-static const char* kExpiredMarkColumnName = "expiredMark";
 static const char* kVersionColumnName = "version";
 static const char* kLocaleColumnName = "locale";
 
@@ -56,9 +55,7 @@ nsDBFolderInfo::QueryInterface(REFNSIID iid, void** result) {
 
 nsDBFolderInfo::nsDBFolderInfo(nsMsgDatabase* mdb)
     : m_flags(0),
-      m_expiredMark(0),
-      m_tableKindToken(0),
-      m_expiredMarkColumnToken(0) {
+      m_tableKindToken(0) {
   m_mdbTable = NULL;
   m_mdbRow = NULL;
   m_version = 1;                 // for upgrading...
@@ -203,8 +200,6 @@ nsresult nsDBFolderInfo::InitMDBInfo() {
                          &m_totalPendingMessagesColumnToken);
     store->StringToToken(env, kUnreadPendingMessagesColumnName,
                          &m_unreadPendingMessagesColumnToken);
-    store->StringToToken(env, kExpiredMarkColumnName,
-                         &m_expiredMarkColumnToken);
     store->StringToToken(env, kVersionColumnName, &m_versionColumnToken);
     m_mdbTokensInitialized = true;
   }
@@ -222,7 +217,6 @@ nsresult nsDBFolderInfo::LoadMemberVariables() {
   GetUint32PropertyWithToken(m_folderDateColumnToken, m_folderDate);
   GetInt32PropertyWithToken(m_imapUidValidityColumnToken, m_ImapUidValidity,
                             kUidUnknown);
-  GetUint32PropertyWithToken(m_expiredMarkColumnToken, m_expiredMark);
   GetInt64PropertyWithToken(m_expungedBytesColumnToken, m_expungedBytes);
   GetUint32PropertyWithToken(m_highWaterMessageKeyColumnToken,
                              m_highWaterMessageKey);
@@ -322,16 +316,6 @@ NS_IMETHODIMP nsDBFolderInfo::GetHighWater(nsMsgKey* result) {
     m_highWaterMessageKey = recalculatedHighWater;
   }
   *result = m_highWaterMessageKey;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsDBFolderInfo::SetExpiredMark(nsMsgKey expiredKey) {
-  m_expiredMark = expiredKey;
-  return SetUint32PropertyWithToken(m_expiredMarkColumnToken, expiredKey);
-}
-
-NS_IMETHODIMP nsDBFolderInfo::GetExpiredMark(nsMsgKey* result) {
-  *result = m_expiredMark;
   return NS_OK;
 }
 

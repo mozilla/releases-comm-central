@@ -38,7 +38,6 @@ interface  nsIDBFolderInfo : nsISupports {
   void  onKeyAdded(in nsMsgKey aNewKey);
 
   attribute nsMsgKey highWater;
-  attribute nsMsgKey expiredMark;
   attribute long long folderSize;
   attribute unsigned long folderDate;
   void changeNumUnreadMessages(in long aDelta);

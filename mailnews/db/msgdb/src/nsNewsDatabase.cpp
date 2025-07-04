@@ -114,13 +114,6 @@ NS_IMETHODIMP nsNewsDatabase::GetLowWaterArticleNum(nsMsgKey* key) {
   return first->GetMessageKey(key);
 }
 
-nsresult nsNewsDatabase::ExpireUpTo(nsMsgKey expireKey) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-nsresult nsNewsDatabase::ExpireRange(nsMsgKey startRange, nsMsgKey endRange) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP nsNewsDatabase::GetReadSet(nsMsgKeySet** pSet) {
   if (!pSet) return NS_ERROR_NULL_POINTER;
   *pSet = m_readSet;

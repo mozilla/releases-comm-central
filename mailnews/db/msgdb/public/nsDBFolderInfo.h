@@ -116,9 +116,6 @@ class nsDBFolderInfo : public nsIDBFolderInfo {
   int32_t m_totalPendingMessages;
   int32_t m_unreadPendingMessages;
 
-  // news only (for now)
-  nsMsgKey
-      m_expiredMark;  // Highest invalid article number in group - for expiring
   // the db folder info will have to know what db and row it belongs to, since
   // it is really just a wrapper around the singleton folder info row in the
   // mdb.
@@ -144,7 +141,6 @@ class nsDBFolderInfo : public nsIDBFolderInfo {
   mdb_token m_imapUidValidityColumnToken;
   mdb_token m_totalPendingMessagesColumnToken;
   mdb_token m_unreadPendingMessagesColumnToken;
-  mdb_token m_expiredMarkColumnToken;
   mdb_token m_versionColumnToken;
 };
 

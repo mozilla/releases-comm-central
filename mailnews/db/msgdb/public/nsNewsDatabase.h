@@ -33,9 +33,6 @@ class nsNewsDatabase : public nsMsgDatabase, public nsINewsDatabase {
   NS_IMETHOD GetLowWaterArticleNum(nsMsgKey* key) override;
   NS_IMETHOD MarkAllRead(nsTArray<nsMsgKey>& thoseMarked) override;
 
-  virtual nsresult ExpireUpTo(nsMsgKey expireKey);
-  virtual nsresult ExpireRange(nsMsgKey startRange, nsMsgKey endRange);
-
   virtual bool SetHdrReadFlag(nsIMsgDBHdr* msgHdr, bool bRead) override;
 
   virtual nsresult AdjustExpungedBytesOnDelete(nsIMsgDBHdr* msgHdr) override;
