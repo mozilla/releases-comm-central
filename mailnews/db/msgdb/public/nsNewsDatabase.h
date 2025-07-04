@@ -28,11 +28,6 @@ class nsNewsDatabase : public nsMsgDatabase, public nsINewsDatabase {
   // methods to get and set docsets for ids.
   NS_IMETHOD IsRead(nsMsgKey key, bool* pRead) override;
   virtual nsresult IsHeaderRead(nsIMsgDBHdr* msgHdr, bool* pRead) override;
-
-  NS_IMETHOD GetHighWaterArticleNum(nsMsgKey* key) override;
-  NS_IMETHOD GetLowWaterArticleNum(nsMsgKey* key) override;
-  NS_IMETHOD MarkAllRead(nsTArray<nsMsgKey>& thoseMarked) override;
-
   virtual bool SetHdrReadFlag(nsIMsgDBHdr* msgHdr, bool bRead) override;
 
   virtual nsresult AdjustExpungedBytesOnDelete(nsIMsgDBHdr* msgHdr) override;

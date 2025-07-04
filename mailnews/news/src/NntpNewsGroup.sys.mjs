@@ -63,16 +63,9 @@ export class NntpNewsGroup {
 
     const groupInfo = this._db.dBFolderInfo;
     if (groupInfo) {
-      if (lastPossible < groupInfo.highWater) {
-        groupInfo.highWater = lastPossible;
-      }
       this._knownKeySet = new MsgKeySet(groupInfo.knownArtsSet);
     } else {
       this._knownKeySet = new MsgKeySet();
-      this._knownKeySet.addRange(
-        this._db.lowWaterArticleNum,
-        this._db.highWaterArticleNum
-      );
     }
 
     if (this._getOldMessages || !this._knownKeySet.has(lastPossible)) {

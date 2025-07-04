@@ -614,8 +614,6 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
    */
   void updatePendingAttributes(in nsIMsgDBHdr aNewHdr);
 
-  readonly attribute nsMsgKey lowWaterArticleNum;
-  readonly attribute nsMsgKey highWaterArticleNum;
   attribute nsMsgKey nextPseudoMsgKey;   //for undo-redo of move pop->imap
   readonly attribute nsMsgKey nextFakeOfflineMsgKey; // for saving "fake" offline msg hdrs
   // for sorting

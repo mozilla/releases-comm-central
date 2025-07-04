@@ -628,14 +628,6 @@ NS_IMETHODIMP PerFolderDatabase::SetUint64AttributeOnPendingHdr(
 NS_IMETHODIMP PerFolderDatabase::UpdatePendingAttributes(nsIMsgDBHdr* aNewHdr) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP PerFolderDatabase::GetLowWaterArticleNum(
-    nsMsgKey* aLowWaterArticleNum) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP PerFolderDatabase::GetHighWaterArticleNum(
-    nsMsgKey* aHighWaterArticleNum) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
 NS_IMETHODIMP PerFolderDatabase::GetNextPseudoMsgKey(
     nsMsgKey* aNextPseudoMsgKey) {
   return NS_ERROR_NOT_IMPLEMENTED;

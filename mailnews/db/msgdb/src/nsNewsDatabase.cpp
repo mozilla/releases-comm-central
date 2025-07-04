@@ -84,36 +84,6 @@ nsresult nsNewsDatabase::IsHeaderRead(nsIMsgDBHdr* msgHdr, bool* pRead) {
   return rv;
 }
 
-// return highest article number we've seen.
-NS_IMETHODIMP nsNewsDatabase::GetHighWaterArticleNum(nsMsgKey* key) {
-  NS_ASSERTION(m_dbFolderInfo, "null db folder info");
-  if (!m_dbFolderInfo) return NS_ERROR_FAILURE;
-  return m_dbFolderInfo->GetHighWater(key);
-}
-
-// return the key of the first article number we know about.
-// Since the iterator iterates in id order, we can just grab the
-// messagekey of the first header it returns.
-// ### dmb
-// This will not deal with the situation where we get holes in
-// the headers we know about. Need to figure out how and when
-// to solve that. This could happen if a transfer is interrupted.
-// Do we need to keep track of known arts permanently?
-NS_IMETHODIMP nsNewsDatabase::GetLowWaterArticleNum(nsMsgKey* key) {
-  nsresult rv;
-
-  nsCOMPtr<nsIMsgEnumerator> hdrs;
-  rv = EnumerateMessages(getter_AddRefs(hdrs));
-  if (NS_FAILED(rv)) return rv;
-
-  nsCOMPtr<nsIMsgDBHdr> first;
-  rv = hdrs->GetNext(getter_AddRefs(first));
-  NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
-  if (NS_FAILED(rv)) return rv;
-
-  return first->GetMessageKey(key);
-}
-
 NS_IMETHODIMP nsNewsDatabase::GetReadSet(nsMsgKeySet** pSet) {
   if (!pSet) return NS_ERROR_NULL_POINTER;
   *pSet = m_readSet;
@@ -168,24 +138,6 @@ bool nsNewsDatabase::SetHdrReadFlag(nsIMsgDBHdr* msgHdr, bool bRead) {
     }
   }
   return true;
-}
-
-NS_IMETHODIMP nsNewsDatabase::MarkAllRead(nsTArray<nsMsgKey>& aThoseMarked) {
-  nsMsgKey lowWater = nsMsgKey_None, highWater;
-  nsCString knownArts;
-  if (m_dbFolderInfo) {
-    m_dbFolderInfo->GetKnownArtsSet(getter_Copies(knownArts));
-    RefPtr<nsMsgKeySet> knownKeys = nsMsgKeySet::Create(knownArts.get());
-    if (knownKeys) lowWater = knownKeys->GetFirstMember();
-  }
-  if (lowWater == nsMsgKey_None) GetLowWaterArticleNum(&lowWater);
-  GetHighWaterArticleNum(&highWater);
-  if (lowWater > 2) m_readSet->AddRange(1, lowWater - 1);
-  nsresult err = nsMsgDatabase::MarkAllRead(aThoseMarked);
-  if (NS_SUCCEEDED(err) && 1 <= highWater)
-    m_readSet->AddRange(1, highWater);  // mark everything read in newsrc.
-
-  return err;
 }
 
 nsresult nsNewsDatabase::SyncWithReadSet() {

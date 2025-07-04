@@ -4506,17 +4506,6 @@ NS_IMETHODIMP nsMsgDatabase::ListAllOfflineDeletes(
   // technically, notimplemented, but no one's putting offline ops in anyway.
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgDatabase::GetHighWaterArticleNum(nsMsgKey* key) {
-  if (!m_dbFolderInfo) {
-    return NS_ERROR_NULL_POINTER;
-  }
-
-  return m_dbFolderInfo->GetHighWater(key);
-}
-
-NS_IMETHODIMP nsMsgDatabase::GetLowWaterArticleNum(nsMsgKey* key) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
 
 /* attribute nsMsgKey NextPseudoMsgKey */
 NS_IMETHODIMP nsMsgDatabase::GetNextPseudoMsgKey(nsMsgKey* nextPseudoMsgKey) {
