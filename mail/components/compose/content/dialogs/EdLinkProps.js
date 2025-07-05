@@ -260,7 +260,7 @@ function ValidateData() {
 function onAccept(event) {
   if (ValidateData()) {
     if (href.length > 0) {
-      if (!(insertNew || replaceExistingLink)) {
+      if (insertLinkAtCaret || !(insertNew || replaceExistingLink)) {
         // Copy attributes to element we are changing or inserting
         gActiveEditor.cloneAttributes(anchorElement, globalElement);
       }
