@@ -5,7 +5,7 @@
 // Return the set of locales according to LocaleService
 
 use cstr::cstr;
-use fluent::FluentResource;
+use fluent_ffi::FluentResource;
 use nserror::nsresult;
 use nsstring::nsCString;
 use thin_vec::ThinVec;
