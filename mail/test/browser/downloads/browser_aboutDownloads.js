@@ -176,7 +176,7 @@ async function save_attachment_files() {
     file.append(attachmentFileNames[i]);
     await select_click_row(i);
     MockFilePicker.setFiles([file]);
-    await new Promise(function (resolve) {
+    await new Promise(resolve => {
       MockFilePicker.afterOpenCallback = resolve;
       EventUtils.synthesizeMouseAtCenter(
         aboutMessage.document.getElementById("attachmentSaveAllSingle"),
@@ -184,6 +184,11 @@ async function save_attachment_files() {
         aboutMessage
       );
     });
+    await TestUtils.waitForCondition(
+      () => file.exists(),
+      `Waiting for attachment ${file.path} to save`
+    );
+    await TestUtils.waitForTick(); // Hope it's fully written as wel
   }
 }
 
