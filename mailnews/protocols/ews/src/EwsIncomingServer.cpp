@@ -370,6 +370,13 @@ NS_IMETHODIMP EwsIncomingServer::GetLocalDatabaseType(
   return NS_OK;
 }
 
+NS_IMETHODIMP EwsIncomingServer::GetCanBeDefaultServer(
+    bool* canBeDefaultServer) {
+  NS_ENSURE_ARG_POINTER(canBeDefaultServer);
+  *canBeDefaultServer = true;
+  return NS_OK;
+}
+
 NS_IMETHODIMP EwsIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
                                                 nsIMsgWindow* aMsgWindow,
                                                 nsIUrlListener* aUrlListener) {
