@@ -164,10 +164,11 @@ export class AttachmentInfo {
       Ci.nsIFile,
       fp.file.parent
     );
+    const path = fp.file.path;
     try {
-      await this.saveToFile(fp.file.path);
+      await this.saveToFile(path);
     } catch (e) {
-      console.warn(`Saving ${this.name} to ${fp.file.path} FAILED.`, e);
+      console.warn(`Saving ${this.name} to ${path} FAILED.`, e);
       Services.prompt.alert(
         null,
         title,
@@ -175,7 +176,10 @@ export class AttachmentInfo {
       );
       return this.save(browsingContext, fpDialogTitle);
     }
-    return fp.file.path;
+    browsingContext.window.dispatchEvent(
+      new CustomEvent("attachmentSaved", { detail: { name: this.name, path } })
+    );
+    return path;
   }
 
   /**

@@ -176,6 +176,7 @@ async function save_attachment_files() {
     file.append(attachmentFileNames[i]);
     await select_click_row(i);
     MockFilePicker.setFiles([file]);
+    const saved = BrowserTestUtils.waitForEvent(window, "attachmentSaved");
     await new Promise(resolve => {
       MockFilePicker.afterOpenCallback = resolve;
       EventUtils.synthesizeMouseAtCenter(
@@ -184,11 +185,10 @@ async function save_attachment_files() {
         aboutMessage
       );
     });
-    await TestUtils.waitForCondition(
-      () => file.exists(),
-      `Waiting for attachment ${file.path} to save`
-    );
-    await TestUtils.waitForTick(); // Hope it's fully written as wel
+    const {
+      detail: { path },
+    } = await saved;
+    Assert.equal(path, file.path, "Should save to expected path");
   }
 }
 
