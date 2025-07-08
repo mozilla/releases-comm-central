@@ -236,6 +236,7 @@ export class TreeView extends HTMLElement {
     this.placeholder = this.querySelector(`slot[name="placeholders"]`);
 
     this.addEventListener("scroll", this);
+    this.addEventListener("mousedown", this);
 
     this._height = this.clientHeight;
     this.#resizeObserver = new ResizeObserver(() => {
@@ -555,6 +556,14 @@ export class TreeView extends HTMLElement {
       }
       case "scroll":
         this._ensureVisibleRowsAreDisplayed(true);
+        break;
+      case "mousedown":
+        // If this happened on the empty space below the tree table, set or
+        // keep the focus there.
+        if (event.target == this) {
+          this.ensureCorrectFocus();
+          event.preventDefault();
+        }
         break;
     }
   }
