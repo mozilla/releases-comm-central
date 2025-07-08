@@ -4,6 +4,9 @@
 
 "use strict";
 
+if (AppConstants.platform == "macosx") {
+  requestLongerTimeout(2);
+}
 const {
   be_in_folder,
   create_folder,
@@ -13,6 +16,9 @@ const {
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
+const { GlodaIndexer } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaIndexer.sys.mjs"
+);
 const { GlodaMsgIndexer } = ChromeUtils.importESModule(
   "resource:///modules/gloda/IndexMsg.sys.mjs"
 );
@@ -39,9 +45,9 @@ const tests = [
       const input = document.querySelector(
         "#unifiedToolbarContent .search-bar"
       );
-      EventUtils.synthesizeMouseAtCenter(input, {});
-      EventUtils.sendString("us", window);
-      EventUtils.synthesizeKey("KEY_Enter", {});
+      EventUtils.synthesizeMouseAtCenter(input, {}, input.ownerGlobal);
+      EventUtils.sendString("us", input.ownerGlobal);
+      EventUtils.synthesizeKey("KEY_Enter", {}, input.ownerGlobal);
 
       await BrowserTestUtils.waitForCondition(
         () =>
@@ -71,13 +77,28 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
       { from: ["User", "user@example.com"] },
     ]
   );
+  Assert.equal(
+    [...folder.messages].length,
+    30,
+    "should have 30 msgs in folder"
+  );
+  await TestUtils.waitForTick();
 
-  await new Promise(callback => {
-    GlodaMsgIndexer.indexFolder(folder, { callback, force: true });
+  const shouldIndex = GlodaMsgIndexer.indexFolder(folder, {
+    force: true,
   });
+  Assert.ok(shouldIndex, "should index the folder");
+
+  await TestUtils.waitForCondition(
+    () => !GlodaIndexer.indexing,
+    "waiting for Gloda to finish indexing",
+    3000
+  );
+  Assert.report(false, undefined, undefined, "We have an indexed folder now.");
 
   const tabmail = window.document.getElementById("tabmail");
   for (const test of tests) {
+    info(`Running test with selector ${test.selector}`);
     while (tabmail.tabInfo.length > 1) {
       tabmail.closeTab(1);
     }
@@ -100,9 +121,9 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
     }
     input.focus();
 
-    EventUtils.synthesizeKey("u", {});
-    EventUtils.synthesizeKey("s", {});
-    EventUtils.synthesizeKey("e", {});
+    EventUtils.synthesizeKey("u", {}, input.ownerGlobal);
+    EventUtils.synthesizeKey("s", {}, input.ownerGlobal);
+    EventUtils.synthesizeKey("e", {}, input.ownerGlobal);
 
     await BrowserTestUtils.waitForCondition(
       () => input.controller.matchCount > 0,
@@ -113,7 +134,7 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
       "#PopupGlodaAutocomplete > richlistbox > richlistitem"
     );
     Assert.ok(target, "target item to click found");
-    EventUtils.synthesizeMouseAtCenter(target, {});
+    EventUtils.synthesizeMouseAtCenter(target, {}, target.ownerGlobal);
 
     // Give any potentially extra tabs time to appear.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
