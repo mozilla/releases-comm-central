@@ -414,7 +414,6 @@ var mailContextMenu = {
 
     checkItem("mailContext-markFlagged", message?.isFlagged);
 
-    setSingleSelection("mailContext-copyMessageUrl", !!isNewsgroup);
     // Disable move if we can't delete message(s) from this folder.
     showItem("mailContext-moveMenu", canMove && !onSpecialItem);
     showItem("mailContext-copyMenu", canCopy && !onSpecialItem);
@@ -660,24 +659,6 @@ var mailContextMenu = {
 
       // Move/copy/archive/convert/delete
       // (Move and Copy sub-menus are handled in the default case.)
-      case "mailContext-copyMessageUrl": {
-        const message = gDBView.hdrForFirstSelectedMessage;
-        const server = message?.folder?.server;
-
-        if (!server) {
-          return;
-        }
-
-        // TODO let backend construct URL and return as attribute
-        let url =
-          server.socketType == Ci.nsMsgSocketType.SSL ? "snews://" : "news://";
-        url += server.hostName + ":" + server.port + "/" + message.messageId;
-
-        Cc["@mozilla.org/widget/clipboardhelper;1"]
-          .getService(Ci.nsIClipboardHelper)
-          .copyString(url);
-        break;
-      }
 
       // Calendar Convert sub-menu
       case "mailContext-calendar-convert-event-menuitem":

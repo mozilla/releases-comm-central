@@ -351,8 +351,6 @@
 <!ENTITY moveMsgToMenu.accesskey "M">
 <!ENTITY moveCopyMsgRecentMenu.label "Recent">
 <!ENTITY moveCopyMsgRecentMenu.accesskey "R">
-<!ENTITY copyMessageLocation.label "Copy Message Location">
-<!ENTITY copyMessageLocation.accesskey "M">
 <!ENTITY copyMsgToMenu.label "Copy To">
 <!ENTITY copyMsgToMenu.accesskey "C">
 <!ENTITY moveToFolderAgain.label "Move Again">

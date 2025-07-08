@@ -210,7 +210,6 @@ const mailContextData = {
   "mailContext-markAsNotJunk": notExternal,
   "mailContext-recalculateJunkScore": notExternal,
   "mailContext-organize": notExternal,
-  "mailContext-copyMessageUrl": [],
   "mailContext-archive": notExternal,
   "mailContext-decryptToFolder": [
     "multipleMessagesTree",
