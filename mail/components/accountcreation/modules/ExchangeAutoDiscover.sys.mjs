@@ -81,7 +81,13 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
   const isOAuth2Available = oauth2Module.initFromHostname(
     uri.host,
     username,
-    "exchange"
+    // We pretend to be an IMAP server so we don't try to request unnecessary
+    // scopes such as the EWS one (which would happen if we used "exchange" or
+    // "ews" here). AutoDiscover seems to offer the same configuration
+    // regardless of the scope(s) requested, and some organisations will usually
+    // restrict the use of scopes like the EWS ones to a small allow-list of
+    // clients for security reasons.
+    "imap"
   );
   if (isOAuth2Available) {
     oauth2Module.getAccessToken({
