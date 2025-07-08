@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+pub(crate) mod copy_move_operations;
 mod create_folder;
-mod move_operations;
 mod server_version;
 
 use std::{

@@ -50,10 +50,23 @@ add_setup(async function () {
   });
 });
 
-add_task(async function test_move_item() {
-  // Create two folders.
-  const folder1Name = "folder1";
-  const folder2Name = "folder2";
+/**
+ * Construct the test structure required for copying or moving items.
+ *
+ * The `prefix` argument indicates the prefix to apply to the folders
+ * constructed for the test setup. This function will create two folders on the
+ * remote server: `<prefix>_folder1` and `<prefix>_folder2`, and will place two
+ * items in `<prefix>_folder1` named `<prefix>_a` and `<prefix>_b`. This
+ * function returns a tuple with the names of the two folders as the first two
+ * elements and the folders themselves as the second two elements.
+ *
+ * @param {string} prefix
+ * @returns {[string, string, nsIMsgFolder, nsIMsgFolder]}
+ */
+async function setup_item_copymove_structure(prefix) {
+  // Create two folders for the copy/move tests.
+  const folder1Name = `${prefix}_folder1`;
+  const folder2Name = `${prefix}_folder2`;
   ewsServer.appendRemoteFolder(
     new RemoteFolder(folder1Name, "root", folder1Name, folder1Name)
   );
@@ -74,8 +87,8 @@ add_task(async function test_move_item() {
   const folder2 = rootFolder.getChildNamed(folder2Name);
   Assert.ok(!!folder2, `${folder2Name} should exist.`);
 
-  ewsServer.addNewItemOrMoveItemToFolder("a", folder1Name);
-  ewsServer.addNewItemOrMoveItemToFolder("b", folder1Name);
+  ewsServer.addNewItemOrMoveItemToFolder(`${prefix}_a`, folder1Name);
+  ewsServer.addNewItemOrMoveItemToFolder(`${prefix}_b`, folder1Name);
 
   incomingServer.getNewMessages(folder1, null, null);
 
@@ -89,11 +102,19 @@ add_task(async function test_move_item() {
     `${folder2Name} should be empty.`
   );
 
+  return [folder1Name, folder2Name, folder1, folder2];
+}
+
+add_task(async function test_move_item() {
+  const [folder1Name, folder2Name, folder1, folder2] =
+    await setup_item_copymove_structure("move");
+
   const headers = [];
   [...folder1.messages].forEach(header => headers.push(header));
 
   // Initiate the move operation.
-  folder2.copyMessages(folder1, headers, true, null, null, true, false);
+  const isMove = true;
+  folder2.copyMessages(folder1, headers, isMove, null, null, true, false);
 
   await TestUtils.waitForCondition(
     () => folder2.getTotalMessages(false) == 2,
@@ -106,14 +127,14 @@ add_task(async function test_move_item() {
   );
 
   Assert.equal(
-    ewsServer.getContainingFolderId("a"),
+    ewsServer.getContainingFolderId("move_a"),
     folder2Name,
-    `Item a should be in ${folder2Name}`
+    `Item move_a should be in ${folder2Name}`
   );
   Assert.equal(
-    ewsServer.getContainingFolderId("b"),
+    ewsServer.getContainingFolderId("move_b"),
     folder2Name,
-    `Item b should be in ${folder2Name}`
+    `Item move_b should be in ${folder2Name}`
   );
   Assert.equal(
     folder1.getTotalMessages(false),
@@ -124,6 +145,54 @@ add_task(async function test_move_item() {
     folder2.getTotalMessages(false),
     2,
     `${folder2Name} should have 2 messages`
+  );
+});
+
+add_task(async function test_copy_item() {
+  const [folder1Name, folder2Name, folder1, folder2] =
+    await setup_item_copymove_structure("copy");
+
+  const headers = [];
+  [...folder1.messages].forEach(header => headers.push(header));
+
+  // Initiate the copy operation.
+  const isMove = false;
+  folder2.copyMessages(folder1, headers, isMove, null, null, true, false);
+
+  await TestUtils.waitForCondition(
+    () => folder2.getTotalMessages(false) == 2,
+    `Waiting for messages to appear in ${folder2Name}`
+  );
+
+  Assert.equal(
+    folder1.getTotalMessages(false),
+    2,
+    `${folder1Name} should contain 2 messages`
+  );
+  Assert.equal(
+    folder2.getTotalMessages(false),
+    2,
+    `${folder2Name} should contain 2 messages`
+  );
+  Assert.equal(
+    ewsServer.getContainingFolderId("copy_a"),
+    folder1Name,
+    `Item copy_a should be in ${folder1Name}`
+  );
+  Assert.equal(
+    ewsServer.getContainingFolderId("copy_b"),
+    folder1Name,
+    `Item copy_b should be in ${folder1Name}`
+  );
+  Assert.equal(
+    ewsServer.getContainingFolderId("copy_a_copy"),
+    folder2Name,
+    `Item copy_a_copy should be in ${folder2Name}`
+  );
+  Assert.equal(
+    ewsServer.getContainingFolderId("copy_b_copy"),
+    folder2Name,
+    `Item copy_b_copy should be in ${folder2Name}`
   );
 });
 

@@ -5,9 +5,11 @@
 use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
+use crate::CopyMoveItemData;
+
 use super::{
-    sealed::EnvelopeBodyContents, BaseFolderId, BaseItemId, ItemResponseMessage, Operation,
-    OperationResponse, MESSAGES_NS_URI,
+    sealed::EnvelopeBodyContents, ItemResponseMessage, Operation, OperationResponse,
+    MESSAGES_NS_URI,
 };
 
 /// A request to move one or more Exchange items.
@@ -16,18 +18,8 @@ use super::{
 #[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
 pub struct MoveItem {
-    /// The destination folder for the moved item.
-    ///
-    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/tofolderid>
-    pub to_folder_id: BaseFolderId,
-    /// The unique identifiers for each item to move.
-    ///
-    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/itemids>
-    pub item_ids: Vec<BaseItemId>,
-    /// Whether or not to return the new item idententifers in the response.
-    ///
-    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/returnnewitemids>
-    pub return_new_item_ids: Option<bool>,
+    #[xml_struct(flatten)]
+    pub inner: CopyMoveItemData,
 }
 
 /// A response to a `MoveItem` operation.
@@ -68,7 +60,8 @@ mod test {
     use crate::{
         test_utils::{assert_deserialized_content, assert_serialized_content},
         types::common::ItemResponseMessage,
-        BaseFolderId, BaseItemId, ItemId, Items, Message, RealItem, ResponseCode,
+        BaseFolderId, BaseItemId, CopyMoveItemData, ItemId, Items, Message, RealItem,
+        ResponseClass, ResponseCode,
     };
 
     use super::{MoveItem, MoveItemResponse, MoveItemResponseMessages};
@@ -76,15 +69,17 @@ mod test {
     #[test]
     fn test_serialize_move_item() {
         let move_item = MoveItem {
-            to_folder_id: BaseFolderId::DistinguishedFolderId {
-                id: "drafts".to_string(),
-                change_key: None,
+            inner: CopyMoveItemData {
+                to_folder_id: BaseFolderId::DistinguishedFolderId {
+                    id: "drafts".to_string(),
+                    change_key: None,
+                },
+                item_ids: vec![BaseItemId::ItemId {
+                    id: "AAAtAEF/swbAAA=".to_string(),
+                    change_key: Some("EwAAABYA/s4b".to_string()),
+                }],
+                return_new_item_ids: None,
             },
-            item_ids: vec![BaseItemId::ItemId {
-                id: "AAAtAEF/swbAAA=".to_string(),
-                change_key: Some("EwAAABYA/s4b".to_string()),
-            }],
-            return_new_item_ids: None,
         };
 
         let expected = r#"<MoveItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages"><ToFolderId><t:DistinguishedFolderId Id="drafts"/></ToFolderId><ItemIds><t:ItemId Id="AAAtAEF/swbAAA=" ChangeKey="EwAAABYA/s4b"/></ItemIds></MoveItem>"#;
@@ -112,7 +107,7 @@ mod test {
         let response = MoveItemResponse {
             response_messages: MoveItemResponseMessages {
                 move_item_response_message: vec![ItemResponseMessage {
-                    response_class: crate::ResponseClass::Success,
+                    response_class: ResponseClass::Success,
                     response_code: Some(ResponseCode::NoError),
                     message_text: None,
                     items: Items {

@@ -67,7 +67,7 @@ class EwsFolder : public nsMsgDBFolder {
                         nsIMsgWindow* aMsgWindow) override;
 
  private:
-  friend class ItemMoveCallbacks;
+  friend class ItemCopyMoveCallbacks;
 
   bool mHasLoadedSubfolders;
 

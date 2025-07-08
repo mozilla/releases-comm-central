@@ -4,6 +4,8 @@
 
 extern crate xpcom;
 
+use ews::copy_item::CopyItem;
+use ews::move_item::MoveItem;
 use mailnews_ui_glue::UserInteractiveServer;
 use nserror::{
     nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED, NS_OK,
@@ -21,7 +23,7 @@ use xpcom::{
     interfaces::{
         nsIInputStream, nsIMsgIncomingServer, nsIURI, nsIUrlListener, IEwsFolderCallbacks,
         IEwsFolderCreateCallbacks, IEwsFolderDeleteCallbacks, IEwsFolderMoveCallbacks,
-        IEwsFolderUpdateCallbacks, IEwsItemMoveCallbacks, IEwsMessageCallbacks,
+        IEwsFolderUpdateCallbacks, IEwsItemCopyMoveCallbacks, IEwsMessageCallbacks,
         IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
@@ -327,10 +329,10 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(move_items => MoveItems(callbacks: *const IEwsItemMoveCallbacks, destination_folder_id: *const nsACString, item_ids: *const ThinVec<nsCString>));
+    xpcom_method!(move_items => MoveItems(callbacks: *const IEwsItemCopyMoveCallbacks, destination_folder_id: *const nsACString, item_ids: *const ThinVec<nsCString>));
     fn move_items(
         &self,
-        callbacks: &IEwsItemMoveCallbacks,
+        callbacks: &IEwsItemCopyMoveCallbacks,
         destination_folder_id: &nsACString,
         item_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
@@ -338,7 +340,29 @@ impl XpcomEwsBridge {
 
         moz_task::spawn_local(
             "move_items",
-            client.move_item(
+            client.copy_move_item::<MoveItem>(
+                destination_folder_id.to_string(),
+                item_ids.iter().map(|id| id.to_string()).collect(),
+                RefPtr::new(callbacks),
+            ),
+        )
+        .detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(copy_items => CopyItems(callbacks: *const IEwsItemCopyMoveCallbacks, destination_folder_id: *const nsACString, item_ids: *const ThinVec<nsCString>));
+    fn copy_items(
+        &self,
+        callbacks: &IEwsItemCopyMoveCallbacks,
+        destination_folder_id: &nsACString,
+        item_ids: &ThinVec<nsCString>,
+    ) -> Result<(), nsresult> {
+        let client = self.try_new_client()?;
+
+        moz_task::spawn_local(
+            "copy_items",
+            client.copy_move_item::<CopyItem>(
                 destination_folder_id.to_string(),
                 item_ids.iter().map(|id| id.to_string()).collect(),
                 RefPtr::new(callbacks),

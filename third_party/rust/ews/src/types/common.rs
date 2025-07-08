@@ -729,6 +729,23 @@ pub enum ResponseCode {
     ErrorTargetDomainNotSupported,
 }
 
+/// The common format for item move and copy operations.
+#[derive(Clone, Debug, XmlSerialize)]
+pub struct CopyMoveItemData {
+    /// The destination folder for the copied/moved item.
+    ///
+    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/tofolderid>
+    pub to_folder_id: BaseFolderId,
+    /// The unique identifiers for each item to copy/move.
+    ///
+    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/itemids>
+    pub item_ids: Vec<BaseItemId>,
+    /// Whether or not to return the new item idententifers in the response.
+    ///
+    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/returnnewitemids>
+    pub return_new_item_ids: Option<bool>,
+}
+
 /// The common format of folder response messages.
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]

@@ -127,6 +127,16 @@ const MOVE_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
     </m:MoveItemResponse>
 ${EWS_SOAP_FOOT}`;
 
+const COPY_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
+    <m:CopyItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                        xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+      <m:ResponseMessages>
+      </m:ResponseMessages>
+    </m:CopyItemResponse>
+${EWS_SOAP_FOOT}`;
+
 const MOVE_FOLDER_RESPONSE_BASE = `${EWS_SOAP_HEAD}
     <m:MoveFolderResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -482,6 +492,8 @@ export class EwsServer {
       resBytes = this.#generateCreateFolderResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("MoveItem").length) {
       resBytes = this.#generateMoveItemResponse(reqDoc);
+    } else if (reqDoc.getElementsByTagName("CopyItem").length) {
+      resBytes = this.#generateCopyItemResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("MoveFolder").length) {
       resBytes = this.#generateMoveFolderResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("GetItem")) {
@@ -817,6 +829,34 @@ export class EwsServer {
     const resDoc = this.#buildGenericMoveResponse(
       MOVE_ITEM_RESPONSE_BASE,
       "m:MoveItemResponseMessage",
+      "m:Items",
+      "t:Message",
+      "t:ItemId",
+      itemIds
+    );
+
+    return this.#serializer.serializeToString(resDoc);
+  }
+
+  /**
+   * Generate a response to a CopyItem operation.
+   *
+   * @param {XMLDocument} reqDoc
+   */
+  #generateCopyItemResponse(reqDoc) {
+    const [destinationFolderId, itemIds] = extractMoveObjects(
+      reqDoc,
+      "ItemIds",
+      "t:ItemId"
+    );
+
+    itemIds.forEach(id => {
+      this.addNewItemOrMoveItemToFolder(`${id}_copy`, destinationFolderId);
+    });
+
+    const resDoc = this.#buildGenericMoveResponse(
+      COPY_ITEM_RESPONSE_BASE,
+      "m:CopyItemResponseMessage",
       "m:Items",
       "t:Message",
       "t:ItemId",

@@ -384,38 +384,41 @@ NS_IMETHODIMP FolderUpdateCallbacks::OnRemoteFolderUpdateSuccessful() {
   return LocalRenameOrReparentFolder(mFolder, parentFolder, mNewName, mWindow);
 }
 
-class ItemMoveCallbacks : public IEwsItemMoveCallbacks {
+class ItemCopyMoveCallbacks : public IEwsItemCopyMoveCallbacks {
  public:
   NS_DECL_ISUPPORTS;
-  NS_DECL_IEWSITEMMOVECALLBACKS;
+  NS_DECL_IEWSITEMCOPYMOVECALLBACKS;
 
-  ItemMoveCallbacks(nsCOMPtr<nsIMsgFolder> sourceFolder,
-                    RefPtr<EwsFolder> destinationFolder,
-                    nsTArray<RefPtr<nsIMsgDBHdr>> originalMessages,
-                    nsCOMPtr<nsIMsgWindow> window);
+  ItemCopyMoveCallbacks(nsCOMPtr<nsIMsgFolder> sourceFolder,
+                        RefPtr<EwsFolder> destinationFolder,
+                        nsTArray<RefPtr<nsIMsgDBHdr>> originalMessages,
+                        nsCOMPtr<nsIMsgWindow> window,
+                        bool deleteSourceItemsWhenComplete);
 
  protected:
-  virtual ~ItemMoveCallbacks() = default;
+  virtual ~ItemCopyMoveCallbacks() = default;
 
  private:
   nsCOMPtr<nsIMsgFolder> mSourceFolder;
   RefPtr<EwsFolder> mDestinationFolder;
   nsTArray<RefPtr<nsIMsgDBHdr>> mOriginalMessages;
   nsCOMPtr<nsIMsgWindow> mWindow;
+  bool mDeleteSourceItemsWhenComplete;
 };
 
-NS_IMPL_ISUPPORTS(ItemMoveCallbacks, IEwsItemMoveCallbacks)
+NS_IMPL_ISUPPORTS(ItemCopyMoveCallbacks, IEwsItemCopyMoveCallbacks)
 
-ItemMoveCallbacks::ItemMoveCallbacks(
+ItemCopyMoveCallbacks::ItemCopyMoveCallbacks(
     nsCOMPtr<nsIMsgFolder> sourceFolder, RefPtr<EwsFolder> destinationFolder,
     nsTArray<RefPtr<nsIMsgDBHdr>> originalMessages,
-    nsCOMPtr<nsIMsgWindow> window)
+    nsCOMPtr<nsIMsgWindow> window, bool deleteSourceItemsWhenComplete)
     : mSourceFolder(std::move(sourceFolder)),
       mDestinationFolder(std::move(destinationFolder)),
       mOriginalMessages(std::move(originalMessages)),
-      mWindow(std::move(window)) {}
+      mWindow(std::move(window)),
+      mDeleteSourceItemsWhenComplete(deleteSourceItemsWhenComplete) {}
 
-NS_IMETHODIMP ItemMoveCallbacks::OnRemoteMoveSuccessful(
+NS_IMETHODIMP ItemCopyMoveCallbacks::OnRemoteCopyMoveSuccessful(
     bool syncMessages, const nsTArray<nsCString>& newIds) {
   nsresult rv;
   if (syncMessages) {
@@ -425,6 +428,10 @@ NS_IMETHODIMP ItemMoveCallbacks::OnRemoteMoveSuccessful(
     // The new IDs were returned from the server. In this case, the order of the
     // new IDs will correspond to the order of the input IDs specified in the
     // initial request.
+    NS_ENSURE_TRUE(newIds.Length() == mOriginalMessages.Length(),
+                   NS_ERROR_UNEXPECTED);
+
+    /// Copy the messages into the destination folder.
     nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders;
     rv = LocalCopyMessages(mSourceFolder, mDestinationFolder, mOriginalMessages,
                            newHeaders);
@@ -444,11 +451,13 @@ NS_IMETHODIMP ItemMoveCallbacks::OnRemoteMoveSuccessful(
     }
   }
 
-  // Delete the original messages from the source folder.
-  rv = LocalDeleteMessages(mSourceFolder, mOriginalMessages);
-  NS_ENSURE_SUCCESS(rv, rv);
+  // If requested, delete the original items from the source folder.
+  if (mDeleteSourceItemsWhenComplete) {
+    rv = LocalDeleteMessages(mSourceFolder, mOriginalMessages);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-  mSourceFolder->NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
+    mSourceFolder->NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
+  }
 
   rv = NotifyMessageCopyServiceComplete(mSourceFolder, mDestinationFolder,
                                         NS_OK);
@@ -457,8 +466,8 @@ NS_IMETHODIMP ItemMoveCallbacks::OnRemoteMoveSuccessful(
   return NS_OK;
 }
 
-NS_IMETHODIMP ItemMoveCallbacks::OnError(IEwsClient::Error error,
-                                         const nsACString& description) {
+NS_IMETHODIMP ItemCopyMoveCallbacks::OnError(IEwsClient::Error error,
+                                             const nsACString& description) {
   return HandleMoveError(mSourceFolder, mDestinationFolder, error, description);
 }
 
@@ -791,8 +800,8 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
   rv = FoldersOnSameServer(srcFolder, this, &isSameServer);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (isSameServer && isMove) {
-    // Same server move, perform operation remotely.
+  if (isSameServer) {
+    // Same server copy or move, perform operation remotely.
     nsTArray<nsCString> ewsIds;
     rv = GetEwsIdsForMessageHeaders(srcHdrs, ewsIds);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -801,12 +810,20 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
     rv = GetEwsId(destinationFolderId);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    RefPtr<IEwsItemMoveCallbacks> callbacks{
-        new ItemMoveCallbacks(srcFolder, this, srcHdrs.Clone(), msgWindow)};
-    rv = client->MoveItems(callbacks, destinationFolderId, ewsIds);
+    const bool deleteSourceItemsWhenComplete = isMove;
+    RefPtr<ItemCopyMoveCallbacks> callbacks{
+        new ItemCopyMoveCallbacks(srcFolder, this, srcHdrs.Clone(), msgWindow,
+                                  deleteSourceItemsWhenComplete)};
+
+    if (isMove) {
+      rv = client->MoveItems(callbacks, destinationFolderId, ewsIds);
+    } else {
+      rv = client->CopyItems(callbacks, destinationFolderId, ewsIds);
+    }
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
-    // Cross-server move. Instantiate a `MessageCopyHandler` for this operation.
+    // Cross-server copy or move. Instantiate a `MessageCopyHandler` for this
+    // operation.
     nsCString ewsId;
     nsresult rv = GetEwsId(ewsId);
     NS_ENSURE_SUCCESS(rv, rv);

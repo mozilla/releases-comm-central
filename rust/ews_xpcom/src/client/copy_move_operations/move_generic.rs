@@ -11,7 +11,7 @@ use xpcom::{RefCounted, RefPtr};
 use crate::client::{process_error_with_cb_cpp, XpComEwsClient, XpComEwsError};
 
 /// Trait to adapt varying completion reporting interfaces to a common interface.
-pub(super) trait MoveCallbacks<OperationDataT> {
+pub(super) trait MoveCallbacks<InputDataT> {
     /// Notification called to signal that a move operation has successfully completed.
     ///
     /// The `input_data` parameter will contain the input data to the move
@@ -20,7 +20,7 @@ pub(super) trait MoveCallbacks<OperationDataT> {
     /// of new IDs, otherwise `new_ids` will be empty.
     fn on_success(
         &self,
-        input_data: OperationDataT,
+        input_data: InputDataT,
         new_ids: ThinVec<nsCString>,
     ) -> Result<(), XpComEwsError>;
 
