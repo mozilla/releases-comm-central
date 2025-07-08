@@ -23,11 +23,17 @@ const { clearTimeout, setTimeout } = ChromeUtils.importESModule(
 
 const SAFETY_MARGIN_MS = 100000;
 
-function getMockNotifications(count = 2) {
+function getMockNotifications(count = 2, base = []) {
   const now = Date.now();
   const startDate = new Date(now - SAFETY_MARGIN_MS).toISOString();
   const endDate = new Date(now + SAFETY_MARGIN_MS).toISOString();
   const notificationArray = [];
+
+  Assert.greaterOrEqual(
+    count,
+    base.length,
+    "There should be at least as many notifications as base objects"
+  );
 
   for (let i = 0; i < count; i++) {
     notificationArray.push({
@@ -39,6 +45,7 @@ function getMockNotifications(count = 2) {
       URL: "about:blank",
       targeting: {},
       type: "donation",
+      ...(base[i] ?? {}),
     });
   }
 
@@ -475,6 +482,201 @@ add_task(async function test_maxNotificationsPerDay() {
     Date.now(),
     startTime + 1000 * 11,
     "Message shown after _PER_TIME_UNIT"
+  );
+
+  NotificationManager._PER_TIME_UNIT = timeUnit;
+});
+
+add_task(async function test_sortByPercentChance() {
+  const notifications = getMockNotifications(4, [
+    { targeting: { percent_chance: 99 } },
+    { targeting: { percent_chance: 100 } },
+    { targeting: { percent_chance: 100 } },
+    { targeting: { percent_chance: 98 } },
+  ]);
+
+  const sortedNotifications = NotificationManager.sortNotifications([
+    ...notifications,
+  ]);
+
+  const expected = [
+    notifications[3],
+    notifications[0],
+    notifications[1],
+    notifications[2],
+  ];
+
+  Assert.deepEqual(
+    sortedNotifications.map(item => item.id),
+    expected.map(item => item.id),
+    "Should show correct first notification"
+  );
+  Assert.deepEqual(
+    sortedNotifications,
+    expected,
+    "Should show correct first notification"
+  );
+});
+
+add_task(async function test_sortBySeverity() {
+  const notifications = getMockNotifications(4, [
+    { severity: 2 },
+    { severity: 1 },
+    { severity: 9 },
+    { severity: 0 },
+  ]);
+
+  const sortedNotifications = NotificationManager.sortNotifications([
+    ...notifications,
+  ]);
+
+  const expected = [
+    notifications[3],
+    notifications[1],
+    notifications[0],
+    notifications[2],
+  ];
+
+  Assert.deepEqual(
+    sortedNotifications.map(item => item.id),
+    expected.map(item => item.id),
+    "Should show correct first notification"
+  );
+  Assert.deepEqual(
+    sortedNotifications,
+    expected,
+    "Should show correct first notification"
+  );
+});
+
+add_task(async function test_sortByStartAt() {
+  const now = Date.now();
+  const notifications = getMockNotifications(4, [
+    { start_at: new Date(now - SAFETY_MARGIN_MS + 30).toISOString() },
+    { start_at: new Date(now - SAFETY_MARGIN_MS + 20).toISOString() },
+    { start_at: new Date(now - SAFETY_MARGIN_MS + 40).toISOString() },
+    { start_at: new Date(now - SAFETY_MARGIN_MS + 10).toISOString() },
+  ]);
+
+  const sortedNotifications = NotificationManager.sortNotifications([
+    ...notifications,
+  ]);
+
+  const expected = [
+    notifications[3],
+    notifications[1],
+    notifications[0],
+    notifications[2],
+  ];
+
+  Assert.deepEqual(
+    sortedNotifications.map(item => item.id),
+    expected.map(item => item.id),
+    "Should show correct first notification"
+  );
+  Assert.deepEqual(
+    sortedNotifications,
+    expected,
+    "Should show correct first notification"
+  );
+});
+
+add_task(async function test_sortByStartAt() {
+  const now = Date.now();
+  const notifications = getMockNotifications(5, [
+    { severity: 2, start_at: new Date(now - SAFETY_MARGIN_MS).toISOString() },
+    {
+      severity: 1,
+      start_at: new Date(now - SAFETY_MARGIN_MS + 20).toISOString(),
+      targeting: { percent_chance: 100 },
+    },
+    {
+      severity: 1,
+      start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+      targeting: { percent_chance: 99 },
+    },
+    {
+      severity: 1,
+      start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+      targeting: { percent_chance: 100 },
+    },
+    { severity: 0, start_at: new Date(now - SAFETY_MARGIN_MS).toISOString() },
+  ]);
+
+  const sortedNotifications = NotificationManager.sortNotifications([
+    ...notifications,
+  ]);
+
+  const expected = [
+    notifications[4],
+    notifications[2],
+    notifications[3],
+    notifications[1],
+    notifications[0],
+  ];
+
+  Assert.deepEqual(
+    sortedNotifications.map(item => item.id),
+    expected.map(item => item.id),
+    "Should show correct first notification"
+  );
+  Assert.deepEqual(
+    sortedNotifications,
+    expected,
+    "Should show correct first notification"
+  );
+});
+
+add_task(async function test_sort() {
+  const now = Date.now();
+  const notificationManager = new NotificationManager();
+  const notifications = getMockNotifications(3, [
+    {
+      severity: 2,
+      start_at: new Date(now - SAFETY_MARGIN_MS + 20).toISOString(),
+    },
+    { severity: 1, start_at: new Date(now - SAFETY_MARGIN_MS).toISOString() },
+    {
+      severity: 1,
+      start_at: new Date(now - SAFETY_MARGIN_MS + 20).toISOString(),
+    },
+  ]);
+
+  const timeUnit = NotificationManager._PER_TIME_UNIT;
+  let notification;
+  let newNotificationEvent = BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.NEW_NOTIFICATION_EVENT
+  );
+
+  notificationManager._MAX_MS_BETWEEN_NOTIFICATIONS = 100;
+  NotificationManager._PER_TIME_UNIT = 1000 * 10;
+  notificationManager.updatedNotifications(notifications);
+
+  ({ detail: notification } = await newNotificationEvent);
+
+  Assert.equal(notification.id, "1", "Should display id 1");
+
+  newNotificationEvent = BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.NEW_NOTIFICATION_EVENT,
+    false,
+    ({ detail }) => detail.id === `2`
+  );
+
+  notification = null;
+  notificationManager.updatedNotifications([
+    notifications[2],
+    notifications[0],
+  ]);
+
+  ({ detail: notification } = await newNotificationEvent);
+
+  Assert.equal(notification.id, "2", "Should display id 2");
+
+  newNotificationEvent = BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.NEW_NOTIFICATION_EVENT
   );
 
   NotificationManager._PER_TIME_UNIT = timeUnit;

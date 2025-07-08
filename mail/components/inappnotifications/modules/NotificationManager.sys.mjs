@@ -214,6 +214,31 @@ export class NotificationManager extends EventTarget {
   }
 
   /**
+   * Sort notifications according to the following order:
+   * `severity` ascending
+   * `start_at` ascending
+   * `targeting.percent_chance` ascending
+   *
+   * @param {object[]} notifications
+   *
+   * @returns {object[]}
+   */
+  static sortNotifications(notifications) {
+    return notifications.toSorted((a, b) => {
+      if (a.severity === b.severity) {
+        const aStart = Date.parse(a.start_at);
+        const bStart = Date.parse(b.start_at);
+
+        if (aStart === bStart) {
+          return a.targeting.percent_chance - b.targeting.percent_chance;
+        }
+        return aStart - bStart;
+      }
+      return a.severity - b.severity;
+    });
+  }
+
+  /**
    * Let this manager know that the notifications available for in-app
    * notifications have been updated. Checks if the displayed notification
    * candidate should change.
@@ -224,18 +249,8 @@ export class NotificationManager extends EventTarget {
    */
   updatedNotifications(notifications) {
     // Sort by severity, then start_at then percent_chance
-    const [firstCandidate] = notifications.sort((a, b) => {
-      if (a.severity === b.severity) {
-        const aStart = Date.parse(a.start_at);
-        const bStart = Date.parse(b.start_at);
-
-        if (aStart === bStart) {
-          return a.percent_chance - b.percent_chance;
-        }
-        return aStart - bStart;
-      }
-      return a.severity - b.severity;
-    });
+    const [firstCandidate] =
+      NotificationManager.sortNotifications(notifications);
 
     // We got an update, we no longer need new notifications.
     if (this.#idleCallback) {
