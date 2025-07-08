@@ -6,7 +6,7 @@
  * Tests the many ways to set and clear tags on messages.
  */
 
-requestLongerTimeout(2);
+requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 4 : 2);
 
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
