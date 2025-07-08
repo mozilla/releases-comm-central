@@ -17,7 +17,10 @@ support-files = ["data/**"]
 ["browser_attachedPublishEvent.js"]
 
 ["browser_icsAttachment.js"]
-skip-if = ["os == 'win'"]
+skip-if = [
+  "os == 'win'", # Windows: setDefaultClient requires user confirmation.
+  "os == 'mac'"  # Mac: test perma failing on CI. Bug 1956467.
+]
 
 ["browser_identityPrompt.js"]
 
