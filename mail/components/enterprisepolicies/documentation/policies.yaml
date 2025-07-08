@@ -1,0 +1,2543 @@
+description: |
+  Policies can be specified by creating a file called `policies.json`:
+  * Windows: place the file in a directory called `distribution` in the same
+    directory where `thunderbird.exe` is located.
+  * Mac: place the file into `Thunderbird.app/Contents/Resources/distribution`
+  * Linux: place the file into `thunderbird/distribution`, where `thunderbird`
+    is the installation directory for Thunderbird. You can also specify a system-wide
+    policy by placing the file in `/etc/thunderbird/policies`.
+
+  Alternatively, policies can be specified via platform specific methods:
+  * Windows: [thunderbird.admx](https://github.com/thunderbird/policy-templates/tree/master/docs/templates/central/windows) — use with [group policy templates](https://support.mozilla.org/en-US/kb/customizing-thunderbird-using-group-policy-windows) or [intune](https://support.mozilla.org/kb/managing-thunderbird-intune)
+  * Mac: [org.mozilla.thunderbird.plist](https://github.com/thunderbird/policy-templates/blob/master/docs/templates/central/mac/org.mozilla.thunderbird.plist) — use with [configuration profiles](https://support.mozilla.org/en-US/kb/managing-policies-macos-desktops)
+
+  This document provides for all policies examples for the mentioned formats.
+policies:
+  ExtensionSettings:
+    toc: 'Manage all aspects of extensions.'
+    content: |
+      Manage all aspects of extensions. This policy is based heavily on the [Chrome policy](https://dev.chromium.org/administrators/policy-list-3/extension-settings-full) of the same name.
+
+      This policy maps an extension ID to its configuration. With an extension ID, the configuration will be applied to the specified extension only. A default configuration can be set for the special ID "*", which will apply to all extensions that don't have a custom configuration set in this policy.
+
+      To obtain an extension ID, install the extension and go to about:support. You will see the ID in the Extensions section.
+
+      The configuration for each extension is another dictionary that can contain the fields documented below.
+
+      | Name | Description |
+      | --- | --- |
+      | `installation_mode` | Maps to a string indicating the installation mode for the extension. The valid strings are `allowed`, `blocked`, `force_installed`, and `normal_installed`. |
+      |     `allowed` | Allows the extension to be installed by the user. This is the default behavior. |
+      |     `blocked` | Blocks installation of the extension and removes it if already installed. |
+      |     `force_installed` | Automatically installs the extension and prevents removal. Requires `install_url`. |
+      |     `normal_installed` | Automatically installs the extension but allows disabling. Requires `install_url`. |
+      | `install_url` | URL where Thunderbird can download the extension (e.g. from ATN or `file:///`). |
+      | `install_sources` | List of allowed extension installation sources. |
+      | `allowed_types` | Whitelist of extension types like `extension`, `theme`, etc. |
+      | `blocked_install_message` | Custom error message when a blocked extension is attempted. |
+      | `restricted_domains` | Domains on which extension content scripts can't run. |
+      | `updates_disabled` | Boolean to disable auto-updates for the extension. |
+
+      *As of Thunderbird 85, Thunderbird ESR 78.7, installing a theme makes it the default.*
+    cck2Equivalent:
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\ExtensionSettings'
+        type: 'REG_MULTI_SZ'
+        value: |
+          {
+            "*": {
+              "blocked_install_message": "Custom error message.",
+              "install_sources": ["about:addons", "https://addons.thunderbird.net/"],
+              "installation_mode": "blocked",
+              "allowed_types": ["extension"]
+            },
+            "uBlock0@raymondhill.net": {
+              "installation_mode": "force_installed",
+              "install_url": "https://addons.thunderbird.net/thunderbird/downloads/latest/ublock-origin/latest.xpi"
+            },
+            "https-everywhere@eff.org": {
+              "installation_mode": "allowed"
+            }
+          }
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Extensions/ExtensionSettings'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="ExtensionSettings" value='{
+            "*": {
+              "blocked_install_message": "Custom error message.",
+              "install_sources": ["about:addons", "https://addons.thunderbird.net/"],
+              "installation_mode": "blocked",
+              "allowed_types": ["extension"]
+            },
+            "uBlock0@raymondhill.net": {
+              "installation_mode": "force_installed",
+              "install_url": "https://addons.thunderbird.net/thunderbird/downloads/latest/ublock-origin/latest.xpi"
+            },
+            "https-everywhere@eff.org": {
+              "installation_mode": "allowed"
+            }
+          }'/>
+    plist: |
+      <dict>
+        <key>ExtensionSettings</key>
+        <dict>
+          <key>*</key>
+          <dict>
+            <key>blocked_install_message</key>
+            <string>Custom error message.</string>
+            <key>install_sources</key>
+            <array>
+              <string>https://addons.thunderbird.net/</string>
+            </array>
+            <key>installation_mode</key>
+            <string>blocked</string>
+            <key>allowed_types</key>
+            <array>
+              <string>extension</string>
+            </array>
+          </dict>
+          <key>uBlock0@raymondhill.net</key>
+          <dict>
+            <key>installation_mode</key>
+            <string>force_installed</string>
+            <key>install_url</key>
+            <string>https://addons.thunderbird.net/thunderbird/downloads/latest/ublock-origin/latest.xpi</string>
+          </dict>
+          <key>https-everywhere@eff.org</key>
+          <dict>
+            <key>installation_mode</key>
+            <string>allowed</string>
+          </dict>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "ExtensionSettings": {
+            "*": {
+              "blocked_install_message": "Custom error message.",
+              "install_sources": ["about:addons", "https://addons.thunderbird.net/"],
+              "installation_mode": "blocked",
+              "allowed_types": ["extension"]
+            },
+            "uBlock0@raymondhill.net": {
+              "installation_mode": "force_installed",
+              "install_url": "https://addons.thunderbird.net/thunderbird/downloads/latest/ublock-origin/latest.xpi"
+            },
+            "https-everywhere@eff.org": {
+              "installation_mode": "allowed"
+            }
+          }
+        }
+      }
+  InAppNotification:
+    toc: 'Configure TOAST, browser, and tab notifications within the context of the
+      application.'
+    content: |
+      Configure TOAST, browser, and tab notifications within the context of the application.
+    cck2Equivalent:
+    preferencesAffected:
+      - mail.inappnotifications.donation_enabled
+      - mail.inappnotifications.blog_enabled
+      - mail.inappnotifications.message_enabled
+      - mail.inappnotifications.enabled
+    gpo:
+      - key: |
+          Software\Policies\Mozilla\Thunderbird\InAppNotification_Enabled
+          Software\Policies\Mozilla\Thunderbird\InAppNotification_DonationEnabled
+          Software\Policies\Mozilla\Thunderbird\InAppNotification_SurveyEnabled
+          Software\Policies\Mozilla\Thunderbird\InAppNotification_MessageEnabled
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: |
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/InAppNotification_Enabled
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/InAppNotification_DonationEnabled
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/InAppNotification_SurveyEnabled
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/InAppNotification_MessageEnabled
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>InAppNotification_Enabled</key>
+        <true/> | <false/>
+        <key>InAppNotification_DonationEnabled</key>
+        <true/> | <false/>
+        <key>InAppNotification_SurveyEnabled</key>
+        <true/> | <false/>
+        <key>InAppNotification_MessageEnabled</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "InAppNotification_Enabled": true | false,
+          "InAppNotification_DonationEnabled": true | false,
+          "InAppNotification_SurveyEnabled": true | false,
+          "InAppNotification_MessageEnabled": true | false
+        }
+      }
+  Preferences:
+    toc: 'Set and lock preferences.'
+    content: |
+      Set and lock preferences.
+
+      **NOTE:** On Windows, in order to use this policy, you must clear all settings in the old **`Preferences (Deprecated)`** section for Thunderbird 78 and older.
+
+      Previously you could only set and lock a subset of preferences. Starting with Thunderbird 91 you can set many more preferences. You can also set default preferences, user preferences and you can clear preferences.
+
+      Preferences that start with the following prefixes are supported:
+      ```
+      accessibility.
+      app.update.
+      browser.
+      calendar.
+      chat.
+      datareporting.policy.
+      dom.
+      extensions.
+      general.autoScroll
+      general.smoothScroll
+      geo.
+      gfx.
+      intl.
+      layers.
+      layout.
+      mail.
+      mailnews.
+      media.
+      network.
+      pdfjs.
+      places.
+      print.
+      signon.
+      spellchecker.
+      ui.
+      widget.
+      ```
+      as well as the following security preferences:
+
+      | Preference | Type | Default |
+      | --- | --- | --- |
+      | security.default_personal_cert | string | Ask Every Time |
+      |     If set to Select Automatically, Thunderbird automatically chooses the default personal certificate. |
+      | security.insecure_connection_text.enabled | boolean | false |
+      |     If set to true, adds the words "Not Secure" for insecure sites. |
+      | security.insecure_connection_text.pbmode.enabled | boolean | false |
+      |     If set to true, adds the words "Not Secure" for insecure sites in private browsing. |
+      | security.insecure_field_warning.contextual.enabled | boolean | true |
+      |     If set to false, remove the warning for inscure login fields. |
+      | security.mixed_content.block_active_content | boolean | true |
+      |     If false, mixed active content (HTTP and HTTPS) is not blocked. |
+      | security.osclientcerts.autoload | boolean | false |
+      |     If true, client certificates are loaded from the operating system certificate store. |
+      | security.ssl.errorReporting.enabled | boolean | true |
+      |     If false, SSL errors cannot be sent to Mozilla. |
+      | security.tls.hello_downgrade_check | boolean | true |
+      |     If false, the TLS 1.3 downgrade check is disabled. |
+      | security.tls.version.enable-deprecated | boolean | false |
+      |     If true, browser will accept TLS 1.0. and TLS 1.1 |
+      | security.warn_submit_secure_to_insecure | boolean | true |
+      |     If false, no warning is shown when submitting s form from https to http. |
+
+      Using the preference as the key, set the `Value` to the corresponding preference value.
+
+      `Status` can be "default", "locked", "user" or "clear"
+
+      Default preferences can be modified by the user.
+
+      If a value is locked, it is also set as the default.
+
+      User preferences persist across invocations of Thunderbird. It is the equivalent of a user setting the preference. They are most useful when a preference is needed very early in startup so it can't be set as default by policy.
+
+      User preferences persist even if the policy is removed, so if you need to remove them, you should use the clear policy.
+
+      See the examples below for more detail.
+
+      IMPORTANT: Make sure you're only setting a particular preference using this mechanism and not some other way.
+    cck2Equivalent: 'preferences'
+    preferencesAffected: 'Many'
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\Preferences'
+        type: 'REG_MULTI_SZ'
+        value: |
+          {
+            "accessibility.force_disabled": {
+              "Value": 1,
+              "Status": "default"
+            },
+            "browser.cache.disk.parent_directory": {
+              "Value": "SOME_NATIVE_PATH",
+              "Status": "user"
+            }
+          }
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/Preferences'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="JSON" value='
+          {
+            "accessibility.force_disabled": {
+              "Value": 1,
+              "Status": "default"
+            },
+            "browser.cache.disk.parent_directory": {
+              "Value": "SOME_NATIVE_PATH",
+              "Status": "user"
+            }
+          }'/>
+    plist: |
+      <dict>
+        <key>Preferences</key>
+        <dict>
+          <key>accessibility.force_disabled</key>
+          <dict>
+            <key>Value</key>
+            <integer>1</integer>
+            <key>Status</key>
+            <string>default</string>
+          </dict>
+          <key>browser.cache.disk.parent_directory</key>
+          <dict>
+            <key>Value</key>
+            <string>SOME_NATIVE_PATH</string>
+            <key>Status</key>
+            <string>user</string>
+          </dict>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "Preferences": {
+            "accessibility.force_disabled": {
+              "Value": 1,
+              "Status": "default"
+            },
+            "browser.cache.disk.parent_directory": {
+              "Value": "SOME_NATIVE_PATH",
+              "Status": "user"
+            }
+          }
+        }
+      }
+  3rdparty:
+    toc: 'Set policies that WebExtensions can access via chrome.storage.managed.'
+    content: |
+      Allow WebExtensions to configure policy. For more information, see [Adding policy support to your extension](https://extensionworkshop.com/documentation/enterprise/enterprise-development/#how-to-add-policy).
+
+      For GPO and Intune, the extension developer should provide an ADMX file.
+    cck2Equivalent:
+    preferencesAffected:
+    plist: |
+      <dict>
+        <key>3rdparty</key>
+        <dict>
+          <key>Extensions</key>
+          <dict>
+            <key>uBlock0@raymondhill.net</key>
+            <dict>
+              <key>adminSettings</key>
+              <dict>
+                <key>selectedFilterLists</key>
+                <array>
+                  <string>ublock-privacy</string>
+                  <string>ublock-badware</string>
+                  <string>ublock-filters</string>
+                  <string>user-filters</string>
+                </array>
+              </dict>
+            </dict>
+          </dict>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "3rdparty": {
+            "Extensions": {
+              "uBlock0@raymondhill.net": {
+                "adminSettings": {
+                  "selectedFilterLists": [
+                    "ublock-privacy",
+                    "ublock-badware",
+                    "ublock-filters",
+                    "user-filters"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+  AppAutoUpdate:
+    toc: 'Enable or disable automatic application update.'
+    content: |
+      Enable or disable **automatic** application update.
+
+      If set to true, application updates are installed without user approval within Thunderbird. The operating system might still require approval.
+
+      If set to false, application updates are downloaded but the user can choose when to install the update.
+
+      If you have disabled updates via `DisableAppUpdate`, this policy has no effect.
+    cck2Equivalent:
+    preferencesAffected:
+      - app.update.auto
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\AppAutoUpdate'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/AppAutoUpdate'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>AppAutoUpdate</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "AppAutoUpdate": true | false
+        }
+      }
+  AppUpdatePin:
+    toc: 'Prevent Thunderbird from being updated beyond the specified version.'
+    content: |
+      Prevent Thunderbird from being updated beyond the specified version.
+
+      You can specify the any version as ```xx.``` and Thunderbird will be updated with all minor versions, but will not be updated beyond the major version.
+
+      You can also specify the version as ```xx.xx``` and Thunderbird will be updated with all patch versions, but will not be updated beyond the minor version.
+
+      You should specify a version that exists or is guaranteed to exist. If you specify a version that doesn't end up existing, Thunderbird will update beyond that version.
+    cck2Equivalent:
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\AppUpdatePin'
+        type: 'REG_SZ'
+        value: '"106."'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/AppUpdatePin'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="String" value="106."/>
+    plist: |
+      <dict>
+        <key>AppUpdatePin</key>
+        <string>106.</string>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "AppUpdatePin": "106."
+        }
+      }
+  AppUpdateURL:
+    toc: 'Change the URL for application update.'
+    content: |
+      Change the URL for application update if you are providing Thunderbird updates from a custom update server.
+    cck2Equivalent:
+    preferencesAffected:
+      - app.update.url
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\AppUpdateURL'
+        type: 'REG_SZ'
+        value: '"https://yoursite.com"'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/AppUpdateURL'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="AppUpdateURL" value="https://yoursite.com"/>
+    plist: |
+      <dict>
+        <key>AppUpdateURL</key>
+        <string>https://yoursite.com</string>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "AppUpdateURL": "https://yoursite.com"
+        }
+      }
+  Authentication:
+    toc: 'Configure sites that support integrated authentication.'
+    content: |
+      Configure sites that support integrated authentication.
+
+      See [Integrated authentication](https://htmlpreview.github.io/?https://github.com/mdn/archived-content/blob/main/files/en-us/mozilla/integrated_authentication/raw.html) for more information.
+
+      `PrivateBrowsing` enables integrated authentication in private browsing.
+    cck2Equivalent:
+    preferencesAffected:
+      - network.negotiate-auth.trusted-uris
+      - network.negotiate-auth.delegation-uris
+      - network.automatic-ntlm-auth.trusted-uris
+      - network.automatic-ntlm-auth.allow-non-fqdn
+      - network.negotiate-auth.allow-non-fqdn
+      - network.automatic-ntlm-auth.allow-proxies
+      - network.negotiate-auth.allow-proxies
+      - network.auth.private-browsing-sso
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\Authentication\SPNEGO\1'
+        type: 'REG_SZ'
+        value: '"mydomain.com"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Authentication\SPNEGO\2'
+        type: 'REG_SZ'
+        value: '"https://myotherdomain.com"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Authentication\Delegated\1'
+        type: 'REG_SZ'
+        value: '"mydomain.com"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Authentication\Delegated\2'
+        type: 'REG_SZ'
+        value: '"https://myotherdomain.com"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Authentication\NTLM\1'
+        type: 'REG_SZ'
+        value: '"mydomain.com"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Authentication\NTLM\2'
+        type: 'REG_SZ'
+        value: '"https://myotherdomain.com"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Authentication\AllowNonFQDN\SPNEGO'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Authentication\AllowNonFQDN\NTLM'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Authentication\AllowProxies\SPNEGO'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Authentication\AllowProxies\NTLM'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Authentication\Locked'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Authentication\PrivateBrowsing'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Authentication/Authentication_SPNEGO'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Authentication" value="1&#xF000;mydomain&#xF000;2&#xF000;https://myotherdomain.com"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Authentication/Authentication_Delegated'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Authentication" value="1&#xF000;mydomain&#xF000;2&#xF000;https://myotherdomain.com"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Authentication/Authentication_NTLM'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Authentication" value="1&#xF000;mydomain&#xF000;2&#xF000;https://myotherdomain.com"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Authentication/Authentication_AllowNonFQDN'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Authentication_AllowNonFQDN_NTLM" value="true | false"/>
+          <data id="Authentication_AllowNonFQDN_SPNEGO" value="true | false"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Authentication/Authentication_Locked'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Authentication/Authentication_PrivateBrowsing'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>Authentication</key>
+        <dict>
+          <key>SPNEGO</key>
+          <array>
+            <string>mydomain.com</string>
+            <string>https://myotherdomain.com</string>
+          </array>
+          <key>Delegated</key>
+          <array>
+            <string>mydomain.com</string>
+            <string>https://myotherdomain.com</string>
+          </array>
+          <key>NTLM</key>
+          <array>
+            <string>mydomain.com</string>
+            <string>https://myotherdomain.com</string>
+          </array>
+          <key>AllowNonFQDN</key>
+            <dict>
+            <key>SPNEGO</key>
+            <true/> | <false/>
+            <key>NTLM</key>
+            <true/> | <false/>
+          </dict>
+          <key>AllowProxies</key>
+            <dict>
+            <key>SPNEGO</key>
+            <true/> | <false/>
+            <key>NTLM</key>
+            <true/> | <false/>
+          </dict>
+          <key>Locked</key>
+          <true/> | <false/>
+          <key>PrivateBrowsing</key>
+          <true/> | <false/>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "Authentication": {
+            "SPNEGO": ["mydomain.com", "https://myotherdomain.com"],
+            "Delegated": ["mydomain.com", "https://myotherdomain.com"],
+            "NTLM": ["mydomain.com", "https://myotherdomain.com"],
+            "AllowNonFQDN": {
+              "SPNEGO": true | false,
+              "NTLM": true | false
+            },
+            "AllowProxies": {
+              "SPNEGO": true | false,
+              "NTLM": true | false
+            },
+            "Locked": true | false,
+            "PrivateBrowsing": true | false
+          }
+        }
+      }
+  BackgroundAppUpdate:
+    toc: 'Enable or disable the background updater (Windows only).'
+    content: |
+      Enable or disable **automatic** application update **in the background**, when the application is not running.
+
+      If set to true, application updates may be installed (without user approval) in the background, even when the application is not running. The operating system might still require approval.
+
+      If set to false, the application will not try to install updates when the application is not running.
+
+      If you have disabled updates via `DisableAppUpdate` or disabled automatic updates via `AppAutoUpdate`, this policy has no effect.
+
+      If you are having trouble getting the background task to run, verify your configuration with the ["Requirements to run" section in this support document](https://support.mozilla.org/en-US/kb/enable-background-updates-thunderbird-windows).
+    cck2Equivalent:
+    preferencesAffected:
+      - app.update.background.enabled
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\BackgroundAppUpdate'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/BackgroundAppUpdate'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    json: |
+      {
+        "policies": {
+          "BackgroundAppUpdate": true | false
+        }
+      }
+  BlockAboutAddons:
+    toc: 'Block access to the Add-ons Manager (about:addons).'
+    content: |
+      Block access to the Add-ons Manager (about:addons).
+    cck2Equivalent:
+      - disableAddonsManager
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\BlockAboutAddons'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/BlockAboutAddons'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>BlockAboutAddons</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "BlockAboutAddons": true | false
+        }
+      }
+  BlockAboutConfig:
+    toc: 'Block access to about:config.'
+    content: |
+      Block access to about:config.
+    cck2Equivalent:
+      - disableAboutConfig
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\BlockAboutConfig'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/BlockAboutConfig'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>BlockAboutConfig</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "BlockAboutConfig": true | false
+        }
+      }
+  BlockAboutProfiles:
+    toc: 'Block access to About Profiles (about:profiles).'
+    content: |
+      Block access to About Profiles (about:profiles).
+    cck2Equivalent:
+      - disableAboutProfiles
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\BlockAboutProfiles'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/BlockAboutProfiles'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>BlockAboutProfiles</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "BlockAboutProfiles": true | false
+        }
+      }
+  BlockAboutSupport:
+    toc: 'Block access to Troubleshooting Information (about:support).'
+    content: |
+      Block access to Troubleshooting Information (about:support).
+    cck2Equivalent:
+      - disableAboutSupport
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\BlockAboutSupport'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/BlockAboutSupport'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>BlockAboutSupport</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "BlockAboutSupport": true | false
+        }
+      }
+  CaptivePortal:
+    toc: 'Enable or disable the detection of captive portals.'
+    content: |
+      Enable or disable the detection of captive portals.
+    cck2Equivalent:
+    preferencesAffected:
+      - network.captive-portal-service.enabled
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\CaptivePortal'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/CaptivePortal'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>CaptivePortal</key>
+        <false/> | <true/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "CaptivePortal": true | false
+        }
+      }
+  Certificates:
+    toc: ''
+    content:
+    cck2Equivalent:
+    preferencesAffected:
+  Certificates_ImportEnterpriseRoots:
+    toc: 'Trust certificates that have been added to the operating system
+      certificate store by a user or administrator.'
+    content: |
+      Trust certificates that have been added to the operating system certificate store by a user or administrator.
+
+      Note: This policy only works on Windows and macOS. For Linux discussion, see [bug 1600509](https://bugzilla.mozilla.org/show_bug.cgi?id=1600509).
+
+      See https://support.mozilla.org/kb/setting-certificate-authorities-firefox for more detail.
+    cck2Equivalent:
+    preferencesAffected:
+      - security.enterprise_roots.enabled
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\Certificates\ImportEnterpriseRoots'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Certificates/Certificates_ImportEnterpriseRoots'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>Certificates</key>
+        <dict>
+          <key>ImportEnterpriseRoots</key>
+          <true/> | <false/>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "Certificates": {
+            "ImportEnterpriseRoots": true | false
+          }
+        }
+      }
+  Certificates_Install:
+    toc: 'Install certificates into the Thunderbird certificate store.'
+    content: |
+      Install certificates into the Thunderbird certificate store. If only a filename is specified, Thunderbird searches for the file in the following locations:
+
+      - Windows
+        - %USERPROFILE%\AppData\Local\Mozilla\Certificates
+        - %USERPROFILE%\AppData\Roaming\Mozilla\Certificates
+      - macOS
+        - /Library/Application Support/Mozilla/Certificates
+        - ~/Library/Application Support/Mozilla/Certificates
+      - Linux
+        - /usr/lib/mozilla/certificates
+        - /usr/lib64/mozilla/certificates
+        - ~/.mozilla/certificates
+
+      Starting with Thunderbird 65, Thunderbird 60.5 ESR, a fully qualified path can be used, including UNC paths. You should use the native path style for your operating system. We do not support using %USERPROFILE% or other environment variables on Windows.
+
+      If you are specifying the path in the policies.json file on Windows, you need to escape your backslashes (`\\`) which means that for UNC paths, you need to escape both (`\\\\`). If you use group policy, you only need one backslash.
+
+      Certificates are installed using the trust string `CT,CT,`.
+
+      Binary (DER) and ASCII (PEM) certificates are both supported.
+    cck2Equivalent:
+      - certs.ca
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\Certificates\Install\1'
+        type: 'REG_SZ'
+        value: '"cert1.der"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Certificates\Install\2'
+        type: 'REG_SZ'
+        value: '"C:\Users\username\cert2.pem"'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Certificates/Certificates_Install'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Certificates_Install" value="1&#xF000;cert1.der&#xF000;2&#xF000;C:\Users\username\cert2.pem"/>
+    plist: |
+      <dict>
+        <key>Certificates</key>
+        <dict>
+          <key>Install</key>
+          <array>
+            <string>cert1.der</string>
+            <string>/Users/username/cert2.pem</string>
+          </array>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "Certificates": {
+            "Install": ["cert1.der", "/home/username/cert2.pem"]
+          }
+        }
+      }
+  Cookies:
+    toc: 'Configure cookie preferences.'
+    content: |
+      Configure cookie preferences.
+
+      `Allow` is a list of origins (not domains) where cookies are always allowed. You must include http or https.
+
+      `AllowSession` is a list of origins (not domains) where cookies are only allowed for the current session. You must include http or https.
+
+      `Block` is a list of origins (not domains) where cookies are always blocked. You must include http or https.
+
+      `Behavior` sets the default behavior for cookies based on the values below.
+
+      `BehaviorPrivateBrowsing` sets the default behavior for cookies in private browsing based on the values below.
+
+      | Value | Description
+      | --- | --- |
+      | accept | Accept all cookies
+      | reject-foreign | Reject third party cookies
+      | reject | Reject all cookies
+      | limit-foreign | Reject third party cookies for sites you haven't visited
+      | reject-tracker | Reject cookies for known trackers (default)
+      | reject-tracker-and-partition-foreign | Reject cookies for known trackers and partition third-party cookies (Total Cookie Protection) (default for private browsing)
+
+      `Locked` prevents the user from changing cookie preferences.
+
+      `Default` determines whether cookies are accepted at all. (*Deprecated*. Use `Behavior` instead)
+
+      `AcceptThirdParty` determines how third-party cookies are handled. (*Deprecated*. Use `Behavior` instead)
+
+      `RejectTracker` only rejects cookies for trackers. (*Deprecated*. Use `Behavior` instead)
+
+      `ExpireAtSessionEnd` determines when cookies expire. (*Deprecated*. Use [`SanitizeOnShutdown`](#sanitizeonshutdown-selective) instead)
+    cck2Equivalent:
+    preferencesAffected:
+      - network.cookie.cookieBehavior
+      - network.cookie.cookieBehavior.pbmode
+      - network.cookie.lifetimePolicy
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\Cookies\Allow\1'
+        type: 'REG_SZ'
+        value: '"https://example.com"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Cookies\AllowSession\1'
+        type: 'REG_SZ'
+        value: '"https://example.edu"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Cookies\Block\1'
+        type: 'REG_SZ'
+        value: '"https://example.org"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Cookies\Behavior'
+        type: 'REG_SZ'
+        value: '"accept" | "reject-foreign" | "reject" | "limit-foreign" |
+          "reject-tracker" | "reject-tracker-and-partition-foreign"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Cookies\BehaviorPrivateBrowsing'
+        type: 'REG_SZ'
+        value: '"accept" | "reject-foreign" | "reject" | "limit-foreign" |
+          "reject-tracker" | "reject-tracker-and-partition-foreign"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Cookies\Locked'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Cookies/Cookies_Allow'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Permissions" value="1&#xF000;https://example.com"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Cookies/Cookies_AllowSession'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Permissions" value="1&#xF000;https://example.edu"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Cookies/Cookies_Block'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Permissions" value="1&#xF000;https://example.org"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Cookies/Cookies_Locked'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Cookies/Cookies_Behavior'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Cookies_Behavior" value="accept | reject-foreign | reject | limit-foreign | reject-tracker | reject-tracker-and-partition-foreign"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Cookies/Cookies_BehaviorPrivateBrowsing'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Cookies_BehaviorPrivateBrowsing" value="accept | reject-foreign | reject | limit-foreign | reject-tracker | reject-tracker-and-partition-foreign"/>
+    plist: |
+      <dict>
+        <key>Cookies</key>
+        <dict>
+          <key>Allow</key>
+          <array>
+            <string>http://example.com</string>
+          </array>
+          <key>AllowSession</key>
+          <array>
+            <string>http://example.edu</string>
+          </array>
+          <key>Block</key>
+          <array>
+            <string>http://example.org</string>
+          </array>
+          <key>Locked</key>
+          <true/> | <false/>
+          <key>Behavior</key>
+          <string>accept | reject-foreign | reject | limit-foreign | reject-tracker | reject-tracker-and-partition-foreign</string>
+          <key>BehaviorPrivateBrowsing</key>
+          <string>accept | reject-foreign | reject | limit-foreign | reject-tracker | reject-tracker-and-partition-foreign</string>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "Cookies": {
+            "Allow": ["http://example.org/"],
+            "AllowSession": ["http://example.edu/"],
+            "Block": ["http://example.edu/"],
+            "Locked": true | false,
+            "Behavior": "accept" | "reject-foreign" | "reject" | "limit-foreign" | "reject-tracker" | "reject-tracker-and-partition-foreign",
+            "BehaviorPrivateBrowsing": "accept" | "reject-foreign" | "reject" | "limit-foreign" | "reject-tracker" | "reject-tracker-and-partition-foreign",
+          }
+        }
+      }
+  DNSOverHTTPS:
+    toc: 'Configure DNS over HTTPS.'
+    content: |
+      Configure DNS over HTTPS.
+
+      `Enabled` determines whether DNS over HTTPS is enabled
+
+      `ProviderURL` is a URL to another provider.
+
+      `Locked` prevents the user from changing DNS over HTTPS preferences.
+
+      `ExcludedDomains` excludes domains from DNS over HTTPS.
+
+      `Fallback` determines whether or not Thunderbird will use your default DNS resolver if there is a problem with the secure DNS provider.
+    cck2Equivalent:
+    preferencesAffected:
+      - network.trr.mode
+      - network.trr.uri
+    gpo:
+      - key: |
+          Software\Policies\Mozilla\Thunderbird\DNSOverHTTPS\Enabled
+          Software\Policies\Mozilla\Thunderbird\DNSOverHTTPS\Locked
+          Software\Policies\Mozilla\Thunderbird\DNSOverHTTPS\Fallback
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+      - key: 'Software\Policies\Mozilla\Thunderbird\DNSOverHTTPS\ProviderURL'
+        type: 'REG_SZ'
+        value: '"URL_TO_ALTERNATE_PROVIDER"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\DNSOverHTTPS\ExcludedDomains\1'
+        type: 'REG_SZ'
+        value: '"example.com"'
+    intune:
+      - oma-uri: |
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~DNSOverHTTPS/DNSOverHTTPS_Enabled
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~DNSOverHTTPS/DNSOverHTTPS_Locked
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~DNSOverHTTPS/DNSOverHTTPS_Fallback
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~DNSOverHTTPS/DNSOverHTTPS_ProviderURL'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="String" value="URL_TO_ALTERNATE_PROVIDER"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~DNSOverHTTPS/DNSOverHTTPS_ExcludedDomains'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="List" value="1&#xF000;example.com"/>
+    plist: |
+      <dict>
+        <key>DNSOverHTTPS</key>
+        <dict>
+          <key>Enabled</key>
+          <false/> | <true/>
+          <key>ProviderURL</key>
+          <string>URL_TO_ALTERNATE_PROVIDER</string>
+          <key>Locked</key>
+          <true/> | <false/>
+          <key>ExcludedDomains</key>
+          <array>
+            <string>example.com</string>
+          </array>
+          <key>Fallback</key>
+          <true/> | <false/>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "DNSOverHTTPS": {
+            "Enabled":  true | false,
+            "ProviderURL": "URL_TO_ALTERNATE_PROVIDER",
+            "Locked": true | false,
+            "ExcludedDomains": ["example.com"],
+            "Fallback": true | false,
+          }
+        }
+      }
+  DefaultDownloadDirectory:
+    toc: 'Set the default download directory.'
+    content: |
+      Set the default download directory.
+
+      You can use ${home} for the native home directory.
+    cck2Equivalent:
+    preferencesAffected:
+      - browser.download.dir
+      - browser.download.folderList
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\DefaultDownloadDirectory'
+        type: 'REG_SZ'
+        value: '"${home}\Downloads"'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/DefaultDownloadDirectory'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Preferences_String" value="${home}\Downloads"/>
+    plist: |
+      <dict>
+        <key>DefaultDownloadDirectory</key>
+        <string>${home}/Downloads</string>
+      </dict>
+  DisableAppUpdate:
+    toc: 'Turn off application updates.'
+    content: |
+      Turn off application updates within Thunderbird.
+    cck2Equivalent:
+      - disableFirefoxUpdates
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\DisableAppUpdate'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/DisableAppUpdate'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>DisableAppUpdate</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "DisableAppUpdate": true | false
+        }
+      }
+  DisableBuiltinPDFViewer:
+    toc: 'Disable the built in PDF viewer.'
+    content: |
+      Disable the built in PDF viewer. PDF files are downloaded and sent externally.
+
+      Note: As of Thunderbird 140, this policy no longer completely disables PDF.js; it changes the handler to send PDF files to the operating system. Embedded PDF files are shown in the browser. If you need to completely disable PDF.js, you can use the [`PDFjs`](#pdfjs) policy.
+    cck2Equivalent:
+      - disablePDFjs
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\DisableBuiltinPDFViewer'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/DisableBuiltinPDFViewer'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>DisableBuiltinPDFViewer</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "DisableBuiltinPDFViewer": true | false
+        }
+      }
+  DisableDeveloperTools:
+    toc: 'Remove access to all developer tools.'
+    content: |
+      Remove access to all developer tools.
+    cck2Equivalent:
+      - removeDeveloperTools
+    preferencesAffected:
+      - devtools.policy.disabled
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\DisableDeveloperTools'
+        type: 'REG_SZ'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/DisableDeveloperTools'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>DisableDeveloperTools</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "DisableDeveloperTools": true | false
+        }
+      }
+  DisableMasterPasswordCreation:
+    toc: 'Remove the master password functionality.'
+    content: |
+      Remove the master password functionality.
+
+      If this value is true, it works the same as setting [`PrimaryPassword`](#primarypassword) to false and removes the primary password functionality.
+
+      If both `DisableMasterPasswordCreation` and `PrimaryPassword` are used, `DisableMasterPasswordCreation` takes precedent.
+    cck2Equivalent:
+      - noMasterPassword
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\DisableMasterPasswordCreation'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/DisableMasterPasswordCreation'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>DisableMasterPasswordCreation</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "DisableMasterPasswordCreation": true | false
+        }
+      }
+  DisablePasswordReveal:
+    toc: 'Do not allow passwords to be revealed in saved logins.'
+    content: |
+      Do not allow passwords to be shown in saved logins
+    cck2Equivalent:
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\DisablePasswordReveal'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/DisablePasswordReveal'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>DisablePasswordReveal</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "DisablePasswordReveal": true | false
+        }
+      }
+  DisableSafeMode:
+    toc: 'Disable safe mode within the browser.'
+    content: |
+      Disable safe mode within the browser.
+
+      On Windows, this disables safe mode via the command line as well.
+    cck2Equivalent:
+      - disableSafeMode
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\DisableSafeMode'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/DisableSafeMode'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>DisableSafeMode</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "DisableSafeMode": true | false
+        }
+      }
+  DisableSecurityBypass:
+    toc: 'Prevent the user from bypassing security in certain cases.'
+    content: |
+      Prevent the user from bypassing security in certain cases.
+
+      `InvalidCertificate` prevents adding an exception when an invalid certificate is shown.
+
+      `SafeBrowsing` prevents selecting "ignore the risk" and visiting a harmful site anyway.
+
+      These policies only affect what happens when an error is shown, they do not affect any settings in preferences.
+    cck2Equivalent:
+    preferencesAffected:
+      - security.certerror.hideAddException
+      - browser.safebrowsing.allowOverride
+    gpo:
+      - key: |
+          Software\Policies\Mozilla\Thunderbird\DisableSecurityBypass\InvalidCertificate
+          Software\Policies\Mozilla\Thunderbird\DisableSecurityBypass\SafeBrowsing
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: |
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/P_DisableSecurityBypass_InvalidCertificate
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/P_DisableSecurityBypass_SafeBrowsing
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>DisableSecurityBypass</key>
+        <dict>
+          <key>InvalidCertificate</key>
+          <true/> | <false/>
+          <key>SafeBrowsing</key>
+          <true/> | <false/>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "DisableSecurityBypass": {
+            "InvalidCertificate": true | false,
+            "SafeBrowsing": true | false
+          }
+        }
+      }
+  DisableSystemAddonUpdate:
+    toc: 'Prevent system add-ons from being installed or updated.'
+    content: |
+      Prevent system add-ons from being installed or updated.
+    cck2Equivalent:
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\DisableSystemAddonUpdate'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/DisableSystemAddonUpdate'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>DisableSystemAddonUpdate</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "DisableSystemAddonUpdate": true | false
+        }
+      }
+  DisableTelemetry:
+    toc: 'DisableTelemetry'
+    content: |
+      Prevent the upload of telemetry data.
+
+      As of Thunderbird 83 and Thunderbird ESR 78.5, local storage of telemetry data is disabled as well.
+
+      Mozilla recommends that you do not disable telemetry. Information collected through telemetry helps us build a better product for businesses like yours.
+    cck2Equivalent:
+      - disableTelemetry
+    preferencesAffected:
+      - datareporting.healthreport.uploadEnabled
+      - datareporting.policy.dataSubmissionEnabled
+      - toolkit.telemetry.archive.enabled
+      - datareporting.usage.uploadEnabled
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\DisableTelemetry'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/DisableTelemetry'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>DisableTelemetry</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "DisableTelemetry": true | false
+        }
+      }
+  DisabledCiphers:
+    toc: 'Disable ciphers.'
+    content: |
+      Disable specific cryptographic ciphers. For the full list of supported ciphers check the
+      compatibility table below. The examples given here cover only a small subset.
+
+    cck2Equivalent:
+    preferencesAffected:
+      - security.ssl3.ecdhe_rsa_aes_128_gcm_sha256
+      - security.ssl3.ecdhe_ecdsa_aes_128_gcm_sha256
+      - security.ssl3.ecdhe_ecdsa_chacha20_poly1305_sha256
+      - security.ssl3.ecdhe_rsa_chacha20_poly1305_sha256
+      - security.ssl3.ecdhe_ecdsa_aes_256_gcm_sha384
+      - security.ssl3.ecdhe_rsa_aes_256_gcm_sha384
+      - security.ssl3.ecdhe_rsa_aes_128_sha
+      - security.ssl3.ecdhe_ecdsa_aes_128_sha
+      - security.ssl3.ecdhe_rsa_aes_256_sha
+      - security.ssl3.ecdhe_ecdsa_aes_256_sha
+      - security.ssl3.dhe_rsa_aes_128_sha
+      - security.ssl3.dhe_rsa_aes_256_sha
+      - security.ssl3.rsa_aes_128_gcm_sha256
+      - security.ssl3.rsa_aes_256_gcm_sha384
+      - security.ssl3.rsa_aes_128_sha
+      - security.ssl3.rsa_aes_256_sha
+      - security.ssl3.deprecated.rsa_des_ede3_sha
+      - security.tls13.chacha20_poly1305_sha256
+      - security.tls13.aes_128_gcm_sha256
+      - security.tls13.aes_256_gcm_sha384
+    gpo:
+      - key: |
+          Software\Policies\Mozilla\Thunderbird\DisabledCiphers\TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+          Software\Policies\Mozilla\Thunderbird\DisabledCiphers\TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+          Software\Policies\Mozilla\Thunderbird\DisabledCiphers\TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+          Software\Policies\Mozilla\Thunderbird\DisabledCiphers\TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+          Software\Policies\Mozilla\Thunderbird\DisabledCiphers\TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+          Software\Policies\Mozilla\Thunderbird\DisabledCiphers\TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: |
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~DisabledCiphers/DisabledCiphers_TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~DisabledCiphers/DisabledCiphers_TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~DisabledCiphers/DisabledCiphers_TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~DisabledCiphers/DisabledCiphers_TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~DisabledCiphers/DisabledCiphers_TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~DisabledCiphers/DisabledCiphers_TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>DisabledCiphers</key>
+          <dict>
+            <key>TLS_DHE_RSA_WITH_AES_128_CBC_SHA</key>
+            <true/>
+            <key>TLS_DHE_RSA_WITH_AES_256_CBC_SHA</key>
+            <true/>
+            <key>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</key>
+            <true/>
+            <key>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA</key>
+            <true/>
+            <key>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</key>
+            <true/>
+            <key>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</key>
+            <true/>
+          </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "DisabledCiphers": {
+            "TLS_DHE_RSA_WITH_AES_128_CBC_SHA": true | false,
+            "TLS_DHE_RSA_WITH_AES_256_CBC_SHA":" true | false,
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA": true | false,
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA": true | false,
+            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256": true | false,
+            "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256": true | false,
+          }
+        }
+      }
+  DownloadDirectory:
+    toc: 'Set and lock the download directory.'
+    content: |
+      Set and lock the download directory.
+
+      You can use ${home} for the native home directory.
+    cck2Equivalent:
+    preferencesAffected:
+      - browser.download.dir
+      - browser.download.folderList
+      - browser.download.useDownloadDir
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\DownloadDirectory'
+        type: 'REG_SZ'
+        value: '"${home}\Downloads"'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/DownloadDirectory'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Preferences_String" value="${home}\Downloads"/>
+    plist: |
+      <dict>
+        <key>DownloadDirectory</key>
+        <string>${home}/Downloads</string>
+      </dict>
+  ExtensionUpdate:
+    toc: 'Control extension updates.'
+    content: |
+      Control extension updates.
+    cck2Equivalent:
+    preferencesAffected:
+      - extensions.update.enabled
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\ExtensionUpdate'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Extensions/ExtensionUpdate'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>ExtensionUpdate</key>
+        <false/> | <true/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "ExtensionUpdate": true | false
+        }
+      }
+  Extensions:
+    toc: 'Control the installation, uninstallation and locking of extensions.'
+    content: |
+      Control the installation, uninstallation and locking of extensions.
+
+      We strongly recommend that you use the **[`ExtensionSettings`](#extensionsettings)** policy. It has the same functionality and adds more. It does not support native paths, though, so you'll have to use file:/// URLs.
+
+      This method will be deprecated in the near future.
+
+      `Install` is a list of URLs or native paths for extensions to be installed.
+
+      `Uninstall` is a list of extension IDs that should be uninstalled if found.
+
+      `Locked` is a list of extension IDs that the user cannot disable or uninstall.
+    cck2Equivalent:
+      - addons
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\Extensions\Install\1'
+        type: 'REG_SZ'
+        value: '"https://addons.thunderbird.net/thunderbird/downloads/somefile.xpi"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Extensions\Install\2'
+        type: 'REG_SZ'
+        value: '"//path/to/xpi"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Extensions\Uninstall\1'
+        type: 'REG_SZ'
+        value: '"bad_addon_id@mozilla.org"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Extensions\Locked\1'
+        type: 'REG_SZ'
+        value: '"addon_id@mozilla.org"'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Extensions/Extensions_Install'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Extensions" value="1&#xF000;https://addons.thunderbird.net/thunderbird/downloads/somefile.xpi&#xF000;2&#xF000;//path/to/xpi"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Extensions/Extensions_Uninstall'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Extensions" value="1&#xF000;bad_addon_id@mozilla.org"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Extensions/Extensions_Locked'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Extensions" value="1&#xF000;addon_id@mozilla.org"/>
+    plist: |
+      <dict>
+        <key>Extensions</key>
+        <dict>
+          <key>Install</key>
+          <array>
+            <string>https://addons.thunderbird.net/thunderbird/downloads/somefile.xpi</string>
+            <string>//path/to/xpi</string>
+          </array>
+          <key>Uninstall</key>
+          <array>
+            <string>bad_addon_id@mozilla.org</string>
+          </array>
+          <key>Locked</key>
+          <array>
+            <string>addon_id@mozilla.org</string>
+          </array>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "Extensions": {
+            "Install": ["https://addons.thunderbird.net/thunderbird/downloads/somefile.xpi", "//path/to/xpi"],
+            "Uninstall": ["bad_addon_id@mozilla.org"],
+            "Locked":  ["addon_id@mozilla.org"]
+          }
+        }
+      }
+  Handlers:
+    toc: 'Configure default application handlers.'
+    content: |
+      Configure default application handlers. This policy is based on the internal format of `handlers.json`.
+
+      You can configure handlers based on a mime type (`mimeTypes`), a file's extension (`extensions`), or a protocol (`schemes`).
+
+      Within each handler type, you specify the given mimeType/extension/scheme as a key and use the following subkeys to describe how it is handled.
+
+      | Name | Description |
+      | --- | --- |
+      | `action`| Can be either `saveToDisk`, `useHelperApp`, `useSystemDefault`.
+      | `ask` | If `true`, the user is asked if what they want to do with the file. If `false`, the action is taken without user intervention.
+      | `handlers` | An array of handlers with the first one being the default. If you don't want to have a default handler, use an empty object for the first handler. Choose between path or uriTemplate.
+      | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`name` | The display name of the handler (might not be used).
+      | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`path`| The native path to the executable to be used.
+      | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`uriTemplate`| A url to a web based application handler. The URL must be https and contain a %s to be used for substitution.
+    cck2Equivalent:
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\Handlers'
+        type: 'REG_MULTI_SZ'
+        value: |
+          {
+            "mimeTypes": {
+              "application/msword": {
+                "action": "useSystemDefault",
+                "ask": true | false
+              }
+            },
+            "schemes": {
+              "mailto": {
+                "action": "useHelperApp",
+                "ask": true | false,
+                "handlers": [{
+                  "name": "Gmail",
+                  "uriTemplate": "https://mail.google.com/mail/?extsrc=mailto&url=%s"
+                }]
+              }
+            },
+            "extensions": {
+              "pdf": {
+                "action": "useHelperApp",
+                "ask": true | false,
+                "handlers": [{
+                  "name": "Adobe Acrobat",
+                  "path": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe"
+                }]
+              }
+            }
+          }
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/Handlers'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Handlers" value='
+          {
+            "mimeTypes": {
+              "application/msword": {
+                "action": "useSystemDefault",
+                "ask": true | false
+              }
+            },
+            "schemes": {
+              "mailto": {
+                "action": "useHelperApp",
+                "ask": true | false,
+                "handlers": [{
+                  "name": "Gmail",
+                  "uriTemplate": "https://mail.google.com/mail/?extsrc=mailto&amp;url=%s"
+                }]
+              }
+            },
+            "extensions": {
+              "pdf": {
+                "action": "useHelperApp",
+                "ask": true | false,
+                "handlers": [{
+                  "name": "Adobe Acrobat",
+                  "path": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe"
+                }]
+              }
+            }
+          }
+          '/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/HandlersOneLine'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="JSONOneLine" value='{}'/>
+    plist: |
+      <dict>
+        <key>Handlers</key>
+        <dict>
+          <key>mimeTypes</key>
+          <dict>
+            <key>application/msword</key>
+            <dict>
+              <key>action</key>
+              <string>useSystemDefault</string>
+              <key>ask</key>
+              <true/> | <false/>
+            </dict>
+          </dict>
+          <key>extensions</key>
+          <dict>
+            <key>pdf</key>
+            <dict>
+              <key>action</key>
+              <string>useHelperApp</string>
+              <key>ask</key>
+              <true/> | <false/>
+              <key>handlers</key>
+              <array>
+                <dict>
+                  <key>name</key>
+                  <string>Adobe Acrobat</string>
+                  <key>path</key>
+                  <string>/System/Applications/Preview.app</string>
+                </dict>
+              </array>
+            </dict>
+          </dict>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "Handlers": {
+            "mimeTypes": {
+              "application/msword": {
+                "action": "useSystemDefault",
+                "ask": false
+              }
+            },
+            "schemes": {
+              "mailto": {
+                "action": "useHelperApp",
+                "ask": true | false,
+                "handlers": [{
+                  "name": "Gmail",
+                  "uriTemplate": "https://mail.google.com/mail/?extsrc=mailto&url=%s"
+                }]
+              }
+            },
+            "extensions": {
+              "pdf": {
+                "action": "useHelperApp",
+                "ask": true | false,
+                "handlers": [{
+                  "name": "Adobe Acrobat",
+                  "path": "/usr/bin/acroread"
+                }]
+              }
+            }
+          }
+        }
+      }
+  HardwareAcceleration:
+    toc: 'Control hardware acceleration.'
+    content: |
+      Control hardware acceleration.
+    cck2Equivalent:
+    preferencesAffected:
+      - layers.acceleration.disabled
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\HardwareAcceleration'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/HardwareAcceleration'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>HardwareAcceleration</key>
+        <false/> | <true/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "HardwareAcceleration": true | false
+        }
+      }
+  InstallAddonsPermission:
+    toc: 'Configure the default extension install policy as well as origins for
+      extension installs are allowed.'
+    content: |
+      Configure the default extension install policy as well as origins for extension installs are allowed. This policy does not override turning off all extension installs.
+
+      `Allow` is a list of origins where extension installs are allowed.
+
+      `Default` determines whether or not extension installs are allowed by default.
+    cck2Equivalent:
+      - permissions.install
+    preferencesAffected:
+      - xpinstall.enabled
+      - browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons
+      - browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\InstallAddonsPermission\Allow\1'
+        type: 'REG_SZ'
+        value: '"https://example.org"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\InstallAddonsPermission\Allow\2'
+        type: 'REG_SZ'
+        value: '"https://example.edu"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\InstallAddonsPermission\Default'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Addons/InstallAddonsPermission_Allow'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Permissions" value="1&#xF000;https://example.org&#xF000;2&#xF000;https://example.edu"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Addons/InstallAddonsPermission_Default'
+        type: 'string'
+        value: '<enabled/>'
+    plist: |
+      <dict>
+        <key>InstallAddonsPermission</key>
+        <dict>
+          <key>Allow</key>
+          <array>
+            <string>http://example.org</string>
+            <string>http://example.edu</string>
+          </array>
+          <key>Default</key>
+          <false/> | <true/>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "InstallAddonsPermission": {
+            "Allow": ["http://example.org/",
+                      "http://example.edu/"],
+            "Default": true | false
+          }
+        }
+      }
+  ManualAppUpdateOnly:
+    toc: 'Allow manual updates only and do not notify the user about updates.'
+    content: |
+      Switch to manual updates only.
+
+      If this policy is enabled:
+       1. The user will never be prompted to install updates
+       2. Thunderbird will not check for updates in the background, though it will check automatically when an update UI is displayed (such as the one in the About dialog). This check will be used to show "Update to version X" in the UI, but will not automatically download the update or prompt the user to update in any other way.
+       3. The update UI will work as expected, unlike when using DisableAppUpdate.
+
+      This policy is primarily intended for advanced end users, not for enterprises, but it is available via GPO.
+    cck2Equivalent:
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\ManualAppUpdateOnly'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/ManualAppUpdateOnly'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>ManualAppUpdateOnly</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "ManualAppUpdateOnly": true | false
+        }
+      }
+  NetworkPrediction:
+    toc: 'Enable or disable network prediction (DNS prefetching).'
+    content: |
+      Enable or disable network prediction (DNS prefetching).
+    cck2Equivalent:
+    preferencesAffected:
+      - network.dns.disablePrefetch
+      - network.dns.disablePrefetchFromHTTPS
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\NetworkPrediction'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/NetworkPrediction'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>NetworkPrediction</key>
+        <false/> | <true/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "NetworkPrediction": true | false
+      }
+  OfferToSaveLogins:
+    toc: 'Control whether or not Thunderbird offers to save passwords.'
+    content: |
+      Control whether or not Thunderbird offers to save passwords.
+    cck2Equivalent:
+      - dontRememberPasswords
+    preferencesAffected:
+      - signon.rememberSignons
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\OfferToSaveLogins'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/OfferToSaveLogins'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>OfferToSaveLogins</key>
+        <false/> | <true/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "OfferToSaveLogins": true | false
+        }
+      }
+  OfferToSaveLoginsDefault:
+    toc: 'Set the default value for whether or not Thunderbird offers to save
+      passwords.'
+    content: |
+      Sets the default value of signon.rememberSignons without locking it.
+    cck2Equivalent:
+      - dontRememberPasswords
+    preferencesAffected:
+      - signon.rememberSignons
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\OfferToSaveLoginsDefault'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/OfferToSaveLoginsDefault'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>OfferToSaveLoginsDefault</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "OfferToSaveLoginsDefault": true | false
+        }
+      }
+  PDFjs:
+    toc: 'Disable or configure PDF.js, the built-in PDF viewer.'
+    content: |
+      Disable or configure PDF.js, the built-in PDF viewer.
+
+      If `Enabled` is set to false, the built-in PDF viewer is disabled.
+
+      If `EnablePermissions` is set to true, the built-in PDF viewer will honor document permissions like preventing the copying of text.
+
+      Note: DisableBuiltinPDFViewer has not been deprecated. You can either continue to use it, or switch to using PDFjs->Enabled to disable the built-in PDF viewer. This new permission was added because we needed a place for PDFjs->EnabledPermissions.
+    cck2Equivalent:
+    preferencesAffected:
+      - pdfjs.disabled
+      - pdfjs.enablePermissions
+    gpo:
+      - key: |
+          Software\Policies\Mozilla\Thunderbird\PDFjs\Enabled
+          Software\Policies\Mozilla\Thunderbird\PDFjs\EnablePermissions
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: |
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~PDFjs/PDFjs_Enabled
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~PDFjs/PDFjs_EnablePermissions
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>PDFjs</key>
+        <dict>
+          <key>Enabled</key>
+          <false/> | <true/>
+          <key>EnablePermissions</key>
+          <false/> | <true/>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "PDFjs": {
+            "Enabled": true | false,
+            "EnablePermissions": true | false
+          }
+        }
+      }
+  PasswordManagerEnabled:
+    toc: 'Remove (some) access to the password manager.'
+    content: |
+      Remove access to the password manager via preferences and blocks about:logins on Thunderbird 70.
+    cck2Equivalent:
+    preferencesAffected:
+      - pref.privacy.disable_button.view_passwords
+      - signon.rememberSignons
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\PasswordManagerEnabled'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/PasswordManagerEnabled'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>PasswordManagerEnabled</key>
+        <false/> | <true/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "PasswordManagerEnabled": true | false
+        }
+      }
+  PrimaryPassword:
+    toc: 'Require or prevent using a primary (formerly master) password.'
+    content: |
+      Require or prevent using a primary (formerly master) password.
+
+      If this value is true, a primary password is required. If this value is false, it works the same as if [`DisableMasterPasswordCreation`](#disablemasterpasswordcreation) was true and removes the primary password functionality.
+
+      If both DisableMasterPasswordCreation and PrimaryPassword are used, DisableMasterPasswordCreation takes precedent.
+    cck2Equivalent:
+      - noMasterPassword
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\PrimaryPassword'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/PrimaryPassword'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>PrimaryPassword</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "PrimaryPassword": true | false
+        }
+      }
+  PromptForDownloadLocation:
+    toc: 'Ask where to save each file before downloading.'
+    content: |
+      Ask where to save each file before downloading.
+    cck2Equivalent:
+    preferencesAffected:
+      - browser.download.useDownloadDir
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\PromptForDownloadLocation'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/PromptForDownloadLocation'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>PromptForDownloadLocation</key>
+        <true/> | <false/>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "PromptForDownloadLocation": true | false
+        }
+      }
+  Proxy:
+    toc: 'Configure proxy settings.'
+    content: |
+      Configure proxy settings. These settings correspond to the connection settings in Thunderbird preferences.
+      To specify ports, append them to the hostnames with a colon (:).
+
+      Unless you lock this policy, changes the user already has in place will take effect.
+
+      `Mode` is the proxy method being used.
+
+      `Locked` is whether or not proxy settings can be changed.
+
+      `HTTPProxy` is the HTTP proxy server.
+
+      `UseHTTPProxyForAllProtocols` is whether or not the HTTP proxy should be used for all other proxies.
+
+      `SSLProxy` is the SSL proxy server.
+
+      `FTPProxy` is the FTP proxy server.
+
+      `SOCKSProxy` is the SOCKS proxy server
+
+      `SOCKSVersion` is the SOCKS version (4 or 5)
+
+      `Passthrough` is list of hostnames or IP addresses that will not be proxied. Use `<local>` to bypass proxying for all hostnames which do not contain periods.
+
+      `AutoConfigURL` is a  URL for proxy configuration (only used if Mode is autoConfig).
+
+      `AutoLogin` means do not prompt for authentication if password is saved.
+
+      `UseProxyForDNS` to use proxy DNS when using SOCKS v5.
+    cck2Equivalent:
+      - networkProxy*
+    preferencesAffected:
+      - network.proxy.type
+      - network.proxy.autoconfig_url
+      - network.proxy.socks_remote_dns
+      - signon.autologin.proxy
+      - network.proxy.socks_version
+      - network.proxy.no_proxies_on
+      - network.proxy.share_proxy_settings
+      - network.proxy.http
+      - network.proxy.http_port
+      - network.proxy.ftp
+      - network.proxy.ftp_port
+      - network.proxy.ssl
+      - network.proxy.ssl_port
+      - network.proxy.socks
+      - network.proxy.socks_port
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\Proxy\Mode'
+        type: 'REG_SZ'
+        value: '"none" | "system" | "manual" | "autoDetect" | "autoConfig"'
+      - key: |
+          Software\Policies\Mozilla\Thunderbird\Proxy\Locked
+          Software\Policies\Mozilla\Thunderbird\Proxy\UseHTTPProxyForAllProtocols
+          Software\Policies\Mozilla\Thunderbird\Proxy\AutoLogin
+          Software\Policies\Mozilla\Thunderbird\Proxy\UseProxyForDNS
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Proxy\HTTPProxy'
+        type: 'REG_SZ'
+        value: 'https://httpproxy.example.com'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Proxy\SSLProxy'
+        type: 'REG_SZ'
+        value: 'https://sslproxy.example.com'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Proxy\FTPProxy'
+        type: 'REG_SZ'
+        value: 'https://ftpproxy.example.com'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Proxy\SOCKSProxy'
+        type: 'REG_SZ'
+        value: 'https://socksproxy.example.com'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Proxy\SOCKSVersion'
+        type: 'REG_DWORD'
+        value: '0x4 | 0x5'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Proxy\Passthrough'
+        type: 'REG_SZ'
+        value: '<local>'
+      - key: 'Software\Policies\Mozilla\Thunderbird\Proxy\AutoConfigURL'
+        type: 'REG_SZ'
+        value: 'URL_TO_AUTOCONFIG'
+
+    intune:
+      - oma-uri: |
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~ProxySettings/Proxy_Locked
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~ProxySettings/Proxy_UseHTTPProxyForAllProtocols
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~ProxySettings/Proxy_AutoLogin
+          ./Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~ProxySettings/Proxy_UseProxyForDNS
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~ProxySettings/Proxy_ConnectionType'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Proxy_ConnectionType" value="none | system | manual | autoDetect | autoConfig"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~ProxySettings/Proxy_HTTPProxy'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Proxy_HTTPProxy" value="httpproxy.example.com"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~ProxySettings/Proxy_SSLProxy'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Proxy_SSLProxy" value="sslproxy.example.com"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~ProxySettings/Proxy_SOCKSProxy'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Proxy_SOCKSProxy" value="socksproxy.example.com"/>
+          <data id="Proxy_SOCKSVersion" value="4 | 5"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~ProxySettings/Proxy_AutoConfigURL'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Proxy_AutoConfigURL" value="URL_TO_AUTOCONFIG"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~ProxySettings/Proxy_Passthrough'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Proxy_Passthrough" value="&lt;local&gt;"/>
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/Proxy'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="ProxyLocked" value="true | false"/>
+          <data id="ConnectionType" value="none | system | manual | autoDetect | autoConfig"/>
+          <data id="HTTPProxy" value="httpproxy.example.com"/>
+          <data id="UseHTTPProxyForAllProtocols" value="true | false"/>
+          <data id="SSLProxy" value="sslproxy.example.com"/>
+          <data id="FTPProxy" value="ftpproxy.example.com"/>
+          <data id="SOCKSProxy" value="socksproxy.example.com"/>
+          <data id="SOCKSVersion" value="4 | 5"/>
+          <data id="AutoConfigURL" value="URL_TO_AUTOCONFIG"/>
+          <data id="Passthrough" value="<local>"/>
+          <data id="AutoLogin" value="true | false"/>
+          <data id="UseProxyForDNS" value="true | false"/>
+    plist: |
+      <dict>
+        <key>Proxy</key>
+        <dict>
+          <key>Mode</key>
+          <string>none | system | manual | autoDetect | autoConfig</string>
+          <key>Locked</key>
+          <true/> | <false/>
+          <key>HTTPProxy</key>
+          <string>httpproxy.example.com</string>
+          <key>UseHTTPProxyForAllProtocols</key>
+          <true/> | <false/>
+          <key>SSLProxy</key>
+          <string>sslproxy.example.com</string>
+          <key>FTPProxy</key>
+          <string>ftpproxy.example.com</string>
+          <key>SOCKSProxy</key>
+          <string>socksproxy.example.com</string>
+          <key>SOCKSVersion</key>
+          <string>4 | 5</string>
+          <key>Passthrough</key>
+          <string>&lt;local&gt;</string>
+          <key>AutoConfigURL</key>
+          <string>URL_TO_AUTOCONFIG</string>
+          <key>AutoLogin</key>
+          <true/> | <false/>
+          <key>UseProxyForDNS</key>
+          <true/> | <false/>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "Proxy": {
+            "Mode": "none" | "system" | "manual" | "autoDetect" | "autoConfig",
+            "Locked": true | false,
+            "HTTPProxy": "hostname",
+            "UseHTTPProxyForAllProtocols": true | false,
+            "SSLProxy": "hostname",
+            "FTPProxy": "hostname",
+            "SOCKSProxy": "hostname",
+            "SOCKSVersion": 4 | 5,
+            "Passthrough": "<local>",
+            "AutoConfigURL": "URL_TO_AUTOCONFIG",
+            "AutoLogin": true | false,
+            "UseProxyForDNS": true | false
+          }
+        }
+      }
+  RequestedLocales:
+    toc: 'Set the the list of requested locales for the application in order of
+      preference.'
+    content: |
+      Set the the list of requested locales for the application in order of preference. It will cause the corresponding language pack to become active.
+
+      Note: For Thunderbird 68, this can now be a string so that you can specify an empty value.
+    cck2Equivalent:
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\RequestedLocales\1'
+        type: 'REG_SZ'
+        value: '"de"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\RequestedLocales\2'
+        type: 'REG_SZ'
+        value: '"en-US"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\RequestedLocales'
+        type: 'REG_SZ'
+        value: '"de,en-US"'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/RequestedLocalesString'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="Preferences_String" value="de,en-US"/>
+    plist: |
+      <dict>
+        <key>RequestedLocales</key>
+        <array>
+          <string>de</string>
+          <string>en-US</string>
+        </array>
+        <key>RequestedLocales</key>
+        <string>de,en-US</string>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "RequestedLocales": ["de", "en-US"]
+          "RequestedLocales": "de,en-US"
+        }
+      }
+  SSLVersionMax:
+    toc: 'Set and lock the maximum version of TLS.'
+    content: |
+      Set and lock the maximum version of TLS. (Thunderbird defaults to a maximum of TLS 1.3.)
+    cck2Equivalent:
+    preferencesAffected:
+      - security.tls.version.max
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\SSLVersionMax'
+        type: 'REG_SZ'
+        value: '"tls1.3" | "tls1.2" | "tls1.1" | "tls1"'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/SSLVersionMax'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="SSLVersion" value="tls1.3 | tls1.2 | tls1.1 | tls1"/>
+    plist: |
+      <dict>
+        <key>SSLVersionMax</key>
+        <string>tls1.3 | tls1.2 | tls1.1 | tls1</string>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "SSLVersionMax": "tls1.3" | "tls1.2" | "tls1.1" | "tls1"
+        }
+      }
+  SSLVersionMin:
+    toc: 'Set and lock the minimum version of TLS.'
+    content: |
+      Set and lock the minimum version of TLS. (Thunderbird defaults to a minimum of TLS 1.2.)
+    cck2Equivalent:
+    preferencesAffected:
+      - security.tls.version.min
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\SSLVersionMin'
+        type: 'REG_SZ'
+        value: '"tls1.2" | "tls1.3" | "tls1.1" | "tls1"'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird/SSLVersionMin'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="SSLVersion" value="tls1.2 | tls1.3 | tls1.1 | tls1"/>
+    plist: |
+      <dict>
+        <key>SSLVersionMin</key>
+        <string>tls1.2 | tls1.3 | tls1.1 | tls1</string>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "SSLVersionMin": "tls1.2 | tls1.3 | tls1.1 | tls1"
+        }
+      }
+  SearchEngines:
+    toc: ''
+    content: |
+      As of Thunderbird 139, this policy is available in all versions of Thunderbird.
+    cck2Equivalent:
+    preferencesAffected:
+  SearchEngines_Add:
+    toc: 'Add new search engines.'
+    content: |
+      Add new search engines. Although there are only five engines available in the ADMX template, there is no limit. To add more in the ADMX template, you can duplicate the XML.
+
+      `Name` is the name of the search engine. (Required)
+
+      `URLTemplate` is the search URL with {searchTerms} to substitute for the search term. (Required)
+
+      `Method` is either GET or POST
+
+      `IconURL` is a URL for the icon to use.
+
+      `Alias` is a keyword to use for the engine.
+
+      `Description` is a description of the search engine.
+
+      `PostData` is the POST data as name value pairs separated by &.
+
+      `SuggestURLTemplate` is a search suggestions URL with {searchTerms} to substitute for the search term.
+
+      `Encoding` is the query charset for the engine. It defaults to UTF-8.
+    cck2Equivalent:
+      - searchplugins
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\SearchEngines\Add\1\Name'
+        type: 'REG_SZ'
+        value: '"Example1"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\SearchEngines\Add\1\Method'
+        type: 'REG_SZ'
+        value: '"GET" | "POST"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\SearchEngines\Add\1\IconURL'
+        type: 'REG_SZ'
+        value: '"https://www.example.org/favicon.ico"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\SearchEngines\Add\1\Alias'
+        type: 'REG_SZ'
+        value: '"example"'
+      - key: 'Software\Policies\Mozilla\Thunderbird\SearchEngines\Add\1\Description'
+        type: 'REG_SZ'
+        value: '"Example Description"'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Search/SearchEngines_1'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="SearchEngine_Name" value="Example1"/>
+          <data id="SearchEngine_URLTemplate" value="https://www.example.org/q={searchTerms"/>
+          <data id="SearchEngine_Method" value="GET | POST"/>
+          <data id="SearchEngine_IconURL" value="https://www.example.org/favicon.ico"/>
+          <data id="SearchEngine_Alias" value="example"/>
+          <data id="SearchEngine_Description" value="Example Description"/>
+          <data id="SearchEngine_SuggestURLTemplate" value="https://www.example.org/suggestions/q={searchTerms}"/>
+          <data id="SearchEngine_PostData" value="name=value&amp;q={searchTerms}"/>
+    plist: |
+      <dict>
+        <key>SearchEngines</key>
+        <dict>
+          <key>Add</key>
+          <array>
+            <dict>
+              <key>Name</key>
+              <string>Example1</string>
+              <key>URLTemplate</key>
+              <string>https://www.example.org/q={searchTerms}</string>
+              <key>Method</key>
+              <string>GET | POST </string>
+              <key>IconURL</key>
+              <string>https://www.example.org/favicon.ico</string>
+              <key>Alias</key>
+              <string>example</string>
+              <key>Description</key>
+              <string>Example Description</string>
+              <key>SuggestURLTemplate</key>
+              <string>https://www.example.org/suggestions/q={searchTerms}</string>
+              <key>PostData</key>
+              <string>name=value&q={searchTerms}</string>
+            </dict>
+          </array>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "SearchEngines": {
+            "Add": [
+              {
+                "Name": "Example1",
+                "URLTemplate": "https://www.example.org/q={searchTerms}",
+                "Method": "GET" | "POST",
+                "IconURL": "https://www.example.org/favicon.ico",
+                "Alias": "example",
+                "Description": "Description",
+                "PostData": "name=value&q={searchTerms}",
+                "SuggestURLTemplate": "https://www.example.org/suggestions/q={searchTerms}"
+              }
+            ]
+          }
+        }
+      }
+  SearchEngines_Default:
+    toc: 'Set the default search engine.'
+    content: |
+      Set the default search engine.
+    cck2Equivalent:
+      - defaultSearchEngine
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\SearchEngines\Default'
+        type: 'REG_SZ'
+        value: 'NAME_OF_SEARCH_ENGINE'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Search/SearchEngines_Default'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="SearchEngines_Default" value="NAME_OF_SEARCH_ENGINE"/>
+    plist: |
+      <dict>
+        <key>SearchEngines</key>
+        <dict>
+          <key>Default</key>
+          <string>NAME_OF_SEARCH_ENGINE</string>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "SearchEngines": {
+            "Default": "NAME_OF_SEARCH_ENGINE"
+          }
+        }
+      }
+  SearchEngines_PreventInstalls:
+    toc: 'Prevent installing search engines from webpages.'
+    content: |
+      Prevent installing search engines from webpages.
+    cck2Equivalent:
+      - disableSearchEngineInstall
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\SearchEngines\PreventInstalls'
+        type: 'REG_DWORD'
+        value: '0x1 | 0x0'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Search/SearchEngines_PreventInstalls'
+        type: 'string'
+        value: '<enabled/> | <disabled/>'
+    plist: |
+      <dict>
+        <key>SearchEngines</key>
+        <dict>
+          <key>PreventInstalls</key>
+          <true/> | <false/>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "SearchEngines": {
+            "PreventInstalls": true | false
+          }
+        }
+      }
+  SearchEngines_Remove:
+    toc: 'Hide built-in search engines.'
+    content: |
+      Hide built-in search engines.
+    cck2Equivalent:
+      - removeDefaultSearchEngines (removed all built-in engines)
+    preferencesAffected:
+    gpo:
+      - key: 'Software\Policies\Mozilla\Thunderbird\SearchEngines\Remove\1'
+        type: 'REG_SZ'
+        value: 'NAME_OF_SEARCH_ENGINE'
+    intune:
+      - oma-uri: './Device/Vendor/MSFT/Policy/Config/Thunderbird~Policy~thunderbird~Search/SearchEngines_Remove'
+        type: 'string'
+        value: |
+          <enabled/>
+          <data id="SearchEngines_Remove" value="1&#xF000;NAME_OF_SEARCH_ENGINE"/>
+    plist: |
+      <dict>
+        <key>SearchEngines</key>
+        <dict>
+          <key>Remove</key>
+          <array>
+            <string>NAME_OF_SEARCH_ENGINE</string>
+          </array>
+        </dict>
+      </dict>
+    json: |
+      {
+        "policies": {
+          "SearchEngines": {
+            "Remove": ["NAME_OF_SEARCH_ENGINE"]
+          }
+        }
+      }
