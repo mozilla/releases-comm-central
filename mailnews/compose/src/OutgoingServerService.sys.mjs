@@ -99,7 +99,7 @@ export class OutgoingServerService {
     Services.prefs.setCharPref(`mail.smtpserver.${key}.type`, type);
 
     this._saveServerKeys(serverKeys);
-    this._servers = []; // Reset to force repopulation of this.servers.
+    this._servers.push(this._keyToServer(key));
     return this.servers.at(-1);
   }
 
