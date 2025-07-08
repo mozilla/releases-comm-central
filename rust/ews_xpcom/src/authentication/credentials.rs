@@ -34,11 +34,17 @@ impl Credentials {
     pub async fn to_auth_header_value(&self) -> Result<String, nsresult> {
         match &self {
             Self::Basic { username, password } => {
-                // Format credentials per the "Basic" authentication scheme. See
-                // https://datatracker.ietf.org/doc/html/rfc7617 for details.
-                let auth_string = BASE64_STANDARD.encode(format!("{username}:{password}"));
+                if password.is_empty() {
+                    // TODO: Some attempt should be made to ask for a username and password, but
+                    // since we don't have one, don't set an Authorization header.
+                    Ok(String::new())
+                } else {
+                    // Format credentials per the "Basic" authentication scheme. See
+                    // https://datatracker.ietf.org/doc/html/rfc7617 for details.
+                    let auth_string = BASE64_STANDARD.encode(format!("{username}:{password}"));
 
-                Ok(format!("Basic {auth_string}"))
+                    Ok(format!("Basic {auth_string}"))
+                }
             }
             Self::OAuth2(oauth_module) => {
                 // Retrieve a bearer token from the OAuth2 module.

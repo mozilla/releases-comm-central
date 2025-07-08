@@ -320,6 +320,8 @@ add_task(async function testBadAccessToken() {
     expiredModule.initFromMail(inbox.server);
     await expiredModule._oauth.connect(false, false);
 
+    OAuth2TestUtils.invalidateToken("bad_access_token");
+
     info(
       `getting messages for ${inbox.server.type} inbox with a bad access token`
     );

@@ -48,7 +48,7 @@ export class SMTPServer {
     return this.server.port;
   }
 
-  get lastMessage() {
+  get lastSentMessage() {
     return this.daemon.post;
   }
 }

@@ -7,6 +7,7 @@
  * defined for speedy test creation.
  */
 
+import { EwsServer } from "resource://testing-common/mailnews/EwsServer.sys.mjs";
 import { IMAPServer } from "resource://testing-common/IMAPServer.sys.mjs";
 import { NetworkTestUtils } from "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs";
 import { NNTPServer } from "resource://testing-common/NNTPServer.sys.mjs";
@@ -14,6 +15,7 @@ import { POP3Server } from "resource://testing-common/POP3Server.sys.mjs";
 import { SMTPServer } from "resource://testing-common/SMTPServer.sys.mjs";
 
 const serverConstructors = {
+  ews: EwsServer,
   imap: IMAPServer,
   nntp: NNTPServer,
   pop3: POP3Server,
@@ -25,7 +27,8 @@ const serverDebugLevel = 0;
 
 /**
  * @typedef ServerDef
- * @property {"imap"|"pop3"|"smtp"} type - What type of server do we want?
+ * @property {"ews"|"imap"|"nntp"|"pop3"|"smtp"} type - What type of server do
+ *   we want?
  * @property {object} [baseOptions] - In a predefined server, the standard
  *   set of options to pass to the server's constructor.
  * @property {object} [options] - More options, which can override those of a
@@ -40,7 +43,7 @@ const serverDebugLevel = 0;
  * Create and start a single server.
  *
  * @param {ServerDef} def - The server definition.
- * @returns {IMAPServer|POP3Server|SMTPServer}
+ * @returns {EwsServer|IMAPServer|NNTPServer|POP3Server|SMTPServer}
  */
 async function createServer({
   type,
@@ -51,13 +54,15 @@ async function createServer({
   port,
   aliases = [],
 }) {
-  options = { ...baseOptions, ...options };
+  options = { hostname, port, ...baseOptions, ...options };
   if (options.tlsCertFile && !options.tlsCert) {
     options.tlsCert = await getCertificate(options.tlsCertFile);
   }
 
   const server = new serverConstructors[type](options);
-  server.server.setDebugLevel(serverDebugLevel);
+  server.server?.setDebugLevel(serverDebugLevel);
+  server.start?.();
+
   NetworkTestUtils.configureProxy(hostname, port, server.port);
   for (const [aliasHostname, aliasPort] of aliases) {
     NetworkTestUtils.configureProxy(aliasHostname, aliasPort, server.port);
@@ -326,6 +331,61 @@ const serverDefs = {
       baseOptions: { tlsCertFile: "expired" },
       hostname: "expired.test.test",
       port: 563,
+    },
+  },
+  ews: {
+    plain: {
+      type: "ews",
+      baseOptions: { username: "user", password: "password" },
+      hostname: "test.test",
+      port: 80,
+    },
+    tls: {
+      type: "ews",
+      baseOptions: {
+        username: "user",
+        password: "password",
+        tlsCertFile: "valid",
+      },
+      hostname: "test.test",
+      port: 443,
+      aliases: [["mitm.test.test", 443]],
+    },
+    expiredTLS: {
+      type: "ews",
+      baseOptions: {
+        username: "user",
+        password: "password",
+        tlsCertFile: "expired",
+      },
+      hostname: "expired.test.test",
+      port: 443,
+    },
+    notYetValidTLS: {
+      type: "ews",
+      baseOptions: {
+        username: "user",
+        password: "password",
+        tlsCertFile: "notyetvalid",
+      },
+      hostname: "notyetvalid.test.test",
+      port: 443,
+    },
+    selfSignedTLS: {
+      type: "ews",
+      baseOptions: {
+        username: "user",
+        password: "password",
+        tlsCertFile: "selfsigned",
+      },
+      hostname: "selfsigned.test.test",
+      port: 443,
+    },
+    oAuth: {
+      type: "ews",
+      baseOptions: {},
+      hostname: "test.test",
+      port: 80,
     },
   },
 };

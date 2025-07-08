@@ -2,55 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let smtpServer;
+/**
+ * Tests the ways to make Thunderbird send mail. In this file are best case
+ * scenarios. Edge cases and failure cases are in separate files.
+ */
+
+let smtpServer, smtpIdentity;
+let ewsServer, ewsIdentity;
 
 add_setup(async function () {
-  smtpServer = await ServerTestUtils.createServer(
-    ServerTestUtils.serverDefs.smtp.plain
-  );
+  [smtpServer, ewsServer] = await ServerTestUtils.createServers([
+    ServerTestUtils.serverDefs.smtp.plain,
+    ServerTestUtils.serverDefs.ews.plain,
+  ]);
 
-  const account = MailServices.accounts.createAccount();
-  account.incomingServer = MailServices.accounts.createIncomingServer(
-    "user",
-    "test",
-    "pop3"
-  );
-  MailServices.accounts.defaultAccount = account;
-  const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("sendMessage", null);
+  let smtpAccount, smtpOutgoingServer;
+  ({ smtpAccount, smtpIdentity, smtpOutgoingServer } = createSMTPAccount());
+  await addLoginInfo("smtp://test.test", "user", "password");
 
-  const outgoingServer = MailServices.outgoingServer.createServer("smtp");
-  outgoingServer.QueryInterface(Ci.nsISmtpServer);
-  outgoingServer.hostname = "test.test";
-  outgoingServer.port = 587;
-  outgoingServer.username = "user";
-
-  const identity = MailServices.accounts.createIdentity();
-  identity.fullName = "test";
-  identity.email = "test@test.test";
-  identity.smtpServerKey = outgoingServer.key;
-  identity.fccFolderURI = rootFolder.getChildNamed("sendMessage").URI;
-
-  account.addIdentity(identity);
-
-  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-    Ci.nsILoginInfo
-  );
-  loginInfo.init(
-    "smtp://test.test",
-    null,
-    "smtp://test.test",
-    "user",
-    "password",
-    "",
-    ""
-  );
-  await Services.logins.addLoginAsync(loginInfo);
+  let ewsAccount;
+  ({ ewsAccount, ewsIdentity } = createEWSAccount());
+  await addLoginInfo("ews://test.test", "user", "password");
 
   registerCleanupFunction(async function () {
-    outgoingServer.closeCachedConnections();
+    smtpOutgoingServer.closeCachedConnections();
 
-    MailServices.accounts.removeAccount(account, false);
+    MailServices.accounts.removeAccount(smtpAccount, false);
+    MailServices.accounts.removeAccount(ewsAccount, false);
     Services.logins.removeAllLogins();
     Services.prefs.clearUserPref("mail.warn_on_send_accel_key");
   });
@@ -58,9 +36,12 @@ add_setup(async function () {
 
 /**
  * Tests clicking on the toolbar button.
+ *
+ * @param {nsIMsgIdentity} identity
+ * @param {SMTPServer|EWSServer} server
  */
-add_task(async function testToolbarButton() {
-  const { composeWindow, subject } = await newComposeWindow();
+async function subtestToolbarButton(identity, server) {
+  const { composeWindow, subject } = await newComposeWindow(identity);
   const composeDocument = composeWindow.document;
   const toolbarButton = composeDocument.getElementById("button-send");
 
@@ -70,17 +51,28 @@ add_task(async function testToolbarButton() {
   await BrowserTestUtils.domWindowClosed(composeWindow);
 
   Assert.stringContains(
-    smtpServer.lastMessage,
+    server.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );
+}
+
+add_task(async function testToolbarButtonSMTP() {
+  await subtestToolbarButton(smtpIdentity, smtpServer);
+});
+
+add_task(async function testToolbarButtonEWS() {
+  await subtestToolbarButton(ewsIdentity, ewsServer);
 });
 
 /**
  * Tests the "Send Now" menu item from the File menu.
+ *
+ * @param {nsIMsgIdentity} identity
+ * @param {SMTPServer|EWSServer} server
  */
-add_task(async function testFileMenu() {
-  const { composeWindow, subject } = await newComposeWindow();
+async function subtestFileMenu(identity, server) {
+  const { composeWindow, subject } = await newComposeWindow(identity);
   const composeDocument = composeWindow.document;
   const fileMenu = composeDocument.getElementById("menu_File");
   const fileMenuSendNow = composeDocument.getElementById("menu-item-send-now");
@@ -94,16 +86,27 @@ add_task(async function testFileMenu() {
   await BrowserTestUtils.domWindowClosed(composeWindow);
 
   Assert.stringContains(
-    smtpServer.lastMessage,
+    server.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );
+}
+
+add_task(async function testFileMenuSMTP() {
+  await subtestFileMenu(smtpIdentity, smtpServer);
+}).skip(AppConstants.platform == "macosx"); // Can't click the menu bar on mac.
+
+add_task(async function testFileMenuEWS() {
+  await subtestFileMenu(ewsIdentity, ewsServer);
 }).skip(AppConstants.platform == "macosx"); // Can't click the menu bar on mac.
 
 /**
  * Tests the keyboard shortcut Ctrl/⌘+Enter.
+ *
+ * @param {nsIMsgIdentity} identity
+ * @param {SMTPServer|EWSServer} server
  */
-add_task(async function testKeyboardShortcut() {
+async function subtestKeyboardShortcut(identity, server) {
   Assert.ok(
     Services.prefs.getBoolPref("mail.warn_on_send_accel_key"),
     "default value of warning pref should be true"
@@ -112,7 +115,7 @@ add_task(async function testKeyboardShortcut() {
   // Send a message using the keyboard shortcut. Cancel the first prompt,
   // accept the second, but don't check the box to disable the prompt.
 
-  let { composeWindow, subject } = await newComposeWindow();
+  let { composeWindow, subject } = await newComposeWindow(identity);
 
   // Press the keys, but cancel the prompt.
   let promptPromise = handleWarningPrompt("cancel");
@@ -138,14 +141,14 @@ add_task(async function testKeyboardShortcut() {
     "warning pref should still be true"
   );
   Assert.stringContains(
-    smtpServer.lastMessage,
+    server.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );
 
   // Send another message. This time check the box to disable the prompt.
 
-  ({ composeWindow, subject } = await newComposeWindow());
+  ({ composeWindow, subject } = await newComposeWindow(identity));
 
   // Press the keys, accept the prompt, and remember the choice.
   promptPromise = handleWarningPrompt("accept", true);
@@ -159,14 +162,14 @@ add_task(async function testKeyboardShortcut() {
     "warning pref should now be false"
   );
   Assert.stringContains(
-    smtpServer.lastMessage,
+    server.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );
 
   // Send a third message. This should happen without a prompt.
 
-  ({ composeWindow, subject } = await newComposeWindow());
+  ({ composeWindow, subject } = await newComposeWindow(identity));
 
   EventUtils.synthesizeKey("KEY_Enter", { accelKey: true }, composeWindow);
 
@@ -177,10 +180,20 @@ add_task(async function testKeyboardShortcut() {
     "warning pref should still be false"
   );
   Assert.stringContains(
-    smtpServer.lastMessage,
+    server.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );
+
+  Services.prefs.clearUserPref("mail.warn_on_send_accel_key");
+}
+
+add_task(async function testKeyboardShortcutSMTP() {
+  await subtestKeyboardShortcut(smtpIdentity, smtpServer);
+});
+
+add_task(async function testKeyboardShortcutEWS() {
+  await subtestKeyboardShortcut(ewsIdentity, ewsServer);
 });
 
 function handleWarningPrompt(buttonToClick, rememberChoice = false) {

@@ -25,7 +25,7 @@ add_setup(async function () {
   do_get_profile();
 
   // Create a new mock EWS server, and start it.
-  ewsServer = new EwsServer(null);
+  ewsServer = new EwsServer();
   ewsServer.start();
 
   // Create and configure the EWS incoming server.

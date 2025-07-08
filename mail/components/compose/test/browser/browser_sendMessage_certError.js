@@ -2,89 +2,168 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Tests that sending mail from a server with an invalid certificate shows a
+ * notification, that clicking the notification opens the certificate error
+ * dialog if appropriate, and that using the dialog to add an exception works
+ * correctly, allowing mail to be sent.
+ */
+
 const certOverrideService = Cc[
   "@mozilla.org/security/certoverride;1"
 ].getService(Ci.nsICertOverrideService);
 const { getCertificate } = ServerTestUtils;
 
-let identity;
+let smtpIdentity, ewsIdentity;
 
 add_setup(async function () {
-  const account = MailServices.accounts.createAccount();
-  account.incomingServer = MailServices.accounts.createIncomingServer(
+  const smtpAccount = MailServices.accounts.createAccount();
+  smtpAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "user",
     "test",
     "pop3"
   );
-  MailServices.accounts.defaultAccount = account;
+  smtpAccount.incomingServer.prettyName = "SMTP Account";
 
-  const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("sendMessage certError", null);
+  smtpIdentity = MailServices.accounts.createIdentity();
+  smtpIdentity.fullName = "test";
+  smtpIdentity.email = "test@test.test";
+  smtpIdentity.doFcc = false;
 
-  identity = MailServices.accounts.createIdentity();
-  identity.fullName = "test";
-  identity.email = "test@test.test";
-  identity.fccFolderURI = rootFolder.getChildNamed("sendMessage certError").URI;
+  smtpAccount.addIdentity(smtpIdentity);
 
-  account.addIdentity(identity);
+  const ewsAccount = MailServices.accounts.createAccount();
+  ewsAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test.test",
+    "ews"
+  );
+  ewsAccount.incomingServer.prettyName = "EWS Account";
+
+  ewsIdentity = MailServices.accounts.createIdentity();
+  ewsIdentity.fullName = "test";
+  ewsIdentity.email = "test@test.test";
+  ewsIdentity.doFcc = false;
+
+  ewsAccount.addIdentity(ewsIdentity);
+  // Add passwords to the login manager, as we setting them on the outgoing
+  // server doesn't work. TODO: Fix this.
+  await addLoginInfo("ews://mitm.test.test", "user", "password");
+  await addLoginInfo("ews://expired.test.test", "user", "password");
+  await addLoginInfo("ews://notyetvalid.test.test", "user", "password");
+  await addLoginInfo("ews://selfsigned.test.test", "user", "password");
 
   registerCleanupFunction(async function () {
-    MailServices.accounts.removeAccount(account, false);
+    MailServices.accounts.removeAccount(smtpAccount, false);
+    MailServices.accounts.removeAccount(ewsAccount, false);
   });
 });
 
-add_task(async function testDomainMismatch() {
+add_task(async function testDomainMismatchSMTP() {
   await subtest(
-    "tls",
+    ServerTestUtils.serverDefs.smtp.tls,
     "mitm.test.test",
     "The certificate belongs to a different site",
     "valid"
   );
 });
 
-add_task(async function testExpired() {
+add_task(async function testExpiredSMTP() {
   await subtest(
-    "expiredTLS",
+    ServerTestUtils.serverDefs.smtp.expiredTLS,
     "expired.test.test",
     "The certificate is not currently valid",
     "expired"
   );
 });
 
-add_task(async function testNotYetValid() {
+add_task(async function testNotYetValidSMTP() {
   await subtest(
-    "notYetValidTLS",
+    ServerTestUtils.serverDefs.smtp.notYetValidTLS,
     "notyetvalid.test.test",
     "The certificate is not currently valid",
     "notyetvalid"
   );
 });
 
-add_task(async function testSelfSigned() {
+add_task(async function testSelfSignedSMTP() {
   await subtest(
-    "selfSignedTLS",
+    ServerTestUtils.serverDefs.smtp.selfSignedTLS,
     "selfsigned.test.test",
     "The certificate is not trusted",
     "selfsigned"
   );
 });
 
-async function subtest(serverDef, hostname, expectedDialogText, expectedCert) {
-  const smtpServer = await ServerTestUtils.createServer(
-    ServerTestUtils.serverDefs.smtp[serverDef]
+add_task(async function testDomainMismatchEWS() {
+  await subtest(
+    ServerTestUtils.serverDefs.ews.tls,
+    "mitm.test.test",
+    "The certificate belongs to a different site",
+    "valid"
   );
+});
 
-  const outgoingServer = MailServices.outgoingServer.createServer("smtp");
-  outgoingServer.QueryInterface(Ci.nsISmtpServer);
-  outgoingServer.hostname = hostname;
-  outgoingServer.socketType = Ci.nsMsgSocketType.SSL;
-  outgoingServer.port = 465;
+add_task(async function testExpiredEWS() {
+  await subtest(
+    ServerTestUtils.serverDefs.ews.expiredTLS,
+    "expired.test.test",
+    "The certificate is not currently valid",
+    "expired"
+  );
+});
+
+add_task(async function testNotYetValidEWS() {
+  await subtest(
+    ServerTestUtils.serverDefs.ews.notYetValidTLS,
+    "notyetvalid.test.test",
+    "The certificate is not currently valid",
+    "notyetvalid"
+  );
+});
+
+add_task(async function testSelfSignedEWS() {
+  await subtest(
+    ServerTestUtils.serverDefs.ews.selfSignedTLS,
+    "selfsigned.test.test",
+    "The certificate is not trusted",
+    "selfsigned"
+  );
+});
+
+/**
+ * @param {ServerDef} serverDef - From ServerTestUtils
+ * @param {string} hostname - The hostname to attempt connection to.
+ * @param {string} expectedDialogText - This text should appear in the dialog.
+ * @param {nsIX509Cert} [expectedCert] - If given, a certificate exception
+ *   should be added for this certificate.
+ */
+async function subtest(serverDef, hostname, expectedDialogText, expectedCert) {
+  const smtpServer = await ServerTestUtils.createServer(serverDef);
+
+  const outgoingServer = MailServices.outgoingServer.createServer(
+    serverDef.type
+  );
+  let identity, port;
+  if (serverDef.type == "smtp") {
+    outgoingServer.QueryInterface(Ci.nsISmtpServer);
+    outgoingServer.hostname = hostname;
+    outgoingServer.socketType = Ci.nsMsgSocketType.SSL;
+    outgoingServer.port = 465;
+    identity = smtpIdentity;
+    port = 465;
+  } else if (serverDef.type == "ews") {
+    outgoingServer.QueryInterface(Ci.nsIEwsServer);
+    outgoingServer.initialize(`https://${hostname}/EWS/Exchange.asmx`);
+    identity = ewsIdentity;
+    port = 443;
+  }
   outgoingServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
   outgoingServer.username = "user";
   outgoingServer.password = "password";
   identity.smtpServerKey = outgoingServer.key;
 
-  const { composeWindow, subject } = await newComposeWindow();
+  const { composeWindow, subject } = await newComposeWindow(identity);
 
   const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen("accept").then(
     () =>
@@ -95,11 +174,19 @@ async function subtest(serverDef, hostname, expectedDialogText, expectedCert) {
           callback(win) {
             const location =
               win.document.getElementById("locationTextBox").value;
-            Assert.equal(
-              location,
-              `${hostname}:465`,
-              "the exception dialog should show the hostname and port of the server"
-            );
+            if (port == 443) {
+              Assert.equal(
+                location,
+                hostname,
+                "the exception dialog should show the hostname of the server"
+              );
+            } else {
+              Assert.equal(
+                location,
+                `${hostname}:465`,
+                "the exception dialog should show the hostname and port of the server"
+              );
+            }
             const text = win.document.getElementById(
               "statusLongDescription"
             ).textContent;
@@ -127,6 +214,22 @@ async function subtest(serverDef, hostname, expectedDialogText, expectedCert) {
   );
 
   await dialogPromise;
+  if (expectedCert) {
+    // Check the certificate exception was created.
+    const isTemporary = {};
+    Assert.ok(
+      certOverrideService.hasMatchingOverride(
+        hostname,
+        port,
+        {},
+        await getCertificate(expectedCert),
+        isTemporary
+      ),
+      `certificate exception should exist for ${hostname}:${port}`
+    );
+    // The checkbox in the dialog was checked, so this exception is permanent.
+    Assert.ok(!isTemporary.value, "certificate exception should be permanent");
+  }
 
   // Try to solve strange focus issues.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
@@ -141,26 +244,10 @@ async function subtest(serverDef, hostname, expectedDialogText, expectedCert) {
   );
   await BrowserTestUtils.domWindowClosed(composeWindow);
 
-  if (expectedCert) {
-    // Check the certificate exception was created.
-    const isTemporary = {};
-    Assert.ok(
-      certOverrideService.hasMatchingOverride(
-        hostname,
-        465,
-        {},
-        await getCertificate(expectedCert),
-        isTemporary
-      ),
-      `certificate exception should exist for ${hostname}:465`
-    );
-    // The checkbox in the dialog was checked, so this exception is permanent.
-    Assert.ok(!isTemporary.value, "certificate exception should be permanent");
-  }
   certOverrideService.clearAllOverrides();
 
   Assert.stringContains(
-    smtpServer.lastMessage,
+    smtpServer.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );

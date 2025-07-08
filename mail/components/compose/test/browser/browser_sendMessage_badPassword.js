@@ -2,44 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let smtpServer;
-let outgoingServer, identity;
+/**
+ * Tests sending mail with no password or a bad password, and the prompts
+ * that causes.
+ */
+
+let smtpServer, smtpOutgoingServer, smtpIdentity;
+let ewsServer, ewsOutgoingServer, ewsIdentity;
 
 add_setup(async function () {
   Services.prefs.setBoolPref("signon.rememberSignons", true);
 
-  smtpServer = await ServerTestUtils.createServer(
-    ServerTestUtils.serverDefs.smtp.plain
-  );
+  [smtpServer, ewsServer] = await ServerTestUtils.createServers([
+    ServerTestUtils.serverDefs.smtp.plain,
+    ServerTestUtils.serverDefs.ews.plain,
+  ]);
 
-  const account = MailServices.accounts.createAccount();
-  account.incomingServer = MailServices.accounts.createIncomingServer(
-    "user",
-    "test",
-    "pop3"
-  );
-  MailServices.accounts.defaultAccount = account;
-  const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("sendMessage badPassword", null);
+  let smtpAccount;
+  ({ smtpAccount, smtpIdentity, smtpOutgoingServer } = createSMTPAccount());
 
-  outgoingServer = MailServices.outgoingServer.createServer("smtp");
-  outgoingServer.QueryInterface(Ci.nsISmtpServer);
-  outgoingServer.hostname = "test.test";
-  outgoingServer.port = 587;
-  outgoingServer.username = "user";
-
-  identity = MailServices.accounts.createIdentity();
-  identity.fullName = "test";
-  identity.email = "test@test.test";
-  identity.smtpServerKey = outgoingServer.key;
-  identity.fccFolderURI = rootFolder.getChildNamed(
-    "sendMessage badPassword"
-  ).URI;
-
-  account.addIdentity(identity);
+  let ewsAccount;
+  ({ ewsAccount, ewsIdentity } = createEWSAccount());
+  await addLoginInfo("ews://test.test", "user", "password");
 
   registerCleanupFunction(async function () {
-    MailServices.accounts.removeAccount(account, false);
+    MailServices.accounts.removeAccount(smtpAccount, false);
+    MailServices.accounts.removeAccount(ewsAccount, false);
     Services.logins.removeAllLogins();
     Services.prefs.clearUserPref("signon.rememberSignons");
   });
@@ -47,11 +35,15 @@ add_setup(async function () {
 
 /**
  * Tests getting messages when there is no password to use.
+ *
+ * @param {nsIMsgIdentity} identity
+ * @param {nsIMsgOutgoingServer} outgoingServer
+ * @param {SMTPServer|EWSServer} server
  */
-add_task(async function testEnterPassword() {
+async function subtestEnterPassword(identity, outgoingServer, server) {
   Services.logins.removeAllLogins();
 
-  const { composeWindow, subject } = await newComposeWindow();
+  const { composeWindow, subject } = await newComposeWindow(identity);
 
   const promptPromise = handlePasswordPrompt("accept", "password");
   EventUtils.synthesizeMouseAtCenter(
@@ -66,23 +58,35 @@ add_task(async function testEnterPassword() {
   const logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, 0, "no passwords should be saved");
   outgoingServer.forgetPassword();
-  outgoingServer.closeCachedConnections();
 
   Assert.stringContains(
-    smtpServer.lastMessage,
+    server.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );
+}
+
+add_task(async function testEnterPasswordSMTP() {
+  await subtestEnterPassword(smtpIdentity, smtpOutgoingServer, smtpServer);
+  smtpOutgoingServer.closeCachedConnections();
 });
+
+add_task(async function testEnterPasswordEWS() {
+  await subtestEnterPassword(ewsIdentity, ewsOutgoingServer, ewsServer);
+}).skip(); // Bug 1976128: error message instead of password prompt.
 
 /**
  * Tests getting messages when there is no password to use.
  * The entered password should be saved to the password manager.
+ *
+ * @param {nsIMsgIdentity} identity
+ * @param {nsIMsgOutgoingServer} outgoingServer
+ * @param {SMTPServer|EWSServer} server
  */
-add_task(async function testEnterAndSavePassword() {
+async function subtestEnterAndSavePassword(identity, outgoingServer, server) {
   Services.logins.removeAllLogins();
 
-  const { composeWindow, subject } = await newComposeWindow();
+  const { composeWindow, subject } = await newComposeWindow(identity);
 
   const promptPromise = handlePasswordPrompt("accept", "password", true);
   EventUtils.synthesizeMouseAtCenter(
@@ -101,36 +105,37 @@ add_task(async function testEnterAndSavePassword() {
   Assert.equal(logins[0].password, "password", "login password");
   Services.logins.removeAllLogins();
   outgoingServer.forgetPassword();
-  outgoingServer.closeCachedConnections();
 
   Assert.stringContains(
-    smtpServer.lastMessage,
+    server.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );
+}
+
+add_task(async function testEnterAndSavePasswordSMTP() {
+  await subtestEnterAndSavePassword(
+    smtpIdentity,
+    smtpOutgoingServer,
+    smtpServer
+  );
+  smtpOutgoingServer.closeCachedConnections();
 });
+
+add_task(async function testEnterAndSavePasswordEWS() {
+  await subtestEnterAndSavePassword(ewsIdentity, ewsOutgoingServer, ewsServer);
+}).skip(); // Bug 1976128: error message instead of password prompt.
 
 /**
  * Tests getting messages when there is a bad password in the password manager.
  * The new password should be saved to the password manager.
+ *
+ * @param {nsIMsgIdentity} identity
+ * @param {nsIMsgOutgoingServer} outgoingServer
+ * @param {SMTPServer|EWSServer} server
  */
-add_task(async function testWrongPassword() {
-  Services.logins.removeAllLogins();
-
-  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-    Ci.nsILoginInfo
-  );
-  loginInfo.init(
-    "smtp://test.test",
-    null,
-    "smtp://test.test",
-    "user",
-    "wrong password",
-    "",
-    ""
-  );
-  await Services.logins.addLoginAsync(loginInfo);
-  const { composeWindow, subject } = await newComposeWindow();
+async function subtestWrongPassword(identity, outgoingServer, server) {
+  const { composeWindow, subject } = await newComposeWindow(identity);
 
   const promptPromise = handleFailurePrompt().then(() =>
     handlePasswordPrompt("accept", "password", true)
@@ -151,14 +156,26 @@ add_task(async function testWrongPassword() {
   Assert.equal(logins[0].password, "password", "login password");
   Services.logins.removeAllLogins();
   outgoingServer.forgetPassword();
-  outgoingServer.closeCachedConnections();
 
   Assert.stringContains(
-    smtpServer.lastMessage,
+    server.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );
+}
+
+add_task(async function testWrongPasswordSMTP() {
+  Services.logins.removeAllLogins();
+  await addLoginInfo("smtp://test.test", "user", "wrong password");
+  await subtestWrongPassword(smtpIdentity, smtpOutgoingServer, smtpServer);
+  smtpOutgoingServer.closeCachedConnections();
 });
+
+add_task(async function testWrongPasswordEWS() {
+  Services.logins.removeAllLogins();
+  await addLoginInfo("ews://test.test", "user", "wrong password");
+  await subtestWrongPassword(ewsIdentity, ewsOutgoingServer, ewsServer);
+}).skip(); // Bug 1976128: error message instead of password prompt.
 
 function handleFailurePrompt() {
   return BrowserTestUtils.promiseAlertDialogOpen(undefined, undefined, {

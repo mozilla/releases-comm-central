@@ -152,6 +152,15 @@ export const OAuth2TestUtils = {
   },
 
   /**
+   * Remove `token` from the list of valid tokens.
+   *
+   * @param {string} token
+   */
+  invalidateToken(token) {
+    tokens.delete(token);
+  },
+
+  /**
    * Check that the granted `token` is valid for the `scope`.
    *
    * @param {string} token
@@ -160,7 +169,7 @@ export const OAuth2TestUtils = {
    */
   validateToken(token, scope) {
     const grantedScope = tokens.get(token);
-    if (!token) {
+    if (!grantedScope) {
       return false;
     }
 

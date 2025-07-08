@@ -25,7 +25,10 @@ add_setup(() => {
   do_get_profile();
 
   // Create a new mock EWS server, and start it.
-  ewsServer = new EwsServer();
+  ewsServer = new EwsServer({
+    username: "alice@local.test",
+    password: "thispassword",
+  });
   ewsServer.start();
 
   // Create and initialize an EWS outgoing server.

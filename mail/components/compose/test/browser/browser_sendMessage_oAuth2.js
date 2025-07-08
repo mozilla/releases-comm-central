@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Tests sending mail with OAuth2 authentication, including the dialog
+ * windows that uses.
+ */
+
 const { OAuth2Module } = ChromeUtils.importESModule(
   "resource:///modules/OAuth2Module.sys.mjs"
 );
@@ -9,51 +14,39 @@ const { OAuth2TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
 );
 
-let oAuth2Server, smtpServer;
-let outgoingServer, identity;
+let oAuth2Server;
+let smtpServer, smtpOutgoingServer, smtpIdentity;
+let ewsServer, ewsOutgoingServer, ewsIdentity;
 
 add_setup(async function () {
-  smtpServer = await ServerTestUtils.createServer(
-    ServerTestUtils.serverDefs.smtp.oAuth
-  );
+  [smtpServer, ewsServer] = await ServerTestUtils.createServers([
+    ServerTestUtils.serverDefs.smtp.oAuth,
+    ServerTestUtils.serverDefs.ews.oAuth,
+  ]);
 
-  const account = MailServices.accounts.createAccount();
-  account.incomingServer = MailServices.accounts.createIncomingServer(
-    "user",
-    "test",
-    "pop3"
-  );
-  MailServices.accounts.defaultAccount = account;
-  const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("sendMessage oAuth2", null);
+  let smtpAccount;
+  ({ smtpAccount, smtpIdentity, smtpOutgoingServer } = createSMTPAccount());
+  smtpOutgoingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
+  await addLoginInfo("smtp://test.test", "user", "password");
 
-  outgoingServer = MailServices.outgoingServer.createServer("smtp");
-  outgoingServer.QueryInterface(Ci.nsISmtpServer);
-  outgoingServer.hostname = "test.test";
-  outgoingServer.port = 587;
-  outgoingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
-  outgoingServer.username = "user";
-
-  identity = MailServices.accounts.createIdentity();
-  identity.fullName = "test";
-  identity.email = "test@test.test";
-  identity.smtpServerKey = outgoingServer.key;
-  identity.fccFolderURI = rootFolder.getChildNamed("sendMessage oAuth2").URI;
-
-  account.addIdentity(identity);
+  let ewsAccount;
+  ({ ewsAccount, ewsIdentity, ewsOutgoingServer } = createEWSAccount());
+  ewsOutgoingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
+  await addLoginInfo("ews://test.test", "user", "password");
 
   oAuth2Server = await OAuth2TestUtils.startServer();
 
   registerCleanupFunction(async function () {
-    MailServices.accounts.removeAccount(account, false);
+    MailServices.accounts.removeAccount(smtpAccount, false);
+    MailServices.accounts.removeAccount(ewsAccount, false);
   });
 });
 
 /**
  * Tests sending a message when there is no access token and no refresh token.
  */
-add_task(async function testNoTokens() {
-  const { composeWindow, subject } = await newComposeWindow();
+async function subtestNoTokens(identity, outgoingServer, server) {
+  const { composeWindow, subject } = await newComposeWindow(identity);
 
   const oAuthPromise = handleOAuthDialog();
   EventUtils.synthesizeMouseAtCenter(
@@ -67,21 +60,28 @@ add_task(async function testNoTokens() {
 
   checkSavedPassword();
   Services.logins.removeAllLogins();
-
-  outgoingServer.closeCachedConnections();
   OAuth2TestUtils.forgetObjects();
 
   Assert.stringContains(
-    smtpServer.lastMessage,
+    server.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );
+}
+
+add_task(async function testNoTokensSMTP() {
+  await subtestNoTokens(smtpIdentity, smtpOutgoingServer, smtpServer);
+  smtpOutgoingServer.closeCachedConnections();
+});
+
+add_task(async function testNoTokensEWS() {
+  await subtestNoTokens(ewsIdentity, ewsOutgoingServer, ewsServer);
 });
 
 /**
  * Tests that with a saved refresh token, but no access token, a new access token is requested.
  */
-add_task(async function testNoAccessToken() {
+async function subtestNoAccessToken(identity, outgoingServer, server) {
   const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
@@ -96,7 +96,7 @@ add_task(async function testNoAccessToken() {
   );
   await Services.logins.addLoginAsync(loginInfo);
 
-  const { composeWindow, subject } = await newComposeWindow();
+  const { composeWindow, subject } = await newComposeWindow(identity);
 
   EventUtils.synthesizeMouseAtCenter(
     composeWindow.document.getElementById("button-send"),
@@ -108,21 +108,28 @@ add_task(async function testNoAccessToken() {
 
   checkSavedPassword();
   Services.logins.removeAllLogins();
-
-  outgoingServer.closeCachedConnections();
   OAuth2TestUtils.forgetObjects();
 
   Assert.stringContains(
-    smtpServer.lastMessage,
+    server.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );
+}
+
+add_task(async function testNoAccessTokenSMTP() {
+  await subtestNoAccessToken(smtpIdentity, smtpOutgoingServer, smtpServer);
+  smtpOutgoingServer.closeCachedConnections();
+});
+
+add_task(async function testNoAccessTokenEWS() {
+  await subtestNoAccessToken(ewsIdentity, ewsOutgoingServer, ewsServer);
 });
 
 /**
  * Tests that with an expired access token, a new access token is requested.
  */
-add_task(async function testExpiredAccessToken() {
+async function subtestExpiredAccessToken(identity, outgoingServer, server) {
   const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
@@ -148,7 +155,7 @@ add_task(async function testExpiredAccessToken() {
   oAuth2Server.accessToken = "access_token";
   oAuth2Server.expiry = null;
 
-  const { composeWindow, subject } = await newComposeWindow();
+  const { composeWindow, subject } = await newComposeWindow(identity);
 
   EventUtils.synthesizeMouseAtCenter(
     composeWindow.document.getElementById("button-send"),
@@ -160,15 +167,22 @@ add_task(async function testExpiredAccessToken() {
 
   checkSavedPassword();
   Services.logins.removeAllLogins();
-
-  outgoingServer.closeCachedConnections();
   OAuth2TestUtils.forgetObjects();
 
   Assert.stringContains(
-    smtpServer.lastMessage,
+    server.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );
+}
+
+add_task(async function testExpiredAccessTokenSMTP() {
+  await subtestExpiredAccessToken(smtpIdentity, smtpOutgoingServer, smtpServer);
+  smtpOutgoingServer.closeCachedConnections();
+});
+
+add_task(async function testExpiredAccessTokenEWS() {
+  await subtestExpiredAccessToken(ewsIdentity, ewsOutgoingServer, ewsServer);
 });
 
 /**
@@ -176,7 +190,7 @@ add_task(async function testExpiredAccessToken() {
  * giving a token that the mail server is not expecting. Very little can be
  * done here, so we notify the user and give up.
  */
-add_task(async function testBadAccessToken() {
+async function subtestBadAccessToken(identity, outgoingServer) {
   const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
@@ -198,7 +212,9 @@ add_task(async function testBadAccessToken() {
   expiredModule.initFromOutgoing(outgoingServer);
   await expiredModule._oauth.connect(false, false);
 
-  const { composeWindow } = await newComposeWindow();
+  OAuth2TestUtils.invalidateToken("bad_access_token");
+
+  const { composeWindow } = await newComposeWindow(identity);
 
   const promptPromise = BrowserTestUtils.promiseAlertDialogOpen("cancel");
   EventUtils.synthesizeMouseAtCenter(
@@ -222,17 +238,24 @@ add_task(async function testBadAccessToken() {
 
   await BrowserTestUtils.closeWindow(composeWindow);
 
-  outgoingServer.closeCachedConnections();
-  OAuth2TestUtils.forgetObjects();
-
   Services.logins.removeAllLogins();
+  OAuth2TestUtils.forgetObjects();
   oAuth2Server.accessToken = "access_token";
+}
+
+add_task(async function testBadAccessTokenSMTP() {
+  await subtestBadAccessToken(smtpIdentity, smtpOutgoingServer, smtpServer);
+  smtpOutgoingServer.closeCachedConnections();
 });
+
+add_task(async function testBadAccessTokenEWS() {
+  await subtestBadAccessToken(ewsIdentity, ewsOutgoingServer);
+}).skip(); // Uses a system notification instead of a prompt.
 
 /**
  * Tests that with a bad saved refresh token, new tokens are requested.
  */
-add_task(async function testBadRefreshToken() {
+async function subtestBadRefreshToken(identity, outgoingServer, server) {
   const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
@@ -247,7 +270,7 @@ add_task(async function testBadRefreshToken() {
   );
   await Services.logins.addLoginAsync(loginInfo);
 
-  const { composeWindow, subject } = await newComposeWindow();
+  const { composeWindow, subject } = await newComposeWindow(identity);
 
   const oAuthPromise = handleOAuthDialog();
   EventUtils.synthesizeMouseAtCenter(
@@ -261,15 +284,22 @@ add_task(async function testBadRefreshToken() {
 
   checkSavedPassword();
   Services.logins.removeAllLogins();
-
-  outgoingServer.closeCachedConnections();
   OAuth2TestUtils.forgetObjects();
 
   Assert.stringContains(
-    smtpServer.lastMessage,
+    server.lastSentMessage,
     `Subject: ${subject}`,
     "server should have received message"
   );
+}
+
+add_task(async function testBadRefreshTokenSMTP() {
+  await subtestBadRefreshToken(smtpIdentity, smtpOutgoingServer, smtpServer);
+  smtpOutgoingServer.closeCachedConnections();
+});
+
+add_task(async function testBadRefreshTokenEWS() {
+  await subtestBadRefreshToken(ewsIdentity, ewsOutgoingServer, ewsServer);
 });
 
 async function handleOAuthDialog() {

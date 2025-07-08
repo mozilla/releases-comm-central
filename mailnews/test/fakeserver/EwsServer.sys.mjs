@@ -337,11 +337,69 @@ export class EwsServer {
   #lastRequestedVersion;
 
   /**
-   * The version to report in requests.
+   * The content of the last outgoing message sent to this server.
    *
-   * @param {string?} version
+   * @type {?string}
+   * @name EwsServer.lastSentMessage
+   * @private
    */
-  constructor(version) {
+  #lastSentMessage;
+
+  /**
+   * The username that must be supplied on requests to this server if HTTP
+   * basic authentication is used.
+   *
+   * @type {string}
+   * @name EwsServer.username
+   * @private
+   */
+  #username;
+
+  /**
+   * The password that must be supplied on requests to this server if HTTP
+   * basic authentication is used.
+   *
+   * @type {string}
+   * @name EwsServer.password
+   * @private
+   */
+  #password;
+
+  /**
+   * A network proxy to turn this HTTP server into an HTTPS server.
+   *
+   * @type {HttpsProxy}
+   * @name EwsServer.httpsProxy
+   * @private
+   */
+  #httpsProxy;
+
+  /**
+   * Certificate to use for HTTPS requests. See ServerTestUtils.getCertificate.
+   *
+   * @type {nsIX509Cert}
+   * @name EwsServer.tlsCert
+   * @private
+   */
+  #tlsCert;
+
+  /**
+   * @param {object} options
+   * @param {string} [options.hostname]
+   * @param {integer} [options.port]
+   * @param {nsIX509Cert} [options.tlsCert]
+   * @param {string} [options.version]
+   * @param {string} [options.username="user"]
+   * @param {string} [options.password="password"]
+   */
+  constructor({
+    hostname,
+    port,
+    tlsCert,
+    version,
+    username = "user",
+    password = "password",
+  } = {}) {
     this.version = version;
     this.#httpServer = new HttpServer();
     this.#httpServer.registerPathHandler(
@@ -359,6 +417,18 @@ export class EwsServer {
         }
       }
     );
+    if (hostname && port) {
+      // Used by ServerTestUtils to make this server appear at hostname:port.
+      // This doesn't mean the HTTP server is listening on that host and port.
+      this.#httpServer.identity.add(
+        port == 443 ? "http" : "https",
+        hostname,
+        port
+      );
+    }
+    this.#tlsCert = tlsCert;
+    this.#username = username;
+    this.#password = password;
 
     this.#parser = new DOMParser();
     this.#serializer = new XMLSerializer();
@@ -371,6 +441,15 @@ export class EwsServer {
    */
   start() {
     this.#httpServer.start(-1);
+    if (this.#tlsCert) {
+      const { HttpsProxy } = ChromeUtils.importESModule(
+        "resource://testing-common/mailnews/HttpsProxy.sys.mjs"
+      );
+      this.#httpsProxy = new HttpsProxy(
+        this.#httpServer.identity.primaryPort,
+        this.#tlsCert
+      );
+    }
   }
 
   /**
@@ -378,6 +457,7 @@ export class EwsServer {
    */
   stop() {
     this.#httpServer.stop();
+    this.#httpsProxy?.destroy();
   }
 
   /**
@@ -386,7 +466,7 @@ export class EwsServer {
    * @type {number}
    */
   get port() {
-    return this.#httpServer.identity.primaryPort;
+    return this.#httpsProxy?.port ?? this.#httpServer.identity.primaryPort;
   }
 
   /**
@@ -410,6 +490,15 @@ export class EwsServer {
    */
   get lastRequestedVersion() {
     return this.#lastRequestedVersion;
+  }
+
+  /**
+   * The content of the last outgoing message sent to this server.
+   *
+   * @type {?string}
+   */
+  get lastSentMessage() {
+    return this.#lastSentMessage;
   }
 
   /**
@@ -459,8 +548,31 @@ export class EwsServer {
     // Try to read the value of the `Authorization` header.
     if (request.hasHeader("Authorization")) {
       this.#lastAuthorizationValue = request.getHeader("Authorization");
+
+      if (this.#lastAuthorizationValue.startsWith("Basic ")) {
+        const [username, password] = atob(
+          this.#lastAuthorizationValue.substring(6)
+        ).split(":");
+        if (username != this.#username || password != this.#password) {
+          response.setStatusLine("1.1", 401, "Unauthorized");
+          response.setHeader("WWW-Authenticate", `Basic realm="test"`);
+          return;
+        }
+      } else if (this.#lastAuthorizationValue.startsWith("Bearer ")) {
+        const token = this.#lastAuthorizationValue.substring(7);
+        const { OAuth2TestUtils } = ChromeUtils.importESModule(
+          "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
+        );
+        if (!OAuth2TestUtils.validateToken(token, "test_mail")) {
+          response.setStatusLine("1.1", 401, "Unauthorized");
+          response.setHeader("WWW-Authenticate", `Basic realm="test"`);
+          return;
+        }
+      }
     } else {
-      this.#lastAuthorizationValue = "";
+      response.setStatusLine("1.1", 401, "Unauthorized");
+      response.setHeader("WWW-Authenticate", `Basic realm="test"`);
+      return;
     }
 
     // Read the request content and parse it as XML.
@@ -795,15 +907,19 @@ export class EwsServer {
    *
    * @see
    * {@link https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message#successful-createitem-response}
-   * @param {XMLDocument} _reqDoc - The parsed document for the request to
+   * @param {XMLDocument} reqDoc - The parsed document for the request to
    * respond to.
    * @returns {string} A serialized XML document.
    */
-  #generateCreateItemResponse(_reqDoc) {
+  #generateCreateItemResponse(reqDoc) {
     const resDoc = this.#parser.parseFromString(
       CREATE_ITEM_RESPONSE_BASE,
       "text/xml"
     );
+
+    const message =
+      reqDoc.getElementsByTagName("t:MimeContent")[0].firstChild.nodeValue;
+    this.#lastSentMessage = atob(message);
 
     this.#setVersion(resDoc);
 
