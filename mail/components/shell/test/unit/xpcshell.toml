@@ -1,4 +1,7 @@
 [DEFAULT]
 
 ["test_shellService.js"]
-skip-if = ["os == 'win'"]  # setDefaultClient requires user confirmation on Windows.
+skip-if = [
+  "os == 'win'", # Windows: setDefaultClient requires user confirmation.
+  "os == 'mac'"  # Mac: test perma failing on CI. Bug 1954960.
+]
