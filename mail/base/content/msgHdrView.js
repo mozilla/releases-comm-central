@@ -2526,6 +2526,11 @@ function onShowOtherActionsPopup() {
 
   // Check if the current message is feed or not.
   const isFeed = FeedUtils.isFeedMessage(gMessage);
+
+  document.getElementById("otherActionsCopyMessageLink").hidden = isFeed;
+  document.getElementById("otherActionsCopyNewsLink").hidden =
+    !currentHeaderData.newsgroups;
+
   document.getElementById("otherActionsMessageBodyAs").hidden = isFeed;
   document.getElementById("otherActionsFeedBodyAs").hidden = !isFeed;
 }
@@ -3203,28 +3208,15 @@ const gMessageHeader = {
 
   copyNewsgroupURL(event) {
     const newsgroup = event.currentTarget.parentNode.headerField.textContent;
-    const server = this.newsgroupServer;
-    if (
-      !gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false) ||
-      !server
-    ) {
-      // For standalone newsgroup messages, use a URI with no server specified.
-      navigator.clipboard.writeText("news:" + newsgroup);
-      return;
-    }
-
-    let url = "news://" + server.hostName;
-    if (server.port != Ci.nsINntpUrl.DEFAULT_NNTP_PORT) {
-      url += ":" + server.port;
-    }
-    url += "/" + newsgroup;
-
-    try {
-      const uri = Services.io.newURI(url);
-      navigator.clipboard.writeText(decodeURI(uri.spec));
-    } catch (e) {
-      console.error("Invalid URL: " + url);
-    }
+    const server = gFolder?.isSpecialFolder(
+      Ci.nsMsgFolderFlags.Newsgroup,
+      false
+    )
+      ? this.newsgroupServer
+      : null;
+    navigator.clipboard.writeText(
+      MailUtils.constructNewsUriSpec(newsgroup, server)
+    );
   },
 
   /**
@@ -3697,6 +3689,25 @@ function MsgMarkAsFlagged() {
  */
 function convertToEventOrTask(isTask = false) {
   window.top.calendarExtract.extractFromEmail(gMessage, isTask);
+}
+
+/**
+ * Put the 'mid:' URI of the message on the clipboard.
+ */
+function copyMessageLink() {
+  navigator.clipboard.writeText(`mid:${gMessage.messageId}`);
+}
+
+/**
+ * Put the 'news:' URI of the message on the clipboard.
+ */
+function copyNewsLink() {
+  navigator.clipboard.writeText(
+    MailUtils.constructNewsUriSpec(
+      gMessage?.messageId,
+      gMessage?.folder?.server
+    )
+  );
 }
 
 /**

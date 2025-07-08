@@ -219,6 +219,8 @@ const mailContextData = {
     "multipleMessagesTreeXFVF",
   ],
   "mailContext-calendar-convert-menu": singleNotExternal,
+  "mailContext-copyMessageLink": singleNotExternal,
+  "mailContext-copyNewsLink": [],
   "mailContext-threads": [...notSyntheticNotXFVF, ...onePane],
   "mailContext-ignoreThread": notSyntheticNotXFVF,
   "mailContext-ignoreSubthread": notSyntheticNotXFVF,

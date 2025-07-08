@@ -10,6 +10,8 @@
 /* globals goDoCommand */ // globalOverlay.js
 /* globals gDBView, gFolder, gViewWrapper, messengerBundle */
 
+/* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
+
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -432,6 +434,15 @@ var mailContextMenu = {
         calendarDeactivator.isCalendarActivated
     );
 
+    setSingleSelection(
+      "mailContext-copyMessageLink",
+      !onSpecialItem &&
+        numSelectedMessages == 1 &&
+        !isDummyMessage &&
+        !FeedUtils.isFeedMessage(message)
+    );
+    setSingleSelection("mailContext-copyNewsLink", !!isNewsgroup);
+
     const contextDelete = document.getElementById("navContext-delete");
     contextDelete.setAttribute("active", !!areIMAPDeleted);
     contextDelete.dataset.imapDeleted = !!areIMAPDeleted;
@@ -672,6 +683,22 @@ var mailContextMenu = {
           gDBView.hdrForFirstSelectedMessage,
           false
         );
+        break;
+      case "mailContext-copyMessageLink":
+        navigator.clipboard.writeText(
+          `mid:${gDBView.hdrForFirstSelectedMessage?.messageId}`
+        );
+        break;
+      case "mailContext-copyNewsLink":
+        {
+          const message = gDBView.hdrForFirstSelectedMessage;
+          navigator.clipboard.writeText(
+            MailUtils.constructNewsUriSpec(
+              message?.messageId,
+              message?.folder?.server
+            )
+          );
+        }
         break;
 
       // Save/print/download

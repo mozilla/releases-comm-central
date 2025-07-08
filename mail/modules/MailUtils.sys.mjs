@@ -989,6 +989,37 @@ export var MailUtils = {
   },
 
   /**
+   * Construct a 'news:' URI spec for a specific message or newsgroup.
+   *
+   * @param {string} identifier - The Message-ID or newsgroup identified by
+   *   this URI spec.
+   * @param {nsIMsgIncomingServer} [server] - If provided, the hostname and
+   *   port (if non-standard) of this server will be included in the URI spec.
+   * @returns {string} - The 'news:' URI spec.
+   */
+  constructNewsUriSpec(identifier, server = null) {
+    if (!identifier) {
+      return "";
+    }
+    let spec = "news:";
+    if (server) {
+      spec += `//${server.hostName}`;
+      if (server.port != Ci.nsINntpUrl.DEFAULT_NNTP_PORT) {
+        spec += `:${server.port}`;
+      }
+      spec += "/";
+    }
+    spec += identifier;
+    try {
+      const uri = Services.io.newURI(spec);
+      return decodeURI(uri.spec);
+    } catch (e) {
+      console.error("Invalid URI: " + spec);
+    }
+    return "";
+  },
+
+  /**
    * Display the appropriate warning to inform in which way messages will be
    * deleted.
    *

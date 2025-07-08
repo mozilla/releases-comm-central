@@ -312,6 +312,12 @@ context-menu-decrypt-to-folder2 =
 other-action-redirect-msg =
     .label = Redirect
 
+other-action-copy-message-link =
+    .label = Copy Message Link
+
+other-action-copy-news-link =
+    .label = Copy News Link
+
 message-header-msg-flagged =
     .title = Starred
     .aria-label = Starred
