@@ -237,6 +237,38 @@ stylelint:
             - linux64-node
             - node-modules
 
+rejected-words:
+    description: Reject some words we don't want to use in the code base
+    treeherder:
+        symbol: text(rejected-words)
+        # We don't want patches to be backed out because of this, a follow up bug will be
+        # good enough
+        tier: 2
+    run:
+        mach: commlint -v -l rejected-words -f treeherder -f json:/builds/worker/mozlint.json comm
+    when:
+        files-changed:
+            - '**/*.js'
+            - '**/*.jsx'
+            - '**/*.mjs'
+            - '**/*.xml'
+            - '**/*.html'
+            - '**/*.xhtml'
+            - '**/*.cpp'
+            - '**/*.c'
+            - '**/*.h'
+            - '**/*.idl'
+            - '**/*.webidl'
+            - '**/*.configure'
+            - '**/*.py'
+            - '**/*.properties'
+            - '**/*.rst'
+            - '**/*.ftl'
+            - '**/*.java'
+            - '**/*.kt'
+            - '**/*.rs'
+            - 'tools/lint/rejected-words.yml'
+
 trojan-source:
     description: Trojan Source attack - CVE-2021-42572
     platform: lint/opt

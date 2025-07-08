@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 # mappings from the single char alias to a longer more recognizable form.
 BUILD_TYPE_ALIASES = {"o": "opt", "d": "debug"}
 
-# consider anything in this whitelist of kinds to be governed by -b/-p
+# consider anything in this allow list of kinds to be governed by -b/-p
 BUILD_KINDS = {
     "build",
     "artifact-build",
