@@ -135,7 +135,7 @@
   height: 16px;
   margin-inline: 10px 9px;
 
-  &:not([srcset]) {
+  &:not([srcset], [src]) {
     visibility: hidden;
   }
 }
