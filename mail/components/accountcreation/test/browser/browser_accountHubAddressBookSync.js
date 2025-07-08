@@ -187,6 +187,7 @@ add_task(function test_observeAddressBookCounter() {
 
 add_task(async function test_inputChangeAndToggleAll() {
   abSyncSubview.setState(addressBooks);
+  await TestUtils.waitForTick();
   await BrowserTestUtils.waitForMutationCondition(
     abSyncSubview.querySelector("#addressBooks"),
     {
@@ -197,10 +198,11 @@ add_task(async function test_inputChangeAndToggleAll() {
   );
 
   const addressBookInput = abSyncSubview.querySelector("#addressBooks input");
+  Assert.ok(addressBookInput.checked, "input should intially be checked");
   const checkEvent = BrowserTestUtils.waitForEvent(
     addressBookInput,
     "change",
-    true,
+    false,
     event => !event.target.checked
   );
   EventUtils.synthesizeMouseAtCenter(
@@ -223,19 +225,26 @@ add_task(async function test_inputChangeAndToggleAll() {
       abSyncSubview.querySelector("#selectedAddressBooks")
     ).args.count,
     addressBooks.length - 1,
-    "Address books count should update"
+    "Address books count should update as one book was deselected"
   );
 
-  const selectToggleEvent = BrowserTestUtils.waitForEvent(
-    selectAllAddressBooks,
-    "click"
-  );
+  // Toggle select all.
   EventUtils.synthesizeMouseAtCenter(
     selectAllAddressBooks,
     {},
     abSyncSubview.ownerGlobal
   );
-  await selectToggleEvent;
+  await BrowserTestUtils.waitForMutationCondition(
+    abSyncSubview.querySelector("#addressBooks"),
+    {
+      attributes: true,
+      subtree: true,
+      childList: true,
+    },
+    () =>
+      abSyncSubview.querySelectorAll("#addressBooks input:checked").length ===
+      addressBooks.length
+  );
 
   Assert.equal(
     abSyncSubview.l10n.getAttributes(selectAllAddressBooks).id,
