@@ -316,6 +316,11 @@ AddrBookCard.prototype = {
         // The first 3 bytes say this image is JPEG.
         return `data:image/jpeg;base64,${photoEntry.value}`;
       }
+      if (photoEntry.type == "binary" && photoEntry.value.startsWith("UklG")) {
+        // This is a version 3.0 card.
+        // The first 3 bytes say this image is WebP.
+        return `data:image/webp;base64,${photoEntry.value}`;
+      }
       if (photoEntry.type == "uri" && /^https?:\/\//.test(photoEntry.value)) {
         // A remote URI.
         return photoEntry.value;
