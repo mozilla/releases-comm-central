@@ -288,6 +288,9 @@ export const OpenPGPTestUtils = {
   },
 
   /**
+   * Change key expiry date. Adds a minute leaway so tests have time to
+   * do what they need before "day" changes.
+   *
    * @param {string} keyId - The key to change expiration time for.
    * @param {integer} daysFromNow - Days from now to expire. 0 = no expiry
    */
@@ -297,6 +300,7 @@ export const OpenPGPTestUtils = {
     if (daysFromNow) {
       const later = new Date();
       later.setDate(later.getDate() + daysFromNow);
+      later.setTime(later.getTime() + 60 * 1000); // Add a minute leaway.
       expirationTime = Math.ceil(later / 1000) - key.keyCreated;
     }
     const date = expirationTime
