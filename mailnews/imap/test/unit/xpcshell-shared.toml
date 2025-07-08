@@ -57,8 +57,6 @@ tags = ["compact"]
 
 ["test_imapFolderCopy.js"]
 
-["test_imapHdrChunking.js"]
-
 ["test_imapHdrStreaming.js"]
 
 ["test_imapHighWater.js"]

@@ -168,7 +168,6 @@ pref("mail.imap.expunge_after_delete", false);
 pref("mail.imap.check_deleted_before_expunge", false);
 pref("mail.imap.expunge_option", 0);
 pref("mail.imap.expunge_threshold_number", 20);
-pref("mail.imap.hdr_chunk_size", 200);
 // Should we filter imap messages based on new messages since the previous
 // highest UUID seen instead of unread?
 pref("mail.imap.filter_on_new", true);
