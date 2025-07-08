@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Account hub header element test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css"/>
+    <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
+    <link rel="localization" href="messenger/accountcreation/accountSetup.ftl" />
+    <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/account-hub-header.mjs"></script>
+  </head>
+  <body>
+    <template id="accountHubHeaderTemplate" xmlns="http://www.w3.org/1999/xhtml">
+      <header id="accountHubHeader" class="hub-header">
+        <div id="brandingHeader" class="branding-header" hidden="hidden">
+          <img src="chrome://branding/content/logo-gradient.svg" alt="" />
+          <h1>
+            <span class="branding-header-name" data-l10n-id="account-hub-brand"></span>
+            <span class="branding-header-title" data-l10n-id="account-hub-title"></span>
+          </h1>
+          <button id="closeButton"
+                  class="button button-flat button-round icon-button icon-only modal-close-button"
+                  type="button">
+            <img class="icon-close-lg" src="" alt="" />
+          </button>
+        </div>
+        <!-- Title Text for Email Setup -->
+        <h1 id="accountHubHeaderTitle"
+            class="sub-view-title">
+            <slot name="title"></slot>
+        </h1>
+        <h2 id="accountHubHeaderSubheader"
+            class="sub-view-sub-header"
+            hidden="hidden">
+            <slot name="subheader"></slot>
+        </h2>
+        <details id="emailFormNotification" class="notification-bar">
+          <summary id="emailFormNotificationSummary"
+                   class="notification-title-container">
+            <img class="form-icon icon-warning"
+                 src=""
+                 alt=""/>
+            <img class="form-icon icon-success"
+                 src=""
+                 alt="" />
+            <img class="form-icon icon-info"
+                 src=""
+                 alt="" />
+            <img class="form-icon icon-danger"
+                 src=""
+                 alt="" />
+            <p id="emailFormNotificationTitle" class="notification-title">
+              <span class="localized-title"></span>
+              <span class="raw-title"></span>
+            </p>
+            <div id="emailFormNotificationToggle">
+              <span data-l10n-id="account-hub-notification-show-more"></span>
+              <span data-l10n-id="account-hub-notification-show-less"></span>
+            </div>
+          </summary>
+          <p id="emailFormNotificationText" class="notification-text">
+            <span class="localized-description"></span>
+            <span class="raw-description"></span>
+          </p>
+        </details>
+      </header>
+    </template>
+
+    <account-hub-header>
+      <span id="title" slot="title">Test Title</span>
+      <span id="subheader" slot="subheader">Test Subheader</span>
+    </account-hub-header>
+  </body>
+</html>

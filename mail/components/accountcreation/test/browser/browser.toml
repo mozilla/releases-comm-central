@@ -32,6 +32,10 @@ support-files = ["files/**"]
 
 ["browser_accountHubFooter.js"]
 
+["browser_accountHubHeader.js"]
+
+["browser_accountHubStep.js"]
+
 ["browser_oAuthGranularScopes.js"]
 tags = ["oauth"]
 
