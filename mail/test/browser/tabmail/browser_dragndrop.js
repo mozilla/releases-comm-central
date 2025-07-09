@@ -4,6 +4,10 @@
 
 "use strict";
 
+/**
+ * Test rearanging tabs via drag'n'drop.
+ */
+
 if (
   AppConstants.MOZ_CODE_COVERAGE ||
   AppConstants.ASAN ||
@@ -14,10 +18,6 @@ if (
 } else if (AppConstants.platform == "macosx") {
   requestLongerTimeout(2);
 }
-
-/*
- * Test rearanging tabs via drag'n'drop.
- */
 
 var {
   assert_number_of_tabs_open,
@@ -417,6 +417,8 @@ add_task(async function test_tab_recentlyClosed() {
   }
 
   assert_number_of_tabs_open(2);
+
+  await TestUtils.waitForTick();
 
   // ...then open the context menu.
   const menu = await _synthesizeRecentlyClosedMenu();
