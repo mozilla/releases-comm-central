@@ -11,13 +11,13 @@
   # yamllint disable-line rule:line-length
   url: https://live.thunderbird.net/thunderbird/releasenotes?locale=%LOCALE%&version={version}&channel=esr
   conditions:
-      release-types: [esr128]
+      release-types: [esr128, esr140]
 - type: show-url
   # yamllint disable-line rule:line-length
   url: https://live.thunderbird.net/thunderbird/whatsnew?locale=%LOCALE%&version={version}&channel=esr&oldversion=%OLD_VERSION%
   conditions:
       blob-types: [wnp]
-      release-types: [esr128]
+      release-types: [esr128, esr140]
       products: [thunderbird]
       update-channel: esr
       # e.g.: ["<78.0"] for the current release. {version.major_number} reflects
