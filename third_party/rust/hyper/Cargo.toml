@@ -12,13 +12,19 @@
 [package]
 edition = "2018"
 name = "hyper"
-version = "0.14.24"
+version = "0.14.32"
 authors = ["Sean McArthur <sean@seanmonstar.com>"]
+build = false
 include = [
     "Cargo.toml",
     "LICENSE",
     "src/**/*",
 ]
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "A fast and correct HTTP library."
 homepage = "https://hyper.rs"
 documentation = "https://docs.rs/hyper"
@@ -51,133 +57,41 @@ rustdoc-args = [
 [package.metadata.playground]
 features = ["full"]
 
-[profile.bench]
-codegen-units = 1
-incremental = false
+[features]
+__internal_happy_eyeballs_tests = []
+backports = []
+client = []
+default = []
+deprecated = []
+ffi = ["libc"]
+full = [
+    "client",
+    "http1",
+    "http2",
+    "server",
+    "stream",
+    "runtime",
+]
+http1 = []
+http2 = ["h2"]
+nightly = []
+runtime = [
+    "tcp",
+    "tokio/rt",
+    "tokio/time",
+]
+server = []
+stream = []
+tcp = [
+    "socket2",
+    "tokio/net",
+    "tokio/rt",
+    "tokio/time",
+]
 
-[profile.release]
-codegen-units = 1
-incremental = false
-
-[[example]]
-name = "client"
-path = "examples/client.rs"
-required-features = ["full"]
-
-[[example]]
-name = "client_json"
-path = "examples/client_json.rs"
-required-features = ["full"]
-
-[[example]]
-name = "echo"
-path = "examples/echo.rs"
-required-features = ["full"]
-
-[[example]]
-name = "gateway"
-path = "examples/gateway.rs"
-required-features = ["full"]
-
-[[example]]
-name = "hello"
-path = "examples/hello.rs"
-required-features = ["full"]
-
-[[example]]
-name = "http_proxy"
-path = "examples/http_proxy.rs"
-required-features = ["full"]
-
-[[example]]
-name = "multi_server"
-path = "examples/multi_server.rs"
-required-features = ["full"]
-
-[[example]]
-name = "params"
-path = "examples/params.rs"
-required-features = ["full"]
-
-[[example]]
-name = "send_file"
-path = "examples/send_file.rs"
-required-features = ["full"]
-
-[[example]]
-name = "service_struct_impl"
-path = "examples/service_struct_impl.rs"
-required-features = ["full"]
-
-[[example]]
-name = "single_threaded"
-path = "examples/single_threaded.rs"
-required-features = ["full"]
-
-[[example]]
-name = "state"
-path = "examples/state.rs"
-required-features = ["full"]
-
-[[example]]
-name = "tower_client"
-path = "examples/tower_client.rs"
-required-features = ["full"]
-
-[[example]]
-name = "tower_server"
-path = "examples/tower_server.rs"
-required-features = ["full"]
-
-[[example]]
-name = "upgrades"
-path = "examples/upgrades.rs"
-required-features = ["full"]
-
-[[example]]
-name = "web_api"
-path = "examples/web_api.rs"
-required-features = ["full"]
-
-[[test]]
-name = "client"
-path = "tests/client.rs"
-required-features = ["full"]
-
-[[test]]
-name = "integration"
-path = "tests/integration.rs"
-required-features = ["full"]
-
-[[test]]
-name = "server"
-path = "tests/server.rs"
-required-features = ["full"]
-
-[[bench]]
-name = "body"
-path = "benches/body.rs"
-required-features = ["full"]
-
-[[bench]]
-name = "connect"
-path = "benches/connect.rs"
-required-features = ["full"]
-
-[[bench]]
-name = "end_to_end"
-path = "benches/end_to_end.rs"
-required-features = ["full"]
-
-[[bench]]
-name = "pipeline"
-path = "benches/pipeline.rs"
-required-features = ["full"]
-
-[[bench]]
-name = "server"
-path = "benches/server.rs"
-required-features = ["full"]
+[lib]
+name = "hyper"
+path = "src/lib.rs"
 
 [dependencies.bytes]
 version = "1"
@@ -194,7 +108,7 @@ version = "0.3"
 default-features = false
 
 [dependencies.h2]
-version = "0.3.9"
+version = "0.3.24"
 optional = true
 
 [dependencies.http]
@@ -220,12 +134,12 @@ optional = true
 version = "0.2.4"
 
 [dependencies.socket2]
-version = "0.4.7"
+version = ">=0.4.7, <0.6.0"
 features = ["all"]
 optional = true
 
 [dependencies.tokio]
-version = "1"
+version = "1.27"
 features = ["sync"]
 
 [dependencies.tower-service]
@@ -264,7 +178,7 @@ version = "1.0"
 version = "0.3"
 
 [dev-dependencies.tokio]
-version = "1"
+version = "1.27"
 features = [
     "fs",
     "macros",
@@ -290,39 +204,18 @@ features = [
     "make",
     "util",
 ]
+default-features = false
 
 [dev-dependencies.url]
 version = "2.2"
 
-[features]
-__internal_happy_eyeballs_tests = []
-client = []
-default = []
-ffi = ["libc"]
-full = [
-    "client",
-    "http1",
-    "http2",
-    "server",
-    "stream",
-    "runtime",
-]
-http1 = []
-http2 = ["h2"]
-nightly = []
-runtime = [
-    "tcp",
-    "tokio/rt",
-    "tokio/time",
-]
-server = []
-stream = []
-tcp = [
-    "socket2",
-    "tokio/net",
-    "tokio/rt",
-    "tokio/time",
-]
-
-[target."cfg(any(target_os = \"linux\", target_os = \"macos\"))".dev-dependencies.pnet_datalink]
+[target.'cfg(any(target_os = "linux", target_os = "macos"))'.dev-dependencies.pnet_datalink]
 version = "0.27.2"
+
+[profile.bench]
+codegen-units = 1
+incremental = false
+
+[profile.release]
+codegen-units = 1
+incremental = false

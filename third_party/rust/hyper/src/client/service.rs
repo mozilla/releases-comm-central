@@ -5,13 +5,15 @@
 use std::error::Error as StdError;
 use std::future::Future;
 use std::marker::PhantomData;
+use std::pin::Pin;
+use std::task::{Context, Poll};
 
 use tracing::debug;
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 use super::conn::{Builder, SendRequest};
 use crate::{
     body::HttpBody,
-    common::{task, Pin, Poll},
     service::{MakeConnection, Service},
 };
 
@@ -23,6 +25,7 @@ use crate::{
 #[derive(Debug)]
 pub struct Connect<C, B, T> {
     inner: C,
+    #[cfg_attr(feature = "deprecated", allow(deprecated))]
     builder: Builder,
     _pd: PhantomData<fn(T, B)>,
 }
@@ -30,6 +33,7 @@ pub struct Connect<C, B, T> {
 impl<C, B, T> Connect<C, B, T> {
     /// Create a new `Connect` with some inner connector `C` and a connection
     /// builder.
+    #[cfg_attr(feature = "deprecated", allow(deprecated))]
     pub fn new(inner: C, builder: Builder) -> Self {
         Self {
             inner,
@@ -49,12 +53,13 @@ where
     B::Data: Send + Unpin,
     B::Error: Into<Box<dyn StdError + Send + Sync>>,
 {
+    #[cfg_attr(feature = "deprecated", allow(deprecated))]
     type Response = SendRequest<B>;
     type Error = crate::Error;
     type Future =
         Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
 
-    fn poll_ready(&mut self, cx: &mut task::Context<'_>) -> Poll<Result<(), Self::Error>> {
+    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         self.inner
             .poll_ready(cx)
             .map_err(|e| crate::Error::new(crate::error::Kind::Connect).with(e.into()))
@@ -68,6 +73,7 @@ where
             match io.await {
                 Ok(io) => match builder.handshake(io).await {
                     Ok((sr, conn)) => {
+                        #[cfg_attr(feature = "deprecated", allow(deprecated))]
                         builder.exec.execute(async move {
                             if let Err(e) = conn.await {
                                 debug!("connection error: {:?}", e);

@@ -5,6 +5,8 @@ use std::future::Future;
 use std::io::{self, IoSlice};
 use std::marker::Unpin;
 use std::mem::MaybeUninit;
+use std::pin::Pin;
+use std::task::{Context, Poll};
 #[cfg(all(feature = "server", feature = "runtime"))]
 use std::time::Duration;
 
@@ -16,7 +18,6 @@ use tracing::{debug, trace};
 
 use super::{Http1Transaction, ParseContext, ParsedMessage};
 use crate::common::buf::BufList;
-use crate::common::{task, Pin, Poll};
 
 /// The initial buffer size allocated before trying to read from IO.
 pub(crate) const INIT_BUFFER_SIZE: usize = 8192;
@@ -39,6 +40,7 @@ const MAX_BUF_LIST_BUFFERS: usize = 16;
 pub(crate) struct Buffered<T, B> {
     flush_pipeline: bool,
     io: T,
+    partial_len: Option<usize>,
     read_blocked: bool,
     read_buf: BytesMut,
     read_buf_strategy: ReadStrategy,
@@ -72,6 +74,7 @@ where
         Buffered {
             flush_pipeline: false,
             io,
+            partial_len: None,
             read_blocked: false,
             read_buf: BytesMut::with_capacity(0),
             read_buf_strategy: ReadStrategy::default(),
@@ -174,7 +177,7 @@ where
 
     pub(super) fn parse<S>(
         &mut self,
-        cx: &mut task::Context<'_>,
+        cx: &mut Context<'_>,
         parse_ctx: ParseContext<'_>,
     ) -> Poll<crate::Result<ParsedMessage<S::Incoming>>>
     where
@@ -183,6 +186,7 @@ where
         loop {
             match super::role::parse_headers::<S>(
                 &mut self.read_buf,
+                self.partial_len,
                 ParseContext {
                     cached_headers: parse_ctx.cached_headers,
                     req_method: parse_ctx.req_method,
@@ -219,11 +223,13 @@ where
                                 .reset(Instant::now() + Duration::from_secs(30 * 24 * 60 * 60));
                         }
                     }
+                    self.partial_len = None;
                     return Poll::Ready(Ok(msg));
                 }
                 None => {
                     let max = self.read_buf_strategy.max();
-                    if self.read_buf.len() >= max {
+                    let curr_len = self.read_buf.len();
+                    if curr_len >= max {
                         debug!("max_buf_size ({}) reached, closing", max);
                         return Poll::Ready(Err(crate::Error::new_too_large()));
                     }
@@ -241,6 +247,13 @@ where
                             }
                         }
                     }
+                    if curr_len > 0 {
+                        trace!("partial headers; {} bytes so far", curr_len);
+                        self.partial_len = Some(curr_len);
+                    } else {
+                        // 1xx gobled some bytes
+                        self.partial_len = None;
+                    }
                 }
             }
             if ready!(self.poll_read_from_io(cx)).map_err(crate::Error::new_io)? == 0 {
@@ -250,10 +263,7 @@ where
         }
     }
 
-    pub(crate) fn poll_read_from_io(
-        &mut self,
-        cx: &mut task::Context<'_>,
-    ) -> Poll<io::Result<usize>> {
+    pub(crate) fn poll_read_from_io(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<usize>> {
         self.read_blocked = false;
         let next = self.read_buf_strategy.next();
         if self.read_buf_remaining_mut() < next {
@@ -296,7 +306,7 @@ where
         self.read_blocked
     }
 
-    pub(crate) fn poll_flush(&mut self, cx: &mut task::Context<'_>) -> Poll<io::Result<()>> {
+    pub(crate) fn poll_flush(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         if self.flush_pipeline && !self.read_buf.is_empty() {
             Poll::Ready(Ok(()))
         } else if self.write_buf.remaining() == 0 {
@@ -336,7 +346,7 @@ where
     ///
     /// Since all buffered bytes are flattened into the single headers buffer,
     /// that skips some bookkeeping around using multiple buffers.
-    fn poll_flush_flattened(&mut self, cx: &mut task::Context<'_>) -> Poll<io::Result<()>> {
+    fn poll_flush_flattened(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         loop {
             let n = ready!(Pin::new(&mut self.io).poll_write(cx, self.write_buf.headers.chunk()))?;
             debug!("flushed {} bytes", n);
@@ -366,7 +376,7 @@ impl<T: Unpin, B> Unpin for Buffered<T, B> {}
 
 // TODO: This trait is old... at least rename to PollBytes or something...
 pub(crate) trait MemRead {
-    fn read_mem(&mut self, cx: &mut task::Context<'_>, len: usize) -> Poll<io::Result<Bytes>>;
+    fn read_mem(&mut self, cx: &mut Context<'_>, len: usize) -> Poll<io::Result<Bytes>>;
 }
 
 impl<T, B> MemRead for Buffered<T, B>
@@ -374,7 +384,7 @@ where
     T: AsyncRead + AsyncWrite + Unpin,
     B: Buf,
 {
-    fn read_mem(&mut self, cx: &mut task::Context<'_>, len: usize) -> Poll<io::Result<Bytes>> {
+    fn read_mem(&mut self, cx: &mut Context<'_>, len: usize) -> Poll<io::Result<Bytes>> {
         if !self.read_buf.is_empty() {
             let n = std::cmp::min(len, self.read_buf.len());
             Poll::Ready(Ok(self.read_buf.split_to(n).freeze()))

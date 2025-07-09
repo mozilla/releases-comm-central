@@ -3616,7 +3616,7 @@ dependencies = [
  "dns-parser",
  "gecko-profiler",
  "log",
- "socket2 0.4.999",
+ "socket2",
  "uuid",
 ]
 
@@ -4840,7 +4840,7 @@ dependencies = [
  "libc",
  "log",
  "once_cell",
- "socket2 0.5.7",
+ "socket2",
  "windows-sys",
 ]
 
@@ -5532,13 +5532,6 @@ name = "smawk"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b7c388c1b5e93756d0c740965c41e8822f866621d41acbdf6336a6a168f8840c"
-
-[[package]]
-name = "socket2"
-version = "0.4.999"
-dependencies = [
- "socket2 0.5.7",
-]
 
 [[package]]
 name = "socket2"

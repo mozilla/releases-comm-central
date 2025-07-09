@@ -54,11 +54,22 @@
 //! # }
 //! ```
 
+#[cfg(all(feature = "backports", feature = "http1"))]
+pub mod http1;
+#[cfg(all(feature = "backports", feature = "http2"))]
+pub mod http2;
+
+#[cfg(not(all(feature = "http1", feature = "http2")))]
+use std::convert::Infallible;
 use std::error::Error as StdError;
 use std::fmt;
+use std::future::Future;
 #[cfg(not(all(feature = "http1", feature = "http2")))]
 use std::marker::PhantomData;
+use std::marker::Unpin;
+use std::pin::Pin;
 use std::sync::Arc;
+use std::task::{Context, Poll};
 #[cfg(all(feature = "runtime", feature = "http2"))]
 use std::time::Duration;
 
@@ -72,12 +83,7 @@ use tracing::{debug, trace};
 
 use super::dispatch;
 use crate::body::HttpBody;
-#[cfg(not(all(feature = "http1", feature = "http2")))]
-use crate::common::Never;
-use crate::common::{
-    exec::{BoxSendFuture, Exec},
-    task, Future, Pin, Poll,
-};
+use crate::common::exec::{BoxSendFuture, Exec};
 use crate::proto;
 use crate::rt::Executor;
 #[cfg(feature = "http1")]
@@ -89,13 +95,13 @@ type Http1Dispatcher<T, B> =
     proto::dispatch::Dispatcher<proto::dispatch::Client<B>, B, T, proto::h1::ClientTransaction>;
 
 #[cfg(not(feature = "http1"))]
-type Http1Dispatcher<T, B> = (Never, PhantomData<(T, Pin<Box<B>>)>);
+type Http1Dispatcher<T, B> = (Infallible, PhantomData<(T, Pin<Box<B>>)>);
 
 #[cfg(feature = "http2")]
 type Http2ClientTask<B> = proto::h2::ClientTask<B>;
 
 #[cfg(not(feature = "http2"))]
-type Http2ClientTask<B> = (Never, PhantomData<Pin<Box<B>>>);
+type Http2ClientTask<B> = (Infallible, PhantomData<Pin<Box<B>>>);
 
 pin_project! {
     #[project = ProtoClientProj]
@@ -118,16 +124,30 @@ pin_project! {
 ///
 /// This is a shortcut for `Builder::new().handshake(io)`.
 /// See [`client::conn`](crate::client::conn) for more.
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(
+        note = "This function will be replaced with `client::conn::http1::handshake` and `client::conn::http2::handshake` in 1.0, enable the \"backports\" feature to use them now."
+    )
+)]
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 pub async fn handshake<T>(
     io: T,
 ) -> crate::Result<(SendRequest<crate::Body>, Connection<T, crate::Body>)>
 where
     T: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {
+    #[allow(deprecated)]
     Builder::new().handshake(io).await
 }
 
 /// The sender side of an established connection.
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(
+        note = "This type will be replaced with `client::conn::http1::SendRequest` and `client::conn::http2::SendRequest` in 1.0, enable the \"backports\" feature to use them now."
+    )
+)]
 pub struct SendRequest<B> {
     dispatch: dispatch::Sender<Request<B>, Response<Body>>,
 }
@@ -137,6 +157,12 @@ pub struct SendRequest<B> {
 /// In most cases, this should just be spawned into an executor, so that it
 /// can process incoming and outgoing messages, notice hangups, and the like.
 #[must_use = "futures do nothing unless polled"]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(
+        note = "This type will be replaced with `client::conn::http1::Connection` and `client::conn::http2::Connection` in 1.0, enable the \"backports\" feature to use them now."
+    )
+)]
 pub struct Connection<T, B>
 where
     T: AsyncRead + AsyncWrite + Send + 'static,
@@ -149,6 +175,12 @@ where
 ///
 /// After setting options, the builder is used to create a handshake future.
 #[derive(Clone, Debug)]
+#[cfg_attr(
+    feature = "deprecated",
+    deprecated(
+        note = "This type will be replaced with `client::conn::http1::Builder` and `client::conn::http2::Builder` in 1.0, enable the \"backports\" feature to use them now."
+    )
+)]
 pub struct Builder {
     pub(super) exec: Exec,
     h09_responses: bool,
@@ -221,11 +253,12 @@ pub(super) struct Http2SendRequest<B> {
 
 // ===== impl SendRequest
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 impl<B> SendRequest<B> {
     /// Polls to determine whether this sender can be used yet for a request.
     ///
     /// If the associated connection is closed, this returns an Error.
-    pub fn poll_ready(&mut self, cx: &mut task::Context<'_>) -> Poll<crate::Result<()>> {
+    pub fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<crate::Result<()>> {
         self.dispatch.poll_ready(cx)
     }
 
@@ -254,6 +287,7 @@ impl<B> SendRequest<B> {
     }
 }
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 impl<B> SendRequest<B>
 where
     B: HttpBody + 'static,
@@ -339,6 +373,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 impl<B> Service<Request<B>> for SendRequest<B>
 where
     B: HttpBody + 'static,
@@ -347,7 +382,7 @@ where
     type Error = crate::Error;
     type Future = ResponseFuture;
 
-    fn poll_ready(&mut self, cx: &mut task::Context<'_>) -> Poll<Result<(), Self::Error>> {
+    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         self.poll_ready(cx)
     }
 
@@ -356,6 +391,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 impl<B> fmt::Debug for SendRequest<B> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("SendRequest").finish()
@@ -425,6 +461,7 @@ impl<B> Clone for Http2SendRequest<B> {
 
 // ===== impl Connection
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 impl<T, B> Connection<T, B>
 where
     T: AsyncRead + AsyncWrite + Unpin + Send + 'static,
@@ -466,7 +503,7 @@ where
     /// Use [`poll_fn`](https://docs.rs/futures/0.1.25/futures/future/fn.poll_fn.html)
     /// and [`try_ready!`](https://docs.rs/futures/0.1.25/futures/macro.try_ready.html)
     /// to work with this function; or use the `without_shutdown` wrapper.
-    pub fn poll_without_shutdown(&mut self, cx: &mut task::Context<'_>) -> Poll<crate::Result<()>> {
+    pub fn poll_without_shutdown(&mut self, cx: &mut Context<'_>) -> Poll<crate::Result<()>> {
         match *self.inner.as_mut().expect("already upgraded") {
             #[cfg(feature = "http1")]
             ProtoClient::H1 { ref mut h1 } => h1.poll_without_shutdown(cx),
@@ -508,16 +545,17 @@ where
     }
 }
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 impl<T, B> Future for Connection<T, B>
 where
-    T: AsyncRead + AsyncWrite + Unpin + Send + 'static,
+    T: AsyncRead + AsyncWrite + Unpin + Send,
     B: HttpBody + Send + 'static,
     B::Data: Send,
     B::Error: Into<Box<dyn StdError + Send + Sync>>,
 {
     type Output = crate::Result<()>;
 
-    fn poll(mut self: Pin<&mut Self>, cx: &mut task::Context<'_>) -> Poll<Self::Output> {
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         match ready!(Pin::new(self.inner.as_mut().unwrap()).poll(cx))? {
             proto::Dispatched::Shutdown => Poll::Ready(Ok(())),
             #[cfg(feature = "http1")]
@@ -536,6 +574,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 impl<T, B> fmt::Debug for Connection<T, B>
 where
     T: AsyncRead + AsyncWrite + fmt::Debug + Send + 'static,
@@ -548,6 +587,7 @@ where
 
 // ===== impl Builder
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 impl Builder {
     /// Creates a new connection builder.
     #[inline]
@@ -671,10 +711,7 @@ impl Builder {
     /// Note that this setting does not affect HTTP/2.
     ///
     /// Default is false.
-    pub fn http1_ignore_invalid_headers_in_responses(
-        &mut self,
-        enabled: bool,
-    ) -> &mut Builder {
+    pub fn http1_ignore_invalid_headers_in_responses(&mut self, enabled: bool) -> &mut Builder {
         self.h1_parser_config
             .ignore_invalid_headers_in_responses(enabled);
         self
@@ -1031,7 +1068,7 @@ impl Builder {
 impl Future for ResponseFuture {
     type Output = crate::Result<Response<Body>>;
 
-    fn poll(mut self: Pin<&mut Self>, cx: &mut task::Context<'_>) -> Poll<Self::Output> {
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         match self.inner {
             ResponseFutureState::Waiting(ref mut rx) => {
                 Pin::new(rx).poll(cx).map(|res| match res {
@@ -1065,7 +1102,7 @@ where
 {
     type Output = crate::Result<proto::Dispatched>;
 
-    fn poll(self: Pin<&mut Self>, cx: &mut task::Context<'_>) -> Poll<Self::Output> {
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         match self.project() {
             #[cfg(feature = "http1")]
             ProtoClientProj::H1 { h1 } => h1.poll(cx),
@@ -1085,9 +1122,11 @@ where
 trait AssertSend: Send {}
 trait AssertSendSync: Send + Sync {}
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 #[doc(hidden)]
 impl<B: Send> AssertSendSync for SendRequest<B> {}
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 #[doc(hidden)]
 impl<T: Send, B: Send> AssertSend for Connection<T, B>
 where
@@ -1097,6 +1136,7 @@ where
 {
 }
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 #[doc(hidden)]
 impl<T: Send + Sync, B: Send + Sync> AssertSendSync for Connection<T, B>
 where
@@ -1106,6 +1146,7 @@ where
 {
 }
 
+#[cfg_attr(feature = "deprecated", allow(deprecated))]
 #[doc(hidden)]
 impl AssertSendSync for Builder {}
 
