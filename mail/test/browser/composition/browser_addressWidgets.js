@@ -363,6 +363,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     "foo@address.valid",
     "invalid",
     "foo@address",
+    "bar@example.com.", // trailing dot
   ];
   const subjectField = cwc.document.getElementById("msgSubject");
 
@@ -450,6 +451,27 @@ add_task(async function test_pill_creation_in_all_fields() {
         .querySelectorAll("mail-address-pill")[3].emailAddress,
       addresses[3]
     );
+
+    // Write another invalid address in the field.
+    input.focus();
+    input.value = addresses[4];
+    EventUtils.synthesizeKey("VK_TAB", {}, cwc); // Use Tab to create pill
+
+    // Assert the pill was created.
+    await TestUtils.waitForCondition(
+      () =>
+        input
+          .closest(".address-container")
+          .querySelectorAll("mail-address-pill").length == 5,
+      "Pills created"
+    );
+    // Assert the pill has the correct address.
+    Assert.equal(
+      input
+        .closest(".address-container")
+        .querySelectorAll("mail-address-pill.invalid-address")[1].emailAddress,
+      addresses[4]
+    );
   }
 
   // The To field is visible and focused by default when the compose window is
@@ -490,7 +512,7 @@ add_task(async function test_pill_creation_in_all_fields() {
 
   // Focus on the Bcc field and hold press the Backspace key.
   bccInput.focus();
-  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc);
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 6 }, cwc);
 
   // All pills should be deleted, but the focus should remain on the Bcc field.
   Assert.equal(
@@ -515,7 +537,7 @@ add_task(async function test_pill_creation_in_all_fields() {
   Assert.equal(cwc.document.activeElement, ccInput);
 
   // Now we're on the Cc field. Press and hold Backspace to delete all pills.
-  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc);
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 6 }, cwc);
 
   // All pills should be deleted, but the focus should remain on the Cc field.
   Assert.equal(
@@ -540,7 +562,7 @@ add_task(async function test_pill_creation_in_all_fields() {
   Assert.equal(cwc.document.activeElement, toInput);
 
   // Now we're on the To field. Press and hold Backspace to delete all pills.
-  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc);
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 6 }, cwc);
 
   // All pills should be deleted, but the focus should remain on the To field.
   Assert.equal(

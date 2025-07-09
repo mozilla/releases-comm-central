@@ -1001,9 +1001,10 @@
      * Simple email address validation.
      *
      * @param {string} address - An email address.
+     * @returns {boolean} true if valid.
      */
     isValidAddress(address) {
-      return /^[^\s@]+@[^\s@]+$/.test(address);
+      return /^[^\s@]+@[^\s@]+[^.,:;!?-]$/.test(address);
     }
 
     /**
@@ -1655,7 +1656,8 @@
      *
      * @param {HTMLElement} element - The original autocomplete input that
      *   generated the pill.
-     * @param {Array} address - The array containing the recipient's info.
+     * @param {msgIAddressObject[]} address - The array containing the
+     *   recipient's info.
      * @returns {Element} The newly created pill.
      */
     createRecipientPill(element, address) {
