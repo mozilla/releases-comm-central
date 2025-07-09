@@ -82,6 +82,17 @@ const EWS_ROOT_FOLDER: &str = "msgfolderroot";
 // specific value.
 const LOG_NETWORK_PAYLOADS_ENV_VAR: &str = "THUNDERBIRD_LOG_NETWORK_PAYLOADS";
 
+/// The behavior to follow when an operation request results in an
+/// authentication failure.
+enum AuthFailureBehavior {
+    /// Fail immediately without attempting to authenticate again or asking the
+    /// user for new credentials.
+    Silent,
+
+    /// Attempt to authenticate again or ask the user for new credentials.
+    ReAuth,
+}
+
 pub(crate) struct XpComEwsClient<ServerT: RefCounted + 'static> {
     endpoint: Url,
     server: RefPtr<ServerT>,
@@ -127,9 +138,13 @@ where
             Ok(_) => unsafe {
                 listener.OnStopRunningUrl(uri.coerce(), nserror::NS_OK);
             },
-            Err(err) => unsafe {
-                listener.OnStopRunningUrl(uri.coerce(), err.into());
-            },
+            Err(err) => {
+                log::error!("connectivity check failed with error: {}", err);
+
+                unsafe {
+                    listener.OnStopRunningUrl(uri.coerce(), err.into());
+                }
+            }
         }
     }
 
@@ -145,7 +160,11 @@ where
             }],
         };
 
-        let res = self.make_operation_request(get_root_folder).await?;
+        let res = self
+            // Make authentication failure silent, since all we want to know is
+            // whether our credentials are valid.
+            .make_operation_request(get_root_folder, AuthFailureBehavior::Silent)
+            .await?;
 
         let response_message_count = res.response_messages.get_folder_response_message.len();
         if response_message_count != 1 {
@@ -228,7 +247,9 @@ where
                 sync_state: sync_state_token,
             };
 
-            let response = self.make_operation_request(op).await?;
+            let response = self
+                .make_operation_request(op, AuthFailureBehavior::ReAuth)
+                .await?;
             let message = response
                 .response_messages
                 .sync_folder_hierarchy_response_message
@@ -331,7 +352,9 @@ where
                 sync_scope: None,
             };
 
-            let response = self.make_operation_request(op).await?;
+            let response = self
+                .make_operation_request(op, AuthFailureBehavior::ReAuth)
+                .await?;
             let message = response
                 .response_messages
                 .sync_folder_items_response_message
@@ -700,7 +723,9 @@ where
             folder_ids: ids,
         };
 
-        let response = self.make_operation_request(op).await?;
+        let response = self
+            .make_operation_request(op, AuthFailureBehavior::ReAuth)
+            .await?;
 
         let response_messages = response.response_messages.get_folder_response_message;
         validate_response_message_count(&response_messages, DISTINGUISHED_IDS.len())?;
@@ -839,7 +864,9 @@ where
                 folder_ids: to_fetch,
             };
 
-            let response = self.make_operation_request(op).await?;
+            let response = self
+                .make_operation_request(op, AuthFailureBehavior::ReAuth)
+                .await?;
             let messages = response.response_messages.get_folder_response_message;
 
             let mut fetched = messages
@@ -963,7 +990,9 @@ where
                 item_ids: batch_ids,
             };
 
-            let response = self.make_operation_request(op).await?;
+            let response = self
+                .make_operation_request(op, AuthFailureBehavior::ReAuth)
+                .await?;
             for response_message in response.response_messages.get_item_response_message {
                 process_response_message_class(
                     "GetItem",
@@ -1205,7 +1234,9 @@ where
         &self,
         create_item: CreateItem,
     ) -> Result<ItemResponseMessage, XpComEwsError> {
-        let response = self.make_operation_request(create_item).await?;
+        let response = self
+            .make_operation_request(create_item, AuthFailureBehavior::ReAuth)
+            .await?;
 
         // We have only sent one message, therefore the response should only
         // contain one response message.
@@ -1289,7 +1320,9 @@ where
     /// [`UpdateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
     async fn make_update_item_request(&self, update_item: UpdateItem) -> Result<(), XpComEwsError> {
         // Make the operation request using the provided parameters.
-        let response = self.make_operation_request(update_item.clone()).await?;
+        let response = self
+            .make_operation_request(update_item.clone(), AuthFailureBehavior::ReAuth)
+            .await?;
 
         // Get all response messages.
         let response_messages = response.response_messages.update_item_response_message;
@@ -1360,7 +1393,9 @@ where
             suppress_read_receipts: None,
         };
 
-        let response = self.make_operation_request(delete_item).await?;
+        let response = self
+            .make_operation_request(delete_item, AuthFailureBehavior::ReAuth)
+            .await?;
 
         // Make sure we got the amount of response messages matches the amount
         // of messages we requested to have deleted.
@@ -1431,7 +1466,9 @@ where
             }],
             delete_type: DeleteType::HardDelete,
         };
-        let response = self.make_operation_request(delete_folder).await?;
+        let response = self
+            .make_operation_request(delete_folder, AuthFailureBehavior::ReAuth)
+            .await?;
 
         // We have only sent one message, therefore the response should only
         // contain one response message.
@@ -1502,7 +1539,9 @@ where
             },
         };
 
-        let response = self.make_operation_request(update_folder).await?;
+        let response = self
+            .make_operation_request(update_folder, AuthFailureBehavior::ReAuth)
+            .await?;
         let response_messages = response.response_messages.update_folder_response_message;
         validate_response_message_count(&response_messages, 1)?;
 
@@ -1523,7 +1562,11 @@ where
     ///
     /// If the request is throttled, it will be retried after the delay given in
     /// the response.
-    async fn make_operation_request<Op>(&self, op: Op) -> Result<Op::Response, XpComEwsError>
+    async fn make_operation_request<Op>(
+        &self,
+        op: Op,
+        auth_failure_behavior: AuthFailureBehavior,
+    ) -> Result<Op::Response, XpComEwsError>
     where
         Op: Operation,
     {
@@ -1544,7 +1587,9 @@ where
             {
                 Ok(response) => response,
                 Err(err) => {
-                    if matches!(err, XpComEwsError::Authentication) {
+                    if matches!(err, XpComEwsError::Authentication)
+                        && matches!(auth_failure_behavior, AuthFailureBehavior::ReAuth)
+                    {
                         let outcome = handle_auth_failure(self.server.clone())?;
 
                         match outcome {
@@ -1648,7 +1693,7 @@ where
             .client
             .post(&self.endpoint)?
             .header("Authorization", &auth_header_value)
-            .body(request_body, "application/xml")
+            .body(request_body, "text/xml; charset=utf-8")
             .send()
             .await?;
 

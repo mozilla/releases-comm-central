@@ -469,7 +469,7 @@ NS_IMETHODIMP EwsIncomingServer::GetEwsClient(IEwsClient** ewsClient) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Set up the client object with access details.
-  client->Initialize(endpoint, this);
+  rv = client->Initialize(endpoint, this);
   NS_ENSURE_SUCCESS(rv, rv);
 
   client.forget(ewsClient);

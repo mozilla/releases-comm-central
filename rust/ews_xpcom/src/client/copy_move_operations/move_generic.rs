@@ -8,7 +8,9 @@ use nsstring::{nsACString, nsCString};
 use thin_vec::ThinVec;
 use xpcom::{RefCounted, RefPtr};
 
-use crate::client::{process_error_with_cb_cpp, XpComEwsClient, XpComEwsError};
+use crate::client::{
+    process_error_with_cb_cpp, AuthFailureBehavior, XpComEwsClient, XpComEwsError,
+};
 
 /// Trait to adapt varying completion reporting interfaces to a common interface.
 pub(super) trait MoveCallbacks<InputDataT> {
@@ -94,7 +96,7 @@ where
     let operation_data = operation_builder(client, destination_folder_id, ids);
 
     let response = client
-        .make_operation_request(operation_data.clone())
+        .make_operation_request(operation_data.clone(), AuthFailureBehavior::ReAuth)
         .await?;
 
     let new_ids = response_to_ids(response);

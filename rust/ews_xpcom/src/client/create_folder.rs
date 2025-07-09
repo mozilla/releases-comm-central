@@ -10,6 +10,8 @@ use nsstring::nsCString;
 use xpcom::interfaces::IEwsFolderCreateCallbacks;
 use xpcom::{RefCounted, RefPtr};
 
+use crate::client::AuthFailureBehavior;
+
 use super::{
     process_error_with_cb_cpp, process_response_message_class, validate_response_message_count,
     XpComEwsClient, XpComEwsError,
@@ -57,7 +59,9 @@ where
             }],
         };
 
-        let response = self.make_operation_request(op).await?;
+        let response = self
+            .make_operation_request(op, AuthFailureBehavior::ReAuth)
+            .await?;
 
         // Validate the response against our request params and known/assumed
         // constraints on response shape.
