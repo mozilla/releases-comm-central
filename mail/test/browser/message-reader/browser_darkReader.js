@@ -180,11 +180,55 @@ add_task(async function test_message_header_toggle() {
   EventUtils.synthesizeKey("KEY_Escape", {}, aboutMessage);
   await BrowserTestUtils.waitForPopupEvent(panel, "hidden");
 
-  info(`Synthesizing mouse click on dark reader toggle`);
+  info("Synthesizing mouse click on dark reader toggle");
   msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
   EventUtils.synthesizeMouseAtCenter(toggle, {}, aboutMessage);
   await msgLoaded;
-  info(`Message loaded after switching reader mode`);
+  info("Message loaded after switching reader mode");
+
+  await assert_light_style();
+});
+
+add_task(async function test_message_scroll_position() {
+  info("Enable dark message mode.");
+  let msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+  await toggle_dark_reader(true);
+  await msgLoaded;
+
+  info("Scroll the message body.");
+  aboutMessage
+    .getMessagePaneBrowser()
+    .contentDocument.documentElement.scrollTo({
+      top: 143,
+      behavior: "instant",
+    });
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      aboutMessage.getMessagePaneBrowser().contentDocument.documentElement
+        .scrollTop === 143,
+    "The message should have been scrolled to the wanted position"
+  );
+
+  info("Synthesizing mouse click on dark reader toggle");
+  msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("darkReaderToggle"),
+    {},
+    aboutMessage
+  );
+  await msgLoaded;
+
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      aboutMessage.getMessagePaneBrowser().contentDocument.documentElement
+        .scrollTop === 143,
+    "The message should have been scrolled to its original position"
+  );
+  Assert.equal(
+    aboutMessage.document.activeElement,
+    aboutMessage.getMessagePaneBrowser(),
+    "The focus should be on the message browser"
+  );
 
   await assert_light_style();
 });
