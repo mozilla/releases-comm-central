@@ -52,6 +52,21 @@ export const NotificationScheduler = {
   _windowThreshold: 120,
 
   /**
+   * Notifications should not be shown until the startup timeout is complete.
+   *
+   * @type {Promise<null>}
+   */
+  _ready: null,
+
+  /**
+   * The amount of time in milleseconds to delay the first notification after
+   * application startup.
+   *
+   * @type {number}
+   */
+  _startupDelay: 1000 * 60 * 2,
+
+  /**
    * Initialize the notification scheduler with the current notificationManager
    * setup the idle callback and the interaction event listeners that are global.
    *
@@ -83,6 +98,11 @@ export const NotificationScheduler = {
       NotificationManager.CLEAR_NOTIFICATION_EVENT,
       this
     );
+
+    const { promise, resolve } = Promise.withResolvers();
+    this._ready = promise;
+
+    lazy.setTimeout(resolve, this._startupDelay);
 
     Services.obs.addObserver(this, "xul-window-visible");
     Services.obs.addObserver(this, "document-shown");
@@ -197,6 +217,10 @@ export const NotificationScheduler = {
     };
     // Create a promise to be awaited
     const { resolve, reject, promise } = Promise.withResolvers();
+    // Another promise but that will only resolve when the first one is rejected
+    // This is for skipping the ready promise if something invalidates this notification
+    // before the promise is resolved (like remote notifications loading).
+    const { resolve: skipReady, promise: rejection } = Promise.withResolvers();
 
     let interval;
     let timeout;
@@ -253,6 +277,7 @@ export const NotificationScheduler = {
 
     function cleanup() {
       reject(new Error(`Cleaning up active user lock for ${id}`));
+      skipReady();
 
       if (timeout) {
         lazy.clearTimeout(timeout);
@@ -317,6 +342,13 @@ export const NotificationScheduler = {
       "MozUpdateWindowPos",
       debounceCallback
     );
+
+    // This allows the delay to be bypassed for tests.
+    if (this._startupDelay) {
+      // Don't await the _ready promise directly so we can skip this if `promise`
+      // has been rejected while maintaining the original _ready promise.
+      await Promise.race([this._ready, rejection]);
+    }
 
     callback();
 

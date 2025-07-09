@@ -23,6 +23,7 @@ const tabmail = document.getElementById("tabmail");
 add_setup(async function () {
   NotificationManager._PER_TIME_UNIT = 1;
   NotificationScheduler.observe(null, "active");
+  NotificationScheduler._startupDelay = 0;
   NotificationScheduler._idleService.disabled = true;
   // PlacesUtils when executing the CTA needs the profile.
 
