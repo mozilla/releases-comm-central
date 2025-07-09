@@ -83,8 +83,6 @@ interface nsIMsgNewsFolder : nsISupports {
   void forgetAuthenticationCredentials();
   /// @}
 
-  void reorderGroup(in nsIMsgFolder aNewsgroupToMove, in nsIMsgFolder aRefNewsgroup);
-
   nsIMsgFolder addNewsgroup(in AUTF8String newsgroupName, in ACString setStr);
 
   void setReadSetFromStr(in ACString setStr);

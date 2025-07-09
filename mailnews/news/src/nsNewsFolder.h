@@ -67,8 +67,6 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
                                nsIInputStream** stream) override;
   NS_IMETHOD DownloadAllForOffline(nsIUrlListener* listener,
                                    nsIMsgWindow* msgWindow) override;
-  NS_IMETHOD GetSortOrder(int32_t* order) override;
-  NS_IMETHOD SetSortOrder(int32_t order) override;
 
   NS_IMETHOD Shutdown(bool shutdownChildren) override;
 
@@ -117,7 +115,6 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
 
   // the name of the newsgroup.
   nsCString mRawName;
-  int32_t mSortOrder;
 
  private:
   /**

@@ -2988,13 +2988,7 @@ var folderPane = {
     }
 
     for (const [index, folder] of folders.entries()) {
-      event.dataTransfer.mozSetDataAt(
-        folder.server.type == "nntp"
-          ? "text/x-moz-newsfolder"
-          : "text/x-moz-folder",
-        folder,
-        index
-      );
+      event.dataTransfer.mozSetDataAt("text/x-moz-folder", folder, index);
     }
     event.dataTransfer.effectAllowed = folders.some(
       f => f.server.type == "nntp"
@@ -3130,21 +3124,6 @@ var folderPane = {
         }
       }
       event.dataTransfer.dropEffect = "copy";
-    } else if (types.includes("text/x-moz-newsfolder")) {
-      for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
-        const folder = event.dataTransfer
-          .mozGetDataAt("text/x-moz-newsfolder", i)
-          .QueryInterface(Ci.nsIMsgFolder);
-        if (
-          targetFolder.isServer ||
-          targetFolder.server.type != "nntp" ||
-          folder == targetFolder ||
-          folder.server != targetFolder.server
-        ) {
-          return;
-        }
-      }
-      event.dataTransfer.dropEffect = "move";
     } else if (
       types.includes("text/x-moz-url-data") ||
       types.includes("text/x-moz-url")
@@ -3440,20 +3419,6 @@ var folderPane = {
           );
         }
       }
-    } else if (types.includes("text/x-moz-newsfolder")) {
-      const rows = [];
-      for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
-        const folder = event.dataTransfer
-          .mozGetDataAt("text/x-moz-newsfolder", i)
-          .QueryInterface(Ci.nsIMsgFolder);
-
-        const newsRoot = targetFolder.rootFolder.QueryInterface(
-          Ci.nsIMsgNewsFolder
-        );
-        newsRoot.reorderGroup(folder, targetFolder);
-        rows.push(this.getRowForFolder(folder, row.modeName));
-      }
-      this.swapFolderSelection(rows);
     } else if (
       types.includes("text/x-moz-url-data") ||
       types.includes("text/x-moz-url")

@@ -48,20 +48,12 @@
 
 using mozilla::Preferences;
 
-#define kNewsSortOffset 9000
-
-#define NEWS_SCHEME "news:"
-#define SNEWS_SCHEME "snews:"
-
-////////////////////////////////////////////////////////////////////////////////
-
 nsMsgNewsFolder::nsMsgNewsFolder(void)
     : mExpungedBytes(0),
       mGettingNews(false),
       mInitialized(false),
       m_downloadMessageForOfflineUse(false),
-      mReadSet(nullptr),
-      mSortOrder(kNewsSortOffset) {
+      mReadSet(nullptr) {
   mFolderSize = kSizeUnknown;
 }
 
@@ -155,14 +147,6 @@ nsMsgNewsFolder::AddNewsgroup(const nsACString& name, const nsACString& setStr,
 
   rv = folder->SetFlag(nsMsgFolderFlags::Newsgroup);
   if (NS_FAILED(rv)) return rv;
-
-  int32_t numExistingGroups = mSubFolders.Count();
-
-  // add kNewsSortOffset (9000) to prevent this problem:  1,10,11,2,3,4,5
-  // We use 9000 instead of 1000 so newsgroups will sort to bottom of flat
-  // folder views
-  rv = folder->SetSortOrder(numExistingGroups + kNewsSortOffset);
-  NS_ENSURE_SUCCESS(rv, rv);
 
   mSubFolders.AppendObject(folder);
   folder->SetParent(this);
@@ -1076,55 +1060,6 @@ NS_IMETHODIMP nsMsgNewsFolder::ForgetAuthenticationCredentials() {
   return NS_OK;
 }
 
-// change order of subfolders (newsgroups)
-NS_IMETHODIMP nsMsgNewsFolder::ReorderGroup(nsIMsgFolder* aNewsgroupToMove,
-                                            nsIMsgFolder* aRefNewsgroup) {
-  // if folders are identical do nothing
-  if (aNewsgroupToMove == aRefNewsgroup) return NS_OK;
-
-  nsresult rv = NS_OK;
-
-  // get index for aNewsgroupToMove
-  int32_t indexNewsgroupToMove = mSubFolders.IndexOf(aNewsgroupToMove);
-  if (indexNewsgroupToMove == -1)
-    // aNewsgroupToMove is no subfolder of this folder
-    return NS_ERROR_INVALID_ARG;
-
-  // get index for aRefNewsgroup
-  int32_t indexRefNewsgroup = mSubFolders.IndexOf(aRefNewsgroup);
-  if (indexRefNewsgroup == -1)
-    // aRefNewsgroup is no subfolder of this folder
-    return NS_ERROR_INVALID_ARG;
-
-  // Move NewsgroupToMove to new index and set new sort order.
-
-  nsCOMPtr<nsIMsgFolder> newsgroup = mSubFolders[indexNewsgroupToMove];
-
-  mSubFolders.RemoveObjectAt(indexNewsgroupToMove);
-  mSubFolders.InsertObjectAt(newsgroup, indexRefNewsgroup);
-
-  for (uint32_t i = 0; i < mSubFolders.Length(); i++) {
-    mSubFolders[i]->SetSortOrder(kNewsSortOffset + i);
-    nsAutoCString name;
-    mSubFolders[i]->GetName(name);
-    NotifyFolderRemoved(mSubFolders[i]);
-    NotifyFolderAdded(mSubFolders[i]);
-  }
-
-  // write changes back to file
-  nsCOMPtr<nsINntpIncomingServer> nntpServer;
-  rv = GetNntpServer(getter_AddRefs(nntpServer));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = nntpServer->SetNewsrcHasChanged(true);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = nntpServer->WriteNewsrcFile();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return rv;
-}
-
 nsresult nsMsgNewsFolder::CreateBaseMessageURI(const nsACString& aURI) {
   return nsCreateNewsBaseMessageURI(aURI, mBaseMessageURI);
 }
@@ -1365,21 +1300,6 @@ NS_IMETHODIMP nsMsgNewsFolder::GetMessageIdForKey(nsMsgKey key,
   rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, rv);
   return hdr->GetMessageId(result);
-}
-
-NS_IMETHODIMP nsMsgNewsFolder::SetSortOrder(int32_t order) {
-  int32_t oldOrder = mSortOrder;
-  mSortOrder = order;
-
-  NotifyIntPropertyChanged(kSortOrder, oldOrder, order);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgNewsFolder::GetSortOrder(int32_t* order) {
-  NS_ENSURE_ARG_POINTER(order);
-  *order = mSortOrder;
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::Shutdown(bool shutdownChildren) {
