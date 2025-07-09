@@ -4,6 +4,7 @@
 
 import { AccountCreationUtils } from "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs";
 import { OAuth2Module } from "resource:///modules/OAuth2Module.sys.mjs";
+import { DNS } from "resource:///modules/DNS.sys.mjs";
 
 const lazy = {};
 
@@ -24,6 +25,7 @@ const {
   gAccountSetupLogger,
   getStringBundle,
   PriorityOrderAbortable,
+  PromiseAbortable,
   SuccessiveAbortable,
   TimeoutAbortable,
 } = AccountCreationUtils;
@@ -41,13 +43,13 @@ const {
  * reused between calls.
  *
  * @param {ParallelCall} call - The abortable call to register the FetchHTTP
- *                              object with.
+ *   object with.
  * @param {string} url - The URL to fetch.
  * @param {string} username - The username to use for Basic auth and OAuth2.
  * @param {string} password - The password to use for Basic auth.
  * @param {object} callArgs - The arguments to use when creating the new
- *                            FetchHTTP object. This object is not expected to
- *                            include any authentication parameters or headers.
+ *   FetchHTTP object. This object is not expected to include any authentication
+ *   parameters or headers.
  */
 function startFetchWithAuth(call, url, username, password, callArgs) {
   // Creates a new FetchHTTP object with the given arguments, registers it with
@@ -114,6 +116,93 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
   } else {
     // If we can't do OAuth2 for this domain, fall back to Basic auth.
     fetchWithBasicAuth();
+  }
+}
+
+/**
+ * Attempts to fetch a configuration from a URL that came from an
+ * unauthenticated and potentially unsafe source (e.g. a redirect from a plain
+ * HTTP request, or an SRV DNS lookup).
+ *
+ * If the URL's "base" domain (i.e. its first and second level domains) is not
+ * the same as the one from the user's email address, and is not a domain owned
+ * by Microsoft that's commonly used for Autodiscover (such as "outlook.com" or
+ * "office365.com"), the user is prompted with a modal asking them whether they
+ * wish to continue and send an authenticated request to the new URL, or to
+ * cancel.
+ *
+ * @param {PriorityOrderAbortable} priority - The `PriorityOrderAbortable` to
+ *   use for creating new calls.
+ * @param {string} newURL - The new URL to fetch if deemed safe.
+ * @param {string} srcDomain - The domain part of the user's address.
+ * @param {string} username - The username to use for authentication.
+ * @param {string} password - The password to use for authentication.
+ * @param {object} httpArgs - The arguments to pass to FetchHTTP.
+ * @param {Function} confirmCallback - A function that prompts the user to
+ *   confirm (or cancel) if the domain on which the new request would be sent is
+ *   deemed potentially unsafe.
+ * @param {Function} errorCallback - A function that handles any error that
+ *   might occur throughout the process.
+ */
+function fetchFromPotentiallyUnsafeAddress(
+  priority,
+  newURL,
+  srcDomain,
+  username,
+  password,
+  httpArgs,
+  confirmCallback,
+  errorCallback
+) {
+  const newURI = Services.io.newURI(newURL);
+  const newDomain = Services.eTLD.getBaseDomain(newURI);
+  const originalDomain = Services.eTLD.getBaseDomainFromHost(srcDomain);
+
+  function fetchNewURL() {
+    // Note: We need the call to be added here so `priority` does not
+    // believe it has exhausted all of its calls when we move into further
+    // async layers.
+    const fetchCall = priority.addCall();
+    // Now that we're on an HTTPS URL, try again with authentication.
+    startFetchWithAuth(fetchCall, newURL, username, password, httpArgs);
+  }
+
+  const kSafeDomains = ["office365.com", "outlook.com"];
+  if (newDomain != originalDomain && !kSafeDomains.includes(newDomain)) {
+    // Given that we received the redirect URL from an insecure HTTP call,
+    // we ask the user whether he trusts the redirect domain.
+    gAccountSetupLogger.info(
+      `Trying new domain for Autodiscover from HTTP redirect or SRV lookup: ${newDomain}`
+    );
+    const dialogSuccessive = new SuccessiveAbortable();
+    // Because the dialog implements Abortable, the dialog will cancel and
+    // close automatically, if a slow higher priority call returns late.
+    const dialogCall = priority.addCall();
+    dialogCall.setAbortable(dialogSuccessive);
+    errorCallback(new Exception("Redirected"));
+    dialogSuccessive.current = new TimeoutAbortable(
+      lazy.setTimeout(() => {
+        dialogSuccessive.current = confirmCallback(
+          newDomain,
+          () => {
+            // User agreed.
+            fetchNewURL();
+            // Remove the dialog from the call stack.
+            dialogCall.errorCallback()(new Exception("Proceed to fetch"));
+          },
+          e => {
+            // User rejected, or action cancelled otherwise.
+            dialogCall.errorCallback()(e);
+          }
+        );
+        // Account for a slow server response.
+        // This will prevent showing the warning message when not necessary.
+        // The timeout is just for optics. The Abortable ensures that it works.
+      }, 2000)
+    );
+  } else {
+    fetchNewURL();
+    errorCallback(new Exception("Redirected"));
   }
 }
 
@@ -245,69 +334,64 @@ export function fetchConfigFromExchange(
         call3ErrorCallback(ex);
         return;
       }
-      const redirectURI = Services.io.newURI(redirectURL);
-      const redirectDomain = Services.eTLD.getBaseDomain(redirectURI);
-      const originalDomain = Services.eTLD.getBaseDomainFromHost(domain);
 
-      function fetchRedirect() {
-        // Note: We need the call to be added here so `priority` does not
-        // believe it has exhausted all of its calls when we move into further
-        // async layers.
-        const fetchCall = priority.addCall();
-        // Now that we're on an HTTPS URL, try again with authentication.
-        startFetchWithAuth(
-          fetchCall,
-          redirectURL,
-          authUsername,
-          password,
-          callArgs
-        );
-      }
-
-      const kSafeDomains = ["office365.com", "outlook.com"];
-      if (
-        redirectDomain != originalDomain &&
-        !kSafeDomains.includes(redirectDomain)
-      ) {
-        // Given that we received the redirect URL from an insecure HTTP call,
-        // we ask the user whether he trusts the redirect domain.
-        gAccountSetupLogger.info(
-          "AutoDiscover HTTP redirected to other domain"
-        );
-        const dialogSuccessive = new SuccessiveAbortable();
-        // Because the dialog implements Abortable, the dialog will cancel and
-        // close automatically, if a slow higher priority call returns late.
-        const dialogCall = priority.addCall();
-        dialogCall.setAbortable(dialogSuccessive);
-        call3ErrorCallback(new Exception("Redirected"));
-        dialogSuccessive.current = new TimeoutAbortable(
-          lazy.setTimeout(() => {
-            dialogSuccessive.current = confirmCallback(
-              redirectDomain,
-              () => {
-                // User agreed.
-                fetchRedirect();
-                // Remove the dialog from the call stack.
-                dialogCall.errorCallback()(new Exception("Proceed to fetch"));
-              },
-              e => {
-                // User rejected, or action cancelled otherwise.
-                dialogCall.errorCallback()(e);
-              }
-            );
-            // Account for a slow server response.
-            // This will prevent showing the warning message when not necessary.
-            // The timeout is just for optics. The Abortable ensures that it works.
-          }, 2000)
-        );
-      } else {
-        fetchRedirect();
-        call3ErrorCallback(new Exception("Redirected"));
-      }
+      fetchFromPotentiallyUnsafeAddress(
+        priority,
+        redirectURL,
+        domain,
+        authUsername,
+        password,
+        callArgs,
+        confirmCallback,
+        call3ErrorCallback
+      );
     }
   );
   fetch3.start();
   call3.setAbortable(fetch3);
+
+  // On top of the HTTP(S) calls we perform, we also want to see if there's at
+  // least one SRV record for Autodiscover on the domain. If there is, we'll
+  // treat the URL we derive from it the same way we treat the URLs we get from
+  // HTTP redirects (i.e. using `fetchFromPotentiallyUnsafeAddress`), since they
+  // both come from insecure, unauthenticated sources.
+  const call4 = priority.addCall();
+  call4.foundMsg = "srv";
+  const call4ErrorCallback = call4.errorCallback();
+  const srvAbortable = new PromiseAbortable(
+    DNS.srv(`_autodiscover._tcp.${domain}`),
+    records => {
+      // Sort the records by weight. RFC 2782 says hosts with higher weight
+      // should be given a higher probability of being selected.
+      const hostname = records.sort((a, b) => a.weight - b.weight)[0]?.host;
+
+      // It's not clear how likely it is that the lookup succeeds but does not
+      // provide any answer. It's unlikely to happen, but this is here just to
+      // be safe.
+      if (!hostname) {
+        call4ErrorCallback(
+          new Error(`no SRV record for _autodiscover._tcp.${domain}`)
+        );
+      }
+
+      // Build the full URL for autodiscover using the hostname with the highest
+      // priority.
+      const autodiscoverURL = `https://${lazy.Sanitizer.hostname(hostname)}/autodiscover/autodiscover.xml`;
+
+      fetchFromPotentiallyUnsafeAddress(
+        priority,
+        autodiscoverURL,
+        domain,
+        authUsername,
+        password,
+        callArgs,
+        confirmCallback,
+        call4ErrorCallback
+      );
+    },
+    call4ErrorCallback
+  );
+  call4.setAbortable(srvAbortable);
 
   successive.current = priority;
   return successive;
