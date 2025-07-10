@@ -3,14 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "calIItipItem.idl"
-#include "nsIPropertyBag2.idl"
-#include "nsIMsgOpenPGPSink.idl"
-#include "nsIMsgSMIMESink.idl"
 
+interface calIItipItem;
 interface nsIMailProgressListener;
-interface nsIWebProgress;
+interface nsIMimeHeaders;
+interface nsIMsgOpenPGPSink;
+interface nsIMsgSMIMESink;
+interface nsIPropertyBag2;
 interface nsIRequest;
+interface nsIWebProgress;
 
 /**
  * An interface that email-streaming channels can use to provide access to
@@ -26,16 +27,21 @@ interface nsIMailChannel : nsISupports {
   void addHeaderFromMIME(in AUTF8String name, in AUTF8String value);
 
   /**
-   * Header names for this request, available at onStopRequest.
+   * Header names for this request, available at onHeadersComplete.
    * The number of header names is the same as the number of header values,
    * and they are in the same order.
    */
   readonly attribute Array<AUTF8String> headerNames;
 
   /**
-   * Header values for this request, available at onStopRequest.
+   * Header values for this request, available at onHeadersComplete.
    */
   readonly attribute Array<AUTF8String> headerValues;
+
+  /**
+   * Headers in nsIMimeHeaders form, available at onHeadersComplete.
+   */
+  attribute nsIMimeHeaders mimeHeaders;
 
   /**
    * Called by MIME emitters to add attachment info to this mail channel.
@@ -54,7 +60,7 @@ interface nsIMailChannel : nsISupports {
   void addAttachmentFieldFromMIME(in AUTF8String field, in AUTF8String value);
 
   /**
-   * Attachments for this request, available at onStopRequest.
+   * Attachments for this request, available at onAttachmentsComplete.
    */
   readonly attribute Array<nsIPropertyBag2> attachments;
 
@@ -66,13 +72,13 @@ interface nsIMailChannel : nsISupports {
 
   /**
    * The method property of iMIP attachments, as determined by the MIME parser.
-   * Not to be set after onStopRequest.
+   * Not to be set after onAttachmentsComplete.
    */
   attribute AUTF8String imipMethod;
 
   /**
    * The actual iMIP invitation, as created by CalMIMEConverter.
-   * Not to be set after onStopRequest.
+   * Not to be set after onAttachmentsComplete.
    */
   attribute calIItipItem imipItem;
 

@@ -29,7 +29,7 @@ export class MailChannel {
   }
 
   /**
-   * Header names for this request, available at onStopRequest.
+   * Header names for this request, available at onHeadersComplete.
    * The number of header names is the same as the number of header values,
    * and they are in the same order.
    *
@@ -40,13 +40,20 @@ export class MailChannel {
   }
 
   /**
-   * Header values for this request, available at onStopRequest.
+   * Header values for this request, available at onHeadersComplete.
    *
    * @returns {string[]}
    */
   get headerValues() {
     return this._headerValues;
   }
+
+  /**
+   * Headers in nsIMimeHeaders form, available at onHeadersComplete.
+   *
+   * @type {nsIMimeHeaders}
+   */
+  mimeHeaders = null;
 
   /**
    * Called by MIME emitters to add attachment info to this mail channel.
@@ -83,7 +90,7 @@ export class MailChannel {
   }
 
   /**
-   * Attachments for this request, available at onStopRequest.
+   * Attachments for this request, available at onHeadersComplete.
    *
    * @returns {nsIPropertyBag2[]}
    */
@@ -111,7 +118,7 @@ export class MailChannel {
 
   /**
    * The method property of iMIP attachments, as determined by the MIME parser.
-   * Not to be set after onStopRequest.
+   * Not to be set after onHeadersComplete.
    *
    * @type {string}
    */
@@ -119,7 +126,7 @@ export class MailChannel {
 
   /**
    * The actual iMIP invitation, as created by CalMIMEConverter.
-   * Not to be set after onStopRequest.
+   * Not to be set after onHeadersComplete.
    *
    * @type {calIItipItem}
    */

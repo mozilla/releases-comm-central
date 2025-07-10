@@ -28,6 +28,18 @@ nsMailChannel::GetHeaderValues(nsTArray<nsCString>& aHeaderValues) {
 }
 
 NS_IMETHODIMP
+nsMailChannel::GetMimeHeaders(nsIMimeHeaders** mimeHeaders) {
+  NS_IF_ADDREF(*mimeHeaders = mMimeHeaders);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMailChannel::SetMimeHeaders(nsIMimeHeaders* mimeHeaders) {
+  mMimeHeaders = mimeHeaders;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsMailChannel::HandleAttachmentFromMIME(const nsACString& contentType,
                                         const nsACString& url,
                                         const nsACString& displayName,

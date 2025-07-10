@@ -630,9 +630,21 @@ var messageProgressListener = {
       calImipBar.showImipBar(channel.imipItem, channel.imipMethod);
     }
     this.onEndAllAttachments();
-    const uri = channel.URI.QueryInterface(Ci.nsIMsgMailNewsUrl);
-    this.onEndMsgHeaders(uri);
-    this.onEndMsgDownload(uri);
+
+    window.msgLoaded = true;
+    window.dispatchEvent(
+      new CustomEvent("MsgLoaded", { detail: gMessage, bubbles: true })
+    );
+    window.dispatchEvent(
+      new CustomEvent("MsgsLoaded", { detail: [gMessage], bubbles: true })
+    );
+
+    if (gFolder) {
+      gMessageNotificationBar.setJunkMsg(gMessage);
+      HandleMDNResponse(channel.mimeHeaders);
+    }
+
+    this.onEndMsgDownload(channel.URI);
   },
 
   onStartHeaders() {
@@ -927,7 +939,7 @@ var messageProgressListener = {
    * generates the "msgLoaded" property flag change event.  This best
    * corresponds to the end of the streaming process.
    *
-   * @param {nsIMsgMailNewsUrl} url
+   * @param {nsIURI} url
    */
   async onEndMsgDownload(url) {
     const browser = getMessagePaneBrowser();
@@ -1071,16 +1083,6 @@ var messageProgressListener = {
           adjustImg(img);
         }
       }
-    }
-  },
-
-  /**
-   * @param {nsIMsgMailNewsUrl} url
-   */
-  onEndMsgHeaders(url) {
-    if (!url.errorCode) {
-      // Should not mark a message as read if failed to load.
-      OnMsgLoaded(url);
     }
   },
 };
@@ -4210,25 +4212,6 @@ function ClearPendingReadTimer() {
   }
 }
 
-function OnMsgLoaded(aUrl) {
-  window.msgLoaded = true;
-  window.dispatchEvent(
-    new CustomEvent("MsgLoaded", { detail: gMessage, bubbles: true })
-  );
-  window.dispatchEvent(
-    new CustomEvent("MsgsLoaded", { detail: [gMessage], bubbles: true })
-  );
-
-  if (!gFolder) {
-    return;
-  }
-
-  gMessageNotificationBar.setJunkMsg(gMessage);
-
-  // See if MDN was requested but has not been sent.
-  HandleMDNResponse(aUrl);
-}
-
 /**
  * Marks the message as read, optionally after a delay, if the preferences say
  * we should do so.
@@ -4289,18 +4272,12 @@ function autoMarkAsRead() {
 /**
  * This function handles all MDN response generation.
  * For pop the msg uid can be 0 (i.e., 1st msg in a local folder) so no
- * need to check uid here. No one seems to set mimeHeaders to null so
- * no need to check it either.
+ * need to check uid here.
  *
- * @param {nsIMsgMailNewsUrl} url
+ * @param {nsIMimeHeaders} mimeHeaders
  */
-function HandleMDNResponse(url) {
-  const msgFolder = url.folder;
-  if (
-    !msgFolder ||
-    !gMessage ||
-    gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)
-  ) {
+function HandleMDNResponse(mimeHeaders) {
+  if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
     return;
   }
 
@@ -4310,20 +4287,12 @@ function HandleMDNResponse(url) {
     return;
   }
 
-  var mimeHdr;
-
-  try {
-    mimeHdr = url.mimeHeaders;
-  } catch (ex) {
-    return;
-  }
-
   // If we didn't get the message id when we downloaded the message header,
   // we cons up an md5: message id. If we've done that, we'll try to extract
   // the message id out of the mime headers for the whole message.
   const msgId = gMessage.messageId;
   if (msgId.startsWith("md5:") || msgId.startsWith("x-moz-uuid:")) {
-    var mimeMsgId = mimeHdr.extractHeader("Message-Id", false);
+    const mimeMsgId = mimeHeaders.extractHeader("Message-Id", false);
     if (mimeMsgId) {
       gMessage.messageId = mimeMsgId;
     }
@@ -4335,27 +4304,30 @@ function HandleMDNResponse(url) {
     return;
   }
 
-  var DNTHeader = mimeHdr.extractHeader("Disposition-Notification-To", false);
-  var oldDNTHeader = mimeHdr.extractHeader("Return-Receipt-To", false);
+  const DNTHeader = mimeHeaders.extractHeader(
+    "Disposition-Notification-To",
+    false
+  );
+  const oldDNTHeader = mimeHeaders.extractHeader("Return-Receipt-To", false);
   if (!DNTHeader && !oldDNTHeader) {
     return;
   }
 
   // Everything looks good so far, let's generate the MDN response.
-  var mdnGenerator = Cc[
+  const mdnGenerator = Cc[
     "@mozilla.org/messenger-mdn/generator;1"
   ].createInstance(Ci.nsIMsgMdnGenerator);
   const MDN_DISPOSE_TYPE_DISPLAYED = 0;
   const askUser = mdnGenerator.process(
     MDN_DISPOSE_TYPE_DISPLAYED,
     top.msgWindow,
-    msgFolder,
+    gFolder,
     gMessage.messageKey,
-    mimeHdr,
+    mimeHeaders,
     false
   );
   if (askUser) {
-    gMessageNotificationBar.setMDNMsg(mdnGenerator, gMessage, mimeHdr);
+    gMessageNotificationBar.setMDNMsg(mdnGenerator, gMessage, mimeHeaders);
   }
 }
 

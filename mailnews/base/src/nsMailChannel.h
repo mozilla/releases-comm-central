@@ -5,12 +5,15 @@
 #ifndef COMM_MAILNEWS_BASE_SRC_NSMAILCHANNEL_H_
 #define COMM_MAILNEWS_BASE_SRC_NSMAILCHANNEL_H_
 
-#include "nsIMailChannel.h"
-#include "nsIWritablePropertyBag2.h"
-#include "nsTArray.h"
-#include "nsString.h"
 #include "calIItipItem.h"
+#include "nsIMailChannel.h"
+#include "nsIMimeHeaders.h"
+#include "nsIMsgOpenPGPSink.h"
+#include "nsIMsgSMIMESink.h"
 #include "nsIWeakReferenceUtils.h"
+#include "nsIWritablePropertyBag2.h"
+#include "nsString.h"
+#include "nsTArray.h"
 
 class nsMailChannel : public nsIMailChannel {
  public:
@@ -19,6 +22,7 @@ class nsMailChannel : public nsIMailChannel {
  protected:
   nsTArray<nsCString> mHeaderNames;
   nsTArray<nsCString> mHeaderValues;
+  nsCOMPtr<nsIMimeHeaders> mMimeHeaders;
   nsTArray<RefPtr<nsIWritablePropertyBag2>> mAttachments;
   nsCString mMailCharacterSet;
   nsCString mImipMethod;

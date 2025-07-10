@@ -1539,6 +1539,16 @@ extern "C" nsresult mimeEmitterAddAllHeaders(MimeDisplayOptions* opt,
   mime_stream_data* msd = GetMSD(opt);
   if (!msd) return NS_ERROR_FAILURE;
 
+  nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(msd->channel);
+  if (mailChannel) {
+    nsresult rv;
+    nsCOMPtr<nsIMimeHeaders> mimeHeaders =
+        do_CreateInstance(NS_IMIMEHEADERS_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    mimeHeaders->Initialize(Substring(allheaders, allheaders + allheadersize));
+    mailChannel->SetMimeHeaders(mimeHeaders);
+  }
+
   if (msd->output_emitter) {
     nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
     return emitter->AddAllHeaders(

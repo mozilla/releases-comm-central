@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
@@ -38,7 +39,7 @@ export const PhishingDetector = new (class PhishingDetector {
    * Assumes the message has finished loading in the message pane (i.e.
    * OnMsgParsed has fired).
    *
-   * @param {nsIMsgMailNewsUrl} aUrl
+   * @param {nsIURI} aUrl
    *   Url for the message being analyzed.
    * @param {Element} browser
    *   The browser element where the message is loaded.
@@ -52,17 +53,21 @@ export const PhishingDetector = new (class PhishingDetector {
       return false;
     }
 
+    let folder;
     try {
-      // nsIMsgMailNewsUrl.folder can throw an NS_ERROR_FAILURE, especially if
-      // we are opening an .eml file.
-      var folder = aUrl.folder;
+      const server = MailServices.accounts.findServerByURI(aUrl);
+      folder = server.getMsgFolderFromURI(null, aUrl.spec);
+    } catch (ex) {
+      // findServerByURI can throw NS_ERROR_UNEXPECTED, especially if we are
+      // opening an .eml file.
+      if (ex.result != Cr.NS_ERROR_UNEXPECTED) {
+        throw ex;
+      }
+    }
 
+    if (folder) {
       // Ignore nntp and RSS messages.
-      if (
-        !folder ||
-        folder.server.type == "nntp" ||
-        folder.server.type == "rss"
-      ) {
+      if (folder.server.type == "nntp" || folder.server.type == "rss") {
         return false;
       }
 
@@ -74,10 +79,6 @@ export const PhishingDetector = new (class PhishingDetector {
         Ci.nsMsgFolderFlags.Queue;
       if (folder.isSpecialFolder(outgoingFlags, true)) {
         return false;
-      }
-    } catch (ex) {
-      if (ex.result != Cr.NS_ERROR_FAILURE) {
-        throw ex;
       }
     }
 
