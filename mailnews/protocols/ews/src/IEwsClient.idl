@@ -284,6 +284,11 @@ interface IEwsMessageCallbacks : nsISupports
   void updateSyncState(in AUTF8String syncStateToken);
 
   /**
+   * Signals that sync of the current folder is complete.
+   */
+  void onSyncComplete();
+
+  /**
    * Update the read flag for the message with the given EWS ID.
 
    * When a message is marked as read/unread on the EWS server, the EWS server

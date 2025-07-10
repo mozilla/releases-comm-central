@@ -11,6 +11,21 @@ ChromeUtils.defineESModuleGetters(lazy, {
   SmartMailboxUtils: "resource:///modules/SmartMailboxUtils.sys.mjs",
 });
 
+/**
+ * Helper to add logins to the login manager.
+ *
+ * @param {string} hostname
+ * @param {string} username
+ * @param {string} password
+ */
+async function addLoginInfo(hostname, username, password) {
+  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
+  loginInfo.init(hostname, null, hostname, username, password, "", "");
+  await Services.logins.addLoginAsync(loginInfo);
+}
+
 async function focusWindow(win) {
   win.focus();
   await TestUtils.waitForCondition(
@@ -53,6 +68,7 @@ async function openExtensionPopup(win, buttonId) {
 
   return { actionButton, panel, browser };
 }
+
 function getSmartServer() {
   const smartMailbox = lazy.SmartMailboxUtils.getSmartMailbox();
   return smartMailbox.server;

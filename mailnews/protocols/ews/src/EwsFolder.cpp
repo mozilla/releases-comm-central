@@ -327,6 +327,11 @@ NS_IMETHODIMP MessageOperationCallbacks::UpdateSyncState(
   return mFolder->SetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
 }
 
+NS_IMETHODIMP MessageOperationCallbacks::OnSyncComplete() {
+  mFolder->NotifyFolderEvent(kFolderLoaded);
+  return NS_OK;
+}
+
 NS_IMETHODIMP MessageOperationCallbacks::OnError(IEwsClient::Error err,
                                                  const nsACString& desc) {
   NS_ERROR("Error occurred while syncing EWS messages");
