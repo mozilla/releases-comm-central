@@ -3,14 +3,14 @@
 
   "browser_specific_settings": {
     "gecko": {
-      "id": "thunderbird-compact-light@mozilla.org"
+      "id": "thunderbird-light-dark@mozilla.org"
     }
   },
 
-  "name": "Light",
-  "description": "A theme with a light color scheme.",
+  "name": "Thunderbird Theme",
+  "description": "The default light and dark theme.",
   "author": "Mozilla",
-  "version": "1.3",
+  "version": "1.3.1",
 
   "icons": { "32": "icon.svg" },
 
@@ -49,6 +49,41 @@
       "panel_hover": "color-mix(in srgb, currentColor 12%, transparent)",
       "panel_active": "color-mix(in srgb, currentColor 20%, transparent)",
       "panel_active_darker": "color-mix(in srgb, currentColor 27%, transparent)"
+    }
+  },
+
+  "dark_theme": {
+    "colors": {
+      "tab_background_text": "#fafafa",
+      "icons": "#fafafa",
+      "frame": "#18181b",
+      "popup": "#27272a",
+      "popup_text": "#f4f4f5",
+      "popup_border": "#71717a",
+      "popup_highlight": "#2493ef",
+      "tab_line": "#2493ef",
+      "toolbar": "#27272a",
+      "toolbar_bottom_separator": "#18181b",
+      "toolbar_field": "#27272a",
+      "toolbar_field_border": "#71717a",
+      "toolbar_field_border_focus": "#2493ef",
+      "toolbar_field_text": "#f4f4f5",
+      "toolbar_field_focus": "#42424a",
+      "sidebar": "#27272a",
+      "sidebar_text": "#d4d4d8",
+      "sidebar_highlight": "#2493ef",
+      "sidebar_highlight_text": "#fff",
+      "sidebar_highlight_border": "#4cb1f9",
+      "sidebar_border": "#3f3f46",
+      "button": "rgb(63, 62, 71)",
+      "button_hover": "rgb(82, 82, 94)",
+      "button_active": "rgb(91, 91, 102)"
+    },
+    "properties": {
+      "color_scheme": "dark",
+      "panel_hover": "color-mix(in srgb, currentColor 10%, transparent)",
+      "panel_active": "color-mix(in srgb, currentColor 14%, transparent)",
+      "panel_active_darker": "color-mix(in srgb, currentColor 25%, transparent)"
     }
   },
 

@@ -15,14 +15,14 @@ const STANDARD_THEMES_DATA = [
   [
     "thunderbird-compact-light@mozilla.org",
     {
-      version: "1.3",
+      version: "1.3.1",
       path: "light/",
     },
   ],
   [
     "thunderbird-compact-dark@mozilla.org",
     {
-      version: "1.3",
+      version: "1.3.1",
       path: "dark/",
     },
   ],
