@@ -495,6 +495,13 @@ button.email-action-button {
   /* Allow the area to shrink. */
   min-width: 0;
   overflow: hidden;
+  flex: 0 1 auto;
+
+  &.list-expanded {
+    /* By design, attachmentView should not take up more than 1/4 of the message
+       pane space. */
+    max-height: min(var(--preferred-height), 25%);
+  }
 }
 
 #attachmentView,

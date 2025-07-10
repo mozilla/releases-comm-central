@@ -2231,9 +2231,10 @@ function toggleAttachmentList(expanded, updateFocus) {
   }
 
   attachmentToggle.checked = expanded;
+  attachmentList.collapsed = !expanded;
+  attachmentView.classList.toggle("list-expanded", expanded);
 
   if (expanded) {
-    attachmentList.collapsed = false;
     if (!attachmentView.collapsed) {
       attachmentSplitter.collapsed = false;
     }
@@ -2244,25 +2245,25 @@ function toggleAttachmentList(expanded, updateFocus) {
 
     attachmentList.setOptimumWidth();
 
-    // By design, attachmentView should not take up more than 1/4 of the message
-    // pane space
-    attachmentView.style.height =
-      Math.min(
-        attachmentList.preferredHeight,
-        document.getElementById("messagepanebox").getBoundingClientRect()
-          .height / 4
-      ) + "px";
+    // Calculate the preferred height (the height that would allow us to fit
+    // everything without scrollbars) of the attachmentView. Add 2px to account
+    // for item's margin.
+    attachmentView.style.setProperty(
+      "--preferred-height",
+      attachmentList.scrollHeight + attachmentBar.scrollHeight + 2 + "px"
+    );
 
     if (updateFocus) {
       attachmentList.focus();
     }
   } else {
-    attachmentList.collapsed = true;
     attachmentSplitter.collapsed = true;
     attachmentBar.setAttribute(
       "tooltiptext",
       bundle.getString("expandAttachmentPaneTooltip")
     );
+
+    // This may have been set by the XUL splitter.
     attachmentView.style.height = null;
 
     if (updateFocus && document.activeElement == attachmentList) {
