@@ -156,7 +156,7 @@ export const OAuth2TestUtils = {
    *
    * @param {string} token
    */
-  invalidateToken(token) {
+  revokeToken(token) {
     tokens.delete(token);
   },
 

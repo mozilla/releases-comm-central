@@ -7,6 +7,8 @@
  * windows that uses.
  */
 
+/* eslint-disable @microsoft/sdl/no-insecure-url */
+
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
@@ -27,6 +29,7 @@ const generator = new MessageGenerator();
 let localAccount, localRootFolder;
 let imapServer, imapAccount, imapRootFolder, imapInbox;
 let pop3Server, pop3Account, pop3RootFolder, pop3Inbox;
+let ewsServer, ewsAccount, ewsRootFolder, ewsInbox;
 let oAuth2Server;
 
 const allInboxes = [];
@@ -46,9 +49,10 @@ add_setup(async function () {
   localAccount = MailServices.accounts.createLocalMailAccount();
   localRootFolder = localAccount.incomingServer.rootFolder;
 
-  [imapServer, pop3Server] = await ServerTestUtils.createServers([
+  [imapServer, pop3Server, ewsServer] = await ServerTestUtils.createServers([
     ServerTestUtils.serverDefs.imap.oAuth,
     ServerTestUtils.serverDefs.pop3.oAuth,
+    ServerTestUtils.serverDefs.ews.oAuth,
   ]);
 
   imapAccount = MailServices.accounts.createAccount();
@@ -81,12 +85,32 @@ add_setup(async function () {
 
   oAuth2Server = await OAuth2TestUtils.startServer();
 
+  ewsAccount = MailServices.accounts.createAccount();
+  ewsAccount.addIdentity(MailServices.accounts.createIdentity());
+  ewsAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test.test",
+    "ews"
+  );
+  ewsAccount.incomingServer.setStringValue(
+    "ews_url",
+    "http://test.test/EWS/Exchange.asmx"
+  );
+  ewsAccount.incomingServer.prettyName = "EWS Account";
+  ewsAccount.incomingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
+  ewsRootFolder = ewsAccount.incomingServer.rootFolder;
+  // Add the *root folder* to the list of inboxes so that we don't have to
+  // connect now to get the inbox. Once the connection is made for the first
+  // time, the root folder will be replaced by the inbox in `allInboxes`.
+  allInboxes.push(ewsRootFolder);
+
   MockAlertsService.init();
 
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(localAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(pop3Account, false);
+    MailServices.accounts.removeAccount(ewsAccount, false);
 
     Services.logins.removeAllLogins();
     Services.prefs.clearUserPref("mailnews.oauth.loglevel");
@@ -98,10 +122,15 @@ add_setup(async function () {
 });
 
 async function addMessagesToServer(type) {
+  const messages = generator.makeMessages({});
   if (type == "imap") {
-    await imapServer.addMessages(imapInbox, generator.makeMessages({}), false);
+    await imapServer.addMessages(imapInbox, messages, false);
   } else if (type == "pop3") {
-    await pop3Server.addMessages(generator.makeMessages({}));
+    await pop3Server.addMessages(messages);
+  } else if (type == "ews") {
+    await ewsServer.addMessages("inbox", messages);
+  } else if (type == "nntp") {
+    await nntpServer.addMessages("getmessages.newsgroup", messages);
   }
 }
 
@@ -119,6 +148,20 @@ async function fetchMessages(inbox) {
 }
 
 async function waitForMessages(inbox) {
+  if (inbox == ewsRootFolder) {
+    // We don't have an inbox yet, but we *are* expecting to connect to the
+    // server at this point. So connect, sync the folders, and replace the
+    // root folder with the inbox in `allInboxes`.
+    ewsAccount.incomingServer.performExpand(null);
+    ewsInbox = await TestUtils.waitForCondition(
+      () => ewsRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
+      "waiting for EWS folders to sync"
+    );
+
+    allInboxes[allInboxes.indexOf(ewsRootFolder)] = ewsInbox;
+    inbox = ewsInbox;
+  }
+
   await TestUtils.waitForCondition(
     () => inbox.getNumUnread(false) == 10 && inbox.numPendingUnread == 0,
     `waiting for new ${inbox.server.type} messages to be received`
@@ -320,7 +363,7 @@ add_task(async function testBadAccessToken() {
     expiredModule.initFromMail(inbox.server);
     await expiredModule._oauth.connect(false, false);
 
-    OAuth2TestUtils.invalidateToken("bad_access_token");
+    OAuth2TestUtils.revokeToken("bad_access_token");
 
     info(
       `getting messages for ${inbox.server.type} inbox with a bad access token`

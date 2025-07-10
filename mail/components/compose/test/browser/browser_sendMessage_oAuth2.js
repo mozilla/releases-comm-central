@@ -212,7 +212,7 @@ async function subtestBadAccessToken(identity, outgoingServer) {
   expiredModule.initFromOutgoing(outgoingServer);
   await expiredModule._oauth.connect(false, false);
 
-  OAuth2TestUtils.invalidateToken("bad_access_token");
+  OAuth2TestUtils.revokeToken("bad_access_token");
 
   const { composeWindow } = await newComposeWindow(identity);
 
