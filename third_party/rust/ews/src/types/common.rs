@@ -8,6 +8,9 @@ use serde::{Deserialize, Deserializer};
 use time::format_description::well_known::Iso8601;
 use xml_struct::XmlSerialize;
 
+pub mod message_xml;
+pub use self::message_xml::MessageXml;
+
 pub(crate) const MESSAGES_NS_URI: &str =
     "http://schemas.microsoft.com/exchange/services/2006/messages";
 pub(crate) const SOAP_NS_URI: &str = "http://schemas.xmlsoap.org/soap/envelope/";
@@ -1653,25 +1656,6 @@ pub struct InternetMessageHeader {
     #[serde(rename = "$text")]
     #[xml_struct(flatten)]
     pub value: String,
-}
-
-/// Structured data for diagnosing or responding to an EWS error.
-///
-/// Because the possible contents of this field are not documented, any XML
-/// contained in the field is provided as text for debugging purposes. Known
-/// fields which are relevant for programmatic error responses should be
-/// provided as additional fields of this structure.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/messagexml>
-#[derive(Clone, Debug, PartialEq)]
-#[non_exhaustive]
-pub struct MessageXml {
-    /// A text representation of the contents of the field.
-    pub content: String,
-
-    /// The duration in milliseconds to wait before making additional requests
-    /// if the server is throttling operations.
-    pub back_off_milliseconds: Option<usize>,
 }
 
 #[cfg(test)]

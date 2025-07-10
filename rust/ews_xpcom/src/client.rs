@@ -1800,17 +1800,12 @@ fn maybe_get_backoff_delay_ms(err: &ews::Error) -> Option<u32> {
     if let ews::Error::RequestFault(fault) = err {
         // We successfully sent a request, but it was rejected for some reason.
         // Whatever the reason, retry if we're provided with a backoff delay.
-        let delay = fault
-            .as_ref()
-            .detail
-            .as_ref()?
-            .message_xml
-            .as_ref()?
-            .back_off_milliseconds?;
+        let message_xml = fault.as_ref().detail.as_ref()?.message_xml.as_ref()?;
 
-        // There's no maximum delay documented, so we clamp the incoming value
-        // just to be on the safe side.
-        Some(u32::try_from(delay).unwrap_or(u32::MAX))
+        match message_xml {
+            ews::MessageXml::ServerBusy(server_busy) => Some(server_busy.back_off_milliseconds),
+            _ => None,
+        }
     } else {
         None
     }

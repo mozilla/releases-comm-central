@@ -1736,7 +1736,7 @@ dependencies = [
 [[package]]
 name = "ews"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/ews-rs.git?rev=33377856577c415ad75427e1525681d4d33b2877#33377856577c415ad75427e1525681d4d33b2877"
+source = "git+https://github.com/thunderbird/ews-rs.git?rev=8806b6d609108a37eeb911753372a4e385159b74#8806b6d609108a37eeb911753372a4e385159b74"
 dependencies = [
  "log",
  "quick-xml",

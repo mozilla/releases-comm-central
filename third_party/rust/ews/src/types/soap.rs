@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use de::EnvelopeContent;
 use quick_xml::{
     events::{BytesDecl, BytesEnd, BytesStart, Event},
-    Reader, Writer,
+    Writer,
 };
 use serde::Deserialize;
 use xml_struct::XmlSerialize;
@@ -106,20 +107,6 @@ where
 {
     /// Populates an [`Envelope`] from raw XML.
     pub fn from_xml_document(document: &[u8]) -> Result<Self, Error> {
-        // The body of an envelope can contain a fault, indicating an error with
-        // a request. We want to parse that and return it as the `Err` portion
-        // of a result. However, Microsoft includes a field in their fault
-        // responses called `MessageXml` which is explicitly documented as
-        // containing `xs:any`, meaning there is no documented schema for its
-        // contents. However, it may contain details relevant for debugging, so
-        // we want to capture it. Since we don't know what it contains, we
-        // settle for capturing it as XML text, but serde doesn't give us a nice
-        // way of doing that, so we perform this step separately.
-        let fault = extract_maybe_fault(document)?;
-        if let Some(fault) = fault {
-            return Err(Error::RequestFault(Box::new(fault)));
-        }
-
         let de = &mut quick_xml::de::Deserializer::from_reader(document);
 
         // `serde_path_to_error` ensures that we get sufficient information to
@@ -128,270 +115,16 @@ where
         // the context within the structure.
         let envelope: DeserializeEnvelope<B> = serde_path_to_error::deserialize(de)?;
 
-        Ok(Envelope {
-            headers: envelope.header.inner,
-            body: envelope.body,
-        })
-    }
-}
-
-/// Builds a structured representation of the SOAP fault contained in an
-/// [`Envelope`]-containing XML document, if any.
-///
-/// # Errors
-///
-/// An error will be returned if the input is not a valid XML document or if the
-/// document's encoding is not supported.
-fn extract_maybe_fault(document: &[u8]) -> Result<Option<Fault>, Error> {
-    let mut reader = ScopedReader::from_bytes(document);
-
-    // Any fault in the response will always be contained within the body of the
-    // SOAP envelope.
-    let mut envelope_reader = reader
-        .maybe_get_subreader_for_element("Envelope")?
-        .ok_or_else(|| unexpected_response(document))?;
-    let mut body_reader = envelope_reader
-        .maybe_get_subreader_for_element("Body")?
-        .ok_or_else(|| unexpected_response(document))?;
-
-    let fault_reader = body_reader.maybe_get_subreader_for_element("Fault")?;
-    let fault = if let Some(mut reader) = fault_reader {
-        let mut fault_code = None;
-        let mut fault_string = None;
-        let mut fault_actor = None;
-        let mut detail = None;
-
-        while let Some((name, subreader)) = reader.maybe_get_next_subreader()? {
-            match name.as_slice() {
-                b"faultcode" => {
-                    fault_code.replace(subreader.to_string()?);
-                }
-
-                b"faultstring" => {
-                    fault_string.replace(subreader.to_string()?);
-                }
-
-                b"faultactor" => {
-                    fault_actor.replace(subreader.to_string()?);
-                }
-
-                b"detail" => {
-                    detail.replace(parse_detail(subreader)?);
-                }
-
-                _ => {
-                    // Hitting this implies that Microsoft is breaking the SOAP
-                    // spec. We don't want to error and lose the other error
-                    // information we're looking for, but we should log so we
-                    // know it happened.
-                    log::warn!(
-                        "encountered unexpected element {} in soap:Fault containing body `{}'",
-                        subreader.reader.decoder().decode(&name)?,
-                        subreader.to_string()?
-                    )
-                }
-            }
+        match envelope.body {
+            EnvelopeContent::Body(body) => Ok(Envelope {
+                headers: envelope
+                    .header
+                    .expect("all non-fault responses should have headers")
+                    .inner,
+                body,
+            }),
+            EnvelopeContent::Fault(fault) => Err(Error::RequestFault(Box::new(fault))),
         }
-
-        // The SOAP spec requires that `faultcode` and `faultstring` be present.
-        // `faultactor` and `detail` are optional.
-        let fault_code = fault_code.ok_or_else(|| unexpected_response(document))?;
-        let fault_string = fault_string.ok_or_else(|| unexpected_response(document))?;
-
-        Some(Fault {
-            fault_code,
-            fault_string,
-            fault_actor,
-            detail,
-        })
-    } else {
-        None
-    };
-
-    Ok(fault)
-}
-
-/// Deserializes the contents of a `<detail>` element.
-fn parse_detail(mut reader: ScopedReader) -> Result<FaultDetail, Error> {
-    let mut detail = FaultDetail::default();
-
-    while let Some((name, subreader)) = reader.maybe_get_next_subreader()? {
-        match name.as_slice() {
-            b"ResponseCode" => {
-                // This is a hack to avoid an explicit `TryFrom` impl for
-                // `ResponseCode` and to reuse existing machinery/error types.
-                #[derive(Deserialize)]
-                struct ResponseCodeFrame {
-                    #[serde(rename = "ResponseCode")]
-                    response_code: ResponseCode,
-                }
-
-                // `quick_xml` requires us to have some sort of element around
-                // the text to be deserialized or it fails.
-                let frame_text = format!(
-                    "<root><ResponseCode>{}</ResponseCode></root>",
-                    subreader.to_string()?
-                );
-                let de = &mut quick_xml::de::Deserializer::from_reader(frame_text.as_bytes());
-                let frame: ResponseCodeFrame = serde_path_to_error::deserialize(de)?;
-
-                detail.response_code.replace(frame.response_code);
-            }
-
-            b"Message" => {
-                detail.message.replace(subreader.to_string()?);
-            }
-
-            b"MessageXml" => {
-                detail.message_xml.replace(parse_message_xml(subreader)?);
-            }
-
-            // Because the EWS documentation does not cover the contents of the
-            // `detail` field, we're limited to deserializing the field's we've
-            // already encountered. We want to be able to capture any fields we
-            // _don't_ know about as well, though.
-            _ => {
-                // If we've already stored a copy of the full content, we don't
-                // need to replace it.
-                if detail.content.is_none() {
-                    detail.content.replace(reader.to_string()?);
-                }
-            }
-        }
-    }
-
-    Ok(detail)
-}
-
-/// Deserializes the contents of a `<MessageXml>` element.
-fn parse_message_xml(mut reader: ScopedReader) -> Result<MessageXml, Error> {
-    let back_off_milliseconds = loop {
-        // We can't use the subreader methods here without some adaptation, as
-        // we need the `BytesStart` value for reading attributes.
-        match reader.reader.read_event()? {
-            Event::Start(start) => {
-                if start.local_name().as_ref() == b"Value" {
-                    let is_back_off = start.attributes().any(|attr_result| match attr_result {
-                        Ok(attr) => {
-                            attr.key.local_name().as_ref() == b"Name"
-                                && attr.value.as_ref() == b"BackOffMilliseconds"
-                        }
-                        Err(_) => false,
-                    });
-
-                    if is_back_off {
-                        let text = reader.reader.read_text(start.name())?;
-                        if let Ok(value) = text.parse::<usize>() {
-                            break Some(value);
-                        }
-                    }
-                }
-            }
-
-            Event::Eof => break None,
-
-            _ => continue,
-        }
-    };
-
-    Ok(MessageXml {
-        content: reader.to_string()?,
-        back_off_milliseconds,
-    })
-}
-
-/// Creates an `UnexpectedResponse` error from the provided XML bytes.
-fn unexpected_response(document: &[u8]) -> Error {
-    Error::UnexpectedResponse(Vec::from(document))
-}
-
-/// An XML reader interface for the contents of single nodes.
-///
-/// The intent of this interface is to provide a convenient means of processing
-/// XML documents without deep nesting by guaranteeing that only the contents of
-/// a single XML node and its children are processed.
-struct ScopedReader<'content> {
-    /// An event-based reader interface for low-level processing.
-    reader: Reader<&'content [u8]>,
-
-    /// The bytes provided to the reader interface.
-    // quick-xml may not retain a reference to the full content provided to it,
-    // so we need to maintain our own.
-    content: &'content [u8],
-}
-
-impl<'content> ScopedReader<'content> {
-    /// Creates a new reader from bytes representing a portion of an XML
-    /// document.
-    fn from_bytes(content: &'content [u8]) -> Self {
-        Self {
-            reader: Reader::from_reader(content),
-            content,
-        }
-    }
-
-    /// Gets a new reader representing the contents of the next element
-    /// contained within the current reader with a matching name, if any.
-    ///
-    /// The name provided for the element must be the local name, i.e. the name
-    /// of the element without any namespace prefix.
-    fn maybe_get_subreader_for_element(&mut self, local_name: &str) -> Result<Option<Self>, Error> {
-        loop {
-            match self.reader.read_event()? {
-                Event::Start(start) => {
-                    if start.local_name().as_ref() == local_name.as_bytes() {
-                        return self.get_subreader_from_start(&start).map(Some);
-                    }
-                }
-
-                Event::Eof => break,
-
-                _ => continue,
-            }
-        }
-
-        Ok(None)
-    }
-
-    /// Gets a new reader representing the contents of the next element found
-    /// within the current reader, if any, as well as the local name of that
-    /// element.
-    fn maybe_get_next_subreader(&mut self) -> Result<Option<(Vec<u8>, Self)>, Error> {
-        loop {
-            match self.reader.read_event()? {
-                Event::Start(start) => {
-                    let reader = self.get_subreader_from_start(&start)?;
-                    let local_name = start.local_name();
-
-                    return Ok(Some((local_name.as_ref().to_owned(), reader)));
-                }
-
-                Event::Eof => break,
-
-                _ => continue,
-            }
-        }
-
-        Ok(None)
-    }
-
-    /// Gets a new reader representing the contents of the element specified by
-    /// the element start event provided.
-    fn get_subreader_from_start(&mut self, start: &BytesStart<'content>) -> Result<Self, Error> {
-        let span = self.reader.read_to_end(start.name())?;
-        let content = &self.content[span];
-
-        // Notably, in doing this, we throw away any encoding information we may
-        // have had from the original reader. However, Microsoft _appears_ to
-        // send all responses as UTF-8. We'll encounter bigger problems
-        // elsewhere if we run into a non-UTF-8 document, most notably that we
-        // currently don't enable the `encoding` feature for quick-xml.
-        Ok(Self::from_bytes(content))
-    }
-
-    /// Gets a string representation of the contents of the current reader.
-    fn to_string(&self) -> Result<String, Error> {
-        Ok(self.reader.decoder().decode(self.content)?.into_owned())
     }
 }
 
@@ -399,7 +132,7 @@ impl<'content> ScopedReader<'content> {
 /// request.
 ///
 /// See <https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507>
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Deserialize, PartialEq)]
 pub struct Fault {
     /// An error code indicating the fault in the original request.
     // While `faultcode` is defined in the SOAP spec as a `QName`, we avoid
@@ -407,14 +140,14 @@ pub struct Fault {
     // allow for containing a string representation. We could use the `QName`
     // type to parse the contents of the field and store them in our own type if
     // we found value in this field beyond debug output.
-    pub fault_code: String,
+    pub faultcode: String,
 
     /// A human-readable description of the error.
-    pub fault_string: String,
+    pub faultstring: String,
 
     /// A URI indicating the SOAP actor responsible for the error.
     // This may be unused for EWS.
-    pub fault_actor: Option<String>,
+    pub faultactor: Option<String>,
 
     /// Clarifying information about EWS-specific errors.
     pub detail: Option<FaultDetail>,
@@ -423,7 +156,8 @@ pub struct Fault {
 /// EWS-specific details regarding a SOAP fault.
 ///
 /// This element is not documented in the EWS reference.
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
+#[serde(rename_all = "PascalCase")]
 #[non_exhaustive]
 pub struct FaultDetail {
     /// An error code indicating the nature of the issue.
@@ -455,7 +189,18 @@ pub struct FaultDetail {
 mod tests {
     use serde::Deserialize;
 
-    use crate::{types::sealed::EnvelopeBodyContents, Error, OperationResponse, ResponseCode};
+    use crate::{
+        get_folder::{GetFolderResponse, GetFolderResponseMessage, ResponseMessages},
+        types::{
+            common::message_xml::{
+                MessageXmlElement, MessageXmlElements, MessageXmlTagged, MessageXmlValue,
+                ServerBusy,
+            },
+            sealed::EnvelopeBodyContents,
+        },
+        Error, Folder, FolderId, Folders, MessageXml, OperationResponse, ResponseClass,
+        ResponseCode,
+    };
 
     use super::Envelope;
 
@@ -491,18 +236,22 @@ mod tests {
         );
     }
 
+    #[derive(Clone, Debug, Deserialize)]
+    struct Foo;
+
+    impl OperationResponse for Foo {}
+
+    impl EnvelopeBodyContents for Foo {
+        fn name() -> &'static str {
+            "Foo"
+        }
+    }
+
     #[test]
     fn deserialize_envelope_with_schema_fault() {
-        #[derive(Clone, Debug, Deserialize)]
-        struct Foo;
-
-        impl OperationResponse for Foo {}
-
-        impl EnvelopeBodyContents for Foo {
-            fn name() -> &'static str {
-                "Foo"
-            }
-        }
+        // This test will require significant changes if we add SchemaValidation
+        // to the MessageXml enum. Right now, it's testing an "unknown" tagged
+        // element variant with multiple elements.
 
         // This XML is drawn from testing data for `evolution-ews`.
         let xml = r#"<?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><s:Fault><faultcode xmlns:a="http://schemas.microsoft.com/exchange/services/2006/types">a:ErrorSchemaValidation</faultcode><faultstring xml:lang="en-US">The request failed schema validation: The 'Id' attribute is invalid - The value 'invalidparentid' is invalid according to its datatype 'http://schemas.microsoft.com/exchange/services/2006/types:DistinguishedFolderIdNameType' - The Enumeration constraint failed.</faultstring><detail><e:ResponseCode xmlns:e="http://schemas.microsoft.com/exchange/services/2006/errors">ErrorSchemaValidation</e:ResponseCode><e:Message xmlns:e="http://schemas.microsoft.com/exchange/services/2006/errors">The request failed schema validation.</e:Message><t:MessageXml xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"><t:LineNumber>2</t:LineNumber><t:LinePosition>630</t:LinePosition><t:Violation>The 'Id' attribute is invalid - The value 'invalidparentid' is invalid according to its datatype 'http://schemas.microsoft.com/exchange/services/2006/types:DistinguishedFolderIdNameType' - The Enumeration constraint failed.</t:Violation></t:MessageXml></detail></s:Fault></s:Body></s:Envelope>"#;
@@ -512,12 +261,12 @@ mod tests {
 
         if let Error::RequestFault(fault) = err {
             assert_eq!(
-                fault.fault_code, "a:ErrorSchemaValidation",
+                fault.faultcode, "a:ErrorSchemaValidation",
                 "fault code should match original document"
             );
-            assert_eq!(fault.fault_string, "The request failed schema validation: The 'Id' attribute is invalid - The value 'invalidparentid' is invalid according to its datatype 'http://schemas.microsoft.com/exchange/services/2006/types:DistinguishedFolderIdNameType' - The Enumeration constraint failed.", "fault string should match original document");
+            assert_eq!(fault.faultstring, "The request failed schema validation: The 'Id' attribute is invalid - The value 'invalidparentid' is invalid according to its datatype 'http://schemas.microsoft.com/exchange/services/2006/types:DistinguishedFolderIdNameType' - The Enumeration constraint failed.", "fault string should match original document");
             assert!(
-                fault.fault_actor.is_none(),
+                fault.faultactor.is_none(),
                 "fault actor should not be present"
             );
 
@@ -534,10 +283,109 @@ mod tests {
             );
 
             let message_xml = detail.message_xml.expect("message XML should be present");
-            assert_eq!(&message_xml.content, "<t:LineNumber>2</t:LineNumber><t:LinePosition>630</t:LinePosition><t:Violation>The 'Id' attribute is invalid - The value 'invalidparentid' is invalid according to its datatype 'http://schemas.microsoft.com/exchange/services/2006/types:DistinguishedFolderIdNameType' - The Enumeration constraint failed.</t:Violation>", "message XML content should contain full body of MessageXml tag");
+
+            let MessageXml::Other(elements) = message_xml else {
+                panic!("this message XML should only have bare tags")
+            };
+            let expected = MessageXmlElements {
+                elements: vec![
+                    MessageXmlElement::MessageXmlTagged(MessageXmlTagged {
+                        name: "LineNumber".to_string(),
+                        value: "2".to_string()
+                    }),
+                    MessageXmlElement::MessageXmlTagged(MessageXmlTagged {
+                        name: "LinePosition".to_string(),
+                        value: "630".to_string()
+                    }),
+                    MessageXmlElement::MessageXmlTagged(MessageXmlTagged {
+                        name: "Violation".to_string(),
+                        value: "The 'Id' attribute is invalid - The value 'invalidparentid' is invalid according to its datatype 'http://schemas.microsoft.com/exchange/services/2006/types:DistinguishedFolderIdNameType' - The Enumeration constraint failed.".to_string()
+                    })
+                ]
+            };
+            assert_eq!(
+                elements, expected,
+                "message XML should list all tags in order"
+            );
+        } else {
+            panic!("error should be request fault, got: {err:?}");
+        }
+    }
+
+    #[test]
+    fn deserialize_envelope_with_connection_count_fault() {
+        // This test will require significant changes if we add
+        // ExceededConnectionCount to the MessageXml enum. Right now, it's
+        // testing an "unknown" Value variant with multiple Values.
+
+        // This XML is based on https://github.com/OfficeDev/ews-managed-api/issues/293#issuecomment-1506483638
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+  <s:Body>
+    <s:Fault>
+      <faultcode xmlns:a="http://schemas.microsoft.com/exchange/services/2006/types">a:ErrorExceededConnectionCount</faultcode>
+      <faultstring xml:lang="en-US">You have exceeded the available concurrent connections for your account.  Try again once your other requests have completed.</faultstring>
+      <detail>
+        <e:ResponseCode xmlns:e="http://schemas.microsoft.com/exchange/services/2006/errors">ErrorExceededConnectionCount</e:ResponseCode>
+        <e:Message xmlns:e="http://schemas.microsoft.com/exchange/services/2006/errors">You have exceeded the available concurrent connections for your account.  Try again once your other requests have completed.</e:Message>
+        <t:MessageXml xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+          <t:Value Name="Policy">MaxConcurrency</t:Value>
+          <t:Value Name="MaxConcurrencyLimit">27</t:Value>
+          <t:Value Name="ErrorMessage">This operation exceeds the throttling budget for policy part 'MaxConcurrency', policy value '27',  Budget type: 'Ews'.  Suggested backoff time 0 ms.</t:Value>
+        </t:MessageXml>
+      </detail>
+    </s:Fault>
+  </s:Body>
+</s:Envelope>"#;
+
+        let err = <Envelope<Foo>>::from_xml_document(xml.as_bytes())
+            .expect_err("should return error when body contains fault");
+
+        // The testing here isn't as thorough as the invalid schema test due to
+        // the contrived nature of the example. We don't want it to break if we
+        // can get real-world examples.
+        if let Error::RequestFault(fault) = err {
+            assert_eq!(
+                fault.faultcode, "a:ErrorExceededConnectionCount",
+                "fault code should match original document"
+            );
             assert!(
-                message_xml.back_off_milliseconds.is_none(),
-                "back off milliseconds should not be present"
+                fault.faultactor.is_none(),
+                "fault actor should not be present"
+            );
+
+            let detail = fault.detail.expect("fault detail should be present");
+            assert_eq!(
+                detail.response_code,
+                Some(ResponseCode::ErrorExceededConnectionCount),
+                "response code should match original document"
+            );
+
+            let message_xml = detail.message_xml.expect("message XML should be present");
+
+            let MessageXml::Other(elements) = message_xml else {
+                panic!("this message XML should only have bare tags")
+            };
+
+            let expected = MessageXmlElements {
+                elements: vec![
+                    MessageXmlElement::MessageXmlValue(MessageXmlValue {
+                        name: "Policy".to_string(),
+                        value: "MaxConcurrency".to_string()
+                    }),
+                    MessageXmlElement::MessageXmlValue(MessageXmlValue {
+                        name: "MaxConcurrencyLimit".to_string(),
+                        value: "27".to_string()
+                    }),
+                    MessageXmlElement::MessageXmlValue(MessageXmlValue {
+                        name: "ErrorMessage".to_string(),
+                        value: "This operation exceeds the throttling budget for policy part 'MaxConcurrency', policy value '27',  Budget type: 'Ews'.  Suggested backoff time 0 ms.".to_string()
+                    })
+                ]
+            };
+            assert_eq!(
+                elements, expected,
+                "message XML should list all tags in order"
             );
         } else {
             panic!("error should be request fault, got: {err:?}");
@@ -546,17 +394,6 @@ mod tests {
 
     #[test]
     fn deserialize_envelope_with_server_busy_fault() {
-        #[derive(Clone, Debug, Deserialize)]
-        struct Foo;
-
-        impl OperationResponse for Foo {}
-
-        impl EnvelopeBodyContents for Foo {
-            fn name() -> &'static str {
-                "Foo"
-            }
-        }
-
         // This XML is contrived based on what's known of the shape of
         // `ErrorServerBusy` responses. It should be replaced when we have
         // real-life examples.
@@ -570,11 +407,11 @@ mod tests {
         // can get real-world examples.
         if let Error::RequestFault(fault) = err {
             assert_eq!(
-                fault.fault_code, "a:ErrorServerBusy",
+                fault.faultcode, "a:ErrorServerBusy",
                 "fault code should match original document"
             );
             assert!(
-                fault.fault_actor.is_none(),
+                fault.faultactor.is_none(),
                 "fault actor should not be present"
             );
 
@@ -586,9 +423,87 @@ mod tests {
             );
 
             let message_xml = detail.message_xml.expect("message XML should be present");
-            assert_eq!(message_xml.back_off_milliseconds, Some(25));
+
+            assert_eq!(
+                message_xml,
+                MessageXml::ServerBusy(ServerBusy {
+                    back_off_milliseconds: 25
+                })
+            );
         } else {
             panic!("error should be request fault, got: {err:?}");
         }
+    }
+
+    /// Test that deserializing succeeds when the SOAP body includes attributes.
+    /// Serde considers attributes to be the same as nested elements, so our
+    /// deserialization code for SOAP bodies needs to explicitly ignore them.
+    #[test]
+    fn deserialize_envelope_with_attributes_in_body() {
+        // This XML comes from a real life request against one of our test
+        // accounts, using an Exchange Server 2016 instance.
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+                                <s:Envelope
+                                    xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+                                    <s:Header>
+                                        <h:ServerVersionInfo MajorVersion="15" MinorVersion="1" MajorBuildNumber="2507" MinorBuildNumber="57" Version="V2017_07_11"
+                                            xmlns:h="http://schemas.microsoft.com/exchange/services/2006/types"
+                                            xmlns="http://schemas.microsoft.com/exchange/services/2006/types"
+                                            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                                        </s:Header>
+                                        <s:Body
+                                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                                            <m:GetFolderResponse
+                                                xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                                                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+                                                <m:ResponseMessages>
+                                                    <m:GetFolderResponseMessage ResponseClass="Success">
+                                                        <m:ResponseCode>NoError</m:ResponseCode>
+                                                        <m:Folders>
+                                                            <t:Folder>
+                                                                <t:FolderId Id="AQMkADRiZGNhMWIxLWIwOGMtNDQAZjktODk3OS0zZWIxODJjNmI4NWYALgAAA8ZmIFRjoG9PpiagjztHaIcBAFSUeaisgPtKo3c6hV+VzpcAAAIBCAAAAA==" ChangeKey="AQAAABYAAABUlHmorID7SqN3OoVflc6XAAAAAACW"/>
+                                                            </t:Folder>
+                                                        </m:Folders>
+                                                    </m:GetFolderResponseMessage>
+                                                </m:ResponseMessages>
+                                            </m:GetFolderResponse>
+                                        </s:Body>
+                                    </s:Envelope>"#;
+
+        let expected_resp = GetFolderResponse {
+            response_messages: ResponseMessages {
+                get_folder_response_message: vec![GetFolderResponseMessage {
+                    response_class: ResponseClass::Success,
+                    response_code: Some(ResponseCode::NoError),
+                    message_text: None,
+                    folders: Folders { inner: vec![
+                        Folder::Folder {
+                            folder_id: Some(FolderId {
+                                id: "AQMkADRiZGNhMWIxLWIwOGMtNDQAZjktODk3OS0zZWIxODJjNmI4NWYALgAAA8ZmIFRjoG9PpiagjztHaIcBAFSUeaisgPtKo3c6hV+VzpcAAAIBCAAAAA==".to_owned(),
+                                change_key: Some("AQAAABYAAABUlHmorID7SqN3OoVflc6XAAAAAACW".to_owned())
+                            }),
+                            parent_folder_id: None,
+                            folder_class: None,
+                            display_name: None,
+                            total_count: None,
+                            child_folder_count: None,
+                            extended_property: None,
+                            unread_count: None
+                        }
+                    ]},
+                }],
+            },
+        };
+
+        // Check that the XML is successfully deserialized in the first place,
+        // with no error caused by the presence of attributes in the `s:Body`
+        // element.
+        let envelope: Envelope<GetFolderResponse> =
+            Envelope::from_xml_document(xml.as_bytes()).expect("deserialization should succeed");
+
+        // Check that the parsed body is in line with what we expect.
+        assert_eq!(envelope.body, expected_resp);
     }
 }
