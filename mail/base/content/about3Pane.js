@@ -2500,23 +2500,26 @@ var folderPane = {
   /**
    * Update the list of folders if the current mode rely on specific flags.
    *
-   * @param {nsIMsgFolder} item - The target folder.
+   * @param {nsIMsgFolder} folder - The target folder.
    * @param {nsMsgFolderFlags} oldValue - The old flag value.
    * @param {nsMsgFolderFlags} newValue - The updated flag value.
    */
-  changeFolderFlag(item, oldValue, newValue) {
-    this._forAllActiveModes("changeFolderFlag", item, oldValue, newValue);
-    this._changeRows(item, row => row.setFolderTypeFromFolder(item));
+  changeFolderFlag(folder, oldValue, newValue) {
+    this._forAllActiveModes("changeFolderFlag", folder, oldValue, newValue);
+    this._changeRows(folder, row => {
+      row.setFolderTypeFromFolder(folder);
+      row.updateFolderNames(folder);
+    });
   },
 
   /**
    * Update the list of folders to reflect current properties.
    *
-   * @param {nsIMsgFolder} item - The folder whose data to use.
+   * @param {nsIMsgFolder} folder - The folder whose data to use.
    */
-  updateFolderProperties(item) {
-    this._forAllActiveModes("updateFolderProperties", item);
-    this._changeRows(item, row => row.setFolderPropertiesFromFolder(item));
+  updateFolderProperties(folder) {
+    this._forAllActiveModes("updateFolderProperties", folder);
+    this._changeRows(folder, row => row.setFolderPropertiesFromFolder(folder));
   },
 
   /**
