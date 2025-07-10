@@ -521,6 +521,28 @@ var messageProgressListener = {
   ]),
 
   /**
+   * Checks if a channel is for the currently loading message. This could
+   * return false if `displayMessage` is called again before an existing load
+   * completes (possibly before it even begins).
+   *
+   * @param {nsIChannel} channel
+   * @returns {boolean}
+   */
+  _channelIsCurrent(channel) {
+    if (!gMessageURI) {
+      return false;
+    }
+    if (gMessageURI.startsWith("file:")) {
+      // File messages always open in a new about:message, so we don't have to
+      // handle the fact that the channel has a mailbox: URI, not a file: one.
+      return true;
+    }
+    channel.QueryInterface(Ci.nsIChannel);
+    const messageService = MailServices.messageServiceFromURI(gMessageURI);
+    return channel.URI.equals(messageService.getUrlForUri(gMessageURI));
+  },
+
+  /**
    * Step 1: A message has started loading (if the flags include STATE_START).
    *
    * @param {nsIWebProgress} webProgress
@@ -532,7 +554,8 @@ var messageProgressListener = {
   onStateChange(webProgress, request, stateFlags, _status) {
     if (
       !(request instanceof Ci.nsIMailChannel) ||
-      !(stateFlags & Ci.nsIWebProgressListener.STATE_START)
+      !(stateFlags & Ci.nsIWebProgressListener.STATE_START) ||
+      !this._channelIsCurrent(request)
     ) {
       return;
     }
@@ -558,6 +581,9 @@ var messageProgressListener = {
    * @see {nsIMailProgressListener}
    */
   onHeadersComplete(mailChannel) {
+    if (!this._channelIsCurrent(mailChannel)) {
+      return;
+    }
     window.dispatchEvent(
       new CustomEvent("MsgLoading", { detail: gMessage, bubbles: true })
     );
@@ -573,10 +599,13 @@ var messageProgressListener = {
   /**
    * Step 3: The parser has finished reading the body of the message.
    *
-   * @param {nsIMailChannel} _mailChannel
+   * @param {nsIMailChannel} mailChannel
    * @see {nsIMailProgressListener}
    */
-  onBodyComplete(_mailChannel) {
+  onBodyComplete(mailChannel) {
+    if (!this._channelIsCurrent(mailChannel)) {
+      return;
+    }
     autoMarkAsRead();
   },
 
@@ -587,6 +616,9 @@ var messageProgressListener = {
    * @see {nsIMailProgressListener}
    */
   onAttachmentsComplete(mailChannel) {
+    if (!this._channelIsCurrent(mailChannel)) {
+      return;
+    }
     for (const attachment of mailChannel.attachments) {
       this.handleAttachment(
         attachment.getProperty("contentType"),
@@ -622,6 +654,9 @@ var messageProgressListener = {
     }
 
     const channel = docShell.currentDocumentChannel;
+    if (!this._channelIsCurrent(channel)) {
+      return;
+    }
     channel.QueryInterface(Ci.nsIMailChannel);
     currentCharacterSet = channel.mailCharacterSet;
     channel.openpgpSink = null;
