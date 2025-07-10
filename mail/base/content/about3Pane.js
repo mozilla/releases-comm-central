@@ -773,10 +773,7 @@ var folderPaneContextMenu = {
   },
 
   /**
-   * Check if the transfer mode selected from folder context menu is "copy".
-   * If "copy" (!isMove) is selected and the copy is within the same server,
-   * silently change to mode "move".
-   * Do the transfer and return true if moved, false if copied.
+   * Do the folder transfer, move or copy.
    *
    * @param {boolean} isMove
    * @param {nsIMsgFolder} sourceFolder
@@ -784,11 +781,6 @@ var folderPaneContextMenu = {
    * @param {nsIMsgCopyServiceListener} [listener]
    */
   transferFolder(isMove, sourceFolder, targetFolder, listener = null) {
-    if (!isMove && sourceFolder.server == targetFolder.server) {
-      // Don't allow folder copy within the same server; only move allowed.
-      // Can't copy folder intra-server, change to move.
-      isMove = true;
-    }
     // Do the transfer. A slight delay in calling copyFolder() helps the
     // folder-menupopup chain of items get properly closed so the next folder
     // context popup can occur.
@@ -801,7 +793,6 @@ var folderPaneContextMenu = {
         top.msgWindow
       )
     );
-    return isMove;
   },
 
   onCommand(event) {
@@ -910,7 +901,7 @@ var folderPaneContextMenu = {
         break;
       default: {
         // Handle folder context menu items move to, copy to.
-        let isMove = !!event.target.closest("#folderPaneContext-moveMenu");
+        const isMove = !!event.target.closest("#folderPaneContext-moveMenu");
         const isCopy = !!event.target.closest("#folderPaneContext-copyMenu");
 
         if (!isMove && !isCopy) {
@@ -918,7 +909,7 @@ var folderPaneContextMenu = {
         }
 
         const targetFolder = event.target._folder;
-        isMove = this.transferFolder(isMove, folder, targetFolder);
+        this.transferFolder(isMove, folder, targetFolder);
         // Save in prefs the target folder URI and if this was a move or copy.
         // This is to fill in the next folder or message context menu item
         // "Move|Copy to <TargetFolderName> Again".
@@ -3047,10 +3038,6 @@ var folderPane = {
           return;
         }
         const sameServer = sourceFolder.server == targetFolder.server;
-        // Don't copy within same server.
-        if (sameServer && systemDropEffect == "copy") {
-          return;
-        }
         // Don't allow immediate child to be dropped onto its parent.
         if (targetFolder == sourceFolder.parent) {
           return;
@@ -3295,7 +3282,7 @@ var folderPane = {
       );
     } else if (types.includes("text/x-moz-folder")) {
       const rows = [];
-      let isMove = event.dataTransfer.dropEffect == "move";
+      const isMove = event.dataTransfer.dropEffect == "move";
       if (event.dataTransfer.mozItemCount == 1) {
         // Only one folder was dragged and dropped.
         // If the dropped Y-coordinate is near the center of the targetFolder,
@@ -3347,7 +3334,7 @@ var folderPane = {
           sourceFolder.userSortOrder = Ci.nsIMsgFolder.NO_SORT_VALUE;
           // Start the move. This is done in an asynchronous process, so order
           // them in the listener that will be called when the move is complete.
-          isMove = folderPaneContextMenu.transferFolder(
+          folderPaneContextMenu.transferFolder(
             isMove,
             sourceFolder,
             destinationFolder,
@@ -3387,7 +3374,7 @@ var folderPane = {
             .mozGetDataAt("text/x-moz-folder", i)
             .QueryInterface(Ci.nsIMsgFolder);
 
-          isMove = folderPaneContextMenu.transferFolder(
+          folderPaneContextMenu.transferFolder(
             isMove,
             sourceFolder,
             targetFolder
