@@ -278,77 +278,73 @@ export class MessengerContentHandler {
       throw Components.Exception("", Cr.NS_ERROR_ABORT);
     }
 
-    if (remoteCommand != null) {
-      try {
-        var a = /^\s*(\w+)\(([^\)]*)\)\s*$/.exec(remoteCommand);
-        var remoteVerb = a[1].toLowerCase();
-        var remoteParams = a[2].split(",");
+    if (remoteCommand) {
+      const a = /^\s*(\w+)\(([^\)]*)\)\s*$/.exec(remoteCommand);
+      const remoteVerb = a[1].toLowerCase();
+      const remoteParams = a[2].split(",");
 
-        switch (remoteVerb) {
-          case "openurl": {
-            const xuri = cmdLine.resolveURI(remoteParams[0]);
-            openURI(xuri);
-            break;
-          }
-          case "mailto": {
-            const xuri = cmdLine.resolveURI("mailto:" + remoteParams[0]);
-            openURI(xuri);
-            break;
-          }
-          case "xfedocommand":
-            // xfeDoCommand(openBrowser)
-            switch (remoteParams[0].toLowerCase()) {
-              case "openinbox": {
-                getOrOpen3PaneWindow().then(win => win.focus());
-                break;
-              }
-              case "composemessage": {
-                const argstring = Cc[
-                  "@mozilla.org/supports-string;1"
-                ].createInstance(Ci.nsISupportsString);
-                remoteParams.shift();
-                argstring.data = remoteParams.join(",");
-                const args = Cc["@mozilla.org/array;1"].createInstance(
-                  Ci.nsIMutableArray
-                );
-                args.appendElement(argstring);
-                args.appendElement(cmdLine);
-                getOrOpen3PaneWindow().then(win => {
-                  if (!MailServices.accounts.defaultAccount) {
-                    return; // No account yet; can't compose.
-                  }
-                  Services.ww.openWindow(
-                    win,
-                    "chrome://messenger/content/messengercompose/messengercompose.xhtml",
-                    "_blank",
-                    "chrome,dialog=no,all",
-                    args
-                  );
-                });
-                break;
-              }
-              default:
-                throw Components.Exception("", Cr.NS_ERROR_ABORT);
+      switch (remoteVerb) {
+        case "mailto": {
+          // -remote "mailto(foo@example.com)"
+          const xuri = cmdLine.resolveURI("mailto:" + remoteParams[0]);
+          getOrOpen3PaneWindow().then(_win => {
+            if (!MailServices.accounts.defaultAccount) {
+              return; // No account yet; can't compose.
             }
-            break;
-
-          default:
-            // Somebody sent us a remote command we don't know how to process:
-            // just abort.
-            throw Components.Exception(
-              `Unrecognized command: ${remoteParams[0]}`,
-              Cr.NS_ERROR_ABORT
-            );
+            openURI(xuri);
+          });
+          break;
         }
+        case "xfedocommand":
+          switch (remoteParams[0].toLowerCase()) {
+            case "openinbox": {
+              // -remote "xfedocommand(openinbox)"
+              getOrOpen3PaneWindow().then(win => win.focus());
+              break;
+            }
+            case "composemessage": {
+              // -remote "xfedocommand(composemessage,subject='hey',to='foo@example.com',body='hey you',attachment='$(readlink -f /tmp/foo)')"
+              const argstring = Cc[
+                "@mozilla.org/supports-string;1"
+              ].createInstance(Ci.nsISupportsString);
+              remoteParams.shift();
+              argstring.data = remoteParams.join(",");
+              const args = Cc["@mozilla.org/array;1"].createInstance(
+                Ci.nsIMutableArray
+              );
+              args.appendElement(argstring);
+              args.appendElement(cmdLine);
+              getOrOpen3PaneWindow().then(win => {
+                if (!MailServices.accounts.defaultAccount) {
+                  return; // No account yet; can't compose.
+                }
+                Services.ww.openWindow(
+                  win,
+                  "chrome://messenger/content/messengercompose/messengercompose.xhtml",
+                  "_blank",
+                  "chrome,dialog=no,all",
+                  args
+                );
+              });
+              break;
+            }
+            default:
+              throw new Error(
+                `Unexpected xfedocommand param: ${remoteParams[0]}`
+              );
+          }
+          break;
 
-        cmdLine.preventDefault = true;
-      } catch (e) {
-        // If we had a -remote flag but failed to process it, throw
-        // NS_ERROR_ABORT so that the xremote code knows to return a failure
-        // back to the handling code.
-        dump(e);
-        throw Components.Exception("", Cr.NS_ERROR_ABORT);
+        default:
+          // Somebody sent us a remote command we don't know how to process:
+          // just abort.
+          throw Components.Exception(
+            `Unrecognized -remote command: ${remoteParams[0]}`,
+            Cr.NS_ERROR_ABORT
+          );
       }
+
+      cmdLine.preventDefault = true;
     }
 
     var chromeParam = cmdLine.handleFlagWithParam("chrome", false);
