@@ -464,6 +464,10 @@ MailGlue.prototype = {
         // in message databases, causing massive amounts of I/O.
         Services.perms.all;
 
+        // Force early registration of the IMAP protocol handler to avoid
+        // session restore failures.
+        Cc["@mozilla.org/network/protocol;1?name=imap"].getService();
+
         Cc["@mozilla.org/msgFolder/msgFolderService;1"]
           .getService(Ci.nsIMsgFolderService)
           .initializeFolderStrings();
