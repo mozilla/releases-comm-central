@@ -118,6 +118,7 @@ dialog {
 .account-hub-form,
 .account-hub-success-container,
 .account-hub-address-book-form {
+  max-height: 40vh;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -346,7 +347,6 @@ header {
   gap: var(--hub-body-elements-column-gap);
   width: 100%;
   max-width: var(--hub-width);
-  max-height: 40vh;
   text-align: start;
   margin-inline: 0;
 
