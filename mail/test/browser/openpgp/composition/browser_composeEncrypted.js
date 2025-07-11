@@ -285,6 +285,15 @@ add_task(
 );
 
 /**
+ * Tests that sending encrypted with "Send Autocrypt headers" turned off works.
+ */
+add_task(async function testEncryptedMessageNoAutocrypt() {
+  bobIdentity.sendAutocryptHeaders = false;
+  await testEncryptedMessageWithKeyComposition(true, true, false);
+  bobIdentity.sendAutocryptHeaders = true;
+});
+
+/**
  * Tests composition of an encrypted message to a recipient, whom we have no
  * key for, prompts the user.
  *

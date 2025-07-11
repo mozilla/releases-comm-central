@@ -84,6 +84,7 @@ reason = "See bug 1413851."
 ["browser_emlActions.js"]
 
 ["browser_encryptedBccRecipients.js"]
+tags = ["openpgp"]
 
 ["browser_expandLists.js"]
 

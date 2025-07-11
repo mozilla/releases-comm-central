@@ -46,6 +46,9 @@ var { AppConstants } = ChromeUtils.importESModule(
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
 );
+var { EnigmailFuncs } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/funcs.sys.mjs"
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
@@ -120,6 +123,7 @@ var gSendLocked;
 var gContentChanged;
 var gSubjectChanged;
 var gAutoSaving;
+var gAutoSavingInProgress;
 var gCurrentIdentity;
 var defaultSaveOperation;
 var gSendOperationInProgress;
@@ -5960,9 +5964,12 @@ function updateTooltipsOfAddressRow(row) {
   document.l10n.setAttributes(el, "remove-address-row-button", { type });
 }
 
+/**
+ * To be called prior to completing send.
+ *
+ * @see Enigmail.msg.onSendOpenPGP
+ */
 function onSendSMIME() {
-  const emailAddresses = [];
-
   // For signed only messages, use transfer encoding if needed, making it less
   // likely for servers to turn the signature invalid.
   if (
@@ -5972,20 +5979,13 @@ function onSendSMIME() {
     gMsgCompose.compFields.forceMsgEncoding = true;
   }
 
-  try {
-    if (!gMsgCompose.compFields.composeSecure.requireEncryptMessage) {
-      return;
-    }
-
-    for (const email of getEncryptionCompatibleRecipients()) {
-      if (!gSMFields.haveValidCertForEmail(email)) {
-        emailAddresses.push(email);
-      }
-    }
-  } catch (e) {
+  if (!gMsgCompose.compFields.composeSecure.requireEncryptMessage) {
     return;
   }
 
+  const emailAddresses = getEncryptionCompatibleRecipients().filter(
+    email => !gSMFields.haveValidCertForEmail(email)
+  );
   if (emailAddresses.length == 0) {
     return;
   }
@@ -6403,17 +6403,54 @@ async function CompleteGenericSendMessage(msgType) {
   // hook for extra compose pre-processing
   Services.obs.notifyObservers(window, "mail:composeOnSend");
 
-  if (!gSelectedTechnologyIsPGP) {
-    gMsgCompose.compFields.composeSecure.requireEncryptMessage = gSendEncrypted;
-    gMsgCompose.compFields.composeSecure.signMessage = gSendSigned;
-    onSendSMIME();
+  gAutoSaving = msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft;
+  if (gAutoSaving && gAutoSavingInProgress) {
+    return;
   }
-
   let sendError = null;
   try {
+    if (gAutoSaving) {
+      gAutoSavingInProgress = true;
+    }
+
+    if (!gSelectedTechnologyIsPGP) {
+      gMsgCompose.compFields.composeSecure.requireEncryptMessage =
+        gSendEncrypted;
+      gMsgCompose.compFields.composeSecure.signMessage = gSendSigned;
+      onSendSMIME();
+    }
+
+    if (gSelectedTechnologyIsPGP) {
+      if (!(await Enigmail.msg.onSendOpenPGP(msgType))) {
+        Enigmail.msg.resetUpdatedFields();
+        return;
+      }
+    }
+
+    if (gSelectedTechnologyIsPGP || !(gSendSigned || gSendEncrypted)) {
+      const senderKeyId =
+        gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
+      if (gCurrentIdentity.sendAutocryptHeaders && senderKeyId) {
+        const fromMail =
+          EnigmailFuncs.stripEmail(gMsgCompose.compFields.from) ||
+          gCurrentIdentity.email;
+        let keyData = EnigmailKeyRing.getAutocryptKey(
+          "0x" + senderKeyId,
+          fromMail
+        );
+        if (keyData) {
+          keyData =
+            " " + keyData.replace(/(.{72})/g, "$1\r\n ").replace(/\r\n $/, "");
+          gMsgCompose.compFields.setHeader(
+            "Autocrypt",
+            "addr=" + fromMail + "; keydata=\r\n" + keyData
+          );
+        }
+      }
+    }
+
     // Just before we try to send the message, fire off the
-    // compose-send-message event for listeners, so they can do
-    // any pre-security work before sending.
+    // compose-send-message event for listeners.
     const event = new CustomEvent("compose-send-message", {
       cancelable: true,
       detail: { msgType },
@@ -6425,8 +6462,6 @@ async function CompleteGenericSendMessage(msgType) {
         Cr.NS_ERROR_ABORT
       );
     }
-
-    gAutoSaving = msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft;
 
     // disable the ui if we're not auto-saving
     if (!gAutoSaving) {
@@ -6475,6 +6510,10 @@ async function CompleteGenericSendMessage(msgType) {
     console.warn("GenericSendMessage FAILED: " + ex);
     ToggleWindowLock(false);
     sendError = ex;
+  } finally {
+    if (gAutoSaving) {
+      gAutoSavingInProgress = false;
+    }
   }
 
   if (
