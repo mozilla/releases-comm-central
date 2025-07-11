@@ -27,7 +27,7 @@ add_setup(async function () {
     cards[name] = personalBook.addCard(createContact(name, "test"));
   }
 
-  // Add "WorkPhone"
+  // Add "WorkPhone".
   cards.daniel.vCardProperties.addEntry(
     new VCardPropertyEntry("tel", { type: "work" }, "text", "+1555987654321")
   );

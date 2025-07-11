@@ -60,9 +60,6 @@ var gSearchAbViewListener = {
 };
 
 function searchOnLoad() {
-  UIDensity.registerWindow(window);
-  UIFontSize.registerWindow(window);
-
   initializeSearchWidgets();
   initializeSearchWindowWidgets();
 
@@ -182,6 +179,10 @@ function searchOnLoad() {
   gAbResultsTree.addEventListener("viewchange", () =>
     gSearchAbViewListener.onCountChanged(gAbResultsTree.view?.rowCount)
   );
+
+  // Register these after the AutoTreeView widget has been properly initialized.
+  UIDensity.registerWindow(window);
+  UIFontSize.registerWindow(window);
 
   onMore(null);
 }
