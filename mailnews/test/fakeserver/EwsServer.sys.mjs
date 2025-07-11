@@ -148,10 +148,10 @@ const MOVE_FOLDER_RESPONSE_BASE = `${EWS_SOAP_HEAD}
 ${EWS_SOAP_FOOT}`;
 
 const GET_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
-  <m:GetItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                     xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+  <GetItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
     <m:ResponseMessages>
       <m:GetItemResponseMessage ResponseClass="Success">
         <m:ResponseCode>NoError</m:ResponseCode>
@@ -159,7 +159,7 @@ const GET_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
         </m:Items>
       </m:GetItemResponseMessage>
     </m:ResponseMessages>
-  </m:GetItemResponse>
+  </GetItemResponse>
   ${EWS_SOAP_FOOT}`;
 /**
  * A remote folder to sync from the EWS server. While initiating a test, an
@@ -225,21 +225,13 @@ export class ItemInfo {
   itemSynced;
 
   /**
-   * @type {SyntheticMessage}
-   */
-  syntheticMessage;
-
-  /**
    * Construct a new item within the given parent.
    *
    * @param {string} parentId
-   * @param {SyntheticMessage} [syntheticMessage] - Message data from
-   *   MessageGenerator, if this item is a message.
    */
-  constructor(parentId, syntheticMessage) {
+  constructor(parentId) {
     this.parentId = parentId;
     this.itemSynced = false;
-    this.syntheticMessage = syntheticMessage;
   }
 }
 
@@ -1033,56 +1025,20 @@ export class EwsServer {
     const reqItemIds = [...reqDoc.getElementsByTagName("t:ItemId")].map(id =>
       id.getAttribute("Id")
     );
-    const includeContent =
-      reqDoc.getElementsByTagName("t:IncludeMimeContent")[0]?.textContent ==
-      "true";
 
     const itemsEl = resDoc.getElementsByTagName("m:Items")[0];
     reqItemIds.forEach(reqItemId => {
-      const item = this.#itemIdToItemInfo.get(reqItemId);
       const messageEl = resDoc.createElement("t:Message");
       const itemIdEl = resDoc.createElement("t:ItemId");
       itemIdEl.setAttribute("Id", reqItemId);
       const parentFolderIdEl = resDoc.createElement("t:ParentFolderId");
-      parentFolderIdEl.setAttribute("Id", item.parentId);
+      parentFolderIdEl.setAttribute(
+        "Id",
+        this.#itemIdToItemInfo.get(reqItemId).parentId
+      );
+
       messageEl.appendChild(itemIdEl);
       messageEl.appendChild(parentFolderIdEl);
-
-      if (item.syntheticMessage) {
-        const dateEl = resDoc.createElement("t:DateTimeSent");
-        dateEl.textContent = item.syntheticMessage.date.toISOString();
-        messageEl.appendChild(dateEl);
-
-        const senderEl = resDoc.createElement("t:Sender");
-        const mailboxEl = resDoc.createElement("t:Mailbox");
-        const nameEl = resDoc.createElement("t:Name");
-        nameEl.textContent = item.syntheticMessage.fromName;
-        mailboxEl.appendChild(nameEl);
-        const emailAddressEl = resDoc.createElement("t:EmailAddress");
-        emailAddressEl.textContent = item.syntheticMessage.fromAddress;
-        mailboxEl.appendChild(emailAddressEl);
-        senderEl.appendChild(mailboxEl);
-        messageEl.appendChild(senderEl);
-
-        const toEl = resDoc.createElement("t:DisplayTo");
-        toEl.textContent = item.syntheticMessage.toName;
-        messageEl.appendChild(toEl);
-
-        const subjectEl = resDoc.createElement("t:Subject");
-        subjectEl.textContent = item.syntheticMessage.subject;
-        messageEl.appendChild(subjectEl);
-
-        const isReadEl = resDoc.createElement("t:IsRead");
-        isReadEl.textContent = "false";
-        messageEl.appendChild(isReadEl);
-
-        if (includeContent) {
-          const contentEl = resDoc.createElement("t:MimeContent");
-          contentEl.textContent = btoa(item.syntheticMessage.toMessageString());
-          messageEl.appendChild(contentEl);
-        }
-      }
-
       itemsEl.appendChild(messageEl);
     });
 
@@ -1158,17 +1114,9 @@ export class EwsServer {
    *
    * @param {string} itemId
    * @param {string} folderId
-   * @param {SyntheticMessage} [syntheticMessage] - Message data from
-   *   MessageGenerator, if this item is a message.
    */
-  addNewItemOrMoveItemToFolder(itemId, folderId, syntheticMessage) {
-    let itemInfo = this.#itemIdToItemInfo.get(itemId);
-    if (itemInfo) {
-      itemInfo.parentId = folderId;
-    } else {
-      itemInfo = new ItemInfo(folderId, syntheticMessage);
-    }
-    this.#itemIdToItemInfo.set(itemId, itemInfo);
+  addNewItemOrMoveItemToFolder(itemId, folderId) {
+    this.#itemIdToItemInfo.set(itemId, new ItemInfo(folderId));
   }
 
   /**

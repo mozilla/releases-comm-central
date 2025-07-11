@@ -591,7 +591,6 @@ where
             sync_state_token = Some(message.sync_state);
         }
 
-        unsafe { callbacks.OnSyncComplete() }.to_result()?;
         Ok(())
     }
 
