@@ -11,6 +11,8 @@
  * being tested is performed, then the test waits for the messages to appear.
  */
 
+/* eslint-disable @microsoft/sdl/no-insecure-url */
+
 requestLongerTimeout(2);
 
 const { MailConsts } = ChromeUtils.importESModule(
@@ -33,6 +35,7 @@ const generator = new MessageGenerator();
 let localAccount, localRootFolder;
 let imapServer, imapAccount, imapRootFolder, imapInbox;
 let pop3Server, pop3Account, pop3RootFolder, pop3Inbox;
+let ewsServer, ewsAccount, ewsRootFolder, ewsInbox;
 let nntpServer, nntpAccount, nntpRootFolder, nntpFolder;
 
 const allInboxes = [];
@@ -50,11 +53,13 @@ add_setup(async function () {
   localAccount = MailServices.accounts.createLocalMailAccount();
   localRootFolder = localAccount.incomingServer.rootFolder;
 
-  [imapServer, pop3Server, nntpServer] = await ServerTestUtils.createServers([
-    ServerTestUtils.serverDefs.imap.plain,
-    ServerTestUtils.serverDefs.pop3.plain,
-    ServerTestUtils.serverDefs.nntp.plain,
-  ]);
+  [imapServer, pop3Server, ewsServer, nntpServer] =
+    await ServerTestUtils.createServers([
+      ServerTestUtils.serverDefs.imap.plain,
+      ServerTestUtils.serverDefs.pop3.plain,
+      ServerTestUtils.serverDefs.ews.plain,
+      ServerTestUtils.serverDefs.nntp.plain,
+    ]);
   nntpServer.addGroup("getmessages.newsgroup");
 
   imapAccount = MailServices.accounts.createAccount();
@@ -66,6 +71,7 @@ add_setup(async function () {
   );
   imapAccount.incomingServer.prettyName = "IMAP Account";
   imapAccount.incomingServer.port = 143;
+  await addLoginInfo("imap://test.test", "user", "password");
   imapRootFolder = imapAccount.incomingServer.rootFolder;
   imapInbox = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   allInboxes.push(imapInbox);
@@ -79,27 +85,31 @@ add_setup(async function () {
   );
   pop3Account.incomingServer.prettyName = "POP3 Account";
   pop3Account.incomingServer.port = 110;
+  await addLoginInfo("mailbox://test.test", "user", "password");
   pop3RootFolder = pop3Account.incomingServer.rootFolder;
   pop3Inbox = pop3RootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   allInboxes.push(pop3Inbox);
 
-  // Add saved passwords for the defined accounts. This is deliberately above
-  // the NNTP set-up, as that doesn't require a password.
-  for (const inbox of allInboxes) {
-    const loginInfo = Cc[
-      "@mozilla.org/login-manager/loginInfo;1"
-    ].createInstance(Ci.nsILoginInfo);
-    loginInfo.init(
-      `${inbox.server.localStoreType}://test.test`,
-      null,
-      `${inbox.server.localStoreType}://test.test`,
-      "user",
-      "password",
-      "",
-      ""
-    );
-    await Services.logins.addLoginAsync(loginInfo);
-  }
+  ewsAccount = MailServices.accounts.createAccount();
+  ewsAccount.addIdentity(MailServices.accounts.createIdentity());
+  ewsAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test.test",
+    "ews"
+  );
+  ewsAccount.incomingServer.setStringValue(
+    "ews_url",
+    "http://test.test/EWS/Exchange.asmx"
+  );
+  ewsAccount.incomingServer.prettyName = "EWS Account";
+  await addLoginInfo("ews://test.test", "user", "password");
+  ewsRootFolder = ewsAccount.incomingServer.rootFolder;
+  ewsAccount.incomingServer.performExpand(null);
+  ewsInbox = await TestUtils.waitForCondition(
+    () => ewsRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
+    "waiting for EWS folders to sync"
+  );
+  allInboxes.push(ewsInbox);
 
   nntpAccount = MailServices.accounts.createAccount();
   nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
@@ -131,6 +141,7 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(localAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(pop3Account, false);
+    MailServices.accounts.removeAccount(ewsAccount, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
     storeState({});
     Services.logins.removeAllLogins();
@@ -138,15 +149,15 @@ add_setup(async function () {
 });
 
 async function addMessagesToServer(type) {
+  const messages = generator.makeMessages({});
   if (type == "imap") {
-    await imapServer.addMessages(imapInbox, generator.makeMessages({}), false);
+    await imapServer.addMessages(imapInbox, messages, false);
   } else if (type == "pop3") {
-    await pop3Server.addMessages(generator.makeMessages({}));
+    await pop3Server.addMessages(messages);
+  } else if (type == "ews") {
+    await ewsServer.addMessages("inbox", messages);
   } else if (type == "nntp") {
-    await nntpServer.addMessages(
-      "getmessages.newsgroup",
-      generator.makeMessages({})
-    );
+    await nntpServer.addMessages("getmessages.newsgroup", messages);
   }
 }
 
