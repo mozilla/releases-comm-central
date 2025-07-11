@@ -202,6 +202,13 @@ add_task(async function testRSS() {
     "The date label on the subject line is visible"
   );
 
+  aboutMessage.document
+    .querySelector("#expandedcontent-baseBox .text-link")
+    .click();
+  MockExternalProtocolService.assertHasLoadedURL(
+    "https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/article.html?object=tx,1234.5"
+  );
+
   await BrowserTestUtils.synthesizeMouseAtCenter("a", {}, messagePane);
   MockExternalProtocolService.assertHasLoadedURL(
     "https://example.org/link/from/description"
@@ -212,7 +219,7 @@ add_task(async function testRSS() {
   loadedPromise = BrowserTestUtils.browserLoaded(
     messagePane,
     false,
-    "https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/article.html"
+    "https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/article.html?object=tx%2C1234.5"
   );
   window.FeedMessageHandler.onSelectPref = 0;
   await loadedPromise;

@@ -9,7 +9,7 @@
 
     <item>
       <title>Test Article</title>
-      <link>https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/article.html</link>
+      <link>https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/article.html?object=tx%2C1234.5</link>
       <pubDate>Wed, 20 Jan 2021 17:00:39 +0000</pubDate>
 
       <description><![CDATA[

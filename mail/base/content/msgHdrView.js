@@ -880,8 +880,10 @@ var messageProgressListener = {
 
     // For content-base urls stored uri encoded, we want to decode for
     // display (and encode for external link open).
+    // Use decodeURIComponent so that url encoded parameters do not get double
+    // encoded later when we encodeURI for opening.
     if ("content-base" in currentHeaderData) {
-      currentHeaderData["content-base"].headerValue = decodeURI(
+      currentHeaderData["content-base"].headerValue = decodeURIComponent(
         currentHeaderData["content-base"].headerValue
       );
     }
