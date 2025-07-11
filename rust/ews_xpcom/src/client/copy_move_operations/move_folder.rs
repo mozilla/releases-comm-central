@@ -10,13 +10,14 @@ use thin_vec::ThinVec;
 use xpcom::interfaces::IEwsFolderMoveCallbacks;
 use xpcom::{RefCounted, RefPtr};
 
+use crate::authentication::credentials::AuthenticationProvider;
 use crate::client::{process_response_message_class, XpComEwsClient, XpComEwsError};
 
 use super::move_generic::{move_generic, MoveCallbacks};
 
 impl<ServerT> XpComEwsClient<ServerT>
 where
-    ServerT: UserInteractiveServer + RefCounted,
+    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
 {
     pub(crate) async fn move_folder(
         self,

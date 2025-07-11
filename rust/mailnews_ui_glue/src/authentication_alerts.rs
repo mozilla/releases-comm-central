@@ -111,6 +111,15 @@ fn notify_password_failure<ServerT>(server: RefPtr<ServerT>) -> Result<AuthError
 where
     ServerT: UserInteractiveServer + RefCounted + 'static,
 {
+    // If there isn't a password set on the server, there's no point asking the
+    // user if they want to retry, so we skip straight to prompting for a new
+    // one.
+    let password = server.password()?;
+    if password.is_empty() {
+        prompt_for_password(server, String::new())?;
+        return Ok(AuthErrorOutcome::RETRY);
+    }
+
     let host_name = server.host_name()?;
     let username = server.username()?;
     let display_name = server.display_name()?;

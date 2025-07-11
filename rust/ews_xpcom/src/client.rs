@@ -7,7 +7,7 @@ mod create_folder;
 mod server_version;
 
 use std::{
-    cell::Cell,
+    cell::{Cell, RefCell},
     cmp::Ordering,
     collections::{HashMap, HashSet, VecDeque},
     env,
@@ -55,7 +55,10 @@ use xpcom::{
     RefCounted, RefPtr,
 };
 
-use crate::{authentication::credentials::Credentials, cancellable_request::CancellableRequest};
+use crate::{
+    authentication::credentials::{AuthenticationProvider, Credentials},
+    cancellable_request::CancellableRequest,
+};
 use crate::{
     headers::{Mailbox, MessageHeaders},
     safe_xpcom::{EwsClientError, SafeEwsFolderCallbacks},
@@ -96,14 +99,14 @@ enum AuthFailureBehavior {
 pub(crate) struct XpComEwsClient<ServerT: RefCounted + 'static> {
     endpoint: Url,
     server: RefPtr<ServerT>,
-    credentials: Credentials,
+    credentials: RefCell<Credentials>,
     client: moz_http::Client,
     server_version: Cell<ExchangeServerVersion>,
 }
 
 impl<ServerT> XpComEwsClient<ServerT>
 where
-    ServerT: UserInteractiveServer + RefCounted + 'static,
+    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted + 'static,
 {
     pub(crate) fn new(
         endpoint: Url,
@@ -115,7 +118,7 @@ where
         Ok(XpComEwsClient {
             endpoint,
             server,
-            credentials,
+            credentials: RefCell::new(credentials),
             client: moz_http::Client::new(),
             server_version: Cell::new(server_version),
         })
@@ -1576,6 +1579,14 @@ where
                     {
                         let outcome = handle_auth_failure(self.server.clone())?;
 
+                        // Refresh the credentials before potentially retrying,
+                        // because they might have changed (e.g. if the user
+                        // entered a new password after being prompted for one),
+                        // and should we emit more requests using this client,
+                        // we should be using up to date credentials.
+                        let credentials = self.server.get_credentials()?;
+                        self.credentials.replace(credentials);
+
                         match outcome {
                             AuthErrorOutcome::RETRY => continue,
                             AuthErrorOutcome::ABORT => return Err(err),
@@ -1652,7 +1663,7 @@ where
     ) -> Result<Response, XpComEwsError> {
         // Fetch the Authorization header value for each request in case of
         // token expiration between requests.
-        let auth_header_value = match self.credentials.to_auth_header_value().await {
+        let auth_header_value = match self.credentials.borrow().to_auth_header_value().await {
             Ok(value) => value,
             // The OAuth2 module will return `NS_ERROR_ABORT` if it's failed
             // to get credentials even after prompting the user again. We

@@ -8,8 +8,9 @@ use nsstring::{nsACString, nsCString};
 use thin_vec::ThinVec;
 use xpcom::{RefCounted, RefPtr};
 
-use crate::client::{
-    process_error_with_cb_cpp, AuthFailureBehavior, XpComEwsClient, XpComEwsError,
+use crate::{
+    authentication::credentials::AuthenticationProvider,
+    client::{process_error_with_cb_cpp, AuthFailureBehavior, XpComEwsClient, XpComEwsError},
 };
 
 /// Trait to adapt varying completion reporting interfaces to a common interface.
@@ -62,7 +63,7 @@ pub(super) async fn move_generic<ServerT, OperationDataT, CallbacksT>(
     response_to_ids: fn(OperationDataT::Response) -> ThinVec<nsCString>,
     callbacks: RefPtr<CallbacksT>,
 ) where
-    ServerT: UserInteractiveServer + RefCounted,
+    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
     OperationDataT: Operation + Clone,
     CallbacksT: MoveCallbacks<OperationDataT> + RefCounted,
 {
@@ -89,7 +90,7 @@ async fn move_generic_inner<ServerT, OperationDataT, CallbacksT>(
     callbacks: &CallbacksT,
 ) -> Result<(), XpComEwsError>
 where
-    ServerT: UserInteractiveServer + RefCounted,
+    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
     OperationDataT: Operation + Clone,
     CallbacksT: MoveCallbacks<OperationDataT> + RefCounted,
 {

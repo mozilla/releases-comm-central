@@ -11,7 +11,10 @@ use nserror::nsresult;
 use nsstring::{nsCString, nsString};
 use xpcom::{
     create_instance,
-    interfaces::{msgIOAuth2Module, nsIMsgIncomingServer, nsMsgAuthMethod, nsMsgAuthMethodValue},
+    interfaces::{
+        msgIOAuth2Module, nsIMsgIncomingServer, nsIMsgOutgoingServer, nsMsgAuthMethod,
+        nsMsgAuthMethodValue,
+    },
     RefPtr,
 };
 
@@ -101,7 +104,15 @@ pub(crate) trait AuthenticationProvider {
     }
 }
 
-impl AuthenticationProvider for &nsIMsgIncomingServer {
+impl AuthenticationProvider for nsIMsgIncomingServer {
+    fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult> {
+        let mut auth_method: nsMsgAuthMethodValue = 0;
+
+        unsafe { self.GetAuthMethod(&mut auth_method) }.to_result()?;
+
+        Ok(auth_method)
+    }
+
     fn username(&self) -> Result<nsCString, nsresult> {
         let mut username = nsCString::new();
 
@@ -116,14 +127,6 @@ impl AuthenticationProvider for &nsIMsgIncomingServer {
         unsafe { self.GetPassword(&mut *password) }.to_result()?;
 
         Ok(password)
-    }
-
-    fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult> {
-        let mut auth_method: nsMsgAuthMethodValue = 0;
-
-        unsafe { self.GetAuthMethod(&mut auth_method) }.to_result()?;
-
-        Ok(auth_method)
     }
 
     fn oauth2_module(&self) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult> {
@@ -141,5 +144,46 @@ impl AuthenticationProvider for &nsIMsgIncomingServer {
         };
 
         Ok(ret)
+    }
+}
+
+impl AuthenticationProvider for nsIMsgOutgoingServer {
+    fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult> {
+        let mut auth_method: nsMsgAuthMethodValue = 0;
+
+        unsafe { self.GetAuthMethod(&mut auth_method) }.to_result()?;
+
+        Ok(auth_method)
+    }
+
+    fn username(&self) -> Result<nsCString, nsresult> {
+        let mut username = nsCString::new();
+
+        unsafe { self.GetUsername(&mut *username) }.to_result()?;
+
+        Ok(username)
+    }
+
+    fn password(&self) -> Result<nsString, nsresult> {
+        let mut password = nsCString::new();
+
+        unsafe { self.GetPassword(&mut *password) }.to_result()?;
+
+        let password = password.to_string();
+        let password = nsString::from(password.as_str());
+        Ok(password)
+    }
+
+    fn oauth2_module(&self) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult> {
+        let oauth2_module =
+            create_instance::<msgIOAuth2Module>(cstr!("@mozilla.org/mail/oauth2-module;1")).ok_or(
+                Err::<RefPtr<msgIOAuth2Module>, _>(nserror::NS_ERROR_FAILURE),
+            )?;
+
+        let mut oauth2_supported = false;
+        unsafe { oauth2_module.InitFromOutgoing(self.coerce(), &mut oauth2_supported) }
+            .to_result()?;
+
+        Ok(oauth2_supported.then_some(oauth2_module))
     }
 }

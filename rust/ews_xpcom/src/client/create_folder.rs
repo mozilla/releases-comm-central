@@ -10,6 +10,7 @@ use nsstring::nsCString;
 use xpcom::interfaces::IEwsFolderCreateCallbacks;
 use xpcom::{RefCounted, RefPtr};
 
+use crate::authentication::credentials::AuthenticationProvider;
 use crate::client::AuthFailureBehavior;
 
 use super::{
@@ -19,7 +20,7 @@ use super::{
 
 impl<ServerT> XpComEwsClient<ServerT>
 where
-    ServerT: UserInteractiveServer + RefCounted,
+    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
 {
     pub(crate) async fn create_folder(
         self,
