@@ -8,6 +8,11 @@ const { Sanitizer } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/Sanitizer.sys.mjs"
 );
 
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
+});
+
 /**
  * @typedef {object} LDAPCredentials
  * @property {string} name - The name of the LDAP directory.
@@ -16,6 +21,14 @@ const { Sanitizer } = ChromeUtils.importESModule(
  * @property {boolean} ssl - SSL enabled.
  * @property {string} baseDn - The baseDN for the LDAP directory.
  * @property {string} bindDn - The bindDN for the LDAP directory.
+ */
+
+/**
+ * @typedef {object} LDAPAdvancedCredentials
+ * @property {number} maxResults - The max results for the LDAP Directory.
+ * @property {number} scope - The scope (number value) of the LDAP Directory.
+ * @property {string} loginMethod - The login method of the LDAP directory.
+ * @property {string} searchFilter - The search filter on the LDAP Directory.
  */
 
 /**
@@ -46,6 +59,13 @@ class AddressBookLdapAccountForm extends AccountHubStep {
   #port;
 
   /**
+   * The max results for the LDAP directory.
+   *
+   * @type {HTMLInputElement}
+   */
+  #maxResults;
+
+  /**
    * @type {LDAPCredentials}
    */
   #stateData = {
@@ -56,6 +76,23 @@ class AddressBookLdapAccountForm extends AccountHubStep {
     baseDn: "",
     bindDn: "",
   };
+
+  /**
+   * @type {LDAPAdvancedCredentials}
+   */
+  #advancedStateData = {
+    maxResults: 0,
+    scope: Ci.nsILDAPURL.SCOPE_SUBTREE,
+    loginMethod: "",
+    searchFilter: "",
+  };
+
+  /**
+   * Whether the form is an advanced form.
+   *
+   * @type {boolean}
+   */
+  #isAdvanced = false;
 
   connectedCallback() {
     if (this.hasConnected) {
@@ -73,6 +110,7 @@ class AddressBookLdapAccountForm extends AccountHubStep {
     this.#name = this.querySelector("#name");
     this.#hostname = this.querySelector("#hostname");
     this.#port = this.querySelector("#port");
+    this.#maxResults = this.querySelector("#maxResults");
 
     this.resetState();
     this.showBrandingHeader();
@@ -86,12 +124,28 @@ class AddressBookLdapAccountForm extends AccountHubStep {
     this.#name.addEventListener("input", this);
     this.#hostname.addEventListener("input", this);
     this.#port.addEventListener("input", this);
+    this.#maxResults.addEventListener("input", this);
+    this.querySelector("#advancedConfigurationLdap").addEventListener(
+      "click",
+      this
+    );
+    this.querySelector("#simpleConfigurationLdap").addEventListener(
+      "click",
+      this
+    );
   }
 
   handleEvent(event) {
     switch (event.type) {
       case "input":
         this.#formUpdated();
+        break;
+      case "click":
+        this.#isAdvanced = !this.#isAdvanced;
+        this.querySelector("#ldapFormBody").classList.toggle(
+          "advanced",
+          this.#isAdvanced
+        );
         break;
     }
   }
@@ -100,6 +154,7 @@ class AddressBookLdapAccountForm extends AccountHubStep {
    * Sets the state for the LDAP form.
    */
   setState() {
+    this.classList.toggle("stacked", lazy.UIFontSize.size >= 17);
     this.resetState();
     this.#name.focus();
   }
@@ -109,6 +164,9 @@ class AddressBookLdapAccountForm extends AccountHubStep {
    */
   resetState() {
     this.querySelector("#ldapAccountForm").reset();
+    this.#isAdvanced = false;
+    this.querySelector("#ldapFormBody").classList.remove("advanced");
+
     this.#stateData = {
       name: "",
       hostname: "",
@@ -116,6 +174,13 @@ class AddressBookLdapAccountForm extends AccountHubStep {
       ssl: false,
       baseDn: "",
       bindDn: "",
+    };
+
+    this.#advancedStateData = {
+      maxResults: 0,
+      scope: Ci.nsILDAPURL.SCOPE_SUBTREE,
+      loginMethod: "",
+      searchFilter: "",
     };
 
     this.dispatchEvent(
@@ -132,6 +197,7 @@ class AddressBookLdapAccountForm extends AccountHubStep {
     const nameValidity = this.#name.checkValidity();
     let hostnameValidity = false;
     let portValidty = false;
+    let maxResultsValidity = true;
 
     this.#name.ariaInvalid = !nameValidity;
     if (!nameValidity) {
@@ -168,11 +234,37 @@ class AddressBookLdapAccountForm extends AccountHubStep {
       this.#port.setAttribute("aria-describedby", "portErrorMessage");
     }
 
+    if (this.#isAdvanced) {
+      try {
+        this.#advancedStateData.maxResults = Sanitizer.integerRange(
+          this.#maxResults.valueAsNumber,
+          1,
+          2147483647
+        );
+        this.#maxResults.setCustomValidity("");
+        this.#maxResults.ariaInvalid = false;
+        this.#maxResults.removeAttribute("aria-describedby");
+        maxResultsValidity = true;
+      } catch (error) {
+        maxResultsValidity = false;
+        this.#maxResults.setCustomValidity(error._message);
+        this.#maxResults.ariaInvalid = true;
+        this.#maxResults.setAttribute(
+          "aria-describedby",
+          "maxResultsErrorMessage"
+        );
+      }
+    }
+
     this.dispatchEvent(
       new CustomEvent("config-updated", {
         bubbles: true,
         detail: {
-          completed: nameValidity && hostnameValidity && portValidty,
+          completed:
+            nameValidity &&
+            hostnameValidity &&
+            portValidty &&
+            maxResultsValidity,
         },
       })
     );

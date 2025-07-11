@@ -1,5 +1,9 @@
+<?xml version="1.0"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+>
   <head>
     <meta charset="utf-8" />
     <title>Account Hub Address Book LDAP Test</title>
@@ -100,7 +104,7 @@
         class="account-hub-address-book-form"
         slot="content"
       >
-        <div class="hub-body ldap-form-body hub-form-grid">
+        <div id="ldapFormBody" class="hub-body ldap-form-body hub-form-grid">
           <div class="input-cell">
             <label
               for="name"
@@ -267,11 +271,128 @@
               />
             </div>
           </div>
+          <div class="input-cell narrow advanced-input">
+            <label
+              for="maxResults"
+              data-l10n-id="account-hub-max-results-label"
+            >
+            </label>
+            <div class="input-control">
+              <input
+                id="maxResults"
+                type="number"
+                min="1"
+                max="2147483647"
+                placeholder="100"
+                class="input-field number-input"
+                aria-invalid="false"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-danger input-warning"
+              />
+              <img
+                src=""
+                alt=""
+                class="form-icon icon-success input-success"
+              />
+              <span
+                id="maxResultsErrorMessage"
+                class="input-error-message"
+                data-l10n-id="account-hub-max-results-error-text"
+              >
+              </span>
+            </div>
+          </div>
+          <div class="input-cell expanded advanced-input">
+            <label
+              for="scope"
+              data-l10n-id="account-hub-address-book-scope-label"
+              data-l10n-attrs="accesskey"
+            >
+            </label>
+            <div class="input-control">
+              <xul:menulist
+                id="scope"
+                class="menulist"
+                data-l10n-id="account-hub-address-book-scope-subtree-label"
+                value="2"
+                flex="1"
+              >
+                <xul:menupopup
+                  id="scopeMenupopup"
+                  class="menupopup"
+                  position="after_start"
+                >
+                  <xul:menuitem
+                    id="scopeOne"
+                    data-l10n-id="account-hub-address-book-scope-level-one-label"
+                    value="1"
+                  />
+                  <xul:menuitem
+                    id="scopeSubtree"
+                    data-l10n-id="account-hub-address-book-scope-subtree-label"
+                    value="2"
+                  />
+                </xul:menupopup>
+              </xul:menulist>
+            </div>
+          </div>
+          <div class="input-cell full advanced-input">
+            <label
+              for="loginMethod"
+              data-l10n-id="account-hub-address-book-login-method-label"
+              data-l10n-attrs="accesskey"
+            >
+            </label>
+            <div class="input-control">
+              <xul:menulist
+                id="loginMethod"
+                class="menulist"
+                data-l10n-id="account-hub-address-book-login-simple-label"
+                value=""
+                flex="1"
+              >
+                <xul:menupopup
+                  id="loginMethodMenupopup"
+                  class="menupopup"
+                  position="after_start"
+                >
+                  <xul:menuitem
+                    id="loginSimple"
+                    data-l10n-id="account-hub-address-book-login-simple-label"
+                    value=""
+                  />
+                  <xul:menuitem
+                    id="loginGSSAPI"
+                    label="Kerberos (GSSAPI)"
+                    value="GSSAPI"
+                  />
+                </xul:menupopup>
+              </xul:menulist>
+            </div>
+          </div>
+          <div class="input-cell full advanced-input">
+            <label
+              for="search"
+              data-l10n-id="account-hub-address-book-search-label"
+            >
+            </label>
+            <textarea id="search" class="input-textarea"></textarea>
+          </div>
           <button
             id="advancedConfigurationLdap"
             class="button link-button link-button-sm align-self-end"
             type="button"
             data-l10n-id="account-hub-advanced-configuration-button"
+          >
+          </button>
+          <button
+            id="simpleConfigurationLdap"
+            class="button link-button link-button-sm align-self-end"
+            type="button"
+            data-l10n-id="account-hub-simple-configuration-button"
           >
           </button>
         </div>

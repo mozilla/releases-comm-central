@@ -97,7 +97,12 @@ form {
     color: var(--hub-select-color);
   }
 
-  .input-field {
+  .input-textarea {
+    resize: vertical;
+  }
+
+  .input-field,
+  .input-textarea {
     flex: 1;
     font-size: 1.2rem;
     line-height: var(--hub-form-input-line-height);
@@ -329,9 +334,7 @@ div:has(legend) {
     inset-inline-end: 0;
     padding-inline-end: 10px;
 
-    #incomingPort ~ &,
-    #outgoingPort ~ &,
-    #port ~ & {
+    .number-input ~ & {
       padding-inline-end: 30px;
     }
   }
@@ -988,4 +991,9 @@ button.account-hub-option-button {
 @keyframes spinning-animation {
   0% { transform: rotate(0); }
   100% { transform: rotate(360deg); }
+}
+
+#advancedConfigurationLdap,
+#simpleConfigurationLdap {
+  padding-block-end: 9px;
 }

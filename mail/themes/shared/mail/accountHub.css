@@ -388,7 +388,19 @@ header {
     gap: 18px;
     --hub-width: 530px;
     display: grid;
-    grid-template: repeat(3, auto 1fr) / repeat(4, 1fr);
+    grid-template: repeat(3, auto 1fr) auto / repeat(4, 1fr);
+
+    &.advanced {
+      grid-template-rows: repeat(5, auto 1fr) repeat(3, auto);
+    }
+
+    .stacked & {
+      grid-template: repeat(6, auto 1fr) auto / repeat(2, 1fr);
+
+      &.advanced {
+        grid-template-rows: repeat(9, auto 1fr) repeat(3, auto);
+      }
+    }
 
     & .input-cell {
       display: grid;
@@ -396,25 +408,40 @@ header {
       grid-row: span 2;
       gap: 3px;
 
-      &:not(.narrow) {
+      &:not(.narrow),
+      .stacked & {
         grid-column: span 2;
       }
 
-      & input[type="text"] {
-        width: 100%;
+      &.full:not(.stacked &) {
+        grid-column: span 4;
       }
 
       & .toggle-group {
         grid-row: 2;
+
+        .stacked & {
+          grid-row: span 2;
+        }
       }
 
-      &:has(.toggle-group) {
+      &.expanded:not(.stacked &) {
         grid-column: span 3;
+      }
+
+      & .input-field {
+        width: 100%;
       }
     }
 
+    &:not(.advanced) .advanced-input,
+    &:not(.advanced) #simpleConfigurationLdap,
+    &.advanced #advancedConfigurationLdap {
+      display: none;
+    }
+
     & .align-self-end {
-      grid-column: 1 / 5;
+      grid-column: 1 / -1;
       justify-self: end;
     }
   }

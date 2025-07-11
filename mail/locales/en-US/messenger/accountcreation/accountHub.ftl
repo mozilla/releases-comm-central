@@ -318,3 +318,24 @@ account-hub-ldap-form = Connect to an LDAP directory
 account-hub-advanced-configuration-button = Advanced Configuration
 
 account-hub-ldap-ssl-toggle-label = Use secure connection (SSL)
+
+account-hub-max-results-label = Max results
+
+account-hub-max-results-error-text = Please enter a number greater than 0
+
+account-hub-address-book-scope-label = Scope
+
+account-hub-address-book-scope-level-one-label =
+    .label = One level
+
+account-hub-address-book-scope-subtree-label =
+    .label = Subtree
+
+account-hub-address-book-login-method-label = Login method
+
+account-hub-address-book-login-simple-label =
+    .label = Simple
+
+account-hub-address-book-search-label = Search filter
+
+account-hub-simple-configuration-button = Simple Configuration
