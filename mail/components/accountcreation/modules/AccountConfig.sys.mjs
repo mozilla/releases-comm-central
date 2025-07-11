@@ -382,6 +382,16 @@ AccountConfig.prototype = {
       this.outgoing.auth === Ci.nsMsgAuthMethod.OAuth2
     );
   },
+
+  /**
+   * True if either the incoming or outgoing config is configured with a
+   * password.
+   *
+   * @returns {boolean}
+   */
+  hasPassword() {
+    return this.incoming.password || this.outgoing.password;
+  },
 };
 
 // enum consts

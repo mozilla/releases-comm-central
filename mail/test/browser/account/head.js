@@ -263,9 +263,7 @@ async function subtest_fill_initial_config_fields(dialog, emailUser = null) {
   const emailTemplate = dialog.querySelector("email-auto-form");
   const nameInput = emailTemplate.querySelector("#realName");
   const emailInput = emailTemplate.querySelector("#email");
-  const footerForward = dialog
-    .querySelector("#emailFooter")
-    .querySelector("#forward");
+  const footerForward = dialog.querySelector("#emailFooter #forward");
 
   // Ensure fields are empty.
   nameInput.value = "";

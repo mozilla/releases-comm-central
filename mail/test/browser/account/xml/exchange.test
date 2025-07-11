@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clientConfig>
+  <emailProvider id="exchange.test">
+    <domain>exchange.test</domain>
+    <displayName>John Doe</displayName>
+    <incomingServer type="imap">
+      <hostname>imap.exchange.test</hostname>
+      <port>1993</port>
+      <socketType>plain</socketType>
+      <authentication>plain</authentication>
+      <username>%EMAILADDRESS%</username>
+    </incomingServer>
+    <outgoingServer type="smtp">
+      <hostname>localhost</hostname>
+      <port>1587</port>
+      <socketType>plain</socketType>
+      <authentication>plain</authentication>
+      <username>%EMAILADDRESS%</username>
+      <useGlobalPreferredServer>false</useGlobalPreferredServer>
+    </outgoingServer>
+  </emailProvider>
+</clientConfig>

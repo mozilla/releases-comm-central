@@ -28,13 +28,15 @@ const {
  * in function call.
  * @param {string} domain - The domain of the emailAddress used for discovery.
  * @param {string} emailAddress - The emailAddress used for discovery.
+ * @param {string} [password] - Password if available, used for exchange.
  *
  * @returns {?AccountConfig} @see AccountConfig.sys.mjs
  */
 async function parallelAutoDiscovery(
   successiveAbortable,
   domain,
-  emailAddress
+  emailAddress,
+  password
 ) {
   // We use several discovery mechanisms running in parallel in order to avoid
   // excess delays if several of them in a row fail to find an appropriate
@@ -88,8 +90,8 @@ async function parallelAutoDiscovery(
   const autodiscoverTask = fetchConfigFromExchange(
     domain,
     emailAddress,
-    "",
-    "",
+    null,
+    password,
     () => {},
     (...args) => {
       autodiscoverCall.successCallback()(...args);

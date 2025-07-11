@@ -1,0 +1,4 @@
+subject:autodiscover.exchange.test
+extension:extKeyUsage:serverAuth
+extension:subjectAlternativeName:autodiscover.exchange.test,exchange.test
+validity:20250101-20300401

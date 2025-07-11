@@ -39,6 +39,8 @@ ChromeUtils.defineLazyGetter(
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import/no-unassigned-import
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-footer.mjs"; // eslint-disable-line import/no-unassigned-import
 
+class AuthenticationRequiredError extends Error {}
+
 class AccountHubEmail extends HTMLElement {
   /**
    * Email config footer.
@@ -160,6 +162,15 @@ class AccountHubEmail extends HTMLElement {
       subview: {},
       templateId: "email-auto-form",
     },
+    emailAutodiscoverPasswordSubview: {
+      id: "emailPasswordSubview",
+      nextStep: "emailConfigFoundSubview",
+      previousStep: "autoConfigSubview",
+      forwardEnabled: false,
+      customActionFluentID: "",
+      subview: {},
+      templateId: "email-password-form",
+    },
     emailConfigFoundSubview: {
       id: "emailConfigFoundSubview",
       nextStep: "emailPasswordSubview",
@@ -250,6 +261,8 @@ class AccountHubEmail extends HTMLElement {
       this.#emailConfigFoundSubview;
     this.#emailPasswordSubview = this.querySelector("#emailPasswordSubview");
     this.#states.emailPasswordSubview.subview = this.#emailPasswordSubview;
+    this.#states.emailAutodiscoverPasswordSubview.subview =
+      this.#emailPasswordSubview;
     this.#emailSyncAccountsSubview = this.querySelector(
       "#emailSyncAccountsSubview"
     );
@@ -277,7 +290,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailOutgoingConfigSubview.addEventListener("advanced-config", this);
 
     this.#abortable = null;
-    this.#currentConfig = {};
+    this.#currentConfig = null;
     this.#email = "";
     this.#realName = "";
 
@@ -495,6 +508,8 @@ class AccountHubEmail extends HTMLElement {
         );
         // The edit configuration button was pressed.
         await this.#initUI("incomingConfigSubview");
+        this.#states[this.#currentState].previousStep =
+          "emailConfigFoundSubview";
         // Apply the current state data to the new state.
         this.#currentSubview.setState(this.#currentConfig);
         break;
@@ -576,6 +591,7 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "outgoingConfigSubview":
         break;
+      case "emailAutoconfigPasswordSubview":
       case "emailPasswordSubview":
         break;
       default:
@@ -597,50 +613,97 @@ class AccountHubEmail extends HTMLElement {
         try {
           this.#email = stateData.email;
           this.#realName = stateData.realName;
+
           const config = await this.#findConfig();
+          this.#stopLoading();
 
           // If the config is null, the guessConfig couldn't find anything so
           // move to the manual config form to get them to fill in details,
           // or move forward to the next step.
           if (!config) {
-            this.#currentConfig = this.#fillAccountConfig(
-              this.#getEmptyAccountConfig()
-            );
-            this.#stopLoading();
-            await this.#initUI("incomingConfigSubview");
-            this.#states[this.#currentState].previousStep = currentState;
-            this.#currentSubview.showNotification({
-              fluentTitleId: "account-hub-find-account-settings-failed",
-              type: "warning",
-            });
-            this.#setCurrentConfigForSubview();
+            await this.#initFallbackConfigView(currentState);
             break;
           }
-          this.#currentConfig = this.#fillAccountConfig(config);
+          this.#currentConfig = config;
 
-          if (
-            Services.prefs.getBoolPref("experimental.mail.ews.enabled", true)
-          ) {
-            lazy.FindConfig.ewsifyConfig(this.#currentConfig);
-          }
-
-          this.#stopLoading();
           await this.#initUI(this.#states[this.#currentState].nextStep);
 
-          this.#states.incomingConfigSubview.previousStep =
-            "emailConfigFoundSubview";
           this.#currentSubview.showNotification({
             fluentTitleId: "account-hub-config-success",
             type: "success",
           });
         } catch (error) {
           this.abortable = null;
+          if (error instanceof AuthenticationRequiredError) {
+            // We already have a password, so the provided password or username
+            // was probably wrong. Stay at the current step.
+            if (this.#currentConfig?.hasPassword()) {
+              throw error;
+            }
+            this.#stopLoading();
+            await this.#initUI("emailAutodiscoverPasswordSubview");
+            this.#currentSubview.setState();
+
+            this.#currentSubview.showNotification({
+              fluentTitleId: "account-hub-password-info",
+              type: "info",
+            });
+            break;
+          }
           if (!(error instanceof UserCancelledException)) {
             throw error;
           }
           break;
         }
 
+        this.#setCurrentConfigForSubview();
+        break;
+      case "emailAutodiscoverPasswordSubview":
+        this.#startLoading("account-hub-lookup-email-configuration-title");
+
+        try {
+          // Get password and remember from the state and apply it to the config.
+          this.#currentConfig = this.#fillAccountConfig(
+            this.#getEmptyAccountConfig(),
+            stateData.password
+          );
+          this.#currentConfig.rememberPassword = stateData.rememberPassword;
+          gAccountSetupLogger.debug("Retrying config discovery with password.");
+
+          const config = await this.#findConfig();
+          if (!config) {
+            // Use the #currentConfig from before, which will already be an
+            // empty config.
+            await this.#initFallbackConfigView(currentState);
+            break;
+          }
+
+          if (
+            Services.prefs.getBoolPref("experimental.mail.ews.enabled", true)
+          ) {
+            lazy.FindConfig.ewsifyConfig(config);
+          }
+
+          this.#currentConfig = this.#fillAccountConfig(
+            config,
+            stateData.password
+          );
+        } catch (error) {
+          if (!(error instanceof UserCancelledException)) {
+            // Stay on the password view.
+            throw error;
+          }
+          break;
+        } finally {
+          this.#stopLoading();
+        }
+
+        await this.#initUI(this.#states[this.#currentState].nextStep);
+
+        this.#currentSubview.showNotification({
+          fluentTitleId: "account-hub-config-success",
+          type: "success",
+        });
         this.#setCurrentConfigForSubview();
         break;
       case "incomingConfigSubview":
@@ -699,6 +762,9 @@ class AccountHubEmail extends HTMLElement {
 
           break;
         }
+        //TODO Bug 1973959: Consider trying to go directly to validating the
+        // account credentials if we already have a password from autoconfig.
+
         // Move to the password stage where validateAndFinish is run.
         await this.#initUI(this.#states[this.#currentState].nextStep);
         // The password stage should now have the outgoing subview as the
@@ -727,7 +793,7 @@ class AccountHubEmail extends HTMLElement {
           this.#stopLoading();
           throw error;
         } finally {
-          this.#configVerifier.cleanup();
+          this.#configVerifier?.cleanup();
         }
 
         this.#stopLoading();
@@ -881,6 +947,28 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
+   * Initialize the incoming config subview when we failed to find a valid
+   * config.
+   *
+   * @param {string} currentState - Step name that's initializing the manual
+   *   config subview.
+   */
+  async #initFallbackConfigView(currentState) {
+    if (!this.#currentConfig) {
+      this.#currentConfig = this.#fillAccountConfig(
+        this.#getEmptyAccountConfig()
+      );
+    }
+    await this.#initUI("incomingConfigSubview");
+    this.#states[this.#currentState].previousStep = currentState;
+    this.#currentSubview.showNotification({
+      fluentTitleId: "account-hub-find-account-settings-failed",
+      type: "warning",
+    });
+    this.#setCurrentConfigForSubview();
+  }
+
+  /**
    * Finds an account configuration from the provided data if available.
    *
    * @returns {?AccountConfig} @see AccountConfig.sys.mjs
@@ -897,19 +985,35 @@ class AccountHubEmail extends HTMLElement {
     initialConfig.incoming.username = emailLocal;
     initialConfig.outgoing.username = emailLocal;
 
+    if (this.#currentConfig?.hasPassword()) {
+      initialConfig.incoming.password = this.#currentConfig.incoming.password;
+      initialConfig.outgoing.password = this.#currentConfig.outgoing.password;
+    }
+
     gAccountSetupLogger.debug("findConfig()");
     this.abortable = new SuccessiveAbortable();
     let config = null;
 
     // This can throw an error which will be caught up the call stack
     // to show the correct notification.
-    config = await lazy.FindConfig.parallelAutoDiscovery(
-      this.abortable,
-      domain,
-      this.#email
-    );
-
-    this.abortable = null;
+    try {
+      config = await lazy.FindConfig.parallelAutoDiscovery(
+        this.abortable,
+        domain,
+        this.#email,
+        this.#currentConfig?.incoming.password ||
+          this.#currentConfig?.outgoing.password
+      );
+    } catch (error) {
+      if (error.cause?.fluentTitleId === "account-setup-credentials-wrong") {
+        throw new AuthenticationRequiredError(error.message, {
+          cause: error.cause,
+        });
+      }
+      throw error;
+    } finally {
+      this.abortable = null;
+    }
 
     if (!config) {
       try {
@@ -929,6 +1033,12 @@ class AccountHubEmail extends HTMLElement {
           throw error;
         }
       }
+
+      if (Services.prefs.getBoolPref("experimental.mail.ews.enabled", true)) {
+        lazy.FindConfig.ewsifyConfig(config);
+      }
+
+      config = this.#fillAccountConfig(config);
     }
 
     this.abortable = null;
@@ -1340,7 +1450,7 @@ class AccountHubEmail extends HTMLElement {
     this.#stopLoading();
     await this.#initUI("autoConfigSubview");
     this.#currentState = "autoConfigSubview";
-    this.#currentConfig = {};
+    this.#currentConfig = null;
     this.#hideSubviews();
     this.#clearNotifications();
     this.#currentSubview.hidden = false;
