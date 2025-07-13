@@ -30,7 +30,6 @@ def seamonkey_confvars():
     for k, v in config.items():
         set_config(k, v)
         set_define(k, v)
-        add_old_configure_assignment(k, v)
 
     # Imply Options
     for k, v in options.items():
@@ -49,7 +48,6 @@ def commtopsrcdir(build_env, _):
     return join(topsrcdir, "comm")
 
 set_config("commtopsrcdir", commtopsrcdir)
-add_old_configure_assignment("commtopsrcdir", commtopsrcdir)
 
 # =============================================================================
 # = Bundled Fonts
@@ -60,7 +58,6 @@ def bundled_fonts(is_windows, is_linux):
         return True
 
 set_config("MOZ_BUNDLED_FONTS", bundled_fonts)
-add_old_configure_assignment("MOZ_BUNDLED_FONTS", bundled_fonts)
 
 # =============================================================================
 # = Updater
@@ -68,14 +65,8 @@ add_old_configure_assignment("MOZ_BUNDLED_FONTS", bundled_fonts)
 set_define("MAR_CHANNEL_ID",
            "\"seamonkey-comm-release\"")
 
-add_old_configure_assignment("MAR_CHANNEL_ID",
-                             "seamonkey-comm-release")
-
 set_define("ACCEPTED_MAR_CHANNEL_IDS",
            "\"seamonkey-comm-release,seamonkey-comm-central\"")
-
-add_old_configure_assignment("ACCEPTED_MAR_CHANNEL_IDS",
-                             "seamonkey-comm-release,seamonkey-comm-central")
 
 # =============================================================================
 # = ChatZilla extension
