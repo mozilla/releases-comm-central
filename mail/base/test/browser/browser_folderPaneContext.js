@@ -9,7 +9,7 @@ const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 const { NNTPServer } = ChromeUtils.importESModule(
-  "resource://testing-common/NNTPServer.sys.mjs"
+  "resource://testing-common/mailnews/NNTPServer.sys.mjs"
 );
 const { VirtualFolderHelper } = ChromeUtils.importESModule(
   "resource:///modules/VirtualFolderWrapper.sys.mjs"

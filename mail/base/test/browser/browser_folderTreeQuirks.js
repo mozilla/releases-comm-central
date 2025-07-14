@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { GmailServer } = ChromeUtils.importESModule(
-  "resource://testing-common/IMAPServer.sys.mjs"
+  "resource://testing-common/mailnews/IMAPServer.sys.mjs"
 );
 const { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"

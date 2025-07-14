@@ -8,7 +8,7 @@
  */
 
 const { IMAPServer } = ChromeUtils.importESModule(
-  "resource://testing-common/IMAPServer.sys.mjs"
+  "resource://testing-common/mailnews/IMAPServer.sys.mjs"
 );
 
 add_task(async function () {

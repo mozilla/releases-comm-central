@@ -8,11 +8,11 @@
  */
 
 import { EwsServer } from "resource://testing-common/mailnews/EwsServer.sys.mjs";
-import { IMAPServer } from "resource://testing-common/IMAPServer.sys.mjs";
+import { IMAPServer } from "resource://testing-common/mailnews/IMAPServer.sys.mjs";
 import { NetworkTestUtils } from "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs";
-import { NNTPServer } from "resource://testing-common/NNTPServer.sys.mjs";
-import { POP3Server } from "resource://testing-common/POP3Server.sys.mjs";
-import { SMTPServer } from "resource://testing-common/SMTPServer.sys.mjs";
+import { NNTPServer } from "resource://testing-common/mailnews/NNTPServer.sys.mjs";
+import { POP3Server } from "resource://testing-common/mailnews/POP3Server.sys.mjs";
+import { SMTPServer } from "resource://testing-common/mailnews/SMTPServer.sys.mjs";
 
 const serverConstructors = {
   ews: EwsServer,

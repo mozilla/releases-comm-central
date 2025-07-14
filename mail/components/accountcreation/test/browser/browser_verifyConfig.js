@@ -8,13 +8,13 @@ const { ServerTestUtils } = ChromeUtils.importESModule(
 const { createServers, getCertificate, serverDefs } = ServerTestUtils;
 
 const { IMAPServer } = ChromeUtils.importESModule(
-  "resource://testing-common/IMAPServer.sys.mjs"
+  "resource://testing-common/mailnews/IMAPServer.sys.mjs"
 );
 const { NetworkTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs"
 );
 const { POP3Server } = ChromeUtils.importESModule(
-  "resource://testing-common/POP3Server.sys.mjs"
+  "resource://testing-common/mailnews/POP3Server.sys.mjs"
 );
 
 const { ConfigVerifier } = ChromeUtils.importESModule(

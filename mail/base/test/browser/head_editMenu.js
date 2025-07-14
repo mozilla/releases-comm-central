@@ -12,13 +12,13 @@ var { VirtualFolderHelper } = ChromeUtils.importESModule(
 );
 
 const { IMAPServer } = ChromeUtils.importESModule(
-  "resource://testing-common/IMAPServer.sys.mjs"
+  "resource://testing-common/mailnews/IMAPServer.sys.mjs"
 );
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 const { NNTPServer } = ChromeUtils.importESModule(
-  "resource://testing-common/NNTPServer.sys.mjs"
+  "resource://testing-common/mailnews/NNTPServer.sys.mjs"
 );
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
