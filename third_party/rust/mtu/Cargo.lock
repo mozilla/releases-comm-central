@@ -13,9 +13,9 @@ dependencies = [
 
 [[package]]
 name = "bindgen"
-version = "0.69.5"
+version = "0.69.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "271383c67ccabffb7381723dea0672a673f292304fcb45c01cc648c7a8d58088"
+checksum = "a00dc851838a2120612785d195287475a3ac45514741da670b735818822129a0"
 dependencies = [
  "bitflags",
  "cexpr",
@@ -138,7 +138,7 @@ checksum = "903970ae2f248d7275214cf8f387f8ba0c4ea7e3d87a320e85493db60ce28616"
 
 [[package]]
 name = "mtu"
-version = "0.2.6"
+version = "0.2.9"
 dependencies = [
  "bindgen",
  "cfg_aliases",

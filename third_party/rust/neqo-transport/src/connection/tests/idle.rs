@@ -16,7 +16,8 @@ use super::{
     AT_LEAST_PTO, DEFAULT_STREAM_DATA,
 };
 use crate::{
-    packet::PacketBuilder,
+    packet::{self, PACKET_LIMIT},
+    recovery,
     stats::FrameStats,
     stream_id::{StreamId, StreamType},
     tparams::{TransportParameter, TransportParameterId},
@@ -285,7 +286,7 @@ fn idle_caching() {
     let mut client = default_client();
     let mut server = default_server();
     let start = now();
-    let mut builder = PacketBuilder::short(Encoder::new(), false, None::<&[u8]>);
+    let mut builder = packet::Builder::short(Encoder::new(), false, None::<&[u8]>, PACKET_LIMIT);
 
     // Perform the first round trip, but drop the Initial from the server.
     // The client then caches the Handshake packet.
@@ -308,7 +309,7 @@ fn idle_caching() {
     // Now let the server process the RTX'ed client Initial.  This causes the server
     // to send CRYPTO frames again, so manually extract and discard those.
     server.process_input(dgram.unwrap(), middle);
-    let mut tokens = Vec::new();
+    let mut tokens = recovery::Tokens::new();
     server.crypto.streams_mut().write_frame(
         PacketNumberSpace::Initial,
         server.conn_params.sni_slicing_enabled(),

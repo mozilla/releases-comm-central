@@ -4,28 +4,25 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::{
-    hint::black_box,
-    time::{Duration, Instant},
-};
+use std::{hint::black_box, time::Instant};
 
 use criterion::{criterion_group, criterion_main, Criterion};
 use neqo_transport::{
-    packet::{PacketNumber, PacketType},
-    recovery::sent::{SentPacket, SentPackets},
+    self, packet,
+    recovery::{self, sent},
 };
 
-fn sent_packets() -> SentPackets {
-    let mut pkts = SentPackets::default();
+fn sent_packets() -> sent::Packets {
+    let mut pkts = sent::Packets::default();
     let now = Instant::now();
     // Simulate high bandwidth-delay-product connection.
     for i in 0..2_000u64 {
-        pkts.track(SentPacket::new(
-            PacketType::Short,
-            PacketNumber::from(i),
+        pkts.track(sent::Packet::new(
+            packet::Type::Short,
+            packet::Number::from(i),
             now,
             true,
-            Vec::new(),
+            recovery::Tokens::new(),
             100,
         ));
     }
@@ -39,7 +36,7 @@ fn sent_packets() -> SentPackets {
 /// while the acknowledgment rate will ensure that most of the
 /// outstanding packets remain in flight.
 fn take_ranges(c: &mut Criterion) {
-    c.bench_function("SentPackets::take_ranges", |b| {
+    c.bench_function("sent::Packets::take_ranges", |b| {
         b.iter_batched_ref(
             sent_packets,
             // Take the first 90 packets, minus some gaps.
@@ -49,9 +46,5 @@ fn take_ranges(c: &mut Criterion) {
     });
 }
 
-criterion_group! {
-    name = benches;
-    config = Criterion::default().warm_up_time(Duration::from_secs(5)).measurement_time(Duration::from_secs(60));
-    targets = take_ranges
-}
+criterion_group!(benches, take_ranges);
 criterion_main!(benches);

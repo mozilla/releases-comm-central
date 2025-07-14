@@ -6,7 +6,7 @@
 
 use std::{
     ffi::CStr,
-    io::{Error, ErrorKind, Result},
+    io::{Error, Result},
     net::IpAddr,
     ptr, slice,
 };
@@ -133,7 +133,7 @@ pub fn interface_and_mtu_impl(remote: IpAddr) -> Result<(String, usize)> {
             let name = CStr::from_bytes_until_nul(interfacename.as_ref())
                 .map_err(|_| default_err())?
                 .to_str()
-                .map_err(|err| Error::new(ErrorKind::Other, err))?
+                .map_err(Error::other)?
                 .to_string();
             // We found our interface information.
             return Ok((name, mtu));

@@ -14,7 +14,7 @@ use std::{
 };
 
 use enum_map::{Enum, EnumMap};
-use neqo_common::{hex, qdebug, qinfo, qtrace, Decoder, Encoder, Role};
+use neqo_common::{hex, qdebug, qinfo, qtrace, Buffer, Decoder, Encoder, Role};
 use neqo_crypto::{
     constants::{TLS_HS_CLIENT_HELLO, TLS_HS_ENCRYPTED_EXTENSIONS},
     ext::{ExtensionHandler, ExtensionHandlerResult, ExtensionWriterResult},
@@ -26,7 +26,7 @@ use crate::{
     cid::{ConnectionId, ConnectionIdEntry, CONNECTION_ID_SEQNO_PREFERRED, MAX_CONNECTION_ID_LEN},
     packet::MIN_INITIAL_PACKET_SIZE,
     tracking::DEFAULT_REMOTE_ACK_DELAY,
-    version::{Version, VersionConfig, WireVersion},
+    version::{self, Version},
     Error, Res,
 };
 
@@ -149,13 +149,13 @@ pub enum TransportParameter {
         srt: [u8; 16],
     },
     Versions {
-        current: WireVersion,
-        other: Vec<WireVersion>,
+        current: version::Wire,
+        other: Vec<version::Wire>,
     },
 }
 
 impl TransportParameter {
-    fn encode(&self, enc: &mut Encoder, tp: TransportParameterId) {
+    fn encode<B: Buffer>(&self, enc: &mut Encoder<B>, tp: TransportParameterId) {
         qtrace!("TP encoded; type {tp}) val {self:?}");
         enc.encode_varint(tp);
         match self {
@@ -205,7 +205,7 @@ impl TransportParameter {
         let v4port = d.decode_uint::<u16>().ok_or(Error::NoMoreData)?;
         // Can't have non-zero IP and zero port, or vice versa.
         if v4ip.is_unspecified() ^ (v4port == 0) {
-            return Err(Error::TransportParameterError);
+            return Err(Error::TransportParameter);
         }
         let v4 = if v4port == 0 {
             None
@@ -219,7 +219,7 @@ impl TransportParameter {
         )?);
         let v6port = d.decode_uint().ok_or(Error::NoMoreData)?;
         if v6ip.is_unspecified() ^ (v6port == 0) {
-            return Err(Error::TransportParameterError);
+            return Err(Error::TransportParameter);
         }
         let v6 = if v6port == 0 {
             None
@@ -228,13 +228,13 @@ impl TransportParameter {
         };
         // Need either v4 or v6 to be present.
         if v4.is_none() && v6.is_none() {
-            return Err(Error::TransportParameterError);
+            return Err(Error::TransportParameter);
         }
 
         // Connection ID (non-zero length)
         let cid = ConnectionId::from(d.decode_vec(1).ok_or(Error::NoMoreData)?);
         if cid.is_empty() || cid.len() > MAX_CONNECTION_ID_LEN {
-            return Err(Error::TransportParameterError);
+            return Err(Error::TransportParameter);
         }
 
         // Stateless reset token
@@ -245,10 +245,12 @@ impl TransportParameter {
     }
 
     fn decode_versions(dec: &mut Decoder) -> Res<Self> {
-        fn dv(dec: &mut Decoder) -> Res<WireVersion> {
-            let v = dec.decode_uint::<WireVersion>().ok_or(Error::NoMoreData)?;
+        fn dv(dec: &mut Decoder) -> Res<version::Wire> {
+            let v = dec
+                .decode_uint::<version::Wire>()
+                .ok_or(Error::NoMoreData)?;
             if v == 0 {
-                Err(Error::TransportParameterError)
+                Err(Error::TransportParameter)
             } else {
                 Ok(v)
             }
@@ -282,7 +284,7 @@ impl TransportParameter {
             }
             TransportParameterId::StatelessResetToken => {
                 if d.remaining() != 16 {
-                    return Err(Error::TransportParameterError);
+                    return Err(Error::TransportParameter);
                 }
                 Self::Bytes(d.decode_remainder().to_vec())
             }
@@ -294,24 +296,24 @@ impl TransportParameter {
             | TransportParameterId::MaxAckDelay
             | TransportParameterId::MaxDatagramFrameSize => match d.decode_varint() {
                 Some(v) => Self::Integer(v),
-                None => return Err(Error::TransportParameterError),
+                None => return Err(Error::TransportParameter),
             },
             TransportParameterId::InitialMaxStreamsBidi
             | TransportParameterId::InitialMaxStreamsUni => match d.decode_varint() {
                 Some(v) if v <= (1 << 60) => Self::Integer(v),
-                _ => return Err(Error::StreamLimitError),
+                _ => return Err(Error::StreamLimit),
             },
             TransportParameterId::MaxUdpPayloadSize => match d.decode_varint() {
                 Some(v) if v >= MIN_INITIAL_PACKET_SIZE.try_into()? => Self::Integer(v),
-                _ => return Err(Error::TransportParameterError),
+                _ => return Err(Error::TransportParameter),
             },
             TransportParameterId::AckDelayExponent => match d.decode_varint() {
                 Some(v) if v <= 20 => Self::Integer(v),
-                _ => return Err(Error::TransportParameterError),
+                _ => return Err(Error::TransportParameter),
             },
             TransportParameterId::ActiveConnectionIdLimit => match d.decode_varint() {
                 Some(v) if v >= 2 => Self::Integer(v),
-                _ => return Err(Error::TransportParameterError),
+                _ => return Err(Error::TransportParameter),
             },
             TransportParameterId::DisableMigration | TransportParameterId::GreaseQuicBit => {
                 Self::Empty
@@ -319,7 +321,7 @@ impl TransportParameter {
             TransportParameterId::PreferredAddress => Self::decode_preferred_address(&mut d)?,
             TransportParameterId::MinAckDelay => match d.decode_varint() {
                 Some(v) if v < (1 << 24) => Self::Integer(v),
-                _ => return Err(Error::TransportParameterError),
+                _ => return Err(Error::TransportParameter),
             },
             TransportParameterId::VersionInformation => Self::decode_versions(&mut d)?,
             #[cfg(test)]
@@ -369,10 +371,21 @@ impl TransportParameters {
         Ok(tps)
     }
 
-    pub(crate) fn encode(&self, enc: &mut Encoder) {
-        for (tipe, tp) in &self.params {
-            if let Some(tp) = tp {
-                tp.encode(enc, tipe);
+    const fn retain_all(_tp: TransportParameterId, _v: Option<&TransportParameter>) -> bool {
+        true
+    }
+
+    pub(crate) fn encode<B: Buffer>(&self, enc: &mut Encoder<B>) {
+        self.encode_filtered(Self::retain_all, enc);
+    }
+
+    fn encode_filtered<F, B: Buffer>(&self, f: F, enc: &mut Encoder<B>)
+    where
+        F: Fn(TransportParameterId, Option<&TransportParameter>) -> bool,
+    {
+        for (i, v) in self.params.iter().filter(|(i, v)| f(*i, v.as_ref())) {
+            if let Some(tp) = v {
+                tp.encode(enc, i);
             }
         }
     }
@@ -477,7 +490,7 @@ impl TransportParameters {
     }
 
     /// Set version information.
-    pub fn set_versions(&mut self, role: Role, versions: &VersionConfig) {
+    pub fn set_versions(&mut self, role: Role, versions: &version::Config) {
         let mut other: Vec<u32> = Vec::with_capacity(versions.all().len() + 1);
         let grease = u32::from_ne_bytes(random::<4>()) & 0xf0f0_f0f0 | 0x0a0a_0a0a;
         other.push(grease);
@@ -588,7 +601,7 @@ impl TransportParameters {
 
     /// Get the version negotiation values for validation.
     #[must_use]
-    pub fn get_versions(&self) -> Option<(WireVersion, &[WireVersion])> {
+    pub fn get_versions(&self) -> Option<(version::Wire, &[version::Wire])> {
         if let Some(TransportParameter::Versions { current, other }) =
             &self.params[TransportParameterId::VersionInformation]
         {
@@ -607,7 +620,7 @@ impl TransportParameters {
 #[derive(Debug)]
 pub struct TransportParametersHandler {
     role: Role,
-    versions: VersionConfig,
+    versions: version::Config,
     local: TransportParameters,
     remote_handshake: Option<TransportParameters>,
     remote_0rtt: Option<TransportParameters>,
@@ -615,7 +628,7 @@ pub struct TransportParametersHandler {
 
 impl TransportParametersHandler {
     #[must_use]
-    pub fn new(role: Role, versions: VersionConfig) -> Self {
+    pub fn new(role: Role, versions: version::Config) -> Self {
         let mut local = TransportParameters::default();
         local.set_versions(role, &versions);
         Self {
@@ -668,7 +681,7 @@ impl TransportParametersHandler {
                         "Chosen version {current:x} is not compatible with initial version {:x}",
                         self.versions.initial().wire_version(),
                     );
-                    Err(Error::TransportParameterError)
+                    Err(Error::TransportParameter)
                 }
             } else {
                 if current != self.versions.initial().wire_version() {
@@ -676,7 +689,7 @@ impl TransportParametersHandler {
                         "Current version {current:x} != own version {:x}",
                         self.versions.initial().wire_version(),
                     );
-                    return Err(Error::TransportParameterError);
+                    return Err(Error::TransportParameter);
                 }
 
                 if let Some(preferred) = self.versions.preferred_compatible(other) {
@@ -691,7 +704,7 @@ impl TransportParametersHandler {
                     Ok(())
                 } else {
                     qinfo!("Unable to find any compatible version");
-                    Err(Error::TransportParameterError)
+                    Err(Error::TransportParameter)
                 }
             }
         } else {
@@ -722,21 +735,63 @@ impl TransportParametersHandler {
     pub const fn remote_handshake(&self) -> Option<&TransportParameters> {
         self.remote_handshake.as_ref()
     }
+
+    /// Filter to retain only those transport parameters that are necessary for an outer
+    /// `ClientHello`.
+    ///
+    /// We don't need the connection for long if we are forced into an ECH fallback,
+    /// we only need it around long enough to get a fresh ECH config; and no data is exchanged.
+    ///
+    /// However, we do need to ensure that the connection attempt works.
+    /// That motivates the inclusion of version negotiation and connection ID parameters,
+    /// which would break the connection if they were dropped.
+    ///
+    /// Also, we include any parameters that might affect the configuration of the connection
+    /// in ways that might adversely affect operation.
+    /// That saves us from having to swap in a different configuration (i.e.,
+    /// `ConnectionParameters`) if the outer `ClientHello` is used.
+    /// These probably aren't strictly necessary, even then:
+    /// * ACK-related parameters only affect RTT estimation, which won't matter much; and
+    /// * UDP datagram sizes will look like a path MTU restriction.
+    ///
+    /// There is no privacy harm to including them as the values are fixed (maximum ACK delay)
+    /// or not set (ACK delay exponent and UDP payload size) in our code.
+    const fn filter_ch_outer(tp: TransportParameterId, _v: Option<&TransportParameter>) -> bool {
+        matches!(
+            tp,
+            TransportParameterId::OriginalDestinationConnectionId
+                | TransportParameterId::StatelessResetToken
+                | TransportParameterId::InitialSourceConnectionId
+                | TransportParameterId::RetrySourceConnectionId
+                | TransportParameterId::VersionInformation
+                | TransportParameterId::AckDelayExponent
+                | TransportParameterId::MaxAckDelay
+                | TransportParameterId::MaxUdpPayloadSize
+        )
+    }
 }
 
 impl ExtensionHandler for TransportParametersHandler {
-    fn write(&mut self, msg: HandshakeMessage, d: &mut [u8]) -> ExtensionWriterResult {
+    fn write(
+        &mut self,
+        msg: HandshakeMessage,
+        ch_outer: bool,
+        d: &mut [u8],
+    ) -> ExtensionWriterResult {
         if !matches!(msg, TLS_HS_CLIENT_HELLO | TLS_HS_ENCRYPTED_EXTENSIONS) {
             return ExtensionWriterResult::Skip;
         }
 
         qdebug!("Writing transport parameters, msg={msg:?}");
 
-        // TODO(ekr@rtfm.com): Modify to avoid a copy.
-        let mut enc = Encoder::default();
-        self.local.encode(&mut enc);
-        assert!(enc.len() <= d.len());
-        d[..enc.len()].copy_from_slice(enc.as_ref());
+        let mut enc = Encoder::new_borrowed_slice(d);
+        let f = if ch_outer {
+            debug_assert_eq!(msg, TLS_HS_CLIENT_HELLO);
+            Self::filter_ch_outer
+        } else {
+            TransportParameters::retain_all
+        };
+        self.local.encode_filtered(f, &mut enc);
         ExtensionWriterResult::Write(enc.len())
     }
 
@@ -925,7 +980,7 @@ mod tests {
         spa.encode(&mut enc, PreferredAddress);
         assert_eq!(
             TransportParameter::decode(&mut enc.as_decoder()).unwrap_err(),
-            Error::TransportParameterError
+            Error::TransportParameter
         );
     }
 
@@ -1156,12 +1211,12 @@ mod tests {
         let mut dec = Decoder::from(&ZERO1);
         assert_eq!(
             TransportParameter::decode(&mut dec).unwrap_err(),
-            Error::TransportParameterError
+            Error::TransportParameter
         );
         let mut dec = Decoder::from(&ZERO2);
         assert_eq!(
             TransportParameter::decode(&mut dec).unwrap_err(),
-            Error::TransportParameterError
+            Error::TransportParameter
         );
     }
 

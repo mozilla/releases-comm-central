@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.82.0"
+rust-version = "1.81.0"
 name = "neqo-udp"
-version = "0.13.4"
+version = "0.14.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -59,12 +59,21 @@ default-features = false
 path = "./../neqo-common"
 
 [dependencies.quinn-udp]
-version = "0.5.11"
+version = "0.5.13"
 features = ["direct-log"]
 default-features = false
 
 [build-dependencies]
 cfg_aliases = "0.2"
+
+[target."cfg(unix)".dependencies.libc]
+version = "0.2.171"
+default-features = false
+
+[target."cfg(windows)".dependencies.windows]
+version = "0.58"
+features = ["Win32_Networking_WinSock"]
+default-features = false
 
 [lints.clippy]
 allow_attributes = "warn"
@@ -139,12 +148,10 @@ priority = -1
 
 [lints.rust]
 absolute_paths_not_starting_with_crate = "warn"
-ambiguous_negative_literals = "warn"
 explicit_outlives_requirements = "warn"
 macro_use_extern_crate = "warn"
 missing_abi = "warn"
 non_ascii_idents = "warn"
-redundant_imports = "warn"
 redundant_lifetimes = "warn"
 trivial_numeric_casts = "warn"
 unit_bindings = "warn"

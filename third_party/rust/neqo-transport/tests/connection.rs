@@ -5,18 +5,15 @@
 // except according to those terms.
 
 mod common;
-
 use common::assert_dscp;
 use neqo_common::{Datagram, Decoder, Encoder, Role};
+use neqo_crypto::Aead;
 use neqo_transport::{
-    CloseReason, ConnectionParameters, Error, State, Version, MIN_INITIAL_PACKET_SIZE,
+    CloseReason, ConnectionParameters, Error, State, StreamType, Version, MIN_INITIAL_PACKET_SIZE,
 };
 use test_fixture::{
     default_client, default_server,
-    header_protection::{
-        apply_header_protection, decode_initial_header, initial_aead_and_hp,
-        remove_header_protection,
-    },
+    header_protection::{self, decode_initial_header, initial_aead_and_hp},
     new_client, now, split_datagram,
 };
 
@@ -25,6 +22,23 @@ fn connect() {
     let (client, server) = test_fixture::connect();
     assert_dscp(&client.stats());
     assert_dscp(&server.stats());
+}
+
+#[test]
+fn gso() {
+    let (mut client, _server) = test_fixture::connect();
+
+    let stream_id2 = client.stream_create(StreamType::UniDi).unwrap();
+    client.stream_send(stream_id2, &[42; 2048]).unwrap();
+    client.stream_close_send(stream_id2).unwrap();
+
+    let out = client
+        .process_multiple_output(now(), 64.try_into().expect(">0"))
+        .dgram()
+        .unwrap();
+
+    assert_eq!(out.datagram_size(), 1232);
+    assert!(out.data().len() > out.datagram_size());
 }
 
 #[test]
@@ -93,7 +107,7 @@ fn reorder_server_initial() {
 
     // Now decrypt the packet.
     let (aead, hp) = initial_aead_and_hp(&client_dcid, Role::Server);
-    let (header, pn) = remove_header_protection(&hp, protected_header, payload);
+    let (header, pn) = header_protection::remove(&hp, protected_header, payload);
     assert_eq!(pn, 0);
     let pn_len = header.len() - protected_header.len();
     let mut buf = vec![0; payload.len()];
@@ -118,7 +132,7 @@ fn reorder_server_initial() {
     packet.resize(MIN_INITIAL_PACKET_SIZE, 0);
     aead.encrypt(pn, &header, &plaintext, &mut packet[header.len()..])
         .unwrap();
-    apply_header_protection(&hp, &mut packet, protected_header.len()..header.len());
+    header_protection::apply(&hp, &mut packet, protected_header.len()..header.len());
     let reordered = Datagram::new(
         server_initial.source(),
         server_initial.destination(),
@@ -150,21 +164,21 @@ fn set_payload(server_packet: Option<&Datagram>, client_dcid: &[u8], payload: &[
 
     // Now decrypt the packet.
     let (aead, hp) = initial_aead_and_hp(client_dcid, Role::Server);
-    let (mut header, pn) = remove_header_protection(&hp, protected_header, orig_payload);
+    let (mut header, pn) = header_protection::remove(&hp, protected_header, orig_payload);
     assert_eq!(pn, 0);
     // Re-encode the packet number as four bytes, so we have enough material for the header
     // protection sample if payload is empty.
     let pn_pos = header.len() - 2;
-    header[pn_pos] = u8::try_from(4 + aead.expansion()).unwrap();
+    header[pn_pos] = u8::try_from(4 + Aead::expansion()).unwrap();
     header.resize(header.len() + 3, 0);
     header[0] |= 0b0000_0011; // Set the packet number length to 4.
 
     // And build a packet containing the given payload.
     let mut packet = header.clone();
-    packet.resize(header.len() + payload.len() + aead.expansion(), 0);
+    packet.resize(header.len() + payload.len() + Aead::expansion(), 0);
     aead.encrypt(pn, &header, payload, &mut packet[header.len()..])
         .unwrap();
-    apply_header_protection(&hp, &mut packet, protected_header.len()..header.len());
+    header_protection::apply(&hp, &mut packet, protected_header.len()..header.len());
     Datagram::new(
         server_initial.source(),
         server_initial.destination(),
@@ -256,16 +270,16 @@ fn overflow_crypto() {
             .encode_vec(1, server_dcid)
             .encode_vec(1, server_scid)
             .encode_vvec(&[]) // token
-            .encode_varint(u64::try_from(2 + payload.len() + aead.expansion()).unwrap()); // length
+            .encode_varint(u64::try_from(2 + payload.len() + Aead::expansion()).unwrap()); // length
         let pn_offset = packet.len();
         packet.encode_uint(2, pn);
 
         let mut packet = Vec::from(packet);
         let header = packet.clone();
-        packet.resize(header.len() + payload.len() + aead.expansion(), 0);
+        packet.resize(header.len() + payload.len() + Aead::expansion(), 0);
         aead.encrypt(pn, &header, payload.as_ref(), &mut packet[header.len()..])
             .unwrap();
-        apply_header_protection(&hp, &mut packet, pn_offset..(pn_offset + 2));
+        header_protection::apply(&hp, &mut packet, pn_offset..(pn_offset + 2));
         packet.resize(MIN_INITIAL_PACKET_SIZE, 0); // Initial has to be MIN_INITIAL_PACKET_SIZE bytes!
 
         let dgram = Datagram::new(

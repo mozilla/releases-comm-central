@@ -11,7 +11,7 @@ use neqo_transport::{ConnectionParameters, State};
 use test_fixture::{
     boxed,
     sim::{
-        connection::{ConnectionNode, ReachState, ReceiveData, SendData},
+        connection::{Node, ReachState, ReceiveData, SendData},
         network::{RandomDelay, TailDrop},
         ReadySimulator, Simulator,
     },
@@ -35,7 +35,7 @@ fn benchmark_transfer(c: &mut Criterion, label: &str, seed: Option<impl AsRef<st
             b.iter_batched(
                 || {
                     let nodes = boxed![
-                        ConnectionNode::new_client(
+                        Node::new_client(
                             ConnectionParameters::default()
                                 .pmtud(true)
                                 .pacing(pacing)
@@ -45,7 +45,7 @@ fn benchmark_transfer(c: &mut Criterion, label: &str, seed: Option<impl AsRef<st
                         ),
                         TailDrop::dsl_uplink(),
                         RandomDelay::new(ZERO..JITTER),
-                        ConnectionNode::new_server(
+                        Node::new_server(
                             ConnectionParameters::default()
                                 .pmtud(true)
                                 .pacing(pacing)
@@ -84,7 +84,7 @@ fn benchmark_transfer_fixed(c: &mut Criterion) {
 
 criterion_group! {
     name = transfer;
-    config = Criterion::default().warm_up_time(Duration::from_secs(5)).measurement_time(Duration::from_secs(60));
+    config = Criterion::default().warm_up_time(Duration::from_secs(5)).measurement_time(Duration::from_secs(15));
     targets = benchmark_transfer_variable, benchmark_transfer_fixed
 }
 criterion_main!(transfer);

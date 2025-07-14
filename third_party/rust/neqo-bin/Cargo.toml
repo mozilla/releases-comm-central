@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.82.0"
+rust-version = "1.81.0"
 name = "neqo-bin"
-version = "0.13.4"
+version = "0.14.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -123,13 +123,18 @@ version = "0.15.1"
 default-features = false
 
 [dependencies.quinn-udp]
-version = "0.5.11"
+version = "0.5.13"
 features = ["direct-log"]
 default-features = false
 
 [dependencies.regex]
 version = "1.9"
 features = ["unicode-perl"]
+default-features = false
+
+[dependencies.rustc-hash]
+version = "2.1"
+features = ["std"]
 default-features = false
 
 [dependencies.tokio]
@@ -245,12 +250,10 @@ priority = -1
 
 [lints.rust]
 absolute_paths_not_starting_with_crate = "warn"
-ambiguous_negative_literals = "warn"
 explicit_outlives_requirements = "warn"
 macro_use_extern_crate = "warn"
 missing_abi = "warn"
 non_ascii_idents = "warn"
-redundant_imports = "warn"
 redundant_lifetimes = "warn"
 trivial_numeric_casts = "warn"
 unit_bindings = "warn"
