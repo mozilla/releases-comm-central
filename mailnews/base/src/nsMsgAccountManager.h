@@ -147,11 +147,6 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
    */
   nsresult CheckDefaultAccount(nsIMsgAccount* aAccount, bool& aCanBeDefault);
 
-  /**
-   * Find a new account that can serve as default.
-   */
-  nsresult AutosetDefaultAccount();
-
   // sets the pref for the default server
   nsresult setDefaultAccountPref(nsIMsgAccount* aDefaultAccount);
 

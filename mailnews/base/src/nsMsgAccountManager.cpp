@@ -762,8 +762,11 @@ nsMsgAccountManager::RemoveAccount(nsIMsgAccount* aAccount,
     return rv;
   }
 
-  // If it's the default, choose a new default account.
-  if (m_defaultAccount == aAccount) AutosetDefaultAccount();
+  // If it's the default account, clear the corresponding preference.
+  if (m_defaultAccount == aAccount) {
+    m_defaultAccount = nullptr;
+    setDefaultAccountPref(nullptr);
+  }
 
   // XXX - need to figure out if this is the last time this server is
   // being used, and only send notification then.
@@ -836,6 +839,7 @@ nsMsgAccountManager::GetDefaultAccount(nsIMsgAccount** aDefaultAccount) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!m_defaultAccount) {
+    // Try to determine the currently set default account.
     nsCString defaultKey;
     rv = Preferences::GetCString(PREF_MAIL_ACCOUNTMANAGER_DEFAULTACCOUNT,
                                  defaultKey);
@@ -845,6 +849,17 @@ nsMsgAccountManager::GetDefaultAccount(nsIMsgAccount** aDefaultAccount) {
         bool canBeDefault = false;
         rv = CheckDefaultAccount(m_defaultAccount, canBeDefault);
         if (NS_FAILED(rv) || !canBeDefault) m_defaultAccount = nullptr;
+      }
+    }
+  }
+
+  if (!m_defaultAccount) {
+    // No valid default account has been set. Try to find the first viable
+    // account and set it as default.
+    for (nsIMsgAccount* account : m_accounts) {
+      rv = SetDefaultAccount(account);
+      if (NS_SUCCEEDED(rv)) {
+        break;
       }
     }
   }
@@ -868,28 +883,6 @@ nsresult nsMsgAccountManager::CheckDefaultAccount(nsIMsgAccount* aAccount,
     rv = server->GetCanBeDefaultServer(&aCanBeDefault);
   }
   return rv;
-}
-
-/**
- * Pick the first account that can be default and make it the default.
- */
-nsresult nsMsgAccountManager::AutosetDefaultAccount() {
-  for (nsIMsgAccount* account : m_accounts) {
-    bool canBeDefault = false;
-    nsresult rv = CheckDefaultAccount(account, canBeDefault);
-    if (NS_SUCCEEDED(rv) && canBeDefault) {
-      return SetDefaultAccount(account);
-    }
-  }
-
-  // No accounts can be the default. Clear it.
-  if (m_defaultAccount) {
-    nsCOMPtr<nsIMsgAccount> oldAccount = m_defaultAccount;
-    m_defaultAccount = nullptr;
-    (void)setDefaultAccountPref(nullptr);
-    (void)notifyDefaultServerChange(oldAccount, nullptr);
-  }
-  return NS_OK;
 }
 
 NS_IMETHODIMP

@@ -69,10 +69,10 @@ function run_test() {
     .QueryInterface(Ci.nsIPop3IncomingServer);
   Assert.equal(server5.deferredToAccount, "account1");
 
-  // Just make sure this doesn't throw an exception, because we did remove the
-  // default account.
+  // Make sure the first viable account found is automatically set as default,
+  // after we've removed the previous default account.
   const defaultAccount = MailServices.accounts.defaultAccount;
-  Assert.equal(defaultAccount, null);
+  Assert.equal(defaultAccount.key, "account4");
 
   // Remove an account, and verify that the account list pref looks OK:
   const server = MailServices.accounts.getIncomingServer("server4");
