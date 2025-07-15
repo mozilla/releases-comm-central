@@ -60,7 +60,7 @@ NS_IMETHODIMP LiveView::InitWithFolder(uint64_t folderId) {
 }
 
 NS_IMETHODIMP LiveView::InitWithFolders(nsTArray<uint64_t> const& folderIds) {
-  if (folderIds.IsEmpty() || folderIds.Contains(0)) {
+  if (folderIds.IsEmpty() || folderIds.Contains((uint64_t)0)) {
     NS_WARNING("Can't Init LiveView with 0 folderId in list");
     return NS_ERROR_INVALID_ARG;
   }
