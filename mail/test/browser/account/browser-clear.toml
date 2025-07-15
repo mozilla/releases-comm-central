@@ -21,3 +21,5 @@ subsuite = "thunderbird"
 ["browser_accountSetupTab.js"]
 
 ["browser_outgoingServer.js"]
+
+["browser_serverSettings.js"]

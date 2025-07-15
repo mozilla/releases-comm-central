@@ -179,6 +179,20 @@ function initServerType() {
   hideUnlessSelected(document.getElementById("authMethod-old"));
   hideUnlessSelected(document.getElementById("authMethod-anysecure"));
   hideUnlessSelected(document.getElementById("authMethod-any"));
+
+  // EWS does not currently support other authentication methods than password
+  // and OAuth2. While some of them just do not really make sense in the context
+  // of Exchange (e.g. there is no practical difference between "normal
+  // password" and "encrypted password"), others are just not supported in the
+  // EWS code just yet and may come later.
+  // Note: `authMethod-external` is already hidden from `onInit`.
+  if (serverType == "ews") {
+    hideUnlessSelected(document.getElementById("authMethod-kerberos"));
+    hideUnlessSelected(document.getElementById("authMethod-ntlm"));
+    hideUnlessSelected(
+      document.getElementById("authMethod-password-encrypted")
+    );
+  }
 }
 
 function hideUnlessSelected(element) {
