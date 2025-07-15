@@ -20,6 +20,7 @@
 #containerBox {
   width: 100%;
   max-width: 800px;
+  min-width: 600px;
   padding-block: 40px;
   padding-inline: 24px 28px;
 }
@@ -309,13 +310,27 @@ richlistitem[default="true"],
 
 /* ::::: dialog header ::::: */
 
+#am-main-title {
+  padding-bottom: 8px;
+
+  & > button {
+    min-width: unset;
+  }
+}
+
 .dialogheader-title {
-  margin-block: 0 8px;
+  overflow: hidden;
+  align-self: center;
   margin-inline-start: 0;
   font-size: 1.46em;
   font-weight: 300;
   line-height: 1.3em;
   color: var(--in-content-text-color);
+
+  &::before {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .identity-table {
