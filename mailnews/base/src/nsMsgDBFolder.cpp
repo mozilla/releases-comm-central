@@ -70,8 +70,8 @@
 #include "UrlListener.h"
 #include "nsIMsgCopyService.h"
 #ifdef MOZ_PANORAMA
-#  include "nsIDatabaseCore.h"
-#  include "nsIFolderDatabase.h"
+#  include "FolderDatabase.h"
+#  include "DatabaseCore.h"
 #  include "nsIFolderLookupService.h"
 #endif  // MOZ_PANORAMA
 
@@ -219,9 +219,6 @@ constexpr nsLiteralCString kNumNewBiffMessages = "NumNewBiffMessages"_ns;
 constexpr nsLiteralCString kRenameCompleted = "RenameCompleted"_ns;
 
 NS_IMPL_ISUPPORTS(nsMsgDBFolder, nsISupportsWeakReference, nsIMsgFolder,
-#ifdef MOZ_PANORAMA
-                  nsIInitableWithFolder,
-#endif  // MOZ_PANORAMA
                   nsIDBChangeListener, nsIUrlListener,
                   nsIJunkMailClassificationListener,
                   nsIMsgTraitClassificationListener)
@@ -319,7 +316,7 @@ NS_IMETHODIMP nsMsgDBFolder::Shutdown(bool shutdownChildren) {
     mName.Truncate();
     mSubFolders.Clear();
 #ifdef MOZ_PANORAMA
-    mDBFolder = nullptr;
+    mFolderId = 0;
 #endif  // MOZ_PANORAMA
   }
   return NS_OK;
@@ -2651,26 +2648,36 @@ NS_IMETHODIMP nsMsgDBFolder::GetServer(nsIMsgIncomingServer** aServer) {
   return *aServer ? NS_OK : NS_ERROR_FAILURE;
 }
 
+NS_IMETHODIMP nsMsgDBFolder::InitWithFolderId(uint64_t folderId) {
 #ifdef MOZ_PANORAMA
-NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   MOZ_ASSERT(StaticPrefs::mail_panorama_enabled_AtStartup());
 
-  mDBFolder = folder;
-  mIsServer = folder->GetIsServer();
+  MOZ_ASSERT(!mFolderId);
+  mFolderId = folderId;
+
+  RefPtr<mozilla::mailnews::DatabaseCore> dbCore =
+      mozilla::mailnews::DatabaseCore::GetInstanceForService();
+  mozilla::mailnews::FolderDatabase& folderDB(dbCore->FolderDB());
+
+  uint64_t parentId;
+  MOZ_TRY_VAR(parentId, folderDB.GetFolderParent(folderId));
+  mIsServer = (parentId == 0);
   mIsServerIsValid = true;
-  mName = folder->GetName();
-  mFlags = folder->GetFlags();
+  MOZ_TRY_VAR(mName, folderDB.GetFolderName(folderId));
+  MOZ_TRY_VAR(mFlags, folderDB.GetFolderFlags(folderId));
 
   // Set up the filesystem path. This could probably be improved by using the
   // parent folder's path instead of constructing the whole thing.
-
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgIncomingServer> server;
-  nsCOMPtr<nsIFolder> root = folder->GetRootFolder();
-  rv = accountManager->GetIncomingServer(root->GetName(),
-                                         getter_AddRefs(server));
+  uint64_t rootId;
+  MOZ_TRY_VAR(rootId, folderDB.GetFolderRoot(folderId));
+  nsCString rootName;
+  MOZ_TRY_VAR(rootName, folderDB.GetFolderName(rootId));
+
+  rv = accountManager->GetIncomingServer(rootName, getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
   mServer = do_GetWeakReference(server);
@@ -2678,19 +2685,22 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   rv = server->GetLocalPath(getter_AddRefs(mPath));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsTArray<RefPtr<nsIFolder>> ancestors;
-  folder->GetAncestors(ancestors);
-  for (int i = ancestors.Length() - 2; i >= 0; --i) {
-    mPath->Append(NS_ConvertUTF8toUTF16(ancestors[i]->GetName()) + u".sbd"_ns);
+  nsTArray<uint64_t> ancestorIds;
+  MOZ_TRY_VAR(ancestorIds, folderDB.GetFolderAncestors(folderId));
+  for (int i = ancestorIds.Length() - 2; i >= 0; --i) {
+    nsCString name;
+    MOZ_TRY_VAR(name, folderDB.GetFolderName(ancestorIds[i]));
+    mPath->Append(EncodeFilename(name) + u".sbd"_ns);
   }
-  if (!folder->GetIsServer()) {
-    mPath->Append(NS_ConvertUTF8toUTF16(mName));
+  if (!mIsServer) {
+    mPath->Append(EncodeFilename(mName));
   }
 
   // Set up the URI.
 
   server->GetServerURI(mURI);
-  nsCString path = folder->GetPath();
+  nsCString path;
+  MOZ_TRY_VAR(path, folderDB.GetFolderPath(folderId));
   rv = NS_MsgEscapeEncodeURLPath(path, path);
   NS_ENSURE_SUCCESS(rv, rv);
   mURI.Append(Substring(path, path.FindChar('/')));
@@ -2709,25 +2719,21 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   rv = GetMsgStore(getter_AddRefs(store));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsTArray<nsCString> folderPaths;
-  rv = store->DiscoverChildFolders(this, folderPaths);
+  nsTArray<nsCString> childNames;
+  rv = store->DiscoverChildFolders(this, childNames);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-  nsCOMPtr<nsIFolderDatabase> folders = database->GetFolderDB();
-  folders->Reconcile(folder, folderPaths);
+  MOZ_TRY(folderDB.Reconcile(folderId, childNames));
 
   // Add the subfolders.
-
-  nsTArray<RefPtr<nsIFolder>> children;
-  folder->GetChildren(children);
-  for (auto subFolder : children) {
+  nsTArray<uint64_t> subFolderIds;
+  MOZ_TRY_VAR(subFolderIds, folderDB.GetFolderChildren(folderId));
+  for (auto subFolderId : subFolderIds) {
     nsCOMPtr<nsIMsgFolder> msgFolder =
         do_CreateInstance("@mozilla.org/mail/folder;1?name=mailbox", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIInitableWithFolder> initable = do_QueryInterface(msgFolder);
-    rv = initable->InitWithFolder(subFolder);
+    rv = msgFolder->InitWithFolderId(subFolderId);
     NS_ENSURE_SUCCESS(rv, rv);
 
     msgFolder->SetParent(this);
@@ -2735,28 +2741,38 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolder(nsIFolder* folder) {
   }
 
   return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::GetId(uint64_t* id) {
-  MOZ_ASSERT(Preferences::GetBool("mail.panorama.enabled", false));
-  *id = mDBFolder->GetId();
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::GetPath(nsACString& path) {
-  MOZ_ASSERT(Preferences::GetBool("mail.panorama.enabled", false));
-  path = mDBFolder->GetPath();
-  return NS_OK;
-}
 #else
+  return NS_ERROR_NOT_IMPLEMENTED;
+#endif  // MOZ_PANORAMA
+}
+
 NS_IMETHODIMP nsMsgDBFolder::GetId(uint64_t* id) {
+#ifdef MOZ_PANORAMA
+  MOZ_ASSERT(StaticPrefs::mail_panorama_enabled_AtStartup());
+  *id = mFolderId;
+#else
   MOZ_ASSERT(false, "panorama-only code");
+  *id = 0;
+#endif
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::GetPath(nsACString& path) {
+#ifdef MOZ_PANORAMA
+  MOZ_ASSERT(StaticPrefs::mail_panorama_enabled_AtStartup());
+
+  RefPtr<mozilla::mailnews::DatabaseCore> dbCore =
+      mozilla::mailnews::DatabaseCore::GetInstanceForService();
+  mozilla::mailnews::FolderDatabase& folderDB(dbCore->FolderDB());
+  MOZ_TRY_VAR(path, folderDB.GetFolderPath(mFolderId));
+
+#else
   MOZ_ASSERT(false, "panorama-only code");
+  // NOTE: actually, we could implement this, collecting names back
+  // up to the root...
+#endif
+  return NS_OK;
 }
-#endif  // MOZ_PANORAMA
 
 nsresult nsMsgDBFolder::parseURI(bool needServer) {
   nsresult rv;
@@ -3366,17 +3382,24 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
     // TODO: We shouldn't be here at all. But we are thanks to the fact that
     // various functions call the message store and it calls back.
     // `name` is a hashed name and it shouldn't be.
-    nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
-    nsCOMPtr<nsIFolderDatabase> folders = database->GetFolderDB();
+    RefPtr<mozilla::mailnews::DatabaseCore> dbCore =
+        mozilla::mailnews::DatabaseCore::GetInstanceForService();
+    mozilla::mailnews::FolderDatabase& folderDB(dbCore->FolderDB());
 
-    nsCOMPtr<nsIFolder> dbFolder;
-    folders->InsertFolder(mDBFolder, actualName, getter_AddRefs(dbFolder));
+    uint64_t subFolderId;
+    // FolderDatabase might already have an entry? Unclear...
+    MOZ_TRY_VAR(subFolderId,
+                folderDB.GetFolderChildNamed(mFolderId, actualName));
+    if (subFolderId == 0) {
+      rv = folderDB.InsertFolder(mFolderId, actualName, &subFolderId);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
 
+    // Set up the nsIMsgFolder.
     folder = do_CreateInstance("@mozilla.org/mail/folder;1?name=mailbox", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIInitableWithFolder> initable = do_QueryInterface(folder);
-    rv = initable->InitWithFolder(dbFolder);
+    rv = folder->InitWithFolderId(subFolderId);
     NS_ENSURE_SUCCESS(rv, rv);
 
     folder->SetParent(this);

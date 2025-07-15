@@ -5,7 +5,6 @@
 #ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_LIVEVIEWFILTERS_H_
 #define COMM_MAILNEWS_DB_PANORAMA_SRC_LIVEVIEWFILTERS_H_
 
-#include "Folder.h"
 #include "FolderDatabase.h"
 #include "Message.h"
 #include "mozilla/Components.h"
@@ -39,8 +38,7 @@ class LiveViewFilter {
 
 class SingleFolderFilter final : public LiveViewFilter {
  public:
-  explicit SingleFolderFilter(nsIFolder* aFolder)
-      : mFolderId(aFolder->GetId()) {
+  explicit SingleFolderFilter(uint64_t folderId) : mFolderId(folderId) {
     mSQLClause.Assign("folderId = ");
     mSQLClause.AppendInt(mFolderId);
   }
@@ -53,14 +51,15 @@ class SingleFolderFilter final : public LiveViewFilter {
 
 class MultiFolderFilter final : public LiveViewFilter {
  public:
-  explicit MultiFolderFilter(const nsTArray<RefPtr<nsIFolder>>& aFolders) {
+  explicit MultiFolderFilter(nsTArray<uint64_t> const& folderIds) {
+    mFolderIds.ClearAndRetainStorage();
     mSQLClause.Assign("folderId IN (");
-    for (size_t i = 0; i < aFolders.Length(); i++) {
+    for (size_t i = 0; i < folderIds.Length(); i++) {
       if (i > 0) {
         mSQLClause.Append(", ");
       }
-      mSQLClause.AppendInt(aFolders[i]->GetId());
-      mFolderIds.AppendElement(aFolders[i]->GetId());
+      mSQLClause.AppendInt(folderIds[i]);
+      mFolderIds.AppendElement(folderIds[i]);
     }
     mSQLClause.Append(")");
   }
@@ -75,9 +74,8 @@ class MultiFolderFilter final : public LiveViewFilter {
 
 class VirtualFolderFilter final : public LiveViewFilter {
  public:
-  explicit VirtualFolderFilter(nsIFolder* folder)
-      : mVirtualFolderId(folder->GetId()) {
-    mWrapper = new VirtualFolderWrapper(folder);
+  explicit VirtualFolderFilter(uint64_t folderId) : mVirtualFolderId(folderId) {
+    mWrapper = new VirtualFolderWrapper(folderId);
     Refresh();
   }
 

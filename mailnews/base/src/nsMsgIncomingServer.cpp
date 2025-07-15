@@ -47,7 +47,6 @@
 #include "nsIArray.h"
 #ifdef MOZ_PANORAMA
 #  include "nsIDatabaseCore.h"
-#  include "nsIFolder.h"
 #  include "nsIFolderDatabase.h"
 #endif  // MOZ_PANORAMA
 #include "nsIMsgLocalMailFolder.h"
@@ -424,12 +423,12 @@ nsresult nsMsgIncomingServer::CreateRootFolder() {
     nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
     nsCOMPtr<nsIFolderDatabase> folders = database->GetFolderDB();
 
-    nsCOMPtr<nsIFolder> root;
-    rv = folders->GetFolderByPath(m_serverKey, getter_AddRefs(root));
+    // Create root folder in DB if it doesn't already exist.
+    uint64_t rootId;
+    rv = folders->GetFolderChildNamed(0, m_serverKey, &rootId);
     NS_ENSURE_SUCCESS(rv, rv);
-
-    if (!root) {
-      folders->InsertRoot(m_serverKey, getter_AddRefs(root));
+    if (!rootId) {
+      folders->InsertRoot(m_serverKey, &rootId);
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
@@ -437,8 +436,7 @@ nsresult nsMsgIncomingServer::CreateRootFolder() {
         do_CreateInstance("@mozilla.org/mail/folder;1?name=mailbox", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIInitableWithFolder> initable = do_QueryInterface(m_rootFolder);
-    rv = initable->InitWithFolder(root);
+    rv = m_rootFolder->InitWithFolderId(rootId);
     NS_ENSURE_SUCCESS(rv, rv);
 
     return NS_OK;

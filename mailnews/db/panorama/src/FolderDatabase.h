@@ -6,8 +6,10 @@
 #define COMM_MAILNEWS_DB_PANORAMA_SRC_FOLDERDATABASE_H_
 
 #include "FolderComparator.h"
+#include "mozilla/HashTable.h"
 #include "mozilla/MozPromise.h"
 #include "mozilla/RefPtr.h"
+#include "mozilla/Result.h"
 #include "nsIFolderDatabase.h"
 #include "nsTHashMap.h"
 
@@ -15,12 +17,25 @@ using mozilla::MozPromise;
 
 namespace mozilla::mailnews {
 
-class Folder;
-
 class FolderDatabase : public nsIFolderDatabase {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIFOLDERDATABASE
+
+  Result<nsCString, nsresult> GetFolderName(uint64_t folderId);
+  Result<nsCString, nsresult> GetFolderPath(uint64_t folderId);
+  Result<uint32_t, nsresult> GetFolderFlags(uint64_t folderId);
+
+  Result<uint64_t, nsresult> GetFolderParent(uint64_t folderId);
+  // Returns children sorted. Can pass folderId=0 to get root folders.
+  Result<nsTArray<uint64_t>, nsresult> GetFolderChildren(uint64_t folderId);
+  Result<uint64_t, nsresult> GetFolderChildNamed(uint64_t folderId,
+                                                 nsACString const& childName);
+  Result<uint64_t, nsresult> GetFolderRoot(uint64_t folderId);
+  Result<nsTArray<uint64_t>, nsresult> GetFolderDescendants(uint64_t folderId);
+  Result<nsTArray<uint64_t>, nsresult> GetFolderAncestors(uint64_t folderId);
+
+  Result<Maybe<uint64_t>, nsresult> GetFolderOrdinal(uint64_t folderId);
 
  protected:
   virtual ~FolderDatabase() {};
@@ -28,9 +43,7 @@ class FolderDatabase : public nsIFolderDatabase {
  private:
   friend class DatabaseCore;
 
-  FolderDatabase() {};
-  nsresult Startup();
-  void Shutdown();
+  FolderDatabase() : mComparator(*this) {};
 
  private:
   friend class DatabaseCore;
@@ -52,18 +65,40 @@ class FolderDatabase : public nsIFolderDatabase {
   nsresult SetVirtualFolderFolders(uint64_t virtualFolderId,
                                    nsTArray<uint64_t>& searchFolderIds);
 
+  Result<nsTArray<uint64_t>, nsresult> GetFolderChildrenUnsorted(
+      uint64_t folderId);
+
  private:
-  nsTHashMap<uint64_t, RefPtr<Folder>> mFoldersById;
-  nsTHashMap<nsCString, RefPtr<Folder>> mFoldersByPath;
   FolderComparator mComparator;
 
   nsresult InternalLoadFolders();
 
-  nsresult InternalInsertFolder(nsIFolder* aParent, const nsACString& aName,
-                                nsIFolder** aChild);
-  nsresult InternalDeleteFolder(nsIFolder* aFolder);
+  nsresult InternalInsertFolder(uint64_t aParent, const nsACString& aName,
+                                uint64_t* aChild);
+  nsresult InternalDeleteFolder(uint64_t aFolder);
 
-  nsresult SaveOrdinals(nsTArray<RefPtr<Folder>>& aFolders);
+  nsresult SaveOrdinals(nsTArray<uint64_t> const& aFolders);
+
+  nsresult InternalAppendDescendants(uint64_t folderId,
+                                     nsTArray<uint64_t>& descendants);
+
+  // Folder data we want cached.
+  struct CachedFolder {
+    uint64_t id{0};
+    uint64_t parent{0};
+    Maybe<uint64_t> ordinal;
+    nsAutoCString name;
+    uint32_t flags{0};
+  };
+
+  // The cache, indexed by folderId.
+  mozilla::HashMap<uint64_t, CachedFolder> mFolderCache;
+  // Guarantee folder data is in cache.
+  Result<CachedFolder*, nsresult> EnsureFolderCached(uint64_t folderId);
+  // Fetch folder data from DB into our cache struct.
+  nsresult FetchFolderData(uint64_t folderId, CachedFolder& cached);
+  // Check the cache and slim it down if needed.
+  void TrimCache();
 };
 
 }  // namespace mozilla::mailnews

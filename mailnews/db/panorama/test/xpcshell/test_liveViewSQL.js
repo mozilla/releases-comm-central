@@ -38,7 +38,7 @@ add_task(function testVirtualFolder() {
   );
 
   const virtualFolder = folderDB.getFolderByPath("server1/virtual");
-  const folderSubclause = `folderId IN (SELECT searchFolderId FROM virtualFolder_folders WHERE virtualFolderId = ${virtualFolder.id})`;
+  const folderSubclause = `folderId IN (SELECT searchFolderId FROM virtualFolder_folders WHERE virtualFolderId = ${virtualFolder})`;
 
   for (const [searchString, expectedClause, expectedParams] of [
     // Matches all messages.

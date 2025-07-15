@@ -13,11 +13,11 @@ add_setup(async function () {
 });
 
 add_task(function testReconcile() {
-  const grandparent = folderDB.getFolderById(3);
-  const parent = folderDB.getFolderById(6);
-  const child = folderDB.getFolderById(4);
-  const grandchild = folderDB.getFolderById(1);
-  const sibling = folderDB.getFolderById(2);
+  const grandparent = 3;
+  const parent = 6;
+  const child = 4;
+  const grandchild = 1;
+  const sibling = 2;
 
   drawTree(parent);
 
@@ -26,20 +26,24 @@ add_task(function testReconcile() {
 
   const inserted = folderDB.getFolderByPath("grandparent/parent/inserted");
   Assert.ok(inserted);
-  Assert.equal(inserted.rootFolder, grandparent);
-  Assert.equal(inserted.parent, parent);
-  Assert.ok(!child.parent);
-  Assert.deepEqual(parent.children, [inserted, sibling]);
+  Assert.equal(folderDB.getFolderRoot(inserted), grandparent);
+  Assert.equal(folderDB.getFolderParent(inserted), parent);
+  Assert.throws(
+    () => folderDB.getFolderParent(child),
+    /NS_ERROR_/,
+    "child no longer exists"
+  );
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [inserted, sibling]);
 
-  checkRow(inserted.id, {
-    id: inserted.id,
-    parent: parent.id,
+  checkRow(inserted, {
+    id: inserted,
+    parent,
     ordinal: null,
     name: "inserted",
     flags: 0,
   });
-  checkNoRow(child.id);
-  checkNoRow(grandchild.id);
+  checkNoRow(child);
+  checkNoRow(grandchild);
 
   // Folders with the virtual flag shouldn't be removed.
 
@@ -47,10 +51,10 @@ add_task(function testReconcile() {
   folderDB.reconcile(parent, ["siblîng"]);
   drawTree(parent);
 
-  Assert.deepEqual(parent.children, [inserted, sibling]);
-  checkRow(inserted.id, {
-    id: inserted.id,
-    parent: parent.id,
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [inserted, sibling]);
+  checkRow(inserted, {
+    id: inserted,
+    parent,
     ordinal: null,
     name: "inserted",
     flags: Ci.nsMsgFolderFlags.Virtual,

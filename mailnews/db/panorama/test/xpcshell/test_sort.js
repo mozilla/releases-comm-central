@@ -51,60 +51,75 @@ add_setup(function () {
  * Tests folders that all have an ordinal value.
  */
 add_task(function testNullOrdinals() {
-  const parent = folderDB.getFolderById(7);
-  const echo = folderDB.getFolderById(10); // Lowercase E with diaeresis.
-  const foxtrot = folderDB.getFolderById(9); // Uppercase F.
-  const golf = folderDB.getFolderById(15);
-  const hotel = folderDB.getFolderById(3); // Uppercase H.
+  const parent = 7;
+  const echo = 10; // Lowercase E with diaeresis.
+  const foxtrot = 9; // Uppercase F.
+  const golf = 15;
+  const hotel = 3; // Uppercase H.
 
-  Assert.deepEqual(parent.children, [echo, foxtrot, golf, hotel]);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [
+    echo,
+    foxtrot,
+    golf,
+    hotel,
+  ]);
 });
 
 /**
  * Tests folders that all have no ordinal value.
  */
 add_task(function testNonNullOrdinals() {
-  const parent = folderDB.getFolderById(12);
-  const kilo = folderDB.getFolderById(6);
-  const lima = folderDB.getFolderById(2); // Uppercase L.
-  const november = folderDB.getFolderById(14); // Uppercase N.
-  const quebec = folderDB.getFolderById(8); // Uppercase Q.
+  const parent = 12;
+  const kilo = 6;
+  const lima = 2; // Uppercase L.
+  const november = 14; // Uppercase N.
+  const quebec = 8; // Uppercase Q.
 
-  Assert.deepEqual(parent.children, [lima, quebec, kilo, november]);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [
+    lima,
+    quebec,
+    kilo,
+    november,
+  ]);
 });
 
 /**
  * Tests a mix of folders that have an ordinal value and folders that do not.
  */
 add_task(function testMixedOrdinals() {
-  const parent = folderDB.getFolderById(11);
-  const sierra = folderDB.getFolderById(4);
-  const tango = folderDB.getFolderById(13); // Uppercase T.
-  const uniform = folderDB.getFolderById(1); // Uppercase U.
-  const whisky = folderDB.getFolderById(5);
+  const parent = 11;
+  const sierra = 4;
+  const tango = 13; // Uppercase T.
+  const uniform = 1; // Uppercase U.
+  const whisky = 5;
 
-  Assert.deepEqual(parent.children, [whisky, sierra, tango, uniform]);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [
+    whisky,
+    sierra,
+    tango,
+    uniform,
+  ]);
 });
 
 /**
  * Tests that folders with special flags are ordered in the natural order.
  */
 add_task(function testSpecialFolders() {
-  const parent = folderDB.getFolderById(16);
-  const xray = folderDB.getFolderById(21);
-  const yankee = folderDB.getFolderById(23);
-  const zulu = folderDB.getFolderById(25);
-  const archives = folderDB.getFolderById(17);
-  const drafts = folderDB.getFolderById(26);
-  const inbox = folderDB.getFolderById(20);
-  const junk = folderDB.getFolderById(22);
-  const sent = folderDB.getFolderById(24);
-  const templates = folderDB.getFolderById(27);
-  const trash = folderDB.getFolderById(18);
-  const unsent = folderDB.getFolderById(19);
-  const virtual = folderDB.getFolderById(28);
+  const parent = 16;
+  const xray = 21;
+  const yankee = 23;
+  const zulu = 25;
+  const archives = 17;
+  const drafts = 26;
+  const inbox = 20;
+  const junk = 22;
+  const sent = 24;
+  const templates = 27;
+  const trash = 18;
+  const unsent = 19;
+  const virtual = 28;
 
-  Assert.deepEqual(parent.children, [
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [
     inbox,
     drafts,
     templates,
@@ -124,7 +139,7 @@ add_task(function testSpecialFolders() {
   folderDB.moveFolderWithin(parent, xray, inbox);
   folderDB.moveFolderWithin(parent, zulu, xray);
 
-  Assert.deepEqual(parent.children, [
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [
     zulu,
     xray,
     inbox,
@@ -142,7 +157,7 @@ add_task(function testSpecialFolders() {
   folderDB.moveFolderWithin(parent, archives, templates);
   folderDB.moveFolderWithin(parent, junk, xray);
 
-  Assert.deepEqual(parent.children, [
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [
     zulu,
     junk,
     xray,
@@ -161,7 +176,7 @@ add_task(function testSpecialFolders() {
 
   folderDB.resetChildOrder(parent);
 
-  Assert.deepEqual(parent.children, [
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [
     inbox,
     drafts,
     templates,

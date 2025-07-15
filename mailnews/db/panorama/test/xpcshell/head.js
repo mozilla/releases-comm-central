@@ -107,8 +107,8 @@ registerCleanupFunction(function () {
 });
 
 function drawTree(root, level = 0) {
-  console.log("  ".repeat(level) + root.name);
-  for (const child of root.children) {
+  console.log("  ".repeat(level) + folderDB.getFolderName(root));
+  for (const child of folderDB.getFolderChildren(root)) {
     drawTree(child, level + 1);
   }
 }
@@ -143,12 +143,12 @@ function checkOrdinals(expected) {
     "SELECT parent, ordinal FROM folders WHERE id=:id"
   );
   for (const [folder, parent, ordinal] of expected) {
-    stmt.params.id = folder.id;
+    stmt.params.id = folder;
     stmt.executeStep();
     Assert.deepEqual(
       [stmt.row.parent, stmt.row.ordinal],
       [parent, ordinal],
-      `parent and ordinal of ${folder.name}`
+      `parent and ordinal of '${folderDB.getFolderName(folder)}'`
     );
     stmt.reset();
   }

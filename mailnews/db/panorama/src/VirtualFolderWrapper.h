@@ -19,9 +19,9 @@ namespace mozilla::mailnews {
 class VirtualFolderWrapper : public nsIVirtualFolderWrapper {
  public:
   VirtualFolderWrapper() {}
-  explicit VirtualFolderWrapper(nsIFolder* folder) {
-    FolderDB().GetMsgFolderForFolder(folder, getter_AddRefs(mMsgFolder));
-    mVirtualFolderId = folder->GetId();
+  explicit VirtualFolderWrapper(uint64_t folderId)
+      : mVirtualFolderId(folderId) {
+    FolderDB().GetMsgFolderForFolder(folderId, getter_AddRefs(mMsgFolder));
   }
 
   NS_DECL_ISUPPORTS

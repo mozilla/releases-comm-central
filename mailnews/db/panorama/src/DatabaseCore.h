@@ -40,6 +40,9 @@ class DatabaseCore : public nsIDatabaseCore,
 
   static already_AddRefed<DatabaseCore> GetInstanceForService();
 
+  FolderDatabase& FolderDB() { return *mFolderDatabase; }
+  MessageDatabase& MessageDB() { return *mMessageDatabase; }
+
  protected:
   virtual ~DatabaseCore() {};
 

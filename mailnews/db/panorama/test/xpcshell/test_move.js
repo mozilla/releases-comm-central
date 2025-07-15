@@ -16,17 +16,17 @@ add_setup(async function () {
  * Tests rearranging the folders without moving them to a new parent.
  */
 add_task(function testMoveToSameParent() {
-  const grandparent = folderDB.getFolderById(1);
-  const parent = folderDB.getFolderById(3);
-  const a = folderDB.getFolderById(4);
-  const b = folderDB.getFolderById(7);
-  const c = folderDB.getFolderById(9);
-  const d = folderDB.getFolderById(10);
+  const grandparent = 1;
+  const parent = 3;
+  const a = 4;
+  const b = 7;
+  const c = 9;
+  const d = 10;
 
   drawTree(parent);
 
-  Assert.equal(a.parent, parent);
-  Assert.deepEqual(parent.children, [a, b, c, d]);
+  Assert.equal(folderDB.getFolderParent(a), parent);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [a, b, c, d]);
   checkOrdinals([
     [parent, 1, null],
     [a, 3, null],
@@ -53,107 +53,107 @@ add_task(function testMoveToSameParent() {
 
   // Start -> Middle.
   folderDB.moveFolderWithin(parent, a, c);
-  Assert.equal(a.parent, parent);
-  Assert.deepEqual(parent.children, [b, a, c, d]);
+  Assert.equal(folderDB.getFolderParent(a), parent);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [b, a, c, d]);
   checkOrdinals([
     [parent, 1, null],
-    [b, parent.id, 1],
-    [a, parent.id, 2],
-    [c, parent.id, 3],
-    [d, parent.id, 4],
+    [b, parent, 1],
+    [a, parent, 2],
+    [c, parent, 3],
+    [d, parent, 4],
   ]);
 
   // Middle -> Middle.
   folderDB.moveFolderWithin(parent, a, d);
-  Assert.equal(a.parent, parent);
-  Assert.deepEqual(parent.children, [b, c, a, d]);
+  Assert.equal(folderDB.getFolderParent(a), parent);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [b, c, a, d]);
   checkOrdinals([
     [parent, 1, null],
-    [b, parent.id, 1],
-    [c, parent.id, 2],
-    [a, parent.id, 3],
-    [d, parent.id, 4],
+    [b, parent, 1],
+    [c, parent, 2],
+    [a, parent, 3],
+    [d, parent, 4],
   ]);
 
   // Middle -> End.
   folderDB.moveFolderWithin(parent, a);
-  Assert.equal(a.parent, parent);
-  Assert.deepEqual(parent.children, [b, c, d, a]);
+  Assert.equal(folderDB.getFolderParent(a), parent);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [b, c, d, a]);
   checkOrdinals([
     [parent, 1, null],
-    [b, parent.id, 1],
-    [c, parent.id, 2],
-    [d, parent.id, 3],
-    [a, parent.id, 4],
+    [b, parent, 1],
+    [c, parent, 2],
+    [d, parent, 3],
+    [a, parent, 4],
   ]);
 
   // Start <- End.
   folderDB.moveFolderWithin(parent, a, b);
-  Assert.equal(a.parent, parent);
-  Assert.deepEqual(parent.children, [a, b, c, d]);
+  Assert.equal(folderDB.getFolderParent(a), parent);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [a, b, c, d]);
   checkOrdinals([
     [parent, 1, null],
-    [a, parent.id, 1],
-    [b, parent.id, 2],
-    [c, parent.id, 3],
-    [d, parent.id, 4],
+    [a, parent, 1],
+    [b, parent, 2],
+    [c, parent, 3],
+    [d, parent, 4],
   ]);
 
   // Start -> End.
   folderDB.moveFolderWithin(parent, a);
-  Assert.equal(a.parent, parent);
-  Assert.deepEqual(parent.children, [b, c, d, a]);
+  Assert.equal(folderDB.getFolderParent(a), parent);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [b, c, d, a]);
   checkOrdinals([
     [parent, 1, null],
-    [b, parent.id, 1],
-    [c, parent.id, 2],
-    [d, parent.id, 3],
-    [a, parent.id, 4],
+    [b, parent, 1],
+    [c, parent, 2],
+    [d, parent, 3],
+    [a, parent, 4],
   ]);
 
   // Middle <- End.
   folderDB.moveFolderWithin(parent, a, d);
-  Assert.equal(a.parent, parent);
-  Assert.deepEqual(parent.children, [b, c, a, d]);
+  Assert.equal(folderDB.getFolderParent(a), parent);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [b, c, a, d]);
   checkOrdinals([
     [parent, 1, null],
-    [b, parent.id, 1],
-    [c, parent.id, 2],
-    [a, parent.id, 3],
-    [d, parent.id, 4],
+    [b, parent, 1],
+    [c, parent, 2],
+    [a, parent, 3],
+    [d, parent, 4],
   ]);
 
   // Middle <- Middle.
   folderDB.moveFolderWithin(parent, a, c);
-  Assert.equal(a.parent, parent);
-  Assert.deepEqual(parent.children, [b, a, c, d]);
+  Assert.equal(folderDB.getFolderParent(a), parent);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [b, a, c, d]);
   checkOrdinals([
     [parent, 1, null],
-    [b, parent.id, 1],
-    [a, parent.id, 2],
-    [c, parent.id, 3],
-    [d, parent.id, 4],
+    [b, parent, 1],
+    [a, parent, 2],
+    [c, parent, 3],
+    [d, parent, 4],
   ]);
 
   // Start <- Middle.
   folderDB.moveFolderWithin(parent, a, b);
-  Assert.equal(a.parent, parent);
-  Assert.deepEqual(parent.children, [a, b, c, d]);
+  Assert.equal(folderDB.getFolderParent(a), parent);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [a, b, c, d]);
   checkOrdinals([
     [parent, 1, null],
-    [a, parent.id, 1],
-    [b, parent.id, 2],
-    [c, parent.id, 3],
-    [d, parent.id, 4],
+    [a, parent, 1],
+    [b, parent, 2],
+    [c, parent, 3],
+    [d, parent, 4],
   ]);
 
   folderDB.resetChildOrder(parent);
   checkOrdinals([
     [parent, 1, null],
-    [a, parent.id, null],
-    [b, parent.id, null],
-    [c, parent.id, null],
-    [d, parent.id, null],
+    [a, parent, null],
+    [b, parent, null],
+    [c, parent, null],
+    [d, parent, null],
   ]);
 });
 
@@ -161,14 +161,14 @@ add_task(function testMoveToSameParent() {
  * Tests moving folders to a new parent.
  */
 add_task(function testMoveToNewParent() {
-  const grandparent = folderDB.getFolderById(1);
-  const left = folderDB.getFolderById(2);
-  const parent = folderDB.getFolderById(3);
-  const right = folderDB.getFolderById(14);
-  const a = folderDB.getFolderById(4);
-  const b = folderDB.getFolderById(7);
-  const c = folderDB.getFolderById(9);
-  const d = folderDB.getFolderById(10);
+  const grandparent = 1;
+  const left = 2;
+  const parent = 3;
+  const right = 14;
+  const a = 4;
+  const b = 7;
+  const c = 9;
+  const d = 10;
 
   folderDB.moveFolderWithin(parent, b, a);
   folderDB.moveFolderWithin(parent, c, a);
@@ -177,12 +177,12 @@ add_task(function testMoveToNewParent() {
 
   drawTree(grandparent);
   checkOrdinals([
-    [left, grandparent.id, null],
-    [parent, grandparent.id, null],
-    [a, parent.id, 1],
-    [b, parent.id, 2],
-    [c, parent.id, 3],
-    [d, parent.id, 4],
+    [left, grandparent, null],
+    [parent, grandparent, null],
+    [a, parent, 1],
+    [b, parent, 2],
+    [c, parent, 3],
+    [d, parent, 4],
   ]);
 
   Assert.throws(
@@ -199,60 +199,60 @@ add_task(function testMoveToNewParent() {
   // Append A to new parent on left.
   folderDB.moveFolderTo(left, a);
   drawTree(grandparent);
-  Assert.equal(a.parent, left);
-  Assert.deepEqual(left.children, [a]);
-  Assert.deepEqual(parent.children, [b, c, d]);
+  Assert.equal(folderDB.getFolderParent(a), left);
+  Assert.deepEqual(folderDB.getFolderChildren(left), [a]);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [b, c, d]);
   checkOrdinals([
-    [left, grandparent.id, null],
-    [a, left.id, null],
-    [parent, grandparent.id, null],
+    [left, grandparent, null],
+    [a, left, null],
+    [parent, grandparent, null],
     // No need to change the existing ordinals on remaining children,
     // the order remains the same.
-    [b, parent.id, 2],
-    [c, parent.id, 3],
-    [d, parent.id, 4],
+    [b, parent, 2],
+    [c, parent, 3],
+    [d, parent, 4],
   ]);
 
   // Append D to new parent on right.
   folderDB.moveFolderTo(right, d);
   drawTree(grandparent);
-  Assert.equal(d.parent, right);
-  Assert.deepEqual(parent.children, [b, c]);
-  Assert.deepEqual(right.children, [d]);
+  Assert.equal(folderDB.getFolderParent(d), right);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [b, c]);
+  Assert.deepEqual(folderDB.getFolderChildren(right), [d]);
   checkOrdinals([
-    [parent, grandparent.id, null],
-    [b, parent.id, 2],
-    [c, parent.id, 3],
-    [right, grandparent.id, null],
-    [d, right.id, null],
+    [parent, grandparent, null],
+    [b, parent, 2],
+    [c, parent, 3],
+    [right, grandparent, null],
+    [d, right, null],
   ]);
 
   // Append C to new parent on left.
   folderDB.moveFolderTo(left, c);
   drawTree(grandparent);
-  Assert.equal(c.parent, left);
-  Assert.deepEqual(left.children, [a, c]);
-  Assert.deepEqual(parent.children, [b]);
+  Assert.equal(folderDB.getFolderParent(c), left);
+  Assert.deepEqual(folderDB.getFolderChildren(left), [a, c]);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [b]);
   checkOrdinals([
-    [left, grandparent.id, null],
-    [a, left.id, null],
-    [c, left.id, null],
-    [parent, grandparent.id, null],
-    [b, parent.id, 2],
+    [left, grandparent, null],
+    [a, left, null],
+    [c, left, null],
+    [parent, grandparent, null],
+    [b, parent, 2],
   ]);
 
   // Append B to new parent on right. B and D have no ordinals (even if they
   // existed before, moving nullified them) and B is ahead of D alphabetically.
   folderDB.moveFolderTo(right, b);
   drawTree(grandparent);
-  Assert.equal(b.parent, right);
-  Assert.deepEqual(parent.children, []);
-  Assert.deepEqual(right.children, [b, d]);
+  Assert.equal(folderDB.getFolderParent(b), right);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), []);
+  Assert.deepEqual(folderDB.getFolderChildren(right), [b, d]);
   checkOrdinals([
-    [parent, grandparent.id, null],
-    [right, grandparent.id, null],
-    [b, right.id, null],
-    [d, right.id, null],
+    [parent, grandparent, null],
+    [right, grandparent, null],
+    [b, right, null],
+    [d, right, null],
   ]);
 
   // At this point I think we can trust each individual move without checking,
@@ -264,24 +264,32 @@ add_task(function testMoveToNewParent() {
   folderDB.moveFolderTo(grandparent, c);
   folderDB.moveFolderTo(grandparent, d);
   drawTree(grandparent);
-  Assert.equal(a.parent, grandparent);
-  Assert.equal(b.parent, grandparent);
-  Assert.equal(c.parent, grandparent);
-  Assert.equal(d.parent, grandparent);
+  Assert.equal(folderDB.getFolderParent(a), grandparent);
+  Assert.equal(folderDB.getFolderParent(b), grandparent);
+  Assert.equal(folderDB.getFolderParent(c), grandparent);
+  Assert.equal(folderDB.getFolderParent(d), grandparent);
   // None of these have an ordinal, so we go to alphabetical order.
-  Assert.deepEqual(grandparent.children, [a, b, c, d, left, parent, right]);
-  Assert.deepEqual(left.children, []);
-  Assert.deepEqual(parent.children, []);
-  Assert.deepEqual(right.children, []);
+  Assert.deepEqual(folderDB.getFolderChildren(grandparent), [
+    a,
+    b,
+    c,
+    d,
+    left,
+    parent,
+    right,
+  ]);
+  Assert.deepEqual(folderDB.getFolderChildren(left), []);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), []);
+  Assert.deepEqual(folderDB.getFolderChildren(right), []);
   checkOrdinals([
     [grandparent, 0, null],
-    [left, grandparent.id, null],
-    [parent, grandparent.id, null],
-    [right, grandparent.id, null],
-    [a, grandparent.id, null],
-    [b, grandparent.id, null],
-    [c, grandparent.id, null],
-    [d, grandparent.id, null],
+    [left, grandparent, null],
+    [parent, grandparent, null],
+    [right, grandparent, null],
+    [a, grandparent, null],
+    [b, grandparent, null],
+    [c, grandparent, null],
+    [d, grandparent, null],
   ]);
 
   // Move back to original positions.
@@ -290,21 +298,25 @@ add_task(function testMoveToNewParent() {
   folderDB.moveFolderTo(parent, d);
   folderDB.moveFolderTo(parent, c);
   drawTree(grandparent);
-  Assert.equal(a.parent, parent);
-  Assert.equal(b.parent, parent);
-  Assert.equal(c.parent, parent);
-  Assert.equal(d.parent, parent);
-  Assert.deepEqual(grandparent.children, [left, parent, right]);
-  Assert.deepEqual(parent.children, [a, b, c, d]);
+  Assert.equal(folderDB.getFolderParent(a), parent);
+  Assert.equal(folderDB.getFolderParent(b), parent);
+  Assert.equal(folderDB.getFolderParent(c), parent);
+  Assert.equal(folderDB.getFolderParent(d), parent);
+  Assert.deepEqual(folderDB.getFolderChildren(grandparent), [
+    left,
+    parent,
+    right,
+  ]);
+  Assert.deepEqual(folderDB.getFolderChildren(parent), [a, b, c, d]);
   checkOrdinals([
     [grandparent, 0, null],
-    [left, grandparent.id, null],
-    [parent, grandparent.id, null],
-    [a, parent.id, null],
-    [b, parent.id, null],
-    [c, parent.id, null],
-    [d, parent.id, null],
-    [right, grandparent.id, null],
+    [left, grandparent, null],
+    [parent, grandparent, null],
+    [a, parent, null],
+    [b, parent, null],
+    [c, parent, null],
+    [d, parent, null],
+    [right, grandparent, null],
   ]);
 });
 
@@ -312,10 +324,10 @@ add_task(function testMoveToNewParent() {
  * Tests moving folders between trees. This should not be allowed.
  */
 add_task(function testMoveToNewRoot() {
-  const grandparent = folderDB.getFolderById(1);
-  const parent = folderDB.getFolderById(3);
-  const otherRoot = folderDB.getFolderById(15);
-  const otherChild = folderDB.getFolderById(16);
+  const grandparent = 1;
+  const parent = 3;
+  const otherRoot = 15;
+  const otherChild = 16;
 
   Assert.throws(
     () => folderDB.moveFolderTo(grandparent, otherRoot),

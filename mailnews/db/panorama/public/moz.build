@@ -4,7 +4,6 @@
 
 XPIDL_SOURCES += [
     "nsIDatabaseCore.idl",
-    "nsIFolder.idl",
     "nsIFolderDatabase.idl",
     "nsILiveView.idl",
     "nsIMessageDatabase.idl",

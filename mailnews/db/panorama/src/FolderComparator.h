@@ -5,15 +5,14 @@
 #ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_FOLDERCOMPARATOR_H_
 #define COMM_MAILNEWS_DB_PANORAMA_SRC_FOLDERCOMPARATOR_H_
 
-#include "Folder.h"
-#include "mozilla/intl/Collator.h"
-#include "mozilla/RefPtr.h"
+#include <cstdint>
 
-using mozilla::intl::Collator;
-
+namespace mozilla::intl {
+class Collator;
+}
 namespace mozilla::mailnews {
 
-class Folder;
+class FolderDatabase;
 
 /**
  * Compares folders for display in the right order. Folders with an ordinal in
@@ -25,13 +24,16 @@ class Folder;
  */
 class FolderComparator {
  public:
-  bool Equals(const RefPtr<Folder>& a, const RefPtr<Folder>& b) const;
-  bool LessThan(const RefPtr<Folder>& a, const RefPtr<Folder>& b) const;
+  FolderComparator() = delete;
+  explicit FolderComparator(FolderDatabase& folderDB) : mFolderDB(folderDB) {}
+  bool Equals(uint64_t a, uint64_t b) const;
+  bool LessThan(uint64_t a, uint64_t b) const;
 
  private:
-  static const Collator* sCollator;
-  static const Collator* GetCollator();
-  uint8_t SpecialFlagsOrder(const uint64_t flags) const;
+  static const mozilla::intl::Collator* sCollator;
+  static const mozilla::intl::Collator* GetCollator();
+  uint8_t SpecialFlagsOrder(const uint32_t flags) const;
+  FolderDatabase& mFolderDB;
 };
 
 }  // namespace mozilla::mailnews

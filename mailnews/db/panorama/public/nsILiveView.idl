@@ -4,7 +4,6 @@
 
 #include "nsISupports.idl"
 
-interface nsIFolder;
 interface nsILiveViewListener;
 interface nsIVariant;
 
@@ -15,8 +14,8 @@ interface nsILiveView : nsISupports {
    * Once a LiveView is initialised with one of these functions, or a database
    * call is made on an uninitialised LiveView, these cannot be called again.
    */
-  void initWithFolder(in nsIFolder folder);
-  void initWithFolders(in Array<nsIFolder> folders);
+  void initWithFolder(in unsigned long long folderId);
+  void initWithFolders(in Array<unsigned long long> folderIds);
   // `tag` is the tag's identifier (nsIMsgTag.key).
   void initWithTag(in AUTF8String tag);
 

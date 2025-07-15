@@ -6,7 +6,6 @@
 
 #include "mozilla/Components.h"
 #include "nsIDatabaseCore.h"
-#include "nsIFolder.h"
 #include "nsIFolderDatabase.h"
 #include "nsMsgMessageFlags.h"
 #include "nsPrintfCString.h"
@@ -371,11 +370,7 @@ NS_IMETHODIMP DetachedMsgHdr::GetFolder(nsIMsgFolder** folder) {
   nsresult rv = core->GetFolderDB(getter_AddRefs(folderDatabase));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIFolder> dbFolder;
-  rv = folderDatabase->GetFolderById(mFolderId, getter_AddRefs(dbFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return folderDatabase->GetMsgFolderForFolder(dbFolder, folder);
+  return folderDatabase->GetMsgFolderForFolder(mFolderId, folder);
 }
 
 NS_IMETHODIMP DetachedMsgHdr::GetUidOnServer(uint32_t* uidOnServer) {

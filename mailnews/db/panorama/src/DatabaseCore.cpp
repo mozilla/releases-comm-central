@@ -87,8 +87,6 @@ DatabaseCore::Startup() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   mFolderDatabase = new FolderDatabase();
-  rv = mFolderDatabase->Startup();
-  NS_ENSURE_SUCCESS(rv, rv);
 
   mMessageDatabase = new MessageDatabase();
   mMessageDatabase->Startup();
@@ -114,7 +112,6 @@ DatabaseCore::Observe(nsISupports* aSubject, const char* aTopic,
   }
   sStatements.Clear();
 
-  mFolderDatabase->Shutdown();
   mFolderDatabase = nullptr;
 
   mMessageDatabase->Shutdown();
@@ -891,11 +888,16 @@ NS_IMETHODIMP DatabaseCore::CreateNewDB(nsIMsgFolder* aFolder,
   aFolder->GetName(name);
   nsCOMPtr<nsIMsgFolder> msgParent;
   aFolder->GetParent(getter_AddRefs(msgParent));
-  nsCOMPtr<nsIFolder> parent;
-  mFolderDatabase->GetFolderForMsgFolder(msgParent, getter_AddRefs(parent));
+  uint64_t parentId;
+  MOZ_TRY(msgParent->GetId(&parentId));
 
-  nsCOMPtr<nsIFolder> unused;
-  mFolderDatabase->InsertFolder(parent, name, getter_AddRefs(unused));
+  // I think the folder should be in the DB by now, but add it if it's not.
+  uint64_t folderId;
+  MOZ_TRY_VAR(folderId, FolderDB().GetFolderChildNamed(parentId, name));
+  if (folderId == 0) {
+    nsresult rv = FolderDB().InsertFolder(parentId, name, &folderId);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   return OpenFolderDB(aFolder, false, _retval);
 }

@@ -12,7 +12,6 @@
 #include "mozilla/RefPtr.h"
 #include "mozilla/Preferences.h"
 #include "mozIStorageStatement.h"
-#include "nsIFolder.h"
 #include "nsIMsgDBView.h"
 #include "nsMsgMessageFlags.h"
 #include "nsServiceManagerUtils.h"
@@ -131,7 +130,7 @@ NS_IMETHODIMP PerFolderDatabase::ResetHdrCacheSize(uint32_t size) {
 NS_IMETHODIMP PerFolderDatabase::GetDBFolderInfo(
     nsIDBFolderInfo** aDBFolderInfo) {
   NS_ENSURE_ARG_POINTER(aDBFolderInfo);
-  NS_IF_ADDREF(*aDBFolderInfo = new FolderInfo(this, mFolderId));
+  NS_IF_ADDREF(*aDBFolderInfo = new FolderInfo(this));
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetDatabaseSize(int64_t* databaseSize) {
@@ -799,32 +798,36 @@ NS_IMETHODIMP ThreadEnumerator::HasMoreElements(bool* hasNext) {
 
 NS_IMPL_ISUPPORTS(FolderInfo, nsIDBFolderInfo)
 
-FolderInfo::FolderInfo(PerFolderDatabase* perFolderDatabase,
-                       uint64_t folderId) {
-  mPerFolderDatabase = perFolderDatabase;
-  FolderDB().GetFolderById(folderId, getter_AddRefs(mFolder));
-}
-
 NS_IMETHODIMP FolderInfo::GetFlags(int32_t* aFlags) {
   NS_ENSURE_ARG_POINTER(aFlags);
-  *aFlags = mFolder->GetFlags();
+  MOZ_TRY_VAR(*aFlags, FolderDB().GetFolderFlags(mFolderId));
   return NS_OK;
 }
+
 NS_IMETHODIMP FolderInfo::SetFlags(int32_t aFlags) {
-  return FolderDB().UpdateFlags(mFolder, aFlags);
+  return FolderDB().UpdateFlags(mFolderId, aFlags);
 }
+
 NS_IMETHODIMP FolderInfo::OrFlags(int32_t aFlags, int32_t* aOutFlags) {
   NS_ENSURE_ARG_POINTER(aOutFlags);
-  nsresult rv = FolderDB().UpdateFlags(mFolder, mFolder->GetFlags() | aFlags);
-  *aOutFlags = mFolder->GetFlags();
-  return rv;
+  uint32_t flags;
+  MOZ_TRY_VAR(flags, FolderDB().GetFolderFlags(mFolderId));
+  flags |= aFlags;
+  MOZ_TRY(FolderDB().UpdateFlags(mFolderId, flags));
+  *aOutFlags = flags;
+  return NS_OK;
 }
+
 NS_IMETHODIMP FolderInfo::AndFlags(int32_t aFlags, int32_t* aOutFlags) {
   NS_ENSURE_ARG_POINTER(aOutFlags);
-  nsresult rv = FolderDB().UpdateFlags(mFolder, mFolder->GetFlags() & aFlags);
-  *aOutFlags = mFolder->GetFlags();
-  return rv;
+  uint32_t flags;
+  MOZ_TRY_VAR(flags, FolderDB().GetFolderFlags(mFolderId));
+  flags &= aFlags;
+  MOZ_TRY(FolderDB().UpdateFlags(mFolderId, flags));
+  *aOutFlags = flags;
+  return NS_OK;
 }
+
 NS_IMETHODIMP FolderInfo::OnKeyAdded(nsMsgKey aNewKey) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -855,7 +858,7 @@ NS_IMETHODIMP FolderInfo::ChangeNumMessages(int32_t aDelta) {
 NS_IMETHODIMP FolderInfo::GetNumUnreadMessages(int32_t* aNumUnreadMessages) {
   NS_ENSURE_ARG_POINTER(aNumUnreadMessages);
   uint64_t out;
-  nsresult rv = MessageDB().GetNumUnread(mFolder->GetId(), &out);
+  nsresult rv = MessageDB().GetNumUnread(mFolderId, &out);
   *aNumUnreadMessages = (int32_t)out;
   return rv;
 }
@@ -865,7 +868,7 @@ NS_IMETHODIMP FolderInfo::SetNumUnreadMessages(int32_t aNumUnreadMessages) {
 NS_IMETHODIMP FolderInfo::GetNumMessages(int32_t* aNumMessages) {
   NS_ENSURE_ARG_POINTER(aNumMessages);
   uint64_t out;
-  nsresult rv = MessageDB().GetNumMessages(mFolder->GetId(), &out);
+  nsresult rv = MessageDB().GetNumMessages(mFolderId, &out);
   *aNumMessages = (int32_t)out;
   return rv;
 }
@@ -922,7 +925,7 @@ NS_IMETHODIMP FolderInfo::SetViewType(nsMsgViewTypeValue aViewType) {
 NS_IMETHODIMP FolderInfo::GetViewFlags(nsMsgViewFlagsTypeValue* viewFlags) {
   NS_ENSURE_ARG_POINTER(viewFlags);
   nsMsgViewFlagsTypeValue defaultViewFlags;
-  mPerFolderDatabase->GetDefaultViewFlags(&defaultViewFlags);
+  MOZ_TRY(mPerFolderDatabase->GetDefaultViewFlags(&defaultViewFlags));
   return GetUint32Property("viewFlags", defaultViewFlags, (uint32_t*)viewFlags);
 }
 NS_IMETHODIMP FolderInfo::SetViewFlags(nsMsgViewFlagsTypeValue viewFlags) {
@@ -931,7 +934,7 @@ NS_IMETHODIMP FolderInfo::SetViewFlags(nsMsgViewFlagsTypeValue viewFlags) {
 NS_IMETHODIMP FolderInfo::GetSortType(nsMsgViewSortTypeValue* sortType) {
   NS_ENSURE_ARG_POINTER(sortType);
   nsMsgViewSortTypeValue defaultSortType;
-  mPerFolderDatabase->GetDefaultSortType(&defaultSortType);
+  MOZ_TRY(mPerFolderDatabase->GetDefaultSortType(&defaultSortType));
   return GetUint32Property("sortType", defaultSortType, (uint32_t*)sortType);
 }
 NS_IMETHODIMP FolderInfo::SetSortType(nsMsgViewSortTypeValue sortType) {
@@ -940,7 +943,7 @@ NS_IMETHODIMP FolderInfo::SetSortType(nsMsgViewSortTypeValue sortType) {
 NS_IMETHODIMP FolderInfo::GetSortOrder(nsMsgViewSortOrderValue* sortOrder) {
   NS_ENSURE_ARG_POINTER(sortOrder);
   nsMsgViewSortOrderValue defaultSortOrder;
-  mPerFolderDatabase->GetDefaultSortOrder(&defaultSortOrder);
+  MOZ_TRY(mPerFolderDatabase->GetDefaultSortOrder(&defaultSortOrder));
   return GetUint32Property("sortOrder", defaultSortOrder, (uint32_t*)sortOrder);
 }
 NS_IMETHODIMP FolderInfo::SetSortOrder(nsMsgViewSortOrderValue sortOrder) {
@@ -951,12 +954,12 @@ NS_IMETHODIMP FolderInfo::ChangeExpungedBytes(int32_t aDelta) {
 }
 NS_IMETHODIMP FolderInfo::GetCharProperty(const char* propertyName,
                                           nsACString& propertyValue) {
-  return FolderDB().GetFolderProperty(mFolder->GetId(), nsCString(propertyName),
+  return FolderDB().GetFolderProperty(mFolderId, nsCString(propertyName),
                                       propertyValue);
 }
 NS_IMETHODIMP FolderInfo::SetCharProperty(const char* propertyName,
                                           const nsACString& propertyValue) {
-  return FolderDB().SetFolderProperty(mFolder->GetId(), nsCString(propertyName),
+  return FolderDB().SetFolderProperty(mFolderId, nsCString(propertyName),
                                       propertyValue);
 }
 NS_IMETHODIMP FolderInfo::GetUint32Property(const char* propertyName,
@@ -964,12 +967,12 @@ NS_IMETHODIMP FolderInfo::GetUint32Property(const char* propertyName,
                                             uint32_t* propertyValue) {
   NS_ENSURE_ARG_POINTER(propertyValue);
   *propertyValue = defaultValue;
-  return FolderDB().GetFolderProperty(mFolder->GetId(), nsCString(propertyName),
+  return FolderDB().GetFolderProperty(mFolderId, nsCString(propertyName),
                                       (int64_t*)propertyValue);
 }
 NS_IMETHODIMP FolderInfo::SetUint32Property(const char* propertyName,
                                             uint32_t propertyValue) {
-  return FolderDB().SetFolderProperty(mFolder->GetId(), nsCString(propertyName),
+  return FolderDB().SetFolderProperty(mFolderId, nsCString(propertyName),
                                       (int64_t)propertyValue);
 }
 NS_IMETHODIMP FolderInfo::GetInt64Property(const char* propertyName,
@@ -977,38 +980,38 @@ NS_IMETHODIMP FolderInfo::GetInt64Property(const char* propertyName,
                                            int64_t* propertyValue) {
   NS_ENSURE_ARG_POINTER(propertyValue);
   *propertyValue = defaultValue;
-  return FolderDB().GetFolderProperty(mFolder->GetId(), nsCString(propertyName),
+  return FolderDB().GetFolderProperty(mFolderId, nsCString(propertyName),
                                       propertyValue);
 }
 NS_IMETHODIMP FolderInfo::SetInt64Property(const char* propertyName,
                                            int64_t propertyValue) {
-  return FolderDB().SetFolderProperty(mFolder->GetId(), nsCString(propertyName),
+  return FolderDB().SetFolderProperty(mFolderId, nsCString(propertyName),
                                       propertyValue);
 }
 NS_IMETHODIMP FolderInfo::GetBooleanProperty(const char* propertyName,
                                              bool defaultValue,
                                              bool* propertyValue) {
   *propertyValue = defaultValue;
-  return FolderDB().GetFolderProperty(mFolder->GetId(), nsCString(propertyName),
+  return FolderDB().GetFolderProperty(mFolderId, nsCString(propertyName),
                                       (int64_t*)propertyValue);
 }
 NS_IMETHODIMP FolderInfo::SetBooleanProperty(const char* propertyName,
                                              bool propertyValue) {
-  return FolderDB().SetFolderProperty(mFolder->GetId(), nsCString(propertyName),
+  return FolderDB().SetFolderProperty(mFolderId, nsCString(propertyName),
                                       (int64_t)propertyValue);
 }
 NS_IMETHODIMP FolderInfo::GetProperty(const char* propertyName,
                                       nsAString& propertyValue) {
   nsAutoCString value;
-  nsresult rv = FolderDB().GetFolderProperty(mFolder->GetId(),
-                                             nsCString(propertyName), value);
+  nsresult rv =
+      FolderDB().GetFolderProperty(mFolderId, nsCString(propertyName), value);
   NS_ENSURE_SUCCESS(rv, rv);
   propertyValue.Assign(NS_ConvertUTF8toUTF16(value));
   return NS_OK;
 }
 NS_IMETHODIMP FolderInfo::SetProperty(const char* propertyName,
                                       const nsAString& propertyValue) {
-  return FolderDB().SetFolderProperty(mFolder->GetId(), nsCString(propertyName),
+  return FolderDB().SetFolderProperty(mFolderId, nsCString(propertyName),
                                       NS_ConvertUTF16toUTF8(propertyValue));
 }
 NS_IMETHODIMP FolderInfo::GetTransferInfo(nsIPropertyBag2** _retval) {
@@ -1036,10 +1039,11 @@ NS_IMETHODIMP FolderInfo::SetKnownArtsSet(const char* aKnownArtsSet) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP FolderInfo::GetFolderName(nsACString& aFolderName) {
-  return mFolder->GetName(aFolderName);
+  MOZ_TRY_VAR(aFolderName, FolderDB().GetFolderName(mFolderId));
+  return NS_OK;
 }
 NS_IMETHODIMP FolderInfo::SetFolderName(const nsACString& aFolderName) {
-  return FolderDB().UpdateName(mFolder, aFolderName);
+  return FolderDB().UpdateName(mFolderId, aFolderName);
 }
 
 }  // namespace mozilla::mailnews

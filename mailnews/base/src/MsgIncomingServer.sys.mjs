@@ -532,12 +532,12 @@ export class MsgIncomingServer {
         const folders = core.folders;
 
         const root =
-          folders.getFolderByPath(this._key) ?? folders.insertRoot(this._key);
+          folders.getFolderChildNamed(0, this._key) ??
+          folders.insertRoot(this._key);
         this._rootFolder = Cc[
           "@mozilla.org/mail/folder;1?name=mailbox"
         ].createInstance(Ci.nsIMsgFolder);
-        this._rootFolder.QueryInterface(Ci.nsIInitableWithFolder);
-        this._rootFolder.initWithFolder(root);
+        this._rootFolder.initWithFolderId(root);
 
         this.createDefaultMailboxes?.();
         this.setFlagsOnDefaultMailboxes?.();

@@ -18,39 +18,85 @@ add_setup(async function () {
       (4, 0, 'server2'),
       (6, 4, 'folder'),
       (2, 6, 'süb1'),
-      (8, 2, 'sub2');
+      (8, 2, 'sub2'),
+      (10, 8, 'I/O stuff'),
+      (11, 8, 'I%2FO stuff');
   `);
 });
 
-add_task(function testLookup() {
-  const server1 = folderDB.getFolderById(5);
-  const server2 = folderDB.getFolderById(4);
+const folder = 6;
+const server1 = 5;
+const server2 = 4;
+const sub1 = 2;
+const sub2 = 8;
+const iostuff = 10;
+const iostuff2 = 11;
 
+add_task(function testLookup() {
   drawTree(server1);
   drawTree(server2);
 
+  // Non-existent paths should return 0 (not error).
+  Assert.equal(folderDB.getFolderByPath("NotAServer"), 0);
+  Assert.equal(folderDB.getFolderByPath("Not/a/real/path"), 0);
+
+  // Basic lookups.
   Assert.equal(folderDB.getFolderByPath("server1"), server1);
-  Assert.equal(folderDB.getFolderByPath("server1/INBOX"), server1.children[0]);
-  Assert.equal(folderDB.getFolderByPath("server1/Junk"), server1.children[1]);
-  Assert.equal(folderDB.getFolderByPath("server1/Sent"), server1.children[2]);
-  Assert.equal(folderDB.getFolderByPath("server1/Trash"), server1.children[3]);
+  const server1Children = folderDB.getFolderChildren(server1);
+  Assert.equal(folderDB.getFolderByPath("server1/INBOX"), server1Children[0]);
+  Assert.equal(folderDB.getFolderByPath("server1/Junk"), server1Children[1]);
+  Assert.equal(folderDB.getFolderByPath("server1/Sent"), server1Children[2]);
+  Assert.equal(folderDB.getFolderByPath("server1/Trash"), server1Children[3]);
+
+  // Paths are case sensitive.
+  Assert.equal(folderDB.getFolderByPath("SErVEr1"), 0);
+  Assert.equal(folderDB.getFolderByPath("server1/InBoX"), 0);
+  Assert.equal(folderDB.getFolderByPath("server1/INBOX"), server1Children[0]);
 
   Assert.equal(folderDB.getFolderByPath("server2"), server2);
-  Assert.equal(folderDB.getFolderByPath("server2/folder"), server2.children[0]);
+  const server2Children = folderDB.getFolderChildren(server2);
+  Assert.equal(folderDB.getFolderByPath("server2/folder"), server2Children[0]);
   // Lookup using composed unicode character.
-  Assert.equal(
-    folderDB.getFolderByPath("server2/folder/s\u00FCb1"),
-    server2.children[0].children[0]
-  );
+  Assert.equal(folderDB.getFolderByPath("server2/folder/s\u00FCb1"), sub1);
   // Lookup using decomposed unicode character.
-  Assert.equal(
-    folderDB.getFolderByPath("server2/folder/su\u0308b1"),
-    server2.children[0].children[0]
-  );
+  Assert.equal(folderDB.getFolderByPath("server2/folder/su\u0308b1"), sub1);
   Assert.equal(
     folderDB.getFolderByPath("server2/folder/su\u0308b1/sub2"),
-    server2.children[0].children[0].children[0]
+    sub2
   );
+
+  // Lookup with part component that requires escaping for use in path.
+  Assert.equal(
+    folderDB.getFolderByPath("server2/folder/süb1/sub2/I/O stuff"),
+    0
+  );
+  Assert.equal(
+    folderDB.getFolderByPath("server2/folder/süb1/sub2/I%2FO stuff"),
+    iostuff
+  );
+  Assert.equal(
+    folderDB.getFolderByPath("server2/folder/süb1/sub2/I%2fO stuff"),
+    iostuff
+  );
+  Assert.equal(
+    folderDB.getFolderPath(iostuff),
+    "server2/folder/süb1/sub2/I%2FO stuff"
+  );
+
+  // Check that getFolderByPath() works with names that contain things that
+  // look like percent-encoding.
+  // TODO: we haven't yet nailed down the exact rules for our path encoding.
+  // Once that's done, enable and expand these.
+  /*
+  Assert.equal(folderDB.getFolderChildNamed(sub2, iostuff2), "I%2FO stuff");
+  Assert.equal(
+    folderDB.getFolderByPath("server2/folder/süb1/sub2/I%252FO stuff"),
+    iostuff2
+  );
+  Assert.equal(
+    folderDB.getFolderPath(iostuff2, "server2/folder/süb1/sub2/I%252FO stuff"));
+  );
+  */
 });
 
 /**
@@ -58,25 +104,25 @@ add_task(function testLookup() {
  * new path should find it, and at the old path should find nothing.
  */
 add_task(function testLookupAfterMove() {
-  const folder = folderDB.getFolderById(6);
-  const sub1 = folderDB.getFolderById(2);
-  const sub2 = folderDB.getFolderById(8);
-
-  Assert.equal(sub2.path, "server2/folder/s\u00FCb1/sub2");
-  Assert.equal(folderDB.getFolderByPath("server2/folder/sub2"), null);
+  Assert.equal(folderDB.getFolderPath(sub2), "server2/folder/s\u00FCb1/sub2");
+  Assert.equal(folderDB.getFolderByPath("server2/folder/sub2"), 0);
   Assert.equal(folderDB.getFolderByPath("server2/folder/s\u00FCb1/sub2"), sub2);
 
   folderDB.moveFolderTo(folder, sub2);
-  Assert.equal(sub2.path, "server2/folder/sub2");
+  Assert.equal(folderDB.getFolderPath(sub2), "server2/folder/sub2");
   Assert.equal(folderDB.getFolderByPath("server2/folder/sub2"), sub2);
-  Assert.equal(folderDB.getFolderByPath("server2/folder/s\u00FCb1/sub2"), null);
-  Assert.equal(sub2.id, 8);
-  Assert.equal(folderDB.getFolderById(8), sub2);
+  Assert.equal(folderDB.getFolderByPath("server2/folder/s\u00FCb1/sub2"), 0);
+  Assert.equal(
+    folderDB.getFolderByPath("server2/folder/s\u00FCb1/sub2/I%2FO stuff"),
+    0
+  );
 
   folderDB.moveFolderTo(sub1, sub2);
-  Assert.equal(sub2.path, "server2/folder/s\u00FCb1/sub2");
-  Assert.equal(folderDB.getFolderByPath("server2/folder/sub2"), null);
+  Assert.equal(folderDB.getFolderPath(sub2), "server2/folder/s\u00FCb1/sub2");
+  Assert.equal(folderDB.getFolderByPath("server2/folder/sub2"), 0);
   Assert.equal(folderDB.getFolderByPath("server2/folder/s\u00FCb1/sub2"), sub2);
-  Assert.equal(sub2.id, 8);
-  Assert.equal(folderDB.getFolderById(8), sub2);
+  Assert.equal(
+    folderDB.getFolderByPath("server2/folder/s\u00FCb1/sub2/I%2FO stuff"),
+    iostuff
+  );
 });

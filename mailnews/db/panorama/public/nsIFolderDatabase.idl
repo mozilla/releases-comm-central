@@ -4,50 +4,58 @@
 
 #include "nsISupports.idl"
 
-interface nsIFolder;
 interface nsIMsgFolder;
 
 [scriptable, builtinclass, uuid(2842d879-e52f-4812-926c-dfde62b77881)]
 interface nsIFolderDatabase : nsISupports {
   /**
-   * Get a folder identified by its database row ID.
-   */
-  nsIFolder getFolderById(in unsigned long long id);
-
-  /**
    * Get a folder identified by its path.
+   * If individual folder names contain '/', it should be
+   * percent-encoded when used in a path.
+   * e.g. a folder called "I/O Stuff", would appear in a path like:
+   *   "server1/I%2FO Stuff/gpio"
+   *
+   * The search is unicode-aware, so the following paths
+   * are considered equivalent:
+   *  "server2/stuff/süb1"
+   *  "server2/stuff/s\u00FCb1"
+   *  "server2/stuff/su\u0308b1"
+   *
+   * If the path does not exist, a folder id of 0 will be returned.
    */
-  nsIFolder getFolderByPath(in AUTF8String path);
+  unsigned long long getFolderByPath(in AUTF8String path);
 
   /**
-   * For a given nsIMsgFolder, get the corresponding nsIFolder, or null if it
-   * can't be found.
+   * For a given folder id, return the corresponding nsIMsgFolder.
+   *
+   * NOTE: (BenC) I'd like to move this method out of this interface,
+   * maybe into accountmanager instead.
+   * It's the only thing that couples FolderDatabase to nsIMsgFolder.
+   *
+   * Throws an error if `folder` is 0 or does not exist.
    */
-  nsIFolder getFolderForMsgFolder(in nsIMsgFolder msgFolder);
-
-  /**
-   * For a given nsIFolder, get the corresponding nsIMsgFolder, or null if it
-   * can't be found.
-   */
-  nsIMsgFolder getMsgFolderForFolder(in nsIFolder folder);
+  nsIMsgFolder getMsgFolderForFolder(in unsigned long long folder);
 
   /**
    * Add and return a new root folder representing a server to the database.
-   * If the folder already exists, it will be returned, no new folder will be
-   * added.
    *
    * This function will be called on initial database creation and when a new
    * incoming server is created.
+   *
+   * An error will be thrown if the folder already exists.
    */
-  nsIFolder insertRoot(in AUTF8String aServerKey);
+  unsigned long long insertRoot(in AUTF8String aServerKey);
 
   /**
    * Add a folder named `name` to the database as a child of `parent`.
    *
    * This function should be called by the protocol code after the folder is
    * created on the server. The parent folder is not optional.
+   *
+   * An error will be thrown if the folder already exists.
    */
-  nsIFolder insertFolder(in nsIFolder parent, in AUTF8String name);
+  unsigned long long insertFolder(in unsigned long long parent,
+                                  in AUTF8String name);
 
   /**
    * Delete `folder` and all of its descendants from the database.
@@ -56,7 +64,7 @@ interface nsIFolderDatabase : nsISupports {
    * deleted on the server. Deleting a root folder with this function is not
    * permitted.
    */
-  void deleteFolder(in nsIFolder folder);
+  void deleteFolder(in unsigned long long folder);
 
   /**
    * Update the children of `parent` to match the child names expected. If a
@@ -67,41 +75,163 @@ interface nsIFolderDatabase : nsISupports {
    * This function should be called by the protocol code after collecting the
    * child names from the server.
    */
-  void reconcile(in nsIFolder parent, in Array<AUTF8String> childNames);
+  void reconcile(in unsigned long long parent,
+                 in Array<AUTF8String> childNames);
 
   /**
    * Move a folder to a different position among its siblings. Yes, passing in
    * the parent folder is redundant here, but it makes reading the code easier.
    *
    * This function should be called by the UI, nothing else is affected.
+   * If `before` is 0 or missing, the child will be moved to the end of the
+   * child list.
    */
-  void moveFolderWithin(in nsIFolder parent,
-                        in nsIFolder child,
-                        [optional] in nsIFolder before);
+  void moveFolderWithin(in unsigned long long parent,
+                        in unsigned long long child,
+                        [optional] in unsigned long long before);
 
   /**
    * Reset a folders children into their natural order.
    *
    * This function should be called by the UI, nothing else is affected.
    */
-  void resetChildOrder(in nsIFolder parent);
+  void resetChildOrder(in unsigned long long parent);
 
   /**
-   * Move a folder from one parent to another. Folders cannot be moved from
-   * one folder to another, or be made descendants of themselves.
-   *
-   * This function should be called by the protocol code after the folder is
-   * moved on the server.
+   * Move a folder from one parent to another.
+   * Folders cannot be:
+   * - made descendants of themselves.
+   * - promoted to root folders.
+   * - moved from one server (root) to another
+   * (Although the last restriction could potentially be lifted in future)
    */
-  void moveFolderTo(in nsIFolder newParent, in nsIFolder child);
+  void moveFolderTo(in unsigned long long newParent,
+                    in unsigned long long child);
 
   /**
    * Update a folder's name to match `newName`.
    */
-  void updateName(in nsIFolder folder, in AUTF8String newName);
+  void updateName(in unsigned long long folder, in AUTF8String newName);
 
   /**
    * Update a folder's flags to match `newFlags`.
    */
-  void updateFlags(in nsIFolder folder, in unsigned long long newFlags);
+  void updateFlags(in unsigned long long folder, in unsigned long long newFlags);
+
+  /**
+   * Returns the name of a folder.
+   * Throws an error if folder doesn't exist.
+   */
+  AUTF8String getFolderName(in unsigned long long folderId);
+
+  /**
+   * Returns the path of a folder, up to and including the server (root
+   * folder).
+   * The path separator is '/'.
+   * Any '/' characters in folder names will be percent-encoded in the path.
+   *
+   * Throws an error if folder doesn't exist.
+   */
+  AUTF8String getFolderPath(in unsigned long long folderId);
+
+  /**
+   * Returns the flags of a folder.
+   * Throws an error if folder doesn't exist.
+   */
+  uint32_t getFolderFlags(in unsigned long long folderId);
+
+  /**
+   * Returns true if the folder is a server (i.e. root folder).
+   * Equivalent to checking if parent folder is 0.
+   * Throws an error if folder doesn't exist.
+   */
+  boolean getFolderIsServer(in unsigned long long folderId);
+
+  /**
+   * Return the parent of the specified folder.
+   * Root folders always have parent 0.
+   * Throws an error if folder doesn't exist.
+   */
+  unsigned long long getFolderParent(in unsigned long long folderId);
+
+  /**
+   * Fetch a list of child folders.
+   * `folderId` can be 0 to fetch a list of root folders.
+   *
+   * The returned list is ordered according to the folder sorting policy.
+   *
+   * Throws an error if folder doesn't exist (and isn't 0).
+   */
+  Array<unsigned long long> getFolderChildren(in unsigned long long folderId);
+
+  /**
+   * Find the child of `folderId` named `childName`.
+   * `folderId` may be 0 to search root folders.
+   * If the folder is not found, the method will succeed and 0 will be
+   * returned.
+   */
+  unsigned long long getFolderChildNamed(in unsigned long long folderId,
+                                         in AUTF8String childName);
+
+  /**
+   * Fetch the root folder of `folderId`.
+   * Root folders have themselves as root.
+   *
+   * Throws an error if called for 0 or non-existent folder.
+   */
+  unsigned long long getFolderRoot(in unsigned long long folderId);
+
+  /**
+   * Return a list of all the descendants of the folder.
+   * It can be called with folder 0 to return _all_ folders.
+   * The ordering is the same as you'd expect from a standard tree view,
+   * a depth-first traversal with siblings ordered using the folder sorting
+   * policy.
+   * For example, with the following tree:
+   *
+   *   a
+   *     aa
+   *       aaa
+   *       aab
+   *   b
+   *     ba
+   *     bb
+   *
+   * getFolderDescendants(a) would return [aa, aaa, aab]
+   * getFolderDescendants(0) would return [a, aa, aaa, aab, b, ba, bb]
+   * getFolderDescendants(ba) would return []
+   * etc...
+   */
+  Array<unsigned long long> getFolderDescendants(in unsigned long long folderId);
+
+  /**
+   * Return ancestor folders, all the way up to (and including) the root.
+   * The returned list is ordered by decreasing depth. So for the tree:
+   *
+   *  root
+   *    foo
+   *      bar
+   * getFolderAncestors(bar) would return [foo, root]
+   * getFolderAncestors(foo) would return [root]
+   * getFolderAncestors(root) would return []
+   *
+   * Throws an error if called for 0 or non-existent folder.
+   */
+  Array<unsigned long long> getFolderAncestors(in unsigned long long folderId);
+
+  /**
+   * Returns true if `folderId` is a descendant of `potentialAncestorId`.
+   *
+   * Throws an error if either folder is non-existent.
+   */
+  boolean getFolderIsDescendantOf(in unsigned long long folderId,
+                                  in unsigned long long potentialAncestorId);
+
+  /**
+   * Returns true if `folderId` is an ancestor of `potentialDescendantId`.
+   *
+   * Throws an error if either folder is non-existent.
+   */
+  boolean getFolderIsAncestorOf(in unsigned long long folderId,
+                                in unsigned long long potentialDescendantId);
 };

@@ -109,10 +109,19 @@ interface nsIMsgFolder : nsISupports {
    * This method is called by the folder-lookup-service after constructing
    * a folder to initialize its URI. You would not normally
    * call this method directly.
+   * NOTE: If running panorama, use initWithFolderId() instead!
    *
    * @param uri - The URI of the folder.
    */
   void Init(in AUTF8String uri);
+
+  /**
+   * Alternate init function for use under Panorama.
+   * Should be unified with init() once FLS mess is sorted out.
+   * Ultimately there should be no init functions here at all. It
+   * should all be handled at the concrete implementation level.
+   */
+  void initWithFolderId(in unsigned long long folderId);
 
   void startFolderLoading();
   void endFolderLoading();

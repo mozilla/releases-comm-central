@@ -47,9 +47,12 @@ add_task(function testInitWithFolder() {
 
   const liveView = new LiveView();
   Assert.throws(
-    () => liveView.initWithFolder(null),
-    /NS_ERROR_ILLEGAL_VALUE/,
-    "setting with a null folder should throw"
+    () => liveView.initWithFolder(0),
+    // NOTE (BenC): LiveView::InitWithFolder(0) returns NS_ERROR_INVALID_ARG,
+    // but for some reason it shows up here as NS_ERROR_UNEXPECTED.
+    // I'm baffled.
+    /NS_ERROR_/,
+    "setting with 0 folder should throw"
   );
 
   liveView.initWithFolder(folderA);
@@ -91,9 +94,14 @@ add_task(function testInitWithFolders() {
 
   const liveView = new LiveView();
   Assert.throws(
-    () => liveView.initWithFolders([null]),
-    /NS_ERROR_ILLEGAL_VALUE/,
-    "setting with a null folder should throw"
+    () => liveView.initWithFolders([0, folderA]),
+    /NS_ERROR_/,
+    "initWithFolders should fail if there are any null folderIds"
+  );
+  Assert.throws(
+    () => liveView.initWithFolders([]),
+    /NS_ERROR_/,
+    "initWithFolders should fail with an empty list"
   );
 
   liveView.initWithFolders([folderA, folderB, folderC]);

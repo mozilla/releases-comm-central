@@ -35,36 +35,41 @@ LazyLogModule gLiveViewLog("panorama");
 
 NS_IMPL_ISUPPORTS(LiveView, nsILiveView)
 
-NS_IMETHODIMP LiveView::InitWithFolder(nsIFolder* aFolder) {
-  NS_ENSURE_ARG_POINTER(aFolder);
-
+NS_IMETHODIMP LiveView::InitWithFolder(uint64_t folderId) {
+  if (folderId == 0) {
+    NS_WARNING("Can't Init LiveView with 0 folderId");
+    return NS_ERROR_INVALID_ARG;
+  }
   if (mFolderFilter) {
     NS_WARNING("folder filter already set");
     return NS_ERROR_UNEXPECTED;
   }
 
-  if (aFolder->GetFlags() & nsMsgFolderFlags::Virtual) {
-    mFolderFilter = new VirtualFolderFilter(aFolder);
+  // TODO: LiveView should have access to concrete DB classes.
+  nsCOMPtr<nsIDatabaseCore> database = components::DatabaseCore::Service();
+  nsCOMPtr<nsIFolderDatabase> folderDB = database->GetFolderDB();
+  uint32_t folderFlags;
+  MOZ_TRY(folderDB->GetFolderFlags(folderId, &folderFlags));
+
+  if (folderFlags & nsMsgFolderFlags::Virtual) {
+    mFolderFilter = new VirtualFolderFilter(folderId);
   } else {
-    mFolderFilter = new SingleFolderFilter(aFolder);
+    mFolderFilter = new SingleFolderFilter(folderId);
   }
   return NS_OK;
 }
 
-NS_IMETHODIMP LiveView::InitWithFolders(
-    const nsTArray<RefPtr<nsIFolder>>& aFolders) {
-  for (auto folder : aFolders) {
-    if (!folder) {
-      return NS_ERROR_ILLEGAL_VALUE;
-    }
+NS_IMETHODIMP LiveView::InitWithFolders(nsTArray<uint64_t> const& folderIds) {
+  if (folderIds.IsEmpty() || folderIds.Contains(0)) {
+    NS_WARNING("Can't Init LiveView with 0 folderId in list");
+    return NS_ERROR_INVALID_ARG;
   }
-
   if (mFolderFilter) {
     NS_WARNING("folder filter already set");
     return NS_ERROR_UNEXPECTED;
   }
 
-  mFolderFilter = new MultiFolderFilter(aFolders);
+  mFolderFilter = new MultiFolderFilter(folderIds);
   return NS_OK;
 }
 

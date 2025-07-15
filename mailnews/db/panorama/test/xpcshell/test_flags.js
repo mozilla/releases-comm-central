@@ -16,46 +16,18 @@ add_setup(async function () {
 });
 
 add_task(function testFlags() {
-  const folder = folderDB.getFolderById(1);
+  const folderId = folderDB.getFolderByPath(
+    "grandparent/parent/child/grandchild"
+  );
 
-  Assert.equal(folder.flags, 0);
+  Assert.equal(folderDB.getFolderFlags(folderId), 0);
   checkFlags(0);
 
-  for (const flag of [FLAG_ONE, FLAG_TWO, FLAG_FOUR, FLAG_EIGHT]) {
-    folderDB.updateFlags(folder, folder.flags | flag);
-    Assert.equal(folder.flags, flag);
-    checkFlags(flag);
-
-    folderDB.updateFlags(folder, folder.flags ^ flag);
-    Assert.equal(folder.flags, 0);
-    checkFlags(0);
-
-    folderDB.updateFlags(folder, folder.flags ^ flag);
-    Assert.equal(folder.flags, flag);
-    checkFlags(flag);
-
-    folderDB.updateFlags(folder, folder.flags & ~flag);
-    Assert.equal(folder.flags, 0);
-    checkFlags(0);
+  for (let flagBits = 0; flagBits < 16; flagBits++) {
+    folderDB.updateFlags(folderId, flagBits);
+    Assert.equal(folderDB.getFolderFlags(folderId), flagBits);
+    checkFlags(flagBits);
   }
-
-  folderDB.updateFlags(folder, folder.flags | FLAG_ONE);
-  Assert.equal(folder.flags, FLAG_ONE);
-  folderDB.updateFlags(folder, folder.flags ^ FLAG_TWO);
-  Assert.equal(folder.flags, FLAG_ONE | FLAG_TWO);
-  folderDB.updateFlags(folder, folder.flags | FLAG_FOUR);
-  Assert.equal(folder.flags, FLAG_ONE | FLAG_TWO | FLAG_FOUR);
-  folderDB.updateFlags(folder, folder.flags ^ FLAG_EIGHT);
-  Assert.equal(folder.flags, FLAG_ONE | FLAG_TWO | FLAG_FOUR | FLAG_EIGHT);
-
-  folderDB.updateFlags(folder, folder.flags ^ FLAG_ONE);
-  Assert.equal(folder.flags, FLAG_TWO | FLAG_FOUR | FLAG_EIGHT);
-  folderDB.updateFlags(folder, folder.flags & ~FLAG_TWO);
-  Assert.equal(folder.flags, FLAG_FOUR | FLAG_EIGHT);
-  folderDB.updateFlags(folder, folder.flags ^ FLAG_FOUR);
-  Assert.equal(folder.flags, FLAG_EIGHT);
-  folderDB.updateFlags(folder, folder.flags & ~FLAG_EIGHT);
-  Assert.equal(folder.flags, 0);
 });
 
 function checkFlags(expected) {

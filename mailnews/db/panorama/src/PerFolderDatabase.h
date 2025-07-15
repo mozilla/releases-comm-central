@@ -13,7 +13,6 @@
 #include "nsCOMPtr.h"
 #include "nsIDBChangeListener.h"
 #include "nsIDBFolderInfo.h"
-#include "nsIFolder.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgThread.h"
@@ -42,6 +41,8 @@ class PerFolderDatabase : public nsIMsgDatabase,
   void OnMessageRemoved(Message* message, uint32_t oldFlags) override;
   void OnMessageFlagsChanged(Message* message, uint32_t oldFlags,
                              uint32_t newFlags) override;
+
+  uint64_t FolderId() { return mFolderId; }
 
  private:
   virtual ~PerFolderDatabase() {};
@@ -89,13 +90,15 @@ class ThreadEnumerator : public nsBaseMsgThreadEnumerator {
 
 class FolderInfo : public nsIDBFolderInfo {
  public:
-  explicit FolderInfo(PerFolderDatabase* perFolderDatabase, uint64_t folderId);
+  explicit FolderInfo(PerFolderDatabase* perFolderDatabase)
+      : mPerFolderDatabase(perFolderDatabase),
+        mFolderId(perFolderDatabase->FolderId()) {}
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIDBFOLDERINFO
 
  private:
-  virtual ~FolderInfo() {};
+  virtual ~FolderInfo() {}
 
   FolderDatabase& FolderDB() const {
     return *DatabaseCore::sInstance->mFolderDatabase;
@@ -104,7 +107,7 @@ class FolderInfo : public nsIDBFolderInfo {
     return *DatabaseCore::sInstance->mMessageDatabase;
   }
   RefPtr<PerFolderDatabase> mPerFolderDatabase;
-  nsCOMPtr<nsIFolder> mFolder;
+  uint64_t mFolderId;
 };
 
 }  // namespace mozilla::mailnews

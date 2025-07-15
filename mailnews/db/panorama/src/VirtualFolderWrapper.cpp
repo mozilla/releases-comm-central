@@ -5,7 +5,6 @@
 #include "VirtualFolderWrapper.h"
 
 #include "mozilla/Components.h"
-#include "nsIFolder.h"
 #include "nsIMsgFilter.h"
 #include "nsIMsgFilterList.h"
 #include "nsIMsgFilterService.h"
@@ -61,10 +60,9 @@ NS_IMETHODIMP VirtualFolderWrapper::GetSearchFolders(
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (auto searchFolderId : searchFolderIds) {
-    nsCOMPtr<nsIFolder> folder;
-    FolderDB().GetFolderById(searchFolderId, getter_AddRefs(folder));
     nsCOMPtr<nsIMsgFolder> msgFolder;
-    FolderDB().GetMsgFolderForFolder(folder, getter_AddRefs(msgFolder));
+    MOZ_TRY(FolderDB().GetMsgFolderForFolder(searchFolderId,
+                                             getter_AddRefs(msgFolder)));
     searchFolders.AppendElement(msgFolder);
   }
 

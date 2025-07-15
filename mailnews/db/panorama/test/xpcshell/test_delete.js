@@ -11,41 +11,48 @@ add_setup(async function () {
 });
 
 add_task(function testDelete() {
-  const grandparent = folderDB.getFolderById(1);
-  const parent = folderDB.getFolderById(3);
-  const a = folderDB.getFolderById(4);
-  const a1 = folderDB.getFolderById(5);
-  const a2 = folderDB.getFolderById(6);
-  const b = folderDB.getFolderById(7);
-  const b1 = folderDB.getFolderById(8);
-  const c = folderDB.getFolderById(9);
-  const d = folderDB.getFolderById(10);
+  const grandparent = 1;
+  const parent = 3;
+  const a = 4;
+  const a1 = 5;
+  const a2 = 6;
+  const b = 7;
+  const b1 = 8;
+  const c = 9;
+  const d = 10;
 
   drawTree(parent);
 
   // Delete a leaf folder.
   folderDB.deleteFolder(b1);
-  checkNoRow(b1.id);
+  checkNoRow(b1);
   drawTree(parent);
-  Assert.ok(!b1.rootFolder);
-  Assert.ok(!b1.parent);
-  Assert.deepEqual(b.children, []);
+  Assert.throws(
+    () => folderDB.getFolderRoot(b1),
+    /NS_ERROR_UNEXPECTED/,
+    "Deleted folder should be gone"
+  );
+  Assert.throws(
+    () => folderDB.getFolderParent(b1),
+    /NS_ERROR_UNEXPECTED/,
+    "Deleted folder should be gone"
+  );
+  Assert.deepEqual(folderDB.getFolderChildren(b), []);
 
   // Delete a leaf folder with siblings.
   folderDB.deleteFolder(a1);
-  checkNoRow(a1.id);
+  checkNoRow(a1);
   drawTree(parent);
-  Assert.ok(!a1.rootFolder);
-  Assert.ok(!a1.parent);
-  Assert.deepEqual(a.children, [a2]);
+  Assert.deepEqual(folderDB.getFolderChildren(a), [a2]);
 
   // Delete a folder with children.
   folderDB.deleteFolder(d);
-  checkNoRow(d.id);
+  checkNoRow(d);
   drawTree(parent);
-  Assert.ok(!d.rootFolder);
-  Assert.ok(!d.parent);
-  Assert.deepEqual(parent.children, [a, b, c]);
+  Assert.deepEqual(
+    folderDB.getFolderChildren(parent).toSorted(),
+    [a, b, c].toSorted()
+  );
 
   Assert.throws(
     () => folderDB.deleteFolder(grandparent),

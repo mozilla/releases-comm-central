@@ -4,52 +4,67 @@
 
 #include "FolderComparator.h"
 
+#include "FolderDatabase.h"
+#include "mozilla/intl/Collator.h"
 #include "mozilla/intl/LocaleService.h"
 #include "nsMsgFolderFlags.h"
 
+using mozilla::intl::Collator;
 using mozilla::intl::LocaleService;
 
 namespace mozilla::mailnews {
 
-bool FolderComparator::Equals(const RefPtr<Folder>& a,
-                              const RefPtr<Folder>& b) const {
-  if (a->mOrdinal.isNothing()) {
-    if (b->mOrdinal.isNothing()) {
+bool FolderComparator::Equals(uint64_t a, uint64_t b) const {
+  Maybe<uint64_t> ordA = mFolderDB.GetFolderOrdinal(a).unwrapOr(Nothing());
+  Maybe<uint64_t> ordB = mFolderDB.GetFolderOrdinal(b).unwrapOr(Nothing());
+
+  if (ordA.isNothing()) {
+    if (ordB.isNothing()) {
+      nsCString nameA = mFolderDB.GetFolderName(a).unwrapOr(""_ns);
+      nsCString nameB = mFolderDB.GetFolderName(b).unwrapOr(""_ns);
+
       const Collator* collator = GetCollator();
+      if (!collator) {
+        return false;
+      }
       return collator->CompareStrings(
-                 PromiseFlatString(NS_ConvertUTF8toUTF16(a->mName)),
-                 PromiseFlatString(NS_ConvertUTF8toUTF16(b->mName))) == 0;
+                 PromiseFlatString(NS_ConvertUTF8toUTF16(nameA)),
+                 PromiseFlatString(NS_ConvertUTF8toUTF16(nameB))) == 0;
     }
-
     return false;
   }
 
-  if (b->mOrdinal.isNothing()) {
+  if (ordB.isNothing()) {
     return false;
   }
 
-  if (a->mOrdinal != b->mOrdinal) {
+  if (ordA != ordB) {
     return false;
   }
 
-  return SpecialFlagsOrder(a->mFlags) == SpecialFlagsOrder(b->mFlags);
+  uint32_t flagsA = mFolderDB.GetFolderFlags(a).unwrapOr(0);
+  uint32_t flagsB = mFolderDB.GetFolderFlags(b).unwrapOr(0);
+  return SpecialFlagsOrder(flagsA) == SpecialFlagsOrder(flagsB);
 }
 
-bool FolderComparator::LessThan(const RefPtr<Folder>& a,
-                                const RefPtr<Folder>& b) const {
-  if (a->mOrdinal.isSome()) {
-    if (b->mOrdinal.isSome()) {
-      return a->mOrdinal < b->mOrdinal;
+bool FolderComparator::LessThan(uint64_t a, uint64_t b) const {
+  Maybe<uint64_t> ordA = mFolderDB.GetFolderOrdinal(a).unwrapOr(Nothing());
+  Maybe<uint64_t> ordB = mFolderDB.GetFolderOrdinal(b).unwrapOr(Nothing());
+  if (ordA.isSome()) {
+    if (ordB.isSome()) {
+      return ordA < ordB;
     }
     return true;
   }
 
-  if (b->mOrdinal.isSome()) {
+  if (ordB.isSome()) {
     return false;
   }
 
-  uint8_t aFlagsOrder = SpecialFlagsOrder(a->mFlags);
-  uint8_t bFlagsOrder = SpecialFlagsOrder(b->mFlags);
+  uint32_t flagsA = mFolderDB.GetFolderFlags(a).unwrapOr(0);
+  uint32_t flagsB = mFolderDB.GetFolderFlags(b).unwrapOr(0);
+  uint8_t aFlagsOrder = SpecialFlagsOrder(flagsA);
+  uint8_t bFlagsOrder = SpecialFlagsOrder(flagsB);
   if (aFlagsOrder < bFlagsOrder) {
     return true;
   }
@@ -57,13 +72,18 @@ bool FolderComparator::LessThan(const RefPtr<Folder>& a,
     return false;
   }
 
+  nsCString nameA = mFolderDB.GetFolderName(a).unwrapOr(""_ns);
+  nsCString nameB = mFolderDB.GetFolderName(b).unwrapOr(""_ns);
   const Collator* collator = GetCollator();
+  if (!collator) {
+    return false;
+  }
   return collator->CompareStrings(
-             PromiseFlatString(NS_ConvertUTF8toUTF16(a->mName)),
-             PromiseFlatString(NS_ConvertUTF8toUTF16(b->mName))) < 0;
+             PromiseFlatString(NS_ConvertUTF8toUTF16(nameA)),
+             PromiseFlatString(NS_ConvertUTF8toUTF16(nameB))) < 0;
 }
 
-uint8_t FolderComparator::SpecialFlagsOrder(const uint64_t flags) const {
+uint8_t FolderComparator::SpecialFlagsOrder(const uint32_t flags) const {
   if (flags & nsMsgFolderFlags::Inbox) return 0;
   if (flags & nsMsgFolderFlags::Drafts) return 1;
   if (flags & nsMsgFolderFlags::Templates) return 2;

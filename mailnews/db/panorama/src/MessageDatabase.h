@@ -10,7 +10,6 @@
 #include "mozilla/RefPtr.h"
 #include "mozilla/Result.h"
 #include "nsIMessageDatabase.h"
-#include "nsTHashMap.h"
 #include "nsTObserverArray.h"
 #include "nsTString.h"
 

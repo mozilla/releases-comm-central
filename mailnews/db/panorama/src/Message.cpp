@@ -7,7 +7,6 @@
 #include "DatabaseCore.h"
 #include "mozilla/Components.h"
 #include "mozilla/Try.h"
-#include "nsIFolder.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgMessageFlags.h"
 #include "nsString.h"
@@ -334,20 +333,23 @@ NS_IMETHODIMP Message::GetEffectiveCharset(nsACString& effectiveCharset) {
 }
 
 NS_IMETHODIMP Message::GetAccountKey(nsACString& accountKey) {
-  nsCOMPtr<nsIFolder> folder;
-  uint64_t folderId;
-  MOZ_TRY(MessageDB().GetMessageFolderId(mKey, folderId));
-  nsresult rv = FolderDB().GetFolderById(folderId, getter_AddRefs(folder));
+  uint64_t rootId;
+  nsresult rv = FolderDB().GetFolderRoot(FolderId(), &rootId);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIFolder> rootFolder = folder->GetRootFolder();
-  nsCString serverKey = rootFolder->GetName();
+  // Get server name from name of root folder.
+  nsCString serverKey;
+  rv = FolderDB().GetFolderName(rootId, serverKey);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Get server using server name.
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       components::AccountManager::Service();
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = accountManager->GetIncomingServer(serverKey, getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // Get account using server.
   nsCOMPtr<nsIMsgAccount> account;
   rv = accountManager->FindAccountForServer(server, getter_AddRefs(account));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -361,15 +363,7 @@ NS_IMETHODIMP Message::SetAccountKey(const nsACString& accountKey) {
 
 NS_IMETHODIMP Message::GetFolder(nsIMsgFolder** aFolder) {
   NS_ENSURE_ARG_POINTER(aFolder);
-
-  uint64_t folderId;
-  MOZ_TRY(MessageDB().GetMessageFolderId(mKey, folderId));
-
-  nsCOMPtr<nsIFolder> folder;
-  nsresult rv = FolderDB().GetFolderById(folderId, getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return FolderDB().GetMsgFolderForFolder(folder, aFolder);
+  return FolderDB().GetMsgFolderForFolder(FolderId(), aFolder);
 }
 
 NS_IMETHODIMP Message::GetUidOnServer(uint32_t* uidOnServer) {
