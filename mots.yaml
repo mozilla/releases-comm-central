@@ -8,10 +8,10 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2025-05-19T08:37:21.498691+00:00'
+updated_at: '2025-07-11T17:16:44.033267+00:00'
 hashes:
-  config: ad0afefe9d516d65a5368aaf697726af5d7c8f50
-  export: a53636322d3b9feba414ad72710c890d244b82ce
+  config: fddb88600c38f6d8b5b8d2979f435476b3bab007
+  export: 74b42a3203de5b5f68f2fabea8408f6518318710
 export:
   path: ./docs/mots/index.md
   format: md
@@ -152,6 +152,10 @@ people:
     bmo_id: 186317
     name: Joey Minta
     nick: jminta
+  - &jtracey
+    bmo_id: 483672
+    name: Justin Tracey
+    nick: jtracey
   - &KaiE
     bmo_id: 36541
     name: Kai Engert
@@ -510,9 +514,10 @@ modules:
           - *heather
           - *mkmelin
           - *edicharry
+          - *jtracey
         meta:
           components:
-            - 'MailNews Core::Network: Exchange'
+            - 'MailNews Core::Networking: Exchange'
           owners_emeritus: [*leftmostcat]
       - name: Feeds
         machine_name: feeds

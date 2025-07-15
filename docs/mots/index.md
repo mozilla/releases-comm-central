@@ -377,6 +377,7 @@ widths: 30 70
     * [Heather Ellsworth (heather)](https://people.mozilla.org/s?query=heather)
     * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
     * [Eleanor Dicharry (edicharry)](https://people.mozilla.org/s?query=edicharry)
+    * [Justin Tracey (jtracey)](https://people.mozilla.org/s?query=jtracey)
 * - Owner(s) Emeritus
   - Sean Burke
 * - Includes
@@ -384,7 +385,7 @@ widths: 30 70
     * mailnews/protocols/ews/\*\*
     * rust/ews_xpcom/\*\*
 * - Bugzilla Components
-  - MailNews Core::Network: Exchange
+  - MailNews Core::Networking: Exchange
 ```
 
 
