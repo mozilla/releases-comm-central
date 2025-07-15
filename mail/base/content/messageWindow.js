@@ -43,7 +43,7 @@ window.addEventListener("DOMContentLoaded", event => {
   }
 
   messageBrowser = document.getElementById("messageBrowser");
-  messageBrowser.addEventListener("messageURIChanged", () => {
+  messageBrowser.addEventListener("MsgLoaded", () => {
     // Update toolbar buttons.
     goUpdateCommand("cmd_getNewMessages");
     goUpdateCommand("cmd_print");

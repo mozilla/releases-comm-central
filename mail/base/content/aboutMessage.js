@@ -263,9 +263,6 @@ function displayMessage(uri, viewWrapper) {
     // as the one in the previous line.
     getMessagePaneBrowser().docShellIsActive = false;
     window.msgLoaded = true;
-    window.dispatchEvent(
-      new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
-    );
     return;
   }
 
@@ -379,21 +376,11 @@ function displayMessage(uri, viewWrapper) {
   const urlListener = {
     OnStartRunningUrl() {},
     OnStopRunningUrl(url) {
-      window.msgLoading = true;
-      window.dispatchEvent(
-        new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
-      );
       if (url instanceof Ci.nsIMsgMailNewsUrl && url.seeOtherURI) {
         // Show error page if needed.
         HideMessageHeaderPane();
         browser.browsingContext.sandboxFlags = 0;
         MailE10SUtils.loadURI(browser, url.seeOtherURI);
-      }
-      if (flags & Ci.nsMsgMessageFlags.New) {
-        // Close any notification we might have about this message.
-        Cc["@mozilla.org/system-alerts-service;1"]
-          .getService(Ci.nsIAlertsService)
-          .closeAlert(uri);
       }
     },
   };

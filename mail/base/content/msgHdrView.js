@@ -584,6 +584,7 @@ var messageProgressListener = {
     if (!this._channelIsCurrent(mailChannel)) {
       return;
     }
+    window.msgLoading = true;
     window.dispatchEvent(
       new CustomEvent("MsgLoading", { detail: gMessage, bubbles: true })
     );
@@ -666,6 +667,12 @@ var messageProgressListener = {
     }
     this.onEndAllAttachments();
 
+    // Close any notification we might have about this message.
+    Cc["@mozilla.org/system-alerts-service;1"]
+      .getService(Ci.nsIAlertsService)
+      .closeAlert(gMessageURI);
+
+    window.msgLoading = false;
     window.msgLoaded = true;
     window.dispatchEvent(
       new CustomEvent("MsgLoaded", { detail: gMessage, bubbles: true })

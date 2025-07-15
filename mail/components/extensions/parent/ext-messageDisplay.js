@@ -217,21 +217,6 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
         }
       });
 
-      // Wait until the message display process has been initiated.
-      await new Promise(resolve => {
-        if (msgContentWindow.msgLoading || msgContentWindow.msgLoaded) {
-          resolve();
-        } else {
-          msgContentWindow.addEventListener(
-            "messageURIChanged",
-            () => {
-              resolve();
-            },
-            { once: true }
-          );
-        }
-      });
-
       // Wait until the message display process has been finished.
       await new Promise(resolve => {
         if (msgContentWindow.msgLoaded) {

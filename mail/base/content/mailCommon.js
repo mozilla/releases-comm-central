@@ -1021,7 +1021,10 @@ var dbViewWrapperListener = {
     this._allMessagesLoaded = false;
 
     if (!window.threadTree || !gViewWrapper) {
-      if (location.href == "about:message" && window.msgLoading) {
+      if (
+        location.href == "about:message" &&
+        (window.msgLoading || window.msgLoaded)
+      ) {
         // Apparently the view has been re-created after the underlying folder
         // has been compacted.
         window.ReloadMessage();
