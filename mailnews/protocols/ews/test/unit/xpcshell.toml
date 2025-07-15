@@ -10,4 +10,6 @@ support-files = ["data/*"]
 
 ["test_server_version.js"]
 
+["test_syncFolderHierarchy.js"]
+
 ["test_syncMessagesForFolder.js"]

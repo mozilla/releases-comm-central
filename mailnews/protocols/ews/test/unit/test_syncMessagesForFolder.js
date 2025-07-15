@@ -2,11 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { EwsServer } = ChromeUtils.importESModule(
+var { EwsServer, RemoteFolder } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/EwsServer.sys.mjs"
 );
 var { localAccountUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
+);
+var { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
 // TODO: Figure out inclusion of support files for providing responses to
@@ -25,6 +28,8 @@ var client;
  * @type {EwsServer}
  */
 var ewsServer;
+
+const generator = new MessageGenerator();
 
 add_setup(() => {
   ewsServer = new EwsServer();
@@ -55,74 +60,192 @@ add_setup(() => {
 });
 
 /**
- * Test sync where the server returns all changes and we don't have to
- * worry about batching.
+ * Test sync wherein we sync more changes than the server will send in one
+ * response and need to batch message header fetch.
  */
-add_task(async function testSimpleSync() {
-  const idsToSync = ewsServer.folders.map(f => f.id).filter(id => id != "root");
-  const idsCreated = new Set();
-  let foldersCreatedCount = 0;
-  await new Promise((resolve, reject) => {
-    client.syncFolderHierarchy(
-      /** @implements {IEwsFolderCallbacks} */
-      {
-        recordRootFolder(id) {
-          Assert.equal(id, "root", "root folder id should be 'root'");
-        },
-        create(id, _parentId, _name, _flags) {
-          foldersCreatedCount++;
-          Assert.ok(
-            idsToSync.includes(id),
-            `should create existing folder: ${id}`
-          );
-          Assert.ok(
-            !idsCreated.has(id),
-            `should not already have created folder: ${id}`
-          );
-          idsCreated.add(id);
-        },
-        update(id, _name) {
-          Assert.ok(false, `should not update ${id} on initial sync`);
-        },
-        delete(id) {
-          Assert.ok(false, `should not delete pdate ${id} on initial sync`);
-        },
-        updateSyncState(syncStateToken) {
-          Assert.equal(
-            foldersCreatedCount,
-            idsToSync.length,
-            "all folders should have synced"
-          );
-          Assert.equal(
-            syncStateToken,
-            "H4sIAAA==",
-            "syncStateToken should be correct"
-          );
-          resolve();
-        },
-        onError(err, desc) {
-          reject(new Error(`syncFolderHierarchy FAILED; ${err} - ${desc}`));
-        },
-      },
-      null
-    );
-  });
+add_task(async function testMessageBatching() {
+  ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
+  ewsServer.clearItems();
+  ewsServer.maxSyncItems = 4;
+
+  const messages = generator.makeMessages({});
+  ewsServer.addMessages("inbox", messages);
+
+  const listener = new EwsMessageCallbackListener();
+  client.syncMessagesForFolder(listener, "inbox", null);
+  await listener._deferred.promise;
+
+  Assert.deepEqual(
+    listener._createdItemIds,
+    messages.map(m => btoa(m.messageId)),
+    "all of the created items should have been synced"
+  );
+  Assert.deepEqual(
+    listener._deletedItemIds,
+    [],
+    "no items should have been deleted"
+  );
+  Assert.deepEqual(
+    listener._savedHeaders.map(h => h.subject),
+    messages.map(m => m.subject),
+    "headers with the correct values should have been created"
+  );
+  Assert.ok(
+    listener._syncStateToken,
+    "the sync token should have been recorded"
+  );
+
+  ewsServer.maxSyncItems = Infinity;
 });
 
 /**
- * Test sync where the server tells us that not all changes are included
- * and we have to loop.
+ * Test what happens if an item is moved or deleted.
  */
-add_task(async function testSecondSyncRequired() {}).skip(); // TODO: implement this.
+add_task(async function testNonCreateUpdate() {
+  ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
+  ewsServer.clearItems();
 
-/**
- * Test sync wherein we get more than ten changes in one response and
- * need to batch message header fetch.
- */
-add_task(async function testMessageBatching() {}).skip(); // TODO: implement this.
+  const messages = generator.makeMessages({ count: 5 });
+  ewsServer.addMessages("inbox", messages);
 
-/**
- * Test that we don't crash when the server gives us changes other than
- * Create.
- */
-add_task(async function testNonCreateUpdate() {}).skip(); // TODO: implement this.
+  // Initial sync.
+
+  let listener = new EwsMessageCallbackListener();
+  client.syncMessagesForFolder(listener, "inbox", null);
+  await listener._deferred.promise;
+
+  Assert.deepEqual(
+    listener._createdItemIds,
+    messages.map(m => btoa(m.messageId)),
+    "all of the created items should have been synced"
+  );
+  Assert.deepEqual(
+    listener._deletedItemIds,
+    [],
+    "no items should have been deleted"
+  );
+  Assert.deepEqual(
+    listener._savedHeaders.map(h => h.subject),
+    messages.map(m => m.subject),
+    "headers with the correct values should have been created"
+  );
+  Assert.ok(
+    listener._syncStateToken,
+    "the sync token should have been recorded"
+  );
+
+  // Move a message, delete a message.
+
+  const itemIdToMove = btoa(messages[3].messageId);
+  ewsServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
+  const [movedMessage] = messages.splice(3, 1);
+  const itemIdToDelete = btoa(messages[1].messageId);
+  ewsServer.deleteItem(itemIdToDelete);
+  messages.splice(1, 1);
+
+  // Sync again to pick up the changes.
+
+  const syncStateToken = listener._syncStateToken;
+  listener = new EwsMessageCallbackListener();
+  client.syncMessagesForFolder(listener, "inbox", syncStateToken);
+  await listener._deferred.promise;
+
+  Assert.deepEqual(
+    listener._createdItemIds,
+    [],
+    "no more items should have been created"
+  );
+  Assert.deepEqual(
+    listener._deletedItemIds,
+    [itemIdToMove, itemIdToDelete],
+    "the moved and deleted items should have been deleted"
+  );
+  Assert.deepEqual(
+    listener._savedHeaders.map(h => h.subject),
+    [],
+    "no headers should have been created"
+  );
+  Assert.ok(
+    listener._syncStateToken,
+    "the sync token should have been recorded"
+  );
+  Assert.notEqual(
+    listener._syncStateToken,
+    syncStateToken,
+    "the sync token should differ from the previous one"
+  );
+
+  // Check that the moved message arrives at its destination.
+
+  listener = new EwsMessageCallbackListener();
+  client.syncMessagesForFolder(listener, "junkemail", null);
+  await listener._deferred.promise;
+
+  Assert.deepEqual(
+    listener._createdItemIds,
+    [itemIdToMove],
+    "the moved item should have been created"
+  );
+  Assert.deepEqual(
+    listener._deletedItemIds,
+    [],
+    "no items should have been removed"
+  );
+  Assert.deepEqual(
+    listener._savedHeaders.map(h => h.subject),
+    [movedMessage.subject],
+    "a header with the correct value should have been created"
+  );
+  Assert.ok(
+    listener._syncStateToken,
+    "the sync token should have been recorded"
+  );
+});
+
+class EwsMessageCallbackListener {
+  QueryInterface = ChromeUtils.generateQI(["IEwsMessageCallbacks"]);
+
+  constructor() {
+    this._createdItemIds = [];
+    this._deletedItemIds = [];
+    this._savedHeaders = [];
+    this._deferred = Promise.withResolvers();
+  }
+
+  createNewHeaderForItem(ewsId) {
+    this._createdItemIds.push(ewsId);
+    return {
+      QueryInterface: ChromeUtils.generateQI(["nsIMsgDBHdr"]),
+      // Just enough to stop the test breaking.
+      markHasAttachments() {},
+      markRead() {},
+    };
+  }
+  deleteHeaderFromDB(ewsId) {
+    this._deletedItemIds.push(ewsId);
+  }
+  getHeaderForItem(_ewsId) {
+    Assert.ok(false, "unexpected call to getHeaderForItem");
+  }
+  maybeDeleteMessageFromStore(_hdr) {
+    Assert.ok(false, "unexpected call to maybeDeleteMessageFromStore");
+  }
+  saveNewHeader(hdr) {
+    this._savedHeaders.push(hdr);
+  }
+  commitChanges() {
+    Assert.ok(false, "unexpected call to commitChanges");
+  }
+  updateSyncState(syncStateToken) {
+    this._syncStateToken = syncStateToken;
+  }
+  onSyncComplete() {
+    this._deferred.resolve();
+  }
+  updateReadStatus(_ewsId, _readStatus) {
+    Assert.ok(false, "unexpected call to updateReadStatus");
+  }
+  onError(_err, _desc) {
+    this._deferred.reject();
+  }
+}
