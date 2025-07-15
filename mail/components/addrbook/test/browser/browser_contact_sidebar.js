@@ -466,15 +466,21 @@ add_task(async function testSidebar() {
 
   // Check that double-clicking works.
 
+  // First click to select, then double click to insert.
+  clickOnRow(1, {});
   clickOnRow(1, { clickCount: 2 });
   checkPills(toAddrRow, ["danielle test <danielle.test@invalid>"]);
 
+  // First click to select, then double click to insert.
+  clickOnRow(3, {});
   clickOnRow(3, { clickCount: 2 });
   checkPills(toAddrRow, [
     "danielle test <danielle.test@invalid>",
     "katherine test <katherine.test@invalid>",
   ]);
 
+  // First click to select, then double click to insert.
+  clickOnRow(6, {});
   clickOnRow(6, { clickCount: 2 });
   checkPills(toAddrRow, [
     "danielle test <danielle.test@invalid>",

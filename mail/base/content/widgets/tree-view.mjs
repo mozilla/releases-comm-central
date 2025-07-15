@@ -307,7 +307,10 @@ export class TreeView extends HTMLElement {
         break;
       }
       case "click": {
-        if (event.button !== 0) {
+        // Bail out on non primary or double clicks.
+        if (event.button !== 0 || event.detail !== 1) {
+          // Ensure the focus is not moved somewhere else.
+          this.ensureCorrectFocus();
           return;
         }
 
