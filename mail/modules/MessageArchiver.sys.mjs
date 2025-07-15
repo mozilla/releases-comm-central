@@ -118,7 +118,9 @@ MessageArchiver.prototype = {
           continue;
         }
 
-        archiveFolder = identity.getOrCreateArchivesFolder();
+        archiveFolder = lazy.MailUtils.getOrCreateFolder(
+          msgHdr.folder.server.serverURI + "/Archives"
+        );
         archiveGranularity = Services.prefs.getIntPref(
           "mail.identity.default.archive_granularity"
         );
