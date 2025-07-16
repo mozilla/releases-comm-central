@@ -45,10 +45,7 @@ nsCMSMessage::~nsCMSMessage() {
 }
 
 nsresult nsCMSMessage::Init() {
-  nsresult rv;
-  nsCOMPtr<nsISupports> nssInitialized =
-      do_GetService("@mozilla.org/psm;1", &rv);
-  return rv;
+  return EnsureNSSInitializedChromeOrContent() ? NS_OK : NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP nsCMSMessage::VerifySignature(int32_t verifyFlags) {
@@ -1034,17 +1031,11 @@ nsCMSDecoderJS::~nsCMSDecoderJS() {
 }
 
 nsresult nsCMSDecoder::Init() {
-  nsresult rv;
-  nsCOMPtr<nsISupports> nssInitialized =
-      do_GetService("@mozilla.org/psm;1", &rv);
-  return rv;
+  return EnsureNSSInitializedChromeOrContent() ? NS_OK : NS_ERROR_NOT_AVAILABLE;
 }
 
 nsresult nsCMSDecoderJS::Init() {
-  nsresult rv;
-  nsCOMPtr<nsISupports> nssInitialized =
-      do_GetService("@mozilla.org/psm;1", &rv);
-  return rv;
+  return EnsureNSSInitializedChromeOrContent() ? NS_OK : NS_ERROR_NOT_AVAILABLE;
 }
 
 /* void start (in NSSCMSContentCallback cb, in voidPtr arg); */
@@ -1133,10 +1124,7 @@ nsCMSEncoder::~nsCMSEncoder() {
 }
 
 nsresult nsCMSEncoder::Init() {
-  nsresult rv;
-  nsCOMPtr<nsISupports> nssInitialized =
-      do_GetService("@mozilla.org/psm;1", &rv);
-  return rv;
+  return EnsureNSSInitializedChromeOrContent() ? NS_OK : NS_ERROR_NOT_AVAILABLE;
 }
 
 /* void start (); */

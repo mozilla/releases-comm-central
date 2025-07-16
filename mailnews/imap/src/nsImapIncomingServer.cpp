@@ -40,6 +40,7 @@
 #include "nsIPromptService.h"
 #include "mozilla/Utf8.h"
 #include "mozilla/LoadInfo.h"
+#include "nsNSSComponent.h"
 
 using namespace mozilla;
 using mozilla::net::LoadInfo;
@@ -728,11 +729,10 @@ nsresult nsImapIncomingServer::CreateProtocolInstance(
   switch (authMethod) {
     case nsMsgAuthMethod::passwordEncrypted:
     case nsMsgAuthMethod::secure:
-    case nsMsgAuthMethod::anything: {
-      nsCOMPtr<nsISupports> dummyUsedToEnsureNSSIsInitialized =
-          do_GetService("@mozilla.org/psm;1", &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-    } break;
+    case nsMsgAuthMethod::anything:
+      NS_ENSURE_TRUE(EnsureNSSInitializedChromeOrContent(),
+                     NS_ERROR_NOT_AVAILABLE);
+      break;
     default:
       break;
   }

@@ -45,10 +45,7 @@ nsCMSSecureMessage::nsCMSSecureMessage() {
 nsCMSSecureMessage::~nsCMSSecureMessage() {}
 
 nsresult nsCMSSecureMessage::Init() {
-  nsresult rv;
-  nsCOMPtr<nsISupports> nssInitialized =
-      do_GetService("@mozilla.org/psm;1", &rv);
-  return rv;
+  return EnsureNSSInitializedChromeOrContent() ? NS_OK : NS_ERROR_NOT_AVAILABLE;
 }
 
 nsresult nsCMSSecureMessage::CheckUsageOk(nsIX509Cert* aCert,

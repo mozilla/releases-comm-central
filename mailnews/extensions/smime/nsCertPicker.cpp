@@ -221,9 +221,7 @@ nsCertPicker::nsCertPicker() {}
 nsCertPicker::~nsCertPicker() {}
 
 nsresult nsCertPicker::Init() {
-  nsresult rv;
-  nsCOMPtr<nsISupports> psm = do_GetService("@mozilla.org/psm;1", &rv);
-  return rv;
+  return EnsureNSSInitializedChromeOrContent() ? NS_OK : NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP
