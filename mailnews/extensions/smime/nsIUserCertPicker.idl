@@ -22,7 +22,3 @@ interface nsIUserCertPicker : nsISupports {
                                                    // include this specific one
                           out boolean canceled);
 };
-
-%{C++
-#define NS_CERT_PICKER_CONTRACTID "@mozilla.org/user_cert_picker;1"
-%}

@@ -13,7 +13,3 @@ interface nsICertGen : nsISupports
 {
   ACString gen(in ACString keyType, in ACString keyStrength, in AString email);
 };
-
-%{C++
-#define NS_CERTGEN_CONTRACTID "@mozilla.org/nsCertGen;1"
-%}

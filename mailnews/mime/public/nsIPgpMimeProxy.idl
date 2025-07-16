@@ -9,13 +9,7 @@
 %{C++
 typedef int (*MimeDecodeCallbackFun)(const char *buf, int32_t buf_size, int output_closure_type, void *output_closure);
 
-#define NS_PGPMIMEPROXY_CLASSNAME "PGP/Mime Decryption"
 #define NS_PGPMIMEPROXY_CONTRACTID "@mozilla.org/mime/pgp-mime-decrypt;1"
-
-#define NS_PGPMIMEPROXY_CID                     \
-{ /* 815c4fbe-0e7c-45b6-8324-f7044c7252ac */    \
-   0x815c4fbe, 0x0e7c, 0x45b6,                  \
-{0x83, 0x24, 0xf0, 0x04, 0x4C, 0x72, 0x52, 0xac } }
 %}
 
 native MimeDecodeCallbackFun(MimeDecodeCallbackFun);

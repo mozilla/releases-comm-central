@@ -13,10 +13,6 @@ interface nsILDAPMessageListener;
 interface nsILDAPModification;
 interface nsILDAPControl;
 
-%{C++
-#define NS_LDAPOPERATION_CONTRACTID "@mozilla.org/network/ldap-operation;1"
-%}
-
 typedef uint32_t PRIntervalTime;
 
 [scriptable, uuid(4dfb1b19-fc8f-4525-92e7-f97b78a9747a)]

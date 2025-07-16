@@ -24,7 +24,3 @@ interface nsICMSSecureMessage : nsISupports
    */
   boolean canBeUsedForEmailSigning(in nsIX509Cert cert);
 };
-
-%{C++
-#define NS_CMSSECUREMESSAGE_CONTRACTID "@mozilla.org/nsCMSSecureMessage;1"
-%}

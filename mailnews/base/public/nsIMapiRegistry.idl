@@ -43,8 +43,3 @@ interface nsIMapiRegistry: nsISupports {
 
    void registerMailAndNewsClient();
 };
-
-%{C++
-#define NS_IMAPIREGISTRY_CONTRACTID    "@mozilla.org/mapiregistry;1"
-#define NS_IMAPIREGISTRY_CLASSNAME "Mozilla MAPI Registry"
-%}

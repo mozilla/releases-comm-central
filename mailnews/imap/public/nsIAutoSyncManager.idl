@@ -181,12 +181,5 @@ interface nsIAutoSyncManager : nsISupports {
 };
 
 %{C++
-#define NS_AUTOSYNCMANAGER_CID  \
-{ /* C358C568-47B2-42b2-8146-3C0F8D1FAD6E */  \
-  0xc358c568, 0x47b2, 0x42b2,                 \
-  { 0x81, 0x46, 0x3c, 0xf, 0x8d, 0x1f, 0xad, 0x6e }}
-#define NS_AUTOSYNCMANAGER_CLASSNAME \
-  "Auto-Sync Manager"
-#define NS_AUTOSYNCMANAGER_CONTRACTID \
-  "@mozilla.org/imap/autosyncmgr;1"
+#define NS_AUTOSYNCMANAGER_CONTRACTID "@mozilla.org/imap/autosyncmgr;1"
 %}

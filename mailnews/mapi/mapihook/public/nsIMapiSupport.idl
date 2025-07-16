@@ -35,8 +35,3 @@ interface nsIMapiSupport : nsISupports {
     */
    void unRegisterServer();
 };
-
-%{C++
-#define NS_IMAPISUPPORT_CONTRACTID    "@mozilla.org/mapisupport;1"
-#define NS_IMAPISUPPORT_CLASSNAME     "Mozilla MAPI Support"
-%}

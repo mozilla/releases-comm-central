@@ -67,5 +67,5 @@ interface nsIFolderLookupService : nsISupports
 };
 
 %{C++
-#define NSIFLS_CONTRACTID "@mozilla.org/mail/folder-lookup;1"
+#define NS_FOLDERLOOKUPSERVICE_CONTRACTID "@mozilla.org/mail/folder-lookup;1"
 %}

@@ -606,7 +606,8 @@ nsresult FindFolder(const nsACString& aFolderURI, nsIMsgFolder** aFolder) {
   *aFolder = nullptr;
 
   nsresult rv;
-  nsCOMPtr<nsIFolderLookupService> fls(do_GetService(NSIFLS_CONTRACTID, &rv));
+  nsCOMPtr<nsIFolderLookupService> fls(
+      do_GetService(NS_FOLDERLOOKUPSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // GetFolderForURL returns NS_OK and null for non-existent folders
@@ -653,7 +654,8 @@ nsresult GetOrCreateFolder(const nsACString& aFolderURI,
   *aFolder = nullptr;
 
   nsresult rv;
-  nsCOMPtr<nsIFolderLookupService> fls(do_GetService(NSIFLS_CONTRACTID, &rv));
+  nsCOMPtr<nsIFolderLookupService> fls(
+      do_GetService(NS_FOLDERLOOKUPSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = fls->GetOrCreateFolderForURL(aFolderURI, aFolder);
@@ -670,7 +672,8 @@ nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
   *folder = nullptr;
 
   nsresult rv;
-  nsCOMPtr<nsIFolderLookupService> fls(do_GetService(NSIFLS_CONTRACTID, &rv));
+  nsCOMPtr<nsIFolderLookupService> fls(
+      do_GetService(NS_FOLDERLOOKUPSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> existingFolder;

@@ -10,10 +10,6 @@ interface nsILDAPOperation;
 interface nsILDAPMessageListener;
 interface nsILDAPURL;
 
-%{C++
-#define NS_LDAPCONNECTION_CONTRACTID "@mozilla.org/network/ldap-connection;1"
-%}
-
 [scriptable, uuid(360c1ff7-15e3-4ffe-b4b8-0eda72ebc096)]
 interface nsILDAPConnection : nsISupports
 {
