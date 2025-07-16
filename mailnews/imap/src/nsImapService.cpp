@@ -68,14 +68,6 @@ using mozilla::net::LoadInfo;
 // old - for backward compatibility only
 #define PREF_MAIL_ROOT_IMAP "mail.root.imap"
 
-#define NS_IMAPURL_CID \
-  {0x21a89611, 0xdc0d, 0x11d2, {0x80, 0x6c, 0x0, 0x60, 0x8, 0x12, 0x8c, 0x4e}}
-static NS_DEFINE_CID(kImapUrlCID, NS_IMAPURL_CID);
-
-#define NS_IMAPMOCKCHANNEL_CID \
-  {0x4eca51df, 0x6734, 0x11d3, {0x98, 0x9a, 0x0, 0x10, 0x83, 0x1, 0xe, 0x9b}}
-static NS_DEFINE_CID(kCImapMockChannel, NS_IMAPMOCKCHANNEL_CID);
-
 static const char sequenceString[] = "SEQUENCE";
 static const char uidString[] = "UID";
 
@@ -1080,7 +1072,7 @@ nsresult nsImapService::CreateStartOfImapUrl(const nsACString& aImapURI,
 
   // now we need to create an imap url to load into the connection. The url
   // needs to represent a select folder action.
-  rv = CallCreateInstance(kImapUrlCID, imapUrl);
+  rv = CallCreateInstance("@mozilla.org/messenger/imapurl;1", imapUrl);
   if (NS_SUCCEEDED(rv) && *imapUrl) {
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(*imapUrl, &rv);
     if (NS_SUCCEEDED(rv) && mailnewsUrl && aUrlListener)
@@ -2176,7 +2168,8 @@ nsresult nsImapService::NewURI(const nsACString& aSpec,
   NS_ENSURE_ARG_POINTER(aRetVal);
 
   nsresult rv;
-  nsCOMPtr<nsIImapUrl> aImapUrl = do_CreateInstance(kImapUrlCID, &rv);
+  nsCOMPtr<nsIImapUrl> aImapUrl =
+      do_CreateInstance("@mozilla.org/messenger/imapurl;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // now extract lots of fun information...
@@ -2274,7 +2267,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
   // the imap url queue until we find a connection which can run the url..in
   // order to satisfy necko, we're going to return a mock imap channel....
   nsCOMPtr<nsIImapMockChannel> channel =
-      do_CreateInstance(kCImapMockChannel, &rv);
+      do_CreateInstance("@mozilla.org/messenger/imapmockchannel;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   channel->SetURI(aURI);
 

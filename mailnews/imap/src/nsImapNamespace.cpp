@@ -10,13 +10,6 @@
 #include "nsString.h"
 #include "nsServiceManagerUtils.h"
 
-//////////////////// nsImapNamespace
-////////////////////////////////////////////////////////////////
-
-#define NS_IIMAPHOSTSESSIONLIST_CID \
-  {0x479ce8fc, 0xe725, 0x11d2, {0xa5, 0x05, 0x00, 0x60, 0xb0, 0xfc, 0x04, 0xb7}}
-static NS_DEFINE_CID(kCImapHostSessionListCID, NS_IIMAPHOSTSESSIONLIST_CID);
-
 nsImapNamespace::nsImapNamespace(EIMAPNamespaceType type, const char* prefix,
                                  char delimiter, bool from_prefs) {
   m_namespaceType = type;
@@ -298,7 +291,7 @@ nsImapNamespace* nsImapNamespaceList::GetNamespaceForFolder(
   }
 
   nsCOMPtr<nsIImapHostSessionList> hostSessionList =
-      do_GetService(kCImapHostSessionListCID, &rv);
+      do_GetService("@mozilla.org/messenger/imaphostsessionlist;1", &rv);
   if (NS_FAILED(rv)) {
     return nullptr;
   }
@@ -413,7 +406,7 @@ nsCString nsImapNamespaceList::GenerateFullFolderNameWithDefaultNamespace(
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsIImapHostSessionList> hostSession =
-      do_GetService(kCImapHostSessionListCID, &rv);
+      do_GetService("@mozilla.org/messenger/imaphostsessionlist;1", &rv);
   NS_ENSURE_SUCCESS(rv, ""_ns);
   nsImapNamespace* ns;
   nsCString fullFolderName;

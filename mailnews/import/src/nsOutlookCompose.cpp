@@ -35,14 +35,6 @@
 #include "mozilla/Components.h"
 #include "mozilla/SpinEventLoopUntil.h"
 
-#define NS_MSGCOMPFIELDS_CID                  \
-  {/* e64b0f51-0d7b-4e2f-8c60-3862ee8c174f */ \
-   0xe64b0f51,                                \
-   0x0d7b,                                    \
-   0x4e2f,                                    \
-   {0x8c, 0x60, 0x38, 0x62, 0xee, 0x8c, 0x17, 0x4f}}
-static NS_DEFINE_CID(kMsgCompFieldsCID, NS_MSGCOMPFIELDS_CID);
-
 #ifdef IMPORT_DEBUG
 static const char* p_test_headers =
     "Received: from netppl.invalid (IDENT:monitor@get.freebsd.because.microsoftsucks.invalid [209.3.31.115])\n\
@@ -220,7 +212,8 @@ nsresult nsOutlookCompose::CreateComponents(void) {
     rv = OutlookSendListener::CreateSendListener(getter_AddRefs(m_pListener));
 
   if (NS_SUCCEEDED(rv)) {
-    m_pMsgFields = do_CreateInstance(kMsgCompFieldsCID, &rv);
+    m_pMsgFields =
+        do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
     if (NS_SUCCEEDED(rv) && m_pMsgFields) {
       // IMPORT_LOG0("nsOutlookCompose - CreateComponents succeeded\n");
       m_pMsgFields->SetForcePlainText(false);

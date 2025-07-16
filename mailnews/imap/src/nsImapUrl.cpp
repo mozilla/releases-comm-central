@@ -27,10 +27,6 @@
 using namespace mozilla;
 extern LazyLogModule IMAPCache;  // defined in nsImapProtocol.cpp
 
-#define NS_IIMAPHOSTSESSIONLIST_CID \
-  {0x479ce8fc, 0xe725, 0x11d2, {0xa5, 0x05, 0x00, 0x60, 0xb0, 0xfc, 0x04, 0xb7}}
-static NS_DEFINE_CID(kCImapHostSessionListCID, NS_IIMAPHOSTSESSIONLIST_CID);
-
 nsImapUrl::nsImapUrl() : mLock("nsImapUrl.mLock") {
   m_listOfMessageIds = nullptr;
   m_sourceCanonicalFolderPathSubString = nullptr;
@@ -601,7 +597,7 @@ NS_IMETHODIMP nsImapUrl::AddOnlineDirectoryIfNecessary(
   char* newOnlineName = nullptr;
 
   nsCOMPtr<nsIImapHostSessionList> hostSessionList =
-      do_GetService(kCImapHostSessionListCID, &rv);
+      do_GetService("@mozilla.org/messenger/imaphostsessionlist;1", &rv);
   if (NS_FAILED(rv)) return rv;
   rv = hostSessionList->GetOnlineDirForHost(m_serverKey.get(), onlineDirString);
   nsAutoCString onlineDir;
@@ -789,7 +785,7 @@ NS_IMETHODIMP nsImapUrl::AllocateCanonicalPath(const nsACString& serverPath,
 
   nsresult rv;
   nsCOMPtr<nsIImapHostSessionList> hostSessionList =
-      do_GetService(kCImapHostSessionListCID, &rv);
+      do_GetService("@mozilla.org/messenger/imaphostsessionlist;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (onlineDelimiter == kOnlineHierarchySeparatorUnknown ||

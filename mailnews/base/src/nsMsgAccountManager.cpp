@@ -96,10 +96,6 @@ using mozilla::Preferences;
 #define PREF_MAIL_ACCOUNTMANAGER_APPEND_ACCOUNTS \
   "mail.accountmanager.appendaccounts"
 
-#define NS_MSGACCOUNT_CID \
-  {0x68b25510, 0xe641, 0x11d2, {0xb7, 0xfc, 0x0, 0x80, 0x5f, 0x5, 0xff, 0xa5}}
-static NS_DEFINE_CID(kMsgAccountCID, NS_MSGACCOUNT_CID);
-
 #define SEARCH_FOLDER_FLAG "searchFolderFlag"
 #define SEARCH_FOLDER_FLAG_LEN (sizeof(SEARCH_FOLDER_FLAG) - 1)
 
@@ -1788,7 +1784,8 @@ nsresult nsMsgAccountManager::createKeyedAccount(const nsCString& key,
                                                  bool forcePositionToEnd,
                                                  nsIMsgAccount** aAccount) {
   nsresult rv;
-  nsCOMPtr<nsIMsgAccount> account = do_CreateInstance(kMsgAccountCID, &rv);
+  nsCOMPtr<nsIMsgAccount> account =
+      do_CreateInstance("@mozilla.org/messenger/account;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   account->SetKey(key);
