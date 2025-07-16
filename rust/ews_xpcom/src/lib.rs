@@ -19,12 +19,11 @@ use url::Url;
 use xpcom::get_service;
 use xpcom::getter_addrefs;
 use xpcom::interfaces::nsIIOService;
+use xpcom::interfaces::IEwsSimpleOperationListener;
 use xpcom::{
     interfaces::{
         nsIInputStream, nsIMsgIncomingServer, nsIURI, nsIUrlListener, IEwsFolderCallbacks,
-        IEwsFolderCreateCallbacks, IEwsFolderDeleteCallbacks, IEwsFolderMoveCallbacks,
-        IEwsFolderUpdateCallbacks, IEwsItemCopyMoveCallbacks, IEwsMessageCallbacks,
-        IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
+        IEwsMessageCallbacks, IEwsMessageCreateCallbacks, IEwsMessageFetchCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
 };
@@ -150,12 +149,12 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(create_folder => CreateFolder(parent_id: *const nsACString, name: *const nsACString, callbacks: *const IEwsFolderCreateCallbacks));
+    xpcom_method!(create_folder => CreateFolder(listener: *const IEwsSimpleOperationListener, parent_id: *const nsACString, name: *const nsACString));
     fn create_folder(
         &self,
+        listener: &IEwsSimpleOperationListener,
         parent_id: &nsACString,
         name: &nsACString,
-        callbacks: &IEwsFolderCreateCallbacks,
     ) -> Result<(), nsresult> {
         if parent_id.is_empty() || name.is_empty() {
             return Err(nserror::NS_ERROR_INVALID_ARG);
@@ -168,9 +167,9 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "create_folder",
             client.create_folder(
+                RefPtr::new(listener),
                 parent_id.to_utf8().into(),
                 name.to_utf8().into(),
-                RefPtr::new(callbacks),
             ),
         )
         .detach();
@@ -178,10 +177,10 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(delete_folder => DeleteFolder(callbacks: *const IEwsFolderDeleteCallbacks, folder_id: *const nsACString));
+    xpcom_method!(delete_folder => DeleteFolder(listener: *const IEwsSimpleOperationListener, folder_id: *const nsACString));
     fn delete_folder(
         &self,
-        callbacks: &IEwsFolderDeleteCallbacks,
+        listener: &IEwsSimpleOperationListener,
         folder_id: &nsACString,
     ) -> Result<(), nsresult> {
         let client = self.try_new_client()?;
@@ -190,17 +189,17 @@ impl XpcomEwsBridge {
         // this scope, so spawn it as a detached `moz_task`.
         moz_task::spawn_local(
             "delete_folder",
-            client.delete_folder(RefPtr::new(callbacks), folder_id.to_utf8().into_owned()),
+            client.delete_folder(RefPtr::new(listener), folder_id.to_utf8().into_owned()),
         )
         .detach();
 
         Ok(())
     }
 
-    xpcom_method!(update_folder => UpdateFolder(callbacks: *const IEwsFolderUpdateCallbacks, folder_id: *const nsACString, folder_name: *const nsACString));
+    xpcom_method!(update_folder => UpdateFolder(listener: *const IEwsSimpleOperationListener, folder_id: *const nsACString, folder_name: *const nsACString));
     fn update_folder(
         &self,
-        callbacks: &IEwsFolderUpdateCallbacks,
+        listener: &IEwsSimpleOperationListener,
         folder_id: &nsACString,
         folder_name: &nsACString,
     ) -> Result<(), nsresult> {
@@ -211,7 +210,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "update_folder",
             client.update_folder(
-                RefPtr::new(callbacks),
+                RefPtr::new(listener),
                 folder_id.to_utf8().into_owned(),
                 folder_name.to_utf8().into_owned(),
             ),
@@ -329,10 +328,10 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(move_items => MoveItems(callbacks: *const IEwsItemCopyMoveCallbacks, destination_folder_id: *const nsACString, item_ids: *const ThinVec<nsCString>));
+    xpcom_method!(move_items => MoveItems(listener: *const IEwsSimpleOperationListener, destination_folder_id: *const nsACString, item_ids: *const ThinVec<nsCString>));
     fn move_items(
         &self,
-        callbacks: &IEwsItemCopyMoveCallbacks,
+        listener: &IEwsSimpleOperationListener,
         destination_folder_id: &nsACString,
         item_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
@@ -341,9 +340,9 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "move_items",
             client.copy_move_item::<MoveItem>(
+                RefPtr::new(listener),
                 destination_folder_id.to_string(),
                 item_ids.iter().map(|id| id.to_string()).collect(),
-                RefPtr::new(callbacks),
             ),
         )
         .detach();
@@ -351,10 +350,10 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(copy_items => CopyItems(callbacks: *const IEwsItemCopyMoveCallbacks, destination_folder_id: *const nsACString, item_ids: *const ThinVec<nsCString>));
+    xpcom_method!(copy_items => CopyItems(listener: *const IEwsSimpleOperationListener, destination_folder_id: *const nsACString, item_ids: *const ThinVec<nsCString>));
     fn copy_items(
         &self,
-        callbacks: &IEwsItemCopyMoveCallbacks,
+        listener: &IEwsSimpleOperationListener,
         destination_folder_id: &nsACString,
         item_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
@@ -363,9 +362,9 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "copy_items",
             client.copy_move_item::<CopyItem>(
+                RefPtr::new(listener),
                 destination_folder_id.to_string(),
                 item_ids.iter().map(|id| id.to_string()).collect(),
-                RefPtr::new(callbacks),
             ),
         )
         .detach();
@@ -373,10 +372,10 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(move_folders => MoveFolders(callbacks: *const IEwsFolderMoveCallbacks, destination_folder_id: *const nsACString, folder_ids: *const ThinVec<nsCString>));
+    xpcom_method!(move_folders => MoveFolders(listener: *const IEwsSimpleOperationListener, destination_folder_id: *const nsACString, folder_ids: *const ThinVec<nsCString>));
     fn move_folders(
         &self,
-        callbacks: &IEwsFolderMoveCallbacks,
+        listener: &IEwsSimpleOperationListener,
         destination_folder_id: &nsACString,
         folder_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
@@ -385,9 +384,9 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "move_folders",
             client.move_folder(
+                RefPtr::new(listener),
                 destination_folder_id.to_string(),
                 folder_ids.iter().map(|id| id.to_string()).collect(),
-                RefPtr::new(callbacks),
             ),
         )
         .detach();
@@ -395,11 +394,11 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(delete_messages => DeleteMessages(ews_ids: *const ThinVec<nsCString>, callbacks: *const IEwsMessageDeleteCallbacks));
+    xpcom_method!(delete_messages => DeleteMessages(listener: *const IEwsSimpleOperationListener, ews_ids: *const ThinVec<nsCString>));
     fn delete_messages(
         &self,
+        listener: &IEwsSimpleOperationListener,
         ews_ids: &ThinVec<nsCString>,
-        callbacks: &IEwsMessageDeleteCallbacks,
     ) -> Result<(), nsresult> {
         let client = self.try_new_client()?;
 
@@ -407,7 +406,7 @@ impl XpcomEwsBridge {
         // this scope, so spawn it as a detached `moz_task`.
         moz_task::spawn_local(
             "delete_messages",
-            client.delete_messages(ews_ids.clone(), RefPtr::new(callbacks)),
+            client.delete_messages(RefPtr::new(listener), ews_ids.clone()),
         )
         .detach();
 

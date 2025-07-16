@@ -53,10 +53,10 @@ use xpcom::{
     getter_addrefs,
     interfaces::{
         nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsIUrlListener,
-        nsMsgKey, IEwsFolderDeleteCallbacks, IEwsFolderUpdateCallbacks, IEwsMessageCallbacks,
-        IEwsMessageCreateCallbacks, IEwsMessageDeleteCallbacks, IEwsMessageFetchCallbacks,
+        nsMsgKey, IEwsFallibleOperationListener, IEwsMessageCallbacks, IEwsMessageCreateCallbacks,
+        IEwsMessageFetchCallbacks, IEwsSimpleOperationListener,
     },
-    RefCounted, RefPtr,
+    RefCounted, RefPtr, XpCom,
 };
 
 use crate::{
@@ -1380,23 +1380,24 @@ where
 
     pub async fn delete_messages(
         self,
+        listener: RefPtr<IEwsSimpleOperationListener>,
         ews_ids: ThinVec<nsCString>,
-        callbacks: RefPtr<IEwsMessageDeleteCallbacks>,
     ) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
-        self.delete_messages_inner(ews_ids, &callbacks)
-            .await
-            .unwrap_or_else(process_error_with_cb_cpp(move |client_err, desc| unsafe {
-                callbacks.OnError(client_err, &*desc);
-            }));
+        match self.delete_messages_inner(ews_ids).await {
+            Ok(_) => unsafe {
+                listener.OnOperationSuccess(&ThinVec::new(), false);
+            },
+            Err(err) => handle_error(
+                "DeleteItem",
+                err,
+                listener.query_interface::<IEwsFallibleOperationListener>(),
+            ),
+        };
     }
 
-    async fn delete_messages_inner(
-        self,
-        ews_ids: ThinVec<nsCString>,
-        callbacks: &IEwsMessageDeleteCallbacks,
-    ) -> Result<(), XpComEwsError> {
+    async fn delete_messages_inner(self, ews_ids: ThinVec<nsCString>) -> Result<(), XpComEwsError> {
         let item_ids: Vec<BaseItemId> = ews_ids
             .iter()
             .map(|raw_id| BaseItemId::ItemId {
@@ -1454,29 +1455,29 @@ where
                 }
             }).collect::<Result<(), _>>()?;
 
-        // Delete the messages from the folder's database.
-        unsafe { callbacks.OnRemoteDeleteSuccessful() }
-            .to_result()
-            .map_err(|err| err.into())
+        Ok(())
     }
 
     pub async fn delete_folder(
         self,
-        callbacks: RefPtr<IEwsFolderDeleteCallbacks>,
+        listener: RefPtr<IEwsSimpleOperationListener>,
         folder_id: String,
     ) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
-        if let Err(err) = self.delete_folder_inner(&callbacks, folder_id).await {
-            log::error!("an error occurred while attempting to delete the folder: {err:?}");
+        match self.delete_folder_inner(folder_id).await {
+            Ok(_) => unsafe {
+                listener.OnOperationSuccess(&ThinVec::new(), false);
+            },
+            Err(err) => handle_error(
+                "DeleteFolder",
+                err,
+                listener.query_interface::<IEwsFallibleOperationListener>(),
+            ),
         }
     }
 
-    async fn delete_folder_inner(
-        self,
-        callbacks: &IEwsFolderDeleteCallbacks,
-        folder_id: String,
-    ) -> Result<(), XpComEwsError> {
+    async fn delete_folder_inner(self, folder_id: String) -> Result<(), XpComEwsError> {
         let delete_folder = DeleteFolder {
             folder_ids: vec![BaseFolderId::FolderId {
                 id: folder_id,
@@ -1494,31 +1495,31 @@ where
         let response_message = single_response_or_error(response_messages)?;
         process_response_message_class("DeleteFolder", response_message)?;
 
-        // Delete the folder from the server's database.
-        unsafe { callbacks.OnRemoteDeleteFolderSuccessful() }
-            .to_result()
-            .map_err(|err| err.into())
+        Ok(())
     }
 
     pub async fn update_folder(
         self,
-        callbacks: RefPtr<IEwsFolderUpdateCallbacks>,
+        listener: RefPtr<IEwsSimpleOperationListener>,
         folder_id: String,
         folder_name: String,
     ) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
-        if let Err(err) = self
-            .update_folder_inner(&callbacks, folder_id, folder_name)
-            .await
-        {
-            log::error!("an error occurred while attempting to delete the folder: {err:?}");
+        match self.update_folder_inner(folder_id, folder_name).await {
+            Ok(_) => unsafe {
+                listener.OnOperationSuccess(&ThinVec::new(), false);
+            },
+            Err(err) => handle_error(
+                "UpdateFolder",
+                err,
+                listener.query_interface::<IEwsFallibleOperationListener>(),
+            ),
         }
     }
 
     async fn update_folder_inner(
         self,
-        callbacks: &IEwsFolderUpdateCallbacks,
         folder_id: String,
         folder_name: String,
     ) -> Result<(), XpComEwsError> {
@@ -1555,9 +1556,7 @@ where
         let response_message = single_response_or_error(response_messages)?;
         process_response_message_class("UpdateFolder", response_message)?;
 
-        unsafe { callbacks.OnRemoteFolderUpdateSuccessful() }
-            .to_result()
-            .map_err(|err| err.into())
+        Ok(())
     }
 
     /// Makes a request to the EWS endpoint to perform an operation.
@@ -1927,6 +1926,21 @@ impl From<XpComEwsError> for nsresult {
             XpComEwsError::Http(value) => value.into(),
 
             _ => nserror::NS_ERROR_UNEXPECTED,
+        }
+    }
+}
+
+fn handle_error(
+    op_name: &str,
+    err: XpComEwsError,
+    listener: Option<RefPtr<IEwsFallibleOperationListener>>,
+) {
+    log::error!("an error occurred when performing operation {op_name}: {err:?}");
+
+    if let Some(listener) = listener {
+        match unsafe { listener.OnOperationFailure(err.into()) }.to_result() {
+            Ok(_) => {}
+            Err(err) => log::error!("the error callback returned a failure ({err})"),
         }
     }
 }

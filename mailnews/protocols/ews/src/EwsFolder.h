@@ -10,6 +10,20 @@
 #include "nsMsgDBFolder.h"
 #include "nscore.h"
 
+class EwsFolder;
+
+/**
+ * Create a new local folder with the given EWS ID and name under the given
+ * parent.
+ */
+nsresult CreateNewLocalEwsFolder(nsIMsgFolder* parent, const nsACString& ewsId,
+                                 const nsACString& folderName,
+                                 nsIMsgFolder** createdFolder);
+
+/**
+ * The EWS implementation for `nsIMsgFolder` which represents a folder in an EWS
+ * account.
+ */
 class EwsFolder : public nsMsgDBFolder {
  public:
   NS_DECL_ISUPPORTS_INHERITED

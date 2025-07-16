@@ -9,14 +9,14 @@ use ews::{
 use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::nsCString;
 use thin_vec::ThinVec;
-use xpcom::{interfaces::IEwsItemCopyMoveCallbacks, RefCounted, RefPtr};
+use xpcom::interfaces::IEwsSimpleOperationListener;
+use xpcom::{RefCounted, RefPtr};
 
-use crate::{
-    authentication::credentials::AuthenticationProvider,
-    client::{XpComEwsClient, XpComEwsError},
-};
+use crate::authentication::credentials::AuthenticationProvider;
+use crate::client::copy_move_operations::move_generic::CopyMoveOperation;
+use crate::client::XpComEwsClient;
 
-use super::move_generic::{move_generic, MoveCallbacks};
+use super::move_generic::move_generic;
 
 impl<ServerT> XpComEwsClient<ServerT>
 where
@@ -35,11 +35,11 @@ where
     /// contains the callbacks to execute upon success or failure.
     pub(crate) async fn copy_move_item<InputT>(
         self,
+        listener: RefPtr<IEwsSimpleOperationListener>,
         destination_folder_id: String,
         item_ids: Vec<String>,
-        callbacks: RefPtr<IEwsItemCopyMoveCallbacks>,
     ) where
-        InputT: Clone + Operation + Wrapped,
+        InputT: CopyMoveOperation + Wrapped,
         <InputT as Operation>::Response: OperationResponse<Message = ItemResponseMessage>,
         <InputT as Wrapped>::Wrapper:
             Wrapper<InputT> + From<CopyMoveItemData> + Into<CopyMoveItemData>,
@@ -47,11 +47,11 @@ where
     {
         move_generic(
             self,
+            listener,
             destination_folder_id,
             item_ids,
             construct_request::<InputT, <InputT as Wrapped>::Wrapper, ServerT>,
             get_new_ews_ids_from_response,
-            callbacks,
         )
         .await;
     }
@@ -93,23 +93,6 @@ where
     .unwrap()
 }
 
-impl<T> MoveCallbacks<T> for IEwsItemCopyMoveCallbacks
-where
-    T: Operation + Wrapped,
-    <T as Wrapped>::Wrapper: Wrapper<T> + Into<CopyMoveItemData>,
-{
-    fn on_success(&self, input_data: T, new_ids: ThinVec<nsCString>) -> Result<(), XpComEwsError> {
-        let wrapper = <T as Wrapped>::Wrapper::wrap(input_data);
-        let sync_required = wrapper.into().return_new_item_ids != Some(true);
-        unsafe { self.OnRemoteCopyMoveSuccessful(sync_required, &new_ids) }.to_result()?;
-        Ok(())
-    }
-
-    fn on_error(&self, error: u8, description: &nsstring::nsACString) {
-        unsafe { self.OnError(error, description) };
-    }
-}
-
 fn get_new_ews_ids_from_response(response: Vec<ItemResponseMessage>) -> ThinVec<nsCString> {
     response
         .into_iter()
@@ -127,6 +110,22 @@ fn get_new_ews_ids_from_response(response: Vec<ItemResponseMessage>) -> ThinVec<
                 .unwrap_or(None)
         })
         .collect()
+}
+
+impl CopyMoveOperation for CopyItem {
+    fn requires_resync(&self) -> bool {
+        // If we don't expect the response to give us the new IDs for the items
+        // we've copied, we should get them by syncing again.
+        self.inner.return_new_item_ids != Some(true)
+    }
+}
+
+impl CopyMoveOperation for MoveItem {
+    fn requires_resync(&self) -> bool {
+        // If we don't expect the response to give us the new IDs for the items
+        // we've moved, we should get them by syncing again.
+        self.inner.return_new_item_ids != Some(true)
+    }
 }
 
 // The newtypes and wrapping traits (and implementations) below are all to
@@ -150,7 +149,6 @@ pub(crate) trait Wrapped {
 
 pub(crate) trait Wrapper<T> {
     fn unwrap(self) -> T;
-    fn wrap(value: T) -> Self;
 }
 
 impl Wrapped for CopyItem {
@@ -165,19 +163,11 @@ impl Wrapper<CopyItem> for CopyItemWrapper {
     fn unwrap(self) -> CopyItem {
         self.0
     }
-
-    fn wrap(value: CopyItem) -> Self {
-        Self(value)
-    }
 }
 
 impl Wrapper<MoveItem> for MoveItemWrapper {
     fn unwrap(self) -> MoveItem {
         self.0
-    }
-
-    fn wrap(value: MoveItem) -> Self {
-        Self(value)
     }
 }
 

@@ -104,7 +104,11 @@ add_task(async function test_delete_model() {
 
   await syncFolder(incomingServer, inboxFolder);
 
-  Assert.equal(inboxFolder.getTotalMessages(false), 3);
+  Assert.equal(
+    inboxFolder.getTotalMessages(false),
+    3,
+    "Inbox should have 3 messages."
+  );
 
   const headersToDelete1 = [[...inboxFolder.messages][0]];
 

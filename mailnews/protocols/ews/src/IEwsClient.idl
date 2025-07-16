@@ -18,15 +18,12 @@ interface nsIUrlListener;
 
 // Forward declarations of callback classes defined later in this file.
 interface IEwsFolderCallbacks;
-interface IEwsFolderCreateCallbacks;
-interface IEwsFolderDeleteCallbacks;
-interface IEwsFolderMoveCallbacks;
-interface IEwsFolderUpdateCallbacks;
 interface IEwsMessageCallbacks;
-interface IEwsItemCopyMoveCallbacks;
 interface IEwsMessageCreateCallbacks;
-interface IEwsMessageDeleteCallbacks;
 interface IEwsMessageFetchCallbacks;
+
+interface IEwsSimpleOperationListener;
+interface IEwsFallibleOperationListener;
 
 /**
  * A client for communicating with a Microsoft Exchange server via Exchange Web
@@ -88,13 +85,13 @@ interface IEwsClient : nsISupports
    * Creates a new folder on the Exchange server as a child of the specified
    * parent.
    *
-   * @param parentId   The EWS ID of the folder under which to create the new
-   *                   folder.
-   * @param name       The name to use for the new folder.
-   * @param callbacks  Callbacks to indicate the success or failure of the
-   *                   folder creation operation.
+   * @param listener  Listener that propagates the success or failure of the
+   *                  folder creation operation to the consumer.
+   * @param parentId  The EWS ID of the folder under which to create the new
+   *                  folder.
+   * @param name      The name to use for the new folder.
    */
-  void createFolder(in AUTF8String parentId, in AUTF8String name, in IEwsFolderCreateCallbacks callbacks);
+  void createFolder(in IEwsSimpleOperationListener listener, in AUTF8String parentId, in AUTF8String name);
 
   void syncMessagesForFolder(in IEwsMessageCallbacks callbacks, in AUTF8String folderId, in AUTF8String syncStateToken);
   void getMessage(in AUTF8String id, in IEwsMessageFetchCallbacks callbacks);
@@ -115,7 +112,7 @@ interface IEwsClient : nsISupports
                      in nsIInputStream messageStream,
                      in IEwsMessageCreateCallbacks callbacks);
 
-  void deleteMessages(in Array<AUTF8String> messageEwsIds, in IEwsMessageDeleteCallbacks callbacks);
+  void deleteMessages(in IEwsSimpleOperationListener listener, in Array<AUTF8String> messageEwsIds);
 
   /**
    * Deletes a folder on the Exchange server.
@@ -124,7 +121,7 @@ interface IEwsClient : nsISupports
    *   folder deletion operation.
    * @param folderId - The EWS ID of the folder to delete.
    */
-  void deleteFolder(in IEwsFolderDeleteCallbacks callbacks, in AUTF8String folderId);
+  void deleteFolder(in IEwsSimpleOperationListener listener, in AUTF8String folderId);
 
   /**
    * Renames a folder on the Exchange server.
@@ -133,7 +130,7 @@ interface IEwsClient : nsISupports
    *   folder update operation to rename the folder.
    * @param folderId - The EWS ID of the folder to rename.
    */
-  void updateFolder(in IEwsFolderUpdateCallbacks callbacks, in AUTF8String folderId, in AUTF8String folderName);
+  void updateFolder(in IEwsSimpleOperationListener listener, in AUTF8String folderId, in AUTF8String folderName);
 
   /**
    * Moves items on the Exchange server.
@@ -142,7 +139,7 @@ interface IEwsClient : nsISupports
    * @param destinationFolderId - The EWS ID of the destination folder.
    * @param itemIds - A list of the EWS IDs of the items to be moved.
    */
-  void moveItems(in IEwsItemCopyMoveCallbacks callbacks, in AUTF8String destinationFolderId, in Array<AUTF8String> itemIds);
+  void moveItems(in IEwsSimpleOperationListener listener, in AUTF8String destinationFolderId, in Array<AUTF8String> itemIds);
 
   /**
    * Copies items on the Exchange server.
@@ -151,7 +148,7 @@ interface IEwsClient : nsISupports
    * @param destinationFolderId - The EWS ID of the destination folder.
    * @param itemIds - A list of the EWS IDs of the items to be copied.
    */
-  void copyItems(in IEwsItemCopyMoveCallbacks callbacks, in AUTF8String destinationFolderId, in Array<AUTF8String> itemIds);
+  void copyItems(in IEwsSimpleOperationListener listener, in AUTF8String destinationFolderId, in Array<AUTF8String> itemIds);
 
   /**
    * Moves folders on the Exchange server.
@@ -160,7 +157,7 @@ interface IEwsClient : nsISupports
    * @param destinationFolderId - The EWS ID of the destination folder.
    * @param itemIds - A list of the EWS IDs of the folders to be moved.
    */
-  void moveFolders(in IEwsFolderMoveCallbacks callbacks, in AUTF8String destinationFolderId, in Array<AUTF8String> folderIds);
+  void moveFolders(in IEwsSimpleOperationListener listener, in AUTF8String destinationFolderId, in Array<AUTF8String> folderIds);
 };
 
 [scriptable, uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
@@ -176,47 +173,6 @@ interface IEwsFolderCallbacks : nsISupports
   void updateSyncState(in AUTF8String syncStateToken);
   void onSuccess();
   void onError(in IEwsClient_Error err, in AUTF8String desc);
-};
-
-/**
- * Callbacks for communicating the results of creating a folder on the remote
- * Exchange server.
- */
-[scriptable, uuid(db950950-0824-4a8c-bace-871a950ace28)]
-interface IEwsFolderCreateCallbacks : nsISupports
-{
-  /**
-   * Called if a remote folder was successfully created.
-   *
-   * @param id - The EWS ID of the newly-created folder.
-   */
-  void onSuccess(in AUTF8String id);
-
-  /**
-   * Called if remote folder creation failed.
-   *
-   * @param err - The type of error encountered.
-   * @param desc - A human-readable description of the error.
-   */
-  void onError(in IEwsClient_Error err, in AUTF8String desc);
-};
-
-[scriptable, uuid(a439c288-7cee-422a-96ab-6aa69259827c)]
-interface IEwsFolderDeleteCallbacks : nsISupports
-{
-  /**
-   * Called if a folder was successfully deleted on the server.
-   */
-  void onRemoteDeleteFolderSuccessful();
-};
-
-[scriptable, uuid(27337b4d-a40d-4034-9dc3-52abdd09b64c)]
-interface IEwsFolderUpdateCallbacks : nsISupports
-{
-  /**
-   * Called if a folder was successfully updated on the server.
-   */
-  void onRemoteFolderUpdateSuccessful();
 };
 
 /**
@@ -352,59 +308,6 @@ interface IEwsMessageCreateCallbacks : nsISupports
   void commitHeader(in nsIMsgDBHdr hdr);
 };
 
-[scriptable, uuid(98d7d1a9-d099-4b58-b4f7-6b476c6e4b90)]
-interface IEwsItemCopyMoveCallbacks : nsISupports
-{
-  /**
-   * Signal that a remote item copy or move operation was successful.
-   *
-   * The `syncRequired` parameter indicates whether a full folder sync for the
-   * copy or move destination is required. If `syncRequired` is false, then
-   * `newIds` will contain a list of the newly created EWS IDs in the
-   * destination folder that need to be created and downloaded. The order of
-   * `newIds` will correspond to the order of the EWS IDs provided to
-   * `IEwsClient::moveItems` or `IEwsClient::copyItems`.
-   */
-  void onRemoteCopyMoveSuccessful(in boolean syncRequired, in Array<AUTF8String> newIds);
-
-  /**
-   * Signal that an error occurred during a remote copy or move operation.
-   *
-   * The type of error will be contained in the `err` parameter, and a
-   * description will be provided in the `description` parameter.
-   */
-  void onError(in IEwsClient_Error err, in AUTF8String description);
-};
-
-[scriptable, uuid(2e2beca1-5ea6-4c8d-8805-aeedc011dbb4)]
-interface IEwsFolderMoveCallbacks : nsISupports
-{
-  /**
-   * Signal that a remote folder move operation was successful.
-   *
-   * The `newIds` parameter will contain the list of the new EWS IDs for the
-   * moved folders and will be specified in the same order as the input IDs to
-   * `IEwsClient::moveFolders`.
-   */
-  void onRemoteMoveSuccessful(in Array<AUTF8String> newIds);
-
-
-  /**
-   * Signal that an error occurred during a remote move operation.
-   *
-   * The type of error will be contained in the `err` parameter, and a
-   * description will be provided in the `description` parameter.
-   */
-  void onError(in IEwsClient_Error err, in AUTF8String description);
-};
-
-[scriptable, uuid(2bd557ee-a1ce-4563-aaf3-653914256452)]
-interface IEwsMessageDeleteCallbacks : nsISupports
-{
-  void onRemoteDeleteSuccessful();
-  void onError(in IEwsClient_Error err, in AUTF8String desc);
-};
-
 /**
  * A listener used when downloading message content.
  *
@@ -419,4 +322,38 @@ interface IEwsMessageFetchCallbacks : nsISupports
   void onFetchStart();
   void onFetchedDataAvailable(in nsIInputStream inputStream, in unsigned long count);
   void onFetchStop(in nsresult status);
+};
+
+/**
+ * A listener for "simple" operations, which only report a success to the
+ * consumer.
+ */
+[scriptable, uuid(0217030b-dcad-4289-914f-48bad6693f2e)]
+interface IEwsSimpleOperationListener : nsISupports {
+  /**
+   * Signals a successful completion of the EWS operation.
+   *
+   * @param newIds - If the operation involves generating new EWS identifiers
+   *   for one or serveral entities, they are included in this array. Otherwise,
+   *   this is an emtpy array.
+   * @param resyncNeeded - Whether a the current folder or account (depending on
+   *   the operation) should be resync'd (when relevant).
+   */
+  void onOperationSuccess(in Array<AUTF8String> newIds, in boolean resyncNeeded);
+};
+
+/**
+ * A listener for operations which failures we want to report to the consumer.
+ *
+ * This interface will likely not be implemented on its own but be QI'd from an
+ * object of a different type (e.g. `IEwsSimpleOperationListener`).
+ */
+[scriptable, uuid(50b04351-609c-4650-b915-81e2b8e209c0)]
+interface IEwsFallibleOperationListener : nsISupports {
+  /**
+   * Signals an error causing the operation to be aborted.
+   *
+   * @param status - The status describing the error.
+   */
+  void onOperationFailure(in nsresult status);
 };

@@ -4,69 +4,12 @@
 
 #include "EwsFolderCopyHandler.h"
 
-#include <utility>
-
+#include "EwsListeners.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 
 constexpr auto kEwsIdProperty = "ewsId";
-
-///////////////////////////////////////////////////////////////////////////////
-// Definition of `FolderCreateCopyCallbacks`, which implements
-// `IEwsFolderCreateCallbacks` and is used with an EWS client to signal progress
-// when creating a new folder on an EWS server.
-///////////////////////////////////////////////////////////////////////////////
-
-class FolderCreateCopyCallbacks : public IEwsFolderCreateCallbacks {
- public:
-  NS_DECL_ISUPPORTS
-  NS_DECL_IEWSFOLDERCREATECALLBACKS
-
-  FolderCreateCopyCallbacks(nsCOMPtr<nsIMsgFolder> parentFolder,
-                            const nsACString& folderName,
-                            FolderCopyHandler* handler)
-      : mParentFolder(std::move(parentFolder)),
-        mFolderName(folderName),
-        mHandler(handler) {}
-
- protected:
-  virtual ~FolderCreateCopyCallbacks() = default;
-
- private:
-  nsCOMPtr<nsIMsgFolder> mParentFolder;
-  const nsCString mFolderName;
-  RefPtr<FolderCopyHandler> mHandler;
-};
-
-NS_IMPL_ISUPPORTS(FolderCreateCopyCallbacks, IEwsFolderCreateCallbacks)
-
-NS_IMETHODIMP FolderCreateCopyCallbacks::OnSuccess(const nsACString& id) {
-  // Note: Handling errors with `MOZ_TRY` is fine here, because if `OnSuccess`
-  // fails, then `OnError` will be called with the failure status.
-
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  MOZ_TRY(mParentFolder->GetMsgStore(getter_AddRefs(msgStore)));
-
-  // Initialize storage and memory for the new folder and register it with the
-  // parent folder.
-  nsCOMPtr<nsIMsgFolder> newFolder;
-  MOZ_TRY(msgStore->CreateFolder(mParentFolder, mFolderName,
-                                 getter_AddRefs(newFolder)));
-
-  MOZ_TRY(newFolder->SetStringProperty(kEwsIdProperty, id));
-
-  // Notify any consumers listening for updates on the parent folder that we've
-  // added the new folder.
-  MOZ_TRY(mParentFolder->NotifyFolderAdded(newFolder));
-
-  return mHandler->OnFolderCreateFinished(NS_OK, newFolder);
-}
-
-NS_IMETHODIMP FolderCreateCopyCallbacks::OnError(IEwsClient::Error err,
-                                                 const nsACString& desc) {
-  return mHandler->OnFolderCreateFinished(NS_ERROR_FAILURE, nullptr);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Definition of `MessageCopyListener`, which implements
@@ -151,16 +94,31 @@ nsresult FolderCopyHandler::CopyNextFolder() {
     return NS_ERROR_UNEXPECTED;
   }
 
+  const nsCOMPtr<nsIMsgFolder> parentFolder = parent.value();
+
   // We expect all destination folders to be valid EWS folders, and so to have
   // an EWS ID set.
   nsCString parentId;
   MOZ_TRY(parent.value()->GetStringProperty(kEwsIdProperty, parentId));
 
-  // Start creating the new folder, both on the server and then locally.
-  RefPtr<FolderCreateCopyCallbacks> listener =
-      new FolderCreateCopyCallbacks(parent.value(), folderName, this);
+  const RefPtr<EwsSimpleFailibleListener> listener =
+      new EwsSimpleFailibleListener(
+          [self = RefPtr(this), parentFolder, folderName](
+              const nsTArray<nsCString>& ids, bool resyncNeeded) {
+            NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
 
-  return mClient->CreateFolder(parentId, folderName, listener);
+            nsCOMPtr<nsIMsgFolder> newFolder;
+            nsresult rv = CreateNewLocalEwsFolder(
+                parentFolder, ids[0], folderName, getter_AddRefs(newFolder));
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            return self->OnFolderCreateFinished(NS_OK, newFolder);
+          },
+          [self = RefPtr(this)](nsresult status) {
+            return self->OnFolderCreateFinished(status, nullptr);
+          });
+
+  return mClient->CreateFolder(listener, parentId, folderName);
 }
 
 // Protected method on `FolderCopyHandler`, intended to be called by its
