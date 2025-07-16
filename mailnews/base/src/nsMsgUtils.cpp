@@ -89,9 +89,7 @@ void MsgLogToConsole4(const nsAString& aErrorText, const nsCString& aFilename,
   nsCOMPtr<nsIScriptError> scriptError =
       do_CreateInstance(NS_SCRIPTERROR_CONTRACTID);
   if (NS_WARN_IF(!scriptError)) return;
-  nsCOMPtr<nsIConsoleService> console =
-      do_GetService(NS_CONSOLESERVICE_CONTRACTID);
-  if (NS_WARN_IF(!console)) return;
+  nsCOMPtr<nsIConsoleService> console = mozilla::components::Console::Service();
   if (NS_FAILED(scriptError->Init(aErrorText, aFilename, aLinenumber, 0, aFlag,
                                   "mailnews"_ns, false, false)))
     return;
@@ -1091,9 +1089,8 @@ nsresult NS_GetPersistentFile(const char* relPrefName, const char* absPrefName,
 
     // If not, and given a dirServiceProp, use directory service.
     if (!localFile && dirServiceProp) {
-      nsCOMPtr<nsIProperties> dirService(
-          do_GetService("@mozilla.org/file/directory_service;1"));
-      if (!dirService) return NS_ERROR_FAILURE;
+      nsCOMPtr<nsIProperties> dirService =
+          mozilla::components::Directory::Service();
       dirService->Get(dirServiceProp, NS_GET_IID(nsIFile),
                       getter_AddRefs(localFile));
       if (!localFile) return NS_ERROR_FAILURE;
@@ -1391,28 +1388,19 @@ void MsgStripQuotedPrintable(nsCString& aSrc) {
 
 nsresult MsgEscapeString(const nsACString& aStr, uint32_t aType,
                          nsACString& aResult) {
-  nsresult rv;
-  nsCOMPtr<nsINetUtil> nu = do_GetService(NS_NETUTIL_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsINetUtil> nu = mozilla::components::IO::Service();
   return nu->EscapeString(aStr, aType, aResult);
 }
 
 nsresult MsgUnescapeString(const nsACString& aStr, uint32_t aFlags,
                            nsACString& aResult) {
-  nsresult rv;
-  nsCOMPtr<nsINetUtil> nu = do_GetService(NS_NETUTIL_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsINetUtil> nu = mozilla::components::IO::Service();
   return nu->UnescapeString(aStr, aFlags, aResult);
 }
 
 nsresult MsgEscapeURL(const nsACString& aStr, uint32_t aFlags,
                       nsACString& aResult) {
-  nsresult rv;
-  nsCOMPtr<nsINetUtil> nu = do_GetService(NS_NETUTIL_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsINetUtil> nu = mozilla::components::IO::Service();
   return nu->EscapeURL(aStr, aFlags, aResult);
 }
 
@@ -1442,19 +1430,15 @@ nsresult MsgGetHeadersFromKeys(nsIMsgDatabase* aDB,
 nsresult MsgExamineForProxyAsync(nsIChannel* channel,
                                  nsIProtocolProxyCallback* listener,
                                  nsICancelable** result) {
-  nsresult rv;
-
 #ifdef DEBUG
   nsCOMPtr<nsIURI> uri;
-  rv = channel->GetURI(getter_AddRefs(uri));
+  nsresult rv = channel->GetURI(getter_AddRefs(uri));
   NS_ASSERTION(NS_SUCCEEDED(rv) && uri,
                "The URI needs to be set before calling the proxy service");
 #endif
 
   nsCOMPtr<nsIProtocolProxyService> pps =
-      do_GetService(NS_PROTOCOLPROXYSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::ProtocolProxy::Service();
   return pps->AsyncResolve(channel, 0, listener, nullptr, result);
 }
 

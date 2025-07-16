@@ -422,7 +422,7 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
       if (NS_FAILED(rv)) goto done;
 
       nsCOMPtr<nsIStreamConverterService> streamConverterService =
-          do_GetService("@mozilla.org/streamConverters;1");
+          mozilla::components::StreamConverter::Service();
       nsCOMPtr<nsISupports> channelSupport =
           do_QueryInterface(saveListener->m_channel);
 

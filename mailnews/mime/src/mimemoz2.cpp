@@ -1746,8 +1746,7 @@ extern "C" char* MimeGetStringByID(int32_t stringID) {
 
 extern "C" char* MimeGetStringByName(const char16_t* stringName) {
   nsCOMPtr<nsIStringBundleService> stringBundleService =
-      do_GetService(NS_STRINGBUNDLE_CONTRACTID);
-
+      mozilla::components::StringBundle::Service();
   nsCOMPtr<nsIStringBundle> stringBundle;
   stringBundleService->CreateBundle(MIME_URL, getter_AddRefs(stringBundle));
   if (stringBundle) {

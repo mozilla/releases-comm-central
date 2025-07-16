@@ -91,7 +91,7 @@ nsresult AsyncReadMessageFromStore(nsIMsgDBHdr* message,
   nsCOMPtr<nsIStreamListener> consumerListener = streamListener;
   if (convertData) {
     nsCOMPtr<nsIStreamConverterService> streamConverterService =
-        do_GetService("@mozilla.org/streamConverters;1");
+        mozilla::components::StreamConverter::Service();
 
     nsCOMPtr<nsIStreamListener> convertedListener;
     nsresult rv = streamConverterService->AsyncConvertData(

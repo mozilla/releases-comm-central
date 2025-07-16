@@ -112,8 +112,8 @@ nsMsgCompUtils::DetectCharset(const nsACString& aContent,
 
 static void GenerateGlobalRandomBytes(unsigned char* buf, int32_t len) {
   // Attempt to generate bytes from system entropy-based RNG.
-  nsCOMPtr<nsIRandomGenerator> randomGenerator(
-      do_GetService("@mozilla.org/security/random-generator;1"));
+  nsCOMPtr<nsIRandomGenerator> randomGenerator =
+      mozilla::components::RandomGenerator::Service();
   MOZ_ASSERT(randomGenerator, "nsIRandomGenerator service not retrievable");
   uint8_t* tempBuffer;
   nsresult rv = randomGenerator->GenerateRandomBytes(len, &tempBuffer);

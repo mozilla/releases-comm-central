@@ -375,9 +375,7 @@ nsMsgMailSession::GetDataFilesDir(const char* dirName, nsIFile** dataFilesDir) {
 
   nsresult rv;
   nsCOMPtr<nsIProperties> directoryService =
-      do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::Directory::Service();
   nsCOMPtr<nsIFile> defaultsDir;
   rv = directoryService->Get(NS_APP_DEFAULTS_50_DIR, NS_GET_IID(nsIFile),
                              getter_AddRefs(defaultsDir));

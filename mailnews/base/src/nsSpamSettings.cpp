@@ -517,9 +517,7 @@ NS_IMETHODIMP nsSpamSettings::GetServerFilterFile(nsIFile** aFile) {
     GetServerFilterName(serverFilterFileName);
     serverFilterFileName.AppendLiteral(".sfd");
 
-    nsCOMPtr<nsIProperties> dirSvc =
-        do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIProperties> dirSvc = mozilla::components::Directory::Service();
 
     // Walk through the list of isp directories
     nsCOMPtr<nsISimpleEnumerator> ispDirectories;

@@ -56,8 +56,6 @@ nsMsgContentPolicy::~nsMsgContentPolicy() {
 }
 
 nsresult nsMsgContentPolicy::Init() {
-  nsresult rv;
-
   // register ourself as an observer on the mail preference to block remote
   // images
 
@@ -68,9 +66,7 @@ nsresult nsMsgContentPolicy::Init() {
 
   // Grab a handle on the PermissionManager service for managing allowed remote
   // content senders.
-  mPermissionManager = do_GetService(NS_PERMISSIONMANAGER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  mPermissionManager = mozilla::components::PermissionManager::Service();
   return NS_OK;
 }
 
@@ -91,9 +87,7 @@ bool nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(
   ExtractEmail(EncodedHeader(author), emailAddress);
   if (emailAddress.IsEmpty()) return false;
 
-  nsCOMPtr<nsIIOService> ios =
-      do_GetService("@mozilla.org/network/io-service;1", &rv);
-  NS_ENSURE_SUCCESS(rv, false);
+  nsCOMPtr<nsIIOService> ios = mozilla::components::IO::Service();
   nsCOMPtr<nsIURI> mailURI;
   emailAddress.InsertLiteral("chrome://messenger/content/email=", 0);
   rv = ios->NewURI(emailAddress, nullptr, nullptr, getter_AddRefs(mailURI));

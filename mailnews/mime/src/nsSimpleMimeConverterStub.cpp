@@ -3,18 +3,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsSimpleMimeConverterStub.h"
+
 #include "prlog.h"
 #include "mimecth.h"
 #include "mimetext.h"
 #include "mimemoz2.h"
 #include "mimecom.h"
+#include "mozilla/Components.h"
 #include "nsString.h"
 #include "nsComponentManagerUtils.h"
 #include "nsICategoryManager.h"
 #include "nsCOMPtr.h"
 #include "nsISimpleMimeConverter.h"
 #include "nsServiceManagerUtils.h"
-#include "nsSimpleMimeConverterStub.h"
 #include "nsIMailChannel.h"
 
 typedef struct MimeSimpleStub MimeSimpleStub;
@@ -111,8 +113,7 @@ static int Initialize(MimeObject* obj) {
 
   nsresult rv;
   nsCOMPtr<nsICategoryManager> catman =
-      do_GetService(NS_CATEGORYMANAGER_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) return -1;
+      mozilla::components::CategoryManager::Service();
 
   nsAutoCString contentType;  // lowercase
   ToLowerCase(nsDependentCString(obj->content_type), contentType);

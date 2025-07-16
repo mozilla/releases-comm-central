@@ -3,6 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "mimehdrs.h"
+
+#include <ctype.h>
+
+#include "mozilla/Components.h"
 #include "nsCOMPtr.h"
 #include "msgCore.h"
 #include "mimei.h"
@@ -17,11 +22,9 @@
 #include "nsMimeStringResources.h"
 #include "mimemoz2.h"
 #include "nsMsgI18N.h"
-#include "mimehdrs.h"
 #include "nsIMIMEHeaderParam.h"
 #include "nsNetCID.h"
 #include "nsServiceManagerUtils.h"
-#include <ctype.h>
 #include "mozilla/Unused.h"
 
 // Forward declares...
@@ -428,16 +431,13 @@ char* MimeHeaders_get_parameter(const char* header_value, const char* parm_name,
   if (!header_value || !parm_name || !*header_value || !*parm_name)
     return nullptr;
 
-  nsresult rv;
   nsCOMPtr<nsIMIMEHeaderParam> mimehdrpar =
-      do_GetService(NS_MIMEHEADERPARAM_CONTRACTID, &rv);
-
-  if (NS_FAILED(rv)) return nullptr;
+      mozilla::components::MimeHeaderParam::Service();
 
   nsCString result;
-  rv = mimehdrpar->GetParameterInternal(nsDependentCString(header_value),
-                                        parm_name, charset, language,
-                                        getter_Copies(result));
+  nsresult rv = mimehdrpar->GetParameterInternal(
+      nsDependentCString(header_value), parm_name, charset, language,
+      getter_Copies(result));
   return NS_SUCCEEDED(rv) ? PL_strdup(result.get()) : nullptr;
 }
 
@@ -601,15 +601,13 @@ extern int16_t INTL_DefaultMailToWinCharSetID(int16_t csid);
   may be escaping other chars in the string. */
 char* mime_decode_filename(const char* name, const char* charset,
                            MimeDisplayOptions* opt) {
-  nsresult rv;
   nsCOMPtr<nsIMIMEHeaderParam> mimehdrpar =
-      do_GetService(NS_MIMEHEADERPARAM_CONTRACTID, &rv);
+      mozilla::components::MimeHeaderParam::Service();
 
-  if (NS_FAILED(rv)) return nullptr;
   nsAutoCString result;
-  rv = mimehdrpar->DecodeParameter(nsDependentCString(name), charset,
-                                   opt ? opt->default_charset : nullptr,
-                                   opt ? opt->override_charset : false, result);
+  nsresult rv = mimehdrpar->DecodeParameter(
+      nsDependentCString(name), charset, opt ? opt->default_charset : nullptr,
+      opt ? opt->override_charset : false, result);
   return NS_SUCCEEDED(rv) ? PL_strdup(result.get()) : nullptr;
 }
 

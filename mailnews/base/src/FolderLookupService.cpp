@@ -7,6 +7,7 @@
 
 #include <regex>
 
+#include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "msgCore.h"
@@ -83,15 +84,14 @@ NS_IMETHODIMP FolderLookupService::CreateFolderAndCache(
   }
 
   // URL encode the name for inclusion in a URI.
-  nsresult rv;
-  nsCOMPtr<nsINetUtil> netUtil = do_GetService(NS_NETUTIL_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsINetUtil> netUtil = mozilla::components::IO::Service();
   // We have to do this in two stages:
   // 1. Encode the string as a URL component. This properly escapes everything
   // that needs to be escaped in a URL, but leaves path separators in place.
   // 2. Now that we have a valid URL, we need to escape as a path component to
   // correctly encode path separators.
   nsAutoCString urlEncodedPath;
+  nsresult rv;
   rv = netUtil->EscapeString(name, nsINetUtil::ESCAPE_URL_PATH, urlEncodedPath);
   NS_ENSURE_SUCCESS(rv, rv);
   nsAutoCString urlEncodedName;

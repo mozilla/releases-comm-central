@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsCOMPtr.h"
 #include "MailNewsDLF.h"
+
+#include "mozilla/Components.h"
+#include "nsCOMPtr.h"
 #include "nsIChannel.h"
 #include "plstr.h"
 #include "nsString.h"
@@ -37,9 +39,8 @@ MailNewsDLF::CreateInstance(const char* aCommand, nsIChannel* aChannel,
   aChannel->SetContentType(nsLiteralCString(TEXT_HTML));
 
   // Get the HTML category
-  nsCOMPtr<nsICategoryManager> catMan(
-      do_GetService(NS_CATEGORYMANAGER_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsICategoryManager> catMan =
+      mozilla::components::CategoryManager::Service();
 
   nsAutoCString contractID;
   rv = catMan->GetCategoryEntry("Gecko-Content-Viewers", TEXT_HTML, contractID);
@@ -63,10 +64,8 @@ MailNewsDLF::CreateInstance(const char* aCommand, nsIChannel* aChannel,
   }
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIStreamConverterService> scs(
-      do_GetService(NS_STREAMCONVERTERSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsIStreamConverterService> scs =
+      mozilla::components::StreamConverter::Service();
   return scs->AsyncConvertData(MESSAGE_RFC822, TEXT_HTML, listener, aChannel,
                                aDocListener);
 }

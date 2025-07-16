@@ -75,6 +75,7 @@
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgHdr.h"
 #include "nsIMailChannel.h"
+#include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 
 using namespace mozilla;
@@ -175,8 +176,7 @@ MimeObjectClass* mime_locate_external_content_handler(
       do_CreateInstance(lookupID.get(), &rv);
   if (NS_FAILED(rv) || !ctHandler) {
     nsCOMPtr<nsICategoryManager> catman =
-        do_GetService(NS_CATEGORYMANAGER_CONTRACTID, &rv);
-    if (NS_FAILED(rv)) return nullptr;
+        mozilla::components::CategoryManager::Service();
 
     nsCString value;
     rv = catman->GetCategoryEntry(NS_SIMPLEMIMECONVERTERS_CATEGORY, contentType,

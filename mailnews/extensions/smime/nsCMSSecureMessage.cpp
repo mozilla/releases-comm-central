@@ -57,13 +57,8 @@ nsresult nsCMSSecureMessage::CheckUsageOk(nsIX509Cert* aCert,
   NS_ENSURE_ARG_POINTER(aCert);
   *aCanBeUsed = false;
 
-  nsresult rv;
-  nsCOMPtr<nsIX509CertDB> certdb =
-      do_GetService("@mozilla.org/security/x509certdb;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsTArray<uint8_t> certBytes;
-  rv = aCert->GetRawDER(certBytes);
+  nsresult rv = aCert->GetRawDER(certBytes);
   NS_ENSURE_SUCCESS(rv, rv);
 
   RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());

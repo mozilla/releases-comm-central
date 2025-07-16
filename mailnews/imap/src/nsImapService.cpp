@@ -840,8 +840,7 @@ nsresult nsImapService::GetMessageFromUrl(
       if (aConvertDataToText) {
         nsCOMPtr<nsIStreamListener> conversionListener;
         nsCOMPtr<nsIStreamConverterService> streamConverter =
-            do_GetService("@mozilla.org/streamConverters;1", &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
+            mozilla::components::StreamConverter::Service();
         rv = streamConverter->AsyncConvertData(
             "message/rfc822", "*/*", streamListener, channel,
             getter_AddRefs(conversionListener));
@@ -2417,9 +2416,8 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
       // this folder doesn't exist - check if the user wants to subscribe to
       // this folder.
       nsCOMPtr<nsIPrompt> dialog;
-      nsCOMPtr<nsIWindowWatcher> wwatch(
-          do_GetService(NS_WINDOWWATCHER_CONTRACTID, &rv));
-      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIWindowWatcher> wwatch =
+          mozilla::components::WindowWatcher::Service();
       wwatch->GetNewPrompter(nullptr, getter_AddRefs(dialog));
 
       nsString statusString, confirmText;
@@ -2932,9 +2930,7 @@ NS_IMETHODIMP nsImapService::GetCacheStorage(nsICacheStorage** result) {
   nsresult rv = NS_OK;
   if (!mCacheStorage) {
     nsCOMPtr<nsICacheStorageService> cacheStorageService =
-        do_GetService("@mozilla.org/netwerk/cache-storage-service;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+        mozilla::components::CacheStorage::Service();
     RefPtr<MailnewsLoadContextInfo> lci =
         new MailnewsLoadContextInfo(false, false, mozilla::OriginAttributes());
 

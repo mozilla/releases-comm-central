@@ -11,8 +11,13 @@
 #  define USES_IID_IMessage
 #endif
 
-#include "nscore.h"
+#include "MapiMessage.h"
+
+#include <stdlib.h>
 #include <time.h>
+#include <tuple>
+
+#include "nscore.h"
 #include "nsString.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsMsgUtils.h"
@@ -29,14 +34,11 @@
 #include "nsMsgI18N.h"
 #include "nsCRT.h"
 #include "nsNetUtil.h"
-#include "MapiMessage.h"
 
 #include "nsOutlookMail.h"
 
+#include "mozilla/Components.h"
 #include "mozilla/Encoding.h"
-
-#include <stdlib.h>
-#include <tuple>
 
 // needed for the call the OpenStreamOnFile
 extern LPMAPIALLOCATEBUFFER gpMapiAllocateBuffer;
@@ -55,9 +57,7 @@ static const char* sMonths[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 
 CMapiMessage::CMapiMessage(LPMESSAGE lpMsg)
     : m_lpMsg(lpMsg), m_dldStateHeadersOnly(false), m_msgFlags(0) {
-  nsresult rv;
-  m_pIOService = do_GetService(NS_IOSERVICE_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) return;
+  m_pIOService = mozilla::components::IO::Service();
 
   FetchHeaders();
   if (ValidState()) {

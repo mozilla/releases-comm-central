@@ -4,8 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMessengerBootstrap.h"
-#include "nsCOMPtr.h"
 
+#include "mozilla/Components.h"
+#include "nsCOMPtr.h"
 #include "nsIMutableArray.h"
 #include "nsIMsgFolder.h"
 #include "nsIWindowWatcher.h"
@@ -71,10 +72,8 @@ NS_IMETHODIMP nsMessengerBootstrap::OpenMessengerWindowWithUri(
     }
   }
 
-  nsCOMPtr<nsIWindowWatcher> wwatch(
-      do_GetService(NS_WINDOWWATCHER_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsIWindowWatcher> wwatch =
+      mozilla::components::WindowWatcher::Service();
   nsCOMPtr<mozIDOMWindowProxy> newWindow;
   return wwatch->OpenWindow(0, chromeUrl, "_blank"_ns,
                             "chrome,all,dialog=no"_ns, argsArray,

@@ -967,8 +967,7 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* aProxyInfo) {
   nsresult rv;
 
   nsCOMPtr<nsISocketTransportService> socketService =
-      do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) return rv;
+      mozilla::components::SocketTransport::Service();
 
   Log("SetupWithUrlCallback", nullptr, "clearing IMAP_CONNECTION_IS_OPEN");
   ClearFlag(IMAP_CONNECTION_IS_OPEN);
@@ -1262,15 +1261,11 @@ nsresult nsImapProtocol::IsTransportAlive(bool* alive) {
   auto GetIsAlive = [transport = nsCOMPtr{m_transport}, &rv, alive]() mutable {
     rv = transport->IsAlive(alive);
   };
-  nsCOMPtr<nsIEventTarget> socketThread(
-      do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
-  if (socketThread) {
-    mozilla::SyncRunnable::DispatchToThread(
-        socketThread,
-        NS_NewRunnableFunction("nsImapProtocol::IsTransportAlive", GetIsAlive));
-  } else {
-    rv = NS_ERROR_NOT_AVAILABLE;
-  }
+  nsCOMPtr<nsIEventTarget> socketThread =
+      mozilla::components::SocketTransport::Service();
+  mozilla::SyncRunnable::DispatchToThread(
+      socketThread,
+      NS_NewRunnableFunction("nsImapProtocol::IsTransportAlive", GetIsAlive));
   return rv;
 }
 
@@ -1287,15 +1282,11 @@ nsresult nsImapProtocol::TransportStartTLS() {
     auto CallStartTLS = [sockCon = nsCOMPtr{tlsSocketControl}, &rv]() mutable {
       rv = sockCon->StartTLS();
     };
-    nsCOMPtr<nsIEventTarget> socketThread(
-        do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
-    if (socketThread) {
-      mozilla::SyncRunnable::DispatchToThread(
-          socketThread, NS_NewRunnableFunction(
-                            "nsImapProtocol::TransportStartTLS", CallStartTLS));
-    } else {
-      rv = NS_ERROR_NOT_AVAILABLE;
-    }
+    nsCOMPtr<nsIEventTarget> socketThread =
+        mozilla::components::SocketTransport::Service();
+    mozilla::SyncRunnable::DispatchToThread(
+        socketThread, NS_NewRunnableFunction(
+                          "nsImapProtocol::TransportStartTLS", CallStartTLS));
   }
   return rv;
 }
@@ -1306,11 +1297,10 @@ nsresult nsImapProtocol::TransportStartTLS() {
 void nsImapProtocol::GetTransportSecurityInfo(
     nsITransportSecurityInfo** aSecurityInfo) {
   *aSecurityInfo = nullptr;
-  nsCOMPtr<nsIEventTarget> socketThread(
-      do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
+  nsCOMPtr<nsIEventTarget> socketThread =
+      mozilla::components::SocketTransport::Service();
   nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
-  if (socketThread &&
-      NS_SUCCEEDED(
+  if (NS_SUCCEEDED(
           m_transport->GetTlsSocketControl(getter_AddRefs(tlsSocketControl))) &&
       tlsSocketControl) {
     if (socketThread) {
@@ -9768,7 +9758,7 @@ nsresult nsImapMockChannel::SetupPartExtractorListener(
   aUrl->GetMimePartSelectorDetected(&refersToPart);
   if (refersToPart) {
     nsCOMPtr<nsIStreamConverterService> converter =
-        do_GetService("@mozilla.org/streamConverters;1");
+        mozilla::components::StreamConverter::Service();
     if (converter && aConsumer) {
       nsCOMPtr<nsIStreamListener> newConsumer;
       converter->AsyncConvertData("message/rfc822", "*/*", aConsumer,

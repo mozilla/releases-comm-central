@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMailDirProvider.h"
+
+#include "mozilla/Components.h"
 #include "nsMailDirServiceDefs.h"
 #include "nsXULAppAPI.h"
 #include "nsEnumeratorUtils.h"
@@ -87,10 +89,7 @@ nsMailDirProvider::GetFiles(const char* aKey, nsISimpleEnumerator** aResult) {
   // <path to thunderbird.exe>\isp\locale
   // and isp and isp\locale for each active extension
 
-  nsCOMPtr<nsIProperties> dirSvc =
-      do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID);
-  if (!dirSvc) return NS_ERROR_FAILURE;
-
+  nsCOMPtr<nsIProperties> dirSvc = mozilla::components::Directory::Service();
   nsCOMPtr<nsIFile> currentProcessDir;
   nsresult rv = dirSvc->Get(NS_XPCOM_CURRENT_PROCESS_DIR, NS_GET_IID(nsIFile),
                             getter_AddRefs(currentProcessDir));

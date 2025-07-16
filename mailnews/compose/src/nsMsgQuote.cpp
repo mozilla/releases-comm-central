@@ -149,9 +149,7 @@ nsresult nsMsgQuote::QuoteMessage(
   if (NS_FAILED(rv)) return rv;
 
   nsCOMPtr<nsIStreamConverterService> streamConverterService =
-      do_GetService("@mozilla.org/streamConverters;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::StreamConverter::Service();
   nsCOMPtr<nsIStreamListener> convertedListener;
   nsCOMPtr<nsIMsgQuotingOutputStreamListener> streamListener =
       do_QueryReferent(mStreamListener);

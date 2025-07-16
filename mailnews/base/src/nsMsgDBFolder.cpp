@@ -1637,8 +1637,8 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
         bool neverAsk = false;  // "Do not ask..." - unchecked by default.
         int32_t buttonPressed = 0;
 
-        nsCOMPtr<nsIWindowWatcher> ww(
-            do_GetService(NS_WINDOWWATCHER_CONTRACTID));
+        nsCOMPtr<nsIWindowWatcher> ww =
+            mozilla::components::WindowWatcher::Service();
         nsCOMPtr<nsIWritablePropertyBag2> props(
             do_CreateInstance("@mozilla.org/hash-property-bag;1"));
         props->SetPropertyAsAString(u"compactSize"_ns, compactSize);
@@ -5181,9 +5181,8 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(
   nsCOMPtr<nsIMimeHeaders> mimeHeaders(
       do_CreateInstance(NS_IMIMEHEADERS_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMIMEHeaderParam> mimeHdrParam(
-      do_GetService(NS_MIMEHEADERPARAM_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMIMEHeaderParam> mimeHdrParam =
+      mozilla::components::MimeHeaderParam::Service();
 
   // Stack of boundaries, used to figure out where we are
   nsTArray<nsCString> boundaryStack;

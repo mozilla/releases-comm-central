@@ -138,8 +138,7 @@ nsresult nsMsgProtocol::OpenFileSocket(nsIURI* aURL) {
 
   // create input stream transport
   nsCOMPtr<nsIStreamTransportService> sts =
-      do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) return rv;
+      mozilla::components::StreamTransport::Service();
   rv = sts->CreateInputTransport(stream, true, getter_AddRefs(m_transport));
 
   m_socketIsOpen = false;

@@ -1605,8 +1605,8 @@ nsresult nsMsgAccountManager::CleanupOnExit() {
   // If enabled, clear cache on shutdown. This is common to all accounts.
   if (Preferences::GetBool("privacy.clearOnShutdown.cache")) {
     nsCOMPtr<nsICacheStorageService> cacheStorageService =
-        do_GetService("@mozilla.org/netwerk/cache-storage-service;1", &rv);
-    if (NS_SUCCEEDED(rv)) cacheStorageService->Clear();
+        mozilla::components::CacheStorage::Service();
+    cacheStorageService->Clear();
   }
 
   for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
@@ -1981,8 +1981,7 @@ nsresult nsMsgAccountManager::findServerInternal(
   }
   nsresult rv;
   nsCString hostname;
-  nsCOMPtr<nsIIDNService> idnService =
-      do_GetService("@mozilla.org/network/idn-service;1");
+  nsCOMPtr<nsIIDNService> idnService = mozilla::components::IDN::Service();
 
   rv = idnService->ConvertToDisplayIDN(serverHostname, hostname);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2355,9 +2354,7 @@ nsMsgAccountManager::GetChromePackageName(const nsACString& aExtensionName,
                                           nsACString& aChromePackageName) {
   nsresult rv;
   nsCOMPtr<nsICategoryManager> catman =
-      do_GetService(NS_CATEGORYMANAGER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::CategoryManager::Service();
   nsCOMPtr<nsISimpleEnumerator> e;
   rv = catman->EnumerateCategory(MAILNEWS_ACCOUNTMANAGER_EXTENSIONS,
                                  getter_AddRefs(e));

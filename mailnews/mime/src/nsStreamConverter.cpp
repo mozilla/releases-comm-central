@@ -3,10 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsCOMPtr.h"
-#include <stdio.h>
-#include "nscore.h"
 #include "nsStreamConverter.h"
+
+#include <stdio.h>
+
+#include "nsCOMPtr.h"
+#include "nscore.h"
 #include "prmem.h"
 #include "prprf.h"
 #include "prlog.h"
@@ -23,6 +25,7 @@
 #include "nsINntpUrl.h"
 #include "nsICategoryManager.h"
 #include "nsMsgUtils.h"
+#include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 
 using mozilla::Preferences;
@@ -485,12 +488,10 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
       categoryName += mOutputFormat;
 
     nsCOMPtr<nsICategoryManager> catman =
-        do_GetService(NS_CATEGORYMANAGER_CONTRACTID, &rv);
-    if (NS_SUCCEEDED(rv)) {
-      nsCString contractID;
-      catman->GetCategoryEntry("mime-emitter", categoryName, contractID);
-      if (!contractID.IsEmpty()) categoryName = contractID;
-    }
+        mozilla::components::CategoryManager::Service();
+    nsCString contractID;
+    catman->GetCategoryEntry("mime-emitter", categoryName, contractID);
+    if (!contractID.IsEmpty()) categoryName = contractID;
 
     mEmitter = do_CreateInstance(categoryName.get(), &rv);
 

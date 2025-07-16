@@ -790,7 +790,8 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
                                                  nsIMsgSendReport* sendReport,
                                                  bool aEncrypt, bool aSign,
                                                  nsIMsgIdentity* aIdentity) {
-  nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
+  nsCOMPtr<nsIX509CertDB> certdb =
+      mozilla::components::NSSCertificateDB::Service();
   nsresult res = NS_OK;
 
   PR_ASSERT(aEncrypt || aSign);

@@ -4,6 +4,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsBayesianFilter.h"
+
+#include <cmath>    // for std::abs(float/double)
+#include <cstdlib>  // for std::abs(int/long)
+#include <math.h>
+#include <prmem.h>
+
+#include "mozilla/ArenaAllocatorExtensions.h"  // for ArenaStrdup
+#include "mozilla/Attributes.h"
+#include "mozilla/Components.h"
+#include "mozilla/Logging.h"
+#include "mozilla/Preferences.h"
+#include "mozilla/Services.h"
 #include "nsIInputStream.h"
 #include "nsIStreamListener.h"
 #include "nsNetUtil.h"
@@ -11,7 +23,6 @@
 #include "nsMsgUtils.h"  // for GetMessageServiceFromURI
 #include "prnetdb.h"
 #include "nsIMsgWindow.h"
-#include "mozilla/Logging.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsUnicharUtils.h"
 #include "nsDirectoryServiceUtils.h"
@@ -26,8 +37,6 @@
 #include "nsMemory.h"
 #include "nsUnicodeProperties.h"
 
-#include "mozilla/ArenaAllocatorExtensions.h"  // for ArenaStrdup
-
 using namespace mozilla;
 using mozilla::intl::Script;
 using mozilla::intl::UnicodeProperties;
@@ -40,14 +49,7 @@ using mozilla::intl::UnicodeProperties;
 #include "nsIDocumentEncoder.h"
 
 #include "nsIncompleteGamma.h"
-#include <math.h>
-#include <prmem.h>
 #include "nsIMsgTraitService.h"
-#include "mozilla/Services.h"
-#include "mozilla/Attributes.h"
-#include "mozilla/Preferences.h"
-#include <cstdlib>  // for std::abs(int/long)
-#include <cmath>    // for std::abs(float/double)
 
 using mozilla::Preferences;
 
@@ -441,10 +443,8 @@ void Tokenizer::tokenizeHeaders(nsTArray<nsCString>& aHeaderNames,
     switch (headerName.First()) {
       case 'c':
         if (headerName.EqualsLiteral("content-type")) {
-          nsresult rv;
           nsCOMPtr<nsIMIMEHeaderParam> mimehdrpar =
-              do_GetService(NS_MIMEHEADERPARAM_CONTRACTID, &rv);
-          if (NS_FAILED(rv)) break;
+              mozilla::components::MimeHeaderParam::Service();
 
           // extract the charset parameter
           nsCString parameterValue;

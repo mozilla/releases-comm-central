@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsRssService.h"
+
+#include "mozilla/Components.h"
 #include "nsCOMPtr.h"
 #include "nsIFile.h"
 #include "nsMailDirServiceDefs.h"
@@ -20,9 +22,8 @@ NS_IMETHODIMP nsRssService::GetDefaultLocalPath(nsIFile** aDefaultLocalPath) {
   *aDefaultLocalPath = nullptr;
 
   nsCOMPtr<nsIFile> localFile;
-  nsCOMPtr<nsIProperties> dirService(
-      do_GetService("@mozilla.org/file/directory_service;1"));
-  if (!dirService) return NS_ERROR_FAILURE;
+  nsCOMPtr<nsIProperties> dirService =
+      mozilla::components::Directory::Service();
   dirService->Get(NS_APP_MAIL_50_DIR, NS_GET_IID(nsIFile),
                   getter_AddRefs(localFile));
   if (!localFile) return NS_ERROR_FAILURE;

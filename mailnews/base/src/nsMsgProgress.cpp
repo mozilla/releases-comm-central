@@ -58,9 +58,8 @@ NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(
   array->AppendElement(parameters);
 
   // Open the dialog.
-  nsCOMPtr<nsIWindowWatcher> wwatch(
-      do_GetService(NS_WINDOWWATCHER_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIWindowWatcher> wwatch =
+      mozilla::components::WindowWatcher::Service();
 
   nsCString chromeOptions("chrome,dependent,centerscreen"_ns);
   if (inDisplayModal) chromeOptions.AppendLiteral(",modal");

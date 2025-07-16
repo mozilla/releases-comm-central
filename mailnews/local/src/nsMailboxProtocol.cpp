@@ -15,6 +15,7 @@
 #include "nsIMsgFolder.h"
 #include "nsICopyMessageListener.h"
 #include "prtime.h"
+#include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ProfilerMarkers.h"
@@ -176,8 +177,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
               NS_ENSURE_SUCCESS(rv, rv);
               // create input stream transport
               nsCOMPtr<nsIStreamTransportService> sts =
-                  do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
-              if (NS_FAILED(rv)) return rv;
+                  mozilla::components::StreamTransport::Service();
               rv = sts->CreateInputTransport(stream, true,
                                              getter_AddRefs(m_transport));
 
@@ -276,12 +276,9 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
                 if (NS_SUCCEEDED(rv)) {
                   // create input stream transport
                   nsCOMPtr<nsIStreamTransportService> sts =
-                      do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
-
-                  if (NS_SUCCEEDED(rv)) {
-                    rv = sts->CreateInputTransport(stream, true,
-                                                   getter_AddRefs(m_transport));
-                  }
+                      mozilla::components::StreamTransport::Service();
+                  rv = sts->CreateInputTransport(stream, true,
+                                                 getter_AddRefs(m_transport));
                 }
 
                 // TODO: can we just use the msgStore stream directly rather
@@ -398,8 +395,7 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
       }
       if (convertData) {
         nsCOMPtr<nsIStreamConverterService> streamConverter =
-            do_GetService("@mozilla.org/streamConverters;1", &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
+            mozilla::components::StreamConverter::Service();
         nsCOMPtr<nsIStreamListener> conversionListener;
         nsCOMPtr<nsIChannel> channel;
         QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));

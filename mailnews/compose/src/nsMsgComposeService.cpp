@@ -117,9 +117,8 @@ nsMsgComposeService::OpenComposeWindowWithParams(const char* chrome,
   }
 
   // Create a new window.
-  nsCOMPtr<nsIWindowWatcher> wwatch(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-  if (!wwatch) return NS_ERROR_FAILURE;
-
+  nsCOMPtr<nsIWindowWatcher> wwatch =
+      mozilla::components::WindowWatcher::Service();
   nsCOMPtr<nsISupportsInterfacePointer> msgParamsWrapper =
       do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1264,10 +1263,8 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine) {
 
     aCmdLine->RemoveArguments(found, end);
 
-    nsCOMPtr<nsIWindowWatcher> wwatch(
-        do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-    NS_ENSURE_TRUE(wwatch, NS_ERROR_FAILURE);
-
+    nsCOMPtr<nsIWindowWatcher> wwatch =
+        mozilla::components::WindowWatcher::Service();
     nsCOMPtr<nsISupportsString> arg(
         do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID));
     if (arg) arg->SetData(uristr);
